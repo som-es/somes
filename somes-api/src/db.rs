@@ -1,3 +1,6 @@
+mod schema;
+mod model;
+
 use std::{
     fmt::Display,
     io::Write,
