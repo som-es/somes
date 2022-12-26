@@ -1,7 +1,9 @@
 use dotenv_codegen::dotenv;
 
 mod db;
+pub mod hash;
 mod initial_startup;
+pub mod routes;
 pub mod server;
 
 pub use initial_startup::initial_startup;

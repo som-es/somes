@@ -5,12 +5,15 @@ use axum::{
     routing::{get, post},
     Router,
 };
+use somes_common_lib::SIGNUP_ROUTE;
 //use headers::HeaderValue;
-use tower_http::cors::{CorsLayer, Any};
+use tower_http::cors::{Any, CorsLayer};
+
+use crate::routes::signup;
 
 pub async fn serve(addr: SocketAddr) {
     let app = Router::new()
-        //.route("/protected", get(protected))
+        .route(SIGNUP_ROUTE, post(signup))
         //.route("/auth", post(authorize))
         .layer(
             CorsLayer::new()

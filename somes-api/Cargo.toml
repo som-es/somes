@@ -18,3 +18,5 @@ tokio = { version = "1.0", features = ["full"] }
 diesel = {version="2.0", features=["sqlite"]}
 reqwest = { version = "0.11", features = ["json"] } 
 dotenv_codegen = "0.15.0"
+argon2 = "0.4.1"
+rand_core = { version = "0.6", features = ["std"] }

@@ -1,5 +1,5 @@
-mod schema;
 mod model;
+mod schema;
 
 use std::{
     fmt::Display,
@@ -53,7 +53,7 @@ pub fn create_db_if_not_exists(
     // reads the sql code from the provided path
     let sql_code = std::fs::read_to_string(sql_db_path_str)
         .map_err(|_| CreateDBError::SQLNotFound(sql_db_path_str))?;
-    
+
     // writes the sql code to the stdin of the sqlite3 command
     child
         .stdin
