@@ -1,5 +1,5 @@
-mod model;
-mod schema;
+pub mod model;
+pub mod schema;
 
 use std::{
     fmt::Display,
@@ -8,12 +8,13 @@ use std::{
     process::{Command, Stdio},
 };
 
-use diesel::{Connection, ConnectionResult, SqliteConnection};
+use diesel::{Connection, SqliteConnection};
 
 use crate::DB_PATH;
 
-pub fn establish_connection() -> ConnectionResult<SqliteConnection> {
+pub fn establish_connection() -> SqliteConnection {
     SqliteConnection::establish(DB_PATH)
+        .expect("Can't establish database conntection.")
 }
 
 pub enum CreateDBError {

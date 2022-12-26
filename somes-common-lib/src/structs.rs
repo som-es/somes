@@ -11,6 +11,7 @@ pub struct LoginInfo {
 /// `SignUpInfo` is sent by the client and received by the server at registering a new user.
 #[derive(Debug, Deserialize, Serialize)]
 pub struct SignUpInfo {
+    pub email: String,
     pub username: String,
     pub password: String,
 }
