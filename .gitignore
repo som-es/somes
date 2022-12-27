@@ -4,3 +4,4 @@ target
 .vscode
 .idea
 *.db
+*.db*
