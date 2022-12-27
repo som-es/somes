@@ -12,9 +12,13 @@ use diesel::{Connection, SqliteConnection};
 
 use crate::DB_PATH;
 
+#[cfg(test)]
+pub fn establish_test_connection() -> SqliteConnection {
+    SqliteConnection::establish(crate::TEST_DB_PATH).expect("Can't establish database conntection.")
+}
+
 pub fn establish_connection() -> SqliteConnection {
-    SqliteConnection::establish(DB_PATH)
-        .expect("Can't establish database conntection.")
+    SqliteConnection::establish(DB_PATH).expect("Can't establish database conntection.")
 }
 
 pub enum CreateDBError {

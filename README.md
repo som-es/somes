@@ -29,6 +29,8 @@ The source code of the somes repository.
 
     install via `cargo install --locked trunk`
 
+- **libsqlite3** database 
+
 ### Running (debug)
 - **somes-api**: `cargo run --release`
 - **somes-frontend**: `trunk serve --release`

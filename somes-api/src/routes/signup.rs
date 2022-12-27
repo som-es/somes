@@ -3,18 +3,26 @@ use somes_common_lib::{JWTInfo, SignUpInfo};
 
 use crate::db::establish_connection;
 
-use self::{error::SignUpError, action::validate_signup_info};
+use self::{
+    action::{validate_signup_info, insert_new_user},
+    error::SignUpErrorResponse,
+};
 
-mod error;
 mod action;
+mod error;
 
-pub async fn signup(Json(sign_up_info): Json<SignUpInfo>) -> Result<Json<JWTInfo>, SignUpError> {
+pub async fn signup(
+    Json(signup_info): Json<SignUpInfo>,
+) -> Result<Json<JWTInfo>, SignUpErrorResponse> {
     let mut con = establish_connection();
 
     // checks the validity of the signup info. If this fails, the signup process is aborted.
-    validate_signup_info(&mut con, &sign_up_info)?;
+    validate_signup_info(&mut con, &signup_info)?;
 
     // send verification email
+
+    // actually insert user after verification
+    insert_new_user(&mut con, &signup_info)?;
 
     todo!()
 }

@@ -15,6 +15,11 @@ pub enum Strength {
     Strong
 }
 
+/// Punctuation, lowercase chars, length greater than 15 => Strong
+/// Punctuation, lowercase chars, length greater than MIN_PASSWORD_LEN (10) => GOOD
+/// Punctuation, lowercase chars, length smaller than MIN_PASSWORD_LEN (10) => WEAK
+/// length >= 15 => GOOD
+/// length <= 10 => WEAK
 pub fn measure_password_strength(password: &str) -> Strength {
     let (mut lowercase, mut special_char) = (false, false);
     for char in password.chars() {

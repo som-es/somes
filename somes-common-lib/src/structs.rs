@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-
 /// `LoginInfo` is sent by the client and received by the server at login of a user.
 #[derive(Debug, Deserialize, Serialize)]
 pub struct LoginInfo {

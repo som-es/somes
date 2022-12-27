@@ -6,8 +6,9 @@ use argon2::{
 };
 use once_cell::sync::Lazy;
 
-static PEPPER: Lazy<String> =
-    Lazy::new(|| std::fs::read_to_string("./src/hash/pepper_secret").expect("Can't open pepper secret file!"));
+static PEPPER: Lazy<String> = Lazy::new(|| {
+    std::fs::read_to_string("./src/hash/pepper_secret").expect("Can't open pepper secret file!")
+});
 
 pub fn hash_password(password: &str) -> Result<String> {
     let salt = SaltString::generate(&mut OsRng);
@@ -23,7 +24,10 @@ pub fn hash_password(password: &str) -> Result<String> {
 pub fn verify_password(password: &str, password_hash: &str) -> Result<bool> {
     let parsed_hash = PasswordHash::new(password_hash)?;
     Ok(Argon2::default()
-        .verify_password(format!("{password}{}", PEPPER.as_str()).as_bytes(), &parsed_hash)
+        .verify_password(
+            format!("{password}{}", PEPPER.as_str()).as_bytes(),
+            &parsed_hash,
+        )
         .is_ok())
 }
 
