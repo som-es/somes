@@ -1453,6 +1453,8 @@ dependencies = [
 name = "somes-common-lib"
 version = "0.1.0"
 dependencies = [
+ "dotenv_codegen",
+ "once_cell",
  "serde",
 ]
 

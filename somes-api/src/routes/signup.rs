@@ -14,7 +14,7 @@ pub async fn signup(Json(sign_up_info): Json<SignUpInfo>) -> Result<Json<JWTInfo
     // checks the validity of the signup info. If this fails, the signup process is aborted.
     validate_signup_info(&mut con, &sign_up_info)?;
 
-    // send validation email 
-    
+    // send verification email
+
     todo!()
 }
