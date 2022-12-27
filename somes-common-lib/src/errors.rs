@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-
 #[derive(Debug, Deserialize, Serialize, Default)]
 pub struct SignUpError {
     pub missing_username: bool,

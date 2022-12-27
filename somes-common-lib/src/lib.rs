@@ -1,7 +1,7 @@
-mod structs;
-mod routes;
-pub mod password;
 pub mod errors;
+pub mod password;
+mod routes;
+mod structs;
 
-pub use structs::*;
 pub use routes::*;
+pub use structs::*;

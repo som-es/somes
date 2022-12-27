@@ -8,6 +8,7 @@ use reqwest::StatusCode;
 use serde_json::json;
 use somes_common_lib::errors::SignUpError;
 
+#[derive(Debug)]
 pub enum SignUpErrorResponse {
     UserCreationError,
     SignUpError(SignUpErrorWrapper),

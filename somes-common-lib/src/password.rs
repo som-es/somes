@@ -1,18 +1,18 @@
 use dotenv_codegen::dotenv;
 use once_cell::sync::Lazy;
 
-
 pub static MIN_PASSWORD_LEN: Lazy<usize> = Lazy::new(|| {
     let min_password_len_str: &str = dotenv!("MIN_PASSWORD_LEN");
-    min_password_len_str.parse::<usize>().expect("The value provided in the .env is not a number!")
+    min_password_len_str
+        .parse::<usize>()
+        .expect("The value provided in the .env is not a number!")
 });
-
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Strength {
     Weak,
     Good,
-    Strong
+    Strong,
 }
 
 /// Punctuation, lowercase chars, length greater than 15 => Strong
@@ -41,8 +41,7 @@ pub fn measure_password_strength(password: &str) -> Strength {
         }
     } else if password.len() >= 15 {
         Strength::Good
-    } 
-    else {
+    } else {
         Strength::Weak
     }
 }
@@ -53,17 +52,10 @@ mod tests {
 
     #[test]
     fn test_measure_pw_strength_weak() {
-        assert_eq!(
-            measure_password_strength("asdfvas"),
-            Strength::Weak,
-        );
+        assert_eq!(measure_password_strength("asdfvas"), Strength::Weak,);
 
-        assert_eq!(
-            measure_password_strength("Adf%vas"),
-            Strength::Weak,
-        )
+        assert_eq!(measure_password_strength("Adf%vas"), Strength::Weak,)
     }
-
 
     #[test]
     fn test_measure_pw_strength_good() {
@@ -72,10 +64,7 @@ mod tests {
             Strength::Good,
         );
 
-        assert_eq!(
-            measure_password_strength("daDsajc%hAada"),
-            Strength::Good,
-        )
+        assert_eq!(measure_password_strength("daDsajc%hAada"), Strength::Good,)
     }
 
     #[test]
@@ -84,7 +73,5 @@ mod tests {
             measure_password_strength("asaASHJKFASa?ss"),
             Strength::Strong,
         );
-
     }
-
 }

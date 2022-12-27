@@ -33,6 +33,9 @@ pub fn verify_password(password: &str, password_hash: &str) -> Result<bool> {
 
 #[cfg(test)]
 mod tests {
+    use argon2::password_hash::SaltString;
+    use rand_core::OsRng;
+
     use super::{hash_password, verify_password};
 
     #[test]
@@ -44,10 +47,10 @@ mod tests {
 
         Ok(())
     }
-}
 
-#[test]
-fn test_salt_string() {
-    let salt = SaltString::generate(&mut OsRng);
-    println!("salt: {salt}")
+    #[test]
+    fn test_salt_string() {
+        let salt = SaltString::generate(&mut OsRng);
+        println!("salt: {salt}")
+    }
 }

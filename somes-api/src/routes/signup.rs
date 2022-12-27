@@ -4,7 +4,7 @@ use somes_common_lib::{JWTInfo, SignUpInfo};
 use crate::db::establish_connection;
 
 use self::{
-    action::{validate_signup_info, insert_new_user},
+    action::{insert_new_user, validate_signup_info},
     error::SignUpErrorResponse,
 };
 
