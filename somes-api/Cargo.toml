@@ -22,3 +22,6 @@ argon2 = "0.4.1"
 rand_core = { version = "0.6", features = ["std"] }
 regex = "1"
 uuid = {version="1.2.2", features=["v4"]}
+sha3 = "0.10"
+base16ct = {version="0.1.1", features=["std"]}
+

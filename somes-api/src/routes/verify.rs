@@ -1,23 +1,21 @@
-use std::{
-    hash::{Hash, Hasher},
-    time::{SystemTime, UNIX_EPOCH},
-};
+use sha3::{Digest, Sha3_256};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use axum::extract::{Query, State};
-use somes_common_lib::{JWTInfo, SignUpInfo, VerificationIDInfo, VERIFY_ID_INVALID_HOURS, time::{timestamp_secs, is_verify_id_valid}};
+use somes_common_lib::{JWTInfo, SignUpInfo, VerificationIDInfo, time::{timestamp_secs, is_verify_id_valid}};
 use uuid::Uuid;
 
 use crate::{
     establish_connection,
     operations::user::insert_user,
-    server::{VerificationHasher, VerificationMap}
+    server::VerificationMap
 };
 
 use self::error::VerifyErrorResponse;
 
 mod error;
 
-pub fn create_verification_id(hasher: VerificationHasher, signup_info: &SignUpInfo) -> u64 {
+pub fn create_verification_id(signup_info: &SignUpInfo) -> String {
     let mut bytes = Uuid::new_v4().as_bytes().to_vec();
     bytes.extend_from_slice(signup_info.email.as_bytes());
     bytes.extend_from_slice(signup_info.username.as_bytes());
@@ -30,9 +28,10 @@ pub fn create_verification_id(hasher: VerificationHasher, signup_info: &SignUpIn
             .to_be_bytes(),
     );
 
-    let mut hasher = hasher.write().unwrap();
-    bytes.hash(&mut *hasher);
-    hasher.finish()
+    let mut hasher = Sha3_256::new();
+    hasher.update(&bytes);
+    
+    base16ct::lower::encode_string(&hasher.finalize())
 }
 
 pub async fn verify(
@@ -58,4 +57,23 @@ pub async fn verify(
     insert_user(con, &new_user).map_err(|_| VerifyErrorResponse::UserCreationError)?;
 
     todo!()
+}
+
+
+#[cfg(test)]
+mod tests {
+    use somes_common_lib::SignUpInfo;
+
+    use super::create_verification_id;
+
+    #[test]
+    fn test_create_verification_id() {
+        let signup_info = SignUpInfo {
+            email: "test1@test.at".to_string(),
+            username: "test_name".to_string(),
+            password: "supersicher".to_string(),
+        };
+
+        create_verification_id(&signup_info);
+    }
 }

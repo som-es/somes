@@ -28,5 +28,5 @@ pub struct JWTInfo {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct VerificationIDInfo {
-    pub verify_id: u64,
+    pub verify_id: String,
 }

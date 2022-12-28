@@ -165,7 +165,7 @@ mod tests {
         )
         .unwrap();
 
-        verification_map.write().unwrap().insert(3, (new_user, 1));
+        verification_map.write().unwrap().insert("3".to_string(), (new_user, 1));
 
         match validate_signup_info(con, &signup_info, verification_map.clone()) {
             Ok(_) => panic!("Not possible, password is weak"),

@@ -4,7 +4,7 @@ use somes_common_lib::{JWTInfo, SignUpInfo, time::timestamp_secs};
 use crate::{
     db::establish_connection,
     model::NewUser,
-    server::{VerificationHasher, VerificationMap},
+    server::VerificationMap,
 };
 
 use self::{action::validate_signup_info, error::SignUpErrorResponse};
@@ -16,7 +16,6 @@ mod error;
 
 pub async fn signup(
     State(verification_map): State<VerificationMap>,
-    State(verification_hasher): State<VerificationHasher>,
     Json(signup_info): Json<SignUpInfo>,
 ) -> Result<Json<JWTInfo>, SignUpErrorResponse> {
     let mut con = establish_connection();
@@ -25,7 +24,7 @@ pub async fn signup(
     validate_signup_info(&mut con, &signup_info, verification_map.clone())?;
 
     // create an (hopefully) unique verification id
-    let id = create_verification_id(verification_hasher, &signup_info);
+    let id = create_verification_id(&signup_info);
 
     let new_user = NewUser::new(
         signup_info.email,

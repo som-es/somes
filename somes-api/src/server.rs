@@ -20,7 +20,6 @@ use crate::{model::NewUser, routes::signup};
 struct AppState {
     // that holds some api specific state
     verification_map: VerificationMap,
-    verification_hasher: VerificationHasher,
 }
 
 impl FromRef<AppState> for VerificationMap {
@@ -29,14 +28,7 @@ impl FromRef<AppState> for VerificationMap {
     }
 }
 
-impl FromRef<AppState> for VerificationHasher {
-    fn from_ref(app_state: &AppState) -> VerificationHasher {
-        app_state.verification_hasher.clone()
-    }
-}
-
-pub type VerificationMap = Arc<RwLock<HashMap<u64, (NewUser, u64)>>>;
-pub type VerificationHasher = Arc<RwLock<DefaultHasher>>;
+pub type VerificationMap = Arc<RwLock<HashMap<String, (NewUser, u64)>>>;
 
 pub async fn serve(addr: SocketAddr) {
     let state = AppState::default();
