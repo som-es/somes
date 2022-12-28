@@ -25,3 +25,8 @@ pub struct UserInfo {
 pub struct JWTInfo {
     access_token: String,
 }
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct VerificationIDInfo {
+    pub verify_id: u64,
+}

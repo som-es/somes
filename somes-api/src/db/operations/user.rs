@@ -3,8 +3,6 @@ use crate::db::schema::user::dsl::*;
 use crate::hash;
 use diesel::prelude::*;
 
-use super::error::SignUpErrorResponse;
-
 pub fn is_email_in_database(con: &mut SqliteConnection, signup_email: &str) -> bool {
     user.filter(email.is(signup_email))
         .first::<User>(con)
@@ -31,14 +29,8 @@ impl NewUser {
     }
 }
 
-pub fn insert_user(
-    con: &mut SqliteConnection,
-    new_user: &NewUser,
-) -> Result<(), SignUpErrorResponse> {
-    diesel::insert_into(user)
-        .values(new_user)
-        .execute(con)
-        .map_err(|_| SignUpErrorResponse::UserCreationError)?;
+pub fn insert_user(con: &mut SqliteConnection, new_user: &NewUser) -> QueryResult<()> {
+    diesel::insert_into(user).values(new_user).execute(con)?;
 
     Ok(())
 }
@@ -48,9 +40,9 @@ mod tests {
     use crate::{
         db::schema::user::dsl::user,
         model::{NewUser, User},
-        routes::signup::db::{is_email_in_database, is_username_in_database},
+        operations::user::{insert_user, is_email_in_database, is_username_in_database},
     };
-    use crate::{id, routes::signup::db::insert_user, test_db};
+    use crate::{id, test_db};
     use diesel::RunQueryDsl;
     use somes_common_lib::SignUpInfo;
 

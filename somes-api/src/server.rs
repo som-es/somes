@@ -5,9 +5,10 @@ use std::{
 };
 
 use axum::{
+    extract::FromRef,
     http,
     routing::{get, post},
-    Router, extract::FromRef,
+    Router,
 };
 use somes_common_lib::SIGNUP_ROUTE;
 //use headers::HeaderValue;
@@ -34,14 +35,11 @@ impl FromRef<AppState> for VerificationHasher {
     }
 }
 
-pub type VerificationMap = Arc<RwLock<HashMap<u64, NewUser>>>;
+pub type VerificationMap = Arc<RwLock<HashMap<u64, (NewUser, u64)>>>;
 pub type VerificationHasher = Arc<RwLock<DefaultHasher>>;
 
 pub async fn serve(addr: SocketAddr) {
     let state = AppState::default();
-    //let verification_state = (VerificationMap::default(), VerificationHasher::default());
-    // let verification_map = VerificationMap::default();
-    // let verification_hasher = VerificationHasher::default();
 
     let app = Router::new()
         .route(SIGNUP_ROUTE, post(signup))
@@ -53,8 +51,8 @@ pub async fn serve(addr: SocketAddr) {
                 .allow_headers([http::header::CONTENT_TYPE]),
         )
         .with_state(state);
-        //.with_state(verification_map)
-        //.with_state(verification_hasher);
+    //.with_state(verification_map)
+    //.with_state(verification_hasher);
 
     axum::Server::bind(&addr)
         .serve(app.into_make_service())

@@ -4,9 +4,9 @@ use regex::Regex;
 use somes_common_lib::password::{measure_password_strength, Strength};
 use somes_common_lib::{set_error_true, SignUpInfo};
 
+use crate::operations::user::{is_email_in_database, is_username_in_database};
 use crate::server::VerificationMap;
 
-use super::db::{is_email_in_database, is_username_in_database};
 use super::error::{SignUpErrorResponse, SignUpErrorWrapper};
 
 static EMAIL_REGEX: Lazy<Regex> = Lazy::new(|| {
@@ -44,7 +44,7 @@ pub fn validate_signup_info(
     let verification_map = verification_map.read().unwrap();
     if verification_map
         .values()
-        .find(|user| user.email == signup_info.email)
+        .find(|(user, _)| user.email == signup_info.email)
         .is_some()
     {
         set_error_true!(sign_up_error, email_taken);
@@ -52,7 +52,7 @@ pub fn validate_signup_info(
 
     if verification_map
         .values()
-        .find(|user| user.username == signup_info.username)
+        .find(|(user, _)| user.username == signup_info.username)
         .is_some()
     {
         set_error_true!(sign_up_error, username_taken);
@@ -79,7 +79,8 @@ mod tests {
     use somes_common_lib::SignUpInfo;
 
     use crate::model::NewUser;
-    use crate::routes::signup::db::insert_user;
+
+    use crate::operations::user::insert_user;
     use crate::server::VerificationMap;
     use crate::{id, routes::signup::error::SignUpErrorResponse, test_db};
 
@@ -164,7 +165,7 @@ mod tests {
         )
         .unwrap();
 
-        verification_map.write().unwrap().insert(3, new_user);
+        verification_map.write().unwrap().insert(3, (new_user, 1));
 
         match validate_signup_info(con, &signup_info, verification_map.clone()) {
             Ok(_) => panic!("Not possible, password is weak"),

@@ -1,4 +1,5 @@
 pub mod model;
+pub mod operations;
 pub mod schema;
 
 use std::{

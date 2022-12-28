@@ -1,4 +1,4 @@
 mod signup;
 mod verify;
 
-pub use signup::signup;
+pub use signup::*;
