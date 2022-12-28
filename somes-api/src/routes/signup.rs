@@ -1,10 +1,10 @@
 use axum::{extract::State, Json};
-use somes_common_lib::{JWTInfo, SignUpInfo};
+use somes_common_lib::{JWTInfo, SignUpInfo, time::timestamp_secs};
 
 use crate::{
     db::establish_connection,
     model::NewUser,
-    server::{VerificationHasher, VerificationMap}, time::timestamp_secs,
+    server::{VerificationHasher, VerificationMap},
 };
 
 use self::{action::validate_signup_info, error::SignUpErrorResponse};

@@ -4,13 +4,13 @@ use std::{
 };
 
 use axum::extract::{Query, State};
-use somes_common_lib::{JWTInfo, SignUpInfo, VerificationIDInfo};
+use somes_common_lib::{JWTInfo, SignUpInfo, VerificationIDInfo, VERIFY_ID_INVALID_HOURS, time::{timestamp_secs, is_verify_id_valid}};
 use uuid::Uuid;
 
 use crate::{
     establish_connection,
     operations::user::insert_user,
-    server::{VerificationHasher, VerificationMap},
+    server::{VerificationHasher, VerificationMap}
 };
 
 use self::error::VerifyErrorResponse;
@@ -46,6 +46,12 @@ pub async fn verify(
     let (new_user, timestamp) = verification_map
         .remove(&id.verify_id)
         .ok_or(VerifyErrorResponse::InvalidVerificationID)?;
+
+
+    if !is_verify_id_valid(timestamp, timestamp_secs()) {
+        return Err(VerifyErrorResponse::InvalidVerificationID)
+    }
+    
 
     let con = &mut establish_connection();
 

@@ -50,7 +50,8 @@ pub async fn serve(addr: SocketAddr) {
                 .allow_methods([http::Method::GET, http::Method::POST])
                 .allow_headers([http::header::CONTENT_TYPE]),
         )
-        .with_state(state);
+        .with_state(state)
+        ;
     //.with_state(verification_map)
     //.with_state(verification_hasher);
 

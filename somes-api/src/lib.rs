@@ -5,7 +5,6 @@ pub mod hash;
 mod initial_startup;
 pub mod routes;
 pub mod server;
-pub mod time;
 
 pub use db::*;
 pub use initial_startup::*;

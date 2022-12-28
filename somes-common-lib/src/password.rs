@@ -5,7 +5,7 @@ pub static MIN_PASSWORD_LEN: Lazy<usize> = Lazy::new(|| {
     let min_password_len_str: &str = dotenv!("MIN_PASSWORD_LEN");
     min_password_len_str
         .parse::<usize>()
-        .expect("The value provided in the .env is not a number!")
+        .expect("The value provided for MIN_PASSWORD_LEN in the .env is not a number!")
 });
 
 #[derive(Debug, PartialEq, Eq)]
