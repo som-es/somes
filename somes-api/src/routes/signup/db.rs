@@ -2,7 +2,6 @@ use crate::db::model::{NewUser, User};
 use crate::db::schema::user::dsl::*;
 use crate::hash;
 use diesel::prelude::*;
-use somes_common_lib::SignUpInfo;
 
 use super::error::SignUpErrorResponse;
 
@@ -18,10 +17,10 @@ pub fn is_username_in_database(con: &mut SqliteConnection, signup_username: &str
         .is_ok()
 }
 
-impl<'a> NewUser<'a> {
+impl NewUser {
     pub fn new(
-        signup_email: &'a str,
-        signup_username: &'a str,
+        signup_email: String,
+        signup_username: String,
         password: &str,
     ) -> argon2::password_hash::Result<Self> {
         Ok(NewUser {
@@ -32,19 +31,12 @@ impl<'a> NewUser<'a> {
     }
 }
 
-pub fn insert_new_user(
+pub fn insert_user(
     con: &mut SqliteConnection,
-    signup_info: &SignUpInfo,
+    new_user: &NewUser,
 ) -> Result<(), SignUpErrorResponse> {
-    let new_user = NewUser::new(
-        &signup_info.email,
-        &signup_info.username,
-        &signup_info.password,
-    )
-    .map_err(|_| SignUpErrorResponse::UserCreationError)?;
-
     diesel::insert_into(user)
-        .values(&new_user)
+        .values(new_user)
         .execute(con)
         .map_err(|_| SignUpErrorResponse::UserCreationError)?;
 
@@ -53,11 +45,14 @@ pub fn insert_new_user(
 
 #[cfg(test)]
 mod tests {
-    use somes_common_lib::SignUpInfo;
-    use crate::{db::schema::user::dsl::user, routes::signup::db::{is_email_in_database, is_username_in_database}, model::User};
+    use crate::{
+        db::schema::user::dsl::user,
+        model::{NewUser, User},
+        routes::signup::db::{is_email_in_database, is_username_in_database},
+    };
+    use crate::{id, routes::signup::db::insert_user, test_db};
     use diesel::RunQueryDsl;
-    use crate::{test_db, id, routes::signup::db::insert_new_user};
-
+    use somes_common_lib::SignUpInfo;
 
     #[test]
     fn test_insert_new_user() {
@@ -70,7 +65,13 @@ mod tests {
             password: "supersicher".to_string(),
         };
 
-        insert_new_user(con, &signup_info).unwrap();
+        let new_user = NewUser::new(
+            signup_info.email.clone(),
+            signup_info.username.clone(),
+            &signup_info.password,
+        )
+        .unwrap();
+        insert_user(con, &new_user).unwrap();
 
         let first_user = &user.load::<User>(con).unwrap()[0];
 
@@ -88,8 +89,13 @@ mod tests {
             username: "test_name".to_string(),
             password: "supersicher".to_string(),
         };
-
-        insert_new_user(con, &signup_info).unwrap();
+        let new_user = NewUser::new(
+            signup_info.email,
+            signup_info.username,
+            &signup_info.password,
+        )
+        .unwrap();
+        insert_user(con, &new_user).unwrap();
 
         assert!(!is_email_in_database(con, "email"));
         assert!(is_email_in_database(con, "test@test.at"));
@@ -105,11 +111,15 @@ mod tests {
             username: "test_name".to_string(),
             password: "supersicher".to_string(),
         };
-
-        insert_new_user(con, &signup_info).unwrap();
+        let new_user = NewUser::new(
+            signup_info.email,
+            signup_info.username,
+            &signup_info.password,
+        )
+        .unwrap();
+        insert_user(con, &new_user).unwrap();
 
         assert!(!is_username_in_database(con, "stefan"));
         assert!(is_username_in_database(con, "test_name"));
     }
-
 }

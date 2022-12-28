@@ -21,3 +21,4 @@ dotenv_codegen = "0.15.0"
 argon2 = "0.4.1"
 rand_core = { version = "0.6", features = ["std"] }
 regex = "1"
+uuid = {version="1.2.2", features=["v4"]}
