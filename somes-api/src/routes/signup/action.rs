@@ -47,16 +47,14 @@ pub fn validate_signup_info(
     let verification_map = verification_map.read().unwrap();
     if verification_map
         .values()
-        .find(|(user, _)| user.email == signup_info.email)
-        .is_some()
+        .any(|(user, _)| user.email == signup_info.email)
     {
         set_error_true!(sign_up_error, email_taken);
     }
 
     if verification_map
         .values()
-        .find(|(user, _)| user.username == signup_info.username)
-        .is_some()
+        .any(|(user, _)| user.username == signup_info.username)
     {
         set_error_true!(sign_up_error, username_taken);
     }

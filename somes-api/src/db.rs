@@ -96,7 +96,7 @@ pub mod test_db {
 
     use crate::{create_db_if_not_exists, establish_test_connection};
 
-    /// A handle to the testing database
+    /// A handle for a testing database
     #[derive(Debug)]
     pub struct DBHandle {
         db_path: String,
