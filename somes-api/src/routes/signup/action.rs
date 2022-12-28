@@ -2,9 +2,12 @@ use diesel::prelude::*;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use somes_common_lib::password::{measure_password_strength, Strength};
+use somes_common_lib::time::timestamp_secs;
 use somes_common_lib::{set_error_true, SignUpInfo};
 
+use crate::model::NewUser;
 use crate::operations::user::{is_email_in_database, is_username_in_database};
+use crate::routes::verify::create_verification_id;
 use crate::server::VerificationMap;
 
 use super::error::{SignUpErrorResponse, SignUpErrorWrapper};
@@ -72,6 +75,30 @@ pub fn validate_signup_info(
 
     Ok(())
 }
+
+
+pub fn add_new_user_to_verification_map(signup_info: SignUpInfo, verification_map: VerificationMap) -> Result<String, SignUpErrorResponse> {
+
+    // create an (hopefully) unique verification id
+    let id = create_verification_id(&signup_info);
+
+    let new_user = NewUser::new(
+        signup_info.email,
+        signup_info.username,
+        &signup_info.password,
+    )
+    .map_err(|_| SignUpErrorResponse::UserCreationError)?;
+
+    // send verification email or afterwards, mind id return!
+    // ...
+
+    // add id to verification map
+    verification_map.write().unwrap().insert(id.clone(), (new_user, timestamp_secs()));
+
+    // actually insert user after verification (email)
+    //insert_user(&mut con, &new_user)?;
+    Ok(id)
+} 
 
 #[cfg(test)]
 mod tests {

@@ -2,6 +2,7 @@ use axum::{response::IntoResponse, Json};
 use reqwest::StatusCode;
 use serde_json::json;
 
+#[derive(Debug)]
 pub enum VerifyErrorResponse {
     InvalidVerificationID,
     VerificationError,

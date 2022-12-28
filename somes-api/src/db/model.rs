@@ -10,7 +10,7 @@ pub struct User {
     pub password_hash: String,
 }
 
-#[derive(Insertable)]
+#[derive(Insertable, Debug)]
 #[diesel(table_name = user)]
 pub struct NewUser {
     pub username: String,

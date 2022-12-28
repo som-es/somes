@@ -10,11 +10,11 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use somes_common_lib::SIGNUP_ROUTE;
+use somes_common_lib::{SIGNUP_ROUTE, VERIFY_ROUTE};
 //use headers::HeaderValue;
 use tower_http::cors::{Any, CorsLayer};
 
-use crate::{model::NewUser, routes::signup};
+use crate::{model::NewUser, routes::{signup, verify}};
 
 #[derive(Clone, Default)]
 struct AppState {
@@ -35,7 +35,7 @@ pub async fn serve(addr: SocketAddr) {
 
     let app = Router::new()
         .route(SIGNUP_ROUTE, post(signup))
-        //.route("/auth", post(authorize))
+        .route(VERIFY_ROUTE, get(verify)) // or post?
         .layer(
             CorsLayer::new()
                 .allow_origin(Any)

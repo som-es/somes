@@ -1,15 +1,12 @@
 use axum::{extract::State, Json};
-use somes_common_lib::{JWTInfo, SignUpInfo, time::timestamp_secs};
+use somes_common_lib::{JWTInfo, SignUpInfo};
 
 use crate::{
     db::establish_connection,
-    model::NewUser,
     server::VerificationMap,
 };
 
-use self::{action::validate_signup_info, error::SignUpErrorResponse};
-
-use super::verify::create_verification_id;
+pub use self::{action::{validate_signup_info, add_new_user_to_verification_map}, error::SignUpErrorResponse};
 
 mod action;
 mod error;
@@ -22,25 +19,10 @@ pub async fn signup(
 
     // checks the validity of the signup info. If this fails, the signup process is aborted.
     validate_signup_info(&mut con, &signup_info, verification_map.clone())?;
+    
+    add_new_user_to_verification_map(signup_info, verification_map)?;
 
-    // create an (hopefully) unique verification id
-    let id = create_verification_id(&signup_info);
-
-    let new_user = NewUser::new(
-        signup_info.email,
-        signup_info.username,
-        &signup_info.password,
-    )
-    .map_err(|_| SignUpErrorResponse::UserCreationError)?;
-
-    // send verification email
-    // ...
-
-    // add id to verification map
-    verification_map.write().unwrap().insert(id, (new_user, timestamp_secs()));
-
-    // actually insert user after verification (email)
-    //insert_user(&mut con, &new_user)?;
-
+    
     todo!()
 }
+

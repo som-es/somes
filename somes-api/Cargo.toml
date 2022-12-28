@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 somes-common-lib = {path = "../somes-common-lib"}
-axum = {version="0.6", features = ["headers"]}
+axum = {version="0.6", features = ["headers", "macros"]}
 tower-http = { version = "0.3", features = ["cors"] }
 headers = "0.3"
 jsonwebtoken = "8.0"
