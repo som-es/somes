@@ -4,12 +4,13 @@ use somes_common_lib::{JWTInfo, SignUpInfo};
 use crate::db::establish_connection;
 
 use self::{
-    action::{insert_new_user, validate_signup_info},
-    error::SignUpErrorResponse,
+    action::validate_signup_info,
+    error::SignUpErrorResponse, db::insert_new_user,
 };
 
 mod action;
 mod error;
+mod db;
 
 pub async fn signup(
     Json(signup_info): Json<SignUpInfo>,

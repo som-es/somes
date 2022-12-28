@@ -116,7 +116,7 @@ pub mod test_db {
     #[must_use = "This handle deletes the old database on drop. Not using this 'instantly' deletes the testing database."]
     pub fn create_handle(id: u64) -> DBHandle {
         let db_handle = DBHandle {
-            db_path: format!("{:3}{id}", crate::TEST_DB_PATH),
+            db_path: format!("{}{id}", crate::TEST_DB_PATH),
         };
 
         create_db_if_not_exists(&db_handle.db_path, crate::SQL_SCHEMA_PATH).unwrap();
