@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 /// `LoginInfo` is sent by the client and received by the server at login of a user.
 #[derive(Debug, Deserialize, Serialize)]
 pub struct LoginInfo {
-    pub username: String,
+    pub username_or_email: String,
     pub password: String,
 }
 
@@ -23,7 +23,7 @@ pub struct UserInfo {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct JWTInfo {
-    access_token: String,
+    pub access_token: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]

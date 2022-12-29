@@ -14,7 +14,10 @@ use somes_common_lib::{SIGNUP_ROUTE, VERIFY_ROUTE};
 //use headers::HeaderValue;
 use tower_http::cors::{Any, CorsLayer};
 
-use crate::{model::NewUser, routes::{signup, verify}};
+use crate::{
+    model::NewUser,
+    routes::{signup, verify},
+};
 
 #[derive(Clone, Default)]
 struct AppState {
@@ -42,8 +45,7 @@ pub async fn serve(addr: SocketAddr) {
                 .allow_methods([http::Method::GET, http::Method::POST])
                 .allow_headers([http::header::CONTENT_TYPE]),
         )
-        .with_state(state)
-        ;
+        .with_state(state);
     //.with_state(verification_map)
     //.with_state(verification_hasher);
 

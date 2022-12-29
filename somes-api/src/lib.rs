@@ -1,12 +1,12 @@
 use dotenv_codegen::dotenv;
 
 mod db;
-pub mod hash;
 pub mod email;
+pub mod hash;
 mod initial_startup;
+mod jwt;
 pub mod routes;
 pub mod server;
-mod jwt;
 
 pub use db::*;
 pub use initial_startup::*;

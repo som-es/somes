@@ -1,14 +1,20 @@
+
 use sha3::{Digest, Sha3_256};
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use axum::{extract::{Query, State}, Json};
+use axum::{
+    extract::{Query, State},
+    Json,
+};
 use somes_common_lib::{JWTInfo, SignUpInfo, VerificationIDInfo};
 use uuid::Uuid;
 
 use crate::{
     establish_connection,
+    jwt::create_access_token,
+    model::NewUser,
     operations::user::insert_user,
-    server::VerificationMap, model::NewUser
+    server::VerificationMap,
 };
 
 use self::error::VerifyErrorResponse;
@@ -30,7 +36,7 @@ pub fn create_verification_id(signup_info: &SignUpInfo) -> String {
 
     let mut hasher = Sha3_256::new();
     hasher.update(&bytes);
-    
+
     base16ct::lower::encode_string(&hasher.finalize())
 }
 
@@ -38,16 +44,19 @@ pub async fn verify(
     Query(id): Query<VerificationIDInfo>,
     State(verification_map): State<VerificationMap>,
 ) -> Result<Json<JWTInfo>, VerifyErrorResponse> {
-    
     let new_user = remove_from_verify_map(verification_map, &id)?;
     let con = &mut establish_connection();
 
     insert_user(con, &new_user).map_err(|_| VerifyErrorResponse::UserCreationError)?;
 
-    todo!()
+    create_access_token(new_user.username)
+        .map_err(VerifyErrorResponse::Auth)
 }
 
-pub fn remove_from_verify_map(verification_map: VerificationMap, id: &VerificationIDInfo) -> Result<NewUser, VerifyErrorResponse> {
+pub fn remove_from_verify_map(
+    verification_map: VerificationMap,
+    id: &VerificationIDInfo,
+) -> Result<NewUser, VerifyErrorResponse> {
     let mut verification_map = verification_map
         .write()
         .map_err(|_| VerifyErrorResponse::VerificationError)?;
@@ -59,13 +68,18 @@ pub fn remove_from_verify_map(verification_map: VerificationMap, id: &Verificati
     Ok(new_user)
 }
 
-
-
 #[cfg(test)]
 mod tests {
     use somes_common_lib::{SignUpInfo, VerificationIDInfo};
 
-    use crate::{test_db, id, routes::{validate_signup_info, add_new_user_to_verification_map, verify::remove_from_verify_map}, server::VerificationMap};
+    use crate::{
+        id,
+        routes::{
+            add_new_user_to_verification_map, validate_signup_info, verify::remove_from_verify_map,
+        },
+        server::VerificationMap,
+        test_db,
+    };
 
     use super::create_verification_id;
 
@@ -82,7 +96,6 @@ mod tests {
 
     #[test]
     fn test_verify_process() {
-
         let db = test_db::create_handle(id!());
         let mut con = db.establish_connection();
         let verification_map = VerificationMap::default();
@@ -94,11 +107,11 @@ mod tests {
         };
 
         validate_signup_info(&mut con, &signup_info, verification_map.clone()).unwrap();
-        let verify_id = add_new_user_to_verification_map(signup_info, verification_map.clone()).unwrap();
+        let verify_id =
+            add_new_user_to_verification_map(signup_info, verification_map.clone()).unwrap();
 
-        remove_from_verify_map(verification_map.clone(), &VerificationIDInfo {
-            verify_id,
-        }).unwrap();
+        remove_from_verify_map(verification_map.clone(), &VerificationIDInfo { verify_id })
+            .unwrap();
 
         println!("veri: {verification_map:?}");
     }

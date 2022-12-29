@@ -1,4 +1,4 @@
-use jsonwebtoken::{EncodingKey, DecodingKey};
+use jsonwebtoken::{DecodingKey, EncodingKey};
 use once_cell::sync::Lazy;
 
 pub static KEYS: Lazy<Keys> = Lazy::new(|| {

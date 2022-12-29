@@ -2,11 +2,14 @@ use axum::{response::IntoResponse, Json};
 use reqwest::StatusCode;
 use serde_json::json;
 
+use crate::jwt::AuthError;
+
 #[derive(Debug)]
 pub enum VerifyErrorResponse {
     InvalidVerificationID,
     VerificationError,
     UserCreationError,
+    Auth(AuthError),
 }
 
 impl IntoResponse for VerifyErrorResponse {
@@ -21,6 +24,7 @@ impl IntoResponse for VerifyErrorResponse {
             VerifyErrorResponse::UserCreationError => {
                 (StatusCode::INTERNAL_SERVER_ERROR, "creating user failed")
             }
+            VerifyErrorResponse::Auth(err) => return err.into_response(),
         };
 
         let body = Json(json!({

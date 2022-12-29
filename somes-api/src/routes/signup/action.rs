@@ -6,7 +6,7 @@ use somes_common_lib::time::timestamp_secs;
 use somes_common_lib::{set_error_true, SignUpInfo};
 
 use crate::model::NewUser;
-use crate::operations::user::{is_email_in_database, is_username_in_database};
+use crate::operations::user::{is_email_in_db, is_username_in_db};
 use crate::routes::verify::create_verification_id;
 use crate::server::VerificationMap;
 
@@ -59,11 +59,11 @@ pub fn validate_signup_info(
         set_error_true!(sign_up_error, username_taken);
     }
 
-    if is_email_in_database(con, &signup_info.email) {
+    if is_email_in_db(con, &signup_info.email) {
         set_error_true!(sign_up_error, email_taken);
     }
 
-    if is_username_in_database(con, &signup_info.username) {
+    if is_username_in_db(con, &signup_info.username) {
         set_error_true!(sign_up_error, username_taken);
     }
 
@@ -74,9 +74,10 @@ pub fn validate_signup_info(
     Ok(())
 }
 
-
-pub fn add_new_user_to_verification_map(signup_info: SignUpInfo, verification_map: VerificationMap) -> Result<String, SignUpErrorResponse> {
-
+pub fn add_new_user_to_verification_map(
+    signup_info: SignUpInfo,
+    verification_map: VerificationMap,
+) -> Result<String, SignUpErrorResponse> {
     // create an (hopefully) unique verification id
     let id = create_verification_id(&signup_info);
 
@@ -91,12 +92,15 @@ pub fn add_new_user_to_verification_map(signup_info: SignUpInfo, verification_ma
     // ...
 
     // add id to verification map
-    verification_map.write().unwrap().insert(id.clone(), (new_user, timestamp_secs()));
+    verification_map
+        .write()
+        .unwrap()
+        .insert(id.clone(), (new_user, timestamp_secs()));
 
     // actually insert user after verification (email)
     //insert_user(&mut con, &new_user)?;
     Ok(id)
-} 
+}
 
 #[cfg(test)]
 mod tests {
@@ -190,7 +194,10 @@ mod tests {
         )
         .unwrap();
 
-        verification_map.write().unwrap().insert("3".to_string(), (new_user, 1));
+        verification_map
+            .write()
+            .unwrap()
+            .insert("3".to_string(), (new_user, 1));
 
         match validate_signup_info(con, &signup_info, verification_map.clone()) {
             Ok(_) => panic!("Not possible, password is weak"),

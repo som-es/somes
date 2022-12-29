@@ -1,15 +1,29 @@
-use axum::{async_trait, extract::FromRequestParts, http::request::Parts, TypedHeader, RequestPartsExt};
-use headers::{Authorization, authorization::Bearer};
+use axum::{
+    async_trait, extract::FromRequestParts, http::request::Parts, RequestPartsExt, TypedHeader,
+};
+use headers::{authorization::Bearer, Authorization};
 use jsonwebtoken::{decode, Validation};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
+use somes_common_lib::time::timestamp_secs;
 
-use super::{keys::KEYS, error::AuthError};
+use super::{error::AuthError, keys::KEYS};
 
 #[derive(Debug, Serialize, Deserialize)]
-struct Claims {
-    sub: String,
-    company: String,
-    exp: usize,
+pub struct Claims {
+    pub sub: String,
+    pub company: String,
+    pub exp: usize,
+}
+
+impl Claims {
+    pub fn new(sub: String) -> Self {
+        Self {
+            sub,
+            company: "".to_string(),
+            // Mandatory expiry time as UNIX timestamp
+            exp: (timestamp_secs() + 60 * 60 * 24 * 3) as usize
+        }
+    }
 }
 
 #[async_trait]

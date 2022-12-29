@@ -1,7 +1,9 @@
-use axum::{response::{IntoResponse, Response}, Json};
+use axum::{
+    response::{IntoResponse, Response},
+    Json,
+};
 use reqwest::StatusCode;
 use serde_json::json;
-
 
 #[derive(Debug)]
 pub enum AuthError {
@@ -10,7 +12,6 @@ pub enum AuthError {
     TokenCreation,
     InvalidToken,
 }
-
 
 impl IntoResponse for AuthError {
     fn into_response(self) -> Response {
@@ -26,4 +27,3 @@ impl IntoResponse for AuthError {
         (status, body).into_response()
     }
 }
-
