@@ -17,10 +17,11 @@ pub async fn signup(
 ) -> Result<(), SignUpErrorResponse> {
     let mut con = establish_connection();
 
-    // checks the validity of the signup info. If this fails, the signup process is aborted.
+    // checks  the validity of the signup info. If this fails, the signup process is aborted.
     validate_signup_info(&mut con, &signup_info, verification_map.clone())?;
 
-    add_new_user_to_verification_map(signup_info, verification_map)?;
+    // if validation was successful, add a new user to the verification map
+    let _id = add_new_user_to_verification_map(signup_info, verification_map)?;
 
     Ok(())
 }

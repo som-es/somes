@@ -14,7 +14,7 @@ use crate::{
     jwt::create_access_token,
     model::NewUser,
     operations::user::insert_user,
-    server::VerificationMap,
+    server::{VerificationMap, RedisConn},
 };
 
 use self::error::VerifyErrorResponse;
@@ -42,6 +42,7 @@ pub fn create_verification_id(signup_info: &SignUpInfo) -> String {
 
 pub async fn verify(
     Query(id): Query<VerificationIDInfo>,
+    State(redis_con): State<RedisConn>,
     State(verification_map): State<VerificationMap>,
 ) -> Result<Json<JWTInfo>, VerifyErrorResponse> {
     let new_user = remove_from_verify_map(verification_map, &id)?;

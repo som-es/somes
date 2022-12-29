@@ -29,7 +29,8 @@ The source code of the somes repository.
 
     install via `cargo install --locked trunk`
 
-- **libsqlite3** database 
+- **libsqlite3** relational database 
+- **redis** key value database 
 
 ### Running (debug)
 - **somes-api**: `cargo run --release`

@@ -24,4 +24,4 @@ regex = "1"
 uuid = {version="1.2.2", features=["v4"]}
 sha3 = "0.10"
 base16ct = { version = "0.1.1", features = ["std"] }
-
+redis = { version = "0.22.1", features = ["tokio-comp"] }
