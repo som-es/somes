@@ -10,48 +10,55 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use somes_common_lib::{SIGNUP_ROUTE, VERIFY_ROUTE, LOGIN_ROUTE};
+use somes_common_lib::{LOGIN_ROUTE, SIGNUP_ROUTE, VERIFY_ROUTE};
 //use headers::HeaderValue;
 use tower_http::cors::{Any, CorsLayer};
 
 use crate::{
     model::NewUser,
-    routes::{signup, verify, login},
+    routes::{login, signup, verify},
 };
 
 #[derive(Clone)]
-struct AppState {
-    // that holds some api specific state
-    verification_map: VerificationMap,
-    redis_con: RedisConn,
+pub struct AppState {
+    // this holds some api specific state
+    //verification_map: VerificationMap,
+    pub redis_client: redis::Client,
 }
 
 impl AppState {
     pub async fn new(client: redis::Client) -> AppState {
-        AppState { 
-            verification_map: Default::default(), 
-            redis_con: Arc::new(RwLock::new(client.get_async_connection().await.unwrap()))
+        AppState {
+            //      verification_map: Default::default(),
+            //redis_client: Arc::new(RwLock::new(client)),
+            redis_client: client,
         }
     }
 }
-
+/*
 impl FromRef<AppState> for VerificationMap {
     fn from_ref(app_state: &AppState) -> VerificationMap {
         app_state.verification_map.clone()
     }
-}
+}*/
 
-impl FromRef<AppState> for RedisConn {
-    fn from_ref(app_state: &AppState) -> RedisConn {
-        app_state.redis_con.clone()
+/*impl FromRef<AppState> for RedisClient {
+    fn from_ref(app_state: &AppState) -> RedisClient {
+        app_state.redis_client.clone()
+    }
+}*/
+
+impl FromRef<AppState> for redis::Client {
+    fn from_ref(app_state: &AppState) -> redis::Client {
+        app_state.redis_client.clone()
     }
 }
 
-pub type VerificationMap = Arc<RwLock<HashMap<String, (NewUser, u64)>>>;
-pub type RedisConn = Arc<RwLock<redis::aio::Connection>>;
+//pub type RedisClient = Arc<RwLock<redis::Client>>;
 
 pub async fn serve(addr: SocketAddr) {
     let client = redis::Client::open("redis://127.0.0.1/").unwrap();
+
     let state = AppState::new(client).await;
 
     let app = Router::new()

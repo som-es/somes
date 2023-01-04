@@ -21,7 +21,7 @@ impl Claims {
             sub,
             company: "".to_string(),
             // Mandatory expiry time as UNIX timestamp
-            exp: (timestamp_secs() + 60 * 60 * 24 * 3) as usize
+            exp: (timestamp_secs() + 60 * 60 * 24 * 3) as usize,
         }
     }
 }

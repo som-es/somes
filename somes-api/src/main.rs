@@ -1,7 +1,7 @@
 use std::net::SocketAddr;
 
 use redis::AsyncCommands;
-use somes_api::{initial_startup, server, DB_PATH, SQL_SCHEMA_PATH, model::NewUser};
+use somes_api::{initial_startup, model::NewUser, server, DB_PATH, SQL_SCHEMA_PATH};
 
 #[tokio::main]
 async fn main() {
@@ -13,10 +13,10 @@ async fn main() {
     let new_user = NewUser {
         username: Default::default(),
         email: Default::default(),
-        password_hash: Default::default()
+        password_hash: Default::default(),
     };
-    con.set::<_, _, ()>("hi", new_user).await.unwrap(); 
-    let value = con.get::<_, NewUser>("hi",).await.unwrap();
+    con.set::<_, _, ()>("hi", new_user).await.unwrap();
+    let value = con.get::<_, NewUser>("hi").await.unwrap();
     println!("value: {value:?}");
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));

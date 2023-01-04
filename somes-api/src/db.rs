@@ -9,7 +9,13 @@ use std::{
     process::{Command, Stdio},
 };
 
+use axum::{
+    async_trait,
+    extract::{FromRef, FromRequestParts},
+    http::request::Parts,
+};
 use diesel::{Connection, SqliteConnection};
+use reqwest::StatusCode;
 
 use crate::DB_PATH;
 
@@ -20,6 +26,32 @@ pub fn establish_test_connection(db_path: &str) -> SqliteConnection {
 
 pub fn establish_connection() -> SqliteConnection {
     SqliteConnection::establish(DB_PATH).expect("Can't establish database conntection.")
+}
+
+pub struct RedisConnection(pub redis::aio::Connection);
+
+#[async_trait]
+impl<S> FromRequestParts<S> for RedisConnection
+where
+    redis::Client: FromRef<S>,
+    S: Send + Sync,
+{
+    type Rejection = (StatusCode, String);
+
+    async fn from_request_parts(_parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
+        let pool = redis::Client::from_ref(state);
+
+        let conn = pool.get_async_connection().await.map_err(internal_error)?;
+
+        Ok(Self(conn))
+    }
+}
+
+fn internal_error<E>(err: E) -> (StatusCode, String)
+where
+    E: std::error::Error,
+{
+    (StatusCode::INTERNAL_SERVER_ERROR, err.to_string())
 }
 
 #[derive(Debug)]

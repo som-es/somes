@@ -2,7 +2,9 @@ use axum::Json;
 use somes_common_lib::{JWTInfo, LoginInfo};
 
 use crate::{
-    establish_connection, hash, jwt::{AuthError, create_access_token}, operations::user::get_user_from_db,
+    establish_connection, hash,
+    jwt::{create_access_token, AuthError},
+    operations::user::get_user_from_db,
 };
 
 pub async fn login(Json(login_info): Json<LoginInfo>) -> Result<Json<JWTInfo>, AuthError> {

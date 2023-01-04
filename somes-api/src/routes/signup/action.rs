@@ -1,5 +1,6 @@
 use diesel::prelude::*;
 use once_cell::sync::Lazy;
+use redis::AsyncCommands;
 use regex::Regex;
 use somes_common_lib::password::{measure_password_strength, Strength};
 use somes_common_lib::time::timestamp_secs;
@@ -8,7 +9,6 @@ use somes_common_lib::{set_error_true, SignUpInfo};
 use crate::model::NewUser;
 use crate::operations::user::{is_email_in_db, is_username_in_db};
 use crate::routes::verify::create_verification_id;
-use crate::server::VerificationMap;
 
 use super::error::{SignUpErrorResponse, SignUpErrorWrapper};
 
@@ -20,7 +20,7 @@ static EMAIL_REGEX: Lazy<Regex> = Lazy::new(|| {
 pub fn validate_signup_info(
     con: &mut SqliteConnection,
     signup_info: &SignUpInfo,
-    verification_map: VerificationMap,
+    //verification_map: VerificationMap,
 ) -> Result<(), SignUpErrorResponse> {
     let mut sign_up_error = SignUpErrorWrapper::default();
 
@@ -44,7 +44,8 @@ pub fn validate_signup_info(
         set_error_true!(sign_up_error, insufficient_password);
     }
 
-    let verification_map = verification_map.read().unwrap();
+    // TODO: check in redis
+    /*let verification_map = verification_map.read().unwrap();
     if verification_map
         .values()
         .any(|(user, _)| user.email == signup_info.email)
@@ -57,7 +58,7 @@ pub fn validate_signup_info(
         .any(|(user, _)| user.username == signup_info.username)
     {
         set_error_true!(sign_up_error, username_taken);
-    }
+    }*/
 
     if is_email_in_db(con, &signup_info.email) {
         set_error_true!(sign_up_error, email_taken);
@@ -74,10 +75,7 @@ pub fn validate_signup_info(
     Ok(())
 }
 
-pub fn add_new_user_to_verification_map(
-    signup_info: SignUpInfo,
-    verification_map: VerificationMap,
-) -> Result<String, SignUpErrorResponse> {
+pub async fn add_new_user_to_redis(signup_info: SignUpInfo, redis_con: &mut redis::aio::Connection) -> Result<String, SignUpErrorResponse> {
     // create an (hopefully) unique verification id
     let id = create_verification_id(&signup_info);
 
@@ -88,17 +86,11 @@ pub fn add_new_user_to_verification_map(
     )
     .map_err(|_| SignUpErrorResponse::UserCreationError)?;
 
+    redis_con.set::<_, _, ()>(&id, new_user).await.map_err(|_| SignUpErrorResponse::UserCreationError)?;
+
     // send verification email or afterwards, mind id return!
     // ...
 
-    // add id to verification map
-    verification_map
-        .write()
-        .unwrap()
-        .insert(id.clone(), (new_user, timestamp_secs()));
-
-    // actually insert user after verification (email)
-    //insert_user(&mut con, &new_user)?;
     Ok(id)
 }
 
@@ -110,7 +102,6 @@ mod tests {
     use crate::model::NewUser;
 
     use crate::operations::user::insert_user;
-    use crate::server::VerificationMap;
     use crate::{id, routes::signup::error::SignUpErrorResponse, test_db};
 
     use super::validate_signup_info;
@@ -118,7 +109,7 @@ mod tests {
     #[test]
     fn test_validate_signup_info_short_password() {
         let h = test_db::create_handle(id!());
-        let verification_map = VerificationMap::default();
+        //let verification_map = VerificationMap::default();
 
         let signup_info = SignUpInfo {
             email: "test@test.at".to_string(),
@@ -127,7 +118,7 @@ mod tests {
         };
 
         let con = &mut h.establish_connection();
-        match validate_signup_info(con, &signup_info, verification_map) {
+        match validate_signup_info(con, &signup_info) {
             Ok(_) => panic!("Not possible, password is weak"),
             Err(err) => match err {
                 SignUpErrorResponse::UserCreationError => panic!(""),
@@ -143,7 +134,7 @@ mod tests {
     #[test]
     fn test_validate_signup_info_taken() {
         let h = test_db::create_handle(id!());
-        let verification_map = VerificationMap::default();
+        //let verification_map = VerificationMap::default();
 
         let signup_info = SignUpInfo {
             email: "test@test.at".to_string(),
@@ -161,7 +152,7 @@ mod tests {
         .unwrap();
         insert_user(con, &new_user).unwrap();
 
-        match validate_signup_info(con, &signup_info, verification_map) {
+        match validate_signup_info(con, &signup_info) {
             Ok(_) => panic!("Not possible, password is weak"),
             Err(err) => match err {
                 SignUpErrorResponse::UserCreationError => panic!(""),
@@ -177,7 +168,7 @@ mod tests {
     #[test]
     fn test_validate_signup_info_taken_verification_map() {
         let h = test_db::create_handle(id!());
-        let verification_map = VerificationMap::default();
+        //let verification_map = VerificationMap::default();
 
         let signup_info = SignUpInfo {
             email: "test@test.at".to_string(),
@@ -194,12 +185,13 @@ mod tests {
         )
         .unwrap();
 
-        verification_map
-            .write()
-            .unwrap()
-            .insert("3".to_string(), (new_user, 1));
+        // TODO
+        /*verification_map
+        .write()
+        .unwrap()
+        .insert("3".to_string(), (new_user, 1));*/
 
-        match validate_signup_info(con, &signup_info, verification_map.clone()) {
+        match validate_signup_info(con, &signup_info) {
             Ok(_) => panic!("Not possible, password is weak"),
             Err(err) => match err {
                 SignUpErrorResponse::UserCreationError => panic!(""),
@@ -217,7 +209,7 @@ mod tests {
             password: "supersicher".to_string(),
         };
 
-        match validate_signup_info(con, &signup_info, verification_map) {
+        match validate_signup_info(con, &signup_info) {
             Ok(_) => panic!("Not possible, password is weak"),
             Err(err) => match err {
                 SignUpErrorResponse::UserCreationError => panic!(""),
@@ -233,7 +225,7 @@ mod tests {
     #[test]
     fn test_validate_signup_info_missing_entries() {
         let h = test_db::create_handle(id!());
-        let verification_map = VerificationMap::default();
+        // let verification_map = VerificationMap::default();
 
         let signup_info = SignUpInfo {
             email: "".to_string(),
@@ -242,7 +234,7 @@ mod tests {
         };
 
         let con = &mut h.establish_connection();
-        match validate_signup_info(con, &signup_info, verification_map) {
+        match validate_signup_info(con, &signup_info) {
             Ok(_) => panic!("Not possible, password is weak"),
             Err(err) => match err {
                 SignUpErrorResponse::UserCreationError => panic!(""),
