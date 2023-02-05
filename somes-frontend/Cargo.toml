@@ -8,8 +8,15 @@ edition = "2021"
 [dependencies]
 somes-common-lib = {path = "../somes-common-lib"}
 
+web-sys = { version = "0.3", features = ["Event","EventTarget","InputEvent", "DomTokenList", "Element"] }
 serde = "1.0"
 wasm-logger = "0.2.0"
-yew = "0.20.0"
+yew = { version = "0.20.0", features = ["csr"] }
 yew-router = "0.17.0"
 reqwest = { version = "0.11", features = ["json"] }
+lazy_static = "1.4.0"
+dotenv_codegen = "0.15.0"
+gloo = "0.8.0"
+parking_lot = "0.12.1"
+log = "0.4.17"
+thiserror = "1"

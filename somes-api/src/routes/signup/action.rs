@@ -3,7 +3,7 @@ use once_cell::sync::Lazy;
 use redis::AsyncCommands;
 use regex::Regex;
 use somes_common_lib::password::{measure_password_strength, Strength};
-use somes_common_lib::time::timestamp_secs;
+
 use somes_common_lib::{set_error_true, SignUpInfo};
 
 use crate::model::NewUser;
@@ -15,6 +15,7 @@ use super::error::{SignUpErrorResponse, SignUpErrorWrapper};
 static EMAIL_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$").unwrap()
 });
+
 
 /// checks the validity of the signup info
 pub fn validate_signup_info(
@@ -79,6 +80,8 @@ pub async fn add_new_user_to_redis(signup_info: SignUpInfo, redis_con: &mut redi
     // create an (hopefully) unique verification id
     let id = create_verification_id(&signup_info);
 
+    // save directly in mysql database
+    // add 'verified' bool
     let new_user = NewUser::new(
         signup_info.email,
         signup_info.username,

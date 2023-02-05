@@ -12,7 +12,6 @@ mod action;
 mod error;
 
 pub async fn signup(
-    //State(verification_map): State<VerificationMap>,
     RedisConnection(mut conn): RedisConnection,
     Json(signup_info): Json<SignUpInfo>,
 ) -> Result<(), SignUpErrorResponse> {
@@ -21,8 +20,8 @@ pub async fn signup(
     // checks  the validity of the signup info. If this fails, the signup process is aborted.
     validate_signup_info(&mut con, &signup_info)?;
 
-    // if validation was successful, add a new user to the verification map
+    // if validation was successful, add a new user to the verification redis db
     let _id = add_new_user_to_redis(signup_info, &mut conn).await;
-
+    println!("id: {_id:?}");
     Ok(())
 }

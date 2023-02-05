@@ -3,7 +3,7 @@ use sha3::{Digest, Sha3_256};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use axum::{
-    extract::{Query, State},
+    extract::Query,
     Json,
 };
 use somes_common_lib::{JWTInfo, SignUpInfo, VerificationIDInfo};
@@ -69,22 +69,6 @@ pub async fn remove_user_from_redis(
     Ok(new_user)
 }
 
-pub fn remove_from_verify_map(
-    // verification_map: VerificationMap,
-    id: &VerificationIDInfo,
-) -> Result<NewUser, VerifyErrorResponse> {
-  /*  let mut verification_map = verification_map
-        .write()
-        .map_err(|_| VerifyErrorResponse::VerificationError)?;
-
-    let (new_user, _timestamp) = verification_map
-        .remove(&id.verify_id)
-        .ok_or(VerifyErrorResponse::InvalidVerificationID)?;
-*/
-        todo!();
-    // Ok(new_user)
-}
-
 #[cfg(test)]
 mod tests {
     use somes_common_lib::{SignUpInfo, VerificationIDInfo};
@@ -92,7 +76,7 @@ mod tests {
     use crate::{
         id,
         routes::{
-            validate_signup_info, verify::remove_from_verify_map, add_new_user_to_redis,
+            validate_signup_info, add_new_user_to_redis, remove_user_from_redis
         },
         test_db,
     };
@@ -110,8 +94,12 @@ mod tests {
         create_verification_id(&signup_info);
     }
 
-    #[test]
-    fn test_verify_process() {
+    #[tokio::test]
+    async fn test_verify_process() {
+
+        let client = redis::Client::open("redis://127.0.0.1/").unwrap();
+        let mut redis_con = client.get_async_connection().await.unwrap();
+
         let db = test_db::create_handle(id!());
         let mut con = db.establish_connection();
         //let verification_map = VerificationMap::default();
@@ -124,10 +112,9 @@ mod tests {
 
         validate_signup_info(&mut con, &signup_info).unwrap();
         let verify_id =
-            add_new_user_to_redis(signup_info).unwrap();
+            add_new_user_to_redis(signup_info, &mut redis_con).await.unwrap();
 
-        remove_from_verify_map( &VerificationIDInfo { verify_id })
-            .unwrap();
+        remove_user_from_redis(redis_con, &VerificationIDInfo { verify_id }).await.unwrap();
 
         // println!("veri: {verification_map:?}");
     }
