@@ -1,4 +1,3 @@
-
 use somes_frontend::App;
 
 fn main() {

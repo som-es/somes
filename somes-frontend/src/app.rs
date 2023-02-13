@@ -6,8 +6,7 @@ use lazy_static::lazy_static;
 use yew_router::prelude::*;
 use yew_router::Switch;
 
-use crate::routes::{Route, switch};
-
+use crate::routes::{switch, Route};
 
 const TOKEN_KEY: &str = "access_token";
 

@@ -1,5 +1,5 @@
 use reqwest::Method;
-use somes_common_lib::{SignUpInfo, errors::SignUpError};
+use somes_common_lib::{errors::SignUpError, SignUpInfo};
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
 
@@ -7,7 +7,6 @@ use crate::request;
 
 #[function_component(Login)]
 fn login() -> Html {
-
     let sign_up_info = use_state(SignUpInfo::default);
 
     let on_input_username = {
@@ -39,20 +38,23 @@ fn login() -> Html {
             sign_up_info.set(info);
         })
     };
-    
+
     let on_click_register = {
         let sign_up_info = sign_up_info.clone();
         Callback::from(move |e: MouseEvent| {
             let sign_up_info = sign_up_info.clone();
             wasm_bindgen_futures::spawn_local(async move {
-                
-                request::<_, SignUpError>(Method::POST, somes_common_lib::SIGNUP_ROUTE, (*sign_up_info).clone());
+                request::<_, SignUpError>(
+                    Method::POST,
+                    somes_common_lib::SIGNUP_ROUTE,
+                    (*sign_up_info).clone(),
+                );
                 /*if let Ok(err_msgs) = request::<UploadInfo, UploadMsgs>(
                     Method::POST,
                     "upload",
                     (*upload_info).clone(),
                 ) {
-                    
+
                 }*/
             });
         })

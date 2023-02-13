@@ -2,16 +2,13 @@ use redis::AsyncCommands;
 use sha3::{Digest, Sha3_256};
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use axum::{
-    extract::Query,
-    Json,
-};
+use axum::{extract::Query, Json};
 use somes_common_lib::{JWTInfo, SignUpInfo, VerificationIDInfo};
 use uuid::Uuid;
 
 use crate::{
     establish_connection, jwt::create_access_token, model::NewUser, operations::user::insert_user,
-RedisConnection,
+    RedisConnection,
 };
 
 use self::error::VerifyErrorResponse;
@@ -75,9 +72,7 @@ mod tests {
 
     use crate::{
         id,
-        routes::{
-            validate_signup_info, add_new_user_to_redis, remove_user_from_redis
-        },
+        routes::{add_new_user_to_redis, remove_user_from_redis, validate_signup_info},
         test_db,
     };
 
@@ -96,7 +91,6 @@ mod tests {
 
     #[tokio::test]
     async fn test_verify_process() {
-
         let client = redis::Client::open("redis://127.0.0.1/").unwrap();
         let mut redis_con = client.get_async_connection().await.unwrap();
 
@@ -111,10 +105,13 @@ mod tests {
         };
 
         validate_signup_info(&mut con, &signup_info).unwrap();
-        let verify_id =
-            add_new_user_to_redis(signup_info, &mut redis_con).await.unwrap();
+        let verify_id = add_new_user_to_redis(signup_info, &mut redis_con)
+            .await
+            .unwrap();
 
-        remove_user_from_redis(redis_con, &VerificationIDInfo { verify_id }).await.unwrap();
+        remove_user_from_redis(redis_con, &VerificationIDInfo { verify_id })
+            .await
+            .unwrap();
 
         // println!("veri: {verification_map:?}");
     }

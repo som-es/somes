@@ -16,7 +16,6 @@ static EMAIL_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$").unwrap()
 });
 
-
 /// checks the validity of the signup info
 pub fn validate_signup_info(
     con: &mut SqliteConnection,
@@ -76,7 +75,10 @@ pub fn validate_signup_info(
     Ok(())
 }
 
-pub async fn add_new_user_to_redis(signup_info: SignUpInfo, redis_con: &mut redis::aio::Connection) -> Result<String, SignUpErrorResponse> {
+pub async fn add_new_user_to_redis(
+    signup_info: SignUpInfo,
+    redis_con: &mut redis::aio::Connection,
+) -> Result<String, SignUpErrorResponse> {
     // create an (hopefully) unique verification id
     let id = create_verification_id(&signup_info);
 
@@ -89,7 +91,10 @@ pub async fn add_new_user_to_redis(signup_info: SignUpInfo, redis_con: &mut redi
     )
     .map_err(|_| SignUpErrorResponse::UserCreationError)?;
 
-    redis_con.set::<_, _, ()>(&id, new_user).await.map_err(|_| SignUpErrorResponse::UserCreationError)?;
+    redis_con
+        .set::<_, _, ()>(&id, new_user)
+        .await
+        .map_err(|_| SignUpErrorResponse::UserCreationError)?;
 
     // send verification email or afterwards, mind id return!
     // ...

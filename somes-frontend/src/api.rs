@@ -1,4 +1,3 @@
-
 use crate::{app::get_jwt, error::SomesError, API_ROOT};
 use serde::{de::DeserializeOwned, Serialize};
 
@@ -17,7 +16,6 @@ where
         .request(method, url)
         .header("Content-Type", "application/json")
         .fetch_mode_no_cors();
-        
 
     if let Some(token) = get_jwt() {
         builder = builder.header("Authorization", format!("Bearer {token}"));
@@ -39,13 +37,12 @@ where
                 404 => Err(SomesError::NotFound),
                 500 => Err(SomesError::InternalServerError),
                 422 => {
-                    
                     //let href = format!("https://auth.htl-hl.ac.at/authorize.php?response_type=code&client_id=holi.htl-hl.ac.at&redirect_uri={REDIRECT}&state=new");
                     /*web_sys::window()
-                        .unwrap()
-                        .location()
-                        .set_href(&href)
-                        .unwrap();*/
+                    .unwrap()
+                    .location()
+                    .set_href(&href)
+                    .unwrap();*/
                     Err(SomesError::Unauthorized)
                 }
                 _ => Err(SomesError::RequestError),
