@@ -8,8 +8,9 @@ mod routes;
 mod api;
 
 pub use api::request;
+pub use error::*;
 
-const API_ROOT: &str = dotenv!("API_ROOT");
+pub const API_ROOT: &str = dotenv!("API_ROOT");
 
 
 // lazy_static! {

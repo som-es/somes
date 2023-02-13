@@ -1,3 +1,5 @@
+mod login;
+
 use yew::{html, Html};
 use yew_router::Routable;
 
