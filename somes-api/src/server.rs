@@ -1,8 +1,4 @@
-use std::{
-    collections::HashMap,
-    net::SocketAddr,
-    sync::{Arc, RwLock},
-};
+use std::net::SocketAddr;
 
 use axum::{
     extract::FromRef,
@@ -10,14 +6,13 @@ use axum::{
     routing::{get, post},
     Router,
 };
+use log::{error, info};
 use somes_common_lib::{LOGIN_ROUTE, SIGNUP_ROUTE, VERIFY_ROUTE};
 //use headers::HeaderValue;
+use crate::REDIS_DB;
 use tower_http::cors::{Any, CorsLayer};
 
-use crate::{
-    model::NewUser,
-    routes::{login, signup, verify},
-};
+use crate::routes::{login, signup, verify};
 
 #[derive(Clone)]
 pub struct AppState {
@@ -57,7 +52,11 @@ impl FromRef<AppState> for redis::Client {
 //pub type RedisClient = Arc<RwLock<redis::Client>>;
 
 pub async fn serve(addr: SocketAddr) {
-    let client = redis::Client::open("redis://127.0.0.1/").unwrap();
+    info!("Establish redis database connection to {REDIS_DB}.");
+    let Ok(client) = redis::Client::open("redis://127.0.0.1/") else {
+        error!("Could not establish redis database connection!");
+        return;
+    };
 
     let state = AppState::new(client).await;
 

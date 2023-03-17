@@ -62,16 +62,16 @@ async fn test_verify() {
 // register
 
 // curl -s \
-    //  -w '\n' \
-    //  -H 'Content-Type: application/json' \
-    //  -d '{"email":"test@email.com","username":"test","password":"supe%dsa9rsicher"}' \
-    //  http://localhost:3000/signup
+//  -w '\n' \
+//  -H 'Content-Type: application/json' \
+//  -d '{"email":"test@email.com","username":"test","password":"supe%dsa9rsicher"}' \
+//  http://localhost:3000/signup
 
 // curl -s \
-    //  -w '\n' \
-    //  -H 'Content-Type: application/json' \
-    //  -d '{"username_or_email":"test@email.com","password":"supe%dsa9rsicher"}' \
-    //  http://localhost:3000/login
+//  -w '\n' \
+//  -H 'Content-Type: application/json' \
+//  -d '{"username_or_email":"test@email.com","password":"supe%dsa9rsicher"}' \
+//  http://localhost:3000/login
 
 #[tokio::test]
 async fn test_register() {

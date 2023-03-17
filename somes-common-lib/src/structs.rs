@@ -29,7 +29,6 @@ pub struct JWTInfo {
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]
 pub struct Unit;
 
-
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]
 pub struct VerificationIDInfo {
     pub verify_id: String,
