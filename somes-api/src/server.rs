@@ -52,11 +52,12 @@ impl FromRef<AppState> for redis::Client {
 //pub type RedisClient = Arc<RwLock<redis::Client>>;
 
 pub async fn serve(addr: SocketAddr) {
-    info!("Establish redis database connection to {REDIS_DB}.");
     let Ok(client) = redis::Client::open("redis://127.0.0.1/") else {
         error!("Could not establish redis database connection!");
         return;
     };
+
+    info!("Established redis database connection to {REDIS_DB}.");
 
     let state = AppState::new(client).await;
 
@@ -74,8 +75,16 @@ pub async fn serve(addr: SocketAddr) {
     //.with_state(verification_map)
     //.with_state(verification_hasher);
 
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    
+
+    let server = match axum::Server::try_bind(&addr) {
+        Ok(server) => server,
+        Err(e) => panic!("Could not initialize API: {e}"),
+    };
+
+    info!("Initialized API");
+
+    if let Err(e) = server.serve(app.into_make_service()).await {
+        error!("API returned error state: {e}")
+    }
 }

@@ -6,7 +6,8 @@ use somes_api::{initial_startup, model::NewUser, server, DB_PATH, SQL_SCHEMA_PAT
 
 #[tokio::main]
 async fn main() {
-    SimpleLogger::new().init().unwrap();
+    SimpleLogger::new().with_level(log::LevelFilter::Info).init().unwrap();
+
     initial_startup(DB_PATH, SQL_SCHEMA_PATH);
 
     let client = redis::Client::open("redis://127.0.0.1/").unwrap();
