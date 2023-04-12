@@ -14,8 +14,8 @@
     for (let angle_deg = 0; angle_deg < count_to; angle_deg += modulo) {
         let angle_rad = -(angle_deg / normalize) * Math.PI / 180.;
         
-        const x = 2.0* r * Math.cos(angle_rad) + 600;
-        const y = 2.0*r * Math.sin(angle_rad) + 400;
+        const x = 2.0* r * Math.cos(angle_rad) + 700;
+        const y = 2.0*r * Math.sin(angle_rad) + 700;
 
         const circle = {
             x, y
@@ -26,20 +26,31 @@
 </script>
 
 <div>
-    <svg>
+    <!--<svg>
+        {#each circles as circle}
+            <circle cx={circle.x} cy={circle.y} r=10
+                fill="rgb(196, 180, 189)"
+            />
+        {/each}
+    </svg>-->
     {#each circles as circle}
-        <circle cx={circle.x} cy={circle.y} r=10
-            fill="red"
-        />
+        <div class="circle" style="left: {circle.x}px; top: {circle.y}px;">
+
+        </div>
     {/each}
-    </svg>
 </div>
 
 <style>
 svg {
-    width: 1000px;
-    height: 1000px;
+    width: auto;
+    height: auto;
 }
 
-
+.circle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: rgb(196, 180, 189);
+  border-radius: 50%;
+}
 </style>
