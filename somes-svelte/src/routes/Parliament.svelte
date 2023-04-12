@@ -4,5 +4,5 @@
 </script>
 
 {#each seats as seat, idx}
-    <Halfcircle n={seat} r={100 + idx * 20} />
+    <Halfcircle n={seat} r={70 + idx * (idx == 1 ? 30 : 20) + (idx >= 2 ? 30: 0)} />
 {/each}
