@@ -4,7 +4,7 @@ use diesel::prelude::*;
 use redis::{ErrorKind, FromRedisValue, RedisError, ToRedisArgs, Value};
 use serde::{Deserialize, Serialize};
 
-use super::schema::user;
+use super::schema::users;
 
 #[derive(Queryable, PartialEq, Eq, Debug)]
 pub struct User {
@@ -15,7 +15,7 @@ pub struct User {
 }
 
 #[derive(Insertable, Debug, Serialize, Deserialize)]
-#[diesel(table_name = user)]
+#[diesel(table_name = users)]
 pub struct NewUser {
     pub username: String,
     pub email: String,

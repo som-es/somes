@@ -68,12 +68,11 @@ pub async fn remove_user_from_redis(
 
 #[cfg(test)]
 mod tests {
+    use diesel::Connection;
     use somes_common_lib::{SignUpInfo, VerificationIDInfo};
 
     use crate::{
-        id,
-        routes::{add_new_user_to_redis, remove_user_from_redis, validate_signup_info},
-        test_db,
+        routes::{add_new_user_to_redis, remove_user_from_redis, validate_signup_info}, establish_connection,
     };
 
     use super::create_verification_id;
@@ -94,8 +93,6 @@ mod tests {
         let client = redis::Client::open("redis://127.0.0.1/").unwrap();
         let mut redis_con = client.get_async_connection().await.unwrap();
 
-        let db = test_db::create_handle(id!());
-        let mut con = db.establish_connection();
         //let verification_map = VerificationMap::default();
 
         let signup_info = SignUpInfo {
@@ -104,15 +101,21 @@ mod tests {
             password: "suPERs%icCHER123asdr".to_string(),
         };
 
-        validate_signup_info(&mut con, &signup_info).unwrap();
+        let con = &mut establish_connection();
+        con.test_transaction::<_, (), _>(|con| {
+            validate_signup_info(con, &signup_info).unwrap();
+            Ok(())
+        });
+
         let verify_id = add_new_user_to_redis(signup_info, &mut redis_con)
-            .await
-            .unwrap();
+        .await
+        .unwrap();
 
-        remove_user_from_redis(redis_con, &VerificationIDInfo { verify_id })
-            .await
-            .unwrap();
+    remove_user_from_redis(redis_con, &VerificationIDInfo { verify_id })
+        .await
+        .unwrap();
 
+    
         // println!("veri: {verification_map:?}");
     }
 }

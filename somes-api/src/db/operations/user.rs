@@ -1,17 +1,17 @@
 use crate::db::model::{NewUser, User};
-use crate::db::schema::user::dsl::*;
+use crate::db::schema::users::dsl::*;
 use crate::hash;
 use diesel::prelude::*;
 use diesel::PgConnection;
 
 pub fn is_email_in_db(con: &mut PgConnection, signup_email: &str) -> bool {
-    user.filter(email.is(signup_email))
+    users.filter(email.eq(signup_email))
         .first::<User>(con)
         .is_ok()
 }
 
 pub fn is_username_in_db(con: &mut PgConnection, signup_username: &str) -> bool {
-    user.filter(username.is(signup_username))
+    users.filter(username.eq(signup_username))
         .first::<User>(con)
         .is_ok()
 }
@@ -21,19 +21,19 @@ pub fn get_user_from_db(
     login_username: &str,
     login_email: &str,
 ) -> Option<User> {
-    user.filter(username.is(login_username))
-        .or_filter(email.is(login_email))
+    users.filter(username.eq(login_username))
+        .or_filter(email.eq(login_email))
         .first::<User>(con)
         .ok()
 }
 
 pub fn get_password_hash_from_db(
-    con: &mut PqConnection,
+    con: &mut PgConnection,
     login_username: &str,
     login_email: &str,
 ) -> Option<String> {
-    user.filter(username.is(login_username))
-        .or_filter(email.is(login_email))
+    users.filter(username.eq(login_username))
+        .or_filter(email.eq(login_email))
         .select(password_hash)
         .first::<String>(con)
         .ok()
@@ -54,7 +54,7 @@ impl NewUser {
 }
 
 pub fn insert_user(con: &mut PgConnection, new_user: &NewUser) -> QueryResult<()> {
-    diesel::insert_into(user).values(new_user).execute(con)?;
+    diesel::insert_into(users).values(new_user).execute(con)?;
 
     Ok(())
 }
@@ -62,11 +62,10 @@ pub fn insert_user(con: &mut PgConnection, new_user: &NewUser) -> QueryResult<()
 #[cfg(test)]
 mod tests {
     use crate::{
-        db::schema::user::dsl::user,
+        db::schema::users::dsl::users,
         model::{NewUser, User},
-        operations::user::{insert_user, is_email_in_db, is_username_in_db},
+        operations::user::{insert_user, is_email_in_db, is_username_in_db}, establish_connection,
     };
-    use crate::{id, test_db};
     use diesel::RunQueryDsl;
     use somes_common_lib::SignUpInfo;
 
@@ -74,8 +73,8 @@ mod tests {
 
     #[test]
     fn test_insert_new_user() {
-        let h = test_db::create_handle(id!());
-        let con = &mut h.establish_connection();
+
+        let con = &mut establish_connection();
 
         let signup_info = SignUpInfo {
             email: "test@test.at".to_string(),
@@ -91,7 +90,7 @@ mod tests {
         .unwrap();
         insert_user(con, &new_user).unwrap();
 
-        let first_user = &user.load::<User>(con).unwrap()[0];
+        let first_user = &users.load::<User>(con).unwrap()[0];
 
         assert_eq!(first_user.email, signup_info.email);
         assert_eq!(first_user.username, signup_info.username);
@@ -99,8 +98,6 @@ mod tests {
 
     #[test]
     fn test_email_in_database() {
-        let h = test_db::create_handle(id!());
-        let con = &mut h.establish_connection();
 
         let signup_info = SignUpInfo {
             email: "test@test.at".to_string(),
@@ -113,6 +110,9 @@ mod tests {
             &signup_info.password,
         )
         .unwrap();
+
+        let con = &mut establish_connection();
+
         insert_user(con, &new_user).unwrap();
 
         assert!(!is_email_in_db(con, "email"));
@@ -121,8 +121,6 @@ mod tests {
 
     #[test]
     fn test_username_in_database() {
-        let h = test_db::create_handle(id!());
-        let con = &mut h.establish_connection();
 
         let signup_info = SignUpInfo {
             email: "test@test.at".to_string(),
@@ -135,6 +133,9 @@ mod tests {
             &signup_info.password,
         )
         .unwrap();
+
+        let con = &mut establish_connection();
+
         insert_user(con, &new_user).unwrap();
 
         assert!(!is_username_in_db(con, "stefan"));
@@ -143,8 +144,6 @@ mod tests {
 
     #[test]
     fn test_get_user_from_db() {
-        let h = test_db::create_handle(id!());
-        let con = &mut h.establish_connection();
 
         let signup_info = SignUpInfo {
             email: "test@test.at".to_string(),
@@ -157,6 +156,8 @@ mod tests {
             &signup_info.password,
         )
         .unwrap();
+
+        let con = &mut establish_connection();
 
         insert_user(con, &new_user).unwrap();
 
@@ -185,8 +186,6 @@ mod tests {
 
     #[test]
     fn test_get_password_hash_from_db() {
-        let h = test_db::create_handle(id!());
-        let con = &mut h.establish_connection();
 
         let signup_info = SignUpInfo {
             email: "test@test.at".to_string(),
@@ -199,6 +198,8 @@ mod tests {
             &signup_info.password,
         )
         .unwrap();
+
+        let con = &mut establish_connection();
 
         insert_user(con, &new_user).unwrap();
 

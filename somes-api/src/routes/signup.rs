@@ -1,4 +1,5 @@
 use axum::Json;
+use diesel::connection;
 use somes_common_lib::SignUpInfo;
 
 use crate::{db::establish_connection, RedisConnection};

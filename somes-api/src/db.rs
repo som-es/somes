@@ -14,15 +14,11 @@ use axum::{
     extract::{FromRef, FromRequestParts},
     http::request::Parts,
 };
-use diesel::{Connection, SqliteConnection, PgConnection};
+use diesel::{Connection, PgConnection};
 use reqwest::StatusCode;
 
 use crate::DATABASE_URL;
 
-#[cfg(test)]
-pub fn establish_test_connection(db_path: &str) -> SqliteConnection {
-    SqliteConnection::establish(db_path).expect("Can't establish database conntection.")
-}
 
 pub fn establish_connection() -> PgConnection {
     PgConnection::establish(DATABASE_URL).expect("Can't establish database conntection.")
@@ -122,50 +118,3 @@ pub fn create_db(
     Ok(())
 }
 
-#[cfg(test)]
-pub mod test_db {
-    use diesel::SqliteConnection;
-
-    use crate::{create_db_if_not_exists, establish_test_connection};
-
-    /// A handle for a testing database
-    #[derive(Debug)]
-    pub struct DBHandle {
-        db_path: String,
-    }
-
-    impl DBHandle {
-        pub fn establish_connection(&self) -> SqliteConnection {
-            establish_test_connection(&self.db_path)
-        }
-    }
-
-    impl Drop for DBHandle {
-        fn drop(&mut self) {
-            std::fs::remove_file(&self.db_path).unwrap();
-        }
-    }
-
-    #[must_use = "This handle deletes the old database on drop. Not using this 'instantly' deletes the testing database."]
-    pub fn create_handle(id: u64) -> DBHandle {
-        let db_handle = DBHandle {
-            db_path: format!("{}{id}", crate::TEST_DB_PATH),
-        };
-
-        create_db_if_not_exists(&db_handle.db_path, crate::SQL_SCHEMA_PATH).unwrap();
-        db_handle
-    }
-
-    #[macro_export]
-    macro_rules! id {
-        () => {{
-            let id = concat!(file!(), line!(), column!());
-            use std::collections::hash_map::DefaultHasher;
-            use std::hash::{Hash, Hasher};
-
-            let mut s = DefaultHasher::new();
-            id.hash(&mut s);
-            s.finish()
-        }};
-    }
-}
