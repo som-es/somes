@@ -75,8 +75,6 @@ pub async fn serve(addr: SocketAddr) {
     //.with_state(verification_map)
     //.with_state(verification_hasher);
 
-    
-
     let server = match axum::Server::try_bind(&addr) {
         Ok(server) => server,
         Err(e) => panic!("Could not initialize API: {e}"),

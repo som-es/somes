@@ -72,7 +72,8 @@ mod tests {
     use somes_common_lib::{SignUpInfo, VerificationIDInfo};
 
     use crate::{
-        routes::{add_new_user_to_redis, remove_user_from_redis, validate_signup_info}, establish_connection,
+        establish_connection,
+        routes::{add_new_user_to_redis, remove_user_from_redis, validate_signup_info},
     };
 
     use super::create_verification_id;
@@ -108,14 +109,13 @@ mod tests {
         });
 
         let verify_id = add_new_user_to_redis(signup_info, &mut redis_con)
-        .await
-        .unwrap();
+            .await
+            .unwrap();
 
-    remove_user_from_redis(redis_con, &VerificationIDInfo { verify_id })
-        .await
-        .unwrap();
+        remove_user_from_redis(redis_con, &VerificationIDInfo { verify_id })
+            .await
+            .unwrap();
 
-    
         // println!("veri: {verification_map:?}");
     }
 }

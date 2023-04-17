@@ -5,13 +5,16 @@ use diesel::prelude::*;
 use diesel::PgConnection;
 
 pub fn is_email_in_db(con: &mut PgConnection, signup_email: &str) -> bool {
-    users.filter(email.eq(signup_email))
+    users
+        .filter(email.eq(signup_email))
+        // .first::<User>(con)
         .first::<User>(con)
         .is_ok()
 }
 
 pub fn is_username_in_db(con: &mut PgConnection, signup_username: &str) -> bool {
-    users.filter(username.eq(signup_username))
+    users
+        .filter(username.eq(signup_username))
         .first::<User>(con)
         .is_ok()
 }
@@ -21,7 +24,8 @@ pub fn get_user_from_db(
     login_username: &str,
     login_email: &str,
 ) -> Option<User> {
-    users.filter(username.eq(login_username))
+    users
+        .filter(username.eq(login_username))
         .or_filter(email.eq(login_email))
         .first::<User>(con)
         .ok()
@@ -32,7 +36,8 @@ pub fn get_password_hash_from_db(
     login_username: &str,
     login_email: &str,
 ) -> Option<String> {
-    users.filter(username.eq(login_username))
+    users
+        .filter(username.eq(login_username))
         .or_filter(email.eq(login_email))
         .select(password_hash)
         .first::<String>(con)
@@ -63,17 +68,17 @@ pub fn insert_user(con: &mut PgConnection, new_user: &NewUser) -> QueryResult<()
 mod tests {
     use crate::{
         db::schema::users::dsl::users,
+        establish_connection,
         model::{NewUser, User},
-        operations::user::{insert_user, is_email_in_db, is_username_in_db}, establish_connection,
+        operations::user::{insert_user, is_email_in_db, is_username_in_db},
     };
-    use diesel::RunQueryDsl;
+    use diesel::{Connection, RunQueryDsl};
     use somes_common_lib::SignUpInfo;
 
     use super::{get_password_hash_from_db, get_user_from_db};
 
     #[test]
     fn test_insert_new_user() {
-
         let con = &mut establish_connection();
 
         let signup_info = SignUpInfo {
@@ -88,17 +93,21 @@ mod tests {
             &signup_info.password,
         )
         .unwrap();
-        insert_user(con, &new_user).unwrap();
 
-        let first_user = &users.load::<User>(con).unwrap()[0];
+        con.test_transaction::<_, (), _>(|con| {
+            insert_user(con, &new_user).unwrap();
 
-        assert_eq!(first_user.email, signup_info.email);
-        assert_eq!(first_user.username, signup_info.username);
+            let first_user = &users.load::<User>(con).unwrap()[0];
+
+            assert_eq!(first_user.email, signup_info.email);
+            assert_eq!(first_user.username, signup_info.username);
+
+            Ok(())
+        });
     }
 
     #[test]
     fn test_email_in_database() {
-
         let signup_info = SignUpInfo {
             email: "test@test.at".to_string(),
             username: "test_name".to_string(),
@@ -113,15 +122,17 @@ mod tests {
 
         let con = &mut establish_connection();
 
-        insert_user(con, &new_user).unwrap();
+        con.test_transaction::<_, (), _>(|con| {
+            insert_user(con, &new_user).unwrap();
 
-        assert!(!is_email_in_db(con, "email"));
-        assert!(is_email_in_db(con, "test@test.at"));
+            assert!(!is_email_in_db(con, "email"));
+            assert!(is_email_in_db(con, "test@test.at"));
+            Ok(())
+        });
     }
 
     #[test]
     fn test_username_in_database() {
-
         let signup_info = SignUpInfo {
             email: "test@test.at".to_string(),
             username: "test_name".to_string(),
@@ -136,15 +147,17 @@ mod tests {
 
         let con = &mut establish_connection();
 
-        insert_user(con, &new_user).unwrap();
+        con.test_transaction::<_, (), _>(|con| {
+            insert_user(con, &new_user).unwrap();
 
-        assert!(!is_username_in_db(con, "stefan"));
-        assert!(is_username_in_db(con, "test_name"));
+            assert!(!is_username_in_db(con, "stefan"));
+            assert!(is_username_in_db(con, "test_name"));
+            Ok(())
+        });
     }
 
     #[test]
     fn test_get_user_from_db() {
-
         let signup_info = SignUpInfo {
             email: "test@test.at".to_string(),
             username: "test_name".to_string(),
@@ -159,34 +172,36 @@ mod tests {
 
         let con = &mut establish_connection();
 
-        insert_user(con, &new_user).unwrap();
+        con.test_transaction::<_, (), _>(|con| {
+            insert_user(con, &new_user).unwrap();
 
-        let db_user = get_user_from_db(con, "test_name", "").unwrap();
+            let db_user = get_user_from_db(con, "test_name", "").unwrap();
 
-        assert_eq!("test_name", db_user.username);
-        assert_eq!("test@test.at", db_user.email);
-        assert_ne!("supersicher", db_user.password_hash);
+            assert_eq!("test_name", db_user.username);
+            assert_eq!("test@test.at", db_user.email);
+            assert_ne!("supersicher", db_user.password_hash);
 
-        let db_user = get_user_from_db(con, "", "test@test.at").unwrap();
+            let db_user = get_user_from_db(con, "", "test@test.at").unwrap();
 
-        assert_eq!("test_name", db_user.username);
-        assert_eq!("test@test.at", db_user.email);
-        assert_ne!("supersicher", db_user.password_hash);
+            assert_eq!("test_name", db_user.username);
+            assert_eq!("test@test.at", db_user.email);
+            assert_ne!("supersicher", db_user.password_hash);
 
-        let db_user = get_user_from_db(con, "test_name", "test@test.at").unwrap();
+            let db_user = get_user_from_db(con, "test_name", "test@test.at").unwrap();
 
-        assert_eq!("test_name", db_user.username);
-        assert_eq!("test@test.at", db_user.email);
-        assert_ne!("supersicher", db_user.password_hash);
+            assert_eq!("test_name", db_user.username);
+            assert_eq!("test@test.at", db_user.email);
+            assert_ne!("supersicher", db_user.password_hash);
 
-        let db_user = get_user_from_db(con, "test_account", "invalid");
+            let db_user = get_user_from_db(con, "test_account", "invalid");
 
-        assert!(db_user.is_none())
+            assert!(db_user.is_none());
+            Ok(())
+        });
     }
 
     #[test]
     fn test_get_password_hash_from_db() {
-
         let signup_info = SignUpInfo {
             email: "test@test.at".to_string(),
             username: "test_name".to_string(),
@@ -201,9 +216,12 @@ mod tests {
 
         let con = &mut establish_connection();
 
-        insert_user(con, &new_user).unwrap();
+        con.test_transaction::<_, (), _>(|con| {
+            insert_user(con, &new_user).unwrap();
 
-        let pw_hash = get_password_hash_from_db(con, "test_name", "").unwrap();
-        assert!(pw_hash.len() > signup_info.password.len());
+            let pw_hash = get_password_hash_from_db(con, "test_name", "").unwrap();
+            assert!(pw_hash.len() > signup_info.password.len());
+            Ok(())
+        });
     }
 }

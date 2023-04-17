@@ -105,14 +105,14 @@ pub async fn add_new_user_to_redis(
 #[cfg(test)]
 mod tests {
 
-    use diesel::{PgConnection, Connection};
+    use diesel::{Connection, PgConnection};
     use somes_common_lib::SignUpInfo;
 
     use crate::establish_connection;
     use crate::model::NewUser;
 
     use crate::operations::user::insert_user;
-    use crate::{routes::signup::error::SignUpErrorResponse};
+    use crate::routes::signup::error::SignUpErrorResponse;
 
     use super::validate_signup_info;
 
@@ -125,7 +125,7 @@ mod tests {
             username: "test_name".to_string(),
             password: "supersicher".to_string(),
         };
-        
+
         let con = &mut establish_connection();
         con.test_transaction::<_, (), _>(|con| {
             match validate_signup_info(con, &signup_info) {
@@ -133,6 +133,7 @@ mod tests {
                 Err(err) => match err {
                     SignUpErrorResponse::UserCreationError => panic!(""),
                     SignUpErrorResponse::SignUpError(signup_err) => {
+                        println!("signup: {signup_err:?}");
                         assert!(signup_err.insufficient_password);
                         assert!(!signup_err.invalid_email);
                         assert!(!signup_err.email_taken);
@@ -141,7 +142,6 @@ mod tests {
             };
             Ok(())
         });
-        
     }
 
     #[test]
@@ -197,7 +197,7 @@ mod tests {
         )
         .unwrap();
 
-        // TODO
+        // TODO Look in redis database!
         /*verification_map
         .write()
         .unwrap()
@@ -216,13 +216,13 @@ mod tests {
                     }
                 },
             }
-    
+
             let signup_info = SignUpInfo {
                 email: "test1@test.at".to_string(),
                 username: "test_name".to_string(),
                 password: "supersicher".to_string(),
             };
-    
+
             match validate_signup_info(con, &signup_info) {
                 Ok(_) => panic!("Not possible, password is weak"),
                 Err(err) => match err {
@@ -265,6 +265,5 @@ mod tests {
             }
             Ok(())
         });
-        
     }
 }

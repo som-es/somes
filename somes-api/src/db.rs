@@ -19,7 +19,6 @@ use reqwest::StatusCode;
 
 use crate::DATABASE_URL;
 
-
 pub fn establish_connection() -> PgConnection {
     PgConnection::establish(DATABASE_URL).expect("Can't establish database conntection.")
 }
@@ -117,4 +116,3 @@ pub fn create_db(
 
     Ok(())
 }
-

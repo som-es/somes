@@ -6,7 +6,10 @@ use somes_api::{initial_startup, model::NewUser, server, DATABASE_URL, SQL_SCHEM
 
 #[tokio::main]
 async fn main() {
-    SimpleLogger::new().with_level(log::LevelFilter::Info).init().unwrap();
+    SimpleLogger::new()
+        .with_level(log::LevelFilter::Info)
+        .init()
+        .unwrap();
 
     initial_startup(DATABASE_URL, SQL_SCHEMA_PATH);
 
