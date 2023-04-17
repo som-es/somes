@@ -2,21 +2,22 @@ use crate::db::model::{NewUser, User};
 use crate::db::schema::user::dsl::*;
 use crate::hash;
 use diesel::prelude::*;
+use diesel::PgConnection;
 
-pub fn is_email_in_db(con: &mut SqliteConnection, signup_email: &str) -> bool {
+pub fn is_email_in_db(con: &mut PgConnection, signup_email: &str) -> bool {
     user.filter(email.is(signup_email))
         .first::<User>(con)
         .is_ok()
 }
 
-pub fn is_username_in_db(con: &mut SqliteConnection, signup_username: &str) -> bool {
+pub fn is_username_in_db(con: &mut PgConnection, signup_username: &str) -> bool {
     user.filter(username.is(signup_username))
         .first::<User>(con)
         .is_ok()
 }
 
 pub fn get_user_from_db(
-    con: &mut SqliteConnection,
+    con: &mut PgConnection,
     login_username: &str,
     login_email: &str,
 ) -> Option<User> {
@@ -27,7 +28,7 @@ pub fn get_user_from_db(
 }
 
 pub fn get_password_hash_from_db(
-    con: &mut SqliteConnection,
+    con: &mut PqConnection,
     login_username: &str,
     login_email: &str,
 ) -> Option<String> {
@@ -52,7 +53,7 @@ impl NewUser {
     }
 }
 
-pub fn insert_user(con: &mut SqliteConnection, new_user: &NewUser) -> QueryResult<()> {
+pub fn insert_user(con: &mut PgConnection, new_user: &NewUser) -> QueryResult<()> {
     diesel::insert_into(user).values(new_user).execute(con)?;
 
     Ok(())

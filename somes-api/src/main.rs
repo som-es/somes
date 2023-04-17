@@ -2,13 +2,13 @@ use std::net::SocketAddr;
 
 use redis::AsyncCommands;
 use simple_logger::SimpleLogger;
-use somes_api::{initial_startup, model::NewUser, server, DB_PATH, SQL_SCHEMA_PATH};
+use somes_api::{initial_startup, model::NewUser, server, DATABASE_URL, SQL_SCHEMA_PATH};
 
 #[tokio::main]
 async fn main() {
     SimpleLogger::new().with_level(log::LevelFilter::Info).init().unwrap();
 
-    initial_startup(DB_PATH, SQL_SCHEMA_PATH);
+    initial_startup(DATABASE_URL, SQL_SCHEMA_PATH);
 
     let client = redis::Client::open("redis://127.0.0.1/").unwrap();
     let mut con = client.get_async_connection().await.unwrap();

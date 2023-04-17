@@ -14,18 +14,18 @@ use axum::{
     extract::{FromRef, FromRequestParts},
     http::request::Parts,
 };
-use diesel::{Connection, SqliteConnection};
+use diesel::{Connection, SqliteConnection, PgConnection};
 use reqwest::StatusCode;
 
-use crate::DB_PATH;
+use crate::DATABASE_URL;
 
 #[cfg(test)]
 pub fn establish_test_connection(db_path: &str) -> SqliteConnection {
     SqliteConnection::establish(db_path).expect("Can't establish database conntection.")
 }
 
-pub fn establish_connection() -> SqliteConnection {
-    SqliteConnection::establish(DB_PATH).expect("Can't establish database conntection.")
+pub fn establish_connection() -> PgConnection {
+    PgConnection::establish(DATABASE_URL).expect("Can't establish database conntection.")
 }
 
 pub struct RedisConnection(pub redis::aio::Connection);
