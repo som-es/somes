@@ -14,8 +14,8 @@
     for (let angle_deg = 0; angle_deg < count_to; angle_deg += modulo) {
         let angle_rad = -(angle_deg / normalize) * Math.PI / 180.;
         
-        const x = 2.0* r * Math.cos(angle_rad) + 700;
-        const y = 2.0*r * Math.sin(angle_rad) + 700;
+        const x = 2.0 * r * Math.cos(angle_rad) + 700;
+        const y = 2.0 * r * Math.sin(angle_rad) + 700;
 
         const circle = {
             x, y

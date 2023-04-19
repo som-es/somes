@@ -10,9 +10,10 @@ pub enum DelegatesErrorResponse {
 impl IntoResponse for DelegatesErrorResponse {
     fn into_response(self) -> axum::response::Response {
         let (status_code, err_msg) = match self {
-            DelegatesErrorResponse::DelegateResponseError => {
-                (StatusCode::INTERNAL_SERVER_ERROR, "could not return delegates")
-            }
+            DelegatesErrorResponse::DelegateResponseError => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "could not return delegates",
+            ),
         };
 
         let body = Json(json!({

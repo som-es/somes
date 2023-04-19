@@ -7,9 +7,9 @@ use axum::{
     Router,
 };
 use log::{error, info};
-use somes_common_lib::{LOGIN_ROUTE, SIGNUP_ROUTE, VERIFY_ROUTE, DELEGATES_ROUTE};
+use somes_common_lib::{DELEGATES_ROUTE, LOGIN_ROUTE, SIGNUP_ROUTE, VERIFY_ROUTE, PROPOSALS_ROUTE};
 //use headers::HeaderValue;
-use crate::{REDIS_DB, routes::delegates};
+use crate::{routes::{delegates, proposals}, REDIS_DB};
 use tower_http::cors::{Any, CorsLayer};
 
 use crate::routes::{login, signup, verify};
@@ -66,6 +66,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(VERIFY_ROUTE, get(verify)) // or post?
         .route(LOGIN_ROUTE, post(login))
         .route(DELEGATES_ROUTE, get(delegates))
+        .route(PROPOSALS_ROUTE, get(proposals))
         .layer(
             CorsLayer::new()
                 .allow_origin(Any)
