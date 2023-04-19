@@ -27,3 +27,5 @@ base16ct = { version = "0.2.0", features = ["std"] }
 redis = { version = "0.23", features = ["tokio-comp"] }
 log = "0.4.17"
 simple_logger = "4.0.0"
+common-scrapes = { path = "../../common-scrapes" }
+dataservice = { path = "../../dataservice", default-features=false, features=["models"] }

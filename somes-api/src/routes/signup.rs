@@ -23,6 +23,7 @@ pub async fn signup(
 
     // if validation was successful, add a new user to the verification redis db
     let _id = add_new_user_to_redis(signup_info, &mut conn).await;
+    // send mail?
     println!("id: {_id:?}");
     Ok(Json(()))
 }
