@@ -11,6 +11,8 @@
     let normalize = 100. * count_to / scaled_max_angle;
     let circles: { x: number, y: number }[] = [];
 
+    // check if circle is relative in (svelte circle demo)
+
     for (let angle_deg = 0; angle_deg < count_to; angle_deg += modulo) {
         let angle_rad = -(angle_deg / normalize) * Math.PI / 180.;
         
@@ -26,18 +28,18 @@
 </script>
 
 <div>
-    <!--<svg>
+    <svg>
         {#each circles as circle}
             <circle cx={circle.x} cy={circle.y} r=10
                 fill="rgb(196, 180, 189)"
             />
         {/each}
-    </svg>-->
-    {#each circles as circle}
+    </svg>
+    <!--{#each circles as circle}
         <div class="circle" style="left: {circle.x}px; top: {circle.y}px;">
 
         </div>
-    {/each}
+    {/each}-->
 </div>
 
 <style>
@@ -47,10 +49,11 @@ svg {
 }
 
 .circle {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  background-color: rgb(196, 180, 189);
-  border-radius: 50%;
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: rgb(196, 180, 189);
+    border-radius: 50%;
 }
+
 </style>
