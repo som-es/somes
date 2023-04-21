@@ -31,16 +31,55 @@
         }
         return circles
     }
-    let circles: { x: number, y: number }[] = [];
+    let circles2d: { x: number, y: number, party: string | null, color: string | null }[][] = [];
     seats.forEach((seat, idx) => {
-        circles = circles.concat(generateHalfCircle(seat, 70 + idx * (idx == 1 ? 30 : 20) + (idx >= 2 ? 30: 0)));
+        circles2d.push(generateHalfCircle(seat, 70 + idx * (idx == 1 ? 30 : 20) + (idx >= 2 ? 30: 0)).map((circle) => {
+            return {
+                x: circle.x,
+                y: circle.y,
+                party: null,
+                color: "rgb(196, 180, 189)"
+            }
+        }));
+        // circles = circles.concat(generateHalfCircle(seat, 70 + idx * (idx == 1 ? 30 : 20) + (idx >= 2 ? 30: 0)));
     });
+
+    dels.forEach((del, idx) => {
+        if (del.seat_row == null || del.seat_col == null) {
+            return
+        }
+        console.log(del);
+        circles2d[del.seat_row-1][del.seat_col-1].party = del.party;
+        switch (del.party) {
+            case "SPÖ":
+                circles2d[del.seat_row-1][del.seat_col-1].color = "#E31E2D";
+                break;
+            case "ÖVP":
+                circles2d[del.seat_row-1][del.seat_col-1].color = "#62C3D0";
+                break;
+            case "FPÖ":
+                circles2d[del.seat_row-1][del.seat_col-1].color = "#0052FB";
+                break;
+            case "GRÜNE":
+                circles2d[del.seat_row-1][del.seat_col-1].color = "#69B12E";
+                break;
+            case "NEOS":
+                circles2d[del.seat_row-1][del.seat_col-1].color = "#E3257B";
+                break;
+            default:
+                circles2d[del.seat_row-1][del.seat_col-1].color = "rgb(196, 180, 189)";
+                break;
+        }
+    });
+    
+    let circles: { x: number, y: number, party: string | null, color: string | null}[]= circles2d.flat(1);
 </script>
 
 <svg {width} {height} style="margin: auto;">
     {#each circles as circle}
+
         <circle cx={circle.x} cy={circle.y} r=6
-            fill="rgb(196, 180, 189)"
+            fill={circle.color}
         />
     {/each}
 </svg>
