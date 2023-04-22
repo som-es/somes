@@ -17,7 +17,7 @@
 
 </script>
 
-<div>
+<!-- <div> -->
     <!-- <Halfcircle n={17} r={70 * 1.5} /> -->
     <!-- <Halfcircle n={26} r={100 * 1.5} /> -->
     <!-- <Halfcircle n={32} r={130 * 1.5} /> -->
@@ -26,12 +26,17 @@
     <!-- <Halfcircle n={32} r={190. * 1.5} /> -->
 
     {#if dels}
-        <div>
+
             <!-- <Parliament seats={[17, 26, 32, 37, 40, 32]} /> -->
             <Parliament2 dels={dels} seats={[20, 27, 37, 43, 48, 54]} />
-        </div>
+
     {:else}
         <p class="loading">loading...</p>
     {/if}
 
-</div>
+<!-- </div> -->
+
+<style>
+
+</style>
+```

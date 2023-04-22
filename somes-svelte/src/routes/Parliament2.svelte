@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Delegate } from "$lib/types";
 	import { SvelteComponentDev } from "svelte/internal";
+	import DelegateCard from "./DelegateCard.svelte";
 
     export let seats: number[];
     export let dels: Delegate[];
@@ -25,7 +26,7 @@
         if (selected != null) {
             selected.r = 6;
         }
-        bubble.r = +10;
+        bubble.r = +10.9;
         circles = circles;
         event.stopPropagation();
         selected = bubble;
@@ -60,7 +61,7 @@
     seats.forEach((seat, idx) => {
         circles2d.push(generateHalfCircle(seat, 70 + idx * (idx == 1 ? 30 : 20) + (idx >= 2 ? 30: 0)).map((circle) => {
             return {
-                r: 6,
+                r: 6.9,
                 x: circle.x,
                 y: circle.y,
                 del: null,
@@ -102,21 +103,22 @@
     let circles: Bubble[]= circles2d.flat(1);
 </script>
 
-<div>
+<!--<div>
+    {#if selected && selected.del}
+    
+        <DelegateCard name={selected.del.name} party={selected.del.party} image={selected.del.image_url} />
+    {/if}
+
+</div>-->
+<!-- <div class="w-screen h-screen bg-slate-500"></div> -->
+<!-- <div> -->
     <!--<div class="container">
         <div class="box">HALLO</div>
         <div class="overlay">OVERLAY</div>
       </div>-->
-    <div style="float:left;">
-        <div class="card p-4">Basic
-
-        </div>
-        {#if selected}
-        Name: {selected.del?.name}<br>
-        Partei: {selected.del?.party}<br>
-        {/if}
-    </div>
-    <svg class="container" {width} {height} style="margin: auto; float: right;">
+    
+    <!-- <svg {width} {height} style="margin: auto; float: right;"> -->
+    <svg height="100%" width="100%"> 
     {#each circles as circle}
         <div class="box" >B</div>
         <circle type="button" cx={circle.x} cy={circle.y} r={circle.r}
@@ -128,7 +130,7 @@
     {/each}
     
     </svg>
-</div>
+<!-- </div> -->
 
 <style>
 .container {
@@ -149,5 +151,30 @@
 }
 .box:hover + .overlay {
   visibility: visible;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Create two equal columns that floats next to each other */
+.column {
+  float: left;
+  width: 75%;
+  padding: 10px;
+}
+
+.column-less {
+  float: left;
+  width: 25%;
+  padding: 10px;
+
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
 }
 </style>

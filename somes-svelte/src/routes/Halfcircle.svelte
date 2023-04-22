@@ -28,7 +28,7 @@
 </script>
 
 <div>
-    <svg>
+    <svg class="text-green">
         {#each circles as circle}
             <circle cx={circle.x} cy={circle.y} r=10
                 fill="rgb(196, 180, 189)"
