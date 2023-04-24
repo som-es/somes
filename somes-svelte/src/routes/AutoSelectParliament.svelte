@@ -2,6 +2,8 @@
     import { setDelOnBubble, type Bubble, setupParliament } from "$lib/parliament";
 	import type { Delegate } from "$lib/types";
 	import { onDestroy, onMount } from "svelte";
+    import { localStorageStore } from '@skeletonlabs/skeleton';
+    import type { Writable } from 'svelte/store';
 	
     export let seats: number[];
     export let dels: Delegate[];
@@ -25,6 +27,8 @@
 
     let activeSelection: Bubble;
 
+    const currentDelegateStorage: Writable<Bubble | null> = localStorageStore('currentDelegate', null);
+
     function select(bubble: Bubble) {
         if (bubble.del == null) {
             return;
@@ -35,6 +39,7 @@
         bubble.r = +10.9;
         circles = circles;
         activeSelection = bubble;
+        currentDelegateStorage.set(bubble);
 	}
 
     function updateSelection() {
@@ -60,16 +65,18 @@
 
 <!---->
 
-<div class="flex border max-w-min">
-    <svg width={width * 0.3} height={height * 0.15 + 10}> 
-        {#each circles as circle}
-            <circle type="button" cx={circle.x} cy={circle.y} r={circle.r}
-                fill={circle.color}
-                fill-opacity={circle.color == "rgb(196, 180, 189)" && circle.del == null ? 0.2 : 1}
-                transform="scale(0.3)"
-            />
-        {/each}   
-    </svg>
+<a href="/vote" class="flex flex-wrap border max-w-[20.2rem]">
+    <div>
+        <svg viewBox="0 0 {width} {height * 0.5+10}" style="width: 240px; max-width: 100%;">
+        <!-- <svg width={width * 0.3} height={height * 0.15 + 10}>  -->
+            {#each circles as circle}
+                <circle type="button" cx={circle.x} cy={circle.y} r={circle.r}
+                    fill={circle.color}
+                    fill-opacity={circle.color == "rgb(196, 180, 189)" && circle.del == null ? 0.2 : 1}
+                />
+            {/each}   
+        </svg>
+    </div>
     <div class="self-center">
         {#if activeSelection && activeSelection.del}
             <div class="card w-20">
@@ -80,4 +87,5 @@
             </div>
         {/if}
     </div>
-</div>
+
+</a>

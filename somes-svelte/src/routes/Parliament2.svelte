@@ -2,6 +2,8 @@
 	import { setDelOnBubble, type Bubble, generateHalfCircle, setupParliament } from "$lib/parliament";
 	import type { Delegate } from "$lib/types"
 	import DelegateCard from "./DelegateCard.svelte";
+    import { get, type Readable } from 'svelte/store';
+    import { localStorageStore } from '@skeletonlabs/skeleton';
 
     export let seats: number[];
     export let dels: Delegate[];
@@ -11,8 +13,22 @@
 
     let selected: Bubble;
 
+    function fromLocalStorage() {
+        const currentDelegateStorage: Readable<Bubble | null> = localStorageStore('currentDelegate', null);
+        const bubble = get(currentDelegateStorage);
+        if (bubble == null) {
+            return;
+        }
+        if (bubble.del == null) {
+            return;
+        }
+        if (bubble.del.seat_row == null || bubble.del.seat_col == null) {
+            return;
+        }
+        select(circles2d[bubble.del.seat_row-1][bubble.del.seat_col-1], null);
+    }
 
-    function select(bubble: Bubble, event: MouseEvent) {
+    function select(bubble: Bubble, event: MouseEvent | null) {
         if (bubble.del == null) {
             return;
         }
@@ -20,8 +36,10 @@
             selected.r = 6;
         }
         bubble.r = +10.9;
-        circles = circles;
-        event.stopPropagation();
+        circles2d = circles2d;
+        if (event != null) {
+            event.stopPropagation();
+        }
         selected = bubble;
         console.log(selected);
 	}
@@ -31,36 +49,39 @@
     dels.forEach((del) => {
         setDelOnBubble(del, circles2d);
     });
-    
-    let circles: Bubble[] = circles2d.flat(1);
 
-    selected = circles[0];
+    fromLocalStorage();
+
+
 </script>
 
-<div class="container">
-    <div class="element h-screen bg-slate-500" style="width: 30%;">
+<div class="flex flex-wrap-reverse">
+    <div class="h-screen w-60 bg-slate-500">
         {#if selected && selected.del}
             <div class="card">
                 <header>
-                    <img src={selected.del.image_url} class="bg-black/50 w-full aspect-[10/9]" alt="image of politician {selected.del.name}">
+                    <img src={selected.del.image_url} class="bg-black/50  aspect-[10/9]" alt="image of politician {selected.del.name}">
                 </header>
                 <section class="p-4"><h4>{selected.del.name}</h4><span>{selected.del.party}</span></section>
             </div>
             <!-- <DelegateCard name={selected.del.name} party={selected.del.party} image={selected.del.image_url} /> -->
         {/if}
     </div>
-    <svg class="element" {height} width="70%"> 
-        {#each circles as circle}
-            <div class="box" >B</div>
-            <circle type="button" cx={circle.x} cy={circle.y} r={circle.r}
-                on:click="{event => select(circle, event)}"
-                fill={circle.color}
-                fill-opacity={circle.color == "rgb(196, 180, 189)" && circle.del == null ? 0.2 : 1}
-            />
-            <div class="overlay">Overlay</div>
-        {/each}
-        
-    </svg>
+    <div class="self-center">
+        <!-- <svg {width} height={height * 0.5 +10}> -->
+            <svg viewBox="0 0 {width} {height * 0.5+10}" style="width: 500px; max-width: 100%;">
+            {#each circles2d.flat(1) as circle}
+                <div class="box" >B</div>
+                <circle type="button" cx={circle.x} cy={circle.y} r={circle.r}
+                    on:click="{event => select(circle, event)}"
+                    fill={circle.color}
+                    fill-opacity={circle.color == "rgb(196, 180, 189)" && circle.del == null ? 0.2 : 1}
+                    transform=""
+                />
+                <div class="overlay">Overlay</div>
+            {/each}
+        </svg>
+    </div>
 </div>
 <!-- <div class="w-screen h-screen bg-slate-500"></div> -->
 <!-- <div> -->
@@ -75,9 +96,7 @@
 <!-- </div> -->
 
 <style>
-.container {
-  position: relative;
-}
+
 .box {
   position: absolute;
   background: #0057e3;
@@ -99,39 +118,4 @@
   box-sizing: border-box;
 }
 
-.container {
-  background-color: red;
-  position: relative;
-  width: 80%;
-  padding-top: 80%; /* 1:1 Aspect Ratio */
-}
-
-/* Create two equal columns that floats next to each other */
-.column {
-  float: left;
-  width: 75%;
-  padding: 10px;
-}
-
-.column-less {
-  float: left;
-  width: 25%;
-  padding: 10px;
-
-}
-
-/* Clear floats after the columns */
-.row:after {
-  content: "";
-  display: table;
-  clear: both;
-}
-
-.element {
-  position:  absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-}
 </style>
