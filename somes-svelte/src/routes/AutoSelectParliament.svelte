@@ -116,9 +116,14 @@
                 <header>
                     <img src={activeSelection.del.image_url} class="bg-black/50 w-full aspect-[10/9] rounded" alt="image of politician {activeSelection.del.name}">
                 </header>
-                <section class="p-0.5" style="font-size: 9px;">{activeSelection.del.name}</section>
+                <section class="p-0.5 dark:text-white" style="font-size: 9px;">{activeSelection.del.name}</section>
             </div>
         {/if}
     </div>
-
 </a>
+
+<style>
+a:link{
+  text-decoration: none!important;
+}
+</style>
