@@ -1,7 +1,8 @@
 <script lang="ts">
     import { setDelOnBubble, type Bubble, setupParliament } from "$lib/parliament";
 	import type { Delegate } from "$lib/types";
-
+	import { onDestroy, onMount } from "svelte";
+	
     export let seats: number[];
     export let dels: Delegate[];
 
@@ -16,18 +17,54 @@
 
     let circles: Bubble[] = circles2d.flat(1);
 
-    let possibleSelection = circles.filter((circle) => circle.del != null);
-    
-    
-    
-    let selectionSet: Set<Bubble> = new Set(possibleSelection);
-    const idx = Math.floor(Math.random() * selectionSet.size);
-    selectionSet.keys()[idx];
-    const selection = possibleSelection[idx];
+    let interval: NodeJS.Timer;
 
-    selectionSet.delete(selection);
+    const possibleSelectionUnchanged = circles.filter((circle) => circle.del != null);
+    const possibleSelection: Bubble[] = [];
+    possibleSelectionUnchanged.forEach(bubble => possibleSelection.push(Object.assign({}, bubble)));
+
+    let activeSelection: Bubble;
+
+    function select(bubble: Bubble) {
+        if (bubble.del == null) {
+            return;
+        }
+        if (activeSelection != null) {
+            activeSelection.r = 6;
+        }
+        bubble.r = +10.9;
+        circles = circles;
+        activeSelection = bubble;
+	}
+
+    onMount(() => {
+        interval = setInterval(() => {            
+            if (possibleSelection.length == 0) {
+                possibleSelectionUnchanged.forEach(bubble => possibleSelection.push(Object.assign({}, bubble)));
+            }
+            const idx = Math.floor(Math.random() * possibleSelection.length);
+            select(possibleSelection[idx]);
+            possibleSelection.splice(idx, 1);
+        }, 1000 * 5);
+    });
+
+    onDestroy(() => {
+        if (interval) {
+            clearInterval(interval);
+        }
+    })
     
 </script>
+
+{#if activeSelection && activeSelection.del}
+    <div class="card w-60">
+        <header>
+            <img src={activeSelection.del.image_url} class="bg-black/50 w-full aspect-[10/9]" alt="image of politician {activeSelection.del.name}">
+        </header>
+        <section class="p-4"><h4>{activeSelection.del.name}</h4><span>{activeSelection.del.party}</span></section>
+    </div>
+    <!-- <DelegateCard name={selected.del.name} party={selected.del.party} image={selected.del.image_url} /> -->
+{/if}
 
 <svg {width} {height}> 
     {#each circles as circle}

@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { onMount } from "svelte";
+
 	import AutoSelectParliament from "../AutoSelectParliament.svelte";
 	import type { Delegate } from "$lib/types";
 	import { delegates } from "$lib/api";
 	import Parliament2 from "../Parliament2.svelte";
+    import { onMount } from "svelte";
 
     let dels: Delegate[];
     
