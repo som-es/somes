@@ -20,8 +20,8 @@
     let interval: NodeJS.Timer;
 
     const possibleSelectionUnchanged = circles.filter((circle) => circle.del != null);
-    const possibleSelection: Bubble[] = [];
-    possibleSelectionUnchanged.forEach(bubble => possibleSelection.push(Object.assign({}, bubble)));
+    let possibleSelection: Bubble[] = [...possibleSelectionUnchanged];
+    //possibleSelectionUnchanged.forEach(bubble => possibleSelection.push(bubble));
 
     let activeSelection: Bubble;
 
@@ -37,15 +37,17 @@
         activeSelection = bubble;
 	}
 
+    function updateSelection() {
+        if (possibleSelection.length == 0) {
+            possibleSelection = [...possibleSelectionUnchanged]
+        }
+        const idx = Math.floor(Math.random() * possibleSelection.length);
+        select(possibleSelection[idx]);
+        possibleSelection.splice(idx, 1);
+    }
+    updateSelection();
     onMount(() => {
-        interval = setInterval(() => {            
-            if (possibleSelection.length == 0) {
-                possibleSelectionUnchanged.forEach(bubble => possibleSelection.push(Object.assign({}, bubble)));
-            }
-            const idx = Math.floor(Math.random() * possibleSelection.length);
-            select(possibleSelection[idx]);
-            possibleSelection.splice(idx, 1);
-        }, 1000 * 5);
+        interval = setInterval(updateSelection, 1000 * 5);
     });
 
     onDestroy(() => {
@@ -56,24 +58,26 @@
     
 </script>
 
-{#if activeSelection && activeSelection.del}
-    <div class="card w-60">
-        <header>
-            <img src={activeSelection.del.image_url} class="bg-black/50 w-full aspect-[10/9]" alt="image of politician {activeSelection.del.name}">
-        </header>
-        <section class="p-4"><h4>{activeSelection.del.name}</h4><span>{activeSelection.del.party}</span></section>
-    </div>
-    <!-- <DelegateCard name={selected.del.name} party={selected.del.party} image={selected.del.image_url} /> -->
-{/if}
+<!---->
 
-<svg {width} {height}> 
-    {#each circles as circle}
-        <div class="box" >B</div>
-        <circle type="button" cx={circle.x} cy={circle.y} r={circle.r}
-            fill={circle.color}
-            fill-opacity={circle.color == "rgb(196, 180, 189)" && circle.del == null ? 0.2 : 1}
-        />
-        <div class="overlay">Overlay</div>
-    {/each}
-    
-</svg>
+<div class="flex border max-w-min">
+    <svg width={width * 0.3} height={height * 0.15 + 10}> 
+        {#each circles as circle}
+            <circle type="button" cx={circle.x} cy={circle.y} r={circle.r}
+                fill={circle.color}
+                fill-opacity={circle.color == "rgb(196, 180, 189)" && circle.del == null ? 0.2 : 1}
+                transform="scale(0.3)"
+            />
+        {/each}   
+    </svg>
+    <div class="self-center">
+        {#if activeSelection && activeSelection.del}
+            <div class="card w-20">
+                <header>
+                    <img src={activeSelection.del.image_url} class="bg-black/50 w-full aspect-[10/9] rounded" alt="image of politician {activeSelection.del.name}">
+                </header>
+                <section class="p-0.5" style="font-size: 9px;">{activeSelection.del.name}</section>
+            </div>
+        {/if}
+    </div>
+</div>
