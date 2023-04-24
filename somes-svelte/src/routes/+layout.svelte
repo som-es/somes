@@ -21,7 +21,7 @@
 					</svg>                  
 				</div>
             </a>
-            <a href="index.html" class="navigation">          
+            <a href="/home" class="navigation">          
 				<div>
                 <svg xmlns="http://www.w3.org/2000/svg" width="81.416" height="30" viewBox="0 0 81.416 28.318">
 					<g id="somes_logo" transform="translate(-384.929 -308.973)">

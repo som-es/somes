@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { Delegate } from "$lib/types";
-	import { SvelteComponentDev } from "svelte/internal";
+	import { setDelOnBubble, type Bubble, generateHalfCircle, setupParliament } from "$lib/parliament";
+	import type { Delegate } from "$lib/types"
 	import DelegateCard from "./DelegateCard.svelte";
 
     export let seats: number[];
@@ -11,13 +11,6 @@
 
     let selected: Bubble;
 
-    interface Bubble {
-        r: number,
-        x: number;
-        y: number;
-        del: Delegate | null;
-        color: string | null;
-    }
 
     function select(bubble: Bubble, event: MouseEvent) {
         if (bubble.del == null) {
@@ -33,83 +26,42 @@
         console.log(selected);
 	}
 
-    function generateHalfCircle(n: number, r: number) {
-        let smaller_n = n - 2;
-
-        let scaled_max_angle = 18000.0;
-        let modulo = scaled_max_angle / smaller_n;
-        let count_to = scaled_max_angle + modulo + 1;
-
-        let normalize = 100. * count_to / scaled_max_angle;
-        let circles: { x: number, y: number }[] = [];
-
-        for (let angle_deg = count_to; angle_deg > 0; angle_deg -= modulo) {
-            let angle_rad = -(angle_deg / normalize) * Math.PI / 180.;
-            
-            const x = 2.0 * r * Math.cos(angle_rad) + width / 2;
-            const y = 2.0 * r * Math.sin(angle_rad) + height / 2;
-
-            const circle = {
-                x, y
-            };
-            circles = circles.concat(circle);
-            // circles.push(circle);
-        }
-        return circles
-    }
-    let circles2d: Bubble[][] = [];
-    seats.forEach((seat, idx) => {
-        circles2d.push(generateHalfCircle(seat, 70 + idx * (idx == 1 ? 30 : 20) + (idx >= 2 ? 30: 0)).map((circle) => {
-            return {
-                r: 6.9,
-                x: circle.x,
-                y: circle.y,
-                del: null,
-                color: "rgb(196, 180, 189)"
-            }
-        }));
-        // circles = circles.concat(generateHalfCircle(seat, 70 + idx * (idx == 1 ? 30 : 20) + (idx >= 2 ? 30: 0)));
-    });
+    let circles2d: Bubble[][] = setupParliament(seats, width, height, 6.9);
 
     dels.forEach((del) => {
-        if (del.seat_row == null || del.seat_col == null) {
-            return
-        }
-        circles2d[del.seat_row-1][del.seat_col-1].del = del;
-        console.log(del);
-        
-        switch (del.party) {
-            case "SPÖ":
-                circles2d[del.seat_row-1][del.seat_col-1].color = "#E31E2D";
-                break;
-            case "ÖVP":
-                circles2d[del.seat_row-1][del.seat_col-1].color = "#62C3D0";
-                break;
-            case "FPÖ":
-                circles2d[del.seat_row-1][del.seat_col-1].color = "#0052FB";
-                break;
-            case "GRÜNE":
-                circles2d[del.seat_row-1][del.seat_col-1].color = "#69B12E";
-                break;
-            case "NEOS":
-                circles2d[del.seat_row-1][del.seat_col-1].color = "#E3257B";
-                break;
-            default:
-                circles2d[del.seat_row-1][del.seat_col-1].color = "rgb(196, 180, 189)";
-                break;
-        }
+        setDelOnBubble(del, circles2d);
     });
     
-    let circles: Bubble[]= circles2d.flat(1);
+    let circles: Bubble[] = circles2d.flat(1);
+
+    selected = circles[0];
 </script>
 
-<!--<div>
-    {#if selected && selected.del}
-    
-        <DelegateCard name={selected.del.name} party={selected.del.party} image={selected.del.image_url} />
-    {/if}
-
-</div>-->
+<div class="container">
+    <div class="element h-screen bg-slate-500" style="width: 30%;">
+        {#if selected && selected.del}
+            <div class="card">
+                <header>
+                    <img src={selected.del.image_url} class="bg-black/50 w-full aspect-[10/9]" alt="image of politician {selected.del.name}">
+                </header>
+                <section class="p-4"><h4>{selected.del.name}</h4><span>{selected.del.party}</span></section>
+            </div>
+            <!-- <DelegateCard name={selected.del.name} party={selected.del.party} image={selected.del.image_url} /> -->
+        {/if}
+    </div>
+    <svg class="element" {height} width="70%"> 
+        {#each circles as circle}
+            <div class="box" >B</div>
+            <circle type="button" cx={circle.x} cy={circle.y} r={circle.r}
+                on:click="{event => select(circle, event)}"
+                fill={circle.color}
+                fill-opacity={circle.color == "rgb(196, 180, 189)" && circle.del == null ? 0.2 : 1}
+            />
+            <div class="overlay">Overlay</div>
+        {/each}
+        
+    </svg>
+</div>
 <!-- <div class="w-screen h-screen bg-slate-500"></div> -->
 <!-- <div> -->
     <!--<div class="container">
@@ -118,18 +70,8 @@
       </div>-->
     
     <!-- <svg {width} {height} style="margin: auto; float: right;"> -->
-    <svg height="100%" width="100%"> 
-    {#each circles as circle}
-        <div class="box" >B</div>
-        <circle type="button" cx={circle.x} cy={circle.y} r={circle.r}
-            on:click="{event => select(circle, event)}"
-            fill={circle.color}
-            fill-opacity={circle.color == "rgb(196, 180, 189)" && circle.del == null ? 0.2 : 1}
-        />
-        <div class="overlay">Overlay</div>
-    {/each}
     
-    </svg>
+    
 <!-- </div> -->
 
 <style>
@@ -157,6 +99,13 @@
   box-sizing: border-box;
 }
 
+.container {
+  background-color: red;
+  position: relative;
+  width: 80%;
+  padding-top: 80%; /* 1:1 Aspect Ratio */
+}
+
 /* Create two equal columns that floats next to each other */
 .column {
   float: left;
@@ -176,5 +125,13 @@
   content: "";
   display: table;
   clear: both;
+}
+
+.element {
+  position:  absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
 }
 </style>
