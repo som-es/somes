@@ -72,7 +72,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(LOGIN_ROUTE, post(login))
         .route(DELEGATES_ROUTE, get(delegates))
         .route(PROPOSALS_ROUTE, get(proposals))
-        .route(LEGIS_INIT_ROUTE, get(legis_inits))
+        .route(LEGIS_INIT_ROUTE, post(legis_inits))
         .layer(
             CorsLayer::new()
                 .allow_origin(Any)
