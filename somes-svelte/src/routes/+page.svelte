@@ -1,120 +1,53 @@
 <script lang="ts">
-    // import { bearer } from '../../stores/store';
-    //import loginIcon from '../../lib/images/login24x200.svg?raw';
+	import { goto } from '$app/navigation';
+    import ParliamentImg from '$lib/assets/assets/parliament.png';
+	import { localStorageStore } from '@skeletonlabs/skeleton';
+	import { redirect } from '@sveltejs/kit';
+	import { get, type Readable, type Writable } from 'svelte/store';
 
-    import { popup } from '@skeletonlabs/skeleton';
-	import type { PopupSettings } from '@skeletonlabs/skeleton';
-    //import { register } from '../../lib/api';
+    const noAccountStorage: Readable<boolean | null> = localStorageStore('noAccount', null);
+    const isNoAccount = get(noAccountStorage);
 
+    if (isNoAccount) {
+        goto("/home");
+    }
 
-    let username = "";
-    let pwd = "";
-    let pwdVerify = "";
-    let nameTaken = false
-    $: userError = username === "" || nameTaken;
-    $: userErrorMessage = username === "" ? "Benutzername darf nicht leer sein!" : "Benutzername existiert schon!"
-    $: pwdError = pwd !== pwdVerify || pwd === "" || pwdVerify === "";
-    $: pwdErrorMessage = pwd !== pwdVerify ? "Passwörter stimmen nicht überein!" : pwd === "" || pwdVerify === "" ? "Passwort darf nicht leer sein" : "";
+    function redirectToHome() {
+        console.log("redirecting to home");
+        const noAccountStorage: Writable<boolean | null> = localStorageStore('noAccount', null);
+        noAccountStorage.set(true);
+        // localStorageStore('noAccount', true);
+        goto("/home");
+    }
 
-    let pwdPopupSettings: PopupSettings = {
-    	event: 'hover',
-    	target: 'pwdErrorPopup'
-    };
-    let userPopupSettings: PopupSettings = {
-    	event: 'hover',
-    	target: 'userErrorPopup'
-    };
 </script>
 
-<section class="register-wrapper">
-    <section class="register-container">
-        <h1>Registrierung</h1>
-        <form>
-            <label class="label">
-                <span>Benutzername</span>
-                <div class="input-group input-group-divider grid-cols-[1fr_auto]">
-                    <input type="text" placeholder="example" bind:value={username}/>
-                    {#if userError}
-                    <div class="input-group-shim" use:popup={userPopupSettings}>
-                        <span class="badge-icon variant-filled-warning"> ! </span>
-                    </div>
-                    {/if}
-                </div>
-            </label>
-            <label class="label">
-                <span>Password</span>
-                <div class="input-group input-group-divider grid-cols-[1fr_auto]">
-                    <input class="input" type="password" placeholder="password" bind:value={pwd}/>
-                    {#if pwdError}
-                    <div class="input-group-shim" use:popup={pwdPopupSettings}>
-                        <span class="badge-icon variant-filled-warning"> ! </span>
-                    </div>
-                    {/if}
-                </div>
-            </label>
-            <label class="label">
-                <span>Password bestätigen</span>
-                <div class="input-group input-group-divider grid-cols-[1fr_auto]">
-                    <input class="input" type="password" placeholder="password" bind:value={pwdVerify}/>
-                    {#if pwdError}
-                    <div class="input-group-shim" use:popup={pwdPopupSettings}>
-                        <span class="badge-icon variant-filled-warning"> ! </span>
-                    </div>
-                    {/if}
-                </div>
-            </label>
-            <button type="button" class="btn variant-filled" on:click={async () => {
-                    
-                }}>
-                
-                <span>Registrieren</span>
-            </button>
-        </form>
-        <span>Du hast schon einen Account? Ab zum <a href="./">LOGIN!</a></span>
-    </section>
-</section>
-<div class="card w-auto shadow-xl py-2 px-4" data-popup="pwdErrorPopup">
-    <div class="arrow bg-surface-100-800-token" />
-    <span>{pwdErrorMessage}</span>
-</div>
-<div class="card w-auto shadow-xl py-2 px-4" data-popup="userErrorPopup">
-    <div class="arrow bg-surface-100-800-token" />
-    <span>{userErrorMessage}</span>
+<div class="h-full w-full background">
+
+    <div class="container mx-auto px-4 self-center sm:text-left"> 
+        <h2 class="text-tertiary-300 font-bold pt-28 text-center sm:text-left">Experience Democracy!</h2>
+        
+        <div class="flex justify-center sm:justify-start pt-6 self-center sm:pl-6">            
+            <button class="text-center bg-tertiary-500 text-white rounded-full px-14 h-9">Log In</button>
+            <button on:click="{_ => redirectToHome()}" class="ml-4 text-center bg-secondary-400 text-white rounded-full px-15 h-9">Continue without Account</button>
+        </div>
+        <div class="mt-2 text-center sm:text-left">
+            <span class="text-tertiary-100 font-semibold">Don't have an account?</span> <a href="#top" class="!text-secondary-600 font-bold">Sign up!</a>
+        </div>
+    </div>
 </div>
 
-<style lang="scss">
-    .register-wrapper {
-        width: 100%;
-	    height: 100vh;
-	    display: flex;
-        justify-content: center;
-	    align-items: center;
+<style>
+.background {
+    background-image: url("$lib/assets/parliament.png");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    background-size: cover;
+    box-shadow: inset 0 0 0 1000px rgba(46, 54, 68, 0.63);
+}    
+a:link{
+  text-decoration: none!important;
 
-        .register-container {
-	    	display: flex;
-	    	flex-direction: column;
-	    	justify-content: center;
-	    	align-items: center;
-        
-	    	h1 {
-	    		margin-bottom: 50px;
-	    	}
-        
-	    	form {
-	    		display: flex;
-	    		flex-direction: column;
-	    		justify-content: center;
-                width: 120%;
-            
-	    		& > * {
-	    			margin-bottom: 20px;
-                    width: 100%;
-	    		}
-
-                & > button {
-                    margin-top: 20px;
-                }
-	    	}
-	    }
-    }
+}
 </style>
