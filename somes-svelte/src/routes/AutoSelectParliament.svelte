@@ -52,7 +52,6 @@
         possibleSelection.splice(idx, 1);
         return bubble;
     }
-    let selectedBubbles: Bubble[] = []
     
     function preloadImage(url: string) {
         const img = new Image();
@@ -72,9 +71,11 @@
         return images;
     }
 
+    // let selectedBubbles: Bubble[] = []
+
     updateSelection()
     // selectedBubbles.push(updateSelection());
-    // let images = preloadImages(selectedBubbles);
+    // let images = preloadImages(selectedBubbles);v
     
     onMount(() => {
         interval = setInterval(() => {
@@ -84,9 +85,7 @@
             // images = preloadImages(selectedBubbles);
         }, 1000 * 5);
     });
-
-
-
+    
     onDestroy(() => {
         if (interval) {
             clearInterval(interval);
@@ -112,7 +111,7 @@
     <div class="self-center">
         <!-- {selectedBubbles.shift()} -->
         {#if activeSelection && activeSelection.del}
-            <div class="card w-20">
+            <div class="card w-20 border" style="border-color: {activeSelection.color};">
                 <header>
                     <img src={activeSelection.del.image_url} class="bg-black/50 w-full aspect-[10/9] rounded" alt="image of politician {activeSelection.del.name}">
                 </header>

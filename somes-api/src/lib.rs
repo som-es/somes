@@ -17,3 +17,7 @@ pub const DATASERVICE_URL: &str = dotenv!("DATASERVICE_URL");
 pub const TEST_DB_PATH: &str = dotenv!("TEST_DB_PATH");
 pub const SQL_SCHEMA_PATH: &str = dotenv!("SQL_SCHEMA_PATH");
 pub const REDIS_DB: &str = dotenv!("REDIS_DB");
+
+pub fn today_and_time() -> chrono::NaiveDateTime {
+    chrono::Local::now().naive_local()
+}

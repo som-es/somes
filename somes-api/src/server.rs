@@ -7,9 +7,12 @@ use axum::{
     Router,
 };
 use log::{error, info};
-use somes_common_lib::{DELEGATES_ROUTE, LOGIN_ROUTE, SIGNUP_ROUTE, VERIFY_ROUTE, PROPOSALS_ROUTE};
+use somes_common_lib::{DELEGATES_ROUTE, LOGIN_ROUTE, PROPOSALS_ROUTE, SIGNUP_ROUTE, VERIFY_ROUTE};
 //use headers::HeaderValue;
-use crate::{routes::{delegates, proposals}, REDIS_DB};
+use crate::{
+    routes::{delegates, proposals},
+    REDIS_DB,
+};
 use tower_http::cors::{Any, CorsLayer};
 
 use crate::routes::{login, signup, verify};

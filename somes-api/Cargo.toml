@@ -29,3 +29,4 @@ log = "0.4.17"
 simple_logger = "4.0.0"
 common-scrapes = { path = "../../common-scrapes" }
 dataservice = { path = "../../dataservice", default-features=false, features=["models"] }
+chrono = "0.4.24"

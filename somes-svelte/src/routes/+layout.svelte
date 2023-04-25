@@ -39,7 +39,7 @@
                   </svg>                  
             </a>
 		</nav>
-		<LightSwitch />
+		<LightSwitch class="float-right" />
 	<!--</AppBar>-->
 	<!-- This is where your app content will go -->
 	<slot />
