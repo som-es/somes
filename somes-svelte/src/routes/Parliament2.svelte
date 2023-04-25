@@ -69,7 +69,7 @@
     </div>
     <div class="self-center">
         <!-- <svg {width} height={height * 0.5 +10}> -->
-            <svg viewBox="0 0 {width} {height * 0.5+10}" style="width: 500px; max-width: 100%;">
+        <svg viewBox="0 0 {width} {height * 0.5+10}" style="width: 54rem; max-width: 100%;">
             {#each circles2d.flat(1) as circle}
                 <div class="box" >B</div>
                 <circle type="button" cx={circle.x} cy={circle.y} r={circle.r}
