@@ -2,7 +2,7 @@
 
 	import AutoSelectParliament from "../AutoSelectParliament.svelte";
 	import type { Delegate } from "$lib/types";
-	import { delegates } from "$lib/api";
+	import { delegates, latest_legis_inits_and_votes } from "$lib/api";
 	import Parliament2 from "../Parliament2.svelte";
     import { onMount } from "svelte";
 
@@ -10,7 +10,10 @@
     
     onMount(async function () {
         const austrianDelegates = await delegates();
-        dels = austrianDelegates.filter(delegate => delegate.council === "nr");        
+        dels = austrianDelegates.filter(delegate => delegate.council === "nr");
+
+        const legisInits = await latest_legis_inits_and_votes();
+        console.log(legisInits);
     });
 
 </script>

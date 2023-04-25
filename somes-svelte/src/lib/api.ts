@@ -1,7 +1,19 @@
-import type { Delegate } from "./types";
+import type { Delegate, VoteResult } from "./types";
+
+const address = "127.0.0.1";
 
 export async function delegates(): Promise<Delegate[]> {
-    let response = await fetch("http://127.0.0.1:3000/delegates", {
+    let response = await fetch(`http://${address}:3000/delegates`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json"
+        },
+    });
+    return await response.json();
+}
+
+export async function latest_legis_inits_and_votes(): Promise<VoteResult[]> {
+    let response = await fetch(`http://${address}:3000/latest_legis_inits_and_votes`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json"
@@ -9,16 +21,4 @@ export async function delegates(): Promise<Delegate[]> {
     });
 
     return await response.json();
-
-    /*return json.map((delegate: any) => {
-        return {
-            id: delegate.id,
-            name: delegate.name,
-            party: delegate.party,
-            constituency: delegate.constituency,
-            council: delegate.council,
-            seat_row: delegate.seat_row,
-            seat_col: delegate.seat_col,
-        }
-    });*/
 }

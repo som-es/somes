@@ -8,6 +8,7 @@ use dataservice::db::{
     },
 };
 use diesel::{Connection, ExpressionMethods, PgConnection, QueryDsl, QueryResult, RunQueryDsl};
+use serde::{Deserialize, Serialize};
 
 use crate::{routes::RequestFilter, today_and_time, DATASERVICE_URL};
 
@@ -43,13 +44,23 @@ pub fn get_latest_legislative_initiatives(
         .load::<DbLegislativeInitiative>(con)
 }
 
+#[derive(Debug, Deserialize, Serialize)]
+pub struct VoteResult {
+    pub legislative_initiative: DbLegislativeInitiative,
+    pub votes: Vec<DbVote>,
+}
+
 pub fn get_latest_legislative_initiatives_and_votes(
     con: &mut PgConnection,
-) -> QueryResult<Vec<(Vec<DbVote>, DbLegislativeInitiative)>> {
+) -> QueryResult<Vec<VoteResult>> {
     get_latest_legislative_initiatives(con)?
         .into_iter()
-        .map(|legis_init| Ok((get_votes_from_legis_init(con, &legis_init.id)?, legis_init)))
-        .collect::<QueryResult<Vec<(Vec<DbVote>, DbLegislativeInitiative)>>>()    
+        .map(|legis_init| Ok(
+            VoteResult {
+                votes: get_votes_from_legis_init(con, &legis_init.id)?,
+                legislative_initiative: legis_init,
+            }))
+        .collect::<QueryResult<Vec<VoteResult>>>()    
 }
 
 pub fn get_votes_from_legis_init(

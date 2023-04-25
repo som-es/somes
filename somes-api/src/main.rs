@@ -25,6 +25,6 @@ async fn main() {
     let value = con.get::<_, NewUser>("hi").await.unwrap();
     println!("value: {value:?}");
 
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    let addr = "127.0.0.1:3000".parse().unwrap();
     server::serve(addr).await;
 }
