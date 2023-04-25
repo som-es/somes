@@ -1,5 +1,5 @@
 use dataservice::db::{
-    models::{DbDelegate, DbLegislativeInitiative, DbProposal, DbProposalQuery},
+    models::{DbDelegate, DbLegislativeInitiative, DbProposalQuery},
     schema::{
         delegates::dsl::delegates,
         legislative_initiatives::{created_at, dsl::legislative_initiatives},
@@ -23,7 +23,10 @@ pub fn get_proposals(con: &mut PgConnection) -> QueryResult<Vec<DbProposalQuery>
     proposals.load::<DbProposalQuery>(con)
 }
 
-pub fn get_legislative_initiatives(con: &mut PgConnection, filter: RequestFilter) -> QueryResult<Vec<DbLegislativeInitiative>> {
+pub fn get_legislative_initiatives(
+    con: &mut PgConnection,
+    filter: RequestFilter,
+) -> QueryResult<Vec<DbLegislativeInitiative>> {
     legislative_initiatives
         .filter(created_at.gt(filter.start))
         .filter(created_at.lt(filter.end))
