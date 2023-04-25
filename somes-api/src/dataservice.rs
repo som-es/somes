@@ -1,14 +1,15 @@
 use dataservice::db::{
-    models::{DbDelegate, DbLegislativeInitiative, DbProposalQuery},
+    models::{DbDelegate, DbLegislativeInitiative, DbProposalQuery, DbVote},
     schema::{
         delegates::dsl::delegates,
         legislative_initiatives::{created_at, dsl::legislative_initiatives},
         proposals::dsl::proposals,
+        votes::{dsl::votes, legislative_initiatives_id},
     },
 };
 use diesel::{Connection, ExpressionMethods, PgConnection, QueryDsl, QueryResult, RunQueryDsl};
 
-use crate::{routes::RequestFilter, DATASERVICE_URL};
+use crate::{routes::RequestFilter, today_and_time, DATASERVICE_URL};
 
 pub fn dataservice_con() -> PgConnection {
     PgConnection::establish(DATASERVICE_URL)
@@ -33,11 +34,37 @@ pub fn get_legislative_initiatives(
         .load::<DbLegislativeInitiative>(con)
 }
 
-#[cfg(test)]
+pub fn get_latest_legislative_initiatives(
+    con: &mut PgConnection,
+) -> QueryResult<Vec<DbLegislativeInitiative>> {
+    legislative_initiatives
+        .filter(created_at.gt(today_and_time() - chrono::Duration::days(7)))
+        .filter(created_at.lt(today_and_time()))
+        .load::<DbLegislativeInitiative>(con)
+}
+
+pub fn get_latest_legislative_initiatives_and_votes(
+    con: &mut PgConnection,
+) -> QueryResult<Vec<(Vec<DbVote>, DbLegislativeInitiative)>> {
+    get_latest_legislative_initiatives(con)?
+        .into_iter()
+        .map(|legis_init| Ok((get_votes_from_legis_init(con, &legis_init.id)?, legis_init)))
+        .collect::<QueryResult<Vec<(Vec<DbVote>, DbLegislativeInitiative)>>>()    
+}
+
+pub fn get_votes_from_legis_init(
+    con: &mut PgConnection,
+    legis_init: &str,
+) -> QueryResult<Vec<DbVote>> {
+    votes
+        .filter(legislative_initiatives_id.eq(legis_init))
+        .load::<DbVote>(con)
+}
+
 mod tests {
     use crate::{dataservice::dataservice_con, routes::RequestFilter, today_and_time};
 
-    use super::{get_delegates, get_legislative_initiatives};
+    use super::{get_delegates, get_legislative_initiatives, get_latest_legislative_initiatives_and_votes};
 
     #[test]
     fn test_get_delegates() {
@@ -55,5 +82,12 @@ mod tests {
         };
         let legis_inits = get_legislative_initiatives(con, filter);
         println!("legis_inits: {legis_inits:?}");
+    }
+
+    #[test]
+    fn test_get_combined_latest_votes_and_legis_inits() {
+        let con = &mut dataservice_con();
+        let res = get_latest_legislative_initiatives_and_votes(con);
+        println!("res: {res:?}");
     }
 }
