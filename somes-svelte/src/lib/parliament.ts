@@ -34,7 +34,7 @@ export function generateHalfCircle(n: number, r: number, w: number, h: number) {
     return circles
 }
 
-function partyToColor(party: string): string { 
+export function partyToColor(party: string): string { 
     switch (party) {
         case "SPÖ":
             return "#E31E2D";
@@ -51,12 +51,13 @@ function partyToColor(party: string): string {
     }
 }
 
-export function setDelOnBubble(del: Delegate, circles2d: Bubble[][]) {
+export function setDelOnBubble(del: Delegate, circles2d: Bubble[][], fn: (party: string) => string) {
     if (del.seat_row == null || del.seat_col == null) {
         return
     }
     circles2d[del.seat_row-1][del.seat_col-1].del = del;
-    circles2d[del.seat_row-1][del.seat_col-1].color = partyToColor(del.party);
+    // circles2d[del.seat_row-1][del.seat_col-1].color = partyToColor(del.party);
+    circles2d[del.seat_row-1][del.seat_col-1].color = fn(del.party);
 }
 
 export function setupParliament(seats: number[], width: number, height: number, r: number): Bubble[][] {

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { setDelOnBubble, type Bubble, generateHalfCircle, setupParliament } from "$lib/parliament";
+	import { setDelOnBubble, type Bubble, generateHalfCircle, setupParliament, partyToColor } from "$lib/parliament";
 	import type { Delegate } from "$lib/types"
 	import DelegateCard from "./DelegateCard.svelte";
     import { get, type Readable } from 'svelte/store';
@@ -47,7 +47,7 @@
     let circles2d: Bubble[][] = setupParliament(seats, width, height, 6.9);
 
     dels.forEach((del) => {
-        setDelOnBubble(del, circles2d);
+        setDelOnBubble(del, circles2d, partyToColor);
     });
 
     fromLocalStorage();
