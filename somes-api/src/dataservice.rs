@@ -1,9 +1,10 @@
 use dataservice::db::{
-    models::{DbDelegate, DbLegislativeInitiative, DbProposalQuery, DbVote},
+    models::{DbDelegate, DbLegislativeInitiative, DbProposalQuery, DbSpeech, DbVote},
     schema::{
         delegates::dsl::delegates,
         legislative_initiatives::{created_at, dsl::legislative_initiatives},
         proposals::dsl::proposals,
+        speeches::dsl::speeches,
         votes::{dsl::votes, legislative_initiatives_id},
     },
 };
@@ -48,19 +49,20 @@ pub fn get_latest_legislative_initiatives(
 pub struct VoteResult {
     pub legislative_initiative: DbLegislativeInitiative,
     pub votes: Vec<DbVote>,
+    pub speeches: Vec<DbSpeech>,
 }
 
-pub fn get_latest_legislative_initiatives_and_votes(
-    con: &mut PgConnection,
-) -> QueryResult<Vec<VoteResult>> {
+pub fn get_latest_vote_results(con: &mut PgConnection) -> QueryResult<Vec<VoteResult>> {
     get_latest_legislative_initiatives(con)?
         .into_iter()
-        .map(|legis_init| Ok(
-            VoteResult {
+        .map(|legis_init| {
+            Ok(VoteResult {
                 votes: get_votes_from_legis_init(con, &legis_init.id)?,
+                speeches: get_speeches_from_legis_init(con, &legis_init.id)?,
                 legislative_initiative: legis_init,
-            }))
-        .collect::<QueryResult<Vec<VoteResult>>>()    
+            })
+        })
+        .collect::<QueryResult<Vec<VoteResult>>>()
 }
 
 pub fn get_votes_from_legis_init(
@@ -72,10 +74,19 @@ pub fn get_votes_from_legis_init(
         .load::<DbVote>(con)
 }
 
+pub fn get_speeches_from_legis_init(
+    con: &mut PgConnection,
+    legis_init: &str,
+) -> QueryResult<Vec<DbSpeech>> {
+    speeches
+        .filter(dataservice::db::schema::speeches::legislative_initiatives_id.eq(legis_init))
+        .load::<DbSpeech>(con)
+}
+
 mod tests {
     use crate::{dataservice::dataservice_con, routes::RequestFilter, today_and_time};
 
-    use super::{get_delegates, get_legislative_initiatives, get_latest_legislative_initiatives_and_votes};
+    use super::{get_delegates, get_latest_vote_results, get_legislative_initiatives};
 
     #[test]
     fn test_get_delegates() {
@@ -98,7 +109,7 @@ mod tests {
     #[test]
     fn test_get_combined_latest_votes_and_legis_inits() {
         let con = &mut dataservice_con();
-        let res = get_latest_legislative_initiatives_and_votes(con);
+        let res = get_latest_vote_results(con);
         println!("res: {res:?}");
     }
 }

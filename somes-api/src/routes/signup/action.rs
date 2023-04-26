@@ -211,8 +211,8 @@ mod tests {
                     SignUpErrorResponse::UserCreationError => panic!(""),
                     SignUpErrorResponse::SignUpError(signup_err) => {
                         assert!(signup_err.insufficient_password);
-                        
-                        // TODO look in redis db 
+
+                        // TODO look in redis db
                         assert!(signup_err.email_taken);
                         assert!(signup_err.username_taken);
                     }

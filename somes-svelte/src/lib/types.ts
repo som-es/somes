@@ -26,7 +26,12 @@ export interface Vote {
     legislative_initiatives_id: string,
 }
 
+export interface Sppch {
+
+}
+
 export interface VoteResult {
     legislative_initiative: LegislativeInitiative,
     votes: Vote[],
+    speeches: Speech[],
 }

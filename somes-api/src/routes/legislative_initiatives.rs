@@ -4,7 +4,8 @@ use dataservice::db::models::{DbLegislativeInitiative, DbVote};
 use serde::{Deserialize, Serialize};
 
 use crate::dataservice::{
-    dataservice_con, get_latest_legislative_initiatives, get_legislative_initiatives, get_latest_legislative_initiatives_and_votes, VoteResult,
+    dataservice_con, get_latest_legislative_initiatives, get_latest_vote_results,
+    get_legislative_initiatives, VoteResult,
 };
 
 use self::error::LegisInitErrorResponse;
@@ -32,9 +33,8 @@ pub async fn latest_legis_inits(
         .map_err(|_| LegisInitErrorResponse::LegisInitResponseError)
 }
 
-pub async fn latest_legis_inits_and_votes(
-) -> Result<Json<Vec<VoteResult>>, LegisInitErrorResponse> {
-    get_latest_legislative_initiatives_and_votes(&mut dataservice_con())
+pub async fn latest_vote_results() -> Result<Json<Vec<VoteResult>>, LegisInitErrorResponse> {
+    get_latest_vote_results(&mut dataservice_con())
         .map(|legis_inits| Json(legis_inits))
         .map_err(|_| LegisInitErrorResponse::LegisInitResponseError)
 }

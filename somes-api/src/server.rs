@@ -8,12 +8,13 @@ use axum::{
 };
 use log::{error, info};
 use somes_common_lib::{
-    DELEGATES_ROUTE, LATEST_LEGIS_INITS_ROUTE, LEGIS_INIT_ROUTE, LOGIN_ROUTE, PROPOSALS_ROUTE,
-    SIGNUP_ROUTE, VERIFY_ROUTE, LATEST_LEGIS_INITS_AND_VOTES_ROUTE,
+    DELEGATES_ROUTE, LATEST_LEGIS_INITS_ROUTE,
+    LATEST_VOTE_RESULTS_ROUTE, LEGIS_INIT_ROUTE, LOGIN_ROUTE, PROPOSALS_ROUTE, SIGNUP_ROUTE,
+    VERIFY_ROUTE,
 };
 //use headers::HeaderValue;
 use crate::{
-    routes::{delegates, latest_legis_inits, legis_inits, proposals, latest_legis_inits_and_votes},
+    routes::{delegates, latest_legis_inits, latest_vote_results, legis_inits, proposals},
     REDIS_DB,
 };
 use tower_http::cors::{Any, CorsLayer};
@@ -75,7 +76,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(PROPOSALS_ROUTE, get(proposals))
         .route(LEGIS_INIT_ROUTE, post(legis_inits))
         .route(LATEST_LEGIS_INITS_ROUTE, get(latest_legis_inits))
-        .route(LATEST_LEGIS_INITS_AND_VOTES_ROUTE, get(latest_legis_inits_and_votes))
+        .route(LATEST_VOTE_RESULTS_ROUTE, get(latest_vote_results))
         .layer(
             CorsLayer::new()
                 .allow_origin(Any)

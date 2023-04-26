@@ -5,4 +5,4 @@ pub const DELEGATES_ROUTE: &str = "/delegates";
 pub const PROPOSALS_ROUTE: &str = "/proposals";
 pub const LEGIS_INIT_ROUTE: &str = "/legis_inits";
 pub const LATEST_LEGIS_INITS_ROUTE: &str = "/latest_legis_inits";
-pub const LATEST_LEGIS_INITS_AND_VOTES_ROUTE: &str = "/latest_legis_inits_and_votes";
+pub const LATEST_VOTE_RESULTS_ROUTE: &str = "/latest_vote_results";
