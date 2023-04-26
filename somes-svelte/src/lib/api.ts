@@ -12,8 +12,8 @@ export async function delegates(): Promise<Delegate[]> {
     return await response.json();
 }
 
-export async function latest_legis_inits_and_votes(): Promise<VoteResult[]> {
-    let response = await fetch(`http://${address}:3000/latest_legis_inits_and_votes`, {
+export async function latest_vote_results(): Promise<VoteResult[]> {
+    let response = await fetch(`http://${address}:3000/latest_vote_results`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json"

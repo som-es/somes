@@ -1,34 +1,32 @@
 <script lang="ts">
-    import { delegates, latest_legis_inits_and_votes } from '$lib/api';
+    import { delegates, latest_vote_results } from '$lib/api';
 	import { onMount } from "svelte";
 	import type { Delegate, LegislativeInitiative, VoteResult } from "$lib/types";
 	import VoteParliament from '../VoteParliament.svelte';
-	import { LightSwitch } from '@skeletonlabs/skeleton';
-
-    let dels: Delegate[];
-    let voteResults: VoteResult[];
+	import { get, type Readable } from 'svelte/store';
+	import { localStorageStore } from '@skeletonlabs/skeleton';
+	
     
-    let voteResult: VoteResult;
+    let dels: Delegate[];
+    
     onMount(async function () {
         const austrianDelegates = await delegates();
-        // use local storage to cache the delegates
         dels = austrianDelegates.filter(delegate => delegate.council === "nr");
+    });
 
-        voteResults = await latest_legis_inits_and_votes();
-        voteResult = voteResults[1];
-    });    
-
-    
-
+    const currentLegisInitStorage: Readable<VoteResult | null> = localStorageStore('selectedVoteResult', null);
+    let voteResult: VoteResult | null = get(currentLegisInitStorage);
 </script>
 
 <div class="container mx-auto px-4">
-    {#if dels && voteResults}
-        {voteResult.legislative_initiative.title}
+    {#if dels && voteResult}
+        <h3>{voteResult.legislative_initiative.title}</h3>
+        <h5>Akzeptiert: {voteResult.legislative_initiative.accepted ? "Ja" : "Nein"}</h5>
+        <!-- <h5>{voteResult.legislative_initiative.}</h5> -->
         <VoteParliament 
             dels={dels} 
             seats={[20, 27, 37, 43, 48, 54]} 
-            voteResult={voteResults[1]} 
+            voteResult={voteResult} 
         />
     {:else}
         <p class="loading">loading...</p>

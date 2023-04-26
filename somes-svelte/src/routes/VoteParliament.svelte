@@ -14,6 +14,10 @@
         return voteResult.votes.find(vote => vote.party === party)?.infavor ?? false;
     }
 
+    function findDelegateFromId(id: number): Delegate | undefined {
+        return dels.find(del => del.id === id);
+    }
+
 
     let partyToColorMap = new Map<string, {color: string, infavor: boolean}>();
     partyToColorMap.set("SPÖ", isPartyInFavor("SPÖ") ?     {color:"#E31E2D", infavor:true} : {color:"#f48992", infavor:false});
@@ -45,6 +49,19 @@
 
     dels.forEach((del) => {
         setDelOnBubble(del, circles2d, partyToColor);
+    });
+
+    voteResult.speeches.forEach((speech) => {
+        let del = findDelegateFromId(speech.delegate_id);
+        if (del == null) {
+            return;
+        }
+
+        if (del.seat_col == null || del.seat_row == null) {
+            return;
+        }
+
+        circles2d[del.seat_row-1][del.seat_col-1].r = +10.9;
     });
 
     function getTransform(bubble: Bubble): string {
