@@ -46,6 +46,11 @@
         if (possibleSelection.length == 0) {
             possibleSelection = [...possibleSelectionUnchanged]
         }
+
+        if (possibleSelection.length == 0) {
+            return;
+        }
+
         const idx = Math.floor(Math.random() * possibleSelection.length);
         const bubble = possibleSelection[idx];
         select(bubble);
