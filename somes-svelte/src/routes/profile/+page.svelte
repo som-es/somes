@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { LightSwitch } from "@skeletonlabs/skeleton";
+	// import { LightSwitch } from "@skeletonlabs/skeleton";
 
     
 </script>
 
-<LightSwitch class="float-right" />
+<!-- <LightSwitch class="float-right" /> -->

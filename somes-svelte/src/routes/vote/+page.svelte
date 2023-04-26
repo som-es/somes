@@ -19,12 +19,11 @@
 </script>
 
 <div>
-    <LightSwitch />
     {#if dels && voteResults}
         <VoteParliament 
             dels={dels} 
             seats={[20, 27, 37, 43, 48, 54]} 
-            voteResult={voteResults[9]} 
+            voteResult={voteResults[1]} 
         />
     {:else}
         <p class="loading">loading...</p>
