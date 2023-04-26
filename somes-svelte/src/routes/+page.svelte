@@ -23,16 +23,17 @@
 </script>
 
 <div class="h-full w-full background">
-
-    <div class="container mx-auto px-4 self-center sm:text-left"> 
-        <h2 class="text-tertiary-300 font-bold pt-28 text-center sm:text-left">Experience Democracy!</h2>
-        
-        <div class="flex justify-center sm:justify-start pt-6 self-center sm:pl-6">            
-            <button class="text-center bg-tertiary-500 text-white rounded-full px-14 h-9">Log In</button>
-            <button on:click="{_ => redirectToHome()}" class="ml-4 text-center bg-secondary-400 text-white rounded-full px-15 h-9">Continue without Account</button>
-        </div>
-        <div class="mt-2 text-center sm:text-left">
-            <span class="text-tertiary-100 font-semibold">Don't have an account?</span> <a href="#top" class="!text-secondary-600 font-bold">Sign up!</a>
+    <div class="trans-layer">
+        <div class="container mx-auto px-4 self-center sm:text-left"> 
+            <h2 class="text-tertiary-300 font-bold pt-28 text-center sm:text-left">Experience Democracy!</h2>
+            
+            <div class="flex justify-center sm:justify-start pt-6 self-center sm:pl-6">            
+                <button class="text-center bg-tertiary-500 text-white rounded-full px-14 h-9">Log In</button>
+                <button on:click="{_ => redirectToHome()}" class="ml-4 text-center bg-secondary-400 text-white rounded-full px-15 h-9">Continue without Account</button>
+            </div>
+            <div class="mt-2 text-center sm:text-left">
+                <span class="text-tertiary-100 font-semibold">Don't have an account?</span> <a href="#top" class="!text-secondary-600 font-bold">Sign up!</a>
+            </div>
         </div>
     </div>
 </div>
@@ -44,8 +45,16 @@
     background-attachment: fixed;
     background-position: center;
     background-size: cover;
-    box-shadow: inset 0 0 0 1000px rgba(46, 54, 68, 0.63);
+    /* background-color: rgba(46, 54, 68, 0.63); */
+    /* box-shadow: inset 0 0 0 1000px rgba(46, 54, 68, 0.63); */
 }    
+
+.trans-layer {
+    background-color:rgba(46, 54, 68, 0.63); 
+    width: 100%;
+    height: 100%;
+}
+
 a:link{
   text-decoration: none!important;
 

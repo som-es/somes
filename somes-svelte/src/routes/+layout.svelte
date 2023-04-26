@@ -13,7 +13,6 @@
 
 <!-- App Shell -->
 <AppShell>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<!--<AppBar>-->
 		<nav class="bg-primary-500">
 			<a href="" class="navigation">

@@ -18,7 +18,7 @@
 
 </script>
 
-<div class="container mx-auto">
+<div class="container mx-auto px-4">
     <h1 class="text-primary-400">Welcome back!</h1>
     <h2 class="mt-5">Nationalrat</h2>
     Current news from the Austrian parliament

@@ -8,18 +8,23 @@
     let dels: Delegate[];
     let voteResults: VoteResult[];
     
+    let voteResult: VoteResult;
     onMount(async function () {
         const austrianDelegates = await delegates();
         // use local storage to cache the delegates
         dels = austrianDelegates.filter(delegate => delegate.council === "nr");
 
         voteResults = await latest_legis_inits_and_votes();
-
+        voteResult = voteResults[1];
     });    
+
+    
+
 </script>
 
-<div>
+<div class="container mx-auto px-4">
     {#if dels && voteResults}
+        {voteResult.legislative_initiative.title}
         <VoteParliament 
             dels={dels} 
             seats={[20, 27, 37, 43, 48, 54]} 

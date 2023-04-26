@@ -63,17 +63,18 @@
 
 </script>
 
-
-<svg viewBox="0 0 {width} {height * 0.5+60}" style="width: 500px; max-width: 100%;">
-    {#each circles2d.flat(1) as circle}
-        <div class="box">B</div>
-        <circle class="translated-circle text-red-200" style="{getTransform(circle)}" type="button" cx={circle.x} cy={circle.y} r={circle.r}
-            fill={circle.color}
-            fill-opacity={opacity(circle)}
-        />
-        <div class="overlay">Overlay</div>
-    {/each}
-</svg>
+<div>
+    <svg viewBox="0 0 {width} {height * 0.5+60}" style="width: 500px; max-width: 100%;">
+        {#each circles2d.flat(1) as circle}
+            <div class="box">B</div>
+            <circle class="translated-circle" style="{getTransform(circle)}" type="button" cx={circle.x} cy={circle.y} r={circle.r}
+                fill={circle.color}
+                fill-opacity={opacity(circle)}
+            />
+            <div class="overlay">Overlay</div>
+        {/each}
+    </svg>
+</div>
 
 <style>
 .translated-circle {
