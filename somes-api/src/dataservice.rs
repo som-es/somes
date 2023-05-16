@@ -40,7 +40,7 @@ pub fn get_latest_legislative_initiatives(
     con: &mut PgConnection,
 ) -> QueryResult<Vec<DbLegislativeInitiative>> {
     legislative_initiatives
-        .filter(created_at.gt(today_and_time() - chrono::Duration::days(7)))
+        .filter(created_at.gt(today_and_time() - chrono::Duration::days(14)))
         .filter(created_at.lt(today_and_time()))
         .load::<DbLegislativeInitiative>(con)
 }

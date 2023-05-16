@@ -31,6 +31,9 @@
 
     <div class="flex mt-4">
         {#if voteResults}
+            {#if voteResults.length == 0}
+                <p class="no-news">Keine Neugikeiten verfügbar</p>
+            {/if}
             {#each voteResults as voteResult}
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <div class="max-w-[20.2rem] ml-5"
@@ -47,7 +50,10 @@
                 </div>
                 <span style="font-size: 0.4rem;">{voteResult.legislative_initiative.description}</span>
             {/each}
+        {:else}
+            <p class="loading">loading...</p>
         {/if}
+
     </div>
 
     <h2 class="mt-5">Representatives</h2>
