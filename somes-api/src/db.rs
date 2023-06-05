@@ -15,15 +15,33 @@ use axum::{
     http::request::Parts,
 };
 use diesel::{Connection, PgConnection};
+use redis::AsyncCommands;
 use reqwest::StatusCode;
 
 use crate::DATABASE_URL;
+
+use self::model::NewUser;
 
 pub fn establish_connection() -> PgConnection {
     PgConnection::establish(DATABASE_URL).expect("Can't establish database conntection.")
 }
 
 pub struct RedisConnection(pub redis::aio::Connection);
+
+pub async fn extract_to_be_verified_from_redis(
+    redis_con: &mut redis::aio::Connection,
+) -> Vec<NewUser> {
+    let keys: Vec<String> = redis_con.keys("*").await.unwrap();
+
+    let mut values = Vec::<NewUser>::with_capacity(keys.len());
+
+    for key in keys {
+        if let Ok(value) = redis_con.get(key).await {
+            values.push(value);
+        }
+    }
+    values
+}
 
 #[async_trait]
 impl<S> FromRequestParts<S> for RedisConnection

@@ -36,11 +36,11 @@ pub fn create_verification_id(signup_info: &SignUpInfo) -> String {
 
 pub async fn verify(
     Query(id): Query<VerificationIDInfo>,
-    RedisConnection(conn): RedisConnection,
+    RedisConnection(redis_con): RedisConnection,
     //State(verification_map): State<VerificationMap>,
 ) -> Result<Json<JWTInfo>, VerifyErrorResponse> {
     //let new_user = remove_from_verify_map(verification_map, &id)?;
-    let new_user = remove_user_from_redis(conn, &id).await?;
+    let new_user = remove_user_from_redis(redis_con, &id).await?;
 
     let con = &mut establish_connection();
 
@@ -74,6 +74,7 @@ mod tests {
     use crate::{
         establish_connection,
         routes::{add_new_user_to_redis, remove_user_from_redis, validate_signup_info},
+        REDIS_DB,
     };
 
     use super::create_verification_id;
@@ -91,7 +92,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_verify_process() {
-        let client = redis::Client::open("redis://127.0.0.1/").unwrap();
+        let client = redis::Client::open(REDIS_DB).unwrap();
         let mut redis_con = client.get_async_connection().await.unwrap();
 
         //let verification_map = VerificationMap::default();

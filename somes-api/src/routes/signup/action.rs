@@ -9,7 +9,7 @@ use somes_common_lib::{set_error_true, SignUpInfo};
 use crate::model::NewUser;
 use crate::operations::user::{is_email_in_db, is_username_in_db};
 use crate::routes::verify::create_verification_id;
-use crate::EMAIL_EXPIRATION_SECONDS;
+use crate::{EMAIL_EXPIRATION_SECONDS, extract_to_be_verified_from_redis};
 
 use super::error::{SignUpErrorResponse, SignUpErrorWrapper};
 
@@ -17,11 +17,39 @@ static EMAIL_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$").unwrap()
 });
 
+pub async fn validate_info_already_in_use_redis(
+    signup_info: &SignUpInfo,
+    redis_con: &mut redis::aio::Connection,
+) -> Result<(), SignUpErrorResponse> {
+    let mut sign_up_error = SignUpErrorWrapper::default();
+
+    let to_be_verified_users = extract_to_be_verified_from_redis(redis_con).await;
+
+    if to_be_verified_users
+        .iter()
+        .any(|user| user.email == signup_info.email)
+    {
+        set_error_true!(sign_up_error, email_taken);
+    }
+
+    if to_be_verified_users
+        .iter()
+        .any(|user| user.username == signup_info.username)
+    {
+        set_error_true!(sign_up_error, username_taken);
+    }
+
+    if sign_up_error.is_erroneous {
+        return Err(SignUpErrorResponse::SignUpError(sign_up_error));
+    }
+
+    Ok(())
+}
+
 /// checks the validity of the signup info
 pub fn validate_signup_info(
     con: &mut PgConnection,
     signup_info: &SignUpInfo,
-    //verification_map: VerificationMap,
 ) -> Result<(), SignUpErrorResponse> {
     let mut sign_up_error = SignUpErrorWrapper::default();
 
@@ -44,22 +72,6 @@ pub fn validate_signup_info(
     if measure_password_strength(&signup_info.password) == Strength::Weak {
         set_error_true!(sign_up_error, insufficient_password);
     }
-
-    // TODO: check in redis
-    /*let verification_map = verification_map.read().unwrap();
-    if verification_map
-        .values()
-        .any(|(user, _)| user.email == signup_info.email)
-    {
-        set_error_true!(sign_up_error, email_taken);
-    }
-
-    if verification_map
-        .values()
-        .any(|(user, _)| user.username == signup_info.username)
-    {
-        set_error_true!(sign_up_error, username_taken);
-    }*/
 
     if is_email_in_db(con, &signup_info.email) {
         set_error_true!(sign_up_error, email_taken);

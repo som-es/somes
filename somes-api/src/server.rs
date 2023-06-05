@@ -58,7 +58,7 @@ impl FromRef<AppState> for redis::Client {
 //pub type RedisClient = Arc<RwLock<redis::Client>>;
 
 pub async fn serve(addr: SocketAddr) {
-    let Ok(client) = redis::Client::open("redis://127.0.0.1/") else {
+    let Ok(client) = redis::Client::open(REDIS_DB) else {
         error!("Could not establish redis database connection!");
         return;
     };

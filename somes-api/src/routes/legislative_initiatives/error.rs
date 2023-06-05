@@ -6,7 +6,7 @@ use serde_json::json;
 pub enum LegisInitErrorResponse {
     LegisInitError,
     LatestLegisInitError,
-    LatestVoteResultsError
+    LatestVoteResultsError,
 }
 
 impl IntoResponse for LegisInitErrorResponse {
