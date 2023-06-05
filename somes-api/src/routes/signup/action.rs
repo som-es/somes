@@ -9,6 +9,7 @@ use somes_common_lib::{set_error_true, SignUpInfo};
 use crate::model::NewUser;
 use crate::operations::user::{is_email_in_db, is_username_in_db};
 use crate::routes::verify::create_verification_id;
+use crate::EMAIL_EXPIRATION_SECONDS;
 
 use super::error::{SignUpErrorResponse, SignUpErrorWrapper};
 
@@ -91,10 +92,22 @@ pub async fn add_new_user_to_redis(
     )
     .map_err(|_| SignUpErrorResponse::UserCreationError)?;
 
-    redis_con
-        .set::<_, _, ()>(&id, new_user)
+    if let Err(e) = redis_con.set::<_, _, ()>(&id, new_user).await {
+        log::error!("Adding new user to redis database failed! Error: {e}");
+        return Err(SignUpErrorResponse::UserCreationError);
+    }
+
+    if let Err(e) = redis_con
+        .expire::<_, ()>(&id, *EMAIL_EXPIRATION_SECONDS)
         .await
-        .map_err(|_| SignUpErrorResponse::UserCreationError)?;
+    {
+        log::error!("Expiration of new user entry could not be set! Error: {e}");
+        redis_con
+            .unlink::<_, i32>(&id)
+            .await
+            .map_err(|_| SignUpErrorResponse::UserCreationError)?;
+        return Err(SignUpErrorResponse::UserCreationError);
+    }
 
     // send verification email or afterwards, mind id return!
     // ...

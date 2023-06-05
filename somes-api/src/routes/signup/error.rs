@@ -19,7 +19,7 @@ impl IntoResponse for SignUpErrorResponse {
         match self {
             SignUpErrorResponse::UserCreationError => (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                Json(json!({"error": "An internal server error occurred"})),
+                Json(json!({"error": "An internal server error occurred. Creating user was unsuccessful!"})),
             )
                 .into_response(),
             SignUpErrorResponse::SignUpError(signup_error) => {
