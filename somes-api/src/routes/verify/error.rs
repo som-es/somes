@@ -14,6 +14,7 @@ pub enum VerifyErrorResponse {
 
 impl IntoResponse for VerifyErrorResponse {
     fn into_response(self) -> axum::response::Response {
+        // rather returning an entire struct? like in signup?
         let (status_code, err_msg) = match self {
             VerifyErrorResponse::InvalidVerificationID => {
                 (StatusCode::BAD_REQUEST, "Invalid verification id provided.")

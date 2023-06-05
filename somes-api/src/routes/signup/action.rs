@@ -9,7 +9,7 @@ use somes_common_lib::{set_error_true, SignUpInfo};
 use crate::model::NewUser;
 use crate::operations::user::{is_email_in_db, is_username_in_db};
 use crate::routes::verify::create_verification_id;
-use crate::{EMAIL_EXPIRATION_SECONDS, extract_to_be_verified_from_redis};
+use crate::{extract_to_be_verified_from_redis, EMAIL_EXPIRATION_SECONDS};
 
 use super::error::{SignUpErrorResponse, SignUpErrorWrapper};
 
@@ -131,6 +131,7 @@ pub async fn add_new_user_to_redis(
 mod tests {
 
     use diesel::{Connection, PgConnection};
+    use redis::AsyncCommands;
     use somes_common_lib::SignUpInfo;
 
     use crate::establish_connection;
@@ -238,8 +239,8 @@ mod tests {
                         assert!(signup_err.insufficient_password);
 
                         // TODO look in redis db
-                        assert!(signup_err.email_taken);
-                        assert!(signup_err.username_taken);
+                        assert!(!signup_err.email_taken);
+                        assert!(!signup_err.username_taken);
                     }
                 },
             }
@@ -257,7 +258,9 @@ mod tests {
                     SignUpErrorResponse::SignUpError(signup_err) => {
                         assert!(signup_err.insufficient_password);
                         assert!(!signup_err.email_taken);
-                        assert!(signup_err.username_taken);
+                        
+                        // would not be taken, because it ""would"" be in the redis database
+                        assert!(!signup_err.username_taken);
                     }
                 },
             }
@@ -292,5 +295,36 @@ mod tests {
             }
             Ok(())
         });
+    }
+
+    #[tokio::test]
+    async fn test_validate_already_in_redis_username() {
+        let client = redis::Client::open("redis://127.0.0.1").unwrap();
+        let mut redis_con = client.get_async_connection().await.unwrap();
+
+        let signup_info = SignUpInfo {
+            email: "mail@gmail.com".to_string(),
+            username: "test_name".to_string(),
+            password: "supersicher".to_string(),
+        };
+
+        let new_user = NewUser::try_from(signup_info.clone()).unwrap();
+
+        redis_con.set::<_, _, ()>("supersicherid", new_user).await.unwrap();
+
+        use super::validate_info_already_in_use_redis;
+        match validate_info_already_in_use_redis(&signup_info, &mut redis_con).await {
+            Ok(_) => panic!("Already used!"),
+            Err(err) => match err {
+                SignUpErrorResponse::UserCreationError => panic!(""),
+                SignUpErrorResponse::SignUpError(signup_err) => {
+                    // supersicher isn't really sicher -> create a more sophisticated pasword checker
+                    assert!(!signup_err.insufficient_password);
+
+                    assert!(signup_err.email_taken);
+                    assert!(signup_err.username_taken);
+                }
+            },
+        }
     }
 }

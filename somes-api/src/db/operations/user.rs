@@ -3,6 +3,7 @@ use crate::db::schema::users::dsl::*;
 use crate::hash;
 use diesel::prelude::*;
 use diesel::PgConnection;
+use somes_common_lib::SignUpInfo;
 
 pub fn is_email_in_db(con: &mut PgConnection, signup_email: &str) -> bool {
     users
@@ -55,6 +56,18 @@ impl NewUser {
             email: signup_email,
             password_hash: hash::hash_password(password)?,
         })
+    }
+}
+
+impl TryFrom<SignUpInfo> for NewUser {
+    type Error = argon2::password_hash::Error;
+
+    fn try_from(signup_info: SignUpInfo) -> argon2::password_hash::Result<Self> {
+        NewUser::new(
+            signup_info.email,
+            signup_info.username,
+            &signup_info.password,
+        )
     }
 }
 

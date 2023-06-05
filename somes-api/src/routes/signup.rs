@@ -2,7 +2,10 @@ use axum::Json;
 use diesel::connection;
 use somes_common_lib::SignUpInfo;
 
-use crate::{db::establish_connection, RedisConnection, routes::signup::action::validate_info_already_in_use_redis};
+use crate::{
+    db::establish_connection, routes::signup::action::validate_info_already_in_use_redis,
+    RedisConnection,
+};
 
 pub use self::{
     action::{add_new_user_to_redis, validate_signup_info},
