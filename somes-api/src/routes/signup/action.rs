@@ -89,17 +89,17 @@ pub fn validate_signup_info(
 }
 
 pub async fn add_new_user_to_redis(
-    signup_info: SignUpInfo,
+    signup_info: &SignUpInfo,
     redis_con: &mut redis::aio::Connection,
 ) -> Result<String, SignUpErrorResponse> {
     // create an (hopefully) unique verification id
-    let id = create_verification_id(&signup_info);
+    let id = create_verification_id(signup_info);
 
     // save directly in mysql database
     // add 'verified' bool
     let new_user = NewUser::new(
-        signup_info.email,
-        signup_info.username,
+        signup_info.email.clone(),
+        signup_info.username.clone(),
         &signup_info.password,
     )
     .map_err(|_| SignUpErrorResponse::UserCreationError)?;
@@ -157,13 +157,13 @@ mod tests {
             match validate_signup_info(con, &signup_info) {
                 Ok(_) => panic!("Not possible, password is weak"),
                 Err(err) => match err {
-                    SignUpErrorResponse::UserCreationError => panic!(""),
                     SignUpErrorResponse::SignUpError(signup_err) => {
                         println!("signup: {signup_err:?}");
                         assert!(signup_err.insufficient_password);
                         assert!(!signup_err.invalid_email);
                         assert!(!signup_err.email_taken);
                     }
+                    _ => panic!(""),
                 },
             };
             Ok(())
@@ -194,12 +194,12 @@ mod tests {
             match validate_signup_info(con, &signup_info) {
                 Ok(_) => panic!("Not possible, password is weak"),
                 Err(err) => match err {
-                    SignUpErrorResponse::UserCreationError => panic!(""),
                     SignUpErrorResponse::SignUpError(signup_err) => {
                         assert!(signup_err.insufficient_password);
                         assert!(signup_err.email_taken);
                         assert!(signup_err.username_taken);
                     }
+                    _ => panic!(""),
                 },
             }
             Ok(())
@@ -221,7 +221,6 @@ mod tests {
             match validate_signup_info(con, &signup_info) {
                 Ok(_) => panic!("Not possible, password is weak"),
                 Err(err) => match err {
-                    SignUpErrorResponse::UserCreationError => panic!(""),
                     SignUpErrorResponse::SignUpError(signup_err) => {
                         assert!(signup_err.insufficient_password);
 
@@ -229,6 +228,7 @@ mod tests {
                         assert!(!signup_err.email_taken);
                         assert!(!signup_err.username_taken);
                     }
+                    _ => panic!(""),
                 },
             }
 
@@ -241,14 +241,14 @@ mod tests {
             match validate_signup_info(con, &signup_info) {
                 Ok(_) => panic!("Not possible, password is weak"),
                 Err(err) => match err {
-                    SignUpErrorResponse::UserCreationError => panic!(""),
                     SignUpErrorResponse::SignUpError(signup_err) => {
                         assert!(signup_err.insufficient_password);
                         assert!(!signup_err.email_taken);
-                        
+
                         // would not be taken, because it ""would"" be in the redis database
                         assert!(!signup_err.username_taken);
                     }
+                    _ => panic!(""),
                 },
             }
             Ok(())
@@ -270,7 +270,6 @@ mod tests {
             match validate_signup_info(con, &signup_info) {
                 Ok(_) => panic!("Not possible, password is weak"),
                 Err(err) => match err {
-                    SignUpErrorResponse::UserCreationError => panic!(""),
                     SignUpErrorResponse::SignUpError(signup_err) => {
                         assert!(signup_err.insufficient_password);
                         assert!(!signup_err.email_taken);
@@ -278,6 +277,7 @@ mod tests {
                         assert!(signup_err.missing_email);
                         assert!(signup_err.missing_password);
                     }
+                    _ => panic!(""),
                 },
             }
             Ok(())
@@ -297,13 +297,15 @@ mod tests {
 
         let new_user = NewUser::try_from(signup_info.clone()).unwrap();
 
-        redis_con.set::<_, _, ()>("supersicherid", new_user).await.unwrap();
+        redis_con
+            .set::<_, _, ()>("supersicherid", new_user)
+            .await
+            .unwrap();
 
         use super::validate_info_already_in_use_redis;
         match validate_info_already_in_use_redis(&signup_info, &mut redis_con).await {
             Ok(_) => panic!("Already used!"),
             Err(err) => match err {
-                SignUpErrorResponse::UserCreationError => panic!(""),
                 SignUpErrorResponse::SignUpError(signup_err) => {
                     // supersicher isn't really sicher -> create a more sophisticated pasword checker
                     assert!(!signup_err.insufficient_password);
@@ -311,6 +313,7 @@ mod tests {
                     assert!(signup_err.email_taken);
                     assert!(signup_err.username_taken);
                 }
+                _ => panic!(""),
             },
         }
     }

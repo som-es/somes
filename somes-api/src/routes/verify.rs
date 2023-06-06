@@ -109,7 +109,7 @@ mod tests {
             Ok(())
         });
 
-        let verify_id = add_new_user_to_redis(signup_info, &mut redis_con)
+        let verify_id = add_new_user_to_redis(&signup_info, &mut redis_con)
             .await
             .unwrap();
 

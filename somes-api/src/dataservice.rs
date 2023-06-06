@@ -83,7 +83,6 @@ pub fn get_speeches_from_legis_init(
         .load::<DbSpeech>(con)
 }
 
-
 #[cfg(test)]
 mod tests {
     use crate::{dataservice::dataservice_con, routes::RequestFilter, today_and_time};

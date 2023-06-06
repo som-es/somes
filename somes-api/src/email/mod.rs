@@ -1,4 +1,7 @@
-use lettre::{SmtpTransport, transport::smtp::authentication::Credentials, Message, message::header::ContentType, Transport};
+use lettre::{
+    message::header::ContentType, transport::smtp::authentication::Credentials, Message,
+    SmtpTransport, Transport,
+};
 use once_cell::sync::Lazy;
 
 use crate::{CONTENT, SUBJECT};
@@ -23,21 +26,23 @@ static MAILER: Lazy<SmtpTransport> = Lazy::new(|| {
         .build()
 });
 
-pub fn send_mail(mail_to: &str, verification_id: &str) {
-    let from = format!("somes <{}>", *SMTP_USERNAME).parse().unwrap();
-    let to = format!("Recipient <{mail_to}>").parse().unwrap();
-    
+pub fn send_mail(mail_to: &str, verification_id: &str) -> Result<(), Box<dyn std::error::Error>> {
+    let from = format!("somes <{}>", *SMTP_USERNAME).parse()?;
+    let to = format!("Recipient <{mail_to}>").parse()?;
+
     let email = Message::builder()
         .from(from)
         .to(to)
         .subject(SUBJECT)
         .header(ContentType::TEXT_PLAIN)
-        .body(format!("{CONTENT}
+        .body(format!(
+            "{CONTENT}
 https://somes.at/verify?id={verification_id}
-        "))
-        .unwrap();
-    
-    MAILER.send(&email).unwrap();
+        "
+        ))?;
+
+    MAILER.send(&email)?;
+    Ok(())
 }
 
 #[test]

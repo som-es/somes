@@ -3,8 +3,8 @@ use axum::Json;
 use somes_common_lib::SignUpInfo;
 
 use crate::{
-    db::establish_connection, routes::signup::action::validate_info_already_in_use_redis,
-    RedisConnection,
+    db::establish_connection, email::send_mail,
+    routes::signup::action::validate_info_already_in_use_redis, RedisConnection,
 };
 
 pub use self::{
@@ -28,9 +28,10 @@ pub async fn signup(
     validate_signup_info(&mut con, &signup_info)?;
 
     // if validation was successful, add a new user to the verification redis db
-    let _id = add_new_user_to_redis(signup_info, &mut redis_con).await;
+    let verification_id = add_new_user_to_redis(&signup_info, &mut redis_con).await?;
 
-    // send mail?
-    println!("id: {_id:?}");
+    send_mail(&signup_info.email, &verification_id)
+        .map_err(|_| SignUpErrorResponse::VerificationEmailSendingError)?;
+
     Ok(Json(()))
 }

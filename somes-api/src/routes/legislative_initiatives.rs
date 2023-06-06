@@ -1,6 +1,6 @@
 use axum::Json;
 use chrono::NaiveDateTime;
-use dataservice::db::models::{DbLegislativeInitiative};
+use dataservice::db::models::DbLegislativeInitiative;
 use serde::{Deserialize, Serialize};
 
 use crate::dataservice::{
