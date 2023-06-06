@@ -130,7 +130,7 @@ pub async fn add_new_user_to_redis(
 #[cfg(test)]
 mod tests {
 
-    use diesel::{Connection, PgConnection};
+    use diesel::Connection;
     use redis::AsyncCommands;
     use somes_common_lib::SignUpInfo;
 
@@ -215,19 +215,6 @@ mod tests {
             username: "test_name".to_string(),
             password: "supersicher".to_string(),
         };
-
-        let new_user = NewUser::new(
-            signup_info.email.clone(),
-            signup_info.username.clone(),
-            &signup_info.password,
-        )
-        .unwrap();
-
-        // TODO Look in redis database!
-        /*verification_map
-        .write()
-        .unwrap()
-        .insert("3".to_string(), (new_user, 1));*/
 
         let con = &mut establish_connection();
         con.test_transaction::<_, (), _>(|con| {

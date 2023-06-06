@@ -1,5 +1,5 @@
 use axum::Json;
-use dataservice::db::models::{DbDelegate, DbProposal, DbProposalQuery};
+use dataservice::db::models::{DbDelegate, DbProposalQuery};
 
 use crate::{
     dataservice::{dataservice_con, get_delegates, get_proposals},

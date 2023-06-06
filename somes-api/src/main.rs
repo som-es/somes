@@ -1,8 +1,6 @@
-use std::net::SocketAddr;
-
 use redis::AsyncCommands;
 use simple_logger::SimpleLogger;
-use somes_api::{initial_startup, model::NewUser, server, DATABASE_URL, SQL_SCHEMA_PATH};
+use somes_api::{model::NewUser, server};
 
 #[tokio::main]
 async fn main() {

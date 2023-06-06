@@ -1,5 +1,7 @@
-use lettre::{SmtpTransport, transport::smtp::authentication::Credentials, Message, Address, message::{Mailbox, header::ContentType}, Transport};
+use lettre::{SmtpTransport, transport::smtp::authentication::Credentials, Message, message::header::ContentType, Transport};
 use once_cell::sync::Lazy;
+
+use crate::{CONTENT, SUBJECT};
 
 // env vars?
 
@@ -22,15 +24,17 @@ static MAILER: Lazy<SmtpTransport> = Lazy::new(|| {
 });
 
 pub fn send_mail(mail_to: &str, verification_id: &str) {
-    let from = format!("Johann Bauer <{}>", *SMTP_USERNAME).parse().unwrap();
+    let from = format!("somes <{}>", *SMTP_USERNAME).parse().unwrap();
     let to = format!("Recipient <{mail_to}>").parse().unwrap();
     
     let email = Message::builder()
         .from(from)
         .to(to)
-        .subject("Verify for somes")
+        .subject(SUBJECT)
         .header(ContentType::TEXT_PLAIN)
-        .body(format!("Click here to verify your somes account: https://somes.at/verify?id={verification_id}"))
+        .body(format!("{CONTENT}
+https://somes.at/verify?id={verification_id}
+        "))
         .unwrap();
     
     MAILER.send(&email).unwrap();
@@ -38,5 +42,6 @@ pub fn send_mail(mail_to: &str, verification_id: &str) {
 
 #[test]
 fn test_send_mail() {
-    send_mail("nagy.floq@gmail.com", "def_idadkföjasdklfj4i3up23u");
+    // send_mail("nagy.floq@gmail.com", "tolle_id_zum_verifizieren");
+    send_mail("clemens.bauer@wi.htlhl.at", "tolle_id_zum_verifizieren");
 }
