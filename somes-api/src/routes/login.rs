@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use axum::Json;
 use somes_common_lib::{JWTInfo, LoginInfo};
 
@@ -8,6 +10,11 @@ use crate::{
 };
 
 pub async fn login(Json(login_info): Json<LoginInfo>) -> Result<Json<JWTInfo>, AuthError> {
+    // mitigate brute force attacks
+    // Start showing CAPTCHAs after three incorrect attempts from an IP
+    // After an incorrect attempt, block all new login requests to your server from that IP for a period of time. Increment this on every failed attempt.
+    // Keep a log and note spikes of activity. If someone is trying to bruteforce, you ought to make note of that and counter it.
+
     let con = &mut establish_connection();
 
     let user = get_user_from_db(

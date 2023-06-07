@@ -4,7 +4,7 @@ use lettre::{
 };
 use once_cell::sync::Lazy;
 
-use crate::{CONTENT, SUBJECT};
+use crate::{VERIFICATION_CONTENT, VERIFICATION_SUBJECT};
 
 // env vars?
 
@@ -26,17 +26,21 @@ static MAILER: Lazy<SmtpTransport> = Lazy::new(|| {
         .build()
 });
 
-pub fn send_mail(mail_to: &str, verification_id: &str) -> Result<(), Box<dyn std::error::Error>> {
+pub fn send_mail(mail_to: &str, subject: &str, content: &str) {
+    
+}
+
+pub fn send_verification_mail(mail_to: &str, verification_id: &str) -> Result<(), Box<dyn std::error::Error>> {
     let from = format!("somes <{}>", *SMTP_USERNAME).parse()?;
     let to = format!("Recipient <{mail_to}>").parse()?;
 
     let email = Message::builder()
         .from(from)
         .to(to)
-        .subject(SUBJECT)
+        .subject(VERIFICATION_SUBJECT)
         .header(ContentType::TEXT_PLAIN)
         .body(format!(
-            "{CONTENT}
+            "{VERIFICATION_CONTENT}
 http://somes.at/verify?id={verification_id}
         "
         ))?;

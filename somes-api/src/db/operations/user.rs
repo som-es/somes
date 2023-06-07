@@ -20,6 +20,13 @@ pub fn is_username_in_db(con: &mut PgConnection, signup_username: &str) -> bool 
         .is_ok()
 }
 
+pub fn update_password_hash_at(con: &mut PgConnection, user: &str, new_password_hash: &str) {
+    diesel::update(users.filter(username.eq(user)))
+        .set(password_hash.eq(new_password_hash))
+        .execute(con)
+        .unwrap();
+}
+
 pub fn get_user_from_db(
     con: &mut PgConnection,
     login_username: &str,
@@ -88,7 +95,7 @@ mod tests {
     use diesel::{Connection, RunQueryDsl};
     use somes_common_lib::SignUpInfo;
 
-    use super::{get_password_hash_from_db, get_user_from_db};
+    use super::{get_password_hash_from_db, get_user_from_db, update_password_hash_at};
 
     #[test]
     fn test_insert_new_user() {
@@ -234,6 +241,32 @@ mod tests {
 
             let pw_hash = get_password_hash_from_db(con, "test_name", "").unwrap();
             assert!(pw_hash.len() > signup_info.password.len());
+            Ok(())
+        });
+    }
+
+    #[test]
+    fn test_update_password_hash() {
+        let signup_info = SignUpInfo {
+            email: "test@test.at".to_string(),
+            username: "test_name".to_string(),
+            password: "supersicher".to_string(),
+        };
+        let new_user = NewUser::new(
+            signup_info.email,
+            signup_info.username,
+            &signup_info.password,
+        )
+        .unwrap();
+
+        let con = &mut establish_connection();
+
+        con.test_transaction::<_, (), _>(|con| {
+            insert_user(con, &new_user).unwrap();
+
+            update_password_hash_at(con, "test_name", "new_pw_hash");
+            let pw_hash = get_password_hash_from_db(con, "test_name", "").unwrap();
+            assert_eq!(pw_hash, "new_pw_hash");
             Ok(())
         });
     }

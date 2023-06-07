@@ -6,6 +6,7 @@ use axum::{
     routing::{get, post},
     Router,
 };
+// use diesel_async::pooled_connection::AsyncDieselConnectionManager;
 use log::{error, info};
 use somes_common_lib::{
     DELEGATES_ROUTE, LATEST_LEGIS_INITS_ROUTE, LATEST_VOTE_RESULTS_ROUTE, LEGIS_INIT_ROUTE,
@@ -14,7 +15,7 @@ use somes_common_lib::{
 //use headers::HeaderValue;
 use crate::{
     routes::{delegates, latest_legis_inits, latest_vote_results, legis_inits, proposals},
-    REDIS_DB,
+    REDIS_DB, DATABASE_URL,
 };
 use tower_http::cors::{Any, CorsLayer};
 
@@ -25,14 +26,16 @@ pub struct AppState {
     // this holds some api specific state
     //verification_map: VerificationMap,
     pub redis_client: redis::Client,
+    pub postgres_pool: deadpool_diesel::postgres::Pool
 }
 
 impl AppState {
-    pub async fn new(client: redis::Client) -> AppState {
+    pub async fn new(redis_client: redis::Client, postgres_pool: deadpool_diesel::postgres::Pool) -> AppState {
         AppState {
             //      verification_map: Default::default(),
             //redis_client: Arc::new(RwLock::new(client)),
-            redis_client: client,
+            redis_client,
+            postgres_pool
         }
     }
 }
@@ -65,7 +68,17 @@ pub async fn serve(addr: SocketAddr) {
 
     info!("Established redis database connection to {REDIS_DB}.");
 
-    let state = AppState::new(client).await;
+    /*
+    let config = AsyncDieselConnectionManager::<diesel_async::AsyncPgConnection>::new(DATABASE_URL);
+    let postgres_pool = bb8::Pool::builder().build(config).await.unwrap();
+     */
+
+    let manager = deadpool_diesel::postgres::Manager::new(DATABASE_URL, deadpool_diesel::Runtime::Tokio1);
+    let postgres_pool = deadpool_diesel::postgres::Pool::builder(manager)
+        .build()
+        .unwrap();
+
+    let state = AppState::new(client, postgres_pool).await;
 
     let app = Router::new()
         .route(SIGNUP_ROUTE, post(signup))

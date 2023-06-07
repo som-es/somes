@@ -15,10 +15,11 @@ use axum::{
     http::request::Parts,
 };
 use diesel::{Connection, PgConnection};
+// use diesel_async::{AsyncPgConnection, pooled_connection::AsyncDieselConnectionManager};
 use redis::AsyncCommands;
 use reqwest::StatusCode;
 
-use crate::DATABASE_URL;
+use crate::{DATABASE_URL, server::AppState, PostgresPool};
 
 use self::model::NewUser;
 
@@ -59,7 +60,42 @@ where
     }
 }
 
-fn internal_error<E>(err: E) -> (StatusCode, String)
+pub struct PostgresConnection(
+    // pub bb8::PooledConnection<'static, AsyncDieselConnectionManager<AsyncPgConnection>>,
+    pub deadpool_diesel::postgres::Pool
+);
+
+/*#[async_trait]
+impl<S> FromRequestParts<S> for PostgresConnection
+where
+    S: Send + Sync,
+    PostgresPool: FromRef<S>,
+{
+    type Rejection = (StatusCode, String);
+
+    async fn from_request_parts(_parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
+        let pool = PostgresPool::from_ref(state);
+
+        let conn = pool.get().await.map_err(internal_error)?;
+        // let conn = pool.get_owned().await.map_err(internal_error)?;
+
+        Ok(Self(conn))
+    }
+}*/
+
+#[async_trait]
+impl FromRequestParts<AppState> for PgConnection {
+    type Rejection = (StatusCode, String);
+
+    async fn from_request_parts(_parts: &mut Parts, state: &AppState) -> Result<Self, Self::Rejection> {
+        let conn = state.postgres_pool.get().await.map_err(internal_error)?;
+        
+        todo!()
+        // Ok(Self(conn))
+    }
+}
+
+pub fn internal_error<E>(err: E) -> (StatusCode, String)
 where
     E: std::error::Error,
 {

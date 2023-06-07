@@ -10,6 +10,7 @@ use somes_common_lib::errors::SignUpError;
 
 #[derive(Debug)]
 pub enum SignUpErrorResponse {
+    PostgresConnection,
     RedisGetKeys,
     VerificationEmailSendingError,
     UserCreationError,
@@ -19,6 +20,10 @@ pub enum SignUpErrorResponse {
 impl IntoResponse for SignUpErrorResponse {
     fn into_response(self) -> Response {
         match self {
+            SignUpErrorResponse::PostgresConnection => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({"error": "An internal server error occurred. Postgres connection failed!"})),
+            ).into_response(),
             SignUpErrorResponse::RedisGetKeys => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(json!({"error": "An internal server error occurred. Redis active user matching failed!"})),

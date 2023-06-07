@@ -1,5 +1,6 @@
 #![warn(clippy::unwrap_used)]
 
+// use diesel_async::{AsyncPgConnection, pooled_connection::AsyncDieselConnectionManager};
 use dotenv_codegen::dotenv;
 
 pub mod dataservice;
@@ -20,9 +21,12 @@ pub const DATASERVICE_URL: &str = dotenv!("DATASERVICE_URL");
 pub const TEST_DB_PATH: &str = dotenv!("TEST_DB_PATH");
 pub const SQL_SCHEMA_PATH: &str = dotenv!("SQL_SCHEMA_PATH");
 pub const REDIS_DB: &str = dotenv!("REDIS_DB");
-pub const SUBJECT: &str = dotenv!("SUBJECT");
-pub const CONTENT: &str = dotenv!("CONTENT");
+pub const VERIFICATION_SUBJECT: &str = dotenv!("VERIFICATION_SUBJECT");
+pub const VERIFICATION_CONTENT: &str = dotenv!("VERIFICATION_CONTENT");
 pub const API_ROOT: &str = dotenv!("API_ROOT");
+
+// pub type PostgresPool = bb8::Pool<AsyncDieselConnectionManager<AsyncPgConnection>>;
+pub type PostgresPool = deadpool_diesel::postgres::Pool;
 
 static EMAIL_EXPIRATION_SECONDS: Lazy<usize> = Lazy::new(|| {
     dotenv!("EMAIL_EXPIRATION_SECONDS")
