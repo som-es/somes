@@ -30,8 +30,12 @@ pub async fn signup(
     // if validation was successful, add a new user to the verification redis db
     let verification_id = add_new_user_to_redis(&signup_info, &mut redis_con).await?;
 
-    send_mail(&signup_info.email, &verification_id)
-        .map_err(|_| SignUpErrorResponse::VerificationEmailSendingError)?;
+    tokio::task::spawn_blocking(move || {
+        // mails need to be encrypted!!! verify id could be grabbed
+        if let Err(e) = send_mail(&signup_info.email, &verification_id) {
+            log::warn!("Error sending verification email: {e:?}");
+        }
+    });
 
     Ok(Json(()))
 }

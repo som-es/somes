@@ -54,12 +54,12 @@ pub async fn remove_user_from_redis(
     id: &VerificationIDInfo,
 ) -> Result<NewUser, VerifyErrorResponse> {
     let new_user = redis_con
-        .get::<_, NewUser>(&id.verify_id)
+        .get::<_, NewUser>(&id.id)
         .await
         .map_err(|_| VerifyErrorResponse::InvalidVerificationID)?;
 
     redis_con
-        .unlink::<_, u32>(&id.verify_id)
+        .unlink::<_, u32>(&id.id)
         .await
         .map_err(|_| VerifyErrorResponse::InvalidVerificationID)?;
 
@@ -109,11 +109,11 @@ mod tests {
             Ok(())
         });
 
-        let verify_id = add_new_user_to_redis(&signup_info, &mut redis_con)
+        let id = add_new_user_to_redis(&signup_info, &mut redis_con)
             .await
             .unwrap();
 
-        remove_user_from_redis(redis_con, &VerificationIDInfo { verify_id })
+        remove_user_from_redis(redis_con, &VerificationIDInfo { id })
             .await
             .unwrap();
 

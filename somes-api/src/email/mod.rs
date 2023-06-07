@@ -21,7 +21,7 @@ static SMTP_PASSWORD: Lazy<String> = Lazy::new(|| {
 static MAILER: Lazy<SmtpTransport> = Lazy::new(|| {
     let creds = Credentials::new(SMTP_USERNAME.to_string(), SMTP_PASSWORD.to_string());
     SmtpTransport::relay("zimbra.nagy-blumen.at")
-        .unwrap()
+        .expect("Email relay not available.")
         .credentials(creds)
         .build()
 });
@@ -37,7 +37,7 @@ pub fn send_mail(mail_to: &str, verification_id: &str) -> Result<(), Box<dyn std
         .header(ContentType::TEXT_PLAIN)
         .body(format!(
             "{CONTENT}
-https://somes.at/verify?id={verification_id}
+http://somes.at/verify?id={verification_id}
         "
         ))?;
 
@@ -47,6 +47,5 @@ https://somes.at/verify?id={verification_id}
 
 #[test]
 fn test_send_mail() {
-    // send_mail("nagy.floq@gmail.com", "tolle_id_zum_verifizieren");
-    send_mail("clemens.bauer@wi.htlhl.at", "tolle_id_zum_verifizieren");
+    // send_mail("", "tolle_id_zum_verifizieren");
 }

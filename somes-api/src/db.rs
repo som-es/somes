@@ -30,8 +30,8 @@ pub struct RedisConnection(pub redis::aio::Connection);
 
 pub async fn extract_to_be_verified_from_redis(
     redis_con: &mut redis::aio::Connection,
-) -> Vec<NewUser> {
-    let keys: Vec<String> = redis_con.keys("*").await.unwrap();
+) -> redis::RedisResult<Vec<NewUser>> {
+    let keys: Vec<String> = redis_con.keys("*").await?;
 
     let mut values = Vec::<NewUser>::with_capacity(keys.len());
 
@@ -40,7 +40,7 @@ pub async fn extract_to_be_verified_from_redis(
             values.push(value);
         }
     }
-    values
+    Ok(values)
 }
 
 #[async_trait]

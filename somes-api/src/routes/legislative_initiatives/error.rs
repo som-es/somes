@@ -4,23 +4,23 @@ use serde_json::json;
 
 #[derive(Debug)]
 pub enum LegisInitErrorResponse {
-    LegisInitError,
-    LatestLegisInitError,
-    LatestVoteResultsError,
+    LegisInit,
+    LatestLegisInit,
+    LatestVoteResults,
 }
 
 impl IntoResponse for LegisInitErrorResponse {
     fn into_response(self) -> axum::response::Response {
         let (status_code, err_msg) = match self {
-            LegisInitErrorResponse::LegisInitError => (
+            LegisInitErrorResponse::LegisInit => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "could not return legislative initiatives",
             ),
-            LegisInitErrorResponse::LatestLegisInitError => (
+            LegisInitErrorResponse::LatestLegisInit => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "could not return latest legislative initiatives",
             ),
-            LegisInitErrorResponse::LatestVoteResultsError => (
+            LegisInitErrorResponse::LatestVoteResults => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "could not return latest vote results",
             ),

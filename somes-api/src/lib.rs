@@ -1,3 +1,5 @@
+#![warn(clippy::unwrap_used)]
+
 use dotenv_codegen::dotenv;
 
 pub mod dataservice;
@@ -5,7 +7,7 @@ mod db;
 pub mod email;
 pub mod hash;
 mod initial_startup;
-mod jwt;
+pub mod jwt;
 pub mod routes;
 pub mod server;
 
@@ -20,6 +22,7 @@ pub const SQL_SCHEMA_PATH: &str = dotenv!("SQL_SCHEMA_PATH");
 pub const REDIS_DB: &str = dotenv!("REDIS_DB");
 pub const SUBJECT: &str = dotenv!("SUBJECT");
 pub const CONTENT: &str = dotenv!("CONTENT");
+pub const API_ROOT: &str = dotenv!("API_ROOT");
 
 static EMAIL_EXPIRATION_SECONDS: Lazy<usize> = Lazy::new(|| {
     dotenv!("EMAIL_EXPIRATION_SECONDS")

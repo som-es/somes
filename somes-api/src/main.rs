@@ -1,6 +1,5 @@
-use redis::AsyncCommands;
 use simple_logger::SimpleLogger;
-use somes_api::{model::NewUser, server};
+use somes_api::{jwt::KEYS, server};
 
 #[tokio::main]
 async fn main() {
@@ -9,20 +8,10 @@ async fn main() {
         .init()
         .unwrap();
 
-    // initial_startup(DATABASE_URL, SQL_SCHEMA_PATH);
+    // if a JWT_SECRET is not present, crash the application
+    let _ = &KEYS.decoding;
 
-    let client = redis::Client::open("redis://127.0.0.1/").unwrap();
-    let mut con = client.get_async_connection().await.unwrap();
-
-    let new_user = NewUser {
-        username: Default::default(),
-        email: Default::default(),
-        password_hash: Default::default(),
-    };
-    con.set::<_, _, ()>("hi", new_user).await.unwrap();
-    let value = con.get::<_, NewUser>("hi").await.unwrap();
-    println!("value: {value:?}");
-
+    // this addr is also used in email
     let addr = "127.0.0.1:3000".parse().unwrap();
     server::serve(addr).await;
 }

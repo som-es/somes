@@ -13,9 +13,8 @@ use crate::{extract_to_be_verified_from_redis, EMAIL_EXPIRATION_SECONDS};
 
 use super::error::{SignUpErrorResponse, SignUpErrorWrapper};
 
-static EMAIL_REGEX: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$").unwrap()
-});
+static EMAIL_REGEX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"[^@]+@[^@]+\.[^@]+").expect("Invalid email regex"));
 
 pub async fn validate_info_already_in_use_redis(
     signup_info: &SignUpInfo,
@@ -23,7 +22,9 @@ pub async fn validate_info_already_in_use_redis(
 ) -> Result<(), SignUpErrorResponse> {
     let mut sign_up_error = SignUpErrorWrapper::default();
 
-    let to_be_verified_users = extract_to_be_verified_from_redis(redis_con).await;
+    let to_be_verified_users = extract_to_be_verified_from_redis(redis_con)
+        .await
+        .map_err(|_| SignUpErrorResponse::RedisGetKeys)?;
 
     if to_be_verified_users
         .iter()
