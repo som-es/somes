@@ -19,7 +19,7 @@ use diesel::{Connection, PgConnection};
 use redis::AsyncCommands;
 use reqwest::StatusCode;
 
-use crate::{DATABASE_URL, server::AppState, PostgresPool};
+use crate::{server::AppState, PostgresPool, DATABASE_URL};
 
 use self::model::NewUser;
 
@@ -62,7 +62,7 @@ where
 
 pub struct PostgresConnection(
     // pub bb8::PooledConnection<'static, AsyncDieselConnectionManager<AsyncPgConnection>>,
-    pub deadpool_diesel::postgres::Pool
+    pub deadpool_diesel::postgres::Pool,
 );
 
 /*#[async_trait]
@@ -87,9 +87,12 @@ where
 impl FromRequestParts<AppState> for PgConnection {
     type Rejection = (StatusCode, String);
 
-    async fn from_request_parts(_parts: &mut Parts, state: &AppState) -> Result<Self, Self::Rejection> {
+    async fn from_request_parts(
+        _parts: &mut Parts,
+        state: &AppState,
+    ) -> Result<Self, Self::Rejection> {
         let conn = state.postgres_pool.get().await.map_err(internal_error)?;
-        
+
         todo!()
         // Ok(Self(conn))
     }

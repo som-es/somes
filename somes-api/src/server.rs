@@ -15,7 +15,7 @@ use somes_common_lib::{
 //use headers::HeaderValue;
 use crate::{
     routes::{delegates, latest_legis_inits, latest_vote_results, legis_inits, proposals},
-    REDIS_DB, DATABASE_URL,
+    DATABASE_URL, REDIS_DB,
 };
 use tower_http::cors::{Any, CorsLayer};
 
@@ -26,16 +26,19 @@ pub struct AppState {
     // this holds some api specific state
     //verification_map: VerificationMap,
     pub redis_client: redis::Client,
-    pub postgres_pool: deadpool_diesel::postgres::Pool
+    pub postgres_pool: deadpool_diesel::postgres::Pool,
 }
 
 impl AppState {
-    pub async fn new(redis_client: redis::Client, postgres_pool: deadpool_diesel::postgres::Pool) -> AppState {
+    pub async fn new(
+        redis_client: redis::Client,
+        postgres_pool: deadpool_diesel::postgres::Pool,
+    ) -> AppState {
         AppState {
             //      verification_map: Default::default(),
             //redis_client: Arc::new(RwLock::new(client)),
             redis_client,
-            postgres_pool
+            postgres_pool,
         }
     }
 }
@@ -73,7 +76,8 @@ pub async fn serve(addr: SocketAddr) {
     let postgres_pool = bb8::Pool::builder().build(config).await.unwrap();
      */
 
-    let manager = deadpool_diesel::postgres::Manager::new(DATABASE_URL, deadpool_diesel::Runtime::Tokio1);
+    let manager =
+        deadpool_diesel::postgres::Manager::new(DATABASE_URL, deadpool_diesel::Runtime::Tokio1);
     let postgres_pool = deadpool_diesel::postgres::Pool::builder(manager)
         .build()
         .unwrap();

@@ -18,7 +18,7 @@ static SMTP_PASSWORD: Lazy<String> = Lazy::new(|| {
         .expect("Can't open smtp password secret file!")
 });
 
-static MAILER: Lazy<SmtpTransport> = Lazy::new(|| {
+pub static MAILER: Lazy<SmtpTransport> = Lazy::new(|| {
     let creds = Credentials::new(SMTP_USERNAME.to_string(), SMTP_PASSWORD.to_string());
     SmtpTransport::relay("zimbra.nagy-blumen.at")
         .expect("Email relay not available.")
@@ -26,26 +26,41 @@ static MAILER: Lazy<SmtpTransport> = Lazy::new(|| {
         .build()
 });
 
-pub fn send_mail(mail_to: &str, subject: &str, content: &str) {
-    
-}
-
-pub fn send_verification_mail(mail_to: &str, verification_id: &str) -> Result<(), Box<dyn std::error::Error>> {
+pub fn send_mail(
+    mailer: &SmtpTransport,
+    mail_to: &str,
+    subject: &str,
+    content: String,
+) -> Result<(), Box<dyn std::error::Error>> {
     let from = format!("somes <{}>", *SMTP_USERNAME).parse()?;
     let to = format!("Recipient <{mail_to}>").parse()?;
 
     let email = Message::builder()
         .from(from)
         .to(to)
-        .subject(VERIFICATION_SUBJECT)
+        .subject(subject)
         .header(ContentType::TEXT_PLAIN)
-        .body(format!(
+        .body(content)?;
+
+    mailer.send(&email)?;
+    Ok(())
+}
+
+pub fn send_verification_mail(
+    mail_to: &str,
+    verification_id: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    send_mail(
+        &MAILER,
+        mail_to,
+        VERIFICATION_SUBJECT,
+        format!(
             "{VERIFICATION_CONTENT}
 http://somes.at/verify?id={verification_id}
-        "
-        ))?;
+    "
+        ),
+    )?;
 
-    MAILER.send(&email)?;
     Ok(())
 }
 
