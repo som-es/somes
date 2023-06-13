@@ -32,7 +32,7 @@
     <div class="flex mt-4">
         {#if voteResults}
             {#if voteResults.length == 0}
-                <p class="no-news">Keine Neugikeiten verfügbar</p>
+                <p class="no-news">Keine Neuigkeiten verfügbar</p>
             {/if}
             {#each voteResults as voteResult}
                 <!-- svelte-ignore a11y-click-events-have-key-events -->

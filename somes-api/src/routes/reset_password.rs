@@ -1,10 +1,13 @@
 use axum::Json;
 use jsonwebtoken::{encode, Header};
-use somes_common_lib::{NewPasswordInfo, ResetPasswordInfo, time::timestamp_secs};
+use somes_common_lib::{time::timestamp_secs, NewPasswordInfo, ResetPasswordInfo};
 
 use crate::{
-    establish_connection, hash::hash_password, jwt::{Claims, create_access_token, KEYS},
-    operations::user::{update_password_hash_at, get_user_from_db}, email::{send_mail, MAILER},
+    email::{send_mail, MAILER},
+    establish_connection,
+    hash::hash_password,
+    jwt::{Claims, KEYS},
+    operations::user::{get_user_from_db, update_password_hash_at},
 };
 
 pub async fn send_reset_password_request(
@@ -12,13 +15,11 @@ pub async fn send_reset_password_request(
     Json(reset_password_info): Json<ResetPasswordInfo>,
     // update Error
 ) -> Result<Json<()>, ()> {
-
     let con = &mut establish_connection();
     let Some(user) = get_user_from_db(con,&reset_password_info.username_or_email, &reset_password_info.username_or_email) else {
         return Ok(Json(()))
     };
-    
-    
+
     let claims = Claims {
         sub: user.username.to_string(),
         company: "".into(),

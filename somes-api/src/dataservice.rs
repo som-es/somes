@@ -1,7 +1,7 @@
 use dataservice::db::{
     models::{DbDelegate, DbLegislativeInitiative, DbProposalQuery, DbSpeech, DbVote},
     schema::{
-        delegates::dsl::delegates,
+        delegates::{council, dsl::delegates, is_active, seat_row},
         legislative_initiatives::{created_at, dsl::legislative_initiatives},
         proposals::dsl::proposals,
         speeches::dsl::speeches,
@@ -19,7 +19,12 @@ pub fn dataservice_con() -> PgConnection {
 }
 
 pub fn get_delegates(con: &mut PgConnection) -> QueryResult<Vec<DbDelegate>> {
-    delegates.load(con)
+    delegates
+        .filter(is_active.eq(true))
+        .filter(council.eq("nr"))
+        .filter(seat_row.is_not_null())
+        .load(con)
+    // delegates.load(con)
 }
 
 pub fn get_proposals(con: &mut PgConnection) -> QueryResult<Vec<DbProposalQuery>> {

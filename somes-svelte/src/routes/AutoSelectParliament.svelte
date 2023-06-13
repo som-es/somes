@@ -38,9 +38,35 @@
         }
         bubble.r = +10.9;
         circles = circles;
+        bubblesWithImage = bubblesWithImage;
         activeSelection = bubble;
         currentDelegateStorage.set(bubble);
 	}
+
+    function randomBubble() {
+        const idx = Math.floor(Math.random() * possibleSelection.length);;
+        const bubble = possibleSelection[idx];
+        possibleSelection.splice(idx, 1);
+        return bubble;
+    }
+
+    let bubblesWithImage: {bubble: Bubble, image: HTMLImageElement}[] = [];
+    const bubble = randomBubble();
+    let currentImg: null | HTMLImageElement = null;
+    if (bubble.del != null) {
+        currentImg = preloadImage(bubble.del.image_url);
+        bubblesWithImage.push({bubble, image: currentImg});
+    }
+
+    function prepareBubble() {
+        const bubble = randomBubble();
+        if (bubble.del != null) {
+            currentImg = preloadImage(bubble.del.image_url);
+            bubblesWithImage.push({bubble, image: currentImg});
+        }    
+    }
+
+
 
     function updateSelection() {
         if (possibleSelection.length == 0) {
@@ -50,44 +76,31 @@
         if (possibleSelection.length == 0) {
             return;
         }
+    
+        const bubble = randomBubble();
+        if (bubble.del == null) {
+            return;
+        }
 
-        const idx = Math.floor(Math.random() * possibleSelection.length);
-        const bubble = possibleSelection[idx];
-        select(bubble);
-        possibleSelection.splice(idx, 1);
-        return bubble;
-    }
+        bubblesWithImage.push({bubble, image: preloadImage(bubble.del.image_url)});
+        currentImg = bubblesWithImage[0].image;
+        select(bubblesWithImage[0].bubble);
+        bubblesWithImage.splice(0, 1);
+    //    return bubble;
+    }   
     
     function preloadImage(url: string) {
+        console.log(url);
         const img = new Image();
         img.src = url;
         return img;
     }
 
-    function preloadImages(bubbles: Bubble[]) {
-        const images: HTMLImageElement[] = [];
-        bubbles.forEach((bubble) => {
-            if (bubble.del == null) {
-                return;
-            }
-            images.push(preloadImage(bubble.del.image_url));
-        });
-        
-        return images;
-    }
-
-    // let selectedBubbles: Bubble[] = []
-
     updateSelection()
-    // selectedBubbles.push(updateSelection());
-    // let images = preloadImages(selectedBubbles);v
     
     onMount(() => {
         interval = setInterval(() => {
             updateSelection();
-            // selectedBubbles.push(updateSelection());
-            // selectedBubbles.push(updateSelection());
-            // images = preloadImages(selectedBubbles);
         }, 1000 * 5);
     });
     
@@ -117,8 +130,11 @@
         <!-- {selectedBubbles.shift()} -->
         {#if activeSelection && activeSelection.del}
             <div class="card w-20 border" style="border-color: {activeSelection.color};">
-                <header>
-                    <img src={activeSelection.del.image_url} class="bg-black/50 w-full aspect-[10/9] rounded" alt="image of politician {activeSelection.del.name}">
+                <header>     
+                    {#if currentImg}
+                        <img src={currentImg.src} class="bg-black/50 w-full aspect-[10/9] rounded" alt="image of politician {activeSelection.del.name}">
+                    {/if}
+                    <!-- <img src={activeSelection.del.image_url} class="bg-black/50 w-full aspect-[10/9] rounded" alt="image of politician {activeSelection.del.name}"> -->
                 </header>
                 <section class="p-0.5 dark:text-white" style="font-size: 9px;">{activeSelection.del.name}</section>
             </div>

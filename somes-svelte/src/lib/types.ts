@@ -7,6 +7,8 @@ export interface Delegate {
     council: string,
     seat_row: number | null,
     seat_col: number | null,
+    gender: string | null,
+    is_active: boolean | null,
 }
 
 export interface LegislativeInitiative {
@@ -26,7 +28,7 @@ export interface Vote {
     legislative_initiatives_id: string,
 }
 
-export interface Sppch {
+export interface Speech {
 
 }
 
