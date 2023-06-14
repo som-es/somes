@@ -38,3 +38,7 @@ static EMAIL_EXPIRATION_SECONDS: Lazy<usize> = Lazy::new(|| {
 pub fn today_and_time() -> chrono::NaiveDateTime {
     chrono::Local::now().naive_local()
 }
+
+pub fn today() -> chrono::NaiveDate {
+    chrono::Local::now().date_naive()
+}

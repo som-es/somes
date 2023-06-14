@@ -29,14 +29,40 @@
     <h2 class="mt-5">Nationalrat</h2>
     Current news from the Austrian parliament
 
-    <div class="flex mt-4">
+    <div class="grid-container2">
+        <section class="grid-tile-2-col-2-row grid-tile">
+            <div class="grid-tile-content">
+                Das neue Fortnite Phone
+            </div>
+        </section>
+        <section class="grid-tile">
+            <div class="grid-tile-content">
+                Das neue Fortnite Phone
+            </div>
+        </section>
+        <section class="grid-tile">
+            <div class="grid-tile-content">
+                Das neue Fortnite Phone
+            </div>
+        </section>
+    </div>
+    <!--<div class="grid-container gap-5">
+        <div class="grid-item item2 rounded">1</div>
+        <div class="grid-item rounded">2</div>
+        <div class="grid-item rounded">2</div>
+    </div>-->
+
+    <div class="flex flex-wrap mt-4">
         {#if voteResults}
             {#if voteResults.length == 0}
                 <p class="no-news">Keine Neuigkeiten verfügbar</p>
             {/if}
             {#each voteResults as voteResult}
+                <span class="label legis-init-label">{voteResult.legislative_initiative.description}</span>
+
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
-                <div class="max-w-[20.2rem] ml-5"
+                <!-- class="max-w-[20.2rem] -->
+                <div class="mx-1 w-[360px]"
                     on:click={() => {
                         currentLegisInitStorage.set(voteResult);
                         goto('/vote');
@@ -48,7 +74,6 @@
                         voteResult={voteResult}
                     />
                 </div>
-                <span style="font-size: 0.4rem;">{voteResult.legislative_initiative.description}</span>
             {/each}
         {:else}
             <p class="loading">loading...</p>
@@ -66,5 +91,59 @@
 </div>
 
 <style>
+
+.legis-init-label {
+    width: 5%;
+}
+
+@media (max-width: 600px) {
+    .legis-init-label {
+        width: 100%; /* Adjust the width as per your requirement */
+    }
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  padding: 10px;
+}
+
+.grid-container2 {
+  display: grid;
+  gap: 20px;
+  /* grid-template-columns: auto auto auto; */
+  grid-template-columns: 370px 370px 370px;
+  grid-auto-rows: 320px;
+  padding: 10px;
+}
+
+.grid-item {
+    border: 1px solid rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    font-size: 30px;
+    text-align: center;
+}
+.grid-tile-2-col-2-row {
+    grid-column: auto/span 2;
+    grid-row: auto/span 2;
+}
+
+.grid-tile {
+    box-sizing: border-box;
+    padding: 0;
+    border-radius: 25px;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    background: #f5f5f7;
+}
+
+.section-sizes,
+.grid-tile-content {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
 
 </style>

@@ -51,12 +51,7 @@
     }
 
     let bubblesWithImage: {bubble: Bubble, image: HTMLImageElement}[] = [];
-    const bubble = randomBubble();
     let currentImg: null | HTMLImageElement = null;
-    if (bubble.del != null) {
-        currentImg = preloadImage(bubble.del.image_url);
-        bubblesWithImage.push({bubble, image: currentImg});
-    }
 
     function prepareBubble() {
         const bubble = randomBubble();
@@ -64,9 +59,10 @@
             currentImg = preloadImage(bubble.del.image_url);
             bubblesWithImage.push({bubble, image: currentImg});
         }    
+        return bubble;
     }
 
-
+    prepareBubble();
 
     function updateSelection() {
         if (possibleSelection.length == 0) {
@@ -76,17 +72,12 @@
         if (possibleSelection.length == 0) {
             return;
         }
-    
-        const bubble = randomBubble();
-        if (bubble.del == null) {
-            return;
-        }
-
-        bubblesWithImage.push({bubble, image: preloadImage(bubble.del.image_url)});
+        
+        prepareBubble();
         currentImg = bubblesWithImage[0].image;
+
         select(bubblesWithImage[0].bubble);
         bubblesWithImage.splice(0, 1);
-    //    return bubble;
     }   
     
     function preloadImage(url: string) {
@@ -101,7 +92,7 @@
     onMount(() => {
         interval = setInterval(() => {
             updateSelection();
-        }, 1000 * 5);
+        }, 1000 * 4); // 1000 * 4
     });
     
     onDestroy(() => {

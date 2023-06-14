@@ -1,6 +1,6 @@
 use axum::Json;
-use chrono::NaiveDateTime;
-use dataservice::db::models::DbLegislativeInitiative;
+use chrono::NaiveDate;
+use dataservice::db::models::DbLegislativeInitiativeQuery;
 use serde::{Deserialize, Serialize};
 
 use crate::dataservice::{
@@ -14,20 +14,20 @@ mod error;
 
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]
 pub struct RequestFilter {
-    pub start: NaiveDateTime,
-    pub end: NaiveDateTime,
+    pub start: NaiveDate,
+    pub end: NaiveDate,
 }
 
 pub async fn legis_inits(
     Json(filter): Json<RequestFilter>,
-) -> Result<Json<Vec<DbLegislativeInitiative>>, LegisInitErrorResponse> {
+) -> Result<Json<Vec<DbLegislativeInitiativeQuery>>, LegisInitErrorResponse> {
     get_legislative_initiatives(&mut dataservice_con(), filter)
         .map(Json)
         .map_err(|_| LegisInitErrorResponse::LegisInit)
 }
 
 pub async fn latest_legis_inits(
-) -> Result<Json<Vec<DbLegislativeInitiative>>, LegisInitErrorResponse> {
+) -> Result<Json<Vec<DbLegislativeInitiativeQuery>>, LegisInitErrorResponse> {
     get_latest_legislative_initiatives(&mut dataservice_con())
         .map(Json)
         .map_err(|_| LegisInitErrorResponse::LatestLegisInit)
