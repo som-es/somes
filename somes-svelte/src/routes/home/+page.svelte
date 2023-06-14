@@ -29,15 +29,31 @@
     <h2 class="mt-5">Nationalrat</h2>
     Current news from the Austrian parliament
 
+    {#if voteResults}
     <div class="grid-container2">
         <section class="grid-tile-2-col-2-row grid-tile">
             <div class="grid-tile-content">
+                
+                    <div class="mx-1 w-[360px]"
+                        on:click={() => {
+                            currentLegisInitStorage.set(voteResults[0]);
+                            goto('/vote');
+                        }}
+                    >
+                    <VoteParliament
+                        dels={dels}
+                        seats={[20, 27, 37, 43, 48, 54]}
+                        voteResult={voteResults[0]}
+                    />
+                    </div>
+                
                 Das neue Fortnite Phone
             </div>
         </section>
         <section class="grid-tile">
             <div class="grid-tile-content">
-                Das neue Fortnite Phone
+                <span class="mx-3 text-center">{voteResults[0].legislative_initiative.description}</span>
+                <!-- Das neue Fortnite Phone -->
             </div>
         </section>
         <section class="grid-tile">
@@ -46,6 +62,7 @@
             </div>
         </section>
     </div>
+    {/if}
     <!--<div class="grid-container gap-5">
         <div class="grid-item item2 rounded">1</div>
         <div class="grid-item rounded">2</div>
@@ -112,8 +129,8 @@
   display: grid;
   gap: 20px;
   /* grid-template-columns: auto auto auto; */
-  grid-template-columns: 370px 370px 370px;
-  grid-auto-rows: 320px;
+  grid-template-columns: 170px 270px 270px;
+  grid-auto-rows: 120px;
   padding: 10px;
 }
 
