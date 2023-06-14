@@ -9,14 +9,15 @@
 	import '../app.postcss';
 	import { AppShell, LightSwitch } from '@skeletonlabs/skeleton';
 
-	const parliamentUrl = new URL('$lib/assets/somes_white.svg', import.meta.url).href
+	const parliamentUrl = new URL('$lib/assets/somes_with_text.svg', import.meta.url).href
 </script>
 
 <!-- App Shell -->
 <AppShell>
-	<section class="bg-primary-500 demo">
-		somes
-		<img class="w-1/6" src="{parliamentUrl}"/>
+	<section class="bg-primary-800 demo">
+		<!-- <img class="mx-4 w-1/6" src="{parliamentUrl}"/> -->
+		<img class="mx-4" style="width: 25vh;" src="{parliamentUrl}" alt="somes log"/>
+		
 	</section>
 	<nav class="bg-primary-500 navbar mb-5">
 		<a href="">
