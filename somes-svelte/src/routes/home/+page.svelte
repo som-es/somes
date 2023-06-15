@@ -1,6 +1,7 @@
 <script lang="ts">
 
 	import AutoSelectParliament from "../AutoSelectParliament.svelte";
+    import LegisInitCard from "../LegisInitCard.svelte";
 	import type { Delegate, VoteResult } from "$lib/types";
 	import { delegates, latest_vote_results } from "$lib/api";
     import { onMount } from "svelte";
@@ -31,70 +32,9 @@
 
     {#if voteResults}
     <div class="flex flex-wrap">
-    <div class="grid-container2">
-        <section class="grid-tile-2-col-2-row grid-tile">
-            <div class="grid-tile-content">
-                
-                    <div class="mx-1 w-[360px]"
-                        on:click={() => {
-                            currentLegisInitStorage.set(voteResults[0]);
-                            goto('/vote');
-                        }}
-                    >
-                    <VoteParliament
-                        dels={dels}
-                        seats={[20, 27, 37, 43, 48, 54]}
-                        voteResult={voteResults[0]}
-                    />
-                    </div>
-                
-                Das neue Fortnite Phone
-            </div>
-        </section>
-        <section class="grid-tile">
-            <div class="grid-tile-content">
-                <span class="mx-3 text-center">{voteResults[0].legislative_initiative.description}</span>
-                <!-- Das neue Fortnite Phone -->
-            </div>
-        </section>
-        <section class="grid-tile">
-            <div class="grid-tile-content">
-                Das neue Fortnite Phone
-            </div>
-        </section>
-    </div>
-    <div class="grid-container2">
-        <section class="grid-tile-2-col-2-row grid-tile">
-            <div class="grid-tile-content">
-                
-                    <div class="mx-1 w-[360px]"
-                        on:click={() => {
-                            currentLegisInitStorage.set(voteResults[0]);
-                            goto('/vote');
-                        }}
-                    >
-                    <VoteParliament
-                        dels={dels}
-                        seats={[20, 27, 37, 43, 48, 54]}
-                        voteResult={voteResults[0]}
-                    />
-                    </div>
-                
-                Das neue Fortnite Phone
-            </div>
-        </section>
-        <section class="grid-tile">
-            <div class="grid-tile-content">
-                <span class="mx-3 text-center">{voteResults[0].legislative_initiative.description}</span>
-                <!-- Das neue Fortnite Phone -->
-            </div>
-        </section>
-        <section class="grid-tile">
-            <div class="grid-tile-content">
-                Das neue Fortnite Phone
-            </div>
-        </section>
-    </div>
+        <LegisInitCard voteResult={voteResults[0]} dels={dels} />
+        <LegisInitCard voteResult={voteResults[1]} dels={dels} />
+        <LegisInitCard voteResult={voteResults[2]} dels={dels} />
     </div>
     {/if}
     <!--<div class="grid-container gap-5">
@@ -151,68 +91,6 @@
     .legis-init-label {
         width: 100%; /* Adjust the width as per your requirement */
     }
-}
-
-.grid-container {
-  display: grid;
-  grid-template-columns: auto auto auto;
-  padding: 10px;
-}
-
-.grid-container2 {
-  display: grid;
-  gap: 1rem;
-  /* grid-template-columns: auto auto auto; */
-  /* grid-template-columns: 170px 270px 270px;  */
-  /* grid-template-columns: 10rem 15rem 15rem; */
-  /* grid-auto-rows: 120px; */
-  /* grid-template-columns: repeat(auto-fit, minmax(350px, 2fr)); */
-
-  grid-auto-rows: 7rem;
-  padding: 10px;
-}
-
-@media (min-width: 600px) {
-  .grid-container2 { 
-    grid-template-columns: repeat(3, 2fr); 
-    max-width: fit-content;
-}
-}
-
-@media (min-width: 900px) {
-  .grid-container2 { 
-    grid-template-columns: repeat(3, 2fr); 
-    max-width: 700px;
-}
-}
-
-.grid-item {
-    border: 1px solid rgba(0, 0, 0, 0.8);
-    padding: 20px;
-    font-size: 30px;
-    text-align: center;
-}
-.grid-tile-2-col-2-row {
-    grid-column: auto/span 2;
-    grid-row: auto/span 2;
-}
-
-.grid-tile {
-    box-sizing: border-box;
-    padding: 0;
-    border-radius: 25px;
-    position: relative;
-    z-index: 1;
-    overflow: hidden;
-    background: #f5f5f7;
-}
-
-.section-sizes,
-.grid-tile-content {
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    align-items: center;
 }
 
 </style>
