@@ -70,3 +70,24 @@ mod tests {
         assert_eq!(value.password_hash, new_user.password_hash);
     }
 }
+
+
+use diesel::QueryableByName;
+
+// must create a table -> diesel can get the datatypes from it
+diesel::table! {
+    speaker_by_hours {
+        id -> Integer,
+        name -> Varchar,
+        party -> Varchar,
+        hours_spoken -> Float,
+    }
+}
+
+#[derive(QueryableByName, PartialEq, Debug)]
+#[table_name="speaker_by_hours"]
+pub struct SpeakerByHours {
+    name: String,
+    party: String,
+    hours_spoken: f32
+}

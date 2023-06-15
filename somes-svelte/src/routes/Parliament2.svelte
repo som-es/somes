@@ -68,7 +68,21 @@
         {/if}
     </div>
     <div class="self-center mx-auto">
-        <!-- <svg {width} height={height * 0.5 +10}> -->
+    <svg viewBox="0 0 {width} {height * 0.5+60}" style="max-width: 100%;">
+        {#each circles2d.flat(1) as circle}
+                <circle type="button" cx={circle.x} cy={circle.y} r={circle.r}
+                    on:click={event => select(circle, event)}
+                    fill={circle.color}
+                    fill-opacity={circle.opacity}
+                />
+            <div class="box">B</div>
+            
+            <div class="overlay">Overlay</div>
+        {/each}
+    </svg>
+    </div>
+    <!--
+    <div class="self-center mx-auto">
         <svg viewBox="0 0 {width} {height * 0.5+10}" style="width: 54rem; max-width: 100%;">
             {#each circles2d.flat(1) as circle}
                 <div class="box" >B</div>
@@ -82,6 +96,7 @@
             {/each}
         </svg>
     </div>
+    -->
 </div>
 <!-- <div class="w-screen h-screen bg-slate-500"></div> -->
 <!-- <div> -->

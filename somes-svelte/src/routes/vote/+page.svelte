@@ -23,11 +23,13 @@
         <h3>{voteResult.legislative_initiative.title}</h3>
         <h5>Akzeptiert: {voteResult.legislative_initiative.accepted ? "Ja" : "Nein"}</h5>
         <!-- <h5>{voteResult.legislative_initiative.}</h5> -->
-        <VoteParliament 
-            dels={dels} 
-            seats={[20, 27, 37, 43, 48, 54]} 
-            voteResult={voteResult} 
-        />
+        <div style="width: 100rem; max-width: 100%;">
+            <VoteParliament 
+                dels={dels} 
+                seats={[20, 27, 37, 43, 48, 54]} 
+                voteResult={voteResult} 
+            />
+        </div>
     {:else}
         <p class="loading">loading...</p>
     {/if}

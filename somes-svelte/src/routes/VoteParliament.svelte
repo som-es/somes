@@ -36,8 +36,17 @@
     partyToColorMap.set("GRÜNE", isPartyInFavor("GRÜNE") ? {color:"#69B12E", infavor:true} : {color:"#537239", infavor:false});
     partyToColorMap.set("NEOS", isPartyInFavor("NEOS") ?   {color:"#E3257B", infavor:true} : {color:"#934b6c", infavor:false});
     
-
     let circles2d: Bubble[][] = setupParliament(seats, width, height, 6.9);
+    let selected: Bubble;
+
+    function select(bubble: Bubble, event: MouseEvent | null) {
+        circles2d = circles2d;
+        if (event != null) {
+            event.stopPropagation();
+        }
+        selected = bubble;
+        console.log(selected);
+	}
 
     function partyToColor(party: string): string { 
         if (partyToColorMap.has(party)) {
@@ -116,13 +125,25 @@
 </script>
 
 <div>
-    <svg viewBox="0 0 {width} {height * 0.5+60}" style="width: 500px; max-width: 100%;">
+    <svg viewBox="0 0 {width} {height * 0.5+60}" style="max-width: 100%;">
         {#each circles2d.flat(1) as circle}
+            {#if circle == selected}
+                <circle class="translated-circle" style="{getTransform(circle)}" type="button" cx={circle.x} cy={circle.y} r={circle.r}
+                    on:click={event => select(circle, event)}
+                    fill={circle.color}
+                    fill-opacity={circle.opacity}
+                    stroke="orange"
+                    stroke-width="4"
+                />
+            {:else}
+                <circle class="translated-circle" style="{getTransform(circle)}" type="button" cx={circle.x} cy={circle.y} r={circle.r}
+                    on:click={event => select(circle, event)}
+                    fill={circle.color}
+                    fill-opacity={circle.opacity}
+                />
+            {/if}
             <div class="box">B</div>
-            <circle class="translated-circle" style="{getTransform(circle)}" type="button" cx={circle.x} cy={circle.y} r={circle.r}
-                fill={circle.color}
-                fill-opacity={circle.opacity}
-            />
+            
             <div class="overlay">Overlay</div>
         {/each}
     </svg>

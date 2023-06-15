@@ -25,7 +25,9 @@
 
     {#if dels}
         <!-- <Parliament seats={[17, 26, 32, 37, 40, 32]} /> -->
-        <Parliament2 dels={dels} seats={[20, 27, 37, 43, 48, 54]} />
+        <div style="width: 100rem; max-width: 100%;">
+            <Parliament2 dels={dels} seats={[20, 27, 37, 43, 48, 54]} />
+        </div>
 
     {:else}
         <p class="loading">loading...</p>
