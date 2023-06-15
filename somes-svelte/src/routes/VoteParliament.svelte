@@ -18,8 +18,18 @@
         return dels.find(del => del.id === id);
     }
 
+    let otherPartyToColor = new Map<string, {color: string}[]>();
+    otherPartyToColor.set("SPÖ", [{color:"#f48992"}, {color:"#E31E2D"}]);
+    otherPartyToColor.set("ÖVP", [{color:"#567a7f"}, {color:"#62C3D0"}]);
+    otherPartyToColor.set("FPÖ", [{color:"#354776"}, {color:"#0052FB"}]);
+    otherPartyToColor.set("GRÜNE", [{color:"#537239"}, {color:"#69B12E"}]);
+    otherPartyToColor.set("NEOS", [{color:"#934b6c"}, {color:"#E3257B"}]);
+
 
     let partyToColorMap = new Map<string, {color: string, infavor: boolean}>();
+    // better
+    // partyToColorMap.set("SPÖ", otherPartyToColor.get("SPÖ")[isPartyInFavor("SPÖ") ? 0 : 1]);
+
     partyToColorMap.set("SPÖ", isPartyInFavor("SPÖ") ?     {color:"#E31E2D", infavor:true} : {color:"#f48992", infavor:false});
     partyToColorMap.set("ÖVP", isPartyInFavor("ÖVP") ?     {color:"#62C3D0", infavor:true} : {color:"#567a7f", infavor:false});
     partyToColorMap.set("FPÖ", isPartyInFavor("FPÖ") ?     {color:"#0052FB", infavor:true} : {color:"#354776", infavor:false});
@@ -36,19 +46,26 @@
         return "rgb(196, 180, 189)";
     }
 
-    function opacity(bubble: Bubble): number {
+    function setOpacity(bubble: Bubble) {
         if (bubble.del == null) {
-            return 0.2;
+            bubble.opacity = 0.2;
+            return;
         }
-        if (partyToColorMap.has(bubble.del.party)) {
-            return partyToColorMap.get(bubble.del.party)?.infavor as boolean ? 1 : 0.2;
-        }
-        return 1;
 
+        if (partyToColorMap.has(bubble.del.party)) {
+            bubble.opacity = partyToColorMap.get(bubble.del.party)?.infavor as boolean ? 1 : 0.2;
+            return
+        }
+        bubble.opacity = 1;
     }
 
     dels.forEach((del) => {
         setDelOnBubble(del, circles2d, partyToColor);
+
+        if (del.seat_col != null && del.seat_row != null) {
+            setOpacity(circles2d[del.seat_row-1][del.seat_col-1]);
+        }
+
     });
 
     voteResult.speeches.forEach((speech) => {
@@ -59,6 +76,24 @@
 
         if (del.seat_col == null || del.seat_row == null) {
             return;
+        }
+
+        const biColors = otherPartyToColor.get(del.party);
+
+        if (biColors == null) {
+            return;
+        }
+
+        // select delegates.name,delegates.party,speeches.infavor from speeches inner join delegates on speeches.delegate_id=delegates.id where legislative_initiatives_id=14;
+
+
+        // if speaker is against partei linie
+        circles2d[del.seat_row-1][del.seat_col-1].color = biColors[speech.infavor ? 1 : 0].color;
+
+        if (speech.infavor) {
+            circles2d[del.seat_row-1][del.seat_col-1].opacity = 1.0;            
+        } else {
+            circles2d[del.seat_row-1][del.seat_col-1].opacity = 0.2;
         }
 
         circles2d[del.seat_row-1][del.seat_col-1].r = +10.9;
@@ -86,7 +121,7 @@
             <div class="box">B</div>
             <circle class="translated-circle" style="{getTransform(circle)}" type="button" cx={circle.x} cy={circle.y} r={circle.r}
                 fill={circle.color}
-                fill-opacity={opacity(circle)}
+                fill-opacity={circle.opacity}
             />
             <div class="overlay">Overlay</div>
         {/each}

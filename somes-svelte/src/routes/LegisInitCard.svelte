@@ -12,7 +12,7 @@
 </script>
 
 <div class="grid-container2">
-    <section class="grid-tile-2-col-2-row grid-tile">
+    <section class="grid-tile-2-col-2-row grid-tile bg-primary-100">
         <div class="grid-tile-content">
             
             <div class="mx-1 w-[360px]"
@@ -31,13 +31,13 @@
             <span class="mx-3 text-center">{voteResult.legislative_initiative.description}</span>
         </div>
     </section>
-    <section class="grid-tile">
+    <section class="grid-tile bg-primary-100">
         <div class="grid-tile-content">
             <span class="mx-3 text-center">emphasis?</span>
             <!-- Das neue Fortnite Phone -->
         </div>
     </section>
-    <section class="grid-tile">
+    <section class="grid-tile bg-primary-100">
         <div class="grid-tile-content">
             Das neue Fortnite Phone
         </div>
@@ -98,7 +98,7 @@
     position: relative;
     z-index: 1;
     overflow: hidden;
-    background: #f5f5f7;
+    /* background: rgb(122, 223, 226); */
 }
 
 .section-sizes,

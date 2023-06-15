@@ -24,8 +24,8 @@
     <!-- <Halfcircle n={32} r={190. * 1.5} /> -->
 
     {#if dels}
-            <!-- <Parliament seats={[17, 26, 32, 37, 40, 32]} /> -->
-            <Parliament2 dels={dels} seats={[20, 27, 37, 43, 48, 54]} />
+        <!-- <Parliament seats={[17, 26, 32, 37, 40, 32]} /> -->
+        <Parliament2 dels={dels} seats={[20, 27, 37, 43, 48, 54]} />
 
     {:else}
         <p class="loading">loading...</p>

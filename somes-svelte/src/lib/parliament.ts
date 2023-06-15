@@ -6,6 +6,7 @@ export interface Bubble {
     y: number;
     del: Delegate | null;
     color: string | null;
+    opacity: number;
 }
 
 
@@ -69,7 +70,8 @@ export function setupParliament(seats: number[], width: number, height: number, 
                 x: circle.x,
                 y: circle.y,
                 del: null,
-                color: "rgb(196, 180, 189)"
+                color: "rgb(196, 180, 189)",
+                opacity: 0.2
             }
         }));
     });

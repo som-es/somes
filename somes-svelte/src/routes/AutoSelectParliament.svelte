@@ -105,9 +105,9 @@
 
 <!---->
 
-<a href="/delegate" class="flex flex-wrap border max-w-[20.2rem]">
+<a href="/delegate" class="flex flex-wrap border max-w-[28.8rem]">
     <div>
-        <svg viewBox="0 0 {width} {height * 0.5+13}" style="width: 240px; max-width: 100%;">
+        <svg viewBox="0 0 {width} {height * 0.5+13}" style="width: 340px; max-width: 100%;">
         <!-- <svg width={width * 0.3} height={height * 0.15 + 10}>  -->
             {#each circles as circle}
                 <circle type="button" cx={circle.x} cy={circle.y} r={circle.r}
@@ -120,7 +120,7 @@
     <div class="self-center">
         <!-- {selectedBubbles.shift()} -->
         {#if activeSelection && activeSelection.del}
-            <div class="card w-20 border" style="border-color: {activeSelection.color};">
+            <div class="card w-28 border" style="border-color: {activeSelection.color};">
                 <header>     
                     {#if currentImg}
                         <img src={currentImg.src} class="bg-black/50 w-full aspect-[10/9] rounded" alt="image of politician {activeSelection.del.name}">

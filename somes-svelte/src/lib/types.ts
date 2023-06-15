@@ -29,7 +29,8 @@ export interface Vote {
 }
 
 export interface Speech {
-
+    delegate_id: number,
+    infavor: boolean,
 }
 
 export interface VoteResult {

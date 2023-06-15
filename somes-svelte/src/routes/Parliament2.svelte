@@ -67,7 +67,7 @@
             <!-- <DelegateCard name={selected.del.name} party={selected.del.party} image={selected.del.image_url} /> -->
         {/if}
     </div>
-    <div class="self-center">
+    <div class="self-center mx-auto">
         <!-- <svg {width} height={height * 0.5 +10}> -->
         <svg viewBox="0 0 {width} {height * 0.5+10}" style="width: 54rem; max-width: 100%;">
             {#each circles2d.flat(1) as circle}
