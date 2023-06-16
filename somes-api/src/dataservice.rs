@@ -8,11 +8,12 @@ use dataservice::db::{
         votes::{dsl::votes, legislative_initiatives_id},
     },
 };
-use diesel::{Connection, ExpressionMethods, PgConnection, QueryDsl, QueryResult, RunQueryDsl, sql_query};
+use diesel::{
+    sql_query, Connection, ExpressionMethods, PgConnection, QueryDsl, QueryResult, RunQueryDsl,
+};
 use serde::{Deserialize, Serialize};
 
-use crate::{routes::RequestFilter, DATASERVICE_URL, today, model::SpeakerByHours};
-
+use crate::{model::SpeakerByHours, routes::RequestFilter, today, DATASERVICE_URL};
 
 /*#[derive(QueryableByName, PartialEq, Eq)]
 struct User {
@@ -23,7 +24,8 @@ struct User {
 
 // MIND: the resulting hours are not relative to the total tenure (amtzeit)
 pub fn get_speakers_by_hours(con: &mut PgConnection) -> QueryResult<Vec<SpeakerByHours>> {
-    sql_query("select 
+    sql_query(
+        "select 
         delegates.name, 
         delegates.image_url,
         delegates.party, 
@@ -44,7 +46,8 @@ pub fn get_speakers_by_hours(con: &mut PgConnection) -> QueryResult<Vec<SpeakerB
         delegates.party, 
         delegates.council 
     order by 
-        hours_spoken DESC;")
+        hours_spoken DESC;",
+    )
     .load::<SpeakerByHours>(con)
 }
 

@@ -10,11 +10,11 @@ use axum::{
 use log::{error, info};
 use somes_common_lib::{
     DELEGATES_ROUTE, LATEST_LEGIS_INITS_ROUTE, LATEST_VOTE_RESULTS_ROUTE, LEGIS_INIT_ROUTE,
-    LOGIN_ROUTE, PROPOSALS_ROUTE, SIGNUP_ROUTE, VERIFY_ROUTE,
+    LOGIN_ROUTE, PROPOSALS_ROUTE, SIGNUP_ROUTE, VERIFY_ROUTE, SPEAKERS_BY_HOURS,
 };
 //use headers::HeaderValue;
 use crate::{
-    routes::{delegates, latest_legis_inits, latest_vote_results, legis_inits, proposals},
+    routes::{delegates, latest_legis_inits, latest_vote_results, legis_inits, proposals, speaker_by_hours},
     DATABASE_URL, REDIS_DB,
 };
 use tower_http::cors::{Any, CorsLayer};
@@ -87,6 +87,7 @@ pub async fn serve(addr: SocketAddr) {
     let app = Router::new()
         .route(SIGNUP_ROUTE, post(signup))
         .route(VERIFY_ROUTE, get(verify)) // or post?
+        .route(SPEAKERS_BY_HOURS, get(speaker_by_hours))
         .route(LOGIN_ROUTE, post(login))
         .route(DELEGATES_ROUTE, get(delegates))
         .route(PROPOSALS_ROUTE, get(proposals))

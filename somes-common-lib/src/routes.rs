@@ -6,3 +6,4 @@ pub const PROPOSALS_ROUTE: &str = "/proposals";
 pub const LEGIS_INIT_ROUTE: &str = "/legis_inits";
 pub const LATEST_LEGIS_INITS_ROUTE: &str = "/latest_legis_inits";
 pub const LATEST_VOTE_RESULTS_ROUTE: &str = "/latest_vote_results";
+pub const SPEAKERS_BY_HOURS: &str = "/speakers_by_hours";

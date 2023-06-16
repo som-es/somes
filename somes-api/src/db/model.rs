@@ -71,7 +71,6 @@ mod tests {
     }
 }
 
-
 use diesel::QueryableByName;
 
 // must create a table -> diesel can get the datatypes from it
@@ -85,11 +84,11 @@ diesel::table! {
     }
 }
 
-#[derive(QueryableByName, PartialEq, Debug)]
-#[table_name="speaker_by_hours"]
+#[derive(QueryableByName, PartialEq, Debug, Serialize, Deserialize)]
+#[table_name = "speaker_by_hours"]
 pub struct SpeakerByHours {
     name: String,
     img_url: Option<String>,
     party: String,
-    hours_spoken: f32
+    hours_spoken: f32,
 }
