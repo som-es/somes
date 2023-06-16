@@ -68,12 +68,12 @@
         {/if}
     </div>
     <div class="self-center mx-auto">
-    <svg viewBox="0 0 {width} {height * 0.5+60}" style="max-width: 100%;">
+    <svg viewBox="0 0 {width} {height * 0.5+60}" style="width: 54rem; max-width: 100%;">
         {#each circles2d.flat(1) as circle}
                 <circle type="button" cx={circle.x} cy={circle.y} r={circle.r}
                     on:click={event => select(circle, event)}
                     fill={circle.color}
-                    fill-opacity={circle.opacity}
+                    fill-opacity={circle.color == "rgb(196, 180, 189)" && circle.del == null ? 0.2 : 1}
                 />
             <div class="box">B</div>
             

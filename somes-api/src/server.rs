@@ -97,7 +97,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(LEGIS_INIT_ROUTE, post(legis_inits))
         .route(LATEST_LEGIS_INITS_ROUTE, get(latest_legis_inits))
         .route(LATEST_VOTE_RESULTS_ROUTE, get(latest_vote_results))
-        .route("save_email", post(save_email))
+        .route("/save_email", post(save_email))
         .layer(
             CorsLayer::new()
                 .allow_origin(Any)

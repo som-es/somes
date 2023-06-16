@@ -21,7 +21,7 @@
         const austrianDelegates = await delegates();
         dels = austrianDelegates.filter(delegate => delegate.council === "nr");
 
-        voteResults = (await latest_vote_results())//.slice(0, 3);
+        voteResults = (await latest_vote_results()).slice(0, 6);
     });
 
 </script>
