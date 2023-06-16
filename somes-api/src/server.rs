@@ -14,7 +14,7 @@ use somes_common_lib::{
 };
 //use headers::HeaderValue;
 use crate::{
-    routes::{delegates, latest_legis_inits, latest_vote_results, legis_inits, proposals, speakers_by_hours},
+    routes::{delegates, latest_legis_inits, latest_vote_results, legis_inits, proposals, speakers_by_hours, save_email},
     DATABASE_URL, REDIS_DB,
 };
 use tower_http::cors::{Any, CorsLayer};
@@ -94,6 +94,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(LEGIS_INIT_ROUTE, post(legis_inits))
         .route(LATEST_LEGIS_INITS_ROUTE, get(latest_legis_inits))
         .route(LATEST_VOTE_RESULTS_ROUTE, get(latest_vote_results))
+        .route("save_email", post(save_email))
         .layer(
             CorsLayer::new()
                 .allow_origin(Any)

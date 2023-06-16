@@ -9,7 +9,7 @@ pub struct ResetPasswordInfo {
 /// 'NewPasswordInfo' is used to transmit a new password to the server.
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]
 pub struct NewPasswordInfo {
-    pub password: String, 
+    pub password: String,
 }
 
 /// `LoginInfo` is sent by the client and received by the server at login of a user.
@@ -44,4 +44,9 @@ pub struct Unit;
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]
 pub struct VerificationIDInfo {
     pub id: String,
+}
+
+#[derive(Debug, Deserialize, Serialize, Default, Clone)]
+pub struct SaveEmailInfo {
+    email: String,
 }
