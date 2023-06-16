@@ -24,14 +24,15 @@ struct User {
 
 // MIND: the resulting hours are not relative to the total tenure (amtzeit)
 pub fn get_speakers_by_hours(con: &mut PgConnection) -> QueryResult<Vec<SpeakerByHours>> {
+    // mind "real" datatype -> float
     sql_query(
         "select 
         delegates.name, 
         delegates.image_url,
         delegates.party, 
-        SUM(
+        cast(SUM(
         plenar_speeches.duration_in_seconds
-        ) / (60.0 * 60.0) AS hours_spoken 
+        ) / (60.0 * 60.0) as real) AS hours_spoken 
     from 
         plenar_speeches 
         inner join debates on plenar_speeches.debate_id = debates.id 
@@ -42,6 +43,7 @@ pub fn get_speakers_by_hours(con: &mut PgConnection) -> QueryResult<Vec<SpeakerB
         and delegates.council = 'nr'
     group by 
         plenar_speeches.delegate_id, 
+        delegates.image_url, 
         delegates.name, 
         delegates.party, 
         delegates.council 
@@ -131,7 +133,7 @@ pub fn get_speeches_from_legis_init(
 mod tests {
     use crate::{dataservice::dataservice_con, routes::RequestFilter, today};
 
-    use super::{get_delegates, get_latest_vote_results, get_legislative_initiatives};
+    use super::{get_delegates, get_latest_vote_results, get_legislative_initiatives, get_speakers_by_hours};
 
     #[test]
     fn test_get_delegates() {
@@ -155,6 +157,14 @@ mod tests {
     fn test_get_combined_latest_votes_and_legis_inits() {
         let con = &mut dataservice_con();
         let res = get_latest_vote_results(con);
+        println!("res: {res:?}");
+    }
+
+    #[test]
+    fn test_get_speakers_by_hours() {
+        let con = &mut dataservice_con();
+        let res = get_speakers_by_hours(con);
+
         println!("res: {res:?}");
     }
 }

@@ -14,7 +14,7 @@ use somes_common_lib::{
 };
 //use headers::HeaderValue;
 use crate::{
-    routes::{delegates, latest_legis_inits, latest_vote_results, legis_inits, proposals, speaker_by_hours},
+    routes::{delegates, latest_legis_inits, latest_vote_results, legis_inits, proposals, speakers_by_hours},
     DATABASE_URL, REDIS_DB,
 };
 use tower_http::cors::{Any, CorsLayer};
@@ -87,7 +87,7 @@ pub async fn serve(addr: SocketAddr) {
     let app = Router::new()
         .route(SIGNUP_ROUTE, post(signup))
         .route(VERIFY_ROUTE, get(verify)) // or post?
-        .route(SPEAKERS_BY_HOURS, get(speaker_by_hours))
+        .route(SPEAKERS_BY_HOURS, get(speakers_by_hours))
         .route(LOGIN_ROUTE, post(login))
         .route(DELEGATES_ROUTE, get(delegates))
         .route(PROPOSALS_ROUTE, get(proposals))

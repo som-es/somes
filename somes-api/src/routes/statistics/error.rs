@@ -12,7 +12,7 @@ impl IntoResponse for SpeakerByHoursErrorResponse {
         let (status_code, err_msg) = match self {
             SpeakerByHoursErrorResponse::DbSelectFailure => (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "could not return legislative initiatives",
+                "could not return speakery by hours",
             ),
         };
 

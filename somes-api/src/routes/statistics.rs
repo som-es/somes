@@ -8,7 +8,7 @@ use crate::{
 
 use self::error::SpeakerByHoursErrorResponse;
 
-pub async fn speaker_by_hours() -> Result<Json<Vec<SpeakerByHours>>, SpeakerByHoursErrorResponse> {
+pub async fn speakers_by_hours() -> Result<Json<Vec<SpeakerByHours>>, SpeakerByHoursErrorResponse> {
     get_speakers_by_hours(&mut dataservice_con())
         .map_err(|_| SpeakerByHoursErrorResponse::DbSelectFailure)
         .map(Json)
