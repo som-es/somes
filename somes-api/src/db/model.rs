@@ -78,6 +78,7 @@ use diesel::QueryableByName;
 diesel::table! {
     speaker_by_hours {
         id -> Integer,
+        img_url -> Nullable<Varchar>,
         name -> Varchar,
         party -> Varchar,
         hours_spoken -> Float,
@@ -88,6 +89,7 @@ diesel::table! {
 #[table_name="speaker_by_hours"]
 pub struct SpeakerByHours {
     name: String,
+    img_url: Option<String>,
     party: String,
     hours_spoken: f32
 }

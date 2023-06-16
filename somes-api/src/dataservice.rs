@@ -22,9 +22,10 @@ struct User {
 }*/
 
 // MIND: the resulting hours are not relative to the total tenure (amtzeit)
-pub fn get_speakers_by_hours(con: &mut PgConnection) {
+pub fn get_speakers_by_hours(con: &mut PgConnection) -> QueryResult<Vec<SpeakerByHours>> {
     sql_query("select 
         delegates.name, 
+        delegates.image_url,
         delegates.party, 
         SUM(
         plenar_speeches.duration_in_seconds
@@ -44,7 +45,7 @@ pub fn get_speakers_by_hours(con: &mut PgConnection) {
         delegates.council 
     order by 
         hours_spoken DESC;")
-    .load::<SpeakerByHours>(con);
+    .load::<SpeakerByHours>(con)
 }
 
 pub fn dataservice_con() -> PgConnection {
