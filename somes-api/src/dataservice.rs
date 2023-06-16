@@ -133,7 +133,9 @@ pub fn get_speeches_from_legis_init(
 mod tests {
     use crate::{dataservice::dataservice_con, routes::RequestFilter, today};
 
-    use super::{get_delegates, get_latest_vote_results, get_legislative_initiatives, get_speakers_by_hours};
+    use super::{
+        get_delegates, get_latest_vote_results, get_legislative_initiatives, get_speakers_by_hours,
+    };
 
     #[test]
     fn test_get_delegates() {
