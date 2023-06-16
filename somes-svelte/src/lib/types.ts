@@ -38,3 +38,10 @@ export interface VoteResult {
     votes: Vote[],
     speeches: Speech[],
 }
+
+export interface SpeakerByHours {
+    name: string,
+    image_url: string | null,
+    party: string,
+    hours_spoken: number
+}

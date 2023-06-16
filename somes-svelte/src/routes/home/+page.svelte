@@ -8,6 +8,7 @@
 	import type { Writable } from "svelte/store";
 	import { localStorageStore } from "@skeletonlabs/skeleton";
 	import VoteParliament from "../VoteParliament.svelte";
+    import SpeakersByHours from "../SpeakersByHours.svelte";
 	import { goto } from "$app/navigation";
 
     let dels: Delegate[];
@@ -83,6 +84,7 @@
 
     <h2 class="mt-5">Statistics</h2>
     <p>Here, you can find statistics about the Austrian parliament</p>
+    <SpeakersByHours />
 </div>
 
 <style>
