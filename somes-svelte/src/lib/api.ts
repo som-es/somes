@@ -1,7 +1,7 @@
 import type { Delegate, SpeakerByHours, VoteResult } from "./types";
 
-//const address = "127.0.0.1";
-const address = "172.20.10.2";
+const address = "127.0.0.1";
+// const address = "172.20.10.2";
 
 export async function delegates(): Promise<Delegate[]> {
     let response = await fetch(`http://${address}:3000/delegates`, {
