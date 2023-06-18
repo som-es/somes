@@ -17,7 +17,7 @@ use somes_common_lib::{
 use crate::{
     routes::{
         delegate_by_call_to_orders, delegates, latest_legis_inits, latest_vote_results,
-        legis_inits, proposals, save_email, speakers_by_hours,
+        legis_inits, proposals, save_email, speakers_by_hours, call_to_orders_per_party_delegates,
     },
     DATABASE_URL, DATASERVICE_URL, REDIS_DB,
 };
@@ -113,7 +113,7 @@ pub async fn serve(addr: SocketAddr) {
         // statistics
         .route(SPEAKERS_BY_HOURS, get(speakers_by_hours))
         .route(DELEGATES_BY_CALL_TO_ORDERS, get(delegate_by_call_to_orders))
-        .route(CALL_TO_ORDERS_PER_PARTY_DELEGATES, get(delegate_by_call_to_orders))
+        .route(CALL_TO_ORDERS_PER_PARTY_DELEGATES, get(call_to_orders_per_party_delegates))
         .route("/save_email", post(save_email))
         .layer(
             CorsLayer::new()
