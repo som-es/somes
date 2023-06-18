@@ -21,18 +21,6 @@ pub async fn signup(
     SomesDbConnection(postgres_con): SomesDbConnection,
     Json(signup_info): Json<SignUpInfo>,
 ) -> Result<Json<()>, SignUpErrorResponse> {
-    /*let mut redis_con = redis_client
-        .get_async_connection()
-        .await
-        .map_err(|_| SignUpErrorResponse::RedisGetKeys)?;
-    /*let mut postgres_con = postgres_pool.get().await.map_err(|_| SignUpErrorResponse::PostgresConnection)?;
-
-    postgres_con.interact(|con| {
-
-    }).await.map_err(internal_error).unwrap();*/
-
-    let mut postgres_con = establish_connection();*/
-
     // check if the signup info is in the temporary new user redis database
     validate_info_already_in_use_redis(&signup_info, &mut redis_con).await?;
 
