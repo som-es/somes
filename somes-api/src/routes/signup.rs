@@ -4,8 +4,8 @@ use somes_common_lib::SignUpInfo;
 
 use crate::{
     db::establish_connection, email::send_verification_mail, internal_error,
-    routes::signup::action::validate_info_already_in_use_redis, server::AppState,
-    SomesDbConnection, RedisConnection,
+    routes::signup::action::validate_info_already_in_use_redis, server::AppState, RedisConnection,
+    SomesDbConnection,
 };
 
 pub use self::{
@@ -37,10 +37,12 @@ pub async fn signup(
     validate_info_already_in_use_redis(&signup_info, &mut redis_con).await?;
 
     let int_signup_info = signup_info.clone();
-    postgres_con.interact(move |postgres_con| validate_signup_info(postgres_con, &int_signup_info)).await.map_err(|_| SignUpErrorResponse::PostgresConnection)??;
+    postgres_con
+        .interact(move |postgres_con| validate_signup_info(postgres_con, &int_signup_info))
+        .await
+        .map_err(|_| SignUpErrorResponse::PostgresConnection)??;
 
     // checks the validity of the signup info. If this fails, the signup process is aborted.
-    
 
     // if validation was successful, add a new user to the verification redis db
     let verification_id = add_new_user_to_redis(&signup_info, &mut redis_con).await?;

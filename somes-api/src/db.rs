@@ -60,9 +60,7 @@ where
     }
 }
 
-pub struct DataserviceDbConnection(
-    pub deadpool_diesel::postgres::Object,
-);
+pub struct DataserviceDbConnection(pub deadpool_diesel::postgres::Object);
 
 pub struct SomesDbConnection(
     // pub bb8::PooledConnection<'static, AsyncDieselConnectionManager<AsyncPgConnection>>,
@@ -80,7 +78,7 @@ where
     async fn from_request_parts(_parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
         let pool = PostgresPool::from_ref(state);
         let conn = pool.get().await.map_err(internal_error)?;
-        
+
         Ok(Self(conn))
     }
 }
@@ -106,7 +104,11 @@ impl FromRequestParts<AppState> for DataserviceDbConnection {
         _parts: &mut Parts,
         state: &AppState,
     ) -> Result<Self, Self::Rejection> {
-        let conn = state.dataservice_db_pool.get().await.map_err(internal_error)?;
+        let conn = state
+            .dataservice_db_pool
+            .get()
+            .await
+            .map_err(internal_error)?;
         Ok(Self(conn))
     }
 }
@@ -133,6 +135,13 @@ impl Display for CreateDBError {
             CreateDBError::ReadDBFile => write!(f, "Could not check whether the created database is empty."),
         }
     }
+}
+
+#[macro_export]
+macro_rules! interact {
+    ($con:ident, $code: expr) => {
+        $con.interact(|$con| $code).await
+    };
 }
 
 /// Creates an empty database if it does not exist.

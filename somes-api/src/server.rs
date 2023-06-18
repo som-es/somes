@@ -9,16 +9,17 @@ use axum::{
 // use diesel_async::pooled_connection::AsyncDieselConnectionManager;
 use log::{error, info};
 use somes_common_lib::{
-    DELEGATES_ROUTE, LATEST_LEGIS_INITS_ROUTE, LATEST_VOTE_RESULTS_ROUTE, LEGIS_INIT_ROUTE,
-    LOGIN_ROUTE, PROPOSALS_ROUTE, SIGNUP_ROUTE, SPEAKERS_BY_HOURS, VERIFY_ROUTE, DELEGATES_BY_CALL_TO_ORDERS,
+    DELEGATES_BY_CALL_TO_ORDERS, DELEGATES_ROUTE, LATEST_LEGIS_INITS_ROUTE,
+    LATEST_VOTE_RESULTS_ROUTE, LEGIS_INIT_ROUTE, LOGIN_ROUTE, PROPOSALS_ROUTE, SIGNUP_ROUTE,
+    SPEAKERS_BY_HOURS, VERIFY_ROUTE,
 };
 //use headers::HeaderValue;
 use crate::{
     routes::{
-        delegates, latest_legis_inits, latest_vote_results, legis_inits, proposals, save_email,
-        speakers_by_hours, delegate_by_call_to_orders,
+        delegate_by_call_to_orders, delegates, latest_legis_inits, latest_vote_results,
+        legis_inits, proposals, save_email, speakers_by_hours,
     },
-    DATABASE_URL, REDIS_DB, DATASERVICE_URL,
+    DATABASE_URL, DATASERVICE_URL, REDIS_DB,
 };
 use tower_http::cors::{Any, CorsLayer};
 
@@ -47,7 +48,7 @@ impl AppState {
             //redis_client: Arc::new(RwLock::new(client)),
             redis_client,
             somes_db_pool,
-            dataservice_db_pool
+            dataservice_db_pool,
         }
     }
 }
@@ -109,11 +110,9 @@ pub async fn serve(addr: SocketAddr) {
         .route(LEGIS_INIT_ROUTE, post(legis_inits))
         .route(LATEST_LEGIS_INITS_ROUTE, get(latest_legis_inits))
         .route(LATEST_VOTE_RESULTS_ROUTE, get(latest_vote_results))
-
         // statistics
         .route(SPEAKERS_BY_HOURS, get(speakers_by_hours))
         .route(DELEGATES_BY_CALL_TO_ORDERS, get(delegate_by_call_to_orders))
-        
         .route("/save_email", post(save_email))
         .layer(
             CorsLayer::new()

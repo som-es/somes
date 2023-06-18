@@ -13,7 +13,11 @@ use diesel::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::{model::{SpeakerByHours, DelegateByCallToOrders}, routes::RequestFilter, today, DATASERVICE_URL};
+use crate::{
+    model::{DelegateByCallToOrders, SpeakerByHours},
+    routes::RequestFilter,
+    today, DATASERVICE_URL,
+};
 
 /*#[derive(QueryableByName, PartialEq, Eq)]
 struct User {
@@ -22,7 +26,9 @@ struct User {
     // hours_spoken: f32
 }*/
 
-pub fn get_delegates_by_call_to_orders(con: &mut PgConnection) -> QueryResult<Vec<DelegateByCallToOrders>> {
+pub fn get_delegates_by_call_to_orders(
+    con: &mut PgConnection,
+) -> QueryResult<Vec<DelegateByCallToOrders>> {
     sql_query(
         "select 
         delegates.name,
@@ -146,7 +152,11 @@ pub fn get_speeches_from_legis_init(
 
 #[cfg(test)]
 mod tests {
-    use crate::{dataservice::{dataservice_con, get_delegates_by_call_to_orders}, routes::RequestFilter, today};
+    use crate::{
+        dataservice::{dataservice_con, get_delegates_by_call_to_orders},
+        routes::RequestFilter,
+        today,
+    };
 
     use super::{
         get_delegates, get_latest_vote_results, get_legislative_initiatives, get_speakers_by_hours,
@@ -184,7 +194,6 @@ mod tests {
 
         println!("res: {res:?}");
     }
-
 
     #[test]
     fn test_get_call_to_orders_by_delegates() {
