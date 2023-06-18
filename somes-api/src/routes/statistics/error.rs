@@ -3,14 +3,14 @@ use reqwest::StatusCode;
 use serde_json::json;
 
 #[derive(Debug)]
-pub enum SpeakerByHoursErrorResponse {
+pub enum StatisticsResponse {
     DbSelectFailure,
 }
 
-impl IntoResponse for SpeakerByHoursErrorResponse {
+impl IntoResponse for StatisticsResponse {
     fn into_response(self) -> axum::response::Response {
         let (status_code, err_msg) = match self {
-            SpeakerByHoursErrorResponse::DbSelectFailure => (
+            StatisticsResponse::DbSelectFailure => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "could not return speakery by hours",
             ),

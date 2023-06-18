@@ -10,13 +10,13 @@ use axum::{
 use log::{error, info};
 use somes_common_lib::{
     DELEGATES_ROUTE, LATEST_LEGIS_INITS_ROUTE, LATEST_VOTE_RESULTS_ROUTE, LEGIS_INIT_ROUTE,
-    LOGIN_ROUTE, PROPOSALS_ROUTE, SIGNUP_ROUTE, SPEAKERS_BY_HOURS, VERIFY_ROUTE,
+    LOGIN_ROUTE, PROPOSALS_ROUTE, SIGNUP_ROUTE, SPEAKERS_BY_HOURS, VERIFY_ROUTE, DELEGATES_BY_CALL_TO_ORDERS,
 };
 //use headers::HeaderValue;
 use crate::{
     routes::{
         delegates, latest_legis_inits, latest_vote_results, legis_inits, proposals, save_email,
-        speakers_by_hours,
+        speakers_by_hours, delegate_by_call_to_orders,
     },
     DATABASE_URL, REDIS_DB,
 };
@@ -90,13 +90,17 @@ pub async fn serve(addr: SocketAddr) {
     let app = Router::new()
         .route(SIGNUP_ROUTE, post(signup))
         .route(VERIFY_ROUTE, get(verify)) // or post?
-        .route(SPEAKERS_BY_HOURS, get(speakers_by_hours))
         .route(LOGIN_ROUTE, post(login))
         .route(DELEGATES_ROUTE, get(delegates))
         .route(PROPOSALS_ROUTE, get(proposals))
         .route(LEGIS_INIT_ROUTE, post(legis_inits))
         .route(LATEST_LEGIS_INITS_ROUTE, get(latest_legis_inits))
         .route(LATEST_VOTE_RESULTS_ROUTE, get(latest_vote_results))
+
+        // statistics
+        .route(SPEAKERS_BY_HOURS, get(speakers_by_hours))
+        .route(DELEGATES_BY_CALL_TO_ORDERS, get(delegate_by_call_to_orders))
+        
         .route("/save_email", post(save_email))
         .layer(
             CorsLayer::new()

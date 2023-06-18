@@ -84,11 +84,12 @@
 
     <h2 class="mt-5">Statistics</h2>
     <h4>Here, you can find statistics about the Austrian parliament</h4>
-
+    <div>
     <p class="mt-3">
         The top speakers of the Nationalrat by hours spoken
         <SpeakersByHours />
     </p>
+    </div>
 </div>
 
 <style>

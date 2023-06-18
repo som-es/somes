@@ -23,3 +23,7 @@ group by
 order by 
     hours_spoken DESC;
 ```
+
+```sql
+select delegates.name,delegates.image_url,delegates.party,COUNT(*) as amount from call_to_order inner join delegates on call_to_order.receiver_id=delegates.id group by delegates.name,delegates.image_url,delegates.party,call_to_order.receiver_id order by amount DESC;
+```

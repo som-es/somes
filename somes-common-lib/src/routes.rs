@@ -7,3 +7,4 @@ pub const LEGIS_INIT_ROUTE: &str = "/legis_inits";
 pub const LATEST_LEGIS_INITS_ROUTE: &str = "/latest_legis_inits";
 pub const LATEST_VOTE_RESULTS_ROUTE: &str = "/latest_vote_results";
 pub const SPEAKERS_BY_HOURS: &str = "/speakers_by_hours";
+pub const DELEGATES_BY_CALL_TO_ORDERS: &str = "/delegates_by_call_to_orders";

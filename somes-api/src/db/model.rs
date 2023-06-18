@@ -93,3 +93,24 @@ pub struct SpeakerByHours {
     party: String,
     hours_spoken: f32,
 }
+
+// must create a table -> diesel can get the datatypes from it
+diesel::table! {
+    delegate_by_call_to_orders {
+        id -> Integer,
+        image_url -> Nullable<Varchar>,
+        name -> Varchar,
+        party -> Varchar,
+        call_to_order_amount -> Integer,
+    }
+}
+
+#[derive(QueryableByName, PartialEq, Debug, Serialize, Deserialize)]
+#[table_name = "delegate_by_call_to_orders"]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct DelegateByCallToOrders {
+    name: String,
+    image_url: Option<String>,
+    party: String,
+    call_to_order_amount: i32,
+}

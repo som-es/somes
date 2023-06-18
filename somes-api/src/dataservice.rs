@@ -13,7 +13,7 @@ use diesel::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::{model::SpeakerByHours, routes::RequestFilter, today, DATASERVICE_URL};
+use crate::{model::{SpeakerByHours, DelegateByCallToOrders}, routes::RequestFilter, today, DATASERVICE_URL};
 
 /*#[derive(QueryableByName, PartialEq, Eq)]
 struct User {
@@ -21,6 +21,21 @@ struct User {
     party: String,
     // hours_spoken: f32
 }*/
+
+pub fn get_delegates_by_call_to_orders(con: &mut PgConnection) -> QueryResult<Vec<DelegateByCallToOrders>> {
+    sql_query(
+        "select 
+        delegates.name,
+        delegates.image_url,
+        delegates.party,
+        cast(COUNT(*) as Integer) as call_to_order_amount
+        from call_to_order 
+        inner join delegates on call_to_order.receiver_id=delegates.id 
+        group by delegates.name,delegates.image_url,delegates.party,call_to_order.receiver_id 
+        order by call_to_order_amount DESC;",
+    )
+    .load(con)
+}
 
 // MIND: the resulting hours are not relative to the total tenure (amtzeit)
 pub fn get_speakers_by_hours(con: &mut PgConnection) -> QueryResult<Vec<SpeakerByHours>> {
@@ -131,7 +146,7 @@ pub fn get_speeches_from_legis_init(
 
 #[cfg(test)]
 mod tests {
-    use crate::{dataservice::dataservice_con, routes::RequestFilter, today};
+    use crate::{dataservice::{dataservice_con, get_delegates_by_call_to_orders}, routes::RequestFilter, today};
 
     use super::{
         get_delegates, get_latest_vote_results, get_legislative_initiatives, get_speakers_by_hours,
@@ -165,7 +180,16 @@ mod tests {
     #[test]
     fn test_get_speakers_by_hours() {
         let con = &mut dataservice_con();
-        let res = get_speakers_by_hours(con);
+        let res = get_speakers_by_hours(con).unwrap();
+
+        println!("res: {res:?}");
+    }
+
+
+    #[test]
+    fn test_get_call_to_orders_by_delegates() {
+        let con = &mut dataservice_con();
+        let res = get_delegates_by_call_to_orders(con).unwrap();
 
         println!("res: {res:?}");
     }

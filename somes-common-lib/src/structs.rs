@@ -48,5 +48,5 @@ pub struct VerificationIDInfo {
 
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]
 pub struct SaveEmailInfo {
-    email: String,
+    pub email: String,
 }
