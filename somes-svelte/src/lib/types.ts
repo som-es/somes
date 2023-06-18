@@ -45,3 +45,17 @@ export interface SpeakerByHours {
     party: string,
     hours_spoken: number
 }
+
+export interface DelegateByCallToOrders {
+    name: string,
+    image_url: string | null,
+    party: string,
+    call_to_order_amount: number
+}
+
+export interface CallToOrdersPerPartyDelegates {
+    party: string,
+    call_to_order_amount: number,
+    delegate_amount: number
+    ratio: number
+}
