@@ -62,10 +62,10 @@ where
 
 pub struct PostgresConnection(
     // pub bb8::PooledConnection<'static, AsyncDieselConnectionManager<AsyncPgConnection>>,
-    pub deadpool_diesel::postgres::Pool,
+    pub deadpool_diesel::postgres::Object,
 );
 
-/*#[async_trait]
+#[async_trait]
 impl<S> FromRequestParts<S> for PostgresConnection
 where
     S: Send + Sync,
@@ -75,16 +75,14 @@ where
 
     async fn from_request_parts(_parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
         let pool = PostgresPool::from_ref(state);
-
         let conn = pool.get().await.map_err(internal_error)?;
-        // let conn = pool.get_owned().await.map_err(internal_error)?;
-
+        
         Ok(Self(conn))
     }
-}*/
+}
 
 #[async_trait]
-impl FromRequestParts<AppState> for PgConnection {
+impl FromRequestParts<AppState> for PostgresConnection {
     type Rejection = (StatusCode, String);
 
     async fn from_request_parts(
@@ -92,9 +90,7 @@ impl FromRequestParts<AppState> for PgConnection {
         state: &AppState,
     ) -> Result<Self, Self::Rejection> {
         let conn = state.postgres_pool.get().await.map_err(internal_error)?;
-
-        todo!()
-        // Ok(Self(conn))
+        Ok(Self(conn))
     }
 }
 

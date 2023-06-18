@@ -12,7 +12,7 @@ impl IntoResponse for StatisticsResponse {
         let (status_code, err_msg) = match self {
             StatisticsResponse::DbSelectFailure => (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "could not return speakery by hours",
+                "db error",
             ),
         };
 

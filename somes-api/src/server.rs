@@ -18,7 +18,7 @@ use crate::{
         delegates, latest_legis_inits, latest_vote_results, legis_inits, proposals, save_email,
         speakers_by_hours, delegate_by_call_to_orders,
     },
-    DATABASE_URL, REDIS_DB,
+    DATABASE_URL, REDIS_DB, DATASERVICE_URL,
 };
 use tower_http::cors::{Any, CorsLayer};
 
@@ -31,6 +31,9 @@ pub struct AppState {
     pub redis_client: redis::Client,
     pub postgres_pool: deadpool_diesel::postgres::Pool,
 }
+
+unsafe impl Send for AppState {}
+unsafe impl Sync for AppState {}
 
 impl AppState {
     pub async fn new(
@@ -80,7 +83,7 @@ pub async fn serve(addr: SocketAddr) {
      */
 
     let manager =
-        deadpool_diesel::postgres::Manager::new(DATABASE_URL, deadpool_diesel::Runtime::Tokio1);
+        deadpool_diesel::postgres::Manager::new(DATASERVICE_URL, deadpool_diesel::Runtime::Tokio1);
     let postgres_pool = deadpool_diesel::postgres::Pool::builder(manager)
         .build()
         .unwrap();

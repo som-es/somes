@@ -17,15 +17,11 @@ mod action;
 mod error;
 
 pub async fn signup(
-    State(AppState {
-        redis_client,
-        postgres_pool,
-    }): State<AppState>,
-    // RedisConnection(mut redis_con): RedisConnection,
-    // PostgresConnection(mut conn): PostgresConnection,
+    RedisConnection(mut redis_con): RedisConnection,
+    PostgresConnection(postgres_con): PostgresConnection,
     Json(signup_info): Json<SignUpInfo>,
 ) -> Result<Json<()>, SignUpErrorResponse> {
-    let mut redis_con = redis_client
+    /*let mut redis_con = redis_client
         .get_async_connection()
         .await
         .map_err(|_| SignUpErrorResponse::RedisGetKeys)?;
@@ -35,13 +31,16 @@ pub async fn signup(
 
     }).await.map_err(internal_error).unwrap();*/
 
-    let mut postgres_con = establish_connection();
+    let mut postgres_con = establish_connection();*/
 
     // check if the signup info is in the temporary new user redis database
     validate_info_already_in_use_redis(&signup_info, &mut redis_con).await?;
 
+    let int_signup_info = signup_info.clone();
+    postgres_con.interact(move |postgres_con| validate_signup_info(postgres_con, &int_signup_info)).await.map_err(|_| SignUpErrorResponse::PostgresConnection)??;
+
     // checks the validity of the signup info. If this fails, the signup process is aborted.
-    validate_signup_info(&mut postgres_con, &signup_info)?;
+    
 
     // if validation was successful, add a new user to the verification redis db
     let verification_id = add_new_user_to_redis(&signup_info, &mut redis_con).await?;
