@@ -29,7 +29,8 @@ pub struct AppState {
     // this holds some api specific state
     //verification_map: VerificationMap,
     pub redis_client: redis::Client,
-    pub postgres_pool: deadpool_diesel::postgres::Pool,
+    pub somes_db_pool: deadpool_diesel::postgres::Pool,
+    pub dataservice_db_pool: deadpool_diesel::postgres::Pool,
 }
 
 unsafe impl Send for AppState {}
@@ -38,13 +39,15 @@ unsafe impl Sync for AppState {}
 impl AppState {
     pub async fn new(
         redis_client: redis::Client,
-        postgres_pool: deadpool_diesel::postgres::Pool,
+        somes_db_pool: deadpool_diesel::postgres::Pool,
+        dataservice_db_pool: deadpool_diesel::postgres::Pool,
     ) -> AppState {
         AppState {
             //      verification_map: Default::default(),
             //redis_client: Arc::new(RwLock::new(client)),
             redis_client,
-            postgres_pool,
+            somes_db_pool,
+            dataservice_db_pool
         }
     }
 }
@@ -82,13 +85,20 @@ pub async fn serve(addr: SocketAddr) {
     let postgres_pool = bb8::Pool::builder().build(config).await.unwrap();
      */
 
-    let manager =
-        deadpool_diesel::postgres::Manager::new(DATASERVICE_URL, deadpool_diesel::Runtime::Tokio1);
-    let postgres_pool = deadpool_diesel::postgres::Pool::builder(manager)
+    let somes_db_manager =
+        deadpool_diesel::postgres::Manager::new(DATABASE_URL, deadpool_diesel::Runtime::Tokio1);
+    let somes_db_pool = deadpool_diesel::postgres::Pool::builder(somes_db_manager)
         .build()
         .unwrap();
 
-    let state = AppState::new(client, postgres_pool).await;
+    let dataservice_db_manager =
+        deadpool_diesel::postgres::Manager::new(DATASERVICE_URL, deadpool_diesel::Runtime::Tokio1);
+
+    let dataservice_db_pool = deadpool_diesel::postgres::Pool::builder(dataservice_db_manager)
+        .build()
+        .unwrap();
+
+    let state = AppState::new(client, somes_db_pool, dataservice_db_pool).await;
 
     let app = Router::new()
         .route(SIGNUP_ROUTE, post(signup))

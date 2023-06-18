@@ -60,13 +60,17 @@ where
     }
 }
 
-pub struct PostgresConnection(
+pub struct DataserviceDbConnection(
+    pub deadpool_diesel::postgres::Object,
+);
+
+pub struct SomesDbConnection(
     // pub bb8::PooledConnection<'static, AsyncDieselConnectionManager<AsyncPgConnection>>,
     pub deadpool_diesel::postgres::Object,
 );
 
 #[async_trait]
-impl<S> FromRequestParts<S> for PostgresConnection
+impl<S> FromRequestParts<S> for SomesDbConnection
 where
     S: Send + Sync,
     PostgresPool: FromRef<S>,
@@ -82,14 +86,27 @@ where
 }
 
 #[async_trait]
-impl FromRequestParts<AppState> for PostgresConnection {
+impl FromRequestParts<AppState> for SomesDbConnection {
     type Rejection = (StatusCode, String);
 
     async fn from_request_parts(
         _parts: &mut Parts,
         state: &AppState,
     ) -> Result<Self, Self::Rejection> {
-        let conn = state.postgres_pool.get().await.map_err(internal_error)?;
+        let conn = state.somes_db_pool.get().await.map_err(internal_error)?;
+        Ok(Self(conn))
+    }
+}
+
+#[async_trait]
+impl FromRequestParts<AppState> for DataserviceDbConnection {
+    type Rejection = (StatusCode, String);
+
+    async fn from_request_parts(
+        _parts: &mut Parts,
+        state: &AppState,
+    ) -> Result<Self, Self::Rejection> {
+        let conn = state.dataservice_db_pool.get().await.map_err(internal_error)?;
         Ok(Self(conn))
     }
 }

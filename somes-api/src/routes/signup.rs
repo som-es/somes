@@ -5,7 +5,7 @@ use somes_common_lib::SignUpInfo;
 use crate::{
     db::establish_connection, email::send_verification_mail, internal_error,
     routes::signup::action::validate_info_already_in_use_redis, server::AppState,
-    PostgresConnection, RedisConnection,
+    SomesDbConnection, RedisConnection,
 };
 
 pub use self::{
@@ -18,7 +18,7 @@ mod error;
 
 pub async fn signup(
     RedisConnection(mut redis_con): RedisConnection,
-    PostgresConnection(postgres_con): PostgresConnection,
+    SomesDbConnection(postgres_con): SomesDbConnection,
     Json(signup_info): Json<SignUpInfo>,
 ) -> Result<Json<()>, SignUpErrorResponse> {
     /*let mut redis_con = redis_client
