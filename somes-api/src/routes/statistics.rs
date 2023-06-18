@@ -2,9 +2,9 @@ use axum::Json;
 mod error;
 
 use crate::{
-    dataservice::{get_delegates_by_call_to_orders, get_speakers_by_hours},
+    dataservice::{get_delegates_by_call_to_orders, get_speakers_by_hours, get_call_to_orders_per_party_delegates},
     interact,
-    model::{DelegateByCallToOrders, SpeakerByHours},
+    model::{DelegateByCallToOrders, SpeakerByHours, CallToOrdersPerPartyDelegates},
     DataserviceDbConnection,
 };
 
@@ -28,6 +28,19 @@ pub async fn delegate_by_call_to_orders(
     postgres_con
         .interact(|con| {
             get_delegates_by_call_to_orders(con)
+                .map_err(|_| StatisticsResponse::DbSelectFailure)
+                .map(Json)
+        })
+        .await
+        .map_err(|_| StatisticsResponse::DbSelectFailure)?
+}
+
+pub async fn call_to_orders_per_party_delegates(
+    DataserviceDbConnection(postgres_con): DataserviceDbConnection,
+) -> Result<Json<Vec<CallToOrdersPerPartyDelegates>>, StatisticsResponse> {
+    postgres_con
+        .interact(|con| {
+            get_call_to_orders_per_party_delegates(con)
                 .map_err(|_| StatisticsResponse::DbSelectFailure)
                 .map(Json)
         })

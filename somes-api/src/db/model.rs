@@ -114,3 +114,24 @@ pub struct DelegateByCallToOrders {
     party: String,
     call_to_order_amount: i32,
 }
+
+// must create a table -> diesel can get the datatypes from it
+diesel::table! {
+    call_to_orders_per_party_delegates {
+        id -> Integer,
+        party -> Varchar,
+        call_to_order_amount -> Integer,
+        delegate_amount -> Integer,
+        ratio -> Float,
+    }
+}
+
+#[derive(QueryableByName, PartialEq, Debug, Serialize, Deserialize)]
+#[table_name = "call_to_orders_per_party_delegates"]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct CallToOrdersPerPartyDelegates {
+    party: String,
+    call_to_order_amount: i32,
+    delegate_amount: i32,
+    ratio: f32,
+}

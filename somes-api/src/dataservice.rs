@@ -14,10 +14,12 @@ use diesel::{
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    model::{DelegateByCallToOrders, SpeakerByHours},
+    model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours},
     routes::RequestFilter,
     today, DATASERVICE_URL,
 };
+
+// TODO: move all dataservice.rs function to the dataservice library
 
 /*#[derive(QueryableByName, PartialEq, Eq)]
 struct User {
@@ -25,6 +27,43 @@ struct User {
     party: String,
     // hours_spoken: f32
 }*/
+
+pub fn get_call_to_orders_per_party_delegates(
+    con: &mut PgConnection,
+) -> QueryResult<Vec<CallToOrdersPerPartyDelegates>> {
+    sql_query(
+        "select 
+    delegates.party, 
+    COUNT(*)::Integer as call_to_order_amount, 
+    delegates_in_party.delegate_amount, 
+    (
+      COUNT(*):: real / delegates_in_party.delegate_amount
+    )::real as ratio
+  from 
+    call_to_order 
+    inner join delegates on delegates.id = call_to_order.receiver_id 
+    join (
+      select 
+        party, 
+        COUNT(*)::Integer as delegate_amount
+      from 
+        delegates 
+      where 
+        is_active = 't' 
+        and council = 'nr' 
+        and seat_row is not null 
+      group by 
+        party
+    ) as delegates_in_party on delegates_in_party.party = delegates.party 
+  group by 
+    delegates.party, 
+    delegates_in_party.delegate_amount
+  order by
+    ratio DESC;
+  ",
+    )
+    .load(con)
+}
 
 pub fn get_delegates_by_call_to_orders(
     con: &mut PgConnection,
@@ -153,7 +192,7 @@ pub fn get_speeches_from_legis_init(
 #[cfg(test)]
 mod tests {
     use crate::{
-        dataservice::{dataservice_con, get_delegates_by_call_to_orders},
+        dataservice::{dataservice_con, get_delegates_by_call_to_orders, get_call_to_orders_per_party_delegates},
         routes::RequestFilter,
         today,
     };
@@ -199,6 +238,14 @@ mod tests {
     fn test_get_call_to_orders_by_delegates() {
         let con = &mut dataservice_con();
         let res = get_delegates_by_call_to_orders(con).unwrap();
+
+        println!("res: {res:?}");
+    }
+
+    #[test]
+    fn test_get_call_to_orders_per_party_delegates() {
+        let con = &mut dataservice_con();
+        let res = get_call_to_orders_per_party_delegates(con).unwrap();
 
         println!("res: {res:?}");
     }

@@ -11,7 +11,7 @@ use log::{error, info};
 use somes_common_lib::{
     DELEGATES_BY_CALL_TO_ORDERS, DELEGATES_ROUTE, LATEST_LEGIS_INITS_ROUTE,
     LATEST_VOTE_RESULTS_ROUTE, LEGIS_INIT_ROUTE, LOGIN_ROUTE, PROPOSALS_ROUTE, SIGNUP_ROUTE,
-    SPEAKERS_BY_HOURS, VERIFY_ROUTE,
+    SPEAKERS_BY_HOURS, VERIFY_ROUTE, CALL_TO_ORDERS_PER_PARTY_DELEGATES,
 };
 //use headers::HeaderValue;
 use crate::{
@@ -113,6 +113,7 @@ pub async fn serve(addr: SocketAddr) {
         // statistics
         .route(SPEAKERS_BY_HOURS, get(speakers_by_hours))
         .route(DELEGATES_BY_CALL_TO_ORDERS, get(delegate_by_call_to_orders))
+        .route(CALL_TO_ORDERS_PER_PARTY_DELEGATES, get(delegate_by_call_to_orders))
         .route("/save_email", post(save_email))
         .layer(
             CorsLayer::new()
