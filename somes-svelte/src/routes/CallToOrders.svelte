@@ -25,6 +25,7 @@
                 const color = partyToColor.get(d.party);
 				return color == null ? "#808080" : color;
 			})
+            .style("overflow", "hidden")
 			.style("width", function(d) {
 				return d.call_to_order_amount * 20 + "px";
 			})

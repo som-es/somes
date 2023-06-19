@@ -36,7 +36,7 @@ export async function speakers_by_hours(): Promise<SpeakerByHours[]> {
 }
 
 export async function delegates_by_call_to_orders(): Promise<DelegateByCallToOrders[]> {
-    let response = await fetch(`http://${address}:3000/speakers_by_hours`, {
+    let response = await fetch(`http://${address}:3000/delegates_by_call_to_orders`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json"
