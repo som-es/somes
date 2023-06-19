@@ -1,0 +1,65 @@
+<script lang="ts">
+	import { delegates_by_call_to_orders } from "$lib/api";
+    import type { DelegateByCallToOrders } from "$lib/types";
+	import { onMount } from "svelte";
+    import * as d3 from 'd3';
+
+    let delegatesByCallToOrders: DelegateByCallToOrders[];
+	
+    let el: HTMLElement;
+
+    onMount(async function () {
+        delegatesByCallToOrders = await delegates_by_call_to_orders();
+
+        const sliceDelegatesByCallToOrders = delegatesByCallToOrders.slice(0, 10);
+
+        // displayBarChart(speakersByHours)
+        // const resultsOnlyHours = speakersByHours.map(result => result.hours_spoken).slice(0, 5);
+        // var resultsOnlyHours = [30, 86, 168, 281, 303, 365];
+		d3.select(el)
+			.selectAll("div")
+			.data(sliceDelegatesByCallToOrders)
+			.enter()
+			.append("div")
+            .style("background-color", function(d) {
+                const color = partyToColor.get(d.party);
+				return color == null ? "#808080" : color;
+			})
+			.style("width", function(d) {
+				return d.call_to_order_amount * 20 + "px";
+			})
+            .style("max-width", function(d) {
+				return "100%";
+			})
+            .style("height", function(d) {
+				return "50px";
+			})
+			.text(function(d) {
+				return d.name + " (" + d.party + ")";
+			});
+    });
+
+    let partyToColor = new Map<string, string>();
+    partyToColor.set("SPÖ",  "#E31E2D");
+    partyToColor.set("ÖVP",  "#62C3D0");
+    partyToColor.set("FPÖ",  "#0052FB");
+    partyToColor.set("GRÜNE", "#69B12E");
+    partyToColor.set("NEOS", "#E3257B");
+    	
+</script>
+
+<div>
+    <!-- <canvas style="" id="chart" width={chartWidth} height={chartHeight}></canvas> -->
+    <div class="chart" bind:this={el}></div>
+</div>
+
+<style>
+.chart :global(div) {
+    font: 10px sans-serif;
+    background-color: steelblue;
+    text-align: right;
+    padding: 3px;
+    margin: 1px;
+    color: white;
+}
+</style>

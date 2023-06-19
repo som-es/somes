@@ -10,6 +10,8 @@
 	import VoteParliament from "../VoteParliament.svelte";
     import SpeakersByHours from "../SpeakersByHours.svelte";
 	import { goto } from "$app/navigation";
+	import CallToOrdersPerPartyDelegates from "../CallToOrdersPerPartyDelegates.svelte";
+	import CallToOrders from "../CallToOrders.svelte";
 
     let dels: Delegate[];
 
@@ -88,6 +90,16 @@
     <p class="mt-3">
         The top speakers of the Nationalrat by hours spoken
         <SpeakersByHours />
+    </p>
+    
+    <p class="mt-3">
+        Top call to orders receivers
+        <CallToOrders />
+    </p>
+
+    <p class="mt-3">
+        Call to orders of parties relative to the number of delegates in the Nationalrat
+        <CallToOrdersPerPartyDelegates />
     </p>
     </div>
 </div>
