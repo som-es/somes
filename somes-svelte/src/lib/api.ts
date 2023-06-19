@@ -1,4 +1,4 @@
-import type { Delegate, DelegateByCallToOrders, SpeakerByHours, VoteResult } from "./types";
+import type { CallToOrdersPerPartyDelegate, Delegate, DelegateByCallToOrders, SpeakerByHours, VoteResult } from "./types";
 
 const address = "127.0.0.1";
 // const address = "172.20.10.2";
@@ -46,7 +46,7 @@ export async function delegates_by_call_to_orders(): Promise<DelegateByCallToOrd
     return await response.json();
 }
 
-export async function call_to_orders_per_party_delegates(): Promise<DelegateByCallToOrders[]> {
+export async function call_to_orders_per_party_delegates(): Promise<CallToOrdersPerPartyDelegate[]> {
     let response = await fetch(`http://${address}:3000/call_to_orders_per_party_delegates`, {
         method: "GET",
         headers: {
