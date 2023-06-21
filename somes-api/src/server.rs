@@ -114,7 +114,7 @@ pub async fn serve(addr: SocketAddr) {
         // statistics
         .route(SPEAKERS_BY_HOURS, get(speakers_by_hours))
         .route(DELEGATES_BY_CALL_TO_ORDERS, get(delegate_by_call_to_orders))
-        .route(DELEGATES_BY_CALL_TO_ORDERS_AND_LEGIS_PERIOD, get(delegates_by_call_to_orders_by_legis_period))
+        .route(DELEGATES_BY_CALL_TO_ORDERS_AND_LEGIS_PERIOD, post(delegates_by_call_to_orders_by_legis_period))
         .route(PARTIES, get(parties))
         .route(
             CALL_TO_ORDERS_PER_PARTY_DELEGATES,

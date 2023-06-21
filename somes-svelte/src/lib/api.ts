@@ -67,3 +67,15 @@ export async function parties(): Promise<Party[]> {
 
     return await response.json();
 }
+
+export async function delegates_by_call_to_orders_and_legis_period(period: string): Promise<DelegateByCallToOrders[]> {
+    let response = await fetch(`http://${address}:3000/delegates_by_call_to_orders_and_legis_period`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ period: period })
+    });
+
+    return await response.json();
+}

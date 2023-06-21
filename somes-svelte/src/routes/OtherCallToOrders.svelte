@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { delegates_by_call_to_orders } from '$lib/api';
+	import { delegates_by_call_to_orders, delegates_by_call_to_orders_and_legis_period } from '$lib/api';
 	import { getPartyToColor, partyToColorFn } from '$lib/getPartyToColor';
 	import type { DelegateByCallToOrders } from '$lib/types';
     import * as d3 from 'd3';
@@ -24,12 +24,16 @@
         {group: "D", value: 10}
     ];
 
+    var data_xxvii: DelegateByCallToOrders[] = [];
+    var sliceDelegatesByCallToOrders: DelegateByCallToOrders[] = [];
+
     const partyToColor = getPartyToColor();
 
     onMount(async () => {
+        data_xxvii = (await delegates_by_call_to_orders_and_legis_period("XXVII")).slice(0, 10);
         const delegatesByCallToOrders = await delegates_by_call_to_orders();
 
-        const sliceDelegatesByCallToOrders = delegatesByCallToOrders.slice(0, 10);
+        sliceDelegatesByCallToOrders = delegatesByCallToOrders.slice(0, 10);
         
         sliceDelegatesByCallToOrders.forEach((val) => {
             data0.push({group: val.name, value: val.call_to_order_amount});
@@ -142,6 +146,6 @@
 
 </script>
 
-<button on:click={() => upd(data1)}>data1</button>
-<button on:click={() => upd(data2)}>data2</button>
+<!-- <button on:click={() => upd(data_xxvii)}>XXVII</button> -->
+<!-- <button on:click={() => upd(sliceDelegatesByCallToOrders)}>All time</button> -->
 <div id="chart"></div>
