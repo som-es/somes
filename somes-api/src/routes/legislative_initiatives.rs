@@ -5,8 +5,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     dataservice::{
-        dataservice_con, get_latest_legislative_initiatives, get_latest_vote_results,
-        get_legislative_initiatives, VoteResult,
+        get_latest_legislative_initiatives, get_latest_vote_results, get_legislative_initiatives,
+        VoteResult,
     },
     DataserviceDbConnection,
 };

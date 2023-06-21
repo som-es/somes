@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { delegates_by_call_to_orders } from "$lib/api";
+	import { delegates_by_call_to_orders, parties } from "$lib/api";
     import type { DelegateByCallToOrders } from "$lib/types";
 	import { onMount } from "svelte";
     import * as d3 from 'd3';
@@ -8,17 +8,14 @@
 	
     let el: HTMLElement;
 
-    onMount(async function () {
-        delegatesByCallToOrders = await delegates_by_call_to_orders();
-
-        const sliceDelegatesByCallToOrders = delegatesByCallToOrders.slice(0, 10);
+    function displayBarChart(delegatesByCallToOrders: DelegateByCallToOrders[], partyToColor: Map<string, string>) {
 
         // displayBarChart(speakersByHours)
         // const resultsOnlyHours = speakersByHours.map(result => result.hours_spoken).slice(0, 5);
         // var resultsOnlyHours = [30, 86, 168, 281, 303, 365];
-		d3.select(el)
+        d3.select(el)
 			.selectAll("div")
-			.data(sliceDelegatesByCallToOrders)
+			.data(delegatesByCallToOrders)
 			.enter()
 			.append("div")
             .style("background-color", function(d) {
@@ -38,14 +35,27 @@
 			.text(function(d) {
 				return d.name + " (" + d.party + ")";
 			});
+    }
+
+    onMount(async function () {
+        let partyToColor = new Map<string, string>();
+        (await parties()).forEach(party => {
+            partyToColor.set(party.name, party.color);
+        });
+
+        delegatesByCallToOrders = await delegates_by_call_to_orders();
+
+        const sliceDelegatesByCallToOrders = delegatesByCallToOrders.slice(0, 10);
+        displayBarChart(sliceDelegatesByCallToOrders, partyToColor);
+		
     });
 
-    let partyToColor = new Map<string, string>();
+    /*let partyToColor = new Map<string, string>();
     partyToColor.set("SPÖ",  "#E31E2D");
     partyToColor.set("ÖVP",  "#62C3D0");
     partyToColor.set("FPÖ",  "#0052FB");
     partyToColor.set("GRÜNE", "#69B12E");
-    partyToColor.set("NEOS", "#E3257B");
+    partyToColor.set("NEOS", "#E3257B");*/
     	
 </script>
 

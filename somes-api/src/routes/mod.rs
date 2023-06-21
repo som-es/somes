@@ -1,16 +1,17 @@
 mod delegates;
 mod legislative_initiatives;
 mod login;
+mod parties;
 mod reset_password;
 mod save_email;
 mod signup;
 mod statistics;
 mod verify;
-mod parties;
 
 pub use delegates::*;
 pub use legislative_initiatives::*;
 pub use login::*;
+pub use parties::*;
 pub use reset_password::*;
 pub use save_email::*;
 pub use signup::*;

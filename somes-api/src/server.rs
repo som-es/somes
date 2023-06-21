@@ -11,14 +11,14 @@ use log::{error, info};
 use somes_common_lib::{
     CALL_TO_ORDERS_PER_PARTY_DELEGATES, DELEGATES_BY_CALL_TO_ORDERS, DELEGATES_ROUTE,
     LATEST_LEGIS_INITS_ROUTE, LATEST_VOTE_RESULTS_ROUTE, LEGIS_INIT_ROUTE, LOGIN_ROUTE,
-    PROPOSALS_ROUTE, SIGNUP_ROUTE, SPEAKERS_BY_HOURS, VERIFY_ROUTE,
+    PROPOSALS_ROUTE, SIGNUP_ROUTE, SPEAKERS_BY_HOURS, VERIFY_ROUTE, PARTIES,
 };
 //use headers::HeaderValue;
 use crate::{
     routes::{
         call_to_orders_per_party_delegates, delegate_by_call_to_orders, delegates,
         latest_legis_inits, latest_vote_results, legis_inits, proposals, save_email,
-        speakers_by_hours,
+        speakers_by_hours, parties,
     },
     DATABASE_URL, DATASERVICE_URL, REDIS_DB,
 };
@@ -114,6 +114,7 @@ pub async fn serve(addr: SocketAddr) {
         // statistics
         .route(SPEAKERS_BY_HOURS, get(speakers_by_hours))
         .route(DELEGATES_BY_CALL_TO_ORDERS, get(delegate_by_call_to_orders))
+        .route(PARTIES, get(parties))
         .route(
             CALL_TO_ORDERS_PER_PARTY_DELEGATES,
             get(call_to_orders_per_party_delegates),

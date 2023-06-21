@@ -1,6 +1,7 @@
 use dataservice::db::{
-    models::{DbDelegate, DbLegislativeInitiativeQuery, DbProposalQuery, DbSpeech, DbVote},
+    models::{DbDelegate, DbLegislativeInitiativeQuery, DbProposalQuery, DbSpeech, DbVote, DbParty},
     schema::{
+        parties::dsl::parties,
         delegates::{council, dsl::delegates, is_active, seat_row},
         legislative_initiatives::{created_at, dsl::legislative_initiatives},
         proposals::dsl::proposals,
@@ -189,6 +190,10 @@ pub fn get_speeches_from_legis_init(
         .load::<DbSpeech>(con)
 }
 
+pub fn get_parties(con: &mut PgConnection) -> QueryResult<Vec<DbParty>> {
+    parties.load::<DbParty>(con)
+}
+
 #[cfg(test)]
 mod tests {
     use crate::{
@@ -201,7 +206,7 @@ mod tests {
     };
 
     use super::{
-        get_delegates, get_latest_vote_results, get_legislative_initiatives, get_speakers_by_hours,
+        get_delegates, get_latest_vote_results, get_legislative_initiatives, get_speakers_by_hours, get_parties,
     };
 
     #[test]
@@ -250,6 +255,13 @@ mod tests {
         let con = &mut dataservice_con();
         let res = get_call_to_orders_per_party_delegates(con).unwrap();
 
+        println!("res: {res:?}");
+    }
+
+    #[test]
+    fn test_get_parties() {
+        let con = &mut dataservice_con();
+        let res = get_parties(con);
         println!("res: {res:?}");
     }
 }
