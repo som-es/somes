@@ -192,7 +192,10 @@ pub fn get_speeches_from_legis_init(
 #[cfg(test)]
 mod tests {
     use crate::{
-        dataservice::{dataservice_con, get_delegates_by_call_to_orders, get_call_to_orders_per_party_delegates},
+        dataservice::{
+            dataservice_con, get_call_to_orders_per_party_delegates,
+            get_delegates_by_call_to_orders,
+        },
         routes::RequestFilter,
         today,
     };

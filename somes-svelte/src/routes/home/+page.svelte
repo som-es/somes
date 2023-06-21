@@ -93,12 +93,14 @@
     </p>
     
     <p class="mt-3">
-        Top call to orders receivers
+        Top call to orders receivers (make selectable: ALL TIME, XXVII, XXVI, XXV, .. by party?)
         <CallToOrders />
     </p>
 
     <p class="mt-3">
         Call to orders of parties relative to the number of delegates in the Nationalrat
+        = get issuer of call to order (wie sind die CTOs verteilt in Bezug auf den aktiven Präsidenten? (ÖVP, SPÖ, FPÖ)) 
+        "Forschungsfrage": Warum hat die ÖVP so wenige CTOs über die Zeit? 
         <CallToOrdersPerPartyDelegates />
     </p>
     </div>

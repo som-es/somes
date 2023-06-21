@@ -59,3 +59,9 @@ export interface CallToOrdersPerPartyDelegate {
     delegate_amount: number
     ratio: number
 }
+
+export interface Party {
+    name: string,
+    color: string,
+    fraction: number,
+}

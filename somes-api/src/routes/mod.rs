@@ -6,6 +6,7 @@ mod save_email;
 mod signup;
 mod statistics;
 mod verify;
+mod parties;
 
 pub use delegates::*;
 pub use legislative_initiatives::*;

@@ -2,9 +2,12 @@ use axum::Json;
 mod error;
 
 use crate::{
-    dataservice::{get_delegates_by_call_to_orders, get_speakers_by_hours, get_call_to_orders_per_party_delegates},
+    dataservice::{
+        get_call_to_orders_per_party_delegates, get_delegates_by_call_to_orders,
+        get_speakers_by_hours,
+    },
     interact,
-    model::{DelegateByCallToOrders, SpeakerByHours, CallToOrdersPerPartyDelegates},
+    model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours},
     DataserviceDbConnection,
 };
 
