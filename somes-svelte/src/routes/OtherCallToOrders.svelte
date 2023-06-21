@@ -1,92 +1,143 @@
 <script lang="ts">
+	import { delegates_by_call_to_orders } from '$lib/api';
+	import { getPartyToColor, partyToColorFn } from '$lib/getPartyToColor';
+	import type { DelegateByCallToOrders } from '$lib/types';
     import * as d3 from 'd3';
 	import { onMount } from 'svelte';
 
     let upd: Function = () => {};
 
     // create 2 data_set
+
+    var data0: {group: string, value: number}[] = [];
+
     var data1: {group: string, value: number}[] = [
         {group: "A", value: 4},
-        {group: "B", value: 16},
+        {group: "Längere Gruppe", value: 16},
         {group: "C", value: 8}
     ];
 
     var data2: {group: string, value: number}[] = [
         {group: "A", value: 7},
-        {group: "B", value: 1},
+        {group: "Rendi-Wagner Pamela, Dr., MSc (SPÖ)", value: 1},
         {group: "C", value: 20},
         {group: "D", value: 10}
     ];
 
-    onMount(() => {
+    const partyToColor = getPartyToColor();
 
-    // set the dimensions and margins of the graph
-    var margin = {top: 30, right: 30, bottom: 70, left: 60},
-        width = 460 - margin.left - margin.right,
-        height = 400 - margin.top - margin.bottom;
+    onMount(async () => {
+        const delegatesByCallToOrders = await delegates_by_call_to_orders();
 
-    // append the svg object to the body of the page
-    var svg = d3.select("#chart")
-        .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-            .attr("transform",
-                "translate(" + margin.left + "," + margin.top + ")");
+        const sliceDelegatesByCallToOrders = delegatesByCallToOrders.slice(0, 10);
+        
+        sliceDelegatesByCallToOrders.forEach((val) => {
+            data0.push({group: val.name, value: val.call_to_order_amount});
+        })
 
-    // Initialize the X axis
-    var x = d3.scaleBand()
-    .range([ 0, width ])
-    .padding(0.2);
-    var xAxis = svg.append("g")
-    .attr("transform", "translate(0," + height + ")")
+        // set the dimensions and margins of the graph
+        var margin = {top: 30, right: 30, bottom: 70, left: 30},
+            width = 760 - margin.left - margin.right,
+            height = 600 - margin.top - margin.bottom;
 
-    // Initialize the Y axis
-    var y = d3.scaleLinear()
-    .range([ height, 0]);
-    var yAxis = svg.append("g")
-    .attr("class", "myYaxis")
+        // append the svg object to the body of the page
+        var svg = d3.select("#chart")
+            .append("svg")
+                // .attr("width", width + margin.left + margin.right)
+                // .attr("height", height + margin.top + margin.bottom)
+                .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+                .attr("preserveAspectRatio", "xMinYMin meet")
+                .classed("svg-content-responsive", true)
+            .append("g")
+                .attr("transform",
+                    "translate(" + margin.left + "," + margin.top + ")");
 
 
-    // A function that create / update the plot for a given variable:
-    function update(data: {group: string, value: number}[]) {
+        var x = d3.scaleLinear()
+            .range([0, width])
+        var xAxis = svg.append("g") 
+            .attr("transform", "translate(0," + height + ")")
+        var y = d3.scaleBand()
+            .range([ 0, height ])
+            .padding(0.1);
+        var yAxis = svg.append("g")
+            .attr("class", "myYaxis")    
 
-        // Update the X axis
-        x.domain(data.map(function(d) { return d.group; }))
-        xAxis.call(d3.axisBottom(x))
+        // A function that create / update the plot for a given variable:
+        function update(data: DelegateByCallToOrders[]) {
 
-        // Update the Y axis
-        // @ts-ignore
-        y.domain([0, d3.max(data, function(d) { return d.value }) ]);
-        yAxis.transition().duration(1000).call(d3.axisLeft(y));
+            // Update the X axis
+            y.domain(data.map(function(d) { return d.name + ""; }))
+            // y.domain(data.map(function(d) { return ""; }))
+            yAxis.call(d3.axisLeft(y))
 
-        // Create the u variable
-        var u = svg.selectAll("rect")
-            .data(data)
-
-        u
-            .enter()
-            .append("rect") // Add a new rect for each new elements
+            // Update the Y axis
             // @ts-ignore
-            .merge(u) // get the already existing elements as well
-            .transition() // and apply changes to all of them
-            .duration(1000)
-            // @ts-ignore
-            .attr("x", function(d) { return x(d.group); })
-            .attr("y", function(d) { return y(d.value); })
-            .attr("width", x.bandwidth())
-            .attr("height", function(d) { return height - y(d.value); })
-            .attr("fill", "#69b3a2")
+            x.domain([0, d3.max(data, function(d) { return d.call_to_order_amount }) ]);
+            xAxis.transition().duration(1000).call(d3.axisBottom(x));
+            
+            // hide group names / labels
+            yAxis.selectAll("text").remove()
 
-        // If less group in the new dataset, I delete the ones not in use anymore
-        u
-            .exit()
-            .remove()
-    }
+            // Create the u variable
+            var u = svg.selectAll("rect")
+                .data(data)
+            
+            u.enter()
+                .append("rect") // Add a new rect for each new elements
+                // @ts-ignore
+                .merge(u) // get the already existing elements as well
+                .transition() // and apply changes to all of them
+                .duration(1000)
+                // @ts-ignore
+                .attr("y", function(d) { return y(d.name); })
+                .attr("x", 0)
+                .attr("height", y.bandwidth())
+                // .attr("width", function(d) { return height - y(d.value); })
+                .attr("width", function(d) { return x(d.call_to_order_amount); })
+                .attr("fill", (d) => partyToColorFn(partyToColor, d.party))
+        
+            
+            // If less group in the new dataset, I delete the ones not in use anymore
+            u
+                .exit()
+                .remove()
+                
+            var texts = svg.selectAll(".data-label")
+                .data(data)
 
-    upd = update
-    // Initialize the plot with the first dataset
-    update(data1)
+            texts.enter()
+                .append("text")
+                .attr("class", "data-label")
+                // @ts-ignore
+                .merge(texts)
+                // @ts-ignore
+                .transition()
+                .duration(1000)
+                // @ts-ignore
+                .attr("y", function(d) { return y(d.name); })
+                .attr("x", function(d) { return x(d.call_to_order_amount); })
+                .attr("dx", (d) => {
+                    if (x(d.call_to_order_amount) < 140) {
+                        return +2;
+                    } else {
+                        return -4;
+                    }
+                }) // padding-right
+                .attr("dy", "1.2em") // vertical-align: middle
+                .style("text-anchor", function(d) { return x(d.call_to_order_amount) < 140 ? "start" : "end"; })
+                // set text color to white
+                .attr("fill", "white")
+                .text(function(d) { return d.name + " (" + d.party + ")"; });
+        
+            texts
+                .exit()
+                .remove()
+        }
+
+        upd = update
+        // Initialize the plot with the first dataset
+        update(sliceDelegatesByCallToOrders)
     })
 
 </script>
