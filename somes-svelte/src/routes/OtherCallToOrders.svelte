@@ -24,13 +24,11 @@
         {group: "D", value: 10}
     ];
 
-    var data_xxvii: DelegateByCallToOrders[] = [];
     var sliceDelegatesByCallToOrders: DelegateByCallToOrders[] = [];
 
     const partyToColor = getPartyToColor();
 
     onMount(async () => {
-        data_xxvii = (await delegates_by_call_to_orders_and_legis_period("XXVII")).slice(0, 10);
         const delegatesByCallToOrders = await delegates_by_call_to_orders();
 
         sliceDelegatesByCallToOrders = delegatesByCallToOrders.slice(0, 10);
@@ -42,7 +40,7 @@
         // set the dimensions and margins of the graph
         var margin = {top: 30, right: 30, bottom: 70, left: 30},
             width = 760 - margin.left - margin.right,
-            height = 600 - margin.top - margin.bottom;
+            height = 660 - margin.top - margin.bottom;
 
         // append the svg object to the body of the page
         var svg = d3.select("#chart")
@@ -144,8 +142,18 @@
         update(sliceDelegatesByCallToOrders)
     })
 
+    async function updateWithLegisData(period: string) {
+        const delegatesByCallToOrders = (await delegates_by_call_to_orders_and_legis_period(period)).slice(0, 10);
+        upd(delegatesByCallToOrders);
+    }   
+
+    const periods = ["XX", "XXI", "XXII", "XXIII", "XXIV", "XXV", "XXVI", "XXVII"];
+
 </script>
 
-<!-- <button on:click={() => upd(data_xxvii)}>XXVII</button> -->
-<!-- <button on:click={() => upd(sliceDelegatesByCallToOrders)}>All time</button> -->
+{#each periods as period}
+    <button style="background-color: aqua; margin: 3px;" on:click={() => updateWithLegisData(period)}>{period}</button>
+
+{/each}
+<button style="background-color: aqua;" on:click={() => upd(sliceDelegatesByCallToOrders)}>All time</button>
 <div id="chart"></div>
