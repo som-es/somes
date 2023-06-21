@@ -45,14 +45,6 @@
         displayBarChart(sliceDelegatesByCallToOrders, getPartyToColor());
 		
     });
-
-    /*let partyToColor = new Map<string, string>();
-    partyToColor.set("SPÖ",  "#E31E2D");
-    partyToColor.set("ÖVP",  "#62C3D0");
-    partyToColor.set("FPÖ",  "#0052FB");
-    partyToColor.set("GRÜNE", "#69B12E");
-    partyToColor.set("NEOS", "#E3257B");*/
-    	
 </script>
 
 <div>
