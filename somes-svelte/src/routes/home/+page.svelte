@@ -2,8 +2,8 @@
 
 	import AutoSelectParliament from "../AutoSelectParliament.svelte";
     import LegisInitCard from "../LegisInitCard.svelte";
-	import type { Delegate, VoteResult } from "$lib/types";
-	import { delegates, latest_vote_results } from "$lib/api";
+	import type { Delegate, Party, VoteResult } from "$lib/types";
+	import { delegates, latest_vote_results, parties } from "$lib/api";
     import { onMount } from "svelte";
 	import type { Writable } from "svelte/store";
 	import { localStorageStore } from "@skeletonlabs/skeleton";
@@ -16,10 +16,21 @@
     let dels: Delegate[];
 
     const currentLegisInitStorage: Writable<VoteResult | null> = localStorageStore('selectedVoteResult', null);
-    
+    const partyColorStorage: Writable<string> = localStorageStore('parties', "");
+
     let voteResults: VoteResult[];
+    
+    async function updateColorStorage() {    
+        let partyToColor = new Map<string, string>();
+        (await parties()).forEach(party => {
+            partyToColor.set(party.name, party.color);
+        });
+        partyColorStorage.set(JSON.stringify(Array.from(partyToColor.entries())));
+    }
 
     onMount(async function () {
+        await updateColorStorage();
+
         const austrianDelegates = await delegates();
         dels = austrianDelegates.filter(delegate => delegate.council === "nr");
 

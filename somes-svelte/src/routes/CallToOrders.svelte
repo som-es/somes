@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { delegates_by_call_to_orders, parties } from "$lib/api";
+	import { delegates_by_call_to_orders } from "$lib/api";
     import type { DelegateByCallToOrders } from "$lib/types";
 	import { onMount } from "svelte";
     import * as d3 from 'd3';
+	import { getPartyToColor } from "$lib/getPartyToColor";
 
     let delegatesByCallToOrders: DelegateByCallToOrders[];
 	
@@ -38,15 +39,10 @@
     }
 
     onMount(async function () {
-        let partyToColor = new Map<string, string>();
-        (await parties()).forEach(party => {
-            partyToColor.set(party.name, party.color);
-        });
-
         delegatesByCallToOrders = await delegates_by_call_to_orders();
 
         const sliceDelegatesByCallToOrders = delegatesByCallToOrders.slice(0, 10);
-        displayBarChart(sliceDelegatesByCallToOrders, partyToColor);
+        displayBarChart(sliceDelegatesByCallToOrders, getPartyToColor());
 		
     });
 
