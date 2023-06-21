@@ -40,8 +40,8 @@ pub async fn delegate_by_call_to_orders(
 }
 
 pub async fn delegates_by_call_to_orders_by_legis_period(
-    Json(legis_period): Json<LegisPeriod>,
     DataserviceDbConnection(postgres_con): DataserviceDbConnection,
+    Json(legis_period): Json<LegisPeriod>,
 ) -> Result<Json<Vec<DelegateByCallToOrders>>, StatisticsResponse> {
     postgres_con
         .interact(|con| {

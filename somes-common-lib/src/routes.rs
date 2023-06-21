@@ -8,5 +8,6 @@ pub const LATEST_LEGIS_INITS_ROUTE: &str = "/latest_legis_inits";
 pub const LATEST_VOTE_RESULTS_ROUTE: &str = "/latest_vote_results";
 pub const SPEAKERS_BY_HOURS: &str = "/speakers_by_hours";
 pub const DELEGATES_BY_CALL_TO_ORDERS: &str = "/delegates_by_call_to_orders";
+pub const DELEGATES_BY_CALL_TO_ORDERS_AND_LEGIS_PERIOD: &str = "/delegates_by_call_to_orders_and_legis_period";
 pub const CALL_TO_ORDERS_PER_PARTY_DELEGATES: &str = "/call_to_orders_per_party_delegates";
 pub const PARTIES: &str = "/parties";
