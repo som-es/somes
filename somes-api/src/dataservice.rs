@@ -1,22 +1,24 @@
 use dataservice::db::{
-    models::{DbDelegate, DbLegislativeInitiativeQuery, DbProposalQuery, DbSpeech, DbVote, DbParty},
+    models::{
+        DbDelegate, DbLegislativeInitiativeQuery, DbParty, DbProposalQuery, DbSpeech, DbVote,
+    },
     schema::{
-        parties::dsl::parties,
         delegates::{council, dsl::delegates, is_active, seat_row},
         legislative_initiatives::{created_at, dsl::legislative_initiatives},
+        parties::dsl::parties,
         proposals::dsl::proposals,
         speeches::dsl::speeches,
         votes::{dsl::votes, legislative_initiatives_id},
     },
 };
 use diesel::{
-    sql_query, Connection, ExpressionMethods, PgConnection, QueryDsl, QueryResult, RunQueryDsl,
+    sql_query, Connection, ExpressionMethods, PgConnection, QueryDsl, QueryResult, RunQueryDsl, sql_types::Text,
 };
 use serde::{Deserialize, Serialize};
 
 use crate::{
     model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours},
-    routes::RequestFilter,
+    routes::{LegisPeriod, RequestFilter},
     today, DATASERVICE_URL,
 };
 
@@ -64,6 +66,63 @@ pub fn get_call_to_orders_per_party_delegates(
   ",
     )
     .load(con)
+}
+
+/// ```sql
+/// select
+/// delegates.name,
+/// delegates.image_url,
+/// delegates.party,
+/// cast(COUNT(*) as Integer) as call_to_order_amount
+/// from call_to_order
+/// inner join delegates on call_to_order.receiver_id=delegates.id
+/// inner join plenar_infos on call_to_order.plenar_id = plenar_infos.id
+/// where plenar_infos.legislative_period = 'XXVI'
+/// group by delegates.name,delegates.image_url,delegates.party,call_to_order.receiver_id
+/// order by call_to_order_amount DESC;
+/// ```
+pub fn get_delegates_by_call_to_orders_by_legis_period(
+    con: &mut PgConnection,
+    legis_period: &LegisPeriod,
+) -> QueryResult<Vec<DelegateByCallToOrders>> {
+    sql_query(
+        "select 
+    delegates.name,
+    delegates.image_url,
+    delegates.party,
+    cast(COUNT(*) as Integer) as call_to_order_amount
+    from call_to_order 
+    inner join delegates on call_to_order.receiver_id=delegates.id 
+    inner join plenar_infos on call_to_order.plenar_id = plenar_infos.id
+    where plenar_infos.legislative_period = $1
+    group by delegates.name,delegates.image_url,delegates.party,call_to_order.receiver_id 
+    order by call_to_order_amount DESC;",
+    )
+    .bind::<Text, _>(&legis_period.period)
+    .load(con)
+    /*
+    use dataservice::db::schema::call_to_order::dsl::call_to_order;
+    use dataservice::db::schema::plenar_infos::dsl::plenar_infos;
+
+    use dataservice::db::schema::plenar_infos::*;
+    use dataservice::db::schema::delegates::{name, image_url, party};
+    use dataservice::db::schema::call_to_order::receiver_id;
+
+    call_to_order.inner_join(delegates)
+        .inner_join(plenar_infos)
+        .filter(legislative_period.eq(legis_period.period))
+        .group_by(name)
+        .group_by(image_url)
+        .group_by(party)
+        .group_by(receiver_id)
+        .order_by(receiver_id)
+        .select((
+            name,
+            image_url,
+            party,
+            diesel::dsl::count(receiver_id).r#as("call_to_order_amount"),
+        ))
+        .load::<DelegateByCallToOrders>(con);*/
 }
 
 pub fn get_delegates_by_call_to_orders(
@@ -201,12 +260,13 @@ mod tests {
             dataservice_con, get_call_to_orders_per_party_delegates,
             get_delegates_by_call_to_orders,
         },
-        routes::RequestFilter,
+        routes::{RequestFilter, LegisPeriod},
         today,
     };
 
     use super::{
-        get_delegates, get_latest_vote_results, get_legislative_initiatives, get_speakers_by_hours, get_parties,
+        get_delegates, get_latest_vote_results, get_legislative_initiatives, get_parties,
+        get_speakers_by_hours, get_delegates_by_call_to_orders_by_legis_period,
     };
 
     #[test]
@@ -263,5 +323,14 @@ mod tests {
         let con = &mut dataservice_con();
         let res = get_parties(con);
         println!("res: {res:?}");
+    }
+
+    #[test]
+    fn test_get_delegates_by_call_to_orders_by_legis_period() {
+        let con = &mut dataservice_con();
+        let res = get_delegates_by_call_to_orders_by_legis_period(con, &LegisPeriod {
+            period: "XXVII".into(),
+        }).unwrap();
+        println!("res: {res:?}")
     }
 }

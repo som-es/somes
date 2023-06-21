@@ -1,4 +1,5 @@
 use axum::Json;
+use serde::{Deserialize, Serialize};
 mod error;
 
 use crate::{
@@ -36,6 +37,11 @@ pub async fn delegate_by_call_to_orders(
         })
         .await
         .map_err(|_| StatisticsResponse::DbSelectFailure)?
+}
+
+#[derive(PartialEq, Eq, PartialOrd, Ord, Debug, Serialize, Deserialize)]
+pub struct LegisPeriod {
+    pub period: String,
 }
 
 pub async fn call_to_orders_per_party_delegates(
