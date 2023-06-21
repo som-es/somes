@@ -3,6 +3,7 @@
     import * as d3 from 'd3';
     import { call_to_orders_per_party_delegates } from "$lib/api";
 	import type { CallToOrdersPerPartyDelegate } from "$lib/types";
+	import { getPartyToColor } from "$lib/getPartyToColor";
     
     let callToOrdersPerPartyDelegates: CallToOrdersPerPartyDelegate[];
     let chart: HTMLElement;
@@ -31,7 +32,12 @@
         // Create dummy data
 
         // get color and parties from api
-        const data: { [key: string]: number } = {"SPÖ":0, "ÖVP":0, "FPÖ":0, "GRÜNE":0, "NEOS":0};
+
+        const data: { [key: string]: number } = {};
+
+        getPartyToColor().forEach((_, key) => {
+            data[key] = 0;
+        })
         callToOrdersPerPartyDelegates.forEach((val) => {
             data[val.party] = val.ratio
         })
@@ -39,8 +45,10 @@
         // Set the color scale
         // get color and parties from api
         const color = d3.scaleOrdinal()
-            .domain(["SPÖ", "ÖVP", "FPÖ", "GRÜNE", "NEOS"])
-            .range(["#E31E2D", "#62C3D0", "#0052FB", "#69B12E", "#E3257B"]);
+            // .domain(["SPÖ", "ÖVP", "FPÖ", "GRÜNE", "NEOS"])
+            .domain(getPartyToColor().keys())
+            .range(getPartyToColor().values());
+            // .range(["#E31E2D", "#62C3D0", "#0052FB", "#69B12E", "#E3257B"]);
 
         // Compute the position of each group on the pie:
         const pie = d3.pie<[string, number]>()
@@ -82,6 +90,8 @@
             .attr("stroke-width", 1)
             // @ts-ignore
             .attr('points', function(d) {
+                if (d.data[1] === 0) return;
+
                 // @ts-ignore
                 const posA = arc.centroid(d) // line insertion in the slice
                 // @ts-ignore
@@ -98,7 +108,10 @@
         .selectAll('allLabels')
         .data(data_ready)
         .join('text')
-            .text(d => d.data[0])
+            .text(d => {
+                if (d.data[1] == 0) return "";
+                return d.data[0]
+            })
             .attr('transform', function(d) {
                 // @ts-ignore
                 const pos = outerArc.centroid(d);

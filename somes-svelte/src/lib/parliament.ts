@@ -35,6 +35,7 @@ export function generateHalfCircle(n: number, r: number, w: number, h: number) {
     return circles
 }
 
+
 export function partyToColor(party: string): string { 
     switch (party) {
         case "SPÖ":

@@ -1,7 +1,7 @@
 <script lang="ts">
+	import { getPartyToColor } from "$lib/getPartyToColor";
 	import { setupParliament, type Bubble, setDelOnBubble } from "$lib/parliament";
 	import type { Delegate, VoteResult } from "$lib/types";
-	import { localStorageStore } from "@skeletonlabs/skeleton";
 
     export let seats: number[];
     export let dels: Delegate[];
@@ -25,7 +25,6 @@
     otherPartyToColor.set("GRÜNE", [{color:"#537239"}, {color:"#69B12E"}]);
     otherPartyToColor.set("NEOS", [{color:"#934b6c"}, {color:"#E3257B"}]);
 
-
     let partyToColorMap = new Map<string, {color: string, infavor: boolean}>();
     // better
     // partyToColorMap.set("SPÖ", otherPartyToColor.get("SPÖ")[isPartyInFavor("SPÖ") ? 0 : 1]);
@@ -48,11 +47,21 @@
         console.log(selected);
 	}
 
-    function partyToColor(party: string): string { 
+    /*function partyToColor(party: string): string { 
         if (partyToColorMap.has(party)) {
             return partyToColorMap.get(party)?.color as string;
         }
         return "rgb(196, 180, 189)";
+    }*/
+
+    const partyToColorMap2 = getPartyToColor();
+
+    function partyToColor(party: string): string {
+        const color = partyToColorMap2.get(party)
+        if (color == null) {
+            return "#B8B8B8";
+        }
+        return color;
     }
 
     function setOpacity(bubble: Bubble) {
@@ -94,8 +103,6 @@
         }
 
         // select delegates.name,delegates.party,speeches.infavor from speeches inner join delegates on speeches.delegate_id=delegates.id where legislative_initiatives_id=14;
-
-
         // if speaker is against partei linie
         circles2d[del.seat_row-1][del.seat_col-1].color = biColors[speech.infavor ? 1 : 0].color;
 
@@ -121,7 +128,6 @@
         }
         return "";
     }
-
 </script>
 
 <div>

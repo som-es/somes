@@ -3,6 +3,7 @@
     import type { SpeakerByHours } from "$lib/types";
 	import { onMount } from "svelte";
     import * as d3 from 'd3';
+	import { getPartyToColor } from "$lib/getPartyToColor";
 
     let speakersByHours: SpeakerByHours[];
 	
@@ -12,6 +13,8 @@
         speakersByHours = await speakers_by_hours();
 
         const sliceSpeakersByHours = speakersByHours.slice(0, 10);
+
+		const partyToColor = getPartyToColor();
 
         // displayBarChart(speakersByHours)
         // const resultsOnlyHours = speakersByHours.map(result => result.hours_spoken).slice(0, 5);
@@ -38,13 +41,6 @@
 				return d.name + " (" + d.party + ")";
 			});
     });
-
-    let partyToColor = new Map<string, string>();
-    partyToColor.set("SPÖ",  "#E31E2D");
-    partyToColor.set("ÖVP",  "#62C3D0");
-    partyToColor.set("FPÖ",  "#0052FB");
-    partyToColor.set("GRÜNE", "#69B12E");
-    partyToColor.set("NEOS", "#E3257B");
     	
 </script>
 
