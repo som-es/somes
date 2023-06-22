@@ -2,8 +2,11 @@ import { localStorageStore } from "@skeletonlabs/skeleton";
 import { get, type Readable } from "svelte/store";
 
 export function getPartyToColor(): Map<string, string> {
-    const partyColorStorage: Readable<string> = localStorageStore('parties', "");
-    return new Map(JSON.parse(get(partyColorStorage)));
+    const partyColors: string = get(localStorageStore('parties', ""));
+    if (partyColors == "") {
+        return new Map()
+    }
+    return new Map(JSON.parse(partyColors));
 }
 
 export function partyToColorFn(partyToColorMap: Map<string, string>, party: string): string {

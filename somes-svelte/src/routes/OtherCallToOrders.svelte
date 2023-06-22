@@ -4,26 +4,13 @@
 	import type { DelegateByCallToOrders } from '$lib/types';
     import * as d3 from 'd3';
 	import { onMount } from 'svelte';
+	import LegisButtons from './LegisButtons.svelte';
 
     let upd: Function = () => {};
 
     // create 2 data_set
 
     var data0: {group: string, value: number}[] = [];
-
-    var data1: {group: string, value: number}[] = [
-        {group: "A", value: 4},
-        {group: "Längere Gruppe", value: 16},
-        {group: "C", value: 8}
-    ];
-
-    var data2: {group: string, value: number}[] = [
-        {group: "A", value: 7},
-        {group: "Rendi-Wagner Pamela, Dr., MSc (SPÖ)", value: 1},
-        {group: "C", value: 20},
-        {group: "D", value: 10}
-    ];
-
     var sliceDelegatesByCallToOrders: DelegateByCallToOrders[] = [];
 
     const partyToColor = getPartyToColor();
@@ -143,17 +130,19 @@
     })
 
     async function updateWithLegisData(period: string) {
-        const delegatesByCallToOrders = (await delegates_by_call_to_orders_and_legis_period(period)).slice(0, 10);
+        let delegatesByCallToOrders;
+        if (period == "all") {
+            delegatesByCallToOrders = sliceDelegatesByCallToOrders;   
+        } else {
+            delegatesByCallToOrders = (await delegates_by_call_to_orders_and_legis_period(period)).slice(0, 10);
+        }
         upd(delegatesByCallToOrders);
     }   
 
-    const periods = ["XX", "XXI", "XXII", "XXIII", "XXIV", "XXV", "XXVI", "XXVII"];
-
 </script>
 
-{#each periods as period}
-    <button style="background-color: aqua; margin: 3px;" on:click={() => updateWithLegisData(period)}>{period}</button>
+<LegisButtons updateFn={updateWithLegisData} />
 
-{/each}
-<button style="background-color: aqua;" on:click={() => upd(sliceDelegatesByCallToOrders)}>All time</button>
-<div id="chart"></div>
+<div class="w-">
+    <div id="chart"></div>
+</div>
