@@ -85,7 +85,7 @@
             .selectAll('allPolylines')
             .data(data_ready)
             .join('polyline')
-            .attr("stroke", "black")
+            .attr("stroke", "currentColor")
             .style("fill", "none")
             .attr("stroke-width", 1)
             // @ts-ignore
@@ -112,6 +112,7 @@
                 if (d.data[1] == 0) return "";
                 return d.data[0]
             })
+            .attr("fill", "currentColor")
             .attr('transform', function(d) {
                 // @ts-ignore
                 const pos = outerArc.centroid(d);

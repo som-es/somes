@@ -94,9 +94,33 @@
                 
             var texts = svg.selectAll(".data-label")
                 .data(data)
-
             texts.enter()
+                .append("foreignObject")
+                .attr("class", "data-label")
+                .attr("y", function(d) { return "" + y(d.name); })
+                .attr("x", function(d) { return x(d.call_to_order_amount); })
+                .attr("width", "200")
+                .attr("height", "50")
+                .append("xhtml:div")
+                .attr("xmlns", "http://www.w3.org/1999/xhtml")
+                .style("fill", "white")
+                .style("text-anchor", "start")
+            
+                // .style("position", "fixed")
+                .text(function(d) {
+                    return d.name + " (" + d.party + ")";
+			    })
+        
+            texts
+                .exit()
+                .remove()
+                
+            /*var texts = svg.selectAll(".data-label")
+                .data(data)
+
+            texts.enter()        
                 .append("text")
+
                 .attr("class", "data-label")
                 // @ts-ignore
                 .merge(texts)
@@ -122,6 +146,7 @@
             texts
                 .exit()
                 .remove()
+                */
         }
 
         upd = update
@@ -143,6 +168,6 @@
 
 <LegisButtons updateFn={updateWithLegisData} />
 
-<div class="w-">
+<div class="w-[860px]">
     <div id="chart"></div>
 </div>
