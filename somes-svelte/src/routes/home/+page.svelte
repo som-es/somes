@@ -13,6 +13,7 @@
 	import CallToOrdersPerPartyDelegates from "../CallToOrdersPerPartyDelegates.svelte";
 	import CallToOrders from "../CallToOrders.svelte";
 	import OtherCallToOrders from "../OtherCallToOrders.svelte";
+	import OtherSpeakersByHours from "../OtherSpeakersByHours.svelte";
 
     let dels: Delegate[];
 
@@ -106,8 +107,12 @@
     </p>
     <p class="mt-3">
         The top speakers of the Nationalrat by hours spoken
-        <SpeakersByHours />
+        <OtherSpeakersByHours />
     </p>
+    <!-- <p class="mt-3"> -->
+        <!-- The top speakers of the Nationalrat by hours spoken -->
+        <!-- <SpeakersByHours /> -->
+    <!-- </p> -->
     
     <p class="mt-3">
         Top call to orders receivers (make selectable: ALL TIME, XXVII, XXVI, XXV, .. by party?)

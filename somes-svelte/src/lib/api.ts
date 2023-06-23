@@ -79,3 +79,15 @@ export async function delegates_by_call_to_orders_and_legis_period(period: strin
 
     return await response.json();
 }
+
+export async function speakers_by_hours_and_legis_period(period: string): Promise<SpeakerByHours[]> {
+    let response = await fetch(`http://${address}:3000/speakers_by_hours_and_legis_period`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ period: period })
+    });
+
+    return await response.json();
+}

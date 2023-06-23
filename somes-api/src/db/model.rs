@@ -79,7 +79,7 @@ diesel::table! {
         id -> Integer,
         image_url -> Nullable<Varchar>,
         name -> Varchar,
-        party -> Varchar,
+        party -> Nullable<Varchar>,
         hours_spoken -> Float,
     }
 }
@@ -90,7 +90,7 @@ diesel::table! {
 pub struct SpeakerByHours {
     name: String,
     image_url: Option<String>,
-    party: String,
+    party: Option<String>,
     hours_spoken: f32,
 }
 
@@ -100,7 +100,7 @@ diesel::table! {
         id -> Integer,
         image_url -> Nullable<Varchar>,
         name -> Varchar,
-        party -> Varchar,
+        party -> Nullable<Varchar>,
         call_to_order_amount -> Integer,
     }
 }
@@ -111,7 +111,7 @@ diesel::table! {
 pub struct DelegateByCallToOrders {
     name: String,
     image_url: Option<String>,
-    party: String,
+    party: Option<String>,
     call_to_order_amount: i32,
 }
 

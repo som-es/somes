@@ -5,7 +5,7 @@
     let selectedPeriod = "all";
 
 </script>
-
+(add: Sort asc and desc)
 <div class="flex flex-wrap flex-row">
     {#each periods as period}
         <button class:bg-primary-200={period==selectedPeriod} on:click={() => selectedPeriod = period} class="btn bg-primary-300" style="margin: 3px;" on:click={() => updateFn(period)}>{period}</button>
