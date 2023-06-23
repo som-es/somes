@@ -124,54 +124,9 @@
                         .text(d.name + " (" + d.party + ")");
 			            
                 });
-                /*.append("xhtml:div")
-                .attr("class", "old-text")
-                .attr("xmlns", "http://www.w3.org/1999/xhtml")
-                .style("fill", "white")
-                .style("text-anchor", "start")
-            
-                // .style("position", "fixed")
-                // @ts-ignore
-                .text(function(d) {
-                    return d.name + " (" + d.party + ")";
-			    })*/
-        
             texts
                 .exit()
                 .remove()
-
-            /*var texts = svg.selectAll(".data-label")
-                .data(data)
-
-            texts.enter()        
-                .append("text")
-
-                .attr("class", "data-label")
-                // @ts-ignore
-                .merge(texts)
-                // @ts-ignore
-                .transition()
-                .duration(1000)
-                // @ts-ignore
-                .attr("y", function(d) { return y(d.name); })
-                .attr("x", function(d) { return x(d.call_to_order_amount); })
-                .attr("dx", (d) => {
-                    if (x(d.call_to_order_amount) < 140) {
-                        return +2;
-                    } else {
-                        return -4;
-                    }
-                }) // padding-right
-                .attr("dy", "1.2em") // vertical-align: middle
-                .style("text-anchor", function(d) { return x(d.call_to_order_amount) < 140 ? "start" : "end"; })
-                // set text color to white
-                .attr("fill", "white")
-                .text(function(d) { return d.name + " (" + d.party + ")"; });
-        
-            texts
-                .exit()
-                .remove()
-                */
         }
 
         upd = update
