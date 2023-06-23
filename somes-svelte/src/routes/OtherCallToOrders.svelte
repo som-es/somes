@@ -41,7 +41,6 @@
                 .attr("transform",
                     "translate(" + margin.left + "," + margin.top + ")");
 
-
         var x = d3.scaleLinear()
             .range([0, width])
         var xAxis = svg.append("g") 
@@ -54,7 +53,6 @@
 
         // A function that create / update the plot for a given variable:
         function update(data: DelegateByCallToOrders[]) {
-
             // Update the X axis
             y.domain(data.map(function(d) { return d.name + ""; }))
             // y.domain(data.map(function(d) { return ""; }))

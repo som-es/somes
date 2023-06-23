@@ -24,6 +24,14 @@
 
 <div class="h-full w-full background">
     <div class="trans-layer">
+        <!-- <div class="flex h-full flex-row flex-wrap"> -->
+            <!-- <div class="w-2/3"> -->
+                <!-- Test -->
+            <!-- </div> -->
+            <!-- <div class="w-1/3 bg-tertiary-200"> -->
+                <!-- Test -->
+            <!-- </div> -->
+        <!-- </div> -->
         <div class="container mx-auto px-4 self-center sm:text-left"> 
             <h2 class="text-tertiary-300 font-bold pt-28 text-center sm:text-left">Experience Democracy!</h2>
             

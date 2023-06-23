@@ -142,8 +142,32 @@ pub fn get_delegates_by_call_to_orders(
     .load(con)
 }
 
-// MIND: the resulting hours are not relative to the total tenure (amtzeit)
 pub fn get_speakers_by_hours(con: &mut PgConnection) -> QueryResult<Vec<SpeakerByHours>> {
+    sql_query("select 
+    delegates.name, 
+    delegates.image_url,
+    delegates.party, 
+    cast(SUM(
+    plenar_speeches.duration_in_seconds
+    ) / (60.0 * 60.0) as real) AS hours_spoken 
+from 
+    plenar_speeches 
+    inner join debates on plenar_speeches.debate_id = debates.id 
+    inner join plenar_infos on debates.plenar_id = plenar_infos.id 
+    inner join delegates on delegates.id = plenar_speeches.delegate_id 
+group by 
+    plenar_speeches.delegate_id, 
+    delegates.image_url, 
+    delegates.name, 
+    delegates.party, 
+    delegates.council 
+order by 
+    hours_spoken DESC;")
+    .load(con)
+}
+
+// MIND: the resulting hours are not relative to the total tenure (amtzeit)
+pub fn get_speakers_by_hours_by_legis_period(con: &mut PgConnection, legis_period: &LegisPeriod) -> QueryResult<Vec<SpeakerByHours>> {
     // mind "real" datatype -> float
     sql_query(
         "select 
@@ -159,7 +183,7 @@ pub fn get_speakers_by_hours(con: &mut PgConnection) -> QueryResult<Vec<SpeakerB
         inner join plenar_infos on debates.plenar_id = plenar_infos.id 
         inner join delegates on delegates.id = plenar_speeches.delegate_id 
     where 
-        plenar_infos.legislative_period = 'XXVII' 
+        plenar_infos.legislative_period = $1
         and delegates.council = 'nr'
     group by 
         plenar_speeches.delegate_id, 
@@ -170,6 +194,7 @@ pub fn get_speakers_by_hours(con: &mut PgConnection) -> QueryResult<Vec<SpeakerB
     order by 
         hours_spoken DESC;",
     )
+    .bind::<Text, _>(&legis_period.period)
     .load::<SpeakerByHours>(con)
 }
 
@@ -258,7 +283,7 @@ mod tests {
     use crate::{
         dataservice::{
             dataservice_con, get_call_to_orders_per_party_delegates,
-            get_delegates_by_call_to_orders,
+            get_delegates_by_call_to_orders, get_speakers_by_hours_by_legis_period,
         },
         routes::{RequestFilter, LegisPeriod},
         today,
@@ -298,6 +323,14 @@ mod tests {
     fn test_get_speakers_by_hours() {
         let con = &mut dataservice_con();
         let res = get_speakers_by_hours(con).unwrap();
+
+        println!("res: {res:?}");
+    }
+
+    #[test]
+    fn test_get_speakers_by_hours_by_legis_period() {
+        let con = &mut dataservice_con();
+        let res = get_speakers_by_hours_by_legis_period(con, &LegisPeriod { period: "XXIII".into() }).unwrap();
 
         println!("res: {res:?}");
     }

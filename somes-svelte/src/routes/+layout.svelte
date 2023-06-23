@@ -19,7 +19,7 @@
 		<img class="mx-4" style="width: 24vh;" src="{parliamentUrl}" alt="somes log"/>
 		
 	</section>
-	<nav class="bg-primary-500 navbar mb-5">
+	<nav class="bg-primary-500 navbar">
 		<a href="">
 			<div>
 				<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30">
