@@ -94,27 +94,52 @@
                 
             var texts = svg.selectAll(".data-label")
                 .data(data)
+
+            // hacky way to remove previous text divs
+            var oldTexts = svg.selectAll(".old-text")
+            oldTexts.remove()
+
             texts.enter()
                 .append("foreignObject")
                 .attr("class", "data-label")
+                // @ts-ignore
+                .merge(texts)
+                .transition()
+                .duration(1000)
                 .attr("y", function(d) { return "" + y(d.name); })
-                .attr("x", function(d) { return x(d.call_to_order_amount); })
-                .attr("width", "200")
+                .attr("x", function(d) { return x(d.call_to_order_amount) - 120; })
+                .attr("width", "130")
                 .attr("height", "50")
-                .append("xhtml:div")
+                
+                .each(function(d) {
+                    // Cast the element to SVGForeignObjectElement
+                    var foreignObject = this as SVGForeignObjectElement;
+
+                    // Append additional elements to foreignObject
+                    d3.select(foreignObject)
+                        .append("xhtml:div")
+                        .attr("class", "old-text text-white")
+                        .attr("xmlns", "http://www.w3.org/1999/xhtml")
+                        .style("text-anchor", "start")
+                        .text(d.name + " (" + d.party + ")");
+			            
+                });
+                /*.append("xhtml:div")
+                .attr("class", "old-text")
                 .attr("xmlns", "http://www.w3.org/1999/xhtml")
                 .style("fill", "white")
                 .style("text-anchor", "start")
             
                 // .style("position", "fixed")
+                // @ts-ignore
                 .text(function(d) {
                     return d.name + " (" + d.party + ")";
-			    })
+			    })*/
         
             texts
                 .exit()
                 .remove()
-                
+
             /*var texts = svg.selectAll(".data-label")
                 .data(data)
 
