@@ -9,7 +9,11 @@ export function getPartyToColor(): Map<string, string> {
     return new Map(JSON.parse(partyColors));
 }
 
-export function partyToColorFn(partyToColorMap: Map<string, string>, party: string): string {
+export function partyToColorFn(partyToColorMap: Map<string, string>, party: string | null): string {
+    if (party == null) {
+        return "#B8B8B8";
+    }
+    
     const color = partyToColorMap.get(party)
     if (color == null) {
         return "#B8B8B8";

@@ -38,6 +38,9 @@
 			.enter()
 			.append("div")
             .style("background-color", function(d) {
+                if (d.party == null) {
+					return "#808080";
+				}
                 const color = partyToColor.get(d.party);
 				return color == null ? "#808080" : color;
 			})

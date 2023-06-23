@@ -108,6 +108,7 @@
     <p class="mt-3">
         The top speakers of the Nationalrat by hours spoken
         <OtherSpeakersByHours />
+        Test
     </p>
     <!-- <p class="mt-3"> -->
         <!-- The top speakers of the Nationalrat by hours spoken -->

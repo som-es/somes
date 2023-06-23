@@ -190,7 +190,7 @@ pub fn get_speakers_by_hours_by_legis_period(
         inner join delegates on delegates.id = plenar_speeches.delegate_id 
     where 
         plenar_infos.legislative_period = $1
-        and delegates.council = 'nr'
+        --and delegates.council = 'nr'
     group by 
         plenar_speeches.delegate_id, 
         delegates.image_url, 

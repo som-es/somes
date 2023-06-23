@@ -42,14 +42,14 @@ export interface VoteResult {
 export interface SpeakerByHours {
     name: string,
     image_url: string | null,
-    party: string,
+    party: string | null,
     hours_spoken: number
 }
 
 export interface DelegateByCallToOrders {
     name: string,
     image_url: string | null,
-    party: string,
+    party: string | null,
     call_to_order_amount: number
 }
 
