@@ -4,7 +4,7 @@ use dataservice::db::{
     },
     schema::{
         delegates::{council, dsl::delegates, is_active, seat_row},
-        legislative_initiatives::{created_at, dsl::legislative_initiatives},
+        legislative_initiatives::{created_at, dsl::legislative_initiatives, accepted},
         parties::dsl::parties,
         proposals::dsl::proposals,
         speeches::dsl::speeches,
@@ -229,6 +229,7 @@ pub fn get_legislative_initiatives(
     legislative_initiatives
         .filter(created_at.gt(filter.start))
         .filter(created_at.lt(filter.end))
+        .filter(accepted.is_not_null())
         .load::<DbLegislativeInitiativeQuery>(con)
 }
 
@@ -238,6 +239,7 @@ pub fn get_latest_legislative_initiatives(
     legislative_initiatives
         .filter(created_at.gt(today() - chrono::Duration::days(30)))
         .filter(created_at.lt(today()))
+        .filter(accepted.is_not_null())
         .order(created_at.desc())
         .load::<DbLegislativeInitiativeQuery>(con)
 }

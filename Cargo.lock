@@ -2111,6 +2111,7 @@ dependencies = [
  "async-trait",
  "chrono",
  "common-scrapes",
+ "ego-tree",
  "once_cell",
  "regex",
  "reqwest",

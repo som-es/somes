@@ -33,22 +33,17 @@
 
         // get color and parties from api
 
+
+        const partyToColor = getPartyToColor();
+
         const data: { [key: string]: number } = {};
 
-        getPartyToColor().forEach((_, key) => {
+        partyToColor.forEach((_, key) => {
             data[key] = 0;
         })
         callToOrdersPerPartyDelegates.forEach((val) => {
             data[val.party] = val.ratio
         })
-
-        // Set the color scale
-        // get color and parties from api
-        const color = d3.scaleOrdinal()
-            // .domain(["SPÖ", "ÖVP", "FPÖ", "GRÜNE", "NEOS"])
-            .domain(getPartyToColor().keys())
-            .range(getPartyToColor().values());
-            // .range(["#E31E2D", "#62C3D0", "#0052FB", "#69B12E", "#E3257B"]);
 
         // Compute the position of each group on the pie:
         const pie = d3.pie<[string, number]>()
@@ -75,7 +70,7 @@
             // @ts-ignore
             .attr('d', arc)
             // @ts-ignore
-            .attr('fill', d => color(d.data[1]))
+            .attr('fill', d => partyToColor.get(d.data[0]))
             .attr("stroke", "white")
             .style("stroke-width", "2px")
             .style("opacity", 0.7)

@@ -146,6 +146,6 @@
 
 <LegisButtons updateFn={updateWithLegisData} />
 
-<div class="w-[860px]">
+<div class="w-[860px] max-w-full">
     <div id="chart"></div>
 </div>

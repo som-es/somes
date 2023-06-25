@@ -102,13 +102,12 @@
     <div>
     
     <p class="mt-3">
-        CTOs
+        Top call to orders receivers
         <OtherCallToOrders />
     </p>
     <p class="mt-3">
         The top speakers of the Nationalrat by hours spoken
         <OtherSpeakersByHours />
-        Test
     </p>
     <!-- <p class="mt-3"> -->
         <!-- The top speakers of the Nationalrat by hours spoken -->
