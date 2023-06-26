@@ -4,7 +4,7 @@ use dataservice::db::{
     },
     schema::{
         delegates::{council, dsl::delegates, is_active, seat_row},
-        legislative_initiatives::{created_at, dsl::legislative_initiatives, accepted},
+        legislative_initiatives::{accepted, created_at, dsl::legislative_initiatives},
         parties::dsl::parties,
         proposals::dsl::proposals,
         speeches::dsl::speeches,
