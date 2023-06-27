@@ -69,9 +69,11 @@ pub async fn ask_question(
         .ok_or(QuestionErrorResponse::NoMailForDelegate)?;
 
     let issuer_id = claims.id;
+    let insert_title = title.clone();
+    let insert_body = body.clone();
     let new_question_id = con
         .interact(move |con| {
-            insert_question(con, issuer_id, title, body, delegate_id).map_err(|e| match e {
+            insert_question(con, issuer_id, insert_title, insert_body, delegate_id).map_err(|e| match e {
                 diesel::result::Error::DatabaseError(
                     diesel::result::DatabaseErrorKind::UniqueViolation,
                     _,
@@ -86,6 +88,7 @@ pub async fn ask_question(
         .await
         .map_err(|_| QuestionErrorResponse::DbInteraction)??;
 
+    let title = format!("[{new_question_id}] {title}");
     todo!()
 }
 
