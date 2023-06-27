@@ -28,5 +28,5 @@ pub async fn login(Json(login_info): Json<LoginInfo>) -> Result<Json<JWTInfo>, A
         return Err(AuthError::WrongCredentials);
     }
 
-    create_access_token(user.username)
+    create_access_token(user.id, user.username)
 }

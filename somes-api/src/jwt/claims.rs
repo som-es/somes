@@ -10,14 +10,16 @@ use super::{error::AuthError, keys::KEYS};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
+    pub id: i32,
     pub sub: String,
     pub company: String,
     pub exp: usize,
 }
 
 impl Claims {
-    pub fn new(sub: String) -> Self {
+    pub fn new(id: i32, sub: String) -> Self {
         Self {
+            id,
             sub,
             company: "".to_string(),
             // Mandatory expiry time as UNIX timestamp

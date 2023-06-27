@@ -4,8 +4,9 @@ use serde_json::json;
 
 #[derive(Debug)]
 pub enum QuestionErrorResponse {
+    DbInteraction,
     FetchDelegateContact,
-    InvalidDelegate
+    InvalidDelegate,
 }
 
 impl IntoResponse for QuestionErrorResponse {
@@ -18,7 +19,9 @@ impl IntoResponse for QuestionErrorResponse {
             QuestionErrorResponse::InvalidDelegate => {
                 (StatusCode::INTERNAL_SERVER_ERROR, "verification failed")
             }
-
+            QuestionErrorResponse::DbInteraction => {
+                (StatusCode::INTERNAL_SERVER_ERROR, "database interaction failed")
+            },
         };
 
         let body = Json(json!({
@@ -28,4 +31,3 @@ impl IntoResponse for QuestionErrorResponse {
         (status_code, body).into_response()
     }
 }
-

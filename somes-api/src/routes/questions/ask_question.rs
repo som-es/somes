@@ -16,6 +16,7 @@ use diesel::RunQueryDsl;
 use somes_common_lib::AskQuestion;
 
 use crate::DataserviceDbConnection;
+use crate::jwt::Claims;
 
 use super::error::QuestionErrorResponse;
 
@@ -30,7 +31,10 @@ pub fn get_delegate_contact(
         .load::<(DbDelegate, DbContactQuery)>(con)
 }
 
-pub fn get_mail_from_delegate_id(con: &mut PgConnection, delegate_id: i32) -> Result<(DbDelegate, DbContactQuery), QuestionErrorResponse> {
+pub fn get_mail_from_delegate_id(
+    con: &mut PgConnection,
+    delegate_id: i32,
+) -> Result<(DbDelegate, DbContactQuery), QuestionErrorResponse> {
     get_delegate_contact(con, delegate_id)
         .map_err(|_| QuestionErrorResponse::FetchDelegateContact)
         .and_then(|entries| {
@@ -42,9 +46,20 @@ pub fn get_mail_from_delegate_id(con: &mut PgConnection, delegate_id: i32) -> Re
 }
 pub async fn ask_question(
     DataserviceDbConnection(con): DataserviceDbConnection,
+    claims: Claims,
     Json(ask_question): Json<AskQuestion>,
-) {
+) -> Result<(), QuestionErrorResponse> {
+    let AskQuestion {
+        delegate_id,
+        text,
+        body,
+    } = ask_question;
     // has delegate a somes account
 
-    con.interact(|con| {});
+    let delegate_mail = con
+        .interact(move |con| get_mail_from_delegate_id(con, delegate_id))
+        .await
+        .map_err(|_| QuestionErrorResponse::DbInteraction)??;
+
+    todo!()
 }

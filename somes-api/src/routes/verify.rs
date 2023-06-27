@@ -44,9 +44,9 @@ pub async fn verify(
 
     let con = &mut establish_connection();
 
-    insert_user(con, &new_user).map_err(|_| VerifyErrorResponse::UserCreationError)?;
+    let id = insert_user(con, &new_user).map_err(|_| VerifyErrorResponse::UserCreationError)?;
 
-    create_access_token(new_user.username).map_err(VerifyErrorResponse::Auth)
+    create_access_token(id, new_user.username).map_err(VerifyErrorResponse::Auth)
 }
 
 pub async fn remove_user_from_redis(

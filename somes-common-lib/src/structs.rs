@@ -53,8 +53,6 @@ pub struct SaveEmailInfo {
 
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]
 pub struct AskQuestion {
-    /// mind keeping this id private
-    pub issuer_id: i32,
     pub delegate_id: i32,
     pub text: String,
     pub body: String,

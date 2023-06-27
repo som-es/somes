@@ -21,6 +21,7 @@ pub async fn send_reset_password_request(
     };
 
     let claims = Claims {
+        id: user.id,
         sub: user.username.to_string(),
         company: "".into(),
         exp: (timestamp_secs() + 60 * 15) as usize,
