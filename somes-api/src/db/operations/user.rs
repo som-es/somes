@@ -79,7 +79,10 @@ impl TryFrom<SignUpInfo> for NewUser {
 }
 
 pub fn insert_user(con: &mut PgConnection, new_user: &NewUser) -> QueryResult<i32> {
-    diesel::insert_into(users).values(new_user).returning(id).get_result(con)
+    diesel::insert_into(users)
+        .values(new_user)
+        .returning(id)
+        .get_result(con)
 }
 
 #[cfg(test)]

@@ -7,6 +7,8 @@ pub enum QuestionErrorResponse {
     DbInteraction,
     FetchDelegateContact,
     InvalidDelegate,
+    NoMailForDelegate,
+    DuplicateQuestion,
 }
 
 impl IntoResponse for QuestionErrorResponse {
@@ -19,9 +21,16 @@ impl IntoResponse for QuestionErrorResponse {
             QuestionErrorResponse::InvalidDelegate => {
                 (StatusCode::INTERNAL_SERVER_ERROR, "verification failed")
             }
-            QuestionErrorResponse::DbInteraction => {
-                (StatusCode::INTERNAL_SERVER_ERROR, "database interaction failed")
-            },
+            QuestionErrorResponse::DbInteraction => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "database interaction failed",
+            ),
+            QuestionErrorResponse::NoMailForDelegate => {
+                (StatusCode::BAD_REQUEST, "no mail for delegate found")
+            }
+            QuestionErrorResponse::DuplicateQuestion => {
+                (StatusCode::BAD_REQUEST, "question already asked")
+            }
         };
 
         let body = Json(json!({
