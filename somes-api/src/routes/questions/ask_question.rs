@@ -135,7 +135,7 @@ pub async fn ask_question(
             }).await;
             
             if possibly_failed_interaction.iter().flatten().next().is_none() {
-                log::warn!("Could not remove question from database..")
+                log::error!("Could not remove question from database..")
             };
         }
     });
