@@ -1,23 +1,15 @@
 use axum::Json;
-use common_scrapes::Contact;
-use common_scrapes::Delegate;
-use dataservice::db::api_models::DbQuestion;
-use dataservice::db::models::DbContact;
-use dataservice::db::models::DbContactQuery;
-use dataservice::db::models::DbDelegate;
-use dataservice::db::schema::contacts::dsl::contacts;
-use dataservice::db::schema::contacts::dsl::id as contacts_id;
-use dataservice::db::schema::delegates::{dsl::delegates, id};
-use dataservice::db::schema::questions::dsl::questions;
-use dataservice::db::schema::questions::id as question_id;
-use diesel::delete;
-use diesel::insert_into;
-use diesel::ExpressionMethods;
-use diesel::JoinOnDsl;
-use diesel::PgConnection;
-use diesel::QueryDsl;
-use diesel::QueryResult;
-use diesel::RunQueryDsl;
+use dataservice::db::{
+    api_models::DbQuestion,
+    models::{DbContactQuery, DbDelegate},
+    schema::{
+        contacts::dsl::{contacts, id as contacts_id},
+        delegates::{dsl::delegates, id},
+        questions::{dsl::questions, id as question_id},
+    },
+};
+use diesel::{delete, insert_into, ExpressionMethods, JoinOnDsl, PgConnection, QueryDsl};
+use diesel::{QueryResult, RunQueryDsl};
 use somes_common_lib::AskQuestion;
 
 use crate::email::send_mail;
@@ -92,7 +84,35 @@ pub async fn has_delegate_account() -> bool {
     false
 }
 
+pub async fn handle_send_mail_and_remove_question_on_failure(
+    delegate_mail: &str,
+    title: &str,
+    body: String,
+    new_question_id: i32,
+    con: &deadpool_diesel::postgres::Object,
+) {
+    let mut remove_question = false;
+    if let Err(e) = send_mail(&MAILER, &delegate_mail, &title, body) {
+        log::warn!("Error mailing question to delegate: {e}");
+        remove_question = true;
+    }
 
+    if remove_question {
+        log::info!("Traying to remove question from database...");
+        let possibly_failed_interaction = con
+            .interact(move |con| remove_question_by_id(con, new_question_id))
+            .await;
+
+        if possibly_failed_interaction
+            .iter()
+            .flatten()
+            .next()
+            .is_none()
+        {
+            log::error!("Could not remove question from database..")
+        };
+    }
+}
 
 pub async fn ask_question(
     DataserviceDbConnection(con): DataserviceDbConnection,
@@ -120,24 +140,14 @@ pub async fn ask_question(
 
     // may not run?
     tokio::task::spawn(async move {
-        
-        let mut remove_question = false;
-        if let Err(e) = send_mail(&MAILER, &delegate_mail, &title, body) {
-            log::warn!("Error mailing question to delegate: {e}");
-            remove_question = true;
-        }
-
-        if remove_question {
-            log::info!("Traying to remove question from database...");
-            let possibly_failed_interaction = con.interact(move |con| {
-                remove_question_by_id(con, new_question_id)
-                 
-            }).await;
-            
-            if possibly_failed_interaction.iter().flatten().next().is_none() {
-                log::error!("Could not remove question from database..")
-            };
-        }
+        handle_send_mail_and_remove_question_on_failure(
+            &delegate_mail,
+            &title,
+            body,
+            new_question_id,
+            &con,
+        )
+        .await;
     });
     todo!()
 }
@@ -162,10 +172,7 @@ pub fn insert_question(
         .get_result(con)
 }
 
-pub fn remove_question_by_id(
-    con: &mut PgConnection,
-    val_question_id: i32,
-) -> QueryResult<usize> {
+pub fn remove_question_by_id(con: &mut PgConnection, val_question_id: i32) -> QueryResult<usize> {
     delete(questions)
         .filter(question_id.eq(val_question_id))
         .execute(con)

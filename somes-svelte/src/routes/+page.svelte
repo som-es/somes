@@ -39,8 +39,8 @@
                 <button class="text-center bg-tertiary-500 text-white rounded-full px-14 h-9">Log In</button>
                 <button on:click="{_ => redirectToHome()}" class="ml-4 text-center bg-secondary-400 text-white rounded-full px-15 h-9">Continue without Account</button>
             </div>
-            <div class="mt-2 text-center sm:text-left">
-                <span class="text-tertiary-100 font-semibold">Don't have an account?</span> <a href="#top" class="!text-secondary-600 font-bold">Sign up!</a>
+            <div class="mt-2">
+                <h5><span class="text-tertiary-100 font-semibold">Don't have an account?</span> <a href="#top" class="!text-secondary-100 font-bold">Sign up!</a></h5>
             </div>
         </div>
     </div>
