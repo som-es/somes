@@ -49,6 +49,48 @@ pub fn get_mail_from_delegate_id(
                 .map(|entry| entry.1.mail)
         })
 }
+
+pub async fn get_delegate_mail(
+    con: &deadpool_diesel::postgres::Object,
+    delegate_id: i32,
+) -> Result<String, QuestionErrorResponse> {
+    con.interact(move |con| get_mail_from_delegate_id(con, delegate_id))
+        .await
+        .map_err(|_| QuestionErrorResponse::DbInteraction)??
+        .ok_or(QuestionErrorResponse::NoMailForDelegate)
+}
+
+pub async fn insert_new_question(
+    con: &deadpool_diesel::postgres::Object,
+    issuer_id: i32,
+    insert_title: String,
+    insert_body: String,
+    delegate_id: i32,
+) -> Result<i32, QuestionErrorResponse> {
+    con
+        .interact(move |con| {
+            insert_question(con, issuer_id, insert_title, insert_body, delegate_id).map_err(|e| {
+                match e {
+                    diesel::result::Error::DatabaseError(
+                        diesel::result::DatabaseErrorKind::UniqueViolation,
+                        _,
+                    ) => QuestionErrorResponse::DuplicateQuestion,
+                    diesel::result::Error::DatabaseError(
+                        diesel::result::DatabaseErrorKind::ForeignKeyViolation,
+                        _,
+                    ) => QuestionErrorResponse::InvalidDelegate,
+                    _ => QuestionErrorResponse::DbInteraction,
+                }
+            })
+        })
+        .await
+        .map_err(|_| QuestionErrorResponse::DbInteraction)?
+}
+
+pub async fn has_delegate_account() -> bool {
+    false
+}
+
 pub async fn ask_question(
     DataserviceDbConnection(con): DataserviceDbConnection,
     claims: Claims,
@@ -62,31 +104,13 @@ pub async fn ask_question(
 
     // has delegate a somes account
 
-    let delegate_mail = con
-        .interact(move |con| get_mail_from_delegate_id(con, delegate_id))
-        .await
-        .map_err(|_| QuestionErrorResponse::DbInteraction)??
-        .ok_or(QuestionErrorResponse::NoMailForDelegate)?;
+    if has_delegate_account().await {
+        // send message to account directly (without mail)
+        return Ok(());
+    }
 
-    let issuer_id = claims.id;
-    let insert_title = title.clone();
-    let insert_body = body.clone();
-    let new_question_id = con
-        .interact(move |con| {
-            insert_question(con, issuer_id, insert_title, insert_body, delegate_id).map_err(|e| match e {
-                diesel::result::Error::DatabaseError(
-                    diesel::result::DatabaseErrorKind::UniqueViolation,
-                    _,
-                ) => QuestionErrorResponse::DuplicateQuestion,
-                diesel::result::Error::DatabaseError(
-                    diesel::result::DatabaseErrorKind::ForeignKeyViolation,
-                    _,
-                ) => QuestionErrorResponse::InvalidDelegate,
-                _ => QuestionErrorResponse::DbInteraction,
-            })
-        })
-        .await
-        .map_err(|_| QuestionErrorResponse::DbInteraction)??;
+    let delegate_mail = get_delegate_mail(&con, delegate_id).await?;
+    let new_question_id = insert_new_question(&con, claims.id, title.clone(), body.clone(), delegate_id).await?;
 
     let title = format!("[{new_question_id}] {title}");
     todo!()
