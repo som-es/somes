@@ -9,6 +9,7 @@ pub enum QuestionErrorResponse {
     InvalidDelegate,
     NoMailForDelegate,
     DuplicateQuestion,
+    MailingFailed,
 }
 
 impl IntoResponse for QuestionErrorResponse {
@@ -31,6 +32,10 @@ impl IntoResponse for QuestionErrorResponse {
             QuestionErrorResponse::DuplicateQuestion => {
                 (StatusCode::BAD_REQUEST, "question already asked")
             }
+            QuestionErrorResponse::MailingFailed => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "mailing of question to delegate failed",
+            ),
         };
 
         let body = Json(json!({
