@@ -14,10 +14,10 @@
     let pwdVerify = "";
     let nameTaken = false
     $: userError = username === "" || nameTaken;
-    $: userErrorMessage = username === "" ? "Benutzername darf nicht leer sein!" : "Benutzername existiert schon!"
-    $: emailErrorMessage = email === "" ? "E-Mail darf nicht leer sein!" : "E-Mail existiert schon!"
+    $: userErrorMessage = username === "" ? "Benutzername darf nicht leer sein!" : "";
+    $: emailErrorMessage = email === "" ? "E-Mail darf nicht leer sein!" : "";
     $: pwdError = pwd !== pwdVerify || pwd === "" || pwdVerify === "";
-    $: pwdErrorMessage = pwd !== pwdVerify ? "Passwörter stimmen nicht überein!" : pwd === "" || pwdVerify === "" ? "Passwort darf nicht leer sein" : "";
+    $: pwdErrorMessage = pwd !== pwdVerify ? "Passwörter stimmen nicht überein!" : pwd === "" || pwdVerify === "" ? "Passwort darf nicht leer sein!" : "";
 
     let pwdPopupSettings: PopupSettings = {
     	event: 'hover',
@@ -32,17 +32,27 @@
 <div class="login_container flex flex-col">
     <h2 class="text-center">Registrierung</h2>
     <label for="username">Benutzername</label>
-    <input id="username" placeholder="gertrud21" type="text" />
+    <input id="username" placeholder="gertrud21" type="text" bind:value={username} />
 
     <label for="email">E-Mail</label>
-    <input id="email" placeholder="dergertrud@gmail.com" type="text" />
+    <input id="email" placeholder="dergertrud@gmail.com" type="text" bind:value={email} />
 
     <label for="password">Passwort</label>
-    <input id="password" type="password" />
+    <input id="password" type="password" bind:value={pwd} />
 
     <label for="passwordVerify">Passwort wiederholen</label>
-    <input id="passwordVerify" type="password" />
-    <input type="submit" value="Registrieren" />
+    <input id="passwordVerify" type="password" bind:value={pwdVerify} />
+    <input type="submit" value="Registrieren" on:click={async () => {
+        let res = await register(username, email, pwd);
+        console.log(res);
+        if (res) {
+            window.location.href = "./";
+        }
+    }} />
+    
+    <span class="text-red-500">{userErrorMessage}</span>
+    <span class="text-red-500">{emailErrorMessage}</span>
+    <span class="text-red-500">{pwdErrorMessage}</span>
 </div>
 
 <style>

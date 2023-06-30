@@ -35,6 +35,9 @@ pub async fn signup(
     // if validation was successful, add a new user to the verification redis db
     let verification_id = add_new_user_to_redis(&signup_info, &mut redis_con).await?;
 
+    // sending mail does not work currently with zimbra
+    println!("http://localhost:3000/verify?id={}", verification_id);
+
     tokio::task::spawn_blocking(move || {
         // mails need to be encrypted!!! verify id could be grabbed
         if let Err(e) = send_verification_mail(&signup_info.email, &verification_id) {

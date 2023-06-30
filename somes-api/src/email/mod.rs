@@ -20,6 +20,7 @@ static SMTP_PASSWORD: Lazy<String> = Lazy::new(|| {
 
 pub static MAILER: Lazy<SmtpTransport> = Lazy::new(|| {
     let creds = Credentials::new(SMTP_USERNAME.to_string(), SMTP_PASSWORD.to_string());
+    log::info!("Connecting to email relay...");
     SmtpTransport::relay("zimbra.nagy-blumen.at")
         .expect("Email relay not available.")
         .credentials(creds)
@@ -66,5 +67,6 @@ http://somes.at/verify?id={verification_id}
 
 #[test]
 fn test_send_mail() {
+    send_verification_mail("florian.nagy@nagy-blumen.at", "super_id").unwrap()
     // send_mail("", "tolle_id_zum_verifizieren");
 }

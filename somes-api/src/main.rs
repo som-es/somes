@@ -1,5 +1,5 @@
 use simple_logger::SimpleLogger;
-use somes_api::{jwt::KEYS, server};
+use somes_api::{jwt::KEYS, server, email::MAILER};
 
 #[tokio::main]
 async fn main() {
@@ -10,6 +10,10 @@ async fn main() {
 
     // if a JWT_SECRET is not present, crash the application
     let _ = &KEYS.decoding;
+
+    // use MAILER
+    let _mailer = &*MAILER;
+
 
     // this addr is also used in email
     let addr = "127.0.0.1:3000".parse().unwrap();

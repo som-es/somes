@@ -7,10 +7,17 @@
 	import '@skeletonlabs/skeleton/styles/all.css';
 	// Most of your app wide CSS should be put in this file
 	import '../app.postcss';
-	import { AppShell, LightSwitch } from '@skeletonlabs/skeleton';
+	import { AppShell, Drawer, LightSwitch, drawerStore } from '@skeletonlabs/skeleton';
+	import LoginDrawer from './LoginDrawer.svelte';
 
 	const parliamentUrl = new URL('$lib/assets/somes-browner.png', import.meta.url).href
 </script>
+
+<Drawer>
+    <!-- {#if $drawerStore.id === 'login-drawer'} -->
+    	<!-- <LoginDrawer /> -->
+    <!-- {/if} -->
+</Drawer>
 
 <!-- App Shell -->
 <AppShell>

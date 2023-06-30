@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
     import ParliamentImg from '$lib/assets/assets/parliament.png';
-	import { localStorageStore } from '@skeletonlabs/skeleton';
-	import { redirect } from '@sveltejs/kit';
+	import { localStorageStore, type DrawerSettings, drawerStore } from '@skeletonlabs/skeleton';
 	import { get, type Readable, type Writable } from 'svelte/store';
+
 
     const noAccountStorage: Readable<boolean | null> = localStorageStore('noAccount', null);
     const isNoAccount = get(noAccountStorage);
@@ -19,6 +19,14 @@
         // localStorageStore('noAccount', true);
         goto("/home");
     }
+
+    const loginDrawerSettings: DrawerSettings = {
+		id: "login-drawer",
+		position: "right",
+		width: "w-[280px] md:w-[480px]",
+	}
+
+    // drawerStore.open(loginDrawerSettings);
 
 </script>
 
@@ -40,7 +48,7 @@
                 <button on:click="{_ => redirectToHome()}" class="ml-4 text-center bg-secondary-400 text-white rounded-full px-15 h-9">Continue without Account</button>
             </div>
             <div class="mt-2">
-                <h5><span class="text-tertiary-100 font-semibold">Don't have an account?</span> <a href="#top" class="!text-secondary-100 font-bold">Sign up!</a></h5>
+                <h5><span class="text-tertiary-100 font-semibold">Don't have an account?</span> <a href="/register" class="!text-secondary-100 font-bold">Sign up!</a></h5>
             </div>
         </div>
     </div>
