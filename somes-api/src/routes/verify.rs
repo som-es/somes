@@ -8,7 +8,7 @@ use uuid::Uuid;
 
 use crate::{
     establish_connection, jwt::create_access_token, model::NewUser, operations::user::insert_user,
-    RedisConnection,
+    RedisConnection, SomesDbConnection,
 };
 
 use self::error::VerifyErrorResponse;
@@ -37,16 +37,21 @@ pub fn create_verification_id(signup_info: &SignUpInfo) -> String {
 pub async fn verify(
     Query(id): Query<VerificationIDInfo>,
     RedisConnection(redis_con): RedisConnection,
+    SomesDbConnection(con): SomesDbConnection,
     //State(verification_map): State<VerificationMap>,
 ) -> Result<Json<JWTInfo>, VerifyErrorResponse> {
     //let new_user = remove_from_verify_map(verification_map, &id)?;
     let new_user = remove_user_from_redis(redis_con, &id).await?;
 
-    let con = &mut establish_connection();
+    // let con = &mut establish_connection();
+    let username = new_user.username.clone();
+    let id = con.interact(move |con| insert_user(con, &new_user).map_err(|_| VerifyErrorResponse::UserCreationError))
+        .await
+        .map_err(|_| VerifyErrorResponse::UserCreationError)??;
 
-    let id = insert_user(con, &new_user).map_err(|_| VerifyErrorResponse::UserCreationError)?;
+    // let id = insert_user(con, &new_user).map_err(|_| VerifyErrorResponse::UserCreationError)?;
 
-    create_access_token(id, new_user.username).map_err(VerifyErrorResponse::Auth)
+    create_access_token(id, username).map_err(VerifyErrorResponse::Auth)
 }
 
 pub async fn remove_user_from_redis(

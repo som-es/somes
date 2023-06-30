@@ -14,9 +14,9 @@
 </script>
 
 <Drawer>
-    <!-- {#if $drawerStore.id === 'login-drawer'} -->
-    	<!-- <LoginDrawer /> -->
-    <!-- {/if} -->
+    {#if $drawerStore.id === 'login-drawer'}
+    	<LoginDrawer />
+    {/if}
 </Drawer>
 
 <!-- App Shell -->
@@ -73,7 +73,7 @@
 .navbar {
 	position: sticky;
 	top: 0;
-	z-index: 999;
+	z-index: 9;
 	display: flex;
 	justify-content: space-around;
 	padding: 10px;

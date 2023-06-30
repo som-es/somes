@@ -5,72 +5,68 @@
 	import { drawerStore } from '@skeletonlabs/skeleton';
 	// import Login from 'svelte-google-materialdesign-icons/Login.svelte';
 
-    let username = "";
+    let username_or_email = "";
     let pwd = "";
+
+
 </script>
 
-<section class="login-wrapper">
-    <section class="login-container">
-        <h1>Login</h1>
-        <form>
-            <label class="label">
-                <span>Benutzername</span>
-                <div class="input-group input-group-divider grid-cols-[1fr_auto]">
-                    <input class="input" type="text" placeholder="example" bind:value={username}/>
-                </div>
-            </label>
-            <label class="label">
-                <span>Password</span>
-                <div class="input-group input-group-divider grid-cols-[1fr_auto]">
-                    <input class="input" type="password" placeholder="password" bind:value={pwd}/>
-                </div>
-            </label>
-            <button type="button" class="btn variant-filled" on:click={async () => {
-                if (await login(username, pwd)) {
-                    drawerStore.close();
-                }
-            }}>
-                <!-- <span><Login /></span> -->
-                <span>Anmelden</span>
-            </button>
-        </form>
-        <span>Noch kein Account? Registriere dich <a href="./register.html">HIER!</a></span>
-    </section>
-</section>
+<div class="login_container flex flex-col">
+    <h2 class="text-center">Anmeldung</h2>
+    <label for="username">Benutzername oder E-Mail</label>
+    <input id="username" placeholder="'gertrud21' oder 'dergertrud@gmail.com'" type="text" bind:value={username_or_email} />
 
-<style lang="scss">
-    .login-wrapper {
-        width: 100%;
-	    height: 100vh;
-	    display: flex;
-        justify-content: center;
-	    align-items: center;
+    <label for="password">Passwort</label>
+    <input id="password" type="password" bind:value={pwd} />
 
-        .login-container {
-	    	display: flex;
-	    	flex-direction: column;
-	    	justify-content: center;
-	    	align-items: center;
-        
-	    	h1 {
-	    		margin-bottom: 50px;
-	    	}
-        
-	    	form {
-	    		display: flex;
-	    		flex-direction: column;
-	    		justify-content: center;
-                width: 120%;
-            
-	    		& > * {
-	    			margin-bottom: 20px;
-                    width: 100%;
-	    		}
+    <input type="submit" value="Anmelden" on:click={async () => {
+        let res = await login(username_or_email, pwd);
+        console.log(res);
+        if (res) {
+            window.location.href = "./";
+        }
+    }} />
 
-                & > button {
-                    margin-top: 20px;
-                }
-	    	}
-	    }
-    }
+</div>
+
+
+<style>
+
+input[type="text"],
+input[type="password"] {
+    flex-grow: 1;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    font-size: 16px;
+}
+
+.login_container {
+    background-color: #fff;
+    margin: 20px auto;
+    max-width: 500px;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+}
+
+input[type="submit"] {
+    /* background-color: #5c5cd6; */
+    background-color: rgb(var(--color-tertiary-500));
+    color: #fff;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+input[type="submit"]:hover {
+    background-color: #fff;
+    color: rgb(var(--color-tertiary-500));
+}
 </style>

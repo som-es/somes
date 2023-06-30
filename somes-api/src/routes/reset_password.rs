@@ -7,18 +7,26 @@ use crate::{
     establish_connection,
     hash::hash_password,
     jwt::{Claims, KEYS},
-    operations::user::{get_user_from_db, update_password_hash_at},
+    operations::user::{get_user_from_db, update_password_hash_at}, SomesDbConnection,
 };
 
 pub async fn send_reset_password_request(
     // claims: Claims,
     Json(reset_password_info): Json<ResetPasswordInfo>,
+    SomesDbConnection(postgres_con): SomesDbConnection,
     // update Error
 ) -> Result<Json<()>, ()> {
-    let con = &mut establish_connection();
-    let Some(user) = get_user_from_db(con,&reset_password_info.username_or_email, &reset_password_info.username_or_email) else {
+    // let con = &mut establish_connection();
+
+    let Some(user) = postgres_con.interact(move |con| {
+        get_user_from_db(con,&reset_password_info.username_or_email, &reset_password_info.username_or_email)             
+    }).await.map_err(|_| ())? else {
         return Ok(Json(()))
     };
+    
+    /*let Some(user) = get_user_from_db(con,&reset_password_info.username_or_email, &reset_password_info.username_or_email) else {
+        return Ok(Json(()))
+    };*/
 
     let claims = Claims {
         id: user.id,

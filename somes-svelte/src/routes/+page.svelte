@@ -26,7 +26,7 @@
 		width: "w-[280px] md:w-[480px]",
 	}
 
-    // drawerStore.open(loginDrawerSettings);
+    drawerStore.open(loginDrawerSettings);
 
 </script>
 

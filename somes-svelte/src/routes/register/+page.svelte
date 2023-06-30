@@ -2,7 +2,7 @@
 	import { register } from '$lib/api/register';
     import { LightSwitch, popup } from '@skeletonlabs/skeleton';
 	import type { PopupSettings } from '@skeletonlabs/skeleton';
-
+    
 
     /*$: if ($bearer != null) {
         window.location.replace("./");
