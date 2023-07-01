@@ -12,7 +12,7 @@ use somes_common_lib::{
     CALL_TO_ORDERS_PER_PARTY_DELEGATES, DELEGATES_BY_CALL_TO_ORDERS,
     DELEGATES_BY_CALL_TO_ORDERS_AND_LEGIS_PERIOD, DELEGATES_ROUTE, LATEST_LEGIS_INITS_ROUTE,
     LATEST_VOTE_RESULTS_ROUTE, LEGIS_INIT_ROUTE, LOGIN_ROUTE, PARTIES, PROPOSALS_ROUTE,
-    SIGNUP_ROUTE, SPEAKERS_BY_HOURS, SPEAKERS_BY_HOURS_AND_LEGIS_PERIOD, VERIFY_ROUTE,
+    SIGNUP_ROUTE, SPEAKERS_BY_HOURS, SPEAKERS_BY_HOURS_AND_LEGIS_PERIOD, VERIFY_ROUTE, USER,
 };
 //use headers::HeaderValue;
 use crate::{
@@ -20,7 +20,7 @@ use crate::{
         call_to_orders_per_party_delegates, delegate_by_call_to_orders, delegates,
         delegates_by_call_to_orders_by_legis_period, latest_legis_inits, latest_vote_results,
         legis_inits, parties, proposals, save_email, speakers_by_hours,
-        speakers_by_hours_by_legis_period,
+        speakers_by_hours_by_legis_period, user,
     },
     DATABASE_URL, DATASERVICE_URL, REDIS_DB,
 };
@@ -130,6 +130,7 @@ pub async fn serve(addr: SocketAddr) {
             CALL_TO_ORDERS_PER_PARTY_DELEGATES,
             get(call_to_orders_per_party_delegates),
         )
+        .route(USER, post(user))
         .route("/save_email", post(save_email))
         .layer(
             CorsLayer::new()
