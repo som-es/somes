@@ -80,7 +80,8 @@ input[type="password"] {
 .login_container {
     background-color: #fff;
     margin: 20px auto;
-    max-width: 500px;
+    width: 500px;
+    max-width: 95%;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
