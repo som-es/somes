@@ -23,6 +23,7 @@ use crate::{server::AppState, PostgresPool, DATABASE_URL};
 
 use self::model::NewUser;
 
+#[cfg(test)]
 pub fn establish_connection() -> PgConnection {
     PgConnection::establish(DATABASE_URL).expect("Can't establish database conntection.")
 }

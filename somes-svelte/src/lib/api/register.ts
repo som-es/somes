@@ -20,6 +20,5 @@ export async function login(username_or_email: string, password: string) {
         },
         body: JSON.stringify({ username_or_email: username_or_email, password: password })
     });
-
     return await response.json();
 }

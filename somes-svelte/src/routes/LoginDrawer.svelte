@@ -22,9 +22,9 @@
     <input type="submit" value="Anmelden" on:click={async () => {
         let res = await login(username_or_email, pwd);
         console.log(res);
-        if (res) {
+        /*if (res) {
             window.location.href = "./";
-        }
+        }*/
     }} />
 
 </div>

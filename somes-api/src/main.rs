@@ -1,5 +1,5 @@
 use simple_logger::SimpleLogger;
-use somes_api::{jwt::KEYS, server, email::MAILER};
+use somes_api::{email::MAILER, jwt::KEYS, server};
 
 #[tokio::main]
 async fn main() {
@@ -13,7 +13,6 @@ async fn main() {
 
     // use MAILER
     let _mailer = &*MAILER;
-
 
     // this addr is also used in email
     let addr = "127.0.0.1:3000".parse().unwrap();

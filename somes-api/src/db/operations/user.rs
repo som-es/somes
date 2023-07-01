@@ -20,11 +20,14 @@ pub fn is_username_in_db(con: &mut PgConnection, signup_username: &str) -> bool 
         .is_ok()
 }
 
-pub fn update_password_hash_at(con: &mut PgConnection, user: &str, new_password_hash: &str) {
+pub fn update_password_hash_at(
+    con: &mut PgConnection,
+    user: &str,
+    new_password_hash: &str,
+) -> QueryResult<usize> {
     diesel::update(users.filter(username.eq(user)))
         .set(password_hash.eq(new_password_hash))
         .execute(con)
-        .unwrap();
 }
 
 pub fn get_user_from_db(

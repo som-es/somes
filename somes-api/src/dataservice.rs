@@ -204,6 +204,7 @@ pub fn get_speakers_by_hours_by_legis_period(
     .load::<SpeakerByHours>(con)
 }
 
+#[cfg(test)]
 pub fn dataservice_con() -> PgConnection {
     PgConnection::establish(DATASERVICE_URL)
         .expect("Can't establish dataservice database conntection.")

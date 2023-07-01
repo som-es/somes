@@ -3,7 +3,7 @@ use axum::{extract::State, Json};
 use somes_common_lib::SignUpInfo;
 
 use crate::{
-    db::establish_connection, email::send_verification_mail, internal_error,
+    email::send_verification_mail, internal_error,
     routes::signup::action::validate_info_already_in_use_redis, server::AppState, RedisConnection,
     SomesDbConnection,
 };

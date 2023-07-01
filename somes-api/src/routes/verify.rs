@@ -7,8 +7,8 @@ use somes_common_lib::{JWTInfo, SignUpInfo, VerificationIDInfo};
 use uuid::Uuid;
 
 use crate::{
-    establish_connection, jwt::create_access_token, model::NewUser, operations::user::insert_user,
-    RedisConnection, SomesDbConnection,
+    jwt::create_access_token, model::NewUser, operations::user::insert_user, RedisConnection,
+    SomesDbConnection,
 };
 
 use self::error::VerifyErrorResponse;
@@ -45,7 +45,10 @@ pub async fn verify(
 
     // let con = &mut establish_connection();
     let username = new_user.username.clone();
-    let id = con.interact(move |con| insert_user(con, &new_user).map_err(|_| VerifyErrorResponse::UserCreationError))
+    let id = con
+        .interact(move |con| {
+            insert_user(con, &new_user).map_err(|_| VerifyErrorResponse::UserCreationError)
+        })
         .await
         .map_err(|_| VerifyErrorResponse::UserCreationError)??;
 

@@ -5,6 +5,7 @@ use serde_json::json;
 #[derive(Debug)]
 pub enum DelegatesErrorResponse {
     DelegateResponseError,
+    ProposalResponseError,
 }
 
 impl IntoResponse for DelegatesErrorResponse {
@@ -13,6 +14,10 @@ impl IntoResponse for DelegatesErrorResponse {
             DelegatesErrorResponse::DelegateResponseError => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "could not return delegates",
+            ),
+            DelegatesErrorResponse::ProposalResponseError => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "could not return proposals",
             ),
         };
 

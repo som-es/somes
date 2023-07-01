@@ -2,20 +2,29 @@ use axum::Json;
 use dataservice::db::models::{DbDelegate, DbProposalQuery};
 
 use crate::{
-    dataservice::{dataservice_con, get_delegates, get_proposals},
+    dataservice::{get_delegates, get_proposals},
     routes::delegates::error::DelegatesErrorResponse,
+    DataserviceDbConnection,
 };
 
 mod error;
 
-pub async fn delegates() -> Result<Json<Vec<DbDelegate>>, DelegatesErrorResponse> {
-    get_delegates(&mut dataservice_con())
-        .map(Json)
-        .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
+pub async fn delegates(
+    DataserviceDbConnection(con): DataserviceDbConnection,
+) -> Result<Json<Vec<DbDelegate>>, DelegatesErrorResponse> {
+    con.interact(|con| {
+        get_delegates(con)
+            .map(Json)
+            .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
+    })
+    .await
+    .map_err(|_| DelegatesErrorResponse::DelegateResponseError)?
 }
 
-pub async fn proposals() -> Result<Json<Vec<DbProposalQuery>>, DelegatesErrorResponse> {
-    get_proposals(&mut dataservice_con())
-        .map(Json)
-        .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
+pub async fn proposals(DataserviceDbConnection(con): DataserviceDbConnection,) -> Result<Json<Vec<DbProposalQuery>>, DelegatesErrorResponse> {
+    con.interact(|con| {
+        get_proposals(con)
+            .map(Json)
+            .map_err(|_| DelegatesErrorResponse::ProposalResponseError)
+    }).await.map_err(|_| DelegatesErrorResponse::ProposalResponseError)?   
 }

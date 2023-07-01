@@ -4,10 +4,10 @@ use somes_common_lib::{time::timestamp_secs, NewPasswordInfo, ResetPasswordInfo}
 
 use crate::{
     email::{send_mail, MAILER},
-    establish_connection,
     hash::hash_password,
     jwt::{Claims, KEYS},
-    operations::user::{get_user_from_db, update_password_hash_at}, SomesDbConnection,
+    operations::user::{get_user_from_db, update_password_hash_at},
+    SomesDbConnection,
 };
 
 pub async fn send_reset_password_request(
@@ -19,11 +19,11 @@ pub async fn send_reset_password_request(
     // let con = &mut establish_connection();
 
     let Some(user) = postgres_con.interact(move |con| {
-        get_user_from_db(con,&reset_password_info.username_or_email, &reset_password_info.username_or_email)             
+        get_user_from_db(con,&reset_password_info.username_or_email, &reset_password_info.username_or_email)
     }).await.map_err(|_| ())? else {
         return Ok(Json(()))
     };
-    
+
     /*let Some(user) = get_user_from_db(con,&reset_password_info.username_or_email, &reset_password_info.username_or_email) else {
         return Ok(Json(()))
     };*/
@@ -48,15 +48,21 @@ pub async fn send_reset_password_request(
 pub async fn reset_password(
     claims: Claims,
     Json(new_password_info): Json<NewPasswordInfo>,
+    SomesDbConnection(postgres_con): SomesDbConnection,
     // update Error
 ) -> Result<Json<()>, ()> {
     let new_password_hash = hash_password(&new_password_info.password).unwrap();
     let username = claims.sub;
 
-    let mut con = establish_connection();
+    postgres_con
+        .interact(move |con| update_password_hash_at(con, &username, &new_password_hash))
+        .await
+        .unwrap()
+        .unwrap();
 
     // update password in db
-    update_password_hash_at(&mut con, &username, &new_password_hash);
+    // mind unwrap!
+    // update_password_hash_at(&mut con, &username, &new_password_hash);
 
     Ok(Json(()))
 }
