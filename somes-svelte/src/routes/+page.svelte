@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
     import ParliamentImg from '$lib/assets/assets/parliament.png';
+	import { loginDrawerSettings } from '$lib/constants';
 	import { localStorageStore, type DrawerSettings, drawerStore } from '@skeletonlabs/skeleton';
 	import { get, type Readable, type Writable } from 'svelte/store';
 
@@ -9,7 +10,7 @@
     const isNoAccount = get(noAccountStorage);
 
     if (isNoAccount) {
-        goto("/home");
+        // goto("/home");
     }
 
     function redirectToHome() {
@@ -19,12 +20,6 @@
         // localStorageStore('noAccount', true);
         goto("/home");
     }
-
-    const loginDrawerSettings: DrawerSettings = {
-		id: "login-drawer",
-		position: "right",
-		width: "w-[280px] md:w-[480px]",
-	}
 
 </script>
 

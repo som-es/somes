@@ -15,12 +15,12 @@
 	const parliamentUrl = new URL('$lib/assets/somes-browner.png', import.meta.url).href
 	drawerStore.close();
 
-	$: user = get(userStore);
+	// $: user = get(userStore);
 
-	$: profileLink = "/profile";
-	if (user == null) {
-		profileLink = "/";
-	}
+	const profileLink = "/profile";
+	// $: if (user == null) {
+		// profileLink = "/";
+	// }
 
 </script>
 
@@ -67,9 +67,7 @@
 		
 	<!--</AppBar>-->
 	<!-- This is where your app content will go -->
-	<div class="mt-5">
-		<slot />
-	</div>
+	<slot />
 	<div class="float-right2" style="margin: 15px">
 		<LightSwitch />
 	</div>

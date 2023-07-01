@@ -78,3 +78,14 @@ export interface UserInfo {
     username: string,
     email: string
 }
+
+export interface SignUpError {
+    missing_username: boolean,
+    missing_password: boolean,
+    missing_email: boolean,
+    username_taken: boolean,
+    email_taken: boolean,
+    invalid_email: boolean,
+    insufficient_password: boolean,
+    is_errorneous: boolean,
+}

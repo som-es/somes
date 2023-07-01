@@ -60,6 +60,8 @@ pub async fn reset_password(
         .unwrap()
         .unwrap();
 
+    // TODO: invalidate jwt on password change
+
     // update password in db
     // mind unwrap!
     // update_password_hash_at(&mut con, &username, &new_password_hash);

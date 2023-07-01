@@ -51,7 +51,7 @@
 
 </script>
 
-<div class="container mx-auto px-4">
+<div class="container mx-auto px-4 mt-5">
     <h1 class="text-primary-400">{welcomeMessage}{#if welcomeName} <span class="text-tertiary-400">{welcomeName}</span>!{/if}</h1>
     <h2 class="mt-5">Nationalrat</h2>
     Current news from the Austrian parliament

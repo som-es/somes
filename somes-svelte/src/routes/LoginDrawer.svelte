@@ -4,13 +4,20 @@
 
     // import { login } from '$lib/api';
 	import { drawerStore } from '@skeletonlabs/skeleton';
-	import { jwtStore, userStore } from '../stores/stores';
+	import { jwtStore, userStore, verificationMailStore } from '../stores/stores';
 	import { redirect } from '@sveltejs/kit';
 	import { goto } from '$app/navigation';
 	import { maybeGetUser } from '$lib/api/user';
+	import { get } from 'svelte/store';
 	// import Login from 'svelte-google-materialdesign-icons/Login.svelte';
 
     let username_or_email = "";
+
+    const verificationMail = get(verificationMailStore);
+    if (verificationMail != null) {
+        username_or_email = verificationMail;
+    }
+
     let pwd = "";
 
     let invalidCreds = "";
@@ -28,7 +35,9 @@
             if (user != null && !("error" in user)) {
                 userStore.set(user);
             }
-            
+
+            verificationMailStore.set(null);
+
             // userStore.set();
             goto("/home");
         }
@@ -49,7 +58,7 @@
     <label for="password">Passwort</label>
     <input id="password" placeholder="password" type="password" bind:value={pwd} />
 
-    <input type="submit" value="Anmelden" on:click={onLogin} />
+    <input type="button" value="Anmelden" on:click={onLogin} />
     <span class="text-red-500">{invalidCreds}</span>    
 
 </div>
@@ -77,7 +86,7 @@ input[type="password"] {
     box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
 }
 
-input[type="submit"] {
+input[type="button"] {
     /* background-color: #5c5cd6; */
     background-color: rgb(var(--color-tertiary-500));
     color: #fff;
@@ -90,7 +99,7 @@ input[type="submit"] {
     transition: all 0.3s ease;
 }
 
-input[type="submit"]:hover {
+input[type="button"]:hover {
     background-color: #fff;
     color: rgb(var(--color-tertiary-500));
 }

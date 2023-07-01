@@ -41,7 +41,7 @@ pub async fn signup(
     tokio::task::spawn_blocking(move || {
         // mails need to be encrypted!!! verify id could be grabbed
         if let Err(e) = send_verification_mail(&signup_info.email, &verification_id) {
-            log::warn!("Error sending verification email: {e:?}");
+            log::error!("Error sending verification email: {e:?}");
         }
     });
 

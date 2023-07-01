@@ -1,7 +1,7 @@
-import type { HasError, JWTInfo } from "$lib/types";
+import type { HasError, JWTInfo, SignUpError } from "$lib/types";
 import { address } from "../api";
 
-export async function register(username: string, email: string, password: string) {
+export async function register(username: string, email: string, password: string): Promise<SignUpError | null> {
     let response = await fetch(`http://${address}:3000/signup`, {
         method: "POST",
         headers: {
