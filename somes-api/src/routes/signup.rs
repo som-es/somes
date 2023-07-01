@@ -1,10 +1,10 @@
-use axum::{extract::State, Json};
+use axum::{Json};
 
 use somes_common_lib::SignUpInfo;
 
 use crate::{
-    email::send_verification_mail, internal_error,
-    routes::signup::action::validate_info_already_in_use_redis, server::AppState, RedisConnection,
+    email::send_verification_mail,
+    routes::signup::action::validate_info_already_in_use_redis, RedisConnection,
     SomesDbConnection,
 };
 

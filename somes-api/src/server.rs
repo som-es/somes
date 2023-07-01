@@ -21,8 +21,7 @@ use crate::{
         delegates_by_call_to_orders_by_legis_period, latest_legis_inits, latest_vote_results,
         legis_inits, parties, proposals, save_email, speakers_by_hours,
         speakers_by_hours_by_legis_period, user,
-    },
-    DATABASE_URL, DATASERVICE_URL, REDIS_DB,
+    }, DATASERVICE_URL, REDIS_DB,
 };
 use tower_http::cors::{Any, CorsLayer};
 

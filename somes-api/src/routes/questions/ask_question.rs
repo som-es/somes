@@ -92,7 +92,7 @@ pub async fn handle_send_mail_and_remove_question_on_failure(
     con: &deadpool_diesel::postgres::Object,
 ) {
     let mut remove_question = false;
-    if let Err(e) = send_mail(&MAILER, &delegate_mail, &title, body) {
+    if let Err(e) = send_mail(&MAILER, delegate_mail, title, body) {
         log::warn!("Error mailing question to delegate: {e}");
         remove_question = true;
     }

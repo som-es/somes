@@ -14,18 +14,20 @@ use axum::{
     extract::{FromRef, FromRequestParts},
     http::request::Parts,
 };
-use diesel::{Connection, PgConnection};
+
 // use diesel_async::{AsyncPgConnection, pooled_connection::AsyncDieselConnectionManager};
 use redis::AsyncCommands;
 use reqwest::StatusCode;
 
-use crate::{server::AppState, PostgresPool, DATABASE_URL};
+use crate::{server::AppState, PostgresPool};
 
 use self::model::NewUser;
 
 #[cfg(test)]
-pub fn establish_connection() -> PgConnection {
-    PgConnection::establish(DATABASE_URL).expect("Can't establish database conntection.")
+pub fn establish_connection() -> diesel::PgConnection {
+    use diesel::PgConnection;
+
+    <PgConnection as diesel::Connection>::establish(crate::DATABASE_URL).expect("Can't establish database conntection.")
 }
 
 pub struct RedisConnection(pub redis::aio::Connection);

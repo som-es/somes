@@ -12,7 +12,7 @@ use dataservice::db::{
     },
 };
 use diesel::{
-    sql_query, sql_types::Text, Connection, ExpressionMethods, PgConnection, QueryDsl, QueryResult,
+    sql_query, sql_types::Text, ExpressionMethods, PgConnection, QueryDsl, QueryResult,
     RunQueryDsl,
 };
 use serde::{Deserialize, Serialize};
@@ -20,7 +20,7 @@ use serde::{Deserialize, Serialize};
 use crate::{
     model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours},
     routes::{LegisPeriod, RequestFilter},
-    today, DATASERVICE_URL,
+    today,
 };
 
 // TODO: move all dataservice.rs function to the dataservice library
@@ -206,7 +206,7 @@ pub fn get_speakers_by_hours_by_legis_period(
 
 #[cfg(test)]
 pub fn dataservice_con() -> PgConnection {
-    PgConnection::establish(DATASERVICE_URL)
+    <PgConnection as diesel::Connection>::establish(crate::DATASERVICE_URL)
         .expect("Can't establish dataservice database conntection.")
 }
 
