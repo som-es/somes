@@ -32,10 +32,12 @@
         partyColorStorage.set(JSON.stringify(Array.from(partyToColor.entries())));
     }
     let welcomeMessage = "Welcome back!";
+    let welcomeName = "";
     
     const user = get(userStore);
     if (user != null) {
-        welcomeMessage = `Welcome back, ${user.username}!`;
+        welcomeMessage = "Welcome back, ";
+        welcomeName = user.username;
     }
 
     onMount(async function () {
@@ -50,7 +52,7 @@
 </script>
 
 <div class="container mx-auto px-4">
-    <h1 class="text-primary-400">{welcomeMessage}</h1>
+    <h1 class="text-primary-400">{welcomeMessage}{#if welcomeName} <span class="text-tertiary-400">{welcomeName}</span>!{/if}</h1>
     <h2 class="mt-5">Nationalrat</h2>
     Current news from the Austrian parliament
 

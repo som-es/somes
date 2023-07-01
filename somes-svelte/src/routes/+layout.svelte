@@ -67,7 +67,9 @@
 		
 	<!--</AppBar>-->
 	<!-- This is where your app content will go -->
-	<slot />
+	<div class="mt-5">
+		<slot />
+	</div>
 	<div class="float-right2" style="margin: 15px">
 		<LightSwitch />
 	</div>
