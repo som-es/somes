@@ -7,6 +7,7 @@ mod reset_password;
 mod save_email;
 mod signup;
 mod statistics;
+mod user;
 mod verify;
 
 pub use delegates::*;
@@ -18,4 +19,5 @@ pub use reset_password::*;
 pub use save_email::*;
 pub use signup::*;
 pub use statistics::*;
+pub use user::*;
 pub use verify::*;

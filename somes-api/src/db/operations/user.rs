@@ -30,6 +30,10 @@ pub fn update_password_hash_at(
         .execute(con)
 }
 
+pub fn get_user_from_db_by_id(con: &mut PgConnection, val_id: i32) -> Option<User> {
+    users.find(val_id).first::<User>(con).ok()
+}
+
 pub fn get_user_from_db(
     con: &mut PgConnection,
     login_username: &str,
