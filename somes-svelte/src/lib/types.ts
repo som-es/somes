@@ -65,3 +65,11 @@ export interface Party {
     color: string,
     fraction: number,
 }
+
+export interface HasError {
+    error: string
+}
+
+export interface JWT {
+    access_token: string,
+}

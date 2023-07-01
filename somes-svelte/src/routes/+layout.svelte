@@ -11,11 +11,12 @@
 	import LoginDrawer from './LoginDrawer.svelte';
 
 	const parliamentUrl = new URL('$lib/assets/somes-browner.png', import.meta.url).href
+	drawerStore.close();
 </script>
 
 <Drawer>
-    {#if $drawerStore.id === 'login-drawer'}
-    	<LoginDrawer />
+	{#if $drawerStore.id === 'login-drawer'}
+		<LoginDrawer />
     {/if}
 </Drawer>
 

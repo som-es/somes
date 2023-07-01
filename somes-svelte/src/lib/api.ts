@@ -1,3 +1,5 @@
+import { get } from "svelte/store";
+import { jwtStore } from "../stores/stores";
 import type { CallToOrdersPerPartyDelegate, Delegate, DelegateByCallToOrders, Party, SpeakerByHours, VoteResult } from "./types";
 
 export const address = "127.0.0.1";
@@ -84,7 +86,8 @@ export async function speakers_by_hours_and_legis_period(period: string): Promis
     let response = await fetch(`http://${address}:3000/speakers_by_hours_and_legis_period`, {
         method: "POST",
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            // "Authorization": `Bearer ${get(jwtStore)}` 
         },
         body: JSON.stringify({ period: period })
     });

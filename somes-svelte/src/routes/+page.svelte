@@ -26,8 +26,6 @@
 		width: "w-[280px] md:w-[480px]",
 	}
 
-    drawerStore.open(loginDrawerSettings);
-
 </script>
 
 <div class="h-full w-full background">
@@ -44,7 +42,7 @@
             <h2 class="text-tertiary-300 font-bold pt-28 text-center sm:text-left">Experience Democracy!</h2>
             
             <div class="flex justify-center sm:justify-start pt-6 self-center sm:pl-6">            
-                <button class="text-center bg-tertiary-500 text-white rounded-full px-14 h-9">Log In</button>
+                <button on:click={_ => drawerStore.open(loginDrawerSettings)} class="text-center bg-tertiary-500 text-white rounded-full px-14 h-9">Log In</button>
                 <button on:click="{_ => redirectToHome()}" class="ml-4 text-center bg-secondary-400 text-white rounded-full px-15 h-9">Continue without Account</button>
             </div>
             <div class="mt-2">

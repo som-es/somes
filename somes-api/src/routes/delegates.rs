@@ -4,7 +4,7 @@ use dataservice::db::models::{DbDelegate, DbProposalQuery};
 use crate::{
     dataservice::{get_delegates, get_proposals},
     routes::delegates::error::DelegatesErrorResponse,
-    DataserviceDbConnection,
+    DataserviceDbConnection, jwt::Claims,
 };
 
 mod error;
