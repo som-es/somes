@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { login } from '$lib/api/register';
-    import type { JWT, HasError } from '$lib/types';
+    import type { JWTInfo, HasError } from '$lib/types';
 
     // import { login } from '$lib/api';
 	import { drawerStore } from '@skeletonlabs/skeleton';
@@ -15,7 +15,7 @@
     let invalidCreds = "";
 
     const onLogin = async () => {
-        let res: JWT | HasError = await login(username_or_email, pwd);
+        let res: JWTInfo | HasError = await login(username_or_email, pwd);
         // check if res is a JWT or HasError
         if ("error" in res) {
             invalidCreds = "Benutzername oder Passwort falsch!"

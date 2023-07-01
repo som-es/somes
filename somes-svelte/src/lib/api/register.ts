@@ -1,4 +1,4 @@
-import type { HasError, JWT } from "$lib/types";
+import type { HasError, JWTInfo } from "$lib/types";
 import { address } from "../api";
 
 export async function register(username: string, email: string, password: string) {
@@ -13,7 +13,7 @@ export async function register(username: string, email: string, password: string
     return await response.json();
 }
 
-export async function login(username_or_email: string, password: string): Promise<JWT | HasError>  {
+export async function login(username_or_email: string, password: string): Promise<JWTInfo | HasError>  {
     let response = await fetch(`http://${address}:3000/login`, {
         method: "POST",
         headers: {

@@ -31,6 +31,7 @@ pub struct SignUpInfo {
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]
 pub struct UserInfo {
     pub username: String,
+    pub email: String,
 }
 
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]
@@ -38,7 +39,7 @@ pub struct JWTInfo {
     pub access_token: String,
 }
 
-#[derive(Debug, Deserialize, Serialize, Default, Clone)]
+#[derive(Debug, Deserialize, Serialize, Default, Clone, Copy)]
 pub struct Unit;
 
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]

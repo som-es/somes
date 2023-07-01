@@ -70,6 +70,11 @@ export interface HasError {
     error: string
 }
 
-export interface JWT {
+export interface JWTInfo {
     access_token: string,
+}
+
+export interface UserInfo {
+    username: string,
+    email: string
 }
