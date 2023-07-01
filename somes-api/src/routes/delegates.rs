@@ -3,7 +3,6 @@ use dataservice::db::models::{DbDelegate, DbProposalQuery};
 
 use crate::{
     dataservice::{get_delegates, get_proposals},
-    jwt::Claims,
     routes::delegates::error::DelegatesErrorResponse,
     DataserviceDbConnection,
 };
