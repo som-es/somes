@@ -87,7 +87,6 @@ export async function speakers_by_hours_and_legis_period(period: string): Promis
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            // "Authorization": `Bearer ${get(jwtStore)}` 
         },
         body: JSON.stringify({ period: period })
     });

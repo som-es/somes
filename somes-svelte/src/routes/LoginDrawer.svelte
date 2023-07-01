@@ -4,9 +4,10 @@
 
     // import { login } from '$lib/api';
 	import { drawerStore } from '@skeletonlabs/skeleton';
-	import { jwtStore } from '../stores/stores';
+	import { jwtStore, userStore } from '../stores/stores';
 	import { redirect } from '@sveltejs/kit';
 	import { goto } from '$app/navigation';
+	import { maybeGetUser } from '$lib/api/user';
 	// import Login from 'svelte-google-materialdesign-icons/Login.svelte';
 
     let username_or_email = "";
@@ -23,6 +24,12 @@
             invalidCreds = ""
             jwtStore.set(res.access_token);
             drawerStore.close();
+            const user = await maybeGetUser();
+            if (user != null && !("error" in user)) {
+                userStore.set(user);
+            }
+            
+            // userStore.set();
             goto("/home");
         }
     }

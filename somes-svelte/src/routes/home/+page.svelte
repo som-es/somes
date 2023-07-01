@@ -5,7 +5,7 @@
 	import type { Delegate, Party, VoteResult } from "$lib/types";
 	import { delegates, latest_vote_results, parties } from "$lib/api";
     import { onMount } from "svelte";
-	import type { Writable } from "svelte/store";
+	import { get, type Writable } from "svelte/store";
 	import { localStorageStore } from "@skeletonlabs/skeleton";
 	import VoteParliament from "../VoteParliament.svelte";
     import SpeakersByHours from "../SpeakersByHours.svelte";
@@ -14,6 +14,8 @@
 	import CallToOrders from "../CallToOrders.svelte";
 	import OtherCallToOrders from "../OtherCallToOrders.svelte";
 	import OtherSpeakersByHours from "../OtherSpeakersByHours.svelte";
+	import { maybeGetUser } from "$lib/api/user";
+	import { userStore } from "../../stores/stores";
 
     let dels: Delegate[];
 
@@ -29,10 +31,16 @@
         });
         partyColorStorage.set(JSON.stringify(Array.from(partyToColor.entries())));
     }
+    let welcomeMessage = "Welcome back!";
+    
+    const user = get(userStore);
+    if (user != null) {
+        welcomeMessage = `Welcome back, ${user.username}!`;
+    }
 
     onMount(async function () {
         await updateColorStorage();
-
+    
         const austrianDelegates = await delegates();
         dels = austrianDelegates.filter(delegate => delegate.council === "nr");
 
@@ -42,7 +50,7 @@
 </script>
 
 <div class="container mx-auto px-4">
-    <h1 class="text-primary-400">Welcome back!</h1>
+    <h1 class="text-primary-400">{welcomeMessage}</h1>
     <h2 class="mt-5">Nationalrat</h2>
     Current news from the Austrian parliament
 

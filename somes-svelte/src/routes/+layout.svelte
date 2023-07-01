@@ -9,9 +9,19 @@
 	import '../app.postcss';
 	import { AppShell, Drawer, LightSwitch, drawerStore } from '@skeletonlabs/skeleton';
 	import LoginDrawer from './LoginDrawer.svelte';
+	import { userStore } from '../stores/stores';
+	import { get } from 'svelte/store';
 
 	const parliamentUrl = new URL('$lib/assets/somes-browner.png', import.meta.url).href
 	drawerStore.close();
+
+	$: user = get(userStore);
+
+	$: profileLink = "/profile";
+	if (user == null) {
+		profileLink = "/";
+	}
+
 </script>
 
 <Drawer>
@@ -45,7 +55,8 @@
 			</svg>
 			</div>
 		</a>
-		<a href="/profile">
+		
+		<a href={profileLink}>
 			<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30">
 				<path id="Pfad_8" data-name="Pfad 8" d="M15,15c4.734,0,8.571-3.358,8.571-7.5S19.734,0,15,0,6.429,3.358,6.429,7.5,10.266,15,15,15Zm-3.06,2.812C5.344,17.812,0,22.488,0,28.26A1.877,1.877,0,0,0,1.989,30H28.011A1.877,1.877,0,0,0,30,28.26c0-5.771-5.344-10.447-11.94-10.447Z" fill="#fff"/>
 			</svg>                  

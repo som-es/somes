@@ -136,7 +136,7 @@ pub async fn serve(addr: SocketAddr) {
             CorsLayer::new()
                 .allow_origin(Any)
                 .allow_methods([http::Method::GET, http::Method::POST])
-                .allow_headers([http::header::CONTENT_TYPE]),
+                .allow_headers([http::header::CONTENT_TYPE, http::header::AUTHORIZATION]),
         )
         .with_state(state);
     //.with_state(verification_map)
