@@ -20,7 +20,7 @@ use crate::{
         call_to_orders_per_party_delegates, delegate_by_call_to_orders, delegates,
         delegates_by_call_to_orders_by_legis_period, latest_legis_inits, latest_vote_results,
         legis_inits, parties, proposals, save_email, speakers_by_hours,
-        speakers_by_hours_by_legis_period, user,
+        speakers_by_hours_by_legis_period, user
     }, DATASERVICE_URL, REDIS_DB,
 };
 use tower_http::cors::{Any, CorsLayer};

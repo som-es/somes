@@ -36,3 +36,4 @@ common-scrapes = { path = "../../common-scrapes" }
 dataservice = { path = "../../dataservice", default-features=false, features=["models"] }
 chrono = "0.4.24"
 lettre = "0.10.4"
+imap = { version = "3.0.0-alpha.10", features = ["rustls-tls"] }

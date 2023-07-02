@@ -25,8 +25,7 @@
     	target: 'userErrorPopup'
     };
 
-    let waitForVerification = true;
-
+    let waitForVerification = false;
 </script>
 
 {#if !waitForVerification}
