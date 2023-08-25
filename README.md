@@ -12,10 +12,12 @@ The source code of the somes repository.
 
     A rust library containing common structures and code that should be used interoperability between the backend and the frontend applications, which are written in Rust. (e.g. `LoginInfo` is probably the same for both ends.)
 
-- **`somes-frontend`**
+- **`somes-frontend`** (outdated -> the frontend is now located in `somes-svelte`)
 
     The somes frontend. It is written in [`Yew`], however, this may change during the development process.
 
+- **`somes-svelte`**
+    The real actual somes frontend, written with svelte.
 
 [`axum`]: https://github.com/tokio-rs/axum
 [`yew`]: https://github.com/yewstack/yew
@@ -25,16 +27,40 @@ The source code of the somes repository.
 ### Prerequisites
 - **Rust** v1.64 or higher (with cargo)
 - preferably `Visual Studio Code` with the `rust-analyzer` extension
-- **trunk** -> is used to launch a debug version of the frontend
+- **Node**, **npm**
+- **postgresql**
+- **redis** key value store/database
+- **diesel-cli** runs database migrations -> `cargo install diesel_cli --no-default-features --features postgres`
 
-    install via `cargo install --locked trunk`
+- **[`dataservice`]** different repo - somes software for scraping and storing gathered data (and do some dl with it) 
 
-- **libsqlite3** relational database 
-- **redis** key value database 
+[`dataservice`]: https://github.com/som-es/dataservice
+
+### Setup
+
+- **dataservice** (used for somes-api)
+    - postgres (steps are available for debian in `README` of [`dataservice`])
+        - create `dataservice` database
+        - you may want to change the user and password (also update this in the `.env` file (`DATASERVICE_URL`))
+            - this env variable exists in `dataservice` and `somes`!
+
+        - run migrations with diesel: `diesel migration run`
+    - let the scraping begin
+        - `DISABLE_SPEECH_TEXT="true" cargo run --release`
+        
+
+- **somes-svelte**
+    `npm -i install`
 
 ### Running (debug)
-- **somes-api**: `cargo run --release`
-- **somes-frontend**: `trunk serve --release`
+
+Changes made to the api may be automatically reflected with `cargo-watch` (`cargo install cargo-watch`)
+
+- **somes-api**: `JWT_SECRET="supersicher" cargo run --release`
+    Start redis-server
+    Start postgres
+- **somes-svelte**: `npm run dev`
+    You may want to change the api endpoint in `src/lib/api.ts`
 
 ## Contributing
 
