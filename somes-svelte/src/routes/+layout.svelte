@@ -32,10 +32,15 @@
 
 <!-- App Shell -->
 <AppShell>
-	<section class="bg-primary-800 demo">
+	<section class="bg-primary-800 demo flex justify-between items-center px-4">
 		<!-- <img class="mx-4 w-1/6" src="{parliamentUrl}"/> -->
-		<img class="mx-4" style="width: 24vh;" src="{parliamentUrl}" alt="somes log"/>
-		
+		<!-- <div style = "width: 100%; height: 20px"> -->
+	
+		<img class="mx-4" style="width: 24vh;" src="{parliamentUrl}" alt="somes logo"/>
+		<div>
+			<LightSwitch />
+		</div>
+		<!-- </div> -->
 	</section>
 	<nav class="bg-primary-500 navbar">
 		<a href="">
@@ -68,9 +73,7 @@
 	<!--</AppBar>-->
 	<!-- This is where your app content will go -->
 	<slot />
-	<div class="float-right2" style="margin: 15px">
-		<LightSwitch />
-	</div>
+
 </AppShell>
 
 <style>

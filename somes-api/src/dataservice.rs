@@ -238,7 +238,8 @@ pub fn get_latest_legislative_initiatives(
     con: &mut PgConnection,
 ) -> QueryResult<Vec<DbLegislativeInitiativeQuery>> {
     legislative_initiatives
-        .filter(created_at.gt(today() - chrono::Duration::days(30)))
+        // make the date range configurable as user !
+        .filter(created_at.gt(today() - chrono::Duration::days(90)))
         .filter(created_at.lt(today()))
         .filter(accepted.is_not_null())
         .order(created_at.desc())

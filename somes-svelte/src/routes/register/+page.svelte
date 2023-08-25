@@ -29,7 +29,7 @@
 </script>
 
 {#if !waitForVerification}
-<div class="login_container flex flex-col">
+<div class="login_container flex flex-col text-black">
     <h2 class="text-center">Registrierung</h2>
     <label for="username">Benutzername</label>
     <span class="text-red-500">{userErrorMessage}</span>

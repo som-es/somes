@@ -46,7 +46,7 @@
 
 </script>
 
-<div class="login_container flex flex-col">
+<div class="login_container flex flex-col text-black">
     <span on:click={
         () => {
             drawerStore.close();
