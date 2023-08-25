@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { speakers_by_hours, speakers_by_hours_and_legis_period } from '$lib/api';
-	import { getPartyToColor, partyToColorFn } from '$lib/getPartyToColor';
+	import { partyToColorFn } from '$lib/getPartyToColor';
 	import type { SpeakerByHours } from '$lib/types';
     import * as d3 from 'd3';
 	import { onMount } from 'svelte';
@@ -12,8 +12,6 @@
 
     var data0: {group: string, value: number}[] = [];
     var sliceDelegatesByCallToOrders: SpeakerByHours[] = [];
-
-    const partyToColor = getPartyToColor();
 
     onMount(async () => {
         const delegatesByCallToOrders = await speakers_by_hours();
@@ -84,7 +82,7 @@
                 .attr("height", y.bandwidth())
                 // .attr("width", function(d) { return height - y(d.value); })
                 .attr("width", function(d) { return x(d.hours_spoken); })
-                .attr("fill", (d) => partyToColorFn(partyToColor, d.party))
+                .attr("fill", (d) => partyToColorFn(d.party))
         
             
             // If less group in the new dataset, I delete the ones not in use anymore

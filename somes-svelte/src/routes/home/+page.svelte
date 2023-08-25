@@ -1,5 +1,4 @@
 <script lang="ts">
-
 	import AutoSelectParliament from "../AutoSelectParliament.svelte";
     import LegisInitCard from "../LegisInitCard.svelte";
 	import type { Delegate, Party, VoteResult } from "$lib/types";

@@ -123,7 +123,7 @@
 </script>
 
 <div>
-    <div class="chart" bind:this={chart}></div>
+    <div class="chart" bind:this={chart} />
 </div>
 
 <style>

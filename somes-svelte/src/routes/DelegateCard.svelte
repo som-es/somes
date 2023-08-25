@@ -10,15 +10,20 @@
 
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<div class="card card-hover h-[32rem] aspect-[3/4] overflow-hidden grid grid-rows-[max-content_1fr_max-content] drop-shadow-lg hover:cursor-pointer">
-<!-- <div class="card"> -->
+<div class="card card-hover h-[60vh] aspect-[3/5] overflow-hidden grid grid-rows-[max-content_1fr_max-content] drop-shadow-lg hover:cursor-pointer">
 	<header>
-        <img src={image} class="bg-black/50 w-full aspect-[10/9]" alt="image of politician {name}">
+        <img src={image} class="bg-black/50 w-full aspect-[1/1]" alt="image of politician {name}">
     </header>
-	<section class="p-4"><h4>{name}</h4><span>{party}</span></section>
+	<section class="p-4">
+        <h4>
+            {name}
+        </h4>
+        <span>
+            {party}
+        </span>
+    </section>
     <hr class="!border-t-2 my-4" />
 	<footer class="card-footer flex justify-between items-center">
-        <span>Hallo</span>
+        <span>Lorem Ipsum</span>
     </footer>
 </div>

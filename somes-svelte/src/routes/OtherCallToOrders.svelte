@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { delegates_by_call_to_orders, delegates_by_call_to_orders_and_legis_period } from '$lib/api';
-	import { getPartyToColor, partyToColorFn } from '$lib/getPartyToColor';
+	import { partyToColorFn } from '$lib/getPartyToColor';
 	import type { DelegateByCallToOrders } from '$lib/types';
     import * as d3 from 'd3';
 	import { onMount } from 'svelte';
@@ -12,8 +12,6 @@
 
     var data0: {group: string, value: number}[] = [];
     var sliceDelegatesByCallToOrders: DelegateByCallToOrders[] = [];
-
-    const partyToColor = getPartyToColor();
 
     onMount(async () => {
         const delegatesByCallToOrders = await delegates_by_call_to_orders();
@@ -82,7 +80,7 @@
                 .attr("height", y.bandwidth())
                 // .attr("width", function(d) { return height - y(d.value); })
                 .attr("width", function(d) { return x(d.call_to_order_amount); })
-                .attr("fill", (d) => partyToColorFn(partyToColor, d.party))
+                .attr("fill", (d) => partyToColorFn(d.party))
         
             
             // If less group in the new dataset, I delete the ones not in use anymore

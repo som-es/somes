@@ -4,7 +4,7 @@
 	import { onDestroy, onMount } from "svelte";
     import { localStorageStore } from '@skeletonlabs/skeleton';
     import type { Writable } from 'svelte/store';
-	import { getPartyToColor } from "$lib/getPartyToColor";
+	import { getPartyToColor, partyToColorFn } from "$lib/getPartyToColor";
 	
     export let seats: number[];
     export let dels: Delegate[];
@@ -15,14 +15,6 @@
     let circles2d: Bubble[][] = setupParliament(seats, width, height, 6.9);
 
     const partyToColorMap = getPartyToColor();
-
-    function partyToColorFn(party: string): string {
-        const color = partyToColorMap.get(party)
-        if (color == null) {
-            return "#B8B8B8";
-        }
-        return color;
-    }
 
     dels.forEach((del) => {
         setDelOnBubble(del, circles2d, partyToColorFn);
