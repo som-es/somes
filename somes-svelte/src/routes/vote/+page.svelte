@@ -1,12 +1,11 @@
 <script lang="ts">
-    import { delegates, latest_vote_results } from '$lib/api';
+    import { delegates } from '$lib/api';
 	import { onMount } from "svelte";
-	import type { Delegate, LegislativeInitiative, VoteResult } from "$lib/types";
+	import type { Delegate, VoteResult } from "$lib/types";
 	import VoteParliament from '../VoteParliament.svelte';
 	import { get, type Readable } from 'svelte/store';
 	import { localStorageStore } from '@skeletonlabs/skeleton';
 	
-    
     let dels: Delegate[];
     
     onMount(async function () {
@@ -18,16 +17,17 @@
     let voteResult: VoteResult | null = get(currentLegisInitStorage);
 </script>
 
-<div class="container mx-auto px-4">
+<div class="flex flex-col">
     {#if dels && voteResult}
-        <h3>{voteResult.legislative_initiative.title}</h3>
-        <h5>Akzeptiert: {voteResult.legislative_initiative.accepted ? "Ja" : "Nein"}</h5>
-        <!-- <h5>{voteResult.legislative_initiative.}</h5> -->
-        <div style="width: 100rem; max-width: 100%;">
+        <div class="self-center">
+            <h3>{voteResult.legislative_initiative.title}</h3>
+            <h5>Akzeptiert: {voteResult.legislative_initiative.accepted ? "Ja" : "Nein"}</h5>
+        </div>
+        <div class="self-center m-auto w-7/12">
             <VoteParliament 
                 dels={dels} 
                 seats={[20, 27, 37, 43, 48, 54]} 
-                voteResult={voteResult} 
+                voteResult={voteResult}
             />
         </div>
     {:else}

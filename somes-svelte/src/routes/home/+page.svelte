@@ -1,6 +1,5 @@
 <script lang="ts">
 	import AutoSelectParliament from "../AutoSelectParliament.svelte";
-    import LegisInitCard from "../LegisInitCard.svelte";
 	import type { Delegate, Party, VoteResult } from "$lib/types";
 	import { delegates, latest_vote_results, parties } from "$lib/api";
     import { onMount } from "svelte";
@@ -10,7 +9,6 @@
     import SpeakersByHours from "../SpeakersByHours.svelte";
 	import { goto } from "$app/navigation";
 	import CallToOrdersPerPartyDelegates from "../CallToOrdersPerPartyDelegates.svelte";
-	import CallToOrders from "../CallToOrders.svelte";
 	import OtherCallToOrders from "../OtherCallToOrders.svelte";
 	import OtherSpeakersByHours from "../OtherSpeakersByHours.svelte";
 	import { maybeGetUser } from "$lib/api/user";
@@ -60,20 +58,26 @@
             <p class="no-news">Keine Neuigkeiten verfügbar</p>
         {/if}
         <div class="card-container">
-            {#each voteResults as voteResult}
+            {#each voteResults as voteResult, i}
             <span class="card tile">
                 <div class="tile-content">
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <div class="mx-1 w-[360px]"
-                    on:click={() => {
+                        on:click={() => {
                             currentLegisInitStorage.set(voteResult);
                             goto('/vote');
                         }}
+                        on:keypress={() => {
+                            currentLegisInitStorage.set(voteResult);
+                            goto('/vote');
+                        }}
+                        role="link"
+                        tabindex={10+i}
                     >
                         <VoteParliament
                             dels={dels}
                             seats={[20, 27, 37, 43, 48, 54]}
                             voteResult={voteResult}
+                            preview={true}
                         />
                     </div>
                     <span class="mx-3 text-left">{voteResult.legislative_initiative.description}</span>
@@ -117,15 +121,6 @@
     <p class="mt-3">
         The top speakers of the Nationalrat by hours spoken
         <OtherSpeakersByHours />
-    </p>
-    <!-- <p class="mt-3"> -->
-        <!-- The top speakers of the Nationalrat by hours spoken -->
-        <!-- <SpeakersByHours /> -->
-    <!-- </p> -->
-    
-    <p class="mt-3">
-        Top call to orders receivers (make selectable: ALL TIME, XXVII, XXVI, XXV, .. by party?)
-        <CallToOrders />
     </p>
 
     <p class="mt-3">

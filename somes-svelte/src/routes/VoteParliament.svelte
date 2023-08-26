@@ -1,3 +1,4 @@
+<!-- TODO: merge this and the Parliament component in to one -->
 <script lang="ts">
 	import { getPartyToColor } from "$lib/getPartyToColor";
 	import { setupParliament, type Bubble, setDelOnBubble } from "$lib/parliament";
@@ -6,6 +7,7 @@
     export let seats: number[];
     export let dels: Delegate[];
     export let voteResult: VoteResult;
+    export let preview: boolean = false;
 
     const width = 830;
     const height = 900;
@@ -21,11 +23,11 @@
     let circles2d: Bubble[][] = setupParliament(seats, width, height, 6.9);
     let selected: Bubble;
 
-    function select(bubble: Bubble, event: MouseEvent | null) {
-        circles2d = circles2d;
+    function select(bubble: Bubble, event: MouseEvent | KeyboardEvent | null) {
         if (event != null) {
             event.stopPropagation();
         }
+
         selected = bubble;
         console.log(selected);
 	}
@@ -33,10 +35,12 @@
     const partyToColorMap = getPartyToColor();
 
     function partyToColor(party: string): string {
-        const color = partyToColorMap.get(party)
+        const color = partyToColorMap.get(party);
+
         if (color == null) {
             return "#B8B8B8";
         }
+
         return color;
     }
 
@@ -53,8 +57,9 @@
 
         if (partyInfavorMap.has(bubble.del.party)) {
             bubble.opacity = partyInfavorMap.get(bubble.del.party) ? 1 : 0.16;
-            return
+            return;
         }
+
         bubble.opacity = 1;
     }
 
@@ -64,72 +69,32 @@
         if (del.seat_col != null && del.seat_row != null) {
             setOpacity(circles2d[del.seat_row-1][del.seat_col-1]);
         }
-
     });
 
     voteResult.speeches.forEach((speech) => {
         let del = findDelegateFromId(speech.delegate_id);
-        if (del == null) {
-            return;
-        }
+        if (del == null 
+            || del.seat_col == null 
+            || del.seat_row == null) return;
 
-        if (del.seat_col == null || del.seat_row == null) {
-            return;
-        }
-
-        if (speech.infavor) {
-            circles2d[del.seat_row-1][del.seat_col-1].opacity = 1.0;            
-        } else {
-            circles2d[del.seat_row-1][del.seat_col-1].opacity = 0.2;
-        }
-
+        circles2d[del.seat_row-1][del.seat_col-1].opacity = speech.infavor ? 1.0 : 0.2;
         circles2d[del.seat_row-1][del.seat_col-1].r = +10.9;
     });
-
-    function getTransform(bubble: Bubble): string {
-        if (bubble.del == null) {
-            return "";
-        }
-
-        if (isPartyInFavor(bubble.del.party)) {
-            // return "rotate3d(0, 2, 1, 10deg)";
-
-            // decrease r for circle creation?
-            return "transform: skewY(3.3deg);";
-        }
-        return "";
-    }
 </script>
 
-<div>
+<div style="pointer-events: { preview ? "none" : "auto"}">
     <svg viewBox="0 0 {width} {height * 0.5+60}" style="max-width: 100%;">
-        {#each circles2d.flat(1) as circle}
-            {#if circle == selected}
-                <circle class="translated-circle" style="{getTransform(circle)}" type="button" cx={circle.x} cy={circle.y} r={circle.r}
-                    on:click={event => select(circle, event)}
-                    fill={circle.color}
-                    fill-opacity={circle.opacity}
-                    stroke="orange"
-                    stroke-width="4"
-                />
-            {:else}
-                <circle class="translated-circle" style="{getTransform(circle)}" type="button" cx={circle.x} cy={circle.y} r={circle.r}
-                    on:click={event => select(circle, event)}
-                    fill={circle.color}
-                    fill-opacity={circle.opacity}
-                />
-            {/if}
-            <div class="box">B</div>
-            
-            <div class="overlay">Overlay</div>
+        {#each circles2d.flat(1) as circle, i}
+            <circle class="translated-circle" type="button" cx={circle.x} cy={circle.y} r={circle.r}
+                role="button"
+                on:click={event => select(circle, event)}
+                on:keypress={event => select(circle, event)}
+                fill={circle.color}
+                fill-opacity={circle.opacity}
+                tabindex={100+i}
+                stroke={circle == selected ? "orange" : ""}
+                stroke-width={circle == selected ? "4" : ""}
+            />
         {/each}
     </svg>
 </div>
-
-<style>
-.translated-circle {
-  /* transform: translateZ(50px);  move closer to viewer */
-  /* transform: rotate3d(0, 2, 1, 31deg); */
-}
-
-</style>
