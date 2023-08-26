@@ -1,7 +1,7 @@
-<script lang='ts'>
-	import { AppShell} from '@skeletonlabs/skeleton';
+<script lang="ts">
+	import { AppShell } from "@skeletonlabs/skeleton";
 </script>
 
 <AppShell>
-    <slot />
+	<slot />
 </AppShell>

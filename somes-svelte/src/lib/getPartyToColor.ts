@@ -2,24 +2,24 @@ import { localStorageStore } from "@skeletonlabs/skeleton";
 import { get } from "svelte/store";
 
 export function getPartyToColor(): Map<string, string> {
-    const partyColors: string = get(localStorageStore('parties', ""));
+	const partyColors: string = get(localStorageStore("parties", ""));
 
-    if (partyColors == "") {
-        return new Map()
-    }
-    
-    return new Map(JSON.parse(partyColors));
+	if (partyColors == "") {
+		return new Map();
+	}
+
+	return new Map(JSON.parse(partyColors));
 }
 
 export function partyToColorFn(party: string | null): string {
-    if (party == null) {
-        return "#B8B8B8";
-    }
-    
-    const color = getPartyToColor().get(party);
-    if (color == null) {
-        return "#B8B8B8";
-    }
+	if (party == null) {
+		return "#B8B8B8";
+	}
 
-    return color;
+	const color = getPartyToColor().get(party);
+	if (color == null) {
+		return "#B8B8B8";
+	}
+
+	return color;
 }

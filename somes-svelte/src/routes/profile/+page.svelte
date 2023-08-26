@@ -10,29 +10,33 @@
 	if (!user) {
 		goto("/");
 	}
-	 
 </script>
 
 <div>
-<input value="Abmelden" type="button" on:click={async () => {
-	userStore.set(null);
-	jwtStore.set(null);
-	goto("/");
-}} />
+	<input
+		value="Abmelden"
+		type="button"
+		on:click={async () => {
+			userStore.set(null);
+			jwtStore.set(null);
+			goto("/");
+		}}
+	/>
 </div>
 
-<style>
-input[type="button"] {
-	/* background-color: #5c5cd6; */
-    background-color: rgb(var(--color-tertiary-500));
-	color: #fff;
-	padding: 10px;
-	border: none;
-	border-radius: 5px;
-	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-	font-size: 20px;
-	cursor: pointer;
-	transition: all 0.3s ease;
-}
-</style>
 <!-- <LightSwitch class="float-right" /> -->
+
+<style>
+	input[type="button"] {
+		/* background-color: #5c5cd6; */
+		background-color: rgb(var(--color-tertiary-500));
+		color: #fff;
+		padding: 10px;
+		border: none;
+		border-radius: 5px;
+		box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+		font-size: 20px;
+		cursor: pointer;
+		transition: all 0.3s ease;
+	}
+</style>
