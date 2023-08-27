@@ -1,6 +1,6 @@
 use std::{env, error::Error};
 
-use super::{SMTP_USERNAME, SMTP_PASSWORD};
+use super::{SMTP_PASSWORD, SMTP_USERNAME};
 
 #[test]
 fn test_read_mailbox() -> Result<(), Box<dyn Error>> {
@@ -23,7 +23,6 @@ fn fetch_inbox_top(
     password: String,
     port: u16,
 ) -> Result<Option<String>, Box<dyn Error>> {
-    
     let client = imap::ClientBuilder::new(&host, port).native_tls()?;
     // the client we have here is unauthenticated.
     // to do anything useful with the e-mails, we need to log in

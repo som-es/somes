@@ -30,7 +30,6 @@ pub fn update_password_hash_at(
         .execute(con)
 }
 
-
 /// MIND: this is a general purpose user getting function. It also returns the password hash!
 /// Do not forget to remove the password hash from the user before returning it to the client!
 /// As `User´ does not implement `Serialize´, this should not happen in the first case. Be careful nonetheless!

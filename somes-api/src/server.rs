@@ -6,29 +6,33 @@ use axum::{
     routing::{get, post},
     Router,
 };
+use dataservice::db::models::{DbLegislativeInitiativeQuery, DbParty};
 // use diesel_async::pooled_connection::AsyncDieselConnectionManager;
 use log::{error, info};
 use somes_common_lib::{
     CALL_TO_ORDERS_PER_PARTY_DELEGATES, DELEGATES_BY_CALL_TO_ORDERS,
     DELEGATES_BY_CALL_TO_ORDERS_AND_LEGIS_PERIOD, DELEGATES_ROUTE, LATEST_LEGIS_INITS_ROUTE,
     LATEST_VOTE_RESULTS_ROUTE, LEGIS_INIT_ROUTE, LOGIN_ROUTE, PARTIES, PROPOSALS_ROUTE,
-    SIGNUP_ROUTE, SPEAKERS_BY_HOURS, SPEAKERS_BY_HOURS_AND_LEGIS_PERIOD, VERIFY_ROUTE, USER,
+    SIGNUP_ROUTE, SPEAKERS_BY_HOURS, SPEAKERS_BY_HOURS_AND_LEGIS_PERIOD, USER, VERIFY_ROUTE,
 };
-use utoipa::{openapi, OpenApi};
+use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 //use headers::HeaderValue;
 use crate::{
+    dataservice::VoteResult,
+    model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours},
     routes::{
-        call_to_orders_per_party_delegates, delegate_by_call_to_orders, delegates,
-        delegates_by_call_to_orders_by_legis_period, latest_legis_inits, latest_vote_results,
+        call_to_orders_per_party_delegates, delegates, delegates_by_call_to_orders,
+        delegates_by_call_to_orders_and_legis_period, latest_legis_inits, latest_vote_results,
         legis_inits, parties, proposals, save_email, speakers_by_hours,
-        speakers_by_hours_by_legis_period, user
-    }, DATASERVICE_URL, REDIS_DB,
+        speakers_by_hours_and_legis_period, user,
+    },
+    DATASERVICE_URL, REDIS_DB,
 };
 use tower_http::cors::{Any, CorsLayer};
 
-use crate::routes::{login, signup, verify};
 use crate::routes::*;
+use crate::routes::{login, signup, verify};
 use somes_common_lib::errors::*;
 use somes_common_lib::*;
 
@@ -51,33 +55,18 @@ impl AppState {
         dataservice_db_pool: deadpool_diesel::postgres::Pool,
     ) -> AppState {
         AppState {
-            //      verification_map: Default::default(),
-            //redis_client: Arc::new(RwLock::new(client)),
             redis_client,
             somes_db_pool,
             dataservice_db_pool,
         }
     }
 }
-/*
-impl FromRef<AppState> for VerificationMap {
-    fn from_ref(app_state: &AppState) -> VerificationMap {
-        app_state.verification_map.clone()
-    }
-}*/
-
-/*impl FromRef<AppState> for RedisClient {
-    fn from_ref(app_state: &AppState) -> RedisClient {
-        app_state.redis_client.clone()
-    }
-}*/
 
 impl FromRef<AppState> for redis::Client {
     fn from_ref(app_state: &AppState) -> redis::Client {
         app_state.redis_client.clone()
     }
 }
-
 
 //pub type RedisClient = Arc<RwLock<redis::Client>>;
 
@@ -94,14 +83,34 @@ pub async fn serve(addr: SocketAddr) {
         paths(
             signup,
             verify,
-            login
+            login,
+            delegates,
+            proposals,
+            legis_inits,
+            latest_legis_inits,
+            latest_vote_results,
+            speakers_by_hours,
+            delegates_by_call_to_orders,
+            speakers_by_hours_and_legis_period,
+            call_to_orders_per_party_delegates,
+            delegates_by_call_to_orders_and_legis_period,
+            user,
+            parties
         ),
         components(
             schemas(
-                SignUpInfo, SignUpErrorResponse, 
-                SignUpErrorWrapper, SignUpError, 
-                JWTInfo, VerifyErrorResponse, 
-                crate::AuthError
+                SignUpInfo, SignUpErrorResponse,
+                SignUpErrorWrapper, SignUpError,
+                JWTInfo, VerifyErrorResponse,
+                crate::AuthError, dataservice::db::models::DbDelegate,
+                DelegatesErrorResponse, dataservice::db::models::DbProposalQuery,
+                DbLegislativeInitiativeQuery, LegisInitErrorResponse,
+                RequestFilter, VoteResult,
+                LegisPeriod, SpeakerByHours,
+                DelegateByCallToOrders, CallToOrdersPerPartyDelegates,
+                UserInfo, UserErrorResponse,
+                DbParty, PartiesErrorResponse
+
             ),
         ),
         // modifiers(&SecurityAddon),
@@ -128,10 +137,10 @@ pub async fn serve(addr: SocketAddr) {
 
     let dataservice_db_pool = deadpool_diesel::postgres::Pool::builder(dataservice_db_manager)
         .build()
-        .unwrap();   
-    
+        .unwrap();
+
     let state = AppState::new(client, somes_db_pool, dataservice_db_pool).await;
-    
+
     let app = Router::new()
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .route(SIGNUP_ROUTE, post(signup))
@@ -144,14 +153,17 @@ pub async fn serve(addr: SocketAddr) {
         .route(LATEST_VOTE_RESULTS_ROUTE, get(latest_vote_results))
         // statistics
         .route(SPEAKERS_BY_HOURS, get(speakers_by_hours))
-        .route(DELEGATES_BY_CALL_TO_ORDERS, get(delegate_by_call_to_orders))
+        .route(
+            DELEGATES_BY_CALL_TO_ORDERS,
+            get(delegates_by_call_to_orders),
+        )
         .route(
             DELEGATES_BY_CALL_TO_ORDERS_AND_LEGIS_PERIOD,
-            post(delegates_by_call_to_orders_by_legis_period),
+            post(delegates_by_call_to_orders_and_legis_period),
         )
         .route(
             SPEAKERS_BY_HOURS_AND_LEGIS_PERIOD,
-            post(speakers_by_hours_by_legis_period),
+            post(speakers_by_hours_and_legis_period),
         )
         .route(PARTIES, get(parties))
         .route(

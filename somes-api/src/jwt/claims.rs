@@ -5,10 +5,11 @@ use headers::{authorization::Bearer, Authorization};
 use jsonwebtoken::{decode, Validation};
 use serde::{Deserialize, Serialize};
 use somes_common_lib::time::timestamp_secs;
+use utoipa::IntoParams;
 
 use super::{error::AuthError, keys::KEYS};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(IntoParams, Debug, Serialize, Deserialize)]
 pub struct Claims {
     pub id: i32,
     pub sub: String,

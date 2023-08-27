@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use utoipa::{ToSchema, IntoParams};
+use utoipa::{IntoParams, ToSchema};
 
 /// 'ResetPasswordInfo' is used to send a reset password request to the server.
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]

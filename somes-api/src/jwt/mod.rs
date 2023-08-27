@@ -2,9 +2,9 @@ mod claims;
 mod error;
 mod keys;
 
-pub use error::*;
 pub use claims::Claims;
 pub use error::AuthError;
+pub use error::*;
 pub use keys::KEYS;
 
 use axum::Json;

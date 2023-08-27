@@ -2,6 +2,7 @@ use axum::Json;
 use chrono::NaiveDate;
 use dataservice::db::models::DbLegislativeInitiativeQuery;
 use serde::{Deserialize, Serialize};
+use utoipa::{IntoParams, ToSchema};
 
 use crate::{
     dataservice::{
@@ -11,16 +12,27 @@ use crate::{
     DataserviceDbConnection,
 };
 
-use self::error::LegisInitErrorResponse;
-
+pub use error::*;
 mod error;
 
-#[derive(Debug, Deserialize, Serialize, Default, Clone)]
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct RequestFilter {
     pub start: NaiveDate,
     pub end: NaiveDate,
 }
 
+#[utoipa::path(
+    post,
+    path = "/legis_inits", 
+    params(
+        RequestFilter
+    ),
+    responses(
+        (status = 200, description = "Returned legislative initiatives successfully.", body = [Vec<DbLegislativeInitiativeQuery>]), 
+        (status = 400, description = "Invalid request", body = [LegisInitErrorResponse]),
+        (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
+    )
+)]
 pub async fn legis_inits(
     DataserviceDbConnection(postgres_con): DataserviceDbConnection,
     Json(filter): Json<RequestFilter>,
@@ -35,6 +47,18 @@ pub async fn legis_inits(
         .map_err(|_| LegisInitErrorResponse::LegisInit)?
 }
 
+#[utoipa::path(
+    post,
+    path = "/latest_legis_inits", 
+    params(
+        RequestFilter
+    ),
+    responses(
+        (status = 200, description = "Returned legislative initiatives successfully.", body = [Vec<DbLegislativeInitiativeQuery>]), 
+        (status = 400, description = "Invalid request", body = [LegisInitErrorResponse]),
+        (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
+    )
+)]
 pub async fn latest_legis_inits(
     DataserviceDbConnection(postgres_con): DataserviceDbConnection,
 ) -> Result<Json<Vec<DbLegislativeInitiativeQuery>>, LegisInitErrorResponse> {
@@ -48,6 +72,18 @@ pub async fn latest_legis_inits(
         .map_err(|_| LegisInitErrorResponse::LatestLegisInit)?
 }
 
+#[utoipa::path(
+    post,
+    path = "/latest_vote_results", 
+    params(
+        RequestFilter
+    ),
+    responses(
+        (status = 200, description = "Returned latest vote results successfully.", body = [Vec<VoteResult>]), 
+        (status = 400, description = "Invalid request", body = [LegisInitErrorResponse]),
+        (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
+    )
+)]
 pub async fn latest_vote_results(
     DataserviceDbConnection(postgres_con): DataserviceDbConnection,
 ) -> Result<Json<Vec<VoteResult>>, LegisInitErrorResponse> {

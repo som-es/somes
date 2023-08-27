@@ -12,7 +12,7 @@ use crate::{
     post,
     path = "/login",
     params(
-       LoginInfo 
+        LoginInfo
     ),
     responses(
         (status = 200, description = "Successful login", body = [JWTInfo]),

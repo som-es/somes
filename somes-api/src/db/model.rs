@@ -3,6 +3,7 @@ use std::str::from_utf8;
 use diesel::prelude::*;
 use redis::{ErrorKind, FromRedisValue, RedisError, ToRedisArgs, Value};
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 use super::schema::users;
 
@@ -84,7 +85,7 @@ diesel::table! {
     }
 }
 
-#[derive(QueryableByName, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(ToSchema, QueryableByName, PartialEq, Debug, Serialize, Deserialize)]
 #[table_name = "speaker_by_hours"]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct SpeakerByHours {
@@ -105,7 +106,7 @@ diesel::table! {
     }
 }
 
-#[derive(QueryableByName, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(ToSchema, QueryableByName, PartialEq, Debug, Serialize, Deserialize)]
 #[table_name = "delegate_by_call_to_orders"]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct DelegateByCallToOrders {
@@ -126,7 +127,7 @@ diesel::table! {
     }
 }
 
-#[derive(QueryableByName, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(QueryableByName, ToSchema, PartialEq, Debug, Serialize, Deserialize)]
 #[table_name = "call_to_orders_per_party_delegates"]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct CallToOrdersPerPartyDelegates {

@@ -1,8 +1,9 @@
 use axum::{response::IntoResponse, Json};
 use reqwest::StatusCode;
 use serde_json::json;
+use utoipa::ToSchema;
 
-#[derive(Debug)]
+#[derive(ToSchema, Debug)]
 pub enum PartiesErrorResponse {
     PartiesReturn,
 }

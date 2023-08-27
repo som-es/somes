@@ -12,10 +12,10 @@ use dataservice::db::{
     },
 };
 use diesel::{
-    sql_query, sql_types::Text, ExpressionMethods, PgConnection, QueryDsl, QueryResult,
-    RunQueryDsl,
+    sql_query, sql_types::Text, ExpressionMethods, PgConnection, QueryDsl, QueryResult, RunQueryDsl,
 };
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 use crate::{
     model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours},
@@ -246,7 +246,7 @@ pub fn get_latest_legislative_initiatives(
         .load::<DbLegislativeInitiativeQuery>(con)
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct VoteResult {
     pub legislative_initiative: DbLegislativeInitiativeQuery,
     pub votes: Vec<DbVote>,

@@ -33,7 +33,7 @@ redis = { version = "0.23", features = ["tokio-comp"] }
 log = "0.4.17"
 simple_logger = "4.0.0"
 common-scrapes = { path = "../../common-scrapes" }
-dataservice = { path = "../../dataservice", default-features=false, features=["models"] }
+dataservice = { path = "../../dataservice", default-features=false, features=["models", "utoipa"] }
 chrono = "0.4.24"
 lettre = "0.10.4"
 imap = { version = "3.0.0-alpha.10", features = ["rustls-tls"] }
