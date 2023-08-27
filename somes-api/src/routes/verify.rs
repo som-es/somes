@@ -39,7 +39,7 @@ pub fn create_verification_id(signup_info: &SignUpInfo) -> String {
 #[utoipa::path(
     get,
     path = "/verify",
-    params( 
+    params(
         VerificationIDInfo
     ),
     responses(

@@ -22,7 +22,7 @@ pub struct RequestFilter {
 }
 
 #[utoipa::path(
-    post,    
+    post,
     path = "/legis_inits", 
     params(
         RequestFilter
@@ -48,7 +48,7 @@ pub async fn legis_inits(
 }
 
 #[utoipa::path(
-    post,    
+    post,
     path = "/latest_legis_inits", 
     params(
         RequestFilter
@@ -73,13 +73,13 @@ pub async fn latest_legis_inits(
 }
 
 #[utoipa::path(
-    post,    
+    post,
     path = "/latest_vote_results", 
     params(
         RequestFilter
     ),
     responses(
-        (status = 200, description = "Returned legislative initiatives successfully.", body = [Vec<VoteResult>]), 
+        (status = 200, description = "Returned latest vote results successfully.", body = [Vec<VoteResult>]), 
         (status = 400, description = "Invalid request", body = [LegisInitErrorResponse]),
         (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
     )

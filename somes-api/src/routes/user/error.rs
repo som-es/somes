@@ -1,7 +1,9 @@
 use axum::{response::IntoResponse, Json};
 use reqwest::StatusCode;
 use serde_json::json;
+use utoipa::ToSchema;
 
+#[derive(Debug, ToSchema)]
 pub enum UserErrorResponse {
     InvalidUser,
     InteractionFailed,

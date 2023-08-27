@@ -10,7 +10,7 @@ pub use error::*;
 mod error;
 
 #[utoipa::path(
-    get,    
+    get,
     path = "/delegates", 
     responses(
         (status = 200, description = "Returned delegates successfully.", body = [Vec<DbDelegate>]), 
@@ -31,7 +31,7 @@ pub async fn delegates(
 }
 
 #[utoipa::path(
-    get,    
+    get,
     path = "/proposals", 
     responses(
         (status = 200, description = "Returned proposals successfully.", body = [Vec<DbProposalQuery>]), 

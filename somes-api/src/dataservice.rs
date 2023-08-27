@@ -12,8 +12,7 @@ use dataservice::db::{
     },
 };
 use diesel::{
-    sql_query, sql_types::Text, ExpressionMethods, PgConnection, QueryDsl, QueryResult,
-    RunQueryDsl,
+    sql_query, sql_types::Text, ExpressionMethods, PgConnection, QueryDsl, QueryResult, RunQueryDsl,
 };
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;

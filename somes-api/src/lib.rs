@@ -11,9 +11,9 @@ mod initial_startup;
 pub mod jwt;
 pub mod routes;
 pub mod server;
-pub use jwt::AuthError;
 pub use db::*;
 pub use initial_startup::*;
+pub use jwt::AuthError;
 use once_cell::sync::Lazy;
 
 pub const DATABASE_URL: &str = dotenv!("DATABASE_URL");
