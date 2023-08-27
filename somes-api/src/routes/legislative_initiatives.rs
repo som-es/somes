@@ -47,6 +47,18 @@ pub async fn legis_inits(
         .map_err(|_| LegisInitErrorResponse::LegisInit)?
 }
 
+#[utoipa::path(
+    post,    
+    path = "/latest_legis_inits", 
+    params(
+        RequestFilter
+    ),
+    responses(
+        (status = 200, description = "Returned legislative initiatives successfully.", body = [Vec<DbLegislativeInitiativeQuery>]), 
+        (status = 400, description = "Invalid request", body = [LegisInitErrorResponse]),
+        (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
+    )
+)]
 pub async fn latest_legis_inits(
     DataserviceDbConnection(postgres_con): DataserviceDbConnection,
 ) -> Result<Json<Vec<DbLegislativeInitiativeQuery>>, LegisInitErrorResponse> {
@@ -60,6 +72,18 @@ pub async fn latest_legis_inits(
         .map_err(|_| LegisInitErrorResponse::LatestLegisInit)?
 }
 
+#[utoipa::path(
+    post,    
+    path = "/latest_vote_results", 
+    params(
+        RequestFilter
+    ),
+    responses(
+        (status = 200, description = "Returned legislative initiatives successfully.", body = [Vec<VoteResult>]), 
+        (status = 400, description = "Invalid request", body = [LegisInitErrorResponse]),
+        (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
+    )
+)]
 pub async fn latest_vote_results(
     DataserviceDbConnection(postgres_con): DataserviceDbConnection,
 ) -> Result<Json<Vec<VoteResult>>, LegisInitErrorResponse> {

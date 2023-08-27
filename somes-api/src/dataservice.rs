@@ -16,6 +16,7 @@ use diesel::{
     RunQueryDsl,
 };
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 use crate::{
     model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours},
@@ -246,7 +247,7 @@ pub fn get_latest_legislative_initiatives(
         .load::<DbLegislativeInitiativeQuery>(con)
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct VoteResult {
     pub legislative_initiative: DbLegislativeInitiativeQuery,
     pub votes: Vec<DbVote>,

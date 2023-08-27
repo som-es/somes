@@ -24,7 +24,7 @@ use crate::{
         delegates_by_call_to_orders_by_legis_period, latest_legis_inits, latest_vote_results,
         legis_inits, parties, proposals, save_email, speakers_by_hours,
         speakers_by_hours_by_legis_period, user
-    }, DATASERVICE_URL, REDIS_DB,
+    }, DATASERVICE_URL, REDIS_DB, dataservice::VoteResult,
 };
 use tower_http::cors::{Any, CorsLayer};
 
@@ -84,7 +84,9 @@ pub async fn serve(addr: SocketAddr) {
             login,
             delegates,
             proposals,
-            legis_inits
+            legis_inits,
+            latest_legis_inits,
+            latest_vote_results
         ),
         components(
             schemas(
@@ -94,7 +96,7 @@ pub async fn serve(addr: SocketAddr) {
                 crate::AuthError, dataservice::db::models::DbDelegate,
                 DelegatesErrorResponse, dataservice::db::models::DbProposalQuery,
                 DbLegislativeInitiativeQuery, LegisInitErrorResponse,
-                RequestFilter
+                RequestFilter, VoteResult
 
             ),
         ),
