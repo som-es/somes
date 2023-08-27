@@ -13,9 +13,23 @@ pub use self::{
     error::SignUpErrorResponse,
 };
 
+pub use error::*;
+
 mod action;
 mod error;
 
+#[utoipa::path(
+    post,
+    path = "/signup",
+    params(
+        SignUpInfo
+    ),
+    responses(
+        (status = 200, description = "Successful signup", body = [()]),
+        (status = 400, description = "Invalid user data", body = [SignUpErrorWrapper]),
+        (status = 500, description = "Internal server error", body = [SignUpErrorResponse])
+    )
+)]
 pub async fn signup(
     RedisConnection(mut redis_con): RedisConnection,
     SomesDbConnection(postgres_con): SomesDbConnection,

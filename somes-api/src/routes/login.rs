@@ -8,6 +8,19 @@ use crate::{
     SomesDbConnection,
 };
 
+#[utoipa::path(
+    post,
+    path = "/login",
+    params(
+       LoginInfo 
+    ),
+    responses(
+        (status = 200, description = "Successful login", body = [JWTInfo]),
+        (status = 401, description = "Invalid credentials", body = [AuthError]),
+        (status = 400, description = "Invalid request", body = [AuthError]),
+        (status = 500, description = "Internal server error", body = [AuthError])
+    )
+)]
 pub async fn login(
     SomesDbConnection(con): SomesDbConnection,
     Json(login_info): Json<LoginInfo>,

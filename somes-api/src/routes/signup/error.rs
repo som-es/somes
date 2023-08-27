@@ -7,8 +7,9 @@ use axum::{
 use reqwest::StatusCode;
 use serde_json::json;
 use somes_common_lib::errors::SignUpError;
+use utoipa::ToSchema;
 
-#[derive(Debug)]
+#[derive(Debug, ToSchema)]
 pub enum SignUpErrorResponse {
     PostgresConnection,
     RedisGetKeys,
@@ -45,7 +46,7 @@ impl IntoResponse for SignUpErrorResponse {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, ToSchema)]
 pub struct SignUpErrorWrapper {
     pub sign_up_error: SignUpError,
 }

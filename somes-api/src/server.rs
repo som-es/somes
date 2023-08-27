@@ -14,6 +14,8 @@ use somes_common_lib::{
     LATEST_VOTE_RESULTS_ROUTE, LEGIS_INIT_ROUTE, LOGIN_ROUTE, PARTIES, PROPOSALS_ROUTE,
     SIGNUP_ROUTE, SPEAKERS_BY_HOURS, SPEAKERS_BY_HOURS_AND_LEGIS_PERIOD, VERIFY_ROUTE, USER,
 };
+use utoipa::{openapi, OpenApi};
+use utoipa_swagger_ui::SwaggerUi;
 //use headers::HeaderValue;
 use crate::{
     routes::{
@@ -26,6 +28,9 @@ use crate::{
 use tower_http::cors::{Any, CorsLayer};
 
 use crate::routes::{login, signup, verify};
+use crate::routes::*;
+use somes_common_lib::errors::*;
+use somes_common_lib::*;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -73,6 +78,7 @@ impl FromRef<AppState> for redis::Client {
     }
 }
 
+
 //pub type RedisClient = Arc<RwLock<redis::Client>>;
 
 pub async fn serve(addr: SocketAddr) {
@@ -82,6 +88,28 @@ pub async fn serve(addr: SocketAddr) {
     };
 
     info!("Established redis database connection to {REDIS_DB}.");
+
+    #[derive(OpenApi)]
+    #[openapi(
+        paths(
+            signup,
+            verify,
+            login
+        ),
+        components(
+            schemas(
+                SignUpInfo, SignUpErrorResponse, 
+                SignUpErrorWrapper, SignUpError, 
+                JWTInfo, VerifyErrorResponse, 
+                crate::AuthError
+            ),
+        ),
+        // modifiers(&SecurityAddon),
+        /*tags(
+            (name = "test", description = "Todo items management API")
+        )*/
+    )]
+    struct ApiDoc;
 
     /*
     let config = AsyncDieselConnectionManager::<diesel_async::AsyncPgConnection>::new(DATABASE_URL);
@@ -100,11 +128,12 @@ pub async fn serve(addr: SocketAddr) {
 
     let dataservice_db_pool = deadpool_diesel::postgres::Pool::builder(dataservice_db_manager)
         .build()
-        .unwrap();
-
+        .unwrap();   
+    
     let state = AppState::new(client, somes_db_pool, dataservice_db_pool).await;
-
+    
     let app = Router::new()
+        .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .route(SIGNUP_ROUTE, post(signup))
         .route(VERIFY_ROUTE, get(verify)) // or post?
         .route(LOGIN_ROUTE, post(login))

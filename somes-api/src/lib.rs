@@ -11,7 +11,7 @@ mod initial_startup;
 pub mod jwt;
 pub mod routes;
 pub mod server;
-
+pub use jwt::AuthError;
 pub use db::*;
 pub use initial_startup::*;
 use once_cell::sync::Lazy;

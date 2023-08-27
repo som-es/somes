@@ -11,7 +11,9 @@ use crate::{
     SomesDbConnection,
 };
 
-use self::error::VerifyErrorResponse;
+// use self::error::VerifyErrorResponse;
+
+pub use error::VerifyErrorResponse;
 
 mod error;
 
@@ -34,6 +36,17 @@ pub fn create_verification_id(signup_info: &SignUpInfo) -> String {
     base16ct::lower::encode_string(&hasher.finalize())
 }
 
+#[utoipa::path(
+    get,
+    path = "/verify",
+    params( 
+        VerificationIDInfo
+    ),
+    responses(
+        (status = 200, description = "Successful verification of a new user account-> log user in", body = [JWTInfo]),
+        (status = 400, description = "Internal server error", body = [VerifyErrorResponse])
+    )
+)]
 pub async fn verify(
     Query(id): Query<VerificationIDInfo>,
     RedisConnection(redis_con): RedisConnection,

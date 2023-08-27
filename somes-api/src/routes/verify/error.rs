@@ -1,10 +1,11 @@
 use axum::{response::IntoResponse, Json};
 use reqwest::StatusCode;
 use serde_json::json;
+use utoipa::ToSchema;
 
 use crate::jwt::AuthError;
 
-#[derive(Debug)]
+#[derive(ToSchema, Debug)]
 pub enum VerifyErrorResponse {
     InvalidVerificationID,
     VerificationError,

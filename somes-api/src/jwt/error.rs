@@ -4,8 +4,9 @@ use axum::{
 };
 use reqwest::StatusCode;
 use serde_json::json;
+use utoipa::ToSchema;
 
-#[derive(Debug)]
+#[derive(ToSchema, Debug)]
 pub enum AuthError {
     WrongCredentials,
     MissingCredentials,

@@ -2,6 +2,7 @@ mod claims;
 mod error;
 mod keys;
 
+pub use error::*;
 pub use claims::Claims;
 pub use error::AuthError;
 pub use keys::KEYS;
