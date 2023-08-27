@@ -6,6 +6,7 @@ use axum::{
     routing::{get, post},
     Router,
 };
+use dataservice::db::models::DbLegislativeInitiativeQuery;
 // use diesel_async::pooled_connection::AsyncDieselConnectionManager;
 use log::{error, info};
 use somes_common_lib::{
@@ -14,7 +15,7 @@ use somes_common_lib::{
     LATEST_VOTE_RESULTS_ROUTE, LEGIS_INIT_ROUTE, LOGIN_ROUTE, PARTIES, PROPOSALS_ROUTE,
     SIGNUP_ROUTE, SPEAKERS_BY_HOURS, SPEAKERS_BY_HOURS_AND_LEGIS_PERIOD, VERIFY_ROUTE, USER,
 };
-use utoipa::{openapi, OpenApi};
+use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 //use headers::HeaderValue;
 use crate::{
@@ -51,26 +52,12 @@ impl AppState {
         dataservice_db_pool: deadpool_diesel::postgres::Pool,
     ) -> AppState {
         AppState {
-            //      verification_map: Default::default(),
-            //redis_client: Arc::new(RwLock::new(client)),
             redis_client,
             somes_db_pool,
             dataservice_db_pool,
         }
     }
 }
-/*
-impl FromRef<AppState> for VerificationMap {
-    fn from_ref(app_state: &AppState) -> VerificationMap {
-        app_state.verification_map.clone()
-    }
-}*/
-
-/*impl FromRef<AppState> for RedisClient {
-    fn from_ref(app_state: &AppState) -> RedisClient {
-        app_state.redis_client.clone()
-    }
-}*/
 
 impl FromRef<AppState> for redis::Client {
     fn from_ref(app_state: &AppState) -> redis::Client {
@@ -94,14 +81,21 @@ pub async fn serve(addr: SocketAddr) {
         paths(
             signup,
             verify,
-            login
+            login,
+            delegates,
+            proposals,
+            legis_inits
         ),
         components(
             schemas(
                 SignUpInfo, SignUpErrorResponse, 
                 SignUpErrorWrapper, SignUpError, 
                 JWTInfo, VerifyErrorResponse, 
-                crate::AuthError
+                crate::AuthError, dataservice::db::models::DbDelegate,
+                DelegatesErrorResponse, dataservice::db::models::DbProposalQuery,
+                DbLegislativeInitiativeQuery, LegisInitErrorResponse,
+                RequestFilter
+
             ),
         ),
         // modifiers(&SecurityAddon),

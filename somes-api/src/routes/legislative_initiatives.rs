@@ -2,6 +2,7 @@ use axum::Json;
 use chrono::NaiveDate;
 use dataservice::db::models::DbLegislativeInitiativeQuery;
 use serde::{Deserialize, Serialize};
+use utoipa::{IntoParams, ToSchema};
 
 use crate::{
     dataservice::{
@@ -11,16 +12,27 @@ use crate::{
     DataserviceDbConnection,
 };
 
-use self::error::LegisInitErrorResponse;
-
+pub use error::*;
 mod error;
 
-#[derive(Debug, Deserialize, Serialize, Default, Clone)]
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct RequestFilter {
     pub start: NaiveDate,
     pub end: NaiveDate,
 }
 
+#[utoipa::path(
+    post,    
+    path = "/legis_inits", 
+    params(
+        RequestFilter
+    ),
+    responses(
+        (status = 200, description = "Returned legislative initiatives successfully.", body = [Vec<DbLegislativeInitiativeQuery>]), 
+        (status = 400, description = "Invalid request", body = [LegisInitErrorResponse]),
+        (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
+    )
+)]
 pub async fn legis_inits(
     DataserviceDbConnection(postgres_con): DataserviceDbConnection,
     Json(filter): Json<RequestFilter>,
