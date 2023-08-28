@@ -120,7 +120,7 @@ pub async fn serve(addr: SocketAddr) {
     )]
     struct ApiDoc;
 
-    /*
+    /*successfully.
     let config = AsyncDieselConnectionManager::<diesel_async::AsyncPgConnection>::new(DATABASE_URL);
     let postgres_pool = bb8::Pool::builder().build(config).await.unwrap();
      */

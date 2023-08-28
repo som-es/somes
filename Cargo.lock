@@ -2628,6 +2628,7 @@ dependencies = [
 name = "somes-common-lib"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "dotenv_codegen",
  "once_cell",
  "serde",

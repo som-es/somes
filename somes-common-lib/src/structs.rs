@@ -1,3 +1,4 @@
+use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
 
@@ -58,4 +59,19 @@ pub struct AskQuestion {
     pub delegate_id: i32,
     pub title: String,
     pub body: String,
+}
+
+#[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct Question {
+    pub question_id: i32,
+    pub issuer_id: i32, // user
+    pub created_on: NaiveDate,
+    pub delegate_id: i32,
+    pub title: String,
+    pub body: String,
+    pub response: Option<String>,
+    pub responded_on: Option<NaiveDate>,
+    pub editable: bool, // 100% false if the delegate does not have a somes account
+    pub last_edited_on: Option<NaiveDate>,
+    pub visible: bool, // maybe if an admin flags a question as inappropriate?
 }
