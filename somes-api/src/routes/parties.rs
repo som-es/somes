@@ -1,9 +1,8 @@
 mod error;
-pub use error::*;
 use crate::{dataservice::get_parties, DataserviceDbConnection};
 use axum::Json;
 use dataservice::db::models::DbParty;
-
+pub use error::*;
 
 #[utoipa::path(
     get,

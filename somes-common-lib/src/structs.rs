@@ -1,4 +1,4 @@
-use chrono::NaiveDate;
+use chrono::{NaiveDate, NaiveDateTime};
 use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
 
@@ -65,14 +65,14 @@ pub struct AskQuestion {
 pub struct Question {
     pub question_id: i32,
     pub issuer_id: i32, // user
-    pub created_on: NaiveDate,
+    pub created_on: NaiveDateTime,
     pub delegate_id: i32,
     pub title: String,
     pub body: String,
     pub response: Option<String>,
-    pub responded_on: Option<NaiveDate>,
+    pub responded_on: Option<NaiveDateTime>,
     pub editable: bool, // 100% false if the delegate does not have a somes account
-    pub last_edited_on: Option<NaiveDate>,
+    pub last_edited_on: Option<NaiveDateTime>,
     pub visible: bool, // maybe if an admin flags a question as inappropriate?
 }
 
@@ -82,9 +82,11 @@ pub struct DateRange {
     pub end: NaiveDate,
 }
 
-pub struct Filter {
+pub struct QuestionFilter {
+    pub page: i32,
     pub filter_text: Option<String>,
     pub filter_delegate: Option<i32>,
     pub filter_party: Option<i32>,
     pub filter_date_range: Option<DateRange>,
+    pub filter_topics: Option<Vec<String>>, // maybe
 }

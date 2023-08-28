@@ -2632,6 +2632,7 @@ dependencies = [
  "dotenv_codegen",
  "once_cell",
  "serde",
+ "serde_json",
  "utoipa",
 ]
 

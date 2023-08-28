@@ -5,10 +5,7 @@ pub use error::*;
 use axum::Json;
 use somes_common_lib::UserInfo;
 
-use crate::{
-    jwt::Claims, operations::user::get_user_from_db_by_id,
-    SomesDbConnection,
-};
+use crate::{jwt::Claims, operations::user::get_user_from_db_by_id, SomesDbConnection};
 
 #[utoipa::path(
     post,
