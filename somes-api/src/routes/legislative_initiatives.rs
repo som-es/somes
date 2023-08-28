@@ -1,8 +1,6 @@
 use axum::Json;
-use chrono::NaiveDate;
 use dataservice::db::models::DbLegislativeInitiativeQuery;
-use serde::{Deserialize, Serialize};
-use utoipa::{IntoParams, ToSchema};
+use somes_common_lib::DateRange;
 
 use crate::{
     dataservice::{
@@ -15,17 +13,11 @@ use crate::{
 pub use error::*;
 mod error;
 
-#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
-pub struct RequestFilter {
-    pub start: NaiveDate,
-    pub end: NaiveDate,
-}
-
 #[utoipa::path(
     post,
     path = "/legis_inits", 
     params(
-        RequestFilter
+        DateRange
     ),
     responses(
         (status = 200, description = "Returned legislative initiatives successfully.", body = [Vec<DbLegislativeInitiativeQuery>]), 
@@ -35,7 +27,7 @@ pub struct RequestFilter {
 )]
 pub async fn legis_inits(
     DataserviceDbConnection(postgres_con): DataserviceDbConnection,
-    Json(filter): Json<RequestFilter>,
+    Json(filter): Json<DateRange>,
 ) -> Result<Json<Vec<DbLegislativeInitiativeQuery>>, LegisInitErrorResponse> {
     postgres_con
         .interact(|con| {
@@ -51,7 +43,7 @@ pub async fn legis_inits(
     post,
     path = "/latest_legis_inits", 
     params(
-        RequestFilter
+        DateRange
     ),
     responses(
         (status = 200, description = "Returned legislative initiatives successfully.", body = [Vec<DbLegislativeInitiativeQuery>]), 
@@ -76,7 +68,7 @@ pub async fn latest_legis_inits(
     post,
     path = "/latest_vote_results", 
     params(
-        RequestFilter
+        DateRange
     ),
     responses(
         (status = 200, description = "Returned latest vote results successfully.", body = [Vec<VoteResult>]), 

@@ -75,3 +75,16 @@ pub struct Question {
     pub last_edited_on: Option<NaiveDate>,
     pub visible: bool, // maybe if an admin flags a question as inappropriate?
 }
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct DateRange {
+    pub start: NaiveDate,
+    pub end: NaiveDate,
+}
+
+pub struct Filter {
+    pub filter_text: Option<String>,
+    pub filter_delegate: Option<i32>,
+    pub filter_party: Option<i32>,
+    pub filter_date_range: Option<DateRange>,
+}

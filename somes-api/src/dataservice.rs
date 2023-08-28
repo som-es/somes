@@ -15,11 +15,12 @@ use diesel::{
     sql_query, sql_types::Text, ExpressionMethods, PgConnection, QueryDsl, QueryResult, RunQueryDsl,
 };
 use serde::{Deserialize, Serialize};
+use somes_common_lib::DateRange;
 use utoipa::ToSchema;
 
 use crate::{
     model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours},
-    routes::{LegisPeriod, RequestFilter},
+    routes::LegisPeriod,
     today,
 };
 
@@ -225,7 +226,7 @@ pub fn get_proposals(con: &mut PgConnection) -> QueryResult<Vec<DbProposalQuery>
 
 pub fn get_legislative_initiatives(
     con: &mut PgConnection,
-    filter: RequestFilter,
+    filter: DateRange,
 ) -> QueryResult<Vec<DbLegislativeInitiativeQuery>> {
     legislative_initiatives
         .filter(created_at.gt(filter.start))
@@ -290,12 +291,14 @@ pub fn get_parties(con: &mut PgConnection) -> QueryResult<Vec<DbParty>> {
 
 #[cfg(test)]
 mod tests {
+    use somes_common_lib::DateRange;
+
     use crate::{
         dataservice::{
             dataservice_con, get_call_to_orders_per_party_delegates,
             get_delegates_by_call_to_orders, get_speakers_by_hours_by_legis_period,
         },
-        routes::{LegisPeriod, RequestFilter},
+        routes::LegisPeriod,
         today,
     };
 
@@ -314,7 +317,7 @@ mod tests {
     #[test]
     fn test_get_legislative_inits() {
         let con = &mut dataservice_con();
-        let filter = RequestFilter {
+        let filter = DateRange {
             start: today() - chrono::Duration::days(7),
             end: today(),
         };

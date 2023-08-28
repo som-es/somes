@@ -105,7 +105,7 @@ pub async fn serve(addr: SocketAddr) {
                 crate::AuthError, dataservice::db::models::DbDelegate,
                 DelegatesErrorResponse, dataservice::db::models::DbProposalQuery,
                 DbLegislativeInitiativeQuery, LegisInitErrorResponse,
-                RequestFilter, VoteResult,
+                DateRange, VoteResult,
                 LegisPeriod, SpeakerByHours,
                 DelegateByCallToOrders, CallToOrdersPerPartyDelegates,
                 UserInfo, UserErrorResponse,
