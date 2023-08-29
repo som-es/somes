@@ -9,6 +9,7 @@ export interface Delegate {
 	seat_col: number | null;
 	gender: string | null;
 	is_active: boolean | null;
+	birthdate: string;
 }
 
 export interface LegislativeInitiative {

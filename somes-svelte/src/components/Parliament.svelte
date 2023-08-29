@@ -60,9 +60,7 @@
 	<div class="self-center m-auto">
 		{#if selected && selected.del}
 			<DelegateCard
-				name={selected.del.name}
-				party={selected.del.party}
-				image={selected.del.image_url}
+				delegate={selected.del}
 			/>
 		{/if}
 	</div>

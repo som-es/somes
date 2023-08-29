@@ -1,7 +1,14 @@
 <script lang="ts">
+	// Global CSS imports
 	import "../theme.postcss";
 	import "@skeletonlabs/skeleton/styles/all.css";
 	import "../app.postcss";
+
+	// Popup imports
+	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
+	import { storePopup } from '@skeletonlabs/skeleton';
+	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
+
 	import { AppBar, AppShell, Drawer, LightSwitch, drawerStore } from "@skeletonlabs/skeleton";
 	import LoginDrawer from "@/components/LoginDrawer.svelte";
 	import { userStore } from "../stores/stores";
@@ -122,7 +129,7 @@
 			padding="p-2"
 		>
 			<svelte:fragment slot="lead">
-				<a href="" class="pl-[25vw]">
+				<a href="/questions" class="pl-[25vw]">
 					<div>
 						<svg
 							class="fill-current"
