@@ -9,7 +9,11 @@
 >
 	{#if delegate}
 		<header>
-			<img src={delegate?.image_url} class="bg-black/50 w-full aspect-[1/1]" alt="Image of politician {delegate?.name}" />
+			<img
+				src={delegate?.image_url}
+				class="bg-black/50 w-full aspect-[1/1]"
+				alt="Image of politician {delegate?.name}"
+			/>
 		</header>
 		<section class="p-4">
 			<h4>

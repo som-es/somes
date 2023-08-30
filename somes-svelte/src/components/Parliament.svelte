@@ -59,9 +59,7 @@
 <div class="flex">
 	<div class="self-center m-auto">
 		{#if selected && selected.del}
-			<DelegateCard
-				delegate={selected.del}
-			/>
+			<DelegateCard delegate={selected.del} />
 		{/if}
 	</div>
 	<div class="self-center m-auto w-8/12">
