@@ -1,10 +1,14 @@
-import { loadTranslations } from "$lib/translations";
-import type { Load } from "@sveltejs/kit";
+import { addTranslations, setLocale, setRoute } from '$lib/translations';
+import type { Load } from '@sveltejs/kit';
 
-export const load: Load = async ({ url }) => {
-	const { pathname } = url;
-	const initLocale = "de"; // get from cookie, user session, ...
+export const load: Load = async ({ data }: { data: any }) => {
+	const { i18n, translations } = data;
+	const { locale, route } = i18n;
+  
+	addTranslations(translations);
+  
+	await setRoute(route);
+	await setLocale(locale);
 
-	await loadTranslations(initLocale, pathname);
-	return {};
-};
+	return i18n;
+  };

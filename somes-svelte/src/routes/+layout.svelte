@@ -15,14 +15,11 @@
 		Drawer,
 		LightSwitch,
 		drawerStore,
-		RadioGroup,
-		RadioItem,
 	} from "@skeletonlabs/skeleton";
 	import LoginDrawer from "@/components/LoginDrawer.svelte";
 	import { userStore } from "../stores/stores";
 	import { get } from "svelte/store";
-	import { Icon } from "svelte-flag-icons";
-	import { locale } from "$lib/translations";
+	import LangSwitch from "../components/LangSwitch.svelte";
 
 	const parliamentUrl = new URL("$lib/assets/somes_with_text.svg", import.meta.url).href;
 	drawerStore.close();
@@ -129,14 +126,7 @@
 				</a>
 			</svelte:fragment>
 			<svelte:fragment slot="trail">
-				<RadioGroup rounded="rounded-container-token" padding="px-2">
-					<RadioItem bind:group={$locale} name="justify" value={"de"}>
-						<Icon name="at" />
-					</RadioItem>
-					<RadioItem bind:group={$locale} name="justify" value={"en"}>
-						<Icon name="gb" />
-					</RadioItem>
-				</RadioGroup>
+				<LangSwitch />
 				<LightSwitch width="w-12" />
 			</svelte:fragment>
 		</AppBar>
