@@ -1,11 +1,28 @@
 <script lang="ts">
+	// Global CSS
 	import "../theme.postcss";
 	import "@skeletonlabs/skeleton/styles/all.css";
 	import "../app.postcss";
-	import { AppBar, AppShell, Drawer, LightSwitch, drawerStore } from "@skeletonlabs/skeleton";
+
+	// Popup imports
+	import { computePosition, autoUpdate, offset, shift, flip, arrow } from "@floating-ui/dom";
+	import { storePopup } from "@skeletonlabs/skeleton";
+	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
+
+	import {
+		AppBar,
+		AppShell,
+		Drawer,
+		LightSwitch,
+		drawerStore,
+		RadioGroup,
+		RadioItem,
+	} from "@skeletonlabs/skeleton";
 	import LoginDrawer from "@/components/LoginDrawer.svelte";
 	import { userStore } from "../stores/stores";
 	import { get } from "svelte/store";
+	import { Icon } from "svelte-flag-icons";
+	import { locale } from "$lib/translations";
 
 	const parliamentUrl = new URL("$lib/assets/somes_with_text.svg", import.meta.url).href;
 	drawerStore.close();
@@ -112,7 +129,15 @@
 				</a>
 			</svelte:fragment>
 			<svelte:fragment slot="trail">
-				<LightSwitch />
+				<RadioGroup rounded="rounded-container-token" padding="px-2">
+					<RadioItem bind:group={$locale} name="justify" value={"de"}>
+						<Icon name="at" />
+					</RadioItem>
+					<RadioItem bind:group={$locale} name="justify" value={"en"}>
+						<Icon name="gb" />
+					</RadioItem>
+				</RadioGroup>
+				<LightSwitch width="w-12" />
 			</svelte:fragment>
 		</AppBar>
 		<AppBar

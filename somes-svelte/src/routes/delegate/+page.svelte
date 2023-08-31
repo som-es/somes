@@ -3,6 +3,7 @@
 	import { delegates } from "$lib/api";
 	import { onMount } from "svelte";
 	import type { Delegate } from "$lib/types";
+	import { t } from "$lib/translations";
 
 	let dels: Delegate[];
 
@@ -16,7 +17,7 @@
 {#if dels}
 	<Parliament {dels} seats={[20, 27, 37, 43, 48, 54]} />
 {:else}
-	<p class="loading">loading...</p>
+	<p class="loading">{$t("common.loading")}.</p>
 {/if}
 
 <style>

@@ -2,8 +2,7 @@
 	import { goto } from "$app/navigation";
 	import { get } from "svelte/store";
 	import { jwtStore, userStore } from "../../stores/stores";
-
-	// import { LightSwitch } from "@skeletonlabs/skeleton";
+	import { t } from "$lib/translations";
 
 	const user = get(userStore);
 
@@ -14,7 +13,7 @@
 
 <div>
 	<input
-		value="Abmelden"
+		value={$t("common.logout")}
 		type="button"
 		on:click={async () => {
 			userStore.set(null);
@@ -23,8 +22,6 @@
 		}}
 	/>
 </div>
-
-<!-- <LightSwitch class="float-right" /> -->
 
 <style>
 	input[type="button"] {
