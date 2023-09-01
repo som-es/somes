@@ -90,3 +90,31 @@ export interface SignUpError {
 	insufficient_password: boolean;
 	is_errorneous: boolean;
 }
+
+export interface Question {
+    question_id: number;
+    issuer_id: number; // user?
+    created_on: Date;
+    delegate_id: number;
+    title: string;
+    body: string;
+    response: string | null;
+    responded_on: Date | null;
+    editable: boolean;
+    last_edited_on: Date | null;
+    visible: boolean;
+}
+
+export interface QuestionFilter {
+    page: number,
+    filter_text: string | null,
+    filter_delegate: number | null,
+    filter_party: number | null,
+    filter_date_range: DateRange | null,
+    filter_topics: string[] | null, // maybe
+}
+
+export interface DateRange {
+    start: Date;
+    end: Date;
+}
