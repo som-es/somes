@@ -220,6 +220,13 @@ pub fn get_delegates(con: &mut PgConnection) -> QueryResult<Vec<DbDelegate>> {
     // delegates.load(con)
 }
 
+#[inline]
+pub fn get_delegate(con: &mut PgConnection, delegate_id: i32) -> QueryResult<DbDelegate> {
+    delegates
+        .filter(dataservice::db::schema::delegates::id.eq(delegate_id))
+        .first(con)
+}
+
 pub fn get_proposals(con: &mut PgConnection) -> QueryResult<Vec<DbProposalQuery>> {
     proposals.load::<DbProposalQuery>(con)
 }
