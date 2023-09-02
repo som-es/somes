@@ -26,12 +26,13 @@ pub async fn delegate(
     DataserviceDbConnection(con): DataserviceDbConnection,
     Query(delegate_by_id): Query<DelegateById>,
 ) -> Result<Json<DbDelegate>, DelegatesErrorResponse> {
-    con.interact(|con| {
+    con.interact(move |con| {
         get_delegate(con, delegate_by_id.delegate_id)
+            .map(Json)
+            .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
     })
     .await
-    .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
-
+    .map_err(|_| DelegatesErrorResponse::DelegateResponseError)?
 }
 
 #[utoipa::path(

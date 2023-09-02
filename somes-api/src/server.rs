@@ -173,6 +173,7 @@ pub async fn serve(addr: SocketAddr) {
             get(call_to_orders_per_party_delegates),
         )
         .route(USER, post(user))
+        .route(DELEGATE, get(delegate))
         .route("/save_email", post(save_email))
         .layer(
             CorsLayer::new()
