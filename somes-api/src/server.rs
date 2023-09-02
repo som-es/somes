@@ -95,7 +95,8 @@ pub async fn serve(addr: SocketAddr) {
             call_to_orders_per_party_delegates,
             delegates_by_call_to_orders_and_legis_period,
             user,
-            parties
+            parties,
+            delegate
         ),
         components(
             schemas(
@@ -109,7 +110,8 @@ pub async fn serve(addr: SocketAddr) {
                 LegisPeriod, SpeakerByHours,
                 DelegateByCallToOrders, CallToOrdersPerPartyDelegates,
                 UserInfo, UserErrorResponse,
-                DbParty, PartiesErrorResponse
+                DbParty, PartiesErrorResponse,
+                DelegateById
 
             ),
         ),
@@ -171,6 +173,7 @@ pub async fn serve(addr: SocketAddr) {
             get(call_to_orders_per_party_delegates),
         )
         .route(USER, post(user))
+        .route(DELEGATE, get(delegate))
         .route("/save_email", post(save_email))
         .layer(
             CorsLayer::new()
