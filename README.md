@@ -12,12 +12,8 @@ The source code of the somes repository.
 
     A rust library containing common structures and code that should be used interoperability between the backend and the frontend applications, which are written in Rust. (e.g. `LoginInfo` is probably the same for both ends.)
 
-- **`somes-frontend`** (outdated -> the frontend is now located in `somes-svelte`)
-
-    The somes frontend. It is written in [`Yew`], however, this may change during the development process.
-
 - **`somes-svelte`**
-    The real actual somes frontend, written with svelte.
+    The somes frontend, written with Svelte.
 
 [`axum`]: https://github.com/tokio-rs/axum
 [`yew`]: https://github.com/yewstack/yew

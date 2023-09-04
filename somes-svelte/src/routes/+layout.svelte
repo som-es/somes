@@ -17,7 +17,7 @@
 	import { config } from '@fortawesome/fontawesome-svg-core'
 	import QuestionModal from "@/components/QuestionModal.svelte";
 
-  	config.autoAddCss = false;
+  config.autoAddCss = false;
 
 	const parliamentUrl = new URL("$lib/assets/somes_with_text.svg", import.meta.url).href;
 	drawerStore.close();
@@ -133,7 +133,8 @@
 				</a>
 			</svelte:fragment>
 			<svelte:fragment slot="trail">
-				<LightSwitch />
+				<LangSwitch />
+				<LightSwitch width="w-12" />
 			</svelte:fragment>
 		</AppBar>
 		<AppBar

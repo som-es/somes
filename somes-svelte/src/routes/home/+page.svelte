@@ -12,6 +12,7 @@
 	import SpeakersByHours from "@/components/SpeakersByHours.svelte";
 	import { maybeGetUser } from "$lib/api/user";
 	import { userStore } from "../../stores/stores";
+	import { t } from "$lib/translations";
 
 	let dels: Delegate[];
 
@@ -30,12 +31,12 @@
 		});
 		partyColorStorage.set(JSON.stringify(Array.from(partyToColor.entries())));
 	}
-	let welcomeMessage = "Welcome back!";
+	$: welcomeMessage = $t("common.greeting");
 	let welcomeName = "";
 
 	const user = get(userStore);
 	if (user != null) {
-		welcomeMessage = "Welcome back, ";
+		welcomeMessage = $t("common.greeting_concat");
 		welcomeName = user.username;
 	}
 
@@ -53,12 +54,12 @@
 	<h1 class="text-primary-400">
 		{welcomeMessage}{#if welcomeName} <span class="text-tertiary-400">{welcomeName}</span>!{/if}
 	</h1>
-	<h2 class="mt-5">Nationalrat</h2>
-	Current news from the Austrian parliament
+	<h2 class="mt-5">{$t("common.national_council")}</h2>
+	{$t("common.current_news")}
 
 	{#if voteResults}
 		{#if voteResults.length == 0}
-			<p class="no-news">Keine Neuigkeiten verfügbar</p>
+			<p class="no-news">{$t("common.news_unavailable")}</p>
 		{/if}
 		<div class="card-container">
 			{#each voteResults as voteResult, i}
@@ -85,7 +86,7 @@
 			{/each}
 		</div>
 	{:else}
-		<p class="loading">loading...</p>
+		<p class="loading">{$t("common.loading")}</p>
 		<!--
     <div class="flex flex-wrap">
         <LegisInitCard voteResult={voteResults[0]} dels={dels} />
@@ -101,30 +102,31 @@
         <div class="grid-item rounded">2</div>
     </div>-->
 
-	<h2 class="mt-5">Representatives</h2>
+	<h2 class="mt-5">{$t("common.representatives")}</h2>
 
 	{#if dels}
 		<AutoSelectParliament {dels} seats={[20, 27, 37, 43, 48, 54]} />
 	{:else}
-		<p class="loading">loading...</p>
+		<p class="loading">{$t("common.loading")}</p>
 	{/if}
 
-	<h2 class="mt-5">Statistics</h2>
-	<h4>Here, you can find statistics about the Austrian parliament</h4>
+	<h2 class="mt-5">{$t("common.statistics")}</h2>
+	<h4>{$t("common.statistics_description")}</h4>
 	<div>
 		<p class="mt-3">
-			Top call to orders receivers
+			{$t("common.top_cto")}
 			<CallToOrders />
 		</p>
 		<p class="mt-3">
-			The top speakers of the Nationalrat by hours spoken
+			{$t("common.top_speakers")}
 			<SpeakersByHours />
 		</p>
 
 		<p class="mt-3">
-			Call to orders of parties relative to the number of delegates in the Nationalrat = get issuer
-			of call to order (wie sind die CTOs verteilt in Bezug auf den aktiven Präsidenten? (ÖVP, SPÖ,
-			FPÖ)) "Forschungsfrage": Warum hat die ÖVP so wenige CTOs über die Zeit?
+			<!-- TODO: add translation -->
+			Call to orders of parties relative to the number of delegates in the Nationalrat = get issuer of
+			call to order (wie sind die CTOs verteilt in Bezug auf den aktiven Präsidenten? (ÖVP, SPÖ, FPÖ))
+			"Forschungsfrage": Warum hat die ÖVP so wenige CTOs über die Zeit?
 			<CallToOrdersPerPartyDelegates />
 		</p>
 	</div>

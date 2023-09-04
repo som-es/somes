@@ -2,5 +2,4 @@
 members = [
     "somes-api",
     "somes-common-lib",
-    "somes-frontend"
 ]

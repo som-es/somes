@@ -82,6 +82,8 @@ pub struct DateRange {
     pub end: NaiveDate,
 }
 
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct QuestionFilter {
     pub page: i32,
     pub filter_text: Option<String>,
@@ -89,4 +91,10 @@ pub struct QuestionFilter {
     pub filter_party: Option<i32>,
     pub filter_date_range: Option<DateRange>,
     pub filter_topics: Option<Vec<String>>, // maybe
+}
+
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct DelegateById {
+    pub delegate_id: i32
 }

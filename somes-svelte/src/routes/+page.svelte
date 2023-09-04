@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
+	import { t } from "$lib/translations";
 	import ParliamentImg from "$lib/assets/assets/parliament.png";
 	import { loginDrawerSettings } from "$lib/constants";
 	import { localStorageStore, type DrawerSettings, drawerStore } from "@skeletonlabs/skeleton";
@@ -33,24 +34,27 @@
 		<!-- </div> -->
 		<div class="container mx-auto px-4 self-center sm:text-left">
 			<h2 class="text-tertiary-300 font-bold pt-28 text-center sm:text-left">
-				Experience Democracy!
+				{$t("common.tagline")}
 			</h2>
 
 			<div class="flex justify-center sm:justify-start pt-6 self-center sm:pl-6">
 				<button
 					on:click={(_) => drawerStore.open(loginDrawerSettings)}
-					class="text-center bg-tertiary-500 text-white rounded-full px-14 h-9">Log In</button
+					class="text-center bg-tertiary-500 text-white rounded-full px-14 h-9"
+					>{$t("common.login")}</button
 				>
 				<button
 					on:click={(_) => redirectToHome()}
 					class="ml-4 text-center bg-secondary-400 text-white rounded-full px-15 h-9"
-					>Continue without Account</button
+					>{$t("common.no_account")}</button
 				>
 			</div>
 			<div class="mt-2">
 				<h5>
-					<span class="text-tertiary-100 font-semibold">Don't have an account?</span>
-					<a href="/register" class="!text-secondary-100 font-bold">Sign up!</a>
+					<span class="text-tertiary-100 font-semibold">{$t("common.sign_up_tagline")}</span>
+					<a href="/register" class="!text-secondary-100 font-bold"
+						>{$t("common.sign_up_request")}</a
+					>
 				</h5>
 			</div>
 		</div>
