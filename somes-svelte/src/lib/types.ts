@@ -103,6 +103,8 @@ export interface Question {
     editable: boolean;
     last_edited_on: Date | null;
     visible: boolean;
+	likes: number;
+	dislikes: number;
 }
 
 export interface QuestionFilter {
