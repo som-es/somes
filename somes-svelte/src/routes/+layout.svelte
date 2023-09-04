@@ -1,25 +1,23 @@
 <script lang="ts">
-	// Global CSS
+	// Global CSS imports
 	import "../theme.postcss";
 	import "@skeletonlabs/skeleton/styles/all.css";
 	import "../app.postcss";
+	import '@fortawesome/fontawesome-svg-core/styles.css'
 
 	// Popup imports
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from "@floating-ui/dom";
-	import { storePopup } from "@skeletonlabs/skeleton";
+	import { Modal, storePopup, type ModalComponent } from "@skeletonlabs/skeleton";
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
-	import {
-		AppBar,
-		AppShell,
-		Drawer,
-		LightSwitch,
-		drawerStore,
-	} from "@skeletonlabs/skeleton";
+	import { AppBar, AppShell, Drawer, LightSwitch, drawerStore } from "@skeletonlabs/skeleton";
 	import LoginDrawer from "@/components/LoginDrawer.svelte";
 	import { userStore } from "../stores/stores";
 	import { get } from "svelte/store";
-	import LangSwitch from "../components/LangSwitch.svelte";
+	import { config } from '@fortawesome/fontawesome-svg-core'
+	import QuestionModal from "@/components/QuestionModal.svelte";
+
+  config.autoAddCss = false;
 
 	const parliamentUrl = new URL("$lib/assets/somes_with_text.svg", import.meta.url).href;
 	drawerStore.close();
@@ -30,6 +28,13 @@
 	// $: if (user == null) {
 	// profileLink = "/";
 	// }
+
+	const modalComponentRegistry: Record<string, ModalComponent> = {
+		QuestionModal: {
+			ref: QuestionModal,
+			slot: "<p>Skeleton</p>",
+		},
+	};
 </script>
 
 <Drawer>
@@ -37,6 +42,8 @@
 		<LoginDrawer />
 	{/if}
 </Drawer>
+
+<Modal components={modalComponentRegistry} />
 
 <AppShell>
 	<!-- TODO: show the second header below the the first while also making it sticky (without the first one being sticky) -->
@@ -137,7 +144,7 @@
 			padding="p-2"
 		>
 			<svelte:fragment slot="lead">
-				<a href="" class="pl-[25vw]">
+				<a href="/questions" class="pl-[25vw]">
 					<div>
 						<svg
 							class="fill-current"
