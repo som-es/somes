@@ -6,6 +6,7 @@
 	import { faPlus } from "@fortawesome/free-solid-svg-icons";
 	import { Modal, modalStore } from "@skeletonlabs/skeleton";
 	import type { ModalSettings, ModalComponent } from "@skeletonlabs/skeleton";
+	import { t } from "$lib/translations";
 
 	const modal: ModalSettings = {
 		type: "component",
@@ -95,7 +96,7 @@
 </div>
 <div class="absolute bottom-0 left-0 m-5">
 	<button type="button" class="btn btn-lg variant-filled" on:click={triggerQuestionModal}>
-		<FontAwesomeIcon icon={faPlus} class="pr-2" /> Frage stellen
+		<FontAwesomeIcon icon={faPlus} class="pr-2" /> {$t("common.ask_question")}
 	</button>
 </div>
 

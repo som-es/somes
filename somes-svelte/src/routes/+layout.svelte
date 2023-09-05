@@ -16,6 +16,7 @@
 	import { get } from "svelte/store";
 	import { config } from '@fortawesome/fontawesome-svg-core'
 	import QuestionModal from "@/components/QuestionModal.svelte";
+	import LangSwitch from "@/components/LangSwitch.svelte";
 
   config.autoAddCss = false;
 

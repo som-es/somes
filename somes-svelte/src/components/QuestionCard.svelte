@@ -4,6 +4,7 @@
   	import { faThumbsUp } from '@fortawesome/free-solid-svg-icons'
     import { faThumbsDown } from '@fortawesome/free-solid-svg-icons'
 	import { format } from "$lib/date";
+	import { t } from "$lib/translations";
 
     export let question: Question;
 
@@ -23,14 +24,14 @@
                 {question.response}
                 <br><i class="black text-slate-600">{format(question.created_on)}</i>
             {:else}
-                <p class="text-center text-xl">UNBEANTWORTET</p>
+                <p class="text-center text-xl">{$t("common.unanswered")}</p>
             {/if}
         </footer>
     </div>
     <hr class="opacity-100" />
     <footer class="px-8 py-4 flex flex-row gap-4">
-		<span>An: {question.delegate_id}</span>
-        <span>Von: {question.delegate_id}</span>
+		<span>{$t("common.q_to")} {question.delegate_id}</span>
+        <span>{$t("common.q_from")} {question.delegate_id}</span>
         <div class="flex flex-row gap-5 ml-auto">
             <span>
                 <FontAwesomeIcon icon={faThumbsUp} class="" />

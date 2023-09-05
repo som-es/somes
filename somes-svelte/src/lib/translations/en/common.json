@@ -64,5 +64,17 @@
 	"sign_up_login_after": "After clicking the link you can log in here:",
 	"top_cto": "Top call to orders receivers",
 	"top_speakers": "The top speakers of the Nationalrat by hours spoken",
-	"logout": "Log out"
+	"logout": "Log out",
+	"ask_question": "Ask question",
+	"search": "Search",
+	"sort_by": "Sort by",
+	"relevance": "Relevance",
+	"user_rating": "User rating",
+	"newest": "Newest",
+	"delegate": "Delegate",
+	"date_range": "Date range",
+	"unanswered": "Unanswered",
+	"q_to": "To:",
+	"q_from": "From:",
+	"enter_search": "Enter search term"
 }

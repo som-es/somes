@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { delegates, parties } from "$lib/api";
+	import { t } from "$lib/translations";
 	import type { Delegate, Party } from "$lib/types";
 	import { onMount } from "svelte";
 
@@ -24,22 +25,22 @@
                 <input
                     class="input rounded-lg p-2"
                     type="text"
-                    placeholder="Suchbegriff eingeben"
+                    placeholder={$t("common.enter_search")}
                 />
-                <button type="button" class="btn variant-filled">Suchen</button>
+                <button type="button" class="btn variant-filled">{$t("common.search")}</button>
             </div>	
             <label class="label ml-auto w-1/6">
-                <span>Sortieren nach</span>
+                <span>{$t("common.sort_by")}</span>
                 <select class="select">
-                    <option value="1">Relevanz</option>
-                    <option value="2">Benutzerwertung</option>
-                    <option value="3">Neueste</option>
+                    <option value="1">{$t("common.relevance")}</option>
+                    <option value="2">{$t("common.user_rating")}</option>
+                    <option value="3">{$t("common.newest")}</option>
                 </select>
             </label>
         </div>
         <div class="flex flex-row h-18 gap-[2vw]">
             <label class="label">
-                <span>Delegate</span>
+                <span>{$t("common.delegate")}</span>
                 <select class="select">
                     {#each dels as del}
                         <option value={del.id}>{del.name}</option>
@@ -47,7 +48,7 @@
                 </select>
             </label>
             <label class="label">
-                <span>Party</span>
+                <span>{$t("common.party")}</span>
                 <select class="select">
                     {#each prts as party}
                         <option value={party.name}>{party.name}</option>
@@ -55,11 +56,11 @@
                 </select>
             </label>
             <label class="label">
-                <span>Date Range</span>
+                <span>{$t("common.date_range")}</span>
                 <div class="flex flex-row h-10 gap-[0.5vw]">
                     <input class="input rounded-lg p-2" title="Input (date)" type="date" bind:value={minDate} />
                     <div class="mt-2">
-                        to
+                        {$t("common.to")}
                     </div>
                     <input class="input rounded-lg p-2" title="Input (date)" type="date" bind:value={maxDate} />
                 </div>
@@ -68,5 +69,5 @@
     </div>
     <hr class="opacity-100 mt-auto" />
 {:else}
-    <p class="loading">loading...</p>
+    <p class="loading">{$t("common.loading")}</p>
 {/if}

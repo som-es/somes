@@ -11,5 +11,6 @@ export function getAge(date: Date): number {
 }
 
 export function format(date: Date): string {
+	// TODO: add localisation (i18n doesn't work here)
 	return `Am ${date.toLocaleDateString()} um ${date.toLocaleTimeString()}`;
 }

@@ -64,5 +64,17 @@
 	"sign_up_login_after": "Nach dem Klicken des Links kann sich hier angemeldet werden:",
 	"top_cto": "Abgeordnete mit den meisten Ordnungsrufen",
 	"top_speakers": "Sprecher im Nationalrat sortiert nach Redezeit in Stunden",
-	"logout": "Abmelden"
+	"logout": "Abmelden",
+	"ask_question": "Frage stellen",
+	"search": "Suchen",
+	"sort_by": "Sortieren nach",
+	"relevance": "Relevanz",
+	"user_rating": "Benutzerwertung",
+	"newest": "Neueste",
+	"delegate": "Abgeordnete*r",
+	"date_range": "Zeitspanne",
+	"unanswered": "Unbeantwortet",
+	"q_to": "An:",
+	"q_from": "Von:",
+	"enter_search": "Suchbegriff eingeben"
 }
