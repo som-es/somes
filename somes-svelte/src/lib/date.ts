@@ -1,9 +1,13 @@
-export function toTSDate(apiDate: string): Date {
-	return new Date(apiDate);
+export function toTSDate(apiDate: string, endOfDay: boolean = false): Date {
+	const date = new Date(apiDate);
+	if (endOfDay) date.setHours(23, 59, 59, 999);
+
+	return date;
 }
 
+// yyyy-mm-dd
 export function toAPIDate(TSDate: Date): string {
-	return TSDate.toISOString();
+	return TSDate.toISOString().substring(0, 10);
 }
 
 export function getAge(date: Date): number {

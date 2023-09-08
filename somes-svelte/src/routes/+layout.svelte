@@ -16,9 +16,10 @@
 	import { get } from "svelte/store";
 	import { config } from '@fortawesome/fontawesome-svg-core'
 	import QuestionModal from "@/components/QuestionModal.svelte";
+	import DelegateSelectModal from "@/components/DelegateSelectModal.svelte";
 	import LangSwitch from "@/components/LangSwitch.svelte";
 
-  config.autoAddCss = false;
+  	config.autoAddCss = false;
 
 	const parliamentUrl = new URL("$lib/assets/somes_with_text.svg", import.meta.url).href;
 	drawerStore.close();
@@ -33,6 +34,11 @@
 	const modalComponentRegistry: Record<string, ModalComponent> = {
 		QuestionModal: {
 			ref: QuestionModal,
+			slot: "<p>Skeleton</p>",
+		},
+		DelegateSelectModal: {
+			ref: DelegateSelectModal,
+			props: { delegate: undefined },
 			slot: "<p>Skeleton</p>",
 		},
 	};

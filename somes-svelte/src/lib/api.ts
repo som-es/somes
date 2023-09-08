@@ -109,3 +109,24 @@ export async function speakers_by_hours_and_legis_period(
 
 	return await response.json();
 }
+
+export async function delegate_by_id(
+	id: number,
+): Promise<Delegate> {
+	/* TODO: use the POST method (make it work)
+	let response = await fetch(`http://${address}:3000/delegate`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({ delegate_id: id }),
+	});*/
+	let response = await fetch(`http://${address}:3000/delegate?delegate_id=${id}`, {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json",
+		},
+	});
+
+	return await response.json();
+}
