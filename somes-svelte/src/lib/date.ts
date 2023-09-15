@@ -14,7 +14,7 @@ export function getAge(date: Date): number {
 	return Math.abs(new Date(Date.now() - date.getTime()).getUTCFullYear() - 1970);
 }
 
-export function format(date: Date): string {
+export function format(date: Date | undefined): string {
 	// TODO: add localisation (i18n doesn't work here)
-	return `Am ${date.toLocaleDateString()} um ${date.toLocaleTimeString()}`;
+	return date ? `Am ${date.toLocaleDateString()} um ${date.toLocaleTimeString()}` : "";
 }

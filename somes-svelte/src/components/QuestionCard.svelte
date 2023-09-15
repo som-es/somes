@@ -30,7 +30,7 @@
             <footer class="card-footer pt-4">
                 {#if question.response}
                     {question.response}
-                    <br><i class="black text-slate-600">{format(question.created_on)}</i>
+                    <br><i class="black text-slate-600">{format(question.responded_on)}</i>
                 {:else}
                     <p class="text-center text-xl">{$t("common.unanswered")}</p>
                 {/if}

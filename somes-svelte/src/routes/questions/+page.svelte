@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { Delegate, Party, Question } from "$lib/types";
-	import QuestionCard from "../../components/QuestionCard.svelte";
-	import QuestionToolbar from "../../components/QuestionToolbar.svelte";
+	import QuestionToolbar from "@/components/QuestionToolbar.svelte";
 	import { FontAwesomeIcon } from "@fortawesome/svelte-fontawesome";
 	import { faPlus } from "@fortawesome/free-solid-svg-icons";
 	import { modalStore } from "@skeletonlabs/skeleton";
@@ -9,6 +8,7 @@
 	import { t } from "$lib/translations";
 	import { delegate_by_id } from "$lib/api";
 	import { toAPIDate, toTSDate } from "$lib/date";
+	import QuestionPagination from "@/components/QuestionPagination.svelte";
 
 	const modal: ModalSettings = {
 		type: "component",
@@ -20,7 +20,7 @@
 		{
 			question_id: 1,
 			issuer_id: 69420,
-			created_on: new Date(),
+			created_on: new Date(0),
 			delegate_id: 5650,
 			title: "Test123",
 			body: "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
@@ -35,7 +35,7 @@
 		{
 			question_id: 1,
 			issuer_id: 69420,
-			created_on: new Date(),
+			created_on: new Date(10000000000),
 			delegate_id: 5650,
 			title: "Testaaaaaaaaaaa",
 			body: "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
@@ -108,6 +108,32 @@
 			return true;
 		});
 
+		filtered.sort((a, b) => {
+			switch(sort) {
+				case "relevance":
+					// TODO: add more magic than just weighting rating and newest together
+					const aDateDiff = new Date().getTime() - a.created_on.getTime(); 
+					const bDateDiff = new Date().getTime() - a.created_on.getTime(); 
+
+					const aWeight = (a.likes - a.dislikes) / aDateDiff;
+					const bWeight = (b.likes - b.dislikes) / bDateDiff;
+
+					if (aWeight > bWeight) return -1;
+					if (aWeight < bWeight) return 1;
+					break;
+				case "rating":
+					if ((a.likes - a.dislikes) > (b.likes - b.dislikes)) return -1;
+					if ((a.likes - a.dislikes) < (b.likes - b.dislikes)) return 1;
+					break;
+				case "newest":
+					if (a.created_on > b.created_on) return -1;
+					if (a.created_on < b.created_on) return 1;
+					break;
+			}
+
+			return 0;
+		})
+
 		return filtered;
 	}
 </script>
@@ -125,15 +151,9 @@
 		{#await filtered()}
 			<loading class="">loading...</loading>
 		{:then value}
-			<div class="flex flex-col gap-[5vh] mt-[3vh]">
-				{#if value.length === 0}
-					<p class="text-center">Es konnten keine Fragen gefunden werden.</p>
-				{:else}
-					{#each value as question}
-						<QuestionCard {question} />
-					{/each}
-				{/if}
-			</div>
+			<QuestionPagination
+				questions={value}
+			/>
 		{/await}
 	</div>
 </div>
