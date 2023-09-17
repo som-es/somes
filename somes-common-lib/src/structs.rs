@@ -100,3 +100,8 @@ pub struct QuestionFilter {
 pub struct DelegateById {
     pub delegate_id: i32
 }
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone, Copy)]
+pub struct Page {
+    pub page: i32,
+}
