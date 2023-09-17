@@ -36,9 +36,9 @@ fn fetch_inbox_top(
 
     // we want to fetch the first email in the INBOX mailbox
     let mailbox = imap_session.select("INBOX")?;
-    let next_uid = mailbox.uid_next.unwrap() -1;
+    let next_uid = mailbox.uid_next.unwrap() - 1;
     println!("next_uid: {next_uid}");
-    
+
     // fetch message number 1 in this mailbox, along with its RFC822 field.
     // RFC 822 dictates the format of the body of e-mails
     // let messages = imap_session.fetch("1:*", "RFC822")?;
@@ -46,7 +46,7 @@ fn fetch_inbox_top(
     let messages = imap_session.uid_fetch(next_uid.to_string(), "RFC822")?;
     imap_session.logout()?;
     Ok(messages)
-/*  let message = if let Some(m) = messages.iter().next() {
+    /*  let message = if let Some(m) = messages.iter().next() {
         m
     } else {
         return Ok(None);
