@@ -6,7 +6,7 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use dataservice::db::models::{DbLegislativeInitiativeQuery, DbParty};
+use dataservice::db::{models::{DbLegislativeInitiativeQuery, DbParty}, api_models::DbQuestionQuery};
 // use diesel_async::pooled_connection::AsyncDieselConnectionManager;
 use log::{error, info};
 use somes_common_lib::{
@@ -96,7 +96,9 @@ pub async fn serve(addr: SocketAddr) {
             delegates_by_call_to_orders_and_legis_period,
             user,
             parties,
-            delegate
+            delegate,
+            questions,
+            questions_by_user
         ),
         components(
             schemas(
@@ -111,7 +113,7 @@ pub async fn serve(addr: SocketAddr) {
                 DelegateByCallToOrders, CallToOrdersPerPartyDelegates,
                 UserInfo, UserErrorResponse,
                 DbParty, PartiesErrorResponse,
-                DelegateById
+                DelegateById, DbQuestionQuery, Page
 
             ),
         ),
@@ -174,6 +176,8 @@ pub async fn serve(addr: SocketAddr) {
         )
         .route(USER, post(user))
         .route(DELEGATE, get(delegate))
+        .route(QUESTIONS, get(questions))
+        .route(QUESTIONS_BY_USER, get(questions_by_user))
         .route("/save_email", post(save_email))
         .layer(
             CorsLayer::new()
