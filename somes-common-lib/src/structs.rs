@@ -74,6 +74,8 @@ pub struct Question {
     pub editable: bool, // 100% false if the delegate does not have a somes account
     pub last_edited_on: Option<NaiveDateTime>,
     pub visible: bool, // maybe if an admin flags a question as inappropriate?
+    pub likes: usize,
+    pub dislike: usize,
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
