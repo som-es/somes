@@ -86,7 +86,7 @@
 
 	let search: string = "";
 	let sort: "relevance" | "rating" | "newest" = "relevance";
-	let selectedDelegate: Delegate | string = "all";
+	let selectedDelegate: Delegate = {id: 0} as Delegate;
 	let selectedParty: Party | string = "all";
 	let selectedDateRange: string[] = [toAPIDate(new Date(0)), toAPIDate(new Date())];
 
@@ -94,11 +94,8 @@
 		const delegates = await Promise.all(questions.map((q) => delegate_by_id(q.delegate_id)));
 
   		const filtered = questions.filter((q, i) => {
-			console.log(q.created_on)
-			console.log(selectedDateRange[0])
-
 			// TODO: add search bar
-			if (q.delegate_id !== selectedDelegate.id && selectedDelegate !== "all") return false;
+			if (q.delegate_id !== selectedDelegate.id && selectedDelegate.id !== 0) return false;
 			if (delegates[i].party !== selectedParty && selectedParty !== "all") return false;
 			if (
 				q.created_on < toTSDate(selectedDateRange[0]) ||

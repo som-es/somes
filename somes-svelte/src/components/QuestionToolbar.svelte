@@ -5,10 +5,11 @@
 	import { onMount } from "svelte";
     import { modalStore } from "@skeletonlabs/skeleton";
 	import type { ModalSettings } from "@skeletonlabs/skeleton";
+	import { modalDelegateStore } from "../stores/stores";
 
     export let search: string;
 	export let sort: "relevance" | "rating" | "newest";
-	export let delegate: Delegate | string;
+	export let delegate: Delegate;
 	export let party: Party | string;
 	export let dateRange: string[];
 
@@ -30,6 +31,13 @@
     function triggerDelegateModal() {
 		modalStore.trigger(modal);
 	}
+
+    modalDelegateStore.subscribe((value) => {
+        if (value) delegate = value as Delegate;
+    });
+
+    $: modalDelegateStore.update(() => delegate as Delegate);
+    $: if (delegate.id === 0) delegate = {id: 0} as Delegate;
 </script>
 
 <!-- TODO: do it like the gmail web client :) -->
@@ -58,10 +66,10 @@
             <div class="flex flex-row gap-[0.5vw] w-1/2">
                 <label class="label">
                     <span>{$t("common.delegate")}</span>
-                    <select class="select" bind:value={delegate}>
-                        <option value="all" selected>Alle</option>
+                    <select class="select" bind:value={delegate.id}>
+                        <option value={0} selected>Alle</option>
                         {#each dels as del}
-                            <option value={del}>{del.name}</option>
+                            <option value={del.id}>{del.name}</option>
                         {/each}
                     </select>
                 </label>
