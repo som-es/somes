@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
 	import { t } from "$lib/translations";
-	import ParliamentImg from "$lib/assets/assets/parliament.png";
 	import { loginDrawerSettings } from "$lib/constants";
 	import { localStorageStore, type DrawerSettings, drawerStore } from "@skeletonlabs/skeleton";
 	import { get, type Readable, type Writable } from "svelte/store";
+	import somes_white from '$lib/assets/somes_white.svg?raw';
+	import { onMount } from "svelte";
 
 	const noAccountStorage: Readable<boolean | null> = localStorageStore("noAccount", null);
 	const isNoAccount = get(noAccountStorage);
@@ -20,65 +21,100 @@
 		// localStorageStore('noAccount', true);
 		goto("/home");
 	}
+
+	onMount(() => {
+		const bg: Element = document.querySelector(".background");
+		const main: Element = document.querySelector(".main");
+		const windowWidth = window.innerWidth / 5;
+		const windowHeight = window.innerHeight / 5 ;
+
+		main.addEventListener('mousemove', (e): void => {
+			const mouseX = e.clientX / windowWidth;
+			const mouseY = e.clientY / windowHeight;
+			
+			bg.style.transform = `translate3d(-${mouseX}%, -${mouseY}%, 0)`;
+		});
+	})
 </script>
 
-<div class="h-full w-full background">
-	<div class="trans-layer">
-		<!-- <div class="flex h-full flex-row flex-wrap"> -->
-		<!-- <div class="w-2/3"> -->
-		<!-- Test -->
-		<!-- </div> -->
-		<!-- <div class="w-1/3 bg-tertiary-200"> -->
-		<!-- Test -->
-		<!-- </div> -->
-		<!-- </div> -->
-		<div class="container mx-auto px-4 self-center sm:text-left">
-			<h2 class="text-tertiary-300 font-bold pt-28 text-center sm:text-left">
-				{$t("common.tagline")}
-			</h2>
-
-			<div class="flex justify-center sm:justify-start pt-6 self-center sm:pl-6">
-				<button
-					on:click={(_) => drawerStore.open(loginDrawerSettings)}
-					class="text-center bg-tertiary-500 text-white rounded-full px-14 h-9"
-					>{$t("common.login")}</button
-				>
-				<button
-					on:click={(_) => redirectToHome()}
-					class="ml-4 text-center bg-secondary-400 text-white rounded-full px-15 h-9"
-					>{$t("common.no_account")}</button
-				>
+<div class="h-full w-full background bg-surface-400-500-token bg-blend-multiply -z-10"></div>
+<div class="h-full w-full main">
+	<div class="trans-layer flex">
+		<div class="flex flex-row center">
+			<div class="flex flex-col w-1/2 gap-[5vh]">
+				<div class="w-1/4 self-center">
+					{@html somes_white}
+				</div>
+				<p class="text-8xl font-bold text-center bg-gradient-to-br from-yellow-300 to-red-300 bg-clip-text text-transparent">
+					{$t("common.tagline")}
+				</p>
 			</div>
-			<div class="mt-2">
-				<h5>
-					<span class="text-tertiary-100 font-semibold">{$t("common.sign_up_tagline")}</span>
-					<a href="/register" class="!text-secondary-100 font-bold"
-						>{$t("common.sign_up_request")}</a
-					>
-				</h5>
+			<div class="w-1/2">
+				<div class="flex flex-col gap-7">
+					<div class="flex flex-col gap-2">
+						<div class="flex flex-row gap-2">
+						<h1 class="h1">Somes</h1>
+						<h3>{$t("common.somes_pronunciation")}</h3>
+					</div>
+					<h4 class="h4"><b>{$t("common.somes_description")}</b></h4>
+					</div>
+					<div class="flex flex-col gap-3 w-1/3">
+						<button
+							type="button"
+							on:click={(_) => drawerStore.open(loginDrawerSettings)}
+							class="btn btn-lg bg-tertiary-500 rounded-lg h-12"
+							>{$t("common.login")}</button
+						>
+						<button
+							type="button"
+							on:click={(_) => redirectToHome()}
+							class="btn btn-lg bg-secondary-500 rounded-lg h-12"
+							>{$t("common.no_account")}</button
+						>
+					</div>
+					<div class="mt-2">
+						<h5>
+							<span class="font-semibold">{$t("common.sign_up_tagline")}</span>
+							<a href="/register" class="font-bold"
+								>{$t("common.sign_up_request")}</a
+							>
+						</h5>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
 </div>
 
-<style>
+<style lang="scss">
 	.background {
-		background-image: url("$lib/assets/parliament.png");
-		background-repeat: no-repeat;
-		background-attachment: fixed;
-		background-position: center;
-		background-size: cover;
-		/* background-color: rgba(46, 54, 68, 0.63); */
-		/* box-shadow: inset 0 0 0 1000px rgba(46, 54, 68, 0.63); */
+		position: absolute;
+		width: 110%;
+  		height: 110%;
+		background: url("$lib/assets/parliament.png") no-repeat left center / cover;
 	}
 
 	.trans-layer {
-		background-color: rgba(46, 54, 68, 0.63);
 		width: 100%;
 		height: 100%;
+		align-items: center;
+  		justify-content: center;
 	}
 
-	a:link {
+	a {
 		text-decoration: none !important;
+		color: inherit !important;
+	}
+
+	p { 
+		word-spacing: 9999999px; 
+	}
+
+	.h1 {
+		font-size: 5em;
+	}
+
+	.h4 {
+		font-size: 1.5em;
 	}
 </style>

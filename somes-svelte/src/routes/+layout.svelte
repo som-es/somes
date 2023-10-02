@@ -49,7 +49,7 @@
 <AppShell>
 	<!-- TODO: show the second header below the the first while also making it sticky (without the first one being sticky) -->
 	<svelte:fragment slot="header">
-		<AppBar background="bg-inherit" padding="p-2">
+		<AppBar background="bg-surface-50-900-token" padding="p-2">
 			<svelte:fragment slot="lead">
 				<a class="mx-4" href="/">
 					<svg

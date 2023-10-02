@@ -2,7 +2,7 @@
 module.exports = {
 	mode: "jit",
 	// purge: ['./src/**/*.{html,js,svelte,ts}', require('path').join(require.resolve('@skeletonlabs/skeleton'), '../**/*.{html,js,svelte,ts}')],
-	darkMode: "media",
+	darkMode: "class",
 	content: [
 		"./src/**/*.{html,js,svelte,ts}",
 		require("path").join(require.resolve("@skeletonlabs/skeleton"), "../**/*.{html,js,svelte,ts}"),

@@ -64,5 +64,7 @@
 	"sign_up_login_after": "After clicking the link you can log in here:",
 	"top_cto": "Top call to orders receivers",
 	"top_speakers": "The top speakers of the Nationalrat by hours spoken",
-	"logout": "Log out"
+	"logout": "Log out",
+	"somes_pronunciation": "[ˈsoʊˈmɛz]",
+	"somes_description": "The web portal providing an overview of the Austrian government"
 }

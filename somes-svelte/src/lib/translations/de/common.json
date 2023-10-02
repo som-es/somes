@@ -64,5 +64,7 @@
 	"sign_up_login_after": "Nach dem Klicken des Links kann sich hier angemeldet werden:",
 	"top_cto": "Abgeordnete mit den meisten Ordnungsrufen",
 	"top_speakers": "Sprecher im Nationalrat sortiert nach Redezeit in Stunden",
-	"logout": "Abmelden"
+	"logout": "Abmelden",
+	"somes_pronunciation": "[zo:məs]",
+	"somes_description": "Das Web-Portal zur Übersicht der österreichischen Legislative"
 }
