@@ -4,7 +4,7 @@
 	import { loginDrawerSettings } from "$lib/constants";
 	import { localStorageStore, type DrawerSettings, drawerStore } from "@skeletonlabs/skeleton";
 	import { get, type Readable, type Writable } from "svelte/store";
-	import somes_white from '$lib/assets/somes_white.svg?raw';
+	import somesWhite from '$lib/assets/somes_white.svg?raw';
 	import { onMount } from "svelte";
 
 	const noAccountStorage: Readable<boolean | null> = localStorageStore("noAccount", null);
@@ -43,7 +43,7 @@
 		<div class="flex flex-row center">
 			<div class="flex flex-col w-1/2 gap-[5vh]">
 				<div class="w-1/4 self-center">
-					{@html somes_white}
+					{@html somesWhite}
 				</div>
 				<p class="text-8xl font-bold text-center bg-gradient-to-br from-yellow-300 to-red-300 bg-clip-text text-transparent">
 					{$t("common.tagline")}
