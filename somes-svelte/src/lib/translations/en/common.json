@@ -66,5 +66,6 @@
 	"top_speakers": "The top speakers of the Nationalrat by hours spoken",
 	"logout": "Log out",
 	"somes_pronunciation": "[ˈsoʊˈmɛz]",
-	"somes_description": "The web portal providing an overview of the Austrian government"
+	"somes_description": "The web portal providing an overview of the Austrian government",
+	"somes_button_title": "Click here for the pronunciation"
 }

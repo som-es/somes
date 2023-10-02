@@ -4,11 +4,13 @@
 	import { loginDrawerSettings } from "$lib/constants";
 	import { localStorageStore, type DrawerSettings, drawerStore } from "@skeletonlabs/skeleton";
 	import { get, type Readable, type Writable } from "svelte/store";
-	import somesWhite from '$lib/assets/somes_white.svg?raw';
+	import somesWhite from "$lib/assets/somes_white.svg?raw";
+	import somesAudio from "$lib/assets/somes.mp3";
 	import { onMount } from "svelte";
 
 	const noAccountStorage: Readable<boolean | null> = localStorageStore("noAccount", null);
 	const isNoAccount = get(noAccountStorage);
+	let somesSound: HTMLAudioElement;
 
 	if (isNoAccount) {
 		// goto("/home");
@@ -23,6 +25,8 @@
 	}
 
 	onMount(() => {
+		somesSound = new Audio(somesAudio);
+
 		const bg: Element = document.querySelector(".background");
 		const main: Element = document.querySelector(".main");
 		const windowWidth = window.innerWidth / 5;
@@ -54,7 +58,13 @@
 					<div class="flex flex-col gap-2">
 						<div class="flex flex-row gap-2">
 						<h1 class="h1">Somes</h1>
-						<h3>{$t("common.somes_pronunciation")}</h3>
+						<button 
+							type="button"
+							class="h3 h-min"
+							title={$t("common.somes_button_title")}
+							on:click={() => somesSound.play()}
+							on:keypress={() => somesSound.play()}
+						>{$t("common.somes_pronunciation")}</button>
 					</div>
 					<h4 class="h4"><b>{$t("common.somes_description")}</b></h4>
 					</div>

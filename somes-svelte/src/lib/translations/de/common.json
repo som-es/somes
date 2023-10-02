@@ -66,5 +66,6 @@
 	"top_speakers": "Sprecher im Nationalrat sortiert nach Redezeit in Stunden",
 	"logout": "Abmelden",
 	"somes_pronunciation": "[zo:məs]",
-	"somes_description": "Das Web-Portal zur Übersicht der österreichischen Legislative"
+	"somes_description": "Das Web-Portal zur Übersicht der österreichischen Legislative",
+	"somes_button_title": "Hier klicken für die Aussprache"
 }
