@@ -55,7 +55,7 @@
 	<svelte:fragment slot="header">
 		<AppBar background="bg-surface-50-900-token" padding="p-2">
 			<svelte:fragment slot="lead">
-				<a class="mx-4" href="/">
+				<a class="mx-4 fill-current stroke-current" href="/">
 					{@html somesTextIcon}
 				</a>
 			</svelte:fragment>
@@ -77,7 +77,7 @@
 					</div>
 				</a>
 			</svelte:fragment>
-			<a href="/home">
+			<a href="/home" class="fill-current stroke-current">
 				<div>
 					{@html homeIcon}
 				</div>

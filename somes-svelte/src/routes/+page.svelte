@@ -46,7 +46,7 @@
 	<div class="trans-layer flex">
 		<div class="flex flex-row center">
 			<div class="flex flex-col w-1/2 gap-[5vh]">
-				<div class="w-1/4 self-center">
+				<div class="w-1/4 self-center fill-current stroke-current">
 					{@html somesWhite}
 				</div>
 				<p class="text-8xl font-bold text-center bg-gradient-to-br from-yellow-300 to-red-300 bg-clip-text text-transparent">
