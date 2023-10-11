@@ -1,17 +1,19 @@
-use std::{io::Write, path::PathBuf, str::FromStr};
+use std::{io::Write, path::PathBuf, str::FromStr, fs::OpenOptions};
 
 use axum::Json;
 use somes_common_lib::SaveEmailInfo;
 
 pub fn save_email_to_file(email: &str) -> Result<(), String> {
-    PathBuf::from_str("./email_list.txt").unwrap();
-    std::fs::File::create("./email_list.txt");
-    let mut email_file =
-        std::fs::File::open("./email_list.txt").map_err(|_| "Could not open file".to_string())?;
+    let path = PathBuf::from_str("./email_list.txt").unwrap();
+    if !path.exists() {
+        std::fs::File::create("./email_list.txt").unwrap();
+    }
+    let mut email_file = OpenOptions::new().write(true).open("./email_list.txt").map_err(|_| "Could not open file".to_string())?;
 
     email_file
         .write_all(format!("{}\n", email).as_bytes())
         .map_err(|_| "Could not write email to file".to_string())?;
+    email_file.flush().unwrap();
     Ok(())
 }
 

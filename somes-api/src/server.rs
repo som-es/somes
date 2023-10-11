@@ -15,6 +15,7 @@ use somes_common_lib::{
     LATEST_VOTE_RESULTS_ROUTE, LEGIS_INIT_ROUTE, LOGIN_ROUTE, PARTIES, PROPOSALS_ROUTE,
     SIGNUP_ROUTE, SPEAKERS_BY_HOURS, SPEAKERS_BY_HOURS_AND_LEGIS_PERIOD, USER, VERIFY_ROUTE,
 };
+use tower::limit::RateLimitLayer;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 //use headers::HeaderValue;
@@ -181,6 +182,7 @@ pub async fn serve(addr: SocketAddr) {
                 .allow_methods([http::Method::GET, http::Method::POST])
                 .allow_headers([http::header::CONTENT_TYPE, http::header::AUTHORIZATION]),
         )
+        // .layer(RateLimitLayer::new(num, per))
         .with_state(state);
     //.with_state(verification_map)
     //.with_state(verification_hasher);

@@ -101,7 +101,7 @@
 		position: absolute;
 		width: 110%;
   		height: 110%;
-		background: url("$lib/assets/parliament.png") no-repeat left center / cover;
+		background: url("$lib/assets/parliament_low_res.png") no-repeat left center / cover;
 	}
 
 	.trans-layer {

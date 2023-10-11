@@ -39,4 +39,5 @@ lettre = "0.10.4"
 imap = { version = "3.0.0-alpha.10", features = ["rustls-tls"] }
 utoipa = "3.5.0"
 utoipa-swagger-ui = { version = "3.1.5", features = ["axum"] }
+tower = {version = "0.4.13", features = ["full"] }
 
