@@ -18,10 +18,18 @@ pub async fn send_reset_password_request(
 ) -> Result<Json<()>, ()> {
     // let con = &mut establish_connection();
 
-    let Some(user) = postgres_con.interact(move |con| {
-        get_user_from_db(con,&reset_password_info.username_or_email, &reset_password_info.username_or_email)
-    }).await.map_err(|_| ())? else {
-        return Ok(Json(()))
+    let Some(user) = postgres_con
+        .interact(move |con| {
+            get_user_from_db(
+                con,
+                &reset_password_info.username_or_email,
+                &reset_password_info.username_or_email,
+            )
+        })
+        .await
+        .map_err(|_| ())?
+    else {
+        return Ok(Json(()));
     };
 
     /*let Some(user) = get_user_from_db(con,&reset_password_info.username_or_email, &reset_password_info.username_or_email) else {

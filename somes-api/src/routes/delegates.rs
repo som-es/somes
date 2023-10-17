@@ -1,9 +1,9 @@
-use axum::{Json, extract::Query};
+use axum::{extract::Query, Json};
 use dataservice::db::models::{DbDelegate, DbProposalQuery};
 use somes_common_lib::DelegateById;
 
 use crate::{
-    dataservice::{get_delegates, get_proposals, get_delegate},
+    dataservice::{get_delegate, get_delegates, get_proposals},
     DataserviceDbConnection,
 };
 
