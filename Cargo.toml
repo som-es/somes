@@ -2,4 +2,5 @@
 members = [
     "somes-api",
     "somes-common-lib",
+    "deploy-rs"
 ]
