@@ -1,4 +1,4 @@
-use std::net::SocketAddr;
+use std::{net::SocketAddr, path::PathBuf};
 
 use axum::{
     extract::FromRef,
@@ -6,6 +6,7 @@ use axum::{
     routing::{get, post},
     Router,
 };
+use axum_server::tls_rustls::RustlsConfig;
 use dataservice::db::models::{DbLegislativeInitiativeQuery, DbParty};
 // use diesel_async::pooled_connection::AsyncDieselConnectionManager;
 use log::{error, info};
@@ -187,12 +188,21 @@ pub async fn serve(addr: SocketAddr) {
     //.with_state(verification_map)
     //.with_state(verification_hasher);
 
+    let config = RustlsConfig::from_pem_file(
+        PathBuf::from("/etc/letsencrypt/live/somes.at/fullchain.pem"),
+        PathBuf::from("/etc/letsencrypt/live/somes.at/privkey.pem"),
+    )
+    .await
+    .unwrap();
+
     info!("Binding API on {addr}");
 
-    let server = match axum::Server::try_bind(&addr) {
-        Ok(server) => server,
-        Err(e) => panic!("Could not initialize API: {e}"),
-    };
+    let server = axum_server::bind_rustls(addr, config);
+
+    // let server = match axum::Server::try_bind(&addr) {
+    //     Ok(server) => server,
+    //     Err(e) => panic!("Could not initialize API: {e}"),
+    // };
 
     info!("Initialized API");
 

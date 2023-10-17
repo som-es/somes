@@ -1,4 +1,8 @@
-use axum::Router;
+use axum::extract::Host;
+use axum::handler::Handler;
+use axum::response::Redirect;
+use axum::{Router, BoxError};
+use axum::http::{Uri, StatusCode};
 use axum_extra::routing::SpaRouter;
 use axum_server::tls_rustls::RustlsConfig;
 use clap::Parser;
@@ -27,6 +31,18 @@ struct Opt {
     /// set the directory where static files are to be found
     #[clap(long = "static-dir", default_value = "../dist")]
     static_dir: String,
+
+    #[clap(
+        long = "cert",
+        default_value = "/etc/letsencrypt/live/somes.at/fullchain.pem"
+    )]
+    cert: String,
+
+    #[clap(
+        long = "key",
+        default_value = "/etc/letsencrypt/live/somes.at/privkey.pem"
+    )]
+    key: String,
 }
 
 #[tokio::main]
@@ -50,21 +66,68 @@ async fn main() {
         opt.port,
     ));
 
+    let ports = Ports {
+        http: 80,
+        https: 443,
+    };
+    // optional: spawn a second server to redirect http requests to this server
+    tokio::spawn(redirect_http_to_https(ports));
+
     log::info!("listening on http://{}", sock_addr);
 
-    // let config = RustlsConfig::from_pem_file(
-    // PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-    //     .join("self_signed_certs")
-    //     .join("fullchaincert.pem"),
-    // PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-    //     .join("self_signed_certs")
-    //     .join("privkey.pem"),
-    // )
-    // .await
-    // .unwrap();
+    let config = RustlsConfig::from_pem_file(PathBuf::from(opt.cert), PathBuf::from(opt.key))
+        .await
+        .unwrap();
 
-    axum::Server::bind(&sock_addr)
+    axum_server::bind_rustls(sock_addr, config)
         .serve(app.into_make_service())
         .await
-        .expect("Unable to start server");
+        .unwrap();
+
+    // axum::Server::bind(&sock_addr)
+    //     .serve(app.into_make_service())
+    //     .await
+    //     .expect("Unable to start server");
+}
+#[derive(Clone, Copy)]
+struct Ports {
+    http: u16,
+    https: u16,
+}
+
+
+async fn redirect_http_to_https(ports: Ports) {
+    fn make_https(host: String, uri: Uri, ports: Ports) -> Result<Uri, BoxError> {
+        let mut parts = uri.into_parts();
+
+        parts.scheme = Some(axum::http::uri::Scheme::HTTPS);
+
+        if parts.path_and_query.is_none() {
+            parts.path_and_query = Some("/".parse().unwrap());
+        }
+
+        let https_host = host.replace(&ports.http.to_string(), &ports.https.to_string());
+        parts.authority = Some(https_host.parse()?);
+
+        Ok(Uri::from_parts(parts)?)
+    }
+
+    let redirect = move |Host(host): Host, uri: Uri| async move {
+        match make_https(host, uri, ports) {
+            Ok(uri) => Ok(Redirect::permanent(&uri.to_string())),
+            Err(error) => {
+                tracing::warn!(%error, "failed to convert URI to HTTPS");
+                Err(StatusCode::BAD_REQUEST)
+            }
+        }
+    };
+
+    let addr = SocketAddr::from(([127, 0, 0, 1], ports.http));
+    // let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+    // tracing::debug!("listening on {}", listener.local_addr().unwrap());
+    
+    axum::Server::bind(&addr)
+        .serve(redirect.into_make_service())
+        .await
+        .unwrap();
 }
