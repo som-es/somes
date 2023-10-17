@@ -9,7 +9,7 @@ pub fn save_email_to_file(email: &str) -> Result<(), String> {
         std::fs::File::create("./email_list.txt").unwrap();
     }
     let mut email_file = OpenOptions::new()
-        .write(true)
+        .append(true)
         .open("./email_list.txt")
         .map_err(|_| "Could not open file".to_string())?;
 
