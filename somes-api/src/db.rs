@@ -27,7 +27,7 @@ use self::model::NewUser;
 pub fn establish_connection() -> diesel::PgConnection {
     use diesel::PgConnection;
 
-    <PgConnection as diesel::Connection>::establish(crate::DATABASE_URL)
+    <PgConnection as diesel::Connection>::establish(crate::USR_DATABASE_URL)
         .expect("Can't establish database conntection.")
 }
 

@@ -96,3 +96,9 @@ pub struct QuestionFilter {
 pub struct DelegateById {
     pub delegate_id: i32,
 }
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct InterestShare {
+    pub topic: String,
+    pub interest_share: f32
+}

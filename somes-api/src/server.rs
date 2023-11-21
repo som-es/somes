@@ -16,6 +16,7 @@ use somes_common_lib::{
     LATEST_VOTE_RESULTS_ROUTE, LEGIS_INIT_ROUTE, LOGIN_ROUTE, PARTIES, PROPOSALS_ROUTE,
     SIGNUP_ROUTE, SPEAKERS_BY_HOURS, SPEAKERS_BY_HOURS_AND_LEGIS_PERIOD, USER, VERIFY_ROUTE,
 };
+use sqlx::{postgres::PgPoolOptions, PgPool};
 use tower::limit::RateLimitLayer;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
@@ -29,7 +30,7 @@ use crate::{
         legis_inits, parties, proposals, save_email, speakers_by_hours,
         speakers_by_hours_and_legis_period, user,
     },
-    DATASERVICE_URL, REDIS_DB,
+    DATASERVICE_URL, REDIS_DB, PostgresPool,
 };
 use tower_http::cors::{Any, CorsLayer};
 
@@ -45,6 +46,7 @@ pub struct AppState {
     pub redis_client: redis::Client,
     pub somes_db_pool: deadpool_diesel::postgres::Pool,
     pub dataservice_db_pool: deadpool_diesel::postgres::Pool,
+    pub dataservice_sqlx_pool: PgPool,
 }
 
 unsafe impl Send for AppState {}
@@ -55,11 +57,13 @@ impl AppState {
         redis_client: redis::Client,
         somes_db_pool: deadpool_diesel::postgres::Pool,
         dataservice_db_pool: deadpool_diesel::postgres::Pool,
+        dataservice_sqlx_pool: PgPool,
     ) -> AppState {
         AppState {
             redis_client,
             somes_db_pool,
             dataservice_db_pool,
+            dataservice_sqlx_pool,
         }
     }
 }
@@ -70,6 +74,11 @@ impl FromRef<AppState> for redis::Client {
     }
 }
 
+impl FromRef<AppState> for PgPool {
+    fn from_ref(app_state: &AppState) -> PgPool {
+        app_state.dataservice_sqlx_pool.clone()
+    }
+}
 //pub type RedisClient = Arc<RwLock<redis::Client>>;
 
 pub async fn serve(addr: SocketAddr) {
@@ -129,6 +138,12 @@ pub async fn serve(addr: SocketAddr) {
     let postgres_pool = bb8::Pool::builder().build(config).await.unwrap();
      */
 
+    
+    let dataservice_sqlx_pool = PgPoolOptions::new()
+        .max_connections(200)
+        .connect(DATASERVICE_URL)
+        .await.unwrap();
+
     let somes_db_manager =
         // mind the database url, it is "DATASERVICE_URL" and not "DATABASE_URL"
         deadpool_diesel::postgres::Manager::new(/*DATABASE_URL*/DATASERVICE_URL, deadpool_diesel::Runtime::Tokio1);
@@ -143,7 +158,7 @@ pub async fn serve(addr: SocketAddr) {
         .build()
         .unwrap();
 
-    let state = AppState::new(client, somes_db_pool, dataservice_db_pool).await;
+    let state = AppState::new(client, somes_db_pool, dataservice_db_pool, dataservice_sqlx_pool).await;
 
     let app = Router::new()
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))

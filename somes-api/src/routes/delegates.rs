@@ -9,6 +9,7 @@ use crate::{
 
 pub use error::*;
 mod error;
+mod interests;
 
 #[utoipa::path(
     get,

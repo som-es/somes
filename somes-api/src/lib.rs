@@ -16,7 +16,7 @@ pub use initial_startup::*;
 pub use jwt::AuthError;
 use once_cell::sync::Lazy;
 
-pub const DATABASE_URL: &str = dotenv!("DATABASE_URL");
+pub const USR_DATABASE_URL: &str = dotenv!("USR_DATABASE_URL");
 pub const DATASERVICE_URL: &str = dotenv!("DATASERVICE_URL");
 pub const TEST_DB_PATH: &str = dotenv!("TEST_DB_PATH");
 pub const SQL_SCHEMA_PATH: &str = dotenv!("SQL_SCHEMA_PATH");
