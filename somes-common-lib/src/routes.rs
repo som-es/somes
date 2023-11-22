@@ -15,3 +15,4 @@ pub const CALL_TO_ORDERS_PER_PARTY_DELEGATES: &str = "/call_to_orders_per_party_
 pub const PARTIES: &str = "/parties";
 pub const USER: &str = "/user";
 pub const DELEGATE: &str = "/delegate";
+pub const DELEGATE_INTERESTS: &str = "/delegate_interests";

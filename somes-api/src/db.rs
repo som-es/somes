@@ -18,6 +18,7 @@ use axum::{
 // use diesel_async::{AsyncPgConnection, pooled_connection::AsyncDieselConnectionManager};
 use redis::AsyncCommands;
 use reqwest::StatusCode;
+use sqlx::PgPool;
 
 use crate::{server::AppState, PostgresPool};
 
@@ -116,6 +117,29 @@ impl FromRequestParts<AppState> for DataserviceDbConnection {
         Ok(Self(conn))
     }
 }
+
+
+impl FromRef<AppState> for PgPool {
+    fn from_ref(app_state: &AppState) -> PgPool {
+        app_state.dataservice_sqlx_pool.clone()
+    }
+}
+
+#[async_trait]
+impl<S> FromRequestParts<S> for PgPoolConnection
+where
+    S: Send + Sync,
+    PgPool: FromRef<S>,
+{
+    type Rejection = (StatusCode, String);
+
+    async fn from_request_parts(_parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
+        let pool = PgPool::from_ref(state);
+        Ok(Self(pool))
+    }
+}
+
+pub struct PgPoolConnection(pub PgPool);
 
 pub fn internal_error<E>(err: E) -> (StatusCode, String)
 where

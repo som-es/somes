@@ -29,8 +29,7 @@ use crate::{
         delegates_by_call_to_orders_and_legis_period, latest_legis_inits, latest_vote_results,
         legis_inits, parties, proposals, save_email, speakers_by_hours,
         speakers_by_hours_and_legis_period, user,
-    },
-    DATASERVICE_URL, REDIS_DB, PostgresPool,
+    }, DATASERVICE_URL, REDIS_DB,
 };
 use tower_http::cors::{Any, CorsLayer};
 
@@ -74,11 +73,6 @@ impl FromRef<AppState> for redis::Client {
     }
 }
 
-impl FromRef<AppState> for PgPool {
-    fn from_ref(app_state: &AppState) -> PgPool {
-        app_state.dataservice_sqlx_pool.clone()
-    }
-}
 //pub type RedisClient = Arc<RwLock<redis::Client>>;
 
 pub async fn serve(addr: SocketAddr) {
@@ -86,6 +80,10 @@ pub async fn serve(addr: SocketAddr) {
         error!("Could not establish redis database connection!");
         return;
     };
+    if client.get_connection().is_err() {
+        error!("Could not establish redis database connection!");
+        return;
+    }
 
     info!("Established redis database connection to {REDIS_DB}.");
 
@@ -122,7 +120,7 @@ pub async fn serve(addr: SocketAddr) {
                 DelegateByCallToOrders, CallToOrdersPerPartyDelegates,
                 UserInfo, UserErrorResponse,
                 DbParty, PartiesErrorResponse,
-                DelegateById
+                DelegateById, InterestShare
 
             ),
         ),
@@ -138,11 +136,11 @@ pub async fn serve(addr: SocketAddr) {
     let postgres_pool = bb8::Pool::builder().build(config).await.unwrap();
      */
 
-    
     let dataservice_sqlx_pool = PgPoolOptions::new()
         .max_connections(200)
         .connect(DATASERVICE_URL)
-        .await.unwrap();
+        .await
+        .unwrap();
 
     let somes_db_manager =
         // mind the database url, it is "DATASERVICE_URL" and not "DATABASE_URL"
@@ -158,7 +156,13 @@ pub async fn serve(addr: SocketAddr) {
         .build()
         .unwrap();
 
-    let state = AppState::new(client, somes_db_pool, dataservice_db_pool, dataservice_sqlx_pool).await;
+    let state = AppState::new(
+        client,
+        somes_db_pool,
+        dataservice_db_pool,
+        dataservice_sqlx_pool,
+    )
+    .await;
 
     let app = Router::new()
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
@@ -191,6 +195,7 @@ pub async fn serve(addr: SocketAddr) {
         )
         .route(USER, post(user))
         .route(DELEGATE, get(delegate))
+        .route(DELEGATE_INTERESTS, get(delegate_interests))
         .route("/save_email", post(save_email))
         .layer(
             CorsLayer::new()
@@ -202,22 +207,21 @@ pub async fn serve(addr: SocketAddr) {
         .with_state(state);
     //.with_state(verification_map)
     //.with_state(verification_hasher);
-
-    let config = RustlsConfig::from_pem_file(
-        PathBuf::from("/etc/letsencrypt/live/somes.at/fullchain.pem"),
-        PathBuf::from("/etc/letsencrypt/live/somes.at/privkey.pem"),
-    )
-    .await
-    .unwrap();
+    // let config = RustlsConfig::from_pem_file(
+    //     PathBuf::from("/etc/letsencrypt/live/somes.at/fullchain.pem"),
+    //     PathBuf::from("/etc/letsencrypt/live/somes.at/privkey.pem"),
+    // )
+    // .await
+    // .unwrap();
 
     info!("Binding API on {addr}");
 
-    let server = axum_server::bind_rustls(addr, config);
+    // let server = axum_server::bind_rustls(addr, config);
 
-    // let server = match axum::Server::try_bind(&addr) {
-    //     Ok(server) => server,
-    //     Err(e) => panic!("Could not initialize API: {e}"),
-    // };
+    let server = match axum::Server::try_bind(&addr) {
+        Ok(server) => server,
+        Err(e) => panic!("Could not initialize API: {e}"),
+    };
 
     info!("Initialized API");
 

@@ -1,15 +1,39 @@
 use axum::{extract::Query, Json};
 use dataservice::db::models::{DbDelegate, DbProposalQuery};
-use somes_common_lib::DelegateById;
+use somes_common_lib::{DelegateById, InterestShare};
 
 use crate::{
     dataservice::{get_delegate, get_delegates, get_proposals},
-    DataserviceDbConnection,
+    DataserviceDbConnection, PgPoolConnection,
 };
 
 pub use error::*;
 mod error;
 mod interests;
+pub use interests::*;
+
+#[utoipa::path(
+    get,
+    params(
+        DelegateById
+    ),
+    path = "/delegate_interests", 
+    responses(
+        (status = 200, description = "Returned delegate interests successfully.", body = [Vec<InterestShare>]), 
+        (status = 400, description = "Invalid request", body = [DelegatesErrorResponse]),
+        (status = 500, description = "Internal server error", body = [DelegatesErrorResponse])
+    )
+)]
+#[inline]
+pub async fn delegate_interests(
+    PgPoolConnection(pg): PgPoolConnection,
+    Query(delegate_by_id): Query<DelegateById>,
+) -> Result<Json<Vec<InterestShare>>, DelegatesErrorResponse> {
+    extract_interests_of_delegate(delegate_by_id.delegate_id, &pg)
+        .await
+        .map(Json)
+        .map_err(|_| DelegatesErrorResponse::DelegateInterestsResponseError)
+}
 
 #[utoipa::path(
     get,

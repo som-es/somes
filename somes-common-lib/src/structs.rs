@@ -100,5 +100,6 @@ pub struct DelegateById {
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct InterestShare {
     pub topic: String,
-    pub interest_share: f32
+    pub total_share: f32,
+    pub self_share: f32,
 }

@@ -7,6 +7,7 @@ use utoipa::ToSchema;
 pub enum DelegatesErrorResponse {
     DelegateResponseError,
     ProposalResponseError,
+    DelegateInterestsResponseError,
 }
 
 impl IntoResponse for DelegatesErrorResponse {
@@ -19,6 +20,10 @@ impl IntoResponse for DelegatesErrorResponse {
             DelegatesErrorResponse::ProposalResponseError => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "could not return proposals",
+            ),
+            DelegatesErrorResponse::DelegateInterestsResponseError => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "could not return interests of delegates",
             ),
         };
 
