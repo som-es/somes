@@ -120,3 +120,9 @@ export interface DateRange {
     start: Date;
     end: Date;
 }
+
+export interface InterestShare {
+	topic: string,
+	total_share: number,
+	self_share: number,
+}

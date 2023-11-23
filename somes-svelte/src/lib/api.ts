@@ -4,6 +4,7 @@ import type {
 	CallToOrdersPerPartyDelegate,
 	Delegate,
 	DelegateByCallToOrders,
+	InterestShare,
 	Party,
 	SpeakerByHours,
 	VoteResult,
@@ -105,6 +106,19 @@ export async function speakers_by_hours_and_legis_period(
 			"Content-Type": "application/json",
 		},
 		body: JSON.stringify({ period: period }),
+	});
+
+	return await response.json();
+}
+
+export async function delegate_interests(
+	delegate_id: number
+): Promise<InterestShare[]> {
+		let response = await fetch(`http://${address}:3000/delegate_interests?delegate_id=${delegate_id}`, {
+		method: "GET",
+		// headers: {
+		// 	"Content-Type": "application/json",
+		// },
 	});
 
 	return await response.json();
