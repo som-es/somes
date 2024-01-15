@@ -1,15 +1,15 @@
 use axum::extract::Host;
 use axum::handler::{Handler, HandlerWithoutStateExt};
+use axum::http::{StatusCode, Uri};
 use axum::response::Redirect;
-use axum::{Router, BoxError};
-use axum::http::{Uri, StatusCode};
+use axum::{BoxError, Router};
 use axum_server::tls_rustls::RustlsConfig;
 use clap::Parser;
-use tower_http::services::ServeDir;
 use std::net::{IpAddr, Ipv6Addr, SocketAddr};
 use std::path::PathBuf;
 use std::str::FromStr;
 use tower::ServiceBuilder;
+use tower_http::services::ServeDir;
 use tower_http::trace::TraceLayer;
 
 // Setup the command line interface with clap.
@@ -56,8 +56,13 @@ async fn main() {
     // enable console logging
     tracing_subscriber::fmt::init();
 
-    let serve_dir = ServeDir::new(opt.static_dir);
-    let app = Router::new().nest_service("/", serve_dir);
+    let alpha_serve_dir = ServeDir::new(opt.static_dir);
+    let alpha_app = Router::new().nest_service("/alpha", alpha_serve_dir);
+
+    let landing_server_dir = ServeDir::new("./somes-landing");
+    let landing_app = Router::new().nest_service("/", landing_server_dir);
+
+    let app = Router::new().merge(alpha_app).merge(landing_app);
     // let app = Router::new()
     //     //.route("/api/hello", get(hello))
     //     .merge(SpaRouter::new("/assets", opt.static_dir))
@@ -97,7 +102,6 @@ struct Ports {
     https: u16,
 }
 
-
 async fn redirect_http_to_https(ports: Ports) {
     fn make_https(host: String, uri: Uri, ports: Ports) -> Result<Uri, BoxError> {
         let mut parts = uri.into_parts();
@@ -127,9 +131,11 @@ async fn redirect_http_to_https(ports: Ports) {
     let addr = SocketAddr::from(([127, 0, 0, 1], ports.http));
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     // tracing::debug!("listening on {}", listener.local_addr().unwrap());
-    
-    axum::serve(listener, redirect.into_make_service()).await.unwrap();
-        // .serve(redirect.into_make_service())
-        // .await
-        // .unwrap();
+
+    axum::serve(listener, redirect.into_make_service())
+        .await
+        .unwrap();
+    // .serve(redirect.into_make_service())
+    // .await
+    // .unwrap();
 }
