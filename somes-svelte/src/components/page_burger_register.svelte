@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from "$app/paths";
 	// import { bearer } from '../../stores/store';
 	//import loginIcon from '../../lib/images/login24x200.svg?raw';
 
@@ -72,7 +73,7 @@
 				<span>Registrieren</span>
 			</button>
 		</form>
-		<span>Du hast schon einen Account? Ab zum <a href="./">LOGIN!</a></span>
+		<span>Du hast schon einen Account? Ab zum <a href="{base}/">LOGIN!</a></span>
 	</section>
 </section>
 <div class="card w-auto shadow-xl py-2 px-4" data-popup="pwdErrorPopup">

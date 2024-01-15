@@ -8,6 +8,7 @@
 	import somesAudio from "$lib/assets/somes.mp3";
 	import { onMount } from "svelte";
 	import { browser } from "$app/environment";
+	import { base } from "$app/paths";
 
 	const noAccountStorage: Readable<boolean | null> = localStorageStore("noAccount", null);
 	const isNoAccount = get(noAccountStorage);
@@ -89,7 +90,7 @@
 					<div class="mt-2">
 						<h5>
 							<span class="font-semibold">{$t("common.sign_up_tagline")}</span>
-							<a href="/register" class="font-bold"
+							<a href="{base}/register" class="font-bold"
 								>{$t("common.sign_up_request")}</a
 							>
 						</h5>

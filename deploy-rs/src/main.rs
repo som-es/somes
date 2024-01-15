@@ -56,6 +56,17 @@ async fn main() {
     // enable console logging
     tracing_subscriber::fmt::init();
 
+    // Change the base path as the alpha is accessed with /alpha
+    // svelte.config.js
+    // export default {
+    //     kit: {
+    //     paths: {
+    //         base: '/alpha',
+    //     },
+    //     // ... other configuration options
+    //     },
+    // };
+    
     // https://stackoverflow.com/questions/71527665/building-svelte-app-as-a-set-of-static-files
     let alpha_serve_dir = ServeDir::new(opt.static_dir);
     let alpha_app = Router::new().nest_service("/alpha", alpha_serve_dir);

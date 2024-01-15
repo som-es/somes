@@ -5,6 +5,7 @@
 	import { localStorageStore } from "@skeletonlabs/skeleton";
 	import type { Writable } from "svelte/store";
 	import { partyToColorFn } from "$lib/getPartyToColor";
+	import { base } from "$app/paths";
 
 	export let seats: number[];
 	export let dels: Delegate[];
@@ -108,7 +109,7 @@
 
 <!---->
 
-<a href="/delegate" class="flex flex-wrap border max-w-[28.8rem]">
+<a href="{base}/delegate" class="flex flex-wrap border max-w-[28.8rem]">
 	<div>
 		<svg viewBox="0 0 {width} {height * 0.5 + 13}" style="width: 340px; max-width: 100%;">
 			<!-- <svg width={width * 0.3} height={height * 0.15 + 10}>  -->

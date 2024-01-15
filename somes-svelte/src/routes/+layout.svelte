@@ -21,6 +21,7 @@
 	import userIcon from "$lib/assets/icons/user.svg?raw";
 	import homeIcon from "$lib/assets/icons/home.svg?raw";
 	import questionsIcon from "$lib/assets/icons/questions.svg?raw";
+	import { base } from "$app/paths";
 
   config.autoAddCss = false;
 
@@ -29,7 +30,7 @@
 
 	// $: user = get(userStore);
 
-	const profileLink = "/profile";
+	const profileLink = "{base}/profile";
 	// $: if (user == null) {
 	// profileLink = "/";
 	// }
@@ -71,19 +72,19 @@
 			padding="p-2"
 		>
 			<svelte:fragment slot="lead">
-				<a href="/questions" class="pl-[25vw]">
+				<a href="{base}/questions" class="pl-[25vw]">
 					<div>
 						{@html questionsIcon}
 					</div>
 				</a>
 			</svelte:fragment>
-			<a href="/home" class="fill-current stroke-current">
+			<a href="{base}/home" class="fill-current stroke-current">
 				<div>
 					{@html homeIcon}
 				</div>
 			</a>
 			<svelte:fragment slot="trail">
-				<a href={profileLink} class="pr-[25vw]">
+				<a href="{base}/profile" class="pr-[25vw]">
 					{@html userIcon}
 				</a>
 			</svelte:fragment>
