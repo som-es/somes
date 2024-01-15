@@ -9,6 +9,7 @@
 	import { goto } from "$app/navigation";
 	import { maybeGetUser } from "$lib/api/user";
 	import { get } from "svelte/store";
+	import { browser } from "$app/environment";
 	// import Login from 'svelte-google-materialdesign-icons/Login.svelte';
 
 	let username_or_email = "";
@@ -39,7 +40,9 @@
 			verificationMailStore.set(null);
 
 			// userStore.set();
-			goto("/home");
+			$: if (browser) {
+				goto("/home")
+			}
 		}
 	};
 </script>

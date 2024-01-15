@@ -7,6 +7,7 @@
 	import somesWhite from "$lib/assets/somes_white.svg?raw";
 	import somesAudio from "$lib/assets/somes.mp3";
 	import { onMount } from "svelte";
+	import { browser } from "$app/environment";
 
 	const noAccountStorage: Readable<boolean | null> = localStorageStore("noAccount", null);
 	const isNoAccount = get(noAccountStorage);
@@ -21,7 +22,10 @@
 		const noAccountStorage: Writable<boolean | null> = localStorageStore("noAccount", null);
 		noAccountStorage.set(true);
 		// localStorageStore('noAccount', true);
-		goto("/home");
+		$: if (browser) {
+			goto("/home")
+		}
+		// goto("/home");
 	}
 
 	onMount(() => {

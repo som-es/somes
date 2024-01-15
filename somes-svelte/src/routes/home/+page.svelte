@@ -13,6 +13,7 @@
 	import { maybeGetUser } from "$lib/api/user";
 	import { userStore } from "../../stores/stores";
 	import { t } from "$lib/translations";
+	import { browser } from "$app/environment";
 
 	let dels: Delegate[];
 
@@ -69,11 +70,15 @@
 							class="mx-1 w-[360px]"
 							on:click={() => {
 								currentLegisInitStorage.set(voteResult);
-								goto("/vote");
+								$: if (browser) {
+									goto("/vote")
+								}
 							}}
 							on:keypress={() => {
 								currentLegisInitStorage.set(voteResult);
-								goto("/vote");
+								$: if (browser) {
+									goto("/vote")
+								}
 							}}
 							role="link"
 							tabindex={10 + i}

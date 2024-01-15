@@ -3,11 +3,14 @@
 	import { get } from "svelte/store";
 	import { jwtStore, userStore } from "../../stores/stores";
 	import { t } from "$lib/translations";
+	import { browser } from "$app/environment";
 
 	const user = get(userStore);
 
 	if (!user) {
-		goto("/");
+		$: if (browser) {
+  			goto("/")
+		}
 	}
 </script>
 
@@ -18,7 +21,9 @@
 		on:click={async () => {
 			userStore.set(null);
 			jwtStore.set(null);
-			goto("/");
+			$: if (browser) {
+				goto("/")
+			}
 		}}
 	/>
 </div>
