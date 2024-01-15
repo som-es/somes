@@ -1,11 +1,11 @@
 use axum::extract::Host;
-use axum::handler::Handler;
+use axum::handler::{Handler, HandlerWithoutStateExt};
 use axum::response::Redirect;
 use axum::{Router, BoxError};
 use axum::http::{Uri, StatusCode};
-use axum_extra::routing::SpaRouter;
 use axum_server::tls_rustls::RustlsConfig;
 use clap::Parser;
+use tower_http::services::ServeDir;
 use std::net::{IpAddr, Ipv6Addr, SocketAddr};
 use std::path::PathBuf;
 use std::str::FromStr;
@@ -29,7 +29,7 @@ struct Opt {
     port: u16,
 
     /// set the directory where static files are to be found
-    #[clap(long = "static-dir", default_value = "../dist")]
+    #[clap(long = "static-dir", default_value = "../somes-svelte/build/")]
     static_dir: String,
 
     #[clap(
@@ -56,10 +56,12 @@ async fn main() {
     // enable console logging
     tracing_subscriber::fmt::init();
 
-    let app = Router::new()
-        //.route("/api/hello", get(hello))
-        .merge(SpaRouter::new("/assets", opt.static_dir))
-        .layer(ServiceBuilder::new().layer(TraceLayer::new_for_http()));
+    let serve_dir = ServeDir::new(opt.static_dir);
+    let app = Router::new().nest_service("/", serve_dir);
+    // let app = Router::new()
+    //     //.route("/api/hello", get(hello))
+    //     .merge(SpaRouter::new("/assets", opt.static_dir))
+    //     .layer(ServiceBuilder::new().layer(TraceLayer::new_for_http()));
 
     let sock_addr = SocketAddr::from((
         IpAddr::from_str(opt.addr.as_str()).unwrap_or(IpAddr::V6(Ipv6Addr::LOCALHOST)),
@@ -123,11 +125,11 @@ async fn redirect_http_to_https(ports: Ports) {
     };
 
     let addr = SocketAddr::from(([127, 0, 0, 1], ports.http));
-    // let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     // tracing::debug!("listening on {}", listener.local_addr().unwrap());
     
-    axum::Server::bind(&addr)
-        .serve(redirect.into_make_service())
-        .await
-        .unwrap();
+    axum::serve(listener, redirect.into_make_service()).await.unwrap();
+        // .serve(redirect.into_make_service())
+        // .await
+        // .unwrap();
 }
