@@ -5,6 +5,7 @@ use axum::response::Redirect;
 use axum::{BoxError, Router};
 use axum_server::tls_rustls::RustlsConfig;
 use clap::Parser;
+use tokio::net::TcpListener;
 use std::net::{IpAddr, Ipv6Addr, SocketAddr};
 use std::path::PathBuf;
 use std::str::FromStr;
@@ -104,13 +105,16 @@ async fn main() {
     tokio::task::spawn(async move {
         let mut sock_addr = sock_addr.clone();
         sock_addr.set_port(3001);
-        
-        log::info!("listening on https://{}", sock_addr);
+        let listener = TcpListener::bind(sock_addr).await.unwrap();
+        log::info!("listening on http://{}", sock_addr);
 
-        axum_server::bind_rustls(sock_addr, alpha_config)
-            .serve(alpha_app.into_make_service())
-            .await
-            .unwrap();
+        // a https site cannot access http api endpoints
+        // too lazy to make the api https
+        // axum_server::bind_rustls(sock_addr, alpha_config)
+        //     .serve(alpha_app.into_make_service())
+        //     .await
+        //     .unwrap();
+        axum::serve(listener, alpha_app).await.unwrap();
     });
 
     axum_server::bind_rustls(sock_addr, config.clone())
