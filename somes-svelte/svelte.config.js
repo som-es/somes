@@ -19,9 +19,9 @@ const config = {
                         precompress: false,
                         strict: true
                 }),
-                paths: {
-                        base: '/alpha'
-                },
+                // paths: {
+                //         base: '/alpha'
+                // },
 		prerender: {
 			handleHttpError: ({ path, referrer, message }) => {
 				// ignore deliberate link to shiny 404 page

@@ -69,12 +69,13 @@ async fn main() {
     
     // https://stackoverflow.com/questions/71527665/building-svelte-app-as-a-set-of-static-files
     let alpha_serve_dir = ServeDir::new(opt.static_dir);
-    let alpha_app = Router::new().nest_service("/alpha", alpha_serve_dir);
+    // let alpha_app = Router::new().nest_service("/alpha", alpha_serve_dir);
+    let alpha_app = Router::new().nest_service("/", alpha_serve_dir);
 
     let landing_server_dir = ServeDir::new("./somes-landing");
     let landing_app = Router::new().nest_service("/", landing_server_dir);
 
-    let app = Router::new().merge(alpha_app).merge(landing_app);
+    // let app = Router::new().merge(alpha_app).merge(landing_app);
     // let app = Router::new()
     //     //.route("/api/hello", get(hello))
     //     .merge(SpaRouter::new("/assets", opt.static_dir))
@@ -98,10 +99,29 @@ async fn main() {
         .await
         .unwrap();
 
-    axum_server::bind_rustls(sock_addr, config)
-        .serve(app.into_make_service())
+    let alpha_config = config.clone();
+    tokio::task::spawn(async move {
+        let mut sock_addr = sock_addr.clone();
+        sock_addr.set_port(3000);
+
+        axum_server::bind_rustls(sock_addr, alpha_config)
+            .serve(alpha_app.into_make_service())
+            .await
+            .unwrap();
+    });
+
+    axum_server::bind_rustls(sock_addr, config.clone())
+        .serve(landing_app.into_make_service())
         .await
         .unwrap();
+
+    // let mut sock_addr = sock_addr.clone();
+    // sock_addr.set_port(3000);
+
+    // axum_server::bind_rustls(sock_addr, config)
+    //     .serve(alpha_app.into_make_service())
+    //     .await
+    //     .unwrap();
 
     // axum::Server::bind(&sock_addr)
     //     .serve(app.into_make_service())
