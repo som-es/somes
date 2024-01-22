@@ -100,9 +100,12 @@ async fn main() {
         .unwrap();
 
     let alpha_config = config.clone();
+
     tokio::task::spawn(async move {
         let mut sock_addr = sock_addr.clone();
-        sock_addr.set_port(3000);
+        sock_addr.set_port(3001);
+        
+        log::info!("listening on https://{}", sock_addr);
 
         axum_server::bind_rustls(sock_addr, alpha_config)
             .serve(alpha_app.into_make_service())
