@@ -92,7 +92,7 @@ async fn main() {
         https: 443,
     };
     // optional: spawn a second server to redirect http requests to this server
-    tokio::spawn(redirect_http_to_https(ports));
+    tokio::spawn(redirect_http_to_https(ports, sock_addr));
 
     log::info!("listening on http://{}", sock_addr);
 
@@ -141,7 +141,7 @@ struct Ports {
     https: u16,
 }
 
-async fn redirect_http_to_https(ports: Ports) {
+async fn redirect_http_to_https(ports: Ports, sock_addr: SocketAddr) {
     fn make_https(host: String, uri: Uri, ports: Ports) -> Result<Uri, BoxError> {
         let mut parts = uri.into_parts();
 
@@ -167,8 +167,7 @@ async fn redirect_http_to_https(ports: Ports) {
         }
     };
 
-    let addr = SocketAddr::from(([127, 0, 0, 1], ports.http));
-    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+    let listener = tokio::net::TcpListener::bind(sock_addr).await.unwrap();
     // tracing::debug!("listening on {}", listener.local_addr().unwrap());
 
     axum::serve(listener, redirect.into_make_service())
