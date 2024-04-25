@@ -71,7 +71,7 @@ pub async fn verify(
 }
 
 pub async fn remove_user_from_redis(
-    mut redis_con: redis::aio::Connection,
+    mut redis_con: redis::aio::MultiplexedConnection,
     id: &VerificationIDInfo,
 ) -> Result<NewUser, VerifyErrorResponse> {
     let new_user = redis_con
@@ -114,7 +114,7 @@ mod tests {
     #[tokio::test]
     async fn test_verify_process() {
         let client = redis::Client::open(REDIS_DB).unwrap();
-        let mut redis_con = client.get_async_connection().await.unwrap();
+        let mut redis_con = client.get_multiplexed_async_connection().await.unwrap();
 
         //let verification_map = VerificationMap::default();
 

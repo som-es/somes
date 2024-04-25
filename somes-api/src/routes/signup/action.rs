@@ -18,7 +18,7 @@ static EMAIL_REGEX: Lazy<Regex> =
 
 pub async fn validate_info_already_in_use_redis(
     signup_info: &SignUpInfo,
-    redis_con: &mut redis::aio::Connection,
+    redis_con: &mut redis::aio::MultiplexedConnection,
 ) -> Result<(), SignUpErrorResponse> {
     let mut sign_up_error = SignUpErrorWrapper::default();
 
@@ -91,7 +91,7 @@ pub fn validate_signup_info(
 
 pub async fn add_new_user_to_redis(
     signup_info: &SignUpInfo,
-    redis_con: &mut redis::aio::Connection,
+    redis_con: &mut redis::aio::MultiplexedConnection,
 ) -> Result<String, SignUpErrorResponse> {
     // create an (hopefully) unique verification id
     let id = create_verification_id(signup_info);
@@ -111,7 +111,7 @@ pub async fn add_new_user_to_redis(
     }
 
     if let Err(e) = redis_con
-        .expire::<_, ()>(&id, *EMAIL_EXPIRATION_SECONDS)
+        .expire::<_, ()>(&id, *EMAIL_EXPIRATION_SECONDS as i64)
         .await
     {
         log::error!("Expiration of new user entry could not be set! Error: {e}");
@@ -288,7 +288,7 @@ mod tests {
     #[tokio::test]
     async fn test_validate_already_in_redis_username() {
         let client = redis::Client::open("redis://127.0.0.1").unwrap();
-        let mut redis_con = client.get_async_connection().await.unwrap();
+        let mut redis_con = client.get_multiplexed_async_connection().await.unwrap();
 
         let signup_info = SignUpInfo {
             email: "mail@gmail.com".to_string(),

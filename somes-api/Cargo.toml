@@ -30,16 +30,16 @@ regex = "1"
 uuid = {version="1.2.2", features=["v4"]}
 sha3 = "0.10"
 base16ct = { version = "0.2.0", features = ["std"] }
-redis = { version = "0.23", features = ["tokio-comp"] }
+redis = { version = "0.25", features = ["tokio-comp"] }
 log = "0.4.17"
 simple_logger = "4.0.0"
 common-scrapes = { path = "../../common-scrapes" }
 dataservice = { path = "../../dataservice", default-features=false, features=["models", "utoipa"] }
 chrono = "0.4.24"
-lettre = "0.10.4"
+lettre = "0.11"
 imap = { version = "3.0.0-alpha.10", features = ["rustls-tls"] }
 utoipa = "4.2.0"
 utoipa-swagger-ui = { version = "6", features = ["axum"] }
 tower = {version = "0.4.13", features = ["full"] }
-axum-server = { version = "0.3", features = ["tls-rustls"] }
+axum-server = { version = "0.6", features = ["tls-rustls"] }
 sqlx = { version = "0.7", features = [ "runtime-tokio", "tls-rustls", "postgres", "chrono" ] }
