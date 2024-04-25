@@ -32,10 +32,10 @@ pub fn establish_connection() -> diesel::PgConnection {
         .expect("Can't establish database conntection.")
 }
 
-pub struct RedisConnection(pub redis::aio::Connection);
+pub struct RedisConnection(pub redis::aio::MultiplexedConnection);
 
 pub async fn extract_to_be_verified_from_redis(
-    redis_con: &mut redis::aio::Connection,
+    redis_con: &mut redis::aio::MultiplexedConnection,
 ) -> redis::RedisResult<Vec<NewUser>> {
     let keys: Vec<String> = redis_con.keys("*").await?;
 
@@ -59,7 +59,7 @@ where
 
     async fn from_request_parts(_parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
         let pool = redis::Client::from_ref(state);
-        let conn = pool.get_async_connection().await.map_err(internal_error)?;
+        let conn = pool.get_multiplexed_async_connection().await.map_err(internal_error)?;
 
         Ok(Self(conn))
     }

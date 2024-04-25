@@ -17,6 +17,7 @@ use somes_common_lib::{
     SIGNUP_ROUTE, SPEAKERS_BY_HOURS, SPEAKERS_BY_HOURS_AND_LEGIS_PERIOD, USER, VERIFY_ROUTE,
 };
 use sqlx::{postgres::PgPoolOptions, PgPool};
+use tokio::net::TcpListener;
 use tower::limit::RateLimitLayer;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
@@ -218,14 +219,14 @@ pub async fn serve(addr: SocketAddr) {
 
     // let server = axum_server::bind_rustls(addr, config);
 
-    let server = match axum::Server::try_bind(&addr) {
-        Ok(server) => server,
+    let listener = match TcpListener::bind(&addr).await {
+        Ok(listener) => listener,
         Err(e) => panic!("Could not initialize API: {e}"),
     };
-
-    info!("Initialized API");
-
-    if let Err(e) = server.serve(app.into_make_service()).await {
+    
+    info!("Now listening..");
+    if let Err(e) = axum::serve(listener, app.into_make_service()).await {
         error!("API returned error state: {e}")
+        
     }
 }
