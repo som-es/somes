@@ -617,10 +617,12 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "diesel",
+ "dotenv_codegen",
  "dotenvy",
  "scraper 0.1.0",
  "serde",
  "serde_derive",
+ "sqlx",
  "utoipa",
 ]
 
@@ -2766,6 +2768,7 @@ dependencies = [
  "chrono",
  "common-scrapes",
  "ego-tree",
+ "log",
  "once_cell",
  "regex",
  "reqwest 0.11.27",

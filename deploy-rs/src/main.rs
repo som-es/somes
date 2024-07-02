@@ -141,7 +141,8 @@ struct Ports {
     https: u16,
 }
 
-async fn redirect_http_to_https(ports: Ports, sock_addr: SocketAddr) {
+async fn redirect_http_to_https(ports: Ports, mut sock_addr: SocketAddr) {
+    sock_addr.set_port(ports.http);
     fn make_https(host: String, uri: Uri, ports: Ports) -> Result<Uri, BoxError> {
         let mut parts = uri.into_parts();
 
