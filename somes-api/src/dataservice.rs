@@ -1,28 +1,19 @@
 use dataservice::db::{
-    models::{
-        DbDelegate, DbLegislativeInitiativeQuery, DbParty, DbProposalQuery, DbSpeech, DbVote,
-    },
+    models::{DbDelegate, DbParty, DbProposalQuery, DbSpeech},
     schema::{
         delegates::{council, dsl::delegates, is_active, seat_row},
-        legislative_initiatives::{accepted, created_at, dsl::legislative_initiatives},
         parties::dsl::parties,
         proposals::dsl::proposals,
         speeches::dsl::speeches,
-        votes::{dsl::votes, legislative_initiatives_id},
     },
 };
 use diesel::{
     sql_query, sql_types::Text, ExpressionMethods, PgConnection, QueryDsl, QueryResult, RunQueryDsl,
 };
-use serde::{Deserialize, Serialize};
-use somes_common_lib::DateRange;
-use sqlx::PgPool;
-use utoipa::ToSchema;
 
 use crate::{
     model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours},
     routes::LegisPeriod,
-    today,
 };
 
 // TODO: move all dataservice.rs function to the dataservice library

@@ -30,7 +30,7 @@ pub async fn get_latest_legis_inits_per_page(
     page_elements: i64,
 ) -> sqlx::Result<Vec<DbLegislativeInitiativeQuery>> {
     let res = sqlx::query!(
-        "select * from legislative_initiatives order by created_at desc offset $1 limit $2",
+        "select * from legislative_initiatives where accepted is not null order by created_at desc offset $1 limit $2",
         page * page_elements,
         page_elements
     )

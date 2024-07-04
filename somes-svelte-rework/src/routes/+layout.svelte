@@ -17,10 +17,10 @@
 		<!-- App Bar -->
 		<AppBar slotTrail="!space-x-2">
 			<svelte:fragment slot="lead">
-				<a class="mx-4 fill-current stroke-current" href="/">
+				<a href="/">
 					{@html somesTextIcon}
 				</a>
-				<strong class="text-xl uppercase">somes</strong>
+				<!-- <strong class="text-xl uppercase">somes</strong> -->
 			</svelte:fragment>
 			<svelte:fragment slot="trail">
 				<LightSwitch />

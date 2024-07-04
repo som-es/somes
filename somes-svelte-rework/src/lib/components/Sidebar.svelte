@@ -19,17 +19,17 @@
 		<!-- --- -->
 		<AppRailAnchor class={activeAnchorColor("/home")} href="/home" bind:group={currentTile} name="Neuigkeiten" value={0} title="Neuigkeiten">
 			<svelte:fragment slot="lead"><div class="fill-current stroke-current">{@html homeIcon}</div></svelte:fragment>
-			<span style="font-size: smaller;">Neuigkeiten</span>
+			<span style="font-size: x-small;">Neuigkeiten</span>
 		</AppRailAnchor>
 		<hr>
 		<AppRailAnchor class={activeAnchorColor("/delegates")} href="/delegates" bind:group={currentTile} name="Abgeordnete" value={1} title="Abgeordnete">
 			<svelte:fragment slot="lead">{@html delegatesIcon}</svelte:fragment>
-			<span style="font-size: smaller;">Abgeordnete</span>
+			<span style="font-size: x-small;">Abgeordnete</span>
 		</AppRailAnchor>
 		<hr>
 		<AppRailAnchor class={activeAnchorColor("/statistics")} href="/statistics" bind:group={currentTile} name="Statistiken" value={2} title="Statistiken">
 			<svelte:fragment slot="lead">{@html statsIcon}</svelte:fragment>
-			<span style="font-size: smaller;">Statistiken</span>
+			<span style="font-size: x-small;">Statistiken</span>
 		</AppRailAnchor>
 		<hr>
 		<!-- --- -->

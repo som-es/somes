@@ -1,7 +1,7 @@
 import type { Delegate, Party, VoteResult } from "./types";
 
-const address = "http://somes.at:3000"
-// const address = "http://127.0.0.1:3000"
+// const address = "http://somes.at:3000"
+const address = "http://127.0.0.1:3000"
 
 export async function parties(): Promise<Party[]> {
 	let response = await fetch(`${address}/parties`, {
