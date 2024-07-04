@@ -242,7 +242,27 @@ pub fn get_legislative_initiatives(
         .filter(accepted.is_not_null())
         .load::<DbLegislativeInitiativeQuery>(con)
 }
-
+pub async fn get_latest_legis_inits_by_page(
+    pg: &PgPool,
+    page: i64,
+    page_elements: i64
+) -> sqlx::Result<Vec<DbLegislativeInitiativeQuery>> {
+    let res = sqlx::query!( 
+        "select * from legislative_initiatives order by created_at desc offset $1 limit $2", page * page_elements, page_elements).fetch_all(pg).await?;
+    Ok(res.into_iter().map(|rec| DbLegislativeInitiativeQuery {
+        id: rec.id,
+        ityp: rec.ityp,
+        gp: rec.gp,
+        inr: rec.inr,
+        emphasis: rec.emphasis,
+        title: rec.title,
+        description: rec.description,
+        accepted: rec.accepted,
+        created_at: rec.created_at,
+        appeared_at: rec.appeared_at.map(|x| x.naive_local()),
+        updated_at: rec.updated_at.map(|x| x.naive_local()),
+    }).collect()) 
+}
 pub async fn get_latest_legislative_initiatives_sqlx(
     pg: &PgPool
 ) -> sqlx::Result<Vec<DbLegislativeInitiativeQuery>> {
