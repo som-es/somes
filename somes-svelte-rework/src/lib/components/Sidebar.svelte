@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-
+	import userIcon from "$lib/assets/icons/user.svg?raw";
+	import homeIcon from "$lib/assets/icons/home.svg?raw";
+	import statsIcon from "$lib/assets/icons/statistics.svg?raw";
 	import { AppRail, AppRailAnchor, AppRailTile, getDrawerStore } from '@skeletonlabs/skeleton';
 	
 	let currentTile: number = 0;
@@ -15,18 +17,18 @@
 		</svelte:fragment> -->
 		<!-- --- -->
 		<AppRailAnchor class={activeAnchorColor("/home")} href="/home" bind:group={currentTile} name="tile-1" value={0} title="tile-1">
-			<svelte:fragment slot="lead">(icon)</svelte:fragment>
-			<span>Neuigkeiten</span>
+			<svelte:fragment slot="lead"><div class="fill-current stroke-current">{@html homeIcon}</div></svelte:fragment>
+			<span style="font-size: smaller;">Neuigkeiten</span>
 		</AppRailAnchor>
 		<hr>
 		<AppRailAnchor class={activeAnchorColor("/delegates")} href="/delegates" bind:group={currentTile} name="tile-2" value={1} title="tile-2">
-			<svelte:fragment slot="lead">(icon)</svelte:fragment>
-			<span>Abgeordnete</span>
+			<svelte:fragment slot="lead">{@html userIcon}</svelte:fragment>
+			<span style="font-size: smaller;">Abgeordnete</span>
 		</AppRailAnchor>
 		<hr>
 		<AppRailAnchor class={activeAnchorColor("/statistics")} href="/statistics" bind:group={currentTile} name="tile-3" value={2} title="tile-3">
-			<svelte:fragment slot="lead">(icon)</svelte:fragment>
-			<span>Statistiken</span>
+			<svelte:fragment slot="lead">{@html statsIcon}</svelte:fragment>
+			<span style="font-size: smaller;">Statistiken</span>
 		</AppRailAnchor>
 		<hr>
 		<!-- --- -->

@@ -1,26 +1,29 @@
 <script lang="ts">
 	import '../app.postcss';
-	import { AppShell, AppBar, initializeStores, type DrawerSettings, getDrawerStore } from '@skeletonlabs/skeleton';
+	import { AppShell, AppBar, LightSwitch, initializeStores, type DrawerSettings, getDrawerStore } from '@skeletonlabs/skeleton';
+	import userIcon from "$lib/assets/icons/user.svg?raw";
+	import homeIcon from "$lib/assets/icons/home.svg?raw";
+	import somesTextIcon from "$lib/assets/somes_with_text.svg?raw";
 	import Sidebar from '$lib/components/Sidebar.svelte';
 	initializeStores();
 
-	const drawerStore = getDrawerStore();
+	// const drawerStore = getDrawerStore();
 
-	function drawerOpen(): void {
-		const s: DrawerSettings = { id: 'sidenav' };
-		drawerStore.open(s);
-	}
 </script>
 
 <!-- App Shell -->
 <AppShell>
 	<svelte:fragment slot="header">
 		<!-- App Bar -->
-		<AppBar shadow="shadow-2xl" slotTrail="!space-x-2">
+		<AppBar slotTrail="!space-x-2">
 			<svelte:fragment slot="lead">
+				<a class="mx-4 fill-current stroke-current" href="/">
+					{@html somesTextIcon}
+				</a>
 				<strong class="text-xl uppercase">somes</strong>
 			</svelte:fragment>
 			<svelte:fragment slot="trail">
+				<LightSwitch />
 			</svelte:fragment>
 		</AppBar>
 	</svelte:fragment>
