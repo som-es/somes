@@ -59,7 +59,10 @@ where
 
     async fn from_request_parts(_parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
         let pool = redis::Client::from_ref(state);
-        let conn = pool.get_multiplexed_async_connection().await.map_err(internal_error)?;
+        let conn = pool
+            .get_multiplexed_async_connection()
+            .await
+            .map_err(internal_error)?;
 
         Ok(Self(conn))
     }
@@ -117,7 +120,6 @@ impl FromRequestParts<AppState> for DataserviceDbConnection {
         Ok(Self(conn))
     }
 }
-
 
 impl FromRef<AppState> for PgPool {
     fn from_ref(app_state: &AppState) -> PgPool {

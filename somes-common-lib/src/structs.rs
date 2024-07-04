@@ -103,3 +103,10 @@ pub struct InterestShare {
     pub total_share: f32,
     pub self_share: f32,
 }
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct Page {
+    pub page: i64
+}
+
+

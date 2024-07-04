@@ -1,17 +1,13 @@
-use axum::Json;
+use axum::{extract::Query, Json};
 use dataservice::db::models::DbLegislativeInitiativeQuery;
-use somes_common_lib::DateRange;
+use somes_common_lib::{DateRange, Page};
 
-use crate::{
-    dataservice::{
-        get_latest_legislative_initiatives, get_latest_vote_results, get_legislative_initiatives,
-        VoteResult,
-    },
-    DataserviceDbConnection,
-};
+use crate::{DataserviceDbConnection, PgPoolConnection, LEGIS_INITS_PER_PAGE};
 
 pub use error::*;
+mod db;
 mod error;
+pub use db::*;
 
 #[utoipa::path(
     post,
@@ -67,9 +63,6 @@ pub async fn latest_legis_inits(
 #[utoipa::path(
     post,
     path = "/latest_vote_results", 
-    params(
-        DateRange
-    ),
     responses(
         (status = 200, description = "Returned latest vote results successfully.", body = [Vec<VoteResult>]), 
         (status = 400, description = "Invalid request", body = [LegisInitErrorResponse]),
@@ -77,14 +70,37 @@ pub async fn latest_legis_inits(
     )
 )]
 pub async fn latest_vote_results(
-    DataserviceDbConnection(postgres_con): DataserviceDbConnection,
+    PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<VoteResult>>, LegisInitErrorResponse> {
-    postgres_con
-        .interact(|con| {
-            get_latest_vote_results(con)
-                .map(Json)
-                .map_err(|_| LegisInitErrorResponse::LatestVoteResults)
-        })
+    get_latest_vote_results_sqlx(&pg)
         .await
-        .map_err(|_| LegisInitErrorResponse::LatestVoteResults)?
+        .map(Json)
+        .map_err(|_| LegisInitErrorResponse::LatestVoteResults)
+}
+
+#[utoipa::path(
+    post,
+    path = "/vote_results_per_page", 
+    params
+    (
+        Page
+    ),
+    responses(
+        (status = 200, description = "Returned latest vote results successfully.", body = [Vec<VoteResult>]), 
+        (status = 400, description = "Invalid request", body = [LegisInitErrorResponse]),
+        (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
+    )
+)]
+pub async fn vote_results_per_page(
+    PgPoolConnection(pg): PgPoolConnection,
+    Query(page): Query<Page>,
+) -> sqlx::Result<Json<Vec<VoteResult>>, LegisInitErrorResponse> {
+    get_latest_vote_results_sqlx_per_page(
+        &pg,
+        page.page,
+        LEGIS_INITS_PER_PAGE.parse().unwrap_or(16),
+    )
+    .await
+    .map(Json)
+    .map_err(|_| LegisInitErrorResponse::LatestVoteResults)
 }

@@ -16,3 +16,4 @@ pub const PARTIES: &str = "/parties";
 pub const USER: &str = "/user";
 pub const DELEGATE: &str = "/delegate";
 pub const DELEGATE_INTERESTS: &str = "/delegate_interests";
+pub const VOTE_RESULTS_PER_PAGE: &str = "/vote_results_per_page";

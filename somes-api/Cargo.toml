@@ -43,3 +43,4 @@ utoipa-swagger-ui = { version = "6", features = ["axum"] }
 tower = {version = "0.4.13", features = ["full"] }
 axum-server = { version = "0.6", features = ["tls-rustls"] }
 sqlx = { version = "0.7", features = [ "runtime-tokio", "tls-rustls", "postgres", "chrono" ] }
+futures = "0.3.30"
