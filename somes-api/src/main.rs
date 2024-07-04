@@ -15,7 +15,7 @@ async fn main() {
     let _mailer = &*MAILER;
 
     // this addr is also used in email
-    let addr = "127.0.0.1:3000".parse().unwrap();
+    let addr = "0.0.0.0:3000".parse().unwrap();
     // let addr = "172.20.10.2:3000".parse().unwrap();
     server::serve(addr).await;
 }

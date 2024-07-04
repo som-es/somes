@@ -4,5 +4,5 @@
 </script>
 
 <div>
-    Hallo mein bester
+    statistics
 </div>

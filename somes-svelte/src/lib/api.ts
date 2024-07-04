@@ -10,7 +10,8 @@ import type {
 	VoteResult,
 } from "./types";
 
-export const address = "127.0.0.1";
+export const address = "somes.at";
+// export const address = "127.0.0.1";
 // const address = "172.20.10.2";
 
 export async function delegates(): Promise<Delegate[]> {

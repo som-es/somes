@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import userIcon from "$lib/assets/icons/user.svg?raw";
+	import delegatesIcon from "$lib/assets/icons/delegates.svg?raw";
 	import homeIcon from "$lib/assets/icons/home.svg?raw";
 	import statsIcon from "$lib/assets/icons/statistics.svg?raw";
 	import { AppRail, AppRailAnchor, AppRailTile, getDrawerStore } from '@skeletonlabs/skeleton';
@@ -16,24 +17,27 @@
 			<AppRailAnchor href="/" >(icon)</AppRailAnchor>
 		</svelte:fragment> -->
 		<!-- --- -->
-		<AppRailAnchor class={activeAnchorColor("/home")} href="/home" bind:group={currentTile} name="tile-1" value={0} title="tile-1">
+		<AppRailAnchor class={activeAnchorColor("/home")} href="/home" bind:group={currentTile} name="Neuigkeiten" value={0} title="Neuigkeiten">
 			<svelte:fragment slot="lead"><div class="fill-current stroke-current">{@html homeIcon}</div></svelte:fragment>
 			<span style="font-size: smaller;">Neuigkeiten</span>
 		</AppRailAnchor>
 		<hr>
-		<AppRailAnchor class={activeAnchorColor("/delegates")} href="/delegates" bind:group={currentTile} name="tile-2" value={1} title="tile-2">
-			<svelte:fragment slot="lead">{@html userIcon}</svelte:fragment>
+		<AppRailAnchor class={activeAnchorColor("/delegates")} href="/delegates" bind:group={currentTile} name="Abgeordnete" value={1} title="Abgeordnete">
+			<svelte:fragment slot="lead">{@html delegatesIcon}</svelte:fragment>
 			<span style="font-size: smaller;">Abgeordnete</span>
 		</AppRailAnchor>
 		<hr>
-		<AppRailAnchor class={activeAnchorColor("/statistics")} href="/statistics" bind:group={currentTile} name="tile-3" value={2} title="tile-3">
+		<AppRailAnchor class={activeAnchorColor("/statistics")} href="/statistics" bind:group={currentTile} name="Statistiken" value={2} title="Statistiken">
 			<svelte:fragment slot="lead">{@html statsIcon}</svelte:fragment>
 			<span style="font-size: smaller;">Statistiken</span>
 		</AppRailAnchor>
 		<hr>
 		<!-- --- -->
 		<svelte:fragment slot="trail">
-			<AppRailAnchor href="/" target="_blank" title="Account">(icon)</AppRailAnchor>
+			<AppRailAnchor href="/" target="_blank" title="Account">
+				<svelte:fragment slot="lead">{@html userIcon}</svelte:fragment>
+			<span style="font-size: smaller;">Benutzer</span>
+			</AppRailAnchor>
 		</svelte:fragment>
 	</AppRail>
 		<!-- Mobile Only -->

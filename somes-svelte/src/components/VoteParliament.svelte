@@ -8,6 +8,7 @@
 	export let dels: Delegate[];
 	export let voteResult: VoteResult;
 	export let preview: boolean = false;
+	// export let select_fn: (bubble: Bubble, event: MouseEvent | KeyboardEvent | null) => void;
 
 	const width = 830;
 	const height = 900;

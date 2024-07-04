@@ -16,6 +16,7 @@ use diesel::{
 };
 use serde::{Deserialize, Serialize};
 use somes_common_lib::DateRange;
+use sqlx::PgPool;
 use utoipa::ToSchema;
 
 use crate::{
@@ -240,6 +241,28 @@ pub fn get_legislative_initiatives(
         .filter(created_at.lt(filter.end))
         .filter(accepted.is_not_null())
         .load::<DbLegislativeInitiativeQuery>(con)
+}
+
+pub async fn get_latest_legislative_initiatives_sqlx(
+    pg: &PgPool
+) -> sqlx::Result<Vec<DbLegislativeInitiativeQuery>> {
+    let res = sqlx::query!( 
+        "select * from legislative_initiatives 
+            where created_at = (select MAX(created_at) from legislative_initiatives 
+            where accepted is not null) and accepted is not null").fetch_all(pg).await?;
+    Ok(res.into_iter().map(|rec| DbLegislativeInitiativeQuery {
+        id: rec.id,
+        ityp: rec.ityp,
+        gp: rec.gp,
+        inr: rec.inr,
+        emphasis: rec.emphasis,
+        title: rec.title,
+        description: rec.description,
+        accepted: rec.accepted,
+        created_at: rec.created_at,
+        appeared_at: rec.appeared_at.map(|x| x.naive_local()),
+        updated_at: rec.updated_at.map(|x| x.naive_local()),
+    }).collect()) 
 }
 
 pub fn get_latest_legislative_initiatives(
