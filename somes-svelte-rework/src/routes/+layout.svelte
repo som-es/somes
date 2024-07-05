@@ -17,7 +17,7 @@
 		<!-- App Bar -->
 		<AppBar slotTrail="!space-x-2">
 			<svelte:fragment slot="lead">
-				<a href="/">
+				<a class="mx-4 fill-current stroke-current w-32" href="/">
 					{@html somesTextIcon}
 				</a>
 				<!-- <strong class="text-xl uppercase">somes</strong> -->

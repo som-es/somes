@@ -4,8 +4,10 @@
 	import { onMount } from "svelte";
 	import VoteResultComp from "./VoteResult.svelte";
     import collapse from 'svelte-collapse'
-
-
+	import { goto } from "$app/navigation";
+	import upArrowIcon from "$lib/assets/misc_icons/up-arrow.svg?raw";
+	import downArrowIcon from "$lib/assets/misc_icons/down-arrow.svg?raw";
+    
     export let dels: Delegate[];
 
     let voteResults: VoteResult[] | null = null;
@@ -33,9 +35,13 @@
     </div>
     <div class="flex justify-between px-3">
         <button class="expand-button bg-primary-500" on:click={() => open = !open}>
-            Mehr anzeigen
+            {#if open}
+                Weniger anzeigen
+            {:else}
+                Mehr anzeigen
+            {/if}
         </button>
-        <button class="expand-button bg-secondary-500" on:click={() => open = !open}>
+        <button class="expand-button bg-secondary-500" on:click={() => goto("legis_votes_history")}>
             Vorherige anzeigen
         </button>
     </div>
