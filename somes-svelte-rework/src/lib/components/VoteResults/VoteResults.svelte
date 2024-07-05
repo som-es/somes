@@ -7,6 +7,7 @@
 	import { goto } from "$app/navigation";
 	import upArrowIcon from "$lib/assets/misc_icons/up-arrow.svg?raw";
 	import downArrowIcon from "$lib/assets/misc_icons/down-arrow.svg?raw";
+	import { cachedLatestVoteResults } from "$lib/caching/vote_results";
     
     export let dels: Delegate[];
 
@@ -15,7 +16,7 @@
     let restVotes: VoteResult[] = []
 
     onMount(async function () {
-		voteResults = (await latest_vote_results());
+		voteResults = await cachedLatestVoteResults();
         firstThreeVotes = voteResults.slice(0, 3);
         restVotes = voteResults.slice(3);
 	});

@@ -5,12 +5,14 @@
 	import homeIcon from "$lib/assets/icons/home.svg?raw";
 	import somesTextIcon from "$lib/assets/somes_with_text.svg?raw";
 	import Sidebar from '$lib/components/Sidebar.svelte';
+	import CacheInvalidation from '$lib/components/CacheInvalidation/CacheInvalidation.svelte';
 	initializeStores();
 
 	// const drawerStore = getDrawerStore();
 
 </script>
 
+<CacheInvalidation />
 <!-- App Shell -->
 <AppShell>
 	<svelte:fragment slot="header">
