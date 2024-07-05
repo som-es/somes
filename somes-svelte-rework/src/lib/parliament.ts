@@ -37,7 +37,7 @@ export function generateHalfCircle(n: number, r: number, w: number, h: number) {
 
 export function setDelOnBubble(
 	del: Delegate,
-	circles2d: Bubble[][],
+	circles2d: Bubble[][],	
 	fn: (party: string) => string,
 ) {
 	if (del.seat_row == null || del.seat_col == null) {

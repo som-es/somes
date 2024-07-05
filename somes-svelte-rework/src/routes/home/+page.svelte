@@ -3,9 +3,11 @@
     import { cachedDelegates } from "$lib/caching/delegates";
 	import type { Delegate } from "$lib/types";
 	import { onMount } from "svelte";
+	import { cachedPartyColors } from "$lib/caching/party_color";
 
     let dels: Delegate[];
     onMount(async function () {
+        // await updateColorStorage();
 		const austrianDelegates = await cachedDelegates();
 		dels = austrianDelegates.filter((delegate) => delegate.council === "nr");
 	}); 

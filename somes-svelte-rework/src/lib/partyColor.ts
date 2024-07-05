@@ -1,14 +1,8 @@
-import { parties } from "./api";
-
+import { get } from "svelte/store";
+import { partyColorsStore } from "./caching/stores/stores";
 
 export function getPartyColors(): Map<string, string> {
-    const partyColors = localStorage.getItem("partyColors")!;
-
-	if (partyColors == "") {
-		return new Map();
-	}
-
-	return new Map(JSON.parse(partyColors));
+	return new Map(get(partyColorsStore));
 }
 
 export function partyToColor(party: string | null): string {

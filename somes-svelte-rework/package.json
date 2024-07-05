@@ -43,6 +43,7 @@
   },
   "type": "module",
   "dependencies": {
-    "svelte-collapsible": "^0.3.0"
+    "svelte-collapsible": "^0.3.0",
+    "svelte-persisted-store": "^0.11.0"
   }
 }
