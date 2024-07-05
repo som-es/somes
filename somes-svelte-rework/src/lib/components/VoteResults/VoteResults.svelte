@@ -8,22 +8,18 @@
 	import upArrowIcon from "$lib/assets/misc_icons/up-arrow.svg?raw";
 	import downArrowIcon from "$lib/assets/misc_icons/down-arrow.svg?raw";
 	import { cachedLatestVoteResults } from "$lib/caching/vote_results";
+	import SButton from "../UI/SButton.svelte";
     
     export let dels: Delegate[];
 
-    let voteResults: VoteResult[] | null = null;
-    let firstThreeVotes: VoteResult[] = [];
-    let restVotes: VoteResult[] = []
 
-    onMount(async function () {
-		voteResults = await cachedLatestVoteResults();
-        firstThreeVotes = voteResults.slice(0, 3);
-        restVotes = voteResults.slice(3);
-	});
+    export let voteResults: VoteResult[];
+
+    const firstThreeVotes = voteResults.slice(0, 3);
+    const restVotes = voteResults.slice(3);
 
     let open = false;
 </script>
-
 {#if voteResults}
     {#if voteResults.length == 0}
         <p class="no-votes">Keine Abstimmungsergebnisse</p>
@@ -35,16 +31,16 @@
         
     </div>
     <div class="flex justify-between px-3">
-        <button class="expand-button bg-primary-500" on:click={() => open = !open}>
+        <SButton class="button offset-button bg-primary-500" on:click={() => open = !open}>
             {#if open}
                 Weniger anzeigen
             {:else}
                 Mehr anzeigen
             {/if}
-        </button>
-        <button class="expand-button bg-secondary-500" on:click={() => goto("legis_votes_history")}>
+        </SButton>
+        <SButton class="button offset-button bg-secondary-500" on:click={() => goto("legis_votes_history")}>
             Vorherige anzeigen
-        </button>
+        </SButton>
     </div>
     <hr>
 
@@ -65,15 +61,6 @@
 {/if}
 
 <style>
-    .expand-button {
-        display: block;
-        margin-top: 1rem;
-        margin-bottom: 1rem;
-        padding: 0.5rem 1rem;
-        border: 1px solid #000;
-        border-radius: 5px;
-        cursor: pointer;
-    }
     .card-container {
         margin: auto;
         display: flex;

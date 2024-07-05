@@ -4,11 +4,16 @@ import { partyColorsStore } from "./stores/stores";
 
 export async function cachedPartyColors(refetch: boolean = false): Promise<Map<string, string>> {
     let maybeCached = get(partyColorsStore);
-    if (maybeCached == null || refetch) {
+    if (maybeCached == null || refetch || maybeCached.length == 0) {
         let partyToColor = new Map<string, string>();
-        (await parties()).forEach((party) => {
-            partyToColor.set(party.name, party.color);
-        });
+        const partiesResult = await parties();
+
+        if (partiesResult !== null) {
+            partiesResult.forEach((party) => {
+                partyToColor.set(party.name, party.color);
+            });
+        }
+
         const colorsArray = Array.from(partyToColor.entries());
         partyColorsStore.set(colorsArray);
         maybeCached = colorsArray;

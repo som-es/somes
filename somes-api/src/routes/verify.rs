@@ -8,7 +8,7 @@ use uuid::Uuid;
 
 use crate::{
     jwt::create_access_token, model::NewUser, operations::user::insert_user, RedisConnection,
-    SomesDbConnection,
+    DataserviceDbConnection,
 };
 
 // use self::error::VerifyErrorResponse;
@@ -50,7 +50,7 @@ pub fn create_verification_id(signup_info: &SignUpInfo) -> String {
 pub async fn verify(
     Query(id): Query<VerificationIDInfo>,
     RedisConnection(redis_con): RedisConnection,
-    SomesDbConnection(con): SomesDbConnection,
+    DataserviceDbConnection(con): DataserviceDbConnection,
     //State(verification_map): State<VerificationMap>,
 ) -> Result<Json<JWTInfo>, VerifyErrorResponse> {
     //let new_user = remove_from_verify_map(verification_map, &id)?;

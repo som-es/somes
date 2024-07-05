@@ -4,7 +4,7 @@ use somes_common_lib::SignUpInfo;
 
 use crate::{
     email::send_verification_mail, routes::signup::action::validate_info_already_in_use_redis,
-    RedisConnection, SomesDbConnection,
+    RedisConnection, DataserviceDbConnection,
 };
 
 pub use self::{
@@ -31,7 +31,7 @@ mod error;
 )]
 pub async fn signup(
     RedisConnection(mut redis_con): RedisConnection,
-    SomesDbConnection(postgres_con): SomesDbConnection,
+    DataserviceDbConnection(postgres_con): DataserviceDbConnection,
     Json(signup_info): Json<SignUpInfo>,
 ) -> Result<Json<()>, SignUpErrorResponse> {
     // check if the signup info is in the temporary new user redis database

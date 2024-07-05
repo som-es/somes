@@ -44,7 +44,7 @@ pub struct AppState {
     // this holds some api specific state
     //verification_map: VerificationMap,
     pub redis_client: redis::Client,
-    pub somes_db_pool: deadpool_diesel::postgres::Pool,
+    // pub somes_db_pool: deadpool_diesel::postgres::Pool,
     pub dataservice_db_pool: deadpool_diesel::postgres::Pool,
     pub dataservice_sqlx_pool: PgPool,
 }
@@ -55,13 +55,13 @@ unsafe impl Sync for AppState {}
 impl AppState {
     pub async fn new(
         redis_client: redis::Client,
-        somes_db_pool: deadpool_diesel::postgres::Pool,
+        // somes_db_pool: deadpool_diesel::postgres::Pool,
         dataservice_db_pool: deadpool_diesel::postgres::Pool,
         dataservice_sqlx_pool: PgPool,
     ) -> AppState {
         AppState {
             redis_client,
-            somes_db_pool,
+            // somes_db_pool,
             dataservice_db_pool,
             dataservice_sqlx_pool,
         }
@@ -147,6 +147,7 @@ pub async fn serve(addr: SocketAddr) {
         // mind the database url, it is "DATASERVICE_URL" and not "DATABASE_URL"
         deadpool_diesel::postgres::Manager::new(/*DATABASE_URL*/DATASERVICE_URL, deadpool_diesel::Runtime::Tokio1);
     let somes_db_pool = deadpool_diesel::postgres::Pool::builder(somes_db_manager)
+        .max_size(200)
         .build()
         .unwrap();
 
@@ -159,7 +160,7 @@ pub async fn serve(addr: SocketAddr) {
 
     let state = AppState::new(
         client,
-        somes_db_pool,
+        // somes_db_pool,
         dataservice_db_pool,
         dataservice_sqlx_pool,
     )

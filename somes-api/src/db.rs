@@ -70,39 +70,39 @@ where
 
 pub struct DataserviceDbConnection(pub deadpool_diesel::postgres::Object);
 
-pub struct SomesDbConnection(
-    // pub bb8::PooledConnection<'static, AsyncDieselConnectionManager<AsyncPgConnection>>,
-    pub deadpool_diesel::postgres::Object,
-);
+// pub struct DataserviceDbConnection(
+//     // pub bb8::PooledConnection<'static, AsyncDieselConnectionManager<AsyncPgConnection>>,
+//     pub deadpool_diesel::postgres::Object,
+// );
 
-#[async_trait]
-impl<S> FromRequestParts<S> for SomesDbConnection
-where
-    S: Send + Sync,
-    PostgresPool: FromRef<S>,
-{
-    type Rejection = (StatusCode, String);
+// #[async_trait]
+// impl<S> FromRequestParts<S> for DataserviceDbConnection
+// where
+//     S: Send + Sync,
+//     PostgresPool: FromRef<S>,
+// {
+//     type Rejection = (StatusCode, String);
 
-    async fn from_request_parts(_parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
-        let pool = PostgresPool::from_ref(state);
-        let conn = pool.get().await.map_err(internal_error)?;
+//     async fn from_request_parts(_parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
+//         let pool = PostgresPool::from_ref(state);
+//         let conn = pool.get().await.map_err(internal_error)?;
 
-        Ok(Self(conn))
-    }
-}
+//         Ok(Self(conn))
+//     }
+// }
 
-#[async_trait]
-impl FromRequestParts<AppState> for SomesDbConnection {
-    type Rejection = (StatusCode, String);
+// #[async_trait]
+// impl FromRequestParts<AppState> for DataserviceDbConnection {
+//     type Rejection = (StatusCode, String);
 
-    async fn from_request_parts(
-        _parts: &mut Parts,
-        state: &AppState,
-    ) -> Result<Self, Self::Rejection> {
-        let conn = state.somes_db_pool.get().await.map_err(internal_error)?;
-        Ok(Self(conn))
-    }
-}
+//     async fn from_request_parts(
+//         _parts: &mut Parts,
+//         state: &AppState,
+//     ) -> Result<Self, Self::Rejection> {
+//         let conn = state.somes_db_pool.get().await.map_err(internal_error)?;
+//         Ok(Self(conn))
+//     }
+// }
 
 #[async_trait]
 impl FromRequestParts<AppState> for DataserviceDbConnection {

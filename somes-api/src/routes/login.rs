@@ -5,7 +5,7 @@ use crate::{
     hash,
     jwt::{create_access_token, AuthError},
     operations::user::get_user_from_db,
-    SomesDbConnection,
+    DataserviceDbConnection,
 };
 
 #[utoipa::path(
@@ -22,7 +22,7 @@ use crate::{
     )
 )]
 pub async fn login(
-    SomesDbConnection(con): SomesDbConnection,
+    DataserviceDbConnection(con): DataserviceDbConnection,
     Json(login_info): Json<LoginInfo>,
 ) -> Result<Json<JWTInfo>, AuthError> {
     // mitigate brute force attacks

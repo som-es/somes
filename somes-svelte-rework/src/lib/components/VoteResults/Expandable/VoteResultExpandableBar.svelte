@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Delegate, VoteResult } from "$lib/types";
-	import VoteParliament from "../Parliaments/VoteParliament.svelte";
+	import VoteParliament from "../../Parliaments/VoteParliament.svelte";
     import collapse from 'svelte-collapse'
 	import upArrowIcon from "$lib/assets/misc_icons/up-arrow.svg?raw";
 	import downArrowIcon from "$lib/assets/misc_icons/down-arrow.svg?raw";

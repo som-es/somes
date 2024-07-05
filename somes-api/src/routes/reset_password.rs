@@ -7,13 +7,13 @@ use crate::{
     hash::hash_password,
     jwt::{Claims, KEYS},
     operations::user::{get_user_from_db, update_password_hash_at},
-    SomesDbConnection,
+    DataserviceDbConnection,
 };
 
 pub async fn send_reset_password_request(
     // claims: Claims,
     Json(reset_password_info): Json<ResetPasswordInfo>,
-    SomesDbConnection(postgres_con): SomesDbConnection,
+    DataserviceDbConnection(postgres_con): DataserviceDbConnection,
     // update Error
 ) -> Result<Json<()>, ()> {
     // let con = &mut establish_connection();
@@ -56,7 +56,7 @@ pub async fn send_reset_password_request(
 pub async fn reset_password(
     claims: Claims,
     Json(new_password_info): Json<NewPasswordInfo>,
-    SomesDbConnection(postgres_con): SomesDbConnection,
+    DataserviceDbConnection(postgres_con): DataserviceDbConnection,
     // update Error
 ) -> Result<Json<()>, ()> {
     let new_password_hash = hash_password(&new_password_info.password).unwrap();

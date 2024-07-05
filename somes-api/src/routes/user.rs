@@ -5,7 +5,7 @@ pub use error::*;
 use axum::Json;
 use somes_common_lib::UserInfo;
 
-use crate::{jwt::Claims, operations::user::get_user_from_db_by_id, SomesDbConnection};
+use crate::{jwt::Claims, operations::user::get_user_from_db_by_id, DataserviceDbConnection};
 
 #[utoipa::path(
     post,
@@ -21,7 +21,7 @@ use crate::{jwt::Claims, operations::user::get_user_from_db_by_id, SomesDbConnec
 )]
 pub async fn user(
     claims: Claims,
-    SomesDbConnection(con): SomesDbConnection,
+    DataserviceDbConnection(con): DataserviceDbConnection,
 ) -> Result<Json<UserInfo>, UserErrorResponse> {
     con.interact(move |con| {
         get_user_from_db_by_id(con, claims.id)

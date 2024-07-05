@@ -1,22 +1,25 @@
 <script lang="ts">
 	import VoteResults from "$lib/components/VoteResults/VoteResults.svelte";
-    import { cachedDelegates } from "$lib/caching/delegates";
-	import type { Delegate } from "$lib/types";
+    import { cachedDelegates, filteredDelegates } from "$lib/caching/delegates";
+	import type { Delegate, VoteResult } from "$lib/types";
 	import { onMount } from "svelte";
 	import { cachedPartyColors } from "$lib/caching/party_color";
+	import { cachedLatestVoteResults } from "$lib/caching/vote_results";
+	import SButton from "$lib/components/UI/SButton.svelte";
 
-    let dels: Delegate[];
+    let dels: Delegate[] | null = null;
+    let voteResults: VoteResult[] | null = null;
     onMount(async function () {
         // await updateColorStorage();
-		const austrianDelegates = await cachedDelegates();
-		dels = austrianDelegates.filter((delegate) => delegate.council === "nr");
+        dels = await filteredDelegates();
+        voteResults = await cachedLatestVoteResults();
 	}); 
 
 </script>
 <div class="container mx-auto px-0 mt-5">
     home
-    {#if dels}
-        <VoteResults {dels} />
+    {#if voteResults && dels}
+        <VoteResults {dels} {voteResults} />
     {:else}
         <p>loading...</p>
     {/if}
