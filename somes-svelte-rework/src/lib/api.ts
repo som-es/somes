@@ -35,3 +35,14 @@ export async function latest_vote_results(): Promise<VoteResult[]> {
 	return await response.json();
 }
 
+export async function vote_results_per_page(page: number): Promise<VoteResult[]> {
+	let response = await fetch(`${address}/vote_results_per_page?page=${page}`, {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json",
+		},
+	});
+
+	return await response.json();
+}
+

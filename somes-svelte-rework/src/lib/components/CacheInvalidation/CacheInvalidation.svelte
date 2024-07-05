@@ -1,12 +1,13 @@
 <script lang="ts">
     import { cachedDelegates } from "$lib/caching/delegates";
+	import { cachedPartyColors } from "$lib/caching/party_color";
 	import { cachedLatestVoteResults } from "$lib/caching/vote_results";
 
     setInterval(async () => {
+        cachedPartyColors(true);
         cachedDelegates(true);
     }, 1000 * 60 * 20);
     setInterval(async () => {
-        cachedDelegates(true);
         cachedLatestVoteResults(true); 
     }, 1000 * 60 * 4);
 </script>
