@@ -8,6 +8,7 @@ pub enum LegisInitErrorResponse {
     LegisInit,
     LatestLegisInit,
     LatestVoteResults,
+    InvalidPage
 }
 
 impl IntoResponse for LegisInitErrorResponse {
@@ -24,6 +25,10 @@ impl IntoResponse for LegisInitErrorResponse {
             LegisInitErrorResponse::LatestVoteResults => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "could not return latest vote results",
+            ),
+            LegisInitErrorResponse::InvalidPage => (
+                StatusCode::BAD_REQUEST,
+                "invalid page"
             ),
         };
 

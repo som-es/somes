@@ -19,7 +19,6 @@
 
     .button {
         text-align: center;
-        display: block;
         padding: 0.5rem 1rem;
         border: 1px solid #000;
         border-radius: 5px;

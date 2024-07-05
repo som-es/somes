@@ -7,8 +7,8 @@ use somes_common_lib::{JWTInfo, SignUpInfo, VerificationIDInfo};
 use uuid::Uuid;
 
 use crate::{
-    jwt::create_access_token, model::NewUser, operations::user::insert_user, RedisConnection,
-    DataserviceDbConnection,
+    jwt::create_access_token, model::NewUser, operations::user::insert_user,
+    DataserviceDbConnection, RedisConnection,
 };
 
 // use self::error::VerifyErrorResponse;

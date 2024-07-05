@@ -94,13 +94,32 @@ pub async fn latest_vote_results(
 pub async fn vote_results_per_page(
     PgPoolConnection(pg): PgPoolConnection,
     Query(page): Query<Page>,
-) -> sqlx::Result<Json<Vec<VoteResult>>, LegisInitErrorResponse> {
+) -> sqlx::Result<Json<VoteResultsWithMaxPage>, LegisInitErrorResponse> {
+    if page.page < 0 {
+        return Err(LegisInitErrorResponse::InvalidPage);
+    }
+    let entry_count =
+        sqlx::query!("select COUNT(*) from legislative_initiatives where accepted is not null")
+            .fetch_one(&pg)
+            .await
+            .map_err(|_| LegisInitErrorResponse::LatestVoteResults)?;
+
+    let page_count =
+        (entry_count.count.unwrap_or_default() as f64 / LEGIS_INITS_PER_PAGE.parse().unwrap_or(16.)).ceil() as i64;
+
+    if page.page > page_count {
+        return Err(LegisInitErrorResponse::InvalidPage);
+    }
     get_latest_vote_results_sqlx_per_page(
         &pg,
         page.page,
         LEGIS_INITS_PER_PAGE.parse().unwrap_or(16),
     )
     .await
+    .map(|vote_results| VoteResultsWithMaxPage {
+        vote_results,
+        max_page: page_count
+    })
     .map(Json)
     .map_err(|_| LegisInitErrorResponse::LatestVoteResults)
 }

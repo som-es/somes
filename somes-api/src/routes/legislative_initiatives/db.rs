@@ -101,6 +101,12 @@ pub struct VoteResult {
     pub speeches: Vec<DbSpeech>,
 }
 
+#[derive(ToSchema, Debug, Deserialize, Serialize)]
+pub struct VoteResultsWithMaxPage {
+    pub vote_results: Vec<VoteResult>,
+    pub max_page: i64,
+}
+
 pub async fn get_latest_vote_results_sqlx(pg: &PgPool) -> sqlx::Result<Vec<VoteResult>> {
     futures::future::join_all(
         get_latest_legislative_initiatives_sqlx(pg)

@@ -4,7 +4,7 @@ use somes_common_lib::SignUpInfo;
 
 use crate::{
     email::send_verification_mail, routes::signup::action::validate_info_already_in_use_redis,
-    RedisConnection, DataserviceDbConnection,
+    DataserviceDbConnection, RedisConnection,
 };
 
 pub use self::{

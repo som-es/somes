@@ -40,6 +40,11 @@ export interface VoteResult {
 	speeches: Speech[];
 }
 
+export interface VoteResultWithMaxPage {
+	vote_result: VoteResult;
+	max_page: number;
+}
+
 export interface SpeakerByHours {
 	name: string;
 	image_url: string | null;
