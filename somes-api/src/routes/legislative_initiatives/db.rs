@@ -95,10 +95,16 @@ pub fn get_latest_legislative_initiatives(
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
+pub struct Topic {
+    pub topic: String
+}
+
+#[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct VoteResult {
     pub legislative_initiative: DbLegislativeInitiativeQuery,
     pub votes: Vec<DbVote>,
     pub speeches: Vec<DbSpeech>,
+    pub topics: Vec<Topic>
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
@@ -116,6 +122,7 @@ pub async fn get_latest_vote_results_sqlx(pg: &PgPool) -> sqlx::Result<Vec<VoteR
                 Ok(VoteResult {
                     votes: get_votes_from_legis_init_sqlx(pg, legis_init.id).await?,
                     speeches: get_speeches_from_legis_init_sqlx(pg, legis_init.id).await?,
+                    topics: get_eurovoc_topics_from_legis_init(pg, legis_init.id).await?,
                     legislative_initiative: legis_init,
                 })
             })
@@ -139,6 +146,7 @@ pub async fn get_latest_vote_results_sqlx_per_page(
                 Ok(VoteResult {
                     votes: get_votes_from_legis_init_sqlx(pg, legis_init.id).await?,
                     speeches: get_speeches_from_legis_init_sqlx(pg, legis_init.id).await?,
+                    topics: get_eurovoc_topics_from_legis_init(pg, legis_init.id).await?,
                     legislative_initiative: legis_init,
                 })
             })
@@ -156,10 +164,24 @@ pub fn get_latest_vote_results(con: &mut PgConnection) -> QueryResult<Vec<VoteRe
             Ok(VoteResult {
                 votes: get_votes_from_legis_init(con, legis_init.id)?,
                 speeches: get_speeches_from_legis_init(con, legis_init.id)?,
+                topics: vec![],
                 legislative_initiative: legis_init,
             })
         })
         .collect::<QueryResult<Vec<VoteResult>>>()
+}
+
+pub async fn get_eurovoc_topics_from_legis_init(
+    con: &PgPool,
+    legis_init_id: i32,
+) -> sqlx::Result<Vec<Topic>> {
+    sqlx::query_as!(
+        Topic,
+        "select topic from eurovoc_topics where legislative_initiatives_id = $1",
+        legis_init_id
+    )
+    .fetch_all(con)
+    .await
 }
 
 pub async fn get_votes_from_legis_init_sqlx(

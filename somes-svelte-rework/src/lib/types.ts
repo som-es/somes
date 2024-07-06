@@ -10,6 +10,7 @@ export interface Delegate {
 	gender: string | null;
 	is_active: boolean | null;
 	birthdate: string;
+	active_since: string;
 }
 
 export interface LegislativeInitiative {
@@ -18,8 +19,11 @@ export interface LegislativeInitiative {
 	gp: string;
 	title: string;
 	description: string;
-	accepted: boolean;
+	emphasis: string | null;
+	accepted: boolean | null;
 	created_at: Date;
+	appeared_at: Date | null;
+	updated_at: Date | null;
 }
 
 export interface Vote {
@@ -34,14 +38,19 @@ export interface Speech {
 	infavor: boolean;
 }
 
+export interface Topic {
+	topic: string;
+}
+
 export interface VoteResult {
 	legislative_initiative: LegislativeInitiative;
 	votes: Vote[];
 	speeches: Speech[];
+	topics: Topic[];
 }
 
-export interface VoteResultWithMaxPage {
-	vote_result: VoteResult;
+export interface VoteResultsWithMaxPage {
+	vote_results: VoteResult[];
 	max_page: number;
 }
 

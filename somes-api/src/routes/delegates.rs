@@ -1,6 +1,9 @@
 use axum::{extract::Query, Json};
+use chrono::NaiveDate;
 use dataservice::db::models::{DbDelegate, DbProposalQuery};
+use serde::{Deserialize, Serialize};
 use somes_common_lib::{DelegateById, InterestShare};
+use utoipa::ToSchema;
 
 use crate::{
     dataservice::{get_delegate, get_delegates, get_proposals},
@@ -11,6 +14,22 @@ pub use error::*;
 mod error;
 mod interests;
 pub use interests::*;
+
+#[derive(ToSchema, Debug, Deserialize, Serialize)]
+pub struct Delegate {
+    pub id: i32,
+    pub name: String,
+    pub party: Option<String>,
+    pub image_url: Option<String>,
+    pub constituency: Option<String>,
+    pub council: Option<String>,
+    pub seat_row: Option<i32>,
+    pub seat_col: Option<i32>,
+    pub gender: Option<String>,
+    pub is_active: Option<bool>,
+    pub birthdate: Option<NaiveDate>,
+    pub active_since: NaiveDate,
+}
 
 #[utoipa::path(
     get,
@@ -48,16 +67,28 @@ pub async fn delegate_interests(
     )
 )]
 pub async fn delegate(
-    DataserviceDbConnection(con): DataserviceDbConnection,
+    // DataserviceDbConnection(con): DataserviceDbConnection,
+    PgPoolConnection(pg): PgPoolConnection,
     Query(delegate_by_id): Query<DelegateById>,
-) -> Result<Json<DbDelegate>, DelegatesErrorResponse> {
-    con.interact(move |con| {
-        get_delegate(con, delegate_by_id.delegate_id)
-            .map(Json)
-            .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
-    })
+) -> Result<Json<Delegate>, DelegatesErrorResponse> {
+    sqlx::query_as!(Delegate, "
+        select delegates.id, delegates.name, delegates.party, 
+                image_url, constituency, council, seat_row, seat_col, gender, is_active,
+                 birthdate, start_date as active_since from mandates 
+        inner join delegates on delegates.id = delegate_id 
+        where mandates.name like '%Abgeordnete%' and end_date is null and delegates.id = $1;", delegate_by_id.delegate_id
+    )
+    .fetch_one(&pg)
     .await
-    .map_err(|_| DelegatesErrorResponse::DelegateResponseError)?
+    .map(Json)
+    .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
+    // con.interact(move |con| {
+    //     get_delegate(con, delegate_by_id.delegate_id)
+    //         .map(Json)
+    //         .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
+    // })
+    // .await
+    // .map_err(|_| DelegatesErrorResponse::DelegateResponseError)?
 }
 
 #[utoipa::path(
@@ -70,15 +101,27 @@ pub async fn delegate(
     )
 )]
 pub async fn delegates(
-    DataserviceDbConnection(con): DataserviceDbConnection,
-) -> Result<Json<Vec<DbDelegate>>, DelegatesErrorResponse> {
-    con.interact(|con| {
-        get_delegates(con)
-            .map(Json)
-            .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
-    })
+    // DataserviceDbConnection(con): DataserviceDbConnection,
+    PgPoolConnection(pg): PgPoolConnection,
+) -> Result<Json<Vec<Delegate>>, DelegatesErrorResponse> {
+    sqlx::query_as!(Delegate, "
+        select delegates.id, delegates.name, delegates.party, 
+                image_url, constituency, council, seat_row, seat_col, gender, is_active,
+                 birthdate, start_date as active_since from mandates 
+        inner join delegates on delegates.id = delegate_id 
+        where mandates.name like '%Abgeordnete%' and end_date is null;"
+    )
+    .fetch_all(&pg)
     .await
-    .map_err(|_| DelegatesErrorResponse::DelegateResponseError)?
+    .map(Json)
+    .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
+    // con.interact(|con| {
+    //     get_delegates(con)
+    //         .map(Json)
+    //         .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
+    // })
+    // .await
+    // .map_err(|_| DelegatesErrorResponse::DelegateResponseError)?
 }
 
 #[utoipa::path(

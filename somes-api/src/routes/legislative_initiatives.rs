@@ -104,8 +104,9 @@ pub async fn vote_results_per_page(
             .await
             .map_err(|_| LegisInitErrorResponse::LatestVoteResults)?;
 
-    let page_count =
-        (entry_count.count.unwrap_or_default() as f64 / LEGIS_INITS_PER_PAGE.parse().unwrap_or(16.)).ceil() as i64;
+    let page_count = (entry_count.count.unwrap_or_default() as f64
+        / LEGIS_INITS_PER_PAGE.parse().unwrap_or(16.))
+    .ceil() as i64;
 
     if page.page > page_count {
         return Err(LegisInitErrorResponse::InvalidPage);
@@ -118,7 +119,7 @@ pub async fn vote_results_per_page(
     .await
     .map(|vote_results| VoteResultsWithMaxPage {
         vote_results,
-        max_page: page_count
+        max_page: page_count,
     })
     .map(Json)
     .map_err(|_| LegisInitErrorResponse::LatestVoteResults)

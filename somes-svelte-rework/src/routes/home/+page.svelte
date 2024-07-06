@@ -4,6 +4,7 @@
 	import type { Delegate, VoteResult } from "$lib/types";
 	import { onMount } from "svelte";
 	import { cachedLatestVoteResults } from "$lib/caching/vote_results";
+	import Container from "$lib/components/Layout/Container.svelte";
 
     let dels: Delegate[] | null = null;
     let voteResults: VoteResult[] | null = null;
@@ -14,13 +15,11 @@
 	}); 
 
 </script>
-<div class="container mx-auto px-0 mt-5">
-    <div class="mx-0 max-md:mx-3">
-        home
-        {#if voteResults && dels}
-            <VoteResults {dels} {voteResults} />
-        {:else}
-            <p>loading...</p>
-        {/if}
-    </div>
-</div>
+<Container>
+    home
+    {#if voteResults && dels}
+        <VoteResults {dels} {voteResults} />
+    {:else}
+        <p>loading...</p>
+    {/if}
+</Container>

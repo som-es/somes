@@ -8,7 +8,7 @@ pub enum LegisInitErrorResponse {
     LegisInit,
     LatestLegisInit,
     LatestVoteResults,
-    InvalidPage
+    InvalidPage,
 }
 
 impl IntoResponse for LegisInitErrorResponse {
@@ -26,10 +26,7 @@ impl IntoResponse for LegisInitErrorResponse {
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "could not return latest vote results",
             ),
-            LegisInitErrorResponse::InvalidPage => (
-                StatusCode::BAD_REQUEST,
-                "invalid page"
-            ),
+            LegisInitErrorResponse::InvalidPage => (StatusCode::BAD_REQUEST, "invalid page"),
         };
 
         let body = Json(json!({
