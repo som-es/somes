@@ -67,5 +67,5 @@
         {/if}
     {/each}
     <SButton class="mt-5 mb-5 bg-secondary-500" on:click={() => {if (page < maxPage) page++}}>{'>'}</SButton>  
-    <input style="color: black;" class="mx-3 w-11 h-11" bind:value={writtenPage} on:input={onInput} type="number" />
+    <!-- <input style="color: black;" class="mx-3 w-11 h-11" bind:value={writtenPage} on:input={onInput} type="number" /> -->
 </div>

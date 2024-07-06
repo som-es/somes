@@ -4,13 +4,15 @@
     import collapse from 'svelte-collapse'
 	import upArrowIcon from "$lib/assets/misc_icons/up-arrow.svg?raw";
 	import downArrowIcon from "$lib/assets/misc_icons/down-arrow.svg?raw";
-	import { CollapsibleCard } from "svelte-collapsible";
+	import SButton from "$lib/components/UI/SButton.svelte";
 
     export let voteResult: VoteResult;
     export let dels: Delegate[];
     let clazz;
 	export { clazz as class }; 
     let open = false;
+    
+    const emphasis = voteResult.legislative_initiative.emphasis?.split("\n\t").filter((x) => x.length > 0);
 
 </script>
 <div class="gap-3 mt-5">
@@ -33,9 +35,19 @@
     </div>
 
     <div use:collapse={{open}}>
-        <div class="entry bg-primary-200 flex flex-wrap dark:bg-primary-400 mt-3 justify-between ">
-            <div>Abstimmung </div>
-            <div class=" rounded-md w-96"><VoteParliament {dels} {voteResult} preview={true}/></div>
+        <div class="entry bg-primary-200 dark:bg-primary-400 mt-3 grid-container ">
+            <div>
+                {#if emphasis}
+                <ul>
+                    {#each emphasis as emph}
+                        <li>- {emph}</li>
+                    {/each}
+                </ul>
+                {/if}
+            </div>
+            <div class="rounded-md w-96 ml-auto"><VoteParliament {dels} {voteResult} preview={true}/></div>
+            <div></div>
+            <div class="ml-auto"><SButton class="bg-tertiary-500">Details anzeigen</SButton></div>
         </div>
     </div>
 </div>
@@ -47,5 +59,13 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
         padding: 20px;         
         gap: 10px;
+    }
+    .grid-container {
+        display: grid;
+        /* grid-template-columns: auto auto auto auto auto auto; */
+        grid-template-columns: 2fr 1fr;
+    }
+    .item {
+        grid-column: 1fr;
     }
 </style>
