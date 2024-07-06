@@ -7,7 +7,8 @@
 	import { AppRail, AppRailAnchor, AppRailTile, getDrawerStore } from '@skeletonlabs/skeleton';
 	
 	let currentTile: number = 0;
-	$: activeAnchorColor = (href: string) => ($page.url.pathname?.includes(href) ? 'flex flex-col justify-center items-stretch bg-primary-active-token' : 'bg-primary-hover-token');
+	$: isSelected = (href: string) => {return $page.url.pathname?.includes(href)}
+	// $: activeAnchorColor = (href: string) => ($page.url.pathname?.includes(href) ? 'flex flex-col justify-center items-stretch bg-primary-active-token' : 'bg-primary-hover-token');
 
 </script>
 
@@ -17,20 +18,25 @@
 			<AppRailAnchor href="/" >(icon)</AppRailAnchor>
 		</svelte:fragment> -->
 		<!-- --- -->
-		<AppRailAnchor class={activeAnchorColor("/home")} href="/home" bind:group={currentTile} name="Neuigkeiten" value={0} title="Neuigkeiten">
+		<AppRailAnchor selected={isSelected("/home")} href="/home" bind:group={currentTile} name="Neuigkeiten" value={0} title="Neuigkeiten">
 			<svelte:fragment slot="lead"><div class="fill-current stroke-current">{@html homeIcon}</div></svelte:fragment>
 			<span style="font-size: x-small;">Neuigkeiten</span>
 		</AppRailAnchor>
 		<hr>
-		<AppRailAnchor class={activeAnchorColor("/delegates")} href="/delegates" bind:group={currentTile} name="Abgeordnete" value={1} title="Abgeordnete">
+		<AppRailAnchor selected={isSelected("/delegates")} href="/delegates" bind:group={currentTile} name="Abgeordnete" value={1} title="Abgeordnete">
 			<svelte:fragment slot="lead">{@html delegatesIcon}</svelte:fragment>
 			<span style="font-size: x-small;">Abgeordnete</span>
 		</AppRailAnchor>
 		<hr>
-		<AppRailAnchor class={activeAnchorColor("/statistics")} href="/statistics" bind:group={currentTile} name="Statistiken" value={2} title="Statistiken">
+		
+		<AppRailAnchor selected={isSelected("/statistics")} href="/statistics" bind:group={currentTile} name="Statistiken" value={2} title="Statistiken">
 			<svelte:fragment slot="lead">{@html statsIcon}</svelte:fragment>
 			<span style="font-size: x-small;">Statistiken</span>
 		</AppRailAnchor>
+		<!-- <AppRailAnchor class={activeAnchorColor("/statistics")} href="/statistics" bind:group={currentTile} name="Statistiken" value={2} title="Statistiken">
+			<svelte:fragment slot="lead">{@html statsIcon}</svelte:fragment>
+			<span style="font-size: x-small;">Statistiken</span>
+		</AppRailAnchor> -->
 		<hr>
 		<!-- --- -->
 		<svelte:fragment slot="trail">

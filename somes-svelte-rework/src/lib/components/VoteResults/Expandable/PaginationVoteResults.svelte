@@ -16,11 +16,16 @@
     let page = parseInt(url.searchParams.get("page") || "1") || 1;
    
     const loadVoteResults = async () => {
+        if (voteResults != null) {
+            voteResults.vote_results = []
+        }
         voteResults = await vote_results_per_page(page - 1);
     }
     onMount(async () => {
         update();
     });
+
+    let old_page = page;
 
     const update = () => {
         loadVoteResults();
@@ -28,8 +33,13 @@
         // update query params
         const url = new URL(window.location.href);
         url.searchParams.set("page", page.toString());
-        pushState(url.toString(), { replaceState: true });
+        try {
+            pushState(url.toString(), { replaceState: true });
+        } catch(e) {
+            page = old_page;
+        }
 
+        old_page = page;
     }
 
     $: if (page) {
@@ -41,12 +51,18 @@
 <div>
     {#if voteResults}
             <Pagination bind:page={page} maxPage={voteResults.max_page} />
-        {#each voteResults.vote_results as voteResult}
-            <VoteResultExpandableBar {dels} voteResult={voteResult} class="" />
-        {/each}
+        {#if voteResults.vote_results.length > 0} 
+            {#each voteResults.vote_results as voteResult}
+                <VoteResultExpandableBar {dels} voteResult={voteResult} class="" />
+            {/each}
+        {:else}
+            loading
+        {/if}
          <div class="float-right">
             <Pagination bind:page={page} maxPage={voteResults.max_page} />
         </div>
+    {:else}
+        loading
     {/if}
    
 </div>

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from "svelte";
 	import SButton from "./UI/SButton.svelte";
 
     export let maxPage: number;
@@ -21,7 +20,7 @@
         [0, 0, 0, 0, 0, 0, 0, 0, 0],
     ];
     let pageSuggestions: number[] = [];
-    console.log(page); 
+    let writtenPage = `${page}`;
     $: if(page) {
         const otherPage = page + 0;
         const baseLayout = [1, otherPage - 10, otherPage-2, otherPage -1, otherPage, otherPage + 1, otherPage + 2, otherPage + 10, maxPage];
@@ -35,14 +34,32 @@
             return 0
         }
         pageSuggestions = baseLayout.map((el, i) => el + offsetFn(i));
+        writtenPage = `${page}`;
     }
 
     const isActive = (suggestion: number) => {
         return suggestion == page;
     }
-    // $: pageSuggestions = [1, page - 10, page-2, page -1, page, page + 1, page + 2, page + 10, maxPage-1]
+
+    const onInput = (e: Event) => {
+        try {
+            console.log(writtenPage);
+            if (writtenPage == "" || writtenPage == null) {
+                return
+            }
+            const newPage = +writtenPage;
+            if (newPage > 0 && newPage <= maxPage) {
+                page = newPage;
+            } else {
+                writtenPage = `${page}`;
+            }
+        } catch(error) {
+            writtenPage = "1";
+        }
+    };
+
 </script>
-<div class="flex flex-row flex-wrap">
+<div class="flex flex-row flex-wrap items-center">
     <SButton class="mt-5 mb-5 bg-secondary-500 text-center" on:click={() => {if (page > 0) page--}}> {'<'} </SButton>  
     {#each pageSuggestions as suggestion}
         {#if suggestion > 0 && suggestion <= maxPage}
@@ -50,4 +67,5 @@
         {/if}
     {/each}
     <SButton class="mt-5 mb-5 bg-secondary-500" on:click={() => {if (page < maxPage) page++}}>{'>'}</SButton>  
+    <input style="color: black;" class="mx-3 w-11 h-11" bind:value={writtenPage} on:input={onInput} type="number" />
 </div>
