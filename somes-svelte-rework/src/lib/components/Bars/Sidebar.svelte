@@ -30,7 +30,7 @@
 		<hr>
 		
 		<AppRailAnchor selected={isSelected("/statistics")} href="/statistics" bind:group={currentTile} name="Statistiken" value={2} title="Statistiken">
-			<svelte:fragment slot="lead">{@html statsIcon}</svelte:fragment>
+			<svelte:fragment slot="lead"><div class="w-10">{@html statsIcon}</div></svelte:fragment>
 			<span style="font-size: x-small;">Statistiken</span>
 		</AppRailAnchor>
 		<!-- <AppRailAnchor class={activeAnchorColor("/statistics")} href="/statistics" bind:group={currentTile} name="Statistiken" value={2} title="Statistiken">
