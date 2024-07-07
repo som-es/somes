@@ -46,7 +46,7 @@
                 {/if}
             </div>
             <div class="rounded-md w-96 ml-auto"><VoteParliament {dels} {voteResult} preview={true}/></div>
-            <div></div>
+            <div>Angenommen: {voteResult.legislative_initiative.accepted}</div>
             <div class="ml-auto"><SButton class="bg-tertiary-500">Details anzeigen</SButton></div>
         </div>
     </div>

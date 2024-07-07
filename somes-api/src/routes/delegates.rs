@@ -76,7 +76,7 @@ pub async fn delegate(
                 image_url, constituency, council, seat_row, seat_col, gender, is_active,
                  birthdate, start_date as active_since from mandates 
         inner join delegates on delegates.id = delegate_id 
-        where mandates.name like '%Abgeordnete%' and end_date is null and delegates.id = $1;", delegate_by_id.delegate_id
+        where (mandates.name like '%Abgeordnete%' or mandates.name like '%minister%') and end_date is null and delegates.id = $1;", delegate_by_id.delegate_id
     )
     .fetch_one(&pg)
     .await
@@ -109,7 +109,7 @@ pub async fn delegates(
                 image_url, constituency, council, seat_row, seat_col, gender, is_active,
                  birthdate, start_date as active_since from mandates 
         inner join delegates on delegates.id = delegate_id 
-        where mandates.name like '%Abgeordnete%' and end_date is null;"
+        where (mandates.name like '%Abgeordnete%' or mandates.name like '%minister%')  and end_date is null;"
     )
     .fetch_all(&pg)
     .await
