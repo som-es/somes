@@ -7,7 +7,7 @@ pub async fn extract_interests_of_delegate(
 ) -> sqlx::Result<Vec<InterestShare>> {
     let absolute_interests = sqlx::query!("select 
         topic, COUNT(*) as talk_count from speeches 
-            inner join topics on topics.legislative_initiatives_id=speeches.legislative_initiatives_id 
+            inner join topics_legis_init on topics_legis_init.legislative_initiatives_id=speeches.legislative_initiatives_id 
             inner join delegates on speeches.delegate_id = delegates.id 
         where infavor is not null and delegates.id = $1 
             group by topic
@@ -15,7 +15,7 @@ pub async fn extract_interests_of_delegate(
 
     let total_talk_counts = sqlx::query!("
         select topic, COUNT(*) as talk_count from speeches 
-        inner join topics on topics.legislative_initiatives_id=speeches.legislative_initiatives_id inner join delegates on speeches.delegate_id = delegates.id 
+        inner join topics_legis_init on topics_legis_init.legislative_initiatives_id=speeches.legislative_initiatives_id inner join delegates on speeches.delegate_id = delegates.id 
         where infavor is not null and delegates.council = 'nr' and is_active group by topic order by topic;").fetch_all(pg).await?;
 
     let mut interest_shares = Vec::with_capacity(total_talk_counts.len());

@@ -138,7 +138,8 @@ pub async fn serve(addr: SocketAddr) {
      */
 
     let dataservice_sqlx_pool = PgPoolOptions::new()
-        .max_connections(200)
+        // pool sizes
+        .max_connections(100)
         .connect(DATASERVICE_URL)
         .await
         .unwrap();
@@ -147,7 +148,7 @@ pub async fn serve(addr: SocketAddr) {
         // mind the database url, it is "DATASERVICE_URL" and not "DATABASE_URL"
         deadpool_diesel::postgres::Manager::new(/*DATABASE_URL*/DATASERVICE_URL, deadpool_diesel::Runtime::Tokio1);
     let somes_db_pool = deadpool_diesel::postgres::Pool::builder(somes_db_manager)
-        .max_size(200)
+        .max_size(100)
         .build()
         .unwrap();
 

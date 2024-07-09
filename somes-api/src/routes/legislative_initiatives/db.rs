@@ -177,7 +177,7 @@ pub async fn get_eurovoc_topics_from_legis_init(
 ) -> sqlx::Result<Vec<Topic>> {
     sqlx::query_as!(
         Topic,
-        "select topic from eurovoc_topics where legislative_initiatives_id = $1",
+        "select topic from eurovoc_topics_legis_init where legislative_initiatives_id = $1",
         legis_init_id
     )
     .fetch_all(con)
