@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { cachedDelegates, filteredDelegates } from '$lib/caching/delegates';
+	import type { AutocompleteOption } from '$lib/components/Autocompletion/types';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
+	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
 	import DelegatesParliament from '$lib/components/Parliaments/DelegatesParliament.svelte';
 	import type { Delegate } from '$lib/types';
 	import {
-		Autocomplete,
 		popup,
-		type AutocompleteOption,
 		type PopupSettings
 	} from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
@@ -47,10 +47,11 @@
 			let genderIdentsString = genderIdents.join(', ');
 
 			return {
+                right_label: delegate.party, 
 				label: delegate.name,
 				value: delegate.name,
 				keywords: `${delegate.id}, ${delegate.party}, ${delegate.constituency}, ${genderIdentsString}, ${delegate.birthdate}, ${delegate.active_since}`,
-                meta: delegate
+                meta: delegate,
 			};
 		});
 	}
