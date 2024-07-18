@@ -30,7 +30,6 @@
 
 		selected = bubble;
 		delegate = bubble.del;
-		console.log(delegate);
 	}
 
 	function setOpacity(bubble: Bubble) {

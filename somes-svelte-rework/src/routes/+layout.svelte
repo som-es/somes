@@ -5,6 +5,10 @@
 	import Sidebar from '$lib/components/Bars/Sidebar.svelte';
 	import Bottombar from '$lib/components/Bars/Bottombar.svelte';
 	import Navbar from '$lib/components/Bars/Navbar.svelte';
+
+	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
+	import { storePopup } from '@skeletonlabs/skeleton';
+	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 	initializeStores();
 
 	// const drawerStore = getDrawerStore();

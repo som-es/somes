@@ -1,4 +1,9 @@
 <script lang="ts">
+
+
 </script>
 
-<div>statistics</div>
+<div>
+    
+    statistics
+</div>

@@ -6,6 +6,7 @@
 	import type { Delegate } from '$lib/types';
 	import {
 		Autocomplete,
+		popup,
 		type AutocompleteOption,
 		type PopupSettings
 	} from '@skeletonlabs/skeleton';
@@ -20,61 +21,93 @@
 		placement: 'bottom'
 	};
 
+	let autocompleteOptions: AutocompleteOption<string>[] = [];
 	onMount(async () => {
 		delegates = await filteredDelegates();
-		if (delegates !== null) delegate = delegates[Math.floor(Math.random() * delegates.length)];
+		if (delegates !== null) {
+            delegate = delegates[Math.floor(Math.random() * delegates.length)];
+            autocompleteOptions = convertDelegatesToAutocompleteOptions(delegates);
+        }
+        
 	});
 
-	let inputDemo = '';
+	let inputValue = '';
 
-	const flavorOptions: AutocompleteOption<string>[] = [
-		{ label: 'Vanilla', value: 'vanilla', keywords: 'plain, basic', meta: { healthy: false } },
-		{ label: 'Chocolate', value: 'chocolate', keywords: 'dark, white', meta: { healthy: false } },
-		{ label: 'Strawberry', value: 'strawberry', keywords: 'fruit', meta: { healthy: true } },
-		{
-			label: 'Neapolitan',
-			value: 'neapolitan',
-			keywords: 'mix, strawberry, chocolate, vanilla',
-			meta: { healthy: false }
-		},
-		{ label: 'Pineapple', value: 'pineapple', keywords: 'fruit', meta: { healthy: true } },
-		{ label: 'Peach', value: 'peach', keywords: 'fruit', meta: { healthy: true } }
-	];
+	function convertDelegatesToAutocompleteOptions(
+		delegates: Delegate[]
+	): AutocompleteOption<string>[] {
+		return delegates.map((delegate) => {
+			let genderIdents: string[] = [];
+			if (delegate.gender == 'm') {
+				genderIdents = ['männlich', 'mann', 'abgeordneter'];
+			} else if (delegate.gender == 'f') {
+				genderIdents = ['weiblich', 'frau', 'abgeordnete'];
+			}
 
-	function onFlavorSelection(event: CustomEvent<AutocompleteOption<string>>): void {
-		inputDemo = event.detail.label;
+			let genderIdentsString = genderIdents.join(', ');
+
+			return {
+				label: delegate.name,
+				value: delegate.name,
+				keywords: `${delegate.id}, ${delegate.party}, ${delegate.constituency}, ${genderIdentsString}, ${delegate.birthdate}, ${delegate.active_since}`,
+                meta: delegate
+			};
+		});
+	}
+
+    function delegateFilter(): AutocompleteOption<string>[] {
+        let _options = [...autocompleteOptions];
+        let _inputValue = `${String(inputValue).toLowerCase().trim()} `
+        return _options.filter((option) => {
+            let values = _inputValue.split(" ");
+            const optionFormatted = `${option.value.toLowerCase().trim()} ${option.keywords?.toLowerCase().trim()}`;
+            for (let idx = 0; idx < values.length; idx++) {
+                if (!optionFormatted.includes(values[idx])) {
+                    return null
+                }
+            }
+            return option
+
+        });
+    }
+
+
+	function onDelegateSelection(event: CustomEvent<AutocompleteOption<string>>): void {
+        // @ts-ignore
+        delegate = event.detail.meta;
+		inputValue = event.detail.label;
 	}
 </script>
 
 <Container>
-	<div class="text-token w-full max-w-sm space-y-2">
-		<input
-			class="input h-8 px-2"
-			type="search"
-			name="ac-demo"
-			bind:value={inputDemo}
-			placeholder="Suchen..."
-			use:popup={popupSettings}
-		/>
-		<div data-popup="popupAutocomplete">
-			<Autocomplete
-				bind:input={inputDemo}
-				options={flavorOptions}
-				on:selection={onFlavorSelection}
-			/>
-		</div>
-		<div class="card w-full max-w-sm max-h-48 p-4 overflow-y-auto" tabindex="-1">
-			<Autocomplete
-				bind:input={inputDemo}
-				options={flavorOptions}
-				on:selection={onFlavorSelection}
-			/>
-		</div>
-	</div>
-
 	<div>
 		delegates
 		{#if delegates}
+			<div class="text-token w-full max-w-sm space-y-2">
+				<input
+					class="input h-8 px-2"
+					type="search"
+					name="ac-demo"
+					bind:value={inputValue}
+					placeholder="Suchen..."
+					use:popup={popupSettings}
+				/>
+
+                {#if autocompleteOptions}
+                    <div
+                        class="card w-full max-w-sm max-h-48 p-4 overflow-y-auto"
+                        data-popup="popupAutocomplete"
+                    >
+                        <Autocomplete
+                            bind:input={inputValue}
+                            options={autocompleteOptions}
+                            on:selection={onDelegateSelection}
+                            emptyState={'Keine Person gefunden'}
+                            filter={delegateFilter}
+                        />
+                    </div>
+                {/if}
+			</div>
 			<div class="grid-container">
 				<div class="parliament-item">
 					<DelegatesParliament bind:delegate dels={delegates} />
