@@ -106,37 +106,37 @@ export interface SignUpError {
 }
 
 export interface Question {
-    question_id: number;
-    issuer_id: number; // user?
-    created_on: Date;
-    delegate_id: number;
-    title: string;
-    body: string;
-    response: string | null;
-    responded_on: Date | null;
-    editable: boolean;
-    last_edited_on: Date | null;
-    visible: boolean;
+	question_id: number;
+	issuer_id: number; // user?
+	created_on: Date;
+	delegate_id: number;
+	title: string;
+	body: string;
+	response: string | null;
+	responded_on: Date | null;
+	editable: boolean;
+	last_edited_on: Date | null;
+	visible: boolean;
 	likes: number;
 	dislikes: number;
 }
 
 export interface QuestionFilter {
-    page: number,
-    filter_text: string | null,
-    filter_delegate: number | null,
-    filter_party: number | null,
-    filter_date_range: DateRange | null,
-    filter_topics: string[] | null, // maybe
+	page: number;
+	filter_text: string | null;
+	filter_delegate: number | null;
+	filter_party: number | null;
+	filter_date_range: DateRange | null;
+	filter_topics: string[] | null; // maybe
 }
 
 export interface DateRange {
-    start: Date;
-    end: Date;
+	start: Date;
+	end: Date;
 }
 
 export interface InterestShare {
-	topic: string,
-	total_share: number,
-	self_share: number,
+	topic: string;
+	total_share: number;
+	self_share: number;
 }

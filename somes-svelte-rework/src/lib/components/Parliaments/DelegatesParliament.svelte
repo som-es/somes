@@ -1,14 +1,13 @@
-
 <script lang="ts">
-	import { setupParliament, type Bubble, setDelOnBubble } from "$lib/parliament";
-	import { getPartyColors, partyToColor } from "$lib/partyColor";
-	import type { Delegate, VoteResult } from "$lib/types";
-	import BaseParliament from "./BaseParliament.svelte";
+	import { setupParliament, type Bubble, setDelOnBubble } from '$lib/parliament';
+	import { getPartyColors, partyToColor } from '$lib/partyColor';
+	import type { Delegate, VoteResult } from '$lib/types';
+	import BaseParliament from './BaseParliament.svelte';
 
 	export let seats: number[] = [20, 27, 37, 43, 48, 54];
 	export let dels: Delegate[];
 	export let preview: boolean = false;
-    export let delegate: Delegate | null;
+	export let delegate: Delegate | null;
 
 	const width = 830;
 	const height = 900;
@@ -25,8 +24,12 @@
 			event.stopPropagation();
 		}
 
+		if (bubble.del == null) {
+			return;
+		}
+
 		selected = bubble;
-        delegate = bubble.del;
+		delegate = bubble.del;
 		console.log(delegate);
 	}
 
@@ -34,7 +37,7 @@
 		if (bubble.del == null) {
 			bubble.opacity = 0.2;
 			return;
-        }
+		}
 
 		bubble.opacity = 1;
 	}
@@ -45,6 +48,9 @@
 			setOpacity(circles2d[del.seat_row - 1][del.seat_col - 1]);
 		}
 	});
+
+	$: if (delegate && delegate.seat_row != null)
+		select(circles2d[delegate.seat_row - 1][delegate.seat_col! - 1], null);
 </script>
 
 <BaseParliament {circles2d} {selected} {preview} {select} {width} {height} />

@@ -1,71 +1,69 @@
 <script lang="ts">
-	import type { Delegate, VoteResult, VoteResultsWithMaxPage } from "$lib/types";
-	import { onMount } from "svelte";
-	import { vote_results_per_page } from "$lib/api";
-	import SButton from "../../UI/SButton.svelte";
-	import VoteResultExpandableBar from "./VoteResultExpandableBar.svelte";
-	import { pushState } from "$app/navigation";
-	import Pagination from "$lib/components/Pagination.svelte";
+	import type { Delegate, VoteResult, VoteResultsWithMaxPage } from '$lib/types';
+	import { onMount } from 'svelte';
+	import { vote_results_per_page } from '$lib/api';
+	import SButton from '../../UI/SButton.svelte';
+	import VoteResultExpandableBar from './VoteResultExpandableBar.svelte';
+	import { pushState } from '$app/navigation';
+	import Pagination from '$lib/components/Pagination.svelte';
 
-    export let dels: Delegate[];
+	export let dels: Delegate[];
 
-    let voteResults: VoteResultsWithMaxPage | null = null;
+	let voteResults: VoteResultsWithMaxPage | null = null;
 
-    // get page number from query params
-    const url = new URL(window.location.href);
-    let page = parseInt(url.searchParams.get("page") || "1") || 1;
-   
-    const loadVoteResults = async () => {
-        if (voteResults != null) {
-            voteResults.vote_results = []
-        }
-        voteResults = await vote_results_per_page(page - 1);
-    }
-    onMount(async () => {
-        update();
-    });
+	// get page number from query params
+	const url = new URL(window.location.href);
+	let page = parseInt(url.searchParams.get('page') || '1') || 1;
 
-    let old_page = page;
+	const loadVoteResults = async () => {
+		if (voteResults != null) {
+			voteResults.vote_results = [];
+		}
+		voteResults = await vote_results_per_page(page - 1);
+	};
+	onMount(async () => {
+		update();
+	});
 
-    const update = () => {
-        loadVoteResults();
+	let old_page = page;
 
-        // update query params
-        const url = new URL(window.location.href);
-        url.searchParams.set("page", page.toString());
-        try {
-            pushState(url.toString(), { replaceState: true });
-        } catch(e) {
-            page = old_page;
-        }
+	const update = () => {
+		loadVoteResults();
 
-        old_page = page;
-    }
+		// update query params
+		const url = new URL(window.location.href);
+		url.searchParams.set('page', page.toString());
+		try {
+			pushState(url.toString(), { replaceState: true });
+		} catch (e) {
+			page = old_page;
+		}
 
-    $: if (page) {
-        update();
-    }
+		old_page = page;
+	};
 
+	$: if (page) {
+		update();
+	}
 </script>
 
 <div>
-    {#if voteResults}
-            <Pagination bind:page={page} maxPage={voteResults.max_page} />
-        {#if voteResults.vote_results.length > 0} 
-            {#each voteResults.vote_results as voteResult}
-                <VoteResultExpandableBar {dels} voteResult={voteResult} class="" />
-            {/each}
-        {:else}
-            loading
-        {/if}
-         <div class="float-right">
-            <Pagination bind:page={page} maxPage={voteResults.max_page} />
-        </div>
-    {:else}
-        loading
-    {/if}
-   
+	{#if voteResults}
+		<Pagination bind:page maxPage={voteResults.max_page} />
+		{#if voteResults.vote_results.length > 0}
+			{#each voteResults.vote_results as voteResult}
+				<VoteResultExpandableBar {dels} {voteResult} class="" />
+			{/each}
+		{:else}
+			loading
+		{/if}
+		<div class="float-right">
+			<Pagination bind:page maxPage={voteResults.max_page} />
+		</div>
+	{:else}
+		loading
+	{/if}
 </div>
-<style>
 
+<style>
 </style>

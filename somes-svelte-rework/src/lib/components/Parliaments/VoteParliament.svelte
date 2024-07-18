@@ -1,9 +1,9 @@
 <!-- TODO: merge this and the Parliament component in to one -->
 <script lang="ts">
-	import { setupParliament, type Bubble, setDelOnBubble } from "$lib/parliament";
-	import { getPartyColors, partyToColor } from "$lib/partyColor";
-	import type { Delegate, VoteResult } from "$lib/types";
-	import BaseParliament from "./BaseParliament.svelte";
+	import { setupParliament, type Bubble, setDelOnBubble } from '$lib/parliament';
+	import { getPartyColors, partyToColor } from '$lib/partyColor';
+	import type { Delegate, VoteResult } from '$lib/types';
+	import BaseParliament from './BaseParliament.svelte';
 
 	export let seats: number[] = [20, 27, 37, 43, 48, 54];
 	export let dels: Delegate[];

@@ -1,4 +1,4 @@
-import type { Delegate } from "$lib/types"
+import type { Delegate } from '$lib/types';
 
 export interface Bubble {
 	r: number;
@@ -27,7 +27,7 @@ export function generateHalfCircle(n: number, r: number, w: number, h: number) {
 
 		const circle = {
 			x,
-			y,
+			y
 		};
 		circles = circles.concat(circle);
 		// circles.push(circle);
@@ -37,8 +37,8 @@ export function generateHalfCircle(n: number, r: number, w: number, h: number) {
 
 export function setDelOnBubble(
 	del: Delegate,
-	circles2d: Bubble[][],	
-	fn: (party: string) => string,
+	circles2d: Bubble[][],
+	fn: (party: string) => string
 ) {
 	if (del.seat_row == null || del.seat_col == null) {
 		return;
@@ -52,7 +52,7 @@ export function setupParliament(
 	seats: number[],
 	width: number,
 	height: number,
-	r: number,
+	r: number
 ): Bubble[][] {
 	let circles2d: Bubble[][] = [];
 	seats.forEach((seat, idx) => {
@@ -61,17 +61,17 @@ export function setupParliament(
 				seat,
 				70 + idx * (idx == 1 ? 30 : 20) + (idx >= 2 ? 30 : 0),
 				width,
-				height,
+				height
 			).map((circle) => {
 				return {
 					r,
 					x: circle.x,
 					y: circle.y,
 					del: null,
-					color: "rgb(196, 180, 189)",
-					opacity: 0.2,
+					color: 'rgb(196, 180, 189)',
+					opacity: 0.2
 				};
-			}),
+			})
 		);
 	});
 

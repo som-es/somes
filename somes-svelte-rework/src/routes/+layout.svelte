@@ -8,21 +8,20 @@
 	initializeStores();
 
 	// const drawerStore = getDrawerStore();
-
 </script>
 
 <CacheInvalidation />
 
 <AppShell>
 	<svelte:fragment slot="header">
-		<Navbar />	
+		<Navbar />
 	</svelte:fragment>
 	<svelte:fragment slot="sidebarLeft">
 		<Sidebar class="hidden sm:grid " />
 	</svelte:fragment>
 	<svelte:fragment slot="footer">
 		<div class="sm:!hidden">
-			<Bottombar />	
+			<Bottombar />
 		</div>
 	</svelte:fragment>
 	<slot />
