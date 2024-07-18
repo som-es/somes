@@ -1,7 +1,10 @@
 import type { TransitionConfig } from 'svelte/transition';
 
 // Transitions ---
-export function dynamicTransition<T extends Transition>(node: Element, dynParams: DynamicTransitionParams<T>): TransitionConfig {
+export function dynamicTransition<T extends Transition>(
+	node: Element,
+	dynParams: DynamicTransitionParams<T>
+): TransitionConfig {
 	const { transition, params, enabled } = dynParams;
 
 	if (enabled) return transition(node, params);

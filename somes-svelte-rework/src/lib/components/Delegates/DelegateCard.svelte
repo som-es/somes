@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { partyToColor } from '$lib/partyColor';
 	import type { Delegate } from '$lib/types';
 
 	export let delegate: Delegate;
@@ -18,11 +19,11 @@
 		<h4>
 			{delegate.name}
 		</h4>
-		<span>
+		<span style="color: {partyToColor(delegate.party)}">
 			{#if delegate.party == 'OK'}
 				Ohne Klub
 			{:else}
-				{delegate.party}
+				<span>{delegate.party}</span>
 			{/if}
 		</span>
 	</section>

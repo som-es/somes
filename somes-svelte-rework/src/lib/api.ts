@@ -1,4 +1,11 @@
-import type { Delegate, HasError, Party, VoteResult, VoteResultsWithMaxPage } from './types';
+import type {
+	Delegate,
+	HasError,
+	InterestShare,
+	Party,
+	VoteResult,
+	VoteResultsWithMaxPage
+} from './types';
 
 // const address = "http://somes.at:3000"
 const address = 'http://127.0.0.1:3000';
@@ -49,6 +56,17 @@ export async function latest_vote_results(): Promise<VoteResult[] | null> {
 export async function vote_results_per_page(page: number): Promise<VoteResultsWithMaxPage | null> {
 	return fetchSavely(() =>
 		fetch(`${address}/vote_results_per_page?page=${page}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		})
+	);
+}
+
+export async function delegate_interests(delegate_id: number): Promise<InterestShare[] | null> {
+	return fetchSavely(() =>
+		fetch(`${address}/delegate_interests?delegate_id=${delegate_id}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'

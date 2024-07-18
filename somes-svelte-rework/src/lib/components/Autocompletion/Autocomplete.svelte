@@ -1,6 +1,5 @@
 <script lang="ts" context="module">
 	import { slide } from 'svelte/transition';
-    
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	type SlideTransition = typeof slide;
@@ -19,7 +18,11 @@
 
 	import { dynamicTransition } from '$lib/internal/transition.js';
 
-	import type { prefersReducedMotionStore, Transition, TransitionParams  } from '@skeletonlabs/skeleton';
+	import type {
+		prefersReducedMotionStore,
+		Transition,
+		TransitionParams
+	} from '@skeletonlabs/skeleton';
 
 	import { createEventDispatcher } from 'svelte';
 	// import { flip } from 'svelte/animate';
@@ -135,7 +138,11 @@
 			// Format the input search value
 			const inputFormatted = String(input).toLowerCase().trim();
 			// Format the option
-			let optionFormatted = JSON.stringify([option.label, option.value, option.keywords]).toLowerCase();
+			let optionFormatted = JSON.stringify([
+				option.label,
+				option.value,
+				option.keywords
+			]).toLowerCase();
 			// Check Match
 			if (optionFormatted.includes(inputFormatted)) return option;
 		});
@@ -168,16 +175,30 @@
 				{#each optionsFiltered.slice(0, sliceLimit) as option (option)}
 					<li
 						class="autocomplete-item {classesItem}"
-						in:dynamicTransition|local={{ transition: transitionIn, params: transitionInParams, enabled: transitions }}
-						out:dynamicTransition|local={{ transition: transitionOut, params: transitionOutParams, enabled: transitions }}
+						in:dynamicTransition|local={{
+							transition: transitionIn,
+							params: transitionInParams,
+							enabled: transitions
+						}}
+						out:dynamicTransition|local={{
+							transition: transitionOut,
+							params: transitionOutParams,
+							enabled: transitions
+						}}
 					>
-						<button class="flex justify-between autocomplete-button {classesButton}" type="button" on:click={() => onSelection(option)} on:click on:keypress>
-                            <div>
-                                {@html option.label}
-                            </div>
-                            <div style="color: {partyToColor(option.right_label)};">
-                                {@html option.right_label}
-                            </div>
+						<button
+							class="flex justify-between autocomplete-button {classesButton}"
+							type="button"
+							on:click={() => onSelection(option)}
+							on:click
+							on:keypress
+						>
+							<div>
+								{@html option.label}
+							</div>
+							<div style="color: {partyToColor(option.right_label)};">
+								{@html option.right_label}
+							</div>
 						</button>
 					</li>
 				{/each}
