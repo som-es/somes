@@ -7,7 +7,6 @@ export async function cachedPartyColors(refetch: boolean = false): Promise<Map<s
     if (maybeCached == null || refetch || maybeCached.length == 0) {
         let partyToColor = new Map<string, string>();
         const partiesResult = await parties();
-
         if (partiesResult !== null) {
             partiesResult.forEach((party) => {
                 partyToColor.set(party.name, party.color);

@@ -36,6 +36,7 @@
 
     <div use:collapse={{open}}>
         <div class="entry bg-primary-200 dark:bg-primary-400 mt-3 grid-container ">
+            <!-- Inneres Migration Frauen Klimaschutz -->
             <div>
                 {#if emphasis}
                 <ul>
