@@ -39,9 +39,8 @@
 	</div>
 
 	<div use:collapse={{ open }}>
-		<div class="entry bg-primary-200 dark:bg-primary-400 mt-3 grid-container">
-			<!-- Inneres Migration Frauen Klimaschutz -->
-			<div>
+		<div class="sm:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3">
+			<div class="">
 				{#if emphasis}
 					<ul>
 						{#each emphasis as emph}
@@ -50,11 +49,36 @@
 					</ul>
 				{/if}
 			</div>
-			<div class="rounded-md w-96 ml-auto">
+			<div class="rounded-md w-full">
 				<VoteParliament {dels} {voteResult} preview={true} />
 			</div>
-			<div>Angenommen: {voteResult.legislative_initiative.accepted}</div>
-			<div class="ml-auto"><SButton class="bg-tertiary-500">Details anzeigen</SButton></div>
+
+			<div class="flex justify-between"> 
+				<!-- <div class="accepted-item square bg-primary-300">Angenommen: {voteResult.legislative_initiative.accepted}</div> -->
+				<div class="ml-auto more-info-item"><SButton class="bg-tertiary-500">Details anzeigen</SButton></div>
+			</div>
+
+		</div>
+		<div class="max-sm:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3 grid-container">
+			<!-- Inneres Migration Frauen Klimaschutz -->
+			<div class="emphasis-item">
+				{#if emphasis}
+					<ul>
+						{#each emphasis as emph}
+							<li>- {emph}</li>
+						{/each}
+					</ul>
+				{/if}
+			</div>
+			<div class="rounded-md w-96 max-w-full ml-auto parliament-item">
+				<VoteParliament {dels} {voteResult} preview={true} />
+			</div>
+			<div class="flex info-item gap-3">
+				<div class="accepted-item square bg-primary-300">Angenommen: {voteResult.legislative_initiative.accepted}</div>
+				<div class="majority-item square bg-primary-300">1/2 mehrheit, maybe 2/3</div>
+				<div class="accepted-item square bg-primary-300">Abestimmt am {voteResult.legislative_initiative.created_at}</div>
+			</div>
+			<div class="ml-auto details-item mt-auto"><SButton class="bg-tertiary-500">Details anzeigen</SButton></div>
 		</div>
 	</div>
 </div>
@@ -66,11 +90,61 @@
 		padding: 20px;
 		gap: 10px;
 	}
-	.grid-container {
+	/* .grid-container {
 		display: grid;
-		/* grid-template-columns: auto auto auto auto auto auto; */
 		grid-template-columns: 2fr 1fr;
+	} */
+	
+	.grid-container {
+		box-sizing: border-box;
+		display: grid;
+        min-width: 0;
+        min-height: 0;
+		grid-template-areas:
+			'e e e e e p p p' /* e: emphasis, p: parliament */
+			'e e e e e p p p'
+			'e e e e e p p p'
+			'i i i . . . d d'; /* a: accepted, m: majority? 2/3, 1/2, dt: date, d: details */
+		/* "i i i a"; */
+		padding: 10px;
 	}
+
+	.square {
+		aspect-ratio: 1/ 1;
+		display: flex;
+		align-items: center;
+		padding: 5%;
+		color: #fff;
+	}
+
+	.parliament-item {
+		grid-area: p;
+	}
+
+	.emphasis-item {
+		grid-area: e;
+	}
+
+	.accepted-item {
+		grid-area: a;
+	}
+
+	.majority-item {
+		grid-area: m;
+	}
+
+	.date-item {
+		grid-area: dt;
+	}
+
+	.info-item {
+		grid-area: i;
+	}
+
+	.details-item {
+		grid-area: d;
+	}
+
 	.item {
 		grid-column: 1fr;
 	}
