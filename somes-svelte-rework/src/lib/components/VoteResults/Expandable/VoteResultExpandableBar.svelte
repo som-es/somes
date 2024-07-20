@@ -33,13 +33,13 @@
 			{/if}
 		</div>
 		<div>{voteResult.legislative_initiative.title}</div>
-		<div class="w-20 bg-primary-400 dark:bg-primary-600 rounded-md">
+		<div class="w-20 bg-primary-100 dark:bg-primary-300 rounded-md">
 			<VoteParliament {dels} {voteResult} preview={true} />
 		</div>
 	</div>
 
 	<div use:collapse={{ open }}>
-		<div class="sm:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3">
+		<div class="md:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3">
 			<div class="">
 				{#if emphasis}
 					<ul>
@@ -54,23 +54,28 @@
 			</div>
 
 			<div class="flex justify-between"> 
-				<!-- <div class="accepted-item square bg-primary-300">Angenommen: {voteResult.legislative_initiative.accepted}</div> -->
+				<div class="accepted-item bg-primary-300">Angenommen: {voteResult.legislative_initiative.accepted}</div>
 				<div class="ml-auto more-info-item"><SButton class="bg-tertiary-500">Details anzeigen</SButton></div>
 			</div>
 
 		</div>
-		<div class="max-sm:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3 grid-container">
+		<div class="max-md:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3  grid-container">
 			<!-- Inneres Migration Frauen Klimaschutz -->
-			<div class="emphasis-item">
-				{#if emphasis}
-					<ul>
-						{#each emphasis as emph}
-							<li>- {emph}</li>
-						{/each}
-					</ul>
+
+			{#if emphasis}
+				{#if emphasis.length > 0}
+					<div class="emphasis-item bg-primary-300 px-10">
+						<ul class="mt-1">
+							{#each emphasis as emph}
+								<li>- {emph}</li>
+							{/each}
+						</ul>
+					</div>
+				{:else}
+					<div class="emphasis-item"></div>
 				{/if}
-			</div>
-			<div class="rounded-md w-96 max-w-full ml-auto parliament-item">
+			{/if}
+			<div class="rounded-md w-80 max-w-full ml-auto parliament-item bg-primary-100">
 				<VoteParliament {dels} {voteResult} preview={true} />
 			</div>
 			<div class="flex info-item gap-3">
@@ -119,10 +124,12 @@
 
 	.parliament-item {
 		grid-area: p;
+		border-radius: 2rem;
 	}
 
 	.emphasis-item {
 		grid-area: e;
+		border-radius: 2rem;
 	}
 
 	.accepted-item {
@@ -148,4 +155,5 @@
 	.item {
 		grid-column: 1fr;
 	}
+	
 </style>
