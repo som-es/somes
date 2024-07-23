@@ -6,7 +6,7 @@
 	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
 	import DelegatesParliament from '$lib/components/Parliaments/DelegatesParliament.svelte';
 	import type { Delegate, InterestShare } from '$lib/types';
-	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
+	import { popup, ProgressRadial, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 	import { delegate_interests } from '$lib/api';
 	import { topicColors } from '$lib/interestColors';
@@ -45,12 +45,13 @@
 			}
 
 			let genderIdentsString = genderIdents.join(', ');
+			let divisionsString = delegate.divisions?.join(', ');
 
 			return {
 				right_label: delegate.party,
 				label: delegate.name,
 				value: delegate.name,
-				keywords: `${delegate.id}, ${delegate.party}, ${delegate.constituency}, ${genderIdentsString}, ${delegate.birthdate}, ${delegate.active_since}`,
+				keywords: `${delegate.id}, ${delegate.party}, ${delegate.constituency}, ${genderIdentsString}, ${delegate.birthdate}, ${delegate.active_since}, ${divisionsString}`,
 				meta: delegate
 			};
 		});
@@ -78,6 +79,7 @@
 	}
 
 	$: if (delegate) {
+        // interests = null;
 		delegate_interests(delegate.id).then((res) => {
 			if (res != null) res.sort((a, b) => b.self_share - a.self_share);
 			interests = res;
@@ -172,6 +174,8 @@
 							</div>
 						{/if}
 					</div>
+                {:else}
+                    <ProgressRadial />
 				{/if}
                 <!-- <div class="activity-item bg-primary-300">
                     Activity
@@ -218,6 +222,8 @@
     
     .interests-item {
 		grid-area: i;
+        overflow: hidden;  /* NEW */
+        min-width: 0;      /* NEW; needed for Firefox */
 	}
 
 	.activity-item {

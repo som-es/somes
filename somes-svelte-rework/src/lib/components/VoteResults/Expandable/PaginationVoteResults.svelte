@@ -6,6 +6,7 @@
 	import VoteResultExpandableBar from './VoteResultExpandableBar.svelte';
 	import { pushState } from '$app/navigation';
 	import Pagination from '$lib/components/Pagination.svelte';
+	import { ProgressRadial } from '@skeletonlabs/skeleton';
 
 	export let dels: Delegate[];
 
@@ -55,13 +56,13 @@
 				<VoteResultExpandableBar {dels} {voteResult} class="" />
 			{/each}
 		{:else}
-			loading
+			<ProgressRadial />
 		{/if}
 		<div class="float-right">
 			<Pagination bind:page maxPage={voteResults.max_page} />
 		</div>
 	{:else}
-		loading
+		<ProgressRadial />
 	{/if}
 </div>
 

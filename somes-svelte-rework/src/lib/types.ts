@@ -10,7 +10,8 @@ export interface Delegate {
 	gender: string | null;
 	is_active: boolean | null;
 	birthdate: string;
-	active_since: string;
+	active_since: Date;
+	divisions: string[] | null
 }
 
 export interface LegislativeInitiative {
@@ -24,6 +25,8 @@ export interface LegislativeInitiative {
 	created_at: Date;
 	appeared_at: Date | null;
 	updated_at: Date | null;
+	requires_simple_majority: boolean | null;
+	was_invisibly_declined: boolean | null;
 }
 
 export interface Vote {

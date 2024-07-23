@@ -5,6 +5,7 @@
 	import { onMount } from 'svelte';
 	import { cachedLatestVoteResults } from '$lib/caching/vote_results';
 	import Container from '$lib/components/Layout/Container.svelte';
+	import { ProgressRadial } from '@skeletonlabs/skeleton';
 
 	let dels: Delegate[] | null = null;
 	let voteResults: VoteResult[] | null = null;
@@ -20,6 +21,6 @@
 	{#if voteResults && dels}
 		<VoteResults {dels} {voteResults} />
 	{:else}
-		<p>loading...</p>
+		<ProgressRadial />
 	{/if}
 </Container>

@@ -5,6 +5,7 @@
 	import upArrowIcon from '$lib/assets/misc_icons/up-arrow.svg?raw';
 	import downArrowIcon from '$lib/assets/misc_icons/down-arrow.svg?raw';
 	import SButton from '$lib/components/UI/SButton.svelte';
+	import Topics from '$lib/components/Topics/Topics.svelte';
 
 	export let voteResult: VoteResult;
 	export let dels: Delegate[];
@@ -39,7 +40,7 @@
 	</div>
 
 	<div use:collapse={{ open }}>
-		<div class="md:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3">
+		<div class="lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3">
 			<div class="">
 				{#if emphasis}
 					<ul>
@@ -59,7 +60,7 @@
 			</div>
 
 		</div>
-		<div class="max-md:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3  grid-container">
+		<div class="max-lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3  grid-container">
 			<!-- Inneres Migration Frauen Klimaschutz -->
 
 			{#if emphasis}
@@ -75,6 +76,11 @@
 					<div class="emphasis-item"></div>
 				{/if}
 			{/if}
+
+			<div class="topics-item bg-primary-300 px-4">
+				<Topics topics={voteResult.topics} />
+			</div>
+
 			<div class="rounded-md w-80 max-w-full ml-auto parliament-item bg-primary-100">
 				<VoteParliament {dels} {voteResult} preview={true} />
 			</div>
@@ -103,13 +109,11 @@
 	.grid-container {
 		box-sizing: border-box;
 		display: grid;
-        min-width: 0;
-        min-height: 0;
 		grid-template-areas:
 			'e e e e e p p p' /* e: emphasis, p: parliament */
 			'e e e e e p p p'
 			'e e e e e p p p'
-			'i i i . . . d d'; /* a: accepted, m: majority? 2/3, 1/2, dt: date, d: details */
+			'i i i i t t d d'; /* a: accepted, m: majority? 2/3, 1/2, dt: date, d: details */
 		/* "i i i a"; */
 		padding: 10px;
 	}
@@ -125,6 +129,13 @@
 	.parliament-item {
 		grid-area: p;
 		border-radius: 2rem;
+	}
+
+	.topics-item {
+		grid-area: t;
+		border-radius: 2rem;
+        overflow: hidden;  /* NEW */
+        min-width: 0;      /* NEW; needed for Firefox */
 	}
 
 	.emphasis-item {
@@ -146,6 +157,8 @@
 
 	.info-item {
 		grid-area: i;
+        overflow: hidden;  /* NEW */
+        min-width: 0;      /* NEW; needed for Firefox */
 	}
 
 	.details-item {

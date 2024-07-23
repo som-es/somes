@@ -50,6 +50,8 @@ pub async fn get_latest_legis_inits_per_page(
             created_at: rec.created_at,
             appeared_at: rec.appeared_at.map(|x| x.naive_local()),
             updated_at: rec.updated_at.map(|x| x.naive_local()),
+            requires_simple_majority: rec.requires_simple_majority,
+            was_invisibly_declined: rec.was_invisibly_declined,
         })
         .collect())
 }
@@ -78,6 +80,8 @@ pub async fn get_latest_legislative_initiatives_sqlx(
             created_at: rec.created_at,
             appeared_at: rec.appeared_at.map(|x| x.naive_local()),
             updated_at: rec.updated_at.map(|x| x.naive_local()),
+            requires_simple_majority: rec.requires_simple_majority,
+            was_invisibly_declined: rec.was_invisibly_declined,
         })
         .collect())
 }

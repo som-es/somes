@@ -14,7 +14,7 @@
 	});
 </script>
 
-<div class="container mx-auto px-5">
+<div class="mx-auto px-5">
 	<h1>Vergangene Abstimmungsergebnisse</h1>
 
 	{#if dels}

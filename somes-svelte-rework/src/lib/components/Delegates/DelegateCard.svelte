@@ -6,7 +6,7 @@
 </script>
 
 <div
-	class="card card-hover h-[60vh] aspect-[3/5] overflow-hidden grid grid-rows-[max-content_1fr_max-content] drop-shadow-lg hover:cursor-pointer"
+	class="card card-hover mx-4 aspect-[3/5] drop-shadow-lg hover:cursor-pointer"
 >
 	<header>
 		<img
@@ -19,13 +19,14 @@
 		<h4>
 			{delegate.name}
 		</h4>
-		<span style="color: {partyToColor(delegate.party)}">
+		<h5 style="color: {partyToColor(delegate.party)}">
 			{#if delegate.party == 'OK'}
 				Ohne Klub
 			{:else}
 				<span>{delegate.party}</span>
 			{/if}
-		</span>
+		</h5>
+		<h6>{delegate.divisions?.join(", ")}</h6>
 	</section>
 	<hr class="!border-t-2 my-4" />
 	<footer class="card-footer flex justify-between items-center">

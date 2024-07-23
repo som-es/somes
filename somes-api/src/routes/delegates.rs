@@ -29,6 +29,7 @@ pub struct Delegate {
     pub is_active: Option<bool>,
     pub birthdate: Option<NaiveDate>,
     pub active_since: NaiveDate,
+    pub divisions: Option<Vec<String>>,
 }
 
 #[utoipa::path(
@@ -72,11 +73,38 @@ pub async fn delegate(
     Query(delegate_by_id): Query<DelegateById>,
 ) -> Result<Json<Delegate>, DelegatesErrorResponse> {
     sqlx::query_as!(Delegate, "
-        select delegates.id, delegates.name, delegates.party, 
-                image_url, constituency, council, seat_row, seat_col, gender, is_active,
-                 birthdate, start_date as active_since from mandates 
-        inner join delegates on delegates.id = delegate_id 
-        where (mandates.name like '%Abgeordnete%' or mandates.name like '%minister%') and end_date is null and delegates.id = $1;", delegate_by_id.delegate_id
+        SELECT 
+            delegates.id, 
+            delegates.name, 
+            delegates.party, 
+            delegates.image_url, 
+            delegates.constituency, 
+            delegates.council, 
+            delegates.seat_row, 
+            delegates.seat_col, 
+            delegates.gender, 
+            delegates.is_active, 
+            delegates.birthdate, 
+            mandates.start_date AS active_since,
+            COALESCE(divisions.division_array, '{}') AS divisions
+        FROM 
+            mandates 
+        INNER JOIN 
+            delegates ON delegates.id = mandates.delegate_id 
+        LEFT JOIN 
+            (SELECT 
+                delegate_id, 
+                ARRAY_AGG(division) AS division_array 
+            FROM 
+                delegates_divisions 
+            GROUP BY 
+                delegate_id) AS divisions 
+            ON delegates.id = divisions.delegate_id
+        WHERE 
+            (mandates.name LIKE '%Abgeordnete%' OR mandates.name LIKE '%minister%') 
+            AND mandates.end_date IS NULL 
+            AND delegates.id = $1;
+", delegate_by_id.delegate_id
     )
     .fetch_one(&pg)
     .await
@@ -105,11 +133,37 @@ pub async fn delegates(
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<Delegate>>, DelegatesErrorResponse> {
     sqlx::query_as!(Delegate, "
-        select delegates.id, delegates.name, delegates.party, 
-                image_url, constituency, council, seat_row, seat_col, gender, is_active,
-                 birthdate, start_date as active_since from mandates 
-        inner join delegates on delegates.id = delegate_id 
-        where (mandates.name like '%Abgeordnete%' or mandates.name like '%minister%') and end_date is null;"
+        SELECT 
+            delegates.id, 
+            delegates.name, 
+            delegates.party, 
+            delegates.image_url, 
+            delegates.constituency, 
+            delegates.council, 
+            delegates.seat_row, 
+            delegates.seat_col, 
+            delegates.gender, 
+            delegates.is_active, 
+            delegates.birthdate, 
+            mandates.start_date AS active_since,
+            COALESCE(divisions.division_array, '{}') AS divisions
+        FROM 
+            mandates 
+        INNER JOIN 
+            delegates ON delegates.id = mandates.delegate_id 
+        LEFT JOIN 
+            (SELECT 
+                delegate_id, 
+                ARRAY_AGG(division) AS division_array 
+            FROM 
+                delegates_divisions 
+            GROUP BY 
+                delegate_id) AS divisions 
+            ON delegates.id = divisions.delegate_id
+        WHERE 
+            (mandates.name LIKE '%Abgeordnete%' OR mandates.name LIKE '%minister%') 
+            AND mandates.end_date IS NULL;
+        "
     )
     .fetch_all(&pg)
     .await
