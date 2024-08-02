@@ -3,6 +3,9 @@
 	import VoteParliament from '../../Parliaments/VoteParliament.svelte';
 	import collapse from 'svelte-collapse';
 	import upArrowIcon from '$lib/assets/misc_icons/up-arrow.svg?raw';
+	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
+	import crossmarkIcon from '$lib/assets/misc_icons/crossmark.svg?raw';
+	import checkmarkIcon from '$lib/assets/misc_icons/checkmark.svg?raw';
 	import downArrowIcon from '$lib/assets/misc_icons/down-arrow.svg?raw';
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import Topics from '$lib/components/Topics/Topics.svelte';
@@ -12,6 +15,7 @@
 	let clazz;
 	export { clazz as class };
 	let open = false;
+	let duration = 0.35;
 
 	const emphasis = voteResult.legislative_initiative.emphasis
 		?.split('\n\t')
@@ -27,11 +31,9 @@
 		class="entry bg-primary-300 dark:bg-primary-500 flex justify-between items-center"
 	>
 		<div>
-			{#if open}
-				{@html upArrowIcon}
-			{:else}
-				{@html downArrowIcon}
-			{/if}
+			<div id="{open ? "open" : "closed"}">
+				{@html rightArrowIcon}
+			</div>
 		</div>
 		<div>{voteResult.legislative_initiative.title}</div>
 		<div class="w-20 bg-primary-100 dark:bg-primary-300 rounded-md">
@@ -39,7 +41,7 @@
 		</div>
 	</div>
 
-	<div use:collapse={{ open }}>
+	<div use:collapse={{ open, duration }}>
 		<div class="lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3">
 			<div class="">
 				{#if emphasis}
@@ -85,9 +87,14 @@
 				<VoteParliament {dels} {voteResult} preview={true} />
 			</div>
 			<div class="flex info-item gap-3">
-				<div class="accepted-item square bg-primary-300">Angenommen: {voteResult.legislative_initiative.accepted}</div>
-				<div class="majority-item square bg-primary-300">1/2 mehrheit, maybe 2/3</div>
-				<div class="accepted-item square bg-primary-300">Abestimmt am {voteResult.legislative_initiative.created_at}</div>
+				<div class="accepted-item square bg-primary-300">
+					{#if voteResult.legislative_initiative.accepted}	
+						<!-- {@html } -->
+					{/if}
+					Angenommen: {voteResult.legislative_initiative.accepted}
+				</div>
+				<div class="majority-item square bg-primary-300">Notwendige Mehrheit: {voteResult.legislative_initiative.requires_simple_majority ? "1/2" : "2/33" }</div>
+				<div class="accepted-item square bg-primary-300">Abgestimmt am {voteResult.legislative_initiative.created_at}</div>
 			</div>
 			<div class="ml-auto details-item mt-auto"><SButton class="bg-tertiary-500">Details anzeigen</SButton></div>
 		</div>
@@ -129,6 +136,16 @@
 	.parliament-item {
 		grid-area: p;
 		border-radius: 2rem;
+	}
+
+	#open :global(.right-arrow)  {
+		transform: rotate(90deg);
+		transition: transform 0.35s;
+	}
+	
+	#closed :global(.right-arrow)  {
+		transform: rotate(0deg);
+		transition: transform 0.35s;
 	}
 
 	.topics-item {
