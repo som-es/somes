@@ -5,6 +5,8 @@
 	import crossmarkIcon from '$lib/assets/misc_icons/crossmark.svg?raw';
 	import checkmarkIcon from '$lib/assets/misc_icons/checkmark.svg?raw';
 	import type { Delegate, VoteResult } from "$lib/types";
+	import { type ConicStop } from "@skeletonlabs/skeleton";
+	import SimpleDonut from "$lib/components/UI/SimpleDonut.svelte";
 
 	export let voteResult: VoteResult;
 	export let dels: Delegate[];
@@ -19,8 +21,19 @@
         return `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`
     }
 
-</script>
+    const whichGridContainer = emphasis == null ? "grid-container-without-emphasis" : "grid-container-with-emphasis";
 
+    const conicStopsSimpleMajority: ConicStop[] = [
+        { color: 'rgb(var(--color-secondary-400))', start: 0, end: 180 },
+        { color: 'rgb(var(--color-primary-600))', start: 180, end: 360 },
+    ];
+
+    const conicStopsOtherMajority: ConicStop[] = [
+        { color: 'rgb(var(--color-secondary-400))', start: 0, end: 240 },
+        { color: 'rgb(var(--color-primary-600))', start: 240, end: 360 },
+    ];
+
+</script>
 <div class="lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3">
     <div class="">
         {#if emphasis}
@@ -41,7 +54,7 @@
     </div>
 
 </div>
-<div class="max-lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3  grid-container">
+<div class="max-lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3 {whichGridContainer}">
     <!-- Inneres Migration Frauen Klimaschutz -->
 
     {#if emphasis}
@@ -61,11 +74,11 @@
         {/if}
     {/if}
 
-    <div class="topics-item flex justify-center items-center bg-primary-300 px-4">
+    <div class="topics-item flex justify-center items-center bg-primary-300 px-3">
         <Topics topics={voteResult.topics} />
     </div>
 
-    <div class="rounded-md w-80 max-w-full ml-auto parliament-item bg-primary-100">
+    <div class="rounded-md min-w-full max-w-full ml-auto  parliament-item bg-primary-100">
         <VoteParliament {dels} {voteResult} preview={true} />
     </div>
     <div class="flex info-item gap-3">
@@ -89,9 +102,21 @@
         </div>
         <div class="majority-item square flex bg-primary-300">
             <div class="flex flex-col items-center justify-center">
-                <div class="donut" id="{voteResult.legislative_initiative.requires_simple_majority ? "donut-simple-majority": "donut-other-majority"}"></div>
+                <SimpleDonut stops={voteResult.legislative_initiative.requires_simple_majority ? conicStopsSimpleMajority : conicStopsOtherMajority} />
                 <div>
                     Notwendige
+                </div>
+                <div>
+                    Mehrheit
+                </div>
+
+            </div> 
+        </div>
+        <div class="square flex bg-primary-300">
+            <div class="flex flex-col items-center justify-center">
+                <SimpleDonut stops={voteResult.legislative_initiative.requires_simple_majority ? conicStopsSimpleMajority : conicStopsOtherMajority} />
+                <div>
+                    Erreichte
                 </div>
                 <div>
                     Mehrheit
@@ -121,7 +146,7 @@
 		padding: 20px;
 		gap: 10px;
 	}
-    .grid-container {
+    .grid-container-with-emphasis {
 		box-sizing: border-box;
 		display: grid;
 		grid-template-areas:
@@ -133,10 +158,21 @@
 		padding: 10px;
 	}
 
+   .grid-container-without-emphasis {
+		box-sizing: border-box;
+		display: grid;
+		grid-template-areas:
+			'i i i i i t p p' /* e: emphasis, p: parliament */
+			'. . . . . . d d'; /* a: accepted, m: majority? 2/3, 1/2, dt: date, d: details */
+		/* "i i i a"; */
+		padding: 10px;
+	}
+
 	.square {
-		/* aspect-ratio: 1/ 1; */
+		aspect-ratio: 1/ 1;
         min-width: 140px;
         min-height: 140px;
+        max-height: 140px;
 		/* padding: 5%; */
         display: flex;
         justify-content: center;
@@ -186,36 +222,4 @@
 	.item {
 		grid-column: 1fr;
 	}
-
-    #donut-simple-majority {
-        width: 60px; height: 60px;
-        border-radius: 50%;
-
-        background: conic-gradient(
-            rgb(var(--color-secondary-400)) 0deg 180deg,
-            rgb(var(--color-primary-600)) 180deg 360deg
-        );
-    }
-    #donut-other-majority {
-        width: 60px; height: 60px;
-        border-radius: 50%;
-
-        background: conic-gradient(
-            rgb(var(--color-secondary-400)) 0deg 240deg,
-            rgb(var(--color-primary-600))240deg 360deg
-        );
-    }
-    
-    .donut::before {
-        content: "";
-        width: 40px; height: 40px;
-        border-radius: 50%;
-        /* background: rgb(var(--bg-primary-300)); */
-        background: rgb(var(--color-primary-300));
-    }
-    .donut {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
 </style>

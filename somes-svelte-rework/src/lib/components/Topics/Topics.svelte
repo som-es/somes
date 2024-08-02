@@ -5,7 +5,7 @@
     export let topics: Topic[] = [];
 </script>
 
-<div class="flex flex-wrap gap-2 justify-center mt-3 content-center">
+<div class="flex flex-wrap gap-2 justify-center content-center">
     {#each topics as topic}
         <DisplayTopic>{topic.topic}</DisplayTopic>
     {/each}
