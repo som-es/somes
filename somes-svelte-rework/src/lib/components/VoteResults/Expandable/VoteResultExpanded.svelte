@@ -8,6 +8,7 @@
 	import { type ConicStop } from "@skeletonlabs/skeleton";
 	import SimpleDonut from "$lib/components/UI/SimpleDonut.svelte";
 	import { partyToColor } from "$lib/partyColor";
+	import Emphasis from "../Emphasis/Emphasis.svelte";
 
 	export let voteResult: VoteResult;
 	export let dels: Delegate[];
@@ -67,15 +68,7 @@
 
 </script>
 <div class="lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3">
-    <div class="">
-        {#if emphasis}
-            <ul>
-                {#each emphasis as emph}
-                    <li>- {emph}</li>
-                {/each}
-            </ul>
-        {/if}
-    </div>
+    <Emphasis emphasis={emphasis} /> 
     <div class="rounded-md w-full">
         <VoteParliament {dels} {voteResult} preview={true} />
     </div>
@@ -89,22 +82,7 @@
 <div class="max-lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3 {whichGridContainer}">
     <!-- Inneres Migration Frauen Klimaschutz -->
 
-    {#if emphasis}
-        {#if emphasis.length > 0}
-            <div class="emphasis-item bg-primary-300 px-10">
-                <ul class="mt-1 list fill-primary-400">
-                    {#each emphasis as emph}
-                        <li>
-                            <span class="badge bg-primary-500"></span>
-                            <span>{emph}</span>
-                        </li>
-                    {/each}
-                </ul>
-            </div>
-        {:else}
-            <div class="emphasis-item"></div>
-        {/if}
-    {/if}
+    <Emphasis emphasis={emphasis}></Emphasis>
 
     <div class="topics-item flex justify-center items-center bg-primary-300 px-3">
         <Topics topics={voteResult.topics} />
@@ -113,9 +91,9 @@
     <div class="rounded-md min-w-full max-w-full ml-auto  parliament-item bg-primary-100">
         <VoteParliament {dels} {voteResult} preview={true} />
     </div>
-    <div class="flex info-item gap-3">
+    <div class="flex flex-wrap info-item gap-3">
 
-        <div class="accepted-item square bg-primary-300">
+        <div class="responsive-accepted-hidden accepted-item square bg-primary-300">
             <div class="flex flex-col items-center justify-center">
                 {#if voteResult.legislative_initiative.accepted}	
                     {@html checkmarkIcon}
@@ -185,7 +163,7 @@
 			'e e e e e p p p' /* e: emphasis, p: parliament */
 			'e e e e e p p p'
 			'e e e e e p p p'
-			'i i i i i t d d'; /* a: accepted, m: majority? 2/3, 1/2, dt: date, d: details */
+			'i i i i i t t d'; /* a: accepted, m: majority? 2/3, 1/2, dt: date, d: details */
 		/* "i i i a"; */
 		padding: 10px;
 	}
@@ -254,4 +232,10 @@
 	.item {
 		grid-column: 1fr;
 	}
+    @media not all and (min-width: 1254px) {
+    .responsive-accepted-hidden {
+        display: none !important;
+    }
+}
+
 </style>
