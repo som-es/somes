@@ -13,6 +13,12 @@
 		?.split('\n\t')
 		.filter((x) => x.length > 0);
 
+    function dashDateToDotDate(date: string): string {
+        const dateParts = date.split('-');
+
+        return `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`
+    }
+
 </script>
 
 <div class="lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3">
@@ -94,7 +100,16 @@
 
             </div> 
         </div>
-        <div class="accepted-item square flex bg-primary-300">Abgestimmt am {voteResult.legislative_initiative.created_at}</div>
+        <div class="accepted-item square bg-primary-300">
+            <div class="flex flex-col items-center justify-center">
+                <div class="bold font-bold text-lg">
+                    {dashDateToDotDate(voteResult.legislative_initiative.created_at.toString())}
+                </div>
+                <div>
+                    Abgestimmt am 
+                </div>
+            </div>
+        </div>
     </div>
     <div class="ml-auto details-item mt-auto"><SButton class="bg-tertiary-500">Details anzeigen</SButton></div>
 </div>
