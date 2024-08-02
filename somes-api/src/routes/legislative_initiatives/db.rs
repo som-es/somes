@@ -100,7 +100,7 @@ pub fn get_latest_legislative_initiatives(
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct Topic {
-    pub topic: String
+    pub topic: String,
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
@@ -108,7 +108,7 @@ pub struct VoteResult {
     pub legislative_initiative: DbLegislativeInitiativeQuery,
     pub votes: Vec<DbVote>,
     pub speeches: Vec<DbSpeech>,
-    pub topics: Vec<Topic>
+    pub topics: Vec<Topic>,
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]

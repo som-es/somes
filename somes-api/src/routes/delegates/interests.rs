@@ -21,7 +21,7 @@ pub async fn extract_interests_of_delegate(
         where infavor is not null and delegates.id = $1 
             group by topic
         order by topic;", delegate_id).fetch_all(pg).await?;
-    
+
     let absolute_interests = absolute_interests_eurovoc_proposals;
     let total_talk_counts = sqlx::query!("
         select topic, COUNT(*) as talk_count from speeches 

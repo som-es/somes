@@ -7,6 +7,7 @@
 	import type { VoteResult } from "$lib/types";
 
     export let voteResult: VoteResult;
+    export let isCenter: boolean = false;
     
     function dashDateToDotDate(date: string): string {
         const dateParts = date.split('-');
@@ -57,7 +58,7 @@
 
 </script>
 
-<div class="flex flex-wrap info-item gap-3">
+<div class="flex flex-wrap {isCenter ? "justify-center" : ""} info-item gap-3">
     <div class="responsive-accepted-hidden accepted-item square bg-primary-300">
         <div class="flex flex-col items-center justify-center">
             {#if voteResult.legislative_initiative.accepted}	
@@ -150,7 +151,7 @@
 	.item {
 		grid-column: 1fr;
 	}
-    
+
     /* @media not all and (min-width: 1254px) {
         .responsive-accepted-hidden {
             display: none !important;

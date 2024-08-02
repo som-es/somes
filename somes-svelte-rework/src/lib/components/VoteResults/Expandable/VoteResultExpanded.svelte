@@ -26,10 +26,11 @@
         <VoteParliament {dels} {voteResult} preview={true} />
     </div>
 
-    <InfoTiles voteResult={voteResult} />
+    <InfoTiles voteResult={voteResult} isCenter />
 
     <div class="flex justify-between mt-3"> 
-        <div class="accepted-item bg-primary-300">Angenommen: {voteResult.legislative_initiative.accepted}</div>
+        <div></div>
+        <!-- <div class="accepted-item bg-primary-300">Angenommen: {voteResult.legislative_initiative.accepted}</div> -->
         <div class="ml-auto more-info-item"><SButton class="bg-tertiary-500">Details anzeigen</SButton></div>
     </div>
 

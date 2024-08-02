@@ -70,5 +70,8 @@
 		circles2d[del.seat_row - 1][del.seat_col - 1].r = +10.9;
 	});
 </script>
-
-<BaseParliament {circles2d} {selected} {preview} {select} {width} {height} />
+{#if voteResult.legislative_initiative.gp === "XXVII"}
+	<BaseParliament {circles2d} {selected} {preview} {select} {width} {height} />
+{:else}	
+	Sitzplan nicht verfügbar
+{/if}

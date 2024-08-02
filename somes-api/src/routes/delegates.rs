@@ -72,7 +72,9 @@ pub async fn delegate(
     PgPoolConnection(pg): PgPoolConnection,
     Query(delegate_by_id): Query<DelegateById>,
 ) -> Result<Json<Delegate>, DelegatesErrorResponse> {
-    sqlx::query_as!(Delegate, "
+    sqlx::query_as!(
+        Delegate,
+        "
         SELECT 
             delegates.id, 
             delegates.name, 
@@ -104,7 +106,8 @@ pub async fn delegate(
             (mandates.name LIKE '%Abgeordnete%' OR mandates.name LIKE '%minister%') 
             AND mandates.end_date IS NULL 
             AND delegates.id = $1;
-", delegate_by_id.delegate_id
+",
+        delegate_by_id.delegate_id
     )
     .fetch_one(&pg)
     .await
@@ -132,7 +135,9 @@ pub async fn delegates(
     // DataserviceDbConnection(con): DataserviceDbConnection,
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<Delegate>>, DelegatesErrorResponse> {
-    sqlx::query_as!(Delegate, "
+    sqlx::query_as!(
+        Delegate,
+        "
         SELECT 
             delegates.id, 
             delegates.name, 

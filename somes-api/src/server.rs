@@ -200,6 +200,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(DELEGATE, get(delegate))
         .route(DELEGATE_INTERESTS, get(delegate_interests))
         .route(VOTE_RESULTS_PER_PAGE, get(vote_results_per_page))
+        .route(ALL_GPS, get(all_gps))
         .route("/save_email", post(save_email))
         .layer(
             CorsLayer::new()
