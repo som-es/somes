@@ -1,8 +1,10 @@
 <!-- TODO: merge this and the Parliament component in to one -->
 <script lang="ts">
+	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 	import { setupParliament, type Bubble, setDelOnBubble } from '$lib/parliament';
 	import { getPartyColors, partyToColor } from '$lib/partyColor';
-	import type { Delegate, VoteResult } from '$lib/types';
+	import type { Delegate, LegisPeriod, VoteResult } from '$lib/types';
+	import { onMount } from 'svelte';
 	import BaseParliament from './BaseParliament.svelte';
 
 	export let seats: number[] = [20, 27, 37, 43, 48, 54];
@@ -69,8 +71,17 @@
 		circles2d[del.seat_row - 1][del.seat_col - 1].opacity = speech.infavor ? 1.0 : 0.2;
 		circles2d[del.seat_row - 1][del.seat_col - 1].r = +10.9;
 	});
+
+	let currentLegisInit = "XXVII";
+	onMount(async () => {
+		const allLegisPeriods = await cachedAllLegisPeriods();
+		if (allLegisPeriods !== null && allLegisPeriods.length > 0) {
+			currentLegisInit = allLegisPeriods[0].gp
+		}
+	});
+
 </script>
-{#if voteResult.legislative_initiative.gp === "XXVII"}
+{#if voteResult.legislative_initiative.gp === currentLegisInit}
 	<BaseParliament {circles2d} {selected} {preview} {select} {width} {height} />
 {:else}	
 	Sitzplan nicht verfügbar

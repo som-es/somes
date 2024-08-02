@@ -2,6 +2,7 @@ import type {
 	Delegate,
 	HasError,
 	InterestShare,
+	LegisPeriod,
 	Party,
 	VoteResult,
 	VoteResultsWithMaxPage
@@ -45,6 +46,17 @@ export async function delegates(): Promise<Delegate[] | null> {
 export async function latest_vote_results(): Promise<VoteResult[] | null> {
 	return fetchSavely(() =>
 		fetch(`${address}/latest_vote_results`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		})
+	);
+}
+
+export async function all_gps(): Promise<LegisPeriod[] | null> {
+	return fetchSavely(() =>
+		fetch(`${address}/all_gps`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'

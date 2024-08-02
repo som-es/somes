@@ -143,3 +143,8 @@ export interface InterestShare {
 	total_share: number;
 	self_share: number;
 }
+
+export interface LegisPeriod {
+	gp: string;
+	start_date: Date
+}
