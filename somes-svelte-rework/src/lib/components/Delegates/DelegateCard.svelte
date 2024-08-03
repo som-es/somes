@@ -6,7 +6,7 @@
 </script>
 
 <div
-	class="card card-hover mx-4  drop-shadow-lg hover:cursor-pointer"
+	class="!z-0 card card-hover mx-4  drop-shadow-lg hover:cursor-pointer"
 >
 	<header class="flex justify-center">
 		<img

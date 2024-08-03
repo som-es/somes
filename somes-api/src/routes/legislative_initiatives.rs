@@ -1,6 +1,6 @@
 use axum::{extract::Query, Json};
 use dataservice::db::models::DbLegislativeInitiativeQuery;
-use somes_common_lib::{DateRange, Page};
+use somes_common_lib::{DateRange, LegisInitFilter, Page};
 
 use crate::{DataserviceDbConnection, PgPoolConnection, LEGIS_INITS_PER_PAGE};
 
@@ -94,6 +94,7 @@ pub async fn latest_vote_results(
 pub async fn vote_results_per_page(
     PgPoolConnection(pg): PgPoolConnection,
     Query(page): Query<Page>,
+    Json(legis_init_filter): Json<Option<LegisInitFilter>>,
 ) -> sqlx::Result<Json<VoteResultsWithMaxPage>, LegisInitErrorResponse> {
     if page.page < 0 {
         return Err(LegisInitErrorResponse::InvalidPage);
@@ -115,6 +116,7 @@ pub async fn vote_results_per_page(
         &pg,
         page.page,
         LEGIS_INITS_PER_PAGE.parse().unwrap_or(16),
+        legis_init_filter.as_ref(),
     )
     .await
     .map(|vote_results| VoteResultsWithMaxPage {

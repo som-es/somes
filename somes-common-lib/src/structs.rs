@@ -106,7 +106,13 @@ pub struct InterestShare {
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct Page {
-    pub page: i64
+    pub page: i64,
 }
 
-
+#[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
+pub struct LegisInitFilter {
+    pub invisibly_declined: bool,
+    pub accepted: Option<bool>,
+    pub simple_majority: Option<bool>,
+    pub legis_period: Option<String>,
+}

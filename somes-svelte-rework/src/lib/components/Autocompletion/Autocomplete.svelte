@@ -168,13 +168,13 @@
 </script>
 
 <!-- animate:flip={{ duration }} -->
-<div class="autocomplete {classesBase}" data-testid="autocomplete">
+<div class="autocomplete {classesBase} z-40" data-testid="autocomplete">
 	{#if optionsFiltered.length > 0}
-		<nav class="autocomplete-nav {classesNav}">
-			<ul class="autocomplete-list {classesList}">
+		<nav class="autocomplete-nav {classesNav} z-40">
+			<ul class="autocomplete-list {classesList} ">
 				{#each optionsFiltered.slice(0, sliceLimit) as option (option)}
 					<li
-						class="autocomplete-item {classesItem}"
+						class="autocomplete-item {classesItem} z-40"
 						in:dynamicTransition|local={{
 							transition: transitionIn,
 							params: transitionInParams,
@@ -187,7 +187,7 @@
 						}}
 					>
 						<button
-							class="flex justify-between autocomplete-button {classesButton}"
+							class="z-40 flex justify-between autocomplete-button {classesButton}"
 							type="button"
 							on:click={() => onSelection(option)}
 							on:click

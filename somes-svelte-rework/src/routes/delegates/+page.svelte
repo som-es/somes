@@ -149,9 +149,11 @@
 		display: grid;
         min-width: 0;
         min-height: 0;
+		grid-template-columns: 3fr 1fr; 
+		grid-template-rows: 2fr auto;
 		grid-template-areas:
-			'p p p p d d'
-			'i i i i . .';
+			'p d'
+			'i .';
 		/* "i i i a"; */
 		padding: 10px;
 	}

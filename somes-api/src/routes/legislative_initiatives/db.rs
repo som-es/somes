@@ -7,7 +7,7 @@ use dataservice::db::{
 };
 use diesel::{ExpressionMethods, PgConnection, QueryDsl, QueryResult, RunQueryDsl};
 use serde::{Deserialize, Serialize};
-use somes_common_lib::DateRange;
+use somes_common_lib::{DateRange, LegisInitFilter};
 use sqlx::PgPool;
 use utoipa::ToSchema;
 
@@ -24,36 +24,74 @@ pub fn get_legislative_initiatives(
         .load::<DbLegislativeInitiativeQuery>(con)
 }
 
+async fn filtered_legislative_initiatives(
+    pg: &PgPool,
+    page: i64,
+    page_elements: i64,
+    filter: &LegisInitFilter,
+) -> Result<Vec<DbLegislativeInitiativeQuery>, sqlx::Error> {
+    let mut query = String::from(
+        "SELECT DISTINCT * FROM legislative_initiatives WHERE was_invisibly_declined = $1",
+    );
+
+    let mut param_index = 2;
+    if filter.accepted.is_some() {
+        query.push_str(&format!(" AND accepted = ${}", param_index));
+        param_index += 1;
+    }
+
+    if filter.simple_majority.is_some() {
+        query.push_str(&format!(" AND requires_simple_majority = ${}", param_index));
+        param_index += 1;
+    }
+
+    if filter.legis_period.is_some() {
+        query.push_str(&format!(" AND gp = ${}", param_index));
+        param_index += 1;
+    }
+
+    query.push_str(&format!(
+        " ORDER BY created_at DESC OFFSET ${} LIMIT ${}",
+        param_index,
+        param_index + 1
+    ));
+
+    let mut sql_query = sqlx::query_as::<_, DbLegislativeInitiativeQuery>(&query);
+
+    if let Some(accepted_value) = filter.accepted {
+        sql_query = sql_query.bind(accepted_value)
+    }
+    if let Some(simple_majority) = filter.simple_majority {
+        sql_query = sql_query.bind(simple_majority)
+    }
+    if let Some(legis_period) = &filter.legis_period {
+        sql_query = sql_query.bind(legis_period)
+    }
+    sql_query = sql_query.bind(page).bind(page_elements);
+    Ok(sql_query.fetch_all(pg).await?)
+}
+
 pub async fn get_latest_legis_inits_per_page(
     pg: &PgPool,
     page: i64,
     page_elements: i64,
+    filter: Option<&LegisInitFilter>,
 ) -> sqlx::Result<Vec<DbLegislativeInitiativeQuery>> {
-    let res = sqlx::query!(
-        "select * from legislative_initiatives where accepted is not null order by created_at desc offset $1 limit $2",
-        page * page_elements,
-        page_elements
-    )
-    .fetch_all(pg)
-    .await?;
-    Ok(res
-        .into_iter()
-        .map(|rec| DbLegislativeInitiativeQuery {
-            id: rec.id,
-            ityp: rec.ityp,
-            gp: rec.gp,
-            inr: rec.inr,
-            emphasis: rec.emphasis,
-            title: rec.title,
-            description: rec.description,
-            accepted: rec.accepted,
-            created_at: rec.created_at,
-            appeared_at: rec.appeared_at.map(|x| x.naive_local()),
-            updated_at: rec.updated_at.map(|x| x.naive_local()),
-            requires_simple_majority: rec.requires_simple_majority,
-            was_invisibly_declined: rec.was_invisibly_declined,
-        })
-        .collect())
+    let res = match filter {
+        Some(filter) => {
+            filtered_legislative_initiatives(pg, page, page_elements, filter).await?
+        }
+        None => {
+            sqlx::query_as!(DbLegislativeInitiativeQuery,
+                "select distinct * from legislative_initiatives where accepted is not null order by created_at desc offset $1 limit $2",
+                page * page_elements,
+                page_elements
+            )
+            .fetch_all(pg)
+            .await?
+        },
+    };
+    Ok(res)
 }
 
 pub async fn get_latest_legislative_initiatives_sqlx(
@@ -78,8 +116,8 @@ pub async fn get_latest_legislative_initiatives_sqlx(
             description: rec.description,
             accepted: rec.accepted,
             created_at: rec.created_at,
-            appeared_at: rec.appeared_at.map(|x| x.naive_local()),
-            updated_at: rec.updated_at.map(|x| x.naive_local()),
+            appeared_at: rec.appeared_at,
+            updated_at: rec.updated_at,
             requires_simple_majority: rec.requires_simple_majority,
             was_invisibly_declined: rec.was_invisibly_declined,
         })
@@ -141,9 +179,10 @@ pub async fn get_latest_vote_results_sqlx_per_page(
     pg: &PgPool,
     page: i64,
     page_elements: i64,
+    filter: Option<&LegisInitFilter>,
 ) -> sqlx::Result<Vec<VoteResult>> {
     futures::future::join_all(
-        get_latest_legis_inits_per_page(pg, page, page_elements)
+        get_latest_legis_inits_per_page(pg, page, page_elements, filter)
             .await?
             .into_iter()
             .map(|legis_init| async {

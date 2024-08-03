@@ -5,10 +5,10 @@ use axum::response::Redirect;
 use axum::{BoxError, Router};
 use axum_server::tls_rustls::RustlsConfig;
 use clap::Parser;
-use tokio::net::TcpListener;
 use std::net::{IpAddr, Ipv6Addr, SocketAddr};
 use std::path::PathBuf;
 use std::str::FromStr;
+use tokio::net::TcpListener;
 use tower::ServiceBuilder;
 use tower_http::services::ServeDir;
 use tower_http::trace::TraceLayer;
@@ -67,7 +67,7 @@ async fn main() {
     //     // ... other configuration options
     //     },
     // };
-    
+
     // https://stackoverflow.com/questions/71527665/building-svelte-app-as-a-set-of-static-files
     let alpha_serve_dir = ServeDir::new(opt.static_dir);
     // let alpha_app = Router::new().nest_service("/alpha", alpha_serve_dir);
