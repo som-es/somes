@@ -9,6 +9,9 @@
 	export let preview: boolean = false;
 	export let delegate: Delegate | null;
 
+	let clazz = "";
+	export { clazz as class };
+
 	const width = 830;
 	const height = 900;
 
@@ -52,4 +55,4 @@
 		select(circles2d[delegate.seat_row - 1][delegate.seat_col! - 1], null);
 </script>
 
-<BaseParliament {circles2d} {selected} {preview} {select} {width} {height} />
+<BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} />

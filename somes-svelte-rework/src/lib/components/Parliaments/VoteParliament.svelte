@@ -11,6 +11,8 @@
 	export let dels: Delegate[];
 	export let preview: boolean = false;
 	export let voteResult: VoteResult;
+	let clazz = "";
+	export { clazz as class };
 
 	const width = 830;
 	const height = 900;
@@ -82,7 +84,7 @@
 
 </script>
 {#if voteResult.legislative_initiative.gp === currentLegisInit}
-	<BaseParliament {circles2d} {selected} {preview} {select} {width} {height} />
+	<BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} />
 {:else}	
 	Sitzplan nicht verfügbar
 {/if}

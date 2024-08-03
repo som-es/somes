@@ -3,7 +3,7 @@
 	export { clazz as class };
 </script>
 
-<div class="{clazz} square bg-primary-300">
+<div class="{clazz} rounded-xl square bg-primary-300">
     <div class="flex flex-col items-center justify-center">
         <slot />
     </div>
@@ -21,6 +21,5 @@
         display: flex;
         justify-content: center;
         align-content: center;
-        border-radius: 1rem;
 	}
 </style>

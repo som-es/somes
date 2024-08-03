@@ -118,16 +118,14 @@
 				{/if}
 			</div>
 			<div class="grid-container gap-3">
-				<div class="parliament-item bg-primary-300 dark:bg-primary-500">
-					<!-- <div class="px-5"> -->
+				<div class="rounded-xl parliament-item bg-primary-300 dark:bg-primary-500">
+					<div class="px-5">
 						<DelegatesParliament bind:delegate dels={delegates} />
-					<!-- </div> -->
+					</div>
 				</div>
-				<div class="delegate-item grid-tile bg-primary-300 dark:bg-primary-500">
+				<div class="rounded-xl delegate-item bg-primary-300 dark:bg-primary-500">
 					{#if delegate}
-						<div class="grid-tile-content w-96">
-							<DelegateCard {delegate} />
-						</div>
+						<DelegateCard {delegate} />
 					{/if}
 				</div>
 				{#if interests}
@@ -145,10 +143,7 @@
 </div>
 
 <style>
-	.grid-tile {
-		box-sizing: border-box;
-		border-radius: 25px;
-	}
+	
 	.grid-container {
 		box-sizing: border-box;
 		display: grid;
@@ -165,7 +160,7 @@
 		padding: 20px 0;
 	}
 
-	.parliament-item {
+	:global(.parliament-item) {
 		grid-area: p;
         /* overflow: hidden; */
         /* min-width: 0; */
@@ -186,5 +181,11 @@
 	.activity-item {
 		grid-area: activity;
 	}
-
+   
+	.grid-tile-content {
+		display: flex;
+		justify-content: center;
+		flex-direction: column;
+		align-items: center;
+	}
 </style>

@@ -8,9 +8,13 @@
 
 	export let width = 830;
 	export let height = 900;
+
+	let clazz = "";
+	export { clazz as class };
 </script>
 
 <div
+	class="{clazz}"
 	style="pointer-events: {preview ? 'none' : 'auto'}; keyboard-events: {preview ? 'none' : 'auto'}"
 >
 	<svg viewBox="0 0 {width} {height * 0.5 + 60}" style="max-width: 100%;">

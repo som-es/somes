@@ -6,12 +6,12 @@
 </script>
 
 <div
-	class="card card-hover mx-4 aspect-[3/5] drop-shadow-lg hover:cursor-pointer"
+	class="card card-hover mx-4  drop-shadow-lg hover:cursor-pointer"
 >
-	<header>
+	<header class="flex justify-center">
 		<img
 			src={delegate.image_url}
-			class="bg-black/50 w-full aspect-[1/1]"
+			class="" style="width: 200px;"
 			alt="Image of politician {delegate.name}"
 		/>
 	</header>
