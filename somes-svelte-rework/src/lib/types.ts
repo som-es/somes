@@ -54,6 +54,7 @@ export interface VoteResult {
 
 export interface VoteResultsWithMaxPage {
 	vote_results: VoteResult[];
+	entry_count: number;
 	max_page: number;
 }
 
@@ -147,4 +148,11 @@ export interface InterestShare {
 export interface LegisPeriod {
 	gp: string;
 	start_date: Date
+}
+
+export interface LegisInitFilter {
+    invisibly_declined: boolean;
+    accepted: boolean | null;
+    simple_majority: boolean | null;
+    legis_period: string | null;
 }

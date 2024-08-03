@@ -99,19 +99,10 @@ pub async fn vote_results_per_page(
     if page.page < 0 {
         return Err(LegisInitErrorResponse::InvalidPage);
     }
-    let entry_count =
-        sqlx::query!("select COUNT(*) from legislative_initiatives where accepted is not null")
-            .fetch_one(&pg)
-            .await
-            .map_err(|_| LegisInitErrorResponse::LatestVoteResults)?;
+    // if page.page > page_count {
+    //     return Err(LegisInitErrorResponse::InvalidPage);
+    // }
 
-    let page_count = (entry_count.count.unwrap_or_default() as f64
-        / LEGIS_INITS_PER_PAGE.parse().unwrap_or(16.))
-    .ceil() as i64;
-
-    if page.page > page_count {
-        return Err(LegisInitErrorResponse::InvalidPage);
-    }
     get_latest_vote_results_sqlx_per_page(
         &pg,
         page.page,
@@ -119,9 +110,10 @@ pub async fn vote_results_per_page(
         legis_init_filter.as_ref(),
     )
     .await
-    .map(|vote_results| VoteResultsWithMaxPage {
+    .map(|(vote_results, entry_count)| VoteResultsWithMaxPage {
         vote_results,
-        max_page: page_count,
+        entry_count,
+        max_page: (entry_count as f64 / LEGIS_INITS_PER_PAGE.parse().unwrap_or(16.)).ceil() as i64,
     })
     .map(Json)
     .map_err(|_| LegisInitErrorResponse::LatestVoteResults)

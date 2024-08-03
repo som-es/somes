@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Delegate, VoteResult, VoteResultsWithMaxPage } from '$lib/types';
+	import type { Delegate, LegisInitFilter, VoteResult, VoteResultsWithEntryCount } from '$lib/types';
 	import { onMount } from 'svelte';
 	import { vote_results_per_page } from '$lib/api';
 	import SButton from '../../UI/SButton.svelte';
@@ -10,7 +10,8 @@
 
 	export let dels: Delegate[];
 
-	let voteResults: VoteResultsWithMaxPage | null = null;
+	let voteResults: VoteResultsWithEntryCount | null = null;
+	let maxPage = 0;
 
 	// get page number from query params
 	const url = new URL(window.location.href);
@@ -20,7 +21,16 @@
 		if (voteResults != null) {
 			voteResults.vote_results = [];
 		}
-		voteResults = await vote_results_per_page(page - 1);
+		let filter: LegisInitFilter | null = {
+			invisibly_declined: false,
+			accepted: null,
+			simple_majority: null,
+			legis_period: null,
+		};
+		filter = null;
+		voteResults = await vote_results_per_page(page - 1, filter);
+		maxPage = voteResults
+
 	};
 	onMount(async () => {
 		update();

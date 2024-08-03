@@ -13,6 +13,8 @@ use utoipa::ToSchema;
 
 use crate::{dataservice::get_speeches_from_legis_init, today};
 
+use super::LegisInitErrorResponse;
+
 pub fn get_legislative_initiatives(
     con: &mut PgConnection,
     filter: DateRange,
@@ -29,10 +31,14 @@ async fn filtered_legislative_initiatives(
     page: i64,
     page_elements: i64,
     filter: &LegisInitFilter,
-) -> Result<Vec<DbLegislativeInitiativeQuery>, sqlx::Error> {
+) -> Result<(Vec<DbLegislativeInitiativeQuery>, i64), sqlx::Error> {
     let mut query = String::from(
         "SELECT DISTINCT * FROM legislative_initiatives WHERE was_invisibly_declined = $1",
     );
+
+    if !filter.invisibly_declined {
+        query.push_str(&" and accepted is not null");
+    }
 
     let mut param_index = 2;
     if filter.accepted.is_some() {
@@ -50,25 +56,36 @@ async fn filtered_legislative_initiatives(
         param_index += 1;
     }
 
+    let count_query = query.clone().replace('*', "COUNT(*)");
+
     query.push_str(&format!(
         " ORDER BY created_at DESC OFFSET ${} LIMIT ${}",
         param_index,
         param_index + 1
     ));
+    log::info!("query {query}");
 
-    let mut sql_query = sqlx::query_as::<_, DbLegislativeInitiativeQuery>(&query);
+    let mut filtered_query = sqlx::query_as::<_, DbLegislativeInitiativeQuery>(&query);
+    let mut count_query = sqlx::query_as::<_, (i64,)>(&count_query);
+    filtered_query = filtered_query.bind(filter.invisibly_declined);
 
     if let Some(accepted_value) = filter.accepted {
-        sql_query = sql_query.bind(accepted_value)
+        filtered_query = filtered_query.bind(accepted_value);
+        count_query = count_query.bind(accepted_value);
     }
     if let Some(simple_majority) = filter.simple_majority {
-        sql_query = sql_query.bind(simple_majority)
+        filtered_query = filtered_query.bind(simple_majority);
+        count_query = count_query.bind(simple_majority);
     }
     if let Some(legis_period) = &filter.legis_period {
-        sql_query = sql_query.bind(legis_period)
+        filtered_query = filtered_query.bind(legis_period);
+        count_query = count_query.bind(legis_period);
     }
-    sql_query = sql_query.bind(page).bind(page_elements);
-    Ok(sql_query.fetch_all(pg).await?)
+    filtered_query = filtered_query.bind(page).bind(page_elements);
+    Ok((
+        filtered_query.fetch_all(pg).await?,
+        count_query.fetch_one(pg).await?.0,
+    ))
 }
 
 pub async fn get_latest_legis_inits_per_page(
@@ -76,19 +93,24 @@ pub async fn get_latest_legis_inits_per_page(
     page: i64,
     page_elements: i64,
     filter: Option<&LegisInitFilter>,
-) -> sqlx::Result<Vec<DbLegislativeInitiativeQuery>> {
+) -> sqlx::Result<(Vec<DbLegislativeInitiativeQuery>, i64)> {
     let res = match filter {
         Some(filter) => {
             filtered_legislative_initiatives(pg, page, page_elements, filter).await?
         }
         None => {
-            sqlx::query_as!(DbLegislativeInitiativeQuery,
+            (sqlx::query_as!(DbLegislativeInitiativeQuery,
                 "select distinct * from legislative_initiatives where accepted is not null order by created_at desc offset $1 limit $2",
                 page * page_elements,
                 page_elements
             )
             .fetch_all(pg)
-            .await?
+            .await?,
+
+            sqlx::query!(
+                "select distinct COUNT(*) from legislative_initiatives where accepted is not null",
+            ).fetch_one(pg).await?.count.unwrap_or_default()
+            )
         },
     };
     Ok(res)
@@ -152,6 +174,7 @@ pub struct VoteResult {
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct VoteResultsWithMaxPage {
     pub vote_results: Vec<VoteResult>,
+    pub entry_count: i64,
     pub max_page: i64,
 }
 
@@ -180,24 +203,27 @@ pub async fn get_latest_vote_results_sqlx_per_page(
     page: i64,
     page_elements: i64,
     filter: Option<&LegisInitFilter>,
-) -> sqlx::Result<Vec<VoteResult>> {
-    futures::future::join_all(
-        get_latest_legis_inits_per_page(pg, page, page_elements, filter)
-            .await?
-            .into_iter()
-            .map(|legis_init| async {
-                Ok(VoteResult {
-                    votes: get_votes_from_legis_init_sqlx(pg, legis_init.id).await?,
-                    speeches: get_speeches_from_legis_init_sqlx(pg, legis_init.id).await?,
-                    topics: get_eurovoc_topics_from_legis_init(pg, legis_init.id).await?,
-                    legislative_initiative: legis_init,
-                })
+) -> sqlx::Result<(Vec<VoteResult>, i64)> {
+    let (entries, entry_count) =
+        get_latest_legis_inits_per_page(pg, page, page_elements, filter).await?;
+
+    let entries = entries
+        .into_iter()
+        .map(|legis_init| async {
+            Ok(VoteResult {
+                votes: get_votes_from_legis_init_sqlx(pg, legis_init.id).await?,
+                speeches: get_speeches_from_legis_init_sqlx(pg, legis_init.id).await?,
+                topics: get_eurovoc_topics_from_legis_init(pg, legis_init.id).await?,
+                legislative_initiative: legis_init,
             })
-            .collect::<Vec<_>>(),
-    )
-    .await
-    .into_iter()
-    .collect::<sqlx::Result<Vec<VoteResult>>>()
+        })
+        .collect::<Vec<_>>();
+
+    futures::future::join_all(entries)
+        .await
+        .into_iter()
+        .collect::<sqlx::Result<Vec<VoteResult>>>()
+        .map(|x| (x, entry_count))
 }
 
 pub fn get_latest_vote_results(con: &mut PgConnection) -> QueryResult<Vec<VoteResult>> {

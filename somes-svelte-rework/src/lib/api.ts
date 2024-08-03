@@ -2,15 +2,16 @@ import type {
 	Delegate,
 	HasError,
 	InterestShare,
+	LegisInitFilter,
 	LegisPeriod,
 	Party,
 	VoteResult,
-	VoteResultsWithMaxPage
+	VoteResultsWithEntryCount
 } from './types';
 
 // const address = "http://somes.at:3000"
-// const address = 'http://127.0.0.1:3000';
-const address = "http://192.168.1.114:3000"
+const address = 'http://127.0.0.1:3000';
+// const address = "http://192.168.1.114:3000"
 
 export async function fetchSavely<T>(fn: () => Promise<Response>): Promise<T | null> {
 	try {
@@ -21,6 +22,7 @@ export async function fetchSavely<T>(fn: () => Promise<Response>): Promise<T | n
 		}
 		return json;
 	} catch (error) {
+		console.log(error);
 		return null;
 	}
 }
@@ -69,13 +71,14 @@ export async function all_gps(): Promise<LegisPeriod[] | null> {
 	);
 }
 
-export async function vote_results_per_page(page: number): Promise<VoteResultsWithMaxPage | null> {
+export async function vote_results_per_page(page: number, filter: LegisInitFilter | null): Promise<VoteResultsWithEntryCount | null> {
 	return fetchSavely(() =>
 		fetch(`${address}/vote_results_per_page?page=${page}`, {
-			method: 'GET',
+			method: 'POST', // only post because js fetch..
 			headers: {
 				'Content-Type': 'application/json'
-			}
+			},
+			body: JSON.stringify(filter)
 		})
 	);
 }
