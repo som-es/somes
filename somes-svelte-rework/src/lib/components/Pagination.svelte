@@ -22,6 +22,9 @@
 	let pageSuggestions: number[] = [];
 	let writtenPage = `${page}`;
 	$: if (page || maxPage) {
+		if (page >= maxPage) {
+			page = maxPage;
+		}
 		const otherPage = page + 0;
 		const baseLayout = [
 			1,
@@ -72,6 +75,7 @@
 <div class="flex flex-row flex-wrap items-center">
 	<SButton
 		class="mt-5 mb-5 bg-secondary-500 text-center"
+		title="vorherige Seite"
 		on:click={() => {
 			if (page > 0) page--;
 		}}
@@ -92,6 +96,7 @@
 	{/each}
 	<SButton
 		class="mt-5 mb-5 bg-secondary-500"
+		title="nächste Seite"
 		on:click={() => {
 			if (page < maxPage) page++;
 		}}>{'>'}</SButton

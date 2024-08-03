@@ -6,15 +6,10 @@
 	import { partyToColor } from "$lib/partyColor";
 	import type { VoteResult } from "$lib/types";
 	import Square from "$lib/components/UI/Square.svelte";
+	import { dashDateToDotDate } from "$lib/date";
 
     export let voteResult: VoteResult;
-    export let isCenter: boolean = false;
-    
-    function dashDateToDotDate(date: string): string {
-        const dateParts = date.split('-');
-
-        return `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`
-    }
+    export let isCenter: boolean = false; 
 
     const NOT_REACHED_COLOR = 'rgb(var(--color-primary-600))';
 
