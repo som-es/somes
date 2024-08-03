@@ -15,6 +15,9 @@
         min-width: 140px;
         min-height: 140px;
         max-height: 140px;
+        max-width: 140px;
+        height: 140px;
+        width: 140px;
         display: flex;
         justify-content: center;
         align-content: center;

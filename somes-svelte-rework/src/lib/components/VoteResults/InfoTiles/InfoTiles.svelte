@@ -93,7 +93,7 @@
         <!-- {voteResult.legislative_initiative.requires_simple_majority ? "1/2" : "2/3" } -->
     </Square>
     <Square>
-        <div class="bold font-bold text-lg">
+        <div class="font-bold text-lg">
             {dashDateToDotDate(voteResult.legislative_initiative.created_at.toString())}
         </div>
         <div>

@@ -10,6 +10,7 @@
 	import { onMount } from 'svelte';
 	import { delegate_interests } from '$lib/api';
 	import { topicColors } from '$lib/interestColors';
+	import InterestTiles from '$lib/components/Delegates/InterestTiles.svelte';
 
 	let delegates: Delegate[] | null;
 	let delegate: Delegate | null;
@@ -103,7 +104,7 @@
 
 				{#if autocompleteOptions}
 					<div
-						class="card w-full max-w-sm max-h-48 p-4 overflow-y-auto"
+						class="card w-full max-w-sm max-h-64 p-4 overflow-y-auto"
 						data-popup="popupAutocomplete"
 					>
 						<Autocomplete
@@ -117,63 +118,21 @@
 				{/if}
 			</div>
 			<div class="grid-container gap-3">
-				<div class="parliament-item grid-tile bg-primary-300 dark:bg-primary-500">
-					<div class="px-5">
+				<div class="parliament-item bg-primary-300 dark:bg-primary-500">
+					<!-- <div class="px-5"> -->
 						<DelegatesParliament bind:delegate dels={delegates} />
-					</div>
+					<!-- </div> -->
 				</div>
 				<div class="delegate-item grid-tile bg-primary-300 dark:bg-primary-500">
 					{#if delegate}
-						<div class="grid-tile-content">
+						<div class="grid-tile-content w-96">
 							<DelegateCard {delegate} />
 						</div>
 					{/if}
 				</div>
 				{#if interests}
-					<div class="grid-tile dark:bg-primary-500 bg-primary-300 flex flex-row flex-wrap interests-item gap-3" >
-						{#if interests.length >= 1}
-							<div
-								class="i1 interest-tile grid-tile bg-slate-600"
-								style="border: 1px solid {topicColors.get(interests[0].topic)};"
-							>
-								<div class="grid-tile-content">
-									<span style="color: white;"
-										>{interests[0].topic} {(interests[0].self_share * 100).toFixed(2)}%</span
-									>
-								</div>
-							</div>
-						{/if}
-						{#if interests.length >= 2}
-							<div
-								class="i2 interest-tile grid-tile bg-slate-600"
-								style="border: 1px solid {topicColors.get(interests[1].topic)};"
-							>
-								<span style="color: white;"
-									>{interests[1].topic} {(interests[1].self_share * 100).toFixed(2)}%</span
-								>
-							</div>
-						{/if}
-						{#if interests.length >= 3}
-							<div
-								class="i3 interest-tile grid-tile bg-slate-600"
-								style="border: 1px solid {topicColors.get(interests[2].topic)};"
-							>
-								<span style="color: white;"
-									>{interests[2].topic} {(interests[2].self_share * 100).toFixed(2)}%</span
-								>
-							</div>
-						{/if}
-						{#if interests.length >= 4}
-							<div
-								class="i4 interest-tile grid-tile bg-slate-600"
-								style="border: 1px solid {topicColors.get(interests[2].topic)};"
-							>
-								<span style="color: white;"
-									>{interests[3].topic} {(interests[3].self_share * 100).toFixed(2)}%</span
-								>
-							</div>
-						{/if}
-					</div>
+					<InterestTiles interests={interests.slice(0, 4)}></InterestTiles>
+					
                 {:else}
                     <ProgressRadial />
 				{/if}
@@ -197,8 +156,6 @@
         min-height: 0;
 		grid-template-areas:
 			'p p p p d d'
-			'p p p p d d'
-			'p p p p d d'
 			'i i i i . .';
 		/* "i i i a"; */
 		padding: 10px;
@@ -210,41 +167,24 @@
 
 	.parliament-item {
 		grid-area: p;
-        overflow: hidden;  /* NEW */
-        min-width: 0;      /* NEW; needed for Firefox */
+        /* overflow: hidden; */
+        /* min-width: 0; */
 	}
 
 	.delegate-item {
 		grid-area: d;
-        overflow: hidden;  /* NEW */
-        min-width: 0;      /* NEW; needed for Firefox */
+        /* overflow: hidden; */
+        /* min-width: 0; */
 	}
     
-    .interests-item {
+    :global(.interests-item) {
 		grid-area: i;
-        overflow: hidden;  /* NEW */
-        min-width: 0;      /* NEW; needed for Firefox */
+        /* overflow: hidden; */
+        /* min-width: 0; */
 	}
 
 	.activity-item {
 		grid-area: activity;
 	}
 
-	.interest-tile {
-        align-content: center;
-		text-align: center;
-        /* padding: 60px; */
-        width: 15rem;
-        height: 15rem;
-        word-break: break-all;
-        margin-left: 0.5rem;
-        margin-right: 0.5rem;
-	}
-
-	.grid-tile-content {
-		display: flex;
-		justify-content: center;
-		flex-direction: column;
-		align-items: center;
-	}
 </style>
