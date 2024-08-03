@@ -21,7 +21,7 @@
 	];
 	let pageSuggestions: number[] = [];
 	let writtenPage = `${page}`;
-	$: if (page) {
+	$: if (page || maxPage) {
 		const otherPage = page + 0;
 		const baseLayout = [
 			1,

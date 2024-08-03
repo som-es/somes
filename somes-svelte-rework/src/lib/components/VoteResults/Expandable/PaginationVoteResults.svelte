@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Delegate, LegisInitFilter, VoteResult, VoteResultsWithEntryCount } from '$lib/types';
+	import type { Delegate, LegisInitFilter, VoteResult, VoteResultsWithMaxPage } from '$lib/types';
 	import { onMount } from 'svelte';
 	import { vote_results_per_page } from '$lib/api';
 	import SButton from '../../UI/SButton.svelte';
@@ -7,30 +7,34 @@
 	import { pushState } from '$app/navigation';
 	import Pagination from '$lib/components/Pagination.svelte';
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
+	import LegisButtons from '$lib/components/Filtering/LegisButtons.svelte';
 
 	export let dels: Delegate[];
 
-	let voteResults: VoteResultsWithEntryCount | null = null;
-	let maxPage = 0;
+	let voteResults: VoteResultsWithMaxPage | null = null;
+	let selectedPeriod = "all";
 
 	// get page number from query params
 	const url = new URL(window.location.href);
 	let page = parseInt(url.searchParams.get('page') || '1') || 1;
 
+	let currentlyUpdating = false;
+
 	const loadVoteResults = async () => {
-		if (voteResults != null) {
-			voteResults.vote_results = [];
+		currentlyUpdating = true;
+		if (voteResults !== null) {
+			voteResults.vote_results = []
 		}
+		
 		let filter: LegisInitFilter | null = {
 			invisibly_declined: false,
 			accepted: null,
 			simple_majority: null,
-			legis_period: null,
+			legis_period: selectedPeriod == "all" ? null : selectedPeriod,
 		};
-		filter = null;
+		// filter = null;
 		voteResults = await vote_results_per_page(page - 1, filter);
-		maxPage = voteResults
-
+		currentlyUpdating = false;
 	};
 	onMount(async () => {
 		update();
@@ -53,23 +57,27 @@
 		old_page = page;
 	};
 
-	$: if (page) {
+	$: if (page || selectedPeriod) {
 		update();
 	}
+
 </script>
 
+<LegisButtons bind:selectedPeriod={selectedPeriod} />
 <div>
 	{#if voteResults}
-		<Pagination bind:page maxPage={voteResults.max_page} />
+		<Pagination bind:page={page} maxPage={voteResults.max_page} />
 		{#if voteResults.vote_results.length > 0}
 			{#each voteResults.vote_results as voteResult}
 				<VoteResultExpandableBar {dels} {voteResult} class="" />
 			{/each}
-		{:else}
+		{:else if currentlyUpdating}
 			<ProgressRadial />
+		{:else}
+			Keine Abstimmungsergebnisse gefunden
 		{/if}
 		<div class="float-right">
-			<Pagination bind:page maxPage={voteResults.max_page} />
+			<Pagination bind:page={page} maxPage={voteResults.max_page} />
 		</div>
 	{:else}
 		<ProgressRadial />

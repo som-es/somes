@@ -63,10 +63,11 @@ async fn filtered_legislative_initiatives(
         param_index,
         param_index + 1
     ));
-    log::info!("query {query}");
 
     let mut filtered_query = sqlx::query_as::<_, DbLegislativeInitiativeQuery>(&query);
     let mut count_query = sqlx::query_as::<_, (i64,)>(&count_query);
+    
+    count_query = count_query.bind(filter.invisibly_declined);
     filtered_query = filtered_query.bind(filter.invisibly_declined);
 
     if let Some(accepted_value) = filter.accepted {
