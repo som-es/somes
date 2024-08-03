@@ -5,6 +5,7 @@
 	import type { ConicStop } from "@skeletonlabs/skeleton";
 	import { partyToColor } from "$lib/partyColor";
 	import type { VoteResult } from "$lib/types";
+	import Square from "$lib/components/UI/Square.svelte";
 
     export let voteResult: VoteResult;
     export let isCenter: boolean = false;
@@ -59,58 +60,46 @@
 </script>
 
 <div class="flex flex-wrap {isCenter ? "justify-center" : ""} info-item gap-3">
-    <div class="responsive-accepted-hidden accepted-item square bg-primary-300">
-        <div class="flex flex-col items-center justify-center">
-            {#if voteResult.legislative_initiative.accepted}	
-                {@html checkmarkIcon}
-                <div>
-                    Angenommen
-                </div>
-            {:else}
-                {@html crossmarkIcon}
-                <div>
-                    Abgelehnt
-                </div>
-            {/if}
+    <Square class="accepted-item">
+        {#if voteResult.legislative_initiative.accepted}	
+            {@html checkmarkIcon}
+            <div>
+                Angenommen
+            </div>
+        {:else}
+            {@html crossmarkIcon}
+            <div>
+                Abgelehnt
+            </div>
+        {/if}
+    </Square>
+    <Square class="majority-item">
+        <SimpleDonut stops={voteResult.legislative_initiative.requires_simple_majority ? conicStopsSimpleMajority : conicStopsOtherMajority} />
+        <div>
+            Notwendige
         </div>
-        
-        <!-- Angenommen: {voteResult.legislative_initiative.accepted} -->
-    </div>
-    <div class="majority-item square flex bg-primary-300">
-        <div class="flex flex-col items-center justify-center">
-            <SimpleDonut stops={voteResult.legislative_initiative.requires_simple_majority ? conicStopsSimpleMajority : conicStopsOtherMajority} />
-            <div>
-                Notwendige
-            </div>
-            <div>
-                Mehrheit
-            </div>
-
-        </div> 
-    </div>
-    <div class="square flex bg-primary-300">
-        <div class="flex flex-col items-center justify-center">
-            <SimpleDonut stops={conicsStopsAchievedVotes} />
-            <div>
-                Erreichte
-            </div>
-            <div>
-                Mehrheit
-            </div>
-            <!-- {voteResult.legislative_initiative.requires_simple_majority ? "1/2" : "2/3" } -->
-
-        </div> 
-    </div>
-    <div class="accepted-item square bg-primary-300">
-        <div class="flex flex-col items-center justify-center">
-            <div class="bold font-bold text-lg">
-                {dashDateToDotDate(voteResult.legislative_initiative.created_at.toString())}
-            </div>
-            <div>
-                Abgestimmt am 
-            </div>
+        <div>
+            Mehrheit
         </div>
-    </div>
+    </Square>
+    <Square>
+        <SimpleDonut stops={conicsStopsAchievedVotes} />
+        <div>
+            Erreichte
+        </div>
+        <div>
+            Mehrheit
+        </div>
+        <!-- {voteResult.legislative_initiative.requires_simple_majority ? "1/2" : "2/3" } -->
+    </Square>
+    <Square>
+        <div class="bold font-bold text-lg">
+            {dashDateToDotDate(voteResult.legislative_initiative.created_at.toString())}
+        </div>
+        <div>
+            Abgestimmt am 
+        </div>
+    </Square>
 </div>
 
 <style>
@@ -126,10 +115,10 @@
         border-radius: 1rem;
 	}
 
-	.accepted-item {
+	:global(.accepted-item) {
 		grid-area: a;
-	}
-
+    }
+    
 	.majority-item {
 		grid-area: m;
 	}

@@ -9,13 +9,17 @@ import type {
 } from './types';
 
 // const address = "http://somes.at:3000"
-// const address = 'http://127.0.0.1:3000';
-const address = "http://192.168.1.114:3000"
+const address = 'http://127.0.0.1:3000';
+// const address = "http://192.168.1.114:3000"
 
 export async function fetchSavely<T>(fn: () => Promise<Response>): Promise<T | null> {
 	try {
 		let response = await fn();
-		return await response.json();
+		const json = await response.json();
+		if ("error" in json) {
+			return null;
+		}
+		return json;
 	} catch (error) {
 		return null;
 	}
