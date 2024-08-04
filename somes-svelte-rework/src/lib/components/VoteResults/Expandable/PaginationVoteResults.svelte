@@ -2,12 +2,12 @@
 	import type { Delegate, LegisInitFilter, VoteResult, VoteResultsWithMaxPage } from '$lib/types';
 	import { onMount } from 'svelte';
 	import { vote_results_per_page } from '$lib/api';
-	import SButton from '../../UI/SButton.svelte';
 	import VoteResultExpandableBar from './VoteResultExpandableBar.svelte';
 	import { pushState } from '$app/navigation';
 	import Pagination from '$lib/components/Pagination.svelte';
-	import { ProgressRadial, RadioGroup, RadioItem, SlideToggle } from '@skeletonlabs/skeleton';
+	import { RadioGroup, RadioItem, SlideToggle } from '@skeletonlabs/skeleton';
 	import LegisButtons from '$lib/components/Filtering/LegisButtons.svelte';
+	import CenterPrograssRadial from '$lib/components/ProgressInfos/CenterPrograssRadial.svelte';
 
 	export let dels: Delegate[];
 
@@ -84,7 +84,7 @@
 		notwendige Mehrheit
 	</h1>
 	<RadioGroup active="variant-filled-secondary" hover="hover:variant-soft-secondary">
-		<RadioItem bind:group={simpleMajorityFilter} name="simpleMajority" value={undefined}>Egal</RadioItem>
+		<RadioItem bind:group={simpleMajorityFilter} name="simpleMajority" value={undefined}>egal</RadioItem>
 		<RadioItem bind:group={simpleMajorityFilter} name="simpleMajority" value={true}>einfache Mehrheit</RadioItem>
 		<RadioItem bind:group={simpleMajorityFilter} name="simpleMajority" value={false}>2/3 Mehrheit</RadioItem>
 	</RadioGroup>
@@ -112,7 +112,7 @@
 				<VoteResultExpandableBar {dels} {voteResult} class="" />
 			{/each}
 		{:else if currentlyUpdating}
-			<ProgressRadial />
+			<CenterPrograssRadial />
 		{:else}
 			Keine Abstimmungsergebnisse gefunden
 		{/if}
@@ -120,7 +120,7 @@
 			<Pagination bind:page={page} maxPage={voteResults.max_page} />
 		</div>
 	{:else}
-		<ProgressRadial />
+		<CenterPrograssRadial />
 	{/if}
 </div>
 

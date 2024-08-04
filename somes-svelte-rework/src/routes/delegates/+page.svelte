@@ -1,16 +1,15 @@
 <script lang="ts">
-	import { cachedDelegates, filteredDelegates } from '$lib/caching/delegates';
+	import { filteredDelegates } from '$lib/caching/delegates';
 	import type { AutocompleteOption } from '$lib/components/Autocompletion/types';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
-	import Container from '$lib/components/Layout/Container.svelte';
 	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
 	import DelegatesParliament from '$lib/components/Parliaments/DelegatesParliament.svelte';
 	import type { Delegate, InterestShare } from '$lib/types';
-	import { popup, ProgressRadial, type PopupSettings } from '@skeletonlabs/skeleton';
+	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 	import { delegate_interests } from '$lib/api';
-	import { topicColors } from '$lib/interestColors';
 	import InterestTiles from '$lib/components/Delegates/InterestTiles.svelte';
+	import CenterPrograssRadial from '$lib/components/ProgressInfos/CenterPrograssRadial.svelte';
 
 	let delegates: Delegate[] | null;
 	let delegate: Delegate | null;
@@ -132,7 +131,7 @@
 					<InterestTiles interests={interests.slice(0, 4)}></InterestTiles>
 					
                 {:else}
-                    <ProgressRadial />
+					<CenterPrograssRadial />
 				{/if}
                 <!-- <div class="activity-item bg-primary-300">
                     Activity
