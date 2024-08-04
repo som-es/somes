@@ -4,7 +4,6 @@
 	import type { LegisPeriod } from "$lib/types";
 	import { onMount } from "svelte";
 
-	// export let updateFn: Function;
 	let periods: LegisPeriod[] = [];
     onMount(async () => {
         const fetchedPeriods = (await cachedAllLegisPeriods());

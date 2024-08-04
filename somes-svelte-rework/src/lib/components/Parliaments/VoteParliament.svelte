@@ -34,7 +34,6 @@
 		}
 
 		selected = bubble;
-		console.log(selected);
 	}
 
 	const partyToColorMap = getPartyColors();

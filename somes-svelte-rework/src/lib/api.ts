@@ -73,6 +73,7 @@ export async function all_gps(): Promise<LegisPeriod[] | null> {
 
 export async function vote_results_per_page(page: number, filter: LegisInitFilter | null): Promise<VoteResultsWithMaxPage | null> {
 	return fetchSavely(() =>
+		
 		fetch(`${address}/vote_results_per_page?page=${page}`, {
 			method: 'POST', // only post because js fetch..
 			headers: {

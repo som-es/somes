@@ -72,9 +72,9 @@
 	};
 </script>
 
-<div class="flex flex-row flex-wrap items-center">
+<div class="flex flex-row flex-wrap gap-1 items-center">
 	<SButton
-		class="mt-5 mb-5 bg-secondary-500 text-center"
+		class="mt-5 mb-5 bg-tertiary-500 text-center"
 		title="vorherige Seite"
 		on:click={() => {
 			if (page > 0) page--;
@@ -86,8 +86,8 @@
 		{#if suggestion > 0 && suggestion <= maxPage}
 			<SButton
 				class="mt-5 mb-5 w-14 text-center {isActive(suggestion)
-					? 'bg-tertiary-500'
-					: 'bg-secondary-500'}"
+					? 'bg-secondary-400'
+					: 'bg-tertiary-400'}"
 				on:click={() => {
 					page = suggestion;
 				}}>{suggestion}</SButton
@@ -95,7 +95,7 @@
 		{/if}
 	{/each}
 	<SButton
-		class="mt-5 mb-5 bg-secondary-500"
+		class="mt-5 mb-5 bg-tertiary-500"
 		title="nächste Seite"
 		on:click={() => {
 			if (page < maxPage) page++;

@@ -18,7 +18,7 @@
 <span class="card tile">
 	<div class="tile-content">
 		<div
-			class="mx-1 w-[360px]"
+			class="w-[360px]"
 			on:click={onClick}
 			on:keypress={onClick}
 			role="link"
