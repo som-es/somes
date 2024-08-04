@@ -22,7 +22,8 @@
 	let pageSuggestions: number[] = [];
 	let writtenPage = `${page}`;
 	$: if (page || maxPage) {
-		if (page >= maxPage) {
+		// maxPage != 0, if no elements are found (maxPage=0) than do not display anything
+		if (page >= maxPage && maxPage != 0) {
 			page = maxPage;
 		}
 		const otherPage = page + 0;

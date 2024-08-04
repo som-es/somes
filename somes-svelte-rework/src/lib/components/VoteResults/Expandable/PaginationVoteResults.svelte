@@ -20,18 +20,27 @@
 
 	let currentlyUpdating = false;
 
-	let simpleMajority: boolean | undefined = undefined;
+	let simpleMajorityFilter: boolean | undefined = undefined;
+	let acceptedFilter: string | undefined = undefined;
 
 	const loadVoteResults = async () => {
 		currentlyUpdating = true;
 		if (voteResults !== null) {
 			voteResults.vote_results = []
 		}
+
+		let accepted = null;
+		let invisibly_declined = false;
+		switch (acceptedFilter) {
+			case "accepted": accepted = true; break;
+			case "declined": accepted = false; break;
+			case "invisibly": invisibly_declined = true; break;
+		}
 		
 		let filter: LegisInitFilter | null = {
-			invisibly_declined: false,
-			accepted: null,
-			simple_majority: simpleMajority == undefined ? null : simpleMajority,
+			invisibly_declined,
+			accepted,
+			simple_majority: simpleMajorityFilter == undefined ? null : simpleMajorityFilter,
 			legis_period: selectedPeriod == "all" ? null : selectedPeriod,
 		};
 		// filter = null;
@@ -59,7 +68,7 @@
 		old_page = page;
 	};
 
-	$: if (page || selectedPeriod || simpleMajority) {
+	$: if (page || selectedPeriod || simpleMajorityFilter || acceptedFilter) {
 		update();
 	}
 </script>
@@ -75,10 +84,21 @@
 		notwendige Mehrheit
 	</h1>
 	<RadioGroup active="variant-filled-secondary" hover="hover:variant-soft-secondary">
-		<RadioItem bind:group={simpleMajority} name="simpleMajority" value={undefined}>Egal</RadioItem>
-		<RadioItem bind:group={simpleMajority} name="simpleMajority" value={true}>einfache Mehrheit</RadioItem>
-		<RadioItem bind:group={simpleMajority} name="simpleMajority" value={false}>2/3 Mehrheit</RadioItem>
-</RadioGroup>
+		<RadioItem bind:group={simpleMajorityFilter} name="simpleMajority" value={undefined}>Egal</RadioItem>
+		<RadioItem bind:group={simpleMajorityFilter} name="simpleMajority" value={true}>einfache Mehrheit</RadioItem>
+		<RadioItem bind:group={simpleMajorityFilter} name="simpleMajority" value={false}>2/3 Mehrheit</RadioItem>
+	</RadioGroup>
+</div>
+<div class="mt-5">
+	<h1 class="text-2xl font-bold">
+		Angenommen
+	</h1>
+	<RadioGroup active="variant-filled-secondary" hover="hover:variant-soft-secondary">
+		<RadioItem bind:group={acceptedFilter} name="accepted" value={undefined}>egal</RadioItem>
+		<RadioItem bind:group={acceptedFilter} name="accepted" value={"accepted"}>angenommen</RadioItem>
+		<RadioItem bind:group={acceptedFilter} name="accepted" value={"declined"}>abgelehnt</RadioItem>
+		<RadioItem bind:group={acceptedFilter} name="accepted" value={"invisibly"} title="frühzeitig abgelehnt - vor der 3. Lesung">frühzeitig abgelehnt</RadioItem>
+	</RadioGroup>
 </div>
 <div class="mt-5">
 	<h2 class="font-bold text-2xl">Legislaturperioden</h2>
