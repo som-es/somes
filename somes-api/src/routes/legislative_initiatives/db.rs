@@ -32,15 +32,18 @@ async fn filtered_legislative_initiatives(
     page_elements: i64,
     filter: &LegisInitFilter,
 ) -> Result<(Vec<DbLegislativeInitiativeQuery>, i64), sqlx::Error> {
+
     let mut query = String::from(
-        "SELECT DISTINCT * FROM legislative_initiatives WHERE was_invisibly_declined = $1",
+        "SELECT DISTINCT * FROM legislative_initiatives WHERE ",
     );
 
-    if !filter.invisibly_declined {
-        query.push_str(&" and accepted is not null");
+    if filter.invisibly_declined {
+        query.push_str(" was_invisibly_declined = true")
+    } else {
+        query.push_str(" accepted is not null")
     }
 
-    let mut param_index = 2;
+    let mut param_index = 1;
     if filter.accepted.is_some() {
         query.push_str(&format!(" AND accepted = ${}", param_index));
         param_index += 1;
@@ -66,9 +69,6 @@ async fn filtered_legislative_initiatives(
 
     let mut filtered_query = sqlx::query_as::<_, DbLegislativeInitiativeQuery>(&query);
     let mut count_query = sqlx::query_as::<_, (i64,)>(&count_query);
-    
-    count_query = count_query.bind(filter.invisibly_declined);
-    filtered_query = filtered_query.bind(filter.invisibly_declined);
 
     if let Some(accepted_value) = filter.accepted {
         filtered_query = filtered_query.bind(accepted_value);
@@ -82,7 +82,7 @@ async fn filtered_legislative_initiatives(
         filtered_query = filtered_query.bind(legis_period);
         count_query = count_query.bind(legis_period);
     }
-    filtered_query = filtered_query.bind(page).bind(page_elements);
+    filtered_query = filtered_query.bind(page * page_elements).bind(page_elements);
     Ok((
         filtered_query.fetch_all(pg).await?,
         count_query.fetch_one(pg).await?.0,

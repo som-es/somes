@@ -6,7 +6,7 @@
 	import VoteResultExpandableBar from './VoteResultExpandableBar.svelte';
 	import { pushState } from '$app/navigation';
 	import Pagination from '$lib/components/Pagination.svelte';
-	import { ProgressRadial } from '@skeletonlabs/skeleton';
+	import { ProgressRadial, RadioGroup, RadioItem, SlideToggle } from '@skeletonlabs/skeleton';
 	import LegisButtons from '$lib/components/Filtering/LegisButtons.svelte';
 
 	export let dels: Delegate[];
@@ -20,6 +20,8 @@
 
 	let currentlyUpdating = false;
 
+	let simpleMajority: boolean | undefined = undefined;
+
 	const loadVoteResults = async () => {
 		currentlyUpdating = true;
 		if (voteResults !== null) {
@@ -29,7 +31,7 @@
 		let filter: LegisInitFilter | null = {
 			invisibly_declined: false,
 			accepted: null,
-			simple_majority: null,
+			simple_majority: simpleMajority == undefined ? null : simpleMajority,
 			legis_period: selectedPeriod == "all" ? null : selectedPeriod,
 		};
 		// filter = null;
@@ -57,13 +59,31 @@
 		old_page = page;
 	};
 
-	$: if (page || selectedPeriod) {
+	$: if (page || selectedPeriod || simpleMajority) {
 		update();
 	}
-
 </script>
 
-<LegisButtons bind:selectedPeriod={selectedPeriod} />
+<br>
+<SlideToggle name="slider-large" active="bg-secondary-400" size="md">
+	<span class="text-lg">
+		Test
+	</span>
+</SlideToggle>
+<div class="mt-5">
+	<h1 class="text-2xl font-bold">
+		notwendige Mehrheit
+	</h1>
+	<RadioGroup active="variant-filled-secondary" hover="hover:variant-soft-secondary">
+		<RadioItem bind:group={simpleMajority} name="simpleMajority" value={undefined}>Egal</RadioItem>
+		<RadioItem bind:group={simpleMajority} name="simpleMajority" value={true}>einfache Mehrheit</RadioItem>
+		<RadioItem bind:group={simpleMajority} name="simpleMajority" value={false}>2/3 Mehrheit</RadioItem>
+</RadioGroup>
+</div>
+<div class="mt-5">
+	<h2 class="font-bold text-2xl">Legislaturperioden</h2>
+	<LegisButtons bind:selectedPeriod={selectedPeriod} />
+</div>
 <div>
 	{#if voteResults}
 		<Pagination bind:page={page} maxPage={voteResults.max_page} />

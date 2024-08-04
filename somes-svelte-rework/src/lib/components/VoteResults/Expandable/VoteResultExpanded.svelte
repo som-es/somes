@@ -41,7 +41,7 @@
     <Emphasis emphasis={emphasis}></Emphasis>
 
     <div class="topics-item flex justify-center items-center bg-primary-300 px-3">
-        <Topics topics={voteResult.topics} />
+        <Topics topics={voteResult.topics.sort((a, b) => { return a.topic.length - b.topic.length})} />
     </div>
 
     <div class="rounded-md min-w-full max-w-full ml-auto  parliament-item bg-primary-100">

@@ -11,7 +11,7 @@
 </script>
 
 <div class="mx-auto px-5">
-	<h1>Vergangene Abstimmungsergebnisse</h1>
+	<h1 class="text-4xl font-bold">Vergangene Abstimmungsergebnisse</h1>
 
 	{#if dels}
 		<PaginationVoteResults {dels} />

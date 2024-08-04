@@ -46,7 +46,10 @@
 			}
 			return 0;
 		};
-		pageSuggestions = baseLayout.map((el, i) => el + offsetFn(i));
+
+		// filter removes duplicates
+		pageSuggestions = baseLayout.map((el, i) => el + offsetFn(i)).filter((el) => el != maxPage);
+		pageSuggestions.push(maxPage);
 		writtenPage = `${page}`;
 	}
 
@@ -72,7 +75,7 @@
 	};
 </script>
 
-<div class="flex flex-row flex-wrap gap-1 items-center">
+<div class="flex flex-row flex-wrap gap-1 items-center text-black">
 	<SButton
 		class="mt-5 mb-5 bg-tertiary-500 text-center"
 		title="vorherige Seite"

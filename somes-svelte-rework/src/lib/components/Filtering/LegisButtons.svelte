@@ -16,8 +16,7 @@
 </script>
 
 <!-- (add: Sort asc and desc) -->
-<h2 class="font-bold text-lg">Legislaturperioden</h2>
-<div class="flex flex-wrap flex-row">
+<div class="flex flex-wrap flex-row text-black">
 	{#each periods as period, i}
 		<button
 			class:bg-tertiary-500={period.gp == selectedPeriod}
