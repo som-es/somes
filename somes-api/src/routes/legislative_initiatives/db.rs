@@ -37,12 +37,6 @@ async fn filtered_legislative_initiatives(
         "SELECT DISTINCT * FROM legislative_initiatives WHERE ",
     );
 
-    if filter.invisibly_declined {
-        query.push_str(" was_invisibly_declined = true")
-    } else {
-        query.push_str(" accepted is not null")
-    }
-
     let mut param_index = 1;
     if filter.accepted.is_some() {
         query.push_str(&format!(" AND accepted = ${}", param_index));
@@ -120,31 +114,14 @@ pub async fn get_latest_legis_inits_per_page(
 pub async fn get_latest_legislative_initiatives_sqlx(
     pg: &PgPool,
 ) -> sqlx::Result<Vec<DbLegislativeInitiativeQuery>> {
-    let res = sqlx::query!(
+    let res = sqlx::query_as!(DbLegislativeInitiativeQuery,
         "select * from legislative_initiatives 
             where created_at = (select MAX(created_at) from legislative_initiatives 
             where accepted is not null) and accepted is not null"
     )
     .fetch_all(pg)
     .await?;
-    Ok(res
-        .into_iter()
-        .map(|rec| DbLegislativeInitiativeQuery {
-            id: rec.id,
-            ityp: rec.ityp,
-            gp: rec.gp,
-            inr: rec.inr,
-            emphasis: rec.emphasis,
-            title: rec.title,
-            description: rec.description,
-            accepted: rec.accepted,
-            created_at: rec.created_at,
-            appeared_at: rec.appeared_at,
-            updated_at: rec.updated_at,
-            requires_simple_majority: rec.requires_simple_majority,
-            was_invisibly_declined: rec.was_invisibly_declined,
-        })
-        .collect())
+    Ok(res)
 }
 
 pub fn get_latest_legislative_initiatives(
