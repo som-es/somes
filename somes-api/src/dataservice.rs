@@ -245,7 +245,7 @@ mod tests {
             dataservice_con, get_call_to_orders_per_party_delegates,
             get_delegates_by_call_to_orders, get_speakers_by_hours_by_legis_period,
         },
-        routes::{get_latest_vote_results, get_legislative_initiatives, LegisPeriod},
+        routes::{get_latest_vote_results,  LegisPeriod},
         today,
     };
 
@@ -261,16 +261,16 @@ mod tests {
         println!("delegates: {delegates:?}");
     }
 
-    #[test]
-    fn test_get_legislative_inits() {
-        let con = &mut dataservice_con();
-        let filter = DateRange {
-            start: today() - chrono::Duration::days(7),
-            end: today(),
-        };
-        let legis_inits = get_legislative_initiatives(con, filter);
-        println!("legis_inits: {legis_inits:?}");
-    }
+    // #[test]
+    // fn test_get_legislative_inits() {
+    //     let con = &mut dataservice_con();
+    //     let filter = DateRange {
+    //         start: today() - chrono::Duration::days(7),
+    //         end: today(),
+    //     };
+    //     let legis_inits = get_legislative_initiatives(con, filter);
+    //     println!("legis_inits: {legis_inits:?}");
+    // }
 
     #[test]
     fn test_get_combined_latest_votes_and_legis_inits() {

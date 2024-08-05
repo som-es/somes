@@ -30,15 +30,13 @@
 		}
 
 		let accepted = null;
-		let invisibly_declined = false;
 		switch (acceptedFilter) {
-			case "accepted": accepted = true; break;
-			case "declined": accepted = false; break;
-			case "invisibly": invisibly_declined = true; break;
+			case "accepted": accepted = "a"; break;
+			case "declined": accepted = "d"; break;
+			case "invisibly": accepted = "p"; break;
 		}
 		
 		let filter: LegisInitFilter | null = {
-			invisibly_declined,
 			accepted,
 			simple_majority: simpleMajorityFilter == undefined ? null : simpleMajorityFilter,
 			legis_period: selectedPeriod == "all" ? null : selectedPeriod,

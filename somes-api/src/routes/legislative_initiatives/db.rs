@@ -15,16 +15,16 @@ use crate::{dataservice::get_speeches_from_legis_init, today};
 
 use super::LegisInitErrorResponse;
 
-pub fn get_legislative_initiatives(
-    con: &mut PgConnection,
-    filter: DateRange,
-) -> QueryResult<Vec<DbLegislativeInitiativeQuery>> {
-    legislative_initiatives
-        .filter(created_at.gt(filter.start))
-        .filter(created_at.lt(filter.end))
-        .filter(accepted.is_not_null())
-        .load::<DbLegislativeInitiativeQuery>(con)
-}
+// pub fn get_legislative_initiatives(
+//     con: &mut PgConnection,
+//     filter: DateRange,
+// ) -> QueryResult<Vec<DbLegislativeInitiativeQuery>> {
+//     legislative_initiatives
+//         .filter(created_at.gt(filter.start))
+//         .filter(created_at.lt(filter.end))
+//         .filter(accepted.is_not_null())
+//         .load::<DbLegislativeInitiativeQuery>(con)
+// }
 
 async fn filtered_legislative_initiatives(
     pg: &PgPool,
@@ -34,7 +34,7 @@ async fn filtered_legislative_initiatives(
 ) -> Result<(Vec<DbLegislativeInitiativeQuery>, i64), sqlx::Error> {
 
     let mut query = String::from(
-        "SELECT DISTINCT * FROM legislative_initiatives WHERE ",
+        "SELECT DISTINCT * FROM legislative_initiatives WHERE accepted is not null",
     );
 
     let mut param_index = 1;
@@ -64,7 +64,7 @@ async fn filtered_legislative_initiatives(
     let mut filtered_query = sqlx::query_as::<_, DbLegislativeInitiativeQuery>(&query);
     let mut count_query = sqlx::query_as::<_, (i64,)>(&count_query);
 
-    if let Some(accepted_value) = filter.accepted {
+    if let Some(accepted_value) = &filter.accepted {
         filtered_query = filtered_query.bind(accepted_value);
         count_query = count_query.bind(accepted_value);
     }
@@ -124,17 +124,17 @@ pub async fn get_latest_legislative_initiatives_sqlx(
     Ok(res)
 }
 
-pub fn get_latest_legislative_initiatives(
-    con: &mut PgConnection,
-) -> QueryResult<Vec<DbLegislativeInitiativeQuery>> {
-    legislative_initiatives
-        // make the date range configurable as user !
-        .filter(created_at.gt(today() - chrono::Duration::days(90)))
-        .filter(created_at.lt(today()))
-        .filter(accepted.is_not_null())
-        .order(created_at.desc())
-        .load::<DbLegislativeInitiativeQuery>(con)
-}
+// pub fn get_latest_legislative_initiatives(
+//     con: &mut PgConnection,
+// ) -> QueryResult<Vec<DbLegislativeInitiativeQuery>> {
+//     legislative_initiatives
+//         // make the date range configurable as user !
+//         .filter(created_at.gt(today() - chrono::Duration::days(90)))
+//         .filter(created_at.lt(today()))
+//         .filter(accepted.is_not_null())
+//         .order(created_at.desc())
+//         .load::<DbLegislativeInitiativeQuery>(con)
+// }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct Topic {
@@ -205,17 +205,18 @@ pub async fn get_latest_vote_results_sqlx_per_page(
 }
 
 pub fn get_latest_vote_results(con: &mut PgConnection) -> QueryResult<Vec<VoteResult>> {
-    get_latest_legislative_initiatives(con)?
-        .into_iter()
-        .map(|legis_init| {
-            Ok(VoteResult {
-                votes: get_votes_from_legis_init(con, legis_init.id)?,
-                speeches: get_speeches_from_legis_init(con, legis_init.id)?,
-                topics: vec![],
-                legislative_initiative: legis_init,
-            })
-        })
-        .collect::<QueryResult<Vec<VoteResult>>>()
+    todo!()
+    // get_latest_legislative_initiatives(con)?
+    //     .into_iter()
+    //     .map(|legis_init| {
+    //         Ok(VoteResult {
+    //             votes: get_votes_from_legis_init(con, legis_init.id)?,
+    //             speeches: get_speeches_from_legis_init(con, legis_init.id)?,
+    //             topics: vec![],
+    //             legislative_initiative: legis_init,
+    //         })
+    //     })
+    //     .collect::<QueryResult<Vec<VoteResult>>>()
 }
 
 pub async fn get_eurovoc_topics_from_legis_init(

@@ -56,7 +56,7 @@
 
 <div class="flex flex-wrap {isCenter ? "justify-center" : ""} info-item gap-3">
     <Square class="accepted-item">
-        {#if voteResult.legislative_initiative.accepted}	
+        {#if voteResult.legislative_initiative.accepted == "a"}	
             {@html checkmarkIcon}
             <div>
                 Angenommen
@@ -66,6 +66,11 @@
             <div>
                 Abgelehnt
             </div>
+            {#if voteResult.legislative_initiative.accepted == "p"}
+                <div>
+                    (frühzeitig)
+                </div>
+            {/if}
         {/if}
     </Square>
     <Square class="majority-item">

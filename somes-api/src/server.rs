@@ -26,8 +26,8 @@ use crate::{
     model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours},
     routes::{
         call_to_orders_per_party_delegates, delegates, delegates_by_call_to_orders,
-        delegates_by_call_to_orders_and_legis_period, latest_legis_inits, latest_vote_results,
-        legis_inits, parties, proposals, save_email, speakers_by_hours,
+        delegates_by_call_to_orders_and_legis_period, latest_vote_results,
+         parties, proposals, save_email, speakers_by_hours,
         speakers_by_hours_and_legis_period, user,
     },
     DATASERVICE_URL, LEGIS_INITS_PER_PAGE, REDIS_DB,
@@ -96,8 +96,6 @@ pub async fn serve(addr: SocketAddr) {
             login,
             delegates,
             proposals,
-            legis_inits,
-            latest_legis_inits,
             latest_vote_results,
             speakers_by_hours,
             delegates_by_call_to_orders,
@@ -174,8 +172,8 @@ pub async fn serve(addr: SocketAddr) {
         .route(LOGIN_ROUTE, post(login))
         .route(DELEGATES_ROUTE, get(delegates))
         .route(PROPOSALS_ROUTE, get(proposals))
-        .route(LEGIS_INIT_ROUTE, post(legis_inits))
-        .route(LATEST_LEGIS_INITS_ROUTE, get(latest_legis_inits))
+        // .route(LEGIS_INIT_ROUTE, post(legis_inits))
+        // .route(LATEST_LEGIS_INITS_ROUTE, get(latest_legis_inits))
         .route(LATEST_VOTE_RESULTS_ROUTE, get(latest_vote_results))
         // statistics
         .route(SPEAKERS_BY_HOURS, get(speakers_by_hours))

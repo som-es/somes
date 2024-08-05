@@ -21,12 +21,11 @@ export interface LegislativeInitiative {
 	title: string;
 	description: string;
 	emphasis: string | null;
-	accepted: boolean | null;
+	accepted: string | null;
 	created_at: Date;
 	appeared_at: Date | null;
 	updated_at: Date | null;
 	requires_simple_majority: boolean | null;
-	was_invisibly_declined: boolean | null;
 }
 
 export interface Vote {
@@ -151,8 +150,7 @@ export interface LegisPeriod {
 }
 
 export interface LegisInitFilter {
-    invisibly_declined: boolean;
-    accepted: boolean | null;
+    accepted: string | null;
     simple_majority: boolean | null;
     legis_period: string | null;
 }
