@@ -11,12 +11,12 @@ pub use db::*;
 
 // #[utoipa::path(
 //     post,
-//     path = "/legis_inits", 
+//     path = "/legis_inits",
 //     params(
 //         DateRange
 //     ),
 //     responses(
-//         (status = 200, description = "Returned legislative initiatives successfully.", body = [Vec<DbLegislativeInitiativeQuery>]), 
+//         (status = 200, description = "Returned legislative initiatives successfully.", body = [Vec<DbLegislativeInitiativeQuery>]),
 //         (status = 400, description = "Invalid request", body = [LegisInitErrorResponse]),
 //         (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
 //     )
@@ -37,12 +37,12 @@ pub use db::*;
 
 // #[utoipa::path(
 //     post,
-//     path = "/latest_legis_inits", 
+//     path = "/latest_legis_inits",
 //     params(
 //         DateRange
 //     ),
 //     responses(
-//         (status = 200, description = "Returned legislative initiatives successfully.", body = [Vec<DbLegislativeInitiativeQuery>]), 
+//         (status = 200, description = "Returned legislative initiatives successfully.", body = [Vec<DbLegislativeInitiativeQuery>]),
 //         (status = 400, description = "Invalid request", body = [LegisInitErrorResponse]),
 //         (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
 //     )

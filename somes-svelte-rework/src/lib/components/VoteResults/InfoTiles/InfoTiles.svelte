@@ -35,6 +35,7 @@
 
         for (let i = 0; i < voteResult.votes.length; i++) {
             let vote = voteResult.votes[i];
+            console.log(vote);
             if (!vote.infavor) {
                 continue
             }

@@ -1,10 +1,4 @@
-use dataservice::db::{
-    models::{DbLegislativeInitiativeQuery, DbSpeech, DbVote},
-    schema::{
-        legislative_initiatives::{accepted, created_at, dsl::legislative_initiatives},
-        votes::{dsl::votes, legislative_initiatives_id},
-    },
-};
+use dataservice::db::models::{DbLegislativeInitiativeQuery, DbSpeech, DbVote};
 use diesel::{ExpressionMethods, PgConnection, QueryDsl, QueryResult, RunQueryDsl};
 use serde::{Deserialize, Serialize};
 use somes_common_lib::{DateRange, LegisInitFilter};
@@ -32,10 +26,8 @@ async fn filtered_legislative_initiatives(
     page_elements: i64,
     filter: &LegisInitFilter,
 ) -> Result<(Vec<DbLegislativeInitiativeQuery>, i64), sqlx::Error> {
-
-    let mut query = String::from(
-        "SELECT DISTINCT * FROM legislative_initiatives WHERE accepted is not null",
-    );
+    let mut query =
+        String::from("SELECT DISTINCT * FROM legislative_initiatives WHERE accepted is not null");
 
     let mut param_index = 1;
     if filter.accepted.is_some() {
@@ -76,7 +68,9 @@ async fn filtered_legislative_initiatives(
         filtered_query = filtered_query.bind(legis_period);
         count_query = count_query.bind(legis_period);
     }
-    filtered_query = filtered_query.bind(page * page_elements).bind(page_elements);
+    filtered_query = filtered_query
+        .bind(page * page_elements)
+        .bind(page_elements);
     Ok((
         filtered_query.fetch_all(pg).await?,
         count_query.fetch_one(pg).await?.0,
@@ -114,7 +108,8 @@ pub async fn get_latest_legis_inits_per_page(
 pub async fn get_latest_legislative_initiatives_sqlx(
     pg: &PgPool,
 ) -> sqlx::Result<Vec<DbLegislativeInitiativeQuery>> {
-    let res = sqlx::query_as!(DbLegislativeInitiativeQuery,
+    let res = sqlx::query_as!(
+        DbLegislativeInitiativeQuery,
         "select * from legislative_initiatives 
             where created_at = (select MAX(created_at) from legislative_initiatives 
             where accepted is not null) and accepted is not null"
@@ -245,14 +240,14 @@ pub async fn get_votes_from_legis_init_sqlx(
     .await
 }
 
-pub fn get_votes_from_legis_init(
-    con: &mut PgConnection,
-    legis_init_id: i32,
-) -> QueryResult<Vec<DbVote>> {
-    votes
-        .filter(legislative_initiatives_id.eq(legis_init_id))
-        .load::<DbVote>(con)
-}
+// pub fn get_votes_from_legis_init(
+//     con: &mut PgConnection,
+//     legis_init_id: i32,
+// ) -> QueryResult<Vec<DbVote>> {
+//     votes
+//         .filter(legislative_initiatives_id.eq(legis_init_id))
+//         .load::<DbVote>(con)
+// }
 
 pub async fn get_speeches_from_legis_init_sqlx(
     con: &PgPool,

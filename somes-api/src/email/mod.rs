@@ -1,4 +1,4 @@
-mod read_mailbox;
+// mod read_mailbox;
 
 use lettre::{
     message::header::ContentType, transport::smtp::authentication::Credentials, Message,

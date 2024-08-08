@@ -82,6 +82,7 @@ export interface Party {
 	name: string;
 	color: string;
 	fraction: number;
+	code: string;
 }
 
 export interface HasError {

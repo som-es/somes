@@ -1,15 +1,8 @@
-use dataservice::db::{
-    models::{DbDelegate, DbParty, DbProposalQuery, DbSpeech},
-    schema::{
-        delegates::{council, dsl::delegates, is_active, seat_row},
-        parties::dsl::parties,
-        proposals::dsl::proposals,
-        speeches::dsl::speeches,
-    },
-};
+use dataservice::db::models::{DbDelegate, DbParty, DbProposalQuery, DbSpeech};
 use diesel::{
     sql_query, sql_types::Text, ExpressionMethods, PgConnection, QueryDsl, QueryResult, RunQueryDsl,
 };
+use sqlx::PgPool;
 
 use crate::{
     model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours},
@@ -203,41 +196,107 @@ pub fn dataservice_con() -> PgConnection {
         .expect("Can't establish dataservice database conntection.")
 }
 
-pub fn get_delegates(con: &mut PgConnection) -> QueryResult<Vec<DbDelegate>> {
-    delegates
-        .filter(is_active.eq(true))
-        .filter(council.eq("nr"))
-        .filter(seat_row.is_not_null())
-        .load(con)
-    // delegates.load(con)
+pub async fn get_delegates(con: &PgPool) -> sqlx::Result<Vec<DbDelegate>> {
+    sqlx::query_as!(
+        DbDelegate,
+        "
+        SELECT * FROM delegates
+        WHERE is_active = true
+        AND council = 'nr'
+        AND seat_row IS NOT NULL
+        "
+    )
+    .fetch_all(con)
+    .await
+}
+
+// pub fn get_delegates(con: &mut PgConnection) -> QueryResult<Vec<DbDelegate>> {
+//     delegates
+//         .filter(is_active.eq(true))
+//         .filter(council.eq("nr"))
+//         .filter(seat_row.is_not_null())
+//         .load(con)
+//     // delegates.load(con)
+// }
+
+pub async fn get_delegate(con: &PgPool, delegate_id: i32) -> sqlx::Result<DbDelegate> {
+    sqlx::query_as!(
+        DbDelegate,
+        "
+        SELECT * FROM delegates
+        WHERE id = $1
+        ",
+        delegate_id
+    )
+    .fetch_one(con)
+    .await
 }
 
 #[inline]
-pub fn get_delegate(con: &mut PgConnection, delegate_id: i32) -> QueryResult<DbDelegate> {
-    delegates
-        .filter(dataservice::db::schema::delegates::id.eq(delegate_id))
-        .first(con)
+// pub fn get_delegate(con: &mut PgConnection, delegate_id: i32) -> QueryResult<DbDelegate> {
+//     delegates
+//         .filter(dataservice::db::schema::delegates::id.eq(delegate_id))
+//         .first(con)
+// }
+
+pub async fn get_proposals(con: &PgPool) -> sqlx::Result<Vec<DbProposalQuery>> {
+    sqlx::query_as!(
+        DbProposalQuery,
+        "
+        SELECT * FROM proposals
+        "
+    )
+    .fetch_all(con)
+    .await
 }
 
-pub fn get_proposals(con: &mut PgConnection) -> QueryResult<Vec<DbProposalQuery>> {
-    proposals.load::<DbProposalQuery>(con)
-}
+// pub fn get_proposals(con: &mut PgConnection) -> QueryResult<Vec<DbProposalQuery>> {
+//     proposals.load::<DbProposalQuery>(con)
+// }
 
-pub fn get_speeches_from_legis_init(
-    con: &mut PgConnection,
+pub async fn get_speeches_from_legis_init(
+    con: &PgPool,
     legis_init_id: i32,
-) -> QueryResult<Vec<DbSpeech>> {
-    speeches
-        .filter(dataservice::db::schema::speeches::legislative_initiatives_id.eq(legis_init_id))
-        .load::<DbSpeech>(con)
+) -> sqlx::Result<Vec<DbSpeech>> {
+    sqlx::query_as!(
+        DbSpeech,
+        "
+        SELECT * FROM speeches
+        WHERE legislative_initiatives_id = $1
+        ",
+        legis_init_id
+    )
+    .fetch_all(con)
+    .await
 }
 
-pub fn get_parties(con: &mut PgConnection) -> QueryResult<Vec<DbParty>> {
-    parties.load::<DbParty>(con)
+// pub fn get_speeches_from_legis_init(
+//     con: &mut PgConnection,
+//     legis_init_id: i32,
+// ) -> QueryResult<Vec<DbSpeech>> {
+//     speeches
+//         .filter(dataservice::db::schema::speeches::legislative_initiatives_id.eq(legis_init_id))
+//         .load::<DbSpeech>(con)
+// }
+
+pub async fn get_parties(con: &PgPool) -> sqlx::Result<Vec<DbParty>> {
+    sqlx::query_as!(
+        DbParty,
+        "
+        SELECT name,fraction,color FROM parties
+        "
+    )
+    .fetch_all(con)
+    .await
 }
+
+// pub fn get_parties(con: &mut PgConnection) -> QueryResult<Vec<DbParty>> {
+//     parties.load::<DbParty>(con)
+// }
 
 #[cfg(test)]
 mod tests {
+    use dataservice::connect_pg;
     use somes_common_lib::DateRange;
 
     use crate::{
@@ -245,7 +304,7 @@ mod tests {
             dataservice_con, get_call_to_orders_per_party_delegates,
             get_delegates_by_call_to_orders, get_speakers_by_hours_by_legis_period,
         },
-        routes::{get_latest_vote_results,  LegisPeriod},
+        routes::{get_latest_vote_results, LegisPeriod},
         today,
     };
 
@@ -256,9 +315,9 @@ mod tests {
 
     #[test]
     fn test_get_delegates() {
-        let con = &mut dataservice_con();
-        let delegates = get_delegates(con);
-        println!("delegates: {delegates:?}");
+        // let con = &mut connect_pg();
+        // let delegates = get_delegates(con);
+        // println!("delegates: {delegates:?}");
     }
 
     // #[test]
@@ -274,9 +333,9 @@ mod tests {
 
     #[test]
     fn test_get_combined_latest_votes_and_legis_inits() {
-        let con = &mut dataservice_con();
-        let res = get_latest_vote_results(con);
-        println!("res: {res:?}");
+        // let con = &mut dataservice_con();
+        // let res = get_latest_vote_results(con);
+        // println!("res: {res:?}");
     }
 
     #[test]
@@ -319,9 +378,9 @@ mod tests {
 
     #[test]
     fn test_get_parties() {
-        let con = &mut dataservice_con();
-        let res = get_parties(con);
-        println!("res: {res:?}");
+        // let con = &mut dataservice_con();
+        // let res = get_parties(con);
+        // println!("res: {res:?}");
     }
 
     #[test]

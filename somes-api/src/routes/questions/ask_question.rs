@@ -2,11 +2,7 @@ use axum::Json;
 use dataservice::db::{
     api_models::DbQuestion,
     models::{DbContactQuery, DbDelegate},
-    schema::{
-        contacts::dsl::{contacts, id as contacts_id},
-        delegates::{dsl::delegates, id},
-        questions::{dsl::questions, id as question_id},
-    },
+    
 };
 use diesel::{delete, insert_into, ExpressionMethods, JoinOnDsl, PgConnection, QueryDsl};
 use diesel::{QueryResult, RunQueryDsl};
@@ -152,28 +148,43 @@ pub async fn ask_question(
     todo!()
 }
 
-pub fn insert_question(
-    con: &mut PgConnection,
+use sqlx::PgPool;
+
+pub async fn insert_question(
+    con: &PgPool,
     issuer_id: i32,
     title: String,
     body: String,
     delegate_id: i32,
-) -> QueryResult<i32> {
-    let db_question = DbQuestion {
-        issuer_id,
-        delegate_id,
-        title,
-        body,
-    };
+) -> sqlx::Result<i32> {
+    let query = r#"
+        INSERT INTO questions (issuer_id, delegate_id, title, body)
+        VALUES ($1, $2, $3, $4)
+        RETURNING question_id
+    "#;
 
-    insert_into(questions)
-        .values(db_question)
-        .returning(question_id)
-        .get_result(con)
+    let question_id: i32 = sqlx::query_scalar(query)
+        .bind(issuer_id)
+        .bind(delegate_id)
+        .bind(title)
+        .bind(body)
+        .fetch_one(con)
+        .await?;
+
+    Ok(question_id)
 }
 
-pub fn remove_question_by_id(con: &mut PgConnection, val_question_id: i32) -> QueryResult<usize> {
-    delete(questions)
-        .filter(question_id.eq(val_question_id))
+pub async fn remove_question_by_id(con: &PgPool, val_question_id: i32) -> sqlx::Result<usize> {
+    let query = r#"
+        DELETE FROM questions
+        WHERE question_id = $1
+    "#;
+
+    let rows_affected = sqlx::query(query)
+        .bind(val_question_id)
         .execute(con)
+        .await?
+        .rows_affected();
+
+    Ok(rows_affected as usize)
 }

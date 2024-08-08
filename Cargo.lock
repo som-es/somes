@@ -617,7 +617,6 @@ name = "dataservice"
 version = "0.1.0"
 dependencies = [
  "chrono",
- "diesel",
  "dotenv_codegen",
  "dotenvy",
  "scraper 0.1.0",
@@ -725,7 +724,6 @@ checksum = "ff236accb9a5069572099f0b350a92e9560e8e63a9b8d546162f4a5e03026bb2"
 dependencies = [
  "bitflags 2.5.0",
  "byteorder",
- "chrono",
  "diesel_derives",
  "itoa",
  "pq-sys",
@@ -2234,6 +2232,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d231b230927b5e4ad203db57bbcbee2802f6bce620b1e4a9024a07d94e2907ec"
 
 [[package]]
+name = "pollster"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "22686f4785f02a4fcc856d3b3bb19bf6c8160d103f7a99cc258bddd0251dc7f2"
+
+[[package]]
 name = "powerfmt"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2800,6 +2804,7 @@ dependencies = [
  "futures",
  "log",
  "once_cell",
+ "pollster",
  "regex",
  "reqwest 0.11.27",
  "scraper 0.16.0",

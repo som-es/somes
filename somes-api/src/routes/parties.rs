@@ -1,6 +1,7 @@
 mod error;
-use crate::{dataservice::get_parties, DataserviceDbConnection};
+use crate::{dataservice::get_parties, DataserviceDbConnection, PgPoolConnection};
 use axum::Json;
+use common_scrapes::Party;
 use dataservice::db::models::DbParty;
 pub use error::*;
 
@@ -14,13 +15,18 @@ pub use error::*;
     )
 )]
 pub async fn parties(
-    DataserviceDbConnection(con): DataserviceDbConnection,
-) -> Result<Json<Vec<DbParty>>, PartiesErrorResponse> {
-    con.interact(|con| {
-        get_parties(con)
-            .map(Json)
-            .map_err(|_| PartiesErrorResponse::PartiesReturn)
-    })
-    .await
-    .map_err(|_| PartiesErrorResponse::PartiesReturn)?
+    PgPoolConnection(pg): PgPoolConnection,
+) -> Result<Json<Vec<Party>>, PartiesErrorResponse> {
+    dataservice::with_data::all_parties(&pg)
+        .await
+        .map(Json)
+        .map_err(|_| PartiesErrorResponse::PartiesReturn)
+
+    // con.interact(|con| {
+    //     get_parties(con)
+    //         .map(Json)
+    //         .map_err(|_| PartiesErrorResponse::PartiesReturn)
+    // })
+    // .await
+    // .map_err(|_| PartiesErrorResponse::PartiesReturn)?
 }
