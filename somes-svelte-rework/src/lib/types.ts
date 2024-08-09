@@ -49,6 +49,7 @@ export interface VoteResult {
 	votes: Vote[];
 	speeches: Speech[];
 	topics: Topic[];
+	named_votes: NamedVotes | null;
 }
 
 export interface VoteResultsWithMaxPage {
@@ -154,4 +155,31 @@ export interface LegisInitFilter {
     accepted: string | null;
     simple_majority: boolean | null;
     legis_period: string | null;
+}
+
+export interface NamedVote {
+    id: number;
+    infavor: boolean | null;
+    was_absent: boolean | null;
+    lev: number;
+    similiarity_score: number;
+    searched_with: string | null;
+    matched_with: string;
+    delegate_id: number;
+    named_vote_info_id: number;
+    manually_matched: boolean | null;
+}
+
+export interface NamedVotes {
+    named_vote_info: NamedVoteInfo;
+    named_votes: NamedVote[];
+}
+
+export interface NamedVoteInfo {
+    id: number;
+    legis_init_id: number;
+    pro_count: number;
+    contra_count: number;
+    given_vote_sum: number;
+    invalid_count: number;
 }

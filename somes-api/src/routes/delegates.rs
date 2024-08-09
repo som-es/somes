@@ -195,8 +195,8 @@ pub async fn delegates(
 pub async fn proposals(
     PgPoolConnection(con): PgPoolConnection,
 ) -> Result<Json<Vec<DbProposalQuery>>, DelegatesErrorResponse> {
-        get_proposals(&con)
-            .await
-            .map(Json)
-            .map_err(|_| DelegatesErrorResponse::ProposalResponseError)
+    get_proposals(&con)
+        .await
+        .map(Json)
+        .map_err(|_| DelegatesErrorResponse::ProposalResponseError)
 }

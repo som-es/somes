@@ -1,4 +1,6 @@
-use dataservice::db::models::{DbLegislativeInitiativeQuery, DbSpeech, DbVote};
+use dataservice::db::models::{
+    DbLegislativeInitiativeQuery, DbNamedVote, DbNamedVoteInfo, DbNamedVotes, DbSpeech, DbVote,
+};
 use diesel::{ExpressionMethods, PgConnection, QueryDsl, QueryResult, RunQueryDsl};
 use serde::{Deserialize, Serialize};
 use somes_common_lib::{DateRange, LegisInitFilter};
@@ -141,6 +143,7 @@ pub struct VoteResult {
     pub legislative_initiative: DbLegislativeInitiativeQuery,
     pub votes: Vec<DbVote>,
     pub speeches: Vec<DbSpeech>,
+    pub named_votes: Option<DbNamedVotes>,
     pub topics: Vec<Topic>,
 }
 
@@ -161,6 +164,7 @@ pub async fn get_latest_vote_results_sqlx(pg: &PgPool) -> sqlx::Result<Vec<VoteR
                     votes: get_votes_from_legis_init_sqlx(pg, legis_init.id).await?,
                     speeches: get_speeches_from_legis_init_sqlx(pg, legis_init.id).await?,
                     topics: get_eurovoc_topics_from_legis_init(pg, legis_init.id).await?,
+                    named_votes: get_named_votes_from_legis_init_sqlx(pg, legis_init.id, legis_init.voted_by_name).await?,
                     legislative_initiative: legis_init,
                 })
             })
@@ -187,6 +191,7 @@ pub async fn get_latest_vote_results_sqlx_per_page(
                 votes: get_votes_from_legis_init_sqlx(pg, legis_init.id).await?,
                 speeches: get_speeches_from_legis_init_sqlx(pg, legis_init.id).await?,
                 topics: get_eurovoc_topics_from_legis_init(pg, legis_init.id).await?,
+                named_votes: get_named_votes_from_legis_init_sqlx(pg, legis_init.id, legis_init.voted_by_name).await?,
                 legislative_initiative: legis_init,
             })
         })
@@ -238,6 +243,40 @@ pub async fn get_votes_from_legis_init_sqlx(
     )
     .fetch_all(con)
     .await
+}
+
+pub async fn get_named_votes_from_legis_init_sqlx(
+    con: &PgPool,
+    legis_init_id: i32,
+    is_named_vote: bool,
+) -> sqlx::Result<Option<DbNamedVotes>> {
+    if !is_named_vote {
+        return Ok(None);
+    }
+    let named_vote_info = sqlx::query_as!(
+        DbNamedVoteInfo,
+        "select * from named_vote_info where legis_init_id = $1",
+        legis_init_id
+    )
+    .fetch_optional(con)
+    .await?;
+
+    let Some(named_vote_info) = named_vote_info else {
+        return Ok(None);
+    };
+
+    let named_votes = sqlx::query_as!(
+        DbNamedVote,
+        "select * from named_votes where named_vote_info_id = $1",
+        named_vote_info.id
+    )
+    .fetch_all(con)
+    .await?;
+
+    Ok(Some(DbNamedVotes {
+        named_vote_info,
+        named_votes,
+    }))
 }
 
 // pub fn get_votes_from_legis_init(
