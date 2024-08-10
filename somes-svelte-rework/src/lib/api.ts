@@ -17,7 +17,7 @@ export async function fetchSavely<T>(fn: () => Promise<Response>): Promise<T | n
 	try {
 		let response = await fn();
 		const json = await response.json();
-		if ("error" in json) {
+		if ('error' in json) {
 			return null;
 		}
 		return json;
@@ -71,9 +71,11 @@ export async function all_gps(): Promise<LegisPeriod[] | null> {
 	);
 }
 
-export async function vote_results_per_page(page: number, filter: LegisInitFilter | null): Promise<VoteResultsWithMaxPage | null> {
+export async function vote_results_per_page(
+	page: number,
+	filter: LegisInitFilter | null
+): Promise<VoteResultsWithMaxPage | null> {
 	return fetchSavely(() =>
-		
 		fetch(`${address}/vote_results_per_page?page=${page}`, {
 			method: 'POST', // only post because js fetch..
 			headers: {

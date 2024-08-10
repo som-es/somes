@@ -9,7 +9,7 @@
 	}
 </script>
 
-<button title="{$$props.title}" class="button {$$props.class}" on:click={handleClick}>
+<button title={$$props.title} class="button {$$props.class}" on:click={handleClick}>
 	<slot />
 </button>
 

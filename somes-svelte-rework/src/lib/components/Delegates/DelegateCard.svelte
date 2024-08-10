@@ -5,13 +5,12 @@
 	export let delegate: Delegate;
 </script>
 
-<div
-	class="!z-0 card card-hover mx-4  drop-shadow-lg hover:cursor-pointer"
->
+<div class="!z-0 card card-hover mx-4 drop-shadow-lg hover:cursor-pointer">
 	<header class="flex justify-center">
 		<img
 			src={delegate.image_url}
-			class="" style="width: 200px;"
+			class=""
+			style="width: 200px;"
 			alt="Image of politician {delegate.name}"
 		/>
 	</header>
@@ -26,7 +25,7 @@
 				<span>{delegate.party}</span>
 			{/if}
 		</h5>
-		<h6>{delegate.divisions?.join(", ")}</h6>
+		<h6>{delegate.divisions?.join(', ')}</h6>
 	</section>
 	<hr class="!border-t-2 my-4" />
 	<footer class="card-footer flex justify-between items-center">

@@ -9,13 +9,11 @@
 	export let width = 830;
 	export let height = 900;
 
-	let clazz = "";
+	let clazz = '';
 	export { clazz as class };
 </script>
 
-<div
-	class="{clazz}"
->
+<div class={clazz}>
 	<svg viewBox="0 0 {width} {height * 0.5 + 60}" style="max-width: 100%;">
 		{#each circles2d.flat(1) as circle, i}
 			<circle
@@ -25,20 +23,25 @@
 				cy={circle.y}
 				r={circle.r}
 				role="button"
-				on:click={(event) => {if (preview) return; select(circle, event)}}
-				on:keypress={(event) => {if (preview) return; select(circle, event)}}
+				on:click={(event) => {
+					if (preview) return;
+					select(circle, event);
+				}}
+				on:keypress={(event) => {
+					if (preview) return;
+					select(circle, event);
+				}}
 				fill={circle.color}
 				fill-opacity={circle.opacity}
 				tabindex={100 + i}
 				stroke={circle == selected ? 'orange' : ''}
 				stroke-width={circle == selected ? '4' : ''}
 			>
-
-			{#if circle.title !== null}
-				<title>
-					{circle.title}	
-				</title>
-			{/if}
+				{#if circle.title !== null}
+					<title>
+						{circle.title}
+					</title>
+				{/if}
 			</circle>
 		{/each}
 	</svg>

@@ -11,7 +11,7 @@ export interface Delegate {
 	is_active: boolean | null;
 	birthdate: string;
 	active_since: Date;
-	divisions: string[] | null
+	divisions: string[] | null;
 }
 
 export interface LegislativeInitiative {
@@ -149,39 +149,39 @@ export interface InterestShare {
 
 export interface LegisPeriod {
 	gp: string;
-	start_date: Date
+	start_date: Date;
 }
 
 export interface LegisInitFilter {
-    is_named_vote: boolean | null;
-    accepted: string | null;
-    simple_majority: boolean | null;
-    legis_period: string | null;
+	is_named_vote: boolean | null;
+	accepted: string | null;
+	simple_majority: boolean | null;
+	legis_period: string | null;
 }
 
 export interface NamedVote {
-    id: number;
-    infavor: boolean | null;
-    was_absent: boolean | null;
-    lev: number;
-    similiarity_score: number;
-    searched_with: string | null;
-    matched_with: string;
-    delegate_id: number;
-    named_vote_info_id: number;
-    manually_matched: boolean | null;
+	id: number;
+	infavor: boolean | null;
+	was_absent: boolean | null;
+	lev: number;
+	similiarity_score: number;
+	searched_with: string | null;
+	matched_with: string;
+	delegate_id: number;
+	named_vote_info_id: number;
+	manually_matched: boolean | null;
 }
 
 export interface NamedVotes {
-    named_vote_info: NamedVoteInfo;
-    named_votes: NamedVote[];
+	named_vote_info: NamedVoteInfo;
+	named_votes: NamedVote[];
 }
 
 export interface NamedVoteInfo {
-    id: number;
-    legis_init_id: number;
-    pro_count: number;
-    contra_count: number;
-    given_vote_sum: number;
-    invalid_count: number;
+	id: number;
+	legis_init_id: number;
+	pro_count: number;
+	contra_count: number;
+	given_vote_sum: number;
+	invalid_count: number;
 }

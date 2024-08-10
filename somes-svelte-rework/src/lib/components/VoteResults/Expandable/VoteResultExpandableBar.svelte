@@ -11,7 +11,6 @@
 	export { clazz as class };
 	let open = false;
 	let duration = 0.35;
-
 </script>
 
 <div class="gap-3 mt-5">
@@ -23,7 +22,7 @@
 		class="entry bg-primary-300 dark:bg-primary-500 flex justify-between items-center"
 	>
 		<div>
-			<div id="{open ? "open" : "closed"}">
+			<div id={open ? 'open' : 'closed'}>
 				{@html rightArrowIcon}
 			</div>
 		</div>
@@ -34,8 +33,7 @@
 	</div>
 
 	<div use:collapse={{ open, duration }}>
-		<VoteResultExpanded voteResult={voteResult} dels={dels} />
-		
+		<VoteResultExpanded {voteResult} {dels} />
 	</div>
 </div>
 
@@ -50,15 +48,14 @@
 		display: grid;
 		grid-template-columns: 2fr 1fr;
 	} */
-	
-	#open :global(.right-arrow)  {
+
+	#open :global(.right-arrow) {
 		transform: rotate(90deg);
 		transition: transform 0.35s;
 	}
-	
-	#closed :global(.right-arrow)  {
+
+	#closed :global(.right-arrow) {
 		transform: rotate(0deg);
 		transition: transform 0.35s;
 	}
-	
 </style>

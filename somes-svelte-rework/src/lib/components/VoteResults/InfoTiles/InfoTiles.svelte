@@ -1,133 +1,120 @@
 <script lang="ts">
-	import SimpleDonut from "$lib/components/UI/SimpleDonut.svelte";
+	import SimpleDonut from '$lib/components/UI/SimpleDonut.svelte';
 	import crossmarkIcon from '$lib/assets/misc_icons/crossmark.svg?raw';
 	import checkmarkIcon from '$lib/assets/misc_icons/checkmark.svg?raw';
-	import type { ConicStop } from "@skeletonlabs/skeleton";
-	import { partyToColor } from "$lib/partyColor";
-	import type { VoteResult } from "$lib/types";
-	import Square from "$lib/components/UI/Square.svelte";
-	import { dashDateToDotDate } from "$lib/date";
+	import type { ConicStop } from '@skeletonlabs/skeleton';
+	import { partyToColor } from '$lib/partyColor';
+	import type { VoteResult } from '$lib/types';
+	import Square from '$lib/components/UI/Square.svelte';
+	import { dashDateToDotDate } from '$lib/date';
 
-    export let voteResult: VoteResult;
-    export let isCenter: boolean = false; 
+	export let voteResult: VoteResult;
+	export let isCenter: boolean = false;
 
-    const NOT_REACHED_COLOR = 'rgb(var(--color-primary-600))';
-    const REACHED_COLOR = 'rgb(var(--color-secondary-300))';
+	const NOT_REACHED_COLOR = 'rgb(var(--color-primary-600))';
+	const REACHED_COLOR = 'rgb(var(--color-secondary-300))';
 
-    const conicStopsSimpleMajority: ConicStop[] = [
-        { color: 'rgb(var(--color-secondary-400))', start: 0, end: 180 },
-        { color: NOT_REACHED_COLOR, start: 180, end: 360 },
-    ];
+	const conicStopsSimpleMajority: ConicStop[] = [
+		{ color: 'rgb(var(--color-secondary-400))', start: 0, end: 180 },
+		{ color: NOT_REACHED_COLOR, start: 180, end: 360 }
+	];
 
-    const conicStopsOtherMajority: ConicStop[] = [
-        { color: 'rgb(var(--color-secondary-400))', start: 0, end: 240 },
-        { color: NOT_REACHED_COLOR, start: 240, end: 360 },
-    ];
+	const conicStopsOtherMajority: ConicStop[] = [
+		{ color: 'rgb(var(--color-secondary-400))', start: 0, end: 240 },
+		{ color: NOT_REACHED_COLOR, start: 240, end: 360 }
+	];
 
-    function generateConicStopsForAchievedVotes(): ConicStop[] {
-        if (voteResult.named_votes !== null) {
-            let conicStops: ConicStop[] = [];
-            const voteInfo = voteResult.named_votes.named_vote_info;
-            const share = (voteInfo.pro_count / voteInfo.given_vote_sum) * 360;
-            conicStops.push({color: REACHED_COLOR, start: 0, end: share});
-            conicStops.push({color: NOT_REACHED_COLOR, start: share, end: 360 - share});
-            return conicStops;
-        }
-        voteResult.votes.sort((a, b) => b.fraction - a.fraction);
-        let fractionSum = 0;
-        voteResult.votes.forEach((vote) => {
-            fractionSum += vote.fraction;
-        });
-        let currentStart = 0;
+	function generateConicStopsForAchievedVotes(): ConicStop[] {
+		if (voteResult.named_votes !== null) {
+			let conicStops: ConicStop[] = [];
+			const voteInfo = voteResult.named_votes.named_vote_info;
+			const share = (voteInfo.pro_count / voteInfo.given_vote_sum) * 360;
+			conicStops.push({ color: REACHED_COLOR, start: 0, end: share });
+			conicStops.push({ color: NOT_REACHED_COLOR, start: share, end: 360 - share });
+			return conicStops;
+		}
+		voteResult.votes.sort((a, b) => b.fraction - a.fraction);
+		let fractionSum = 0;
+		voteResult.votes.forEach((vote) => {
+			fractionSum += vote.fraction;
+		});
+		let currentStart = 0;
 
-        let conicStops = [];
+		let conicStops = [];
 
-        for (let i = 0; i < voteResult.votes.length; i++) {
-            let vote = voteResult.votes[i];
-            if (!vote.infavor) {
-                continue
-            }
-            const share = (vote.fraction / fractionSum) * 360;
-            const prevStart = currentStart;
-            currentStart += share;
-            conicStops.push({color: partyToColor(vote.party), start: prevStart, end: currentStart});
-        }
+		for (let i = 0; i < voteResult.votes.length; i++) {
+			let vote = voteResult.votes[i];
+			if (!vote.infavor) {
+				continue;
+			}
+			const share = (vote.fraction / fractionSum) * 360;
+			const prevStart = currentStart;
+			currentStart += share;
+			conicStops.push({ color: partyToColor(vote.party), start: prevStart, end: currentStart });
+		}
 
-        if (conicStops.length != voteResult.votes.length) {
-            conicStops.push({color: NOT_REACHED_COLOR, start: currentStart, end: 360 - currentStart});
-        }
+		if (conicStops.length != voteResult.votes.length) {
+			conicStops.push({ color: NOT_REACHED_COLOR, start: currentStart, end: 360 - currentStart });
+		}
 
-        return conicStops;
-    }
-    const conicsStopsAchievedVotes = generateConicStopsForAchievedVotes();
-
+		return conicStops;
+	}
+	const conicsStopsAchievedVotes = generateConicStopsForAchievedVotes();
 </script>
 
-<div class="flex flex-wrap {isCenter ? "justify-center" : ""} info-item gap-3">
-    <Square class="accepted-item">
-        {#if voteResult.legislative_initiative.accepted == "a"}	
-            {@html checkmarkIcon}
-            <div>
-                Angenommen
-            </div>
-        {:else}
-            {@html crossmarkIcon}
-            <div>
-                Abgelehnt
-            </div>
-            {#if voteResult.legislative_initiative.accepted == "p"}
-                <div>
-                    (frühzeitig)
-                </div>
-            {/if}
-        {/if}
-    </Square>
-    <Square class="majority-item">
-        <SimpleDonut stops={voteResult.legislative_initiative.requires_simple_majority ? conicStopsSimpleMajority : conicStopsOtherMajority} />
-        <div>
-            Notwendige
-        </div>
-        <div>
-            Mehrheit
-        </div>
-    </Square>
-    <Square>
-        <SimpleDonut stops={conicsStopsAchievedVotes} />
-        <div>
-            Erreichte
-        </div>
-        <div>
-            Mehrheit
-        </div>
-        <!-- {voteResult.legislative_initiative.requires_simple_majority ? "1/2" : "2/3" } -->
-    </Square>
-    <Square>
-        <div class="font-bold text-lg">
-            {dashDateToDotDate(voteResult.legislative_initiative.created_at.toString())}
-        </div>
-        <div>
-            Abgestimmt am 
-        </div>
-    </Square>
+<div class="flex flex-wrap {isCenter ? 'justify-center' : ''} info-item gap-3">
+	<Square class="accepted-item">
+		{#if voteResult.legislative_initiative.accepted == 'a'}
+			{@html checkmarkIcon}
+			<div>Angenommen</div>
+		{:else}
+			{@html crossmarkIcon}
+			<div>Abgelehnt</div>
+			{#if voteResult.legislative_initiative.accepted == 'p'}
+				<div>(frühzeitig)</div>
+			{/if}
+		{/if}
+	</Square>
+	<Square class="majority-item">
+		<SimpleDonut
+			stops={voteResult.legislative_initiative.requires_simple_majority
+				? conicStopsSimpleMajority
+				: conicStopsOtherMajority}
+		/>
+		<div>Notwendige</div>
+		<div>Mehrheit</div>
+	</Square>
+	<Square>
+		<SimpleDonut stops={conicsStopsAchievedVotes} />
+		<div>Erreichte</div>
+		<div>Mehrheit</div>
+		<!-- {voteResult.legislative_initiative.requires_simple_majority ? "1/2" : "2/3" } -->
+	</Square>
+	<Square>
+		<div class="font-bold text-lg">
+			{dashDateToDotDate(voteResult.legislative_initiative.created_at.toString())}
+		</div>
+		<div>Abgestimmt am</div>
+	</Square>
 </div>
 
 <style>
 	.square {
 		aspect-ratio: 1/ 1;
-        min-width: 140px;
-        min-height: 140px;
-        max-height: 140px;
+		min-width: 140px;
+		min-height: 140px;
+		max-height: 140px;
 		/* padding: 5%; */
-        display: flex;
-        justify-content: center;
-        align-content: center;
-        border-radius: 1rem;
+		display: flex;
+		justify-content: center;
+		align-content: center;
+		border-radius: 1rem;
 	}
 
 	:global(.accepted-item) {
 		grid-area: a;
-    }
-    
+	}
+
 	.majority-item {
 		grid-area: m;
 	}
@@ -138,8 +125,8 @@
 
 	.info-item {
 		grid-area: i;
-        overflow: hidden;  /* NEW */
-        min-width: 0;      /* NEW; needed for Firefox */
+		overflow: hidden; /* NEW */
+		min-width: 0; /* NEW; needed for Firefox */
 	}
 
 	.details-item {
@@ -150,10 +137,9 @@
 		grid-column: 1fr;
 	}
 
-    /* @media not all and (min-width: 1254px) {
+	/* @media not all and (min-width: 1254px) {
         .responsive-accepted-hidden {
             display: none !important;
         }
     } */
-
 </style>

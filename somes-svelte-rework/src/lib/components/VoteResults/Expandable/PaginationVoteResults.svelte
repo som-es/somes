@@ -12,7 +12,7 @@
 	export let dels: Delegate[];
 
 	let voteResults: VoteResultsWithMaxPage | null = null;
-	let selectedPeriod = "all";
+	let selectedPeriod = 'all';
 
 	// get page number from query params
 	const url = new URL(window.location.href);
@@ -27,21 +27,27 @@
 	const loadVoteResults = async () => {
 		currentlyUpdating = true;
 		if (voteResults !== null) {
-			voteResults.vote_results = []
+			voteResults.vote_results = [];
 		}
 
 		let accepted = null;
 		switch (acceptedFilter) {
-			case "accepted": accepted = "a"; break;
-			case "declined": accepted = "d"; break;
-			case "invisibly": accepted = "p"; break;
+			case 'accepted':
+				accepted = 'a';
+				break;
+			case 'declined':
+				accepted = 'd';
+				break;
+			case 'invisibly':
+				accepted = 'p';
+				break;
 		}
-		
+
 		let filter: LegisInitFilter | null = {
 			is_named_vote: namedVoteFilter == undefined ? null : namedVoteFilter,
 			accepted,
 			simple_majority: simpleMajorityFilter == undefined ? null : simpleMajorityFilter,
-			legis_period: selectedPeriod == "all" ? null : selectedPeriod,
+			legis_period: selectedPeriod == 'all' ? null : selectedPeriod
 		};
 		// filter = null;
 		voteResults = await vote_results_per_page(page - 1, filter);
@@ -73,49 +79,64 @@
 	}
 </script>
 
-<br>
+<br />
 <SlideToggle name="slider-large" active="bg-secondary-400" size="md">
-	<span class="text-lg">
-		Test
-	</span>
+	<span class="text-lg"> Test </span>
 </SlideToggle>
 <div class="mt-5">
-	<h1 class="text-2xl font-bold">
-		notwendige Mehrheit
-	</h1>
-	<RadioGroup active="variant-filled-secondary" hover="hover:variant-soft-secondary">
-		<RadioItem bind:group={simpleMajorityFilter} name="simpleMajority" value={undefined}>egal</RadioItem>
-		<RadioItem bind:group={simpleMajorityFilter} name="simpleMajority" value={true}>einfache Mehrheit</RadioItem>
-		<RadioItem bind:group={simpleMajorityFilter} name="simpleMajority" value={false}>2/3 Mehrheit</RadioItem>
+	<h1 class="text-2xl font-bold">notwendige Mehrheit</h1>
+	<RadioGroup
+		rounded="rounded-container-token sm:!rounded-token"
+		active="variant-filled-secondary"
+		hover="hover:variant-soft-secondary"
+		flexDirection="flex-col sm:flex-row"
+	>
+		<RadioItem bind:group={simpleMajorityFilter} name="simpleMajority" value={undefined}
+			>egal</RadioItem
+		>
+		<RadioItem bind:group={simpleMajorityFilter} name="simpleMajority" value={true}
+			>einfache Mehrheit</RadioItem
+		>
+		<RadioItem bind:group={simpleMajorityFilter} name="simpleMajority" value={false}
+			>2/3 Mehrheit</RadioItem
+		>
 	</RadioGroup>
 </div>
 <div class="mt-5">
-	<h1 class="text-2xl font-bold">
-		Angenommen
-	</h1>
-	<RadioGroup active="variant-filled-secondary" hover="hover:variant-soft-secondary">
+	<h1 class="text-2xl font-bold">Angenommen</h1>
+	<RadioGroup
+		rounded="rounded-container-token sm:!rounded-token"
+		active="variant-filled-secondary"
+		hover="hover:variant-soft-secondary"
+		flexDirection="flex-col sm:flex-row"
+	>
 		<RadioItem bind:group={acceptedFilter} name="accepted" value={undefined}>egal</RadioItem>
-		<RadioItem bind:group={acceptedFilter} name="accepted" value={"accepted"}>angenommen</RadioItem>
-		<RadioItem bind:group={acceptedFilter} name="accepted" value={"declined"}>abgelehnt</RadioItem>
-		<RadioItem bind:group={acceptedFilter} name="accepted" value={"invisibly"} title="frühzeitig abgelehnt - vor der 3. Lesung">frühzeitig abgelehnt</RadioItem>
+		<RadioItem bind:group={acceptedFilter} name="accepted" value={'accepted'}>angenommen</RadioItem>
+		<RadioItem bind:group={acceptedFilter} name="accepted" value={'declined'}>abgelehnt</RadioItem>
+		<RadioItem
+			bind:group={acceptedFilter}
+			name="accepted"
+			value={'invisibly'}
+			title="frühzeitig abgelehnt - vor der 3. Lesung">frühzeitig abgelehnt</RadioItem
+		>
 	</RadioGroup>
 </div>
 <div class="mt-5">
-	<h1 class="text-2xl font-bold">
-		Abstimmung
-	</h1>
+	<h1 class="text-2xl font-bold">Abstimmung</h1>
 	<RadioGroup active="variant-filled-secondary" hover="hover:variant-soft-secondary">
 		<RadioItem bind:group={namedVoteFilter} name="namedVote" value={undefined}>egal</RadioItem>
-		<RadioItem bind:group={namedVoteFilter} name="namedVote" value={true}>namentliche Abstimmung</RadioItem>
+		<RadioItem bind:group={namedVoteFilter} name="namedVote" value={true}
+			>namentliche Abstimmung</RadioItem
+		>
 	</RadioGroup>
 </div>
 <div class="mt-5">
 	<h2 class="font-bold text-2xl">Legislaturperioden</h2>
-	<LegisButtons bind:selectedPeriod={selectedPeriod} />
+	<LegisButtons bind:selectedPeriod />
 </div>
 <div>
 	{#if voteResults}
-		<Pagination bind:page={page} maxPage={voteResults.max_page} />
+		<Pagination bind:page maxPage={voteResults.max_page} />
 		{#if voteResults.vote_results.length > 0}
 			{#each voteResults.vote_results as voteResult}
 				<VoteResultExpandableBar {dels} {voteResult} class="" />
@@ -126,7 +147,7 @@
 			Keine Abstimmungsergebnisse gefunden
 		{/if}
 		<div class="float-right">
-			<Pagination bind:page={page} maxPage={voteResults.max_page} />
+			<Pagination bind:page maxPage={voteResults.max_page} />
 		</div>
 	{:else}
 		<CenterPrograssRadial />

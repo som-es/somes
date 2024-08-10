@@ -79,7 +79,7 @@
 	}
 
 	$: if (delegate) {
-        // interests = null;
+		// interests = null;
 		delegate_interests(delegate.id).then((res) => {
 			if (res != null) res.sort((a, b) => b.self_share - a.self_share);
 			interests = res;
@@ -129,11 +129,10 @@
 				</div>
 				{#if interests}
 					<InterestTiles interests={interests.slice(0, 4)}></InterestTiles>
-					
-                {:else}
+				{:else}
 					<CenterPrograssRadial />
 				{/if}
-                <!-- <div class="activity-item bg-primary-300">
+				<!-- <div class="activity-item bg-primary-300">
                     Activity
                 </div> -->
 			</div>
@@ -142,13 +141,12 @@
 </div>
 
 <style>
-	
 	.grid-container {
 		box-sizing: border-box;
 		display: grid;
-        min-width: 0;
-        min-height: 0;
-		grid-template-columns: 3fr 1fr; 
+		min-width: 0;
+		min-height: 0;
+		grid-template-columns: 3fr 1fr;
 		grid-template-rows: 2fr auto;
 		grid-template-areas:
 			'p d'
@@ -163,26 +161,26 @@
 
 	:global(.parliament-item) {
 		grid-area: p;
-        /* overflow: hidden; */
-        /* min-width: 0; */
+		/* overflow: hidden; */
+		/* min-width: 0; */
 	}
 
 	.delegate-item {
 		grid-area: d;
-        /* overflow: hidden; */
-        /* min-width: 0; */
+		/* overflow: hidden; */
+		/* min-width: 0; */
 	}
-    
-    :global(.interests-item) {
+
+	:global(.interests-item) {
 		grid-area: i;
-        /* overflow: hidden; */
-        /* min-width: 0; */
+		/* overflow: hidden; */
+		/* min-width: 0; */
 	}
 
 	.activity-item {
 		grid-area: activity;
 	}
-   
+
 	.grid-tile-content {
 		display: flex;
 		justify-content: center;

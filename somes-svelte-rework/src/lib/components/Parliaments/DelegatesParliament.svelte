@@ -9,7 +9,7 @@
 	export let preview: boolean = false;
 	export let delegate: Delegate | null;
 
-	let clazz = "";
+	let clazz = '';
 	export { clazz as class };
 
 	const width = 830;

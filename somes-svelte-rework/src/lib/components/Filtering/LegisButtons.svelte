@@ -1,18 +1,18 @@
 <script lang="ts">
-	import { cachedAllLegisPeriods } from "$lib/caching/legis_periods";
-	import { legisDurationString } from "$lib/date";
-	import type { LegisPeriod } from "$lib/types";
-	import { onMount } from "svelte";
+	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
+	import { legisDurationString } from '$lib/date';
+	import type { LegisPeriod } from '$lib/types';
+	import { onMount } from 'svelte';
 
 	let periods: LegisPeriod[] = [];
-    onMount(async () => {
-        const fetchedPeriods = (await cachedAllLegisPeriods());
-        if (fetchedPeriods != undefined) {
-            periods = fetchedPeriods.reverse();
-        }
-    }); 
+	onMount(async () => {
+		const fetchedPeriods = await cachedAllLegisPeriods();
+		if (fetchedPeriods != undefined) {
+			periods = fetchedPeriods.reverse();
+		}
+	});
 
-	export let selectedPeriod = "all";
+	export let selectedPeriod = 'all';
 </script>
 
 <!-- (add: Sort asc and desc) -->
@@ -21,21 +21,21 @@
 		<button
 			class:bg-tertiary-500={period.gp == selectedPeriod}
 			on:click={() => (selectedPeriod = period.gp)}
-            title="{legisDurationString(period, periods[i+1])}"
+			title={legisDurationString(period, periods[i + 1])}
 			class="btn bg-primary-300"
 			style="margin: 3px;"
-        >
-            {period.gp}
-        </button>
+		>
+			{period.gp}
+		</button>
 	{/each}
 	<button
-		class:bg-tertiary-500={selectedPeriod == "all"}
-		on:click={() => (selectedPeriod = "all")}
+		class:bg-tertiary-500={selectedPeriod == 'all'}
+		on:click={() => (selectedPeriod = 'all')}
 		class="btn bg-primary-300"
 		style="margin: 3px;"
-    >
-        Alle
-    </button>
+	>
+		Alle
+	</button>
 </div>
 
 <style>
