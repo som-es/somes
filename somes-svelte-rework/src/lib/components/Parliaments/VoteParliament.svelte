@@ -86,6 +86,14 @@
 			circles2d[del.seat_row - 1][del.seat_col - 1].r = +9.9;
 		});
 	}
+
+	// for (let r = 0; r < circles2d.length; r++) {
+	// 	for (let c = 0; c < circles2d[r].length; c++) {
+	// 		if (circles2d[r][c].del == null) {
+	// 			circles2d[r][c].opacity = 0.0;
+	// 		}
+	// 	}
+	// }
 	
 
 	let currentLegisInit = "XXVII";

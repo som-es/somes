@@ -26,6 +26,7 @@ export interface LegislativeInitiative {
 	appeared_at: Date | null;
 	updated_at: Date | null;
 	requires_simple_majority: boolean | null;
+	voted_by_name: boolean | null;
 }
 
 export interface Vote {

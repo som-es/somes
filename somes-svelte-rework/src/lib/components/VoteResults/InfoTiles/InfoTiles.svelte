@@ -12,6 +12,7 @@
     export let isCenter: boolean = false; 
 
     const NOT_REACHED_COLOR = 'rgb(var(--color-primary-600))';
+    const REACHED_COLOR = 'rgb(var(--color-secondary-300))';
 
     const conicStopsSimpleMajority: ConicStop[] = [
         { color: 'rgb(var(--color-secondary-400))', start: 0, end: 180 },
@@ -24,6 +25,14 @@
     ];
 
     function generateConicStopsForAchievedVotes(): ConicStop[] {
+        if (voteResult.named_votes !== null) {
+            let conicStops: ConicStop[] = [];
+            const voteInfo = voteResult.named_votes.named_vote_info;
+            const share = (voteInfo.pro_count / voteInfo.given_vote_sum) * 360;
+            conicStops.push({color: REACHED_COLOR, start: 0, end: share});
+            conicStops.push({color: NOT_REACHED_COLOR, start: share, end: 360 - share});
+            return conicStops;
+        }
         voteResult.votes.sort((a, b) => b.fraction - a.fraction);
         let fractionSum = 0;
         voteResult.votes.forEach((vote) => {
@@ -35,7 +44,6 @@
 
         for (let i = 0; i < voteResult.votes.length; i++) {
             let vote = voteResult.votes[i];
-            console.log(vote);
             if (!vote.infavor) {
                 continue
             }
