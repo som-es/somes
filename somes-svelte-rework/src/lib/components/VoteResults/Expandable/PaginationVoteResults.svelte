@@ -68,7 +68,7 @@
 		old_page = page;
 	};
 
-	$: if (page || selectedPeriod || simpleMajorityFilter || acceptedFilter) {
+	$: if (page || selectedPeriod || simpleMajorityFilter || acceptedFilter || namedVoteFilter) {
 		update();
 	}
 </script>

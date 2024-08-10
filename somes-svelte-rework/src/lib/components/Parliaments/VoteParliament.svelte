@@ -77,9 +77,13 @@
 		voteResult.named_votes.named_votes.forEach((namedVote) => {
 			let del = findDelegateFromId(namedVote.delegate_id);
 			if (del == null || del.seat_col == null || del.seat_row == null) return;
+			if (namedVote.was_absent) {
+				circles2d[del.seat_row - 1][del.seat_col - 1].r = +5.9;
+				return
+			}
 
 			circles2d[del.seat_row - 1][del.seat_col - 1].opacity = namedVote.infavor ? 1.0 : 0.2;
-			circles2d[del.seat_row - 1][del.seat_col - 1].r = +10.9;
+			circles2d[del.seat_row - 1][del.seat_col - 1].r = +9.9;
 		});
 	}
 	
