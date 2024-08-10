@@ -152,6 +152,7 @@ export interface LegisPeriod {
 }
 
 export interface LegisInitFilter {
+    is_named_vote: boolean | null;
     accepted: string | null;
     simple_majority: boolean | null;
     legis_period: string | null;

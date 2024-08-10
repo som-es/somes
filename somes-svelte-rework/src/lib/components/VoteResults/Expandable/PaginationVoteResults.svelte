@@ -22,6 +22,7 @@
 
 	let simpleMajorityFilter: boolean | undefined = undefined;
 	let acceptedFilter: string | undefined = undefined;
+	let namedVoteFilter: boolean | undefined = undefined;
 
 	const loadVoteResults = async () => {
 		currentlyUpdating = true;
@@ -37,6 +38,7 @@
 		}
 		
 		let filter: LegisInitFilter | null = {
+			is_named_vote: namedVoteFilter == undefined ? null : namedVoteFilter,
 			accepted,
 			simple_majority: simpleMajorityFilter == undefined ? null : simpleMajorityFilter,
 			legis_period: selectedPeriod == "all" ? null : selectedPeriod,
@@ -96,6 +98,15 @@
 		<RadioItem bind:group={acceptedFilter} name="accepted" value={"accepted"}>angenommen</RadioItem>
 		<RadioItem bind:group={acceptedFilter} name="accepted" value={"declined"}>abgelehnt</RadioItem>
 		<RadioItem bind:group={acceptedFilter} name="accepted" value={"invisibly"} title="frühzeitig abgelehnt - vor der 3. Lesung">frühzeitig abgelehnt</RadioItem>
+	</RadioGroup>
+</div>
+<div class="mt-5">
+	<h1 class="text-2xl font-bold">
+		Abstimmung
+	</h1>
+	<RadioGroup active="variant-filled-secondary" hover="hover:variant-soft-secondary">
+		<RadioItem bind:group={namedVoteFilter} name="namedVote" value={undefined}>egal</RadioItem>
+		<RadioItem bind:group={namedVoteFilter} name="namedVote" value={true}>namentliche Abstimmung</RadioItem>
 	</RadioGroup>
 </div>
 <div class="mt-5">

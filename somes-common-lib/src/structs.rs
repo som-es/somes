@@ -112,6 +112,7 @@ pub struct Page {
 #[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
 pub struct LegisInitFilter {
     pub accepted: Option<String>,
+    pub is_named_vote: Option<bool>,
     pub simple_majority: Option<bool>,
     pub legis_period: Option<String>,
 }
