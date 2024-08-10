@@ -7,6 +7,7 @@ export interface Bubble {
 	del: Delegate | null;
 	color: string | null;
 	opacity: number;
+	title: string | null;
 }
 
 export function generateHalfCircle(n: number, r: number, w: number, h: number) {
@@ -44,6 +45,7 @@ export function setDelOnBubble(
 		return;
 	}
 	circles2d[del.seat_row - 1][del.seat_col - 1].del = del;
+	circles2d[del.seat_row - 1][del.seat_col - 1].title = del.name;
 	// circles2d[del.seat_row-1][del.seat_col-1].color = partyToColor(del.party);
 	circles2d[del.seat_row - 1][del.seat_col - 1].color = fn(del.party);
 }
@@ -69,7 +71,8 @@ export function setupParliament(
 					y: circle.y,
 					del: null,
 					color: 'rgb(196, 180, 189)',
-					opacity: 0.0
+					opacity: 0.0,
+					title: null
 				};
 			})
 		);

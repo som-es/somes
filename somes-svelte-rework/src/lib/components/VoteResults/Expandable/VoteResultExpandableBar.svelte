@@ -27,7 +27,7 @@
 				{@html rightArrowIcon}
 			</div>
 		</div>
-		<div>{voteResult.legislative_initiative.title}</div>
+		<div>{voteResult.legislative_initiative.description}</div>
 		<div class="w-20 bg-primary-100 dark:bg-primary-300 rounded-md">
 			<VoteParliament {dels} {voteResult} preview={true} />
 		</div>
