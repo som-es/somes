@@ -7,6 +7,7 @@ use crate::{DataserviceDbConnection, PgPoolConnection, LEGIS_INITS_PER_PAGE};
 pub use error::*;
 mod db;
 mod error;
+pub mod filtering;
 pub use db::*;
 
 // #[utoipa::path(
