@@ -25,10 +25,6 @@
 		{ color: NOT_REACHED_COLOR, start: 240, end: 360 }
 	];
     
-    function findDelegateById(id: number): Delegate | undefined {
-		return dels.find((del) => del.id === id);
-	}
-
     function generateConicStopsWithVoteForAchiedVotesWithVoteSum(votes: Vote[], voteSum: number): ConicStop[] {
         votes.sort((a, b) => b.fraction - a.fraction);
 		let currentStart = 0;
@@ -46,7 +42,7 @@
 			conicStops.push({ color: partyToColor(vote.party), start: prevStart, end: currentStart });
 		}
 
-		if (conicStops.length != votes.length) {
+		if (currentStart < 360) {
 			conicStops.push({ color: NOT_REACHED_COLOR, start: currentStart, end: 360 - currentStart });
 		}
 
@@ -54,47 +50,16 @@
     }
 
 	function generateConicStopsForAchievedVotes(): ConicStop[] {
-		if (voteResult.named_votes !== null) {
-			const voteInfo = voteResult.named_votes.named_vote_info;
-            const partyYesCount = new Map<string, number>();
-            voteResult.named_votes.named_votes.forEach((namedVote) => {
-                const delegate = findDelegateById(namedVote.delegate_id);
-                if (delegate != null && namedVote.infavor) {
-                    partyYesCount.set(delegate.party, (partyYesCount.get(delegate.party) ?? 0) +1);
-                }
+		let voteSum = 0;
+        if (voteResult.named_votes !== null) {
+            voteSum = voteResult.named_votes.named_vote_info.given_vote_sum;
+        } else {
+            voteResult.votes.forEach((vote) => {
+                voteSum += vote.fraction;
             });
-            const votes = [...partyYesCount.entries()];
-            votes.sort((a, b) => b[1] - a[1]);
-			
-            let conicStops: ConicStop[] = [];
-            
-		    let currentStart = 0;
+        }
 
-            votes.forEach(vote => {
-			    const share = (vote[1] / voteInfo.given_vote_sum) * 360;
-			    conicStops.push({ color: partyToColor(vote[0]), start: currentStart, end: currentStart + share });
-                currentStart += share;
-                
-            })
-    
-    
-            if (currentStart < 360) {
-			    conicStops.push({ color: NOT_REACHED_COLOR, start: currentStart, end: 360 - currentStart });
-		    }
-
-            // simpler method:
-			// const voteInfo = voteResult.named_votes.named_vote_info;
-			// const share = (voteInfo.pro_count / voteInfo.given_vote_sum) * 360;
-			// conicStops.push({ color: REACHED_COLOR, start: 0, end: share });
-			// conicStops.push({ color: NOT_REACHED_COLOR, start: share, end: 360 - share });
-			return conicStops;
-		}
-		let fractionSum = 0;
-		voteResult.votes.forEach((vote) => {
-			fractionSum += vote.fraction;
-		});
-
-        return generateConicStopsWithVoteForAchiedVotesWithVoteSum(voteResult.votes.slice(), fractionSum)
+        return generateConicStopsWithVoteForAchiedVotesWithVoteSum(voteResult.votes.slice(), voteSum)
 		
 	}
 	const conicsStopsAchievedVotes = generateConicStopsForAchievedVotes();
