@@ -46,7 +46,7 @@ async fn filtered_legislative_initiatives(
         query.push_str(&format!(" AND gp = ${}", param_index));
         param_index += 1;
     }
-    
+
     if filter.is_named_vote.is_some() {
         query.push_str(&format!(" AND voted_by_name = ${}", param_index));
         param_index += 1;
@@ -163,20 +163,46 @@ pub struct VoteResultsWithMaxPage {
     pub max_page: i64,
 }
 
+pub async fn construct_vote_result(
+    pg: &PgPool,
+    legis_init: DbLegislativeInitiativeQuery,
+) -> sqlx::Result<VoteResult> {
+    let named_votes =
+        get_named_votes_from_legis_init_sqlx(pg, legis_init.id, legis_init.voted_by_name).await?;
+    let votes = if named_votes.is_some() {
+        dataservice::with_data::named_votes::named_vote_pro_count_by_party(
+            pg,
+            legis_init.id,
+            legis_init.created_at,
+        )
+        .await?
+        .into_iter()
+        .map(|vote| DbVote {
+            party: vote.party.unwrap(),
+            fraction: vote.pro_count.unwrap() as i32,
+            infavor: true,
+            legislative_initiatives_id: legis_init.id,
+        })
+        .collect()
+    } else {
+        get_votes_from_legis_init_sqlx(pg, legis_init.id).await?
+    };
+
+    Ok(VoteResult {
+        votes,
+        named_votes,
+        speeches: get_speeches_from_legis_init_sqlx(pg, legis_init.id).await?,
+        topics: get_eurovoc_topics_from_legis_init(pg, legis_init.id).await?,
+        legislative_initiative: legis_init,
+    })
+}
+
 pub async fn get_latest_vote_results_sqlx(pg: &PgPool) -> sqlx::Result<Vec<VoteResult>> {
     futures::future::join_all(
         get_latest_legislative_initiatives_sqlx(pg)
             .await?
             .into_iter()
-            .map(|legis_init| async {
-                Ok(VoteResult {
-                    votes: get_votes_from_legis_init_sqlx(pg, legis_init.id).await?,
-                    speeches: get_speeches_from_legis_init_sqlx(pg, legis_init.id).await?,
-                    topics: get_eurovoc_topics_from_legis_init(pg, legis_init.id).await?,
-                    named_votes: get_named_votes_from_legis_init_sqlx(pg, legis_init.id, legis_init.voted_by_name).await?,
-                    legislative_initiative: legis_init,
-                })
-            })
+            .map(|legis_init| construct_vote_result(pg, legis_init))
             .collect::<Vec<_>>(),
     )
     .await
@@ -195,29 +221,7 @@ pub async fn get_latest_vote_results_sqlx_per_page(
 
     let entries = entries
         .into_iter()
-        .map(|legis_init| async {
-            let named_votes = get_named_votes_from_legis_init_sqlx(pg, legis_init.id, legis_init.voted_by_name).await?;
-            let votes = if named_votes.is_some() {
-                dataservice::with_data::named_votes::named_vote_pro_count_by_party(pg, legis_init.id, legis_init.created_at).await?
-                    .into_iter()
-                    .map(|vote| DbVote {
-                        party: vote.party.unwrap(),
-                        fraction: vote.pro_count.unwrap() as i32,
-                        infavor: true,
-                        legislative_initiatives_id: legis_init.id,
-                    }).collect()
-            } else {
-                get_votes_from_legis_init_sqlx(pg, legis_init.id).await?
-            };
-            
-            Ok(VoteResult {
-                votes,
-                named_votes,
-                speeches: get_speeches_from_legis_init_sqlx(pg, legis_init.id).await?,
-                topics: get_eurovoc_topics_from_legis_init(pg, legis_init.id).await?,
-                legislative_initiative: legis_init,
-            })
-        })
+        .map(|legis_init| construct_vote_result(pg, legis_init))
         .collect::<Vec<_>>();
 
     futures::future::join_all(entries)
