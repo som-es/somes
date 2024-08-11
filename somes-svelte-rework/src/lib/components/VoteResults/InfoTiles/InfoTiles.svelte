@@ -24,9 +24,12 @@
 		{ color: 'rgb(var(--color-secondary-400))', start: 0, end: 240 },
 		{ color: NOT_REACHED_COLOR, start: 240, end: 360 }
 	];
-    
-    function generateConicStopsWithVoteForAchiedVotesWithVoteSum(votes: Vote[], voteSum: number): ConicStop[] {
-        votes.sort((a, b) => b.fraction - a.fraction);
+
+	function generateConicStopsWithVoteForAchiedVotesWithVoteSum(
+		votes: Vote[],
+		voteSum: number
+	): ConicStop[] {
+		votes.sort((a, b) => b.fraction - a.fraction);
 		let currentStart = 0;
 
 		let conicStops = [];
@@ -47,20 +50,31 @@
 		}
 
 		return conicStops;
-    }
+	}
 
 	function generateConicStopsForAchievedVotes(): ConicStop[] {
 		let voteSum = 0;
-        if (voteResult.named_votes !== null) {
-            voteSum = voteResult.named_votes.named_vote_info.given_vote_sum;
-        } else {
-            voteResult.votes.forEach((vote) => {
-                voteSum += vote.fraction;
-            });
-        }
+		let votes = voteResult.votes.slice();
+		if (voteResult.named_votes !== null) {
+			voteSum = voteResult.named_votes.named_vote_info.given_vote_sum;
+			// page extraction approach is currently not implemented, thats why many do not contain the pro-contra information
+			if (voteResult.named_votes.named_votes.length == 0) {
+				votes = [
+					{
+						party: '',
+						fraction: voteResult.named_votes.named_vote_info.pro_count,
+						infavor: true,
+						legislative_initiatives_id: 0
+					}
+				];
+			}
+		} else {
+			voteResult.votes.forEach((vote) => {
+				voteSum += vote.fraction;
+			});
+		}
 
-        return generateConicStopsWithVoteForAchiedVotesWithVoteSum(voteResult.votes.slice(), voteSum)
-		
+		return generateConicStopsWithVoteForAchiedVotesWithVoteSum(votes, voteSum);
 	}
 	const conicsStopsAchievedVotes = generateConicStopsForAchievedVotes();
 </script>

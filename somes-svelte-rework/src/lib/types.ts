@@ -33,7 +33,7 @@ export interface Vote {
 	party: string;
 	fraction: number;
 	infavor: boolean;
-	legislative_initiatives_id: string;
+	legislative_initiatives_id: number;
 }
 
 export interface Speech {

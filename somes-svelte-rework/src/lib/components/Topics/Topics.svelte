@@ -7,6 +7,10 @@
 
 <div class="flex flex-wrap gap-2">
 	{#each topics as topic}
-		<DisplayTopic>{topic.topic}</DisplayTopic>
+		{#if topic.topic == 'namentliche Abstimmung'}
+			<DisplayTopic class={'!bg-secondary-400'}>{topic.topic}</DisplayTopic>
+		{:else}
+			<DisplayTopic>{topic.topic}</DisplayTopic>
+		{/if}
 	{/each}
 </div>
