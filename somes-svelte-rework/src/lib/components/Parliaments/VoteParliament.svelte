@@ -21,7 +21,7 @@
 		return voteResult.votes.find((vote) => vote.party === party)?.infavor ?? false;
 	}
 
-	function findDelegateFromId(id: number): Delegate | undefined {
+	function findDelegateById(id: number): Delegate | undefined {
 		return dels.find((del) => del.id === id);
 	}
 
@@ -66,7 +66,7 @@
 	});
 
 	voteResult.speeches.forEach((speech) => {
-		let del = findDelegateFromId(speech.delegate_id);
+		let del = findDelegateById(speech.delegate_id);
 		if (del == null || del.seat_col == null || del.seat_row == null) return;
 
 		circles2d[del.seat_row - 1][del.seat_col - 1].title = speech.infavor
@@ -78,7 +78,7 @@
 
 	if (voteResult.named_votes) {
 		voteResult.named_votes.named_votes.forEach((namedVote) => {
-			let del = findDelegateFromId(namedVote.delegate_id);
+			let del = findDelegateById(namedVote.delegate_id);
 			if (del == null || del.seat_col == null || del.seat_row == null) return;
 			if (namedVote.was_absent) {
 				circles2d[del.seat_row - 1][del.seat_col - 1].r = +5.9;

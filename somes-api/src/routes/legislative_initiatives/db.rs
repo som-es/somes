@@ -196,11 +196,25 @@ pub async fn get_latest_vote_results_sqlx_per_page(
     let entries = entries
         .into_iter()
         .map(|legis_init| async {
+            let named_votes = get_named_votes_from_legis_init_sqlx(pg, legis_init.id, legis_init.voted_by_name).await?;
+            let votes = if named_votes.is_some() {
+                dataservice::with_data::named_votes::named_vote_pro_count_by_party(pg, legis_init.id, legis_init.created_at).await?
+                    .into_iter()
+                    .map(|vote| DbVote {
+                        party: vote.party.unwrap(),
+                        fraction: vote.pro_count.unwrap() as i32,
+                        infavor: true,
+                        legislative_initiatives_id: legis_init.id,
+                    }).collect()
+            } else {
+                get_votes_from_legis_init_sqlx(pg, legis_init.id).await?
+            };
+            
             Ok(VoteResult {
-                votes: get_votes_from_legis_init_sqlx(pg, legis_init.id).await?,
+                votes,
+                named_votes,
                 speeches: get_speeches_from_legis_init_sqlx(pg, legis_init.id).await?,
                 topics: get_eurovoc_topics_from_legis_init(pg, legis_init.id).await?,
-                named_votes: get_named_votes_from_legis_init_sqlx(pg, legis_init.id, legis_init.voted_by_name).await?,
                 legislative_initiative: legis_init,
             })
         })

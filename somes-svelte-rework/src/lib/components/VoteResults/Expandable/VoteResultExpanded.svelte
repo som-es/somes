@@ -28,7 +28,7 @@
 		<VoteParliament {dels} {voteResult} preview={true} />
 	</div>
 
-	<InfoTiles {voteResult} isCenter />
+	<InfoTiles {voteResult} {dels} isCenter />
 
 	<div class="flex justify-between mt-3">
 		<div></div>
@@ -54,7 +54,7 @@
 	<div class="rounded-md min-w-full max-w-full ml-auto parliament-item bg-primary-100">
 		<VoteParliament {dels} {voteResult} preview={true} />
 	</div>
-	<InfoTiles {voteResult} />
+	<InfoTiles {voteResult} {dels} />
 	<div class="ml-auto details-item mt-auto">
 		<SButton class="bg-tertiary-500">Details anzeigen</SButton>
 	</div>

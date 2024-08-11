@@ -4,11 +4,12 @@
 	import checkmarkIcon from '$lib/assets/misc_icons/checkmark.svg?raw';
 	import type { ConicStop } from '@skeletonlabs/skeleton';
 	import { partyToColor } from '$lib/partyColor';
-	import type { VoteResult } from '$lib/types';
+	import type { Delegate, Vote, VoteResult } from '$lib/types';
 	import Square from '$lib/components/UI/Square.svelte';
 	import { dashDateToDotDate } from '$lib/date';
 
 	export let voteResult: VoteResult;
+	export let dels: Delegate[];
 	export let isCenter: boolean = false;
 
 	const NOT_REACHED_COLOR = 'rgb(var(--color-primary-600))';
@@ -23,41 +24,78 @@
 		{ color: 'rgb(var(--color-secondary-400))', start: 0, end: 240 },
 		{ color: NOT_REACHED_COLOR, start: 240, end: 360 }
 	];
+    
+    function findDelegateById(id: number): Delegate | undefined {
+		return dels.find((del) => del.id === id);
+	}
 
-	function generateConicStopsForAchievedVotes(): ConicStop[] {
-		if (voteResult.named_votes !== null) {
-			let conicStops: ConicStop[] = [];
-			const voteInfo = voteResult.named_votes.named_vote_info;
-			const share = (voteInfo.pro_count / voteInfo.given_vote_sum) * 360;
-			conicStops.push({ color: REACHED_COLOR, start: 0, end: share });
-			conicStops.push({ color: NOT_REACHED_COLOR, start: share, end: 360 - share });
-			return conicStops;
-		}
-		voteResult.votes.sort((a, b) => b.fraction - a.fraction);
-		let fractionSum = 0;
-		voteResult.votes.forEach((vote) => {
-			fractionSum += vote.fraction;
-		});
+    function generateConicStopsWithVoteForAchiedVotesWithVoteSum(votes: Vote[], voteSum: number): ConicStop[] {
+        votes.sort((a, b) => b.fraction - a.fraction);
 		let currentStart = 0;
 
 		let conicStops = [];
 
-		for (let i = 0; i < voteResult.votes.length; i++) {
-			let vote = voteResult.votes[i];
+		for (let i = 0; i < votes.length; i++) {
+			let vote = votes[i];
 			if (!vote.infavor) {
 				continue;
 			}
-			const share = (vote.fraction / fractionSum) * 360;
+			const share = (vote.fraction / voteSum) * 360;
 			const prevStart = currentStart;
 			currentStart += share;
 			conicStops.push({ color: partyToColor(vote.party), start: prevStart, end: currentStart });
 		}
 
-		if (conicStops.length != voteResult.votes.length) {
+		if (conicStops.length != votes.length) {
 			conicStops.push({ color: NOT_REACHED_COLOR, start: currentStart, end: 360 - currentStart });
 		}
 
 		return conicStops;
+    }
+
+	function generateConicStopsForAchievedVotes(): ConicStop[] {
+		if (voteResult.named_votes !== null) {
+			const voteInfo = voteResult.named_votes.named_vote_info;
+            const partyYesCount = new Map<string, number>();
+            voteResult.named_votes.named_votes.forEach((namedVote) => {
+                const delegate = findDelegateById(namedVote.delegate_id);
+                if (delegate != null && namedVote.infavor) {
+                    partyYesCount.set(delegate.party, (partyYesCount.get(delegate.party) ?? 0) +1);
+                }
+            });
+            const votes = [...partyYesCount.entries()];
+            votes.sort((a, b) => b[1] - a[1]);
+			
+            let conicStops: ConicStop[] = [];
+            
+		    let currentStart = 0;
+
+            votes.forEach(vote => {
+			    const share = (vote[1] / voteInfo.given_vote_sum) * 360;
+			    conicStops.push({ color: partyToColor(vote[0]), start: currentStart, end: currentStart + share });
+                currentStart += share;
+                
+            })
+    
+    
+            if (currentStart < 360) {
+			    conicStops.push({ color: NOT_REACHED_COLOR, start: currentStart, end: 360 - currentStart });
+		    }
+
+            // simpler method:
+			// const voteInfo = voteResult.named_votes.named_vote_info;
+			// const share = (voteInfo.pro_count / voteInfo.given_vote_sum) * 360;
+			// conicStops.push({ color: REACHED_COLOR, start: 0, end: share });
+			// conicStops.push({ color: NOT_REACHED_COLOR, start: share, end: 360 - share });
+			return conicStops;
+		}
+		let fractionSum = 0;
+		voteResult.votes.forEach((vote) => {
+			fractionSum += vote.fraction;
+		});
+
+        return generateConicStopsWithVoteForAchiedVotesWithVoteSum(voteResult.votes.slice(), fractionSum)
+		
 	}
 	const conicsStopsAchievedVotes = generateConicStopsForAchievedVotes();
 </script>
