@@ -7,19 +7,28 @@ use somes_common_lib::LegisInitFilter;
 use sqlx::PgPool;
 use utoipa::ToSchema;
 
+#[derive(ToSchema, Debug, Deserialize, Serialize)]
+pub struct Topic {
+    pub topic: String,
+}
+
+#[derive(ToSchema, Debug, Deserialize, Serialize)]
+pub struct VoteResult {
+    pub legislative_initiative: DbLegislativeInitiativeQuery,
+    pub votes: Vec<DbVote>,
+    pub speeches: Vec<DbSpeech>,
+    pub named_votes: Option<DbNamedVotes>,
+    pub topics: Vec<Topic>,
+}
+
+#[derive(ToSchema, Debug, Deserialize, Serialize)]
+pub struct VoteResultsWithMaxPage {
+    pub vote_results: Vec<VoteResult>,
+    pub entry_count: i64,
+    pub max_page: i64,
+}
 
 use super::filtering::filtered_legislative_initiatives;
-
-// pub fn get_legislative_initiatives(
-//     con: &mut PgConnection,
-//     filter: DateRange,
-// ) -> QueryResult<Vec<DbLegislativeInitiativeQuery>> {
-//     legislative_initiatives
-//         .filter(created_at.gt(filter.start))
-//         .filter(created_at.lt(filter.end))
-//         .filter(accepted.is_not_null())
-//         .load::<DbLegislativeInitiativeQuery>(con)
-// }
 
 pub async fn get_latest_legis_inits_per_page(
     pg: &PgPool,
@@ -61,39 +70,6 @@ pub async fn get_latest_legislative_initiatives_sqlx(
     .fetch_all(pg)
     .await?;
     Ok(res)
-}
-
-// pub fn get_latest_legislative_initiatives(
-//     con: &mut PgConnection,
-// ) -> QueryResult<Vec<DbLegislativeInitiativeQuery>> {
-//     legislative_initiatives
-//         // make the date range configurable as user !
-//         .filter(created_at.gt(today() - chrono::Duration::days(90)))
-//         .filter(created_at.lt(today()))
-//         .filter(accepted.is_not_null())
-//         .order(created_at.desc())
-//         .load::<DbLegislativeInitiativeQuery>(con)
-// }
-
-#[derive(ToSchema, Debug, Deserialize, Serialize)]
-pub struct Topic {
-    pub topic: String,
-}
-
-#[derive(ToSchema, Debug, Deserialize, Serialize)]
-pub struct VoteResult {
-    pub legislative_initiative: DbLegislativeInitiativeQuery,
-    pub votes: Vec<DbVote>,
-    pub speeches: Vec<DbSpeech>,
-    pub named_votes: Option<DbNamedVotes>,
-    pub topics: Vec<Topic>,
-}
-
-#[derive(ToSchema, Debug, Deserialize, Serialize)]
-pub struct VoteResultsWithMaxPage {
-    pub vote_results: Vec<VoteResult>,
-    pub entry_count: i64,
-    pub max_page: i64,
 }
 
 pub async fn construct_vote_result(
@@ -164,21 +140,6 @@ pub async fn get_latest_vote_results_sqlx_per_page(
         .map(|x| (x, entry_count))
 }
 
-pub fn get_latest_vote_results(con: &mut PgConnection) -> QueryResult<Vec<VoteResult>> {
-    todo!()
-    // get_latest_legislative_initiatives(con)?
-    //     .into_iter()
-    //     .map(|legis_init| {
-    //         Ok(VoteResult {
-    //             votes: get_votes_from_legis_init(con, legis_init.id)?,
-    //             speeches: get_speeches_from_legis_init(con, legis_init.id)?,
-    //             topics: vec![],
-    //             legislative_initiative: legis_init,
-    //         })
-    //     })
-    //     .collect::<QueryResult<Vec<VoteResult>>>()
-}
-
 pub async fn get_eurovoc_topics_from_legis_init(
     con: &PgPool,
     legis_init_id: i32,
@@ -238,15 +199,6 @@ pub async fn get_named_votes_from_legis_init_sqlx(
         named_votes,
     }))
 }
-
-// pub fn get_votes_from_legis_init(
-//     con: &mut PgConnection,
-//     legis_init_id: i32,
-// ) -> QueryResult<Vec<DbVote>> {
-//     votes
-//         .filter(legislative_initiatives_id.eq(legis_init_id))
-//         .load::<DbVote>(con)
-// }
 
 pub async fn get_speeches_from_legis_init_sqlx(
     con: &PgPool,

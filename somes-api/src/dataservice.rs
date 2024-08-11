@@ -304,7 +304,7 @@ mod tests {
             dataservice_con, get_call_to_orders_per_party_delegates,
             get_delegates_by_call_to_orders, get_speakers_by_hours_by_legis_period,
         },
-        routes::{get_latest_vote_results, LegisPeriod},
+        routes::LegisPeriod,
         today,
     };
 
