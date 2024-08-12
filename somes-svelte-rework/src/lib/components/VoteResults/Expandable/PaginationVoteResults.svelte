@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Delegate, LegisInitFilter, VoteResult, VoteResultsWithMaxPage } from '$lib/types';
+	import type { Delegate, VoteResultFilter, VoteResult, VoteResultsWithMaxPage } from '$lib/types';
 	import { onMount } from 'svelte';
 	import { vote_results_per_page } from '$lib/api';
 	import VoteResultExpandableBar from './VoteResultExpandableBar.svelte';
@@ -8,11 +8,12 @@
 	import { RadioGroup, RadioItem, SlideToggle } from '@skeletonlabs/skeleton';
 	import LegisButtons from '$lib/components/Filtering/LegisButtons.svelte';
 	import CenterPrograssRadial from '$lib/components/ProgressInfos/CenterPrograssRadial.svelte';
+	import { currentVoteResultFilterStore } from '$lib/stores/stores';
+	import { get } from 'svelte/store';
 
 	export let dels: Delegate[];
 
 	let voteResults: VoteResultsWithMaxPage | null = null;
-	let selectedPeriod = 'all';
 
 	// get page number from query params
 	const url = new URL(window.location.href);
@@ -20,9 +21,18 @@
 
 	let currentlyUpdating = false;
 
+	let selectedPeriod = 'all';
 	let simpleMajorityFilter: boolean | undefined = undefined;
 	let acceptedFilter: string | undefined = undefined;
 	let namedVoteFilter: boolean | undefined = undefined;
+
+	const maybeStoredFilter = get(currentVoteResultFilterStore);
+	if (maybeStoredFilter !== null) {
+		if (maybeStoredFilter.simple_majority) simpleMajorityFilter = maybeStoredFilter.simple_majority;
+		if (maybeStoredFilter.legis_period) selectedPeriod = maybeStoredFilter.legis_period;
+		if (maybeStoredFilter.accepted) acceptedFilter = maybeStoredFilter.accepted;
+		if (maybeStoredFilter.is_named_vote) namedVoteFilter = maybeStoredFilter.is_named_vote;
+	}
 
 	const loadVoteResults = async () => {
 		currentlyUpdating = true;
@@ -30,25 +40,26 @@
 			voteResults.vote_results = [];
 		}
 
-		let accepted = null;
-		switch (acceptedFilter) {
-			case 'accepted':
-				accepted = 'a';
-				break;
-			case 'declined':
-				accepted = 'd';
-				break;
-			case 'invisibly':
-				accepted = 'p';
-				break;
-		}
+		let accepted = acceptedFilter == null ? null : acceptedFilter;
+		// switch (acceptedFilter) {
+		// 	case 'a':
+		// 		accepted = 'a';
+		// 		break;
+		// 	case 'declined':
+		// 		accepted = 'd';
+		// 		break;
+		// 	case 'invisibly':
+		// 		accepted = 'p';
+		// 		break;
+		// }
 
-		let filter: LegisInitFilter | null = {
+		let filter: VoteResultFilter | null = {
 			is_named_vote: namedVoteFilter == undefined ? null : namedVoteFilter,
 			accepted,
 			simple_majority: simpleMajorityFilter == undefined ? null : simpleMajorityFilter,
 			legis_period: selectedPeriod == 'all' ? null : selectedPeriod
 		};
+		currentVoteResultFilterStore.set(filter);
 		// filter = null;
 		voteResults = await vote_results_per_page(page - 1, filter);
 		currentlyUpdating = false;
@@ -111,12 +122,12 @@
 		flexDirection="flex-col sm:flex-row"
 	>
 		<RadioItem bind:group={acceptedFilter} name="accepted" value={undefined}>egal</RadioItem>
-		<RadioItem bind:group={acceptedFilter} name="accepted" value={'accepted'}>angenommen</RadioItem>
-		<RadioItem bind:group={acceptedFilter} name="accepted" value={'declined'}>abgelehnt</RadioItem>
+		<RadioItem bind:group={acceptedFilter} name="accepted" value={'a'}>angenommen</RadioItem>
+		<RadioItem bind:group={acceptedFilter} name="accepted" value={'d'}>abgelehnt</RadioItem>
 		<RadioItem
 			bind:group={acceptedFilter}
 			name="accepted"
-			value={'invisibly'}
+			value={'p'}
 			title="frühzeitig abgelehnt - vor der 3. Lesung">frühzeitig abgelehnt</RadioItem
 		>
 	</RadioGroup>

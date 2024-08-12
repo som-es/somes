@@ -152,7 +152,7 @@ export interface LegisPeriod {
 	start_date: Date;
 }
 
-export interface LegisInitFilter {
+export interface VoteResultFilter {
 	is_named_vote: boolean | null;
 	accepted: string | null;
 	simple_majority: boolean | null;

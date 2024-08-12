@@ -2,7 +2,7 @@ import type {
 	Delegate,
 	HasError,
 	InterestShare,
-	LegisInitFilter,
+	VoteResultFilter,
 	LegisPeriod,
 	Party,
 	VoteResult,
@@ -73,7 +73,7 @@ export async function all_gps(): Promise<LegisPeriod[] | null> {
 
 export async function vote_results_per_page(
 	page: number,
-	filter: LegisInitFilter | null
+	filter: VoteResultFilter | null
 ): Promise<VoteResultsWithMaxPage | null> {
 	return fetchSavely(() =>
 		fetch(`${address}/vote_results_per_page?page=${page}`, {
