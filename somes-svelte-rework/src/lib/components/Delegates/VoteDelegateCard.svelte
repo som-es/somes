@@ -31,5 +31,6 @@
     </section>
     <hr class="!border-t-2 my-1" />
     <footer class="card-footer flex justify-end items-end mt-3">
+        <SButton class="bg-tertiary-500 text-black">Details anzeigen</SButton>
     </footer>
 </div>

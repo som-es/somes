@@ -60,7 +60,7 @@
 	</div>
 	<InfoTiles {voteResult} {dels} />
 	<div class="ml-auto details-item mt-auto">
-		<SButton class="bg-tertiary-500" on:click={onShowDetails}>Details anzeigen</SButton>
+		<SButton class="bg-tertiary-500 text-black" on:click={onShowDetails}>Details anzeigen</SButton>
 	</div>
 </div>
 

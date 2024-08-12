@@ -14,6 +14,7 @@
 	import InfoTiles from '$lib/components/VoteResults/InfoTiles/InfoTiles.svelte';
 	import { filteredDelegates } from '$lib/caching/delegates';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
+	import VoteDelegateCard from '$lib/components/Delegates/VoteDelegateCard.svelte';
 	
 
 	let dels: Delegate[] | null = null;
@@ -105,35 +106,35 @@
             <SButton class="bg-primary-500" on:click={goBack}>Zurück</SButton>
             <br>
             <div class="max-lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3 {whichGridContainer}">
-				<div class="title-item rounded-xl bg-primary-300 px-3 pt-3 pb-3">
-					{voteResult.legislative_initiative.description}
-				</div>
-				<div class="emphasis-item">
-                	<Emphasis {emphasis}></Emphasis>
+				<div class="title-item rounded-xl bg-primary-300 px-3 py-3">
 
+					<h1 class="font-bold text-3xl">{voteResult.legislative_initiative.voted_by_name ? "namentliche " : ""}Abstimmung über</h1>
+					<span class="text-xl">{voteResult.legislative_initiative.description}</span>
 				</div>
-
+				{#if emphasis}
+					<div class="emphasis-item">
+						<Emphasis {emphasis}></Emphasis>
+					</div>
+				{/if}
 
                 <div class="rounded-xl parliament-item bg-primary-300">
                     <VoteParliament {dels} {voteResult} bind:delegate={delegate}/>
                 </div>
 				<div class="delegate-item">
-					<DelegateCard delegate={delegate}>
-
-					</DelegateCard>
+					<VoteDelegateCard delegate={delegate} />
 				</div>
-                <!-- <InfoTiles {voteResult} {dels} /> -->
-
-                <!-- <div class="topics-item flex rounded-xl justify-center items-center bg-primary-300 pt-3 pb-3 px-3">
+				<div class="info-item">
+                	<InfoTiles {voteResult} {dels} />
+				</div>
+				
+                <div class="topics-item flex rounded-xl justify-center items-center bg-primary-300 pt-3 pb-3 px-3">
                     <Topics
                         topics={voteResult.topics.sort((a, b) => {
                             return a.topic.length - b.topic.length;
                         })}
                     />
-                </div> -->
+                </div> 
             </div>
-            {voteResult.legislative_initiative.description}
-
         </Container>
 	{/if}
 {:else}
@@ -183,11 +184,17 @@
 	}
 	.topics-item {
 		grid-area: t;
+		flex-basis: 38%;
 	}
 	
 	.emphasis-item {
 		grid-area: e;
 		flex-basis: 100%;
+	}
+
+	.info-item {
+		grid-area: i;
+		flex-basis: 60%;
 	}
 	
 	.grid-container-without-emphasis {

@@ -27,7 +27,7 @@
 		return dels.find((del) => del.id === id);
 	}
 
-	let circles2d: Bubble[][] = setupParliament(seats, width, height, 6.9);
+	let circles2d: Bubble[][] = setupParliament(seats, width, height, 7.9);
 	let selected: Bubble;
 
 	function select(bubble: Bubble, event: MouseEvent | KeyboardEvent | null) {
@@ -120,7 +120,7 @@
 
 	$: if (delegate && delegate.seat_row != null)
 		select(circles2d[delegate.seat_row - 1][delegate.seat_col! - 1], null);
-	
+
 </script>
 
 {#if voteResult.legislative_initiative.gp === currentLegisInit}
