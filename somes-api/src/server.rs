@@ -27,7 +27,7 @@ use crate::{
     routes::{
         call_to_orders_per_party_delegates, delegates, delegates_by_call_to_orders,
         delegates_by_call_to_orders_and_legis_period, latest_vote_results, parties, proposals,
-        save_email, speakers_by_hours, speakers_by_hours_and_legis_period, user,
+        save_email, speakers_by_hours, speakers_by_hours_and_legis_period, user
     },
     DATASERVICE_URL, LEGIS_INITS_PER_PAGE, REDIS_DB,
 };
@@ -197,6 +197,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(DELEGATE, get(delegate))
         .route(DELEGATE_INTERESTS, get(delegate_interests))
         .route(VOTE_RESULTS_PER_PAGE, post(vote_results_per_page)) // post only because js fetch...
+        .route(VOTE_RESULT_BY_ID, get(vote_result_by_id)) // post only because js fetch...
         .route(ALL_GPS, get(all_gps))
         .route("/save_email", post(save_email))
         .layer(

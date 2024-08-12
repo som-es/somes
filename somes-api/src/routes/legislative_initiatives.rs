@@ -1,6 +1,6 @@
 use axum::{extract::Query, Json};
 use dataservice::db::models::DbLegislativeInitiativeQuery;
-use somes_common_lib::{DateRange, LegisInitFilter, Page};
+use somes_common_lib::{DateRange, LegisInitFilter, Page, VoteResultId};
 
 use crate::{DataserviceDbConnection, PgPoolConnection, LEGIS_INITS_PER_PAGE};
 
@@ -96,7 +96,7 @@ pub async fn vote_results_per_page(
     PgPoolConnection(pg): PgPoolConnection,
     Query(page): Query<Page>,
     Json(legis_init_filter): Json<Option<LegisInitFilter>>,
-) -> sqlx::Result<Json<VoteResultsWithMaxPage>, LegisInitErrorResponse> {
+) -> Result<Json<VoteResultsWithMaxPage>, LegisInitErrorResponse> {
     if page.page < 0 {
         return Err(LegisInitErrorResponse::InvalidPage);
     }
@@ -118,4 +118,30 @@ pub async fn vote_results_per_page(
     })
     .map(Json)
     .map_err(|_| LegisInitErrorResponse::LatestVoteResults)
+}
+
+#[utoipa::path(
+    post,
+    path = "/vote_result_by_id", 
+    params
+    (
+        Page
+    ),
+    responses(
+        (status = 200, description = "Returned latest vote results successfully.", body = [Vec<VoteResult>]), 
+        (status = 400, description = "Invalid request", body = [LegisInitErrorResponse]),
+        (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
+    )
+)]
+pub async fn vote_result_by_id(
+    PgPoolConnection(pg): PgPoolConnection,
+    Query(vote_result_id): Query<VoteResultId>,
+) -> Result<Json<VoteResult>, LegisInitErrorResponse> {
+    get_vote_result_by_id(
+        &pg,
+        vote_result_id.id,
+    )
+    .await
+    .map(Json)
+    .map_err(|_| LegisInitErrorResponse::VoteResultById)
 }

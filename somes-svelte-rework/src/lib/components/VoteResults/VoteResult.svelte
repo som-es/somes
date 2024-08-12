@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { currentVoteResultStore } from '$lib/stores/stores';
 	import type { Delegate, VoteResult } from '$lib/types';
 	import VoteParliament from '../Parliaments/VoteParliament.svelte';
 
@@ -8,9 +9,9 @@
 	export let tabindex: number;
 
 	function onClick() {
-		// currentLegisInitStorage.set(voteResult);
+		currentVoteResultStore.set(voteResult);
 		// $: if (browser) {
-		goto('/');
+		goto('/woke');
 		// }
 	}
 </script>

@@ -119,6 +119,11 @@ pub async fn get_latest_vote_results_sqlx(pg: &PgPool) -> sqlx::Result<Vec<VoteR
     .collect::<sqlx::Result<Vec<VoteResult>>>()
 }
 
+pub async fn get_vote_result_by_id(pg: &PgPool, legis_init_id: i32) -> sqlx::Result<VoteResult> {
+    let legis_init = sqlx::query_as!(DbLegislativeInitiativeQuery, "select * from legislative_initiatives where id = $1", legis_init_id).fetch_one(pg).await?;
+    construct_vote_result(pg, legis_init).await
+}
+
 pub async fn get_latest_vote_results_sqlx_per_page(
     pg: &PgPool,
     page: i64,

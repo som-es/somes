@@ -109,6 +109,11 @@ pub struct Page {
     pub page: i64,
 }
 
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct VoteResultId {
+    pub id: i32,
+}
+
 #[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
 pub struct LegisInitFilter {
     pub accepted: Option<String>,
