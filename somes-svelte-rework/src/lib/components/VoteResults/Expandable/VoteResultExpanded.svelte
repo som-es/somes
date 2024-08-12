@@ -15,7 +15,7 @@
 
 	export let voteResult: VoteResult;
 	export let dels: Delegate[];
-	
+
 	function onShowDetails() {
 		currentVoteResultStore.set(voteResult);
 		// $: if (browser) {
