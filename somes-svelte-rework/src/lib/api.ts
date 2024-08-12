@@ -96,3 +96,14 @@ export async function delegate_interests(delegate_id: number): Promise<InterestS
 		})
 	);
 }
+
+export async function vote_result_by_id(vote_result_id: string): Promise<VoteResult | null> {
+	return fetchSavely(() =>
+		fetch(`${address}/vote_result_by_id?id=${vote_result_id}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		})
+	);
+}

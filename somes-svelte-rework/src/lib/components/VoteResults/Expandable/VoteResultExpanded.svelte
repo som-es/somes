@@ -10,9 +10,18 @@
 	import { partyToColor } from '$lib/partyColor';
 	import Emphasis from '../Emphasis/Emphasis.svelte';
 	import InfoTiles from '../InfoTiles/InfoTiles.svelte';
+	import { currentVoteResultStore } from '$lib/stores/stores';
+	import { goto } from '$app/navigation';
 
 	export let voteResult: VoteResult;
 	export let dels: Delegate[];
+	
+	function onShowDetails() {
+		currentVoteResultStore.set(voteResult);
+		// $: if (browser) {
+		goto('/vote_result');
+		// }
+	}
 
 	const emphasis = voteResult.legislative_initiative.emphasis
 		?.split('\n\t')
@@ -56,7 +65,7 @@
 	</div>
 	<InfoTiles {voteResult} {dels} />
 	<div class="ml-auto details-item mt-auto">
-		<SButton class="bg-tertiary-500">Details anzeigen</SButton>
+		<SButton class="bg-tertiary-500" on:click={onShowDetails}>Details anzeigen</SButton>
 	</div>
 </div>
 

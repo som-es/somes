@@ -11,7 +11,7 @@
 	function onClick() {
 		currentVoteResultStore.set(voteResult);
 		// $: if (browser) {
-		goto('/woke');
+		goto('/vote_result');
 		// }
 	}
 </script>
