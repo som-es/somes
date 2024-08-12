@@ -10,6 +10,8 @@
 	import { delegate_interests } from '$lib/api';
 	import InterestTiles from '$lib/components/Delegates/InterestTiles.svelte';
 	import CenterPrograssRadial from '$lib/components/ProgressInfos/CenterPrograssRadial.svelte';
+	import { get } from 'svelte/store';
+	import { currentDelegateStore } from '$lib/stores/stores';
 
 	let delegates: Delegate[] | null;
 	let delegate: Delegate | null;
@@ -23,11 +25,15 @@
 	let autocompleteOptions: AutocompleteOption<string>[] = [];
 	let interests: InterestShare[] | null;
 
-	onMount(async () => {
+	onMount(async () => {	
 		delegates = await filteredDelegates();
 		if (delegates !== null) {
 			delegate = delegates[Math.floor(Math.random() * delegates.length)];
 			autocompleteOptions = convertDelegatesToAutocompleteOptions(delegates);
+		}
+		const maybeStoredDelegate = get(currentDelegateStore);
+		if (maybeStoredDelegate) {
+			delegate = maybeStoredDelegate;
 		}
 	});
 
@@ -80,6 +86,7 @@
 
 	$: if (delegate) {
 		// interests = null;
+		currentDelegateStore.set(delegate);
 		delegate_interests(delegate.id).then((res) => {
 			if (res != null) res.sort((a, b) => b.self_share - a.self_share);
 			interests = res;
