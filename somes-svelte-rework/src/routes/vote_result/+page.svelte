@@ -7,7 +7,7 @@
 	import CenterPrograssRadial from '$lib/components/ProgressInfos/CenterPrograssRadial.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
-    import Topics from '$lib/components/Topics/Topics.svelte';
+	import Topics from '$lib/components/Topics/Topics.svelte';
 	import type { Delegate, VoteResult } from '$lib/types';
 	import Emphasis from '$lib/components/VoteResults/Emphasis/Emphasis.svelte';
 	import VoteParliament from '$lib/components/Parliaments/VoteParliament.svelte';
@@ -15,7 +15,6 @@
 	import { filteredDelegates } from '$lib/caching/delegates';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import VoteDelegateCard from '$lib/components/Delegates/VoteDelegateCard.svelte';
-	
 
 	let dels: Delegate[] | null = null;
 
@@ -102,13 +101,16 @@
 	{#if currentlyUpdating}
 		<CenterPrograssRadial />
 	{:else}
-        <Container>
-            <SButton class="bg-primary-500" on:click={goBack}>Zurück</SButton>
-            <br>
-            <div class="max-lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3 {whichGridContainer}">
+		<Container>
+			<SButton class="bg-primary-500" on:click={goBack}>Zurück</SButton>
+			<br />
+			<div
+				class="max-lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3 {whichGridContainer}"
+			>
 				<div class="title-item rounded-xl bg-primary-300 px-3 py-3">
-
-					<h1 class="font-bold text-3xl">{voteResult.legislative_initiative.voted_by_name ? "namentliche " : ""}Abstimmung über</h1>
+					<h1 class="font-bold text-3xl">
+						{voteResult.legislative_initiative.voted_by_name ? 'namentliche ' : ''}Abstimmung über
+					</h1>
 					<span class="text-xl">{voteResult.legislative_initiative.description}</span>
 				</div>
 				{#if emphasis}
@@ -117,25 +119,27 @@
 					</div>
 				{/if}
 
-                <div class="rounded-xl parliament-item bg-primary-300">
-                    <VoteParliament {dels} {voteResult} bind:delegate={delegate}/>
-                </div>
+				<div class="rounded-xl parliament-item bg-primary-300">
+					<VoteParliament {dels} {voteResult} bind:delegate />
+				</div>
 				<div class="delegate-item">
-					<VoteDelegateCard delegate={delegate} />
+					<VoteDelegateCard {delegate} />
 				</div>
 				<div class="info-item">
-                	<InfoTiles {voteResult} {dels} />
+					<InfoTiles {voteResult} {dels} />
 				</div>
-				
-                <div class="topics-item flex rounded-xl justify-center items-center bg-primary-300 pt-3 pb-3 px-3">
-                    <Topics
-                        topics={voteResult.topics.sort((a, b) => {
-                            return a.topic.length - b.topic.length;
-                        })}
-                    />
-                </div> 
-            </div>
-        </Container>
+
+				<div
+					class="topics-item flex rounded-xl justify-center items-center bg-primary-300 pt-3 pb-3 px-3"
+				>
+					<Topics
+						topics={voteResult.topics.sort((a, b) => {
+							return a.topic.length - b.topic.length;
+						})}
+					/>
+				</div>
+			</div>
+		</Container>
 	{/if}
 {:else}
 	<CenterPrograssRadial />
@@ -148,7 +152,7 @@
 		padding: 20px;
 		gap: 10px;
 	}
-    /* .grid-container-with-emphasis {
+	/* .grid-container-with-emphasis {
 		box-sizing: border-box;
 		display: grid;
 		min-width: 0;
@@ -165,9 +169,9 @@
 	} */
 
 	.grid-container-with-emphasis {
-		display:flex;
-		flex-wrap:wrap;
-	} 
+		display: flex;
+		flex-wrap: wrap;
+	}
 
 	.title-item {
 		grid-area: ti;
@@ -186,7 +190,7 @@
 		grid-area: t;
 		flex-basis: 38%;
 	}
-	
+
 	.emphasis-item {
 		grid-area: e;
 		flex-basis: 100%;
@@ -196,7 +200,7 @@
 		grid-area: i;
 		flex-basis: 60%;
 	}
-	
+
 	.grid-container-without-emphasis {
 		/* box-sizing: border-box; */
 		display: grid;
@@ -205,11 +209,10 @@
 		grid-template-columns: 3fr 1fr;
 		grid-template-rows: auto 2fr auto auto;
 		grid-template-areas:
-            'ti ti'
+			'ti ti'
 			'p d'
-            'r r'
+			'r r'
 			'i t';
 		padding: 10px;
 	}
-	
 </style>

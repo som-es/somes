@@ -34,7 +34,7 @@
 		if (event != null) {
 			event.stopPropagation();
 		}
-		
+
 		if (bubble.del == null) {
 			return;
 		}
@@ -120,7 +120,6 @@
 
 	$: if (delegate && delegate.seat_row != null)
 		select(circles2d[delegate.seat_row - 1][delegate.seat_col! - 1], null);
-
 </script>
 
 {#if voteResult.legislative_initiative.gp === currentLegisInit}

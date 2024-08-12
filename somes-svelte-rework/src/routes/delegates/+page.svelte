@@ -25,7 +25,7 @@
 	let autocompleteOptions: AutocompleteOption<string>[] = [];
 	let interests: InterestShare[] | null;
 
-	onMount(async () => {	
+	onMount(async () => {
 		delegates = await filteredDelegates();
 		if (delegates !== null) {
 			delegate = delegates[Math.floor(Math.random() * delegates.length)];
