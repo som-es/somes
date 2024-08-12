@@ -6,12 +6,29 @@
 	import { get } from 'svelte/store';
 	import CenterPrograssRadial from '$lib/components/ProgressInfos/CenterPrograssRadial.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
+	import Container from '$lib/components/Layout/Container.svelte';
+    import Topics from '$lib/components/Topics/Topics.svelte';
+	import type { Delegate, VoteResult } from '$lib/types';
+	import Emphasis from '$lib/components/VoteResults/Emphasis/Emphasis.svelte';
+	import VoteParliament from '$lib/components/Parliaments/VoteParliament.svelte';
+	import InfoTiles from '$lib/components/VoteResults/InfoTiles/InfoTiles.svelte';
+	import { filteredDelegates } from '$lib/caching/delegates';
+	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
+	
+
+	let dels: Delegate[] | null = null;
 
 	let voteResult = get(currentVoteResultStore);
 	let voteResultId: string | null = null;
 	let oldVoteResultId: string | null = voteResultId;
 
+	let delegate: Delegate | null = null;
+
 	onMount(async () => {
+		dels = await filteredDelegates();
+		if (dels !== null) {
+			delegate = dels[Math.floor(Math.random() * dels.length)];
+		}
 		const url = new URL(window.location.href);
 
 		voteResultId = url.searchParams.get('id');
@@ -71,15 +88,121 @@
 	$: if (voteResultId) {
 		update();
 	}
+
+	const emphasis = voteResult?.legislative_initiative.emphasis
+		?.split('\n\t')
+		.filter((x) => x.length > 0);
+
+	const whichGridContainer =
+		emphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
 </script>
 
-{#if voteResult}
+{#if voteResult && dels && delegate}
 	{#if currentlyUpdating}
 		<CenterPrograssRadial />
 	{:else}
-		<SButton class="bg-primary-500" on:click={goBack}>Zurück</SButton>
-		{voteResult.legislative_initiative.description}
+        <Container>
+            <SButton class="bg-primary-500" on:click={goBack}>Zurück</SButton>
+            <br>
+            <div class="max-lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3 {whichGridContainer}">
+				<div class="title-item rounded-xl bg-primary-300 px-3 pt-3 pb-3">
+					{voteResult.legislative_initiative.description}
+				</div>
+				<div class="emphasis-item">
+                	<Emphasis {emphasis}></Emphasis>
+
+				</div>
+
+
+                <div class="rounded-xl parliament-item bg-primary-300">
+                    <VoteParliament {dels} {voteResult} bind:delegate={delegate}/>
+                </div>
+				<div class="delegate-item">
+					<DelegateCard delegate={delegate}>
+
+					</DelegateCard>
+				</div>
+                <!-- <InfoTiles {voteResult} {dels} /> -->
+
+                <!-- <div class="topics-item flex rounded-xl justify-center items-center bg-primary-300 pt-3 pb-3 px-3">
+                    <Topics
+                        topics={voteResult.topics.sort((a, b) => {
+                            return a.topic.length - b.topic.length;
+                        })}
+                    />
+                </div> -->
+            </div>
+            {voteResult.legislative_initiative.description}
+
+        </Container>
 	{/if}
 {:else}
 	<CenterPrograssRadial />
 {/if}
+
+<style>
+	.entry {
+		border-radius: 0.9rem;
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+		padding: 20px;
+		gap: 10px;
+	}
+    /* .grid-container-with-emphasis {
+		box-sizing: border-box;
+		display: grid;
+		min-width: 0;
+		min-height: 0;
+		grid-template-columns: 3fr 2fr;
+		grid-template-rows: auto auto 2fr auto auto;
+		grid-template-areas:
+            'ti ti'
+            'e e'
+			'p d'
+            'r r'
+			'i t';
+		padding: 10px;
+	} */
+
+	.grid-container-with-emphasis {
+		display:flex;
+		flex-wrap:wrap;
+	} 
+
+	.title-item {
+		grid-area: ti;
+		flex-basis: 100%;
+	}
+
+	.parliament-item {
+		grid-area: p;
+		flex-basis: 66.6%;
+	}
+	.delegate-item {
+		grid-area: d;
+		flex-basis: 31%;
+	}
+	.topics-item {
+		grid-area: t;
+	}
+	
+	.emphasis-item {
+		grid-area: e;
+		flex-basis: 100%;
+	}
+	
+	.grid-container-without-emphasis {
+		/* box-sizing: border-box; */
+		display: grid;
+		min-width: 0;
+		min-height: 0;
+		grid-template-columns: 3fr 1fr;
+		grid-template-rows: auto 2fr auto auto;
+		grid-template-areas:
+            'ti ti'
+			'p d'
+            'r r'
+			'i t';
+		padding: 10px;
+	}
+	
+</style>

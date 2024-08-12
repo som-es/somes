@@ -4,7 +4,7 @@
 
 {#if emphasis}
 	{#if emphasis.length > 0}
-		<div class="emphasis-item bg-primary-300 px-10">
+		<div class="emphasis-item rounded-xl bg-primary-300 px-10">
 			<ul class="mt-1 list fill-primary-400">
 				{#each emphasis as emph}
 					<li>
@@ -22,6 +22,5 @@
 <style>
 	.emphasis-item {
 		grid-area: e;
-		border-radius: 2rem;
 	}
 </style>

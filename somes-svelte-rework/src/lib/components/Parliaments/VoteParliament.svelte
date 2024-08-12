@@ -11,6 +11,8 @@
 	export let dels: Delegate[];
 	export let preview: boolean = false;
 	export let voteResult: VoteResult;
+	export let delegate: Delegate | null = null;
+
 	let clazz = '';
 	export { clazz as class };
 
@@ -32,8 +34,13 @@
 		if (event != null) {
 			event.stopPropagation();
 		}
+		
+		if (bubble.del == null) {
+			return;
+		}
 
 		selected = bubble;
+		delegate = bubble.del;
 	}
 
 	const partyToColorMap = getPartyColors();
@@ -110,6 +117,10 @@
 			currentLegisInit = allLegisPeriods[0].gp;
 		}
 	});
+
+	$: if (delegate && delegate.seat_row != null)
+		select(circles2d[delegate.seat_row - 1][delegate.seat_col! - 1], null);
+	
 </script>
 
 {#if voteResult.legislative_initiative.gp === currentLegisInit}

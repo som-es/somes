@@ -2,12 +2,7 @@
 	import VoteParliament from '$lib/components/Parliaments/VoteParliament.svelte';
 	import Topics from '$lib/components/Topics/Topics.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
-	import crossmarkIcon from '$lib/assets/misc_icons/crossmark.svg?raw';
-	import checkmarkIcon from '$lib/assets/misc_icons/checkmark.svg?raw';
 	import type { Delegate, VoteResult } from '$lib/types';
-	import { type ConicStop } from '@skeletonlabs/skeleton';
-	import SimpleDonut from '$lib/components/UI/SimpleDonut.svelte';
-	import { partyToColor } from '$lib/partyColor';
 	import Emphasis from '../Emphasis/Emphasis.svelte';
 	import InfoTiles from '../InfoTiles/InfoTiles.svelte';
 	import { currentVoteResultStore } from '$lib/stores/stores';
@@ -52,7 +47,7 @@
 
 	<Emphasis {emphasis}></Emphasis>
 
-	<div class="topics-item flex justify-center items-center bg-primary-300 px-3">
+	<div class="topics-item flex rounded-xl justify-center items-center bg-primary-300 px-3">
 		<Topics
 			topics={voteResult.topics.sort((a, b) => {
 				return a.topic.length - b.topic.length;
@@ -60,7 +55,7 @@
 		/>
 	</div>
 
-	<div class="rounded-md min-w-full max-w-full ml-auto parliament-item bg-primary-100">
+	<div class="rounded-xl min-w-full max-w-full ml-auto parliament-item bg-primary-100">
 		<VoteParliament {dels} {voteResult} preview={true} />
 	</div>
 	<InfoTiles {voteResult} {dels} />
@@ -100,19 +95,16 @@
 
 	.parliament-item {
 		grid-area: p;
-		border-radius: 2rem;
 	}
 
 	.topics-item {
 		grid-area: t;
-		border-radius: 2rem;
 		/* overflow: hidden; */
 		/* min-width: 0;*/
 	}
 
 	.emphasis-item {
 		grid-area: e;
-		border-radius: 2rem;
 	}
 
 	.accepted-item {
