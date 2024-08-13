@@ -214,7 +214,7 @@
 					/>
 				</div>
 				<div class="simple-yes-no-item bg-primary-300 p-3 rounded-xl flex flex-row justify-between">
-					<SimpleYesNo votes={voteResult.votes} />
+					<SimpleYesNo votes={voteResult.votes.slice()} />
 				</div>
 			</div>
 		{/if}
