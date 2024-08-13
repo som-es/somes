@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { gotoHistory } from '$lib/goto';
 	import { currentVoteResultStore } from '$lib/stores/stores';
 	import type { Delegate, VoteResult } from '$lib/types';
 	import VoteParliament from '../Parliaments/VoteParliament.svelte';
@@ -11,7 +11,7 @@
 	function onClick() {
 		currentVoteResultStore.set(voteResult);
 		// $: if (browser) {
-		goto('/vote_result');
+		gotoHistory('/vote_result', true);
 		// }
 	}
 </script>

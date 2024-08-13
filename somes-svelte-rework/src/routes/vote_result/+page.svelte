@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { pushState } from '$app/navigation';
 	import { vote_result_by_id } from '$lib/api';
-	import { currentVoteResultStore } from '$lib/stores/stores';
-	import { onMount } from 'svelte';
-	import { get } from 'svelte/store';
+	import { currentVoteResultStore, hasGoBackStore } from '$lib/stores/stores';
+	import { onDestroy, onMount } from 'svelte';
+	import { get, writable } from 'svelte/store';
 	import CenterPrograssRadial from '$lib/components/ProgressInfos/CenterPrograssRadial.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
@@ -23,6 +23,8 @@
 	let oldVoteResultId: string | null = voteResultId;
 
 	let delegate: Delegate | null = null;
+    
+	export const currentRoute = writable(window.location.pathname + window.location.search);
 
 	onMount(async () => {
 		dels = await filteredDelegates();
@@ -36,6 +38,7 @@
 			voteResultId = voteResult.legislative_initiative.id;
 			oldVoteResultId = voteResultId;
 		}
+
 		// if (voteResultId !== null && voteResult?.legislative_initiative.id != voteResultId) {
 		//     voteResult = await vote_result_by_id(voteResultId);
 		//     if (voteResult !== null) voteResultId = voteResult?.legislative_initiative.id;
@@ -69,7 +72,8 @@
 		url.searchParams.set('id', voteResultId.toString());
 		try {
 			updatedQueryParam = true;
-			pushState(url.toString(), { replaceState: true });
+			history.replaceState(history.state, '', url);
+			// pushState(url.toString(), { replaceState: true });
 		} catch (e) {
 			voteResultId = oldVoteResultId;
 		}
@@ -78,11 +82,7 @@
 	};
 
 	const goBack = () => {
-		if (updatedQueryParam) {
-			history.go(-2);
-		} else {
-			history.back();
-		}
+		history.back();
 	};
 
 	$: if (voteResultId) {
@@ -102,7 +102,10 @@
 		<CenterPrograssRadial />
 	{:else}
 		<Container>
-			<SButton class="bg-primary-500" on:click={goBack}>Zurück</SButton>
+
+			{#if get(hasGoBackStore)}
+				<SButton class="bg-primary-500" on:click={goBack}>Zurück</SButton>
+			{/if}
 			<br />
 			<div
 				class="max-lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3 {whichGridContainer}"

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { gotoHistory } from '$lib/goto';
 	import { partyToColor } from '$lib/partyColor';
 	import { currentDelegateStore } from '$lib/stores/stores';
 	import type { Delegate } from '$lib/types';
@@ -9,7 +9,7 @@
 
 	const onShowDetails = () => {
 		currentDelegateStore.set(delegate);
-		goto('/delegates');
+		gotoHistory('/delegates', true);
 	};
 </script>
 

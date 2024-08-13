@@ -11,7 +11,8 @@
 	import InterestTiles from '$lib/components/Delegates/InterestTiles.svelte';
 	import CenterPrograssRadial from '$lib/components/ProgressInfos/CenterPrograssRadial.svelte';
 	import { get } from 'svelte/store';
-	import { currentDelegateStore } from '$lib/stores/stores';
+	import { currentDelegateStore, hasGoBackStore } from '$lib/stores/stores';
+	import SButton from '$lib/components/UI/SButton.svelte';
 
 	let delegates: Delegate[] | null;
 	let delegate: Delegate | null;
@@ -96,7 +97,11 @@
 
 <div class="mx-auto px-10">
 	<div>
-		delegates
+		{#if get(hasGoBackStore)}
+			<SButton class="bg-primary-500 my-3" on:click={() => history.back()}>Zurück</SButton>
+		{/if}
+		<br>
+		<div class="font-bold text-2xl mb-3">Abgeordnete des Nationalrats</div>
 		{#if delegates}
 			<div class="text-token w-full max-w-sm space-y-2">
 				<input

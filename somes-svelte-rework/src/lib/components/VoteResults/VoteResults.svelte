@@ -1,14 +1,9 @@
 <script lang="ts">
-	import { latest_vote_results } from '$lib/api';
 	import type { Delegate, VoteResult } from '$lib/types';
-	import { onMount } from 'svelte';
 	import VoteResultComp from './VoteResult.svelte';
 	import collapse from 'svelte-collapse';
-	import { goto } from '$app/navigation';
-	import upArrowIcon from '$lib/assets/misc_icons/up-arrow.svg?raw';
-	import downArrowIcon from '$lib/assets/misc_icons/down-arrow.svg?raw';
-	import { cachedLatestVoteResults } from '$lib/caching/vote_results';
 	import SButton from '../UI/SButton.svelte';
+	import { gotoHistory } from '$lib/goto';
 
 	export let dels: Delegate[];
 
@@ -39,7 +34,7 @@
 		</SButton>
 		<SButton
 			class="button offset-button bg-secondary-500"
-			on:click={() => goto('legis_votes_history')}
+			on:click={() => gotoHistory('legis_votes_history')}
 		>
 			Vorherige anzeigen
 		</SButton>

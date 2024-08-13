@@ -5,8 +5,8 @@
 	import type { Delegate, VoteResult } from '$lib/types';
 	import Emphasis from '../Emphasis/Emphasis.svelte';
 	import InfoTiles from '../InfoTiles/InfoTiles.svelte';
-	import { currentVoteResultStore } from '$lib/stores/stores';
-	import { goto } from '$app/navigation';
+	import { currentVoteResultStore, hasGoBackStore } from '$lib/stores/stores';
+	import { gotoHistory } from '$lib/goto';
 
 	export let voteResult: VoteResult;
 	export let dels: Delegate[];
@@ -14,7 +14,7 @@
 	function onShowDetails() {
 		currentVoteResultStore.set(voteResult);
 		// $: if (browser) {
-		goto('/vote_result');
+		gotoHistory('/vote_result', true);
 		// }
 	}
 
@@ -38,7 +38,7 @@
 		<div></div>
 		<!-- <div class="accepted-item bg-primary-300">Angenommen: {voteResult.legislative_initiative.accepted}</div> -->
 		<div class="ml-auto more-info-item">
-			<SButton class="bg-tertiary-500">Details anzeigen</SButton>
+			<SButton class="bg-tertiary-500 text-black" on:click={onShowDetails}>Details anzeigen</SButton>
 		</div>
 	</div>
 </div>
