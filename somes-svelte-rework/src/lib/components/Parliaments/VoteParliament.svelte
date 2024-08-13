@@ -20,7 +20,11 @@
 	const height = 900;
 
 	function isPartyInFavor(party: string): boolean {
-		return voteResult.votes.find((vote) => vote.party === party)?.infavor ?? false;
+		const votes = voteResult.votes.slice();
+		// this sort is there because of named votes -> it should only look at the one with the higher count (pro, contra)
+		// otherwise, it could happen that (absent, or new) delegates are marked as e.g. contra delegates even though the majority of the party voted for the change
+		votes.sort((a, b) => b.fraction - a.fraction);
+		return votes.find((vote) => vote.party === party)?.infavor ?? false;
 	}
 
 	function findDelegateById(id: number): Delegate | undefined {
