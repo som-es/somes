@@ -19,11 +19,8 @@
 	};
 
 	const popupFeatured: PopupSettings = {
-		// Represents the type of event that opens/closed the popup
-		event: 'click',
-		// Matches the data-popup value on your popup element
+		event: 'hover',
 		target: 'popupFeatured',
-		// Defines which side of your trigger the popup will appear
 		placement: 'bottom'
 	};
 
@@ -75,7 +72,7 @@
 					<div class="!z-10 arrow bg-surface-100-800-token" />
 				</div>
 
-				<button class="text-2xl" title={infoText} use:popup={popupFeatured}>&#9432;</button>
+				<button class="text-2xl" use:popup={popupFeatured}>&#9432;</button>
 			{/if}
 		</section>
 		<hr class="!border-t-2 my-1" />
