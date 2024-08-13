@@ -38,7 +38,8 @@
 		<div></div>
 		<!-- <div class="accepted-item bg-primary-300">Angenommen: {voteResult.legislative_initiative.accepted}</div> -->
 		<div class="ml-auto more-info-item">
-			<SButton class="bg-tertiary-500 text-black" on:click={onShowDetails}>Details anzeigen</SButton>
+			<SButton class="bg-tertiary-500 text-black" on:click={onShowDetails}>Details anzeigen</SButton
+			>
 		</div>
 	</div>
 </div>

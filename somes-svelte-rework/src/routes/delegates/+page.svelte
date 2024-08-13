@@ -13,6 +13,7 @@
 	import { get } from 'svelte/store';
 	import { currentDelegateStore, hasGoBackStore } from '$lib/stores/stores';
 	import SButton from '$lib/components/UI/SButton.svelte';
+	import Container from '$lib/components/Layout/Container.svelte';
 
 	let delegates: Delegate[] | null;
 	let delegate: Delegate | null;
@@ -95,12 +96,13 @@
 	}
 </script>
 
-<div class="mx-auto px-10">
+<!-- <div class="mx-auto px-10"> -->
+<Container>
 	<div>
 		{#if get(hasGoBackStore)}
 			<SButton class="bg-primary-500 my-3" on:click={() => history.back()}>Zurück</SButton>
 		{/if}
-		<br>
+		<br />
 		<div class="font-bold text-2xl mb-3">Abgeordnete des Nationalrats</div>
 		{#if delegates}
 			<div class="text-token w-full max-w-sm space-y-2">
@@ -150,7 +152,9 @@
 			</div>
 		{/if}
 	</div>
-</div>
+</Container>
+
+<!-- </div> -->
 
 <style>
 	.grid-container {

@@ -28,7 +28,7 @@
 	}
 
 	let circles2d: Bubble[][] = setupParliament(seats, width, height, 7.9);
-	let selected: Bubble;
+	export let selected: Bubble | null = null;
 
 	function select(bubble: Bubble, event: MouseEvent | KeyboardEvent | null) {
 		if (event != null) {
@@ -77,8 +77,8 @@
 		if (del == null || del.seat_col == null || del.seat_row == null) return;
 
 		circles2d[del.seat_row - 1][del.seat_col - 1].title = speech.infavor
-			? `${del.name}: Dafür gesprochen`
-			: `${del.name}: Dagegen gesprochen`;
+			? `Dafür gesprochen`
+			: `Dagegen gesprochen`;
 		circles2d[del.seat_row - 1][del.seat_col - 1].opacity = speech.infavor ? 1.0 : 0.2;
 		circles2d[del.seat_row - 1][del.seat_col - 1].r = +10.9;
 	});
@@ -89,14 +89,12 @@
 			if (del == null || del.seat_col == null || del.seat_row == null) return;
 			if (namedVote.was_absent) {
 				circles2d[del.seat_row - 1][del.seat_col - 1].r = +5.9;
-				circles2d[del.seat_row - 1][del.seat_col - 1].title =
-					`${del.name}: abwesend/keine Stimme abgegeben`;
+				circles2d[del.seat_row - 1][del.seat_col - 1].title = `abwesend/keine Stimme abgegeben`;
 				return;
 			}
 
-			circles2d[del.seat_row - 1][del.seat_col - 1].title = namedVote.infavor
-				? `${del.name}: Ja`
-				: `${del.name}: Nein`;
+			circles2d[del.seat_row - 1][del.seat_col - 1].namedVote = namedVote;
+			circles2d[del.seat_row - 1][del.seat_col - 1].title = namedVote.infavor ? `Ja` : `Nein`;
 			circles2d[del.seat_row - 1][del.seat_col - 1].opacity = namedVote.infavor ? 1.0 : 0.2;
 			circles2d[del.seat_row - 1][del.seat_col - 1].r = +9.9;
 		});

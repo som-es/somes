@@ -1,10 +1,11 @@
-import type { Delegate } from '$lib/types';
+import type { Delegate, NamedVote } from '$lib/types';
 
 export interface Bubble {
 	r: number;
 	x: number;
 	y: number;
 	del: Delegate | null;
+	namedVote: NamedVote | null;
 	color: string | null;
 	opacity: number;
 	title: string | null;
@@ -45,7 +46,7 @@ export function setDelOnBubble(
 		return;
 	}
 	circles2d[del.seat_row - 1][del.seat_col - 1].del = del;
-	circles2d[del.seat_row - 1][del.seat_col - 1].title = del.name;
+	circles2d[del.seat_row - 1][del.seat_col - 1].title = '';
 	// circles2d[del.seat_row-1][del.seat_col-1].color = partyToColor(del.party);
 	circles2d[del.seat_row - 1][del.seat_col - 1].color = fn(del.party);
 }
@@ -72,7 +73,8 @@ export function setupParliament(
 					del: null,
 					color: 'rgb(196, 180, 189)',
 					opacity: 0.0,
-					title: null
+					title: null,
+					namedVote: null
 				};
 			})
 		);

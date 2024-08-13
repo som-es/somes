@@ -2,7 +2,7 @@
 	import type { Bubble } from '$lib/parliament';
 
 	export let circles2d: Bubble[][];
-	export let selected: Bubble;
+	export let selected: Bubble | null;
 	export let preview: boolean = false;
 	export let select: (bubble: Bubble, event: MouseEvent | KeyboardEvent | null) => void;
 
@@ -37,9 +37,9 @@
 				stroke={circle == selected ? 'orange' : ''}
 				stroke-width={circle == selected ? '4' : ''}
 			>
-				{#if circle.title !== null}
+				{#if circle.title !== null && circle.del}
 					<title>
-						{circle.title}
+						{circle.del.name}: {circle.title}
 					</title>
 				{/if}
 			</circle>

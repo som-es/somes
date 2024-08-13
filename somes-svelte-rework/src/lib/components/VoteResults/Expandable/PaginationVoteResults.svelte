@@ -90,10 +90,10 @@
 	}
 </script>
 
-<br />
-<SlideToggle name="slider-large" active="bg-secondary-400" size="md">
+<!-- <br /> -->
+<!-- <SlideToggle name="slider-large" active="bg-secondary-400" size="md">
 	<span class="text-lg"> Test </span>
-</SlideToggle>
+</SlideToggle> -->
 <div class="mt-5">
 	<h1 class="text-2xl font-bold">notwendige Mehrheit</h1>
 	<RadioGroup

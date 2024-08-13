@@ -1,9 +1,8 @@
 <script lang="ts">
-	import { pushState } from '$app/navigation';
 	import { vote_result_by_id } from '$lib/api';
-	import { currentVoteResultStore, hasGoBackStore } from '$lib/stores/stores';
-	import { onDestroy, onMount } from 'svelte';
-	import { get, writable } from 'svelte/store';
+	import { currentDelegateStore, currentVoteResultStore, hasGoBackStore } from '$lib/stores/stores';
+	import { onMount } from 'svelte';
+	import { get } from 'svelte/store';
 	import CenterPrograssRadial from '$lib/components/ProgressInfos/CenterPrograssRadial.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
@@ -13,8 +12,8 @@
 	import VoteParliament from '$lib/components/Parliaments/VoteParliament.svelte';
 	import InfoTiles from '$lib/components/VoteResults/InfoTiles/InfoTiles.svelte';
 	import { filteredDelegates } from '$lib/caching/delegates';
-	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import VoteDelegateCard from '$lib/components/Delegates/VoteDelegateCard.svelte';
+	import type { Bubble } from '$lib/parliament';
 
 	let dels: Delegate[] | null = null;
 
@@ -23,13 +22,16 @@
 	let oldVoteResultId: string | null = voteResultId;
 
 	let delegate: Delegate | null = null;
-    
-	export const currentRoute = writable(window.location.pathname + window.location.search);
+	let bubble: Bubble;
 
 	onMount(async () => {
 		dels = await filteredDelegates();
 		if (dels !== null) {
 			delegate = dels[Math.floor(Math.random() * dels.length)];
+		}
+		const maybeStoredDelegate = get(currentDelegateStore);
+		if (maybeStoredDelegate) {
+			delegate = maybeStoredDelegate;
 		}
 		const url = new URL(window.location.href);
 
@@ -102,7 +104,6 @@
 		<CenterPrograssRadial />
 	{:else}
 		<Container>
-
 			{#if get(hasGoBackStore)}
 				<SButton class="bg-primary-500" on:click={goBack}>Zurück</SButton>
 			{/if}
@@ -123,11 +124,13 @@
 				{/if}
 
 				<div class="rounded-xl parliament-item bg-primary-300">
-					<VoteParliament {dels} {voteResult} bind:delegate />
+					<VoteParliament {dels} {voteResult} bind:delegate bind:selected={bubble} />
 				</div>
-				<div class="delegate-item">
-					<VoteDelegateCard {delegate} />
-				</div>
+				{#if bubble}
+					<div class="delegate-item">
+						<VoteDelegateCard {bubble} />
+					</div>
+				{/if}
 				<div class="info-item">
 					<InfoTiles {voteResult} {dels} />
 				</div>
