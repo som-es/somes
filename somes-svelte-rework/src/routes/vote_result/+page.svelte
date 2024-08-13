@@ -95,8 +95,8 @@
 		?.split('\n\t')
 		.filter((x) => x.length > 0);
 
-	const whichGridContainer =
-		emphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
+	// const whichGridContainer =
+	// 	emphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
 </script>
 
 {#if voteResult && dels && delegate}
@@ -108,9 +108,7 @@
 				<SButton class="bg-primary-500" on:click={goBack}>Zurück</SButton>
 			{/if}
 			<br />
-			<div
-				class="max-lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3 {whichGridContainer}"
-			>
+			<div class=" entry bg-primary-200 dark:bg-primary-400 mt-3 grid-container-with-emphasis">
 				<div class="title-item rounded-xl bg-primary-300 px-3 py-3">
 					<h1 class="font-bold text-3xl">
 						{voteResult.legislative_initiative.voted_by_name ? 'namentliche ' : ''}Abstimmung über
@@ -122,14 +120,30 @@
 						<Emphasis {emphasis}></Emphasis>
 					</div>
 				{/if}
-
-				<div class="rounded-xl parliament-item bg-primary-300">
-					<VoteParliament {dels} {voteResult} bind:delegate bind:selected={bubble} />
-				</div>
-				{#if bubble}
-					<div class="delegate-item">
-						<VoteDelegateCard {bubble} />
+				{#if voteResult.named_votes}
+					<div class="text-lg named-vote-info-item rounded-xl bg-primary-300 px-3 py-3">
+						abgegebene Stimmen: <span class="font-bold"
+							>{voteResult.named_votes.named_vote_info.given_vote_sum}</span
+						>, Ja-Stimmen:
+						<span class="font-bold">{voteResult.named_votes.named_vote_info.pro_count}</span>,
+						Nein-Stimmen:
+						<span class="font-bold">{voteResult.named_votes.named_vote_info.contra_count}</span>
+						{#if voteResult.named_votes.named_vote_info.invalid_count > 0}
+							Ungültige Stimmen:
+							<span class="font-bold">{voteResult.named_votes.named_vote_info.invalid_count}</span>
+						{/if}
 					</div>
+				{/if}
+				
+				{#if voteResult.legislative_initiative.gp == "XXVII"} 
+					<div class="rounded-xl parliament-item bg-primary-300">
+						<VoteParliament {dels} {voteResult} bind:delegate bind:selected={bubble} />
+					</div>
+					{#if bubble}
+						<div class="delegate-item">
+							<VoteDelegateCard {bubble} />
+						</div>
+					{/if}
 				{/if}
 				<div class="info-item">
 					<InfoTiles {voteResult} {dels} />
@@ -205,6 +219,11 @@
 	.info-item {
 		grid-area: i;
 		flex-basis: 60%;
+	}
+
+	.named-vote-info-item {
+		grid-area: nvi;
+		flex-basis: 100%;
 	}
 
 	.grid-container-without-emphasis {

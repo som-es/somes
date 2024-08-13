@@ -63,10 +63,11 @@
 						<span class="font-bold">"{bubble.namedVote.searched_with}"</span> wurde {bubble
 							.namedVote.manually_matched
 							? 'manuell'
-							: 'automatisch'} <span class="font-bold">"{bubble.namedVote.matched_with}"</span> zugeordnet.
-                        <div>
-                            errechneter Unterschied: {bubble.namedVote.similiarity_score}
-                        </div> 
+							: 'automatisch'} <span class="font-bold">"{bubble.namedVote.matched_with}"</span>
+						zugeordnet.
+						<div>
+							errechneter Unterschied: {bubble.namedVote.similiarity_score}
+						</div>
 					</div>
 
 					<div class="!z-10 arrow bg-surface-100-800-token" />
