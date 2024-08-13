@@ -14,6 +14,7 @@
 	import { filteredDelegates } from '$lib/caching/delegates';
 	import VoteDelegateCard from '$lib/components/Delegates/VoteDelegateCard.svelte';
 	import type { Bubble } from '$lib/parliament';
+	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 
 	let dels: Delegate[] | null = null;
 
@@ -99,11 +100,11 @@
 	// 	emphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
 </script>
 
-{#if voteResult && dels && delegate}
-	{#if currentlyUpdating}
-		<CenterPrograssRadial />
-	{:else}
-		<Container>
+<Container>
+	{#if voteResult && dels && delegate}
+		{#if currentlyUpdating}
+			<!-- <CenterPrograssRadial /> -->
+		{:else}
 			{#if get(hasGoBackStore)}
 				<SButton class="bg-primary-500" on:click={goBack}>Zurück</SButton>
 			{/if}
@@ -159,11 +160,13 @@
 					/>
 				</div>
 			</div>
-		</Container>
+		{/if}
+	{:else}
+		{#each { length: 10 } as _}
+			<ExpandablePlaceholder />
+		{/each}
 	{/if}
-{:else}
-	<CenterPrograssRadial />
-{/if}
+</Container>
 
 <style>
 	.entry {

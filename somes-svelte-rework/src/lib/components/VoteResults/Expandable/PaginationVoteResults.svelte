@@ -155,7 +155,7 @@
 			{/each}
 		{:else if currentlyUpdating}
 			{#each { length: 9 } as _}
-				<ExpandablePlaceholder class="my-3" />
+				<ExpandablePlaceholder class="my-4" />
 			{/each}
 		{:else}
 			Keine Abstimmungsergebnisse gefunden
@@ -165,7 +165,7 @@
 		</div>
 	{:else}
 		{#each { length: 9 } as _}
-			<ExpandablePlaceholder class="my-3" />
+			<ExpandablePlaceholder class="my-4" />
 		{/each}
 		<!-- <CenterPrograssRadial /> -->
 	{/if}
