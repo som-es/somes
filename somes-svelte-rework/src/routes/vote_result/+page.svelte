@@ -3,7 +3,6 @@
 	import { currentDelegateStore, currentVoteResultStore, hasGoBackStore } from '$lib/stores/stores';
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
-	import CenterPrograssRadial from '$lib/components/ProgressInfos/CenterPrograssRadial.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import Topics from '$lib/components/Topics/Topics.svelte';
@@ -15,6 +14,11 @@
 	import VoteDelegateCard from '$lib/components/Delegates/VoteDelegateCard.svelte';
 	import type { Bubble } from '$lib/parliament';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
+	import { replaceState } from '$app/navigation';
+	import { convertDelegatesToAutocompleteOptions, delegateFilterOptions } from '$lib/components/Autocompletion/filtering';
+	import type { AutocompleteOption } from '$lib/components/Autocompletion/types';
+	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
+	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 
 	let dels: Delegate[] | null = null;
 
@@ -25,11 +29,16 @@
 	let delegate: Delegate | null = null;
 	let bubble: Bubble;
 
+	let autocompleteOptions: AutocompleteOption<string>[] = [];
+	let inputValue = '';
+
 	onMount(async () => {
 		dels = await filteredDelegates();
 		if (dels !== null) {
 			delegate = dels[Math.floor(Math.random() * dels.length)];
+			autocompleteOptions = convertDelegatesToAutocompleteOptions(dels);
 		}
+
 		const maybeStoredDelegate = get(currentDelegateStore);
 		if (maybeStoredDelegate) {
 			delegate = maybeStoredDelegate;
@@ -75,7 +84,7 @@
 		url.searchParams.set('id', voteResultId.toString());
 		try {
 			updatedQueryParam = true;
-			history.replaceState(history.state, '', url);
+			replaceState(url, history.state);
 			// pushState(url.toString(), { replaceState: true });
 		} catch (e) {
 			voteResultId = oldVoteResultId;
@@ -91,6 +100,24 @@
 	$: if (voteResultId) {
 		update();
 	}
+
+	function delegateFilter(): AutocompleteOption<string>[] {
+		let _options = [...autocompleteOptions];
+		let _inputValue = `${String(inputValue).toLowerCase().trim()} `;
+		return delegateFilterOptions(_options, _inputValue);
+	}
+
+	function onDelegateSelection(event: CustomEvent<AutocompleteOption<string>>): void {
+		// @ts-ignore
+		delegate = event.detail.meta;
+		inputValue = event.detail.label;
+	}
+	
+	let popupSettings: PopupSettings = {
+		event: 'focus-click',
+		target: 'popupAutocomplete',
+		placement: 'bottom-start'
+	};
 
 	const emphasis = voteResult?.legislative_initiative.emphasis
 		?.split('\n\t')
@@ -135,6 +162,32 @@
 						{/if}
 					</div>
 				{/if}
+
+				<div class="z-50 search-item text-token  space-y-5">
+					<input
+						class="input h-10 px-2"
+						type="search"
+						name="ac-demo"
+						bind:value={inputValue}
+						placeholder="Suchen..."
+						use:popup={popupSettings}
+					/>
+
+					{#if autocompleteOptions}
+						<div
+							class="card  max-h-64 p-4 overflow-y-auto"
+							data-popup="popupAutocomplete"
+						>
+							<Autocomplete
+								bind:input={inputValue}
+								options={autocompleteOptions}
+								on:selection={onDelegateSelection}
+								emptyState={'Keine Person gefunden'}
+								filter={delegateFilter}
+							/>
+						</div>
+					{/if}
+				</div>
 
 				{#if voteResult.legislative_initiative.gp == 'XXVII'}
 					<div class="rounded-xl parliament-item bg-primary-300">
@@ -223,6 +276,11 @@
 		grid-area: i;
 		flex-basis: 60%;
 	}
+	.search-item {
+		grid-area: search;
+		flex-basis: 100%;
+	}
+
 
 	.named-vote-info-item {
 		grid-area: nvi;

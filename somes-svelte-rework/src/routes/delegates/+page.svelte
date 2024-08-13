@@ -15,6 +15,7 @@
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
+	import { convertDelegatesToAutocompleteOptions, delegateFilterOptions } from '$lib/components/Autocompletion/filtering';
 
 	let delegates: Delegate[] | null;
 	let delegate: Delegate | null;
@@ -42,43 +43,10 @@
 
 	let inputValue = '';
 
-	function convertDelegatesToAutocompleteOptions(
-		delegates: Delegate[]
-	): AutocompleteOption<string>[] {
-		return delegates.map((delegate) => {
-			let genderIdents: string[] = [];
-			if (delegate.gender == 'm') {
-				genderIdents = ['männlich', 'mann', 'abgeordneter'];
-			} else if (delegate.gender == 'f') {
-				genderIdents = ['weiblich', 'frau', 'abgeordnete'];
-			}
-
-			let genderIdentsString = genderIdents.join(', ');
-			let divisionsString = delegate.divisions?.join(', ');
-
-			return {
-				right_label: delegate.party,
-				label: delegate.name,
-				value: delegate.name,
-				keywords: `${delegate.id}, ${delegate.party}, ${delegate.constituency}, ${genderIdentsString}, ${delegate.birthdate}, ${delegate.active_since}, ${divisionsString}`,
-				meta: delegate
-			};
-		});
-	}
-
 	function delegateFilter(): AutocompleteOption<string>[] {
 		let _options = [...autocompleteOptions];
 		let _inputValue = `${String(inputValue).toLowerCase().trim()} `;
-		return _options.filter((option) => {
-			let values = _inputValue.split(' ');
-			const optionFormatted = `${option.value.toLowerCase().trim()} ${option.keywords?.toLowerCase().trim()}`;
-			for (let idx = 0; idx < values.length; idx++) {
-				if (!optionFormatted.includes(values[idx])) {
-					return null;
-				}
-			}
-			return option;
-		});
+		return delegateFilterOptions(_options, _inputValue);
 	}
 
 	function onDelegateSelection(event: CustomEvent<AutocompleteOption<string>>): void {
@@ -145,7 +113,7 @@
 				{#if interests}
 					<InterestTiles interests={interests.slice(0, 4)}></InterestTiles>
 				{:else}
-					<ExpandablePlaceholder class={'my-3'} />
+					<ExpandablePlaceholder class={"my-3"} />
 				{/if}
 				<!-- <div class="activity-item bg-primary-300">
                     Activity
