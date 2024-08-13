@@ -11,7 +11,7 @@
 	onMount(async function () {
 		// await updateColorStorage();
 		dels = await filteredDelegates();
-		voteResults = await cachedLatestVoteResults(true);
+		voteResults = await cachedLatestVoteResults();
 	});
 </script>
 

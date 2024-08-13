@@ -11,10 +11,5 @@
 			<div class="placeholder" />
 			<div class="placeholder" />
 		</div>
-		<div class="grid grid-cols-3 gap-8">
-			<div class="placeholder" />
-			<div class="placeholder" />
-			<div class="placeholder" />
-		</div>
 	</div>
 </section>
