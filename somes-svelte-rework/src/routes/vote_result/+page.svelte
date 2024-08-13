@@ -19,6 +19,7 @@
 	import type { AutocompleteOption } from '$lib/components/Autocompletion/types';
 	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
+	import SimpleYesNo from '$lib/components/VoteResults/SimpleYesNo/SimpleYesNo.svelte';
 
 	let dels: Delegate[] | null = null;
 
@@ -165,7 +166,7 @@
 
 				<div class="z-50 search-item text-token  space-y-5">
 					<input
-						class="input h-10 px-2"
+						class="!rounded-xl w-full h-10 px-2 input"
 						type="search"
 						name="ac-demo"
 						bind:value={inputValue}
@@ -204,13 +205,16 @@
 				</div>
 
 				<div
-					class="topics-item flex rounded-xl justify-center items-center bg-primary-300 pt-3 pb-3 px-3"
+					class="topics-item flex rounded-xl justify-center items-center bg-primary-300 p-3"
 				>
 					<Topics
 						topics={voteResult.topics.sort((a, b) => {
 							return a.topic.length - b.topic.length;
 						})}
 					/>
+				</div>
+				<div class="simple-yes-no-item bg-primary-300 p-3 rounded-xl flex flex-row justify-between">
+					<SimpleYesNo votes={voteResult.votes} />
 				</div>
 			</div>
 		{/if}
@@ -278,6 +282,11 @@
 	}
 	.search-item {
 		grid-area: search;
+		flex-basis: 100%;
+	}
+
+	.simple-yes-no-item {
+		grid-area: eyn;
 		flex-basis: 100%;
 	}
 

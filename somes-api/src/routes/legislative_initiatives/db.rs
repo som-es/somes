@@ -88,8 +88,8 @@ pub async fn construct_vote_result(
         .into_iter()
         .map(|vote| DbVote {
             party: vote.party.unwrap(),
-            fraction: vote.pro_count.unwrap() as i32,
-            infavor: true,
+            fraction: vote.count.unwrap() as i32,
+            infavor: vote.infavor.unwrap(),
             legislative_initiatives_id: legis_init.id,
         })
         .collect()
