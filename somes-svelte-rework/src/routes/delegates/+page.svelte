@@ -14,6 +14,7 @@
 	import { currentDelegateStore, hasGoBackStore } from '$lib/stores/stores';
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
+	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 
 	let delegates: Delegate[] | null;
 	let delegate: Delegate | null;
@@ -144,7 +145,7 @@
 				{#if interests}
 					<InterestTiles interests={interests.slice(0, 4)}></InterestTiles>
 				{:else}
-					<CenterPrograssRadial />
+					<ExpandablePlaceholder class={'my-3'} />
 				{/if}
 				<!-- <div class="activity-item bg-primary-300">
                     Activity

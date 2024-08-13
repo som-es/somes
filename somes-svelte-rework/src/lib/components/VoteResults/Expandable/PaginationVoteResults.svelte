@@ -10,6 +10,7 @@
 	import CenterPrograssRadial from '$lib/components/ProgressInfos/CenterPrograssRadial.svelte';
 	import { currentVoteResultFilterStore } from '$lib/stores/stores';
 	import { get } from 'svelte/store';
+	import ExpandablePlaceholder from './Placeholders/ExpandablePlaceholder.svelte';
 
 	export let dels: Delegate[];
 
@@ -153,7 +154,9 @@
 				<VoteResultExpandableBar {dels} {voteResult} class="" />
 			{/each}
 		{:else if currentlyUpdating}
-			<CenterPrograssRadial />
+			{#each { length: 9 } as _}
+				<ExpandablePlaceholder class="my-3" />
+			{/each}
 		{:else}
 			Keine Abstimmungsergebnisse gefunden
 		{/if}
@@ -161,7 +164,10 @@
 			<Pagination bind:page maxPage={voteResults.max_page} />
 		</div>
 	{:else}
-		<CenterPrograssRadial />
+		{#each { length: 9 } as _}
+			<ExpandablePlaceholder class="my-3" />
+		{/each}
+		<!-- <CenterPrograssRadial /> -->
 	{/if}
 </div>
 

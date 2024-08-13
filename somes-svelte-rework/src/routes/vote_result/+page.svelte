@@ -134,8 +134,8 @@
 						{/if}
 					</div>
 				{/if}
-				
-				{#if voteResult.legislative_initiative.gp == "XXVII"} 
+
+				{#if voteResult.legislative_initiative.gp == 'XXVII'}
 					<div class="rounded-xl parliament-item bg-primary-300">
 						<VoteParliament {dels} {voteResult} bind:delegate bind:selected={bubble} />
 					</div>
