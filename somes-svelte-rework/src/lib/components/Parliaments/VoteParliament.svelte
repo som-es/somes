@@ -1,7 +1,7 @@
 <!-- TODO: merge this and the Parliament component in to one -->
 <script lang="ts">
 	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
-	import { setupParliament, type Bubble, setDelOnBubble } from '$lib/parliament';
+	import { setupParliament, type Bubble, setDelOnBubble, enrichCirclesWithNamedVoteInfo, enrichCirclesWithSpeechInfo } from '$lib/parliament';
 	import { getPartyColors, partyToColor } from '$lib/partyColor';
 	import type { Delegate, LegisPeriod, VoteResult } from '$lib/types';
 	import { onMount } from 'svelte';
@@ -31,7 +31,7 @@
 		return dels.find((del) => del.id === id);
 	}
 
-	let circles2d: Bubble[][] = setupParliament(seats, width, height, 7.9);
+	export let circles2d: Bubble[][] = setupParliament(seats, width, height, 7.9);
 	export let selected: Bubble | null = null;
 
 	function select(bubble: Bubble, event: MouseEvent | KeyboardEvent | null) {
@@ -76,32 +76,9 @@
 		}
 	});
 
-	voteResult.speeches.forEach((speech) => {
-		let del = findDelegateById(speech.delegate_id);
-		if (del == null || del.seat_col == null || del.seat_row == null) return;
-
-		circles2d[del.seat_row - 1][del.seat_col - 1].title = speech.infavor
-			? `Dafür gesprochen`
-			: `Dagegen gesprochen`;
-		circles2d[del.seat_row - 1][del.seat_col - 1].opacity = speech.infavor ? 1.0 : 0.2;
-		circles2d[del.seat_row - 1][del.seat_col - 1].r = +10.9;
-	});
-
+	enrichCirclesWithSpeechInfo(voteResult.speeches, circles2d, dels);
 	if (voteResult.named_votes) {
-		voteResult.named_votes.named_votes.forEach((namedVote) => {
-			let del = findDelegateById(namedVote.delegate_id);
-			if (del == null || del.seat_col == null || del.seat_row == null) return;
-			if (namedVote.was_absent) {
-				circles2d[del.seat_row - 1][del.seat_col - 1].r = +5.9;
-				circles2d[del.seat_row - 1][del.seat_col - 1].title = `abwesend/keine Stimme abgegeben`;
-				return;
-			}
-
-			circles2d[del.seat_row - 1][del.seat_col - 1].namedVote = namedVote;
-			circles2d[del.seat_row - 1][del.seat_col - 1].title = namedVote.infavor ? `Ja` : `Nein`;
-			circles2d[del.seat_row - 1][del.seat_col - 1].opacity = namedVote.infavor ? 1.0 : 0.2;
-			circles2d[del.seat_row - 1][del.seat_col - 1].r = +9.9;
-		});
+		enrichCirclesWithNamedVoteInfo(voteResult.named_votes.named_votes, circles2d, dels);
 	}
 
 	// for (let r = 0; r < circles2d.length; r++) {
@@ -114,6 +91,7 @@
 
 	let currentLegisInit = 'XXVII';
 	onMount(async () => {
+		// circles2d = setupParliament(seats, width, height, 7.9);
 		const allLegisPeriods = await cachedAllLegisPeriods();
 		if (allLegisPeriods !== null && allLegisPeriods.length > 0) {
 			currentLegisInit = allLegisPeriods[0].gp;

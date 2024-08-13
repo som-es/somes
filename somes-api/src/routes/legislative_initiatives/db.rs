@@ -1,7 +1,6 @@
 use dataservice::db::models::{
     DbLegislativeInitiativeQuery, DbNamedVote, DbNamedVoteInfo, DbNamedVotes, DbSpeech, DbVote,
 };
-use diesel::{PgConnection, QueryResult};
 use serde::{Deserialize, Serialize};
 use somes_common_lib::LegisInitFilter;
 use sqlx::PgPool;

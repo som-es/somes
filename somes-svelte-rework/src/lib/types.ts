@@ -38,7 +38,9 @@ export interface Vote {
 
 export interface Speech {
 	delegate_id: number;
-	infavor: boolean;
+	infavor: boolean | null;
+	opinion: string | null;
+	legislative_initiatives_id: number;
 }
 
 export interface Topic {

@@ -1,24 +1,22 @@
 <script lang="ts">
-	import { partyToColor } from "$lib/partyColor";
-	import type { Vote } from "$lib/types";
-	import BadgeList from "./BadgeList.svelte";
+	import { partyToColor } from '$lib/partyColor';
+	import type { Vote } from '$lib/types';
+	import BadgeList from './BadgeList.svelte';
 
-    export let votes: Vote[];
+	export let votes: Vote[];
 
-    votes.sort((a, b) => b.fraction - a.fraction);
-
+	votes.sort((a, b) => b.fraction - a.fraction);
 </script>
+
 <div>
-    <span class="font-bold text-lg">Dafür</span>
-    <div class="flex mt-2 gap-3 py-4">
-        <BadgeList votes={votes} infavor/>
-    </div>
+	<span class="font-bold text-lg">Dafür</span>
+	<div class="flex mt-0 gap-3 py-2">
+		<BadgeList {votes} infavor />
+	</div>
 </div>
 <div>
-    <span class="font-bold text-lg">Dagegen</span>
-    <div class="flex mt-2 gap-3 py-4">
-        <BadgeList votes={votes} />
-    </div>
-
+	<span class="font-bold text-lg">Dagegen</span>
+	<div class="flex mt-0 gap-3 py-2">
+		<BadgeList {votes} />
+	</div>
 </div>
-

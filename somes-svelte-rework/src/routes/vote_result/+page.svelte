@@ -12,10 +12,14 @@
 	import InfoTiles from '$lib/components/VoteResults/InfoTiles/InfoTiles.svelte';
 	import { filteredDelegates } from '$lib/caching/delegates';
 	import VoteDelegateCard from '$lib/components/Delegates/VoteDelegateCard.svelte';
-	import type { Bubble } from '$lib/parliament';
+	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
+	import { setupParliament, type Bubble } from '$lib/parliament';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import { replaceState } from '$app/navigation';
-	import { convertDelegatesToAutocompleteOptions, delegateFilterOptions } from '$lib/components/Autocompletion/filtering';
+	import {
+		convertDelegatesToAutocompleteOptions,
+		delegateFilterOptions
+	} from '$lib/components/Autocompletion/filtering';
 	import type { AutocompleteOption } from '$lib/components/Autocompletion/types';
 	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
@@ -28,7 +32,8 @@
 	let oldVoteResultId: string | null = voteResultId;
 
 	let delegate: Delegate | null = null;
-	let bubble: Bubble;
+	let selectedBubble: Bubble;
+	let circles2d: Bubble[][];
 
 	let autocompleteOptions: AutocompleteOption<string>[] = [];
 	let inputValue = '';
@@ -113,7 +118,7 @@
 		delegate = event.detail.meta;
 		inputValue = event.detail.label;
 	}
-	
+
 	let popupSettings: PopupSettings = {
 		event: 'focus-click',
 		target: 'popupAutocomplete',
@@ -123,6 +128,13 @@
 	const emphasis = voteResult?.legislative_initiative.emphasis
 		?.split('\n\t')
 		.filter((x) => x.length > 0);
+
+	function findBubbleById(id: number): Bubble | undefined {
+		return circles2d.flat().find((del) => del.del?.id === id);
+	}
+
+	let iterBubble: Bubble | undefined;
+	// console.log(voteResult?.speeches);
 
 	// const whichGridContainer =
 	// 	emphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
@@ -164,39 +176,46 @@
 					</div>
 				{/if}
 
-				<div class="z-50 search-item text-token  space-y-5">
-					<input
-						class="!rounded-xl w-full h-10 px-2 input"
-						type="search"
-						name="ac-demo"
-						bind:value={inputValue}
-						placeholder="Suchen..."
-						use:popup={popupSettings}
-					/>
-
-					{#if autocompleteOptions}
-						<div
-							class="card  max-h-64 p-4 overflow-y-auto"
-							data-popup="popupAutocomplete"
-						>
-							<Autocomplete
-								bind:input={inputValue}
-								options={autocompleteOptions}
-								on:selection={onDelegateSelection}
-								emptyState={'Keine Person gefunden'}
-								filter={delegateFilter}
-							/>
-						</div>
-					{/if}
+				<div class="simple-yes-no-item bg-primary-300 p-3 rounded-xl flex flex-row justify-between">
+					<SimpleYesNo votes={voteResult.votes.slice()} />
 				</div>
 
 				{#if voteResult.legislative_initiative.gp == 'XXVII'}
-					<div class="rounded-xl parliament-item bg-primary-300">
-						<VoteParliament {dels} {voteResult} bind:delegate bind:selected={bubble} />
+					<div class="z-50 search-item text-token space-y-5">
+						<input
+							class="!rounded-xl w-full h-10 px-2 input"
+							type="search"
+							name="ac-demo"
+							bind:value={inputValue}
+							placeholder="Suchen..."
+							use:popup={popupSettings}
+						/>
+
+						{#if autocompleteOptions}
+							<div class="card max-h-64 p-4 overflow-y-auto" data-popup="popupAutocomplete">
+								<Autocomplete
+									bind:input={inputValue}
+									options={autocompleteOptions}
+									on:selection={onDelegateSelection}
+									emptyState={'Keine Person gefunden'}
+									filter={delegateFilter}
+								/>
+							</div>
+						{/if}
 					</div>
-					{#if bubble}
+
+					<div class="rounded-xl parliament-item bg-primary-300">
+						<VoteParliament
+							{dels}
+							{voteResult}
+							bind:delegate
+							bind:selected={selectedBubble}
+							bind:circles2d
+						/>
+					</div>
+					{#if selectedBubble}
 						<div class="delegate-item">
-							<VoteDelegateCard {bubble} />
+							<VoteDelegateCard bubble={selectedBubble} />
 						</div>
 					{/if}
 				{/if}
@@ -204,18 +223,29 @@
 					<InfoTiles {voteResult} {dels} />
 				</div>
 
-				<div
-					class="topics-item flex rounded-xl justify-center items-center bg-primary-300 p-3"
-				>
+				<div class="topics-item flex rounded-xl justify-center items-center bg-primary-300 p-3">
 					<Topics
 						topics={voteResult.topics.sort((a, b) => {
 							return a.topic.length - b.topic.length;
 						})}
 					/>
 				</div>
-				<div class="simple-yes-no-item bg-primary-300 p-3 rounded-xl flex flex-row justify-between">
-					<SimpleYesNo votes={voteResult.votes.slice()} />
-				</div>
+				{#if voteResult.speeches.length > 0}
+					<div class="speeches-item bg-primary-300 rounded-xl p-4 gap-3">
+						<span class="font-bold text-3xl">Reden</span>
+						<div class="flex flex-row flex-wrap mt-3 gap-3">
+							{#each voteResult.speeches as speech}
+								{#if circles2d}
+									{#if (iterBubble = findBubbleById(speech.delegate_id))}
+										<div>
+											<VoteDelegateCard bubble={iterBubble} />
+										</div>
+									{/if}
+								{/if}
+							{/each}
+						</div>
+					</div>
+				{/if}
 			</div>
 		{/if}
 	{:else}
@@ -268,7 +298,7 @@
 	}
 	.topics-item {
 		grid-area: t;
-		flex-basis: 38%;
+		flex-basis: 40%;
 	}
 
 	.emphasis-item {
@@ -278,7 +308,7 @@
 
 	.info-item {
 		grid-area: i;
-		flex-basis: 60%;
+		flex-basis: 58%;
 	}
 	.search-item {
 		grid-area: search;
@@ -290,9 +320,13 @@
 		flex-basis: 100%;
 	}
 
-
 	.named-vote-info-item {
 		grid-area: nvi;
+		flex-basis: 100%;
+	}
+
+	.speeches-item {
+		grid-area: speeches;
 		flex-basis: 100%;
 	}
 

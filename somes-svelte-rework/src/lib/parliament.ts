@@ -1,4 +1,4 @@
-import type { Delegate, NamedVote } from '$lib/types';
+import type { Delegate, NamedVote, Speech } from '$lib/types';
 
 export interface Bubble {
 	r: number;
@@ -49,6 +49,40 @@ export function setDelOnBubble(
 	circles2d[del.seat_row - 1][del.seat_col - 1].title = '';
 	// circles2d[del.seat_row-1][del.seat_col-1].color = partyToColor(del.party);
 	circles2d[del.seat_row - 1][del.seat_col - 1].color = fn(del.party);
+}
+
+function findDelegateById(dels: Delegate[], id: number): Delegate | undefined {
+	return dels.find((del) => del.id === id);
+}
+
+export function enrichCirclesWithSpeechInfo(speeches: Speech[], circles2d: Bubble[][], dels: Delegate[]) {
+	speeches.forEach((speech) => {
+		let del = findDelegateById(dels, speech.delegate_id);
+		if (del == null || del.seat_col == null || del.seat_row == null) return;
+
+		circles2d[del.seat_row - 1][del.seat_col - 1].title = speech.infavor
+			? `Dafür gesprochen`
+			: `Dagegen gesprochen`;
+		circles2d[del.seat_row - 1][del.seat_col - 1].opacity = speech.infavor ? 1.0 : 0.2;
+		circles2d[del.seat_row - 1][del.seat_col - 1].r = +10.9;
+	});
+}
+
+export function enrichCirclesWithNamedVoteInfo(namedVotes: NamedVote[], circles2d: Bubble[][], dels: Delegate[]) {
+	namedVotes.forEach((namedVote) => {
+		let del = findDelegateById(dels, namedVote.delegate_id);
+		if (del == null || del.seat_col == null || del.seat_row == null) return;
+		if (namedVote.was_absent) {
+			circles2d[del.seat_row - 1][del.seat_col - 1].r = +5.9;
+			circles2d[del.seat_row - 1][del.seat_col - 1].title = `abwesend/keine Stimme abgegeben`;
+			return;
+		}
+
+		circles2d[del.seat_row - 1][del.seat_col - 1].namedVote = namedVote;
+		circles2d[del.seat_row - 1][del.seat_col - 1].title = namedVote.infavor ? `Ja` : `Nein`;
+		circles2d[del.seat_row - 1][del.seat_col - 1].opacity = namedVote.infavor ? 1.0 : 0.2;
+		circles2d[del.seat_row - 1][del.seat_col - 1].r = +9.9;
+	});
 }
 
 export function setupParliament(
