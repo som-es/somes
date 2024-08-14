@@ -29,10 +29,13 @@
 		infoText = `unsichere Zuteilung: "${bubble.namedVote.searched_with}" wurde ${bubble.namedVote.manually_matched ? 'manuell' : 'automatisch'} "${bubble.namedVote.matched_with}" zugeteilt`;
 	}
 	$: if (bubble && bubble.del != null) delegate = bubble.del;
+
+	let clazz = '';
+	export { clazz as class };
 </script>
 
 {#if delegate}
-	<div class="!z-0 card card-hover min-h-full mx-4 drop-shadow-lg flex flex-col">
+	<div class="!z-0 card card-hover min-h-full mx-4 drop-shadow-lg flex flex-col {clazz}">
 		<header class="flex justify-center">
 			<img
 				src={delegate.image_url}

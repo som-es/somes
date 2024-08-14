@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { vote_result_by_id } from '$lib/api';
+	import { delegates_at, vote_result_by_id } from '$lib/api';
 	import { currentDelegateStore, currentVoteResultStore, hasGoBackStore } from '$lib/stores/stores';
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
@@ -38,12 +38,16 @@
 	let autocompleteOptions: AutocompleteOption<string>[] = [];
 	let inputValue = '';
 
+
+	let delegatesAtDate: Delegate[] | null = dels;
+
 	onMount(async () => {
 		dels = await filteredDelegates();
 		if (dels !== null) {
 			delegate = dels[Math.floor(Math.random() * dels.length)];
 			autocompleteOptions = convertDelegatesToAutocompleteOptions(dels);
 		}
+		if (voteResult) delegatesAtDate = await delegates_at(voteResult.legislative_initiative.created_at);
 
 		const maybeStoredDelegate = get(currentDelegateStore);
 		if (maybeStoredDelegate) {
@@ -238,7 +242,7 @@
 								{#if circles2d}
 									{#if (iterBubble = findBubbleById(speech.delegate_id))}
 										<div>
-											<VoteDelegateCard bubble={iterBubble} />
+											<VoteDelegateCard class="w-80" bubble={iterBubble} />
 										</div>
 									{/if}
 								{/if}

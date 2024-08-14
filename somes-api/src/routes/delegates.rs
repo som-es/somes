@@ -2,7 +2,7 @@ use axum::{extract::Query, Json};
 use chrono::NaiveDate;
 use dataservice::db::models::{DbDelegate, DbProposalQuery};
 use serde::{Deserialize, Serialize};
-use somes_common_lib::{DelegateById, InterestShare};
+use somes_common_lib::{Date, DelegateById, InterestShare};
 use utoipa::ToSchema;
 
 use crate::{
@@ -174,14 +174,69 @@ pub async fn delegates(
     .await
     .map(Json)
     .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
-    // con.interact(|con| {
-    //     get_delegates(con)
-    //         .map(Json)
-    //         .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
-    // })
-    // .await
-    // .map_err(|_| DelegatesErrorResponse::DelegateResponseError)?
 }
+
+#[utoipa::path(
+    get,
+    params(
+        Date
+    ),
+    path = "/delegates_at", 
+    responses(
+        (status = 200, description = "Returned delegates successfully.", body = [Vec<DbDelegate>]), 
+        (status = 400, description = "Invalid request", body = [DelegatesErrorResponse]),
+        (status = 500, description = "Internal server error", body = [DelegatesErrorResponse])
+    )
+)]
+pub async fn delegates_at(
+    // DataserviceDbConnection(con): DataserviceDbConnection,
+    Query(date): Query<Date>,
+    PgPoolConnection(pg): PgPoolConnection,
+) -> Result<Json<Vec<Delegate>>, DelegatesErrorResponse> {
+    sqlx::query_as!(
+        Delegate,
+        "
+        SELECT 
+            delegates.id, 
+            delegates.name, 
+            delegates.party, 
+            delegates.image_url, 
+            delegates.constituency, 
+            delegates.council, 
+            delegates.seat_row, 
+            delegates.seat_col, 
+            delegates.gender, 
+            delegates.is_active, 
+            delegates.birthdate, 
+            mandates.start_date AS active_since,
+            COALESCE(divisions.division_array, '{}') AS divisions
+        FROM 
+            mandates 
+        INNER JOIN 
+            delegates ON delegates.id = mandates.delegate_id 
+        LEFT JOIN 
+            (SELECT 
+                delegate_id, 
+                ARRAY_AGG(division) AS division_array 
+            FROM 
+                delegates_divisions 
+            GROUP BY 
+                delegate_id) AS divisions 
+            ON delegates.id = divisions.delegate_id
+        WHERE 
+            (mandates.name LIKE '%Abgeordnete%' OR mandates.name LIKE '%minister%') 
+            and start_date <= $1::date 
+            and (case when end_date is null then $1::date else end_date end) >= $1::date;
+        ", date.at
+    )
+    .fetch_all(&pg)
+    .await
+    .map(Json)
+    .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
+}
+
+
+
 
 #[utoipa::path(
     get,

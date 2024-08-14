@@ -107,3 +107,14 @@ export async function vote_result_by_id(vote_result_id: string): Promise<VoteRes
 		})
 	);
 }
+
+export async function delegates_at(date_at: Date): Promise<Delegate[] | null> {
+	return fetchSavely(() =>
+		fetch(`${address}/delegates_at?at=${date_at}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		})
+	);
+}	

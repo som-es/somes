@@ -114,6 +114,11 @@ pub struct VoteResultId {
     pub id: i32,
 }
 
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct Date {
+    pub at: NaiveDate,
+}
+
 #[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
 pub struct LegisInitFilter {
     pub accepted: Option<String>,
