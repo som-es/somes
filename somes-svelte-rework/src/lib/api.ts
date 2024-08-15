@@ -117,4 +117,4 @@ export async function delegates_at(date_at: Date): Promise<Delegate[] | null> {
 			}
 		})
 	);
-}	
+}

@@ -13,7 +13,7 @@
 	import { filteredDelegates } from '$lib/caching/delegates';
 	import VoteDelegateCard from '$lib/components/Delegates/VoteDelegateCard.svelte';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
-	import { setupParliament, type Bubble } from '$lib/parliament';
+	import { enrichCirclesWithNamedVoteInfo, enrichCirclesWithSpeechInfo, setupParliament, type Bubble } from '$lib/parliament';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import { replaceState } from '$app/navigation';
 	import {
@@ -38,8 +38,24 @@
 	let autocompleteOptions: AutocompleteOption<string>[] = [];
 	let inputValue = '';
 
+	let delegatesAtDate: Delegate[] | null = null;
+	let generalSpeechDelegates: Bubble[] = [];
+	let generalNamedVoteDelegates: Bubble[] | null = null;
 
-	let delegatesAtDate: Delegate[] | null = dels;
+	async function fetchDelegatesAtAndEnrich() {
+		if (!voteResult) {
+			return;
+		}
+		delegatesAtDate = await delegates_at(voteResult.legislative_initiative.created_at);
+
+		if (delegatesAtDate) {
+			generalSpeechDelegates = enrichCirclesWithSpeechInfo(voteResult.speeches, delegatesAtDate);
+			console.log(generalSpeechDelegates);
+			if (voteResult.named_votes) {
+				generalNamedVoteDelegates = enrichCirclesWithNamedVoteInfo(voteResult.named_votes.named_votes, delegatesAtDate);
+			}
+		}
+	}
 
 	onMount(async () => {
 		dels = await filteredDelegates();
@@ -47,7 +63,7 @@
 			delegate = dels[Math.floor(Math.random() * dels.length)];
 			autocompleteOptions = convertDelegatesToAutocompleteOptions(dels);
 		}
-		if (voteResult) delegatesAtDate = await delegates_at(voteResult.legislative_initiative.created_at);
+		await fetchDelegatesAtAndEnrich();
 
 		const maybeStoredDelegate = get(currentDelegateStore);
 		if (maybeStoredDelegate) {
@@ -76,6 +92,7 @@
 		}
 		currentlyUpdating = true;
 		voteResult = await vote_result_by_id(voteResultId);
+		await fetchDelegatesAtAndEnrich();
 		currentVoteResultStore.set(voteResult);
 		currentlyUpdating = false;
 	};
@@ -135,6 +152,10 @@
 
 	function findBubbleById(id: number): Bubble | undefined {
 		return circles2d.flat().find((del) => del.del?.id === id);
+	}
+
+	function findDelegateById(dels: Delegate[], id: number): Delegate | undefined {
+		return dels.find((del) => del.id === id);
 	}
 
 	let iterBubble: Bubble | undefined;
@@ -234,18 +255,14 @@
 						})}
 					/>
 				</div>
-				{#if voteResult.speeches.length > 0}
+				{#if generalSpeechDelegates.length > 0}
 					<div class="speeches-item bg-primary-300 rounded-xl p-4 gap-3">
 						<span class="font-bold text-3xl">Reden</span>
 						<div class="flex flex-row flex-wrap mt-3 gap-3">
-							{#each voteResult.speeches as speech}
-								{#if circles2d}
-									{#if (iterBubble = findBubbleById(speech.delegate_id))}
-										<div>
-											<VoteDelegateCard class="w-80" bubble={iterBubble} />
-										</div>
-									{/if}
-								{/if}
+							{#each generalSpeechDelegates as speechDelegate}
+								<div>
+									<VoteDelegateCard class="w-80" bubble={speechDelegate} />
+								</div>
 							{/each}
 						</div>
 					</div>

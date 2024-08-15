@@ -1,7 +1,13 @@
 <!-- TODO: merge this and the Parliament component in to one -->
 <script lang="ts">
 	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
-	import { setupParliament, type Bubble, setDelOnBubble, enrichCirclesWithNamedVoteInfo, enrichCirclesWithSpeechInfo } from '$lib/parliament';
+	import {
+		setupParliament,
+		type Bubble,
+		setDelOnBubble,
+		enrichCirclesWithNamedVoteInfoOnSeat,
+		enrichCirclesWithSpeechInfoOnSeat
+	} from '$lib/parliament';
 	import { getPartyColors, partyToColor } from '$lib/partyColor';
 	import type { Delegate, LegisPeriod, VoteResult } from '$lib/types';
 	import { onMount } from 'svelte';
@@ -76,9 +82,9 @@
 		}
 	});
 
-	enrichCirclesWithSpeechInfo(voteResult.speeches, circles2d, dels);
+	enrichCirclesWithSpeechInfoOnSeat(voteResult.speeches, circles2d, dels);
 	if (voteResult.named_votes) {
-		enrichCirclesWithNamedVoteInfo(voteResult.named_votes.named_votes, circles2d, dels);
+		enrichCirclesWithNamedVoteInfoOnSeat(voteResult.named_votes.named_votes, circles2d, dels);
 	}
 
 	// for (let r = 0; r < circles2d.length; r++) {

@@ -1,4 +1,4 @@
-import type { Delegate, NamedVote, Speech } from '$lib/types';
+import type { Delegate, NamedVote, Speech, VoteResult } from '$lib/types';
 
 export interface Bubble {
 	r: number;
@@ -55,7 +55,60 @@ function findDelegateById(dels: Delegate[], id: number): Delegate | undefined {
 	return dels.find((del) => del.id === id);
 }
 
-export function enrichCirclesWithSpeechInfo(speeches: Speech[], circles2d: Bubble[][], dels: Delegate[]) {
+export function enrichCirclesWithSpeechInfo(speeches: Speech[], dels: Delegate[]): Bubble[] {
+	const speechDelegates: Bubble[] = [];
+	const delegatesAt: Delegate[] = dels;
+	speeches.forEach((speech) => {
+		const delegate = findDelegateById(delegatesAt, speech.delegate_id);
+
+		if (delegate) {
+			speechDelegates.push({
+				r: 0,
+				x: 0,
+				y: 0,
+				del: delegate,
+				namedVote: null,
+				color: null,
+				opacity: 0,
+				title: speech.opinion
+			});
+		}
+	});
+	return speechDelegates;
+}
+
+export function enrichCirclesWithNamedVoteInfo(namedVotes: NamedVote[], dels: Delegate[]): Bubble[] {
+	const namedVoteDelegates: Bubble[] = [];
+	const delegatesAt: Delegate[] = dels;
+	namedVotes.forEach((vote) => {
+		const delegate = findDelegateById(delegatesAt, vote.delegate_id);
+		let title;
+		if (vote.was_absent) {
+			title = `abwesend/keine Stimme abgegeben`;
+		} else {
+			title = vote.infavor ? `Ja` : `Nein`;
+		}
+		if (delegate) {
+			namedVoteDelegates.push({
+				r: 0,
+				x: 0,
+				y: 0,
+				del: delegate,
+				namedVote: null,
+				color: null,
+				opacity: 0,
+				title,
+			});
+		}
+	});
+	return namedVoteDelegates;
+}
+
+export function enrichCirclesWithSpeechInfoOnSeat(
+	speeches: Speech[],
+	circles2d: Bubble[][],
+	dels: Delegate[]
+) {
 	speeches.forEach((speech) => {
 		let del = findDelegateById(dels, speech.delegate_id);
 		if (del == null || del.seat_col == null || del.seat_row == null) return;
@@ -68,7 +121,11 @@ export function enrichCirclesWithSpeechInfo(speeches: Speech[], circles2d: Bubbl
 	});
 }
 
-export function enrichCirclesWithNamedVoteInfo(namedVotes: NamedVote[], circles2d: Bubble[][], dels: Delegate[]) {
+export function enrichCirclesWithNamedVoteInfoOnSeat(
+	namedVotes: NamedVote[],
+	circles2d: Bubble[][],
+	dels: Delegate[]
+) {
 	namedVotes.forEach((namedVote) => {
 		let del = findDelegateById(dels, namedVote.delegate_id);
 		if (del == null || del.seat_col == null || del.seat_row == null) return;

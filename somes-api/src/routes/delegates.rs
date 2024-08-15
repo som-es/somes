@@ -199,7 +199,8 @@ pub async fn delegates_at(
         SELECT 
             delegates.id, 
             delegates.name, 
-            delegates.party, 
+            --delegates.party, 
+            mandates.party,
             delegates.image_url, 
             delegates.constituency, 
             delegates.council, 
