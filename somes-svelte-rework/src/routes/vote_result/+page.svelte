@@ -38,7 +38,7 @@
 	let autocompleteOptions: AutocompleteOption<string>[] = [];
 	let inputValue = '';
 
-	let delegatesAtDate: Delegate[] | null = null;
+	let delegatesAtDate: Delegate[] = [];
 	let generalSpeechDelegates: Bubble[] | null= null;
 	let generalNamedVoteDelegates: Bubble[] | null = null;
 
@@ -46,7 +46,7 @@
 		if (!voteResult) {
 			return;
 		}
-		delegatesAtDate = await delegates_at(voteResult.legislative_initiative.created_at);
+		delegatesAtDate = await delegates_at(voteResult.legislative_initiative.created_at) ?? [];
 
 		if (delegatesAtDate) {
 			generalSpeechDelegates = enrichCirclesWithSpeechInfo(voteResult.speeches, delegatesAtDate);
@@ -204,7 +204,7 @@
 					<SimpleYesNo votes={voteResult.votes.slice()} />
 				</div>
 
-				{#if voteResult.legislative_initiative.gp == 'XXVII'}
+				<!-- {#if voteResult.legislative_initiative.gp == 'XXVII'} -->
 					<div class="z-50 search-item text-token space-y-5">
 						<input
 							class="!rounded-xl w-full h-10 px-2 input"
@@ -232,6 +232,7 @@
 						<VoteParliament
 							{dels}
 							{voteResult}
+							delsAtDate={delegatesAtDate}
 							bind:delegate
 							bind:selected={selectedBubble}
 							bind:circles2d
@@ -242,7 +243,7 @@
 							<VoteDelegateCard bubble={selectedBubble} />
 						</div>
 					{/if}
-				{/if}
+				<!-- {/if} -->
 				<div class="info-item">
 					<InfoTiles {voteResult} {dels} />
 				</div>

@@ -203,7 +203,10 @@ pub async fn delegates_at(
             mandates.party,
             delegates.image_url, 
             delegates.constituency, 
-            delegates.council, 
+            CASE 
+                WHEN mandates.name LIKE '%Abgeordnete%' THEN 'nr' 
+                ELSE 'nr'
+            END as council,
             delegates.seat_row, 
             delegates.seat_col, 
             delegates.gender, 

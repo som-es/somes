@@ -12,6 +12,7 @@
 	import type { Delegate, LegisPeriod, VoteResult } from '$lib/types';
 	import { onMount } from 'svelte';
 	import BaseParliament from './BaseParliament.svelte';
+	import BlockParliament from './BlockParliament.svelte';
 
 	export let seats: number[] = [20, 27, 37, 43, 48, 54];
 	export let dels: Delegate[];
@@ -106,12 +107,15 @@
 		}
 	});
 
-	let circlesPerParty: Bubble[][]
+	let circlesPerParty: Bubble[][] = []
+
+	const defaultSeats = [18, 25, 29, 33, 37, 41];
+	let circlesPerParty2: Bubble[][] = setupParliament(defaultSeats, width, height, 7.9, false);
 
 	$: {
 		let partyToDelegates = new Map<string, Delegate[]>();
 		delsAtDate.forEach(del => {
-			if (del.party == null) {
+			if (del.party == null || del.council != "nr") {
 				return;
 			}
 			if (!partyToDelegates.has(del.party)) {
@@ -120,8 +124,20 @@
 			const currentDels = partyToDelegates.get(del.party);
 			currentDels?.push(del)
 		});
+		let all = 0;
+		partyToDelegates.forEach((dels, _party) => {all += dels.length});
+		console.log(all)
+
+		partyToDelegates.forEach((dels, party) => {
+			const fraction = dels.length;
+			const share = fraction / 183;
+
+		});
+
 		let rowIdx = 0;
+		// console.log(partyToDelegates);
 		partyToDelegates.forEach((dels, _party) => {
+			circlesPerParty.push([]);
 			dels.forEach((del, colIdx) => {
 				const bubble = {
 					r: 7.9,
@@ -148,12 +164,16 @@
 		}
 	}
 
+		console.log(circlesPerParty);
+
 	$: if (delegate && delegate.seat_row != null)
 		select(circles2d[delegate.seat_row - 1][delegate.seat_col! - 1], null);
 </script>
 
 {#if voteResult.legislative_initiative.gp === currentLegisInit}
 	<BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} />
+{:else if circlesPerParty.length > 0}
+	<BaseParliament class={clazz} circles2d={circlesPerParty2} {selected} {preview} {select} {width} {height} />
 {:else}
 	Sitzplan nicht verfügbar
 {/if}

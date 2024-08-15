@@ -9,6 +9,8 @@
 	export let width = 830;
 	export let height = 900;
 
+	console.log(circles2d);
+
 	let clazz = '';
 	export { clazz as class };
 </script>

@@ -147,14 +147,15 @@ export function setupParliament(
 	seats: number[],
 	width: number,
 	height: number,
-	r: number
+	r: number,
+	useOffset = true,
 ): Bubble[][] {
 	let circles2d: Bubble[][] = [];
 	seats.forEach((seat, idx) => {
 		circles2d.push(
 			generateHalfCircle(
 				seat,
-				70 + idx * (idx == 1 ? 30 : 20) + (idx >= 2 ? 30 : 0),
+				70 + (useOffset ? idx * (idx == 1 ? 30 : 20) + (idx >= 2 ? 30 : 0) : idx * 19),
 				width,
 				height
 			).map((circle) => {
@@ -164,7 +165,7 @@ export function setupParliament(
 					y: circle.y,
 					del: null,
 					color: 'rgb(196, 180, 189)',
-					opacity: 0.0,
+					opacity: 1,
 					title: null,
 					namedVote: null
 				};
