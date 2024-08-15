@@ -54,9 +54,9 @@
 					<span>{delegate.party}</span>
 				{/if}
 			</h5>
-			<h6>{delegate.constituency}</h6>
-			<hr class="!border-t-2 my-1" />
-			<h6>{delegate.divisions?.join(', ')}</h6>
+			<!-- <h6>{delegate.constituency}</h6> -->
+			<!-- <hr class="!border-t-2 my-1" /> -->
+			<!-- <h6>{delegate.divisions?.join(', ')}</h6> -->
 			<hr class="!border-t-2 my-1" />
 			{bubble.title}
 			{#if bubble.namedVote && (bubble.namedVote.similiarity_score != 0 || bubble.namedVote.manually_matched)}

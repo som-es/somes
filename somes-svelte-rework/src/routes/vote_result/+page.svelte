@@ -39,7 +39,7 @@
 	let inputValue = '';
 
 	let delegatesAtDate: Delegate[] | null = null;
-	let generalSpeechDelegates: Bubble[] = [];
+	let generalSpeechDelegates: Bubble[] | null= null;
 	let generalNamedVoteDelegates: Bubble[] | null = null;
 
 	async function fetchDelegatesAtAndEnrich() {
@@ -50,7 +50,6 @@
 
 		if (delegatesAtDate) {
 			generalSpeechDelegates = enrichCirclesWithSpeechInfo(voteResult.speeches, delegatesAtDate);
-			console.log(generalSpeechDelegates);
 			if (voteResult.named_votes) {
 				generalNamedVoteDelegates = enrichCirclesWithNamedVoteInfo(voteResult.named_votes.named_votes, delegatesAtDate);
 			}
@@ -255,17 +254,41 @@
 						})}
 					/>
 				</div>
-				{#if generalSpeechDelegates.length > 0}
-					<div class="speeches-item bg-primary-300 rounded-xl p-4 gap-3">
-						<span class="font-bold text-3xl">Reden</span>
-						<div class="flex flex-row flex-wrap mt-3 gap-3">
-							{#each generalSpeechDelegates as speechDelegate}
-								<div>
-									<VoteDelegateCard class="w-80" bubble={speechDelegate} />
-								</div>
-							{/each}
+				{#if generalSpeechDelegates !== null}
+					{#if generalSpeechDelegates.length > 0}
+						<div class="speeches-item bg-primary-300 rounded-xl p-4 gap-3">
+							<span class="font-bold text-3xl">Reden</span>
+							<div class="flex flex-row flex-wrap mt-3 gap-3">
+								{#each generalSpeechDelegates as speechDelegate}
+									<div>
+										<VoteDelegateCard class="w-80" bubble={speechDelegate} />
+									</div>
+								{/each}
+							</div>
 						</div>
-					</div>
+					{/if}
+				{:else}
+					{#each { length: voteResult.speeches.length * 4 } as _}
+						<ExpandablePlaceholder class="" />
+					{/each}
+				{/if}
+				{#if generalNamedVoteDelegates != null}
+					{#if generalNamedVoteDelegates.length > 0}
+						<div class="speeches-item bg-primary-300 rounded-xl p-4 gap-3">
+							<span class="font-bold text-3xl">namentliche Abstimmungsergebnisse</span>
+							<div class="flex flex-row flex-wrap mt-3 gap-3">
+								{#each generalNamedVoteDelegates as namedVoteDelegate}
+									<div>
+										<VoteDelegateCard class="w-80" bubble={namedVoteDelegate} />
+									</div>
+								{/each}
+							</div>
+						</div>
+					{/if}
+				{:else}
+					{#each { length: 5 } as _}
+						<ExpandablePlaceholder class="" />
+					{/each}
 				{/if}
 			</div>
 		{/if}

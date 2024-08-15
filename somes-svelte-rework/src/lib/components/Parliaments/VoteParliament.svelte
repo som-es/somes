@@ -15,6 +15,7 @@
 
 	export let seats: number[] = [20, 27, 37, 43, 48, 54];
 	export let dels: Delegate[];
+	export let delsAtDate: Delegate[] = [];
 	export let preview: boolean = false;
 	export let voteResult: VoteResult;
 	export let delegate: Delegate | null = null;
@@ -38,6 +39,7 @@
 	}
 
 	export let circles2d: Bubble[][] = setupParliament(seats, width, height, 7.9);
+	export let circles: Bubble[] = [];
 	export let selected: Bubble | null = null;
 
 	function select(bubble: Bubble, event: MouseEvent | KeyboardEvent | null) {
@@ -103,6 +105,48 @@
 			currentLegisInit = allLegisPeriods[0].gp;
 		}
 	});
+
+	let circlesPerParty: Bubble[][]
+
+	$: {
+		let partyToDelegates = new Map<string, Delegate[]>();
+		delsAtDate.forEach(del => {
+			if (del.party == null) {
+				return;
+			}
+			if (!partyToDelegates.has(del.party)) {
+				partyToDelegates.set(del.party, []);
+			}
+			const currentDels = partyToDelegates.get(del.party);
+			currentDels?.push(del)
+		});
+		let rowIdx = 0;
+		partyToDelegates.forEach((dels, _party) => {
+			dels.forEach((del, colIdx) => {
+				const bubble = {
+					r: 7.9,
+					x: 0,
+					y: 0,
+					del: null,
+					color: 'rgb(196, 180, 189)',
+					opacity: 0.0,
+					title: null,
+					namedVote: null
+				};
+				circlesPerParty[rowIdx].push(bubble)
+
+				del.seat_row = rowIdx + 1;
+				del.seat_col = colIdx + 1;
+				setDelOnBubble(del, circlesPerParty, partyToColor);
+				setOpacity(bubble);
+			})
+			rowIdx += 1;
+		});
+		enrichCirclesWithSpeechInfoOnSeat(voteResult.speeches, circlesPerParty, delsAtDate);
+		if (voteResult.named_votes) {
+			enrichCirclesWithNamedVoteInfoOnSeat(voteResult.named_votes.named_votes, circlesPerParty, delsAtDate);
+		}
+	}
 
 	$: if (delegate && delegate.seat_row != null)
 		select(circles2d[delegate.seat_row - 1][delegate.seat_col! - 1], null);

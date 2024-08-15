@@ -94,7 +94,7 @@ export function enrichCirclesWithNamedVoteInfo(namedVotes: NamedVote[], dels: De
 				x: 0,
 				y: 0,
 				del: delegate,
-				namedVote: null,
+				namedVote: vote,
 				color: null,
 				opacity: 0,
 				title,
@@ -120,6 +120,7 @@ export function enrichCirclesWithSpeechInfoOnSeat(
 		circles2d[del.seat_row - 1][del.seat_col - 1].r = +10.9;
 	});
 }
+
 
 export function enrichCirclesWithNamedVoteInfoOnSeat(
 	namedVotes: NamedVote[],
