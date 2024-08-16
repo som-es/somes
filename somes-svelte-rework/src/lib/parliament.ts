@@ -1,4 +1,5 @@
 import type { Delegate, NamedVote, Speech, VoteResult } from '$lib/types';
+import { partyToColor } from './partyColor';
 
 export interface Bubble {
 	r: number;
@@ -53,6 +54,27 @@ export function setDelOnBubble(
 
 function findDelegateById(dels: Delegate[], id: number): Delegate | undefined {
 	return dels.find((del) => del.id === id);
+}
+
+export function enrichParliamentBubbles(
+	bubbles: Bubble[][],
+	dels: Delegate[],
+	voteResult: VoteResult,
+	setOpacity: (bubble: Bubble) => void
+) {
+	if (bubbles.length > 0)
+		dels.forEach((del) => {
+			// console.log(del);
+			setDelOnBubble(del, bubbles, partyToColor);
+
+			if (del.seat_col != null && del.seat_row != null) {
+				setOpacity(bubbles[del.seat_row - 1][del.seat_col - 1]);
+			}
+		});
+	enrichCirclesWithSpeechInfoOnSeat(voteResult.speeches, bubbles, dels);
+	if (voteResult.named_votes) {
+		enrichCirclesWithNamedVoteInfoOnSeat(voteResult.named_votes.named_votes, bubbles, dels);
+	}
 }
 
 export function enrichCirclesWithSpeechInfo(speeches: Speech[], dels: Delegate[]): Bubble[] {

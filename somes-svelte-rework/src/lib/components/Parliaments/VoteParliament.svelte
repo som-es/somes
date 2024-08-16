@@ -6,13 +6,17 @@
 		type Bubble,
 		setDelOnBubble,
 		enrichCirclesWithNamedVoteInfoOnSeat,
-		enrichCirclesWithSpeechInfoOnSeat
+		enrichCirclesWithSpeechInfoOnSeat,
+
+		enrichParliamentBubbles
+
 	} from '$lib/parliament';
 	import { getPartyColors, partyToColor } from '$lib/partyColor';
 	import type { Delegate, LegisPeriod, VoteResult } from '$lib/types';
 	import { onMount } from 'svelte';
 	import BaseParliament from './BaseParliament.svelte';
 	import { delegates_at } from '$lib/api';
+	import { groupPartyDelegates, setSeatsOfDels } from '$lib/parliaments/defaultParliament';
 
 	export let seats: number[] = [20, 27, 37, 43, 48, 54];
 	export let dels: Delegate[];
@@ -77,6 +81,8 @@
 		bubble.opacity = 1;
 	}
 
+	// enrichParliamentBubbles(circles2d, dels, voteResult, setOpacity);
+
 	dels.forEach((del) => {
 		setDelOnBubble(del, circles2d, partyToColor);
 
@@ -97,11 +103,33 @@
 	// 		}
 	// 	}
 	// }
+	const defaultSeats = [18, 25, 29, 33, 37, 41];
+	let circlesPerParty2: Bubble[][] = setupParliament(defaultSeats, width, height, 7.9, false);
 
 	let currentLegisInit = 'XXVII';
 	onMount(async () => {
 		const fetchedDelsAtDate = await delegates_at(voteResult.legislative_initiative.created_at);
-		if (fetchedDelsAtDate) delsAtDate = fetchedDelsAtDate;
+		if (fetchedDelsAtDate) {
+			delsAtDate = fetchedDelsAtDate;
+
+			let partyToDelegates = groupPartyDelegates(delsAtDate);
+			console.log(partyToDelegates);
+			let all = 0;
+			partyToDelegates.forEach((dels, _party) => {
+				all += dels.length;
+			});
+
+			const partyToDelegatesArray = Array.from(partyToDelegates.entries());
+			partyToDelegatesArray.sort((a, b) => b[1].length - a[1].length);
+
+			setSeatsOfDels(partyToDelegatesArray, all, defaultSeats.slice());
+
+			enrichParliamentBubbles(circlesPerParty2, delsAtDate, voteResult, setOpacity);
+			circlesPerParty2 = circlesPerParty2;
+
+
+		}
+
 		// circles2d = setupParliament(seats, width, height, 7.9);
 		const allLegisPeriods = await cachedAllLegisPeriods();
 		if (allLegisPeriods !== null && allLegisPeriods.length > 0) {
@@ -109,104 +137,25 @@
 		}
 	});
 
-	const defaultSeats = [18, 25, 29, 33, 37, 41];
-	let circlesPerParty2: Bubble[][] = setupParliament(defaultSeats, width, height, 7.9, false);
-	$: {
-		let partyToDelegates = new Map<string, Delegate[]>();
-		delsAtDate.forEach((del) => {
-			del.seat_row = null;
-			del.seat_col = null;
-			if (del.party == null || del.council != 'nr') {
-				return;
-			}
+	// $: {
 
-			if (!partyToDelegates.has(del.party)) {
-				partyToDelegates.set(del.party, []);
-			}
-			const currentDels = partyToDelegates.get(del.party);
-			currentDels?.push(del);
-		});
-		let all = 0;
-		partyToDelegates.forEach((dels, _party) => {
-			all += dels.length;
-		});
+	// 		let partyToDelegates = groupPartyDelegates(delsAtDate);
+	// 		console.log(partyToDelegates);
+	// 		let all = 0;
+	// 		partyToDelegates.forEach((dels, _party) => {
+	// 			all += dels.length;
+	// 		});
 
-		const startIdxs = [0, 0, 0, 0, 0, 0];
+	// 		const partyToDelegatesArray = Array.from(partyToDelegates.entries());
+	// 		partyToDelegatesArray.sort((a, b) => b[1].length - a[1].length);
 
-		const partyToDelegatesArray = Array.from(partyToDelegates.entries());
-		partyToDelegatesArray.sort((a, b) => b[1].length - a[1].length);
+	// 		setSeatsOfDels(partyToDelegatesArray, all, defaultSeats.slice());
 
-		partyToDelegatesArray.forEach(([party, dels], g) => {
-			const fraction = dels.length;
-			const share = fraction / all;
-			let restSeats = 0;
-			let startDelegateIdx = 0;
-			defaultSeats.forEach((seats, r) => {
-				let realSeats = Math.round(seats * share);
-				console.log(realSeats);
-				restSeats += seats * share - realSeats;
+	// 		enrichParliamentBubbles(circlesPerParty2, delsAtDate, voteResult, setOpacity);
 
-				if (realSeats + startIdxs[r] >= seats) {
-					restSeats += realSeats + startIdxs[r] - seats;
-					realSeats = seats - startIdxs[r];
-				}
-				const useDels = dels.slice(startDelegateIdx, startDelegateIdx + realSeats);
+	// 		circlesPerParty2 = circlesPerParty2;
+	// }
 
-				useDels.forEach((del, c) => {
-					del.seat_row = r + 1;
-					del.seat_col = c + startIdxs[r] + 1;
-				});
-
-				startDelegateIdx += realSeats;
-				startIdxs[r] += realSeats;
-			});
-
-			restSeats = Math.round(restSeats);
-			let row = defaultSeats.length - 1;
-			while (true) {
-				const seats = defaultSeats[row];
-
-				if (restSeats <= 0) {
-					break;
-				}
-				if (startIdxs[row] + 1 > seats) {
-					row -= 1;
-					continue;
-				}
-
-				const del = dels[startDelegateIdx];
-				if (del == null) break;
-				del.seat_row = row + 1;
-				del.seat_col = startIdxs[row] + 1;
-
-				startDelegateIdx += 1;
-				restSeats -= 1;
-				startIdxs[row] += 1;
-				row -= 1;
-				// if (row >= defaultSeats.length) row = 0;
-				if (row <= 0) row = defaultSeats.length - 1;
-			}
-			console.log(` ${party} ${restSeats}`);
-		});
-
-		if (circlesPerParty2.length > 0)
-			delsAtDate.forEach((del) => {
-				setDelOnBubble(del, circlesPerParty2, partyToColor);
-
-				if (del.seat_col != null && del.seat_row != null) {
-					setOpacity(circlesPerParty2[del.seat_row - 1][del.seat_col - 1]);
-				}
-			});
-		enrichCirclesWithSpeechInfoOnSeat(voteResult.speeches, circlesPerParty2, delsAtDate);
-		if (voteResult.named_votes) {
-			enrichCirclesWithNamedVoteInfoOnSeat(
-				voteResult.named_votes.named_votes,
-				circlesPerParty2,
-				delsAtDate
-			);
-		}
-		circlesPerParty2 = circlesPerParty2;
-	}
 
 	$: if (delegate && delegate.seat_row != null) {
 		const circleArray =

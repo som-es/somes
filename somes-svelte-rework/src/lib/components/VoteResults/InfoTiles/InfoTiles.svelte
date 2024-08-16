@@ -29,7 +29,6 @@
 		{ color: NOT_REACHED_COLOR, start: 240, end: 360 }
 	];
 
-	
 	let conicsStopsAchievedVotes = generateConicStopsForAchievedVotes();
 
 	let isLightMode = true;
@@ -117,7 +116,7 @@
 	</Square>
 	<Square class="majority-item">
 		<SimpleDonut
-			isLightMode={isLightMode}
+			{isLightMode}
 			stops={voteResult.legislative_initiative.requires_simple_majority
 				? conicStopsSimpleMajority
 				: conicStopsOtherMajority}
@@ -126,7 +125,7 @@
 		<div>Mehrheit</div>
 	</Square>
 	<Square>
-		<SimpleDonut stops={conicsStopsAchievedVotes} isLightMode={isLightMode} />
+		<SimpleDonut stops={conicsStopsAchievedVotes} {isLightMode} />
 		<div>Erreichte</div>
 		<div>Mehrheit</div>
 		<!-- {voteResult.legislative_initiative.requires_simple_majority ? "1/2" : "2/3" } -->
