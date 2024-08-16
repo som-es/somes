@@ -3,6 +3,7 @@ use chrono::NaiveDate;
 use dataservice::db::models::{DbDelegate, DbProposalQuery};
 use serde::{Deserialize, Serialize};
 use somes_common_lib::{Date, DelegateById, InterestShare};
+use sqlx::PgPool;
 use utoipa::ToSchema;
 
 use crate::{
@@ -193,6 +194,13 @@ pub async fn delegates_at(
     Query(date): Query<Date>,
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<Delegate>>, DelegatesErrorResponse> {
+    delegates_at_date(&pg, &date.at).await
+    .map(Json)
+    .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
+}
+
+
+pub async fn delegates_at_date(pg: &PgPool, date: &NaiveDate) -> sqlx::Result<Vec<Delegate>> {
     sqlx::query_as!(
         Delegate,
         "
@@ -231,15 +239,11 @@ pub async fn delegates_at(
             (mandates.name LIKE '%Abgeordnete%' OR mandates.name LIKE '%minister%') 
             and start_date <= $1::date 
             and (case when end_date is null then $1::date else end_date end) >= $1::date;
-        ", date.at
+        ", date
     )
-    .fetch_all(&pg)
+    .fetch_all(pg)
     .await
-    .map(Json)
-    .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
 }
-
-
 
 
 #[utoipa::path(

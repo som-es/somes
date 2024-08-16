@@ -35,7 +35,7 @@
 </script>
 
 {#if delegate}
-	<div class="!z-0 card card-hover min-h-full mx-4 drop-shadow-lg flex flex-col {clazz}">
+	<div class="!-z-50 card card-hover min-h-full mx-4 drop-shadow-lg flex flex-col {clazz}">
 		<header class="flex justify-center">
 			<img
 				src={delegate.image_url}
@@ -60,7 +60,7 @@
 			<hr class="!border-t-2 my-1" />
 			{bubble.title}
 			{#if bubble.namedVote && (bubble.namedVote.similiarity_score != 0 || bubble.namedVote.manually_matched)}
-				<div class="!z-10 card p-4 w-72 shadow-xl" data-popup="popupFeatured">
+				<div class="!z-50 card p-4 w-72 shadow-xl" data-popup="popupFeatured">
 					<div class="font-bold text-xl">Unsichere Zuteilung</div>
 					<div>
 						<span class="font-bold">"{bubble.namedVote.searched_with}"</span> wurde {bubble
