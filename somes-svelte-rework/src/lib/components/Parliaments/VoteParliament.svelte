@@ -120,7 +120,18 @@
 			});
 
 			const partyToDelegatesArray = Array.from(partyToDelegates.entries());
-			partyToDelegatesArray.sort((a, b) => b[1].length - a[1].length);
+			partyToDelegatesArray.sort((a, b) => {
+				const aInfavor = partyInfavorMap.get(a[0]);
+				const bInfavor = partyInfavorMap.get(b[0]);
+				if (aInfavor == bInfavor) {
+					return b[1].length - a[1].length;
+				} else if (aInfavor == true && bInfavor == false) {
+					return -1;
+				} else {
+					return 1;
+				}
+				// return b[1].length - a[1].length
+			});
 
 			setSeatsOfDels(partyToDelegatesArray, all, defaultSeats.slice());
 
