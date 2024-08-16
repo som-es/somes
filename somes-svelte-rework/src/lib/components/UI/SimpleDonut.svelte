@@ -4,6 +4,7 @@
 	import type { ConicStop } from '@skeletonlabs/skeleton';
 
 	export let stops: ConicStop[] = [{ color: 'red', start: 0, end: 360 }];
+	export let isLightMode: boolean = true;
 
 	function setColorValue(color: any): string {
 		return color;
@@ -20,7 +21,7 @@
 </script>
 
 {#if cone}
-	<div class="donut" style:background={cone}></div>
+	<div class="donut {isLightMode ? '' : 'dark-donut'}" style:background={cone}></div>
 {/if}
 
 <style>
@@ -33,6 +34,17 @@
 		background: rgb(var(--color-primary-300));
 		z-index: 10;
 	}
+
+	.dark-donut::before {
+		background: rgb(var(--color-primary-500));
+	}
+
+	/* @media (prefers-color-scheme: dark) {
+        .donut::before {
+            background: rgb(var(--color-primary-500));
+        }
+    } */
+
 	.donut {
 		width: 60px;
 		height: 60px;

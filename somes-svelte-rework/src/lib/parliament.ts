@@ -77,7 +77,10 @@ export function enrichCirclesWithSpeechInfo(speeches: Speech[], dels: Delegate[]
 	return speechDelegates;
 }
 
-export function enrichCirclesWithNamedVoteInfo(namedVotes: NamedVote[], dels: Delegate[]): Bubble[] {
+export function enrichCirclesWithNamedVoteInfo(
+	namedVotes: NamedVote[],
+	dels: Delegate[]
+): Bubble[] {
 	const namedVoteDelegates: Bubble[] = [];
 	const delegatesAt: Delegate[] = dels;
 	namedVotes.forEach((vote) => {
@@ -97,7 +100,7 @@ export function enrichCirclesWithNamedVoteInfo(namedVotes: NamedVote[], dels: De
 				namedVote: vote,
 				color: null,
 				opacity: 0,
-				title,
+				title
 			});
 		}
 	});
@@ -120,7 +123,6 @@ export function enrichCirclesWithSpeechInfoOnSeat(
 		circles2d[del.seat_row - 1][del.seat_col - 1].r = +10.9;
 	});
 }
-
 
 export function enrichCirclesWithNamedVoteInfoOnSeat(
 	namedVotes: NamedVote[],
@@ -148,7 +150,7 @@ export function setupParliament(
 	width: number,
 	height: number,
 	r: number,
-	useOffset = true,
+	useOffset = true
 ): Bubble[][] {
 	let circles2d: Bubble[][] = [];
 	seats.forEach((seat, idx) => {

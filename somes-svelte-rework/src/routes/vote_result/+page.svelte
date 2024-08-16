@@ -13,7 +13,12 @@
 	import { filteredDelegates } from '$lib/caching/delegates';
 	import VoteDelegateCard from '$lib/components/Delegates/VoteDelegateCard.svelte';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
-	import { enrichCirclesWithNamedVoteInfo, enrichCirclesWithSpeechInfo, setupParliament, type Bubble } from '$lib/parliament';
+	import {
+		enrichCirclesWithNamedVoteInfo,
+		enrichCirclesWithSpeechInfo,
+		setupParliament,
+		type Bubble
+	} from '$lib/parliament';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import { replaceState } from '$app/navigation';
 	import {
@@ -39,19 +44,22 @@
 	let inputValue = '';
 
 	let delegatesAtDate: Delegate[] = [];
-	let generalSpeechDelegates: Bubble[] | null= null;
+	let generalSpeechDelegates: Bubble[] | null = null;
 	let generalNamedVoteDelegates: Bubble[] | null = null;
 
 	async function fetchDelegatesAtAndEnrich() {
 		if (!voteResult) {
 			return;
 		}
-		delegatesAtDate = await delegates_at(voteResult.legislative_initiative.created_at) ?? [];
+		delegatesAtDate = (await delegates_at(voteResult.legislative_initiative.created_at)) ?? [];
 
 		if (delegatesAtDate) {
 			generalSpeechDelegates = enrichCirclesWithSpeechInfo(voteResult.speeches, delegatesAtDate);
 			if (voteResult.named_votes) {
-				generalNamedVoteDelegates = enrichCirclesWithNamedVoteInfo(voteResult.named_votes.named_votes, delegatesAtDate);
+				generalNamedVoteDelegates = enrichCirclesWithNamedVoteInfo(
+					voteResult.named_votes.named_votes,
+					delegatesAtDate
+				);
 			}
 		}
 	}
@@ -174,7 +182,7 @@
 			{/if}
 			<br />
 			<div class=" entry bg-primary-200 dark:bg-primary-400 mt-3 grid-container-with-emphasis">
-				<div class="title-item rounded-xl bg-primary-300 px-3 py-3">
+				<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
 					<h1 class="font-bold text-3xl">
 						{voteResult.legislative_initiative.voted_by_name ? 'namentliche ' : ''}Abstimmung über
 					</h1>
@@ -186,7 +194,9 @@
 					</div>
 				{/if}
 				{#if voteResult.named_votes}
-					<div class="text-lg named-vote-info-item rounded-xl bg-primary-300 px-3 py-3">
+					<div
+						class="text-lg named-vote-info-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3"
+					>
 						abgegebene Stimmen: <span class="font-bold"
 							>{voteResult.named_votes.named_vote_info.given_vote_sum}</span
 						>, Ja-Stimmen:
@@ -200,55 +210,59 @@
 					</div>
 				{/if}
 
-				<div class="simple-yes-no-item bg-primary-300 p-3 rounded-xl flex flex-row justify-between">
+				<div
+					class="simple-yes-no-item bg-primary-300 p-3 dark:bg-primary-500 rounded-xl flex flex-row justify-between"
+				>
 					<SimpleYesNo votes={voteResult.votes.slice()} />
 				</div>
 
 				<!-- {#if voteResult.legislative_initiative.gp == 'XXVII'} -->
-					<div class="z-50 search-item text-token space-y-5">
-						<input
-							class="!rounded-xl w-full h-10 px-2 input"
-							type="search"
-							name="ac-demo"
-							bind:value={inputValue}
-							placeholder="Suchen..."
-							use:popup={popupSettings}
-						/>
+				<div class="z-50 search-item text-token space-y-5">
+					<input
+						class="!rounded-xl w-full h-10 px-2 input"
+						type="search"
+						name="ac-demo"
+						bind:value={inputValue}
+						placeholder="Suchen..."
+						use:popup={popupSettings}
+					/>
 
-						{#if autocompleteOptions}
-							<div class="card max-h-64 p-4 overflow-y-auto" data-popup="popupAutocomplete">
-								<Autocomplete
-									bind:input={inputValue}
-									options={autocompleteOptions}
-									on:selection={onDelegateSelection}
-									emptyState={'Keine Person gefunden'}
-									filter={delegateFilter}
-								/>
-							</div>
-						{/if}
-					</div>
-
-					<div class="rounded-xl parliament-item bg-primary-300">
-						<VoteParliament
-							{dels}
-							{voteResult}
-							delsAtDate={delegatesAtDate}
-							bind:delegate
-							bind:selected={selectedBubble}
-							bind:circles2d
-						/>
-					</div>
-					{#if selectedBubble}
-						<div class="delegate-item">
-							<VoteDelegateCard bubble={selectedBubble} />
+					{#if autocompleteOptions}
+						<div class="card max-h-64 p-4 overflow-y-auto" data-popup="popupAutocomplete">
+							<Autocomplete
+								bind:input={inputValue}
+								options={autocompleteOptions}
+								on:selection={onDelegateSelection}
+								emptyState={'Keine Person gefunden'}
+								filter={delegateFilter}
+							/>
 						</div>
 					{/if}
+				</div>
+
+				<div class="rounded-xl parliament-item bg-primary-200 dark:bg-primary-200">
+					<VoteParliament
+						{dels}
+						{voteResult}
+						delsAtDate={delegatesAtDate}
+						bind:delegate
+						bind:selected={selectedBubble}
+						bind:circles2d
+					/>
+				</div>
+				{#if selectedBubble}
+					<div class="delegate-item">
+						<VoteDelegateCard bubble={selectedBubble} />
+					</div>
+				{/if}
 				<!-- {/if} -->
 				<div class="info-item">
 					<InfoTiles {voteResult} {dels} />
 				</div>
 
-				<div class="topics-item flex rounded-xl justify-center items-center bg-primary-300 p-3">
+				<div
+					class="topics-item flex rounded-xl justify-center items-center bg-primary-300 dark:bg-primary-500 p-3"
+				>
 					<Topics
 						topics={voteResult.topics.sort((a, b) => {
 							return a.topic.length - b.topic.length;
@@ -257,7 +271,7 @@
 				</div>
 				{#if generalSpeechDelegates !== null}
 					{#if generalSpeechDelegates.length > 0}
-						<div class="speeches-item bg-primary-300 rounded-xl p-4 gap-3">
+						<div class="speeches-item bg-primary-300 dark:bg-primary-500 rounded-xl p-4 gap-3">
 							<span class="font-bold text-3xl">Reden</span>
 							<div class="flex flex-row flex-wrap mt-3 gap-3">
 								{#each generalSpeechDelegates as speechDelegate}
@@ -275,7 +289,7 @@
 				{/if}
 				{#if generalNamedVoteDelegates != null}
 					{#if generalNamedVoteDelegates.length > 0}
-						<div class="speeches-item bg-primary-300 rounded-xl p-4 gap-3">
+						<div class="speeches-item bg-primary-300 dark:bg-primary-500 rounded-xl p-4 gap-3">
 							<span class="font-bold text-3xl">namentliche Abstimmungsergebnisse</span>
 							<div class="flex flex-row flex-wrap mt-3 gap-3">
 								{#each generalNamedVoteDelegates as namedVoteDelegate}

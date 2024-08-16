@@ -13,7 +13,7 @@
 	import { onMount } from 'svelte';
 	import BaseParliament from './BaseParliament.svelte';
 	import { delegates_at } from '$lib/api';
-	
+
 	export let seats: number[] = [20, 27, 37, 43, 48, 54];
 	export let dels: Delegate[];
 	export let delsAtDate: Delegate[] = [];
@@ -113,10 +113,10 @@
 	let circlesPerParty2: Bubble[][] = setupParliament(defaultSeats, width, height, 7.9, false);
 	$: {
 		let partyToDelegates = new Map<string, Delegate[]>();
-		delsAtDate.forEach(del => {
+		delsAtDate.forEach((del) => {
 			del.seat_row = null;
 			del.seat_col = null;
-			if (del.party == null || del.council != "nr") {
+			if (del.party == null || del.council != 'nr') {
 				return;
 			}
 
@@ -124,15 +124,17 @@
 				partyToDelegates.set(del.party, []);
 			}
 			const currentDels = partyToDelegates.get(del.party);
-			currentDels?.push(del)
+			currentDels?.push(del);
 		});
 		let all = 0;
-		partyToDelegates.forEach((dels, _party) => {all += dels.length});
+		partyToDelegates.forEach((dels, _party) => {
+			all += dels.length;
+		});
 
 		const startIdxs = [0, 0, 0, 0, 0, 0];
 
 		const partyToDelegatesArray = Array.from(partyToDelegates.entries());
-		partyToDelegatesArray.sort((a, b) => a[1].length - b[1].length)
+		partyToDelegatesArray.sort((a, b) => b[1].length - a[1].length);
 
 		partyToDelegatesArray.forEach(([party, dels], g) => {
 			const fraction = dels.length;
@@ -140,13 +142,13 @@
 			let restSeats = 0;
 			let startDelegateIdx = 0;
 			defaultSeats.forEach((seats, r) => {
-				let realSeats = Math.floor(seats * share);
+				let realSeats = Math.round(seats * share);
 				console.log(realSeats);
 				restSeats += seats * share - realSeats;
 
 				if (realSeats + startIdxs[r] >= seats) {
-					restSeats += (realSeats + startIdxs[r]) - seats
-					realSeats = seats - startIdxs[r]
+					restSeats += realSeats + startIdxs[r] - seats;
+					realSeats = seats - startIdxs[r];
 				}
 				const useDels = dels.slice(startDelegateIdx, startDelegateIdx + realSeats);
 
@@ -160,7 +162,7 @@
 			});
 
 			restSeats = Math.round(restSeats);
-			let row = 0;
+			let row = defaultSeats.length - 1;
 			while (true) {
 				const seats = defaultSeats[row];
 
@@ -168,42 +170,47 @@
 					break;
 				}
 				if (startIdxs[row] + 1 > seats) {
-					row += 1;
+					row -= 1;
 					continue;
 				}
-			
+
 				const del = dels[startDelegateIdx];
 				if (del == null) break;
 				del.seat_row = row + 1;
 				del.seat_col = startIdxs[row] + 1;
 
-				startDelegateIdx +=1;
+				startDelegateIdx += 1;
 				restSeats -= 1;
 				startIdxs[row] += 1;
-				row += 1;
-				if (row >= defaultSeats.length) row = 0;
+				row -= 1;
+				// if (row >= defaultSeats.length) row = 0;
+				if (row <= 0) row = defaultSeats.length - 1;
 			}
 			console.log(` ${party} ${restSeats}`);
-			
 		});
-		
-		if (circlesPerParty2.length > 0 )
-		delsAtDate.forEach(del => {
-			setDelOnBubble(del, circlesPerParty2, partyToColor);
 
-			if (del.seat_col != null && del.seat_row != null) {
-				setOpacity(circlesPerParty2[del.seat_row - 1][del.seat_col -1])
-			}
-		})
+		if (circlesPerParty2.length > 0)
+			delsAtDate.forEach((del) => {
+				setDelOnBubble(del, circlesPerParty2, partyToColor);
+
+				if (del.seat_col != null && del.seat_row != null) {
+					setOpacity(circlesPerParty2[del.seat_row - 1][del.seat_col - 1]);
+				}
+			});
 		enrichCirclesWithSpeechInfoOnSeat(voteResult.speeches, circlesPerParty2, delsAtDate);
 		if (voteResult.named_votes) {
-			enrichCirclesWithNamedVoteInfoOnSeat(voteResult.named_votes.named_votes, circlesPerParty2, delsAtDate);
+			enrichCirclesWithNamedVoteInfoOnSeat(
+				voteResult.named_votes.named_votes,
+				circlesPerParty2,
+				delsAtDate
+			);
 		}
 		circlesPerParty2 = circlesPerParty2;
 	}
 
 	$: if (delegate && delegate.seat_row != null) {
-		const circleArray = voteResult.legislative_initiative.gp === currentLegisInit ? circles2d : circlesPerParty2;
+		const circleArray =
+			voteResult.legislative_initiative.gp === currentLegisInit ? circles2d : circlesPerParty2;
 		select(circleArray[delegate.seat_row - 1][delegate.seat_col! - 1], null);
 	}
 </script>
@@ -211,7 +218,15 @@
 {#if voteResult.legislative_initiative.gp === currentLegisInit}
 	<BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} />
 {:else if circlesPerParty2.length > 0}
-	<BaseParliament class={clazz} bind:circles2d={circlesPerParty2} {selected} {preview} {select} {width} {height} />
+	<BaseParliament
+		class={clazz}
+		bind:circles2d={circlesPerParty2}
+		{selected}
+		{preview}
+		{select}
+		{width}
+		{height}
+	/>
 {:else}
 	Sitzplan nicht verfügbar
 {/if}
