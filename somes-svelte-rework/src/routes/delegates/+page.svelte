@@ -104,9 +104,11 @@
 			</div>
 			<div class="grid-container gap-3">
 				<div class="rounded-xl parliament-item bg-primary-300 dark:bg-primary-500">
+					{#if delegate?.is_active}
 					<div class="px-5">
 						<DelegatesParliament bind:delegate dels={delegates} />
 					</div>
+					{/if}
 				</div>
 				<div class="rounded-xl delegate-item bg-primary-300 dark:bg-primary-500">
 					{#if delegate}
