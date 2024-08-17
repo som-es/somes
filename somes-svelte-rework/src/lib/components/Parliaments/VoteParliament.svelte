@@ -106,12 +106,17 @@
 
 	let currentLegisInit = 'XXVII';
 	onMount(async () => {
-		const fetchedDelsAtDate = await delegates_at(voteResult.legislative_initiative.created_at);
+		let fetchedDelsAtDate;
+		if (delsAtDate.length == 0) {
+			fetchedDelsAtDate = await delegates_at(voteResult.legislative_initiative.created_at);
+		} else {
+			fetchedDelsAtDate = delsAtDate;
+		}
 		if (fetchedDelsAtDate) {
 			delsAtDate = fetchedDelsAtDate;
 
 			let partyToDelegates = groupPartyDelegates(delsAtDate);
-			console.log(partyToDelegates);
+			// console.log(partyToDelegates);
 			let all = 0;
 			partyToDelegates.forEach((dels, _party) => {
 				all += dels.length;

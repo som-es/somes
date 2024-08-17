@@ -14,15 +14,17 @@ const address = "http://somes.at:3000"
 // const address = "http://192.168.1.114:3000"
 
 export async function fetchSavely<T>(fn: () => Promise<Response>): Promise<T | null> {
+	let response;
 	try {
-		let response = await fn();
+		response = await fn();
 		const json = await response.json();
 		if ('error' in json) {
 			return null;
 		}
 		return json;
 	} catch (error) {
-		console.log(error);
+		console.log(response);
+		console.log(`error: ${error}`);
 		return null;
 	}
 }

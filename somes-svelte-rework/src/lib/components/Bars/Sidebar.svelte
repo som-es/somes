@@ -5,11 +5,14 @@
 	import homeIcon from '$lib/assets/icons/home.svg?raw';
 	import statsIcon from '$lib/assets/icons/statistics.svg?raw';
 	import { AppRail, AppRailAnchor, AppRailTile, getDrawerStore } from '@skeletonlabs/skeleton';
+	import VoteParliament from '../Parliaments/VoteParliament.svelte';
+	import { mockDelegates, mockVoteResult } from '$lib/parliaments/mock';
 
 	let currentTile: number = 0;
 	$: isSelected = (href: string) => {
 		return $page.url.pathname?.includes(href);
 	};
+
 	// $: activeAnchorColor = (href: string) => ($page.url.pathname?.includes(href) ? 'flex flex-col justify-center items-stretch bg-primary-active-token' : 'bg-primary-hover-token');
 </script>
 
@@ -45,7 +48,7 @@
 			<span style="font-size: x-small;">Abgeordnete</span>
 		</AppRailAnchor>
 		<hr />
-
+	
 		<AppRailAnchor
 			selected={isSelected('/statistics')}
 			href="/statistics"
@@ -57,6 +60,21 @@
 			<svelte:fragment slot="lead"><div class="w-10">{@html statsIcon}</div></svelte:fragment>
 			<span style="font-size: x-small;">Statistiken</span>
 		</AppRailAnchor>
+		
+		<AppRailAnchor
+			selected={isSelected('/vote_history')}
+			href="/vote_history"
+			bind:group={currentTile}
+			name="Abstimmungen"
+			value={1}
+			title="Abstimmungen"
+		>
+			<svelte:fragment slot="lead">
+    			<VoteParliament voteResult={mockVoteResult()} dels={[]} delsAtDate={mockDelegates()} preview />
+			</svelte:fragment>
+			<span style="font-size: x-small;">Abstimmungen</span>
+		</AppRailAnchor>
+		<hr />
 		<!-- <AppRailAnchor class={activeAnchorColor("/statistics")} href="/statistics" bind:group={currentTile} name="Statistiken" value={2} title="Statistiken">
 			<svelte:fragment slot="lead">{@html statsIcon}</svelte:fragment>
 			<span style="font-size: x-small;">Statistiken</span>

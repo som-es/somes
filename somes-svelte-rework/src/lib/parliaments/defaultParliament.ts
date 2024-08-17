@@ -34,7 +34,7 @@ export function setSeatsOfDels(
 		let startDelegateIdx = 0;
 		defaultSeats.forEach((seats, r) => {
 			let realSeats = Math.floor(seats * share);
-			console.log(realSeats);
+			// console.log(realSeats);
 			restSeats += seats * share - realSeats;
 
 			if (realSeats + startIdxs[r] >= seats) {
@@ -71,7 +71,7 @@ export function setSeatsOfDels(
 			// break;
 
 			count += 1;
-			console.log(restSeats);
+			// console.log(restSeats);
 			if (Math.round(restSeats) <= 0) {
 				break;
 			} else {
@@ -91,6 +91,6 @@ export function setSeatsOfDels(
 			startIdxs[row] += 1;
 			row += 1;
 		}
-		console.log(` ${party} ${restSeats}`);
+		// console.log(` ${party} ${restSeats}`);
 	});
 }
