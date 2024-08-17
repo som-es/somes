@@ -2,6 +2,7 @@ export interface Delegate {
 	id: number;
 	name: string;
 	party: string;
+	current_party: string;
 	image_url: string;
 	constituency: string;
 	council: string;

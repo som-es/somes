@@ -14,11 +14,11 @@
 		<h4 class="font-bold text-lg">
 			{delegate.name}
 		</h4>
-		<h5 style="color: {partyToColor(delegate.party)}">
+		<h5 style="color: {partyToColor(delegate.current_party)}">
 			{#if delegate.party == 'OK'}
 				Ohne Klub
 			{:else}
-				<span>{delegate.party}</span>
+				<span>{delegate.current_party}</span>
 			{/if}
 		</h5>
 		<h6>{delegate.constituency}</h6>

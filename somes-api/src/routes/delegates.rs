@@ -21,6 +21,7 @@ pub struct Delegate {
     pub id: i32,
     pub name: String,
     pub party: Option<String>,
+    pub current_party: Option<String>,
     pub image_url: Option<String>,
     pub constituency: Option<String>,
     pub council: Option<String>,
@@ -79,6 +80,7 @@ pub async fn delegate(
         SELECT 
             delegates.id, 
             delegates.name, 
+            delegates.party, 
             delegates.party, 
             delegates.image_url, 
             delegates.constituency, 
@@ -142,6 +144,7 @@ pub async fn delegates(
         SELECT 
             delegates.id, 
             delegates.name, 
+            delegates.party, 
             delegates.party, 
             delegates.image_url, 
             delegates.constituency, 
@@ -207,8 +210,8 @@ pub async fn delegates_at_date(pg: &PgPool, date: &NaiveDate) -> sqlx::Result<Ve
         SELECT 
             delegates.id, 
             delegates.name, 
-            --delegates.party, 
             mandates.party,
+            delegates.party as current_party, 
             delegates.image_url, 
             delegates.constituency, 
             CASE 

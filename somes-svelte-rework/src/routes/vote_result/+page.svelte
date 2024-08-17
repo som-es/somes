@@ -6,17 +6,15 @@
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import Topics from '$lib/components/Topics/Topics.svelte';
-	import type { Delegate, VoteResult } from '$lib/types';
+	import type { Delegate } from '$lib/types';
 	import Emphasis from '$lib/components/VoteResults/Emphasis/Emphasis.svelte';
 	import VoteParliament from '$lib/components/Parliaments/VoteParliament.svelte';
 	import InfoTiles from '$lib/components/VoteResults/InfoTiles/InfoTiles.svelte';
 	import { filteredDelegates } from '$lib/caching/delegates';
 	import VoteDelegateCard from '$lib/components/Delegates/VoteDelegateCard.svelte';
-	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import {
 		enrichCirclesWithNamedVoteInfo,
 		enrichCirclesWithSpeechInfo,
-		setupParliament,
 		type Bubble
 	} from '$lib/parliament';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
@@ -60,6 +58,8 @@
 					voteResult.named_votes.named_votes,
 					delegatesAtDate
 				);
+			} else {
+				generalNamedVoteDelegates = []
 			}
 		}
 	}
@@ -71,6 +71,9 @@
 			autocompleteOptions = convertDelegatesToAutocompleteOptions(dels);
 		}
 		await fetchDelegatesAtAndEnrich();
+		if (delegatesAtDate !== null && voteResult?.legislative_initiative.gp == "XXVII") {
+			delegate = delegatesAtDate[Math.floor(Math.random() * delegatesAtDate.length)];
+		}
 
 		const maybeStoredDelegate = get(currentDelegateStore);
 		if (maybeStoredDelegate) {

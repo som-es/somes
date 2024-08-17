@@ -15,7 +15,7 @@
 			cachedPartyColors(true);
 			cachedDelegates(true);
 		},
-		1000 * 60 * 20
+		1000 * 60 * 2
 	);
 	setInterval(
 		async () => {
