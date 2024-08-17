@@ -9,7 +9,7 @@ edition = "2021"
 somes-common-lib = {path = "../somes-common-lib"}
 axum = {version="=0.7.4", features = ["macros"]}
 axum-extra ={ version ="0.9", features = ["typed-header"] }
-tower-http = { version = "0.5", features = ["cors"] }
+tower-http = { version = "0.5", features = ["cors", "fs"] }
 headers = "0.4"
 jsonwebtoken = "9.0"
 once_cell = "1.8"

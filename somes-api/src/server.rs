@@ -1,15 +1,13 @@
 use std::{net::SocketAddr, path::PathBuf};
 
 use axum::{
-    extract::FromRef,
-    http,
-    routing::{get, post},
-    Router,
+    extract::FromRef, http, response::Html, routing::{get, get_service, post}, Router
 };
 use axum_server::tls_rustls::RustlsConfig;
 use dataservice::db::models::{DbLegislativeInitiativeQuery, DbParty};
 // use diesel_async::pooled_connection::AsyncDieselConnectionManager;
 use log::{error, info};
+use reqwest::StatusCode;
 use somes_common_lib::{
     CALL_TO_ORDERS_PER_PARTY_DELEGATES, DELEGATES_BY_CALL_TO_ORDERS,
     DELEGATES_BY_CALL_TO_ORDERS_AND_LEGIS_PERIOD, DELEGATES_ROUTE, LATEST_LEGIS_INITS_ROUTE,
@@ -29,9 +27,9 @@ use crate::{
         delegates_by_call_to_orders_and_legis_period, latest_vote_results, parties, proposals,
         save_email, speakers_by_hours, speakers_by_hours_and_legis_period, user
     },
-    DATASERVICE_URL, LEGIS_INITS_PER_PAGE, REDIS_DB,
+    DATASERVICE_URL, LEGIS_INITS_PER_PAGE, REDIS_DB, STATIC_FRONTEND_PATH,
 };
-use tower_http::cors::{Any, CorsLayer};
+use tower_http::{cors::{Any, CorsLayer}, services::ServeDir};
 
 use crate::routes::*;
 use crate::routes::{login, signup, verify};
@@ -164,6 +162,11 @@ pub async fn serve(addr: SocketAddr) {
     )
     .await;
 
+    let static_files_dir = PathBuf::from(STATIC_FRONTEND_PATH);
+    let serve_dir = ServeDir::new(static_files_dir.clone())
+        .fallback(get(|| async { Html(include_str!("../build/index.html")) }));
+
+
     let app = Router::new()
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .route(SIGNUP_ROUTE, post(signup))
@@ -201,6 +204,11 @@ pub async fn serve(addr: SocketAddr) {
         .route(DELEGATES_AT, get(delegates_at)) // post only because js fetch...
         .route(ALL_GPS, get(all_gps))
         .route("/save_email", post(save_email))
+
+        // mind conflicts
+        .fallback_service(get_service(serve_dir).handle_error(|_| async move {
+            (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
+        }))
         .layer(
             CorsLayer::new()
                 .allow_origin(Any)
