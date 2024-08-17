@@ -4,6 +4,8 @@
 	import homeIcon from '$lib/assets/icons/home.svg?raw';
 	import userIcon from '$lib/assets/icons/user.svg?raw';
 	import statsIcon from '$lib/assets/icons/statistics.svg?raw';
+	import VoteParliament from '../Parliaments/VoteParliament.svelte';
+	import { mockDelegates, mockVoteResult } from '$lib/parliaments/mock';
 
 	$: isSelected = (href: string) => $page.url.pathname?.includes(href);
 </script>
@@ -33,12 +35,22 @@
 			<div>Statistiken</div>
 		</div>
 	</TabAnchor>
-	<TabAnchor href="/user" selected={isSelected('/user')}>
+	<TabAnchor href="/vote_history" selected={isSelected('/vote_history')}>
 		<div class="flex justify-center flex-col items-center">
-			<div class="">
-				{@html userIcon}
+			<div>
+				<VoteParliament
+					class="w-[60px]"
+					againstOpacity={0.3}
+					voteResult={mockVoteResult()}
+					dels={[]}
+					delsAtDate={mockDelegates()}
+					preview
+				/>
 			</div>
-			<div>Benutzer</div>
+			<!-- <div>
+				{@html userIcon}
+			</div> -->
+			<div>Abstimmungen</div>
 		</div>
 	</TabAnchor>
 </TabGroup>

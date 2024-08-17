@@ -4,7 +4,7 @@
 </script>
 
 <div>
-	statistics hi
+	statistics
 
 	<div class="w-full">
 		<VoteParliament voteResult={mockVoteResult()} dels={[]} delsAtDate={mockDelegates()} preview />
