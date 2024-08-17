@@ -59,7 +59,7 @@
 					delegatesAtDate
 				);
 			} else {
-				generalNamedVoteDelegates = []
+				generalNamedVoteDelegates = [];
 			}
 		}
 	}
@@ -71,7 +71,7 @@
 			autocompleteOptions = convertDelegatesToAutocompleteOptions(dels);
 		}
 		await fetchDelegatesAtAndEnrich();
-		if (delegatesAtDate !== null && voteResult?.legislative_initiative.gp != "XXVII") {
+		if (delegatesAtDate !== null && voteResult?.legislative_initiative.gp != 'XXVII') {
 			delegate = delegatesAtDate[Math.floor(Math.random() * delegatesAtDate.length)];
 			autocompleteOptions = convertDelegatesToAutocompleteOptions(delegatesAtDate);
 		}

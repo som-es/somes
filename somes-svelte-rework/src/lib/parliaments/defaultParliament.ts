@@ -4,11 +4,11 @@ import type { Delegate } from '$lib/types';
 export function groupPartyDelegates(dels: Delegate[]): Map<string, Delegate[]> {
 	let partyToDelegates = new Map<string, Delegate[]>();
 
-    for (let idx = 0; idx < dels.length; idx++) {
-        const del = dels[idx];
-        dels[idx].seat_row = null;
-        dels[idx].seat_col = null;
-        if (del.party == null || del.council != 'nr') {
+	for (let idx = 0; idx < dels.length; idx++) {
+		const del = dels[idx];
+		dels[idx].seat_row = null;
+		dels[idx].seat_col = null;
+		if (del.party == null || del.council != 'nr') {
 			continue;
 		}
 
@@ -16,8 +16,8 @@ export function groupPartyDelegates(dels: Delegate[]): Map<string, Delegate[]> {
 			partyToDelegates.set(del.party, []);
 		}
 		const currentDels = partyToDelegates.get(del.party);
-		currentDels?.push(del);     
-    }
+		currentDels?.push(del);
+	}
 	return partyToDelegates;
 }
 
@@ -44,8 +44,8 @@ export function setSeatsOfDels(
 			const useDels = dels.slice(startDelegateIdx, startDelegateIdx + realSeats);
 
 			useDels.forEach((del, c) => {
-                del.seat_col = null;
-                del.seat_row = null;
+				del.seat_col = null;
+				del.seat_row = null;
 				del.seat_row = r + 1;
 				del.seat_col = c + startIdxs[r] + 1;
 			});
@@ -56,7 +56,7 @@ export function setSeatsOfDels(
 
 		restSeats = Math.round(restSeats);
 
-        let count = 0;
+		let count = 0;
 		// let row = defaultSeats.length - 1;
 		let row = 0;
 		while (true) {
@@ -64,18 +64,18 @@ export function setSeatsOfDels(
 			// if (row <= 0) row = defaultSeats.length - 1;
 			const seats = defaultSeats[row];
 
-            if (count >= 1000) {
-                // break
-            }
+			if (count >= 1000) {
+				// break
+			}
 
-            // break;
+			// break;
 
-            count += 1;
-                console.log(restSeats);
+			count += 1;
+			console.log(restSeats);
 			if (Math.round(restSeats) <= 0) {
 				break;
 			} else {
-            }
+			}
 			if (startIdxs[row] + 1 > seats) {
 				row += 1;
 				continue;
@@ -85,7 +85,6 @@ export function setSeatsOfDels(
 			if (del == null) break;
 			del.seat_row = row + 1;
 			del.seat_col = startIdxs[row] + 1;
-
 
 			startDelegateIdx += 1;
 			restSeats -= 1;

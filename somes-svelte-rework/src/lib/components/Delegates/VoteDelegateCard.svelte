@@ -40,6 +40,7 @@
 			<img
 				src={delegate.image_url}
 				style="width: 200px;"
+				class="rounded-full"
 				alt="Image of politician {delegate.name}"
 			/>
 		</header>

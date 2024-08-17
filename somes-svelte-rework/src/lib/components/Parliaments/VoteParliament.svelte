@@ -7,9 +7,7 @@
 		setDelOnBubble,
 		enrichCirclesWithNamedVoteInfoOnSeat,
 		enrichCirclesWithSpeechInfoOnSeat,
-
 		enrichParliamentBubbles
-
 	} from '$lib/parliament';
 	import { getPartyColors, partyToColor } from '$lib/partyColor';
 	import type { Delegate, LegisPeriod, VoteResult } from '$lib/types';
@@ -137,8 +135,6 @@
 
 			enrichParliamentBubbles(circlesPerParty2, delsAtDate, voteResult, setOpacity);
 			circlesPerParty2 = circlesPerParty2;
-
-
 		}
 
 		// circles2d = setupParliament(seats, width, height, 7.9);
@@ -166,7 +162,6 @@
 
 	// 		circlesPerParty2 = circlesPerParty2;
 	// }
-
 
 	$: if (delegate && delegate.seat_row != null) {
 		const circleArray =

@@ -8,7 +8,12 @@
 
 <div class="!z-0 card card-hover min-h-full mx-4 drop-shadow-lg flex flex-col">
 	<header class="flex justify-center">
-		<img src={delegate.image_url} style="width: 200px;" alt="Image of politician {delegate.name}" />
+		<img
+			src={delegate.image_url}
+			style="width: 200px;"
+			class="rounded-full"
+			alt="Image of politician {delegate.name}"
+		/>
 	</header>
 	<section class="p-4 flex-grow">
 		<h4 class="font-bold text-lg">
