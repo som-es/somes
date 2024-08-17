@@ -5,7 +5,7 @@
 	export let topics: Topic[] = [];
 </script>
 
-<div class="flex flex-wrap gap-2">
+<div class="flex flex-wrap gap-2 px-1">
 	{#each topics as topic}
 		{#if topic.topic == 'namentliche Abstimmung'}
 			<DisplayTopic class={'!bg-secondary-400'}>{topic.topic}</DisplayTopic>

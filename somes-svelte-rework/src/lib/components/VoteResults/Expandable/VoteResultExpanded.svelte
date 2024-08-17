@@ -10,6 +10,7 @@
 
 	export let voteResult: VoteResult;
 	export let dels: Delegate[];
+	export let open: boolean = true;
 
 	function onShowDetails() {
 		currentVoteResultStore.set(voteResult);
@@ -31,11 +32,19 @@
 	<div class="rounded-md w-full bg-primary-100 parliament-item mt-3 mb-3">
 		<VoteParliament {dels} {voteResult} preview={true} />
 	</div>
-
+	<div class="topics-item flex rounded-xl justify-center items-center bg-primary-300 p-3 mb-3">
+		<Topics
+			topics={voteResult.topics.sort((a, b) => {
+				return a.topic.length - b.topic.length;
+			})}
+		/>
+	</div>
 	<InfoTiles {voteResult} {dels} isCenter />
+	
 
 	<div class="flex justify-between mt-3">
-		<div></div>
+
+		<SButton class="bg-primary-300 text-black" on:click={() => {open = false}}>Einklappen</SButton>
 		<!-- <div class="accepted-item bg-primary-300">Angenommen: {voteResult.legislative_initiative.accepted}</div> -->
 		<div class="ml-auto more-info-item">
 			<SButton class="bg-tertiary-500 text-black" on:click={onShowDetails}>Details anzeigen</SButton
@@ -48,7 +57,7 @@
 
 	<Emphasis {emphasis}></Emphasis>
 
-	<div class="topics-item flex rounded-xl justify-center items-center bg-primary-300 px-3">
+	<div class="topics-item flex rounded-xl justify-center items-center bg-primary-300 p-3 max-h-[169px]">
 		<Topics
 			topics={voteResult.topics.sort((a, b) => {
 				return a.topic.length - b.topic.length;

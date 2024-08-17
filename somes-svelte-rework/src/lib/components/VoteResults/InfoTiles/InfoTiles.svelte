@@ -102,40 +102,44 @@
 </script>
 
 <div class="flex flex-wrap {isCenter ? 'justify-center' : ''} info-item gap-3">
-	<Square class="accepted-item">
-		{#if voteResult.legislative_initiative.accepted == 'a'}
-			{@html checkmarkIcon}
-			<div>Angenommen</div>
-		{:else}
-			{@html crossmarkIcon}
-			<div>Abgelehnt</div>
-			{#if voteResult.legislative_initiative.accepted == 'p'}
-				<div>(frühzeitig)</div>
+	<div class="flex gap-3 flex-wrap">
+		<Square class="accepted-item">
+			{#if voteResult.legislative_initiative.accepted == 'a'}
+				{@html checkmarkIcon}
+				<div>Angenommen</div>
+			{:else}
+				{@html crossmarkIcon}
+				<div>Abgelehnt</div>
+				{#if voteResult.legislative_initiative.accepted == 'p'}
+					<div>(frühzeitig)</div>
+				{/if}
 			{/if}
-		{/if}
-	</Square>
-	<Square class="majority-item">
-		<SimpleDonut
-			{isLightMode}
-			stops={voteResult.legislative_initiative.requires_simple_majority
-				? conicStopsSimpleMajority
-				: conicStopsOtherMajority}
-		/>
-		<div>Notwendige</div>
-		<div>Mehrheit</div>
-	</Square>
-	<Square>
-		<SimpleDonut stops={conicsStopsAchievedVotes} {isLightMode} />
-		<div>Erreichte</div>
-		<div>Mehrheit</div>
-		<!-- {voteResult.legislative_initiative.requires_simple_majority ? "1/2" : "2/3" } -->
-	</Square>
-	<Square>
-		<div class="font-bold text-lg">
-			{dashDateToDotDate(voteResult.legislative_initiative.created_at.toString())}
-		</div>
-		<div>Abgestimmt am</div>
-	</Square>
+		</Square>
+		<Square class="majority-item">
+			<SimpleDonut
+				{isLightMode}
+				stops={voteResult.legislative_initiative.requires_simple_majority
+					? conicStopsSimpleMajority
+					: conicStopsOtherMajority}
+			/>
+			<div>Notwendige</div>
+			<div>Mehrheit</div>
+		</Square>
+	</div>
+	<div class="flex gap-3 flex-wrap">
+		<Square>
+			<SimpleDonut stops={conicsStopsAchievedVotes} {isLightMode} />
+			<div>Erreichte</div>
+			<div>Mehrheit</div>
+			<!-- {voteResult.legislative_initiative.requires_simple_majority ? "1/2" : "2/3" } -->
+		</Square>
+		<Square>
+			<div class="font-bold text-lg">
+				{dashDateToDotDate(voteResult.legislative_initiative.created_at.toString())}
+			</div>
+			<div>Abgestimmt am</div>
+		</Square>
+	</div>
 </div>
 
 <style>
@@ -165,8 +169,6 @@
 
 	.info-item {
 		grid-area: i;
-		overflow: hidden; /* NEW */
-		min-width: 0; /* NEW; needed for Firefox */
 	}
 
 	.details-item {

@@ -205,7 +205,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(ALL_GPS, get(all_gps))
         .route("/save_email", post(save_email))
 
-        // mind conflicts
+        // mind conflicts e.g delegates
         .fallback_service(get_service(serve_dir).handle_error(|_| async move {
             (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
         }))

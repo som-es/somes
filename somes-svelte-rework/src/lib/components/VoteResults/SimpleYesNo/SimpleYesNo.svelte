@@ -10,13 +10,13 @@
 
 <div>
 	<span class="font-bold text-lg">Dafür</span>
-	<div class="flex mt-0 gap-3 py-2">
+	<div class="flex flex-wrap mt-0 gap-3 py-2">
 		<BadgeList {votes} infavor />
 	</div>
 </div>
 <div>
 	<span class="font-bold text-lg">Dagegen</span>
-	<div class="flex mt-0 gap-3 py-2">
+	<div class="flex flex-wrap mt-0 gap-3 py-2">
 		<BadgeList {votes} />
 	</div>
 </div>

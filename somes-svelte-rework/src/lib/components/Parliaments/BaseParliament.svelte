@@ -17,7 +17,7 @@
 </script>
 
 <div class={clazz}>
-	<svg viewBox="0 0 {width} {height * 0.5 + 60}" style="max-width: 100%;">
+	<svg viewBox="0 0 {width} {height * 0.5 + 60}" style="width: 100%;">
 		{#each circles2d.flat(1) as circle, i}
 			<circle
 				class="translated-circle outline-none"

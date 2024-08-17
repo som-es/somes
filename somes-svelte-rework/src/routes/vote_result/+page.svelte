@@ -215,7 +215,7 @@
 				{/if}
 
 				<div
-					class="simple-yes-no-item bg-primary-300 p-3 dark:bg-primary-500 rounded-xl flex flex-row justify-between"
+					class="simple-yes-no-item bg-primary-300 p-3 dark:bg-primary-500 rounded-xl flex flex-wrap justify-between"
 				>
 					<SimpleYesNo votes={voteResult.votes.slice()} />
 				</div>
@@ -244,34 +244,39 @@
 					{/if}
 				</div>
 
-				<div class="rounded-xl parliament-item bg-primary-200 dark:bg-primary-200">
-					<VoteParliament
-						{dels}
-						{voteResult}
-						delsAtDate={delegatesAtDate}
-						bind:delegate
-						bind:selected={selectedBubble}
-						bind:circles2d
-					/>
-				</div>
-				{#if selectedBubble}
-					<div class="delegate-item">
-						<VoteDelegateCard bubble={selectedBubble} />
+				<div class="flex flex-wrap min-w-full justify-between">
+					<div class="rounded-xl w-full parliament-item flex- bg-primary-200 dark:bg-primary-200">
+						<VoteParliament
+							{dels}
+							{voteResult}
+							delsAtDate={delegatesAtDate}
+							bind:delegate
+							bind:selected={selectedBubble}
+							bind:circles2d
+						/>
 					</div>
-				{/if}
-				<!-- {/if} -->
-				<div class="info-item">
-					<InfoTiles {voteResult} {dels} />
+					{#if selectedBubble}
+						<div class="max-md:hidden delegate-item">
+							<VoteDelegateCard bubble={selectedBubble} />
+						</div>
+					{/if}
 				</div>
 
-				<div
-					class="topics-item flex rounded-xl justify-center items-center bg-primary-300 dark:bg-primary-500 p-3"
-				>
-					<Topics
-						topics={voteResult.topics.sort((a, b) => {
-							return a.topic.length - b.topic.length;
-						})}
-					/>
+				<!-- {/if} -->
+				<div class="flex flex-wrap justify-between min-w-full gap-3">
+					<div class="info-item">
+						<InfoTiles {voteResult} {dels} />
+					</div>
+					
+					 <div
+						class="topics-item flex rounded-xl justify-center items-center bg-primary-300 dark:bg-primary-500 p-3 max-h-[169px]"
+					>
+						<Topics
+							topics={voteResult.topics.sort((a, b) => {
+								return a.topic.length - b.topic.length;
+							})}
+						/>
+					</div>
 				</div>
 				{#if generalSpeechDelegates !== null}
 					{#if generalSpeechDelegates.length > 0}
@@ -279,8 +284,8 @@
 							<span class="font-bold text-3xl">Reden</span>
 							<div class="flex flex-row flex-wrap mt-3 gap-3">
 								{#each generalSpeechDelegates as speechDelegate}
-									<div>
-										<VoteDelegateCard class="w-80" bubble={speechDelegate} />
+									<div class="w-full max-w-80">
+										<VoteDelegateCard  bubble={speechDelegate} />
 									</div>
 								{/each}
 							</div>
@@ -351,17 +356,22 @@
 		flex-basis: 100%;
 	}
 
-	.parliament-item {
-		grid-area: p;
-		flex-basis: 66.6%;
+	@media (min-width: 768px) {
+		.parliament-item {
+			grid-area: p;
+			flex-basis: 66.6%;
+		}
 	}
-	.delegate-item {
-		grid-area: d;
-		flex-basis: 31%;
+
+	@media (min-width: 768px) {
+		.delegate-item {
+			grid-area: d;
+			flex-basis: 33.4%;
+		}
 	}
 	.topics-item {
 		grid-area: t;
-		flex-basis: 40%;
+		/* flex-basis: 40%; */
 	}
 
 	.emphasis-item {
@@ -371,7 +381,7 @@
 
 	.info-item {
 		grid-area: i;
-		flex-basis: 58%;
+		/* flex-basis: 60%; */
 	}
 	.search-item {
 		grid-area: search;
