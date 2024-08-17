@@ -1,0 +1,1 @@
+import{p as a}from"./scheduler.NIwLkEfL.js";import{b as l,c as i}from"./delegates.CU-NjU2q.js";async function c(t=!1){let e=a(l);if(e==null||t||e.length==0){const s=await i();l.set(s),e=s}return e!==null&&(e=e.slice()),e}export{c};
