@@ -33,7 +33,7 @@
 	</div>
 
 	<div use:collapse={{ open, duration }}>
-		<VoteResultExpanded {voteResult} {dels} bind:open={open} />
+		<VoteResultExpanded {voteResult} {dels} bind:open />
 	</div>
 </div>
 

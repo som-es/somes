@@ -40,11 +40,14 @@
 		/>
 	</div>
 	<InfoTiles {voteResult} {dels} isCenter />
-	
 
 	<div class="flex justify-between mt-3">
-
-		<SButton class="bg-primary-300 text-black" on:click={() => {open = false}}>Einklappen</SButton>
+		<SButton
+			class="bg-primary-300 text-black"
+			on:click={() => {
+				open = false;
+			}}>Einklappen</SButton
+		>
 		<!-- <div class="accepted-item bg-primary-300">Angenommen: {voteResult.legislative_initiative.accepted}</div> -->
 		<div class="ml-auto more-info-item">
 			<SButton class="bg-tertiary-500 text-black" on:click={onShowDetails}>Details anzeigen</SButton
@@ -57,7 +60,9 @@
 
 	<Emphasis {emphasis}></Emphasis>
 
-	<div class="topics-item flex rounded-xl justify-center items-center bg-primary-300 p-3 max-h-[169px]">
+	<div
+		class="topics-item flex rounded-xl justify-center items-center bg-primary-300 p-3 max-h-[169px]"
+	>
 		<Topics
 			topics={voteResult.topics.sort((a, b) => {
 				return a.topic.length - b.topic.length;

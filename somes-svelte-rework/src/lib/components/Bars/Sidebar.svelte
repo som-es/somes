@@ -48,7 +48,7 @@
 			<span style="font-size: x-small;">Abgeordnete</span>
 		</AppRailAnchor>
 		<hr />
-	
+
 		<AppRailAnchor
 			selected={isSelected('/statistics')}
 			href="/statistics"
@@ -60,7 +60,8 @@
 			<svelte:fragment slot="lead"><div class="w-10">{@html statsIcon}</div></svelte:fragment>
 			<span style="font-size: x-small;">Statistiken</span>
 		</AppRailAnchor>
-		
+
+		<hr />
 		<AppRailAnchor
 			selected={isSelected('/vote_history')}
 			href="/vote_history"
@@ -70,11 +71,16 @@
 			title="Abstimmungen"
 		>
 			<svelte:fragment slot="lead">
-    			<VoteParliament voteResult={mockVoteResult()} dels={[]} delsAtDate={mockDelegates()} preview />
+				<VoteParliament
+					againstOpacity={0.3}
+					voteResult={mockVoteResult()}
+					dels={[]}
+					delsAtDate={mockDelegates()}
+					preview
+				/>
 			</svelte:fragment>
 			<span style="font-size: x-small;">Abstimmungen</span>
 		</AppRailAnchor>
-		<hr />
 		<!-- <AppRailAnchor class={activeAnchorColor("/statistics")} href="/statistics" bind:group={currentTile} name="Statistiken" value={2} title="Statistiken">
 			<svelte:fragment slot="lead">{@html statsIcon}</svelte:fragment>
 			<span style="font-size: x-small;">Statistiken</span>

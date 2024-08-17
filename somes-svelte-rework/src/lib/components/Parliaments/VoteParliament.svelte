@@ -22,6 +22,7 @@
 	export let preview: boolean = false;
 	export let voteResult: VoteResult;
 	export let delegate: Delegate | null = null;
+	export let againstOpacity: number = 0.16;
 
 	let clazz = '';
 	export { clazz as class };
@@ -72,7 +73,7 @@
 		}
 
 		if (partyInfavorMap.has(bubble.del.party)) {
-			bubble.opacity = partyInfavorMap.get(bubble.del.party) ? 1 : 0.16;
+			bubble.opacity = partyInfavorMap.get(bubble.del.party) ? 1 : againstOpacity;
 			return;
 		}
 

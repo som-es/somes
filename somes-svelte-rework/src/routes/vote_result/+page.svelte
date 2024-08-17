@@ -267,8 +267,8 @@
 					<div class="info-item">
 						<InfoTiles {voteResult} {dels} />
 					</div>
-					
-					 <div
+
+					<div
 						class="topics-item flex rounded-xl justify-center items-center bg-primary-300 dark:bg-primary-500 p-3 max-h-[169px]"
 					>
 						<Topics
@@ -285,7 +285,7 @@
 							<div class="flex flex-row flex-wrap mt-3 gap-3">
 								{#each generalSpeechDelegates as speechDelegate}
 									<div class="w-full max-w-80">
-										<VoteDelegateCard  bubble={speechDelegate} />
+										<VoteDelegateCard bubble={speechDelegate} />
 									</div>
 								{/each}
 							</div>
