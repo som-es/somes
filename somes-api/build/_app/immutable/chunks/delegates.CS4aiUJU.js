@@ -1,0 +1,1 @@
+import{d as s,b as a}from"./stores.OKteKb6i.js";import{p as n}from"./scheduler.kNM02Wf_.js";async function r(l=!1){let e=n(s);if(e==null||l||e.length==0){const t=await a();s.set(t),e=t}return e}async function o(l=!1){const e=await r(l);return e==null?null:e.filter(t=>t.council==="nr")}export{r as c,o as f};

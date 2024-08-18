@@ -1,1 +1,0 @@
-import{l as s,a as l}from"./delegates.CU-NjU2q.js";import{p as o}from"./scheduler.NIwLkEfL.js";async function n(a=!1){let t=o(s);if(t==null||a||t.length==0){const e=await l();s.set(e),t=e}return t}export{n as c};
