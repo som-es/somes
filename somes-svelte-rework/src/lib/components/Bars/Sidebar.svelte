@@ -16,8 +16,10 @@
 	// $: activeAnchorColor = (href: string) => ($page.url.pathname?.includes(href) ? 'flex flex-col justify-center items-stretch bg-primary-active-token' : 'bg-primary-hover-token');
 </script>
 
-<div class="grid grid-cols-[auto_1fr] h-full bg-surface-50-900-token {$$props.class ?? ''}">
-	<AppRail>
+<div class="h-full bg-surface-50-900-token {$$props.class ?? ''}">
+	<AppRail
+		width="w-20 2xl:w-32"
+	>
 		<!-- <svelte:fragment slot="lead">
 			<AppRailAnchor href="/" >(icon)</AppRailAnchor>
 		</svelte:fragment> -->
