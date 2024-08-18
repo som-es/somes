@@ -70,12 +70,15 @@
 
 <!-- <div class="mx-auto px-10"> -->
 <Container>
-	<div>
-		{#if get(hasGoBackStore)}
-			<SButton class="bg-primary-500 my-3" on:click={() => history.back()}>Zurück</SButton>
-		{/if}
-		<br />
-		<div class="font-bold text-2xl mb-3">Abgeordnete des Nationalrats</div>
+	{#if get(hasGoBackStore)}
+		<SButton class="bg-primary-500 my-3" on:click={() => history.back()}>Zurück</SButton>
+	{/if}
+	<br />
+	<div class="entry bg-primary-200 dark:bg-primary-400">
+
+		<h1 class="font-bold text-3xl mb-3">
+			Abgeordnete des Nationalrats
+		</h1>
 		{#if delegates}
 			<div class="text-token w-full max-w-sm space-y-2">
 				<input
@@ -131,6 +134,13 @@
 <!-- </div> -->
 
 <style>
+	.entry {
+		border-radius: 0.9rem;
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+		padding: 20px;
+		gap: 10px;
+	}
+
 	.grid-container {
 		box-sizing: border-box;
 		display: grid;
