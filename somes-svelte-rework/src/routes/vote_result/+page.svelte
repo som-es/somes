@@ -27,6 +27,7 @@
 	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import SimpleYesNo from '$lib/components/VoteResults/SimpleYesNo/SimpleYesNo.svelte';
+	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 
 	let dels: Delegate[] | null = null;
 
@@ -225,7 +226,7 @@
 				<!-- {#if voteResult.legislative_initiative.gp == 'XXVII'} -->
 				<div class="z-50 search-item text-token space-y-5">
 					<input
-						class="!rounded-xl w-full h-10 px-2 input"
+						class="!rounded-xl w-full h-12 px-2 input"
 						type="search"
 						name="ac-demo"
 						bind:value={inputValue}
@@ -258,7 +259,7 @@
 						/>
 					</div>
 					{#if selectedBubble}
-						<div class="max-md:hidden delegate-item">
+						<div class="max-md:hidden delegate-item rounded-xl bg-primary-300 dark:bg-primary-500">
 							<VoteDelegateCard bubble={selectedBubble} />
 						</div>
 					{/if}
@@ -361,16 +362,17 @@
 	@media (min-width: 768px) {
 		.parliament-item {
 			grid-area: p;
-			flex-basis: 66.6%;
+			flex-basis: 66.0%;
 		}
 	}
 
 	@media (min-width: 768px) {
 		.delegate-item {
 			grid-area: d;
-			flex-basis: 33.4%;
+			flex-basis: 33.0%;
 		}
 	}
+
 	.topics-item {
 		grid-area: t;
 		/* flex-basis: 40%; */

@@ -12,6 +12,7 @@
 		}
 	});
 
+	export let showAllButton = true;
 	export let selectedPeriod = 'all';
 </script>
 
@@ -28,14 +29,16 @@
 			{period.gp}
 		</button>
 	{/each}
-	<button
-		class:bg-tertiary-500={selectedPeriod == 'all'}
-		on:click={() => (selectedPeriod = 'all')}
-		class="btn bg-primary-300"
-		style="margin: 3px;"
-	>
-		Alle
-	</button>
+	{#if showAllButton}
+		<button
+			class:bg-tertiary-500={selectedPeriod == 'all'}
+			on:click={() => (selectedPeriod = 'all')}
+			class="btn bg-primary-300"
+			style="margin: 3px;"
+		>
+			Alle
+		</button>
+	{/if}
 </div>
 
 <style>

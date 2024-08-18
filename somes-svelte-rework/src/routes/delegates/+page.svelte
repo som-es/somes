@@ -5,7 +5,7 @@
 	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
 	import DelegatesParliament from '$lib/components/Parliaments/DelegatesParliament.svelte';
 	import type { Delegate, InterestShare } from '$lib/types';
-	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
+	import { popup, RangeSlider, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 	import { delegate_interests } from '$lib/api';
 	import InterestTiles from '$lib/components/Delegates/InterestTiles.svelte';
@@ -19,6 +19,7 @@
 		convertDelegatesToAutocompleteOptions,
 		delegateFilterOptions
 	} from '$lib/components/Autocompletion/filtering';
+	import LegisButtons from '$lib/components/Filtering/LegisButtons.svelte';
 
 	let delegates: Delegate[] | null;
 	let delegate: Delegate | null;
@@ -26,7 +27,7 @@
 	let popupSettings: PopupSettings = {
 		event: 'focus-click',
 		target: 'popupAutocomplete',
-		placement: 'bottom'
+		placement: 'bottom-start'
 	};
 
 	let autocompleteOptions: AutocompleteOption<string>[] = [];
@@ -66,6 +67,10 @@
 			interests = res;
 		});
 	}
+
+	let selectedPeriod = "XXVII";
+	let value = 15;
+
 </script>
 
 <!-- <div class="mx-auto px-10"> -->
@@ -74,15 +79,29 @@
 		<SButton class="bg-primary-500 my-3" on:click={() => history.back()}>Zurück</SButton>
 	{/if}
 	<br />
-	<div class="entry bg-primary-200 dark:bg-primary-400">
-
-		<h1 class="font-bold text-3xl mb-3">
-			Abgeordnete des Nationalrats
-		</h1>
+	<div class="entry bg-primary-200 dark:bg-primary-400 gap-3 flex flex-wrap">
+		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
+			<h1 class="font-bold text-3xl">
+				Abgeordnete des Nationalrats
+			</h1>
+		</div>
+		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
+			<LegisButtons bind:selectedPeriod={selectedPeriod} showAllButton={false}></LegisButtons>
+		</div>
+		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
+			<input type="range" min="0" max="100" step="1" list="steplist">
+			<datalist id="steplist">
+				<option>0</option>
+				<option>25</option>
+				<option>50</option>
+				<option>75</option>
+				<option>100</option>
+			</datalist>
+		</div>
 		{#if delegates}
-			<div class="text-token w-full max-w-sm space-y-2">
+			<div class="text-token w-full space-y-2">
 				<input
-					class="input h-8 px-2"
+					class="input w-full h-12 px-2"
 					type="search"
 					name="ac-demo"
 					bind:value={inputValue}
@@ -105,18 +124,19 @@
 					</div>
 				{/if}
 			</div>
-			<div class="grid-container gap-3">
-				<div class="rounded-xl parliament-item bg-primary-300 dark:bg-primary-500">
-					{#if delegate?.is_active}
-						<div class="px-5">
-							<DelegatesParliament bind:delegate dels={delegates} />
-						</div>
-					{/if}
-				</div>
-				<div class="rounded-xl delegate-item bg-primary-300 dark:bg-primary-500">
-					{#if delegate}
-						<DelegateCard {delegate} />
-					{/if}
+				<div class="flex flex-wrap min-w-full justify-between ">
+					<div class="rounded-xl w-full parliament-item bg-primary-300 dark:bg-primary-500">
+						{#if delegate?.is_active}
+							<div class="px-5">
+								<DelegatesParliament bind:delegate dels={delegates} />
+							</div>
+						{/if}
+					</div>
+					<div class="rounded-xl delegate-item bg-primary-300 dark:bg-primary-500">
+						{#if delegate}
+							<DelegateCard {delegate} />
+						{/if}
+					</div>
 				</div>
 				{#if interests}
 					<InterestTiles interests={interests.slice(0, 4)}></InterestTiles>
@@ -126,7 +146,6 @@
 				<!-- <div class="activity-item bg-primary-300">
                     Activity
                 </div> -->
-			</div>
 		{/if}
 	</div>
 </Container>
@@ -159,16 +178,26 @@
 		padding: 20px 0;
 	}
 
-	:global(.parliament-item) {
+	/* :global(.parliament-item) {
 		grid-area: p;
-		/* overflow: hidden; */
-		/* min-width: 0; */
+	} */
+
+	@media (min-width: 768px) {
+		.parliament-item {
+			grid-area: p;
+			flex-basis: 66.0%;
+		}
 	}
 
-	.delegate-item {
-		grid-area: d;
-		/* overflow: hidden; */
-		/* min-width: 0; */
+	@media (min-width: 768px) {
+		.delegate-item {
+			grid-area: d;
+			flex-basis: 33.0%;
+		}
+	}
+
+	.title-item {
+		flex-basis: 100%;
 	}
 
 	:global(.interests-item) {
