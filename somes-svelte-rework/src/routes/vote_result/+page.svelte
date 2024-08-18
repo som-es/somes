@@ -175,7 +175,9 @@
 	// const whichGridContainer =
 	// 	emphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
 </script>
-
+<title>
+	Abstimmungsergebnis
+</title>
 <Container>
 	{#if voteResult && dels && delegate}
 		{#if currentlyUpdating}

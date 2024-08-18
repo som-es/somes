@@ -36,7 +36,7 @@
 				}}
 				fill={circle.color}
 				fill-opacity={circle.opacity}
-				tabindex={100 + i}
+				tabindex={0}
 				stroke={circle == selected ? 'orange' : ''}
 				stroke-width={circle == selected ? '4' : ''}
 			>

@@ -15,6 +15,8 @@
 	import BaseParliament from './BaseParliament.svelte';
 	import { delegates_at } from '$lib/api';
 	import { groupPartyDelegates, setSeatsOfDels } from '$lib/parliaments/defaultParliament';
+	import { get } from 'svelte/store';
+	import { currentDelegatesAtDateStore } from '$lib/stores/stores';
 
 	export let seats: number[] = [20, 27, 37, 43, 48, 54];
 	export let dels: Delegate[];
@@ -109,7 +111,12 @@
 	onMount(async () => {
 		let fetchedDelsAtDate;
 		if (delsAtDate.length == 0) {
-			fetchedDelsAtDate = await delegates_at(voteResult.legislative_initiative.created_at);
+			const cachedDelsAtDate = get(currentDelegatesAtDateStore);
+			if (cachedDelsAtDate && cachedDelsAtDate[0] == voteResult.legislative_initiative.created_at.toString()) {
+				fetchedDelsAtDate = cachedDelsAtDate[1]
+			} else {
+				fetchedDelsAtDate = await delegates_at(voteResult.legislative_initiative.created_at);
+			}
 		} else {
 			fetchedDelsAtDate = delsAtDate;
 		}
