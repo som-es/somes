@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { AppBar, LightSwitch } from '@skeletonlabs/skeleton';
-	import somesTextIcon from '$lib/assets/somes_with_text.svg?raw';
+	import somesTextIcon from '$lib/assets/somes_with_text2.svg?raw';
 </script>
 
 <AppBar slotTrail="!space-x-2">
