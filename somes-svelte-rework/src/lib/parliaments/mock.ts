@@ -39,7 +39,7 @@ export function mockDelegates(): Delegate[] {
 	return delegates;
 }
 
-export function mockVoteResult(): VoteResult {
+export function mockVoteResult(date: string = "2020-03-06"): VoteResult {
 	return {
 		legislative_initiative: {
 			id: '0',
@@ -49,7 +49,7 @@ export function mockVoteResult(): VoteResult {
 			description: '',
 			emphasis: '',
 			accepted: '',
-			created_at: '2020-03-06' as unknown as Date,
+			created_at: date as unknown as Date,
 			appeared_at: new Date(),
 			updated_at: new Date(),
 			requires_simple_majority: true,

@@ -4,10 +4,10 @@
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
 	import DelegatesParliament from '$lib/components/Parliaments/DelegatesParliament.svelte';
-	import type { Delegate, InterestShare } from '$lib/types';
+	import type { Delegate, InterestShare, LegisPeriod } from '$lib/types';
 	import { popup, RangeSlider, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
-	import { delegate_interests } from '$lib/api';
+	import { delegate_interests, delegates_at } from '$lib/api';
 	import InterestTiles from '$lib/components/Delegates/InterestTiles.svelte';
 	import CenterPrograssRadial from '$lib/components/ProgressInfos/CenterPrograssRadial.svelte';
 	import { get } from 'svelte/store';
@@ -20,8 +20,10 @@
 		delegateFilterOptions
 	} from '$lib/components/Autocompletion/filtering';
 	import LegisButtons from '$lib/components/Filtering/LegisButtons.svelte';
+	import VoteParliament from '$lib/components/Parliaments/VoteParliament.svelte';
 
 	let delegates: Delegate[] | null;
+	let delsAtDate: Delegate[] = [];
 	let delegate: Delegate | null;
 
 	let popupSettings: PopupSettings = {
@@ -69,7 +71,31 @@
 	}
 
 	let selectedPeriod = "XXVII";
+	let periods: LegisPeriod[] = [];
 	let value = 15;
+
+	const updateDelsToDisplay = async () => {
+		if (!periods || periods.length == 0) {
+			return;
+		}
+		if (periods[periods.length-1].gp == selectedPeriod) {
+			return
+		}
+		const firstIdx = periods.findIndex(x => x.gp == selectedPeriod);
+		const endDate = new Date(periods[firstIdx+1].start_date)
+		endDate.setDate(endDate.getDate() - 5);
+	
+		const fetchedDelsAtDate = await delegates_at(endDate.toISOString().split('T')[0] as unknown as Date);
+		if (fetchedDelsAtDate) {
+			delsAtDate = fetchedDelsAtDate;
+		}
+
+	};
+
+	$: if (selectedPeriod) {
+		delsAtDate = []
+		updateDelsToDisplay();	
+	}
 
 </script>
 
@@ -86,7 +112,7 @@
 			</h1>
 		</div>
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
-			<LegisButtons bind:selectedPeriod={selectedPeriod} showAllButton={false}></LegisButtons>
+			<LegisButtons bind:periods bind:selectedPeriod showAllButton={false}></LegisButtons>
 		</div>
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
 			<input type="range" min="0" max="100" step="1" list="steplist">
@@ -128,7 +154,7 @@
 					<div class="rounded-xl w-full parliament-item bg-primary-300 dark:bg-primary-500">
 						{#if delegate?.is_active}
 							<div class="px-5">
-								<DelegatesParliament bind:delegate dels={delegates} />
+								<VoteParliament againstOpacity={1} voteResult={null} bind:delegate dels={delegates} delsAtDate={delsAtDate} gp={selectedPeriod} />
 							</div>
 						{/if}
 					</div>

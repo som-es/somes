@@ -4,7 +4,7 @@
 	import type { LegisPeriod } from '$lib/types';
 	import { onMount } from 'svelte';
 
-	let periods: LegisPeriod[] = [];
+	export let periods: LegisPeriod[] = [];
 	onMount(async () => {
 		const fetchedPeriods = await cachedAllLegisPeriods();
 		if (fetchedPeriods != undefined) {

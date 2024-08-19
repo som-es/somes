@@ -22,9 +22,11 @@
 	export let dels: Delegate[];
 	export let delsAtDate: Delegate[] = [];
 	export let preview: boolean = false;
-	export let voteResult: VoteResult;
+	export let voteResult: VoteResult | null;
 	export let delegate: Delegate | null = null;
 	export let againstOpacity: number = 0.16;
+	export let gp: string = "";
+	if (voteResult) gp = voteResult.legislative_initiative.gp;
 
 	let clazz = '';
 	export { clazz as class };
@@ -33,7 +35,10 @@
 	const height = 900;
 
 	function isPartyInFavor(party: string): boolean {
-		const votes = voteResult.votes.slice();
+		const votes = voteResult?.votes.slice();
+		if (!votes) {
+			return false
+		}
 		// this sort is there because of named votes -> it should only look at the one with the higher count (pro, contra)
 		// otherwise, it could happen that (absent, or new) delegates are marked as e.g. contra delegates even though the majority of the party voted for the change
 		votes.sort((a, b) => b.fraction - a.fraction);
@@ -92,9 +97,11 @@
 		}
 	});
 
-	enrichCirclesWithSpeechInfoOnSeat(voteResult.speeches, circles2d, dels);
-	if (voteResult.named_votes) {
-		enrichCirclesWithNamedVoteInfoOnSeat(voteResult.named_votes.named_votes, circles2d, dels);
+	if (voteResult) {
+		enrichCirclesWithSpeechInfoOnSeat(voteResult.speeches, circles2d, dels);
+		if (voteResult.named_votes) {
+			enrichCirclesWithNamedVoteInfoOnSeat(voteResult.named_votes.named_votes, circles2d, dels);
+		}
 	}
 
 	// for (let r = 0; r < circles2d.length; r++) {
@@ -112,42 +119,18 @@
 		let fetchedDelsAtDate;
 		if (delsAtDate.length == 0) {
 			const cachedDelsAtDate = get(currentDelegatesAtDateStore);
-			if (cachedDelsAtDate && cachedDelsAtDate[0] == voteResult.legislative_initiative.created_at.toString()) {
-				fetchedDelsAtDate = cachedDelsAtDate[1]
-			} else {
-				fetchedDelsAtDate = await delegates_at(voteResult.legislative_initiative.created_at);
+			if (voteResult) {
+				if (cachedDelsAtDate && cachedDelsAtDate[0] == voteResult.legislative_initiative.created_at.toString()) {
+					fetchedDelsAtDate = cachedDelsAtDate[1]
+				} else {
+					fetchedDelsAtDate = await delegates_at(voteResult.legislative_initiative.created_at);
+				}
 			}
 		} else {
 			fetchedDelsAtDate = delsAtDate;
 		}
 		if (fetchedDelsAtDate) {
 			delsAtDate = fetchedDelsAtDate;
-
-			let partyToDelegates = groupPartyDelegates(delsAtDate);
-			// console.log(partyToDelegates);
-			let all = 0;
-			partyToDelegates.forEach((dels, _party) => {
-				all += dels.length;
-			});
-
-			const partyToDelegatesArray = Array.from(partyToDelegates.entries());
-			partyToDelegatesArray.sort((a, b) => {
-				const aInfavor = partyInfavorMap.get(a[0]);
-				const bInfavor = partyInfavorMap.get(b[0]);
-				if (aInfavor == bInfavor) {
-					return b[1].length - a[1].length;
-				} else if (aInfavor == true && bInfavor == false) {
-					return -1;
-				} else {
-					return 1;
-				}
-				// return b[1].length - a[1].length
-			});
-
-			setSeatsOfDels(partyToDelegatesArray, all, defaultSeats.slice());
-
-			enrichParliamentBubbles(circlesPerParty2, delsAtDate, voteResult, setOpacity);
-			circlesPerParty2 = circlesPerParty2;
 		}
 
 		// circles2d = setupParliament(seats, width, height, 7.9);
@@ -156,6 +139,35 @@
 			currentLegisInit = allLegisPeriods[0].gp;
 		}
 	});
+
+	$:  {
+
+		let partyToDelegates = groupPartyDelegates(delsAtDate);
+		// console.log(partyToDelegates);
+		let all = 0;
+		partyToDelegates.forEach((dels, _party) => {
+			all += dels.length;
+		});
+
+		const partyToDelegatesArray = Array.from(partyToDelegates.entries());
+		partyToDelegatesArray.sort((a, b) => {
+			const aInfavor = partyInfavorMap.get(a[0]);
+			const bInfavor = partyInfavorMap.get(b[0]);
+			if (aInfavor == bInfavor) {
+				return b[1].length - a[1].length;
+			} else if (aInfavor == true && bInfavor == false) {
+				return -1;
+			} else {
+				return 1;
+			}
+			// return b[1].length - a[1].length
+		});
+
+		setSeatsOfDels(partyToDelegatesArray, all, defaultSeats.slice());
+
+		enrichParliamentBubbles(circlesPerParty2, delsAtDate, voteResult, setOpacity);
+		circlesPerParty2 = circlesPerParty2;
+	}
 
 	// $: {
 
@@ -178,12 +190,12 @@
 
 	$: if (delegate && delegate.seat_row != null) {
 		const circleArray =
-			voteResult.legislative_initiative.gp === currentLegisInit ? circles2d : circlesPerParty2;
+			gp === currentLegisInit ? circles2d : circlesPerParty2;
 		select(circleArray[delegate.seat_row - 1][delegate.seat_col! - 1], null);
 	}
 </script>
 
-{#if voteResult.legislative_initiative.gp === currentLegisInit}
+{#if gp === currentLegisInit}
 	<BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} />
 {:else if circlesPerParty2.length > 0}
 	<BaseParliament

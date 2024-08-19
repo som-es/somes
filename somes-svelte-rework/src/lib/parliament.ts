@@ -59,7 +59,7 @@ function findDelegateById(dels: Delegate[], id: number): Delegate | undefined {
 export function enrichParliamentBubbles(
 	bubbles: Bubble[][],
 	dels: Delegate[],
-	voteResult: VoteResult,
+	voteResult: VoteResult | null,
 	setOpacity: (bubble: Bubble) => void
 ) {
 	if (bubbles.length > 0)
@@ -71,9 +71,12 @@ export function enrichParliamentBubbles(
 				setOpacity(bubbles[del.seat_row - 1][del.seat_col - 1]);
 			}
 		});
-	enrichCirclesWithSpeechInfoOnSeat(voteResult.speeches, bubbles, dels);
-	if (voteResult.named_votes) {
-		enrichCirclesWithNamedVoteInfoOnSeat(voteResult.named_votes.named_votes, bubbles, dels);
+	
+	if (voteResult) {
+		enrichCirclesWithSpeechInfoOnSeat(voteResult.speeches, bubbles, dels);
+		if (voteResult.named_votes) {
+			enrichCirclesWithNamedVoteInfoOnSeat(voteResult.named_votes.named_votes, bubbles, dels);
+		}
 	}
 }
 
