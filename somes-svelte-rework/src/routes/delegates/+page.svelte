@@ -82,8 +82,11 @@
 			return;
 		}
 		const firstIdx = periods.findIndex((x) => x.gp == selectedPeriod);
+		if (firstIdx == -1) return;
+		// delegate = null;
 		const endDate = new Date(periods[firstIdx + 1].start_date);
 		endDate.setDate(endDate.getDate() - 5);
+		// console.log(endDate);
 
 		const fetchedDelsAtDate = await delegates_at(
 			endDate.toISOString().split('T')[0] as unknown as Date
@@ -110,7 +113,7 @@
 			<h1 class="font-bold text-3xl">Abgeordnete des Nationalrats</h1>
 		</div>
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
-			<LegisButtons bind:periods bind:selectedPeriod showAllButton={false}></LegisButtons>
+			<LegisButtons bind:periods bind:selectedPeriod={selectedPeriod} showAllButton={false}></LegisButtons>
 		</div>
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
 			<input type="range" min="0" max="100" step="1" list="steplist" />
@@ -150,18 +153,16 @@
 			</div>
 			<div class="flex flex-wrap min-w-full justify-between">
 				<div class="rounded-xl w-full parliament-item bg-primary-300 dark:bg-primary-500">
-					{#if delegate?.is_active}
-						<div class="px-5">
-							<VoteParliament
-								againstOpacity={1}
-								voteResult={null}
-								bind:delegate
-								dels={delegates}
-								{delsAtDate}
-								gp={selectedPeriod}
-							/>
-						</div>
-					{/if}
+					<div class="px-5">
+						<VoteParliament
+							againstOpacity={1}
+							voteResult={null}
+							bind:delegate
+							dels={delegates}
+							delsAtDate={delsAtDate}
+							gp={selectedPeriod}
+						/>
+					</div>
 				</div>
 				<div class="rounded-xl delegate-item bg-primary-300 dark:bg-primary-500">
 					{#if delegate}

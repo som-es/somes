@@ -17,6 +17,10 @@
 	import { groupPartyDelegates, setSeatsOfDels } from '$lib/parliaments/defaultParliament';
 	import { get } from 'svelte/store';
 	import { currentDelegatesAtDateStore } from '$lib/stores/stores';
+	import Autocomplete from '../Autocompletion/Autocomplete.svelte';
+
+	const width = 830;
+	const height = 900;
 
 	export let seats: number[] = [20, 27, 37, 43, 48, 54];
 	export let dels: Delegate[];
@@ -25,14 +29,14 @@
 	export let voteResult: VoteResult | null;
 	export let delegate: Delegate | null = null;
 	export let againstOpacity: number = 0.16;
-	export let gp: string = '';
+	export let circles2d: Bubble[][] = setupParliament(seats, width, height, 7.9);
+	export let selected: Bubble | null = null;
+	export let gp: string = 'XXVII';
 	if (voteResult) gp = voteResult.legislative_initiative.gp;
 
 	let clazz = '';
 	export { clazz as class };
 
-	const width = 830;
-	const height = 900;
 
 	function isPartyInFavor(party: string): boolean {
 		const votes = voteResult?.votes.slice();
@@ -49,9 +53,6 @@
 		return dels.find((del) => del.id === id);
 	}
 
-	export let circles2d: Bubble[][] = setupParliament(seats, width, height, 7.9);
-	export let circles: Bubble[] = [];
-	export let selected: Bubble | null = null;
 
 	function select(bubble: Bubble, event: MouseEvent | KeyboardEvent | null) {
 		if (event != null) {
@@ -144,6 +145,11 @@
 	});
 
 	$: {
+		console.log(gp);
+	}
+
+	$: {
+	
 		let partyToDelegates = groupPartyDelegates(delsAtDate);
 		// console.log(partyToDelegates);
 		let all = 0;
@@ -167,7 +173,27 @@
 
 		setSeatsOfDels(partyToDelegatesArray, all, defaultSeats.slice());
 
-		enrichParliamentBubbles(circlesPerParty2, delsAtDate, voteResult, setOpacity);
+		// for (let i = 0; i < circlesPerParty2.length; i++) {
+		// 	for (let j = 0; j < circlesPerParty2[i].length; j++) {
+		// 		circlesPerParty2[i][j].color = "black";
+		// 		circlesPerParty2[i][j].opacity = 1;
+
+		// 	}
+		// }
+		delsAtDate.forEach(del => {
+			// console.log(del);
+			if (del.seat_row != null && del.seat_col != null) {
+				// if (del.seat_row - 1 < circlesPerParty2.length) {
+					// if (del.seat_col  -1 < circlesPerParty2[del.seat_row -1].length) {
+					circlesPerParty2[del.seat_row - 1][del.seat_col - 1].del = structuredClone(del);
+					circlesPerParty2[del.seat_row - 1][del.seat_col - 1].color = partyToColor(del.party);
+					setOpacity(circlesPerParty2[del.seat_row -1][del.seat_col -1]);
+						// circlesPerParty2[del.seat_row - 1][del.seat_col - 1].opacity = 1;
+					// }
+				// }
+			}
+		});
+		// enrichParliamentBubbles(circlesPerParty2, delsAtDate, voteResult, setOpacity);
 		circlesPerParty2 = circlesPerParty2;
 	}
 
