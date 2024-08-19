@@ -9,7 +9,6 @@
 	import { onMount } from 'svelte';
 	import { delegate_interests, delegates_at } from '$lib/api';
 	import InterestTiles from '$lib/components/Delegates/InterestTiles.svelte';
-	import CenterPrograssRadial from '$lib/components/ProgressInfos/CenterPrograssRadial.svelte';
 	import { get } from 'svelte/store';
 	import { currentDelegateStore, hasGoBackStore } from '$lib/stores/stores';
 	import SButton from '$lib/components/UI/SButton.svelte';
@@ -21,6 +20,7 @@
 	} from '$lib/components/Autocompletion/filtering';
 	import LegisButtons from '$lib/components/Filtering/LegisButtons.svelte';
 	import VoteParliament from '$lib/components/Parliaments/VoteParliament.svelte';
+	import AllBadges from '$lib/components/VoteResults/SimpleYesNo/AllBadges.svelte';
 
 	let delegates: Delegate[] | null;
 	let delsAtDate: Delegate[] = [];
@@ -100,6 +100,7 @@
 		delsAtDate = [];
 		updateDelsToDisplay();
 	}
+
 </script>
 
 <!-- <div class="mx-auto px-10"> -->
@@ -124,6 +125,9 @@
 				<option>75</option>
 				<option>100</option>
 			</datalist>
+		</div>
+		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500">
+			<AllBadges delsAtDate={delsAtDate} />
 		</div>
 		{#if delegates}
 			<div class="text-token w-full space-y-2">
@@ -161,6 +165,7 @@
 							dels={delegates}
 							delsAtDate={delsAtDate}
 							gp={selectedPeriod}
+							orderingFactor={-1}
 						/>
 					</div>
 				</div>

@@ -31,6 +31,7 @@
 	export let againstOpacity: number = 0.16;
 	export let circles2d: Bubble[][] = setupParliament(seats, width, height, 7.9);
 	export let selected: Bubble | null = null;
+	export let orderingFactor: number = 1;
 	export let gp: string = 'XXVII';
 	if (voteResult) gp = voteResult.legislative_initiative.gp;
 
@@ -162,7 +163,7 @@
 			const aInfavor = partyInfavorMap.get(a[0]);
 			const bInfavor = partyInfavorMap.get(b[0]);
 			if (aInfavor == bInfavor) {
-				return b[1].length - a[1].length;
+				return (b[1].length - a[1].length) * orderingFactor;
 			} else if (aInfavor == true && bInfavor == false) {
 				return -1;
 			} else {

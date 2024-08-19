@@ -20,10 +20,10 @@
 <div class="flex flex-wrap flex-row text-black">
 	{#each periods as period, i}
 		<button
-			class:bg-tertiary-500={period.gp == selectedPeriod}
+			class:!bg-tertiary-500={period.gp == selectedPeriod}
 			on:click={() => (selectedPeriod = period.gp)}
 			title={legisDurationString(period, periods[i + 1])}
-			class="btn bg-primary-300"
+			class="btn bg-primary-400 dark:bg-primary-300"
 			style="margin: 3px;"
 		>
 			{period.gp}
@@ -31,9 +31,9 @@
 	{/each}
 	{#if showAllButton}
 		<button
-			class:bg-tertiary-500={selectedPeriod == 'all'}
+			class:!bg-tertiary-500={selectedPeriod == 'all'}
 			on:click={() => (selectedPeriod = 'all')}
-			class="btn bg-primary-300"
+			class="btn bg-primary-400 dark:bg-primary-300"
 			style="margin: 3px;"
 		>
 			Alle

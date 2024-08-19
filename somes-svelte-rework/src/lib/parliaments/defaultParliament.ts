@@ -57,8 +57,17 @@ export function setSeatsOfDels(
 		restSeats = Math.round(restSeats);
 
 		let count = 0;
-		// let row = defaultSeats.length - 1;
 		let row = 0;
+
+		// let row = defaultSeats.length -1;
+        // for (let i = 0; i < startIdxs.length - 1; i++) {
+        //     const first = startIdxs[i]
+        //     const second = startIdxs[i + 1]
+        //     if (first < second) {
+        //         row = i;
+        //         break;
+        //     }
+        // }
 		while (true) {
 			if (row >= defaultSeats.length) row = 0;
 			// if (row <= 0) row = defaultSeats.length - 1;
@@ -91,6 +100,7 @@ export function setSeatsOfDels(
 			startIdxs[row] += 1;
 			row += 1;
 		}
+        return;
 		// console.log(` ${party} ${restSeats}`);
 	});
 }
