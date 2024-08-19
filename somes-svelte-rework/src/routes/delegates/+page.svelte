@@ -20,10 +20,15 @@
 	import LegisButtons from '$lib/components/Filtering/LegisButtons.svelte';
 	import VoteParliament from '$lib/components/Parliaments/VoteParliament.svelte';
 	import AllBadges from '$lib/components/VoteResults/SimpleYesNo/AllBadges.svelte';
+	import { replaceState } from '$app/navigation';
+	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 
 	let delegates: Delegate[] | null;
 	let delsAtDate: Delegate[] = [];
 	let delegate: Delegate | null;
+
+	let selectedPeriod = 'XXVII';
+	let periods: LegisPeriod[] = [];
 
 	let popupSettings: PopupSettings = {
 		event: 'focus-click',
@@ -34,16 +39,30 @@
 	let autocompleteOptions: AutocompleteOption<string>[] = [];
 	let interests: InterestShare[] | null;
 
+	let finishedMounting = false;
+
 	onMount(async () => {
+
+		const url = new URL(window.location.href);
+		selectedPeriod = url.searchParams.get('gp') || 'XXVII';
+
 		delegates = await filteredDelegates();
 		if (delegates !== null) {
 			delegate = delegates[Math.floor(Math.random() * delegates.length)];
 			autocompleteOptions = convertDelegatesToAutocompleteOptions(delegates);
 		}
+
+		const cachedPeriods = await cachedAllLegisPeriods();
+		if (cachedPeriods) periods = cachedPeriods.reverse();
+
+		await updateDelsToDisplay();
 		const maybeStoredDelegate = get(currentDelegateStore);
 		if (maybeStoredDelegate) {
 			delegate = maybeStoredDelegate;
+			const foundDel = delsAtDate.find(del => del.id === maybeStoredDelegate.id);
+			if (foundDel) delegate = foundDel;
 		}
+		finishedMounting = true;
 	});
 
 	let inputValue = '';
@@ -60,18 +79,6 @@
 		inputValue = event.detail.label;
 	}
 
-	$: if (delegate) {
-		// interests = null;
-		currentDelegateStore.set(delegate);
-		delegate_interests(delegate.id).then((res) => {
-			if (res != null) res.sort((a, b) => b.self_share - a.self_share);
-			interests = res;
-		});
-	}
-
-	let selectedPeriod = 'XXVII';
-	let periods: LegisPeriod[] = [];
-	let value = 15;
 
 	const updateDelsToDisplay = async () => {
 		if (!periods || periods.length == 0) {
@@ -97,8 +104,23 @@
 	};
 
 	$: if (selectedPeriod) {
+		// if (window !== null) {
+		// 	const url = new URL(window.location.href);
+		// 	url.searchParams.set('gp', selectedPeriod);
+		// 	replaceState(url, history.state);
+		// }
+
 		delsAtDate = [];
 		updateDelsToDisplay();
+	}
+
+	$: if (delegate) {
+		// interests = null;
+		if (finishedMounting) currentDelegateStore.set(delegate);
+		delegate_interests(delegate.id).then((res) => {
+			if (res != null) res.sort((a, b) => b.self_share - a.self_share);
+			interests = res;
+		});
 	}
 
 </script>

@@ -8,6 +8,7 @@
 	import SButton from '../UI/SButton.svelte';
 
 	export let bubble: Bubble;
+	export let gp: string;
 	let delegate: Delegate;
 	if (bubble && bubble.del !== null) {
 		delegate = bubble.del;
@@ -15,7 +16,7 @@
 
 	const onShowDetails = () => {
 		currentDelegateStore.set(delegate);
-		gotoHistory('/delegates', true);
+		gotoHistory(`/delegates?gp=${gp}`, true);
 	};
 
 	const popupFeatured: PopupSettings = {
