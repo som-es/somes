@@ -130,6 +130,21 @@
 		}
 	});
 
+	dels.forEach((del) => {
+		setDelOnBubble(del, circles2d, partyToColor);
+
+		if (del.seat_col != null && del.seat_row != null) {
+			setOpacity(circles2d[del.seat_row - 1][del.seat_col - 1]);
+		}
+	});
+
+	if (voteResult) {
+		enrichCirclesWithSpeechInfoOnSeat(voteResult.speeches, circles2d, dels);
+		if (voteResult.named_votes) {
+			enrichCirclesWithNamedVoteInfoOnSeat(voteResult.named_votes.named_votes, circles2d, dels);
+		}
+	}
+
 	$: {
 	
 		let partyToDelegates = groupPartyDelegates(delsAtDate);
@@ -154,47 +169,9 @@
 
 		setSeatsOfDels(partyToDelegatesArray, all, defaultSeats.slice());
 
-		// for (let i = 0; i < circlesPerParty2.length; i++) {
-		// 	for (let j = 0; j < circlesPerParty2[i].length; j++) {
-		// 		circlesPerParty2[i][j].color = "black";
-		// 		circlesPerParty2[i][j].opacity = 1;
-
-		// 	}
-		// }
-		delsAtDate.forEach(del => {
-			// console.log(del);
-			if (del.seat_row != null && del.seat_col != null) {
-				// if (del.seat_row - 1 < circlesPerParty2.length) {
-					// if (del.seat_col  -1 < circlesPerParty2[del.seat_row -1].length) {
-					circlesPerParty2[del.seat_row - 1][del.seat_col - 1].del = structuredClone(del);
-					circlesPerParty2[del.seat_row - 1][del.seat_col - 1].color = partyToColor(del.party);
-					setOpacity(circlesPerParty2[del.seat_row -1][del.seat_col -1]);
-						// circlesPerParty2[del.seat_row - 1][del.seat_col - 1].opacity = 1;
-					// }
-				// }
-			}
-		});
-		// enrichParliamentBubbles(circlesPerParty2, delsAtDate, voteResult, setOpacity);
+		enrichParliamentBubbles(circlesPerParty2, delsAtDate, voteResult, setOpacity);
 		circlesPerParty2 = circlesPerParty2;
 	}
-
-	$: {
-	dels.forEach((del) => {
-		setDelOnBubble(del, circles2d, partyToColor);
-
-		if (del.seat_col != null && del.seat_row != null) {
-			setOpacity(circles2d[del.seat_row - 1][del.seat_col - 1]);
-		}
-	});
-
-	if (voteResult) {
-		enrichCirclesWithSpeechInfoOnSeat(voteResult.speeches, circles2d, dels);
-		if (voteResult.named_votes) {
-			enrichCirclesWithNamedVoteInfoOnSeat(voteResult.named_votes.named_votes, circles2d, dels);
-		}
-	}
-	}
-	circles2d = circles2d;
 
 	// $: {
 

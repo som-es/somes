@@ -3,9 +3,8 @@
 	import type { AutocompleteOption } from '$lib/components/Autocompletion/types';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
-	import DelegatesParliament from '$lib/components/Parliaments/DelegatesParliament.svelte';
 	import type { Delegate, InterestShare, LegisPeriod } from '$lib/types';
-	import { popup, RangeSlider, type PopupSettings } from '@skeletonlabs/skeleton';
+	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 	import { delegate_interests, delegates_at } from '$lib/api';
 	import InterestTiles from '$lib/components/Delegates/InterestTiles.svelte';
@@ -21,7 +20,6 @@
 	import LegisButtons from '$lib/components/Filtering/LegisButtons.svelte';
 	import VoteParliament from '$lib/components/Parliaments/VoteParliament.svelte';
 	import AllBadges from '$lib/components/VoteResults/SimpleYesNo/AllBadges.svelte';
-	import { delegatesStore } from '$lib/caching/stores/stores';
 
 	let delegates: Delegate[] | null;
 	let delsAtDate: Delegate[] = [];
@@ -94,6 +92,7 @@
 		);
 		if (fetchedDelsAtDate) {
 			delsAtDate = fetchedDelsAtDate;
+			autocompleteOptions = convertDelegatesToAutocompleteOptions(delsAtDate);
 		}
 	};
 
