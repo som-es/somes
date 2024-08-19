@@ -5,7 +5,11 @@
 	import type { Delegate, VoteResult } from '$lib/types';
 	import Emphasis from '../Emphasis/Emphasis.svelte';
 	import InfoTiles from '../InfoTiles/InfoTiles.svelte';
-	import { currentDelegatesAtDateStore, currentVoteResultStore, hasGoBackStore } from '$lib/stores/stores';
+	import {
+		currentDelegatesAtDateStore,
+		currentVoteResultStore,
+		hasGoBackStore
+	} from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
 
 	export let voteResult: VoteResult;
@@ -16,7 +20,10 @@
 
 	function onShowDetails() {
 		currentVoteResultStore.set(voteResult);
-		currentDelegatesAtDateStore.set([voteResult.legislative_initiative.created_at.toString(), delsAtDate]);
+		currentDelegatesAtDateStore.set([
+			voteResult.legislative_initiative.created_at.toString(),
+			delsAtDate
+		]);
 		// $: if (browser) {
 		gotoHistory('/vote_result', true);
 		// }
@@ -33,7 +40,7 @@
 <div class="lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3">
 	<Emphasis {emphasis} />
 	<div class="rounded-md w-full bg-primary-100 parliament-item mt-3 mb-3">
-		<VoteParliament {dels} {voteResult} bind:delsAtDate={delsAtDate} preview={true} />
+		<VoteParliament {dels} {voteResult} bind:delsAtDate preview={true} />
 	</div>
 	<div class="topics-item flex rounded-xl justify-center items-center bg-primary-300 p-3 mb-3">
 		<Topics

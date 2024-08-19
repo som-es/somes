@@ -25,7 +25,7 @@
 	export let voteResult: VoteResult | null;
 	export let delegate: Delegate | null = null;
 	export let againstOpacity: number = 0.16;
-	export let gp: string = "";
+	export let gp: string = '';
 	if (voteResult) gp = voteResult.legislative_initiative.gp;
 
 	let clazz = '';
@@ -37,7 +37,7 @@
 	function isPartyInFavor(party: string): boolean {
 		const votes = voteResult?.votes.slice();
 		if (!votes) {
-			return false
+			return false;
 		}
 		// this sort is there because of named votes -> it should only look at the one with the higher count (pro, contra)
 		// otherwise, it could happen that (absent, or new) delegates are marked as e.g. contra delegates even though the majority of the party voted for the change
@@ -120,8 +120,11 @@
 		if (delsAtDate.length == 0) {
 			const cachedDelsAtDate = get(currentDelegatesAtDateStore);
 			if (voteResult) {
-				if (cachedDelsAtDate && cachedDelsAtDate[0] == voteResult.legislative_initiative.created_at.toString()) {
-					fetchedDelsAtDate = cachedDelsAtDate[1]
+				if (
+					cachedDelsAtDate &&
+					cachedDelsAtDate[0] == voteResult.legislative_initiative.created_at.toString()
+				) {
+					fetchedDelsAtDate = cachedDelsAtDate[1];
 				} else {
 					fetchedDelsAtDate = await delegates_at(voteResult.legislative_initiative.created_at);
 				}
@@ -140,8 +143,7 @@
 		}
 	});
 
-	$:  {
-
+	$: {
 		let partyToDelegates = groupPartyDelegates(delsAtDate);
 		// console.log(partyToDelegates);
 		let all = 0;
@@ -189,8 +191,7 @@
 	// }
 
 	$: if (delegate && delegate.seat_row != null) {
-		const circleArray =
-			gp === currentLegisInit ? circles2d : circlesPerParty2;
+		const circleArray = gp === currentLegisInit ? circles2d : circlesPerParty2;
 		select(circleArray[delegate.seat_row - 1][delegate.seat_col! - 1], null);
 	}
 </script>

@@ -33,7 +33,6 @@
 		<Bottombar />
 	</footer>
 </div> -->
-  
 
 <AppShell>
 	<svelte:fragment slot="header">

@@ -71,7 +71,7 @@ export function enrichParliamentBubbles(
 				setOpacity(bubbles[del.seat_row - 1][del.seat_col - 1]);
 			}
 		});
-	
+
 	if (voteResult) {
 		enrichCirclesWithSpeechInfoOnSeat(voteResult.speeches, bubbles, dels);
 		if (voteResult.named_votes) {

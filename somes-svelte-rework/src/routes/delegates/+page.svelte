@@ -70,7 +70,7 @@
 		});
 	}
 
-	let selectedPeriod = "XXVII";
+	let selectedPeriod = 'XXVII';
 	let periods: LegisPeriod[] = [];
 	let value = 15;
 
@@ -78,25 +78,25 @@
 		if (!periods || periods.length == 0) {
 			return;
 		}
-		if (periods[periods.length-1].gp == selectedPeriod) {
-			return
+		if (periods[periods.length - 1].gp == selectedPeriod) {
+			return;
 		}
-		const firstIdx = periods.findIndex(x => x.gp == selectedPeriod);
-		const endDate = new Date(periods[firstIdx+1].start_date)
+		const firstIdx = periods.findIndex((x) => x.gp == selectedPeriod);
+		const endDate = new Date(periods[firstIdx + 1].start_date);
 		endDate.setDate(endDate.getDate() - 5);
-	
-		const fetchedDelsAtDate = await delegates_at(endDate.toISOString().split('T')[0] as unknown as Date);
+
+		const fetchedDelsAtDate = await delegates_at(
+			endDate.toISOString().split('T')[0] as unknown as Date
+		);
 		if (fetchedDelsAtDate) {
 			delsAtDate = fetchedDelsAtDate;
 		}
-
 	};
 
 	$: if (selectedPeriod) {
-		delsAtDate = []
-		updateDelsToDisplay();	
+		delsAtDate = [];
+		updateDelsToDisplay();
 	}
-
 </script>
 
 <!-- <div class="mx-auto px-10"> -->
@@ -107,15 +107,13 @@
 	<br />
 	<div class="entry bg-primary-200 dark:bg-primary-400 gap-3 flex flex-wrap">
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
-			<h1 class="font-bold text-3xl">
-				Abgeordnete des Nationalrats
-			</h1>
+			<h1 class="font-bold text-3xl">Abgeordnete des Nationalrats</h1>
 		</div>
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
 			<LegisButtons bind:periods bind:selectedPeriod showAllButton={false}></LegisButtons>
 		</div>
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
-			<input type="range" min="0" max="100" step="1" list="steplist">
+			<input type="range" min="0" max="100" step="1" list="steplist" />
 			<datalist id="steplist">
 				<option>0</option>
 				<option>25</option>
@@ -150,26 +148,33 @@
 					</div>
 				{/if}
 			</div>
-				<div class="flex flex-wrap min-w-full justify-between ">
-					<div class="rounded-xl w-full parliament-item bg-primary-300 dark:bg-primary-500">
-						{#if delegate?.is_active}
-							<div class="px-5">
-								<VoteParliament againstOpacity={1} voteResult={null} bind:delegate dels={delegates} delsAtDate={delsAtDate} gp={selectedPeriod} />
-							</div>
-						{/if}
-					</div>
-					<div class="rounded-xl delegate-item bg-primary-300 dark:bg-primary-500">
-						{#if delegate}
-							<DelegateCard {delegate} />
-						{/if}
-					</div>
+			<div class="flex flex-wrap min-w-full justify-between">
+				<div class="rounded-xl w-full parliament-item bg-primary-300 dark:bg-primary-500">
+					{#if delegate?.is_active}
+						<div class="px-5">
+							<VoteParliament
+								againstOpacity={1}
+								voteResult={null}
+								bind:delegate
+								dels={delegates}
+								{delsAtDate}
+								gp={selectedPeriod}
+							/>
+						</div>
+					{/if}
 				</div>
-				{#if interests}
-					<InterestTiles interests={interests.slice(0, 4)}></InterestTiles>
-				{:else}
-					<ExpandablePlaceholder class={'my-3'} />
-				{/if}
-				<!-- <div class="activity-item bg-primary-300">
+				<div class="rounded-xl delegate-item bg-primary-300 dark:bg-primary-500">
+					{#if delegate}
+						<DelegateCard {delegate} />
+					{/if}
+				</div>
+			</div>
+			{#if interests}
+				<InterestTiles interests={interests.slice(0, 4)}></InterestTiles>
+			{:else}
+				<ExpandablePlaceholder class={'my-3'} />
+			{/if}
+			<!-- <div class="activity-item bg-primary-300">
                     Activity
                 </div> -->
 		{/if}
@@ -211,14 +216,14 @@
 	@media (min-width: 768px) {
 		.parliament-item {
 			grid-area: p;
-			flex-basis: 66.0%;
+			flex-basis: 66%;
 		}
 	}
 
 	@media (min-width: 768px) {
 		.delegate-item {
 			grid-area: d;
-			flex-basis: 33.0%;
+			flex-basis: 33%;
 		}
 	}
 

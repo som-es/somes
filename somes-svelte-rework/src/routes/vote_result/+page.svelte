@@ -176,9 +176,8 @@
 	// const whichGridContainer =
 	// 	emphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
 </script>
-<title>
-	Abstimmungsergebnis
-</title>
+
+<title> Abstimmungsergebnis </title>
 <Container>
 	{#if voteResult && dels && delegate}
 		{#if currentlyUpdating}
@@ -362,14 +361,14 @@
 	@media (min-width: 768px) {
 		.parliament-item {
 			grid-area: p;
-			flex-basis: 66.0%;
+			flex-basis: 66%;
 		}
 	}
 
 	@media (min-width: 768px) {
 		.delegate-item {
 			grid-area: d;
-			flex-basis: 33.0%;
+			flex-basis: 33%;
 		}
 	}
 
