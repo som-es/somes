@@ -21,6 +21,7 @@
 	import LegisButtons from '$lib/components/Filtering/LegisButtons.svelte';
 	import VoteParliament from '$lib/components/Parliaments/VoteParliament.svelte';
 	import AllBadges from '$lib/components/VoteResults/SimpleYesNo/AllBadges.svelte';
+	import { delegatesStore } from '$lib/caching/stores/stores';
 
 	let delegates: Delegate[] | null;
 	let delsAtDate: Delegate[] = [];
@@ -110,13 +111,13 @@
 	{/if}
 	<br />
 	<div class="entry bg-primary-200 dark:bg-primary-400 gap-3 flex flex-wrap">
-		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
+		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
 			<h1 class="font-bold text-3xl">Abgeordnete des Nationalrats</h1>
 		</div>
-		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
+		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
 			<LegisButtons bind:periods bind:selectedPeriod={selectedPeriod} showAllButton={false}></LegisButtons>
 		</div>
-		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
+		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
 			<input type="range" min="0" max="100" step="1" list="steplist" />
 			<datalist id="steplist">
 				<option>0</option>
@@ -126,10 +127,13 @@
 				<option>100</option>
 			</datalist>
 		</div>
-		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500">
-			<AllBadges delsAtDate={delsAtDate} />
-		</div>
+		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
+				{#if periods.length > 0 && delegates}
+					<AllBadges delsAtDate={(periods[periods.length - 1].gp != selectedPeriod) ? delsAtDate : structuredClone(delegates)} />
+				{/if}
+			</div>
 		{#if delegates}
+			
 			<div class="text-token w-full space-y-2">
 				<input
 					class="input w-full h-12 px-2"

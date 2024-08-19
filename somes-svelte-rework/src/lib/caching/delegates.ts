@@ -20,5 +20,5 @@ export async function filteredDelegates(refetch: boolean = false): Promise<Deleg
 	if (dels == null) {
 		return null;
 	}
-	return dels.filter((delegate) => delegate.council === 'nr');
+	return structuredClone(dels.filter((delegate) => delegate.council === 'nr'));
 }

@@ -89,22 +89,7 @@
 		bubble.opacity = 1;
 	}
 
-	// enrichParliamentBubbles(circles2d, dels, voteResult, setOpacity);
-
-	dels.forEach((del) => {
-		setDelOnBubble(del, circles2d, partyToColor);
-
-		if (del.seat_col != null && del.seat_row != null) {
-			setOpacity(circles2d[del.seat_row - 1][del.seat_col - 1]);
-		}
-	});
-
-	if (voteResult) {
-		enrichCirclesWithSpeechInfoOnSeat(voteResult.speeches, circles2d, dels);
-		if (voteResult.named_votes) {
-			enrichCirclesWithNamedVoteInfoOnSeat(voteResult.named_votes.named_votes, circles2d, dels);
-		}
-	}
+	// enrichParliamentBubbles(circles2d, dels, voteResult, setOpacity);	
 
 	// for (let r = 0; r < circles2d.length; r++) {
 	// 	for (let c = 0; c < circles2d[r].length; c++) {
@@ -146,13 +131,8 @@
 	});
 
 	$: {
-		console.log(gp);
-	}
-
-	$: {
 	
 		let partyToDelegates = groupPartyDelegates(delsAtDate);
-		// console.log(partyToDelegates);
 		let all = 0;
 		partyToDelegates.forEach((dels, _party) => {
 			all += dels.length;
@@ -198,6 +178,24 @@
 		circlesPerParty2 = circlesPerParty2;
 	}
 
+	$: {
+	dels.forEach((del) => {
+		setDelOnBubble(del, circles2d, partyToColor);
+
+		if (del.seat_col != null && del.seat_row != null) {
+			setOpacity(circles2d[del.seat_row - 1][del.seat_col - 1]);
+		}
+	});
+
+	if (voteResult) {
+		enrichCirclesWithSpeechInfoOnSeat(voteResult.speeches, circles2d, dels);
+		if (voteResult.named_votes) {
+			enrichCirclesWithNamedVoteInfoOnSeat(voteResult.named_votes.named_votes, circles2d, dels);
+		}
+	}
+	}
+	circles2d = circles2d;
+
 	// $: {
 
 	// 		let partyToDelegates = groupPartyDelegates(delsAtDate);
@@ -221,6 +219,10 @@
 		const circleArray = gp === currentLegisInit ? circles2d : circlesPerParty2;
 		select(circleArray[delegate.seat_row - 1][delegate.seat_col! - 1], null);
 	}
+	$: gp;
+
+	// console.log(`${gp}, current: ${currentLegisInit}`);
+	// console.log(circles2d);
 </script>
 
 {#if gp === currentLegisInit}

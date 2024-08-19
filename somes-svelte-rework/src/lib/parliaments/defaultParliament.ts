@@ -80,7 +80,6 @@ export function setSeatsOfDels(
 			// break;
 
 			count += 1;
-			// console.log(restSeats);
 			if (Math.round(restSeats) <= 0) {
 				break;
 			} else {
