@@ -287,7 +287,10 @@
 							<div class="flex flex-row flex-wrap mt-3 gap-3">
 								{#each generalSpeechDelegates as speechDelegate}
 									<div class="w-full max-w-80">
-										<VoteDelegateCard bubble={speechDelegate} gp={voteResult.legislative_initiative.gp} />
+										<VoteDelegateCard
+											bubble={speechDelegate}
+											gp={voteResult.legislative_initiative.gp}
+										/>
 									</div>
 								{/each}
 							</div>
@@ -305,7 +308,11 @@
 							<div class="flex flex-row flex-wrap mt-3 gap-3">
 								{#each generalNamedVoteDelegates as namedVoteDelegate}
 									<div>
-										<VoteDelegateCard class="w-80" bubble={namedVoteDelegate} gp={voteResult.legislative_initiative.gp} />
+										<VoteDelegateCard
+											class="w-80"
+											bubble={namedVoteDelegate}
+											gp={voteResult.legislative_initiative.gp}
+										/>
 									</div>
 								{/each}
 							</div>

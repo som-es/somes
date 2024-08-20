@@ -216,7 +216,7 @@ pub async fn delegates_at_date(pg: &PgPool, date: &NaiveDate) -> sqlx::Result<Ve
             delegates.constituency, 
             CASE 
                 WHEN mandates.name LIKE '%Abgeordnete%' THEN 'nr' 
-                ELSE 'nr'
+                ELSE ''
             END as council,
             delegates.seat_row, 
             delegates.seat_col, 

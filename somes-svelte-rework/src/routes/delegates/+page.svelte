@@ -22,12 +22,14 @@
 	import AllBadges from '$lib/components/VoteResults/SimpleYesNo/AllBadges.svelte';
 	import { replaceState } from '$app/navigation';
 	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
+	import { dashDateToDotDate } from '$lib/date';
 
 	let delegates: Delegate[] | null;
 	let delsAtDate: Delegate[] = [];
 	let delegate: Delegate | null;
 
 	let selectedPeriod = 'XXVII';
+	let prevSelectedPeriod = '';
 	let periods: LegisPeriod[] = [];
 
 	let popupSettings: PopupSettings = {
@@ -38,11 +40,16 @@
 
 	let autocompleteOptions: AutocompleteOption<string>[] = [];
 	let interests: InterestShare[] | null;
+	let maxDayOffset = 365 * 5;
+	let dayOffset = maxDayOffset;
+
+	let renderStartDate: Date | null;
+	let renderEndDate: Date | null;
 
 	let finishedMounting = false;
+	let enforceBase = false;
 
 	onMount(async () => {
-
 		const url = new URL(window.location.href);
 		selectedPeriod = url.searchParams.get('gp') || 'XXVII';
 
@@ -59,7 +66,7 @@
 		const maybeStoredDelegate = get(currentDelegateStore);
 		if (maybeStoredDelegate) {
 			delegate = maybeStoredDelegate;
-			const foundDel = delsAtDate.find(del => del.id === maybeStoredDelegate.id);
+			const foundDel = delsAtDate.find((del) => del.id === maybeStoredDelegate.id);
 			if (foundDel) delegate = foundDel;
 		}
 		finishedMounting = true;
@@ -79,31 +86,59 @@
 		inputValue = event.detail.label;
 	}
 
-
 	const updateDelsToDisplay = async () => {
 		if (!periods || periods.length == 0) {
 			return;
 		}
+		
 		if (periods[periods.length - 1].gp == selectedPeriod) {
-			return;
+			// renderStartDate = periods[periods.length - 1].start_date;
+			// const days = Math.floor((new Date().getTime() - new Date(renderStartDate).getTime()) / (1000 * 60 * 60 * 24));
+			// maxDayOffset = days;
+			// if (prevSelectedPeriod !== selectedPeriod) {
+			// 	dayOffset = days;
+			// }
+			// return;
 		}
 		const firstIdx = periods.findIndex((x) => x.gp == selectedPeriod);
 		if (firstIdx == -1) return;
 		// delegate = null;
-		const endDate = new Date(periods[firstIdx + 1].start_date);
-		endDate.setDate(endDate.getDate() - 5);
-		// console.log(endDate);
+		// const endDate = new Date(periods[firstIdx + 1].start_date);
+		renderStartDate = periods[firstIdx].start_date;
+		renderEndDate = periods[firstIdx + 1]?.start_date;
+		const startDate = new Date(renderStartDate);
+		const endDate = new Date(renderEndDate ? renderEndDate : new Date());
+
+		const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+		maxDayOffset = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+		if (prevSelectedPeriod !== selectedPeriod) {
+			dayOffset = maxDayOffset;
+		}
+
+		startDate.setDate(startDate.getDate() + dayOffset - 2);
+
+		// console.log(dayOffset);
+		// console.log(`max day: ${maxDayOffset}`);
+		if (renderEndDate == null && Math.abs(maxDayOffset - dayOffset) < 3) {
+			enforceBase = false;
+			return;	
+		}
+
+		enforceBase = true;
 
 		const fetchedDelsAtDate = await delegates_at(
-			endDate.toISOString().split('T')[0] as unknown as Date
+			startDate.toISOString().split('T')[0] as unknown as Date
 		);
+		// console.log(fetchedDelsAtDate);
 		if (fetchedDelsAtDate) {
 			delsAtDate = fetchedDelsAtDate;
 			autocompleteOptions = convertDelegatesToAutocompleteOptions(delsAtDate);
 		}
 	};
 
-	$: if (selectedPeriod) {
+	$: if (selectedPeriod || dayOffset) {
+		renderEndDate = null;
+		renderStartDate = null;
 		// if (window !== null) {
 		// 	const url = new URL(window.location.href);
 		// 	url.searchParams.set('gp', selectedPeriod);
@@ -112,6 +147,7 @@
 
 		delsAtDate = [];
 		updateDelsToDisplay();
+		if (finishedMounting) prevSelectedPeriod = selectedPeriod;
 	}
 
 	$: if (delegate) {
@@ -122,7 +158,6 @@
 			interests = res;
 		});
 	}
-
 </script>
 
 <!-- <div class="mx-auto px-10"> -->
@@ -136,25 +171,45 @@
 			<h1 class="font-bold text-3xl">Abgeordnete des Nationalrats</h1>
 		</div>
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
-			<LegisButtons bind:periods bind:selectedPeriod={selectedPeriod} showAllButton={false}></LegisButtons>
+			<LegisButtons bind:periods bind:selectedPeriod showAllButton={false}></LegisButtons>
 		</div>
-		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
-			<input type="range" min="0" max="100" step="1" list="steplist" />
+		<div
+			class="flex flex-row flex-wrap title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3"
+		>
+			<div class="flex justify-between min-w-full">
+				<div>
+					Anfang ({renderStartDate == null ? '' : dashDateToDotDate(renderStartDate.toString())})
+				</div>
+				<div>
+					Ende ({renderEndDate == null ? '' : dashDateToDotDate(renderEndDate.toString())})
+				</div>
+			</div>
+			<input
+				bind:value={dayOffset}
+				type="range"
+				min="2"
+				max={maxDayOffset + 2}
+				step={((maxDayOffset) / 30)}
+				list="steplist"
+			/>
 			<datalist id="steplist">
 				<option>0</option>
 				<option>25</option>
 				<option>50</option>
 				<option>75</option>
-				<option>100</option>
+				<option>365</option>
 			</datalist>
 		</div>
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
-				{#if periods.length > 0 && delegates}
-					<AllBadges delsAtDate={(periods[periods.length - 1].gp != selectedPeriod) ? delsAtDate : structuredClone(delegates)} />
-				{/if}
-			</div>
+			{#if periods.length > 0 && delegates}
+				<AllBadges
+					delsAtDate={periods[periods.length - 1].gp != selectedPeriod
+						? delsAtDate
+						: structuredClone(delegates)}
+				/>
+			{/if}
+		</div>
 		{#if delegates}
-			
 			<div class="text-token w-full space-y-2">
 				<input
 					class="input w-full h-12 px-2"
@@ -188,9 +243,10 @@
 							voteResult={null}
 							bind:delegate
 							dels={delegates}
-							delsAtDate={delsAtDate}
+							{delsAtDate}
 							gp={selectedPeriod}
 							orderingFactor={-1}
+							enforceBase={enforceBase}
 						/>
 					</div>
 				</div>

@@ -18,6 +18,9 @@ export function groupPartyDelegates(dels: Delegate[]): Map<string, Delegate[]> {
 		const currentDels = partyToDelegates.get(del.party);
 		currentDels?.push(del);
 	}
+    partyToDelegates.forEach((value, _) => {
+        value.sort((a, b) => a.id - b.id)
+    })
 	return partyToDelegates;
 }
 
@@ -60,14 +63,14 @@ export function setSeatsOfDels(
 		let row = 0;
 
 		// let row = defaultSeats.length -1;
-        // for (let i = 0; i < startIdxs.length - 1; i++) {
-        //     const first = startIdxs[i]
-        //     const second = startIdxs[i + 1]
-        //     if (first < second) {
-        //         row = i;
-        //         break;
-        //     }
-        // }
+		// for (let i = 0; i < startIdxs.length - 1; i++) {
+		//     const first = startIdxs[i]
+		//     const second = startIdxs[i + 1]
+		//     if (first < second) {
+		//         row = i;
+		//         break;
+		//     }
+		// }
 		while (true) {
 			if (row >= defaultSeats.length) row = 0;
 			// if (row <= 0) row = defaultSeats.length - 1;
@@ -99,7 +102,7 @@ export function setSeatsOfDels(
 			startIdxs[row] += 1;
 			row += 1;
 		}
-        return;
+		return;
 		// console.log(` ${party} ${restSeats}`);
 	});
 }

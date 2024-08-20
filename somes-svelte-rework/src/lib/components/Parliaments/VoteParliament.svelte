@@ -32,12 +32,12 @@
 	export let circles2d: Bubble[][] = setupParliament(seats, width, height, 7.9);
 	export let selected: Bubble | null = null;
 	export let orderingFactor: number = 1;
+	export let enforceBase: boolean = false;
 	export let gp: string = 'XXVII';
 	if (voteResult) gp = voteResult.legislative_initiative.gp;
 
 	let clazz = '';
 	export { clazz as class };
-
 
 	function isPartyInFavor(party: string): boolean {
 		const votes = voteResult?.votes.slice();
@@ -53,7 +53,6 @@
 	function findDelegateById(id: number): Delegate | undefined {
 		return dels.find((del) => del.id === id);
 	}
-
 
 	function select(bubble: Bubble, event: MouseEvent | KeyboardEvent | null) {
 		if (event != null) {
@@ -89,15 +88,6 @@
 		bubble.opacity = 1;
 	}
 
-	// enrichParliamentBubbles(circles2d, dels, voteResult, setOpacity);	
-
-	// for (let r = 0; r < circles2d.length; r++) {
-	// 	for (let c = 0; c < circles2d[r].length; c++) {
-	// 		if (circles2d[r][c].del == null) {
-	// 			circles2d[r][c].opacity = 0.0;
-	// 		}
-	// 	}
-	// }
 	const defaultSeats = [18, 25, 29, 33, 37, 41];
 	let circlesPerParty2: Bubble[][] = setupParliament(defaultSeats, width, height, 7.9, false);
 
@@ -146,7 +136,6 @@
 	}
 
 	$: {
-	
 		let partyToDelegates = groupPartyDelegates(delsAtDate);
 		let all = 0;
 		partyToDelegates.forEach((dels, _party) => {
@@ -172,37 +161,18 @@
 		enrichParliamentBubbles(circlesPerParty2, delsAtDate, voteResult, setOpacity);
 		circlesPerParty2 = circlesPerParty2;
 	}
-
-	// $: {
-
-	// 		let partyToDelegates = groupPartyDelegates(delsAtDate);
-	// 		console.log(partyToDelegates);
-	// 		let all = 0;
-	// 		partyToDelegates.forEach((dels, _party) => {
-	// 			all += dels.length;
-	// 		});
-
-	// 		const partyToDelegatesArray = Array.from(partyToDelegates.entries());
-	// 		partyToDelegatesArray.sort((a, b) => b[1].length - a[1].length);
-
-	// 		setSeatsOfDels(partyToDelegatesArray, all, defaultSeats.slice());
-
-	// 		enrichParliamentBubbles(circlesPerParty2, delsAtDate, voteResult, setOpacity);
-
-	// 		circlesPerParty2 = circlesPerParty2;
-	// }
-
 	$: if (delegate && delegate.seat_row != null) {
-		const circleArray = gp === currentLegisInit ? circles2d : circlesPerParty2;
+		const circleArray = gp === currentLegisInit && !enforceBase ? circles2d : circlesPerParty2;
 		select(circleArray[delegate.seat_row - 1][delegate.seat_col! - 1], null);
 	}
 	$: gp;
+	$: enforceBase;
 
 	// console.log(`${gp}, current: ${currentLegisInit}`);
 	// console.log(circles2d);
 </script>
 
-{#if gp === currentLegisInit}
+{#if gp === currentLegisInit && !enforceBase}
 	<BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} />
 {:else if circlesPerParty2.length > 0}
 	<BaseParliament
