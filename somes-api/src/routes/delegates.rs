@@ -215,7 +215,7 @@ pub async fn delegates_at_date(pg: &PgPool, date: &NaiveDate) -> sqlx::Result<Ve
             delegates.image_url, 
             delegates.constituency, 
             CASE 
-                WHEN mandates.name LIKE '%Abgeordnete%' THEN 'nr' 
+                WHEN mandates.is_nr THEN 'nr' 
                 ELSE ''
             END as council,
             delegates.seat_row, 
@@ -239,7 +239,8 @@ pub async fn delegates_at_date(pg: &PgPool, date: &NaiveDate) -> sqlx::Result<Ve
                 delegate_id) AS divisions 
             ON delegates.id = divisions.delegate_id
         WHERE 
-            (mandates.name LIKE '%Abgeordnete%' OR mandates.name LIKE '%minister%') 
+            (mandates.is_nr or mandates.is_gov_official)
+            --(mandates.name LIKE '%Abgeordnete%' OR mandates.name LIKE '%minister%') 
             and start_date <= $1::date 
             and (case when end_date is null then $1::date else end_date end) >= $1::date;
         ", date
