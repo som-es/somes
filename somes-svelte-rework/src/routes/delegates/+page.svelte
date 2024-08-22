@@ -90,7 +90,7 @@
 		if (!periods || periods.length == 0) {
 			return;
 		}
-		
+
 		if (periods[periods.length - 1].gp == selectedPeriod) {
 			// renderStartDate = periods[periods.length - 1].start_date;
 			// const days = Math.floor((new Date().getTime() - new Date(renderStartDate).getTime()) / (1000 * 60 * 60 * 24));
@@ -121,7 +121,7 @@
 		// console.log(`max day: ${maxDayOffset}`);
 		if (renderEndDate == null && Math.abs(maxDayOffset - dayOffset) < 3) {
 			enforceBase = false;
-			return;	
+			return;
 		}
 
 		enforceBase = true;
@@ -189,7 +189,7 @@
 				type="range"
 				min="2"
 				max={maxDayOffset + 2}
-				step={((maxDayOffset) / 30)}
+				step={maxDayOffset / 30}
 				list="steplist"
 			/>
 			<datalist id="steplist">
@@ -246,7 +246,7 @@
 							{delsAtDate}
 							gp={selectedPeriod}
 							orderingFactor={-1}
-							enforceBase={enforceBase}
+							{enforceBase}
 						/>
 					</div>
 				</div>

@@ -1,5 +1,5 @@
 use dataservice::db::models::{
-    DbLegislativeInitiativeQuery, DbNamedVote, DbNamedVoteInfo, DbNamedVotes, DbSpeech, DbSpeechWithLink, DbVote
+    DbLegisDocument, DbLegisDocumentOptional, DbLegislativeInitiativeQuery, DbNamedVote, DbNamedVoteInfo, DbNamedVotes, DbSpeech, DbSpeechWithLink, DbVote
 };
 use serde::{Deserialize, Serialize};
 use somes_common_lib::LegisInitFilter;
@@ -18,6 +18,7 @@ pub struct VoteResult {
     pub speeches: Vec<DbSpeechWithLink>,
     pub named_votes: Option<DbNamedVotes>,
     pub topics: Vec<Topic>,
+    pub documents: Vec<DbLegisDocumentOptional>
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
@@ -101,6 +102,7 @@ pub async fn construct_vote_result(
         named_votes,
         speeches: get_speeches_from_legis_init_sqlx(pg, legis_init.id).await?,
         topics: get_eurovoc_topics_from_legis_init(pg, legis_init.id).await?,
+        documents: get_legis_docs_from_legis_init_sqlx(pg, legis_init.id).await?,
         legislative_initiative: legis_init,
     })
 }
@@ -221,3 +223,21 @@ pub async fn get_speeches_from_legis_init_sqlx(
     .fetch_all(con)
     .await
 }
+
+pub async fn get_legis_docs_from_legis_init_sqlx(
+    con: &PgPool,
+    legis_init_id: i32,
+) -> sqlx::Result<Vec<DbLegisDocumentOptional>> {
+    sqlx::query_as!(
+        DbLegisDocumentOptional,
+        "select 
+            title, document_url, document_type 
+        from 
+            legislative_documents
+         where legislative_initiatives_id = $1;",
+        legis_init_id
+    )
+    .fetch_all(con)
+    .await
+}
+

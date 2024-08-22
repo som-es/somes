@@ -41,7 +41,13 @@ export interface Speech {
 	delegate_id: number;
 	infavor: boolean | null;
 	opinion: string | null;
-	legislative_initiatives_id: number;
+	document_url: string | null;
+}
+
+export interface Document {
+	title: string | null;
+	document_url: string;
+	document_type: string;
 }
 
 export interface Topic {
@@ -54,6 +60,7 @@ export interface VoteResult {
 	speeches: Speech[];
 	topics: Topic[];
 	named_votes: NamedVotes | null;
+	documents: Document[];
 }
 
 export interface VoteResultsWithMaxPage {

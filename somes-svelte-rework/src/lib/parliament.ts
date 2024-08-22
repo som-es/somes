@@ -6,6 +6,7 @@ export interface Bubble {
 	x: number;
 	y: number;
 	del: Delegate | null;
+	speech: Speech | null;
 	namedVote: NamedVote | null;
 	color: string | null;
 	opacity: number;
@@ -92,6 +93,7 @@ export function enrichCirclesWithSpeechInfo(speeches: Speech[], dels: Delegate[]
 				x: 0,
 				y: 0,
 				del: delegate,
+				speech,
 				namedVote: null,
 				color: null,
 				opacity: 0,
@@ -122,6 +124,7 @@ export function enrichCirclesWithNamedVoteInfo(
 				x: 0,
 				y: 0,
 				del: delegate,
+				speech: null,
 				namedVote: vote,
 				color: null,
 				opacity: 0,
@@ -141,6 +144,7 @@ export function enrichCirclesWithSpeechInfoOnSeat(
 		let del = findDelegateById(dels, speech.delegate_id);
 		if (del == null || del.seat_col == null || del.seat_row == null) return;
 
+		circles2d[del.seat_row - 1][del.seat_col - 1].speech = speech;
 		circles2d[del.seat_row - 1][del.seat_col - 1].title = speech.infavor
 			? `Dafür gesprochen`
 			: `Dagegen gesprochen`;
@@ -194,7 +198,8 @@ export function setupParliament(
 					color: 'rgb(196, 180, 189)',
 					opacity: 0,
 					title: null,
-					namedVote: null
+					namedVote: null,
+					speech: null
 				};
 			})
 		);

@@ -89,6 +89,7 @@ export function mockVoteResult(date: string = '2020-03-06'): VoteResult {
 		],
 		speeches: [],
 		topics: [],
-		named_votes: null
+		named_votes: null,
+		documents: [],
 	};
 }

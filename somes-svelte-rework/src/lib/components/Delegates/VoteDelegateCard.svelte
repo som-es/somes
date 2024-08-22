@@ -82,7 +82,16 @@
 			{/if}
 		</section>
 		<hr class="!border-t-2 my-1" />
-		<footer class="card-footer flex justify-end items-end mt-3">
+		<!-- <footer class="card-footer flex justify-end items-end mt-3"> -->
+		<footer class="card-footer flex justify-between items-end mt-3">
+			{#if bubble.speech}
+				<SButton
+					class="bg-secondary-500 text-black"
+					on:click={() =>
+						window.open(`https://www.parlament.gv.at${bubble.speech?.document_url}`, '_blank')}
+					>Rede</SButton
+				>
+			{/if}
 			<SButton class="bg-tertiary-500 text-black" on:click={onShowDetails}>Details anzeigen</SButton
 			>
 		</footer>

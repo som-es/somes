@@ -18,9 +18,9 @@ export function groupPartyDelegates(dels: Delegate[]): Map<string, Delegate[]> {
 		const currentDels = partyToDelegates.get(del.party);
 		currentDels?.push(del);
 	}
-    partyToDelegates.forEach((value, _) => {
-        value.sort((a, b) => a.id - b.id)
-    })
+	partyToDelegates.forEach((value, _) => {
+		value.sort((a, b) => a.id - b.id);
+	});
 	return partyToDelegates;
 }
 
