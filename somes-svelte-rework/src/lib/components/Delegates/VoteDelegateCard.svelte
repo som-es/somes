@@ -63,7 +63,7 @@
 			{bubble.title}
 			{#if bubble.namedVote && (bubble.namedVote.similiarity_score != 0 || bubble.namedVote.manually_matched)}
 				<div class="!z-50 card p-4 w-72 shadow-xl" data-popup="popupFeatured">
-					<div class="font-bold text-xl">Unsichere Zuteilung</div>
+					<div class="z-50 font-bold text-xl">Unsichere Zuteilung</div>
 					<div>
 						<span class="font-bold">"{bubble.namedVote.searched_with}"</span> wurde {bubble
 							.namedVote.manually_matched

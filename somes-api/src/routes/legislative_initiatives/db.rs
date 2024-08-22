@@ -1,5 +1,5 @@
 use dataservice::db::models::{
-    DbLegislativeInitiativeQuery, DbNamedVote, DbNamedVoteInfo, DbNamedVotes, DbSpeech, DbVote,
+    DbLegislativeInitiativeQuery, DbNamedVote, DbNamedVoteInfo, DbNamedVotes, DbSpeech, DbSpeechWithLink, DbVote
 };
 use serde::{Deserialize, Serialize};
 use somes_common_lib::LegisInitFilter;
@@ -15,7 +15,7 @@ pub struct Topic {
 pub struct VoteResult {
     pub legislative_initiative: DbLegislativeInitiativeQuery,
     pub votes: Vec<DbVote>,
-    pub speeches: Vec<DbSpeech>,
+    pub speeches: Vec<DbSpeechWithLink>,
     pub named_votes: Option<DbNamedVotes>,
     pub topics: Vec<Topic>,
 }
@@ -207,10 +207,15 @@ pub async fn get_named_votes_from_legis_init_sqlx(
 pub async fn get_speeches_from_legis_init_sqlx(
     con: &PgPool,
     legis_init_id: i32,
-) -> sqlx::Result<Vec<DbSpeech>> {
+) -> sqlx::Result<Vec<DbSpeechWithLink>> {
     sqlx::query_as!(
-        DbSpeech,
-        "select * from speeches where legislative_initiatives_id = $1",
+        DbSpeechWithLink,
+        "select 
+            delegate_id, infavor, opinion, document_url 
+        from 
+            speeches 
+        inner join 
+            speeches_html_urls on speeches.id = speeches_html_urls.speech_id where legislative_initiatives_id = $1;",
         legis_init_id
     )
     .fetch_all(con)

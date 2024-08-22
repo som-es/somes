@@ -254,21 +254,21 @@ pub async fn get_proposals(con: &PgPool) -> sqlx::Result<Vec<DbProposalQuery>> {
 //     proposals.load::<DbProposalQuery>(con)
 // }
 
-pub async fn get_speeches_from_legis_init(
-    con: &PgPool,
-    legis_init_id: i32,
-) -> sqlx::Result<Vec<DbSpeech>> {
-    sqlx::query_as!(
-        DbSpeech,
-        "
-        SELECT * FROM speeches
-        WHERE legislative_initiatives_id = $1
-        ",
-        legis_init_id
-    )
-    .fetch_all(con)
-    .await
-}
+// pub async fn get_speeches_from_legis_init(
+//     con: &PgPool,
+//     legis_init_id: i32,
+// ) -> sqlx::Result<Vec<DbSpeech>> {
+//     sqlx::query_as!(
+//         DbSpeech,
+//         "
+//         SELECT * FROM speeches
+//         WHERE legislative_initiatives_id = $1
+//         ",
+//         legis_init_id
+//     )
+//     .fetch_all(con)
+//     .await
+// }
 
 // pub fn get_speeches_from_legis_init(
 //     con: &mut PgConnection,
