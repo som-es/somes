@@ -281,15 +281,17 @@
 					</div>
 				</div>
 				<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
-					<span class="font-bold text-lg">Dokumente</span>
+					<span class="font-bold text-lg">Dokumente (PDFs)</span>
 					<div class="gap-3 flex flex-wrap ">
 						{#each voteResult.documents as document}
-							<SButton
-									class="bg-secondary-500 text-black"
-									on:click={() =>
-										window.open(`https://www.parlament.gv.at${document.document_url}`, '_blank')}
-									>{document.title}</SButton
-								>
+							{#if document.document_type.includes("PDF")}
+								<SButton
+										class="bg-secondary-500 text-black"
+										on:click={() =>
+											window.open(`https://www.parlament.gv.at${document.document_url}`, '_blank')}
+										>{document.title}</SButton
+									>
+							{/if}
 						{/each}
 					</div>
 				</div>
