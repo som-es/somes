@@ -178,7 +178,7 @@
 </script>
 
 <title> Abstimmungsergebnis </title>
-<Container>
+<Container>	
 	{#if voteResult && dels && delegate}
 		{#if currentlyUpdating}
 			<!-- <CenterPrograssRadial /> -->
@@ -278,6 +278,19 @@
 								return a.topic.length - b.topic.length;
 							})}
 						/>
+					</div>
+				</div>
+				<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
+					<span class="font-bold text-lg">Dokumente</span>
+					<div class="gap-3 flex flex-wrap ">
+						{#each voteResult.documents as document}
+							<SButton
+									class="bg-secondary-500 text-black"
+									on:click={() =>
+										window.open(`https://www.parlament.gv.at${document.document_url}`, '_blank')}
+									>{document.title}</SButton
+								>
+						{/each}
 					</div>
 				</div>
 				{#if generalSpeechDelegates !== null}
