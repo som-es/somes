@@ -134,7 +134,7 @@ pub async fn serve(addr: SocketAddr) {
 
     let dataservice_sqlx_pool = PgPoolOptions::new()
         // pool sizes
-        .max_connections(100)
+        .max_connections(20)
         .connect(DATASERVICE_URL)
         .await
         .unwrap();
