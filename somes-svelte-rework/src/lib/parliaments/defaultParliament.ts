@@ -77,7 +77,7 @@ export function setSeatsOfDels(
 			const seats = defaultSeats[row];
 
 			if (count >= 1000) {
-				// break
+				break
 			}
 
 			// break;
@@ -102,7 +102,6 @@ export function setSeatsOfDels(
 			startIdxs[row] += 1;
 			row += 1;
 		}
-		return;
 		// console.log(` ${party} ${restSeats}`);
 	});
 }
