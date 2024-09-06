@@ -13,8 +13,8 @@
 	import { filteredDelegates } from '$lib/caching/delegates';
 	import VoteDelegateCard from '$lib/components/Delegates/VoteDelegateCard.svelte';
 	import {
-		enrichCirclesWithNamedVoteInfo,
-		enrichCirclesWithSpeechInfo,
+		genCirclesWithNamedVoteInfo,
+		genCirclesWithSpeechInfo,
 		type Bubble
 	} from '$lib/parliament';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
@@ -45,6 +45,7 @@
 	let delegatesAtDate: Delegate[] = [];
 	let generalSpeechDelegates: Bubble[] | null = null;
 	let generalNamedVoteDelegates: Bubble[] | null = null;
+	let generalAbsencesDelegates: Bubble[] | null = null;
 
 	async function fetchDelegatesAtAndEnrich() {
 		if (!voteResult) {
@@ -53,15 +54,16 @@
 		delegatesAtDate = (await delegates_at(voteResult.legislative_initiative.created_at)) ?? [];
 
 		if (delegatesAtDate) {
-			generalSpeechDelegates = enrichCirclesWithSpeechInfo(voteResult.speeches, delegatesAtDate);
+			generalSpeechDelegates = genCirclesWithSpeechInfo(voteResult.speeches, delegatesAtDate);
 			if (voteResult.named_votes) {
-				generalNamedVoteDelegates = enrichCirclesWithNamedVoteInfo(
+				generalNamedVoteDelegates = genCirclesWithNamedVoteInfo(
 					voteResult.named_votes.named_votes,
 					delegatesAtDate
 				);
 			} else {
 				generalNamedVoteDelegates = [];
 			}
+			// TODO set general absences delegates -> mind to update absence delegates
 		}
 	}
 

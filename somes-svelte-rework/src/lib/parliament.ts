@@ -63,25 +63,52 @@ export function enrichParliamentBubbles(
 	voteResult: VoteResult | null,
 	setOpacity: (bubble: Bubble) => void
 ) {
-	if (bubbles.length > 0)
-		dels.forEach((del) => {
-			// console.log(del);
-			setDelOnBubble(del, bubbles, partyToColor);
+	if (bubbles.length == 0) {
+		return;
+	}
+	dels.forEach((del) => {
+		// console.log(del);
+		setDelOnBubble(del, bubbles, partyToColor);
 
-			if (del.seat_col != null && del.seat_row != null) {
-				setOpacity(bubbles[del.seat_row - 1][del.seat_col - 1]);
-			}
-		});
+		if (del.seat_col != null && del.seat_row != null) {
+			setOpacity(bubbles[del.seat_row - 1][del.seat_col - 1]);
+		}
+	});
 
 	if (voteResult) {
 		enrichCirclesWithSpeechInfoOnSeat(voteResult.speeches, bubbles, dels);
 		if (voteResult.named_votes) {
 			enrichCirclesWithNamedVoteInfoOnSeat(voteResult.named_votes.named_votes, bubbles, dels);
 		}
+		enrichtCirclesWithAbsenceInfoOnSeat(voteResult.absences, bubbles, dels);
 	}
 }
 
-export function enrichCirclesWithSpeechInfo(speeches: Speech[], dels: Delegate[]): Bubble[] {
+export function genCirclesWithAbsenceInfo(absences: number[], dels: Delegate[]): Bubble[] {
+	const speechDelegates: Bubble[] = [];
+	const delegatesAt: Delegate[] = dels;
+	absences.forEach((absence) => {
+		const delegate = findDelegateById(delegatesAt, absence);
+
+		if (delegate) {
+			// TODO adapt
+			speechDelegates.push({
+				r: 0,
+				x: 0,
+				y: 0,
+				del: delegate,
+				speech: null,
+				namedVote: null,
+				color: null,
+				opacity: 0,
+				title: "abwesen" 
+			});
+		}
+	});
+	return speechDelegates;
+}
+
+export function genCirclesWithSpeechInfo(speeches: Speech[], dels: Delegate[]): Bubble[] {
 	const speechDelegates: Bubble[] = [];
 	const delegatesAt: Delegate[] = dels;
 	speeches.forEach((speech) => {
@@ -104,7 +131,7 @@ export function enrichCirclesWithSpeechInfo(speeches: Speech[], dels: Delegate[]
 	return speechDelegates;
 }
 
-export function enrichCirclesWithNamedVoteInfo(
+export function genCirclesWithNamedVoteInfo(
 	namedVotes: NamedVote[],
 	dels: Delegate[]
 ): Bubble[] {
@@ -150,6 +177,20 @@ export function enrichCirclesWithSpeechInfoOnSeat(
 			: `Dagegen gesprochen`;
 		circles2d[del.seat_row - 1][del.seat_col - 1].opacity = speech.infavor ? 1.0 : 0.2;
 		circles2d[del.seat_row - 1][del.seat_col - 1].r = +10.9;
+	});
+}
+
+export function enrichtCirclesWithAbsenceInfoOnSeat(
+	absences: number[],
+	circles2d: Bubble[][],
+	dels: Delegate[]
+) {
+	absences.forEach((delegate_id) => {
+		let del = findDelegateById(dels, delegate_id);
+		if (del == null || del.seat_col == null || del.seat_row == null) return;
+
+		circles2d[del.seat_row - 1][del.seat_col - 1].r = +5.9;
+		circles2d[del.seat_row - 1][del.seat_col - 1].title = `abwesend`;
 	});
 }
 
