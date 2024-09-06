@@ -18,7 +18,8 @@ pub struct VoteResult {
     pub speeches: Vec<DbSpeechWithLink>,
     pub named_votes: Option<DbNamedVotes>,
     pub topics: Vec<Topic>,
-    pub documents: Vec<DbLegisDocumentOptional>
+    pub documents: Vec<DbLegisDocumentOptional>,
+    pub absences: Vec<i32>,
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
@@ -103,6 +104,12 @@ pub async fn construct_vote_result(
         speeches: get_speeches_from_legis_init_sqlx(pg, legis_init.id).await?,
         topics: get_eurovoc_topics_from_legis_init(pg, legis_init.id).await?,
         documents: get_legis_docs_from_legis_init_sqlx(pg, legis_init.id).await?,
+        absences: match legis_init.plenary_session_id {
+            Some(plenary_session_id) => {
+                get_absences_delegate_ids_sqlx(pg, plenary_session_id).await?
+            },
+            None => vec![],
+        },
         legislative_initiative: legis_init,
     })
 }
@@ -155,6 +162,19 @@ pub async fn get_eurovoc_topics_from_legis_init(
         "select topic from eurovoc_topics_legis_init where legislative_initiatives_id = $1",
         legis_init_id
     )
+    .fetch_all(con)
+    .await
+}
+
+pub async fn get_absences_delegate_ids_sqlx(
+    con: &PgPool,
+    plenary_session_id: i32,
+) -> sqlx::Result<Vec<i32>> {
+    sqlx::query!(
+        "select delegate_id from absences where plenary_session_id = $1",
+        plenary_session_id
+    )
+    .map(|x| x.delegate_id)
     .fetch_all(con)
     .await
 }
