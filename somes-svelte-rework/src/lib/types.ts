@@ -61,6 +61,7 @@ export interface VoteResult {
 	topics: Topic[];
 	named_votes: NamedVotes | null;
 	documents: Document[];
+	absences: number[];
 }
 
 export interface VoteResultsWithMaxPage {
