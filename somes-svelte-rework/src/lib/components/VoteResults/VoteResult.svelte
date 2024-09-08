@@ -16,7 +16,7 @@
 	}
 </script>
 
-<span class="card tile">
+<span class="card tile hover:cursor-pointer">
 	<div class="tile-content">
 		<div
 			class="w-[360px]"
