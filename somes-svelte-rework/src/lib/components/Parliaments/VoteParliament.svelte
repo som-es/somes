@@ -120,20 +120,8 @@
 		}
 	});
 
-	dels.forEach((del) => {
-		setDelOnBubble(del, circles2d, partyToColor);
-
-		if (del.seat_col != null && del.seat_row != null) {
-			setOpacity(circles2d[del.seat_row - 1][del.seat_col - 1]);
-		}
-	});
-
-	if (voteResult) {
-		enrichCirclesWithSpeechInfoOnSeat(voteResult.speeches, circles2d, dels);
-		if (voteResult.named_votes) {
-			enrichCirclesWithNamedVoteInfoOnSeat(voteResult.named_votes.named_votes, circles2d, dels);
-		}
-	}
+	
+	enrichParliamentBubbles(circles2d, dels, voteResult, setOpacity);
 
 	$: {
 		let partyToDelegates = groupPartyDelegates(delsAtDate);
