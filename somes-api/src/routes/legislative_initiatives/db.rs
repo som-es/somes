@@ -1,4 +1,3 @@
-
 use dataservice::db::models::{
     DbLegisDocument, DbLegisDocumentOptional, DbLegislativeInitiativeQuery, DbNamedVote,
     DbNamedVoteInfo, DbNamedVotes, DbSpeech, DbSpeechWithLink, DbVote,
@@ -15,6 +14,7 @@ pub struct Topic {
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct VoteResult {
+    pub id: i32,
     pub legislative_initiative: DbLegislativeInitiativeQuery,
     pub votes: Vec<DbVote>,
     pub speeches: Vec<DbSpeechWithLink>,
@@ -31,7 +31,9 @@ pub struct VoteResultsWithMaxPage {
     pub max_page: i64,
 }
 
-use super::{construct_vote_result::construct_vote_result, filtering::filtered_legislative_initiatives};
+use super::{
+    construct_vote_result::construct_vote_result, filtering::filtered_legislative_initiatives,
+};
 
 pub async fn get_latest_legis_inits_per_page(
     pg: &PgPool,
@@ -166,7 +168,6 @@ pub async fn get_all_votes_from_legis_init(con: &PgPool) -> sqlx::Result<Vec<Vot
     )
     .fetch_all(con)
     .await?;
-
 
     let mut vote_results = Vec::with_capacity(legis_inits.len());
 

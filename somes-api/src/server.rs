@@ -52,7 +52,7 @@ pub struct AppState {
     // pub somes_db_pool: deadpool_diesel::postgres::Pool,
     pub dataservice_db_pool: deadpool_diesel::postgres::Pool,
     pub dataservice_sqlx_pool: PgPool,
-    pub meilisearch_client: meilisearch_sdk::client::Client
+    pub meilisearch_client: meilisearch_sdk::client::Client,
 }
 
 unsafe impl Send for AppState {}
@@ -80,6 +80,11 @@ impl FromRef<AppState> for redis::Client {
     fn from_ref(app_state: &AppState) -> redis::Client {
         app_state.redis_client.clone()
     }
+}
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+pub struct Test {
+    test: &'static str,
 }
 
 //pub type RedisClient = Arc<RwLock<redis::Client>>;
@@ -168,6 +173,8 @@ pub async fn serve(addr: SocketAddr) {
     let meilisearch_client =
         meilisearch_sdk::client::Client::new(MEILISEARCH_URL, Some(MEILISEARCH_SECRET))
             .expect("Meilisearch client was not able to connect");
+
+    meilisearch_client.index("test").add_documents(&[Test { test: "test" }], None).await.unwrap();
 
     let state = AppState::new(
         client,
@@ -276,11 +283,14 @@ async fn update_meilisearch_index(
 
     // client.delete_index("vote_results").await?;
 
-    log::info!("Uploading {} vote results to meilisearch", all_vote_results.len());
+    log::info!(
+        "Uploading {} vote results to meilisearch",
+        all_vote_results.len()
+    );
 
     client
         .index("vote_results")
-        .add_documents(&all_vote_results, None)
+        .add_documents(&all_vote_results, Some("id"))
         .await?;
 
     log::info!("Uploaded vote results");

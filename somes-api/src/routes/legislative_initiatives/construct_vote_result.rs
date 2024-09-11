@@ -1,7 +1,14 @@
-use dataservice::{db::models::{DbLegislativeInitiativeQuery, DbVote}, with_data::named_votes};
+use dataservice::{
+    db::models::{DbLegislativeInitiativeQuery, DbVote},
+    with_data::named_votes,
+};
 use sqlx::PgPool;
 
-use super::{get_absences_delegate_ids_sqlx, get_eurovoc_topics_from_legis_init, get_legis_docs_from_legis_init_sqlx, get_named_votes_from_legis_init_sqlx, get_speeches_from_legis_init_sqlx, get_votes_from_legis_init_sqlx, VoteResult};
+use super::{
+    get_absences_delegate_ids_sqlx, get_eurovoc_topics_from_legis_init,
+    get_legis_docs_from_legis_init_sqlx, get_named_votes_from_legis_init_sqlx,
+    get_speeches_from_legis_init_sqlx, get_votes_from_legis_init_sqlx, VoteResult,
+};
 
 pub async fn construct_vote_result(
     pg: &PgPool,
@@ -29,6 +36,7 @@ pub async fn construct_vote_result(
     };
 
     Ok(VoteResult {
+        id: legis_init.id,
         votes,
         named_votes,
         speeches: get_speeches_from_legis_init_sqlx(pg, legis_init.id).await?,
