@@ -226,6 +226,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(DELEGATE_INTERESTS, get(delegate_interests))
         .route(VOTE_RESULTS_PER_PAGE, post(vote_results_per_page)) // post only because js fetch...
         .route(VOTE_RESULT_BY_ID, get(vote_result_by_id)) // post only because js fetch...
+        .route(VOTE_RESULT_BY_SEARCH, get(vote_result_by_search)) // post only because js fetch...
         .route(DELEGATES_AT, get(delegates_at)) // post only because js fetch...
         .route(ALL_GPS, get(all_gps))
         .route("/save_email", post(save_email))
@@ -275,7 +276,8 @@ async fn update_meilisearch_index(
 
     // client.delete_index("vote_results").await?;
 
-    log::info!("Uploading vote results to meilisearch");
+    log::info!("Uploading {} vote results to meilisearch", all_vote_results.len());
+
     client
         .index("vote_results")
         .add_documents(&all_vote_results, None)
