@@ -14,6 +14,7 @@ pub mod server;
 pub use db::*;
 pub use initial_startup::*;
 pub use jwt::AuthError;
+pub mod meilisearch;
 use once_cell::sync::Lazy;
 
 pub const USR_DATABASE_URL: &str = dotenv!("USR_DATABASE_URL");

@@ -52,6 +52,7 @@ pub struct AppState {
     // pub somes_db_pool: deadpool_diesel::postgres::Pool,
     pub dataservice_db_pool: deadpool_diesel::postgres::Pool,
     pub dataservice_sqlx_pool: PgPool,
+    pub meilisearch_client: meilisearch_sdk::client::Client
 }
 
 unsafe impl Send for AppState {}
@@ -63,12 +64,14 @@ impl AppState {
         // somes_db_pool: deadpool_diesel::postgres::Pool,
         dataservice_db_pool: deadpool_diesel::postgres::Pool,
         dataservice_sqlx_pool: PgPool,
+        meilisearch_client: meilisearch_sdk::client::Client,
     ) -> AppState {
         AppState {
             redis_client,
             // somes_db_pool,
             dataservice_db_pool,
             dataservice_sqlx_pool,
+            meilisearch_client,
         }
     }
 }
@@ -162,11 +165,16 @@ pub async fn serve(addr: SocketAddr) {
         .build()
         .unwrap();
 
+    let meilisearch_client =
+        meilisearch_sdk::client::Client::new(MEILISEARCH_URL, Some(MEILISEARCH_SECRET))
+            .expect("Meilisearch client was not able to connect");
+
     let state = AppState::new(
         client,
         // somes_db_pool,
         dataservice_db_pool,
         dataservice_sqlx_pool.clone(),
+        meilisearch_client.clone(),
     )
     .await;
 
@@ -176,11 +184,8 @@ pub async fn serve(addr: SocketAddr) {
 
     let pg_pool = dataservice_sqlx_pool.clone();
     tokio::task::spawn(async move {
-        let client =
-            meilisearch_sdk::client::Client::new(MEILISEARCH_URL, Some(MEILISEARCH_SECRET))
-                .expect("Meilisearch client was not able to connect");
         loop {
-            if let Err(e) = update_meilisearch_index(&pg_pool, &client).await {
+            if let Err(e) = update_meilisearch_index(&pg_pool, &meilisearch_client).await {
                 log::warn!("Could not update meilisearch index: {e:?}");
             }
             sleep(std::time::Duration::from_secs(900)).await;

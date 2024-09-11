@@ -1,8 +1,9 @@
 use axum::{extract::Query, Json};
 use dataservice::db::models::DbLegislativeInitiativeQuery;
+use meilisearch_sdk::search::SearchResults;
 use somes_common_lib::{DateRange, LegisInitFilter, Page, VoteResultId};
 
-use crate::{DataserviceDbConnection, PgPoolConnection, LEGIS_INITS_PER_PAGE};
+use crate::{meilisearch::MeilisearchClient, DataserviceDbConnection, PgPoolConnection, LEGIS_INITS_PER_PAGE};
 
 pub use error::*;
 mod db;
@@ -143,3 +144,32 @@ pub async fn vote_result_by_id(
         .map(Json)
         .map_err(|_| LegisInitErrorResponse::VoteResultById)
 }
+
+pub async fn vote_result_by_search(
+    MeilisearchClient(meilisearch_client): MeilisearchClient,
+    Query(search_query): Query<somes_common_lib::SearchQuery>,
+    Query(page): Query<somes_common_lib::Page>,
+) -> Result<Json<VoteResultsWithMaxPage>, LegisInitErrorResponse> {
+
+    let results: SearchResults<VoteResult> = meilisearch_client
+        .index("vote_results")
+        .search()
+        .with_query(&search_query.search)
+        .with_hits_per_page(LEGIS_INITS_PER_PAGE.parse().unwrap_or(16))
+        .with_page(page.page as usize)
+        .execute()
+        .await
+        .unwrap();
+
+    let max_page = results.total_pages.unwrap_or(1) as i64;
+    
+    let vote_results = results.hits.into_iter().map(|hit| hit.result).collect::<Vec<_>>();
+    Ok(
+        Json(VoteResultsWithMaxPage {
+            vote_results,
+            entry_count: results.estimated_total_hits.unwrap_or(1) as i64,
+            max_page,
+        })
+    )
+}
+

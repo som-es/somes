@@ -115,6 +115,11 @@ pub struct VoteResultId {
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct SearchQuery {
+    pub search: String,
+}
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct Date {
     pub at: NaiveDate,
 }
