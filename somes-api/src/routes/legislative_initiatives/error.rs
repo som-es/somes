@@ -31,7 +31,7 @@ impl IntoResponse for LegisInitErrorResponse {
             LegisInitErrorResponse::VoteResultById => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "could not return legislative init by id",
-            )
+            ),
         };
 
         let body = Json(json!({

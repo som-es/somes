@@ -27,6 +27,8 @@ pub const API_ROOT: &str = dotenv!("API_ROOT");
 pub const HOST_ADDR: &str = dotenv!("HOST_ADDR");
 pub const LEGIS_INITS_PER_PAGE: &str = dotenv!("LEGIS_INITS_PER_PAGE");
 pub const STATIC_FRONTEND_PATH: &str = dotenv!("STATIC_FRONTEND_PATH");
+pub const MEILISEARCH_URL: &str = dotenv!("MEILISEARCH_URL");
+pub const MEILISEARCH_SECRET: &str = dotenv!("MEILISEARCH_SECRET");
 
 // pub type PostgresPool = bb8::Pool<AsyncDieselConnectionManager<AsyncPgConnection>>;
 pub type PostgresPool = deadpool_diesel::postgres::Pool;

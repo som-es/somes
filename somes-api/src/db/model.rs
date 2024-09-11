@@ -34,9 +34,8 @@ impl ToRedisArgs for NewUser {
 
 impl FromRedisValue for NewUser {
     fn from_redis_value(val: &redis::Value) -> redis::RedisResult<Self> {
-        
         match val {
-            // todo idk if bulk string -> a migration guide is nowhere to find 
+            // todo idk if bulk string -> a migration guide is nowhere to find
             Value::BulkString(ref bytes) => Ok(serde_json::from_str(from_utf8(bytes)?)
                 .map_err(|_| RedisError::from((ErrorKind::TypeError, "User cannot be parsed.")))?),
             _ => Err(RedisError::from((

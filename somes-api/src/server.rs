@@ -1,7 +1,11 @@
 use std::{net::SocketAddr, path::PathBuf};
 
 use axum::{
-    extract::FromRef, http, response::Html, routing::{get, get_service, post}, Router
+    extract::FromRef,
+    http,
+    response::Html,
+    routing::{get, get_service, post},
+    Router,
 };
 use axum_server::tls_rustls::RustlsConfig;
 use dataservice::db::models::{DbLegislativeInitiativeQuery, DbParty};
@@ -15,7 +19,7 @@ use somes_common_lib::{
     SIGNUP_ROUTE, SPEAKERS_BY_HOURS, SPEAKERS_BY_HOURS_AND_LEGIS_PERIOD, USER, VERIFY_ROUTE,
 };
 use sqlx::{postgres::PgPoolOptions, PgPool};
-use tokio::net::TcpListener;
+use tokio::{net::TcpListener, time::sleep};
 use tower::limit::RateLimitLayer;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
@@ -25,11 +29,15 @@ use crate::{
     routes::{
         call_to_orders_per_party_delegates, delegates, delegates_by_call_to_orders,
         delegates_by_call_to_orders_and_legis_period, latest_vote_results, parties, proposals,
-        save_email, speakers_by_hours, speakers_by_hours_and_legis_period, user
+        save_email, speakers_by_hours, speakers_by_hours_and_legis_period, user,
     },
-    DATASERVICE_URL, LEGIS_INITS_PER_PAGE, REDIS_DB, STATIC_FRONTEND_PATH,
+    DATASERVICE_URL, LEGIS_INITS_PER_PAGE, MEILISEARCH_SECRET, MEILISEARCH_URL, REDIS_DB,
+    STATIC_FRONTEND_PATH,
 };
-use tower_http::{cors::{Any, CorsLayer}, services::ServeDir};
+use tower_http::{
+    cors::{Any, CorsLayer},
+    services::ServeDir,
+};
 
 use crate::routes::*;
 use crate::routes::{login, signup, verify};
@@ -158,7 +166,7 @@ pub async fn serve(addr: SocketAddr) {
         client,
         // somes_db_pool,
         dataservice_db_pool,
-        dataservice_sqlx_pool,
+        dataservice_sqlx_pool.clone(),
     )
     .await;
 
@@ -166,6 +174,18 @@ pub async fn serve(addr: SocketAddr) {
     let serve_dir = ServeDir::new(static_files_dir.clone())
         .fallback(get(|| async { Html(include_str!("../build/index.html")) }));
 
+    let pg_pool = dataservice_sqlx_pool.clone();
+    tokio::task::spawn(async move {
+        let client =
+            meilisearch_sdk::client::Client::new(MEILISEARCH_URL, Some(MEILISEARCH_SECRET))
+                .expect("Meilisearch client was not able to connect");
+        loop {
+            if let Err(e) = update_meilisearch_index(&pg_pool, &client).await {
+                log::warn!("Could not update meilisearch index: {e:?}");
+            }
+            sleep(std::time::Duration::from_secs(900)).await;
+        }
+    });
 
     let app = Router::new()
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
@@ -204,7 +224,6 @@ pub async fn serve(addr: SocketAddr) {
         .route(DELEGATES_AT, get(delegates_at)) // post only because js fetch...
         .route(ALL_GPS, get(all_gps))
         .route("/save_email", post(save_email))
-
         // mind conflicts e.g delegates
         .fallback_service(get_service(serve_dir).handle_error(|_| async move {
             (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
@@ -239,4 +258,24 @@ pub async fn serve(addr: SocketAddr) {
     if let Err(e) = axum::serve(listener, app.into_make_service()).await {
         error!("API returned error state: {e}")
     }
+}
+
+async fn update_meilisearch_index(
+    pg_pool: &sqlx::Pool<sqlx::Postgres>,
+    client: &meilisearch_sdk::client::Client,
+) -> Result<(), Box<dyn std::error::Error>> {
+    log::info!("Fetching all vote results..");
+    let all_vote_results = get_all_votes_from_legis_init(pg_pool).await?;
+    log::info!("Fetched all vote results");
+
+    // client.delete_index("vote_results").await?;
+
+    log::info!("Uploading vote results to meilisearch");
+    client
+        .index("vote_results")
+        .add_documents(&all_vote_results, None)
+        .await?;
+
+    log::info!("Uploaded vote results");
+    Ok(())
 }

@@ -9,6 +9,7 @@ mod db;
 mod error;
 pub mod filtering;
 pub use db::*;
+mod construct_vote_result;
 
 // #[utoipa::path(
 //     post,
@@ -137,11 +138,8 @@ pub async fn vote_result_by_id(
     PgPoolConnection(pg): PgPoolConnection,
     Query(vote_result_id): Query<VoteResultId>,
 ) -> Result<Json<VoteResult>, LegisInitErrorResponse> {
-    get_vote_result_by_id(
-        &pg,
-        vote_result_id.id,
-    )
-    .await
-    .map(Json)
-    .map_err(|_| LegisInitErrorResponse::VoteResultById)
+    get_vote_result_by_id(&pg, vote_result_id.id)
+        .await
+        .map(Json)
+        .map_err(|_| LegisInitErrorResponse::VoteResultById)
 }

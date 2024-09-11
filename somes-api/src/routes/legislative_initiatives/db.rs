@@ -1,5 +1,7 @@
+
 use dataservice::db::models::{
-    DbLegisDocument, DbLegisDocumentOptional, DbLegislativeInitiativeQuery, DbNamedVote, DbNamedVoteInfo, DbNamedVotes, DbSpeech, DbSpeechWithLink, DbVote
+    DbLegisDocument, DbLegisDocumentOptional, DbLegislativeInitiativeQuery, DbNamedVote,
+    DbNamedVoteInfo, DbNamedVotes, DbSpeech, DbSpeechWithLink, DbVote,
 };
 use serde::{Deserialize, Serialize};
 use somes_common_lib::LegisInitFilter;
@@ -29,7 +31,7 @@ pub struct VoteResultsWithMaxPage {
     pub max_page: i64,
 }
 
-use super::filtering::filtered_legislative_initiatives;
+use super::{construct_vote_result::construct_vote_result, filtering::filtered_legislative_initiatives};
 
 pub async fn get_latest_legis_inits_per_page(
     pg: &PgPool,
@@ -73,47 +75,6 @@ pub async fn get_latest_legislative_initiatives_sqlx(
     Ok(res)
 }
 
-pub async fn construct_vote_result(
-    pg: &PgPool,
-    legis_init: DbLegislativeInitiativeQuery,
-) -> sqlx::Result<VoteResult> {
-    let named_votes =
-        get_named_votes_from_legis_init_sqlx(pg, legis_init.id, legis_init.voted_by_name).await?;
-    let votes = if named_votes.is_some() {
-        dataservice::with_data::named_votes::named_vote_pro_count_by_party(
-            pg,
-            legis_init.id,
-            legis_init.created_at,
-        )
-        .await?
-        .into_iter()
-        .map(|vote| DbVote {
-            party: vote.party.unwrap(),
-            fraction: vote.count.unwrap() as i32,
-            infavor: vote.infavor.unwrap(),
-            legislative_initiatives_id: legis_init.id,
-        })
-        .collect()
-    } else {
-        get_votes_from_legis_init_sqlx(pg, legis_init.id).await?
-    };
-
-    Ok(VoteResult {
-        votes,
-        named_votes,
-        speeches: get_speeches_from_legis_init_sqlx(pg, legis_init.id).await?,
-        topics: get_eurovoc_topics_from_legis_init(pg, legis_init.id).await?,
-        documents: get_legis_docs_from_legis_init_sqlx(pg, legis_init.id).await?,
-        absences: match legis_init.plenary_session_id {
-            Some(plenary_session_id) => {
-                get_absences_delegate_ids_sqlx(pg, plenary_session_id).await?
-            },
-            None => vec![],
-        },
-        legislative_initiative: legis_init,
-    })
-}
-
 pub async fn get_latest_vote_results_sqlx(pg: &PgPool) -> sqlx::Result<Vec<VoteResult>> {
     futures::future::join_all(
         get_latest_legislative_initiatives_sqlx(pg)
@@ -128,7 +89,13 @@ pub async fn get_latest_vote_results_sqlx(pg: &PgPool) -> sqlx::Result<Vec<VoteR
 }
 
 pub async fn get_vote_result_by_id(pg: &PgPool, legis_init_id: i32) -> sqlx::Result<VoteResult> {
-    let legis_init = sqlx::query_as!(DbLegislativeInitiativeQuery, "select * from legislative_initiatives where id = $1", legis_init_id).fetch_one(pg).await?;
+    let legis_init = sqlx::query_as!(
+        DbLegislativeInitiativeQuery,
+        "select * from legislative_initiatives where id = $1",
+        legis_init_id
+    )
+    .fetch_one(pg)
+    .await?;
     construct_vote_result(pg, legis_init).await
 }
 
@@ -190,6 +157,29 @@ pub async fn get_votes_from_legis_init_sqlx(
     )
     .fetch_all(con)
     .await
+}
+
+pub async fn get_all_votes_from_legis_init(con: &PgPool) -> sqlx::Result<Vec<VoteResult>> {
+    let legis_inits = sqlx::query_as!(
+        DbLegislativeInitiativeQuery,
+        "SELECT DISTINCT * FROM legislative_initiatives WHERE accepted is not null"
+    )
+    .fetch_all(con)
+    .await?;
+
+
+    let mut vote_results = Vec::with_capacity(legis_inits.len());
+
+    for legis_init in legis_inits {
+        match construct_vote_result(con, legis_init).await {
+            Ok(vote_result) => vote_results.push(vote_result),
+            Err(e) => {
+                log::warn!("Error while constructing vote result, skipped in result of it: {e:?}")
+            }
+        }
+    }
+
+    Ok(vote_results)
 }
 
 pub async fn get_named_votes_from_legis_init_sqlx(
@@ -260,4 +250,3 @@ pub async fn get_legis_docs_from_legis_init_sqlx(
     .fetch_all(con)
     .await
 }
-
