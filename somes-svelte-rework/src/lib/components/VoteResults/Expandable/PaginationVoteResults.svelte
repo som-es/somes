@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Delegate, VoteResultFilter, VoteResult, VoteResultsWithMaxPage } from '$lib/types';
 	import { onMount } from 'svelte';
-	import { vote_results_per_page } from '$lib/api';
+	import { vote_results_by_search, vote_results_per_page } from '$lib/api';
 	import VoteResultExpandableBar from './VoteResultExpandableBar.svelte';
 	import { pushState } from '$app/navigation';
 	import Pagination from '$lib/components/Pagination.svelte';
@@ -11,6 +11,7 @@
 	import { currentVoteResultFilterStore } from '$lib/stores/stores';
 	import { get } from 'svelte/store';
 	import ExpandablePlaceholder from './Placeholders/ExpandablePlaceholder.svelte';
+	import SButton from '$lib/components/UI/SButton.svelte';
 
 	export let dels: Delegate[];
 
@@ -62,7 +63,13 @@
 		};
 		currentVoteResultFilterStore.set(filter);
 		// filter = null;
-		voteResults = await vote_results_per_page(page - 1, filter);
+
+		if (searchValue) {
+			const voteResultsSearch = await vote_results_by_search(page, searchValue);
+			if (voteResultsSearch) voteResults = voteResultsSearch;
+		} else {
+			voteResults = await vote_results_per_page(page - 1, filter);
+		}
 		currentlyUpdating = false;
 	};
 	onMount(async () => {
@@ -86,7 +93,9 @@
 		old_page = page;
 	};
 
-	$: if (page || selectedPeriod || simpleMajorityFilter || acceptedFilter || namedVoteFilter) {
+	let searchValue = "";
+
+	$: if (page || selectedPeriod || simpleMajorityFilter || acceptedFilter || namedVoteFilter)  {
 		update();
 	}
 </script>
@@ -145,6 +154,24 @@
 <div class="mt-5">
 	<h2 class="font-bold text-2xl">Legislaturperioden</h2>
 	<LegisButtons bind:selectedPeriod />
+</div>
+<div class="mt-5">
+	<h2 class="font-bold text-2xl">Suche</h2>
+	<div class="flex flex-row gap-4">
+		<input
+			class="input w-full h-12 px-2"
+			type="search"
+			name="ac-demo"
+			bind:value={searchValue}
+			on:change={update}
+			placeholder="Suchen..."
+		/>
+		<SButton
+			class="bg-secondary-500 text-black"
+			on:click={update}
+		>Suchen</SButton>
+
+	</div>
 </div>
 <div>
 	{#if voteResults}
