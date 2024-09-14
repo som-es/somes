@@ -9,6 +9,7 @@ mod signup;
 mod statistics;
 mod user;
 mod verify;
+mod walo;
 
 use axum::Json;
 pub use delegates::*;
@@ -23,6 +24,7 @@ pub use signup::*;
 pub use statistics::*;
 pub use user::*;
 pub use verify::*;
+pub use walo::*;
 
 use crate::PgPoolConnection;
 

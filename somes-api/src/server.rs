@@ -174,7 +174,11 @@ pub async fn serve(addr: SocketAddr) {
         meilisearch_sdk::client::Client::new(MEILISEARCH_URL, Some(MEILISEARCH_SECRET))
             .expect("Meilisearch client was not able to connect");
 
-    meilisearch_client.index("test").add_documents(&[Test { test: "test" }], None).await.unwrap();
+    meilisearch_client
+        .index("test")
+        .add_documents(&[Test { test: "test" }], None)
+        .await
+        .unwrap();
 
     let state = AppState::new(
         client,
@@ -235,6 +239,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(VOTE_RESULT_BY_ID, get(vote_result_by_id)) // post only because js fetch...
         .route(VOTE_RESULT_BY_SEARCH, get(vote_result_by_search)) // post only because js fetch...
         .route(DELEGATES_AT, get(delegates_at)) // post only because js fetch...
+        .route(WALO_QUESTIONS, get(walo_questions))
         .route(ALL_GPS, get(all_gps))
         .route("/save_email", post(save_email))
         // mind conflicts e.g delegates
