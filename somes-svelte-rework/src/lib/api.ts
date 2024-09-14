@@ -6,7 +6,8 @@ import type {
 	LegisPeriod,
 	Party,
 	VoteResult,
-	VoteResultsWithMaxPage
+	VoteResultsWithMaxPage,
+	WaloQuestion
 } from './types';
 
 // const address = 'http://somes.at:3000';
@@ -124,6 +125,17 @@ export async function delegates_at(date_at: Date): Promise<Delegate[] | null> {
 export async function vote_results_by_search(page: number, search: string): Promise<VoteResultsWithMaxPage | null> {
 	return fetchSavely(() =>
 		fetch(`${address}/vote_result_by_search?page=${page}&search=${search}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		})
+	);
+}
+
+export async function walo_questions(): Promise<WaloQuestion[] | null> {
+	return fetchSavely(() =>
+		fetch(`${address}/walo_questions`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'

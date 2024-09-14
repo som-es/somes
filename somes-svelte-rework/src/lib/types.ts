@@ -70,6 +70,21 @@ export interface VoteResultsWithMaxPage {
 	max_page: number;
 }
 
+export interface WaloQuestion {
+    id: number;
+    question_statement: string | null;
+    new_keywords_topics: string | null;
+    spoe_justification: string | null;
+    gruene_justification: string | null;
+    neos_justification: string | null;
+    fpoe_justification: string | null;
+    oevp_justification: string | null;
+    somes_link: string | null;
+    law_link: string | null;
+    erklaerbaer: string | null;
+}
+
+
 export interface SpeakerByHours {
 	name: string;
 	image_url: string | null;
