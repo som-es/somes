@@ -122,7 +122,10 @@ export async function delegates_at(date_at: Date): Promise<Delegate[] | null> {
 	);
 }
 
-export async function vote_results_by_search(page: number, search: string): Promise<VoteResultsWithMaxPage | null> {
+export async function vote_results_by_search(
+	page: number,
+	search: string
+): Promise<VoteResultsWithMaxPage | null> {
 	return fetchSavely(() =>
 		fetch(`${address}/vote_result_by_search?page=${page}&search=${search}`, {
 			method: 'GET',

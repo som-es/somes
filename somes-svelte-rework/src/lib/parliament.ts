@@ -101,7 +101,7 @@ export function genCirclesWithAbsenceInfo(absences: number[], dels: Delegate[]):
 				namedVote: null,
 				color: null,
 				opacity: 0,
-				title: "abwesen" 
+				title: 'abwesen'
 			});
 		}
 	});
@@ -131,10 +131,7 @@ export function genCirclesWithSpeechInfo(speeches: Speech[], dels: Delegate[]): 
 	return speechDelegates;
 }
 
-export function genCirclesWithNamedVoteInfo(
-	namedVotes: NamedVote[],
-	dels: Delegate[]
-): Bubble[] {
+export function genCirclesWithNamedVoteInfo(namedVotes: NamedVote[], dels: Delegate[]): Bubble[] {
 	const namedVoteDelegates: Bubble[] = [];
 	const delegatesAt: Delegate[] = dels;
 	namedVotes.forEach((vote) => {

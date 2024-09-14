@@ -75,12 +75,12 @@ export function setSeatsOfDels(
 			if (row >= defaultSeats.length) row = 0;
 			// if (row <= 0) row = defaultSeats.length - 1;
 			const seats = defaultSeats[row];
-			
+
 			// sum of delegates is over 183??
 			// Abschluss des Vertrages über den Beitritt der Republik Bulgarien und Rumäniens zur Europäischen Union (1265 d.B.)
 			// this does not check in which party is one delegate to much
 			if (count >= 1000) {
-				break
+				break;
 			}
 
 			// break;

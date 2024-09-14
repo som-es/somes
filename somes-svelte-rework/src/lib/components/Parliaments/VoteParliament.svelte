@@ -120,7 +120,6 @@
 		}
 	});
 
-	
 	enrichParliamentBubbles(circles2d, dels, voteResult, setOpacity);
 
 	$: {

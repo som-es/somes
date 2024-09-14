@@ -71,19 +71,18 @@ export interface VoteResultsWithMaxPage {
 }
 
 export interface WaloQuestion {
-    id: number;
-    question_statement: string | null;
-    new_keywords_topics: string | null;
-    spoe_justification: string | null;
-    gruene_justification: string | null;
-    neos_justification: string | null;
-    fpoe_justification: string | null;
-    oevp_justification: string | null;
-    somes_link: string | null;
-    law_link: string | null;
-    erklaerbaer: string | null;
+	id: number;
+	question_statement: string | null;
+	new_keywords_topics: string | null;
+	spoe_justification: string | null;
+	gruene_justification: string | null;
+	neos_justification: string | null;
+	fpoe_justification: string | null;
+	oevp_justification: string | null;
+	somes_link: string | null;
+	law_link: string | null;
+	erklaerbaer: string | null;
 }
-
 
 export interface SpeakerByHours {
 	name: string;
@@ -210,4 +209,24 @@ export interface NamedVoteInfo {
 	contra_count: number;
 	given_vote_sum: number;
 	invalid_count: number;
+}
+
+export function areDeeplyEqual(param1: unknown, param2: unknown) {
+	// check strict equality
+	if (param1 === param2) return true;
+	// check if props are not objects
+	if (!(param1 instanceof Object) || !(param2 instanceof Object)) return false;
+
+	// object keys
+	const keys1 = Object.keys(param1);
+	const keys2 = Object.keys(param2);
+	// check if number of keys are the same
+	if (keys1.length !== keys2.length) return false;
+	// Iterate over the keys and compare the values recursively
+	for (const key of keys1) {
+		const value1 = (param1 as Record<string, unknown>)[key];
+		const value2 = (param2 as Record<string, unknown>)[key];
+		if (!areDeeplyEqual(value1, value2)) return false;
+	}
+	return true;
 }

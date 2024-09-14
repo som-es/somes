@@ -93,9 +93,9 @@
 		old_page = page;
 	};
 
-	let searchValue = "";
+	let searchValue = '';
 
-	$: if (page || selectedPeriod || simpleMajorityFilter || acceptedFilter || namedVoteFilter)  {
+	$: if (page || selectedPeriod || simpleMajorityFilter || acceptedFilter || namedVoteFilter) {
 		update();
 	}
 </script>
@@ -166,11 +166,7 @@
 			on:change={update}
 			placeholder="Suchen..."
 		/>
-		<SButton
-			class="bg-secondary-500 text-black"
-			on:click={update}
-		>Suchen</SButton>
-
+		<SButton class="bg-secondary-500 text-black" on:click={update}>Suchen</SButton>
 	</div>
 </div>
 <div>
