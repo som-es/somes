@@ -1,1 +1,0 @@
-import{d as s,b as a}from"./VoteParliament.CA3BDySn.js";import{p as n}from"./scheduler.CojjvJ9R.js";async function r(l=!1){let e=n(s);if(e==null||l||e.length==0){const t=await a();s.set(t),e=t}return e}async function f(l=!1){const e=await r(l);return e==null?null:structuredClone(e.filter(t=>t.council==="nr"))}export{r as c,f};
