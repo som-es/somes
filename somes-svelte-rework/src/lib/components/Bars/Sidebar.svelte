@@ -67,7 +67,7 @@
 			href="/vote_history"
 			bind:group={currentTile}
 			name="Abstimmungen"
-			value={1}
+			value={3}
 			title="Abstimmungen"
 		>
 			<svelte:fragment slot="lead">
@@ -81,6 +81,23 @@
 			</svelte:fragment>
 			<span style="font-size: x-small;">Abstimmungen</span>
 		</AppRailAnchor>
+		<hr />
+
+		<AppRailAnchor
+			selected={isSelected('/wahlhelfer')}
+			href="/wahlhelfer"
+			bind:group={currentTile}
+			name="Wahlhelfer"
+			value={4}
+			title="Wahlhelfer"
+		>
+			<svelte:fragment slot="lead"><div class="w-10">{@html statsIcon}</div></svelte:fragment>
+			<span style="font-size: x-small;">Wahlhelfer</span>
+			<br>
+			<span style="font-size: x-small;">NRWAHL 2024</span>
+		</AppRailAnchor>
+
+
 		<!-- <AppRailAnchor class={activeAnchorColor("/statistics")} href="/statistics" bind:group={currentTile} name="Statistiken" value={2} title="Statistiken">
 			<svelte:fragment slot="lead">{@html statsIcon}</svelte:fragment>
 			<span style="font-size: x-small;">Statistiken</span>
