@@ -47,7 +47,7 @@
 
 	const updateJustifications = (idx: number) => {
 		if (justificationsOrderCache[idx].length > 0) {
-			justifications = justificationsOrderCache[idx];
+			justifications = justificationsOrderCache[idx].slice();
 			return;
 		}
 
@@ -59,7 +59,7 @@
 			[question.fpoe_justification, 3],
 			[question.oevp_justification, 4]
 		]);
-		justificationsOrderCache[idx] = justifications;
+		justificationsOrderCache[idx] = justifications.slice();
 	};
 
 	$: if (waloQuestions || idx) {
@@ -69,6 +69,7 @@
 	$: if (allTickedQuestions) {
 		valueMultiple = allTickedQuestions[idx];
 		twoWeightGroup = twoTimesWeightQuestions[idx];
+		console.log(valueMultiple);
 	}
 
 	$: if (allTickedQuestions || twoTimesWeightQuestions ) {

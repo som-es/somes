@@ -33,6 +33,8 @@
 	$: twoTimesChecked = twoTimeWeightsGroup.some((groupVal: unknown) =>
 		areDeeplyEqual(value, groupVal)
 	);
+
+    $: value = justification[1].toString();
 </script>
 
 <ListBoxItem
@@ -42,7 +44,7 @@
 	active="bg-secondary-500"
 	bind:group={partyGroup}
 	name="justification"
-	{value}
+	bind:value={value}
 	>{justification[0]}
 
 	<svelte:fragment slot="trail">
