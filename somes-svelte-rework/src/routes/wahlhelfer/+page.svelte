@@ -177,6 +177,7 @@
 			{#each waloQuestions as waloQuestion, idx}
 				<h1 class="font-bold text-2xl">{waloQuestion.question_statement}</h1>
 				<h4 class="text-lg mt-2">{waloQuestion.erklaerbaer}</h4>
+				<SButton class="bg-tertiary-400 mt-2"><a href="{waloQuestion.somes_link}" target="_blank">Abstimmung auf somes</a></SButton>
 				<div class="flex justify-center mt-4">
 					<div class="flex flex-wrap flex-row justify-center items-center gap-1">
 						<ListBox class="reasons" multiple>
