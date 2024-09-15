@@ -66,12 +66,10 @@
 		twoWeightGroup = twoTimesWeightQuestions[idx];
 	}
 
-
-
 	const sumPartyPoints = () => {
 		const partyPoints = [0, 0, 0, 0, 0];
-		twoTimesWeightQuestions.forEach(twoTimesWeightQuestion => {
-			twoTimesWeightQuestion.forEach(partyIdx => {
+		twoTimesWeightQuestions.forEach((twoTimesWeightQuestion) => {
+			twoTimesWeightQuestion.forEach((partyIdx) => {
 				partyPoints[+partyIdx] -= 1;
 			});
 		});
@@ -99,7 +97,7 @@
 						<ListBoxItemWalo
 							bind:partyGroup={valueMultiple}
 							bind:twoTimeWeightsGroup={twoWeightGroup}
-							bind:justification={justification}
+							bind:justification
 						></ListBoxItemWalo>
 					{/each}
 				</ListBox>
@@ -123,28 +121,41 @@
 				<SButton class="mt-5 mb-5 bg-tertiary-500 text-black" on:click={() => (idx += 1)}>
 					Zum Ergebnis
 				</SButton>
-
 			{/if}
 		</div>
-		<SButton class="mt-5 mb-5 bg-tertiary-500 text-black" on:click={sumPartyPoints}>Ergebnis</SButton>
+		<SButton class="mt-5 mb-5 bg-tertiary-500 text-black" on:click={sumPartyPoints}
+			>Ergebnis</SButton
+		>
 	{:else if !started}
-
 		<h1 class="font-bold text-7xl">Der <span class=" italic">somes</span> Wahlhelfer</h1>
 		<h4 class="text-xl">
-			bietet Unterstützung bei der Wahlentscheidung, basierend auf tatsächlichen Abstimmungen und Reden im Nationalrat, statt auf Versprechen und Parolen vor der Wahl.
+			bietet Unterstützung bei der Wahlentscheidung, basierend auf tatsächlichen Abstimmungen und
+			Reden im Nationalrat, statt auf Versprechen und Parolen vor der Wahl.
 		</h4>
-		<br>
-		Beim Start des Wahlhelfers können mehrere, aber auch keine Aussagen ausgewählt werden, die den eigenen Ansichten entsprechen. Jede Aussage, auch jene, die nicht zu einem passen, kann doppelt gewichtet werden. Wird keine Auswahl getroffen, bedeutet dies "überspringen" oder "auslassen".
+		<br />
+		Beim Start des Wahlhelfers können mehrere, aber auch keine Aussagen ausgewählt werden, die den eigenen
+		Ansichten entsprechen. Jede Aussage, auch jene, die nicht zu einem passen, kann doppelt gewichtet
+		werden. Wird keine Auswahl getroffen, bedeutet dies "überspringen" oder "auslassen".
 
-		<br>
-		<br>
-		<span class="font-bold">Disclaimer:</span> die Aussagen wurden aus den Reden im Nationalrat extrahiert. Deshalb stehen die Begründungen immer nur aus den Meinungen von einzelnen Abgeordneten aus der Fraktion. Die Aussagen und damit die Begründungen in den Reden wurden keinem Faktencheck unterzogen. Unterbewusster Bias sowie Fehler können nicht ausgeschlossen werden.
-		<br>
+		<br />
+		<br />
+		<span class="font-bold">Disclaimer:</span> die Aussagen wurden aus den Reden im Nationalrat
+		extrahiert. Deshalb stehen die Begründungen immer nur aus den Meinungen von einzelnen
+		Abgeordneten aus der Fraktion. Die Aussagen und damit die Begründungen in den Reden wurden
+		keinem Faktencheck unterzogen. Unterbewusster Bias sowie Fehler können nicht ausgeschlossen
+		werden. Die eigene Auswahl bleibt lokal am Gerät und wird nicht gespeichert.
+		<br />
 
-		<SButton on:click={() => started = true} class=" float-right mt-5 mb-5 bg-tertiary-500 text-black">Starten</SButton>
+		<SButton
+			on:click={() => (started = true)}
+			class="float-right mt-5 mb-5 bg-tertiary-500 text-black">Starten</SButton
+		>
 	{:else}
-		Ergebnis
-		<ResultChart></ResultChart>
+		<span class="font-bold text-5xl">
+			Ergebnis
+		</span>
+		<ResultChart dataNoParty={[19, 9, 3, 10, 1]}></ResultChart>
+
 	{/if}
 </div>
 

@@ -40,7 +40,6 @@
 	let elemInput: HTMLElement;
 
 	// Functionality
-	
 
 	// Svelte Checkbox Bugfix
 	// GitHub: https://github.com/sveltejs/svelte/issues/2308
@@ -49,7 +48,7 @@
 	$: if (multiple) updateGroup(checked);
 	function updateCheckbox(group: any) {
 		checked = group.indexOf(value) >= 0;
-        console.log(checked);
+		console.log(checked);
 	}
 	function updateGroup(checked: boolean) {
 		const index = group.indexOf(value);
@@ -93,62 +92,62 @@
 </script>
 
 <label>
-    <!-- <div class="flex flex-row"> -->
-        <!-- A11y attributes are not allowed on <label> -->
-        <div
-            class="listbox-item {classesBase}"
-            data-testid="listbox-item"
-            role="option"
-            aria-selected={selected}
-            tabindex="0"
-            on:keydown={onKeyDown}
-            on:keydown
-            on:keyup
-            on:keypress
-        >
-            <!-- NOTE: Don't use `hidden` as it prevents `required` from operating -->
-            <div class="h-0 w-0 overflow-hidden">
-                {#if multiple}
-                    <input
-                        {disabled}
-                        bind:this={elemInput}
-                        type="button"
-                        {name}
-                        {value}
-                        tabindex="-1"
-                        on:click={(e) => {
-                            console.log("clicked");
-                            checked = !checked;
-                        }}
-                        on:change
-                    />
-                {:else}
-                    <input
-                        {disabled}
-                        bind:this={elemInput}
-                        type="radio"
-                        bind:group
-                        {name}
-                        {value}
-                        tabindex="-1"
-                        on:click
-                        on:change
-                    />
-                {/if}
-            </div>
-            <!-- <slot /> -->
-            <div class="listbox-label {classesLabel}">
-                <!-- Slot: Lead -->
-                {#if $$slots.lead}<div class="listbox-label-lead {classesRegionLead}">
-                        <slot name="lead" />
-                    </div>{/if}
-                <!-- Slot: Default -->
-                <div class="z-30 listbox-label-content {classesRegionDefault}"><slot /></div>
-                <!-- Slot: Trail -->
-                {#if $$slots.trail}<div class="listbox-label-trail {classesRegionTrail}">
-                        <slot name="trail" />
-                    </div>{/if}
-            </div>
-        </div>
-    <!-- </div> -->
+	<!-- <div class="flex flex-row"> -->
+	<!-- A11y attributes are not allowed on <label> -->
+	<div
+		class="listbox-item {classesBase}"
+		data-testid="listbox-item"
+		role="option"
+		aria-selected={selected}
+		tabindex="0"
+		on:keydown={onKeyDown}
+		on:keydown
+		on:keyup
+		on:keypress
+	>
+		<!-- NOTE: Don't use `hidden` as it prevents `required` from operating -->
+		<div class="h-0 w-0 overflow-hidden">
+			{#if multiple}
+				<input
+					{disabled}
+					bind:this={elemInput}
+					type="button"
+					{name}
+					{value}
+					tabindex="-1"
+					on:click={(e) => {
+						console.log('clicked');
+						checked = !checked;
+					}}
+					on:change
+				/>
+			{:else}
+				<input
+					{disabled}
+					bind:this={elemInput}
+					type="radio"
+					bind:group
+					{name}
+					{value}
+					tabindex="-1"
+					on:click
+					on:change
+				/>
+			{/if}
+		</div>
+		<!-- <slot /> -->
+		<div class="listbox-label {classesLabel}">
+			<!-- Slot: Lead -->
+			{#if $$slots.lead}<div class="listbox-label-lead {classesRegionLead}">
+					<slot name="lead" />
+				</div>{/if}
+			<!-- Slot: Default -->
+			<div class="z-30 listbox-label-content {classesRegionDefault}"><slot /></div>
+			<!-- Slot: Trail -->
+			{#if $$slots.trail}<div class="listbox-label-trail {classesRegionTrail}">
+					<slot name="trail" />
+				</div>{/if}
+		</div>
+	</div>
+	<!-- </div> -->
 </label>

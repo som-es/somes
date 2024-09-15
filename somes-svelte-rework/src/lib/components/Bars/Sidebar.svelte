@@ -93,10 +93,9 @@
 		>
 			<svelte:fragment slot="lead"><div class="w-10">{@html statsIcon}</div></svelte:fragment>
 			<span style="font-size: x-small;">Wahlhelfer</span>
-			<br>
+			<br />
 			<span style="font-size: x-small;">NRWAHL 2024</span>
 		</AppRailAnchor>
-
 
 		<!-- <AppRailAnchor class={activeAnchorColor("/statistics")} href="/statistics" bind:group={currentTile} name="Statistiken" value={2} title="Statistiken">
 			<svelte:fragment slot="lead">{@html statsIcon}</svelte:fragment>
