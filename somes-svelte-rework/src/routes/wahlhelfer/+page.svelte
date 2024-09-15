@@ -168,27 +168,29 @@
 		<span class="font-bold text-3xl"> Ergebnis </span>
 		<!-- <ResultChart dataNoParty={[19, 9, 3, 10, 1]}></ResultChart> -->
 		<ResultChartReactive dataNoParty={partyPoints}></ResultChartReactive>
-		<span class="font-bold text-4xl"> Aussagen der Parteien </span>
-			
-		{#each waloQuestions as waloQuestion, idx}
-			<h1 class="font-bold text-4xl">{waloQuestion.question_statement}</h1>
-			<h4 class="text-xl mt-2">{waloQuestion.erklaerbaer}</h4>
-			<div class="flex justify-center mt-4">
-				<div class="flex flex-wrap flex-row justify-center items-center gap-1">
-					<ListBox class="reasons" multiple>
-						{#each justificationsOrderCache[idx] as justification}
-							<ListBoxItemWalo
-								bind:partyGroup={allTickedQuestions[idx]}
-								bind:twoTimeWeightsGroup={twoTimesWeightQuestions[idx]}
-								bind:justification
-								color={partyToColor(partyIdxToString[justification[1]])}
-							></ListBoxItemWalo>
-						{/each}
-					</ListBox>
+		<span class="font-bold text-3xl my-4"> Aussagen der Parteien </span>
+		
+		<div class="my-3">
+			{#each waloQuestions as waloQuestion, idx}
+				<h1 class="font-bold text-2xl">{waloQuestion.question_statement}</h1>
+				<h4 class="text-lg mt-2">{waloQuestion.erklaerbaer}</h4>
+				<div class="flex justify-center mt-4">
+					<div class="flex flex-wrap flex-row justify-center items-center gap-1">
+						<ListBox class="reasons" multiple>
+							{#each justificationsOrderCache[idx] as justification}
+								<ListBoxItemWalo
+									bind:partyGroup={allTickedQuestions[idx]}
+									bind:twoTimeWeightsGroup={twoTimesWeightQuestions[idx]}
+									bind:justification
+									color={partyToColor(partyIdxToString[justification[1]])}
+								></ListBoxItemWalo>
+							{/each}
+						</ListBox>
+					</div>
 				</div>
-			</div>
 
-		{/each}
+			{/each}
+		</div>
 	{/if}
 </div>
 
