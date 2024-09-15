@@ -4,6 +4,8 @@
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import ListBoxItemWalo from '$lib/components/Walo/ListBoxItemWalo.svelte';
 	import ResultChart from '$lib/components/Walo/ResultChart.svelte';
+	import ResultChartReactive from '$lib/components/Walo/ResultChartReactive.svelte';
+	import { partyToColor } from '$lib/partyColor';
 	import type { WaloQuestion } from '$lib/types';
 	import { ListBox, ListBoxItem } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
@@ -13,6 +15,8 @@
 	let twoTimesWeightQuestions: string[][];
 	let started: boolean = false;
 	let showResults: boolean = false;
+
+	const partyIdxToString = ["SPÖ", "GRÜNE", "NEOS", "FPÖ", "ÖVP"];
 
 	let justificationsOrderCache: [string | null, number][][];
 	onMount(async () => {
@@ -61,10 +65,13 @@
 	$: if (waloQuestions || idx) {
 		updateJustifications(idx);
 	}
+	let partyPoints: number[] = [];
 	$: if (allTickedQuestions) {
 		valueMultiple = allTickedQuestions[idx];
 		twoWeightGroup = twoTimesWeightQuestions[idx];
+		partyPoints = sumPartyPoints();
 	}
+
 
 	const sumPartyPoints = () => {
 		const partyPoints = [0, 0, 0, 0, 0];
@@ -79,11 +86,11 @@
 				partyPoints[+partyIdx] += 1 + add;
 			});
 		});
-		console.log(partyPoints);
+		return partyPoints;
 	};
 
-	started = true;
-	showResults = true;
+	// started = true;
+	// showResults = true;
 </script>
 
 <div class="p-4 max-w-[800px] w-full mx-auto">
@@ -104,28 +111,33 @@
 			</div>
 		</div>
 
-		<div class="flex justify-between">
+		<div class="flex justify-between mt-5">
 			{#if idx > 0}
-				<SButton class="mt-5 mb-5 bg-tertiary-500 text-black" on:click={() => (idx -= 1)}>
+				<SButton class="mb-5 bg-tertiary-500 text-black" on:click={() => (idx -= 1)}>
 					Vorherige Frage
 				</SButton>
 			{:else}
 				<div></div>
 			{/if}
 
+			<div class="mt-3">
+				Frage {idx +1} von {waloQuestions.length}	
+			</div>
+
 			{#if idx + 1 < waloQuestions.length}
-				<SButton class="mt-5 mb-5 bg-tertiary-500 text-black" on:click={() => (idx += 1)}>
+				<SButton class="mb-5 bg-tertiary-500 text-black" on:click={() => (idx += 1)}>
 					Nächste Frage
 				</SButton>
 			{:else}
-				<SButton class="mt-5 mb-5 bg-tertiary-500 text-black" on:click={() => (idx += 1)}>
-					Zum Ergebnis
-				</SButton>
+				<SButton
+					class="mt-5 mb-5 bg-tertiary-500 text-black"
+					on:click={() => {
+						partyPoints = sumPartyPoints();
+						showResults = true;
+					}}>Ergebnis</SButton
+				>
 			{/if}
 		</div>
-		<SButton class="mt-5 mb-5 bg-tertiary-500 text-black" on:click={sumPartyPoints}
-			>Ergebnis</SButton
-		>
 	{:else if !started}
 		<h1 class="font-bold text-7xl">Der <span class=" italic">somes</span> Wahlhelfer</h1>
 		<h4 class="text-xl">
@@ -135,7 +147,8 @@
 		<br />
 		Beim Start des Wahlhelfers können mehrere, aber auch keine Aussagen ausgewählt werden, die den eigenen
 		Ansichten entsprechen. Jede Aussage, auch jene, die nicht zu einem passen, kann doppelt gewichtet
-		werden. Wird keine Auswahl getroffen, bedeutet dies "überspringen" oder "auslassen".
+		werden. Wird keine Auswahl getroffen, bedeutet dies "überspringen" oder "auslassen". Die Aussagen
+		beginnen entweder mit "Ja" oder "Nein". Das widerspiegelt das Abstimmungsverhalten im Nationalrat.
 
 		<br />
 		<br />
@@ -143,19 +156,39 @@
 		extrahiert. Deshalb stehen die Begründungen immer nur aus den Meinungen von einzelnen
 		Abgeordneten aus der Fraktion. Die Aussagen und damit die Begründungen in den Reden wurden
 		keinem Faktencheck unterzogen. Unterbewusster Bias sowie Fehler können nicht ausgeschlossen
-		werden. Die eigene Auswahl bleibt lokal am Gerät und wird nicht gespeichert.
+		werden. Die Themen wurden von dem somes Team ausgewählt. Nicht alle Begründungen aus den
+		Reden wurden eingebaut. Die eigene Auswahl bleibt lokal am Gerät und wird nicht gespeichert.
 		<br />
 
 		<SButton
 			on:click={() => (started = true)}
 			class="float-right mt-5 mb-5 bg-tertiary-500 text-black">Starten</SButton
 		>
-	{:else}
-		<span class="font-bold text-5xl">
-			Ergebnis
-		</span>
-		<ResultChart dataNoParty={[19, 9, 3, 10, 1]}></ResultChart>
+	{:else if waloQuestions && showResults && started}
+		<span class="font-bold text-3xl"> Ergebnis </span>
+		<!-- <ResultChart dataNoParty={[19, 9, 3, 10, 1]}></ResultChart> -->
+		<ResultChartReactive dataNoParty={partyPoints}></ResultChartReactive>
+		<span class="font-bold text-4xl"> Aussagen der Parteien </span>
+			
+		{#each waloQuestions as waloQuestion, idx}
+			<h1 class="font-bold text-4xl">{waloQuestion.question_statement}</h1>
+			<h4 class="text-xl mt-2">{waloQuestion.erklaerbaer}</h4>
+			<div class="flex justify-center mt-4">
+				<div class="flex flex-wrap flex-row justify-center items-center gap-1">
+					<ListBox class="reasons" multiple>
+						{#each justificationsOrderCache[idx] as justification}
+							<ListBoxItemWalo
+								bind:partyGroup={allTickedQuestions[idx]}
+								bind:twoTimeWeightsGroup={twoTimesWeightQuestions[idx]}
+								bind:justification
+								color={partyToColor(partyIdxToString[justification[1]])}
+							></ListBoxItemWalo>
+						{/each}
+					</ListBox>
+				</div>
+			</div>
 
+		{/each}
 	{/if}
 </div>
 

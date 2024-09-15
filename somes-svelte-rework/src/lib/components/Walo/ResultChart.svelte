@@ -50,28 +50,28 @@
 			enabled: true
 		},
 
-        tooltip: {
-          x: {
-            show: true
-          },
-          y: {
-            title: {
-              formatter: function () {
-                return ''
-              }
-            }
-          }
-        },
+		tooltip: {
+			x: {
+				show: true
+			},
+			y: {
+				title: {
+					formatter: function () {
+						return '';
+					}
+				}
+			}
+		},
 
 		grid: {
-			borderColor: '#e0e0e0', 
-			strokeDashArray: 1, 
+			borderColor: '#e0e0e0',
+			strokeDashArray: 1,
 			row: {
-				colors: ['#f3f3f3', '#ffffff'], 
+				colors: ['#f3f3f3', '#ffffff'],
 				opacity: 0.5
 			},
 			column: {
-				colors: ['#f3f3f3', '#ffffff'], 
+				colors: ['#f3f3f3', '#ffffff'],
 				opacity: 0.5
 			}
 		},

@@ -7,6 +7,7 @@
 	export let partyGroup: string[];
 	export let twoTimeWeightsGroup: string[];
 	export let justification: [string | null, number];
+    export let color: string | null = null;
 
 	let value = justification[1].toString();
 
@@ -43,6 +44,13 @@
 	>{justification[0]}
 
 	<svelte:fragment slot="trail">
+        {#if color}
+            <button
+                style="color: {color}; background-color: {color}"
+                class="p-3 px-4 rounded-full"
+            >2x
+            </button>
+        {/if}
 		<button
 			on:click={(e) => {
 				e.preventDefault();
