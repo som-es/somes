@@ -69,6 +69,9 @@
 	$: if (allTickedQuestions) {
 		valueMultiple = allTickedQuestions[idx];
 		twoWeightGroup = twoTimesWeightQuestions[idx];
+	}
+
+	$: if (allTickedQuestions || twoTimesWeightQuestions ) {
 		partyPoints = sumPartyPoints();
 	}
 

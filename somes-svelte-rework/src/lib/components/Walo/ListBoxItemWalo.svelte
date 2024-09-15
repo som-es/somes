@@ -18,10 +18,12 @@
 		if (checked) {
 			if (index < 0) {
 				twoTimeWeightsGroup.push(value);
+                twoTimeWeightsGroup = twoTimeWeightsGroup;
 			}
 		} else {
 			if (index >= 0) {
 				twoTimeWeightsGroup.splice(index, 1);
+                twoTimeWeightsGroup = twoTimeWeightsGroup;
 			}
 		}
 	}

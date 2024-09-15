@@ -48,7 +48,7 @@
 	$: if (multiple) updateGroup(checked);
 	function updateCheckbox(group: any) {
 		checked = group.indexOf(value) >= 0;
-		console.log(checked);
+		// console.log(checked);
 	}
 	function updateGroup(checked: boolean) {
 		const index = group.indexOf(value);
@@ -116,7 +116,7 @@
 					{value}
 					tabindex="-1"
 					on:click={(e) => {
-						console.log('clicked');
+						// console.log('clicked');
 						checked = !checked;
 					}}
 					on:change
