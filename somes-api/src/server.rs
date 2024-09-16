@@ -278,6 +278,8 @@ pub async fn serve(addr: SocketAddr) {
             tokio::spawn(redirect_http_to_https(ports, sock_addr));
 
             sock_addr.set_port(ports.https);
+
+            info!("Binding API on {sock_addr}");
             axum_server::bind_rustls(sock_addr, config.clone())
                 .serve(app.into_make_service())
                 .await
