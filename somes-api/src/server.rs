@@ -266,7 +266,6 @@ pub async fn serve(addr: SocketAddr) {
     // .await
     // .unwrap();
 
-    info!("Binding API on {addr}");
 
     // let server = axum_server::bind_rustls(addr, config);
     match config {
@@ -285,6 +284,8 @@ pub async fn serve(addr: SocketAddr) {
                 .unwrap();
         },
         Err(_) => {
+
+            info!("Binding API on {addr}");
             let listener = match TcpListener::bind(&addr).await {
                 Ok(listener) => listener,
                 Err(e) => panic!("Could not initialize API: {e}"),
