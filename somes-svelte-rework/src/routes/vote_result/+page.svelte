@@ -6,7 +6,7 @@
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import Topics from '$lib/components/Topics/Topics.svelte';
-	import type { Delegate } from '$lib/types';
+	import type { Delegate, VoteResult } from '$lib/types';
 	import Emphasis from '$lib/components/VoteResults/Emphasis/Emphasis.svelte';
 	import VoteParliament from '$lib/components/Parliaments/VoteParliament.svelte';
 	import InfoTiles from '$lib/components/VoteResults/InfoTiles/InfoTiles.svelte';
@@ -31,7 +31,7 @@
 
 	let dels: Delegate[] | null = null;
 
-	let voteResult = get(currentVoteResultStore);
+	let voteResult: VoteResult | null = null;
 	let voteResultId: string | null = null;
 	let oldVoteResultId: string | null = voteResultId;
 
@@ -68,6 +68,14 @@
 	}
 
 	onMount(async () => {
+
+		const url = new URL(window.location.href);
+		voteResultId = url.searchParams.get('id');
+
+		if (!voteResultId) {
+			voteResult = get(currentVoteResultStore);
+		}
+
 		dels = await filteredDelegates();
 		if (dels !== null) {
 			delegate = dels[Math.floor(Math.random() * dels.length)];
@@ -83,9 +91,7 @@
 		if (maybeStoredDelegate) {
 			delegate = maybeStoredDelegate;
 		}
-		const url = new URL(window.location.href);
 
-		voteResultId = url.searchParams.get('id');
 		if (voteResultId == null && voteResult !== null) {
 			voteResultId = voteResult.legislative_initiative.id;
 			oldVoteResultId = voteResultId;
@@ -160,7 +166,8 @@
 		placement: 'bottom-start'
 	};
 
-	const emphasis = voteResult?.legislative_initiative.emphasis
+	let emphasis: string[] | undefined = undefined;
+	$: if (voteResult || voteResultId) emphasis = voteResult?.legislative_initiative.emphasis
 		?.split('\n\t')
 		.filter((x) => x.length > 0);
 
