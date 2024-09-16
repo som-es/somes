@@ -34,6 +34,8 @@ pub const MEILISEARCH_URL: &str = dotenv!("MEILISEARCH_URL");
 pub const MEILISEARCH_SECRET: &str = dotenv!("MEILISEARCH_SECRET");
 pub const PRIVATE_KEY_PATH: &str = dotenv!("PRIVATE_KEY_PATH");
 pub const PUBLIC_KEY_PATH: &str = dotenv!("PUBLIC_KEY_PATH");
+pub const HTTP_PORT: &str = dotenv!("HTTP_PORT");
+pub const HTTPS_PORT: &str = dotenv!("HTTPS_PORT");
 
 // pub type PostgresPool = bb8::Pool<AsyncDieselConnectionManager<AsyncPgConnection>>;
 pub type PostgresPool = deadpool_diesel::postgres::Pool;
