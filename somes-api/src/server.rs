@@ -206,6 +206,9 @@ pub async fn serve(addr: SocketAddr) {
     )
     .await;
 
+    let landing_server_dir = ServeDir::new("../deploy-rs/somes-landing");
+    let landing_app = Router::new().nest_service("/", landing_server_dir);
+
     let app = Router::new()
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .route(SIGNUP_ROUTE, post(signup))
@@ -245,10 +248,15 @@ pub async fn serve(addr: SocketAddr) {
         .route(WALO_QUESTIONS, get(walo_questions))
         .route(ALL_GPS, get(all_gps))
         .route("/save_email", post(save_email))
+
         // mind conflicts e.g delegates
-        .fallback_service(get_service(serve_dir).handle_error(|_| async move {
+        .nest_service("/alpha", get_service(serve_dir).handle_error(|_| async move {
             (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
         }))
+        .nest("/", landing_app)
+        // .fallback_service(get_service(serve_dir).handle_error(|_| async move {
+        //     (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
+        // }))
         .layer(
             CorsLayer::new()
                 .allow_origin(Any)
