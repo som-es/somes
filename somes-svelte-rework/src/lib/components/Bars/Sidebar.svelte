@@ -4,6 +4,7 @@
 	import delegatesIcon from '$lib/assets/icons/delegates.svg?raw';
 	import homeIcon from '$lib/assets/icons/home.svg?raw';
 	import statsIcon from '$lib/assets/icons/statistics.svg?raw';
+	import waloIcon from '$lib/assets/icons/walo.svg?raw';
 	import { AppRail, AppRailAnchor, AppRailTile, getDrawerStore } from '@skeletonlabs/skeleton';
 	import VoteParliament from '../Parliaments/VoteParliament.svelte';
 	import { mockDelegates, mockVoteResult } from '$lib/parliaments/mock';
@@ -91,7 +92,7 @@
 			value={4}
 			title="Wahlhelfer"
 		>
-			<svelte:fragment slot="lead"><div class="w-10">{@html statsIcon}</div></svelte:fragment>
+			<svelte:fragment slot="lead"><div class="w-10">{@html waloIcon}</div></svelte:fragment>
 			<span style="font-size: x-small;">Wahlhelfer</span>
 			<br />
 			<span style="font-size: x-small;">NRWAHL 2024</span>
