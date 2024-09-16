@@ -272,7 +272,7 @@ pub async fn serve(addr: SocketAddr) {
     match config {
         Ok(config) => {
             let ports = Ports {
-                http: 3000,
+                http: 2999,
                 https: 3000,
             };
             let sock_addr = addr;

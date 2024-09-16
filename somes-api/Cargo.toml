@@ -43,6 +43,6 @@ imap = { version = "3.0.0-alpha.10", features = ["rustls-tls"] }
 utoipa = "4.2.0"
 utoipa-swagger-ui = { version = "7", features = ["axum"] }
 tower = {version = "0.5", features = ["full"] }
-axum-server = { version = "0.7", features = ["tls-rustls"] }
+axum-server = { version = "0.7.1", features = ["tls-rustls"] }
 sqlx = { version = "0.8", features = [ "runtime-tokio", "tls-rustls", "postgres", "chrono" ] }
 futures = "0.3.30"

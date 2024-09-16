@@ -36,7 +36,7 @@ pub async fn redirect_http_to_https(ports: Ports, mut sock_addr: SocketAddr) {
     };
 
     let listener = tokio::net::TcpListener::bind(sock_addr).await.unwrap();
-    // tracing::debug!("listening on {}", listener.local_addr().unwrap());
+    log::info!("redirector listening on {}", listener.local_addr().unwrap());
 
     axum::serve(listener, redirect.into_make_service())
         .await
