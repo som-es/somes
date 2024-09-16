@@ -71,7 +71,7 @@ async fn main() {
     // https://stackoverflow.com/questions/71527665/building-svelte-app-as-a-set-of-static-files
     let alpha_serve_dir = ServeDir::new(opt.static_dir);
     // let alpha_app = Router::new().nest_service("/alpha", alpha_serve_dir);
-    let alpha_app = Router::new().nest_service("/", alpha_serve_dir);
+    // let alpha_app = Router::new().nest_service("/", alpha_serve_dir);
 
     let landing_server_dir = ServeDir::new("./somes-landing");
     let landing_app = Router::new().nest_service("/", landing_server_dir);
