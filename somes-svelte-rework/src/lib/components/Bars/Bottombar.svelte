@@ -7,6 +7,7 @@
 	import waloIcon from '$lib/assets/icons/walo.svg?raw';
 	import VoteParliament from '../Parliaments/VoteParliament.svelte';
 	import { mockDelegates, mockVoteResult } from '$lib/parliaments/mock';
+	import { base } from '$app/paths';
 
 	$: isSelected = (href: string) => $page.url.pathname?.includes(href);
 </script>
@@ -20,7 +21,7 @@
 	border=""
 	class="bg-surface-100-800-token w-full"
 >
-	<TabAnchor href="/home" selected={isSelected('/home')}>
+	<TabAnchor href="{base}/home" selected={isSelected('/home')}>
 		<div class="flex justify-center flex-col items-center">
 			<div>
 				{@html homeIcon}
@@ -28,7 +29,7 @@
 			<div>Neuigkeiten</div>
 		</div>
 	</TabAnchor>
-	<TabAnchor href="/wahlhelfer" selected={isSelected('/wahlhelfer')}>
+	<TabAnchor href="{base}/wahlhelfer" selected={isSelected('/wahlhelfer')}>
 		<div class="flex justify-center flex-col items-center">
 
 			<div class="p-0 w-[28px] h-[42px]">
@@ -48,7 +49,7 @@
 			<div>Statistiken</div>
 		</div>
 	</TabAnchor> -->
-	<TabAnchor href="/vote_history" selected={isSelected('/vote_history')}>
+	<TabAnchor href="{base}/vote_history" selected={isSelected('/vote_history')}>
 		<div class="flex justify-center flex-col items-center">
 			<div>
 				<VoteParliament

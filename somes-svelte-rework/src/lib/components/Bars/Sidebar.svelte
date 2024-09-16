@@ -8,6 +8,7 @@
 	import { AppRail, AppRailAnchor, AppRailTile, getDrawerStore } from '@skeletonlabs/skeleton';
 	import VoteParliament from '../Parliaments/VoteParliament.svelte';
 	import { mockDelegates, mockVoteResult } from '$lib/parliaments/mock';
+	import { base } from '$app/paths';
 
 	let currentTile: number = 0;
 	$: isSelected = (href: string) => {
@@ -25,7 +26,7 @@
 		<!-- --- -->
 		<AppRailAnchor
 			selected={isSelected('/home')}
-			href="/home"
+			href="{base}/home"
 			bind:group={currentTile}
 			name="Neuigkeiten"
 			value={0}
@@ -39,7 +40,7 @@
 		<hr />
 		<AppRailAnchor
 			selected={isSelected('/delegates')}
-			href="/delegates"
+			href="{base}/delegates"
 			bind:group={currentTile}
 			name="Abgeordnete"
 			value={1}
@@ -52,7 +53,7 @@
 
 		<AppRailAnchor
 			selected={isSelected('/statistics')}
-			href="/statistics"
+			href="{base}/statistics"
 			bind:group={currentTile}
 			name="Statistiken"
 			value={2}
@@ -65,7 +66,7 @@
 		<hr />
 		<AppRailAnchor
 			selected={isSelected('/vote_history')}
-			href="/vote_history"
+			href="{base}/vote_history"
 			bind:group={currentTile}
 			name="Abstimmungen"
 			value={3}
@@ -86,7 +87,7 @@
 
 		<AppRailAnchor
 			selected={isSelected('/wahlhelfer')}
-			href="/wahlhelfer"
+			href="{base}/wahlhelfer"
 			bind:group={currentTile}
 			name="Wahlhelfer"
 			value={4}
@@ -105,7 +106,7 @@
 		<hr />
 		<!-- --- -->
 		<svelte:fragment slot="trail">
-			<AppRailAnchor href="/" target="_blank" title="Account">
+			<AppRailAnchor href="{base}/" target="_blank" title="Account">
 				<svelte:fragment slot="lead">{@html userIcon}</svelte:fragment>
 				<span style="font-size: smaller;">Benutzer</span>
 			</AppRailAnchor>

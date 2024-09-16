@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
+	import { base } from "$app/paths";
 
 
-    goto("/wahlhelfer");
+    goto(`${base}/wahlhelfer`);
 </script>
