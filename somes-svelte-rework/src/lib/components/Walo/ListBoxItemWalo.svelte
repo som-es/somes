@@ -8,6 +8,7 @@
 	export let twoTimeWeightsGroup: string[];
 	export let justification: [string | null, number];
     export let color: string | null = null;
+    export let partyName: string | null = null;
 
 	let value = justification[1].toString();
 
@@ -52,6 +53,7 @@
             <button
                 style="color: {color}; background-color: {color}"
                 class="p-3 px-4 rounded-full"
+                title="{partyName}"
             >2x
             </button>
         {/if}

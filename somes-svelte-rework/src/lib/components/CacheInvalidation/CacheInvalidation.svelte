@@ -8,6 +8,7 @@
 	onMount(async function () {
 		await cachedPartyColors(true);
 		await cachedAllLegisPeriods(true);
+		await cachedLatestVoteResults(true);
 	});
 
 	setInterval(
