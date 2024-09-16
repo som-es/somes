@@ -1,1 +1,0 @@
-import{l as s,a as l}from"./partyColor._p25Ipo7.js";import{p as o}from"./scheduler.gYfDwnS4.js";async function n(a=!1){let t=o(s);if(t==null||a||t.length==0){const e=await l();s.set(e),t=e}return t}export{n as c};
