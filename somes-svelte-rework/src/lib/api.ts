@@ -10,7 +10,7 @@ import type {
 	WaloQuestion
 } from './types';
 
-const address = 'http://somes.at:3000';
+const address = 'https://somes.at:3000';
 // const address = 'http://127.0.0.1:3000';
 // const address = "http://192.168.1.114:3000"
 
