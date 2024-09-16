@@ -272,8 +272,8 @@ pub async fn serve(addr: SocketAddr) {
     match config {
         Ok(config) => {
             let ports = Ports {
-                http: 2999,
-                https: 3000,
+                http: 3000,
+                https: 3001,
             };
             let sock_addr = addr;
             tokio::spawn(redirect_http_to_https(ports, sock_addr));
