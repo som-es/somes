@@ -99,8 +99,8 @@
 
 <div class="p-4 max-w-[800px] w-full mx-auto">
 	{#if waloQuestions && started && !showResults}
-		<h1 class="font-bold text-4xl">{waloQuestions[idx].question_statement}</h1>
-		<h4 class="text-xl mt-2">{waloQuestions[idx].erklaerbaer}</h4>
+		<h1 class="font-bold text-xl sm:text-4xl">{waloQuestions[idx].question_statement}</h1>
+		<h4 class="text-lg sm:text-xl mt-2">{waloQuestions[idx].erklaerbaer}</h4>
 		<div class="flex justify-center mt-4">
 			<div class="flex flex-wrap flex-row justify-center items-center gap-1">
 				<ListBox class="reasons" multiple>
@@ -114,7 +114,9 @@
 				</ListBox>
 			</div>
 		</div>
-
+		<div class=" sm:hidden mt-3 mb-5">
+			Frage {idx +1} von {waloQuestions.length}	
+		</div>
 		<div class="flex justify-between mt-5">
 			{#if idx > 0}
 				<SButton class="mb-5 bg-tertiary-500 text-black" on:click={() => (idx -= 1)}>
@@ -124,7 +126,7 @@
 				<div></div>
 			{/if}
 
-			<div class="mt-3">
+			<div class="max-sm:hidden mt-3">
 				Frage {idx +1} von {waloQuestions.length}	
 			</div>
 
@@ -176,8 +178,8 @@
 		
 		<div class="my-3">
 			{#each waloQuestions as waloQuestion, idx}
-				<h1 class="font-bold text-2xl">{waloQuestion.question_statement}</h1>
-				<h4 class="text-lg mt-2">{waloQuestion.erklaerbaer}</h4>
+				<h1 class="font-bold text-lg sm:text-2xl">{waloQuestion.question_statement}</h1>
+				<h4 class="text-sm sm:text-lg mt-2">{waloQuestion.erklaerbaer}</h4>
 				<SButton class="bg-tertiary-400 mt-2 text-black"><a href="{waloQuestion.somes_link}" target="_blank">Abstimmung auf somes</a></SButton>
 				<div class="flex justify-center mt-4">
 					<div class="flex flex-wrap flex-row justify-center items-center gap-1">
