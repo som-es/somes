@@ -15,6 +15,8 @@ pub use db::*;
 pub use initial_startup::*;
 pub use jwt::AuthError;
 pub mod meilisearch;
+mod http_redirect;
+pub use http_redirect::*;
 use once_cell::sync::Lazy;
 
 pub const USR_DATABASE_URL: &str = dotenv!("USR_DATABASE_URL");
@@ -30,6 +32,8 @@ pub const LEGIS_INITS_PER_PAGE: &str = dotenv!("LEGIS_INITS_PER_PAGE");
 pub const STATIC_FRONTEND_PATH: &str = dotenv!("STATIC_FRONTEND_PATH");
 pub const MEILISEARCH_URL: &str = dotenv!("MEILISEARCH_URL");
 pub const MEILISEARCH_SECRET: &str = dotenv!("MEILISEARCH_SECRET");
+pub const PRIVATE_KEY_PATH: &str = dotenv!("PRIVATE_KEY_PATH");
+pub const PUBLIC_KEY_PATH: &str = dotenv!("PUBLIC_KEY_PATH");
 
 // pub type PostgresPool = bb8::Pool<AsyncDieselConnectionManager<AsyncPgConnection>>;
 pub type PostgresPool = deadpool_diesel::postgres::Pool;
