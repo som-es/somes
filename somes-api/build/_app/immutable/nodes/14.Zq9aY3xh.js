@@ -799,7 +799,7 @@ rect.legend-mouseover-inactive,
 		werden. Wird keine Auswahl getroffen, bedeutet dies "überspringen" oder "auslassen". Die Aussagen
 		beginnen entweder mit "Ja" oder "Nein". Das widerspiegelt das Abstimmungsverhalten im Nationalrat.
 
-		`),_=ge("br"),G=Xe(),ee=ge("br"),q=Xe(),H=ge("span"),H.textContent=Z,Q=ze(` die Aussagen wurden aus den Reden im Nationalrat
+		`),_=ge("br"),G=Xe(),ee=ge("br"),q=Xe(),H=ge("span"),H.textContent=Z,Q=ze(` Die Aussagen wurden aus den Reden im Nationalrat
 		extrahiert. Deshalb stehen die Begründungen immer nur aus den Meinungen von einzelnen
 		Abgeordneten aus der Fraktion. Die Aussagen und damit die Begründungen in den Reden wurden
 		keinem Faktencheck unterzogen. Unterbewusster Bias sowie Fehler können nicht ausgeschlossen
@@ -812,7 +812,7 @@ rect.legend-mouseover-inactive,
 		werden. Wird keine Auswahl getroffen, bedeutet dies "überspringen" oder "auslassen". Die Aussagen
 		beginnen entweder mit "Ja" oder "Nein". Das widerspiegelt das Abstimmungsverhalten im Nationalrat.
 
-		`),_=fe(M,"BR",{}),G=Ye(M),ee=fe(M,"BR",{}),q=Ye(M),H=fe(M,"SPAN",{class:!0,"data-svelte-h":!0}),St(H)!=="svelte-1isiwjz"&&(H.textContent=Z),Q=Ee(M,` die Aussagen wurden aus den Reden im Nationalrat
+		`),_=fe(M,"BR",{}),G=Ye(M),ee=fe(M,"BR",{}),q=Ye(M),H=fe(M,"SPAN",{class:!0,"data-svelte-h":!0}),St(H)!=="svelte-1isiwjz"&&(H.textContent=Z),Q=Ee(M,` Die Aussagen wurden aus den Reden im Nationalrat
 		extrahiert. Deshalb stehen die Begründungen immer nur aus den Meinungen von einzelnen
 		Abgeordneten aus der Fraktion. Die Aussagen und damit die Begründungen in den Reden wurden
 		keinem Faktencheck unterzogen. Unterbewusster Bias sowie Fehler können nicht ausgeschlossen

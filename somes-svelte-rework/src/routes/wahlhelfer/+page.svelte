@@ -158,7 +158,7 @@
 
 		<br />
 		<br />
-		<span class="font-bold">Disclaimer:</span> die Aussagen wurden aus den Reden im Nationalrat
+		<span class="font-bold">Disclaimer:</span> Die Aussagen wurden aus den Reden im Nationalrat
 		extrahiert. Deshalb stehen die Begründungen immer nur aus den Meinungen von einzelnen
 		Abgeordneten aus der Fraktion. Die Aussagen und damit die Begründungen in den Reden wurden
 		keinem Faktencheck unterzogen. Unterbewusster Bias sowie Fehler können nicht ausgeschlossen
