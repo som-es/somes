@@ -147,7 +147,7 @@
 	{:else if !started}
 		<h1 class="font-bold text-7xl">Der <span class=" italic">somes</span> Wahlhelfer</h1>
 		<h4 class="text-xl">
-			bietet Unterstützung bei der Wahlentscheidung, basierend auf tatsächlichen Abstimmungen und
+			bietet zusätzliche Unterstützung bei der Wahlentscheidung, basierend auf tatsächlichen Abstimmungen und
 			Reden im Nationalrat, statt auf Versprechen und Parolen vor der Wahl.
 		</h4>
 		<br />
@@ -162,8 +162,9 @@
 		extrahiert. Deshalb stehen die Begründungen immer nur aus den Meinungen von einzelnen
 		Abgeordneten aus der Fraktion. Die Aussagen und damit die Begründungen in den Reden wurden
 		keinem Faktencheck unterzogen. Unterbewusster Bias sowie Fehler können nicht ausgeschlossen
-		werden. Die Themen wurden von dem somes Team ausgewählt. Nicht alle Begründungen aus den
-		Reden wurden eingebaut. Die eigene Auswahl bleibt lokal am Gerät und wird nicht gespeichert.
+		werden. Der somes Wahlhelfer bietet lediglich eine zusätzliche Orientierungshilfe basierend
+		auf in der Vergangenheit getätigte Aussagen im Nationalrat. Die Themen wurden von dem somes Team ausgewählt. Nicht alle Begründungen aus den
+		Reden wurden eingebaut. Die eigene Auswahl bleibt lokal am Gerät und wird nicht gespeichert. 
 		<br />
 
 		<SButton
