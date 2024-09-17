@@ -104,7 +104,7 @@
 		<br>
 		{#if idx == 0}
 			<div>Wähle alle zutreffenden Aussagen aus. 
-			Mit "2x" können Aussagen doppelt gewichtet werden, auch wenn sie nicht ausgewählt wurden.</div>	
+			Mit "2x" können Aussagen doppelt gewichtet werden, dann werden zwei Punkte für die Partei addiert, auch wenn sie nicht ausgewählt wurden, dann wird einer abgezogen.</div>	
 		{/if}
 		<div class="flex justify-center mt-4">
 			<div class="flex flex-wrap flex-row justify-center items-center gap-1">
