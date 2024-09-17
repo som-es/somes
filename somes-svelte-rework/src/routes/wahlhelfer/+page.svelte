@@ -101,6 +101,11 @@
 	{#if waloQuestions && started && !showResults}
 		<h1 class="font-bold text-xl sm:text-4xl">{waloQuestions[idx].question_statement}</h1>
 		<h4 class="text-lg sm:text-xl mt-2">{waloQuestions[idx].erklaerbaer}</h4>
+		<br>
+		{#if idx == 0}
+			<div>Wähle alle zutreffenden Aussagen aus. 
+			Mit "2x" können Aussagen doppelt gewichtet werden, auch wenn sie nicht ausgewählt wurden.</div>	
+		{/if}
 		<div class="flex justify-center mt-4">
 			<div class="flex flex-wrap flex-row justify-center items-center gap-1">
 				<ListBox class="reasons" multiple>
@@ -155,6 +160,7 @@
 		Ansichten entsprechen. Jede Aussage, auch jene, die nicht zu einem passen, kann doppelt gewichtet
 		werden. Wird keine Auswahl getroffen, bedeutet dies "überspringen" oder "auslassen". Die Aussagen
 		beginnen entweder mit "Ja" oder "Nein". Das widerspiegelt das Abstimmungsverhalten im Nationalrat.
+		Falls Antworten doppelt vorkommen, haben Parteien diesselbe Begründung in den Reden erwähnt.
 
 		<br />
 		<br />
