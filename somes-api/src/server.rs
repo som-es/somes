@@ -187,8 +187,12 @@ pub async fn serve(addr: SocketAddr) {
     .await;
 
     let static_files_dir = PathBuf::from(STATIC_FRONTEND_PATH);
-    let serve_dir = ServeDir::new(static_files_dir.clone())
+    let current_frontend_dir = ServeDir::new(static_files_dir.clone())
         .fallback(get(|| async { Html(include_str!("../build/index.html")) }));
+    
+    let static_files_dir_alpha_0_1 = PathBuf::from("./build-alpha-0.1");
+    let alpha_0_1_frontend_dir = ServeDir::new(static_files_dir_alpha_0_1.clone())
+        .fallback(get(|| async { Html(include_str!("../build-alpha-0.1/index.html")) }));
 
     let pg_pool = dataservice_sqlx_pool.clone();
     tokio::task::spawn(async move {
@@ -250,7 +254,10 @@ pub async fn serve(addr: SocketAddr) {
         .route("/save_email", post(save_email))
 
         // mind conflicts e.g delegates
-        .nest_service("/alpha", get_service(serve_dir).handle_error(|_| async move {
+        .nest_service("/alpha", get_service(current_frontend_dir).handle_error(|_| async move {
+            (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
+        }))
+        .nest_service("/alpha-0.1", get_service(alpha_0_1_frontend_dir).handle_error(|_| async move {
             (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
         }))
         .nest("/", landing_app)

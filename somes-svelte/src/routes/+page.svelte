@@ -24,7 +24,7 @@
 		noAccountStorage.set(true);
 		// localStorageStore('noAccount', true);
 		$: if (browser) {
-			goto("/home")
+			goto(`${base}/home`)
 		}
 		// goto("/home");
 	}

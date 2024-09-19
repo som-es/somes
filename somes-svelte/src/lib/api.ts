@@ -10,12 +10,12 @@ import type {
 	VoteResult,
 } from "./types";
 
-// export const address = "somes.at";
-export const address = "127.0.0.1";
+export const address = "https://somes.at";
+// export const address = "127.0.0.1";
 // const address = "172.20.10.2";
 
 export async function delegates(): Promise<Delegate[]> {
-	let response = await fetch(`http://${address}:3000/delegates`, {
+	let response = await fetch(`${address}/delegates`, {
 		method: "GET",
 		headers: {
 			"Content-Type": "application/json",
@@ -25,7 +25,7 @@ export async function delegates(): Promise<Delegate[]> {
 }
 
 export async function latest_vote_results(): Promise<VoteResult[]> {
-	let response = await fetch(`http://${address}:3000/latest_vote_results`, {
+	let response = await fetch(`${address}/latest_vote_results`, {
 		method: "GET",
 		headers: {
 			"Content-Type": "application/json",
@@ -36,7 +36,7 @@ export async function latest_vote_results(): Promise<VoteResult[]> {
 }
 
 export async function speakers_by_hours(): Promise<SpeakerByHours[]> {
-	let response = await fetch(`http://${address}:3000/speakers_by_hours`, {
+	let response = await fetch(`${address}/speakers_by_hours`, {
 		method: "GET",
 		headers: {
 			"Content-Type": "application/json",
@@ -47,7 +47,7 @@ export async function speakers_by_hours(): Promise<SpeakerByHours[]> {
 }
 
 export async function delegates_by_call_to_orders(): Promise<DelegateByCallToOrders[]> {
-	let response = await fetch(`http://${address}:3000/delegates_by_call_to_orders`, {
+	let response = await fetch(`${address}/delegates_by_call_to_orders`, {
 		method: "GET",
 		headers: {
 			"Content-Type": "application/json",
@@ -60,7 +60,7 @@ export async function delegates_by_call_to_orders(): Promise<DelegateByCallToOrd
 export async function call_to_orders_per_party_delegates(): Promise<
 	CallToOrdersPerPartyDelegate[]
 > {
-	let response = await fetch(`http://${address}:3000/call_to_orders_per_party_delegates`, {
+	let response = await fetch(`${address}/call_to_orders_per_party_delegates`, {
 		method: "GET",
 		headers: {
 			"Content-Type": "application/json",
@@ -71,7 +71,7 @@ export async function call_to_orders_per_party_delegates(): Promise<
 }
 
 export async function parties(): Promise<Party[]> {
-	let response = await fetch(`http://${address}:3000/parties`, {
+	let response = await fetch(`${address}/parties`, {
 		method: "GET",
 		headers: {
 			"Content-Type": "application/json",
@@ -85,7 +85,7 @@ export async function delegates_by_call_to_orders_and_legis_period(
 	period: string,
 ): Promise<DelegateByCallToOrders[]> {
 	let response = await fetch(
-		`http://${address}:3000/delegates_by_call_to_orders_and_legis_period`,
+		`${address}/delegates_by_call_to_orders_and_legis_period`,
 		{
 			method: "POST",
 			headers: {
@@ -101,7 +101,7 @@ export async function delegates_by_call_to_orders_and_legis_period(
 export async function speakers_by_hours_and_legis_period(
 	period: string,
 ): Promise<SpeakerByHours[]> {
-	let response = await fetch(`http://${address}:3000/speakers_by_hours_and_legis_period`, {
+	let response = await fetch(`${address}/speakers_by_hours_and_legis_period`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
@@ -115,7 +115,7 @@ export async function speakers_by_hours_and_legis_period(
 export async function delegate_interests(
 	delegate_id: number
 ): Promise<InterestShare[]> {
-		let response = await fetch(`http://${address}:3000/delegate_interests?delegate_id=${delegate_id}`, {
+		let response = await fetch(`${address}/delegate_interests?delegate_id=${delegate_id}`, {
 		method: "GET",
 		// headers: {
 		// 	"Content-Type": "application/json",

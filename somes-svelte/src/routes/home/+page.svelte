@@ -14,6 +14,7 @@
 	import { userStore } from "../../stores/stores";
 	import { t } from "$lib/translations";
 	import { browser } from "$app/environment";
+	import { base } from "$app/paths";
 
 	let dels: Delegate[];
 
@@ -71,13 +72,13 @@
 							on:click={() => {
 								currentLegisInitStorage.set(voteResult);
 								$: if (browser) {
-									goto("/vote")
+									goto(`${base}/vote`)
 								}
 							}}
 							on:keypress={() => {
 								currentLegisInitStorage.set(voteResult);
 								$: if (browser) {
-									goto("/vote")
+									goto(`${base}/vote`)
 								}
 							}}
 							role="link"

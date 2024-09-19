@@ -4,12 +4,13 @@
 	import { jwtStore, userStore } from "../../stores/stores";
 	import { t } from "$lib/translations";
 	import { browser } from "$app/environment";
+	import { base } from "$app/paths";
 
 	const user = get(userStore);
 
 	if (!user) {
 		$: if (browser) {
-  			goto("/")
+			goto(`${base}/`)
 		}
 	}
 </script>
@@ -22,7 +23,7 @@
 			userStore.set(null);
 			jwtStore.set(null);
 			$: if (browser) {
-				goto("/")
+				goto(`${base}/`)
 			}
 		}}
 	/>

@@ -10,6 +10,7 @@
 	import { maybeGetUser } from "$lib/api/user";
 	import { get } from "svelte/store";
 	import { browser } from "$app/environment";
+	import { base } from "$app/paths";
 	// import Login from 'svelte-google-materialdesign-icons/Login.svelte';
 
 	let username_or_email = "";
@@ -41,7 +42,7 @@
 
 			// userStore.set();
 			$: if (browser) {
-				goto("/home")
+				goto(`${base}/home`)
 			}
 		}
 	};
