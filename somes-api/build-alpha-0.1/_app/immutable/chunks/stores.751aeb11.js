@@ -1,0 +1,1 @@
+import{w as n}from"./index.a2929a14.js";function s(){const{subscribe:t,set:o,update:r}=n({});return{subscribe:t,set:o,update:r,open:e=>r(()=>({open:!0,...e})),close:()=>r(e=>(e.open=!1,e))}}const u=s();export{u as d};
