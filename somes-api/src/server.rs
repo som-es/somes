@@ -2,7 +2,7 @@ use std::{net::SocketAddr, path::PathBuf};
 
 use axum::{
     extract::FromRef,
-    http,
+    http::{self, HeaderValue},
     response::Html,
     routing::{get, get_service, post},
     Router,
@@ -220,6 +220,10 @@ pub async fn serve(addr: SocketAddr) {
 
     let landing_server_dir = ServeDir::new("../deploy-rs/somes-landing");
     let landing_app = Router::new().nest_service("/", landing_server_dir);
+    // let origins = [
+    //     "https://somes.at".parse::<HeaderValue>().unwrap(),
+    //     "https://somes.at".parse::<HeaderValue>().unwrap(),
+    // ];
 
     let app = Router::new()
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
@@ -281,7 +285,8 @@ pub async fn serve(addr: SocketAddr) {
         // }))
         .layer(
             CorsLayer::new()
-                .allow_origin(Any)
+                .allow_origin("https://somes.at".parse::<HeaderValue>().unwrap())
+                // .allow_origin(origins)
                 .allow_methods([http::Method::GET, http::Method::POST])
                 .allow_headers([http::header::CONTENT_TYPE, http::header::AUTHORIZATION]),
         )
