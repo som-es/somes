@@ -14,8 +14,8 @@ pub mod server;
 pub use db::*;
 pub use initial_startup::*;
 pub use jwt::AuthError;
-pub mod meilisearch;
 mod http_redirect;
+pub mod meilisearch;
 pub use http_redirect::*;
 use once_cell::sync::Lazy;
 

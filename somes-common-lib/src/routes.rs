@@ -22,3 +22,4 @@ pub const VOTE_RESULT_BY_SEARCH: &str = "/vote_result_by_search";
 pub const DELEGATES_AT: &str = "/delegates_at";
 pub const WALO_QUESTIONS: &str = "/walo_questions";
 pub const ALL_GPS: &str = "/all_gps";
+pub const SEATS: &str = "/seats";

@@ -25,11 +25,15 @@ use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 //use headers::HeaderValue;
 use crate::{
-    model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours}, redirect_http_to_https, routes::{
+    model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours},
+    redirect_http_to_https,
+    routes::{
         call_to_orders_per_party_delegates, delegates, delegates_by_call_to_orders,
         delegates_by_call_to_orders_and_legis_period, latest_vote_results, parties, proposals,
         save_email, speakers_by_hours, speakers_by_hours_and_legis_period, user,
-    }, Ports, DATASERVICE_URL, HTTPS_PORT, HTTP_PORT, LEGIS_INITS_PER_PAGE, MEILISEARCH_SECRET, MEILISEARCH_URL, PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, REDIS_DB, STATIC_FRONTEND_PATH
+    },
+    Ports, DATASERVICE_URL, HTTPS_PORT, HTTP_PORT, LEGIS_INITS_PER_PAGE, MEILISEARCH_SECRET,
+    MEILISEARCH_URL, PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, REDIS_DB, STATIC_FRONTEND_PATH,
 };
 use tower_http::{
     cors::{Any, CorsLayer},
@@ -189,18 +193,22 @@ pub async fn serve(addr: SocketAddr) {
     let static_files_dir = PathBuf::from(STATIC_FRONTEND_PATH);
     let current_frontend_dir = ServeDir::new(static_files_dir.clone())
         .fallback(get(|| async { Html(include_str!("../build/index.html")) }));
-    
+
     let static_files_dir_alpha_0_1 = PathBuf::from("./build-alpha-0.1");
-    let alpha_0_1_frontend_dir = ServeDir::new(static_files_dir_alpha_0_1.clone())
-        .fallback(get(|| async { Html(include_str!("../build-alpha-0.1/index.html")) }));
+    let alpha_0_1_frontend_dir =
+        ServeDir::new(static_files_dir_alpha_0_1.clone()).fallback(get(|| async {
+            Html(include_str!("../build-alpha-0.1/index.html"))
+        }));
 
     let pg_pool = dataservice_sqlx_pool.clone();
+
+    // TODO: move this to dataservice
     tokio::task::spawn(async move {
         loop {
             if let Err(e) = update_meilisearch_index(&pg_pool, &meilisearch_client).await {
                 log::warn!("Could not update meilisearch index: {e:?}");
             }
-            sleep(std::time::Duration::from_secs(900)).await;
+            sleep(std::time::Duration::from_secs(1900)).await;
         }
     });
 
@@ -251,15 +259,21 @@ pub async fn serve(addr: SocketAddr) {
         .route(DELEGATES_AT, get(delegates_at)) // post only because js fetch...
         .route(WALO_QUESTIONS, get(walo_questions))
         .route(ALL_GPS, get(all_gps))
+        .route(SEATS, get(seats))
         .route("/save_email", post(save_email))
-
         // mind conflicts e.g delegates
-        .nest_service("/alpha", get_service(current_frontend_dir).handle_error(|_| async move {
-            (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
-        }))
-        .nest_service("/alpha-0.1", get_service(alpha_0_1_frontend_dir).handle_error(|_| async move {
-            (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
-        }))
+        .nest_service(
+            "/alpha",
+            get_service(current_frontend_dir).handle_error(|_| async move {
+                (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
+            }),
+        )
+        .nest_service(
+            "/alpha-0.1",
+            get_service(alpha_0_1_frontend_dir).handle_error(|_| async move {
+                (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
+            }),
+        )
         .nest("/", landing_app)
         // .fallback_service(get_service(serve_dir).handle_error(|_| async move {
         //     (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
@@ -281,7 +295,6 @@ pub async fn serve(addr: SocketAddr) {
     // .await
     // .unwrap();
 
-
     // let server = axum_server::bind_rustls(addr, config);
     match config {
         Ok(config) => {
@@ -299,9 +312,8 @@ pub async fn serve(addr: SocketAddr) {
                 .serve(app.into_make_service())
                 .await
                 .unwrap();
-        },
+        }
         Err(_) => {
-
             info!("Binding API on {addr}");
             let listener = match TcpListener::bind(&addr).await {
                 Ok(listener) => listener,
@@ -312,7 +324,7 @@ pub async fn serve(addr: SocketAddr) {
             if let Err(e) = axum::serve(listener, app.into_make_service()).await {
                 error!("API returned error state: {e}")
             }
-        },
+        }
     }
 }
 

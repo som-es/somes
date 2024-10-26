@@ -28,7 +28,7 @@
 	let delsAtDate: Delegate[] = [];
 	let delegate: Delegate | null;
 
-	let selectedPeriod = 'XXVII';
+	let selectedPeriod = 'XXVIII';
 	let prevSelectedPeriod = '';
 	let periods: LegisPeriod[] = [];
 
@@ -51,7 +51,7 @@
 
 	onMount(async () => {
 		const url = new URL(window.location.href);
-		selectedPeriod = url.searchParams.get('gp') || 'XXVII';
+		selectedPeriod = url.searchParams.get('gp') || 'XXVIII';
 
 		delegates = await filteredDelegates();
 		if (delegates !== null) {

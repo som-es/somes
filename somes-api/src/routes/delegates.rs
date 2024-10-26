@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use axum::{extract::Query, Json};
 use chrono::NaiveDate;
 use dataservice::db::models::{DbDelegate, DbProposalQuery};
@@ -201,6 +203,17 @@ pub async fn delegates_at(
         .await
         .map(Json)
         .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
+}
+
+pub async fn seats() -> Json<HashMap<String, Vec<u32>>> {
+    Json(
+        [
+            ("XXVII".to_string(), vec![20, 27, 37, 43, 48, 54]),
+            ("XXVIII".to_string(), vec![20, 28, 37, 43, 48, 54]),
+        ]
+        .into_iter()
+        .collect(),
+    )
 }
 
 pub async fn delegates_at_date(pg: &PgPool, date: &NaiveDate) -> sqlx::Result<Vec<Delegate>> {

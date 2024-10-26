@@ -22,7 +22,7 @@
 	const width = 830;
 	const height = 900;
 
-	export let seats: number[] = [20, 27, 37, 43, 48, 54];
+	export let seats: number[] = [20, 28, 37, 43, 48, 54];
 	export let dels: Delegate[];
 	export let delsAtDate: Delegate[] = [];
 	export let preview: boolean = false;
@@ -33,7 +33,7 @@
 	export let selected: Bubble | null = null;
 	export let orderingFactor: number = 1;
 	export let enforceBase: boolean = false;
-	export let gp: string = 'XXVII';
+	export let gp: string = 'XXVIII';
 	if (voteResult) gp = voteResult.legislative_initiative.gp;
 
 	let clazz = '';
@@ -91,7 +91,7 @@
 	const defaultSeats = [18, 25, 29, 33, 37, 41];
 	let circlesPerParty2: Bubble[][] = setupParliament(defaultSeats, width, height, 7.9, false);
 
-	let currentLegisInit = 'XXVII';
+	let currentLegisInit = 'XXVIII';
 	onMount(async () => {
 		let fetchedDelsAtDate;
 		if (delsAtDate.length == 0) {

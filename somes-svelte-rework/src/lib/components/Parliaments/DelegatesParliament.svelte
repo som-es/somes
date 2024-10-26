@@ -4,7 +4,7 @@
 	import type { Delegate, VoteResult } from '$lib/types';
 	import BaseParliament from './BaseParliament.svelte';
 
-	export let seats: number[] = [20, 27, 37, 43, 48, 54];
+	export let seats: number[] = [20, 28, 37, 43, 48, 54];
 	export let dels: Delegate[];
 	export let preview: boolean = false;
 	export let delegate: Delegate | null;
