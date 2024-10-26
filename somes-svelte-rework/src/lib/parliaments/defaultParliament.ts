@@ -1,11 +1,15 @@
 import type { Bubble } from '$lib/parliament';
 import type { Delegate } from '$lib/types';
 
-export function groupPartyDelegates(dels: Delegate[]): Map<string, Delegate[]> {
+export function groupPartyDelegates(dels: Delegate[], checkSeat: boolean = false): Map<string, Delegate[]> {
 	let partyToDelegates = new Map<string, Delegate[]>();
 
 	for (let idx = 0; idx < dels.length; idx++) {
 		const del = dels[idx];
+
+		if (checkSeat && dels[idx].seat_col == null) {
+			continue
+		}
 		dels[idx].seat_row = null;
 		dels[idx].seat_col = null;
 		if (del.party == null || del.council != 'nr') {

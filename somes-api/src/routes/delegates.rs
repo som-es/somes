@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, str::FromStr};
 
 use axum::{extract::Query, Json};
 use chrono::NaiveDate;
@@ -214,6 +214,70 @@ pub async fn seats() -> Json<HashMap<String, Vec<u32>>> {
         .into_iter()
         .collect(),
     )
+}
+
+pub async fn delegates_with_seats_near_date_route(
+    // DataserviceDbConnection(con): DataserviceDbConnection,
+    Query(date): Query<Date>,
+    PgPoolConnection(pg): PgPoolConnection,
+) -> Result<Json<Vec<Delegate>>, DelegatesErrorResponse> {
+    if date.at < NaiveDate::from_str("2024-09-29").map_err(|_| DelegatesErrorResponse::DateOutOfRangeError)? {
+        return Ok(Json(vec![]))
+    }
+    delegates_with_seats_near_date(&pg, &date.at)
+        .await
+        .map(Json)
+        .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
+}
+
+pub async fn delegates_with_seats_near_date(pg: &PgPool, date: &NaiveDate) -> sqlx::Result<Vec<Delegate>> {
+    sqlx::query_as!(
+        Delegate,
+        "
+        SELECT 
+            d.id, 
+            d.name, 
+            m.party,
+            d.party AS current_party, 
+            d.image_url, 
+            d.constituency, 
+            CASE 
+                WHEN m.is_nr THEN 'nr' 
+                ELSE ''
+            END AS council,
+            ranked.seat_row, 
+            ranked.seat_col, 
+            d.gender, 
+            d.is_active, 
+            d.birthdate, 
+            m.start_date AS active_since,
+            COALESCE(divisions.division_array, '{}') AS divisions
+        FROM (
+            SELECT sh.*, 
+                ROW_NUMBER() OVER (PARTITION BY sh.delegate_id ORDER BY ABS(sh.insertion_date::date - $1) ASC) AS rn
+            FROM seat_history AS sh
+        ) AS ranked
+        JOIN delegates AS d ON d.id = ranked.delegate_id
+        INNER JOIN mandates AS m ON m.delegate_id = d.id 
+        LEFT JOIN (
+            SELECT 
+                delegate_id, 
+                ARRAY_AGG(division) AS division_array 
+            FROM 
+                delegates_divisions 
+            GROUP BY 
+                delegate_id
+        ) AS divisions ON d.id = divisions.delegate_id
+        WHERE 
+            (m.is_nr OR m.is_gov_official)
+            AND m.start_date <= $1::date 
+            AND (CASE WHEN m.end_date IS NULL THEN $1::date ELSE m.end_date END) >= $1::date
+            AND ranked.rn = 1;
+
+        ", date
+    )
+    .fetch_all(pg)
+    .await
 }
 
 pub async fn delegates_at_date(pg: &PgPool, date: &NaiveDate) -> sqlx::Result<Vec<Delegate>> {

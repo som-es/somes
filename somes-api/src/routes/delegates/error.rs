@@ -8,6 +8,7 @@ pub enum DelegatesErrorResponse {
     DelegateResponseError,
     ProposalResponseError,
     DelegateInterestsResponseError,
+    DateOutOfRangeError,
 }
 
 impl IntoResponse for DelegatesErrorResponse {
@@ -24,6 +25,10 @@ impl IntoResponse for DelegatesErrorResponse {
             DelegatesErrorResponse::DelegateInterestsResponseError => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "could not return interests of delegates",
+            ),
+            DelegatesErrorResponse::DateOutOfRangeError => (
+                StatusCode::BAD_REQUEST,
+                "date out of range"
             ),
         };
 
