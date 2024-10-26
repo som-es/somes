@@ -125,6 +125,11 @@ pub struct Date {
 }
 
 #[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
+pub struct LegisPeriodFilter {
+    pub legis_period: String,
+}
+
+#[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
 pub struct LegisInitFilter {
     pub accepted: Option<String>,
     pub is_named_vote: Option<bool>,

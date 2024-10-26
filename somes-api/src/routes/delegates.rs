@@ -18,6 +18,8 @@ mod error;
 mod interests;
 pub use interests::*;
 
+use super::LegisPeriod;
+
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct Delegate {
     pub id: i32,
@@ -218,19 +220,21 @@ pub async fn seats() -> Json<HashMap<String, Vec<u32>>> {
 
 pub async fn delegates_with_seats_near_date_route(
     // DataserviceDbConnection(con): DataserviceDbConnection,
+    Query(gp): Query<LegisPeriod>,
     Query(date): Query<Date>,
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<Delegate>>, DelegatesErrorResponse> {
     if date.at < NaiveDate::from_str("2024-09-29").map_err(|_| DelegatesErrorResponse::DateOutOfRangeError)? {
         return Ok(Json(vec![]))
     }
-    delegates_with_seats_near_date(&pg, &date.at)
+
+    delegates_with_seats_near_date(&pg, &date.at, &gp.period)
         .await
         .map(Json)
         .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
 }
 
-pub async fn delegates_with_seats_near_date(pg: &PgPool, date: &NaiveDate) -> sqlx::Result<Vec<Delegate>> {
+pub async fn delegates_with_seats_near_date(pg: &PgPool, date: &NaiveDate, gp: &str) -> sqlx::Result<Vec<Delegate>> {
     sqlx::query_as!(
         Delegate,
         "
@@ -255,7 +259,7 @@ pub async fn delegates_with_seats_near_date(pg: &PgPool, date: &NaiveDate) -> sq
         FROM (
             SELECT sh.*, 
                 ROW_NUMBER() OVER (PARTITION BY sh.delegate_id ORDER BY ABS(sh.insertion_date::date - $1) ASC) AS rn
-            FROM seat_history AS sh
+            FROM seat_history AS sh where gp = $2
         ) AS ranked
         JOIN delegates AS d ON d.id = ranked.delegate_id
         INNER JOIN mandates AS m ON m.delegate_id = d.id 
@@ -274,7 +278,7 @@ pub async fn delegates_with_seats_near_date(pg: &PgPool, date: &NaiveDate) -> sq
             AND (CASE WHEN m.end_date IS NULL THEN $1::date ELSE m.end_date END) >= $1::date
             AND ranked.rn = 1;
 
-        ", date
+        ", date, gp
     )
     .fetch_all(pg)
     .await
