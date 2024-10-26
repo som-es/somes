@@ -122,6 +122,17 @@ export async function delegates_at(date_at: Date): Promise<Delegate[] | null> {
 	);
 }
 
+export async function delegates_with_seats_near_date(date_at: Date, gp: string): Promise<Delegate[] | null> {
+	return fetchSavely(() =>
+		fetch(`${address}/delegates_with_seats_near_date?at=${date_at}&period=${gp}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		})
+	);
+}
+
 export async function vote_results_by_search(
 	page: number,
 	search: string
