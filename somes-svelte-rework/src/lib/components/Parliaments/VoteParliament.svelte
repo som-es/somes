@@ -26,7 +26,6 @@
 	export let dels: Delegate[];
 	export let delsAtDate: Delegate[] = [];
 	export let preview: boolean = false;
-	export let voteResult: VoteResult | null;
 	export let delegate: Delegate | null = null;
 	export let againstOpacity: number = 0.16;
 	export let circles2d: Bubble[][] = setupParliament(seats, width, height, 7.9);
@@ -34,6 +33,7 @@
 	export let orderingFactor: number = 1;
 	export let enforceBase: boolean = false;
 	export let gp: string = 'XXVIII';
+	export let voteResult: VoteResult | null;
 	if (voteResult) gp = voteResult.legislative_initiative.gp;
 
 	let clazz = '';

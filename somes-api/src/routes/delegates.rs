@@ -224,7 +224,7 @@ pub async fn delegates_with_seats_near_date_route(
     Query(date): Query<Date>,
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<Delegate>>, DelegatesErrorResponse> {
-    if date.at < NaiveDate::from_str("2024-09-29").map_err(|_| DelegatesErrorResponse::DateOutOfRangeError)? {
+    if date.at < NaiveDate::from_str("2024-08-01").map_err(|_| DelegatesErrorResponse::DateOutOfRangeError)? {
         return Ok(Json(vec![]))
     }
 
