@@ -1,24 +1,15 @@
 <!-- TODO: merge this and the Parliament component in to one -->
 <script lang="ts">
-	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 	import {
 		setupParliament,
-		type Bubble,
-		setDelOnBubble,
-		enrichCirclesWithNamedVoteInfoOnSeat,
-		enrichCirclesWithSpeechInfoOnSeat,
-		enrichParliamentBubbles
-	} from '$lib/parliament';
-	import { getPartyColors, partyToColor } from '$lib/partyColor';
-	import type { Delegate, LegisPeriod, VoteResult } from '$lib/types';
+		type Bubble	} from '$lib/parliament';
+	import { getPartyColors } from '$lib/partyColor';
+	import type { Delegate, VoteResult } from '$lib/types';
 	import { onMount } from 'svelte';
-	import BaseParliament from './BaseParliament.svelte';
 	import { delegates_at, delegates_with_seats_near_date } from '$lib/api';
 	import { groupPartyDelegates, setSeatsOfDels } from '$lib/parliaments/defaultParliament';
-	import { get } from 'svelte/store';
-	import { currentDelegatesAtDateStore } from '$lib/stores/stores';
-	import Autocomplete from '../Autocompletion/Autocomplete.svelte';
 	import { cachedAllSeats, getSeats } from '$lib/caching/seats';
+	import DataParliament from './DataParliament.svelte';
 
 	const width = 830;
 	const height = 900;
@@ -58,39 +49,12 @@
 		return votes.find((vote) => vote.party === party)?.infavor ?? false;
 	}
 
-	function select(bubble: Bubble, event: MouseEvent | KeyboardEvent | null) {
-		if (event != null) {
-			event.stopPropagation();
-		}
-
-		if (bubble == null || bubble.del == null) {
-			return;
-		}
-
-		selected = bubble;
-		delegate = bubble.del;
-	}
-
 	const partyToColorMap = getPartyColors();
 
 	let partyInfavorMap = new Map<string, boolean>();
 	partyToColorMap.forEach((_v, party) => {
 		partyInfavorMap.set(party, isPartyInFavor(party));
 	});
-
-	function setOpacity(bubble: Bubble) {
-		if (bubble == null || bubble.del == null) {
-			bubble.opacity = 0.2;
-			return;
-		}
-
-		if (partyInfavorMap.has(bubble.del.party)) {
-			bubble.opacity = partyInfavorMap.get(bubble.del.party) ? 1 : againstOpacity;
-			return;
-		}
-
-		bubble.opacity = 1;
-	}
 
 	onMount(async () => {
 		
@@ -138,13 +102,9 @@
 
 			setSeatsOfDels(partyToDelegatesArray, all, seats.slice());
 		}
-		enrichParliamentBubbles(circles2d, delegates, voteResult, setOpacity);
 		circles2d = circles2d;
 	}
 	
-	$: if (delegate && delegate.seat_row != null && circles2d.length >= 1) {
-		select(circles2d[delegate.seat_row - 1][delegate.seat_col! - 1], null);
-	}
 
 	$: if (gp || date) {
 		updateLayout();
@@ -152,7 +112,17 @@
 
 </script>
 
-<BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} />
+<DataParliament 
+	bind:delegate 
+	bind:selected 
+	{againstOpacity} 
+	class={clazz} 
+	{delegates} 
+	{preview} 
+	{width} 
+	{height} 
+	{voteResult} 
+/>
 <!-- 
 {#if gp === currentLegisInit && !enforceBase}
 	<BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} />
