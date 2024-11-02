@@ -10,6 +10,7 @@
 	import { groupPartyDelegates, setSeatsOfDels } from '$lib/parliaments/defaultParliament';
 	import { cachedAllSeats, getSeats } from '$lib/caching/seats';
 	import DataParliament from './DataParliament.svelte';
+	import { createPartyInfavorMap, isPartyInFavor } from '$lib/partyInfavor';
 
 	const width = 830;
 	const height = 900;
@@ -34,27 +35,8 @@
 	
 
 	let seats = [18, 25, 29, 33, 37, 41];
-	let circles2d: Bubble[][] = [];
 	export let delegates: Delegate[] = [];
 	let noSeats = false;
-
-	function isPartyInFavor(party: string): boolean {
-		const votes = voteResult?.votes.slice();
-		if (!votes) {
-			return false;
-		}
-		// this sort is there because of named votes -> it should only look at the one with the higher count (pro, contra)
-		// otherwise, it could happen that (absent, or new) delegates are marked as e.g. contra delegates even though the majority of the party voted for the change
-		votes.sort((a, b) => b.fraction - a.fraction);
-		return votes.find((vote) => vote.party === party)?.infavor ?? false;
-	}
-
-	const partyToColorMap = getPartyColors();
-
-	let partyInfavorMap = new Map<string, boolean>();
-	partyToColorMap.forEach((_v, party) => {
-		partyInfavorMap.set(party, isPartyInFavor(party));
-	});
 
 	onMount(async () => {
 		
@@ -65,9 +47,6 @@
 		if (allSeats) {
 			seats = getSeats(allSeats, gp)
 		}
-
-		// do not forget offset toggling
-		circles2d = setupParliament(seats, width, height, 7.9);
 
 		const fetchedDelegates = await delegates_with_seats_near_date(date, gp)
 		if (fetchedDelegates) delegates = fetchedDelegates;
@@ -86,6 +65,8 @@
 				all += dels.length;
 			});
 
+			const partyInfavorMap = createPartyInfavorMap(voteResult);
+
 			const partyToDelegatesArray = Array.from(partyToDelegates.entries());
 			partyToDelegatesArray.sort((a, b) => {
 				const aInfavor = partyInfavorMap.get(a[0]);
@@ -102,7 +83,6 @@
 
 			setSeatsOfDels(partyToDelegatesArray, all, seats.slice());
 		}
-		circles2d = circles2d;
 	}
 	
 
@@ -122,6 +102,7 @@
 	{width} 
 	{height} 
 	{voteResult} 
+	{seats}
 />
 <!-- 
 {#if gp === currentLegisInit && !enforceBase}

@@ -2,12 +2,16 @@
 <script lang="ts">
 	import {
 		type Bubble,
-		enrichParliamentBubbles
+		enrichParliamentBubbles,
+
+		setupParliament
+
 	} from '$lib/parliament';
 	import { getPartyColors } from '$lib/partyColor';
 	import type { Delegate, VoteResult } from '$lib/types';
 	import { onMount } from 'svelte';
 	import BaseParliament from './BaseParliament.svelte';
+	import { createPartyInfavorMap } from '$lib/partyInfavor';
 	
 	export let width = 830;
 	export let height = 900;
@@ -23,6 +27,7 @@
 	
 	export let delegates: Delegate[];
 
+	export let seats: number[];
 	export let gp: string = 'XXVIII';
 	export let voteResult: VoteResult | null;
 	export let supplyDate: Date | null = null;
@@ -31,18 +36,8 @@
 	if (supplyDate) date = supplyDate;
 	if (voteResult) date = voteResult.legislative_initiative.created_at;
 	
-	let circles2d: Bubble[][] = [];
-
-	function isPartyInFavor(party: string): boolean {
-		const votes = voteResult?.votes.slice();
-		if (!votes) {
-			return false;
-		}
-		// this sort is there because of named votes -> it should only look at the one with the higher count (pro, contra)
-		// otherwise, it could happen that (absent, or new) delegates are marked as e.g. contra delegates even though the majority of the party voted for the change
-		votes.sort((a, b) => b.fraction - a.fraction);
-		return votes.find((vote) => vote.party === party)?.infavor ?? false;
-	}
+	// do not forget offset toggling
+	let circles2d: Bubble[][] = setupParliament(seats, width, height, 7.9);
 
 	function select(bubble: Bubble, event: MouseEvent | KeyboardEvent | null) {
 		if (event != null) {
@@ -57,12 +52,7 @@
 		delegate = bubble.del;
 	}
 
-	const partyToColorMap = getPartyColors();
-
-	let partyInfavorMap = new Map<string, boolean>();
-	partyToColorMap.forEach((_v, party) => {
-		partyInfavorMap.set(party, isPartyInFavor(party));
-	});
+	const partyInfavorMap = createPartyInfavorMap(voteResult);
 
 	function setOpacity(bubble: Bubble) {
 		if (bubble == null || bubble.del == null) {
