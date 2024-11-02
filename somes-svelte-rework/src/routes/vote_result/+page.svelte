@@ -8,7 +8,6 @@
 	import Topics from '$lib/components/Topics/Topics.svelte';
 	import type { Delegate, VoteResult } from '$lib/types';
 	import Emphasis from '$lib/components/VoteResults/Emphasis/Emphasis.svelte';
-	import VoteParliament from '$lib/components/Parliaments/VoteParliament.svelte';
 	import InfoTiles from '$lib/components/VoteResults/InfoTiles/InfoTiles.svelte';
 	import { filteredDelegates } from '$lib/caching/delegates';
 	import VoteDelegateCard from '$lib/components/Delegates/VoteDelegateCard.svelte';

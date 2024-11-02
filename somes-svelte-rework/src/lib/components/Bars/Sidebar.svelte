@@ -6,7 +6,6 @@
 	import statsIcon from '$lib/assets/icons/statistics.svg?raw';
 	import waloIcon from '$lib/assets/icons/walo.svg?raw';
 	import { AppRail, AppRailAnchor, AppRailTile, getDrawerStore } from '@skeletonlabs/skeleton';
-	import VoteParliament from '../Parliaments/VoteParliament.svelte';
 	import { mockDelegates, mockVoteResult } from '$lib/parliaments/mock';
 	import { base } from '$app/paths';
 	import VoteParliament2 from '../Parliaments/VoteParliament2.svelte';

@@ -5,7 +5,6 @@
 	import userIcon from '$lib/assets/icons/user.svg?raw';
 	import statsIcon from '$lib/assets/icons/statistics.svg?raw';
 	import waloIcon from '$lib/assets/icons/walo.svg?raw';
-	import VoteParliament from '../Parliaments/VoteParliament.svelte';
 	import { mockDelegates, mockVoteResult } from '$lib/parliaments/mock';
 	import { base } from '$app/paths';
 	import VoteParliament2 from '../Parliaments/VoteParliament2.svelte';
