@@ -1,5 +1,5 @@
 <script lang="ts">
-	import VoteParliament from '$lib/components/Parliaments/VoteParliament.svelte';
+	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import { mockDelegates, mockVoteResult } from '$lib/parliaments/mock';
 	// import { Chart } from "frappe-charts";
 </script>
@@ -8,6 +8,6 @@
 	statistics
 
 	<div class="w-full">
-		<VoteParliament voteResult={mockVoteResult()} dels={[]} delsAtDate={mockDelegates()} preview />
+		<VoteParliament2 voteResult={mockVoteResult()} delegates={mockDelegates()} overrideDelegates useOffset={false} noSeats preview />
 	</div>
 </div>

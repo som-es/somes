@@ -32,7 +32,9 @@
 	export let circles2d: Bubble[][] = [];
 	if (voteResult) gp = voteResult.legislative_initiative.gp;
 	let date = new Date();
-	if (supplyDate) date = supplyDate;
+	if (supplyDate) {
+		date = supplyDate;
+	}
 	if (voteResult) date = voteResult.legislative_initiative.created_at;
 	
 
@@ -45,7 +47,7 @@
 	let firstFinished = false;
 
 	onMount(async () => {
-		await updateLayout();
+		// await updateLayout();
 	});
 
 	const updateLayout = async () => {
@@ -56,6 +58,9 @@
 
 		if (!overrideDelegates) {
 			const fetchedDelegates = await filteredDelegatesNearSeats(date as unknown as string, gp)
+			console.log(gp);
+			console.log(date);
+			console.log(fetchedDelegates);
 			if (fetchedDelegates) delegates = fetchedDelegates;
 
 			// we do not have seat information, therefore we fetch them in a base format
@@ -63,11 +68,14 @@
 				const fetchedDelegates = await delegates_at(date);
 				if (fetchedDelegates) delegates = fetchedDelegates;
 				noSeats = true;
+				useOffset = false;
+			} else {
+				noSeats = false;
+				useOffset = true;
 			}
 		}
 
 		if (noSeats) {
-			useOffset = false;
 			let partyToDelegates = groupPartyDelegates(delegates);
 			let all = 0;
 			partyToDelegates.forEach((dels, _party) => {
@@ -94,9 +102,12 @@
 		}
 		firstFinished = true;
 	}
-	
 
-	$: if (gp || date) {
+	$: if (supplyDate) {
+		date = supplyDate
+	}
+
+	$: if (gp || date || supplyDate) {
 		updateLayout();
 	}
 

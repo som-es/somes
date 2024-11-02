@@ -18,14 +18,13 @@
 		delegateFilterOptions
 	} from '$lib/components/Autocompletion/filtering';
 	import LegisButtons from '$lib/components/Filtering/LegisButtons.svelte';
-	import VoteParliament from '$lib/components/Parliaments/VoteParliament.svelte';
 	import AllBadges from '$lib/components/VoteResults/SimpleYesNo/AllBadges.svelte';
 	import { replaceState } from '$app/navigation';
 	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 	import { dashDateToDotDate } from '$lib/date';
+	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 
-	let delegates: Delegate[] | null;
-	let delsAtDate: Delegate[] = [];
+	let delegates: Delegate[];
 	let delegate: Delegate | null;
 
 	let selectedPeriod = 'XXVIII';
@@ -47,30 +46,7 @@
 	let renderEndDate: Date | null;
 
 	let finishedMounting = false;
-	let enforceBase = false;
-
-	onMount(async () => {
-		const url = new URL(window.location.href);
-		selectedPeriod = url.searchParams.get('gp') || 'XXVIII';
-
-		delegates = await filteredDelegates();
-		if (delegates !== null) {
-			delegate = delegates[Math.floor(Math.random() * delegates.length)];
-			autocompleteOptions = convertDelegatesToAutocompleteOptions(delegates);
-		}
-
-		const cachedPeriods = await cachedAllLegisPeriods();
-		if (cachedPeriods) periods = cachedPeriods.reverse();
-
-		await updateDelsToDisplay();
-		const maybeStoredDelegate = get(currentDelegateStore);
-		if (maybeStoredDelegate) {
-			delegate = maybeStoredDelegate;
-			const foundDel = delsAtDate.find((del) => del.id === maybeStoredDelegate.id);
-			if (foundDel) delegate = foundDel;
-		}
-		finishedMounting = true;
-	});
+	let supplyDate: Date | null = null;
 
 	let inputValue = '';
 
@@ -85,20 +61,29 @@
 		delegate = event.detail.meta;
 		inputValue = event.detail.label;
 	}
+	
+	onMount(async () => {
+		const url = new URL(window.location.href);
+		selectedPeriod = url.searchParams.get('gp') || 'XXVIII';
+
+		const cachedPeriods = await cachedAllLegisPeriods();
+		if (cachedPeriods) periods = cachedPeriods.reverse();
+
+		const firstIdx = periods.findIndex((x) => x.gp == selectedPeriod);
+		if (firstIdx == -1) return;
+// ).toISOString().split('T')[0] as unknown as Date
+		const endDate = periods[firstIdx + 1]?.start_date;
+		const newDate = new Date(endDate ? endDate : new Date())
+		newDate.setDate(newDate.getDate() - 1)
+		supplyDate = newDate.toISOString().split('T')[0] as unknown as Date
+		console.log(supplyDate);
+		finishedMounting = true;
+	})
+	
 
 	const updateDelsToDisplay = async () => {
 		if (!periods || periods.length == 0) {
 			return;
-		}
-
-		if (periods[periods.length - 1].gp == selectedPeriod) {
-			// renderStartDate = periods[periods.length - 1].start_date;
-			// const days = Math.floor((new Date().getTime() - new Date(renderStartDate).getTime()) / (1000 * 60 * 60 * 24));
-			// maxDayOffset = days;
-			// if (prevSelectedPeriod !== selectedPeriod) {
-			// 	dayOffset = days;
-			// }
-			// return;
 		}
 		const firstIdx = periods.findIndex((x) => x.gp == selectedPeriod);
 		if (firstIdx == -1) return;
@@ -117,23 +102,16 @@
 
 		startDate.setDate(startDate.getDate() + dayOffset - 2);
 
-		// console.log(dayOffset);
-		// console.log(`max day: ${maxDayOffset}`);
-		if (renderEndDate == null && Math.abs(maxDayOffset - dayOffset) < 3) {
-			enforceBase = false;
-			return;
-		}
-
-		enforceBase = true;
-
-		const fetchedDelsAtDate = await delegates_at(
-			startDate.toISOString().split('T')[0] as unknown as Date
-		);
+		supplyDate = startDate.toISOString().split('T')[0] as unknown as Date
+		console.log(`supply ${supplyDate}`);
+		// const fetchedDelsAtDate = await delegates_at(
+		// );
 		// console.log(fetchedDelsAtDate);
-		if (fetchedDelsAtDate) {
-			delsAtDate = fetchedDelsAtDate;
-			autocompleteOptions = convertDelegatesToAutocompleteOptions(delsAtDate);
-		}
+
+		// if (fetchedDelsAtDate) {
+			// delsAtDate = fetchedDelsAtDate;
+			// autocompleteOptions = convertDelegatesToAutocompleteOptions(delsAtDate);
+		// }
 	};
 
 	$: if (selectedPeriod || dayOffset) {
@@ -145,9 +123,25 @@
 		// 	replaceState(url, history.state);
 		// }
 
-		delsAtDate = [];
+		// delsAtDate = [];
 		updateDelsToDisplay();
 		if (finishedMounting) prevSelectedPeriod = selectedPeriod;
+	}
+
+	$: if (delegates && delegate == null) {
+		autocompleteOptions = convertDelegatesToAutocompleteOptions(delegates);
+		const maybeStoredDelegate = get(currentDelegateStore);
+		if (maybeStoredDelegate) {
+			delegate = maybeStoredDelegate;
+			const foundDel = delegates.find((del) => del.id === maybeStoredDelegate.id);
+			if (foundDel) {
+				delegate = foundDel;
+			} else {
+				delegate = delegates[Math.floor(Math.random() * delegates.length)];
+			}
+		} else {
+			delegate = delegates[Math.floor(Math.random() * delegates.length)];
+		}
 	}
 
 	$: if (delegate) {
@@ -203,13 +197,11 @@
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
 			{#if periods.length > 0 && delegates}
 				<AllBadges
-					delsAtDate={periods[periods.length - 1].gp != selectedPeriod
-						? delsAtDate
-						: structuredClone(delegates)}
+					delsAtDate={structuredClone(delegates)}
 				/>
 			{/if}
 		</div>
-		{#if delegates}
+		<!-- {#if delegates} -->
 			<div class="text-token w-full space-y-2">
 				<input
 					class="input w-full h-12 px-2"
@@ -238,16 +230,17 @@
 			<div class="flex flex-wrap min-w-full justify-between">
 				<div class="rounded-xl w-full parliament-item bg-primary-300 dark:bg-primary-500">
 					<div class="px-5">
-						<VoteParliament
-							againstOpacity={1}
-							voteResult={null}
-							bind:delegate
-							dels={delegates}
-							{delsAtDate}
-							gp={selectedPeriod}
-							orderingFactor={-1}
-							{enforceBase}
-						/>
+						{#if supplyDate}
+							<VoteParliament2
+								againstOpacity={1}
+								voteResult={null}
+								bind:delegate
+								bind:delegates
+								gp={selectedPeriod}
+								supplyDate={supplyDate}
+								orderingFactor={-1}
+							/>
+						{/if}
 					</div>
 				</div>
 				<div class="rounded-xl delegate-item bg-primary-300 dark:bg-primary-500">
@@ -264,7 +257,7 @@
 			<!-- <div class="activity-item bg-primary-300">
                     Activity
                 </div> -->
-		{/if}
+		<!-- {/if} -->
 	</div>
 </Container>
 

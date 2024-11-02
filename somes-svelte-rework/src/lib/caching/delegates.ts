@@ -26,7 +26,7 @@ export async function cachedDelegatesNearSeats(date: string, gp: string, refetch
 		delegatesNearDate.push([date, gp], fetchedDels);
 		dels = fetchedDels;
 	}
-	return dels;
+	return structuredClone(dels.slice());
 }
 
 export async function filteredDelegatesNearSeats(date: string, gp: string, refetch: boolean = false): Promise<Delegate[] | null> {

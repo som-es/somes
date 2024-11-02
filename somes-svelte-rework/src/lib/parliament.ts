@@ -68,7 +68,6 @@ export function enrichParliamentBubbles(
 		return;
 	}
 	dels.forEach((del) => {
-		// console.log(del);
 		setDelOnBubble(del, bubbles, partyToColor);
 
 		if (del.seat_col != null && del.seat_row != null) {

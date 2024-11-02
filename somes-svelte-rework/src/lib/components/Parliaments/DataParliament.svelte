@@ -37,7 +37,6 @@
 	if (supplyDate) date = supplyDate;
 	if (voteResult) date = voteResult.legislative_initiative.created_at;
 	
-	// do not forget offset toggling
 	export let circles2d: Bubble[][];
 	circles2d = setupParliament(seats, width, height, 7.9, useOffset);
 
@@ -75,6 +74,7 @@
 	});
 
 	const updateLayout = async () => {
+		circles2d = setupParliament(seats, width, height, 7.9, useOffset);
 		enrichParliamentBubbles(circles2d, delegates, voteResult, setOpacity);
 		circles2d = circles2d;
 	}
@@ -83,7 +83,7 @@
 		select(circles2d[delegate.seat_row - 1][delegate.seat_col! - 1], null);
 	}
 
-	$: if (gp || date || delegates) {
+	$: if (delegates) {
 		updateLayout();
 	}
 
