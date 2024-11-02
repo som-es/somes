@@ -3,6 +3,7 @@
 	import { currentVoteResultStore } from '$lib/stores/stores';
 	import type { Delegate, VoteResult } from '$lib/types';
 	import VoteParliament from '../Parliaments/VoteParliament.svelte';
+	import VoteParliament2 from '../Parliaments/VoteParliament2.svelte';
 
 	export let voteResult: VoteResult;
 	export let dels: Delegate[];
@@ -25,7 +26,7 @@
 			role="link"
 			tabindex={10 + tabindex}
 		>
-			<VoteParliament {dels} {voteResult} preview={true} />
+			<VoteParliament2 {voteResult} preview={true} />
 		</div>
 		<span class="mx-3 text-left">{voteResult.legislative_initiative.description}</span>
 	</div>

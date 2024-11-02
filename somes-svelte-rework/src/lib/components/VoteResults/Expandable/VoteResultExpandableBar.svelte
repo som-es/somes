@@ -4,6 +4,7 @@
 	import collapse from 'svelte-collapse';
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
 	import VoteResultExpanded from './VoteResultExpanded.svelte';
+	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 
 	export let voteResult: VoteResult;
 	export let dels: Delegate[];
@@ -28,7 +29,7 @@
 		</div>
 		<div>{voteResult.legislative_initiative.description}</div>
 		<div class="w-20 bg-primary-100 dark:bg-primary-300 rounded-md">
-			<VoteParliament {dels} {voteResult} preview={true} />
+			<VoteParliament2 {voteResult} preview={true} />
 		</div>
 	</div>
 

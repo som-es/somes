@@ -19,6 +19,7 @@ export interface LegislativeInitiative {
 	id: string;
 	ityp: string;
 	gp: string;
+	inr: number;
 	title: string;
 	description: string;
 	emphasis: string | null;
@@ -28,6 +29,7 @@ export interface LegislativeInitiative {
 	updated_at: Date | null;
 	requires_simple_majority: boolean | null;
 	voted_by_name: boolean | null;
+	is_emphasis_ai_generated: boolean | null;
 }
 
 export interface Vote {
