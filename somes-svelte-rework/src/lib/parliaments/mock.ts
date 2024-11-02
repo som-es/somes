@@ -53,7 +53,9 @@ export function mockVoteResult(date: string = '2020-03-06'): VoteResult {
 			appeared_at: new Date(),
 			updated_at: new Date(),
 			requires_simple_majority: true,
-			voted_by_name: false
+			voted_by_name: false,
+			inr: 0,
+			is_emphasis_ai_generated: null
 		},
 		votes: [
 			{

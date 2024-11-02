@@ -8,6 +8,7 @@
 	import VoteParliament from '../Parliaments/VoteParliament.svelte';
 	import { mockDelegates, mockVoteResult } from '$lib/parliaments/mock';
 	import { base } from '$app/paths';
+	import VoteParliament2 from '../Parliaments/VoteParliament2.svelte';
 
 	$: isSelected = (href: string) => $page.url.pathname?.includes(href);
 </script>
@@ -52,13 +53,15 @@
 	<TabAnchor href="{base}/vote_history" selected={isSelected('/vote_history')}>
 		<div class="flex justify-center flex-col items-center">
 			<div>
-				<VoteParliament
+				<VoteParliament2
 					class="w-[60px]"
 					againstOpacity={0.3}
 					voteResult={mockVoteResult()}
-					dels={[]}
-					delsAtDate={mockDelegates()}
+					delegates={mockDelegates()}
 					preview
+					overrideDelegates
+					noSeats
+					useOffset={false}	
 				/>
 			</div>
 			<!-- <div>

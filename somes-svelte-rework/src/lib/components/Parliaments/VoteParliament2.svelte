@@ -29,6 +29,7 @@
 	export let gp: string = 'XXVIII';
 	export let voteResult: VoteResult | null;
 	export let supplyDate: Date | null = null;
+	export let circles2d: Bubble[][] = [];
 	if (voteResult) gp = voteResult.legislative_initiative.gp;
 	let date = new Date();
 	if (supplyDate) date = supplyDate;
@@ -37,10 +38,14 @@
 
 	let seats: number[];
 	export let delegates: Delegate[] = [];
-	let noSeats = false;
+	export let overrideDelegates: boolean = false;
+	export let noSeats = false;
+	export let useOffset = true;
+
+	let firstFinished = false;
 
 	onMount(async () => {
-		
+		await updateLayout();
 	});
 
 	const updateLayout = async () => {
@@ -49,17 +54,20 @@
 			seats = getSeats(allSeats, gp)
 		}
 
-		const fetchedDelegates = await filteredDelegatesNearSeats(date as unknown as string, gp)
-		if (fetchedDelegates) delegates = fetchedDelegates;
-
-		// we do not have seat information, therefore we fetch them in a base format
-		if (delegates.length == 0) {
-			const fetchedDelegates = await delegates_at(date);
+		if (!overrideDelegates) {
+			const fetchedDelegates = await filteredDelegatesNearSeats(date as unknown as string, gp)
 			if (fetchedDelegates) delegates = fetchedDelegates;
-			noSeats = true;
+
+			// we do not have seat information, therefore we fetch them in a base format
+			if (delegates.length == 0) {
+				const fetchedDelegates = await delegates_at(date);
+				if (fetchedDelegates) delegates = fetchedDelegates;
+				noSeats = true;
+			}
 		}
 
 		if (noSeats) {
+			useOffset = false;
 			let partyToDelegates = groupPartyDelegates(delegates);
 			let all = 0;
 			partyToDelegates.forEach((dels, _party) => {
@@ -84,6 +92,7 @@
 
 			setSeatsOfDels(partyToDelegatesArray, all, seats.slice());
 		}
+		firstFinished = true;
 	}
 	
 
@@ -93,10 +102,11 @@
 
 </script>
 
-{#if seats}
+{#if firstFinished}
 	<DataParliament 
 		bind:delegate 
 		bind:selected 
+		bind:circles2d
 		{againstOpacity} 
 		class={clazz} 
 		{delegates} 
@@ -105,6 +115,7 @@
 		{height} 
 		{voteResult} 
 		{seats}
+		useOffset={useOffset}
 	/>
 {/if}
 <!-- 

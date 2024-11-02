@@ -2,7 +2,6 @@
 	import { gotoHistory } from '$lib/goto';
 	import { currentVoteResultStore } from '$lib/stores/stores';
 	import type { Delegate, VoteResult } from '$lib/types';
-	import VoteParliament from '../Parliaments/VoteParliament.svelte';
 	import VoteParliament2 from '../Parliaments/VoteParliament2.svelte';
 
 	export let voteResult: VoteResult;

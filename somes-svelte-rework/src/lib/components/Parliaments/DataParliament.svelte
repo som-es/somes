@@ -21,6 +21,7 @@
 	
 	export let preview: boolean = false;
 	export let againstOpacity: number = 0.16;
+	export let useOffset: boolean = true;
 
 	export let delegate: Delegate | null = null;
 	export let selected: Bubble | null = null;
@@ -37,7 +38,8 @@
 	if (voteResult) date = voteResult.legislative_initiative.created_at;
 	
 	// do not forget offset toggling
-	let circles2d: Bubble[][] = setupParliament(seats, width, height, 7.9);
+	export let circles2d: Bubble[][];
+	circles2d = setupParliament(seats, width, height, 7.9, useOffset);
 
 	function select(bubble: Bubble, event: MouseEvent | KeyboardEvent | null) {
 		if (event != null) {

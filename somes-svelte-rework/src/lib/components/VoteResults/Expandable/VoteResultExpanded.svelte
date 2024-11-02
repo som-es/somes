@@ -1,5 +1,4 @@
 <script lang="ts">
-	import VoteParliament from '$lib/components/Parliaments/VoteParliament.svelte';
 	import Topics from '$lib/components/Topics/Topics.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import type { Delegate, VoteResult } from '$lib/types';
@@ -11,6 +10,7 @@
 		hasGoBackStore
 	} from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
+	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 
 	export let voteResult: VoteResult;
 	export let dels: Delegate[];
@@ -40,7 +40,7 @@
 <div class="lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3">
 	<Emphasis {emphasis} />
 	<div class="rounded-md w-full bg-primary-100 parliament-item mt-3 mb-3">
-		<VoteParliament {dels} {voteResult} bind:delsAtDate preview={true} />
+		<VoteParliament2 {voteResult} bind:delegates={delsAtDate} preview={true} />
 	</div>
 	<div class="topics-item flex rounded-xl justify-center items-center bg-primary-300 p-3 mb-3">
 		<Topics
@@ -81,7 +81,7 @@
 	</div>
 
 	<div class="rounded-xl min-w-full max-w-full ml-auto parliament-item bg-primary-100">
-		<VoteParliament {dels} {voteResult} preview={true} />
+		<VoteParliament2 {voteResult} preview={true} />
 	</div>
 	<InfoTiles {voteResult} {dels} />
 	<div class="ml-auto details-item mt-auto">

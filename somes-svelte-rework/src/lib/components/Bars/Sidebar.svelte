@@ -9,6 +9,7 @@
 	import VoteParliament from '../Parliaments/VoteParliament.svelte';
 	import { mockDelegates, mockVoteResult } from '$lib/parliaments/mock';
 	import { base } from '$app/paths';
+	import VoteParliament2 from '../Parliaments/VoteParliament2.svelte';
 
 	let currentTile: number = 0;
 	$: isSelected = (href: string) => {
@@ -73,12 +74,14 @@
 			title="Abstimmungen"
 		>
 			<svelte:fragment slot="lead">
-				<VoteParliament
+				<VoteParliament2
 					againstOpacity={0.3}
 					voteResult={mockVoteResult()}
-					dels={[]}
-					delsAtDate={mockDelegates()}
+					delegates={mockDelegates()}
 					preview
+					overrideDelegates
+					noSeats
+					useOffset={false}	
 				/>
 			</svelte:fragment>
 			<span style="font-size: x-small;">Abstimmungen</span>

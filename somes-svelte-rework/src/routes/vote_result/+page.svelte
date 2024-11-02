@@ -28,6 +28,7 @@
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import SimpleYesNo from '$lib/components/VoteResults/SimpleYesNo/SimpleYesNo.svelte';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
+	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 
 	let dels: Delegate[] | null = null;
 
@@ -257,10 +258,8 @@
 
 				<div class="flex flex-wrap min-w-full justify-between">
 					<div class="rounded-xl w-full parliament-item flex- bg-primary-200 dark:bg-primary-200">
-						<VoteParliament
-							{dels}
+						<VoteParliament2
 							{voteResult}
-							delsAtDate={delegatesAtDate}
 							bind:delegate
 							bind:selected={selectedBubble}
 							bind:circles2d

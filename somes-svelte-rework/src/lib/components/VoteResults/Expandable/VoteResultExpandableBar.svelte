@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { Delegate, VoteResult } from '$lib/types';
-	import VoteParliament from '../../Parliaments/VoteParliament.svelte';
 	import collapse from 'svelte-collapse';
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
 	import VoteResultExpanded from './VoteResultExpanded.svelte';
