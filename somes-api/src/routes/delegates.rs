@@ -258,8 +258,9 @@ pub async fn delegates_with_seats_near_date(pg: &PgPool, date: &NaiveDate, gp: &
             COALESCE(divisions.division_array, '{}') AS divisions
         FROM (
             SELECT sh.*, 
-                ROW_NUMBER() OVER (PARTITION BY sh.delegate_id ORDER BY LEAST(sh.insertion_date::date - $1, 0) ASC) AS rn
-            FROM seat_history AS sh where gp = $2
+                ROW_NUMBER() OVER (PARTITION BY sh.delegate_id ORDER BY $1 - sh.insertion_date::date ASC) AS rn
+            FROM seat_history AS sh 
+            where gp = $2 and $1 - sh.insertion_date::date >= 0
         ) AS ranked
         JOIN delegates AS d ON d.id = ranked.delegate_id
         INNER JOIN mandates AS m ON m.delegate_id = d.id 

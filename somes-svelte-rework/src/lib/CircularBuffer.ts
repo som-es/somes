@@ -1,4 +1,4 @@
-class CircularBuffer<K, T> {
+export class CircularBuffer<K, T> {
     buffer: T[];
     keys: K[];
     pointer: number;
@@ -22,6 +22,11 @@ class CircularBuffer<K, T> {
     }
 
     find(key: K): T {
-        return this.buffer[this.keys.findIndex((e) => e == key)];
+        return this.buffer[this.keys.findIndex((e) => e === key)];
+    }
+    
+    findBy(predicate: (key: K) => boolean): T | undefined {
+        const index = this.keys.findIndex(predicate);
+        return index !== -1 ? this.buffer[index] : undefined;
     }
 }

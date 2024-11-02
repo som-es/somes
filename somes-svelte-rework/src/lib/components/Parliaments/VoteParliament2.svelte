@@ -11,6 +11,7 @@
 	import { cachedAllSeats, getSeats } from '$lib/caching/seats';
 	import DataParliament from './DataParliament.svelte';
 	import { createPartyInfavorMap, isPartyInFavor } from '$lib/partyInfavor';
+	import { cachedDelegatesNearSeats, filteredDelegatesNearSeats } from '$lib/caching/delegates';
 
 	const width = 830;
 	const height = 900;
@@ -34,7 +35,7 @@
 	if (voteResult) date = voteResult.legislative_initiative.created_at;
 	
 
-	let seats = [18, 25, 29, 33, 37, 41];
+	let seats: number[];
 	export let delegates: Delegate[] = [];
 	let noSeats = false;
 
@@ -48,7 +49,7 @@
 			seats = getSeats(allSeats, gp)
 		}
 
-		const fetchedDelegates = await delegates_with_seats_near_date(date, gp)
+		const fetchedDelegates = await filteredDelegatesNearSeats(date as unknown as string, gp)
 		if (fetchedDelegates) delegates = fetchedDelegates;
 
 		// we do not have seat information, therefore we fetch them in a base format
@@ -92,18 +93,20 @@
 
 </script>
 
-<DataParliament 
-	bind:delegate 
-	bind:selected 
-	{againstOpacity} 
-	class={clazz} 
-	{delegates} 
-	{preview} 
-	{width} 
-	{height} 
-	{voteResult} 
-	{seats}
-/>
+{#if seats}
+	<DataParliament 
+		bind:delegate 
+		bind:selected 
+		{againstOpacity} 
+		class={clazz} 
+		{delegates} 
+		{preview} 
+		{width} 
+		{height} 
+		{voteResult} 
+		{seats}
+	/>
+{/if}
 <!-- 
 {#if gp === currentLegisInit && !enforceBase}
 	<BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} />
