@@ -13,7 +13,7 @@
 	import type { Delegate, LegisPeriod, VoteResult } from '$lib/types';
 	import { onMount } from 'svelte';
 	import BaseParliament from './BaseParliament.svelte';
-	import { delegates_at } from '$lib/api';
+	import { delegates_at, delegates_with_seats_near_date } from '$lib/api';
 	import { groupPartyDelegates, setSeatsOfDels } from '$lib/parliaments/defaultParliament';
 	import { get } from 'svelte/store';
 	import { currentDelegatesAtDateStore } from '$lib/stores/stores';
@@ -123,6 +123,7 @@
 	enrichParliamentBubbles(circles2d, dels, voteResult, setOpacity);
 
 	$: {
+		
 		let partyToDelegates = groupPartyDelegates(delsAtDate);
 		let all = 0;
 		partyToDelegates.forEach((dels, _party) => {

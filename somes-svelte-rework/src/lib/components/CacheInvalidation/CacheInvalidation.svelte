@@ -2,6 +2,7 @@
 	import { cachedDelegates } from '$lib/caching/delegates';
 	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 	import { cachedPartyColors } from '$lib/caching/party_color';
+	import { cachedAllSeats } from '$lib/caching/seats';
 	import { cachedLatestVoteResults } from '$lib/caching/vote_results';
 	import { onMount } from 'svelte';
 
@@ -9,6 +10,7 @@
 		await cachedPartyColors(true);
 		await cachedAllLegisPeriods(true);
 		await cachedLatestVoteResults(true);
+		await cachedAllSeats(true);
 	});
 
 	setInterval(

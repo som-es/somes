@@ -10,8 +10,8 @@ import type {
 	WaloQuestion
 } from './types';
 
-const address = 'https://somes.at';
-// const address = 'http://127.0.0.1:3000';
+// const address = 'https://somes.at';
+const address = 'http://127.0.0.1:3000';
 // const address = "http://192.168.1.114:3000"
 
 export async function fetchSavely<T>(fn: () => Promise<Response>): Promise<T | null> {
@@ -28,6 +28,23 @@ export async function fetchSavely<T>(fn: () => Promise<Response>): Promise<T | n
 		console.log(`error: ${error}`);
 		return null;
 	}
+}
+
+export async function seats(): Promise<Map<string, number[]> | null> {
+    const response = await fetchSavely<{ [key: string]: number[] }>(() =>
+        fetch(`${address}/seats`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+    );
+
+    if (response) {
+        return new Map<string, number[]>(Object.entries(response));
+    }
+
+    return null;
 }
 
 export async function parties(): Promise<Party[] | null> {
