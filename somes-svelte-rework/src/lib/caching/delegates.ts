@@ -1,4 +1,4 @@
-import { delegates } from '$lib/api';
+import { delegates, delegates_with_seats_near_date } from '$lib/api';
 import type { Delegate, HasError } from '$lib/types';
 import { get } from 'svelte/store';
 import { delegatesStore } from './stores/stores';
@@ -13,6 +13,27 @@ export async function cachedDelegates(refetch: boolean = false): Promise<Delegat
 		dels = fetchedDels;
 	}
 	return dels;
+}
+
+const delegatesNearDate: CircularBuffer<[string, string], Delegate[]> = new CircularBuffer(10);
+
+export async function cachedDelegatesNearSeats(date: string, gp: string, refetch: boolean = false): Promise<Delegate[] | null> {
+	let dels = delegatesNearDate.find([date, gp]);
+	if (dels == undefined || refetch || dels.length == 0) {
+		const fetchedDels = await delegates_with_seats_near_date(date as unknown as Date, gp);
+		if (fetchedDels == null) return null;
+		delegatesNearDate.push([date, gp], fetchedDels);
+		dels = fetchedDels;
+	}
+	return dels;
+}
+
+export async function filteredDelegatesNearSeats(date: string, gp: string, refetch: boolean = false): Promise<Delegate[] | null> {
+	const dels = await cachedDelegatesNearSeats(date, gp, refetch);
+	if (dels == null) {
+		return null;
+	}
+	return structuredClone(dels.filter((delegate) => delegate.council === 'nr'));
 }
 
 export async function filteredDelegates(refetch: boolean = false): Promise<Delegate[] | null> {
