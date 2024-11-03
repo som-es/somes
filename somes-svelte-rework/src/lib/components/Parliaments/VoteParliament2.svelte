@@ -52,9 +52,6 @@
 
 	const updateLayout = async () => {
 		const allSeats = await cachedAllSeats();
-		if (allSeats) {
-			seats = getSeats(allSeats, gp)
-		}
 
 		if (!overrideDelegates) {
 			const fetchedDelegates = await filteredDelegatesNearSeats(date as unknown as string, gp)
@@ -69,6 +66,14 @@
 			} else {
 				noSeats = false;
 				useOffset = true;
+			}
+		}
+		
+		if (allSeats) {
+			if (noSeats) {
+				seats = getSeats(allSeats, "XX", true)
+			} else {
+				seats = getSeats(allSeats, gp)
 			}
 		}
 

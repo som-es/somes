@@ -20,9 +20,9 @@ export async function cachedAllSeats(
 	return new Map(maybeCached);
 }
 
-export function getSeats(map: Map<string, number[]>, gp: string): number[] {
+export function getSeats(map: Map<string, number[]>, gp: string, forceBase: boolean = false): number[] {
 	const res = map.get(gp)
-	if (res == null) {
+	if (res == null || forceBase) {
 		return [18, 25, 29, 33, 37, 41];
 	}
 	return res
