@@ -39,6 +39,7 @@
 	<Emphasis 
 		{rawEmphasis}
 		isAiGenerated={voteResult.legislative_initiative.is_emphasis_ai_generated ?? false}
+		useTitleHover
 	/>
 	<div class="rounded-md w-full bg-primary-100 parliament-item mt-3 mb-3">
 		<VoteParliament2 {voteResult} bind:delegates={delsAtDate} preview={true} />
@@ -71,8 +72,9 @@
 
 	<Emphasis 
 		{rawEmphasis} 
-		isAiGenerated={voteResult.legislative_initiative.is_emphasis_ai_generated ?? false}>
-	</Emphasis>
+		isAiGenerated={voteResult.legislative_initiative.is_emphasis_ai_generated ?? false}
+		useTitleHover
+	/>
 
 	<div
 		class="topics-item flex rounded-xl justify-center items-center bg-primary-300 p-3 max-h-[169px]"
