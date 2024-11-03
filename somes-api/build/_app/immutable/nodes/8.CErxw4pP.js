@@ -1,1 +1,0 @@
-import{s}from"../chunks/scheduler.CKAGH9F2.js";import{S as t,i as n}from"../chunks/index.D-CpHW1X.js";import{g as a,b as r}from"../chunks/entry.VHJXEzMI.js";function i(e){return a(`${r}/wahlhelfer`),[]}class p extends t{constructor(o){super(),n(this,o,i,null,s,{})}}export{p as component};
