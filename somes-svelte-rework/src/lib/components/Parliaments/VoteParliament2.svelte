@@ -58,9 +58,6 @@
 
 		if (!overrideDelegates) {
 			const fetchedDelegates = await filteredDelegatesNearSeats(date as unknown as string, gp)
-			console.log(gp);
-			console.log(date);
-			console.log(fetchedDelegates);
 			if (fetchedDelegates) delegates = fetchedDelegates;
 
 			// we do not have seat information, therefore we fetch them in a base format

@@ -37,8 +37,8 @@
 				fill={circle.color}
 				fill-opacity={circle.opacity}
 				tabindex={0}
-				stroke={circle.del?.id == selected?.del?.id ? 'orange' : ''}
-				stroke-width={circle.del?.id == selected?.del?.id ? '4' : ''}
+				stroke={circle.del != null && circle.del?.id == selected?.del?.id ? 'orange' : ''}
+				stroke-width={circle.del != null && circle.del?.id == selected?.del?.id ? '4' : ''}
 			>
 				{#if circle.title !== null && circle.del}
 					<title>

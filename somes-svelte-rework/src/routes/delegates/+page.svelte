@@ -76,7 +76,7 @@
 		const newDate = new Date(endDate ? endDate : new Date())
 		newDate.setDate(newDate.getDate() - 1)
 		supplyDate = newDate.toISOString().split('T')[0] as unknown as Date
-		console.log(supplyDate);
+		// console.log(supplyDate);
 		finishedMounting = true;
 	})
 	
@@ -103,7 +103,7 @@
 		startDate.setDate(startDate.getDate() + dayOffset - 2);
 
 		supplyDate = startDate.toISOString().split('T')[0] as unknown as Date
-		console.log(`supply ${supplyDate}`);
+		// console.log(`supply ${supplyDate}`);
 		// const fetchedDelsAtDate = await delegates_at(
 		// );
 		// console.log(fetchedDelsAtDate);
@@ -129,7 +129,6 @@
 	}
 
 	$: if (delegates && delegate == null) {
-		autocompleteOptions = convertDelegatesToAutocompleteOptions(delegates);
 		const maybeStoredDelegate = get(currentDelegateStore);
 		if (maybeStoredDelegate) {
 			delegate = maybeStoredDelegate;
@@ -143,6 +142,7 @@
 			delegate = delegates[Math.floor(Math.random() * delegates.length)];
 		}
 	}
+	$: if (delegates) autocompleteOptions = convertDelegatesToAutocompleteOptions(delegates);
 
 	$: if (delegate) {
 		// interests = null;

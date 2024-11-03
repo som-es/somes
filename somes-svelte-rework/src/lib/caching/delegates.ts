@@ -16,7 +16,7 @@ export async function cachedDelegates(refetch: boolean = false): Promise<Delegat
 	return dels;
 }
 
-const delegatesNearDate: CircularBuffer<[string, string], Delegate[]> = new CircularBuffer(10);
+const delegatesNearDate: CircularBuffer<[string, string], Delegate[]> = new CircularBuffer(100);
 
 export async function cachedDelegatesNearSeats(date: string, gp: string, refetch: boolean = false): Promise<Delegate[] | null> {
 	let dels = delegatesNearDate.findBy((e) => e[0] == date && e[1] == gp);
