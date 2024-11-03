@@ -1,5 +1,19 @@
 <script lang="ts">
-	export let emphasis: string[] | undefined;
+	export let rawEmphasis: string | null;
+	export let isAiGenerated: boolean = false;
+	
+	$: emphasis = rawEmphasis
+		?.split('\n')
+		.filter((x) => x.length > 10)
+		.map((x) => {
+			let trim = x.trim();
+			if (trim.startsWith("-")) {
+				trim = trim.slice(1).trim()
+			}
+			return trim;
+		});
+
+	$: isAiGenerated
 </script>
 
 {#if emphasis}

@@ -27,18 +27,19 @@
 		// $: if (browser) {
 		gotoHistory('/vote_result', true);
 		// }
-	}
+	}	
 
-	const emphasis = voteResult.legislative_initiative.emphasis
-		?.split('\n\t')
-		.filter((x) => x.length > 0);
+	const rawEmphasis = voteResult.legislative_initiative.emphasis;
 
 	const whichGridContainer =
-		emphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
+		rawEmphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
 </script>
 
 <div class="lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3">
-	<Emphasis {emphasis} />
+	<Emphasis 
+		{rawEmphasis}
+		isAiGenerated={voteResult.legislative_initiative.is_emphasis_ai_generated ?? false}
+	/>
 	<div class="rounded-md w-full bg-primary-100 parliament-item mt-3 mb-3">
 		<VoteParliament2 {voteResult} bind:delegates={delsAtDate} preview={true} />
 	</div>
@@ -68,7 +69,10 @@
 <div class="max-lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3 {whichGridContainer}">
 	<!-- Inneres Migration Frauen Klimaschutz -->
 
-	<Emphasis {emphasis}></Emphasis>
+	<Emphasis 
+		{rawEmphasis} 
+		isAiGenerated={voteResult.legislative_initiative.is_emphasis_ai_generated ?? false}>
+	</Emphasis>
 
 	<div
 		class="topics-item flex rounded-xl justify-center items-center bg-primary-300 p-3 max-h-[169px]"

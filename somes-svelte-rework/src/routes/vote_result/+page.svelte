@@ -166,10 +166,11 @@
 		placement: 'bottom-start'
 	};
 
-	let emphasis: string[] | undefined = undefined;
-	$: if (voteResult || voteResultId) emphasis = voteResult?.legislative_initiative.emphasis
-		?.split('\n\t')
-		.filter((x) => x.length > 0);
+	// let emphasis: string[] | undefined = undefined;
+	// $: if (voteResult || voteResultId) emphasis = voteResult?.legislative_initiative.emphasis
+	// 	?.split('\n\t')
+	// 	.filter((x) => x.length > 0);
+	$: rawEmphasis = voteResult?.legislative_initiative.emphasis;
 
 	function findBubbleById(id: number): Bubble | undefined {
 		return circles2d.flat().find((del) => del.del?.id === id);
@@ -203,9 +204,9 @@
 					</h1>
 					<span class="text-xl">{voteResult.legislative_initiative.description}</span>
 				</div>
-				{#if emphasis}
+				{#if rawEmphasis}
 					<div class="emphasis-item">
-						<Emphasis {emphasis}></Emphasis>
+						<Emphasis {rawEmphasis}></Emphasis>
 					</div>
 				{/if}
 				{#if voteResult.named_votes}
