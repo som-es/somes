@@ -1,7 +1,7 @@
 #![warn(clippy::unwrap_used)]
 
 // use diesel_async::{AsyncPgConnection, pooled_connection::AsyncDieselConnectionManager};
-use dotenv_codegen::dotenv;
+use dotenvy_macro::dotenv;
 
 pub mod dataservice;
 mod db;

@@ -3,7 +3,7 @@ use axum::Json;
 use somes_common_lib::SignUpInfo;
 
 use crate::{
-    email::send_verification_mail, routes::signup::action::validate_info_already_in_use_redis,
+    email::send_otp_mail, routes::signup::action::validate_info_already_in_use_redis,
     DataserviceDbConnection, RedisConnection,
 };
 
@@ -53,7 +53,7 @@ pub async fn signup(
 
     tokio::task::spawn_blocking(move || {
         // mails need to be encrypted!!! verify id could be grabbed
-        if let Err(e) = send_verification_mail(&signup_info.email, &verification_id) {
+        if let Err(e) = send_otp_mail(&signup_info.email, &verification_id) {
             log::error!("Error sending verification email: {e:?}");
         }
     });

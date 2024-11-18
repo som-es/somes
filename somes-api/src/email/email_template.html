@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Somes OTP</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 30px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background-color: #D8806F;
+            color: white;
+            text-align: center;
+            padding: 20px 10px;
+        }
+        .content {
+            padding: 20px;
+            text-align: center;
+        }
+        .otp-box {
+            font-size: 1.5rem;
+            color: #D8806F;
+            font-weight: bold;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #f9f9f9;
+            border: 1px dashed #D8806F;
+            display: inline-block;
+        }
+        .footer {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #888888;
+            padding: 10px;
+            background-color: #F8DFCA;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>One-Time Passwort (OTP)</h1>
+        </div>
+        <!-- Content -->
+        <div class="content">
+            <p>Willkommen zurück!</p>
+            <p>Dein somes One-Time Passwort lautet:</p>
+            <div class="otp-box">{*OTP*}</div>
+            <p>Dieses Passwort ist gültig für die nächsten 10 Minuten.</p>
+            <p>Wenn du dich nicht bei somes anmelden wolltest, dann ignoriere diese E-Mail.</p>
+            <div style="display: flex; justify-content: center;">
+                <img src="https://somes.at/images/somes_logo.png" style="width: 10%;" />
+                <div style="align-self: center; font-weight: 200; font-size: xx-large; margin-left: 10px;;">
+                    somes
+                </div>
+            </div>
+        </div>
+        <!-- Footer -->
+        <div class="footer">
+            <p>&copy; 2024 somes</p>
+        </div>
+    </div>
+</body>
+</html>
