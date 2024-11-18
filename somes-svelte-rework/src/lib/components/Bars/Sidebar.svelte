@@ -110,12 +110,25 @@
 		</AppRailAnchor> -->
 		<hr />
 		<!-- --- -->
-		<svelte:fragment slot="trail">
-			<AppRailAnchor title="Account">
-				<svelte:fragment slot="lead">{@html userIcon}</svelte:fragment>
+		<svelte:fragment slot="trail" >
+			<div on:click={
+				() => {
+					drawerStore.open(loginDrawerSettings);
+				}
+			} tabindex="0" role="button"  on:keydown={
+				(event) => {
+					if (event.key === 'Enter' || event.key === ' ') {
+                        drawerStore.open(loginDrawerSettings);
+                    }	
+				}
+			}>
+				<AppRailAnchor title="Account" on:click={() => {
+				}}>
+					<svelte:fragment slot="lead">{@html userIcon}</svelte:fragment>
 
-				<span style="font-size: smaller;">Benutzer</span>
-			</AppRailAnchor>
+					<span style="font-size: smaller;">Benutzer</span>
+				</AppRailAnchor>
+			</div>	
 		</svelte:fragment>
 	</AppRail>
 	<!-- Mobile Only -->

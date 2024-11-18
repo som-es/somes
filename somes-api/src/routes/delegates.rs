@@ -224,8 +224,11 @@ pub async fn delegates_with_seats_near_date_route(
     Query(date): Query<Date>,
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<Delegate>>, DelegatesErrorResponse> {
-    if date.at < NaiveDate::from_str("2024-08-01").map_err(|_| DelegatesErrorResponse::DateOutOfRangeError)? {
-        return Ok(Json(vec![]))
+    if date.at
+        < NaiveDate::from_str("2024-08-01")
+            .map_err(|_| DelegatesErrorResponse::DateOutOfRangeError)?
+    {
+        return Ok(Json(vec![]));
     }
 
     delegates_with_seats_near_date(&pg, &date.at, &gp.period)
@@ -234,7 +237,11 @@ pub async fn delegates_with_seats_near_date_route(
         .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
 }
 
-pub async fn delegates_with_seats_near_date(pg: &PgPool, date: &NaiveDate, gp: &str) -> sqlx::Result<Vec<Delegate>> {
+pub async fn delegates_with_seats_near_date(
+    pg: &PgPool,
+    date: &NaiveDate,
+    gp: &str,
+) -> sqlx::Result<Vec<Delegate>> {
     sqlx::query_as!(
         Delegate,
         "

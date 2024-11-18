@@ -261,7 +261,10 @@ pub async fn serve(addr: SocketAddr) {
         .route(VOTE_RESULT_BY_ID, get(vote_result_by_id)) // post only because js fetch...
         .route(VOTE_RESULT_BY_SEARCH, get(vote_result_by_search)) // post only because js fetch...
         .route(DELEGATES_AT, get(delegates_at)) // post only because js fetch...
-        .route(DELEGATES_WITH_SEATS_NEAR_DATE, get(delegates_with_seats_near_date_route))
+        .route(
+            DELEGATES_WITH_SEATS_NEAR_DATE,
+            get(delegates_with_seats_near_date_route),
+        )
         .route(WALO_QUESTIONS, get(walo_questions))
         .route(ALL_GPS, get(all_gps))
         .route(SEATS, get(seats))
@@ -285,8 +288,8 @@ pub async fn serve(addr: SocketAddr) {
         // }))
         .layer(
             CorsLayer::new()
-                .allow_origin("https://somes.at".parse::<HeaderValue>().unwrap())
-                // .allow_origin(origins)
+                // .allow_origin("https://somes.at".parse::<HeaderValue>().unwrap())
+                .allow_origin(Any)
                 .allow_methods([http::Method::GET, http::Method::POST])
                 .allow_headers([http::header::CONTENT_TYPE, http::header::AUTHORIZATION]),
         )

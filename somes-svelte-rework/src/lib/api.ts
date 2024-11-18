@@ -7,11 +7,12 @@ import type {
 	Party,
 	VoteResult,
 	VoteResultsWithMaxPage,
-	WaloQuestion
+	WaloQuestion,
+	JWTInfo
 } from './types';
 
-const address = 'https://somes.at';
-// const address = 'http://127.0.0.1:3000';
+// const address = 'https://somes.at';
+const address = 'http://127.0.0.1:3000';
 // const address = "http://192.168.1.114:3000"
 
 export async function fetchSavely<T>(fn: () => Promise<Response>): Promise<T | null> {
@@ -171,6 +172,24 @@ export async function walo_questions(): Promise<WaloQuestion[] | null> {
 			headers: {
 				'Content-Type': 'application/json'
 			}
+		})
+	);
+}
+
+export async function login(
+	email: string,
+	password: string | null,
+): Promise<JWTInfo | null> {
+	return fetchSavely(() =>
+		fetch(`${address}/login`, {
+			method: 'POST', // only post because js fetch..
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				email: email,
+				password: password,
+			})
 		})
 	);
 }

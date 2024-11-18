@@ -26,10 +26,9 @@ impl IntoResponse for DelegatesErrorResponse {
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "could not return interests of delegates",
             ),
-            DelegatesErrorResponse::DateOutOfRangeError => (
-                StatusCode::BAD_REQUEST,
-                "date out of range"
-            ),
+            DelegatesErrorResponse::DateOutOfRangeError => {
+                (StatusCode::BAD_REQUEST, "date out of range")
+            }
         };
 
         let body = Json(json!({

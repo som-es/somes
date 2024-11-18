@@ -17,7 +17,7 @@ pub struct NewPasswordInfo {
 /// `LoginInfo` is sent by the client and received by the server at login of a user.
 #[derive(ToSchema, IntoParams, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct LoginInfo {
-    pub username_or_email: String,
+    pub email: String,
     pub password: String,
 }
 

@@ -13,7 +13,7 @@ use crate::{extract_to_be_verified_from_redis, EMAIL_EXPIRATION_SECONDS};
 
 use super::error::{SignUpErrorResponse, SignUpErrorWrapper};
 
-static EMAIL_REGEX: Lazy<Regex> =
+pub static EMAIL_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"[^@]+@[^@]+\.[^@]+").expect("Invalid email regex"));
 
 pub async fn validate_info_already_in_use_redis(

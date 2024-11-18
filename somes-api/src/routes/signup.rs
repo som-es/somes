@@ -14,7 +14,7 @@ pub use self::{
 
 pub use error::*;
 
-mod action;
+pub mod action;
 mod error;
 
 #[utoipa::path(

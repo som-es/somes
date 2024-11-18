@@ -15,6 +15,7 @@ pub enum SignUpErrorResponse {
     RedisGetKeys,
     VerificationEmailSendingError,
     UserCreationError,
+    WrongOtp,
     SignUpError(SignUpErrorWrapper),
 }
 
@@ -42,6 +43,10 @@ impl IntoResponse for SignUpErrorResponse {
             SignUpErrorResponse::SignUpError(signup_error) => {
                 (StatusCode::BAD_REQUEST, Json(signup_error.deref())).into_response()
             }
+            SignUpErrorResponse::WrongOtp => (
+                StatusCode::BAD_REQUEST,
+                Json(json!({"error": "Wrong OTP"})),
+            ).into_response(),
         }
     }
 }
