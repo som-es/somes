@@ -9,6 +9,9 @@
 	import { mockDelegates, mockVoteResult } from '$lib/parliaments/mock';
 	import { base } from '$app/paths';
 	import VoteParliament2 from '../Parliaments/VoteParliament2.svelte';
+	import { loginDrawerSettings } from '../Login/constants';
+
+	const drawerStore = getDrawerStore();
 
 	let currentTile: number = 0;
 	$: isSelected = (href: string) => {
@@ -108,8 +111,9 @@
 		<hr />
 		<!-- --- -->
 		<svelte:fragment slot="trail">
-			<AppRailAnchor href="{base}/" target="_blank" title="Account">
+			<AppRailAnchor title="Account">
 				<svelte:fragment slot="lead">{@html userIcon}</svelte:fragment>
+
 				<span style="font-size: smaller;">Benutzer</span>
 			</AppRailAnchor>
 		</svelte:fragment>

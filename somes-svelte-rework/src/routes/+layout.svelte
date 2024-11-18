@@ -1,6 +1,6 @@
 <script lang="ts">
 	import '../app.postcss';
-	import { AppShell, initializeStores } from '@skeletonlabs/skeleton';
+	import { AppShell, Drawer, initializeStores } from '@skeletonlabs/skeleton';
 	import CacheInvalidation from '$lib/components/CacheInvalidation/CacheInvalidation.svelte';
 	import Sidebar from '$lib/components/Bars/Sidebar.svelte';
 	import Bottombar from '$lib/components/Bars/Bottombar.svelte';
@@ -8,13 +8,22 @@
 
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
+	import LoginDrawer from '$lib/components/Login/LoginDrawer.svelte';
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 	initializeStores();
+
+	import { getDrawerStore } from "@skeletonlabs/skeleton";
+	const drawerStore = getDrawerStore();
 
 	// const drawerStore = getDrawerStore();
 </script>
 
 <CacheInvalidation />
+<Drawer>
+	{#if $drawerStore.id === "login-drawer"}
+		<LoginDrawer />
+	{/if}
+</Drawer>
 
 <!-- 
 <div class="grid h-screen grid-rows-[auto_1fr_auto]">
