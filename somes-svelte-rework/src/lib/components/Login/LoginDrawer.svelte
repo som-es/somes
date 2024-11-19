@@ -28,6 +28,8 @@
 	let error = ""
 	let otp_done = false;
 
+	let isLogin = true;
+
 	const onLogin = async () => {
 		success = true;
 		error = "";
@@ -62,25 +64,6 @@
 		if (success) {
 			otp_done = true;
 		}	
-
-		// let res: JWTInfo | HasError = await login(username_or_email, pwd);
-		// check if res is a JWT or HasError
-		// if ("error" in res) {
-			// invalidCreds = "Benutzername oder Passwort falsch!";
-		// } else {
-			// invalidCreds = "";
-			// jwtStore.set(res.access_token);
-			// drawerStore.close();
-			// const user = await maybeGetUser();
-			// if (user != null && !("error" in user)) {
-				// userStore.set(user);
-			// }
-
-			// verificationMailStore.set(null);
-
-			// userStore.set();
-            // gotoHistory("/home");
-		// }
 	};
 </script>
 
@@ -92,7 +75,13 @@
 		style="font-size: 27px"
 		class="w-5 font-bold unselectable">&#x2715</button
 	>
-	<h2 class="text-center mb-4">Anmeldung</h2>
+	<h2 class="text-center mb-4">
+		{#if isLogin}
+			Anmeldung
+		{:else}
+			Registrierung
+		{/if}
+	</h2>
 	<label for="username">E-Mail</label>
 	<div class="flex">
 		<input
@@ -104,10 +93,13 @@
 		
 
 	</div>
-	<label class="ml-2 flex items-center space-x-2">
-		<input class="checkbox" type="checkbox" bind:checked={storeEmailAnonymously} />
-		<p>E-Mail anonymisiert abspeichern</p>
-	</label>
+
+	{#if !isLogin}
+		<label class="ml-2 flex items-center space-x-2">
+			<input class="checkbox" type="checkbox" bind:checked={storeEmailAnonymously} />
+			<p>E-Mail anonymisiert abspeichern</p>
+		</label>
+	{/if}
 
 	{#if success}
 		{#if sent && done}
@@ -125,8 +117,26 @@
 
 
 
-	<input class="mt-4" type="button" value="Anmelden" on:click={onLogin} />
+	<input class="mt-4" type="button" value="{isLogin ? "Anmelden" : "Registrieren"}" on:click={onLogin} />
 	<span class="text-red-500">{invalidCreds}</span>
+
+	<div class="flex justify-between">
+		<div></div>
+		<div>
+			oder
+			<!-- blue, underlined hovering stuff -->
+			<span 
+				class="text-blue-500 unselectable underline"
+				role="button" 
+				on:click={() => (isLogin = !isLogin)}
+				on:keydown={() => (isLogin = !isLogin)}
+				tabindex="0"
+			>
+					{#if isLogin}registrieren{:else}anmelden{/if}
+			</span>
+		</div>
+	</div>
+
 </div>
 
 <style>
