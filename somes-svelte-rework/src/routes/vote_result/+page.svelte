@@ -28,6 +28,7 @@
 	import SimpleYesNo from '$lib/components/VoteResults/SimpleYesNo/SimpleYesNo.svelte';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
+	import { errorToNull } from '$lib';
 
 	let dels: Delegate[] | null = null;
 
@@ -51,7 +52,7 @@
 		if (!voteResult) {
 			return;
 		}
-		delegatesAtDate = (await delegates_at(voteResult.legislative_initiative.created_at)) ?? [];
+		delegatesAtDate = (errorToNull(await delegates_at(voteResult.legislative_initiative.created_at))) ?? [];
 
 		if (delegatesAtDate) {
 			generalSpeechDelegates = genCirclesWithSpeechInfo(voteResult.speeches, delegatesAtDate);
@@ -111,7 +112,7 @@
 			return;
 		}
 		currentlyUpdating = true;
-		voteResult = await vote_result_by_id(voteResultId);
+		voteResult = errorToNull(await vote_result_by_id(voteResultId));
 		await fetchDelegatesAtAndEnrich();
 		currentVoteResultStore.set(voteResult);
 		currentlyUpdating = false;

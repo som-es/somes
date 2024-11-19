@@ -12,6 +12,7 @@
 	import { get } from 'svelte/store';
 	import ExpandablePlaceholder from './Placeholders/ExpandablePlaceholder.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
+	import { errorToNull } from '$lib';
 
 	export let dels: Delegate[];
 
@@ -65,10 +66,10 @@
 		// filter = null;
 
 		if (searchValue) {
-			const voteResultsSearch = await vote_results_by_search(page, searchValue);
+			const voteResultsSearch = errorToNull(await vote_results_by_search(page, searchValue));
 			if (voteResultsSearch) voteResults = voteResultsSearch;
 		} else {
-			voteResults = await vote_results_per_page(page - 1, filter);
+			voteResults = errorToNull(await vote_results_per_page(page - 1, filter));
 		}
 		currentlyUpdating = false;
 	};

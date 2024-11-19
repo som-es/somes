@@ -12,6 +12,7 @@
 	import DataParliament from './DataParliament.svelte';
 	import { createPartyInfavorMap, isPartyInFavor } from '$lib/partyInfavor';
 	import { cachedDelegatesNearSeats, filteredDelegatesNearSeats } from '$lib/caching/delegates';
+	import { errorToNull } from '$lib';
 
 	const width = 830;
 	const height = 900;
@@ -59,7 +60,7 @@
 
 			// we do not have seat information, therefore we fetch them in a base format
 			if (delegates.length == 0) {
-				const fetchedDelegates = await delegates_at(date);
+				const fetchedDelegates = errorToNull(await delegates_at(date));
 				if (fetchedDelegates) delegates = fetchedDelegates;
 				noSeats = true;
 				useOffset = false;

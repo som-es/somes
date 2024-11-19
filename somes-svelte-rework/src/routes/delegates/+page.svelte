@@ -23,6 +23,7 @@
 	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 	import { dashDateToDotDate } from '$lib/date';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
+	import { errorToNull } from '$lib';
 
 	let delegates: Delegate[];
 	let delegate: Delegate | null;
@@ -148,8 +149,9 @@
 		// interests = null;
 		if (finishedMounting) currentDelegateStore.set(delegate);
 		delegate_interests(delegate.id).then((res) => {
-			if (res != null) res.sort((a, b) => b.self_share - a.self_share);
-			interests = res;
+			const input = errorToNull(res);
+			if (input != null) input.sort((a, b) => b.self_share - a.self_share);
+			interests = input;
 		});
 	}
 </script>
