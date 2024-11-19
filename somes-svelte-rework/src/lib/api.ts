@@ -217,3 +217,22 @@ export async function login(
 		})
 	);
 }
+
+export async function postWithAuth<T>(route: string, body: any): Promise<T | HasError> {
+    const accessToken = localStorage.getItem("access_token");
+    if (accessToken == null) {
+		return { error: 'No access token' };
+    }
+	return fetchSavely(() =>
+		fetch(`${address}/${route}`, {
+			method: 'POST', 
+			headers: {
+				'Content-Type': 'application/json',
+			 	"Authorization": `Bearer ${accessToken}`,
+			},
+			body: JSON.stringify(body),
+		})
+	);
+}
+
+
