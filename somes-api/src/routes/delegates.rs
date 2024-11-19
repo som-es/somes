@@ -3,8 +3,9 @@ use std::{collections::HashMap, str::FromStr};
 use axum::{extract::Query, Json};
 use chrono::NaiveDate;
 use dataservice::db::models::{DbDelegate, DbProposalQuery};
+use qa::extract_delegate_qa;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::{Date, DelegateById, InterestShare};
+use somes_common_lib::{Date, DelegateById, DelegateQA, InterestShare};
 use sqlx::PgPool;
 use utoipa::ToSchema;
 
@@ -16,6 +17,7 @@ use crate::{
 pub use error::*;
 mod error;
 mod interests;
+mod qa;
 pub use interests::*;
 
 use super::LegisPeriod;
@@ -56,6 +58,16 @@ pub async fn delegate_interests(
     Query(delegate_by_id): Query<DelegateById>,
 ) -> Result<Json<Vec<InterestShare>>, DelegatesErrorResponse> {
     extract_interests_of_delegate(delegate_by_id.delegate_id, &pg)
+        .await
+        .map(Json)
+        .map_err(|_| DelegatesErrorResponse::DelegateInterestsResponseError)
+}
+
+pub async fn delegate_qa(
+    PgPoolConnection(pg): PgPoolConnection,
+    Query(delegate_by_id): Query<DelegateById>,
+) -> Result<Json<Vec<DelegateQA>>, DelegatesErrorResponse> {
+    extract_delegate_qa(delegate_by_id.delegate_id, &pg)
         .await
         .map(Json)
         .map_err(|_| DelegatesErrorResponse::DelegateInterestsResponseError)

@@ -105,6 +105,12 @@ pub struct InterestShare {
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct DelegateQA {
+    pub question: String,
+    pub answer: String,
+}
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct Page {
     pub page: i64,
 }
