@@ -168,6 +168,11 @@ export interface DateRange {
 	end: Date;
 }
 
+export interface DelegateQA {
+	question: string;
+	answer: string;
+}
+
 export interface InterestShare {
 	topic: string;
 	total_share: number;

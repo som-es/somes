@@ -10,7 +10,8 @@ import type {
 	VoteResultsWithMaxPage,
 	WaloQuestion,
 	JWTInfo,
-	LoginResponseError
+	LoginResponseError,
+	DelegateQA
 } from './types';
 import { jwtStore } from './caching/stores/stores';
 
@@ -132,6 +133,17 @@ export async function vote_results_per_page(
 }
 
 export async function delegate_interests(delegate_id: number): Promise<InterestShare[] | HasError> {
+	return fetchSavely(() =>
+		fetch(`${address}/delegate_interests?delegate_id=${delegate_id}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		})
+	);
+}
+
+export async function delegate_qa(delegate_id: number): Promise<DelegateQA[] | HasError> {
 	return fetchSavely(() =>
 		fetch(`${address}/delegate_interests?delegate_id=${delegate_id}`, {
 			method: 'GET',
