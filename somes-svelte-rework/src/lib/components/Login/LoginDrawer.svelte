@@ -59,6 +59,7 @@
 		} else {
 			if (jwt.access_token.length > 0) {
 				jwtStore.set(jwt.access_token);
+				console.log(get(jwtStore));
 				drawerStore.close();
 				gotoHistory("/user");
 			}

@@ -10,6 +10,10 @@
 	import { base } from '$app/paths';
 	import VoteParliament2 from '../Parliaments/VoteParliament2.svelte';
 	import { loginDrawerSettings } from '../Login/constants';
+	import { get } from 'svelte/store';
+	import { jwtStore } from '$lib/caching/stores/stores';
+	import { isHasError, renew_token } from '$lib/api';
+	import { gotoHistory } from '$lib/goto';
 
 	const drawerStore = getDrawerStore();
 
@@ -17,6 +21,20 @@
 	$: isSelected = (href: string) => {
 		return $page.url.pathname?.includes(href);
 	};
+
+	$: accountOrLogin = async () => {
+		const jwt = get(jwtStore);
+		if (jwt) {
+			if (isHasError(await renew_token())) {
+				drawerStore.open(loginDrawerSettings);
+			} else {
+				gotoHistory("/user")
+			}
+		} else {
+			drawerStore.open(loginDrawerSettings);
+		}
+
+	}
 
 	// $: activeAnchorColor = (href: string) => ($page.url.pathname?.includes(href) ? 'flex flex-col justify-center items-stretch bg-primary-active-token' : 'bg-primary-hover-token');
 </script>
@@ -112,17 +130,22 @@
 		<!-- --- -->
 		<svelte:fragment slot="trail" >
 			<div on:click={
-				() => {
-					drawerStore.open(loginDrawerSettings);
+				async () => {
+					await accountOrLogin();
 				}
 			} tabindex="0" role="button"  on:keydown={
-				(event) => {
+				async (event) => {
 					if (event.key === 'Enter' || event.key === ' ') {
-                        drawerStore.open(loginDrawerSettings);
+						await accountOrLogin();
                     }	
 				}
 			}>
-				<AppRailAnchor title="Account" on:click={() => {
+				<AppRailAnchor 
+					selected={isSelected('/user')}
+					bind:group={currentTile}
+					name="Account"
+					value={5}
+				title="Account" on:click={() => {
 				}}>
 					<svelte:fragment slot="lead">{@html userIcon}</svelte:fragment>
 

@@ -1,3 +1,4 @@
+import { get } from 'svelte/store';
 import type {
 	Delegate,
 	HasError,
@@ -11,6 +12,7 @@ import type {
 	JWTInfo,
 	LoginResponseError
 } from './types';
+import { jwtStore } from './caching/stores/stores';
 
 // const address = 'https://somes.at';
 const address = 'http://127.0.0.1:3000';
@@ -219,7 +221,7 @@ export async function login(
 }
 
 export async function postWithAuth<T>(route: string, body: any): Promise<T | HasError> {
-    const accessToken = localStorage.getItem("access_token");
+    const accessToken = get(jwtStore);
     if (accessToken == null) {
 		return { error: 'No access token' };
     }
@@ -235,4 +237,6 @@ export async function postWithAuth<T>(route: string, body: any): Promise<T | Has
 	);
 }
 
-
+export async function renew_token(): Promise<JWTInfo | HasError> {
+	return postWithAuth<JWTInfo>('renew_token', {});
+}
