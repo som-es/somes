@@ -1,4 +1,4 @@
-import { delegates, delegates_with_seats_near_date } from '$lib/api';
+import { delegates, delegates_with_seats_near_date, isHasError } from '$lib/api';
 import { CircularBuffer } from '$lib/CircularBuffer';
 import type { Delegate, HasError } from '$lib/types';
 import { get } from 'svelte/store';
@@ -10,8 +10,10 @@ export async function cachedDelegates(refetch: boolean = false): Promise<Delegat
 	let dels = get(delegatesStore);
 	if (dels == null || refetch || dels.length == 0) {
 		const fetchedDels = await delegates();
-		delegatesStore.set(fetchedDels);
-		dels = fetchedDels;
+		if (!isHasError(fetchedDels)) {
+			delegatesStore.set(fetchedDels);
+			dels = fetchedDels;
+		}
 	}
 	return dels;
 }
@@ -22,7 +24,7 @@ export async function cachedDelegatesNearSeats(date: string, gp: string, refetch
 	let dels = delegatesNearDate.findBy((e) => e[0] == date && e[1] == gp);
 	if (dels == undefined || refetch || dels.length == 0) {
 		const fetchedDels = await delegates_with_seats_near_date(date as unknown as Date, gp);
-		if (fetchedDels == null) return null;
+		if (isHasError(fetchedDels)) return null;
 		delegatesNearDate.push([date, gp], fetchedDels);
 		dels = fetchedDels;
 	}

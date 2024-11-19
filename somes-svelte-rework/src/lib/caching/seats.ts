@@ -1,6 +1,6 @@
 import { get } from 'svelte/store';
 import { seatsStore } from './stores/stores';
-import { seats } from '$lib/api';
+import { isHasError, seats } from '$lib/api';
 
 export async function cachedAllSeats(
 	refetch: boolean = false
@@ -9,7 +9,7 @@ export async function cachedAllSeats(
 
 	if (maybeCached == null || refetch || maybeCached.length == 0) {
 		const fetched = await seats();
-		if (fetched !== null) {
+		if (!isHasError(fetched)) {
 			const colorsArray = Array.from(fetched.entries());
 			maybeCached = colorsArray;
 			seatsStore.set(colorsArray.slice())
