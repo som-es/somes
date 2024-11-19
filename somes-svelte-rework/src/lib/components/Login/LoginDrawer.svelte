@@ -8,6 +8,7 @@
 	import { base } from "$app/paths";
 	import { gotoHistory } from "$lib/goto";
 	import { isHasError, isLoginResponseError, login } from "$lib/api";
+	import SButton from "../UI/SButton.svelte";
 	// import Login from 'svelte-google-materialdesign-icons/Login.svelte';
 
     const drawerStore = getDrawerStore();
@@ -67,7 +68,7 @@
 	};
 </script>
 
-<div class="login_container flex flex-col text-black">
+<div class=" z-[10000] login_container flex flex-col text-black">
 	<button
 		on:click={() => {
 			drawerStore.close();
@@ -117,7 +118,8 @@
 
 
 
-	<input class="mt-4" type="button" value="{isLogin ? "Anmelden" : "Registrieren"}" on:click={onLogin} />
+	<!-- <input class="mt-4" type="button" value="" on:click={onLogin} /> -->
+	<SButton on:click={onLogin} class=" mt-4 bg-tertiary-500">{isLogin ? "Anmelden" : "Registrieren"}</SButton>
 	<span class="text-red-500">{invalidCreds}</span>
 
 	<div class="flex justify-between">

@@ -233,7 +233,7 @@
 				</div>
 
 				<!-- {#if voteResult.legislative_initiative.gp == 'XXVII'} -->
-				<div class="z-50 search-item text-token space-y-5">
+				<div class="z-10 search-item text-token space-y-5">
 					<input
 						class="!rounded-xl w-full h-12 px-2 input"
 						type="search"
