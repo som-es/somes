@@ -213,6 +213,18 @@ export interface NamedVoteInfo {
 	invalid_count: number;
 }
 
+export interface LoginResponseError { 
+	missing_username: false; 
+	missing_password: false;
+	missing_email: false;
+	username_taken: false;
+	email_taken: false;
+	invalid_email: true;
+	insufficient_password: false;
+	invalid_otp: false;
+	is_erroneous: true
+}
+
 export function areDeeplyEqual(param1: unknown, param2: unknown) {
 	// check strict equality
 	if (param1 === param2) return true;

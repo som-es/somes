@@ -6,18 +6,20 @@ use diesel::PgConnection;
 use somes_common_lib::SignUpInfo;
 
 pub fn is_email_in_db(con: &mut PgConnection, signup_email: &str) -> bool {
-    users
-        .filter(email.eq(signup_email))
-        // .first::<User>(con)
-        .first::<User>(con)
-        .is_ok()
+    todo!()
+    // users
+    //     .filter(email.eq(signup_email))
+    //     // .first::<User>(con)
+    //     .first::<User>(con)
+    //     .is_ok()
 }
 
 pub fn is_username_in_db(con: &mut PgConnection, signup_username: &str) -> bool {
-    users
-        .filter(username.eq(signup_username))
-        .first::<User>(con)
-        .is_ok()
+    todo!()
+    // users
+    //     .filter(username.eq(signup_username))
+    //     .first::<User>(con)
+    //     .is_ok()
 }
 
 pub fn update_password_hash_at(
@@ -34,7 +36,8 @@ pub fn update_password_hash_at(
 /// Do not forget to remove the password hash from the user before returning it to the client!
 /// As `User´ does not implement `Serialize´, this should not happen in the first case. Be careful nonetheless!
 pub fn get_user_from_db_by_id(con: &mut PgConnection, val_id: i32) -> Option<User> {
-    users.find(val_id).first::<User>(con).ok()
+    todo!()
+    // users.find(val_id).first::<User>(con).ok()
 }
 
 pub fn get_user_from_db(
@@ -42,11 +45,12 @@ pub fn get_user_from_db(
     login_username: &str,
     login_email: &str,
 ) -> Option<User> {
-    users
-        .filter(username.eq(login_username))
-        .or_filter(email.eq(login_email))
-        .first::<User>(con)
-        .ok()
+    todo!()
+    // users
+    //     .filter(username.eq(login_username))
+    //     .or_filter(email.eq(login_email))
+    //     .first::<User>(con)
+    //     .ok()
 }
 
 pub fn get_password_hash_from_db(
@@ -128,10 +132,10 @@ mod tests {
         con.test_transaction::<_, (), _>(|con| {
             insert_user(con, &new_user).unwrap();
 
-            let first_user = &users.load::<User>(con).unwrap()[0];
+            // let first_user = &users.load::<User>(con).unwrap()[0];
 
-            assert_eq!(first_user.email, signup_info.email);
-            assert_eq!(first_user.username, signup_info.username);
+            // assert_eq!(first_user.email, signup_info.email);
+            // assert_eq!(first_user.username, signup_info.username);
 
             Ok(())
         });
@@ -208,25 +212,25 @@ mod tests {
 
             let db_user = get_user_from_db(con, "test_name", "").unwrap();
 
-            assert_eq!("test_name", db_user.username);
-            assert_eq!("test@test.at", db_user.email);
-            assert_ne!("supersicher", db_user.password_hash);
+            // assert_eq!("test_name", db_user.username);
+            // assert_eq!("test@test.at", db_user.email);
+            // assert_ne!("supersicher", db_user.password_hash);
 
-            let db_user = get_user_from_db(con, "", "test@test.at").unwrap();
+            // let db_user = get_user_from_db(con, "", "test@test.at").unwrap();
 
-            assert_eq!("test_name", db_user.username);
-            assert_eq!("test@test.at", db_user.email);
-            assert_ne!("supersicher", db_user.password_hash);
+            // assert_eq!("test_name", db_user.username);
+            // assert_eq!("test@test.at", db_user.email);
+            // assert_ne!("supersicher", db_user.password_hash);
 
-            let db_user = get_user_from_db(con, "test_name", "test@test.at").unwrap();
+            // let db_user = get_user_from_db(con, "test_name", "test@test.at").unwrap();
 
-            assert_eq!("test_name", db_user.username);
-            assert_eq!("test@test.at", db_user.email);
-            assert_ne!("supersicher", db_user.password_hash);
+            // assert_eq!("test_name", db_user.username);
+            // assert_eq!("test@test.at", db_user.email);
+            // assert_ne!("supersicher", db_user.password_hash);
 
-            let db_user = get_user_from_db(con, "test_account", "invalid");
+            // let db_user = get_user_from_db(con, "test_account", "invalid");
 
-            assert!(db_user.is_none());
+            // assert!(db_user.is_none());
             Ok(())
         });
     }

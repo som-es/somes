@@ -9,6 +9,7 @@ pub struct SignUpError {
     pub username_taken: bool,
     pub email_taken: bool,
     pub invalid_email: bool,
+    pub invalid_otp: bool,
     pub insufficient_password: bool,
     pub is_erroneous: bool,
 }

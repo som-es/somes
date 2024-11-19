@@ -18,7 +18,8 @@ pub struct NewPasswordInfo {
 #[derive(ToSchema, IntoParams, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct LoginInfo {
     pub email: String,
-    pub password: String,
+    pub password: Option<String>,
+    pub hash_email: Option<bool>,
 }
 
 /// `SignUpInfo` is sent by the client and received by the server at registering a new user.
@@ -32,7 +33,6 @@ pub struct SignUpInfo {
 /// `UserInfo` contains user specific data.
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct UserInfo {
-    pub username: String,
     pub email: String,
 }
 

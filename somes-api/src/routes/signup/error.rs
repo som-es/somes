@@ -9,6 +9,8 @@ use serde_json::json;
 use somes_common_lib::errors::SignUpError;
 use utoipa::ToSchema;
 
+use crate::AuthError;
+
 #[derive(Debug, ToSchema)]
 pub enum SignUpErrorResponse {
     PostgresConnection,
@@ -16,6 +18,8 @@ pub enum SignUpErrorResponse {
     VerificationEmailSendingError,
     UserCreationError,
     WrongOtp,
+    Hashing,
+    AuthError(AuthError),
     SignUpError(SignUpErrorWrapper),
 }
 
@@ -40,6 +44,11 @@ impl IntoResponse for SignUpErrorResponse {
                 Json(json!({"error": "An internal server error occurred. Creating user was unsuccessful!"})),
             )
                 .into_response(),
+            SignUpErrorResponse::Hashing => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({"error": "Hashing error"})),
+            )
+                .into_response(),
             SignUpErrorResponse::SignUpError(signup_error) => {
                 (StatusCode::BAD_REQUEST, Json(signup_error.deref())).into_response()
             }
@@ -47,6 +56,7 @@ impl IntoResponse for SignUpErrorResponse {
                 StatusCode::BAD_REQUEST,
                 Json(json!({"error": "Wrong OTP"})),
             ).into_response(),
+            SignUpErrorResponse::AuthError(ae) => ae.into_response(),
         }
     }
 }

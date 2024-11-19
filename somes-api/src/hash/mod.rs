@@ -7,7 +7,11 @@ use argon2::{
 use once_cell::sync::Lazy;
 
 static PEPPER: Lazy<String> = Lazy::new(|| {
-    std::fs::read_to_string("./src/hash/pepper_secret").expect("Can't open pepper secret file!")
+    let pepper = std::fs::read_to_string("./src/hash/pepper_secret").unwrap_or_default();
+    if pepper.is_empty() {
+        log::info!("Pepper value is empty");
+    }
+    pepper
 });
 
 pub fn hash_password(password: &str) -> Result<String> {

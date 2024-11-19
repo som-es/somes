@@ -25,10 +25,7 @@ pub async fn user(
 ) -> Result<Json<UserInfo>, UserErrorResponse> {
     con.interact(move |con| {
         get_user_from_db_by_id(con, claims.id)
-            .map(|user| UserInfo {
-                username: user.username,
-                email: user.email,
-            })
+            .map(|user| UserInfo { email: user.email })
             .map(Json)
             .ok_or(UserErrorResponse::InvalidUser)
     })

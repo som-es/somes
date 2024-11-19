@@ -74,6 +74,6 @@ pub fn send_otp_mail(mail_to: &str, otp: &str) -> Result<(), Box<dyn std::error:
 
 #[test]
 fn test_send_mail() {
-    send_otp_mail("florian.nagy@it.htl-hl.ac.at", "A12 3Z2 HAC").unwrap()
+    send_otp_mail("robin.pautsch@it.htl-hl.ac.at", "A12 3Z2 HAC").unwrap()
     // send_mail("", "tolle_id_zum_verifizieren");
 }
