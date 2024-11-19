@@ -6,13 +6,12 @@
 	import { getPartyColors } from '$lib/partyColor';
 	import type { Delegate, VoteResult } from '$lib/types';
 	import { onMount } from 'svelte';
-	import { delegates_at, delegates_with_seats_near_date } from '$lib/api';
+	import { delegates_at, delegates_with_seats_near_date, errorToNull } from '$lib/api';
 	import { groupPartyDelegates, setSeatsOfDels } from '$lib/parliaments/defaultParliament';
 	import { cachedAllSeats, getSeats } from '$lib/caching/seats';
 	import DataParliament from './DataParliament.svelte';
 	import { createPartyInfavorMap, isPartyInFavor } from '$lib/partyInfavor';
 	import { cachedDelegatesNearSeats, filteredDelegatesNearSeats } from '$lib/caching/delegates';
-	import { errorToNull } from '$lib';
 
 	const width = 830;
 	const height = 900;

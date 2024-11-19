@@ -24,6 +24,14 @@ export function isLoginResponseError<T>(value: T | LoginResponseError): value is
     return (value as LoginResponseError).missing_email !== undefined;
 }
 
+export function errorToNull<T>(input: T | HasError): T | null {
+    if (isHasError(input)) {
+        return null
+    } else {
+        return input
+    }
+}
+
 export async function fetchSavely<T>(fn: () => Promise<Response>): Promise<T | HasError> {
 	let response;
 	try {

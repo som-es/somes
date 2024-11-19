@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { delegates_at, vote_result_by_id } from '$lib/api';
+	import { delegates_at, errorToNull, vote_result_by_id } from '$lib/api';
 	import { currentDelegateStore, currentVoteResultStore, hasGoBackStore } from '$lib/stores/stores';
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
@@ -28,7 +28,6 @@
 	import SimpleYesNo from '$lib/components/VoteResults/SimpleYesNo/SimpleYesNo.svelte';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
-	import { errorToNull } from '$lib';
 
 	let dels: Delegate[] | null = null;
 

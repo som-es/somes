@@ -6,7 +6,7 @@
 	import type { Delegate, InterestShare, LegisPeriod } from '$lib/types';
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
-	import { delegate_interests, delegates_at } from '$lib/api';
+	import { delegate_interests, delegates_at, errorToNull } from '$lib/api';
 	import InterestTiles from '$lib/components/Delegates/InterestTiles.svelte';
 	import { get } from 'svelte/store';
 	import { currentDelegateStore, hasGoBackStore } from '$lib/stores/stores';
@@ -23,7 +23,6 @@
 	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 	import { dashDateToDotDate } from '$lib/date';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
-	import { errorToNull } from '$lib';
 
 	let delegates: Delegate[];
 	let delegate: Delegate | null;

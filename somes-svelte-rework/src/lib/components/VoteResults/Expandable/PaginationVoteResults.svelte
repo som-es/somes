@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Delegate, VoteResultFilter, VoteResult, VoteResultsWithMaxPage } from '$lib/types';
 	import { onMount } from 'svelte';
-	import { vote_results_by_search, vote_results_per_page } from '$lib/api';
+	import { errorToNull, vote_results_by_search, vote_results_per_page } from '$lib/api';
 	import VoteResultExpandableBar from './VoteResultExpandableBar.svelte';
 	import { pushState } from '$app/navigation';
 	import Pagination from '$lib/components/Pagination.svelte';
@@ -12,7 +12,6 @@
 	import { get } from 'svelte/store';
 	import ExpandablePlaceholder from './Placeholders/ExpandablePlaceholder.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
-	import { errorToNull } from '$lib';
 
 	export let dels: Delegate[];
 

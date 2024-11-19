@@ -26,7 +26,7 @@
 	}
 
 	.button:hover {
-		filter: brightness(0.8);
+		filter: brightness(1.2);
 	}
 
 	.button:disabled {
