@@ -44,6 +44,7 @@ use crate::routes::*;
 use crate::routes::{login, signup, verify};
 use somes_common_lib::errors::*;
 use somes_common_lib::*;
+use crate::jwt::*;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -268,6 +269,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(WALO_QUESTIONS, get(walo_questions))
         .route(ALL_GPS, get(all_gps))
         .route(SEATS, get(seats))
+        .route(RENEW_TOKEN, post(renew_token))
         .route("/save_email", post(save_email))
         // mind conflicts e.g delegates
         .nest_service(

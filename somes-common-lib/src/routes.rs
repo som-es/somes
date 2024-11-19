@@ -24,3 +24,4 @@ pub const DELEGATES_WITH_SEATS_NEAR_DATE: &str = "/delegates_with_seats_near_dat
 pub const WALO_QUESTIONS: &str = "/walo_questions";
 pub const ALL_GPS: &str = "/all_gps";
 pub const SEATS: &str = "/seats";
+pub const RENEW_TOKEN: &str = "/renew_token";

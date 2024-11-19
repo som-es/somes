@@ -21,6 +21,13 @@ pub fn create_access_token(id: i32, username: String) -> Result<Json<JWTInfo>, A
     Ok(Json(JWTInfo { access_token }))
 }
 
+
+pub async fn renew_token(
+    claims: Claims,
+) -> Result<Json<JWTInfo>, AuthError> {
+    create_access_token(claims.id, claims.sub)
+}
+
 #[cfg(test)]
 mod tests {
     use super::create_access_token;
