@@ -81,7 +81,6 @@ pub async fn login(
     PgPoolConnection(pg): PgPoolConnection,
     Json(login_info): Json<LoginInfo>,
 ) -> Result<Json<JWTInfo>, SignUpErrorResponse> {
-    log::info!("login_info: {login_info:?}");
     let mut sign_up_error = SignUpErrorWrapper::default();
 
     if login_info.email.is_empty() {
