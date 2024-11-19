@@ -34,7 +34,7 @@
 		</SButton>
 		<SButton
 			class="button offset-button bg-secondary-500"
-			on:click={() => gotoHistory('vote_history')}
+			on:click={() => gotoHistory('/vote_history')}
 		>
 			Vorherige anzeigen
 		</SButton>

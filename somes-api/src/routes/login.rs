@@ -46,6 +46,7 @@ pub async fn login(
     Json(login_info): Json<LoginInfo>,
 ) -> Result<Json<JWTInfo>, SignUpErrorResponse> {
     let mut sign_up_error = SignUpErrorWrapper::default();
+    return Err(SignUpErrorResponse::PostgresConnection);
 
     if login_info.email.is_empty() {
         set_error_true!(sign_up_error, missing_email);

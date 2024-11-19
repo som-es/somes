@@ -179,7 +179,7 @@ export async function walo_questions(): Promise<WaloQuestion[] | null> {
 export async function login(
 	email: string,
 	password: string | null,
-): Promise<JWTInfo | null> {
+): Promise<JWTInfo | HasError> {
 	return fetchSavely(() =>
 		fetch(`${address}/login`, {
 			method: 'POST', // only post because js fetch..
