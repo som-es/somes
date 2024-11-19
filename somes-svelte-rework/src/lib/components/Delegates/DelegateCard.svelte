@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { partyToColor } from '$lib/partyColor';
 	import type { Delegate } from '$lib/types';
-	import SButton from '../UI/SButton.svelte';
 
 	export let delegate: Delegate;
 </script>

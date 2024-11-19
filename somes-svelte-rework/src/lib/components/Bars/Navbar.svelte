@@ -1,6 +1,28 @@
 <script lang="ts">
-	import { AppBar, LightSwitch } from '@skeletonlabs/skeleton';
+	import { AppBar, getDrawerStore, LightSwitch } from '@skeletonlabs/skeleton';
+	import userIcon from '$lib/assets/icons/user.svg?raw';
 	import somesTextIcon from '$lib/assets/somes_with_text2.svg?raw';
+	import { jwtStore } from '$lib/caching/stores/stores';
+	import { get } from 'svelte/store';
+	import { isHasError, renew_token } from '$lib/api';
+	import { loginDrawerSettings } from '../Login/constants';
+	import { gotoHistory } from '$lib/goto';
+	
+	const drawerStore = getDrawerStore();
+
+	$: accountOrLogin = async () => {
+		const jwt = get(jwtStore);
+		if (jwt) {
+			if (isHasError(await renew_token())) {
+				drawerStore.open(loginDrawerSettings);
+			} else {
+				gotoHistory("/user")
+			}
+		} else {
+			drawerStore.open(loginDrawerSettings);
+		}
+
+	}
 </script>
 
 <AppBar slotTrail="!space-x-2">
@@ -10,6 +32,28 @@
 		</a>
 	</svelte:fragment>
 	<svelte:fragment slot="trail">
-		<LightSwitch />
+		<div class="flex gap-9">
+			<div 
+				on:click={
+					async () => {
+						await accountOrLogin();
+					}
+				} 
+				tabindex="0" 
+				role="button"  
+				on:keydown={
+					async (event) => {
+						if (event.key === 'Enter' || event.key === ' ') {
+							await accountOrLogin();
+     	               }	
+					}
+				}
+				class="flex flex-col items-center sm:hidden"
+			>
+				{@html userIcon}
+				<span class="font-bold text-sm">Benutzer</span>
+			</div>
+			<LightSwitch />
+		</div>
 	</svelte:fragment>
 </AppBar>
