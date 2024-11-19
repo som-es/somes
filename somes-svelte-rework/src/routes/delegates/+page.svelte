@@ -3,10 +3,10 @@
 	import type { AutocompleteOption } from '$lib/components/Autocompletion/types';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
-	import type { Delegate, InterestShare, LegisPeriod } from '$lib/types';
+	import type { Delegate, DelegateQA, InterestShare, LegisPeriod } from '$lib/types';
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
-	import { delegate_interests, delegates_at, errorToNull } from '$lib/api';
+	import { delegate_interests, delegate_qa, delegates_at, errorToNull } from '$lib/api';
 	import InterestTiles from '$lib/components/Delegates/InterestTiles.svelte';
 	import { get } from 'svelte/store';
 	import { currentDelegateStore, hasGoBackStore } from '$lib/stores/stores';
@@ -39,6 +39,7 @@
 
 	let autocompleteOptions: AutocompleteOption<string>[] = [];
 	let interests: InterestShare[] | null;
+	let delegateQA: DelegateQA[] | null;
 	let maxDayOffset = 365 * 5;
 	let dayOffset = maxDayOffset;
 
@@ -147,6 +148,9 @@
 	$: if (delegate) {
 		// interests = null;
 		if (finishedMounting) currentDelegateStore.set(delegate);
+		delegate_qa(delegate.id).then((res) => {
+			delegateQA = errorToNull(res);
+		});
 		delegate_interests(delegate.id).then((res) => {
 			const input = errorToNull(res);
 			if (input != null) input.sort((a, b) => b.self_share - a.self_share);
