@@ -9,6 +9,7 @@
 	import { gotoHistory } from "$lib/goto";
 	import { isHasError, isLoginResponseError, login } from "$lib/api";
 	import SButton from "../UI/SButton.svelte";
+	import { jwtStore } from "$lib/caching/stores/stores";
 	// import Login from 'svelte-google-materialdesign-icons/Login.svelte';
 
     const drawerStore = getDrawerStore();
@@ -57,7 +58,9 @@
 			success = false;
 		} else {
 			if (jwt.access_token.length > 0) {
+				jwtStore.set(jwt.access_token);
 				drawerStore.close();
+				gotoHistory("/user");
 			}
 		}
 

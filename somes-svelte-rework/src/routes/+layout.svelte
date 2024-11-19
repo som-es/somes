@@ -13,11 +13,13 @@
 	initializeStores();
 
 	import { getDrawerStore } from "@skeletonlabs/skeleton";
+	import RenewToken from '$lib/components/Login/RenewToken.svelte';
 	const drawerStore = getDrawerStore();
 
 	// const drawerStore = getDrawerStore();
 </script>
 
+<RenewToken />
 <CacheInvalidation />
 <Drawer>
 	{#if $drawerStore.id === "login-drawer"}

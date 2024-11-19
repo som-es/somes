@@ -6,3 +6,5 @@ export const delegatesStore = persisted<Delegate[] | null>('delegates', null);
 export const latestVoteResultsStore = persisted<VoteResult[] | null>('latest_vote_results', null);
 export const legisPeriodsStore = persisted<LegisPeriod[] | null>('legis_periods', null);
 export const seatsStore = persisted<[string, number[]][] | null>('seats', null);
+export const jwtStore = persisted<string | null>('access_token', null);
+
