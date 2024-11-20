@@ -39,7 +39,7 @@
 
 	let autocompleteOptions: AutocompleteOption<string>[] = [];
 	let interests: InterestShare[] | null;
-	let delegateQA: DelegateQA[] | null;
+	let delegateQA: DelegateQA[] = [];
 	let maxDayOffset = 365 * 5;
 	let dayOffset = maxDayOffset;
 
@@ -148,9 +148,13 @@
 	$: if (delegate) {
 		// interests = null;
 		if (finishedMounting) currentDelegateStore.set(delegate);
-		delegate_qa(delegate.id).then((res) => {
-			delegateQA = errorToNull(res);
-		});
+		// delegate_qa(delegate.id).then((res) => {
+		// 	delegateQA = errorToNull(res);
+		// });
+		delegateQA = [
+			{question: "Wie heißt du?", answer: "Tim Herbert"}, 
+			{question: "Warum hast du bei der letzten Wahl die FPÖ gewählt?", answer: "Restfett wählen gehen war ein Fehler."},
+		];
 		delegate_interests(delegate.id).then((res) => {
 			const input = errorToNull(res);
 			if (input != null) input.sort((a, b) => b.self_share - a.self_share);
@@ -250,7 +254,7 @@
 				</div>
 				<div class="rounded-xl delegate-item bg-primary-300 dark:bg-primary-500">
 					{#if delegate}
-						<DelegateCard {delegate} />
+						<DelegateCard {delegate} questions={delegateQA} showQA/>
 					{/if}
 				</div>
 			</div>

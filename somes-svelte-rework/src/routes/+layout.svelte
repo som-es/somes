@@ -1,6 +1,6 @@
 <script lang="ts">
 	import '../app.postcss';
-	import { AppShell, Drawer, initializeStores } from '@skeletonlabs/skeleton';
+	import { AppShell, Drawer, initializeStores, Modal, type ModalComponent } from '@skeletonlabs/skeleton';
 	import CacheInvalidation from '$lib/components/CacheInvalidation/CacheInvalidation.svelte';
 	import Sidebar from '$lib/components/Bars/Sidebar.svelte';
 	import Bottombar from '$lib/components/Bars/Bottombar.svelte';
@@ -14,13 +14,19 @@
 
 	import { getDrawerStore } from "@skeletonlabs/skeleton";
 	import RenewToken from '$lib/components/Login/RenewToken.svelte';
+	import DelegateQAModal from '$lib/components/Delegates/QA/DelegateQAModal.svelte';
 	const drawerStore = getDrawerStore();
 
 	// const drawerStore = getDrawerStore();
+	const modalRegistry: Record<string, ModalComponent> = {
+		delegateQA: { ref: DelegateQAModal },
+	};
+
 </script>
 
 <RenewToken />
 <CacheInvalidation />
+<Modal components={modalRegistry} />
 <Drawer>
 	{#if $drawerStore.id === "login-drawer"}
 		<LoginDrawer />
