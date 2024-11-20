@@ -16,10 +16,10 @@
         <div class="z-50 font-bold text-xl">Die Fragen und Antworten wurden aus dem Portraitvideo des Abgeordneten extrahiert.</div>
     </div>
 
-    <div class="flex justify-between">
-        <div></div>
-	    <button class="text-4xl"  use:popup={popupFeatured}>&#9432;</button>
-    </div>
+    <!-- <div class="flex justify-between">
+        <div></div> -->
+	    <button class="text-4xl float-right"  use:popup={popupFeatured}>&#9432;</button>
+    <!-- </div> -->
     {#if $modalStore.length > 0}
         {#each $modalStore[0].meta.questions as qa}
             <DelegateQaEntry class="mt-3" delegateQa={qa} />
