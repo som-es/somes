@@ -1,10 +1,7 @@
 use somes_common_lib::DelegateQA;
 use sqlx::{query_as, PgPool};
 
-pub async fn extract_delegate_qa(
-    delegate_id: i32,
-    pg: &PgPool,
-) -> sqlx::Result<Vec<DelegateQA>> {
+pub async fn extract_delegate_qa(delegate_id: i32, pg: &PgPool) -> sqlx::Result<Vec<DelegateQA>> {
     query_as!(DelegateQA, "select 
         question, answer 
         from introduction_transcriptions 

@@ -114,7 +114,7 @@ pub async fn login(
                 };
                 let input_otp = password.trim_matches(char::is_whitespace).replace(" ", "");
                 if input_otp.is_empty() {
-                    return Ok(Json(JWTInfo::default()))
+                    return Ok(Json(JWTInfo::default()));
                 }
                 if verify_password(&input_otp, &v).map_err(|_| SignUpErrorResponse::Hashing)? {
                     redis_con

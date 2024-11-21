@@ -2,6 +2,7 @@ use dataservice::db::models::{
     DbLegisDocument, DbLegisDocumentOptional, DbLegislativeInitiativeQuery, DbNamedVote,
     DbNamedVoteInfo, DbNamedVotes, DbSpeech, DbSpeechWithLink, DbVote,
 };
+use redis::FromRedisValue;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::LegisInitFilter;
 use sqlx::PgPool;

@@ -17,16 +17,18 @@ pub use legislative_initiatives::*;
 pub use login::*;
 pub use parties::*;
 pub use questions::*;
+use redis::AsyncCommands;
 pub use reset_password::*;
 pub use save_email::*;
 use serde_json::json;
 pub use signup::*;
+use sqlx::query_as;
 pub use statistics::*;
 pub use user::*;
 pub use verify::*;
 pub use walo::*;
 
-use crate::PgPoolConnection;
+use crate::{PgPoolConnection, RedisConnection};
 
 pub async fn all_gps(
     PgPoolConnection(pg): PgPoolConnection,
@@ -34,4 +36,44 @@ pub async fn all_gps(
     Ok(Json(dataservice::with_data::gps::gps(&pg).await.map_err(
         |_| Json(json!({"error": "could not return all legislative periods"})),
     )?))
+}
+
+pub async fn topics(
+    PgPoolConnection(pg): PgPoolConnection,
+    RedisConnection(mut redis_con): RedisConnection,
+) -> Result<Json<Vec<Topic>>, Json<serde_json::Value>> {
+    match redis_con.get::<_, Vec<String>>("topics").await {
+        Ok(v) => {
+            return Ok(Json(
+                v.into_iter()
+                    .map(|x| Topic { topic: x })
+                    .collect::<Vec<_>>(),
+            ))
+        }
+        Err(_) => {
+            let topics = query_as!(
+                Topic,
+                "select distinct topic from eurovoc_topics_legis_init"
+            )
+            .fetch_all(&pg)
+            .await;
+            match topics {
+                Ok(v) => {
+                    redis_con
+                        .set::<_, _, ()>(
+                            "topics",
+                            v.into_iter().map(|x| x.topic).collect::<Vec<_>>(),
+                        )
+                        .await
+                        .map_err(|_| Json(json!({"error": "redis"})))?;
+                    redis_con
+                        .expire::<_, ()>("topics", 60 * 15)
+                        .await
+                        .map_err(|_| Json(json!({"error": "redis"})))?;
+                }
+                Err(_) => return Err(Json(json!({"error": "db error"}))),
+            }
+        }
+    }
+    todo!()
 }

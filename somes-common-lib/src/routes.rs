@@ -26,3 +26,4 @@ pub const WALO_QUESTIONS: &str = "/walo_questions";
 pub const ALL_GPS: &str = "/all_gps";
 pub const SEATS: &str = "/seats";
 pub const RENEW_TOKEN: &str = "/renew_token";
+pub const TOPICS: &str = "/topics";

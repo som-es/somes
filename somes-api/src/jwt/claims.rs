@@ -63,6 +63,7 @@ mod tests {
         use crate::jwt::Claims;
 
         let token_data = decode::<Claims>(token, &KEYS.decoding, &Validation::default())
-            .map_err(|_| AuthError::InvalidToken).unwrap();
+            .map_err(|_| AuthError::InvalidToken)
+            .unwrap();
     }
 }
