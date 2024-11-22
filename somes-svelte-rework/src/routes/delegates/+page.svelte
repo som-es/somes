@@ -148,13 +148,15 @@
 	$: if (delegate) {
 		// interests = null;
 		if (finishedMounting) currentDelegateStore.set(delegate);
-		// delegate_qa(delegate.id).then((res) => {
-		// 	delegateQA = errorToNull(res);
-		// });
-		delegateQA = [
-			{question: "Wie heißt du?", answer: "Tim Herbert"}, 
-			{question: "Warum hast du bei der letzten Wahl die FPÖ gewählt?", answer: "Restfett wählen gehen war ein Fehler."},
-		];
+		delegate_qa(delegate.id).then((res) => {
+			const delegateQANull = errorToNull(res);
+			console.log(delegateQANull);
+			if (delegateQANull) delegateQA = delegateQANull;
+		});
+		// delegateQA = [
+		// 	{question: "Wie heißt du?", answer: "Tim Herbert"}, 
+		// 	{question: "Warum hast du bei der letzten Wahl die FPÖ gewählt?", answer: "Restfett wählen gehen war ein Fehler."},
+		// ];
 		delegate_interests(delegate.id).then((res) => {
 			const input = errorToNull(res);
 			if (input != null) input.sort((a, b) => b.self_share - a.self_share);

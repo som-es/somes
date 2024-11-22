@@ -145,7 +145,7 @@ export async function delegate_interests(delegate_id: number): Promise<InterestS
 
 export async function delegate_qa(delegate_id: number): Promise<DelegateQA[] | HasError> {
 	return fetchSavely(() =>
-		fetch(`${address}/delegate_interests?delegate_id=${delegate_id}`, {
+		fetch(`${address}/delegate_qa?delegate_id=${delegate_id}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'
