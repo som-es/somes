@@ -164,7 +164,10 @@ pub async fn delegates(
             delegates.party as current_party, 
             delegates.image_url, 
             delegates.constituency, 
-            delegates.council, 
+            CASE 
+                WHEN mandates.is_nr THEN 'nr' 
+                ELSE ''
+            END AS council,
             delegates.seat_row, 
             delegates.seat_col, 
             delegates.gender, 
