@@ -25,13 +25,17 @@
 		{/each}
 	</div>
 	<div class="flex justify-between px-3">
-		<SButton class="button offset-button bg-primary-500" on:click={() => (open = !open)}>
-			{#if open}
-				Weniger anzeigen
-			{:else}
-				Mehr anzeigen
-			{/if}
-		</SButton>
+		{#if voteResults.length > 3}
+			<SButton class="button offset-button bg-primary-500" on:click={() => (open = !open)}>
+				{#if open}
+					Weniger anzeigen
+				{:else}
+					Mehr anzeigen
+				{/if}
+			</SButton>
+		{:else}
+			<div></div>
+		{/if}
 		<SButton
 			class="button offset-button bg-secondary-500"
 			on:click={() => gotoHistory('/vote_history')}
