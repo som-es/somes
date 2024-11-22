@@ -11,7 +11,8 @@ import type {
 	WaloQuestion,
 	JWTInfo,
 	LoginResponseError,
-	DelegateQA
+	DelegateQA,
+	Topic
 } from './types';
 import { jwtStore } from './caching/stores/stores';
 
@@ -193,6 +194,17 @@ export async function vote_results_by_search(
 ): Promise<VoteResultsWithMaxPage | HasError> {
 	return fetchSavely(() =>
 		fetch(`${address}/vote_result_by_search?page=${page}&search=${search}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		})
+	);
+}
+
+export async function get_topics(): Promise<Topic[] | HasError> {
+	return fetchSavely(() =>
+		fetch(`${address}/topics`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'

@@ -42,38 +42,50 @@ pub async fn topics(
     PgPoolConnection(pg): PgPoolConnection,
     RedisConnection(mut redis_con): RedisConnection,
 ) -> Result<Json<Vec<Topic>>, Json<serde_json::Value>> {
+    return query_as!(
+        Topic,
+        "select distinct topic from eurovoc_topics_legis_init"
+    )
+    .fetch_all(&pg)
+    .await
+    .map(Json)
+    .map_err(|_| Json(json!({"error": "redis expire"})));
+    
+
     match redis_con.get::<_, Vec<String>>("topics").await {
         Ok(v) => {
+            if v.is_empty() {
+                let topics = query_as!(
+                    Topic,
+                    "select distinct topic from eurovoc_topics_legis_init"
+                )
+                .fetch_all(&pg)
+                .await;
+                match topics {
+                    Ok(v) => {
+                        redis_con
+                            .set::<_, _, ()>(
+                                "topics",
+                                v.clone().into_iter().map(|x| x.topic).collect::<Vec<_>>(),
+                            )
+                            .await.unwrap();
+                            // .map_err(|_| Json(json!({"error": "redis"})))?;
+                        redis_con
+                            .expire::<_, ()>("topics", 60 * 15)
+                            .await
+                            .map_err(|_| Json(json!({"error": "redis expire"})))?;
+
+                        return Ok(Json(v));
+                    }
+                    Err(_) => return Err(Json(json!({"error": "db error"}))),
+                }
+            }
             return Ok(Json(
                 v.into_iter()
                     .map(|x| Topic { topic: x })
                     .collect::<Vec<_>>(),
-            ))
+            ));
         }
-        Err(_) => {
-            let topics = query_as!(
-                Topic,
-                "select distinct topic from eurovoc_topics_legis_init"
-            )
-            .fetch_all(&pg)
-            .await;
-            match topics {
-                Ok(v) => {
-                    redis_con
-                        .set::<_, _, ()>(
-                            "topics",
-                            v.into_iter().map(|x| x.topic).collect::<Vec<_>>(),
-                        )
-                        .await
-                        .map_err(|_| Json(json!({"error": "redis"})))?;
-                    redis_con
-                        .expire::<_, ()>("topics", 60 * 15)
-                        .await
-                        .map_err(|_| Json(json!({"error": "redis"})))?;
-                }
-                Err(_) => return Err(Json(json!({"error": "db error"}))),
-            }
-        }
+        Err(_) => return Err(Json(json!({"error": "db error"}))),
     }
-    todo!()
 }

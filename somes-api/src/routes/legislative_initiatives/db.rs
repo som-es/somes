@@ -8,12 +8,12 @@ use somes_common_lib::LegisInitFilter;
 use sqlx::PgPool;
 use utoipa::ToSchema;
 
-#[derive(ToSchema, Debug, Deserialize, Serialize)]
+#[derive(ToSchema, Debug, Deserialize, Serialize, Clone)]
 pub struct Topic {
     pub topic: String,
 }
 
-#[derive(ToSchema, Debug, Deserialize, Serialize)]
+#[derive(ToSchema, Debug, Deserialize, Serialize, Clone)]
 pub struct VoteResult {
     pub id: i32,
     pub legislative_initiative: DbLegislativeInitiativeQuery,

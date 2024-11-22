@@ -3,5 +3,5 @@
 	import { base } from "$app/paths";
 
 
-    goto(`${base}/wahlhelfer`);
+    goto(`${base}/home`);
 </script>

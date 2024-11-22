@@ -40,11 +40,11 @@ use tower_http::{
     services::ServeDir,
 };
 
+use crate::jwt::*;
 use crate::routes::*;
 use crate::routes::{login, signup, verify};
 use somes_common_lib::errors::*;
 use somes_common_lib::*;
-use crate::jwt::*;
 
 #[derive(Clone)]
 pub struct AppState {
