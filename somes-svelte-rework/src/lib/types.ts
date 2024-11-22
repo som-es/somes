@@ -122,9 +122,24 @@ export interface JWTInfo {
 	access_token: string;
 }
 
-export interface UserInfo {
-	username: string;
-	email: string;
+export function jwtDecode(t: string) {
+	return {
+		raw: t,
+		header: JSON.parse(window.atob(t.split('.')[0])),
+		payload: JSON.parse(window.atob(t.split('.')[1])),
+	};
+}
+
+export function getUserFromJwt(t: string): BasicUserInfo {
+	console.log(jwtDecode(t).payload);
+	return jwtDecode(t).payload;
+}
+
+export interface BasicUserInfo {
+	id: number,
+	sub: string;
+	company: string;
+	exp: number;
 }
 
 export interface SignUpError {

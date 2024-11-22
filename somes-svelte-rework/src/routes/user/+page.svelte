@@ -1,27 +1,38 @@
 <script lang="ts">
-	import { errorToNull, get_topics } from '$lib/api';
+	import { goto } from '$app/navigation';
+	import { base } from '$app/paths';
+	import { errorToNull, get_topics, isHasError, renew_token } from '$lib/api';
 	import { jwtStore } from '$lib/caching/stores/stores';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import SelectableTopics from '$lib/components/Topics/SelectableTopics.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import { gotoHistory } from '$lib/goto';
-	import type { Topic } from '$lib/types';
+	import { getUserFromJwt, type BasicUserInfo, type Topic } from '$lib/types';
 	import { onMount } from 'svelte';
+	import { get } from 'svelte/store';
 
 	let topics: Topic[] = [];
 	let selectedTopics = new Set<Topic>();
+	let user: BasicUserInfo | null;
 
 	onMount(async () => {
-		topics = errorToNull(await get_topics()) ?? [];
+		const jwtToken = get(jwtStore);
+		if (isHasError(await renew_token()) || jwtToken == null) {
+			goto(`${base}/home`);
+			return;
+		}
 
-		// get topics from api
+		topics = errorToNull(await get_topics()) ?? [];
+		user = getUserFromJwt(jwtToken);
+
+		// get interest topics from api
 	});
 
 </script>
 
 <Container>
-	<div class=" entry bg-primary-200 dark:bg-primary-400 mt-3 grid-container">
-		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 flex justify-between ">
+	<div class="entry bg-primary-200 dark:bg-primary-400 mt-3 grid-container">
+		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 items-center flex justify-between ">
 			<h1 class="font-bold text-3xl">
 				Benutzer
 			</h1>
@@ -33,11 +44,23 @@
 			}}>
 				Abmelden
 			</SButton>
-			<!-- <span class="text-xl">{voteResult.legislative_initiative.description}</span> -->
+		</div>
+		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 items-center flex">
+			<h1 class="font-bold text-2xl">
+				Bentuzerinfos
+			</h1>
+			<div class="ml-5 text-xl ">
+				E-Mail
+			</div>
+			<div class="mx-4 text-xl ">
+				{#if user}
+					{user.sub}	
+				 {/if}
+			</div>
 		</div>
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 ">
 			<h1 class="font-bold text-2xl">
-				Deine Interessen
+				Wahle deine Interessen
 			</h1>
 			<div class="mt-3">
 				{#if topics}

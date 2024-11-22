@@ -3,7 +3,6 @@
 </script>
 <span class="cursor-pointer" role="button" on:click={() => {
     action();
-    console.log("clicked action")
 }} 
     on:keydown={
         (event) => {
