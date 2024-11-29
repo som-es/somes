@@ -10,7 +10,7 @@
 	let done = false;
 	
 	onMount(async () => {
-
+	
 		
 		done = true;
 	})
@@ -20,7 +20,7 @@
 		selectedTopics.add(topic);
 		selectedTopics = new Set(selectedTopics);
 
-		
+
 	};
 	
 	let removeFromSelection = async (topic: UniqueTopic) => {

@@ -12,7 +12,8 @@ import type {
 	JWTInfo,
 	LoginResponseError,
 	DelegateQA,
-	Topic
+	Topic,
+	UniqueTopic
 } from './types';
 import { jwtStore } from './caching/stores/stores';
 
@@ -244,6 +245,22 @@ export async function login(
 	);
 }
 
+export async function getWithAuth<T>(route: string): Promise<T | HasError> {
+    const accessToken = get(jwtStore);
+    if (accessToken == null) {
+		return { error: 'No access token' };
+    }
+	return fetchSavely(() =>
+		fetch(`${address}/${route}`, {
+			method: 'GET', 
+			headers: {
+				'Content-Type': 'application/json',
+			 	"Authorization": `Bearer ${accessToken}`,
+			},
+		})
+	);
+}
+
 export async function postWithAuth<T>(route: string, body: any): Promise<T | HasError> {
     const accessToken = get(jwtStore);
     if (accessToken == null) {
@@ -259,6 +276,35 @@ export async function postWithAuth<T>(route: string, body: any): Promise<T | Has
 			body: JSON.stringify(body),
 		})
 	);
+}
+
+export async function deleteWithAuth<T>(route: string, body: any): Promise<T | HasError> {
+    const accessToken = get(jwtStore);
+    if (accessToken == null) {
+		return { error: 'No access token' };
+    }
+	return fetchSavely(() =>
+		fetch(`${address}/${route}`, {
+			method: 'POST', 
+			headers: {
+				'Content-Type': 'application/json',
+			 	"Authorization": `Bearer ${accessToken}`,
+			},
+			body: JSON.stringify(body),
+		})
+	);
+}
+
+export async function addUserTopic(uniqueTopic: UniqueTopic) {
+	return postWithAuth('topic_selection', uniqueTopic);	
+}
+
+export async function removeUserTopic(uniqueTopic: UniqueTopic) {
+	return deleteWithAuth('topic_selection', uniqueTopic);	
+}
+
+export async function getUserTopics() {
+	return getWithAuth('topic_selection');
 }
 
 export async function renew_token(): Promise<JWTInfo | HasError> {
