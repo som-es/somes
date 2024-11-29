@@ -42,9 +42,9 @@ export async function fetchSavely<T>(fn: () => Promise<Response>): Promise<T | H
 	try {
 		response = await fn();
 		const json = await response.json();
-		if ('error' in json) {
+		// if ('error' in json) {
 			// return ;
-		}
+		// }
 		return json;
 	} catch (error) {
 		console.log(response);
@@ -203,7 +203,7 @@ export async function vote_results_by_search(
 	);
 }
 
-export async function get_topics(): Promise<Topic[] | HasError> {
+export async function get_topics(): Promise<UniqueTopic[] | HasError> {
 	return fetchSavely(() =>
 		fetch(`${address}/topics`, {
 			method: 'GET',
@@ -285,7 +285,7 @@ export async function deleteWithAuth<T>(route: string, body: any): Promise<T | H
     }
 	return fetchSavely(() =>
 		fetch(`${address}/${route}`, {
-			method: 'POST', 
+			method: 'DELETE', 
 			headers: {
 				'Content-Type': 'application/json',
 			 	"Authorization": `Bearer ${accessToken}`,
@@ -295,15 +295,15 @@ export async function deleteWithAuth<T>(route: string, body: any): Promise<T | H
 	);
 }
 
-export async function addUserTopic(uniqueTopic: UniqueTopic) {
+export async function addUserTopic(uniqueTopic: UniqueTopic): Promise<null | HasError> {
 	return postWithAuth('topic_selection', uniqueTopic);	
 }
 
-export async function removeUserTopic(uniqueTopic: UniqueTopic) {
+export async function removeUserTopic(uniqueTopic: UniqueTopic): Promise<null | HasError> {
 	return deleteWithAuth('topic_selection', uniqueTopic);	
 }
 
-export async function getUserTopics() {
+export async function getUserTopics(): Promise<UniqueTopic[] | HasError> {
 	return getWithAuth('topic_selection');
 }
 

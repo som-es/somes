@@ -1,18 +1,18 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { base } from '$app/paths';
-	import { errorToNull, get_topics, isHasError, renew_token } from '$lib/api';
+	import { errorToNull, get_topics, getUserTopics, isHasError, renew_token } from '$lib/api';
 	import { jwtStore } from '$lib/caching/stores/stores';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import SelectableTopics from '$lib/components/Topics/SelectableTopics.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import { gotoHistory } from '$lib/goto';
-	import { getUserFromJwt, type BasicUserInfo, type Topic } from '$lib/types';
+	import { getUserFromJwt, type BasicUserInfo, type Topic, type UniqueTopic } from '$lib/types';
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
 
-	let topics: Topic[] = [];
-	let selectedTopics = new Set<Topic>();
+	let topics: UniqueTopic[] = [];
+	let selectedTopics = new Set<number>();
 	let user: BasicUserInfo | null;
 
 	onMount(async () => {
@@ -26,6 +26,13 @@
 		user = getUserFromJwt(jwtToken);
 
 		// get interest topics from api
+		const data = await getUserTopics();
+
+		if (!isHasError(data)) {
+			selectedTopics = new Set<number>(data.map((topic) => topic.id));
+		}		
+		// selectedTopics = new Set<UniqueTopic>(selectedTopics)	
+
 	});
 
 </script>
@@ -64,7 +71,7 @@
 			</h1>
 			<div class="mt-3">
 				{#if topics}
-					<SelectableTopics bind:selectedTopics topics={topics} />
+					<SelectableTopics bind:selectedTopics={selectedTopics} topics={topics} />
 				{/if}
 			</div>
 		</div>
