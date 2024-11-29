@@ -25,7 +25,6 @@
 	let addToSelection = async (topic: UniqueTopic) => {
 		selectedTopics.add(topic.id);
 		selectedTopics = new Set(selectedTopics);
-		console.log(selectedTopics);
 
 		await addUserTopic(topic);
 	};
