@@ -18,6 +18,13 @@
 
     <!-- <div class="flex justify-between">
         <div></div> -->
+    <button
+		on:click={() => {
+			modalStore.close();
+		}}
+		style="font-size: 34px"
+		class="w-5 unselectable ">&#x2715</button
+	>
 	    <button class="text-4xl float-right"  use:popup={popupFeatured}>&#9432;</button>
     <!-- </div> -->
     {#if $modalStore.length > 0}
