@@ -297,7 +297,7 @@ pub async fn serve(addr: SocketAddr) {
             CorsLayer::new()
                 // .allow_origin("https://somes.at".parse::<HeaderValue>().unwrap())
                 .allow_origin(Any)
-                .allow_methods([http::Method::GET, http::Method::POST])
+                .allow_methods([http::Method::GET, http::Method::POST, http::Method::DELETE])
                 .allow_headers([http::header::CONTENT_TYPE, http::header::AUTHORIZATION]),
         )
         // .layer(RateLimitLayer::new(num, per))
