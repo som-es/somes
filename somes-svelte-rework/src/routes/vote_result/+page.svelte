@@ -274,8 +274,11 @@
 
 				<!-- {/if} -->
 				<div class="flex flex-wrap justify-between min-w-full gap-3">
-					<div class="info-item">
-						<InfoTiles {voteResult} {dels} />
+					<div class="md:hidden info-item">
+						<InfoTiles {voteResult} {dels} isCenter />
+					</div>
+					<div class="max-md:hidden info-item">
+						<InfoTiles {voteResult} {dels}  />
 					</div>
 
 					<div

@@ -52,7 +52,7 @@
 				Abmelden
 			</SButton>
 		</div>
-		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 items-center flex">
+		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 items-center flex flex-wrap">
 			<h1 class="font-bold text-2xl">
 				Bentuzerinfos
 			</h1>
