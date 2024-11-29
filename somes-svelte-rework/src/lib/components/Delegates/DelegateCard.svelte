@@ -42,7 +42,7 @@
 	</section>
 	<hr class="!border-t-2 my-1" />
 	<footer class="card-footer flex justify-end items-end mt-3">
-		{#if showQA}
+		{#if showQA && questions.length > 0}
 			<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(modal)}>Vorstellung</button>
 		{/if}
 	</footer>

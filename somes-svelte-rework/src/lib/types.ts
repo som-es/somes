@@ -56,6 +56,11 @@ export interface Topic {
 	topic: string;
 }
 
+export interface UniqueTopic {
+	id: number;
+	topic: string;
+}
+
 export interface VoteResult {
 	legislative_initiative: LegislativeInitiative;
 	votes: Vote[];

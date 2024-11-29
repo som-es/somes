@@ -145,7 +145,7 @@
 					bind:group={currentTile}
 					name="Account"
 					value={5}
-				title="Account" on:click={() => {
+					title="Account" on:click={() => {
 				}}>
 					<svelte:fragment slot="lead">{@html userIcon}</svelte:fragment>
 

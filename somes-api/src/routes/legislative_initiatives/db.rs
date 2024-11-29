@@ -14,6 +14,12 @@ pub struct Topic {
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Clone)]
+pub struct UniqueTopic {
+    pub topic: String,
+    pub id: i32,
+}
+
+#[derive(ToSchema, Debug, Deserialize, Serialize, Clone)]
 pub struct VoteResult {
     pub id: i32,
     pub legislative_initiative: DbLegislativeInitiativeQuery,

@@ -27,3 +27,4 @@ pub const ALL_GPS: &str = "/all_gps";
 pub const SEATS: &str = "/seats";
 pub const RENEW_TOKEN: &str = "/renew_token";
 pub const TOPICS: &str = "/topics";
+pub const TOPIC_SELECTION: &str = "/topic_selection";
