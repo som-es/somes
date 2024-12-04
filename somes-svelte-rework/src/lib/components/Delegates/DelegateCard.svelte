@@ -12,6 +12,12 @@
 		component: "delegateQA",
 		meta: { questions: questions } 
 	} as ModalSettings;
+	
+	$: aiChatModal = {
+		type: "component",
+		component: "aiChat",
+		meta: { questions: questions } 
+	} as ModalSettings;
 
 	const modalStore = getModalStore();
 </script>
@@ -41,8 +47,9 @@
 		<h6>{delegate.divisions?.join(', ')}</h6>
 	</section>
 	<hr class="!border-t-2 my-1" />
-	<footer class="card-footer flex justify-end items-end mt-3">
-		<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(delegateQAModal)}>AI Chat</button>
+	<!-- <footer class="card-footer flex justify-end items-end mt-3"> -->
+	<footer class="card-footer flex justify-between mt-3">
+		<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(aiChatModal)}>AI Chat</button>
 		{#if showQA && questions.length > 0}
 			<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(delegateQAModal)}>Vorstellung</button>
 		{/if}
