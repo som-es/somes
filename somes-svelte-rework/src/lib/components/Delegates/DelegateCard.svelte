@@ -7,7 +7,7 @@
 	export let showQA: boolean = false;
 	export let questions: DelegateQA[] = [];
 
-	$: modal = {
+	$: delegateQAModal = {
 		type: "component",
 		component: "delegateQA",
 		meta: { questions: questions } 
@@ -42,8 +42,9 @@
 	</section>
 	<hr class="!border-t-2 my-1" />
 	<footer class="card-footer flex justify-end items-end mt-3">
+		<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(delegateQAModal)}>AI Chat</button>
 		{#if showQA && questions.length > 0}
-			<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(modal)}>Vorstellung</button>
+			<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(delegateQAModal)}>Vorstellung</button>
 		{/if}
 	</footer>
 </div>

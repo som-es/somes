@@ -1,4 +1,6 @@
 import { get } from 'svelte/store';
+
+
 import type {
 	Delegate,
 	HasError,
@@ -18,7 +20,9 @@ import type {
 import { jwtStore } from './caching/stores/stores';
 
 // const address = 'https://somes.at';
-const address = 'http://127.0.0.1:3000';
+// const address = 'http://127.0.0.1:3000';
+const address = import.meta.env.VITE_API_URL;
+
 // const address = "http://192.168.1.114:3000"
 
 export function isHasError<T>(value: T | HasError): value is HasError {

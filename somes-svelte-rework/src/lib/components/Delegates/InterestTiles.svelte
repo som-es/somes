@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { topicColors } from '$lib/interestColors';
+	// import { topicColors } from '$lib/interestColors';
 	import type { InterestShare } from '$lib/types';
 	import Square from '../UI/Square.svelte';
 
