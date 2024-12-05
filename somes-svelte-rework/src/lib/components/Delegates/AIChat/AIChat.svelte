@@ -1,6 +1,8 @@
 <script lang="ts">
     import { getModalStore, popup, type PopupSettings } from "@skeletonlabs/skeleton";
 
+    const chatSocket = new WebSocket(import.meta.env.VITE_WEBSOCKET_URL);
+
     const modalStore = getModalStore(); 
     export let parent;
     

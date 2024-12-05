@@ -17,7 +17,9 @@ use crate::{
 pub use error::*;
 mod error;
 mod interests;
+mod ai_chat;
 mod qa;
+pub use ai_chat::*;
 pub use interests::*;
 
 use super::LegisPeriod;
