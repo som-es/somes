@@ -4,7 +4,7 @@ use axum::{
     extract::FromRef,
     http::{self, HeaderValue},
     response::Html,
-    routing::{delete, get, get_service, post},
+    routing::{any, delete, get, get_service, post},
     Router,
 };
 use axum_server::tls_rustls::RustlsConfig;
@@ -275,7 +275,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(TOPIC_SELECTION, post(add_user_topic))
         .route(TOPIC_SELECTION, delete(remove_user_topic))
         .route(TOPIC_SELECTION, get(user_topic_selection))
-        .route(AI_CHAT_WS, get(ai_chat_ws_handler))
+        .route(AI_CHAT_WS, any(ai_chat_ws_handler))
         .route("/save_email", post(save_email))
         // mind conflicts e.g delegates
         .nest_service(
