@@ -1,6 +1,6 @@
 <script lang="ts">
     import SButton from "$lib/components/UI/SButton.svelte";
-import { getModalStore, popup, type PopupSettings } from "@skeletonlabs/skeleton";
+    import { getModalStore, popup, type PopupSettings } from "@skeletonlabs/skeleton";
 
     const chatSocket = new WebSocket(import.meta.env.VITE_WEBSOCKET_URL);
     
@@ -8,7 +8,9 @@ import { getModalStore, popup, type PopupSettings } from "@skeletonlabs/skeleton
     
     const sendMessage = (input: string) => {
         if (!chatSocket || chatSocket.readyState !== WebSocket.OPEN) return;
-        chatSocket.send(input);
+        if ($modalStore.length > 0) {
+            chatSocket.send(JSON.stringify({"question": input, "delegate_id": $modalStore[0].meta.delegate_id }));
+        }
     }
 
     const recvMessage = (event: MessageEvent) => {
