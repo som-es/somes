@@ -6,10 +6,18 @@ import { getModalStore, popup, type PopupSettings } from "@skeletonlabs/skeleton
     
     let input = "";
     
-    const sendMessage = () => {
+    const sendMessage = (input: string) => {
         if (!chatSocket || chatSocket.readyState !== WebSocket.OPEN) return;
         chatSocket.send(input);
     }
+
+    const recvMessage = (event: MessageEvent) => {
+        console.log(event.data)
+    }
+
+    chatSocket.addEventListener("message", recvMessage);
+
+
     // sendMessage();
 
     const modalStore = getModalStore(); 
@@ -40,7 +48,7 @@ import { getModalStore, popup, type PopupSettings } from "@skeletonlabs/skeleton
     <!-- </div> -->
     <div class="mt-5">
         <input type="text" class="w-30 text-black" bind:value={input} />
-        <SButton class=" bg-secondary-500" on:click={sendMessage}>Senden</SButton>
+        <SButton class=" bg-secondary-500" on:click={() => sendMessage(input)}>Senden</SButton>
     </div>
 </div>
 

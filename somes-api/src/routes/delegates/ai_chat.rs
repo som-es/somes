@@ -14,13 +14,16 @@ pub async fn ai_chat_ws_handler(
         String::from("Unknown browser")
     };
     log::info!("user agent: {user_agent:?}");
-    ws.on_upgrade(move |socket| handle_socket(socket))
+    let res = ws.on_upgrade(move |socket| handle_socket(socket));
+
+    log::info!("returning after upgrade");
+
+    res
 }
 
 async fn handle_socket(mut socket: WebSocket) {
-    if let Some(msg) = socket.recv().await {
+    while let Some(msg) = socket.recv().await {
         if let Ok(msg) = msg {
-            log::info!("recv msg: {msg:?}");
             if process_message(&mut socket, msg).await.is_break() {
                 return;
             }
@@ -35,14 +38,22 @@ async fn process_message(socket: &mut WebSocket, msg: Message) -> ControlFlow<()
     match msg {
         Message::Text(chat_msg) => {
             log::info!("chat msg: {chat_msg}");
+            socket.send(Message::Text(chat_msg)).await.unwrap();
             // start python script
             // send result 
-            ControlFlow::Continue(())
         }
-        Message::Ping(data) => {
-            socket.send(Message::Pong(data)).await.unwrap();
-            ControlFlow::Continue(())
-        }, // send pong 
-        _ => ControlFlow::Break(())
+        Message::Close(c) => {
+            if let Some(cf) = c {
+                println!(
+                    ">>> sent close with code {} and reason `{}`",
+                    cf.code, cf.reason
+                );
+            } else {
+                println!(">>> somehow sent close message without CloseFrame");
+            }
+            return ControlFlow::Break(());
+        }
+        _ => ()
     }
+    ControlFlow::Continue(())
 }
