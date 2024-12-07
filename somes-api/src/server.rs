@@ -1,11 +1,11 @@
-use std::{net::SocketAddr, path::PathBuf};
+use std::{net::SocketAddr, path::PathBuf, sync::Arc};
 
 use axum::{
     extract::FromRef,
     http::{self, HeaderValue},
     response::Html,
     routing::{any, delete, get, get_service, post},
-    Router,
+    Router, ServiceExt,
 };
 use axum_server::tls_rustls::RustlsConfig;
 use dataservice::db::models::{DbLegislativeInitiativeQuery, DbParty};
@@ -21,6 +21,7 @@ use somes_common_lib::{
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tokio::{net::TcpListener, time::sleep};
 use tower::limit::RateLimitLayer;
+use tower_governor::{governor::GovernorConfigBuilder, GovernorLayer};
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 //use headers::HeaderValue;
@@ -226,11 +227,22 @@ pub async fn serve(addr: SocketAddr) {
     //     "https://somes.at".parse::<HeaderValue>().unwrap(),
     // ];
 
+
+    let governor_conf = Arc::new(
+        GovernorConfigBuilder::default()
+            .per_second(2)
+            .burst_size(4)
+            .finish()
+            .unwrap(),
+    );
+
     let app = Router::new()
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .route(SIGNUP_ROUTE, post(signup))
         .route(VERIFY_ROUTE, get(verify)) // or post?
-        .route(LOGIN_ROUTE, post(login))
+        .route(LOGIN_ROUTE, post(login).layer(GovernorLayer {
+            config: governor_conf.clone(),
+        }))
         .route(DELEGATES_ROUTE, get(delegates))
         .route(PROPOSALS_ROUTE, get(proposals))
         // .route(LEGIS_INIT_ROUTE, post(legis_inits))
@@ -326,7 +338,7 @@ pub async fn serve(addr: SocketAddr) {
 
             info!("Binding API on {sock_addr}");
             axum_server::bind_rustls(sock_addr, config.clone())
-                .serve(app.into_make_service())
+                .serve(app.into_make_service_with_connect_info::<SocketAddr>())
                 .await
                 .unwrap();
         }
@@ -338,7 +350,7 @@ pub async fn serve(addr: SocketAddr) {
             };
 
             info!("Now listening..");
-            if let Err(e) = axum::serve(listener, app.into_make_service()).await {
+            if let Err(e) = axum::serve(listener, app.into_make_service_with_connect_info::<SocketAddr>()).await {
                 error!("API returned error state: {e}")
             }
         }
