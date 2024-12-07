@@ -1,1 +1,0 @@
-import{p as a}from"./scheduler.CKAGH9F2.js";import{b as l,c as i}from"./partyColor.Cj4K3IE1.js";async function c(t=!1){let e=a(l);if(e==null||t||e.length==0){const s=await i();l.set(s),e=s}return e!==null&&(e=e.slice()),e}export{c};
