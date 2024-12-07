@@ -282,11 +282,17 @@ export async function postWithAuth<T>(route: string, body: any): Promise<T | Has
 	);
 }
 
-export async function deleteWithAuth<T>(route: string, body: any): Promise<T | HasError> {
+export async function deleteWithAuth<T>(route: string, body: any | undefined): Promise<T | HasError> {
     const accessToken = get(jwtStore);
     if (accessToken == null) {
 		return { error: 'No access token' };
     }
+	let newBody: string | undefined;
+	if (body) {
+		newBody = JSON.stringify(body)
+	} else {
+		newBody = undefined
+	}
 	return fetchSavely(() =>
 		fetch(`${address}/${route}`, {
 			method: 'DELETE', 
@@ -294,7 +300,7 @@ export async function deleteWithAuth<T>(route: string, body: any): Promise<T | H
 				'Content-Type': 'application/json',
 			 	"Authorization": `Bearer ${accessToken}`,
 			},
-			body: JSON.stringify(body),
+			body: newBody,
 		})
 	);
 }
@@ -309,6 +315,10 @@ export async function removeUserTopic(uniqueTopic: UniqueTopic): Promise<null | 
 
 export async function getUserTopics(): Promise<UniqueTopic[] | HasError> {
 	return getWithAuth('topic_selection');
+}
+
+export async function delete_account(): Promise<null | HasError> {
+	return deleteWithAuth('delete_account', undefined);	
 }
 
 export async function renew_token(): Promise<JWTInfo | HasError> {
