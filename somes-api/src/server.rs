@@ -227,7 +227,6 @@ pub async fn serve(addr: SocketAddr) {
     //     "https://somes.at".parse::<HeaderValue>().unwrap(),
     // ];
 
-
     let governor_conf = Arc::new(
         GovernorConfigBuilder::default()
             .per_second(2)
@@ -240,9 +239,13 @@ pub async fn serve(addr: SocketAddr) {
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .route(SIGNUP_ROUTE, post(signup))
         .route(VERIFY_ROUTE, get(verify)) // or post?
-        .route(LOGIN_ROUTE, post(login).layer(GovernorLayer {
-            config: governor_conf.clone(),
-        }))
+        .route(
+            LOGIN_ROUTE,
+            post(login).layer(GovernorLayer {
+                config: governor_conf.clone(),
+            }),
+        )
+        .route(DELETE_ACCOUNT_ROUTE, delete(delete_account))
         .route(DELEGATES_ROUTE, get(delegates))
         .route(PROPOSALS_ROUTE, get(proposals))
         // .route(LEGIS_INIT_ROUTE, post(legis_inits))
@@ -350,7 +353,12 @@ pub async fn serve(addr: SocketAddr) {
             };
 
             info!("Now listening..");
-            if let Err(e) = axum::serve(listener, app.into_make_service_with_connect_info::<SocketAddr>()).await {
+            if let Err(e) = axum::serve(
+                listener,
+                app.into_make_service_with_connect_info::<SocketAddr>(),
+            )
+            .await
+            {
                 error!("API returned error state: {e}")
             }
         }

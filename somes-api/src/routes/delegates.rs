@@ -15,9 +15,9 @@ use crate::{
 };
 
 pub use error::*;
+mod ai_chat;
 mod error;
 mod interests;
-mod ai_chat;
 mod qa;
 pub use ai_chat::*;
 pub use interests::*;

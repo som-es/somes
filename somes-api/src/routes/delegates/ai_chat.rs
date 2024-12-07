@@ -1,6 +1,12 @@
 use std::{net::SocketAddr, ops::ControlFlow};
 
-use axum::{extract::{ws::{Message, WebSocket}, ConnectInfo, WebSocketUpgrade}, response::IntoResponse};
+use axum::{
+    extract::{
+        ws::{Message, WebSocket},
+        ConnectInfo, WebSocketUpgrade,
+    },
+    response::IntoResponse,
+};
 use axum_extra::TypedHeader;
 
 pub async fn ai_chat_ws_handler(
@@ -33,14 +39,13 @@ async fn handle_socket(mut socket: WebSocket) {
     }
 }
 
-
 async fn process_message(socket: &mut WebSocket, msg: Message) -> ControlFlow<(), ()> {
     match msg {
         Message::Text(chat_msg) => {
             log::info!("chat msg: {chat_msg}");
             socket.send(Message::Text(chat_msg)).await.unwrap();
             // start python script
-            // send result 
+            // send result
         }
         Message::Close(c) => {
             if let Some(cf) = c {
@@ -53,7 +58,7 @@ async fn process_message(socket: &mut WebSocket, msg: Message) -> ControlFlow<()
             }
             return ControlFlow::Break(());
         }
-        _ => ()
+        _ => (),
     }
     ControlFlow::Continue(())
 }

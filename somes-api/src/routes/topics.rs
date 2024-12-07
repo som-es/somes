@@ -8,7 +8,6 @@ use super::UniqueTopic;
 
 pub async fn add_user_topic(
     PgPoolConnection(pg): PgPoolConnection,
-    RedisConnection(mut redis_con): RedisConnection,
     claims: Claims,
     Json(topic): Json<UniqueTopic>,
 ) -> Result<Json<()>, Json<serde_json::Value>> {
@@ -26,7 +25,6 @@ pub async fn add_user_topic(
 
 pub async fn user_topic_selection(
     PgPoolConnection(pg): PgPoolConnection,
-    RedisConnection(mut redis_con): RedisConnection,
     claims: Claims,
 ) -> Result<Json<Vec<UniqueTopic>>, Json<serde_json::Value>> {
     query_as!(
@@ -42,7 +40,6 @@ pub async fn user_topic_selection(
 
 pub async fn remove_user_topic(
     PgPoolConnection(pg): PgPoolConnection,
-    RedisConnection(mut redis_con): RedisConnection,
     claims: Claims,
     Json(topic): Json<UniqueTopic>,
 ) -> Result<Json<()>, Json<serde_json::Value>> {
@@ -60,7 +57,6 @@ pub async fn remove_user_topic(
 
 pub async fn topics(
     PgPoolConnection(pg): PgPoolConnection,
-    RedisConnection(mut redis_con): RedisConnection,
 ) -> Result<Json<Vec<UniqueTopic>>, Json<serde_json::Value>> {
     return query_as!(
         UniqueTopic,

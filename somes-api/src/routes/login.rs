@@ -2,17 +2,17 @@ use axum::Json;
 use rand::Rng;
 use rand_core::OsRng;
 use redis::AsyncCommands;
+use serde_json::json;
 use sha2::{Digest, Sha256};
 use somes_common_lib::{set_error_true, JWTInfo, LoginInfo};
 use sqlx::{query, query_as, PgPool};
 
 use crate::{
     email::send_otp_mail,
-    hash::{self, hash_password, verify_password},
-    jwt::{create_access_token, AuthError},
+    hash::{hash_password, verify_password},
+    jwt::{create_access_token, Claims},
     model::User,
-    operations::user::get_user_from_db,
-    DataserviceDbConnection, PgPoolConnection, RedisConnection, EMAIL_EXPIRATION_SECONDS,
+    PgPoolConnection, RedisConnection, EMAIL_EXPIRATION_SECONDS,
 };
 
 fn generate_otp() -> String {
@@ -223,4 +223,24 @@ pub async fn login(
     // }
 
     // create_access_token(user.id, user.username)
+}
+
+pub async fn delete_account(
+    claims: Claims,
+    PgPoolConnection(pg): PgPoolConnection,
+) -> Result<Json<()>, Json<serde_json::Value>> {
+    query!(
+        "delete from user_topics where user_id = $1",
+        claims.id,
+    )
+    .execute(&pg)
+    .await
+    .map(|_| Json(()))
+    .map_err(|_| Json(json!({"error": "db error"})))?;
+
+    query!("delete from somes_user where id = $1", claims.id)
+        .execute(&pg)
+        .await
+        .map(|_| Json(()))
+        .map_err(|_| Json(json!({"error": "db error"})))
 }
