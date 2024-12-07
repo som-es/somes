@@ -11,7 +11,7 @@
 		placement: 'bottom'
 	};
 </script>
-<div class="card p-8">
+<div class="card p-8 max-w-7xl ">
     <div class="!z-50 card p-4 w-72 shadow-xl" data-popup="extractedFromIntroductionVideo">
         <div class="z-50 font-bold text-xl">Die Fragen und Antworten wurden aus dem Portraitvideo des Abgeordneten extrahiert.</div>
     </div>

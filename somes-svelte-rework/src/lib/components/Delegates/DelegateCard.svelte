@@ -16,7 +16,7 @@
 	$: aiChatModal = {
 		type: "component",
 		component: "aiChat",
-		meta: { delegate_id: delegate.id } 
+		meta: { delegate: delegate } 
 	} as ModalSettings;
 
 	const modalStore = getModalStore();
