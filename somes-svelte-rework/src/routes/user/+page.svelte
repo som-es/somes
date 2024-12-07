@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { base } from '$app/paths';
-	import { errorToNull, get_topics, getUserTopics, isHasError, renew_token } from '$lib/api';
+	import { delete_account, errorToNull, get_topics, getUserTopics, isHasError, renew_token } from '$lib/api';
 	import { jwtStore } from '$lib/caching/stores/stores';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import SelectableTopics from '$lib/components/Topics/SelectableTopics.svelte';
@@ -74,6 +74,17 @@
 					<SelectableTopics bind:selectedTopics={selectedTopics} topics={topics} />
 				{/if}
 			</div>
+		</div>
+		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
+			<SButton
+				class="bg-error-500 text-black"
+				on:click={async () => {
+					await delete_account();
+					jwtStore.set(null);
+					gotoHistory("/home");
+			}}>
+				Account löschen
+			</SButton>
 		</div>
 	</div>
 </Container>
