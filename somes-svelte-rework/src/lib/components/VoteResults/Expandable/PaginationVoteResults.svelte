@@ -55,6 +55,8 @@
 		// 		break;
 		// }
 
+		// accepted: 'a' (accepted), 'd' (declined), 'p' (pre-declined)
+		// null "egal"
 		let filter: VoteResultFilter | null = {
 			is_named_vote: namedVoteFilter == undefined ? null : namedVoteFilter,
 			accepted,

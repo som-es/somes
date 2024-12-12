@@ -25,7 +25,7 @@
     // $modalStore[0].meta.
     let messages: any[] = []
     if ($modalStore.length > 0) messages = [
-        { role: 'assistant', content: `Ich bin SomBOTka, ein Chatbot vom Demokratieprojekt "somes". Ich bin spezialisiert darauf, Fragen über ${$modalStore[0].meta.delegate.name} (${$modalStore[0].meta.delegate.party}) auf verschiedene Themen zu beantworten.` },
+        { role: 'assistant', content: `Ich bin SomBOTka, ein Chatbot vom Demokratieprojekt "somes". Ich bin spezialisiert darauf, Fragen über ${$modalStore[0].meta.delegate.name} (${$modalStore[0].meta.delegate.party}) zu verschiedenen Themen zu beantworten.` },
     ];
 
     const recvMessage = (event: MessageEvent) => {

@@ -79,12 +79,12 @@
 		dels = await filteredDelegates();
 		if (dels !== null) {
 			delegate = dels[Math.floor(Math.random() * dels.length)];
-			autocompleteOptions = convertDelegatesToAutocompleteOptions(dels);
+			autocompleteOptions = convertDelegatesToAutocompleteOptions(dels, [], voteResult);
 		}
 		await fetchDelegatesAtAndEnrich();
 		if (delegatesAtDate !== null && voteResult && voteResult.legislative_initiative.gp !== 'XXVIII') {
 			delegate = delegatesAtDate[Math.floor(Math.random() * delegatesAtDate.length)];
-			autocompleteOptions = convertDelegatesToAutocompleteOptions(delegatesAtDate);
+			autocompleteOptions = convertDelegatesToAutocompleteOptions(delegatesAtDate, [], voteResult);
 		}
 
 		const maybeStoredDelegate = get(currentDelegateStore);
