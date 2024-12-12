@@ -67,7 +67,7 @@
 		// filter = null;
 
 		if (searchValue) {
-			const voteResultsSearch = errorToNull(await vote_results_by_search(page, searchValue));
+			const voteResultsSearch = errorToNull(await vote_results_by_search(page, searchValue, filter));
 			if (voteResultsSearch) voteResults = voteResultsSearch;
 		} else {
 			voteResults = errorToNull(await vote_results_per_page(page - 1, filter));

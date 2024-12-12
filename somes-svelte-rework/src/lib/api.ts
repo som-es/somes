@@ -195,14 +195,16 @@ export async function delegates_with_seats_near_date(date_at: Date, gp: string):
 
 export async function vote_results_by_search(
 	page: number,
-	search: string
+	search: string,
+	filter: VoteResultFilter | null,
 ): Promise<VoteResultsWithMaxPage | HasError> {
 	return fetchSavely(() =>
 		fetch(`${address}/vote_result_by_search?page=${page}&search=${search}`, {
-			method: 'GET',
+			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
-			}
+			},
+			body: JSON.stringify(filter)
 		})
 	);
 }

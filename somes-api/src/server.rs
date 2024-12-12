@@ -11,6 +11,7 @@ use axum_server::tls_rustls::RustlsConfig;
 use dataservice::db::models::{DbLegislativeInitiativeQuery, DbParty};
 // use diesel_async::pooled_connection::AsyncDieselConnectionManager;
 use log::{error, info};
+use meilisearch_sdk::settings::Settings;
 use reqwest::StatusCode;
 use somes_common_lib::{
     CALL_TO_ORDERS_PER_PARTY_DELEGATES, DELEGATES_BY_CALL_TO_ORDERS,
@@ -276,7 +277,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(DELEGATE_QA, get(delegate_qa))
         .route(VOTE_RESULTS_PER_PAGE, post(vote_results_per_page)) // post only because js fetch...
         .route(VOTE_RESULT_BY_ID, get(vote_result_by_id)) // post only because js fetch...
-        .route(VOTE_RESULT_BY_SEARCH, get(vote_result_by_search)) // post only because js fetch...
+        .route(VOTE_RESULT_BY_SEARCH, post(vote_result_by_search)) // post only because js fetch...
         .route(DELEGATES_AT, get(delegates_at)) // post only because js fetch...
         .route(
             DELEGATES_WITH_SEATS_NEAR_DATE,
@@ -379,6 +380,14 @@ async fn update_meilisearch_index(
         "Uploading {} vote results to meilisearch",
         all_vote_results.len()
     );
+    let settings = Settings::new().with_filterable_attributes([
+        "legislative_initiative.accepted",
+        "legislative_initiative.requires_simple_majority",
+        "legislative_initiative.gp",
+        "legislative_initiative.voted_by_name",
+    ]);
+
+    client.index("vote_results").set_settings(&settings).await?;
 
     client
         .index("vote_results")

@@ -151,10 +151,38 @@ pub async fn vote_result_by_search(
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
+    Json(legis_init_filter): Json<Option<LegisInitFilter>>,
 ) -> Result<Json<VoteResultsWithMaxPage>, LegisInitErrorResponse> {
+    let mut meilisearch_filter = String::new();
+    if let Some(filter) = legis_init_filter {
+        let mut filter_conditions = Vec::new();
+
+        if let Some(accepted) = filter.accepted {
+            filter_conditions.push(format!("legislative_initiative.accepted = '{}'", accepted));
+        }
+        if let Some(simple_majority) = filter.simple_majority {
+            filter_conditions.push(format!(
+                "legislative_initiative.requires_simple_majority = {}",
+                simple_majority
+            ));
+        }
+        if let Some(ref legis_period) = filter.legis_period {
+            filter_conditions.push(format!("legislative_initiative.gp = '{}'", legis_period));
+        }
+        if let Some(is_named_vote) = filter.is_named_vote {
+            filter_conditions.push(format!(
+                "legislative_initiative.voted_by_name = {}",
+                is_named_vote
+            ));
+        }
+        meilisearch_filter = filter_conditions.join(" AND ")
+    }
+    log::info!("meilisearch filter: {meilisearch_filter}");
+
     let results: SearchResults<VoteResult> = meilisearch_client
         .index("vote_results")
         .search()
+        .with_filter(&meilisearch_filter)
         .with_query(&search_query.search)
         .with_hits_per_page(LEGIS_INITS_PER_PAGE.parse().unwrap_or(16))
         .with_page(page.page as usize)

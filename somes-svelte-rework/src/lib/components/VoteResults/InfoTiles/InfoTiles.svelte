@@ -130,7 +130,7 @@
 		<Square>
 			<SimpleDonut stops={conicsStopsAchievedVotes} {isLightMode} />
 			<div>Erreichte</div>
-			<div>Mehrheit</div>
+			<div>Stimmen</div>
 			<!-- {voteResult.legislative_initiative.requires_simple_majority ? "1/2" : "2/3" } -->
 		</Square>
 		<Square>
