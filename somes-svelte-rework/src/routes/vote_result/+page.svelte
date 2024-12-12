@@ -30,6 +30,7 @@
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 
 	let dels: Delegate[] | null = null;
+	let delegates: Delegate[] = [];
 
 	let voteResult: VoteResult | null = null;
 	let voteResultId: string | null = null;
@@ -47,11 +48,12 @@
 	let generalNamedVoteDelegates: Bubble[] | null = null;
 	let generalAbsencesDelegates: Bubble[] | null = null;
 
-	async function fetchDelegatesAtAndEnrich() {
+	async function fetchDelegatesAtAndEnrich(delegates: Delegate[]) {
 		if (!voteResult) {
 			return;
 		}
-		delegatesAtDate = (errorToNull(await delegates_at(voteResult.legislative_initiative.created_at))) ?? [];
+		delegatesAtDate = delegates;
+		// delegatesAtDate = (errorToNull(await delegates_at(voteResult.legislative_initiative.created_at))) ?? [];
 
 		if (delegatesAtDate) {
 			generalSpeechDelegates = genCirclesWithSpeechInfo(voteResult.speeches, delegatesAtDate);
@@ -66,60 +68,11 @@
 			// TODO set general absences delegates -> mind to update absence delegates
 		}
 	}
-
-	onMount(async () => {
-
-		const url = new URL(window.location.href);
-		voteResultId = url.searchParams.get('id');
-
-		if (!voteResultId) {
-			voteResult = get(currentVoteResultStore);
-		}
-
-		dels = await filteredDelegates();
-		if (dels !== null) {
-			delegate = dels[Math.floor(Math.random() * dels.length)];
-			autocompleteOptions = convertDelegatesToAutocompleteOptions(dels, [], voteResult);
-		}
-		await fetchDelegatesAtAndEnrich();
-		if (delegatesAtDate !== null && voteResult && voteResult.legislative_initiative.gp !== 'XXVIII') {
-			delegate = delegatesAtDate[Math.floor(Math.random() * delegatesAtDate.length)];
-			autocompleteOptions = convertDelegatesToAutocompleteOptions(delegatesAtDate, [], voteResult);
-		}
-
-		const maybeStoredDelegate = get(currentDelegateStore);
-		if (maybeStoredDelegate) {
-			delegate = maybeStoredDelegate;
-		}
-
-		if (voteResultId == null && voteResult !== null) {
-			voteResultId = voteResult.legislative_initiative.id;
-			oldVoteResultId = voteResultId;
-		}
-
-		// if (voteResultId !== null && voteResult?.legislative_initiative.id != voteResultId) {
-		//     voteResult = await vote_result_by_id(voteResultId);
-		//     if (voteResult !== null) voteResultId = voteResult?.legislative_initiative.id;
-		//     currentVoteResultStore.set(voteResult);
-		// }
-	});
-
-	let currentlyUpdating = false;
-
-	const loadVoteResult = async (voteResultId: string) => {
-		if (voteResultId == voteResult?.legislative_initiative.id) {
-			return;
-		}
-		currentlyUpdating = true;
-		voteResult = errorToNull(await vote_result_by_id(voteResultId));
-		await fetchDelegatesAtAndEnrich();
-		currentVoteResultStore.set(voteResult);
-		currentlyUpdating = false;
-	};
-
-	let updatedQueryParam = false;
-
-	const update = () => {
+	
+	let updatedQueryParam = false;	
+	
+	const update = (voteResultId: string | null) => {
+		console.log("load")
 		if (voteResultId == null) {
 			return;
 		}
@@ -144,9 +97,61 @@
 		history.back();
 	};
 
-	$: if (voteResultId) {
-		update();
+
+	const updateAutocompletion = async () => {
+		const url = new URL(window.location.href);
+		
+		voteResultId = url.searchParams.get('id');
+		if (oldVoteResultId != voteResultId) {
+			update(voteResultId)
+		}
+
+		if (!voteResultId) {
+			voteResult = get(currentVoteResultStore);
+		}
+
+		if (!delegates) {
+			return
+		}
+
+		await fetchDelegatesAtAndEnrich(delegates);
+
+		delegate = delegates[Math.floor(Math.random() * delegates.length)];
+		autocompleteOptions = convertDelegatesToAutocompleteOptions(delegates, [], voteResult);
+
+		const maybeStoredDelegate = get(currentDelegateStore);
+		if (maybeStoredDelegate) {
+			delegate = maybeStoredDelegate;
+		}
+
+		if (voteResultId == null && voteResult !== null) {
+			voteResultId = voteResult.legislative_initiative.id;
+			oldVoteResultId = voteResultId;
+		}
+
+		// if (voteResultId !== null && voteResult?.legislative_initiative.id != voteResultId) {
+		//     voteResult = await vote_result_by_id(voteResultId);
+		//     if (voteResult !== null) voteResultId = voteResult?.legislative_initiative.id;
+		//     currentVoteResultStore.set(voteResult);
+		// }
 	}
+
+	onMount(updateAutocompletion);
+
+	let currentlyUpdating = false;
+
+	const loadVoteResult = async (voteResultId: string) => {
+		if (voteResultId == voteResult?.legislative_initiative.id) {
+			return;
+		}
+		currentlyUpdating = true;
+		voteResult = errorToNull(await vote_result_by_id(voteResultId));
+		// if (delegates)
+		// await fetchDelegatesAtAndEnrich();
+		currentVoteResultStore.set(voteResult);
+		currentlyUpdating = false;
+	};
+
 
 	function delegateFilter(): AutocompleteOption<string>[] {
 		let _options = [...autocompleteOptions];
@@ -172,12 +177,8 @@
 	// 	.filter((x) => x.length > 0);
 	$: rawEmphasis = voteResult?.legislative_initiative.emphasis;
 
-	function findBubbleById(id: number): Bubble | undefined {
-		return circles2d.flat().find((del) => del.del?.id === id);
-	}
-
-	function findDelegateById(dels: Delegate[], id: number): Delegate | undefined {
-		return dels.find((del) => del.id === id);
+	$: if (delegates) {
+		updateAutocompletion();
 	}
 
 	let iterBubble: Bubble | undefined;
@@ -189,7 +190,7 @@
 
 <title> Abstimmungsergebnis </title>
 <Container>
-	{#if voteResult && dels && delegate}
+	{#if voteResult}
 		{#if currentlyUpdating}
 			<!-- <CenterPrograssRadial /> -->
 		{:else}
@@ -261,6 +262,7 @@
 						<VoteParliament2
 							{voteResult}
 							bind:delegate
+							bind:delegates
 							bind:selected={selectedBubble}
 							bind:circles2d
 						/>
@@ -274,12 +276,15 @@
 
 				<!-- {/if} -->
 				<div class="flex flex-wrap justify-between min-w-full gap-3">
-					<div class="md:hidden info-item">
-						<InfoTiles {voteResult} {dels} isCenter />
-					</div>
-					<div class="max-md:hidden info-item">
-						<InfoTiles {voteResult} {dels}  />
-					</div>
+
+					{#if dels}
+						<div class="md:hidden info-item">
+							<InfoTiles {voteResult} {dels} isCenter />
+						</div>
+						<div class="max-md:hidden info-item">
+							<InfoTiles {voteResult} {dels}  />
+						</div>
+					{/if}
 
 					<div
 						class="topics-item flex rounded-xl justify-center items-center bg-primary-300 dark:bg-primary-500 p-3 max-h-[169px]"
