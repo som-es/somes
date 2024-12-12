@@ -183,7 +183,7 @@ SELECT
     delegates.constituency, 
     CASE 
         WHEN mandates.is_nr THEN 'nr' 
-        ELSE ''
+        ELSE 'gov'
     END AS council,
     delegates.seat_row, 
     delegates.seat_col, 
@@ -299,7 +299,7 @@ SELECT
     d.constituency, 
     CASE 
         WHEN m.is_nr THEN 'nr' 
-        ELSE ''
+        ELSE 'gov'
     END AS council,
     ranked.seat_row, 
     ranked.seat_col, 
@@ -363,7 +363,7 @@ pub async fn delegates_at_date(pg: &PgPool, date: &NaiveDate) -> sqlx::Result<Ve
         delegates.constituency, 
         CASE 
             WHEN mandates.is_nr THEN 'nr' 
-            ELSE ''
+            ELSE 'gov'
         END AS council,
         delegates.seat_row, 
         delegates.seat_col, 
