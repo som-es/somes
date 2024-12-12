@@ -177,7 +177,6 @@ pub async fn vote_result_by_search(
         }
         meilisearch_filter = filter_conditions.join(" AND ")
     }
-    log::info!("meilisearch filter: {meilisearch_filter}");
 
     let results: SearchResults<VoteResult> = meilisearch_client
         .index("vote_results")

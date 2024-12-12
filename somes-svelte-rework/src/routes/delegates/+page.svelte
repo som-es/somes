@@ -150,7 +150,7 @@
 		if (finishedMounting) currentDelegateStore.set(delegate);
 		delegate_qa(delegate.id).then((res) => {
 			const delegateQANull = errorToNull(res);
-			console.log(delegateQANull);
+			// console.log(delegateQANull);
 			if (delegateQANull) delegateQA = delegateQANull;
 		});
 		// delegateQA = [
