@@ -40,6 +40,7 @@ pub struct Delegate {
     pub birthdate: Option<NaiveDate>,
     pub active_since: NaiveDate,
     pub divisions: Option<Vec<String>>,
+    pub active_mandates: Option<Vec<String>>,
 }
 
 #[utoipa::path(
@@ -96,37 +97,51 @@ pub async fn delegate(
         Delegate,
         "
         SELECT 
-            delegates.id, 
-            delegates.name, 
-            delegates.party, 
-            delegates.party as current_party, 
-            delegates.image_url, 
-            delegates.constituency, 
-            delegates.council, 
-            delegates.seat_row, 
-            delegates.seat_col, 
-            delegates.gender, 
-            delegates.is_active, 
-            delegates.birthdate, 
-            mandates.start_date AS active_since,
-            COALESCE(divisions.division_array, '{}') AS divisions
-        FROM 
-            mandates 
-        INNER JOIN 
-            delegates ON delegates.id = mandates.delegate_id 
-        LEFT JOIN 
-            (SELECT 
-                delegate_id, 
-                ARRAY_AGG(division) AS division_array 
-            FROM 
-                delegates_divisions 
-            GROUP BY 
-                delegate_id) AS divisions 
-            ON delegates.id = divisions.delegate_id
-        WHERE 
-            (mandates.name LIKE '%Abgeordnete%' OR mandates.name LIKE '%minister%') 
-            AND mandates.end_date IS NULL 
-            AND delegates.id = $1;
+    delegates.id, 
+    delegates.name, 
+    delegates.party, 
+    delegates.party AS current_party, 
+    delegates.image_url, 
+    delegates.constituency, 
+    delegates.council, 
+    delegates.seat_row, 
+    delegates.seat_col, 
+    delegates.gender, 
+    delegates.is_active, 
+    delegates.birthdate, 
+    mandates.start_date AS active_since,
+    COALESCE(divisions.division_array, '{}') AS divisions,
+    COALESCE(mandate_groups.mandate_array, '{}') AS active_mandates
+FROM 
+    mandates 
+INNER JOIN 
+    delegates ON delegates.id = mandates.delegate_id 
+LEFT JOIN 
+    (SELECT 
+        delegate_id, 
+        ARRAY_AGG(division) AS division_array 
+    FROM 
+        delegates_divisions 
+    GROUP BY 
+        delegate_id) AS divisions 
+    ON delegates.id = divisions.delegate_id
+LEFT JOIN 
+    (SELECT 
+        delegate_id, 
+        ARRAY_AGG(name) AS mandate_array 
+    FROM 
+        mandates
+    WHERE 
+        (name LIKE '%Abgeordnete%' OR name LIKE '%minister%') 
+        AND end_date IS NULL
+    GROUP BY 
+        delegate_id) AS mandate_groups
+    ON delegates.id = mandate_groups.delegate_id
+WHERE 
+    (mandates.name LIKE '%Abgeordnete%' OR mandates.name LIKE '%minister%') 
+    AND mandates.end_date IS NULL 
+    AND delegates.id = $1;
+
 ",
         delegate_by_id.delegate_id
     )
@@ -159,40 +174,53 @@ pub async fn delegates(
     sqlx::query_as!(
         Delegate,
         "
-        SELECT 
-            delegates.id, 
-            delegates.name, 
-            delegates.party, 
-            delegates.party as current_party, 
-            delegates.image_url, 
-            delegates.constituency, 
-            CASE 
-                WHEN mandates.is_nr THEN 'nr' 
-                ELSE ''
-            END AS council,
-            delegates.seat_row, 
-            delegates.seat_col, 
-            delegates.gender, 
-            delegates.is_active, 
-            delegates.birthdate, 
-            mandates.start_date AS active_since,
-            COALESCE(divisions.division_array, '{}') AS divisions
-        FROM 
-            mandates 
-        INNER JOIN 
-            delegates ON delegates.id = mandates.delegate_id 
-        LEFT JOIN 
-            (SELECT 
-                delegate_id, 
-                ARRAY_AGG(division) AS division_array 
-            FROM 
-                delegates_divisions 
-            GROUP BY 
-                delegate_id) AS divisions 
-            ON delegates.id = divisions.delegate_id
-        WHERE 
-            (mandates.name LIKE '%Abgeordnete%' OR mandates.name LIKE '%minister%') 
-            AND mandates.end_date IS NULL;
+SELECT 
+    delegates.id, 
+    delegates.name, 
+    delegates.party, 
+    delegates.party AS current_party, 
+    delegates.image_url, 
+    delegates.constituency, 
+    CASE 
+        WHEN mandates.is_nr THEN 'nr' 
+        ELSE ''
+    END AS council,
+    delegates.seat_row, 
+    delegates.seat_col, 
+    delegates.gender, 
+    delegates.is_active, 
+    delegates.birthdate, 
+    mandates.start_date AS active_since,
+    COALESCE(divisions.division_array, '{}') AS divisions,
+    COALESCE(mandate_groups.mandate_array, '{}') AS active_mandates
+FROM 
+    mandates 
+INNER JOIN 
+    delegates ON delegates.id = mandates.delegate_id 
+LEFT JOIN 
+    (SELECT 
+        delegate_id, 
+        ARRAY_AGG(division) AS division_array 
+    FROM 
+        delegates_divisions 
+    GROUP BY 
+        delegate_id) AS divisions 
+    ON delegates.id = divisions.delegate_id
+LEFT JOIN 
+    (SELECT 
+        delegate_id, 
+        ARRAY_AGG(name) AS mandate_array 
+    FROM 
+        mandates
+    WHERE 
+        (name LIKE '%Abgeordnete%' OR name LIKE '%minister%') 
+        AND end_date IS NULL
+    GROUP BY 
+        delegate_id) AS mandate_groups
+    ON delegates.id = mandate_groups.delegate_id
+WHERE 
+    (mandates.name LIKE '%Abgeordnete%' OR mandates.name LIKE '%minister%') 
+    AND mandates.end_date IS NULL;
         "
     )
     .fetch_all(&pg)
@@ -262,46 +290,59 @@ pub async fn delegates_with_seats_near_date(
     sqlx::query_as!(
         Delegate,
         "
-        SELECT 
-            d.id, 
-            d.name, 
-            m.party,
-            d.party AS current_party, 
-            d.image_url, 
-            d.constituency, 
-            CASE 
-                WHEN m.is_nr THEN 'nr' 
-                ELSE ''
-            END AS council,
-            ranked.seat_row, 
-            ranked.seat_col, 
-            d.gender, 
-            d.is_active, 
-            d.birthdate, 
-            m.start_date AS active_since,
-            COALESCE(divisions.division_array, '{}') AS divisions
-        FROM (
-            SELECT sh.*, 
-                ROW_NUMBER() OVER (PARTITION BY sh.delegate_id ORDER BY $1 - sh.insertion_date::date ASC) AS rn
-            FROM seat_history AS sh 
-            where gp = $2 and $1 - sh.insertion_date::date >= 0
-        ) AS ranked
-        JOIN delegates AS d ON d.id = ranked.delegate_id
-        INNER JOIN mandates AS m ON m.delegate_id = d.id 
-        LEFT JOIN (
-            SELECT 
-                delegate_id, 
-                ARRAY_AGG(division) AS division_array 
-            FROM 
-                delegates_divisions 
-            GROUP BY 
-                delegate_id
-        ) AS divisions ON d.id = divisions.delegate_id
-        WHERE 
-            (m.is_nr OR m.is_gov_official)
-            AND m.start_date <= $1::date 
-            AND (CASE WHEN m.end_date IS NULL THEN $1::date ELSE m.end_date END) >= $1::date
-            AND ranked.rn = 1;
+SELECT 
+    d.id, 
+    d.name, 
+    m.party,
+    d.party AS current_party, 
+    d.image_url, 
+    d.constituency, 
+    CASE 
+        WHEN m.is_nr THEN 'nr' 
+        ELSE ''
+    END AS council,
+    ranked.seat_row, 
+    ranked.seat_col, 
+    d.gender, 
+    d.is_active, 
+    d.birthdate, 
+    m.start_date AS active_since,
+    COALESCE(divisions.division_array, '{}') AS divisions,
+    COALESCE(mandate_groups.mandate_array, '{}') AS active_mandates
+FROM (
+    SELECT sh.*, 
+        ROW_NUMBER() OVER (PARTITION BY sh.delegate_id ORDER BY $1 - sh.insertion_date::date ASC) AS rn
+    FROM seat_history AS sh 
+    WHERE gp = $2 AND $1 - sh.insertion_date::date >= 0
+) AS ranked
+JOIN delegates AS d ON d.id = ranked.delegate_id
+INNER JOIN mandates AS m ON m.delegate_id = d.id 
+LEFT JOIN (
+    SELECT 
+        delegate_id, 
+        ARRAY_AGG(division) AS division_array 
+    FROM 
+        delegates_divisions 
+    GROUP BY 
+        delegate_id
+) AS divisions ON d.id = divisions.delegate_id
+LEFT JOIN (
+    SELECT 
+        delegate_id, 
+        ARRAY_AGG(name) AS mandate_array 
+    FROM 
+        mandates
+    WHERE 
+        (name LIKE '%Abgeordnete%' OR name LIKE '%minister%') 
+        AND end_date IS NULL
+    GROUP BY 
+        delegate_id
+) AS mandate_groups ON d.id = mandate_groups.delegate_id
+WHERE 
+    (m.is_nr OR m.is_gov_official)
+    AND m.start_date <= $1::date 
+    AND (CASE WHEN m.end_date IS NULL THEN $1::date ELSE m.end_date END) >= $1::date
+    AND ranked.rn = 1;
 
         ", date, gp
     )
@@ -313,42 +354,55 @@ pub async fn delegates_at_date(pg: &PgPool, date: &NaiveDate) -> sqlx::Result<Ve
     sqlx::query_as!(
         Delegate,
         "
-        SELECT 
-            delegates.id, 
-            delegates.name, 
-            mandates.party,
-            delegates.party as current_party, 
-            delegates.image_url, 
-            delegates.constituency, 
-            CASE 
-                WHEN mandates.is_nr THEN 'nr' 
-                ELSE ''
-            END as council,
-            delegates.seat_row, 
-            delegates.seat_col, 
-            delegates.gender, 
-            delegates.is_active, 
-            delegates.birthdate, 
-            mandates.start_date AS active_since,
-            COALESCE(divisions.division_array, '{}') AS divisions
+    SELECT 
+        delegates.id, 
+        delegates.name, 
+        mandates.party,
+        delegates.party AS current_party, 
+        delegates.image_url, 
+        delegates.constituency, 
+        CASE 
+            WHEN mandates.is_nr THEN 'nr' 
+            ELSE ''
+        END AS council,
+        delegates.seat_row, 
+        delegates.seat_col, 
+        delegates.gender, 
+        delegates.is_active, 
+        delegates.birthdate, 
+        mandates.start_date AS active_since,
+        COALESCE(divisions.division_array, '{}') AS divisions,
+        COALESCE(mandate_groups.mandate_array, '{}') AS active_mandates
+    FROM 
+        mandates 
+    INNER JOIN 
+        delegates ON delegates.id = mandates.delegate_id 
+    LEFT JOIN 
+        (SELECT 
+            delegate_id, 
+            ARRAY_AGG(division) AS division_array 
         FROM 
-            mandates 
-        INNER JOIN 
-            delegates ON delegates.id = mandates.delegate_id 
-        LEFT JOIN 
-            (SELECT 
-                delegate_id, 
-                ARRAY_AGG(division) AS division_array 
-            FROM 
-                delegates_divisions 
-            GROUP BY 
-                delegate_id) AS divisions 
-            ON delegates.id = divisions.delegate_id
+            delegates_divisions 
+        GROUP BY 
+            delegate_id) AS divisions 
+        ON delegates.id = divisions.delegate_id
+    LEFT JOIN 
+        (SELECT 
+            delegate_id, 
+            ARRAY_AGG(name) AS mandate_array 
+        FROM 
+            mandates
         WHERE 
-            (mandates.is_nr or mandates.is_gov_official)
-            --(mandates.name LIKE '%Abgeordnete%' OR mandates.name LIKE '%minister%') 
-            and start_date <= $1::date 
-            and (case when end_date is null then $1::date else end_date end) >= $1::date;
+            (name LIKE '%Abgeordnete%' OR name LIKE '%minister%') 
+            AND end_date IS NULL
+        GROUP BY 
+            delegate_id) AS mandate_groups
+        ON delegates.id = mandate_groups.delegate_id
+    WHERE 
+        (mandates.is_nr OR mandates.is_gov_official)
+        AND mandates.start_date <= $1::date 
+        AND (CASE WHEN mandates.end_date IS NULL THEN $1::date ELSE mandates.end_date END) >= $1::date;
+
         ",
         date
     )
