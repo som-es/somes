@@ -3,6 +3,7 @@
     import { getModalStore, popup, type PopupSettings } from "@skeletonlabs/skeleton";
 	import Chat from "./Chat.svelte";
 	import { onDestroy } from "svelte";
+	import Warning from "$lib/components/UI/Warning.svelte";
     
     let isGenerating = false;
 
@@ -75,18 +76,21 @@
 </div>
 <div class="flex flex-col justify-between w-full max-w-7xl h-[90vh] bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
     <div class="p-4 bg-primary text-white text-center text-lg font-bold flex justify-between">
-    <button
-		on:click={() => {
-			modalStore.close();
-		}}
-		style="font-size: 34px"
-		class="w-5 unselectable ">&#x2715</button
-	>
+        <button
+            on:click={() => {
+                modalStore.close();
+            }}
+            style="font-size: 34px"
+            class="w-5 unselectable ">
+            &#x2715
+        </button>
+
+         
 
         <div>
             Chat
         </div>
-	    <button class="text-4xl float-right"  use:popup={popupFeatured}>&#9432;</button>
+	    <button class="text-4xl float-right" use:popup={popupFeatured}>⚠</button>
     </div>
     <div class="flex-1 p-4 overflow-y-auto bg-gray-50 dark:bg-gray-900">
         {#each messages as { role, content }}

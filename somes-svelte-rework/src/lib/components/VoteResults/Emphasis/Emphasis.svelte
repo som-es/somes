@@ -38,7 +38,7 @@
 					<div class="z-50 font-bold text-xl">{aiGenText}</div>
 				</div>
 				
-				<button class="text-4xl" title={titleHover} use:popup={popupFeatured}>&#9432;</button>
+				<button class="text-4xl" title={titleHover} use:popup={popupFeatured}>⚠</button>
 			</div>
 			<ul class="mt-1 list fill-primary-400">
 				{#each emphasis as emph}

@@ -25,7 +25,7 @@
 		style="font-size: 34px"
 		class="w-5 unselectable ">&#x2715</button
 	>
-	    <button class="text-4xl float-right"  use:popup={popupFeatured}>&#9432;</button>
+	    <button class="text-4xl float-right"  use:popup={popupFeatured}>⚠</button>
     <!-- </div> -->
     {#if $modalStore.length > 0}
         {#each $modalStore[0].meta.questions as qa}

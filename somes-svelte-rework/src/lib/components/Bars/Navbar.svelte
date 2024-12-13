@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { AppBar, getDrawerStore, LightSwitch } from '@skeletonlabs/skeleton';
+	import { AppBar, getDrawerStore, LightSwitch, modeCurrent, setModeCurrent } from '@skeletonlabs/skeleton';
 	import userIcon from '$lib/assets/icons/user.svg?raw';
 	import somesTextIcon from '$lib/assets/somes_with_text2.svg?raw';
 	import { jwtStore } from '$lib/caching/stores/stores';
@@ -21,8 +21,11 @@
 		} else {
 			drawerStore.open(loginDrawerSettings);
 		}
-
 	}
+
+	// fixes weird color bug
+	setModeCurrent($modeCurrent);
+
 </script>
 
 <AppBar slotTrail="!space-x-2">

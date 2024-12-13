@@ -78,7 +78,7 @@
 					<div class="!z-10 arrow bg-surface-100-800-token" />
 				</div>
 
-				<button class="text-2xl" use:popup={popupFeatured}>&#9432;</button>
+				<button class="text-2xl" use:popup={popupFeatured}>⚠</button>
 			{/if}
 		</section>
 		<hr class="!border-t-2 my-1" />
