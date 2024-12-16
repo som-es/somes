@@ -6,7 +6,7 @@
 
 	let dels: Delegate[] | null = null;
 	onMount(async function () {
-		dels = await filteredDelegates();
+		dels = (await filteredDelegates())?.nr ?? null;
 	});
 </script>
 

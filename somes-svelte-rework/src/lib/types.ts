@@ -1,3 +1,8 @@
+export interface DelegateSplit {
+	nr: Delegate[];
+	gov: Delegate[];
+}
+
 export interface Delegate {
 	id: number;
 	name: string;

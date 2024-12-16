@@ -10,7 +10,7 @@
 	let voteResults: VoteResult[] | null = null;
 	onMount(async function () {
 		// await updateColorStorage();
-		dels = await filteredDelegates();
+		dels = (await filteredDelegates())?.nr ?? null;
 		voteResults = await cachedLatestVoteResults();
 	});
 </script>

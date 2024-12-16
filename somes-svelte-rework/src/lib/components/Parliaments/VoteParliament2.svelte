@@ -55,7 +55,7 @@
 
 		if (!overrideDelegates) {
 			const fetchedDelegates = await filteredDelegatesNearSeats(date as unknown as string, gp)
-			if (fetchedDelegates) delegates = fetchedDelegates;
+			if (fetchedDelegates) delegates = fetchedDelegates.nr;
 
 			// we do not have seat information, therefore we fetch them in a base format
 			if (delegates.length == 0) {
