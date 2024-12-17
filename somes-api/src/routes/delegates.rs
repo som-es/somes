@@ -132,13 +132,13 @@ LEFT JOIN
     FROM 
         mandates
     WHERE 
-        (name LIKE '%Abgeordnete%' OR name LIKE '%minister%') 
+        (is_nr or is_gov_official) 
         AND end_date IS NULL
     GROUP BY 
         delegate_id) AS mandate_groups
     ON delegates.id = mandate_groups.delegate_id
 WHERE 
-    (mandates.name LIKE '%Abgeordnete%' OR mandates.name LIKE '%minister%') 
+    (mandates.is_nr OR mandates.is_gov_official) 
     AND mandates.end_date IS NULL 
     AND delegates.id = $1;
 
@@ -275,13 +275,13 @@ LEFT JOIN
     FROM 
         mandates
     WHERE 
-        (name LIKE '%Abgeordnete%' OR name LIKE '%minister%') 
+        (is_nr or is_gov_official) 
         AND end_date IS NULL
     GROUP BY 
         delegate_id) AS mandate_groups
     ON delegates.id = mandate_groups.delegate_id
 WHERE 
-    (mandates.name LIKE '%Abgeordnete%' OR mandates.name LIKE '%minister%') 
+    (is_nr or is_gov_official) 
     AND mandates.end_date IS NULL;
         "
     )
@@ -395,7 +395,7 @@ LEFT JOIN (
     FROM 
         mandates
     WHERE 
-        (name LIKE '%Abgeordnete%' OR name LIKE '%minister%') 
+        (is_nr or is_gov_official) 
         AND end_date IS NULL
     GROUP BY 
         delegate_id
@@ -455,7 +455,7 @@ pub async fn delegates_at_date(pg: &PgPool, date: &NaiveDate) -> sqlx::Result<Ve
         FROM 
             mandates
         WHERE 
-            (name LIKE '%Abgeordnete%' OR name LIKE '%minister%') 
+            (is_nr or is_gov_official) 
             AND end_date IS NULL
         GROUP BY 
             delegate_id) AS mandate_groups

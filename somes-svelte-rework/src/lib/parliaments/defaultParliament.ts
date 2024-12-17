@@ -51,6 +51,10 @@ export function setSeatsOfDels(
 			const useDels = dels.slice(startDelegateIdx, startDelegateIdx + realSeats);
 
 			useDels.forEach((del, c) => {
+				// TODO: remember this for gov row
+				if (del.seat_row == 7) {
+					return
+				}
 				del.seat_col = null;
 				del.seat_row = null;
 				del.seat_row = r + 1;

@@ -59,7 +59,6 @@ export function generateGovCircles(r: number, w: number, h: number) {
 		};
 		circles = circles.concat(circle);
 	}
-	console.log(circles);
 	return circles
 }
 
@@ -71,7 +70,10 @@ export function setDelOnBubble(
 	if (del.seat_row == null || del.seat_col == null) {
 		return;
 	}
-	// console.log(`${del.seat_row}, ${del.seat_col} : lens: ${circles2d[del.seat_row-1].length}`)
+	if (del.seat_row == 7) {
+		console.log(del)
+		console.log(`${del.seat_row}, ${del.seat_col} : lens: ${circles2d[del.seat_row-1].length}`)
+	}
 	circles2d[del.seat_row - 1][del.seat_col - 1].del = del;
 	circles2d[del.seat_row - 1][del.seat_col - 1].title = '';
 	// circles2d[del.seat_row-1][del.seat_col-1].color = partyToColor(del.party);

@@ -32,7 +32,7 @@ export async function cachedDelegatesNearSeats(date: string, gp: string, refetch
 }
 
 export function filterDelegates(dels: Delegate[]): DelegateSplit {
-	const idx = 1;
+	let idx = 1;
 	return dels.reduce<DelegateSplit>((acc, delegate) => {
 		const clonedDelegate = structuredClone(delegate);
 		if (clonedDelegate.council === 'nr') {
@@ -41,6 +41,7 @@ export function filterDelegates(dels: Delegate[]): DelegateSplit {
 			acc.gov.push(clonedDelegate);
 			clonedDelegate.seat_col = idx;
 			clonedDelegate.seat_row = 7;
+			idx += 1;
 		}
 		acc.all.push(clonedDelegate);
 		
