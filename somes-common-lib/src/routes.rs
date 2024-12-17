@@ -30,3 +30,4 @@ pub const RENEW_TOKEN: &str = "/renew_token";
 pub const TOPICS: &str = "/topics";
 pub const TOPIC_SELECTION: &str = "/topic_selection";
 pub const AI_CHAT_WS: &str = "/ai_chat_ws";
+pub const GOV_OFFICIALS_AT_DATE: &str = "/gov_officials_at_date";

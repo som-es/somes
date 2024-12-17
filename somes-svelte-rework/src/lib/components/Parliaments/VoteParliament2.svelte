@@ -61,6 +61,7 @@
 				delegates = showGovs ? fetchedDelegates.all : fetchedDelegates.nr;
 				// delegates = fetchedDelegates.all;
 				govOfficials = fetchedDelegates.gov;
+				console.log(govOfficials);
 			}
 
 			// we do not have seat information, therefore we fetch them in a base format
