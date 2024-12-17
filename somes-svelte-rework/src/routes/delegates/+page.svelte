@@ -238,7 +238,7 @@
 				{/if}
 			</div>
 			<div class="flex flex-wrap min-w-full justify-between">
-				<div class="rounded-xl w-full parliament-item bg-primary-300 dark:bg-primary-500">
+				<div class="rounded-xl w-full parliament-item bg-primary-300 dark:bg-primary-200">
 					<div class="px-5">
 						{#if supplyDate}
 							<VoteParliament2
@@ -249,6 +249,7 @@
 								gp={selectedPeriod}
 								supplyDate={supplyDate}
 								orderingFactor={-1}
+								showGovs={true}
 							/>
 						{/if}
 					</div>

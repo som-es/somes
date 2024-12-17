@@ -75,7 +75,7 @@
     <div class="z-50 font-bold text-xl">Die Fragen werden an ein self-hosted LLM gesendet und nicht an die jeweilige Person. Als Basis für die Informationen werden Auschnitte aus den gehaltenen Reden genommen.</div>
 </div>
 <div class="flex flex-col justify-between w-full max-w-7xl h-[90vh] bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
-    <div class="p-4 bg-primary text-white text-center text-lg font-bold flex justify-between">
+    <div class="p-4 bg-primary text-center text-lg font-bold flex justify-between">
         <button
             on:click={() => {
                 modalStore.close();

@@ -39,6 +39,30 @@ export function generateHalfCircle(n: number, r: number, w: number, h: number) {
 	return circles;
 }
 
+export function generateGovCircles(r: number, w: number, h: number) {
+	const centerX = w * 0.5;
+	const centerY = h * 0.5 + r * 0.5;
+	
+	const spacingFactor = 22;
+
+	let circles: { x: number; y: number }[] = [];
+
+	for (let i = -10; i <= 10; i++) {
+		if (i >= -1 && i <= 1) {
+			continue
+		}
+		const x = centerX + spacingFactor * i
+		
+		const circle = {
+			x,
+			y: centerY	
+		};
+		circles = circles.concat(circle);
+	}
+	console.log(circles);
+	return circles
+}
+
 export function setDelOnBubble(
 	del: Delegate,
 	circles2d: Bubble[][],
@@ -212,6 +236,7 @@ export function enrichCirclesWithNamedVoteInfoOnSeat(
 	});
 }
 
+
 export function setupParliament(
 	seats: number[],
 	width: number,
@@ -242,6 +267,20 @@ export function setupParliament(
 			})
 		);
 	});
+
+	circles2d.push(generateGovCircles(70, width, height).map(circle => {
+		return {
+			r,
+			x: circle.x,
+			y: circle.y,
+			del: null,
+			color: 'rgb(196, 180, 189)',
+			opacity: 1,
+			title: null,
+			namedVote: null,
+			speech: null
+		};
+	}))
 
 	return circles2d;
 }

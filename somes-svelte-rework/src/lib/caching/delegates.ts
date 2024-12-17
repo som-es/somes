@@ -31,16 +31,21 @@ export async function cachedDelegatesNearSeats(date: string, gp: string, refetch
 	return structuredClone(dels.slice());
 }
 
-function filterDelegates(dels: Delegate[]): DelegateSplit {
+export function filterDelegates(dels: Delegate[]): DelegateSplit {
+	const idx = 1;
 	return dels.reduce<DelegateSplit>((acc, delegate) => {
 		const clonedDelegate = structuredClone(delegate);
 		if (clonedDelegate.council === 'nr') {
 			acc.nr.push(clonedDelegate);
 		} else if (clonedDelegate.council === 'gov') {
 			acc.gov.push(clonedDelegate);
+			clonedDelegate.seat_col = idx;
+			clonedDelegate.seat_row = 7;
 		}
+		acc.all.push(clonedDelegate);
+		
 		return acc;
-	}, { nr: [], gov: [ ]});
+	}, { nr: [], gov: [], all: [] });
 }
 
 export async function filteredDelegatesNearSeats(date: string, gp: string, refetch: boolean = false): Promise<DelegateSplit | null> {

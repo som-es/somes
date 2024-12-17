@@ -11,7 +11,7 @@
 	import { cachedAllSeats, getSeats } from '$lib/caching/seats';
 	import DataParliament from './DataParliament.svelte';
 	import { createPartyInfavorMap, isPartyInFavor } from '$lib/partyInfavor';
-	import { cachedDelegatesNearSeats, filteredDelegatesNearSeats } from '$lib/caching/delegates';
+	import { cachedDelegatesNearSeats, filterDelegates, filteredDelegatesNearSeats } from '$lib/caching/delegates';
 
 	const width = 830;
 	const height = 900;
@@ -30,6 +30,7 @@
 	export let voteResult: VoteResult | null;
 	export let supplyDate: Date | null = null;
 	export let circles2d: Bubble[][] = [];
+	export let showGovs: boolean = false;
 	if (voteResult) gp = voteResult.legislative_initiative.gp;
 	let date = new Date();
 	if (supplyDate) {
@@ -40,6 +41,7 @@
 
 	let seats: number[];
 	export let delegates: Delegate[] = [];
+	export let govOfficials: Delegate[] = [];
 	export let overrideDelegates: boolean = false;
 	export let noSeats = false;
 	export let useOffset = true;
@@ -55,12 +57,22 @@
 
 		if (!overrideDelegates) {
 			const fetchedDelegates = await filteredDelegatesNearSeats(date as unknown as string, gp)
-			if (fetchedDelegates) delegates = fetchedDelegates.nr;
+			if (fetchedDelegates) {
+				delegates = showGovs ? fetchedDelegates.all : fetchedDelegates.nr;
+				// delegates = fetchedDelegates.all;
+				govOfficials = fetchedDelegates.gov;
+			}
 
 			// we do not have seat information, therefore we fetch them in a base format
 			if (delegates.length == 0) {
 				const fetchedDelegates = errorToNull(await delegates_at(date));
-				if (fetchedDelegates) delegates = fetchedDelegates;
+				if (fetchedDelegates) {
+					const filteredDelegates = filterDelegates(fetchedDelegates)
+					delegates = showGovs ? filteredDelegates.all : filteredDelegates.nr;
+					// delegates = filteredDelegates.all
+					govOfficials = filteredDelegates.gov
+					// delegates = fetchedDelegates;
+				}
 				noSeats = true;
 				useOffset = false;
 			} else {

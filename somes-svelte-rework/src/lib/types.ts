@@ -1,6 +1,7 @@
 export interface DelegateSplit {
 	nr: Delegate[];
 	gov: Delegate[];
+	all: Delegate[];
 }
 
 export interface Delegate {
