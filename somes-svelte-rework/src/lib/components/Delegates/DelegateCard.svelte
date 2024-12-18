@@ -32,19 +32,24 @@
 		/>
 	</header>
 	<section class="p-4 flex-grow">
-		<h4 class="font-bold text-lg">
+		<h4 class="font-bold text-xl">
 			{delegate.name}
 		</h4>
 		<h5 style="color: {partyToColor(delegate.party)}">
 			{#if delegate.party == 'OK'}
 				Ohne Klub
-			{:else}
+			{:else if delegate.party != null}
 				<span>{delegate.party}</span>
 			{/if}
 		</h5>
-		<h6>{delegate.constituency}</h6>
+
+		<h6 class=" text-lg">{delegate.primary_mandate}</h6>
 		<hr class="!border-t-2 my-1" />
-		<h6>{delegate.divisions?.join(', ')}</h6>
+		{#if delegate.constituency != null}
+			<h3>{delegate.constituency}</h3>
+		{/if}
+		<hr class="!border-t-2 my-1" />
+		<h3>{delegate.divisions?.join(', ')}</h3>
 	</section>
 	<hr class="!border-t-2 my-1" />
 	<!-- <footer class="card-footer flex justify-end items-end mt-3"> -->

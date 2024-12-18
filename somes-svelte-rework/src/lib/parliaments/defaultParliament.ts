@@ -52,7 +52,7 @@ export function setSeatsOfDels(
 
 			useDels.forEach((del, c) => {
 				// TODO: remember this for gov row
-				if (del.seat_row == 7) {
+				if (del.council == "gov") {
 					return
 				}
 				del.seat_col = null;

@@ -291,8 +291,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(TOPIC_SELECTION, post(add_user_topic))
         .route(TOPIC_SELECTION, delete(remove_user_topic))
         .route(TOPIC_SELECTION, get(user_topic_selection))
-        .route(TOPIC_SELECTION, get(user_topic_selection))
-        .route(GOV_OFFICIALS_AT_DATE, get(gov_officials_at_date_route))
+        .route(GOV_OFFICIALS_AT, get(gov_officials_at_date_route))
         .route(AI_CHAT_WS, any(ai_chat_ws_handler))
         .route("/save_email", post(save_email))
         // mind conflicts e.g delegates

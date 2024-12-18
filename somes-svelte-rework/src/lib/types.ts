@@ -18,7 +18,9 @@ export interface Delegate {
 	is_active: boolean | null;
 	birthdate: string;
 	active_since: Date;
+	primary_mandate: string;
 	divisions: string[] | null;
+	mandates: string[] | null;
 }
 
 export interface LegislativeInitiative {

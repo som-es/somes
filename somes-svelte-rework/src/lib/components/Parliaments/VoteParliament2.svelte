@@ -12,6 +12,7 @@
 	import DataParliament from './DataParliament.svelte';
 	import { createPartyInfavorMap, isPartyInFavor } from '$lib/partyInfavor';
 	import { cachedDelegatesNearSeats, filterDelegates, filteredDelegatesNearSeats } from '$lib/caching/delegates';
+	import { cachedGovOfficials, seatSettedCachedGovOfficials } from '$lib/caching/gov_officials';
 
 	const width = 830;
 	const height = 900;
@@ -57,11 +58,10 @@
 
 		if (!overrideDelegates) {
 			const fetchedDelegates = await filteredDelegatesNearSeats(date as unknown as string, gp)
+			
 			if (fetchedDelegates) {
-				delegates = showGovs ? fetchedDelegates.all : fetchedDelegates.nr;
+				delegates = fetchedDelegates.nr;
 				// delegates = fetchedDelegates.all;
-				govOfficials = fetchedDelegates.gov;
-				console.log(govOfficials);
 			}
 
 			// we do not have seat information, therefore we fetch them in a base format
@@ -69,9 +69,8 @@
 				const fetchedDelegates = errorToNull(await delegates_at(date));
 				if (fetchedDelegates) {
 					const filteredDelegates = filterDelegates(fetchedDelegates)
-					delegates = showGovs ? filteredDelegates.all : filteredDelegates.nr;
+					delegates = filteredDelegates.nr;
 					// delegates = filteredDelegates.all
-					govOfficials = filteredDelegates.gov
 					// delegates = fetchedDelegates;
 				}
 				noSeats = true;
@@ -79,6 +78,11 @@
 			} else {
 				noSeats = false;
 				useOffset = true;
+			}
+
+			if (showGovs) {
+				govOfficials = await seatSettedCachedGovOfficials(date as unknown as string) ?? [];
+				delegates = delegates.concat(govOfficials)
 			}
 		}
 		
