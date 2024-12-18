@@ -273,7 +273,7 @@ export function setupParliament(
 			y: circle.y,
 			del: null,
 			color: 'rgb(196, 180, 189)',
-			opacity: 0,
+			opacity: 1,
 			title: null,
 			namedVote: null,
 			speech: null

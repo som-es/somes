@@ -79,11 +79,7 @@
 				noSeats = false;
 				useOffset = true;
 			}
-
-			if (showGovs) {
-				govOfficials = await seatSettedCachedGovOfficials(date as unknown as string) ?? [];
-				delegates = delegates.concat(govOfficials)
-			}
+	
 		}
 		
 		if (allSeats) {
@@ -118,6 +114,10 @@
 			});
 
 			setSeatsOfDels(partyToDelegatesArray, all, seats.slice());
+		}
+		if (showGovs && !overrideDelegates) {
+			govOfficials = await seatSettedCachedGovOfficials(date as unknown as string) ?? [];
+			delegates = delegates.concat(govOfficials)
 		}
 		firstFinished = true;
 	}
