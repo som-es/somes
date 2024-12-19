@@ -1,7 +1,8 @@
 use axum::{extract::Query, Json};
 use dataservice::db::models::DbLegislativeInitiativeQuery;
 use meilisearch_sdk::search::SearchResults;
-use somes_common_lib::{DateRange, LegisInitFilter, Page, VoteResultId};
+use somes_common_lib::{DateRange, DelegateById, LegisInitFilter, Page, VoteResultById};
+use sqlx::query_as;
 
 use crate::{
     meilisearch::MeilisearchClient, DataserviceDbConnection, PgPoolConnection, LEGIS_INITS_PER_PAGE,
@@ -139,7 +140,7 @@ pub async fn vote_results_per_page(
 )]
 pub async fn vote_result_by_id(
     PgPoolConnection(pg): PgPoolConnection,
-    Query(vote_result_id): Query<VoteResultId>,
+    Query(vote_result_id): Query<VoteResultById>,
 ) -> Result<Json<VoteResult>, LegisInitErrorResponse> {
     get_vote_result_by_id(&pg, vote_result_id.id)
         .await
@@ -201,4 +202,72 @@ pub async fn vote_result_by_search(
         entry_count: results.estimated_total_hits.unwrap_or(1) as i64,
         max_page,
     }))
+}
+
+pub async fn gov_proposals_by_official(
+    PgPoolConnection(pg): PgPoolConnection,
+    Query(delegate_by_id): Query<DelegateById>,
+) -> Result<Json<Vec<GovProposal>>, LegisInitErrorResponse> {
+    use dataservice::db::models::DbMinistrialProposalQuery;
+    let ministrial_proposals = query_as!(
+        DbMinistrialProposalQuery,
+        "
+        select 
+            mp.id, 
+            mp.ityp, 
+            mp.gp, 
+            mp.inr, 
+            mp.emphasis, 
+            mp.title, 
+            mp.description, 
+            mp.created_at, 
+            mp.updated_at, 
+            mp.due_to, 
+            mp.ressort, 
+            mp.ressort_shortform, 
+            mp.legis_init_gp, 
+            mp.legis_init_inr, 
+            mp.legis_init_ityp
+        from 
+            ministrial_issuer as mi 
+        inner join 
+            ministrial_proposals as mp 
+        on 
+            mp.id = mi.ministrial_proposal_id 
+        where 
+            delegate_id = $1;
+    ",
+        delegate_by_id.delegate_id
+    )
+    .fetch_all(&pg)
+    .await
+    .map_err(|_| LegisInitErrorResponse::VoteResultById)?;
+
+    let mut gov_proposals = Vec::with_capacity(ministrial_proposals.len());
+
+    for ministrial_proposal in ministrial_proposals.into_iter() {
+        let vote_result = match (
+            &ministrial_proposal.legis_init_gp,
+            &ministrial_proposal.legis_init_ityp,
+            ministrial_proposal.legis_init_inr,
+        ) {
+            (Some(ref gp), Some(ref ityp), Some(ref inr)) => Some(
+                get_vote_result_by_unique_hints(&pg, &gp, &ityp, *inr)
+                    .await
+                    .map_err(|_| LegisInitErrorResponse::VoteResultById)?,
+            ),
+            _ => None,
+        };
+        gov_proposals.push(GovProposal {
+            vote_result,
+            ministrial_proposal,
+        })
+    }
+
+    Ok(Json(gov_proposals))
+
+    // get_vote_result_by_id(&pg, vote_result_id.id)
+    //     .await
+    //     .map(Json)
+    //     .map_err(|_| LegisInitErrorResponse::VoteResultById)
 }

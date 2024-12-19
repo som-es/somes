@@ -116,7 +116,7 @@ pub struct Page {
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
-pub struct VoteResultId {
+pub struct VoteResultById {
     pub id: i32,
 }
 

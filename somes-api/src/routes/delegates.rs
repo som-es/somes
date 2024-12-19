@@ -173,67 +173,67 @@ pub async fn delegates(
     // DataserviceDbConnection(con): DataserviceDbConnection,
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<Delegate>>, DelegatesErrorResponse> {
-    /* 
-  sqlx::query_as!(
-        Delegate,
-        "
-SELECT 
-    delegates.id, 
-    delegates.name, 
-    delegates.party, 
-    delegates.party AS current_party, 
-    delegates.image_url, 
-    delegates.constituency, 
-    CASE 
-        WHEN mandates.is_nr THEN 'nr' 
-        ELSE 'gov'
-    END AS council,
-    delegates.seat_row, 
-    delegates.seat_col, 
-    delegates.gender, 
-    delegates.is_active, 
-    delegates.birthdate, 
-    mandates.start_date AS active_since,
-    COALESCE(divisions.division_array, '{}') AS divisions,
-    COALESCE(mandate_groups.mandate_array, '{}') AS active_mandates
-FROM 
-    delegates 
-INNER JOIN 
-    mandates ON delegates.id = mandates.delegate_id 
-LEFT JOIN 
-    (SELECT 
-        delegate_id, 
-        ARRAY_AGG(division) AS division_array 
-    FROM 
-        delegates_divisions 
-    GROUP BY 
-        delegate_id) AS divisions 
-    ON delegates.id = divisions.delegate_id
-LEFT JOIN 
-    (SELECT 
-        delegate_id, 
-        ARRAY_AGG(CASE WHEN is_gov_official THEN TRUE ELSE FALSE END) AS is_gov_official_array,
-        ARRAY_AGG(CASE WHEN is_nr THEN TRUE ELSE FALSE END) AS is_nr_array,
-        ARRAY_AGG(name) AS mandate_array 
-    FROM 
-        mandates
-    WHERE 
-        (is_gov_official or is_nr) 
-        AND end_date IS NULL
-    GROUP BY 
-        delegate_id) AS mandate_groups
-    ON delegates.id = mandate_groups.delegate_id
-WHERE 
-    (is_gov_official or is_nr) 
-    AND mandates.end_date IS NULL
-order by mandates.start_date;
-        "
-    )
-    .fetch_all(&pg)
-    .await
-    .map(Json)
-    .map_err(|_| DelegatesErrorResponse::DelegateResponseError);
-*/
+    /*
+      sqlx::query_as!(
+            Delegate,
+            "
+    SELECT
+        delegates.id,
+        delegates.name,
+        delegates.party,
+        delegates.party AS current_party,
+        delegates.image_url,
+        delegates.constituency,
+        CASE
+            WHEN mandates.is_nr THEN 'nr'
+            ELSE 'gov'
+        END AS council,
+        delegates.seat_row,
+        delegates.seat_col,
+        delegates.gender,
+        delegates.is_active,
+        delegates.birthdate,
+        mandates.start_date AS active_since,
+        COALESCE(divisions.division_array, '{}') AS divisions,
+        COALESCE(mandate_groups.mandate_array, '{}') AS active_mandates
+    FROM
+        delegates
+    INNER JOIN
+        mandates ON delegates.id = mandates.delegate_id
+    LEFT JOIN
+        (SELECT
+            delegate_id,
+            ARRAY_AGG(division) AS division_array
+        FROM
+            delegates_divisions
+        GROUP BY
+            delegate_id) AS divisions
+        ON delegates.id = divisions.delegate_id
+    LEFT JOIN
+        (SELECT
+            delegate_id,
+            ARRAY_AGG(CASE WHEN is_gov_official THEN TRUE ELSE FALSE END) AS is_gov_official_array,
+            ARRAY_AGG(CASE WHEN is_nr THEN TRUE ELSE FALSE END) AS is_nr_array,
+            ARRAY_AGG(name) AS mandate_array
+        FROM
+            mandates
+        WHERE
+            (is_gov_official or is_nr)
+            AND end_date IS NULL
+        GROUP BY
+            delegate_id) AS mandate_groups
+        ON delegates.id = mandate_groups.delegate_id
+    WHERE
+        (is_gov_official or is_nr)
+        AND mandates.end_date IS NULL
+    order by mandates.start_date;
+            "
+        )
+        .fetch_all(&pg)
+        .await
+        .map(Json)
+        .map_err(|_| DelegatesErrorResponse::DelegateResponseError);
+    */
 
     sqlx::query_as!(
         Delegate,

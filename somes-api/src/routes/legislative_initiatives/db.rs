@@ -1,6 +1,7 @@
 use dataservice::db::models::{
-    DbLegisDocument, DbLegisDocumentOptional, DbLegislativeInitiativeQuery, DbNamedVote,
-    DbNamedVoteInfo, DbNamedVotes, DbSpeech, DbSpeechWithLink, DbVote,
+    DbLegisDocument, DbLegisDocumentOptional, DbLegislativeInitiativeQuery,
+    DbMinistrialProposalQuery, DbNamedVote, DbNamedVoteInfo, DbNamedVotes, DbSpeech,
+    DbSpeechWithLink, DbVote,
 };
 use redis::FromRedisValue;
 use serde::{Deserialize, Serialize};
@@ -17,6 +18,12 @@ pub struct Topic {
 pub struct UniqueTopic {
     pub topic: String,
     pub id: i32,
+}
+
+#[derive(ToSchema, Debug, Deserialize, Serialize, Clone)]
+pub struct GovProposal {
+    pub ministrial_proposal: DbMinistrialProposalQuery,
+    pub vote_result: Option<VoteResult>,
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Clone)]
@@ -102,6 +109,24 @@ pub async fn get_vote_result_by_id(pg: &PgPool, legis_init_id: i32) -> sqlx::Res
         DbLegislativeInitiativeQuery,
         "select * from legislative_initiatives where id = $1",
         legis_init_id
+    )
+    .fetch_one(pg)
+    .await?;
+    construct_vote_result(pg, legis_init).await
+}
+
+pub async fn get_vote_result_by_unique_hints(
+    pg: &PgPool,
+    gp: &str,
+    ityp: &str,
+    inr: i32,
+) -> sqlx::Result<VoteResult> {
+    let legis_init = sqlx::query_as!(
+        DbLegislativeInitiativeQuery,
+        "select * from legislative_initiatives where gp = $1 and ityp = $2 and inr = $3",
+        gp,
+        ityp,
+        inr
     )
     .fetch_one(pg)
     .await?;
