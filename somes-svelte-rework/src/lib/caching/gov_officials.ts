@@ -5,7 +5,7 @@ import type { Delegate } from "$lib/types";
 const govOfficialsAtDate: CircularBuffer<string, Delegate[]> = new CircularBuffer(100);
 
 export async function cachedGovOfficials(date: string, refetch: boolean = false): Promise<Delegate[] | null> {
-	let dels = govOfficialsAtDate.findBy((e) => e[0] == date);
+	let dels = govOfficialsAtDate.findBy((e) => e == date);
 	if (dels == undefined || refetch || dels.length == 0) {
 		const fetchedDels = await gov_officials_at(date as unknown as Date);
 		if (isHasError(fetchedDels)) return null;
