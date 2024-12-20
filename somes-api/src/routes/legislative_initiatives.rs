@@ -5,7 +5,8 @@ use somes_common_lib::{DateRange, DelegateById, LegisInitFilter, Page, VoteResul
 use sqlx::query_as;
 
 use crate::{
-    meilisearch::MeilisearchClient, DataserviceDbConnection, PgPoolConnection, LEGIS_INITS_PER_PAGE,
+    meilisearch::MeilisearchClient, DataserviceDbConnection, PgPoolConnection, RedisConnection,
+    LEGIS_INITS_PER_PAGE,
 };
 
 pub use error::*;
@@ -76,9 +77,10 @@ mod construct_vote_result;
     )
 )]
 pub async fn latest_vote_results(
+    RedisConnection(mut redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<VoteResult>>, LegisInitErrorResponse> {
-    get_latest_vote_results_sqlx(&pg)
+    get_latest_vote_results_sqlx(redis_con, &pg)
         .await
         .map(Json)
         .map_err(|_| LegisInitErrorResponse::LatestVoteResults)
@@ -98,6 +100,7 @@ pub async fn latest_vote_results(
     )
 )]
 pub async fn vote_results_per_page(
+    RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(page): Query<Page>,
     Json(legis_init_filter): Json<Option<LegisInitFilter>>,
@@ -110,6 +113,7 @@ pub async fn vote_results_per_page(
     // }
 
     get_latest_vote_results_sqlx_per_page(
+        redis_con,
         &pg,
         page.page,
         LEGIS_INITS_PER_PAGE.parse().unwrap_or(16),
@@ -139,16 +143,18 @@ pub async fn vote_results_per_page(
     )
 )]
 pub async fn vote_result_by_id(
+    RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(vote_result_id): Query<VoteResultById>,
 ) -> Result<Json<VoteResult>, LegisInitErrorResponse> {
-    get_vote_result_by_id(&pg, vote_result_id.id)
+    get_vote_result_by_id(redis_con, &pg, vote_result_id.id)
         .await
         .map(Json)
         .map_err(|_| LegisInitErrorResponse::VoteResultById)
 }
 
 pub async fn vote_result_by_search(
+    RedisConnection(mut redis_con): RedisConnection,
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
@@ -205,6 +211,7 @@ pub async fn vote_result_by_search(
 }
 
 pub async fn gov_proposals_by_official(
+    RedisConnection(mut redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(delegate_by_id): Query<DelegateById>,
 ) -> Result<Json<Vec<GovProposal>>, LegisInitErrorResponse> {
@@ -243,28 +250,32 @@ pub async fn gov_proposals_by_official(
     .await
     .map_err(|_| LegisInitErrorResponse::VoteResultById)?;
 
-    let mut gov_proposals = Vec::with_capacity(ministrial_proposals.len());
-
-    for ministrial_proposal in ministrial_proposals.into_iter() {
-        let vote_result = match (
+    /*ministrial_proposals.into_iter().map(|ministrial_proposal| {
+        match (
             &ministrial_proposal.legis_init_gp,
             &ministrial_proposal.legis_init_ityp,
             ministrial_proposal.legis_init_inr,
         ) {
-            (Some(ref gp), Some(ref ityp), Some(ref inr)) => Some(
-                get_vote_result_by_unique_hints(&pg, &gp, &ityp, *inr)
-                    .await
-                    .map_err(|_| LegisInitErrorResponse::VoteResultById)?,
-            ),
+            (Some(ref gp), Some(ref ityp), Some(ref inr)) => {
+                Some(
+                    get_vote_result_by_unique_hints(redis_con.clone(), &pg, gp, ityp, *inr)
+                )
+            }
             _ => None,
-        };
-        gov_proposals.push(GovProposal {
-            vote_result,
-            ministrial_proposal,
-        })
-    }
+        }
+    }).collect::<Vec<_>>();*/
 
-    Ok(Json(gov_proposals))
+    // let mut gov_proposal_futures = Vec::with_capacity(ministrial_proposals.len());
+
+    futures::future::join_all(ministrial_proposals.into_iter().map(|ministrial_proposal| {
+        let redis_con = redis_con.clone();
+        construct_gov_proposal(redis_con, &pg, ministrial_proposal)
+    }))
+    .await
+    .into_iter()
+    .collect::<sqlx::Result<Vec<_>>>()
+    .map(Json)
+    .map_err(|_| LegisInitErrorResponse::LegisInit)
 
     // get_vote_result_by_id(&pg, vote_result_id.id)
     //     .await

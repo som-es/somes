@@ -23,6 +23,29 @@ export interface Delegate {
 	mandates: string[] | null;
 }
 
+export interface DbMinistrialProposalQuery {
+    id: number;
+    ityp: string;
+    gp: string;
+    inr: number;
+    emphasis: string | null;
+    title: string;
+    description: string;
+    created_at: string;
+    updated_at: string | null;
+    due_to: string;
+    ressort: string | null;
+    ressort_shortform: string | null;
+    legis_init_gp: string | null;
+    legis_init_inr: number | null;
+    legis_init_ityp: string | null;
+}
+
+export interface GovProposal {
+	ministrial_proposal: DbMinistrialProposalQuery,
+    vote_result: VoteResult | null;
+}
+
 export interface LegislativeInitiative {
 	id: string;
 	ityp: string;

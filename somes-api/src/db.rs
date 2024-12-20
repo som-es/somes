@@ -16,8 +16,9 @@ use axum::{
 };
 
 // use diesel_async::{AsyncPgConnection, pooled_connection::AsyncDieselConnectionManager};
-use redis::AsyncCommands;
+use redis::{aio::MultiplexedConnection, AsyncCommands, Client, Commands};
 use reqwest::StatusCode;
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use sqlx::PgPool;
 
 use crate::{server::AppState, PostgresPool};
@@ -30,6 +31,25 @@ pub fn establish_connection() -> diesel::PgConnection {
 
     <PgConnection as diesel::Connection>::establish(crate::USR_DATABASE_URL)
         .expect("Can't establish database conntection.")
+}
+
+pub async fn get_json_cache<T: DeserializeOwned>(
+    redis_client: &mut MultiplexedConnection,
+    key: &str,
+) -> Option<T> {
+    serde_json::from_str(&redis_client.get::<&str, String>(key).await.ok()?).ok()
+}
+
+pub async fn set_json_cache<T: Serialize>(
+    redis_client: &mut MultiplexedConnection,
+    key: &str,
+    value: &T,
+) -> Option<()> {
+    redis_client
+        .set(key, serde_json::to_string(value).ok()?)
+        .await
+        .ok()?;
+    redis_client.expire(key, 300).await.ok()
 }
 
 pub struct RedisConnection(pub redis::aio::MultiplexedConnection);

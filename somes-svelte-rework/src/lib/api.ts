@@ -192,6 +192,17 @@ export async function gov_officials_at(date_at: Date): Promise<Delegate[] | HasE
 	);
 }
 
+export async function gov_proposals_by_official(delegate_id: number): Promise<Delegate[] | HasError> {
+	return fetchSavely(() =>
+		fetch(`${address}/gov_proposals_by_official?delegate_id=${delegate_id}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		})
+	);
+}
+
 export async function delegates_with_seats_near_date(date_at: Date, gp: string): Promise<Delegate[] | HasError> {
 	return fetchSavely(() =>
 		fetch(`${address}/delegates_with_seats_near_date?at=${date_at}&period=${gp}`, {

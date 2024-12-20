@@ -5,7 +5,7 @@
 	import type { Delegate, DelegateQA, InterestShare, LegisPeriod } from '$lib/types';
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
-	import { delegate_interests, delegate_qa, delegates_at, errorToNull } from '$lib/api';
+	import { delegate_interests, delegate_qa, delegates_at, errorToNull, gov_proposals_by_official } from '$lib/api';
 	import InterestTiles from '$lib/components/Delegates/InterestTiles.svelte';
 	import { get } from 'svelte/store';
 	import { currentDelegateStore, hasGoBackStore } from '$lib/stores/stores';
@@ -49,6 +49,7 @@
 	let supplyDate: Date | null = null;
 
 	let inputValue = '';
+	let prevSelectedDelegateId = 0
 
 	function delegateFilter(): AutocompleteOption<string>[] {
 		let _options = [...autocompleteOptions];
@@ -144,7 +145,7 @@
 	}
 	$: if (delegates) autocompleteOptions = convertDelegatesToAutocompleteOptions(delegates);
 
-	$: if (delegate) {
+	$: if (delegate && prevSelectedDelegateId != delegate.id) {
 		// interests = null;
 		if (finishedMounting) currentDelegateStore.set(delegate);
 		delegate_qa(delegate.id).then((res) => {
@@ -156,11 +157,18 @@
 		// 	{question: "Wie heißt du?", answer: "Tim Herbert"}, 
 		// 	{question: "Warum hast du bei der letzten Wahl die FPÖ gewählt?", answer: "Restfett wählen gehen war ein Fehler."},
 		// ];
+
+		gov_proposals_by_official(delegate.id).then((res) => {
+			console.log(res)	
+		})
+
 		delegate_interests(delegate.id).then((res) => {
 			const input = errorToNull(res);
 			if (input != null) input.sort((a, b) => b.self_share - a.self_share);
 			interests = input;
 		});
+
+		prevSelectedDelegateId = delegate.id;
 	}
 </script>
 

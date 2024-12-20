@@ -3,10 +3,10 @@ use dataservice::db::models::{
     DbMinistrialProposalQuery, DbNamedVote, DbNamedVoteInfo, DbNamedVotes, DbSpeech,
     DbSpeechWithLink, DbVote,
 };
-use redis::FromRedisValue;
+use redis::{aio::MultiplexedConnection, FromRedisValue};
 use serde::{Deserialize, Serialize};
 use somes_common_lib::LegisInitFilter;
-use sqlx::PgPool;
+use sqlx::{FromRow, PgPool};
 use utoipa::ToSchema;
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Clone)]
@@ -26,7 +26,7 @@ pub struct GovProposal {
     pub vote_result: Option<VoteResult>,
 }
 
-#[derive(ToSchema, Debug, Deserialize, Serialize, Clone)]
+#[derive(ToSchema, Debug, Deserialize, Serialize, Clone, FromRow)]
 pub struct VoteResult {
     pub id: i32,
     pub legislative_initiative: DbLegislativeInitiativeQuery,
@@ -44,6 +44,8 @@ pub struct VoteResultsWithMaxPage {
     pub entry_count: i64,
     pub max_page: i64,
 }
+
+use crate::{get_json_cache, set_json_cache};
 
 use super::{
     construct_vote_result::construct_vote_result, filtering::filtered_legislative_initiatives,
@@ -91,12 +93,15 @@ pub async fn get_latest_legislative_initiatives_sqlx(
     Ok(res)
 }
 
-pub async fn get_latest_vote_results_sqlx(pg: &PgPool) -> sqlx::Result<Vec<VoteResult>> {
+pub async fn get_latest_vote_results_sqlx(
+    mut redis_con: MultiplexedConnection,
+    pg: &PgPool,
+) -> sqlx::Result<Vec<VoteResult>> {
     futures::future::join_all(
         get_latest_legislative_initiatives_sqlx(pg)
             .await?
             .into_iter()
-            .map(|legis_init| construct_vote_result(pg, legis_init))
+            .map(|legis_init| construct_vote_result(redis_con.clone(), pg, legis_init))
             .collect::<Vec<_>>(),
     )
     .await
@@ -104,7 +109,11 @@ pub async fn get_latest_vote_results_sqlx(pg: &PgPool) -> sqlx::Result<Vec<VoteR
     .collect::<sqlx::Result<Vec<VoteResult>>>()
 }
 
-pub async fn get_vote_result_by_id(pg: &PgPool, legis_init_id: i32) -> sqlx::Result<VoteResult> {
+pub async fn get_vote_result_by_id(
+    mut redis_con: MultiplexedConnection,
+    pg: &PgPool,
+    legis_init_id: i32,
+) -> sqlx::Result<VoteResult> {
     let legis_init = sqlx::query_as!(
         DbLegislativeInitiativeQuery,
         "select * from legislative_initiatives where id = $1",
@@ -112,10 +121,32 @@ pub async fn get_vote_result_by_id(pg: &PgPool, legis_init_id: i32) -> sqlx::Res
     )
     .fetch_one(pg)
     .await?;
-    construct_vote_result(pg, legis_init).await
+    construct_vote_result(redis_con.clone(), pg, legis_init).await
+}
+
+pub async fn construct_gov_proposal(
+    mut redis_con: MultiplexedConnection,
+    pg: &PgPool,
+    ministrial_proposal: DbMinistrialProposalQuery,
+) -> sqlx::Result<GovProposal> {
+    let vote_result = match (
+        &ministrial_proposal.legis_init_gp,
+        &ministrial_proposal.legis_init_ityp,
+        ministrial_proposal.legis_init_inr,
+    ) {
+        (Some(ref gp), Some(ref ityp), Some(ref inr)) => {
+            Some(get_vote_result_by_unique_hints(redis_con, &pg, &gp, &ityp, *inr).await?)
+        }
+        _ => None,
+    };
+    Ok(GovProposal {
+        ministrial_proposal,
+        vote_result,
+    })
 }
 
 pub async fn get_vote_result_by_unique_hints(
+    redis_con: MultiplexedConnection,
     pg: &PgPool,
     gp: &str,
     ityp: &str,
@@ -130,10 +161,16 @@ pub async fn get_vote_result_by_unique_hints(
     )
     .fetch_one(pg)
     .await?;
-    construct_vote_result(pg, legis_init).await
+
+    let res = construct_vote_result(redis_con, pg, legis_init).await?;
+    // set_json_cache(redis_con, &key, &res)
+    //     .await
+    //     .ok_or(sqlx::Error::WorkerCrashed)?;
+    Ok(res)
 }
 
 pub async fn get_latest_vote_results_sqlx_per_page(
+    redis_con: MultiplexedConnection,
     pg: &PgPool,
     page: i64,
     page_elements: i64,
@@ -144,7 +181,7 @@ pub async fn get_latest_vote_results_sqlx_per_page(
 
     let entries = entries
         .into_iter()
-        .map(|legis_init| construct_vote_result(pg, legis_init))
+        .map(|legis_init| construct_vote_result(redis_con.clone(), pg, legis_init))
         .collect::<Vec<_>>();
 
     futures::future::join_all(entries)
@@ -193,7 +230,10 @@ pub async fn get_votes_from_legis_init_sqlx(
     .await
 }
 
-pub async fn get_all_votes_from_legis_init(con: &PgPool) -> sqlx::Result<Vec<VoteResult>> {
+pub async fn get_all_votes_from_legis_init(
+    redis_con: MultiplexedConnection,
+    con: &PgPool,
+) -> sqlx::Result<Vec<VoteResult>> {
     let legis_inits = sqlx::query_as!(
         DbLegislativeInitiativeQuery,
         "SELECT DISTINCT * FROM legislative_initiatives WHERE accepted is not null"
@@ -204,7 +244,7 @@ pub async fn get_all_votes_from_legis_init(con: &PgPool) -> sqlx::Result<Vec<Vot
     let mut vote_results = Vec::with_capacity(legis_inits.len());
 
     for legis_init in legis_inits {
-        match construct_vote_result(con, legis_init).await {
+        match construct_vote_result(redis_con.clone(), con, legis_init).await {
             Ok(vote_result) => vote_results.push(vote_result),
             Err(e) => {
                 log::warn!("Error while constructing vote result, skipped in result of it: {e:?}")

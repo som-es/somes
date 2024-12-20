@@ -12,6 +12,7 @@ use dataservice::db::models::{DbLegislativeInitiativeQuery, DbParty};
 // use diesel_async::pooled_connection::AsyncDieselConnectionManager;
 use log::{error, info};
 use meilisearch_sdk::settings::Settings;
+use redis::aio::MultiplexedConnection;
 use reqwest::StatusCode;
 use somes_common_lib::{
     CALL_TO_ORDERS_PER_PARTY_DELEGATES, DELEGATES_BY_CALL_TO_ORDERS,
@@ -185,7 +186,7 @@ pub async fn serve(addr: SocketAddr) {
         .unwrap();
 
     let state = AppState::new(
-        client,
+        client.clone(),
         // somes_db_pool,
         dataservice_db_pool,
         dataservice_sqlx_pool.clone(),
@@ -208,7 +209,7 @@ pub async fn serve(addr: SocketAddr) {
     // TODO: move this to dataservice
     tokio::task::spawn(async move {
         loop {
-            if let Err(e) = update_meilisearch_index(&pg_pool, &meilisearch_client).await {
+            if let Err(e) = update_meilisearch_index(&mut client.get_multiplexed_tokio_connection().await.unwrap(), &pg_pool, &meilisearch_client).await {
                 log::warn!("Could not update meilisearch index: {e:?}");
             }
             sleep(std::time::Duration::from_secs(1900)).await;
@@ -369,11 +370,12 @@ pub async fn serve(addr: SocketAddr) {
 }
 
 async fn update_meilisearch_index(
+    redis_con: &mut MultiplexedConnection,
     pg_pool: &sqlx::Pool<sqlx::Postgres>,
     client: &meilisearch_sdk::client::Client,
 ) -> Result<(), Box<dyn std::error::Error>> {
     log::info!("Fetching all vote results..");
-    let all_vote_results = get_all_votes_from_legis_init(pg_pool).await?;
+    let all_vote_results = get_all_votes_from_legis_init(redis_con.clone(), pg_pool).await?;
     log::info!("Fetched all vote results");
 
     // client.delete_index("vote_results").await?;
