@@ -2,7 +2,7 @@
 	import type { AutocompleteOption } from '$lib/components/Autocompletion/types';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
-	import type { Delegate, DelegateQA, InterestShare, LegisPeriod } from '$lib/types';
+	import type { Delegate, DelegateQA, GovProposal, InterestShare, LegisPeriod } from '$lib/types';
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 	import { delegate_interests, delegate_qa, delegates_at, errorToNull, gov_proposals_by_official } from '$lib/api';
@@ -38,6 +38,7 @@
 
 	let autocompleteOptions: AutocompleteOption<string>[] = [];
 	let interests: InterestShare[] | null;
+	let govProposals: GovProposal[] | null = null;
 	let delegateQA: DelegateQA[] = [];
 	let maxDayOffset = 365 * 5;
 	let dayOffset = maxDayOffset;
@@ -159,7 +160,7 @@
 		// ];
 
 		gov_proposals_by_official(delegate.id).then((res) => {
-			console.log(res)	
+			govProposals = errorToNull(res);
 		})
 
 		delegate_interests(delegate.id).then((res) => {
@@ -272,6 +273,18 @@
 				<InterestTiles interests={interests.slice(0, 4)}></InterestTiles>
 			{:else}
 				<ExpandablePlaceholder class={'my-3'} />
+			{/if}
+
+			{#if govProposals && govProposals.length > 0}
+				<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
+					<h1 class="font-bold text-2xl">Ministerialentwürfe</h1>
+				</div>
+			{:else if govProposals == null && delegate && delegate.council == "gov"}
+				<ExpandablePlaceholder />
+				<ExpandablePlaceholder />
+				<ExpandablePlaceholder />
+				<ExpandablePlaceholder />
+				<ExpandablePlaceholder />
 			{/if}
 			<!-- <div class="activity-item bg-primary-300">
                     Activity

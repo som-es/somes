@@ -1,9 +1,15 @@
 <script lang="ts">
+
+	export let squareSize = "140px";
+
+	$: squareSize;
+	console.log(squareSize);
+
 	let clazz = '';
 	export { clazz as class };
 </script>
 
-<div class="{clazz} rounded-xl square bg-primary-300 dark:bg-primary-500">
+<div class="{clazz} rounded-xl square min-w-[{squareSize}] min-h-[{squareSize}] max-w-[{squareSize}] max-h-[{squareSize}] h-[{squareSize}] w-[{squareSize}] bg-primary-300 dark:bg-primary-500">
 	<div class="flex flex-col items-center justify-center">
 		<slot />
 	</div>
@@ -12,12 +18,6 @@
 <style>
 	.square {
 		aspect-ratio: 1/ 1;
-		min-width: 140px;
-		min-height: 140px;
-		max-height: 140px;
-		max-width: 140px;
-		height: 140px;
-		width: 140px;
 		display: flex;
 		justify-content: center;
 		align-content: center;

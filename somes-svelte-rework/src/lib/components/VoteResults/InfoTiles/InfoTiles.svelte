@@ -11,7 +11,12 @@
 
 	export let voteResult: VoteResult;
 	export let dels: Delegate[];
+	export let squareSize = "140px";
 	export let isCenter: boolean = false;
+	export let showRequiredMajority = true;
+	export let showDate = true;
+	export let showAchievedVotes = true;
+	export let showAccepted = true;
 
 	let NOT_REACHED_COLOR = getModeUserPrefers()
 		? 'rgb(var(--color-primary-600))'
@@ -103,58 +108,54 @@
 
 <div class="flex flex-wrap {isCenter ? 'justify-center' : ''} info-item gap-3">
 	<div class="flex gap-3 flex-wrap">
-		<Square class="accepted-item">
-			{#if voteResult.legislative_initiative.accepted == 'a'}
-				{@html checkmarkIcon}
-				<div>Angenommen</div>
-			{:else}
-				{@html crossmarkIcon}
-				<div>Abgelehnt</div>
-				{#if voteResult.legislative_initiative.accepted == 'p'}
-					<div>(frühzeitig)</div>
+		{#if showAccepted}
+			<Square squareSize={squareSize} class="accepted-item">
+				{#if voteResult.legislative_initiative.accepted == 'a'}
+					{@html checkmarkIcon}
+					<div>Angenommen</div>
+				{:else}
+					{@html crossmarkIcon}
+					<div>Abgelehnt</div>
+					{#if voteResult.legislative_initiative.accepted == 'p'}
+						<div>(frühzeitig)</div>
+					{/if}
 				{/if}
-			{/if}
-		</Square>
-		<Square class="majority-item">
-			<SimpleDonut
-				{isLightMode}
-				stops={voteResult.legislative_initiative.requires_simple_majority
-					? conicStopsSimpleMajority
-					: conicStopsOtherMajority}
-			/>
-			<div>Notwendige</div>
-			<div>Mehrheit</div>
-		</Square>
+			</Square>
+		{/if}
+		{#if showRequiredMajority}
+			<Square squareSize={squareSize} class="majority-item">
+				<SimpleDonut
+					{isLightMode}
+					stops={voteResult.legislative_initiative.requires_simple_majority
+						? conicStopsSimpleMajority
+						: conicStopsOtherMajority}
+				/>
+				<div>Notwendige</div>
+				<div>Mehrheit</div>
+			</Square>
+		{/if}
 	</div>
 	<div class="flex gap-3 flex-wrap">
-		<Square>
-			<SimpleDonut stops={conicsStopsAchievedVotes} {isLightMode} />
-			<div>Erreichte</div>
-			<div>Stimmen</div>
-			<!-- {voteResult.legislative_initiative.requires_simple_majority ? "1/2" : "2/3" } -->
-		</Square>
-		<Square>
-			<div class="font-bold text-lg">
-				{dashDateToDotDate(voteResult.legislative_initiative.created_at.toString())}
-			</div>
-			<div>Abgestimmt am</div>
-		</Square>
+		{#if showAchievedVotes}
+			<Square squareSize={squareSize}>
+				<SimpleDonut stops={conicsStopsAchievedVotes} {isLightMode} />
+				<div>Erreichte</div>
+				<div>Stimmen</div>
+				<!-- {voteResult.legislative_initiative.requires_simple_majority ? "1/2" : "2/3" } -->
+			</Square>
+		{/if}
+		{#if showDate}
+			<Square squareSize={squareSize}>
+				<div class="font-bold text-lg">
+					{dashDateToDotDate(voteResult.legislative_initiative.created_at.toString())}
+				</div>
+				<div>Abgestimmt am</div>
+			</Square>
+		{/if}
 	</div>
 </div>
 
 <style>
-	.square {
-		aspect-ratio: 1/ 1;
-		min-width: 140px;
-		min-height: 140px;
-		max-height: 140px;
-		/* padding: 5%; */
-		display: flex;
-		justify-content: center;
-		align-content: center;
-		border-radius: 1rem;
-	}
-
 	:global(.accepted-item) {
 		grid-area: a;
 	}

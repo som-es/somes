@@ -7,7 +7,6 @@
 	import {
 		currentDelegatesAtDateStore,
 		currentVoteResultStore,
-		hasGoBackStore
 	} from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
@@ -86,9 +85,9 @@
 		/>
 	</div>
 
-	<div class="rounded-xl min-w-full max-w-full ml-auto parliament-item bg-primary-100">
+	<button class="rounded-xl min-w-full max-w-full ml-auto parliament-item bg-primary-100" on:click={onShowDetails}>
 		<VoteParliament2 {voteResult} preview={true} />
-	</div>
+	</button>
 	<InfoTiles {voteResult} {dels} />
 	<div class="ml-auto details-item mt-auto">
 		<SButton class="bg-tertiary-500 text-black" on:click={onShowDetails}>Details anzeigen</SButton>

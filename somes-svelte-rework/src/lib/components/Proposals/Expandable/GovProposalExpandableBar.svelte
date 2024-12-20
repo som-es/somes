@@ -2,16 +2,7 @@
 	import type { Delegate, VoteResult } from '$lib/types';
 	import collapse from 'svelte-collapse';
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
-	import VoteResultExpanded from './VoteResultExpanded.svelte';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
-	import SButton from '$lib/components/UI/SButton.svelte';
-	
-	import {
-		currentDelegatesAtDateStore,
-		currentVoteResultStore,
-	} from '$lib/stores/stores';
-	import { gotoHistory } from '$lib/goto';
-	import InfoTiles from '../InfoTiles/InfoTiles.svelte';
 
 	export let voteResult: VoteResult;
 	export let dels: Delegate[];
@@ -19,14 +10,6 @@
 	export { clazz as class };
 	let open = false;
 	let duration = 0.35;
-
-	function onShowDetails() {
-		currentVoteResultStore.set(voteResult);
-		// $: if (browser) {
-		gotoHistory('/vote_result', true);
-		// }
-	}
-
 </script>
 
 <div class="gap-3 mt-5">
@@ -43,17 +26,13 @@
 			</div>
 		</div>
 		<div>{voteResult.legislative_initiative.description}</div>
-		<div class="flex items-center">
-			<!-- <InfoTiles squareSize={"10px"}  {voteResult} {dels} isCenter showRequiredMajority={false} showDate={false} showAchievedVotes={false} /> -->
-
-			<button class=" z-20 w-[7.5rem] bg-primary-100 dark:bg-primary-300 rounded-md" on:click={onShowDetails}>
-				<VoteParliament2 {voteResult} preview={true} />
-			</button>
+		<div class="w-20 bg-primary-100 dark:bg-primary-300 rounded-md">
+			<VoteParliament2 {voteResult} preview={true} />
 		</div>
 	</div>
 
 	<div use:collapse={{ open, duration }}>
-		<VoteResultExpanded {voteResult} {dels} bind:open />
+		<!-- <VoteResultExpanded {voteResult} {dels} bind:open /> -->
 	</div>
 </div>
 
