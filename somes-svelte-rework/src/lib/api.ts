@@ -15,7 +15,8 @@ import type {
 	LoginResponseError,
 	DelegateQA,
 	Topic,
-	UniqueTopic
+	UniqueTopic,
+	GovProposal
 } from './types';
 import { jwtStore } from './caching/stores/stores';
 
@@ -192,7 +193,7 @@ export async function gov_officials_at(date_at: Date): Promise<Delegate[] | HasE
 	);
 }
 
-export async function gov_proposals_by_official(delegate_id: number): Promise<Delegate[] | HasError> {
+export async function gov_proposals_by_official(delegate_id: number): Promise<GovProposal[] | HasError> {
 	return fetchSavely(() =>
 		fetch(`${address}/gov_proposals_by_official?delegate_id=${delegate_id}`, {
 			method: 'GET',

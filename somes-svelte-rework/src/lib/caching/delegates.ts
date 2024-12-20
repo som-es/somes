@@ -39,9 +39,17 @@ export function filterDelegates(dels: Delegate[]): DelegateSplit {
 			acc.nr.push(clonedDelegate);
 		} else if (clonedDelegate.council === 'gov') {
 			acc.gov.push(clonedDelegate);
-			clonedDelegate.seat_col = idx;
-			clonedDelegate.seat_row = 7;
-			idx += 1;
+			// TODO FIXME some gps somehow have a lot of gov officials
+			// INFO this is not required as gov officials stuff is the real stuff
+			if (idx < 17) {
+				clonedDelegate.seat_col = idx;
+				clonedDelegate.seat_row = 7;
+				idx += 1;
+			} else {
+				clonedDelegate.seat_col = null;
+				clonedDelegate.seat_row = null;
+			}
+
 		}
 		acc.all.push(clonedDelegate);
 		

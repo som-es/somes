@@ -21,8 +21,12 @@ export async function seatSettedCachedGovOfficials(date: string): Promise<Delega
         return null;
     }
     return dels.map((delegate, idx) => {
-        delegate.seat_col = idx + 1;
-        delegate.seat_row = 7;
+		// TODO FIXME some gps somehow have a lot of gov officials
+        // with this thing, not all gov officials are shown
+		if (idx < 18) {
+            delegate.seat_col = idx + 1;
+            delegate.seat_row = 7;
+        }
         return delegate
     });
 }

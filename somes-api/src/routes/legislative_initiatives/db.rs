@@ -163,9 +163,6 @@ pub async fn get_vote_result_by_unique_hints(
     .await?;
 
     let res = construct_vote_result(redis_con, pg, legis_init).await?;
-    // set_json_cache(redis_con, &key, &res)
-    //     .await
-    //     .ok_or(sqlx::Error::WorkerCrashed)?;
     Ok(res)
 }
 
