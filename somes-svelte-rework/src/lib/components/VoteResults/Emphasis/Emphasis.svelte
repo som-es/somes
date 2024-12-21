@@ -58,9 +58,11 @@
 					</li>
 				{/each}
 
-				<button class=" font-bold text-xl" on:click={() => open = !open}>
-					<span>{open ? "Weniger" : "Mehr"} anzeigen</span>
-				</button>				  
+				{#if emphasis.length > 3}
+					<button class=" font-bold text-xl" on:click={() => open = !open}>
+						<span>{open ? "Weniger" : "Mehr"} anzeigen</span>
+					</button>				  
+				{/if}
 
 				<div use:collapse={{ open }}>
 					{#each restPoints as emph}
