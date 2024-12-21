@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { popup, type PopupSettings } from "@skeletonlabs/skeleton";
+	import collapse from 'svelte-collapse';
 
 	export let rawEmphasis: string | null;
 	export let isAiGenerated: boolean = false;
@@ -26,6 +27,14 @@
 
 	const aiGenText = "Diese Schwerpunkte wurden mittels KI aus dem jeweiligen Gesetzestext zusammengefasst.";
 	const titleHover = useTitleHover ? aiGenText : "";
+
+	let open = false;
+	let firstThreePoints: string[] = []
+	let restPoints: string[] = []
+	$: if (emphasis) {
+		firstThreePoints = emphasis.slice(0, 3);
+		restPoints = emphasis.slice(3);
+	}
 </script>
 
 {#if emphasis}
@@ -40,13 +49,27 @@
 				
 				<button class="text-4xl" title={titleHover} use:popup={popupFeatured}>⚠</button>
 			</div>
+
 			<ul class="mt-1 list fill-primary-400">
-				{#each emphasis as emph}
-					<li class="my-2">
+				{#each firstThreePoints as emph}
+					<li class="my-3">
 						<span class="badge bg-primary-500 dark:bg-primary-300"></span>
 						<span>{emph}</span>
 					</li>
 				{/each}
+
+				<button class=" font-bold text-xl" on:click={() => open = !open}>
+					<span>{open ? "Weniger" : "Mehr"} anzeigen</span>
+				</button>				  
+
+				<div use:collapse={{ open }}>
+					{#each restPoints as emph}
+						<li class="my-3">
+							<span class="badge bg-primary-500 dark:bg-primary-300"></span>
+							<span>{emph}</span>
+						</li>
+					{/each}
+				</div>
 			</ul>
 		</div>
 	{:else}
