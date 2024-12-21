@@ -235,7 +235,7 @@
 				</div>
 
 				<!-- {#if voteResult.legislative_initiative.gp == 'XXVII'} -->
-				<div class="z-10 search-item text-token space-y-5">
+				<div class="!z-20 search-item text-token space-y-5">
 					<input
 						class="!rounded-xl w-full h-12 px-2 input"
 						type="search"
@@ -246,7 +246,7 @@
 					/>
 
 					{#if autocompleteOptions}
-						<div class="card max-h-64 p-4 overflow-y-auto" data-popup="popupAutocomplete">
+						<div class="!z-10 card max-h-64 p-4 overflow-y-auto" data-popup="popupAutocomplete">
 							<Autocomplete
 								bind:input={inputValue}
 								options={autocompleteOptions}

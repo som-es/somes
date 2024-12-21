@@ -22,7 +22,7 @@
 	const modalStore = getModalStore();
 </script>
 
-<div class="!z-0 card card-hover min-h-full mx-4 drop-shadow-lg flex flex-col">
+<div class="!z-0 card min-h-full mx-4 drop-shadow-lg flex flex-col">
 	<header class="flex justify-center">
 		<img
 			src={delegate.image_url}

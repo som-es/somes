@@ -233,7 +233,7 @@
 
 				{#if autocompleteOptions}
 					<div
-						class="card w-full max-w-sm max-h-64 p-4 overflow-y-auto"
+						class="z-10 card w-full max-w-sm max-h-64 p-4 overflow-y-auto"
 						data-popup="popupAutocomplete"
 					>
 						<Autocomplete
