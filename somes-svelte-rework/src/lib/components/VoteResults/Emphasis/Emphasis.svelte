@@ -42,7 +42,7 @@
 			</div>
 			<ul class="mt-1 list fill-primary-400">
 				{#each emphasis as emph}
-					<li>
+					<li class="my-2">
 						<span class="badge bg-primary-500 dark:bg-primary-300"></span>
 						<span>{emph}</span>
 					</li>

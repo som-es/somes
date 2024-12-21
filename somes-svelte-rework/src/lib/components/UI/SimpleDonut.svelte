@@ -27,6 +27,8 @@
 <style>
 	.donut::before {
 		content: '';
+		min-height: 40px;
+		min-width: 40px;
 		width: 40px;
 		height: 40px;
 		border-radius: 50%;
@@ -46,6 +48,8 @@
     } */
 
 	.donut {
+		min-height: 60px;
+		min-width: 60px;
 		width: 60px;
 		height: 60px;
 		border-radius: 50%;

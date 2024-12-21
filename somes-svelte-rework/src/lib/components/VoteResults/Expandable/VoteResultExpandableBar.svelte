@@ -44,9 +44,11 @@
 		</div>
 		<div>{voteResult.legislative_initiative.description}</div>
 		<div class="flex items-center">
-			<!-- <InfoTiles squareSize={"10px"}  {voteResult} {dels} isCenter showRequiredMajority={false} showDate={false} showAchievedVotes={false} /> -->
+			<div class="max-sm:hidden">
+				<InfoTiles squareSize={"10px"} squareClasses={"w-16 mx-4"} {voteResult} {dels} isCenter showText={true} showRequiredMajority={false} showDate={false} showAchievedVotes={false} />
+			</div>
 
-			<button class=" z-20 w-[7.5rem] bg-primary-100 dark:bg-primary-300 rounded-md" on:click={onShowDetails}>
+			<button class="max-sm:hidden z-20 w-[7.5rem] bg-primary-100 dark:bg-primary-300 rounded-md" on:click={onShowDetails}>
 				<VoteParliament2 {voteResult} preview={true} />
 			</button>
 		</div>

@@ -121,7 +121,8 @@
 
 		const maybeStoredDelegate = get(currentDelegateStore);
 		if (maybeStoredDelegate) {
-			delegate = maybeStoredDelegate;
+			// FIXME gov and older ones
+			// delegate = maybeStoredDelegate;
 		}
 
 		if (voteResultId == null && voteResult !== null) {

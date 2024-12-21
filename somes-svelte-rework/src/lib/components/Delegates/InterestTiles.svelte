@@ -33,7 +33,7 @@
 
 <style>
 	.grid-tile {
-		box-sizing: border-box;
+		/* box-sizing: border-box; */
 		border-radius: 25px;
 	}
 
