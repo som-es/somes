@@ -5,7 +5,7 @@
 	import VoteResultExpandableBar from './VoteResultExpandableBar.svelte';
 	import { pushState } from '$app/navigation';
 	import Pagination from '$lib/components/Pagination.svelte';
-	import { RadioGroup, RadioItem, SlideToggle } from '@skeletonlabs/skeleton';
+	import { ListBox, ListBoxItem, popup, RadioGroup, RadioItem, SlideToggle, type PopupSettings } from '@skeletonlabs/skeleton';
 	import LegisButtons from '$lib/components/Filtering/LegisButtons.svelte';
 	import CenterPrograssRadial from '$lib/components/ProgressInfos/CenterPrograssRadial.svelte';
 	import { currentVoteResultFilterStore } from '$lib/stores/stores';
@@ -100,58 +100,170 @@
 	$: if (page || selectedPeriod || simpleMajorityFilter || acceptedFilter || namedVoteFilter) {
 		update();
 	}
+
+
+	const popupRequiredMajority: PopupSettings = {
+		event: 'click',
+		target: 'popupRequiresSimpleMajority',
+		placement: 'bottom',
+		closeQuery: '.listbox-item'
+	};
+
+	const translateSimpleMajorityFilterValue = (simpleMajorityFilter: boolean | undefined) => {
+		if (simpleMajorityFilter == undefined) {
+			return "egal"
+		}
+		return simpleMajorityFilter ? "einfache Mehrheit" : "2/3 Mehrheit"
+	}
+	
+	const popupAccepted: PopupSettings = {
+		event: 'click',
+		target: 'popupAccepted',
+		placement: 'bottom',
+		closeQuery: '.listbox-item'
+	};
+
+	const translateAcceptedValue = (acceptedFilter: string | undefined) => {
+		if (acceptedFilter == undefined) {
+			return "egal"
+		}
+		switch (acceptedFilter) {
+			case "a": return "angenommen";
+			case "d": return "abgelehnt";
+			case "p": return "frühzeitig abgelehnt";
+		}
+	}
+
+	const popupNamedVote: PopupSettings = {
+		event: 'click',
+		target: 'popupNamedVote',
+		placement: 'bottom',
+		closeQuery: '.listbox-item'
+	};
+	
+	const translateNamedVoteValue = (namedVoteFilter: boolean | undefined) => {
+		if (namedVoteFilter == undefined) {
+			return "egal"
+		}
+		return namedVoteFilter ? "namentliche" : "nicht namentliche"
+	}
 </script>
 
 <!-- <br /> -->
 <!-- <SlideToggle name="slider-large" active="bg-secondary-400" size="md">
 	<span class="text-lg"> Test </span>
 </SlideToggle> -->
-<div class="mt-5">
-	<h1 class="text-2xl font-bold">notwendige Mehrheit</h1>
-	<RadioGroup
+<div class="lg:hidden flex flex-wrap gap-6">
+	<div>
+		<h1 class="text-2xl font-bold">notwendige Mehrheit</h1>
+		<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupRequiredMajority}>
+			<span class="capitalize">{translateSimpleMajorityFilterValue(simpleMajorityFilter)}</span>
+			<span>↓</span>
+		</button>
+	</div>
+
+	<div>
+		<h1 class="text-2xl font-bold">Angenommen</h1>
+		<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupAccepted}>
+			<span class="capitalize">{translateAcceptedValue(acceptedFilter)}</span>
+			<span>↓</span>
+		</button>
+	</div>
+
+	<div>
+		<h1 class="text-2xl font-bold">Abstimmung</h1>
+		<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupNamedVote}>
+			<span class="capitalize">{translateNamedVoteValue(namedVoteFilter)}</span>
+			<span>↓</span>
+		</button>
+	</div>
+</div>
+
+<div class="card w-48 shadow-xl py-2" data-popup="popupRequiresSimpleMajority">
+	<ListBox 
 		rounded="rounded-container-token sm:!rounded-token"
 		active="variant-filled-secondary"
 		hover="hover:variant-soft-secondary"
-		flexDirection="flex-col sm:flex-row"
 	>
-		<RadioItem bind:group={simpleMajorityFilter} name="simpleMajority" value={undefined}
-			>egal</RadioItem
-		>
-		<RadioItem bind:group={simpleMajorityFilter} name="simpleMajority" value={true}
-			>einfache Mehrheit</RadioItem
-		>
-		<RadioItem bind:group={simpleMajorityFilter} name="simpleMajority" value={false}
-			>2/3 Mehrheit</RadioItem
-		>
-	</RadioGroup>
+		<ListBoxItem bind:group={simpleMajorityFilter} name="simpleMajority" value={undefined}>egal</ListBoxItem>
+		<ListBoxItem bind:group={simpleMajorityFilter} name="simpleMajority" value={true}>einfache Mehrheit</ListBoxItem>
+		<ListBoxItem bind:group={simpleMajorityFilter} name="simpleMajority" value={false}>2/3 Mehrheit</ListBoxItem>
+	</ListBox>
 </div>
-<div class="mt-5">
-	<h1 class="text-2xl font-bold">Angenommen</h1>
-	<RadioGroup
+
+<div class="card w-48 shadow-xl py-2" data-popup="popupAccepted">
+	<ListBox 
 		rounded="rounded-container-token sm:!rounded-token"
 		active="variant-filled-secondary"
 		hover="hover:variant-soft-secondary"
-		flexDirection="flex-col sm:flex-row"
 	>
-		<RadioItem bind:group={acceptedFilter} name="accepted" value={undefined}>egal</RadioItem>
-		<RadioItem bind:group={acceptedFilter} name="accepted" value={'a'}>angenommen</RadioItem>
-		<RadioItem bind:group={acceptedFilter} name="accepted" value={'d'}>abgelehnt</RadioItem>
-		<RadioItem
-			bind:group={acceptedFilter}
-			name="accepted"
-			value={'p'}
-			title="frühzeitig abgelehnt - vor der 3. Lesung">frühzeitig abgelehnt</RadioItem
-		>
-	</RadioGroup>
+		<ListBoxItem bind:group={acceptedFilter} name="accepted" value={undefined}>egal</ListBoxItem>
+		<ListBoxItem bind:group={acceptedFilter} name="accepted" value={"a"}>angenommen</ListBoxItem>
+		<ListBoxItem bind:group={acceptedFilter} name="accepted" value={"d"}>abgelehnt</ListBoxItem>
+		<ListBoxItem bind:group={acceptedFilter} name="accepted" value={"p"}>frühzeitig abgelehnt</ListBoxItem>
+	</ListBox>
 </div>
-<div class="mt-5">
-	<h1 class="text-2xl font-bold">Abstimmung</h1>
-	<RadioGroup active="variant-filled-secondary" hover="hover:variant-soft-secondary">
-		<RadioItem bind:group={namedVoteFilter} name="namedVote" value={undefined}>egal</RadioItem>
-		<RadioItem bind:group={namedVoteFilter} name="namedVote" value={true}
-			>namentliche Abstimmung</RadioItem
+
+<div class="card w-52 shadow-xl py-2" data-popup="popupNamedVote">
+	<ListBox 
+		rounded="rounded-container-token sm:!rounded-token"
+		active="variant-filled-secondary"
+		hover="hover:variant-soft-secondary"
+	>
+		<ListBoxItem bind:group={namedVoteFilter} name="namedVote" value={undefined}>egal</ListBoxItem>
+		<ListBoxItem bind:group={namedVoteFilter} name="namedVote" value={true}>namentliche Abstimmung</ListBoxItem>
+	</ListBox>
+</div>
+
+<div class="max-lg:hidden flex gap-4 flex-wrap">
+
+	<div class="mt-5">
+		<h1 class="text-2xl font-bold">notwendige Mehrheit</h1>
+		<RadioGroup
+			rounded="rounded-container-token sm:!rounded-token"
+			active="variant-filled-secondary"
+			hover="hover:variant-soft-secondary"
+			flexDirection="flex-col sm:flex-row"
 		>
-	</RadioGroup>
+			<RadioItem bind:group={simpleMajorityFilter} name="simpleMajority" value={undefined}
+				>egal</RadioItem
+			>
+			<RadioItem bind:group={simpleMajorityFilter} name="simpleMajority" value={true}
+				>einfache Mehrheit</RadioItem
+			>
+			<RadioItem bind:group={simpleMajorityFilter} name="simpleMajority" value={false}
+				>2/3 Mehrheit</RadioItem
+			>
+		</RadioGroup>
+	</div>
+	<div class="mt-5">
+		<h1 class="text-2xl font-bold">Angenommen</h1>
+		<RadioGroup
+			rounded="rounded-container-token sm:!rounded-token"
+			active="variant-filled-secondary"
+			hover="hover:variant-soft-secondary"
+			flexDirection="flex-col sm:flex-row"
+		>
+			<RadioItem bind:group={acceptedFilter} name="accepted" value={undefined}>egal</RadioItem>
+			<RadioItem bind:group={acceptedFilter} name="accepted" value={'a'}>angenommen</RadioItem>
+			<RadioItem bind:group={acceptedFilter} name="accepted" value={'d'}>abgelehnt</RadioItem>
+			<RadioItem
+				bind:group={acceptedFilter}
+				name="accepted"
+				value={'p'}
+				title="frühzeitig abgelehnt - vor der 3. Lesung">frühzeitig abgelehnt</RadioItem
+			>
+		</RadioGroup>
+	</div>
+	<div class="mt-5">
+		<h1 class="text-2xl font-bold">Abstimmung</h1>
+		<RadioGroup active="variant-filled-secondary" hover="hover:variant-soft-secondary">
+			<RadioItem bind:group={namedVoteFilter} name="namedVote" value={undefined}>egal</RadioItem>
+			<RadioItem bind:group={namedVoteFilter} name="namedVote" value={true}
+				>namentliche Abstimmung</RadioItem
+			>
+		</RadioGroup>
+	</div>
 </div>
 <div class="mt-5">
 	<h2 class="font-bold text-2xl">Legislaturperioden</h2>

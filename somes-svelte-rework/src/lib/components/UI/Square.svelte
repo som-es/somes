@@ -4,7 +4,6 @@
 	export let flexDirection = "flex-col";
 
 	$: squareSize = squareSize;
-	console.log(squareSize);
 
 	let clazz = '';
 	export { clazz as class };

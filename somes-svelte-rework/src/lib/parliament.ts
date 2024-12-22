@@ -208,7 +208,8 @@ export function enrichtCirclesWithAbsenceInfoOnSeat(
 		let del = findDelegateById(dels, delegate_id);
 		if (del == null || del.seat_col == null || del.seat_row == null) return;
 
-		circles2d[del.seat_row - 1][del.seat_col - 1].r = +5.9;
+		circles2d[del.seat_row - 1][del.seat_col - 1].r = +4.9;
+		// circles2d[del.seat_row - 1][del.seat_col - 1].color = "white"
 		circles2d[del.seat_row - 1][del.seat_col - 1].title = `abwesend`;
 	});
 }
@@ -222,7 +223,7 @@ export function enrichCirclesWithNamedVoteInfoOnSeat(
 		let del = findDelegateById(dels, namedVote.delegate_id);
 		if (del == null || del.seat_col == null || del.seat_row == null) return;
 		if (namedVote.was_absent) {
-			circles2d[del.seat_row - 1][del.seat_col - 1].r = +5.9;
+			circles2d[del.seat_row - 1][del.seat_col - 1].r = +4.9;
 			circles2d[del.seat_row - 1][del.seat_col - 1].title = `abwesend/keine Stimme abgegeben`;
 			return;
 		}

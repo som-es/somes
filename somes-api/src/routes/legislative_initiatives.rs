@@ -242,7 +242,8 @@ pub async fn gov_proposals_by_official(
         on 
             mp.id = mi.ministrial_proposal_id 
         where 
-            delegate_id = $1;
+            delegate_id = $1
+        order by created_at;
     ",
         delegate_by_id.delegate_id
     )
