@@ -23,6 +23,7 @@ pub struct UniqueTopic {
 #[derive(ToSchema, Debug, Deserialize, Serialize, Clone)]
 pub struct GovProposal {
     pub ministrial_proposal: DbMinistrialProposalQuery,
+    pub topics: Vec<Topic>,
     pub vote_result: Option<VoteResult>,
 }
 
@@ -48,7 +49,7 @@ pub struct VoteResultsWithMaxPage {
 use crate::{get_json_cache, set_json_cache};
 
 use super::{
-    construct_vote_result::construct_vote_result, filtering::filtered_legislative_initiatives,
+    construct_vote_result::construct_vote_result, filtering::filtered_legislative_initiatives, get_eurovoc_topics_from_ministrial_proposal,
 };
 
 pub async fn get_latest_legis_inits_per_page(
@@ -140,6 +141,7 @@ pub async fn construct_gov_proposal(
         _ => None,
     };
     Ok(GovProposal {
+        topics: get_eurovoc_topics_from_ministrial_proposal(pg, ministrial_proposal.id).await?,
         ministrial_proposal,
         vote_result,
     })

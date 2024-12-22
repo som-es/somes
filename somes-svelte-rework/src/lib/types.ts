@@ -42,8 +42,9 @@ export interface DbMinistrialProposalQuery {
 }
 
 export interface GovProposal {
-	ministrial_proposal: DbMinistrialProposalQuery,
+	ministrial_proposal: DbMinistrialProposalQuery;
     vote_result: VoteResult | null;
+	topics: Topic[];
 }
 
 export interface LegislativeInitiative {

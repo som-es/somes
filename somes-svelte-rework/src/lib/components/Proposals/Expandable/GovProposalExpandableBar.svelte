@@ -1,12 +1,12 @@
 <script lang="ts">
-	import type { Delegate, VoteResult } from '$lib/types';
+	import type { Delegate, GovProposal, VoteResult } from '$lib/types';
 	import collapse from 'svelte-collapse';
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 
-	export let voteResult: VoteResult;
-	export let dels: Delegate[];
-	let clazz;
+	export let govProposal: GovProposal;
+	// export let dels: Delegate[];
+	let clazz = "";
 	export { clazz as class };
 	let open = false;
 	let duration = 0.35;
@@ -18,16 +18,17 @@
 		on:keypress={() => (open = !open)}
 		role="button"
 		tabindex="0"
-		class="entry bg-primary-300 dark:bg-primary-500 flex justify-between items-center"
+		class="entry dark:bg-primary-300 bg-primary-400 flex justify-between items-center text-black"
 	>
 		<div>
 			<div id={open ? 'open' : 'closed'}>
 				{@html rightArrowIcon}
 			</div>
 		</div>
-		<div>{voteResult.legislative_initiative.description}</div>
+		<div>{govProposal.ministrial_proposal.description}</div>
+		<!-- <div>{voteResult.legislative_initiative.description}</div> -->
 		<div class="w-20 bg-primary-100 dark:bg-primary-300 rounded-md">
-			<VoteParliament2 {voteResult} preview={true} />
+			<!-- <VoteParliament2 {voteResult} preview={true} /> -->
 		</div>
 	</div>
 

@@ -22,6 +22,7 @@
 	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 	import { dashDateToDotDate } from '$lib/date';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
+	import GovProposalPreview from '$lib/components/Proposals/GovProposalPreview.svelte';
 
 	let delegates: Delegate[];
 	let delegate: Delegate | null;
@@ -269,23 +270,22 @@
 					{/if}
 				</div>
 			</div>
+			{#if govProposals && govProposals.length > 0}
+				<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
+					<GovProposalPreview govProposals={govProposals} />
+				</div>
+			{:else if govProposals == null && delegate && delegate.council == "gov"}
+				<ExpandablePlaceholder />
+				<ExpandablePlaceholder />
+			{/if}
+
 			{#if interests}
 				<InterestTiles interests={interests.slice(0, 4)}></InterestTiles>
 			{:else}
 				<ExpandablePlaceholder class={'my-3'} />
 			{/if}
 
-			{#if govProposals && govProposals.length > 0}
-				<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
-					<h1 class="font-bold text-2xl">Ministerialentwürfe</h1>
-				</div>
-			{:else if govProposals == null && delegate && delegate.council == "gov"}
-				<ExpandablePlaceholder />
-				<ExpandablePlaceholder />
-				<ExpandablePlaceholder />
-				<ExpandablePlaceholder />
-				<ExpandablePlaceholder />
-			{/if}
+
 			<!-- <div class="activity-item bg-primary-300">
                     Activity
                 </div> -->
