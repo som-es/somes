@@ -3,6 +3,7 @@
 	import collapse from 'svelte-collapse';
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
+	import GovProposalExpanded from './GovProposalExpanded.svelte';
 
 	export let govProposal: GovProposal;
 	// export let dels: Delegate[];
@@ -33,7 +34,7 @@
 	</div>
 
 	<div use:collapse={{ open, duration }}>
-		<!-- <VoteResultExpanded {voteResult} {dels} bind:open /> -->
+		<GovProposalExpanded {govProposal} bind:open />
 	</div>
 </div>
 
