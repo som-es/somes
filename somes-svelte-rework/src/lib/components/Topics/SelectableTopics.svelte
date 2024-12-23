@@ -5,22 +5,21 @@
 	import DisplayTopic from './Topic.svelte';
 	import ExpandablePlaceholder from '../VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import { addUserTopic, getUserTopics, isHasError, removeUserTopic } from '$lib/api';
-	
-	
+
 	export let selectedTopics: Set<number>;
 	export let topics: UniqueTopic[] = [];
 	let done = false;
-	
+
 	onMount(async () => {
 		const data: UniqueTopic[] | HasError = await getUserTopics();
 
 		if (!isHasError(data)) {
-			selectedTopics = new Set<number>(data.map((topic) => topic.id))	;
+			selectedTopics = new Set<number>(data.map((topic) => topic.id));
 			topics = topics;
-		}		
+		}
 
 		done = true;
-	})
+	});
 
 	let addToSelection = async (topic: UniqueTopic) => {
 		selectedTopics.add(topic.id);
@@ -28,15 +27,13 @@
 
 		await addUserTopic(topic);
 	};
-	
+
 	let removeFromSelection = async (topic: UniqueTopic) => {
-		selectedTopics.delete(topic.id)
+		selectedTopics.delete(topic.id);
 		selectedTopics = new Set(selectedTopics);
-		
+
 		await removeUserTopic(topic);
 	};
-
-
 </script>
 
 <div class="flex flex-wrap gap-2 px-1">

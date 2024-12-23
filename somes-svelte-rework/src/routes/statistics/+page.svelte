@@ -11,15 +11,38 @@
 			<h1 class="font-bold text-3xl">Statistiken</h1>
 		</div>
 
-		<div class="rounded-xl min-w-40 min-h-40 w-[20rem] h-[20rem] bg-primary-300 dark:bg-primary-500 flex items-center justify-center">Sprachkomplexität</div>
-		<div class="rounded-xl min-w-40 min-h-40 w-[20rem] h-[20rem] bg-primary-300 dark:bg-primary-500 flex items-center justify-center">Aktivitätsscoring</div>
-		<div class="rounded-xl min-w-40 min-h-40 w-[20rem] h-[20rem] bg-primary-300 dark:bg-primary-500 flex items-center justify-center">Redezeit</div>
-		<div class="rounded-xl min-w-40 min-h-40 w-[20rem] h-[20rem] bg-primary-300 dark:bg-primary-500 flex items-center justify-center">Ordnungsrufe</div>
+		<div
+			class="rounded-xl min-w-40 min-h-40 w-[20rem] h-[20rem] bg-primary-300 dark:bg-primary-500 flex items-center justify-center"
+		>
+			Sprachkomplexität
+		</div>
+		<div
+			class="rounded-xl min-w-40 min-h-40 w-[20rem] h-[20rem] bg-primary-300 dark:bg-primary-500 flex items-center justify-center"
+		>
+			Aktivitätsscoring
+		</div>
+		<div
+			class="rounded-xl min-w-40 min-h-40 w-[20rem] h-[20rem] bg-primary-300 dark:bg-primary-500 flex items-center justify-center"
+		>
+			Redezeit
+		</div>
+		<div
+			class="rounded-xl min-w-40 min-h-40 w-[20rem] h-[20rem] bg-primary-300 dark:bg-primary-500 flex items-center justify-center"
+		>
+			Ordnungsrufe
+		</div>
 	</div>
 </Container>
 <div>
 	<div class="w-full">
-		<VoteParliament2 voteResult={mockVoteResult()} delegates={mockDelegates()} overrideDelegates useOffset={false} noSeats preview />
+		<VoteParliament2
+			voteResult={mockVoteResult()}
+			delegates={mockDelegates()}
+			overrideDelegates
+			useOffset={false}
+			noSeats
+			preview
+		/>
 	</div>
 </div>
 
@@ -30,7 +53,7 @@
 		padding: 20px;
 		gap: 10px;
 	}
-	
+
 	.flex-item {
 		flex-basis: 100%;
 	}

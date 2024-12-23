@@ -31,7 +31,6 @@
 	</TabAnchor>
 	<TabAnchor href="{base}/wahlhelfer" selected={isSelected('/wahlhelfer')}>
 		<div class="flex justify-center flex-col items-center">
-
 			<div class="p-0 w-[28px] h-[42px]">
 				{@html waloIcon}
 			</div>
@@ -60,7 +59,7 @@
 					preview
 					overrideDelegates
 					noSeats
-					useOffset={false}	
+					useOffset={false}
 				/>
 			</div>
 			<!-- <div>

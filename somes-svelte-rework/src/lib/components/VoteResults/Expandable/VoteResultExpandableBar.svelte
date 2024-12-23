@@ -5,11 +5,8 @@
 	import VoteResultExpanded from './VoteResultExpanded.svelte';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
-	
-	import {
-		currentDelegatesAtDateStore,
-		currentVoteResultStore,
-	} from '$lib/stores/stores';
+
+	import { currentDelegatesAtDateStore, currentVoteResultStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
 	import InfoTiles from '../InfoTiles/InfoTiles.svelte';
 
@@ -26,7 +23,6 @@
 		gotoHistory('/vote_result', true);
 		// }
 	}
-
 </script>
 
 <div class="gap-3 mt-5">
@@ -45,10 +41,23 @@
 		<div>{voteResult.legislative_initiative.description}</div>
 		<div class="flex items-center">
 			<div class="max-sm:hidden">
-				<InfoTiles squareSize={"10px"} squareClasses={"min-w-[60px] min-h-[60px] max-w-[60px] max-h-[60px] h-[60px] w-[60px] w-16 mx-4"} {voteResult} {dels} isCenter showText={true} showRequiredMajority={false} showDate={false} showAchievedVotes={false} />
+				<InfoTiles
+					squareSize={'10px'}
+					squareClasses={'min-w-[60px] min-h-[60px] max-w-[60px] max-h-[60px] h-[60px] w-[60px] w-16 mx-4'}
+					{voteResult}
+					{dels}
+					isCenter
+					showText={true}
+					showRequiredMajority={false}
+					showDate={false}
+					showAchievedVotes={false}
+				/>
 			</div>
 
-			<button class="max-sm:hidden z-20 w-[7.5rem] bg-primary-100 dark:bg-primary-300 rounded-md" on:click={onShowDetails}>
+			<button
+				class="max-sm:hidden z-20 w-[7.5rem] bg-primary-100 dark:bg-primary-300 rounded-md"
+				on:click={onShowDetails}
+			>
 				<VoteParliament2 {voteResult} preview={true} />
 			</button>
 		</div>

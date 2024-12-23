@@ -4,7 +4,7 @@ import type { AutocompleteOption } from './types';
 export function convertDelegatesToAutocompleteOptions(
 	delegates: Delegate[],
 	otherKeywords: string[] = [],
-	voteResult: VoteResult | null = null,
+	voteResult: VoteResult | null = null
 ): AutocompleteOption<string>[] {
 	return delegates.map((delegate) => {
 		let genderIdents: string[] = [];
@@ -14,13 +14,13 @@ export function convertDelegatesToAutocompleteOptions(
 			genderIdents = ['weiblich', 'frau', 'abgeordnete'];
 		}
 
-		let yes_or_no_vote = "";
+		let yes_or_no_vote = '';
 		if (voteResult && voteResult.named_votes) {
-			voteResult.named_votes.named_votes.forEach((nv => {
+			voteResult.named_votes.named_votes.forEach((nv) => {
 				if (nv.delegate_id == delegate.id) {
-					yes_or_no_vote = nv.infavor ? "ja" : "nein";
+					yes_or_no_vote = nv.infavor ? 'ja' : 'nein';
 				}
-			}))
+			});
 		}
 
 		let genderIdentsString = genderIdents.join(', ');

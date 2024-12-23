@@ -5,7 +5,13 @@
 	import type { Delegate, DelegateQA, GovProposal, InterestShare, LegisPeriod } from '$lib/types';
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
-	import { delegate_interests, delegate_qa, delegates_at, errorToNull, gov_proposals_by_official } from '$lib/api';
+	import {
+		delegate_interests,
+		delegate_qa,
+		delegates_at,
+		errorToNull,
+		gov_proposals_by_official
+	} from '$lib/api';
 	import InterestTiles from '$lib/components/Delegates/InterestTiles.svelte';
 	import { get } from 'svelte/store';
 	import { currentDelegateStore, hasGoBackStore } from '$lib/stores/stores';
@@ -51,7 +57,7 @@
 	let supplyDate: Date | null = null;
 
 	let inputValue = '';
-	let prevSelectedDelegateId = 0
+	let prevSelectedDelegateId = 0;
 
 	function delegateFilter(): AutocompleteOption<string>[] {
 		let _options = [...autocompleteOptions];
@@ -64,7 +70,7 @@
 		delegate = event.detail.meta;
 		inputValue = event.detail.label;
 	}
-	
+
 	onMount(async () => {
 		const url = new URL(window.location.href);
 		selectedPeriod = url.searchParams.get('gp') || 'XXVIII';
@@ -74,15 +80,14 @@
 
 		const firstIdx = periods.findIndex((x) => x.gp == selectedPeriod);
 		if (firstIdx == -1) return;
-// ).toISOString().split('T')[0] as unknown as Date
+		// ).toISOString().split('T')[0] as unknown as Date
 		const endDate = periods[firstIdx + 1]?.start_date;
-		const newDate = new Date(endDate ? endDate : new Date())
-		newDate.setDate(newDate.getDate() - 1)
-		supplyDate = newDate.toISOString().split('T')[0] as unknown as Date
+		const newDate = new Date(endDate ? endDate : new Date());
+		newDate.setDate(newDate.getDate() - 1);
+		supplyDate = newDate.toISOString().split('T')[0] as unknown as Date;
 		// console.log(supplyDate);
 		finishedMounting = true;
-	})
-	
+	});
 
 	const updateDelsToDisplay = async () => {
 		if (!periods || periods.length == 0) {
@@ -105,15 +110,15 @@
 
 		startDate.setDate(startDate.getDate() + dayOffset - 2);
 
-		supplyDate = startDate.toISOString().split('T')[0] as unknown as Date
+		supplyDate = startDate.toISOString().split('T')[0] as unknown as Date;
 		// console.log(`supply ${supplyDate}`);
 		// const fetchedDelsAtDate = await delegates_at(
 		// );
 		// console.log(fetchedDelsAtDate);
 
 		// if (fetchedDelsAtDate) {
-			// delsAtDate = fetchedDelsAtDate;
-			// autocompleteOptions = convertDelegatesToAutocompleteOptions(delsAtDate);
+		// delsAtDate = fetchedDelsAtDate;
+		// autocompleteOptions = convertDelegatesToAutocompleteOptions(delsAtDate);
 		// }
 	};
 
@@ -156,13 +161,13 @@
 			if (delegateQANull) delegateQA = delegateQANull;
 		});
 		// delegateQA = [
-		// 	{question: "Wie heißt du?", answer: "Tim Herbert"}, 
+		// 	{question: "Wie heißt du?", answer: "Tim Herbert"},
 		// 	{question: "Warum hast du bei der letzten Wahl die FPÖ gewählt?", answer: "Restfett wählen gehen war ein Fehler."},
 		// ];
 
 		gov_proposals_by_official(delegate.id).then((res) => {
 			govProposals = errorToNull(res);
-		})
+		});
 
 		delegate_interests(delegate.id).then((res) => {
 			const input = errorToNull(res);
@@ -216,77 +221,74 @@
 		</div>
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
 			{#if periods.length > 0 && delegates}
-				<AllBadges
-					delsAtDate={structuredClone(delegates)}
-				/>
+				<AllBadges delsAtDate={structuredClone(delegates)} />
 			{/if}
 		</div>
 		<!-- {#if delegates} -->
-			<div class="text-token w-full space-y-2">
-				<input
-					class="input w-full h-12 px-2"
-					type="search"
-					name="ac-demo"
-					bind:value={inputValue}
-					placeholder="Suchen..."
-					use:popup={popupSettings}
-				/>
+		<div class="text-token w-full space-y-2">
+			<input
+				class="input w-full h-12 px-2"
+				type="search"
+				name="ac-demo"
+				bind:value={inputValue}
+				placeholder="Suchen..."
+				use:popup={popupSettings}
+			/>
 
-				{#if autocompleteOptions}
-					<div
-						class="z-10 card w-full max-w-sm max-h-64 p-4 overflow-y-auto"
-						data-popup="popupAutocomplete"
-					>
-						<Autocomplete
-							bind:input={inputValue}
-							options={autocompleteOptions}
-							on:selection={onDelegateSelection}
-							emptyState={'Keine Person gefunden'}
-							filter={delegateFilter}
-						/>
-					</div>
-				{/if}
-			</div>
-			<div class="flex flex-wrap min-w-full justify-between">
-				<div class="rounded-xl w-full parliament-item bg-primary-300 dark:bg-primary-200">
-					<div class="px-5">
-						{#if supplyDate}
-							<VoteParliament2
-								againstOpacity={1}
-								voteResult={null}
-								bind:delegate
-								bind:delegates
-								gp={selectedPeriod}
-								supplyDate={supplyDate}
-								orderingFactor={-1}
-								showGovs={true}
-							/>
-						{/if}
-					</div>
+			{#if autocompleteOptions}
+				<div
+					class="z-10 card w-full max-w-sm max-h-64 p-4 overflow-y-auto"
+					data-popup="popupAutocomplete"
+				>
+					<Autocomplete
+						bind:input={inputValue}
+						options={autocompleteOptions}
+						on:selection={onDelegateSelection}
+						emptyState={'Keine Person gefunden'}
+						filter={delegateFilter}
+					/>
 				</div>
-				<div class="rounded-xl delegate-item bg-primary-300 dark:bg-primary-500">
-					{#if delegate}
-						<DelegateCard {delegate} questions={delegateQA} showQA/>
+			{/if}
+		</div>
+		<div class="flex flex-wrap min-w-full justify-between">
+			<div class="rounded-xl w-full parliament-item bg-primary-300 dark:bg-primary-200">
+				<div class="px-5">
+					{#if supplyDate}
+						<VoteParliament2
+							againstOpacity={1}
+							voteResult={null}
+							bind:delegate
+							bind:delegates
+							gp={selectedPeriod}
+							{supplyDate}
+							orderingFactor={-1}
+							showGovs={true}
+						/>
 					{/if}
 				</div>
 			</div>
-			{#if govProposals && govProposals.length > 0}
-				<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
-					<GovProposalPreview govProposals={govProposals} />
-				</div>
-			{:else if govProposals == null && delegate && delegate.council == "gov"}
-				<ExpandablePlaceholder />
-				<ExpandablePlaceholder />
-			{/if}
+			<div class="rounded-xl delegate-item bg-primary-300 dark:bg-primary-500">
+				{#if delegate}
+					<DelegateCard {delegate} questions={delegateQA} showQA />
+				{/if}
+			</div>
+		</div>
+		{#if govProposals && govProposals.length > 0}
+			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
+				<GovProposalPreview {govProposals} />
+			</div>
+		{:else if govProposals == null && delegate && delegate.council == 'gov'}
+			<ExpandablePlaceholder />
+			<ExpandablePlaceholder />
+		{/if}
 
-			{#if interests}
-				<InterestTiles interests={interests.slice(0, 4)}></InterestTiles>
-			{:else}
-				<ExpandablePlaceholder class={'my-3'} />
-			{/if}
+		{#if interests}
+			<InterestTiles interests={interests.slice(0, 4)}></InterestTiles>
+		{:else}
+			<ExpandablePlaceholder class={'my-3'} />
+		{/if}
 
-
-			<!-- <div class="activity-item bg-primary-300">
+		<!-- <div class="activity-item bg-primary-300">
                     Activity
                 </div> -->
 		<!-- {/if} -->

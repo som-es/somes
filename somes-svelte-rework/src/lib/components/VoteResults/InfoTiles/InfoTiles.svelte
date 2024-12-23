@@ -11,8 +11,8 @@
 
 	export let voteResult: VoteResult;
 	export let dels: Delegate[];
-	export let squareSize = "140px";
-	export let squareClasses = "";
+	export let squareSize = '140px';
+	export let squareClasses = '';
 	export let isCenter: boolean = false;
 	export let showRequiredMajority = true;
 	export let showDate = true;
@@ -111,7 +111,7 @@
 <div class="flex flex-wrap {isCenter ? 'justify-center' : ''} info-item gap-3">
 	<div class="flex gap-3 flex-wrap">
 		{#if showAccepted}
-			<Square squareSize={squareSize} class="accepted-item {squareClasses}">
+			<Square {squareSize} class="accepted-item {squareClasses}">
 				{#if voteResult.legislative_initiative.accepted == 'a'}
 					{@html checkmarkIcon}
 					{#if showText}
@@ -129,7 +129,7 @@
 			</Square>
 		{/if}
 		{#if showRequiredMajority}
-			<Square squareSize={squareSize} class="majority-item {squareClasses}">
+			<Square {squareSize} class="majority-item {squareClasses}">
 				<SimpleDonut
 					{isLightMode}
 					stops={voteResult.legislative_initiative.requires_simple_majority
@@ -146,7 +146,7 @@
 	</div>
 	<div class="flex gap-3 flex-wrap">
 		{#if showAchievedVotes}
-			<Square squareSize={squareSize} class="{squareClasses}">
+			<Square {squareSize} class={squareClasses}>
 				<SimpleDonut stops={conicsStopsAchievedVotes} {isLightMode} />
 
 				{#if showText}
@@ -157,7 +157,7 @@
 			</Square>
 		{/if}
 		{#if showDate}
-			<Square squareSize={squareSize} class="{squareClasses}">
+			<Square {squareSize} class={squareClasses}>
 				<div class="font-bold text-lg">
 					{dashDateToDotDate(voteResult.legislative_initiative.created_at.toString())}
 				</div>

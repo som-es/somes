@@ -5,7 +5,15 @@
 	import VoteResultExpandableBar from './VoteResultExpandableBar.svelte';
 	import { pushState } from '$app/navigation';
 	import Pagination from '$lib/components/Pagination.svelte';
-	import { ListBox, ListBoxItem, popup, RadioGroup, RadioItem, SlideToggle, type PopupSettings } from '@skeletonlabs/skeleton';
+	import {
+		ListBox,
+		ListBoxItem,
+		popup,
+		RadioGroup,
+		RadioItem,
+		SlideToggle,
+		type PopupSettings
+	} from '@skeletonlabs/skeleton';
 	import LegisButtons from '$lib/components/Filtering/LegisButtons.svelte';
 	import CenterPrograssRadial from '$lib/components/ProgressInfos/CenterPrograssRadial.svelte';
 	import { currentVoteResultFilterStore } from '$lib/stores/stores';
@@ -67,7 +75,9 @@
 		// filter = null;
 
 		if (searchValue) {
-			const voteResultsSearch = errorToNull(await vote_results_by_search(page, searchValue, filter));
+			const voteResultsSearch = errorToNull(
+				await vote_results_by_search(page, searchValue, filter)
+			);
 			if (voteResultsSearch) voteResults = voteResultsSearch;
 		} else {
 			voteResults = errorToNull(await vote_results_per_page(page - 1, filter));
@@ -101,7 +111,6 @@
 		update();
 	}
 
-
 	const popupRequiredMajority: PopupSettings = {
 		event: 'click',
 		target: 'popupRequiresSimpleMajority',
@@ -111,11 +120,11 @@
 
 	const translateSimpleMajorityFilterValue = (simpleMajorityFilter: boolean | undefined) => {
 		if (simpleMajorityFilter == undefined) {
-			return "egal"
+			return 'egal';
 		}
-		return simpleMajorityFilter ? "einfache Mehrheit" : "2/3 Mehrheit"
-	}
-	
+		return simpleMajorityFilter ? 'einfache Mehrheit' : '2/3 Mehrheit';
+	};
+
 	const popupAccepted: PopupSettings = {
 		event: 'click',
 		target: 'popupAccepted',
@@ -125,14 +134,17 @@
 
 	const translateAcceptedValue = (acceptedFilter: string | undefined) => {
 		if (acceptedFilter == undefined) {
-			return "egal"
+			return 'egal';
 		}
 		switch (acceptedFilter) {
-			case "a": return "angenommen";
-			case "d": return "abgelehnt";
-			case "p": return "frühzeitig abgelehnt";
+			case 'a':
+				return 'angenommen';
+			case 'd':
+				return 'abgelehnt';
+			case 'p':
+				return 'frühzeitig abgelehnt';
 		}
-	}
+	};
 
 	const popupNamedVote: PopupSettings = {
 		event: 'click',
@@ -140,13 +152,13 @@
 		placement: 'bottom',
 		closeQuery: '.listbox-item'
 	};
-	
+
 	const translateNamedVoteValue = (namedVoteFilter: boolean | undefined) => {
 		if (namedVoteFilter == undefined) {
-			return "egal"
+			return 'egal';
 		}
-		return namedVoteFilter ? "namentliche" : "nicht namentliche"
-	}
+		return namedVoteFilter ? 'namentliche' : 'nicht namentliche';
+	};
 </script>
 
 <!-- <br /> -->
@@ -156,7 +168,10 @@
 <div class="lg:hidden flex flex-wrap gap-6">
 	<div>
 		<h1 class="text-2xl font-bold">notwendige Mehrheit</h1>
-		<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupRequiredMajority}>
+		<button
+			class="btn variant-filled-secondary w-48 justify-between"
+			use:popup={popupRequiredMajority}
+		>
 			<span class="capitalize">{translateSimpleMajorityFilterValue(simpleMajorityFilter)}</span>
 			<span>↓</span>
 		</button>
@@ -180,43 +195,52 @@
 </div>
 
 <div class="card w-48 shadow-xl py-2" data-popup="popupRequiresSimpleMajority">
-	<ListBox 
+	<ListBox
 		rounded="rounded-container-token sm:!rounded-token"
 		active="variant-filled-secondary"
 		hover="hover:variant-soft-secondary"
 	>
-		<ListBoxItem bind:group={simpleMajorityFilter} name="simpleMajority" value={undefined}>egal</ListBoxItem>
-		<ListBoxItem bind:group={simpleMajorityFilter} name="simpleMajority" value={true}>einfache Mehrheit</ListBoxItem>
-		<ListBoxItem bind:group={simpleMajorityFilter} name="simpleMajority" value={false}>2/3 Mehrheit</ListBoxItem>
+		<ListBoxItem bind:group={simpleMajorityFilter} name="simpleMajority" value={undefined}
+			>egal</ListBoxItem
+		>
+		<ListBoxItem bind:group={simpleMajorityFilter} name="simpleMajority" value={true}
+			>einfache Mehrheit</ListBoxItem
+		>
+		<ListBoxItem bind:group={simpleMajorityFilter} name="simpleMajority" value={false}
+			>2/3 Mehrheit</ListBoxItem
+		>
 	</ListBox>
 </div>
 
 <div class="card w-48 shadow-xl py-2" data-popup="popupAccepted">
-	<ListBox 
+	<ListBox
 		rounded="rounded-container-token sm:!rounded-token"
 		active="variant-filled-secondary"
 		hover="hover:variant-soft-secondary"
 	>
 		<ListBoxItem bind:group={acceptedFilter} name="accepted" value={undefined}>egal</ListBoxItem>
-		<ListBoxItem bind:group={acceptedFilter} name="accepted" value={"a"}>angenommen</ListBoxItem>
-		<ListBoxItem bind:group={acceptedFilter} name="accepted" value={"d"}>abgelehnt</ListBoxItem>
-		<ListBoxItem bind:group={acceptedFilter} name="accepted" value={"p"}>frühzeitig abgelehnt</ListBoxItem>
+		<ListBoxItem bind:group={acceptedFilter} name="accepted" value={'a'}>angenommen</ListBoxItem>
+		<ListBoxItem bind:group={acceptedFilter} name="accepted" value={'d'}>abgelehnt</ListBoxItem>
+		<ListBoxItem bind:group={acceptedFilter} name="accepted" value={'p'}
+			>frühzeitig abgelehnt</ListBoxItem
+		>
 	</ListBox>
 </div>
 
 <div class="card w-52 shadow-xl py-2" data-popup="popupNamedVote">
-	<ListBox 
+	<ListBox
 		rounded="rounded-container-token sm:!rounded-token"
 		active="variant-filled-secondary"
 		hover="hover:variant-soft-secondary"
 	>
 		<ListBoxItem bind:group={namedVoteFilter} name="namedVote" value={undefined}>egal</ListBoxItem>
-		<ListBoxItem bind:group={namedVoteFilter} name="namedVote" value={true}>namentliche Abstimmung</ListBoxItem>
+		<ListBoxItem bind:group={namedVoteFilter} name="namedVote" value={true}
+			>namentliche Abstimmung</ListBoxItem
+		>
 	</ListBox>
 </div>
 
 <div class="max-lg:hidden flex gap-4 flex-wrap">
-
 	<div class="mt-5">
 		<h1 class="text-2xl font-bold">notwendige Mehrheit</h1>
 		<RadioGroup

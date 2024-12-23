@@ -68,11 +68,11 @@
 			// TODO set general absences delegates -> mind to update absence delegates
 		}
 	}
-	
-	let updatedQueryParam = false;	
-	
+
+	let updatedQueryParam = false;
+
 	const update = (voteResultId: string | null) => {
-		console.log("load")
+		console.log('load');
 		if (voteResultId == null) {
 			return;
 		}
@@ -97,13 +97,12 @@
 		history.back();
 	};
 
-
 	const updateAutocompletion = async () => {
 		const url = new URL(window.location.href);
-		
+
 		voteResultId = url.searchParams.get('id');
 		if (oldVoteResultId != voteResultId) {
-			update(voteResultId)
+			update(voteResultId);
 		}
 
 		if (!voteResultId) {
@@ -111,7 +110,7 @@
 		}
 
 		if (!delegates) {
-			return
+			return;
 		}
 
 		await fetchDelegatesAtAndEnrich(delegates);
@@ -135,7 +134,7 @@
 		//     if (voteResult !== null) voteResultId = voteResult?.legislative_initiative.id;
 		//     currentVoteResultStore.set(voteResult);
 		// }
-	}
+	};
 
 	onMount(updateAutocompletion);
 
@@ -152,7 +151,6 @@
 		currentVoteResultStore.set(voteResult);
 		currentlyUpdating = false;
 	};
-
 
 	function delegateFilter(): AutocompleteOption<string>[] {
 		let _options = [...autocompleteOptions];
@@ -277,13 +275,12 @@
 
 				<!-- {/if} -->
 				<div class="flex flex-wrap justify-between min-w-full gap-3">
-
 					{#if delegates}
 						<div class="md:hidden info-item">
 							<InfoTiles {voteResult} dels={delegates} isCenter />
 						</div>
 						<div class="max-md:hidden info-item">
-							<InfoTiles {voteResult} dels={delegates}  />
+							<InfoTiles {voteResult} dels={delegates} />
 						</div>
 					{/if}
 

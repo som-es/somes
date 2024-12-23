@@ -28,13 +28,12 @@
 			if (isHasError(await renew_token())) {
 				drawerStore.open(loginDrawerSettings);
 			} else {
-				gotoHistory("/user")
+				gotoHistory('/user');
 			}
 		} else {
 			drawerStore.open(loginDrawerSettings);
 		}
-
-	}
+	};
 
 	// $: activeAnchorColor = (href: string) => ($page.url.pathname?.includes(href) ? 'flex flex-col justify-center items-stretch bg-primary-active-token' : 'bg-primary-hover-token');
 </script>
@@ -101,7 +100,7 @@
 					preview
 					overrideDelegates
 					noSeats
-					useOffset={false}	
+					useOffset={false}
 				/>
 			</svelte:fragment>
 			<span style="font-size: x-small;">Abstimmungen</span>
@@ -128,30 +127,32 @@
 		</AppRailAnchor> -->
 		<hr />
 		<!-- --- -->
-		<svelte:fragment slot="trail" >
-			<div on:click={
-				async () => {
+		<svelte:fragment slot="trail">
+			<div
+				on:click={async () => {
 					await accountOrLogin();
-				}
-			} tabindex="0" role="button"  on:keydown={
-				async (event) => {
+				}}
+				tabindex="0"
+				role="button"
+				on:keydown={async (event) => {
 					if (event.key === 'Enter' || event.key === ' ') {
 						await accountOrLogin();
-                    }	
-				}
-			}>
-				<AppRailAnchor 
+					}
+				}}
+			>
+				<AppRailAnchor
 					selected={isSelected('/user')}
 					bind:group={currentTile}
 					name="Account"
 					value={5}
-					title="Account" on:click={() => {
-				}}>
+					title="Account"
+					on:click={() => {}}
+				>
 					<svelte:fragment slot="lead">{@html userIcon}</svelte:fragment>
 
 					<span style="font-size: smaller;">Benutzer</span>
 				</AppRailAnchor>
-			</div>	
+			</div>
 		</svelte:fragment>
 	</AppRail>
 	<!-- Mobile Only -->

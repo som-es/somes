@@ -1,5 +1,5 @@
-import { getPartyColors } from "./partyColor";
-import type { VoteResult } from "./types";
+import { getPartyColors } from './partyColor';
+import type { VoteResult } from './types';
 
 export function isPartyInFavor(voteResult: VoteResult | null, party: string): boolean {
 	const votes = voteResult?.votes.slice();
@@ -21,5 +21,3 @@ export function createPartyInfavorMap(voteResult: VoteResult | null): Map<string
 	});
 	return partyInfavorMap;
 }
-
-

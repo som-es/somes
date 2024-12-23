@@ -12,18 +12,22 @@ export async function cachedAllSeats(
 		if (!isHasError(fetched)) {
 			const colorsArray = Array.from(fetched.entries());
 			maybeCached = colorsArray;
-			seatsStore.set(colorsArray.slice())
+			seatsStore.set(colorsArray.slice());
 		} else {
-			maybeCached = []
+			maybeCached = [];
 		}
 	}
 	return new Map(maybeCached);
 }
 
-export function getSeats(map: Map<string, number[]>, gp: string, forceBase: boolean = false): number[] {
-	const res = map.get(gp)
+export function getSeats(
+	map: Map<string, number[]>,
+	gp: string,
+	forceBase: boolean = false
+): number[] {
+	const res = map.get(gp);
 	if (res == null || forceBase) {
 		return [18, 25, 29, 33, 37, 41];
 	}
-	return res
+	return res;
 }
