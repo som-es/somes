@@ -35,7 +35,7 @@
 				{@html rightArrowIcon}
 			</div>
 		</div>
-		<div>{govProposal.ministrial_proposal.description}</div>
+		<div>{govProposal.ministrial_proposal.description.slice(30)}</div>
 		<!-- <div>{voteResult.legislative_initiative.description}</div> -->
 
 		{#if govProposal.vote_result}
