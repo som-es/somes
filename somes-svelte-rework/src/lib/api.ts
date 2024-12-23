@@ -20,9 +20,9 @@ import type {
 } from './types';
 import { jwtStore } from './caching/stores/stores';
 
-// const address = 'https://somes.at';
+ const address = 'https://somes.at';
 // const address = 'http://127.0.0.1:3000';
-const address = import.meta.env.VITE_API_URL;
+// const address = import.meta.env.VITE_API_URL;
 
 // const address = "http://192.168.1.114:3000"
 
