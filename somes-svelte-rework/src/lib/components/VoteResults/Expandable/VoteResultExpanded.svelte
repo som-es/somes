@@ -4,10 +4,7 @@
 	import type { Delegate, VoteResult } from '$lib/types';
 	import Emphasis from '../Emphasis/Emphasis.svelte';
 	import InfoTiles from '../InfoTiles/InfoTiles.svelte';
-	import {
-		currentDelegatesAtDateStore,
-		currentVoteResultStore,
-	} from '$lib/stores/stores';
+	import { currentDelegatesAtDateStore, currentVoteResultStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 
@@ -26,16 +23,16 @@
 		// $: if (browser) {
 		gotoHistory('/vote_result', true);
 		// }
-	}	
+	}
 
-	const rawEmphasis = voteResult.legislative_initiative.emphasis;
+	$: rawEmphasis = voteResult.legislative_initiative.emphasis;
 
-	const whichGridContainer =
+	$: whichGridContainer =
 		rawEmphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
 </script>
 
 <div class="lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3">
-	<Emphasis 
+	<Emphasis
 		{rawEmphasis}
 		isAiGenerated={voteResult.legislative_initiative.is_emphasis_ai_generated ?? false}
 		useTitleHover
@@ -69,8 +66,8 @@
 <div class="max-lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3 {whichGridContainer}">
 	<!-- Inneres Migration Frauen Klimaschutz -->
 
-	<Emphasis 
-		{rawEmphasis} 
+	<Emphasis
+		{rawEmphasis}
 		isAiGenerated={voteResult.legislative_initiative.is_emphasis_ai_generated ?? false}
 		useTitleHover
 	/>
@@ -85,7 +82,10 @@
 		/>
 	</div>
 
-	<button class="rounded-xl min-w-full max-w-full ml-auto parliament-item bg-primary-100" on:click={onShowDetails}>
+	<button
+		class="rounded-xl min-w-full max-w-full ml-auto parliament-item bg-primary-100"
+		on:click={onShowDetails}
+	>
 		<VoteParliament2 {voteResult} preview={true} />
 	</button>
 	<InfoTiles {voteResult} {dels} />

@@ -1,36 +1,37 @@
 <script lang="ts">
-	import { popup, type PopupSettings } from "@skeletonlabs/skeleton";
+	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import collapse from 'svelte-collapse';
 
 	export let rawEmphasis: string | null;
 	export let isAiGenerated: boolean = false;
 	export let useTitleHover: boolean = false;
-	
+
 	$: emphasis = rawEmphasis
 		?.split('\n')
 		.filter((x) => x.length > 10)
 		.map((x) => {
 			let trim = x.trim();
-			if (trim.startsWith("-")) {
-				trim = trim.slice(1).trim()
+			if (trim.startsWith('-')) {
+				trim = trim.slice(1).trim();
 			}
 			return trim;
 		});
 
-	$: isAiGenerated
-	
+	$: isAiGenerated;
+
 	const popupFeatured: PopupSettings = {
 		event: 'hover',
 		target: 'emphasisAi',
 		placement: 'bottom'
 	};
 
-	const aiGenText = "Diese Schwerpunkte wurden mittels KI aus dem jeweiligen Gesetzestext zusammengefasst.";
-	const titleHover = useTitleHover ? aiGenText : "";
+	const aiGenText =
+		'Diese Schwerpunkte wurden mittels KI aus dem jeweiligen Gesetzestext zusammengefasst.';
+	const titleHover = useTitleHover ? aiGenText : '';
 
 	let open = false;
-	let firstThreePoints: string[] = []
-	let restPoints: string[] = []
+	let firstThreePoints: string[] = [];
+	let restPoints: string[] = [];
 	$: if (emphasis) {
 		firstThreePoints = emphasis.slice(0, 3);
 		restPoints = emphasis.slice(3);
@@ -46,8 +47,10 @@
 				<div class="!z-50 card p-4 w-72 shadow-xl" data-popup="emphasisAi">
 					<div class="z-50 font-bold text-xl">{aiGenText}</div>
 				</div>
-				
-				<button class="text-4xl" title={titleHover} use:popup={popupFeatured}>⚠</button>
+
+				{#if isAiGenerated}
+					<button class="text-4xl" title={titleHover} use:popup={popupFeatured}>⚠</button>
+				{/if}
 			</div>
 
 			<ul class="mt-1 list fill-primary-400">
@@ -58,10 +61,6 @@
 					</li>
 				{/each}
 
-				<button class=" font-bold text-xl" on:click={() => open = !open}>
-					<span>{open ? "Weniger" : "Mehr"} anzeigen</span>
-				</button>				  
-
 				<div use:collapse={{ open }}>
 					{#each restPoints as emph}
 						<li class="my-3">
@@ -70,6 +69,12 @@
 						</li>
 					{/each}
 				</div>
+
+				{#if emphasis.length > 3}
+					<button class=" font-bold text-xl" on:click={() => (open = !open)}>
+						<span>{open ? 'Weniger' : 'Mehr'} anzeigen</span>
+					</button>
+				{/if}
 			</ul>
 		</div>
 	{:else}

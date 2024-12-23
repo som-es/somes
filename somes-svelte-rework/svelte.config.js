@@ -17,7 +17,7 @@ const config = {
 	// }
 	kit: {
 		paths: {
-			base: '/alpha', 
+			base: '/alpha'
 		},
 		adapter: adapter({
 			// default options are shown. On some platforms

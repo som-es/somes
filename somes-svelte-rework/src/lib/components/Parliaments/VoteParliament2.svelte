@@ -1,8 +1,6 @@
 <!-- TODO: merge this and the Parliament component in to one -->
 <script lang="ts">
-	import {
-		setupParliament,
-		type Bubble	} from '$lib/parliament';
+	import { setupParliament, type Bubble } from '$lib/parliament';
 	import { getPartyColors } from '$lib/partyColor';
 	import type { Delegate, VoteResult } from '$lib/types';
 	import { onMount } from 'svelte';
@@ -11,7 +9,11 @@
 	import { cachedAllSeats, getSeats } from '$lib/caching/seats';
 	import DataParliament from './DataParliament.svelte';
 	import { createPartyInfavorMap, isPartyInFavor } from '$lib/partyInfavor';
-	import { cachedDelegatesNearSeats, filterDelegates, filteredDelegatesNearSeats } from '$lib/caching/delegates';
+	import {
+		cachedDelegatesNearSeats,
+		filterDelegates,
+		filteredDelegatesNearSeats
+	} from '$lib/caching/delegates';
 	import { cachedGovOfficials, seatSettedCachedGovOfficials } from '$lib/caching/gov_officials';
 
 	const width = 830;
@@ -19,7 +21,7 @@
 
 	let clazz = '';
 	export { clazz as class };
-	
+
 	export let orderingFactor: number = 1;
 	export let preview: boolean = false;
 	export let againstOpacity: number = 0.16;
@@ -38,7 +40,6 @@
 		date = supplyDate;
 	}
 	if (voteResult) date = voteResult.legislative_initiative.created_at;
-	
 
 	let seats: number[];
 	export let delegates: Delegate[] = [];
@@ -57,8 +58,8 @@
 		const allSeats = await cachedAllSeats();
 
 		if (!overrideDelegates) {
-			const fetchedDelegates = await filteredDelegatesNearSeats(date as unknown as string, gp)
-			
+			const fetchedDelegates = await filteredDelegatesNearSeats(date as unknown as string, gp);
+
 			if (fetchedDelegates) {
 				delegates = fetchedDelegates.nr;
 				// delegates = fetchedDelegates.all;
@@ -68,7 +69,7 @@
 			if (delegates.length == 0) {
 				const fetchedDelegates = errorToNull(await delegates_at(date));
 				if (fetchedDelegates) {
-					const filteredDelegates = filterDelegates(fetchedDelegates)
+					const filteredDelegates = filterDelegates(fetchedDelegates);
 					delegates = filteredDelegates.nr;
 					// delegates = filteredDelegates.all
 					// delegates = fetchedDelegates;
@@ -79,14 +80,13 @@
 				noSeats = false;
 				useOffset = true;
 			}
-	
 		}
-		
+
 		if (allSeats) {
 			if (noSeats) {
-				seats = getSeats(allSeats, "XX", true)
+				seats = getSeats(allSeats, 'XX', true);
 			} else {
-				seats = getSeats(allSeats, gp)
+				seats = getSeats(allSeats, gp);
 			}
 		}
 
@@ -116,36 +116,35 @@
 			setSeatsOfDels(partyToDelegatesArray, all, seats.slice());
 		}
 		if (showGovs && !overrideDelegates) {
-			govOfficials = await seatSettedCachedGovOfficials(date as unknown as string) ?? [];
-			delegates = delegates.concat(govOfficials)
+			govOfficials = (await seatSettedCachedGovOfficials(date as unknown as string)) ?? [];
+			delegates = delegates.concat(govOfficials);
 		}
 		firstFinished = true;
-	}
+	};
 
 	$: if (supplyDate) {
-		date = supplyDate
+		date = supplyDate;
 	}
 
 	$: if (gp || date || supplyDate) {
 		updateLayout();
 	}
-
 </script>
 
 {#if firstFinished}
-	<DataParliament 
-		bind:delegate 
-		bind:selected 
+	<DataParliament
+		bind:delegate
+		bind:selected
 		bind:circles2d
-		{againstOpacity} 
-		class={clazz} 
-		{delegates} 
-		{preview} 
-		{width} 
-		{height} 
-		{voteResult} 
+		{againstOpacity}
+		class={clazz}
+		{delegates}
+		{preview}
+		{width}
+		{height}
+		{voteResult}
 		{seats}
-		useOffset={useOffset}
+		{useOffset}
 	/>
 {/if}
 <!-- 

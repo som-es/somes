@@ -20,7 +20,11 @@ export async function cachedDelegates(refetch: boolean = false): Promise<Delegat
 
 const delegatesNearDate: CircularBuffer<[string, string], Delegate[]> = new CircularBuffer(100);
 
-export async function cachedDelegatesNearSeats(date: string, gp: string, refetch: boolean = false): Promise<Delegate[] | null> {
+export async function cachedDelegatesNearSeats(
+	date: string,
+	gp: string,
+	refetch: boolean = false
+): Promise<Delegate[] | null> {
 	let dels = delegatesNearDate.findBy((e) => e[0] == date && e[1] == gp);
 	if (dels == undefined || refetch || dels.length == 0) {
 		const fetchedDels = await delegates_with_seats_near_date(date as unknown as Date, gp);
@@ -33,36 +37,42 @@ export async function cachedDelegatesNearSeats(date: string, gp: string, refetch
 
 export function filterDelegates(dels: Delegate[]): DelegateSplit {
 	let idx = 1;
-	return dels.reduce<DelegateSplit>((acc, delegate) => {
-		const clonedDelegate = structuredClone(delegate);
-		if (clonedDelegate.council === 'nr') {
-			acc.nr.push(clonedDelegate);
-		} else if (clonedDelegate.council === 'gov') {
-			acc.gov.push(clonedDelegate);
-			// TODO FIXME some gps somehow have a lot of gov officials
-			// INFO this is not required as gov officials stuff is the real stuff
-			if (idx < 17) {
-				clonedDelegate.seat_col = idx;
-				clonedDelegate.seat_row = 7;
-				idx += 1;
-			} else {
-				clonedDelegate.seat_col = null;
-				clonedDelegate.seat_row = null;
+	return dels.reduce<DelegateSplit>(
+		(acc, delegate) => {
+			const clonedDelegate = structuredClone(delegate);
+			if (clonedDelegate.council === 'nr') {
+				acc.nr.push(clonedDelegate);
+			} else if (clonedDelegate.council === 'gov') {
+				acc.gov.push(clonedDelegate);
+				// TODO FIXME some gps somehow have a lot of gov officials
+				// INFO this is not required as gov officials stuff is the real stuff
+				if (idx < 17) {
+					clonedDelegate.seat_col = idx;
+					clonedDelegate.seat_row = 7;
+					idx += 1;
+				} else {
+					clonedDelegate.seat_col = null;
+					clonedDelegate.seat_row = null;
+				}
 			}
+			acc.all.push(clonedDelegate);
 
-		}
-		acc.all.push(clonedDelegate);
-		
-		return acc;
-	}, { nr: [], gov: [], all: [] });
+			return acc;
+		},
+		{ nr: [], gov: [], all: [] }
+	);
 }
 
-export async function filteredDelegatesNearSeats(date: string, gp: string, refetch: boolean = false): Promise<DelegateSplit | null> {
+export async function filteredDelegatesNearSeats(
+	date: string,
+	gp: string,
+	refetch: boolean = false
+): Promise<DelegateSplit | null> {
 	const dels = await cachedDelegatesNearSeats(date, gp, refetch);
 	if (dels == null) {
 		return null;
 	}
-	return filterDelegates(dels)
+	return filterDelegates(dels);
 }
 
 export async function filteredDelegates(refetch: boolean = false): Promise<DelegateSplit | null> {
@@ -70,5 +80,5 @@ export async function filteredDelegates(refetch: boolean = false): Promise<Deleg
 	if (dels == null) {
 		return null;
 	}
-	return filterDelegates(dels)
+	return filterDelegates(dels);
 }

@@ -8,15 +8,15 @@
 	export let questions: DelegateQA[] = [];
 
 	$: delegateQAModal = {
-		type: "component",
-		component: "delegateQA",
-		meta: { questions: questions } 
+		type: 'component',
+		component: 'delegateQA',
+		meta: { questions: questions }
 	} as ModalSettings;
-	
+
 	$: aiChatModal = {
-		type: "component",
-		component: "aiChat",
-		meta: { delegate: delegate } 
+		type: 'component',
+		component: 'aiChat',
+		meta: { delegate: delegate }
 	} as ModalSettings;
 
 	const modalStore = getModalStore();
@@ -54,9 +54,13 @@
 	<hr class="!border-t-2 my-1" />
 	<!-- <footer class="card-footer flex justify-end items-end mt-3"> -->
 	<footer class="card-footer flex justify-between mt-3">
-		<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(aiChatModal)}>AI Chat</button>
+		<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(aiChatModal)}
+			>AI Chat</button
+		>
 		{#if showQA && questions.length > 0}
-			<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(delegateQAModal)}>Vorstellung</button>
+			<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(delegateQAModal)}
+				>Vorstellung</button
+			>
 		{/if}
 	</footer>
 </div>

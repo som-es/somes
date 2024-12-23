@@ -16,7 +16,7 @@
 	let started: boolean = false;
 	let showResults: boolean = false;
 
-	const partyIdxToString = ["SPÖ", "GRÜNE", "NEOS", "FPÖ", "ÖVP"];
+	const partyIdxToString = ['SPÖ', 'GRÜNE', 'NEOS', 'FPÖ', 'ÖVP'];
 
 	let justificationsOrderCache: [string | null, number][][];
 	onMount(async () => {
@@ -72,10 +72,9 @@
 		console.log(valueMultiple);
 	}
 
-	$: if (allTickedQuestions || twoTimesWeightQuestions ) {
+	$: if (allTickedQuestions || twoTimesWeightQuestions) {
 		partyPoints = sumPartyPoints();
 	}
-
 
 	const sumPartyPoints = () => {
 		const partyPoints = [0, 0, 0, 0, 0];
@@ -101,10 +100,13 @@
 	{#if waloQuestions && started && !showResults}
 		<h1 class="font-bold text-xl sm:text-4xl">{waloQuestions[idx].question_statement}</h1>
 		<h4 class="text-lg sm:text-xl mt-2">{waloQuestions[idx].erklaerbaer}</h4>
-		<br>
+		<br />
 		{#if idx == 0}
-			<div>Wähle alle zutreffenden Aussagen aus. 
-			Mit "2x" können Aussagen doppelt gewichtet werden, dann werden zwei Punkte für die Partei addiert, auch wenn sie nicht ausgewählt wurden, dann wird einer abgezogen.</div>	
+			<div>
+				Wähle alle zutreffenden Aussagen aus. Mit "2x" können Aussagen doppelt gewichtet werden,
+				dann werden zwei Punkte für die Partei addiert, auch wenn sie nicht ausgewählt wurden, dann
+				wird einer abgezogen.
+			</div>
 		{/if}
 		<div class="flex justify-center mt-4">
 			<div class="flex flex-wrap flex-row justify-center items-center gap-1">
@@ -120,7 +122,7 @@
 			</div>
 		</div>
 		<div class=" sm:hidden mt-3 mb-5">
-			Frage {idx +1} von {waloQuestions.length}	
+			Frage {idx + 1} von {waloQuestions.length}
 		</div>
 		<div class="flex justify-between mt-5">
 			{#if idx > 0}
@@ -132,7 +134,7 @@
 			{/if}
 
 			<div class="max-sm:hidden mt-3">
-				Frage {idx +1} von {waloQuestions.length}	
+				Frage {idx + 1} von {waloQuestions.length}
 			</div>
 
 			{#if idx + 1 < waloQuestions.length}
@@ -152,8 +154,8 @@
 	{:else if !started}
 		<h1 class="font-bold text-7xl">Der <span class=" italic">somes</span> Wahlhelfer</h1>
 		<h4 class="text-xl">
-			bietet zusätzliche Unterstützung bei der Wahlentscheidung, basierend auf tatsächlichen Abstimmungen und
-			Reden im Nationalrat, statt auf Versprechen und Parolen vor der Wahl.
+			bietet zusätzliche Unterstützung bei der Wahlentscheidung, basierend auf tatsächlichen
+			Abstimmungen und Reden im Nationalrat, statt auf Versprechen und Parolen vor der Wahl.
 		</h4>
 		<br />
 		Beim Start des Wahlhelfers können mehrere, aber auch keine Aussagen ausgewählt werden, die den eigenen
@@ -168,9 +170,10 @@
 		extrahiert. Deshalb stehen die Begründungen immer nur aus den Meinungen von einzelnen
 		Abgeordneten aus der Fraktion. Die Aussagen und damit die Begründungen in den Reden wurden
 		keinem Faktencheck unterzogen. Unterbewusster Bias sowie Fehler können nicht ausgeschlossen
-		werden. Der somes Wahlhelfer bietet lediglich eine zusätzliche Orientierungshilfe basierend
-		auf in der Vergangenheit getätigte Aussagen im Nationalrat. Die Themen wurden von dem somes Team ausgewählt. Nicht alle Begründungen aus den
-		Reden wurden eingebaut. Die eigene Auswahl bleibt lokal am Gerät und wird nicht gespeichert. 
+		werden. Der somes Wahlhelfer bietet lediglich eine zusätzliche Orientierungshilfe basierend auf
+		in der Vergangenheit getätigte Aussagen im Nationalrat. Die Themen wurden von dem somes Team
+		ausgewählt. Nicht alle Begründungen aus den Reden wurden eingebaut. Die eigene Auswahl bleibt
+		lokal am Gerät und wird nicht gespeichert.
 		<br />
 
 		<SButton
@@ -182,12 +185,14 @@
 		<!-- <ResultChart dataNoParty={[19, 9, 3, 10, 1]}></ResultChart> -->
 		<ResultChartReactive dataNoParty={partyPoints}></ResultChartReactive>
 		<span class="font-bold text-3xl my-4"> Aussagen der Parteien </span>
-		
+
 		<div class="my-3">
 			{#each waloQuestions as waloQuestion, idx}
 				<h1 class="font-bold text-lg sm:text-2xl">{waloQuestion.question_statement}</h1>
 				<h4 class="text-sm sm:text-lg mt-2">{waloQuestion.erklaerbaer}</h4>
-				<SButton class="bg-tertiary-400 mt-2 text-black"><a href="{waloQuestion.somes_link}" target="_blank">Abstimmung auf somes</a></SButton>
+				<SButton class="bg-tertiary-400 mt-2 text-black"
+					><a href={waloQuestion.somes_link} target="_blank">Abstimmung auf somes</a></SButton
+				>
 				<div class="flex justify-center mt-4">
 					<div class="flex flex-wrap flex-row justify-center items-center gap-1">
 						<ListBox class="reasons" multiple>
@@ -203,7 +208,6 @@
 						</ListBox>
 					</div>
 				</div>
-
 			{/each}
 		</div>
 	{/if}

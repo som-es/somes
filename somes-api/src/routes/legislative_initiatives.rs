@@ -2,7 +2,7 @@ use axum::{extract::Query, Json};
 use dataservice::db::models::DbLegislativeInitiativeQuery;
 use meilisearch_sdk::search::SearchResults;
 use somes_common_lib::{DateRange, DelegateById, LegisInitFilter, Page, VoteResultById};
-use sqlx::query_as;
+use sqlx::{query_as, PgPool};
 
 use crate::{
     meilisearch::MeilisearchClient, DataserviceDbConnection, PgPoolConnection, RedisConnection,
@@ -210,6 +210,19 @@ pub async fn vote_result_by_search(
     }))
 }
 
+pub async fn get_eurovoc_topics_from_ministrial_proposal(
+    con: &PgPool,
+    ministrial_proposal_id: i32,
+) -> sqlx::Result<Vec<Topic>> {
+    sqlx::query_as!(
+        Topic,
+        "select topic from eurovoc_topics_ministrial_proposals where ministrial_proposal_id = $1",
+        ministrial_proposal_id
+    )
+    .fetch_all(con)
+    .await
+}
+
 pub async fn gov_proposals_by_official(
     RedisConnection(mut redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
@@ -242,7 +255,8 @@ pub async fn gov_proposals_by_official(
         on 
             mp.id = mi.ministrial_proposal_id 
         where 
-            delegate_id = $1;
+            delegate_id = $1
+        order by created_at DESC;
     ",
         delegate_by_id.delegate_id
     )

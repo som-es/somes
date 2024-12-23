@@ -1,6 +1,12 @@
 <script lang="ts">
 	import '../app.postcss';
-	import { AppShell, Drawer, initializeStores, Modal, type ModalComponent } from '@skeletonlabs/skeleton';
+	import {
+		AppShell,
+		Drawer,
+		initializeStores,
+		Modal,
+		type ModalComponent
+	} from '@skeletonlabs/skeleton';
 	import CacheInvalidation from '$lib/components/CacheInvalidation/CacheInvalidation.svelte';
 	import Sidebar from '$lib/components/Bars/Sidebar.svelte';
 	import Bottombar from '$lib/components/Bars/Bottombar.svelte';
@@ -12,7 +18,7 @@
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 	initializeStores();
 
-	import { getDrawerStore } from "@skeletonlabs/skeleton";
+	import { getDrawerStore } from '@skeletonlabs/skeleton';
 	import RenewToken from '$lib/components/Login/RenewToken.svelte';
 	import DelegateQAModal from '$lib/components/Delegates/QA/DelegateQAModal.svelte';
 	import AiChatModal from '$lib/components/Delegates/AIChat/AIChatModal.svelte';
@@ -21,16 +27,15 @@
 	// const drawerStore = getDrawerStore();
 	const modalRegistry: Record<string, ModalComponent> = {
 		delegateQA: { ref: DelegateQAModal },
-		aiChat: { ref: AiChatModal },
+		aiChat: { ref: AiChatModal }
 	};
-
 </script>
 
 <RenewToken />
 <CacheInvalidation />
 <Modal components={modalRegistry} />
 <Drawer>
-	{#if $drawerStore.id === "login-drawer"}
+	{#if $drawerStore.id === 'login-drawer'}
 		<LoginDrawer />
 	{/if}
 </Drawer>

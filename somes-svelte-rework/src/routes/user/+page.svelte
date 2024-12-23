@@ -1,7 +1,14 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { base } from '$app/paths';
-	import { delete_account, errorToNull, get_topics, getUserTopics, isHasError, renew_token } from '$lib/api';
+	import {
+		delete_account,
+		errorToNull,
+		get_topics,
+		getUserTopics,
+		isHasError,
+		renew_token
+	} from '$lib/api';
 	import { jwtStore } from '$lib/caching/stores/stores';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import SelectableTopics from '$lib/components/Topics/SelectableTopics.svelte';
@@ -30,48 +37,43 @@
 
 		if (!isHasError(data)) {
 			selectedTopics = new Set<number>(data.map((topic) => topic.id));
-		}		
-		// selectedTopics = new Set<UniqueTopic>(selectedTopics)	
-
+		}
+		// selectedTopics = new Set<UniqueTopic>(selectedTopics)
 	});
-
 </script>
 
 <Container>
 	<div class="entry bg-primary-200 dark:bg-primary-400 mt-3 grid-container">
-		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 items-center flex justify-between ">
-			<h1 class="font-bold text-3xl">
-				Benutzer
-			</h1>
+		<div
+			class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 items-center flex justify-between"
+		>
+			<h1 class="font-bold text-3xl">Benutzer</h1>
 			<SButton
 				class="bg-tertiary-500 text-black"
 				on:click={() => {
 					jwtStore.set(null);
-					gotoHistory("/home");
-			}}>
+					gotoHistory('/home');
+				}}
+			>
 				Abmelden
 			</SButton>
 		</div>
-		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 items-center flex flex-wrap">
-			<h1 class="font-bold text-2xl">
-				Bentuzerinfos
-			</h1>
-			<div class="ml-5 text-xl ">
-				E-Mail
-			</div>
-			<div class="mx-4 text-xl ">
+		<div
+			class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 items-center flex flex-wrap"
+		>
+			<h1 class="font-bold text-2xl">Bentuzerinfos</h1>
+			<div class="ml-5 text-xl">E-Mail</div>
+			<div class="mx-4 text-xl">
 				{#if user}
-					{user.sub}	
-				 {/if}
+					{user.sub}
+				{/if}
 			</div>
 		</div>
-		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 ">
-			<h1 class="font-bold text-2xl">
-				Wahle deine Interessen
-			</h1>
+		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
+			<h1 class="font-bold text-2xl">Wahle deine Interessen</h1>
 			<div class="mt-3">
 				{#if topics}
-					<SelectableTopics bind:selectedTopics={selectedTopics} topics={topics} />
+					<SelectableTopics bind:selectedTopics {topics} />
 				{/if}
 			</div>
 		</div>
@@ -81,8 +83,9 @@
 				on:click={async () => {
 					await delete_account();
 					jwtStore.set(null);
-					gotoHistory("/home");
-			}}>
+					gotoHistory('/home');
+				}}
+			>
 				Account löschen
 			</SButton>
 		</div>

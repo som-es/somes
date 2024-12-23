@@ -24,26 +24,27 @@ export interface Delegate {
 }
 
 export interface DbMinistrialProposalQuery {
-    id: number;
-    ityp: string;
-    gp: string;
-    inr: number;
-    emphasis: string | null;
-    title: string;
-    description: string;
-    created_at: string;
-    updated_at: string | null;
-    due_to: string;
-    ressort: string | null;
-    ressort_shortform: string | null;
-    legis_init_gp: string | null;
-    legis_init_inr: number | null;
-    legis_init_ityp: string | null;
+	id: number;
+	ityp: string;
+	gp: string;
+	inr: number;
+	emphasis: string | null;
+	title: string;
+	description: string;
+	created_at: string;
+	updated_at: string | null;
+	due_to: string;
+	ressort: string | null;
+	ressort_shortform: string | null;
+	legis_init_gp: string | null;
+	legis_init_inr: number | null;
+	legis_init_ityp: string | null;
 }
 
 export interface GovProposal {
-	ministrial_proposal: DbMinistrialProposalQuery,
-    vote_result: VoteResult | null;
+	ministrial_proposal: DbMinistrialProposalQuery;
+	vote_result: VoteResult | null;
+	topics: Topic[];
 }
 
 export interface LegislativeInitiative {
@@ -162,7 +163,7 @@ export function jwtDecode(t: string) {
 	return {
 		raw: t,
 		header: JSON.parse(window.atob(t.split('.')[0])),
-		payload: JSON.parse(window.atob(t.split('.')[1])),
+		payload: JSON.parse(window.atob(t.split('.')[1]))
 	};
 }
 
@@ -172,7 +173,7 @@ export function getUserFromJwt(t: string): BasicUserInfo {
 }
 
 export interface BasicUserInfo {
-	id: number,
+	id: number;
 	sub: string;
 	company: string;
 	exp: number;
@@ -269,8 +270,8 @@ export interface NamedVoteInfo {
 	invalid_count: number;
 }
 
-export interface LoginResponseError { 
-	missing_username: false; 
+export interface LoginResponseError {
+	missing_username: false;
 	missing_password: false;
 	missing_email: false;
 	username_taken: false;
@@ -278,7 +279,7 @@ export interface LoginResponseError {
 	invalid_email: true;
 	insufficient_password: false;
 	invalid_otp: false;
-	is_erroneous: true
+	is_erroneous: true;
 }
 
 export function areDeeplyEqual(param1: unknown, param2: unknown) {

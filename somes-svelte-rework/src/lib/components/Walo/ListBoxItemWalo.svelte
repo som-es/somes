@@ -7,8 +7,8 @@
 	export let partyGroup: string[];
 	export let twoTimeWeightsGroup: string[];
 	export let justification: [string | null, number];
-    export let color: string | null = null;
-    export let partyName: string | null = null;
+	export let color: string | null = null;
+	export let partyName: string | null = null;
 
 	let value = justification[1].toString();
 
@@ -19,12 +19,12 @@
 		if (checked) {
 			if (index < 0) {
 				twoTimeWeightsGroup.push(value);
-                twoTimeWeightsGroup = twoTimeWeightsGroup;
+				twoTimeWeightsGroup = twoTimeWeightsGroup;
 			}
 		} else {
 			if (index >= 0) {
 				twoTimeWeightsGroup.splice(index, 1);
-                twoTimeWeightsGroup = twoTimeWeightsGroup;
+				twoTimeWeightsGroup = twoTimeWeightsGroup;
 			}
 		}
 	}
@@ -35,7 +35,7 @@
 		areDeeplyEqual(value, groupVal)
 	);
 
-    $: value = justification[1].toString();
+	$: value = justification[1].toString();
 </script>
 
 <ListBoxItem
@@ -45,18 +45,18 @@
 	active="bg-secondary-500"
 	bind:group={partyGroup}
 	name="justification"
-	bind:value={value}
+	bind:value
 	>{justification[0]}
 
 	<svelte:fragment slot="trail">
-        {#if color}
-            <button
-                style="color: {color}; background-color: {color}"
-                class="p-3 px-4 rounded-full"
-                title="{partyName}"
-            >2x
-            </button>
-        {/if}
+		{#if color}
+			<button
+				style="color: {color}; background-color: {color}"
+				class="p-3 px-4 rounded-full"
+				title={partyName}
+				>2x
+			</button>
+		{/if}
 		<button
 			on:click={(e) => {
 				e.preventDefault();

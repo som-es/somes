@@ -1,20 +1,20 @@
 <script lang="ts">
-	import type { JWTInfo, HasError, LoginResponseError } from "$lib/types";
-    import {  getDrawerStore } from '@skeletonlabs/skeleton';
+	import type { JWTInfo, HasError, LoginResponseError } from '$lib/types';
+	import { getDrawerStore } from '@skeletonlabs/skeleton';
 	// import { login } from '$lib/api';
-	import { goto } from "$app/navigation";
-	import { get } from "svelte/store";
-	import { browser } from "$app/environment";
-	import { base } from "$app/paths";
-	import { gotoHistory } from "$lib/goto";
-	import { isHasError, isLoginResponseError, login } from "$lib/api";
-	import SButton from "../UI/SButton.svelte";
-	import { jwtStore } from "$lib/caching/stores/stores";
+	import { goto } from '$app/navigation';
+	import { get } from 'svelte/store';
+	import { browser } from '$app/environment';
+	import { base } from '$app/paths';
+	import { gotoHistory } from '$lib/goto';
+	import { isHasError, isLoginResponseError, login } from '$lib/api';
+	import SButton from '../UI/SButton.svelte';
+	import { jwtStore } from '$lib/caching/stores/stores';
 	// import Login from 'svelte-google-materialdesign-icons/Login.svelte';
 
-    const drawerStore = getDrawerStore();
+	const drawerStore = getDrawerStore();
 
-	let email = "";
+	let email = '';
 	let storeEmailAnonymously = false;
 
 	// const verificationMail = get(verificationMailStore);
@@ -22,38 +22,42 @@
 	// 	username_or_email = verificationMail;
 	// }
 
-	let pwd = "";
-	let invalidCreds = "";
+	let pwd = '';
+	let invalidCreds = '';
 	let sent = false;
 	let success = false;
 	let done = false;
-	let error = ""
+	let error = '';
 	let otp_done = false;
 
 	let isLogin = true;
 
 	const onLogin = async () => {
 		success = true;
-		error = "";
+		error = '';
 		sent = true;
 
 		// client side checking of emails
-		const jwt: JWTInfo | HasError | LoginResponseError = await login(email, pwd, storeEmailAnonymously);
+		const jwt: JWTInfo | HasError | LoginResponseError = await login(
+			email,
+			pwd,
+			storeEmailAnonymously
+		);
 		console.log(jwt);
 		if (isLoginResponseError(jwt)) {
 			if (jwt.invalid_email) {
-				error = "Felerhafte E-Mail-Adresse";
+				error = 'Felerhafte E-Mail-Adresse';
 			} else if (jwt.missing_email) {
-				error = "E-Mail-Adresse fehlt";
+				error = 'E-Mail-Adresse fehlt';
 			}
 			success = false;
 		} else if (isHasError(jwt)) {
-			if (jwt.error.includes("OTP")) {
-				error = "Fehlerhaftes One-Time Passwort";
+			if (jwt.error.includes('OTP')) {
+				error = 'Fehlerhaftes One-Time Passwort';
 				success = true;
 				otp_done = true;
 			} else {
-				error = "Ein serverseitiger Fehler ist aufgetreten. Es kann nicht fortgefahren werden."
+				error = 'Ein serverseitiger Fehler ist aufgetreten. Es kann nicht fortgefahren werden.';
 			}
 			success = false;
 		} else {
@@ -61,14 +65,14 @@
 				jwtStore.set(jwt.access_token);
 				console.log(get(jwtStore));
 				drawerStore.close();
-				gotoHistory("/user");
+				gotoHistory('/user');
 			}
 		}
 
 		done = true;
 		if (success) {
 			otp_done = true;
-		}	
+		}
 	};
 </script>
 
@@ -89,14 +93,7 @@
 	</h2>
 	<label for="username">E-Mail</label>
 	<div class="flex">
-		<input
-			id="username"
-			placeholder="''dergertrud@gmail.com'"
-			type="text"
-			bind:value={email}
-		/>
-		
-
+		<input id="username" placeholder="''dergertrud@gmail.com'" type="text" bind:value={email} />
 	</div>
 
 	{#if !isLogin}
@@ -120,10 +117,10 @@
 		{error}
 	{/if}
 
-
-
 	<!-- <input class="mt-4" type="button" value="" on:click={onLogin} /> -->
-	<SButton on:click={onLogin} class=" mt-4 bg-tertiary-500">{isLogin ? "Anmelden" : "Registrieren"}</SButton>
+	<SButton on:click={onLogin} class=" mt-4 bg-tertiary-500"
+		>{isLogin ? 'Anmelden' : 'Registrieren'}</SButton
+	>
 	<span class="text-red-500">{invalidCreds}</span>
 
 	<div class="flex justify-between">
@@ -131,23 +128,22 @@
 		<div>
 			oder
 			<!-- blue, underlined hovering stuff -->
-			<span 
+			<span
 				class="text-blue-500 unselectable underline"
-				role="button" 
+				role="button"
 				on:click={() => (isLogin = !isLogin)}
 				on:keydown={() => (isLogin = !isLogin)}
 				tabindex="0"
 			>
-					{#if isLogin}registrieren{:else}anmelden{/if}
+				{#if isLogin}registrieren{:else}anmelden{/if}
 			</span>
 		</div>
 	</div>
-
 </div>
 
 <style>
-	input[type="text"],
-	input[type="password"] {
+	input[type='text'],
+	input[type='password'] {
 		flex-grow: 1;
 		padding: 10px;
 		margin-bottom: 20px;
@@ -167,7 +163,7 @@
 		box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
 	}
 
-	input[type="button"] {
+	input[type='button'] {
 		/* background-color: #5c5cd6; */
 		background-color: rgb(var(--color-tertiary-500));
 		color: #fff;
@@ -180,7 +176,7 @@
 		transition: all 0.3s ease;
 	}
 
-	input[type="button"]:hover {
+	input[type='button']:hover {
 		background-color: #fff;
 		color: rgb(var(--color-tertiary-500));
 	}

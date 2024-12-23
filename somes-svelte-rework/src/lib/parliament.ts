@@ -42,24 +42,24 @@ export function generateHalfCircle(n: number, r: number, w: number, h: number) {
 export function generateGovCircles(r: number, w: number, h: number) {
 	const centerX = w * 0.5;
 	const centerY = h * 0.5 + r * 0.5;
-	
+
 	const spacingFactor = 22;
 
 	let circles: { x: number; y: number }[] = [];
 
 	for (let i = -10; i <= 10; i++) {
 		if (i >= -1 && i <= 1) {
-			continue
+			continue;
 		}
-		const x = centerX + spacingFactor * i
-		
+		const x = centerX + spacingFactor * i;
+
 		const circle = {
 			x,
-			y: centerY	
+			y: centerY
 		};
 		circles = circles.concat(circle);
 	}
-	return circles
+	return circles;
 }
 
 export function setDelOnBubble(
@@ -208,7 +208,8 @@ export function enrichtCirclesWithAbsenceInfoOnSeat(
 		let del = findDelegateById(dels, delegate_id);
 		if (del == null || del.seat_col == null || del.seat_row == null) return;
 
-		circles2d[del.seat_row - 1][del.seat_col - 1].r = +5.9;
+		circles2d[del.seat_row - 1][del.seat_col - 1].r = +4.9;
+		// circles2d[del.seat_row - 1][del.seat_col - 1].color = "white"
 		circles2d[del.seat_row - 1][del.seat_col - 1].title = `abwesend`;
 	});
 }
@@ -222,7 +223,7 @@ export function enrichCirclesWithNamedVoteInfoOnSeat(
 		let del = findDelegateById(dels, namedVote.delegate_id);
 		if (del == null || del.seat_col == null || del.seat_row == null) return;
 		if (namedVote.was_absent) {
-			circles2d[del.seat_row - 1][del.seat_col - 1].r = +5.9;
+			circles2d[del.seat_row - 1][del.seat_col - 1].r = +4.9;
 			circles2d[del.seat_row - 1][del.seat_col - 1].title = `abwesend/keine Stimme abgegeben`;
 			return;
 		}
@@ -233,7 +234,6 @@ export function enrichCirclesWithNamedVoteInfoOnSeat(
 		circles2d[del.seat_row - 1][del.seat_col - 1].r = +9.9;
 	});
 }
-
 
 export function setupParliament(
 	seats: number[],
@@ -266,19 +266,21 @@ export function setupParliament(
 		);
 	});
 
-	circles2d.push(generateGovCircles(70, width, height).map(circle => {
-		return {
-			r,
-			x: circle.x,
-			y: circle.y,
-			del: null,
-			color: 'rgb(196, 180, 189)',
-			opacity: 0,
-			title: null,
-			namedVote: null,
-			speech: null
-		};
-	}))
+	circles2d.push(
+		generateGovCircles(70, width, height).map((circle) => {
+			return {
+				r,
+				x: circle.x,
+				y: circle.y,
+				del: null,
+				color: 'rgb(196, 180, 189)',
+				opacity: 0,
+				title: null,
+				namedVote: null,
+				speech: null
+			};
+		})
+	);
 
 	return circles2d;
 }
