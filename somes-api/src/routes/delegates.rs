@@ -5,7 +5,7 @@ use chrono::NaiveDate;
 use dataservice::db::models::{DbDelegate, DbProposalQuery};
 use qa::extract_delegate_qa;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::{Date, DelegateById, DelegateQA, InterestShare};
+use somes_common_lib::{Date, DelegateById, DelegateQA, InterestShare, LegisPeriod};
 use sqlx::PgPool;
 use utoipa::ToSchema;
 
@@ -21,8 +21,6 @@ mod interests;
 mod qa;
 pub use ai_chat::*;
 pub use interests::*;
-
-use super::LegisPeriod;
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct Delegate {

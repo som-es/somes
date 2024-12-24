@@ -2,11 +2,11 @@ use dataservice::db::models::{DbDelegate, DbParty, DbProposalQuery, DbSpeech};
 use diesel::{
     sql_query, sql_types::Text, ExpressionMethods, PgConnection, QueryDsl, QueryResult, RunQueryDsl,
 };
+use somes_common_lib::LegisPeriod;
 use sqlx::PgPool;
 
 use crate::{
     model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours},
-    routes::LegisPeriod,
 };
 
 // TODO: move all dataservice.rs function to the dataservice library
@@ -297,14 +297,13 @@ pub async fn get_parties(con: &PgPool) -> sqlx::Result<Vec<DbParty>> {
 #[cfg(test)]
 mod tests {
     use dataservice::connect_pg;
-    use somes_common_lib::DateRange;
+    use somes_common_lib::{DateRange, LegisPeriod};
 
     use crate::{
         dataservice::{
             dataservice_con, get_call_to_orders_per_party_delegates,
             get_delegates_by_call_to_orders, get_speakers_by_hours_by_legis_period,
         },
-        routes::LegisPeriod,
         today,
     };
 
