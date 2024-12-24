@@ -209,7 +209,13 @@ pub async fn serve(addr: SocketAddr) {
     // TODO: move this to dataservice
     tokio::task::spawn(async move {
         loop {
-            if let Err(e) = update_meilisearch_index(&mut client.get_multiplexed_tokio_connection().await.unwrap(), &pg_pool, &meilisearch_client).await {
+            if let Err(e) = update_meilisearch_index(
+                &mut client.get_multiplexed_tokio_connection().await.unwrap(),
+                &pg_pool,
+                &meilisearch_client,
+            )
+            .await
+            {
                 log::warn!("Could not update meilisearch index: {e:?}");
             }
             sleep(std::time::Duration::from_secs(1900)).await;
