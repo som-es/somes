@@ -1,5 +1,6 @@
 use axum::Json;
 use serde::{Deserialize, Serialize};
+use somes_common_lib::LegisPeriod;
 use utoipa::{IntoParams, ToSchema};
 mod error;
 
