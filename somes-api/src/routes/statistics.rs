@@ -112,10 +112,6 @@ pub async fn delegates_by_call_to_orders_and_legis_period(
         .map_err(|_| StatisticsResponse::DbSelectFailure)?
 }
 
-#[derive(PartialEq, Eq, IntoParams, ToSchema, PartialOrd, Ord, Debug, Serialize, Deserialize)]
-pub struct LegisPeriod {
-    pub period: String,
-}
 #[utoipa::path(
     get,
     path = "/call_to_orders_per_party_delegates", 

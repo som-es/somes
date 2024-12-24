@@ -142,3 +142,8 @@ pub struct LegisInitFilter {
     pub simple_majority: Option<bool>,
     pub legis_period: Option<String>,
 }
+
+#[derive(PartialEq, Eq, IntoParams, ToSchema, PartialOrd, Ord, Debug, Serialize, Deserialize)]
+pub struct LegisPeriod {
+    pub period: String,
+}
