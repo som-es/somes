@@ -206,7 +206,7 @@
 				</div>
 				{#if rawEmphasis}
 					<div class="emphasis-item">
-						<Emphasis {rawEmphasis}></Emphasis>
+						<Emphasis {rawEmphasis} isAiGenerated={voteResult.legislative_initiative.is_emphasis_ai_generated ?? false}></Emphasis>
 					</div>
 				{/if}
 				{#if voteResult.named_votes}
