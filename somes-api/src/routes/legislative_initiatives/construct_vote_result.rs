@@ -50,7 +50,7 @@ pub async fn construct_vote_result(
         get_votes_from_legis_init_sqlx(pg, legis_init.id).await?
     };
 
-    let out = Ok(VoteResult {
+    let out = VoteResult {
         id: legis_init.id,
         votes,
         named_votes,
@@ -64,7 +64,7 @@ pub async fn construct_vote_result(
             None => vec![],
         },
         legislative_initiative: legis_init,
-    });*/
+    };*/
 
     let out = sqlx::query!(
         "
@@ -78,8 +78,8 @@ pub async fn construct_vote_result(
         delegates ON delegates.id = mandates.delegate_id 
     WHERE 
         mandates.name LIKE '%Abge%National%' 
-        AND start_date <= CURRENT_DATE
-        AND (CASE WHEN end_date IS NULL THEN CURRENT_DATE ELSE end_date END) >= CURRENT_DATE
+        AND start_date <= $2 
+        AND (CASE WHEN end_date IS NULL THEN $2 ELSE end_date END) >= $2 
 ),
 PartyVoteCounts AS (
     SELECT 
@@ -240,7 +240,7 @@ SELECT jsonb_build_object(
 ) AS result_json;
 
     ",
-        legis_init.id
+        legis_init.id, legis_init.created_at
     )
     .fetch_one(pg)
     .await
@@ -262,5 +262,6 @@ SELECT jsonb_build_object(
         .await
         .ok_or(sqlx::Error::WorkerCrashed)?;
     log::info!("elapsed: {:?}", start.elapsed());
+    // Ok(out)
     Ok(out)
 }
