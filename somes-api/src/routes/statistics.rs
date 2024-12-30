@@ -6,6 +6,8 @@ mod call_to_orders;
 mod error;
 mod filtering;
 
+pub use call_to_orders::*;
+
 use crate::{
     dataservice::{
         get_call_to_orders_per_party_delegates, get_delegates_by_call_to_orders,

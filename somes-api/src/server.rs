@@ -263,7 +263,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(SPEAKERS_BY_HOURS, get(speakers_by_hours))
         .route(
             DELEGATES_BY_CALL_TO_ORDERS,
-            get(delegates_by_call_to_orders),
+            get(call_to_order_function),
         )
         .route(
             DELEGATES_BY_CALL_TO_ORDERS_AND_LEGIS_PERIOD,
