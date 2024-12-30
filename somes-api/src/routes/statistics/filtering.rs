@@ -116,7 +116,7 @@ mod tests {
 
         // von api als input
         let filter = CallToOrderFilter {
-            legis_period: None,
+            legis_period: Some("XXV".to_string()),
             gender: Some("m".to_string()),
             party: Some("FPÖ".to_string()),
         };
@@ -153,12 +153,13 @@ mod tests {
 
         "
         );
+        println!("{query}");
 
         let mut filtered_query = sqlx::query_as::<Postgres, CallToOrdersForDelegate>(&query);
         // setzt dann die filter werte auf die query parameter ok??
         filtered_query = bind_values(filtered_query, &filters);
 
-        // TIM DAS NICHT MACHEN
+        // TIM DAS NICHT MACHEN - &PgPool bekommst du von der somes api als parameter!!!!
         let pg = connect_pg().await;
         let res = filtered_query.fetch_all(&pg).await.unwrap();
         println!("res: {res:?}")

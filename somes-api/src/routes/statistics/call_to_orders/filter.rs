@@ -1,74 +1,75 @@
-use dataservice::db::models::DbLegislativeInitiativeQuery;
-use somes_common_lib::LegisInitFilter;
-use sqlx::PgPool;
+use axum::Json;
 
-pub async fn filtered_legislative_initiatives(
-    pg: &PgPool,
-    page: i64,
-    page_elements: i64,
-    filter: &LegisInitFilter,
-) -> Result<(Vec<DbLegislativeInitiativeQuery>, i64), sqlx::Error> {
-    let mut query =
-        String::from("SELECT DISTINCT * FROM legislative_initiatives WHERE accepted is not null");
+use sqlx::{prelude::FromRow, Postgres};
 
-    let mut param_index = 1;
-    if filter.accepted.is_some() {
-        query.push_str(&format!(" AND accepted = ${}", param_index));
-        param_index += 1;
-    }
+use crate::{
+    routes::statistics::filtering::{bind_values, build_filter, IntoFilterArgument},
+    PgPoolConnection,
+};
 
-    if filter.simple_majority.is_some() {
-        query.push_str(&format!(" AND requires_simple_majority = ${}", param_index));
-        param_index += 1;
-    }
+#[derive(Default)]
+pub struct CallToOrderFilter {
+    legis_period: Option<String>,
+    gender: Option<String>,
+    party: Option<String>,
+}
 
-    if filter.legis_period.is_some() {
-        query.push_str(&format!(" AND gp = ${}", param_index));
-        param_index += 1;
-    }
+#[derive(PartialEq, Debug, Clone, FromRow)]
+pub struct CallToOrdersForDelegate {
+    delegate_name: String,
+    delegate_party: String,
+    delegate_gender: String,
+    total_order_calls: i64,
+}
 
-    if filter.is_named_vote.is_some() {
-        query.push_str(&format!(" AND voted_by_name = ${}", param_index));
-        param_index += 1;
-    }
+pub async fn call_to_order_function(
+    PgPoolConnection(pg): PgPoolConnection,
+    Json(filter): Json<Option<CallToOrderFilter>>,
+) -> Result<Json<Vec<CallToOrdersForDelegate>>, CallToOrderErrorResponse> {
+    
+    
+    let filter = filter.unwrap_or_default();
 
-    let count_query = query.clone().replace('*', "COUNT(*)");
+    // irgendwie alle fields zu so ding da machen (array)
+    let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
+    let filter_arg1 = filter.gender.with_sql_column("ds.gender");
+    let filter_arg2 = filter.party.with_sql_column("ds.party");
+    let filter_arg3 = Some("nr").with_sql_column("council");
+    let filters = [filter_arg, filter_arg1, filter_arg2, filter_arg3];
 
-    query.push_str(&format!(
-        " ORDER BY created_at DESC OFFSET ${} LIMIT ${}",
-        param_index,
-        param_index + 1
-    ));
+    // daraus kriegst du dann einen string der den filter in der query represented
+    let filter = build_filter(&filters);
 
-    let mut filtered_query = sqlx::query_as::<_, DbLegislativeInitiativeQuery>(&query);
-    let mut count_query: sqlx::query::QueryAs<
-        '_,
-        sqlx::Postgres,
-        (i64,),
-        sqlx::postgres::PgArguments,
-    > = sqlx::query_as::<_, (i64,)>(&count_query);
+    let query = format!(
+        "
+    SELECT 
+        ds.name AS delegate_name,
+        ds.party AS delegate_party,
+        ds.gender AS delegate_gender,
+        COUNT(cto.id) AS total_order_calls
+    FROM 
+        call_to_order cto
+    JOIN 
+        delegates ds ON cto.receiver_id = ds.id
+    JOIN 
+        plenar_infos pf ON pf.id = cto.plenar_id
+    WHERE 
+        {filter}
+    GROUP BY 
+        ds.id, ds.name, ds.party, ds.gender
+    ORDER BY 
+        total_order_calls DESC;
 
-    if let Some(accepted_value) = &filter.accepted {
-        filtered_query = filtered_query.bind(accepted_value);
-        count_query = count_query.bind(accepted_value);
-    }
-    if let Some(simple_majority) = filter.simple_majority {
-        filtered_query = filtered_query.bind(simple_majority);
-        count_query = count_query.bind(simple_majority);
-    }
-    if let Some(legis_period) = &filter.legis_period {
-        filtered_query = filtered_query.bind(legis_period);
-        count_query = count_query.bind(legis_period);
-    }
-    if let Some(is_named_vote) = &filter.is_named_vote {
-        filtered_query = filtered_query.bind(is_named_vote);
-        count_query = count_query.bind(is_named_vote);
-    }
-    filtered_query = filtered_query
-        .bind(page * page_elements)
-        .bind(page_elements);
-    Ok((
-        filtered_query.fetch_all(pg).await?,
-        count_query.fetch_one(pg).await?.0,
-    ))
+"
+    );
+
+    let mut filtered_query = sqlx::query_as::<Postgres, CallToOrdersForDelegate>(&query);
+    // setzt dann die filter werte auf die query parameter ok??
+    filtered_query = bind_values(filtered_query, &filters);
+
+    // TIM DAS NICHT MACHEN - &PgPool bekommst du von der somes api als parameter!!!!
+    let res = filtered_query.fetch_all(&pg).await.unwrap();
+    println!("res: {res:?}");
+
+    todo!()
 }
