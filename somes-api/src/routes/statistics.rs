@@ -34,10 +34,10 @@ pub async fn speakers_by_hours(
     interact!(
         postgres_con,
         get_speakers_by_hours(postgres_con)
-            .map_err(|_| StatisticsResponse::DbSelectFailure)
+            .map_err(|_| StatisticsResponse::DbSelectFailure(None))
             .map(Json)
     )
-    .map_err(|_| StatisticsResponse::DbSelectFailure)?
+    .map_err(|_| StatisticsResponse::DbSelectFailure(None))?
 }
 
 #[utoipa::path(
@@ -60,11 +60,11 @@ pub async fn speakers_by_hours_and_legis_period(
         .interact(|con| {
             let legis_period = legis_period;
             get_speakers_by_hours_by_legis_period(con, &legis_period)
-                .map_err(|_| StatisticsResponse::DbSelectFailure)
+                .map_err(|_| StatisticsResponse::DbSelectFailure(None))
                 .map(Json)
         })
         .await
-        .map_err(|_| StatisticsResponse::DbSelectFailure)?
+        .map_err(|_| StatisticsResponse::DbSelectFailure(None))?
 }
 
 #[utoipa::path(
@@ -82,11 +82,11 @@ pub async fn delegates_by_call_to_orders(
     postgres_con
         .interact(|con| {
             get_delegates_by_call_to_orders(con)
-                .map_err(|_| StatisticsResponse::DbSelectFailure)
+                .map_err(|_| StatisticsResponse::DbSelectFailure(None))
                 .map(Json)
         })
         .await
-        .map_err(|_| StatisticsResponse::DbSelectFailure)?
+        .map_err(|_| StatisticsResponse::DbSelectFailure(None))?
 }
 #[utoipa::path(
     post,
@@ -108,11 +108,11 @@ pub async fn delegates_by_call_to_orders_and_legis_period(
         .interact(|con| {
             let legis_period = legis_period;
             get_delegates_by_call_to_orders_by_legis_period(con, &legis_period)
-                .map_err(|_| StatisticsResponse::DbSelectFailure)
+                .map_err(|_| StatisticsResponse::DbSelectFailure(None))
                 .map(Json)
         })
         .await
-        .map_err(|_| StatisticsResponse::DbSelectFailure)?
+        .map_err(|_| StatisticsResponse::DbSelectFailure(None))?
 }
 
 #[utoipa::path(
@@ -130,9 +130,9 @@ pub async fn call_to_orders_per_party_delegates(
     postgres_con
         .interact(|con| {
             get_call_to_orders_per_party_delegates(con)
-                .map_err(|_| StatisticsResponse::DbSelectFailure)
+                .map_err(|_| StatisticsResponse::DbSelectFailure(None))
                 .map(Json)
         })
         .await
-        .map_err(|_| StatisticsResponse::DbSelectFailure)?
+        .map_err(|_| StatisticsResponse::DbSelectFailure(None))?
 }

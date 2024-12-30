@@ -3,7 +3,10 @@ use axum::Json;
 use sqlx::{prelude::FromRow, Postgres};
 
 use crate::{
-    routes::statistics::filtering::{bind_values, build_filter, IntoFilterArgument},
+    routes::statistics::{
+        error::StatisticsResponse,
+        filtering::{bind_values, build_filter, IntoFilterArgument},
+    },
     PgPoolConnection,
 };
 
@@ -25,9 +28,7 @@ pub struct CallToOrdersForDelegate {
 pub async fn call_to_order_function(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<CallToOrderFilter>>,
-) -> Result<Json<Vec<CallToOrdersForDelegate>>, CallToOrderErrorResponse> {
-    
-    
+) -> Result<Json<Vec<CallToOrdersForDelegate>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
 
     // irgendwie alle fields zu so ding da machen (array)
@@ -67,9 +68,9 @@ pub async fn call_to_order_function(
     // setzt dann die filter werte auf die query parameter ok??
     filtered_query = bind_values(filtered_query, &filters);
 
-    // TIM DAS NICHT MACHEN - &PgPool bekommst du von der somes api als parameter!!!!
-    let res = filtered_query.fetch_all(&pg).await.unwrap();
-    println!("res: {res:?}");
-
-    todo!()
+    filtered_query
+        .fetch_all(&pg)
+        .await
+        .map(Json)
+        .map_err(|e| StatisticsResponse::DbSelectFailure(Some(e)))
 }
