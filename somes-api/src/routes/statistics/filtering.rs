@@ -1,6 +1,6 @@
 use sqlx::{Encode, Postgres, Type};
 
-pub trait Filterable<'a, What> {
+pub trait Filterable<'a, What>: Send + Sync {
     fn should_return_any(&self) -> bool;
     fn to_query_part(&self, sql_column_name: &str, idx: usize) -> String;
     fn bind(
@@ -9,7 +9,7 @@ pub trait Filterable<'a, What> {
     ) -> sqlx::query::QueryAs<'a, sqlx::Postgres, What, sqlx::postgres::PgArguments>;
 }
 
-impl<'a, What, T: Clone + 'static + Encode<'a, Postgres> + Type<Postgres>> Filterable<'a, What>
+impl<'a, What, T: Clone + 'static + Encode<'a, Postgres> + Type<Postgres> + Send + Sync> Filterable<'a, What>
     for Option<T>
 {
     fn to_query_part(&self, sql_column_name: &str, idx: usize) -> String {
@@ -78,7 +78,7 @@ pub trait IntoFilterArgument<'b> {
     ) -> FilterArgument<'a, 'b, What>;
 }
 
-impl<'b, T: Clone + 'static + Encode<'b, Postgres> + Type<Postgres>> IntoFilterArgument<'b>
+impl<'b, T: Clone + 'static + Encode<'b, Postgres> + Type<Postgres> + Send + Sync> IntoFilterArgument<'b>
     for Option<T>
 {
     fn with_sql_column<'a, What>(

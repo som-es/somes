@@ -1,6 +1,8 @@
-use axum::Json;
+use axum::{debug_handler, Json};
 
+use serde::{Deserialize, Serialize};
 use sqlx::{prelude::FromRow, Postgres};
+use utoipa::ToSchema;
 
 use crate::{
     routes::statistics::{
@@ -10,14 +12,14 @@ use crate::{
     PgPoolConnection,
 };
 
-#[derive(Default)]
+#[derive(ToSchema, Default, Debug, Clone, Serialize, Deserialize)]
 pub struct CallToOrderFilter {
     legis_period: Option<String>,
     gender: Option<String>,
     party: Option<String>,
 }
 
-#[derive(PartialEq, Debug, Clone, FromRow)]
+#[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct CallToOrdersForDelegate {
     delegate_name: String,
     delegate_party: String,
@@ -25,7 +27,9 @@ pub struct CallToOrdersForDelegate {
     total_order_calls: i64,
 }
 
-pub async fn call_to_order_function(
+// #[debug_handler]
+pub async fn call_to_order_per_delegates(
+    // PgPoolConnection(pg): PgPoolConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<CallToOrderFilter>>,
 ) -> Result<Json<Vec<CallToOrdersForDelegate>>, StatisticsResponse> {

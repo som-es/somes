@@ -262,10 +262,6 @@ pub async fn serve(addr: SocketAddr) {
         // statistics
         .route(SPEAKERS_BY_HOURS, get(speakers_by_hours))
         .route(
-            DELEGATES_BY_CALL_TO_ORDERS,
-            get(call_to_order_function),
-        )
-        .route(
             DELEGATES_BY_CALL_TO_ORDERS_AND_LEGIS_PERIOD,
             post(delegates_by_call_to_orders_and_legis_period),
         )
@@ -301,6 +297,11 @@ pub async fn serve(addr: SocketAddr) {
         .route(GOV_OFFICIALS_AT, get(gov_officials_at_date_route))
         .route(GOV_PROPOSALS_BY_OFFICIAL, get(gov_proposals_by_official))
         .route(AI_CHAT_WS, any(ai_chat_ws_handler))
+        
+        .route(
+            DELEGATES_BY_CALL_TO_ORDERS,
+            post(call_to_order_per_delegates),
+        )
         .route("/save_email", post(save_email))
         // mind conflicts e.g delegates
         .nest_service(
