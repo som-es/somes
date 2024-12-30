@@ -29,6 +29,14 @@ export function isHasError<T>(value: T | HasError): value is HasError {
 	return (value as HasError).error !== undefined;
 }
 
+export function isThere<T>(value: T | null): boolean {
+	if (value) {
+		return true
+	} else {
+		return false
+	}
+}
+
 export function isLoginResponseError<T>(
 	value: T | LoginResponseError
 ): value is LoginResponseError {

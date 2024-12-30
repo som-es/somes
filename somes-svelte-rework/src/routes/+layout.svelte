@@ -22,12 +22,14 @@
 	import RenewToken from '$lib/components/Login/RenewToken.svelte';
 	import DelegateQAModal from '$lib/components/Delegates/QA/DelegateQAModal.svelte';
 	import AiChatModal from '$lib/components/Delegates/AIChat/AIChatModal.svelte';
+	import AllProposalsModal from '$lib/components/Proposals/AllProposalsModal.svelte';
 	const drawerStore = getDrawerStore();
 
 	// const drawerStore = getDrawerStore();
 	const modalRegistry: Record<string, ModalComponent> = {
 		delegateQA: { ref: DelegateQAModal },
-		aiChat: { ref: AiChatModal }
+		aiChat: { ref: AiChatModal },
+		allGovProposals: { ref: AllProposalsModal }
 	};
 </script>
 
