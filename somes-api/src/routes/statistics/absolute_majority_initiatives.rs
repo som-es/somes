@@ -27,16 +27,16 @@ pub struct LegislativeInitiativeStats {
 pub async fn legislative_initiatives_without_simple_majority(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<LegislativeInitiativeFilter>>,  
-) -> Result<Json<LegislativeInitiativeStats>, StatisticsResponse> {
+) -> Result<Json<Vec<LegislativeInitiativeStats>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
 
     // Hier baust du deine Filterargumente
-    let filter_arg = filter.legis_period.with_sql_column("li.legislative_period");  
-    let filter_arg1 = Some("nr").with_sql_column("council");
-    let filters = [filter_arg];
+    let filter_arg = filter.legis_period.with_sql_column("gp");  
+    let filter_arg1 = filter.accepted.with_sql_column("accepted");
+    let filters = [filter_arg, filter_arg1];
 
     // Erstelle den Filterstring
-    let filter_str = build_filter(&filters);
+    let filter = build_filter(&filters);
 
     // Die SQL-Abfrage für die Legislative Initiativen ohne einfache Mehrheit
     let query = format!(
@@ -54,10 +54,8 @@ pub async fn legislative_initiatives_without_simple_majority(
 
     let mut filtered_query = sqlx::query_as::<Postgres, LegislativeInitiativeStats>(&query);
 
-    // Wende Filter auf die Query an (falls vorhanden)
     filtered_query = bind_values(filtered_query, &filters);
 
-    // Führe die Abfrage aus und gib das Ergebnis zurück
     filtered_query
         .fetch_all(&pg)
         .await

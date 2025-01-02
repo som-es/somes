@@ -3,10 +3,22 @@ use serde::{Deserialize, Serialize};
 use somes_common_lib::LegisPeriod;
 use utoipa::{IntoParams, ToSchema};
 mod call_to_orders;
+mod complexity_per_person;
+mod complexity_per_party;
+mod complexity_per_gender;
+mod complexity_at_age;
+mod age_of_delegates;
+mod absolute_majority_initiatives;
 mod error;
 mod filtering;
 
 pub use call_to_orders::*;
+pub use absolute_majority_initiatives::*;
+pub use complexity_per_person::*;
+pub use complexity_per_party::*;
+pub use complexity_per_gender::*;
+pub use complexity_at_age::*;
+pub use age_of_delegates::*;
 
 use crate::{
     dataservice::{

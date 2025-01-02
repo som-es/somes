@@ -9,6 +9,7 @@ use axum::{
 };
 use axum_server::tls_rustls::RustlsConfig;
 use dataservice::db::models::{DbLegislativeInitiativeQuery, DbParty};
+use diesel::dsl::host;
 // use diesel_async::pooled_connection::AsyncDieselConnectionManager;
 use log::{error, info};
 use meilisearch_sdk::settings::Settings;
@@ -301,6 +302,30 @@ pub async fn serve(addr: SocketAddr) {
         .route(
             DELEGATES_BY_CALL_TO_ORDERS,
             post(call_to_order_per_delegates),
+        )
+        .route(
+            LEGISLATIVE_INITIATIVES_WITHOUT_SIMPLE_MAJORITY, 
+            post(legislative_initiatives_without_simple_majority),
+        )
+        .route(
+            COMPLEXITY_PER_DELEGATE,
+             post(complexity_per_delegate),
+            )
+        .route(
+            COMPLEXITY_PER_PARTY,
+             post(complexity_per_party),
+            )
+        .route(
+            COMPLEXITY_PER_GENDER,
+             post(complexity_per_gender),
+            )
+        .route(
+            COMPLEXITY_AT_AGE,
+            post(complexity_at_age),
+        )
+        .route(
+            AGE_OF_DELEGATES,
+            post(age_per_delegate),
         )
         .route("/save_email", post(save_email))
         // mind conflicts e.g delegates
