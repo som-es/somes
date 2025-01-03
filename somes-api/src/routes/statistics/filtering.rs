@@ -9,6 +9,31 @@ pub trait Filterable<'a, What>: Send + Sync {
     ) -> sqlx::query::QueryAs<'a, sqlx::Postgres, What, sqlx::postgres::PgArguments>;
 }
 
+#[derive(Debug, Clone, Copy)]
+pub struct Manual(pub &'static str);
+
+impl Manual {
+    // pub fn to_filter_arg() -> FilterArgument<>
+}
+
+impl<'a, What> Filterable<'a, What> for Manual {
+    fn should_return_any(&self) -> bool {
+        false
+    }
+
+    fn to_query_part(&self, sql_column_name: &str, idx: usize) -> String {
+        let and = if idx == 0 { " " } else { " and " };
+        format!("{and}{sql_column_name}")
+    }
+
+    fn bind(
+        &'a self,
+        bind_on_query: sqlx::query::QueryAs<'a, sqlx::Postgres, What, sqlx::postgres::PgArguments>,
+    ) -> sqlx::query::QueryAs<'a, sqlx::Postgres, What, sqlx::postgres::PgArguments> {
+        bind_on_query.bind(self.0)
+    }
+}
+
 impl<'a, What, T: Clone + 'static + Encode<'a, Postgres> + Type<Postgres> + Send + Sync> Filterable<'a, What>
     for Option<T>
 {
@@ -86,6 +111,17 @@ impl<'b, T: Clone + 'static + Encode<'b, Postgres> + Type<Postgres> + Send + Syn
         sql_column: &'static str,
     ) -> FilterArgument<'a, 'b, What> {
         FilterArgument::new(self, sql_column)
+    }
+}
+
+impl<'b> IntoFilterArgument<'b>
+    for Manual 
+{
+    fn with_sql_column<'a, What>(
+        &'b self,
+        _sql_column: &'static str,
+    ) -> FilterArgument<'a, 'b, What> {
+        FilterArgument::new(self, self.0)
     }
 }
 
