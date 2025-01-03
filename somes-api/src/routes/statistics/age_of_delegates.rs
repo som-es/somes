@@ -12,6 +12,8 @@ use crate::{
     PgPoolConnection,
 };
 
+use super::filtering::Manual;
+
 #[derive(ToSchema, Default, Debug, Clone, Serialize, Deserialize)]
 pub struct DelegateAgeFilter {
     legis_period: Option<String>,
@@ -38,7 +40,8 @@ pub async fn age_per_delegate(
     let filter_arg1 = filter.party.with_sql_column("ds.party");
     let filter_arg2 = filter.gender.with_sql_column("ds.gender");
     let filter_arg3 = Some("nr").with_sql_column("ds.council");
-    let filters = [filter_arg, filter_arg1, filter_arg2, filter_arg3];
+    let filter_arg4 = Manual("birthdate is not null").with_sql_column("");
+    let filters = [filter_arg, filter_arg1, filter_arg2, filter_arg3, filter_arg4];
 
     let filter = build_filter(&filters);
 
