@@ -302,6 +302,15 @@ export async function getWithAuth<T>(route: string): Promise<T | HasError> {
 	);
 }
 
+export async function justPost<T>(route: string, body: any): Promise<T | HasError> {
+	return fetchSavely(() =>
+		fetch(`${address}/${route}`, {
+			method: 'POST',
+			body: JSON.stringify(body)
+		})
+	);
+}
+
 export async function postWithAuth<T>(route: string, body: any): Promise<T | HasError> {
 	const accessToken = get(jwtStore);
 	if (accessToken == null) {
