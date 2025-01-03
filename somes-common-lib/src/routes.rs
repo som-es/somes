@@ -9,6 +9,13 @@ pub const LATEST_LEGIS_INITS_ROUTE: &str = "/latest_legis_inits";
 pub const LATEST_VOTE_RESULTS_ROUTE: &str = "/latest_vote_results";
 pub const SPEAKERS_BY_HOURS: &str = "/speakers_by_hours";
 pub const SPEAKERS_BY_HOURS_AND_LEGIS_PERIOD: &str = "/speakers_by_hours_and_legis_period";
+pub const LEGISLATIVE_INITIATIVES_WITHOUT_SIMPLE_MAJORITY: &str = "/legislative_initiatives_without_simple_majority";
+pub const COMPLEXITY_PER_DELEGATE: &str = "/complexity_per_delegate";
+pub const COMPLEXITY_PER_PARTY: &str = "/complexity_per_party";
+pub const COMPLEXITY_PER_GENDER: &str = "/complexity_per_gender";
+pub const COMPLEXITY_AT_AGE: &str = "/complexity_at_age";
+pub const AGE_OF_DELEGATES: &str = "/age_of_delegates";
+pub const AGE_PER_PARTY: &str = "/age_per_party";
 pub const DELEGATES_BY_CALL_TO_ORDERS: &str = "/delegates_by_call_to_orders";
 pub const DELEGATES_BY_CALL_TO_ORDERS_AND_LEGIS_PERIOD: &str =
     "/delegates_by_call_to_orders_and_legis_period";
