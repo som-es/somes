@@ -12,6 +12,8 @@ use crate::{
     PgPoolConnection,
 };
 
+use super::filtering::Manual;
+
 #[derive(ToSchema, Default, Debug, Clone, Serialize, Deserialize)]
 pub struct PartyAgeFilter {
     legis_period: Option<String>,
@@ -32,7 +34,8 @@ pub async fn age_per_party(
 
     let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
     let filter_arg1 = Some("nr").with_sql_column("ds.council");
-    let filters = [filter_arg, filter_arg1];
+    let filter_arg2 = Manual("birthdate is not null").with_sql_column("");
+    let filters = [filter_arg, filter_arg1, filter_arg2];
 
     let filter = build_filter(&filters);
 
@@ -43,7 +46,7 @@ pub async fn age_per_party(
             AVG(
             (EXTRACT(YEAR FROM AGE(birthdate)) + 
             (EXTRACT(MONTH FROM AGE(birthdate)) / 12.0) + 
-            (EXTRACT(DAY FROM AGE(birthdate)) / 365.25)))::FLOAT as daverage_age     
+            (EXTRACT(DAY FROM AGE(birthdate)) / 365.25)))::FLOAT as average_age     
         FROM 
             delegates ds
         JOIN 
