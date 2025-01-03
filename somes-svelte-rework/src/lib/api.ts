@@ -214,6 +214,20 @@ export async function gov_proposals_by_official(
 	);
 }
 
+export async function speeches_by_delegate_per_page(
+	delegate_id: number,
+	page: number
+): Promise<GovProposal[] | HasError> {
+	return fetchSavely(() =>
+		fetch(`${address}/speeches_by_delegate_per_page?delegate_id=${delegate_id}&page=${page}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		})
+	);
+}
+
 export async function delegates_with_seats_near_date(
 	date_at: Date,
 	gp: string

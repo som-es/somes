@@ -76,6 +76,7 @@ export interface Speech {
 	infavor: boolean | null;
 	opinion: string | null;
 	document_url: string | null;
+	legislative_initiatives_id: number;
 }
 
 export interface Document {

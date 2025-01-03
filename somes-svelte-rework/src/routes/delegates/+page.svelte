@@ -281,6 +281,9 @@
 			<ExpandablePlaceholder />
 			<ExpandablePlaceholder />
 		{/if}
+		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
+			Letzte Reden
+		</div>
 
 		{#if interests}
 			<InterestTiles interests={interests.slice(0, 4)}></InterestTiles>
