@@ -327,6 +327,10 @@ pub async fn serve(addr: SocketAddr) {
             AGE_OF_DELEGATES,
             post(age_per_delegate),
         )
+        .route(
+            AGE_PER_PARTY,
+            post(age_per_party),
+        )
         .route("/save_email", post(save_email))
         // mind conflicts e.g delegates
         .nest_service(

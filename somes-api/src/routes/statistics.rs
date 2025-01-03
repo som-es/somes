@@ -8,6 +8,7 @@ mod complexity_per_party;
 mod complexity_per_gender;
 mod complexity_at_age;
 mod age_of_delegates;
+mod age_per_party;
 mod absolute_majority_initiatives;
 mod error;
 mod filtering;
@@ -19,6 +20,7 @@ pub use complexity_per_party::*;
 pub use complexity_per_gender::*;
 pub use complexity_at_age::*;
 pub use age_of_delegates::*;
+pub use age_per_party::*;
 
 use crate::{
     dataservice::{
