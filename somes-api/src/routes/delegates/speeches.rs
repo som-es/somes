@@ -12,7 +12,7 @@ pub async fn extract_delegate_speeches(delegate_id: i32, page: i64, page_element
         select delegate_id, legislative_initiatives_id, infavor, opinion, document_url from speeches 
         INNER JOIN speeches_html_urls ON speeches.id = speeches_html_urls.speech_id where delegate_id = $1 offset $2 limit $3
     ", 
-    delegate_id, page * page_elements, page).fetch_all(pg).await
+    delegate_id, page * page_elements, page_elements).fetch_all(pg).await
 }
 
 pub async fn speeches_by_delegate_per_page(
