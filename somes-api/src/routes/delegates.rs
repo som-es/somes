@@ -16,11 +16,13 @@ use crate::{
 
 pub use error::*;
 mod ai_chat;
+mod speeches;
 mod error;
 mod interests;
 mod qa;
 pub use ai_chat::*;
 pub use interests::*;
+pub use speeches::*;
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct Delegate {
