@@ -186,7 +186,7 @@ SELECT jsonb_build_object(
                     'infavor', infavor,
                     'opinion', opinion,
                     'document_url', document_url,
-                    'legislative_initiative_id', $1
+                    'legislative_initiatives_id', $1
                 )
             ),
             '[]'::jsonb
