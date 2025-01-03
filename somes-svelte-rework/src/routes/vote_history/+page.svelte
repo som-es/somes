@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { cachedDelegates, filteredDelegates } from '$lib/caching/delegates';
+	import Container from '$lib/components/Layout/Container.svelte';
 	import PaginationVoteResults from '$lib/components/VoteResults/Expandable/PaginationVoteResults.svelte';
 	import type { Delegate, VoteResult } from '$lib/types';
 	import { onMount } from 'svelte';
@@ -10,10 +11,12 @@
 	});
 </script>
 
-<div class="mx-auto px-5">
+<!-- <div class="mx-auto px-5"> -->
+<Container>
 	<h1 class="text-2xl sm:text-4xl font-bold">Vergangene Abstimmungsergebnisse</h1>
 
 	{#if dels}
 		<PaginationVoteResults {dels} />
 	{/if}
-</div>
+</Container>
+<!-- </div> -->
