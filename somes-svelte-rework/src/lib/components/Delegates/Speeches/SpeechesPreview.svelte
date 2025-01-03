@@ -2,23 +2,24 @@
 	import type { Speech } from '$lib/types';
 	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
 
-	export let speeches: Speech[];
+	export let speechesPage0: Speech[];
 
 	$: allSpeeches = {
 		type: 'component',
 		component: 'allSpeeches',
-		meta: { speeches: speeches }
+		meta: { speechesPage0: speechesPage0 }
 	} as ModalSettings;
 
 	const modalStore = getModalStore();
 
-	$: previewSpeeches = speeches.slice(0, 4);
+	$: previewSpeeches = speechesPage0.slice(0, 4);
 </script>
 
 <div class="flex flex-wrap justify-between items-center">
 	<h1 class="font-bold text-2xl">Letzte Reden</h1>
 	<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(allSpeeches)}>Alle anzeigen</button>
 </div>
-{#each previewSpeeches as govProposal}
+{#each previewSpeeches as speech}
+    <div class="rounded variant-filled my-1">{speech.legislative_initiatives_id} {speech.opinion}</div>
 	<!-- <GovProposalExpandableBar {govProposal} /> -->
 {/each}

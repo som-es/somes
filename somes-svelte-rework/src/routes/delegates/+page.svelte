@@ -2,7 +2,7 @@
 	import type { AutocompleteOption } from '$lib/components/Autocompletion/types';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
-	import type { Delegate, DelegateQA, GovProposal, InterestShare, LegisPeriod } from '$lib/types';
+	import type { Delegate, DelegateQA, GovProposal, InterestShare, LegisPeriod, Speech } from '$lib/types';
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 	import {
@@ -10,7 +10,10 @@
 		delegate_qa,
 		delegates_at,
 		errorToNull,
-		gov_proposals_by_official
+		gov_proposals_by_official,
+
+		speeches_by_delegate_per_page
+
 	} from '$lib/api';
 	import InterestTiles from '$lib/components/Delegates/InterestTiles.svelte';
 	import { get } from 'svelte/store';
@@ -29,6 +32,7 @@
 	import { dashDateToDotDate } from '$lib/date';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import GovProposalPreview from '$lib/components/Proposals/GovProposalPreview.svelte';
+	import SpeechesPreview from '$lib/components/Delegates/Speeches/SpeechesPreview.svelte';
 
 	let delegates: Delegate[];
 	let delegate: Delegate | null;
@@ -46,6 +50,7 @@
 	let autocompleteOptions: AutocompleteOption<string>[] = [];
 	let interests: InterestShare[] | null;
 	let govProposals: GovProposal[] | null = null;
+	let speechesPage0: Speech[] | null = null;
 	let delegateQA: DelegateQA[] = [];
 	let maxDayOffset = 365 * 5;
 	let dayOffset = maxDayOffset;
@@ -165,10 +170,17 @@
 		// 	{question: "Warum hast du bei der letzten Wahl die FPÖ gewählt?", answer: "Restfett wählen gehen war ein Fehler."},
 		// ];
 
+		govProposals = null;
 		gov_proposals_by_official(delegate.id).then((res) => {
 			govProposals = errorToNull(res);
 		});
+		
+		speechesPage0 = null;
+		speeches_by_delegate_per_page(delegate.id, 0).then((res) => {
+			speechesPage0 = errorToNull(res);
+		});
 
+		interests = null;
 		delegate_interests(delegate.id).then((res) => {
 			const input = errorToNull(res);
 			if (input != null) input.sort((a, b) => b.self_share - a.self_share);
@@ -281,9 +293,15 @@
 			<ExpandablePlaceholder />
 			<ExpandablePlaceholder />
 		{/if}
-		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
-			Letzte Reden
-		</div>
+
+		{#if speechesPage0 && speechesPage0.length > 0}
+			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
+				<SpeechesPreview {speechesPage0} />
+			</div>
+		{:else if speechesPage0 == null && delegate && delegate.council == 'gov'}
+			<ExpandablePlaceholder />
+			<ExpandablePlaceholder />
+		{/if}
 
 		{#if interests}
 			<InterestTiles interests={interests.slice(0, 4)}></InterestTiles>

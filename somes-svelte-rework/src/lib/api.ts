@@ -15,7 +15,8 @@ import type {
 	DelegateQA,
 	Topic,
 	UniqueTopic,
-	GovProposal
+	GovProposal,
+	Speech
 } from './types';
 import { jwtStore } from './caching/stores/stores';
 
@@ -217,7 +218,7 @@ export async function gov_proposals_by_official(
 export async function speeches_by_delegate_per_page(
 	delegate_id: number,
 	page: number
-): Promise<GovProposal[] | HasError> {
+): Promise<Speech[] | HasError> {
 	return fetchSavely(() =>
 		fetch(`${address}/speeches_by_delegate_per_page?delegate_id=${delegate_id}&page=${page}`, {
 			method: 'GET',
