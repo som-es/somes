@@ -90,7 +90,7 @@
 	<div class="flex flex-wrap gap-3">
 		<GovProposalInfoTiles {govProposal}	/>
 		<div
-			class="topics-item flex rounded-xl justify-center items-center bg-primary-300 p-3 max-h-[169px]"
+			class="topics-item flex-row flex rounded-xl justify-center items-center bg-primary-300 p-3 max-h-[169px]"
 		>
 			<Topics
 				topics={govProposal.topics.sort((a, b) => {
@@ -127,6 +127,7 @@
 		flex-basis: 24%;
 	}
 	.topics-item {
-		flex-basis: 10%;
+		/* flex-basis: 20%; */
+		max-width: 290px;
 	}
 </style>

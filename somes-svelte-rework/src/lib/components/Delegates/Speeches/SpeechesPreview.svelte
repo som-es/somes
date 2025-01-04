@@ -13,7 +13,7 @@
 
 	const modalStore = getModalStore();
 
-	$: previewSpeeches = speechesPage0.slice(0, 40);
+	$: previewSpeeches = speechesPage0.slice(0, 2);
 </script>
 
 <div class="flex flex-wrap justify-between items-center">
