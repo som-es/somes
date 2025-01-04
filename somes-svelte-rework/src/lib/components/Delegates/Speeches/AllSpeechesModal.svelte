@@ -21,7 +21,7 @@
     
     $: if (page && $modalStore.length > 0 && $modalStore[0].meta) {
         currentPageSpeeches = []
-        speeches_by_delegate_per_page($modalStore[0].meta.delegateId, page).then((res) => {
+        speeches_by_delegate_per_page($modalStore[0].meta.delegateId, page-1).then((res) => {
             currentPageSpeeches = (errorToNull(res)?.speeches ?? [])
         });
     }
@@ -43,7 +43,7 @@
             &#x2715
         </button>
 
-        <Pagination bind:page maxPage={$modalStore[0].meta.speechesPage0.max_page -1} />
+        <Pagination bind:page maxPage={$modalStore[0].meta.speechesPage0.max_page} />
         <!-- <AllProposalsFiltering bind:filteredGovProposals={filteredGovProposals} allGovProposals={$modalStore[0].meta.govProposals} /> -->
         {#each currentPageSpeeches as speech}
             <SpeechBar {speech} />
