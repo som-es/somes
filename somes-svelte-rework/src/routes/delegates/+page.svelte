@@ -89,7 +89,16 @@
 		const endDate = periods[firstIdx + 1]?.start_date;
 		const newDate = new Date(endDate ? endDate : new Date());
 		newDate.setDate(newDate.getDate() - 1);
-		supplyDate = newDate.toISOString().split('T')[0] as unknown as Date;
+
+		const paramDate = url.searchParams.get('date');
+		if (paramDate) {
+			const startDate = new Date(periods[firstIdx]?.start_date);
+			const diffTime = Math.abs((new Date(paramDate)).getTime() - startDate.getTime());
+			dayOffset = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+			// this prevents that dayOffset is overwritten with max
+			prevSelectedPeriod = selectedPeriod;
+		}
+		supplyDate = paramDate ? paramDate as unknown as Date : newDate.toISOString().split('T')[0] as unknown as Date;
 		// console.log(supplyDate);
 		finishedMounting = true;
 	});
@@ -109,6 +118,7 @@
 
 		const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
 		maxDayOffset = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+		console.log(dayOffset);
 		if (prevSelectedPeriod !== selectedPeriod) {
 			dayOffset = maxDayOffset;
 		}

@@ -10,7 +10,6 @@
 
     onMount(async () => {
         voteResult = errorToNull(await vote_result_by_id(speech.legislative_initiatives_id.toString()));
-        console.log(voteResult)
     }) 
 
 </script>

@@ -6,10 +6,12 @@
 	import type { Delegate } from '$lib/types';
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import SButton from '../UI/SButton.svelte';
-	import { delegatesStore } from '$lib/caching/stores/stores';
 
 	export let bubble: Bubble;
+	export let date: Date;
 	export let gp: string;
+
+	
 	let delegate: Delegate;
 	if (bubble && bubble.del !== null) {
 		delegate = bubble.del;
@@ -17,7 +19,7 @@
 
 	const onShowDetails = () => {
 		currentDelegateStore.set(delegate);
-		gotoHistory(`/delegates?gp=${gp}`, true);
+		gotoHistory(`/delegates?gp=${gp}&date=${date}`, true);
 	};
 
 	const popupFeatured: PopupSettings = {

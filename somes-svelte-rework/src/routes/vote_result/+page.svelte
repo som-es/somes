@@ -26,10 +26,8 @@
 	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import SimpleYesNo from '$lib/components/VoteResults/SimpleYesNo/SimpleYesNo.svelte';
-	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 
-	let dels: Delegate[] | null = null;
 	let delegates: Delegate[] = [];
 
 	let voteResult: VoteResult | null = null;
@@ -269,7 +267,7 @@
 					</div>
 					{#if selectedBubble}
 						<div class="max-md:hidden delegate-item rounded-xl bg-primary-300 dark:bg-primary-500">
-							<VoteDelegateCard bubble={selectedBubble} gp={voteResult.legislative_initiative.gp} />
+							<VoteDelegateCard bubble={selectedBubble} gp={voteResult.legislative_initiative.gp} date={voteResult.legislative_initiative.created_at} />
 						</div>
 					{/if}
 				</div>
@@ -320,6 +318,7 @@
 										<VoteDelegateCard
 											bubble={speechDelegate}
 											gp={voteResult.legislative_initiative.gp}
+											date={voteResult.legislative_initiative.created_at}
 										/>
 									</div>
 								{/each}
@@ -342,6 +341,7 @@
 											class="w-80"
 											bubble={namedVoteDelegate}
 											gp={voteResult.legislative_initiative.gp}
+											date={voteResult.legislative_initiative.created_at}
 										/>
 									</div>
 								{/each}
