@@ -6,23 +6,31 @@
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
 	import { onMount } from "svelte";
 	import { gotoHistory } from "$lib/goto";
+	import { getModalStore } from "@skeletonlabs/skeleton";
 
     export let speech: Speech;
 
     let voteResult: VoteResult | null = null;
 
-    onMount(async () => {
-        voteResult = errorToNull(await vote_result_by_id(speech.legislative_initiatives_id.toString()));
+    $: if(speech) {
+        voteResult = null;
+        vote_result_by_id(speech.legislative_initiatives_id.toString()).then((res) => {
+            voteResult = errorToNull(res);
+        });
+    }
 
-    }) 
+	const modalStore = getModalStore();
 
 	function onShowDetails(voteResult: VoteResult | null) {
 		currentVoteResultStore.set(voteResult);
+        modalStore.close();
 		gotoHistory('/vote_result', true);
+        
 	}
 
     $: opinion = speech.infavor != null ? (speech.infavor ? "Dafür gesprochen" : "Dagegen gesprochen") : speech.opinion 
     $: arrowBackground = (voteResult != null && voteResult.votes.length > 0) ? "bg-secondary-400" : "dark:bg-primary-300 bg-primary-400"
+    $: hasVotes = (voteResult?.votes ?? []).length > 0
 
 </script>
 
@@ -37,7 +45,7 @@
                     <div>{voteResult.legislative_initiative.description}</div>
                 </div>
 
-                {#if voteResult.votes.length > 0}
+                {#if hasVotes}
                     <button
                         class="max-sm:hidden z-20 w-[7.5rem] bg-primary-100 dark:bg-primary-300 rounded-md"
                         on:click={() => onShowDetails(voteResult)}
@@ -47,7 +55,7 @@
                 {/if}
             </div> 
 
-            {#if voteResult.votes.length > 0}
+            {#if hasVotes}
                 <button class="spacing-for-right" on:click={() => onShowDetails(voteResult)}>
                     {@html rightArrowIcon}
                 </button>

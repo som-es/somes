@@ -4,11 +4,12 @@
 	import SpeechBar from './SpeechBar.svelte';
 
 	export let speechesPage0: SpeechesWithMaxPage;
+	export let delegateId: number;
 
 	$: allSpeeches = {
 		type: 'component',
 		component: 'allSpeeches',
-		meta: { speechesPage0: speechesPage0 }
+		meta: { delegateId: delegateId, speechesPage0: speechesPage0 }
 	} as ModalSettings;
 
 	const modalStore = getModalStore();

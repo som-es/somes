@@ -81,7 +81,7 @@
 		class="mt-5 mb-5 bg-tertiary-500 text-center"
 		title="vorherige Seite"
 		on:click={() => {
-			if (page > 0) page--;
+			if (page > 1) page--;
 		}}
 	>
 		{'<'}

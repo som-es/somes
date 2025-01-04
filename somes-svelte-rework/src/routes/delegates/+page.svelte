@@ -304,9 +304,9 @@
 			<ExpandablePlaceholder />
 		{/if}
 
-		{#if speechesPage0 && speechesPage0.speeches.length > 0}
+		{#if speechesPage0 && delegate && speechesPage0.speeches.length > 0}
 			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
-				<SpeechesPreview {speechesPage0} />
+				<SpeechesPreview delegateId={delegate.id} {speechesPage0} />
 			</div>
 		{:else if speechesPage0 == null && delegate && delegate.council == 'gov'}
 			<ExpandablePlaceholder />
