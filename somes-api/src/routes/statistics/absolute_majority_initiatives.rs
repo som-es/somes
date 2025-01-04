@@ -14,8 +14,8 @@ use crate::{
 
 #[derive(ToSchema, Default, Debug, Clone, Serialize, Deserialize)]
 pub struct LegislativeInitiativeFilter {
-    legis_period: Option<String>, 
-    accepted: Option<String>
+    legis_period: Option<String>,
+    accepted: Option<String>,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
@@ -26,12 +26,12 @@ pub struct LegislativeInitiativeStats {
 // #[debug_handler]
 pub async fn legislative_initiatives_without_simple_majority(
     PgPoolConnection(pg): PgPoolConnection,
-    Json(filter): Json<Option<LegislativeInitiativeFilter>>,  
+    Json(filter): Json<Option<LegislativeInitiativeFilter>>,
 ) -> Result<Json<Vec<LegislativeInitiativeStats>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
 
     // Hier baust du deine Filterargumente
-    let filter_arg = filter.legis_period.with_sql_column("gp");  
+    let filter_arg = filter.legis_period.with_sql_column("gp");
     let filter_arg1 = filter.accepted.with_sql_column("accepted");
     let filters = [filter_arg, filter_arg1];
 

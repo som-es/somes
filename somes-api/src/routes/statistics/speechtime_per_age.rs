@@ -15,22 +15,24 @@ use crate::{
 use super::filtering::Manual;
 
 #[derive(ToSchema, Default, Debug, Clone, Serialize, Deserialize)]
-pub struct PartySpeechComplexityFilter {
+pub struct AgeSpeechTimeFilter {
     legis_period: Option<String>,
     is_desc: bool,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
-pub struct PartyComplexity {
-    party: String,
-    avg_complexity: f64,
+pub struct AgeSpeechTime {
+    age_group: String,
+    age_group_members_with_speeche_time: i64,
+    total_speech_time: i64,
+    normalized_speech_time: f64,
 }
 
 // #[debug_handler]
-pub async fn complexity_per_party(
+pub async fn speechtime_per_age(
     PgPoolConnection(pg): PgPoolConnection,
-    Json(filter): Json<Option<PartySpeechComplexityFilter>>,
-) -> Result<Json<Vec<PartyComplexity>>, StatisticsResponse> {
+    Json(filter): Json<Option<AgeSpeechTimeFilter>>,
+) -> Result<Json<Vec<AgeSpeechTime>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
 
     let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
@@ -44,32 +46,39 @@ pub async fn complexity_per_party(
     let query = format!(
         " 
         SELECT 
-             ds.party AS party,
-             AVG((COALESCE(sc.flesch_kincaid, 0) + COALESCE(sc.smog, 0) + COALESCE(sc.gunning_fog, 0) + COALESCE(sc.coleman_liau, 0)) / 4) AS avg_complexity
+            CASE 
+                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate)) < 30 THEN 'Under 30'
+                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate)) BETWEEN 30 AND 39 THEN '30-39'
+                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate)) BETWEEN 40 AND 49 THEN '40-49'
+                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate)) BETWEEN 50 AND 59 THEN '50-59'
+                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate)) BETWEEN 60 AND 69 THEN '60-69'
+                ELSE '70+'
+            END AS age_group,
+            COUNT(DISTINCT ds.id) AS age_group_members_with_speeche_time,
+            SUM(ps.duration_in_seconds) AS total_speech_time,
+            SUM(ps.duration_in_seconds)::FLOAT / COUNT(DISTINCT ds.id)::FLOAT AS normalized_speech_time
          FROM 
-            speech_complexity sc
-        JOIN 
-            plenar_speeches ps ON ps.id = sc.speech_id
-        JOIN 
-            delegates ds ON ps.delegate_id = ds.id
-        JOIN
-            debates db ON db.id = ps.debate_id
-        JOIN 
-            plenar_infos pf ON pf.id = db.plenar_id
-        JOIN 
-            mandates m ON m.delegate_id = ds.id
+    plenar_speeches ps
+JOIN 
+    delegates ds ON ps.delegate_id = ds.id
+JOIN 
+    mandates m ON m.delegate_id = ds.id
+JOIN
+    debates db ON db.id = ps.debate_id
+JOIN
+    plenar_infos pf ON pf.id = db.plenar_id
 WHERE
     {filter}
     AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = db.plenar_id)
     AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = db.plenar_id))
 GROUP BY 
-    ds.party
+    age_group
 ORDER BY 
-    avg_complexity {desc};
+    normalized_speech_time {desc};
     "
     );
 
-    let mut filtered_query = sqlx::query_as::<Postgres, PartyComplexity>(&query);
+    let mut filtered_query = sqlx::query_as::<Postgres, AgeSpeechTime>(&query);
     filtered_query = bind_values(filtered_query, &filters);
 
     filtered_query

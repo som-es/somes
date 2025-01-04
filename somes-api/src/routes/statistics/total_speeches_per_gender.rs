@@ -15,22 +15,24 @@ use crate::{
 use super::filtering::Manual;
 
 #[derive(ToSchema, Default, Debug, Clone, Serialize, Deserialize)]
-pub struct PartySpeechComplexityFilter {
+pub struct GenderTotalSpeechesFilter {
     legis_period: Option<String>,
     is_desc: bool,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
-pub struct PartyComplexity {
-    party: String,
-    avg_complexity: f64,
+pub struct GenderTotalSpeeches {
+    delegate_gender: String,
+    total_speeches: i64,
+    gender_members_with_speeches: i64,
+    normalized_speeches_per_gender: f64,
 }
 
 // #[debug_handler]
-pub async fn complexity_per_party(
+pub async fn total_speeches_per_gender(
     PgPoolConnection(pg): PgPoolConnection,
-    Json(filter): Json<Option<PartySpeechComplexityFilter>>,
-) -> Result<Json<Vec<PartyComplexity>>, StatisticsResponse> {
+    Json(filter): Json<Option<GenderTotalSpeechesFilter>>,
+) -> Result<Json<Vec<GenderTotalSpeeches>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
 
     let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
@@ -44,32 +46,32 @@ pub async fn complexity_per_party(
     let query = format!(
         " 
         SELECT 
-             ds.party AS party,
-             AVG((COALESCE(sc.flesch_kincaid, 0) + COALESCE(sc.smog, 0) + COALESCE(sc.gunning_fog, 0) + COALESCE(sc.coleman_liau, 0)) / 4) AS avg_complexity
-         FROM 
-            speech_complexity sc
-        JOIN 
-            plenar_speeches ps ON ps.id = sc.speech_id
-        JOIN 
-            delegates ds ON ps.delegate_id = ds.id
-        JOIN
-            debates db ON db.id = ps.debate_id
-        JOIN 
-            plenar_infos pf ON pf.id = db.plenar_id
-        JOIN 
-            mandates m ON m.delegate_id = ds.id
+            ds.gender AS delegate_gender,
+            COUNT(ps.id) AS total_speeches,
+            COUNT(DISTINCT ds.id) AS gender_members_with_speeches,
+            COUNT(ps.id)::FLOAT / COUNT(DISTINCT ds.id)::FLOAT AS normalized_speeches_per_gender
+        FROM 
+    plenar_speeches ps
+JOIN 
+    delegates ds ON ps.delegate_id = ds.id
+JOIN 
+    mandates m ON m.delegate_id = ds.id
+JOIN
+    debates db ON db.id = ps.debate_id
+JOIN
+    plenar_infos pf ON pf.id = db.plenar_id
 WHERE
     {filter}
     AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = db.plenar_id)
     AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = db.plenar_id))
 GROUP BY 
-    ds.party
+    ds.gender
 ORDER BY 
-    avg_complexity {desc};
+    normalized_speeches_per_gender {desc};
     "
     );
 
-    let mut filtered_query = sqlx::query_as::<Postgres, PartyComplexity>(&query);
+    let mut filtered_query = sqlx::query_as::<Postgres, GenderTotalSpeeches>(&query);
     filtered_query = bind_values(filtered_query, &filters);
 
     filtered_query

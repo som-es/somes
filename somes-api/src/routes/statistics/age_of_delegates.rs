@@ -19,6 +19,7 @@ pub struct DelegateAgeFilter {
     legis_period: Option<String>,
     party: Option<String>,
     gender: Option<String>,
+    is_desc: bool,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
@@ -39,9 +40,11 @@ pub async fn age_per_delegate(
     let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
     let filter_arg1 = filter.party.with_sql_column("ds.party");
     let filter_arg2 = filter.gender.with_sql_column("ds.gender");
-    let filter_arg3 = Some("nr").with_sql_column("ds.council");
+    let filter_arg3 = Manual("m.is_nr").with_sql_column("");
     let filter_arg4 = Manual("birthdate is not null").with_sql_column("");
-    let filters = [filter_arg, filter_arg1, filter_arg2, filter_arg3, filter_arg4];
+    let filters = [filter_arg, filter_arg1,  filter_arg2, filter_arg3, filter_arg4,];
+
+    let desc = if filter.is_desc { "DESC" } else { "ASC" };
 
     let filter = build_filter(&filters);
 
@@ -62,10 +65,16 @@ pub async fn age_per_delegate(
             debates db ON db.id = ps.debate_id
         JOIN 
             plenar_infos pf ON pf.id = db.plenar_id
-        WHERE 
-            {filter}
+         JOIN 
+            mandates m ON m.delegate_id = ds.id
+WHERE
+    {filter}
+    AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = db.plenar_id)
+    AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = db.plenar_id))
+GROUP BY 
+    ds.id, ds.name, ds.party, ds.gender
 ORDER BY 
-    delegate_age DESC;
+    delegate_age {desc};
     "
     );
 

@@ -15,7 +15,7 @@ use crate::{
 use super::filtering::Manual;
 
 #[derive(ToSchema, Default, Debug, Clone, Serialize, Deserialize)]
-pub struct DelegateSpeechComplexityFilter {
+pub struct DelegateCallToOrdersFilter {
     legis_period: Option<String>,
     party: Option<String>,
     gender: Option<String>,
@@ -23,17 +23,17 @@ pub struct DelegateSpeechComplexityFilter {
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
-pub struct DelegateComplexity {
+pub struct DelegateCallToOrders {
     delegate_name: String,
     delegate_party: String,
-    avg_complexity: f64,
+    total_order_calls: i64,
 }
 
 // #[debug_handler]
-pub async fn complexity_per_delegate(
+pub async fn call_to_orders_per_delegate(
     PgPoolConnection(pg): PgPoolConnection,
-    Json(filter): Json<Option<DelegateSpeechComplexityFilter>>,
-) -> Result<Json<Vec<DelegateComplexity>>, StatisticsResponse> {
+    Json(filter): Json<Option<DelegateCallToOrdersFilter>>,
+) -> Result<Json<Vec<DelegateCallToOrders>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
 
     let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
@@ -48,34 +48,30 @@ pub async fn complexity_per_delegate(
 
     let query = format!(
         "
-        SELECT 
+       SELECT 
             ds.name AS delegate_name,
             ds.party AS delegate_party,
-            AVG((sc.flesch_kincaid + sc.smog + sc.gunning_fog + sc.coleman_liau) / 4) AS avg_complexity
-        FROM 
-            speech_complexity sc
+            COUNT(cto.id) AS total_order_calls
+         FROM 
+            call_to_order cto
         JOIN 
-            plenar_speeches ps ON ps.id = sc.speech_id
+            delegates ds ON cto.receiver_id = ds.id
         JOIN 
-            delegates ds ON ps.delegate_id = ds.id
-        JOIN
-            debates db ON db.id = ps.debate_id
-        JOIN 
-            plenar_infos pf ON pf.id = db.plenar_id
+            plenar_infos pf ON pf.id = cto.plenar_id
         JOIN 
             mandates m ON m.delegate_id = ds.id
-WHERE
-    {filter}
-    AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = db.plenar_id)
-    AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = db.plenar_id))
-GROUP BY 
-    ds.id, ds.name, ds.party
-ORDER BY 
-    avg_complexity {desc};
+        WHERE 
+            {filter}    
+            AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = cto.plenar_id)
+            AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = cto.plenar_id))
+        GROUP BY 
+            ds.id, ds.name, ds.party, ds.gender
+        ORDER BY 
+            total_order_calls {desc};
     "
     );
 
-    let mut filtered_query = sqlx::query_as::<Postgres, DelegateComplexity>(&query);
+    let mut filtered_query = sqlx::query_as::<Postgres, DelegateCallToOrders>(&query);
     filtered_query = bind_values(filtered_query, &filters);
 
     filtered_query

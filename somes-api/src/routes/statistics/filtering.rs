@@ -34,8 +34,8 @@ impl<'a, What> Filterable<'a, What> for Manual {
     }
 }
 
-impl<'a, What, T: Clone + 'static + Encode<'a, Postgres> + Type<Postgres> + Send + Sync> Filterable<'a, What>
-    for Option<T>
+impl<'a, What, T: Clone + 'static + Encode<'a, Postgres> + Type<Postgres> + Send + Sync>
+    Filterable<'a, What> for Option<T>
 {
     fn to_query_part(&self, sql_column_name: &str, idx: usize) -> String {
         match self {
@@ -103,8 +103,8 @@ pub trait IntoFilterArgument<'b> {
     ) -> FilterArgument<'a, 'b, What>;
 }
 
-impl<'b, T: Clone + 'static + Encode<'b, Postgres> + Type<Postgres> + Send + Sync> IntoFilterArgument<'b>
-    for Option<T>
+impl<'b, T: Clone + 'static + Encode<'b, Postgres> + Type<Postgres> + Send + Sync>
+    IntoFilterArgument<'b> for Option<T>
 {
     fn with_sql_column<'a, What>(
         &'b self,
@@ -114,9 +114,7 @@ impl<'b, T: Clone + 'static + Encode<'b, Postgres> + Type<Postgres> + Send + Syn
     }
 }
 
-impl<'b> IntoFilterArgument<'b>
-    for Manual 
-{
+impl<'b> IntoFilterArgument<'b> for Manual {
     fn with_sql_column<'a, What>(
         &'b self,
         _sql_column: &'static str,

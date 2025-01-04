@@ -15,22 +15,24 @@ use crate::{
 use super::filtering::Manual;
 
 #[derive(ToSchema, Default, Debug, Clone, Serialize, Deserialize)]
-pub struct AgeSpeechComplexityFilter {
+pub struct AgeCallToOrdersFilter {
     legis_period: Option<String>,
     is_desc: bool,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
-pub struct AgeComplexity {
+pub struct AgeCallToOrders {
     age_group: String,
-    avg_complexity: f64,
+    age_group_members_who_where_called: i64,
+    total_order_calls: i64,
+    normalized_calls_to_order: f64,
 }
 
 // #[debug_handler]
-pub async fn complexity_at_age(
+pub async fn call_to_orders_per_age(
     PgPoolConnection(pg): PgPoolConnection,
-    Json(filter): Json<Option<AgeSpeechComplexityFilter>>,
-) -> Result<Json<Vec<AgeComplexity>>, StatisticsResponse> {
+    Json(filter): Json<Option<AgeCallToOrdersFilter>>,
+) -> Result<Json<Vec<AgeCallToOrders>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
 
     let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
@@ -44,39 +46,37 @@ pub async fn complexity_at_age(
     let query = format!(
         " 
         SELECT 
-            CASE
+            CASE 
                 WHEN EXTRACT(YEAR FROM AGE(ds.birthdate)) < 30 THEN 'Under 30'
                 WHEN EXTRACT(YEAR FROM AGE(ds.birthdate)) BETWEEN 30 AND 39 THEN '30-39'
                 WHEN EXTRACT(YEAR FROM AGE(ds.birthdate)) BETWEEN 40 AND 49 THEN '40-49'
                 WHEN EXTRACT(YEAR FROM AGE(ds.birthdate)) BETWEEN 50 AND 59 THEN '50-59'
                 WHEN EXTRACT(YEAR FROM AGE(ds.birthdate)) BETWEEN 60 AND 69 THEN '60-69'
-               ELSE '70+'
-        END AS age_group,
-        AVG((sc.flesch_kincaid + sc.smog + sc.gunning_fog + sc.coleman_liau) / 4) AS avg_complexity
+                ELSE '70+'
+            END AS age_group,
+            COUNT(DISTINCT ds.id) AS age_group_members_who_where_called,
+            COUNT(cto.id) AS total_order_calls,
+            COUNT(cto.id)::FLOAT / COUNT(DISTINCT ds.id)::FLOAT AS normalized_calls_to_order
         FROM 
-            speech_complexity sc
+            call_to_order cto
         JOIN 
-            plenar_speeches ps ON ps.id = sc.speech_id
+            delegates ds ON cto.receiver_id = ds.id
         JOIN 
-            delegates ds ON ps.delegate_id = ds.id
-        JOIN
-            debates db ON db.id = ps.debate_id
-        JOIN 
-            plenar_infos pf ON pf.id = db.plenar_id
+            plenar_infos pf ON pf.id = cto.plenar_id
         JOIN 
             mandates m ON m.delegate_id = ds.id
-WHERE
-    {filter}
-    AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = db.plenar_id)
-    AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = db.plenar_id))
-GROUP BY 
-    age_group
-ORDER BY 
-    avg_complexity {desc};
+        WHERE 
+            {filter}    
+            AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = cto.plenar_id)
+            AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = cto.plenar_id))
+        GROUP BY 
+            age_group
+        ORDER BY 
+            normalized_calls_to_order {desc};
     "
     );
 
-    let mut filtered_query = sqlx::query_as::<Postgres, AgeComplexity>(&query);
+    let mut filtered_query = sqlx::query_as::<Postgres, AgeCallToOrders>(&query);
     filtered_query = bind_values(filtered_query, &filters);
 
     filtered_query

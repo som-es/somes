@@ -4,7 +4,7 @@ use axum::{
     extract::FromRef,
     http::{self, HeaderValue},
     response::Html,
-    routing::{any, delete, get, get_service, post},
+    routing::{any, delete, get, get_service, post, Route},
     Router, ServiceExt,
 };
 use axum_server::tls_rustls::RustlsConfig;
@@ -298,39 +298,38 @@ pub async fn serve(addr: SocketAddr) {
         .route(GOV_OFFICIALS_AT, get(gov_officials_at_date_route))
         .route(GOV_PROPOSALS_BY_OFFICIAL, get(gov_proposals_by_official))
         .route(AI_CHAT_WS, any(ai_chat_ws_handler))
-        
         .route(
             DELEGATES_BY_CALL_TO_ORDERS,
             post(call_to_order_per_delegates),
         )
         .route(
-            LEGISLATIVE_INITIATIVES_WITHOUT_SIMPLE_MAJORITY, 
+            LEGISLATIVE_INITIATIVES_WITHOUT_SIMPLE_MAJORITY,
             post(legislative_initiatives_without_simple_majority),
         )
+        .route(COMPLEXITY_PER_DELEGATE, post(complexity_per_delegate))
+        .route(COMPLEXITY_PER_PARTY, post(complexity_per_party))
+        .route(COMPLEXITY_PER_GENDER, post(complexity_per_gender))
+        .route(COMPLEXITY_AT_AGE, post(complexity_at_age))
+        .route(AGE_OF_DELEGATES, post(age_per_delegate))
+        .route(AGE_PER_PARTY, post(age_per_party))
+        .route(SPEECHTIME_PER_PARTY, post(speechtime_per_party))
+        .route(SPEECHTIME_PER_DELEGATE, post(speechtime_per_delegate))
+        .route(SPEECHTIME_PER_AGE, post(speechtime_per_age))
+        .route(SPEECHTIME_PER_GENDER, post(speechtime_per_gender))
         .route(
-            COMPLEXITY_PER_DELEGATE,
-             post(complexity_per_delegate),
-            )
-        .route(
-            COMPLEXITY_PER_PARTY,
-             post(complexity_per_party),
-            )
-        .route(
-            COMPLEXITY_PER_GENDER,
-             post(complexity_per_gender),
-            )
-        .route(
-            COMPLEXITY_AT_AGE,
-            post(complexity_at_age),
+            TOTAL_SPEECHES_PER_DELEGATE,
+            post(total_speeches_per_delegate),
         )
+        .route(TOTAL_SPEECHES_PER_PARTY, post(total_speeches_per_party))
+        .route(TOTAL_SPEECHES_PER_GENDER, post(total_speeches_per_gender))
+        .route(TOTAL_SPEECHES_PER_AGE, post(total_speeches_per_age))
         .route(
-            AGE_OF_DELEGATES,
-            post(age_per_delegate),
+            CALL_TO_ORDERS_BY_DELEGATE,
+            post(call_to_orders_per_delegate),
         )
-        .route(
-            AGE_PER_PARTY,
-            post(age_per_party),
-        )
+        .route(CALL_TO_ORDERS_PER_PARTY, post(call_to_orders_per_party))
+        .route(CALL_TO_ORDERS_PER_GENDER, post(call_to_orders_per_gender))
+        .route(CALL_TO_ORDERS_PER_AGE, post(call_to_orders_per_age))
         .route("/save_email", post(save_email))
         // mind conflicts e.g delegates
         .nest_service(
