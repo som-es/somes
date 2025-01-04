@@ -2,7 +2,7 @@
 	import type { AutocompleteOption } from '$lib/components/Autocompletion/types';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
-	import type { Delegate, DelegateQA, GovProposal, InterestShare, LegisPeriod, Speech } from '$lib/types';
+	import type { Delegate, DelegateQA, GovProposal, InterestShare, LegisPeriod, Speech, SpeechesWithMaxPage } from '$lib/types';
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 	import {
@@ -50,7 +50,7 @@
 	let autocompleteOptions: AutocompleteOption<string>[] = [];
 	let interests: InterestShare[] | null;
 	let govProposals: GovProposal[] | null = null;
-	let speechesPage0: Speech[] | null = null;
+	let speechesPage0: SpeechesWithMaxPage | null = null;
 	let delegateQA: DelegateQA[] = [];
 	let maxDayOffset = 365 * 5;
 	let dayOffset = maxDayOffset;
@@ -304,7 +304,7 @@
 			<ExpandablePlaceholder />
 		{/if}
 
-		{#if speechesPage0 && speechesPage0.length > 0}
+		{#if speechesPage0 && speechesPage0.speeches.length > 0}
 			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
 				<SpeechesPreview {speechesPage0} />
 			</div>

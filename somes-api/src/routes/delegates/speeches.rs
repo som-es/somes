@@ -5,7 +5,7 @@ use somes_common_lib::DelegateByIdAndPage;
 use sqlx::{query, query_as, PgPool};
 use utoipa::ToSchema;
 
-use crate::{routes::VoteResult, PgPoolConnection};
+use crate::PgPoolConnection;
 
 use super::DelegatesErrorResponse;
 

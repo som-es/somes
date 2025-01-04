@@ -79,6 +79,12 @@ export interface Speech {
 	legislative_initiatives_id: number;
 }
 
+export interface SpeechesWithMaxPage {
+	speeches: Speech[];
+	entry_count: number;
+	max_page: number;
+}
+
 export interface Document {
 	title: string | null;
 	document_url: string;

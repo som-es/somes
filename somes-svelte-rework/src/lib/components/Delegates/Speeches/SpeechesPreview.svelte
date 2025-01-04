@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { Speech } from '$lib/types';
+	import type { Speech, SpeechesWithMaxPage } from '$lib/types';
 	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
 	import SpeechBar from './SpeechBar.svelte';
 
-	export let speechesPage0: Speech[];
+	export let speechesPage0: SpeechesWithMaxPage;
 
 	$: allSpeeches = {
 		type: 'component',
@@ -13,7 +13,7 @@
 
 	const modalStore = getModalStore();
 
-	$: previewSpeeches = speechesPage0.slice(0, 2);
+	$: previewSpeeches = speechesPage0.speeches.slice(0, 2);
 </script>
 
 <div class="flex flex-wrap justify-between items-center">
