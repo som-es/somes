@@ -3,6 +3,7 @@
 	import VoteParliament2 from "$lib/components/Parliaments/VoteParliament2.svelte";
 	import type { Speech, VoteResult } from "$lib/types";
 	import { currentVoteResultStore } from '$lib/stores/stores';
+	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
 	import { onMount } from "svelte";
 	import { gotoHistory } from "$lib/goto";
 
@@ -21,30 +22,36 @@
 	}
 
     $: opinion = speech.infavor != null ? (speech.infavor ? "Dafür gesprochen" : "Dagegen gesprochen") : speech.opinion 
+    $: arrowBackground = (voteResult != null && voteResult.votes.length > 0) ? "bg-secondary-400" : "dark:bg-primary-300 bg-primary-400"
 
 </script>
 
 <div class="gap-3 mt-5">
     <div
-		class="entry dark:bg-primary-300 bg-primary-400 flex justify-between items-center text-black"
+		class="entry flex {arrowBackground} justify-between items-center text-black"
     >
         {#if voteResult}
+            <div class="border-radius-left spacing-for-left flex dark:bg-primary-300 bg-primary-400 justify-between items-center flex-basis-left">
+                <div class="flex flex-col">
+                    <div class="text-lg font-bold">{opinion}</div>
+                    <div>{voteResult.legislative_initiative.description}</div>
+                </div>
 
-            <div class="flex flex-col">
-                <div class="text-lg font-bold">{opinion}</div>
-                <div>{voteResult.legislative_initiative.description}</div>
-            </div>
+                {#if voteResult.votes.length > 0}
+                    <button
+                        class="max-sm:hidden z-20 w-[7.5rem] bg-primary-100 dark:bg-primary-300 rounded-md"
+                        on:click={() => onShowDetails(voteResult)}
+                    >
+                        <VoteParliament2 voteResult={voteResult} preview={true} />
+                    </button>
+                {/if}
+            </div> 
 
             {#if voteResult.votes.length > 0}
-                <button
-                    class="max-sm:hidden z-20 w-[7.5rem] bg-primary-100 dark:bg-primary-300 rounded-md"
-                    on:click={() => onShowDetails(voteResult)}
-                >
-                    <VoteParliament2 voteResult={voteResult} preview={true} />
+                <button class="spacing-for-right" on:click={() => onShowDetails(voteResult)}>
+                    {@html rightArrowIcon}
                 </button>
             {/if}
-        {:else}
-            <div></div>
         {/if}
 <!-- 
 	<div use:collapse={{ open, duration }}>
@@ -69,7 +76,24 @@
 	.entry {
 		border-radius: 0.9rem;
 		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	}
+
+    .border-radius-left {
+        border-top-left-radius: 0.9rem;
+        border-bottom-left-radius: 0.9rem;
+    }
+
+    .spacing-for-left {
 		padding: 20px;
 		gap: 10px;
-	}
+    }
+
+    .spacing-for-right {
+		padding: 20px;
+		gap: 10px;
+    }
+
+    .flex-basis-left {
+        flex-basis: 96%;
+    }
 </style>
