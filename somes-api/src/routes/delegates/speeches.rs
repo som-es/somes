@@ -3,9 +3,14 @@ use dataservice::db::models::DbSpeechWithLink;
 use somes_common_lib::DelegateByIdAndPage;
 use sqlx::{query_as, PgPool};
 
-use crate::PgPoolConnection;
+use crate::{routes::VoteResult, PgPoolConnection};
 
 use super::DelegatesErrorResponse;
+
+pub struct DbSpeechWithLinkAndVoteResult {
+    vote_result: Option<VoteResult>,
+    db_speech: DbSpeechWithLink
+}
 
 pub async fn extract_delegate_speeches(delegate_id: i32, page: i64, page_elements: i64, pg: &PgPool) -> sqlx::Result<Vec<DbSpeechWithLink>> {
     query_as!(DbSpeechWithLink, "
@@ -22,6 +27,7 @@ pub async fn speeches_by_delegate_per_page(
     let DelegateByIdAndPage {
         delegate_id, page
     } = delegate_by_id_and_page;
+
     extract_delegate_speeches(delegate_id, page, 
         crate::SPEECHES_PER_PAGE.parse().unwrap_or(16),
         &pg)
