@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Speech } from '$lib/types';
 	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
-	import SpeechRow from './SpeechRow.svelte';
+	import SpeechBar from './SpeechBar.svelte';
 
 	export let speechesPage0: Speech[];
 
@@ -23,7 +23,7 @@
 <div class="mt-5">
 {#each previewSpeeches as speech}
     <!-- <div class="gap-3 rounded variant-filled my-1">{speech.legislative_initiatives_id} {speech.opinion}</div> -->
-	 <SpeechRow {speech}></SpeechRow>
+	 <SpeechBar {speech}></SpeechBar>
 	<!-- <GovProposalExpandableBar {govProposal} /> -->
 {/each}
 

@@ -7,11 +7,6 @@ use crate::{routes::VoteResult, PgPoolConnection};
 
 use super::DelegatesErrorResponse;
 
-pub struct DbSpeechWithLinkAndVoteResult {
-    vote_result: Option<VoteResult>,
-    db_speech: DbSpeechWithLink
-}
-
 pub async fn extract_delegate_speeches(delegate_id: i32, page: i64, page_elements: i64, pg: &PgPool) -> sqlx::Result<Vec<DbSpeechWithLink>> {
     query_as!(DbSpeechWithLink, "
         select delegate_id, legislative_initiatives_id, infavor, opinion, document_url from speeches 
