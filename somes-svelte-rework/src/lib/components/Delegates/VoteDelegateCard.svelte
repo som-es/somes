@@ -6,6 +6,7 @@
 	import type { Delegate } from '$lib/types';
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import SButton from '../UI/SButton.svelte';
+	import { delegatesStore } from '$lib/caching/stores/stores';
 
 	export let bubble: Bubble;
 	export let gp: string;
@@ -52,7 +53,7 @@
 			<h5 style="color: {partyToColor(delegate.party)}">
 				{#if delegate.party == 'OK'}
 					Ohne Klub
-				{:else}
+				{:else if delegate.party}
 					<span>{delegate.party}</span>
 				{/if}
 			</h5>

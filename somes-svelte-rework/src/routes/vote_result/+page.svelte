@@ -264,6 +264,7 @@
 							bind:delegates
 							bind:selected={selectedBubble}
 							bind:circles2d
+							showGovs
 						/>
 					</div>
 					{#if selectedBubble}
