@@ -209,7 +209,13 @@ pub async fn serve(addr: SocketAddr) {
     // TODO: move this to dataservice
     tokio::task::spawn(async move {
         loop {
-            if let Err(e) = update_meilisearch_index(&mut client.get_multiplexed_tokio_connection().await.unwrap(), &pg_pool, &meilisearch_client).await {
+            if let Err(e) = update_meilisearch_index(
+                &mut client.get_multiplexed_tokio_connection().await.unwrap(),
+                &pg_pool,
+                &meilisearch_client,
+            )
+            .await
+            {
                 log::warn!("Could not update meilisearch index: {e:?}");
             }
             sleep(std::time::Duration::from_secs(1900)).await;
@@ -277,7 +283,10 @@ pub async fn serve(addr: SocketAddr) {
         .route(DELEGATE_INTERESTS, get(delegate_interests))
         .route(DELEGATE_QA, get(delegate_qa))
         .route(VOTE_RESULTS_PER_PAGE, post(vote_results_per_page)) // post only because js fetch...
-        .route(SPEECHES_BY_DELEGATE_PER_PAGE, get(speeches_by_delegate_per_page)) // post only because js fetch...
+        .route(
+            SPEECHES_BY_DELEGATE_PER_PAGE,
+            get(speeches_by_delegate_per_page),
+        ) // post only because js fetch...
         .route(VOTE_RESULT_BY_ID, get(vote_result_by_id)) // post only because js fetch...
         .route(VOTE_RESULT_BY_SEARCH, post(vote_result_by_search)) // post only because js fetch...
         .route(DELEGATES_AT, get(delegates_at)) // post only because js fetch...

@@ -15,14 +15,14 @@ use crate::{
 
 pub use error::*;
 mod ai_chat;
-mod speeches;
 mod error;
 mod interests;
 mod qa;
+mod speeches;
 pub use ai_chat::*;
 pub use interests::*;
-pub use speeches::*;
 pub use qa::*;
+pub use speeches::*;
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct Delegate {
@@ -66,8 +66,6 @@ pub async fn delegate_interests(
         .map(Json)
         .map_err(|_| DelegatesErrorResponse::DelegateInterestsResponseError)
 }
-
-
 
 #[utoipa::path(
     get,

@@ -241,7 +241,8 @@ SELECT jsonb_build_object(
 ) AS result_json;
 
     ",
-        legis_init.id, legis_init.created_at
+        legis_init.id,
+        legis_init.created_at
     )
     .fetch_one(pg)
     .await

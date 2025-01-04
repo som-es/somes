@@ -49,7 +49,8 @@ pub struct VoteResultsWithMaxPage {
 use crate::{get_json_cache, set_json_cache};
 
 use super::{
-    construct_vote_result::construct_vote_result, filtering::filtered_legislative_initiatives, get_eurovoc_topics_from_ministrial_proposal,
+    construct_vote_result::construct_vote_result, filtering::filtered_legislative_initiatives,
+    get_eurovoc_topics_from_ministrial_proposal,
 };
 
 pub async fn get_latest_legis_inits_per_page(

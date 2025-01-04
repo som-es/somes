@@ -30,10 +30,10 @@ impl IntoResponse for DelegatesErrorResponse {
             DelegatesErrorResponse::DateOutOfRangeError => {
                 (StatusCode::BAD_REQUEST, "date out of range")
             }
-            DelegatesErrorResponse::DelegateSpeechesError => {
-                (StatusCode::INTERNAL_SERVER_ERROR, "cannot return delegate speeches")
-
-            },
+            DelegatesErrorResponse::DelegateSpeechesError => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "cannot return delegate speeches",
+            ),
         };
 
         let body = Json(json!({

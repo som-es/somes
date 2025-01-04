@@ -5,9 +5,7 @@ use diesel::{
 use somes_common_lib::LegisPeriod;
 use sqlx::PgPool;
 
-use crate::{
-    model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours},
-};
+use crate::model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours};
 
 // TODO: move all dataservice.rs function to the dataservice library
 
