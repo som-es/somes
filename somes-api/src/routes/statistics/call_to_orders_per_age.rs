@@ -45,13 +45,23 @@ pub async fn call_to_orders_per_age(
 
     let query = format!(
         " 
+         WITH legislative_period_dates AS (
+    SELECT 
+        legislative_period, 
+        MIN(add_date) AS start_date, 
+        MAX(add_date) AS end_date
+    FROM 
+        plenar_infos
+    GROUP BY 
+        legislative_period
+    )
         SELECT 
             CASE 
-                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate)) < 30 THEN 'Under 30'
-                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate)) BETWEEN 30 AND 39 THEN '30-39'
-                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate)) BETWEEN 40 AND 49 THEN '40-49'
-                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate)) BETWEEN 50 AND 59 THEN '50-59'
-                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate)) BETWEEN 60 AND 69 THEN '60-69'
+                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) * (-1) < 30 THEN 'Under 30'
+                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) * (-1) BETWEEN 30 AND 39 THEN '30-39'
+                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) * (-1) BETWEEN 40 AND 49 THEN '40-49'
+                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) * (-1) BETWEEN 50 AND 59 THEN '50-59'
+                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) * (-1) BETWEEN 60 AND 69 THEN '60-69'
                 ELSE '70+'
             END AS age_group,
             COUNT(DISTINCT ds.id) AS age_group_members_who_where_called,
@@ -65,6 +75,8 @@ pub async fn call_to_orders_per_age(
             plenar_infos pf ON pf.id = cto.plenar_id
         JOIN 
             mandates m ON m.delegate_id = ds.id
+        JOIN 
+            legislative_period_dates lpd ON lpd.legislative_period = pf.legislative_period
         WHERE 
             {filter}    
             AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = cto.plenar_id)

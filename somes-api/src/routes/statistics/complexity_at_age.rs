@@ -23,6 +23,7 @@ pub struct AgeSpeechComplexityFilter {
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct AgeComplexity {
     age_group: String,
+    age_group_members: i64,
     avg_complexity: f64,
 }
 
@@ -43,15 +44,26 @@ pub async fn complexity_at_age(
 
     let query = format!(
         " 
+         WITH legislative_period_dates AS (
+    SELECT 
+        legislative_period, 
+        MIN(add_date) AS start_date, 
+        MAX(add_date) AS end_date
+    FROM 
+        plenar_infos
+    GROUP BY 
+        legislative_period
+)
         SELECT 
             CASE
-                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate)) < 30 THEN 'Under 30'
-                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate)) BETWEEN 30 AND 39 THEN '30-39'
-                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate)) BETWEEN 40 AND 49 THEN '40-49'
-                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate)) BETWEEN 50 AND 59 THEN '50-59'
-                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate)) BETWEEN 60 AND 69 THEN '60-69'
+                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) * (-1) < 30 THEN 'Under 30'
+                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) * (-1) BETWEEN 30 AND 39 THEN '30-39'
+                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) * (-1) BETWEEN 40 AND 49 THEN '40-49'
+                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) * (-1) BETWEEN 50 AND 59 THEN '50-59'
+                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) * (-1) BETWEEN 60 AND 69 THEN '60-69'
                ELSE '70+'
         END AS age_group,
+        COUNT(DISTINCT ds.id) AS age_group_members,
         AVG((sc.flesch_kincaid + sc.smog + sc.gunning_fog + sc.coleman_liau) / 4) AS avg_complexity
         FROM 
             speech_complexity sc
@@ -63,6 +75,8 @@ pub async fn complexity_at_age(
             debates db ON db.id = ps.debate_id
         JOIN 
             plenar_infos pf ON pf.id = db.plenar_id
+        JOIN 
+            legislative_period_dates lpd ON lpd.legislative_period = pf.legislative_period
         JOIN 
             mandates m ON m.delegate_id = ds.id
 WHERE

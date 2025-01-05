@@ -22,7 +22,7 @@ pub struct PartyAgeFilter {
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct PartyAge {
-    delegate_party: String,
+    party: String,
     average_age: f64,
 }
 
@@ -44,12 +44,24 @@ pub async fn age_per_party(
 
     let query = format!(
         "
-        SELECT 
-            ds.party AS delegate_party,
-            AVG(
-            (EXTRACT(YEAR FROM AGE(birthdate)) + 
-            (EXTRACT(MONTH FROM AGE(birthdate)) / 12.0) + 
-            (EXTRACT(DAY FROM AGE(birthdate)) / 365.25)))::FLOAT as average_age     
+       WITH legislative_period_dates AS (
+    SELECT 
+        legislative_period, 
+        MIN(add_date) AS start_date, 
+        MAX(add_date) AS end_date
+    FROM 
+        plenar_infos
+    GROUP BY 
+        legislative_period
+)
+SELECT DISTINCT 
+    ds.party AS party,
+    AVG(
+    (EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) + 
+    (EXTRACT(MONTH FROM AGE(ds.birthdate, lpd.start_date)) / 12.0) + 
+    (EXTRACT(DAY FROM AGE(ds.birthdate, lpd.start_date)) / 365.25))::FLOAT  
+    ) * (-1) as average_age  
+
         FROM 
             delegates ds
         JOIN 
@@ -58,8 +70,10 @@ pub async fn age_per_party(
             debates db ON db.id = ps.debate_id
         JOIN 
             plenar_infos pf ON pf.id = db.plenar_id
-         JOIN 
+        JOIN 
             mandates m ON m.delegate_id = ds.id
+        JOIN 
+            legislative_period_dates lpd ON lpd.legislative_period = pf.legislative_period
 WHERE
     {filter}
     AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = db.plenar_id)

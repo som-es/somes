@@ -50,31 +50,44 @@ pub async fn age_per_delegate(
 
     let query = format!(
         "
-        SELECT DISTINCT 
-            ds.name AS delegate_name,
-            ds.party AS delegate_party,
-            ds.gender AS delegate_gender,
-            (EXTRACT(YEAR FROM AGE(birthdate)) + 
-            (EXTRACT(MONTH FROM AGE(birthdate)) / 12.0) + 
-            (EXTRACT(DAY FROM AGE(birthdate)) / 365.25))::FLOAT as delegate_age
-        FROM 
-            delegates ds
-        JOIN 
-            plenar_speeches ps ON ps.delegate_id = ds.id
-        JOIN 
-            debates db ON db.id = ps.debate_id
-        JOIN 
-            plenar_infos pf ON pf.id = db.plenar_id
-         JOIN 
-            mandates m ON m.delegate_id = ds.id
+       WITH legislative_period_dates AS (
+    SELECT 
+        legislative_period, 
+        MIN(add_date) AS start_date, 
+        MAX(add_date) AS end_date
+    FROM 
+        plenar_infos
+    GROUP BY 
+        legislative_period
+)
+SELECT DISTINCT 
+    ds.name AS delegate_name,
+    ds.party AS delegate_party,
+    ds.gender AS delegate_gender,
+    (EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) + 
+    (EXTRACT(MONTH FROM AGE(ds.birthdate, lpd.start_date)) / 12.0) + 
+    (EXTRACT(DAY FROM AGE(ds.birthdate, lpd.start_date)) / 365.25))::FLOAT * (-1) as delegate_age
+FROM 
+    delegates ds
+JOIN 
+    plenar_speeches ps ON ps.delegate_id = ds.id
+JOIN 
+    debates db ON db.id = ps.debate_id
+JOIN 
+    plenar_infos pf ON pf.id = db.plenar_id
+JOIN 
+    legislative_period_dates lpd ON lpd.legislative_period = pf.legislative_period
+JOIN 
+    mandates m ON m.delegate_id = ds.id
 WHERE
     {filter}
-    AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = db.plenar_id)
-    AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = db.plenar_id))
+    AND m.start_date <= pf.add_date
+    AND (m.end_date IS NULL OR m.end_date >= pf.add_date)
 GROUP BY 
-    ds.id, ds.name, ds.party, ds.gender
+    ds.id, ds.name, ds.party, ds.gender, lpd.start_date
 ORDER BY 
     delegate_age {desc};
+
     "
     );
 

@@ -330,6 +330,10 @@ pub async fn serve(addr: SocketAddr) {
         .route(CALL_TO_ORDERS_PER_PARTY, post(call_to_orders_per_party))
         .route(CALL_TO_ORDERS_PER_GENDER, post(call_to_orders_per_gender))
         .route(CALL_TO_ORDERS_PER_AGE, post(call_to_orders_per_age))
+        .route(DIVISION_ACCURACY_SCORE_PER_DELEGATE, post(divison_accuracy_score_per_delegate))
+        .route(DIVISION_ACCURACY_SCORE_PER_PARTY, post(division_accuracy_score_per_party))
+        .route(DIVISION_ACCURACY_SCORE_PER_GENDER, post(division_accuracy_score_per_gender))
+        .route(DIVISION_ACCURACY_SCORE_PER_AGE, post(division_accuracy_score_per_age))
         .route("/save_email", post(save_email))
         // mind conflicts e.g delegates
         .nest_service(

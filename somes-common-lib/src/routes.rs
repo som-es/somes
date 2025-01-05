@@ -28,6 +28,10 @@ pub const CALL_TO_ORDERS_BY_DELEGATE: &str = "/call_to_orders_by_delegate";
 pub const CALL_TO_ORDERS_PER_PARTY: &str = "/call_to_orders_per_party";
 pub const CALL_TO_ORDERS_PER_GENDER: &str = "/call_to_orders_per_gender";
 pub const CALL_TO_ORDERS_PER_AGE: &str = "/call_to_orders_per_age";
+pub const DIVISION_ACCURACY_SCORE_PER_DELEGATE: &str = "/divison_accuracy_score_per_delegate";
+pub const DIVISION_ACCURACY_SCORE_PER_PARTY: &str = "/division_accuracy_score_per_party";
+pub const DIVISION_ACCURACY_SCORE_PER_GENDER: &str = "/division_accuracy_score_per_gender";
+pub const DIVISION_ACCURACY_SCORE_PER_AGE: &str = "/division_accuracy_score_per_age";
 pub const DELEGATES_BY_CALL_TO_ORDERS: &str = "/delegates_by_call_to_orders";
 pub const DELEGATES_BY_CALL_TO_ORDERS_AND_LEGIS_PERIOD: &str =
     "/delegates_by_call_to_orders_and_legis_period";

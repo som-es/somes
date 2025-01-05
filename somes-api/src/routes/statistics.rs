@@ -24,6 +24,10 @@ mod total_speeches_per_age;
 mod total_speeches_per_delegate;
 mod total_speeches_per_gender;
 mod total_speeches_per_party;
+mod division_accuracy_score_per_delegate;
+mod division_accuracy_score_per_party;
+mod division_accuracy_score_per_gender;
+mod division_accuracy_score_per_age;
 
 pub use absolute_majority_initiatives::*;
 pub use age_of_delegates::*;
@@ -45,6 +49,10 @@ pub use total_speeches_per_age::*;
 pub use total_speeches_per_delegate::*;
 pub use total_speeches_per_gender::*;
 pub use total_speeches_per_party::*;
+pub use division_accuracy_score_per_delegate::*;
+pub use division_accuracy_score_per_party::*;
+pub use division_accuracy_score_per_gender::*;
+pub use division_accuracy_score_per_age::*;
 
 use crate::{
     dataservice::{
