@@ -1,5 +1,6 @@
 <script lang="ts">
 	import SButton from './UI/SButton.svelte';
+	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow-small.svg?raw';
 
 	export let maxPage: number;
 	export let page: number;
@@ -76,7 +77,7 @@
 	};
 </script>
 
-<div class="flex flex-row flex-wrap gap-1 items-center text-black">
+<div class="flex flex-row flex-wrap gap-[0.35rem] items-center text-black">
 	<SButton
 		class="mt-5 mb-5 bg-tertiary-500 text-center"
 		title="vorherige Seite"
@@ -84,26 +85,48 @@
 			if (page > 1) page--;
 		}}
 	>
-		{'<'}
+		<div class="w-[30px] h-[30px]">
+			<div class="w-[30px] h-[30px] left-arrow">
+				{@html rightArrowIcon}
+			</div>
+		</div>
 	</SButton>
 	{#each pageSuggestions as suggestion}
 		{#if suggestion > 0 && suggestion <= maxPage}
 			<SButton
-				class="mt-5 mb-5 w-14 text-center {isActive(suggestion)
-					? 'bg-secondary-400'
-					: 'bg-tertiary-400'}"
+				class="mt-5 mb-5 text-center !rounded-lg {isActive(suggestion)
+					? 'bg-secondary-300'
+					: 'bg-tertiary-300'}"
 				on:click={() => {
 					page = suggestion;
-				}}>{suggestion}</SButton
+				}}>
+				<div class="font-bold text-lg w-[30px] h-[30px] items-center flex justify-center">
+					{suggestion}
+				</div>
+			</SButton
 			>
 		{/if}
 	{/each}
 	<SButton
-		class="mt-5 mb-5 bg-tertiary-500"
+		class="mt-5 mb-5 bg-tertiary-500 "
 		title="nächste Seite"
 		on:click={() => {
 			if (page < maxPage) page++;
-		}}>{'>'}</SButton
+		}}
+	>
+		<div class="w-[30px] h-[30px]">
+			<div class="w-[30px] h-[30px]">
+				{@html rightArrowIcon}
+			</div>
+		</div>
+		<!-- {'>'} -->
+	</SButton
 	>
 	<!-- <input style="color: black;" class="mx-3 w-11 h-11" bind:value={writtenPage} on:input={onInput} type="number" /> -->
 </div>
+
+<style>
+	.left-arrow {
+		transform: rotate(180deg);
+	}
+</style>
