@@ -118,7 +118,6 @@
 
 		const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
 		maxDayOffset = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-		console.log(dayOffset);
 		if (prevSelectedPeriod !== selectedPeriod) {
 			dayOffset = maxDayOffset;
 		}

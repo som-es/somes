@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { delegates_at, errorToNull, vote_result_by_id } from '$lib/api';
-	import { currentDelegateStore, currentVoteResultStore, hasGoBackStore } from '$lib/stores/stores';
+	import { currentDelegateStore, currentVoteResultStore, hasGoBackStore, useCurrentDelegate } from '$lib/stores/stores';
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
 	import SButton from '$lib/components/UI/SButton.svelte';
@@ -118,8 +118,10 @@
 
 		const maybeStoredDelegate = get(currentDelegateStore);
 		if (maybeStoredDelegate) {
-			// FIXME gov and older ones
-			// delegate = maybeStoredDelegate;
+			const foundDel = delegates.find((del) => del.id == maybeStoredDelegate.id);
+			if (foundDel) {
+				delegate = foundDel;
+			}
 		}
 
 		if (voteResultId == null && voteResult !== null) {
