@@ -2,8 +2,7 @@ use std::{collections::HashMap, str::FromStr};
 
 use axum::{extract::Query, Json};
 use chrono::NaiveDate;
-use dataservice::db::models::{DbDelegate, DbProposalQuery};
-use qa::extract_delegate_qa;
+use dataservice::db::models::DbProposalQuery;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::{Date, DelegateById, DelegateQA, InterestShare, LegisPeriod};
 use sqlx::PgPool;
@@ -19,8 +18,11 @@ mod ai_chat;
 mod error;
 mod interests;
 mod qa;
+mod speeches;
 pub use ai_chat::*;
 pub use interests::*;
+pub use qa::*;
+pub use speeches::*;
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct Delegate {
@@ -60,16 +62,6 @@ pub async fn delegate_interests(
     Query(delegate_by_id): Query<DelegateById>,
 ) -> Result<Json<Vec<InterestShare>>, DelegatesErrorResponse> {
     extract_interests_of_delegate(delegate_by_id.delegate_id, &pg)
-        .await
-        .map(Json)
-        .map_err(|_| DelegatesErrorResponse::DelegateInterestsResponseError)
-}
-
-pub async fn delegate_qa(
-    PgPoolConnection(pg): PgPoolConnection,
-    Query(delegate_by_id): Query<DelegateById>,
-) -> Result<Json<Vec<DelegateQA>>, DelegatesErrorResponse> {
-    extract_delegate_qa(delegate_by_id.delegate_id, &pg)
         .await
         .map(Json)
         .map_err(|_| DelegatesErrorResponse::DelegateInterestsResponseError)

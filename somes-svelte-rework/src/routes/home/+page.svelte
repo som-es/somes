@@ -16,7 +16,9 @@
 </script>
 
 <Container>
-	home
+	<h1 class="text-2xl sm:text-4xl font-bold">
+		Neuste Abstimmungsergebnisse
+	</h1>
 	{#if voteResults && dels}
 		<VoteResults {dels} {voteResults} />
 	{:else}
@@ -57,4 +59,7 @@
 			</div>
 		</section>
 	{/if}
+	<h1 class="mt-2 text-2xl sm:text-4xl font-bold">
+		Neuste Ministerialentwürfe
+	</h1>
 </Container>

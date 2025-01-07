@@ -76,6 +76,13 @@ export interface Speech {
 	infavor: boolean | null;
 	opinion: string | null;
 	document_url: string | null;
+	legislative_initiatives_id: number;
+}
+
+export interface SpeechesWithMaxPage {
+	speeches: Speech[];
+	entry_count: number;
+	max_page: number;
 }
 
 export interface Document {

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { delegates_at, errorToNull, vote_result_by_id } from '$lib/api';
-	import { currentDelegateStore, currentVoteResultStore, hasGoBackStore } from '$lib/stores/stores';
+	import { currentDelegateStore, currentVoteResultStore, hasGoBackStore, useCurrentDelegate } from '$lib/stores/stores';
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
 	import SButton from '$lib/components/UI/SButton.svelte';
@@ -26,10 +26,8 @@
 	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import SimpleYesNo from '$lib/components/VoteResults/SimpleYesNo/SimpleYesNo.svelte';
-	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 
-	let dels: Delegate[] | null = null;
 	let delegates: Delegate[] = [];
 
 	let voteResult: VoteResult | null = null;
@@ -120,8 +118,10 @@
 
 		const maybeStoredDelegate = get(currentDelegateStore);
 		if (maybeStoredDelegate) {
-			// FIXME gov and older ones
-			// delegate = maybeStoredDelegate;
+			const foundDel = delegates.find((del) => del.id == maybeStoredDelegate.id);
+			if (foundDel) {
+				delegate = foundDel;
+			}
 		}
 
 		if (voteResultId == null && voteResult !== null) {
@@ -264,11 +264,12 @@
 							bind:delegates
 							bind:selected={selectedBubble}
 							bind:circles2d
+							showGovs
 						/>
 					</div>
 					{#if selectedBubble}
 						<div class="max-md:hidden delegate-item rounded-xl bg-primary-300 dark:bg-primary-500">
-							<VoteDelegateCard bubble={selectedBubble} gp={voteResult.legislative_initiative.gp} />
+							<VoteDelegateCard bubble={selectedBubble} gp={voteResult.legislative_initiative.gp} date={voteResult.legislative_initiative.created_at} />
 						</div>
 					{/if}
 				</div>
@@ -319,6 +320,7 @@
 										<VoteDelegateCard
 											bubble={speechDelegate}
 											gp={voteResult.legislative_initiative.gp}
+											date={voteResult.legislative_initiative.created_at}
 										/>
 									</div>
 								{/each}
@@ -341,6 +343,7 @@
 											class="w-80"
 											bubble={namedVoteDelegate}
 											gp={voteResult.legislative_initiative.gp}
+											date={voteResult.legislative_initiative.created_at}
 										/>
 									</div>
 								{/each}

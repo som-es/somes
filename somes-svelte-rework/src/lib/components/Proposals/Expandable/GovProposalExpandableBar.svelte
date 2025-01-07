@@ -16,9 +16,7 @@
 
 	function onShowDetails(voteResult: VoteResult | null) {
 		currentVoteResultStore.set(voteResult);
-		// $: if (browser) {
 		gotoHistory('/vote_result', true);
-		// }
 	}
 </script>
 

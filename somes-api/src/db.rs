@@ -49,7 +49,8 @@ pub async fn set_json_cache<T: Serialize>(
         .set(key, serde_json::to_string(value).ok()?)
         .await
         .ok()?;
-    redis_client.expire(key, 300).await.ok()
+    redis_client.expire::<_, ()>(key, 300).await.ok()?;
+    Some(())
 }
 
 pub struct RedisConnection(pub redis::aio::MultiplexedConnection);

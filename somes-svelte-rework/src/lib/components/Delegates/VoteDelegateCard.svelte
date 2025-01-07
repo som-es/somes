@@ -8,7 +8,10 @@
 	import SButton from '../UI/SButton.svelte';
 
 	export let bubble: Bubble;
+	export let date: Date;
 	export let gp: string;
+
+	
 	let delegate: Delegate;
 	if (bubble && bubble.del !== null) {
 		delegate = bubble.del;
@@ -16,7 +19,7 @@
 
 	const onShowDetails = () => {
 		currentDelegateStore.set(delegate);
-		gotoHistory(`/delegates?gp=${gp}`, true);
+		gotoHistory(`/delegates?gp=${gp}&date=${date}`, true);
 	};
 
 	const popupFeatured: PopupSettings = {
@@ -52,7 +55,7 @@
 			<h5 style="color: {partyToColor(delegate.party)}">
 				{#if delegate.party == 'OK'}
 					Ohne Klub
-				{:else}
+				{:else if delegate.party}
 					<span>{delegate.party}</span>
 				{/if}
 			</h5>

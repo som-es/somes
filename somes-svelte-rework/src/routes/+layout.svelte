@@ -23,13 +23,15 @@
 	import DelegateQAModal from '$lib/components/Delegates/QA/DelegateQAModal.svelte';
 	import AiChatModal from '$lib/components/Delegates/AIChat/AIChatModal.svelte';
 	import AllProposalsModal from '$lib/components/Proposals/AllProposalsModal.svelte';
+	import AllSpeechesModal from '$lib/components/Delegates/Speeches/AllSpeechesModal.svelte';
 	const drawerStore = getDrawerStore();
 
 	// const drawerStore = getDrawerStore();
 	const modalRegistry: Record<string, ModalComponent> = {
 		delegateQA: { ref: DelegateQAModal },
 		aiChat: { ref: AiChatModal },
-		allGovProposals: { ref: AllProposalsModal }
+		allGovProposals: { ref: AllProposalsModal },
+		allSpeeches: { ref: AllSpeechesModal },
 	};
 </script>
 
