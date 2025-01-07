@@ -15,8 +15,6 @@
             if (alreadyVotedOnFilter != undefined) {
                 keep = keep && ((isThere(prop.vote_result)) == alreadyVotedOnFilter)
             }
-
-
             return keep;
         });
         // filteredGovProposals = filteredGovProposals;

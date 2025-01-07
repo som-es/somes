@@ -2,7 +2,7 @@
 	import type { AutocompleteOption } from '$lib/components/Autocompletion/types';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
-	import type { Delegate, DelegateQA, GovProposal, InterestShare, LegisPeriod } from '$lib/types';
+	import type { Delegate, DelegateQA, GovProposal, InterestShare, LegisPeriod, Speech, SpeechesWithMaxPage } from '$lib/types';
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 	import {
@@ -10,7 +10,10 @@
 		delegate_qa,
 		delegates_at,
 		errorToNull,
-		gov_proposals_by_official
+		gov_proposals_by_official,
+
+		speeches_by_delegate_per_page
+
 	} from '$lib/api';
 	import InterestTiles from '$lib/components/Delegates/InterestTiles.svelte';
 	import { get } from 'svelte/store';
@@ -29,6 +32,7 @@
 	import { dashDateToDotDate } from '$lib/date';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import GovProposalPreview from '$lib/components/Proposals/GovProposalPreview.svelte';
+	import SpeechesPreview from '$lib/components/Delegates/Speeches/SpeechesPreview.svelte';
 
 	let delegates: Delegate[];
 	let delegate: Delegate | null;
@@ -46,6 +50,7 @@
 	let autocompleteOptions: AutocompleteOption<string>[] = [];
 	let interests: InterestShare[] | null;
 	let govProposals: GovProposal[] | null = null;
+	let speechesPage0: SpeechesWithMaxPage | null = null;
 	let delegateQA: DelegateQA[] = [];
 	let maxDayOffset = 365 * 5;
 	let dayOffset = maxDayOffset;
@@ -84,7 +89,16 @@
 		const endDate = periods[firstIdx + 1]?.start_date;
 		const newDate = new Date(endDate ? endDate : new Date());
 		newDate.setDate(newDate.getDate() - 1);
-		supplyDate = newDate.toISOString().split('T')[0] as unknown as Date;
+
+		const paramDate = url.searchParams.get('date');
+		if (paramDate) {
+			const startDate = new Date(periods[firstIdx]?.start_date);
+			const diffTime = Math.abs((new Date(paramDate)).getTime() - startDate.getTime());
+			dayOffset = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+			// this prevents that dayOffset is overwritten with max
+			prevSelectedPeriod = selectedPeriod;
+		}
+		supplyDate = paramDate ? paramDate as unknown as Date : newDate.toISOString().split('T')[0] as unknown as Date;
 		// console.log(supplyDate);
 		finishedMounting = true;
 	});
@@ -165,10 +179,17 @@
 		// 	{question: "Warum hast du bei der letzten Wahl die FPÖ gewählt?", answer: "Restfett wählen gehen war ein Fehler."},
 		// ];
 
+		govProposals = null;
 		gov_proposals_by_official(delegate.id).then((res) => {
 			govProposals = errorToNull(res);
 		});
+		
+		speechesPage0 = null;
+		speeches_by_delegate_per_page(delegate.id, 0).then((res) => {
+			speechesPage0 = errorToNull(res);
+		});
 
+		interests = null;
 		delegate_interests(delegate.id).then((res) => {
 			const input = errorToNull(res);
 			if (input != null) input.sort((a, b) => b.self_share - a.self_share);
@@ -278,6 +299,15 @@
 				<GovProposalPreview {govProposals} />
 			</div>
 		{:else if govProposals == null && delegate && delegate.council == 'gov'}
+			<ExpandablePlaceholder />
+			<ExpandablePlaceholder />
+		{/if}
+
+		{#if speechesPage0 && delegate && speechesPage0.speeches.length > 0}
+			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
+				<SpeechesPreview delegateId={delegate.id} {speechesPage0} />
+			</div>
+		{:else if speechesPage0 == null && delegate && delegate.council == 'gov'}
 			<ExpandablePlaceholder />
 			<ExpandablePlaceholder />
 		{/if}

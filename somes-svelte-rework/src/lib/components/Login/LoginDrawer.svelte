@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { JWTInfo, HasError, LoginResponseError } from '$lib/types';
-	import { getDrawerStore } from '@skeletonlabs/skeleton';
+	import { getDrawerStore, SlideToggle } from '@skeletonlabs/skeleton';
 	// import { login } from '$lib/api';
 	import { goto } from '$app/navigation';
 	import { get } from 'svelte/store';
@@ -97,15 +97,18 @@
 	</div>
 
 	{#if !isLogin}
-		<label class="ml-2 flex items-center space-x-2">
-			<input class="checkbox" type="checkbox" bind:checked={storeEmailAnonymously} />
+		<SlideToggle active="bg-secondary-500" name="anonymously" bind:checked={storeEmailAnonymously}>
 			<p>E-Mail anonymisiert abspeichern</p>
-		</label>
+		</SlideToggle>
+		<!-- <label class="ml-2 flex items-center space-x-2">
+		</label> -->
 	{/if}
 
 	{#if success}
 		{#if sent && done}
-			An die angegebene E-Mail-Addresse wurde eine Mail mit One-Time Passwort versendet.
+			<span class="mt-3 text-success-500">
+				An die angegebene E-Mail-Addresse wurde eine Mail mit One-Time Passwort versendet.
+			</span>
 		{/if}
 	{/if}
 	{#if otp_done}
@@ -114,7 +117,7 @@
 	{/if}
 
 	{#if sent && !success}
-		{error}
+		<span class="mt-3 text-red-500">{error}</span>
 	{/if}
 
 	<!-- <input class="mt-4" type="button" value="" on:click={onLogin} /> -->

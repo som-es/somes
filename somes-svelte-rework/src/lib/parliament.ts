@@ -191,10 +191,18 @@ export function enrichCirclesWithSpeechInfoOnSeat(
 		if (del == null || del.seat_col == null || del.seat_row == null) return;
 
 		circles2d[del.seat_row - 1][del.seat_col - 1].speech = speech;
+
 		circles2d[del.seat_row - 1][del.seat_col - 1].title = speech.infavor
 			? `Dafür gesprochen`
 			: `Dagegen gesprochen`;
-		circles2d[del.seat_row - 1][del.seat_col - 1].opacity = speech.infavor ? 1.0 : 0.2;
+
+		let opacity = 1.0;
+		if (speech.infavor == null) {
+			circles2d[del.seat_row - 1][del.seat_col - 1].title = speech.opinion;
+		} else {
+			opacity = speech.infavor ? 1.0 : 0.2;
+		}
+		circles2d[del.seat_row - 1][del.seat_col - 1].opacity
 		circles2d[del.seat_row - 1][del.seat_col - 1].r = +10.9;
 	});
 }
