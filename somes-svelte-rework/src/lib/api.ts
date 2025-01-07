@@ -19,8 +19,8 @@ import type {
 } from './types';
 import { jwtStore } from './caching/stores/stores';
 
- const address = 'https://somes.at';
-// const address = 'http://127.0.0.1:3000';
+// const address = 'https://somes.at';
+const address = 'http://localhost:3000';
 // const address = import.meta.env.VITE_API_URL;
 
 // const address = "http://192.168.1.114:3000"
@@ -306,6 +306,9 @@ export async function justPost<T>(route: string, body: any): Promise<T | HasErro
 	return fetchSavely(() =>
 		fetch(`${address}/${route}`, {
 			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
 			body: JSON.stringify(body)
 		})
 	);

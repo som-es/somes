@@ -1,9 +1,41 @@
 <script lang="ts">
 	import Container from '$lib/components/Layout/Container.svelte';
-	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
-	import { mockDelegates, mockVoteResult } from '$lib/parliaments/mock';
 	import TestChart from '$lib/components/Statistics/TestChart.svelte';
-	// import { Chart } from "frappe-charts";
+	import { onMount } from 'svelte';
+	import { justPost } from '$lib/api';
+	// import { Chart } from "frappe-charts"; C:\Schule4neu\DIPLO\somes\somes-svelte-rework\src\lib\api.ts
+
+	// TypeScript Typen
+	type DelegateSpeechTime = {
+		delegate_name: string;
+		delegate_party: string;
+		total_speech_time: number;
+	};
+
+	let speechTimeData: DelegateSpeechTime[] = [];
+	let error: string | null = null;
+
+	// Funktion, um Daten von der API zu laden
+	async function fetchSpeechTimeData() {
+		const response = await justPost<DelegateSpeechTime[]>('speechtime_per_delegate', {
+			legis_period: "XXVII",
+			party: null,
+			gender: null,
+			is_desc: true});
+
+		if ('error' in response) {
+			// Fehlerbehandlung
+			error = response.error;
+			return;
+		}
+
+		// Erfolgreiche Antwort
+		speechTimeData = response;
+		error = null;
+	}
+
+	// Daten abrufen, wenn die Komponente geladen wird
+	onMount(fetchSpeechTimeData);
 </script>
 
 <Container>
@@ -34,19 +66,37 @@
 		</div>
 	</div>
 </Container>
+
+<div>
+	{#if error}
+		<div class="error">Fehler: {error}</div>
+	{:else if speechTimeData.length === 0}
+		<div>Loading...</div>
+	{:else}
+		<table>
+			<thead>
+			<tr>
+				<th>Name</th>
+				<th>Partei</th>
+				<th>Gesamtredezeit (Sekunden)</th>
+			</tr>
+			</thead>
+			<tbody>
+			{#each speechTimeData as item}
+				<tr>
+					<td>{item.delegate_name}</td>
+					<td>{item.delegate_party}</td>
+					<td>{item.total_speech_time}</td>
+				</tr>
+			{/each}
+			</tbody>
+		</table>
+	{/if}
+</div>
+
+
 <div>
 	<TestChart dataNoParty={[7, 9, 5, 1, 2]}> </TestChart>
-
-	<div class="w-full">
-		<VoteParliament2
-			voteResult={mockVoteResult()}
-			delegates={mockDelegates()}
-			overrideDelegates
-			useOffset={false}
-			noSeats
-			preview
-		/>
-	</div>
 </div>
 
 <style>
