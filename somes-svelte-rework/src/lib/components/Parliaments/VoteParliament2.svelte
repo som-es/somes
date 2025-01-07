@@ -15,6 +15,7 @@
 		filteredDelegatesNearSeats
 	} from '$lib/caching/delegates';
 	import { cachedGovOfficials, seatSettedCachedGovOfficials } from '$lib/caching/gov_officials';
+	import { updated } from '$app/stores';
 
 	const width = 830;
 	const height = 900;
@@ -57,20 +58,22 @@
 	const updateLayout = async () => {
 		const allSeats = await cachedAllSeats();
 
+		let updateDelegates = delegates;
+		
 		if (!overrideDelegates) {
 			const fetchedDelegates = await filteredDelegatesNearSeats(date as unknown as string, gp);
 
 			if (fetchedDelegates) {
-				delegates = fetchedDelegates.nr;
+				updateDelegates = fetchedDelegates.nr;
 				// delegates = fetchedDelegates.all;
 			}
 
 			// we do not have seat information, therefore we fetch them in a base format
-			if (delegates.length == 0) {
+			if (updateDelegates.length == 0) {
 				const fetchedDelegates = errorToNull(await delegates_at(date));
 				if (fetchedDelegates) {
 					const filteredDelegates = filterDelegates(fetchedDelegates);
-					delegates = filteredDelegates.nr;
+					updateDelegates = filteredDelegates.nr;
 					// delegates = filteredDelegates.all
 					// delegates = fetchedDelegates;
 				}
@@ -91,7 +94,7 @@
 		}
 
 		if (noSeats) {
-			let partyToDelegates = groupPartyDelegates(delegates);
+			let partyToDelegates = groupPartyDelegates(updateDelegates);
 			let all = 0;
 			partyToDelegates.forEach((dels, _party) => {
 				all += dels.length;
@@ -117,8 +120,9 @@
 		}
 		if (showGovs && !overrideDelegates) {
 			govOfficials = (await seatSettedCachedGovOfficials(date as unknown as string)) ?? [];
-			delegates = delegates.concat(govOfficials);
+			updateDelegates = updateDelegates.concat(govOfficials);
 		}
+		delegates = updateDelegates;
 		firstFinished = true;
 	};
 
