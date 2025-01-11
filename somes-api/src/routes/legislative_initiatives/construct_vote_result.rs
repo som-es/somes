@@ -28,7 +28,8 @@ pub async fn construct_vote_result(
     }
 
     let start = std::time::Instant::now();
-    /*
+
+   /* 
     let named_votes =
         get_named_votes_from_legis_init_sqlx(pg, legis_init.id, legis_init.voted_by_name).await?;
     let votes = if named_votes.is_some() {
@@ -49,6 +50,8 @@ pub async fn construct_vote_result(
     } else {
         get_votes_from_legis_init_sqlx(pg, legis_init.id).await?
     };
+
+    log::info!("votes: {votes:?}");
 
     let out = VoteResult {
         id: legis_init.id,

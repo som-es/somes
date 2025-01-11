@@ -1,4 +1,4 @@
-use std::{net::SocketAddr, path::PathBuf, sync::Arc};
+use std::{error::Error, fs::File, net::SocketAddr, path::PathBuf, sync::Arc};
 
 use axum::{
     extract::FromRef,
@@ -222,6 +222,13 @@ pub async fn serve(addr: SocketAddr) {
         }
     });
 
+    std::thread::spawn(move || {
+        update_delegate_assets();
+        // loop {
+
+        // }
+    });
+
     let config = RustlsConfig::from_pem_file(
         PathBuf::from(PUBLIC_KEY_PATH),
         PathBuf::from(PRIVATE_KEY_PATH),
@@ -306,6 +313,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(GOV_PROPOSALS_BY_OFFICIAL, get(gov_proposals_by_official))
         .route(AI_CHAT_WS, any(ai_chat_ws_handler))
         .route("/save_email", post(save_email))
+        .nest_service("/assets", ServeDir::new("assets"))
         // mind conflicts e.g delegates
         .nest_service(
             "/alpha",
@@ -379,8 +387,19 @@ pub async fn serve(addr: SocketAddr) {
     }
 }
 
-async fn update_images() {
+fn update_delegate_assets() -> Result<(), Box<dyn Error>> {
     let _ = std::fs::create_dir("assets");
+    std::thread::sleep(std::time::Duration::from_secs(5));
+    let client = reqwest::blocking::Client::new();
+    let delegates: Vec<Delegate> = client.get("https://somes.at/delegates").send()?.json()?;
+
+    for delegate in delegates {
+        if let Some(img_url) = delegate.image_url {
+            let mut file = File::create(format!("assets/{}.jpg", delegate.id))?;
+            client.get(&img_url).send()?.copy_to(&mut file)?;
+        }
+    }
+    Ok(())
 }
 
 async fn update_meilisearch_index(
