@@ -21,14 +21,15 @@
 
 	<!-- <div class="flex justify-between">
         <div></div> -->
+	<button class="text-4xl " use:popup={popupFeatured}>⚠</button>
+
 	<button
 		on:click={() => {
 			modalStore.close();
 		}}
 		style="font-size: 34px"
-		class="w-5 unselectable">&#x2715</button
+		class="w-5 unselectable float-right">&#x2715</button
 	>
-	<button class="text-4xl float-right" use:popup={popupFeatured}>⚠</button>
 	<!-- </div> -->
 	{#if $modalStore.length > 0}
 		{#each $modalStore[0].meta.questions as qa}
