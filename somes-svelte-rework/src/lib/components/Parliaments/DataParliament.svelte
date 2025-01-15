@@ -7,6 +7,7 @@
 	import BaseParliament from './BaseParliament.svelte';
 	import { createPartyInfavorMap } from '$lib/partyInfavor';
 	import SwitchBox from '../UI/SwitchBox.svelte';
+	import App3D from './3D/App3D.svelte';
 
 	export let width = 830;
 	export let height = 900;
@@ -94,6 +95,7 @@
 {/if}
 
 {#if checked}
+	<App3D {circles2d} {selected} {preview} {select} />
 {:else}
 	<BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} />
 {/if}

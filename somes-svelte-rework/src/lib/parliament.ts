@@ -1,16 +1,20 @@
 import type { Delegate, NamedVote, Speech, VoteResult } from '$lib/types';
+import type { Material, Texture } from 'three';
 import { partyToColor } from './partyColor';
 
 export interface Bubble {
 	r: number;
 	x: number;
 	y: number;
+	angle_rad: number;
 	del: Delegate | null;
 	speech: Speech | null;
 	namedVote: NamedVote | null;
 	color: string | null;
 	opacity: number;
 	title: string | null;
+	texture: any | null
+	material: Material | null
 }
 
 export function generateHalfCircle(n: number, r: number, w: number, h: number) {
@@ -21,7 +25,7 @@ export function generateHalfCircle(n: number, r: number, w: number, h: number) {
 	let count_to = scaled_max_angle + modulo + 1;
 
 	let normalize = (100 * count_to) / scaled_max_angle;
-	let circles: { x: number; y: number }[] = [];
+	let circles: { x: number; y: number; angle_rad: number }[] = [];
 
 	for (let angle_deg = count_to; angle_deg > 0; angle_deg -= modulo) {
 		let angle_rad = (-(angle_deg / normalize) * Math.PI) / 180;
@@ -31,7 +35,8 @@ export function generateHalfCircle(n: number, r: number, w: number, h: number) {
 
 		const circle = {
 			x,
-			y
+			y,
+			angle_rad
 		};
 		circles = circles.concat(circle);
 		// circles.push(circle);
@@ -45,7 +50,7 @@ export function generateGovCircles(r: number, w: number, h: number) {
 
 	const spacingFactor = 22;
 
-	let circles: { x: number; y: number }[] = [];
+	let circles: { x: number; y: number; angle_rad: number }[] = [];
 
 	for (let i = -10; i <= 10; i++) {
 		if (i >= -1 && i <= 1) {
@@ -55,7 +60,8 @@ export function generateGovCircles(r: number, w: number, h: number) {
 
 		const circle = {
 			x,
-			y: centerY
+			y: centerY,
+			angle_rad: 0
 		};
 		circles = circles.concat(circle);
 	}
@@ -123,7 +129,10 @@ export function genCirclesWithAbsenceInfo(absences: number[], dels: Delegate[]):
 				namedVote: null,
 				color: null,
 				opacity: 0,
-				title: 'abwesen'
+				title: 'abwesen',
+				texture: null,
+				material: null,
+				angle_rad: 0
 			});
 		}
 	});
@@ -146,7 +155,10 @@ export function genCirclesWithSpeechInfo(speeches: Speech[], dels: Delegate[]): 
 				namedVote: null,
 				color: null,
 				opacity: 0,
-				title: speech.opinion
+				title: speech.opinion,
+				texture: null,
+				material: null,
+				angle_rad: 0
 			});
 		}
 	});
@@ -174,7 +186,10 @@ export function genCirclesWithNamedVoteInfo(namedVotes: NamedVote[], dels: Deleg
 				namedVote: vote,
 				color: null,
 				opacity: 0,
-				title
+				title,
+				texture: null,
+				material: null,
+				angle_rad: 0
 			});
 		}
 	});
@@ -263,12 +278,15 @@ export function setupParliament(
 					r,
 					x: circle.x,
 					y: circle.y,
+					angle_rad: circle.angle_rad,
 					del: null,
 					color: 'rgb(196, 180, 189)',
 					opacity: 0,
 					title: null,
 					namedVote: null,
-					speech: null
+					speech: null,
+					texture: null,
+					material: null,
 				};
 			})
 		);
@@ -280,12 +298,15 @@ export function setupParliament(
 				r,
 				x: circle.x,
 				y: circle.y,
+				angle_rad: circle.angle_rad,
 				del: null,
 				color: 'rgb(196, 180, 189)',
 				opacity: 0,
 				title: null,
 				namedVote: null,
-				speech: null
+				speech: null,
+				texture: null,
+				material: null,
 			};
 		})
 	);
