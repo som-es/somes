@@ -5,6 +5,7 @@
 	import DisplayTopic from './Topic.svelte';
 	import ExpandablePlaceholder from '../VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import { addUserTopic, getUserTopics, isHasError, removeUserTopic } from '$lib/api';
+	import { cachedUserTopics } from '$lib/caching/user_topics_cache';
 
 	export let selectedTopics: Set<number>;
 	export let topics: UniqueTopic[] = [];
@@ -26,6 +27,7 @@
 		selectedTopics = new Set(selectedTopics);
 
 		await addUserTopic(topic);
+		await cachedUserTopics(true);
 	};
 
 	let removeFromSelection = async (topic: UniqueTopic) => {
@@ -33,6 +35,7 @@
 		selectedTopics = new Set(selectedTopics);
 
 		await removeUserTopic(topic);
+		await cachedUserTopics(true);
 	};
 </script>
 

@@ -10,6 +10,7 @@
 		renew_token
 	} from '$lib/api';
 	import { jwtStore } from '$lib/caching/stores/stores';
+	import { cachedUserTopics } from '$lib/caching/user_topics_cache';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import SelectableTopics from '$lib/components/Topics/SelectableTopics.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
@@ -33,9 +34,9 @@
 		user = getUserFromJwt(jwtToken);
 
 		// get interest topics from api
-		const data = await getUserTopics();
+		const data = await cachedUserTopics(true);
 
-		if (!isHasError(data)) {
+		if (data) {
 			selectedTopics = new Set<number>(data.map((topic) => topic.id));
 		}
 		// selectedTopics = new Set<UniqueTopic>(selectedTopics)
