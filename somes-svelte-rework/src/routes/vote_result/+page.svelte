@@ -265,6 +265,7 @@
 							bind:selected={selectedBubble}
 							bind:circles2d
 							showGovs
+							show3D
 						/>
 					</div>
 					{#if selectedBubble}

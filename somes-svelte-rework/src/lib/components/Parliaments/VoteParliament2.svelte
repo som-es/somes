@@ -48,7 +48,7 @@
 	export let overrideDelegates: boolean = false;
 	export let noSeats = false;
 	export let useOffset = true;
-	export let notShow3D = false;
+	export let show3D = false;
 
 	let firstFinished = false;
 
@@ -149,7 +149,7 @@
 		{voteResult}
 		{seats}
 		{useOffset}
-		{notShow3D}
+		{show3D}
 	/>
 {/if}
 <!-- 

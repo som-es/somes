@@ -28,7 +28,7 @@
 	export let gp: string = 'XXVIII';
 	export let voteResult: VoteResult | null;
 	export let supplyDate: Date | null = null;
-	export let notShow3D = false;
+	export let show3D = false;
 
 	if (voteResult) gp = voteResult.legislative_initiative.gp;
 	let date = new Date();
@@ -87,7 +87,7 @@
 
 </script>
 
-{#if !notShow3D}
+{#if show3D}
 	<div class="flex justify-between">
 		<div></div>
 		<SwitchBox bind:checked />
