@@ -1,6 +1,9 @@
 <script lang="ts">
 	import type { Bubble } from "$lib/parliament";
 
+	import { interactivity } from '@threlte/extras'
+  	interactivity()
+
     export let circles2d: Bubble[][];
 	export let selected: Bubble | null;
 	export let preview: boolean = false;
@@ -78,6 +81,7 @@
         position={[circle.y, i+1, circle.x]}
         rotation.y={circle.angle_rad }
         material={circle.material}
+		on:click={(e) => {select(circle, null)}}
       />
 
 	{#await circle.texture then value}
