@@ -221,9 +221,13 @@ pub async fn serve(addr: SocketAddr) {
             sleep(std::time::Duration::from_secs(1900)).await;
         }
     });
+    let pg_pool = dataservice_sqlx_pool.clone();
 
     std::thread::spawn(move || {
-        update_delegate_assets();
+        if let Err(e) = update_delegate_assets(&pg_pool) {
+            log::error!("Could not download assets {e:?}");
+        }
+        std::thread::sleep(std::time::Duration::from_secs(1900))
         // loop {
 
         // }
@@ -387,17 +391,21 @@ pub async fn serve(addr: SocketAddr) {
     }
 }
 
-fn update_delegate_assets() -> Result<(), Box<dyn Error>> {
+fn update_delegate_assets(pg_pool: &sqlx::Pool<sqlx::Postgres>) -> Result<(), Box<dyn Error>> {
     let _ = std::fs::create_dir("assets");
-    std::thread::sleep(std::time::Duration::from_secs(5));
     let client = reqwest::blocking::Client::new();
-    let delegates: Vec<Delegate> = client.get("https://somes.at/delegates").send()?.json()?;
 
-    for delegate in delegates {
-        if let Some(img_url) = delegate.image_url {
-            let mut file = File::create(format!("assets/{}.jpg", delegate.id))?;
-            client.get(&img_url).send()?.copy_to(&mut file)?;
-        }
+    let img_urls = pollster::block_on(
+        sqlx::query!("select id, image_url from delegates where image_url is not null")
+            .fetch_all(pg_pool),
+    )?;
+
+    for img_url in img_urls {
+        let mut file = File::create(format!("assets/{}.jpg", img_url.id))?;
+        client
+            .get(&img_url.image_url.unwrap())
+            .send()?
+            .copy_to(&mut file)?;
     }
     Ok(())
 }
