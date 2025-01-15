@@ -67,6 +67,8 @@
 		// const circle = circles2d[del.seat_row - 1][del.seat_col - 1];
   }
 
+  const selectedMaterial = new MeshStandardMaterial({color: "orange", blending: 1})
+
 </script>
 
 <!-- <CSM
@@ -76,11 +78,11 @@
   lightColor={0xd7681c}> -->
 {#each circles2d as halfCircle, i}
   {#each halfCircle as circle}
-    {#if circle.material}
+    {#if circle.material && circle.del}
       <Angle20
         position={[circle.y, i+1, circle.x]}
         rotation.y={circle.angle_rad }
-        material={circle.material}
+        material={selected?.del?.id == circle.del?.id ? selectedMaterial : circle.material}
 		on:click={(e) => {select(circle, null)}}
       />
 
