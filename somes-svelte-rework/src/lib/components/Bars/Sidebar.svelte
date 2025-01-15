@@ -101,6 +101,7 @@
 					overrideDelegates
 					noSeats
 					useOffset={false}
+					notShow3D	
 				/>
 			</svelte:fragment>
 			<span style="font-size: x-small;">Abstimmungen</span>

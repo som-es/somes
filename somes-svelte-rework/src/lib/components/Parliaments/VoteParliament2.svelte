@@ -48,6 +48,7 @@
 	export let overrideDelegates: boolean = false;
 	export let noSeats = false;
 	export let useOffset = true;
+	export let notShow3D = false;
 
 	let firstFinished = false;
 
@@ -134,7 +135,6 @@
 		updateLayout();
 	}
 </script>
-
 {#if firstFinished}
 	<DataParliament
 		bind:delegate
@@ -149,6 +149,7 @@
 		{voteResult}
 		{seats}
 		{useOffset}
+		{notShow3D}
 	/>
 {/if}
 <!-- 

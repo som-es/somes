@@ -379,6 +379,10 @@ pub async fn serve(addr: SocketAddr) {
     }
 }
 
+async fn update_images() {
+    let _ = std::fs::create_dir("assets");
+}
+
 async fn update_meilisearch_index(
     redis_con: &mut MultiplexedConnection,
     pg_pool: &sqlx::Pool<sqlx::Postgres>,
