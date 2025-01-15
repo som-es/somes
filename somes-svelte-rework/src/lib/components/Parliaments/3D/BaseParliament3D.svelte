@@ -90,7 +90,7 @@
 
 	{#await circle.texture then value}
 		<T.Mesh
-		position={[circle.y + Math.sin(circle.angle_rad) * 1.3, i+3.5, circle.x + Math.cos(circle.angle_rad) * 1.3]}
+			position={[circle.y + Math.sin(circle.angle_rad) * 1.3, i+3.5, circle.x + Math.cos(circle.angle_rad) * 1.3]}
 		>
 		<T.SphereGeometry />
 			<T.MeshStandardMaterial map={value} />
