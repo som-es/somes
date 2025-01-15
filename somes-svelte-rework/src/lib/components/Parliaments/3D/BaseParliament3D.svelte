@@ -14,6 +14,7 @@
 	import { BoxGeometry, ImageUtils, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial } from 'three'
 	import { generateHalfCircle, setupParliament } from '$lib/parliament'
 	import Angle20 from './Angle20.svelte';
+	import { address } from "$lib/api";
 
 	let lightAngle = Math.PI;
 	let lightRadius = 50;
@@ -60,6 +61,7 @@
 				circle.angle_rad = Math.PI  - halfCircle[i].angle_rad;
 
 				if(circle.color && circle.del) {
+					circle.texture = useTexture(address + "/assets/" + circle.del.id + ".jpg");
 					circle.material = new MeshStandardMaterial({color: circle.color ?? "#FFFFFF", blending: 1});
 				}
 			})

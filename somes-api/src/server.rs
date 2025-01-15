@@ -223,8 +223,8 @@ pub async fn serve(addr: SocketAddr) {
     });
     let pg_pool = dataservice_sqlx_pool.clone();
 
-    std::thread::spawn(move || {
-        if let Err(e) = update_delegate_assets(&pg_pool) {
+    tokio::task::spawn(async move {
+        if let Err(e) = update_delegate_assets(&pg_pool).await {
             log::error!("Could not download assets {e:?}");
         }
         std::thread::sleep(std::time::Duration::from_secs(1900))
@@ -391,14 +391,15 @@ pub async fn serve(addr: SocketAddr) {
     }
 }
 
-fn update_delegate_assets(pg_pool: &sqlx::Pool<sqlx::Postgres>) -> Result<(), Box<dyn Error>> {
+async fn update_delegate_assets(
+    pg_pool: &sqlx::Pool<sqlx::Postgres>,
+) -> Result<(), Box<dyn Error>> {
     let _ = std::fs::create_dir("assets");
     let client = reqwest::blocking::Client::new();
 
-    let img_urls = pollster::block_on(
-        sqlx::query!("select id, image_url from delegates where image_url is not null")
-            .fetch_all(pg_pool),
-    )?;
+    let img_urls = sqlx::query!("select id, image_url from delegates where image_url is not null")
+        .fetch_all(pg_pool)
+        .await?;
 
     for img_url in img_urls {
         let mut file = File::create(format!("assets/{}.jpg", img_url.id))?;
