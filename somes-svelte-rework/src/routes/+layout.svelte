@@ -32,6 +32,7 @@
 		aiChat: { ref: AiChatModal },
 		allGovProposals: { ref: AllProposalsModal },
 		allSpeeches: { ref: AllSpeechesModal },
+		// imdying:{ ref: ModalExample }
 	};
 </script>
 
