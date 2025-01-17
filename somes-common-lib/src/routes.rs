@@ -32,6 +32,11 @@ pub const DIVISION_ACCURACY_SCORE_PER_DELEGATE: &str = "/divison_accuracy_score_
 pub const DIVISION_ACCURACY_SCORE_PER_PARTY: &str = "/division_accuracy_score_per_party";
 pub const DIVISION_ACCURACY_SCORE_PER_GENDER: &str = "/division_accuracy_score_per_gender";
 pub const DIVISION_ACCURACY_SCORE_PER_AGE: &str = "/division_accuracy_score_per_age";
+pub const VOTES_TOGETHER: &str = "/votes_together";
+pub const ABSENCES_PER_DELEGATE: &str = "/absences_per_delegate";
+pub const ABSENCES_PER_PARTY: &str = "/absences_per_party";
+pub const ABSENCES_PER_GENDER: &str = "/absences_per_gender";
+pub const ABSENCES_PER_AGE: &str = "/absences_per_age";
 pub const DELEGATES_BY_CALL_TO_ORDERS: &str = "/delegates_by_call_to_orders";
 pub const DELEGATES_BY_CALL_TO_ORDERS_AND_LEGIS_PERIOD: &str =
     "/delegates_by_call_to_orders_and_legis_period";

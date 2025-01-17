@@ -62,7 +62,7 @@ pub async fn age_per_delegate(
 )
 SELECT DISTINCT 
     ds.name AS delegate_name,
-    ds.party AS delegate_party,
+    m.party AS delegate_party,
     ds.gender AS delegate_gender,
     (EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) + 
     (EXTRACT(MONTH FROM AGE(ds.birthdate, lpd.start_date)) / 12.0) + 
@@ -84,7 +84,7 @@ WHERE
     AND m.start_date <= pf.add_date
     AND (m.end_date IS NULL OR m.end_date >= pf.add_date)
 GROUP BY 
-    ds.id, ds.name, ds.party, ds.gender, lpd.start_date
+    ds.name, m.party, ds.gender, lpd.start_date, ds.birthdate
 ORDER BY 
     delegate_age {desc};
 

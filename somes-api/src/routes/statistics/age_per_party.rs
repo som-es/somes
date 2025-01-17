@@ -55,7 +55,7 @@ pub async fn age_per_party(
         legislative_period
 )
 SELECT DISTINCT 
-    ds.party AS party,
+    m.party AS party,
     AVG(
     (EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) + 
     (EXTRACT(MONTH FROM AGE(ds.birthdate, lpd.start_date)) / 12.0) + 
@@ -79,7 +79,7 @@ WHERE
     AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = db.plenar_id)
     AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = db.plenar_id))
 GROUP BY 
-    ds.party
+    m.party
 ORDER BY 
     average_age {desc};
     "

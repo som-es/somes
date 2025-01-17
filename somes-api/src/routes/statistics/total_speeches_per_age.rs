@@ -45,13 +45,33 @@ pub async fn total_speeches_per_age(
 
     let query = format!(
         " 
+        WITH legislative_period_dates AS (
+    SELECT 
+        legislative_period, 
+        MIN(add_date) AS start_date, 
+        MAX(add_date) AS end_date
+    FROM 
+        plenar_infos
+    GROUP BY 
+        legislative_period
+)
         SELECT 
             CASE 
-                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate)) < 30 THEN 'Under 30'
-                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate)) BETWEEN 30 AND 39 THEN '30-39'
-                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate)) BETWEEN 40 AND 49 THEN '40-49'
-                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate)) BETWEEN 50 AND 59 THEN '50-59'
-                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate)) BETWEEN 60 AND 69 THEN '60-69'
+                WHEN (EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) + 
+                    (EXTRACT(MONTH FROM AGE(ds.birthdate, lpd.start_date)) / 12.0) + 
+                    (EXTRACT(DAY FROM AGE(ds.birthdate, lpd.start_date)) / 365.25))::FLOAT * (-1) < 30 THEN 'Under 30'
+                WHEN (EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) + 
+                    (EXTRACT(MONTH FROM AGE(ds.birthdate, lpd.start_date)) / 12.0) + 
+                    (EXTRACT(DAY FROM AGE(ds.birthdate, lpd.start_date)) / 365.25))::FLOAT * (-1) BETWEEN 30 AND 39 THEN '30-39'
+                WHEN (EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) + 
+                    (EXTRACT(MONTH FROM AGE(ds.birthdate, lpd.start_date)) / 12.0) + 
+                    (EXTRACT(DAY FROM AGE(ds.birthdate, lpd.start_date)) / 365.25))::FLOAT * (-1) BETWEEN 40 AND 49 THEN '40-49'
+                WHEN (EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) + 
+                    (EXTRACT(MONTH FROM AGE(ds.birthdate, lpd.start_date)) / 12.0) + 
+                    (EXTRACT(DAY FROM AGE(ds.birthdate, lpd.start_date)) / 365.25))::FLOAT * (-1) BETWEEN 50 AND 59 THEN '50-59'
+                WHEN (EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) + 
+                    (EXTRACT(MONTH FROM AGE(ds.birthdate, lpd.start_date)) / 12.0) + 
+                    (EXTRACT(DAY FROM AGE(ds.birthdate, lpd.start_date)) / 365.25))::FLOAT * (-1) BETWEEN 60 AND 69 THEN '60-69'
                 ELSE '70+'
             END AS age_group,
             COUNT(ps.id) AS total_speeches,
@@ -67,6 +87,8 @@ JOIN
     debates db ON db.id = ps.debate_id
 JOIN
     plenar_infos pf ON pf.id = db.plenar_id
+JOIN 
+    legislative_period_dates lpd ON lpd.legislative_period = pf.legislative_period
 WHERE
     {filter}
     AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = db.plenar_id)

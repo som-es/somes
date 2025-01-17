@@ -50,7 +50,7 @@ pub async fn call_to_orders_per_delegate(
         "
        SELECT 
             ds.name AS delegate_name,
-            ds.party AS delegate_party,
+            m.party AS delegate_party,
             COUNT(cto.id) AS total_order_calls
          FROM 
             call_to_order cto
@@ -65,7 +65,7 @@ pub async fn call_to_orders_per_delegate(
             AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = cto.plenar_id)
             AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = cto.plenar_id))
         GROUP BY 
-            ds.id, ds.name, ds.party, ds.gender
+            ds.name, m.party, ds.gender
         ORDER BY 
             total_order_calls {desc};
     "

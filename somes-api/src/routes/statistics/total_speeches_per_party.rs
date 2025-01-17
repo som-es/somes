@@ -46,7 +46,7 @@ pub async fn total_speeches_per_party(
     let query = format!(
         " 
         SELECT 
-            ds.party AS delegate_party,
+            m.party AS delegate_party,
             COUNT(ps.id) AS total_speeches,
             COUNT(DISTINCT ds.id) AS party_member_with_speeches,
             COUNT(ps.id)::FLOAT / COUNT(DISTINCT ds.id)::FLOAT AS normalized_speeches_per_party
@@ -65,7 +65,7 @@ WHERE
     AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = db.plenar_id)
     AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = db.plenar_id))
 GROUP BY 
-    ds.party
+    m.party
 ORDER BY 
     normalized_speeches_per_party {desc};
     "

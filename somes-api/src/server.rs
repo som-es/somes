@@ -338,6 +338,11 @@ pub async fn serve(addr: SocketAddr) {
         .route(DIVISION_ACCURACY_SCORE_PER_PARTY, post(division_accuracy_score_per_party))
         .route(DIVISION_ACCURACY_SCORE_PER_GENDER, post(division_accuracy_score_per_gender))
         .route(DIVISION_ACCURACY_SCORE_PER_AGE, post(division_accuracy_score_per_age))
+        .route(VOTES_TOGETHER, post(votes_together))
+        .route(ABSENCES_PER_DELEGATE, post(absences_per_delegate))
+        .route(ABSENCES_PER_PARTY, post(absences_per_party))
+        .route(ABSENCES_PER_GENDER, post(absences_per_gender))
+        .route(ABSENCES_PER_AGE, post(absences_per_age))
         .route("/save_email", post(save_email))
         // mind conflicts e.g delegates
         .nest_service(

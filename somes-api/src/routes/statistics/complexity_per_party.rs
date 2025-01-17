@@ -44,7 +44,7 @@ pub async fn complexity_per_party(
     let query = format!(
         " 
         SELECT 
-             ds.party AS party,
+             m.party AS party,
              AVG((COALESCE(sc.flesch_kincaid, 0) + COALESCE(sc.smog, 0) + COALESCE(sc.gunning_fog, 0) + COALESCE(sc.coleman_liau, 0)) / 4) AS avg_complexity
          FROM 
             speech_complexity sc
@@ -63,7 +63,7 @@ WHERE
     AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = db.plenar_id)
     AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = db.plenar_id))
 GROUP BY 
-    ds.party
+    m.party
 ORDER BY 
     avg_complexity {desc};
     "

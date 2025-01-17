@@ -50,7 +50,7 @@ pub async fn complexity_per_delegate(
         "
         SELECT 
             ds.name AS delegate_name,
-            ds.party AS delegate_party,
+            m.party AS delegate_party,
             AVG((sc.flesch_kincaid + sc.smog + sc.gunning_fog + sc.coleman_liau) / 4) AS avg_complexity
         FROM 
             speech_complexity sc
@@ -69,7 +69,7 @@ WHERE
     AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = db.plenar_id)
     AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = db.plenar_id))
 GROUP BY 
-    ds.id, ds.name, ds.party
+    ds.id, ds.name, m.party
 ORDER BY 
     avg_complexity {desc};
     "

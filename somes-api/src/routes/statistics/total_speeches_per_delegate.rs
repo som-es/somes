@@ -51,7 +51,7 @@ pub async fn total_speeches_per_delegate(
         "
         SELECT 
     ds.name AS delegate_name,
-    ds.party AS delegate_party,
+    m.party AS delegate_party,
     COUNT(ps.id) AS total_speeches
 FROM 
     plenar_speeches ps
@@ -68,7 +68,7 @@ WHERE
     AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = db.plenar_id)
     AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = db.plenar_id))
 GROUP BY 
-    ds.id, ds.name, ds.party
+    ds.name, m.party
 ORDER BY 
     total_speeches {desc};
     "

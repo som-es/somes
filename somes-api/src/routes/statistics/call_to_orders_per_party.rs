@@ -46,7 +46,7 @@ pub async fn call_to_orders_per_party(
     let query = format!(
         " 
         SELECT 
-            ds.party AS party,
+            m.party AS party,
             COUNT(DISTINCT ds.id) AS party_members_who_where_called,
             COUNT(cto.id) AS total_order_calls,
             COUNT(cto.id)::FLOAT / COUNT(DISTINCT ds.id)::FLOAT AS normalized_calls_to_order
@@ -63,7 +63,7 @@ pub async fn call_to_orders_per_party(
             AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = cto.plenar_id)
             AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = cto.plenar_id))
         GROUP BY 
-            ds.party
+            m.party
         ORDER BY 
             normalized_calls_to_order {desc};
     "

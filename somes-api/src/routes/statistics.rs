@@ -28,6 +28,11 @@ mod division_accuracy_score_per_delegate;
 mod division_accuracy_score_per_party;
 mod division_accuracy_score_per_gender;
 mod division_accuracy_score_per_age;
+mod votes_together;
+mod absences_per_delegate;
+mod absences_per_party;
+mod absences_per_gender;
+mod absences_per_age;
 
 pub use absolute_majority_initiatives::*;
 pub use age_of_delegates::*;
@@ -53,6 +58,11 @@ pub use division_accuracy_score_per_delegate::*;
 pub use division_accuracy_score_per_party::*;
 pub use division_accuracy_score_per_gender::*;
 pub use division_accuracy_score_per_age::*;
+pub use votes_together::*;
+pub use absences_per_delegate::*;
+pub use absences_per_party::*;
+pub use absences_per_gender::*;
+pub use absences_per_age::*;
 
 use crate::{
     dataservice::{
