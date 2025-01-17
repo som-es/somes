@@ -84,6 +84,9 @@
 	class="flex flex-col justify-between w-full max-w-7xl h-[90vh] bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden"
 >
 	<div class="p-4 bg-primary text-center text-lg font-bold flex justify-between">
+		<button class="text-4xl" use:popup={popupFeatured}>⚠</button>
+		<div>Chat</div>
+		
 		<button
 			on:click={() => {
 				modalStore.close();
@@ -93,9 +96,6 @@
 		>
 			&#x2715
 		</button>
-
-		<div>Chat</div>
-		<button class="text-4xl float-right" use:popup={popupFeatured}>⚠</button>
 	</div>
 	<div class="flex-1 p-4 overflow-y-auto bg-gray-50 dark:bg-gray-900">
 		{#each messages as { role, content }}

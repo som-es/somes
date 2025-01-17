@@ -7,6 +7,7 @@
 	import { onMount } from "svelte";
 	import { gotoHistory } from "$lib/goto";
 	import { getModalStore } from "@skeletonlabs/skeleton";
+	import ExpandablePlaceholder from "$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte";
 
     export let speech: Speech;
 
@@ -60,6 +61,8 @@
                     {@html rightArrowIcon}
                 </button>
             {/if}
+        {:else}
+            <ExpandablePlaceholder class="min-w-7xl w-7xl" />
         {/if}
 <!-- 
 	<div use:collapse={{ open, duration }}>

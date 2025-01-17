@@ -6,6 +6,8 @@
 	import { onMount } from 'svelte';
 	import BaseParliament from './BaseParliament.svelte';
 	import { createPartyInfavorMap } from '$lib/partyInfavor';
+	import SwitchBox from '../UI/SwitchBox.svelte';
+	import App3D from './3D/App3D.svelte';
 
 	export let width = 830;
 	export let height = 900;
@@ -26,6 +28,8 @@
 	export let gp: string = 'XXVIII';
 	export let voteResult: VoteResult | null;
 	export let supplyDate: Date | null = null;
+	export let show3D = false;
+
 	if (voteResult) gp = voteResult.legislative_initiative.gp;
 	let date = new Date();
 	if (supplyDate) date = supplyDate;
@@ -78,9 +82,23 @@
 	$: if (delegates) {
 		updateLayout();
 	}
+
+	$: checked = false;
+
 </script>
 
-<BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} />
+{#if show3D}
+	<div class="flex justify-between">
+		<div></div>
+		<SwitchBox bind:checked />
+	</div>
+{/if}
+
+{#if checked}
+	<App3D {circles2d} {selected} {preview} {select} />
+{:else}
+	<BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} />
+{/if}
 <!-- 
 {#if gp === currentLegisInit && !enforceBase}
 	<BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} />

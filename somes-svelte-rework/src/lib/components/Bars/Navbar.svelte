@@ -33,7 +33,7 @@
 	setModeCurrent($modeCurrent);
 </script>
 
-<AppBar slotTrail="!space-x-2">
+<AppBar class="!bg-surface-100-800-token" slotTrail="!space-x-2">
 	<svelte:fragment slot="lead">
 		<a class="mx-4 fill-current stroke-current w-32" href="/">
 			{@html somesTextIcon}

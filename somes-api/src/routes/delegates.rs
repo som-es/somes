@@ -40,7 +40,7 @@ pub struct Delegate {
     pub birthdate: Option<NaiveDate>,
     pub active_since: NaiveDate,
     pub divisions: Option<Vec<String>>,
-    pub primary_mandate: String,
+    pub primary_mandate: Option<String>,
     pub active_mandates: Option<Vec<String>>,
 }
 

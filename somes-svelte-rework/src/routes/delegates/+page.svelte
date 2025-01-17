@@ -284,6 +284,7 @@
 							{supplyDate}
 							orderingFactor={-1}
 							showGovs={true}
+							show3D
 						/>
 					{/if}
 				</div>

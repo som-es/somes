@@ -1,4 +1,4 @@
-use std::{net::SocketAddr, path::PathBuf, sync::Arc};
+use std::{error::Error, fs::File, net::SocketAddr, path::PathBuf, sync::Arc};
 
 use axum::{
     extract::FromRef,
@@ -222,6 +222,20 @@ pub async fn serve(addr: SocketAddr) {
             sleep(std::time::Duration::from_secs(1900)).await;
         }
     });
+    let pg_pool = dataservice_sqlx_pool.clone();
+
+    tokio::task::spawn(async move {
+        if tokio::fs::try_exists("assets").await.unwrap_or_default() {
+            sleep(std::time::Duration::from_secs(19000)).await
+        }
+        if let Err(e) = update_delegate_assets(&pg_pool).await {
+            log::error!("Could not download assets {e:?}");
+        }
+        sleep(std::time::Duration::from_secs(19000)).await;
+        // loop {
+
+        // }
+    });
 
     let config = RustlsConfig::from_pem_file(
         PathBuf::from(PUBLIC_KEY_PATH),
@@ -344,6 +358,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(ABSENCES_PER_GENDER, post(absences_per_gender))
         .route(ABSENCES_PER_AGE, post(absences_per_age))
         .route("/save_email", post(save_email))
+        .nest_service("/assets", ServeDir::new("assets"))
         // mind conflicts e.g delegates
         .nest_service(
             "/alpha",
@@ -415,6 +430,30 @@ pub async fn serve(addr: SocketAddr) {
             }
         }
     }
+}
+
+async fn update_delegate_assets(
+    pg_pool: &sqlx::Pool<sqlx::Postgres>,
+) -> Result<(), Box<dyn Error>> {
+    let _ = tokio::fs::create_dir("assets").await;
+
+    let img_urls = sqlx::query!("select id, image_url from delegates where image_url is not null")
+        .fetch_all(pg_pool)
+        .await?;
+
+    std::thread::spawn(move || {
+        let client = reqwest::blocking::Client::new();
+        for img_url in img_urls {
+            let mut file = File::create(format!("assets/{}.jpg", img_url.id)).unwrap();
+            client
+                .get(&img_url.image_url.unwrap())
+                .send()
+                .unwrap()
+                .copy_to(&mut file)
+                .unwrap();
+        }
+    });
+    Ok(())
 }
 
 async fn update_meilisearch_index(

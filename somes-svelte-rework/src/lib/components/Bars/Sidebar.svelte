@@ -35,11 +35,25 @@
 		}
 	};
 
+
+	const submenu =  [
+		{
+			title: 'Statistiken',
+			list: [
+				{ href: `${base}/statistics/overview`, label: 'Übersicht', keywords: '' },
+				{ href: `${base}/statistics/speechtime`, label: 'Redezeit', keywords: '' },
+				{ href: `${base}/statistics/absences`, label: 'Abwesenheiten', keywords: '' },
+				{ href: `${base}/statistics/speechcomplexity`, label: 'Sprachkomplexität', keywords: '' }
+			]
+		},
+	];
+	
+	$: listboxItemActive = (href: string) => (isSelected(href) ? 'bg-primary-active-token' : '');
 	// $: activeAnchorColor = (href: string) => ($page.url.pathname?.includes(href) ? 'flex flex-col justify-center items-stretch bg-primary-active-token' : 'bg-primary-hover-token');
 </script>
 
-<div class="h-full bg-surface-50-900-token {$$props.class ?? ''}">
-	<AppRail width="w-20 2xl:w-32">
+<div class="h-full bg-surface-50-900-token grid-cols-[auto_1fr]  {$$props.class ?? ''}">
+	<AppRail width="w-20 2xl:w-32 border-r border-surface-500/30">
 		<!-- <svelte:fragment slot="lead">
 			<AppRailAnchor href="/" >(icon)</AppRailAnchor>
 		</svelte:fragment> -->
@@ -155,6 +169,29 @@
 			</div>
 		</svelte:fragment>
 	</AppRail>
+	{#if isSelected("/statistics")}
+		<section class="p-4 pb-20 space-y-4 overflow-y-auto !bg-surface-200-700-token">
+			{#each submenu as segment, i}
+				<!-- Title -->
+				<p class="font-bold pl-4 text-2xl">{segment.title}</p>
+				<!-- Nav List -->
+				<nav class="list-nav ">
+					<ul>
+						{#each segment.list as { href, label }}
+							<li>
+								<a {href} class={listboxItemActive(href)} data-sveltekit-preload-data="hover" on:keypress on:click={drawerStore.close}>
+									<span class="flex-auto">{@html label}</span>
+									<!-- {#if badge}<span class="badge variant-filled-secondary">{badge}</span>{/if} -->
+								</a>
+							</li>
+						{/each}
+					</ul>
+				</nav>
+				<!-- Divider -->
+				{#if i + 1 < submenu.length}<hr class="!my-6 opacity-50" />{/if}
+			{/each}
+		</section>
+	{/if}
 	<!-- Mobile Only -->
 	<!-- prettier-ignore -->
 	<!-- <AppRailAnchor href="/" class="lg:hidden" on:click={() => { onClickAnchor() }}> -->

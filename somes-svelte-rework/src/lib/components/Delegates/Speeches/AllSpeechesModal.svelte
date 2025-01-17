@@ -38,7 +38,7 @@
                 modalStore.close();
             }}
             style="font-size: 34px"
-            class="w-5 unselectable"
+            class="w-5 unselectable float-right"
         >
             &#x2715
         </button>
