@@ -43,7 +43,8 @@
 				{ href: `${base}/statistics/overview`, label: 'Übersicht', keywords: '' },
 				{ href: `${base}/statistics/speechtime`, label: 'Redezeit', keywords: '' },
 				{ href: `${base}/statistics/absences`, label: 'Abwesenheiten', keywords: '' },
-				{ href: `${base}/statistics/speechcomplexity`, label: 'Sprachkomplexität', keywords: '' }
+				{ href: `${base}/statistics/speechcomplexity`, label: 'Sprachkomplexität', keywords: '' },
+				{ href: `${base}/statistics/call_to_orders`, label: 'Ordnungsrufe', keywords: '' }
 			]
 		},
 	];
@@ -87,7 +88,7 @@
 
 		<AppRailAnchor
 			selected={isSelected('/statistics')}
-			href="{base}/statistics"
+			href="{base}/statistics/overview"
 			bind:group={currentTile}
 			name="Statistiken"
 			value={2}
