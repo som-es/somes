@@ -117,6 +117,16 @@ pub struct DelegateQA {
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct PoliticalPosition {
+    pub delegate_id: i32,
+    pub is_left: f64,
+    pub is_not_left: f64,
+    pub is_liberal: f64,
+    pub is_not_liberal: f64,
+    pub neutral_count: i32,
+}
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct Page {
     pub page: i64,
 }

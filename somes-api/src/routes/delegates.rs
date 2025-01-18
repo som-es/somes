@@ -19,10 +19,12 @@ mod error;
 mod interests;
 mod qa;
 mod speeches;
+mod delegate_political_position;
 pub use ai_chat::*;
 pub use interests::*;
 pub use qa::*;
 pub use speeches::*;
+pub use delegate_political_position::*;
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct Delegate {

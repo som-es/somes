@@ -33,3 +33,4 @@ pub const TOPIC_SELECTION: &str = "/topic_selection";
 pub const AI_CHAT_WS: &str = "/ai_chat_ws";
 pub const GOV_OFFICIALS_AT: &str = "/gov_officials_at";
 pub const GOV_PROPOSALS_BY_OFFICIAL: &str = "/gov_proposals_by_official";
+pub const DELEGATE_POLITICAL_POSITION: &str = "/delegate_political_position";

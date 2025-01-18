@@ -318,6 +318,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(TOPIC_SELECTION, get(user_topic_selection))
         .route(GOV_OFFICIALS_AT, get(gov_officials_at_date_route))
         .route(GOV_PROPOSALS_BY_OFFICIAL, get(gov_proposals_by_official))
+        .route(DELEGATE_POLITICAL_POSITION, get(delegate_political_position))
         .route(AI_CHAT_WS, any(ai_chat_ws_handler))
         .route("/save_email", post(save_email))
         .nest_service("/assets", ServeDir::new("assets"))
