@@ -23,3 +23,7 @@ pub async fn delegate_political_position(
         .map(Json)
         .map_err(|_| DelegatesErrorResponse::DelegateInterestsResponseError)
 }
+
+// pub async fn extract_political_answers_by_delegate(delegate_id: i32, pg: &PgPool) -> sqlx::Result<Vec<>> {
+
+// }

@@ -127,6 +127,14 @@ pub struct PoliticalPosition {
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct PoliticalAnswer {
+    pub delegate_id: i32,
+    pub answer: String,
+    pub question: String,
+}
+
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct Page {
     pub page: i64,
 }
