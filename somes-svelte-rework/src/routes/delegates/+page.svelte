@@ -2,11 +2,12 @@
 	import type { AutocompleteOption } from '$lib/components/Autocompletion/types';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
-	import type { Delegate, DelegateQA, GovProposal, InterestShare, LegisPeriod, Speech, SpeechesWithMaxPage } from '$lib/types';
+	import type { Delegate, DelegateQA, GovProposal, InterestShare, LegisPeriod, PoliticalPosition, Speech, SpeechesWithMaxPage } from '$lib/types';
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 	import {
 		delegate_interests,
+		delegate_political_position,
 		delegate_qa,
 		delegates_at,
 		errorToNull,
@@ -51,6 +52,7 @@
 	let interests: InterestShare[] | null;
 	let govProposals: GovProposal[] | null = null;
 	let speechesPage0: SpeechesWithMaxPage | null = null;
+	let politicalPosition: PoliticalPosition | null = null;
 	let delegateQA: DelegateQA[] = [];
 	let maxDayOffset = 365 * 5;
 	let dayOffset = maxDayOffset;
@@ -196,6 +198,11 @@
 			interests = input;
 		});
 
+		politicalPosition = null
+		delegate_political_position(delegate.id).then((res) => {
+			politicalPosition = errorToNull(res);
+		});
+
 		prevSelectedDelegateId = delegate.id;
 	}
 </script>
@@ -317,6 +324,10 @@
 			<InterestTiles interests={interests.slice(0, 4)}></InterestTiles>
 		{:else}
 			<ExpandablePlaceholder class={'my-3'} />
+		{/if}
+
+		{#if politicalPosition}
+			
 		{/if}
 
 		<!-- <div class="activity-item bg-primary-300">

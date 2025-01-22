@@ -136,7 +136,7 @@ export async function gov_proposals_by_official(delegate_id: number): Promise<Go
 	return getWithRoute(`gov_proposals_by_official?delegate_id=${delegate_id}`);
 }
 
-export async function delegate_political_position(delegate_id: number): Promise<PoliticalPosition[] | HasError> {
+export async function delegate_political_position(delegate_id: number): Promise<PoliticalPosition | HasError> {
 	return getWithRoute(`delegate_political_position?delegate_id=${delegate_id}`);
 }
 
