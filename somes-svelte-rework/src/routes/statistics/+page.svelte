@@ -3,9 +3,9 @@
 	import QuadrantChart from '$lib/components/GeneralCharts/QuadrantChart.svelte';
 </script>
 
-<QuadrantChart />
+<QuadrantChart width={400} height={400} />
 
-<PoliticalSpectrum />
+<!-- <PoliticalSpectrum /> -->
 
 <style>
 

@@ -13,24 +13,24 @@
 
     export let dataPoints: { [key: string]: DataPoint[] } = {
         Q1: [
-        { x: 60, y: 70, label: 'A' },
-        { x: 80, y: 90, label: 'B' },
-        { x: 100, y: 85, label: 'C' },
+        { x: 60, y: 30, label: 'A' },
+        { x: 80, y: 50, label: 'B' },
+        { x: 100, y: 35, label: 'C' },
         ],
         Q2: [
-        { x: -60, y: 70, label: 'D' },
-        { x: -80, y: 90, label: 'E' },
-        { x: -100, y: 85, label: 'F' },
+        { x: -60, y: 30, label: 'D' },
+        { x: -80, y: 45, label: 'E' },
+        { x: -100, y: 35, label: 'F' },
         ],
         Q3: [
-        { x: -60, y: -70, label: 'G' },
-        { x: -80, y: -90, label: 'H' },
-        { x: -100, y: -85, label: 'I' },
+        { x: -60, y: -30, label: 'G' },
+        { x: -80, y: -20, label: 'H' },
+        { x: -100, y: -60, label: 'I' },
         ],
         Q4: [
-        { x: 60, y: -70, label: 'J' },
-        { x: 80, y: -90, label: 'K' },
-        { x: 100, y: -85, label: 'L' },
+        { x: 60, y: -40, label: 'J' },
+        { x: 80, y: -50, label: 'K' },
+        { x: 100, y: -55, label: 'L' },
         ],
     };
 
@@ -60,13 +60,13 @@
                 const canvasX = width / 2 + x;
                 const canvasY = height / 2 - y;
 
-                ctx.fillStyle = '#3498db';
+                ctx.fillStyle = '#3498dbFF';
                 ctx.beginPath();
-                ctx.arc(canvasX, canvasY, 10, 0, Math.PI * 2);
+                ctx.arc(canvasX, canvasY, 8, 0, Math.PI * 2);
                 ctx.fill();
 
                 ctx.fillStyle = textColor;
-                ctx.font = '12px Arial';
+                ctx.font = '11px Arial';
                 ctx.textAlign = 'center';
                 ctx.fillText(label, canvasX, canvasY - 15);
             });
@@ -75,11 +75,13 @@
 
     const drawWithMode = () => {
         const isLightMode = $modeCurrent
-        let color = "#FFFFFF"
+        let borderColor = "#FFFFFF2b"
+        let textColor = "#FFFFFF"
         if (isLightMode) {
-            color = "#000000";
+            borderColor = "#0000002b";
+            textColor = "#000000"
         }
-        drawChart(color, color);
+        drawChart(textColor, borderColor);
     };
 
     onMount(() => {
@@ -92,12 +94,11 @@
 
 </script>
 
+<canvas class="border-black dark:border-white" bind:this={canvas}></canvas>
+
 <style>
-  canvas {
-    border: 2px solid black;
-    display: block;
-    margin: 0 auto;
-  }
+    canvas {
+        border: 3px solid;
+    }
 </style>
 
-<canvas bind:this={canvas}></canvas>
