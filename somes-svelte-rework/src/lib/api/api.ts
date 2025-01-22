@@ -18,7 +18,8 @@ import type {
 	UniqueTopic,
 	GovProposal,
 	Speech,
-	SpeechesWithMaxPage
+	SpeechesWithMaxPage,
+	PoliticalPosition
 } from '../types';
 import { jwtStore } from '../caching/stores/stores';
 
@@ -70,69 +71,100 @@ export async function fetchSavely<T>(fn: () => Promise<Response>): Promise<T | H
 	}
 }
 
-export async function seats(): Promise<Map<string, number[]> | HasError> {
-	const response = await fetchSavely<{ [key: string]: number[] }>(() =>
-		fetch(`${address}/seats`, {
+export async function getWithRoute<T>(route: string): Promise<T | HasError> {
+	return fetchSavely(() =>
+		fetch(`${address}/${route}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'
 			}
 		})
 	);
+}
+
+export async function seats(): Promise<Map<string, number[]> | HasError> {
+	const response = await getWithRoute<{ [key: string]: number[] }>('seats');
 
 	if ('error' in response) {
 		return response as HasError;
 	}
 
 	if (response) {
-		return new Map<string, number[]>(Object.entries(response));
+		return new Map(Object.entries(response));
 	}
 
 	return { error: 'Error fetching data' };
 }
 
 export async function parties(): Promise<Party[] | HasError> {
-	return fetchSavely(() =>
-		fetch(`${address}/parties`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		})
-	);
+	return getWithRoute('parties');
 }
 
 export async function delegates(): Promise<Delegate[] | HasError> {
-	return fetchSavely(() =>
-		fetch(`${address}/delegates`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		})
-	);
+	return getWithRoute<Delegate[]>('delegates');
 }
 
 export async function latest_vote_results(): Promise<VoteResult[] | HasError> {
-	return fetchSavely(() =>
-		fetch(`${address}/latest_vote_results`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		})
-	);
+	return getWithRoute<VoteResult[]>('latest_vote_results');
 }
 
 export async function all_gps(): Promise<LegisPeriod[] | HasError> {
-	return fetchSavely(() =>
-		fetch(`${address}/all_gps`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		})
+	return getWithRoute<LegisPeriod[]>('all_gps');
+}
+
+export async function delegate_interests(delegate_id: number): Promise<InterestShare[] | HasError> {
+	return getWithRoute<InterestShare[]>(`delegate_interests?delegate_id=${delegate_id}`);
+}
+
+export async function delegate_qa(delegate_id: number): Promise<DelegateQA[] | HasError> {
+	return getWithRoute<DelegateQA[]>(`delegate_qa?delegate_id=${delegate_id}`);
+}
+
+export async function vote_result_by_id(vote_result_id: string): Promise<VoteResult | HasError> {
+	return getWithRoute<VoteResult>(`vote_result_by_id?id=${vote_result_id}`);
+}
+
+export async function delegates_at(date_at: Date): Promise<Delegate[] | HasError> {
+	return getWithRoute(`delegates_at?at=${date_at}`);
+}
+
+export async function gov_officials_at(date_at: Date): Promise<Delegate[] | HasError> {
+	return getWithRoute(`gov_officials_at?at=${date_at}`);
+}
+
+export async function gov_proposals_by_official(delegate_id: number): Promise<GovProposal[] | HasError> {
+	return getWithRoute(`gov_proposals_by_official?delegate_id=${delegate_id}`);
+}
+
+export async function delegate_political_position(delegate_id: number): Promise<PoliticalPosition[] | HasError> {
+	return getWithRoute(`delegate_political_position?delegate_id=${delegate_id}`);
+}
+
+
+export async function speeches_by_delegate_per_page(
+	delegate_id: number,
+	page: number
+): Promise<SpeechesWithMaxPage | HasError> {
+	return getWithRoute<SpeechesWithMaxPage>(
+		`speeches_by_delegate_per_page?delegate_id=${delegate_id}&page=${page}`
 	);
+}
+
+export async function delegates_with_seats_near_date(
+	date_at: Date,
+	gp: string
+): Promise<Delegate[] | HasError> {
+	return getWithRoute<Delegate[]>(
+		`delegates_with_seats_near_date?at=${date_at}&period=${gp}`
+	);
+}
+
+export async function get_topics(): Promise<UniqueTopic[] | HasError> {
+	return getWithRoute<UniqueTopic[]>('topics');
+}
+
+export async function walo_questions(): Promise<WaloQuestion[] | HasError> {
+	return getWithRoute<WaloQuestion[]>('walo_questions');
 }
 
 export async function vote_results_per_page(
@@ -141,106 +173,11 @@ export async function vote_results_per_page(
 ): Promise<VoteResultsWithMaxPage | HasError> {
 	return fetchSavely(() =>
 		fetch(`${address}/vote_results_per_page?page=${page}`, {
-			method: 'POST', // only post because js fetch..
+			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify(filter)
-		})
-	);
-}
-
-export async function delegate_interests(delegate_id: number): Promise<InterestShare[] | HasError> {
-	return fetchSavely(() =>
-		fetch(`${address}/delegate_interests?delegate_id=${delegate_id}`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		})
-	);
-}
-
-export async function delegate_qa(delegate_id: number): Promise<DelegateQA[] | HasError> {
-	return fetchSavely(() =>
-		fetch(`${address}/delegate_qa?delegate_id=${delegate_id}`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		})
-	);
-}
-
-export async function vote_result_by_id(vote_result_id: string): Promise<VoteResult | HasError> {
-	return fetchSavely(() =>
-		fetch(`${address}/vote_result_by_id?id=${vote_result_id}`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		})
-	);
-}
-
-export async function delegates_at(date_at: Date): Promise<Delegate[] | HasError> {
-	return fetchSavely(() =>
-		fetch(`${address}/delegates_at?at=${date_at}`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		})
-	);
-}
-export async function gov_officials_at(date_at: Date): Promise<Delegate[] | HasError> {
-	return fetchSavely(() =>
-		fetch(`${address}/gov_officials_at?at=${date_at}`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		})
-	);
-}
-
-export async function gov_proposals_by_official(
-	delegate_id: number
-): Promise<GovProposal[] | HasError> {
-	return fetchSavely(() =>
-		fetch(`${address}/gov_proposals_by_official?delegate_id=${delegate_id}`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		})
-	);
-}
-
-export async function speeches_by_delegate_per_page(
-	delegate_id: number,
-	page: number
-): Promise<SpeechesWithMaxPage | HasError> {
-	return fetchSavely(() =>
-		fetch(`${address}/speeches_by_delegate_per_page?delegate_id=${delegate_id}&page=${page}`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		})
-	);
-}
-
-export async function delegates_with_seats_near_date(
-	date_at: Date,
-	gp: string
-): Promise<Delegate[] | HasError> {
-	return fetchSavely(() =>
-		fetch(`${address}/delegates_with_seats_near_date?at=${date_at}&period=${gp}`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json'
-			}
 		})
 	);
 }
@@ -257,28 +194,6 @@ export async function vote_results_by_search(
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify(filter)
-		})
-	);
-}
-
-export async function get_topics(): Promise<UniqueTopic[] | HasError> {
-	return fetchSavely(() =>
-		fetch(`${address}/topics`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		})
-	);
-}
-
-export async function walo_questions(): Promise<WaloQuestion[] | HasError> {
-	return fetchSavely(() =>
-		fetch(`${address}/walo_questions`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json'
-			}
 		})
 	);
 }

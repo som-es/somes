@@ -151,6 +151,15 @@ export interface CallToOrdersPerPartyDelegate {
 	ratio: number;
 }
 
+export interface PoliticalPosition {
+    delegate_id: number;
+    is_left: number;
+    is_not_left: number;
+    is_liberal: number;
+    is_not_liberal: number;
+    neutral_count: number;
+}
+
 export interface Party {
 	name: string;
 	color: string;
