@@ -34,6 +34,7 @@
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import GovProposalPreview from '$lib/components/Proposals/GovProposalPreview.svelte';
 	import SpeechesPreview from '$lib/components/Delegates/Speeches/SpeechesPreview.svelte';
+	import PoliticalSpectrum from '$lib/components/Delegates/PoliticalSpectrum.svelte';
 
 	let delegates: Delegate[];
 	let delegate: Delegate | null;
@@ -326,8 +327,8 @@
 			<ExpandablePlaceholder class={'my-3'} />
 		{/if}
 
-		{#if politicalPosition}
-			
+		{#if politicalPosition && delegate}
+			<PoliticalSpectrum {delegate} {politicalPosition} />
 		{/if}
 
 		<!-- <div class="activity-item bg-primary-300">

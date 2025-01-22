@@ -1,38 +1,35 @@
 <script lang="ts">
     import { modeCurrent } from '@skeletonlabs/skeleton';
     import { onMount } from 'svelte';
+	import type { DataPoint } from './types';
 
     export let width: number;
     export let height: number;
+ 
 
-    interface DataPoint {
-        x: number;
-        y: number;
-        label: string;
-    }
-
-    export let dataPoints: { [key: string]: DataPoint[] } = {
-        Q1: [
-        { x: 60, y: 30, label: 'A' },
-        { x: 80, y: 50, label: 'B' },
-        { x: 100, y: 35, label: 'C' },
-        ],
-        Q2: [
-        { x: -60, y: 30, label: 'D' },
-        { x: -80, y: 45, label: 'E' },
-        { x: -100, y: 35, label: 'F' },
-        ],
-        Q3: [
-        { x: -60, y: -30, label: 'G' },
-        { x: -80, y: -20, label: 'H' },
-        { x: -100, y: -60, label: 'I' },
-        ],
-        Q4: [
-        { x: 60, y: -40, label: 'J' },
-        { x: 80, y: -50, label: 'K' },
-        { x: 100, y: -55, label: 'L' },
-        ],
-    };
+    export let dataPoints: { [key: string]: DataPoint[] };
+    // export let dataPoints: { [key: string]: DataPoint[] } = {
+    //     Q1: [
+    //     { x: 60, y: 30, label: 'A', color: "" },
+    //     { x: 80, y: 50, label: 'B' },
+    //     { x: 100, y: 35, label: 'C' },
+    //     ],
+    //     Q2: [
+    //     { x: -60, y: 30, label: 'D' },
+    //     { x: -80, y: 45, label: 'E' },
+    //     { x: -100, y: 35, label: 'F' },
+    //     ],
+    //     Q3: [
+    //     { x: -60, y: -30, label: 'G' },
+    //     { x: -80, y: -20, label: 'H' },
+    //     { x: -100, y: -60, label: 'I' },
+    //     ],
+    //     Q4: [
+    //     { x: 60, y: -40, label: 'J' },
+    //     { x: 80, y: -50, label: 'K' },
+    //     { x: 100, y: -55, label: 'L' },
+    //     ],
+    // };
 
     let canvas: HTMLCanvasElement;
 
@@ -56,11 +53,12 @@
         ctx.stroke();
 
         Object.values(dataPoints).forEach((quadrant) => {
-            quadrant.forEach(({ x, y, label }) => {
+            console.log(quadrant)
+            quadrant.forEach(({ x, y, label, color }) => {
                 const canvasX = width / 2 + x;
                 const canvasY = height / 2 - y;
 
-                ctx.fillStyle = '#3498dbFF';
+                ctx.fillStyle = color;
                 ctx.beginPath();
                 ctx.arc(canvasX, canvasY, 8, 0, Math.PI * 2);
                 ctx.fill();
