@@ -3,7 +3,7 @@
 	import type { GovProposal, Speech } from "$lib/types";
 	import Pagination from "$lib/components/Pagination.svelte";
 	import SpeechBar from "./SpeechBar.svelte";
-	import { errorToNull, speeches_by_delegate_per_page } from "$lib/api";
+	import { errorToNull, speeches_by_delegate_per_page } from "$lib/api/api";
 	import ExpandablePlaceholder from "$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte";
 
 	const modalStore = getModalStore();

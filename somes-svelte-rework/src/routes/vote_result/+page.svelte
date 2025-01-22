@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { delegates_at, errorToNull, vote_result_by_id } from '$lib/api';
+	import { delegates_at, errorToNull, vote_result_by_id } from '$lib/api/api';
 	import { currentDelegateStore, currentVoteResultStore, hasGoBackStore, useCurrentDelegate } from '$lib/stores/stores';
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';

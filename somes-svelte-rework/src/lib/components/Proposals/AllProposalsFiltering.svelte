@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { isHasError, isThere } from "$lib/api";
+	import { isHasError, isThere } from "$lib/api/api";
 	import type { GovProposal } from "$lib/types";
 	import { RadioGroup, RadioItem } from "@skeletonlabs/skeleton";
 

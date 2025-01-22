@@ -14,7 +14,7 @@
 
 		speeches_by_delegate_per_page
 
-	} from '$lib/api';
+	} from '$lib/api/api';
 	import InterestTiles from '$lib/components/Delegates/InterestTiles.svelte';
 	import { get } from 'svelte/store';
 	import { currentDelegateStore, hasGoBackStore } from '$lib/stores/stores';

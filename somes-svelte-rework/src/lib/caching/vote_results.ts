@@ -1,4 +1,4 @@
-import { isHasError, latest_vote_results } from '$lib/api';
+import { isHasError, latest_vote_results } from '$lib/api/api';
 import type { VoteResult } from '$lib/types';
 import { get } from 'svelte/store';
 import { latestVoteResultsStore } from './stores/stores';

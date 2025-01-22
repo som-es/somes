@@ -14,7 +14,7 @@
 	import { BoxGeometry, ImageUtils, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial } from 'three'
 	import { generateHalfCircle, setupParliament } from '$lib/parliament'
 	import Angle20 from './Angle20.svelte';
-	import { address } from "$lib/api";
+	import { address } from "$lib/api/api";
 
 	let lightAngle = Math.PI;
 	let lightRadius = 50;

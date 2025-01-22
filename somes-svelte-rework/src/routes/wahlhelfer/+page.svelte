@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { errorToNull, walo_questions } from '$lib/api';
+	import { errorToNull, walo_questions } from '$lib/api/api';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import ListBoxItemWalo from '$lib/components/Walo/ListBoxItemWalo.svelte';

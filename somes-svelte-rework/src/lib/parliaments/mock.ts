@@ -1,4 +1,4 @@
-import { delegates_at } from '$lib/api';
+import { delegates_at } from '$lib/api/api';
 import type { Delegate, VoteResult } from '$lib/types';
 
 function generateDelegate(party: string): Delegate {
@@ -16,7 +16,9 @@ function generateDelegate(party: string): Delegate {
 		is_active: true,
 		birthdate: '2000-01-01',
 		active_since: new Date(),
-		divisions: null
+		divisions: null,
+		primary_mandate: "",
+		mandates: []
 	};
 }
 

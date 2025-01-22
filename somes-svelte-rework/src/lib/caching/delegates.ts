@@ -1,4 +1,4 @@
-import { delegates, delegates_with_seats_near_date, isHasError } from '$lib/api';
+import { delegates, delegates_with_seats_near_date, isHasError } from '$lib/api/api';
 import { CircularBuffer } from '$lib/CircularBuffer';
 import type { Delegate, DelegateSplit, HasError } from '$lib/types';
 import { get } from 'svelte/store';

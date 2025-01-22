@@ -4,7 +4,7 @@
 	import ClickableSpan from '../Utils/ClickableSpan.svelte';
 	import DisplayTopic from './Topic.svelte';
 	import ExpandablePlaceholder from '../VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
-	import { addUserTopic, getUserTopics, isHasError, removeUserTopic } from '$lib/api';
+	import { addUserTopic, getUserTopics, isHasError, removeUserTopic } from '$lib/api/api';
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache';
 
 	export let selectedTopics: Set<number>;

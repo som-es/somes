@@ -1,7 +1,7 @@
 import type { LegisPeriod } from '$lib/types';
 import { get } from 'svelte/store';
 import { legisPeriodsStore } from './stores/stores';
-import { all_gps, isHasError } from '$lib/api';
+import { all_gps, isHasError } from '$lib/api/api';
 
 export async function cachedAllLegisPeriods(
 	refetch: boolean = false

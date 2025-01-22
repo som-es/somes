@@ -1,6 +1,6 @@
 import { get } from 'svelte/store';
 import { seatsStore } from './stores/stores';
-import { isHasError, seats } from '$lib/api';
+import { isHasError, seats } from '$lib/api/api';
 
 export async function cachedAllSeats(
 	refetch: boolean = false

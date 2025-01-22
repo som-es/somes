@@ -1,4 +1,4 @@
-import { gov_officials_at, isHasError } from '$lib/api';
+import { gov_officials_at, isHasError } from '$lib/api/api';
 import { CircularBuffer } from '$lib/CircularBuffer';
 import type { Delegate } from '$lib/types';
 

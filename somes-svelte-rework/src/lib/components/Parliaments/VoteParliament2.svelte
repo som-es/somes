@@ -4,7 +4,7 @@
 	import { getPartyColors } from '$lib/partyColor';
 	import type { Delegate, VoteResult } from '$lib/types';
 	import { onMount } from 'svelte';
-	import { delegates_at, delegates_with_seats_near_date, errorToNull } from '$lib/api';
+	import { delegates_at, delegates_with_seats_near_date, errorToNull } from '$lib/api/api';
 	import { groupPartyDelegates, setSeatsOfDels } from '$lib/parliaments/defaultParliament';
 	import { cachedAllSeats, getSeats } from '$lib/caching/seats';
 	import DataParliament from './DataParliament.svelte';

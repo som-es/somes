@@ -2,13 +2,11 @@
 	import { goto } from '$app/navigation';
 	import { base } from '$app/paths';
 	import {
-		delete_account,
 		errorToNull,
 		get_topics,
-		getUserTopics,
 		isHasError,
-		renew_token
-	} from '$lib/api';
+	} from '$lib/api/api';
+	import { delete_account, renew_token } from '$lib/api/authed';
 	import { jwtStore } from '$lib/caching/stores/stores';
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache';
 	import Container from '$lib/components/Layout/Container.svelte';
@@ -29,6 +27,7 @@
 			goto(`${base}/home`);
 			return;
 		}
+
 
 		topics = errorToNull(await get_topics()) ?? [];
 		user = getUserFromJwt(jwtToken);

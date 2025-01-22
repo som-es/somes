@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { errorToNull, vote_result_by_id } from "$lib/api";
+	import { errorToNull, vote_result_by_id } from "$lib/api/api";
 	import VoteParliament2 from "$lib/components/Parliaments/VoteParliament2.svelte";
 	import type { Speech, VoteResult } from "$lib/types";
 	import { currentVoteResultStore } from '$lib/stores/stores';

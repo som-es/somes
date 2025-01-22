@@ -1,4 +1,4 @@
-import { isHasError, parties } from '$lib/api';
+import { isHasError, parties } from '$lib/api/api';
 import { get } from 'svelte/store';
 import { partyColorsStore } from './stores/stores';
 

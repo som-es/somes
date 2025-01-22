@@ -1,15 +1,15 @@
 <script lang="ts">
 	import type { JWTInfo, HasError, LoginResponseError } from '$lib/types';
 	import { getDrawerStore, SlideToggle } from '@skeletonlabs/skeleton';
-	// import { login } from '$lib/api';
 	import { goto } from '$app/navigation';
 	import { get } from 'svelte/store';
 	import { browser } from '$app/environment';
 	import { base } from '$app/paths';
 	import { gotoHistory } from '$lib/goto';
-	import { isHasError, isLoginResponseError, login } from '$lib/api';
+	import { isHasError, isLoginResponseError } from '$lib/api/api';
 	import SButton from '../UI/SButton.svelte';
 	import { jwtStore } from '$lib/caching/stores/stores';
+	import { login } from '$lib/api/authed';
 	// import Login from 'svelte-google-materialdesign-icons/Login.svelte';
 
 	const drawerStore = getDrawerStore();
