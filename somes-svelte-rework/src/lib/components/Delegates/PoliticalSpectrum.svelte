@@ -21,4 +21,4 @@
 	
 </script>
 
-<QuadrantChart {dataPoints} width={400} height={400} />
+<QuadrantChart {dataPoints} xLabels={["RECHTS", "LINKS"]} yLabels={["AUTORITÄR", "LIBERAL"]} width={400} height={400} />

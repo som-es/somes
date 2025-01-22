@@ -5,9 +5,10 @@
 
     export let width: number;
     export let height: number;
- 
-
+    export let xLabels: string[];
+    export let yLabels: string[];
     export let dataPoints: { [key: string]: DataPoint[] };
+
     // export let dataPoints: { [key: string]: DataPoint[] } = {
     //     Q1: [
     //     { x: 60, y: 30, label: 'A', color: "" },
@@ -51,6 +52,30 @@
         ctx.moveTo(0, height / 2);
         ctx.lineTo(width, height / 2);
         ctx.stroke();
+
+
+        ctx.fillStyle = textColor;
+        ctx.font = '14px Arial';
+
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        ctx.save();
+        ctx.translate(width - 20, height / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText(xLabels[0], 0, 0);
+        ctx.restore();
+
+        ctx.save();
+        ctx.translate(20, height / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText(xLabels[1], 0, 0);
+        ctx.restore();
+
+        ctx.textAlign = 'center';
+
+        ctx.fillText(yLabels[0], width / 2, 20);
+        ctx.fillText(yLabels[1], width / 2, height - 20);
 
         Object.values(dataPoints).forEach((quadrant) => {
             console.log(quadrant)
