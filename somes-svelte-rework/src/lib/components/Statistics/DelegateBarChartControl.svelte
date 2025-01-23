@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { DelegateData } from "$lib/types";
-	import { filter, ListBox, ListBoxItem, popup, type PopupSettings } from "@skeletonlabs/skeleton";
+	import { ListBox, ListBoxItem, popup, type PopupSettings } from "@skeletonlabs/skeleton";
 	import LegisButtons from "../Filtering/LegisButtons.svelte";
 	import { onMount } from "svelte";
 	import ReactiveDelegateBarChart from "./ReactiveDelegateBarChart.svelte";
