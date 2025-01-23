@@ -2,16 +2,16 @@
 	import { onMount } from 'svelte';
 	import ApexCharts, { type ApexOptions } from 'apexcharts';
 	import { partyToColor } from '$lib/partyColor';
-	import type { Delegate, DelegateData  } from '$lib/types';
-
-
+	import type { DelegateData  } from '$lib/types';
 
 	export let delegateData: DelegateData[];
+
 
 	let chart: ApexCharts | null = null;
 	let chartOptions: ApexOptions;
 
 	$: {
+		delegateData = delegateData.slice(0, 5)
 		const labels = delegateData.map(del => del.name);
 
 		chartOptions = {
@@ -100,6 +100,5 @@
 <style>
 	#chart {
 		max-width: 650px;
-		margin: auto;
 	}
 </style>

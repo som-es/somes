@@ -23,7 +23,8 @@
 			legis_period: "XXVII",
 			party: null,
 			gender: null,
-			is_desc: true});
+			is_desc: true
+		});
 
 		if ('error' in response) {
 			// Fehlerbehandlung
