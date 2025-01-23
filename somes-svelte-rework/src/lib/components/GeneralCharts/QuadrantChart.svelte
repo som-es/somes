@@ -117,7 +117,7 @@
 
 </script>
 
-<canvas class="border-black dark:border-white" bind:this={canvas}></canvas>
+<canvas class="border-black dark:border-white" width={width} height={height} bind:this={canvas}></canvas>
 
 <style>
     canvas {

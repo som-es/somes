@@ -7,7 +7,6 @@
 	export let politicalPosition: PoliticalPosition;	
 	export let delegate: Delegate;
 
-
 	const color = partyToColor(delegate.party)
 
 	const leftScore = politicalPosition.is_not_left - politicalPosition.is_left;
@@ -21,4 +20,4 @@
 	
 </script>
 
-<QuadrantChart {dataPoints} xLabels={["RECHTS", "LINKS"]} yLabels={["AUTORITÄR", "LIBERAL"]} width={400} height={400} />
+<QuadrantChart {dataPoints} xLabels={["RECHTS", "LINKS"]} yLabels={["AUTORITÄR", "LIBERTÄR"]} width={240} height={240} />
