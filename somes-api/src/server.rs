@@ -4,11 +4,12 @@ use axum::{
     extract::FromRef,
     http::{self, HeaderValue},
     response::Html,
-    routing::{any, delete, get, get_service, post},
+    routing::{any, delete, get, get_service, post, Route},
     Router, ServiceExt,
 };
 use axum_server::tls_rustls::RustlsConfig;
 use dataservice::db::models::{DbLegislativeInitiativeQuery, DbParty};
+use diesel::dsl::host;
 // use diesel_async::pooled_connection::AsyncDieselConnectionManager;
 use log::{error, info};
 use meilisearch_sdk::settings::Settings;
@@ -276,10 +277,6 @@ pub async fn serve(addr: SocketAddr) {
         // statistics
         .route(SPEAKERS_BY_HOURS, get(speakers_by_hours))
         .route(
-            DELEGATES_BY_CALL_TO_ORDERS,
-            get(delegates_by_call_to_orders),
-        )
-        .route(
             DELEGATES_BY_CALL_TO_ORDERS_AND_LEGIS_PERIOD,
             post(delegates_by_call_to_orders_and_legis_period),
         )
@@ -320,6 +317,47 @@ pub async fn serve(addr: SocketAddr) {
         .route(GOV_PROPOSALS_BY_OFFICIAL, get(gov_proposals_by_official))
         .route(DELEGATE_POLITICAL_POSITION, get(delegate_political_position))
         .route(AI_CHAT_WS, any(ai_chat_ws_handler))
+        .route(
+            DELEGATES_BY_CALL_TO_ORDERS,
+            post(call_to_order_per_delegates),
+        )
+        .route(
+            LEGISLATIVE_INITIATIVES_WITHOUT_SIMPLE_MAJORITY,
+            post(legislative_initiatives_without_simple_majority),
+        )
+        .route(COMPLEXITY_PER_DELEGATE, post(complexity_per_delegate))
+        .route(COMPLEXITY_PER_PARTY, post(complexity_per_party))
+        .route(COMPLEXITY_PER_GENDER, post(complexity_per_gender))
+        .route(COMPLEXITY_AT_AGE, post(complexity_at_age))
+        .route(AGE_OF_DELEGATES, post(age_per_delegate))
+        .route(AGE_PER_PARTY, post(age_per_party))
+        .route(SPEECHTIME_PER_PARTY, post(speechtime_per_party))
+        .route(SPEECHTIME_PER_DELEGATE, post(speechtime_per_delegate))
+        .route(SPEECHTIME_PER_AGE, post(speechtime_per_age))
+        .route(SPEECHTIME_PER_GENDER, post(speechtime_per_gender))
+        .route(
+            TOTAL_SPEECHES_PER_DELEGATE,
+            post(total_speeches_per_delegate),
+        )
+        .route(TOTAL_SPEECHES_PER_PARTY, post(total_speeches_per_party))
+        .route(TOTAL_SPEECHES_PER_GENDER, post(total_speeches_per_gender))
+        .route(TOTAL_SPEECHES_PER_AGE, post(total_speeches_per_age))
+        .route(
+            CALL_TO_ORDERS_BY_DELEGATE,
+            post(call_to_orders_per_delegate),
+        )
+        .route(CALL_TO_ORDERS_PER_PARTY, post(call_to_orders_per_party))
+        .route(CALL_TO_ORDERS_PER_GENDER, post(call_to_orders_per_gender))
+        .route(CALL_TO_ORDERS_PER_AGE, post(call_to_orders_per_age))
+        .route(DIVISION_ACCURACY_SCORE_PER_DELEGATE, post(divison_accuracy_score_per_delegate))
+        .route(DIVISION_ACCURACY_SCORE_PER_PARTY, post(division_accuracy_score_per_party))
+        .route(DIVISION_ACCURACY_SCORE_PER_GENDER, post(division_accuracy_score_per_gender))
+        .route(DIVISION_ACCURACY_SCORE_PER_AGE, post(division_accuracy_score_per_age))
+        .route(VOTES_TOGETHER, post(votes_together))
+        .route(ABSENCES_PER_DELEGATE, post(absences_per_delegate))
+        .route(ABSENCES_PER_PARTY, post(absences_per_party))
+        .route(ABSENCES_PER_GENDER, post(absences_per_gender))
+        .route(ABSENCES_PER_AGE, post(absences_per_age))
         .route("/save_email", post(save_email))
         .nest_service("/assets", ServeDir::new("assets"))
         // mind conflicts e.g delegates

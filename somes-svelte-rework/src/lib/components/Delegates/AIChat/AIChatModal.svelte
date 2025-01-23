@@ -9,13 +9,9 @@
 
 	const chatSocket = new WebSocket(import.meta.env.VITE_WEBSOCKET_URL);
 
-	const sendMessage1 = (input: string) => {};
-
 	onDestroy(() => {
 		chatSocket.close();
 	});
-
-	// sendMessage();
 
 	const modalStore = getModalStore();
 	export let parent;

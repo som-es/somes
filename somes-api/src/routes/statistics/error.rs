@@ -4,13 +4,16 @@ use serde_json::json;
 
 #[derive(Debug)]
 pub enum StatisticsResponse {
-    DbSelectFailure,
+    DbSelectFailure(Option<sqlx::Error>),
 }
 
 impl IntoResponse for StatisticsResponse {
     fn into_response(self) -> axum::response::Response {
         let (status_code, err_msg) = match self {
-            StatisticsResponse::DbSelectFailure => (StatusCode::INTERNAL_SERVER_ERROR, "db error"),
+            StatisticsResponse::DbSelectFailure(e) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("db error occured: {e:?}"),
+            ),
         };
 
         let body = Json(json!({

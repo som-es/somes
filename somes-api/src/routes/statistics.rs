@@ -2,7 +2,67 @@ use axum::Json;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::LegisPeriod;
 use utoipa::{IntoParams, ToSchema};
+mod absolute_majority_initiatives;
+mod age_of_delegates;
+mod age_per_party;
+mod call_to_orders;
+mod call_to_orders_by_delegate;
+mod call_to_orders_per_age;
+mod call_to_orders_per_gender;
+mod call_to_orders_per_party;
+mod complexity_at_age;
+mod complexity_per_gender;
+mod complexity_per_party;
+mod complexity_per_person;
 mod error;
+mod filtering;
+mod speechtime_per_age;
+mod speechtime_per_delegate;
+mod speechtime_per_gender;
+mod speechtime_per_party;
+mod total_speeches_per_age;
+mod total_speeches_per_delegate;
+mod total_speeches_per_gender;
+mod total_speeches_per_party;
+mod division_accuracy_score_per_delegate;
+mod division_accuracy_score_per_party;
+mod division_accuracy_score_per_gender;
+mod division_accuracy_score_per_age;
+mod votes_together;
+mod absences_per_delegate;
+mod absences_per_party;
+mod absences_per_gender;
+mod absences_per_age;
+
+pub use absolute_majority_initiatives::*;
+pub use age_of_delegates::*;
+pub use age_per_party::*;
+pub use call_to_orders::*;
+pub use call_to_orders_by_delegate::*;
+pub use call_to_orders_per_age::*;
+pub use call_to_orders_per_gender::*;
+pub use call_to_orders_per_party::*;
+pub use complexity_at_age::*;
+pub use complexity_per_gender::*;
+pub use complexity_per_party::*;
+pub use complexity_per_person::*;
+pub use speechtime_per_age::*;
+pub use speechtime_per_delegate::*;
+pub use speechtime_per_gender::*;
+pub use speechtime_per_party::*;
+pub use total_speeches_per_age::*;
+pub use total_speeches_per_delegate::*;
+pub use total_speeches_per_gender::*;
+pub use total_speeches_per_party::*;
+pub use division_accuracy_score_per_delegate::*;
+pub use division_accuracy_score_per_party::*;
+pub use division_accuracy_score_per_gender::*;
+pub use division_accuracy_score_per_age::*;
+pub use votes_together::*;
+pub use absences_per_delegate::*;
+pub use absences_per_party::*;
+pub use absences_per_gender::*;
+pub use absences_per_age::*;
 
 use crate::{
     dataservice::{
@@ -32,10 +92,10 @@ pub async fn speakers_by_hours(
     interact!(
         postgres_con,
         get_speakers_by_hours(postgres_con)
-            .map_err(|_| StatisticsResponse::DbSelectFailure)
+            .map_err(|_| StatisticsResponse::DbSelectFailure(None))
             .map(Json)
     )
-    .map_err(|_| StatisticsResponse::DbSelectFailure)?
+    .map_err(|_| StatisticsResponse::DbSelectFailure(None))?
 }
 
 #[utoipa::path(
@@ -58,11 +118,11 @@ pub async fn speakers_by_hours_and_legis_period(
         .interact(|con| {
             let legis_period = legis_period;
             get_speakers_by_hours_by_legis_period(con, &legis_period)
-                .map_err(|_| StatisticsResponse::DbSelectFailure)
+                .map_err(|_| StatisticsResponse::DbSelectFailure(None))
                 .map(Json)
         })
         .await
-        .map_err(|_| StatisticsResponse::DbSelectFailure)?
+        .map_err(|_| StatisticsResponse::DbSelectFailure(None))?
 }
 
 #[utoipa::path(
@@ -80,11 +140,11 @@ pub async fn delegates_by_call_to_orders(
     postgres_con
         .interact(|con| {
             get_delegates_by_call_to_orders(con)
-                .map_err(|_| StatisticsResponse::DbSelectFailure)
+                .map_err(|_| StatisticsResponse::DbSelectFailure(None))
                 .map(Json)
         })
         .await
-        .map_err(|_| StatisticsResponse::DbSelectFailure)?
+        .map_err(|_| StatisticsResponse::DbSelectFailure(None))?
 }
 #[utoipa::path(
     post,
@@ -106,11 +166,11 @@ pub async fn delegates_by_call_to_orders_and_legis_period(
         .interact(|con| {
             let legis_period = legis_period;
             get_delegates_by_call_to_orders_by_legis_period(con, &legis_period)
-                .map_err(|_| StatisticsResponse::DbSelectFailure)
+                .map_err(|_| StatisticsResponse::DbSelectFailure(None))
                 .map(Json)
         })
         .await
-        .map_err(|_| StatisticsResponse::DbSelectFailure)?
+        .map_err(|_| StatisticsResponse::DbSelectFailure(None))?
 }
 
 #[utoipa::path(
@@ -128,9 +188,9 @@ pub async fn call_to_orders_per_party_delegates(
     postgres_con
         .interact(|con| {
             get_call_to_orders_per_party_delegates(con)
-                .map_err(|_| StatisticsResponse::DbSelectFailure)
+                .map_err(|_| StatisticsResponse::DbSelectFailure(None))
                 .map(Json)
         })
         .await
-        .map_err(|_| StatisticsResponse::DbSelectFailure)?
+        .map_err(|_| StatisticsResponse::DbSelectFailure(None))?
 }

@@ -71,6 +71,18 @@ export async function fetchSavely<T>(fn: () => Promise<Response>): Promise<T | H
 	}
 }
 
+export async function justPost<T>(route: string, body: any): Promise<T | HasError> {
+	return fetchSavely(() =>
+		fetch(`${address}/${route}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(body)
+		})
+	);
+}
+
 export async function getWithRoute<T>(route: string): Promise<T | HasError> {
 	return fetchSavely(() =>
 		fetch(`${address}/${route}`, {
