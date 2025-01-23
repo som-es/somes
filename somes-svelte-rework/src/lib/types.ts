@@ -4,6 +4,12 @@ export interface DelegateSplit {
 	all: Delegate[];
 }
 
+export interface DelegateData {
+	name: string;
+	party: string;
+	data: number;
+}
+
 export interface Delegate {
 	id: number;
 	name: string;
