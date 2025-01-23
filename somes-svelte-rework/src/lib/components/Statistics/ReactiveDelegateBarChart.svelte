@@ -13,7 +13,7 @@
 
 	$: {
 		delegateData = delegateData.slice(0, 9)
-		const labels = delegateData.map(del => del.name);
+		const labels = delegateData.map(del => `${del.name} (${del.party})`);
 
 		chartOptions = {
 			series: [
