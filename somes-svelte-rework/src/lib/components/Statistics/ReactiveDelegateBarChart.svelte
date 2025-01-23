@@ -6,12 +6,13 @@
 
 	export let delegateData: DelegateData[];
 
+	export let title: string;
 
 	let chart: ApexCharts | null = null;
 	let chartOptions: ApexOptions;
 
 	$: {
-		delegateData = delegateData.slice(0, 5)
+		delegateData = delegateData.slice(0, 9)
 		const labels = delegateData.map(del => del.name);
 
 		chartOptions = {
@@ -20,9 +21,15 @@
 					data: delegateData.map(del => del.data)
 				}
 			],
+
+			title: {
+				text: title,
+				align: 'center',
+				floating: true
+        	},
 			chart: {
 				type: 'bar',
-				height: 350
+				height: 490
 			},
 			plotOptions: {
 				bar: {
@@ -69,6 +76,11 @@
 			},
 			xaxis: {
 				categories: labels
+
+			},
+
+			legend: {
+				show: false
 			}
 		};
 

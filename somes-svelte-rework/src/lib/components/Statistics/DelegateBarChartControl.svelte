@@ -156,7 +156,7 @@
 	</ListBox>
 </div>
 
-<ReactiveDelegateBarChart delegateData={filteredData} />
+<ReactiveDelegateBarChart delegateData={filteredData} title={"Redezeit in Sekunden"} />
 
 <style>
 
