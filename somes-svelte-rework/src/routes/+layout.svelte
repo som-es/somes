@@ -24,6 +24,7 @@
 	import AiChatModal from '$lib/components/Delegates/AIChat/AIChatModal.svelte';
 	import AllProposalsModal from '$lib/components/Proposals/AllProposalsModal.svelte';
 	import AllSpeechesModal from '$lib/components/Delegates/Speeches/AllSpeechesModal.svelte';
+	import PoliticalSpectrumQuestionsModal from '$lib/components/Delegates/Spectrum/PoliticalSpectrumQuestionsModal.svelte';
 	const drawerStore = getDrawerStore();
 
 	// const drawerStore = getDrawerStore();
@@ -32,6 +33,7 @@
 		aiChat: { ref: AiChatModal },
 		allGovProposals: { ref: AllProposalsModal },
 		allSpeeches: { ref: AllSpeechesModal },
+		politicalSpectrumQuestions: { ref: PoliticalSpectrumQuestionsModal}
 		// imdying:{ ref: ModalExample }
 	};
 </script>

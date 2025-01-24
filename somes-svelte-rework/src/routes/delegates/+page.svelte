@@ -34,7 +34,8 @@
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import GovProposalPreview from '$lib/components/Proposals/GovProposalPreview.svelte';
 	import SpeechesPreview from '$lib/components/Delegates/Speeches/SpeechesPreview.svelte';
-	import PoliticalSpectrum from '$lib/components/Delegates/PoliticalSpectrum.svelte';
+	import PoliticalSpectrum from '$lib/components/Delegates/Spectrum/PoliticalSpectrum.svelte';
+	import SquarePoliticalSpectrum from '$lib/components/Delegates/Spectrum/SquarePoliticalSpectrum.svelte';
 
 	let delegates: Delegate[];
 	let delegate: Delegate | null;
@@ -322,13 +323,13 @@
 		{/if}
 
 		{#if interests}
-			<InterestTiles interests={interests.slice(0, 4)}></InterestTiles>
+				<InterestTiles interests={interests.slice(0, 4)} />
 		{:else}
 			<ExpandablePlaceholder class={'my-3'} />
 		{/if}
 
 		{#if politicalPosition && delegate}
-			<PoliticalSpectrum {delegate} {politicalPosition} />
+			<SquarePoliticalSpectrum {delegate}	{politicalPosition} />
 		{/if}
 
 		<!-- <div class="activity-item bg-primary-300">
