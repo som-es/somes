@@ -21,7 +21,7 @@
 
 	<!-- <div class="flex justify-between">
         <div></div> -->
-	<button class="text-4xl " use:popup={popupFeatured}>⚠</button>
+	<button class="text-4xl" use:popup={popupFeatured}>⚠</button>
 
 	<button
 		on:click={() => {

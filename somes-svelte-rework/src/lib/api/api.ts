@@ -132,10 +132,6 @@ export async function delegate_qa(delegate_id: number): Promise<DelegateQA[] | H
 	return getWithRoute<DelegateQA[]>(`delegate_qa?delegate_id=${delegate_id}`);
 }
 
-export async function delegate_political_questions(delegate_id: number): Promise<DelegateQA[] | HasError> {
-	return getWithRoute<DelegateQA[]>(`delegate_political_questions?delegate_id=${delegate_id}`);
-}
-
 export async function vote_result_by_id(vote_result_id: string): Promise<VoteResult | HasError> {
 	return getWithRoute<VoteResult>(`vote_result_by_id?id=${vote_result_id}`);
 }
@@ -156,6 +152,9 @@ export async function delegate_political_position(delegate_id: number): Promise<
 	return getWithRoute(`delegate_political_position?delegate_id=${delegate_id}`);
 }
 
+export async function delegate_political_questions(delegate_id: number): Promise<DelegateQA[] | HasError> {
+	return getWithRoute(`delegate_political_questions?delegate_id=${delegate_id}`);
+}
 
 export async function speeches_by_delegate_per_page(
 	delegate_id: number,
