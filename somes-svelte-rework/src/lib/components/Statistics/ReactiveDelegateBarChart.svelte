@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import ApexCharts, { type ApexOptions } from 'apexcharts';
 	import { partyToColor } from '$lib/partyColor';
 	import type { DelegateData  } from '$lib/types';
@@ -7,12 +7,15 @@
 	export let delegateData: DelegateData[];
 
 	export let title: string;
+	export let height: number;
+
+	let chartElement: Element;
 
 	let chart: ApexCharts | null = null;
 	let chartOptions: ApexOptions;
 
 	$: {
-		delegateData = delegateData.slice(0, 9)
+		delegateData = delegateData.slice(0, 100)
 		const labels = delegateData.map(del => `${del.name} (${del.party})`);
 
 		chartOptions = {
@@ -29,7 +32,7 @@
         	},
 			chart: {
 				type: 'bar',
-				height: 490
+				height: height,
 			},
 			plotOptions: {
 				bar: {
@@ -90,27 +93,33 @@
 	}
 
 	onMount(() => {
-		const chartElement = document.querySelector('#chart');
+		initChart(chartElement)
+	});
 
-		if (chartElement) {
+	const initChart = (chartElement: Element) => {
+		//const chartElement = document.querySelector(chartId);
+		console.log(chartElement);
+		if (chartElement && !chart) {
 			chart = new ApexCharts(chartElement, chartOptions);
 			chart.render();
 		}
+	};
 
-		return () => {
-			chart?.destroy();
-		};
-	});
+	onDestroy(() => {
+		chart?.destroy();
+	})
+
+	$: initChart(chartElement)
 
 	$: if (chart && chartOptions) {
 		chart.updateOptions(chartOptions);
 	}
 </script>
 
-<div class="text-black" id="chart"></div>
+<div bind:this={chartElement} class="text-black chart"></div>
 
 <style>
-	#chart {
+	.chart {
 		max-width: 650px;
 	}
 </style>

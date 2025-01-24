@@ -5,7 +5,8 @@
 	import { onMount } from "svelte";
 	import ReactiveDelegateBarChart from "./ReactiveDelegateBarChart.svelte";
 
-    export let makeRequest: (gp: string | null, gender: string | null) => Promise<DelegateData[]>;
+    export let delegateMakeRequest: (gp: string | null, gender: string | null, isDesc: boolean | true) => Promise<DelegateData[]>;
+		export let height: number;
 
     let currentData: DelegateData[] = [];
     let filteredData: DelegateData[] = [];
@@ -22,7 +23,7 @@
     }
 
     onMount(async () => {
-        currentData = await makeRequest(null, null);
+        currentData = await delegateMakeRequest(null, null, true);
         filteredData = currentData;
     })
 
@@ -39,9 +40,17 @@
         closeQuery: '.listbox-item'
 	};
 
+	const popupDesc: PopupSettings = {
+		event: 'click',
+		target: 'popupDesc',
+		placement: 'bottom',
+		closeQuery: '.listbox-item'
+	};
+
     let selectedPeriod: string = "all";
     let gender: string | undefined = undefined
     let uniqueParties: string[] = []
+		let isDesc: boolean = true;
 
     $: if (filterParties && filterParties.length > 0) {
         filteredData = currentData.filter(data => {
@@ -57,12 +66,12 @@
     }
 
 
-    $: if(selectedPeriod || gender) {
+    $: if(selectedPeriod || gender || isDesc) {
         let gp: string | null = selectedPeriod
         if (selectedPeriod == "all") {
             gp = null
         }
-        makeRequest(gp, gender ?? null).then(res => {
+        delegateMakeRequest(gp, gender ?? null, isDesc).then(res => {
             currentData = res;
         });
 
@@ -96,6 +105,13 @@
             return "männlich"
         }
     }
+
+	const translateDescFilter = (isDesc: boolean | undefined) => {
+		if (isDesc) {
+			return "Ja"
+		}
+			return "Nein"
+	}
     
 </script>
 
@@ -122,7 +138,18 @@
 			<span>↓</span>
 		</button>
 	</div>
+	<div>
+		<h1 class="text-2xl font-bold">Absteigend</h1>
+		<button
+			class="btn variant-filled-secondary w-48 justify-between"
+			use:popup={popupDesc}
+		>
+			<span class="capitalize">{translateDescFilter(isDesc)}</span>
+			<span>↓</span>
+		</button>
+	</div>
 </div>
+
 
 <div class="z-10 card w-48 shadow-xl py-2" data-popup="popupParty">
 	<ListBox
@@ -155,9 +182,31 @@
 		>
 	</ListBox>
 </div>
+<div class="z-10 card w-48 shadow-xl py-2" data-popup="popupDesc">
+	<ListBox
+		rounded="rounded-container-token sm:!rounded-token"
+		active="variant-filled-secondary"
+		hover="hover:variant-soft-secondary"
+	>
+		<ListBoxItem bind:group={isDesc} name="isDesc" value={true}
+		>Ja</ListBoxItem
+		>
+		<ListBoxItem bind:group={isDesc} name="isDesc" value={false}
+		>Nein</ListBoxItem
+		>
+	</ListBox>
+</div>
 
-<ReactiveDelegateBarChart delegateData={filteredData} title={"Redezeit in Sekunden"} />
+<div class="graphic-container">
+	<ReactiveDelegateBarChart {height} delegateData={filteredData} title={"Redezeit in Minuten"} />
+</div>
 
 <style>
-
+    .graphic-container {
+        min-height: 300px;
+        max-height: 300px;
+        overflow-y: auto;
+        overflow-x: hidden;
+				padding: 30px
+    }
 </style>

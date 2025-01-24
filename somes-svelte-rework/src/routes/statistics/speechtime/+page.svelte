@@ -11,12 +11,12 @@
 		total_speech_time: number;
 	};
 
-    const simpleSpeechTime = async (gp: string | null, gender: string | null): Promise<DelegateData[]> => {
+    const delegateSimpleSpeechTime = async (gp: string | null, gender: string | null, isDesc: boolean | true): Promise<DelegateData[]> => {
         const response = errorToNull(await justPost<DelegateSpeechTime[]>('speechtime_per_delegate', {
 			legis_period: gp,
 			party: null,
 			gender,
-			is_desc: true
+			is_desc: isDesc
 		})) ?? [];
 
         console.log(response)
@@ -30,8 +30,32 @@
         });
     }
 
+  const partySimpleSpeechTime = async (gp: string | null, gender: string | null, isDesc: boolean | true): Promise<DelegateData[]> => {
+      const response = errorToNull(await justPost<DelegateSpeechTime[]>('speechtime_per_party', {
+          legis_period: gp,
+          party: null,
+          gender,
+          is_desc: isDesc
+      })) ?? [];
+
+      console.log(response)
+
+      return response.map(val => {
+          return {
+              name: val.delegate_name,
+              party: val.delegate_party,
+              data: val.total_speech_time
+          };
+      });
+  }
+
 </script>
 
 <Container>
-    <DelegateBarChartControl makeRequest={simpleSpeechTime} />
+    <DelegateBarChartControl height={3100} delegateMakeRequest={delegateSimpleSpeechTime} />
 </Container>
+
+<Container>
+    <DelegateBarChartControl height={400} delegateMakeRequest={partySimpleSpeechTime} />
+</Container>
+
