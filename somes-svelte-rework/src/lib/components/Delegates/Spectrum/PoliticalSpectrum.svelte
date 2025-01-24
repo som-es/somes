@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { partyToColor } from "$lib/partyColor";
 	import type { Delegate, PoliticalPosition } from "$lib/types";
-	import QuadrantChart from "../GeneralCharts/QuadrantChart.svelte";
-	import type { DataPoint } from "../GeneralCharts/types";
+	import QuadrantChart from "../../GeneralCharts/QuadrantChart.svelte";
+	import type { DataPoint } from "../../GeneralCharts/types";
 
 	export let politicalPosition: PoliticalPosition;	
 	export let delegate: Delegate;
