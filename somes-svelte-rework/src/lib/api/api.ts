@@ -19,7 +19,8 @@ import type {
 	GovProposal,
 	Speech,
 	SpeechesWithMaxPage,
-	PoliticalPosition
+	PoliticalPosition,
+	GovProposalDelegate
 } from '../types';
 import { jwtStore } from '../caching/stores/stores';
 
@@ -154,6 +155,10 @@ export async function delegate_political_position(delegate_id: number): Promise<
 
 export async function delegate_political_questions(delegate_id: number): Promise<DelegateQA[] | HasError> {
 	return getWithRoute(`delegate_political_questions?delegate_id=${delegate_id}`);
+}
+
+export async function latest_ministrial_proposals(days: number): Promise<GovProposalDelegate[] | HasError> {
+	return getWithRoute(`latest_ministrial_proposals?days=${days}`);
 }
 
 export async function speeches_by_delegate_per_page(
