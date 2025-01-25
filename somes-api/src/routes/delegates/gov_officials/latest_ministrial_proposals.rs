@@ -1,4 +1,4 @@
-use axum::Json;
+use axum::{extract::Query, Json};
 use chrono::{NaiveDate, NaiveDateTime};
 use dataservice::db::models::DbMinistrialProposalQuery;
 use redis::aio::MultiplexedConnection;
@@ -35,6 +35,7 @@ pub async fn construct_ministrial_proposal_delegate(
 pub async fn extract_latest_ministrial_proposals(
     pg: &PgPool,
     redis_con: MultiplexedConnection,
+    days: i32
 ) -> sqlx::Result<Vec<GovProposalDelegate>> {
     let ministrial_proposals = query_as!(
         DbMinistrialProposalQuery,
@@ -58,7 +59,7 @@ pub async fn extract_latest_ministrial_proposals(
      from ministrial_issuer as mi 
         inner join ministrial_proposals mp on mp.id = mi.ministrial_proposal_id 
         
-        where mp.created_at > NOW() - INTERVAL '14 days'"
+        where mp.created_at > NOW() - make_interval(days => $1)", days
     )
     .fetch_all(pg)
     .await?;
@@ -76,11 +77,21 @@ pub async fn extract_latest_ministrial_proposals(
     .collect::<sqlx::Result<Vec<_>>>()
 }
 
+#[derive(ToSchema, Debug, Clone, Serialize, Deserialize)]
+pub struct Days {
+    days: u32
+}
+
 pub async fn latest_ministrial_proposals(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
+    Query(days): Query<Days>
 ) -> Result<Json<Vec<GovProposalDelegate>>, DelegatesErrorResponse> {
-    extract_latest_ministrial_proposals(&pg, redis_con)
+    if days.days > 180 {
+        return Err(DelegatesErrorResponse::Custom("days cannot be larger than 180".to_string()));
+    }
+
+    extract_latest_ministrial_proposals(&pg, redis_con, days.days as i32)
         .await
         .map(Json)
         .map_err(|e| DelegatesErrorResponse::DbSelectFailure(Some(e)))

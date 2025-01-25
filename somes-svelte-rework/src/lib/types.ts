@@ -47,9 +47,9 @@ export interface DbMinistrialProposalQuery {
 	legis_init_ityp: string | null;
 }
 
-export interface MinistrialProposalDelegate {
+export interface GovProposalDelegate {
 	delegate: Delegate,
-	ministrial_proposal: DbMinistrialProposalQuery,
+	gov_proposal: GovProposal,
 }
 
 export interface GovProposal {

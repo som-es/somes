@@ -13,6 +13,7 @@ pub enum DelegatesErrorResponse {
     DelegateSpeechesError,
     DateOutOfRangeError,
     DbSelectFailure(Option<sqlx::Error>),
+    Custom(String),
 }
 
 impl IntoResponse for DelegatesErrorResponse {
@@ -40,6 +41,10 @@ impl IntoResponse for DelegatesErrorResponse {
             DelegatesErrorResponse::DbSelectFailure(e) => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Cow::Owned(format!("db error occured: {e:?}")),
+            ),
+            DelegatesErrorResponse::Custom(e) => (
+                StatusCode::BAD_REQUEST,
+                Cow::Borrowed(e.as_str()),
             ),
         };
 
