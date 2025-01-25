@@ -122,15 +122,12 @@ LEFT JOIN
     FROM 
         mandates
     WHERE 
-        is_nr 
-        AND end_date IS NULL
+        end_date IS NULL
     GROUP BY 
         delegate_id) AS mandate_groups
     ON delegates.id = mandate_groups.delegate_id
 WHERE 
-    mandates.is_nr 
-    AND mandates.end_date IS NULL 
-    AND delegates.id = $1;
+     delegates.id = $1;
 
 ",
         delegate_id

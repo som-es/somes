@@ -40,7 +40,8 @@ pub async fn construct_ministrial_proposal_delegate(
     pg: &PgPool,
     redis_con: MultiplexedConnection,
 ) -> sqlx::Result<MinistrialProposalDelegate> {
-    let delegate = delegate_by_id_sqlx(ministrial_proposal.delegate_id, pg, redis_con).await?;
+    let delegate = delegate_by_id_sqlx(ministrial_proposal.delegate_id, pg, redis_con).await.unwrap();
+
     Ok(MinistrialProposalDelegate {
         ministrial_proposal,
         delegate,
