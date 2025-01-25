@@ -131,13 +131,11 @@ pub async fn construct_gov_proposal(
     pg: &PgPool,
     ministrial_proposal: DbMinistrialProposalQuery,
 ) -> sqlx::Result<GovProposal> {
-    
     let key = ministrial_proposal.id.to_string();
     let res = get_json_cache::<GovProposal>(&mut redis_con, &key).await;
     if let Some(res) = res {
         return Ok(res);
     }
-
 
     let vote_result = match (
         &ministrial_proposal.legis_init_gp,

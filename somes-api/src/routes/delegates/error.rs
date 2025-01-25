@@ -42,10 +42,9 @@ impl IntoResponse for DelegatesErrorResponse {
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Cow::Owned(format!("db error occured: {e:?}")),
             ),
-            DelegatesErrorResponse::Custom(e) => (
-                StatusCode::BAD_REQUEST,
-                Cow::Borrowed(e.as_str()),
-            ),
+            DelegatesErrorResponse::Custom(e) => {
+                (StatusCode::BAD_REQUEST, Cow::Borrowed(e.as_str()))
+            }
         };
 
         let body = Json(json!({
