@@ -1,17 +1,20 @@
 <script lang="ts">
 	import VoteResults from '$lib/components/VoteResults/VoteResults.svelte';
 	import { filteredDelegates } from '$lib/caching/delegates';
-	import type { Delegate, VoteResult } from '$lib/types';
+	import type { Delegate, GovProposalDelegate, VoteResult } from '$lib/types';
 	import { onMount } from 'svelte';
 	import { cachedLatestVoteResults } from '$lib/caching/vote_results';
 	import Container from '$lib/components/Layout/Container.svelte';
+	import { cachedLatestGovProposals } from '$lib/caching/gov_proposals';
 
 	let dels: Delegate[] | null = null;
 	let voteResults: VoteResult[] | null = null;
+	let govProposals: GovProposalDelegate[] | null = null;
 	onMount(async function () {
 		// await updateColorStorage();
 		dels = (await filteredDelegates())?.nr ?? null;
 		voteResults = await cachedLatestVoteResults();
+		govProposals = await cachedLatestGovProposals();
 	});
 </script>
 
