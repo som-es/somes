@@ -1,49 +1,33 @@
 use axum::Json;
 use chrono::{NaiveDate, NaiveDateTime};
+use dataservice::db::models::DbMinistrialProposalQuery;
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
 use sqlx::{query_as, PgPool};
 use utoipa::ToSchema;
 
 use crate::{
-    routes::{delegate_by_id_sqlx, Delegate, DelegatesErrorResponse},
+    routes::{construct_gov_proposal, delegate_by_id_sqlx, Delegate, DelegatesErrorResponse, GovProposal},
     PgPoolConnection, RedisConnection,
 };
 
-#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
-pub struct DbMinistrialProposalQueryDelegate {
-    pub delegate_id: i32,
-    pub ityp: String,
-    pub gp: String,
-    pub inr: i32,
-    pub emphasis: Option<String>,
-    pub title: String,
-    pub description: String,
-    pub created_at: NaiveDateTime,
-    pub updated_at: Option<NaiveDateTime>,
-    pub due_to: NaiveDate,
-    pub ressort: Option<String>,
-    pub ressort_shortform: Option<String>,
-    pub legis_init_gp: Option<String>,
-    pub legis_init_inr: Option<i32>,
-    pub legis_init_ityp: Option<String>,
-}
-
-#[derive(ToSchema, PartialEq, Debug, Clone, Serialize, Deserialize)]
-pub struct MinistrialProposalDelegate {
-    ministrial_proposal: DbMinistrialProposalQueryDelegate,
+#[derive(ToSchema, Debug, Clone, Serialize, Deserialize)]
+pub struct GovProposalDelegate {
+    gov_proposal: GovProposal,
     delegate: Delegate,
 }
 
 pub async fn construct_ministrial_proposal_delegate(
-    ministrial_proposal: DbMinistrialProposalQueryDelegate,
+    ministrial_proposal: DbMinistrialProposalQuery,
     pg: &PgPool,
     redis_con: MultiplexedConnection,
-) -> sqlx::Result<MinistrialProposalDelegate> {
-    let delegate = delegate_by_id_sqlx(ministrial_proposal.delegate_id, pg, redis_con).await.unwrap();
+) -> sqlx::Result<GovProposalDelegate> {
 
-    Ok(MinistrialProposalDelegate {
-        ministrial_proposal,
+    let delegate = delegate_by_id_sqlx(ministrial_proposal.delegate_id, pg, redis_con.clone()).await?;
+    let gov_proposal = construct_gov_proposal(redis_con, &pg, ministrial_proposal).await?;
+
+    Ok(GovProposalDelegate {
+        gov_proposal,
         delegate,
     })
 }
@@ -51,11 +35,12 @@ pub async fn construct_ministrial_proposal_delegate(
 pub async fn extract_latest_ministrial_proposals(
     pg: &PgPool,
     redis_con: MultiplexedConnection,
-) -> sqlx::Result<Vec<MinistrialProposalDelegate>> {
+) -> sqlx::Result<Vec<GovProposalDelegate>> {
     let ministrial_proposals = query_as!(
-        DbMinistrialProposalQueryDelegate,
+        DbMinistrialProposalQuery,
         "select 
         mi.delegate_id,
+        mp.id,
         mp.ityp, 
         mp.gp, 
         mp.inr, 
@@ -94,7 +79,7 @@ pub async fn extract_latest_ministrial_proposals(
 pub async fn latest_ministrial_proposals(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
-) -> Result<Json<Vec<MinistrialProposalDelegate>>, DelegatesErrorResponse> {
+) -> Result<Json<Vec<GovProposalDelegate>>, DelegatesErrorResponse> {
     extract_latest_ministrial_proposals(&pg, redis_con)
         .await
         .map(Json)

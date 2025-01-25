@@ -131,21 +131,35 @@ pub async fn construct_gov_proposal(
     pg: &PgPool,
     ministrial_proposal: DbMinistrialProposalQuery,
 ) -> sqlx::Result<GovProposal> {
+    
+    let key = ministrial_proposal.id.to_string();
+    let res = get_json_cache::<GovProposal>(&mut redis_con, &key).await;
+    if let Some(res) = res {
+        return Ok(res);
+    }
+
+
     let vote_result = match (
         &ministrial_proposal.legis_init_gp,
         &ministrial_proposal.legis_init_ityp,
         ministrial_proposal.legis_init_inr,
     ) {
         (Some(ref gp), Some(ref ityp), Some(ref inr)) => {
-            Some(get_vote_result_by_unique_hints(redis_con, &pg, &gp, &ityp, *inr).await?)
+            Some(get_vote_result_by_unique_hints(redis_con.clone(), &pg, &gp, &ityp, *inr).await?)
         }
         _ => None,
     };
-    Ok(GovProposal {
+    let gov_proposal = GovProposal {
         topics: get_eurovoc_topics_from_ministrial_proposal(pg, ministrial_proposal.id).await?,
         ministrial_proposal,
         vote_result,
-    })
+    };
+
+    crate::set_json_cache(&mut redis_con, &key, &gov_proposal)
+        .await
+        .ok_or(sqlx::Error::WorkerCrashed)?;
+
+    Ok(gov_proposal)
 }
 
 pub async fn get_vote_result_by_unique_hints(
