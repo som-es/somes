@@ -140,7 +140,14 @@
 		// }
 	};
 
-	$: if (selectedPeriod || dayOffset) {
+	const onLettingGoOfDaySlider = () => {
+		renderEndDate = null;
+		renderStartDate = null;
+		updateDelsToDisplay();
+		if (finishedMounting) prevSelectedPeriod = selectedPeriod;
+	}
+
+	$: if (selectedPeriod) {
 		renderEndDate = null;
 		renderStartDate = null;
 		// if (window !== null) {
@@ -235,6 +242,7 @@
 			</div>
 			<input
 				bind:value={dayOffset}
+				on:change={onLettingGoOfDaySlider}
 				type="range"
 				min="2"
 				max={maxDayOffset + 2}
