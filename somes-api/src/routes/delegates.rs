@@ -3,6 +3,7 @@ use std::{collections::HashMap, str::FromStr};
 use axum::{extract::Query, Json};
 use chrono::NaiveDate;
 use dataservice::db::models::DbProposalQuery;
+use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::{Date, DelegateById, DelegateQA, InterestShare, LegisPeriod};
 use sqlx::PgPool;
@@ -10,23 +11,25 @@ use utoipa::ToSchema;
 
 use crate::{
     dataservice::{get_delegate, get_delegates, get_proposals},
-    DataserviceDbConnection, PgPoolConnection,
+    get_json_cache, DataserviceDbConnection, PgPoolConnection, RedisConnection,
 };
 
 pub use error::*;
 mod ai_chat;
+mod delegate_political_position;
 mod error;
+mod gov_officials;
 mod interests;
 mod qa;
 mod speeches;
-mod delegate_political_position;
 pub use ai_chat::*;
+pub use delegate_political_position::*;
+pub use gov_officials::*;
 pub use interests::*;
 pub use qa::*;
 pub use speeches::*;
-pub use delegate_political_position::*;
 
-#[derive(ToSchema, Debug, Deserialize, Serialize)]
+#[derive(ToSchema, PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct Delegate {
     pub id: i32,
     pub name: String,
@@ -69,24 +72,17 @@ pub async fn delegate_interests(
         .map_err(|_| DelegatesErrorResponse::DelegateInterestsResponseError)
 }
 
-#[utoipa::path(
-    get,
-    params(
-        DelegateById
-    ),
-    path = "/delegate", 
-    responses(
-        (status = 200, description = "Returned delegate successfully.", body = [DbDelegate]), 
-        (status = 400, description = "Invalid request", body = [DelegatesErrorResponse]),
-        (status = 500, description = "Internal server error", body = [DelegatesErrorResponse])
-    )
-)]
-pub async fn delegate(
-    // DataserviceDbConnection(con): DataserviceDbConnection,
-    PgPoolConnection(pg): PgPoolConnection,
-    Query(delegate_by_id): Query<DelegateById>,
-) -> Result<Json<Delegate>, DelegatesErrorResponse> {
-    sqlx::query_as!(
+pub async fn delegate_by_id_sqlx(
+    delegate_id: i32,
+    pg: &PgPool,
+    mut redis_con: MultiplexedConnection,
+) -> sqlx::Result<Delegate> {
+    let key = delegate_id.to_string();
+    let res = get_json_cache::<Delegate>(&mut redis_con, &key).await;
+    if let Some(res) = res {
+        return Ok(res);
+    }
+    let delegate = sqlx::query_as!(
         Delegate,
         "
         SELECT 
@@ -137,12 +133,40 @@ WHERE
     AND delegates.id = $1;
 
 ",
-        delegate_by_id.delegate_id
+        delegate_id
     )
-    .fetch_one(&pg)
-    .await
-    .map(Json)
-    .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
+    .fetch_one(pg)
+    .await?;
+
+    crate::set_json_cache(&mut redis_con, &key, &delegate)
+        .await
+        .ok_or(sqlx::Error::WorkerCrashed)?;
+
+    Ok(delegate)
+}
+
+#[utoipa::path(
+    get,
+    params(
+        DelegateById
+    ),
+    path = "/delegate", 
+    responses(
+        (status = 200, description = "Returned delegate successfully.", body = [DbDelegate]), 
+        (status = 400, description = "Invalid request", body = [DelegatesErrorResponse]),
+        (status = 500, description = "Internal server error", body = [DelegatesErrorResponse])
+    )
+)]
+pub async fn delegate(
+    // DataserviceDbConnection(con): DataserviceDbConnection,
+    RedisConnection(mut redis_con): RedisConnection,
+    PgPoolConnection(pg): PgPoolConnection,
+    Query(delegate_by_id): Query<DelegateById>,
+) -> Result<Json<Delegate>, DelegatesErrorResponse> {
+    delegate_by_id_sqlx(delegate_by_id.delegate_id, &pg, redis_con)
+        .await
+        .map(Json)
+        .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
     // con.interact(move |con| {
     //     get_delegate(con, delegate_by_id.delegate_id)
     //         .map(Json)

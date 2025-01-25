@@ -69,7 +69,6 @@ ORDER BY
     "
     );
 
-
     let mut filtered_query = sqlx::query_as::<Postgres, PartyAbsences>(&query);
     filtered_query = bind_values(filtered_query, &filters);
 

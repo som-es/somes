@@ -7,6 +7,7 @@ pub const PROPOSALS_ROUTE: &str = "/proposals";
 pub const LEGIS_INIT_ROUTE: &str = "/legis_inits";
 pub const LATEST_LEGIS_INITS_ROUTE: &str = "/latest_legis_inits";
 pub const LATEST_VOTE_RESULTS_ROUTE: &str = "/latest_vote_results";
+pub const LATEST_MINISTRIAL_PROPOSALS: &str = "/latest_ministrial_proposals";
 pub const SPEAKERS_BY_HOURS: &str = "/speakers_by_hours";
 pub const SPEAKERS_BY_HOURS_AND_LEGIS_PERIOD: &str = "/speakers_by_hours_and_legis_period";
 pub const LEGISLATIVE_INITIATIVES_WITHOUT_SIMPLE_MAJORITY: &str = "/legislative_initiatives_without_simple_majority";

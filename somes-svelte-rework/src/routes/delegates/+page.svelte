@@ -322,14 +322,14 @@
 			<ExpandablePlaceholder />
 		{/if}
 
+		{#if politicalPosition && delegate}
+			<SquarePoliticalSpectrum {delegate}	{politicalPosition} />
+		{/if}
+
 		{#if interests}
 				<InterestTiles interests={interests.slice(0, 4)} />
 		{:else}
 			<ExpandablePlaceholder class={'my-3'} />
-		{/if}
-
-		{#if politicalPosition && delegate}
-			<SquarePoliticalSpectrum {delegate}	{politicalPosition} />
 		{/if}
 
 		<!-- <div class="activity-item bg-primary-300">

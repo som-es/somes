@@ -274,6 +274,10 @@ pub async fn serve(addr: SocketAddr) {
         // .route(LEGIS_INIT_ROUTE, post(legis_inits))
         // .route(LATEST_LEGIS_INITS_ROUTE, get(latest_legis_inits))
         .route(LATEST_VOTE_RESULTS_ROUTE, get(latest_vote_results))
+        .route(
+            LATEST_MINISTRIAL_PROPOSALS,
+            get(latest_ministrial_proposals),
+        )
         // statistics
         .route(SPEAKERS_BY_HOURS, get(speakers_by_hours))
         .route(
@@ -315,8 +319,14 @@ pub async fn serve(addr: SocketAddr) {
         .route(TOPIC_SELECTION, get(user_topic_selection))
         .route(GOV_OFFICIALS_AT, get(gov_officials_at_date_route))
         .route(GOV_PROPOSALS_BY_OFFICIAL, get(gov_proposals_by_official))
-        .route(DELEGATE_POLITICAL_POSITION, get(delegate_political_position))
-        .route(DELEGATE_POLITICAL_QUESTIONS, get(delegate_political_questions))
+        .route(
+            DELEGATE_POLITICAL_POSITION,
+            get(delegate_political_position),
+        )
+        .route(
+            DELEGATE_POLITICAL_QUESTIONS,
+            get(delegate_political_questions),
+        )
         .route(AI_CHAT_WS, any(ai_chat_ws_handler))
         .route(
             DELEGATES_BY_CALL_TO_ORDERS,
@@ -350,10 +360,22 @@ pub async fn serve(addr: SocketAddr) {
         .route(CALL_TO_ORDERS_PER_PARTY, post(call_to_orders_per_party))
         .route(CALL_TO_ORDERS_PER_GENDER, post(call_to_orders_per_gender))
         .route(CALL_TO_ORDERS_PER_AGE, post(call_to_orders_per_age))
-        .route(DIVISION_ACCURACY_SCORE_PER_DELEGATE, post(divison_accuracy_score_per_delegate))
-        .route(DIVISION_ACCURACY_SCORE_PER_PARTY, post(division_accuracy_score_per_party))
-        .route(DIVISION_ACCURACY_SCORE_PER_GENDER, post(division_accuracy_score_per_gender))
-        .route(DIVISION_ACCURACY_SCORE_PER_AGE, post(division_accuracy_score_per_age))
+        .route(
+            DIVISION_ACCURACY_SCORE_PER_DELEGATE,
+            post(divison_accuracy_score_per_delegate),
+        )
+        .route(
+            DIVISION_ACCURACY_SCORE_PER_PARTY,
+            post(division_accuracy_score_per_party),
+        )
+        .route(
+            DIVISION_ACCURACY_SCORE_PER_GENDER,
+            post(division_accuracy_score_per_gender),
+        )
+        .route(
+            DIVISION_ACCURACY_SCORE_PER_AGE,
+            post(division_accuracy_score_per_age),
+        )
         .route(VOTES_TOGETHER, post(votes_together))
         .route(ABSENCES_PER_DELEGATE, post(absences_per_delegate))
         .route(ABSENCES_PER_PARTY, post(absences_per_party))

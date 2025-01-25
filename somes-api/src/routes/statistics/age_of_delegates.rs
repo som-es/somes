@@ -42,7 +42,13 @@ pub async fn age_per_delegate(
     let filter_arg2 = filter.gender.with_sql_column("ds.gender");
     let filter_arg3 = Manual("m.is_nr").with_sql_column("");
     let filter_arg4 = Manual("birthdate is not null").with_sql_column("");
-    let filters = [filter_arg, filter_arg1,  filter_arg2, filter_arg3, filter_arg4,];
+    let filters = [
+        filter_arg,
+        filter_arg1,
+        filter_arg2,
+        filter_arg3,
+        filter_arg4,
+    ];
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
 

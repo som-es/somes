@@ -6,11 +6,19 @@ use crate::PgPoolConnection;
 
 use super::DelegatesErrorResponse;
 
-pub async fn extract_political_position_questions(delegate_id: i32, pg: &PgPool) -> sqlx::Result<Vec<DelegateQA>> {
-    query_as!(DelegateQA, "select answer, question
+pub async fn extract_political_position_questions(
+    delegate_id: i32,
+    pg: &PgPool,
+) -> sqlx::Result<Vec<DelegateQA>> {
+    query_as!(
+        DelegateQA,
+        "select answer, question
         from political_answers inner join political_questions pq on pq.id = question_id 
-        where delegate_id = $1 and model_used = 'gpt4o-mini-30-limit-complete-run' ", 
-    delegate_id).fetch_all(pg).await
+        where delegate_id = $1 and model_used = 'gpt4o-mini-30-limit-complete-run' ",
+        delegate_id
+    )
+    .fetch_all(pg)
+    .await
 }
 
 pub async fn delegate_political_questions(
@@ -23,12 +31,20 @@ pub async fn delegate_political_questions(
         .map_err(|_| DelegatesErrorResponse::DelegateInterestsResponseError)
 }
 
-pub async fn extract_political_position(delegate_id: i32, pg: &PgPool) -> sqlx::Result<PoliticalPosition> {
-    query_as!(PoliticalPosition, "select 
+pub async fn extract_political_position(
+    delegate_id: i32,
+    pg: &PgPool,
+) -> sqlx::Result<PoliticalPosition> {
+    query_as!(
+        PoliticalPosition,
+        "select 
         delegate_id, is_left, is_not_left, is_liberal, is_not_liberal, neutral_count
         from political_positions 
-        where delegate_id = $1", 
-    delegate_id).fetch_one(pg).await
+        where delegate_id = $1",
+        delegate_id
+    )
+    .fetch_one(pg)
+    .await
 }
 
 pub async fn delegate_political_position(
