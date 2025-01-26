@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { GovProposal } from '$lib/types';
 	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
-	import GovProposalExpandableBar from './Expandable/GovProposalExpandableBar.svelte';
+	import GovProposalExpandableBar from './ExpandableAtDelegate/GovProposalExpandableBar.svelte';
 
 	export let govProposals: GovProposal[];
 

@@ -26,7 +26,7 @@ export interface Delegate {
 	active_since: Date;
 	primary_mandate: string;
 	divisions: string[] | null;
-	mandates: string[] | null;
+	active_mandates: string[] | null;
 }
 
 export interface DbMinistrialProposalQuery {

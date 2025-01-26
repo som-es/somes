@@ -7,8 +7,10 @@
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import Emphasis from '$lib/components/VoteResults/Emphasis/Emphasis.svelte';
 	import GovProposalInfoTiles from '$lib/components/VoteResults/InfoTiles/GovProposalInfoTiles.svelte';
+	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 
 	export let govProposal: GovProposal;
+	export let delegate: Delegate | null = null;
 	// export let dels: Delegate[];
 	export let open: boolean = true;
 
@@ -87,6 +89,10 @@
 				<VoteParliament2 voteResult={govProposal.vote_result} preview={true} />
 			</button>
 		{/if}
+		
+		{#if delegate}
+			<DelegateCard {delegate} onlyTop showMoreDetailsBtn showImg={false} />
+		{/if}
 	</div>
 
 	<div class="flex flex-wrap gap-3">
@@ -133,6 +139,6 @@
 	}
 	.topics-item {
 		/* flex-basis: 20%; */
-		max-width: 290px;
+		max-width: 390px;
 	}
 </style>

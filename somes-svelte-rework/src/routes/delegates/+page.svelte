@@ -32,7 +32,7 @@
 	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 	import { dashDateToDotDate } from '$lib/date';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
-	import GovProposalPreview from '$lib/components/Proposals/GovProposalPreview.svelte';
+	import GovProposalPreview from '$lib/components/Proposals/GovProposalPreviewAtDelegate.svelte';
 	import SpeechesPreview from '$lib/components/Delegates/Speeches/SpeechesPreview.svelte';
 	import PoliticalSpectrum from '$lib/components/Delegates/Spectrum/PoliticalSpectrum.svelte';
 	import SquarePoliticalSpectrum from '$lib/components/Delegates/Spectrum/SquarePoliticalSpectrum.svelte';

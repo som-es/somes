@@ -6,6 +6,7 @@
 	import { cachedLatestVoteResults } from '$lib/caching/vote_results';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import { cachedLatestGovProposals } from '$lib/caching/gov_proposals';
+	import LatestProposals from '$lib/components/Proposals/Latest/LatestProposals.svelte';
 
 	let dels: Delegate[] | null = null;
 	let voteResults: VoteResult[] | null = null;
@@ -62,7 +63,12 @@
 			</div>
 		</section>
 	{/if}
+
 	<h1 class="mt-2 text-2xl sm:text-4xl font-bold">
-		Neuste Ministerialentwürfe
+		Ministerialentwürfe der letzten 30 Tage
 	</h1>
+
+	{#if govProposals}
+		<LatestProposals govProposals={govProposals} />
+	{/if}
 </Container>
