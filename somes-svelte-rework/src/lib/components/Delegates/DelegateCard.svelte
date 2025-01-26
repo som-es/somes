@@ -76,7 +76,7 @@
 	<footer class="card-footer flex justify-between mt-1">
 		{#if showMoreDetailsBtn}
 			<div></div>
-			<SButton class="bg-tertiary-500 text-black" on:click={onShowDetails}>Details anzeigen</SButton>
+			<SButton class="bg-tertiary-500 text-black" on:click={onShowDetails}>Zur Person</SButton>
 		{/if}
 
 		{#if !onlyTop}
