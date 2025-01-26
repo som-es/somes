@@ -3,6 +3,7 @@
 	import type { DelegateQA } from '$lib/types';
 	import { getModalStore } from '@skeletonlabs/skeleton';
 	import DelegateQaEntry from '../QA/DelegateQAEntry.svelte';
+	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	
 
 	export let parent;
@@ -19,8 +20,8 @@
 
 </script>
 
-{#if $modalStore.length > 0 && $modalStore[0].meta }
-<div class="card p-8 max-w-7xl">
+
+<div class="card p-8 min-w-7xl max-w-7xl">
 	<button
 		on:click={() => {
 			modalStore.close();
@@ -29,14 +30,18 @@
 		class="w-5 unselectable float-right">&#x2715</button
 	>
 
-	<div class="flex flex-wrap flex-col">
+	{#if politicalQuestions.length > 0 }
 		{#each politicalQuestions as qa}
 			<DelegateQaEntry class="mt-3" delegateQa={qa} />
 		{/each}
-	</div>
+	 {:else}
+	 	<!-- IMPORTANT THIS THING IS SOMEHOW REQUIRED TO MAKE THE MODAL SCROLLABLE. SOMEHOW IT IS ONLY CHECK AT MOUNTING WHETHER THIS NEEDS TO BE SCROLLABLE!!!! -->
+		{#each { length: 30 } as _}
+            <ExpandablePlaceholder class="min-w-7xl w-7xl" />
+        {/each}
+	{/if}
 
 </div>
-{/if}
 
 <style>
 
