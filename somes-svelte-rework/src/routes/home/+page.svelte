@@ -69,6 +69,45 @@
 	</h1>
 
 	{#if govProposals}
-		<LatestProposals govProposals={govProposals} />
+		{#if govProposals.length == 0}
+			<div class="w-full p-20 text-center bg-surface-100-800-token rounded-lg">
+				Keine
+			</div>
+		{:else}
+			<LatestProposals govProposals={govProposals} />
+		{/if}
+	{:else}
+		<section class="card w-full animate-pulse">
+			<div class="p-4 space-y-4">
+				<div class="placeholder" />
+				<div class="grid grid-cols-3 gap-8">
+					<div class="placeholder" />
+					<div class="placeholder" />
+					<div class="placeholder" />
+				</div>
+				<div class="grid grid-cols-4 gap-4">
+					<div class="placeholder" />
+					<div class="placeholder" />
+					<div class="placeholder" />
+					<div class="placeholder" />
+				</div>
+			</div>
+		</section>
+		<section class="card mt-1 w-full animate-pulse">
+			<div class="p-4 space-y-4">
+				<div class="placeholder" />
+				<div class="grid grid-cols-3 gap-8">
+					<div class="placeholder" />
+					<div class="placeholder" />
+					<div class="placeholder" />
+				</div>
+				<div class="grid grid-cols-4 gap-4">
+					<div class="placeholder" />
+					<div class="placeholder" />
+					<div class="placeholder" />
+					<div class="placeholder" />
+				</div>
+			</div>
+		</section>
 	{/if}
 </Container>
