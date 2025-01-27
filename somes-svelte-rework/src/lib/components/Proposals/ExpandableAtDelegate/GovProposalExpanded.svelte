@@ -78,7 +78,7 @@
 	<!-- Inneres Migration Frauen Klimaschutz -->
 
 	<div class="flex flex-wrap">
-		<div class="emphasis w-full">
+		<div class="emphasis ">
 			<Emphasis {rawEmphasis} isAiGenerated={false} useTitleHover />
 		</div>
 		{#if govProposal.vote_result}
@@ -91,7 +91,9 @@
 		{/if}
 		
 		{#if delegate}
-			<DelegateCard {delegate} onlyTop showMoreDetailsBtn showImg={false} />
+			<div class="delegate-card">
+				<DelegateCard {delegate} onlyTop showMoreDetailsBtn showImg={false} />
+			</div>
 		{/if}
 	</div>
 
@@ -131,7 +133,11 @@
 	}
 
 	.emphasis {
-		flex-basis: 75%;
+		flex-basis: 70%;
+	}
+
+	.delegate-card {
+		flex-basis: 30%;
 	}
 
 	.parliament-item {

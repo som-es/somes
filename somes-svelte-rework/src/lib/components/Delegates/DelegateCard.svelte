@@ -35,7 +35,7 @@
 	const modalStore = getModalStore();
 </script>
 
-<div class="!z-0 card {onlyTop ? " w-80 " : "min-h-full"}  mx-4 drop-shadow-lg flex flex-col">
+<div class="!z-0 card {onlyTop ? "" : "min-h-full"}  mx-4 drop-shadow-lg flex flex-col">
 	<header class="flex justify-center">
 		{#if showImg}
 			<img
