@@ -52,10 +52,10 @@
 </script>
 
 <Container>
-    <DelegateBarChartControl height={3100} delegateMakeRequest={delegateSimpleSpeechTime} />
+    <DelegateBarChartControl height={3100} id={0} delegateMakeRequest={delegateSimpleSpeechTime} />
 </Container>
 
 <Container>
-    <DelegateBarChartControl height={400} delegateMakeRequest={partySimpleSpeechTime} />
+    <DelegateBarChartControl height={400} id={1} delegateMakeRequest={partySimpleSpeechTime} />
 </Container>
 

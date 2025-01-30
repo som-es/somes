@@ -6,7 +6,8 @@
 	import ReactiveDelegateBarChart from "./ReactiveDelegateBarChart.svelte";
 
     export let delegateMakeRequest: (gp: string | null, gender: string | null, isDesc: boolean | true) => Promise<DelegateData[]>;
-		export let height: number;
+	export let height: number;
+	export let id: number;
 
     let currentData: DelegateData[] = [];
     let filteredData: DelegateData[] = [];
@@ -29,20 +30,20 @@
 
     const popupParty: PopupSettings = {
 		event: 'click',
-		target: 'popupParty',
+		target: 'popupParty' + id,
 		placement: 'bottom',
 	};
 
     const popupGender: PopupSettings = {
 		event: 'click',
-		target: 'popupGender',
+		target: 'popupGender' + id,
 		placement: 'bottom',
         closeQuery: '.listbox-item'
 	};
 
 	const popupDesc: PopupSettings = {
 		event: 'click',
-		target: 'popupDesc',
+		target: 'popupDesc' + id,
 		placement: 'bottom',
 		closeQuery: '.listbox-item'
 	};
@@ -151,7 +152,7 @@
 </div>
 
 
-<div class="z-10 card w-48 shadow-xl py-2" data-popup="popupParty">
+<div class="z-10 card w-48 shadow-xl py-2" data-popup="popupParty{id}">
 	<ListBox
 		rounded="rounded-container-token sm:!rounded-token"
 		active="variant-filled-secondary"
@@ -165,7 +166,7 @@
         {/each}
 	</ListBox>
 </div>
-<div class="z-10 card w-48 shadow-xl py-2" data-popup="popupGender">
+<div class="z-10 card w-48 shadow-xl py-2" data-popup="popupGender{id}">
 	<ListBox
 		rounded="rounded-container-token sm:!rounded-token"
 		active="variant-filled-secondary"
@@ -182,7 +183,7 @@
 		>
 	</ListBox>
 </div>
-<div class="z-10 card w-48 shadow-xl py-2" data-popup="popupDesc">
+<div class="z-10 card w-48 shadow-xl py-2" data-popup="popupDesc{id}">
 	<ListBox
 		rounded="rounded-container-token sm:!rounded-token"
 		active="variant-filled-secondary"
