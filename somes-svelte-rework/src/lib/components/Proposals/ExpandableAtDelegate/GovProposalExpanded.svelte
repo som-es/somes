@@ -7,8 +7,10 @@
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import Emphasis from '$lib/components/VoteResults/Emphasis/Emphasis.svelte';
 	import GovProposalInfoTiles from '$lib/components/VoteResults/InfoTiles/GovProposalInfoTiles.svelte';
+	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 
 	export let govProposal: GovProposal;
+	export let delegate: Delegate | null = null;
 	// export let dels: Delegate[];
 	export let open: boolean = true;
 
@@ -76,7 +78,7 @@
 	<!-- Inneres Migration Frauen Klimaschutz -->
 
 	<div class="flex flex-wrap">
-		<div class="emphasis w-full">
+		<div class="emphasis ">
 			<Emphasis {rawEmphasis} isAiGenerated={false} useTitleHover />
 		</div>
 		{#if govProposal.vote_result}
@@ -86,6 +88,12 @@
 			>
 				<VoteParliament2 voteResult={govProposal.vote_result} preview={true} />
 			</button>
+		{/if}
+		
+		{#if delegate}
+			<div class="delegate-card">
+				<DelegateCard {delegate} onlyTop showMoreDetailsBtn showImg={false} />
+			</div>
 		{/if}
 	</div>
 
@@ -125,7 +133,11 @@
 	}
 
 	.emphasis {
-		flex-basis: 75%;
+		flex-basis: 70%;
+	}
+
+	.delegate-card {
+		flex-basis: 30%;
 	}
 
 	.parliament-item {
@@ -133,6 +145,6 @@
 	}
 	.topics-item {
 		/* flex-basis: 20%; */
-		max-width: 290px;
+		max-width: 390px;
 	}
 </style>

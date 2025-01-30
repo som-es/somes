@@ -111,6 +111,21 @@ pub struct InterestShare {
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct Mandate {
+    pub start_date: NaiveDate,
+    pub end_date: Option<NaiveDate>,
+    pub name: String,
+}
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct GeneralDelegateInfo {
+    pub mandates: Vec<Mandate>,
+    pub interests: Vec<InterestShare>,
+    pub delegate_qa: Vec<DelegateQA>,
+    pub political_position: PoliticalPosition,
+}
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct DelegateQA {
     pub question: String,
     pub answer: String,

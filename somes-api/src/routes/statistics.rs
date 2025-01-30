@@ -2,6 +2,10 @@ use axum::Json;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::LegisPeriod;
 use utoipa::{IntoParams, ToSchema};
+mod absences_per_age;
+mod absences_per_delegate;
+mod absences_per_gender;
+mod absences_per_party;
 mod absolute_majority_initiatives;
 mod age_of_delegates;
 mod age_per_party;
@@ -14,6 +18,10 @@ mod complexity_at_age;
 mod complexity_per_gender;
 mod complexity_per_party;
 mod complexity_per_person;
+mod division_accuracy_score_per_age;
+mod division_accuracy_score_per_delegate;
+mod division_accuracy_score_per_gender;
+mod division_accuracy_score_per_party;
 mod error;
 mod filtering;
 mod speechtime_per_age;
@@ -24,15 +32,7 @@ mod total_speeches_per_age;
 mod total_speeches_per_delegate;
 mod total_speeches_per_gender;
 mod total_speeches_per_party;
-mod division_accuracy_score_per_delegate;
-mod division_accuracy_score_per_party;
-mod division_accuracy_score_per_gender;
-mod division_accuracy_score_per_age;
 mod votes_together;
-mod absences_per_delegate;
-mod absences_per_party;
-mod absences_per_gender;
-mod absences_per_age;
 mod absences_per_legis;
 mod age_per_gender;
 mod age_per_legis;
@@ -42,6 +42,10 @@ mod division_accuracy_score_per_legis;
 mod speechtime_per_legis;
 mod total_speeches_per_legis;
 
+pub use absences_per_age::*;
+pub use absences_per_delegate::*;
+pub use absences_per_gender::*;
+pub use absences_per_party::*;
 pub use absolute_majority_initiatives::*;
 pub use age_of_delegates::*;
 pub use age_per_party::*;
@@ -54,6 +58,10 @@ pub use complexity_at_age::*;
 pub use complexity_per_gender::*;
 pub use complexity_per_party::*;
 pub use complexity_per_person::*;
+pub use division_accuracy_score_per_age::*;
+pub use division_accuracy_score_per_delegate::*;
+pub use division_accuracy_score_per_gender::*;
+pub use division_accuracy_score_per_party::*;
 pub use speechtime_per_age::*;
 pub use speechtime_per_delegate::*;
 pub use speechtime_per_gender::*;
@@ -62,14 +70,9 @@ pub use total_speeches_per_age::*;
 pub use total_speeches_per_delegate::*;
 pub use total_speeches_per_gender::*;
 pub use total_speeches_per_party::*;
-pub use division_accuracy_score_per_delegate::*;
-pub use division_accuracy_score_per_party::*;
-pub use division_accuracy_score_per_gender::*;
-pub use division_accuracy_score_per_age::*;
 pub use votes_together::*;
 pub use absences_per_delegate::*;
 pub use absences_per_party::*;
-pub use absences_per_gender::*;
 pub use absences_per_age::*;
 pub use absences_per_legis::*;
 pub use age_per_gender::*;
@@ -78,18 +81,9 @@ pub use call_to_orders_per_legis::*;
 pub use complexity_per_legis::*;
 pub use division_accuracy_score_per_legis::*;
 pub use speechtime_per_legis::*;
-pub use self::total_speeches_per_legis::*;
+use crate::{dataservice::{get_call_to_orders_per_party_delegates, get_delegates_by_call_to_orders, get_delegates_by_call_to_orders_by_legis_period, get_speakers_by_hours, get_speakers_by_hours_by_legis_period}, interact, model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours}, DataserviceDbConnection};
 
-use crate::{
-    dataservice::{
-        get_call_to_orders_per_party_delegates, get_delegates_by_call_to_orders,
-        get_delegates_by_call_to_orders_by_legis_period, get_speakers_by_hours,
-        get_speakers_by_hours_by_legis_period,
-    },
-    interact,
-    model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours},
-    DataserviceDbConnection,
-};
+pub use self::total_speeches_per_legis::*;
 
 use self::error::StatisticsResponse;
 

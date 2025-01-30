@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use axum::{response::IntoResponse, Json};
 use reqwest::StatusCode;
 use serde_json::json;
@@ -10,30 +12,39 @@ pub enum DelegatesErrorResponse {
     DelegateInterestsResponseError,
     DelegateSpeechesError,
     DateOutOfRangeError,
+    DbSelectFailure(Option<sqlx::Error>),
+    Custom(String),
 }
 
 impl IntoResponse for DelegatesErrorResponse {
     fn into_response(self) -> axum::response::Response {
-        let (status_code, err_msg) = match self {
+        let (status_code, err_msg) = match &self {
             DelegatesErrorResponse::DelegateResponseError => (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "could not return delegates",
+                Cow::Borrowed("could not return delegates"),
             ),
             DelegatesErrorResponse::ProposalResponseError => (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "could not return proposals",
+                Cow::Borrowed("could not return proposals"),
             ),
             DelegatesErrorResponse::DelegateInterestsResponseError => (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "could not return interests of delegates",
+                Cow::Borrowed("could not return interests of delegates"),
             ),
             DelegatesErrorResponse::DateOutOfRangeError => {
-                (StatusCode::BAD_REQUEST, "date out of range")
+                (StatusCode::BAD_REQUEST, Cow::Borrowed("date out of range"))
             }
             DelegatesErrorResponse::DelegateSpeechesError => (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "cannot return delegate speeches",
+                Cow::Borrowed("cannot return delegate speeches"),
             ),
+            DelegatesErrorResponse::DbSelectFailure(e) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Cow::Owned(format!("db error occured: {e:?}")),
+            ),
+            DelegatesErrorResponse::Custom(e) => {
+                (StatusCode::BAD_REQUEST, Cow::Borrowed(e.as_str()))
+            }
         };
 
         let body = Json(json!({

@@ -233,7 +233,7 @@ pub async fn gov_proposals_by_official(
         DbMinistrialProposalQuery,
         "
         select 
-            delegate_id,
+            mi.delegate_id,
             mp.id, 
             mp.ityp, 
             mp.gp, 

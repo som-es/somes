@@ -26,7 +26,7 @@ export interface Delegate {
 	active_since: Date;
 	primary_mandate: string;
 	divisions: string[] | null;
-	mandates: string[] | null;
+	active_mandates: string[] | null;
 }
 
 export interface DbMinistrialProposalQuery {
@@ -45,6 +45,11 @@ export interface DbMinistrialProposalQuery {
 	legis_init_gp: string | null;
 	legis_init_inr: number | null;
 	legis_init_ityp: string | null;
+}
+
+export interface GovProposalDelegate {
+	delegate: Delegate,
+	gov_proposal: GovProposal,
 }
 
 export interface GovProposal {
@@ -240,6 +245,19 @@ export interface QuestionFilter {
 export interface DateRange {
 	start: Date;
 	end: Date;
+}
+
+export interface Mandate {
+	start_date: Date;
+	end_date: Date | null;
+	name: string;
+}
+
+export interface GeneralDelegateInfo {
+	interests: InterestShare[];
+	delegate_qa: DelegateQA[];
+	mandates: Mandate[];
+	political_position: PoliticalPosition;
 }
 
 export interface DelegateQA {

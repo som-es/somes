@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getModalStore, type PopupSettings } from "@skeletonlabs/skeleton";
-	import GovProposalExpandableBar from "./Expandable/GovProposalExpandableBar.svelte";
+	import GovProposalExpandableBar from "./ExpandableAtDelegate/GovProposalExpandableBar.svelte";
 	import AllProposalsFiltering from "./AllProposalsFiltering.svelte";
 	import type { GovProposal } from "$lib/types";
 
