@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { partyToColor } from '$lib/partyColor';
-	import type { Delegate, DelegateQA } from '$lib/types';
+	import type { Delegate, DelegateQA, Mandate } from '$lib/types';
 	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
 	import SButton from '../UI/SButton.svelte';
 	import { currentDelegateStore } from '$lib/stores/stores';

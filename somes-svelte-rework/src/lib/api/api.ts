@@ -20,7 +20,8 @@ import type {
 	Speech,
 	SpeechesWithMaxPage,
 	PoliticalPosition,
-	GovProposalDelegate
+	GovProposalDelegate,
+	GeneralDelegateInfo
 } from '../types';
 import { jwtStore } from '../caching/stores/stores';
 
@@ -127,6 +128,10 @@ export async function all_gps(): Promise<LegisPeriod[] | HasError> {
 
 export async function delegate_interests(delegate_id: number): Promise<InterestShare[] | HasError> {
 	return getWithRoute<InterestShare[]>(`delegate_interests?delegate_id=${delegate_id}`);
+}
+
+export async function general_delegate_info(delegate_id: number): Promise<GeneralDelegateInfo | HasError> {
+	return getWithRoute<GeneralDelegateInfo>(`general_delegate_info?delegate_id=${delegate_id}`);
 }
 
 export async function delegate_qa(delegate_id: number): Promise<DelegateQA[] | HasError> {

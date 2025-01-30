@@ -5,7 +5,7 @@ use sqlx::{query_as, PgPool};
 
 use crate::{get_json_cache, PgPoolConnection, RedisConnection};
 
-use super::{extract_delegate_qa, extract_interests_of_delegate, DelegatesErrorResponse};
+use super::{extract_delegate_qa, extract_interests_of_delegate, extract_political_position, DelegatesErrorResponse};
 
 
 pub async fn extract_general_delegate_info(
@@ -32,11 +32,13 @@ pub async fn extract_general_delegate_info(
 
     let interests = extract_interests_of_delegate(delegate_id, pg).await?;
     let delegate_qa = extract_delegate_qa(delegate_id, pg).await?;
+    let political_position = extract_political_position(delegate_id, pg).await?;
 
     let gdi = GeneralDelegateInfo {
         mandates,
         interests,
-        delegate_qa
+        delegate_qa,
+        political_position,
     };
 
     crate::set_json_cache(redis_con, &key, &gdi)

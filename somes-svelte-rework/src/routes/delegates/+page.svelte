@@ -2,7 +2,7 @@
 	import type { AutocompleteOption } from '$lib/components/Autocompletion/types';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
-	import type { Delegate, DelegateQA, GovProposal, InterestShare, LegisPeriod, PoliticalPosition, Speech, SpeechesWithMaxPage } from '$lib/types';
+	import type { Delegate, DelegateQA, GeneralDelegateInfo, GovProposal, InterestShare, LegisPeriod, PoliticalPosition, Speech, SpeechesWithMaxPage } from '$lib/types';
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 	import {
@@ -11,6 +11,7 @@
 		delegate_qa,
 		delegates_at,
 		errorToNull,
+		general_delegate_info,
 		gov_proposals_by_official,
 
 		speeches_by_delegate_per_page
@@ -51,11 +52,9 @@
 	};
 
 	let autocompleteOptions: AutocompleteOption<string>[] = [];
-	let interests: InterestShare[] | null;
 	let govProposals: GovProposal[] | null = null;
 	let speechesPage0: SpeechesWithMaxPage | null = null;
-	let politicalPosition: PoliticalPosition | null = null;
-	let delegateQA: DelegateQA[] = [];
+	let generalDelegateInfo: GeneralDelegateInfo | null = null;
 	let maxDayOffset = 365 * 5;
 	let dayOffset = maxDayOffset;
 
@@ -180,11 +179,13 @@
 	$: if (delegate && prevSelectedDelegateId != delegate.id) {
 		// interests = null;
 		if (finishedMounting) currentDelegateStore.set(delegate);
-		delegate_qa(delegate.id).then((res) => {
-			const delegateQANull = errorToNull(res);
-			// console.log(delegateQANull);
-			if (delegateQANull) delegateQA = delegateQANull;
-		});
+		general_delegate_info(delegate.id).then(res => {
+			generalDelegateInfo = errorToNull(res)	
+			if (generalDelegateInfo) {
+				generalDelegateInfo.interests.sort((a, b) => b.self_share - a.self_share)
+			}
+		})
+
 		// delegateQA = [
 		// 	{question: "Wie heißt du?", answer: "Tim Herbert"},
 		// 	{question: "Warum hast du bei der letzten Wahl die FPÖ gewählt?", answer: "Restfett wählen gehen war ein Fehler."},
@@ -198,18 +199,6 @@
 		speechesPage0 = null;
 		speeches_by_delegate_per_page(delegate.id, 0).then((res) => {
 			speechesPage0 = errorToNull(res);
-		});
-
-		interests = null;
-		delegate_interests(delegate.id).then((res) => {
-			const input = errorToNull(res);
-			if (input != null) input.sort((a, b) => b.self_share - a.self_share);
-			interests = input;
-		});
-
-		politicalPosition = null
-		delegate_political_position(delegate.id).then((res) => {
-			politicalPosition = errorToNull(res);
 		});
 
 		prevSelectedDelegateId = delegate.id;
@@ -308,7 +297,7 @@
 			</div>
 			<div class="rounded-xl delegate-item bg-primary-300 dark:bg-primary-500">
 				{#if delegate}
-					<DelegateCard {delegate} questions={delegateQA} showQA />
+					<DelegateCard {delegate} questions={generalDelegateInfo?.delegate_qa ?? []} showQA />
 				{/if}
 			</div>
 		</div>
@@ -330,12 +319,14 @@
 			<ExpandablePlaceholder />
 		{/if}
 
-		{#if politicalPosition && delegate}
-			<SquarePoliticalSpectrum {delegate}	{politicalPosition} />
+		{#if delegate && generalDelegateInfo?.political_position}
+			<SquarePoliticalSpectrum {delegate}	politicalPosition={generalDelegateInfo.political_position} />
+		{:else}
+			<ExpandablePlaceholder class={'my-3'} />
 		{/if}
 
-		{#if interests}
-				<InterestTiles interests={interests.slice(0, 4)} />
+		{#if generalDelegateInfo?.interests}
+				<InterestTiles interests={generalDelegateInfo.interests.slice(0, 4)} />
 		{:else}
 			<ExpandablePlaceholder class={'my-3'} />
 		{/if}
