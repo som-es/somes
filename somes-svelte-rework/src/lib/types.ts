@@ -247,6 +247,18 @@ export interface DateRange {
 	end: Date;
 }
 
+export interface Mandate {
+	start_date: Date;
+	end_date: Date | null;
+	name: string;
+}
+
+export interface GeneralDelegateInfo {
+	interests: InterestShare[];
+	delegate_qa: DelegateQA[];
+	mandates: Mandate[];
+}
+
 export interface DelegateQA {
 	question: string;
 	answer: string;
