@@ -22,12 +22,14 @@ mod gov_officials;
 mod interests;
 mod qa;
 mod speeches;
+mod general_delegate_info;
 pub use ai_chat::*;
 pub use delegate_political_position::*;
 pub use gov_officials::*;
 pub use interests::*;
 pub use qa::*;
 pub use speeches::*;
+pub use general_delegate_info::*;
 
 #[derive(ToSchema, PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct Delegate {

@@ -45,6 +45,7 @@ pub const CALL_TO_ORDERS_PER_PARTY_DELEGATES: &str = "/call_to_orders_per_party_
 pub const PARTIES: &str = "/parties";
 pub const USER: &str = "/user";
 pub const DELEGATE: &str = "/delegate";
+pub const GENERAL_DELEGATE_INFO: &str = "/general_delegate_info";
 pub const DELEGATE_INTERESTS: &str = "/delegate_interests";
 pub const DELEGATE_QA: &str = "/delegate_qa";
 pub const VOTE_RESULTS_PER_PAGE: &str = "/vote_results_per_page";
