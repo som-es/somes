@@ -37,6 +37,14 @@ pub const ABSENCES_PER_DELEGATE: &str = "/absences_per_delegate";
 pub const ABSENCES_PER_PARTY: &str = "/absences_per_party";
 pub const ABSENCES_PER_GENDER: &str = "/absences_per_gender";
 pub const ABSENCES_PER_AGE: &str = "/absences_per_age";
+pub const ABSENCES_PER_LEGIS: &str = "/absences_per_legis";
+pub const AGE_PER_GENDER: &str = "/age_per_gender";
+pub const AGE_PER_LEGIS: &str = "/age_per_legis";
+pub const CALL_TO_ORDERS_PER_LEGIS: &str = "/call_to_orders_per_legis";
+pub const COMPLEXITY_PER_LEGIS: &str = "/complexity_per_legis";
+pub const DIVISION_ACCURACY_SCORE_PER_LEGIS: &str = "/division_accuracy_score_per_legis";
+pub const SPEECHTIME_PER_LEGIS: &str = "/speechtime_per_legis";
+pub const TOTAL_SPEECHES_PER_LEGIS: &str = "/total_speeches_per_legis";
 pub const DELEGATES_BY_CALL_TO_ORDERS: &str = "/delegates_by_call_to_orders";
 pub const DELEGATES_BY_CALL_TO_ORDERS_AND_LEGIS_PERIOD: &str =
     "/delegates_by_call_to_orders_and_legis_period";

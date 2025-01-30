@@ -33,6 +33,14 @@ mod absences_per_delegate;
 mod absences_per_party;
 mod absences_per_gender;
 mod absences_per_age;
+mod absences_per_legis;
+mod age_per_gender;
+mod age_per_legis;
+mod call_to_orders_per_legis;
+mod complexity_per_legis;
+mod division_accuracy_score_per_legis;
+mod speechtime_per_legis;
+mod total_speeches_per_legis;
 
 pub use absolute_majority_initiatives::*;
 pub use age_of_delegates::*;
@@ -63,6 +71,14 @@ pub use absences_per_delegate::*;
 pub use absences_per_party::*;
 pub use absences_per_gender::*;
 pub use absences_per_age::*;
+pub use absences_per_legis::*;
+pub use age_per_gender::*;
+pub use age_per_legis::*;
+pub use call_to_orders_per_legis::*;
+pub use complexity_per_legis::*;
+pub use division_accuracy_score_per_legis::*;
+pub use speechtime_per_legis::*;
+pub use self::total_speeches_per_legis::*;
 
 use crate::{
     dataservice::{
