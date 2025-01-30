@@ -296,6 +296,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(USER, post(user))
         .route(DELEGATE, get(delegate))
         .route(DELEGATE_INTERESTS, get(delegate_interests))
+        .route(GENERAL_DELEGATE_INFO, get(general_delegate_info))
         .route(DELEGATE_QA, get(delegate_qa))
         .route(VOTE_RESULTS_PER_PAGE, post(vote_results_per_page)) // post only because js fetch...
         .route(
