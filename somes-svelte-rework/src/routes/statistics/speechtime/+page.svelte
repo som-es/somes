@@ -42,7 +42,7 @@
 
       return response.map(val => {
           return {
-              name: val.delegate_name,
+              name: null,
               party: val.delegate_party,
               data: val.total_speech_time
           };

@@ -5,7 +5,7 @@ export interface DelegateSplit {
 }
 
 export interface DelegateData {
-	name: string;
+	name: string | null;
 	party: string;
 	data: number;
 }
