@@ -120,6 +120,8 @@ pub struct Mandate {
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct GeneralDelegateInfo {
     pub mandates: Vec<Mandate>,
+    pub interests: Vec<InterestShare>,
+    pub delegate_qa: Vec<DelegateQA>
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]

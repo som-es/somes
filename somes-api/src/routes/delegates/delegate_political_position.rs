@@ -1,14 +1,16 @@
 use axum::{extract::Query, Json};
+use redis::aio::MultiplexedConnection;
 use somes_common_lib::{DelegateById, DelegateQA, PoliticalPosition};
 use sqlx::{query_as, PgPool};
 
-use crate::PgPoolConnection;
+use crate::{get_json_cache, PgPoolConnection, RedisConnection};
 
 use super::DelegatesErrorResponse;
 
 pub async fn extract_political_position_questions(
     delegate_id: i32,
     pg: &PgPool,
+    redis: &mut MultiplexedConnection,
 ) -> sqlx::Result<Vec<DelegateQA>> {
     query_as!(
         DelegateQA,
@@ -23,9 +25,10 @@ pub async fn extract_political_position_questions(
 
 pub async fn delegate_political_questions(
     PgPoolConnection(pg): PgPoolConnection,
+    RedisConnection(mut redis_con): RedisConnection,
     Query(delegate_by_id): Query<DelegateById>,
 ) -> Result<Json<Vec<DelegateQA>>, DelegatesErrorResponse> {
-    extract_political_position_questions(delegate_by_id.delegate_id, &pg)
+    extract_political_position_questions(delegate_by_id.delegate_id, &pg, &mut redis_con)
         .await
         .map(Json)
         .map_err(|_| DelegatesErrorResponse::DelegateInterestsResponseError)
