@@ -322,7 +322,7 @@
 		{#if delegate && generalDelegateInfo?.political_position}
 			<SquarePoliticalSpectrum {delegate}	politicalPosition={generalDelegateInfo.political_position} />
 		{:else}
-			<ExpandablePlaceholder class={'my-3'} />
+			<!-- <ExpandablePlaceholder class={'my-3'} /> -->
 		{/if}
 
 		{#if generalDelegateInfo?.interests}

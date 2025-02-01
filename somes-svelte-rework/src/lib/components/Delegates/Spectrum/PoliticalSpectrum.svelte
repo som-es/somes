@@ -7,12 +7,12 @@
 	export let politicalPosition: PoliticalPosition;	
 	export let delegate: Delegate;
 
-	const color = partyToColor(delegate.party)
+	$: color = partyToColor(delegate.party)
 
-	const leftScore = politicalPosition.is_not_left - politicalPosition.is_left;
-	const liberalScore = politicalPosition.is_not_liberal - politicalPosition.is_liberal;
+	$: leftScore = politicalPosition.is_not_left - politicalPosition.is_left;
+	$: liberalScore = politicalPosition.is_not_liberal - politicalPosition.is_liberal;
 
-	let dataPoints: { [key: string]: DataPoint[] } = {
+	$: dataPoints = {
         Q1: [
 			{ x: 100 * leftScore, y: 100 * liberalScore, label: delegate.name, color: color },
         ],
