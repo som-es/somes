@@ -179,6 +179,7 @@
 	$: if (delegate && prevSelectedDelegateId != delegate.id) {
 		// interests = null;
 		if (finishedMounting) currentDelegateStore.set(delegate);
+		generalDelegateInfo = null;
 		general_delegate_info(delegate.id).then(res => {
 			generalDelegateInfo = errorToNull(res)	
 			if (generalDelegateInfo) {
@@ -321,7 +322,7 @@
 
 		{#if delegate && generalDelegateInfo?.political_position}
 			<SquarePoliticalSpectrum {delegate}	politicalPosition={generalDelegateInfo.political_position} />
-		{:else}
+		{:else if !generalDelegateInfo}
 			<ExpandablePlaceholder class={'my-3'} />
 		{/if}
 
