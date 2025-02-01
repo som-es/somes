@@ -122,7 +122,7 @@ pub struct GeneralDelegateInfo {
     pub mandates: Vec<Mandate>,
     pub interests: Vec<InterestShare>,
     pub delegate_qa: Vec<DelegateQA>,
-    pub political_position: PoliticalPosition,
+    pub political_position: Option<PoliticalPosition>,
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]

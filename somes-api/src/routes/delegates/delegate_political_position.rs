@@ -37,7 +37,7 @@ pub async fn delegate_political_questions(
 pub async fn extract_political_position(
     delegate_id: i32,
     pg: &PgPool,
-) -> sqlx::Result<PoliticalPosition> {
+) -> sqlx::Result<Option<PoliticalPosition>> {
     query_as!(
         PoliticalPosition,
         "select 
@@ -46,14 +46,14 @@ pub async fn extract_political_position(
         where delegate_id = $1",
         delegate_id
     )
-    .fetch_one(pg)
+    .fetch_optional(pg)
     .await
 }
 
 pub async fn delegate_political_position(
     PgPoolConnection(pg): PgPoolConnection,
     Query(delegate_by_id): Query<DelegateById>,
-) -> Result<Json<PoliticalPosition>, DelegatesErrorResponse> {
+) -> Result<Json<Option<PoliticalPosition>>, DelegatesErrorResponse> {
     extract_political_position(delegate_by_id.delegate_id, &pg)
         .await
         .map(Json)

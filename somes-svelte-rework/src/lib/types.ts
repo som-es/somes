@@ -257,7 +257,7 @@ export interface GeneralDelegateInfo {
 	interests: InterestShare[];
 	delegate_qa: DelegateQA[];
 	mandates: Mandate[];
-	political_position: PoliticalPosition;
+	political_position: PoliticalPosition | null;
 }
 
 export interface DelegateQA {
