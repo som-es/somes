@@ -187,11 +187,6 @@
 			}
 		})
 
-		// delegateQA = [
-		// 	{question: "Wie heißt du?", answer: "Tim Herbert"},
-		// 	{question: "Warum hast du bei der letzten Wahl die FPÖ gewählt?", answer: "Restfett wählen gehen war ein Fehler."},
-		// ];
-
 		govProposals = null;
 		gov_proposals_by_official(delegate.id).then((res) => {
 			govProposals = errorToNull(res);
