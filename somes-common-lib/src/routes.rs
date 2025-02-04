@@ -39,6 +39,7 @@ pub const ABSENCES_PER_PARTY: &str = "/absences_per_party";
 pub const ABSENCES_PER_GENDER: &str = "/absences_per_gender";
 pub const ABSENCES_PER_AGE: &str = "/absences_per_age";
 pub const ADD_QUIZ: &str = "/add_quiz";
+pub const QUIZ_ROOM: &str = "/quiz_room";
 pub const DELEGATES_BY_CALL_TO_ORDERS: &str = "/delegates_by_call_to_orders";
 pub const DELEGATES_BY_CALL_TO_ORDERS_AND_LEGIS_PERIOD: &str =
     "/delegates_by_call_to_orders_and_legis_period";

@@ -4,6 +4,7 @@ use sqlx::{query, PgPool};
 
 use crate::{jwt::Claims, GenericErrorResponse, PgPoolConnection};
 
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct QuizQuestion {
     pub question: String,
     pub answer1: String,
@@ -12,6 +13,7 @@ pub struct QuizQuestion {
     pub answer4: String,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Quiz {
     pub title: String,
     pub description: String,

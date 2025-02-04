@@ -41,6 +41,7 @@ pub async fn send_reset_password_request(
         sub: user.email.to_string(),
         company: "".into(),
         exp: (timestamp_secs() + 60 * 15) as usize,
+        is_admin: false,
     };
 
     // Create the authorization token

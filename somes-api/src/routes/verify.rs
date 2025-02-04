@@ -67,7 +67,7 @@ pub async fn verify(
 
     // let id = insert_user(con, &new_user).map_err(|_| VerifyErrorResponse::UserCreationError)?;
 
-    create_access_token(id, username).map_err(VerifyErrorResponse::Auth)
+    create_access_token(id, username, false).map_err(VerifyErrorResponse::Auth)
 }
 
 pub async fn remove_user_from_redis(
