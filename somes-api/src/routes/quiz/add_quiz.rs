@@ -1,10 +1,11 @@
 use axum::Json;
 use reqwest::StatusCode;
+use serde::{Deserialize, Serialize};
 use sqlx::{query, PgPool};
 
 use crate::{jwt::Claims, GenericErrorResponse, PgPoolConnection};
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct QuizQuestion {
     pub question: String,
     pub answer1: String,
@@ -13,7 +14,7 @@ pub struct QuizQuestion {
     pub answer4: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct Quiz {
     pub title: String,
     pub description: String,

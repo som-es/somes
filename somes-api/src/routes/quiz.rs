@@ -124,7 +124,7 @@ async fn handle_socket(mut socket: WebSocket) {
                 if let Some(question) = question.as_ref() {
                     tx_to_send
                         .clone()
-                        .send(Message::Text(format!("{}", question.question)))
+                        .send(Message::Text(serde_json::to_string(question).unwrap_or_default()))
                         .await
                         .unwrap();
                 }
@@ -145,11 +145,13 @@ async fn handle_socket(mut socket: WebSocket) {
 
     tokio::select! {
         rv_c = (&mut question_send_task) => {
+            question_send_task.abort();
         }
         rv_a = (&mut send_task) => {
+            send_task.abort();
         },
         rv_b = (&mut recv_task) => {
-
+            recv_task.abort();
         }
     }
 }
@@ -173,7 +175,7 @@ async fn process_message(
                     let new_user = ConnectedUser {
                         name,
                         token: "token".to_string(),
-                        is_admin: false,
+                        is_admin: true,
                     };
                     log::info!("new user: {:?}", new_user);
                     sender
