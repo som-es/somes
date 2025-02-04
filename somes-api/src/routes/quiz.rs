@@ -1,5 +1,10 @@
 mod add_quiz;
-use std::{collections::HashMap, future::Future, ops::ControlFlow, sync::{Arc, LazyLock}};
+use std::{
+    collections::HashMap,
+    future::Future,
+    ops::ControlFlow,
+    sync::{Arc, LazyLock},
+};
 
 pub use add_quiz::*;
 use axum::{
@@ -10,6 +15,7 @@ use axum::{
     response::IntoResponse,
 };
 use axum_extra::TypedHeader;
+use fake::{faker::name::de_de::Name, locales::DE_DE, Fake};
 use futures::{SinkExt, StreamExt};
 use jsonwebtoken::{decode, Validation};
 use redis::{aio::MultiplexedConnection, AsyncCommands};
@@ -38,11 +44,12 @@ pub async fn join_quiz_room(
     res
 }
 
-static USER_MAP: LazyLock<Arc<RwLock<HashMap<ConnectedUser, u32>>>> = LazyLock::new(|| Arc::new(RwLock::new(HashMap::new())));
+static USER_MAP: LazyLock<Arc<RwLock<HashMap<ConnectedUser, u32>>>> =
+    LazyLock::new(|| Arc::new(RwLock::new(HashMap::new())));
 // static INFORM_USERS: LazyLock<Arc<RwLock<Vec<Box<dyn Fn() -> BoxFuture<'static, ()>>>>>> = LazyLock::new(|| Arc::new(RwLock::new(Vec::new())));
-static QUESTION: LazyLock<Arc<RwLock<Option<QuizQuestion>>>> = LazyLock::new(|| Arc::new(RwLock::new(None)));
+static QUESTION: LazyLock<Arc<RwLock<Option<QuizQuestion>>>> =
+    LazyLock::new(|| Arc::new(RwLock::new(None)));
 // static QUESTION_TX_RX: LazyLock<(Sender<QuizQuestion>, Receiver<QuizQuestion>)> = LazyLock::new(|| tokio::sync::broadcast::channel(2048));
-
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ConnectedUser {
@@ -51,7 +58,6 @@ pub struct ConnectedUser {
     is_admin: bool,
 }
 
-
 async fn handle_socket(mut socket: WebSocket) {
     let user = Arc::new(RwLock::new(None));
 
@@ -59,18 +65,43 @@ async fn handle_socket(mut socket: WebSocket) {
 
     let (mut sender, mut receiver) = socket.split();
 
-
     let tx_to_send_in_recv = tx_to_send.clone();
     let mut recv_task = tokio::spawn(async move {
         let questions = vec![
-            QuizQuestion { question: "1".to_string(), answer1: "ANSER".to_string(), answer2: "ANSER".to_string(), answer3: "ANSER".to_string(), answer4: "ANSER".to_string() },
-            QuizQuestion { question: "2".to_string(), answer1: "ANSER".to_string(), answer2: "ANSER".to_string(), answer3: "ANSER".to_string(), answer4: "ANSER".to_string() },
-            QuizQuestion { question: "3".to_string(), answer1: "ANSER".to_string(), answer2: "ANSER".to_string(), answer3: "ANSER".to_string(), answer4: "ANSER".to_string() },
+            QuizQuestion {
+                question: "1".to_string(),
+                answer1: "ANSER".to_string(),
+                answer2: "ANSER".to_string(),
+                answer3: "ANSER".to_string(),
+                answer4: "ANSER".to_string(),
+            },
+            QuizQuestion {
+                question: "2".to_string(),
+                answer1: "ANSER".to_string(),
+                answer2: "ANSER".to_string(),
+                answer3: "ANSER".to_string(),
+                answer4: "ANSER".to_string(),
+            },
+            QuizQuestion {
+                question: "3".to_string(),
+                answer1: "ANSER".to_string(),
+                answer2: "ANSER".to_string(),
+                answer3: "ANSER".to_string(),
+                answer4: "ANSER".to_string(),
+            },
         ];
         let mut questions = questions.iter();
         while let Some(msg) = receiver.next().await {
             if let Ok(msg) = msg {
-                if process_message(tx_to_send_in_recv.clone(), msg, user.clone(), &mut questions).await.is_break() {
+                if process_message(
+                    tx_to_send_in_recv.clone(),
+                    msg,
+                    user.clone(),
+                    &mut questions,
+                )
+                .await
+                .is_break()
+                {
                     return;
                 }
             } else {
@@ -91,7 +122,11 @@ async fn handle_socket(mut socket: WebSocket) {
             if *question != last_question {
                 last_question = (*question).clone();
                 if let Some(question) = question.as_ref() {
-                    tx_to_send.clone().send(Message::Text(format!("{}", question.question))).await.unwrap();
+                    tx_to_send
+                        .clone()
+                        .send(Message::Text(format!("{}", question.question)))
+                        .await
+                        .unwrap();
                 }
             }
             tokio::time::sleep(std::time::Duration::from_millis(100)).await;
@@ -108,29 +143,44 @@ async fn handle_socket(mut socket: WebSocket) {
         }
     });
 
-      tokio::select! {
+    tokio::select! {
         rv_c = (&mut question_send_task) => {
         }
         rv_a = (&mut send_task) => {
         },
         rv_b = (&mut recv_task) => {
-            
+
         }
     }
 }
 
-async fn process_message(sender: tokio::sync::mpsc::Sender<Message>, msg: Message, user: Arc<RwLock<Option<ConnectedUser>>>, iter: &mut std::slice::Iter<'_, QuizQuestion>) -> ControlFlow<(), ()> {
+async fn process_message(
+    sender: tokio::sync::mpsc::Sender<Message>,
+    msg: Message,
+    user: Arc<RwLock<Option<ConnectedUser>>>,
+    iter: &mut std::slice::Iter<'_, QuizQuestion>,
+) -> ControlFlow<(), ()> {
     match msg {
         Message::Text(chat_msg) => {
+            log::info!("chat msg: {chat_msg}");
             match chat_msg.as_bytes()[0] {
                 b'b' => {
+                    if user.read().await.is_some() {
+                        return ControlFlow::Continue(());
+                    }
+                    let name: String = Name().fake();
+
                     let new_user = ConnectedUser {
-                        name: "RANDOM_NAME".to_string(),
+                        name,
                         token: "token".to_string(),
                         is_admin: false,
                     };
+                    log::info!("new user: {:?}", new_user);
                     sender
-                        .send(Message::Text(format!("{};{}", new_user.name, new_user.token)))
+                        .send(Message::Text(format!(
+                            "{};{}",
+                            new_user.name, new_user.token
+                        )))
                         .await
                         .unwrap();
 
@@ -158,22 +208,19 @@ async fn process_message(sender: tokio::sync::mpsc::Sender<Message>, msg: Messag
                 }
 
                 // request scoreboard
-                b'r' => {
-                    if user.read().await.as_ref().unwrap().is_admin {
-                    }
-                }
+                b'r' => if user.read().await.as_ref().unwrap().is_admin {},
 
                 // next question
                 b'n' => {
                     if user.read().await.as_ref().unwrap().is_admin {
                         *QUESTION.write().await = iter.next().cloned();
+                        log::info!("question: {:?}", QUESTION.read().await)
                     }
                 }
 
                 _ => {}
             }
 
-            log::info!("chat msg: {chat_msg}");
             // socket.send(Message::Text(chat_msg)).await.unwrap();
             // start python script
             // send result

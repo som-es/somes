@@ -266,7 +266,7 @@ SELECT jsonb_build_object(
     crate::set_json_cache(&mut redis_con, &key, &out)
         .await
         .ok_or(sqlx::Error::WorkerCrashed)?;
-    log::info!("elapsed: {:?}", start.elapsed());
+    // log::info!("elapsed: {:?}", start.elapsed());
     // Ok(out)
     Ok(out)
 }
