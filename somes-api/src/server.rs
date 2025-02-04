@@ -422,6 +422,26 @@ pub async fn serve(addr: SocketAddr) {
     // .unwrap();
 
     // let server = axum_server::bind_rustls(addr, config);
+
+    if std::env::var("SOMES_DEBUG").unwrap_or_default() == "DEBUG" {
+        info!("Binding API on {addr}");
+        let listener = match TcpListener::bind(&addr).await {
+            Ok(listener) => listener,
+            Err(e) => panic!("Could not initialize API: {e}"),
+        };
+
+        info!("Now listening..");
+        if let Err(e) = axum::serve(
+            listener,
+            app.into_make_service_with_connect_info::<SocketAddr>(),
+        )
+        .await
+        {
+            error!("API returned error state: {e}")
+        }
+        return;
+    }
+
     match config {
         Ok(config) => {
             let ports = Ports {

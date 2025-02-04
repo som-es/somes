@@ -124,7 +124,9 @@ async fn handle_socket(mut socket: WebSocket) {
                 if let Some(question) = question.as_ref() {
                     tx_to_send
                         .clone()
-                        .send(Message::Text(serde_json::to_string(question).unwrap_or_default()))
+                        .send(Message::Text(
+                            serde_json::to_string(question).unwrap_or_default(),
+                        ))
                         .await
                         .unwrap();
                 }
