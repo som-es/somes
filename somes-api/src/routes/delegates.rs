@@ -18,18 +18,18 @@ pub use error::*;
 mod ai_chat;
 mod delegate_political_position;
 mod error;
+mod general_delegate_info;
 mod gov_officials;
 mod interests;
 mod qa;
 mod speeches;
-mod general_delegate_info;
 pub use ai_chat::*;
 pub use delegate_political_position::*;
+pub use general_delegate_info::*;
 pub use gov_officials::*;
 pub use interests::*;
 pub use qa::*;
 pub use speeches::*;
-pub use general_delegate_info::*;
 
 #[derive(ToSchema, PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct Delegate {

@@ -18,6 +18,10 @@ mod http_redirect;
 pub mod meilisearch;
 pub use http_redirect::*;
 use once_cell::sync::Lazy;
+mod error;
+pub use error::*;
+
+pub type Result<T> = std::result::Result<T, crate::error::GenericErrorResponse>;
 
 pub const USR_DATABASE_URL: &str = dotenv!("USR_DATABASE_URL");
 pub const DATASERVICE_URL: &str = dotenv!("DATASERVICE_URL");
