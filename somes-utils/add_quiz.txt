@@ -1,0 +1,89 @@
+curl -X POST "http://127.0.0.1:3000/add_quiz" \
+     -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6OCwic3ViIjoiZmxvcmlhbi5uYWd5QGl0Lmh0bC1obC5hYy5hdCIsImNvbXBhbnkiOiIiLCJleHAiOjE3MzkwMTU1OTIsImlzX2FkbWluIjp0cnVlfQ.iun23DAAyof0mMbWk0rBZfzIjesIyhQGLTecIJ7TJSA" \
+     -H "Content-Type: application/json" \
+     -d '{
+           "title": "Wissensquiz",
+           "description": "Ein allgemeines Quiz, das Fragen aus verschiedenen Wissensbereichen enthält.",
+           "questions": [
+             {
+               "question": "Wie viele Kontinente gibt es auf der Erde?",
+               "answer1": "5",
+               "answer2": "6",
+               "answer3": "7",
+               "answer4": "8",
+               "correct_answer": 3
+             },
+             {
+               "question": "Welcher Planet ist der sonnennächste?",
+               "answer1": "Erde",
+               "answer2": "Mars",
+               "answer3": "Venus",
+               "answer4": "Merkur",
+               "correct_answer": 4
+             },
+             {
+               "question": "Wer schrieb „Faust“?",
+               "answer1": "Friedrich Schiller",
+               "answer2": "Johann Wolfgang von Goethe",
+               "answer3": "Heinrich Heine",
+               "answer4": "Bertolt Brecht",
+               "correct_answer": 2
+             },
+             {
+               "question": "Was ist der längste Fluss der Welt?",
+               "answer1": "Amazonas",
+               "answer2": "Nil",
+               "answer3": "Yangtse",
+               "answer4": "Mississippi",
+               "correct_answer": 1
+             },
+             {
+               "question": "Wie heißt die Hauptstadt von Deutschland?",
+               "answer1": "Hamburg",
+               "answer2": "München",
+               "answer3": "Berlin",
+               "answer4": "Köln",
+               "correct_answer": 3
+             },
+             {
+               "question": "Welches Element hat das chemische Symbol „O“?",
+               "answer1": "Gold",
+               "answer2": "Silber",
+               "answer3": "Sauerstoff",
+               "answer4": "Kohlenstoff",
+               "correct_answer": 3
+             },
+             {
+               "question": "Wie viele Bundesländer hat Deutschland?",
+               "answer1": "13",
+               "answer2": "14",
+               "answer3": "15",
+               "answer4": "16",
+               "correct_answer": 4
+             },
+             {
+               "question": "Was ist die größte Insel der Welt?",
+               "answer1": "Grönland",
+               "answer2": "Neuguinea",
+               "answer3": "Borneo",
+               "answer4": "Madagaskar",
+               "correct_answer": 1
+             },
+             {
+               "question": "Wer malte die Mona Lisa?",
+               "answer1": "Vincent van Gogh",
+               "answer2": "Pablo Picasso",
+               "answer3": "Claude Monet",
+               "answer4": "Leonardo da Vinci",
+               "correct_answer": 4
+             },
+             {
+               "question": "Welches Land ist bekannt für die Pyramiden?",
+               "answer1": "Mexiko",
+               "answer2": "Ägypten",
+               "answer3": "Italien",
+               "answer4": "Indien",
+               "correct_answer": 2
+             }
+           ]
+         }'
