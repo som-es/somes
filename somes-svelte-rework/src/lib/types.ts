@@ -215,6 +215,12 @@ export interface QuizQuestion {
 	answer4: string;
 }
 
+export interface Scorer {
+	name: string;
+	id: number;
+	score: number;
+}
+
 export interface SignUpError {
 	missing_username: boolean;
 	missing_password: boolean;

@@ -20,6 +20,7 @@ use futures::{SinkExt, StreamExt};
 use jsonwebtoken::{decode, Validation};
 use rand::Rng;
 use redis::{aio::MultiplexedConnection, AsyncCommands};
+use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use tokio::{sync::RwLock, time::Instant};
 
@@ -56,14 +57,17 @@ pub enum State {
     End,
 }
 
-static USER_MAP: LazyLock<Arc<RwLock<HashMap<u64, f64>>>> =
+static USER_MAP: LazyLock<Arc<RwLock<HashMap<(String, u64), f64>>>> =
     LazyLock::new(|| Arc::new(RwLock::new(HashMap::new())));
+
+static SCORE_BOARD: LazyLock<Arc<RwLock<Vec<((String, u64), f64)>>>> =
+    LazyLock::new(|| Arc::new(RwLock::new(Vec::new())));
 // static INFORM_USERS: LazyLock<Arc<RwLock<Vec<Box<dyn Fn() -> BoxFuture<'static, ()>>>>>> = LazyLock::new(|| Arc::new(RwLock::new(Vec::new())));
 static QUESTION: LazyLock<Arc<RwLock<State>>> =
     LazyLock::new(|| Arc::new(RwLock::new(State::Ready)));
 // static QUESTION_TX_RX: LazyLock<(Sender<QuizQuestion>, Receiver<QuizQuestion>)> = LazyLock::new(|| tokio::sync::broadcast::channel(2048));
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct ConnectedUser {
     name: String,
     id: u64,
@@ -72,9 +76,17 @@ pub struct ConnectedUser {
     answer_locked_in: bool,
 }
 
+#[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct ScoreInfo {
-    pub score: f32,
+    pub score: f64,
     pub place: i32,
+}
+
+#[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
+pub struct Scorer {
+    pub name: String,
+    pub id: u64,
+    pub score: f64,
 }
 
 async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
@@ -85,6 +97,7 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
     let (mut sender, mut receiver) = socket.split();
 
     let tx_to_send_in_recv = tx_to_send.clone();
+    let recv_user = user.clone();
     let mut recv_task = tokio::spawn(async move {
         let mut db_questions;
         let mut questions = None;
@@ -94,7 +107,7 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
                 if process_message(
                     tx_to_send_in_recv.clone(),
                     msg,
-                    user.clone(),
+                    recv_user.clone(),
                     questions.as_mut(),
                 )
                 .await
@@ -106,7 +119,7 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
                 return;
             }
             if questions.is_none()
-                && user
+                && recv_user
                     .read()
                     .await
                     .as_ref()
@@ -150,7 +163,19 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
                     .await
                     .unwrap();
 
-                if last_state == State::Scoreboard {}
+                if last_state == State::Scoreboard {
+                    if let Some(user) = &*user.clone().read().await {
+                        let scoreboard = SCORE_BOARD.read().await;
+                        let idx = scoreboard.iter().position(|((_, id), _)| id == &user.id);
+                        if let Some(idx) = idx {
+                            let ((_name, _id), score) = &scoreboard[idx];
+                            tx_to_send.send(Message::Text(serde_json::to_string(&ScoreInfo {
+                                score: *score,
+                                place: (idx + 1) as i32,
+                            }).unwrap())).await.unwrap();
+                        }
+                    }
+                }
             }
             tokio::time::sleep(std::time::Duration::from_millis(30)).await;
         }
@@ -216,7 +241,7 @@ async fn process_message(
                         .await
                         .unwrap();
 
-                    USER_MAP.write().await.insert(new_user.id, 0.);
+                    USER_MAP.write().await.insert((new_user.name.clone(), new_user.id), 0.);
                     *user.write().await = Some(new_user)
                 }
 
@@ -248,7 +273,7 @@ async fn process_message(
                                 return ControlFlow::Continue(());
                             }
                             user.answer_locked_in = true;
-                            USER_MAP.write().await.get_mut(&user.id).map(|score| {
+                            USER_MAP.write().await.get_mut(&(user.name.clone(), user.id)).map(|score| {
                                 *score += (question.correct_answer == nth_answer as i32) as u32
                                     as f64
                                     * 1100.
@@ -262,6 +287,26 @@ async fn process_message(
                 b's' => {
                     if user.read().await.as_ref().unwrap().is_admin {
                         // sort scoreboard (afterwards send score)
+                        let mut scoreboard = SCORE_BOARD.write().await;
+                        *scoreboard = USER_MAP
+                            .read()
+                            .await
+                            .iter()
+                            .map(|(a, b)| (a.clone(), *b))
+                            .collect::<Vec<_>>();
+                        scoreboard.sort_by(|a, b| {
+                            b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal)
+                        });
+
+                        let scoreboard = scoreboard.iter().map(|((name, id), score)| {
+                            Scorer {
+                                name: name.clone(),
+                                id: *id,
+                                score: *score,
+                            }
+                        }).collect::<Vec<_>>();
+
+                        sender.send(Message::Text(serde_json::to_string(&scoreboard).unwrap_or_default())).await.unwrap();
 
                         *QUESTION.write().await = State::Scoreboard;
                     }
@@ -295,7 +340,7 @@ async fn process_message(
         }
         Message::Close(c) => {
             if let Some(user) = &*user.read().await {
-                USER_MAP.write().await.remove(&user.id);
+                USER_MAP.write().await.remove(&(user.name.clone(), user.id));
             }
             if let Some(cf) = c {
                 println!(

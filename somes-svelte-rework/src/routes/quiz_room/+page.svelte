@@ -1,6 +1,6 @@
 <script lang="ts">
 	import SButton from "$lib/components/UI/SButton.svelte";
-	import type { QuizQuestion } from "$lib/types";
+	import type { QuizQuestion, Scorer } from "$lib/types";
     import { onDestroy } from "svelte";
 
 
@@ -9,8 +9,12 @@
     let waitingForQuestions = false;
     let question: QuizQuestion | null = null;
 
+    let currentScoreboard: Scorer[] | null = null;
+
     let currentScore: number = 0;
     let currentPlace: number | null = null
+
+    let state = "";
     
     const recvMessage = (event: MessageEvent) => {
 
@@ -28,7 +32,15 @@
 
             const recvData: any = JSON.parse(event.data as string)
 
-            if ("score" in recvData) {
+            if (!recvData) {
+                question = null;
+                return;
+            }
+
+            if (state == "scoreboard" && Array.isArray(recvData)) {
+                currentScoreboard = recvData;
+                console.log(currentScoreboard);
+            } else if ("score" in recvData) {
 
             } else if ("answer1" in recvData) {
                 question = recvData
@@ -56,11 +68,25 @@
         sendMessage("b")
     }
 
+    const onScoreboard = () => {
+        sendMessage("r"); 
+
+        state = "scoreboard";
+        sendMessage("s"); 
+    }
+
 </script>
 
 <div>
     <SButton on:click={enterRoom} >Beitreten</SButton>
-    <SButton on:click={() => sendMessage("n")} >Nächste Frage</SButton>
+    {#if state == "question"}
+        <SButton on:click={onScoreboard}>Weiter</SButton>
+    {:else}
+        <SButton on:click={() => {
+            sendMessage("n"); 
+            state = "question";
+        }} >Nächste Frage</SButton>
+    {/if}
 </div>
 
 {#if userName}
