@@ -49,7 +49,7 @@ pub async fn join_quiz_room(
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum State {
     Ready,
-    Question((QuizQuestionNoCorrection, Instant)),
+    Question((QuizQuestion, Instant)),
     Removed,
     End
 }
@@ -104,7 +104,7 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
                     .map(|x: &ConnectedUser| x.is_admin)
                     .unwrap_or_default()
             {
-                db_questions = sqlx::query_as!(QuizQuestionNoCorrection, "select question, answer1, answer2, answer3, answer4 from quiz_questions where quiz_id = 1").fetch_all(&pg).await.unwrap_or_default();
+                db_questions = sqlx::query_as!(QuizQuestion, "select question, answer1, answer2, answer3, answer4, correct_answer from quiz_questions where quiz_id = 3").fetch_all(&pg).await.unwrap_or_default();
                 questions = Some(db_questions.iter());
             }
         }
@@ -123,8 +123,11 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
 
             if *question != last_question {
                 last_question = (*question).clone();
-                let question = match &*question {
-                    State::Question((q, _)) => Some(q),
+                let question = match &mut last_question {
+                    State::Question((q, _)) => {
+                        q.correct_answer = 0;
+                        Some(q)
+                    },
                     _ => {None}
                 };
                 tx_to_send
@@ -166,7 +169,7 @@ async fn process_message(
     sender: tokio::sync::mpsc::Sender<Message>,
     msg: Message,
     user: Arc<RwLock<Option<ConnectedUser>>>,
-    iter: Option<&mut std::slice::Iter<'_, QuizQuestionNoCorrection>>,
+    iter: Option<&mut std::slice::Iter<'_, QuizQuestion>>,
 ) -> ControlFlow<(), ()> {
     match msg {
         Message::Text(chat_msg) => {
