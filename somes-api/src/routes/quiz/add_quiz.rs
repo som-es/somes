@@ -1,4 +1,4 @@
-use axum::Json;
+use axum::{debug_handler, Json};
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use sqlx::{query, PgPool};
@@ -53,8 +53,8 @@ pub async fn add_quiz_handler(pg: &PgPool, user_id: i32, quiz: Quiz) -> crate::R
 
 pub async fn add_quiz(
     claims: Claims,
-    Json(quiz): Json<Quiz>,
     PgPoolConnection(pg): PgPoolConnection,
+    Json(quiz): Json<Quiz>,
 ) -> crate::Result<Json<()>> {
     add_quiz_handler(&pg, claims.id, quiz).await.map(Json)
 }
