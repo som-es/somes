@@ -123,10 +123,15 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
 
             if *question != last_question {
                 last_question = (*question).clone();
-                let question = match &mut last_question {
+                let question = match last_question.clone() {
                     State::Question((q, _)) => {
-                        q.correct_answer = 0;
-                        Some(q)
+                        Some(QuizQuestionNoCorrection {
+                            question: q.question,
+                            answer1: q.answer1,
+                            answer2: q.answer2,
+                            answer3: q.answer3,
+                            answer4: q.answer4,
+                        })
                     },
                     _ => {None}
                 };
