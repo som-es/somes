@@ -80,6 +80,7 @@ pub struct ConnectedUser {
 pub struct ScoreInfo {
     pub score: f64,
     pub place: i32,
+    pub correct_answer: i32,
 }
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
@@ -134,6 +135,7 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
 
     let mut question_send_task = tokio::spawn(async move {
         let mut last_state = State::Ready;
+        let mut last_correct_answer = 0;
         loop {
             let question = QUESTION.read().await;
             if &*question == &State::End {
@@ -146,13 +148,16 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
             if *question != last_state {
                 last_state = (*question).clone();
                 let question = match last_state.clone() {
-                    State::Question((q, _)) => Some(QuizQuestionNoCorrection {
-                        question: q.question,
-                        answer1: q.answer1,
-                        answer2: q.answer2,
-                        answer3: q.answer3,
-                        answer4: q.answer4,
-                    }),
+                    State::Question((q, _)) => {
+                        last_correct_answer = q.correct_answer;
+                        Some(QuizQuestionNoCorrection {
+                            question: q.question,
+                            answer1: q.answer1,
+                            answer2: q.answer2,
+                            answer3: q.answer3,
+                            answer4: q.answer4,
+                        })
+                    }
                     _ => None,
                 };
                 tx_to_send
@@ -166,20 +171,29 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
                 if last_state == State::Scoreboard {
                     if let Some(user) = &*user.clone().read().await {
                         let scoreboard = SCORE_BOARD.read().await;
-                        let idx = scoreboard.iter().position(|((_, id), _)| id == &user.id);
-                        if let Some(idx) = idx {
-                            let ((_name, _id), score) = &scoreboard[idx];
-                            tx_to_send
-                                .send(Message::Text(
-                                    serde_json::to_string(&ScoreInfo {
-                                        score: *score,
-                                        place: (idx + 1) as i32,
-                                    })
-                                    .unwrap(),
-                                ))
-                                .await
-                                .unwrap();
-                        }
+                        let idx = scoreboard
+                            .iter()
+                            .position(|((_, id), _)| id == &user.id)
+                            .map(|idx| idx as i32)
+                            .unwrap_or(-1);
+                        
+                        let score = if idx >= 0 {
+                            let ((_name, _id), score) = &scoreboard[idx as usize];
+                            *score
+                        } else {
+                            0.
+                        };
+                        tx_to_send
+                            .send(Message::Text(
+                                serde_json::to_string(&ScoreInfo {
+                                    score,
+                                    place: (idx + 1),
+                                    correct_answer: last_correct_answer,
+                                })
+                                .unwrap(),
+                            ))
+                            .await
+                            .unwrap();
                     }
                 }
             }

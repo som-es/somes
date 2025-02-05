@@ -224,6 +224,7 @@ export interface Scorer {
 export interface ScoreInfo {
 	score: number;
 	place: number;
+	correct_answer: number;
 }
 
 export interface SignUpError {

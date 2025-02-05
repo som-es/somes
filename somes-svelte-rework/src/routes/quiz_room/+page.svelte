@@ -22,6 +22,7 @@
     let isAdmin = true;
 
     let jwtToken: string | null;
+    let selectedAnswer = false;
 
     onMount(async () => {
 		jwtToken = get(jwtStore);
@@ -56,6 +57,7 @@
                 currentScoreboard = recvData;
                 console.log(currentScoreboard);
             } else if ("score" in recvData) {
+                selectedAnswer = false;
                 currentScore = recvData
             } else if ("question" in recvData) {
                 question = recvData;
@@ -98,6 +100,11 @@
 
         state = "scoreboard";
         sendMessage("s"); 
+    }
+
+    const onAnswerSelection = (msg: string) => {
+        selectedAnswer = true;
+        sendMessage(msg)
     }
 
 </script>
@@ -150,10 +157,10 @@
 
         <div class="content">
             <div class="squares-container">
-                <div on:click={() => sendMessage("a1")} on:keydown role="button" tabindex=0 class="square bg-primary-400 flex justify-center items-center text-center text-xl">{question.answer1}</div>
-                <div on:click={() => sendMessage("a2")} on:keydown role="button" tabindex=0 class="square bg-secondary-400 flex justify-center items-center text-center text-xl"> {question.answer2}</div>
-                <div on:click={() => sendMessage("a3")} on:keydown role="button" tabindex=0 class="square bg-tertiary-500 flex justify-center items-center text-center text-xl">{question.answer3}</div>
-                <div on:click={() => sendMessage("a4")} on:keydown role="button" tabindex=0 class="square bg-surface-500 flex justify-center items-center text-center text-xl text-white">{question.answer4}</div>
+                <div on:click={() => onAnswerSelection("a1")} on:keydown role="button" tabindex=0 class="square {selectedAnswer ? "opacity-55" : ""} bg-primary-400 flex justify-center items-center text-center text-xl">{question.answer1}</div>
+                <div on:click={() => onAnswerSelection("a2")} on:keydown role="button" tabindex=0 class="square {selectedAnswer ? "opacity-55" : ""} bg-secondary-400 flex justify-center items-center text-center text-xl"> {question.answer2}</div>
+                <div on:click={() => onAnswerSelection("a3")} on:keydown role="button" tabindex=0 class="square {selectedAnswer ? "opacity-55" : ""} bg-tertiary-500 flex justify-center items-center text-center text-xl">{question.answer3}</div>
+                <div on:click={() => onAnswerSelection("a4")} on:keydown role="button" tabindex=0 class="square {selectedAnswer ? "opacity-55" : ""} bg-surface-500 flex justify-center items-center text-center text-xl text-white">{question.answer4}</div>
             </div>
         </div>
     {/if}
