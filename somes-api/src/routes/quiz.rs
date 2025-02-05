@@ -243,7 +243,7 @@ async fn process_message(
                         name,
                         id,
                         token: "token".to_string(),
-                        is_admin: false,
+                        is_admin: true,
                         answer_locked_in: false,
                     };
                     log::info!("new user: {:?}", new_user);

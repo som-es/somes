@@ -19,7 +19,7 @@
     let userCount = 0;
 
     let state = "starting";
-    let isAdmin = false;
+    let isAdmin = true;
 
     let jwtToken: string | null;
 
@@ -102,13 +102,6 @@
 
 </script>
 
- <div class="container">
-    <div class="square"> hi </div>
-    <div class="square"> hi</div>
-    <div class="square">hji</div>
-    <div class="square">hi</div>
-  </div>
-
 {#if state == "starting"}
 <div class="flex h-full items-center justify-center gap-4">
 
@@ -149,18 +142,18 @@
     {/if}
 
     {#if question}
-
-        <div class="flex h-full flex-col items-center justify-center">
-            <h1 class=" text-6xl">
+        <header>
+            <h1 class=" font-bold text-6xl">
                 {question.question}
             </h1>
+        </header>
 
-            <div class="mt-5 flex flex-row justify-center items-center">
-                
-                <SButton on:click={() => sendMessage("a1")} >{question.answer1}</SButton>
-                <SButton on:click={() => sendMessage("a2")} >{question.answer2}</SButton>
-                <SButton on:click={() => sendMessage("a3")} >{question.answer3}</SButton>
-                <SButton on:click={() => sendMessage("a4")} >{question.answer4}</SButton>
+        <div class="content">
+            <div class="squares-container">
+                <div on:click={() => sendMessage("a1")} on:keydown role="button" tabindex=0 class="square bg-primary-400 flex justify-center items-center text-center text-xl">{question.answer1}</div>
+                <div on:click={() => sendMessage("a2")} on:keydown role="button" tabindex=0 class="square bg-secondary-400 flex justify-center items-center text-center text-xl"> {question.answer2}</div>
+                <div on:click={() => sendMessage("a3")} on:keydown role="button" tabindex=0 class="square bg-tertiary-500 flex justify-center items-center text-center text-xl">{question.answer3}</div>
+                <div on:click={() => sendMessage("a4")} on:keydown role="button" tabindex=0 class="square bg-surface-500 flex justify-center items-center text-center text-xl text-white">{question.answer4}</div>
             </div>
         </div>
     {/if}
@@ -169,5 +162,56 @@
 
 
 <style>
+header {
+  text-align: center;
+  margin-bottom: 40px;
+}
 
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.squares-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  justify-items: center;
+}
+
+.square {
+  width: 100%;
+  height: 200px;
+  border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+  .squares-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .square {
+    height: 150px;
+  }
+
+  .content {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .squares-container {
+    grid-template-columns: 1fr;
+  }
+
+  .square {
+    height: 150px;
+  }
+
+  .content {
+    gap: 10px;
+  }
+}
+ 
 </style>
