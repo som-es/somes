@@ -12,6 +12,7 @@ pub struct QuizQuestion {
     pub answer2: String,
     pub answer3: String,
     pub answer4: String,
+    pub correct_answer: i32,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -43,7 +44,7 @@ pub async fn add_quiz_handler(pg: &PgPool, user_id: i32, quiz: Quiz) -> crate::R
     .map_err(|e| GenericErrorResponse::DbSelectFailure(Some(e)))?;
 
     for question in quiz.questions {
-        query!("insert into quiz_questions (quiz_id, answer1, answer2, answer3, answer4) values ($1, $2, $3, $4, $5)", id.id, question.answer1, question.answer2, question.answer3, question.answer4).execute(pg).await
+        query!("insert into quiz_questions (quiz_id, answer1, answer2, answer3, answer4, correct_answer) values ($1, $2, $3, $4, $5, $6)", id.id, question.answer1, question.answer2, question.answer3, question.answer4, question.correct_answer).execute(pg).await
             .map_err(|e| GenericErrorResponse::DbSelectFailure(Some(e)))?;
     }
 

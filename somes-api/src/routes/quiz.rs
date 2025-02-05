@@ -69,30 +69,6 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
 
     let tx_to_send_in_recv = tx_to_send.clone();
     let mut recv_task = tokio::spawn(async move {
-        let questions = vec![
-            QuizQuestion {
-                question: "1".to_string(),
-                answer1: "ANSER".to_string(),
-                answer2: "ANSER".to_string(),
-                answer3: "ANSER".to_string(),
-                answer4: "ANSER".to_string(),
-            },
-            QuizQuestion {
-                question: "2".to_string(),
-                answer1: "ANSER".to_string(),
-                answer2: "ANSER".to_string(),
-                answer3: "ANSER".to_string(),
-                answer4: "ANSER".to_string(),
-            },
-            QuizQuestion {
-                question: "3".to_string(),
-                answer1: "ANSER".to_string(),
-                answer2: "ANSER".to_string(),
-                answer3: "ANSER".to_string(),
-                answer4: "ANSER".to_string(),
-            },
-        ];
-
         let mut db_questions;
         let mut questions = None;
         // let mut questions = questions.iter();
@@ -120,7 +96,7 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
                     .map(|x: &ConnectedUser| x.is_admin)
                     .unwrap_or_default()
             {
-                db_questions = sqlx::query_as!(QuizQuestion, "select question, answer1, answer2, answer3, answer4 from quiz_questions where quiz_id = 1").fetch_all(&pg).await.unwrap_or_default();
+                db_questions = sqlx::query_as!(QuizQuestion, "select question, answer1, answer2, answer3, answer4, correct_answer from quiz_questions where quiz_id = 1").fetch_all(&pg).await.unwrap_or_default();
                 questions = Some(db_questions.iter());
             }
         }
