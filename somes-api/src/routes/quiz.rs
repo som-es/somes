@@ -20,7 +20,7 @@ use futures::{SinkExt, StreamExt};
 use jsonwebtoken::{decode, Validation};
 use redis::{aio::MultiplexedConnection, AsyncCommands};
 use sqlx::PgPool;
-use tokio::sync::RwLock;
+use tokio::{sync::RwLock, time::Instant};
 
 use crate::{
     jwt::{Claims, KEYS},
@@ -46,11 +46,19 @@ pub async fn join_quiz_room(
     res
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub enum State {
+    Ready,
+    Question((QuizQuestionNoCorrection, Instant)),
+    Removed,
+    End
+}
+
 static USER_MAP: LazyLock<Arc<RwLock<HashMap<ConnectedUser, u32>>>> =
     LazyLock::new(|| Arc::new(RwLock::new(HashMap::new())));
 // static INFORM_USERS: LazyLock<Arc<RwLock<Vec<Box<dyn Fn() -> BoxFuture<'static, ()>>>>>> = LazyLock::new(|| Arc::new(RwLock::new(Vec::new())));
-static QUESTION: LazyLock<Arc<RwLock<Option<QuizQuestionNoCorrection>>>> =
-    LazyLock::new(|| Arc::new(RwLock::new(None)));
+static QUESTION: LazyLock<Arc<RwLock<State>>> =
+    LazyLock::new(|| Arc::new(RwLock::new(State::Ready)));
 // static QUESTION_TX_RX: LazyLock<(Sender<QuizQuestion>, Receiver<QuizQuestion>)> = LazyLock::new(|| tokio::sync::broadcast::channel(2048));
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -103,27 +111,31 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
     });
 
     let mut question_send_task = tokio::spawn(async move {
-        let mut last_question = None;
+        let mut last_question = State::Ready;
         loop {
             let question = QUESTION.read().await;
-            if last_question.is_some() && question.is_none() {
+            if &*question == &State::End {
                 // send close message ?
-                break;
+
+                // add other mechanism to close !
+                // break;
             }
 
             if *question != last_question {
                 last_question = (*question).clone();
-                if let Some(question) = question.as_ref() {
-                    tx_to_send
-                        .clone()
-                        .send(Message::Text(
-                            serde_json::to_string(question).unwrap_or_default(),
-                        ))
-                        .await
-                        .unwrap();
-                }
+                let question = match &*question {
+                    State::Question((q, _)) => Some(q),
+                    _ => {None}
+                };
+                tx_to_send
+                    .clone()
+                    .send(Message::Text(
+                        serde_json::to_string(&question).unwrap_or_default(),
+                    ))
+                    .await
+                    .unwrap();
             }
-            tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+            tokio::time::sleep(std::time::Duration::from_millis(30)).await;
         }
         // while QUESTION_TX_RX.1.recv()
     });
@@ -201,15 +213,29 @@ async fn process_message(
 
                 b'a' => {
                     let nth_answer = chat_msg.chars().nth(1).unwrap().to_digit(10).unwrap();
+                    // if *QUE
                 }
 
                 // request scoreboard
-                b'r' => if user.read().await.as_ref().unwrap().is_admin {},
+                b's' => if user.read().await.as_ref().unwrap().is_admin {},
+
+                // remove question
+                b'r' => if user.read().await.as_ref().unwrap().is_admin {
+                    *QUESTION.write().await = State::Removed;
+                },
 
                 // next question
                 b'n' => {
                     if user.read().await.as_ref().unwrap().is_admin {
-                        *QUESTION.write().await = iter.unwrap().next().cloned();
+                        let next_state = match iter.unwrap().next().cloned() {
+                            Some(question) => {
+                                State::Question((question, Instant::now()))
+                            }
+                            None => {
+                                State::End
+                            }
+                        };
+                        *QUESTION.write().await = next_state;
                         log::info!("question: {:?}", QUESTION.read().await)
                     }
                 }
