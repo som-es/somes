@@ -18,6 +18,7 @@ use axum_extra::TypedHeader;
 use fake::{faker::name::de_de::Name, locales::DE_DE, Fake};
 use futures::{SinkExt, StreamExt};
 use jsonwebtoken::{decode, Validation};
+use rand::Rng;
 use redis::{aio::MultiplexedConnection, AsyncCommands};
 use sqlx::PgPool;
 use tokio::{sync::RwLock, time::Instant};
@@ -51,10 +52,11 @@ pub enum State {
     Ready,
     Question((QuizQuestion, Instant)),
     Removed,
-    End
+    Scoreboard,
+    End,
 }
 
-static USER_MAP: LazyLock<Arc<RwLock<HashMap<ConnectedUser, u32>>>> =
+static USER_MAP: LazyLock<Arc<RwLock<HashMap<u64, f64>>>> =
     LazyLock::new(|| Arc::new(RwLock::new(HashMap::new())));
 // static INFORM_USERS: LazyLock<Arc<RwLock<Vec<Box<dyn Fn() -> BoxFuture<'static, ()>>>>>> = LazyLock::new(|| Arc::new(RwLock::new(Vec::new())));
 static QUESTION: LazyLock<Arc<RwLock<State>>> =
@@ -64,8 +66,15 @@ static QUESTION: LazyLock<Arc<RwLock<State>>> =
 #[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ConnectedUser {
     name: String,
+    id: u64,
     token: String,
     is_admin: bool,
+    answer_locked_in: bool,
+}
+
+pub struct ScoreInfo {
+    pub score: f32,
+    pub place: i32,
 }
 
 async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
@@ -111,7 +120,7 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
     });
 
     let mut question_send_task = tokio::spawn(async move {
-        let mut last_question = State::Ready;
+        let mut last_state = State::Ready;
         loop {
             let question = QUESTION.read().await;
             if &*question == &State::End {
@@ -121,19 +130,17 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
                 // break;
             }
 
-            if *question != last_question {
-                last_question = (*question).clone();
-                let question = match last_question.clone() {
-                    State::Question((q, _)) => {
-                        Some(QuizQuestionNoCorrection {
-                            question: q.question,
-                            answer1: q.answer1,
-                            answer2: q.answer2,
-                            answer3: q.answer3,
-                            answer4: q.answer4,
-                        })
-                    },
-                    _ => {None}
+            if *question != last_state {
+                last_state = (*question).clone();
+                let question = match last_state.clone() {
+                    State::Question((q, _)) => Some(QuizQuestionNoCorrection {
+                        question: q.question,
+                        answer1: q.answer1,
+                        answer2: q.answer2,
+                        answer3: q.answer3,
+                        answer4: q.answer4,
+                    }),
+                    _ => None,
                 };
                 tx_to_send
                     .clone()
@@ -142,11 +149,18 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
                     ))
                     .await
                     .unwrap();
+
+                if last_state == State::Scoreboard {}
             }
             tokio::time::sleep(std::time::Duration::from_millis(30)).await;
         }
         // while QUESTION_TX_RX.1.recv()
     });
+
+    // let mut score_send_task = tokio::spawn(async move {
+
+    //     tokio::time::sleep(std::time::Duration::from_millis(30)).await;
+    // });
 
     let mut send_task = tokio::spawn(async move {
         while let Some(recv_msg) = rx_to_send.recv().await {
@@ -159,13 +173,13 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
 
     tokio::select! {
         rv_c = (&mut question_send_task) => {
-            question_send_task.abort();
+            // question_send_task.abort();
         }
         rv_a = (&mut send_task) => {
-            send_task.abort();
+            // send_task.abort();
         },
         rv_b = (&mut recv_task) => {
-            recv_task.abort();
+            // recv_task.abort();
         }
     }
 }
@@ -186,20 +200,23 @@ async fn process_message(
                     }
                     let name: String = Name().fake();
 
+                    let mut rng = rand::rngs::OsRng::default();
+                    let id = rng.gen();
+
                     let new_user = ConnectedUser {
                         name,
+                        id,
                         token: "token".to_string(),
                         is_admin: true,
+                        answer_locked_in: false,
                     };
                     log::info!("new user: {:?}", new_user);
                     sender
-                        .send(Message::Text(format!(
-                            "{};{}",
-                            new_user.name, new_user.token
-                        )))
+                        .send(Message::Text(format!("{};{}", new_user.name, new_user.id)))
                         .await
                         .unwrap();
 
+                    USER_MAP.write().await.insert(new_user.id, 0.);
                     *user.write().await = Some(new_user)
                 }
 
@@ -212,8 +229,10 @@ async fn process_message(
                     if let Ok(token_data) = token_data {
                         let new_user = ConnectedUser {
                             name: "RANDOM_NAME".to_string(),
+                            id: token_data.claims.id as u64,
                             token: token.to_string(),
                             is_admin: token_data.claims.is_admin,
+                            answer_locked_in: false,
                         };
                         *user.write().await = Some(new_user);
                     }
@@ -221,27 +240,46 @@ async fn process_message(
 
                 b'a' => {
                     let nth_answer = chat_msg.chars().nth(1).unwrap().to_digit(10).unwrap();
-                    // if *QUE
+
+                    if let State::Question((question, available_since)) = &*QUESTION.read().await {
+                        let mut user = user.write().await;
+                        if let Some(user) = user.as_mut() {
+                            if user.answer_locked_in {
+                                return ControlFlow::Continue(());
+                            }
+                            user.answer_locked_in = true;
+                            USER_MAP.write().await.get_mut(&user.id).map(|score| {
+                                *score += (question.correct_answer == nth_answer as i32) as u32
+                                    as f64
+                                    * 1100.
+                                    * (available_since.elapsed().as_secs_f64() * (-1. / 23.)).exp()
+                            });
+                        }
+                    }
                 }
 
                 // request scoreboard
-                b's' => if user.read().await.as_ref().unwrap().is_admin {},
+                b's' => {
+                    if user.read().await.as_ref().unwrap().is_admin {
+                        // sort scoreboard (afterwards send score)
+
+                        *QUESTION.write().await = State::Scoreboard;
+                    }
+                }
 
                 // remove question
-                b'r' => if user.read().await.as_ref().unwrap().is_admin {
-                    *QUESTION.write().await = State::Removed;
-                },
+                b'r' => {
+                    if user.read().await.as_ref().unwrap().is_admin {
+                        *QUESTION.write().await = State::Removed;
+                    }
+                }
 
                 // next question
                 b'n' => {
                     if user.read().await.as_ref().unwrap().is_admin {
                         let next_state = match iter.unwrap().next().cloned() {
-                            Some(question) => {
-                                State::Question((question, Instant::now()))
-                            }
-                            None => {
-                                State::End
-                            }
+                            Some(question) => State::Question((question, Instant::now())),
+                            None => State::End,
                         };
                         *QUESTION.write().await = next_state;
                         log::info!("question: {:?}", QUESTION.read().await)
@@ -256,6 +294,9 @@ async fn process_message(
             // send result
         }
         Message::Close(c) => {
+            if let Some(user) = &*user.read().await {
+                USER_MAP.write().await.remove(&user.id);
+            }
             if let Some(cf) = c {
                 println!(
                     ">>> sent close with code {} and reason `{}`",

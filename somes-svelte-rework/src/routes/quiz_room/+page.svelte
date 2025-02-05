@@ -8,6 +8,9 @@
     let userName: string | null = null
     let waitingForQuestions = false;
     let question: QuizQuestion | null = null;
+
+    let currentScore: number = 0;
+    let currentPlace: number | null = null
     
     const recvMessage = (event: MessageEvent) => {
 
@@ -22,7 +25,16 @@
             return
         }
         if (waitingForQuestions) {
-            question = JSON.parse(event.data as string)
+
+            const recvData: any = JSON.parse(event.data as string)
+
+            if ("score" in recvData) {
+
+            } else if ("answer1" in recvData) {
+                question = recvData
+            } else {
+                question = null
+            }
         }
 	};
 
@@ -58,4 +70,11 @@
 
 {#if question}
     {question.question}
+
+    <div class="flex flex-col">
+        <SButton on:click={() => sendMessage("a1")} >{question.answer1}</SButton>
+        <SButton on:click={() => sendMessage("a2")} >{question.answer2}</SButton>
+        <SButton on:click={() => sendMessage("a3")} >{question.answer3}</SButton>
+        <SButton on:click={() => sendMessage("a4")} >{question.answer4}</SButton>
+    </div>
 {/if}
