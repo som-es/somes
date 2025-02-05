@@ -57,8 +57,8 @@
                 console.log(currentScoreboard);
             } else if ("score" in recvData) {
                 currentScore = recvData
-            } else if ("answer1" in recvData) {
-                question = recvData
+            } else if ("question" in recvData) {
+                question = recvData;
             } else if ("user_count" in recvData) {
                 userCount = recvData.user_count
             } else {
@@ -82,7 +82,7 @@
   
     setInterval(
 		async () => {
-            if (isAdmin) sendMessage("u")
+            // if (isAdmin) sendMessage("u")
 		},
         200
 	);
@@ -102,8 +102,15 @@
 
 </script>
 
+ <div class="container">
+    <div class="square"> hi </div>
+    <div class="square"> hi</div>
+    <div class="square">hji</div>
+    <div class="square">hi</div>
+  </div>
+
 {#if state == "starting"}
-<div class="flex h-full items-center justify-center">
+<div class="flex h-full items-center justify-center gap-4">
 
     <SButton class="bg-secondary-300" on:click={enterRoom} >Beitreten</SButton>
 
@@ -111,6 +118,7 @@
         <!-- is admin -->
         <SButton class="bg-primary-300" on:click={() => {
             sendMessage(`h${jwtToken}`)
+            waitingForQuestions = true;
             state = "question";
         }} >Admin</SButton>
     {/if}
@@ -122,6 +130,8 @@
  
 <Container>
     {#if isAdmin}
+        <div class="flex justify-between">
+            <div></div>
         <!-- is admin -->
         {#if state == "question"}
             <SButton on:click={onScoreboard}>Weiter</SButton>
@@ -131,6 +141,7 @@
                 state = "question";
             }} >Nächste Frage</SButton>
         {/if}
+        </div>
     {/if}
 
     {#if userName}
@@ -138,14 +149,25 @@
     {/if}
 
     {#if question}
-        {question.question}
 
-        <div class="flex flex-col">
-            <SButton on:click={() => sendMessage("a1")} >{question.answer1}</SButton>
-            <SButton on:click={() => sendMessage("a2")} >{question.answer2}</SButton>
-            <SButton on:click={() => sendMessage("a3")} >{question.answer3}</SButton>
-            <SButton on:click={() => sendMessage("a4")} >{question.answer4}</SButton>
+        <div class="flex h-full flex-col items-center justify-center">
+            <h1 class=" text-6xl">
+                {question.question}
+            </h1>
+
+            <div class="mt-5 flex flex-row justify-center items-center">
+                
+                <SButton on:click={() => sendMessage("a1")} >{question.answer1}</SButton>
+                <SButton on:click={() => sendMessage("a2")} >{question.answer2}</SButton>
+                <SButton on:click={() => sendMessage("a3")} >{question.answer3}</SButton>
+                <SButton on:click={() => sendMessage("a4")} >{question.answer4}</SButton>
+            </div>
         </div>
     {/if}
 
 </Container>
+
+
+<style>
+
+</style>
