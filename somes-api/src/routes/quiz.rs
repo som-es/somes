@@ -19,16 +19,18 @@ use fake::{faker::name::de_de::Name, locales::DE_DE, Fake};
 use futures::{SinkExt, StreamExt};
 use jsonwebtoken::{decode, Validation};
 use redis::{aio::MultiplexedConnection, AsyncCommands};
+use sqlx::PgPool;
 use tokio::sync::RwLock;
 
 use crate::{
     jwt::{Claims, KEYS},
-    AuthError, RedisConnection,
+    AuthError, PgPoolConnection, RedisConnection,
 };
 
 pub async fn join_quiz_room(
     ws: WebSocketUpgrade,
     user_agent: Option<TypedHeader<headers::UserAgent>>,
+    PgPoolConnection(pg): PgPoolConnection,
     // ConnectInfo(addr): ConnectInfo<SocketAddr>,
 ) -> impl IntoResponse {
     let user_agent = if let Some(TypedHeader(user_agent)) = user_agent {
@@ -37,7 +39,7 @@ pub async fn join_quiz_room(
         String::from("Unknown browser")
     };
     log::info!("user agent: {user_agent:?}");
-    let res = ws.on_upgrade(move |socket| handle_socket(socket));
+    let res = ws.on_upgrade(move |socket| handle_socket(socket, pg));
 
     log::info!("returning after upgrade");
 
@@ -58,7 +60,7 @@ pub struct ConnectedUser {
     is_admin: bool,
 }
 
-async fn handle_socket(mut socket: WebSocket) {
+async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
     let user = Arc::new(RwLock::new(None));
 
     let (tx_to_send, mut rx_to_send) = tokio::sync::mpsc::channel(16);
@@ -90,14 +92,17 @@ async fn handle_socket(mut socket: WebSocket) {
                 answer4: "ANSER".to_string(),
             },
         ];
-        let mut questions = questions.iter();
+
+        let mut db_questions;
+        let mut questions = None;
+        // let mut questions = questions.iter();
         while let Some(msg) = receiver.next().await {
             if let Ok(msg) = msg {
                 if process_message(
                     tx_to_send_in_recv.clone(),
                     msg,
                     user.clone(),
-                    &mut questions,
+                    questions.as_mut(),
                 )
                 .await
                 .is_break()
@@ -106,6 +111,17 @@ async fn handle_socket(mut socket: WebSocket) {
                 }
             } else {
                 return;
+            }
+            if questions.is_none()
+                && user
+                    .read()
+                    .await
+                    .as_ref()
+                    .map(|x: &ConnectedUser| x.is_admin)
+                    .unwrap_or_default()
+            {
+                db_questions = sqlx::query_as!(QuizQuestion, "select question, answer1, answer2, answer3, answer4 from quiz_questions where quiz_id = 1").fetch_all(&pg).await.unwrap_or_default();
+                questions = Some(db_questions.iter());
             }
         }
     });
@@ -162,7 +178,7 @@ async fn process_message(
     sender: tokio::sync::mpsc::Sender<Message>,
     msg: Message,
     user: Arc<RwLock<Option<ConnectedUser>>>,
-    iter: &mut std::slice::Iter<'_, QuizQuestion>,
+    iter: Option<&mut std::slice::Iter<'_, QuizQuestion>>,
 ) -> ControlFlow<(), ()> {
     match msg {
         Message::Text(chat_msg) => {
@@ -217,7 +233,7 @@ async fn process_message(
                 // next question
                 b'n' => {
                     if user.read().await.as_ref().unwrap().is_admin {
-                        *QUESTION.write().await = iter.next().cloned();
+                        *QUESTION.write().await = iter.unwrap().next().cloned();
                         log::info!("question: {:?}", QUESTION.read().await)
                     }
                 }
