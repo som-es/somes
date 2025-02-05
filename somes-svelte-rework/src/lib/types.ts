@@ -221,6 +221,11 @@ export interface Scorer {
 	score: number;
 }
 
+export interface ScoreInfo {
+	score: number;
+	place: number;
+}
+
 export interface SignUpError {
 	missing_username: boolean;
 	missing_password: boolean;

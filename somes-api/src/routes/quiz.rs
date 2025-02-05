@@ -169,10 +169,16 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
                         let idx = scoreboard.iter().position(|((_, id), _)| id == &user.id);
                         if let Some(idx) = idx {
                             let ((_name, _id), score) = &scoreboard[idx];
-                            tx_to_send.send(Message::Text(serde_json::to_string(&ScoreInfo {
-                                score: *score,
-                                place: (idx + 1) as i32,
-                            }).unwrap())).await.unwrap();
+                            tx_to_send
+                                .send(Message::Text(
+                                    serde_json::to_string(&ScoreInfo {
+                                        score: *score,
+                                        place: (idx + 1) as i32,
+                                    })
+                                    .unwrap(),
+                                ))
+                                .await
+                                .unwrap();
                         }
                     }
                 }
@@ -209,6 +215,11 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
+pub struct UserCount {
+    user_count: usize,
+}
+
 async fn process_message(
     sender: tokio::sync::mpsc::Sender<Message>,
     msg: Message,
@@ -232,7 +243,7 @@ async fn process_message(
                         name,
                         id,
                         token: "token".to_string(),
-                        is_admin: true,
+                        is_admin: false,
                         answer_locked_in: false,
                     };
                     log::info!("new user: {:?}", new_user);
@@ -241,7 +252,10 @@ async fn process_message(
                         .await
                         .unwrap();
 
-                    USER_MAP.write().await.insert((new_user.name.clone(), new_user.id), 0.);
+                    USER_MAP
+                        .write()
+                        .await
+                        .insert((new_user.name.clone(), new_user.id), 0.);
                     *user.write().await = Some(new_user)
                 }
 
@@ -273,12 +287,17 @@ async fn process_message(
                                 return ControlFlow::Continue(());
                             }
                             user.answer_locked_in = true;
-                            USER_MAP.write().await.get_mut(&(user.name.clone(), user.id)).map(|score| {
-                                *score += (question.correct_answer == nth_answer as i32) as u32
-                                    as f64
-                                    * 1100.
-                                    * (available_since.elapsed().as_secs_f64() * (-1. / 23.)).exp()
-                            });
+                            USER_MAP
+                                .write()
+                                .await
+                                .get_mut(&(user.name.clone(), user.id))
+                                .map(|score| {
+                                    *score += (question.correct_answer == nth_answer as i32) as u32
+                                        as f64
+                                        * 1100.
+                                        * (available_since.elapsed().as_secs_f64() * (-1. / 23.))
+                                            .exp()
+                                });
                         }
                     }
                 }
@@ -298,15 +317,21 @@ async fn process_message(
                             b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal)
                         });
 
-                        let scoreboard = scoreboard.iter().map(|((name, id), score)| {
-                            Scorer {
+                        let scoreboard = scoreboard
+                            .iter()
+                            .map(|((name, id), score)| Scorer {
                                 name: name.clone(),
                                 id: *id,
                                 score: *score,
-                            }
-                        }).collect::<Vec<_>>();
+                            })
+                            .collect::<Vec<_>>();
 
-                        sender.send(Message::Text(serde_json::to_string(&scoreboard).unwrap_or_default())).await.unwrap();
+                        sender
+                            .send(Message::Text(
+                                serde_json::to_string(&scoreboard).unwrap_or_default(),
+                            ))
+                            .await
+                            .unwrap();
 
                         *QUESTION.write().await = State::Scoreboard;
                     }
@@ -314,14 +339,46 @@ async fn process_message(
 
                 // remove question
                 b'r' => {
-                    if user.read().await.as_ref().unwrap().is_admin {
+                    if user
+                        .read()
+                        .await
+                        .as_ref()
+                        .map(|x| x.is_admin)
+                        .unwrap_or_default()
+                    {
                         *QUESTION.write().await = State::Removed;
+                    }
+                }
+
+                b'u' => {
+                    if user
+                        .read()
+                        .await
+                        .as_ref()
+                        .map(|x| x.is_admin)
+                        .unwrap_or_default()
+                    {
+                        sender
+                            .send(Message::Text(
+                                serde_json::to_string(&UserCount {
+                                    user_count: USER_MAP.read().await.len(),
+                                })
+                                .unwrap_or_default(),
+                            ))
+                            .await
+                            .unwrap();
                     }
                 }
 
                 // next question
                 b'n' => {
-                    if user.read().await.as_ref().unwrap().is_admin {
+                    if user
+                        .read()
+                        .await
+                        .as_ref()
+                        .map(|x| x.is_admin)
+                        .unwrap_or_default()
+                    {
                         let next_state = match iter.unwrap().next().cloned() {
                             Some(question) => State::Question((question, Instant::now())),
                             None => State::End,
