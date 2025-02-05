@@ -49,7 +49,7 @@ pub async fn join_quiz_room(
 static USER_MAP: LazyLock<Arc<RwLock<HashMap<ConnectedUser, u32>>>> =
     LazyLock::new(|| Arc::new(RwLock::new(HashMap::new())));
 // static INFORM_USERS: LazyLock<Arc<RwLock<Vec<Box<dyn Fn() -> BoxFuture<'static, ()>>>>>> = LazyLock::new(|| Arc::new(RwLock::new(Vec::new())));
-static QUESTION: LazyLock<Arc<RwLock<Option<QuizQuestion>>>> =
+static QUESTION: LazyLock<Arc<RwLock<Option<QuizQuestionNoCorrection>>>> =
     LazyLock::new(|| Arc::new(RwLock::new(None)));
 // static QUESTION_TX_RX: LazyLock<(Sender<QuizQuestion>, Receiver<QuizQuestion>)> = LazyLock::new(|| tokio::sync::broadcast::channel(2048));
 
@@ -96,7 +96,7 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
                     .map(|x: &ConnectedUser| x.is_admin)
                     .unwrap_or_default()
             {
-                db_questions = sqlx::query_as!(QuizQuestion, "select question, answer1, answer2, answer3, answer4, correct_answer from quiz_questions where quiz_id = 1").fetch_all(&pg).await.unwrap_or_default();
+                db_questions = sqlx::query_as!(QuizQuestionNoCorrection, "select question, answer1, answer2, answer3, answer4 from quiz_questions where quiz_id = 1").fetch_all(&pg).await.unwrap_or_default();
                 questions = Some(db_questions.iter());
             }
         }
@@ -154,7 +154,7 @@ async fn process_message(
     sender: tokio::sync::mpsc::Sender<Message>,
     msg: Message,
     user: Arc<RwLock<Option<ConnectedUser>>>,
-    iter: Option<&mut std::slice::Iter<'_, QuizQuestion>>,
+    iter: Option<&mut std::slice::Iter<'_, QuizQuestionNoCorrection>>,
 ) -> ControlFlow<(), ()> {
     match msg {
         Message::Text(chat_msg) => {
