@@ -1,224 +1,331 @@
 <script lang="ts">
-	import { jwtStore } from "$lib/caching/stores/stores";
-	import Container from "$lib/components/Layout/Container.svelte";
-	import SButton from "$lib/components/UI/SButton.svelte";
-	import { getUserFromJwt, type BasicUserInfo, type QuizQuestion, type ScoreInfo, type Scorer } from "$lib/types";
-    import { onDestroy, onMount } from "svelte";
-	import { get } from "svelte/store";
+	import { jwtStore } from '$lib/caching/stores/stores';
+	import Container from '$lib/components/Layout/Container.svelte';
+	import SButton from '$lib/components/UI/SButton.svelte';
+	import {
+		getUserFromJwt,
+		type BasicUserInfo,
+		type InfoCounts,
+		type QuizQuestion,
+		type ScoreInfo,
+		type Scorer
+	} from '$lib/types';
+	import { onDestroy, onMount } from 'svelte';
+	import { get } from 'svelte/store';
 
+	let enteredRoom = false;
+	let recvUserCount = true;
+	let userName: string | null = null;
+	let userId: string | null = null;
+	let waitingForQuestions = false;
+	let question: QuizQuestion | null = null;
 
-    let enteredRoom = false;
-    let recvUserCount = true;
-    let userName: string | null = null
-    let waitingForQuestions = false;
-    let question: QuizQuestion | null = null;
+	let currentScoreboard: Scorer[] | null = null;
 
-    let currentScoreboard: Scorer[] | null = null;
+	let prevScore: ScoreInfo | null = null;
+	let currentScore: ScoreInfo | null = null;
+	let infoCounts: InfoCounts | null = null;
 
-    let currentScore: ScoreInfo | null = null;
-    let userCount = 0;
+	let state = 'starting';
+	let isAdmin = false;
 
-    let state = "starting";
-    let isAdmin = true;
+	let jwtToken: string | null;
+	let selectedAnswer: number | null = null;
 
-    let jwtToken: string | null;
-    let selectedAnswer = false;
-
-    onMount(async () => {
+	onMount(async () => {
 		jwtToken = get(jwtStore);
-        if (!jwtToken) {
-            return
-        }
+		if (!jwtToken) {
+			return;
+		}
 		const user = getUserFromJwt(jwtToken);
-        isAdmin = user.is_admin;
+		isAdmin = user.is_admin;
 	});
-    
-    const recvMessage = (event: MessageEvent) => {
 
-        console.log(event)
-        if (enteredRoom) {
-            const data = event.data as string;
-            userName = data.slice(0, data.indexOf(";"))
+	const recvMessage = (event: MessageEvent) => {
+		if (enteredRoom && !waitingForQuestions) {
+			const data = event.data as string;
+			userName = data.slice(0, data.indexOf(';'));
+			userId = data.slice(data.indexOf(';') + 1);
 
-            enteredRoom = false;
-            waitingForQuestions = true
+			waitingForQuestions = true;
 
-            return
-        }
-        if (waitingForQuestions) {
-            const recvData: any = JSON.parse(event.data as string)
+			return;
+		}
+		if (waitingForQuestions) {
+			const recvData: any = JSON.parse(event.data as string);
 
-            if (!recvData) {
-                question = null;
-                return;
-            }
+			if (!recvData) {
+				question = null;
+				return;
+			}
 
-            if (state == "scoreboard" && Array.isArray(recvData)) {
-                currentScoreboard = recvData;
-                console.log(currentScoreboard);
-            } else if ("score" in recvData) {
-                selectedAnswer = false;
-                currentScore = recvData
-            } else if ("question" in recvData) {
-                question = recvData;
-            } else if ("user_count" in recvData) {
-                userCount = recvData.user_count
-            } else {
-                question = null
-            }
-        }
-	}; 
+			if (state == 'scoreboard' && Array.isArray(recvData)) {
+				currentScoreboard = recvData;
+				console.log(currentScoreboard);
+			} else if ('score' in recvData) {
+				currentScore = recvData;
+				console.log(currentScore);
+			} else if ('question' in recvData) {
+				selectedAnswer = null;
+				prevScore = currentScore;
+				currentScore = null;
+				question = recvData;
+			} else if ('user_count' in recvData) {
+				infoCounts = recvData;
+			} else {
+				question = null;
+			}
+		}
+	};
 
-    
 	const roomSocket = new WebSocket(import.meta.env.VITE_ROOM_WEBSOCKET_URL);
 
-    onDestroy(() => {
+	onDestroy(() => {
 		roomSocket.close();
 	});
 	roomSocket.addEventListener('message', recvMessage);
 
-    const sendMessage = (msg: string) => {
+	const sendMessage = (msg: string) => {
 		if (!roomSocket || roomSocket.readyState !== WebSocket.OPEN) return;
-        roomSocket.send(msg)
-    }
-  
-    setInterval(
-		async () => {
-            // if (isAdmin) sendMessage("u")
-		},
-        200
-	);
+		roomSocket.send(msg);
+	};
 
-    const enterRoom = () => {
-        enteredRoom = true;
-        state = "question";
-        sendMessage("b")
-    }
+	setInterval(async () => {
+		if (isAdmin) sendMessage("u")
+	}, 200);
 
-    const onScoreboard = () => {
-        sendMessage("r"); 
+	const enterRoom = () => {
+		enteredRoom = true;
+		state = 'question';
+		sendMessage('b');
+	};
 
-        state = "scoreboard";
-        sendMessage("s"); 
-    }
+	const onScoreboard = () => {
+		sendMessage('r');
 
-    const onAnswerSelection = (msg: string) => {
-        selectedAnswer = true;
-        sendMessage(msg)
-    }
+		state = 'scoreboard';
+		sendMessage('s');
+	};
 
+	const onAnswerSelection = (msg: number) => {
+		if (selectedAnswer) {
+			return;
+		}
+		selectedAnswer = msg;
+		sendMessage(`a${msg}`);
+	};
 </script>
 
-{#if state == "starting"}
-<div class="flex h-full items-center justify-center gap-4">
+{#if state == 'starting'}
+	<div class="flex h-full items-center justify-center gap-4">
+		<SButton class="bg-secondary-300" on:click={enterRoom}>Beitreten</SButton>
 
-    <SButton class="bg-secondary-300" on:click={enterRoom} >Beitreten</SButton>
-
-    {#if isAdmin}
-        <!-- is admin -->
-        <SButton class="bg-primary-300" on:click={() => {
-            sendMessage(`h${jwtToken}`)
-            waitingForQuestions = true;
-            state = "question";
-        }} >Admin</SButton>
-    {/if}
-
-
-</div>
-
+		{#if isAdmin}
+			<!-- is admin -->
+			<SButton
+				class="bg-primary-300"
+				on:click={() => {
+					sendMessage(`h${jwtToken}`);
+					waitingForQuestions = true;
+					state = 'firstQuestion';
+				}}>Admin</SButton
+			>
+		{/if}
+	</div>
 {/if}
- 
-<Container>
-    {#if isAdmin}
-        <div class="flex justify-between">
-            <div></div>
-        <!-- is admin -->
-        {#if state == "question"}
-            <SButton on:click={onScoreboard}>Weiter</SButton>
-        {:else if state == "scoreboard"}
-            <SButton on:click={() => {
-                sendMessage("n"); 
-                state = "question";
-            }} >Nächste Frage</SButton>
-        {/if}
-        </div>
-    {/if}
 
-    {#if userName}
-        {userName}
-    {/if}
+<div class="h-[90%]">
+	{#if isAdmin && !enteredRoom}
+		<div class="flex justify-between">
+			<div></div>
+			<!-- is admin -->
+			{#if state == 'question'}
+				<SButton on:click={onScoreboard}>Weiter</SButton>
+			{:else if state == 'scoreboard'}
+				<SButton
+					on:click={() => {
+						sendMessage('n');
+						state = 'question';
+					}}>Nächste Frage</SButton
+				>
+			{:else if state == 'firstQuestion'}
+				<SButton
+					on:click={() => {
+						sendMessage('n');
+						state = 'question';
+					}}>Erste Frage</SButton
+				>
+			{/if}
+		</div>
+	{/if}
 
-    {#if question}
-        <header>
-            <h1 class=" font-bold text-6xl">
+	{#if isAdmin}
+		{#if question}
+            <h1 class="text-7xl font-bold text-center">
                 {question.question}
             </h1>
-        </header>
+			<div class="content mt-5">
+				<div class="squares-container">
+					<div
+						class="square bg-primary-400 flex justify-center items-center text-center text-xl"
+					>
+						{question.answer1}
+					</div>
+					<div
+						class="square bg-secondary-400 flex justify-center items-center text-center text-xl"
+					>
+						{question.answer2}
+					</div>
+					<div
+						class="square bg-tertiary-500 flex justify-center items-center text-center text-xl"
+					>
+						{question.answer3}
+					</div>
+					<div
+						class="square bg-surface-500 flex justify-center items-center text-center text-xl text-white"
+					>
+						{question.answer4}
+					</div>
+				</div>
+			</div>
+		{:else if state == 'firstQuestion'}
+			<div class="flex h-[95%] flex-col items-center justify-center gap-4"></div>
+		{:else}
+			<div class="flex h-[95%] flex-col items-center justify-center gap-4">SCOREBOARD</div>
+		{/if}
+	{:else if question}
+		<div class="content">
+			<div class="squares-container">
+				<div
+					on:click={() => onAnswerSelection(1)}
+					on:keydown
+					role="button"
+					tabindex="0"
+					class="square {selectedAnswer == 1
+						? 'opacity-55'
+						: ''} bg-primary-400 flex justify-center items-center text-center text-xl"
+				>
+					{question.answer1}
+				</div>
+				<div
+					on:click={() => onAnswerSelection(2)}
+					on:keydown
+					role="button"
+					tabindex="0"
+					class="square {selectedAnswer == 2
+						? 'opacity-55'
+						: ''} bg-secondary-400 flex justify-center items-center text-center text-xl"
+				>
+					{question.answer2}
+				</div>
+				<div
+					on:click={() => onAnswerSelection(3)}
+					on:keydown
+					role="button"
+					tabindex="0"
+					class="square {selectedAnswer == 3
+						? 'opacity-55'
+						: ''} bg-tertiary-500 flex justify-center items-center text-center text-xl"
+				>
+					{question.answer3}
+				</div>
+				<div
+					on:click={() => onAnswerSelection(4)}
+					on:keydown
+					role="button"
+					tabindex="0"
+					class="square {selectedAnswer == 4
+						? 'opacity-55'
+						: ''} bg-surface-500 flex justify-center items-center text-center text-xl text-white"
+				>
+					{question.answer4}
+				</div>
+			</div>
+		</div>
+	{:else if currentScore}
+		<div class="flex h-[95%] flex-col items-center justify-center gap-4">
+			{#if currentScore.correct_answer == selectedAnswer}
+				RICHTIG!
+			{:else}
+				FALSCH
+			{/if}
+			<p>
+				+{currentScore?.score ?? 0 - (prevScore?.score ?? 0)}
+			</p>
 
-        <div class="content">
-            <div class="squares-container">
-                <div on:click={() => onAnswerSelection("a1")} on:keydown role="button" tabindex=0 class="square {selectedAnswer ? "opacity-55" : ""} bg-primary-400 flex justify-center items-center text-center text-xl">{question.answer1}</div>
-                <div on:click={() => onAnswerSelection("a2")} on:keydown role="button" tabindex=0 class="square {selectedAnswer ? "opacity-55" : ""} bg-secondary-400 flex justify-center items-center text-center text-xl"> {question.answer2}</div>
-                <div on:click={() => onAnswerSelection("a3")} on:keydown role="button" tabindex=0 class="square {selectedAnswer ? "opacity-55" : ""} bg-tertiary-500 flex justify-center items-center text-center text-xl">{question.answer3}</div>
-                <div on:click={() => onAnswerSelection("a4")} on:keydown role="button" tabindex=0 class="square {selectedAnswer ? "opacity-55" : ""} bg-surface-500 flex justify-center items-center text-center text-xl text-white">{question.answer4}</div>
+			<p>
+				{currentScore?.score ?? 0} Punkte
+			</p>
+			<p>
+				{currentScore?.place}. Platz
+			</p>
+		</div>
+	{/if}
+
+	<section>
+		<hr />
+		{#if isAdmin && state == "question"}
+            <div class="flex justify-between">
+                <h2 class="text-2xl font-bold">{infoCounts?.answer_count} Antworten</h2>
+                <h2 class="text-2xl font-bold">{infoCounts?.user_count} Teilnehmer</h2>
             </div>
-        </div>
-    {/if}
-
-</Container>
-
+        {:else if userName}
+			{userName}/{userId}
+		{/if}
+	</section>
+</div>
 
 <style>
-header {
-  text-align: center;
-  margin-bottom: 40px;
-}
+	header {
+		text-align: center;
+		margin-bottom: 40px;
+	}
 
-.content {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-}
+	.content {
+		display: flex;
+		flex-direction: column;
+		gap: 30px;
+	}
 
-.squares-container {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  justify-items: center;
-}
+	.squares-container {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 20px;
+		justify-items: center;
+	}
 
-.square {
-  width: 100%;
-  height: 200px;
-  border-radius: 8px;
-}
+	.square {
+		width: 100%;
+		height: 200px;
+		border-radius: 8px;
+	}
 
-@media (max-width: 768px) {
-  .squares-container {
-    grid-template-columns: repeat(2, 1fr);
-  }
+	@media (max-width: 768px) {
+		.squares-container {
+			grid-template-columns: repeat(2, 1fr);
+		}
 
-  .square {
-    height: 150px;
-  }
+		.square {
+			height: 150px;
+		}
 
-  .content {
-    gap: 20px;
-  }
-}
+		.content {
+			gap: 20px;
+		}
+	}
 
-@media (max-width: 480px) {
-  .squares-container {
+	@media (max-width: 480px) {
+		/* .squares-container {
     grid-template-columns: 1fr;
-  }
+  } */
 
-  .square {
-    height: 150px;
-  }
+		.square {
+			height: 290px;
+			width: 100%;
+		}
 
-  .content {
-    gap: 10px;
-  }
-}
- 
+		.content {
+			gap: 10px;
+		}
+	}
 </style>

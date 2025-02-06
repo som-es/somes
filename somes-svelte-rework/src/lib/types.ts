@@ -227,6 +227,11 @@ export interface ScoreInfo {
 	correct_answer: number;
 }
 
+export interface InfoCounts {
+	user_count: number;
+	answer_count: number;
+}
+
 export interface SignUpError {
 	missing_username: boolean;
 	missing_password: boolean;

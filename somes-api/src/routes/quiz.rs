@@ -169,6 +169,7 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
                     .unwrap();
 
                 if last_state == State::Scoreboard {
+                    user.write().await.as_mut().map(|user| user.answer_locked_in = false);
                     if let Some(user) = &*user.clone().read().await {
                         let scoreboard = SCORE_BOARD.read().await;
                         let idx = scoreboard
