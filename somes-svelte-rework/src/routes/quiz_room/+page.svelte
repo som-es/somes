@@ -190,7 +190,11 @@
 				</div>
 			</div>
 		{:else if state == 'firstQuestion'}
-			<div class="flex h-[95%] flex-col items-center justify-center gap-4"></div>
+			<div class="flex h-[95%] flex-col items-center justify-center gap-4">
+                <h2 class="text-7xl font-bold">
+                    {infoCounts?.user_count ?? 0} Teilnehmer
+                </h2>
+            </div>
 		{:else}
 			<div class="flex h-[95%] flex-col items-center justify-center gap-4">SCOREBOARD</div>
 		{/if}
@@ -267,7 +271,14 @@
 		<hr />
 		{#if isAdmin && state == "question"}
             <div class="flex justify-between">
-                <h2 class="text-2xl font-bold">{infoCounts?.answer_count} Antworten</h2>
+                <h2 class="text-2xl font-bold">
+                    {infoCounts?.answer_count} 
+                    {#if infoCounts?.answer_count == 1}
+                        Antwort
+                    {:else}
+                        Antworten
+                    {/if}
+                </h2>
                 <h2 class="text-2xl font-bold">{infoCounts?.user_count} Teilnehmer</h2>
             </div>
         {:else if userName}
