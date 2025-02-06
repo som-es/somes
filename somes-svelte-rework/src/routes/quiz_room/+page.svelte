@@ -19,6 +19,7 @@
 	let userName: string | null = null;
 	let userId: string | null = null;
 	let waitingForQuestions = false;
+	let prevQuestion: QuizQuestion | null = null;
 	let question: QuizQuestion | null = null;
 
     setModeCurrent(true);
@@ -71,9 +72,11 @@
                 console.log(prevScore)
 			} else if ('question' in recvData) {
 				selectedAnswer = null;
+
 				prevScore = structuredClone(currentScore);
 				currentScore = null;
 				question = recvData;
+				prevQuestion = structuredClone(question);
 			} else if ('user_count' in recvData) {
 				infoCounts = recvData;
 			} else {
@@ -200,6 +203,25 @@
             </div>
 		{:else}
 			<div class="flex h-[95%] flex-col items-center justify-center gap-4">
+				<span class="text-3xl">"<span class="font-bold">{#if currentScore?.correct_answer == 1}
+					{prevQuestion?.answer1}
+				{/if}
+
+				{#if currentScore?.correct_answer == 2}
+					{prevQuestion?.answer2}
+				{/if}
+
+				{#if currentScore?.correct_answer == 3}
+					{prevQuestion?.answer3}
+				{/if}
+
+				{#if currentScore?.correct_answer == 4}
+					{prevQuestion?.answer4}
+				{/if}</span>" 
+				wäre die richtige Antwort.</span>
+                <span class="text-4xl font-bold">
+					Scoreboard
+				</span>
                 <table class="table table-hover w-[70%]">
                     <thead>
                         <tr>
@@ -216,7 +238,6 @@
                         {/each}
                     </tbody>
                 </table>
-                SCOREBOARD
             </div>
 		{/if}
 	{:else if question}
@@ -269,21 +290,33 @@
 			</div>
 		</div>
 	{:else if currentScore}
-		<div class="flex h-[95%] flex-col items-center justify-center gap-4">
-			{#if currentScore.correct_answer == selectedAnswer}
-				RICHTIG!
-			{:else}
-				FALSCH
-			{/if}
-			<p>
-				+{(currentScore?.score ?? 0) - (prevScore?.score ?? 0)}
+		<div class="flex h-[95%] flex-col items-center justify-center gap-2">
+
+			<p class="{currentScore.correct_answer == selectedAnswer ? "bg-green-699" : "bg-red-700" }  rounded-lg text-white text-center py-4 w-96">
+				<span class="font-bold text-lg">
+					{#if currentScore.correct_answer == selectedAnswer}
+						RICHTIG!
+					{:else}
+						FALSCH!
+					{/if}
+				</span>
 			</p>
 
-			<p>
-				{currentScore?.score ?? 0} Punkte
+			<p class="bg-surface-500 rounded-lg text-white text-center py-4 w-96">
+				<span class="font-bold text-lg">
+					+{(currentScore?.score ?? 0) - (prevScore?.score ?? 0)}
+				</span>
 			</p>
-			<p>
-				{currentScore?.place}. Platz
+
+			<p class="bg-surface-500 rounded-lg text-white text-center py-4 w-96">
+				<span class="font-bold text-lg">
+					{currentScore?.score ?? 0} Punkte
+				</span>
+			</p>
+			<p class="bg-surface-500 rounded-lg text-white text-center py-4 w-96">
+				<span class="font-bold text-lg">
+					{currentScore?.place}. Platz
+				</span>
 			</p>
 		</div>
 	{/if}
