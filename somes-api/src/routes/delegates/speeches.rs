@@ -22,6 +22,8 @@ pub async fn extract_delegate_speeches(
     page_elements: i64,
     pg: &PgPool,
 ) -> sqlx::Result<(i64, Vec<DbSpeechWithLink>)> {
+
+    // these are not plenar speeches !!! only that are related to a vote result
     let all_speeches_of_delegate = query!("
         select COUNT(*) from speeches 
         INNER JOIN speeches_html_urls ON speeches.id = speeches_html_urls.speech_id inner join legislative_initiatives li on li.id = legislative_initiatives_id where delegate_id = $1
