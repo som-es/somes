@@ -65,9 +65,10 @@
 			} else if ('score' in recvData) {
 				currentScore = recvData;
 				console.log(currentScore);
+                console.log(prevScore)
 			} else if ('question' in recvData) {
 				selectedAnswer = null;
-				prevScore = currentScore;
+				prevScore = structuredClone(currentScore);
 				currentScore = null;
 				question = recvData;
 			} else if ('user_count' in recvData) {
@@ -250,7 +251,7 @@
 				FALSCH
 			{/if}
 			<p>
-				+{currentScore?.score ?? 0 - (prevScore?.score ?? 0)}
+				+{(currentScore?.score ?? 0) - (prevScore?.score ?? 0)}
 			</p>
 
 			<p>
