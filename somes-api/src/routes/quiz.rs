@@ -310,11 +310,11 @@ async fn process_message(
                                 .await
                                 .get_mut(&(user.name.clone(), user.id))
                                 .map(|score| {
-                                    *score += (question.correct_answer == nth_answer as i32) as u32
+                                    *score += ((question.correct_answer == nth_answer as i32) as u32
                                         as f64
                                         * 1100.
                                         * (available_since.elapsed().as_secs_f64() * (-1. / 23.))
-                                            .exp()
+                                            .exp()).round()
                                 });
                                 
                         }

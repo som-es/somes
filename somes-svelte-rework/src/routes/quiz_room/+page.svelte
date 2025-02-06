@@ -10,6 +10,7 @@
 		type ScoreInfo,
 		type Scorer
 	} from '$lib/types';
+	import { setModeCurrent } from '@skeletonlabs/skeleton';
 	import { onDestroy, onMount } from 'svelte';
 	import { get } from 'svelte/store';
 
@@ -19,6 +20,8 @@
 	let userId: string | null = null;
 	let waitingForQuestions = false;
 	let question: QuizQuestion | null = null;
+
+    setModeCurrent(true);
 
 	let currentScoreboard: Scorer[] | null = null;
 
@@ -196,7 +199,25 @@
                 </h2>
             </div>
 		{:else}
-			<div class="flex h-[95%] flex-col items-center justify-center gap-4">SCOREBOARD</div>
+			<div class="flex h-[95%] flex-col items-center justify-center gap-4">
+                <table class="table table-hover w-[70%]">
+                    <thead>
+                        <tr>
+                            <th>Teilnehmer</th>
+                            <th>Punkte</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {#each (currentScoreboard ?? []).slice(0, 5) as player}
+                            <tr>
+                                <td>{player.name}/{player.id}</td>
+                                <td>{player.score}</td>
+                            </tr>
+                        {/each}
+                    </tbody>
+                </table>
+                SCOREBOARD
+            </div>
 		{/if}
 	{:else if question}
 		<div class="content">
