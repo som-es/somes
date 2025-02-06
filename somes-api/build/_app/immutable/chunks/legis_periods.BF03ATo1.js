@@ -1,1 +1,0 @@
-import{r as i}from"./scheduler.N7mmxPGM.js";import{b as a,c as l,i as t}from"./api.JMrt9_yI.js";async function f(r=!1){let e=i(a);if(e==null||r||e.length==0){const s=await l();t(s)||(a.set(s),e=s)}return e!==null&&(e=e.slice()),e}export{f as c};
