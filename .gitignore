@@ -7,7 +7,7 @@ Cargo.lock
 *.db
 *.db*
 dump.rdb
-*assets*
+somes-api/assets
 node_modules
 /build
 /.svelte-kit
