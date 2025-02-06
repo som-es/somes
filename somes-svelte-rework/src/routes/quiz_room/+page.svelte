@@ -292,7 +292,7 @@
 	{:else if currentScore}
 		<div class="flex h-[95%] flex-col items-center justify-center gap-2">
 
-			<p class="{currentScore.correct_answer == selectedAnswer ? "bg-green-699" : "bg-red-700" }  rounded-lg text-white text-center py-4 w-96">
+			<p class="{currentScore.correct_answer == selectedAnswer ? "bg-green-700" : "bg-red-700" }  rounded-lg text-white text-center py-4 w-96">
 				<span class="font-bold text-lg">
 					{#if currentScore.correct_answer == selectedAnswer}
 						RICHTIG!
@@ -318,6 +318,11 @@
 					{currentScore?.place}. Platz
 				</span>
 			</p>
+		</div>
+
+	{:else}
+		<div class="flex h-[95%] flex-col items-center justify-center gap-2">
+			<span class="text-5xl font-bold">Warten auf Fragen..</span>
 		</div>
 	{/if}
 
