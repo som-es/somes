@@ -133,6 +133,7 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
         }
     });
 
+    let question_user = user.clone();
     let mut question_send_task = tokio::spawn(async move {
         let mut last_state = State::Ready;
         let mut last_correct_answer = 0;
@@ -169,8 +170,8 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
                     .unwrap();
 
                 if last_state == State::Scoreboard {
-                    user.write().await.as_mut().map(|user| user.answer_locked_in = false);
-                    if let Some(user) = &*user.clone().read().await {
+                    question_user.write().await.as_mut().map(|user| user.answer_locked_in = false);
+                    if let Some(user) = &*question_user.clone().read().await {
                         let scoreboard = SCORE_BOARD.read().await;
                         let idx = scoreboard
                             .iter()
@@ -228,6 +229,11 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
             // recv_task.abort();
         }
     }
+
+
+    if let Some(user) = &*user.read().await {
+        USER_MAP.write().await.remove(&(user.name.clone(), user.id));
+    };
 }
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
