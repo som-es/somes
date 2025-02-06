@@ -1,9 +1,6 @@
 mod add_quiz;
 use std::{
-    collections::HashMap,
-    future::Future,
-    ops::ControlFlow,
-    sync::{Arc, LazyLock},
+    cell::Cell, collections::HashMap, future::Future, ops::ControlFlow, sync::{Arc, LazyLock}
 };
 
 pub use add_quiz::*;
@@ -65,6 +62,9 @@ static SCORE_BOARD: LazyLock<Arc<RwLock<Vec<((String, u64), f64)>>>> =
 // static INFORM_USERS: LazyLock<Arc<RwLock<Vec<Box<dyn Fn() -> BoxFuture<'static, ()>>>>>> = LazyLock::new(|| Arc::new(RwLock::new(Vec::new())));
 static QUESTION: LazyLock<Arc<RwLock<State>>> =
     LazyLock::new(|| Arc::new(RwLock::new(State::Ready)));
+
+static ANSWERS_TO_QUESTION: LazyLock<Arc<RwLock<usize>>> = LazyLock::new(|| Arc::new(RwLock::new(0)));
+
 // static QUESTION_TX_RX: LazyLock<(Sender<QuizQuestion>, Receiver<QuizQuestion>)> = LazyLock::new(|| tokio::sync::broadcast::channel(2048));
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -230,8 +230,9 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
 }
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
-pub struct UserCount {
+pub struct InfoCounts {
     user_count: usize,
+    answer_count: usize,
 }
 
 async fn process_message(
@@ -301,6 +302,8 @@ async fn process_message(
                                 return ControlFlow::Continue(());
                             }
                             user.answer_locked_in = true;
+
+                            *ANSWERS_TO_QUESTION.write().await += 1;
                             USER_MAP
                                 .write()
                                 .await
@@ -312,6 +315,7 @@ async fn process_message(
                                         * (available_since.elapsed().as_secs_f64() * (-1. / 23.))
                                             .exp()
                                 });
+                                
                         }
                     }
                 }
@@ -374,8 +378,9 @@ async fn process_message(
                     {
                         sender
                             .send(Message::Text(
-                                serde_json::to_string(&UserCount {
+                                serde_json::to_string(&InfoCounts {
                                     user_count: USER_MAP.read().await.len(),
+                                    answer_count: *ANSWERS_TO_QUESTION.read().await,
                                 })
                                 .unwrap_or_default(),
                             ))
@@ -398,6 +403,7 @@ async fn process_message(
                             None => State::End,
                         };
                         *QUESTION.write().await = next_state;
+                        *ANSWERS_TO_QUESTION.write().await = 0;
                         log::info!("question: {:?}", QUESTION.read().await)
                     }
                 }
