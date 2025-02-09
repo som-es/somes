@@ -105,6 +105,10 @@
 
 		if (!voteResultId) {
 			voteResult = get(currentVoteResultStore);
+
+			const url = new URL(window.location.href);
+			url.searchParams.set('id', voteResult?.legislative_initiative.id.toString() ?? "");
+			replaceState(url, history.state);
 		}
 
 		if (!delegates) {
