@@ -104,7 +104,7 @@ export function enrichParliamentBubbles(
 	});
 
 	if (voteResult) {
-		enrichCirclesWithSpeechInfoOnSeat(voteResult.speeches, bubbles, dels);
+		enrichCirclesWithSpeechInfoOnSeat(voteResult.speeches, bubbles, dels, voteResult.legislative_initiative.pre_declined_type == "p");
 		if (voteResult.named_votes) {
 			enrichCirclesWithNamedVoteInfoOnSeat(voteResult.named_votes.named_votes, bubbles, dels);
 		}
@@ -199,22 +199,30 @@ export function genCirclesWithNamedVoteInfo(namedVotes: NamedVote[], dels: Deleg
 export function enrichCirclesWithSpeechInfoOnSeat(
 	speeches: Speech[],
 	circles2d: Bubble[][],
-	dels: Delegate[]
+	dels: Delegate[],
+	reversed=false
 ) {
 	speeches.forEach((speech) => {
 		let del = findDelegateById(dels, speech.delegate_id);
 		if (del == null || del.seat_col == null || del.seat_row == null) return;
+		
+		let infavor = speech.infavor;
+
+		// ugly ugly fix - typically this would be stored differently in the database in the first place! But there is currently no elegent way to achieve this !
+		if (reversed && infavor != null) {
+			infavor = !infavor
+		}
 
 		circles2d[del.seat_row - 1][del.seat_col - 1].speech = speech;
 
 		let opacity = 1.0;
-		if (speech.infavor == null) {
+		if (infavor == null) {
 			circles2d[del.seat_row - 1][del.seat_col - 1].title = speech.opinion;
 		} else {
-			circles2d[del.seat_row - 1][del.seat_col - 1].title = speech.infavor
+			circles2d[del.seat_row - 1][del.seat_col - 1].title = infavor
 				? `Dafür gesprochen`
 				: `Dagegen gesprochen`;
-			opacity = speech.infavor ? 1.0 : 0.2;
+			opacity = infavor ? 1.0 : 0.2;
 		}
 		circles2d[del.seat_row - 1][del.seat_col - 1].opacity = opacity;
 		circles2d[del.seat_row - 1][del.seat_col - 1].r = +10.9;

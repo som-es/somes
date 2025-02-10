@@ -73,6 +73,8 @@ export interface LegislativeInitiative {
 	requires_simple_majority: boolean | null;
 	voted_by_name: boolean | null;
 	is_emphasis_ai_generated: boolean | null;
+	pre_declined_type: string | null;
+	plenary_session_id: number | null;
 }
 
 export interface Vote {
