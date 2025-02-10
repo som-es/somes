@@ -207,17 +207,16 @@ export function enrichCirclesWithSpeechInfoOnSeat(
 
 		circles2d[del.seat_row - 1][del.seat_col - 1].speech = speech;
 
-		circles2d[del.seat_row - 1][del.seat_col - 1].title = speech.infavor
-			? `Dafür gesprochen`
-			: `Dagegen gesprochen`;
-
 		let opacity = 1.0;
 		if (speech.infavor == null) {
 			circles2d[del.seat_row - 1][del.seat_col - 1].title = speech.opinion;
 		} else {
+			circles2d[del.seat_row - 1][del.seat_col - 1].title = speech.infavor
+				? `Dafür gesprochen`
+				: `Dagegen gesprochen`;
 			opacity = speech.infavor ? 1.0 : 0.2;
 		}
-		circles2d[del.seat_row - 1][del.seat_col - 1].opacity
+		circles2d[del.seat_row - 1][del.seat_col - 1].opacity = opacity;
 		circles2d[del.seat_row - 1][del.seat_col - 1].r = +10.9;
 	});
 }
