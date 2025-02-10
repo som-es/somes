@@ -185,6 +185,7 @@ SELECT jsonb_build_object(
         SELECT COALESCE(
             jsonb_agg(
                 jsonb_build_object(
+                    'about', about,
                     'delegate_id', delegate_id,
                     'infavor', CASE
                           WHEN opinion = 'Pro' THEN true 
@@ -201,6 +202,7 @@ SELECT jsonb_build_object(
         FROM plenar_speeches
         INNER JOIN plenar_speech_links psl ON plenar_speeches.id = psl.plenar_speech_id
         inner join plenar_speech_legis_inits pl on pl.speech_id = plenar_speeches.id
+        inner join debates on debates.id = plenar_speeches.debate_id
         WHERE legis_init_id = $1
     ),
     'topics', (

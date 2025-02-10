@@ -308,11 +308,15 @@ pub async fn get_speeches_from_legis_init_sqlx(
     sqlx::query_as!(
         DbSpeechWithLink,
         "select 
-            delegate_id, infavor, opinion, document_url, legislative_initiatives_id
+            null as about, delegate_id, infavor, opinion, document_url, legislative_initiatives_id
         from 
             speeches 
         inner join 
-            speeches_html_urls on speeches.id = speeches_html_urls.speech_id where legislative_initiatives_id = $1;",
+            speeches_html_urls on speeches.id = speeches_html_urls.speech_id 
+            
+        where legislative_initiatives_id = $1
+            
+            ;",
         legis_init_id
     )
     .fetch_all(con)

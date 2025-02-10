@@ -87,7 +87,8 @@ export interface Speech {
 	infavor: boolean | null;
 	opinion: string | null;
 	document_url: string | null;
-	legislative_initiatives_id: number;
+	about: string | null;
+	legislative_initiatives_id: number | null;
 }
 
 export interface SpeechesWithMaxPage {
