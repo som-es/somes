@@ -179,17 +179,13 @@
 	$: if (delegate && prevSelectedDelegateId != delegate.id) {
 		// interests = null;
 		if (finishedMounting) currentDelegateStore.set(delegate);
+		generalDelegateInfo = null;
 		general_delegate_info(delegate.id).then(res => {
 			generalDelegateInfo = errorToNull(res)	
 			if (generalDelegateInfo) {
 				generalDelegateInfo.interests.sort((a, b) => b.self_share - a.self_share)
 			}
 		})
-
-		// delegateQA = [
-		// 	{question: "Wie heißt du?", answer: "Tim Herbert"},
-		// 	{question: "Warum hast du bei der letzten Wahl die FPÖ gewählt?", answer: "Restfett wählen gehen war ein Fehler."},
-		// ];
 
 		govProposals = null;
 		gov_proposals_by_official(delegate.id).then((res) => {
@@ -321,7 +317,7 @@
 
 		{#if delegate && generalDelegateInfo?.political_position}
 			<SquarePoliticalSpectrum {delegate}	politicalPosition={generalDelegateInfo.political_position} />
-		{:else}
+		{:else if !generalDelegateInfo}
 			<ExpandablePlaceholder class={'my-3'} />
 		{/if}
 

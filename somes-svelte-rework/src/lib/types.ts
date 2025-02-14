@@ -74,6 +74,8 @@ export interface LegislativeInitiative {
 	requires_simple_majority: boolean | null;
 	voted_by_name: boolean | null;
 	is_emphasis_ai_generated: boolean | null;
+	pre_declined_type: string | null;
+	plenary_session_id: number | null;
 }
 
 export interface Vote {
@@ -88,7 +90,8 @@ export interface Speech {
 	infavor: boolean | null;
 	opinion: string | null;
 	document_url: string | null;
-	legislative_initiatives_id: number;
+	about: string | null;
+	legislative_initiatives_id: number | null;
 }
 
 export interface SpeechesWithMaxPage {
@@ -205,6 +208,32 @@ export interface BasicUserInfo {
 	sub: string;
 	company: string;
 	exp: number;
+	is_admin: boolean;
+}
+
+export interface QuizQuestion {
+	question: string;
+	answer1: string;
+	answer2: string;
+	answer3: string;
+	answer4: string;
+}
+
+export interface Scorer {
+	name: string;
+	id: number;
+	score: number;
+}
+
+export interface ScoreInfo {
+	score: number;
+	place: number;
+	correct_answer: number;
+}
+
+export interface InfoCounts {
+	user_count: number;
+	answer_count: number;
 }
 
 export interface SignUpError {
@@ -258,7 +287,7 @@ export interface GeneralDelegateInfo {
 	interests: InterestShare[];
 	delegate_qa: DelegateQA[];
 	mandates: Mandate[];
-	political_position: PoliticalPosition;
+	political_position: PoliticalPosition | null;
 }
 
 export interface DelegateQA {

@@ -14,16 +14,18 @@ pub struct Claims {
     pub sub: String,
     pub company: String,
     pub exp: usize,
+    pub is_admin: bool,
 }
 
 impl Claims {
-    pub fn new(id: i32, sub: String) -> Self {
+    pub fn new(id: i32, sub: String, is_admin: bool) -> Self {
         Self {
             id,
             sub,
             company: "".to_string(),
             // Mandatory expiry time as UNIX timestamp
             exp: (timestamp_secs() + 60 * 60 * 24 * 3) as usize,
+            is_admin,
         }
     }
 }

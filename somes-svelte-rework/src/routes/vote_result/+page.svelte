@@ -105,6 +105,10 @@
 
 		if (!voteResultId) {
 			voteResult = get(currentVoteResultStore);
+
+			const url = new URL(window.location.href);
+			url.searchParams.set('id', voteResult?.legislative_initiative.id.toString() ?? "");
+			replaceState(url, history.state);
 		}
 
 		if (!delegates) {
@@ -311,12 +315,13 @@
 						{/each}
 					</div>
 				</div>
-				{#if generalSpeechDelegates !== null}
-					{#if generalSpeechDelegates.length > 0}
+				{#if circles2d}
+					{#if circles2d.length > 0}
 						<div class="speeches-item bg-primary-300 dark:bg-primary-500 rounded-xl p-4 gap-3">
 							<span class="font-bold text-3xl">Reden</span>
 							<div class="flex flex-row flex-wrap mt-3 gap-3">
-								{#each generalSpeechDelegates as speechDelegate}
+								{#each circles2d.flat(1) as speechDelegate}
+								{#if speechDelegate.speech}
 									<div class="w-full max-w-80">
 										<VoteDelegateCard
 											bubble={speechDelegate}
@@ -324,7 +329,9 @@
 											date={voteResult.legislative_initiative.created_at}
 										/>
 									</div>
+									{/if}
 								{/each}
+
 							</div>
 						</div>
 					{/if}

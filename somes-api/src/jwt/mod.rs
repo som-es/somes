@@ -11,8 +11,12 @@ use axum::Json;
 use jsonwebtoken::{encode, Header};
 use somes_common_lib::JWTInfo;
 
-pub fn create_access_token(id: i32, username: String) -> Result<Json<JWTInfo>, AuthError> {
-    let claims = Claims::new(id, username);
+pub fn create_access_token(
+    id: i32,
+    username: String,
+    is_admin: bool,
+) -> Result<Json<JWTInfo>, AuthError> {
+    let claims = Claims::new(id, username, is_admin);
 
     // Create the authorization token
     let access_token = encode(&Header::default(), &claims, &KEYS.encoding)
@@ -22,7 +26,7 @@ pub fn create_access_token(id: i32, username: String) -> Result<Json<JWTInfo>, A
 }
 
 pub async fn renew_token(claims: Claims) -> Result<Json<JWTInfo>, AuthError> {
-    create_access_token(claims.id, claims.sub)
+    create_access_token(claims.id, claims.sub, claims.is_admin)
 }
 
 #[cfg(test)]
@@ -33,7 +37,7 @@ mod tests {
     fn test_create_access_token() {
         std::env::set_var("JWT_SECRET", "super_sicher");
 
-        let token = create_access_token(43, "toller_name".to_string()).unwrap();
+        let token = create_access_token(43, "toller_name".to_string(), false).unwrap();
         let _token = &token.access_token;
     }
 }

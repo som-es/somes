@@ -46,6 +46,8 @@ pub const COMPLEXITY_PER_LEGIS: &str = "/complexity_per_legis";
 pub const DIVISION_ACCURACY_SCORE_PER_LEGIS: &str = "/division_accuracy_score_per_legis";
 pub const SPEECHTIME_PER_LEGIS: &str = "/speechtime_per_legis";
 pub const TOTAL_SPEECHES_PER_LEGIS: &str = "/total_speeches_per_legis";
+pub const ADD_QUIZ: &str = "/add_quiz";
+pub const QUIZ_ROOM: &str = "/quiz_room";
 pub const DELEGATES_BY_CALL_TO_ORDERS: &str = "/delegates_by_call_to_orders";
 pub const DELEGATES_BY_CALL_TO_ORDERS_AND_LEGIS_PERIOD: &str =
     "/delegates_by_call_to_orders_and_legis_period";

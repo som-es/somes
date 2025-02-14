@@ -4,7 +4,6 @@
 	import type { Speech, VoteResult } from "$lib/types";
 	import { currentVoteResultStore } from '$lib/stores/stores';
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
-	import { onMount } from "svelte";
 	import { gotoHistory } from "$lib/goto";
 	import { getModalStore } from "@skeletonlabs/skeleton";
 	import ExpandablePlaceholder from "$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte";
@@ -13,10 +12,14 @@
 
     let voteResult: VoteResult | null = null;
 
-    $: if(speech) {
+    let loadingVoteResult = false;
+
+    $: if(speech.legislative_initiatives_id) {
         voteResult = null;
+        loadingVoteResult = true;
         vote_result_by_id(speech.legislative_initiatives_id.toString()).then((res) => {
             voteResult = errorToNull(res);
+            loadingVoteResult = false;
         });
     }
 
@@ -61,8 +64,15 @@
                     {@html rightArrowIcon}
                 </button>
             {/if}
-        {:else}
+        {:else if loadingVoteResult}
             <ExpandablePlaceholder class="min-w-7xl w-7xl" />
+        {:else if speech.about}
+            <div class="rounded-[0.9rem] spacing-for-left flex dark:bg-primary-300 bg-primary-400 justify-between items-center flex-basis-left">
+                <div class="flex flex-col">
+                    <div class="text-lg font-bold">{opinion}</div>
+                    <div>{speech.about}</div>
+                </div>
+            </div> 
         {/if}
 <!-- 
 	<div use:collapse={{ open, duration }}>

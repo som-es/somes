@@ -390,6 +390,8 @@ pub async fn serve(addr: SocketAddr) {
         .route(DIVISION_ACCURACY_SCORE_PER_LEGIS, post(division_accuracy_score_per_legis))
         .route(SPEECHTIME_PER_LEGIS, post(speechtime_per_legis))
         .route(TOTAL_SPEECHES_PER_LEGIS, post(total_speeches_per_legis))
+        .route(ADD_QUIZ, post(add_quiz))
+        .route(QUIZ_ROOM, any(join_quiz_room))
         .route("/save_email", post(save_email))
         .nest_service("/assets", ServeDir::new("assets"))
         // mind conflicts e.g delegates
@@ -428,6 +430,26 @@ pub async fn serve(addr: SocketAddr) {
     // .unwrap();
 
     // let server = axum_server::bind_rustls(addr, config);
+
+    if std::env::var("SOMES_DEBUG").unwrap_or_default() == "DEBUG" {
+        info!("Binding API on {addr}");
+        let listener = match TcpListener::bind(&addr).await {
+            Ok(listener) => listener,
+            Err(e) => panic!("Could not initialize API: {e}"),
+        };
+
+        info!("Now listening..");
+        if let Err(e) = axum::serve(
+            listener,
+            app.into_make_service_with_connect_info::<SocketAddr>(),
+        )
+        .await
+        {
+            error!("API returned error state: {e}")
+        }
+        return;
+    }
+
     match config {
         Ok(config) => {
             let ports = Ports {

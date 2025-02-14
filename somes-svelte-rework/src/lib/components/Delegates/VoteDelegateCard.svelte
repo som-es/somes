@@ -28,7 +28,7 @@
 		placement: 'bottom'
 	};
 
-	let infoText = '';
+	$: infoText = '';
 	$: if (bubble.namedVote !== null) {
 		infoText = `unsichere Zuteilung: "${bubble.namedVote.searched_with}" wurde ${bubble.namedVote.manually_matched ? 'manuell' : 'automatisch'} "${bubble.namedVote.matched_with}" zugeteilt`;
 	}

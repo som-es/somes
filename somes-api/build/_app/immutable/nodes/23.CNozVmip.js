@@ -1,0 +1,1 @@
+import{s as n,t as r,d as i,i as c,n as a,f as p}from"../chunks/CjpzdfaC.js";import{S as m,i as l}from"../chunks/DucaReQi.js";function f(o){let t;return{c(){t=r("Sprachkomplexität")},l(e){t=i(e,"Sprachkomplexität")},m(e,s){c(e,t,s)},p:a,i:a,o:a,d(e){e&&p(t)}}}class d extends m{constructor(t){super(),l(this,t,null,f,n,{})}}export{d as component};

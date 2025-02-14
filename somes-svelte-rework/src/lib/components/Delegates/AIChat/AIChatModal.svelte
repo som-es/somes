@@ -45,7 +45,7 @@
 			return;
 		}
 		const sentMessage = newMessage.trim();
-		if (!sendMessage || !chatSocket || chatSocket.readyState !== WebSocket.OPEN) return;
+		if (!sentMessage || !chatSocket || chatSocket.readyState !== WebSocket.OPEN) return;
 
 		if ($modalStore.length > 0 && newMessage.length > 0) {
 			const chatHistory = messages.slice();

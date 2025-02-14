@@ -185,8 +185,13 @@ SELECT jsonb_build_object(
         SELECT COALESCE(
             jsonb_agg(
                 jsonb_build_object(
+                    'about', about,
                     'delegate_id', delegate_id,
-                    'infavor', infavor,
+                    'infavor', CASE
+                          WHEN opinion = 'Pro' THEN true 
+                          WHEN opinion = 'Contra' THEN false 
+                          ELSE NULL
+                        END,
                     'opinion', opinion,
                     'document_url', document_url,
                     'legislative_initiatives_id', $1
@@ -194,9 +199,11 @@ SELECT jsonb_build_object(
             ),
             '[]'::jsonb
         )
-        FROM speeches
-        INNER JOIN speeches_html_urls ON speeches.id = speeches_html_urls.speech_id
-        WHERE legislative_initiatives_id = $1
+        FROM plenar_speeches
+        INNER JOIN plenar_speech_links psl ON plenar_speeches.id = psl.plenar_speech_id
+        inner join plenar_speech_legis_inits pl on pl.speech_id = plenar_speeches.id
+        inner join debates on debates.id = plenar_speeches.debate_id
+        WHERE legis_init_id = $1
     ),
     'topics', (
         SELECT COALESCE(
@@ -266,7 +273,7 @@ SELECT jsonb_build_object(
     crate::set_json_cache(&mut redis_con, &key, &out)
         .await
         .ok_or(sqlx::Error::WorkerCrashed)?;
-    log::info!("elapsed: {:?}", start.elapsed());
+    // log::info!("elapsed: {:?}", start.elapsed());
     // Ok(out)
     Ok(out)
 }

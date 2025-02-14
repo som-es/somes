@@ -12,6 +12,7 @@ pub struct User {
     pub id: i32,
     pub email: String,
     pub is_email_hashed: bool,
+    pub is_admin: bool,
 }
 
 #[derive(Insertable, Debug, Serialize, Deserialize)]

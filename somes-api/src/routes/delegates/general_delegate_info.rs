@@ -5,8 +5,10 @@ use sqlx::{query_as, PgPool};
 
 use crate::{get_json_cache, PgPoolConnection, RedisConnection};
 
-use super::{extract_delegate_qa, extract_interests_of_delegate, extract_political_position, DelegatesErrorResponse};
-
+use super::{
+    extract_delegate_qa, extract_interests_of_delegate, extract_political_position,
+    DelegatesErrorResponse,
+};
 
 pub async fn extract_general_delegate_info(
     delegate_id: i32,

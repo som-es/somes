@@ -1,0 +1,1 @@
+function n(r){const t=r.split("-");return`${t[2]}.${t[1]}.${t[0]}`}function o(r,t){const a=n(r.start_date.toString());return t==null?`${a} -`:`${a} - ${n(t.start_date.toString())}`}export{n as d,o as l};
