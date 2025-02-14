@@ -7,6 +7,7 @@
 
     export let delegateMakeRequest: (gp: string | null, gender: string | null, isDesc: boolean | true) => Promise<DelegateData[]>;
 	export let height: number;
+	export let title: string;
 	export let id: number;
 
     let currentData: DelegateData[] = [];
@@ -199,7 +200,7 @@
 </div>
 
 <div class="graphic-container">
-	<ReactiveDelegateBarChart {height} delegateData={filteredData} title={"Redezeit in Minuten"} />
+	<ReactiveDelegateBarChart {height} delegateData={filteredData} {title} />
 </div>
 
 <style>

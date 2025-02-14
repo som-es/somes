@@ -6,6 +6,7 @@ export interface DelegateSplit {
 
 export interface DelegateData {
 	name: string | null;
+	gender: string | null;
 	party: string;
 	data: number;
 }
