@@ -2,6 +2,26 @@ use chrono::{NaiveDate, NaiveDateTime};
 use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
 
+#[derive(ToSchema, PartialEq, Debug, Clone, Serialize, Deserialize)]
+pub struct Delegate {
+    pub id: i32,
+    pub name: String,
+    pub party: Option<String>,
+    pub current_party: Option<String>,
+    pub image_url: Option<String>,
+    pub constituency: Option<String>,
+    pub council: Option<String>,
+    pub seat_row: Option<i32>,
+    pub seat_col: Option<i32>,
+    pub gender: Option<String>,
+    pub is_active: Option<bool>,
+    pub birthdate: Option<NaiveDate>,
+    pub active_since: NaiveDate,
+    pub divisions: Option<Vec<String>>,
+    pub primary_mandate: Option<String>,
+    pub active_mandates: Option<Vec<String>>,
+}
+
 /// 'ResetPasswordInfo' is used to send a reset password request to the server.
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct ResetPasswordInfo {

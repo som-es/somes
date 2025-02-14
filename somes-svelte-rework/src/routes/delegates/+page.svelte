@@ -231,7 +231,7 @@
 				type="range"
 				min="2"
 				max={maxDayOffset + 2}
-				step={maxDayOffset / 30}
+				step={maxDayOffset / 90}
 				list="steplist"
 			/>
 			<datalist id="steplist">
