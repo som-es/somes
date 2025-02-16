@@ -154,6 +154,8 @@ pub async fn serve(addr: SocketAddr) {
     let postgres_pool = bb8::Pool::builder().build(config).await.unwrap();
      */
 
+    log::info!("Connecting to database {DATASERVICE_URL}");
+
     let dataservice_sqlx_pool = PgPoolOptions::new()
         // pool sizes
         .max_connections(20)
