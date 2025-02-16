@@ -69,8 +69,10 @@
 
 	let updatedQueryParam = false;
 
+
+	$: rawEmphasis = voteResult?.legislative_initiative.emphasis;
+
 	const update = (voteResultId: string | null) => {
-		console.log('load');
 		if (voteResultId == null) {
 			return;
 		}
@@ -95,7 +97,15 @@
 		history.back();
 	};
 
-	const updateAutocompletion = async () => {
+	const updateAutocompletion = () => {
+		autocompleteOptions = convertDelegatesToAutocompleteOptions(delegates, [], voteResult);
+	}
+
+	const selectRandomlyFromDels = () => {
+		delegate = delegates[Math.floor(Math.random() * delegates.length)];
+	}
+
+	const runVoteResultUpdate = async () => {
 		const url = new URL(window.location.href);
 
 		voteResultId = url.searchParams.get('id');
@@ -117,8 +127,8 @@
 
 		await fetchDelegatesAtAndEnrich(delegates);
 
-		delegate = delegates[Math.floor(Math.random() * delegates.length)];
-		autocompleteOptions = convertDelegatesToAutocompleteOptions(delegates, [], voteResult);
+		selectRandomlyFromDels();
+		updateAutocompletion();
 
 		const maybeStoredDelegate = get(currentDelegateStore);
 		if (maybeStoredDelegate) {
@@ -140,7 +150,7 @@
 		// }
 	};
 
-	onMount(updateAutocompletion);
+	onMount(runVoteResultUpdate);
 
 	let currentlyUpdating = false;
 
@@ -150,6 +160,7 @@
 		}
 		currentlyUpdating = true;
 		voteResult = errorToNull(await vote_result_by_id(voteResultId));
+		console.log("FETCH")
 		// if (delegates)
 		// await fetchDelegatesAtAndEnrich();
 		currentVoteResultStore.set(voteResult);
@@ -178,10 +189,10 @@
 	// $: if (voteResult || voteResultId) emphasis = voteResult?.legislative_initiative.emphasis
 	// 	?.split('\n\t')
 	// 	.filter((x) => x.length > 0);
-	$: rawEmphasis = voteResult?.legislative_initiative.emphasis;
 
 	$: if (delegates) {
 		updateAutocompletion();
+		selectRandomlyFromDels();
 	}
 
 	let iterBubble: Bubble | undefined;
