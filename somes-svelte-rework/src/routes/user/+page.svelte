@@ -59,18 +59,32 @@
 			</SButton>
 		</div>
 		<div
-			class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 items-center flex flex-wrap"
+			class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 items-center flex justify-between"
 		>
-			<h1 class="font-bold text-2xl">Bentuzerinfos</h1>
-			<div class="ml-5 text-xl">E-Mail</div>
-			<div class="mx-4 text-xl">
-				{#if user}
-					{user.sub}
-				{/if}
+			<div class="flex flex-wrap items-center">
+				<h1 class="font-bold text-2xl">Benutzerinfos</h1>
+				<div class="ml-5 text-xl">E-Mail</div>
+				<div class="mx-4 text-xl">
+					{#if user}
+						{user.sub}
+					{/if}
+				</div>
+			</div>
+			<div>
+				<SButton
+					class="bg-tertiary-500 text-black"
+					on:click={() => {
+						jwtStore.set(null);
+						gotoHistory('/home');
+					}}
+				>
+					todo: E-Mail wechseln
+				</SButton>
 			</div>
 		</div>
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
 			<h1 class="font-bold text-2xl">Wahle deine Interessen</h1>
+			todo: Searchbar
 			<div class="mt-3">
 				{#if topics}
 					<SelectableTopics bind:selectedTopics {topics} />
@@ -79,7 +93,7 @@
 		</div>
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
 			<SButton
-				class="bg-error-500 text-black"
+				class="bg-error-300 text-black"
 				on:click={async () => {
 					await delete_account();
 					jwtStore.set(null);
