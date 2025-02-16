@@ -9,17 +9,53 @@
 	import { delete_account, renew_token } from '$lib/api/authed';
 	import { jwtStore } from '$lib/caching/stores/stores';
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache';
+	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
+	import AutocompleteMultiselect from '$lib/components/Autocompletion/AutocompleteMultiselect.svelte';
+	import { delegateFilterOptions, filterOptionsMultiSelect } from '$lib/components/Autocompletion/filtering';
+	import type { AutocompleteOptionMultiselect } from '$lib/components/Autocompletion/types';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import SelectableTopics from '$lib/components/Topics/SelectableTopics.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import { gotoHistory } from '$lib/goto';
 	import { getUserFromJwt, type BasicUserInfo, type Topic, type UniqueTopic } from '$lib/types';
+	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
 
 	let topics: UniqueTopic[] = [];
 	let selectedTopics = new Set<number>();
 	let user: BasicUserInfo | null;
+
+	let autocompleteOptions: AutocompleteOptionMultiselect<string, UniqueTopic>[] = [];
+	let inputValue = '';
+	let allOwnTopics: UniqueTopic[] = [];
+	
+	function delegateFilter(): AutocompleteOptionMultiselect<string, UniqueTopic>[] {
+		let _options = [...autocompleteOptions];
+		let _inputValue = `${String(inputValue).toLowerCase().trim()} `;
+		return filterOptionsMultiSelect(_options, _inputValue);
+	}
+
+	let popupSettings: PopupSettings = {
+		event: 'focus-click',
+		target: 'popupAutocomplete',
+		placement: 'bottom-start'
+	}
+
+	export function convertDelegatesToAutocompleteOptions(): AutocompleteOptionMultiselect<string, UniqueTopic>[] {
+		return topics.map((topic) => {
+			return {
+				right_label: "",
+				isSelected: selectedTopics.has(topic.id),
+				label: topic.topic,
+				value: topic.id.toString(),
+				keywords: `${topic.topic}`,
+				meta: topic
+			};
+		});
+	}
+
+	$: if (selectedTopics) autocompleteOptions = convertDelegatesToAutocompleteOptions();
 
 	onMount(async () => {
 		const jwtToken = get(jwtStore);
@@ -36,6 +72,7 @@
 		const data = await cachedUserTopics(true);
 
 		if (data) {
+			allOwnTopics = data;
 			selectedTopics = new Set<number>(data.map((topic) => topic.id));
 		}
 		// selectedTopics = new Set<UniqueTopic>(selectedTopics)
@@ -84,7 +121,40 @@
 		</div>
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
 			<h1 class="font-bold text-2xl">Wahle deine Interessen</h1>
-			todo: Searchbar
+			<!-- todo: Searchbar -->
+			<input
+				class="input w-96 h-12 px-2"
+				type="search"
+				name="ac-demo"
+				bind:value={inputValue}
+				placeholder="Suchen..."
+				use:popup={popupSettings}
+			/>
+			{#if autocompleteOptions}
+				<div
+					class="z-10 card w-full max-w-sm max-h-64 p-4 overflow-y-auto"
+					data-popup="popupAutocomplete"
+				>
+					<AutocompleteMultiselect
+						bind:input={inputValue}
+						options={autocompleteOptions}
+						on:selection={(event) => { 
+							if (event.detail.meta) {
+								if (event.detail.isSelected) {
+									selectedTopics.delete(event.detail.meta.id);
+								} else {
+									selectedTopics.add(event.detail.meta.id); 
+								}
+
+							}
+							selectedTopics = selectedTopics
+						}}
+						emptyState={'Keine Themen gefunden'}
+						filter={delegateFilter}
+					/>
+				</div>
+			{/if}
+
 			<div class="mt-3">
 				{#if topics}
 					<SelectableTopics bind:selectedTopics {topics} />

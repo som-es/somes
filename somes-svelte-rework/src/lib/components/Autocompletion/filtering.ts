@@ -1,5 +1,5 @@
 import type { Delegate, VoteResult } from '$lib/types';
-import type { AutocompleteOption } from './types';
+import type { AutocompleteOption, AutocompleteOptionMultiselect } from './types';
 
 export function convertDelegatesToAutocompleteOptions(
 	delegates: Delegate[],
@@ -43,6 +43,23 @@ export function delegateFilterOptions(
 	_options: AutocompleteOption<string>[],
 	_inputValue: string
 ): AutocompleteOption<string>[] {
+	return _options.filter((option, i) => {
+		// if (i >= 16) return null;
+		let values = _inputValue.split(' ');
+		const optionFormatted = `${option.value.toLowerCase().trim()} ${option.keywords?.toLowerCase().trim()}`;
+		for (let idx = 0; idx < values.length; idx++) {
+			if (!optionFormatted.includes(values[idx])) {
+				return null;
+			}
+		}
+		return option;
+	});
+}
+
+export function filterOptionsMultiSelect(
+	_options: AutocompleteOptionMultiselect<string, any>[],
+	_inputValue: string
+): AutocompleteOptionMultiselect<string, any>[] {
 	return _options.filter((option, i) => {
 		// if (i >= 16) return null;
 		let values = _inputValue.split(' ');

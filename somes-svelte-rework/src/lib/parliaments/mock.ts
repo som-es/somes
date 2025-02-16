@@ -18,7 +18,7 @@ function generateDelegate(party: string): Delegate {
 		active_since: new Date(),
 		divisions: null,
 		primary_mandate: "",
-		mandates: []
+		active_mandates: []
 	};
 }
 
@@ -57,7 +57,9 @@ export function mockVoteResult(date: string = '2020-03-06'): VoteResult {
 			requires_simple_majority: true,
 			voted_by_name: false,
 			inr: 0,
-			is_emphasis_ai_generated: null
+			is_emphasis_ai_generated: null,
+			plenary_session_id: 0,
+			pre_declined_type: ""
 		},
 		votes: [
 			{
