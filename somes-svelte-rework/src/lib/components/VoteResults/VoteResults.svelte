@@ -18,7 +18,7 @@
 
 {#if voteResults}
 	{#if voteResults.length == 0}
-		<p class="no-votes">Keine Abstimmungsergebnisse</p>
+		<p class="no-votes mb-5 mt-1 text-xl">Keine neuen Abstimmungsergebnisse</p>
 	{/if}
 	<div class="card-container">
 		{#each firstThreeVotes as voteResult, i}

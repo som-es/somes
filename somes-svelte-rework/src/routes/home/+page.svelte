@@ -56,7 +56,7 @@
 		Neuste Abstimmungsergebnisse
 	</h1>
 	{#if voteResults && dels}
-		<VoteResults {dels} {voteResults} />
+		<VoteResults {dels} {voteResults} showHistory />
 	{:else}
 		<section class="card w-full animate-pulse">
 			<div class="p-4 space-y-4">
