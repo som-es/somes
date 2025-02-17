@@ -1,10 +1,13 @@
 <script lang="ts">
 	import { partyToColor } from '$lib/partyColor';
-	import type { Delegate, DelegateQA, Mandate } from '$lib/types';
+	import type { Delegate, DelegateFavo, DelegateQA, Mandate } from '$lib/types';
 	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
 	import SButton from '../UI/SButton.svelte';
 	import { currentDelegateStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
+	import star from '$lib/assets/misc_icons/star.svg?raw';
+	import { onMount } from 'svelte';
+	import { cachedDelegateFavos } from '$lib/caching/delegate_favos';
 
 	export let delegate: Delegate;
 	export let onlyTop: boolean = false;
@@ -18,7 +21,12 @@
 		gotoHistory(`/delegates`, true);
 	};
 
-	console.log(delegate)
+	let delegateFavos: DelegateFavo[] | null = null;
+	onMount(async () => {
+		delegateFavos = await cachedDelegateFavos();
+	});
+
+	// console.log(delegate)
 
 	$: delegateQAModal = {
 		type: 'component',
@@ -36,16 +44,27 @@
 </script>
 
 <div class="!z-0 card {onlyTop ? "" : "min-h-full"}  mx-4 drop-shadow-lg flex flex-col">
-	<header class="flex justify-center">
-		{#if showImg}
+	<header class="relative">
+		<button on:click={() => {
+			if (delegateFavos) {
+				delegateFavos.push({delegate_id: 1000})
+			}
+		}} class="absolute top-0 right-0 w-14 p-2">
+			{@html star}
+		</button>
+		<div class="flex justify-center items-center h-full">
+			{#if showImg}
 			<img
 				src={delegate.image_url}
 				style="width: 200px;"
 				class="rounded-full"
 				alt="Image of politician {delegate.name}"
 			/>
-		{/if}
+			{/if}
+		</div>
 	</header>
+
+	
 	<section class="p-4 flex-grow">
 		<h4 class="font-bold text-xl">
 			{delegate.name}
