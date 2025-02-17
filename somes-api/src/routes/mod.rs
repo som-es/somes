@@ -12,6 +12,8 @@ mod topics;
 mod user;
 mod verify;
 mod walo;
+mod favo;
+pub use favo::*;
 
 use axum::Json;
 pub use delegates::*;

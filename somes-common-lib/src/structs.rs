@@ -22,6 +22,10 @@ pub struct Delegate {
     pub active_mandates: Option<Vec<String>>,
 }
 
+#[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct DelegateFavo {
+    pub delegate_id: i32,
+}
 
 
 /// 'ResetPasswordInfo' is used to send a reset password request to the server.

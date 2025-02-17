@@ -320,6 +320,9 @@ pub async fn serve(addr: SocketAddr) {
         .route(TOPIC_SELECTION, post(add_user_topic))
         .route(TOPIC_SELECTION, delete(remove_user_topic))
         .route(TOPIC_SELECTION, get(user_topic_selection))
+        .route(FAVO_DELEGATE, post(add_delegate_favo))
+        .route(FAVO_DELEGATE, get(user_delegate_favos))
+        .route(FAVO_DELEGATE, delete(remove_user_delegate_favo))
         .route(GOV_OFFICIALS_AT, get(gov_officials_at_date_route))
         .route(GOV_PROPOSALS_BY_OFFICIAL, get(gov_proposals_by_official))
         .route(
