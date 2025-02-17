@@ -114,6 +114,10 @@ export interface UniqueTopic {
 	topic: string;
 }
 
+export interface DelegateFavo {
+	delegate_id: number;
+}
+
 export interface VoteResult {
 	legislative_initiative: LegislativeInitiative;
 	votes: Vote[];

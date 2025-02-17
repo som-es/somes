@@ -1,4 +1,4 @@
-import type { HasError, JWTInfo, LoginResponseError, UniqueTopic } from "$lib/types";
+import type { DelegateFavo, HasError, JWTInfo, LoginResponseError, UniqueTopic } from "$lib/types";
 import { address, fetchSavely } from "./api";
 import { jwtStore } from "$lib/caching/stores/stores";
 import { get } from "svelte/store";
@@ -92,6 +92,18 @@ export async function removeUserTopic(uniqueTopic: UniqueTopic): Promise<null | 
 
 export async function getUserTopics(): Promise<UniqueTopic[] | HasError> {
 	return getWithAuth('topic_selection');
+}
+
+export async function addDelegateFavo(uniqueTopic: DelegateFavo): Promise<null | HasError> {
+	return postWithAuth('favo_delegate', uniqueTopic);
+}
+
+export async function removeDelegateFavo(uniqueTopic: DelegateFavo): Promise<null | HasError> {
+	return deleteWithAuth('favo_delegate', uniqueTopic);
+}
+
+export async function getFavoDelegates(): Promise<DelegateFavo[] | HasError> {
+	return getWithAuth('favo_delegate');
 }
 
 export async function delete_account(): Promise<null | HasError> {
