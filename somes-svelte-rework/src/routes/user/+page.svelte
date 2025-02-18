@@ -6,7 +6,7 @@
 		get_topics,
 		isHasError,
 	} from '$lib/api/api';
-	import { delete_account, getMailSendInfo, getUser, renew_token, updateMailSendInfo } from '$lib/api/authed';
+	import { addUserTopic, delete_account, getMailSendInfo, getUser, removeUserTopic, renew_token, updateMailSendInfo } from '$lib/api/authed';
 	import { jwtStore } from '$lib/caching/stores/stores';
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache';
 	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
@@ -98,7 +98,7 @@
 		<div
 			class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 items-center flex justify-between"
 		>
-			<h1 class="font-bold text-3xl">Benutzer</h1>
+			<h1 class="font-bold text-5xl">Benutzer</h1>
 			<SButton
 				class="bg-tertiary-500 text-black"
 				on:click={() => {
@@ -195,8 +195,10 @@
 							if (event.detail.meta) {
 								if (event.detail.isSelected) {
 									selectedTopics.delete(event.detail.meta.id);
+									removeUserTopic({id: event.detail.meta.id, topic: ""})
 								} else {
 									selectedTopics.add(event.detail.meta.id); 
+									addUserTopic({id: event.detail.meta.id, topic: ""})
 								}
 
 							}
