@@ -33,7 +33,7 @@ fn generate_otp() -> String {
 async fn get_user_from_mail(pg: &PgPool, stored_mail: &str) -> Option<Option<User>> {
     let maybe_user = query_as!(
         User,
-        "select * from somes_user where email = $1",
+        "select id, email, is_email_hashed, is_admin from somes_user where email = $1",
         stored_mail
     )
     .fetch_optional(pg)
@@ -45,7 +45,7 @@ async fn get_user_from_mail(pg: &PgPool, stored_mail: &str) -> Option<Option<Use
             let hashed_email = hash_password(stored_mail).ok()?;
             query_as!(
                 User,
-                "select * from somes_user where email = $1",
+                "select id, email, is_email_hashed, is_admin from somes_user where email = $1",
                 hashed_email
             )
             .fetch_optional(pg)

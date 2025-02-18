@@ -115,6 +115,16 @@ export interface UniqueTopic {
 	topic: string;
 }
 
+export interface DelegateFavo {
+	delegate_id: number;
+}
+
+export interface MailSendInfo {
+	send_new_vote_results_mails: boolean;
+    send_new_delegate_activity_mails: boolean;
+    send_new_ministrial_prop_mails: boolean;
+}
+
 export interface VoteResult {
 	legislative_initiative: LegislativeInitiative;
 	votes: Vote[];
@@ -209,6 +219,12 @@ export interface BasicUserInfo {
 	company: string;
 	exp: number;
 	is_admin: boolean;
+}
+export interface ExtendedUserInfo {
+	id: number;
+	email: string;
+    is_email_hashed: boolean;
+    is_admin: boolean;
 }
 
 export interface QuizQuestion {

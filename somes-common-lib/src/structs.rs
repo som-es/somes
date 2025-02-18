@@ -2,6 +2,32 @@ use chrono::{NaiveDate, NaiveDateTime};
 use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
 
+#[derive(ToSchema, PartialEq, Debug, Clone, Serialize, Deserialize)]
+pub struct Delegate {
+    pub id: i32,
+    pub name: String,
+    pub party: Option<String>,
+    pub current_party: Option<String>,
+    pub image_url: Option<String>,
+    pub constituency: Option<String>,
+    pub council: Option<String>,
+    pub seat_row: Option<i32>,
+    pub seat_col: Option<i32>,
+    pub gender: Option<String>,
+    pub is_active: Option<bool>,
+    pub birthdate: Option<NaiveDate>,
+    pub active_since: NaiveDate,
+    pub divisions: Option<Vec<String>>,
+    pub primary_mandate: Option<String>,
+    pub active_mandates: Option<Vec<String>>,
+}
+
+#[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct DelegateFavo {
+    pub delegate_id: i32,
+}
+
+
 /// 'ResetPasswordInfo' is used to send a reset password request to the server.
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct ResetPasswordInfo {
@@ -95,6 +121,14 @@ pub struct QuestionFilter {
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct DelegateById {
     pub delegate_id: i32,
+}
+
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct SendMailInfo {
+    pub send_new_vote_results_mails: bool,
+    pub send_new_delegate_activity_mails: bool,
+    pub send_new_ministrial_prop_mails: bool,
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]

@@ -12,6 +12,9 @@ mod topics;
 mod user;
 mod verify;
 mod walo;
+mod favo;
+mod mail_send_info;
+pub use favo::*;
 
 use axum::Json;
 pub use delegates::*;
@@ -29,6 +32,7 @@ pub use topics::*;
 pub use user::*;
 pub use verify::*;
 pub use walo::*;
+pub use mail_send_info::*;
 
 use crate::{PgPoolConnection, RedisConnection};
 

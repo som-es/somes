@@ -1,4 +1,4 @@
-import type { HasError, JWTInfo, LoginResponseError, UniqueTopic } from "$lib/types";
+import type { DelegateFavo, ExtendedUserInfo, HasError, JWTInfo, LoginResponseError, MailSendInfo, UniqueTopic } from "$lib/types";
 import { address, fetchSavely } from "./api";
 import { jwtStore } from "$lib/caching/stores/stores";
 import { get } from "svelte/store";
@@ -35,6 +35,23 @@ export async function getWithAuth<T>(route: string): Promise<T | HasError> {
 				'Content-Type': 'application/json',
 				Authorization: `Bearer ${accessToken}`
 			}
+		})
+	);
+}
+
+export async function putWithAuth<T>(route: string, body: any): Promise<T | HasError> {
+	const accessToken = get(jwtStore);
+	if (accessToken == null) {
+		return { error: 'No access token' };
+	}
+	return fetchSavely(() =>
+		fetch(`${address}/${route}`, {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${accessToken}`
+			},
+			body: JSON.stringify(body)
 		})
 	);
 }
@@ -94,8 +111,32 @@ export async function getUserTopics(): Promise<UniqueTopic[] | HasError> {
 	return getWithAuth('topic_selection');
 }
 
+export async function addDelegateFavo(uniqueTopic: DelegateFavo): Promise<null | HasError> {
+	return postWithAuth('favo_delegate', uniqueTopic);
+}
+
+export async function removeDelegateFavo(uniqueTopic: DelegateFavo): Promise<null | HasError> {
+	return deleteWithAuth('favo_delegate', uniqueTopic);
+}
+
+export async function getFavoDelegates(): Promise<DelegateFavo[] | HasError> {
+	return getWithAuth('favo_delegate');
+}
+
 export async function delete_account(): Promise<null | HasError> {
 	return deleteWithAuth('delete_account', undefined);
+}
+
+export async function getMailSendInfo(): Promise<MailSendInfo | HasError> {
+	return getWithAuth('send_mail_info');
+}
+
+export async function getUser(): Promise<ExtendedUserInfo | HasError> {
+	return getWithAuth('user');
+}
+
+export async function updateMailSendInfo(mailSendInfo: MailSendInfo): Promise<null | HasError> {
+	return putWithAuth('send_mail_info', mailSendInfo);
 }
 
 export async function renew_token(): Promise<JWTInfo | HasError> {

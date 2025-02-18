@@ -4,7 +4,7 @@ use axum::{
     extract::FromRef,
     http::{self, HeaderValue},
     response::Html,
-    routing::{any, delete, get, get_service, post, Route},
+    routing::{any, delete, get, get_service, post, put, Route},
     Router, ServiceExt,
 };
 use axum_server::tls_rustls::RustlsConfig;
@@ -154,6 +154,8 @@ pub async fn serve(addr: SocketAddr) {
     let postgres_pool = bb8::Pool::builder().build(config).await.unwrap();
      */
 
+    log::info!("Connecting to database {DATASERVICE_URL}");
+
     let dataservice_sqlx_pool = PgPoolOptions::new()
         // pool sizes
         .max_connections(20)
@@ -293,7 +295,7 @@ pub async fn serve(addr: SocketAddr) {
             CALL_TO_ORDERS_PER_PARTY_DELEGATES,
             get(call_to_orders_per_party_delegates),
         )
-        .route(USER, post(user))
+        .route(USER, get(user))
         .route(DELEGATE, get(delegate))
         .route(DELEGATE_INTERESTS, get(delegate_interests))
         .route(GENERAL_DELEGATE_INFO, get(general_delegate_info))
@@ -318,6 +320,11 @@ pub async fn serve(addr: SocketAddr) {
         .route(TOPIC_SELECTION, post(add_user_topic))
         .route(TOPIC_SELECTION, delete(remove_user_topic))
         .route(TOPIC_SELECTION, get(user_topic_selection))
+        .route(FAVO_DELEGATE, post(add_delegate_favo))
+        .route(FAVO_DELEGATE, get(user_delegate_favos))
+        .route(FAVO_DELEGATE, delete(remove_user_delegate_favo))
+        .route(SEND_MAIL_INFO, put(update_send_mail_info))
+        .route(SEND_MAIL_INFO, get(get_send_mail_info))
         .route(GOV_OFFICIALS_AT, get(gov_officials_at_date_route))
         .route(GOV_PROPOSALS_BY_OFFICIAL, get(gov_proposals_by_official))
         .route(
@@ -415,7 +422,7 @@ pub async fn serve(addr: SocketAddr) {
             CorsLayer::new()
                 // .allow_origin("https://somes.at".parse::<HeaderValue>().unwrap())
                 .allow_origin(Any)
-                .allow_methods([http::Method::GET, http::Method::POST, http::Method::DELETE])
+                .allow_methods([http::Method::GET, http::Method::POST, http::Method::DELETE, http::Method::PUT])
                 .allow_headers([http::header::CONTENT_TYPE, http::header::AUTHORIZATION]),
         )
         // .layer(RateLimitLayer::new(num, per))

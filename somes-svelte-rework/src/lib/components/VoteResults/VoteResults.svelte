@@ -8,6 +8,7 @@
 	export let dels: Delegate[];
 
 	export let voteResults: VoteResult[];
+	export let showHistory: boolean = false;
 
 	const firstThreeVotes = voteResults.slice(0, 3);
 	const restVotes = voteResults.slice(3);
@@ -17,7 +18,7 @@
 
 {#if voteResults}
 	{#if voteResults.length == 0}
-		<p class="no-votes">Keine Abstimmungsergebnisse</p>
+		<p class="no-votes mb-5 mt-1 text-xl">Keine neuen Abstimmungsergebnisse</p>
 	{/if}
 	<div class="card-container">
 		{#each firstThreeVotes as voteResult, i}
@@ -28,20 +29,23 @@
 		{#if voteResults.length > 3}
 			<SButton class="button offset-button bg-primary-500" on:click={() => (open = !open)}>
 				{#if open}
-					Weniger anzeigen
+					Einklappen
 				{:else}
-					Mehr anzeigen
+					Ausklappen
 				{/if}
 			</SButton>
 		{:else}
 			<div></div>
 		{/if}
-		<SButton
-			class="button offset-button bg-secondary-500"
-			on:click={() => gotoHistory('/vote_history')}
-		>
-			Vorherige anzeigen
-		</SButton>
+
+		{#if showHistory}
+			<SButton
+				class="button offset-button bg-secondary-500"
+				on:click={() => gotoHistory('/vote_history')}
+			>
+				Vorherige anzeigen
+			</SButton>
+		{/if}
 	</div>
 	<hr />
 
@@ -66,7 +70,7 @@
 		display: flex;
 		flex-direction: row;
 		/* remove this maybe again */
-		justify-content: space-between;
+		justify-content: start;
 		flex-wrap: wrap;
 	}
 </style>

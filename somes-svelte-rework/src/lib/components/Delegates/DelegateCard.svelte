@@ -1,10 +1,15 @@
 <script lang="ts">
 	import { partyToColor } from '$lib/partyColor';
-	import type { Delegate, DelegateQA, Mandate } from '$lib/types';
+	import type { Delegate, DelegateFavo, DelegateQA, Mandate } from '$lib/types';
 	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
 	import SButton from '../UI/SButton.svelte';
 	import { currentDelegateStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
+	import star from '$lib/assets/misc_icons/star.svg?raw';
+	import starFilled from '$lib/assets/misc_icons/starFilled.svg?raw';
+	import { onMount } from 'svelte';
+	import { cachedDelegateFavos } from '$lib/caching/delegate_favos';
+	import { addDelegateFavo, removeDelegateFavo } from '$lib/api/authed';
 
 	export let delegate: Delegate;
 	export let onlyTop: boolean = false;
@@ -18,7 +23,12 @@
 		gotoHistory(`/delegates`, true);
 	};
 
-	console.log(delegate)
+	let delegateFavos: Set<number> | null = null;
+	onMount(async () => {
+		delegateFavos = await cachedDelegateFavos();
+	});
+
+	// console.log(delegate)
 
 	$: delegateQAModal = {
 		type: 'component',
@@ -36,16 +46,43 @@
 </script>
 
 <div class="!z-0 card {onlyTop ? "" : "min-h-full"}  mx-4 drop-shadow-lg flex flex-col">
-	<header class="flex justify-center">
-		{#if showImg}
+	<header class="relative">
+		{#if delegateFavos}
+			{#if delegateFavos.has(delegate.id)}
+				<button on:click={async () => {
+					if (await removeDelegateFavo({delegate_id: delegate.id}) == null) {
+						delegateFavos?.delete(delegate.id);
+						delegateFavos = delegateFavos;
+					}
+
+				}} class="absolute top-0 right-0 w-14 p-2">
+					{@html starFilled}
+				</button>
+			{:else}
+				<button on:click={async () => {
+					if (await addDelegateFavo({delegate_id: delegate.id}) == null) {
+						delegateFavos?.add(delegate.id);
+						delegateFavos = delegateFavos;
+					}
+
+				}} class="absolute top-0 right-0 w-14 p-2">
+					{@html star}
+				</button>
+			{/if}
+		{/if}
+		<div class="flex justify-center items-center h-full">
+			{#if showImg}
 			<img
 				src={delegate.image_url}
 				style="width: 200px;"
 				class="rounded-full"
 				alt="Image of politician {delegate.name}"
 			/>
-		{/if}
+			{/if}
+		</div>
 	</header>
+
+	
 	<section class="p-4 flex-grow">
 		<h4 class="font-bold text-xl">
 			{delegate.name}
