@@ -1,18 +1,17 @@
 import { isHasError } from '$lib/api/api';
-import type { DelegateFavo, UniqueTopic } from '$lib/types';
-import { get } from 'svelte/store';
-import { userDelegateFavosStore as delegateFavoStore } from './stores/stores';
+import type { DelegateFavo } from '$lib/types';
 import { getFavoDelegates } from '$lib/api/authed';
+
+let favoDelegates: Set<number> | null = null;
 
 export async function cachedDelegateFavos(
 	refetch: boolean = false
-): Promise<DelegateFavo[] | null> {
-	let maybeCached = get(delegateFavoStore);
-	if (maybeCached == null || refetch || maybeCached.length == 0) {
+): Promise<Set<number> | null> {
+	let maybeCached = favoDelegates;
+	if (maybeCached == null || refetch || maybeCached.size == 0) {
 		const fetched = await getFavoDelegates();
 		if (!isHasError(fetched)) {
-			delegateFavoStore.set(fetched);
-			maybeCached = fetched;
+			maybeCached = new Set(fetched.map(x => x.delegate_id));
 		}
 	}
 	return maybeCached;

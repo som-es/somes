@@ -8,6 +8,7 @@
 	import star from '$lib/assets/misc_icons/star.svg?raw';
 	import { onMount } from 'svelte';
 	import { cachedDelegateFavos } from '$lib/caching/delegate_favos';
+	import { addDelegateFavo, removeDelegateFavo } from '$lib/api/authed';
 
 	export let delegate: Delegate;
 	export let onlyTop: boolean = false;
@@ -21,7 +22,7 @@
 		gotoHistory(`/delegates`, true);
 	};
 
-	let delegateFavos: DelegateFavo[] | null = null;
+	let delegateFavos: Set<number> | null = null;
 	onMount(async () => {
 		delegateFavos = await cachedDelegateFavos();
 	});
@@ -45,13 +46,27 @@
 
 <div class="!z-0 card {onlyTop ? "" : "min-h-full"}  mx-4 drop-shadow-lg flex flex-col">
 	<header class="relative">
-		<button on:click={() => {
-			if (delegateFavos) {
-				delegateFavos.push({delegate_id: 1000})
-			}
-		}} class="absolute top-0 right-0 w-14 p-2">
-			{@html star}
-		</button>
+		{#if delegateFavos}
+			{#if delegateFavos.has(delegate.id)}
+				<button on:click={() => {
+					if (removeDelegateFavo({delegate_id: delegate.id}) == null) {
+						delegateFavos?.delete(delegate.id);
+					}
+
+				}} class="absolute top-0 right-0 w-14 p-2">
+					{@html star}
+				</button>
+			{:else}
+				<button on:click={() => {
+					if (addDelegateFavo({delegate_id: delegate.id}) == null) {
+						delegateFavos?.add(delegate.id);
+					}
+
+				}} class="absolute top-0 right-0 w-14 p-2">
+					{@html star}
+				</button>
+			{/if}
+		{/if}
 		<div class="flex justify-center items-center h-full">
 			{#if showImg}
 			<img
