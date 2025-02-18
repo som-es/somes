@@ -118,6 +118,12 @@ export interface DelegateFavo {
 	delegate_id: number;
 }
 
+export interface MailSendInfo {
+	send_new_vote_results_mails: boolean;
+    send_new_delegate_activity_mails: boolean;
+    send_new_ministrial_prop_mails: boolean;
+}
+
 export interface VoteResult {
 	legislative_initiative: LegislativeInitiative;
 	votes: Vote[];

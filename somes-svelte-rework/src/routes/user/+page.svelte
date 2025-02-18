@@ -6,7 +6,7 @@
 		get_topics,
 		isHasError,
 	} from '$lib/api/api';
-	import { delete_account, renew_token } from '$lib/api/authed';
+	import { delete_account, getMailSendInfo, renew_token, updateMailSendInfo } from '$lib/api/authed';
 	import { jwtStore } from '$lib/caching/stores/stores';
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache';
 	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
@@ -18,7 +18,7 @@
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import SwitchBox from '$lib/components/UI/SwitchBox.svelte';
 	import { gotoHistory } from '$lib/goto';
-	import { getUserFromJwt, type BasicUserInfo, type Topic, type UniqueTopic } from '$lib/types';
+	import { getUserFromJwt, type BasicUserInfo, type MailSendInfo, type Topic, type UniqueTopic } from '$lib/types';
 	import { popup, SlideToggle, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
@@ -26,6 +26,7 @@
 	let topics: UniqueTopic[] = [];
 	let selectedTopics = new Set<number>();
 	let user: BasicUserInfo | null;
+	let mailSendInfo: MailSendInfo | null;
 
 	let autocompleteOptions: AutocompleteOptionMultiselect<string, UniqueTopic>[] = [];
 	let inputValue = '';
@@ -70,6 +71,7 @@
 
 		topics = errorToNull(await get_topics()) ?? [];
 		user = getUserFromJwt(jwtToken);
+		mailSendInfo = errorToNull(await getMailSendInfo());
 
 		// get interest topics from api
 		const data = await cachedUserTopics(true);
@@ -80,6 +82,14 @@
 		}
 		// selectedTopics = new Set<UniqueTopic>(selectedTopics)
 	});
+
+	const updateThisMailSendInfo = async () => {
+		if (!mailSendInfo) {
+			return
+		}
+		await updateMailSendInfo(mailSendInfo);
+	}
+
 </script>
 
 <Container>
@@ -127,7 +137,14 @@
 		>
 			<div class="flex flex-wrap items-center">
 				<h1 class="font-bold text-2xl">E-Mail Benachrichtigungen</h1>
-				<SlideToggle name="sendVoteResultInfoMail" bind:checked={sendVoteResultInfoMail} />
+				<div class="flex items-center gap-3">
+					{#if mailSendInfo}
+						<SlideToggle name="sendVoteResultInfoMail" on:change={updateThisMailSendInfo} bind:checked={mailSendInfo.send_new_vote_results_mails} />
+						<SlideToggle name="sendnewDelegateInfo" on:change={updateThisMailSendInfo} bind:checked={mailSendInfo.send_new_delegate_activity_mails} />
+						<SlideToggle name="sendMinistrialPropInfoMails" on:change={updateThisMailSendInfo} bind:checked={mailSendInfo.send_new_ministrial_prop_mails} />
+					{/if}
+				</div>
+				
 
 				<div class="ml-5 text-xl">E-Mail</div>
 				<div class="mx-4 text-xl">

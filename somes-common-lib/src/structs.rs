@@ -126,9 +126,9 @@ pub struct DelegateById {
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct SendMailInfo {
-    pub new_vote_result_info: bool,
-    pub new_delegate_activity_info: bool,
-    pub ministrial_proposal_activity_info: bool,
+    pub send_new_vote_results_mails: bool,
+    pub send_new_delegate_activity_mails: bool,
+    pub send_new_ministrial_prop_mails: bool,
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]

@@ -1,4 +1,4 @@
-import type { DelegateFavo, HasError, JWTInfo, LoginResponseError, UniqueTopic } from "$lib/types";
+import type { DelegateFavo, HasError, JWTInfo, LoginResponseError, MailSendInfo, UniqueTopic } from "$lib/types";
 import { address, fetchSavely } from "./api";
 import { jwtStore } from "$lib/caching/stores/stores";
 import { get } from "svelte/store";
@@ -46,7 +46,7 @@ export async function putWithAuth<T>(route: string, body: any): Promise<T | HasE
 	}
 	return fetchSavely(() =>
 		fetch(`${address}/${route}`, {
-			method: 'POST',
+			method: 'PUT',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: `Bearer ${accessToken}`
@@ -125,6 +125,14 @@ export async function getFavoDelegates(): Promise<DelegateFavo[] | HasError> {
 
 export async function delete_account(): Promise<null | HasError> {
 	return deleteWithAuth('delete_account', undefined);
+}
+
+export async function getMailSendInfo(): Promise<MailSendInfo | HasError> {
+	return getWithAuth('mail_send_info');
+}
+
+export async function updateMailSendInfo(mailSendInfo: MailSendInfo): Promise<null | HasError> {
+	return putWithAuth('mail_send_info', mailSendInfo);
 }
 
 export async function renew_token(): Promise<JWTInfo | HasError> {
