@@ -1,4 +1,4 @@
-import type { DelegateFavo, HasError, JWTInfo, LoginResponseError, MailSendInfo, UniqueTopic } from "$lib/types";
+import type { DelegateFavo, ExtendedUserInfo, HasError, JWTInfo, LoginResponseError, MailSendInfo, UniqueTopic } from "$lib/types";
 import { address, fetchSavely } from "./api";
 import { jwtStore } from "$lib/caching/stores/stores";
 import { get } from "svelte/store";
@@ -129,6 +129,10 @@ export async function delete_account(): Promise<null | HasError> {
 
 export async function getMailSendInfo(): Promise<MailSendInfo | HasError> {
 	return getWithAuth('send_mail_info');
+}
+
+export async function getUser(): Promise<ExtendedUserInfo | HasError> {
+	return getWithAuth('user');
 }
 
 export async function updateMailSendInfo(mailSendInfo: MailSendInfo): Promise<null | HasError> {

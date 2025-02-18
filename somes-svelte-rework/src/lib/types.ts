@@ -219,12 +219,11 @@ export interface BasicUserInfo {
 	exp: number;
 	is_admin: boolean;
 }
-export interface Extended {
+export interface ExtendedUserInfo {
 	id: number;
-	sub: string;
-	company: string;
-	exp: number;
-	is_admin: boolean;
+	email: string;
+    is_email_hashed: boolean;
+    is_admin: boolean;
 }
 
 export interface QuizQuestion {

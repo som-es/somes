@@ -6,7 +6,7 @@
 		get_topics,
 		isHasError,
 	} from '$lib/api/api';
-	import { delete_account, getMailSendInfo, renew_token, updateMailSendInfo } from '$lib/api/authed';
+	import { delete_account, getMailSendInfo, getUser, renew_token, updateMailSendInfo } from '$lib/api/authed';
 	import { jwtStore } from '$lib/caching/stores/stores';
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache';
 	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
@@ -18,7 +18,7 @@
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import SwitchBox from '$lib/components/UI/SwitchBox.svelte';
 	import { gotoHistory } from '$lib/goto';
-	import { getUserFromJwt, type BasicUserInfo, type MailSendInfo, type Topic, type UniqueTopic } from '$lib/types';
+	import { getUserFromJwt, type BasicUserInfo, type ExtendedUserInfo, type MailSendInfo, type Topic, type UniqueTopic } from '$lib/types';
 	import { popup, SlideToggle, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
@@ -26,6 +26,7 @@
 	let topics: UniqueTopic[] = [];
 	let selectedTopics = new Set<number>();
 	let user: BasicUserInfo | null;
+	let extendedUser: ExtendedUserInfo | null;
 	let mailSendInfo: MailSendInfo | null;
 
 	let autocompleteOptions: AutocompleteOptionMultiselect<string, UniqueTopic>[] = [];
@@ -70,6 +71,7 @@
 		topics = errorToNull(await get_topics()) ?? [];
 		user = getUserFromJwt(jwtToken);
 		mailSendInfo = errorToNull(await getMailSendInfo());
+		extendedUser = errorToNull(await getUser());
 
 		// get interest topics from api
 		const data = await cachedUserTopics(true);
@@ -88,6 +90,7 @@
 		
 		await updateMailSendInfo(mailSendInfo);
 	}
+
 </script>
 
 <Container>
@@ -116,6 +119,10 @@
 					{#if user}
 						{user.sub}
 					{/if}
+					
+					{#if extendedUser?.is_email_hashed}
+						<span class="ml-3 text-sm font-serif">unkenntlich</span>
+					{/if}
 				</div>
 			</div>
 			<div>
@@ -130,6 +137,8 @@
 				</SButton>
 			</div>
 		</div>
+
+		{#if !extendedUser?.is_email_hashed}
 		<div
 			class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 items-center flex justify-between"
 		>
@@ -161,9 +170,8 @@
 					{/if}
 				</div>
 			</div>
-			<div>
-			</div>
 		</div>
+		{/if}
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
 			<h1 class="font-bold text-2xl">Wahle deine Interessen</h1>
 			<!-- todo: Searchbar -->
