@@ -175,16 +175,6 @@
 				{#each optionsFiltered.slice(0, sliceLimit) as option (option)}
 					<li
 						class="autocomplete-item {classesItem} z-40"
-						in:dynamicTransition|local={{
-							transition: transitionIn,
-							params: transitionInParams,
-							enabled: transitions
-						}}
-						out:dynamicTransition|local={{
-							transition: transitionOut,
-							params: transitionOutParams,
-							enabled: transitions
-						}}
 					>
 						<button
 							class="z-40 mt-1 flex justify-between autocomplete-button {classesButton} {option.isSelected ? "bg-secondary-400" : ""}"

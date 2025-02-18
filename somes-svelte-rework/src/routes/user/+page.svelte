@@ -42,7 +42,8 @@
 	let popupSettings: PopupSettings = {
 		event: 'focus-click',
 		target: 'popupAutocomplete',
-		placement: 'bottom-start'
+		placement: 'bottom-start',
+		closeQuery: ''
 	}
 
 	export function convertDelegatesToAutocompleteOptions(): AutocompleteOptionMultiselect<string, UniqueTopic>[] {
@@ -215,6 +216,19 @@
 					<SelectableTopics bind:selectedTopics {topics} />
 				{/if}
 			</div>
+		</div>
+		
+		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
+			<SButton
+				class="bg-error-300 text-black"
+				on:click={async () => {
+					await delete_account();
+					jwtStore.set(null);
+					gotoHistory('/home');
+				}}
+			>
+				Account löschen
+			</SButton>
 		</div>
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
 			<SButton
