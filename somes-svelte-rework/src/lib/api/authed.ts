@@ -128,11 +128,11 @@ export async function delete_account(): Promise<null | HasError> {
 }
 
 export async function getMailSendInfo(): Promise<MailSendInfo | HasError> {
-	return getWithAuth('mail_send_info');
+	return getWithAuth('send_mail_info');
 }
 
 export async function updateMailSendInfo(mailSendInfo: MailSendInfo): Promise<null | HasError> {
-	return putWithAuth('mail_send_info', mailSendInfo);
+	return putWithAuth('send_mail_info', mailSendInfo);
 }
 
 export async function renew_token(): Promise<JWTInfo | HasError> {

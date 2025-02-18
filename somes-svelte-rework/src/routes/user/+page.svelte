@@ -31,8 +31,6 @@
 	let autocompleteOptions: AutocompleteOptionMultiselect<string, UniqueTopic>[] = [];
 	let inputValue = '';
 	let allOwnTopics: UniqueTopic[] = [];
-
-	let sendVoteResultInfoMail = false;
 	
 	function delegateFilter(): AutocompleteOptionMultiselect<string, UniqueTopic>[] {
 		let _options = [...autocompleteOptions];
@@ -87,9 +85,10 @@
 		if (!mailSendInfo) {
 			return
 		}
+		
+		console.log(mailSendInfo);
 		await updateMailSendInfo(mailSendInfo);
 	}
-
 </script>
 
 <Container>
@@ -137,32 +136,15 @@
 		>
 			<div class="flex flex-wrap items-center">
 				<h1 class="font-bold text-2xl">E-Mail Benachrichtigungen</h1>
-				<div class="flex items-center gap-3">
+				<div class="flex items-center gap-3 ml-5">
 					{#if mailSendInfo}
-						<SlideToggle name="sendVoteResultInfoMail" on:change={updateThisMailSendInfo} bind:checked={mailSendInfo.send_new_vote_results_mails} />
-						<SlideToggle name="sendnewDelegateInfo" on:change={updateThisMailSendInfo} bind:checked={mailSendInfo.send_new_delegate_activity_mails} />
-						<SlideToggle name="sendMinistrialPropInfoMails" on:change={updateThisMailSendInfo} bind:checked={mailSendInfo.send_new_ministrial_prop_mails} />
-					{/if}
-				</div>
-				
-
-				<div class="ml-5 text-xl">E-Mail</div>
-				<div class="mx-4 text-xl">
-					{#if user}
-						{user.sub}
+						<SlideToggle active="bg-secondary-400"  name="sendVoteResultInfoMail" on:change={updateThisMailSendInfo} bind:checked={mailSendInfo.send_new_vote_results_mails} />
+						<SlideToggle active="bg-secondary-400" name="sendnewDelegateInfo" on:change={updateThisMailSendInfo} bind:checked={mailSendInfo.send_new_delegate_activity_mails} />
+						<SlideToggle active="bg-secondary-400" name="sendMinistrialPropInfoMails" on:change={updateThisMailSendInfo} bind:checked={mailSendInfo.send_new_ministrial_prop_mails} />
 					{/if}
 				</div>
 			</div>
 			<div>
-				<SButton
-					class="bg-tertiary-500 text-black"
-					on:click={() => {
-						jwtStore.set(null);
-						gotoHistory('/home');
-					}}
-				>
-					todo: E-Mail wechseln
-				</SButton>
 			</div>
 		</div>
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
