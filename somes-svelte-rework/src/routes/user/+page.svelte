@@ -86,7 +86,6 @@
 			return
 		}
 		
-		console.log(mailSendInfo);
 		await updateMailSendInfo(mailSendInfo);
 	}
 </script>
@@ -136,11 +135,29 @@
 		>
 			<div class="flex flex-wrap items-center">
 				<h1 class="font-bold text-2xl">E-Mail Benachrichtigungen</h1>
-				<div class="flex items-center gap-3 ml-5">
+				<div class="flex flex-wrap items-center gap-8 ml-5">
 					{#if mailSendInfo}
-						<SlideToggle active="bg-secondary-400"  name="sendVoteResultInfoMail" on:change={updateThisMailSendInfo} bind:checked={mailSendInfo.send_new_vote_results_mails} />
-						<SlideToggle active="bg-secondary-400" name="sendnewDelegateInfo" on:change={updateThisMailSendInfo} bind:checked={mailSendInfo.send_new_delegate_activity_mails} />
-						<SlideToggle active="bg-secondary-400" name="sendMinistrialPropInfoMails" on:change={updateThisMailSendInfo} bind:checked={mailSendInfo.send_new_ministrial_prop_mails} />
+						<SlideToggle active="bg-secondary-400" name="sendVoteResultInfoMail" on:change={updateThisMailSendInfo} bind:checked={mailSendInfo.send_new_vote_results_mails}>
+							<span class="font-bold">
+								Zu neuen Abstimmungen
+							</span>	
+							<br>
+							<span class="text-sm">nach ausgewählten Interessen</span>
+						</SlideToggle>
+						<SlideToggle active="bg-secondary-400" name="sendnewDelegateInfo" on:change={updateThisMailSendInfo} bind:checked={mailSendInfo.send_new_delegate_activity_mails}>
+							<span class="font-bold">
+								Zu Abgeordnetenaktivitäten
+							</span>	
+							<br>
+							<span class="text-sm">nach favorisierten Abgeordneten</span>
+						</SlideToggle>
+						<SlideToggle active="bg-secondary-400" name="sendMinistrialPropInfoMails" on:change={updateThisMailSendInfo} bind:checked={mailSendInfo.send_new_ministrial_prop_mails}>
+							<span class="font-bold">
+								Zu neuen Minisiterialentwürfen
+							</span>	
+							<br>
+							<span class="text-sm">nach ausgewählten Interessen</span>
+						</SlideToggle>
 					{/if}
 				</div>
 			</div>
