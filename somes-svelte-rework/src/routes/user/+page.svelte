@@ -2,23 +2,25 @@
 	import { goto } from '$app/navigation';
 	import { base } from '$app/paths';
 	import {
+	delegate,
 		errorToNull,
 		get_topics,
 		isHasError,
 	} from '$lib/api/api';
 	import { addUserTopic, delete_account, getMailSendInfo, getUser, removeUserTopic, renew_token, updateMailSendInfo } from '$lib/api/authed';
+	import { cachedDelegateFavos } from '$lib/caching/delegate_favos';
 	import { jwtStore } from '$lib/caching/stores/stores';
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache';
-	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
 	import AutocompleteMultiselect from '$lib/components/Autocompletion/AutocompleteMultiselect.svelte';
-	import { delegateFilterOptions, filterOptionsMultiSelect } from '$lib/components/Autocompletion/filtering';
+	import { filterOptionsMultiSelect } from '$lib/components/Autocompletion/filtering';
 	import type { AutocompleteOptionMultiselect } from '$lib/components/Autocompletion/types';
+	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import SelectableTopics from '$lib/components/Topics/SelectableTopics.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
-	import SwitchBox from '$lib/components/UI/SwitchBox.svelte';
+	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import { gotoHistory } from '$lib/goto';
-	import { getUserFromJwt, type BasicUserInfo, type ExtendedUserInfo, type MailSendInfo, type Topic, type UniqueTopic } from '$lib/types';
+	import { getUserFromJwt, type BasicUserInfo, type ExtendedUserInfo, type MailSendInfo, type UniqueTopic } from '$lib/types';
 	import { popup, SlideToggle, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
@@ -28,6 +30,7 @@
 	let user: BasicUserInfo | null;
 	let extendedUser: ExtendedUserInfo | null;
 	let mailSendInfo: MailSendInfo | null;
+	let favoDelegates: Set<number> | null;
 
 	let autocompleteOptions: AutocompleteOptionMultiselect<string, UniqueTopic>[] = [];
 	let inputValue = '';
@@ -73,6 +76,7 @@
 		user = getUserFromJwt(jwtToken);
 		mailSendInfo = errorToNull(await getMailSendInfo());
 		extendedUser = errorToNull(await getUser());
+		favoDelegates = errorToNull(await cachedDelegateFavos());
 
 		// get interest topics from api
 		const data = await cachedUserTopics(true);
@@ -219,16 +223,27 @@
 		</div>
 		
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
-			<SButton
-				class="bg-error-300 text-black"
-				on:click={async () => {
-					await delete_account();
-					jwtStore.set(null);
-					gotoHistory('/home');
-				}}
-			>
-				Account löschen
-			</SButton>
+
+			<h1 class="font-bold text-2xl">Favorisierte Abgeordnete</h1>
+			<div class="flex flex-wrap mt-3 gap-3">
+				{#if favoDelegates}
+					{#if favoDelegates.size == 0}
+						Keine favorisierten Abgeordnete vorhanden.
+					{:else}
+						{#each favoDelegates as favoDelegateId}	
+							{#await delegate(favoDelegateId)}
+								<ExpandablePlaceholder class="!w-80" />
+							{:then maybeDelegate}
+								{#if !isHasError(maybeDelegate) }
+									<DelegateCard delegate={maybeDelegate} showMoreDetailsBtn onlyTop={true} />	
+								{/if}
+							{/await}
+						{/each}
+					{/if}
+				{:else}
+					<ExpandablePlaceholder />
+				{/if}
+			</div>
 		</div>
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
 			<SButton

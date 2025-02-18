@@ -2,7 +2,7 @@ import { isHasError } from '$lib/api/api';
 import type { DelegateFavo } from '$lib/types';
 import { getFavoDelegates } from '$lib/api/authed';
 
-let favoDelegates: Set<number> | null = null;
+export let favoDelegates: Set<number> | null = null;
 
 export async function cachedDelegateFavos(
 	refetch: boolean = false
