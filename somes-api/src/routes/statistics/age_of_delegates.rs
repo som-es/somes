@@ -66,8 +66,8 @@ pub async fn age_per_delegate(
         legislative_period
 )
 SELECT DISTINCT 
-    ds.name AS delegate_name,
-    m.party AS delegate_party,
+    ds.name AS delegate_name, 
+    m.party AS delegate_party, 
     (EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) + 
     (EXTRACT(MONTH FROM AGE(ds.birthdate, lpd.start_date)) / 12.0) + 
     (EXTRACT(DAY FROM AGE(ds.birthdate, lpd.start_date)) / 365.25))::FLOAT * (-1) as delegate_age

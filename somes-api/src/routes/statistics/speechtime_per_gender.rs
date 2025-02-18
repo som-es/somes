@@ -49,7 +49,7 @@ pub async fn speechtime_per_gender(
             ds.gender AS gender,
             COUNT(DISTINCT ds.id) AS gender_members_with_speeche_time,
             SUM(ps.duration_in_seconds) / 60 AS total_speech_time,
-            (SUM(ps.duration_in_seconds)::FLOAT / COUNT(DISTINCT ds.id)::FLOAT) / &= AS normalized_speech_time
+            (SUM(ps.duration_in_seconds)::FLOAT / COUNT(DISTINCT ds.id)::FLOAT) / 60 AS normalized_speech_time
          FROM 
     plenar_speeches ps
 JOIN 

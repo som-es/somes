@@ -27,6 +27,8 @@ pub struct DelegateCallToOrders {
     delegate_name: String,
     delegate_party: String,
     total_order_calls: i64,
+    total_sessions_attended: i64,
+    normalized_call_to_order_per_session: f64,
 }
 
 // #[debug_handler]
@@ -48,10 +50,36 @@ pub async fn call_to_orders_per_delegate(
 
     let query = format!(
         "
+        WITH legislative_period_dates AS (
+    SELECT 
+        legislative_period, 
+        MIN(add_date) AS start_date, 
+        MAX(add_date) AS end_date
+    FROM 
+        plenar_infos
+    GROUP BY 
+        legislative_period
+),
+session_counts AS (
+    SELECT 
+        pf.legislative_period,
+        ps.delegate_id,
+        COUNT(DISTINCT pf.id) AS total_sessions_attended
+    FROM 
+        plenar_infos pf
+    JOIN 
+        debates db ON db.plenar_id = pf.id
+    JOIN 
+        plenar_speeches ps ON ps.debate_id = db.id
+    GROUP BY 
+        pf.legislative_period, ps.delegate_id
+)
        SELECT 
             ds.name AS delegate_name,
             m.party AS delegate_party,
-            COUNT(cto.id) AS total_order_calls
+            COUNT(cto.id) AS total_order_calls,
+            sc.total_sessions_attended,
+            COUNT(DISTINCT cto.id)::FLOAT / NULLIF(sc.total_sessions_attended, 0)::FLOAT AS normalized_call_to_order_per_session
          FROM 
             call_to_order cto
         JOIN 
@@ -60,14 +88,19 @@ pub async fn call_to_orders_per_delegate(
             plenar_infos pf ON pf.id = cto.plenar_id
         JOIN 
             mandates m ON m.delegate_id = ds.id
+        JOIN 
+            legislative_period_dates lp ON lp.legislative_period = pf.legislative_period
+        JOIN 
+            session_counts sc ON sc.legislative_period = lp.legislative_period 
+            AND sc.delegate_id = ds.id 
         WHERE 
             {filter}    
             AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = cto.plenar_id)
             AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = cto.plenar_id))
         GROUP BY 
-            ds.name, m.party, ds.gender
+            ds.name, m.party, sc.total_sessions_attended
         ORDER BY 
-            total_order_calls {desc};
+            normalized_call_to_order_per_session {desc};
     "
     );
 

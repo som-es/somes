@@ -45,17 +45,27 @@ pub async fn total_speeches_per_party(
 
     let query = format!(
         " 
-        SELECT 
-            m.party AS delegate_party,
-            COUNT(ps.id) AS total_speeches,
-            COUNT(DISTINCT ds.id) AS party_member_with_speeches,
-            COUNT(ps.id)::FLOAT / COUNT(DISTINCT ds.id)::FLOAT AS normalized_speeches_per_party
-         FROM 
+       WITH fraction_size AS (
+    SELECT 
+        fraction AS fraction_size
+    FROM 
+        parties
+    GROUP BY 
+        fraction
+)
+SELECT 
+    m.party AS delegate_party, 
+    COUNT(ps.id) AS total_speeches,
+    COUNT(p.fraction) AS party_member_with_speeches,
+    COUNT(ps.id)::FLOAT / MAX(p.fraction)::FLOAT AS normalized_speeches_per_party
+FROM 
     plenar_speeches ps
 JOIN 
     delegates ds ON ps.delegate_id = ds.id
 JOIN 
     mandates m ON m.delegate_id = ds.id
+JOIN 
+    parties p ON p.code = m.party  
 JOIN
     debates db ON db.id = ps.debate_id
 JOIN
@@ -65,9 +75,11 @@ WHERE
     AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = db.plenar_id)
     AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = db.plenar_id))
 GROUP BY 
-    m.party
+    m.party, p.fraction
 ORDER BY 
     normalized_speeches_per_party {desc};
+
+
     "
     );
 

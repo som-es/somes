@@ -25,6 +25,8 @@ pub struct LegisSpeechTimeFilter {
 pub struct LegisSpeechTime {
     legislative_period: String,
     total_speech_time: i64,
+    period_duration_days: f64,
+    normalized_speech_time: f64,
 }
 
 // #[debug_handler]
@@ -45,9 +47,21 @@ pub async fn speechtime_per_legis(
 
     let query = format!(
         " 
+        WITH legislative_period_dates AS (
+    SELECT 
+        legislative_period, 
+        MIN(add_date) AS start_date, 
+        MAX(add_date) AS end_date
+    FROM 
+        plenar_infos
+    GROUP BY 
+        legislative_period
+)
         SELECT 
             pf.legislative_period AS legislative_period,
-            SUM(ps.duration_in_seconds) / 60 AS total_speech_time
+            SUM(ps.duration_in_seconds) / 60 AS total_speech_time,
+            EXTRACT(DAY FROM (ld.end_date - ld.start_date))::FLOAT AS period_duration_days,
+            (SUM(ps.duration_in_seconds) / 60) / NULLIF(EXTRACT(DAY FROM (ld.end_date - ld.start_date)), 0)::FLOAT AS normalized_speech_time
         FROM 
     plenar_speeches ps
 JOIN 
@@ -58,14 +72,16 @@ JOIN
     debates db ON db.id = ps.debate_id
 JOIN
     plenar_infos pf ON pf.id = db.plenar_id
+ JOIN 
+    legislative_period_dates ld ON pf.legislative_period = ld.legislative_period
 WHERE
     {filter}
     AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = db.plenar_id)
     AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = db.plenar_id))
 GROUP BY 
-    pf.legislative_period
+    pf.legislative_period, ld.start_date, ld.end_date
 ORDER BY 
-    total_speech_time {desc};
+    normalized_speech_time {desc};
     "
     );
 

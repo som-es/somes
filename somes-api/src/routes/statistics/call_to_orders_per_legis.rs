@@ -25,6 +25,8 @@ pub struct LegisCallToOrdersFilter {
 pub struct LegisCallToOrders {
     legislative_period: String,
     total_order_calls: i64,
+    period_duration_days: f64,
+    normalized_calls_to_order: f64,
 }
 
 // #[debug_handler]
@@ -45,9 +47,21 @@ pub async fn call_to_orders_per_legis(
 
     let query = format!(
         " 
+         WITH legislative_period_dates AS (
+    SELECT 
+        legislative_period, 
+        MIN(add_date) AS start_date, 
+        MAX(add_date) AS end_date
+    FROM 
+        plenar_infos
+    GROUP BY 
+        legislative_period
+)
         SELECT 
             pf.legislative_period AS legislative_period,
-            COUNT(cto.id) AS total_order_calls
+            COUNT(cto.id) AS total_order_calls,
+            EXTRACT(DAY FROM (ld.end_date - ld.start_date))::FLOAT AS period_duration_days,
+            COUNT(cto.id)::FLOAT / NULLIF(EXTRACT(DAY FROM (ld.end_date - ld.start_date)), 0)::FLOAT AS normalized_calls_to_order
         FROM 
             call_to_order cto
         JOIN 
@@ -56,14 +70,16 @@ pub async fn call_to_orders_per_legis(
             plenar_infos pf ON pf.id = cto.plenar_id
         JOIN 
             mandates m ON m.delegate_id = ds.id
+        JOIN 
+            legislative_period_dates ld ON pf.legislative_period = ld.legislative_period
         WHERE 
             {filter}    
             AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = cto.plenar_id)
             AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = cto.plenar_id))
         GROUP BY 
-            pf.legislative_period
+            pf.legislative_period, ld.start_date, ld.end_date
         ORDER BY 
-            total_order_calls {desc};
+            normalized_calls_to_order {desc};
     "
     );
 

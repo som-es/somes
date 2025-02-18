@@ -25,6 +25,9 @@ pub struct LegisAbsencesFilter {
 pub struct LegisAbsences {
     legislative_period: String,
     total_absences: i64,
+    period_duration_days: f64,
+    normalized_absences: f64,
+
 }
 
 // #[debug_handler]
@@ -45,9 +48,21 @@ pub async fn absences_per_legis(
 
     let query = format!(
         "
+        WITH legislative_period_dates AS (
     SELECT 
-     pf.legislative_period AS legislative_period,
-     COUNT(DISTINCT ab.id) AS total_absences
+        legislative_period, 
+        MIN(add_date) AS start_date, 
+        MAX(add_date) AS end_date
+    FROM 
+        plenar_infos
+    GROUP BY 
+        legislative_period
+)
+SELECT 
+    pf.legislative_period AS legislative_period,
+    COUNT(DISTINCT ab.id) AS total_absences,
+    EXTRACT(DAY FROM (ld.end_date - ld.start_date))::FLOAT AS period_duration_days,
+    COUNT(DISTINCT ab.id)::FLOAT / NULLIF(EXTRACT(DAY FROM (ld.end_date - ld.start_date)), 0)::FLOAT AS normalized_absences
 FROM 
     absences ab
 JOIN 
@@ -56,14 +71,17 @@ JOIN
     mandates m ON m.delegate_id = ds.id
 JOIN 
     plenar_infos pf ON pf.id = ab.plenary_session_id
+JOIN 
+    legislative_period_dates ld ON pf.legislative_period = ld.legislative_period
 WHERE
     {filter}
     AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = pf.id)
     AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = pf.id))
 GROUP BY 
-    pf.legislative_period
+    pf.legislative_period, ld.start_date, ld.end_date
 ORDER BY 
-    total_absences {desc};
+    normalized_absences {desc};
+
     "
     );
 

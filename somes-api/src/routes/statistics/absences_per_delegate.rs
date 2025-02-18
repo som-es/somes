@@ -26,9 +26,9 @@ pub struct DelegateAbsencesFilter {
 pub struct DelegateAbsences {
     delegate_name: String,
     delegate_party: String,
-    mandate_duration_days: f64,
-    normalized_absences_per_day: f64,
     total_absences: i64,
+    total_sessions: i64,
+    normalized_absences_per_session: f64,
 }
 
 // #[debug_handler]
@@ -50,12 +50,33 @@ pub async fn absences_per_delegate(
 
     let query = format!(
         "
-        SELECT 
+       WITH legislative_period_dates AS (
+    SELECT 
+        legislative_period, 
+        MIN(add_date) AS start_date, 
+        MAX(add_date) AS end_date
+    FROM 
+        plenar_infos
+    GROUP BY 
+        legislative_period
+),
+session_counts AS (
+    SELECT 
+        pf.legislative_period,
+        COUNT(DISTINCT pf.id) AS total_sessions
+    FROM 
+        plenar_infos pf
+    JOIN 
+        absences ab ON ab.plenary_session_id = pf.id
+    GROUP BY 
+        pf.legislative_period
+)
+SELECT 
     ds.name AS delegate_name,
     m.party AS delegate_party,
     COUNT(DISTINCT ab.id) AS total_absences,
-    (COALESCE(m.end_date, CURRENT_DATE) - m.start_date)::FLOAT AS mandate_duration_days,
-    COUNT(DISTINCT ab.id)::FLOAT / NULLIF((COALESCE(m.end_date, CURRENT_DATE) - m.start_date), 0)::FLOAT AS normalized_absences_per_day
+    sc.total_sessions,
+    COUNT(DISTINCT ab.id)::FLOAT / NULLIF(sc.total_sessions, 0)::FLOAT AS normalized_absences_per_session
 FROM 
     absences ab
 JOIN 
@@ -64,12 +85,16 @@ JOIN
     mandates m ON m.delegate_id = ds.id
 JOIN 
     plenar_infos pf ON pf.id = ab.plenary_session_id
+JOIN 
+    legislative_period_dates lp ON lp.legislative_period = pf.legislative_period
+JOIN 
+    session_counts sc ON sc.legislative_period = lp.legislative_period 
 WHERE
     {filter}
-    AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = pf.id)
-    AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = pf.id))
+    AND m.start_date <= lp.end_date
+    AND (m.end_date IS NULL OR m.end_date >= lp.start_date)
 GROUP BY 
-    ds.name, m.party, m.start_date, m.end_date
+    ds.name, m.party, sc.total_sessions
 ORDER BY 
     total_absences {desc};
 

@@ -41,7 +41,7 @@ pub async fn total_speeches_per_age(
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
 
-    let filter = build_filter(&filters);
+    let filter = build_filter(&filters); 
 
     let query = format!(
         " 
@@ -54,30 +54,45 @@ pub async fn total_speeches_per_age(
         plenar_infos
     GROUP BY 
         legislative_period
+),
+age_of_delegates AS (
+    SELECT DISTINCT 
+        ps.delegate_id,
+        lpd.start_date, 
+        (EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) + 
+        (EXTRACT(MONTH FROM AGE(ds.birthdate, lpd.start_date)) / 12.0) + 
+        (EXTRACT(DAY FROM AGE(ds.birthdate, lpd.start_date)) / 365.25))::FLOAT * (-1) AS delegate_age
+    FROM 
+        delegates ds
+    JOIN 
+        plenar_speeches ps ON ps.delegate_id = ds.id
+    JOIN 
+        debates db ON db.id = ps.debate_id
+    JOIN 
+        plenar_infos pf ON pf.id = db.plenar_id
+    JOIN 
+        legislative_period_dates lpd ON lpd.legislative_period = pf.legislative_period
+    JOIN 
+        mandates m ON m.delegate_id = ds.id
+    WHERE 
+        m.start_date <= pf.add_date
+        AND (m.end_date IS NULL OR m.end_date >= pf.add_date)
+    GROUP BY 
+        ps.delegate_id, lpd.start_date, ds.birthdate
 )
-        SELECT 
-            CASE 
-                WHEN (EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) + 
-                    (EXTRACT(MONTH FROM AGE(ds.birthdate, lpd.start_date)) / 12.0) + 
-                    (EXTRACT(DAY FROM AGE(ds.birthdate, lpd.start_date)) / 365.25))::FLOAT * (-1) < 30 THEN 'Under 30'
-                WHEN (EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) + 
-                    (EXTRACT(MONTH FROM AGE(ds.birthdate, lpd.start_date)) / 12.0) + 
-                    (EXTRACT(DAY FROM AGE(ds.birthdate, lpd.start_date)) / 365.25))::FLOAT * (-1) BETWEEN 30 AND 39 THEN '30-39'
-                WHEN (EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) + 
-                    (EXTRACT(MONTH FROM AGE(ds.birthdate, lpd.start_date)) / 12.0) + 
-                    (EXTRACT(DAY FROM AGE(ds.birthdate, lpd.start_date)) / 365.25))::FLOAT * (-1) BETWEEN 40 AND 49 THEN '40-49'
-                WHEN (EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) + 
-                    (EXTRACT(MONTH FROM AGE(ds.birthdate, lpd.start_date)) / 12.0) + 
-                    (EXTRACT(DAY FROM AGE(ds.birthdate, lpd.start_date)) / 365.25))::FLOAT * (-1) BETWEEN 50 AND 59 THEN '50-59'
-                WHEN (EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) + 
-                    (EXTRACT(MONTH FROM AGE(ds.birthdate, lpd.start_date)) / 12.0) + 
-                    (EXTRACT(DAY FROM AGE(ds.birthdate, lpd.start_date)) / 365.25))::FLOAT * (-1) BETWEEN 60 AND 69 THEN '60-69'
-                ELSE '70+'
-            END AS age_group,
-            COUNT(ps.id) AS total_speeches,
-            COUNT(DISTINCT ds.id) AS age_group_members_with_speeches,
-            COUNT(ps.id)::FLOAT / COUNT(DISTINCT ds.id)::FLOAT AS normalized_speeches
-        FROM 
+SELECT 
+    CASE 
+        WHEN aod.delegate_age < 30 THEN 'Under 30'
+        WHEN aod.delegate_age BETWEEN 30 AND 39 THEN '30-39'
+        WHEN aod.delegate_age BETWEEN 40 AND 49 THEN '40-49'
+        WHEN aod.delegate_age BETWEEN 50 AND 59 THEN '50-59'
+        WHEN aod.delegate_age BETWEEN 60 AND 69 THEN '60-69'
+        ELSE '70+'
+    END AS age_group,
+    COUNT(ps.id) AS total_speeches,
+    COUNT(DISTINCT ds.id) AS age_group_members_with_speeches,
+    COUNT(ps.id)::FLOAT / COUNT(DISTINCT ds.id)::FLOAT AS normalized_speeches
+FROM 
     plenar_speeches ps
 JOIN 
     delegates ds ON ps.delegate_id = ds.id
@@ -89,6 +104,8 @@ JOIN
     plenar_infos pf ON pf.id = db.plenar_id
 JOIN 
     legislative_period_dates lpd ON lpd.legislative_period = pf.legislative_period
+JOIN
+    age_of_delegates aod ON ps.delegate_id = aod.delegate_id
 WHERE
     {filter}
     AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = db.plenar_id)
@@ -97,6 +114,7 @@ GROUP BY
     age_group
 ORDER BY 
     normalized_speeches {desc};
+
     "
     );
 
