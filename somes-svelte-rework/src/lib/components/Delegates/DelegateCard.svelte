@@ -6,6 +6,7 @@
 	import { currentDelegateStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
 	import star from '$lib/assets/misc_icons/star.svg?raw';
+	import starFilled from '$lib/assets/misc_icons/starFilled.svg?raw';
 	import { onMount } from 'svelte';
 	import { cachedDelegateFavos } from '$lib/caching/delegate_favos';
 	import { addDelegateFavo, removeDelegateFavo } from '$lib/api/authed';
@@ -48,18 +49,20 @@
 	<header class="relative">
 		{#if delegateFavos}
 			{#if delegateFavos.has(delegate.id)}
-				<button on:click={() => {
-					if (removeDelegateFavo({delegate_id: delegate.id}) == null) {
+				<button on:click={async () => {
+					if (await removeDelegateFavo({delegate_id: delegate.id}) == null) {
 						delegateFavos?.delete(delegate.id);
+						delegateFavos = delegateFavos;
 					}
 
 				}} class="absolute top-0 right-0 w-14 p-2">
-					{@html star}
+					{@html starFilled}
 				</button>
 			{:else}
-				<button on:click={() => {
-					if (addDelegateFavo({delegate_id: delegate.id}) == null) {
+				<button on:click={async () => {
+					if (await addDelegateFavo({delegate_id: delegate.id}) == null) {
 						delegateFavos?.add(delegate.id);
+						delegateFavos = delegateFavos;
 					}
 
 				}} class="absolute top-0 right-0 w-14 p-2">
