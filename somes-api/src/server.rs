@@ -4,7 +4,7 @@ use axum::{
     extract::FromRef,
     http::{self, HeaderValue},
     response::Html,
-    routing::{any, delete, get, get_service, post, Route},
+    routing::{any, delete, get, get_service, post, put, Route},
     Router, ServiceExt,
 };
 use axum_server::tls_rustls::RustlsConfig;
@@ -323,6 +323,8 @@ pub async fn serve(addr: SocketAddr) {
         .route(FAVO_DELEGATE, post(add_delegate_favo))
         .route(FAVO_DELEGATE, get(user_delegate_favos))
         .route(FAVO_DELEGATE, delete(remove_user_delegate_favo))
+        .route(SEND_MAIL_INFO, put(update_send_mail_info))
+        .route(SEND_MAIL_INFO, get(get_send_mail_info))
         .route(GOV_OFFICIALS_AT, get(gov_officials_at_date_route))
         .route(GOV_PROPOSALS_BY_OFFICIAL, get(gov_proposals_by_official))
         .route(

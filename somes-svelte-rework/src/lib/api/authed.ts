@@ -39,6 +39,23 @@ export async function getWithAuth<T>(route: string): Promise<T | HasError> {
 	);
 }
 
+export async function putWithAuth<T>(route: string, body: any): Promise<T | HasError> {
+	const accessToken = get(jwtStore);
+	if (accessToken == null) {
+		return { error: 'No access token' };
+	}
+	return fetchSavely(() =>
+		fetch(`${address}/${route}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${accessToken}`
+			},
+			body: JSON.stringify(body)
+		})
+	);
+}
+
 export async function postWithAuth<T>(route: string, body: any): Promise<T | HasError> {
 	const accessToken = get(jwtStore);
 	if (accessToken == null) {

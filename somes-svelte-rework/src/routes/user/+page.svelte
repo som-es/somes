@@ -16,9 +16,10 @@
 	import Container from '$lib/components/Layout/Container.svelte';
 	import SelectableTopics from '$lib/components/Topics/SelectableTopics.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
+	import SwitchBox from '$lib/components/UI/SwitchBox.svelte';
 	import { gotoHistory } from '$lib/goto';
 	import { getUserFromJwt, type BasicUserInfo, type Topic, type UniqueTopic } from '$lib/types';
-	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
+	import { popup, SlideToggle, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
 
@@ -29,6 +30,8 @@
 	let autocompleteOptions: AutocompleteOptionMultiselect<string, UniqueTopic>[] = [];
 	let inputValue = '';
 	let allOwnTopics: UniqueTopic[] = [];
+
+	let sendVoteResultInfoMail = false;
 	
 	function delegateFilter(): AutocompleteOptionMultiselect<string, UniqueTopic>[] {
 		let _options = [...autocompleteOptions];
@@ -119,11 +122,37 @@
 				</SButton>
 			</div>
 		</div>
+		<div
+			class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 items-center flex justify-between"
+		>
+			<div class="flex flex-wrap items-center">
+				<h1 class="font-bold text-2xl">E-Mail Benachrichtigungen</h1>
+				<SlideToggle name="sendVoteResultInfoMail" bind:checked={sendVoteResultInfoMail} />
+
+				<div class="ml-5 text-xl">E-Mail</div>
+				<div class="mx-4 text-xl">
+					{#if user}
+						{user.sub}
+					{/if}
+				</div>
+			</div>
+			<div>
+				<SButton
+					class="bg-tertiary-500 text-black"
+					on:click={() => {
+						jwtStore.set(null);
+						gotoHistory('/home');
+					}}
+				>
+					todo: E-Mail wechseln
+				</SButton>
+			</div>
+		</div>
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
 			<h1 class="font-bold text-2xl">Wahle deine Interessen</h1>
 			<!-- todo: Searchbar -->
 			<input
-				class="input w-96 h-12 px-2"
+				class="input w-[28rem] h-9 px-2"
 				type="search"
 				name="ac-demo"
 				bind:value={inputValue}

@@ -123,6 +123,14 @@ pub struct DelegateById {
     pub delegate_id: i32,
 }
 
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct SendMailInfo {
+    pub new_vote_result_info: bool,
+    pub new_delegate_activity_info: bool,
+    pub ministrial_proposal_activity_info: bool,
+}
+
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct DelegateByIdAndPage {
     pub delegate_id: i32,
