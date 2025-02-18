@@ -11,7 +11,6 @@ pub async fn update_send_mail_info(
     claims: Claims,
     Json(delegate_favo): Json<SendMailInfo>,
 ) -> Result<Json<()>, Json<serde_json::Value>> {
-    log::info!("sendm ail info: {delegate_favo:?} {}", claims.id);
     query_as!(
         UniqueTopic,
         "update somes_user set send_new_vote_results_mails = $1, send_new_delegate_activity_mails = $2, send_new_ministrial_prop_mails=$3 where id = $4",
@@ -39,8 +38,5 @@ pub async fn get_send_mail_info(
     .await
     .map(Json)
     .map_err(|_| Json(json!({"error": "db error"})));
-
-    log::info!("mail info: {mail_info:?} {}", claims.id);
-
     mail_info
 }

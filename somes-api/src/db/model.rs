@@ -7,7 +7,7 @@ use utoipa::ToSchema;
 
 use super::schema::users;
 
-#[derive(Queryable, PartialEq, Eq, Debug)]
+#[derive(Queryable, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub struct User {
     pub id: i32,
     pub email: String,

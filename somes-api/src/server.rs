@@ -295,7 +295,7 @@ pub async fn serve(addr: SocketAddr) {
             CALL_TO_ORDERS_PER_PARTY_DELEGATES,
             get(call_to_orders_per_party_delegates),
         )
-        .route(USER, post(user))
+        .route(USER, get(user))
         .route(DELEGATE, get(delegate))
         .route(DELEGATE_INTERESTS, get(delegate_interests))
         .route(GENERAL_DELEGATE_INFO, get(general_delegate_info))

@@ -219,6 +219,13 @@ export interface BasicUserInfo {
 	exp: number;
 	is_admin: boolean;
 }
+export interface Extended {
+	id: number;
+	sub: string;
+	company: string;
+	exp: number;
+	is_admin: boolean;
+}
 
 export interface QuizQuestion {
 	question: string;
