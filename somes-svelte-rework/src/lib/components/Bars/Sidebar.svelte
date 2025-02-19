@@ -75,6 +75,28 @@
 		</AppRailAnchor>
 		<hr />
 		<AppRailAnchor
+			selected={isSelected('/vote_history')}
+			href="{base}/vote_history"
+			bind:group={currentTile}
+			name="Abstimmungen"
+			value={3}
+			title="Abstimmungen"
+		>
+			<svelte:fragment slot="lead">
+				<VoteParliament2
+					againstOpacity={0.3}
+					voteResult={mockVoteResult()}
+					delegates={mockDelegates()}
+					preview
+					overrideDelegates
+					noSeats
+					useOffset={false}
+				/>
+			</svelte:fragment>
+			<span style="font-size: x-small;">Abstimmungen</span>
+		</AppRailAnchor>
+		<hr />
+		<AppRailAnchor
 			selected={isSelected('/delegates')}
 			href="{base}/delegates"
 			bind:group={currentTile}
@@ -99,30 +121,7 @@
 			<span style="font-size: x-small;">Statistiken</span>
 		</AppRailAnchor>
 
-		<hr />
-		<AppRailAnchor
-			selected={isSelected('/vote_history')}
-			href="{base}/vote_history"
-			bind:group={currentTile}
-			name="Abstimmungen"
-			value={3}
-			title="Abstimmungen"
-		>
-			<svelte:fragment slot="lead">
-				<VoteParliament2
-					againstOpacity={0.3}
-					voteResult={mockVoteResult()}
-					delegates={mockDelegates()}
-					preview
-					overrideDelegates
-					noSeats
-					useOffset={false}
-				/>
-			</svelte:fragment>
-			<span style="font-size: x-small;">Abstimmungen</span>
-		</AppRailAnchor>
-		<hr />
-
+		<hr />	
 		<AppRailAnchor
 			selected={isSelected('/wahlhelfer')}
 			href="{base}/wahlhelfer"

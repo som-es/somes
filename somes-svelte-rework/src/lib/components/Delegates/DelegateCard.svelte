@@ -47,7 +47,7 @@
 
 <div class="!z-0 card {onlyTop ? "" : "min-h-full"}  mx-4 drop-shadow-lg flex flex-col">
 	<header class="relative">
-		{#if delegateFavos}
+		{#if delegateFavos && delegate.is_active}
 			{#if delegateFavos.has(delegate.id)}
 				<button on:click={async () => {
 					if (await removeDelegateFavo({delegate_id: delegate.id}) == null) {

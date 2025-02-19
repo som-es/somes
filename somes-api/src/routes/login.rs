@@ -236,7 +236,7 @@ pub async fn delete_account(
     claims: Claims,
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<()>, Json<serde_json::Value>> {
-    query!("delete from user_topics where user_id = $1", claims.id,)
+    let _ = query!("delete from user_topics where user_id = $1", claims.id,)
         .execute(&pg)
         .await
         .map(|_| Json(()))
