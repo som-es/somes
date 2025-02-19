@@ -15,6 +15,8 @@ mod error;
 pub mod filtering;
 pub use db::*;
 mod construct_vote_result;
+mod bookmark;
+pub use bookmark::*;
 
 // #[utoipa::path(
 //     post,

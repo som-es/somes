@@ -28,6 +28,11 @@ pub struct DelegateFavo {
 }
 
 
+#[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct LegisInitFavo {
+    pub vote_result_id: i32,
+}
+
 /// 'ResetPasswordInfo' is used to send a reset password request to the server.
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct ResetPasswordInfo {
