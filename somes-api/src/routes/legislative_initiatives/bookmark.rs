@@ -1,7 +1,7 @@
 
 use axum::Json;
 use serde_json::json;
-use somes_common_lib::DelegateFavo;
+use somes_common_lib::{DelegateFavo, LegisInitFavo};
 use sqlx::query_as;
 
 use crate::{jwt::Claims, PgPoolConnection};
@@ -16,7 +16,7 @@ pub async fn add_legis_init_favo(
         UniqueTopic,
         "insert into favo_dels(user_id, delegate_id) values ($1, $2) on conflict do nothing",
         claims.id,
-        delegate_favo.delegate_id,
+        delegate_favo.vote_result_id,
     )
     .execute(&pg)
     .await
@@ -24,22 +24,23 @@ pub async fn add_legis_init_favo(
     .map_err(|_| Json(json!({"error": "db error"})))
 }
 
-pub async fn user_delegate_favos(
+pub async fn user_legis_init_favos(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
 ) -> Result<Json<Vec<LegisInitFavo>>, Json<serde_json::Value>> {
-    query_as!(
-        DelegateFavo,
-        "select delegate_id from favo_dels where user_id = $1",
-        claims.id,
-    )
-    .fetch_all(&pg)
-    .await
-    .map(Json)
-    .map_err(|_| Json(json!({"error": "db error"})))
+    todo!()
+    // query_as!(
+    //     DelegateFavo,
+    //     "select delegate_id from favo_dels where user_id = $1",
+    //     claims.id,
+    // )
+    // .fetch_all(&pg)
+    // .await
+    // .map(Json)
+    // .map_err(|_| Json(json!({"error": "db error"})))
 }
 
-pub async fn remove_user_delegate_favo(
+pub async fn remove_user_legis_init_favo(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
     Json(delegate_favo): Json<DelegateFavo>,
