@@ -49,7 +49,8 @@
 				{ href: `${base}/statistics/votes_together`, label: 'Zusammenabstimmen der Parteien', keywords: '' },
 				{ href: `${base}/statistics/age`, label: 'Alter', keywords: '' },
 				{ href: `${base}/statistics/division_accuracy`, label: 'Bereichssprechergenauigkeit', keywords: '' },
-				{ href: `${base}/statistics/call_to_orders`, label: 'Ordnungsrufe', keywords: '' }
+				{ href: `${base}/statistics/call_to_orders`, label: 'Ordnungsrufe', keywords: '' },
+				{ href: `${base}/statistics/activity`, label: 'Aktivität', keywords: '' }
 			]
 		},
 	];
