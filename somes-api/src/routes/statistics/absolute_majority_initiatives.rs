@@ -12,6 +12,8 @@ use crate::{
     PgPoolConnection,
 };
 
+use super::filtering::Manual;
+
 #[derive(ToSchema, Default, Debug, Clone, Serialize, Deserialize)]
 pub struct LegislativeInitiativeFilter {
     legis_period: Option<String>,
@@ -33,7 +35,8 @@ pub async fn legislative_initiatives_without_simple_majority(
     // Hier baust du deine Filterargumente
     let filter_arg = filter.legis_period.with_sql_column("gp");
     let filter_arg1 = filter.accepted.with_sql_column("accepted");
-    let filters = [filter_arg, filter_arg1];
+    let filter_arg2 = Manual ("li.requires_simple_majority = false").with_sql_column("");
+    let filters = [filter_arg, filter_arg1, filter_arg2];
 
     // Erstelle den Filterstring
     let filter = build_filter(&filters);
@@ -47,7 +50,6 @@ pub async fn legislative_initiatives_without_simple_majority(
             legislative_initiatives li
         WHERE 
             {filter}
-            AND li.requires_simple_majority = false
         "
     );
 

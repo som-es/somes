@@ -41,7 +41,17 @@ mod complexity_per_legis;
 mod division_accuracy_score_per_legis;
 mod speechtime_per_legis;
 mod total_speeches_per_legis;
+mod activity_per_delegate;
+mod activity_per_party;
+mod activity_per_gender;
+mod activity_per_age;
+mod activity_per_legis;
 
+pub use activity_per_legis::*;
+pub use activity_per_age::*;
+pub use activity_per_gender::*;
+pub use activity_per_party::*;
+pub use activity_per_delegate::*;
 pub use absences_per_age::*;
 pub use absences_per_delegate::*;
 pub use absences_per_gender::*;

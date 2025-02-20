@@ -45,11 +45,18 @@ pub async fn absences_per_gender(
 
     let query = format!(
         "
-        SELECT 
-      ds.gender AS gender,
-     COUNT(DISTINCT ds.id) AS gender_members_with_absences,
-     COUNT(DISTINCT ab.id) AS total_absences,
-     COUNT(DISTINCT ab.id)::FLOAT / COUNT(DISTINCT ds.id)::FLOAT AS normalized_absences
+       WITH gender_counts AS (
+    SELECT 
+        gender, 
+        COUNT(DISTINCT id) AS total_gender_count
+    FROM delegates
+    GROUP BY gender
+)
+SELECT 
+    ds.gender AS gender,
+    gc.total_gender_count AS gender_members_with_absences,
+    COUNT(DISTINCT ab.id) AS total_absences,
+    COUNT(DISTINCT ab.id)::FLOAT / gc.total_gender_count::FLOAT AS normalized_absences
 FROM 
     absences ab
 JOIN 
@@ -58,15 +65,18 @@ JOIN
     mandates m ON m.delegate_id = ds.id
 JOIN 
     plenar_infos pf ON pf.id = ab.plenary_session_id
+JOIN 
+    gender_counts gc ON ds.gender = gc.gender
 WHERE
     {filter}
     AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = pf.id)
     AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = pf.id))
 GROUP BY 
-    ds.gender
+    ds.gender, gc.total_gender_count
 ORDER BY 
     normalized_absences {desc};
-    "
+
+        "
     );
 
     let mut filtered_query = sqlx::query_as::<Postgres, GenderAbsences>(&query);
