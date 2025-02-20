@@ -6,9 +6,10 @@
 		errorToNull,
 		get_topics,
 		isHasError,
+		vote_result_by_id,
 	} from '$lib/api/api';
 	import { addUserTopic, delete_account, getMailSendInfo, getUser, removeUserTopic, renew_token, updateMailSendInfo } from '$lib/api/authed';
-	import { cachedDelegateFavos } from '$lib/caching/delegate_favos';
+	import { cachedDelegateFavos, cachedLegisInitFavos } from '$lib/caching/favos';
 	import { jwtStore } from '$lib/caching/stores/stores';
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache';
 	import AutocompleteMultiselect from '$lib/components/Autocompletion/AutocompleteMultiselect.svelte';
@@ -19,6 +20,7 @@
 	import SelectableTopics from '$lib/components/Topics/SelectableTopics.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
+	import VoteResult from '$lib/components/VoteResults/VoteResult.svelte';
 	import { gotoHistory } from '$lib/goto';
 	import { getUserFromJwt, type BasicUserInfo, type ExtendedUserInfo, type MailSendInfo, type UniqueTopic } from '$lib/types';
 	import { popup, SlideToggle, type PopupSettings } from '@skeletonlabs/skeleton';
@@ -31,6 +33,7 @@
 	let extendedUser: ExtendedUserInfo | null;
 	let mailSendInfo: MailSendInfo | null;
 	let favoDelegates: Set<number> | null;
+	let favoLegisInits: Set<number> | null;
 
 	let autocompleteOptions: AutocompleteOptionMultiselect<string, UniqueTopic>[] = [];
 	let inputValue = '';
@@ -76,7 +79,8 @@
 		user = getUserFromJwt(jwtToken);
 		mailSendInfo = errorToNull(await getMailSendInfo());
 		extendedUser = errorToNull(await getUser());
-		favoDelegates = errorToNull(await cachedDelegateFavos());
+		favoDelegates = errorToNull(await cachedDelegateFavos(true));
+		favoLegisInits = errorToNull(await cachedLegisInitFavos(true));
 
 		// get interest topics from api
 		const data = await cachedUserTopics(true);
@@ -223,7 +227,7 @@
 		</div>
 		
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
-
+			<!-- make expandable -->
 			<h1 class="font-bold text-2xl">Favorisierte Abgeordnete</h1>
 			<div class="flex flex-wrap mt-3 gap-3">
 				{#if favoDelegates}
@@ -245,6 +249,31 @@
 				{/if}
 			</div>
 		</div>
+		
+		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
+			<!-- make expandable -->
+			<h1 class="font-bold text-2xl">Favorisierte Abstimmungen</h1>
+			<div class="flex flex-wrap mt-3 gap-3">
+				{#if favoLegisInits}
+					{#if favoLegisInits.size == 0}
+						Keine favorisierte Abstimmungen vorhanden.
+					{:else}
+						{#each favoLegisInits as favoLegisInitId, i}	
+							{#await vote_result_by_id(favoLegisInitId.toString())}
+								<ExpandablePlaceholder class="!w-80" />
+							{:then maybeDelegate}
+								{#if !isHasError(maybeDelegate) }
+									<VoteResult dels={[]} voteResult={maybeDelegate} tabindex={i} />
+								{/if}
+							{/await}
+						{/each}
+					{/if}
+				{:else}
+					<ExpandablePlaceholder />
+				{/if}
+			</div>
+		</div>
+
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
 			<SButton
 				class="bg-error-300 text-black"

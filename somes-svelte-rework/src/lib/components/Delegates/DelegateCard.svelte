@@ -8,7 +8,7 @@
 	import star from '$lib/assets/misc_icons/star.svg?raw';
 	import starFilled from '$lib/assets/misc_icons/starFilled.svg?raw';
 	import { onMount } from 'svelte';
-	import { cachedDelegateFavos } from '$lib/caching/delegate_favos';
+	import { cachedDelegateFavos } from '$lib/caching/favos';
 	import { addDelegateFavo, removeDelegateFavo } from '$lib/api/authed';
 
 	export let delegate: Delegate;
@@ -47,7 +47,7 @@
 
 <div class="!z-0 card {onlyTop ? "" : "min-h-full"}  mx-4 drop-shadow-lg flex flex-col">
 	<header class="relative">
-		{#if delegateFavos && delegate.is_active}
+		{#if delegateFavos}
 			{#if delegateFavos.has(delegate.id)}
 				<button on:click={async () => {
 					if (await removeDelegateFavo({delegate_id: delegate.id}) == null) {

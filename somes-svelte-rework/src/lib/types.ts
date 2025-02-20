@@ -118,6 +118,10 @@ export interface DelegateFavo {
 	delegate_id: number;
 }
 
+export interface LegisInitFavo {
+	vote_result_id: number;
+}
+
 export interface MailSendInfo {
 	send_new_vote_results_mails: boolean;
     send_new_delegate_activity_mails: boolean;
