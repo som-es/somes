@@ -27,6 +27,10 @@
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import SimpleYesNo from '$lib/components/VoteResults/SimpleYesNo/SimpleYesNo.svelte';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
+	import { cachedLegisInitFavos } from '$lib/caching/favos';
+	import { addLegisInitFavo, removeLegiInitFavo } from '$lib/api/authed';
+	import star from '$lib/assets/misc_icons/star.svg?raw';
+	import starFilled from '$lib/assets/misc_icons/starFilled.svg?raw';
 
 	let delegates: Delegate[] = [];
 
@@ -105,7 +109,12 @@
 		delegate = delegates[Math.floor(Math.random() * delegates.length)];
 	}
 
+
+	let legisInitFavos: Set<number> | null = null;
+
 	const runVoteResultUpdate = async () => {
+		legisInitFavos = await cachedLegisInitFavos();
+
 		const url = new URL(window.location.href);
 
 		voteResultId = url.searchParams.get('id');
@@ -214,10 +223,43 @@
 			<br />
 			<div class=" entry bg-primary-200 dark:bg-primary-400 mt-3 grid-container-with-emphasis">
 				<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
-					<h1 class="font-bold text-3xl">
-						{voteResult.legislative_initiative.voted_by_name ? 'namentliche ' : ''}Abstimmung über
-					</h1>
-					<span class="text-xl">{voteResult.legislative_initiative.description}</span>
+					<div class="flex justify-between items-center">
+						<div>
+							<h1 class="font-bold text-3xl">
+							{voteResult.legislative_initiative.voted_by_name ? 'namentliche ' : ''}Abstimmung über
+							</h1>
+							<span class="text-xl">{voteResult.legislative_initiative.description}</span>
+
+						</div>
+						<div>
+							{#if legisInitFavos}
+								{#if legisInitFavos.has(+voteResult.legislative_initiative.id)}
+									<button on:click={async () => {
+										if (!voteResult) return;
+										if (await removeLegiInitFavo({vote_result_id: +voteResult.legislative_initiative.id}) == null) {
+											legisInitFavos?.delete(+voteResult.legislative_initiative.id);
+											legisInitFavos = legisInitFavos;
+										}
+
+									}} class="w-14 p-2">
+										{@html starFilled}
+									</button>
+								{:else}
+									<button on:click={async () => {
+										if (!voteResult) return;
+										if (await addLegisInitFavo({vote_result_id: +voteResult.legislative_initiative.id}) == null) {
+											legisInitFavos?.add(+voteResult.legislative_initiative.id);
+											legisInitFavos = legisInitFavos;
+										}
+
+									}} class="w-14 p-2">
+										{@html star}
+									</button>
+								{/if}
+							{/if}
+						</div>
+					</div>
+
 				</div>
 				{#if rawEmphasis}
 					<div class="emphasis-item">
