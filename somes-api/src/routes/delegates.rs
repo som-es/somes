@@ -23,6 +23,8 @@ mod gov_officials;
 mod interests;
 mod qa;
 mod speeches;
+mod absences;
+mod named_votes;
 pub use ai_chat::*;
 pub use delegate_political_position::*;
 pub use general_delegate_info::*;
@@ -30,6 +32,7 @@ pub use gov_officials::*;
 pub use interests::*;
 pub use qa::*;
 pub use speeches::*;
+pub use absences::*;
 
 #[utoipa::path(
     get,

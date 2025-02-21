@@ -33,6 +33,20 @@ pub struct LegisInitFavo {
     pub vote_result_id: i32,
 }
 
+#[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct Absence {
+    pub date: NaiveDate,
+    pub plenary_session_id: i32,
+}
+
+#[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct NamedVote {
+    pub infavor: Option<bool>,
+    pub was_absent: Option<bool>,
+    pub legis_init_id: i32,
+    pub named_vote_info_id: i32,
+}
+
 /// 'ResetPasswordInfo' is used to send a reset password request to the server.
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct ResetPasswordInfo {
@@ -162,6 +176,8 @@ pub struct GeneralDelegateInfo {
     pub interests: Vec<InterestShare>,
     pub delegate_qa: Vec<DelegateQA>,
     pub political_position: Option<PoliticalPosition>,
+    pub absences: Vec<Absence>,
+    pub named_votes: Vec<NamedVote>,
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
