@@ -47,3 +47,47 @@ select
     order by 
         hours_spoken DESC;
 ```
+
+
+```sql
+
+SELECT 
+    d.id,
+    d.name,
+    SUM(
+        CASE 
+            WHEN p.ityp = 'J' THEN 1 
+            WHEN p.ityp = 'AA' THEN 1.2 * proposal_count
+            WHEN p.ityp = 'A' THEN 1.2 * proposal_count
+            WHEN p.ityp = 'UEA' THEN 1.15 * proposal_count
+            WHEN p.ityp = 'I' THEN 1.3 * proposal_count
+            ELSE 0
+        END
+    ) AS activity_score
+FROM 
+    proposals p
+JOIN 
+    proposal_delegates pd ON p.id = pd.proposal_id
+JOIN 
+    delegates d ON pd.delegate_id = d.id
+LEFT JOIN (
+    SELECT 
+        p.id AS proposal_id,
+        COUNT(p.id) AS proposal_count
+    FROM 
+        proposals p
+    JOIN 
+        proposal_delegates pd ON p.id = pd.proposal_id
+    WHERE 
+        pd.is_receiver = false
+    GROUP BY 
+        p.id
+) AS proposal_counts ON p.id = proposal_counts.proposal_id
+WHERE 
+    pd.is_receiver = false
+GROUP BY 
+    d.id
+ORDER BY 
+    activity_score DESC;
+
+```
