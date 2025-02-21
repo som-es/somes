@@ -302,11 +302,25 @@ export interface Mandate {
 	name: string;
 }
 
+export interface Absence {
+	date: Date,
+	plenary_session_id: number;
+}
+
+export interface NamedVote {
+	infavor: boolean | null;
+	was_absent: boolean | null;
+	legis_init_id: number;
+	named_vote_info_id: number;
+}
+
 export interface GeneralDelegateInfo {
 	interests: InterestShare[];
 	delegate_qa: DelegateQA[];
 	mandates: Mandate[];
 	political_position: PoliticalPosition | null;
+	absences: Absence[];
+	named_votes: NamedVote[];
 }
 
 export interface DelegateQA {
