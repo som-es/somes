@@ -312,6 +312,7 @@ export interface NamedVote {
 	was_absent: boolean | null;
 	legis_init_id: number;
 	named_vote_info_id: number;
+	date: Date;
 }
 
 export interface GeneralDelegateInfo {

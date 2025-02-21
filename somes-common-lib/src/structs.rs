@@ -45,6 +45,7 @@ pub struct NamedVote {
     pub was_absent: Option<bool>,
     pub legis_init_id: i32,
     pub named_vote_info_id: i32,
+    pub date: NaiveDate,
 }
 
 /// 'ResetPasswordInfo' is used to send a reset password request to the server.
