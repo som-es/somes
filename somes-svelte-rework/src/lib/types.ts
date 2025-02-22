@@ -305,6 +305,7 @@ export interface Mandate {
 export interface Absence {
 	date: Date,
 	plenary_session_id: number;
+	missed_legis_init_ids: number[];
 }
 
 export interface NamedVote {

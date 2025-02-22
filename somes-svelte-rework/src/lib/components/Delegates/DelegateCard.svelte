@@ -95,7 +95,11 @@
 			{/if}
 		</h5>
 
-		<h6 class="text-lg">{delegate.active_mandates?.join("\n")}</h6>
+		{#if delegate.active_mandates?.length == 0}
+			<h6 class="text-lg">{delegate.primary_mandate}</h6>
+		{:else}
+			<h6 class="text-lg">{delegate.active_mandates?.join("\n")}</h6>
+		{/if}
 
 		{#if !onlyTop}
 		<hr class="!border-t-2 my-1" />

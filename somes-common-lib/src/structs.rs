@@ -37,6 +37,14 @@ pub struct LegisInitFavo {
 pub struct Absence {
     pub date: NaiveDate,
     pub plenary_session_id: i32,
+    pub missed_legis_init_ids: Option<Vec<i32>>,
+}
+
+#[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct AbsencesWithMaxPage {
+    pub speeches: Vec<Absence>,
+    pub entry_count: i64,
+    pub max_page: i64,
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
