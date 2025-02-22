@@ -4,7 +4,10 @@
 		getDrawerStore,
 		LightSwitch,
 		modeCurrent,
-		setModeCurrent
+		setModeCurrent,
+
+		type DrawerSettings
+
 	} from '@skeletonlabs/skeleton';
 	import userIcon from '$lib/assets/icons/user.svg?raw';
 	import somesTextIcon from '$lib/assets/somes_with_text2.svg?raw';
@@ -14,6 +17,7 @@
 	import { loginDrawerSettings } from '../Login/constants';
 	import { gotoHistory } from '$lib/goto';
 	import { renew_token } from '$lib/api/authed';
+	import hamburgerIcon from '$lib/assets/misc_icons/hamburger-menu.svg?raw'
 
 	const drawerStore = getDrawerStore();
 
@@ -32,10 +36,21 @@
 
 	// fixes weird color bug
 	setModeCurrent($modeCurrent);
+
+	function drawerOpen(): void {
+		const s: DrawerSettings = { 
+			id: 'sidebar',
+			width: 'min-w-fit'
+		};
+		drawerStore.open(s);
+	}
 </script>
 
 <AppBar class="!bg-surface-100-800-token" slotTrail="!space-x-2">
 	<svelte:fragment slot="lead">
+		<button on:click={drawerOpen} class="btn-icon btn-icon-sm lg:!hidden">
+			{@html hamburgerIcon}
+		</button>
 		<a class="mx-4 fill-current stroke-current w-32" href="/">
 			{@html somesTextIcon}
 		</a>

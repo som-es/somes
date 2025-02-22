@@ -41,8 +41,11 @@
 <RenewToken />
 <CacheInvalidation />
 <Modal components={modalRegistry} />
+
 <Drawer>
-	{#if $drawerStore.id === 'login-drawer'}
+	{#if $drawerStore.id === 'sidebar'}
+		<Sidebar embedded={true} />
+	{:else if $drawerStore.id === 'login-drawer'}
 		<LoginDrawer />
 	{/if}
 </Drawer>
@@ -70,7 +73,7 @@
 		<Navbar />
 	</svelte:fragment>
 	<svelte:fragment slot="sidebarLeft">
-		<Sidebar class="hidden sm:grid" />
+		<Sidebar class="hidden lg:grid" />
 	</svelte:fragment>
 	<svelte:fragment slot="footer">
 		<div class="sm:!hidden">

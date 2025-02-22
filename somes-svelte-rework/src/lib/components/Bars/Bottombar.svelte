@@ -48,7 +48,7 @@
 			<div>Statistiken</div>
 		</div>
 	</TabAnchor> -->
-	<TabAnchor href="{base}/vote_history" selected={isSelected('/vote_history')}>
+	<TabAnchor href="{base}/history/votes" selected={isSelected('/history')}>
 		<div class="flex justify-center flex-col items-center">
 			<div>
 				<VoteParliament2
