@@ -26,7 +26,7 @@
 <div class="mt-5">
 	{#each previewSpeeches as absence}
 		<!-- <div class="gap-3 rounded variant-filled my-1">{speech.legislative_initiatives_id} {speech.opinion}</div> -->
-		<AbsenceBar {absence}></AbsenceBar>
+		<AbsenceBar {absence} page={0}></AbsenceBar>
 		<!-- <GovProposalExpandableBar {govProposal} /> -->
 	{/each}
 </div>

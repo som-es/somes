@@ -5,10 +5,15 @@
 	import collapse from 'svelte-collapse';
 
     export let absence: Absence;
+    export let page: number;
     // absence.
 
     let open: boolean = false;
 	let duration = 0.35;
+
+    $: if (page) {
+        open = false
+    }
 
 </script>
 
@@ -29,12 +34,17 @@
             {absence.inr}. Nationalratssitzung | {absence.gp}
         </div>
         <div>
-            Verpasste Abstimmungen: {absence.missed_legis_init_ids.toString()} 
+            {absence.missed_legis_init_ids.length} verpasste 
+            {#if absence.missed_legis_init_ids.length > 1}
+                Abstimmungen
+            {:else}
+                Abstimmung
+            {/if}
         </div>
     </div>
     
     <div use:collapse={{ open, duration }}>
-		<AbsenceBarExpanded {absence} bind:open />
+		<!-- <AbsenceBarExpanded {absence} bind:open /> -->
 	</div>
 </div>
 

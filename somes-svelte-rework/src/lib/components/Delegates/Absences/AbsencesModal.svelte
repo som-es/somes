@@ -38,7 +38,7 @@
         <Pagination bind:page maxPage={Math.ceil($modalStore[0].meta.absences.length / ENTRIES)} />
         <!-- <AllProposalsFiltering bind:filteredGovProposals={filteredGovProposals} allGovProposals={$modalStore[0].meta.govProposals} /> -->
         {#each currentPageAbsences as absence}
-            <AbsenceBar {absence} />
+            <AbsenceBar {absence} {page} />
             <!-- <GovProposalExpandableBar {govProposal} /> -->
         {/each}
         {#if currentPageAbsences.length == 0}
