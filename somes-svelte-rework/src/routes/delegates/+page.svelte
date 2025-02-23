@@ -6,10 +6,6 @@
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 	import {
-		delegate_interests,
-		delegate_political_position,
-		delegate_qa,
-		delegates_at,
 		errorToNull,
 		general_delegate_info,
 		gov_proposals_by_official,
@@ -29,13 +25,11 @@
 	} from '$lib/components/Autocompletion/filtering';
 	import LegisButtons from '$lib/components/Filtering/LegisButtons.svelte';
 	import AllBadges from '$lib/components/VoteResults/SimpleYesNo/AllBadges.svelte';
-	import { replaceState } from '$app/navigation';
 	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 	import { dashDateToDotDate } from '$lib/date';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import GovProposalPreview from '$lib/components/Proposals/GovProposalPreviewAtDelegate.svelte';
 	import SpeechesPreview from '$lib/components/Delegates/Speeches/SpeechesPreview.svelte';
-	import PoliticalSpectrum from '$lib/components/Delegates/Spectrum/PoliticalSpectrum.svelte';
 	import SquarePoliticalSpectrum from '$lib/components/Delegates/Spectrum/SquarePoliticalSpectrum.svelte';
 	import AbsencesPreview from '$lib/components/Delegates/Absences/AbsencesPreview.svelte';
 
@@ -185,7 +179,7 @@
 			generalDelegateInfo = errorToNull(res)	
 			if (generalDelegateInfo) {
 				generalDelegateInfo.interests.sort((a, b) => b.self_share - a.self_share);
-				console.log(`absences length: ${generalDelegateInfo.absences.length}, ${generalDelegateInfo.named_votes.length}`);
+				// console.log(`absences length: ${generalDelegateInfo.absences.length}, ${generalDelegateInfo.named_votes.length}`);
 			}
 		})
 
@@ -233,7 +227,7 @@
 				type="range"
 				min="2"
 				max={maxDayOffset + 2}
-				step={maxDayOffset / 90}
+				step={1}
 				list="steplist"
 			/>
 			<datalist id="steplist">
@@ -316,16 +310,7 @@
 			<ExpandablePlaceholder />
 			<ExpandablePlaceholder />
 		{/if}
-		
-		{#if generalDelegateInfo?.absences && delegate && generalDelegateInfo?.absences.length > 0}
-			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
-				<AbsencesPreview delegateId={delegate.id} absences={generalDelegateInfo.absences} />
-			</div>
-		{:else if generalDelegateInfo?.absences == null || !delegate}
-			<ExpandablePlaceholder />
-			<ExpandablePlaceholder />
-		{/if}
-		
+			
 		{#if generalDelegateInfo?.absences && delegate && generalDelegateInfo?.absences.length > 0}
 			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
 				<AbsencesPreview delegateId={delegate.id} absences={generalDelegateInfo.absences} />

@@ -37,6 +37,11 @@ pub async fn get_json_cache<T: DeserializeOwned>(
     redis_client: &mut MultiplexedConnection,
     key: &str,
 ) -> Option<T> {
+    #[cfg(debug_assertions)]
+    {
+        None
+    }
+    #[cfg(not(debug_assertions))]
     serde_json::from_str(&redis_client.get::<&str, String>(key).await.ok()?).ok()
 }
 
