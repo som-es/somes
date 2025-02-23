@@ -36,6 +36,8 @@ pub struct LegisInitFavo {
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct Absence {
     pub date: NaiveDate,
+    pub inr: i32,
+    pub gp: String,
     pub plenary_session_id: i32,
     pub missed_legis_init_ids: Option<Vec<i32>>,
 }

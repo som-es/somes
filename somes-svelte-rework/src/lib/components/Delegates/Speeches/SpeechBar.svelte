@@ -29,7 +29,6 @@
 		currentVoteResultStore.set(voteResult);
         modalStore.close();
 		gotoHistory('/vote_result', true);
-        
 	}
 
     $: opinion = speech.infavor != null ? (speech.infavor ? "Dafür gesprochen" : "Dagegen gesprochen") : speech.opinion 
