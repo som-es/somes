@@ -46,7 +46,7 @@
             <div class="border-radius-left spacing-for-left flex dark:bg-primary-300 bg-primary-400 justify-between items-center flex-basis-left">
                 <div class="flex flex-col">
                     <div>{voteResult.legislative_initiative.description}</div>
-                    <div class="text-lg font-bold badge {opinionColor} text-white w-12">{opinion}</div>
+                    <div class="text-lg font-bold badge {opinionColor} text-white max-w-fit ">{opinion}</div>
                 </div>
 
                 {#if hasVotes}

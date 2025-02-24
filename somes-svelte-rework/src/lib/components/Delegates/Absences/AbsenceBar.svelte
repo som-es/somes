@@ -35,7 +35,6 @@
 			</div>
 		</div>
 
-
         <div>
             {absence.inr}. Nationalratssitzung | {absence.gp}
         </div>

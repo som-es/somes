@@ -4,7 +4,6 @@
 	import AbsenceBar from './AbsenceBar.svelte';
 
 	export let absences: Absence[];
-	console.log(absences);
 	export let delegateId: number;
 
 	$: allAbsences = {
@@ -19,11 +18,17 @@
 </script>
 
 <div class="flex flex-wrap justify-between items-center">
-	<h1 class="font-bold text-2xl">Letzte Abwesenheiten</h1>
+	<div>
+		<h1 class="font-bold text-2xl">Letzte Abwesenheiten</h1>
+
+		<h2 class="text-lg">
+			{absences.length} {absences.length == 1 ? "Abwesenheit" : "Abwesenheiten"}
+		</h2>
+	</div>
 	<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(allAbsences)}>Alle anzeigen</button>
 </div>
 
-<div class="mt-5">
+<div class="mt-1">
 	{#each previewSpeeches as absence}
 		<!-- <div class="gap-3 rounded variant-filled my-1">{speech.legislative_initiatives_id} {speech.opinion}</div> -->
 		<AbsenceBar {absence} page={0}></AbsenceBar>

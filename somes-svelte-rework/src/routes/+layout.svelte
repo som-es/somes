@@ -26,6 +26,7 @@
 	import AllSpeechesModal from '$lib/components/Delegates/Speeches/AllSpeechesModal.svelte';
 	import PoliticalSpectrumQuestionsModal from '$lib/components/Delegates/Spectrum/PoliticalSpectrumQuestionsModal.svelte';
 	import AbsencesModal from '$lib/components/Delegates/Absences/AbsencesModal.svelte';
+	import NamedVoteModal from '$lib/components/Delegates/NamedVote/NamedVoteModal.svelte';
 	const drawerStore = getDrawerStore();
 
 	// const drawerStore = getDrawerStore();
@@ -36,6 +37,7 @@
 		allSpeeches: { ref: AllSpeechesModal },
 		politicalSpectrumQuestions: { ref: PoliticalSpectrumQuestionsModal},
 		allAbsences: { ref: AbsencesModal },
+		allNamedVotes: { ref: NamedVoteModal },
 		// imdying:{ ref: ModalExample }
 	};
 </script>
