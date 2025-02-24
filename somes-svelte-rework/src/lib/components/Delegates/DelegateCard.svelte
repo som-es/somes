@@ -14,9 +14,11 @@
 	export let delegate: Delegate;
 	export let onlyTop: boolean = false;
 	export let showQA: boolean = false;
+	export let showAI: boolean = true;
 	export let questions: DelegateQA[] = [];
 	export let showMoreDetailsBtn = false;
 	export let showImg = true;
+	export let title: string | null = null;
 
 	const onShowDetails = () => {
 		currentDelegateStore.set(delegate);
@@ -43,6 +45,7 @@
 	} as ModalSettings;
 
 	const modalStore = getModalStore();
+
 </script>
 
 <div class="!z-0 card {onlyTop ? "" : "min-h-full"}  mx-4 drop-shadow-lg flex flex-col">
@@ -109,21 +112,31 @@
 		<hr class="!border-t-2 my-1" />
 		<h3>{delegate.divisions?.join(', ')}</h3>
 		{/if}
+		<slot name="title">
+		</slot>
+		<slot name="info">
+		</slot>
+
 	</section>
 
 
 	<hr class="!border-t-2 my-1" />
 	<!-- <footer class="card-footer flex justify-end items-end mt-3"> -->
 	<footer class="card-footer flex justify-between mt-1">
+		<slot name="footerButtons">
+		</slot>
 		{#if showMoreDetailsBtn}
 			<div></div>
 			<SButton class="bg-tertiary-500 text-black" on:click={onShowDetails}>Zur Person</SButton>
 		{/if}
+		
 
 		{#if !onlyTop}
-			<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(aiChatModal)}
-				>AI Chat</button
-			>
+			{#if showAI}
+				<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(aiChatModal)}
+					>AI Chat</button
+				>
+			{/if}
 			{#if showQA && questions.length > 0}
 				<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(delegateQAModal)}
 					>Vorstellung</button
