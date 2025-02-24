@@ -21,7 +21,7 @@
 		<h1 class="font-bold text-2xl">Ministerialentwürfe</h1>
 
 		<h2 class="text-lg">
-			{govProposals.length} {govProposals.length == 1 ? "Ministerialentwurf" : "Ministerialentwürfe"} insgesammt
+			{govProposals.length} {govProposals.length == 1 ? "Ministerialentwurf" : "Ministerialentwürfe"} insgesamt
 		</h2>
 	</div>
 	<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(allProposals)}>Alle anzeigen</button>

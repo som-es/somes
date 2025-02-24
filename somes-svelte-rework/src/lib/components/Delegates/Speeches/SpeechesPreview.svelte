@@ -22,7 +22,7 @@
 		<h1 class="font-bold text-2xl">Letzte Reden</h1>
 
 		<h2 class="text-lg">
-			{speechesPage0.entry_count} {speechesPage0.entry_count == 1 ? "Rede" : "Reden"} insgesammt
+			{speechesPage0.entry_count} {speechesPage0.entry_count == 1 ? "Rede" : "Reden"} insgesamt
 		</h2>
 	</div>
 	<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(allSpeeches)}>Alle anzeigen</button>
