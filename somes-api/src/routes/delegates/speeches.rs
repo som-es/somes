@@ -69,7 +69,7 @@ pub async fn speeches_by_delegate_per_page(
     extract_delegate_speeches(delegate_id, page, page_elements, &pg)
         .await
         .map(|(all_speeches_count, speeches)| SpeechesWithMaxPage {
-            entry_count: speeches.len() as i64,
+            entry_count: all_speeches_count as i64,
             speeches,
             max_page: (all_speeches_count as f64 / page_elements as f64).ceil() as i64,
         })

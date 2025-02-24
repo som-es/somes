@@ -21,7 +21,7 @@
 	<div>
 		<h1 class="font-bold text-2xl">Letzte namentliche Abstimmungen </h1>
 		<h2 class="text-lg">
-			{namedVotes.length} {namedVotes.length == 1 ? "Abstimmung" : "Abstimmungen"}
+			{namedVotes.length} {namedVotes.length == 1 ? "Abstimmung" : "Abstimmungen"} insgesammt
 		</h2>
 	</div>
 	<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(allNamedVotes)}>Alle anzeigen</button>
