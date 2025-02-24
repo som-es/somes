@@ -50,13 +50,13 @@
 	let generalNamedVoteDelegates: Bubble[] | null = null;
 	let generalAbsencesDelegates: Bubble[] | null = null;
 
-	async function fetchDelegatesAtAndEnrich(delegates: Delegate[]) {
+	function enrichDelegates(delegates: Delegate[]) {
 		if (!voteResult) {
 			return;
 		}
+
 		delegatesAtDate = delegates;
 		// delegatesAtDate = (errorToNull(await delegates_at(voteResult.legislative_initiative.created_at))) ?? [];
-
 		if (delegatesAtDate) {
 			generalSpeechDelegates = genCirclesWithSpeechInfo(voteResult.speeches, delegatesAtDate);
 			if (voteResult.named_votes) {
@@ -134,7 +134,7 @@
 			return;
 		}
 
-		await fetchDelegatesAtAndEnrich(delegates);
+		enrichDelegates(delegates);
 
 		selectRandomlyFromDels();
 		updateAutocompletion();
@@ -169,7 +169,6 @@
 		}
 		currentlyUpdating = true;
 		voteResult = errorToNull(await vote_result_by_id(voteResultId));
-		console.log("FETCH")
 		// if (delegates)
 		// await fetchDelegatesAtAndEnrich();
 		currentVoteResultStore.set(voteResult);
@@ -202,6 +201,7 @@
 	$: if (delegates) {
 		updateAutocompletion();
 		selectRandomlyFromDels();
+		enrichDelegates(delegates)
 	}
 
 	let iterBubble: Bubble | undefined;
