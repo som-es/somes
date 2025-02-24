@@ -32,6 +32,7 @@
 	import SpeechesPreview from '$lib/components/Delegates/Speeches/SpeechesPreview.svelte';
 	import SquarePoliticalSpectrum from '$lib/components/Delegates/Spectrum/SquarePoliticalSpectrum.svelte';
 	import AbsencesPreview from '$lib/components/Delegates/Absences/AbsencesPreview.svelte';
+	import NamedVotePreview from '$lib/components/Delegates/NamedVote/NamedVotePreview.svelte';
 
 	let delegates: Delegate[];
 	let delegate: Delegate | null;
@@ -314,6 +315,15 @@
 		{#if generalDelegateInfo?.absences && delegate && generalDelegateInfo?.absences.length > 0}
 			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
 				<AbsencesPreview delegateId={delegate.id} absences={generalDelegateInfo.absences} />
+			</div>
+		{:else if generalDelegateInfo?.absences == null || !delegate}
+			<ExpandablePlaceholder />
+			<ExpandablePlaceholder />
+		{/if}
+	
+		{#if generalDelegateInfo?.named_votes && delegate && generalDelegateInfo?.named_votes.length > 0}
+			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
+				<NamedVotePreview delegateId={delegate.id} namedVotes={generalDelegateInfo.named_votes} />
 			</div>
 		{:else if generalDelegateInfo?.absences == null || !delegate}
 			<ExpandablePlaceholder />

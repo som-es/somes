@@ -32,6 +32,7 @@
 	}
 
     $: opinion = namedVote.infavor != null ? (namedVote.infavor ? "Ja" : "Nein") : "Abwesend/keine Stimme abgegeben"
+    $: opinionColor = namedVote.infavor != null ? (namedVote.infavor ? "bg-success-600" : "bg-red-600") : "bg-primary-500"
     $: arrowBackground = (voteResult != null && voteResult.votes.length > 0) ? "bg-secondary-400" : "dark:bg-primary-300 bg-primary-400"
     $: hasVotes = (voteResult?.votes ?? []).length > 0
 
@@ -44,8 +45,8 @@
         {#if voteResult}
             <div class="border-radius-left spacing-for-left flex dark:bg-primary-300 bg-primary-400 justify-between items-center flex-basis-left">
                 <div class="flex flex-col">
-                    <div class="text-lg font-bold">{opinion}</div>
                     <div>{voteResult.legislative_initiative.description}</div>
+                    <div class="text-lg font-bold badge {opinionColor} text-white w-12">{opinion}</div>
                 </div>
 
                 {#if hasVotes}

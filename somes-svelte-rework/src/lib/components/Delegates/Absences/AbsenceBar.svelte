@@ -25,11 +25,17 @@
 		tabindex="0"
 		class="entry dark:bg-primary-300 bg-primary-400 flex justify-between items-center text-black"
 	>
-		<div>
+		<div class="flex gap-4">
 			<div id={open ? 'open' : 'closed'}>
 				{@html rightArrowIcon}
 			</div>
+
+			<div class="badge bg-tertiary-400">
+				Abwesenheit
+			</div>
 		</div>
+
+
         <div>
             {absence.inr}. Nationalratssitzung | {absence.gp}
         </div>

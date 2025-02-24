@@ -6,7 +6,7 @@
 	export let namedVotes: NamedVote[];
 	export let delegateId: number;
 
-	$: allSpeeches = {
+	$: allNamedVotes = {
 		type: 'component',
 		component: 'allNamedVotes',
 		meta: { delegateId, namedVotes }
@@ -18,14 +18,13 @@
 </script>
 
 <div class="flex flex-wrap justify-between items-center">
-	<h1 class="font-bold text-2xl">Letzte Reden</h1>
-	<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(allSpeeches)}>Alle anzeigen</button>
+	<h1 class="font-bold text-2xl">Letzte namentliche Abstimmungen</h1>
+	<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(allNamedVotes)}>Alle anzeigen</button>
 </div>
 <div class="mt-5">
 {#each previewNamedVotes as namedVote}
     <!-- <div class="gap-3 rounded variant-filled my-1">{speech.legislative_initiatives_id} {speech.opinion}</div> -->
 	 <NamedVoteBar {namedVote}></NamedVoteBar>
-	<!-- <GovProposalExpandableBar {govProposal} /> -->
 {/each}
 
 </div>
