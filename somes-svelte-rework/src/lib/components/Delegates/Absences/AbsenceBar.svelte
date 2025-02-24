@@ -40,10 +40,10 @@
         </div>
         <div>
             {absence.missed_legis_init_ids.length} verpasste 
-            {#if absence.missed_legis_init_ids.length > 1}
-                Abstimmungen
-            {:else}
+            {#if absence.missed_legis_init_ids.length == 1}
                 Abstimmung
+            {:else}
+                Abstimmungen
             {/if}
         </div>
     </div>
