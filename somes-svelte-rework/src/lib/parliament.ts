@@ -104,7 +104,7 @@ export function enrichParliamentBubbles(
 	});
 
 	if (voteResult) {
-		enrichCirclesWithSpeechInfoOnSeat(voteResult.speeches, bubbles, dels, voteResult.legislative_initiative.pre_declined_type == "p");
+		enrichCirclesWithSpeechInfoOnSeat(voteResult.speeches, bubbles, dels, voteResult.legislative_initiative.pre_declined_type?.includes("p"));
 		if (voteResult.named_votes) {
 			enrichCirclesWithNamedVoteInfoOnSeat(voteResult.named_votes.named_votes, bubbles, dels);
 		}
