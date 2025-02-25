@@ -330,6 +330,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(SEND_MAIL_INFO, get(get_send_mail_info))
         .route(GOV_OFFICIALS_AT, get(gov_officials_at_date_route))
         .route(GOV_PROPOSALS_BY_OFFICIAL, get(gov_proposals_by_official))
+        .route(GOV_PROPOSALS_PER_PAGE, post(get_gov_proposals_per_page))
         .route(
             DELEGATE_POLITICAL_POSITION,
             get(delegate_political_position),

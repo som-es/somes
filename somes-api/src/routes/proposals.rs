@@ -5,7 +5,7 @@ use somes_common_lib::{MinistrialPropFilter, Page};
 use sqlx::{FromRow, PgPool};
 use utoipa::ToSchema;
 
-use crate::{PgPoolConnection, RedisConnection, GOV_PROPS_PER_PAGE, LEGIS_INITS_PER_PAGE};
+use crate::{PgPoolConnection, RedisConnection, GOV_PROPS_PER_PAGE};
 
 use super::{construct_gov_proposal, statistics::filtering::{bind_values, build_filter, count_filter, IntoFilterArgument, Manual}, GovProposal, LegisInitErrorResponse};
 
