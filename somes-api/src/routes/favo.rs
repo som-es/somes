@@ -5,7 +5,6 @@ use sqlx::query_as;
 
 use crate::{jwt::Claims, PgPoolConnection};
 
-
 pub async fn add_delegate_favo(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,

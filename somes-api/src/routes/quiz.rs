@@ -1,6 +1,10 @@
 mod add_quiz;
 use std::{
-    cell::Cell, collections::HashMap, future::Future, ops::ControlFlow, sync::{Arc, LazyLock}
+    cell::Cell,
+    collections::HashMap,
+    future::Future,
+    ops::ControlFlow,
+    sync::{Arc, LazyLock},
 };
 
 pub use add_quiz::*;
@@ -63,7 +67,8 @@ static SCORE_BOARD: LazyLock<Arc<RwLock<Vec<((String, u64), f64)>>>> =
 static QUESTION: LazyLock<Arc<RwLock<State>>> =
     LazyLock::new(|| Arc::new(RwLock::new(State::Ready)));
 
-static ANSWERS_TO_QUESTION: LazyLock<Arc<RwLock<usize>>> = LazyLock::new(|| Arc::new(RwLock::new(0)));
+static ANSWERS_TO_QUESTION: LazyLock<Arc<RwLock<usize>>> =
+    LazyLock::new(|| Arc::new(RwLock::new(0)));
 
 // static QUESTION_TX_RX: LazyLock<(Sender<QuizQuestion>, Receiver<QuizQuestion>)> = LazyLock::new(|| tokio::sync::broadcast::channel(2048));
 
@@ -170,7 +175,11 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
                     .unwrap();
 
                 if last_state == State::Scoreboard {
-                    question_user.write().await.as_mut().map(|user| user.answer_locked_in = false);
+                    question_user
+                        .write()
+                        .await
+                        .as_mut()
+                        .map(|user| user.answer_locked_in = false);
                     if let Some(user) = &*question_user.clone().read().await {
                         let scoreboard = SCORE_BOARD.read().await;
                         let idx = scoreboard
@@ -178,7 +187,7 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
                             .position(|((_, id), _)| id == &user.id)
                             .map(|idx| idx as i32)
                             .unwrap_or(-1);
-                        
+
                         let score = if idx >= 0 {
                             let ((_name, _id), score) = &scoreboard[idx as usize];
                             *score
@@ -229,7 +238,6 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
             // recv_task.abort();
         }
     }
-
 
     if let Some(user) = &*user.read().await {
         USER_MAP.write().await.remove(&(user.name.clone(), user.id));
@@ -320,9 +328,9 @@ async fn process_message(
                                         as f64
                                         * 1100.
                                         * (available_since.elapsed().as_secs_f64() * (-1. / 23.))
-                                            .exp()).round()
+                                            .exp())
+                                    .round()
                                 });
-                                
                         }
                     }
                 }

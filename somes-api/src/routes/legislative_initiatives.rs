@@ -14,8 +14,8 @@ mod db;
 mod error;
 pub mod filtering;
 pub use db::*;
-mod construct_vote_result;
 mod bookmark;
+mod construct_vote_result;
 pub use bookmark::*;
 
 // #[utoipa::path(
@@ -250,7 +250,8 @@ pub async fn gov_proposals_by_official(
             mp.ressort_shortform, 
             mp.legis_init_gp, 
             mp.legis_init_inr, 
-            mp.legis_init_ityp
+            mp.legis_init_ityp,
+            mp.has_vote_result
         from 
             ministrial_issuer as mi 
         inner join 

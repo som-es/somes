@@ -22,12 +22,11 @@ pub async fn extract_delegate_speeches(
     page_elements: i64,
     pg: &PgPool,
 ) -> sqlx::Result<(i64, Vec<DbSpeechWithLink>)> {
-
     // these are not plenar speeches !!! only that are related to a vote result
     // let all_speeches_of_delegate = query!("
-    //     select COUNT(*) from speeches 
+    //     select COUNT(*) from speeches
     //     INNER JOIN speeches_html_urls ON speeches.id = speeches_html_urls.speech_id inner join legislative_initiatives li on li.id = legislative_initiatives_id where delegate_id = $1
-    // ", 
+    // ",
     // delegate_id).fetch_one(pg).await?;
 
     let all_speeches_of_delegate = query!("
@@ -36,7 +35,11 @@ pub async fn extract_delegate_speeches(
     ", 
     delegate_id).fetch_one(pg).await?;
 
-    Ok((all_speeches_of_delegate.count.unwrap_or_default(), query_as!(DbSpeechWithLink, "
+    Ok((
+        all_speeches_of_delegate.count.unwrap_or_default(),
+        query_as!(
+            DbSpeechWithLink,
+            "
         select delegate_id, about, legis_init_id as legislative_initiatives_id,     CASE
         WHEN opinion = 'Pro' THEN true 
         WHEN opinion = 'Contra' THEN false 
@@ -48,15 +51,21 @@ pub async fn extract_delegate_speeches(
         inner join plenar_infos pi on pi.id = debates.plenar_id
         where delegate_id = $1
         order by add_date desc offset $2 limit $3
-    ", 
-    delegate_id, page * page_elements, page_elements).fetch_all(pg).await?))
-/*
-    Ok((all_speeches_of_delegate.count.unwrap_or_default(), query_as!(DbSpeechWithLink, "
-        select delegate_id, legislative_initiatives_id, infavor, opinion, document_url from speeches 
-        INNER JOIN speeches_html_urls ON speeches.id = speeches_html_urls.speech_id inner join legislative_initiatives li on li.id = legislative_initiatives_id where delegate_id = $1 order by created_at desc offset $2 limit $3
-    ", 
-    delegate_id, page * page_elements, page_elements).fetch_all(pg).await?))
-*/
+    ",
+            delegate_id,
+            page * page_elements,
+            page_elements
+        )
+        .fetch_all(pg)
+        .await?,
+    ))
+    /*
+        Ok((all_speeches_of_delegate.count.unwrap_or_default(), query_as!(DbSpeechWithLink, "
+            select delegate_id, legislative_initiatives_id, infavor, opinion, document_url from speeches
+            INNER JOIN speeches_html_urls ON speeches.id = speeches_html_urls.speech_id inner join legislative_initiatives li on li.id = legislative_initiatives_id where delegate_id = $1 order by created_at desc offset $2 limit $3
+        ",
+        delegate_id, page * page_elements, page_elements).fetch_all(pg).await?))
+    */
 }
 
 pub async fn speeches_by_delegate_per_page(

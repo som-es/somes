@@ -1,7 +1,10 @@
 mod delegates;
+mod favo;
 mod legislative_initiatives;
 mod login;
+mod mail_send_info;
 mod parties;
+mod proposals;
 mod questions;
 mod quiz;
 mod reset_password;
@@ -12,14 +15,16 @@ mod topics;
 mod user;
 mod verify;
 mod walo;
-mod favo;
-mod mail_send_info;
+
+pub use proposals::*;
+
 pub use favo::*;
 
 use axum::Json;
 pub use delegates::*;
 pub use legislative_initiatives::*;
 pub use login::*;
+pub use mail_send_info::*;
 pub use parties::*;
 pub use questions::*;
 pub use quiz::*;
@@ -32,7 +37,6 @@ pub use topics::*;
 pub use user::*;
 pub use verify::*;
 pub use walo::*;
-pub use mail_send_info::*;
 
 use crate::{PgPoolConnection, RedisConnection};
 

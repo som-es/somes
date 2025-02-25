@@ -15,16 +15,17 @@ use crate::{
 };
 
 pub use error::*;
+mod absences;
 mod ai_chat;
 mod delegate_political_position;
 mod error;
 mod general_delegate_info;
 mod gov_officials;
 mod interests;
+mod named_votes;
 mod qa;
 mod speeches;
-mod absences;
-mod named_votes;
+pub use absences::*;
 pub use ai_chat::*;
 pub use delegate_political_position::*;
 pub use general_delegate_info::*;
@@ -32,7 +33,6 @@ pub use gov_officials::*;
 pub use interests::*;
 pub use qa::*;
 pub use speeches::*;
-pub use absences::*;
 
 #[utoipa::path(
     get,

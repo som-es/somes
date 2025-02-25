@@ -1,11 +1,9 @@
-
 use axum::Json;
 use serde_json::json;
 use somes_common_lib::LegisInitFavo;
 use sqlx::query_as;
 
 use crate::{jwt::Claims, PgPoolConnection};
-
 
 pub async fn add_legis_init_favo(
     PgPoolConnection(pg): PgPoolConnection,

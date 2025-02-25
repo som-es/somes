@@ -248,6 +248,12 @@ pub struct LegisInitFilter {
     pub legis_period: Option<String>,
 }
 
+#[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
+pub struct MinistrialPropFilter {
+    pub has_vote_result: Option<bool>,
+    pub legis_period: Option<String>,
+}
+
 #[derive(PartialEq, Eq, IntoParams, ToSchema, PartialOrd, Ord, Debug, Serialize, Deserialize)]
 pub struct LegisPeriod {
     pub period: String,

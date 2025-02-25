@@ -13,6 +13,10 @@
 
 <!-- <div class="mx-auto px-5"> -->
 <Container>
-	Entwürfe	
+
+	<!-- alles, was noch nicht abgestimmt wurde / was schon wurde, aber halt wovon kam ok?? -> Ministerialentwürfe, Anträge -->
+	<h1 class="text-2xl sm:text-4xl font-bold">Ministerialentwürfe</h1>
+
+
 </Container>
 <!-- </div> -->

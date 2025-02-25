@@ -5,7 +5,6 @@ use sqlx::query_as;
 
 use crate::{jwt::Claims, PgPoolConnection};
 
-
 pub async fn update_send_mail_info(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
