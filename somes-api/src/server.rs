@@ -100,6 +100,7 @@ pub async fn serve(addr: SocketAddr) {
         error!("Could not establish redis database connection!");
         return;
     };
+
     if client.get_connection().is_err() {
         error!("Could not establish redis database connection!");
         return;
