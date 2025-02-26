@@ -1,11 +1,13 @@
 mod all_props;
+mod gov_props_by_search;
 pub use all_props::*;
+pub use gov_props_by_search::*;
 
 use axum::{extract::Query, Json};
 use dataservice::db::models::DbMinistrialProposalQuery;
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::{MinistrialPropFilter, Page};
+use somes_common_lib::{GovPropFilter, Page};
 use sqlx::{FromRow, PgPool};
 use utoipa::ToSchema;
 
@@ -33,7 +35,7 @@ pub async fn get_gov_proposals_per_page(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(page): Query<Page>,
-    Json(gov_prop_filter): Json<Option<MinistrialPropFilter>>,
+    Json(gov_prop_filter): Json<Option<GovPropFilter>>,
 ) -> Result<Json<GovProposalsWithMaxPage>, LegisInitErrorResponse> {
     if page.page < 0 {
         return Err(LegisInitErrorResponse::InvalidPage);
@@ -67,7 +69,7 @@ pub async fn filtered_ministrial_proposals(
     pg: &PgPool,
     page: i64,
     page_elements: i64,
-    ministrial_prop_filter: Option<MinistrialPropFilter>,
+    ministrial_prop_filter: Option<GovPropFilter>,
 ) -> sqlx::Result<(Vec<DbMinistrialProposalQuery>, i64)> {
     let ministrial_prop_filter = ministrial_prop_filter.unwrap_or_default();
 
@@ -153,7 +155,7 @@ pub async fn get_latest_ministrial_proposals_per_page(
     pg: &PgPool,
     page: i64,
     page_elements: i64,
-    filter: Option<MinistrialPropFilter>,
+    filter: Option<GovPropFilter>,
 ) -> sqlx::Result<(Vec<DbMinistrialProposalQuery>, i64)> {
     filtered_ministrial_proposals(pg, page, page_elements, filter).await
 }
@@ -161,7 +163,7 @@ pub async fn get_latest_ministrial_proposals_per_page(
 #[cfg(test)]
 mod tests {
     use dataservice::connect_pg;
-    use somes_common_lib::MinistrialPropFilter;
+    use somes_common_lib::GovPropFilter;
 
     use crate::routes::get_latest_ministrial_proposals_per_page;
 
@@ -171,7 +173,7 @@ mod tests {
         let entries = get_latest_ministrial_proposals_per_page(&pg, 1, 10, None).await.unwrap();
         println!("entries: {entries:?}");
 
-        let entries = get_latest_ministrial_proposals_per_page(&pg, 1, 10, Some(MinistrialPropFilter { has_vote_result: Some(true), legis_period: None })).await.unwrap();
+        let entries = get_latest_ministrial_proposals_per_page(&pg, 1, 10, Some(GovPropFilter { has_vote_result: Some(true), legis_period: None })).await.unwrap();
         println!("entries: {entries:?}");
     }
 }

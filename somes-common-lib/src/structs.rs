@@ -249,7 +249,7 @@ pub struct LegisInitFilter {
 }
 
 #[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
-pub struct MinistrialPropFilter {
+pub struct GovPropFilter {
     pub has_vote_result: Option<bool>,
     pub legis_period: Option<String>,
 }
