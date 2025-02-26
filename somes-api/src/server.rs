@@ -155,7 +155,7 @@ pub async fn serve(addr: SocketAddr) {
     let postgres_pool = bb8::Pool::builder().build(config).await.unwrap();
      */
 
-    log::info!("Connecting to database {DATASERVICE_URL}");
+    log::info!("Connecting to database {}", DATASERVICE_URL.split("@").last().unwrap_or_default());
 
     let dataservice_sqlx_pool = PgPoolOptions::new()
         // pool sizes
@@ -163,6 +163,8 @@ pub async fn serve(addr: SocketAddr) {
         .connect(DATASERVICE_URL)
         .await
         .unwrap();
+
+    log::info!("Established postgresql connection");
 
     let somes_db_manager =
         // mind the database url, it is "DATASERVICE_URL" and not "DATABASE_URL"

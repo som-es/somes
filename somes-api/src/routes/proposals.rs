@@ -1,5 +1,6 @@
 use axum::{extract::Query, Json};
 use dataservice::db::models::DbMinistrialProposalQuery;
+use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::{MinistrialPropFilter, Page};
 use sqlx::{FromRow, PgPool};
@@ -7,13 +8,22 @@ use utoipa::ToSchema;
 
 use crate::{PgPoolConnection, RedisConnection, GOV_PROPS_PER_PAGE};
 
-use super::{construct_gov_proposal, statistics::filtering::{bind_values, build_filter, count_filter, IntoFilterArgument, Manual}, GovProposal, LegisInitErrorResponse};
+use super::{construct_gov_proposal, delegate_by_id_sqlx, statistics::filtering::{bind_values, build_filter, count_filter, IntoFilterArgument, Manual}, GovProposal, GovProposalDelegate, LegisInitErrorResponse};
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct GovProposalsWithMaxPage {
-    pub gov_proposals: Vec<GovProposal>,
+    pub gov_proposals: Vec<GovProposalDelegate>,
     pub entry_count: i64,
     pub max_page: i64,
+}
+
+pub async fn construct_gov_delegate_proposal(redis_con: MultiplexedConnection, pg: &PgPool, ministrial_proposal: DbMinistrialProposalQuery) -> sqlx::Result<GovProposalDelegate> {
+    let delegate = delegate_by_id_sqlx(ministrial_proposal.delegate_id, &pg, redis_con.clone()).await?;
+    let gov_proposal = construct_gov_proposal(redis_con, &pg, ministrial_proposal).await?;
+    Ok(GovProposalDelegate {
+        gov_proposal,
+        delegate,
+    })
 }
 
 pub async fn get_gov_proposals_per_page(
@@ -31,9 +41,8 @@ pub async fn get_gov_proposals_per_page(
     let (ministrial_proposals, entry_count) = filtered_ministrial_proposals(&pg, page.page, GOV_PROPS_PER_PAGE.parse().unwrap_or(12), gov_prop_filter).await.map_err(|e| LegisInitErrorResponse::GenericErrorResponse(crate::GenericErrorResponse::DbSelectFailure(Some(e))))?;
 
     futures::future::join_all(ministrial_proposals.into_iter().map(|ministrial_proposal| {
-        let redis_con = redis_con.clone();
-        construct_gov_proposal(redis_con, &pg, ministrial_proposal)
-    }))
+        construct_gov_delegate_proposal(redis_con.clone(), &pg, ministrial_proposal)
+    }).into_iter())
     .await
     .into_iter()
     .collect::<sqlx::Result<Vec<_>>>()
@@ -105,7 +114,7 @@ pub async fn filtered_ministrial_proposals(
     let mut filtered_query = sqlx::query_as::<_, DbMinistrialProposalQuery>(&query);
     filtered_query = bind_values(filtered_query, &filters);
     filtered_query = filtered_query.bind(page * page_elements);
-    filtered_query = filtered_query.bind(page);
+    filtered_query = filtered_query.bind(page_elements);
 
     let query = format!(
         "select 

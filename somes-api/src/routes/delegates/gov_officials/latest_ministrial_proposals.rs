@@ -14,8 +14,8 @@ use crate::{
 
 #[derive(ToSchema, Debug, Clone, Serialize, Deserialize)]
 pub struct GovProposalDelegate {
-    gov_proposal: GovProposal,
-    delegate: Delegate,
+    pub gov_proposal: GovProposal,
+    pub delegate: Delegate,
 }
 
 pub async fn construct_ministrial_proposal_delegate(
