@@ -349,7 +349,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(GOV_OFFICIALS_AT, get(gov_officials_at_date_route))
         .route(GOV_PROPOSALS_BY_OFFICIAL, get(gov_proposals_by_official))
         .route(GOV_PROPOSALS_PER_PAGE, post(get_gov_proposals_per_page))
-        .route(GOV_PROPOSALS_BY_SEARCH, post(vote_result_by_search)) // post only because js fetch...
+        .route(GOV_PROPOSALS_BY_SEARCH, post(gov_props_by_search)) // post only because js fetch...
         .route(
             DELEGATE_POLITICAL_POSITION,
             get(delegate_political_position),

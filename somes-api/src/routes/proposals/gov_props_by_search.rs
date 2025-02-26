@@ -1,8 +1,9 @@
 use axum::{extract::Query, Json};
 use meilisearch_sdk::search::SearchResults;
+use reqwest::StatusCode;
 use somes_common_lib::GovPropFilter;
 
-use crate::{meilisearch::MeilisearchClient, routes::{GovProposalDelegate, LegisInitErrorResponse}, GenericErrorResponse, RedisConnection, GOV_PROPS_PER_PAGE};
+use crate::{meilisearch::MeilisearchClient, routes::GovProposalDelegate, GenericErrorResponse, RedisConnection, GOV_PROPS_PER_PAGE};
 
 use super::GovProposalsWithMaxPage;
 
@@ -39,7 +40,7 @@ pub async fn gov_props_by_search(
         .with_page(page.page as usize)
         .execute()
         .await
-        .unwrap();
+        .map_err(|_e| GenericErrorResponse::Custom((StatusCode::INTERNAL_SERVER_ERROR, "Cannot find gov proposals")))?;
 
     let max_page = results.total_pages.unwrap_or(1) as i64;
 
