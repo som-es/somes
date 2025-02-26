@@ -54,7 +54,7 @@ pub async fn set_json_cache<T: Serialize>(
         .set(key, serde_json::to_string(value).ok()?)
         .await
         .ok()?;
-    redis_client.expire::<_, ()>(key, 300).await.ok()?;
+    redis_client.expire::<_, ()>(key, 1200).await.ok()?;
     Some(())
 }
 

@@ -1,3 +1,6 @@
+mod all_props;
+pub use all_props::*;
+
 use axum::{extract::Query, Json};
 use dataservice::db::models::DbMinistrialProposalQuery;
 use redis::aio::MultiplexedConnection;
