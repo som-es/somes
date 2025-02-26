@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { pushState } from "$app/navigation";
-	import { errorToNull, gov_proposals_per_page } from "$lib/api/api";
+	import { errorToNull, gov_proposals_by_search, gov_proposals_per_page } from "$lib/api/api";
 	import type { GovPropFilter, GovProposalsWithMaxPage } from "$lib/types";
 	import { onMount } from "svelte";
 	import Pagination from "../Pagination.svelte";
@@ -9,6 +9,7 @@
 	import { get } from "svelte/store";
 	import LegisButtons from "../Filtering/LegisButtons.svelte";
 	import GovProposalExpandableBar from "./Latest/GovProposalExpandableBar.svelte";
+	import SButton from "../UI/SButton.svelte";
 
     
     const url = new URL(window.location.href);
@@ -28,7 +29,7 @@
 		if (maybeStoredFilter.legis_period) selectedPeriod = maybeStoredFilter.legis_period;
 	}
 
-	const loadVoteResults = async () => {
+	const loadGovProps = async () => {
 		currentlyUpdating = true;
 		if (govProposals !== null) {
 			govProposals.gov_proposals = [];
@@ -43,25 +44,25 @@
 		// filter = null;
 
 		if (searchValue) {
-			// const voteResultsSearch = errorToNull(
-			// 	await vote_results_by_search(page, searchValue, filter)
-			// );
-			// if (voteResultsSearch) voteResults = voteResultsSearch;
+			const govPropsSearch = errorToNull(
+				await gov_proposals_by_search(page, searchValue, filter)
+			);
+            console.log(govPropsSearch);
+			if (govPropsSearch) govProposals = govPropsSearch;
 		} else {
 			govProposals = errorToNull(await gov_proposals_per_page(page - 1, filter));
-            console.log(govProposals)
 		}
 		currentlyUpdating = false;
 	};
 
     const update = () => {
-		loadVoteResults();
+		loadGovProps();
 
 		// update query params
 		const url = new URL(window.location.href);
 		url.searchParams.set('page', page.toString());
 		try {
-			pushState(url.toString(), { replaceState: true });
+			// pushState(url.toString(), { replaceState: true });
 		} catch (e) {
 			page = old_page;
 		}
@@ -80,6 +81,20 @@
 <div class="mt-5">
 	<h2 class="font-bold text-2xl">Legislaturperioden</h2>
 	<LegisButtons bind:selectedPeriod />
+</div>
+<div class="mt-5">
+	<h2 class="font-bold text-2xl">Suche</h2>
+	<div class="flex flex-row gap-4">
+		<input
+			class="input w-full h-12 px-2"
+			type="search"
+			name="ac-demo"
+			bind:value={searchValue}
+			on:change={update}
+			placeholder="Suchen..."
+		/>
+		<SButton class="bg-secondary-500 text-black" on:click={update}>Suchen</SButton>
+	</div>
 </div>
 <div>
 	{#if govProposals}

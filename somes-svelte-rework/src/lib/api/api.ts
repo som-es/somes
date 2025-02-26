@@ -228,6 +228,24 @@ export async function gov_proposals_per_page(
 	);
 }
 
+export async function gov_proposals_by_search(
+	page: number,
+	search: string,
+	filter: GovPropFilter | null
+): Promise<GovProposalsWithMaxPage | HasError> {
+	return fetchSavely(() =>
+		fetch(`${address}/gov_proposals_by_search?page=${page}&search=${search}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(filter)
+		})
+	);
+}
+
+
+
 export async function vote_results_by_search(
 	page: number,
 	search: string,
