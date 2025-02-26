@@ -143,7 +143,7 @@ pub async fn construct_gov_proposal(
         ministrial_proposal.legis_init_inr,
     ) {
         (Some(ref gp), Some(ref ityp), Some(ref inr)) => {
-            Some(get_vote_result_by_unique_hints_with_accepted_required(redis_con.clone(), &pg, &gp, &ityp, *inr).await?)
+            get_vote_result_by_unique_hints_with_accepted_required(redis_con.clone(), &pg, &gp, &ityp, *inr).await?
         }
         _ => None,
     };
@@ -187,7 +187,7 @@ pub async fn get_vote_result_by_unique_hints_with_accepted_required(
     gp: &str,
     ityp: &str,
     inr: i32,
-) -> sqlx::Result<VoteResult> {
+) -> sqlx::Result<Option<VoteResult>> {
     let legis_init = sqlx::query_as!(
         DbLegislativeInitiativeQuery,
         "select * from legislative_initiatives where gp = $1 and ityp = $2 and inr = $3 and accepted is not null",
@@ -195,11 +195,13 @@ pub async fn get_vote_result_by_unique_hints_with_accepted_required(
         ityp,
         inr
     )
-    .fetch_one(pg)
+    .fetch_optional(pg)
     .await?;
-
-    let res = construct_vote_result(redis_con, pg, legis_init).await?;
-    Ok(res)
+    if let Some(legis_init) = legis_init {
+        construct_vote_result(redis_con, pg, legis_init).await.map(|e| Some(e))
+    } else {
+        Ok(None)
+    }
 }
 
 

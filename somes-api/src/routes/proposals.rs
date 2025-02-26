@@ -23,8 +23,8 @@ pub struct GovProposalsWithMaxPage {
 }
 
 pub async fn construct_gov_delegate_proposal(redis_con: MultiplexedConnection, pg: &PgPool, ministrial_proposal: DbMinistrialProposalQuery) -> sqlx::Result<GovProposalDelegate> {
-    let delegate = delegate_by_id_sqlx(ministrial_proposal.delegate_id, &pg, redis_con.clone()).await?;
-    let gov_proposal = construct_gov_proposal(redis_con, &pg, ministrial_proposal).await?;
+    let delegate = delegate_by_id_sqlx(ministrial_proposal.delegate_id, &pg, redis_con.clone()).await.unwrap();
+    let gov_proposal = construct_gov_proposal(redis_con, &pg, ministrial_proposal).await.unwrap();
     Ok(GovProposalDelegate {
         gov_proposal,
         delegate,
@@ -57,7 +57,7 @@ pub async fn get_gov_proposals_per_page(
         max_page: (entry_count as f64 / GOV_PROPS_PER_PAGE.parse().unwrap_or(12.)).ceil() as i64,
     })
     .map(Json)
-    .map_err(|_| LegisInitErrorResponse::LegisInit)
+    .map_err(|e| LegisInitErrorResponse::GenericErrorResponse(crate::GenericErrorResponse::DbSelectFailure(Some(e))))
 }
 
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize, Copy, FromRow)]
