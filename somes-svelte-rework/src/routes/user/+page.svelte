@@ -171,7 +171,7 @@
 						</SlideToggle>
 						<SlideToggle active="bg-secondary-400" name="sendMinistrialPropInfoMails" on:change={updateThisMailSendInfo} bind:checked={mailSendInfo.send_new_ministrial_prop_mails}>
 							<span class="font-bold">
-								Zu neuen Minisiterialentwürfen
+								Zu neuen Ministerialentwürfen
 							</span>	
 							<br>
 							<span class="text-sm">nach ausgewählten Interessen</span>
