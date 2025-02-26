@@ -21,7 +21,9 @@ import type {
 	SpeechesWithMaxPage,
 	PoliticalPosition,
 	GovProposalDelegate,
-	GeneralDelegateInfo
+	GeneralDelegateInfo,
+	GovPropFilter,
+	GovProposalsWithMaxPage
 } from '../types';
 import { jwtStore } from '../caching/stores/stores';
 
@@ -202,6 +204,21 @@ export async function vote_results_per_page(
 ): Promise<VoteResultsWithMaxPage | HasError> {
 	return fetchSavely(() =>
 		fetch(`${address}/vote_results_per_page?page=${page}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(filter)
+		})
+	);
+}
+
+export async function gov_proposals_per_page(
+	page: number,
+	filter: GovPropFilter | null
+): Promise<GovProposalsWithMaxPage | HasError> {
+	return fetchSavely(() =>
+		fetch(`${address}/gov_proposals_per_page?page=${page}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'

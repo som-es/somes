@@ -144,6 +144,12 @@ export interface VoteResultsWithMaxPage {
 	max_page: number;
 }
 
+export interface GovProposalsWithMaxPage {
+	gov_proposals: GovProposalDelegate[];
+	entry_count: number;
+	max_page: number;
+}
+
 export interface WaloQuestion {
 	id: number;
 	question_statement: string | null;
@@ -348,6 +354,11 @@ export interface VoteResultFilter {
 	accepted: string | null;
 	simple_majority: boolean | null;
 	legis_period: string | null;
+}
+
+export interface GovPropFilter {
+	legis_period: string | null;
+	has_vote_result: boolean | null;
 }
 
 export interface NamedVote {
