@@ -238,6 +238,7 @@ pub async fn serve(addr: SocketAddr) {
             {
                 log::warn!("Could not update meilisearch index: {e:?}");
             }
+            log::info!("gov prop sleep 1900s");
             sleep(std::time::Duration::from_secs(1900)).await;
         }
     });

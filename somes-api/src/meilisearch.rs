@@ -41,15 +41,15 @@ pub async fn update_gov_props_meilisearch_index(
         all_gov_props.len()
     );
     let settings = Settings::new().with_filterable_attributes([
-        "ministrial_proposals.gp",
-        "ministrial_proposals.has_vote_result",
+        "gov_proposal.ministrial_proposal.gp",
+        "gov_proposal.ministrial_proposal.has_vote_result",
     ]);
 
     client.index("gov_props").set_settings(&settings).await?;
 
     client
         .index("gov_props")
-        .add_documents(&all_gov_props, Some("ministrial_proposals.id"))
+        .add_documents(&all_gov_props, Some("gov_proposal.ministrial_proposal.id"))
         .await?;
 
     log::info!("Uploaded gov proposals");
