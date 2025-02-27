@@ -10,6 +10,7 @@
 	import LegisButtons from "../Filtering/LegisButtons.svelte";
 	import GovProposalExpandableBar from "./Latest/GovProposalExpandableBar.svelte";
 	import SButton from "../UI/SButton.svelte";
+	import { ListBox, ListBoxItem, popup, RadioGroup, RadioItem, type PopupSettings } from "@skeletonlabs/skeleton";
 
     
     const url = new URL(window.location.href);
@@ -75,8 +76,72 @@
 	}
 
     onMount(update);
+    
+    const popupRequiredMajority: PopupSettings = {
+		event: 'click',
+		target: 'popupRequiresSimpleMajority',
+		placement: 'bottom',
+		closeQuery: '.listbox-item'
+	};
+    
+    const translateHasVoteResultFilterValue = (hasVoteResultFilter: boolean | undefined) => {
+		if (hasVoteResultFilter == undefined) {
+			return 'egal';
+		}
+		return hasVoteResultFilter ? 'mit Abstimmung' : 'ohne Abstimmung';
+	};
 </script>
+<div class="lg:hidden flex flex-wrap gap-6">
+	<div>
+		<h1 class="text-2xl font-bold">notwendige Mehrheit</h1>
+		<button
+			class="btn variant-filled-secondary w-48 justify-between"
+			use:popup={popupRequiredMajority}
+		>
+			<span class="capitalize">{translateHasVoteResultFilterValue(hasVoteResultFilter)}</span>
+			<span>↓</span>
+		</button>
+	</div>
+</div>
 
+<div class="card w-48 shadow-xl py-2" data-popup="popupRequiresSimpleMajority">
+	<ListBox
+		rounded="rounded-container-token sm:!rounded-token"
+		active="variant-filled-secondary"
+		hover="hover:variant-soft-secondary"
+	>
+		<ListBoxItem bind:group={hasVoteResultFilter} name="hasVoteResult" value={undefined}
+			>egal</ListBoxItem
+		>
+		<ListBoxItem bind:group={hasVoteResultFilter} name="hasVoteResult" value={true}
+			>mit Abstimmung</ListBoxItem
+		>
+		<ListBoxItem bind:group={hasVoteResultFilter} name="hasVoteResult" value={false}
+			>ohne Abstimmung</ListBoxItem
+		>
+	</ListBox>
+</div>
+<div class="max-lg:hidden flex gap-4 flex-wrap">
+	<div class="mt-5">
+		<h1 class="text-2xl font-bold">Abstimmungsstatus</h1>
+		<RadioGroup
+			rounded="rounded-container-token sm:!rounded-token"
+			active="variant-filled-secondary"
+			hover="hover:variant-soft-secondary"
+			flexDirection="flex-col sm:flex-row"
+		>
+			<RadioItem bind:group={hasVoteResultFilter} name="hasVoteResult" value={undefined}
+				>egal</RadioItem
+			>
+			<RadioItem bind:group={hasVoteResultFilter} name="hasVoteResult" value={true}
+				>mit Abstimmung</RadioItem
+			>
+			<RadioItem bind:group={hasVoteResultFilter} name="hasVoteResult" value={false}
+				>ohne Abstimmung</RadioItem
+			>
+		</RadioGroup>
+	</div>
+</div>
 
 <div class="mt-5">
 	<h2 class="font-bold text-2xl">Legislaturperioden</h2>
