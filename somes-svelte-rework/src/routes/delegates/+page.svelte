@@ -331,12 +331,13 @@
 		{/if}
 
 		{#if generalDelegateInfo?.interests}
+			{#if generalDelegateInfo?.interests?.length > 0}
+				<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
 
-			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
-
-				<h1 class="font-bold text-2xl mb-2">Top 4 Interessen</h1>
-				<InterestTiles bgColor={"bg-primary-300 dark:bg-primary-500"} squareColor={"dark:bg-primary-300 bg-primary-400"} interests={generalDelegateInfo.interests.slice(0, 4)} />
-			</div>
+					<h1 class="font-bold text-2xl mb-2">Top 4 Interessen</h1>
+					<InterestTiles bgColor={"bg-primary-300 dark:bg-primary-500"} squareColor={"dark:bg-primary-300 bg-primary-400"} interests={generalDelegateInfo.interests.slice(0, 4)} />
+				</div>
+			{/if}
 		{:else}
 			<ExpandablePlaceholder class={'my-3'} />
 		{/if}
