@@ -211,7 +211,14 @@
 	// 	emphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
 </script>
 
-<title> Abstimmungsergebnis </title>
+
+<title>  
+	{#if voteResult?.legislative_initiative.accepted}
+		Abstimmungsergebnis
+	{:else}
+		Gegenstandsübersicht
+	{/if}
+</title>
 <Container>
 	{#if voteResult}
 		{#if currentlyUpdating}
@@ -226,7 +233,11 @@
 					<div class="flex justify-between items-center">
 						<div>
 							<h1 class="font-bold text-3xl">
-							{voteResult.legislative_initiative.voted_by_name ? 'namentliche ' : ''}Abstimmung über
+								{#if voteResult?.legislative_initiative.accepted}
+									{voteResult.legislative_initiative.voted_by_name ? 'namentliche ' : ''}Abstimmung über
+								{:else}
+									Gegenstand
+								{/if}
 							</h1>
 							<span class="text-xl">{voteResult.legislative_initiative.description}</span>
 
@@ -283,6 +294,7 @@
 					</div>
 				{/if}
 
+				{#if voteResult.legislative_initiative.accepted}
 				<div
 					class="simple-yes-no-item bg-primary-300 p-3 dark:bg-primary-500 rounded-xl flex flex-wrap justify-between"
 				>
@@ -290,6 +302,7 @@
 				</div>
 
 				<!-- {#if voteResult.legislative_initiative.gp == 'XXVII'} -->
+
 				<div class="!z-20 search-item text-token space-y-5">
 					<input
 						class="!rounded-xl w-full h-12 px-2 input"
@@ -331,6 +344,7 @@
 						</div>
 					{/if}
 				</div>
+				{/if}
 
 				<!-- {/if} -->
 				<div class="flex flex-wrap justify-between min-w-full gap-3">

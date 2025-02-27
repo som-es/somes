@@ -110,14 +110,14 @@
 
 <div class="flex flex-wrap {isCenter ? 'justify-center' : ''} info-item gap-3">
 	<div class="flex gap-3 flex-wrap">
-		{#if showAccepted}
+		{#if showAccepted && voteResult.legislative_initiative.accepted}
 			<Square {squareSize} class="accepted-item {squareClasses}">
 				{#if voteResult.legislative_initiative.accepted == 'a'}
 					{@html checkmarkIcon}
 					{#if showText}
 						<div>Angenommen</div>
 					{/if}
-				{:else}
+				{:else }
 					{@html crossmarkIcon}
 					{#if showText}
 						<div>Abgelehnt</div>
@@ -145,7 +145,7 @@
 		{/if}
 	</div>
 	<div class="flex gap-3 flex-wrap">
-		{#if showAchievedVotes}
+		{#if showAchievedVotes && voteResult.legislative_initiative.accepted}
 			<Square {squareSize} class={squareClasses}>
 				<SimpleDonut stops={conicsStopsAchievedVotes} {isLightMode} />
 
