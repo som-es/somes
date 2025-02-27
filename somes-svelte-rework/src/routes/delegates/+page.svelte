@@ -330,15 +330,22 @@
 			<ExpandablePlaceholder />
 		{/if}
 
-		{#if delegate && generalDelegateInfo?.political_position}
-			<SquarePoliticalSpectrum {delegate}	politicalPosition={generalDelegateInfo.political_position} />
-		{:else if !generalDelegateInfo}
+		{#if generalDelegateInfo?.interests}
+
+			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
+
+				<h1 class="font-bold text-2xl mb-2">Top 4 Interessen</h1>
+				<InterestTiles bgColor={"bg-primary-300 dark:bg-primary-500"} squareColor={"dark:bg-primary-300 bg-primary-400"} interests={generalDelegateInfo.interests.slice(0, 4)} />
+			</div>
+		{:else}
 			<ExpandablePlaceholder class={'my-3'} />
 		{/if}
 
-		{#if generalDelegateInfo?.interests}
-				<InterestTiles interests={generalDelegateInfo.interests.slice(0, 4)} />
-		{:else}
+
+
+		{#if delegate && generalDelegateInfo?.political_position}
+			<SquarePoliticalSpectrum {delegate}	politicalPosition={generalDelegateInfo.political_position} />
+		{:else if !generalDelegateInfo}
 			<ExpandablePlaceholder class={'my-3'} />
 		{/if}
 
