@@ -35,9 +35,10 @@ pub async fn absences_per_age(
 ) -> Result<Json<Vec<AgeAbcenes>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
 
-    let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
-    let filter_arg1 = Manual("m.is_nr").with_sql_column("");
-    let filters = [filter_arg, filter_arg1];
+    let filter_arg = filter.legis_period.with_sql_column("dga.legislative_period");
+    let filter_arg1 = filter.legis_period.with_sql_column("pf.legislative_period");
+    let filter_arg2 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
+    let filters = [filter_arg, filter_arg1, filter_arg2];
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
 
@@ -45,23 +46,13 @@ pub async fn absences_per_age(
 
     let query = format!(
         " 
-        WITH legislative_period_dates AS (
-    SELECT 
-        legislative_period, 
-        MIN(add_date) AS start_date, 
-        MAX(add_date) AS end_date
-    FROM 
-        plenar_infos
-    GROUP BY 
-        legislative_period
-)
 SELECT 
     CASE 
-        WHEN delegate_age < 30 THEN 'Under 30'
-        WHEN delegate_age BETWEEN 30 AND 39 THEN '30-39'
-        WHEN delegate_age BETWEEN 40 AND 49 THEN '40-49'
-        WHEN delegate_age BETWEEN 50 AND 59 THEN '50-59'
-        WHEN delegate_age BETWEEN 60 AND 69 THEN '60-69'
+        WHEN dga.age_at_start < 30 THEN 'Under 30'
+        WHEN dga.age_at_start BETWEEN 30 AND 39 THEN '30-39'
+        WHEN dga.age_at_start BETWEEN 40 AND 49 THEN '40-49'
+        WHEN dga.age_at_start BETWEEN 50 AND 59 THEN '50-59'
+        WHEN dga.age_at_start BETWEEN 60 AND 69 THEN '60-69'
         ELSE '70+'
     END AS age_group,
     COUNT(DISTINCT ds.id) AS age_group_members_with_abcenses,
@@ -77,12 +68,8 @@ JOIN
     plenar_infos pf ON pf.id = ab.plenary_session_id
 JOIN 
     legislative_period_dates lpd ON lpd.legislative_period = pf.legislative_period
-CROSS JOIN LATERAL (
-    SELECT 
-        (EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) + 
-        (EXTRACT(MONTH FROM AGE(ds.birthdate, lpd.start_date)) / 12.0) + 
-        (EXTRACT(DAY FROM AGE(ds.birthdate, lpd.start_date)) / 365.25))::FLOAT * (-1) AS delegate_age
-) calc
+JOIN 
+    delegate_ages dga ON dga.delegate_id = ds.id
 WHERE
     {filter}
     AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = pf.id)

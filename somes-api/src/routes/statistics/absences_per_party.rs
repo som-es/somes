@@ -23,7 +23,7 @@ pub struct PartyAbsencesFilter {
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct PartyAbsences {
     party: String,
-    party_members_with_absences: i64,
+    party_members: i64,
     total_absences: i64,
     normalized_absences: f64,
 }
@@ -45,11 +45,23 @@ pub async fn absences_per_party(
 
     let query = format!(
         "
+     WITH party_member_counts AS ( 
+    SELECT 
+        ds.party, 
+        COUNT(DISTINCT ds.id) AS total_party_member_count
+    FROM delegates ds
+    JOIN mandates m ON m.delegate_id = ds.id
+    JOIN plenar_infos pf ON 1=1  
+    WHERE {filter}
+        AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = pf.id)
+        AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = pf.id))
+    GROUP BY ds.party
+)
     SELECT 
      m.party AS party,
-     COUNT(DISTINCT ds.id) AS party_members_with_absences,
+     pmc.total_party_member_count AS party_members,
      COUNT(DISTINCT ab.id) AS total_absences,
-     COUNT(DISTINCT ab.id)::FLOAT / COUNT(DISTINCT ds.id)::FLOAT AS normalized_absences
+     COUNT(DISTINCT ab.id)::FLOAT / pmc.total_party_member_count::FLOAT AS normalized_absences
 FROM 
     absences ab
 JOIN 
@@ -58,12 +70,14 @@ JOIN
     mandates m ON m.delegate_id = ds.id
 JOIN 
     plenar_infos pf ON pf.id = ab.plenary_session_id
+JOIN
+    party_member_counts pmc ON ds.party = pmc.party
 WHERE
     {filter}
     AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = pf.id)
     AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = pf.id))
 GROUP BY 
-    m.party
+    m.party, pmc.total_party_member_count
 ORDER BY 
     total_absences {desc};
     "

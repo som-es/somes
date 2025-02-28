@@ -36,7 +36,7 @@ pub async fn complexity_per_legis(
 
     let filter_arg = filter.party.with_sql_column("m.party");
     let filter_arg1 = filter.gender.with_sql_column("ds.gender");
-    let filter_arg2 = Manual("m.is_nr").with_sql_column("");
+    let filter_arg2 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
     let filters = [filter_arg, filter_arg1, filter_arg2];
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };

@@ -41,7 +41,7 @@ pub async fn absences_per_delegate(
     let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
     let filter_arg1 = filter.party.with_sql_column("m.party");
     let filter_arg2 = filter.gender.with_sql_column("ds.gender");
-    let filter_arg3 = Manual("m.is_nr").with_sql_column("");
+    let filter_arg3 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
     let filters = [filter_arg, filter_arg1, filter_arg2, filter_arg3];
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
@@ -62,7 +62,7 @@ pub async fn absences_per_delegate(
 ),
 session_counts AS (
     SELECT 
-        pf.legislative_period,
+        pf.legislative_period, 
         COUNT(DISTINCT pf.id) AS total_sessions
     FROM 
         plenar_infos pf
@@ -73,7 +73,7 @@ session_counts AS (
 )
 SELECT 
     ds.name AS delegate_name,
-    m.party AS delegate_party,
+    COALESCE(m.party, 'Regierungsmitglied') AS delegate_party,
     COUNT(DISTINCT ab.id) AS total_absences,
     sc.total_sessions,
     COUNT(DISTINCT ab.id)::FLOAT / NULLIF(sc.total_sessions, 0)::FLOAT AS normalized_absences_per_session

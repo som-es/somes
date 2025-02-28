@@ -36,7 +36,7 @@ pub async fn division_accuracy_score_per_age(
     let filter = filter.unwrap_or_default();
 
     let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
-    let filter_arg1 = Manual("m.is_nr").with_sql_column("");
+    let filter_arg1 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
     let filters = [filter_arg, filter_arg1];
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };

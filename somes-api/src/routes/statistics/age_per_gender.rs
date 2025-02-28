@@ -31,12 +31,13 @@ pub async fn age_per_gender(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<GenderAgeFilter>>,
 ) -> Result<Json<Vec<GenderAge>>, StatisticsResponse> {
-    let filter = filter.unwrap_or_default();
+    let filter: GenderAgeFilter = filter.unwrap_or_default();
 
     let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
-    let filter_arg1 = Manual("m.is_nr").with_sql_column("");
-    let filter_arg2 = Manual("birthdate is not null").with_sql_column("");
-    let filters = [filter_arg, filter_arg1, filter_arg2];
+    let filter_arg1 = filter.legis_period.with_sql_column("pf.legislative_period");
+    let filter_arg2 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
+    let filter_arg3 = Manual("birthdate is not null").with_sql_column("");
+    let filters = [filter_arg, filter_arg1, filter_arg2, filter_arg3];
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
 
@@ -44,24 +45,9 @@ pub async fn age_per_gender(
 
     let query = format!(
         "
-       WITH legislative_period_dates AS (
-    SELECT 
-        legislative_period, 
-        MIN(add_date) AS start_date, 
-        MAX(add_date) AS end_date
-    FROM 
-        plenar_infos
-    GROUP BY 
-        legislative_period
-)
 SELECT DISTINCT 
     ds.gender AS gender,
-    AVG(
-    (EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) + 
-    (EXTRACT(MONTH FROM AGE(ds.birthdate, lpd.start_date)) / 12.0) + 
-    (EXTRACT(DAY FROM AGE(ds.birthdate, lpd.start_date)) / 365.25))::FLOAT  
-    ) * (-1) as average_age  
-
+    AVG(dga.age_at_start)::FLOAT as average_age  
         FROM 
             delegates ds
         JOIN 
@@ -73,7 +59,7 @@ SELECT DISTINCT
         JOIN 
             mandates m ON m.delegate_id = ds.id
         JOIN 
-            legislative_period_dates lpd ON lpd.legislative_period = pf.legislative_period
+            delegate_ages dga ON dga.delegate_id = ds.id
 WHERE
     {filter}
     AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = db.plenar_id)

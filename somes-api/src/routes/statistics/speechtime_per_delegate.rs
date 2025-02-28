@@ -42,7 +42,7 @@ pub async fn speechtime_per_delegate(
     let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
     let filter_arg1 = filter.party.with_sql_column("m.party");
     let filter_arg2 = filter.gender.with_sql_column("ds.gender");
-    let filter_arg3 = Manual("m.is_nr").with_sql_column("");
+    let filter_arg3 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
     let filters = [filter_arg, filter_arg1, filter_arg2, filter_arg3];
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
@@ -77,7 +77,7 @@ session_counts AS (
 )
 SELECT 
     ds.name AS delegate_name,
-    m.party AS delegate_party,
+    COALESCE(m.party, 'Regierungsmitglied') AS delegate_party,
     SUM(ps.duration_in_seconds) / 60 AS total_speech_time,
     sc.total_sessions_attended,
     (SUM(ps.duration_in_seconds) / 60) / NULLIF(sc.total_sessions_attended, 0)::FLOAT AS normalized_speech_time

@@ -23,7 +23,7 @@ pub struct PartySpeechTimeFilter {
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct PartySpeechTime {
     delegate_party: String,
-    party_members_with_speeche_time: i64,
+    party_members: i64,
     total_speech_time: i64,
     normalized_speech_time: f64,
 }
@@ -45,11 +45,23 @@ pub async fn speechtime_per_party(
 
     let query = format!(
         " 
+         WITH party_member_counts AS (
+    SELECT 
+        ds.party, 
+        COUNT(DISTINCT ds.id) AS total_party_member_count
+    FROM delegates ds
+    JOIN mandates m ON m.delegate_id = ds.id
+    JOIN plenar_infos pf ON 1=1  
+    WHERE {filter}
+        AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = pf.id)
+        AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = pf.id))
+    GROUP BY ds.party
+)
         SELECT 
             m.party AS delegate_party,
-            COUNT(DISTINCT ds.id) AS party_members_with_speeche_time,
+            pmc.total_party_member_count AS party_members,
             SUM(ps.duration_in_seconds) / 60 AS total_speech_time,
-            (SUM(ps.duration_in_seconds)::FLOAT / COUNT(DISTINCT ds.id)::FLOAT) / 60 AS normalized_speech_time
+            (SUM(ps.duration_in_seconds)::FLOAT / pmc.total_party_member_count::FLOAT) / 60 AS normalized_speech_time
         FROM 
     plenar_speeches ps
 JOIN 
@@ -60,12 +72,14 @@ JOIN
     debates db ON db.id = ps.debate_id
 JOIN
     plenar_infos pf ON pf.id = db.plenar_id
+JOIN
+    party_member_counts pmc ON ds.party = pmc.party
 WHERE
     {filter}
     AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = db.plenar_id)
     AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = db.plenar_id))
 GROUP BY 
-    m.party
+    m.party, pmc.total_party_member_count
 ORDER BY 
     normalized_speech_time {desc};
     "
