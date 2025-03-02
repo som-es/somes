@@ -35,6 +35,7 @@
 	let simpleMajorityFilter: boolean | undefined = undefined;
 	let acceptedFilter: string | undefined = undefined;
 	let namedVoteFilter: boolean | undefined = undefined;
+	let isLawFilter: boolean | undefined = undefined;
 
 	const maybeStoredFilter = get(currentVoteResultFilterStore);
 	if (maybeStoredFilter !== null) {
@@ -42,6 +43,7 @@
 		if (maybeStoredFilter.legis_period) selectedPeriod = maybeStoredFilter.legis_period;
 		if (maybeStoredFilter.accepted) acceptedFilter = maybeStoredFilter.accepted;
 		if (maybeStoredFilter.is_named_vote) namedVoteFilter = maybeStoredFilter.is_named_vote;
+		if (maybeStoredFilter.is_law) isLawFilter = maybeStoredFilter.is_law;
 	}
 
 	const loadVoteResults = async () => {
@@ -68,6 +70,7 @@
 		let filter: VoteResultFilter | null = {
 			is_named_vote: namedVoteFilter == undefined ? null : namedVoteFilter,
 			accepted,
+			is_law: isLawFilter == undefined ? null : isLawFilter,
 			simple_majority: simpleMajorityFilter == undefined ? null : simpleMajorityFilter,
 			legis_period: selectedPeriod == 'all' ? null : selectedPeriod
 		};
@@ -107,7 +110,7 @@
 
 	let searchValue = '';
 
-	$: if (page || selectedPeriod || simpleMajorityFilter || acceptedFilter || namedVoteFilter) {
+	$: if (page || selectedPeriod || simpleMajorityFilter || acceptedFilter || namedVoteFilter || isLawFilter) {
 		update();
 	}
 
@@ -159,6 +162,20 @@
 		}
 		return namedVoteFilter ? 'namentliche' : 'nicht namentliche';
 	};
+	
+	const popupIsLaw: PopupSettings = {
+		event: 'click',
+		target: 'popupIsLaw',
+		placement: 'bottom',
+		closeQuery: '.listbox-item'
+	};
+
+	const translateIsLawValue = (isLawFilter: boolean | undefined) => {
+		if (isLawFilter == undefined) {
+			return 'egal';
+		}
+		return isLawFilter ? 'ja' : 'nein';
+	};
 </script>
 
 <!-- <br /> -->
@@ -189,6 +206,13 @@
 		<h1 class="text-2xl font-bold">Abstimmung</h1>
 		<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupNamedVote}>
 			<span class="capitalize">{translateNamedVoteValue(namedVoteFilter)}</span>
+			<span>↓</span>
+		</button>
+	</div>
+	<div>
+		<h1 class="text-2xl font-bold">Gesetz</h1>
+		<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupIsLaw}>
+			<span class="capitalize">{translateIsLawValue(isLawFilter)}</span>
 			<span>↓</span>
 		</button>
 	</div>
@@ -240,6 +264,22 @@
 	</ListBox>
 </div>
 
+<div class="card w-52 shadow-xl py-2" data-popup="popupIsLaw">
+	<ListBox
+		rounded="rounded-container-token sm:!rounded-token"
+		active="variant-filled-secondary"
+		hover="hover:variant-soft-secondary"
+	>
+		<ListBoxItem bind:group={isLawFilter} name="isLaw" value={undefined}>egal</ListBoxItem>
+		<ListBoxItem bind:group={isLawFilter} name="isLaw" value={true}
+			>ja</ListBoxItem
+		>
+		<ListBoxItem bind:group={isLawFilter} name="isLaw" value={false}
+			>nein</ListBoxItem
+		>
+	</ListBox>
+</div>
+
 <div class="max-lg:hidden flex gap-4 flex-wrap">
 	<div class="mt-5">
 		<h1 class="text-2xl font-bold">notwendige Mehrheit</h1>
@@ -285,6 +325,18 @@
 			<RadioItem bind:group={namedVoteFilter} name="namedVote" value={undefined}>egal</RadioItem>
 			<RadioItem bind:group={namedVoteFilter} name="namedVote" value={true}
 				>namentliche Abstimmung</RadioItem
+			>
+		</RadioGroup>
+	</div>
+	<div class="mt-5">
+		<h1 class="text-2xl font-bold">Gesetz</h1>
+		<RadioGroup active="variant-filled-secondary" hover="hover:variant-soft-secondary">
+			<RadioItem bind:group={isLawFilter} name="isLaw" value={undefined}>egal</RadioItem>
+			<RadioItem bind:group={isLawFilter} name="isLaw" value={true}
+				>ja</RadioItem
+			>
+			<RadioItem bind:group={isLawFilter} name="isLaw" value={false}
+				>nein</RadioItem
 			>
 		</RadioGroup>
 	</div>
