@@ -360,6 +360,7 @@ export interface VoteResultFilter {
 	accepted: string | null;
 	simple_majority: boolean | null;
 	legis_period: string | null;
+	is_law: boolean | null;
 }
 
 export interface GovPropFilter {
