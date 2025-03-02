@@ -241,6 +241,12 @@
 							</h1>
 							<span class="text-xl">{voteResult.legislative_initiative.description}</span>
 
+							{#if voteResult.legislative_initiative.is_law}
+								<div class="badge bg-tertiary-400 ml-2">
+									Gesetz
+								</div>
+							{/if}
+
 						</div>
 						<div>
 							{#if legisInitFavos}

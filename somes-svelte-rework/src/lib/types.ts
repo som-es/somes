@@ -75,6 +75,12 @@ export interface LegislativeInitiative {
 	is_emphasis_ai_generated: boolean | null;
 	pre_declined_type: string | null;
 	plenary_session_id: number | null;
+    is_law: boolean,
+    law_accepted: boolean | null,
+    law_come_into_effect_date: string | null,
+    law_expires_on_date: string | null,
+    by_publication: boolean | null,
+
 }
 
 export interface Vote {
