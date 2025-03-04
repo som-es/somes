@@ -18,11 +18,12 @@ use super::filtering::Manual;
 pub struct PartyAbsencesFilter {
     legis_period: Option<String>,
     is_desc: bool,
+    normalized: bool,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct PartyAbsences {
-    party: String,
+    delegate_party: String,
     party_members: i64,
     total_absences: i64,
     normalized_absences: f64,
@@ -41,6 +42,8 @@ pub async fn absences_per_party(
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
 
+    let normalized = if filter.normalized { "normalized_absences" } else { "total_absences" };
+
     let filter = build_filter(&filters);
 
     let query = format!(
@@ -58,7 +61,7 @@ pub async fn absences_per_party(
     GROUP BY ds.party
 )
     SELECT 
-     m.party AS party,
+     m.party AS delegate_party,
      pmc.total_party_member_count AS party_members,
      COUNT(DISTINCT ab.id) AS total_absences,
      COUNT(DISTINCT ab.id)::FLOAT / pmc.total_party_member_count::FLOAT AS normalized_absences
@@ -79,7 +82,7 @@ WHERE
 GROUP BY 
     m.party, pmc.total_party_member_count
 ORDER BY 
-    total_absences {desc};
+    {normalized} {desc};
     "
     );
 

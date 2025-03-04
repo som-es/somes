@@ -18,11 +18,12 @@ use super::filtering::Manual;
 pub struct GenderCallToOrdersFilter {
     legis_period: Option<String>,
     is_desc: bool,
+    normalized: bool,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct GenderCallToOrders {
-    gender: String,
+    delegate_gender: String,
     gender_members: i64,
     total_order_calls: i64,
     normalized_calls_to_order: f64,
@@ -41,6 +42,8 @@ pub async fn call_to_orders_per_gender(
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
 
+    let normalized = if filter.normalized { "normalized_calls_to_order" } else { "total_order_calls" };
+
     let filter = build_filter(&filters);
 
     let query = format!(
@@ -58,7 +61,7 @@ pub async fn call_to_orders_per_gender(
     GROUP BY ds.gender
 )
        SELECT 
-            ds.gender AS gender,
+            ds.gender AS delegate_gender,
             gc.total_gender_count AS gender_members,
             COUNT(cto.id) AS total_order_calls,
             COUNT(cto.id)::FLOAT / gc.total_gender_count::FLOAT AS normalized_calls_to_order
@@ -79,7 +82,7 @@ WHERE
 GROUP BY 
     ds.gender, gc.total_gender_count
 ORDER BY 
-    normalized_calls_to_order {desc};
+    {normalized} {desc};
     "
     );
 

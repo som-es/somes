@@ -18,6 +18,7 @@ use super::filtering::Manual;
 pub struct GenderSpeechTimeFilter {
     legis_period: Option<String>,
     is_desc: bool,
+    normalized: bool,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
@@ -40,6 +41,8 @@ pub async fn speechtime_per_gender(
     let filters = [filter_arg, filter_arg1];
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
+
+    let normalized = if filter.normalized { "normalized_speech_time" } else { "total_speech_time" };
 
     let filter = build_filter(&filters);
 
@@ -81,7 +84,7 @@ WHERE
 GROUP BY 
     ds.gender, gc.total_gender_count
 ORDER BY 
-    normalized_speech_time {desc};
+    {normalized} {desc};
     "
     );
 

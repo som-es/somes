@@ -18,6 +18,7 @@ use super::filtering::Manual;
 pub struct AgeAbcenesFilter {
     legis_period: Option<String>,
     is_desc: bool,
+    normalized: bool,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
@@ -41,6 +42,8 @@ pub async fn absences_per_age(
     let filters = [filter_arg, filter_arg1, filter_arg2];
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
+
+    let normalized = if filter.normalized { "normalized_absences" } else { "total_absences" };
 
     let filter = build_filter(&filters);
 
@@ -67,8 +70,6 @@ JOIN
 JOIN 
     plenar_infos pf ON pf.id = ab.plenary_session_id
 JOIN 
-    legislative_period_dates lpd ON lpd.legislative_period = pf.legislative_period
-JOIN 
     delegate_ages dga ON dga.delegate_id = ds.id
 WHERE
     {filter}
@@ -77,7 +78,7 @@ WHERE
 GROUP BY 
     age_group
 ORDER BY 
-    normalized_absences {desc};
+    {normalized} {desc};
     "
     );
 

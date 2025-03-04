@@ -18,6 +18,7 @@ use super::filtering::Manual;
 pub struct AgeTotalSpeechesFilter {
     legis_period: Option<String>,
     is_desc: bool,
+    normalized: bool,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
@@ -40,6 +41,8 @@ pub async fn total_speeches_per_age(
     let filters = [filter_arg, filter_arg1];
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
+
+    let normalized = if filter.normalized { "normalized_speeches" } else { "total_speeches" };
 
     let filter = build_filter(&filters); 
 
@@ -88,7 +91,7 @@ WHERE
 GROUP BY 
     age_group
 ORDER BY 
-    normalized_speeches {desc};
+    {normalized} {desc};
 
     "
     );

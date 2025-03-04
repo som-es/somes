@@ -22,7 +22,7 @@ pub struct GenderAgeFilter {
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct GenderAge {
-    gender: String,
+    delegate_gender: String,
     average_age: f64,
 }
 
@@ -46,7 +46,7 @@ pub async fn age_per_gender(
     let query = format!(
         "
 SELECT DISTINCT 
-    ds.gender AS gender,
+    ds.gender AS delegate_gender,
     AVG(dga.age_at_start)::FLOAT as average_age  
         FROM 
             delegates ds

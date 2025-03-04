@@ -19,13 +19,14 @@ pub struct LegisSpeechTimeFilter {
     party: Option<String>,
     gender: Option<String>,
     is_desc: bool,
+    normalized: bool,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct LegisSpeechTime {
     legislative_period: String,
     total_speech_time: i64,
-    period_duration_days: f64,
+    total_sessions: i64,
     normalized_speech_time: f64,
 }
 
@@ -43,6 +44,8 @@ pub async fn speechtime_per_legis(
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
 
+    let normalized = if filter.normalized { "normalized_speech_time" } else { "total_speech_time" };
+
     let filter = build_filter(&filters);
 
     let query = format!(
@@ -56,12 +59,22 @@ pub async fn speechtime_per_legis(
         plenar_infos
     GROUP BY 
         legislative_period
+), session_counts AS (
+    SELECT 
+        pf.legislative_period, 
+        COUNT(DISTINCT pf.id) AS total_sessions
+    FROM 
+        plenar_infos pf
+    JOIN 
+        absences ab ON ab.plenary_session_id = pf.id
+    GROUP BY 
+        pf.legislative_period
 )
         SELECT 
             pf.legislative_period AS legislative_period,
             SUM(ps.duration_in_seconds) / 60 AS total_speech_time,
-            EXTRACT(DAY FROM (ld.end_date - ld.start_date))::FLOAT AS period_duration_days,
-            (SUM(ps.duration_in_seconds) / 60) / NULLIF(EXTRACT(DAY FROM (ld.end_date - ld.start_date)), 0)::FLOAT AS normalized_speech_time
+             sc.total_sessions AS total_sessions,
+            (SUM(ps.duration_in_seconds) / 60) / sc.total_sessions::FLOAT AS normalized_speech_time
         FROM 
     plenar_speeches ps
 JOIN 
@@ -72,16 +85,18 @@ JOIN
     debates db ON db.id = ps.debate_id
 JOIN
     plenar_infos pf ON pf.id = db.plenar_id
- JOIN 
-    legislative_period_dates ld ON pf.legislative_period = ld.legislative_period
+JOIN 
+    legislative_period_dates lp ON pf.legislative_period = lp.legislative_period
+JOIN 
+    session_counts sc ON sc.legislative_period = lp.legislative_period 
 WHERE
     {filter}
     AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = db.plenar_id)
     AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = db.plenar_id))
 GROUP BY 
-    pf.legislative_period, ld.start_date, ld.end_date
+    pf.legislative_period, sc.total_sessions
 ORDER BY 
-    normalized_speech_time {desc};
+    {normalized} {desc};
     "
     );
 

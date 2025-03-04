@@ -20,6 +20,7 @@ pub struct DelegateSpeechTimeFilter {
     party: Option<String>,
     gender: Option<String>,
     is_desc: bool,
+    normalized: bool,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
@@ -46,6 +47,8 @@ pub async fn speechtime_per_delegate(
     let filters = [filter_arg, filter_arg1, filter_arg2, filter_arg3];
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
+
+    let normalized = if filter.normalized { "normalized_speech_time" } else { "total_speech_time" };
 
     let filter = build_filter(&filters);
 
@@ -103,7 +106,7 @@ WHERE
 GROUP BY 
     ds.name, m.party, sc.total_sessions_attended
 ORDER BY 
-    normalized_speech_time {desc};
+    {normalized} {desc};
 
     "
     );

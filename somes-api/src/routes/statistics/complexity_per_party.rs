@@ -22,7 +22,7 @@ pub struct PartySpeechComplexityFilter {
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct PartyComplexity {
-    party: String,
+    delegate_party: String,
     avg_complexity: f64,
 }
 
@@ -44,7 +44,7 @@ pub async fn complexity_per_party(
     let query = format!(
         " 
         SELECT 
-             m.party AS party,
+             m.party AS delegate_party,
              AVG((COALESCE(sc.flesch_kincaid, 0) + COALESCE(sc.smog, 0) + COALESCE(sc.gunning_fog, 0) + COALESCE(sc.coleman_liau, 0)) / 4) AS avg_complexity
          FROM 
             speech_complexity sc

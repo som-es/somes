@@ -27,7 +27,7 @@ pub struct DelegateDivisonAccuracyFilter {
 pub struct DelegateDivisionAccuracy {
     delegate_name: String,
     delegate_party: String,
-    division_accuracy_score: f32,
+    average_division_accuracy_score: f32,
 }
 
 // #[debug_handler]
@@ -52,7 +52,7 @@ pub async fn divison_accuracy_score_per_delegate(
         SELECT 
             ds.name AS delegate_name,
             COALESCE(m.party, 'Regierungsmitglied') AS delegate_party,
-            dis.score AS division_accuracy_score
+            dis.score AS average_division_accuracy_score
          FROM 
             division_interest_score dis
         JOIN 

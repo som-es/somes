@@ -18,11 +18,12 @@ use super::filtering::Manual;
 pub struct GenderAbsencesFilter {
     legis_period: Option<String>,
     is_desc: bool,
+    normalized: bool,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct GenderAbsences {
-    gender: String,
+    delegate_gender: String,
     gender_members: i64,
     total_absences: i64,
     normalized_absences: f64,
@@ -41,6 +42,8 @@ pub async fn absences_per_gender(
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
 
+    let normalized = if filter.normalized { "normalized_absences" } else { "total_absences" };
+
     let filter = build_filter(&filters);
 
     let query = format!(
@@ -58,7 +61,7 @@ pub async fn absences_per_gender(
     GROUP BY ds.gender
 )
 SELECT 
-    ds.gender AS gender,
+    ds.gender AS delegate_gender,
     gc.total_gender_count AS gender_members,
     COUNT(DISTINCT ab.id) AS total_absences,
     COUNT(DISTINCT ab.id)::FLOAT / gc.total_gender_count::FLOAT AS normalized_absences
@@ -79,7 +82,7 @@ WHERE
 GROUP BY 
     ds.gender, gc.total_gender_count
 ORDER BY 
-    normalized_absences {desc};
+    {normalized} {desc};
 
         "
     );

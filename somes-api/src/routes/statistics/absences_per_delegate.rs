@@ -20,6 +20,7 @@ pub struct DelegateAbsencesFilter {
     party: Option<String>,
     gender: Option<String>,
     is_desc: bool,
+    normalized: bool,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
@@ -28,7 +29,7 @@ pub struct DelegateAbsences {
     delegate_party: String,
     total_absences: i64,
     total_sessions: i64,
-    normalized_absences_per_session: f64,
+    normalized_absences: f64,
 }
 
 // #[debug_handler]
@@ -45,6 +46,8 @@ pub async fn absences_per_delegate(
     let filters = [filter_arg, filter_arg1, filter_arg2, filter_arg3];
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
+
+    let normalized = if filter.normalized { "normalized_absences" } else { "total_absences" };
 
     let filter = build_filter(&filters);
 
@@ -76,8 +79,8 @@ SELECT
     COALESCE(m.party, 'Regierungsmitglied') AS delegate_party,
     COUNT(DISTINCT ab.id) AS total_absences,
     sc.total_sessions,
-    COUNT(DISTINCT ab.id)::FLOAT / NULLIF(sc.total_sessions, 0)::FLOAT AS normalized_absences_per_session
-FROM 
+    COUNT(DISTINCT ab.id)::FLOAT / NULLIF(sc.total_sessions, 0)::FLOAT AS normalized_absences
+FROM
     absences ab
 JOIN 
     delegates ds ON ab.delegate_id = ds.id
@@ -96,7 +99,7 @@ WHERE
 GROUP BY 
     ds.name, m.party, sc.total_sessions
 ORDER BY 
-    total_absences {desc};
+    {normalized} {desc};
 
     "
     );

@@ -20,6 +20,7 @@ pub struct DelegateCallToOrdersFilter {
     party: Option<String>,
     gender: Option<String>,
     is_desc: bool,
+    normalized: bool,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
@@ -28,7 +29,7 @@ pub struct DelegateCallToOrders {
     delegate_party: String,
     total_order_calls: i64,
     total_sessions_attended: i64,
-    normalized_call_to_order_per_session: f64,
+    normalized_calls_to_order: f64,
 }
 
 // #[debug_handler]
@@ -45,6 +46,8 @@ pub async fn call_to_orders_per_delegate(
     let filters = [filter_arg, filter_arg1, filter_arg2, filter_arg3];
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
+
+    let normalized = if filter.normalized { "normalized_calls_to_order" } else { "total_order_calls" };
 
     let filter = build_filter(&filters);
 
@@ -79,7 +82,7 @@ session_counts AS (
             m.party AS delegate_party,
             COUNT(cto.id) AS total_order_calls,
             sc.total_sessions_attended,
-            COUNT(DISTINCT cto.id)::FLOAT / NULLIF(sc.total_sessions_attended, 0)::FLOAT AS normalized_call_to_order_per_session
+            COUNT(DISTINCT cto.id)::FLOAT / NULLIF(sc.total_sessions_attended, 0)::FLOAT AS normalized_calls_to_order
          FROM 
             call_to_order cto
         JOIN 
@@ -100,7 +103,7 @@ session_counts AS (
         GROUP BY 
             ds.name, m.party, sc.total_sessions_attended
         ORDER BY 
-            normalized_call_to_order_per_session {desc};
+            {normalized} {desc};
     "
     );
 

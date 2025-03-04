@@ -22,7 +22,7 @@ pub struct PartyAgeFilter {
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct PartyAge {
-    party: String,
+    delegate_party: String,
     average_age: f64,
 }
 
@@ -46,7 +46,7 @@ pub async fn age_per_party(
     let query = format!(
         "
 SELECT DISTINCT 
-    m.party AS party,
+    m.party AS delegate_party,
     AVG(dga.age_at_start)::FLOAT as average_age  
 
         FROM 

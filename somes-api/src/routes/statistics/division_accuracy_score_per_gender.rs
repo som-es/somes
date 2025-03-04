@@ -23,7 +23,7 @@ pub struct GenderDivisonAccuracyFilter {
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct GenderDivisionAccuracy {
-    gender: String,
+    delegate_gender: String,
     average_division_accuracy_score: f64,
 }
 
@@ -45,7 +45,7 @@ pub async fn division_accuracy_score_per_gender(
     let query = format!(
         "
         SELECT 
-            ds.gender AS gender,
+            ds.gender AS delegate_gender,
             AVG(dis.score) AS average_division_accuracy_score
          FROM 
             division_interest_score dis

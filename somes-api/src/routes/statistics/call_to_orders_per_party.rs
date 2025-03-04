@@ -18,11 +18,12 @@ use super::filtering::Manual;
 pub struct PartyCallToOrdersFilter {
     legis_period: Option<String>,
     is_desc: bool,
+    normalized: bool,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct PartyCallToOrders {
-    party: String,
+    delegate_party: String,
     party_members: i64,
     total_order_calls: i64,
     normalized_calls_to_order: f64,
@@ -41,13 +42,15 @@ pub async fn call_to_orders_per_party(
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
 
+    let normalized = if filter.normalized { "normalized_calls_to_order" } else { "total_order_calls" };
+
     let filter = build_filter(&filters);
 
     let query = format!(
         " 
         WITH party_member_counts AS (
     SELECT 
-        ds.party, 
+        ds.party AS party, 
         COUNT(DISTINCT ds.id) AS total_party_member_count
     FROM delegates ds
     JOIN mandates m ON m.delegate_id = ds.id
@@ -58,7 +61,7 @@ pub async fn call_to_orders_per_party(
     GROUP BY ds.party
 )
         SELECT 
-            m.party AS party,
+            m.party AS delegate_party,
             pmc.total_party_member_count AS party_members,
             COUNT(cto.id) AS total_order_calls,
             COUNT(cto.id)::FLOAT / pmc.total_party_member_count::FLOAT AS normalized_calls_to_order
@@ -79,7 +82,7 @@ pub async fn call_to_orders_per_party(
         GROUP BY 
             m.party, pmc.total_party_member_count
         ORDER BY 
-            normalized_calls_to_order {desc};
+            {normalized} {desc};
     "
     );
 

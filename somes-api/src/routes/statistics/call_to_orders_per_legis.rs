@@ -19,13 +19,14 @@ pub struct LegisCallToOrdersFilter {
     party: Option<String>,
     gender: Option<String>,
     is_desc: bool,
+    normalized: bool,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct LegisCallToOrders {
     legislative_period: String,
     total_order_calls: i64,
-    period_duration_days: f64,
+    total_sessions: i64,
     normalized_calls_to_order: f64,
 }
 
@@ -43,11 +44,13 @@ pub async fn call_to_orders_per_legis(
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
 
+    let normalized = if filter.normalized { "normalized_calls_to_order" } else { "total_order_calls" };
+
     let filter = build_filter(&filters);
 
     let query = format!(
         " 
-         WITH legislative_period_dates AS (
+        WITH legislative_period_dates AS (
     SELECT 
         legislative_period, 
         MIN(add_date) AS start_date, 
@@ -56,12 +59,22 @@ pub async fn call_to_orders_per_legis(
         plenar_infos
     GROUP BY 
         legislative_period
+), session_counts AS (
+    SELECT 
+        pf.legislative_period, 
+        COUNT(DISTINCT pf.id) AS total_sessions
+    FROM 
+        plenar_infos pf
+    JOIN 
+        absences ab ON ab.plenary_session_id = pf.id
+    GROUP BY 
+        pf.legislative_period
 )
         SELECT 
             pf.legislative_period AS legislative_period,
             COUNT(cto.id) AS total_order_calls,
-            EXTRACT(DAY FROM (ld.end_date - ld.start_date))::FLOAT AS period_duration_days,
-            COUNT(cto.id)::FLOAT / NULLIF(EXTRACT(DAY FROM (ld.end_date - ld.start_date)), 0)::FLOAT AS normalized_calls_to_order
+            sc.total_sessions AS total_sessions,
+            COUNT(cto.id)::FLOAT / sc.total_sessions::FLOAT AS normalized_calls_to_order
         FROM 
             call_to_order cto
         JOIN 
@@ -71,15 +84,17 @@ pub async fn call_to_orders_per_legis(
         JOIN 
             mandates m ON m.delegate_id = ds.id
         JOIN 
-            legislative_period_dates ld ON pf.legislative_period = ld.legislative_period
+            legislative_period_dates lp ON pf.legislative_period = lp.legislative_period
+        JOIN 
+            session_counts sc ON sc.legislative_period = lp.legislative_period 
         WHERE 
             {filter}    
             AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = cto.plenar_id)
             AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = cto.plenar_id))
         GROUP BY 
-            pf.legislative_period, ld.start_date, ld.end_date
+            pf.legislative_period, sc.total_sessions
         ORDER BY 
-            normalized_calls_to_order {desc};
+            {normalized} {desc};
     "
     );
 

@@ -23,7 +23,7 @@ pub struct GenderSpeechComplexityFilter {
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct GenderComplexity {
-    gender: String,
+    delegate_gender: String,
     avg_complexity: f64,
 }
 
@@ -45,7 +45,7 @@ pub async fn complexity_per_gender(
     let query = format!(
         " 
         SELECT 
-            ds.gender AS gender,
+            ds.gender AS delegate_gender,
             AVG((sc.flesch_kincaid + sc.smog + sc.gunning_fog + sc.coleman_liau) / 4) AS avg_complexity
          FROM 
             speech_complexity sc

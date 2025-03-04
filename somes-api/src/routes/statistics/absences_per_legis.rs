@@ -19,13 +19,14 @@ pub struct LegisAbsencesFilter {
     party: Option<String>,
     gender: Option<String>,
     is_desc: bool,
+    normalized: bool,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct LegisAbsences {
     legislative_period: String,
     total_absences: i64,
-    period_duration_days: f64,
+    total_sessions: i64,
     normalized_absences: f64,
 
 }
@@ -44,6 +45,8 @@ pub async fn absences_per_legis(
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
 
+    let normalized = if filter.normalized { "normalized_absences" } else { "total_absences" };
+
     let filter = build_filter(&filters);
 
     let query = format!(
@@ -57,12 +60,22 @@ pub async fn absences_per_legis(
         plenar_infos
     GROUP BY 
         legislative_period
+), session_counts AS (
+    SELECT 
+        pf.legislative_period, 
+        COUNT(DISTINCT pf.id) AS total_sessions
+    FROM 
+        plenar_infos pf
+    JOIN 
+        absences ab ON ab.plenary_session_id = pf.id
+    GROUP BY 
+        pf.legislative_period
 )
 SELECT 
     pf.legislative_period AS legislative_period,
     COUNT(DISTINCT ab.id) AS total_absences,
-    EXTRACT(DAY FROM (ld.end_date - ld.start_date))::FLOAT AS period_duration_days,
-    COUNT(DISTINCT ab.id)::FLOAT / NULLIF(EXTRACT(DAY FROM (ld.end_date - ld.start_date)), 0)::FLOAT AS normalized_absences
+    sc.total_sessions AS total_sessions,
+    COUNT(DISTINCT ab.id)::FLOAT / sc.total_sessions::FLOAT AS normalized_absences
 FROM 
     absences ab
 JOIN 
@@ -72,15 +85,17 @@ JOIN
 JOIN 
     plenar_infos pf ON pf.id = ab.plenary_session_id
 JOIN 
-    legislative_period_dates ld ON pf.legislative_period = ld.legislative_period
+    legislative_period_dates lp ON pf.legislative_period = lp.legislative_period
+JOIN 
+    session_counts sc ON sc.legislative_period = lp.legislative_period 
 WHERE
     {filter}
     AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = pf.id)
     AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = pf.id))
 GROUP BY 
-    pf.legislative_period, ld.start_date, ld.end_date
+    pf.legislative_period, sc.total_sessions
 ORDER BY 
-    normalized_absences {desc};
+    {normalized} {desc};
 
     "
     );

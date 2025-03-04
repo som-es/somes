@@ -18,6 +18,7 @@ use super::filtering::Manual;
 pub struct PartyTotalSpeechesFilter {
     legis_period: Option<String>,
     is_desc: bool,
+    normalized: bool,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
@@ -25,7 +26,7 @@ pub struct PartyTotalSpeeches {
     delegate_party: String,
     total_speeches: i64,
     party_members: i64,
-    normalized_speeches_per_party: f64,
+    normalized_speeches: f64,
 }
 
 // #[debug_handler]
@@ -40,6 +41,8 @@ pub async fn total_speeches_per_party(
     let filters = [filter_arg, filter_arg1];
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
+
+    let normalized = if filter.normalized { "normalized_speeches" } else { "total_speeches" };
 
     let filter = build_filter(&filters);
 
@@ -61,7 +64,7 @@ SELECT
     m.party AS delegate_party, 
     COUNT(ps.id) AS total_speeches,
     pmc.total_party_member_count AS party_members,
-    COUNT(ps.id)::FLOAT / pmc.total_party_member_count::FLOAT AS normalized_speeches_per_party
+    COUNT(ps.id)::FLOAT / pmc.total_party_member_count::FLOAT AS normalized_speeches
 FROM 
     plenar_speeches ps
 JOIN 
@@ -81,7 +84,7 @@ WHERE
 GROUP BY 
     m.party, pmc.total_party_member_count
 ORDER BY 
-    normalized_speeches_per_party {desc};
+    {normalized} {desc};
     "
     );
 
