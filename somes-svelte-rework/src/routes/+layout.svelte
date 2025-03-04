@@ -25,6 +25,8 @@
 	import AllProposalsModal from '$lib/components/Proposals/AllProposalsModal.svelte';
 	import AllSpeechesModal from '$lib/components/Delegates/Speeches/AllSpeechesModal.svelte';
 	import PoliticalSpectrumQuestionsModal from '$lib/components/Delegates/Spectrum/PoliticalSpectrumQuestionsModal.svelte';
+	import AbsencesModal from '$lib/components/Delegates/Absences/AbsencesModal.svelte';
+	import NamedVoteModal from '$lib/components/Delegates/NamedVote/NamedVoteModal.svelte';
 	const drawerStore = getDrawerStore();
 
 	// const drawerStore = getDrawerStore();
@@ -33,7 +35,9 @@
 		aiChat: { ref: AiChatModal },
 		allGovProposals: { ref: AllProposalsModal },
 		allSpeeches: { ref: AllSpeechesModal },
-		politicalSpectrumQuestions: { ref: PoliticalSpectrumQuestionsModal}
+		politicalSpectrumQuestions: { ref: PoliticalSpectrumQuestionsModal},
+		allAbsences: { ref: AbsencesModal },
+		allNamedVotes: { ref: NamedVoteModal },
 		// imdying:{ ref: ModalExample }
 	};
 </script>
@@ -41,8 +45,11 @@
 <RenewToken />
 <CacheInvalidation />
 <Modal components={modalRegistry} />
+
 <Drawer>
-	{#if $drawerStore.id === 'login-drawer'}
+	{#if $drawerStore.id === 'sidebar'}
+		<Sidebar embedded={true} />
+	{:else if $drawerStore.id === 'login-drawer'}
 		<LoginDrawer />
 	{/if}
 </Drawer>
@@ -70,7 +77,7 @@
 		<Navbar />
 	</svelte:fragment>
 	<svelte:fragment slot="sidebarLeft">
-		<Sidebar class="hidden sm:grid" />
+		<Sidebar class="hidden lg:grid" />
 	</svelte:fragment>
 	<svelte:fragment slot="footer">
 		<div class="sm:!hidden">

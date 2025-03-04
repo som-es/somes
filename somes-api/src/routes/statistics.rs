@@ -23,7 +23,7 @@ mod division_accuracy_score_per_delegate;
 mod division_accuracy_score_per_gender;
 mod division_accuracy_score_per_party;
 mod error;
-mod filtering;
+pub mod filtering;
 mod speechtime_per_age;
 mod speechtime_per_delegate;
 mod speechtime_per_gender;

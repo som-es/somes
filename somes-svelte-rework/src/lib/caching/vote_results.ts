@@ -9,7 +9,10 @@ export async function cachedLatestVoteResults(
 	let maybeCached = get(latestVoteResultsStore);
 	if (maybeCached == null || refetch || maybeCached.length == 0) {
 		const fetched = await latest_vote_results();
-		if (!isHasError(fetched)) {
+		if (isHasError(fetched)) {
+			latestVoteResultsStore.set(null);
+			maybeCached = null;
+		} else {
 			latestVoteResultsStore.set(fetched);
 			maybeCached = fetched;
 		}

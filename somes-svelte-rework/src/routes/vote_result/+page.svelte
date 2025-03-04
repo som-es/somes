@@ -27,6 +27,10 @@
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import SimpleYesNo from '$lib/components/VoteResults/SimpleYesNo/SimpleYesNo.svelte';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
+	import { cachedLegisInitFavos } from '$lib/caching/favos';
+	import { addLegisInitFavo, removeLegiInitFavo } from '$lib/api/authed';
+	import star from '$lib/assets/misc_icons/star.svg?raw';
+	import starFilled from '$lib/assets/misc_icons/starFilled.svg?raw';
 
 	let delegates: Delegate[] = [];
 
@@ -46,13 +50,13 @@
 	let generalNamedVoteDelegates: Bubble[] | null = null;
 	let generalAbsencesDelegates: Bubble[] | null = null;
 
-	async function fetchDelegatesAtAndEnrich(delegates: Delegate[]) {
+	function enrichDelegates(delegates: Delegate[]) {
 		if (!voteResult) {
 			return;
 		}
+
 		delegatesAtDate = delegates;
 		// delegatesAtDate = (errorToNull(await delegates_at(voteResult.legislative_initiative.created_at))) ?? [];
-
 		if (delegatesAtDate) {
 			generalSpeechDelegates = genCirclesWithSpeechInfo(voteResult.speeches, delegatesAtDate);
 			if (voteResult.named_votes) {
@@ -105,7 +109,12 @@
 		delegate = delegates[Math.floor(Math.random() * delegates.length)];
 	}
 
+
+	let legisInitFavos: Set<number> | null = null;
+
 	const runVoteResultUpdate = async () => {
+		legisInitFavos = await cachedLegisInitFavos();
+
 		const url = new URL(window.location.href);
 
 		voteResultId = url.searchParams.get('id');
@@ -125,7 +134,7 @@
 			return;
 		}
 
-		await fetchDelegatesAtAndEnrich(delegates);
+		enrichDelegates(delegates);
 
 		selectRandomlyFromDels();
 		updateAutocompletion();
@@ -160,7 +169,6 @@
 		}
 		currentlyUpdating = true;
 		voteResult = errorToNull(await vote_result_by_id(voteResultId));
-		console.log("FETCH")
 		// if (delegates)
 		// await fetchDelegatesAtAndEnrich();
 		currentVoteResultStore.set(voteResult);
@@ -193,6 +201,7 @@
 	$: if (delegates) {
 		updateAutocompletion();
 		selectRandomlyFromDels();
+		enrichDelegates(delegates)
 	}
 
 	let iterBubble: Bubble | undefined;
@@ -202,7 +211,14 @@
 	// 	emphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
 </script>
 
-<title> Abstimmungsergebnis </title>
+
+<title>  
+	{#if voteResult?.legislative_initiative.accepted}
+		Abstimmungsergebnis
+	{:else}
+		Gegenstandsübersicht
+	{/if}
+</title>
 <Container>
 	{#if voteResult}
 		{#if currentlyUpdating}
@@ -214,10 +230,53 @@
 			<br />
 			<div class=" entry bg-primary-200 dark:bg-primary-400 mt-3 grid-container-with-emphasis">
 				<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
-					<h1 class="font-bold text-3xl">
-						{voteResult.legislative_initiative.voted_by_name ? 'namentliche ' : ''}Abstimmung über
-					</h1>
-					<span class="text-xl">{voteResult.legislative_initiative.description}</span>
+					<div class="flex justify-between items-center">
+						<div>
+							<h1 class="font-bold text-3xl">
+								{#if voteResult?.legislative_initiative.accepted}
+									{voteResult.legislative_initiative.voted_by_name ? 'namentliche ' : ''}Abstimmung über
+								{:else}
+									Gegenstand
+								{/if}
+							</h1>
+							<span class="text-xl">{voteResult.legislative_initiative.description}</span>
+
+							{#if voteResult.legislative_initiative.is_law}
+								<div class="badge bg-tertiary-400 ml-2">
+									Gesetz
+								</div>
+							{/if}
+
+						</div>
+						<div>
+							{#if legisInitFavos}
+								{#if legisInitFavos.has(+voteResult.legislative_initiative.id)}
+									<button on:click={async () => {
+										if (!voteResult) return;
+										if (await removeLegiInitFavo({vote_result_id: +voteResult.legislative_initiative.id}) == null) {
+											legisInitFavos?.delete(+voteResult.legislative_initiative.id);
+											legisInitFavos = legisInitFavos;
+										}
+
+									}} class="w-14 p-2">
+										{@html starFilled}
+									</button>
+								{:else}
+									<button on:click={async () => {
+										if (!voteResult) return;
+										if (await addLegisInitFavo({vote_result_id: +voteResult.legislative_initiative.id}) == null) {
+											legisInitFavos?.add(+voteResult.legislative_initiative.id);
+											legisInitFavos = legisInitFavos;
+										}
+
+									}} class="w-14 p-2">
+										{@html star}
+									</button>
+								{/if}
+							{/if}
+						</div>
+					</div>
+
 				</div>
 				{#if rawEmphasis}
 					<div class="emphasis-item">
@@ -241,6 +300,7 @@
 					</div>
 				{/if}
 
+				{#if voteResult.legislative_initiative.accepted}
 				<div
 					class="simple-yes-no-item bg-primary-300 p-3 dark:bg-primary-500 rounded-xl flex flex-wrap justify-between"
 				>
@@ -248,6 +308,7 @@
 				</div>
 
 				<!-- {#if voteResult.legislative_initiative.gp == 'XXVII'} -->
+
 				<div class="!z-20 search-item text-token space-y-5">
 					<input
 						class="!rounded-xl w-full h-12 px-2 input"
@@ -289,6 +350,7 @@
 						</div>
 					{/if}
 				</div>
+				{/if}
 
 				<!-- {/if} -->
 				<div class="flex flex-wrap justify-between min-w-full gap-3">

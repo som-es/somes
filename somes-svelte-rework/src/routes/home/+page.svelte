@@ -17,7 +17,7 @@
 		// await updateColorStorage();
 		dels = (await filteredDelegates())?.nr ?? null;
 		const userTopics = await cachedUserTopics();
-		const tempVoteResults = await cachedLatestVoteResults();
+		const tempVoteResults = await cachedLatestVoteResults(true);
 		govProposals = await cachedLatestGovProposals();
 
 

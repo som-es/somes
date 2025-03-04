@@ -8,15 +8,17 @@
 	import star from '$lib/assets/misc_icons/star.svg?raw';
 	import starFilled from '$lib/assets/misc_icons/starFilled.svg?raw';
 	import { onMount } from 'svelte';
-	import { cachedDelegateFavos } from '$lib/caching/delegate_favos';
+	import { cachedDelegateFavos } from '$lib/caching/favos';
 	import { addDelegateFavo, removeDelegateFavo } from '$lib/api/authed';
 
 	export let delegate: Delegate;
 	export let onlyTop: boolean = false;
 	export let showQA: boolean = false;
+	export let showAI: boolean = true;
 	export let questions: DelegateQA[] = [];
 	export let showMoreDetailsBtn = false;
 	export let showImg = true;
+	export let title: string | null = null;
 
 	const onShowDetails = () => {
 		currentDelegateStore.set(delegate);
@@ -43,6 +45,7 @@
 	} as ModalSettings;
 
 	const modalStore = getModalStore();
+
 </script>
 
 <div class="!z-0 card {onlyTop ? "" : "min-h-full"}  mx-4 drop-shadow-lg flex flex-col">
@@ -95,7 +98,11 @@
 			{/if}
 		</h5>
 
-		<h6 class="text-lg">{delegate.active_mandates?.join("\n")}</h6>
+		{#if delegate.active_mandates?.length == 0}
+			<h6 class="text-lg">{delegate.primary_mandate}</h6>
+		{:else}
+			<h6 class="text-lg">{delegate.active_mandates?.join("\n")}</h6>
+		{/if}
 
 		{#if !onlyTop}
 		<hr class="!border-t-2 my-1" />
@@ -105,21 +112,31 @@
 		<hr class="!border-t-2 my-1" />
 		<h3>{delegate.divisions?.join(', ')}</h3>
 		{/if}
+		<slot name="title">
+		</slot>
+		<slot name="info">
+		</slot>
+
 	</section>
 
 
 	<hr class="!border-t-2 my-1" />
 	<!-- <footer class="card-footer flex justify-end items-end mt-3"> -->
 	<footer class="card-footer flex justify-between mt-1">
+		<slot name="footerButtons">
+		</slot>
 		{#if showMoreDetailsBtn}
 			<div></div>
 			<SButton class="bg-tertiary-500 text-black" on:click={onShowDetails}>Zur Person</SButton>
 		{/if}
+		
 
 		{#if !onlyTop}
-			<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(aiChatModal)}
-				>AI Chat</button
-			>
+			{#if showAI}
+				<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(aiChatModal)}
+					>AI Chat</button
+				>
+			{/if}
 			{#if showQA && questions.length > 0}
 				<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(delegateQAModal)}
 					>Vorstellung</button

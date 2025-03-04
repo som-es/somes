@@ -1,4 +1,4 @@
-import type { DelegateFavo, ExtendedUserInfo, HasError, JWTInfo, LoginResponseError, MailSendInfo, UniqueTopic } from "$lib/types";
+import type { DelegateFavo, ExtendedUserInfo, HasError, JWTInfo, LegisInitFavo, LoginResponseError, MailSendInfo, UniqueTopic } from "$lib/types";
 import { address, fetchSavely } from "./api";
 import { jwtStore } from "$lib/caching/stores/stores";
 import { get } from "svelte/store";
@@ -122,6 +122,20 @@ export async function removeDelegateFavo(uniqueTopic: DelegateFavo): Promise<nul
 export async function getFavoDelegates(): Promise<DelegateFavo[] | HasError> {
 	return getWithAuth('favo_delegate');
 }
+
+export async function addLegisInitFavo(uniqueTopic: LegisInitFavo): Promise<null | HasError> {
+	return postWithAuth('favo_legis_init', uniqueTopic);
+}
+
+export async function removeLegiInitFavo(uniqueTopic: LegisInitFavo): Promise<null | HasError> {
+	return deleteWithAuth('favo_legis_init', uniqueTopic);
+}
+
+export async function getFavoLegisInits(): Promise<LegisInitFavo[] | HasError> {
+	return getWithAuth('favo_legis_init');
+}
+
+
 
 export async function delete_account(): Promise<null | HasError> {
 	return deleteWithAuth('delete_account', undefined);

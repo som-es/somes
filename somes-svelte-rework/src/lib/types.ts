@@ -16,7 +16,7 @@ export interface Delegate {
 	name: string;
 	party: string;
 	current_party: string;
-	image_url: string;
+	image_url: string | null;
 	constituency: string;
 	council: string;
 	seat_row: number | null;
@@ -76,6 +76,12 @@ export interface LegislativeInitiative {
 	is_emphasis_ai_generated: boolean | null;
 	pre_declined_type: string | null;
 	plenary_session_id: number | null;
+    is_law: boolean,
+    law_accepted: boolean | null,
+    law_come_into_effect_date: string | null,
+    law_expires_on_date: string | null,
+    by_publication: boolean | null,
+
 }
 
 export interface Vote {
@@ -119,6 +125,10 @@ export interface DelegateFavo {
 	delegate_id: number;
 }
 
+export interface LegisInitFavo {
+	vote_result_id: number;
+}
+
 export interface MailSendInfo {
 	send_new_vote_results_mails: boolean;
     send_new_delegate_activity_mails: boolean;
@@ -137,6 +147,12 @@ export interface VoteResult {
 
 export interface VoteResultsWithMaxPage {
 	vote_results: VoteResult[];
+	entry_count: number;
+	max_page: number;
+}
+
+export interface GovProposalsWithMaxPage {
+	gov_proposals: GovProposalDelegate[];
 	entry_count: number;
 	max_page: number;
 }
@@ -299,11 +315,29 @@ export interface Mandate {
 	name: string;
 }
 
+export interface Absence {
+	date: Date;
+	inr: number;
+	gp: string;
+	plenary_session_id: number;
+	missed_legis_init_ids: number[];
+}
+
+export interface NamedVote {
+	infavor: boolean | null;
+	was_absent: boolean | null;
+	legis_init_id: number;
+	named_vote_info_id: number;
+	date: Date;
+}
+
 export interface GeneralDelegateInfo {
 	interests: InterestShare[];
 	delegate_qa: DelegateQA[];
 	mandates: Mandate[];
 	political_position: PoliticalPosition | null;
+	absences: Absence[];
+	named_votes: NamedVote[];
 }
 
 export interface DelegateQA {
@@ -327,6 +361,12 @@ export interface VoteResultFilter {
 	accepted: string | null;
 	simple_majority: boolean | null;
 	legis_period: string | null;
+	is_law: boolean | null;
+}
+
+export interface GovPropFilter {
+	legis_period: string | null;
+	has_vote_result: boolean | null;
 }
 
 export interface NamedVote {

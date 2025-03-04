@@ -104,7 +104,7 @@ export function enrichParliamentBubbles(
 	});
 
 	if (voteResult) {
-		enrichCirclesWithSpeechInfoOnSeat(voteResult.speeches, bubbles, dels, voteResult.legislative_initiative.pre_declined_type == "p");
+		enrichCirclesWithSpeechInfoOnSeat(voteResult.speeches, bubbles, dels, voteResult.legislative_initiative.pre_declined_type?.includes("p"));
 		if (voteResult.named_votes) {
 			enrichCirclesWithNamedVoteInfoOnSeat(voteResult.named_votes.named_votes, bubbles, dels);
 		}
@@ -252,13 +252,15 @@ export function enrichCirclesWithNamedVoteInfoOnSeat(
 	namedVotes.forEach((namedVote) => {
 		let del = findDelegateById(dels, namedVote.delegate_id);
 		if (del == null || del.seat_col == null || del.seat_row == null) return;
+
+		circles2d[del.seat_row - 1][del.seat_col - 1].namedVote = namedVote;
+		
 		if (namedVote.was_absent) {
 			circles2d[del.seat_row - 1][del.seat_col - 1].r = +4.9;
 			circles2d[del.seat_row - 1][del.seat_col - 1].title = `abwesend/keine Stimme abgegeben`;
 			return;
 		}
 
-		circles2d[del.seat_row - 1][del.seat_col - 1].namedVote = namedVote;
 		circles2d[del.seat_row - 1][del.seat_col - 1].title = namedVote.infavor ? `Ja` : `Nein`;
 		circles2d[del.seat_row - 1][del.seat_col - 1].opacity = namedVote.infavor ? 1.0 : 0.2;
 		circles2d[del.seat_row - 1][del.seat_col - 1].r = +9.9;

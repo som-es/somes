@@ -2,18 +2,15 @@ use std::{error::Error, fs::File, net::SocketAddr, path::PathBuf, sync::Arc};
 
 use axum::{
     extract::FromRef,
-    http::{self, HeaderValue},
+    http::{self},
     response::Html,
-    routing::{any, delete, get, get_service, post, put, Route},
-    Router, ServiceExt,
+    routing::{any, delete, get, get_service, post, put},
+    Router,
 };
 use axum_server::tls_rustls::RustlsConfig;
 use dataservice::db::models::{DbLegislativeInitiativeQuery, DbParty};
-use diesel::dsl::host;
 // use diesel_async::pooled_connection::AsyncDieselConnectionManager;
 use log::{error, info};
-use meilisearch_sdk::settings::Settings;
-use redis::aio::MultiplexedConnection;
 use reqwest::StatusCode;
 use somes_common_lib::{
     CALL_TO_ORDERS_PER_PARTY_DELEGATES, DELEGATES_BY_CALL_TO_ORDERS,
@@ -29,15 +26,11 @@ use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 //use headers::HeaderValue;
 use crate::{
-    model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours},
-    redirect_http_to_https,
-    routes::{
+    meilisearch::{update_gov_props_meilisearch_index, update_vote_result_meilisearch_index}, model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours}, redirect_http_to_https, routes::{
         call_to_orders_per_party_delegates, delegates, delegates_by_call_to_orders,
         delegates_by_call_to_orders_and_legis_period, latest_vote_results, parties, proposals,
         save_email, speakers_by_hours, speakers_by_hours_and_legis_period, user,
-    },
-    Ports, DATASERVICE_URL, HTTPS_PORT, HTTP_PORT, LEGIS_INITS_PER_PAGE, MEILISEARCH_SECRET,
-    MEILISEARCH_URL, PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, REDIS_DB, STATIC_FRONTEND_PATH,
+    }, Ports, DATASERVICE_URL, HTTPS_PORT, HTTP_PORT, LEGIS_INITS_PER_PAGE, MEILISEARCH_SECRET, MEILISEARCH_URL, PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, REDIS_DB, STATIC_FRONTEND_PATH
 };
 use tower_http::{
     cors::{Any, CorsLayer},
@@ -100,6 +93,7 @@ pub async fn serve(addr: SocketAddr) {
         error!("Could not establish redis database connection!");
         return;
     };
+
     if client.get_connection().is_err() {
         error!("Could not establish redis database connection!");
         return;
@@ -154,7 +148,7 @@ pub async fn serve(addr: SocketAddr) {
     let postgres_pool = bb8::Pool::builder().build(config).await.unwrap();
      */
 
-    log::info!("Connecting to database {DATASERVICE_URL}");
+    log::info!("Connecting to database {}", DATASERVICE_URL.split("@").last().unwrap_or_default());
 
     let dataservice_sqlx_pool = PgPoolOptions::new()
         // pool sizes
@@ -162,6 +156,8 @@ pub async fn serve(addr: SocketAddr) {
         .connect(DATASERVICE_URL)
         .await
         .unwrap();
+
+    log::info!("Established postgresql connection");
 
     let somes_db_manager =
         // mind the database url, it is "DATASERVICE_URL" and not "DATABASE_URL"
@@ -207,15 +203,19 @@ pub async fn serve(addr: SocketAddr) {
             Html(include_str!("../build-alpha-0.1/index.html"))
         }));
 
-    let pg_pool = dataservice_sqlx_pool.clone();
+    
+    let pg_pool_vr = dataservice_sqlx_pool.clone();
+    let client_vr = client.clone();
+    let meilisearch_client_vr = meilisearch_client.clone();
+    
 
     // TODO: move this to dataservice
     tokio::task::spawn(async move {
         loop {
-            if let Err(e) = update_meilisearch_index(
-                &mut client.get_multiplexed_tokio_connection().await.unwrap(),
-                &pg_pool,
-                &meilisearch_client,
+            if let Err(e) = update_vote_result_meilisearch_index(
+                &mut client_vr.get_multiplexed_tokio_connection().await.unwrap(),
+                &pg_pool_vr,
+                &meilisearch_client_vr,
             )
             .await
             {
@@ -224,6 +224,25 @@ pub async fn serve(addr: SocketAddr) {
             sleep(std::time::Duration::from_secs(1900)).await;
         }
     });
+
+    let pg_pool = dataservice_sqlx_pool.clone();
+    
+    tokio::task::spawn(async move {
+        loop {
+            if let Err(e) = update_gov_props_meilisearch_index(
+                &mut client.get_multiplexed_tokio_connection().await.unwrap(),
+                &pg_pool,
+                &meilisearch_client,
+            )
+            .await
+            {
+                log::warn!("Could not update meilisearch index: {e:?}");
+            }
+            log::info!("gov prop sleep 1900s");
+            sleep(std::time::Duration::from_secs(1900)).await;
+        }
+    });
+
     let pg_pool = dataservice_sqlx_pool.clone();
 
     tokio::task::spawn(async move {
@@ -323,10 +342,15 @@ pub async fn serve(addr: SocketAddr) {
         .route(FAVO_DELEGATE, post(add_delegate_favo))
         .route(FAVO_DELEGATE, get(user_delegate_favos))
         .route(FAVO_DELEGATE, delete(remove_user_delegate_favo))
+        .route(FAVO_LEGIS_INIT, delete(remove_user_legis_init_favo))
+        .route(FAVO_LEGIS_INIT, get(user_legis_init_favos))
+        .route(FAVO_LEGIS_INIT, post(add_legis_init_favo))
         .route(SEND_MAIL_INFO, put(update_send_mail_info))
         .route(SEND_MAIL_INFO, get(get_send_mail_info))
         .route(GOV_OFFICIALS_AT, get(gov_officials_at_date_route))
         .route(GOV_PROPOSALS_BY_OFFICIAL, get(gov_proposals_by_official))
+        .route(GOV_PROPOSALS_PER_PAGE, post(get_gov_proposals_per_page))
+        .route(GOV_PROPOSALS_BY_SEARCH, post(gov_props_by_search)) // post only because js fetch...
         .route(
             DELEGATE_POLITICAL_POSITION,
             get(delegate_political_position),
@@ -437,7 +461,12 @@ pub async fn serve(addr: SocketAddr) {
             CorsLayer::new()
                 // .allow_origin("https://somes.at".parse::<HeaderValue>().unwrap())
                 .allow_origin(Any)
-                .allow_methods([http::Method::GET, http::Method::POST, http::Method::DELETE, http::Method::PUT])
+                .allow_methods([
+                    http::Method::GET,
+                    http::Method::POST,
+                    http::Method::DELETE,
+                    http::Method::PUT,
+                ])
                 .allow_headers([http::header::CONTENT_TYPE, http::header::AUTHORIZATION]),
         )
         // .layer(RateLimitLayer::new(num, per))
@@ -530,38 +559,5 @@ async fn update_delegate_assets(
                 .unwrap();
         }
     });
-    Ok(())
-}
-
-async fn update_meilisearch_index(
-    redis_con: &mut MultiplexedConnection,
-    pg_pool: &sqlx::Pool<sqlx::Postgres>,
-    client: &meilisearch_sdk::client::Client,
-) -> Result<(), Box<dyn std::error::Error>> {
-    log::info!("Fetching all vote results..");
-    let all_vote_results = get_all_votes_from_legis_init(redis_con.clone(), pg_pool).await?;
-    log::info!("Fetched all vote results");
-
-    // client.delete_index("vote_results").await?;
-
-    log::info!(
-        "Uploading {} vote results to meilisearch",
-        all_vote_results.len()
-    );
-    let settings = Settings::new().with_filterable_attributes([
-        "legislative_initiative.accepted",
-        "legislative_initiative.requires_simple_majority",
-        "legislative_initiative.gp",
-        "legislative_initiative.voted_by_name",
-    ]);
-
-    client.index("vote_results").set_settings(&settings).await?;
-
-    client
-        .index("vote_results")
-        .add_documents(&all_vote_results, Some("id"))
-        .await?;
-
-    log::info!("Uploaded vote results");
     Ok(())
 }

@@ -10,15 +10,15 @@
 	export let voteResults: VoteResult[];
 	export let showHistory: boolean = false;
 
-	const firstThreeVotes = voteResults.slice(0, 3);
-	const restVotes = voteResults.slice(3);
+	$: firstThreeVotes = voteResults.slice(0, 3);
+	$: restVotes = voteResults.slice(3);
 
 	let open = false;
 </script>
 
 {#if voteResults}
 	{#if voteResults.length == 0}
-		<p class="no-votes mb-5 mt-1 text-xl">Keine neuen Abstimmungsergebnisse</p>
+		<p class="no-votes mb-5 mt-1 text-xl">Keine Abstimmungsergebnisse</p>
 	{/if}
 	<div class="card-container">
 		{#each firstThreeVotes as voteResult, i}
@@ -41,7 +41,7 @@
 		{#if showHistory}
 			<SButton
 				class="button offset-button bg-secondary-500"
-				on:click={() => gotoHistory('/vote_history')}
+				on:click={() => gotoHistory('/history/votes')}
 			>
 				Vorherige anzeigen
 			</SButton>
@@ -53,7 +53,7 @@
 		<div
 			on:click={() => (open = !open)}
 			on:keypress={() => (open = !open)}
-			class="card-container z-0"
+			class="card-container z-0 mt-4"
 			role="button"
 			tabindex="0"
 		>

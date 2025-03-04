@@ -28,6 +28,36 @@ pub struct DelegateFavo {
 }
 
 
+#[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct LegisInitFavo {
+    pub vote_result_id: i32,
+}
+
+#[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct Absence {
+    pub date: NaiveDate,
+    pub inr: i32,
+    pub gp: String,
+    pub plenary_session_id: i32,
+    pub missed_legis_init_ids: Option<Vec<i32>>,
+}
+
+#[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct AbsencesWithMaxPage {
+    pub speeches: Vec<Absence>,
+    pub entry_count: i64,
+    pub max_page: i64,
+}
+
+#[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct NamedVote {
+    pub infavor: Option<bool>,
+    pub was_absent: Option<bool>,
+    pub legis_init_id: i32,
+    pub named_vote_info_id: i32,
+    pub date: NaiveDate,
+}
+
 /// 'ResetPasswordInfo' is used to send a reset password request to the server.
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct ResetPasswordInfo {
@@ -157,6 +187,8 @@ pub struct GeneralDelegateInfo {
     pub interests: Vec<InterestShare>,
     pub delegate_qa: Vec<DelegateQA>,
     pub political_position: Option<PoliticalPosition>,
+    pub absences: Vec<Absence>,
+    pub named_votes: Vec<NamedVote>,
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
@@ -213,6 +245,13 @@ pub struct LegisInitFilter {
     pub accepted: Option<String>,
     pub is_named_vote: Option<bool>,
     pub simple_majority: Option<bool>,
+    pub legis_period: Option<String>,
+    pub is_law: Option<bool>,
+}
+
+#[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
+pub struct GovPropFilter {
+    pub has_vote_result: Option<bool>,
     pub legis_period: Option<String>,
 }
 

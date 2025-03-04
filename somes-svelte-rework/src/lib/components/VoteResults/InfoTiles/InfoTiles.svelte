@@ -19,6 +19,7 @@
 	export let showAchievedVotes = true;
 	export let showAccepted = true;
 	export let showText = true;
+	export let showLawStuff = true;
 
 	let NOT_REACHED_COLOR = getModeUserPrefers()
 		? 'rgb(var(--color-primary-600))'
@@ -110,14 +111,14 @@
 
 <div class="flex flex-wrap {isCenter ? 'justify-center' : ''} info-item gap-3">
 	<div class="flex gap-3 flex-wrap">
-		{#if showAccepted}
+		{#if showAccepted && voteResult.legislative_initiative.accepted}
 			<Square {squareSize} class="accepted-item {squareClasses}">
 				{#if voteResult.legislative_initiative.accepted == 'a'}
 					{@html checkmarkIcon}
 					{#if showText}
 						<div>Angenommen</div>
 					{/if}
-				{:else}
+				{:else }
 					{@html crossmarkIcon}
 					{#if showText}
 						<div>Abgelehnt</div>
@@ -145,7 +146,7 @@
 		{/if}
 	</div>
 	<div class="flex gap-3 flex-wrap">
-		{#if showAchievedVotes}
+		{#if showAchievedVotes && voteResult.legislative_initiative.accepted}
 			<Square {squareSize} class={squareClasses}>
 				<SimpleDonut stops={conicsStopsAchievedVotes} {isLightMode} />
 
@@ -167,6 +168,29 @@
 			</Square>
 		{/if}
 	</div>
+	{#if voteResult.legislative_initiative.is_law}
+			{#if showLawStuff && voteResult.legislative_initiative.law_come_into_effect_date}
+				<Square {squareSize} class={squareClasses}>
+					<div class="font-bold text-lg">
+						{dashDateToDotDate(voteResult.legislative_initiative.law_come_into_effect_date.toString())}
+					</div>
+					{#if showText}
+						<div>in Kraft am</div>
+					{/if}
+				</Square>
+			{/if}
+		
+			{#if showLawStuff && voteResult.legislative_initiative.law_expires_on_date && voteResult.legislative_initiative.law_expires_on_date > (voteResult.legislative_initiative.law_come_into_effect_date ?? "")}
+				<Square {squareSize} class={squareClasses}>
+					<div class="font-bold text-lg">
+						{dashDateToDotDate(voteResult.legislative_initiative.law_expires_on_date.toString())}
+					</div>
+					{#if showText}
+						<div>außer Kraft am</div>
+					{/if}
+				</Square>
+			{/if}
+	{/if}
 </div>
 
 <style>
