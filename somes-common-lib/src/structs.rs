@@ -58,6 +58,12 @@ pub struct NamedVote {
     pub date: NaiveDate,
 }
 
+#[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct StanceTopicScore {
+    pub topic: String,
+    pub score: f64,
+}
+
 /// 'ResetPasswordInfo' is used to send a reset password request to the server.
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct ResetPasswordInfo {
