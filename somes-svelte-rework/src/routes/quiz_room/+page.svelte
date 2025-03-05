@@ -36,6 +36,10 @@
 	let jwtToken: string | null;
 	let selectedAnswer: number | null = null;
 
+	const CURRENT_QUESTION_TIME = 18;
+
+	let currentQuestionTimeLeftSeconds = CURRENT_QUESTION_TIME;
+
 	onMount(async () => {
 		jwtToken = get(jwtStore);
 		if (!jwtToken) {
@@ -76,7 +80,10 @@
 				prevScore = structuredClone(currentScore);
 				currentScore = null;
 				question = recvData;
-				prevQuestion = structuredClone(question);
+				prevQuestion = structuredClone(question);	
+
+				currentQuestionTimeLeftSeconds = CURRENT_QUESTION_TIME 
+
 			} else if ('user_count' in recvData) {
 				infoCounts = recvData;
 			} else {
@@ -84,6 +91,16 @@
 			}
 		}
 	};
+
+	const decreaseTime = () => {
+		if (state == "question") {
+			currentQuestionTimeLeftSeconds -= 1
+			if (currentQuestionTimeLeftSeconds == 0) {
+				onScoreboard()
+			}
+		}
+	};
+	setInterval(decreaseTime, 1000)
 
 	const roomSocket = new WebSocket(import.meta.env.VITE_ROOM_WEBSOCKET_URL);
 
@@ -338,6 +355,10 @@
                         Antworten
                     {/if}
                 </h2>
+
+				<div class="text-xl">
+					<span class="font-bold">{currentQuestionTimeLeftSeconds}</span> Sekunden übrig
+				</div>
                 <h2 class="text-2xl font-bold">{infoCounts?.user_count} Teilnehmer</h2>
             </div>
         {:else if userName}
