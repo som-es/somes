@@ -10,6 +10,12 @@ export interface DelegateData {
 	data: number;
 }
 
+export interface ChartData {
+	label: string;
+	data: number;
+	color: string;
+}
+
 export interface Delegate {
 	id: number;
 	name: string;
@@ -332,6 +338,7 @@ export interface NamedVote {
 
 export interface GeneralDelegateInfo {
 	interests: InterestShare[];
+	detailed_interests: InterestShare[];
 	delegate_qa: DelegateQA[];
 	mandates: Mandate[];
 	political_position: PoliticalPosition | null;
@@ -348,6 +355,7 @@ export interface DelegateQA {
 export interface InterestShare {
 	topic: string;
 	total_share: number;
+	occurences: number;
 	self_share: number;
 }
 

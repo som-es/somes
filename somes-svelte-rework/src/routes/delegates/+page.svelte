@@ -35,6 +35,9 @@
 	import NamedVotePreview from '$lib/components/Delegates/NamedVote/NamedVotePreview.svelte';
 	import StanceDiagram from '$lib/components/Delegates/Spectrum/StanceDiagram.svelte';
 	import { topicColors } from '$lib/interestColors';
+	import ReactiveGenericBarChart from '$lib/components/GeneralCharts/ReactiveGenericBarChart.svelte';
+	import { int } from 'three/tsl';
+	import ReactiveRadarChart from '$lib/components/GeneralCharts/ReactiveRadarChart.svelte';
 
 	let delegates: Delegate[];
 	let delegate: Delegate | null;
@@ -332,8 +335,15 @@
 			<ExpandablePlaceholder />
 		{/if}
 
+
 		{#if generalDelegateInfo?.interests}
 			{#if generalDelegateInfo?.interests?.length > 0}
+				<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
+					DETAILS
+					<ReactiveGenericBarChart title={"Meist behandelte Themen"} chartData={generalDelegateInfo.interests.map(interest => {
+						return {label: interest.topic, data: interest.occurences, color: topicColors.get(interest.topic) ?? "black"}
+					})} />
+				</div>
 				<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
 
 					<h1 class="font-bold text-2xl mb-2">Top 4 Interessen</h1>
@@ -342,6 +352,20 @@
 			{/if}
 		{:else}
 			<ExpandablePlaceholder class={'my-3'} />
+		{/if}
+
+		{#if generalDelegateInfo} 
+			<ReactiveRadarChart title="hi" chartData={[
+				{ label: "namentliche Abstimmungen", data: generalDelegateInfo.named_votes.length, color: "" }, 
+				{ label: "Abwesenheiten", data: generalDelegateInfo.absences.length, color: "" },
+				{ label: "Reden", data: speechesPage0?.entry_count ?? 0, color: "" },
+				{ label: "Abwesenheiten", data: generalDelegateInfo.absences.length, color: "" },
+				{ label: "Abwesenheiten", data: generalDelegateInfo.absences.length, color: "" },
+				{ label: "Abwesenheiten", data: generalDelegateInfo.absences.length, color: "" },
+			]} />
+		{:else if generalDelegateInfo == null || !delegate}
+			<ExpandablePlaceholder />
+			<ExpandablePlaceholder />
 		{/if}
 
 
