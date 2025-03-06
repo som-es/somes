@@ -195,6 +195,7 @@ pub struct GeneralDelegateInfo {
     pub political_position: Option<PoliticalPosition>,
     pub absences: Vec<Absence>,
     pub named_votes: Vec<NamedVote>,
+    pub stances: Vec<StanceTopicScore>,
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]

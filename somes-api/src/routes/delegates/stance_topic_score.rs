@@ -28,7 +28,6 @@ pub async fn extract_stance_topic_score_by_delegate(
     let mut topics_scores = HashMap::<String, (f64, f64, usize)>::new();
 
     for stance_score in stance_scores {
-        dbg!(&stance_score);
         for topic in &stance_score.topics.unwrap_or_default() {
             topics_scores.entry(topic.to_string()).and_modify(|x| {
                 if stance_score.is_left.unwrap_or_default() || stance_score.is_liberal.unwrap_or_default() {
@@ -48,7 +47,7 @@ pub async fn extract_stance_topic_score_by_delegate(
             let (pos_score, contra_score, count) = score;
             StanceTopicScore {
                 topic,
-                score: (pos_score - contra_score) / count as f64,
+                score: 2. * (pos_score - contra_score) / count as f64,
             }
         }).collect())
 }

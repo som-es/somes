@@ -132,7 +132,8 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
                     .map(|x: &ConnectedUser| x.is_admin)
                     .unwrap_or_default()
             {
-                db_questions = sqlx::query_as!(QuizQuestion, "select question, answer1, answer2, answer3, answer4, correct_answer from quiz_questions where quiz_id = 3").fetch_all(&pg).await.unwrap_or_default();
+                db_questions = sqlx::query_as!(QuizQuestion, "select question, answer1, answer2, answer3, answer4, correct_answer from quiz_questions where quiz_id = 4").fetch_all(&pg).await.unwrap_or_default();
+                log::info!("{db_questions:?}");
                 questions = Some(db_questions.iter());
             }
         }

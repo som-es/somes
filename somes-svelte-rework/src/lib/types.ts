@@ -337,6 +337,7 @@ export interface GeneralDelegateInfo {
 	political_position: PoliticalPosition | null;
 	absences: Absence[];
 	named_votes: NamedVote[];
+	stances: StanceTopicScore[];
 }
 
 export interface DelegateQA {
@@ -361,6 +362,11 @@ export interface VoteResultFilter {
 	simple_majority: boolean | null;
 	legis_period: string | null;
 	is_law: boolean | null;
+}
+
+export interface StanceTopicScore {
+	topic: string;
+	score: number;
 }
 
 export interface GovPropFilter {

@@ -33,6 +33,8 @@
 	import SquarePoliticalSpectrum from '$lib/components/Delegates/Spectrum/SquarePoliticalSpectrum.svelte';
 	import AbsencesPreview from '$lib/components/Delegates/Absences/AbsencesPreview.svelte';
 	import NamedVotePreview from '$lib/components/Delegates/NamedVote/NamedVotePreview.svelte';
+	import StanceDiagram from '$lib/components/Delegates/Spectrum/StanceDiagram.svelte';
+	import { topicColors } from '$lib/interestColors';
 
 	let delegates: Delegate[];
 	let delegate: Delegate | null;
@@ -343,12 +345,28 @@
 		{/if}
 
 
-
+		<div class="flex gap-2">
 		{#if delegate && generalDelegateInfo?.political_position}
 			<SquarePoliticalSpectrum {delegate}	politicalPosition={generalDelegateInfo.political_position} />
 		{:else if !generalDelegateInfo}
 			<ExpandablePlaceholder class={'my-3'} />
 		{/if}
+
+		{#if delegate && generalDelegateInfo?.stances}
+
+			<div class="bg-primary-300 dark:bg-primary-500 p-4 rounded-xl">
+				<div class="flex flex-wrap gap-5">
+
+				{#each generalDelegateInfo.stances as stance}
+					<StanceDiagram zeroLabel={stance.topic} value={stance.score * 2}  knobColor={topicColors.get(stance.topic) } />
+				{/each}
+				</div>
+			</div>
+		{:else if !generalDelegateInfo}
+			<ExpandablePlaceholder class={'my-3'} />
+		{/if}
+		</div>
+
 
 		<!-- <div class="activity-item bg-primary-300">
                     Activity
