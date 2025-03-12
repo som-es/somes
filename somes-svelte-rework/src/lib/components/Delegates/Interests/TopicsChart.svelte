@@ -26,7 +26,7 @@
             <button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(detailedInterestsModal)}>Details</button>
         </div>
     {/if}
-    <ReactiveGenericBarChart title={""} chartData={interests.map(interest => {
+    <ReactiveGenericBarChart height={300} title={""} chartData={interests.map(interest => {
         return {label: interest.topic, data: interest.occurences, color: topicColors.get(interest.topic) ?? "black"}
     })} />
 </div>
