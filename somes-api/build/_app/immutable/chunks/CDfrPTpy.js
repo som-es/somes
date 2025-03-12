@@ -1,1 +1,0 @@
-import{B as t}from"./CjpzdfaC.js";import{p as e}from"./BmvDRZOP.js";function n(){return new Map(t(e))}function a(r){if(r==null)return"#B8B8B8";const o=n().get(r);return o??"#B8B8B8"}export{n as g,a as p};
