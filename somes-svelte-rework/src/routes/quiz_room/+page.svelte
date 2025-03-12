@@ -93,7 +93,7 @@
 	};
 
 	const decreaseTime = () => {
-		if (state == "question") {
+		if (state == "question" && isAdmin) {
 			currentQuestionTimeLeftSeconds -= 1
 			if (currentQuestionTimeLeftSeconds == 0) {
 				onScoreboard()
