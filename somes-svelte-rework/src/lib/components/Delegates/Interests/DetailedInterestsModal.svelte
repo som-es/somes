@@ -27,8 +27,9 @@
         >
             &#x2715
         </button>
-            
-        <ReactiveGenericBarChart horizontalBars={true} height={5000} title={"Meist behandelte Themen"} chartData={detailedInterests.map(interest => {
+        <br>
+        <span class="text-lg">meist behandelte Themen</span> 
+        <ReactiveGenericBarChart horizontalBars={true} height={5000} title={""} chartData={detailedInterests.map(interest => {
             return {label: interest.topic, data: interest.occurences, color: topicColors.get(interest.topic) ?? "gray"}
         })} />
     </div>

@@ -351,21 +351,6 @@
 			<ExpandablePlaceholder class={'my-3'} />
 		{/if}
 
-		{#if generalDelegateInfo} 
-			<ReactiveRadarChart title="hi" chartData={[
-				{ label: "namentliche Abstimmungen", data: generalDelegateInfo.named_votes.length, color: "" }, 
-				{ label: "Abwesenheiten", data: generalDelegateInfo.absences.length, color: "" },
-				{ label: "Reden", data: speechesPage0?.entry_count ?? 0, color: "" },
-				{ label: "Abwesenheiten", data: generalDelegateInfo.absences.length, color: "" },
-				{ label: "Abwesenheiten", data: generalDelegateInfo.absences.length, color: "" },
-				{ label: "Abwesenheiten", data: generalDelegateInfo.absences.length, color: "" },
-			]} />
-		{:else if generalDelegateInfo == null || !delegate}
-			<ExpandablePlaceholder />
-			<ExpandablePlaceholder />
-		{/if}
-
-
 		<div class="flex gap-2">
 		{#if delegate && generalDelegateInfo?.political_position}
 			<SquarePoliticalSpectrum {delegate}	politicalPosition={generalDelegateInfo.political_position} />
@@ -387,6 +372,20 @@
 			<ExpandablePlaceholder class={'my-3'} />
 		{/if}
 		</div>
+
+		<!-- {#if generalDelegateInfo} 
+			<ReactiveRadarChart title="hi" chartData={[
+				{ label: "namentliche Abstimmungen", data: generalDelegateInfo.named_votes.length, color: "" }, 
+				{ label: "Abwesenheiten", data: generalDelegateInfo.absences.length, color: "" },
+				{ label: "Reden", data: speechesPage0?.entry_count ?? 0, color: "" },
+				{ label: "Abwesenheiten", data: generalDelegateInfo.absences.length, color: "" },
+				{ label: "Abwesenheiten", data: generalDelegateInfo.absences.length, color: "" },
+				{ label: "Abwesenheiten", data: generalDelegateInfo.absences.length, color: "" },
+			]} />
+		{:else if generalDelegateInfo == null || !delegate}
+			<ExpandablePlaceholder />
+			<ExpandablePlaceholder />
+		{/if} -->
 
 
 		<!-- <div class="activity-item bg-primary-300">

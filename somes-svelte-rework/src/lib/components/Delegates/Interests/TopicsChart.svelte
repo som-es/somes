@@ -17,14 +17,16 @@
 
 </script>
 
-<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 gap-3 w-full">
+<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 gap-1 w-full">
+    <span class="font-bold text-2xl">Meist behandelte Themen</span> 
+
     {#if detailedInterests.length > 0}
         <div class="flex justify-between">
             <div></div>
             <button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(detailedInterestsModal)}>Details</button>
         </div>
     {/if}
-    <ReactiveGenericBarChart title={"Meist behandelte Themen"} chartData={interests.map(interest => {
+    <ReactiveGenericBarChart title={""} chartData={interests.map(interest => {
         return {label: interest.topic, data: interest.occurences, color: topicColors.get(interest.topic) ?? "black"}
     })} />
 </div>
