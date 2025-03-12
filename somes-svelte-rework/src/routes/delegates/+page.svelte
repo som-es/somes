@@ -38,6 +38,7 @@
 	import ReactiveGenericBarChart from '$lib/components/GeneralCharts/ReactiveGenericBarChart.svelte';
 	import { int } from 'three/tsl';
 	import ReactiveRadarChart from '$lib/components/GeneralCharts/ReactiveRadarChart.svelte';
+	import TopicsChart from '$lib/components/Delegates/Interests/TopicsChart.svelte';
 
 	let delegates: Delegate[];
 	let delegate: Delegate | null;
@@ -336,19 +337,14 @@
 		{/if}
 
 
-		{#if generalDelegateInfo?.interests}
+		{#if generalDelegateInfo?.interests && generalDelegateInfo?.detailed_interests}
 			{#if generalDelegateInfo?.interests?.length > 0}
-				<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
-					DETAILS
-					<ReactiveGenericBarChart title={"Meist behandelte Themen"} chartData={generalDelegateInfo.interests.map(interest => {
-						return {label: interest.topic, data: interest.occurences, color: topicColors.get(interest.topic) ?? "black"}
-					})} />
-				</div>
-				<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
+				<TopicsChart detailedInterests={generalDelegateInfo.detailed_interests} interests={generalDelegateInfo.interests} />
+				<!-- <div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
 
 					<h1 class="font-bold text-2xl mb-2">Top 4 Interessen</h1>
 					<InterestTiles bgColor={"bg-primary-300 dark:bg-primary-500"} squareColor={"dark:bg-primary-300 bg-primary-400"} interests={generalDelegateInfo.interests.slice(0, 4)} />
-				</div>
+				</div> -->
 			{/if}
 		{:else}
 			<ExpandablePlaceholder class={'my-3'} />
