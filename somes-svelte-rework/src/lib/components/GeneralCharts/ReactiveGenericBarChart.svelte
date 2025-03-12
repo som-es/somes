@@ -5,8 +5,9 @@
 	import { modeCurrent } from '@skeletonlabs/skeleton';
 
 	export let chartData: ChartData[];
-
 	export let title: string;
+	export let height: number = 490;
+	export let horizontalBars: boolean = false;
 
 	let chart: ApexCharts | null = null;
 	let chartOptions: ApexOptions;
@@ -29,13 +30,13 @@
         	},
 			chart: {
 				type: 'bar',
-				height: 490
+				height
 			},
 			plotOptions: {
 				bar: {
 					borderRadius: 4,
 					borderRadiusApplication: 'end',
-					horizontal: false,
+					horizontal: horizontalBars,
 					distributed: true,
 					dataLabels: {
 						position: 'bottom'

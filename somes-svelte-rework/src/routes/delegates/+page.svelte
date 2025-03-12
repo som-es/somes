@@ -186,6 +186,7 @@
 			generalDelegateInfo = errorToNull(res)	
 			if (generalDelegateInfo) {
 				generalDelegateInfo.interests.sort((a, b) => b.self_share - a.self_share);
+				generalDelegateInfo.detailed_interests.sort((a, b) => b.self_share - a.self_share);
 				// console.log(`absences length: ${generalDelegateInfo.absences.length}, ${generalDelegateInfo.named_votes.length}`);
 			}
 		})
