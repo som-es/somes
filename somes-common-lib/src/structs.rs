@@ -176,6 +176,7 @@ pub struct DelegateByIdAndPage {
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct InterestShare {
     pub topic: String,
+    pub occurences: u32,
     pub total_share: f32,
     pub self_share: f32,
 }
@@ -191,6 +192,7 @@ pub struct Mandate {
 pub struct GeneralDelegateInfo {
     pub mandates: Vec<Mandate>,
     pub interests: Vec<InterestShare>,
+    pub detailed_interests: Vec<InterestShare>,
     pub delegate_qa: Vec<DelegateQA>,
     pub political_position: Option<PoliticalPosition>,
     pub absences: Vec<Absence>,
