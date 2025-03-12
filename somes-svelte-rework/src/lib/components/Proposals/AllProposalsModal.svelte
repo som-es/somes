@@ -13,6 +13,8 @@
 </script>
 
 <div class="card p-8 max-w-7xl">
+
+	<h1 class="font-bold text-2xl">Ministerialentwürfe</h1>
     <button
         on:click={() => {
             modalStore.close();

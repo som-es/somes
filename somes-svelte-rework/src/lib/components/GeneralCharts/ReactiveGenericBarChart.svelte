@@ -89,6 +89,21 @@
 					}
 				}
 			},
+			
+			yaxis: {
+				labels: {
+					style: {
+						colors: labels.map(() => {
+							if (isBlack) {
+								return "black"
+							} else {
+								return "white"
+							}
+						} ),
+						fontSize: '12px'
+					}
+				}
+			},
 
 			legend: {
 				show: false
