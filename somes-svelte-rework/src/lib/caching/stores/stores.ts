@@ -9,5 +9,6 @@ export const latestGovProposalsStore = persisted<GovProposalDelegate[] | null>('
 export const legisPeriodsStore = persisted<LegisPeriod[] | null>('legis_periods', null);
 export const seatsStore = persisted<[string, number[]][] | null>('seats', null);
 export const jwtStore = persisted<string | null>('access_token', null);
+export const jwtQuizStore = persisted<string | null>('access_token_quiz', null);
 export const userTopicsStore = persisted<UniqueTopic[] | null>('user_topics', null);
 export const userDelegateFavosStore = persisted<DelegateFavo[] | null>('delegate_favos', null);

@@ -26,7 +26,7 @@ use sqlx::PgPool;
 use tokio::{sync::RwLock, time::Instant};
 
 use crate::{
-    jwt::{Claims, KEYS},
+    jwt::{create_access_token, create_access_token_u128, Claims, Keys, KEYS},
     AuthError, PgPoolConnection, RedisConnection,
 };
 
@@ -58,14 +58,24 @@ pub enum State {
     End,
 }
 
-static USER_MAP: LazyLock<Arc<RwLock<HashMap<(String, u64), f64>>>> =
+static USER_MAP: LazyLock<Arc<RwLock<HashMap<(String, u128), f64>>>> =
     LazyLock::new(|| Arc::new(RwLock::new(HashMap::new())));
 
-static SCORE_BOARD: LazyLock<Arc<RwLock<Vec<((String, u64), f64)>>>> =
+static SCORE_BOARD: LazyLock<Arc<RwLock<Vec<((String, u128), f64)>>>> =
     LazyLock::new(|| Arc::new(RwLock::new(Vec::new())));
 // static INFORM_USERS: LazyLock<Arc<RwLock<Vec<Box<dyn Fn() -> BoxFuture<'static, ()>>>>>> = LazyLock::new(|| Arc::new(RwLock::new(Vec::new())));
 static QUESTION: LazyLock<Arc<RwLock<State>>> =
     LazyLock::new(|| Arc::new(RwLock::new(State::Ready)));
+
+pub fn create_keys() -> Keys {
+    let mut rng = rand::rngs::OsRng::default();
+    Keys::new(&(0..32).into_iter().map(|_| rng.gen::<u8>()).collect::<Vec<u8>>())
+}
+
+static KEYS2: LazyLock<Arc<RwLock<Keys>>> =
+    LazyLock::new(|| {
+        Arc::new(RwLock::new(create_keys()))
+    });
 
 static ANSWERS_TO_QUESTION: LazyLock<Arc<RwLock<usize>>> =
     LazyLock::new(|| Arc::new(RwLock::new(0)));
@@ -75,7 +85,7 @@ static ANSWERS_TO_QUESTION: LazyLock<Arc<RwLock<usize>>> =
 #[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct ConnectedUser {
     name: String,
-    id: u64,
+    id: u128,
     token: String,
     is_admin: bool,
     answer_locked_in: bool,
@@ -91,7 +101,7 @@ pub struct ScoreInfo {
 #[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Scorer {
     pub name: String,
-    pub id: u64,
+    pub id: u128,
     pub score: f64,
 }
 
@@ -124,6 +134,7 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
             } else {
                 return;
             }
+            // log::info!("{:?}", recv_user.read().await.as_ref());
             if questions.is_none()
                 && recv_user
                     .read()
@@ -135,6 +146,10 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
                 db_questions = sqlx::query_as!(QuizQuestion, "select question, answer1, answer2, answer3, answer4, correct_answer from quiz_questions where quiz_id = 4").fetch_all(&pg).await.unwrap_or_default();
                 log::info!("{db_questions:?}");
                 questions = Some(db_questions.iter());
+                *KEYS2.write().await = create_keys();
+                USER_MAP.write().await.clear();
+                SCORE_BOARD.write().await.clear();
+                *QUESTION.write().await = State::Ready;
             }
         }
     });
@@ -241,7 +256,8 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
     }
 
     if let Some(user) = &*user.read().await {
-        USER_MAP.write().await.remove(&(user.name.clone(), user.id));
+        // do not remove, only set to invisible
+        // USER_MAP.write().await.remove(&(user.name.clone(), user.id));
     };
 }
 
@@ -266,20 +282,23 @@ async fn process_message(
                         return ControlFlow::Continue(());
                     }
                     let name: String = Name().fake();
+                    
 
                     let mut rng = rand::rngs::OsRng::default();
                     let id = rng.gen();
+                    
+                    let jwt = create_access_token_u128(id, name.clone(), false, &KEYS2.read().await.encoding).map(|x| x.access_token.clone()).unwrap();
 
                     let new_user = ConnectedUser {
                         name,
                         id,
                         token: "token".to_string(),
-                        is_admin: true,
+                        is_admin: false,
                         answer_locked_in: false,
                     };
                     log::info!("new user: {:?}", new_user);
                     sender
-                        .send(Message::Text(format!("{};{}", new_user.name, new_user.id)))
+                        .send(Message::Text(format!("{};{}", new_user.name, jwt)))
                         .await
                         .unwrap();
 
@@ -289,22 +308,60 @@ async fn process_message(
                         .insert((new_user.name.clone(), new_user.id), 0.);
                     *user.write().await = Some(new_user)
                 }
-
+                
                 b'h' => {
                     let (_, token) = chat_msg.split_at(1);
                     let token_data =
-                        decode::<Claims>(token, &KEYS.decoding, &Validation::default())
+                        decode::<crate::jwt::ClaimsGen<u128>>(token, &KEYS.decoding, &Validation::default())
                             .map_err(|_| AuthError::InvalidToken);
 
                     if let Ok(token_data) = token_data {
                         let new_user = ConnectedUser {
-                            name: "RANDOM_NAME".to_string(),
-                            id: token_data.claims.id as u64,
+                            name: token_data.claims.sub.clone(),
+                            id: token_data.claims.id,
                             token: token.to_string(),
                             is_admin: token_data.claims.is_admin,
                             answer_locked_in: false,
                         };
                         *user.write().await = Some(new_user);
+
+                        sender
+                            .send(Message::Text(format!("ok")))
+                            .await
+                            .unwrap();
+                    } else {
+                        sender
+                            .send(Message::Text(format!("b")))
+                            .await
+                            .unwrap();
+                    }
+                },
+
+                b'l' => {
+                    let (_, token) = chat_msg.split_at(1);
+                    let token_data =
+                        decode::<crate::jwt::ClaimsGen<u128>>(token, &KEYS2.read().await.decoding, &Validation::default())
+                            .map_err(|_| AuthError::InvalidToken);
+
+                    if let Ok(token_data) = token_data {
+                        let new_user = ConnectedUser {
+                            name: token_data.claims.sub.clone(),
+                            id: token_data.claims.id,
+                            token: token.to_string(),
+                            is_admin: token_data.claims.is_admin,
+                            answer_locked_in: false,
+                        };
+                        *user.write().await = Some(new_user);
+
+                        sender
+                            .send(Message::Text(format!("ok")))
+                            .await
+                            .unwrap();
+                    } else {
+                        sender
+                            .send(Message::Text(format!("b")))
+                            .await
+                            .unwrap();
                     }
                 }
 
@@ -433,7 +490,7 @@ async fn process_message(
         }
         Message::Close(c) => {
             if let Some(user) = &*user.read().await {
-                USER_MAP.write().await.remove(&(user.name.clone(), user.id));
+                // USER_MAP.write().await.remove(&(user.name.clone(), user.id));
             }
             if let Some(cf) = c {
                 println!(

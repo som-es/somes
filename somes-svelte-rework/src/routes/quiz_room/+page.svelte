@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { jwtStore } from '$lib/caching/stores/stores';
+	import { jwtQuizStore, jwtStore } from '$lib/caching/stores/stores';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import {
@@ -34,6 +34,7 @@
 	let isAdmin = false;
 
 	let jwtToken: string | null;
+	let jwtQuizToken: string | null = get(jwtQuizStore);
 	let selectedAnswer: number | null = null;
 
 	const CURRENT_QUESTION_TIME = 18;
@@ -42,6 +43,11 @@
 
 	onMount(async () => {
 		jwtToken = get(jwtStore);
+
+		if (jwtQuizToken) {
+			state = "tryToken";
+		}
+		
 		if (!jwtToken) {
 			return;
 		}
@@ -50,10 +56,33 @@
 	});
 
 	const recvMessage = (event: MessageEvent) => {
+		if (state == "tryToken" && jwtQuizToken) {
+			const data = event.data as string;
+			if (data == "ok") {
+				enteredRoom == true;
+				waitingForQuestions = true;
+				state = "question"
+				console.log("OK");
+
+				const user = getUserFromJwt(jwtQuizToken);
+				userName = user.sub;
+				userId = user.id.toString();	
+			} else {
+				jwtQuizStore.set(null);
+				userName = null;
+				userId = null;
+				state = "starting";
+			}
+			return;
+		}
 		if (enteredRoom && !waitingForQuestions) {
 			const data = event.data as string;
 			userName = data.slice(0, data.indexOf(';'));
-			userId = data.slice(data.indexOf(';') + 1);
+			const jwt = data.slice(data.indexOf(';') + 1);
+			jwtQuizStore.set(jwt);
+
+			const user = getUserFromJwt(jwt);
+			userId = user.id.toString();	
 
 			waitingForQuestions = true;
 
@@ -108,6 +137,15 @@
 		roomSocket.close();
 	});
 	roomSocket.addEventListener('message', recvMessage);
+	roomSocket.addEventListener("open", () => {
+		if (jwtQuizToken) {
+			state = "tryToken"
+			const tokenPayload = `l${jwtQuizToken}`;
+			console.log(tokenPayload)
+			sendMessage(tokenPayload);
+			// const user = getUserFromJwt(jwtQuizToken);
+		}
+	})
 
 	const sendMessage = (msg: string) => {
 		if (!roomSocket || roomSocket.readyState !== WebSocket.OPEN) return;
@@ -120,8 +158,11 @@
 
 	const enterRoom = () => {
 		enteredRoom = true;
+
 		state = 'question';
 		sendMessage('b');
+
+		// sendMessage(`h${jwtQuizToken}`);
 	};
 
 	const onScoreboard = () => {
