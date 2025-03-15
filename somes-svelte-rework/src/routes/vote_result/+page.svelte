@@ -40,7 +40,7 @@
 
 	let delegate: Delegate | null = null;
 	let selectedBubble: Bubble;
-	let circles2d: Bubble[][];
+	let circles2d: Bubble[][] = [];
 
 	let autocompleteOptions: AutocompleteOption<string>[] = [];
 	let inputValue = '';
@@ -209,6 +209,8 @@
 
 	// const whichGridContainer =
 	// 	emphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
+	$: speeches = circles2d.flat(1).filter(circle => circle.speech !== null)
+
 </script>
 
 
@@ -391,21 +393,20 @@
 				{#if circles2d}
 					{#if circles2d.length > 0}
 						<div class="speeches-item bg-primary-300 dark:bg-primary-500 rounded-xl p-4 gap-3">
-							<span class="font-bold text-3xl">Reden</span>
-							<div class="flex flex-row flex-wrap mt-3 gap-3">
-								{#each circles2d.flat(1) as speechDelegate}
-								{#if speechDelegate.speech}
-									<div class="w-full max-w-80">
-										<VoteDelegateCard
-											bubble={speechDelegate}
-											gp={voteResult.legislative_initiative.gp}
-											date={voteResult.legislative_initiative.created_at}
-										/>
-									</div>
-									{/if}
-								{/each}
-
-							</div>
+							{#if speeches.length > 0}
+								<span class="font-bold text-3xl">Reden</span>
+								<div class="flex flex-row flex-wrap mt-3 gap-3">
+									{#each speeches as speechDelegate}
+										<div class="w-full max-w-80">
+											<VoteDelegateCard
+												bubble={speechDelegate}
+												gp={voteResult.legislative_initiative.gp}
+												date={voteResult.legislative_initiative.created_at}
+											/>
+										</div>
+									{/each}
+								</div>
+							{/if}
 						</div>
 					{/if}
 				{:else}
