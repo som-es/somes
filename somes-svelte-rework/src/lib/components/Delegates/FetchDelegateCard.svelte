@@ -1,15 +1,6 @@
 <script lang="ts">
-	import { partyToColor } from '$lib/partyColor';
-	import type { Delegate, DelegateFavo, DelegateQA, Mandate } from '$lib/types';
-	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
-	import SButton from '../UI/SButton.svelte';
-	import { currentDelegateStore } from '$lib/stores/stores';
-	import { gotoHistory } from '$lib/goto';
-	import star from '$lib/assets/misc_icons/star.svg?raw';
-	import starFilled from '$lib/assets/misc_icons/starFilled.svg?raw';
+	import type { Delegate, DelegateQA } from '$lib/types';
 	import { onMount } from 'svelte';
-	import { cachedDelegateFavos } from '$lib/caching/favos';
-	import { addDelegateFavo, removeDelegateFavo } from '$lib/api/authed';
 	import { delegate_by_id, errorToNull } from '$lib/api/api';
 	import DelegateCard from './DelegateCard.svelte';
 
