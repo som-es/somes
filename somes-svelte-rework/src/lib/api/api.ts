@@ -128,7 +128,7 @@ export async function all_gps(): Promise<LegisPeriod[] | HasError> {
 	return getWithRoute<LegisPeriod[]>('all_gps');
 }
 
-export async function delegate(delegate_id: number): Promise<Delegate | HasError> {
+export async function delegate_by_id(delegate_id: number): Promise<Delegate | HasError> {
 	return getWithRoute<Delegate>(`delegate?delegate_id=${delegate_id}`);
 }
 
