@@ -22,5 +22,5 @@
 </script>
 
 {#if delegate}
-	<DelegateCard delegate={delegate}> {onlyTop} {showQA} {showAI} {questions} {showMoreDetailsBtn} {showImg} {title}</DelegateCard>
+	<DelegateCard delegate={delegate} {onlyTop} {showQA} {showAI} {questions} {showMoreDetailsBtn} {showImg} {title}/>
 {/if}

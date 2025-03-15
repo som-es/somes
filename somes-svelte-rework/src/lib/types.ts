@@ -148,6 +148,7 @@ export interface VoteResult {
 	named_votes: NamedVotes | null;
 	documents: Document[];
 	absences: number[];
+	issued_by_dels: number[];
 }
 
 export interface VoteResultsWithMaxPage {

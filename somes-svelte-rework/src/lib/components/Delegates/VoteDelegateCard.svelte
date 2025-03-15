@@ -45,7 +45,7 @@
 
 </script>
 
-<DelegateCard {delegate} title={bubble.title} showMoreDetailsBtn showAI={false}>
+<DelegateCard {delegate} title={bubble.title} showMoreDetailsBtn onlyTop={true} showAI={false}>
 	<span slot="title">
 		{#if bubble.namedVote}
             <div class="text-lg font-bold badge {opinionColor} text-white max-w-fit ">{opinion}</div>

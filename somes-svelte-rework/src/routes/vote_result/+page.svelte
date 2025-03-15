@@ -31,6 +31,7 @@
 	import { addLegisInitFavo, removeLegiInitFavo } from '$lib/api/authed';
 	import star from '$lib/assets/misc_icons/star.svg?raw';
 	import starFilled from '$lib/assets/misc_icons/starFilled.svg?raw';
+	import FetchDelegateCard from '$lib/components/Delegates/FetchDelegateCard.svelte';
 
 	let delegates: Delegate[] = [];
 
@@ -376,7 +377,7 @@
 					</div>
 				</div>
 				<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
-					<span class="font-bold text-lg">Dokumente (PDFs)</span>
+					<span class="font-bold text-xl">Dokumente (PDFs)</span>
 					<div class="gap-3 flex flex-wrap">
 						{#each voteResult.documents as document}
 							{#if document.document_type.includes('PDF')}
@@ -390,6 +391,18 @@
 						{/each}
 					</div>
 				</div>
+
+				{#if voteResult.issued_by_dels.length > 0}
+					<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
+					<span class="font-bold text-3xl">Eingebracht von</span>
+						<span class="font-bold text-xl"></span>
+						<div class="flex flex-row flex-wrap mt-3 gap-3">
+							{#each voteResult.issued_by_dels as delegateId}
+								<FetchDelegateCard {delegateId} showAI={false} showQA={false} onlyTop={true} showMoreDetailsBtn={true} />
+							{/each}
+						</div>
+					</div>
+				{/if}
 				{#if circles2d}
 					{#if circles2d.length > 0}
 						<div class="speeches-item bg-primary-300 dark:bg-primary-500 rounded-xl p-4 gap-3">
