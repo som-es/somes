@@ -37,6 +37,7 @@ pub struct VoteResult {
     pub topics: Vec<Topic>,
     pub documents: Vec<DbLegisDocumentOptional>,
     pub absences: Vec<i32>,
+    pub issued_by_dels: Vec<i32>,
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]

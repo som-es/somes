@@ -143,6 +143,14 @@ SELECT jsonb_build_object(
                 '[]'::jsonb
             )
     ),
+    'issued_by_dels', (
+        SELECT COALESCE(
+            jsonb_agg(delegate_id), 
+            '[]'::jsonb
+        )
+        FROM legis_init_delegates
+        WHERE legis_init_id = $1
+    ),
  
     'named_votes', (
         SELECT jsonb_build_object(
