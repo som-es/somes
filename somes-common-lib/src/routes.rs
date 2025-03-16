@@ -51,6 +51,7 @@ pub const GENERAL_DELEGATE_INFO: &str = "/general_delegate_info";
 pub const DELEGATE_INTERESTS: &str = "/delegate_interests";
 pub const DELEGATE_QA: &str = "/delegate_qa";
 pub const VOTE_RESULTS_PER_PAGE: &str = "/vote_results_per_page";
+pub const UNFINISHED_VOTE_RESULTS_PER_PAGE: &str = "/unfinished_vote_results_per_page";
 pub const SPEECHES_BY_DELEGATE_PER_PAGE: &str = "/speeches_by_delegate_per_page";
 pub const VOTE_RESULT_BY_ID: &str = "/vote_result_by_id";
 pub const VOTE_RESULT_BY_SEARCH: &str = "/vote_result_by_search";

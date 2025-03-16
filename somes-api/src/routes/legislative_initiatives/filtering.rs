@@ -7,9 +7,15 @@ pub async fn filtered_legislative_initiatives(
     page: i64,
     page_elements: i64,
     filter: &LegisInitFilter,
+    is_finished: bool
 ) -> Result<(Vec<DbLegislativeInitiativeQuery>, i64), sqlx::Error> {
+    let default_where_clause = if is_finished {
+        "accepted is not null"
+    } else {
+        "accepted is null and not has_reference"
+    };
     let mut query =
-        String::from("SELECT DISTINCT * FROM legislative_initiatives WHERE accepted is not null");
+        format!("SELECT DISTINCT * FROM legislative_initiatives WHERE {default_where_clause}");
 
     let mut param_index = 1;
     if filter.accepted.is_some() {

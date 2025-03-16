@@ -59,12 +59,14 @@ pub async fn get_latest_legis_inits_per_page(
     page: i64,
     page_elements: i64,
     filter: Option<&LegisInitFilter>,
+    is_finished: bool
 ) -> sqlx::Result<(Vec<DbLegislativeInitiativeQuery>, i64)> {
     let res = match filter {
         Some(filter) => {
-            filtered_legislative_initiatives(pg, page, page_elements, filter).await?
+            filtered_legislative_initiatives(pg, page, page_elements, filter, is_finished).await?
         }
         None => {
+            assert!(is_finished, "Add filter object when using not finished extraction");
             (sqlx::query_as!(DbLegislativeInitiativeQuery,
                 "select distinct * from legislative_initiatives where accepted is not null order by created_at desc offset $1 limit $2",
                 page * page_elements,
@@ -213,9 +215,10 @@ pub async fn get_latest_vote_results_sqlx_per_page(
     page: i64,
     page_elements: i64,
     filter: Option<&LegisInitFilter>,
+    is_finished: bool,
 ) -> sqlx::Result<(Vec<VoteResult>, i64)> {
     let (entries, entry_count) =
-        get_latest_legis_inits_per_page(pg, page, page_elements, filter).await?;
+        get_latest_legis_inits_per_page(pg, page, page_elements, filter, is_finished).await?;
 
     let entries = entries
         .into_iter()

@@ -163,7 +163,12 @@
 					{dashDateToDotDate(voteResult.legislative_initiative.created_at.toString())}
 				</div>
 				{#if showText}
-					<div>Abgestimmt am</div>
+					{#if voteResult.votes.length > 0}
+						<div>Abgestimmt am</div>
+					{:else}
+						<div>Letzte</div>
+						<div>Plenaraktivität</div>
+					{/if}
 				{/if}
 			</Square>
 		{/if}
