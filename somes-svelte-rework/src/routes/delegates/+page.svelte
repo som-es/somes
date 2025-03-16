@@ -351,27 +351,30 @@
 			<ExpandablePlaceholder class={'my-3'} />
 		{/if}
 
-		<div class="flex gap-2">
-		{#if delegate && generalDelegateInfo?.political_position}
-			<SquarePoliticalSpectrum {delegate}	politicalPosition={generalDelegateInfo.political_position} />
-		{:else if !generalDelegateInfo}
-			<ExpandablePlaceholder class={'my-3'} />
-		{/if}
+		<div class="flex gap-2 w-full">
+			{#if delegate && generalDelegateInfo?.political_position}
+				<SquarePoliticalSpectrum {delegate}	politicalPosition={generalDelegateInfo.political_position} />
+			{:else if !generalDelegateInfo}
+				<ExpandablePlaceholder class={'my-3'} />
+			{/if}
 
-		{#if delegate && generalDelegateInfo?.stances}
+			{#if delegate && generalDelegateInfo?.stances}
 
-			<div class="bg-primary-300 dark:bg-primary-500 p-4 rounded-xl">
-				<div class="flex flex-wrap gap-5">
-
-				{#each generalDelegateInfo.stances as stance}
-					<StanceDiagram zeroLabel={stance.topic} value={stance.score * 2}  knobColor={topicColors.get(stance.topic) } />
-				{/each}
+				<div class="bg-primary-300 dark:bg-primary-500 {generalDelegateInfo.stances.length > 0 ? "p-4" : ""} rounded-xl">
+					<div class="flex flex-wrap gap-5">
+					{#each generalDelegateInfo.stances as stance}
+						<StanceDiagram zeroLabel={stance.topic} value={stance.score * 2}  knobColor={topicColors.get(stance.topic) } />
+					{/each}
+					</div>
 				</div>
-			</div>
-		{:else if !generalDelegateInfo}
-			<ExpandablePlaceholder class={'my-3'} />
-		{/if}
+			{:else if !generalDelegateInfo}
+				<ExpandablePlaceholder class={'my-3'} />
+			{/if}
 		</div>
+
+		<!-- <div class="flex gap-2 w-full">
+		<ExpandablePlaceholder class={'my-3 w-full min-w-full'} />
+		</div> -->
 
 		<!-- {#if generalDelegateInfo} 
 			<ReactiveRadarChart title="hi" chartData={[

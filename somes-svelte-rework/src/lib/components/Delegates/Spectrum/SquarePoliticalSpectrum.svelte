@@ -29,7 +29,7 @@
         >
         <button class="text-5xl" use:popup={popupFeatured}>⚠</button>
     </div>
-    <div class="bg-primary-100 dark:bg-primary-700">
+    <div class="bg-primary-100 dark:bg-primary-400">
         <PoliticalSpectrum {delegate} {politicalPosition} />
     </div>
 </div>
