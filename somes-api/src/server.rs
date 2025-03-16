@@ -320,6 +320,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(GENERAL_DELEGATE_INFO, get(general_delegate_info))
         .route(DELEGATE_QA, get(delegate_qa))
         .route(VOTE_RESULTS_PER_PAGE, post(vote_results_per_page)) // post only because js fetch...
+        .route(UNFINISHED_VOTE_RESULTS_PER_PAGE, post(unfinished_vote_results_per_page)) // post only because js fetch...
         .route(
             SPEECHES_BY_DELEGATE_PER_PAGE,
             get(speeches_by_delegate_per_page),
