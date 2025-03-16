@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Delegate, VoteResultFilter, VoteResult, VoteResultsWithMaxPage } from '$lib/types';
+	import type { Delegate, VoteResultFilter, VoteResult, VoteResultsWithMaxPage, HasError } from '$lib/types';
 	import { onMount } from 'svelte';
 	import { errorToNull, vote_results_by_search, vote_results_per_page } from '$lib/api/api';
 	import VoteResultExpandableBar from './VoteResultExpandableBar.svelte';
@@ -22,6 +22,7 @@
 	import SButton from '$lib/components/UI/SButton.svelte';
 
 	export let dels: Delegate[];
+	export let voteResultsPostFn: (page: number, voteResultFilter: VoteResultFilter) => Promise<VoteResultsWithMaxPage | HasError> = vote_results_per_page;
 
 	let voteResults: VoteResultsWithMaxPage | null = null;
 
@@ -83,7 +84,7 @@
 			);
 			if (voteResultsSearch) voteResults = voteResultsSearch;
 		} else {
-			voteResults = errorToNull(await vote_results_per_page(page - 1, filter));
+			voteResults = errorToNull(await voteResultsPostFn(page - 1, filter));
 		}
 		currentlyUpdating = false;
 	};
