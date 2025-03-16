@@ -198,6 +198,13 @@ export async function walo_questions(): Promise<WaloQuestion[] | HasError> {
 	return getWithRoute<WaloQuestion[]>('walo_questions');
 }
 
+export async function unfinished_vote_results_per_page(
+	page: number,
+	filter: VoteResultFilter | null
+): Promise<VoteResultsWithMaxPage | HasError> {
+	return justPost(`vote_results_per_page?page=${page}`, filter)
+}
+
 export async function vote_results_per_page(
 	page: number,
 	filter: VoteResultFilter | null
