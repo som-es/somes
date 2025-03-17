@@ -120,7 +120,7 @@ pub async fn vote_results_per_page(
         page.page,
         LEGIS_INITS_PER_PAGE.parse().unwrap_or(16),
         legis_init_filter.as_ref(),
-        true
+        true,
     )
     .await
     .map(|(vote_results, entry_count)| VoteResultsWithMaxPage {
@@ -151,7 +151,7 @@ pub async fn unfinished_vote_results_per_page(
         page.page,
         LEGIS_INITS_PER_PAGE.parse().unwrap_or(16),
         legis_init_filter.as_ref(),
-        false
+        false,
     )
     .await
     .map(|(vote_results, entry_count)| VoteResultsWithMaxPage {

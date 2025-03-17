@@ -7,7 +7,7 @@ pub async fn filtered_legislative_initiatives(
     page: i64,
     page_elements: i64,
     filter: &LegisInitFilter,
-    is_finished: bool
+    is_finished: bool,
 ) -> Result<(Vec<DbLegislativeInitiativeQuery>, i64), sqlx::Error> {
     let default_where_clause = if is_finished {
         "accepted is not null"
@@ -70,7 +70,7 @@ pub async fn filtered_legislative_initiatives(
         filtered_query = filtered_query.bind(is_named_vote);
         count_query = count_query.bind(is_named_vote);
     }
-    
+
     if let Some(is_law) = &filter.is_law {
         filtered_query = filtered_query.bind(is_law);
         count_query = count_query.bind(is_law);

@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use somes_common_lib::StanceTopicScore;
 use sqlx::{query, query_as, PgPool};
 
-
 pub async fn extract_stance_topic_score_by_delegate(
     pg: &PgPool,
     delegate_id: i32,
@@ -29,27 +28,38 @@ pub async fn extract_stance_topic_score_by_delegate(
 
     for stance_score in stance_scores {
         for topic in &stance_score.topics.unwrap_or_default() {
-            topics_scores.entry(topic.to_string()).and_modify(|x| {
-                if stance_score.is_left.unwrap_or_default() || stance_score.is_liberal.unwrap_or_default() {
-                    x.0 += stance_score.pro_strong_ref_score;
-                    x.1 += stance_score.contra_strong_ref_score;
-                } else {
-                    x.1 += stance_score.pro_strong_ref_score;
-                    x.0 += stance_score.contra_strong_ref_score;
-                }
-                x.2 += 1;
-            }).or_insert((stance_score.pro_strong_ref_score, stance_score.contra_strong_ref_score, 1));
+            topics_scores
+                .entry(topic.to_string())
+                .and_modify(|x| {
+                    if stance_score.is_left.unwrap_or_default()
+                        || stance_score.is_liberal.unwrap_or_default()
+                    {
+                        x.0 += stance_score.pro_strong_ref_score;
+                        x.1 += stance_score.contra_strong_ref_score;
+                    } else {
+                        x.1 += stance_score.pro_strong_ref_score;
+                        x.0 += stance_score.contra_strong_ref_score;
+                    }
+                    x.2 += 1;
+                })
+                .or_insert((
+                    stance_score.pro_strong_ref_score,
+                    stance_score.contra_strong_ref_score,
+                    1,
+                ));
         }
     }
 
-    Ok(topics_scores.into_iter()
+    Ok(topics_scores
+        .into_iter()
         .map(|(topic, score)| {
             let (pos_score, contra_score, count) = score;
             StanceTopicScore {
                 topic,
                 score: 2. * (pos_score - contra_score) / count as f64,
             }
-        }).collect())
+        })
+        .collect())
 }
 
 #[cfg(test)]
@@ -61,10 +71,11 @@ mod tests {
     #[tokio::test]
     async fn test_extract_stance_topic_score_by_delegate() {
         let pg = connect_pg().await;
-        let res = extract_stance_topic_score_by_delegate(&pg, 35520).await.unwrap();
+        let res = extract_stance_topic_score_by_delegate(&pg, 35520)
+            .await
+            .unwrap();
         for r in res {
             println!("res: {r:?}");
         }
-
     }
 }

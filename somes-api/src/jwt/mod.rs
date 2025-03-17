@@ -12,23 +12,33 @@ use jsonwebtoken::{encode, EncodingKey, Header};
 use serde::Serialize;
 use somes_common_lib::{time::timestamp_secs, JWTInfo};
 
-
-
 pub fn create_access_token(
     id: i32,
     username: String,
     is_admin: bool,
 ) -> Result<Json<JWTInfo>, AuthError> {
-    create_access_token_with_keys_and_exp_time(id, username, is_admin, (timestamp_secs() + 60 * 60 * 24 * 3) as usize, &KEYS.encoding)
+    create_access_token_with_keys_and_exp_time(
+        id,
+        username,
+        is_admin,
+        (timestamp_secs() + 60 * 60 * 24 * 3) as usize,
+        &KEYS.encoding,
+    )
 }
 
 pub fn create_access_token_u128(
     id: u128,
     username: String,
     is_admin: bool,
-    key: &EncodingKey
+    key: &EncodingKey,
 ) -> Result<Json<JWTInfo>, AuthError> {
-    create_access_token_with_keys_and_exp_time(id, username, is_admin, (timestamp_secs() + 60*60 * 3) as usize, key)
+    create_access_token_with_keys_and_exp_time(
+        id,
+        username,
+        is_admin,
+        (timestamp_secs() + 60 * 60 * 3) as usize,
+        key,
+    )
 }
 
 pub fn create_access_token_with_keys_and_exp_time<T: Serialize>(
@@ -36,7 +46,7 @@ pub fn create_access_token_with_keys_and_exp_time<T: Serialize>(
     username: String,
     is_admin: bool,
     exp_secs: usize,
-    key: &EncodingKey
+    key: &EncodingKey,
 ) -> Result<Json<JWTInfo>, AuthError> {
     // let claims = ClaimsGen::<T>::new(id, username, is_admin);
     let claims = ClaimsGen {
@@ -49,8 +59,8 @@ pub fn create_access_token_with_keys_and_exp_time<T: Serialize>(
     };
 
     // Create the authorization token
-    let access_token = encode(&Header::default(), &claims, key)
-        .map_err(|_| AuthError::TokenCreation)?;
+    let access_token =
+        encode(&Header::default(), &claims, key).map_err(|_| AuthError::TokenCreation)?;
 
     Ok(Json(JWTInfo { access_token }))
 }

@@ -6,7 +6,10 @@ use sqlx::{query_as, PgPool};
 use crate::{get_json_cache, PgPoolConnection, RedisConnection};
 
 use super::{
-    extract_absences_by_delegate, extract_delegate_qa, extract_detailed_interests_of_delegate, extract_interests_of_delegate, extract_political_position, named_votes::extract_named_votes_by_delegate, stance_topic_score::extract_stance_topic_score_by_delegate, DelegatesErrorResponse
+    extract_absences_by_delegate, extract_delegate_qa, extract_detailed_interests_of_delegate,
+    extract_interests_of_delegate, extract_political_position,
+    named_votes::extract_named_votes_by_delegate,
+    stance_topic_score::extract_stance_topic_score_by_delegate, DelegatesErrorResponse,
 };
 
 pub async fn extract_general_delegate_info(
@@ -47,7 +50,7 @@ pub async fn extract_general_delegate_info(
         political_position,
         absences,
         named_votes,
-        stances
+        stances,
     };
 
     crate::set_json_cache(redis_con, &key, &gdi)

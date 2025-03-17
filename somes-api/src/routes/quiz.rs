@@ -69,13 +69,15 @@ static QUESTION: LazyLock<Arc<RwLock<State>>> =
 
 pub fn create_keys() -> Keys {
     let mut rng = rand::rngs::OsRng::default();
-    Keys::new(&(0..32).into_iter().map(|_| rng.gen::<u8>()).collect::<Vec<u8>>())
+    Keys::new(
+        &(0..32)
+            .into_iter()
+            .map(|_| rng.gen::<u8>())
+            .collect::<Vec<u8>>(),
+    )
 }
 
-static KEYS2: LazyLock<Arc<RwLock<Keys>>> =
-    LazyLock::new(|| {
-        Arc::new(RwLock::new(create_keys()))
-    });
+static KEYS2: LazyLock<Arc<RwLock<Keys>>> = LazyLock::new(|| Arc::new(RwLock::new(create_keys())));
 
 static ANSWERS_TO_QUESTION: LazyLock<Arc<RwLock<[usize; 5]>>> =
     LazyLock::new(|| Arc::new(RwLock::new([0, 0, 0, 0, 0])));
@@ -282,12 +284,18 @@ async fn process_message(
                         return ControlFlow::Continue(());
                     }
                     let name: String = Name().fake();
-                    
 
                     let mut rng = rand::rngs::OsRng::default();
                     let id = rng.gen();
-                    
-                    let jwt = create_access_token_u128(id, name.clone(), false, &KEYS2.read().await.encoding).map(|x| x.access_token.clone()).unwrap();
+
+                    let jwt = create_access_token_u128(
+                        id,
+                        name.clone(),
+                        false,
+                        &KEYS2.read().await.encoding,
+                    )
+                    .map(|x| x.access_token.clone())
+                    .unwrap();
 
                     let new_user = ConnectedUser {
                         name,
@@ -308,12 +316,15 @@ async fn process_message(
                         .insert((new_user.name.clone(), new_user.id), 0.);
                     *user.write().await = Some(new_user)
                 }
-                
+
                 b'h' => {
                     let (_, token) = chat_msg.split_at(1);
-                    let token_data =
-                        decode::<crate::jwt::ClaimsGen<u128>>(token, &KEYS.decoding, &Validation::default())
-                            .map_err(|_| AuthError::InvalidToken);
+                    let token_data = decode::<crate::jwt::ClaimsGen<u128>>(
+                        token,
+                        &KEYS.decoding,
+                        &Validation::default(),
+                    )
+                    .map_err(|_| AuthError::InvalidToken);
 
                     if let Ok(token_data) = token_data {
                         let new_user = ConnectedUser {
@@ -325,23 +336,20 @@ async fn process_message(
                         };
                         *user.write().await = Some(new_user);
 
-                        sender
-                            .send(Message::Text(format!("ok")))
-                            .await
-                            .unwrap();
+                        sender.send(Message::Text(format!("ok"))).await.unwrap();
                     } else {
-                        sender
-                            .send(Message::Text(format!("b")))
-                            .await
-                            .unwrap();
+                        sender.send(Message::Text(format!("b"))).await.unwrap();
                     }
-                },
+                }
 
                 b'l' => {
                     let (_, token) = chat_msg.split_at(1);
-                    let token_data =
-                        decode::<crate::jwt::ClaimsGen<u128>>(token, &KEYS2.read().await.decoding, &Validation::default())
-                            .map_err(|_| AuthError::InvalidToken);
+                    let token_data = decode::<crate::jwt::ClaimsGen<u128>>(
+                        token,
+                        &KEYS2.read().await.decoding,
+                        &Validation::default(),
+                    )
+                    .map_err(|_| AuthError::InvalidToken);
 
                     if let Ok(token_data) = token_data {
                         let new_user = ConnectedUser {
@@ -353,15 +361,9 @@ async fn process_message(
                         };
                         *user.write().await = Some(new_user);
 
-                        sender
-                            .send(Message::Text(format!("ok")))
-                            .await
-                            .unwrap();
+                        sender.send(Message::Text(format!("ok"))).await.unwrap();
                     } else {
-                        sender
-                            .send(Message::Text(format!("b")))
-                            .await
-                            .unwrap();
+                        sender.send(Message::Text(format!("b"))).await.unwrap();
                     }
                 }
 
@@ -377,7 +379,11 @@ async fn process_message(
                             user.answer_locked_in = true;
 
                             ANSWERS_TO_QUESTION.write().await[0] += 1;
-                            ANSWERS_TO_QUESTION.write().await.get_mut(nth_answer as usize).map(|x| *x += 1);
+                            ANSWERS_TO_QUESTION
+                                .write()
+                                .await
+                                .get_mut(nth_answer as usize)
+                                .map(|x| *x += 1);
 
                             USER_MAP
                                 .write()

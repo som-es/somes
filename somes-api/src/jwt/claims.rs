@@ -36,7 +36,7 @@ impl<T> ClaimsGen<T> {
 impl<S, T> FromRequestParts<S> for ClaimsGen<T>
 where
     S: Send + Sync,
-    T: DeserializeOwned
+    T: DeserializeOwned,
 {
     type Rejection = AuthError;
 
@@ -47,8 +47,9 @@ where
             .await
             .map_err(|_| AuthError::MissingToken)?;
         // Decode the user data
-        let token_data = decode::<ClaimsGen<T>>(bearer.token(), &KEYS.decoding, &Validation::default())
-            .map_err(|_| AuthError::InvalidToken)?;
+        let token_data =
+            decode::<ClaimsGen<T>>(bearer.token(), &KEYS.decoding, &Validation::default())
+                .map_err(|_| AuthError::InvalidToken)?;
 
         Ok(token_data.claims)
     }
