@@ -390,7 +390,7 @@
             <div class="flex justify-between">
                 <h2 class="text-2xl font-bold">
                     {infoCounts?.answer_count} 
-                    {#if infoCounts?.answer_count == 1}
+                    {#if infoCounts?.answer_count[0] == 1}
                         Antwort
                     {:else}
                         Antworten

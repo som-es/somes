@@ -77,8 +77,8 @@ static KEYS2: LazyLock<Arc<RwLock<Keys>>> =
         Arc::new(RwLock::new(create_keys()))
     });
 
-static ANSWERS_TO_QUESTION: LazyLock<Arc<RwLock<usize>>> =
-    LazyLock::new(|| Arc::new(RwLock::new(0)));
+static ANSWERS_TO_QUESTION: LazyLock<Arc<RwLock<[usize; 5]>>> =
+    LazyLock::new(|| Arc::new(RwLock::new([0, 0, 0, 0, 0])));
 
 // static QUESTION_TX_RX: LazyLock<(Sender<QuizQuestion>, Receiver<QuizQuestion>)> = LazyLock::new(|| tokio::sync::broadcast::channel(2048));
 
@@ -264,7 +264,7 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
 #[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct InfoCounts {
     user_count: usize,
-    answer_count: usize,
+    answer_count: [usize; 5],
 }
 
 async fn process_message(
@@ -376,7 +376,9 @@ async fn process_message(
                             }
                             user.answer_locked_in = true;
 
-                            *ANSWERS_TO_QUESTION.write().await += 1;
+                            ANSWERS_TO_QUESTION.write().await[0] += 1;
+                            ANSWERS_TO_QUESTION.write().await.get_mut(nth_answer as usize).map(|x| *x += 1);
+
                             USER_MAP
                                 .write()
                                 .await
@@ -476,7 +478,7 @@ async fn process_message(
                             None => State::End,
                         };
                         *QUESTION.write().await = next_state;
-                        *ANSWERS_TO_QUESTION.write().await = 0;
+                        *ANSWERS_TO_QUESTION.write().await = [0; 5];
                         log::info!("question: {:?}", QUESTION.read().await)
                     }
                 }
