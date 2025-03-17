@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { jwtQuizStore, jwtStore } from '$lib/caching/stores/stores';
+	import ReactiveGenericBarChart from '$lib/components/GeneralCharts/ReactiveGenericBarChart.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import {
@@ -43,19 +44,21 @@
 
 	onMount(async () => {
 		jwtToken = get(jwtStore);
+		
+		if (jwtToken) {
 
-		if (jwtQuizToken) {
+			const user = getUserFromJwt(jwtToken);
+			isAdmin = user.is_admin;
+		}
+
+		if (jwtQuizToken && !isAdmin) {
 			state = "tryToken";
 		}
 		
-		if (!jwtToken) {
-			return;
-		}
-		const user = getUserFromJwt(jwtToken);
-		isAdmin = user.is_admin;
 	});
 
 	const recvMessage = (event: MessageEvent) => {
+		console.log(event.data);
 		if (state == "tryToken" && jwtQuizToken) {
 			const data = event.data as string;
 			if (data == "ok") {
@@ -72,6 +75,8 @@
 				userName = null;
 				userId = null;
 				state = "starting";
+				enteredRoom == false;
+				console.log("HIHIHI");
 			}
 			return;
 		}
@@ -138,7 +143,7 @@
 	});
 	roomSocket.addEventListener('message', recvMessage);
 	roomSocket.addEventListener("open", () => {
-		if (jwtQuizToken) {
+		if (jwtQuizToken && !isAdmin) {
 			state = "tryToken"
 			const tokenPayload = `l${jwtQuizToken}`;
 			console.log(tokenPayload)
@@ -261,7 +266,8 @@
             </div>
 		{:else}
 			<div class="flex h-[95%] flex-col items-center justify-center gap-4">
-				<span class="text-3xl">"<span class="font-bold">{#if currentScore?.correct_answer == 1}
+				<span class="text-3xl">"<span class="font-bold">
+				{#if currentScore?.correct_answer == 1}
 					{prevQuestion?.answer1}
 				{/if}
 
@@ -277,6 +283,15 @@
 					{prevQuestion?.answer4}
 				{/if}</span>" 
 				wäre die richtige Antwort.</span>
+
+				
+				<ReactiveGenericBarChart chartData={[
+					{label: prevQuestion?.answer1 ?? "", color: "#95a7bd", data: infoCounts?.answer_count[1] ?? 0}, 
+					{label: prevQuestion?.answer2 ?? "", color: "#e4a69a", data: infoCounts?.answer_count[2] ?? 0}, 
+					{label: prevQuestion?.answer3 ?? "", color: "#F8DFCA", data: infoCounts?.answer_count[3] ?? 0},
+					{label: prevQuestion?.answer4 ?? "", color: "#24283E", data: infoCounts?.answer_count[4] ?? 0},
+				]} title="" horizontalBars={true} />
+
                 <span class="text-4xl font-bold">
 					Scoreboard
 				</span>
@@ -389,7 +404,7 @@
 		{#if isAdmin && state == "question"}
             <div class="flex justify-between">
                 <h2 class="text-2xl font-bold">
-                    {infoCounts?.answer_count} 
+                    {infoCounts?.answer_count[0]} 
                     {#if infoCounts?.answer_count[0] == 1}
                         Antwort
                     {:else}

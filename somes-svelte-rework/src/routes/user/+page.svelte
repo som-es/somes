@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { base } from '$app/paths';
 	import {
-	delegate,
+	delegate_by_id,
 		errorToNull,
 		get_topics,
 		isHasError,
@@ -235,7 +235,7 @@
 						Keine favorisierten Abgeordnete vorhanden.
 					{:else}
 						{#each favoDelegates as favoDelegateId}	
-							{#await delegate(favoDelegateId)}
+							{#await delegate_by_id(favoDelegateId)}
 								<ExpandablePlaceholder class="!w-80" />
 							{:then maybeDelegate}
 								{#if !isHasError(maybeDelegate) }

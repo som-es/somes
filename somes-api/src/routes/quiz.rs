@@ -22,6 +22,7 @@ use jsonwebtoken::{decode, Validation};
 use rand::Rng;
 use redis::{aio::MultiplexedConnection, AsyncCommands};
 use serde::{Deserialize, Serialize};
+use somes_common_lib::USER;
 use sqlx::PgPool;
 use tokio::{sync::RwLock, time::Instant};
 
@@ -161,6 +162,11 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
         let mut last_state = State::Ready;
         let mut last_correct_answer = 0;
         loop {
+            if question_user.read().await.is_none() {
+                tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
+                continue
+            }
+
             let question = QUESTION.read().await;
             if &*question == &State::End {
                 // send close message ?
@@ -286,10 +292,10 @@ async fn process_message(
                     let name: String = Name().fake();
 
                     let mut rng = rand::rngs::OsRng::default();
-                    let id = rng.gen();
+                    let id: u32 = rng.gen();
 
                     let jwt = create_access_token_u128(
-                        id,
+                        id as u128,
                         name.clone(),
                         false,
                         &KEYS2.read().await.encoding,
@@ -299,7 +305,7 @@ async fn process_message(
 
                     let new_user = ConnectedUser {
                         name,
-                        id,
+                        id: id as u128,
                         token: "token".to_string(),
                         is_admin: false,
                         answer_locked_in: false,
@@ -327,6 +333,9 @@ async fn process_message(
                     .map_err(|_| AuthError::InvalidToken);
 
                     if let Ok(token_data) = token_data {
+                        if !token_data.claims.is_admin {
+                            return ControlFlow::Break(());
+                        }
                         let new_user = ConnectedUser {
                             name: token_data.claims.sub.clone(),
                             id: token_data.claims.id,
@@ -336,9 +345,9 @@ async fn process_message(
                         };
                         *user.write().await = Some(new_user);
 
-                        sender.send(Message::Text(format!("ok"))).await.unwrap();
+                        // sender.send(Message::Text(format!("ok"))).await.unwrap();
                     } else {
-                        sender.send(Message::Text(format!("b"))).await.unwrap();
+                        // sender.send(Message::Text(format!("b"))).await.unwrap();
                     }
                 }
 
@@ -379,6 +388,7 @@ async fn process_message(
                             user.answer_locked_in = true;
 
                             ANSWERS_TO_QUESTION.write().await[0] += 1;
+                            log::info!("nth answer: {}", nth_answer);
                             ANSWERS_TO_QUESTION
                                 .write()
                                 .await
@@ -448,6 +458,21 @@ async fn process_message(
                         *QUESTION.write().await = State::Removed;
                     }
                 }
+
+                // reset
+                b'p' => {
+                    if user
+                        .read()
+                        .await
+                        .as_ref()
+                        .map(|x| x.is_admin)
+                        .unwrap_or_default()
+                    {
+                        *QUESTION.write().await = State::Ready;
+                    }
+                }
+
+
 
                 b'u' => {
                     if user
