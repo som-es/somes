@@ -4,7 +4,7 @@ use tokio::task;
 use tokio::time::sleep;
 use tokio_tungstenite::connect_async;
 
-const WS_URL: &str = "ws://somes.at:3000/quiz_room"; 
+const WS_URL: &str = "ws://localhost:3000/quiz_room"; 
 const NUM_CONNECTIONS: usize = 800;
 
 async fn connect_and_send(index: usize) {

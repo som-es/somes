@@ -3,7 +3,7 @@ import websockets
 import random
 import requests
 
-WS_URL = "ws://somes.at:3000/quiz_room"  
+WS_URL = "ws://localhost:3000/quiz_room"  
 NUM_CONNECTIONS = 1200
 
 async def connect_and_send(index):

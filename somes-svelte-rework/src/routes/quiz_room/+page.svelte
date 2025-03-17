@@ -38,7 +38,7 @@
 	let jwtQuizToken: string | null = get(jwtQuizStore);
 	let selectedAnswer: number | null = null;
 
-	const CURRENT_QUESTION_TIME = 18;
+	const CURRENT_QUESTION_TIME = 40;
 
 	let currentQuestionTimeLeftSeconds = CURRENT_QUESTION_TIME;
 
@@ -396,6 +396,9 @@
 	{:else}
 		<div class="flex h-[95%] flex-col items-center justify-center gap-2">
 			<span class="text-5xl font-bold">Warten auf Fragen..</span>
+			{#if userName}
+				Du spielst als <span class="text-xl font-bold">{userName}</span>
+			{/if}
 		</div>
 	{/if}
 
