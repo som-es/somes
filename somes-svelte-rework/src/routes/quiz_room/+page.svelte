@@ -184,6 +184,8 @@
 		selectedAnswer = msg;
 		sendMessage(`a${msg}`);
 	};
+
+	let inputQuizId = "4";
 </script>
 
 {#if state == 'starting'}
@@ -195,11 +197,13 @@
 			<SButton
 				class="bg-primary-300"
 				on:click={() => {
-					sendMessage(`h${jwtToken}`);
+					sendMessage(`h${jwtToken};${inputQuizId}`);
 					waitingForQuestions = true;
 					state = 'firstQuestion';
 				}}>Admin</SButton
 			>
+
+			<input bind:value={inputQuizId} />
 		{/if}
 	</div>
 {/if}
