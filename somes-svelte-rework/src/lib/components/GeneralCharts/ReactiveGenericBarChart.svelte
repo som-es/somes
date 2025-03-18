@@ -6,6 +6,8 @@
 
 	export let chartData: ChartData[];
 	export let title: string;
+	export let legend: boolean = false;
+
 	export let height: number = 490;
 	export let horizontalBars: boolean = false;
 
@@ -106,7 +108,7 @@
 			},
 
 			legend: {
-				show: false
+				show: legend
 			}
 		};
 

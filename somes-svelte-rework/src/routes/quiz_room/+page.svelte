@@ -326,8 +326,11 @@
 					>" wäre die richtige Antwort.</span
 				>
 
-				<div class="flex flex-wrap">
+				<div class="flex flex-wrap gap-5 min-w-full">
+					<div style=" flex-basis: 48%">
+
 					<ReactiveGenericBarChart
+						legend
 						chartData={[
 							{
 								label: prevQuestion?.answer1 ?? '',
@@ -353,8 +356,9 @@
 						title=""
 						horizontalBars={true}
 					/>
+					</div>
 
-					<div>
+					<div style=" flex-basis: 48%">
 						<span class="text-4xl font-bold"> Scoreboard </span>
 						<table class="table table-hover w-[70%]">
 							<thead>
@@ -372,7 +376,6 @@
 								{/each}
 							</tbody>
 						</table>
-						1
 					</div>
 				</div>
 			</div>

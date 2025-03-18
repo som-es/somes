@@ -4,10 +4,10 @@ import random
 import requests
 
 WS_URL = "ws://localhost:3000/quiz_room"  
-NUM_CONNECTIONS = 1200
+NUM_CONNECTIONS = 16000
 
 async def connect_and_send(index):
-    await asyncio.sleep((random.random() + 0.02) * 20) 
+    # await asyncio.sleep((random.random() + 0.02) * 20) 
     print(f"wake up {index}")
     # x = requests.get("http://somes.at:3000/delegates")
     # x.json()
@@ -22,9 +22,9 @@ async def connect_and_send(index):
 
 
 
-        await asyncio.sleep(37)  
+        await asyncio.sleep(20)  
         for _ in range(10000):
-            await asyncio.sleep((random.random() + 0.02) * 10) 
+            # await asyncio.sleep((random.random() + 0.02) * 10) 
             num = random.randrange(1, 5)
             await websocket.send(f"a{num}")
 
