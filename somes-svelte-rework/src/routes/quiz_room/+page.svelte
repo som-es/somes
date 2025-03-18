@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { errorToNull } from '$lib/api/api';
+	import { getQuizzes } from '$lib/api/authed';
 	import { jwtQuizStore, jwtStore } from '$lib/caching/stores/stores';
 	import ReactiveGenericBarChart from '$lib/components/GeneralCharts/ReactiveGenericBarChart.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
@@ -7,11 +9,12 @@
 		getUserFromJwt,
 		type BasicUserInfo,
 		type InfoCounts,
+		type Quiz,
 		type QuizQuestion,
 		type ScoreInfo,
 		type Scorer
 	} from '$lib/types';
-	import { setModeCurrent } from '@skeletonlabs/skeleton';
+	import { ListBox, ListBoxItem, popup, setModeCurrent, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onDestroy, onMount } from 'svelte';
 	import { get } from 'svelte/store';
 
@@ -22,6 +25,7 @@
 	let waitingForQuestions = false;
 	let prevQuestion: QuizQuestion | null = null;
 	let question: QuizQuestion | null = null;
+	let allQuizzes: Quiz[] = [];
 
     setModeCurrent(true);
 
@@ -49,6 +53,9 @@
 
 			const user = getUserFromJwt(jwtToken);
 			isAdmin = user.is_admin;
+			if (isAdmin) {
+				allQuizzes = errorToNull(await getQuizzes()) ?? [];
+			}
 		}
 
 		if (jwtQuizToken && !isAdmin) {
@@ -185,8 +192,29 @@
 		sendMessage(`a${msg}`);
 	};
 
-	let inputQuizId = "4";
+	const popupQuizSelection: PopupSettings = {
+		event: 'click',
+		target: 'popupQuizSelection',
+		placement: 'bottom',
+		closeQuery: '.listbox-item'
+	};
+
+	let inputQuizId: number = 4;
+
 </script>
+
+<div class="card w-48 shadow-xl py-2" data-popup="popupQuizSelection">
+	<ListBox
+		rounded="rounded-container-token sm:!rounded-token"
+		active="variant-filled-secondary"
+		hover="hover:variant-soft-secondary"
+	>
+		{#each allQuizzes as quiz}
+			<ListBoxItem bind:group={inputQuizId} name="inputQuizId" value={quiz.id}
+				>{quiz.title}</ListBoxItem>
+		{/each}
+	</ListBox>
+</div>
 
 {#if state == 'starting'}
 	<div class="flex h-full items-center justify-center gap-4">
@@ -203,7 +231,18 @@
 				}}>Admin</SButton
 			>
 
-			<input bind:value={inputQuizId} />
+			<div class="flex flex-wrap gap-6">
+				<div>
+					<h1 class="text-2xl font-bold">Quiz</h1>
+					<button
+						class="btn variant-filled-secondary w-48 justify-between"
+						use:popup={popupQuizSelection}
+					>
+						<span class="capitalize">Quiz</span>
+						<span>↓</span>
+					</button>
+				</div>
+			</div>
 		{/if}
 	</div>
 {/if}

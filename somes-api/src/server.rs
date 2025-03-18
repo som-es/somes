@@ -424,6 +424,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(ABSENCES_PER_GENDER, post(absences_per_gender))
         .route(ABSENCES_PER_AGE, post(absences_per_age))
         .route(ADD_QUIZ, post(add_quiz))
+        .route(QUIZZES, get(get_all_quizzes))
         .route(QUIZ_ROOM, any(join_quiz_room))
         .route("/save_email", post(save_email))
         .nest_service("/assets", ServeDir::new("assets"))

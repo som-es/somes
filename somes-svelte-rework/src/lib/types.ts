@@ -249,6 +249,13 @@ export interface ExtendedUserInfo {
     is_admin: boolean;
 }
 
+export interface Quiz {
+	id: number;
+	description: string | null;
+	title: string;
+	questions: QuizQuestion[];
+}
+
 export interface QuizQuestion {
 	question: string;
 	answer1: string;

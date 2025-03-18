@@ -1,4 +1,6 @@
 mod add_quiz;
+mod quizes;
+
 use std::{
     cell::Cell,
     collections::HashMap,
@@ -8,6 +10,7 @@ use std::{
 };
 
 pub use add_quiz::*;
+pub use quizes::*;
 use axum::{
     extract::{
         ws::{Message, WebSocket},
