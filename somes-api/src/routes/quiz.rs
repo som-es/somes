@@ -31,6 +31,8 @@ use crate::{
     AuthError, PgPoolConnection, RedisConnection,
 };
 
+const DEFAULT_QUIZ_ID: i32 = 4;
+
 pub async fn join_quiz_room(
     ws: WebSocketUpgrade,
     user_agent: Option<TypedHeader<headers::UserAgent>>,
@@ -92,6 +94,7 @@ pub struct ConnectedUser {
     token: String,
     is_admin: bool,
     answer_locked_in: bool,
+    quiz_id: Option<i32>,
 }
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
@@ -138,15 +141,15 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
                 return;
             }
             // log::info!("{:?}", recv_user.read().await.as_ref());
+            let recv_user = recv_user.read().await;
+            let Some(recv_user) = recv_user.as_ref() else {
+                continue
+            };
+
             if questions.is_none()
-                && recv_user
-                    .read()
-                    .await
-                    .as_ref()
-                    .map(|x: &ConnectedUser| x.is_admin)
-                    .unwrap_or_default()
+                && recv_user.is_admin
             {
-                db_questions = sqlx::query_as!(QuizQuestion, "select question, answer1, answer2, answer3, answer4, correct_answer from quiz_questions where quiz_id = 4").fetch_all(&pg).await.unwrap_or_default();
+                db_questions = sqlx::query_as!(QuizQuestion, "select question, answer1, answer2, answer3, answer4, correct_answer from quiz_questions where quiz_id = $1", recv_user.quiz_id.unwrap_or(DEFAULT_QUIZ_ID)).fetch_all(&pg).await.unwrap_or_default();
                 log::info!("{db_questions:?}");
                 questions = Some(db_questions.iter());
                 *KEYS2.write().await = create_keys();
@@ -309,6 +312,7 @@ async fn process_message(
                         token: "token".to_string(),
                         is_admin: false,
                         answer_locked_in: false,
+                        quiz_id: None,
                     };
                     log::info!("new user: {:?}", new_user);
                     sender
@@ -324,7 +328,11 @@ async fn process_message(
                 }
 
                 b'h' => {
-                    let (_, token) = chat_msg.split_at(1);
+                    let (_, rest) = chat_msg.split_at(1);
+                    let mut split = rest.split(';');
+                    let token = split.next().unwrap_or_default();
+                    let quiz_id = split.next().map(|x| x.parse::<i32>().ok()).flatten();
+                    // let (token_, id) = rest.split_at(1);
                     let token_data = decode::<crate::jwt::ClaimsGen<u128>>(
                         token,
                         &KEYS.decoding,
@@ -342,6 +350,7 @@ async fn process_message(
                             token: token.to_string(),
                             is_admin: token_data.claims.is_admin,
                             answer_locked_in: false,
+                            quiz_id
                         };
                         *user.write().await = Some(new_user);
 
@@ -367,6 +376,7 @@ async fn process_message(
                             token: token.to_string(),
                             is_admin: token_data.claims.is_admin,
                             answer_locked_in: false,
+                            quiz_id: None
                         };
                         *user.write().await = Some(new_user);
 
