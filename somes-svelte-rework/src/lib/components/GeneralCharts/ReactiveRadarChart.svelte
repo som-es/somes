@@ -12,17 +12,19 @@
 	let chartOptions: ApexOptions;
 
 	$: {
-		const labels = chartData.map(del => `${del.label}`);
-		const isBlack = $modeCurrent
+		const labels = chartData.map((del) => `${del.label}`);
+		const isBlack = $modeCurrent;
 
 		chartOptions = {
-				series: [{
-				name: 'Series 1',
-				data: chartData.map(x => x.data),
-			}],
-				chart: {
+			series: [
+				{
+					name: 'Series 1',
+					data: chartData.map((x) => x.data)
+				}
+			],
+			chart: {
 				height: 350,
-				type: 'radar',
+				type: 'radar'
 			},
 			title: {
 				text: 'Basic Radar Chart'
@@ -36,16 +38,16 @@
 					style: {
 						colors: labels.map(() => {
 							if (isBlack) {
-								return "black"
+								return 'black';
 							} else {
-								return "white"
+								return 'white';
 							}
-						} ),
+						}),
 						fontSize: '12px'
 					}
 				}
 			}
-        };
+		};
 
 		if (chart) {
 			chart.updateOptions(chartOptions);
@@ -71,8 +73,7 @@
 	}
 </script>
 
-<div bind:this={chartElement} class="text-black w-96 h-96" ></div>
+<div bind:this={chartElement} class="text-black w-96 h-96"></div>
 
 <style>
-	
 </style>

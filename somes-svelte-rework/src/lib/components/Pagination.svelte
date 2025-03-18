@@ -99,12 +99,12 @@
 					: 'bg-tertiary-300'}"
 				on:click={() => {
 					page = suggestion;
-				}}>
+				}}
+			>
 				<div class="font-bold text-lg w-[30px] h-[30px] items-center flex justify-center">
 					{suggestion}
 				</div>
-			</SButton
-			>
+			</SButton>
 		{/if}
 	{/each}
 	<SButton
@@ -120,8 +120,7 @@
 			</div>
 		</div>
 		<!-- {'>'} -->
-	</SButton
-	>
+	</SButton>
 	<!-- <input style="color: black;" class="mx-3 w-11 h-11" bind:value={writtenPage} on:input={onInput} type="number" /> -->
 </div>
 

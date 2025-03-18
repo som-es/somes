@@ -118,7 +118,7 @@
 					{#if showText}
 						<div>Angenommen</div>
 					{/if}
-				{:else }
+				{:else}
 					{@html crossmarkIcon}
 					{#if showText}
 						<div>Abgelehnt</div>
@@ -174,27 +174,29 @@
 		{/if}
 	</div>
 	{#if voteResult.legislative_initiative.is_law}
-			{#if showLawStuff && voteResult.legislative_initiative.law_come_into_effect_date}
-				<Square {squareSize} class={squareClasses}>
-					<div class="font-bold text-lg">
-						{dashDateToDotDate(voteResult.legislative_initiative.law_come_into_effect_date.toString())}
-					</div>
-					{#if showText}
-						<div>in Kraft am</div>
-					{/if}
-				</Square>
-			{/if}
-		
-			{#if showLawStuff && voteResult.legislative_initiative.law_expires_on_date && voteResult.legislative_initiative.law_expires_on_date > (voteResult.legislative_initiative.law_come_into_effect_date ?? "")}
-				<Square {squareSize} class={squareClasses}>
-					<div class="font-bold text-lg">
-						{dashDateToDotDate(voteResult.legislative_initiative.law_expires_on_date.toString())}
-					</div>
-					{#if showText}
-						<div>außer Kraft am</div>
-					{/if}
-				</Square>
-			{/if}
+		{#if showLawStuff && voteResult.legislative_initiative.law_come_into_effect_date}
+			<Square {squareSize} class={squareClasses}>
+				<div class="font-bold text-lg">
+					{dashDateToDotDate(
+						voteResult.legislative_initiative.law_come_into_effect_date.toString()
+					)}
+				</div>
+				{#if showText}
+					<div>in Kraft am</div>
+				{/if}
+			</Square>
+		{/if}
+
+		{#if showLawStuff && voteResult.legislative_initiative.law_expires_on_date && voteResult.legislative_initiative.law_expires_on_date > (voteResult.legislative_initiative.law_come_into_effect_date ?? '')}
+			<Square {squareSize} class={squareClasses}>
+				<div class="font-bold text-lg">
+					{dashDateToDotDate(voteResult.legislative_initiative.law_expires_on_date.toString())}
+				</div>
+				{#if showText}
+					<div>außer Kraft am</div>
+				{/if}
+			</Square>
+		{/if}
 	{/if}
 </div>
 

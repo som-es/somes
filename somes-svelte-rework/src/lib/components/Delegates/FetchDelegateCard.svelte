@@ -16,11 +16,19 @@
 	let delegate: Delegate | null = null;
 
 	onMount(async () => {
-		delegate = errorToNull(await delegate_by_id(delegateId))
+		delegate = errorToNull(await delegate_by_id(delegateId));
 	});
-
 </script>
 
 {#if delegate}
-	<DelegateCard delegate={delegate} {onlyTop} {showQA} {showAI} {questions} {showMoreDetailsBtn} {showImg} {title}/>
+	<DelegateCard
+		{delegate}
+		{onlyTop}
+		{showQA}
+		{showAI}
+		{questions}
+		{showMoreDetailsBtn}
+		{showImg}
+		{title}
+	/>
 {/if}

@@ -12,7 +12,6 @@
 	export let date: Date;
 	export let gp: string;
 
-	
 	let delegate: Delegate;
 	if (bubble && bubble.del !== null) {
 		delegate = bubble.del;
@@ -31,24 +30,33 @@
 
 	$: infoText = '';
 
-	$: opinionColor = "";
-    $: opinion = "";
+	$: opinionColor = '';
+	$: opinion = '';
 	$: if (bubble.namedVote) {
 		infoText = `unsichere Zuteilung: "${bubble.namedVote.searched_with}" wurde ${bubble.namedVote.manually_matched ? 'manuell' : 'automatisch'} "${bubble.namedVote.matched_with}" zugeteilt`;
-		opinionColor = bubble.namedVote.infavor != null ? (bubble.namedVote.infavor ? "bg-success-600" : "bg-red-600") : "bg-primary-500";
-		opinion = bubble.namedVote.infavor != null ? (bubble.namedVote.infavor ? "Ja" : "Nein") : "Abwesend/keine Stimme abgegeben";
+		opinionColor =
+			bubble.namedVote.infavor != null
+				? bubble.namedVote.infavor
+					? 'bg-success-600'
+					: 'bg-red-600'
+				: 'bg-primary-500';
+		opinion =
+			bubble.namedVote.infavor != null
+				? bubble.namedVote.infavor
+					? 'Ja'
+					: 'Nein'
+				: 'Abwesend/keine Stimme abgegeben';
 	}
 	$: if (bubble && bubble.del != null) delegate = bubble.del;
 
 	let clazz = '';
 	export { clazz as class };
-
 </script>
 
 <DelegateCard {delegate} title={bubble.title} showMoreDetailsBtn onlyTop={true} showAI={false}>
 	<span slot="title">
 		{#if bubble.namedVote}
-            <div class="text-lg font-bold badge {opinionColor} text-white max-w-fit ">{opinion}</div>
+			<div class="text-lg font-bold badge {opinionColor} text-white max-w-fit">{opinion}</div>
 		{:else}
 			<span class="font-bold text-xl">{bubble.title}</span>
 		{/if}
@@ -56,24 +64,24 @@
 
 	<span slot="info">
 		{#if bubble.namedVote && (bubble.namedVote.similiarity_score != 0 || bubble.namedVote.manually_matched)}
-				<div class="!z-50 card p-4 w-72 shadow-xl" data-popup="popupFeatured">
-					<div class="z-50 font-bold text-xl">Unsichere Zuteilung</div>
+			<div class="!z-50 card p-4 w-72 shadow-xl" data-popup="popupFeatured">
+				<div class="z-50 font-bold text-xl">Unsichere Zuteilung</div>
+				<div>
+					<span class="font-bold">"{bubble.namedVote.searched_with}"</span> wurde {bubble.namedVote
+						.manually_matched
+						? 'manuell'
+						: 'automatisch'} <span class="font-bold">"{bubble.namedVote.matched_with}"</span>
+					zugeordnet.
 					<div>
-						<span class="font-bold">"{bubble.namedVote.searched_with}"</span> wurde {bubble
-							.namedVote.manually_matched
-							? 'manuell'
-							: 'automatisch'} <span class="font-bold">"{bubble.namedVote.matched_with}"</span>
-						zugeordnet.
-						<div>
-							errechneter Unterschied: {bubble.namedVote.similiarity_score}
-						</div>
+						errechneter Unterschied: {bubble.namedVote.similiarity_score}
 					</div>
-
-					<div class="!z-10 arrow bg-surface-100-800-token" />
 				</div>
 
-				<button class="text-2xl" use:popup={popupFeatured}>⚠</button>
-			{/if}
+				<div class="!z-10 arrow bg-surface-100-800-token" />
+			</div>
+
+			<button class="text-2xl" use:popup={popupFeatured}>⚠</button>
+		{/if}
 	</span>
 	<span slot="footerButtons">
 		{#if bubble.speech}
@@ -86,5 +94,3 @@
 		{/if}
 	</span>
 </DelegateCard>
-
-

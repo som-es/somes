@@ -84,7 +84,6 @@
 	}
 
 	$: checked = false;
-
 </script>
 
 {#if show3D}

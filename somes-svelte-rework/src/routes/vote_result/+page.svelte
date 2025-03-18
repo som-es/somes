@@ -1,6 +1,11 @@
 <script lang="ts">
 	import { delegates_at, errorToNull, vote_result_by_id } from '$lib/api/api';
-	import { currentDelegateStore, currentVoteResultStore, hasGoBackStore, useCurrentDelegate } from '$lib/stores/stores';
+	import {
+		currentDelegateStore,
+		currentVoteResultStore,
+		hasGoBackStore,
+		useCurrentDelegate
+	} from '$lib/stores/stores';
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
 	import SButton from '$lib/components/UI/SButton.svelte';
@@ -74,7 +79,6 @@
 
 	let updatedQueryParam = false;
 
-
 	$: rawEmphasis = voteResult?.legislative_initiative.emphasis;
 
 	const update = (voteResultId: string | null) => {
@@ -104,12 +108,11 @@
 
 	const updateAutocompletion = () => {
 		autocompleteOptions = convertDelegatesToAutocompleteOptions(delegates, [], voteResult);
-	}
+	};
 
 	const selectRandomlyFromDels = () => {
 		delegate = delegates[Math.floor(Math.random() * delegates.length)];
-	}
-
+	};
 
 	let legisInitFavos: Set<number> | null = null;
 
@@ -127,7 +130,7 @@
 			voteResult = get(currentVoteResultStore);
 
 			const url = new URL(window.location.href);
-			url.searchParams.set('id', voteResult?.legislative_initiative.id.toString() ?? "");
+			url.searchParams.set('id', voteResult?.legislative_initiative.id.toString() ?? '');
 			replaceState(url, history.state);
 		}
 
@@ -202,7 +205,7 @@
 	$: if (delegates) {
 		updateAutocompletion();
 		selectRandomlyFromDels();
-		enrichDelegates(delegates)
+		enrichDelegates(delegates);
 	}
 
 	let iterBubble: Bubble | undefined;
@@ -210,12 +213,10 @@
 
 	// const whichGridContainer =
 	// 	emphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
-	$: speeches = circles2d.flat(1).filter(circle => circle.speech !== null)
-
+	$: speeches = circles2d.flat(1).filter((circle) => circle.speech !== null);
 </script>
 
-
-<title>  
+<title>
 	{#if voteResult?.legislative_initiative.accepted}
 		Abstimmungsergebnis
 	{:else}
@@ -237,7 +238,8 @@
 						<div>
 							<h1 class="font-bold text-3xl">
 								{#if voteResult?.legislative_initiative.accepted}
-									{voteResult.legislative_initiative.voted_by_name ? 'namentliche ' : ''}Abstimmung über
+									{voteResult.legislative_initiative.voted_by_name ? 'namentliche ' : ''}Abstimmung
+									über
 								{:else}
 									Gegenstand
 								{/if}
@@ -245,45 +247,56 @@
 							<span class="text-xl">{voteResult.legislative_initiative.description}</span>
 
 							{#if voteResult.legislative_initiative.is_law}
-								<div class="badge bg-tertiary-400 ml-2 text-black">
-									Gesetz
-								</div>
+								<div class="badge bg-tertiary-400 ml-2 text-black">Gesetz</div>
 							{/if}
-
 						</div>
 						<div>
 							{#if legisInitFavos}
 								{#if legisInitFavos.has(+voteResult.legislative_initiative.id)}
-									<button on:click={async () => {
-										if (!voteResult) return;
-										if (await removeLegiInitFavo({vote_result_id: +voteResult.legislative_initiative.id}) == null) {
-											legisInitFavos?.delete(+voteResult.legislative_initiative.id);
-											legisInitFavos = legisInitFavos;
-										}
-
-									}} class="w-14 p-2">
+									<button
+										on:click={async () => {
+											if (!voteResult) return;
+											if (
+												(await removeLegiInitFavo({
+													vote_result_id: +voteResult.legislative_initiative.id
+												})) == null
+											) {
+												legisInitFavos?.delete(+voteResult.legislative_initiative.id);
+												legisInitFavos = legisInitFavos;
+											}
+										}}
+										class="w-14 p-2"
+									>
 										{@html starFilled}
 									</button>
 								{:else}
-									<button on:click={async () => {
-										if (!voteResult) return;
-										if (await addLegisInitFavo({vote_result_id: +voteResult.legislative_initiative.id}) == null) {
-											legisInitFavos?.add(+voteResult.legislative_initiative.id);
-											legisInitFavos = legisInitFavos;
-										}
-
-									}} class="w-14 p-2">
+									<button
+										on:click={async () => {
+											if (!voteResult) return;
+											if (
+												(await addLegisInitFavo({
+													vote_result_id: +voteResult.legislative_initiative.id
+												})) == null
+											) {
+												legisInitFavos?.add(+voteResult.legislative_initiative.id);
+												legisInitFavos = legisInitFavos;
+											}
+										}}
+										class="w-14 p-2"
+									>
 										{@html star}
 									</button>
 								{/if}
 							{/if}
 						</div>
 					</div>
-
 				</div>
 				{#if rawEmphasis}
 					<div class="emphasis-item">
-						<Emphasis {rawEmphasis} isAiGenerated={voteResult.legislative_initiative.is_emphasis_ai_generated ?? false}></Emphasis>
+						<Emphasis
+							{rawEmphasis}
+							isAiGenerated={voteResult.legislative_initiative.is_emphasis_ai_generated ?? false}
+						></Emphasis>
 					</div>
 				{/if}
 				{#if voteResult.named_votes}
@@ -304,55 +317,61 @@
 				{/if}
 
 				{#if voteResult.legislative_initiative.accepted}
-				<div
-					class="simple-yes-no-item bg-primary-300 p-3 dark:bg-primary-500 rounded-xl flex flex-wrap justify-between"
-				>
-					<SimpleYesNo votes={voteResult.votes.slice()} />
-				</div>
+					<div
+						class="simple-yes-no-item bg-primary-300 p-3 dark:bg-primary-500 rounded-xl flex flex-wrap justify-between"
+					>
+						<SimpleYesNo votes={voteResult.votes.slice()} />
+					</div>
 
-				<!-- {#if voteResult.legislative_initiative.gp == 'XXVII'} -->
+					<!-- {#if voteResult.legislative_initiative.gp == 'XXVII'} -->
 
-				<div class="!z-20 search-item text-token space-y-5">
-					<input
-						class="!rounded-xl w-full h-12 px-2 input"
-						type="search"
-						name="ac-demo"
-						bind:value={inputValue}
-						placeholder="Suchen..."
-						use:popup={popupSettings}
-					/>
+					<div class="!z-20 search-item text-token space-y-5">
+						<input
+							class="!rounded-xl w-full h-12 px-2 input"
+							type="search"
+							name="ac-demo"
+							bind:value={inputValue}
+							placeholder="Suchen..."
+							use:popup={popupSettings}
+						/>
 
-					{#if autocompleteOptions}
-						<div class="!z-10 card max-h-64 p-4 overflow-y-auto" data-popup="popupAutocomplete">
-							<Autocomplete
-								bind:input={inputValue}
-								options={autocompleteOptions}
-								on:selection={onDelegateSelection}
-								emptyState={'Keine Person gefunden'}
-								filter={delegateFilter}
+						{#if autocompleteOptions}
+							<div class="!z-10 card max-h-64 p-4 overflow-y-auto" data-popup="popupAutocomplete">
+								<Autocomplete
+									bind:input={inputValue}
+									options={autocompleteOptions}
+									on:selection={onDelegateSelection}
+									emptyState={'Keine Person gefunden'}
+									filter={delegateFilter}
+								/>
+							</div>
+						{/if}
+					</div>
+
+					<div class="flex flex-wrap min-w-full justify-between">
+						<div class="rounded-xl w-full parliament-item flex- bg-primary-200 dark:bg-primary-200">
+							<VoteParliament2
+								{voteResult}
+								bind:delegate
+								bind:delegates
+								bind:selected={selectedBubble}
+								bind:circles2d
+								showGovs
+								show3D
 							/>
 						</div>
-					{/if}
-				</div>
-
-				<div class="flex flex-wrap min-w-full justify-between">
-					<div class="rounded-xl w-full parliament-item flex- bg-primary-200 dark:bg-primary-200">
-						<VoteParliament2
-							{voteResult}
-							bind:delegate
-							bind:delegates
-							bind:selected={selectedBubble}
-							bind:circles2d
-							showGovs
-							show3D
-						/>
+						{#if selectedBubble}
+							<div
+								class="max-md:hidden delegate-item rounded-xl bg-primary-300 dark:bg-primary-500"
+							>
+								<VoteDelegateCard
+									bubble={selectedBubble}
+									gp={voteResult.legislative_initiative.gp}
+									date={voteResult.legislative_initiative.created_at}
+								/>
+							</div>
+						{/if}
 					</div>
-					{#if selectedBubble}
-						<div class="max-md:hidden delegate-item rounded-xl bg-primary-300 dark:bg-primary-500">
-							<VoteDelegateCard bubble={selectedBubble} gp={voteResult.legislative_initiative.gp} date={voteResult.legislative_initiative.created_at} />
-						</div>
-					{/if}
-				</div>
 				{/if}
 
 				<!-- {/if} -->
@@ -394,11 +413,17 @@
 
 				{#if voteResult.issued_by_dels.length > 0}
 					<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
-					<span class="font-bold text-3xl">Eingebracht von</span>
+						<span class="font-bold text-3xl">Eingebracht von</span>
 						<span class="font-bold text-xl"></span>
 						<div class="flex flex-row flex-wrap mt-3 gap-3">
 							{#each voteResult.issued_by_dels as delegateId}
-								<FetchDelegateCard {delegateId} showAI={false} showQA={false} onlyTop={true} showMoreDetailsBtn={true} />
+								<FetchDelegateCard
+									{delegateId}
+									showAI={false}
+									showQA={false}
+									onlyTop={true}
+									showMoreDetailsBtn={true}
+								/>
 							{/each}
 						</div>
 					</div>

@@ -8,8 +8,8 @@
 
 	let userTopics: Set<string> = new Set();
 	onMount(async () => {
-		userTopics = new Set((await cachedUserTopics() ?? []).map(x => x.topic))
-	})
+		userTopics = new Set(((await cachedUserTopics()) ?? []).map((x) => x.topic));
+	});
 </script>
 
 <div class="flex flex-wrap gap-2 px-1">

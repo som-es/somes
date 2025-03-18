@@ -13,8 +13,8 @@ export interface Bubble {
 	color: string | null;
 	opacity: number;
 	title: string | null;
-	texture: any | null
-	material: Material | null
+	texture: any | null;
+	material: Material | null;
 }
 
 export function generateHalfCircle(n: number, r: number, w: number, h: number) {
@@ -104,7 +104,12 @@ export function enrichParliamentBubbles(
 	});
 
 	if (voteResult) {
-		enrichCirclesWithSpeechInfoOnSeat(voteResult.speeches, bubbles, dels, voteResult.legislative_initiative.pre_declined_type?.includes("p"));
+		enrichCirclesWithSpeechInfoOnSeat(
+			voteResult.speeches,
+			bubbles,
+			dels,
+			voteResult.legislative_initiative.pre_declined_type?.includes('p')
+		);
 		if (voteResult.named_votes) {
 			enrichCirclesWithNamedVoteInfoOnSeat(voteResult.named_votes.named_votes, bubbles, dels);
 		}
@@ -200,17 +205,17 @@ export function enrichCirclesWithSpeechInfoOnSeat(
 	speeches: Speech[],
 	circles2d: Bubble[][],
 	dels: Delegate[],
-	reversed=false
+	reversed = false
 ) {
 	speeches.forEach((speech) => {
 		let del = findDelegateById(dels, speech.delegate_id);
 		if (del == null || del.seat_col == null || del.seat_row == null) return;
-		
+
 		let infavor = speech.infavor;
 
 		// ugly ugly fix - typically this would be stored differently in the database in the first place! But there is currently no elegent way to achieve this !
 		if (reversed && infavor != null) {
-			infavor = !infavor
+			infavor = !infavor;
 		}
 
 		circles2d[del.seat_row - 1][del.seat_col - 1].speech = speech;
@@ -254,7 +259,7 @@ export function enrichCirclesWithNamedVoteInfoOnSeat(
 		if (del == null || del.seat_col == null || del.seat_row == null) return;
 
 		circles2d[del.seat_row - 1][del.seat_col - 1].namedVote = namedVote;
-		
+
 		if (namedVote.was_absent) {
 			circles2d[del.seat_row - 1][del.seat_col - 1].r = +4.9;
 			circles2d[del.seat_row - 1][del.seat_col - 1].title = `abwesend/keine Stimme abgegeben`;
@@ -295,7 +300,7 @@ export function setupParliament(
 					namedVote: null,
 					speech: null,
 					texture: null,
-					material: null,
+					material: null
 				};
 			})
 		);
@@ -315,7 +320,7 @@ export function setupParliament(
 				namedVote: null,
 				speech: null,
 				texture: null,
-				material: null,
+				material: null
 			};
 		})
 	);

@@ -41,9 +41,7 @@
 		<div>{voteResult.legislative_initiative.description}</div>
 		<div class="flex items-center gap-4">
 			{#if voteResult.legislative_initiative.is_law}
-				<div class="badge bg-tertiary-400 text-black">
-					Gesetz
-				</div>
+				<div class="badge bg-tertiary-400 text-black">Gesetz</div>
 			{/if}
 			<div class="max-sm:hidden">
 				<InfoTiles

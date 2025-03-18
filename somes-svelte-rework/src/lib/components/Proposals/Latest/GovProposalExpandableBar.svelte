@@ -47,12 +47,20 @@
 			<div></div>
 		{/if}
 		<div>
-			<img class="min-w-[100px] max-h-[100px] rounded-full mx-1" src={govProposal.delegate.image_url} alt="Image of delegate {govProposal.delegate.name}" />	
+			<img
+				class="min-w-[100px] max-h-[100px] rounded-full mx-1"
+				src={govProposal.delegate.image_url}
+				alt="Image of delegate {govProposal.delegate.name}"
+			/>
 		</div>
 	</div>
 
 	<div use:collapse={{ open, duration }}>
-		<GovProposalExpanded govProposal={govProposal.gov_proposal} delegate={govProposal.delegate} bind:open />
+		<GovProposalExpanded
+			govProposal={govProposal.gov_proposal}
+			delegate={govProposal.delegate}
+			bind:open
+		/>
 	</div>
 </div>
 

@@ -19,7 +19,6 @@
 
 	const modalStore = getModalStore();
 
-
 	function onShowDetails(voteResult: VoteResult | null) {
 		if (!voteResult) return;
 
@@ -50,7 +49,9 @@
 		</div>
 	{/if}
 	{#if govProposal.topics.length > 0}
-		<div class="topics-item flex rounded-xl justify-center items-center bg-primary-300 p-3 mb-3 mt-1">
+		<div
+			class="topics-item flex rounded-xl justify-center items-center bg-primary-300 p-3 mb-3 mt-1"
+		>
 			<Topics
 				topics={govProposal.topics.sort((a, b) => {
 					return a.topic.length - b.topic.length;
@@ -84,7 +85,7 @@
 	<!-- Inneres Migration Frauen Klimaschutz -->
 
 	<div class="flex flex-wrap">
-		<div class="emphasis ">
+		<div class="emphasis">
 			<Emphasis {rawEmphasis} isAiGenerated={false} useTitleHover />
 		</div>
 		{#if govProposal.vote_result}
@@ -95,7 +96,7 @@
 				<VoteParliament2 voteResult={govProposal.vote_result} preview={true} />
 			</button>
 		{/if}
-		
+
 		{#if delegate}
 			<div class="delegate-card">
 				<DelegateCard {delegate} onlyTop showMoreDetailsBtn showImg={false} />
@@ -104,7 +105,7 @@
 	</div>
 
 	<div class="flex flex-wrap gap-3">
-		<GovProposalInfoTiles {govProposal}	/>
+		<GovProposalInfoTiles {govProposal} />
 
 		{#if govProposal.topics.length > 0}
 			<div

@@ -1,7 +1,17 @@
-import type { DelegateFavo, ExtendedUserInfo, HasError, JWTInfo, LegisInitFavo, LoginResponseError, MailSendInfo, Quiz, UniqueTopic } from "$lib/types";
-import { address, fetchSavely } from "./api";
-import { jwtStore } from "$lib/caching/stores/stores";
-import { get } from "svelte/store";
+import type {
+	DelegateFavo,
+	ExtendedUserInfo,
+	HasError,
+	JWTInfo,
+	LegisInitFavo,
+	LoginResponseError,
+	MailSendInfo,
+	Quiz,
+	UniqueTopic
+} from '$lib/types';
+import { address, fetchSavely } from './api';
+import { jwtStore } from '$lib/caching/stores/stores';
+import { get } from 'svelte/store';
 
 export async function login(
 	email: string,

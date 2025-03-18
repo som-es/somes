@@ -173,11 +173,11 @@
 		<nav class="autocomplete-nav {classesNav} z-40">
 			<ul class="autocomplete-list {classesList} ">
 				{#each optionsFiltered.slice(0, sliceLimit) as option (option)}
-					<li
-						class="autocomplete-item {classesItem} z-40"
-					>
+					<li class="autocomplete-item {classesItem} z-40">
 						<button
-							class="z-40 mt-1 flex justify-between {classesButton} {option.isSelected ? "bg-secondary-400 hover:!bg-secondary-200" : ""}"
+							class="z-40 mt-1 flex justify-between {classesButton} {option.isSelected
+								? 'bg-secondary-400 hover:!bg-secondary-200'
+								: ''}"
 							type="button"
 							on:click={() => onSelection(option)}
 							on:click

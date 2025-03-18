@@ -1,25 +1,24 @@
 <script lang="ts">
-	import { isHasError, isThere } from "$lib/api/api";
-	import type { GovProposal } from "$lib/types";
-	import { RadioGroup, RadioItem } from "@skeletonlabs/skeleton";
+	import { isHasError, isThere } from '$lib/api/api';
+	import type { GovProposal } from '$lib/types';
+	import { RadioGroup, RadioItem } from '@skeletonlabs/skeleton';
 
-    export let filteredGovProposals: GovProposal[];
-    export let allGovProposals: GovProposal[] | undefined;
+	export let filteredGovProposals: GovProposal[];
+	export let allGovProposals: GovProposal[] | undefined;
 
-    let alreadyVotedOnFilter: boolean | undefined = undefined;
-    // let alreadyVotedOnFilter: boolean | undefined = undefined;
+	let alreadyVotedOnFilter: boolean | undefined = undefined;
+	// let alreadyVotedOnFilter: boolean | undefined = undefined;
 
-    $: if (allGovProposals) {
-        filteredGovProposals = allGovProposals.filter((prop) => {
-            let keep = true;
-            if (alreadyVotedOnFilter != undefined) {
-                keep = keep && ((isThere(prop.vote_result)) == alreadyVotedOnFilter)
-            }
-            return keep;
-        });
-        // filteredGovProposals = filteredGovProposals;
-    }
-
+	$: if (allGovProposals) {
+		filteredGovProposals = allGovProposals.filter((prop) => {
+			let keep = true;
+			if (alreadyVotedOnFilter != undefined) {
+				keep = keep && isThere(prop.vote_result) == alreadyVotedOnFilter;
+			}
+			return keep;
+		});
+		// filteredGovProposals = filteredGovProposals;
+	}
 </script>
 
 <div class="max-lg:hidden flex gap-4 flex-wrap">
@@ -71,4 +70,3 @@
 		</RadioGroup> -->
 	</div>
 </div>
-

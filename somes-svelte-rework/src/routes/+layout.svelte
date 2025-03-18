@@ -36,10 +36,10 @@
 		aiChat: { ref: AiChatModal },
 		allGovProposals: { ref: AllProposalsModal },
 		allSpeeches: { ref: AllSpeechesModal },
-		politicalSpectrumQuestions: { ref: PoliticalSpectrumQuestionsModal},
+		politicalSpectrumQuestions: { ref: PoliticalSpectrumQuestionsModal },
 		allAbsences: { ref: AbsencesModal },
 		allNamedVotes: { ref: NamedVoteModal },
-		detailedInterests: { ref: DetailedInterestsModal },
+		detailedInterests: { ref: DetailedInterestsModal }
 		// imdying:{ ref: ModalExample }
 	};
 </script>

@@ -28,13 +28,10 @@
 			<VoteParliament2 {voteResult} preview={true} />
 		</div>
 		<div class="mx-3 text-left">
-			<span >{voteResult.legislative_initiative.description}</span>
+			<span>{voteResult.legislative_initiative.description}</span>
 			{#if voteResult.legislative_initiative.is_law}
-				<div class="badge bg-tertiary-400 text-black mx-2">
-					Gesetz
-				</div>
+				<div class="badge bg-tertiary-400 text-black mx-2">Gesetz</div>
 			{/if}
-
 		</div>
 	</div>
 </span>

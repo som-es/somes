@@ -36,11 +36,10 @@
 		}
 	};
 
-
-	const submenu =  [
+	const submenu = [
 		{
 			title: 'Statistiken',
-			route: "/statistics",
+			route: '/statistics',
 			list: [
 				{ href: `${base}/statistics/overview`, label: 'Übersicht', keywords: '' },
 				{ href: `${base}/statistics/speechtime`, label: 'Redezeit', keywords: '' },
@@ -49,22 +48,22 @@
 				{ href: `${base}/statistics/call_to_orders`, label: 'Ordnungsrufe', keywords: '' }
 			]
 		},
-		{	
+		{
 			title: 'Gegenstände',
-			route: "/history",
+			route: '/history',
 			list: [
 				{ href: `${base}/history/votes`, label: 'Abstimmungen', keywords: '' },
 				{ href: `${base}/history/proposals`, label: 'Entwürfe', keywords: '' },
 				{ href: `${base}/history/unfinished_votes`, label: 'Unfertige', keywords: '' }
 			]
-		},
+		}
 	];
-	
+
 	$: listboxItemActive = (href: string) => (isSelected(href) ? 'bg-primary-active-token' : '');
 	// $: activeAnchorColor = (href: string) => ($page.url.pathname?.includes(href) ? 'flex flex-col justify-center items-stretch bg-primary-active-token' : 'bg-primary-hover-token');
 </script>
 
-<div class="h-full bg-surface-50-900-token grid-cols-[auto_1fr] flex  {$$props.class ?? ''}">
+<div class="h-full bg-surface-50-900-token grid-cols-[auto_1fr] flex {$$props.class ?? ''}">
 	<AppRail width="w-20 2xl:w-32 border-r border-surface-500/30">
 		<!-- <svelte:fragment slot="lead">
 			<AppRailAnchor href="/" >(icon)</AppRailAnchor>
@@ -131,7 +130,7 @@
 			<span style="font-size: x-small;">Statistiken</span>
 		</AppRailAnchor>
 
-		<hr />	
+		<hr />
 		<AppRailAnchor
 			selected={isSelected('/wahlhelfer')}
 			href="{base}/wahlhelfer"
@@ -180,18 +179,24 @@
 			</div>
 		</svelte:fragment>
 	</AppRail>
-	{#if isSelected("/statistics") || isSelected("/history")}
+	{#if isSelected('/statistics') || isSelected('/history')}
 		<section class="p-4 pb-20 space-y-4 overflow-y-auto !bg-surface-200-700-token max-w-60">
 			{#each submenu as segment, i}
 				{#if isSelected(segment.route)}
 					<!-- Title -->
 					<p class="font-bold pl-4 text-2xl">{segment.title}</p>
 					<!-- Nav List -->
-					<nav class="list-nav ">
+					<nav class="list-nav">
 						<ul>
 							{#each segment.list as { href, label }}
 								<li>
-									<a {href} class={listboxItemActive(href)} data-sveltekit-preload-data="hover" on:keypress on:click={drawerStore.close}>
+									<a
+										{href}
+										class={listboxItemActive(href)}
+										data-sveltekit-preload-data="hover"
+										on:keypress
+										on:click={drawerStore.close}
+									>
 										<span class="flex-auto">{@html label}</span>
 										<!-- {#if badge}<span class="badge variant-filled-secondary">{badge}</span>{/if} -->
 									</a>
@@ -201,7 +206,6 @@
 					</nav>
 					<!-- Divider -->
 					{#if i + 1 < submenu.length}<hr class="!my-6 opacity-50" />{/if}
-
 				{/if}
 			{/each}
 		</section>

@@ -22,16 +22,18 @@
 		<h1 class="font-bold text-2xl">Letzte Reden</h1>
 
 		<h2 class="text-lg">
-			{speechesPage0.entry_count} {speechesPage0.entry_count == 1 ? "Rede" : "Reden"} insgesamt
+			{speechesPage0.entry_count}
+			{speechesPage0.entry_count == 1 ? 'Rede' : 'Reden'} insgesamt
 		</h2>
 	</div>
-	<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(allSpeeches)}>Alle anzeigen</button>
+	<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(allSpeeches)}
+		>Alle anzeigen</button
+	>
 </div>
 <div class="mt-5">
-{#each previewSpeeches as speech}
-    <!-- <div class="gap-3 rounded variant-filled my-1">{speech.legislative_initiatives_id} {speech.opinion}</div> -->
-	 <SpeechBar {speech}></SpeechBar>
-	<!-- <GovProposalExpandableBar {govProposal} /> -->
-{/each}
-
+	{#each previewSpeeches as speech}
+		<!-- <div class="gap-3 rounded variant-filled my-1">{speech.legislative_initiatives_id} {speech.opinion}</div> -->
+		<SpeechBar {speech}></SpeechBar>
+		<!-- <GovProposalExpandableBar {govProposal} /> -->
+	{/each}
 </div>

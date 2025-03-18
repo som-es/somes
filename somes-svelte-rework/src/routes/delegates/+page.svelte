@@ -2,16 +2,24 @@
 	import type { AutocompleteOption } from '$lib/components/Autocompletion/types';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
-	import type { Delegate, DelegateQA, GeneralDelegateInfo, GovProposal, InterestShare, LegisPeriod, PoliticalPosition, Speech, SpeechesWithMaxPage } from '$lib/types';
+	import type {
+		Delegate,
+		DelegateQA,
+		GeneralDelegateInfo,
+		GovProposal,
+		InterestShare,
+		LegisPeriod,
+		PoliticalPosition,
+		Speech,
+		SpeechesWithMaxPage
+	} from '$lib/types';
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 	import {
 		errorToNull,
 		general_delegate_info,
 		gov_proposals_by_official,
-
 		speeches_by_delegate_per_page
-
 	} from '$lib/api/api';
 	import InterestTiles from '$lib/components/Delegates/InterestTiles.svelte';
 	import { get } from 'svelte/store';
@@ -98,12 +106,14 @@
 		const paramDate = url.searchParams.get('date');
 		if (paramDate) {
 			const startDate = new Date(periods[firstIdx]?.start_date);
-			const diffTime = Math.abs((new Date(paramDate)).getTime() - startDate.getTime());
+			const diffTime = Math.abs(new Date(paramDate).getTime() - startDate.getTime());
 			dayOffset = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 			// this prevents that dayOffset is overwritten with max
 			prevSelectedPeriod = selectedPeriod;
 		}
-		supplyDate = paramDate ? paramDate as unknown as Date : newDate.toISOString().split('T')[0] as unknown as Date;
+		supplyDate = paramDate
+			? (paramDate as unknown as Date)
+			: (newDate.toISOString().split('T')[0] as unknown as Date);
 		// console.log(supplyDate);
 		finishedMounting = true;
 	});
@@ -146,7 +156,7 @@
 		renderStartDate = null;
 		updateDelsToDisplay();
 		if (finishedMounting) prevSelectedPeriod = selectedPeriod;
-	}
+	};
 
 	$: if (selectedPeriod) {
 		renderEndDate = null;
@@ -182,20 +192,20 @@
 		// interests = null;
 		if (finishedMounting) currentDelegateStore.set(delegate);
 		generalDelegateInfo = null;
-		general_delegate_info(delegate.id).then(res => {
-			generalDelegateInfo = errorToNull(res)	
+		general_delegate_info(delegate.id).then((res) => {
+			generalDelegateInfo = errorToNull(res);
 			if (generalDelegateInfo) {
 				generalDelegateInfo.interests.sort((a, b) => b.self_share - a.self_share);
 				generalDelegateInfo.detailed_interests.sort((a, b) => b.self_share - a.self_share);
 				// console.log(`absences length: ${generalDelegateInfo.absences.length}, ${generalDelegateInfo.named_votes.length}`);
 			}
-		})
+		});
 
 		govProposals = null;
 		gov_proposals_by_official(delegate.id).then((res) => {
 			govProposals = errorToNull(res);
 		});
-		
+
 		speechesPage0 = null;
 		speeches_by_delegate_per_page(delegate.id, 0).then((res) => {
 			speechesPage0 = errorToNull(res);
@@ -318,7 +328,7 @@
 			<ExpandablePlaceholder />
 			<ExpandablePlaceholder />
 		{/if}
-			
+
 		{#if generalDelegateInfo?.absences && delegate && generalDelegateInfo?.absences.length > 0}
 			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
 				<AbsencesPreview delegateId={delegate.id} absences={generalDelegateInfo.absences} />
@@ -327,7 +337,7 @@
 			<ExpandablePlaceholder />
 			<ExpandablePlaceholder />
 		{/if}
-	
+
 		{#if generalDelegateInfo?.named_votes && delegate && generalDelegateInfo?.named_votes.length > 0}
 			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
 				<NamedVotePreview delegateId={delegate.id} namedVotes={generalDelegateInfo.named_votes} />
@@ -337,10 +347,12 @@
 			<ExpandablePlaceholder />
 		{/if}
 
-
 		{#if generalDelegateInfo?.interests && generalDelegateInfo?.detailed_interests}
 			{#if generalDelegateInfo?.interests?.length > 0}
-				<TopicsChart detailedInterests={generalDelegateInfo.detailed_interests} interests={generalDelegateInfo.interests} />
+				<TopicsChart
+					detailedInterests={generalDelegateInfo.detailed_interests}
+					interests={generalDelegateInfo.interests}
+				/>
 				<!-- <div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
 
 					<h1 class="font-bold text-2xl mb-2">Top 4 Interessen</h1>
@@ -353,18 +365,28 @@
 
 		<div class="flex gap-2 w-full">
 			{#if delegate && generalDelegateInfo?.political_position}
-				<SquarePoliticalSpectrum {delegate}	politicalPosition={generalDelegateInfo.political_position} />
+				<SquarePoliticalSpectrum
+					{delegate}
+					politicalPosition={generalDelegateInfo.political_position}
+				/>
 			{:else if !generalDelegateInfo}
 				<ExpandablePlaceholder class={'my-3'} />
 			{/if}
 
 			{#if delegate && generalDelegateInfo?.stances}
-
-				<div class="bg-primary-300 dark:bg-primary-500 {generalDelegateInfo.stances.length > 0 ? "p-4" : ""} rounded-xl">
+				<div
+					class="bg-primary-300 dark:bg-primary-500 {generalDelegateInfo.stances.length > 0
+						? 'p-4'
+						: ''} rounded-xl"
+				>
 					<div class="flex flex-wrap gap-5">
-					{#each generalDelegateInfo.stances as stance}
-						<StanceDiagram zeroLabel={stance.topic} value={stance.score * 2}  knobColor={topicColors.get(stance.topic) } />
-					{/each}
+						{#each generalDelegateInfo.stances as stance}
+							<StanceDiagram
+								zeroLabel={stance.topic}
+								value={stance.score * 2}
+								knobColor={topicColors.get(stance.topic)}
+							/>
+						{/each}
 					</div>
 				</div>
 			{:else if !generalDelegateInfo}
@@ -389,7 +411,6 @@
 			<ExpandablePlaceholder />
 			<ExpandablePlaceholder />
 		{/if} -->
-
 
 		<!-- <div class="activity-item bg-primary-300">
                     Activity

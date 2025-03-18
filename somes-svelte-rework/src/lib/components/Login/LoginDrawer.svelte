@@ -76,11 +76,10 @@
 	};
 
 	const onEnterDoLogin = async (e: KeyboardEvent) => {
-		if (e.code == "Enter") {
-			await onLogin()
+		if (e.code == 'Enter') {
+			await onLogin();
 		}
-	}
-
+	};
 </script>
 
 <div class=" z-[10000] login_container flex flex-col text-black">
@@ -100,7 +99,13 @@
 	</h2>
 	<label for="username">E-Mail</label>
 	<div class="flex">
-		<input id="username" placeholder="''dergertrud@gmail.com'" type="text" on:keydown={onEnterDoLogin} bind:value={email} />
+		<input
+			id="username"
+			placeholder="''dergertrud@gmail.com'"
+			type="text"
+			on:keydown={onEnterDoLogin}
+			bind:value={email}
+		/>
 	</div>
 
 	{#if !isLogin}
@@ -120,7 +125,13 @@
 	{/if}
 	{#if otp_done}
 		<label class="mt-4" for="password">One-Time Passwort (OTP)</label>
-		<input id="password" placeholder="'MAS DS5 4DA'" type="password" on:keydown={onEnterDoLogin} bind:value={pwd} />
+		<input
+			id="password"
+			placeholder="'MAS DS5 4DA'"
+			type="password"
+			on:keydown={onEnterDoLogin}
+			bind:value={pwd}
+		/>
 	{/if}
 
 	{#if sent && !success}

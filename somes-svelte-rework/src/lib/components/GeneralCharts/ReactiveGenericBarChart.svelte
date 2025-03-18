@@ -13,13 +13,13 @@
 	let chartOptions: ApexOptions;
 
 	$: {
-		const labels = chartData.map(del => `${del.label}`);
-		const isBlack = $modeCurrent
+		const labels = chartData.map((del) => `${del.label}`);
+		const isBlack = $modeCurrent;
 
 		chartOptions = {
 			series: [
 				{
-					data: chartData.map(del => del.data)
+					data: chartData.map((del) => del.data)
 				}
 			],
 
@@ -27,7 +27,7 @@
 				text: title,
 				align: 'center',
 				floating: true
-        	},
+			},
 			chart: {
 				type: 'bar',
 				height
@@ -43,8 +43,8 @@
 					}
 				}
 			},
-			colors: chartData.map(del => {
-				return del.color 
+			colors: chartData.map((del) => {
+				return del.color;
 			}),
 			dataLabels: {
 				textAnchor: 'middle',
@@ -80,26 +80,26 @@
 					style: {
 						colors: labels.map(() => {
 							if (isBlack) {
-								return "black"
+								return 'black';
 							} else {
-								return "white"
+								return 'white';
 							}
-						} ),
+						}),
 						fontSize: '12px'
 					}
 				}
 			},
-			
+
 			yaxis: {
 				labels: {
 					style: {
 						colors: labels.map(() => {
 							if (isBlack) {
-								return "black"
+								return 'black';
 							} else {
-								return "white"
+								return 'white';
 							}
-						} ),
+						}),
 						fontSize: '12px'
 					}
 				}
@@ -117,7 +117,6 @@
 
 	let chartElement: Element;
 	onMount(() => {
-
 		if (chartElement) {
 			chart = new ApexCharts(chartElement, chartOptions);
 			chart.render();

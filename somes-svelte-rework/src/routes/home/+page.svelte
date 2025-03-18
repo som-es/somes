@@ -20,41 +20,35 @@
 		const tempVoteResults = await cachedLatestVoteResults(true);
 		govProposals = await cachedLatestGovProposals();
 
-
 		if (userTopics && tempVoteResults) {
-			voteResults = []
-			userVoteResults = tempVoteResults.filter(voteResult => {
+			voteResults = [];
+			userVoteResults = tempVoteResults.filter((voteResult) => {
 				for (let i = 0; i < voteResult.topics.length; i++) {
 					for (let j = 0; j < userTopics.length; j++) {
 						if (voteResult.topics[i].topic == userTopics[j].topic) {
-							return true
+							return true;
 						}
 					}
 				}
-				voteResults?.push(voteResult)
-				return false
+				voteResults?.push(voteResult);
+				return false;
 			});
 
 			voteResults = voteResults;
 		} else {
 			voteResults = tempVoteResults;
 		}
-
 	});
 </script>
 
 <Container>
 	{#if userVoteResults && dels}
-		<h1 class="text-2xl sm:text-4xl font-bold">
-			Abstimmungsergebnisse nach Interesse
-		</h1>
+		<h1 class="text-2xl sm:text-4xl font-bold">Abstimmungsergebnisse nach Interesse</h1>
 
 		<VoteResults {dels} voteResults={userVoteResults} />
-	<!-- {:else if use} -->
+		<!-- {:else if use} -->
 	{/if}
-	<h1 class="text-2xl sm:text-4xl font-bold">
-		Neuste Abstimmungsergebnisse
-	</h1>
+	<h1 class="text-2xl sm:text-4xl font-bold">Neuste Abstimmungsergebnisse</h1>
 	{#if voteResults && dels}
 		<VoteResults {dels} {voteResults} showHistory />
 	{:else}
@@ -96,17 +90,13 @@
 		</section>
 	{/if}
 
-	<h1 class="mt-2 text-2xl sm:text-4xl font-bold">
-		Ministerialentwürfe der letzten 30 Tage
-	</h1>
+	<h1 class="mt-2 text-2xl sm:text-4xl font-bold">Ministerialentwürfe der letzten 30 Tage</h1>
 
 	{#if govProposals}
 		{#if govProposals.length == 0}
-			<div class="w-full p-20 text-center bg-surface-100-800-token rounded-lg">
-				Keine
-			</div>
+			<div class="w-full p-20 text-center bg-surface-100-800-token rounded-lg">Keine</div>
 		{:else}
-			<LatestProposals govProposals={govProposals} />
+			<LatestProposals {govProposals} />
 		{/if}
 	{:else}
 		<section class="card w-full animate-pulse">

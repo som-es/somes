@@ -8,10 +8,7 @@
 	import { cachedAllSeats, getSeats } from '$lib/caching/seats';
 	import DataParliament from './DataParliament.svelte';
 	import { createPartyInfavorMap, isPartyInFavor } from '$lib/partyInfavor';
-	import {
-		filterDelegates,
-		filteredDelegatesNearSeats
-	} from '$lib/caching/delegates';
+	import { filterDelegates, filteredDelegatesNearSeats } from '$lib/caching/delegates';
 	import { cachedGovOfficials, seatSettedCachedGovOfficials } from '$lib/caching/gov_officials';
 
 	const width = 830;
@@ -57,7 +54,7 @@
 		const allSeats = await cachedAllSeats();
 
 		let updateDelegates = delegates;
-		
+
 		if (!overrideDelegates) {
 			const fetchedDelegates = await filteredDelegatesNearSeats(date as unknown as string, gp);
 
@@ -132,6 +129,7 @@
 		updateLayout();
 	}
 </script>
+
 {#if firstFinished}
 	<DataParliament
 		bind:delegate

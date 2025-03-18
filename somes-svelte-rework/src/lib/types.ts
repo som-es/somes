@@ -54,8 +54,8 @@ export interface DbMinistrialProposalQuery {
 }
 
 export interface GovProposalDelegate {
-	delegate: Delegate,
-	gov_proposal: GovProposal,
+	delegate: Delegate;
+	gov_proposal: GovProposal;
 }
 
 export interface GovProposal {
@@ -81,12 +81,11 @@ export interface LegislativeInitiative {
 	is_emphasis_ai_generated: boolean | null;
 	pre_declined_type: string | null;
 	plenary_session_id: number | null;
-    is_law: boolean,
-    law_accepted: boolean | null,
-    law_come_into_effect_date: string | null,
-    law_expires_on_date: string | null,
-    by_publication: boolean | null,
-
+	is_law: boolean;
+	law_accepted: boolean | null;
+	law_come_into_effect_date: string | null;
+	law_expires_on_date: string | null;
+	by_publication: boolean | null;
 }
 
 export interface Vote {
@@ -136,8 +135,8 @@ export interface LegisInitFavo {
 
 export interface MailSendInfo {
 	send_new_vote_results_mails: boolean;
-    send_new_delegate_activity_mails: boolean;
-    send_new_ministrial_prop_mails: boolean;
+	send_new_delegate_activity_mails: boolean;
+	send_new_ministrial_prop_mails: boolean;
 }
 
 export interface VoteResult {
@@ -199,12 +198,12 @@ export interface CallToOrdersPerPartyDelegate {
 }
 
 export interface PoliticalPosition {
-    delegate_id: number;
-    is_left: number;
-    is_not_left: number;
-    is_liberal: number;
-    is_not_liberal: number;
-    neutral_count: number;
+	delegate_id: number;
+	is_left: number;
+	is_not_left: number;
+	is_liberal: number;
+	is_not_liberal: number;
+	neutral_count: number;
 }
 
 export interface Party {
@@ -245,8 +244,8 @@ export interface BasicUserInfo {
 export interface ExtendedUserInfo {
 	id: number;
 	email: string;
-    is_email_hashed: boolean;
-    is_admin: boolean;
+	is_email_hashed: boolean;
+	is_admin: boolean;
 }
 
 export interface Quiz {

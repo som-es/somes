@@ -4,33 +4,33 @@ Command: npx @threlte/gltf@2.0.3 3d-parliament/static/models/20-angle.glb --tran
 -->
 
 <script lang="ts">
-  import { Group, Material } from 'three'
-  import { T, forwardEventHandlers } from '@threlte/core'
-  import { useGltf } from '@threlte/extras'
+	import { Group, Material } from 'three';
+	import { T, forwardEventHandlers } from '@threlte/core';
+	import { useGltf } from '@threlte/extras';
 
-  export const ref = new Group();
-  export let material: Material | null = null;
+	export const ref = new Group();
+	export let material: Material | null = null;
 
-  const gltf = useGltf('models/20-angle-transformed.glb', { useDraco: true })
+	const gltf = useGltf('models/20-angle-transformed.glb', { useDraco: true });
 
-  const component = forwardEventHandlers();
+	const component = forwardEventHandlers();
 </script>
 
 <T is={ref} dispose={false} {...$$restProps} bind:this={$component}>
-  {#await gltf}
-    <slot name="fallback" />
-  {:then gltf}
-    <T.Mesh
-      castShadow
-      receiveShadow
-      geometry={gltf.nodes.Cube001.geometry}
-      material={material ? material : gltf.materials.Material}
-      position={[0.03, 0, 0]}
-      scale={[1.19, 1, 0.57]}
-    />
-  {:catch error}
-    <slot name="error" {error} />
-  {/await}
+	{#await gltf}
+		<slot name="fallback" />
+	{:then gltf}
+		<T.Mesh
+			castShadow
+			receiveShadow
+			geometry={gltf.nodes.Cube001.geometry}
+			material={material ? material : gltf.materials.Material}
+			position={[0.03, 0, 0]}
+			scale={[1.19, 1, 0.57]}
+		/>
+	{:catch error}
+		<slot name="error" {error} />
+	{/await}
 
-  <slot {ref} />
+	<slot {ref} />
 </T>

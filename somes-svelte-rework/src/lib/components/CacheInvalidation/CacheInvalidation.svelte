@@ -22,11 +22,8 @@
 		},
 		1000 * 60 * 2
 	);
-	setInterval(
-		async () => {
-			cachedLatestVoteResults(true);
-			cachedLatestGovProposals(true);
-		},
-		1000 * 60
-	);
+	setInterval(async () => {
+		cachedLatestVoteResults(true);
+		cachedLatestGovProposals(true);
+	}, 1000 * 60);
 </script>

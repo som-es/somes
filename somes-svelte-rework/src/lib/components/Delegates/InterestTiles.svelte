@@ -4,8 +4,8 @@
 	import Square from '../UI/Square.svelte';
 
 	export let interests: InterestShare[];
-	export let bgColor = "bg-primary-200 dark:bg-primary-400";
-	export let squareColor = "bg-primary-200 dark:bg-primary-400";
+	export let bgColor = 'bg-primary-200 dark:bg-primary-400';
+	export let squareColor = 'bg-primary-200 dark:bg-primary-400';
 
 	function calcSizeForText(text: string): string {
 		if (text.length < 12) return 'text-xl';
@@ -15,9 +15,7 @@
 	}
 </script>
 
-<div
-	class="grid-tile {bgColor} flex flex-row flex-wrap interests-item gap-3"
->
+<div class="grid-tile {bgColor} flex flex-row flex-wrap interests-item gap-3">
 	{#each interests as interest}
 		<Square class=" break-words {squareColor}">
 			<div
