@@ -330,7 +330,7 @@ async fn process_message(
                 b'h' => {
                     let (_, rest) = chat_msg.split_at(1);
                     let mut split = rest.split(';');
-                    let token = split.next().unwrap_or_default();
+                    let token = split.next().unwrap_or(rest);
                     let quiz_id = split.next().map(|x| x.parse::<i32>().ok()).flatten();
                     // let (token_, id) = rest.split_at(1);
                     let token_data = decode::<crate::jwt::ClaimsGen<u128>>(
