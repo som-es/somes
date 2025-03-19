@@ -1,0 +1,1 @@
+import{A as t}from"./DylTeNA8.js";import{p as e}from"./BbGJVGMR.js";function n(){return new Map(t(e))}function a(r){if(r==null)return"#B8B8B8";const o=n().get(r);return o??"#B8B8B8"}export{n as g,a as p};
