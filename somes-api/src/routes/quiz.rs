@@ -10,7 +10,6 @@ use std::{
 };
 
 pub use add_quiz::*;
-pub use quizes::*;
 use axum::{
     extract::{
         ws::{Message, WebSocket},
@@ -22,6 +21,7 @@ use axum_extra::TypedHeader;
 use fake::{faker::name::de_de::Name, locales::DE_DE, Fake};
 use futures::{SinkExt, StreamExt};
 use jsonwebtoken::{decode, Validation};
+pub use quizes::*;
 use rand::Rng;
 use redis::{aio::MultiplexedConnection, AsyncCommands};
 use serde::{Deserialize, Serialize};
@@ -146,12 +146,10 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
             // log::info!("{:?}", recv_user.read().await.as_ref());
             let recv_user = recv_user.read().await;
             let Some(recv_user) = recv_user.as_ref() else {
-                continue
+                continue;
             };
 
-            if questions.is_none()
-                && recv_user.is_admin
-            {
+            if questions.is_none() && recv_user.is_admin {
                 db_questions = sqlx::query_as!(QuizQuestion, "select question, answer1, answer2, answer3, answer4, correct_answer from quiz_questions where quiz_id = $1", recv_user.quiz_id.unwrap_or(DEFAULT_QUIZ_ID)).fetch_all(&pg).await.unwrap_or_default();
                 log::info!("{db_questions:?}");
                 questions = Some(db_questions.iter());
@@ -170,7 +168,7 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
         loop {
             if question_user.read().await.is_none() {
                 tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
-                continue
+                continue;
             }
 
             let question = QUESTION.read().await;
@@ -353,7 +351,7 @@ async fn process_message(
                             token: token.to_string(),
                             is_admin: token_data.claims.is_admin,
                             answer_locked_in: false,
-                            quiz_id
+                            quiz_id,
                         };
                         *user.write().await = Some(new_user);
 
@@ -379,7 +377,7 @@ async fn process_message(
                             token: token.to_string(),
                             is_admin: token_data.claims.is_admin,
                             answer_locked_in: false,
-                            quiz_id: None
+                            quiz_id: None,
                         };
                         *user.write().await = Some(new_user);
 
@@ -484,8 +482,6 @@ async fn process_message(
                         *QUESTION.write().await = State::Ready;
                     }
                 }
-
-
 
                 b'u' => {
                     if user
