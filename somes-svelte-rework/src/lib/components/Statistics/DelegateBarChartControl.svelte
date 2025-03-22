@@ -5,41 +5,48 @@
 	import { onMount } from "svelte";
 	import ReactiveDelegateBarChart from "./ReactiveDelegateBarChart.svelte";
 
-    export let delegateMakeRequest: (gp: string | null, gender: string | null, isDesc: boolean | true) => Promise<DelegateData[]>;
+	export let delegateMakeRequest: (gp: string | null, gender: string | null, isDesc: boolean | true, normalized: boolean | true) => Promise<DelegateData[]>;
 	export let height: number;
 	export let title: string;
 	export let id: number;
 
-    let currentData: DelegateData[] = [];
-    let filteredData: DelegateData[] = [];
-    let filterParties: string[] = [];
+	let currentData: DelegateData[] = [];
+	let filteredData: DelegateData[] = [];
+	let filterParties: string[] = [];
 
-    const addUniqueParties = () => {
-        uniqueParties = []
-        currentData.forEach(data => {
-            if (!uniqueParties.includes(data.party)) {
-                uniqueParties.push(data.party)
-            }
-        })
-        uniqueParties = uniqueParties
-    }
+	const addUniqueParties = () => {
+		uniqueParties = []
+		currentData.forEach(data => {
+			const party = data.party ?? '';  // Setze `party` auf einen leeren String, falls `null`
+			if (!uniqueParties.includes(party)) {
+				uniqueParties.push(party)
+			}
+		})
+	}
 
-    onMount(async () => {
-        currentData = await delegateMakeRequest(null, null, true);
-        filteredData = currentData;
-    })
+	onMount(async () => {
+		currentData = await delegateMakeRequest(null, null, true, true);
+		filteredData = currentData;
+	})
 
-    const popupParty: PopupSettings = {
+	const popupParty: PopupSettings = {
 		event: 'click',
 		target: 'popupParty' + id,
 		placement: 'bottom',
 	};
 
-    const popupGender: PopupSettings = {
+	const popupGender: PopupSettings = {
 		event: 'click',
 		target: 'popupGender' + id,
 		placement: 'bottom',
-        closeQuery: '.listbox-item'
+		closeQuery: '.listbox-item'
+	};
+
+	const popupNormalized: PopupSettings = {
+		event: 'click',
+		target: 'popupNormalized' + id,
+		placement: 'bottom',
+		closeQuery: '.listbox-item'
 	};
 
 	const popupDesc: PopupSettings = {
@@ -49,72 +56,79 @@
 		closeQuery: '.listbox-item'
 	};
 
-    let selectedPeriod: string = "all";
-    let gender: string | undefined = undefined
-    let uniqueParties: string[] = []
-		let isDesc: boolean = true;
+	let selectedPeriod: string = "all";
+	let gender: string | undefined = undefined
+	let uniqueParties: string[] = []
+	let normalized: boolean = true;
+	let isDesc: boolean = true;
 
-    $: if (filterParties && filterParties.length > 0) {
-        filteredData = currentData.filter(data => {
+	$: if (filterParties && filterParties.length > 0) {
+		filteredData = currentData.filter(data => {
+			return filterParties.includes(data.party ?? "");
+		})
+	} else {
+		filteredData = currentData;
+	}
 
-            return filterParties.includes(data.party)
-        })
-    } else {
-        filteredData = currentData;
-    }
-
-    const resetFilterParties = () => {
-        filterParties = []
-    }
-
-
-    $: if(selectedPeriod || gender || isDesc) {
-        let gp: string | null = selectedPeriod
-        if (selectedPeriod == "all") {
-            gp = null
-        }
-        delegateMakeRequest(gp, gender ?? null, isDesc).then(res => {
-            currentData = res;
-        });
-
-        resetFilterParties()
-    }
-
-    $: if (currentData) {
-        filteredData = currentData;
-        addUniqueParties();
-    }
+	const resetFilterParties = () => {
+		filterParties = []
+	}
 
 
-    const translatePartyFilter = (filterParties: string[]) => {
-        if (filterParties.length == 0) {
-            return "Alle"
-        }
-        if (filterParties.length == 1) {
-            return filterParties[0]
-        }
-        return `${filterParties[0]}, ...`
-    }
+	$: if(selectedPeriod || gender || isDesc) {
+		let gp: string | null = selectedPeriod
+		if (selectedPeriod == "all") {
+			gp = null
+		}
+		delegateMakeRequest(gp, gender ?? null, isDesc, normalized).then(res => {
+			currentData = res;
+		});
 
-    const translateGenderFilter = (gender: string | undefined) => {
-        if (!gender) {
-            return "egal"
-        }
-        if (gender == "f") {
-            return "weiblich"
-        }
-        if (gender == "m") {
-            return "männlich"
-        }
-    }
+		resetFilterParties()
+	}
+
+	$: if (currentData) {
+		filteredData = currentData;
+		addUniqueParties();
+	}
+
+
+	const translatePartyFilter = (filterParties: string[]) => {
+		if (filterParties.length == 0) {
+			return "Alle"
+		}
+		if (filterParties.length == 1) {
+			return filterParties[0]
+		}
+		return `${filterParties[0]}, ...`
+	}
+
+	const translateGenderFilter = (gender: string | undefined) => {
+		if (!gender) {
+			return "egal"
+		}
+		if (gender == "f") {
+			return "weiblich"
+		}
+		if (gender == "m") {
+			return "männlich"
+		}
+	}
+
+	const translateNormalizationFilter = (normalized: boolean | undefined) => {
+		if (normalized) {
+			return "Ja"
+		}
+		return "Nein"
+	}
 
 	const translateDescFilter = (isDesc: boolean | undefined) => {
 		if (isDesc) {
 			return "Ja"
 		}
-			return "Nein"
+		return "Nein"
 	}
-    
+
 </script>
 
 <LegisButtons bind:selectedPeriod={selectedPeriod} />
@@ -137,6 +151,18 @@
 			use:popup={popupGender}
 		>
 			<span class="capitalize">{translateGenderFilter(gender)}</span>
+			<span>↓
+
+			</span>
+		</button>
+	</div>
+	<div>
+		<h1 class="text-2xl font-bold">Normalisiert</h1>
+		<button
+			class="btn variant-filled-secondary w-48 justify-between"
+			use:popup={popupNormalized}
+		>
+			<span class="capitalize">{translateNormalizationFilter(normalized)}</span>
 			<span>↓</span>
 		</button>
 	</div>
@@ -158,13 +184,13 @@
 		rounded="rounded-container-token sm:!rounded-token"
 		active="variant-filled-secondary"
 		hover="hover:variant-soft-secondary"
-        multiple
+		multiple
 	>
-        {#each uniqueParties as party}
-            <ListBoxItem bind:group={filterParties} name="partyFilter" value={party}
-                >{party}</ListBoxItem
-            >
-        {/each}
+		{#each uniqueParties as party}
+			<ListBoxItem bind:group={filterParties} name="partyFilter" value={party}
+			>{party}</ListBoxItem
+			>
+		{/each}
 	</ListBox>
 </div>
 <div class="z-10 card w-48 shadow-xl py-2" data-popup="popupGender{id}">
@@ -173,14 +199,28 @@
 		active="variant-filled-secondary"
 		hover="hover:variant-soft-secondary"
 	>
-        <ListBoxItem bind:group={gender} name="genderName" value={undefined}
-			>egal</ListBoxItem
+		<ListBoxItem bind:group={gender} name="genderName" value={undefined}
+		>egal</ListBoxItem
 		>
 		<ListBoxItem bind:group={gender} name="genderName" value={"f"}
-			>weiblich</ListBoxItem
+		>weiblich</ListBoxItem
 		>
 		<ListBoxItem bind:group={gender} name="genderName" value={"m"}
-			>männlich</ListBoxItem
+		>männlich</ListBoxItem
+		>
+	</ListBox>
+</div>
+<div class="z-10 card w-48 shadow-xl py-2" data-popup="popupNormalized{id}">
+	<ListBox
+		rounded="rounded-container-token sm:!rounded-token"
+		active="variant-filled-secondary"
+		hover="hover:variant-soft-secondary"
+	>
+		<ListBoxItem bind:group={normalized} name="normalization" value={true}
+		>Ja</ListBoxItem
+		>
+		<ListBoxItem bind:group={normalized} name="normalization" value={false}
+		>Nein</ListBoxItem
 		>
 	</ListBox>
 </div>
@@ -209,6 +249,6 @@
         max-height: 300px;
         overflow-y: auto;
         overflow-x: hidden;
-				padding: 30px
+        padding: 30px
     }
 </style>

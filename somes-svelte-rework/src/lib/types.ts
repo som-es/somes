@@ -6,7 +6,6 @@ export interface DelegateSplit {
 
 export interface DelegateData {
 	name: string | null;
-	gender: string | null;
 	party: string | null;
 	data: number;
 }
@@ -167,7 +166,7 @@ export interface CallToOrdersPerPartyDelegate {
 }
 
 export interface PoliticalPosition {
-    delegate_id: number;
+    delegate_id: number | null;
     is_left: number;
     is_not_left: number;
     is_liberal: number;

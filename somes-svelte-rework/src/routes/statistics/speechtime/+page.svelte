@@ -7,123 +7,153 @@
     
     type DelegateSpeechTime = {
 		delegate_name: string;
-    delegate_gender: string;
 		delegate_party: string;
+    delegate_gender: string;
+    age_group: string;
+    legislative_period: string;
 		total_speech_time: number;
+    normalized_speech_time: number;
 	};
 
   let tableHeightDelegate = 0;
   let tableHeightParty= 0;
-  let tableHeightGender = 0;
+  let tableHeightGender= 0;
   let tableHeightAge = 0;
+  let tableHeightLegis = 0;
 
-  const calculateTableHeight = (numRows: number): number => {
+  const setTableHeight = (numRows: number): number => {
+      const minHeight = 275;
       const maxHeight = 3100;
-      const maxRows = 100;
 
-      const height = (numRows / maxRows) * maxHeight;
+      let height = minHeight
 
-      return Math.min(height, maxHeight);
+      if (numRows > 6) { height = 350; }
+      if (numRows > 10) { height = 500; }
+      if (numRows > 15) { height = 725; }
+      if (numRows > 22) { height = 975; }
+      if (numRows > 30) { height = 1300; }
+      if (numRows > 42) { height = 1800; }
+      if (numRows > 58) { height = 2425; }
+      if (numRows > 80) { height = maxHeight; }
+
+      return height;
   };
 
-    const delegateSimpleSpeechTime = async (gp: string | null, gender: string | null, isDesc: boolean | true): Promise<DelegateData[]> => {
+    const delegateSimpleSpeechTime = async (gp: string | null, gender: string | null, isDesc: boolean | true, normalized: boolean | true): Promise<DelegateData[]> => {
         const response = errorToNull(await justPost<DelegateSpeechTime[]>('speechtime_per_delegate', {
 			legis_period: gp,
 			party: null,
 			gender,
-			is_desc: isDesc
-		})) ?? [];
+			is_desc: isDesc,
+      normalized: normalized
+        })) ?? [];
 
         console.log(response)
 
-        tableHeightDelegate = calculateTableHeight(response.length);
-
-        console.log(tableHeightDelegate)
+        tableHeightDelegate = setTableHeight(response.length);
 
         return response.map(val => {
             return {
                 name: val.delegate_name,
-                gender: null,
                 party: val.delegate_party,
-                data: val.total_speech_time
+                data: normalized ? val.normalized_speech_time : val.total_speech_time,
             };
         });
     }
 
-  const partySimpleSpeechTime = async (gp: string | null, gender: string | null, isDesc: boolean | true): Promise<DelegateData[]> => {
+  const partySimpleSpeechTime = async (gp: string | null, gender: string | null, isDesc: boolean | true, normalized: boolean | true): Promise<DelegateData[]> => {
       const response = errorToNull(await justPost<DelegateSpeechTime[]>('speechtime_per_party', {
           legis_period: gp,
           party: null,
           gender,
-          is_desc: isDesc
+          is_desc: isDesc,
+          normalized: normalized
       })) ?? [];
 
-      // tableheight berechnung ist die gefehrlich, da response hier 14 (Zahl der Parteien) zurückgibt
       console.log(response)
 
-      tableHeightParty = calculateTableHeight(response.length);
-
-      console.log(tableHeightParty)
+      tableHeightParty = setTableHeight(response.length);
 
       return response.map(val => {
           return {
               name: null,
-              gender: null,
               party: val.delegate_party,
-              data: val.total_speech_time
+              data: normalized ? val.normalized_speech_time : val.total_speech_time,
           };
       });
   }
 
-  const genderSimpleSpeechTime = async (gp: string | null, gender: string | null, isDesc: boolean | true): Promise<DelegateData[]> => {
+  const genderSimpleSpeechTime = async (gp: string | null, gender: string | null, isDesc: boolean | true, normalized: boolean | true): Promise<DelegateData[]> => {
       const response = errorToNull(await justPost<DelegateSpeechTime[]>('speechtime_per_gender', {
           legis_period: gp,
           party: null,
           gender,
-          is_desc: isDesc
+          is_desc: isDesc,
+          normalized: normalized
+
       })) ?? [];
 
-      //console.log(response)
 
-      tableHeightGender = calculateTableHeight(response.length);
+      console.log(response)
 
-      console.log(tableHeightGender)
+      tableHeightGender = setTableHeight(response.length);
 
       return response.map(val => {
           return {
               name: null,
-              gender: val.delegate_gender,
-              party: null,
-              data: val.total_speech_time
+              party: val.delegate_gender,
+              data: normalized ? val.normalized_speech_time : val.total_speech_time,
           };
       });
   }
 
-  const ageSimpleSpeechTime = async (gp: string | null, gender: string | null, isDesc: boolean | true): Promise<DelegateData[]> => {
+  const ageSimpleSpeechTime = async (gp: string | null, gender: string | null, isDesc: boolean | true, normalized: boolean | true): Promise<DelegateData[]> => {
       const response = errorToNull(await justPost<DelegateSpeechTime[]>('speechtime_per_age', {
           legis_period: gp,
           party: null,
           gender,
-          is_desc: isDesc
+          is_desc: isDesc,
+          normalized: normalized
+
       })) ?? [];
 
-      //console.log(response)
 
-      tableHeightAge = calculateTableHeight(response.length);
+      console.log(response)
 
-      console.log(tableHeightAge)
+      tableHeightAge = setTableHeight(response.length);
 
       return response.map(val => {
           return {
-              name: val.delegate_name,
-              gender: null,
-              party: val.delegate_party,
-              data: val.total_speech_time
+              name: null,
+              party: val.age_group,
+              data: normalized ? val.normalized_speech_time : val.total_speech_time,
           };
       });
   }
 
+  const legisSimpleSpeechTime = async (gp: string | null, gender: string | null, isDesc: boolean | true, normalized: boolean | true): Promise<DelegateData[]> => {
+      const response = errorToNull(await justPost<DelegateSpeechTime[]>('speechtime_per_legis', {
+          legis_period: gp,
+          party: null,
+          gender,
+          is_desc: isDesc,
+          normalized: normalized
 
+      })) ?? [];
+
+
+      console.log(response)
+
+      tableHeightLegis = setTableHeight(response.length);
+
+      return response.map(val => {
+          return {
+              name: null,
+              party: val.legislative_period,
+              data: normalized ? val.normalized_speech_time : val.total_speech_time,
+          };
+      });
+  }
 
 
 </script>
@@ -137,9 +167,13 @@
 </Container>
 
 <Container>
-    <DelegateBarChartControl height={tableHeightGender} id={2} delegateMakeRequest={genderSimpleSpeechTime} title="Redezeit nach Geschlecht (in Minuten)"/>
+    <DelegateBarChartControl height={tableHeightGender} id={2} delegateMakeRequest={genderSimpleSpeechTime} title="Redezeit nach Gender (in Minuten)" />
 </Container>
 
 <Container>
-    <DelegateBarChartControl height={tableHeightAge} id={3} delegateMakeRequest={ageSimpleSpeechTime} title="Redezeit nach Alter (in Minuten)"/>
+    <DelegateBarChartControl height={tableHeightAge} id={3} delegateMakeRequest={ageSimpleSpeechTime} title="Redezeit nach Alter (in Minuten)" />
+</Container>
+
+<Container>
+    <DelegateBarChartControl height={tableHeightLegis} id={4} delegateMakeRequest={legisSimpleSpeechTime} title="Redezeit nach Legislaturperiode (in Minuten)" />
 </Container>

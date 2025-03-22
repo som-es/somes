@@ -5,70 +5,152 @@
 	import type { DelegateData } from "$lib/types";
 
 
-	type DelegateAbcenses = {
+	type DelegateAbsences = {
 		delegate_name: string;
-		delegate_gender: string;
 		delegate_party: string;
-		abcenses: number;
+		delegate_gender: string;
+		age_group: string;
+		legislative_period: string;
+		total_absences: number;
+		normalized_absences: number;
 	};
 
 	let tableHeightDelegate = 0;
 	let tableHeightParty= 0;
+	let tableHeightGender= 0;
+	let tableHeightAge = 0;
+	let tableHeightLegis = 0;
 
-	const calculateTableHeight = (numRows: number): number => {
+	const setTableHeight = (numRows: number): number => {
+		const minHeight = 275;
 		const maxHeight = 3100;
-		const maxRows = 100;
 
-		const height = (numRows / maxRows) * maxHeight;
+		let height = minHeight
 
-		return Math.min(height, maxHeight);
+		if (numRows > 6) { height = 350; }
+		if (numRows > 10) { height = 500; }
+		if (numRows > 15) { height = 725; }
+		if (numRows > 22) { height = 975; }
+		if (numRows > 30) { height = 1300; }
+		if (numRows > 42) { height = 1800; }
+		if (numRows > 58) { height = 2425; }
+		if (numRows > 80) { height = maxHeight; }
+
+		return height;
 	};
 
-	const delegateSimpleAbcenses = async (gp: string | null, gender: string | null, isDesc: boolean | true): Promise<DelegateData[]> => {
-		const response = errorToNull(await justPost<DelegateAbcenses[]>('absences_per_delegate', {
+	const delegateSimpleAbsences= async (gp: string | null, gender: string | null, isDesc: boolean | true, normalized: boolean | true): Promise<DelegateData[]> => {
+		const response = errorToNull(await justPost<DelegateAbsences[]>('absences_per_delegate', {
 			legis_period: gp,
 			party: null,
 			gender,
-			is_desc: isDesc
+			is_desc: isDesc,
+			normalized: normalized
 		})) ?? [];
 
 		console.log(response)
 
-		tableHeightDelegate = calculateTableHeight(response.length);
-
-		console.log(tableHeightDelegate)
+		tableHeightDelegate = setTableHeight(response.length);
 
 		return response.map(val => {
 			return {
 				name: val.delegate_name,
-				gender: null,
 				party: val.delegate_party,
-				data: val.abcenses
+				data: normalized ? val.normalized_absences : val.total_absences,
 			};
 		});
 	}
 
-	const partySimpleAbcenses = async (gp: string | null, gender: string | null, isDesc: boolean | true): Promise<DelegateData[]> => {
-		const response = errorToNull(await justPost<DelegateAbcenses[]>('absences_per_party', {
+	const partySimpleAbsences = async (gp: string | null, gender: string | null, isDesc: boolean | true, normalized: boolean | true): Promise<DelegateData[]> => {
+		const response = errorToNull(await justPost<DelegateAbsences[]>('absences_per_party', {
 			legis_period: gp,
 			party: null,
 			gender,
-			is_desc: isDesc
+			is_desc: isDesc,
+			normalized: normalized
 		})) ?? [];
 
-		// tableheight berechnung ist die gefehrlich, da response hier 14 (Zahl der Parteien) zurückgibt
 		console.log(response)
 
-		tableHeightParty = calculateTableHeight(response.length);
-
-		console.log(tableHeightParty)
+		tableHeightParty = setTableHeight(response.length);
 
 		return response.map(val => {
 			return {
 				name: null,
-				gender: null,
 				party: val.delegate_party,
-				data: val.abcenses
+				data: normalized ? val.normalized_absences : val.total_absences,
+			};
+		});
+	}
+
+	const genderSimpleAbsences = async (gp: string | null, gender: string | null, isDesc: boolean | true, normalized: boolean | true): Promise<DelegateData[]> => {
+		const response = errorToNull(await justPost<DelegateAbsences[]>('absences_per_gender', {
+			legis_period: gp,
+			party: null,
+			gender,
+			is_desc: isDesc,
+			normalized: normalized
+
+		})) ?? [];
+
+
+		console.log(response)
+
+		tableHeightGender = setTableHeight(response.length);
+
+		return response.map(val => {
+			return {
+				name: null,
+				party: val.delegate_gender,
+				data: normalized ? val.normalized_absences : val.total_absences,
+			};
+		});
+	}
+
+	const ageSimpleAbsences = async (gp: string | null, gender: string | null, isDesc: boolean | true, normalized: boolean | true): Promise<DelegateData[]> => {
+		const response = errorToNull(await justPost<DelegateAbsences[]>('absences_per_age', {
+			legis_period: gp,
+			party: null,
+			gender,
+			is_desc: isDesc,
+			normalized: normalized
+
+		})) ?? [];
+
+
+		console.log(response)
+
+		tableHeightAge = setTableHeight(response.length);
+
+		return response.map(val => {
+			return {
+				name: null,
+				party: val.age_group,
+				data: normalized ? val.normalized_absences : val.total_absences,
+			};
+		});
+	}
+
+	const legisSimpleAbsences = async (gp: string | null, gender: string | null, isDesc: boolean | true, normalized: boolean | true): Promise<DelegateData[]> => {
+		const response = errorToNull(await justPost<DelegateAbsences[]>('absences_per_legis', {
+			legis_period: gp,
+			party: null,
+			gender,
+			is_desc: isDesc,
+			normalized: normalized
+
+		})) ?? [];
+
+
+		console.log(response)
+
+		tableHeightLegis = setTableHeight(response.length);
+
+		return response.map(val => {
+			return {
+				name: null,
+				party: val.legislative_period,
+				data: normalized ? val.normalized_absences : val.total_absences,
 			};
 		});
 	}
@@ -77,9 +159,21 @@
 </script>
 
 <Container>
-	<DelegateBarChartControl height={tableHeightDelegate} id={0} delegateMakeRequest={delegateSimpleAbcenses} title="Komplexität pro Abgeordneten (in Schulklasse)"/>
+	<DelegateBarChartControl height={tableHeightDelegate} id={0} delegateMakeRequest={delegateSimpleAbsences} title="Abwesenheiten pro Abgeordneten"/>
 </Container>
 
 <Container>
-	<DelegateBarChartControl height={tableHeightParty} id={1} delegateMakeRequest={partySimpleAbcenses} title="Komplexität nach Parteien (in Schulklasse)" />
+	<DelegateBarChartControl height={tableHeightParty} id={1} delegateMakeRequest={partySimpleAbsences} title="Abwesenheiten nach Parteien" />
+</Container>
+
+<Container>
+	<DelegateBarChartControl height={tableHeightGender} id={2} delegateMakeRequest={genderSimpleAbsences} title="Abwesenheiten nach Gender" />
+</Container>
+
+<Container>
+	<DelegateBarChartControl height={tableHeightAge} id={3} delegateMakeRequest={ageSimpleAbsences} title="Abwesenheiten nach Alter" />
+</Container>
+
+<Container>
+	<DelegateBarChartControl height={tableHeightLegis} id={4} delegateMakeRequest={legisSimpleAbsences} title="Abwesenheiten nach Legislaturperiode" />
 </Container>

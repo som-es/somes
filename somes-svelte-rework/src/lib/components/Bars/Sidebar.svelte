@@ -44,13 +44,15 @@
 				{ href: `${base}/statistics/overview`, label: 'Übersicht', keywords: '' },
 				{ href: `${base}/statistics/speechtime`, label: 'Redezeit', keywords: '' },
 				{ href: `${base}/statistics/total_speeches`, label: 'Gehaltene Reden', keywords: '' },
+				{ href: `${base}/statistics/speechcomplexity`, label: 'Sprach Komplexität', keywords: '' },
 				{ href: `${base}/statistics/absences`, label: 'Abwesenheiten', keywords: '' },
-				{ href: `${base}/statistics/absolute_majority_initiatives`, label: '2/3 Abstimmugnen', keywords: '' },
-				{ href: `${base}/statistics/votes_together`, label: 'Zusammenabstimmen der Parteien', keywords: '' },
 				{ href: `${base}/statistics/age`, label: 'Alter', keywords: '' },
 				{ href: `${base}/statistics/division_accuracy`, label: 'Bereichssprechergenauigkeit', keywords: '' },
 				{ href: `${base}/statistics/call_to_orders`, label: 'Ordnungsrufe', keywords: '' },
-				{ href: `${base}/statistics/activity`, label: 'Aktivität', keywords: '' }
+				{ href: `${base}/statistics/activity`, label: 'Aktivität', keywords: '' },
+				{ href: `${base}/statistics/political_positions`, label: 'Politische Positionen', keywords: '' },
+				{ href: `${base}/statistics/absolute_majority_initiatives`, label: '2/3 Abstimmugnen', keywords: '' },
+				{ href: `${base}/statistics/votes_together`, label: 'Zusammenabstimmen der Parteien', keywords: '' }
 			]
 		},
 	];
