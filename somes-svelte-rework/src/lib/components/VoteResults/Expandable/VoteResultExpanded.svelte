@@ -82,12 +82,14 @@
 		/>
 	</div>
 
-	<button
-		class="rounded-xl min-w-full max-w-full ml-auto parliament-item bg-primary-100"
-		on:click={onShowDetails}
-	>
-		<VoteParliament2 {voteResult} preview={true} />
-	</button>
+	{#if voteResult.legislative_initiative.accepted}
+		<button
+			class="rounded-xl min-w-full max-w-full ml-auto parliament-item bg-primary-100"
+			on:click={onShowDetails}
+		>
+			<VoteParliament2 {voteResult} preview={true} />
+		</button>
+	{/if}
 	<InfoTiles {voteResult} {dels} />
 	<div class="ml-auto details-item mt-auto">
 		<SButton class="bg-tertiary-500 text-black" on:click={onShowDetails}>Details anzeigen</SButton>

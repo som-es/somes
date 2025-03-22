@@ -57,12 +57,16 @@
 				/>
 			</div>
 
-			<button
-				class="max-sm:hidden z-20 w-[7.5rem] bg-primary-100 dark:bg-primary-300 rounded-md"
-				on:click={onShowDetails}
-			>
-				<VoteParliament2 {voteResult} preview={true} />
-			</button>
+			<!-- {#if voteResult} -->
+
+			{#if voteResult.legislative_initiative.accepted}
+				<button
+					class="max-sm:hidden z-20 w-[7.5rem] bg-primary-100 dark:bg-primary-300 rounded-md"
+					on:click={onShowDetails}
+				>
+					<VoteParliament2 {voteResult} preview={true} />
+				</button>
+			{/if}
 		</div>
 	</div>
 
