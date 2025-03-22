@@ -13,7 +13,11 @@ use utoipa::ToSchema;
 
 use crate::{PgPoolConnection, RedisConnection, GOV_PROPS_PER_PAGE};
 
-use super::{construct_gov_proposal, delegate_by_id_sqlx, statistics::filtering::{bind_values, build_filter, count_filter, IntoFilterArgument, Manual}, GovProposal, GovProposalDelegate, LegisInitErrorResponse};
+use super::{
+    construct_gov_proposal, delegate_by_id_sqlx,
+    statistics::filtering::{bind_values, build_filter, count_filter, IntoFilterArgument, Manual},
+    GovProposal, GovProposalDelegate, LegisInitErrorResponse,
+};
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct GovProposalsWithMaxPage {
@@ -22,9 +26,17 @@ pub struct GovProposalsWithMaxPage {
     pub max_page: i64,
 }
 
-pub async fn construct_gov_delegate_proposal(redis_con: MultiplexedConnection, pg: &PgPool, ministrial_proposal: DbMinistrialProposalQuery) -> sqlx::Result<GovProposalDelegate> {
-    let delegate = delegate_by_id_sqlx(ministrial_proposal.delegate_id, &pg, redis_con.clone()).await.unwrap();
-    let gov_proposal = construct_gov_proposal(redis_con, &pg, ministrial_proposal).await.unwrap();
+pub async fn construct_gov_delegate_proposal(
+    redis_con: MultiplexedConnection,
+    pg: &PgPool,
+    ministrial_proposal: DbMinistrialProposalQuery,
+) -> sqlx::Result<GovProposalDelegate> {
+    let delegate = delegate_by_id_sqlx(ministrial_proposal.delegate_id, &pg, redis_con.clone())
+        .await
+        .unwrap();
+    let gov_proposal = construct_gov_proposal(redis_con, &pg, ministrial_proposal)
+        .await
+        .unwrap();
     Ok(GovProposalDelegate {
         gov_proposal,
         delegate,
@@ -43,11 +55,27 @@ pub async fn get_gov_proposals_per_page(
     // if page.page > page_count {
     //     return Err(LegisInitErrorResponse::InvalidPage);
     // }
-    let (ministrial_proposals, entry_count) = filtered_ministrial_proposals(&pg, page.page, GOV_PROPS_PER_PAGE.parse().unwrap_or(12), gov_prop_filter).await.map_err(|e| LegisInitErrorResponse::GenericErrorResponse(crate::GenericErrorResponse::DbSelectFailure(Some(e))))?;
+    let (ministrial_proposals, entry_count) = filtered_ministrial_proposals(
+        &pg,
+        page.page,
+        GOV_PROPS_PER_PAGE.parse().unwrap_or(12),
+        gov_prop_filter,
+    )
+    .await
+    .map_err(|e| {
+        LegisInitErrorResponse::GenericErrorResponse(crate::GenericErrorResponse::DbSelectFailure(
+            Some(e),
+        ))
+    })?;
 
-    futures::future::join_all(ministrial_proposals.into_iter().map(|ministrial_proposal| {
-        construct_gov_delegate_proposal(redis_con.clone(), &pg, ministrial_proposal)
-    }).into_iter())
+    futures::future::join_all(
+        ministrial_proposals
+            .into_iter()
+            .map(|ministrial_proposal| {
+                construct_gov_delegate_proposal(redis_con.clone(), &pg, ministrial_proposal)
+            })
+            .into_iter(),
+    )
     .await
     .into_iter()
     .collect::<sqlx::Result<Vec<_>>>()
@@ -57,7 +85,11 @@ pub async fn get_gov_proposals_per_page(
         max_page: (entry_count as f64 / GOV_PROPS_PER_PAGE.parse().unwrap_or(12.)).ceil() as i64,
     })
     .map(Json)
-    .map_err(|e| LegisInitErrorResponse::GenericErrorResponse(crate::GenericErrorResponse::DbSelectFailure(Some(e))))
+    .map_err(|e| {
+        LegisInitErrorResponse::GenericErrorResponse(crate::GenericErrorResponse::DbSelectFailure(
+            Some(e),
+        ))
+    })
 }
 
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize, Copy, FromRow)]
@@ -170,10 +202,22 @@ mod tests {
     #[tokio::test]
     async fn test_filtered_ministrial_prop() {
         let pg = connect_pg().await;
-        let entries = get_latest_ministrial_proposals_per_page(&pg, 1, 10, None).await.unwrap();
+        let entries = get_latest_ministrial_proposals_per_page(&pg, 1, 10, None)
+            .await
+            .unwrap();
         println!("entries: {entries:?}");
 
-        let entries = get_latest_ministrial_proposals_per_page(&pg, 1, 10, Some(GovPropFilter { has_vote_result: Some(true), legis_period: None })).await.unwrap();
+        let entries = get_latest_ministrial_proposals_per_page(
+            &pg,
+            1,
+            10,
+            Some(GovPropFilter {
+                has_vote_result: Some(true),
+                legis_period: None,
+            }),
+        )
+        .await
+        .unwrap();
         println!("entries: {entries:?}");
     }
 }

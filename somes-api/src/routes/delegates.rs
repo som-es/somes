@@ -25,6 +25,7 @@ mod interests;
 mod named_votes;
 mod qa;
 mod speeches;
+mod stance_topic_score;
 pub use absences::*;
 pub use ai_chat::*;
 pub use delegate_political_position::*;

@@ -1,7 +1,17 @@
-import type { DelegateFavo, ExtendedUserInfo, HasError, JWTInfo, LegisInitFavo, LoginResponseError, MailSendInfo, UniqueTopic } from "$lib/types";
-import { address, fetchSavely } from "./api";
-import { jwtStore } from "$lib/caching/stores/stores";
-import { get } from "svelte/store";
+import type {
+	DelegateFavo,
+	ExtendedUserInfo,
+	HasError,
+	JWTInfo,
+	LegisInitFavo,
+	LoginResponseError,
+	MailSendInfo,
+	Quiz,
+	UniqueTopic
+} from '$lib/types';
+import { address, fetchSavely } from './api';
+import { jwtStore } from '$lib/caching/stores/stores';
+import { get } from 'svelte/store';
 
 export async function login(
 	email: string,
@@ -135,8 +145,6 @@ export async function getFavoLegisInits(): Promise<LegisInitFavo[] | HasError> {
 	return getWithAuth('favo_legis_init');
 }
 
-
-
 export async function delete_account(): Promise<null | HasError> {
 	return deleteWithAuth('delete_account', undefined);
 }
@@ -147,6 +155,10 @@ export async function getMailSendInfo(): Promise<MailSendInfo | HasError> {
 
 export async function getUser(): Promise<ExtendedUserInfo | HasError> {
 	return getWithAuth('user');
+}
+
+export async function getQuizzes(): Promise<Quiz[] | HasError> {
+	return getWithAuth('quizzes');
 }
 
 export async function updateMailSendInfo(mailSendInfo: MailSendInfo): Promise<null | HasError> {

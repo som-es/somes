@@ -20,7 +20,7 @@
 	// Funktion, um Daten von der API zu laden
 	async function fetchSpeechTimeData() {
 		const response = await justPost<DelegateSpeechTime[]>('speechtime_per_delegate', {
-			legis_period: "XXVII",
+			legis_period: 'XXVII',
 			party: null,
 			gender: null,
 			is_desc: true
@@ -49,7 +49,6 @@
 	onMount(fetchSpeechTimeData);
 </script>
 
-
 <div class="card p-8 max-w-7xl">
 	<div class="!z-50 card p-4 w-72 shadow-xl" data-popup="extractedFromIntroductionVideo">
 		<div class="z-50 font-bold text-xl">
@@ -71,8 +70,6 @@
 		{/each}
 	{/if}
 </div>
-
-
 
 <Container>
 	<div class="entry bg-primary-200 dark:bg-primary-400 gap-3 flex flex-wrap">
@@ -111,30 +108,28 @@
 	{:else}
 		<table>
 			<thead>
-			<tr>
-				<th>Name</th>
-				<th>Partei</th>
-				<th>Gesamtredezeit (Sekunden)</th>
-			</tr>
+				<tr>
+					<th>Name</th>
+					<th>Partei</th>
+					<th>Gesamtredezeit (Sekunden)</th>
+				</tr>
 			</thead>
 			<tbody>
-			{#each speechTimeData as item}
-				<tr>
-					<td>{item.delegate_name}</td>
-					<td>{item.delegate_party}</td>
-					<td>{item.total_speech_time}</td>
-				</tr>
-			{/each}
+				{#each speechTimeData as item}
+					<tr>
+						<td>{item.delegate_name}</td>
+						<td>{item.delegate_party}</td>
+						<td>{item.total_speech_time}</td>
+					</tr>
+				{/each}
 			</tbody>
 		</table>
 	{/if}
 </div>
 
-
 <div>
-	<TestChart dataNoParty={[7, 9, 5, 1, 2]}> </TestChart>
+	<TestChart dataNoParty={[7, 9, 5, 1, 2]}></TestChart>
 </div>
 
 <style>
-
 </style>

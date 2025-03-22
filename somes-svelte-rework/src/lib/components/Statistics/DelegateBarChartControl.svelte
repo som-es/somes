@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { DelegateData } from "$lib/types";
-	import { ListBox, ListBoxItem, popup, type PopupSettings } from "@skeletonlabs/skeleton";
-	import LegisButtons from "../Filtering/LegisButtons.svelte";
-	import { onMount } from "svelte";
-	import ReactiveDelegateBarChart from "./ReactiveDelegateBarChart.svelte";
+	import type { DelegateData } from '$lib/types';
+	import { ListBox, ListBoxItem, popup, type PopupSettings } from '@skeletonlabs/skeleton';
+	import LegisButtons from '../Filtering/LegisButtons.svelte';
+	import { onMount } from 'svelte';
+	import ReactiveDelegateBarChart from './ReactiveDelegateBarChart.svelte';
 
 	export let delegateMakeRequest: (gp: string | null, gender: string | null, isDesc: boolean | true, normalized: boolean | true) => Promise<DelegateData[]>;
 	export let height: number;
@@ -56,7 +56,7 @@
 		closeQuery: '.listbox-item'
 	};
 
-	let selectedPeriod: string = "all";
+	let selectedPeriod: string = "XXVIII";
 	let gender: string | undefined = undefined
 	let uniqueParties: string[] = []
 	let normalized: boolean = true;
@@ -84,7 +84,7 @@
 			currentData = res;
 		});
 
-		resetFilterParties()
+		// resetFilterParties()
 	}
 
 	$: if (currentData) {
@@ -131,25 +131,19 @@
 
 </script>
 
-<LegisButtons bind:selectedPeriod={selectedPeriod} />
+<LegisButtons bind:selectedPeriod />
 
 <div class="flex flex-wrap gap-6">
 	<div>
 		<h1 class="text-2xl font-bold">Partei</h1>
-		<button
-			class="btn variant-filled-secondary w-48 justify-between"
-			use:popup={popupParty}
-		>
+		<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupParty}>
 			<span class="capitalize">{translatePartyFilter(filterParties)}</span>
 			<span>↓</span>
 		</button>
 	</div>
 	<div>
 		<h1 class="text-2xl font-bold">Geschlecht</h1>
-		<button
-			class="btn variant-filled-secondary w-48 justify-between"
-			use:popup={popupGender}
-		>
+		<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupGender}>
 			<span class="capitalize">{translateGenderFilter(gender)}</span>
 			<span>↓
 

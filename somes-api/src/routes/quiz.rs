@@ -1,4 +1,6 @@
 mod add_quiz;
+mod quizes;
+
 use std::{
     cell::Cell,
     collections::HashMap,
@@ -19,16 +21,20 @@ use axum_extra::TypedHeader;
 use fake::{faker::name::de_de::Name, locales::DE_DE, Fake};
 use futures::{SinkExt, StreamExt};
 use jsonwebtoken::{decode, Validation};
+pub use quizes::*;
 use rand::Rng;
 use redis::{aio::MultiplexedConnection, AsyncCommands};
 use serde::{Deserialize, Serialize};
+use somes_common_lib::USER;
 use sqlx::PgPool;
 use tokio::{sync::RwLock, time::Instant};
 
 use crate::{
-    jwt::{Claims, KEYS},
+    jwt::{create_access_token, create_access_token_u128, Claims, Keys, KEYS},
     AuthError, PgPoolConnection, RedisConnection,
 };
+
+const DEFAULT_QUIZ_ID: i32 = 4;
 
 pub async fn join_quiz_room(
     ws: WebSocketUpgrade,
@@ -58,27 +64,40 @@ pub enum State {
     End,
 }
 
-static USER_MAP: LazyLock<Arc<RwLock<HashMap<(String, u64), f64>>>> =
+static USER_MAP: LazyLock<Arc<RwLock<HashMap<(String, u128), f64>>>> =
     LazyLock::new(|| Arc::new(RwLock::new(HashMap::new())));
 
-static SCORE_BOARD: LazyLock<Arc<RwLock<Vec<((String, u64), f64)>>>> =
+static SCORE_BOARD: LazyLock<Arc<RwLock<Vec<((String, u128), f64)>>>> =
     LazyLock::new(|| Arc::new(RwLock::new(Vec::new())));
 // static INFORM_USERS: LazyLock<Arc<RwLock<Vec<Box<dyn Fn() -> BoxFuture<'static, ()>>>>>> = LazyLock::new(|| Arc::new(RwLock::new(Vec::new())));
 static QUESTION: LazyLock<Arc<RwLock<State>>> =
     LazyLock::new(|| Arc::new(RwLock::new(State::Ready)));
 
-static ANSWERS_TO_QUESTION: LazyLock<Arc<RwLock<usize>>> =
-    LazyLock::new(|| Arc::new(RwLock::new(0)));
+pub fn create_keys() -> Keys {
+    let mut rng = rand::rngs::OsRng::default();
+    Keys::new(
+        &(0..32)
+            .into_iter()
+            .map(|_| rng.gen::<u8>())
+            .collect::<Vec<u8>>(),
+    )
+}
+
+static KEYS2: LazyLock<Arc<RwLock<Keys>>> = LazyLock::new(|| Arc::new(RwLock::new(create_keys())));
+
+static ANSWERS_TO_QUESTION: LazyLock<Arc<RwLock<[usize; 5]>>> =
+    LazyLock::new(|| Arc::new(RwLock::new([0, 0, 0, 0, 0])));
 
 // static QUESTION_TX_RX: LazyLock<(Sender<QuizQuestion>, Receiver<QuizQuestion>)> = LazyLock::new(|| tokio::sync::broadcast::channel(2048));
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct ConnectedUser {
     name: String,
-    id: u64,
+    id: u128,
     token: String,
     is_admin: bool,
     answer_locked_in: bool,
+    quiz_id: Option<i32>,
 }
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
@@ -91,7 +110,7 @@ pub struct ScoreInfo {
 #[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Scorer {
     pub name: String,
-    pub id: u64,
+    pub id: u128,
     pub score: f64,
 }
 
@@ -124,16 +143,20 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
             } else {
                 return;
             }
-            if questions.is_none()
-                && recv_user
-                    .read()
-                    .await
-                    .as_ref()
-                    .map(|x: &ConnectedUser| x.is_admin)
-                    .unwrap_or_default()
-            {
-                db_questions = sqlx::query_as!(QuizQuestion, "select question, answer1, answer2, answer3, answer4, correct_answer from quiz_questions where quiz_id = 3").fetch_all(&pg).await.unwrap_or_default();
+            // log::info!("{:?}", recv_user.read().await.as_ref());
+            let recv_user = recv_user.read().await;
+            let Some(recv_user) = recv_user.as_ref() else {
+                continue;
+            };
+
+            if questions.is_none() && recv_user.is_admin {
+                db_questions = sqlx::query_as!(QuizQuestion, "select question, answer1, answer2, answer3, answer4, correct_answer from quiz_questions where quiz_id = $1", recv_user.quiz_id.unwrap_or(DEFAULT_QUIZ_ID)).fetch_all(&pg).await.unwrap_or_default();
+                log::info!("{db_questions:?}");
                 questions = Some(db_questions.iter());
+                *KEYS2.write().await = create_keys();
+                USER_MAP.write().await.clear();
+                SCORE_BOARD.write().await.clear();
+                *QUESTION.write().await = State::Ready;
             }
         }
     });
@@ -143,6 +166,11 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
         let mut last_state = State::Ready;
         let mut last_correct_answer = 0;
         loop {
+            if question_user.read().await.is_none() {
+                tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
+                continue;
+            }
+
             let question = QUESTION.read().await;
             if &*question == &State::End {
                 // send close message ?
@@ -240,14 +268,15 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
     }
 
     if let Some(user) = &*user.read().await {
-        USER_MAP.write().await.remove(&(user.name.clone(), user.id));
+        // do not remove, only set to invisible
+        // USER_MAP.write().await.remove(&(user.name.clone(), user.id));
     };
 }
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct InfoCounts {
     user_count: usize,
-    answer_count: usize,
+    answer_count: [usize; 5],
 }
 
 async fn process_message(
@@ -267,18 +296,28 @@ async fn process_message(
                     let name: String = Name().fake();
 
                     let mut rng = rand::rngs::OsRng::default();
-                    let id = rng.gen();
+                    let id: u32 = rng.gen();
+
+                    let jwt = create_access_token_u128(
+                        id as u128,
+                        name.clone(),
+                        false,
+                        &KEYS2.read().await.encoding,
+                    )
+                    .map(|x| x.access_token.clone())
+                    .unwrap();
 
                     let new_user = ConnectedUser {
                         name,
-                        id,
+                        id: id as u128,
                         token: "token".to_string(),
-                        is_admin: true,
+                        is_admin: false,
                         answer_locked_in: false,
+                        quiz_id: None,
                     };
                     log::info!("new user: {:?}", new_user);
                     sender
-                        .send(Message::Text(format!("{};{}", new_user.name, new_user.id)))
+                        .send(Message::Text(format!("{};{}", new_user.name, jwt)))
                         .await
                         .unwrap();
 
@@ -290,20 +329,61 @@ async fn process_message(
                 }
 
                 b'h' => {
-                    let (_, token) = chat_msg.split_at(1);
-                    let token_data =
-                        decode::<Claims>(token, &KEYS.decoding, &Validation::default())
-                            .map_err(|_| AuthError::InvalidToken);
+                    let (_, rest) = chat_msg.split_at(1);
+                    let mut split = rest.split(';');
+                    let token = split.next().unwrap_or(rest);
+                    let quiz_id = split.next().map(|x| x.parse::<i32>().ok()).flatten();
+                    // let (token_, id) = rest.split_at(1);
+                    let token_data = decode::<crate::jwt::ClaimsGen<u128>>(
+                        token,
+                        &KEYS.decoding,
+                        &Validation::default(),
+                    )
+                    .map_err(|_| AuthError::InvalidToken);
 
                     if let Ok(token_data) = token_data {
+                        if !token_data.claims.is_admin {
+                            return ControlFlow::Break(());
+                        }
                         let new_user = ConnectedUser {
-                            name: "RANDOM_NAME".to_string(),
-                            id: token_data.claims.id as u64,
+                            name: token_data.claims.sub.clone(),
+                            id: token_data.claims.id,
                             token: token.to_string(),
                             is_admin: token_data.claims.is_admin,
                             answer_locked_in: false,
+                            quiz_id,
                         };
                         *user.write().await = Some(new_user);
+
+                        // sender.send(Message::Text(format!("ok"))).await.unwrap();
+                    } else {
+                        // sender.send(Message::Text(format!("b"))).await.unwrap();
+                    }
+                }
+
+                b'l' => {
+                    let (_, token) = chat_msg.split_at(1);
+                    let token_data = decode::<crate::jwt::ClaimsGen<u128>>(
+                        token,
+                        &KEYS2.read().await.decoding,
+                        &Validation::default(),
+                    )
+                    .map_err(|_| AuthError::InvalidToken);
+
+                    if let Ok(token_data) = token_data {
+                        let new_user = ConnectedUser {
+                            name: token_data.claims.sub.clone(),
+                            id: token_data.claims.id,
+                            token: token.to_string(),
+                            is_admin: token_data.claims.is_admin,
+                            answer_locked_in: false,
+                            quiz_id: None,
+                        };
+                        *user.write().await = Some(new_user);
+
+                        sender.send(Message::Text(format!("ok"))).await.unwrap();
+                    } else {
+                        sender.send(Message::Text(format!("b"))).await.unwrap();
                     }
                 }
 
@@ -318,7 +398,14 @@ async fn process_message(
                             }
                             user.answer_locked_in = true;
 
-                            *ANSWERS_TO_QUESTION.write().await += 1;
+                            ANSWERS_TO_QUESTION.write().await[0] += 1;
+                            log::info!("nth answer: {}", nth_answer);
+                            ANSWERS_TO_QUESTION
+                                .write()
+                                .await
+                                .get_mut(nth_answer as usize)
+                                .map(|x| *x += 1);
+
                             USER_MAP
                                 .write()
                                 .await
@@ -383,6 +470,19 @@ async fn process_message(
                     }
                 }
 
+                // reset
+                b'p' => {
+                    if user
+                        .read()
+                        .await
+                        .as_ref()
+                        .map(|x| x.is_admin)
+                        .unwrap_or_default()
+                    {
+                        *QUESTION.write().await = State::Ready;
+                    }
+                }
+
                 b'u' => {
                     if user
                         .read()
@@ -418,7 +518,7 @@ async fn process_message(
                             None => State::End,
                         };
                         *QUESTION.write().await = next_state;
-                        *ANSWERS_TO_QUESTION.write().await = 0;
+                        *ANSWERS_TO_QUESTION.write().await = [0; 5];
                         log::info!("question: {:?}", QUESTION.read().await)
                     }
                 }
@@ -432,7 +532,7 @@ async fn process_message(
         }
         Message::Close(c) => {
             if let Some(user) = &*user.read().await {
-                USER_MAP.write().await.remove(&(user.name.clone(), user.id));
+                // USER_MAP.write().await.remove(&(user.name.clone(), user.id));
             }
             if let Some(cf) = c {
                 println!(

@@ -22,10 +22,13 @@
 		<h1 class="font-bold text-2xl">Letzte Abwesenheiten</h1>
 
 		<h2 class="text-lg">
-			{absences.length} {absences.length == 1 ? "Abwesenheit" : "Abwesenheiten"} insgesamt
+			{absences.length}
+			{absences.length == 1 ? 'Abwesenheit' : 'Abwesenheiten'} insgesamt
 		</h2>
 	</div>
-	<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(allAbsences)}>Alle anzeigen</button>
+	<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(allAbsences)}
+		>Alle anzeigen</button
+	>
 </div>
 
 <div class="mt-1">
@@ -35,4 +38,3 @@
 		<!-- <GovProposalExpandableBar {govProposal} /> -->
 	{/each}
 </div>
-

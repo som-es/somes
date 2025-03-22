@@ -1,11 +1,10 @@
 <script lang="ts">
-	import { errorToNull, justPost } from "$lib/api/api";
-	import Container from "$lib/components/Layout/Container.svelte";
-	import DelegateBarChartControl from "$lib/components/Statistics/DelegateBarChartControl.svelte";
-	import type { DelegateData } from "$lib/types";
+	import { errorToNull, justPost } from '$lib/api/api';
+	import Container from '$lib/components/Layout/Container.svelte';
+	import DelegateBarChartControl from '$lib/components/Statistics/DelegateBarChartControl.svelte';
+	import type { DelegateData } from '$lib/types';
 
-    
-    type DelegateSpeechTime = {
+	type DelegateSpeechTime = {
 		delegate_name: string;
 		delegate_party: string;
     delegate_gender: string;

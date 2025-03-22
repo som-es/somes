@@ -1,6 +1,50 @@
 use somes_common_lib::InterestShare;
 use sqlx::PgPool;
 
+pub async fn extract_detailed_interests_of_delegate(
+    delegate_id: i32,
+    pg: &PgPool,
+) -> sqlx::Result<Vec<InterestShare>> {
+    let absolute_interests = sqlx::query!("select 
+        topic, COUNT(*) as talk_count from speeches 
+            inner join eurovoc_topics_legis_init on eurovoc_topics_legis_init.legislative_initiatives_id=speeches.legislative_initiatives_id 
+            inner join delegates on speeches.delegate_id = delegates.id 
+        where infavor is not null and delegates.id = $1 
+            group by topic
+        order by topic;", delegate_id).fetch_all(pg).await?;
+
+    // let absolute_interests = absolute_interests_eurovoc_proposals;
+    let total_talk_counts = sqlx::query!("
+        select topic, COUNT(*) as talk_count from speeches 
+        inner join eurovoc_topics_legis_init on eurovoc_topics_legis_init.legislative_initiatives_id=speeches.legislative_initiatives_id inner join delegates on speeches.delegate_id = delegates.id 
+        where infavor is not null and delegates.council = 'nr' and is_active group by topic order by topic;").fetch_all(pg).await?;
+
+    let mut interest_shares = Vec::with_capacity(total_talk_counts.len());
+
+    let talk_count_sum = absolute_interests
+        .iter()
+        .map(|val| val.talk_count.unwrap())
+        .sum::<i64>();
+
+    for (absolute_interest, absolute_talk_count) in absolute_interests
+        .into_iter()
+        .zip(total_talk_counts.into_iter())
+    {
+        let share_on_total = absolute_interest.talk_count.unwrap() as f32
+            / absolute_talk_count.talk_count.unwrap() as f32;
+        let share_on_self = absolute_interest.talk_count.unwrap() as f32 / talk_count_sum as f32;
+
+        interest_shares.push(InterestShare {
+            topic: absolute_interest.topic,
+            occurences: absolute_interest.talk_count.unwrap() as u32,
+            total_share: share_on_total,
+            self_share: share_on_self,
+        });
+    }
+
+    Ok(interest_shares)
+}
+
 pub async fn extract_interests_of_delegate(
     delegate_id: i32,
     pg: &PgPool,
@@ -22,7 +66,7 @@ pub async fn extract_interests_of_delegate(
             group by topic
         order by topic;", delegate_id).fetch_all(pg).await?;
 
-    let absolute_interests = absolute_interests_eurovoc_proposals;
+    // let absolute_interests = absolute_interests_eurovoc_proposals;
     let total_talk_counts = sqlx::query!("
         select topic, COUNT(*) as talk_count from speeches 
         inner join topics_legis_init on topics_legis_init.legislative_initiatives_id=speeches.legislative_initiatives_id inner join delegates on speeches.delegate_id = delegates.id 
@@ -45,6 +89,7 @@ pub async fn extract_interests_of_delegate(
 
         interest_shares.push(InterestShare {
             topic: absolute_interest.topic,
+            occurences: absolute_interest.talk_count.unwrap() as u32,
             total_share: share_on_total,
             self_share: share_on_self,
         });

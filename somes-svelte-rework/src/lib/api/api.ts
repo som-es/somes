@@ -1,4 +1,3 @@
-
 import { get } from 'svelte/store';
 
 import type {
@@ -39,9 +38,9 @@ export function isHasError<T>(value: T | HasError): value is HasError {
 
 export function isThere<T>(value: T | null): boolean {
 	if (value) {
-		return true
+		return true;
 	} else {
-		return false
+		return false;
 	}
 }
 
@@ -80,7 +79,7 @@ export async function justPost<T>(route: string, body: any): Promise<T | HasErro
 		fetch(`${address}/${route}`, {
 			method: 'POST',
 			headers: {
-				'Content-Type': 'application/json',
+				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify(body)
 		})
@@ -128,7 +127,7 @@ export async function all_gps(): Promise<LegisPeriod[] | HasError> {
 	return getWithRoute<LegisPeriod[]>('all_gps');
 }
 
-export async function delegate(delegate_id: number): Promise<Delegate | HasError> {
+export async function delegate_by_id(delegate_id: number): Promise<Delegate | HasError> {
 	return getWithRoute<Delegate>(`delegate?delegate_id=${delegate_id}`);
 }
 
@@ -136,7 +135,9 @@ export async function delegate_interests(delegate_id: number): Promise<InterestS
 	return getWithRoute<InterestShare[]>(`delegate_interests?delegate_id=${delegate_id}`);
 }
 
-export async function general_delegate_info(delegate_id: number): Promise<GeneralDelegateInfo | HasError> {
+export async function general_delegate_info(
+	delegate_id: number
+): Promise<GeneralDelegateInfo | HasError> {
 	return getWithRoute<GeneralDelegateInfo>(`general_delegate_info?delegate_id=${delegate_id}`);
 }
 
@@ -156,19 +157,27 @@ export async function gov_officials_at(date_at: Date): Promise<Delegate[] | HasE
 	return getWithRoute(`gov_officials_at?at=${date_at}`);
 }
 
-export async function gov_proposals_by_official(delegate_id: number): Promise<GovProposal[] | HasError> {
+export async function gov_proposals_by_official(
+	delegate_id: number
+): Promise<GovProposal[] | HasError> {
 	return getWithRoute(`gov_proposals_by_official?delegate_id=${delegate_id}`);
 }
 
-export async function delegate_political_position(delegate_id: number): Promise<PoliticalPosition | HasError> {
+export async function delegate_political_position(
+	delegate_id: number
+): Promise<PoliticalPosition | HasError> {
 	return getWithRoute(`delegate_political_position?delegate_id=${delegate_id}`);
 }
 
-export async function delegate_political_questions(delegate_id: number): Promise<DelegateQA[] | HasError> {
+export async function delegate_political_questions(
+	delegate_id: number
+): Promise<DelegateQA[] | HasError> {
 	return getWithRoute(`delegate_political_questions?delegate_id=${delegate_id}`);
 }
 
-export async function latest_ministrial_proposals(days: number): Promise<GovProposalDelegate[] | HasError> {
+export async function latest_ministrial_proposals(
+	days: number
+): Promise<GovProposalDelegate[] | HasError> {
 	return getWithRoute(`latest_ministrial_proposals?days=${days}`);
 }
 
@@ -185,9 +194,7 @@ export async function delegates_with_seats_near_date(
 	date_at: Date,
 	gp: string
 ): Promise<Delegate[] | HasError> {
-	return getWithRoute<Delegate[]>(
-		`delegates_with_seats_near_date?at=${date_at}&period=${gp}`
-	);
+	return getWithRoute<Delegate[]>(`delegates_with_seats_near_date?at=${date_at}&period=${gp}`);
 }
 
 export async function get_topics(): Promise<UniqueTopic[] | HasError> {
@@ -196,6 +203,13 @@ export async function get_topics(): Promise<UniqueTopic[] | HasError> {
 
 export async function walo_questions(): Promise<WaloQuestion[] | HasError> {
 	return getWithRoute<WaloQuestion[]>('walo_questions');
+}
+
+export async function unfinished_vote_results_per_page(
+	page: number,
+	filter: VoteResultFilter | null
+): Promise<VoteResultsWithMaxPage | HasError> {
+	return justPost(`unfinished_vote_results_per_page?page=${page}`, filter);
 }
 
 export async function vote_results_per_page(
@@ -243,8 +257,6 @@ export async function gov_proposals_by_search(
 		})
 	);
 }
-
-
 
 export async function vote_results_by_search(
 	page: number,

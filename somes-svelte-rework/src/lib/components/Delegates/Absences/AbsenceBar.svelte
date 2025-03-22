@@ -1,24 +1,23 @@
 <script lang="ts">
-	import type { Absence } from "$lib/types";
+	import type { Absence } from '$lib/types';
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
-	import AbsenceBarExpanded from "./AbsenceBarExpanded.svelte";
+	import AbsenceBarExpanded from './AbsenceBarExpanded.svelte';
 	import collapse from 'svelte-collapse';
 
-    export let absence: Absence;
-    export let page: number;
-    // absence.
+	export let absence: Absence;
+	export let page: number;
+	// absence.
 
-    let open: boolean = false;
+	let open: boolean = false;
 	let duration = 0.35;
 
-    $: if (page) {
-        open = false
-    }
-
+	$: if (page) {
+		open = false;
+	}
 </script>
 
 <div class="gap-3 mt-5">
-    <div
+	<div
 		on:click={() => (open = !open)}
 		on:keypress={() => (open = !open)}
 		role="button"
@@ -30,38 +29,36 @@
 				{@html rightArrowIcon}
 			</div>
 
-			<div class="badge bg-tertiary-400">
-				Abwesenheit
-			</div>
+			<div class="badge bg-tertiary-400">Abwesenheit</div>
 		</div>
 
-        <div>
-            {absence.inr}. Nationalratssitzung | {absence.gp}
-        </div>
-        <div>
-            {absence.missed_legis_init_ids.length} verpasste 
-            {#if absence.missed_legis_init_ids.length == 1}
-                Abstimmung
-            {:else}
-                Abstimmungen
-            {/if}
-        </div>
-    </div>
-    
-    <div use:collapse={{ open, duration }}>
+		<div>
+			{absence.inr}. Nationalratssitzung | {absence.gp}
+		</div>
+		<div>
+			{absence.missed_legis_init_ids.length} verpasste
+			{#if absence.missed_legis_init_ids.length == 1}
+				Abstimmung
+			{:else}
+				Abstimmungen
+			{/if}
+		</div>
+	</div>
+
+	<div use:collapse={{ open, duration }}>
 		<!-- <AbsenceBarExpanded {absence} bind:open /> -->
 	</div>
 </div>
 
 <style>
-    .entry {
+	.entry {
 		border-radius: 0.9rem;
 		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 		padding: 20px;
 		gap: 10px;
 	}
-    
-    #open :global(.right-arrow) {
+
+	#open :global(.right-arrow) {
 		transform: rotate(90deg);
 		transition: transform 0.35s;
 	}

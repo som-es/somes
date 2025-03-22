@@ -1,1 +1,0 @@
-import{s as o,t as i,d as r,i as c,n,f as m}from"../chunks/CjpzdfaC.js";import{S as l,i as p}from"../chunks/DucaReQi.js";function f(s){let t;return{c(){t=i("Abwesenheiten")},l(e){t=r(e,"Abwesenheiten")},m(e,a){c(e,t,a)},p:n,i:n,o:n,d(e){e&&m(t)}}}class h extends l{constructor(t){super(),p(this,t,null,f,o,{})}}export{h as component};

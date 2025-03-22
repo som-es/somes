@@ -2,7 +2,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import ApexCharts, { type ApexOptions } from 'apexcharts';
 	import { partyToColor } from '$lib/partyColor';
-	import type { DelegateData  } from '$lib/types';
+	import type { DelegateData } from '$lib/types';
 
 	export let delegateData: DelegateData[];
 
@@ -23,7 +23,7 @@
 		chartOptions = {
 			series: [
 				{
-					data: delegateData.map(del => del.data)
+					data: delegateData.map((del) => del.data)
 				}
 			],
 
@@ -31,7 +31,7 @@
 				text: title,
 				align: 'center',
 				floating: true
-        	},
+			},
 			chart: {
 				type: 'bar',
 				height: height,
@@ -47,8 +47,8 @@
 					}
 				}
 			},
-			colors: delegateData.map(del => {
-				return partyToColor(del.party)
+			colors: delegateData.map((del) => {
+				return partyToColor(del.party);
 			}),
 			dataLabels: {
 				offsetX: 14,
@@ -81,7 +81,6 @@
 			},
 			xaxis: {
 				categories: labels
-
 			},
 
 			legend: {

@@ -5,19 +5,17 @@
 		LightSwitch,
 		modeCurrent,
 		setModeCurrent,
-
 		type DrawerSettings
-
 	} from '@skeletonlabs/skeleton';
 	import userIcon from '$lib/assets/icons/user.svg?raw';
 	import somesTextIcon from '$lib/assets/somes_with_text2.svg?raw';
 	import { jwtStore } from '$lib/caching/stores/stores';
 	import { get } from 'svelte/store';
-	import { isHasError} from '$lib/api/api';
+	import { isHasError } from '$lib/api/api';
 	import { loginDrawerSettings } from '../Login/constants';
 	import { gotoHistory } from '$lib/goto';
 	import { renew_token } from '$lib/api/authed';
-	import hamburgerIcon from '$lib/assets/misc_icons/hamburger-menu.svg?raw'
+	import hamburgerIcon from '$lib/assets/misc_icons/hamburger-menu.svg?raw';
 
 	const drawerStore = getDrawerStore();
 
@@ -38,7 +36,7 @@
 	setModeCurrent($modeCurrent);
 
 	function drawerOpen(): void {
-		const s: DrawerSettings = { 
+		const s: DrawerSettings = {
 			id: 'sidebar',
 			width: 'min-w-fit'
 		};

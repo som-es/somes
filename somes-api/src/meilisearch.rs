@@ -7,7 +7,10 @@ use meilisearch_sdk::settings::Settings;
 use redis::aio::MultiplexedConnection;
 use reqwest::StatusCode;
 
-use crate::{routes::{get_all_gov_props, get_all_votes_from_legis_init}, server::AppState};
+use crate::{
+    routes::{get_all_gov_props, get_all_votes_from_legis_init},
+    server::AppState,
+};
 
 #[derive(FromRef)]
 pub struct MeilisearchClient(pub meilisearch_sdk::client::Client);

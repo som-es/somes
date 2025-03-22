@@ -3,10 +3,12 @@ use meilisearch_sdk::search::SearchResults;
 use reqwest::StatusCode;
 use somes_common_lib::GovPropFilter;
 
-use crate::{meilisearch::MeilisearchClient, routes::GovProposalDelegate, GenericErrorResponse, RedisConnection, GOV_PROPS_PER_PAGE};
+use crate::{
+    meilisearch::MeilisearchClient, routes::GovProposalDelegate, GenericErrorResponse,
+    RedisConnection, GOV_PROPS_PER_PAGE,
+};
 
 use super::GovProposalsWithMaxPage;
-
 
 pub async fn gov_props_by_search(
     RedisConnection(mut redis_con): RedisConnection,
@@ -20,7 +22,10 @@ pub async fn gov_props_by_search(
         let mut filter_conditions = Vec::new();
 
         if let Some(ref legis_period) = filter.legis_period {
-            filter_conditions.push(format!("gov_proposal.ministrial_proposal.gp = '{}'", legis_period));
+            filter_conditions.push(format!(
+                "gov_proposal.ministrial_proposal.gp = '{}'",
+                legis_period
+            ));
         }
         if let Some(is_named_vote) = filter.has_vote_result {
             filter_conditions.push(format!(
@@ -40,7 +45,12 @@ pub async fn gov_props_by_search(
         .with_page(page.page as usize)
         .execute()
         .await
-        .map_err(|e| GenericErrorResponse::CustomString((StatusCode::INTERNAL_SERVER_ERROR, format!("Cannot find gov proposals: {e:?}"))))?;
+        .map_err(|e| {
+            GenericErrorResponse::CustomString((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Cannot find gov proposals: {e:?}"),
+            ))
+        })?;
 
     let max_page = results.total_pages.unwrap_or(1) as i64;
 

@@ -41,9 +41,7 @@
 		<div>{voteResult.legislative_initiative.description}</div>
 		<div class="flex items-center gap-4">
 			{#if voteResult.legislative_initiative.is_law}
-				<div class="badge bg-tertiary-400">
-					Gesetz
-				</div>
+				<div class="badge bg-tertiary-400 text-black">Gesetz</div>
 			{/if}
 			<div class="max-sm:hidden">
 				<InfoTiles
@@ -59,12 +57,16 @@
 				/>
 			</div>
 
-			<button
-				class="max-sm:hidden z-20 w-[7.5rem] bg-primary-100 dark:bg-primary-300 rounded-md"
-				on:click={onShowDetails}
-			>
-				<VoteParliament2 {voteResult} preview={true} />
-			</button>
+			<!-- {#if voteResult} -->
+
+			{#if voteResult.legislative_initiative.accepted}
+				<button
+					class="max-sm:hidden z-20 w-[7.5rem] bg-primary-100 dark:bg-primary-300 rounded-md"
+					on:click={onShowDetails}
+				>
+					<VoteParliament2 {voteResult} preview={true} />
+				</button>
+			{/if}
 		</div>
 	</div>
 

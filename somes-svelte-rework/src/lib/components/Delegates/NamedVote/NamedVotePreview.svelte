@@ -19,17 +19,19 @@
 
 <div class="flex flex-wrap justify-between items-center">
 	<div>
-		<h1 class="font-bold text-2xl">Letzte namentliche Abstimmungen </h1>
+		<h1 class="font-bold text-2xl">Letzte namentliche Abstimmungen</h1>
 		<h2 class="text-lg">
-			{namedVotes.length} {namedVotes.length == 1 ? "Abstimmung" : "Abstimmungen"} insgesamt
+			{namedVotes.length}
+			{namedVotes.length == 1 ? 'Abstimmung' : 'Abstimmungen'} insgesamt
 		</h2>
 	</div>
-	<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(allNamedVotes)}>Alle anzeigen</button>
+	<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(allNamedVotes)}
+		>Alle anzeigen</button
+	>
 </div>
 <div class="mt-5">
-{#each previewNamedVotes as namedVote}
-    <!-- <div class="gap-3 rounded variant-filled my-1">{speech.legislative_initiatives_id} {speech.opinion}</div> -->
-	 <NamedVoteBar {namedVote}></NamedVoteBar>
-{/each}
-
+	{#each previewNamedVotes as namedVote}
+		<!-- <div class="gap-3 rounded variant-filled my-1">{speech.legislative_initiatives_id} {speech.opinion}</div> -->
+		<NamedVoteBar {namedVote}></NamedVoteBar>
+	{/each}
 </div>

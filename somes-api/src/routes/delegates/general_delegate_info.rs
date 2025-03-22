@@ -6,9 +6,10 @@ use sqlx::{query_as, PgPool};
 use crate::{get_json_cache, PgPoolConnection, RedisConnection};
 
 use super::{
-    extract_absences_by_delegate, extract_delegate_qa, extract_interests_of_delegate,
-    extract_political_position, named_votes::extract_named_votes_by_delegate,
-    DelegatesErrorResponse,
+    extract_absences_by_delegate, extract_delegate_qa, extract_detailed_interests_of_delegate,
+    extract_interests_of_delegate, extract_political_position,
+    named_votes::extract_named_votes_by_delegate,
+    stance_topic_score::extract_stance_topic_score_by_delegate, DelegatesErrorResponse,
 };
 
 pub async fn extract_general_delegate_info(
@@ -34,18 +35,22 @@ pub async fn extract_general_delegate_info(
     .await?;
 
     let interests = extract_interests_of_delegate(delegate_id, pg).await?;
+    let detailed_interests = extract_detailed_interests_of_delegate(delegate_id, pg).await?;
     let delegate_qa = extract_delegate_qa(delegate_id, pg).await?;
     let political_position = extract_political_position(delegate_id, pg).await?;
     let absences = extract_absences_by_delegate(pg, delegate_id).await?;
     let named_votes = extract_named_votes_by_delegate(pg, delegate_id).await?;
+    let stances = extract_stance_topic_score_by_delegate(pg, delegate_id).await?;
 
     let gdi = GeneralDelegateInfo {
         mandates,
         interests,
+        detailed_interests,
         delegate_qa,
         political_position,
         absences,
         named_votes,
+        stances,
     };
 
     crate::set_json_cache(redis_con, &key, &gdi)

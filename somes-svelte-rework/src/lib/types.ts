@@ -10,6 +10,12 @@ export interface DelegateData {
 	data: number;
 }
 
+export interface ChartData {
+	label: string;
+	data: number;
+	color: string;
+}
+
 export interface Delegate {
 	id: number;
 	name: string;
@@ -48,8 +54,8 @@ export interface DbMinistrialProposalQuery {
 }
 
 export interface GovProposalDelegate {
-	delegate: Delegate,
-	gov_proposal: GovProposal,
+	delegate: Delegate;
+	gov_proposal: GovProposal;
 }
 
 export interface GovProposal {
@@ -75,12 +81,11 @@ export interface LegislativeInitiative {
 	is_emphasis_ai_generated: boolean | null;
 	pre_declined_type: string | null;
 	plenary_session_id: number | null;
-    is_law: boolean,
-    law_accepted: boolean | null,
-    law_come_into_effect_date: string | null,
-    law_expires_on_date: string | null,
-    by_publication: boolean | null,
-
+	is_law: boolean;
+	law_accepted: boolean | null;
+	law_come_into_effect_date: string | null;
+	law_expires_on_date: string | null;
+	by_publication: boolean | null;
 }
 
 export interface Vote {
@@ -130,8 +135,8 @@ export interface LegisInitFavo {
 
 export interface MailSendInfo {
 	send_new_vote_results_mails: boolean;
-    send_new_delegate_activity_mails: boolean;
-    send_new_ministrial_prop_mails: boolean;
+	send_new_delegate_activity_mails: boolean;
+	send_new_ministrial_prop_mails: boolean;
 }
 
 export interface VoteResult {
@@ -142,6 +147,7 @@ export interface VoteResult {
 	named_votes: NamedVotes | null;
 	documents: Document[];
 	absences: number[];
+	issued_by_dels: number[];
 }
 
 export interface VoteResultsWithMaxPage {
@@ -238,8 +244,15 @@ export interface BasicUserInfo {
 export interface ExtendedUserInfo {
 	id: number;
 	email: string;
-    is_email_hashed: boolean;
-    is_admin: boolean;
+	is_email_hashed: boolean;
+	is_admin: boolean;
+}
+
+export interface Quiz {
+	id: number;
+	description: string | null;
+	title: string;
+	questions: QuizQuestion[];
 }
 
 export interface QuizQuestion {
@@ -264,7 +277,7 @@ export interface ScoreInfo {
 
 export interface InfoCounts {
 	user_count: number;
-	answer_count: number;
+	answer_count: number[];
 }
 
 export interface SignUpError {
@@ -332,11 +345,13 @@ export interface NamedVote {
 
 export interface GeneralDelegateInfo {
 	interests: InterestShare[];
+	detailed_interests: InterestShare[];
 	delegate_qa: DelegateQA[];
 	mandates: Mandate[];
 	political_position: PoliticalPosition | null;
 	absences: Absence[];
 	named_votes: NamedVote[];
+	stances: StanceTopicScore[];
 }
 
 export interface DelegateQA {
@@ -347,6 +362,7 @@ export interface DelegateQA {
 export interface InterestShare {
 	topic: string;
 	total_share: number;
+	occurences: number;
 	self_share: number;
 }
 
@@ -361,6 +377,11 @@ export interface VoteResultFilter {
 	simple_majority: boolean | null;
 	legis_period: string | null;
 	is_law: boolean | null;
+}
+
+export interface StanceTopicScore {
+	topic: string;
+	score: number;
 }
 
 export interface GovPropFilter {

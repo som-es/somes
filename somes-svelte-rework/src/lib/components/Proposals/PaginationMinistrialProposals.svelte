@@ -1,30 +1,36 @@
 <script lang="ts">
-	import { pushState } from "$app/navigation";
-	import { errorToNull, gov_proposals_by_search, gov_proposals_per_page } from "$lib/api/api";
-	import type { GovPropFilter, GovProposalsWithMaxPage } from "$lib/types";
-	import { onMount } from "svelte";
-	import Pagination from "../Pagination.svelte";
-	import ExpandablePlaceholder from "../VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte";
-	import { currentGovProposalFilterStore  } from "$lib/stores/stores";
-	import { get } from "svelte/store";
-	import LegisButtons from "../Filtering/LegisButtons.svelte";
-	import GovProposalExpandableBar from "./Latest/GovProposalExpandableBar.svelte";
-	import SButton from "../UI/SButton.svelte";
-	import { ListBox, ListBoxItem, popup, RadioGroup, RadioItem, type PopupSettings } from "@skeletonlabs/skeleton";
+	import { pushState } from '$app/navigation';
+	import { errorToNull, gov_proposals_by_search, gov_proposals_per_page } from '$lib/api/api';
+	import type { GovPropFilter, GovProposalsWithMaxPage } from '$lib/types';
+	import { onMount } from 'svelte';
+	import Pagination from '../Pagination.svelte';
+	import ExpandablePlaceholder from '../VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
+	import { currentGovProposalFilterStore } from '$lib/stores/stores';
+	import { get } from 'svelte/store';
+	import LegisButtons from '../Filtering/LegisButtons.svelte';
+	import GovProposalExpandableBar from './Latest/GovProposalExpandableBar.svelte';
+	import SButton from '../UI/SButton.svelte';
+	import {
+		ListBox,
+		ListBoxItem,
+		popup,
+		RadioGroup,
+		RadioItem,
+		type PopupSettings
+	} from '@skeletonlabs/skeleton';
 
-    
-    const url = new URL(window.location.href);
+	const url = new URL(window.location.href);
 	let page = parseInt(url.searchParams.get('page') || '1') || 1;
 
 	let old_page = page;
-    let currentlyUpdating = false;
-    let govProposals: GovProposalsWithMaxPage | null = null;
+	let currentlyUpdating = false;
+	let govProposals: GovProposalsWithMaxPage | null = null;
 
-    let searchValue = "";
+	let searchValue = '';
 	let selectedPeriod = 'all';
 	let hasVoteResultFilter: boolean | undefined = undefined;
 
-    const maybeStoredFilter = get(currentGovProposalFilterStore);
+	const maybeStoredFilter = get(currentGovProposalFilterStore);
 	if (maybeStoredFilter !== null) {
 		if (maybeStoredFilter.has_vote_result) hasVoteResultFilter = maybeStoredFilter.has_vote_result;
 		if (maybeStoredFilter.legis_period) selectedPeriod = maybeStoredFilter.legis_period;
@@ -36,7 +42,6 @@
 			govProposals.gov_proposals = [];
 		}
 
-		
 		let filter: GovPropFilter | null = {
 			has_vote_result: hasVoteResultFilter == undefined ? null : hasVoteResultFilter,
 			legis_period: selectedPeriod == 'all' ? null : selectedPeriod
@@ -45,10 +50,8 @@
 		// filter = null;
 
 		if (searchValue) {
-			const govPropsSearch = errorToNull(
-				await gov_proposals_by_search(page, searchValue, filter)
-			);
-            console.log(govPropsSearch);
+			const govPropsSearch = errorToNull(await gov_proposals_by_search(page, searchValue, filter));
+			console.log(govPropsSearch);
 			if (govPropsSearch) govProposals = govPropsSearch;
 		} else {
 			govProposals = errorToNull(await gov_proposals_per_page(page - 1, filter));
@@ -56,7 +59,7 @@
 		currentlyUpdating = false;
 	};
 
-    const update = () => {
+	const update = () => {
 		loadGovProps();
 
 		// update query params
@@ -75,22 +78,23 @@
 		update();
 	}
 
-    onMount(update);
-    
-    const popupRequiredMajority: PopupSettings = {
+	onMount(update);
+
+	const popupRequiredMajority: PopupSettings = {
 		event: 'click',
 		target: 'popupRequiresSimpleMajority',
 		placement: 'bottom',
 		closeQuery: '.listbox-item'
 	};
-    
-    const translateHasVoteResultFilterValue = (hasVoteResultFilter: boolean | undefined) => {
+
+	const translateHasVoteResultFilterValue = (hasVoteResultFilter: boolean | undefined) => {
 		if (hasVoteResultFilter == undefined) {
 			return 'egal';
 		}
 		return hasVoteResultFilter ? 'mit Abstimmung' : 'ohne Abstimmung';
 	};
 </script>
+
 <div class="lg:hidden flex flex-wrap gap-6">
 	<div>
 		<h1 class="text-2xl font-bold">notwendige Mehrheit</h1>

@@ -37,6 +37,7 @@ pub struct VoteResult {
     pub topics: Vec<Topic>,
     pub documents: Vec<DbLegisDocumentOptional>,
     pub absences: Vec<i32>,
+    pub issued_by_dels: Vec<i32>,
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
@@ -58,12 +59,17 @@ pub async fn get_latest_legis_inits_per_page(
     page: i64,
     page_elements: i64,
     filter: Option<&LegisInitFilter>,
+    is_finished: bool,
 ) -> sqlx::Result<(Vec<DbLegislativeInitiativeQuery>, i64)> {
     let res = match filter {
         Some(filter) => {
-            filtered_legislative_initiatives(pg, page, page_elements, filter).await?
+            filtered_legislative_initiatives(pg, page, page_elements, filter, is_finished).await?
         }
         None => {
+            assert!(
+                is_finished,
+                "Add filter object when using not finished extraction"
+            );
             (sqlx::query_as!(DbLegislativeInitiativeQuery,
                 "select distinct * from legislative_initiatives where accepted is not null order by created_at desc offset $1 limit $2",
                 page * page_elements,
@@ -76,7 +82,7 @@ pub async fn get_latest_legis_inits_per_page(
                 "select distinct COUNT(*) from legislative_initiatives where accepted is not null",
             ).fetch_one(pg).await?.count.unwrap_or_default()
             )
-        },
+        }
     };
     Ok(res)
 }
@@ -143,7 +149,14 @@ pub async fn construct_gov_proposal(
         ministrial_proposal.legis_init_inr,
     ) {
         (Some(ref gp), Some(ref ityp), Some(ref inr)) => {
-            get_vote_result_by_unique_hints_with_accepted_required(redis_con.clone(), &pg, &gp, &ityp, *inr).await?
+            get_vote_result_by_unique_hints_with_accepted_required(
+                redis_con.clone(),
+                &pg,
+                &gp,
+                &ityp,
+                *inr,
+            )
+            .await?
         }
         _ => None,
     };
@@ -198,13 +211,13 @@ pub async fn get_vote_result_by_unique_hints_with_accepted_required(
     .fetch_optional(pg)
     .await?;
     if let Some(legis_init) = legis_init {
-        construct_vote_result(redis_con, pg, legis_init).await.map(|e| Some(e))
+        construct_vote_result(redis_con, pg, legis_init)
+            .await
+            .map(|e| Some(e))
     } else {
         Ok(None)
     }
 }
-
-
 
 pub async fn get_latest_vote_results_sqlx_per_page(
     redis_con: MultiplexedConnection,
@@ -212,9 +225,10 @@ pub async fn get_latest_vote_results_sqlx_per_page(
     page: i64,
     page_elements: i64,
     filter: Option<&LegisInitFilter>,
+    is_finished: bool,
 ) -> sqlx::Result<(Vec<VoteResult>, i64)> {
     let (entries, entry_count) =
-        get_latest_legis_inits_per_page(pg, page, page_elements, filter).await?;
+        get_latest_legis_inits_per_page(pg, page, page_elements, filter, is_finished).await?;
 
     let entries = entries
         .into_iter()

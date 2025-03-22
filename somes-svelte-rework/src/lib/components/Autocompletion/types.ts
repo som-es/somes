@@ -23,5 +23,3 @@ export interface AutocompleteOptionMultiselect<Value = unknown, Meta = unknown> 
 	/** Pass arbitrary data per option. */
 	meta?: Meta;
 }
-
-

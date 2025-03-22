@@ -2,13 +2,21 @@
 	import { goto } from '$app/navigation';
 	import { base } from '$app/paths';
 	import {
-	delegate,
+		delegate_by_id,
 		errorToNull,
 		get_topics,
 		isHasError,
-		vote_result_by_id,
+		vote_result_by_id
 	} from '$lib/api/api';
-	import { addUserTopic, delete_account, getMailSendInfo, getUser, removeUserTopic, renew_token, updateMailSendInfo } from '$lib/api/authed';
+	import {
+		addUserTopic,
+		delete_account,
+		getMailSendInfo,
+		getUser,
+		removeUserTopic,
+		renew_token,
+		updateMailSendInfo
+	} from '$lib/api/authed';
 	import { cachedDelegateFavos, cachedLegisInitFavos } from '$lib/caching/favos';
 	import { jwtStore } from '$lib/caching/stores/stores';
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache';
@@ -22,7 +30,13 @@
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import VoteResult from '$lib/components/VoteResults/VoteResult.svelte';
 	import { gotoHistory } from '$lib/goto';
-	import { getUserFromJwt, type BasicUserInfo, type ExtendedUserInfo, type MailSendInfo, type UniqueTopic } from '$lib/types';
+	import {
+		getUserFromJwt,
+		type BasicUserInfo,
+		type ExtendedUserInfo,
+		type MailSendInfo,
+		type UniqueTopic
+	} from '$lib/types';
 	import { popup, SlideToggle, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
@@ -38,7 +52,7 @@
 	let autocompleteOptions: AutocompleteOptionMultiselect<string, UniqueTopic>[] = [];
 	let inputValue = '';
 	let allOwnTopics: UniqueTopic[] = [];
-	
+
 	function delegateFilter(): AutocompleteOptionMultiselect<string, UniqueTopic>[] {
 		let _options = [...autocompleteOptions];
 		let _inputValue = `${String(inputValue).toLowerCase().trim()} `;
@@ -50,12 +64,15 @@
 		target: 'popupAutocomplete',
 		placement: 'bottom-start',
 		closeQuery: ''
-	}
+	};
 
-	export function convertDelegatesToAutocompleteOptions(): AutocompleteOptionMultiselect<string, UniqueTopic>[] {
+	export function convertDelegatesToAutocompleteOptions(): AutocompleteOptionMultiselect<
+		string,
+		UniqueTopic
+	>[] {
 		return topics.map((topic) => {
 			return {
-				right_label: "",
+				right_label: '',
 				isSelected: selectedTopics.has(topic.id),
 				label: topic.topic,
 				value: topic.id.toString(),
@@ -73,7 +90,6 @@
 			goto(`${base}/home`);
 			return;
 		}
-
 
 		topics = errorToNull(await get_topics()) ?? [];
 		user = getUserFromJwt(jwtToken);
@@ -94,12 +110,11 @@
 
 	const updateThisMailSendInfo = async () => {
 		if (!mailSendInfo) {
-			return
+			return;
 		}
-		
-		await updateMailSendInfo(mailSendInfo);
-	}
 
+		await updateMailSendInfo(mailSendInfo);
+	};
 </script>
 
 <Container>
@@ -128,7 +143,7 @@
 					{#if user}
 						{user.sub}
 					{/if}
-					
+
 					{#if extendedUser?.is_email_hashed}
 						<span class="ml-3 text-sm font-serif">unkenntlich</span>
 					{/if}
@@ -148,38 +163,47 @@
 		</div>
 
 		{#if !extendedUser?.is_email_hashed}
-		<div
-			class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 items-center flex justify-between"
-		>
-			<div class="flex flex-wrap items-center">
-				<h1 class="font-bold text-2xl">E-Mail Benachrichtigungen</h1>
-				<div class="flex flex-wrap items-center gap-8 ml-5">
-					{#if mailSendInfo}
-						<SlideToggle active="bg-secondary-400" name="sendVoteResultInfoMail" on:change={updateThisMailSendInfo} bind:checked={mailSendInfo.send_new_vote_results_mails}>
-							<span class="font-bold">
-								Zu neuen Abstimmungen
-							</span>	
-							<br>
-							<span class="text-sm">nach ausgewählten Interessen</span>
-						</SlideToggle>
-						<SlideToggle active="bg-secondary-400" name="sendnewDelegateInfo" on:change={updateThisMailSendInfo} bind:checked={mailSendInfo.send_new_delegate_activity_mails}>
-							<span class="font-bold">
-								Zu Abgeordnetenaktivitäten
-							</span>	
-							<br>
-							<span class="text-sm">nach favorisierten Abgeordneten</span>
-						</SlideToggle>
-						<SlideToggle active="bg-secondary-400" name="sendMinistrialPropInfoMails" on:change={updateThisMailSendInfo} bind:checked={mailSendInfo.send_new_ministrial_prop_mails}>
-							<span class="font-bold">
-								Zu neuen Ministerialentwürfen
-							</span>	
-							<br>
-							<span class="text-sm">nach ausgewählten Interessen</span>
-						</SlideToggle>
-					{/if}
+			<div
+				class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 items-center flex justify-between"
+			>
+				<div class="flex flex-wrap items-center">
+					<h1 class="font-bold text-2xl">E-Mail Benachrichtigungen</h1>
+					<div class="flex flex-wrap items-center gap-8 ml-5">
+						{#if mailSendInfo}
+							<SlideToggle
+								active="bg-secondary-400"
+								name="sendVoteResultInfoMail"
+								on:change={updateThisMailSendInfo}
+								bind:checked={mailSendInfo.send_new_vote_results_mails}
+							>
+								<span class="font-bold"> Zu neuen Abstimmungen </span>
+								<br />
+								<span class="text-sm">nach ausgewählten Interessen</span>
+							</SlideToggle>
+							<SlideToggle
+								active="bg-secondary-400"
+								name="sendnewDelegateInfo"
+								on:change={updateThisMailSendInfo}
+								bind:checked={mailSendInfo.send_new_delegate_activity_mails}
+							>
+								<span class="font-bold"> Zu Abgeordnetenaktivitäten </span>
+								<br />
+								<span class="text-sm">nach favorisierten Abgeordneten</span>
+							</SlideToggle>
+							<SlideToggle
+								active="bg-secondary-400"
+								name="sendMinistrialPropInfoMails"
+								on:change={updateThisMailSendInfo}
+								bind:checked={mailSendInfo.send_new_ministrial_prop_mails}
+							>
+								<span class="font-bold"> Zu neuen Ministerialentwürfen </span>
+								<br />
+								<span class="text-sm">nach ausgewählten Interessen</span>
+							</SlideToggle>
+						{/if}
+					</div>
 				</div>
 			</div>
-		</div>
 		{/if}
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
 			<h1 class="font-bold text-2xl">Wahle deine Interessen</h1>
@@ -200,18 +224,17 @@
 					<AutocompleteMultiselect
 						bind:input={inputValue}
 						options={autocompleteOptions}
-						on:selection={(event) => { 
+						on:selection={(event) => {
 							if (event.detail.meta) {
 								if (event.detail.isSelected) {
 									selectedTopics.delete(event.detail.meta.id);
-									removeUserTopic({id: event.detail.meta.id, topic: ""})
+									removeUserTopic({ id: event.detail.meta.id, topic: '' });
 								} else {
-									selectedTopics.add(event.detail.meta.id); 
-									addUserTopic({id: event.detail.meta.id, topic: ""})
+									selectedTopics.add(event.detail.meta.id);
+									addUserTopic({ id: event.detail.meta.id, topic: '' });
 								}
-
 							}
-							selectedTopics = selectedTopics
+							selectedTopics = selectedTopics;
 						}}
 						emptyState={'Keine Themen gefunden'}
 						filter={delegateFilter}
@@ -225,7 +248,7 @@
 				{/if}
 			</div>
 		</div>
-		
+
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
 			<!-- make expandable -->
 			<h1 class="font-bold text-2xl">Favorisierte Abgeordnete</h1>
@@ -234,12 +257,12 @@
 					{#if favoDelegates.size == 0}
 						Keine favorisierten Abgeordnete vorhanden.
 					{:else}
-						{#each favoDelegates as favoDelegateId}	
-							{#await delegate(favoDelegateId)}
+						{#each favoDelegates as favoDelegateId}
+							{#await delegate_by_id(favoDelegateId)}
 								<ExpandablePlaceholder class="!w-80" />
 							{:then maybeDelegate}
-								{#if !isHasError(maybeDelegate) }
-									<DelegateCard delegate={maybeDelegate} showMoreDetailsBtn onlyTop={true} />	
+								{#if !isHasError(maybeDelegate)}
+									<DelegateCard delegate={maybeDelegate} showMoreDetailsBtn onlyTop={true} />
 								{/if}
 							{/await}
 						{/each}
@@ -249,7 +272,7 @@
 				{/if}
 			</div>
 		</div>
-		
+
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
 			<!-- make expandable -->
 			<h1 class="font-bold text-2xl">Favorisierte Abstimmungen</h1>
@@ -258,11 +281,11 @@
 					{#if favoLegisInits.size == 0}
 						Keine favorisierte Abstimmungen vorhanden.
 					{:else}
-						{#each favoLegisInits as favoLegisInitId, i}	
+						{#each favoLegisInits as favoLegisInitId, i}
 							{#await vote_result_by_id(favoLegisInitId.toString())}
 								<ExpandablePlaceholder class="!w-80" />
 							{:then maybeDelegate}
-								{#if !isHasError(maybeDelegate) }
+								{#if !isHasError(maybeDelegate)}
 									<VoteResult dels={[]} voteResult={maybeDelegate} tabindex={i} />
 								{/if}
 							{/await}

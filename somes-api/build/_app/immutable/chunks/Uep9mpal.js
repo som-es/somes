@@ -1,0 +1,1 @@
+import{h as l,k as n,i as o,n as a,o as c}from"./BbGJVGMR.js";import{A as r}from"./DylTeNA8.js";async function u(s=!1){let t=r(l);if(t==null||s||t.length==0){const e=await n(30);o(e)||(l.set(e),t=e)}return t}async function h(s=!1){let t=r(a);if(t==null||s||t.length==0){const e=await c();o(e)?(a.set(null),t=null):(a.set(e),t=e)}return t}export{u as a,h as c};

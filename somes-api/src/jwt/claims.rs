@@ -2,23 +2,25 @@ use axum::{async_trait, extract::FromRequestParts, http::request::Parts, Request
 use axum_extra::TypedHeader;
 use headers::{authorization::Bearer, Authorization};
 use jsonwebtoken::{decode, Validation};
-use serde::{Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use somes_common_lib::time::timestamp_secs;
 use utoipa::IntoParams;
 
 use super::{error::AuthError, keys::KEYS};
 
+pub type Claims = ClaimsGen<i32>;
+
 #[derive(IntoParams, Debug, Serialize, Deserialize)]
-pub struct Claims {
-    pub id: i32,
+pub struct ClaimsGen<T> {
+    pub id: T,
     pub sub: String,
     pub company: String,
     pub exp: usize,
     pub is_admin: bool,
 }
 
-impl Claims {
-    pub fn new(id: i32, sub: String, is_admin: bool) -> Self {
+impl<T> ClaimsGen<T> {
+    pub fn new(id: T, sub: String, is_admin: bool) -> Self {
         Self {
             id,
             sub,
@@ -31,9 +33,10 @@ impl Claims {
 }
 
 #[async_trait]
-impl<S> FromRequestParts<S> for Claims
+impl<S, T> FromRequestParts<S> for ClaimsGen<T>
 where
     S: Send + Sync,
+    T: DeserializeOwned,
 {
     type Rejection = AuthError;
 
@@ -44,8 +47,9 @@ where
             .await
             .map_err(|_| AuthError::MissingToken)?;
         // Decode the user data
-        let token_data = decode::<Claims>(bearer.token(), &KEYS.decoding, &Validation::default())
-            .map_err(|_| AuthError::InvalidToken)?;
+        let token_data =
+            decode::<ClaimsGen<T>>(bearer.token(), &KEYS.decoding, &Validation::default())
+                .map_err(|_| AuthError::InvalidToken)?;
 
         Ok(token_data.claims)
     }

@@ -86,7 +86,7 @@
 	<div class="p-4 bg-primary text-center text-lg font-bold flex justify-between">
 		<button class="text-4xl" use:popup={popupFeatured}>⚠</button>
 		<div>Chat</div>
-		
+
 		<button
 			on:click={() => {
 				modalStore.close();

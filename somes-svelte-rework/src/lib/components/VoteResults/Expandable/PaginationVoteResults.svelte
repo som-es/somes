@@ -1,5 +1,10 @@
 <script lang="ts">
-	import type { Delegate, VoteResultFilter, VoteResult, VoteResultsWithMaxPage } from '$lib/types';
+	import type {
+		Delegate,
+		VoteResultFilter,
+		VoteResultsWithMaxPage,
+		HasError
+	} from '$lib/types';
 	import { onMount } from 'svelte';
 	import { errorToNull, vote_results_by_search, vote_results_per_page } from '$lib/api/api';
 	import VoteResultExpandableBar from './VoteResultExpandableBar.svelte';
@@ -11,17 +16,22 @@
 		popup,
 		RadioGroup,
 		RadioItem,
-		SlideToggle,
 		type PopupSettings
 	} from '@skeletonlabs/skeleton';
 	import LegisButtons from '$lib/components/Filtering/LegisButtons.svelte';
-	import CenterPrograssRadial from '$lib/components/ProgressInfos/CenterPrograssRadial.svelte';
 	import { currentVoteResultFilterStore } from '$lib/stores/stores';
 	import { get } from 'svelte/store';
 	import ExpandablePlaceholder from './Placeholders/ExpandablePlaceholder.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
 
+	export let showAcceptedFilter = true;
+	export let showVoteTypeFilter = true;
+
 	export let dels: Delegate[];
+	export let voteResultsPostFn: (
+		page: number,
+		voteResultFilter: VoteResultFilter
+	) => Promise<VoteResultsWithMaxPage | HasError> = vote_results_per_page;
 
 	let voteResults: VoteResultsWithMaxPage | null = null;
 
@@ -83,7 +93,7 @@
 			);
 			if (voteResultsSearch) voteResults = voteResultsSearch;
 		} else {
-			voteResults = errorToNull(await vote_results_per_page(page - 1, filter));
+			voteResults = errorToNull(await voteResultsPostFn(page - 1, filter));
 		}
 		currentlyUpdating = false;
 	};
@@ -110,7 +120,14 @@
 
 	let searchValue = '';
 
-	$: if (page || selectedPeriod || simpleMajorityFilter || acceptedFilter || namedVoteFilter || isLawFilter) {
+	$: if (
+		page ||
+		selectedPeriod ||
+		simpleMajorityFilter ||
+		acceptedFilter ||
+		namedVoteFilter ||
+		isLawFilter
+	) {
 		update();
 	}
 
@@ -162,7 +179,7 @@
 		}
 		return namedVoteFilter ? 'namentliche' : 'nicht namentliche';
 	};
-	
+
 	const popupIsLaw: PopupSettings = {
 		event: 'click',
 		target: 'popupIsLaw',
@@ -194,14 +211,17 @@
 		</button>
 	</div>
 
-	<div>
-		<h1 class="text-2xl font-bold">Angenommen</h1>
-		<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupAccepted}>
-			<span class="capitalize">{translateAcceptedValue(acceptedFilter)}</span>
-			<span>↓</span>
-		</button>
-	</div>
+	{#if showAcceptedFilter}
+		<div>
+			<h1 class="text-2xl font-bold">Angenommen</h1>
+			<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupAccepted}>
+				<span class="capitalize">{translateAcceptedValue(acceptedFilter)}</span>
+				<span>↓</span>
+			</button>
+		</div>
+	{/if}
 
+	{#if showVoteTypeFilter}
 	<div>
 		<h1 class="text-2xl font-bold">Abstimmung</h1>
 		<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupNamedVote}>
@@ -209,6 +229,7 @@
 			<span>↓</span>
 		</button>
 	</div>
+	{/if}
 	<div>
 		<h1 class="text-2xl font-bold">Gesetz</h1>
 		<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupIsLaw}>
@@ -271,12 +292,8 @@
 		hover="hover:variant-soft-secondary"
 	>
 		<ListBoxItem bind:group={isLawFilter} name="isLaw" value={undefined}>egal</ListBoxItem>
-		<ListBoxItem bind:group={isLawFilter} name="isLaw" value={true}
-			>ja</ListBoxItem
-		>
-		<ListBoxItem bind:group={isLawFilter} name="isLaw" value={false}
-			>nein</ListBoxItem
-		>
+		<ListBoxItem bind:group={isLawFilter} name="isLaw" value={true}>ja</ListBoxItem>
+		<ListBoxItem bind:group={isLawFilter} name="isLaw" value={false}>nein</ListBoxItem>
 	</ListBox>
 </div>
 
@@ -300,6 +317,8 @@
 			>
 		</RadioGroup>
 	</div>
+
+	{#if showAcceptedFilter}
 	<div class="mt-5">
 		<h1 class="text-2xl font-bold">Angenommen</h1>
 		<RadioGroup
@@ -319,6 +338,9 @@
 			>
 		</RadioGroup>
 	</div>
+	{/if}
+
+	{#if showVoteTypeFilter}
 	<div class="mt-5">
 		<h1 class="text-2xl font-bold">Abstimmung</h1>
 		<RadioGroup active="variant-filled-secondary" hover="hover:variant-soft-secondary">
@@ -328,16 +350,13 @@
 			>
 		</RadioGroup>
 	</div>
+	{/if}
 	<div class="mt-5">
 		<h1 class="text-2xl font-bold">Gesetz</h1>
 		<RadioGroup active="variant-filled-secondary" hover="hover:variant-soft-secondary">
 			<RadioItem bind:group={isLawFilter} name="isLaw" value={undefined}>egal</RadioItem>
-			<RadioItem bind:group={isLawFilter} name="isLaw" value={true}
-				>ja</RadioItem
-			>
-			<RadioItem bind:group={isLawFilter} name="isLaw" value={false}
-				>nein</RadioItem
-			>
+			<RadioItem bind:group={isLawFilter} name="isLaw" value={true}>ja</RadioItem>
+			<RadioItem bind:group={isLawFilter} name="isLaw" value={false}>nein</RadioItem>
 		</RadioGroup>
 	</div>
 </div>

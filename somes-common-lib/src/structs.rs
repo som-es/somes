@@ -58,6 +58,12 @@ pub struct NamedVote {
     pub date: NaiveDate,
 }
 
+#[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct StanceTopicScore {
+    pub topic: String,
+    pub score: f64,
+}
+
 /// 'ResetPasswordInfo' is used to send a reset password request to the server.
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct ResetPasswordInfo {
@@ -170,6 +176,7 @@ pub struct DelegateByIdAndPage {
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct InterestShare {
     pub topic: String,
+    pub occurences: u32,
     pub total_share: f32,
     pub self_share: f32,
 }
@@ -185,10 +192,12 @@ pub struct Mandate {
 pub struct GeneralDelegateInfo {
     pub mandates: Vec<Mandate>,
     pub interests: Vec<InterestShare>,
+    pub detailed_interests: Vec<InterestShare>,
     pub delegate_qa: Vec<DelegateQA>,
     pub political_position: Option<PoliticalPosition>,
     pub absences: Vec<Absence>,
     pub named_votes: Vec<NamedVote>,
+    pub stances: Vec<StanceTopicScore>,
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]

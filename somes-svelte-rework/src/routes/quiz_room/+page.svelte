@@ -1,16 +1,26 @@
 <script lang="ts">
-	import { jwtStore } from '$lib/caching/stores/stores';
+	import { errorToNull } from '$lib/api/api';
+	import { getQuizzes } from '$lib/api/authed';
+	import { jwtQuizStore, jwtStore } from '$lib/caching/stores/stores';
+	import ReactiveGenericBarChart from '$lib/components/GeneralCharts/ReactiveGenericBarChart.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import {
 		getUserFromJwt,
 		type BasicUserInfo,
 		type InfoCounts,
+		type Quiz,
 		type QuizQuestion,
 		type ScoreInfo,
 		type Scorer
 	} from '$lib/types';
-	import { setModeCurrent } from '@skeletonlabs/skeleton';
+	import {
+		ListBox,
+		ListBoxItem,
+		popup,
+		setModeCurrent,
+		type PopupSettings
+	} from '@skeletonlabs/skeleton';
 	import { onDestroy, onMount } from 'svelte';
 	import { get } from 'svelte/store';
 
@@ -21,8 +31,9 @@
 	let waitingForQuestions = false;
 	let prevQuestion: QuizQuestion | null = null;
 	let question: QuizQuestion | null = null;
+	let allQuizzes: Quiz[] = [];
 
-    setModeCurrent(true);
+	setModeCurrent(true);
 
 	let currentScoreboard: Scorer[] | null = null;
 
@@ -34,22 +45,60 @@
 	let isAdmin = false;
 
 	let jwtToken: string | null;
+	let jwtQuizToken: string | null = get(jwtQuizStore);
 	let selectedAnswer: number | null = null;
+
+	const CURRENT_QUESTION_TIME = 20;
+
+	let currentQuestionTimeLeftSeconds = CURRENT_QUESTION_TIME;
 
 	onMount(async () => {
 		jwtToken = get(jwtStore);
-		if (!jwtToken) {
-			return;
+
+		if (jwtToken) {
+			const user = getUserFromJwt(jwtToken);
+			isAdmin = user.is_admin;
+			if (isAdmin) {
+				allQuizzes = errorToNull(await getQuizzes()) ?? [];
+			}
 		}
-		const user = getUserFromJwt(jwtToken);
-		isAdmin = user.is_admin;
+
+		if (jwtQuizToken && !isAdmin) {
+			state = 'tryToken';
+		}
 	});
 
 	const recvMessage = (event: MessageEvent) => {
+		console.log(event.data);
+		if (state == 'tryToken' && jwtQuizToken) {
+			const data = event.data as string;
+			if (data == 'ok') {
+				enteredRoom == true;
+				waitingForQuestions = true;
+				state = 'question';
+				console.log('OK');
+
+				const user = getUserFromJwt(jwtQuizToken);
+				userName = user.sub;
+				userId = user.id.toString();
+			} else {
+				jwtQuizStore.set(null);
+				userName = null;
+				userId = null;
+				state = 'starting';
+				enteredRoom == false;
+				console.log('HIHIHI');
+			}
+			return;
+		}
 		if (enteredRoom && !waitingForQuestions) {
 			const data = event.data as string;
 			userName = data.slice(0, data.indexOf(';'));
-			userId = data.slice(data.indexOf(';') + 1);
+			const jwt = data.slice(data.indexOf(';') + 1);
+			jwtQuizStore.set(jwt);
+
+			const user = getUserFromJwt(jwt);
+			userId = user.id.toString();
 
 			waitingForQuestions = true;
 
@@ -69,7 +118,7 @@
 			} else if ('score' in recvData) {
 				currentScore = recvData;
 				console.log(currentScore);
-                console.log(prevScore)
+				console.log(prevScore);
 			} else if ('question' in recvData) {
 				selectedAnswer = null;
 
@@ -77,6 +126,8 @@
 				currentScore = null;
 				question = recvData;
 				prevQuestion = structuredClone(question);
+
+				currentQuestionTimeLeftSeconds = CURRENT_QUESTION_TIME;
 			} else if ('user_count' in recvData) {
 				infoCounts = recvData;
 			} else {
@@ -85,12 +136,31 @@
 		}
 	};
 
+	const decreaseTime = () => {
+		if (state == 'question' && isAdmin) {
+			currentQuestionTimeLeftSeconds -= 1;
+			if (currentQuestionTimeLeftSeconds == 0) {
+				onScoreboard();
+			}
+		}
+	};
+	setInterval(decreaseTime, 1000);
+
 	const roomSocket = new WebSocket(import.meta.env.VITE_ROOM_WEBSOCKET_URL);
 
 	onDestroy(() => {
 		roomSocket.close();
 	});
 	roomSocket.addEventListener('message', recvMessage);
+	roomSocket.addEventListener('open', () => {
+		if (jwtQuizToken && !isAdmin) {
+			state = 'tryToken';
+			const tokenPayload = `l${jwtQuizToken}`;
+			console.log(tokenPayload);
+			sendMessage(tokenPayload);
+			// const user = getUserFromJwt(jwtQuizToken);
+		}
+	});
 
 	const sendMessage = (msg: string) => {
 		if (!roomSocket || roomSocket.readyState !== WebSocket.OPEN) return;
@@ -98,13 +168,16 @@
 	};
 
 	setInterval(async () => {
-		if (isAdmin) sendMessage("u")
+		if (isAdmin) sendMessage('u');
 	}, 200);
 
 	const enterRoom = () => {
 		enteredRoom = true;
+
 		state = 'question';
 		sendMessage('b');
+
+		// sendMessage(`h${jwtQuizToken}`);
 	};
 
 	const onScoreboard = () => {
@@ -121,7 +194,30 @@
 		selectedAnswer = msg;
 		sendMessage(`a${msg}`);
 	};
+
+	const popupQuizSelection: PopupSettings = {
+		event: 'click',
+		target: 'popupQuizSelection',
+		placement: 'bottom',
+		closeQuery: '.listbox-item'
+	};
+
+	let inputQuizId: number = 5;
 </script>
+
+<div class="card w-48 shadow-xl py-2" data-popup="popupQuizSelection">
+	<ListBox
+		rounded="rounded-container-token sm:!rounded-token"
+		active="variant-filled-secondary"
+		hover="hover:variant-soft-secondary"
+	>
+		{#each allQuizzes as quiz}
+			<ListBoxItem bind:group={inputQuizId} name="inputQuizId" value={quiz.id}
+				>{quiz.title}</ListBoxItem
+			>
+		{/each}
+	</ListBox>
+</div>
 
 {#if state == 'starting'}
 	<div class="flex h-full items-center justify-center gap-4">
@@ -132,11 +228,24 @@
 			<SButton
 				class="bg-primary-300"
 				on:click={() => {
-					sendMessage(`h${jwtToken}`);
+					sendMessage(`h${jwtToken};${inputQuizId}`);
 					waitingForQuestions = true;
 					state = 'firstQuestion';
 				}}>Admin</SButton
 			>
+
+			<div class="flex flex-wrap gap-6">
+				<div>
+					<h1 class="text-2xl font-bold">Quiz</h1>
+					<button
+						class="btn variant-filled-secondary w-48 justify-between"
+						use:popup={popupQuizSelection}
+					>
+						<span class="capitalize">Quiz</span>
+						<span>↓</span>
+					</button>
+				</div>
+			</div>
 		{/if}
 	</div>
 {/if}
@@ -168,24 +277,18 @@
 
 	{#if isAdmin}
 		{#if question}
-            <h1 class="text-7xl font-bold text-center">
-                {question.question}
-            </h1>
+			<h1 class="text-7xl font-bold text-center">
+				{question.question}
+			</h1>
 			<div class="content mt-5">
 				<div class="squares-container">
-					<div
-						class="square bg-primary-400 flex justify-center items-center text-center text-xl"
-					>
+					<div class="square bg-primary-400 flex justify-center items-center text-center text-xl">
 						{question.answer1}
 					</div>
-					<div
-						class="square bg-secondary-400 flex justify-center items-center text-center text-xl"
-					>
+					<div class="square bg-secondary-400 flex justify-center items-center text-center text-xl">
 						{question.answer2}
 					</div>
-					<div
-						class="square bg-tertiary-500 flex justify-center items-center text-center text-xl"
-					>
+					<div class="square bg-tertiary-500 flex justify-center items-center text-center text-xl">
 						{question.answer3}
 					</div>
 					<div
@@ -197,48 +300,85 @@
 			</div>
 		{:else if state == 'firstQuestion'}
 			<div class="flex h-[95%] flex-col items-center justify-center gap-4">
-                <h2 class="text-7xl font-bold">
-                    {infoCounts?.user_count ?? 0} Teilnehmer
-                </h2>
-            </div>
+				<h2 class="text-7xl font-bold">
+					{infoCounts?.user_count ?? 0} Teilnehmer
+				</h2>
+			</div>
 		{:else}
 			<div class="flex h-[95%] flex-col items-center justify-center gap-4">
-				<span class="text-3xl">"<span class="font-bold">{#if currentScore?.correct_answer == 1}
-					{prevQuestion?.answer1}
-				{/if}
+				<span class="text-3xl"
+					>"<span class="font-bold">
+						{#if currentScore?.correct_answer == 1}
+							{prevQuestion?.answer1}
+						{/if}
 
-				{#if currentScore?.correct_answer == 2}
-					{prevQuestion?.answer2}
-				{/if}
+						{#if currentScore?.correct_answer == 2}
+							{prevQuestion?.answer2}
+						{/if}
 
-				{#if currentScore?.correct_answer == 3}
-					{prevQuestion?.answer3}
-				{/if}
+						{#if currentScore?.correct_answer == 3}
+							{prevQuestion?.answer3}
+						{/if}
 
-				{#if currentScore?.correct_answer == 4}
-					{prevQuestion?.answer4}
-				{/if}</span>" 
-				wäre die richtige Antwort.</span>
-                <span class="text-4xl font-bold">
-					Scoreboard
-				</span>
-                <table class="table table-hover w-[70%]">
-                    <thead>
-                        <tr>
-                            <th>Teilnehmer</th>
-                            <th>Punkte</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {#each (currentScoreboard ?? []).slice(0, 5) as player}
-                            <tr>
-                                <td>{player.name}/{player.id}</td>
-                                <td>{player.score}</td>
-                            </tr>
-                        {/each}
-                    </tbody>
-                </table>
-            </div>
+						{#if currentScore?.correct_answer == 4}
+							{prevQuestion?.answer4}
+						{/if}</span
+					>" wäre die richtige Antwort.</span
+				>
+
+				<div class="flex flex-wrap gap-5 min-w-full">
+					<div style=" flex-basis: 48%">
+
+					<ReactiveGenericBarChart
+						legend
+						chartData={[
+							{
+								label: prevQuestion?.answer1 ?? '',
+								color: '#95a7bd',
+								data: infoCounts?.answer_count[1] ?? 0
+							},
+							{
+								label: prevQuestion?.answer2 ?? '',
+								color: '#e4a69a',
+								data: infoCounts?.answer_count[2] ?? 0
+							},
+							{
+								label: prevQuestion?.answer3 ?? '',
+								color: '#F8DFCA',
+								data: infoCounts?.answer_count[3] ?? 0
+							},
+							{
+								label: prevQuestion?.answer4 ?? '',
+								color: '#24283E',
+								data: infoCounts?.answer_count[4] ?? 0
+							}
+						]}
+						title=""
+						horizontalBars={true}
+					/>
+					</div>
+
+					<div style=" flex-basis: 48%">
+						<span class="text-4xl font-bold"> Scoreboard </span>
+						<table class="table table-hover w-[70%]">
+							<thead>
+								<tr>
+									<th>Teilnehmer</th>
+									<th>Punkte</th>
+								</tr>
+							</thead>
+							<tbody>
+								{#each (currentScoreboard ?? []).slice(0, 5) as player}
+									<tr>
+										<td>{player.name}/{player.id}</td>
+										<td>{player.score}</td>
+									</tr>
+								{/each}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
 		{/if}
 	{:else if question}
 		<div class="content">
@@ -291,8 +431,11 @@
 		</div>
 	{:else if currentScore}
 		<div class="flex h-[95%] flex-col items-center justify-center gap-2">
-
-			<p class="{currentScore.correct_answer == selectedAnswer ? "bg-green-700" : "bg-red-700" }  rounded-lg text-white text-center py-4 w-96">
+			<p
+				class="{currentScore.correct_answer == selectedAnswer
+					? 'bg-green-700'
+					: 'bg-red-700'}  rounded-lg text-white text-center py-4 w-96"
+			>
 				<span class="font-bold text-lg">
 					{#if currentScore.correct_answer == selectedAnswer}
 						RICHTIG!
@@ -319,28 +462,34 @@
 				</span>
 			</p>
 		</div>
-
 	{:else}
 		<div class="flex h-[95%] flex-col items-center justify-center gap-2">
 			<span class="text-5xl font-bold">Warten auf Fragen..</span>
+			{#if userName}
+				Du spielst als <span class="text-xl font-bold">{userName}</span>
+			{/if}
 		</div>
 	{/if}
 
 	<section>
 		<hr />
-		{#if isAdmin && state == "question"}
-            <div class="flex justify-between">
-                <h2 class="text-2xl font-bold">
-                    {infoCounts?.answer_count} 
-                    {#if infoCounts?.answer_count == 1}
-                        Antwort
-                    {:else}
-                        Antworten
-                    {/if}
-                </h2>
-                <h2 class="text-2xl font-bold">{infoCounts?.user_count} Teilnehmer</h2>
-            </div>
-        {:else if userName}
+		{#if isAdmin && state == 'question'}
+			<div class="flex justify-between">
+				<h2 class="text-2xl font-bold">
+					{infoCounts?.answer_count[0]}
+					{#if infoCounts?.answer_count[0] == 1}
+						Antwort
+					{:else}
+						Antworten
+					{/if}
+				</h2>
+
+				<div class="text-xl">
+					<span class="font-bold">{currentQuestionTimeLeftSeconds}</span> Sekunden übrig
+				</div>
+				<h2 class="text-2xl font-bold">{infoCounts?.user_count} Teilnehmer</h2>
+			</div>
+		{:else if userName}
 			{userName}/{userId}
 		{/if}
 	</section>

@@ -26,11 +26,16 @@ use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 //use headers::HeaderValue;
 use crate::{
-    meilisearch::{update_gov_props_meilisearch_index, update_vote_result_meilisearch_index}, model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours}, redirect_http_to_https, routes::{
+    meilisearch::{update_gov_props_meilisearch_index, update_vote_result_meilisearch_index},
+    model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours},
+    redirect_http_to_https,
+    routes::{
         call_to_orders_per_party_delegates, delegates, delegates_by_call_to_orders,
         delegates_by_call_to_orders_and_legis_period, latest_vote_results, parties, proposals,
         save_email, speakers_by_hours, speakers_by_hours_and_legis_period, user,
-    }, Ports, DATASERVICE_URL, HTTPS_PORT, HTTP_PORT, LEGIS_INITS_PER_PAGE, MEILISEARCH_SECRET, MEILISEARCH_URL, PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, REDIS_DB, STATIC_FRONTEND_PATH
+    },
+    Ports, DATASERVICE_URL, HTTPS_PORT, HTTP_PORT, LEGIS_INITS_PER_PAGE, MEILISEARCH_SECRET,
+    MEILISEARCH_URL, PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, REDIS_DB, STATIC_FRONTEND_PATH,
 };
 use tower_http::{
     cors::{Any, CorsLayer},
@@ -148,7 +153,10 @@ pub async fn serve(addr: SocketAddr) {
     let postgres_pool = bb8::Pool::builder().build(config).await.unwrap();
      */
 
-    log::info!("Connecting to database {}", DATASERVICE_URL.split("@").last().unwrap_or_default());
+    log::info!(
+        "Connecting to database {}",
+        DATASERVICE_URL.split("@").last().unwrap_or_default()
+    );
 
     let dataservice_sqlx_pool = PgPoolOptions::new()
         // pool sizes
@@ -203,11 +211,9 @@ pub async fn serve(addr: SocketAddr) {
             Html(include_str!("../build-alpha-0.1/index.html"))
         }));
 
-    
     let pg_pool_vr = dataservice_sqlx_pool.clone();
     let client_vr = client.clone();
     let meilisearch_client_vr = meilisearch_client.clone();
-    
 
     // TODO: move this to dataservice
     tokio::task::spawn(async move {
@@ -226,7 +232,7 @@ pub async fn serve(addr: SocketAddr) {
     });
 
     let pg_pool = dataservice_sqlx_pool.clone();
-    
+
     tokio::task::spawn(async move {
         loop {
             if let Err(e) = update_gov_props_meilisearch_index(
@@ -320,6 +326,10 @@ pub async fn serve(addr: SocketAddr) {
         .route(GENERAL_DELEGATE_INFO, get(general_delegate_info))
         .route(DELEGATE_QA, get(delegate_qa))
         .route(VOTE_RESULTS_PER_PAGE, post(vote_results_per_page)) // post only because js fetch...
+        .route(
+            UNFINISHED_VOTE_RESULTS_PER_PAGE,
+            post(unfinished_vote_results_per_page),
+        ) // post only because js fetch...
         .route(
             SPEECHES_BY_DELEGATE_PER_PAGE,
             get(speeches_by_delegate_per_page),
@@ -437,6 +447,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(IS_LIBERAL_PER_GENDER, post(is_liberal_per_gender))
         .route(IS_LIBERAL_PER_AGE, post(is_liberal_per_age))
         .route(IS_LIBERAL_PER_LEGIS, post(is_liberal_per_legis))
+        .route(QUIZZES, get(get_all_quizzes))
         .route(QUIZ_ROOM, any(join_quiz_room))
         .route("/save_email", post(save_email))
         .nest_service("/assets", ServeDir::new("assets"))

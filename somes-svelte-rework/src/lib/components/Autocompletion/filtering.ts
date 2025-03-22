@@ -27,7 +27,7 @@ export function convertDelegatesToAutocompleteOptions(
 		let divisionsString = delegate.divisions?.join(', ');
 		let otherKeywordsString = otherKeywords.join(', ');
 
-		const rightLabel = delegate.party ? delegate.party : "OK";
+		const rightLabel = delegate.party ? delegate.party : 'OK';
 
 		return {
 			right_label: rightLabel,

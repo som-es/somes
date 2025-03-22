@@ -112,8 +112,8 @@
 <div class="text-black" id="chart"></div>
 
 <style>
-    #chart {
-        max-width: 650px;
-        margin: auto;
-    }
+	#chart {
+		max-width: 650px;
+		margin: auto;
+	}
 </style>
