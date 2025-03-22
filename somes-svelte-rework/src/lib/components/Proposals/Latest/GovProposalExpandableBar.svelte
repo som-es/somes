@@ -26,7 +26,7 @@
 		on:keypress={() => (open = !open)}
 		role="button"
 		tabindex="0"
-		class="entry dark:bg-primary-300 bg-primary-400 flex justify-between items-center text-black"
+		class="entry bg-primary-300 dark:bg-primary-500 flex justify-between items-center text-black"
 	>
 		<div>
 			<div id={open ? 'open' : 'closed'}>

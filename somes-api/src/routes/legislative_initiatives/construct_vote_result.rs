@@ -178,6 +178,7 @@ SELECT jsonb_build_object(
         )
         FROM named_vote_info
         WHERE legis_init_id = $1
+        AND $3
         LIMIT 1
     ),
     
@@ -252,7 +253,8 @@ SELECT jsonb_build_object(
 
     ",
         legis_init.id,
-        legis_init.created_at
+        legis_init.created_at,
+        legis_init.voted_by_name
     )
     .fetch_one(pg)
     .await

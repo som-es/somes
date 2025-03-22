@@ -2,6 +2,9 @@ use sqlx::{Encode, Postgres, Type};
 
 pub trait Filterable<'a, What>: Send + Sync {
     fn should_return_any(&self) -> bool;
+    fn has_value(&self) -> bool {
+        true
+    }
     fn to_query_part(&self, sql_column_name: &str, idx: usize) -> String;
     fn bind(
         &'a self,
@@ -18,6 +21,9 @@ impl Manual {
 
 impl<'a, What> Filterable<'a, What> for Manual {
     fn should_return_any(&self) -> bool {
+        false
+    }
+    fn has_value(&self) -> bool {
         false
     }
 
@@ -74,6 +80,13 @@ impl<'a, 'b, What> FilterArgument<'a, 'b, What> {
     }
 }
 
+pub fn count_filter<What>(filters: &[FilterArgument<'_, '_, What>]) -> usize {
+    filters
+        .iter()
+        .filter(|x| !x.value.should_return_any())
+        .count()
+}
+
 pub fn build_filter<What>(filters: &[FilterArgument<'_, '_, What>]) -> String {
     filters
         .iter()
@@ -88,7 +101,7 @@ pub fn bind_values<'a, 'b, What>(
     filters: &[FilterArgument<'b, 'b, What>],
 ) -> sqlx::query::QueryAs<'b, sqlx::Postgres, What, sqlx::postgres::PgArguments> {
     for filter in filters {
-        if filter.value.should_return_any() {
+        if filter.value.should_return_any() || !filter.value.has_value() {
             continue;
         }
         query = filter.value.bind(query)

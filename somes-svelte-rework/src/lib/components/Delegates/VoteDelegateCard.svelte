@@ -6,6 +6,7 @@
 	import type { Delegate } from '$lib/types';
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import SButton from '../UI/SButton.svelte';
+	import DelegateCard from './DelegateCard.svelte';
 
 	export let bubble: Bubble;
 	export let date: Date;
@@ -29,42 +30,32 @@
 	};
 
 	$: infoText = '';
-	$: if (bubble.namedVote !== null) {
+
+	$: opinionColor = "";
+    $: opinion = "";
+	$: if (bubble.namedVote) {
 		infoText = `unsichere Zuteilung: "${bubble.namedVote.searched_with}" wurde ${bubble.namedVote.manually_matched ? 'manuell' : 'automatisch'} "${bubble.namedVote.matched_with}" zugeteilt`;
+		opinionColor = bubble.namedVote.infavor != null ? (bubble.namedVote.infavor ? "bg-success-600" : "bg-red-600") : "bg-primary-500";
+		opinion = bubble.namedVote.infavor != null ? (bubble.namedVote.infavor ? "Ja" : "Nein") : "Abwesend/keine Stimme abgegeben";
 	}
 	$: if (bubble && bubble.del != null) delegate = bubble.del;
 
 	let clazz = '';
 	export { clazz as class };
+
 </script>
 
-{#if delegate}
-	<div class="!-z-50 card card-hover min-h-full mx-4 drop-shadow-lg flex flex-col {clazz}">
-		<header class="flex justify-center">
-			<img
-				src={delegate.image_url}
-				style="width: 200px;"
-				class="rounded-full"
-				alt="Image of politician {delegate.name}"
-			/>
-		</header>
-		<section class="p-4 flex-grow">
-			<h4 class="font-bold text-lg">
-				{delegate.name}
-			</h4>
-			<h5 style="color: {partyToColor(delegate.party)}">
-				{#if delegate.party == 'OK'}
-					Ohne Klub
-				{:else if delegate.party}
-					<span>{delegate.party}</span>
-				{/if}
-			</h5>
-			<!-- <h6>{delegate.constituency}</h6> -->
-			<!-- <hr class="!border-t-2 my-1" /> -->
-			<!-- <h6>{delegate.divisions?.join(', ')}</h6> -->
-			<hr class="!border-t-2 my-1" />
-			{bubble.title}
-			{#if bubble.namedVote && (bubble.namedVote.similiarity_score != 0 || bubble.namedVote.manually_matched)}
+<DelegateCard {delegate} title={bubble.title} showMoreDetailsBtn showAI={false}>
+	<span slot="title">
+		{#if bubble.namedVote}
+            <div class="text-lg font-bold badge {opinionColor} text-white max-w-fit ">{opinion}</div>
+		{:else}
+			<span class="font-bold text-xl">{bubble.title}</span>
+		{/if}
+	</span>
+
+	<span slot="info">
+		{#if bubble.namedVote && (bubble.namedVote.similiarity_score != 0 || bubble.namedVote.manually_matched)}
 				<div class="!z-50 card p-4 w-72 shadow-xl" data-popup="popupFeatured">
 					<div class="z-50 font-bold text-xl">Unsichere Zuteilung</div>
 					<div>
@@ -83,20 +74,17 @@
 
 				<button class="text-2xl" use:popup={popupFeatured}>⚠</button>
 			{/if}
-		</section>
-		<hr class="!border-t-2 my-1" />
-		<!-- <footer class="card-footer flex justify-end items-end mt-3"> -->
-		<footer class="card-footer flex justify-between items-end mt-3">
-			{#if bubble.speech}
-				<SButton
-					class="bg-secondary-500 text-black"
-					on:click={() =>
-						window.open(`https://www.parlament.gv.at${bubble.speech?.document_url}`, '_blank')}
-					>Rede</SButton
-				>
-			{/if}
-			<SButton class="bg-tertiary-500 text-black" on:click={onShowDetails}>Zur Person</SButton
+	</span>
+	<span slot="footerButtons">
+		{#if bubble.speech}
+			<SButton
+				class="bg-secondary-500 text-black"
+				on:click={() =>
+					window.open(`https://www.parlament.gv.at${bubble.speech?.document_url}`, '_blank')}
+				>Rede</SButton
 			>
-		</footer>
-	</div>
-{/if}
+		{/if}
+	</span>
+</DelegateCard>
+
+

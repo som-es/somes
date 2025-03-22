@@ -7,24 +7,56 @@
 	import Container from '$lib/components/Layout/Container.svelte';
 	import { cachedLatestGovProposals } from '$lib/caching/gov_proposals';
 	import LatestProposals from '$lib/components/Proposals/Latest/LatestProposals.svelte';
+	import { cachedUserTopics } from '$lib/caching/user_topics_cache';
 
 	let dels: Delegate[] | null = null;
 	let voteResults: VoteResult[] | null = null;
 	let govProposals: GovProposalDelegate[] | null = null;
+	let userVoteResults: VoteResult[] | null = null;
 	onMount(async function () {
 		// await updateColorStorage();
 		dels = (await filteredDelegates())?.nr ?? null;
-		voteResults = await cachedLatestVoteResults();
+		const userTopics = await cachedUserTopics();
+		const tempVoteResults = await cachedLatestVoteResults(true);
 		govProposals = await cachedLatestGovProposals();
+
+
+		if (userTopics && tempVoteResults) {
+			voteResults = []
+			userVoteResults = tempVoteResults.filter(voteResult => {
+				for (let i = 0; i < voteResult.topics.length; i++) {
+					for (let j = 0; j < userTopics.length; j++) {
+						if (voteResult.topics[i].topic == userTopics[j].topic) {
+							return true
+						}
+					}
+				}
+				voteResults?.push(voteResult)
+				return false
+			});
+
+			voteResults = voteResults;
+		} else {
+			voteResults = tempVoteResults;
+		}
+
 	});
 </script>
 
 <Container>
+	{#if userVoteResults && dels}
+		<h1 class="text-2xl sm:text-4xl font-bold">
+			Abstimmungsergebnisse nach Interesse
+		</h1>
+
+		<VoteResults {dels} voteResults={userVoteResults} />
+	<!-- {:else if use} -->
+	{/if}
 	<h1 class="text-2xl sm:text-4xl font-bold">
 		Neuste Abstimmungsergebnisse
 	</h1>
 	{#if voteResults && dels}
-		<VoteResults {dels} {voteResults} />
+		<VoteResults {dels} {voteResults} showHistory />
 	{:else}
 		<section class="card w-full animate-pulse">
 			<div class="p-4 space-y-4">

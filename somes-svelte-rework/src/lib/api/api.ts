@@ -21,7 +21,9 @@ import type {
 	SpeechesWithMaxPage,
 	PoliticalPosition,
 	GovProposalDelegate,
-	GeneralDelegateInfo
+	GeneralDelegateInfo,
+	GovPropFilter,
+	GovProposalsWithMaxPage
 } from '../types';
 import { jwtStore } from '../caching/stores/stores';
 
@@ -126,6 +128,10 @@ export async function all_gps(): Promise<LegisPeriod[] | HasError> {
 	return getWithRoute<LegisPeriod[]>('all_gps');
 }
 
+export async function delegate(delegate_id: number): Promise<Delegate | HasError> {
+	return getWithRoute<Delegate>(`delegate?delegate_id=${delegate_id}`);
+}
+
 export async function delegate_interests(delegate_id: number): Promise<InterestShare[] | HasError> {
 	return getWithRoute<InterestShare[]>(`delegate_interests?delegate_id=${delegate_id}`);
 }
@@ -206,6 +212,39 @@ export async function vote_results_per_page(
 		})
 	);
 }
+
+export async function gov_proposals_per_page(
+	page: number,
+	filter: GovPropFilter | null
+): Promise<GovProposalsWithMaxPage | HasError> {
+	return fetchSavely(() =>
+		fetch(`${address}/gov_proposals_per_page?page=${page}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(filter)
+		})
+	);
+}
+
+export async function gov_proposals_by_search(
+	page: number,
+	search: string,
+	filter: GovPropFilter | null
+): Promise<GovProposalsWithMaxPage | HasError> {
+	return fetchSavely(() =>
+		fetch(`${address}/gov_proposals_by_search?page=${page}&search=${search}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(filter)
+		})
+	);
+}
+
+
 
 export async function vote_results_by_search(
 	page: number,

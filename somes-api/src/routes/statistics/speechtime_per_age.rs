@@ -18,6 +18,7 @@ use super::filtering::Manual;
 pub struct AgeSpeechTimeFilter {
     legis_period: Option<String>,
     is_desc: bool,
+    normalized: bool,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
@@ -36,10 +37,12 @@ pub async fn speechtime_per_age(
     let filter = filter.unwrap_or_default();
 
     let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
-    let filter_arg1 = Manual("m.is_nr").with_sql_column("");
+    let filter_arg1 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
     let filters = [filter_arg, filter_arg1];
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
+
+    let normalized = if filter.normalized { "normalized_speech_time" } else { "total_speech_time" };
 
     let filter = build_filter(&filters);
 
@@ -74,7 +77,7 @@ WHERE
 GROUP BY 
     age_group
 ORDER BY 
-    normalized_speech_time {desc};
+    {normalized} {desc};
     "
     );
 

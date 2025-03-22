@@ -18,14 +18,15 @@ use super::filtering::Manual;
 pub struct GenderTotalSpeechesFilter {
     legis_period: Option<String>,
     is_desc: bool,
+    normalized: bool,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct GenderTotalSpeeches {
     delegate_gender: String,
     total_speeches: i64,
-    gender_members_with_speeches: i64,
-    normalized_speeches_per_gender: f64,
+    gender_members: i64,
+    normalized_speeches: f64,
 }
 
 // #[debug_handler]
@@ -36,20 +37,34 @@ pub async fn total_speeches_per_gender(
     let filter = filter.unwrap_or_default();
 
     let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
-    let filter_arg1 = Manual("m.is_nr").with_sql_column("");
+    let filter_arg1 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
     let filters = [filter_arg, filter_arg1];
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
+
+    let normalized = if filter.normalized { "normalized_speeches" } else { "total_speeches" };
 
     let filter = build_filter(&filters);
 
     let query = format!(
         " 
+         WITH gender_counts AS (
+    SELECT 
+        ds.gender, 
+        COUNT(DISTINCT ds.id) AS total_gender_count
+    FROM delegates ds
+    JOIN mandates m ON m.delegate_id = ds.id
+    JOIN plenar_infos pf ON 1=1  
+    WHERE {filter}
+        AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = pf.id)
+        AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = pf.id))
+    GROUP BY ds.gender
+)
         SELECT 
             ds.gender AS delegate_gender,
             COUNT(ps.id) AS total_speeches,
-            COUNT(DISTINCT ds.id) AS gender_members_with_speeches,
-            COUNT(ps.id)::FLOAT / COUNT(DISTINCT ds.id)::FLOAT AS normalized_speeches_per_gender
+            gc.total_gender_count AS gender_members,
+            COUNT(ps.id)::FLOAT / gc.total_gender_count::FLOAT AS normalized_speeches
         FROM 
     plenar_speeches ps
 JOIN 
@@ -60,14 +75,16 @@ JOIN
     debates db ON db.id = ps.debate_id
 JOIN
     plenar_infos pf ON pf.id = db.plenar_id
+JOIN 
+    gender_counts gc ON ds.gender = gc.gender
 WHERE
     {filter}
     AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = db.plenar_id)
     AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = db.plenar_id))
 GROUP BY 
-    ds.gender
+    ds.gender, gc.total_gender_count
 ORDER BY 
-    normalized_speeches_per_gender {desc};
+    {normalized} {desc};
     "
     );
 

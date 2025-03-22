@@ -2,6 +2,62 @@ use chrono::{NaiveDate, NaiveDateTime};
 use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
 
+#[derive(ToSchema, PartialEq, Debug, Clone, Serialize, Deserialize)]
+pub struct Delegate {
+    pub id: i32,
+    pub name: String,
+    pub party: Option<String>,
+    pub current_party: Option<String>,
+    pub image_url: Option<String>,
+    pub constituency: Option<String>,
+    pub council: Option<String>,
+    pub seat_row: Option<i32>,
+    pub seat_col: Option<i32>,
+    pub gender: Option<String>,
+    pub is_active: Option<bool>,
+    pub birthdate: Option<NaiveDate>,
+    pub active_since: NaiveDate,
+    pub divisions: Option<Vec<String>>,
+    pub primary_mandate: Option<String>,
+    pub active_mandates: Option<Vec<String>>,
+}
+
+#[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct DelegateFavo {
+    pub delegate_id: i32,
+}
+
+
+#[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct LegisInitFavo {
+    pub vote_result_id: i32,
+}
+
+#[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct Absence {
+    pub date: NaiveDate,
+    pub inr: i32,
+    pub gp: String,
+    pub plenary_session_id: i32,
+    pub missed_legis_init_ids: Option<Vec<i32>>,
+}
+
+#[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct AbsencesWithMaxPage {
+    pub speeches: Vec<Absence>,
+    pub entry_count: i64,
+    pub max_page: i64,
+}
+
+#[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct NamedVote {
+    pub infavor: Option<bool>,
+    pub was_absent: Option<bool>,
+    pub legis_init_id: i32,
+    pub named_vote_info_id: i32,
+    pub date: NaiveDate,
+}
+
 /// 'ResetPasswordInfo' is used to send a reset password request to the server.
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct ResetPasswordInfo {
@@ -97,6 +153,14 @@ pub struct DelegateById {
     pub delegate_id: i32,
 }
 
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct SendMailInfo {
+    pub send_new_vote_results_mails: bool,
+    pub send_new_delegate_activity_mails: bool,
+    pub send_new_ministrial_prop_mails: bool,
+}
+
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct DelegateByIdAndPage {
     pub delegate_id: i32,
@@ -123,6 +187,8 @@ pub struct GeneralDelegateInfo {
     pub interests: Vec<InterestShare>,
     pub delegate_qa: Vec<DelegateQA>,
     pub political_position: Option<PoliticalPosition>,
+    pub absences: Vec<Absence>,
+    pub named_votes: Vec<NamedVote>,
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
@@ -179,6 +245,13 @@ pub struct LegisInitFilter {
     pub accepted: Option<String>,
     pub is_named_vote: Option<bool>,
     pub simple_majority: Option<bool>,
+    pub legis_period: Option<String>,
+    pub is_law: Option<bool>,
+}
+
+#[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
+pub struct GovPropFilter {
+    pub has_vote_result: Option<bool>,
     pub legis_period: Option<String>,
 }
 

@@ -8,6 +8,7 @@
 	import Emphasis from '$lib/components/VoteResults/Emphasis/Emphasis.svelte';
 	import GovProposalInfoTiles from '$lib/components/VoteResults/InfoTiles/GovProposalInfoTiles.svelte';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
+	import { getModalStore } from '@skeletonlabs/skeleton';
 
 	export let govProposal: GovProposal;
 	export let delegate: Delegate | null = null;
@@ -16,8 +17,13 @@
 
 	let delsAtDate: Delegate[] = [];
 
+	const modalStore = getModalStore();
+
+
 	function onShowDetails(voteResult: VoteResult | null) {
 		if (!voteResult) return;
+
+		modalStore.close();
 		currentVoteResultStore.set(voteResult);
 		currentDelegatesAtDateStore.set([
 			voteResult.legislative_initiative.created_at.toString(),

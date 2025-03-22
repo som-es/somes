@@ -18,6 +18,7 @@ use super::filtering::Manual;
 pub struct AgeTotalSpeechesFilter {
     legis_period: Option<String>,
     is_desc: bool,
+    normalized: bool,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
@@ -36,12 +37,14 @@ pub async fn total_speeches_per_age(
     let filter = filter.unwrap_or_default();
 
     let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
-    let filter_arg1 = Manual("m.is_nr").with_sql_column("");
+    let filter_arg1 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
     let filters = [filter_arg, filter_arg1];
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
 
-    let filter = build_filter(&filters);
+    let normalized = if filter.normalized { "normalized_speeches" } else { "total_speeches" };
+
+    let filter = build_filter(&filters); 
 
     let query = format!(
         " 
@@ -55,29 +58,19 @@ pub async fn total_speeches_per_age(
     GROUP BY 
         legislative_period
 )
-        SELECT 
-            CASE 
-                WHEN (EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) + 
-                    (EXTRACT(MONTH FROM AGE(ds.birthdate, lpd.start_date)) / 12.0) + 
-                    (EXTRACT(DAY FROM AGE(ds.birthdate, lpd.start_date)) / 365.25))::FLOAT * (-1) < 30 THEN 'Under 30'
-                WHEN (EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) + 
-                    (EXTRACT(MONTH FROM AGE(ds.birthdate, lpd.start_date)) / 12.0) + 
-                    (EXTRACT(DAY FROM AGE(ds.birthdate, lpd.start_date)) / 365.25))::FLOAT * (-1) BETWEEN 30 AND 39 THEN '30-39'
-                WHEN (EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) + 
-                    (EXTRACT(MONTH FROM AGE(ds.birthdate, lpd.start_date)) / 12.0) + 
-                    (EXTRACT(DAY FROM AGE(ds.birthdate, lpd.start_date)) / 365.25))::FLOAT * (-1) BETWEEN 40 AND 49 THEN '40-49'
-                WHEN (EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) + 
-                    (EXTRACT(MONTH FROM AGE(ds.birthdate, lpd.start_date)) / 12.0) + 
-                    (EXTRACT(DAY FROM AGE(ds.birthdate, lpd.start_date)) / 365.25))::FLOAT * (-1) BETWEEN 50 AND 59 THEN '50-59'
-                WHEN (EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) + 
-                    (EXTRACT(MONTH FROM AGE(ds.birthdate, lpd.start_date)) / 12.0) + 
-                    (EXTRACT(DAY FROM AGE(ds.birthdate, lpd.start_date)) / 365.25))::FLOAT * (-1) BETWEEN 60 AND 69 THEN '60-69'
-                ELSE '70+'
-            END AS age_group,
-            COUNT(ps.id) AS total_speeches,
-            COUNT(DISTINCT ds.id) AS age_group_members_with_speeches,
-            COUNT(ps.id)::FLOAT / COUNT(DISTINCT ds.id)::FLOAT AS normalized_speeches
-        FROM 
+SELECT 
+    CASE 
+        WHEN dga.age_at_start < 30 THEN 'Under 30'
+        WHEN dga.age_at_start BETWEEN 30 AND 39 THEN '30-39'
+        WHEN dga.age_at_start BETWEEN 40 AND 49 THEN '40-49'
+        WHEN dga.age_at_start BETWEEN 50 AND 59 THEN '50-59'
+        WHEN dga.age_at_start BETWEEN 60 AND 69 THEN '60-69'
+        ELSE '70+'
+    END AS age_group,
+    COUNT(ps.id) AS total_speeches,
+    COUNT(DISTINCT ds.id) AS age_group_members_with_speeches,
+    COUNT(ps.id)::FLOAT / COUNT(DISTINCT ds.id)::FLOAT AS normalized_speeches
+FROM 
     plenar_speeches ps
 JOIN 
     delegates ds ON ps.delegate_id = ds.id
@@ -89,6 +82,8 @@ JOIN
     plenar_infos pf ON pf.id = db.plenar_id
 JOIN 
     legislative_period_dates lpd ON lpd.legislative_period = pf.legislative_period
+JOIN 
+    delegate_ages dga ON dga.delegate_id = ds.id
 WHERE
     {filter}
     AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = db.plenar_id)
@@ -96,7 +91,8 @@ WHERE
 GROUP BY 
     age_group
 ORDER BY 
-    normalized_speeches {desc};
+    {normalized} {desc};
+
     "
     );
 

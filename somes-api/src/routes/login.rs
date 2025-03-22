@@ -33,7 +33,7 @@ fn generate_otp() -> String {
 async fn get_user_from_mail(pg: &PgPool, stored_mail: &str) -> Option<Option<User>> {
     let maybe_user = query_as!(
         User,
-        "select * from somes_user where email = $1",
+        "select id, email, is_email_hashed, is_admin from somes_user where email = $1",
         stored_mail
     )
     .fetch_optional(pg)
@@ -45,7 +45,7 @@ async fn get_user_from_mail(pg: &PgPool, stored_mail: &str) -> Option<Option<Use
             let hashed_email = hash_password(stored_mail).ok()?;
             query_as!(
                 User,
-                "select * from somes_user where email = $1",
+                "select id, email, is_email_hashed, is_admin from somes_user where email = $1",
                 hashed_email
             )
             .fetch_optional(pg)
@@ -236,7 +236,19 @@ pub async fn delete_account(
     claims: Claims,
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<()>, Json<serde_json::Value>> {
-    query!("delete from user_topics where user_id = $1", claims.id,)
+    let _ = query!("delete from user_topics where user_id = $1", claims.id,)
+        .execute(&pg)
+        .await
+        .map(|_| Json(()))
+        .map_err(|_| Json(json!({"error": "db error"})))?;
+
+    let _ = query!("delete from favo_dels where user_id = $1", claims.id,)
+        .execute(&pg)
+        .await
+        .map(|_| Json(()))
+        .map_err(|_| Json(json!({"error": "db error"})))?;
+
+    let _ = query!("delete from favo_legis_inits where user_id = $1", claims.id,)
         .execute(&pg)
         .await
         .map(|_| Json(()))

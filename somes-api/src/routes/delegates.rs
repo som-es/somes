@@ -5,7 +5,7 @@ use chrono::NaiveDate;
 use dataservice::db::models::DbProposalQuery;
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::{Date, DelegateById, DelegateQA, InterestShare, LegisPeriod};
+use somes_common_lib::{Date, Delegate, DelegateById, DelegateQA, InterestShare, LegisPeriod};
 use sqlx::PgPool;
 use utoipa::ToSchema;
 
@@ -15,14 +15,17 @@ use crate::{
 };
 
 pub use error::*;
+mod absences;
 mod ai_chat;
 mod delegate_political_position;
 mod error;
 mod general_delegate_info;
 mod gov_officials;
 mod interests;
+mod named_votes;
 mod qa;
 mod speeches;
+pub use absences::*;
 pub use ai_chat::*;
 pub use delegate_political_position::*;
 pub use general_delegate_info::*;
@@ -30,26 +33,6 @@ pub use gov_officials::*;
 pub use interests::*;
 pub use qa::*;
 pub use speeches::*;
-
-#[derive(ToSchema, PartialEq, Debug, Clone, Serialize, Deserialize)]
-pub struct Delegate {
-    pub id: i32,
-    pub name: String,
-    pub party: Option<String>,
-    pub current_party: Option<String>,
-    pub image_url: Option<String>,
-    pub constituency: Option<String>,
-    pub council: Option<String>,
-    pub seat_row: Option<i32>,
-    pub seat_col: Option<i32>,
-    pub gender: Option<String>,
-    pub is_active: Option<bool>,
-    pub birthdate: Option<NaiveDate>,
-    pub active_since: NaiveDate,
-    pub divisions: Option<Vec<String>>,
-    pub primary_mandate: Option<String>,
-    pub active_mandates: Option<Vec<String>>,
-}
 
 #[utoipa::path(
     get,

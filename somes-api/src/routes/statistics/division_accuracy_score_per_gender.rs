@@ -23,7 +23,7 @@ pub struct GenderDivisonAccuracyFilter {
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct GenderDivisionAccuracy {
-    gender: String,
+    delegate_gender: String,
     average_division_accuracy_score: f64,
 }
 
@@ -35,7 +35,7 @@ pub async fn division_accuracy_score_per_gender(
     let filter = filter.unwrap_or_default();
 
     let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
-    let filter_arg1 = Manual("m.is_nr").with_sql_column("");
+    let filter_arg1 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
     let filters = [filter_arg, filter_arg1];
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
@@ -45,7 +45,7 @@ pub async fn division_accuracy_score_per_gender(
     let query = format!(
         "
         SELECT 
-            ds.gender AS gender,
+            ds.gender AS delegate_gender,
             AVG(dis.score) AS average_division_accuracy_score
          FROM 
             division_interest_score dis

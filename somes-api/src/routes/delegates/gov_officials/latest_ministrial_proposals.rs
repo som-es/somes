@@ -3,20 +3,19 @@ use chrono::{NaiveDate, NaiveDateTime};
 use dataservice::db::models::DbMinistrialProposalQuery;
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
+use somes_common_lib::Delegate;
 use sqlx::{query_as, PgPool};
 use utoipa::ToSchema;
 
 use crate::{
-    routes::{
-        construct_gov_proposal, delegate_by_id_sqlx, Delegate, DelegatesErrorResponse, GovProposal,
-    },
+    routes::{construct_gov_proposal, delegate_by_id_sqlx, DelegatesErrorResponse, GovProposal},
     PgPoolConnection, RedisConnection,
 };
 
 #[derive(ToSchema, Debug, Clone, Serialize, Deserialize)]
 pub struct GovProposalDelegate {
-    gov_proposal: GovProposal,
-    delegate: Delegate,
+    pub gov_proposal: GovProposal,
+    pub delegate: Delegate,
 }
 
 pub async fn construct_ministrial_proposal_delegate(
@@ -57,7 +56,8 @@ pub async fn extract_latest_ministrial_proposals(
         mp.ressort_shortform, 
         mp.legis_init_gp, 
         mp.legis_init_inr,
-        mp.legis_init_ityp
+        mp.legis_init_ityp,
+        mp.has_vote_result
      from ministrial_issuer as mi 
         inner join ministrial_proposals mp on mp.id = mi.ministrial_proposal_id 
         

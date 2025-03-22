@@ -45,12 +45,13 @@
 	"type": "module",
 	"dependencies": {
 		"@floating-ui/dom": "^1.6.7",
-		"apexcharts": "^3.53.0",
-		"svelte-collapsible": "^0.3.0",
-		"svelte-persisted-store": "^0.11.0",
-		"three": "^0.170.0",
+		"@theatre/core": "^0.7.2",
 		"@threlte/core": "^7.3.1",
 		"@threlte/extras": "^8.12.1",
-		"@theatre/core": "^0.7.2"
+		"apexcharts": "^3.53.0",
+		"font-awesome": "^4.7.0",
+		"svelte-collapsible": "^0.3.0",
+		"svelte-persisted-store": "^0.11.0",
+		"three": "^0.170.0"
 	}
 }

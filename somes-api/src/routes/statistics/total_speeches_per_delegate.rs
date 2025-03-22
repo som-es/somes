@@ -21,6 +21,7 @@ pub struct DelegateTotalSpeechesFilter {
     party: Option<String>,
     gender: Option<String>,
     is_desc: bool,
+    normalized: bool,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
@@ -28,6 +29,9 @@ pub struct DelegateTotalSpeeches {
     delegate_name: String,
     delegate_party: String,
     total_speeches: i64,
+    total_sessions_attended: i64,
+    normalized_speeches: f64,
+
 }
 
 // #[debug_handler]
@@ -40,19 +44,47 @@ pub async fn total_speeches_per_delegate(
     let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
     let filter_arg1 = filter.party.with_sql_column("m.party");
     let filter_arg2 = filter.gender.with_sql_column("ds.gender");
-    let filter_arg3 = Manual("m.is_nr").with_sql_column("");
+    let filter_arg3 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
     let filters = [filter_arg, filter_arg1, filter_arg2, filter_arg3];
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
+
+    let normalized = if filter.normalized { "normalized_speeches" } else { "total_speeches" };
 
     let filter = build_filter(&filters);
 
     let query = format!(
         "
+        WITH legislative_period_dates AS (
+    SELECT 
+        legislative_period, 
+        MIN(add_date) AS start_date, 
+        MAX(add_date) AS end_date
+    FROM 
+        plenar_infos
+    GROUP BY 
+        legislative_period
+),
+session_counts AS (
+    SELECT 
+        pf.legislative_period,
+        ps.delegate_id,
+        COUNT(DISTINCT pf.id) AS total_sessions_attended
+    FROM 
+        plenar_infos pf
+    JOIN 
+        debates db ON db.plenar_id = pf.id
+    JOIN 
+        plenar_speeches ps ON ps.debate_id = db.id
+    GROUP BY 
+        pf.legislative_period, ps.delegate_id
+)
         SELECT 
     ds.name AS delegate_name,
-    m.party AS delegate_party,
-    COUNT(ps.id) AS total_speeches
+    COALESCE(m.party, 'Regierungsmitglied') AS delegate_party,
+    COUNT(ps.id) AS total_speeches,
+    sc.total_sessions_attended,
+    COUNT(ps.id) / NULLIF(sc.total_sessions_attended, 0)::FLOAT AS normalized_speeches
 FROM 
     plenar_speeches ps
 JOIN 
@@ -63,14 +95,19 @@ JOIN
     debates db ON db.id = ps.debate_id
 JOIN
     plenar_infos pf ON pf.id = db.plenar_id
+JOIN 
+    legislative_period_dates lp ON lp.legislative_period = pf.legislative_period
+JOIN 
+    session_counts sc ON sc.legislative_period = lp.legislative_period 
+    AND sc.delegate_id = ds.id  
 WHERE
     {filter}
     AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = db.plenar_id)
     AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = db.plenar_id))
 GROUP BY 
-    ds.name, m.party
+    ds.name, m.party, sc.total_sessions_attended
 ORDER BY 
-    total_speeches {desc};
+    {normalized} {desc};
     "
     );
 

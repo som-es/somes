@@ -32,6 +32,11 @@ pub async fn filtered_legislative_initiatives(
         param_index += 1;
     }
 
+    if filter.is_law.is_some() {
+        query.push_str(&format!(" AND is_law = ${}", param_index));
+        param_index += 1;
+    }
+
     let count_query = query.clone().replace('*', "COUNT(*)");
 
     query.push_str(&format!(
@@ -58,6 +63,11 @@ pub async fn filtered_legislative_initiatives(
     if let Some(is_named_vote) = &filter.is_named_vote {
         filtered_query = filtered_query.bind(is_named_vote);
         count_query = count_query.bind(is_named_vote);
+    }
+    
+    if let Some(is_law) = &filter.is_law {
+        filtered_query = filtered_query.bind(is_law);
+        count_query = count_query.bind(is_law);
     }
     filtered_query = filtered_query
         .bind(page * page_elements)

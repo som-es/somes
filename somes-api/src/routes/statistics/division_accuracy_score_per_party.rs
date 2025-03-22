@@ -23,7 +23,7 @@ pub struct PartyDivisonAccuracyFilter {
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct PartyDivisionAccuracy {
-    party: String,
+    delegate_party: String,
     average_division_accuracy_score: f64,
 }
 
@@ -45,7 +45,7 @@ pub async fn division_accuracy_score_per_party(
     let query = format!(
         "
         SELECT 
-            m.party AS party,
+            m.party AS delegate_party,
             AVG(dis.score) AS average_division_accuracy_score
          FROM 
             division_interest_score dis

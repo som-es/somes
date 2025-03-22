@@ -54,5 +54,8 @@
                 <ExpandablePlaceholder class="min-w-7xl w-7xl" />
             {/each}
         {/if}
+        <div class="float-right">
+            <Pagination bind:page maxPage={$modalStore[0].meta.speechesPage0.max_page} />
+        </div>
     </div>
 {/if}

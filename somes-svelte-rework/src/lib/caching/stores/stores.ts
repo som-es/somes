@@ -1,4 +1,4 @@
-import type { Delegate, GovProposalDelegate, LegisPeriod, UniqueTopic, VoteResult } from '$lib/types';
+import type { Delegate, DelegateFavo, GovProposalDelegate, LegisPeriod, UniqueTopic, VoteResult } from '$lib/types';
 import { persisted } from 'svelte-persisted-store';
 
 export const partyColorsStore = persisted<[string, string][] | null>('partyColors', null);
@@ -10,3 +10,4 @@ export const legisPeriodsStore = persisted<LegisPeriod[] | null>('legis_periods'
 export const seatsStore = persisted<[string, number[]][] | null>('seats', null);
 export const jwtStore = persisted<string | null>('access_token', null);
 export const userTopicsStore = persisted<UniqueTopic[] | null>('user_topics', null);
+export const userDelegateFavosStore = persisted<DelegateFavo[] | null>('delegate_favos', null);

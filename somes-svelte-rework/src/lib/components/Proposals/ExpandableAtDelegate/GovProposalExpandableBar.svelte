@@ -6,6 +6,7 @@
 	import GovProposalExpanded from './GovProposalExpanded.svelte';
 	import { currentVoteResultStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
+	import { getModalStore } from '@skeletonlabs/skeleton';
 
 	export let govProposal: GovProposal;
 	// export let dels: Delegate[];
@@ -14,7 +15,10 @@
 	let open = false;
 	let duration = 0.35;
 
+	const modalStore = getModalStore();
+
 	function onShowDetails(voteResult: VoteResult | null) {
+		modalStore.close();
 		currentVoteResultStore.set(voteResult);
 		gotoHistory('/vote_result', true);
 	}

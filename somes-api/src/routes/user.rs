@@ -3,9 +3,9 @@ mod error;
 pub use error::*;
 
 use axum::Json;
-use somes_common_lib::UserInfo;
+use sqlx::query_as;
 
-use crate::{jwt::Claims, operations::user::get_user_from_db_by_id, DataserviceDbConnection};
+use crate::{jwt::Claims, model::User, GenericErrorResponse, PgPoolConnection};
 
 #[utoipa::path(
     post,
@@ -21,14 +21,15 @@ use crate::{jwt::Claims, operations::user::get_user_from_db_by_id, DataserviceDb
 )]
 pub async fn user(
     claims: Claims,
-    DataserviceDbConnection(con): DataserviceDbConnection,
-) -> Result<Json<UserInfo>, UserErrorResponse> {
-    con.interact(move |con| {
-        get_user_from_db_by_id(con, claims.id)
-            .map(|user| UserInfo { email: user.email })
-            .map(Json)
-            .ok_or(UserErrorResponse::InvalidUser)
-    })
+    PgPoolConnection(pg): PgPoolConnection,
+) -> Result<Json<User>, crate::error::GenericErrorResponse> {
+    query_as!(
+        User,
+        "select id, email, is_email_hashed, is_admin from somes_user where id = $1",
+        claims.id
+    )
+    .fetch_one(&pg)
     .await
-    .map_err(|_| UserErrorResponse::InteractionFailed)?
+    .map(Json)
+    .map_err(|e| GenericErrorResponse::DbSelectFailure(Some(e)))
 }

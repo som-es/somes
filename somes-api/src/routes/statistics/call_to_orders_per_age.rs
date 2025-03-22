@@ -18,12 +18,13 @@ use super::filtering::Manual;
 pub struct AgeCallToOrdersFilter {
     legis_period: Option<String>,
     is_desc: bool,
+    normalized: bool,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct AgeCallToOrders {
     age_group: String,
-    age_group_members_who_where_called: i64,
+    age_group_members: i64,
     total_order_calls: i64,
     normalized_calls_to_order: f64,
 }
@@ -35,38 +36,38 @@ pub async fn call_to_orders_per_age(
 ) -> Result<Json<Vec<AgeCallToOrders>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
 
-    let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
-    let filter_arg1 = Manual("m.is_nr").with_sql_column("");
+    let filter_arg = filter.legis_period.with_sql_column("dga.legislative_period");
+    let filter_arg1 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
     let filters = [filter_arg, filter_arg1];
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
+
+    let normalized = if filter.normalized { "normalized_calls_to_order" } else { "total_order_calls" };
 
     let filter = build_filter(&filters);
 
     let query = format!(
         " 
-         WITH legislative_period_dates AS (
+         WITH delegate_ages AS (
     SELECT 
-        legislative_period, 
-        MIN(add_date) AS start_date, 
-        MAX(add_date) AS end_date
+        dga.delegate_id,
+        dga.legislative_period,
+        dga.age_at_start
     FROM 
-        plenar_infos
-    GROUP BY 
-        legislative_period
+        delegate_ages dga
     )
         SELECT 
             CASE 
-                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) * (-1) < 30 THEN 'Under 30'
-                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) * (-1) BETWEEN 30 AND 39 THEN '30-39'
-                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) * (-1) BETWEEN 40 AND 49 THEN '40-49'
-                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) * (-1) BETWEEN 50 AND 59 THEN '50-59'
-                WHEN EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) * (-1) BETWEEN 60 AND 69 THEN '60-69'
+                WHEN dga.age_at_start < 30 THEN 'Under 30'
+                WHEN dga.age_at_start BETWEEN 30 AND 39 THEN '30-39'
+                WHEN dga.age_at_start BETWEEN 40 AND 49 THEN '40-49'
+                WHEN dga.age_at_start BETWEEN 50 AND 59 THEN '50-59'
+                WHEN dga.age_at_start BETWEEN 60 AND 69 THEN '60-69'
                 ELSE '70+'
             END AS age_group,
-            COUNT(DISTINCT ds.id) AS age_group_members_who_where_called,
+            COUNT(dga.delegate_id) AS age_group_members,
             COUNT(cto.id) AS total_order_calls,
-            COUNT(cto.id)::FLOAT / COUNT(DISTINCT ds.id)::FLOAT AS normalized_calls_to_order
+            COUNT(cto.id)::FLOAT / COUNT(dga.age_at_start)::FLOAT AS normalized_calls_to_order
         FROM 
             call_to_order cto
         JOIN 
@@ -76,7 +77,7 @@ pub async fn call_to_orders_per_age(
         JOIN 
             mandates m ON m.delegate_id = ds.id
         JOIN 
-            legislative_period_dates lpd ON lpd.legislative_period = pf.legislative_period
+           delegate_ages dga ON dga.delegate_id = ds.id
         WHERE 
             {filter}    
             AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = cto.plenar_id)
@@ -84,7 +85,7 @@ pub async fn call_to_orders_per_age(
         GROUP BY 
             age_group
         ORDER BY 
-            normalized_calls_to_order {desc};
+            {normalized} {desc};
     "
     );
 

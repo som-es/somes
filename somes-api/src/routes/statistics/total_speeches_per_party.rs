@@ -18,14 +18,15 @@ use super::filtering::Manual;
 pub struct PartyTotalSpeechesFilter {
     legis_period: Option<String>,
     is_desc: bool,
+    normalized: bool,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct PartyTotalSpeeches {
     delegate_party: String,
     total_speeches: i64,
-    party_member_with_speeches: i64,
-    normalized_speeches_per_party: f64,
+    party_members: i64,
+    normalized_speeches: f64,
 }
 
 // #[debug_handler]
@@ -41,16 +42,30 @@ pub async fn total_speeches_per_party(
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
 
+    let normalized = if filter.normalized { "normalized_speeches" } else { "total_speeches" };
+
     let filter = build_filter(&filters);
 
     let query = format!(
         " 
-        SELECT 
-            m.party AS delegate_party,
-            COUNT(ps.id) AS total_speeches,
-            COUNT(DISTINCT ds.id) AS party_member_with_speeches,
-            COUNT(ps.id)::FLOAT / COUNT(DISTINCT ds.id)::FLOAT AS normalized_speeches_per_party
-         FROM 
+        WITH party_member_counts AS (
+    SELECT 
+        ds.party, 
+        COUNT(DISTINCT ds.id) AS total_party_member_count
+    FROM delegates ds
+    JOIN mandates m ON m.delegate_id = ds.id
+    JOIN plenar_infos pf ON 1=1  
+    WHERE {filter}
+        AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = pf.id)
+        AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = pf.id))
+    GROUP BY ds.party
+)
+SELECT 
+    m.party AS delegate_party, 
+    COUNT(ps.id) AS total_speeches,
+    pmc.total_party_member_count AS party_members,
+    COUNT(ps.id)::FLOAT / pmc.total_party_member_count::FLOAT AS normalized_speeches
+FROM 
     plenar_speeches ps
 JOIN 
     delegates ds ON ps.delegate_id = ds.id
@@ -60,14 +75,16 @@ JOIN
     debates db ON db.id = ps.debate_id
 JOIN
     plenar_infos pf ON pf.id = db.plenar_id
+JOIN
+    party_member_counts pmc ON ds.party = pmc.party
 WHERE
     {filter}
     AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = db.plenar_id)
     AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = db.plenar_id))
 GROUP BY 
-    m.party
+    m.party, pmc.total_party_member_count
 ORDER BY 
-    normalized_speeches_per_party {desc};
+    {normalized} {desc};
     "
     );
 

@@ -36,7 +36,7 @@ pub async fn age_per_legis(
 
     let filter_arg = filter.party.with_sql_column("m.party");
     let filter_arg1 = filter.gender.with_sql_column("ds.gender");
-    let filter_arg2 = Manual("m.is_nr").with_sql_column("");
+    let filter_arg2 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
     let filter_arg3 = Manual("birthdate is not null").with_sql_column("");
     let filters = [filter_arg, filter_arg1, filter_arg2, filter_arg3];
 
@@ -46,23 +46,10 @@ pub async fn age_per_legis(
 
     let query = format!(
         "
-       WITH legislative_period_dates AS (
-    SELECT 
-        legislative_period, 
-        MIN(add_date) AS start_date, 
-        MAX(add_date) AS end_date
-    FROM 
-        plenar_infos
-    GROUP BY 
-        legislative_period
-)
+    
 SELECT DISTINCT 
-     pf.legislative_period AS legislative_period,
-    AVG(
-    (EXTRACT(YEAR FROM AGE(ds.birthdate, lpd.start_date)) + 
-    (EXTRACT(MONTH FROM AGE(ds.birthdate, lpd.start_date)) / 12.0) + 
-    (EXTRACT(DAY FROM AGE(ds.birthdate, lpd.start_date)) / 365.25))::FLOAT  
-    ) * (-1) as average_age  
+     dga.legislative_period AS legislative_period,
+    AVG(dga.age_at_start)::FLOAT as average_age  
 
         FROM 
             delegates ds
@@ -75,13 +62,13 @@ SELECT DISTINCT
         JOIN 
             mandates m ON m.delegate_id = ds.id
         JOIN 
-            legislative_period_dates lpd ON lpd.legislative_period = pf.legislative_period
+            delegate_ages dga ON dga.delegate_id = ds.id
 WHERE
     {filter}
     AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = db.plenar_id)
     AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = db.plenar_id))
 GROUP BY 
-     pf.legislative_period
+     dga.legislative_period
 ORDER BY 
     average_age {desc};
     "
