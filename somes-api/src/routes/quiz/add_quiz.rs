@@ -32,16 +32,16 @@ pub struct Quiz {
 }
 
 pub async fn add_quiz_handler(pg: &PgPool, user_id: i32, quiz: Quiz) -> crate::Result<()> {
-    let is_admin = query!("select is_admin from somes_user where id = $1", user_id)
-        .fetch_one(pg)
-        .await
-        .map_err(|e| GenericErrorResponse::DbSelectFailure(Some(e)))?;
-    if !is_admin.is_admin {
-        return Err(GenericErrorResponse::Custom((
-            StatusCode::UNAUTHORIZED,
-            "missing permissions",
-        )));
-    }
+    // let is_admin = query!("select is_admin from somes_user where id = $1", user_id)
+    //     .fetch_one(pg)
+    //     .await
+    //     .map_err(|e| GenericErrorResponse::DbSelectFailure(Some(e)))?;
+    // if !is_admin.is_admin {
+    //     return Err(GenericErrorResponse::Custom((
+    //         StatusCode::UNAUTHORIZED,
+    //         "missing permissions",
+    //     )));
+    // }
 
     let id = query!(
         "insert into quiz (title, description) values ($1, $2) returning id",
@@ -74,9 +74,9 @@ pub async fn add_quiz_handler(pg: &PgPool, user_id: i32, quiz: Quiz) -> crate::R
 }
 
 pub async fn add_quiz(
-    claims: Claims,
+    // claims: Claims,
     PgPoolConnection(pg): PgPoolConnection,
     Json(quiz): Json<Quiz>,
 ) -> crate::Result<Json<()>> {
-    add_quiz_handler(&pg, claims.id, quiz).await.map(Json)
+    add_quiz_handler(&pg, 0, quiz).await.map(Json)
 }

@@ -202,7 +202,7 @@
 		closeQuery: '.listbox-item'
 	};
 
-	let inputQuizId: number = 4;
+	let inputQuizId: number = 5;
 </script>
 
 <div class="card w-48 shadow-xl py-2" data-popup="popupQuizSelection">
