@@ -47,8 +47,6 @@
 			normalized: normalized
 		})) ?? [];
 
-		console.log(response)
-
 		tableHeightDelegate = setTableHeight(response.length);
 
 		return response.map(val => {

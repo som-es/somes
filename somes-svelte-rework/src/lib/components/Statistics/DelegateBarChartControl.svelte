@@ -25,8 +25,8 @@
 	}
 
 	onMount(async () => {
-		currentData = await delegateMakeRequest(null, null, true, true);
-		filteredData = currentData;
+		// currentData = await delegateMakeRequest(null, null, true, true);
+		// filteredData = currentData;
 	})
 
 	const popupParty: PopupSettings = {
