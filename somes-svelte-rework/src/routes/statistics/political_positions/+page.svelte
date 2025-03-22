@@ -118,6 +118,6 @@
 	<DelegateBarChartControl height={tableHeightDelegate} id={1} delegateMakeRequest={delegateSimpleIsLiberal} title="Liberal Autoritär Wert pro Abgeordneten"/>
 </Container>
 
-<SquarePoliticalSpectrum {delegate}	politicalPosition={partySimplePoliticalPosition} />
+<!-- <SquarePoliticalSpectrum {delegate}	politicalPosition={partySimplePoliticalPosition} /> -->
 
 
