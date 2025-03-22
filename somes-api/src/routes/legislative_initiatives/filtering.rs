@@ -12,7 +12,7 @@ pub async fn filtered_legislative_initiatives(
     let default_where_clause = if is_finished {
         "accepted is not null"
     } else {
-        "accepted is null and not has_reference"
+        "accepted is null and not has_reference and ityp != 'EUBTG'"
     };
     let mut query =
         format!("SELECT DISTINCT * FROM legislative_initiatives WHERE {default_where_clause}");
