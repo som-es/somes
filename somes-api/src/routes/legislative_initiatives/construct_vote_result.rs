@@ -8,11 +8,7 @@ use sqlx::PgPool;
 
 use crate::get_json_cache;
 
-use super::{
-    get_absences_delegate_ids_sqlx, get_eurovoc_topics_from_legis_init,
-    get_legis_docs_from_legis_init_sqlx, get_named_votes_from_legis_init_sqlx,
-    get_speeches_from_legis_init_sqlx, get_votes_from_legis_init_sqlx, VoteResult,
-};
+use super::VoteResult;
 
 const JSON_VOTE_RESULT_SQL: &str = include_str!("./json_vote_result.sql");
 

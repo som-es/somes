@@ -54,7 +54,7 @@
 			list: [
 				{ href: `${base}/history/votes`, label: 'Abstimmungen', keywords: '' },
 				{ href: `${base}/history/unfinished_votes`, label: 'Unfertige Abstimmungen', keywords: '' },
-				{ href: `${base}/history/proposals`, label: 'Entwürfe', keywords: '' },
+				{ href: `${base}/history/proposals`, label: 'Ministerialentwürfe', keywords: '' },
 			]
 		}
 	];
