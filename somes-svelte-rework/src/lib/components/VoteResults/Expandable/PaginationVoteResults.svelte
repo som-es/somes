@@ -2,7 +2,6 @@
 	import type {
 		Delegate,
 		VoteResultFilter,
-		VoteResult,
 		VoteResultsWithMaxPage,
 		HasError
 	} from '$lib/types';
@@ -17,15 +16,16 @@
 		popup,
 		RadioGroup,
 		RadioItem,
-		SlideToggle,
 		type PopupSettings
 	} from '@skeletonlabs/skeleton';
 	import LegisButtons from '$lib/components/Filtering/LegisButtons.svelte';
-	import CenterPrograssRadial from '$lib/components/ProgressInfos/CenterPrograssRadial.svelte';
 	import { currentVoteResultFilterStore } from '$lib/stores/stores';
 	import { get } from 'svelte/store';
 	import ExpandablePlaceholder from './Placeholders/ExpandablePlaceholder.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
+
+	export let showAcceptedFilter = true;
+	export let showVoteTypeFilter = true;
 
 	export let dels: Delegate[];
 	export let voteResultsPostFn: (
@@ -211,14 +211,17 @@
 		</button>
 	</div>
 
-	<div>
-		<h1 class="text-2xl font-bold">Angenommen</h1>
-		<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupAccepted}>
-			<span class="capitalize">{translateAcceptedValue(acceptedFilter)}</span>
-			<span>↓</span>
-		</button>
-	</div>
+	{#if showAcceptedFilter}
+		<div>
+			<h1 class="text-2xl font-bold">Angenommen</h1>
+			<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupAccepted}>
+				<span class="capitalize">{translateAcceptedValue(acceptedFilter)}</span>
+				<span>↓</span>
+			</button>
+		</div>
+	{/if}
 
+	{#if showVoteTypeFilter}
 	<div>
 		<h1 class="text-2xl font-bold">Abstimmung</h1>
 		<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupNamedVote}>
@@ -226,6 +229,7 @@
 			<span>↓</span>
 		</button>
 	</div>
+	{/if}
 	<div>
 		<h1 class="text-2xl font-bold">Gesetz</h1>
 		<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupIsLaw}>
@@ -313,6 +317,8 @@
 			>
 		</RadioGroup>
 	</div>
+
+	{#if showAcceptedFilter}
 	<div class="mt-5">
 		<h1 class="text-2xl font-bold">Angenommen</h1>
 		<RadioGroup
@@ -332,6 +338,9 @@
 			>
 		</RadioGroup>
 	</div>
+	{/if}
+
+	{#if showVoteTypeFilter}
 	<div class="mt-5">
 		<h1 class="text-2xl font-bold">Abstimmung</h1>
 		<RadioGroup active="variant-filled-secondary" hover="hover:variant-soft-secondary">
@@ -341,6 +350,7 @@
 			>
 		</RadioGroup>
 	</div>
+	{/if}
 	<div class="mt-5">
 		<h1 class="text-2xl font-bold">Gesetz</h1>
 		<RadioGroup active="variant-filled-secondary" hover="hover:variant-soft-secondary">
