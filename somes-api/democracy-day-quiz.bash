@@ -1,8 +1,8 @@
 curl -X POST "http://localhost:3000/add_quiz" \
      -H "Content-Type: application/json" \
      -d '{
-          "title": "Politik und Demokratie - Democracy Day",
-          "description": "Ein Quiz zu politischen Prinzipien und Demokratie.",
+          "title": "Politik und Demokratie - Democracy Day v2",
+          "description": "Ein Quiz zu politischen Prinzipien und Demokratie. (v2)",
           "questions": [
             {
               "question": "Welches demokratische Prinzip beschreibt die Trennung von Gesetzgebung, Regierung und Rechtsprechung?",
@@ -21,12 +21,12 @@ curl -X POST "http://localhost:3000/add_quiz" \
               "correct_answer": 2
             },
             {
-              "question": "Welches Kriterium muss erfüllt sein, damit eine Demokratie als „liberal“ gilt?",
-              "answer1": "Es gibt jährlich Wahlen",
-              "answer2": "Der Staat garantiert Grundrechte und schützt Minderheiten",
-              "answer3": "Alle Entscheidungen werden durch das Volk direkt abgestimmt",
-              "answer4": "Es gibt nur zwei große politische Parteien",
-              "correct_answer": 2
+              "question": "Wo liegt Österreich im Ranking der Pressefreiheit im Jahr 2023?",
+              "answer1": "15",
+              "answer2": "16",
+              "answer3": "21",
+              "answer4": "29",
+              "correct_answer": 4
             },
             {
               "question": "Welche Länder waren Gründungsmitglieder der Europäischen Gemeinschaft für Kohle und Stahl (EGKS)?",
