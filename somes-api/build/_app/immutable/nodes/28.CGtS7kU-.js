@@ -1,1 +1,0 @@
-import{s as r,t as o,d as i,i as c,n,f as u}from"../chunks/DylTeNA8.js";import{S as f,i as m}from"../chunks/DO2ShGAM.js";function l(s){let t;return{c(){t=o("Ordnungsrufe")},l(e){t=i(e,"Ordnungsrufe")},m(e,a){c(e,t,a)},p:n,i:n,o:n,d(e){e&&u(t)}}}class x extends f{constructor(t){super(),m(this,t,null,l,r,{})}}export{x as component};
