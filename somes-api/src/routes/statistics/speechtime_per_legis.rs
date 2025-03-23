@@ -5,11 +5,10 @@ use sqlx::{prelude::FromRow, Postgres};
 use utoipa::ToSchema;
 
 use crate::{
-    routes::statistics::{
+    get_json_cache, routes::statistics::{
         error::StatisticsResponse,
         filtering::{bind_values, build_filter, IntoFilterArgument},
-    },
-    PgPoolConnection,
+    }, set_json_cache_secs, PgPoolConnection, RedisConnection
 };
 
 use super::filtering::Manual;
@@ -33,9 +32,15 @@ pub struct LegisSpeechTime {
 // #[debug_handler]
 pub async fn speechtime_per_legis(
     PgPoolConnection(pg): PgPoolConnection,
+    RedisConnection(mut redis_client): RedisConnection,
     Json(filter): Json<Option<LegisSpeechTimeFilter>>,
 ) -> Result<Json<Vec<LegisSpeechTime>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
+
+    let key = format!("speechtime_per_legis/{:?}", filter);
+    if let Some(entry) = get_json_cache(&mut redis_client, &key).await {
+        return Ok(Json(entry))
+    }
 
     let filter_arg = filter.party.with_sql_column("m.party");
     let filter_arg1 = filter.gender.with_sql_column("ds.gender");
@@ -103,9 +108,11 @@ ORDER BY
     let mut filtered_query = sqlx::query_as::<Postgres, LegisSpeechTime>(&query);
     filtered_query = bind_values(filtered_query, &filters);
 
-    filtered_query
+    let data = filtered_query
         .fetch_all(&pg)
         .await
-        .map(Json)
-        .map_err(|e| StatisticsResponse::DbSelectFailure(Some(e)))
+        .map_err(|e| StatisticsResponse::DbSelectFailure(Some(e)))?;
+
+    set_json_cache_secs(&mut redis_client, &key, &data, 60 * 60 * 6).await;
+    Ok(Json(data))
 }

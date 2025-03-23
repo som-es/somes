@@ -66,7 +66,7 @@
 			]
 		},
 		{
-			title: 'Abwesenheiten',
+			title: 'Abstimmungen',
 			route: '/statistics',
 			list: [
 				{ href: `${base}/statistics/absolute_majority_initiatives`, label: '2/3 Abstimmugnen', keywords: '' },

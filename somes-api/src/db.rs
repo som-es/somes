@@ -45,17 +45,26 @@ pub async fn get_json_cache<T: DeserializeOwned>(
     serde_json::from_str(&redis_client.get::<&str, String>(key).await.ok()?).ok()
 }
 
-pub async fn set_json_cache<T: Serialize>(
+pub async fn set_json_cache_secs<T: Serialize>(
     redis_client: &mut MultiplexedConnection,
     key: &str,
     value: &T,
+    seconds: i64,
 ) -> Option<()> {
     redis_client
         .set(key, serde_json::to_string(value).ok()?)
         .await
         .ok()?;
-    redis_client.expire::<_, ()>(key, 1200).await.ok()?;
+    redis_client.expire::<_, ()>(key, seconds).await.ok()?;
     Some(())
+}
+
+pub async fn set_json_cache<T: Serialize>(
+    redis_client: &mut MultiplexedConnection,
+    key: &str,
+    value: &T,
+) -> Option<()> {
+    set_json_cache_secs(redis_client, key, value, 1200).await
 }
 
 pub struct RedisConnection(pub redis::aio::MultiplexedConnection);
