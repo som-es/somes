@@ -287,7 +287,7 @@ pub async fn get_all_votes_from_legis_init(
 ) -> sqlx::Result<Vec<VoteResult>> {
     let legis_inits = sqlx::query_as!(
         DbLegislativeInitiativeQuery,
-        "SELECT DISTINCT * FROM legislative_initiatives WHERE accepted is not null"
+        "SELECT DISTINCT * FROM legislative_initiatives"
     )
     .fetch_all(con)
     .await?;

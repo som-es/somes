@@ -32,6 +32,12 @@
 		page: number,
 		voteResultFilter: VoteResultFilter
 	) => Promise<VoteResultsWithMaxPage | HasError> = vote_results_per_page;
+	export let voteResultsSearchPostFn: (
+		page: number,
+		search: string,
+		voteResultFilter: VoteResultFilter
+	) => Promise<VoteResultsWithMaxPage | HasError> = vote_results_by_search;
+
 
 	let voteResults: VoteResultsWithMaxPage | null = null;
 
@@ -89,7 +95,7 @@
 
 		if (searchValue) {
 			const voteResultsSearch = errorToNull(
-				await vote_results_by_search(page, searchValue, filter)
+				await voteResultsSearchPostFn(page, searchValue, filter)
 			);
 			if (voteResultsSearch) voteResults = voteResultsSearch;
 		} else {

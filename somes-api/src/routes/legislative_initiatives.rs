@@ -219,7 +219,7 @@ async fn meilisearch_for_vote_results(
         let mut filter_conditions = if is_finished {
             vec!["legislative_initiative.accepted IS NOT NULL".to_string()]
         } else {
-            vec!["legislative_initiative.accepted IS NOT NULL AND legislative_initiative.has_reference = false".to_string()]
+            vec!["legislative_initiative.accepted IS NULL AND legislative_initiative.has_reference = false".to_string()]
         };
 
         if let Some(accepted) = filter.accepted {
@@ -250,6 +250,7 @@ async fn meilisearch_for_vote_results(
 
         meilisearch_filter = filter_conditions.join(" AND ")
     }
+    log::info!("meilisearch filter: {meilisearch_filter}");
 
     let results: SearchResults<VoteResult> = meilisearch_client
         .index("vote_results")

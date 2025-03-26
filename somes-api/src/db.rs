@@ -15,13 +15,14 @@ use axum::{
     http::request::Parts,
 };
 
+use chrono::NaiveDate;
 // use diesel_async::{AsyncPgConnection, pooled_connection::AsyncDieselConnectionManager};
 use redis::{aio::MultiplexedConnection, AsyncCommands, Client, Commands};
 use reqwest::StatusCode;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use sqlx::PgPool;
 
-use crate::{server::AppState, PostgresPool};
+use crate::{server::AppState, today, PostgresPool};
 
 use self::model::NewUser;
 
@@ -65,6 +66,18 @@ pub async fn set_json_cache<T: Serialize>(
     value: &T,
 ) -> Option<()> {
     set_json_cache_secs(redis_client, key, value, 1200).await
+}
+
+pub async fn set_json_cache_with_relevance<T: Serialize>(
+    redis_client: &mut MultiplexedConnection,
+    key: &str,
+    value: &T,
+    date: NaiveDate
+) -> Option<()> {
+    let dur = today() - date;
+    let seconds = ((dur.num_days() as f32).powf(1.2) as i64 * 60).min(60*60*24*30*5).max(500);
+    log::info!("seconds cached: {seconds}, (days: {})", seconds / (60 * 60 * 24));
+    set_json_cache_secs(redis_client, key, value, seconds).await
 }
 
 pub struct RedisConnection(pub redis::aio::MultiplexedConnection);

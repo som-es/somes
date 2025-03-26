@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { unfinished_vote_results_per_page } from '$lib/api/api';
+	import { unfinished_vote_results_by_search, unfinished_vote_results_per_page } from '$lib/api/api';
 	import { cachedDelegates, filteredDelegates } from '$lib/caching/delegates';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import PaginationVoteResults from '$lib/components/VoteResults/Expandable/PaginationVoteResults.svelte';
@@ -17,7 +17,7 @@
 	<h1 class="text-2xl sm:text-4xl font-bold">Unfertige Abstimmungsergebnisse</h1>
 
 	{#if dels}
-		<PaginationVoteResults {dels} voteResultsPostFn={unfinished_vote_results_per_page} showAcceptedFilter={false} showVoteTypeFilter={false} />
+		<PaginationVoteResults {dels} voteResultsPostFn={unfinished_vote_results_per_page} voteResultsSearchPostFn={unfinished_vote_results_by_search} showAcceptedFilter={false} showVoteTypeFilter={false} />
 	{/if}
 </Container>
 <!-- </div> -->

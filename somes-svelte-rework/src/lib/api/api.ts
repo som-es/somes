@@ -258,6 +258,14 @@ export async function gov_proposals_by_search(
 	);
 }
 
+export async function unfinished_vote_results_by_search(
+	page: number,
+	search: string,
+	filter: VoteResultFilter | null
+): Promise<VoteResultsWithMaxPage | HasError> {
+	return justPost(`unfinished_vote_result_by_search?page=${page}&search=${search}`, filter);
+}
+
 export async function vote_results_by_search(
 	page: number,
 	search: string,

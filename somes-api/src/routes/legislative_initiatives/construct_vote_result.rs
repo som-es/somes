@@ -276,7 +276,8 @@ SELECT jsonb_build_object(
         }
     })?;
 
-    crate::set_json_cache(&mut redis_con, &key, &out)
+    log::info!("gp: {}", out.legislative_initiative.gp);
+    crate::set_json_cache_with_relevance(&mut redis_con, &key, &out, out.legislative_initiative.created_at)
         .await
         .ok_or(sqlx::Error::WorkerCrashed)?;
     // log::info!("elapsed: {:?}", start.elapsed());
