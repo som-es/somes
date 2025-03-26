@@ -67,6 +67,9 @@ pub enum State {
 static USER_MAP: LazyLock<Arc<RwLock<HashMap<(String, u128), f64>>>> =
     LazyLock::new(|| Arc::new(RwLock::new(HashMap::new())));
 
+static ANSWER_LOCKED_IN: LazyLock<Arc<RwLock<HashMap<(String, u128), bool>>>> =
+    LazyLock::new(|| Arc::new(RwLock::new(HashMap::new())));
+
 static SCORE_BOARD: LazyLock<Arc<RwLock<Vec<((String, u128), f64)>>>> =
     LazyLock::new(|| Arc::new(RwLock::new(Vec::new())));
 // static INFORM_USERS: LazyLock<Arc<RwLock<Vec<Box<dyn Fn() -> BoxFuture<'static, ()>>>>>> = LazyLock::new(|| Arc::new(RwLock::new(Vec::new())));
@@ -207,7 +210,9 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
                         .write()
                         .await
                         .as_mut()
-                        .map(|user| user.answer_locked_in = false);
+                        .map(|user| {
+                            user.answer_locked_in = false
+                        });
                     if let Some(user) = &*question_user.clone().read().await {
                         let scoreboard = SCORE_BOARD.read().await;
                         let idx = scoreboard
@@ -371,12 +376,14 @@ async fn process_message(
                     .map_err(|_| AuthError::InvalidToken);
 
                     if let Ok(token_data) = token_data {
+                        
                         let new_user = ConnectedUser {
                             name: token_data.claims.sub.clone(),
                             id: token_data.claims.id,
                             token: token.to_string(),
                             is_admin: token_data.claims.is_admin,
-                            answer_locked_in: false,
+                            // sets this again oje - quick fix -> true
+                            answer_locked_in: true,
                             quiz_id: None,
                         };
                         *user.write().await = Some(new_user);
@@ -397,6 +404,8 @@ async fn process_message(
                                 return ControlFlow::Continue(());
                             }
                             user.answer_locked_in = true;
+
+                            let user_name = user.name.clone();
 
                             ANSWERS_TO_QUESTION.write().await[0] += 1;
                             log::info!("nth answer: {}", nth_answer);

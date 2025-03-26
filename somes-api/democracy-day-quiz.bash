@@ -1,8 +1,8 @@
 curl -X POST "http://localhost:3000/add_quiz" \
      -H "Content-Type: application/json" \
      -d '{
-          "title": "Politik und Demokratie - Democracy Day v2",
-          "description": "Ein Quiz zu politischen Prinzipien und Demokratie. (v2)",
+          "title": "Politik und Demokratie - Democracy Day v3",
+          "description": "Ein Quiz zu politischen Prinzipien und Demokratie. (v3)",
           "questions": [
             {
               "question": "Welches demokratische Prinzip beschreibt die Trennung von Gesetzgebung, Regierung und Rechtsprechung?",
@@ -53,11 +53,11 @@ curl -X POST "http://localhost:3000/add_quiz" \
               "correct_answer": 2
             },
             {
-              "question": "Was möchte die Initiative „Österreich der runden und eckigen Tische“ bewirken?",
-              "answer1": "Gesellschaftliche Spaltung und Unterschiede mit Dialog reduzieren",
-              "answer2": "Konflikte durch mehr direkte Konfrontation und Proteste lösen",
-              "answer3": "Eine einheitliche politische Meinung in der Gesellschaft etablieren",
-              "answer4": "Politische Entscheidungen ausschließlich Experten überlassen, um gesellschaftliche Polarisierung zu vermeiden",
+              "question": "Worüber fand 2013 eine Volksbefragung statt?",
+              "answer1": "Wehrpflicht",
+              "answer2": "EU-Austritt",
+              "answer3": "Zivildienstverlängerung",
+              "answer4": "Abschaffung der Arbeiterkammer",
               "correct_answer": 1
             },
             {
