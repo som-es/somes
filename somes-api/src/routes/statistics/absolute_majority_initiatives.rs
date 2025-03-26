@@ -35,7 +35,7 @@ pub async fn legislative_initiatives_without_simple_majority(
     // Hier baust du deine Filterargumente
     let filter_arg = filter.legis_period.with_sql_column("gp");
     let filter_arg1 = filter.accepted.with_sql_column("accepted");
-    let filter_arg2 = Manual ("li.requires_simple_majority = false").with_sql_column("");
+    let filter_arg2 = Manual("li.requires_simple_majority = false").with_sql_column("");
     let filters = [filter_arg, filter_arg1, filter_arg2];
 
     // Erstelle den Filterstring
@@ -56,7 +56,6 @@ pub async fn legislative_initiatives_without_simple_majority(
     let mut filtered_query = sqlx::query_as::<Postgres, LegislativeInitiativeStats>(&query);
 
     filtered_query = bind_values(filtered_query, &filters);
-
 
     filtered_query
         .fetch_all(&pg)

@@ -163,6 +163,16 @@ pub async fn unfinished_vote_results_per_page(
     .map_err(|_| LegisInitErrorResponse::LatestVoteResults)
 }
 
+pub async fn unfinished_vote_result_by_search(
+    RedisConnection(mut redis_con): RedisConnection,
+    MeilisearchClient(meilisearch_client): MeilisearchClient,
+    Query(search_query): Query<somes_common_lib::SearchQuery>,
+    Query(page): Query<somes_common_lib::Page>,
+    Json(legis_init_filter): Json<Option<LegisInitFilter>>,
+) -> Result<Json<VoteResultsWithMaxPage>, LegisInitErrorResponse> {
+    meilisearch_for_vote_results(false, meilisearch_client, search_query, page, legis_init_filter).await
+}
+
 #[utoipa::path(
     post,
     path = "/vote_result_by_id", 
@@ -188,15 +198,29 @@ pub async fn vote_result_by_id(
 }
 
 pub async fn vote_result_by_search(
-    RedisConnection(mut redis_con): RedisConnection,
+    RedisConnection(redis_con): RedisConnection,
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
     Json(legis_init_filter): Json<Option<LegisInitFilter>>,
 ) -> Result<Json<VoteResultsWithMaxPage>, LegisInitErrorResponse> {
+    meilisearch_for_vote_results(true, meilisearch_client, search_query, page, legis_init_filter).await
+}
+
+async fn meilisearch_for_vote_results(
+    is_finished: bool,
+    meilisearch_client: meilisearch_sdk::client::Client,
+    search_query: somes_common_lib::SearchQuery,
+    page: Page,
+    legis_init_filter: Option<LegisInitFilter>,
+) -> Result<Json<VoteResultsWithMaxPage>, LegisInitErrorResponse> {
     let mut meilisearch_filter = String::new();
     if let Some(filter) = legis_init_filter {
-        let mut filter_conditions = Vec::new();
+        let mut filter_conditions = if is_finished {
+            vec!["legislative_initiative.accepted IS NOT NULL".to_string()]
+        } else {
+            vec!["legislative_initiative.accepted IS NOT NULL AND legislative_initiative.has_reference = false".to_string()]
+        };
 
         if let Some(accepted) = filter.accepted {
             filter_conditions.push(format!("legislative_initiative.accepted = '{}'", accepted));
@@ -216,6 +240,14 @@ pub async fn vote_result_by_search(
                 is_named_vote
             ));
         }
+
+        if let Some(is_law) = filter.is_law {
+            filter_conditions.push(format!(
+                "legislative_initiative.is_law = {}",
+                is_law
+            ));
+        }
+
         meilisearch_filter = filter_conditions.join(" AND ")
     }
 

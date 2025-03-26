@@ -5,10 +5,12 @@ use sqlx::{prelude::FromRow, Postgres};
 use utoipa::ToSchema;
 
 use crate::{
-    get_json_cache, routes::statistics::{
+    get_json_cache,
+    routes::statistics::{
         error::StatisticsResponse,
         filtering::{bind_values, build_filter, IntoFilterArgument},
-    }, set_json_cache, set_json_cache_secs, PgPoolConnection, RedisConnection
+    },
+    set_json_cache, set_json_cache_secs, PgPoolConnection, RedisConnection,
 };
 
 use super::filtering::Manual;
@@ -29,7 +31,6 @@ pub struct DelegateSpeechTime {
     total_speech_time: i64,
     total_sessions_attended: i64,
     normalized_speech_time: f64,
-
 }
 
 // #[debug_handler]
@@ -42,7 +43,7 @@ pub async fn speechtime_per_delegate(
 
     let key = format!("speechtime_per_delegate/{:?}", filter);
     if let Some(entry) = get_json_cache(&mut redis_client, &key).await {
-        return Ok(Json(entry))
+        return Ok(Json(entry));
     }
 
     let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
@@ -53,7 +54,11 @@ pub async fn speechtime_per_delegate(
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
 
-    let normalized = if filter.normalized { "normalized_speech_time" } else { "total_speech_time" };
+    let normalized = if filter.normalized {
+        "normalized_speech_time"
+    } else {
+        "total_speech_time"
+    };
 
     let filter = build_filter(&filters);
 

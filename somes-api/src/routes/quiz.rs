@@ -210,9 +210,7 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
                         .write()
                         .await
                         .as_mut()
-                        .map(|user| {
-                            user.answer_locked_in = false
-                        });
+                        .map(|user| user.answer_locked_in = false);
                     if let Some(user) = &*question_user.clone().read().await {
                         let scoreboard = SCORE_BOARD.read().await;
                         let idx = scoreboard
@@ -376,7 +374,6 @@ async fn process_message(
                     .map_err(|_| AuthError::InvalidToken);
 
                     if let Ok(token_data) = token_data {
-                        
                         let new_user = ConnectedUser {
                             name: token_data.claims.sub.clone(),
                             id: token_data.claims.id,

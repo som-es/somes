@@ -336,6 +336,7 @@ pub async fn serve(addr: SocketAddr) {
         ) // post only because js fetch...
         .route(VOTE_RESULT_BY_ID, get(vote_result_by_id)) // post only because js fetch...
         .route(VOTE_RESULT_BY_SEARCH, post(vote_result_by_search)) // post only because js fetch...
+        .route(UNFINISHED_VOTE_RESULT_BY_SEARCH, post(unfinished_vote_result_by_search)) // post only because js fetch...
         .route(DELEGATES_AT, get(delegates_at)) // post only because js fetch...
         .route(
             DELEGATES_WITH_SEATS_NEAR_DATE,
@@ -428,7 +429,10 @@ pub async fn serve(addr: SocketAddr) {
         .route(AGE_PER_LEGIS, post(age_per_legis))
         .route(CALL_TO_ORDERS_PER_LEGIS, post(call_to_orders_per_legis))
         .route(COMPLEXITY_PER_LEGIS, post(complexity_per_legis))
-        .route(DIVISION_ACCURACY_SCORE_PER_LEGIS, post(division_accuracy_score_per_legis))
+        .route(
+            DIVISION_ACCURACY_SCORE_PER_LEGIS,
+            post(division_accuracy_score_per_legis),
+        )
         .route(SPEECHTIME_PER_LEGIS, post(speechtime_per_legis))
         .route(TOTAL_SPEECHES_PER_LEGIS, post(total_speeches_per_legis))
         .route(ADD_QUIZ, post(add_quiz))

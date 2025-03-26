@@ -36,14 +36,20 @@ pub async fn absences_per_age(
 ) -> Result<Json<Vec<AgeAbcenes>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
 
-    let filter_arg = filter.legis_period.with_sql_column("dga.legislative_period");
+    let filter_arg = filter
+        .legis_period
+        .with_sql_column("dga.legislative_period");
     let filter_arg1 = filter.legis_period.with_sql_column("pf.legislative_period");
     let filter_arg2 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
     let filters = [filter_arg, filter_arg1, filter_arg2];
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
 
-    let normalized = if filter.normalized { "normalized_absences" } else { "total_absences" };
+    let normalized = if filter.normalized {
+        "normalized_absences"
+    } else {
+        "total_absences"
+    };
 
     let filter = build_filter(&filters);
 

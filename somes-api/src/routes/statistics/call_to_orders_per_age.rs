@@ -36,13 +36,19 @@ pub async fn call_to_orders_per_age(
 ) -> Result<Json<Vec<AgeCallToOrders>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
 
-    let filter_arg = filter.legis_period.with_sql_column("dga.legislative_period");
+    let filter_arg = filter
+        .legis_period
+        .with_sql_column("dga.legislative_period");
     let filter_arg1 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
     let filters = [filter_arg, filter_arg1];
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
 
-    let normalized = if filter.normalized { "normalized_calls_to_order" } else { "total_order_calls" };
+    let normalized = if filter.normalized {
+        "normalized_calls_to_order"
+    } else {
+        "total_order_calls"
+    };
 
     let filter = build_filter(&filters);
 

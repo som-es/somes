@@ -47,7 +47,11 @@ pub async fn absences_per_delegate(
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
 
-    let normalized = if filter.normalized { "normalized_absences" } else { "total_absences" };
+    let normalized = if filter.normalized {
+        "normalized_absences"
+    } else {
+        "total_absences"
+    };
 
     let filter = build_filter(&filters);
 

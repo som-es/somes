@@ -27,7 +27,6 @@ pub struct LegisActivity {
     total_absences: i64,
     period_duration_days: f64,
     normalized_absences: f64,
-
 }
 
 // #[debug_handler]
@@ -107,7 +106,6 @@ ORDER BY
     normalized_activity_score DESC;
     "
     );
-
 
     let mut filtered_query = sqlx::query_as::<Postgres, LegisActivity>(&query);
     filtered_query = bind_values(filtered_query, &filters);

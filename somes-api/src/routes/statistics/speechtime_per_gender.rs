@@ -5,10 +5,12 @@ use sqlx::{prelude::FromRow, Postgres};
 use utoipa::ToSchema;
 
 use crate::{
-    get_json_cache, routes::statistics::{
+    get_json_cache,
+    routes::statistics::{
         error::StatisticsResponse,
         filtering::{bind_values, build_filter, IntoFilterArgument},
-    }, set_json_cache_secs, PgPoolConnection, RedisConnection
+    },
+    set_json_cache_secs, PgPoolConnection, RedisConnection,
 };
 
 use super::filtering::Manual;
@@ -38,7 +40,7 @@ pub async fn speechtime_per_gender(
 
     let key = format!("speechtime_per_gender/{:?}", filter);
     if let Some(entry) = get_json_cache(&mut redis_client, &key).await {
-        return Ok(Json(entry))
+        return Ok(Json(entry));
     }
 
     let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
@@ -47,7 +49,11 @@ pub async fn speechtime_per_gender(
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
 
-    let normalized = if filter.normalized { "normalized_speech_time" } else { "total_speech_time" };
+    let normalized = if filter.normalized {
+        "normalized_speech_time"
+    } else {
+        "total_speech_time"
+    };
 
     let filter = build_filter(&filters);
 

@@ -79,6 +79,10 @@ pub async fn update_vote_result_meilisearch_index(
         "legislative_initiative.requires_simple_majority",
         "legislative_initiative.gp",
         "legislative_initiative.voted_by_name",
+        "legislative_initiative.is_law",
+        "legislative_initiative.ityp",
+        "legislative_initiative.has_reference",
+        "legislative_initiative.by_publication",
     ]);
 
     client.index("vote_results").set_settings(&settings).await?;

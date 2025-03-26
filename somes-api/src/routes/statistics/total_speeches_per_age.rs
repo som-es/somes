@@ -42,9 +42,13 @@ pub async fn total_speeches_per_age(
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
 
-    let normalized = if filter.normalized { "normalized_speeches" } else { "total_speeches" };
+    let normalized = if filter.normalized {
+        "normalized_speeches"
+    } else {
+        "total_speeches"
+    };
 
-    let filter = build_filter(&filters); 
+    let filter = build_filter(&filters);
 
     let query = format!(
         " 

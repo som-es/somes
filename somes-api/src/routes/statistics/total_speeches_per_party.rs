@@ -42,7 +42,11 @@ pub async fn total_speeches_per_party(
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
 
-    let normalized = if filter.normalized { "normalized_speeches" } else { "total_speeches" };
+    let normalized = if filter.normalized {
+        "normalized_speeches"
+    } else {
+        "total_speeches"
+    };
 
     let filter = build_filter(&filters);
 

@@ -31,7 +31,6 @@ pub struct DelegateTotalSpeeches {
     total_speeches: i64,
     total_sessions_attended: i64,
     normalized_speeches: f64,
-
 }
 
 // #[debug_handler]
@@ -49,7 +48,11 @@ pub async fn total_speeches_per_delegate(
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
 
-    let normalized = if filter.normalized { "normalized_speeches" } else { "total_speeches" };
+    let normalized = if filter.normalized {
+        "normalized_speeches"
+    } else {
+        "total_speeches"
+    };
 
     let filter = build_filter(&filters);
 

@@ -36,13 +36,22 @@ pub async fn age_per_delegate(
 ) -> Result<Json<Vec<DelegateAge>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
 
-    let filter_arg = filter.legis_period.with_sql_column("dga.legislative_period");
+    let filter_arg = filter
+        .legis_period
+        .with_sql_column("dga.legislative_period");
     let filter_arg1 = filter.legis_period.with_sql_column("pf.legislative_period");
     let filter_arg2 = filter.party.with_sql_column("m.party");
     let filter_arg3 = filter.gender.with_sql_column("ds.gender");
     let filter_arg4 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
     let filter_arg5 = Manual("birthdate is not null").with_sql_column("");
-    let filters = [filter_arg, filter_arg1, filter_arg2, filter_arg3, filter_arg4, filter_arg5];
+    let filters = [
+        filter_arg,
+        filter_arg1,
+        filter_arg2,
+        filter_arg3,
+        filter_arg4,
+        filter_arg5,
+    ];
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
 

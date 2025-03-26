@@ -28,7 +28,6 @@ pub struct LegisAbsences {
     total_absences: i64,
     total_sessions: i64,
     normalized_absences: f64,
-
 }
 
 // #[debug_handler]
@@ -45,7 +44,11 @@ pub async fn absences_per_legis(
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
 
-    let normalized = if filter.normalized { "normalized_absences" } else { "total_absences" };
+    let normalized = if filter.normalized {
+        "normalized_absences"
+    } else {
+        "total_absences"
+    };
 
     let filter = build_filter(&filters);
 
@@ -99,7 +102,6 @@ ORDER BY
 
     "
     );
-
 
     let mut filtered_query = sqlx::query_as::<Postgres, LegisAbsences>(&query);
     filtered_query = bind_values(filtered_query, &filters);

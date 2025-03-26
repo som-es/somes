@@ -23,7 +23,7 @@ pub struct LeigsTotalSpeechesFilter {
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
-pub struct LeigsTotalSpeeches { 
+pub struct LeigsTotalSpeeches {
     legislative_period: String,
     total_speeches: i64,
     total_sessions: i64,
@@ -44,7 +44,11 @@ pub async fn total_speeches_per_legis(
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
 
-    let normalized = if filter.normalized { "normalized_speeches" } else { "total_speeches" };
+    let normalized = if filter.normalized {
+        "normalized_speeches"
+    } else {
+        "total_speeches"
+    };
 
     let filter = build_filter(&filters);
 

@@ -79,6 +79,7 @@ pub const UNFINISHED_VOTE_RESULTS_PER_PAGE: &str = "/unfinished_vote_results_per
 pub const SPEECHES_BY_DELEGATE_PER_PAGE: &str = "/speeches_by_delegate_per_page";
 pub const VOTE_RESULT_BY_ID: &str = "/vote_result_by_id";
 pub const VOTE_RESULT_BY_SEARCH: &str = "/vote_result_by_search";
+pub const UNFINISHED_VOTE_RESULT_BY_SEARCH: &str = "/unfinished_vote_result_by_search";
 pub const DELEGATES_AT: &str = "/delegates_at";
 pub const DELEGATES_WITH_SEATS_NEAR_DATE: &str = "/delegates_with_seats_near_date";
 pub const WALO_QUESTIONS: &str = "/walo_questions";

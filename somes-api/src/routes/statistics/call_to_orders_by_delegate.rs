@@ -47,7 +47,11 @@ pub async fn call_to_orders_per_delegate(
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
 
-    let normalized = if filter.normalized { "normalized_calls_to_order" } else { "total_order_calls" };
+    let normalized = if filter.normalized {
+        "normalized_calls_to_order"
+    } else {
+        "total_order_calls"
+    };
 
     let filter = build_filter(&filters);
 
