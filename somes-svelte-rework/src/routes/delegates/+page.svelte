@@ -363,9 +363,12 @@
 		{:else}
 			<ExpandablePlaceholder class={'my-3'} />
 		{/if}
+
+		{#if delegate && generalDelegateInfo?.political_position}
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
 			<h1 class="font-bold text-2xl">Politische Haltung und Richtung</h1>
 		</div>
+		{/if}
 		<div class="flex gap-2 w-full">
 			{#if delegate && generalDelegateInfo?.political_position}
 				<SquarePoliticalSpectrum
