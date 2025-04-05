@@ -27,7 +27,7 @@ pub async fn extract_left_right_topic_score_by_delegate(
     let mut topics_scores = HashMap::<String, (f64, f64, usize)>::new();
 
     for stance_score in stance_scores {
-        if stance_score.stance_llm == "neutral" {
+        if stance_score.stance_llm.to_lowercase().contains("neutral") {
             continue;
         }
 

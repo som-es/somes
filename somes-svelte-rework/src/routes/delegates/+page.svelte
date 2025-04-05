@@ -41,12 +41,13 @@
 	import SquarePoliticalSpectrum from '$lib/components/Delegates/Spectrum/SquarePoliticalSpectrum.svelte';
 	import AbsencesPreview from '$lib/components/Delegates/Absences/AbsencesPreview.svelte';
 	import NamedVotePreview from '$lib/components/Delegates/NamedVote/NamedVotePreview.svelte';
-	import StanceDiagram from '$lib/components/Delegates/Spectrum/StanceDiagram.svelte';
+	import StanceDiagram from '$lib/components/Delegates/Spectrum/Stance/StanceDiagram.svelte';
 	import { topicColors } from '$lib/interestColors';
 	import ReactiveGenericBarChart from '$lib/components/GeneralCharts/ReactiveGenericBarChart.svelte';
 	import { int } from 'three/tsl';
 	import ReactiveRadarChart from '$lib/components/GeneralCharts/ReactiveRadarChart.svelte';
 	import TopicsChart from '$lib/components/Delegates/Interests/TopicsChart.svelte';
+	import StanceTypeSwitcher from '$lib/components/Delegates/Spectrum/Stance/StanceTypeSwitcher.svelte';
 
 	let delegates: Delegate[];
 	let delegate: Delegate | null;
@@ -223,7 +224,7 @@
 	<br />
 	<div class="entry bg-primary-200 dark:bg-primary-400 gap-3 flex flex-wrap">
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
-			<h1 class="font-bold text-3xl">Abgeordnete des Nationalrats</h1>
+			<h1 class="font-bold text-4xl">Abgeordnete des Nationalrats</h1>
 		</div>
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
 			<LegisButtons bind:periods bind:selectedPeriod showAllButton={false}></LegisButtons>
@@ -362,7 +363,9 @@
 		{:else}
 			<ExpandablePlaceholder class={'my-3'} />
 		{/if}
-
+		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
+			<h1 class="font-bold text-2xl">Politische Haltung und Richtung</h1>
+		</div>
 		<div class="flex gap-2 w-full">
 			{#if delegate && generalDelegateInfo?.political_position}
 				<SquarePoliticalSpectrum
@@ -374,21 +377,7 @@
 			{/if}
 
 			{#if delegate && generalDelegateInfo?.left_right_stances}
-				<div
-					class="bg-primary-300 dark:bg-primary-500 {generalDelegateInfo.left_right_stances.length > 0
-						? 'p-4'
-						: ''} rounded-xl"
-				>
-					<div class="flex flex-wrap gap-5">
-						{#each generalDelegateInfo.left_right_stances as stance}
-							<StanceDiagram
-								zeroLabel={stance.topic}
-								value={stance.score * 2}
-								knobColor={topicColors.get(stance.topic)}
-							/>
-						{/each}
-					</div>
-				</div>
+				<StanceTypeSwitcher delegateInfo={generalDelegateInfo} />
 			{:else if !generalDelegateInfo}
 				<ExpandablePlaceholder class={'my-3'} />
 			{/if}

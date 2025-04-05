@@ -20,7 +20,7 @@
 
 <QuadrantChart
 	{dataPoints}
-	xLabels={['RECHTS', 'LINKS']}
+	xLabels={['KAPITALISTISCH', 'SOZIALISTISCH']}
 	yLabels={['AUTORITÄR', 'LIBERTÄR']}
 	width={240}
 	height={240}

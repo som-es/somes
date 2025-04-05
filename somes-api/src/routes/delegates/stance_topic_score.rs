@@ -27,7 +27,7 @@ pub async fn extract_stance_topic_score_by_delegate(
     let mut topics_scores = HashMap::<String, (f64, usize)>::new();
 
     for stance_score in stance_scores {
-        if stance_score.stance_llm == "neutral" {
+        if stance_score.stance_llm.to_lowercase().contains("neutral") {
             continue;
         }
         for (topic, influence) in stance_score
@@ -37,9 +37,9 @@ pub async fn extract_stance_topic_score_by_delegate(
             .zip(&stance_score.influences.unwrap_or_default())
         {
             let default = if stance_score.stance_llm == "positive" {
-                *influence
+                *influence * stance_score.ref_score.abs() 
             } else {
-                *influence * -1.
+                *influence * stance_score.ref_score.abs() * -1.
             };
 
             topics_scores
@@ -58,7 +58,7 @@ pub async fn extract_stance_topic_score_by_delegate(
             let (score, count) = score;
             StanceTopicScore {
                 topic,
-                score: score / count as f64,
+                score: 3.5 * score / count as f64,
             }
         })
         .collect())
