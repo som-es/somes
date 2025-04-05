@@ -3,17 +3,17 @@ use std::collections::HashMap;
 use somes_common_lib::StanceTopicScore;
 use sqlx::{query, query_as, PgPool};
 
-pub async fn extract_stance_topic_score_by_delegate(
+pub async fn extract_left_right_topic_score_by_delegate(
     pg: &PgPool,
     delegate_id: i32,
 ) -> sqlx::Result<Vec<StanceTopicScore>> {
     let stance_scores = query!(
         "select 
-            stance_llm, stance, pro_strong_ref_score, contra_strong_ref_score, ref_score, COALESCE(lis.influences, '{}') AS influences, COALESCE(lis.topics, '{}') AS topics 
+            question, answer, is_liberal, is_left, stance_llm, stance, pro_strong_ref_score, contra_strong_ref_score, ref_score, COALESCE(lis.topics, '{}') AS topics 
         from 
             political_opinions po
         left join
-            (select question_id, ARRAY_AGG(topic) as topics, ARRAY_AGG(influence) as influences from political_questions_topics_influence lq group by question_id) as lis
+            (select question_id, ARRAY_AGG(topic) as topics from political_questions_topics lq group by question_id) as lis
         on lis.question_id = po.question_id
         join political_answers pa on pa.question_id = po.question_id and pa.delegate_id = po.delegate_id
         inner join political_questions pq on pq.id = pa.question_id 
@@ -24,41 +24,46 @@ pub async fn extract_stance_topic_score_by_delegate(
     .fetch_all(pg)
     .await?;
 
-    let mut topics_scores = HashMap::<String, (f64, usize)>::new();
+    let mut topics_scores = HashMap::<String, (f64, f64, usize)>::new();
 
     for stance_score in stance_scores {
         if stance_score.stance_llm == "neutral" {
             continue;
         }
-        for (topic, influence) in stance_score
-            .topics
-            .unwrap_or_default()
-            .iter()
-            .zip(&stance_score.influences.unwrap_or_default())
-        {
-            let default = if stance_score.stance_llm == "positive" {
-                *influence
+
+        for topic in &stance_score.topics.unwrap_or_default() {
+            let default = if stance_score.is_left.unwrap_or_default()
+                || stance_score.is_liberal.unwrap_or_default()
+            {
+                (
+                    stance_score.pro_strong_ref_score,
+                    stance_score.contra_strong_ref_score,
+                )
             } else {
-                *influence * -1.
+                (
+                    stance_score.contra_strong_ref_score,
+                    stance_score.pro_strong_ref_score,
+                )
             };
 
             topics_scores
                 .entry(topic.to_string())
                 .and_modify(|x| {
-                    x.0 += default;
-                    x.1 += 1;
+                    x.0 += default.0;
+                    x.1 += default.1;
+                    x.2 += 1;
                 })
-                .or_insert((default, 1));
+                .or_insert((default.0, default.1, 1));
         }
     }
 
     Ok(topics_scores
         .into_iter()
         .map(|(topic, score)| {
-            let (score, count) = score;
+            let (pos_score, contra_score, count) = score;
             StanceTopicScore {
                 topic,
-                score: score / count as f64,
+                score: -3.5 * (pos_score - contra_score) / count as f64,
             }
         })
         .collect())

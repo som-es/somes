@@ -170,7 +170,14 @@ pub async fn unfinished_vote_result_by_search(
     Query(page): Query<somes_common_lib::Page>,
     Json(legis_init_filter): Json<Option<LegisInitFilter>>,
 ) -> Result<Json<VoteResultsWithMaxPage>, LegisInitErrorResponse> {
-    meilisearch_for_vote_results(false, meilisearch_client, search_query, page, legis_init_filter).await
+    meilisearch_for_vote_results(
+        false,
+        meilisearch_client,
+        search_query,
+        page,
+        legis_init_filter,
+    )
+    .await
 }
 
 #[utoipa::path(
@@ -204,7 +211,14 @@ pub async fn vote_result_by_search(
     Query(page): Query<somes_common_lib::Page>,
     Json(legis_init_filter): Json<Option<LegisInitFilter>>,
 ) -> Result<Json<VoteResultsWithMaxPage>, LegisInitErrorResponse> {
-    meilisearch_for_vote_results(true, meilisearch_client, search_query, page, legis_init_filter).await
+    meilisearch_for_vote_results(
+        true,
+        meilisearch_client,
+        search_query,
+        page,
+        legis_init_filter,
+    )
+    .await
 }
 
 async fn meilisearch_for_vote_results(
@@ -242,10 +256,7 @@ async fn meilisearch_for_vote_results(
         }
 
         if let Some(is_law) = filter.is_law {
-            filter_conditions.push(format!(
-                "legislative_initiative.is_law = {}",
-                is_law
-            ));
+            filter_conditions.push(format!("legislative_initiative.is_law = {}", is_law));
         }
 
         meilisearch_filter = filter_conditions.join(" AND ")

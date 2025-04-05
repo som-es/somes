@@ -72,11 +72,16 @@ pub async fn set_json_cache_with_relevance<T: Serialize>(
     redis_client: &mut MultiplexedConnection,
     key: &str,
     value: &T,
-    date: NaiveDate
+    date: NaiveDate,
 ) -> Option<()> {
     let dur = today() - date;
-    let seconds = ((dur.num_days() as f32).powf(1.2) as i64 * 60).min(60*60*24*30*5).max(500);
-    log::info!("seconds cached: {seconds}, (days: {})", seconds / (60 * 60 * 24));
+    let seconds = ((dur.num_days() as f32).powf(1.2) as i64 * 50)
+        .min(60 * 60 * 24 * 30 * 5)
+        .max(500);
+    log::trace!(
+        "seconds cached: {seconds}, (days: {})",
+        seconds / (60 * 60 * 24)
+    );
     set_json_cache_secs(redis_client, key, value, seconds).await
 }
 

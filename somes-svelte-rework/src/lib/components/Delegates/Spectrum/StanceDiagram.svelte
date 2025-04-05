@@ -4,8 +4,8 @@
 	export let knobColor = '#007bff'; // Default knob color
 	export let borderColor = '#333'; // Default border color
 	export let borderColorKnob = '#333'; // Default border color
-	export let leftLabel = 'Dagegen'; // Left label
-	export let rightLabel = 'Dafür'; // Right label
+	export let leftLabel = 'Links'; // Left label
+	export let rightLabel = 'Rechts'; // Right label
 	export let zeroLabel = 'Neutral'; // Label for 0.0 marker
 
 	// Ensure value stays within range

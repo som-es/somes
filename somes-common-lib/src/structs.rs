@@ -197,6 +197,7 @@ pub struct GeneralDelegateInfo {
     pub political_position: Option<PoliticalPosition>,
     pub absences: Vec<Absence>,
     pub named_votes: Vec<NamedVote>,
+    pub left_right_stances: Vec<StanceTopicScore>,
     pub stances: Vec<StanceTopicScore>,
 }
 

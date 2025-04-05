@@ -11,7 +11,8 @@ use utoipa::ToSchema;
 
 use crate::{
     dataservice::{get_delegate, get_delegates, get_proposals},
-    get_json_cache, DataserviceDbConnection, PgPoolConnection, RedisConnection,
+    get_json_cache, set_json_cache_with_relevance, DataserviceDbConnection, PgPoolConnection,
+    RedisConnection,
 };
 
 pub use error::*;
@@ -22,6 +23,7 @@ mod error;
 mod general_delegate_info;
 mod gov_officials;
 mod interests;
+mod left_right_topic_score;
 mod named_votes;
 mod qa;
 mod speeches;
@@ -308,10 +310,11 @@ WHERE
 )]
 pub async fn delegates_at(
     // DataserviceDbConnection(con): DataserviceDbConnection,
+    RedisConnection(mut redis_con): RedisConnection,
     Query(date): Query<Date>,
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<Delegate>>, DelegatesErrorResponse> {
-    delegates_at_date(&pg, &date.at)
+    delegates_at_date(&pg, &date.at, &mut redis_con)
         .await
         .map(Json)
         .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
@@ -330,6 +333,7 @@ pub async fn seats() -> Json<HashMap<String, Vec<u32>>> {
 
 pub async fn delegates_with_seats_near_date_route(
     // DataserviceDbConnection(con): DataserviceDbConnection,
+    RedisConnection(mut redis_con): RedisConnection,
     Query(gp): Query<LegisPeriod>,
     Query(date): Query<Date>,
     PgPoolConnection(pg): PgPoolConnection,
@@ -341,7 +345,7 @@ pub async fn delegates_with_seats_near_date_route(
         return Ok(Json(vec![]));
     }
 
-    delegates_with_seats_near_date(&pg, &date.at, &gp.period)
+    delegates_with_seats_near_date(&pg, &date.at, &mut redis_con, &gp.period)
         .await
         .map(Json)
         .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
@@ -350,9 +354,15 @@ pub async fn delegates_with_seats_near_date_route(
 pub async fn delegates_with_seats_near_date(
     pg: &PgPool,
     date: &NaiveDate,
+    redis_con: &mut MultiplexedConnection,
     gp: &str,
 ) -> sqlx::Result<Vec<Delegate>> {
-    sqlx::query_as!(
+    let key = format!("delegates_with_seats_near_date/{date:?}");
+    if let Some(delegates) = get_json_cache(redis_con, &key).await {
+        return Ok(delegates);
+    }
+
+    let delegates = sqlx::query_as!(
         Delegate,
         "
 SELECT 
@@ -414,22 +424,36 @@ WHERE
         ", date, gp
     )
     .fetch_all(pg)
-    .await
+    .await?;
+
+    set_json_cache_with_relevance(redis_con, &key, &delegates, *date).await;
+
+    Ok(delegates)
 }
 
 pub async fn gov_officials_at_date_route(
     // DataserviceDbConnection(con): DataserviceDbConnection,
+    RedisConnection(mut redis_con): RedisConnection,
     Query(date): Query<Date>,
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<Delegate>>, DelegatesErrorResponse> {
-    gov_officials_at_date(&pg, &date.at)
+    gov_officials_at_date(&pg, &date.at, &mut redis_con)
         .await
         .map(Json)
         .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
 }
 
-pub async fn gov_officials_at_date(pg: &PgPool, date: &NaiveDate) -> sqlx::Result<Vec<Delegate>> {
-    sqlx::query_as!(
+pub async fn gov_officials_at_date(
+    pg: &PgPool,
+    date: &NaiveDate,
+    redis_con: &mut MultiplexedConnection,
+) -> sqlx::Result<Vec<Delegate>> {
+    let key = format!("gov_officials_at_date/{date:?}");
+    if let Some(delegates) = get_json_cache(redis_con, &key).await {
+        return Ok(delegates);
+    }
+
+    let delegates = sqlx::query_as!(
         Delegate,
         "
     SELECT 
@@ -487,11 +511,24 @@ pub async fn gov_officials_at_date(pg: &PgPool, date: &NaiveDate) -> sqlx::Resul
         date
     )
     .fetch_all(pg)
-    .await
+    .await?;
+
+    set_json_cache_with_relevance(redis_con, &key, &delegates, *date).await;
+
+    Ok(delegates)
 }
 
-pub async fn delegates_at_date(pg: &PgPool, date: &NaiveDate) -> sqlx::Result<Vec<Delegate>> {
-    sqlx::query_as!(
+pub async fn delegates_at_date(
+    pg: &PgPool,
+    date: &NaiveDate,
+    redis_con: &mut MultiplexedConnection,
+) -> sqlx::Result<Vec<Delegate>> {
+    let key = format!("delegates_at/{date:?}");
+    if let Some(delegates) = get_json_cache(redis_con, &key).await {
+        return Ok(delegates);
+    }
+
+    let delegates = sqlx::query_as!(
         Delegate,
         "
     SELECT 
@@ -549,7 +586,11 @@ pub async fn delegates_at_date(pg: &PgPool, date: &NaiveDate) -> sqlx::Result<Ve
         date
     )
     .fetch_all(pg)
-    .await
+    .await?;
+
+    set_json_cache_with_relevance(redis_con, &key, &delegates, *date).await;
+
+    Ok(delegates)
 }
 
 #[utoipa::path(

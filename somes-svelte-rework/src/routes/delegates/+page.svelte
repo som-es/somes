@@ -373,14 +373,14 @@
 				<ExpandablePlaceholder class={'my-3'} />
 			{/if}
 
-			{#if delegate && generalDelegateInfo?.stances}
+			{#if delegate && generalDelegateInfo?.left_right_stances}
 				<div
-					class="bg-primary-300 dark:bg-primary-500 {generalDelegateInfo.stances.length > 0
+					class="bg-primary-300 dark:bg-primary-500 {generalDelegateInfo.left_right_stances.length > 0
 						? 'p-4'
 						: ''} rounded-xl"
 				>
 					<div class="flex flex-wrap gap-5">
-						{#each generalDelegateInfo.stances as stance}
+						{#each generalDelegateInfo.left_right_stances as stance}
 							<StanceDiagram
 								zeroLabel={stance.topic}
 								value={stance.score * 2}

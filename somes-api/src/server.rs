@@ -11,6 +11,7 @@ use axum_server::tls_rustls::RustlsConfig;
 use dataservice::db::models::{DbLegislativeInitiativeQuery, DbParty};
 // use diesel_async::pooled_connection::AsyncDieselConnectionManager;
 use log::{error, info};
+use redis::cmd;
 use reqwest::StatusCode;
 use somes_common_lib::{
     CALL_TO_ORDERS_PER_PARTY_DELEGATES, DELEGATES_BY_CALL_TO_ORDERS,
@@ -102,6 +103,12 @@ pub async fn serve(addr: SocketAddr) {
     if client.get_connection().is_err() {
         error!("Could not establish redis database connection!");
         return;
+    }
+
+    #[cfg(debug_assertions)]
+    {
+        let mut con = client.get_connection().unwrap();
+        redis::cmd("FLUSHALL").query::<()>(&mut con).unwrap();
     }
 
     info!("Established redis database connection to {REDIS_DB}.");
@@ -336,7 +343,10 @@ pub async fn serve(addr: SocketAddr) {
         ) // post only because js fetch...
         .route(VOTE_RESULT_BY_ID, get(vote_result_by_id)) // post only because js fetch...
         .route(VOTE_RESULT_BY_SEARCH, post(vote_result_by_search)) // post only because js fetch...
-        .route(UNFINISHED_VOTE_RESULT_BY_SEARCH, post(unfinished_vote_result_by_search)) // post only because js fetch...
+        .route(
+            UNFINISHED_VOTE_RESULT_BY_SEARCH,
+            post(unfinished_vote_result_by_search),
+        ) // post only because js fetch...
         .route(DELEGATES_AT, get(delegates_at)) // post only because js fetch...
         .route(
             DELEGATES_WITH_SEATS_NEAR_DATE,

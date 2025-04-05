@@ -14,7 +14,7 @@
 	console.log(leftScore);
 
 	$: dataPoints = {
-		Q1: [{ x: 30 * leftScore, y: 30 * liberalScore, label: delegate.name, color: color }]
+		Q1: [{ x: 1000 * leftScore, y: 1000 * liberalScore, label: delegate.name, color: color }]
 	};
 </script>
 

@@ -47,7 +47,7 @@ pub struct VoteResultsWithMaxPage {
     pub max_page: i64,
 }
 
-use crate::{get_json_cache, set_json_cache};
+use crate::{get_json_cache, set_json_cache, today};
 
 use super::{
     construct_vote_result::construct_vote_result, filtering::filtered_legislative_initiatives,
@@ -166,7 +166,12 @@ pub async fn construct_gov_proposal(
         vote_result,
     };
 
-    crate::set_json_cache(&mut redis_con, &key, &gov_proposal)
+    let cache_date = if let Some(ref vote_result) = gov_proposal.vote_result {
+        vote_result.legislative_initiative.created_at
+    } else {
+        today()
+    };
+    crate::set_json_cache_with_relevance(&mut redis_con, &key, &gov_proposal, cache_date)
         .await
         .ok_or(sqlx::Error::WorkerCrashed)?;
 

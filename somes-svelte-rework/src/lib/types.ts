@@ -352,6 +352,7 @@ export interface GeneralDelegateInfo {
 	absences: Absence[];
 	named_votes: NamedVote[];
 	stances: StanceTopicScore[];
+	left_right_stances: StanceTopicScore[];
 }
 
 export interface DelegateQA {
