@@ -10,6 +10,7 @@
 	import { onMount } from 'svelte';
 	import { cachedDelegateFavos } from '$lib/caching/favos';
 	import { addDelegateFavo, removeDelegateFavo } from '$lib/api/authed';
+	import { delegatesStore } from '$lib/caching/stores/stores';
 
 	export let delegate: Delegate;
 	export let onlyTop: boolean = false;
@@ -43,6 +44,14 @@
 		component: 'aiChat',
 		meta: { delegate: delegate }
 	} as ModalSettings;
+
+	function dateDiffInDays(a: Date, b: Date) {
+		const _MS_PER_DAY = 1000 * 60 * 60 * 24;
+		const utc1 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
+		const utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
+
+		return Math.floor((utc2 - utc1) / _MS_PER_DAY);
+	}
 
 	const modalStore = getModalStore();
 </script>
@@ -91,7 +100,14 @@
 	<section class="p-4 flex-grow">
 		<h4 class="font-bold text-xl">
 			{delegate.name}
+			{#if delegate.is_active}
+				- {Math.floor(dateDiffInDays(new Date(delegate.birthdate), new Date()) / 365)} Jahre alt
+			{/if}
 		</h4>
+		{#if (new Date().toString() == new Date(delegate.birthdate).toString())}
+			<hr>
+			Alles Gute zum Geburtstag!
+		{/if}
 		<h5 style="color: {partyToColor(delegate.party)}">
 			{#if delegate.party == 'OK'}
 				Ohne Klub

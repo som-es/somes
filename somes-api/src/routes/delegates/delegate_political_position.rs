@@ -1,7 +1,7 @@
 use axum::{extract::Query, Json};
 use redis::aio::MultiplexedConnection;
 use somes_common_lib::{DelegateById, DelegateQA, PoliticalPosition};
-use sqlx::{query_as, PgPool};
+use sqlx::{query, query_as, PgPool};
 
 use crate::{get_json_cache, PgPoolConnection, RedisConnection};
 
@@ -14,7 +14,13 @@ pub async fn extract_political_position_questions(
 ) -> sqlx::Result<Vec<DelegateQA>> {
     let stance_scores = query!(
         "select 
-            stance_llm, stance, pro_strong_ref_score, contra_strong_ref_score, ref_score, COALESCE(lis.influences, '{}') AS influences, COALESCE(lis.topics, '{}') AS topics 
+            stance_llm, 
+            stance, 
+            pro_strong_ref_score, 
+            contra_strong_ref_score, 
+            ref_score, 
+            COALESCE(lis.influences, '{}') AS influences, 
+            COALESCE(lis.topics, '{}') AS topics 
         from 
             political_opinions po
         left join
@@ -28,6 +34,7 @@ pub async fn extract_political_position_questions(
     )
     .fetch_all(pg)
     .await?;
+
 
     query_as!(
         DelegateQA,
