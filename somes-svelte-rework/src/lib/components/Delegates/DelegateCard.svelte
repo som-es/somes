@@ -21,6 +21,9 @@
 	export let showImg = true;
 	export let title: string | null = null;
 
+	const showDelegate = import.meta.env.VITE_SHOW_DELEGATE_ID;
+	console.log(showDelegate);
+
 	const onShowDetails = () => {
 		currentDelegateStore.set(delegate);
 		gotoHistory(`/delegates`, true);
@@ -132,6 +135,10 @@
 		{/if}
 		<slot name="title"></slot>
 		<slot name="info"></slot>
+
+		{#if showDelegate == "true"}
+			ID: {delegate.id}
+		{/if}
 	</section>
 
 	<hr class="!border-t-2 my-1" />
