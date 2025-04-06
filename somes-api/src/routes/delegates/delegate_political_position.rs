@@ -12,6 +12,23 @@ pub async fn extract_political_position_questions(
     pg: &PgPool,
     redis: &mut MultiplexedConnection,
 ) -> sqlx::Result<Vec<DelegateQA>> {
+    let stance_scores = query!(
+        "select 
+            stance_llm, stance, pro_strong_ref_score, contra_strong_ref_score, ref_score, COALESCE(lis.influences, '{}') AS influences, COALESCE(lis.topics, '{}') AS topics 
+        from 
+            political_opinions po
+        left join
+            (select question_id, ARRAY_AGG(topic) as topics, ARRAY_AGG(influence) as influences from political_questions_topics_influence lq group by question_id) as lis
+        on lis.question_id = po.question_id
+        join political_answers pa on pa.question_id = po.question_id and pa.delegate_id = po.delegate_id
+        inner join political_questions pq on pq.id = pa.question_id 
+        where po.delegate_id = $1 and model_used = 'gpt4o-mini-de-run'
+        ",
+        delegate_id
+    )
+    .fetch_all(pg)
+    .await?;
+
     query_as!(
         DelegateQA,
         "select answer, question

@@ -48,6 +48,7 @@
 	import ReactiveRadarChart from '$lib/components/GeneralCharts/ReactiveRadarChart.svelte';
 	import TopicsChart from '$lib/components/Delegates/Interests/TopicsChart.svelte';
 	import StanceTypeSwitcher from '$lib/components/Delegates/Spectrum/Stance/StanceTypeSwitcher.svelte';
+	import PoliticalStanceTitleBar from '$lib/components/Delegates/Spectrum/PoliticalStanceTitleBar.svelte';
 
 	let delegates: Delegate[];
 	let delegate: Delegate | null;
@@ -321,6 +322,44 @@
 			<ExpandablePlaceholder />
 		{/if}
 
+		{#if delegate && generalDelegateInfo?.political_position}
+		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
+			<PoliticalStanceTitleBar {delegate} />
+		</div>
+		{/if}
+		<div class="flex gap-2 w-full">
+			{#if delegate && generalDelegateInfo?.political_position}
+				<SquarePoliticalSpectrum
+					{delegate}
+					politicalPosition={generalDelegateInfo.political_position}
+				/>
+			{:else if !generalDelegateInfo}
+				<ExpandablePlaceholder class={'my-3'} />
+			{/if}
+
+			{#if delegate && generalDelegateInfo?.left_right_stances.length && generalDelegateInfo.left_right_stances.length > 0}
+				<StanceTypeSwitcher delegateInfo={generalDelegateInfo} />
+			{:else if !generalDelegateInfo}
+				<ExpandablePlaceholder class={'my-3'} />
+			{/if}
+		</div>
+
+		{#if generalDelegateInfo?.interests && generalDelegateInfo?.detailed_interests}
+			{#if generalDelegateInfo?.interests?.length > 0}
+				<TopicsChart
+					detailedInterests={generalDelegateInfo.detailed_interests}
+					interests={generalDelegateInfo.interests}
+				/>
+				<!-- <div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
+
+					<h1 class="font-bold text-2xl mb-2">Top 4 Interessen</h1>
+					<InterestTiles bgColor={"bg-primary-300 dark:bg-primary-500"} squareColor={"dark:bg-primary-300 bg-primary-400"} interests={generalDelegateInfo.interests.slice(0, 4)} />
+				</div> -->
+			{/if}
+		{:else}
+			<ExpandablePlaceholder class={'my-3'} />
+		{/if}
+
 		{#if speechesPage0 && delegate && speechesPage0.speeches.length > 0}
 			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
 				<SpeechesPreview delegateId={delegate.id} {speechesPage0} />
@@ -347,44 +386,6 @@
 			<ExpandablePlaceholder />
 			<ExpandablePlaceholder />
 		{/if}
-
-		{#if generalDelegateInfo?.interests && generalDelegateInfo?.detailed_interests}
-			{#if generalDelegateInfo?.interests?.length > 0}
-				<TopicsChart
-					detailedInterests={generalDelegateInfo.detailed_interests}
-					interests={generalDelegateInfo.interests}
-				/>
-				<!-- <div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
-
-					<h1 class="font-bold text-2xl mb-2">Top 4 Interessen</h1>
-					<InterestTiles bgColor={"bg-primary-300 dark:bg-primary-500"} squareColor={"dark:bg-primary-300 bg-primary-400"} interests={generalDelegateInfo.interests.slice(0, 4)} />
-				</div> -->
-			{/if}
-		{:else}
-			<ExpandablePlaceholder class={'my-3'} />
-		{/if}
-
-		{#if delegate && generalDelegateInfo?.political_position}
-		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
-			<h1 class="font-bold text-2xl">Politische Haltung und Richtung</h1>
-		</div>
-		{/if}
-		<div class="flex gap-2 w-full">
-			{#if delegate && generalDelegateInfo?.political_position}
-				<SquarePoliticalSpectrum
-					{delegate}
-					politicalPosition={generalDelegateInfo.political_position}
-				/>
-			{:else if !generalDelegateInfo}
-				<ExpandablePlaceholder class={'my-3'} />
-			{/if}
-
-			{#if delegate && generalDelegateInfo?.left_right_stances}
-				<StanceTypeSwitcher delegateInfo={generalDelegateInfo} />
-			{:else if !generalDelegateInfo}
-				<ExpandablePlaceholder class={'my-3'} />
-			{/if}
-		</div>
 
 		<!-- <div class="flex gap-2 w-full">
 		<ExpandablePlaceholder class={'my-3 w-full min-w-full'} />

@@ -37,7 +37,7 @@ pub async fn extract_stance_topic_score_by_delegate(
             .zip(&stance_score.influences.unwrap_or_default())
         {
             let default = if stance_score.stance_llm == "positive" {
-                *influence * stance_score.ref_score.abs() 
+                *influence * stance_score.ref_score.abs()
             } else {
                 *influence * stance_score.ref_score.abs() * -1.
             };

@@ -31,21 +31,25 @@ pub async fn extract_left_right_topic_score_by_delegate(
             continue;
         }
 
-        for topic in &stance_score.topics.unwrap_or_default() {
-            let default = if stance_score.is_left.unwrap_or_default()
-                || stance_score.is_liberal.unwrap_or_default()
-            {
-                (
-                    stance_score.pro_strong_ref_score,
-                    stance_score.contra_strong_ref_score,
-                )
-            } else {
-                (
-                    stance_score.contra_strong_ref_score,
-                    stance_score.pro_strong_ref_score,
-                )
-            };
+        let default = if stance_score.is_left.unwrap_or_default()
+            || stance_score.is_liberal.unwrap_or_default()
+        {
+            (
+                stance_score.pro_strong_ref_score,
+                stance_score.contra_strong_ref_score,
+            )
+        } else if stance_score.is_left.is_some()
+            || stance_score.is_liberal.is_some()
+        {
+            (
+                stance_score.contra_strong_ref_score,
+                stance_score.pro_strong_ref_score,
+            )
+        } else {
+            continue;
+        };
 
+        for topic in &stance_score.topics.unwrap_or_default() {
             topics_scores
                 .entry(topic.to_string())
                 .and_modify(|x| {

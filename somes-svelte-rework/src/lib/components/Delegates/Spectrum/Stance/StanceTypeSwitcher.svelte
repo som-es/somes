@@ -9,7 +9,7 @@
 </script>
 
 <div
-	class="bg-primary-300 dark:bg-primary-500 w-full {delegateInfo.left_right_stances.length > 0 || delegateInfo.stances.length > 0
+	class="bg-primary-300 flex flex-wrap dark:bg-primary-500 w-full {delegateInfo.left_right_stances.length > 0 || delegateInfo.stances.length > 0
 		? 'p-4'
 		: ''} rounded-xl"
 >
