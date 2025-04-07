@@ -133,9 +133,11 @@
 			<hr class="!border-t-2 my-1" />
 			<h3>{delegate.divisions?.join(', ')}</h3>
 		{/if}
+		
 		<slot name="title"></slot>
 		<slot name="info"></slot>
 
+		<br>
 		{#if showDelegate == "true"}
 			ID: {delegate.id}
 		{/if}

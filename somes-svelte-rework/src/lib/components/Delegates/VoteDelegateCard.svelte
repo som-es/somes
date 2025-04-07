@@ -32,6 +32,17 @@
 
 	$: opinionColor = '';
 	$: opinion = '';
+
+	$: if (bubble.speech) {
+		opinionColor =
+			bubble.speech.infavor != null
+				? bubble.speech.infavor
+					? 'bg-success-600'
+					: 'bg-red-600'
+				: 'bg-primary-500';
+	} else {
+		opinionColor = 'bg-primary-500'
+	}
 	$: if (bubble.namedVote) {
 		infoText = `unsichere Zuteilung: "${bubble.namedVote.searched_with}" wurde ${bubble.namedVote.manually_matched ? 'manuell' : 'automatisch'} "${bubble.namedVote.matched_with}" zugeteilt`;
 		opinionColor =
@@ -49,6 +60,7 @@
 	}
 	$: if (bubble && bubble.del != null) delegate = bubble.del;
 
+
 	let clazz = '';
 	export { clazz as class };
 </script>
@@ -58,7 +70,9 @@
 		{#if bubble.namedVote}
 			<div class="text-lg font-bold badge {opinionColor} text-white max-w-fit">{opinion}</div>
 		{:else}
-			<span class="font-bold text-xl">{bubble.title}</span>
+			{#if bubble.title}
+				<span class="badge text-white {opinionColor} font-bold text-lg">{bubble.title}</span>
+			{/if}
 		{/if}
 	</span>
 
