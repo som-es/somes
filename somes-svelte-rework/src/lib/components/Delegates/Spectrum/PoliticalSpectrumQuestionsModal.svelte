@@ -18,7 +18,7 @@
 	}
 </script>
 
-<div class="card p-8 min-w-7xl max-w-7xl">
+<div class="card p-8 w-full min-w-7xl max-w-7xl">
 	<button
 		on:click={() => {
 			modalStore.close();
@@ -34,7 +34,7 @@
 	{:else}
 		<!-- IMPORTANT THIS THING IS SOMEHOW REQUIRED TO MAKE THE MODAL SCROLLABLE. SOMEHOW IT IS ONLY CHECK AT MOUNTING WHETHER THIS NEEDS TO BE SCROLLABLE!!!! -->
 		{#each { length: 30 } as _}
-			<ExpandablePlaceholder class="min-w-7xl w-7xl" />
+			<ExpandablePlaceholder class="min-w-7xl w-full" />
 		{/each}
 	{/if}
 </div>
