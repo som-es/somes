@@ -193,10 +193,10 @@ SELECT jsonb_build_object(
                     'about', about,
                     'delegate_id', delegate_id,
                     'infavor', CASE
-                          WHEN opinion = 'Pro' THEN true 
-                          WHEN opinion = 'Contra' THEN false 
-                          ELSE NULL
-                        END,
+                        WHEN opinion = 'Pro' THEN ($4 NOT LIKE '%p%')
+                        WHEN opinion = 'Contra' THEN ($4 LIKE '%p%')
+                        ELSE NULL
+                    END,
                     'opinion', opinion,
                     'document_url', document_url,
                     'legislative_initiatives_id', $1
@@ -258,7 +258,8 @@ SELECT jsonb_build_object(
     ",
         legis_init.id,
         legis_init.created_at,
-        legis_init.voted_by_name
+        legis_init.voted_by_name,
+        legis_init.pre_declined_type
     )
     .fetch_one(pg)
     .await

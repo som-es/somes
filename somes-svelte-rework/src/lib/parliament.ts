@@ -214,8 +214,9 @@ export function enrichCirclesWithSpeechInfoOnSeat(
 		let infavor = speech.infavor;
 
 		// ugly ugly fix - typically this would be stored differently in the database in the first place! But there is currently no elegent way to achieve this !
+		// fixed with server side inverting
 		if (reversed && infavor != null) {
-			infavor = !infavor;
+			// infavor = !infavor;
 		}
 
 		circles2d[del.seat_row - 1][del.seat_col - 1].speech = speech;

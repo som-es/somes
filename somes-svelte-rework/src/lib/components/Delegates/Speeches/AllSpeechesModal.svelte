@@ -48,7 +48,7 @@
 			<!-- <GovProposalExpandableBar {govProposal} /> -->
 		{/each}
 		{#if currentPageSpeeches.length == 0}
-			{#each { length: 15 } as _}
+			{#each { length: 10 } as _}
 				<ExpandablePlaceholder class="min-w-7xl w-7xl" />
 			{/each}
 		{/if}
