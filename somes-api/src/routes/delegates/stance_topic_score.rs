@@ -58,7 +58,7 @@ pub async fn extract_stance_topic_score_by_delegate(
             let (score, count) = score;
             StanceTopicScore {
                 topic,
-                score: 3.5 * score / count as f64,
+                score: 2.7 * score / count as f64,
             }
         })
         .collect())

@@ -13,8 +13,9 @@
 	$: liberalScore = politicalPosition.is_not_liberal - politicalPosition.is_liberal;
 	console.log(leftScore);
 
+	const SCALAR = 20;
 	$: dataPoints = {
-		Q1: [{ x: 1000 * leftScore, y: 1000 * liberalScore, label: delegate.name, color: color }]
+		Q1: [{ x: SCALAR * leftScore, y: SCALAR * liberalScore, label: delegate.name, color: color }]
 	};
 </script>
 

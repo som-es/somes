@@ -67,7 +67,7 @@ pub async fn extract_left_right_topic_score_by_delegate(
             let (pos_score, contra_score, count) = score;
             StanceTopicScore {
                 topic,
-                score: -3.5 * (pos_score - contra_score) / count as f64,
+                score: -1.8 * (pos_score - contra_score) / count as f64,
             }
         })
         .collect())
