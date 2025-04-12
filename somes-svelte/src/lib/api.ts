@@ -15,7 +15,7 @@ export const address = "https://somes.at";
 // const address = "172.20.10.2";
 
 export async function delegates(): Promise<Delegate[]> {
-	let response = await fetch(`${address}/delegates`, {
+	let response = await fetch(`${address}/delegates_with_seats_near_date?at=2024-09-30&period=XXVII`, {
 		method: "GET",
 		headers: {
 			"Content-Type": "application/json",
