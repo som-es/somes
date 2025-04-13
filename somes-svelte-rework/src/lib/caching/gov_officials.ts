@@ -27,7 +27,7 @@ export async function seatSettedCachedGovOfficials(date: string): Promise<Delega
 	return dels.map((delegate, idx) => {
 		// TODO FIXME some gps somehow have a lot of gov officials
 		// with this thing, not all gov officials are shown
-		if (idx < AMOUNT_PER_SIDE * 2) {
+		if (idx < AMOUNT_PER_SIDE*2 - 2) { // -2 because 3 bubbles are not shown!
 			delegate.seat_col = idx + 1;
 			delegate.seat_row = 7;
 		}
