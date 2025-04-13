@@ -148,6 +148,8 @@ export interface VoteResult {
 	documents: Document[];
 	absences: number[];
 	issued_by_dels: number[];
+	referenced_by_others_ids: number[];
+	references: number[];
 }
 
 export interface VoteResultsWithMaxPage {

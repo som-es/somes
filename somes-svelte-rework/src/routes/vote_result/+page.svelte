@@ -225,6 +225,8 @@
 </title>
 <Container>
 	{#if voteResult}
+		References: {voteResult.references}
+		refered by: {voteResult.referenced_by_others_ids}
 		{#if currentlyUpdating}
 			<!-- <CenterPrograssRadial /> -->
 		{:else}
