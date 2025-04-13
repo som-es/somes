@@ -22,7 +22,6 @@
 	export let title: string | null = null;
 
 	const showDelegate = import.meta.env.VITE_SHOW_DELEGATE_ID;
-	console.log(showDelegate);
 
 	const onShowDetails = () => {
 		currentDelegateStore.set(delegate);

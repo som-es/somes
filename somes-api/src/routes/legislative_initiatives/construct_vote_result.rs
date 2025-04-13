@@ -248,6 +248,14 @@ SELECT jsonb_build_object(
             WHERE id = $1
         )
     ), 
+    'referenced_by_others_ids', (
+        SELECT COALESCE(
+            jsonb_agg(origin_legis_init_id), 
+            '[]'::jsonb
+        )
+        FROM legis_inits_refs
+        WHERE ref_gp = $5 and ref_ityp = $6 and ref_inr = $7
+    ), 
     'legislative_initiative', (
         SELECT row_to_json(legislative_initiatives)
         FROM legislative_initiatives
@@ -259,7 +267,10 @@ SELECT jsonb_build_object(
         legis_init.id,
         legis_init.created_at,
         legis_init.voted_by_name,
-        legis_init.pre_declined_type
+        legis_init.pre_declined_type,
+        legis_init.gp,
+        legis_init.ityp,
+        legis_init.inr,
     )
     .fetch_one(pg)
     .await
