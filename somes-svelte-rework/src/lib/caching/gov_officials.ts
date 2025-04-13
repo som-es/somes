@@ -1,5 +1,6 @@
 import { gov_officials_at, isHasError } from '$lib/api/api';
 import { CircularBuffer } from '$lib/CircularBuffer';
+import { AMOUNT_PER_SIDE } from '$lib/parliament';
 import type { Delegate } from '$lib/types';
 
 const govOfficialsAtDate: CircularBuffer<string, Delegate[]> = new CircularBuffer(100);
@@ -26,7 +27,7 @@ export async function seatSettedCachedGovOfficials(date: string): Promise<Delega
 	return dels.map((delegate, idx) => {
 		// TODO FIXME some gps somehow have a lot of gov officials
 		// with this thing, not all gov officials are shown
-		if (idx < 18) {
+		if (idx < AMOUNT_PER_SIDE * 2) {
 			delegate.seat_col = idx + 1;
 			delegate.seat_row = 7;
 		}

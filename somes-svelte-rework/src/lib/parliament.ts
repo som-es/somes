@@ -2,6 +2,8 @@ import type { Delegate, NamedVote, Speech, VoteResult } from '$lib/types';
 import type { Material, Texture } from 'three';
 import { partyToColor } from './partyColor';
 
+export const AMOUNT_PER_SIDE: number = 11;
+
 export interface Bubble {
 	r: number;
 	x: number;
@@ -52,7 +54,8 @@ export function generateGovCircles(r: number, w: number, h: number) {
 
 	let circles: { x: number; y: number; angle_rad: number }[] = [];
 
-	for (let i = -10; i <= 10; i++) {
+
+	for (let i = -AMOUNT_PER_SIDE; i <= AMOUNT_PER_SIDE; i++) {
 		if (i >= -1 && i <= 1) {
 			continue;
 		}
@@ -201,7 +204,7 @@ export function genCirclesWithNamedVoteInfo(namedVotes: NamedVote[], dels: Deleg
 	return namedVoteDelegates;
 }
 
-export function enrichCirclesWithSpeechInfoOnSeat(
+export async function enrichCirclesWithSpeechInfoOnSeat(
 	speeches: Speech[],
 	circles2d: Bubble[][],
 	dels: Delegate[],
