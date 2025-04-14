@@ -19,6 +19,7 @@
 	export let questions: DelegateQA[] = [];
 	export let showMoreDetailsBtn = false;
 	export let showImg = true;
+	export let showAge = true;
 	export let title: string | null = null;
 
 	const showDelegate = import.meta.env.VITE_SHOW_DELEGATE_ID;
@@ -102,7 +103,7 @@
 	<section class="p-4 flex-grow">
 		<h4 class="font-bold text-xl">
 			{delegate.name}
-			{#if delegate.is_active}
+			{#if delegate.is_active && showAge}
 				- {Math.floor(dateDiffInDays(new Date(delegate.birthdate), new Date()) / 365)} Jahre alt
 			{/if}
 		</h4>

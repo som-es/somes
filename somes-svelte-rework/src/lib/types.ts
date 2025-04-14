@@ -65,7 +65,7 @@ export interface GovProposal {
 }
 
 export interface LegislativeInitiative {
-	id: string;
+	id: number;
 	ityp: string;
 	gp: string;
 	inr: number;

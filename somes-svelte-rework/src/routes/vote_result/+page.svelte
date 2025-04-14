@@ -37,6 +37,9 @@
 	import star from '$lib/assets/misc_icons/star.svg?raw';
 	import starFilled from '$lib/assets/misc_icons/starFilled.svg?raw';
 	import FetchDelegateCard from '$lib/components/Delegates/FetchDelegateCard.svelte';
+	import VoteResultExpandableBar from '$lib/components/VoteResults/Expandable/VoteResultExpandableBar.svelte';
+	import NamedVoteBar from '$lib/components/Delegates/NamedVote/NamedVoteBar.svelte';
+	import VoteResultIdBar from '$lib/components/Bars/VoteResultIdBar.svelte';
 
 	let delegates: Delegate[] = [];
 
@@ -152,7 +155,7 @@
 		}
 
 		if (voteResultId == null && voteResult !== null) {
-			voteResultId = voteResult.legislative_initiative.id;
+			voteResultId = voteResult.legislative_initiative.id.toString();
 			oldVoteResultId = voteResultId;
 		}
 
@@ -168,7 +171,7 @@
 	let currentlyUpdating = false;
 
 	const loadVoteResult = async (voteResultId: string) => {
-		if (voteResultId == voteResult?.legislative_initiative.id) {
+		if (voteResultId == voteResult?.legislative_initiative.id.toString()) {
 			return;
 		}
 		currentlyUpdating = true;
@@ -225,8 +228,6 @@
 </title>
 <Container>
 	{#if voteResult}
-		References: {voteResult.references}
-		refered by: {voteResult.referenced_by_others_ids}
 		{#if currentlyUpdating}
 			<!-- <CenterPrograssRadial /> -->
 		{:else}
@@ -397,39 +398,63 @@
 						/>
 					</div>
 				</div>
-				<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
-					<span class="font-bold text-xl">Dokumente (PDFs)</span>
-					<div class="gap-3 flex flex-wrap">
-						{#each voteResult.documents as document}
-							{#if document.document_type.includes('PDF')}
-								<SButton
-									class="bg-secondary-500 text-black"
-									on:click={() =>
-										window.open(`https://www.parlament.gv.at${document.document_url}`, '_blank')}
-									>{document.title}</SButton
-								>
-							{/if}
-						{/each}
-					</div>
-				</div>
 
-				{#if voteResult.issued_by_dels.length > 0}
+				<div class="flex max-md:flex-wrap gap-2 w-full">
+					<div class="flex flex-col gap-2" style="flex-basis: 30%;">
 					<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
-						<span class="font-bold text-3xl">Eingebracht von</span>
-						<span class="font-bold text-xl"></span>
-						<div class="flex flex-row flex-wrap mt-3 gap-3">
-							{#each voteResult.issued_by_dels as delegateId}
-								<FetchDelegateCard
-									{delegateId}
-									showAI={false}
-									showQA={false}
-									onlyTop={true}
-									showMoreDetailsBtn={true}
-								/>
+						<span class="font-bold text-xl">Dokumente (PDFs)</span>
+						<div class="gap-3 flex flex-wrap">
+							{#each voteResult.documents.sort((a, b) => (b.title ?? "").length - (a.title ?? "").length) as document}
+								{#if document.document_type.includes('PDF')}
+									<SButton
+										class="bg-secondary-500 text-black"
+										on:click={() =>
+											window.open(`https://www.parlament.gv.at${document.document_url}`, '_blank')}
+										>{document.title}</SButton
+									>
+								{/if}
 							{/each}
 						</div>
 					</div>
-				{/if}
+						{#if voteResult.referenced_by_others_ids.length > 0}
+							<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3 h-full">
+								<span class="font-bold text-3xl ">Referenziert durch</span>
+								{#each voteResult.referenced_by_others_ids as refered_by}
+									<VoteResultIdBar  legis_init_id={refered_by} />
+								{/each}
+							</div>
+						{/if}
+						{#if voteResult.references.length > 0}
+							<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3 h-full">
+								<span class="font-bold text-3xl">Hauptgegenstände</span>
+								{#each voteResult.references as refered_by}
+									<VoteResultIdBar requiringVotes legis_init_id={refered_by} />
+								{/each}
+							</div>
+						{/if}
+					</div>
+
+					{#if voteResult.issued_by_dels.length > 0}
+						<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
+							<span class="font-bold text-3xl">Eingebracht von</span>
+							<span class="font-bold text-xl"></span>
+							<div class="flex flex-row flex-wrap mt-3 gap-3">
+								{#each voteResult.issued_by_dels as delegateId}
+									<FetchDelegateCard
+										{delegateId}
+										showAI={false}
+										showQA={false}
+										onlyTop={true}
+										showMoreDetailsBtn={true}
+										showImg={true}
+										showAge={false}
+									/>
+								{/each}
+							</div>
+						</div>
+					{/if}
+
+				</div>
 				{#if circles2d}
 					{#if circles2d.length > 0}
 						<div class="speeches-item bg-primary-300 dark:bg-primary-500 rounded-xl p-4 gap-3">

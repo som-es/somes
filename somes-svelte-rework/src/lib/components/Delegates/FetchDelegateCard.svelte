@@ -11,6 +11,7 @@
 	export let questions: DelegateQA[] = [];
 	export let showMoreDetailsBtn = false;
 	export let showImg = true;
+	export let showAge = true;
 	export let title: string | null = null;
 
 	let delegate: Delegate | null = null;
@@ -30,5 +31,6 @@
 		{showMoreDetailsBtn}
 		{showImg}
 		{title}
+		{showAge}
 	/>
 {/if}

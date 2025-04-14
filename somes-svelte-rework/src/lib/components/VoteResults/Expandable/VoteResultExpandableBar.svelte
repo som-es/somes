@@ -25,7 +25,7 @@
 	}
 </script>
 
-<div class="gap-3 mt-5">
+<div class="gap-3 mt-5 {clazz}">
 	<div
 		on:click={() => (open = !open)}
 		on:keypress={() => (open = !open)}
