@@ -456,22 +456,20 @@
 
 				</div>
 				{#if circles2d}
-					{#if circles2d.length > 0}
+					{#if circles2d.length > 0 && speeches.length > 0}
 						<div class="speeches-item bg-primary-300 dark:bg-primary-500 rounded-xl p-4 gap-3">
-							{#if speeches.length > 0}
-								<span class="font-bold text-3xl">Reden</span>
-								<div class="flex flex-row flex-wrap mt-3 gap-3">
-									{#each speeches as speechDelegate}
-										<div class="w-full max-w-80">
-											<VoteDelegateCard
-												bubble={speechDelegate}
-												gp={voteResult.legislative_initiative.gp}
-												date={voteResult.legislative_initiative.created_at}
-											/>
-										</div>
-									{/each}
-								</div>
-							{/if}
+							<span class="font-bold text-3xl">Reden</span>
+							<div class="flex flex-row flex-wrap mt-3 gap-3">
+								{#each speeches as speechDelegate}
+									<div class="w-full max-w-80">
+										<VoteDelegateCard
+											bubble={speechDelegate}
+											gp={voteResult.legislative_initiative.gp}
+											date={voteResult.legislative_initiative.created_at}
+										/>
+									</div>
+								{/each}
+							</div>
 						</div>
 					{/if}
 				{:else}
