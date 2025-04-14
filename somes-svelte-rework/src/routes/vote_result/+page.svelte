@@ -400,22 +400,22 @@
 				</div>
 
 				<div class="flex max-md:flex-wrap gap-2 w-full">
-					<div class="flex flex-col gap-2" style="flex-basis: 30%;">
-					<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
-						<span class="font-bold text-xl">Dokumente (PDFs)</span>
-						<div class="gap-3 flex flex-wrap">
-							{#each voteResult.documents.sort((a, b) => (b.title ?? "").length - (a.title ?? "").length) as document}
-								{#if document.document_type.includes('PDF')}
-									<SButton
-										class="bg-secondary-500 text-black"
-										on:click={() =>
-											window.open(`https://www.parlament.gv.at${document.document_url}`, '_blank')}
-										>{document.title}</SButton
-									>
-								{/if}
-							{/each}
+					<div class="flex {voteResult.issued_by_dels.length > 0 ? "flex-col" : "flex-row"} gap-2" style="flex-basis: {voteResult.issued_by_dels.length > 0 ? "30%" : "100%;" }">
+						<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
+							<span class="font-bold text-xl">Dokumente (PDFs)</span>
+							<div class="gap-3 flex flex-wrap">
+								{#each voteResult.documents.sort((a, b) => (b.title ?? "").length - (a.title ?? "").length) as document}
+									{#if document.document_type.includes('PDF')}
+										<SButton
+											class="bg-secondary-500 text-black"
+											on:click={() =>
+												window.open(`https://www.parlament.gv.at${document.document_url}`, '_blank')}
+											>{document.title}</SButton
+										>
+									{/if}
+								{/each}
+							</div>
 						</div>
-					</div>
 						{#if voteResult.referenced_by_others_ids.length > 0}
 							<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3 h-full">
 								<span class="font-bold text-3xl ">Referenziert in</span>
