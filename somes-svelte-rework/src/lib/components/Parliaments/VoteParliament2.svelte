@@ -125,7 +125,7 @@
 		date = supplyDate;
 	}
 
-	$: if (gp || date || supplyDate) {
+	$: if (gp || date || supplyDate || voteResult) {
 		updateLayout();
 	}
 </script>

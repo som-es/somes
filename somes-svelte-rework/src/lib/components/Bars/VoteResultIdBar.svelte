@@ -8,6 +8,7 @@
 	import { getModalStore } from '@skeletonlabs/skeleton';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import { removeUserTopic } from '$lib/api/authed';
+	import { createEventDispatcher } from 'svelte';
 
 	export let legis_init_id: number;
 	export let requiringVotes: boolean = false;
@@ -15,6 +16,8 @@
 	let voteResult: VoteResult | null = null;
 
 	let loadingVoteResult = false;
+  	
+	const dispatch = createEventDispatcher();
 
 	$: if (legis_init_id) {
 		voteResult = null;
@@ -28,6 +31,7 @@
 	const modalStore = getModalStore();
 
 	function onShowDetails(voteResult: VoteResult | null) {
+		dispatch("dataUpdated", voteResult);
 		currentVoteResultStore.set(voteResult);
 		modalStore.close();
 		gotoHistory('/vote_result', true);

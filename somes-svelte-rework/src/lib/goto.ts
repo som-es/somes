@@ -1,4 +1,4 @@
-import { goto, pushState } from '$app/navigation';
+import { goto, pushState, replaceState } from '$app/navigation';
 import { base } from '$app/paths';
 import { page } from '$app/state';
 import { hasGoBackStore } from './stores/stores';

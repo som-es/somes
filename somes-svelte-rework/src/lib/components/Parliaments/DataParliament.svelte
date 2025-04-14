@@ -51,7 +51,7 @@
 		delegate = bubble.del;
 	}
 
-	const partyInfavorMap = createPartyInfavorMap(voteResult);
+	$: partyInfavorMap = createPartyInfavorMap(voteResult);
 
 	function setOpacity(bubble: Bubble) {
 		if (bubble == null || bubble.del == null) {
@@ -79,7 +79,7 @@
 		select(circles2d[delegate.seat_row - 1][delegate.seat_col! - 1], null);
 	}
 
-	$: if (delegates) {
+	$: if (delegates || voteResult) {
 		updateLayout();
 	}
 

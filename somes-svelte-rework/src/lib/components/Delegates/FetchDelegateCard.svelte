@@ -19,6 +19,12 @@
 	onMount(async () => {
 		delegate = errorToNull(await delegate_by_id(delegateId));
 	});
+
+	$: if (delegateId) {
+		delegate_by_id(delegateId).then(x => {
+			delegate = errorToNull(x)
+		})
+	}
 </script>
 
 {#if delegate}

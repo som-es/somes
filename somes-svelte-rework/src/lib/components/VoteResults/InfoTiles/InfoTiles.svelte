@@ -21,7 +21,7 @@
 	export let showText = true;
 	export let showLawStuff = true;
 
-	let NOT_REACHED_COLOR = getModeUserPrefers()
+	$: NOT_REACHED_COLOR = getModeUserPrefers()
 		? 'rgb(var(--color-primary-600))'
 		: 'rgb(var(--color-primary-800))';
 
@@ -37,7 +37,7 @@
 		{ color: NOT_REACHED_COLOR, start: 240, end: 360 }
 	];
 
-	let conicsStopsAchievedVotes = generateConicStopsForAchievedVotes();
+	$: conicsStopsAchievedVotes = generateConicStopsForAchievedVotes();
 
 	let isLightMode = true;
 
@@ -54,6 +54,7 @@
 			{ color: 'rgb(var(--color-secondary-400))', start: 0, end: 180 },
 			{ color: NOT_REACHED_COLOR, start: 180, end: 360 }
 		];
+		voteResult;
 		conicsStopsAchievedVotes = generateConicStopsForAchievedVotes();
 	}
 	function generateConicStopsWithVoteForAchiedVotesWithVoteSum(
