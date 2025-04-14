@@ -44,7 +44,7 @@
 	$: hasVotes = (voteResult?.votes ?? []).length > 0;
 </script>
 
-{#if (requiringVotes && hasVotes) || !requiringVotes}
+{#if (requiringVotes && hasVotes) || !requiringVotes || loadingVoteResult}
 <div class="gap-3 mt-5">
 	<div class="entry flex {arrowBackground} justify-between items-center text-black">
 		{#if voteResult}
@@ -67,7 +67,7 @@
 			</div>
 
 			{#if hasVotes}
-				<button class="spacing-for-right" on:click={() => onShowDetails(voteResult)}>
+				<button class="spacing-for-right p-36" on:click={() => onShowDetails(voteResult)}>
 					{@html rightArrowIcon}
 				</button>
 			{/if}
