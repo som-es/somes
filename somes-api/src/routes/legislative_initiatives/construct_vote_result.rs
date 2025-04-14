@@ -263,7 +263,7 @@ SELECT jsonb_build_object(
         )
         FROM legis_inits_refs
         inner join legislative_initiatives li on li.gp = ref_gp and li.ityp = ref_ityp and li.inr = ref_inr
-        WHERE origin_legis_init_id = $1 
+        WHERE origin_legis_init_id = $1
     ), 
     'legislative_initiative', (
         SELECT row_to_json(legislative_initiatives)

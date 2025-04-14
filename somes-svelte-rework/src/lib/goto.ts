@@ -1,5 +1,6 @@
-import { goto } from '$app/navigation';
+import { goto, pushState } from '$app/navigation';
 import { base } from '$app/paths';
+import { page } from '$app/state';
 import { hasGoBackStore } from './stores/stores';
 
 export function gotoHistory(route: string, withHistory: boolean = false) {

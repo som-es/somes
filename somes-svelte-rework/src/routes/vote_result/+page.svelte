@@ -418,7 +418,7 @@
 					</div>
 						{#if voteResult.referenced_by_others_ids.length > 0}
 							<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3 h-full">
-								<span class="font-bold text-3xl ">Referenziert durch</span>
+								<span class="font-bold text-3xl ">Referenziert in</span>
 								{#each voteResult.referenced_by_others_ids as refered_by}
 									<VoteResultIdBar  legis_init_id={refered_by} />
 								{/each}
@@ -426,7 +426,7 @@
 						{/if}
 						{#if voteResult.references.length > 0}
 							<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3 h-full">
-								<span class="font-bold text-3xl">Hauptgegenstände</span>
+								<span class="font-bold text-3xl">Bezug zu</span>
 								{#each voteResult.references as refered_by}
 									<VoteResultIdBar requiringVotes legis_init_id={refered_by} />
 								{/each}
