@@ -250,7 +250,11 @@
 							<span class="text-xl">{voteResult.legislative_initiative.description}</span>
 
 							{#if voteResult.legislative_initiative.is_law}
-								<div class="badge bg-tertiary-400 ml-2 text-black">Gesetz</div>
+								<div class="badge bg-tertiary-400 ml-2 text-black text-lg">Gesetz</div>
+							{/if}
+
+							{#if voteResult.legislative_initiative.ityp == "AA"}
+								<div class="badge bg-tertiary-400 text-black text-lg ml-2">Abänderung</div>
 							{/if}
 						</div>
 						<div>
@@ -420,13 +424,19 @@
 							<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3 h-full">
 								<span class="font-bold text-3xl ">Referenziert in</span>
 								{#each voteResult.referenced_by_others_ids as refered_by}
-									<VoteResultIdBar on:dataUpdated={event => {voteResult = event.detail; runVoteResultUpdate()}} legis_init_id={refered_by} />
+									<VoteResultIdBar requiringVotes on:dataUpdated={event => {voteResult = event.detail; runVoteResultUpdate()}} legis_init_id={refered_by} />
 								{/each}
 							</div>
 						{/if}
 						{#if voteResult.references.length > 0}
 							<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3 h-full">
-								<span class="font-bold text-3xl">Bezug zu</span>
+								<span class="font-bold text-3xl">
+									{#if voteResult.legislative_initiative.ityp == "AA"}
+										Hauptgegenstände
+									{:else}
+										Bezug zu
+									{/if}
+								</span>
 								{#each voteResult.references as refered_by}
 									<VoteResultIdBar on:dataUpdated={event => {voteResult = event.detail; runVoteResultUpdate()}} requiringVotes legis_init_id={refered_by} />
 								{/each}

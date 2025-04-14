@@ -43,6 +43,10 @@
 			{#if voteResult.legislative_initiative.is_law}
 				<div class="badge bg-tertiary-400 text-black">Gesetz</div>
 			{/if}
+
+			{#if voteResult.legislative_initiative.ityp == "AA"}
+				<div class="badge bg-tertiary-400 text-black ">Abänderung</div>
+			{/if}
 			<div class="max-sm:hidden">
 				<InfoTiles
 					squareSize={'10px'}

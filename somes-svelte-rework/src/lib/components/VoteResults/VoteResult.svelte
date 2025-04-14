@@ -32,6 +32,9 @@
 			{#if voteResult.legislative_initiative.is_law}
 				<div class="badge bg-tertiary-400 text-black mx-2 my-1">Gesetz</div>
 			{/if}
+			{#if voteResult.legislative_initiative.ityp == "AA"}
+				<div class="badge bg-tertiary-400 text-black mx-2 my-1">Abänderung</div>
+			{/if}
 		</div>
 	</div>
 </span>
