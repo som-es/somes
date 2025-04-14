@@ -17,7 +17,7 @@
 	let delegate: Delegate | null = null;
 
 	onMount(async () => {
-		delegate = errorToNull(await delegate_by_id(delegateId));
+		// delegate = errorToNull(await delegate_by_id(delegateId));
 	});
 
 	$: if (delegateId) {
