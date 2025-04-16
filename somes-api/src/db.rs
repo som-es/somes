@@ -10,7 +10,6 @@ use std::{
 };
 
 use axum::{
-    async_trait,
     extract::{FromRef, FromRequestParts},
     http::request::Parts,
 };
@@ -102,7 +101,7 @@ pub async fn extract_to_be_verified_from_redis(
     Ok(values)
 }
 
-#[async_trait]
+// #[async_trait]
 impl<S> FromRequestParts<S> for RedisConnection
 where
     redis::Client: FromRef<S>,
@@ -157,7 +156,7 @@ pub struct DataserviceDbConnection(pub deadpool_diesel::postgres::Object);
 //     }
 // }
 
-#[async_trait]
+// #[async_trait]
 impl FromRequestParts<AppState> for DataserviceDbConnection {
     type Rejection = (StatusCode, String);
 
@@ -180,7 +179,7 @@ impl FromRef<AppState> for PgPool {
     }
 }
 
-#[async_trait]
+// #[async_trait]
 impl<S> FromRequestParts<S> for PgPoolConnection
 where
     S: Send + Sync,

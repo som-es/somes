@@ -293,7 +293,7 @@ pub async fn serve(addr: SocketAddr) {
     );
 
     let app = Router::new()
-        .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
+        // .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .route(SIGNUP_ROUTE, post(signup))
         .route(VERIFY_ROUTE, get(verify)) // or post?
         .route(

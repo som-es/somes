@@ -1,4 +1,4 @@
-use axum::{async_trait, extract::FromRequestParts, http::request::Parts, RequestPartsExt};
+use axum::{extract::FromRequestParts, http::request::Parts, RequestPartsExt};
 use axum_extra::TypedHeader;
 use headers::{authorization::Bearer, Authorization};
 use jsonwebtoken::{decode, Validation};
@@ -32,7 +32,6 @@ impl<T> ClaimsGen<T> {
     }
 }
 
-#[async_trait]
 impl<S, T> FromRequestParts<S> for ClaimsGen<T>
 where
     S: Send + Sync,

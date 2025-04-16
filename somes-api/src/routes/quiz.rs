@@ -200,7 +200,7 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
                 tx_to_send
                     .clone()
                     .send(Message::Text(
-                        serde_json::to_string(&question).unwrap_or_default(),
+                        serde_json::to_string(&question).unwrap_or_default().into(),
                     ))
                     .await
                     .unwrap();
@@ -232,7 +232,7 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
                                     place: (idx + 1),
                                     correct_answer: last_correct_answer,
                                 })
-                                .unwrap(),
+                                .unwrap().into(),
                             ))
                             .await
                             .unwrap();
@@ -320,7 +320,7 @@ async fn process_message(
                     };
                     log::info!("new user: {:?}", new_user);
                     sender
-                        .send(Message::Text(format!("{};{}", new_user.name, jwt)))
+                        .send(Message::Text(format!("{};{}", new_user.name, jwt).into()))
                         .await
                         .unwrap();
 
@@ -385,9 +385,9 @@ async fn process_message(
                         };
                         *user.write().await = Some(new_user);
 
-                        sender.send(Message::Text(format!("ok"))).await.unwrap();
+                        sender.send(Message::Text(format!("ok").into())).await.unwrap();
                     } else {
-                        sender.send(Message::Text(format!("b"))).await.unwrap();
+                        sender.send(Message::Text(format!("b").into())).await.unwrap();
                     }
                 }
 
@@ -454,7 +454,7 @@ async fn process_message(
 
                         sender
                             .send(Message::Text(
-                                serde_json::to_string(&scoreboard).unwrap_or_default(),
+                                serde_json::to_string(&scoreboard).unwrap_or_default().into(),
                             ))
                             .await
                             .unwrap();
@@ -503,7 +503,7 @@ async fn process_message(
                                     user_count: USER_MAP.read().await.len(),
                                     answer_count: *ANSWERS_TO_QUESTION.read().await,
                                 })
-                                .unwrap_or_default(),
+                                .unwrap_or_default().into(),
                             ))
                             .await
                             .unwrap();

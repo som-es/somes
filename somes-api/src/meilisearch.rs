@@ -1,5 +1,4 @@
 use axum::{
-    async_trait,
     extract::{FromRef, FromRequestParts},
     http::request::Parts,
 };
@@ -15,7 +14,6 @@ use crate::{
 #[derive(FromRef)]
 pub struct MeilisearchClient(pub meilisearch_sdk::client::Client);
 
-#[async_trait]
 impl FromRequestParts<AppState> for MeilisearchClient {
     type Rejection = (StatusCode, String);
 
