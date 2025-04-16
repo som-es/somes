@@ -16,15 +16,15 @@ use crate::{
 };
 
 fn generate_otp() -> String {
-    // let mut rng = rand::thread_rng();
-    let mut rng = OsRng::default();
+    let mut rng = rand::rng();
+    // let mut rng = OsRng::default();
 
     (0..9)
         .map(|_| {
-            if rng.gen_range(0f32..1f32) > 0.2 {
-                rng.gen_range('A'..='Z')
+            if rng.random_range(0f32..1f32) > 0.2 {
+                rng.random_range('A'..='Z')
             } else {
-                rng.gen_range('0'..='9')
+                rng.random_range('0'..='9')
             }
         })
         .collect()

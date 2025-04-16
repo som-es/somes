@@ -22,7 +22,7 @@ use fake::{faker::name::de_de::Name, locales::DE_DE, Fake};
 use futures::{SinkExt, StreamExt};
 use jsonwebtoken::{decode, Validation};
 pub use quizes::*;
-use rand::Rng;
+use rand::{Rng, TryRngCore};
 use redis::{aio::MultiplexedConnection, AsyncCommands};
 use serde::{Deserialize, Serialize};
 use somes_common_lib::USER;
@@ -78,12 +78,10 @@ static QUESTION: LazyLock<Arc<RwLock<State>>> =
 
 pub fn create_keys() -> Keys {
     let mut rng = rand::rngs::OsRng::default();
-    Keys::new(
-        &(0..32)
-            .into_iter()
-            .map(|_| rng.gen::<u8>())
-            .collect::<Vec<u8>>(),
-    )
+    let mut secret = [0; 32];
+    rng.try_fill_bytes(&mut secret).unwrap();
+
+    Keys::new(&secret)
 }
 
 static KEYS2: LazyLock<Arc<RwLock<Keys>>> = LazyLock::new(|| Arc::new(RwLock::new(create_keys())));
@@ -300,7 +298,7 @@ async fn process_message(
                     let name: String = Name().fake();
 
                     let mut rng = rand::rngs::OsRng::default();
-                    let id: u32 = rng.gen();
+                    let id: u32 = rng.try_next_u32().unwrap();
 
                     let jwt = create_access_token_u128(
                         id as u128,
