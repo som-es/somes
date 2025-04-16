@@ -34,7 +34,7 @@ regex = "1"
 uuid = {version="1.2.2", features=["v4"]}
 sha3 = "0.10"
 base16ct = { version = "0.2.0", features = ["std"] }
-redis = { version = "0.26", features = ["tokio-comp"] }
+redis = { version = "0.29", features = ["tokio-comp"] }
 log = "0.4.17"
 simple_logger = "5.0.0"
 common-scrapes = { path = "../../common-scrapes" }

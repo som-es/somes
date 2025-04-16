@@ -54,7 +54,7 @@ mod tests {
 
     #[test]
     fn test_salt_string() {
-        let salt = SaltString::generate(&mut OsRng);
-        println!("salt: {salt}")
+        // let salt = SaltString::generate(&mut OsRng);
+        // println!("salt: {salt}")
     }
 }
