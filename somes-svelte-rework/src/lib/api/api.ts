@@ -149,6 +149,10 @@ export async function vote_result_by_id(vote_result_id: string): Promise<VoteRes
 	return getWithRoute<VoteResult>(`vote_result_by_id?id=${vote_result_id}`);
 }
 
+export async function vote_result_by_path(gp: string, ityp: string, inr: string): Promise<VoteResult | HasError> {
+	return getWithRoute<VoteResult>(`vote_result/${gp}/${ityp}/${inr}`);
+}
+
 export async function delegates_at(date_at: Date): Promise<Delegate[] | HasError> {
 	return getWithRoute(`delegates_at?at=${date_at}`);
 }
