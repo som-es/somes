@@ -38,9 +38,7 @@ pub async fn extract_left_right_topic_score_by_delegate(
                 stance_score.pro_strong_ref_score,
                 stance_score.contra_strong_ref_score,
             )
-        } else if stance_score.is_left.is_some()
-            || stance_score.is_liberal.is_some()
-        {
+        } else if stance_score.is_left.is_some() || stance_score.is_liberal.is_some() {
             (
                 stance_score.contra_strong_ref_score,
                 stance_score.pro_strong_ref_score,

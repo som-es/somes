@@ -232,7 +232,8 @@ async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
                                     place: (idx + 1),
                                     correct_answer: last_correct_answer,
                                 })
-                                .unwrap().into(),
+                                .unwrap()
+                                .into(),
                             ))
                             .await
                             .unwrap();
@@ -385,9 +386,15 @@ async fn process_message(
                         };
                         *user.write().await = Some(new_user);
 
-                        sender.send(Message::Text(format!("ok").into())).await.unwrap();
+                        sender
+                            .send(Message::Text(format!("ok").into()))
+                            .await
+                            .unwrap();
                     } else {
-                        sender.send(Message::Text(format!("b").into())).await.unwrap();
+                        sender
+                            .send(Message::Text(format!("b").into()))
+                            .await
+                            .unwrap();
                     }
                 }
 
@@ -454,7 +461,9 @@ async fn process_message(
 
                         sender
                             .send(Message::Text(
-                                serde_json::to_string(&scoreboard).unwrap_or_default().into(),
+                                serde_json::to_string(&scoreboard)
+                                    .unwrap_or_default()
+                                    .into(),
                             ))
                             .await
                             .unwrap();
@@ -503,7 +512,8 @@ async fn process_message(
                                     user_count: USER_MAP.read().await.len(),
                                     answer_count: *ANSWERS_TO_QUESTION.read().await,
                                 })
-                                .unwrap_or_default().into(),
+                                .unwrap_or_default()
+                                .into(),
                             ))
                             .await
                             .unwrap();

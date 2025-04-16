@@ -1,8 +1,6 @@
 use std::net::SocketAddr;
 
-use axum::{
-    handler::HandlerWithoutStateExt, http::Uri, response::Redirect, BoxError,
-};
+use axum::{handler::HandlerWithoutStateExt, http::Uri, response::Redirect, BoxError};
 use axum_extra::extract::Host;
 use reqwest::StatusCode;
 

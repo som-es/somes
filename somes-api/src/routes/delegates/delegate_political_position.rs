@@ -35,7 +35,6 @@ pub async fn extract_political_position_questions(
     .fetch_all(pg)
     .await?;
 
-
     query_as!(
         DelegateQA,
         "select answer, question

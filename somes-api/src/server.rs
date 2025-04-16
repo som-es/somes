@@ -277,8 +277,10 @@ pub async fn serve(addr: SocketAddr) {
     )
     .await;
 
-    let landing_server_dir = ServeDir::new("../deploy-rs/somes-landing");
-    let landing_app = Router::new().nest_service("/", landing_server_dir);
+    let landing_server_dir = ServeDir::new("../deploy-rs/somes-landing").fallback(get(|| async {
+        Html(include_str!("../../deploy-rs/somes-landing/index.html"))
+    }));
+    // let landing_app = Router::new().nest_service("/", landing_server_dir);
     // let origins = [
     //     "https://somes.at".parse::<HeaderValue>().unwrap(),
     //     "https://somes.at".parse::<HeaderValue>().unwrap(),
@@ -341,7 +343,7 @@ pub async fn serve(addr: SocketAddr) {
             SPEECHES_BY_DELEGATE_PER_PAGE,
             get(speeches_by_delegate_per_page),
         ) // post only because js fetch...
-        .route(VOTE_RESULT_BY_ID, get(vote_result_by_id)) 
+        .route(VOTE_RESULT_BY_ID, get(vote_result_by_id))
         .route(VOTE_RESULT_BY_PATH, get(vote_result_by_path))
         .route(VOTE_RESULT_BY_SEARCH, post(vote_result_by_search)) // post only because js fetch...
         .route(
@@ -479,7 +481,12 @@ pub async fn serve(addr: SocketAddr) {
                 (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
             }),
         )
-        .nest("/", landing_app)
+        .fallback_service(
+            get_service(landing_server_dir).handle_error(|_| async move {
+                (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
+            }),
+        )
+        // .nest("/", landing_app)
         // .fallback_service(get_service(serve_dir).handle_error(|_| async move {
         //     (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
         // }))
