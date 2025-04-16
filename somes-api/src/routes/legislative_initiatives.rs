@@ -1,4 +1,4 @@
-use axum::{extract::Query, Json};
+use axum::{extract::{Path, Query}, Json};
 use dataservice::db::models::DbLegislativeInitiativeQuery;
 use meilisearch_sdk::search::SearchResults;
 use somes_common_lib::{DateRange, DelegateById, LegisInitFilter, Page, VoteResultById};
@@ -199,6 +199,17 @@ pub async fn vote_result_by_id(
     Query(vote_result_id): Query<VoteResultById>,
 ) -> Result<Json<VoteResult>, LegisInitErrorResponse> {
     get_vote_result_by_id(redis_con, &pg, vote_result_id.id)
+        .await
+        .map(Json)
+        .map_err(|_| LegisInitErrorResponse::VoteResultById)
+}
+
+pub async fn vote_result_by_path(
+    RedisConnection(redis_con): RedisConnection,
+    PgPoolConnection(pg): PgPoolConnection,
+    Path((gp, ityp, inr)): Path<(String, String, i32)>,
+) -> Result<Json<VoteResult>, LegisInitErrorResponse> {
+    get_vote_result_by_path(redis_con, &pg, &gp, &ityp, inr)
         .await
         .map(Json)
         .map_err(|_| LegisInitErrorResponse::VoteResultById)

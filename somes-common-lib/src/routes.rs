@@ -78,6 +78,7 @@ pub const VOTE_RESULTS_PER_PAGE: &str = "/vote_results_per_page";
 pub const UNFINISHED_VOTE_RESULTS_PER_PAGE: &str = "/unfinished_vote_results_per_page";
 pub const SPEECHES_BY_DELEGATE_PER_PAGE: &str = "/speeches_by_delegate_per_page";
 pub const VOTE_RESULT_BY_ID: &str = "/vote_result_by_id";
+pub const VOTE_RESULT_BY_PATH: &str = "/vote_result/{gp}/{ityp}{inr}";
 pub const VOTE_RESULT_BY_SEARCH: &str = "/vote_result_by_search";
 pub const UNFINISHED_VOTE_RESULT_BY_SEARCH: &str = "/unfinished_vote_result_by_search";
 pub const DELEGATES_AT: &str = "/delegates_at";

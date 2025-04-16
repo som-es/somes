@@ -134,6 +134,23 @@ pub async fn get_vote_result_by_id(
     construct_vote_result(redis_con.clone(), pg, legis_init).await
 }
 
+pub async fn get_vote_result_by_path(
+    mut redis_con: MultiplexedConnection,
+    pg: &PgPool,
+    gp: &str,
+    ityp: &str,
+    inr: i32,
+) -> sqlx::Result<VoteResult> {
+    let legis_init = sqlx::query_as!(
+        DbLegislativeInitiativeQuery,
+        "select * from legislative_initiatives where gp = $1 and ityp = $2 and inr = $3",
+        gp, ityp, inr
+    )
+    .fetch_one(pg)
+    .await?;
+    construct_vote_result(redis_con.clone(), pg, legis_init).await
+}
+
 pub async fn construct_gov_proposal(
     mut redis_con: MultiplexedConnection,
     pg: &PgPool,

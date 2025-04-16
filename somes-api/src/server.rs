@@ -341,7 +341,8 @@ pub async fn serve(addr: SocketAddr) {
             SPEECHES_BY_DELEGATE_PER_PAGE,
             get(speeches_by_delegate_per_page),
         ) // post only because js fetch...
-        .route(VOTE_RESULT_BY_ID, get(vote_result_by_id)) // post only because js fetch...
+        .route(VOTE_RESULT_BY_ID, get(vote_result_by_id)) 
+        .route(VOTE_RESULT_BY_PATH, get(vote_result_by_path))
         .route(VOTE_RESULT_BY_SEARCH, post(vote_result_by_search)) // post only because js fetch...
         .route(
             UNFINISHED_VOTE_RESULT_BY_SEARCH,

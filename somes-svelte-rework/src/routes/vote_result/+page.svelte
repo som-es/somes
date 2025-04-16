@@ -432,7 +432,7 @@
 							<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3 h-full">
 								<span class="font-bold text-3xl">
 									{#if voteResult.legislative_initiative.ityp == "AA"}
-										Hauptgegenstände
+										Hauptgegenstand
 									{:else}
 										Bezug zu
 									{/if}
