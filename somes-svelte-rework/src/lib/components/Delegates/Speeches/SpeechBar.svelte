@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { errorToNull, vote_result_by_id } from '$lib/api/api';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
-	import type { Speech, VoteResult } from '$lib/types';
+	import { createVoteResultPath, type Speech, type VoteResult } from '$lib/types';
 	import { currentVoteResultStore } from '$lib/stores/stores';
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
 	import { gotoHistory } from '$lib/goto';
@@ -26,9 +26,10 @@
 	const modalStore = getModalStore();
 
 	function onShowDetails(voteResult: VoteResult | null) {
+		if (!voteResult) return;
 		currentVoteResultStore.set(voteResult);
 		modalStore.close();
-		gotoHistory('/vote_result', true);
+		gotoHistory(createVoteResultPath(voteResult), true);
 	}
 
 	$: opinion =

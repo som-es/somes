@@ -152,6 +152,10 @@ export interface VoteResult {
 	references: number[];
 }
 
+export function createVoteResultPath(voteResult: VoteResult): string {
+	return `/vote_result_path/${voteResult.legislative_initiative.gp}/${voteResult.legislative_initiative.ityp}/${voteResult.legislative_initiative.inr}`
+}
+
 export interface VoteResultsWithMaxPage {
 	vote_results: VoteResult[];
 	entry_count: number;

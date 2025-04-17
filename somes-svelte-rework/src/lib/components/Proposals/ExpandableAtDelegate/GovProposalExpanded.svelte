@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Topics from '$lib/components/Topics/Topics.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
-	import type { Delegate, GovProposal, VoteResult } from '$lib/types';
+	import { createVoteResultPath, type Delegate, type GovProposal, type VoteResult } from '$lib/types';
 	import { currentDelegatesAtDateStore, currentVoteResultStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
@@ -29,7 +29,8 @@
 			delsAtDate
 		]);
 		// $: if (browser) {
-		gotoHistory('/vote_result', true);
+		// gotoHistory('/vote_result', true);
+		gotoHistory(createVoteResultPath(voteResult), true);
 		// }
 	}
 

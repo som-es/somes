@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Delegate, GovProposal, GovProposalDelegate, VoteResult } from '$lib/types';
+	import { createVoteResultPath, type Delegate, type GovProposal, type GovProposalDelegate, type VoteResult } from '$lib/types';
 	import collapse from 'svelte-collapse';
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
@@ -15,8 +15,9 @@
 	let duration = 0.35;
 
 	function onShowDetails(voteResult: VoteResult | null) {
+		if (!voteResult) return;
 		currentVoteResultStore.set(voteResult);
-		gotoHistory('/vote_result', true);
+		gotoHistory(createVoteResultPath(voteResult), true);
 	}
 </script>
 

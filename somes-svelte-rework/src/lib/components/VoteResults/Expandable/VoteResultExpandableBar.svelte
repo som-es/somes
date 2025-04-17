@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Delegate, VoteResult } from '$lib/types';
+	import { createVoteResultPath, type Delegate, type VoteResult } from '$lib/types';
 	import collapse from 'svelte-collapse';
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
 	import VoteResultExpanded from './VoteResultExpanded.svelte';
@@ -20,7 +20,8 @@
 	function onShowDetails() {
 		currentVoteResultStore.set(voteResult);
 		// $: if (browser) {
-		gotoHistory('/vote_result', true);
+		// gotoHistory('/vote_result', true);
+		gotoHistory(createVoteResultPath(voteResult), true);
 		// }
 	}
 </script>

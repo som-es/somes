@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { gotoHistory } from '$lib/goto';
 	import { currentVoteResultStore } from '$lib/stores/stores';
-	import type { Delegate, VoteResult } from '$lib/types';
+	import { createVoteResultPath, type Delegate, type VoteResult } from '$lib/types';
 	import VoteParliament2 from '../Parliaments/VoteParliament2.svelte';
 
 	export let voteResult: VoteResult;
@@ -11,7 +11,8 @@
 	function onClick() {
 		currentVoteResultStore.set(voteResult);
 		// $: if (browser) {
-		gotoHistory('/vote_result', true);
+
+		gotoHistory(createVoteResultPath(voteResult), true);
 		// }
 	}
 </script>

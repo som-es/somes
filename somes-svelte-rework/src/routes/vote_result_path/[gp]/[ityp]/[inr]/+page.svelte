@@ -49,8 +49,6 @@
 	let delegates: Delegate[] = [];
 
 	let voteResult: VoteResult | null = null;
-	let voteResultId: string | null = null;
-	let oldVoteResultId: string | null = voteResultId;
 
 	let delegate: Delegate | null = null;
 	let selectedBubble: Bubble;
@@ -85,29 +83,10 @@
 		}
 	}
 
-	let updatedQueryParam = false;
-
 	$: rawEmphasis = voteResult?.legislative_initiative.emphasis;
 
-	const update = (voteResultId: string | null) => {
-		if (voteResultId == null) {
-			return;
-		}
-
-		loadVoteResult(voteResultId);
-
-		// update query params
-		const url = new URL(window.location.href);
-		url.searchParams.set('id', voteResultId.toString());
-		try {
-			updatedQueryParam = true;
-			replaceState(url, history.state);
-			// pushState(url.toString(), { replaceState: true });
-		} catch (e) {
-			voteResultId = oldVoteResultId;
-		}
-
-		oldVoteResultId = voteResultId;
+	const update = () => {
+		loadVoteResult();
 	};
 
 	const goBack = () => {
@@ -127,19 +106,12 @@
 	const runVoteResultUpdate = async () => {
 		legisInitFavos = await cachedLegisInitFavos();
 
-		const url = new URL(window.location.href);
-
-		voteResultId = url.searchParams.get('id');
-		if (oldVoteResultId != voteResultId) {
-			update(voteResultId);
-		}
-
-		if (!voteResultId) {
-			voteResult = get(currentVoteResultStore);
-
-			const url = new URL(window.location.href);
-			url.searchParams.set('id', voteResult?.legislative_initiative.id.toString() ?? '');
-			replaceState(url, history.state);
+		voteResult = get(currentVoteResultStore);
+		const stored_gp = voteResult?.legislative_initiative.gp;
+		const stored_ityp = voteResult?.legislative_initiative.ityp;
+		const stored_inr = voteResult?.legislative_initiative.inr;
+		if (gp != stored_gp || ityp != stored_ityp || inr != stored_inr?.toString()) {
+			update();
 		}
 
 		if (!delegates) {
@@ -158,27 +130,13 @@
 				delegate = foundDel;
 			}
 		}
-
-		if (voteResultId == null && voteResult !== null) {
-			voteResultId = voteResult.legislative_initiative.id.toString();
-			oldVoteResultId = voteResultId;
-		}
-
-		// if (voteResultId !== null && voteResult?.legislative_initiative.id != voteResultId) {
-		//     voteResult = await vote_result_by_id(voteResultId);
-		//     if (voteResult !== null) voteResultId = voteResult?.legislative_initiative.id;
-		//     currentVoteResultStore.set(voteResult);
-		// }
 	};
 
 	onMount(runVoteResultUpdate);
 
 	let currentlyUpdating = false;
 
-	const loadVoteResult = async (voteResultId: string) => {
-		if (voteResultId == voteResult?.legislative_initiative.id.toString()) {
-			return;
-		}
+	const loadVoteResult = async () => {
 		currentlyUpdating = true;
 		voteResult = errorToNull(await vote_result_by_path(gp, ityp, inr));
 		// if (delegates)
