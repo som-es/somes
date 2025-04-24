@@ -1,3 +1,4 @@
+use common_scrapes::RelatedDelegate;
 use dataservice::db::models::{
     DbLegisDocument, DbLegisDocumentOptional, DbLegislativeInitiativeQuery,
     DbMinistrialProposalQuery, DbNamedVote, DbNamedVoteInfo, DbNamedVotes, DbSpeech,
@@ -37,7 +38,7 @@ pub struct VoteResult {
     pub topics: Vec<Topic>,
     pub documents: Vec<DbLegisDocumentOptional>,
     pub absences: Vec<i32>,
-    pub issued_by_dels: Vec<i32>,
+    pub issued_by_dels: Vec<RelatedDelegate>,
     pub referenced_by_others_ids: Vec<i32>,
     pub references: Vec<i32>,
 }

@@ -583,13 +583,12 @@ async fn update_delegate_assets(
     std::thread::spawn(move || {
         let client = reqwest::blocking::Client::new();
         for img_url in img_urls {
+            let Ok(mut res) = client.get(&img_url.image_url.unwrap()).send() else {
+                continue;
+            };
+
             let mut file = File::create(format!("assets/{}.jpg", img_url.id)).unwrap();
-            client
-                .get(&img_url.image_url.unwrap())
-                .send()
-                .unwrap()
-                .copy_to(&mut file)
-                .unwrap();
+            res.copy_to(&mut file).unwrap();
         }
     });
     Ok(())

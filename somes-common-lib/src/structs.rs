@@ -257,6 +257,7 @@ pub struct LegisInitFilter {
     pub simple_majority: Option<bool>,
     pub legis_period: Option<String>,
     pub is_law: Option<bool>,
+    pub topics: Option<Vec<String>>,
 }
 
 #[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]

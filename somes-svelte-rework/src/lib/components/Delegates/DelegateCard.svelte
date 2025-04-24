@@ -11,6 +11,7 @@
 	import { cachedDelegateFavos } from '$lib/caching/favos';
 	import { addDelegateFavo, removeDelegateFavo } from '$lib/api/authed';
 	import { delegatesStore } from '$lib/caching/stores/stores';
+	import { address } from '$lib/api/api';
 
 	export let delegate: Delegate;
 	export let onlyTop: boolean = false;
@@ -91,7 +92,7 @@
 		<div class="flex justify-center items-center h-full">
 			{#if showImg}
 				<img
-					src={delegate.image_url}
+					src={`${address}/assets/${delegate.id}.jpg`}
 					style="width: 200px;"
 					class="rounded-full"
 					alt="Image of politician {delegate.name}"

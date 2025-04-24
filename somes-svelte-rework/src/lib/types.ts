@@ -139,6 +139,11 @@ export interface MailSendInfo {
 	send_new_ministrial_prop_mails: boolean;
 }
 
+export interface RelatedDelegate {
+	delegate_id: number;
+	text: string | null;
+}
+
 export interface VoteResult {
 	legislative_initiative: LegislativeInitiative;
 	votes: Vote[];
@@ -147,13 +152,13 @@ export interface VoteResult {
 	named_votes: NamedVotes | null;
 	documents: Document[];
 	absences: number[];
-	issued_by_dels: number[];
+	issued_by_dels: RelatedDelegate[];
 	referenced_by_others_ids: number[];
 	references: number[];
 }
 
 export function createVoteResultPath(voteResult: VoteResult): string {
-	return `/vote_result_path/${voteResult.legislative_initiative.gp}/${voteResult.legislative_initiative.ityp}/${voteResult.legislative_initiative.inr}`
+	return `/vote_result/${voteResult.legislative_initiative.gp}/${voteResult.legislative_initiative.ityp}/${voteResult.legislative_initiative.inr}`
 }
 
 export interface VoteResultsWithMaxPage {

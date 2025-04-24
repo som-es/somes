@@ -17,7 +17,7 @@ pub async fn construct_vote_result(
     pg: &PgPool,
     legis_init: DbLegislativeInitiativeQuery,
 ) -> sqlx::Result<VoteResult> {
-    let key = legis_init.id.to_string();
+    let key = format!("vote_result/{}", legis_init.id.to_string());
     let res = get_json_cache::<VoteResult>(&mut redis_con, &key).await;
     if let Some(res) = res {
         return Ok(res);
@@ -141,13 +141,17 @@ SELECT jsonb_build_object(
     ),
     'issued_by_dels', (
         SELECT COALESCE(
-            jsonb_agg(delegate_id), 
+            jsonb_agg(
+                jsonb_build_object(
+                    'delegate_id', delegate_id,
+                    'text', delegate_text
+                )
+            ),
             '[]'::jsonb
         )
         FROM legis_init_delegates
         WHERE legis_init_id = $1
     ),
- 
     'named_votes', (
         SELECT jsonb_build_object(
             'named_vote_info', jsonb_build_object(
@@ -185,7 +189,6 @@ SELECT jsonb_build_object(
         AND $3
         LIMIT 1
     ),
-    
     'speeches', (
         SELECT COALESCE(
             jsonb_agg(

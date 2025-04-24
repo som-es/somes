@@ -262,6 +262,7 @@ async fn meilisearch_for_vote_results(
         if let Some(ref legis_period) = filter.legis_period {
             filter_conditions.push(format!("legislative_initiative.gp = '{}'", legis_period));
         }
+
         if let Some(is_named_vote) = filter.is_named_vote {
             filter_conditions.push(format!(
                 "legislative_initiative.voted_by_name = {}",
@@ -295,6 +296,7 @@ async fn meilisearch_for_vote_results(
         .into_iter()
         .map(|hit| hit.result)
         .collect::<Vec<_>>();
+
     Ok(Json(VoteResultsWithMaxPage {
         vote_results,
         entry_count: results.estimated_total_hits.unwrap_or(1) as i64,
