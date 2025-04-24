@@ -6,6 +6,7 @@
 	import { currentVoteResultStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
 	import GovProposalExpanded from '../ExpandableAtDelegate/GovProposalExpanded.svelte';
+	import { address } from '$lib/api/api';
 
 	export let govProposal: GovProposalDelegate;
 	// export let dels: Delegate[];
@@ -50,7 +51,7 @@
 		<div>
 			<img
 				class="min-w-[100px] max-h-[100px] rounded-full mx-1"
-				src={govProposal.delegate.image_url}
+				src={`${address}/assets/${govProposal.delegate.id}.jpg`}
 				alt="Image of delegate {govProposal.delegate.name}"
 			/>
 		</div>

@@ -10,7 +10,8 @@ pub const LATEST_VOTE_RESULTS_ROUTE: &str = "/latest_vote_results";
 pub const LATEST_MINISTRIAL_PROPOSALS: &str = "/latest_ministrial_proposals";
 pub const SPEAKERS_BY_HOURS: &str = "/speakers_by_hours";
 pub const SPEAKERS_BY_HOURS_AND_LEGIS_PERIOD: &str = "/speakers_by_hours_and_legis_period";
-pub const LEGISLATIVE_INITIATIVES_WITHOUT_SIMPLE_MAJORITY: &str = "/legislative_initiatives_without_simple_majority";
+pub const LEGISLATIVE_INITIATIVES_WITHOUT_SIMPLE_MAJORITY: &str =
+    "/legislative_initiatives_without_simple_majority";
 pub const COMPLEXITY_PER_DELEGATE: &str = "/complexity_per_delegate";
 pub const COMPLEXITY_PER_PARTY: &str = "/complexity_per_party";
 pub const COMPLEXITY_PER_GENDER: &str = "/complexity_per_gender";

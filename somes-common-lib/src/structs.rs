@@ -27,7 +27,6 @@ pub struct DelegateFavo {
     pub delegate_id: i32,
 }
 
-
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct LegisInitFavo {
     pub vote_result_id: i32,
@@ -159,7 +158,6 @@ pub struct DelegateById {
     pub delegate_id: i32,
 }
 
-
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct SendMailInfo {
     pub send_new_vote_results_mails: bool,
@@ -223,7 +221,6 @@ pub struct PoliticalAnswer {
     pub answer: String,
     pub question: String,
 }
-
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct Page {
