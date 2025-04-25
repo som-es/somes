@@ -45,10 +45,16 @@ imap = { version = "3.0.0-alpha.10", features = ["rustls-tls"] }
 utoipa = "4.2.0"
 utoipa-swagger-ui = { version = "7", features = ["axum"] }
 tower = {version = "0.5", features = ["full"] }
-# axum-server = { version = "0.7.1", features = ["tls-rustls", "tls-rustls-no-provider"] }
-axum-server = { version = "0.7", features = ["tls-rustls"] }
 sqlx = { version = "0.8", features = [ "runtime-tokio", "tls-rustls", "postgres", "chrono" ] }
 futures = "0.3.30"
 sha2 = "0.10.8"
 pollster = "0.4.0"
 fake = "4"
+
+# axum-server = { version = "0.7.1", features = ["tls-rustls", "tls-rustls-no-provider"] }
+axum-server = { version = "0.7", features = ["tls-rustls-no-provider"] }
+
+[dependencies.rustls]
+version = "0.23"
+features = ["logging", "std", "ring", "tls12"]
+default-features = false
