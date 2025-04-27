@@ -28,6 +28,7 @@
 	import AbsencesModal from '$lib/components/Delegates/Absences/AbsencesModal.svelte';
 	import NamedVoteModal from '$lib/components/Delegates/NamedVote/NamedVoteModal.svelte';
 	import DetailedInterestsModal from '$lib/components/Delegates/Interests/DetailedInterestsModal.svelte';
+	import DecreesModal from '$lib/components/Delegates/Decrees/DecreesModal.svelte';
 	const drawerStore = getDrawerStore();
 
 	// const drawerStore = getDrawerStore();
@@ -39,7 +40,8 @@
 		politicalSpectrumQuestions: { ref: PoliticalSpectrumQuestionsModal },
 		allAbsences: { ref: AbsencesModal },
 		allNamedVotes: { ref: NamedVoteModal },
-		detailedInterests: { ref: DetailedInterestsModal }
+		detailedInterests: { ref: DetailedInterestsModal },
+		allDecrees: { ref: DecreesModal },
 		// imdying:{ ref: ModalExample }
 	};
 </script>
