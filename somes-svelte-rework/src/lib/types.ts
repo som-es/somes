@@ -354,6 +354,21 @@ export interface NamedVote {
 	date: Date;
 }
 
+export interface Decree {
+	gov_official_id: number;
+	ris_id: string;
+	ministrial_issuer: string;
+	title: string;
+	short_title: string,
+	publication_date: string;
+	part: string;
+	documents: Document[];
+}
+
+export interface GeneralGovOfficialInfo {
+	gov_proposals: GovProposal[];
+	decrees: Decree[];
+}
 export interface GeneralDelegateInfo {
 	interests: InterestShare[];
 	detailed_interests: InterestShare[];

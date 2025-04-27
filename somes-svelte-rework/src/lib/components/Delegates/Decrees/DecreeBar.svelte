@@ -1,0 +1,57 @@
+<script lang="ts">
+	import type { Decree } from '$lib/types';
+	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
+
+	export let decree: Decree;
+	export let page: number;
+	// absence.
+
+	let open: boolean = false;
+	let duration = 0.35;
+
+	$: if (page) {
+		open = false;
+	}
+</script>
+
+<div class="gap-3 mt-5">
+	<div
+		on:click={() => (open = !open)}
+		on:keypress={() => (open = !open)}
+		role="button"
+		tabindex="0"
+		class="entry dark:bg-primary-300 bg-primary-400 flex justify-between items-center text-black"
+	>
+		<div class="flex gap-4">
+			<div id={open ? 'open' : 'closed'}>
+				{@html rightArrowIcon}
+			</div>
+
+			<div class="badge bg-tertiary-400">Verordnung</div>
+		</div>
+
+		<div>
+			{decree.title}
+		</div>
+		
+	</div>
+</div>
+
+<style>
+	.entry {
+		border-radius: 0.9rem;
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+		padding: 20px;
+		gap: 10px;
+	}
+
+	#open :global(.right-arrow) {
+		transform: rotate(90deg);
+		transition: transform 0.35s;
+	}
+
+	#closed :global(.right-arrow) {
+		transform: rotate(0deg);
+		transition: transform 0.35s;
+	}
+</style>

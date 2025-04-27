@@ -6,8 +6,8 @@ use utoipa::ToSchema;
 #[derive(ToSchema, Debug, Clone, Serialize, Deserialize, FromRow)]
 pub struct Document {
     pub title: String,
-    pub link: String,
-    pub ftype: String,
+    pub document_url: String,
+    pub document_type: String,
 }
 
 #[derive(ToSchema, Debug, Clone, Serialize, Deserialize, FromRow)]
@@ -40,8 +40,8 @@ pub async fn extract_decrees_from_gov_official(
                 json_agg(
                     json_build_object(
                         'title', doc.title,
-                        'ftype', doc.document_type,
-                        'link', doc.document_url
+                        'document_type', doc.document_type,
+                        'document_url', doc.document_url
                     )
                 ),
                 '[]'

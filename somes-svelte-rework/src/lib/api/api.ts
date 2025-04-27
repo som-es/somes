@@ -22,7 +22,8 @@ import type {
 	GovProposalDelegate,
 	GeneralDelegateInfo,
 	GovPropFilter,
-	GovProposalsWithMaxPage
+	GovProposalsWithMaxPage,
+	GeneralGovOfficialInfo
 } from '../types';
 import { jwtStore } from '../caching/stores/stores';
 
@@ -165,6 +166,12 @@ export async function gov_proposals_by_official(
 	delegate_id: number
 ): Promise<GovProposal[] | HasError> {
 	return getWithRoute(`gov_proposals_by_official?delegate_id=${delegate_id}`);
+}
+
+export async function general_gov_official_info(
+	delegate_id: number
+): Promise<GeneralGovOfficialInfo | HasError> {
+	return getWithRoute(`general_gov_official_info?delegate_id=${delegate_id}`);
 }
 
 export async function delegate_political_position(

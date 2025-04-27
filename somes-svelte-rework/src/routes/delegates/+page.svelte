@@ -6,6 +6,7 @@
 		Delegate,
 		DelegateQA,
 		GeneralDelegateInfo,
+		GeneralGovOfficialInfo,
 		GovProposal,
 		InterestShare,
 		LegisPeriod,
@@ -18,6 +19,7 @@
 	import {
 		errorToNull,
 		general_delegate_info,
+		general_gov_official_info,
 		gov_proposals_by_official,
 		speeches_by_delegate_per_page
 	} from '$lib/api/api';
@@ -49,6 +51,7 @@
 	import TopicsChart from '$lib/components/Delegates/Interests/TopicsChart.svelte';
 	import StanceTypeSwitcher from '$lib/components/Delegates/Spectrum/Stance/StanceTypeSwitcher.svelte';
 	import PoliticalStanceTitleBar from '$lib/components/Delegates/Spectrum/PoliticalStanceTitleBar.svelte';
+	import DecreePreview from '$lib/components/Delegates/Decrees/DecreePreview.svelte';
 
 	let delegates: Delegate[];
 	let delegate: Delegate | null;
@@ -64,9 +67,9 @@
 	};
 
 	let autocompleteOptions: AutocompleteOption<string>[] = [];
-	let govProposals: GovProposal[] | null = null;
 	let speechesPage0: SpeechesWithMaxPage | null = null;
 	let generalDelegateInfo: GeneralDelegateInfo | null = null;
+	let generalGovOfficialInfo: GeneralGovOfficialInfo | null = null;
 	let maxDayOffset = 365 * 5;
 	let dayOffset = maxDayOffset;
 
@@ -203,10 +206,14 @@
 			}
 		});
 
-		govProposals = null;
-		gov_proposals_by_official(delegate.id).then((res) => {
-			govProposals = errorToNull(res);
-		});
+		generalGovOfficialInfo = null
+		general_gov_official_info(delegate.id).then(res => {
+			generalGovOfficialInfo = errorToNull(res)
+		})
+
+		// gov_proposals_by_official(delegate.id).then((res) => {
+		// 	govProposals = errorToNull(res);
+		// });
 
 		speechesPage0 = null;
 		speeches_by_delegate_per_page(delegate.id, 0).then((res) => {
@@ -313,11 +320,20 @@
 				{/if}
 			</div>
 		</div>
-		{#if govProposals && govProposals.length > 0}
+		{#if generalGovOfficialInfo?.gov_proposals && generalGovOfficialInfo.gov_proposals.length > 0}
 			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
-				<GovProposalPreview {govProposals} />
+				<GovProposalPreview govProposals={generalGovOfficialInfo.gov_proposals} />
 			</div>
-		{:else if govProposals == null && delegate && delegate.council == 'gov'}
+		{:else if generalGovOfficialInfo?.gov_proposals == null && delegate && delegate.council == 'gov'}
+			<ExpandablePlaceholder />
+			<ExpandablePlaceholder />
+		{/if}
+		
+		{#if generalGovOfficialInfo?.decrees && generalGovOfficialInfo.decrees.length > 0 && delegate}
+			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
+				<DecreePreview decrees={generalGovOfficialInfo.decrees} delegateId={delegate.id} />
+			</div>
+		{:else if generalGovOfficialInfo?.decrees == null && delegate && delegate.council == 'gov' || !delegate}
 			<ExpandablePlaceholder />
 			<ExpandablePlaceholder />
 		{/if}
