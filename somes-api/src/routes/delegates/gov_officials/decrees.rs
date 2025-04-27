@@ -74,5 +74,6 @@ pub async fn extract_decrees_from_gov_official(
             .into_iter()
             .flat_map(|x| serde_json::from_value::<Document>(x))
             .collect(),
-    }).collect())
+    })
+    .collect())
 }

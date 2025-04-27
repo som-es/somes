@@ -322,6 +322,22 @@ pub async fn gov_proposals_by_official(
     PgPoolConnection(pg): PgPoolConnection,
     Query(delegate_by_id): Query<DelegateById>,
 ) -> Result<Json<Vec<GovProposal>>, LegisInitErrorResponse> {
+    extract_gov_prosals_by_delegate(redis_con, &pg, delegate_by_id.delegate_id)
+        .await
+        .map(Json)
+        .map_err(|_| LegisInitErrorResponse::LegisInit)
+
+    // get_vote_result_by_id(&pg, vote_result_id.id)
+    //     .await
+    //     .map(Json)
+    //     .map_err(|_| LegisInitErrorResponse::VoteResultById)
+}
+
+pub async fn extract_gov_prosals_by_delegate(
+    redis_con: redis::aio::MultiplexedConnection,
+    pg: &sqlx::Pool<sqlx::Postgres>,
+    delegate_id: i32,
+) -> sqlx::Result<Vec<GovProposal>> {
     use dataservice::db::models::DbMinistrialProposalQuery;
     let ministrial_proposals = query_as!(
         DbMinistrialProposalQuery,
@@ -354,11 +370,10 @@ pub async fn gov_proposals_by_official(
             delegate_id = $1
         order by created_at DESC;
     ",
-        delegate_by_id.delegate_id
+        delegate_id
     )
-    .fetch_all(&pg)
-    .await
-    .map_err(|_| LegisInitErrorResponse::VoteResultById)?;
+    .fetch_all(pg)
+    .await?;
 
     /*ministrial_proposals.into_iter().map(|ministrial_proposal| {
         match (
@@ -384,11 +399,4 @@ pub async fn gov_proposals_by_official(
     .await
     .into_iter()
     .collect::<sqlx::Result<Vec<_>>>()
-    .map(Json)
-    .map_err(|_| LegisInitErrorResponse::LegisInit)
-
-    // get_vote_result_by_id(&pg, vote_result_id.id)
-    //     .await
-    //     .map(Json)
-    //     .map_err(|_| LegisInitErrorResponse::VoteResultById)
 }
