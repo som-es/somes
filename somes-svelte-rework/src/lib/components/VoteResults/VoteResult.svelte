@@ -17,14 +17,15 @@
 	}
 </script>
 
-<span class="card tile hover:cursor-pointer">
+<span class="card tile hover:cursor-pointer"
+	on:click={onClick}
+	on:keypress={onClick}
+	role="link"
+	tabindex={10 + tabindex}
+>
 	<div class="tile-content">
 		<div
 			class="w-[360px]"
-			on:click={onClick}
-			on:keypress={onClick}
-			role="link"
-			tabindex={10 + tabindex}
 		>
 			<VoteParliament2 {voteResult} preview={true} />
 		</div>

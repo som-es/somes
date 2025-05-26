@@ -19,6 +19,7 @@ pub struct Decree {
     short_title: String,
     publication_date: NaiveDate,
     part: String,
+    emphasis: Option<String>, 
     documents: Vec<Document>,
 }
 
@@ -36,6 +37,7 @@ pub async fn extract_decrees_from_gov_official(
             d.short_title, 
             d.publication_date, 
             d.part,
+            d.emphasis,
             COALESCE(
                 json_agg(
                     json_build_object(
@@ -54,7 +56,7 @@ pub async fn extract_decrees_from_gov_official(
             d.gov_official_id = $1
         GROUP BY 
             d.gov_official_id, d.ris_id, d.ministrial_issuer, 
-            d.title, d.short_title, d.publication_date, d.part
+            d.title, d.short_title, d.publication_date, d.part, d.emphasis
         "#,
         delegate_id
     )
@@ -69,6 +71,7 @@ pub async fn extract_decrees_from_gov_official(
         short_title: x.short_title,
         publication_date: x.publication_date,
         part: x.part,
+        emphasis: x.emphasis,
         documents: x
             .documents
             .into_iter()

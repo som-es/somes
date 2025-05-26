@@ -1,6 +1,8 @@
 <script lang="ts">
+	import collapse from 'svelte-collapse';
 	import type { Decree } from '$lib/types';
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
+	import DecreeBarExpanded from './DecreeBarExpanded.svelte';
 
 	export let decree: Decree;
 	export let page: number;
@@ -34,6 +36,10 @@
 			{decree.title}
 		</div>
 		
+	</div>
+
+	<div use:collapse={{ open, duration }}>
+		<DecreeBarExpanded {decree} bind:open />
 	</div>
 </div>
 
