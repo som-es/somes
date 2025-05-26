@@ -25,7 +25,11 @@
 	} from '$lib/api/api';
 	import InterestTiles from '$lib/components/Delegates/InterestTiles.svelte';
 	import { get } from 'svelte/store';
-	import { currentDelegateStore, hasGoBackStore } from '$lib/stores/stores';
+	import {
+		currentDelegateFilterStore,
+		currentDelegateStore,
+		hasGoBackStore
+	} from '$lib/stores/stores';
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
@@ -46,7 +50,6 @@
 	import StanceDiagram from '$lib/components/Delegates/Spectrum/Stance/StanceDiagram.svelte';
 	import { topicColors } from '$lib/interestColors';
 	import ReactiveGenericBarChart from '$lib/components/GeneralCharts/ReactiveGenericBarChart.svelte';
-	import { int } from 'three/tsl';
 	import ReactiveRadarChart from '$lib/components/GeneralCharts/ReactiveRadarChart.svelte';
 	import TopicsChart from '$lib/components/Delegates/Interests/TopicsChart.svelte';
 	import StanceTypeSwitcher from '$lib/components/Delegates/Spectrum/Stance/StanceTypeSwitcher.svelte';
@@ -57,7 +60,7 @@
 	let delegate: Delegate | null;
 
 	let selectedPeriod = 'XXVIII';
-	let prevSelectedPeriod = '';
+	let prevSelectedPeriod = selectedPeriod;
 	let periods: LegisPeriod[] = [];
 
 	let popupSettings: PopupSettings = {
@@ -82,7 +85,22 @@
 	let inputValue = '';
 	let prevSelectedDelegateId = 0;
 
+	let maybeCurrentDelegateFilter = get(currentDelegateFilterStore) ?? {
+		day_offset: maxDayOffset,
+		search_value: '',
+		legis_period: selectedPeriod
+	};
+	inputValue = maybeCurrentDelegateFilter.search_value ?? '';
+	dayOffset = maybeCurrentDelegateFilter.day_offset ?? maxDayOffset;
+	if (maybeCurrentDelegateFilter.legis_period) {
+		selectedPeriod = maybeCurrentDelegateFilter.legis_period
+		console.log(selectedPeriod);
+		prevSelectedPeriod = maybeCurrentDelegateFilter.legis_period
+	}
+
 	function delegateFilter(): AutocompleteOption<string>[] {
+		maybeCurrentDelegateFilter.search_value = inputValue;
+		currentDelegateFilterStore.set(maybeCurrentDelegateFilter);
 		let _options = [...autocompleteOptions];
 		let _inputValue = `${String(inputValue).toLowerCase().trim()} `;
 		return delegateFilterOptions(_options, _inputValue);
@@ -96,7 +114,7 @@
 
 	onMount(async () => {
 		const url = new URL(window.location.href);
-		selectedPeriod = url.searchParams.get('gp') || 'XXVIII';
+		selectedPeriod = url.searchParams.get('gp') || selectedPeriod;
 
 		const cachedPeriods = await cachedAllLegisPeriods();
 		if (cachedPeriods) periods = cachedPeriods.reverse();
@@ -138,10 +156,13 @@
 
 		const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
 		maxDayOffset = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+		console.log(dayOffset);
 		if (prevSelectedPeriod !== selectedPeriod) {
 			dayOffset = maxDayOffset;
 		}
-
+		console.log(dayOffset);
+		maybeCurrentDelegateFilter.day_offset = dayOffset;
+		currentDelegateFilterStore.set(maybeCurrentDelegateFilter);
 		startDate.setDate(startDate.getDate() + dayOffset - 2);
 
 		supplyDate = startDate.toISOString().split('T')[0] as unknown as Date;
@@ -163,6 +184,11 @@
 		if (finishedMounting) prevSelectedPeriod = selectedPeriod;
 	};
 
+	const updateStoredPeriod = () => {
+		maybeCurrentDelegateFilter.legis_period = selectedPeriod;	
+		currentDelegateFilterStore.set(maybeCurrentDelegateFilter);
+	}
+
 	$: if (selectedPeriod) {
 		renderEndDate = null;
 		renderStartDate = null;
@@ -173,6 +199,7 @@
 		// }
 
 		// delsAtDate = [];
+		updateStoredPeriod();	
 		updateDelsToDisplay();
 		if (finishedMounting) prevSelectedPeriod = selectedPeriod;
 	}
@@ -206,10 +233,10 @@
 			}
 		});
 
-		generalGovOfficialInfo = null
-		general_gov_official_info(delegate.id).then(res => {
-			generalGovOfficialInfo = errorToNull(res)
-		})
+		generalGovOfficialInfo = null;
+		general_gov_official_info(delegate.id).then((res) => {
+			generalGovOfficialInfo = errorToNull(res);
+		});
 
 		// gov_proposals_by_official(delegate.id).then((res) => {
 		// 	govProposals = errorToNull(res);
@@ -328,20 +355,20 @@
 			<ExpandablePlaceholder />
 			<ExpandablePlaceholder />
 		{/if}
-		
+
 		{#if generalGovOfficialInfo?.decrees && generalGovOfficialInfo.decrees.length > 0 && delegate}
 			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
 				<DecreePreview decrees={generalGovOfficialInfo.decrees} delegateId={delegate.id} />
 			</div>
-		{:else if generalGovOfficialInfo?.decrees == null && delegate && delegate.council == 'gov' || !delegate}
+		{:else if (generalGovOfficialInfo?.decrees == null && delegate && delegate.council == 'gov') || !delegate}
 			<ExpandablePlaceholder />
 			<ExpandablePlaceholder />
 		{/if}
 
 		{#if delegate && generalDelegateInfo?.political_position}
-		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
-			<PoliticalStanceTitleBar {delegate} />
-		</div>
+			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
+				<PoliticalStanceTitleBar {delegate} />
+			</div>
 		{/if}
 		<div class="flex gap-2 w-full">
 			{#if delegate && generalDelegateInfo?.political_position}
@@ -407,9 +434,9 @@
 		<ExpandablePlaceholder class={'my-3 w-full min-w-full'} />
 		</div> -->
 
-		<!-- {#if generalDelegateInfo} 
+		<!-- {#if generalDelegateInfo}
 			<ReactiveRadarChart title="hi" chartData={[
-				{ label: "namentliche Abstimmungen", data: generalDelegateInfo.named_votes.length, color: "" }, 
+				{ label: "namentliche Abstimmungen", data: generalDelegateInfo.named_votes.length, color: "" },
 				{ label: "Abwesenheiten", data: generalDelegateInfo.absences.length, color: "" },
 				{ label: "Reden", data: speechesPage0?.entry_count ?? 0, color: "" },
 				{ label: "Abwesenheiten", data: generalDelegateInfo.absences.length, color: "" },

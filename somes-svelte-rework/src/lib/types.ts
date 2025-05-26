@@ -158,7 +158,7 @@ export interface VoteResult {
 }
 
 export function createVoteResultPath(voteResult: VoteResult): string {
-	return `/vote_result/${voteResult.legislative_initiative.gp}/${voteResult.legislative_initiative.ityp}/${voteResult.legislative_initiative.inr}`
+	return `/vote_result/${voteResult.legislative_initiative.gp}/${voteResult.legislative_initiative.ityp}/${voteResult.legislative_initiative.inr}`;
 }
 
 export interface VoteResultsWithMaxPage {
@@ -209,12 +209,12 @@ export interface CallToOrdersPerPartyDelegate {
 }
 
 export interface PoliticalPosition {
-    delegate_id: number | null;
-    is_left: number;
-    is_not_left: number;
-    is_liberal: number;
-    is_not_liberal: number;
-    neutral_count: number;
+	delegate_id: number | null;
+	is_left: number;
+	is_not_left: number;
+	is_liberal: number;
+	is_not_liberal: number;
+	neutral_count: number;
 }
 
 export interface Party {
@@ -359,7 +359,7 @@ export interface Decree {
 	ris_id: string;
 	ministrial_issuer: string;
 	title: string;
-	short_title: string,
+	short_title: string;
 	publication_date: string;
 	part: string;
 	documents: Document[];
@@ -404,6 +404,12 @@ export interface VoteResultFilter {
 	simple_majority: boolean | null;
 	legis_period: string | null;
 	is_law: boolean | null;
+}
+
+export interface DelegateFilter {
+	search_value: string | null;
+	legis_period: string | null;
+	day_offset: number | null;
 }
 
 export interface StanceTopicScore {

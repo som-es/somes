@@ -1,4 +1,10 @@
-import type { VoteResultFilter, VoteResult, Delegate, GovPropFilter } from '$lib/types';
+import type {
+	VoteResultFilter,
+	VoteResult,
+	Delegate,
+	GovPropFilter,
+	DelegateFilter
+} from '$lib/types';
 import { persisted } from 'svelte-persisted-store';
 
 export const currentDelegateStore = persisted<Delegate | null>('currentDelegate', null);
@@ -15,5 +21,9 @@ export const currentVoteResultFilterStore = persisted<VoteResultFilter | null>(
 );
 export const currentGovProposalFilterStore = persisted<GovPropFilter | null>(
 	'currentGovPropFilter',
+	null
+);
+export const currentDelegateFilterStore = persisted<DelegateFilter | null>(
+	'currentDelegateFilter',
 	null
 );
