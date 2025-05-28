@@ -8,6 +8,7 @@
 	export let decree: Decree;
 	export let delegate: Delegate | null = null;
 	export let page: number;
+	export let coloring: string = "dark:bg-primary-300 bg-primary-400"
 	// absence.
 
 	let open: boolean = false;
@@ -24,7 +25,7 @@
 		on:keypress={() => (open = !open)}
 		role="button"
 		tabindex="0"
-		class="entry dark:bg-primary-300 bg-primary-400 flex justify-between items-center text-black"
+		class="entry {coloring} flex justify-between items-center text-black"
 	>
 		<div class="flex gap-4">
 			<div id={open ? 'open' : 'closed'}>

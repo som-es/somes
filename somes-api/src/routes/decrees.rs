@@ -75,6 +75,7 @@ async fn get_decrees_per_page_sqlx(
             d.gov_official_id, d.ris_id, d.ministrial_issuer, 
             d.title, d.short_title, d.publication_date, d.part, 
             d.emphasis, d.gp
+        order by d.publication_date desc
         offset $3 limit $4
         "#,
         decree_filter.map(|x| x.legis_period.as_ref()).flatten(),

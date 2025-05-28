@@ -23,7 +23,9 @@ import type {
 	GeneralDelegateInfo,
 	GovPropFilter,
 	GovProposalsWithMaxPage,
-	GeneralGovOfficialInfo
+	GeneralGovOfficialInfo,
+	DecreeFilter,
+	DecreesWithMaxPage
 } from '../types';
 import { jwtStore } from '../caching/stores/stores';
 
@@ -225,8 +227,8 @@ export async function unfinished_vote_results_per_page(
 
 export async function decrees_per_page(
 	page: number,
-	filter: VoteResultFilter | null
-): Promise<VoteResultsWithMaxPage | HasError> {
+	filter: DecreeFilter | null
+): Promise<DecreesWithMaxPage | HasError> {
 	return justPost(`decrees_per_page?page=${page}`, filter);
 }
 
