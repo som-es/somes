@@ -99,5 +99,6 @@ pub const GOV_OFFICIALS_AT: &str = "/gov_officials_at";
 pub const GOV_PROPOSALS_BY_OFFICIAL: &str = "/gov_proposals_by_official";
 pub const GOV_PROPOSALS_PER_PAGE: &str = "/gov_proposals_per_page";
 pub const GOV_PROPOSALS_BY_SEARCH: &str = "/gov_proposals_by_search";
+pub const DECREES_PER_PAGE: &str = "/decrees_per_page";
 pub const DELEGATE_POLITICAL_POSITION: &str = "/delegate_political_position";
 pub const DELEGATE_POLITICAL_QUESTIONS: &str = "/delegate_political_questions";

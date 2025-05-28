@@ -52,9 +52,6 @@ pub async fn get_gov_proposals_per_page(
     if page.page < 0 {
         return Err(LegisInitErrorResponse::InvalidPage);
     }
-    // if page.page > page_count {
-    //     return Err(LegisInitErrorResponse::InvalidPage);
-    // }
     let (ministrial_proposals, entry_count) = filtered_ministrial_proposals(
         &pg,
         page.page,

@@ -11,7 +11,6 @@
 
 	$: leftScore = politicalPosition.is_not_left - politicalPosition.is_left;
 	$: liberalScore = politicalPosition.is_not_liberal - politicalPosition.is_liberal;
-	console.log(leftScore);
 
 	const SCALAR = 20;
 	$: dataPoints = {

@@ -77,7 +77,6 @@
 		ctx.fillText(yLabels[1], width / 2, height - 20);
 
 		Object.values(dataPoints).forEach((quadrant) => {
-			console.log(quadrant);
 			quadrant.forEach(({ x, y, label, color }) => {
 				const canvasX = width / 2 + x;
 				const canvasY = height / 2 - y;

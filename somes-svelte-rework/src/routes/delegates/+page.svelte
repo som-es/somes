@@ -94,16 +94,18 @@
 	dayOffset = maybeCurrentDelegateFilter.day_offset ?? maxDayOffset;
 	if (maybeCurrentDelegateFilter.legis_period) {
 		selectedPeriod = maybeCurrentDelegateFilter.legis_period
-		console.log(selectedPeriod);
 		prevSelectedPeriod = maybeCurrentDelegateFilter.legis_period
 	}
 
 	function delegateFilter(): AutocompleteOption<string>[] {
-		maybeCurrentDelegateFilter.search_value = inputValue;
-		currentDelegateFilterStore.set(maybeCurrentDelegateFilter);
 		let _options = [...autocompleteOptions];
 		let _inputValue = `${String(inputValue).toLowerCase().trim()} `;
 		return delegateFilterOptions(_options, _inputValue);
+	}
+
+	$: if (inputValue) {
+		maybeCurrentDelegateFilter.search_value = inputValue;
+		currentDelegateFilterStore.set(maybeCurrentDelegateFilter);
 	}
 
 	function onDelegateSelection(event: CustomEvent<AutocompleteOption<string>>): void {
@@ -156,11 +158,9 @@
 
 		const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
 		maxDayOffset = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-		console.log(dayOffset);
 		if (prevSelectedPeriod !== selectedPeriod) {
 			dayOffset = maxDayOffset;
 		}
-		console.log(dayOffset);
 		maybeCurrentDelegateFilter.day_offset = dayOffset;
 		currentDelegateFilterStore.set(maybeCurrentDelegateFilter);
 		startDate.setDate(startDate.getDate() + dayOffset - 2);

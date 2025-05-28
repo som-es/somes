@@ -12,15 +12,16 @@ pub struct Document {
 
 #[derive(ToSchema, Debug, Clone, Serialize, Deserialize, FromRow)]
 pub struct Decree {
-    gov_official_id: i32,
-    ris_id: String,
-    ministrial_issuer: String,
-    title: String,
-    short_title: String,
-    publication_date: NaiveDate,
-    part: String,
-    emphasis: Option<String>, 
-    documents: Vec<Document>,
+    pub gov_official_id: i32,
+    pub ris_id: String,
+    pub ministrial_issuer: String,
+    pub title: String,
+    pub short_title: String,
+    pub publication_date: NaiveDate,
+    pub part: String,
+    pub emphasis: Option<String>,
+    pub gp: Option<String>,
+    pub documents: Vec<Document>,
 }
 
 pub async fn extract_decrees_from_gov_official(
@@ -38,6 +39,7 @@ pub async fn extract_decrees_from_gov_official(
             d.publication_date, 
             d.part,
             d.emphasis,
+            d.gp,
             COALESCE(
                 json_agg(
                     json_build_object(
@@ -56,7 +58,8 @@ pub async fn extract_decrees_from_gov_official(
             d.gov_official_id = $1
         GROUP BY 
             d.gov_official_id, d.ris_id, d.ministrial_issuer, 
-            d.title, d.short_title, d.publication_date, d.part, d.emphasis
+            d.title, d.short_title, d.publication_date, d.part, 
+            d.emphasis, d.gp
         "#,
         delegate_id
     )
@@ -72,6 +75,7 @@ pub async fn extract_decrees_from_gov_official(
         publication_date: x.publication_date,
         part: x.part,
         emphasis: x.emphasis,
+        gp: x.gp,
         documents: x
             .documents
             .into_iter()

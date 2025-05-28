@@ -1,3 +1,4 @@
+mod decrees;
 mod delegates;
 mod favo;
 mod legislative_initiatives;
@@ -21,6 +22,7 @@ pub use proposals::*;
 pub use favo::*;
 
 use axum::Json;
+pub use decrees::*;
 pub use delegates::*;
 pub use legislative_initiatives::*;
 pub use login::*;

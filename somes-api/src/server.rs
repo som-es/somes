@@ -27,16 +27,11 @@ use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 //use headers::HeaderValue;
 use crate::{
-    meilisearch::{update_gov_props_meilisearch_index, update_vote_result_meilisearch_index},
-    model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours},
-    redirect_http_to_https,
-    routes::{
+    meilisearch::{update_gov_props_meilisearch_index, update_vote_result_meilisearch_index}, model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours}, redirect_http_to_https, routes::{
         call_to_orders_per_party_delegates, delegates, delegates_by_call_to_orders,
         delegates_by_call_to_orders_and_legis_period, latest_vote_results, parties, proposals,
         save_email, speakers_by_hours, speakers_by_hours_and_legis_period, user,
-    },
-    Ports, DATASERVICE_URL, HTTPS_PORT, HTTP_PORT, LEGIS_INITS_PER_PAGE, MEILISEARCH_SECRET,
-    MEILISEARCH_URL, PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, REDIS_DB, STATIC_FRONTEND_PATH,
+    }, Ports, DATASERVICE_URL, DECREES_PER_PAGE, HTTPS_PORT, HTTP_PORT, LEGIS_INITS_PER_PAGE, MEILISEARCH_SECRET, MEILISEARCH_URL, PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, REDIS_DB, STATIC_FRONTEND_PATH
 };
 use tower_http::{
     cors::{Any, CorsLayer},
@@ -376,6 +371,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(GOV_PROPOSALS_BY_OFFICIAL, get(gov_proposals_by_official))
         .route(GOV_PROPOSALS_PER_PAGE, post(get_gov_proposals_per_page))
         .route(GOV_PROPOSALS_BY_SEARCH, post(gov_props_by_search)) // post only because js fetch...
+        .route(DECREES_PER_PAGE, post(get_decrees_per_page))
         .route(
             DELEGATE_POLITICAL_POSITION,
             get(delegate_political_position),

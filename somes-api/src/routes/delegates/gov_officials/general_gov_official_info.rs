@@ -8,8 +8,10 @@ use utoipa::{IntoParams, ToSchema};
 use crate::{
     get_json_cache,
     routes::{
-        extract_decrees_from_gov_official, extract_gov_prosals_by_delegate, DelegatesErrorResponse, GovProposal
-    }, set_json_cache, PgPoolConnection, RedisConnection,
+        extract_decrees_from_gov_official, extract_gov_prosals_by_delegate, DelegatesErrorResponse,
+        GovProposal,
+    },
+    set_json_cache, PgPoolConnection, RedisConnection,
 };
 
 use super::Decree;
@@ -42,7 +44,7 @@ pub async fn extract_general_gov_official_info(
     set_json_cache(redis_con, &key, &ggoi).await;
     Ok(ggoi)
 }
- 
+
 pub async fn general_gov_official_info(
     PgPoolConnection(pg): PgPoolConnection,
     RedisConnection(mut redis_con): RedisConnection,
