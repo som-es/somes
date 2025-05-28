@@ -1,15 +1,7 @@
 <script lang="ts">
-	import { cachedDelegates, filteredDelegates } from '$lib/caching/delegates';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import PaginationMinistrialProposals from '$lib/components/Proposals/PaginationMinistrialProposals.svelte';
-	import PaginationVoteResults from '$lib/components/VoteResults/Expandable/PaginationVoteResults.svelte';
-	import type { Delegate, VoteResult } from '$lib/types';
-	import { onMount } from 'svelte';
 
-	let dels: Delegate[] | null = null;
-	onMount(async function () {
-		dels = (await filteredDelegates())?.nr ?? null;
-	});
 </script>
 
 <!-- <div class="mx-auto px-5"> -->

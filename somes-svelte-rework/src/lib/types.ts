@@ -167,6 +167,12 @@ export interface VoteResultsWithMaxPage {
 	max_page: number;
 }
 
+export interface DecreesWithMaxPage {
+	decrees: Decree[];
+	entry_count: number;
+	max_page: number;
+}
+
 export interface GovProposalsWithMaxPage {
 	gov_proposals: GovProposalDelegate[];
 	entry_count: number;
@@ -362,6 +368,7 @@ export interface Decree {
 	short_title: string;
 	publication_date: string;
 	part: string;
+	gp: string | null;
 	documents: Document[];
 }
 
@@ -404,6 +411,11 @@ export interface VoteResultFilter {
 	simple_majority: boolean | null;
 	legis_period: string | null;
 	is_law: boolean | null;
+}
+
+export interface DecreeFilter {
+	legis_period: string | null;
+	gov_officials: number[] | null;
 }
 
 export interface DelegateFilter {

@@ -75,14 +75,22 @@
 		},
 
 		{
-			title: 'Gegenstände',
+			title: 'Nationalrat',
 			route: '/history',
 			list: [
 				{ href: `${base}/history/votes`, label: 'Abstimmungen', keywords: '' },
 				{ href: `${base}/history/unfinished_votes`, label: 'Unfertige Abstimmungen', keywords: '' },
+			]
+		},
+		{
+			title: 'Regierung',
+			route: '/history',
+			list: [
 				{ href: `${base}/history/proposals`, label: 'Ministerialentwürfe', keywords: '' },
+				{ href: `${base}/history/decrees`, label: 'Verordnungen', keywords: '' },
 			]
 		}
+
 	];
 
 	$: listboxItemActive = (href: string) => (isSelected(href) ? 'bg-primary-active-token' : '');

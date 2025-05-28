@@ -1,10 +1,12 @@
 <script lang="ts">
 	import collapse from 'svelte-collapse';
-	import type { Decree } from '$lib/types';
+	import type { Decree, Delegate } from '$lib/types';
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
 	import DecreeBarExpanded from './DecreeBarExpanded.svelte';
+	import { address } from '$lib/api/api';
 
 	export let decree: Decree;
+	export let delegate: Delegate | null = null;
 	export let page: number;
 	// absence.
 
@@ -35,6 +37,14 @@
 		<div>
 			{decree.title}
 		</div>
+
+		{#if delegate}
+			<img
+				class="min-w-[100px] max-h-[100px] rounded-full mx-1"
+				src={`${address}/assets/${delegate.id}.jpg`}
+				alt="Image of delegate {delegate.name}"
+			/>
+		{/if}
 		
 	</div>
 
