@@ -41,7 +41,7 @@
 
 		{#if delegate}
 			<img
-				class="min-w-[100px] max-h-[100px] rounded-full mx-1"
+				class="min-w-[80px] max-h-[80px] rounded-full mx-1"
 				src={`${address}/assets/${delegate.id}.jpg`}
 				alt="Image of delegate {delegate.name}"
 			/>

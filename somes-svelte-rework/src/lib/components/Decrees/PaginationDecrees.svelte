@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { decrees_per_page, errorToNull, gov_proposals_by_search, gov_proposals_per_page } from '$lib/api/api';
-	import type { DecreeFilter, DecreesWithMaxPage, GovPropFilter, GovProposalsWithMaxPage } from '$lib/types';
+	import { decrees_per_page, delegate_by_id, errorToNull, gov_proposals_by_search, gov_proposals_per_page } from '$lib/api/api';
+	import type { DecreeFilter, DecreesWithMaxPage, Delegate, GovPropFilter, GovProposalsWithMaxPage } from '$lib/types';
 	import { onMount } from 'svelte';
 	import Pagination from '../Pagination.svelte';
 	import ExpandablePlaceholder from '../VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
@@ -35,6 +35,8 @@
 		if (maybeStoredFilter.legis_period) selectedPeriod = maybeStoredFilter.legis_period;
 	}
 
+	const govOfficials = new Map<number, Delegate>();
+
 	const loadGovProps = async () => {
 		currentlyUpdating = true;
 		if (decrees !== null) {
@@ -55,6 +57,19 @@
 		} else {
 			decrees = errorToNull(await decrees_per_page(page - 1, filter));
 		}
+
+		decrees?.decrees.forEach(decree => {
+			const id = decree.gov_official_id;
+			if (govOfficials.has(id)) return;
+			delegate_by_id(id).then(del => {
+				const mayDel = errorToNull(del);
+				if (mayDel) {
+					govOfficials.set(id, mayDel);
+					decrees = decrees;
+				}
+			});
+		});
+
 		currentlyUpdating = false;
 	};
 
@@ -148,7 +163,7 @@
 		<Pagination bind:page maxPage={decrees.max_page} />
 		{#if decrees.decrees.length > 0}
 			{#each decrees.decrees as decree}
-				<DecreeBar {decree} {page} coloring="bg-primary-300 dark:bg-primary-500" />
+				<DecreeBar {decree} {page} delegate={govOfficials.get(decree.gov_official_id)} coloring="bg-primary-300 dark:bg-primary-500" />
 			{/each}
 		{:else if currentlyUpdating}
 			{#each { length: 9 } as _}
