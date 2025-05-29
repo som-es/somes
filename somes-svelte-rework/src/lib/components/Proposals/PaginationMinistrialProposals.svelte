@@ -66,7 +66,7 @@
 		const url = new URL(window.location.href);
 		url.searchParams.set('page', page.toString());
 		try {
-			// pushState(url.toString(), { replaceState: true });
+			pushState(url.toString(), { replaceState: true });
 		} catch (e) {
 			page = old_page;
 		}

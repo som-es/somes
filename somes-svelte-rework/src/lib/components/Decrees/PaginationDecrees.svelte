@@ -17,6 +17,7 @@
 		type PopupSettings
 	} from '@skeletonlabs/skeleton';
 	import DecreeBar from '../Delegates/Decrees/DecreeBar.svelte';
+	import { pushState } from '$app/navigation';
 
 	const url = new URL(window.location.href);
 	let page = parseInt(url.searchParams.get('page') || '1') || 1;
@@ -80,7 +81,7 @@
 		const url = new URL(window.location.href);
 		url.searchParams.set('page', page.toString());
 		try {
-			// pushState(url.toString(), { replaceState: true });
+			pushState(url.toString(), { replaceState: true });
 		} catch (e) {
 			page = old_page;
 		}
