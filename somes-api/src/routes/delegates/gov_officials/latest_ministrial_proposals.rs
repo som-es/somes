@@ -61,7 +61,8 @@ pub async fn extract_latest_ministrial_proposals(
      from ministrial_issuer as mi 
         inner join ministrial_proposals mp on mp.id = mi.ministrial_proposal_id 
         
-        where mp.created_at > NOW() - make_interval(days => $1)",
+        where mp.created_at > NOW() - make_interval(days => $1)
+    order by mp.created_at",
         days
     )
     .fetch_all(pg)

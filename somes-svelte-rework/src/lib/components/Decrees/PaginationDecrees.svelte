@@ -92,7 +92,7 @@
 	$: if (page || selectedPeriod || govOfficialsFilter) {
 		update();
 	}
-
+	
 	onMount(update);
 
 	const popupRequiredMajority: PopupSettings = {
