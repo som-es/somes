@@ -74,7 +74,7 @@ pub async fn get_latest_legis_inits_per_page(
                 "Add filter object when using not finished extraction"
             );
             (sqlx::query_as!(DbLegislativeInitiativeQuery,
-                "select distinct * from legislative_initiatives where accepted is not null order by created_at desc offset $1 limit $2",
+                "select distinct * from legislative_initiatives where is_voteable_on and accepted is not null order by created_at desc offset $1 limit $2",
                 page * page_elements,
                 page_elements
             )
@@ -97,7 +97,7 @@ pub async fn get_latest_legislative_initiatives_sqlx(
         DbLegislativeInitiativeQuery,
         "select * from legislative_initiatives 
             where created_at = (select MAX(created_at) from legislative_initiatives 
-            where accepted is not null) and accepted is not null"
+            where accepted is not null) and accepted is not null and is_voteable_on"
     )
     .fetch_all(pg)
     .await?;
