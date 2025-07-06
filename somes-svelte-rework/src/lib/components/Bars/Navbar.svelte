@@ -8,7 +8,8 @@
 		type DrawerSettings
 	} from '@skeletonlabs/skeleton';
 	import userIcon from '$lib/assets/icons/user.svg?raw';
-	import somesTextIcon from '$lib/assets/somes_with_text2.svg?raw';
+	import somesIcon from '$lib/assets/somes_icon.svg?raw';
+	import somesIconText from '$lib/assets/somes_with_text2.svg?raw';
 	import { jwtStore } from '$lib/caching/stores/stores';
 	import { get } from 'svelte/store';
 	import { isHasError } from '$lib/api/api';
@@ -44,13 +45,14 @@
 	}
 </script>
 
+<!--
 <AppBar class="!bg-surface-100-800-token" slotTrail="!space-x-2">
 	<svelte:fragment slot="lead">
 		<button on:click={drawerOpen} class="btn-icon btn-icon-sm lg:!hidden">
 			{@html hamburgerIcon}
 		</button>
 		<a class="mx-4 fill-current stroke-current w-32" href="/">
-			{@html somesTextIcon}
+			{@html somesIcon}
 		</a>
 	</svelte:fragment>
 	<svelte:fragment slot="trail">
@@ -71,7 +73,28 @@
 				{@html userIcon}
 				<span class="font-bold text-sm">Benutzer</span>
 			</div>
-			<LightSwitch />
+			<LightSwitch class="hidden sm:block" />
 		</div>
 	</svelte:fragment>
 </AppBar>
+-->
+
+<div class="w-full flex justify-between items-center pr-6 pl-8 !bg-surface-100-800-token">
+	<!-- Logo -->
+	<div class="w-24 flex items-center py-5">
+		<a class="fill-current stroke-current block sm:hidden" href="/">
+			{@html somesIcon}
+		</a>
+		<a class="fill-current stroke-current hidden sm:block" href="/">
+			{@html somesIconText}
+		</a>
+	</div>
+	<!-- Placeholder -->
+	<div class="w-6"></div>
+	<!-- Hamburger Icon -->
+	<div class="flex items-center justify-center">
+		<button on:click={drawerOpen} class="btn-icon btn-icon-sm lg:!hidden">
+			{@html hamburgerIcon}
+		</button>
+	</div>
+</div>
