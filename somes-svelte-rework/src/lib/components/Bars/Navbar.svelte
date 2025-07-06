@@ -39,7 +39,8 @@
 	function drawerOpen(): void {
 		const s: DrawerSettings = {
 			id: 'sidebar',
-			width: 'min-w-fit'
+			width: 'min-w-fit',
+			position: 'right'
 		};
 		drawerStore.open(s);
 	}
