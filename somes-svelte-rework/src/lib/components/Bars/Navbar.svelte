@@ -17,6 +17,7 @@
 	import { gotoHistory } from '$lib/goto';
 	import { renew_token } from '$lib/api/authed';
 	import hamburgerIcon from '$lib/assets/misc_icons/hamburger-menu.svg?raw';
+	import { onMount } from 'svelte';
 
 	const drawerStore = getDrawerStore();
 
@@ -35,6 +36,12 @@
 
 	// fixes weird color bug
 	setModeCurrent($modeCurrent);
+
+	// detects browsers light/dark mode at load and on change and sets the theme accordingly
+	onMount(() => {
+		const mode = window.matchMedia('(prefers-color-scheme: light)');
+		setModeCurrent(mode.matches);
+	});
 
 	function drawerOpen(): void {
 		const s: DrawerSettings = {
