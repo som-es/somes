@@ -205,6 +205,8 @@
 <!-- <SlideToggle name="slider-large" active="bg-secondary-400" size="md">
 	<span class="text-lg"> Test </span>
 </SlideToggle> -->
+
+<!-- FILTER OPTIONS 
 <div class="lg:hidden flex flex-wrap gap-6">
 	<div>
 		<h1 class="text-2xl font-bold">notwendige Mehrheit</h1>
@@ -384,9 +386,10 @@
 		<SButton class="bg-secondary-500 text-black" on:click={update}>Suchen</SButton>
 	</div>
 </div>
+-->
 <div>
 	{#if voteResults}
-		<Pagination bind:page maxPage={voteResults.max_page} />
+		<!-- REWORK - Pagination nur untern<Pagination bind:page maxPage={voteResults.max_page} /> -->
 		{#if voteResults.vote_results.length > 0}
 			{#each voteResults.vote_results as voteResult}
 				<VoteResultExpandableBar {dels} {voteResult} class="" />
