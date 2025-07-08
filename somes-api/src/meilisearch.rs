@@ -50,7 +50,11 @@ pub async fn update_gov_props_meilisearch_index(
 
     client
         .index("gov_props")
-        .add_documents(&all_gov_props, Some("gov_proposal.ministrial_proposal.id"))
+        .delete_all_documents().await?;
+
+    client
+        .index("gov_props")
+        .add_documents_in_batches(&all_gov_props, Some(3000), Some("gov_proposal.ministrial_proposal.id"))
         .await?;
 
     log::info!("Uploaded gov proposals");
@@ -87,7 +91,11 @@ pub async fn update_vote_result_meilisearch_index(
 
     client
         .index("vote_results")
-        .add_documents(&all_vote_results, Some("id"))
+        .delete_all_documents().await?;
+
+    client
+        .index("vote_results")
+        .add_documents_in_batches(&all_vote_results, Some(3000), Some("id"))
         .await?;
 
     log::info!("Uploaded vote results");
