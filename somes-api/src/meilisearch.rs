@@ -48,13 +48,15 @@ pub async fn update_gov_props_meilisearch_index(
 
     client.index("gov_props").set_settings(&settings).await?;
 
-    client
-        .index("gov_props")
-        .delete_all_documents().await?;
+    client.index("gov_props").delete_all_documents().await?;
 
     client
         .index("gov_props")
-        .add_documents_in_batches(&all_gov_props, Some(3000), Some("gov_proposal.ministrial_proposal.id"))
+        .add_documents_in_batches(
+            &all_gov_props,
+            Some(3000),
+            Some("gov_proposal.ministrial_proposal.id"),
+        )
         .await?;
 
     log::info!("Uploaded gov proposals");
@@ -76,22 +78,22 @@ pub async fn update_vote_result_meilisearch_index(
         "Uploading {} vote results to meilisearch",
         all_vote_results.len()
     );
-    let settings = Settings::new().with_filterable_attributes([
-        "legislative_initiative.accepted",
-        "legislative_initiative.requires_simple_majority",
-        "legislative_initiative.gp",
-        "legislative_initiative.voted_by_name",
-        "legislative_initiative.is_law",
-        "legislative_initiative.ityp",
-        "legislative_initiative.has_reference",
-        "legislative_initiative.by_publication",
-    ]);
+    let settings = Settings::new()
+        .with_filterable_attributes([
+            "legislative_initiative.accepted",
+            "legislative_initiative.requires_simple_majority",
+            "legislative_initiative.gp",
+            "legislative_initiative.voted_by_name",
+            "legislative_initiative.is_law",
+            "legislative_initiative.ityp",
+            "legislative_initiative.has_reference",
+            "legislative_initiative.by_publication",
+        ])
+        .with_sortable_attributes(["legislative_initiative.created_at"]);
 
     client.index("vote_results").set_settings(&settings).await?;
 
-    client
-        .index("vote_results")
-        .delete_all_documents().await?;
+    client.index("vote_results").delete_all_documents().await?;
 
     client
         .index("vote_results")

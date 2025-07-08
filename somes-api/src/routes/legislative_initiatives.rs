@@ -282,6 +282,7 @@ async fn meilisearch_for_vote_results(
         .index("vote_results")
         .search()
         .with_filter(&meilisearch_filter)
+        .with_sort(&["legislative_initiative.created_at:desc"])
         .with_query(&search_query.search)
         .with_hits_per_page(LEGIS_INITS_PER_PAGE.parse().unwrap_or(16))
         .with_page(page.page as usize)

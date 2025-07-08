@@ -139,7 +139,8 @@ mod tests {
                 legis_period: Some("XXVII".to_string()),
                 gov_officials: Some(vec![57488]),
             }),
-        ).await;
+        )
+        .await;
         println!("data: {data:?}");
     }
 }
