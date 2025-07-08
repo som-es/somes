@@ -86,11 +86,11 @@
 
 <div class="w-full flex justify-between items-center pr-6 pl-8 !bg-surface-100-800-token">
 	<!-- Logo -->
-	<div class="w-24 flex items-center py-5">
-		<a class="fill-current stroke-current block sm:hidden" href="/">
+	<div class="w-24 flex items-center py-4">
+		<a class="fill-current stroke-current block sm:hidden min-w-[38px] min-h-[38px]" href="/">
 			{@html somesIcon}
 		</a>
-		<a class="fill-current stroke-current hidden sm:block" href="/">
+		<a class="fill-current stroke-current hidden sm:block min-w-[38px] min-h-[38px]" href="/">
 			{@html somesIconText}
 		</a>
 	</div>

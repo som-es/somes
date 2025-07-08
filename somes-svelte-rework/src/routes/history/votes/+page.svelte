@@ -13,10 +13,12 @@
 
 <!-- <div class="mx-auto px-5"> -->
 <Container>
+	<div class="px-4 md:px-8 lg:px-12 pt-4">
 	<h1 class="text-2xl sm:text-4xl font-bold">Vergangene Abstimmungsergebnisse</h1>
 
 	{#if dels}
 		<PaginationVoteResults {dels} />
 	{/if}
+</div>
 </Container>
 <!-- </div> -->
