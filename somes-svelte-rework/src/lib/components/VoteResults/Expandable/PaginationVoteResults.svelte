@@ -19,7 +19,7 @@
 		type PopupSettings
 	} from '@skeletonlabs/skeleton';
 	import LegisButtons from '$lib/components/Filtering/LegisButtons.svelte';
-	import { currentVoteResultFilterStore } from '$lib/stores/stores';
+	import { currentVoteResultFilterStores } from '$lib/stores/stores';
 	import { get } from 'svelte/store';
 	import ExpandablePlaceholder from './Placeholders/ExpandablePlaceholder.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
@@ -37,6 +37,9 @@
 		search: string,
 		voteResultFilter: VoteResultFilter
 	) => Promise<VoteResultsWithMaxPage | HasError> = vote_results_by_search;
+	export let storeIdx: number = 0;
+	let currentVoteResultFilterStore = currentVoteResultFilterStores[storeIdx]
+	$: currentVoteResultFilterStore = currentVoteResultFilterStores[storeIdx];
 
 
 	let voteResults: VoteResultsWithMaxPage | null = null;
@@ -55,11 +58,11 @@
 
 	const maybeStoredFilter = get(currentVoteResultFilterStore);
 	if (maybeStoredFilter !== null) {
-		if (maybeStoredFilter.simple_majority) simpleMajorityFilter = maybeStoredFilter.simple_majority;
-		if (maybeStoredFilter.legis_period) selectedPeriod = maybeStoredFilter.legis_period;
-		if (maybeStoredFilter.accepted) acceptedFilter = maybeStoredFilter.accepted;
-		if (maybeStoredFilter.is_named_vote) namedVoteFilter = maybeStoredFilter.is_named_vote;
-		if (maybeStoredFilter.is_law) isLawFilter = maybeStoredFilter.is_law;
+		if (maybeStoredFilter.simple_majority !== null) simpleMajorityFilter = maybeStoredFilter.simple_majority;
+		if (maybeStoredFilter.legis_period !== null) selectedPeriod = maybeStoredFilter.legis_period;
+		if (maybeStoredFilter.accepted !== null) acceptedFilter = maybeStoredFilter.accepted;
+		if (maybeStoredFilter.is_named_vote !== null) namedVoteFilter = maybeStoredFilter.is_named_vote;
+		if (maybeStoredFilter.is_law !== null) isLawFilter = maybeStoredFilter.is_law;
 	}
 
 	const loadVoteResults = async () => {
@@ -91,6 +94,9 @@
 			legis_period: selectedPeriod == 'all' ? null : selectedPeriod
 		};
 		currentVoteResultFilterStore.set(filter);
+
+		console.log(filter);
+		console.log("test");
 		// filter = null;
 
 		if (searchValue) {
