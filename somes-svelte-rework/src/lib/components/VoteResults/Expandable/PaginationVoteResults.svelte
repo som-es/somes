@@ -102,6 +102,7 @@
 			voteResults = errorToNull(await voteResultsPostFn(page - 1, filter));
 		}
 		currentlyUpdating = false;
+		console.log(voteResults);
 	};
 	onMount(async () => {
 		update();
@@ -402,7 +403,6 @@
 			<SButton class="bg-secondary-500 text-black" on:click={update}>Suchen</SButton>
 		</div>
 	</div>
-
 
 	{#if voteResults}
 		{#if voteResults.vote_results.length > 0}

@@ -9,6 +9,8 @@
 	import { currentDelegatesAtDateStore, currentVoteResultStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
 	import InfoTiles from '../InfoTiles/InfoTiles.svelte';
+	import crossmarkIcon from '$lib/assets/misc_icons/crossmark_small.svg?raw';
+	import checkmarkIcon from '$lib/assets/misc_icons/checkmark_small.svg?raw';
 
 	export let voteResult: VoteResult;
 	export let dels: Delegate[];
@@ -19,6 +21,7 @@
 
 	function onShowDetails() {
 		currentVoteResultStore.set(voteResult);
+		console.log(voteResult);
 		// $: if (browser) {
 		// gotoHistory('/vote_result', true);
 		gotoHistory(createVoteResultPath(voteResult), true);
@@ -32,49 +35,98 @@
 		on:keypress={() => (open = !open)}
 		role="button"
 		tabindex="0"
-		class="entry bg-primary-300 dark:bg-primary-500 flex justify-between items-center"
+		class="entry bg-primary-300 dark:bg-primary-500"
 	>
-		<div>
-			<div id={open ? 'open' : 'closed'}>
-				{@html rightArrowIcon}
+		<div class="flex">
+			<!-- REWORK - Arrow for opening/closing -->
+			<!-- <div>
+				<div class="mr-2" id={open ? 'open' : 'closed'}>
+					{@html rightArrowIcon}
+				</div>
+			</div> -->
+			<div class="flex items-center justify-between w-full">
+				<div class="text-md sm:text-lg font-semibold w-5/6">
+					{voteResult.legislative_initiative.description}
+				</div>
+				{#if voteResult.legislative_initiative.accepted == "a"}
+					<span style="width:25px; height:25px; display:inline-block; vertical-align:middle;">{@html checkmarkIcon}</span>
+				{:else}
+					<span style="width:25px; height:25px; display:inline-block; vertical-align:middle;">{@html crossmarkIcon}</span>
+				{/if}
 			</div>
+
 		</div>
-		<div>{voteResult.legislative_initiative.description}</div>
-		<div class="flex items-center gap-4">
-			{#if voteResult.legislative_initiative.is_law}
-				<div class="badge bg-tertiary-400 text-black">Gesetz</div>
-			{/if}
 
-			{#if voteResult.legislative_initiative.ityp == "AA"}
-				<div class="badge bg-tertiary-400 text-black ">Abänderung</div>
-			{/if}
-			<div class="max-sm:hidden">
-				<InfoTiles
-					squareSize={'10px'}
-					squareClasses={'min-w-[60px] min-h-[60px] max-w-[60px] max-h-[60px] h-[60px] w-[60px] w-16 mx-4'}
-					{voteResult}
-					{dels}
-					isCenter
-					showText={true}
-					showRequiredMajority={false}
-					showDate={false}
-					showAchievedVotes={false}
-				/>
+		<!-- REWORK - checks if vote was cast and checks for normal or roll call vote-->
+		<div>
+			<div class="block sm:flex justify-between mt-4">			
+				{#if voteResult.legislative_initiative.accepted}
+					{#if voteResult.named_votes == null}
+						<!-- Normal votes -->
+						<div class="flex justify-between md:items-center mx-1 mb-3 sm:mb-0">
+							{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
+								<div class="flex items-center">
+									<h4 class="text-sm">{vote.party}</h4>
+									{#if vote.infavor}
+										<span class="mr-1 md:mr-2" style="width:20px; height:20px; display:inline-block; vertical-align:middle;">{@html checkmarkIcon}</span>
+									{:else}
+										<span class="mr-1 md:mr-2" style="width:20px; height:20px; display:inline-block; vertical-align:middle;">{@html crossmarkIcon}</span>
+									{/if}
+								</div>
+							{/each}
+						</div>
+						{#if voteResult.legislative_initiative.is_law}
+						<div class="badge bg-tertiary-400 text-black">Gesetz</div>
+						{/if}
+
+						{#if voteResult.legislative_initiative.ityp == "AA"}
+							<div class="badge bg-tertiary-400 text-black">Abänderung</div>
+						{/if}
+					{:else}
+						<!-- Roll call votes -->
+						<div class="block sm:flex justify-between w-full mb-3">
+							<div class="flex items-center">
+								<span class="mr-1" style="width:20px; height:20px; display:inline-block; vertical-align:middle;">{@html checkmarkIcon}</span>
+							{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
+								{#if vote.infavor}
+									<h4 class="text-sm mr-1">{vote.party}</h4>
+									<h4 class="text-sm mr-2">{vote.fraction}</h4>
+								{/if}
+							{/each}
+							</div>
+							<div class="flex items-center">
+								<span class="mr-1 ml-0 sm:ml-3" style="width:20px; height:20px; display:inline-block; vertical-align:middle;">{@html crossmarkIcon}</span>
+								{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
+									{#if !vote.infavor}
+										<h4 class="text-sm mr-1">{vote.party}</h4>
+										<h4 class="text-sm mr-2">{vote.fraction}</h4>
+									{/if}
+								{/each}
+							</div>
+						</div>
+					{/if}
+					<!-- REWORK - Mini Parlament <button
+						class="max-sm:hidden z-20 w-[7.5rem] bg-primary-100 dark:bg-primary-300 rounded-md"
+						on:click={onShowDetails}
+					>
+						<VoteParliament2 {voteResult} preview={true} />
+					</button>
+					-->
+				{/if}
 			</div>
+			{#if voteResult.named_votes != null}
+				<div>
+					{#if voteResult.legislative_initiative.is_law}
+						<div class="badge bg-tertiary-400 text-black">Gesetz</div>
+					{/if}
 
-			<!-- {#if voteResult} -->
-
-			{#if voteResult.legislative_initiative.accepted}
-				<button
-					class="max-sm:hidden z-20 w-[7.5rem] bg-primary-100 dark:bg-primary-300 rounded-md"
-					on:click={onShowDetails}
-				>
-					<VoteParliament2 {voteResult} preview={true} />
-				</button>
+					{#if voteResult.legislative_initiative.ityp == "AA"}
+						<div class="badge bg-tertiary-400 text-black">Abänderung</div>
+					{/if}
+				</div>
 			{/if}
 		</div>
 	</div>
-
 	<div use:collapse={{ open, duration }}>
 		<VoteResultExpanded {voteResult} {dels} bind:open />
 	</div>
