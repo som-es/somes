@@ -83,6 +83,7 @@ pub async fn update_vote_result_meilisearch_index(
             "legislative_initiative.ityp",
             "legislative_initiative.has_reference",
             "legislative_initiative.by_publication",
+            "topics",
         ])
         .with_sortable_attributes(["legislative_initiative.created_at"])
         .with_pagination(PaginationSetting {

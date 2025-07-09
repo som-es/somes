@@ -245,9 +245,9 @@ async fn meilisearch_for_vote_results(
     let mut meilisearch_filter = String::new();
     if let Some(filter) = legis_init_filter {
         let mut filter_conditions = if is_finished {
-            vec!["legislative_initiative.accepted IS NOT NULL".to_string()]
+            vec![r#"legislative_initiative.accepted IS NOT NULL AND topics IN ["Industrie"]"#.to_string()]
         } else {
-            vec!["legislative_initiative.accepted IS NULL AND legislative_initiative.has_reference = false".to_string()]
+            vec![r#"legislative_initiative.accepted IS NULL AND legislative_initiative.has_reference = false"#.to_string()]
         };
 
         if let Some(accepted) = filter.accepted {
