@@ -29,6 +29,12 @@ pub struct GovProposal {
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Clone, FromRow, Default)]
+pub struct MeiliesearchHelper {
+    #[serde(default)]
+    pub votes: Vec<String>,
+}
+
+#[derive(ToSchema, Debug, Deserialize, Serialize, Clone, FromRow, Default)]
 pub struct VoteResult {
     pub id: i32,
     pub legislative_initiative: DbLegislativeInitiativeQuery,
@@ -42,6 +48,8 @@ pub struct VoteResult {
     pub issued_by_dels: Vec<RelatedDelegate>,
     pub referenced_by_others_ids: Vec<i32>,
     pub references: Vec<i32>,
+    #[serde(default)]
+    pub meilisearch_helper: MeiliesearchHelper,
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]

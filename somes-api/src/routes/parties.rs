@@ -34,7 +34,7 @@ pub async fn parties(
 
 pub async fn parties_at_gp(
     PgPoolConnection(pg): PgPoolConnection,
-    Query(legis_period): Query<LegisPeriodGp>
+    Query(legis_period): Query<LegisPeriodGp>,
 ) -> Result<Json<Vec<Party>>, PartiesErrorResponse> {
     dataservice::with_data::all_parties_at_gp(&pg, &legis_period.gp)
         .await

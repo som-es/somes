@@ -7,7 +7,7 @@ use redis::aio::MultiplexedConnection;
 use reqwest::StatusCode;
 
 use crate::{
-    routes::{get_all_gov_props, get_all_votes_from_legis_init},
+    routes::{get_all_gov_props, get_all_votes_from_legis_init, MeiliesearchHelper},
     server::AppState,
 };
 
@@ -84,6 +84,7 @@ pub async fn update_vote_result_meilisearch_index(
             "legislative_initiative.has_reference",
             "legislative_initiative.by_publication",
             "topics",
+            "meilisearch_helper.votes",
         ])
         .with_sortable_attributes(["legislative_initiative.created_at"])
         .with_pagination(PaginationSetting {
@@ -93,7 +94,20 @@ pub async fn update_vote_result_meilisearch_index(
     client.index("vote_results").set_settings(&settings).await?;
 
     log::info!("Fetching all vote results..");
-    let all_vote_results = get_all_votes_from_legis_init(redis_con.clone(), pg_pool).await?;
+    let all_vote_results = get_all_votes_from_legis_init(redis_con.clone(), pg_pool)
+        .await?
+        .into_iter()
+        .map(|mut vote_result| {
+            vote_result.meilisearch_helper = MeiliesearchHelper {
+                votes: vote_result
+                    .votes
+                    .iter()
+                    .map(|vote| format!("{}{:?}", vote.party, vote.infavor))
+                    .collect(),
+            };
+            vote_result
+        })
+        .collect::<Vec<_>>();
     log::info!("Fetched all vote results");
 
     // client.delete_index("vote_results").await?;
