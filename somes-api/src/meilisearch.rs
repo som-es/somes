@@ -1,3 +1,5 @@
+use std::future::Future;
+
 use axum::{
     extract::{FromRef, FromRequestParts},
     http::request::Parts,
@@ -7,7 +9,7 @@ use redis::aio::MultiplexedConnection;
 use reqwest::StatusCode;
 
 use crate::{
-    routes::{get_all_gov_props, get_all_votes_from_legis_init, MeiliesearchHelper},
+    routes::{get_all_gov_props, get_all_votes_from_legis_init, MeiliesearchHelper, VoteResult},
     server::AppState,
 };
 
@@ -72,6 +74,7 @@ pub async fn update_vote_result_meilisearch_index(
     redis_con: &mut MultiplexedConnection,
     pg_pool: &sqlx::Pool<sqlx::Postgres>,
     client: &meilisearch_sdk::client::Client,
+    vote_result_cb: impl AsyncFn(MultiplexedConnection, &sqlx::PgPool) -> sqlx::Result<Vec<VoteResult>>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let settings = Settings::new()
         .with_filterable_attributes([
@@ -94,7 +97,7 @@ pub async fn update_vote_result_meilisearch_index(
     client.index("vote_results").set_settings(&settings).await?;
 
     log::info!("Fetching all vote results..");
-    let all_vote_results = get_all_votes_from_legis_init(redis_con.clone(), pg_pool)
+    let all_vote_results = vote_result_cb(redis_con.clone(), pg_pool)
         .await?
         .into_iter()
         .map(|mut vote_result| {

@@ -317,6 +317,61 @@ pub async fn get_votes_from_legis_init_sqlx(
     .await
 }
 
+pub async fn get_all_updated_votes_from_legis_init(
+    redis_con: MultiplexedConnection,
+    con: &PgPool,
+) -> sqlx::Result<Vec<VoteResult>> {
+    let legis_inits = sqlx::query_as!(
+        DbLegislativeInitiativeQuery,
+        r#"
+    SELECT DISTINCT
+        li.id,
+        li.ityp,
+        li.doktyp,
+        li.gp,
+        li.inr,
+        li.emphasis,
+        li.title,
+        li.description,
+        li.accepted,
+        li.created_at,
+        li.appeared_at,
+        li.updated_at,
+        li.requires_simple_majority,
+        li.pre_declined_type,
+        li.voted_by_name,
+        li.plenary_session_id,
+        li.is_emphasis_ai_generated,
+        li.is_law,
+        li.law_accepted,
+        li.law_come_into_effect_date,
+        li.law_expires_on_date,
+        li.by_publication,
+        li.has_reference,
+        li.is_voteable_on,
+        li.is_urgent
+    FROM legis_init_was_updated
+    INNER JOIN legislative_initiatives li ON li.id = legis_init_was_updated.id
+    WHERE li.is_voteable_on
+    "#
+    )
+    .fetch_all(con)
+    .await?;
+
+    let mut vote_results = Vec::with_capacity(legis_inits.len());
+
+    for legis_init in legis_inits {
+        match construct_vote_result(redis_con.clone(), con, legis_init).await {
+            Ok(vote_result) => vote_results.push(vote_result),
+            Err(e) => {
+                log::warn!("Error while constructing vote result, skipped in result of it: {e:?}")
+            }
+        }
+    }
+
+    Ok(vote_results)
+}
+
 pub async fn get_all_votes_from_legis_init(
     redis_con: MultiplexedConnection,
     con: &PgPool,
