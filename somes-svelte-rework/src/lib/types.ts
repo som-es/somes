@@ -86,6 +86,7 @@ export interface LegislativeInitiative {
 	law_come_into_effect_date: string | null;
 	law_expires_on_date: string | null;
 	by_publication: boolean | null;
+	is_urgent: boolean;
 }
 
 export interface Vote {
@@ -149,6 +150,7 @@ export interface VoteResult {
 	votes: Vote[];
 	speeches: Speech[];
 	topics: Topic[];
+	simple_topics: Topic[];
 	named_votes: NamedVotes | null;
 	documents: Document[];
 	absences: number[];

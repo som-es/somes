@@ -235,6 +235,13 @@ pub async fn vote_result_by_search(
     .await
 }
 
+#[inline]
+fn create_topic_filter<'a>(field: &str, filter_values: impl Iterator<Item = &'a str>) -> String {
+    filter_values.into_iter().map(|filter_value| {
+        format!("{field} = {filter_value}")
+    }).collect::<Vec<_>>().join(" AND ")
+}
+
 async fn meilisearch_for_vote_results(
     is_finished: bool,
     meilisearch_client: meilisearch_sdk::client::Client,
@@ -245,10 +252,14 @@ async fn meilisearch_for_vote_results(
     let mut meilisearch_filter = String::new();
     if let Some(filter) = legis_init_filter {
         let mut filter_conditions = if is_finished {
-            vec![r#"legislative_initiative.accepted IS NOT NULL AND topics IN ["Industrie"]"#.to_string()]
+            vec![r#"legislative_initiative.accepted IS NOT NULL"#.to_string()]
         } else {
             vec![r#"legislative_initiative.accepted IS NULL AND legislative_initiative.has_reference = false"#.to_string()]
         };
+
+        if let Some(topics) = filter.topics {
+            filter_conditions.push(create_topic_filter("topics.topic", topics.iter().map(|x| x.as_str())));
+        }
 
         if let Some(accepted) = filter.accepted {
             filter_conditions.push(format!("legislative_initiative.accepted = '{}'", accepted));

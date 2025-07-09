@@ -225,6 +225,18 @@ SELECT jsonb_build_object(
         FROM eurovoc_topics_legis_init
         WHERE legislative_initiatives_id = $1
     ),
+    'simple_topics', (
+        SELECT COALESCE(
+            jsonb_agg(
+                jsonb_build_object(
+                    'topic', topic
+                )
+            ),
+            '[]'::jsonb
+        )
+        FROM topics_legis_init
+        WHERE legislative_initiatives_id = $1
+    ),
     'documents', (
         SELECT COALESCE(
             jsonb_agg(

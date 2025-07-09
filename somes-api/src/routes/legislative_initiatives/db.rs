@@ -28,13 +28,14 @@ pub struct GovProposal {
     pub vote_result: Option<VoteResult>,
 }
 
-#[derive(ToSchema, Debug, Deserialize, Serialize, Clone, FromRow)]
+#[derive(ToSchema, Debug, Deserialize, Serialize, Clone, FromRow, Default)]
 pub struct VoteResult {
     pub id: i32,
     pub legislative_initiative: DbLegislativeInitiativeQuery,
     pub votes: Vec<DbVote>,
     pub speeches: Vec<DbSpeechWithLink>,
     pub named_votes: Option<DbNamedVotes>,
+    pub simple_topics: Vec<Topic>,
     pub topics: Vec<Topic>,
     pub documents: Vec<DbLegisDocumentOptional>,
     pub absences: Vec<i32>,
@@ -42,6 +43,7 @@ pub struct VoteResult {
     pub referenced_by_others_ids: Vec<i32>,
     pub references: Vec<i32>,
 }
+
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct VoteResultsWithMaxPage {

@@ -73,15 +73,17 @@
 		useTitleHover
 	/>
 
-	<div
-		class="topics-item flex rounded-xl justify-center items-center bg-primary-300 p-3 max-h-[169px]"
-	>
-		<Topics
-			topics={voteResult.topics.sort((a, b) => {
-				return a.topic.length - b.topic.length;
-			})}
-		/>
-	</div>
+	{#if voteResult.topics.length > 0}
+		<div
+			class="topics-item flex rounded-xl justify-center items-center bg-primary-300 p-3 max-h-[169px]"
+		>
+			<Topics
+				topics={voteResult.topics.sort((a, b) => {
+					return a.topic.length - b.topic.length;
+				})}
+			/>
+		</div>
+	{/if}
 
 	{#if voteResult.legislative_initiative.accepted}
 		<button
