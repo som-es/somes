@@ -248,6 +248,12 @@ pub struct LegisPeriodFilter {
 }
 
 #[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
+pub struct PartyVote {
+    pub infavor: bool,
+    pub party: String,
+}
+#[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
+
 pub struct LegisInitFilter {
     pub accepted: Option<String>,
     pub is_named_vote: Option<bool>,
@@ -255,6 +261,7 @@ pub struct LegisInitFilter {
     pub legis_period: Option<String>,
     pub is_law: Option<bool>,
     pub topics: Option<Vec<String>>,
+    pub party_votes: Option<Vec<PartyVote>>,
 }
 
 #[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
@@ -272,4 +279,9 @@ pub struct DecreeFilter {
 #[derive(PartialEq, Eq, IntoParams, ToSchema, PartialOrd, Ord, Debug, Serialize, Deserialize)]
 pub struct LegisPeriod {
     pub period: String,
+}
+
+#[derive(PartialEq, Eq, IntoParams, ToSchema, PartialOrd, Ord, Debug, Serialize, Deserialize)]
+pub struct LegisPeriodGp {
+    pub gp: String,
 }

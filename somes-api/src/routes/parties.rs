@@ -1,9 +1,10 @@
 mod error;
 use crate::{dataservice::get_parties, DataserviceDbConnection, PgPoolConnection};
-use axum::Json;
+use axum::{extract::Query, Json};
 use common_scrapes::Party;
 use dataservice::db::models::DbParty;
 pub use error::*;
+use somes_common_lib::{Date, LegisPeriodGp};
 
 #[utoipa::path(
     get,
@@ -29,4 +30,14 @@ pub async fn parties(
     // })
     // .await
     // .map_err(|_| PartiesErrorResponse::PartiesReturn)?
+}
+
+pub async fn parties_at_gp(
+    PgPoolConnection(pg): PgPoolConnection,
+    Query(legis_period): Query<LegisPeriodGp>
+) -> Result<Json<Vec<Party>>, PartiesErrorResponse> {
+    dataservice::with_data::all_parties_at_gp(&pg, &legis_period.gp)
+        .await
+        .map(Json)
+        .map_err(|_| PartiesErrorResponse::PartiesReturn)
 }

@@ -44,7 +44,6 @@ pub struct VoteResult {
     pub references: Vec<i32>,
 }
 
-
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct VoteResultsWithMaxPage {
     pub vote_results: Vec<VoteResult>,

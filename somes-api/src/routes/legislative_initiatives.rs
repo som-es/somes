@@ -4,7 +4,7 @@ use axum::{
 };
 use dataservice::db::models::DbLegislativeInitiativeQuery;
 use meilisearch_sdk::search::SearchResults;
-use somes_common_lib::{DateRange, DelegateById, LegisInitFilter, Page, VoteResultById};
+use somes_common_lib::{DateRange, DelegateById, LegisInitFilter, Page, PartyVote, VoteResultById};
 use sqlx::{query_as, PgPool};
 
 use crate::{
@@ -237,9 +237,29 @@ pub async fn vote_result_by_search(
 
 #[inline]
 fn create_topic_filter<'a>(field: &str, filter_values: impl Iterator<Item = &'a str>) -> String {
-    filter_values.into_iter().map(|filter_value| {
-        format!("{field} = {filter_value}")
-    }).collect::<Vec<_>>().join(" AND ")
+    filter_values
+        .into_iter()
+        .map(|filter_value| format!("{field} = {filter_value}"))
+        .collect::<Vec<_>>()
+        .join(" AND ")
+}
+
+#[inline]
+fn create_party_vote_filter<'a>(
+    party_field: &str,
+    infavor_field: &str,
+    filter_values: impl Iterator<Item = &'a PartyVote>,
+) -> String {
+    filter_values
+        .into_iter()
+        .map(|filter_value| {
+            format!(
+                "{party_field} = {} AND {infavor_field} {}",
+                filter_value.party, filter_value.infavor
+            )
+        })
+        .collect::<Vec<_>>()
+        .join(" AND ")
 }
 
 async fn meilisearch_for_vote_results(
@@ -250,7 +270,7 @@ async fn meilisearch_for_vote_results(
     legis_init_filter: Option<LegisInitFilter>,
 ) -> Result<Json<VoteResultsWithMaxPage>, LegisInitErrorResponse> {
     let mut meilisearch_filter = String::new();
-    if let Some(filter) = legis_init_filter {
+    if let Some(mut filter) = legis_init_filter {
         let mut filter_conditions = if is_finished {
             vec![r#"legislative_initiative.accepted IS NOT NULL"#.to_string()]
         } else {
@@ -258,7 +278,19 @@ async fn meilisearch_for_vote_results(
         };
 
         if let Some(topics) = filter.topics {
-            filter_conditions.push(create_topic_filter("topics.topic", topics.iter().map(|x| x.as_str())));
+            filter_conditions.push(create_topic_filter(
+                "topics.topic",
+                topics.iter().map(|x| x.as_str()),
+            ));
+        }
+
+        filter.party_votes = Some(vec![PartyVote { infavor: true, party: "FPÖ".into()}]);
+        if let Some(party_votes) = filter.party_votes {
+            filter_conditions.push(create_party_vote_filter(
+                "votes.party",
+                "votes.infavor",
+                party_votes.iter(),
+            ));
         }
 
         if let Some(accepted) = filter.accepted {

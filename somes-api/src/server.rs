@@ -325,6 +325,7 @@ pub async fn serve(addr: SocketAddr) {
             post(speakers_by_hours_and_legis_period),
         )
         .route(PARTIES, get(parties))
+        .route(PARTIES_AT_GP, get(parties_at_gp))
         .route(
             CALL_TO_ORDERS_PER_PARTY_DELEGATES,
             get(call_to_orders_per_party_delegates),
