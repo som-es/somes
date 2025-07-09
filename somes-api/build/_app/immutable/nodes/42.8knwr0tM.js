@@ -1,0 +1,1 @@
+import{S as n,i as o,s as r,n as s,d as c,b as l,g as m,t as p}from"../chunks/CQH-UvOU.js";import"../chunks/IHki7fMi.js";function h(i){let t;return{c(){t=p("Übersicht/wichtigste Statistiken")},l(e){t=m(e,"Übersicht/wichtigste Statistiken")},m(e,a){l(e,t,a)},p:s,i:s,o:s,d(e){e&&c(t)}}}class f extends n{constructor(t){super(),o(this,t,null,h,r,{})}}export{f as component};
