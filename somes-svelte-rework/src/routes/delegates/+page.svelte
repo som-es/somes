@@ -17,6 +17,7 @@
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 	import {
+	delegate_by_id,
 		errorToNull,
 		general_delegate_info,
 		general_gov_official_info,
@@ -55,6 +56,7 @@
 	import StanceTypeSwitcher from '$lib/components/Delegates/Spectrum/Stance/StanceTypeSwitcher.svelte';
 	import PoliticalStanceTitleBar from '$lib/components/Delegates/Spectrum/PoliticalStanceTitleBar.svelte';
 	import DecreePreview from '$lib/components/Delegates/Decrees/DecreePreview.svelte';
+	import { pushState } from '$app/navigation';
 
 	let delegates: Delegate[];
 	let delegate: Delegate | null;
@@ -140,6 +142,16 @@
 			? (paramDate as unknown as Date)
 			: (newDate.toISOString().split('T')[0] as unknown as Date);
 		// console.log(supplyDate);
+
+		const paramDelegateId = url.searchParams.get('delegate');
+		if (paramDelegateId) {
+			// setting here currentDelegateStore instead of `delegate` var directly
+			// this is important for a single reason: delegates without seat by default (if the backend seat history is too short) 
+			// wouldn't be selectable by the DataParliament component -> however, there is a reactive update happening,
+			// when `delegates` is updated (therefore the client-side seat position generation was complete) and `delegate` is null
+			currentDelegateStore.set(errorToNull(await delegate_by_id(+paramDelegateId)))
+		}
+
 		finishedMounting = true;
 	});
 
@@ -166,6 +178,12 @@
 		startDate.setDate(startDate.getDate() + dayOffset - 2);
 
 		supplyDate = startDate.toISOString().split('T')[0] as unknown as Date;
+
+		const url = new URL(window.location.href);
+		url.searchParams.set("date", supplyDate as unknown as string)
+		url.searchParams.set("gp", selectedPeriod)
+		pushState(url.toString(), { replaceState: true });
+	
 		// console.log(`supply ${supplyDate}`);
 		// const fetchedDelsAtDate = await delegates_at(
 		// );
@@ -223,6 +241,11 @@
 	$: if (delegate && prevSelectedDelegateId != delegate.id) {
 		// interests = null;
 		if (finishedMounting) currentDelegateStore.set(delegate);
+
+		const url = new URL(window.location.href);
+		url.searchParams.set("delegate", delegate.id.toString())
+		pushState(url.toString(), { replaceState: true });
+
 		generalDelegateInfo = null;
 		general_delegate_info(delegate.id).then((res) => {
 			generalDelegateInfo = errorToNull(res);

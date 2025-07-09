@@ -95,8 +95,6 @@
 		};
 		currentVoteResultFilterStore.set(filter);
 
-		console.log(filter);
-		console.log("test");
 		// filter = null;
 
 		if (searchValue) {
