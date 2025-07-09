@@ -103,7 +103,8 @@
 			);
 			if (voteResultsSearch) voteResults = voteResultsSearch;
 		} else {
-			voteResults = errorToNull(await voteResultsPostFn(page - 1, filter));
+			voteResults = errorToNull(await voteResultsSearchPostFn(page, searchValue, filter));
+			// voteResults = errorToNull(await voteResultsPostFn(page - 1, filter));
 		}
 		currentlyUpdating = false;
 	};

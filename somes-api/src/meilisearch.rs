@@ -2,7 +2,7 @@ use axum::{
     extract::{FromRef, FromRequestParts},
     http::request::Parts,
 };
-use meilisearch_sdk::settings::Settings;
+use meilisearch_sdk::settings::{PaginationSetting, Settings};
 use redis::aio::MultiplexedConnection;
 use reqwest::StatusCode;
 
@@ -41,10 +41,15 @@ pub async fn update_gov_props_meilisearch_index(
         "Uploading {} gov proposals to meilisearch",
         all_gov_props.len()
     );
-    let settings = Settings::new().with_filterable_attributes([
-        "gov_proposal.ministrial_proposal.gp",
-        "gov_proposal.ministrial_proposal.has_vote_result",
-    ]);
+    let settings = Settings::new()
+        .with_filterable_attributes([
+            "gov_proposal.ministrial_proposal.gp",
+            "gov_proposal.ministrial_proposal.has_vote_result",
+        ])
+        .with_sortable_attributes(["gov_proposal.ministrial_proposal.created_at"])
+        .with_pagination(PaginationSetting {
+            max_total_hits: 100000000,
+        });
 
     client.index("gov_props").set_settings(&settings).await?;
 
@@ -68,16 +73,6 @@ pub async fn update_vote_result_meilisearch_index(
     pg_pool: &sqlx::Pool<sqlx::Postgres>,
     client: &meilisearch_sdk::client::Client,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    log::info!("Fetching all vote results..");
-    let all_vote_results = get_all_votes_from_legis_init(redis_con.clone(), pg_pool).await?;
-    log::info!("Fetched all vote results");
-
-    // client.delete_index("vote_results").await?;
-
-    log::info!(
-        "Uploading {} vote results to meilisearch",
-        all_vote_results.len()
-    );
     let settings = Settings::new()
         .with_filterable_attributes([
             "legislative_initiative.accepted",
@@ -89,10 +84,23 @@ pub async fn update_vote_result_meilisearch_index(
             "legislative_initiative.has_reference",
             "legislative_initiative.by_publication",
         ])
-        .with_sortable_attributes(["legislative_initiative.created_at"]);
+        .with_sortable_attributes(["legislative_initiative.created_at"])
+        .with_pagination(PaginationSetting {
+            max_total_hits: 100000000,
+        });
 
     client.index("vote_results").set_settings(&settings).await?;
 
+    log::info!("Fetching all vote results..");
+    let all_vote_results = get_all_votes_from_legis_init(redis_con.clone(), pg_pool).await?;
+    log::info!("Fetched all vote results");
+
+    // client.delete_index("vote_results").await?;
+
+    log::info!(
+        "Uploading {} vote results to meilisearch",
+        all_vote_results.len()
+    );
     client.index("vote_results").delete_all_documents().await?;
 
     client

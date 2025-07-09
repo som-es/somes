@@ -54,7 +54,8 @@
 			console.log(govPropsSearch);
 			if (govPropsSearch) govProposals = govPropsSearch;
 		} else {
-			govProposals = errorToNull(await gov_proposals_per_page(page - 1, filter));
+			govProposals = errorToNull(await gov_proposals_by_search(page, searchValue, filter));
+			// govProposals = errorToNull(await gov_proposals_per_page(page - 1, filter));
 		}
 		currentlyUpdating = false;
 	};
