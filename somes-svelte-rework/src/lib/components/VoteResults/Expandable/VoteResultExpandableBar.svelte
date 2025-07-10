@@ -84,22 +84,26 @@
 						{/if}
 					{:else}
 						<!-- Roll call votes -->
-						<div class="block sm:flex justify-between w-full mb-3">
-							<div class="flex items-center">
+						<div class="block sm:flex w-full mb-3">
+							<div class="flex items-center mb-1 sm:mb-0">
 								<span class="mr-1" style="width:20px; height:20px; display:inline-block; vertical-align:middle;">{@html checkmarkIcon}</span>
 							{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
 								{#if vote.infavor}
-									<h4 class="text-sm mr-1">{vote.party}</h4>
-									<h4 class="text-sm mr-2">{vote.fraction}</h4>
+									<div class="flex items-center">
+										<h4 class="text-sm mr-1">{vote.party}</h4>
+										<h4 class="text-sm mr-2 text-gray-800">{vote.fraction}</h4>
+									</div>
 								{/if}
 							{/each}
 							</div>
-							<div class="flex items-center">
+							<div class="flex flex-wrap items-center">
 								<span class="mr-1 ml-0 sm:ml-3" style="width:20px; height:20px; display:inline-block; vertical-align:middle;">{@html crossmarkIcon}</span>
 								{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
 									{#if !vote.infavor}
-										<h4 class="text-sm mr-1">{vote.party}</h4>
-										<h4 class="text-sm mr-2">{vote.fraction}</h4>
+										<div class="flex items-center">
+											<h4 class="text-sm mr-1">{vote.party}</h4>
+											<h4 class="text-sm mr-2 text-gray-800">{vote.fraction}</h4>
+										</div>
 									{/if}
 								{/each}
 							</div>
