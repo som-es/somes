@@ -104,7 +104,7 @@ export interface Speech {
 	document_url: string | null;
 	about: string | null;
 	duration_in_seconds: number | null;
-	legislative_initiatives_id: number | null;
+	legis_init_id: number | null;
 }
 
 export interface SpeechesWithMaxPage {
