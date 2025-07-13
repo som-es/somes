@@ -200,6 +200,7 @@ SELECT jsonb_build_object(
                     END,
                     'opinion', opinion,
                     'document_url', document_url,
+                    'duration_in_seconds', duration_in_seconds,
                     'legislative_initiatives_id', $1
                 )
             ),
