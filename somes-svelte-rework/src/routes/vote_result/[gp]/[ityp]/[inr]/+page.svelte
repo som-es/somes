@@ -419,7 +419,7 @@
 									{/if}
 								</span>
 								{#each voteResult.references as refered_by}
-									<VoteResultIdBar on:dataUpdated={event => {voteResult = event.detail; runVoteResultUpdate()}} requiringVotes legis_init_id={refered_by} />
+									<VoteResultIdBar on:dataUpdated={event => {voteResult = event.detail; runVoteResultUpdate()}} requiringVotes legis_init_ref={refered_by} />
 								{/each}
 							</div>
 						{/if}
