@@ -1,9 +1,9 @@
 use common_scrapes::RelatedDelegate;
-use dataservice::db::models::{
+use dataservice::{combx::{DbNamedVoteInfoQuery, VoteResult}, db::models::{
     DbLegisDocument, DbLegisDocumentOptional, DbLegislativeInitiativeQuery,
     DbMinistrialProposalQuery, DbNamedVote, DbNamedVoteInfo, DbNamedVotes, DbSpeech,
     DbSpeechWithLink, DbVote,
-};
+}};
 use redis::{aio::MultiplexedConnection, FromRedisValue};
 use serde::{Deserialize, Serialize};
 use somes_common_lib::LegisInitFilter;
@@ -26,30 +26,6 @@ pub struct GovProposal {
     pub ministrial_proposal: DbMinistrialProposalQuery,
     pub topics: Vec<Topic>,
     pub vote_result: Option<VoteResult>,
-}
-
-#[derive(ToSchema, Debug, Deserialize, Serialize, Clone, FromRow, Default)]
-pub struct MeiliesearchHelper {
-    #[serde(default)]
-    pub votes: Vec<String>,
-}
-
-#[derive(ToSchema, Debug, Deserialize, Serialize, Clone, FromRow, Default)]
-pub struct VoteResult {
-    pub id: i32,
-    pub legislative_initiative: DbLegislativeInitiativeQuery,
-    pub votes: Vec<DbVote>,
-    pub speeches: Vec<DbSpeechWithLink>,
-    pub named_votes: Option<DbNamedVotes>,
-    pub simple_topics: Vec<Topic>,
-    pub topics: Vec<Topic>,
-    pub documents: Vec<DbLegisDocumentOptional>,
-    pub absences: Vec<i32>,
-    pub issued_by_dels: Vec<RelatedDelegate>,
-    pub referenced_by_others_ids: Vec<i32>,
-    pub references: Vec<i32>,
-    #[serde(default)]
-    pub meilisearch_helper: MeiliesearchHelper,
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
@@ -310,7 +286,7 @@ pub async fn get_votes_from_legis_init_sqlx(
 ) -> sqlx::Result<Vec<DbVote>> {
     sqlx::query_as!(
         DbVote,
-        "select * from votes where legislative_initiatives_id = $1",
+        "select party, code, votes.fraction, infavor from votes inner join parties on parties.name = votes.party where legislative_initiatives_id = $1",
         legis_init_id
     )
     .fetch_all(con)
@@ -406,7 +382,7 @@ pub async fn get_named_votes_from_legis_init_sqlx(
         return Ok(None);
     }
     let named_vote_info = sqlx::query_as!(
-        DbNamedVoteInfo,
+        DbNamedVoteInfoQuery,
         "select * from named_vote_info where legis_init_id = $1",
         legis_init_id
     )
@@ -419,14 +395,14 @@ pub async fn get_named_votes_from_legis_init_sqlx(
 
     let named_votes = sqlx::query_as!(
         DbNamedVote,
-        "select * from named_votes where named_vote_info_id = $1",
+        "select id, infavor, was_absent, lev, similiarity_score, searched_with, matched_with, delegate_id, manually_matched from named_votes where named_vote_info_id = $1",
         named_vote_info.id
     )
     .fetch_all(con)
     .await?;
 
     Ok(Some(DbNamedVotes {
-        named_vote_info,
+        named_vote_info: named_vote_info.into(),
         named_votes,
     }))
 }
@@ -438,7 +414,7 @@ pub async fn get_speeches_from_legis_init_sqlx(
     sqlx::query_as!(
         DbSpeechWithLink,
         "select 
-            null as about, delegate_id, infavor, opinion, document_url, legislative_initiatives_id
+            null as about, delegate_id, infavor, opinion, document_url, CAST(null AS int) as duration_in_seconds, legislative_initiatives_id as legis_init_id
         from 
             speeches 
         inner join 

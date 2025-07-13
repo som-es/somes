@@ -2,6 +2,7 @@ use axum::{
     extract::{FromRef, FromRequestParts},
     http::request::Parts,
 };
+use dataservice::combx::{MeiliesearchHelper, VoteResult};
 use meilisearch_sdk::settings::{PaginationSetting, Settings};
 use redis::aio::MultiplexedConnection;
 use reqwest::StatusCode;
@@ -10,7 +11,6 @@ use tokio::time::sleep;
 use crate::{
     routes::{
         get_all_gov_props, get_all_updated_votes_from_legis_init, get_all_votes_from_legis_init,
-        MeiliesearchHelper, VoteResult,
     },
     server::AppState,
 };

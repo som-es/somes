@@ -1,5 +1,5 @@
 use dataservice::{
-    db::models::{DbLegislativeInitiativeQuery, DbVote},
+    combx::VoteResult, db::models::{DbLegislativeInitiativeQuery, DbVote}
 };
 use redis::aio::MultiplexedConnection;
 use serde::Deserialize;
@@ -7,7 +7,6 @@ use sqlx::PgPool;
 
 use crate::{get_json_cache, today};
 
-use super::VoteResult;
 
 const JSON_VOTE_RESULT_SQL: &str = include_str!("./json_vote_result.sql");
 
@@ -221,10 +220,10 @@ SELECT jsonb_build_object(
             ),
             '[]'::jsonb
         )
-        FROM eurovoc_topics_legis_init
+        FROM topics_legis_init
         WHERE legislative_initiatives_id = $1
     ),
-    'simple_topics', (
+    'eurovoc_topics', (
         SELECT COALESCE(
             jsonb_agg(
                 jsonb_build_object(
@@ -233,7 +232,19 @@ SELECT jsonb_build_object(
             ),
             '[]'::jsonb
         )
-        FROM topics_legis_init
+        FROM eurovoc_topics_legis_init
+        WHERE legislative_initiatives_id = $1
+    ),
+    'other_keyword_topics', (
+        SELECT COALESCE(
+            jsonb_agg(
+                jsonb_build_object(
+                    'topic', topic
+                )
+            ),
+            '[]'::jsonb
+        )
+        FROM other_keyword_topics_legis_init
         WHERE legislative_initiatives_id = $1
     ),
     'documents', (
@@ -272,11 +283,17 @@ SELECT jsonb_build_object(
     ), 
     'references', (
         SELECT COALESCE(
-            jsonb_agg(li.id), 
+            jsonb_agg(
+                jsonb_build_object(
+                    'gp', ref_gp,
+                    'ityp', ref_ityp,
+                    'inr', ref_inr
+                )
+            ), 
             '[]'::jsonb
         )
         FROM legis_inits_refs
-        inner join legislative_initiatives li on li.gp = ref_gp and li.ityp = ref_ityp and li.inr = ref_inr
+        --inner join legislative_initiatives li on li.gp = ref_gp and li.ityp = ref_ityp and li.inr = ref_inr
         WHERE origin_legis_init_id = $1
     ), 
     'legislative_initiative', (

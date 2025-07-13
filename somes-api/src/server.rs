@@ -8,7 +8,7 @@ use axum::{
     Router,
 };
 use axum_server::tls_rustls::RustlsConfig;
-use dataservice::db::models::{DbLegislativeInitiativeQuery, DbParty};
+use dataservice::{combx::VoteResult, db::models::{DbLegislativeInitiativeQuery, DbParty}};
 // use diesel_async::pooled_connection::AsyncDieselConnectionManager;
 use log::{error, info};
 use redis::cmd;
