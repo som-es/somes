@@ -1,6 +1,5 @@
 use dataservice::{
     db::models::{DbLegislativeInitiativeQuery, DbVote},
-    with_data::named_votes,
 };
 use redis::aio::MultiplexedConnection;
 use serde::Deserialize;

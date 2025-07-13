@@ -44,8 +44,8 @@ use crate::{PgPoolConnection, RedisConnection};
 
 pub async fn all_gps(
     PgPoolConnection(pg): PgPoolConnection,
-) -> Result<Json<Vec<dataservice::with_data::gps::LegislativePeriod>>, Json<serde_json::Value>> {
-    Ok(Json(dataservice::with_data::gps::gps(&pg).await.map_err(
+) -> Result<Json<Vec<dataservice::combx::with_data::gps::LegislativePeriod>>, Json<serde_json::Value>> {
+    Ok(Json(dataservice::combx::with_data::gps::gps(&pg).await.map_err(
         |_| Json(json!({"error": "could not return all legislative periods"})),
     )?))
 }
