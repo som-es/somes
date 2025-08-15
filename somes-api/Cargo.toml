@@ -7,6 +7,12 @@ edition = "2021"
 
 [dependencies]
 somes-common-lib = {path = "../somes-common-lib"}
+# somes-common-lib = { git = "https://github.com/som-es/somes" }
+common-scrapes = { path = "../../common-scrapes" }
+# common-scrapes = { git = "https://github.com/som-es/common-scrapes" }
+dataservice = { path = "../../dataservice/dataservice", default-features=false, features=["models", "utoipa"] }
+# dataservice = { git = "https://github.com/som-es/dataservice", default-features=false, features=["models", "utoipa"]  }
+
 axum = {version="0.8", features = ["macros", "ws"]}
 axum-extra ={ version ="0.10", features = ["typed-header"] }
 tower-http = { version = "0.6", features = ["cors", "fs"] }
@@ -37,8 +43,6 @@ base16ct = { version = "0.2.0", features = ["std"] }
 redis = { version = "0.29", features = ["tokio-comp"] }
 log = "0.4.17"
 simple_logger = "5.0.0"
-common-scrapes = { path = "../../common-scrapes" }
-dataservice = { path = "../../dataservice/dataservice", default-features=false, features=["models", "utoipa"] }
 chrono = "0.4.24"
 lettre = "0.11"
 imap = { version = "3.0.0-alpha.10", features = ["rustls-tls"] }

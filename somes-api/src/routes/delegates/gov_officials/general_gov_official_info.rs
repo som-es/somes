@@ -1,4 +1,5 @@
 use axum::{extract::Query, Json};
+use dataservice::combx::Decree;
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::DelegateById;
@@ -14,7 +15,6 @@ use crate::{
     set_json_cache, PgPoolConnection, RedisConnection,
 };
 
-use super::Decree;
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct GeneralGovOfficialInfo {
