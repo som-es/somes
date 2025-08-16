@@ -6,9 +6,9 @@ use sqlx::{query_as, PgPool};
 use crate::{get_json_cache, PgPoolConnection, RedisConnection};
 
 use super::{
-    extract_absences_by_delegate, extract_delegate_qa,
-    extract_detailed_interests_of_delegate, extract_interests_of_delegate,
-    extract_political_position, left_right_topic_score::extract_left_right_topic_score_by_delegate,
+    extract_absences_by_delegate, extract_delegate_qa, extract_detailed_interests_of_delegate,
+    extract_interests_of_delegate, extract_political_position,
+    left_right_topic_score::extract_left_right_topic_score_by_delegate,
     named_votes::extract_named_votes_by_delegate,
     stance_topic_score::extract_stance_topic_score_by_delegate, DelegatesErrorResponse,
 };

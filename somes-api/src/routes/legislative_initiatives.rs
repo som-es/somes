@@ -343,6 +343,14 @@ async fn meilisearch_for_vote_results(
         .map(|hit| hit.result)
         .collect::<Vec<_>>();
 
+    log::info!(
+        "results: {:?}",
+        vote_results
+            .iter()
+            .map(|x| x.legislative_initiative.created_at)
+            .collect::<Vec<_>>()
+    );
+
     Ok(Json(VoteResultsWithMaxPage {
         vote_results,
         entry_count: results.estimated_total_hits.unwrap_or(1) as i64,

@@ -9,8 +9,7 @@ use sqlx::PgPool;
 use utoipa::ToSchema;
 
 use crate::{
-    dataservice::get_proposals,
-    get_json_cache, set_json_cache_with_relevance, PgPoolConnection,
+    dataservice::get_proposals, get_json_cache, set_json_cache_with_relevance, PgPoolConnection,
     RedisConnection,
 };
 

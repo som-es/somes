@@ -24,7 +24,6 @@ pub struct VoteResultsWithMaxPage {
     pub max_page: i64,
 }
 
-
 use super::{
     construct_vote_result::construct_vote_result, filtering::filtered_legislative_initiatives,
 };

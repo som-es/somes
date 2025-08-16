@@ -1,7 +1,4 @@
-use dataservice::{
-    combx::VoteResult,
-    db::models::DbLegislativeInitiativeQuery,
-};
+use dataservice::{combx::VoteResult, db::models::DbLegislativeInitiativeQuery};
 use redis::aio::MultiplexedConnection;
 use sqlx::PgPool;
 

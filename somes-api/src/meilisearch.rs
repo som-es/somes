@@ -46,6 +46,14 @@ pub async fn update_gov_props_meilisearch_index(
         all_gov_props.len()
     );
     let settings = Settings::new()
+        .with_ranking_rules(vec![
+            "sort".to_string(),
+            "words".to_string(),
+            "typo".to_string(),
+            "proximity".to_string(),
+            "attribute".to_string(),
+            "exactness".to_string(),
+        ])
         .with_filterable_attributes([
             "gov_proposal.ministrial_proposal.gp",
             "gov_proposal.ministrial_proposal.has_vote_result",
@@ -79,6 +87,14 @@ pub async fn update_vote_result_meilisearch_index(
     vote_result_cb: impl AsyncFn(MultiplexedConnection, &sqlx::PgPool) -> sqlx::Result<Vec<VoteResult>>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let settings = Settings::new()
+        .with_ranking_rules(vec![
+            "sort".to_string(),
+            "words".to_string(),
+            "typo".to_string(),
+            "proximity".to_string(),
+            "attribute".to_string(),
+            "exactness".to_string(),
+        ])
         .with_filterable_attributes([
             "legislative_initiative.accepted",
             "legislative_initiative.requires_simple_majority",

@@ -2,7 +2,8 @@ use std::ops::ControlFlow;
 
 use axum::{
     extract::{
-        ws::{Message, WebSocket}, WebSocketUpgrade,
+        ws::{Message, WebSocket},
+        WebSocketUpgrade,
     },
     response::IntoResponse,
 };

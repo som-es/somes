@@ -9,7 +9,8 @@ use crate::{
     routes::statistics::{
         error::StatisticsResponse,
         filtering::{bind_values, build_filter, IntoFilterArgument},
-    }, set_json_cache_secs, PgPoolConnection, RedisConnection,
+    },
+    set_json_cache_secs, PgPoolConnection, RedisConnection,
 };
 
 use super::filtering::Manual;
