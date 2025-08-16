@@ -1,5 +1,5 @@
 use common_scrapes::RelatedDelegate;
-use dataservice::{combx::{DbNamedVoteInfoQuery, VoteResult}, db::models::{
+use dataservice::{combx::{DbNamedVoteInfoQuery, GovProposal, Topic, VoteResult}, db::models::{
     DbLegisDocument, DbLegisDocumentOptional, DbLegislativeInitiativeQuery,
     DbMinistrialProposalQuery, DbNamedVote, DbNamedVoteInfo, DbNamedVotes, DbSpeech,
     DbSpeechWithLink, DbVote,
@@ -11,22 +11,11 @@ use sqlx::{FromRow, PgPool};
 use utoipa::ToSchema;
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Clone)]
-pub struct Topic {
-    pub topic: String,
-}
-
-#[derive(ToSchema, Debug, Deserialize, Serialize, Clone)]
 pub struct UniqueTopic {
     pub topic: String,
     pub id: i32,
 }
 
-#[derive(ToSchema, Debug, Deserialize, Serialize, Clone)]
-pub struct GovProposal {
-    pub ministrial_proposal: DbMinistrialProposalQuery,
-    pub topics: Vec<Topic>,
-    pub vote_result: Option<VoteResult>,
-}
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct VoteResultsWithMaxPage {
@@ -168,9 +157,13 @@ pub async fn construct_gov_proposal(
         _ => None,
     };
     let gov_proposal = GovProposal {
-        topics: get_eurovoc_topics_from_ministrial_proposal(pg, ministrial_proposal.id).await?,
+        eurovoc_topics: get_eurovoc_topics_from_ministrial_proposal(pg, ministrial_proposal.id).await?,
         ministrial_proposal,
         vote_result,
+        topics: todo!(),
+        other_keyword_topics: todo!(),
+        ministerial_issuers: todo!(),
+        documents: todo!(),
     };
 
     let cache_date = if let Some(ref vote_result) = gov_proposal.vote_result {

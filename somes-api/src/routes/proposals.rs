@@ -16,7 +16,7 @@ use crate::{PgPoolConnection, RedisConnection, GOV_PROPS_PER_PAGE};
 use super::{
     construct_gov_proposal, delegate_by_id_sqlx,
     statistics::filtering::{bind_values, build_filter, count_filter, IntoFilterArgument, Manual},
-    GovProposal, GovProposalDelegate, LegisInitErrorResponse,
+    GovProposalDelegate, LegisInitErrorResponse,
 };
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
