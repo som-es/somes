@@ -9,8 +9,7 @@ use meilisearch_sdk::search::SearchResults;
 use somes_common_lib::{LegisInitFilter, Page, PartyVote, VoteResultById};
 
 use crate::{
-    meilisearch::MeilisearchClient, PgPoolConnection,
-    RedisConnection, LEGIS_INITS_PER_PAGE,
+    meilisearch::MeilisearchClient, PgPoolConnection, RedisConnection, LEGIS_INITS_PER_PAGE,
 };
 
 pub use error::*;
