@@ -1,6 +1,6 @@
-use dataservice::db::models::{DbDelegate, DbParty, DbProposalQuery, DbSpeech};
+use dataservice::db::models::{DbDelegate, DbParty, DbProposalQuery};
 use diesel::{
-    sql_query, sql_types::Text, ExpressionMethods, PgConnection, QueryDsl, QueryResult, RunQueryDsl,
+    sql_query, sql_types::Text, PgConnection, QueryResult, RunQueryDsl,
 };
 use somes_common_lib::LegisPeriod;
 use sqlx::PgPool;

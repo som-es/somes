@@ -1,6 +1,5 @@
-use axum::{debug_handler, Json};
+use axum::Json;
 
-use diesel::sql_types::Bool;
 use serde::{Deserialize, Serialize};
 use sqlx::{prelude::FromRow, Postgres};
 use utoipa::ToSchema;

@@ -24,7 +24,6 @@ pub struct VoteResultsWithMaxPage {
     pub max_page: i64,
 }
 
-use crate::{get_json_cache, set_json_cache, today};
 
 use super::{
     construct_vote_result::construct_vote_result, filtering::filtered_legislative_initiatives,
@@ -78,7 +77,7 @@ pub async fn get_latest_legislative_initiatives_sqlx(
 }
 
 pub async fn get_latest_vote_results_sqlx(
-    mut redis_con: MultiplexedConnection,
+    redis_con: MultiplexedConnection,
     pg: &PgPool,
 ) -> sqlx::Result<Vec<VoteResult>> {
     futures::future::join_all(
@@ -94,7 +93,7 @@ pub async fn get_latest_vote_results_sqlx(
 }
 
 pub async fn get_vote_result_by_id(
-    mut redis_con: MultiplexedConnection,
+    redis_con: MultiplexedConnection,
     pg: &PgPool,
     legis_init_id: i32,
 ) -> sqlx::Result<VoteResult> {
@@ -109,7 +108,7 @@ pub async fn get_vote_result_by_id(
 }
 
 pub async fn get_vote_result_by_path(
-    mut redis_con: MultiplexedConnection,
+    redis_con: MultiplexedConnection,
     pg: &PgPool,
     gp: &str,
     ityp: &str,

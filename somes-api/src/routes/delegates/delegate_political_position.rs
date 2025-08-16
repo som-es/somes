@@ -3,7 +3,7 @@ use redis::aio::MultiplexedConnection;
 use somes_common_lib::{DelegateById, DelegateQA, PoliticalPosition};
 use sqlx::{query, query_as, PgPool};
 
-use crate::{get_json_cache, PgPoolConnection, RedisConnection};
+use crate::{PgPoolConnection, RedisConnection};
 
 use super::DelegatesErrorResponse;
 

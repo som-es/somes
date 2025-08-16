@@ -16,12 +16,12 @@ use axum::{
 
 use chrono::NaiveDate;
 // use diesel_async::{AsyncPgConnection, pooled_connection::AsyncDieselConnectionManager};
-use redis::{aio::MultiplexedConnection, AsyncCommands, Client, Commands};
+use redis::{aio::MultiplexedConnection, AsyncCommands, Commands};
 use reqwest::StatusCode;
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Serialize};
 use sqlx::PgPool;
 
-use crate::{server::AppState, today, PostgresPool};
+use crate::{server::AppState, today};
 
 use self::model::NewUser;
 

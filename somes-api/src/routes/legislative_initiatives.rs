@@ -82,7 +82,7 @@ pub use bookmark::*;
     )
 )]
 pub async fn latest_vote_results(
-    RedisConnection(mut redis_con): RedisConnection,
+    RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<VoteResult>>, LegisInitErrorResponse> {
     get_latest_vote_results_sqlx(redis_con, &pg)
@@ -167,7 +167,7 @@ pub async fn unfinished_vote_results_per_page(
 }
 
 pub async fn unfinished_vote_result_by_search(
-    RedisConnection(mut redis_con): RedisConnection,
+    RedisConnection(redis_con): RedisConnection,
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,

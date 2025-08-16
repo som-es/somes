@@ -4,14 +4,13 @@ use axum::{extract::Query, Json};
 use chrono::NaiveDate;
 use dataservice::db::models::DbProposalQuery;
 use redis::aio::MultiplexedConnection;
-use serde::{Deserialize, Serialize};
-use somes_common_lib::{Date, Delegate, DelegateById, DelegateQA, InterestShare, LegisPeriod};
+use somes_common_lib::{Date, Delegate, DelegateById, InterestShare, LegisPeriod};
 use sqlx::PgPool;
 use utoipa::ToSchema;
 
 use crate::{
-    dataservice::{get_delegate, get_delegates, get_proposals},
-    get_json_cache, set_json_cache_with_relevance, DataserviceDbConnection, PgPoolConnection,
+    dataservice::get_proposals,
+    get_json_cache, set_json_cache_with_relevance, PgPoolConnection,
     RedisConnection,
 };
 
@@ -144,7 +143,7 @@ WHERE
 )]
 pub async fn delegate(
     // DataserviceDbConnection(con): DataserviceDbConnection,
-    RedisConnection(mut redis_con): RedisConnection,
+    RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(delegate_by_id): Query<DelegateById>,
 ) -> Result<Json<Delegate>, DelegatesErrorResponse> {

@@ -1,4 +1,4 @@
-use axum::{debug_handler, Json};
+use axum::Json;
 
 use serde::{Deserialize, Serialize};
 use sqlx::{prelude::FromRow, Postgres};

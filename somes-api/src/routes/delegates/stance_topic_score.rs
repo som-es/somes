@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use somes_common_lib::StanceTopicScore;
-use sqlx::{query, query_as, PgPool};
+use sqlx::{query, PgPool};
 
 pub async fn extract_stance_topic_score_by_delegate(
     pg: &PgPool,

@@ -1,9 +1,8 @@
-use std::{net::SocketAddr, ops::ControlFlow};
+use std::ops::ControlFlow;
 
 use axum::{
     extract::{
-        ws::{Message, WebSocket},
-        ConnectInfo, WebSocketUpgrade,
+        ws::{Message, WebSocket}, WebSocketUpgrade,
     },
     response::IntoResponse,
 };

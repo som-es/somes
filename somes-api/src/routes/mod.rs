@@ -28,7 +28,6 @@ pub use legislative_initiatives::*;
 pub use login::*;
 pub use mail_send_info::*;
 pub use parties::*;
-pub use questions::*;
 pub use quiz::*;
 pub use reset_password::*;
 pub use save_email::*;
@@ -40,7 +39,7 @@ pub use user::*;
 pub use verify::*;
 pub use walo::*;
 
-use crate::{PgPoolConnection, RedisConnection};
+use crate::PgPoolConnection;
 
 pub async fn all_gps(
     PgPoolConnection(pg): PgPoolConnection,

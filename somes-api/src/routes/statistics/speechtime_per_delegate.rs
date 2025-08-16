@@ -1,4 +1,4 @@
-use axum::{debug_handler, Json};
+use axum::Json;
 
 use serde::{Deserialize, Serialize};
 use sqlx::{prelude::FromRow, Postgres};
@@ -9,8 +9,7 @@ use crate::{
     routes::statistics::{
         error::StatisticsResponse,
         filtering::{bind_values, build_filter, IntoFilterArgument},
-    },
-    set_json_cache, set_json_cache_secs, PgPoolConnection, RedisConnection,
+    }, set_json_cache_secs, PgPoolConnection, RedisConnection,
 };
 
 use super::filtering::Manual;
