@@ -4,14 +4,13 @@ use axum::{
     extract::{Path, Query},
     Json,
 };
-use dataservice::{combx::{GovProposal, Topic, VoteResult}, db::models::DbLegislativeInitiativeQuery};
+use dataservice::combx::VoteResult;
 use meilisearch_sdk::search::SearchResults;
-use somes_common_lib::{DateRange, DelegateById, LegisInitFilter, Page, PartyVote, VoteResultById};
-use sqlx::{query_as, PgPool};
+use somes_common_lib::{LegisInitFilter, Page, PartyVote, VoteResultById};
 
 use crate::{
-    meilisearch::MeilisearchClient, DataserviceDbConnection, PgPoolConnection, RedisConnection,
-    LEGIS_INITS_PER_PAGE,
+    meilisearch::MeilisearchClient, PgPoolConnection,
+    RedisConnection, LEGIS_INITS_PER_PAGE,
 };
 
 pub use error::*;
@@ -350,101 +349,4 @@ async fn meilisearch_for_vote_results(
         entry_count: results.estimated_total_hits.unwrap_or(1) as i64,
         max_page,
     }))
-}
-
-pub async fn get_eurovoc_topics_from_ministrial_proposal(
-    con: &PgPool,
-    ministrial_proposal_id: i32,
-) -> sqlx::Result<Vec<Topic>> {
-    sqlx::query_as!(
-        Topic,
-        "select topic from eurovoc_topics_ministrial_proposals where ministrial_proposal_id = $1",
-        ministrial_proposal_id
-    )
-    .fetch_all(con)
-    .await
-}
-
-pub async fn gov_proposals_by_official(
-    RedisConnection(mut redis_con): RedisConnection,
-    PgPoolConnection(pg): PgPoolConnection,
-    Query(delegate_by_id): Query<DelegateById>,
-) -> Result<Json<Vec<GovProposal>>, LegisInitErrorResponse> {
-    extract_gov_prosals_by_delegate(redis_con, &pg, delegate_by_id.delegate_id)
-        .await
-        .map(Json)
-        .map_err(|_| LegisInitErrorResponse::LegisInit)
-
-    // get_vote_result_by_id(&pg, vote_result_id.id)
-    //     .await
-    //     .map(Json)
-    //     .map_err(|_| LegisInitErrorResponse::VoteResultById)
-}
-
-pub async fn extract_gov_prosals_by_delegate(
-    redis_con: redis::aio::MultiplexedConnection,
-    pg: &sqlx::Pool<sqlx::Postgres>,
-    delegate_id: i32,
-) -> sqlx::Result<Vec<GovProposal>> {
-    use dataservice::db::models::DbMinistrialProposalQuery;
-    let ministrial_proposals = query_as!(
-        DbMinistrialProposalQuery,
-        "
-        select 
-            mi.delegate_id,
-            mp.id, 
-            mp.ityp, 
-            mp.gp, 
-            mp.inr, 
-            mp.emphasis, 
-            mp.title, 
-            mp.description, 
-            mp.created_at, 
-            mp.updated_at, 
-            mp.due_to, 
-            mp.ressort, 
-            mp.ressort_shortform, 
-            mp.legis_init_gp, 
-            mp.legis_init_inr, 
-            mp.legis_init_ityp,
-            mp.has_vote_result
-        from 
-            ministrial_issuer as mi 
-        inner join 
-            ministrial_proposals as mp 
-        on 
-            mp.id = mi.ministrial_proposal_id 
-        where 
-            delegate_id = $1
-        order by created_at DESC;
-    ",
-        delegate_id
-    )
-    .fetch_all(pg)
-    .await?;
-
-    /*ministrial_proposals.into_iter().map(|ministrial_proposal| {
-        match (
-            &ministrial_proposal.legis_init_gp,
-            &ministrial_proposal.legis_init_ityp,
-            ministrial_proposal.legis_init_inr,
-        ) {
-            (Some(ref gp), Some(ref ityp), Some(ref inr)) => {
-                Some(
-                    get_vote_result_by_unique_hints(redis_con.clone(), &pg, gp, ityp, *inr)
-                )
-            }
-            _ => None,
-        }
-    }).collect::<Vec<_>>();*/
-
-    // let mut gov_proposal_futures = Vec::with_capacity(ministrial_proposals.len());
-
-    futures::future::join_all(ministrial_proposals.into_iter().map(|ministrial_proposal| {
-        let redis_con = redis_con.clone();
-        construct_gov_proposal(redis_con, &pg, ministrial_proposal)
-    }))
-    .await
-    .into_iter()
-    .collect::<sqlx::Result<Vec<_>>>()
 }

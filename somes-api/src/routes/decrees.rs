@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use somes_common_lib::{DecreeFilter, Page};
 use utoipa::ToSchema;
 
-use super::{LegisInitErrorResponse};
+use super::LegisInitErrorResponse;
 use crate::{get_json_cache, set_json_cache, PgPoolConnection, RedisConnection, DECREES_PER_PAGE};
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]

@@ -14,7 +14,6 @@ use crate::{
     set_json_cache, PgPoolConnection, RedisConnection,
 };
 
-
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct GeneralGovOfficialInfo {
     pub gov_proposals: Vec<GovProposal>,

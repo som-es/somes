@@ -1,13 +1,14 @@
-use common_scrapes::RelatedDelegate;
-use dataservice::{combx::{DbNamedVoteInfoQuery, GovProposal, Topic, VoteResult}, db::models::{
-    DbLegisDocument, DbLegisDocumentOptional, DbLegislativeInitiativeQuery,
-    DbMinistrialProposalQuery, DbNamedVote, DbNamedVoteInfo, DbNamedVotes, DbSpeech,
-    DbSpeechWithLink, DbVote,
-}};
-use redis::{aio::MultiplexedConnection, FromRedisValue};
+use dataservice::{
+    combx::{DbNamedVoteInfoQuery, Topic, VoteResult},
+    db::models::{
+        DbLegisDocumentOptional, DbLegislativeInitiativeQuery, DbNamedVote, DbNamedVotes,
+        DbSpeechWithLink, DbVote,
+    },
+};
+use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::LegisInitFilter;
-use sqlx::{FromRow, PgPool};
+use sqlx::PgPool;
 use utoipa::ToSchema;
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Clone)]
@@ -15,7 +16,6 @@ pub struct UniqueTopic {
     pub topic: String,
     pub id: i32,
 }
-
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct VoteResultsWithMaxPage {
@@ -28,7 +28,6 @@ use crate::{get_json_cache, set_json_cache, today};
 
 use super::{
     construct_vote_result::construct_vote_result, filtering::filtered_legislative_initiatives,
-    get_eurovoc_topics_from_ministrial_proposal,
 };
 
 pub async fn get_latest_legis_inits_per_page(
@@ -126,56 +125,6 @@ pub async fn get_vote_result_by_path(
     .fetch_one(pg)
     .await?;
     construct_vote_result(redis_con.clone(), pg, legis_init).await
-}
-
-pub async fn construct_gov_proposal(
-    mut redis_con: MultiplexedConnection,
-    pg: &PgPool,
-    ministrial_proposal: DbMinistrialProposalQuery,
-) -> sqlx::Result<GovProposal> {
-    let key = format!("ministrial_prop/{}", ministrial_proposal.id);
-    let res = get_json_cache::<GovProposal>(&mut redis_con, &key).await;
-    if let Some(res) = res {
-        return Ok(res);
-    }
-
-    let vote_result = match (
-        &ministrial_proposal.legis_init_gp,
-        &ministrial_proposal.legis_init_ityp,
-        ministrial_proposal.legis_init_inr,
-    ) {
-        (Some(ref gp), Some(ref ityp), Some(ref inr)) => {
-            get_vote_result_by_unique_hints_with_accepted_required(
-                redis_con.clone(),
-                &pg,
-                &gp,
-                &ityp,
-                *inr,
-            )
-            .await?
-        }
-        _ => None,
-    };
-    let gov_proposal = GovProposal {
-        eurovoc_topics: get_eurovoc_topics_from_ministrial_proposal(pg, ministrial_proposal.id).await?,
-        ministrial_proposal,
-        vote_result,
-        topics: todo!(),
-        other_keyword_topics: todo!(),
-        ministerial_issuers: todo!(),
-        documents: todo!(),
-    };
-
-    let cache_date = if let Some(ref vote_result) = gov_proposal.vote_result {
-        vote_result.legislative_initiative.created_at
-    } else {
-        today()
-    };
-    crate::set_json_cache_with_relevance(&mut redis_con, &key, &gov_proposal, cache_date)
-        .await
-        .ok_or(sqlx::Error::WorkerCrashed)?;
-
-    Ok(gov_proposal)
 }
 
 pub async fn get_vote_result_by_unique_hints(

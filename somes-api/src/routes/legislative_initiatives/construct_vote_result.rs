@@ -1,12 +1,12 @@
 use dataservice::{
-    combx::VoteResult, db::models::{DbLegislativeInitiativeQuery, DbVote}
+    combx::VoteResult,
+    db::models::{DbLegislativeInitiativeQuery, DbVote},
 };
 use redis::aio::MultiplexedConnection;
 use serde::Deserialize;
 use sqlx::PgPool;
 
 use crate::{get_json_cache, today};
-
 
 const JSON_VOTE_RESULT_SQL: &str = include_str!("./json_vote_result.sql");
 

@@ -1,5 +1,4 @@
 use axum::{extract::Query, Json};
-use chrono::{NaiveDate, NaiveDateTime};
 use dataservice::{combx::GovProposal, db::models::DbMinistrialProposalQuery};
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};

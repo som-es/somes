@@ -11,7 +11,7 @@ use crate::{
 use super::GovProposalsWithMaxPage;
 
 pub async fn gov_props_by_search(
-    RedisConnection(mut redis_con): RedisConnection,
+    RedisConnection(redis_con): RedisConnection,
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,

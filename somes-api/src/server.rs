@@ -8,7 +8,10 @@ use axum::{
     Router,
 };
 use axum_server::tls_rustls::RustlsConfig;
-use dataservice::{combx::VoteResult, db::models::{DbLegislativeInitiativeQuery, DbParty}};
+use dataservice::{
+    combx::VoteResult,
+    db::models::{DbLegislativeInitiativeQuery, DbParty},
+};
 // use diesel_async::pooled_connection::AsyncDieselConnectionManager;
 use log::{error, info};
 use redis::cmd;
@@ -27,7 +30,10 @@ use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 //use headers::HeaderValue;
 use crate::{
-    meilisearch::{update_gov_props_meilisearch_index, update_meilisearch_indices, update_vote_result_meilisearch_index},
+    meilisearch::{
+        update_gov_props_meilisearch_index, update_meilisearch_indices,
+        update_vote_result_meilisearch_index,
+    },
     model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours},
     redirect_http_to_https,
     routes::{

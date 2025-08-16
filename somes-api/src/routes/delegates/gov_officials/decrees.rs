@@ -1,8 +1,5 @@
-use chrono::NaiveDate;
 use dataservice::combx::{Decree, Document};
-use serde::{Deserialize, Serialize};
-use sqlx::{prelude::FromRow, PgPool, Postgres};
-use utoipa::ToSchema;
+use sqlx::PgPool;
 
 pub async fn extract_decrees_from_gov_official(
     delegate_id: i32,
