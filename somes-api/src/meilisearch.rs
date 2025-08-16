@@ -1,15 +1,17 @@
-use std::future::Future;
-
 use axum::{
     extract::{FromRef, FromRequestParts},
     http::request::Parts,
 };
+use dataservice::combx::{MeiliesearchHelper, VoteResult};
 use meilisearch_sdk::settings::{PaginationSetting, Settings};
 use redis::aio::MultiplexedConnection;
 use reqwest::StatusCode;
+use tokio::time::sleep;
 
 use crate::{
-    routes::{get_all_gov_props, get_all_votes_from_legis_init, MeiliesearchHelper, VoteResult},
+    routes::{
+        get_all_gov_props, get_all_updated_votes_from_legis_init, get_all_votes_from_legis_init,
+    },
     server::AppState,
 };
 
@@ -113,13 +115,14 @@ pub async fn update_vote_result_meilisearch_index(
         .collect::<Vec<_>>();
     log::info!("Fetched all vote results");
 
+    // this should only run when there are structural differences (type changes)
     // client.delete_index("vote_results").await?;
 
     log::info!(
         "Uploading {} vote results to meilisearch",
         all_vote_results.len()
     );
-    client.index("vote_results").delete_all_documents().await?;
+    // client.index("vote_results").delete_all_documents().await?;
 
     client
         .index("vote_results")
@@ -128,4 +131,71 @@ pub async fn update_vote_result_meilisearch_index(
 
     log::info!("Uploaded vote results");
     Ok(())
+}
+
+pub fn update_meilisearch_indices(
+    client: redis::Client,
+    dataservice_sqlx_pool: sqlx::Pool<sqlx::Postgres>,
+    meilisearch_client: meilisearch_sdk::client::Client,
+) {
+    let pg_pool_vr = dataservice_sqlx_pool.clone();
+    let client_vr = client.clone();
+    let meilisearch_client_vr = meilisearch_client.clone();
+
+    // TODO: move this to dataservice
+    tokio::task::spawn(async move {
+        loop {
+            if let Err(e) = update_vote_result_meilisearch_index(
+                &mut client_vr.get_multiplexed_tokio_connection().await.unwrap(),
+                &pg_pool_vr,
+                &meilisearch_client_vr,
+                get_all_votes_from_legis_init,
+            )
+            .await
+            {
+                log::warn!("Could not update meilisearch index: {e:?}");
+            }
+            sleep(std::time::Duration::from_secs(1900)).await;
+        }
+    });
+
+    let pg_pool_vr = dataservice_sqlx_pool.clone();
+    let client_vr = client.clone();
+    let meilisearch_client_vr = meilisearch_client.clone();
+
+    // TODO: move this to dataservice
+    tokio::task::spawn(async move {
+        loop {
+            if let Err(e) = update_vote_result_meilisearch_index(
+                &mut client_vr.get_multiplexed_tokio_connection().await.unwrap(),
+                &pg_pool_vr,
+                &meilisearch_client_vr,
+                get_all_updated_votes_from_legis_init,
+            )
+            .await
+            {
+                log::warn!("Could not update meilisearch index: {e:?}");
+            }
+            sleep(std::time::Duration::from_secs(30)).await;
+        }
+    });
+
+    let pg_pool = dataservice_sqlx_pool.clone();
+
+    // TODO: move this to dataservice
+    tokio::task::spawn(async move {
+        loop {
+            if let Err(e) = update_gov_props_meilisearch_index(
+                &mut client.get_multiplexed_tokio_connection().await.unwrap(),
+                &pg_pool,
+                &meilisearch_client,
+            )
+            .await
+            {
+                log::warn!("Could not update meilisearch index: {e:?}");
+            }
+            log::info!("gov prop sleep 1000s");
+            sleep(std::time::Duration::from_secs(1000)).await;
+        }
+    });
 }

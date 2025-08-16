@@ -8,7 +8,7 @@ use axum::{
     Router,
 };
 use axum_server::tls_rustls::RustlsConfig;
-use dataservice::db::models::{DbLegislativeInitiativeQuery, DbParty};
+use dataservice::{combx::VoteResult, db::models::{DbLegislativeInitiativeQuery, DbParty}};
 // use diesel_async::pooled_connection::AsyncDieselConnectionManager;
 use log::{error, info};
 use redis::cmd;
@@ -27,7 +27,7 @@ use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 //use headers::HeaderValue;
 use crate::{
-    meilisearch::{update_gov_props_meilisearch_index, update_vote_result_meilisearch_index},
+    meilisearch::{update_gov_props_meilisearch_index, update_meilisearch_indices, update_vote_result_meilisearch_index},
     model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours},
     redirect_http_to_https,
     routes::{
@@ -218,67 +218,6 @@ pub async fn serve(addr: SocketAddr) {
             Html(include_str!("../build-alpha-0.1/index.html"))
         }));
 
-    let pg_pool_vr = dataservice_sqlx_pool.clone();
-    let client_vr = client.clone();
-    let meilisearch_client_vr = meilisearch_client.clone();
-
-    // TODO: move this to dataservice
-    tokio::task::spawn(async move {
-        loop {
-            if let Err(e) = update_vote_result_meilisearch_index(
-                &mut client_vr.get_multiplexed_tokio_connection().await.unwrap(),
-                &pg_pool_vr,
-                &meilisearch_client_vr,
-                get_all_votes_from_legis_init,
-            )
-            .await
-            {
-                log::warn!("Could not update meilisearch index: {e:?}");
-            }
-            sleep(std::time::Duration::from_secs(1900)).await;
-        }
-    });
-
-    let pg_pool_vr = dataservice_sqlx_pool.clone();
-    let client_vr = client.clone();
-    let meilisearch_client_vr = meilisearch_client.clone();
-
-    // TODO: move this to dataservice
-    tokio::task::spawn(async move {
-        loop {
-            if let Err(e) = update_vote_result_meilisearch_index(
-                &mut client_vr.get_multiplexed_tokio_connection().await.unwrap(),
-                &pg_pool_vr,
-                &meilisearch_client_vr,
-                get_all_updated_votes_from_legis_init,
-            )
-            .await
-            {
-                log::warn!("Could not update meilisearch index: {e:?}");
-            }
-            sleep(std::time::Duration::from_secs(30)).await;
-        }
-    });
-
-    let pg_pool = dataservice_sqlx_pool.clone();
-
-    // TODO: move this to dataservice
-    tokio::task::spawn(async move {
-        loop {
-            if let Err(e) = update_gov_props_meilisearch_index(
-                &mut client.get_multiplexed_tokio_connection().await.unwrap(),
-                &pg_pool,
-                &meilisearch_client,
-            )
-            .await
-            {
-                log::warn!("Could not update meilisearch index: {e:?}");
-            }
-            log::info!("gov prop sleep 1000s");
-            sleep(std::time::Duration::from_secs(1000)).await;
-        }
-    });
-
     let pg_pool = dataservice_sqlx_pool.clone();
 
     tokio::task::spawn(async move {
@@ -289,10 +228,9 @@ pub async fn serve(addr: SocketAddr) {
             log::error!("Could not download assets {e:?}");
         }
         sleep(std::time::Duration::from_secs(19000)).await;
-        // loop {
-
-        // }
     });
+
+    update_meilisearch_indices(client, dataservice_sqlx_pool, meilisearch_client);
 
     let config = RustlsConfig::from_pem_file(
         PathBuf::from(PUBLIC_KEY_PATH),

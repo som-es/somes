@@ -4,7 +4,7 @@ use axum::{
     extract::{Path, Query},
     Json,
 };
-use dataservice::db::models::DbLegislativeInitiativeQuery;
+use dataservice::{combx::{GovProposal, Topic, VoteResult}, db::models::DbLegislativeInitiativeQuery};
 use meilisearch_sdk::search::SearchResults;
 use somes_common_lib::{DateRange, DelegateById, LegisInitFilter, Page, PartyVote, VoteResultById};
 use sqlx::{query_as, PgPool};

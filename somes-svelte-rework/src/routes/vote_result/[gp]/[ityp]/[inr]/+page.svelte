@@ -377,7 +377,7 @@
 						class="topics-item flex rounded-xl justify-center items-center bg-primary-300 dark:bg-primary-500 p-3 max-h-[169px]"
 					>
 						<Topics
-							topics={voteResult.topics.sort((a, b) => {
+							topics={voteResult.eurovoc_topics.sort((a, b) => {
 								return a.topic.length - b.topic.length;
 							})}
 						/>
@@ -419,7 +419,7 @@
 									{/if}
 								</span>
 								{#each voteResult.references as refered_by}
-									<VoteResultIdBar on:dataUpdated={event => {voteResult = event.detail; runVoteResultUpdate()}} requiringVotes legis_init_id={refered_by} />
+									<VoteResultIdBar on:dataUpdated={event => {voteResult = event.detail; runVoteResultUpdate()}} requiringVotes legis_init_ref={refered_by} />
 								{/each}
 							</div>
 						{/if}

@@ -1,9 +1,10 @@
 use axum::{extract::Query, Json};
+use dataservice::combx::{Decree, Document};
 use serde::{Deserialize, Serialize};
 use somes_common_lib::{DecreeFilter, Page};
 use utoipa::ToSchema;
 
-use super::{Decree, Document, LegisInitErrorResponse};
+use super::{LegisInitErrorResponse};
 use crate::{get_json_cache, set_json_cache, PgPoolConnection, RedisConnection, DECREES_PER_PAGE};
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
@@ -97,7 +98,7 @@ async fn get_decrees_per_page_sqlx(
     .map(|x| {
         entry_count = x.entry_count.unwrap();
         Decree {
-            gov_official_id: x.gov_official_id,
+            gov_official_id: Some(x.gov_official_id),
             ris_id: x.ris_id,
             ministrial_issuer: x.ministrial_issuer,
             title: x.title,

@@ -91,6 +91,7 @@ export interface LegislativeInitiative {
 
 export interface Vote {
 	party: string;
+	code: string | null;
 	fraction: number;
 	infavor: boolean;
 	legislative_initiatives_id: number;
@@ -102,7 +103,8 @@ export interface Speech {
 	opinion: string | null;
 	document_url: string | null;
 	about: string | null;
-	legislative_initiatives_id: number | null;
+	duration_in_seconds: number | null;
+	legis_init_id: number | null;
 }
 
 export interface SpeechesWithMaxPage {
@@ -145,18 +147,24 @@ export interface RelatedDelegate {
 	text: string | null;
 }
 
+export interface Reference {
+	gp: string;
+	ityp: string;
+	inr: number;
+}
 export interface VoteResult {
 	legislative_initiative: LegislativeInitiative;
 	votes: Vote[];
 	speeches: Speech[];
 	topics: Topic[];
-	simple_topics: Topic[];
+	eurovoc_topics: Topic[];
+	other_keyword_topics: Topic[];
 	named_votes: NamedVotes | null;
 	documents: Document[];
 	absences: number[];
 	issued_by_dels: RelatedDelegate[];
 	referenced_by_others_ids: number[];
-	references: number[];
+	references: Reference[];
 }
 
 export function createVoteResultPath(voteResult: VoteResult): string {

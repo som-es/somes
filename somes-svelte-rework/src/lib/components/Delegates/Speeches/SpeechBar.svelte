@@ -14,10 +14,10 @@
 
 	let loadingVoteResult = false;
 
-	$: if (speech.legislative_initiatives_id) {
+	$: if (speech.legis_init_id) {
 		voteResult = null;
 		loadingVoteResult = true;
-		vote_result_by_id(speech.legislative_initiatives_id.toString()).then((res) => {
+		vote_result_by_id(speech.legis_init_id.toString()).then((res) => {
 			voteResult = errorToNull(res);
 			loadingVoteResult = false;
 		});

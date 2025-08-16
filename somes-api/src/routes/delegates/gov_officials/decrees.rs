@@ -1,28 +1,8 @@
 use chrono::NaiveDate;
+use dataservice::combx::{Decree, Document};
 use serde::{Deserialize, Serialize};
 use sqlx::{prelude::FromRow, PgPool, Postgres};
 use utoipa::ToSchema;
-
-#[derive(ToSchema, Debug, Clone, Serialize, Deserialize, FromRow)]
-pub struct Document {
-    pub title: String,
-    pub document_url: String,
-    pub document_type: String,
-}
-
-#[derive(ToSchema, Debug, Clone, Serialize, Deserialize, FromRow)]
-pub struct Decree {
-    pub gov_official_id: i32,
-    pub ris_id: String,
-    pub ministrial_issuer: String,
-    pub title: String,
-    pub short_title: String,
-    pub publication_date: NaiveDate,
-    pub part: String,
-    pub emphasis: Option<String>,
-    pub gp: Option<String>,
-    pub documents: Vec<Document>,
-}
 
 pub async fn extract_decrees_from_gov_official(
     delegate_id: i32,
@@ -67,7 +47,7 @@ pub async fn extract_decrees_from_gov_official(
     .await?
     .into_iter()
     .map(|x| Decree {
-        gov_official_id: x.gov_official_id,
+        gov_official_id: Some(x.gov_official_id),
         ris_id: x.ris_id,
         ministrial_issuer: x.ministrial_issuer,
         title: x.title,

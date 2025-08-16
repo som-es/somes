@@ -18,7 +18,7 @@ use somes_common_lib::{Date, LegisPeriodGp};
 pub async fn parties(
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<Party>>, PartiesErrorResponse> {
-    dataservice::with_data::all_parties(&pg)
+    dataservice::combx::with_data::all_parties(&pg)
         .await
         .map(Json)
         .map_err(|_| PartiesErrorResponse::PartiesReturn)
@@ -36,7 +36,7 @@ pub async fn parties_at_gp(
     PgPoolConnection(pg): PgPoolConnection,
     Query(legis_period): Query<LegisPeriodGp>,
 ) -> Result<Json<Vec<Party>>, PartiesErrorResponse> {
-    dataservice::with_data::all_parties_at_gp(&pg, &legis_period.gp)
+    dataservice::combx::with_data::all_parties_at_gp(&pg, &legis_period.gp)
         .await
         .map(Json)
         .map_err(|_| PartiesErrorResponse::PartiesReturn)

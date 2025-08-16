@@ -43,7 +43,7 @@
 	</div>
 	<div class="topics-item flex rounded-xl justify-center items-center bg-primary-300 p-3 mb-3">
 		<Topics
-			topics={voteResult.topics.sort((a, b) => {
+			topics={voteResult.eurovoc_topics.sort((a, b) => {
 				return a.topic.length - b.topic.length;
 			})}
 		/>
@@ -78,7 +78,7 @@
 			class="topics-item flex rounded-xl justify-center items-center bg-primary-300 p-3 max-h-[169px]"
 		>
 			<Topics
-				topics={voteResult.topics.sort((a, b) => {
+				topics={voteResult.eurovoc_topics.sort((a, b) => {
 					return a.topic.length - b.topic.length;
 				})}
 			/>
