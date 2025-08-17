@@ -7,3 +7,30 @@ html,
 body {
 	@apply h-full;
 }
+
+/* Mobile usability improvements */
+@media (max-width: 768px) {
+	/* Ensure touch targets are at least 44px */
+	button, a, input, select, textarea {
+		min-height: 44px;
+	}
+	
+	/* Better scrolling on mobile */
+	* {
+		-webkit-overflow-scrolling: touch;
+	}
+	
+	/* Prevent zoom on form inputs */
+	input, select, textarea {
+		font-size: 16px;
+	}
+}
+
+/* Desktop improvements */
+@media (min-width: 1024px) {
+	/* Better hover states for desktop */
+	.hover-scale:hover {
+		transform: scale(1.02);
+		transition: transform 0.2s ease;
+	}
+}

@@ -5602,10 +5602,18 @@
     padding-top: 10px;
     padding-bottom: 10px;
     display: inline-block;
+    min-height: 44px;
   }
 
   .mobile-margin-top-10 {
-    margin-top: 10px;
+    margin-top: 15px;
+  }
+
+  /* Improved button sizing for tablet */
+  .button-primary-2 {
+    padding: 14px 24px;
+    font-size: 13px;
+    min-height: 46px;
   }
 
   .image {
@@ -6812,10 +6820,50 @@
     flex-direction: column;
   }
 
+  /* Improved touch targets for mobile navigation */
+  .menu-button {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 8px;
+  }
+
+  .nav-link {
+    min-height: 44px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+  }
+
+  .nav-dropdown-toggle {
+    min-height: 44px;
+    padding: 12px 16px;
+  }
+
   .image {
     align-self: center;
     margin-top: 0;
     margin-left: 0;
+  }
+
+  /* Improved button sizing for mobile devices */
+  .button-primary-2 {
+    padding: 16px 20px;
+    font-size: 14px;
+    min-height: 48px;
+    white-space: nowrap;
+  }
+
+  .button-primary-4 {
+    padding: 16px 20px;
+    font-size: 14px;
+    min-height: 48px;
+  }
+
+  .hero-form-input {
+    width: 90%;
+    height: 48px;
+    margin-bottom: 15px;
+    font-size: 16px; /* Prevents zoom on iOS */
   }
 
   .image-2 {
@@ -6832,15 +6880,24 @@
 
   .container-2 {
     max-width: none;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .hero-wrapper-two {
+    padding: 20px 0;
   }
 
   .margin-bottom-24px-2 {
     margin-top: -12px;
     font-size: 15px;
+    line-height: 1.4;
   }
 
   .heading-2 {
     font-size: 40px;
+    line-height: 1.2;
+    margin-bottom: 20px;
   }
 
   .container-3 {

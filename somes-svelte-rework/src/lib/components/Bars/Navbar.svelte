@@ -46,15 +46,15 @@
 
 <AppBar class="!bg-surface-100-800-token" slotTrail="!space-x-2">
 	<svelte:fragment slot="lead">
-		<button on:click={drawerOpen} class="btn-icon btn-icon-sm lg:!hidden">
+		<button on:click={drawerOpen} class="btn-icon btn-icon-lg lg:!hidden mr-2 p-3">
 			{@html hamburgerIcon}
 		</button>
-		<a class="mx-4 fill-current stroke-current w-32" href="/">
+		<a class="mx-2 sm:mx-4 fill-current stroke-current w-24 sm:w-32" href="/">
 			{@html somesTextIcon}
 		</a>
 	</svelte:fragment>
 	<svelte:fragment slot="trail">
-		<div class="flex gap-9">
+		<div class="flex gap-4 sm:gap-9">
 			<div
 				on:click={async () => {
 					await accountOrLogin();
@@ -66,8 +66,22 @@
 						await accountOrLogin();
 					}
 				}}
-				class="flex flex-col items-center sm:hidden"
+				class="flex flex-col items-center sm:hidden cursor-pointer p-2 rounded-lg hover:bg-surface-200-700-token transition-colors"
 			>
+				{@html userIcon}
+				<span class="font-bold text-xs sm:text-sm">Benutzer</span>
+			</div>
+			<div class="hidden sm:flex flex-col items-center cursor-pointer p-2 rounded-lg hover:bg-surface-200-700-token transition-colors"
+				on:click={async () => {
+					await accountOrLogin();
+				}}
+				tabindex="0"
+				role="button"
+				on:keydown={async (event) => {
+					if (event.key === 'Enter' || event.key === ' ') {
+						await accountOrLogin();
+					}
+				}}>
 				{@html userIcon}
 				<span class="font-bold text-sm">Benutzer</span>
 			</div>

@@ -22,19 +22,19 @@
 	class="bg-surface-100-800-token w-full"
 >
 	<TabAnchor href="{base}/home" selected={isSelected('/home')}>
-		<div class="flex justify-center flex-col items-center">
-			<div>
+		<div class="flex justify-center flex-col items-center py-2 px-3 min-h-[60px]">
+			<div class="mb-1">
 				{@html homeIcon}
 			</div>
-			<div>Neuigkeiten</div>
+			<div class="text-xs">Neuigkeiten</div>
 		</div>
 	</TabAnchor>
 	<TabAnchor href="{base}/wahlhelfer" selected={isSelected('/wahlhelfer')}>
-		<div class="flex justify-center flex-col items-center">
-			<div class="p-0 w-[28px] h-[42px]">
+		<div class="flex justify-center flex-col items-center py-2 px-3 min-h-[60px]">
+			<div class="p-0 w-[28px] h-[42px] mb-1">
 				{@html waloIcon}
 			</div>
-			<div>Wahlhelfer</div>
+			<div class="text-xs">Wahlhelfer</div>
 
 			<!-- <span class="" style="font-size: x-small;">Wahlhelfer</span> -->
 			<!-- <span style="font-size: x-small;">NRWAHL 2024</span> -->
@@ -49,8 +49,8 @@
 		</div>
 	</TabAnchor> -->
 	<TabAnchor href="{base}/history/votes" selected={isSelected('/history')}>
-		<div class="flex justify-center flex-col items-center">
-			<div>
+		<div class="flex justify-center flex-col items-center py-2 px-3 min-h-[60px]">
+			<div class="mb-1">
 				<VoteParliament2
 					class="w-[60px]"
 					againstOpacity={0.3}
@@ -65,7 +65,7 @@
 			<!-- <div>
 				{@html userIcon}
 			</div> -->
-			<div>Abstimmungen</div>
+			<div class="text-xs">Abstimmungen</div>
 		</div>
 	</TabAnchor>
 </TabGroup>
