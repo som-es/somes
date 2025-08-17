@@ -1,4 +1,5 @@
 use chrono::{NaiveDate, NaiveDateTime};
+use common_scrapes::Voting;
 use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
 
@@ -252,6 +253,7 @@ pub struct PartyVote {
     pub infavor: bool,
     pub party: String,
 }
+
 #[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
 
 pub struct LegisInitFilter {
@@ -260,6 +262,7 @@ pub struct LegisInitFilter {
     pub simple_majority: Option<bool>,
     pub legis_period: Option<String>,
     pub is_law: Option<bool>,
+    pub vote_type: Option<Voting>,
     pub topics: Option<Vec<String>>,
     pub party_votes: Option<Vec<PartyVote>>,
 }
