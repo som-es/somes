@@ -29,6 +29,7 @@
 	import NamedVoteModal from '$lib/components/Delegates/NamedVote/NamedVoteModal.svelte';
 	import DetailedInterestsModal from '$lib/components/Delegates/Interests/DetailedInterestsModal.svelte';
 	import DecreesModal from '$lib/components/Delegates/Decrees/DecreesModal.svelte';
+	import QuestionModal from '$lib/components/Questions/QuestionModal.svelte';
 	const drawerStore = getDrawerStore();
 
 	// const drawerStore = getDrawerStore();
@@ -42,6 +43,7 @@
 		allNamedVotes: { ref: NamedVoteModal },
 		detailedInterests: { ref: DetailedInterestsModal },
 		allDecrees: { ref: DecreesModal },
+		questionModal: { ref: QuestionModal },
 		// imdying:{ ref: ModalExample }
 	};
 </script>
