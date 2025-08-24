@@ -386,6 +386,14 @@ export interface GeneralGovOfficialInfo {
 	gov_proposals: GovProposal[];
 	decrees: Decree[];
 }
+
+export interface StanceTopicInfluences {
+	question: string;
+	answer: string;
+	stance_llm: string;
+	topic_influences: StanceTopicScore[];
+}
+
 export interface GeneralDelegateInfo {
 	interests: InterestShare[];
 	detailed_interests: InterestShare[];
@@ -394,7 +402,8 @@ export interface GeneralDelegateInfo {
 	political_position: PoliticalPosition | null;
 	absences: Absence[];
 	named_votes: NamedVote[];
-	stances: StanceTopicScore[];
+	stance_topic_influences: StanceTopicInfluences[];
+	stance_topic_scores: StanceTopicScore[];
 	left_right_stances: StanceTopicScore[];
 }
 

@@ -1,20 +1,18 @@
 <script lang="ts">
 	import { delegate_political_questions, errorToNull } from '$lib/api/api';
-	import type { DelegateQA } from '$lib/types';
+	import type { DelegateQA, StanceTopicInfluences } from '$lib/types';
 	import { getModalStore } from '@skeletonlabs/skeleton';
 	import DelegateQaEntry from '../QA/DelegateQAEntry.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
+	import QaDelegateStanceInfluences from './Stance/QADelegateStanceInfluences.svelte';
 
 	export let parent;
 	const modalStore = getModalStore();
 
-	let politicalQuestions: DelegateQA[] = [];
+	let stanceTopicInfluences: StanceTopicInfluences[] = [];
 
 	if ($modalStore.length > 0) {
-		const delegate = $modalStore[0].meta.delegate;
-		delegate_political_questions(delegate.id).then((res) => {
-			politicalQuestions = errorToNull(res) ?? [];
-		});
+		stanceTopicInfluences = $modalStore[0].meta.stanceTopicInfluences;
 	}
 </script>
 
@@ -27,9 +25,9 @@
 		class="w-5 unselectable float-right">&#x2715</button
 	>
 
-	{#if politicalQuestions.length > 0}
-		{#each politicalQuestions as qa}
-			<DelegateQaEntry class="mt-3" delegateQa={qa} />
+	{#if stanceTopicInfluences.length > 0}
+		{#each stanceTopicInfluences as qa}
+			<QaDelegateStanceInfluences class="mt-3" stanceTopicInfluences={qa} />
 		{/each}
 	{:else}
 		<!-- IMPORTANT THIS THING IS SOMEHOW REQUIRED TO MAKE THE MODAL SCROLLABLE. SOMEHOW IT IS ONLY CHECK AT MOUNTING WHETHER THIS NEEDS TO BE SCROLLABLE!!!! -->

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Delegate } from '$lib/types';
+	import type { Delegate, StanceTopicInfluences } from '$lib/types';
 	import {
 		getModalStore,
 		popup,
@@ -8,11 +8,12 @@
 	} from '@skeletonlabs/skeleton';
 
 	export let delegate: Delegate;
+	export let stanceTopicInfluences: StanceTopicInfluences[];
 
 	$: questionDetails = {
 		type: 'component',
 		component: 'politicalSpectrumQuestions',
-		meta: { delegate }
+		meta: { delegate, stanceTopicInfluences }
 	} as ModalSettings;
 
 	const popupFeatured: PopupSettings = {
