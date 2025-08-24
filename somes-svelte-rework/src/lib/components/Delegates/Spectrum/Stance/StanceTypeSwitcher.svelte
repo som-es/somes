@@ -9,7 +9,7 @@
 </script>
 
 <div
-	class="bg-primary-300 flex flex-wrap dark:bg-primary-500 w-full {delegateInfo.left_right_stances.length > 0 || delegateInfo.stances.length > 0
+	class="bg-primary-300 flex flex-wrap dark:bg-primary-500 w-full {delegateInfo.left_right_stances.length > 0 || delegateInfo.stance_topic_scores.length > 0
 		? 'p-4'
 		: ''} rounded-xl"
 >
@@ -22,7 +22,7 @@
 		<!-- Tab Panels --->
 		<svelte:fragment slot="panel">
 			{#if tabSet === 0}
-				<Stances leftLabel={"Dagegen"} rightLabel={"Dafür"} stances={delegateInfo.stances} />
+				<Stances leftLabel={"Dagegen"} rightLabel={"Dafür"} stances={delegateInfo.stance_topic_scores} />
 			{:else if tabSet === 1}
 				<Stances stances={delegateInfo.left_right_stances} />
 			{/if}

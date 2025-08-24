@@ -390,7 +390,7 @@
 
 		{#if delegate && generalDelegateInfo?.political_position}
 			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
-				<PoliticalStanceTitleBar {delegate} />
+				<PoliticalStanceTitleBar {delegate} stanceTopicInfluences={generalDelegateInfo.stance_topic_influences} />
 			</div>
 		{/if}
 		<div class="flex gap-2 w-full">
