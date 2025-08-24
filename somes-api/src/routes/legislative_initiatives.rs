@@ -318,6 +318,10 @@ async fn meilisearch_for_vote_results(
         if let Some(is_law) = filter.is_law {
             filter_conditions.push(format!("legislative_initiative.is_law = {}", is_law));
         }
+        
+        if let Some(voting) = filter.vote_type {
+            filter_conditions.push(format!("legislative_initiative.voting = {voting}"));
+        }
 
         meilisearch_filter = filter_conditions.join(" AND ")
     }
