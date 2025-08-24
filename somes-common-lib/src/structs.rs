@@ -265,6 +265,7 @@ pub struct LegisInitFilter {
     pub vote_type: Option<Voting>,
     pub topics: Option<Vec<String>>,
     pub party_votes: Option<Vec<PartyVote>>,
+    pub is_urgent: Option<bool>,
 }
 
 #[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
@@ -276,7 +277,7 @@ pub struct GovPropFilter {
 #[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
 pub struct DecreeFilter {
     pub legis_period: Option<String>,
-    pub gov_officials: Option<Vec<i32>>
+    pub gov_officials: Option<Vec<i32>>,
 }
 
 #[derive(PartialEq, Eq, IntoParams, ToSchema, PartialOrd, Ord, Debug, Serialize, Deserialize)]

@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::fmt::{format, Display};
 
 use axum::{
     extract::{Path, Query},
@@ -318,9 +318,13 @@ async fn meilisearch_for_vote_results(
         if let Some(is_law) = filter.is_law {
             filter_conditions.push(format!("legislative_initiative.is_law = {}", is_law));
         }
-        
+
         if let Some(voting) = filter.vote_type {
             filter_conditions.push(format!("legislative_initiative.voting = {voting}"));
+        }
+
+        if let Some(is_urgent) = filter.is_urgent {
+            filter_conditions.push(format!("legislative_initiative.is_urgent = {is_urgent}"));
         }
 
         meilisearch_filter = filter_conditions.join(" AND ")

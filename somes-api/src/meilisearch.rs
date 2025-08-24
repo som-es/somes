@@ -104,6 +104,7 @@ pub async fn update_vote_result_meilisearch_index(
             "legislative_initiative.ityp",
             "legislative_initiative.has_reference",
             "legislative_initiative.by_publication",
+            "legislative_initiative.is_urgent",
             "topics",
             "meilisearch_helper.votes",
         ])
