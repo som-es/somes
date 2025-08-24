@@ -42,7 +42,7 @@ pub async fn extract_general_delegate_info(
     let absences = extract_absences_by_delegate(pg, delegate_id).await?;
     let named_votes = extract_named_votes_by_delegate(pg, delegate_id).await?;
     let left_right_stances = extract_left_right_topic_score_by_delegate(pg, delegate_id).await?;
-    let stances = extract_stance_topic_score_by_delegate(pg, delegate_id).await?;
+    let (stance_topic_influences, stance_topic_scores) = extract_stance_topic_score_by_delegate(pg, delegate_id).await?;
 
     let gdi = GeneralDelegateInfo {
         mandates,
@@ -53,7 +53,8 @@ pub async fn extract_general_delegate_info(
         absences,
         named_votes,
         left_right_stances,
-        stances,
+        stance_topic_influences,
+        stance_topic_scores
     };
 
     crate::set_json_cache(redis_con, &key, &gdi)

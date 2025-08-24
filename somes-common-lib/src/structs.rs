@@ -58,6 +58,14 @@ pub struct NamedVote {
     pub date: NaiveDate,
 }
 
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct StanceTopicInfluences {
+    pub question: String,
+    pub answer: String,
+    pub stance_llm: String,
+    pub topic_influences: Vec<StanceTopicScore> 
+}
+
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct StanceTopicScore {
     pub topic: String,
@@ -197,7 +205,8 @@ pub struct GeneralDelegateInfo {
     pub absences: Vec<Absence>,
     pub named_votes: Vec<NamedVote>,
     pub left_right_stances: Vec<StanceTopicScore>,
-    pub stances: Vec<StanceTopicScore>,
+    pub stance_topic_influences: Vec<StanceTopicInfluences>,
+    pub stance_topic_scores: Vec<StanceTopicScore>,
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
