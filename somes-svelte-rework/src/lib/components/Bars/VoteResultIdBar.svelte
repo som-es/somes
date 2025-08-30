@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { errorToNull, vote_result_by_id } from '$lib/api/api';
+	import { errorToNull, vote_result_by_id, vote_result_by_path } from '$lib/api/api';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
-	import { createVoteResultPath, type NamedVote, type VoteResult } from '$lib/types';
+	import { createVoteResultPath, type NamedVote, type Reference, type VoteResult } from '$lib/types';
 	import { currentVoteResultStore } from '$lib/stores/stores';
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
 	import { gotoHistory } from '$lib/goto';
@@ -10,7 +10,8 @@
 	import { removeUserTopic } from '$lib/api/authed';
 	import { createEventDispatcher } from 'svelte';
 
-	export let legis_init_id: number;
+	export let legis_init_id: number | null = null;
+	export let legis_init_ref: Reference | null = null;
 	export let requiringVotes: boolean = false;
 
 	let voteResult: VoteResult | null = null;
@@ -19,13 +20,21 @@
   	
 	const dispatch = createEventDispatcher();
 
-	$: if (legis_init_id) {
+	$: if (legis_init_id || legis_init_ref) {
 		voteResult = null;
 		loadingVoteResult = true;
-		vote_result_by_id(legis_init_id.toString()).then((res) => {
-			voteResult = errorToNull(res);
-			loadingVoteResult = false;
-		});
+		if (legis_init_id) {
+			vote_result_by_id(legis_init_id.toString()).then((res) => {
+				voteResult = errorToNull(res);
+				loadingVoteResult = false;
+			});
+		}
+		if (legis_init_ref) {
+			vote_result_by_path(legis_init_ref.gp, legis_init_ref.ityp, legis_init_ref.inr.toString()).then((res) => {
+				voteResult = errorToNull(res);
+				loadingVoteResult = false;
+			});
+		}
 	}
 
 	const modalStore = getModalStore();

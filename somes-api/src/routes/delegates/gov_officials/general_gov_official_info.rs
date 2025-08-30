@@ -1,4 +1,5 @@
 use axum::{extract::Query, Json};
+use dataservice::combx::{Decree, GovProposal};
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::DelegateById;
@@ -9,12 +10,9 @@ use crate::{
     get_json_cache,
     routes::{
         extract_decrees_from_gov_official, extract_gov_prosals_by_delegate, DelegatesErrorResponse,
-        GovProposal,
     },
     set_json_cache, PgPoolConnection, RedisConnection,
 };
-
-use super::Decree;
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct GeneralGovOfficialInfo {

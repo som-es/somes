@@ -1,8 +1,8 @@
-use axum::{debug_handler, Json};
+use axum::Json;
 use serde_json::json;
 use sqlx::query_as;
 
-use crate::{jwt::Claims, PgPoolConnection, RedisConnection};
+use crate::{jwt::Claims, PgPoolConnection};
 
 use super::UniqueTopic;
 

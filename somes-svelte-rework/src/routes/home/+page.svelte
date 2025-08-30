@@ -23,9 +23,9 @@
 		if (userTopics && tempVoteResults) {
 			voteResults = [];
 			userVoteResults = tempVoteResults.filter((voteResult) => {
-				for (let i = 0; i < voteResult.topics.length; i++) {
+				for (let i = 0; i < voteResult.eurovoc_topics.length; i++) {
 					for (let j = 0; j < userTopics.length; j++) {
-						if (voteResult.topics[i].topic == userTopics[j].topic) {
+						if (voteResult.eurovoc_topics[i].topic == userTopics[j].topic) {
 							return true;
 						}
 					}

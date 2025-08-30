@@ -86,10 +86,12 @@ export interface LegislativeInitiative {
 	law_come_into_effect_date: string | null;
 	law_expires_on_date: string | null;
 	by_publication: boolean | null;
+	is_urgent: boolean;
 }
 
 export interface Vote {
 	party: string;
+	code: string | null;
 	fraction: number;
 	infavor: boolean;
 	legislative_initiatives_id: number;
@@ -101,7 +103,8 @@ export interface Speech {
 	opinion: string | null;
 	document_url: string | null;
 	about: string | null;
-	legislative_initiatives_id: number | null;
+	duration_in_seconds: number | null;
+	legis_init_id: number | null;
 }
 
 export interface SpeechesWithMaxPage {
@@ -144,17 +147,24 @@ export interface RelatedDelegate {
 	text: string | null;
 }
 
+export interface Reference {
+	gp: string;
+	ityp: string;
+	inr: number;
+}
 export interface VoteResult {
 	legislative_initiative: LegislativeInitiative;
 	votes: Vote[];
 	speeches: Speech[];
 	topics: Topic[];
+	eurovoc_topics: Topic[];
+	other_keyword_topics: Topic[];
 	named_votes: NamedVotes | null;
 	documents: Document[];
 	absences: number[];
 	issued_by_dels: RelatedDelegate[];
 	referenced_by_others_ids: number[];
-	references: number[];
+	references: Reference[];
 }
 
 export function createVoteResultPath(voteResult: VoteResult): string {
@@ -376,6 +386,14 @@ export interface GeneralGovOfficialInfo {
 	gov_proposals: GovProposal[];
 	decrees: Decree[];
 }
+
+export interface StanceTopicInfluences {
+	question: string;
+	answer: string;
+	stance_llm: string;
+	topic_influences: StanceTopicScore[];
+}
+
 export interface GeneralDelegateInfo {
 	interests: InterestShare[];
 	detailed_interests: InterestShare[];
@@ -384,7 +402,8 @@ export interface GeneralDelegateInfo {
 	political_position: PoliticalPosition | null;
 	absences: Absence[];
 	named_votes: NamedVote[];
-	stances: StanceTopicScore[];
+	stance_topic_influences: StanceTopicInfluences[];
+	stance_topic_scores: StanceTopicScore[];
 	left_right_stances: StanceTopicScore[];
 }
 

@@ -5,8 +5,6 @@ use sqlx::{query, query_as, PgPool};
 
 use crate::{jwt::Claims, routes::QuizQuestion, GenericErrorResponse, PgPoolConnection};
 
-use super::Quiz;
-
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct QuizQuery {
     pub id: i32,

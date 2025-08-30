@@ -1,4 +1,5 @@
 use chrono::{NaiveDate, NaiveDateTime};
+use common_scrapes::Voting;
 use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
 
@@ -55,6 +56,14 @@ pub struct NamedVote {
     pub legis_init_id: i32,
     pub named_vote_info_id: i32,
     pub date: NaiveDate,
+}
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct StanceTopicInfluences {
+    pub question: String,
+    pub answer: String,
+    pub stance_llm: String,
+    pub topic_influences: Vec<StanceTopicScore> 
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
@@ -196,7 +205,8 @@ pub struct GeneralDelegateInfo {
     pub absences: Vec<Absence>,
     pub named_votes: Vec<NamedVote>,
     pub left_right_stances: Vec<StanceTopicScore>,
-    pub stances: Vec<StanceTopicScore>,
+    pub stance_topic_influences: Vec<StanceTopicInfluences>,
+    pub stance_topic_scores: Vec<StanceTopicScore>,
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
@@ -248,13 +258,23 @@ pub struct LegisPeriodFilter {
 }
 
 #[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
+pub struct PartyVote {
+    pub infavor: bool,
+    pub party: String,
+}
+
+#[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
+
 pub struct LegisInitFilter {
     pub accepted: Option<String>,
     pub is_named_vote: Option<bool>,
     pub simple_majority: Option<bool>,
     pub legis_period: Option<String>,
     pub is_law: Option<bool>,
+    pub vote_type: Option<Voting>,
     pub topics: Option<Vec<String>>,
+    pub party_votes: Option<Vec<PartyVote>>,
+    pub is_urgent: Option<bool>,
 }
 
 #[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
@@ -266,10 +286,15 @@ pub struct GovPropFilter {
 #[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
 pub struct DecreeFilter {
     pub legis_period: Option<String>,
-    pub gov_officials: Option<Vec<i32>>
+    pub gov_officials: Option<Vec<i32>>,
 }
 
 #[derive(PartialEq, Eq, IntoParams, ToSchema, PartialOrd, Ord, Debug, Serialize, Deserialize)]
 pub struct LegisPeriod {
     pub period: String,
+}
+
+#[derive(PartialEq, Eq, IntoParams, ToSchema, PartialOrd, Ord, Debug, Serialize, Deserialize)]
+pub struct LegisPeriodGp {
+    pub gp: String,
 }

@@ -1,7 +1,6 @@
 use axum::Json;
-use serde::{Deserialize, Serialize};
 use somes_common_lib::LegisPeriod;
-use utoipa::{IntoParams, ToSchema};
+use utoipa::ToSchema;
 mod absences_per_age;
 mod absences_per_delegate;
 mod absences_per_gender;
@@ -68,12 +67,9 @@ use crate::{
     DataserviceDbConnection,
 };
 pub use absences_per_age::*;
-pub use absences_per_age::*;
-pub use absences_per_delegate::*;
 pub use absences_per_delegate::*;
 pub use absences_per_gender::*;
 pub use absences_per_legis::*;
-pub use absences_per_party::*;
 pub use absences_per_party::*;
 pub use absolute_majority_initiatives::*;
 pub use activity_per_age::*;

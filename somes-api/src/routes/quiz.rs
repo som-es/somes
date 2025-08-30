@@ -2,9 +2,7 @@ mod add_quiz;
 mod quizes;
 
 use std::{
-    cell::Cell,
     collections::HashMap,
-    future::Future,
     ops::ControlFlow,
     sync::{Arc, LazyLock},
 };
@@ -18,20 +16,18 @@ use axum::{
     response::IntoResponse,
 };
 use axum_extra::TypedHeader;
-use fake::{faker::name::de_de::Name, locales::DE_DE, Fake};
+use fake::{faker::name::de_de::Name, Fake};
 use futures::{SinkExt, StreamExt};
 use jsonwebtoken::{decode, Validation};
 pub use quizes::*;
-use rand::{Rng, TryRngCore};
-use redis::{aio::MultiplexedConnection, AsyncCommands};
+use rand::TryRngCore;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::USER;
 use sqlx::PgPool;
 use tokio::{sync::RwLock, time::Instant};
 
 use crate::{
-    jwt::{create_access_token, create_access_token_u128, Claims, Keys, KEYS},
-    AuthError, PgPoolConnection, RedisConnection,
+    jwt::{create_access_token_u128, Keys, KEYS},
+    AuthError, PgPoolConnection,
 };
 
 const DEFAULT_QUIZ_ID: i32 = 4;
@@ -115,7 +111,7 @@ pub struct Scorer {
     pub score: f64,
 }
 
-async fn handle_socket(mut socket: WebSocket, pg: PgPool) {
+async fn handle_socket(socket: WebSocket, pg: PgPool) {
     let user = Arc::new(RwLock::new(None));
 
     let (tx_to_send, mut rx_to_send) = tokio::sync::mpsc::channel(16);

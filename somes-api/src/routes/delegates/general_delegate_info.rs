@@ -6,9 +6,9 @@ use sqlx::{query_as, PgPool};
 use crate::{get_json_cache, PgPoolConnection, RedisConnection};
 
 use super::{
-    extract_absences_by_delegate, extract_decrees_from_gov_official, extract_delegate_qa,
-    extract_detailed_interests_of_delegate, extract_interests_of_delegate,
-    extract_political_position, left_right_topic_score::extract_left_right_topic_score_by_delegate,
+    extract_absences_by_delegate, extract_delegate_qa, extract_detailed_interests_of_delegate,
+    extract_interests_of_delegate, extract_political_position,
+    left_right_topic_score::extract_left_right_topic_score_by_delegate,
     named_votes::extract_named_votes_by_delegate,
     stance_topic_score::extract_stance_topic_score_by_delegate, DelegatesErrorResponse,
 };
@@ -42,7 +42,7 @@ pub async fn extract_general_delegate_info(
     let absences = extract_absences_by_delegate(pg, delegate_id).await?;
     let named_votes = extract_named_votes_by_delegate(pg, delegate_id).await?;
     let left_right_stances = extract_left_right_topic_score_by_delegate(pg, delegate_id).await?;
-    let stances = extract_stance_topic_score_by_delegate(pg, delegate_id).await?;
+    let (stance_topic_influences, stance_topic_scores) = extract_stance_topic_score_by_delegate(pg, delegate_id).await?;
 
     let gdi = GeneralDelegateInfo {
         mandates,
@@ -53,7 +53,8 @@ pub async fn extract_general_delegate_info(
         absences,
         named_votes,
         left_right_stances,
-        stances,
+        stance_topic_influences,
+        stance_topic_scores
     };
 
     crate::set_json_cache(redis_con, &key, &gdi)

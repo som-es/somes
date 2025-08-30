@@ -1,15 +1,15 @@
 use std::collections::HashMap;
 
-use somes_common_lib::StanceTopicScore;
-use sqlx::{query, query_as, PgPool};
+use somes_common_lib::{StanceTopicInfluences, StanceTopicScore};
+use sqlx::{query, PgPool};
 
 pub async fn extract_stance_topic_score_by_delegate(
     pg: &PgPool,
     delegate_id: i32,
-) -> sqlx::Result<Vec<StanceTopicScore>> {
+) -> sqlx::Result<(Vec<StanceTopicInfluences>, Vec<StanceTopicScore>)> {
     let stance_scores = query!(
         "select 
-            stance_llm, stance, pro_strong_ref_score, contra_strong_ref_score, ref_score, COALESCE(lis.influences, '{}') AS influences, COALESCE(lis.topics, '{}') AS topics 
+            answer, question, stance_llm, stance, pro_strong_ref_score, contra_strong_ref_score, ref_score, COALESCE(lis.influences, '{}') AS influences, COALESCE(lis.topics, '{}') AS topics 
         from 
             political_opinions po
         left join
@@ -26,33 +26,50 @@ pub async fn extract_stance_topic_score_by_delegate(
 
     let mut topics_scores = HashMap::<String, (f64, usize)>::new();
 
-    for stance_score in stance_scores {
-        if stance_score.stance_llm.to_lowercase().contains("neutral") {
-            continue;
-        }
-        for (topic, influence) in stance_score
+    let stance_scores = stance_scores.into_iter().map(|stance_score| {
+        let topic_influences = stance_score
             .topics
             .unwrap_or_default()
             .iter()
             .zip(&stance_score.influences.unwrap_or_default())
-        {
-            let default = if stance_score.stance_llm == "positive" {
-                *influence * stance_score.ref_score.abs()
-            } else {
-                *influence * stance_score.ref_score.abs() * -1.
-            };
+            .map(|(topic, influence)| {
+                let default = if stance_score.stance_llm == "positive" {
+                    *influence * stance_score.ref_score.abs()
+                } else {
+                    *influence * stance_score.ref_score.abs() * -1.
+                };
 
+                StanceTopicScore {
+                    topic: topic.into(),
+                    score: default,
+                }
+            }).collect::<Vec<_>>();
+        StanceTopicInfluences {
+            question: stance_score.question,
+            answer: stance_score.answer,
+            stance_llm: stance_score.stance_llm,
+            topic_influences,
+        }
+    }).collect::<Vec<_>>();
+
+
+    for stance_score in &stance_scores {
+        if stance_score.stance_llm.to_lowercase().contains("neutral") {
+            continue;
+        }
+        for topic_influence in &stance_score.topic_influences
+        {
             topics_scores
-                .entry(topic.to_string())
+                .entry(topic_influence.topic.to_string())
                 .and_modify(|x| {
-                    x.0 += default;
+                    x.0 += topic_influence.score;
                     x.1 += 1;
                 })
-                .or_insert((default, 1));
+                .or_insert((topic_influence.score, 1));
         }
     }
 
-    Ok(topics_scores
+    Ok((stance_scores, topics_scores
         .into_iter()
         .map(|(topic, score)| {
             let (score, count) = score;
@@ -61,7 +78,7 @@ pub async fn extract_stance_topic_score_by_delegate(
                 score: 2.7 * score / count as f64,
             }
         })
-        .collect())
+        .collect()))
 }
 
 #[cfg(test)]

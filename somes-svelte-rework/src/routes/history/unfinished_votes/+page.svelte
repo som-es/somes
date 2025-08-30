@@ -17,7 +17,7 @@
 	<h1 class="text-2xl sm:text-4xl font-bold">Unfertige Abstimmungsergebnisse</h1>
 
 	{#if dels}
-		<PaginationVoteResults {dels} voteResultsPostFn={unfinished_vote_results_per_page} voteResultsSearchPostFn={unfinished_vote_results_by_search} showAcceptedFilter={false} showVoteTypeFilter={false} />
+		<PaginationVoteResults {dels} storeIdx={1} voteResultsPostFn={unfinished_vote_results_per_page} voteResultsSearchPostFn={unfinished_vote_results_by_search} showAcceptedFilter={false} showVoteTypeFilter={false} />
 	{/if}
 </Container>
 <!-- </div> -->

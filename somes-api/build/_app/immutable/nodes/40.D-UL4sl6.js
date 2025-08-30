@@ -1,1 +1,0 @@
-import{s as n,t as o,d as r,i as c,n as s,f as m}from"../chunks/CRBO49wt.js";import{S as l,i as p}from"../chunks/ErIIvGfl.js";function f(i){let t;return{c(){t=o("Übersicht/wichtigste Statistiken")},l(e){t=r(e,"Übersicht/wichtigste Statistiken")},m(e,a){c(e,t,a)},p:s,i:s,o:s,d(e){e&&m(t)}}}class d extends l{constructor(t){super(),p(this,t,null,f,n,{})}}export{d as component};

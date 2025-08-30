@@ -1,6 +1,5 @@
 use axum::Json;
 use rand::Rng;
-use rand_core::OsRng;
 use redis::AsyncCommands;
 use serde_json::json;
 use sha2::{Digest, Sha256};

@@ -1,6 +1,5 @@
 use axum::{extract::Query, Json};
-use chrono::{NaiveDate, NaiveDateTime};
-use dataservice::db::models::DbMinistrialProposalQuery;
+use dataservice::{combx::GovProposal, db::models::DbMinistrialProposalQuery};
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::Delegate;
@@ -8,7 +7,7 @@ use sqlx::{query_as, PgPool};
 use utoipa::ToSchema;
 
 use crate::{
-    routes::{construct_gov_proposal, delegate_by_id_sqlx, DelegatesErrorResponse, GovProposal},
+    routes::{construct_gov_proposal, delegate_by_id_sqlx, DelegatesErrorResponse},
     PgPoolConnection, RedisConnection,
 };
 

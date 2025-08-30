@@ -40,7 +40,7 @@ pub async fn extract_delegate_speeches(
         query_as!(
             DbSpeechWithLink,
             "
-        select delegate_id, about, legis_init_id as legislative_initiatives_id,     CASE
+        select duration_in_seconds, delegate_id, about, legis_init_id,     CASE
         WHEN opinion = 'Pro' THEN true 
         WHEN opinion = 'Contra' THEN false 
         ELSE NULL

@@ -4,7 +4,6 @@ mod keys;
 
 pub use claims::*;
 pub use error::AuthError;
-pub use error::*;
 pub use keys::*;
 
 use axum::Json;

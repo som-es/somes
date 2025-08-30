@@ -1,6 +1,12 @@
 mod all_props;
+mod construct_gov_proposal;
+mod db;
+mod gov_props_by_delegate;
 mod gov_props_by_search;
 pub use all_props::*;
+pub use construct_gov_proposal::*;
+pub use db::*;
+pub use gov_props_by_delegate::*;
 pub use gov_props_by_search::*;
 
 use axum::{extract::Query, Json};
@@ -14,9 +20,9 @@ use utoipa::ToSchema;
 use crate::{PgPoolConnection, RedisConnection, GOV_PROPS_PER_PAGE};
 
 use super::{
-    construct_gov_proposal, delegate_by_id_sqlx,
+    delegate_by_id_sqlx,
     statistics::filtering::{bind_values, build_filter, count_filter, IntoFilterArgument, Manual},
-    GovProposal, GovProposalDelegate, LegisInitErrorResponse,
+    GovProposalDelegate, LegisInitErrorResponse,
 };
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]

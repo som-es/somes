@@ -8,27 +8,35 @@ use axum::{
     Router,
 };
 use axum_server::tls_rustls::RustlsConfig;
-use dataservice::db::models::{DbLegislativeInitiativeQuery, DbParty};
+use dataservice::{
+    combx::VoteResult,
+    db::models::{DbLegislativeInitiativeQuery, DbParty},
+};
 // use diesel_async::pooled_connection::AsyncDieselConnectionManager;
 use log::{error, info};
-use redis::cmd;
 use reqwest::StatusCode;
 use somes_common_lib::{
-    CALL_TO_ORDERS_PER_PARTY_DELEGATES, DECREES_PER_PAGE, DELEGATES_BY_CALL_TO_ORDERS, DELEGATES_BY_CALL_TO_ORDERS_AND_LEGIS_PERIOD, DELEGATES_ROUTE, LATEST_LEGIS_INITS_ROUTE, LATEST_VOTE_RESULTS_ROUTE, LEGIS_INIT_ROUTE, LOGIN_ROUTE, PARTIES, PROPOSALS_ROUTE, SIGNUP_ROUTE, SPEAKERS_BY_HOURS, SPEAKERS_BY_HOURS_AND_LEGIS_PERIOD, USER, VERIFY_ROUTE
+    CALL_TO_ORDERS_PER_PARTY_DELEGATES, DECREES_PER_PAGE, DELEGATES_BY_CALL_TO_ORDERS,
+    DELEGATES_BY_CALL_TO_ORDERS_AND_LEGIS_PERIOD, DELEGATES_ROUTE, LATEST_VOTE_RESULTS_ROUTE,
+    LOGIN_ROUTE, PARTIES, PROPOSALS_ROUTE, SIGNUP_ROUTE, SPEAKERS_BY_HOURS,
+    SPEAKERS_BY_HOURS_AND_LEGIS_PERIOD, USER, VERIFY_ROUTE,
 };
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tokio::{net::TcpListener, time::sleep};
-use tower::limit::RateLimitLayer;
 use tower_governor::{governor::GovernorConfigBuilder, GovernorLayer};
 use utoipa::OpenApi;
-use utoipa_swagger_ui::SwaggerUi;
 //use headers::HeaderValue;
 use crate::{
-    meilisearch::{update_gov_props_meilisearch_index, update_vote_result_meilisearch_index}, model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours}, redirect_http_to_https, routes::{
-        call_to_orders_per_party_delegates, delegates, delegates_by_call_to_orders,
+    meilisearch::update_meilisearch_indices,
+    model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours},
+    redirect_http_to_https,
+    routes::{
+        call_to_orders_per_party_delegates, delegates,
         delegates_by_call_to_orders_and_legis_period, latest_vote_results, parties, proposals,
         save_email, speakers_by_hours, speakers_by_hours_and_legis_period, user,
-    }, Ports, DATASERVICE_URL, HTTPS_PORT, HTTP_PORT, LEGIS_INITS_PER_PAGE, MEILISEARCH_SECRET, MEILISEARCH_URL, PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, REDIS_DB, STATIC_FRONTEND_PATH
+    },
+    Ports, DATASERVICE_URL, HTTPS_PORT, HTTP_PORT, MEILISEARCH_SECRET, MEILISEARCH_URL,
+    PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, REDIS_DB, STATIC_FRONTEND_PATH,
 };
 use tower_http::{
     cors::{Any, CorsLayer},
@@ -210,44 +218,6 @@ pub async fn serve(addr: SocketAddr) {
             Html(include_str!("../build-alpha-0.1/index.html"))
         }));
 
-    let pg_pool_vr = dataservice_sqlx_pool.clone();
-    let client_vr = client.clone();
-    let meilisearch_client_vr = meilisearch_client.clone();
-
-    // TODO: move this to dataservice
-    tokio::task::spawn(async move {
-        loop {
-            if let Err(e) = update_vote_result_meilisearch_index(
-                &mut client_vr.get_multiplexed_tokio_connection().await.unwrap(),
-                &pg_pool_vr,
-                &meilisearch_client_vr,
-            )
-            .await
-            {
-                log::warn!("Could not update meilisearch index: {e:?}");
-            }
-            sleep(std::time::Duration::from_secs(1900)).await;
-        }
-    });
-
-    let pg_pool = dataservice_sqlx_pool.clone();
-
-    tokio::task::spawn(async move {
-        loop {
-            if let Err(e) = update_gov_props_meilisearch_index(
-                &mut client.get_multiplexed_tokio_connection().await.unwrap(),
-                &pg_pool,
-                &meilisearch_client,
-            )
-            .await
-            {
-                log::warn!("Could not update meilisearch index: {e:?}");
-            }
-            log::info!("gov prop sleep 1900s");
-            sleep(std::time::Duration::from_secs(1900)).await;
-        }
-    });
-
     let pg_pool = dataservice_sqlx_pool.clone();
 
     tokio::task::spawn(async move {
@@ -258,10 +228,9 @@ pub async fn serve(addr: SocketAddr) {
             log::error!("Could not download assets {e:?}");
         }
         sleep(std::time::Duration::from_secs(19000)).await;
-        // loop {
-
-        // }
     });
+
+    update_meilisearch_indices(client, dataservice_sqlx_pool, meilisearch_client);
 
     let config = RustlsConfig::from_pem_file(
         PathBuf::from(PUBLIC_KEY_PATH),
@@ -317,6 +286,7 @@ pub async fn serve(addr: SocketAddr) {
             post(speakers_by_hours_and_legis_period),
         )
         .route(PARTIES, get(parties))
+        .route(PARTIES_AT_GP, get(parties_at_gp))
         .route(
             CALL_TO_ORDERS_PER_PARTY_DELEGATES,
             get(call_to_orders_per_party_delegates),

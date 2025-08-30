@@ -20,6 +20,16 @@ export const currentVoteResultFilterStore = persisted<VoteResultFilter | null>(
 	'currentVoteResultFilter',
 	null
 );
+
+export const currentUnfinshedVoteResultFilterStore = persisted<VoteResultFilter | null>(
+	'currentUnfinishedVoteResultFilter',
+	null
+);
+
+export const currentVoteResultFilterStores = [
+	currentVoteResultFilterStore, currentUnfinshedVoteResultFilterStore
+];
+
 export const currentGovProposalFilterStore = persisted<GovPropFilter | null>(
 	'currentGovPropFilter',
 	null

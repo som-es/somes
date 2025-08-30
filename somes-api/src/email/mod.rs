@@ -8,7 +8,7 @@ use lettre::{
 };
 use once_cell::sync::Lazy;
 
-use crate::{EMAIL_EXPIRATION_SECONDS, VERIFICATION_CONTENT, VERIFICATION_SUBJECT};
+use crate::EMAIL_EXPIRATION_SECONDS;
 
 // env vars?
 

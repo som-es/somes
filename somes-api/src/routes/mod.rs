@@ -28,7 +28,6 @@ pub use legislative_initiatives::*;
 pub use login::*;
 pub use mail_send_info::*;
 pub use parties::*;
-pub use questions::*;
 pub use quiz::*;
 pub use reset_password::*;
 pub use save_email::*;
@@ -40,12 +39,15 @@ pub use user::*;
 pub use verify::*;
 pub use walo::*;
 
-use crate::{PgPoolConnection, RedisConnection};
+use crate::PgPoolConnection;
 
 pub async fn all_gps(
     PgPoolConnection(pg): PgPoolConnection,
-) -> Result<Json<Vec<dataservice::with_data::gps::LegislativePeriod>>, Json<serde_json::Value>> {
-    Ok(Json(dataservice::with_data::gps::gps(&pg).await.map_err(
-        |_| Json(json!({"error": "could not return all legislative periods"})),
-    )?))
+) -> Result<Json<Vec<dataservice::combx::with_data::gps::LegislativePeriod>>, Json<serde_json::Value>>
+{
+    Ok(Json(
+        dataservice::combx::with_data::gps::gps(&pg)
+            .await
+            .map_err(|_| Json(json!({"error": "could not return all legislative periods"})))?,
+    ))
 }
