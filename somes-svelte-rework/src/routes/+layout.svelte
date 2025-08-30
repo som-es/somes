@@ -84,7 +84,7 @@
 		<Sidebar class="hidden lg:grid" />
 	</svelte:fragment>
 	<svelte:fragment slot="footer">
-		<div class="sm:!hidden">
+		<div class="sm:!hidden max-h-[4.5rem]">
 			<Bottombar />
 		</div>
 	</svelte:fragment>

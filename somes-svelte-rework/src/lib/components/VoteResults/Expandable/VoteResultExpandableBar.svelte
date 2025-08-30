@@ -75,12 +75,24 @@
 								</div>
 							{/each}
 						</div>
-						{#if voteResult.legislative_initiative.is_law}
-						<div class="badge bg-tertiary-400 text-black">Gesetz</div>
-						{/if}
+						
+						{#if voteResult.legislative_initiative.voting}
+							{#if voteResult.legislative_initiative.voting === "Law"}
+								<div class="badge bg-tertiary-400 text-black">Gesetz</div>
+							{:else if voteResult.legislative_initiative.voting === "Amendment"}
+								<div class="badge bg-tertiary-400 text-black">Abänderung</div>
+							{:else if voteResult.legislative_initiative.voting === "Resolution"}
+								<div class="badge bg-tertiary-400 text-black">Entschließung</div>
+							{/if}
+						{:else if voteResult.legislative_initiative.is_voteable_on}
+							{#if voteResult.legislative_initiative.is_law}
+								<div class="badge bg-tertiary-400 text-black">Gesetz</div>
+							{:else if voteResult.legislative_initiative.ityp == "AA"}
+								<div class="badge bg-tertiary-400 text-black">Abänderung</div>
+							{:else }
+								<div class="badge bg-tertiary-400 text-black">Entschließung</div>
+							{/if}
 
-						{#if voteResult.legislative_initiative.ityp == "AA"}
-							<div class="badge bg-tertiary-400 text-black">Abänderung</div>
 						{/if}
 					{:else}
 						<!-- Roll call votes -->

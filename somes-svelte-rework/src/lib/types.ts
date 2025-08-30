@@ -86,6 +86,8 @@ export interface LegislativeInitiative {
 	law_come_into_effect_date: string | null;
 	law_expires_on_date: string | null;
 	by_publication: boolean | null;
+	voting: string | null;
+	is_voteable_on: boolean;
 	is_urgent: boolean;
 }
 

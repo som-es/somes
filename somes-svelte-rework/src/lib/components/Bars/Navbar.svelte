@@ -97,11 +97,12 @@
 	<!-- Placeholder -->
 	<div class="w-6"></div>
 	<!-- Hamburger Icon -->
-	<div class="flex items-center justify-center">
-		<button on:click={drawerOpen} class="btn-icon btn-icon-sm lg:!hidden">
-			{@html hamburgerIcon}
-		</button>
+	<div class="flex flex-row gap-3">
+		<LightSwitch class="mt-1" />
+		<div class="flex items-center justify-center">
+			<button on:click={drawerOpen} class="fill-current btn-icon btn-icon-sm lg:!hidden">
+				{@html hamburgerIcon}
+			</button>
+		</div>
 	</div>
-
-	<LightSwitch class="hidden lg:block" />
 </div>
