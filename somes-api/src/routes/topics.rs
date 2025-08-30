@@ -29,7 +29,7 @@ pub async fn user_topic_selection(
 ) -> Result<Json<Vec<UniqueTopic>>, Json<serde_json::Value>> {
     query_as!(
         UniqueTopic,
-        "select topic_id as id, topic_name as topic from user_topics inner join unique_topics as ut on ut.id = topic_id where user_id = $1",
+        "select topic_id as id, topic_name as topic from user_topics inner join unique_eurovoc_topics as ut on ut.id = topic_id where user_id = $1",
         claims.id,
     )
     .fetch_all(&pg)
@@ -55,12 +55,12 @@ pub async fn remove_user_topic(
     .map_err(|_| Json(json!({"error": "db error"})))
 }
 
-pub async fn topics(
+pub async fn eurovoc_topics(
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<UniqueTopic>>, Json<serde_json::Value>> {
     return query_as!(
         UniqueTopic,
-        "select id, topic_name as topic from unique_topics order by topic"
+        "select id, topic_name as topic from unique_eurovoc_topics order by topic"
     )
     .fetch_all(&pg)
     .await
@@ -105,4 +105,17 @@ pub async fn topics(
         Err(_) => return Err(Json(json!({"error": "db error"}))),
     }
     */
+}
+
+pub async fn topics(
+    PgPoolConnection(pg): PgPoolConnection,
+) -> Result<Json<Vec<UniqueTopic>>, Json<serde_json::Value>> {
+    return query_as!(
+        UniqueTopic,
+        "select id, topic_name as topic from unique_topics order by topic"
+    )
+    .fetch_all(&pg)
+    .await
+    .map(Json)
+    .map_err(|_| Json(json!({"error": "redis expire"})));
 }

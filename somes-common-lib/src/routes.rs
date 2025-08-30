@@ -90,6 +90,7 @@ pub const WALO_QUESTIONS: &str = "/walo_questions";
 pub const ALL_GPS: &str = "/all_gps";
 pub const SEATS: &str = "/seats";
 pub const RENEW_TOKEN: &str = "/renew_token";
+pub const EUROVOC_TOPICS: &str = "/eurovoc_topics";
 pub const TOPICS: &str = "/topics";
 pub const TOPIC_SELECTION: &str = "/topic_selection";
 pub const FAVO_DELEGATE: &str = "/favo_delegate";

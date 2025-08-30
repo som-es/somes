@@ -138,7 +138,8 @@
 		simpleMajorityFilter ||
 		acceptedFilter ||
 		namedVoteFilter ||
-		isLawFilter
+		isLawFilter // ||
+		// searchValue
 	) {
 		update();
 	}
