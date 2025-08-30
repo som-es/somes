@@ -49,10 +49,12 @@
 				<div class="text-md sm:text-lg font-semibold w-5/6">
 					{voteResult.legislative_initiative.description}
 				</div>
-				{#if voteResult.legislative_initiative.accepted == "a"}
-					<span style="width:25px; height:25px; display:inline-block; vertical-align:middle;">{@html checkmarkIcon}</span>
-				{:else}
-					<span style="width:25px; height:25px; display:inline-block; vertical-align:middle;">{@html crossmarkIcon}</span>
+				{#if voteResult.legislative_initiative.accepted !== null}
+					{#if voteResult.legislative_initiative.accepted == "a"}
+						<span style="width:25px; height:25px; display:inline-block; vertical-align:middle;">{@html checkmarkIcon}</span>
+					{:else}
+						<span style="width:25px; height:25px; display:inline-block; vertical-align:middle;">{@html crossmarkIcon}</span>
+					{/if}
 				{/if}
 			</div>
 
