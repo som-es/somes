@@ -214,12 +214,66 @@
 
 <!-- FILTER OPTIONS 
 
-
-
-
-
-
 -->
+
+<!-- Small Screen PopUps (keep them out of <div>...</div>) -->
+<div class="card w-48 shadow-xl py-2" data-popup="popupRequiresSimpleMajority">
+	<ListBox
+		rounded="rounded-container-token sm:!rounded-token"
+		active="variant-filled-secondary"
+		hover="hover:variant-soft-secondary"
+	>
+		<ListBoxItem bind:group={simpleMajorityFilter} name="simpleMajority" value={undefined}
+			>egal</ListBoxItem
+		>
+		<ListBoxItem bind:group={simpleMajorityFilter} name="simpleMajority" value={true}
+			>einfache Mehrheit</ListBoxItem
+		>
+		<ListBoxItem bind:group={simpleMajorityFilter} name="simpleMajority" value={false}
+			>2/3 Mehrheit</ListBoxItem
+		>
+	</ListBox>
+</div>
+
+<div class="card w-48 shadow-xl py-2" data-popup="popupAccepted">
+	<ListBox
+		rounded="rounded-container-token sm:!rounded-token"
+		active="variant-filled-secondary"
+		hover="hover:variant-soft-secondary"
+	>
+		<ListBoxItem bind:group={acceptedFilter} name="accepted" value={undefined}>egal</ListBoxItem>
+		<ListBoxItem bind:group={acceptedFilter} name="accepted" value={'a'}>angenommen</ListBoxItem>
+		<ListBoxItem bind:group={acceptedFilter} name="accepted" value={'d'}>abgelehnt</ListBoxItem>
+		<ListBoxItem bind:group={acceptedFilter} name="accepted" value={'p'}
+			>frühzeitig abgelehnt</ListBoxItem
+		>
+	</ListBox>
+</div>
+
+<div class="card w-52 shadow-xl py-2" data-popup="popupNamedVote">
+	<ListBox
+		rounded="rounded-container-token sm:!rounded-token"
+		active="variant-filled-secondary"
+		hover="hover:variant-soft-secondary"
+	>
+		<ListBoxItem bind:group={namedVoteFilter} name="namedVote" value={undefined}>egal</ListBoxItem>
+		<ListBoxItem bind:group={namedVoteFilter} name="namedVote" value={true}
+			>namentliche Abstimmung</ListBoxItem
+		>
+	</ListBox>
+</div>
+
+<div class="card w-52 shadow-xl py-2" data-popup="popupIsLaw">
+	<ListBox
+		rounded="rounded-container-token sm:!rounded-token"
+		active="variant-filled-secondary"
+		hover="hover:variant-soft-secondary"
+	>
+		<ListBoxItem bind:group={isLawFilter} name="isLaw" value={undefined}>egal</ListBoxItem>
+		<ListBoxItem bind:group={isLawFilter} name="isLaw" value={true}>ja</ListBoxItem>
+		<ListBoxItem bind:group={isLawFilter} name="isLaw" value={false}>nein</ListBoxItem>
+	</ListBox>
+</div>
 
 <div>
 	<!-- FILTER OPTIONS -->
@@ -327,65 +381,6 @@
 				<span>↓</span>
 			</button>
 		</div>
-	</div>
-
-	<!-- Small Screen PopUps-->
-	<div class="card w-48 shadow-xl py-2" data-popup="popupRequiresSimpleMajority">
-		<ListBox
-			rounded="rounded-container-token sm:!rounded-token"
-			active="variant-filled-secondary"
-			hover="hover:variant-soft-secondary"
-		>
-			<ListBoxItem bind:group={simpleMajorityFilter} name="simpleMajority" value={undefined}
-				>egal</ListBoxItem
-			>
-			<ListBoxItem bind:group={simpleMajorityFilter} name="simpleMajority" value={true}
-				>einfache Mehrheit</ListBoxItem
-			>
-			<ListBoxItem bind:group={simpleMajorityFilter} name="simpleMajority" value={false}
-				>2/3 Mehrheit</ListBoxItem
-			>
-		</ListBox>
-	</div>
-	
-	<div class="card w-48 shadow-xl py-2" data-popup="popupAccepted">
-		<ListBox
-			rounded="rounded-container-token sm:!rounded-token"
-			active="variant-filled-secondary"
-			hover="hover:variant-soft-secondary"
-		>
-			<ListBoxItem bind:group={acceptedFilter} name="accepted" value={undefined}>egal</ListBoxItem>
-			<ListBoxItem bind:group={acceptedFilter} name="accepted" value={'a'}>angenommen</ListBoxItem>
-			<ListBoxItem bind:group={acceptedFilter} name="accepted" value={'d'}>abgelehnt</ListBoxItem>
-			<ListBoxItem bind:group={acceptedFilter} name="accepted" value={'p'}
-				>frühzeitig abgelehnt</ListBoxItem
-			>
-		</ListBox>
-	</div>
-	
-	<div class="card w-52 shadow-xl py-2" data-popup="popupNamedVote">
-		<ListBox
-			rounded="rounded-container-token sm:!rounded-token"
-			active="variant-filled-secondary"
-			hover="hover:variant-soft-secondary"
-		>
-			<ListBoxItem bind:group={namedVoteFilter} name="namedVote" value={undefined}>egal</ListBoxItem>
-			<ListBoxItem bind:group={namedVoteFilter} name="namedVote" value={true}
-				>namentliche Abstimmung</ListBoxItem
-			>
-		</ListBox>
-	</div>
-	
-	<div class="card w-52 shadow-xl py-2" data-popup="popupIsLaw">
-		<ListBox
-			rounded="rounded-container-token sm:!rounded-token"
-			active="variant-filled-secondary"
-			hover="hover:variant-soft-secondary"
-		>
-			<ListBoxItem bind:group={isLawFilter} name="isLaw" value={undefined}>egal</ListBoxItem>
-			<ListBoxItem bind:group={isLawFilter} name="isLaw" value={true}>ja</ListBoxItem>
-			<ListBoxItem bind:group={isLawFilter} name="isLaw" value={false}>nein</ListBoxItem>
-		</ListBox>
 	</div>
 
 	<!-- LEGIS PERIODS -->

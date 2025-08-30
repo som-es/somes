@@ -102,4 +102,6 @@
 			{@html hamburgerIcon}
 		</button>
 	</div>
+
+	<LightSwitch class="hidden lg:block" />
 </div>
