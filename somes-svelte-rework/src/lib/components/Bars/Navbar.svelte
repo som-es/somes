@@ -36,8 +36,8 @@
 
 	// detects browsers light/dark mode at load and on change and sets the theme accordingly
 	onMount(() => {
-		const mode = window.matchMedia('(prefers-color-scheme: light)');
-		setModeCurrent(mode.matches);
+		// const mode = window.matchMedia('(prefers-color-scheme: light)');
+		setModeCurrent($modeCurrent);
 	});
 
 	function drawerOpen(): void {

@@ -277,12 +277,11 @@
 <!-- <div class="mx-auto px-10"> -->
 <Container>
 	{#if get(hasGoBackStore)}
-		<SButton class="bg-primary-500 my-3" on:click={() => history.back()}>Zurück</SButton>
+		<SButton class="bg-primary-500 my-3 hidden lg:block" on:click={() => history.back()}>Zurück</SButton>
 	{/if}
-	<br />
 	<div class="entry bg-primary-200 dark:bg-primary-400 gap-3 flex flex-wrap">
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
-			<h1 class="font-bold text-4xl">Abgeordnete des Nationalrats</h1>
+			<h1 class="font-bold max-lg:text-xl lg:text-4xl">Abgeordnete des Nationalrats</h1>
 		</div>
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
 			<LegisButtons bind:periods bind:selectedPeriod showAllButton={false}></LegisButtons>

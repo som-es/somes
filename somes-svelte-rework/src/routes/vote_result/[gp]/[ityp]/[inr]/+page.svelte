@@ -41,6 +41,7 @@
 	import NamedVoteBar from '$lib/components/Delegates/NamedVote/NamedVoteBar.svelte';
 	import VoteResultIdBar from '$lib/components/Bars/VoteResultIdBar.svelte';
 	import { page } from '$app/stores';
+	import VoteTypeBadge from '$lib/components/VoteResults/VoteTypeBadge.svelte';
 
 	$: gp = $page.params.gp;
   	$: ityp = $page.params.ityp;
@@ -229,14 +230,7 @@
 								{/if}
 							</h1>
 							<span class="text-xl">{voteResult.legislative_initiative.description}</span>
-
-							{#if voteResult.legislative_initiative.is_law}
-								<div class="badge bg-tertiary-400 ml-2 text-black text-lg">Gesetz</div>
-							{/if}
-
-							{#if voteResult.legislative_initiative.ityp == "AA"}
-								<div class="badge bg-tertiary-400 text-black text-lg ml-2">Abänderung</div>
-							{/if}
+							<VoteTypeBadge {voteResult} />
 						</div>
 						<div>
 							{#if legisInitFavos}
