@@ -90,7 +90,7 @@
 			class="rounded-xl min-w-full max-w-full ml-auto parliament-item bg-primary-100"
 			on:click={onShowDetails}
 		>
-			<VoteParliament2 {voteResult} preview={true} />
+			<VoteParliament2 showGovs {voteResult} preview={true} />
 		</button>
 	{/if}
 	<InfoTiles {voteResult} {dels} />
