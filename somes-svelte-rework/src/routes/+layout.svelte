@@ -32,7 +32,7 @@
 	import { afterNavigate } from '$app/navigation';
 	const drawerStore = getDrawerStore();
 
-	  afterNavigate(() => {
+	afterNavigate(() => {
     	window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   	});
 

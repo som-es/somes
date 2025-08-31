@@ -27,7 +27,7 @@
 		<div
 			class="w-[360px]"
 		>
-			<VoteParliament2 {voteResult} preview={true} />
+			<VoteParliament2 showGovs {voteResult} preview={true} />
 		</div>
 		<div class="mx-3 text-left">
 			<span>{voteResult.legislative_initiative.description}</span>

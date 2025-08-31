@@ -71,8 +71,8 @@
 
 {#if (requiringVotes && hasVotes) || !requiringVotes || loadingVoteResult}
 <div class="gap-3 mt-5">
-	<div class="entry flex {arrowBackground} justify-between items-center text-black">
-		{#if voteResult}
+	{#if voteResult}
+		<button class="entry flex {arrowBackground} justify-between items-center text-black" on:click={() => onShowDetails(voteResult)}>
 			<div
 				class="border-radius-left spacing-for-left flex dark:bg-primary-300 bg-primary-400 justify-between items-center flex-basis-left"
 			>
@@ -96,17 +96,18 @@
 					{@html rightArrowIcon}
 				</button>
 			{/if}
-		{:else if loadingVoteResult}
-			<ExpandablePlaceholder class="min-w-7xl w-7xl" />
-			<!-- {:else if named_vote.about}
-            <div class="rounded-[0.9rem] spacing-for-left flex dark:bg-primary-300 bg-primary-400 justify-between items-center flex-basis-left">
-                <div class="flex flex-col">
-                    <div class="text-lg font-bold">{opinion}</div>
-                    <div>{named_vote.about}</div>
-                </div>
-            </div>  -->
-		{/if}
-	</div>
+		
+		</button>
+	{:else if loadingVoteResult}
+		<ExpandablePlaceholder class="min-w-7xl w-7xl" />
+		<!-- {:else if named_vote.about}
+		<div class="rounded-[0.9rem] spacing-for-left flex dark:bg-primary-300 bg-primary-400 justify-between items-center flex-basis-left">
+			<div class="flex flex-col">
+				<div class="text-lg font-bold">{opinion}</div>
+				<div>{named_vote.about}</div>
+			</div>
+		</div>  -->
+	{/if}
 </div>
 {/if}
 
