@@ -24,13 +24,22 @@ export async function seatSettedCachedGovOfficials(date: string): Promise<Delega
 	if (dels == null) {
 		return null;
 	}
-	return dels.map((delegate, idx) => {
-		// TODO FIXME some gps somehow have a lot of gov officials
-		// with this thing, not all gov officials are shown
-		if (idx < AMOUNT_PER_SIDE*2 - 2) { // -2 because 3 bubbles are not shown!
-			delegate.seat_col = idx + 1;
-			delegate.seat_row = 7;
+
+	const leftDels = dels.slice(0, dels.length / 2);
+	const rightDels = dels.slice(dels.length / 2);
+
+	for (let idx = 0; idx < AMOUNT_PER_SIDE; idx++) {
+		if (idx < leftDels.length) {
+			leftDels[idx].seat_col = AMOUNT_PER_SIDE - idx -1
+			leftDels[idx].seat_row = 7 
 		}
-		return delegate;
-	});
+
+		if (idx < rightDels.length) {
+			rightDels[idx].seat_col = AMOUNT_PER_SIDE + idx 
+			rightDels[idx].seat_row = 7 
+		}
+	}
+
+	return dels;
+
 }

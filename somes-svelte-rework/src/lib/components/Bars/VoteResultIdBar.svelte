@@ -9,16 +9,29 @@
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import { removeUserTopic } from '$lib/api/authed';
 	import { createEventDispatcher } from 'svelte';
+	import { invalidate } from '$app/navigation';
 
 	export let legis_init_id: number | null = null;
 	export let legis_init_ref: Reference | null = null;
 	export let requiringVotes: boolean = false;
+	export let countObj: { count: number } | null = null;
+	export const acceptedCondition: (voteResult: VoteResult) => boolean = (voteResult) => (voteResult.votes ?? []).length > 0;
 
 	let voteResult: VoteResult | null = null;
 
 	let loadingVoteResult = false;
   	
 	const dispatch = createEventDispatcher();
+
+	const updateCount = () => {
+		if (countObj === null) {
+			countObj = {count: 0}
+		}
+		console.log(countObj);
+		if (voteResult && acceptedCondition(voteResult) && countObj) {
+			countObj.count++;
+		}
+	};
 
 	$: if (legis_init_id || legis_init_ref) {
 		voteResult = null;
@@ -27,14 +40,16 @@
 			vote_result_by_id(legis_init_id.toString()).then((res) => {
 				voteResult = errorToNull(res);
 				loadingVoteResult = false;
+				updateCount();
 			});
 		}
 		if (legis_init_ref) {
 			vote_result_by_path(legis_init_ref.gp, legis_init_ref.ityp, legis_init_ref.inr.toString()).then((res) => {
 				voteResult = errorToNull(res);
 				loadingVoteResult = false;
+				updateCount();
 			});
-		}
+		}	
 	}
 
 	const modalStore = getModalStore();
@@ -56,8 +71,8 @@
 
 {#if (requiringVotes && hasVotes) || !requiringVotes || loadingVoteResult}
 <div class="gap-3 mt-5">
-	<div class="entry flex {arrowBackground} justify-between items-center text-black">
-		{#if voteResult}
+	{#if voteResult}
+		<button class="entry flex {arrowBackground} justify-between items-center text-black" on:click={() => onShowDetails(voteResult)}>
 			<div
 				class="border-radius-left spacing-for-left flex dark:bg-primary-300 bg-primary-400 justify-between items-center flex-basis-left"
 			>
@@ -81,17 +96,18 @@
 					{@html rightArrowIcon}
 				</button>
 			{/if}
-		{:else if loadingVoteResult}
-			<ExpandablePlaceholder class="min-w-7xl w-7xl" />
-			<!-- {:else if named_vote.about}
-            <div class="rounded-[0.9rem] spacing-for-left flex dark:bg-primary-300 bg-primary-400 justify-between items-center flex-basis-left">
-                <div class="flex flex-col">
-                    <div class="text-lg font-bold">{opinion}</div>
-                    <div>{named_vote.about}</div>
-                </div>
-            </div>  -->
-		{/if}
-	</div>
+		
+		</button>
+	{:else if loadingVoteResult}
+		<ExpandablePlaceholder class="min-w-7xl w-7xl" />
+		<!-- {:else if named_vote.about}
+		<div class="rounded-[0.9rem] spacing-for-left flex dark:bg-primary-300 bg-primary-400 justify-between items-center flex-basis-left">
+			<div class="flex flex-col">
+				<div class="text-lg font-bold">{opinion}</div>
+				<div>{named_vote.about}</div>
+			</div>
+		</div>  -->
+	{/if}
 </div>
 {/if}
 

@@ -4,7 +4,7 @@
 	import homeIcon from '$lib/assets/icons/home.svg?raw';
 	import userIcon from '$lib/assets/icons/user.svg?raw';
 	import statsIcon from '$lib/assets/icons/statistics.svg?raw';
-	import waloIcon from '$lib/assets/icons/walo.svg?raw';
+	import delegatesIcon from '$lib/assets/icons/delegates.svg?raw';
 	import { mockDelegates, mockVoteResult } from '$lib/parliaments/mock';
 	import { base } from '$app/paths';
 	import VoteParliament2 from '../Parliaments/VoteParliament2.svelte';
@@ -22,24 +22,32 @@
 	class="bg-surface-100-800-token w-full"
 >
 	<TabAnchor href="{base}/home" selected={isSelected('/home')}>
-		<div class="flex justify-center flex-col items-center">
+		<!-- <svelte:fragment slot="lead">
+			{@html homeIcon}
+		</svelte:fragment> -->
+		<div class="flex justify-center flex-col items-center ">
 			<div>
 				{@html homeIcon}
 			</div>
-			<div>Neuigkeiten</div>
+			<span class="text-sm">Neuigkeiten</span>
 		</div>
 	</TabAnchor>
-	<TabAnchor href="{base}/wahlhelfer" selected={isSelected('/wahlhelfer')}>
+	<TabAnchor href="{base}/delegates" selected={isSelected('/delegates')}>
+		<div class="flex justify-center flex-col items-center">
+			<div class="p-0 w-[36px] h-[34px]">
+				{@html delegatesIcon}
+			</div>
+			<span class="text-sm">Abgeordnete</span>
+		</div>
+	</TabAnchor>
+	<!-- <TabAnchor href="{base}/wahlhelfer" selected={isSelected('/wahlhelfer')}>
 		<div class="flex justify-center flex-col items-center">
 			<div class="p-0 w-[28px] h-[42px]">
 				{@html waloIcon}
 			</div>
 			<div>Wahlhelfer</div>
-
-			<!-- <span class="" style="font-size: x-small;">Wahlhelfer</span> -->
-			<!-- <span style="font-size: x-small;">NRWAHL 2024</span> -->
 		</div>
-	</TabAnchor>
+	</TabAnchor> -->
 	<!-- <TabAnchor href="/statistics" selected={isSelected('/statistics')}>
 		<div class="flex justify-center flex-col items-center">
 			<div class="w-8">
@@ -65,7 +73,7 @@
 			<!-- <div>
 				{@html userIcon}
 			</div> -->
-			<div>Abstimmungen</div>
+			<span class="text-sm">Abstimmungen</span>
 		</div>
 	</TabAnchor>
 </TabGroup>

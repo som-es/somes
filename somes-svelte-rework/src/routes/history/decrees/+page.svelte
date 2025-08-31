@@ -6,7 +6,7 @@
 
 <!-- <div class="mx-auto px-5"> -->
 <Container>
-	<!-- alles, was noch nicht abgestimmt wurde / was schon wurde, aber halt wovon kam ok?? -> Ministerialentwürfe, Anträge -->
+	<div class="px-4 md:px-8 lg:px-12 pt-4">
 	<h1 class="text-2xl sm:text-4xl font-bold">Verordnungen</h1>
 	<PaginationDecrees />
 </Container>

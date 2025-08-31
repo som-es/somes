@@ -323,6 +323,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(SEATS, get(seats))
         .route(RENEW_TOKEN, post(renew_token))
         .route(TOPICS, get(topics))
+        .route(EUROVOC_TOPICS, get(eurovoc_topics))
         .route(TOPIC_SELECTION, post(add_user_topic))
         .route(TOPIC_SELECTION, delete(remove_user_topic))
         .route(TOPIC_SELECTION, get(user_topic_selection))

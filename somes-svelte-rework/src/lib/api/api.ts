@@ -210,6 +210,10 @@ export async function delegates_with_seats_near_date(
 	return getWithRoute<Delegate[]>(`delegates_with_seats_near_date?at=${date_at}&period=${gp}`);
 }
 
+export async function get_eurovoc_topics(): Promise<UniqueTopic[] | HasError> {
+	return getWithRoute<UniqueTopic[]>('eurovoc_topics');
+}
+
 export async function get_topics(): Promise<UniqueTopic[] | HasError> {
 	return getWithRoute<UniqueTopic[]>('topics');
 }

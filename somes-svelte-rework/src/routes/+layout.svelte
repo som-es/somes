@@ -29,7 +29,12 @@
 	import NamedVoteModal from '$lib/components/Delegates/NamedVote/NamedVoteModal.svelte';
 	import DetailedInterestsModal from '$lib/components/Delegates/Interests/DetailedInterestsModal.svelte';
 	import DecreesModal from '$lib/components/Delegates/Decrees/DecreesModal.svelte';
+	import { afterNavigate } from '$app/navigation';
 	const drawerStore = getDrawerStore();
+
+	afterNavigate(() => {
+    	window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  	});
 
 	// const drawerStore = getDrawerStore();
 	const modalRegistry: Record<string, ModalComponent> = {
@@ -84,7 +89,7 @@
 		<Sidebar class="hidden lg:grid" />
 	</svelte:fragment>
 	<svelte:fragment slot="footer">
-		<div class="sm:!hidden">
+		<div class="sm:!hidden max-h-[4.5rem]">
 			<Bottombar />
 		</div>
 	</svelte:fragment>

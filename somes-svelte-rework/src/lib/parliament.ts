@@ -2,7 +2,7 @@ import type { Delegate, NamedVote, Speech, VoteResult } from '$lib/types';
 import type { Material, Texture } from 'three';
 import { partyToColor } from './partyColor';
 
-export const AMOUNT_PER_SIDE: number = 11;
+export const AMOUNT_PER_SIDE: number = 15;
 
 export interface Bubble {
 	r: number;

@@ -96,6 +96,7 @@
 						party: '',
 						fraction: voteResult.named_votes.named_vote_info.pro_count,
 						infavor: true,
+						code: '',
 						legislative_initiatives_id: 0
 					}
 				];
@@ -115,7 +116,9 @@
 		{#if showAccepted && voteResult.legislative_initiative.accepted}
 			<Square {squareSize} class="accepted-item {squareClasses}">
 				{#if voteResult.legislative_initiative.accepted == 'a'}
-					{@html checkmarkIcon}
+					<span class="fill-green-600 dark:fill-green-500">
+						{@html checkmarkIcon}
+					</span>
 					{#if showText}
 						<div>Angenommen</div>
 					{/if}
