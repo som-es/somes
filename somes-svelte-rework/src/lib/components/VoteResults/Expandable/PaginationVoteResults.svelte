@@ -23,7 +23,6 @@
 	import { get } from 'svelte/store';
 	import ExpandablePlaceholder from './Placeholders/ExpandablePlaceholder.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
-
 	export let showAcceptedFilter = true;
 	export let showVoteTypeFilter = true;
 

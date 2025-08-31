@@ -25,6 +25,7 @@ export function convertDelegatesToAutocompleteOptions(
 
 		let genderIdentsString = genderIdents.join(', ');
 		let divisionsString = delegate.divisions?.join(', ');
+		let mandatesString = delegate.active_mandates?.join(', ');
 		let otherKeywordsString = otherKeywords.join(', ');
 
 		const rightLabel = delegate.party ? delegate.party : 'OK';
@@ -33,7 +34,7 @@ export function convertDelegatesToAutocompleteOptions(
 			right_label: rightLabel,
 			label: delegate.name,
 			value: delegate.name,
-			keywords: `${delegate.id}, ${delegate.party}, ${delegate.constituency}, ${genderIdentsString}, ${delegate.birthdate}, ${delegate.active_since}, ${divisionsString}, ${otherKeywordsString}, ${yes_or_no_vote}`,
+			keywords: `${delegate.id}, ${delegate.party}, ${delegate.constituency}, ${genderIdentsString}, ${delegate.birthdate}, ${delegate.active_since}, ${divisionsString}, ${otherKeywordsString}, ${yes_or_no_vote}, ${mandatesString}`,
 			meta: delegate
 		};
 	});
