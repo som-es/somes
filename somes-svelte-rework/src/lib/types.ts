@@ -426,12 +426,21 @@ export interface LegisPeriod {
 	start_date: Date;
 }
 
+export interface PartyVote {
+	party: string;
+	infavor: boolean;
+}
+
 export interface VoteResultFilter {
 	is_named_vote: boolean | null;
 	accepted: string | null;
 	simple_majority: boolean | null;
 	legis_period: string | null;
 	is_law: boolean | null;
+	vote_type: string | null;
+	topics: string[] | null;
+	party_votes: PartyVote[] | null;
+	is_urgent: boolean | null;
 }
 
 export interface DecreeFilter {

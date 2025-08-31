@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { delegates_at, errorToNull, vote_result_by_id, vote_result_by_path } from '$lib/api/api';
+	import { errorToNull, vote_result_by_path } from '$lib/api/api';
 	import {
 		currentDelegateStore,
 		currentVoteResultStore,
@@ -11,10 +11,9 @@
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import Topics from '$lib/components/Topics/Topics.svelte';
-	import type { Delegate, RelatedDelegate, VoteResult } from '$lib/types';
+	import type { Delegate, VoteResult } from '$lib/types';
 	import Emphasis from '$lib/components/VoteResults/Emphasis/Emphasis.svelte';
 	import InfoTiles from '$lib/components/VoteResults/InfoTiles/InfoTiles.svelte';
-	import { filteredDelegates } from '$lib/caching/delegates';
 	import VoteDelegateCard from '$lib/components/Delegates/VoteDelegateCard.svelte';
 	import {
 		genCirclesWithNamedVoteInfo,
@@ -22,7 +21,6 @@
 		type Bubble
 	} from '$lib/parliament';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
-	import { replaceState } from '$app/navigation';
 	import {
 		convertDelegatesToAutocompleteOptions,
 		delegateFilterOptions
@@ -37,15 +35,13 @@
 	import star from '$lib/assets/misc_icons/star.svg?raw';
 	import starFilled from '$lib/assets/misc_icons/starFilled.svg?raw';
 	import FetchDelegateCard from '$lib/components/Delegates/FetchDelegateCard.svelte';
-	import VoteResultExpandableBar from '$lib/components/VoteResults/Expandable/VoteResultExpandableBar.svelte';
-	import NamedVoteBar from '$lib/components/Delegates/NamedVote/NamedVoteBar.svelte';
 	import VoteResultIdBar from '$lib/components/Bars/VoteResultIdBar.svelte';
 	import { page } from '$app/stores';
 	import VoteTypeBadge from '$lib/components/VoteResults/VoteTypeBadge.svelte';
 
 	$: gp = $page.params.gp;
-  	$: ityp = $page.params.ityp;
-  	$: inr = $page.params.inr;
+	$: ityp = $page.params.ityp;
+	$: inr = $page.params.inr;
 
 	let delegates: Delegate[] = [];
 
@@ -86,20 +82,19 @@
 
 	$: rawEmphasis = voteResult?.legislative_initiative?.emphasis;
 
-	$: issuedByDels = new Map<string, number[]>()
+	$: issuedByDels = new Map<string, number[]>();
+	$: description = voteResult?.legislative_initiative?.description;
 
 	$: if (voteResult?.issued_by_dels) {
 		issuedByDels = new Map<string, number[]>();
-		voteResult.issued_by_dels.forEach(del => {
-			console.log(del)
-			const text = del.text ? del.text : "Abgeordnete"	
+		voteResult.issued_by_dels.forEach((del) => {
+			const text = del.text ? del.text : 'Abgeordnete';
 			if (issuedByDels.has(text)) {
-				issuedByDels.get(text)?.push(del.delegate_id)
+				issuedByDels.get(text)?.push(del.delegate_id);
 			} else {
-				issuedByDels.set(text, [del.delegate_id])
+				issuedByDels.set(text, [del.delegate_id]);
 			}
 		});
-	
 	}
 
 	const update = () => {
@@ -116,6 +111,14 @@
 
 	const selectRandomlyFromDels = () => {
 		delegate = delegates[Math.floor(Math.random() * delegates.length)];
+		
+		const maybeStoredDelegate = get(currentDelegateStore);
+		if (maybeStoredDelegate) {
+			const foundDel = delegates.find((del) => del.id == maybeStoredDelegate.id);
+			if (foundDel) {
+				delegate = foundDel;
+			}
+		}
 	};
 
 	let legisInitFavos: Set<number> | null = null;
@@ -138,18 +141,18 @@
 		enrichDelegates(delegates);
 
 		selectRandomlyFromDels();
-		updateAutocompletion();
-
-		const maybeStoredDelegate = get(currentDelegateStore);
-		if (maybeStoredDelegate) {
-			const foundDel = delegates.find((del) => del.id == maybeStoredDelegate.id);
-			if (foundDel) {
-				delegate = foundDel;
-			}
-		}
+		updateAutocompletion();	
 	};
 
 	onMount(runVoteResultUpdate);
+
+	// let tempInr = "0";
+
+	// setInterval(async () => {
+	// 	tempInr = ((+tempInr) + 1).toString();
+	// 	console.log(tempInr);
+	// 	voteResult = errorToNull(await vote_result_by_path(gp, ityp, tempInr));
+	// }, 5000)	
 
 	let currentlyUpdating = false;
 
@@ -229,7 +232,7 @@
 									Gegenstand
 								{/if}
 							</h1>
-							<span class="text-xl">{voteResult.legislative_initiative.description}</span>
+							<span class="text-xl">{description}</span>
 							<VoteTypeBadge {voteResult} />
 						</div>
 						<div>
@@ -379,17 +382,22 @@
 				</div>
 
 				<div class="flex max-md:flex-wrap gap-2 w-full">
-					<div class="flex {voteResult.issued_by_dels.length > 0 ? "flex-col" : "flex-row"} gap-2" style="flex-basis: {voteResult.issued_by_dels.length > 0 ? "30%" : "100%;" }">
+					<div
+						class="flex {voteResult.issued_by_dels.length > 0 ? 'flex-col' : 'flex-row'} gap-2"
+						style="flex-basis: {voteResult.issued_by_dels.length > 0 ? '30%' : '100%;'}"
+					>
 						<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
 							<span class="font-bold text-xl">Dokumente (PDFs)</span>
 							<div class="gap-3 flex flex-wrap">
-								{#each voteResult.documents.sort((a, b) => (b.title ?? "").length - (a.title ?? "").length) as document}
+								{#each voteResult.documents.sort((a, b) => (b.title ?? '').length - (a.title ?? '').length) as document}
 									{#if document.document_type.includes('PDF')}
 										<SButton
 											class="bg-secondary-500 text-black"
 											on:click={() =>
-												window.open(`https://www.parlament.gv.at${document.document_url}`, '_blank')}
-											>{document.title}</SButton
+												window.open(
+													`https://www.parlament.gv.at${document.document_url}`,
+													'_blank'
+												)}>{document.title}</SButton
 										>
 									{/if}
 								{/each}
@@ -397,30 +405,41 @@
 						</div>
 						{#if voteResult.referenced_by_others_ids.length > 0}
 							<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3 h-full">
-								<span class="font-bold text-3xl ">Referenziert in</span>
+								<span class="font-bold text-3xl">Referenziert in</span>
 								{#each voteResult.referenced_by_others_ids as refered_by}
-									<VoteResultIdBar requiringVotes on:dataUpdated={event => {voteResult = event.detail; runVoteResultUpdate()}} legis_init_id={refered_by} />
+									<VoteResultIdBar
+										requiringVotes
+										on:dataUpdated={(event) => {
+											voteResult = { ...event.detail };
+										}}
+										legis_init_id={refered_by}
+									/>
 								{/each}
 							</div>
 						{/if}
 						{#if voteResult.references.length > 0}
 							<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3 h-full">
 								<span class="font-bold text-3xl">
-									{#if voteResult.legislative_initiative.ityp == "AA"}
+									{#if voteResult.legislative_initiative.ityp == 'AA'}
 										Hauptgegenstand
 									{:else}
 										Bezug zu
 									{/if}
 								</span>
 								{#each voteResult.references as refered_by}
-									<VoteResultIdBar on:dataUpdated={event => {voteResult = event.detail; runVoteResultUpdate()}} requiringVotes legis_init_ref={refered_by} />
+									<VoteResultIdBar
+										requiringVotes
+										on:dataUpdated={(event) => {
+											voteResult = { ...event.detail };
+										}}
+										legis_init_ref={refered_by}
+									/>
 								{/each}
 							</div>
 						{/if}
 					</div>
 					{#if issuedByDels.size > 0}
 						<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
-
 							{#each issuedByDels as [text, delegate_ids]}
 								<span class="font-bold text-3xl">{text}</span>
 								<span class="font-bold text-xl"></span>
@@ -440,7 +459,6 @@
 							{/each}
 						</div>
 					{/if}
-
 				</div>
 				{#if circles2d}
 					{#if circles2d.length > 0 && speeches.length > 0}

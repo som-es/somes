@@ -55,6 +55,7 @@
 	let acceptedFilter: string | undefined = undefined;
 	let namedVoteFilter: boolean | undefined = undefined;
 	let isLawFilter: boolean | undefined = undefined;
+	let votingFilter: string | undefined = undefined;
 
 	const maybeStoredFilter = get(currentVoteResultFilterStore);
 	if (maybeStoredFilter !== null) {
@@ -91,7 +92,11 @@
 			accepted,
 			is_law: isLawFilter == undefined ? null : isLawFilter,
 			simple_majority: simpleMajorityFilter == undefined ? null : simpleMajorityFilter,
-			legis_period: selectedPeriod == 'all' ? null : selectedPeriod
+			legis_period: selectedPeriod == 'all' ? null : selectedPeriod,
+			vote_type: votingFilter == undefined ? null : votingFilter,
+			topics: null,
+			is_urgent: null,
+			party_votes: null,
 		};
 		currentVoteResultFilterStore.set(filter);
 
@@ -138,6 +143,7 @@
 		simpleMajorityFilter ||
 		acceptedFilter ||
 		namedVoteFilter ||
+		votingFilter ||
 		isLawFilter // ||
 		// searchValue
 	) {
@@ -334,11 +340,12 @@
 		</div>
 		{/if}
 		<div class="mt-5 mr-5">
-			<h1 class="text-2xl font-bold">Gesetz</h1>
+			<h1 class="text-2xl font-bold">Typ</h1>
 			<RadioGroup active="variant-filled-secondary" hover="hover:variant-soft-secondary">
-				<RadioItem bind:group={isLawFilter} name="isLaw" value={undefined}>egal</RadioItem>
-				<RadioItem bind:group={isLawFilter} name="isLaw" value={true}>ja</RadioItem>
-				<RadioItem bind:group={isLawFilter} name="isLaw" value={false}>nein</RadioItem>
+				<RadioItem bind:group={votingFilter} name="voting" value={undefined}>egal</RadioItem>
+				<RadioItem bind:group={votingFilter} name="voting" value={"Law"}>Gesetz</RadioItem>
+				<RadioItem bind:group={votingFilter} name="voting" value={"Resolution"}>Entschließung</RadioItem>
+				<RadioItem bind:group={votingFilter} name="voting" value={"Amendment"}>Abänderung</RadioItem>
 			</RadioGroup>
 		</div>
 	</div>

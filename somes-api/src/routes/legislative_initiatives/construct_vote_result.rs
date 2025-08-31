@@ -276,7 +276,8 @@ SELECT jsonb_build_object(
             '[]'::jsonb
         )
         FROM legis_inits_refs
-        WHERE ref_gp = $5 and ref_ityp = $6 and ref_inr = $7
+        inner join legislative_initiatives li on li.id = origin_legis_init_id
+        WHERE ref_gp = $5 and ref_ityp = $6 and ref_inr = $7 and li.is_voteable_on
     ), 
     'references', (
         SELECT COALESCE(
@@ -290,8 +291,8 @@ SELECT jsonb_build_object(
             '[]'::jsonb
         )
         FROM legis_inits_refs
-        --inner join legislative_initiatives li on li.gp = ref_gp and li.ityp = ref_ityp and li.inr = ref_inr
-        WHERE origin_legis_init_id = $1
+        inner join legislative_initiatives li on li.gp = ref_gp and li.ityp = ref_ityp and li.inr = ref_inr
+        WHERE origin_legis_init_id = $1 and li.is_voteable_on
     ), 
     'legislative_initiative', (
         SELECT row_to_json(legislative_initiatives)

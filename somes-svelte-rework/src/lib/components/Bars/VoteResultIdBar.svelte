@@ -9,16 +9,29 @@
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import { removeUserTopic } from '$lib/api/authed';
 	import { createEventDispatcher } from 'svelte';
+	import { invalidate } from '$app/navigation';
 
 	export let legis_init_id: number | null = null;
 	export let legis_init_ref: Reference | null = null;
 	export let requiringVotes: boolean = false;
+	export let countObj: { count: number } | null = null;
+	export const acceptedCondition: (voteResult: VoteResult) => boolean = (voteResult) => (voteResult.votes ?? []).length > 0;
 
 	let voteResult: VoteResult | null = null;
 
 	let loadingVoteResult = false;
   	
 	const dispatch = createEventDispatcher();
+
+	const updateCount = () => {
+		if (countObj === null) {
+			countObj = {count: 0}
+		}
+		console.log(countObj);
+		if (voteResult && acceptedCondition(voteResult) && countObj) {
+			countObj.count++;
+		}
+	};
 
 	$: if (legis_init_id || legis_init_ref) {
 		voteResult = null;
@@ -27,14 +40,16 @@
 			vote_result_by_id(legis_init_id.toString()).then((res) => {
 				voteResult = errorToNull(res);
 				loadingVoteResult = false;
+				updateCount();
 			});
 		}
 		if (legis_init_ref) {
 			vote_result_by_path(legis_init_ref.gp, legis_init_ref.ityp, legis_init_ref.inr.toString()).then((res) => {
 				voteResult = errorToNull(res);
 				loadingVoteResult = false;
+				updateCount();
 			});
-		}
+		}	
 	}
 
 	const modalStore = getModalStore();
