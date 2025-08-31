@@ -51,10 +51,13 @@
 				</div>
 				{#if voteResult.legislative_initiative.accepted !== null}
 					{#if voteResult.legislative_initiative.accepted == "a"}
-						<span style="width:25px; height:25px; display:inline-block; vertical-align:middle;">{@html checkmarkIcon}</span>
+						<span class="stroke-green-600 dark:stroke-green-500 inline-block align-middle" style="width:30px; height:30px">{@html checkmarkIcon}</span>
 					{:else}
-						<span style="width:25px; height:25px; display:inline-block; vertical-align:middle;">{@html crossmarkIcon}</span>
+						<span class="inline-block align-middle" style="width:30px; height:30px">{@html crossmarkIcon}</span>
 					{/if}
+				{:else}
+					<div></div>
+					<VoteTypeBadge {voteResult} />
 				{/if}
 			</div>
 
@@ -71,9 +74,9 @@
 								<div class="flex items-center">
 									<h4 class="text-sm">{vote.party}</h4>
 									{#if vote.infavor}
-										<span class="mr-1 md:mr-2" style="width:20px; height:20px; display:inline-block; vertical-align:middle;">{@html checkmarkIcon}</span>
+										<span class="mr-1 md:mr-2 stroke-green-600 dark:stroke-green-500 inline-block align-middle" style="width:20px; height:20px;">{@html checkmarkIcon}</span>
 									{:else}
-										<span class="mr-1 md:mr-2" style="width:20px; height:20px; display:inline-block; vertical-align:middle;">{@html crossmarkIcon}</span>
+										<span class="mr-1 md:mr-2 inline-block align-middle" style="width:20px; height:20px;">{@html crossmarkIcon}</span>
 									{/if}
 								</div>
 							{/each}
@@ -113,6 +116,7 @@
 						<VoteParliament2 {voteResult} preview={true} />
 					</button>
 					-->
+				{:else}
 				{/if}
 			</div>
 			{#if voteResult.named_votes != null}

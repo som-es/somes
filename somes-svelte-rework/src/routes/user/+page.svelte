@@ -4,7 +4,7 @@
 	import {
 		delegate_by_id,
 		errorToNull,
-		get_topics,
+		get_eurovoc_topics,
 		isHasError,
 		vote_result_by_id
 	} from '$lib/api/api';
@@ -91,7 +91,7 @@
 			return;
 		}
 
-		topics = errorToNull(await get_topics()) ?? [];
+		topics = errorToNull(await get_eurovoc_topics()) ?? [];
 		user = getUserFromJwt(jwtToken);
 		mailSendInfo = errorToNull(await getMailSendInfo());
 		extendedUser = errorToNull(await getUser());
