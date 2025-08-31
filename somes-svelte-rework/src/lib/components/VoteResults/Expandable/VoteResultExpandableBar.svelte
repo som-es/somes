@@ -86,7 +86,7 @@
 						<!-- Roll call votes -->
 						<div class="block sm:flex w-full mb-3">
 							<div class="flex items-center mb-1 sm:mb-0">
-								<span class="mr-1" style="width:20px; height:20px; display:inline-block; vertical-align:middle;">{@html checkmarkIcon}</span>
+								<span class="mr-1 stroke-green-600 dark:stroke-green-500 inline-block align-middle" style="width:20px; height:20px;">{@html checkmarkIcon}</span>
 							{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
 								{#if vote.infavor}
 									<div class="flex items-center">
@@ -97,7 +97,7 @@
 							{/each}
 							</div>
 							<div class="flex flex-wrap items-center">
-								<span class="mr-1 ml-0 sm:ml-3" style="width:20px; height:20px; display:inline-block; vertical-align:middle;">{@html crossmarkIcon}</span>
+								<span class="mr-1 ml-0 sm:ml-3 inline-block align-middle" style="width:20px; height:20px;">{@html crossmarkIcon}</span>
 								{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
 									{#if !vote.infavor}
 										<div class="flex items-center">
