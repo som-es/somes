@@ -123,7 +123,12 @@
 		{#if delegate.active_mandates?.length == 0}
 			<h6 class="text-lg">{delegate.primary_mandate}</h6>
 		{:else}
-			<h6 class="text-lg">{delegate.active_mandates?.join('\n')}</h6>
+			{#each delegate.active_mandates?? [] as mandate}
+				<h6 class="text-lg">
+					{mandate}
+				</h6>
+			{/each}
+			<!-- <h6 class="text-lg">{delegate.active_mandates?.join('\n')}</h6> -->
 		{/if}
 
 		{#if !onlyTop}

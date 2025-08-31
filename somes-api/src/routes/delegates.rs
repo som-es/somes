@@ -454,7 +454,7 @@ pub async fn gov_officials_at_date(
     let delegates = sqlx::query_as!(
         Delegate,
         "
-    SELECT 
+    SELECT DISTINCT ON (delegates.id) 
         delegates.id, 
         delegates.name, 
         mandates.party,
