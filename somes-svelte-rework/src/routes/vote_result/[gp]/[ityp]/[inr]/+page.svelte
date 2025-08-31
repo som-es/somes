@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { errorToNull, vote_result_by_path } from '$lib/api/api';
+	import { errorToNull, get_eurovoc_topics, vote_result_by_path } from '$lib/api/api';
 	import {
 		currentDelegateStore,
 		currentVoteResultStore,
@@ -370,15 +370,17 @@
 						</div>
 					{/if}
 
-					<div
-						class="topics-item flex rounded-xl justify-center items-center bg-primary-300 dark:bg-primary-500 p-3 max-h-[169px]"
-					>
-						<Topics
-							topics={voteResult.eurovoc_topics.sort((a, b) => {
-								return a.topic.length - b.topic.length;
-							})}
-						/>
-					</div>
+					{#if voteResult.eurovoc_topics.length > 0 }
+						<div
+							class="topics-item flex rounded-xl justify-center items-center bg-primary-300 dark:bg-primary-500 p-3 max-h-[169px]"
+						>
+							<Topics
+								topics={voteResult.eurovoc_topics.sort((a, b) => {
+									return a.topic.length - b.topic.length;
+								})}
+							/>
+						</div>
+					{/if}
 				</div>
 
 				<div class="flex max-md:flex-wrap gap-2 w-full">
