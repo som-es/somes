@@ -72,7 +72,7 @@
 {#if (requiringVotes && hasVotes) || !requiringVotes || loadingVoteResult}
 <div class="gap-3 mt-5">
 	{#if voteResult}
-		<button class="entry flex {arrowBackground} justify-between items-center text-black" on:click={() => onShowDetails(voteResult)}>
+		<button class="w-full entry flex {arrowBackground} justify-between items-center text-black" on:click={() => onShowDetails(voteResult)}>
 			<div
 				class="border-radius-left spacing-for-left flex dark:bg-primary-300 bg-primary-400 justify-between items-center flex-basis-left"
 			>

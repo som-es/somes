@@ -63,6 +63,7 @@
 		if (maybeStoredFilter.accepted !== null) acceptedFilter = maybeStoredFilter.accepted;
 		if (maybeStoredFilter.is_named_vote !== null) namedVoteFilter = maybeStoredFilter.is_named_vote;
 		if (maybeStoredFilter.is_law !== null) isLawFilter = maybeStoredFilter.is_law;
+		if (maybeStoredFilter.vote_type !== null) votingFilter = maybeStoredFilter.vote_type;
 	}
 
 	const loadVoteResults = async () => {
