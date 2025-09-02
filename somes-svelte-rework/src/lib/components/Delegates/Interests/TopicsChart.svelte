@@ -17,7 +17,7 @@
 </script>
 
 <div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 gap-1 w-full">
-	<span class="font-bold text-2xl">Meist behandelte Themen</span>
+	<span class="font-bold max-lg:text-lg text-2xl">Meist behandelte Themen</span>
 
 	{#if detailedInterests.length > 0}
 		<div class="flex justify-between">

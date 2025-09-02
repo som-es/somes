@@ -26,7 +26,7 @@
 </script>
 
 <div class="flex justify-between items-center">
-	<h1 class="font-bold text-2xl">Politische Haltung und Richtung</h1>
+	<h1 class="font-bold max-lg:text-lg text-2xl">Politische Haltung und Richtung</h1>
     <div class="flex self-center items-center">
         <button class="text-5xl mx-2" use:popup={popupFeatured}>⚠</button>
         <button

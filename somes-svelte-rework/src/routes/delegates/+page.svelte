@@ -392,7 +392,7 @@
 				<PoliticalStanceTitleBar {delegate} stanceTopicInfluences={generalDelegateInfo.stance_topic_influences} />
 			</div>
 		{/if}
-		<div class="flex gap-2 w-full">
+		<div class="flex max-sm:flex-wrap gap-2">
 			{#if delegate && generalDelegateInfo?.political_position}
 				<SquarePoliticalSpectrum
 					{delegate}
