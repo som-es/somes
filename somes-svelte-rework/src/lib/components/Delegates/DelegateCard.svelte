@@ -112,6 +112,7 @@
 			<hr>
 			Alles Gute zum Geburtstag!
 		{/if}
+
 		<h5 style="color: {partyToColor(delegate.party)}">
 			{#if delegate.party == 'OK'}
 				Ohne Klub
@@ -119,34 +120,36 @@
 				<span>{delegate.party}</span>
 			{/if}
 		</h5>
-
-		{#if delegate.active_mandates?.length == 0}
-			<h6 class="text-lg">{delegate.primary_mandate}</h6>
-		{:else}
-			{#each delegate.active_mandates?? [] as mandate}
-				<h6 class="text-lg">
-					{mandate}
-				</h6>
-			{/each}
-			<!-- <h6 class="text-lg">{delegate.active_mandates?.join('\n')}</h6> -->
-		{/if}
-
-		{#if !onlyTop}
-			<hr class="!border-t-2 my-1" />
-			{#if delegate.constituency != null}
-				<h3>{delegate.constituency}</h3>
+		<span class="max-sm:hidden">
+			{#if delegate.active_mandates?.length == 0}
+				<h6 class="text-lg">{delegate.primary_mandate}</h6>
+			{:else}
+				{#each delegate.active_mandates?? [] as mandate}
+					<h6 class="text-lg">
+						{mandate}
+					</h6>
+				{/each}
+				<!-- <h6 class="text-lg">{delegate.active_mandates?.join('\n')}</h6> -->
 			{/if}
-			<hr class="!border-t-2 my-1" />
-			<h3>{delegate.divisions?.join(', ')}</h3>
-		{/if}
-		
-		<slot name="title"></slot>
-		<slot name="info"></slot>
 
-		<br>
-		{#if showDelegate == "true"}
-			ID: {delegate.id}
-		{/if}
+			{#if !onlyTop}
+				<hr class="!border-t-2 my-1" />
+				{#if delegate.constituency != null}
+					<h3>{delegate.constituency}</h3>
+				{/if}
+				<hr class="!border-t-2 my-1" />
+				<h3>{delegate.divisions?.join(', ')}</h3>
+			{/if}
+			
+			<slot name="title"></slot>
+			<slot name="info"></slot>
+
+
+			<br>
+			{#if showDelegate == "true"}
+				ID: {delegate.id}
+			{/if}
+		</span>
 	</section>
 
 	<hr class="!border-t-2 my-1" />

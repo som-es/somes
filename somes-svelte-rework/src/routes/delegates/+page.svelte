@@ -411,10 +411,18 @@
 
 		{#if generalDelegateInfo?.interests && generalDelegateInfo?.detailed_interests}
 			{#if generalDelegateInfo?.interests?.length > 0}
-				<TopicsChart
-					detailedInterests={generalDelegateInfo.detailed_interests}
-					interests={generalDelegateInfo.interests}
-				/>
+				<span class="max-sm:hidden w-full">
+					<TopicsChart
+						detailedInterests={generalDelegateInfo.detailed_interests}
+						interests={generalDelegateInfo.interests}
+					/>
+				</span>
+				<span class="sm:hidden w-full">
+					<TopicsChart
+						detailedInterests={generalDelegateInfo.detailed_interests}
+						interests={generalDelegateInfo.interests.slice(0, 8)}
+					/>
+				</span>
 				<!-- <div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
 
 					<h1 class="font-bold text-2xl mb-2">Top 4 Interessen</h1>

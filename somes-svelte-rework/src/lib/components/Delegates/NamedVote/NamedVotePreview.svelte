@@ -19,13 +19,13 @@
 
 <div class="flex flex-wrap justify-between items-center">
 	<div>
-		<h1 class="font-bold text-2xl">Letzte namentliche Abstimmungen</h1>
-		<h2 class="text-lg">
+		<h1 class="font-bold text-lg sm:text-2xl">Letzte namentliche Abstimmungen</h1>
+		<h2 class="sm:text-lg">
 			{namedVotes.length}
 			{namedVotes.length == 1 ? 'Abstimmung' : 'Abstimmungen'} insgesamt
 		</h2>
 	</div>
-	<button class="btn sm:btn-lg variant-filled" on:click={() => modalStore.trigger(allNamedVotes)}
+	<button class="btn sm:btn-lg variant-filled mt-1" on:click={() => modalStore.trigger(allNamedVotes)}
 		>Alle anzeigen</button
 	>
 </div>

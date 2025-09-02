@@ -19,14 +19,14 @@
 
 <div class="flex flex-wrap justify-between items-center">
 	<div>
-		<h1 class="font-bold text-2xl">Letzte Abwesenheiten</h1>
+		<h1 class="font-bold text-lg sm:text-2xl">Letzte Abwesenheiten</h1>
 
-		<h2 class="text-lg">
+		<h2 class="sm:text-lg">
 			{absences.length}
 			{absences.length == 1 ? 'Abwesenheit' : 'Abwesenheiten'} insgesamt
 		</h2>
 	</div>
-	<button class="btn sm:btn-lg variant-filled" on:click={() => modalStore.trigger(allAbsences)}
+	<button class="btn sm:btn-lg variant-filled mt-1" on:click={() => modalStore.trigger(allAbsences)}
 		>Alle anzeigen</button
 	>
 </div>

@@ -25,32 +25,38 @@
 		on:keypress={() => (open = !open)}
 		role="button"
 		tabindex="0"
-		class="entry {coloring} flex justify-between items-center text-black"
+		class="entry {coloring} text-black"
 	>
-		<div class="flex gap-4">
-			<div id={open ? 'open' : 'closed'}>
-				{@html rightArrowIcon}
+		<div class="flex justify-between items-center">
+
+			<div class="flex gap-4">
+				<!-- <div id={open ? 'open' : 'closed'}>
+					{@html rightArrowIcon}
+				</div> -->
+
 			</div>
 
-			<div class="badge bg-tertiary-400">Verordnung</div>
+			<div>
+				{decree.title}
+			</div>
+
+			{#if delegate}
+				<img
+					class="min-w-[80px] max-h-[80px] rounded-full mx-1"
+					src={`${address}/assets/${delegate.id}.jpg`}
+					alt="Image of delegate {delegate.name}"
+				/>
+			{/if}
+			
+			<!-- <div use:collapse={{ open, duration }}>
+				<DecreeBarExpanded {decree} bind:open />
+			</div> -->
 		</div>
 
-		<div>
-			{decree.title}
+		<div class="flex justify-between mt-1">
+			<div></div>
+			<span class="badge bg-tertiary-400">Verordnung</span>
 		</div>
-
-		{#if delegate}
-			<img
-				class="min-w-[80px] max-h-[80px] rounded-full mx-1"
-				src={`${address}/assets/${delegate.id}.jpg`}
-				alt="Image of delegate {delegate.name}"
-			/>
-		{/if}
-		
-	</div>
-
-	<div use:collapse={{ open, duration }}>
-		<DecreeBarExpanded {decree} bind:open />
 	</div>
 </div>
 

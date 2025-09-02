@@ -18,14 +18,14 @@
 
 <div class="flex flex-wrap justify-between items-center">
 	<div>
-		<h1 class="font-bold text-2xl">Ministerialentwürfe</h1>
+		<h1 class="font-bold text-lg sm:text-2xl">Ministerialentwürfe</h1>
 
-		<h2 class="text-lg">
+		<h2 class="sm:text-lg">
 			{govProposals.length}
 			{govProposals.length == 1 ? 'Ministerialentwurf' : 'Ministerialentwürfe'} insgesamt
 		</h2>
 	</div>
-	<button class="btn sm:btn-lg variant-filled" on:click={() => modalStore.trigger(allProposals)}
+	<button class="btn sm:btn-lg variant-filled mt-1" on:click={() => modalStore.trigger(allProposals)}
 		>Alle anzeigen</button
 	>
 </div>

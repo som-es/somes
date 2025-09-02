@@ -19,5 +19,5 @@
 </script>
 
 <VoteResultBar legis_init_id={namedVote.legis_init_id}> 
-	<div class="text-lg font-bold badge {opinionColor} text-white max-w-fit">{opinion}</div>
+	<div class=" text-sm sm:text-lg font-bold badge {opinionColor} text-white max-w-fit">{opinion}</div>
 </VoteResultBar>

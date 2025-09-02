@@ -77,7 +77,7 @@
 				class="border-radius-left spacing-for-left flex dark:bg-primary-300 bg-primary-400 justify-between items-center flex-basis-left"
 			>
 				<div class="flex flex-col gap-1">
-					<div class="text-xl">{voteResult.legislative_initiative.description}</div>
+					<div class="sm:text-xl">{voteResult.legislative_initiative.description}</div>
 					<slot />
 				</div>
 
