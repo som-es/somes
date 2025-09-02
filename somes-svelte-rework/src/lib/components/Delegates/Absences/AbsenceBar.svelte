@@ -22,26 +22,31 @@
 		on:keypress={() => (open = !open)}
 		role="button"
 		tabindex="0"
-		class="entry dark:bg-primary-300 bg-primary-400 flex justify-between items-center text-black"
+		class="entry dark:bg-primary-300 bg-primary-400 text-black"
 	>
-		<div class="flex gap-4">
-			<div id={open ? 'open' : 'closed'}>
-				{@html rightArrowIcon}
+		<div class="flex justify-between items-center">
+			<div class="flex gap-4">
+				<!-- <div id={open ? 'open' : 'closed'}>
+					{@html rightArrowIcon}
+				</div> -->
+
 			</div>
 
-			<div class="badge bg-tertiary-400">Abwesenheit</div>
+			<div>
+				{absence.inr}. Nationalratssitzung | {absence.gp}
+			</div>
+			<div>
+				{absence.missed_legis_init_ids.length} verpasste
+				{#if absence.missed_legis_init_ids.length == 1}
+					Abstimmung
+				{:else}
+					Abstimmungen
+				{/if}
+			</div>
 		</div>
-
-		<div>
-			{absence.inr}. Nationalratssitzung | {absence.gp}
-		</div>
-		<div>
-			{absence.missed_legis_init_ids.length} verpasste
-			{#if absence.missed_legis_init_ids.length == 1}
-				Abstimmung
-			{:else}
-				Abstimmungen
-			{/if}
+		<div class="flex justify-between mt-1">
+			<div></div>
+			<span class="badge bg-tertiary-400">Abwesenheit</span>
 		</div>
 	</div>
 
