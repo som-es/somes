@@ -25,7 +25,7 @@
 			{govProposals.length == 1 ? 'Ministerialentwurf' : 'Ministerialentwürfe'} insgesamt
 		</h2>
 	</div>
-	<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(allProposals)}
+	<button class="btn sm:btn-lg variant-filled" on:click={() => modalStore.trigger(allProposals)}
 		>Alle anzeigen</button
 	>
 </div>

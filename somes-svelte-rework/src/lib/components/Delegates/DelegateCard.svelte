@@ -160,13 +160,13 @@
 
 		{#if !onlyTop}
 			{#if showAI}
-				<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(aiChatModal)}
+				<button class="btn sm:btn-lg variant-filled" on:click={() => modalStore.trigger(aiChatModal)}
 					>AI Chat</button
 				>
 			{/if}
 			{#if showQA && questions.length > 0}
 				<button
-					class="btn btn-lg variant-filled"
+					class="btn sm:btn-lg variant-filled"
 					on:click={() => modalStore.trigger(delegateQAModal)}>Vorstellung</button
 				>
 			{/if}

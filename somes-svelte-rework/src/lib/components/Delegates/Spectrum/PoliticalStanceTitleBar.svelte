@@ -30,7 +30,7 @@
     <div class="flex self-center items-center">
         <button class="text-5xl mx-2" use:popup={popupFeatured}>⚠</button>
         <button
-            class="mr-auto btn btn-lg variant-filled"
+            class="mr-auto btn sm:btn-lg variant-filled"
             on:click={() => modalStore.trigger(questionDetails)}>Details</button
         >
     </div>

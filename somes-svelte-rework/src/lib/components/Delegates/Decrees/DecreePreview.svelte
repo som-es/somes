@@ -26,7 +26,7 @@
 			{decrees.length == 1 ? 'Verordnung' : 'Verordnungen'} insgesamt
 		</h2>
 	</div>
-	<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(allDecrees)}
+	<button class="btn sm:btn-lg variant-filled" on:click={() => modalStore.trigger(allDecrees)}
 		>Alle anzeigen</button
 	>
 </div>

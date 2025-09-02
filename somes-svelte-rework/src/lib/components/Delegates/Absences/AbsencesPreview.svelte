@@ -26,7 +26,7 @@
 			{absences.length == 1 ? 'Abwesenheit' : 'Abwesenheiten'} insgesamt
 		</h2>
 	</div>
-	<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(allAbsences)}
+	<button class="btn sm:btn-lg variant-filled" on:click={() => modalStore.trigger(allAbsences)}
 		>Alle anzeigen</button
 	>
 </div>

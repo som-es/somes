@@ -26,7 +26,7 @@
 			{speechesPage0.entry_count == 1 ? 'Rede' : 'Reden'} insgesamt
 		</h2>
 	</div>
-	<button class="btn btn-lg variant-filled" on:click={() => modalStore.trigger(allSpeeches)}
+	<button class="btn sm:btn-lg variant-filled" on:click={() => modalStore.trigger(allSpeeches)}
 		>Alle anzeigen</button
 	>
 </div>
