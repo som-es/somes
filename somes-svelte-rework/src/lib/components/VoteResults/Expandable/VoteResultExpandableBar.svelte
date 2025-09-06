@@ -108,6 +108,9 @@
 								{/each}
 							</div>
 						</div>
+						<div class="max-sm:hidden">
+							<VoteTypeBadge {voteResult} />
+						</div>
 					{/if}
 					<!-- REWORK - Mini Parlament <button
 						class="max-sm:hidden z-20 w-[7.5rem] bg-primary-100 dark:bg-primary-300 rounded-md"
@@ -119,9 +122,11 @@
 				{:else}
 				{/if}
 			</div>
-			{#if voteResult.named_votes != null}
-				<VoteTypeBadge {voteResult} />
-			{/if}
+			<span class="sm:hidden">
+				{#if voteResult.named_votes != null}
+					<VoteTypeBadge {voteResult} />
+				{/if}
+			</span>
 		</div>
 	</div>
 	<div use:collapse={{ open, duration }}>
