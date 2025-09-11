@@ -8,6 +8,7 @@
 	import { cachedLatestGovProposals } from '$lib/caching/gov_proposals';
 	import LatestProposals from '$lib/components/Proposals/Latest/LatestProposals.svelte';
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache';
+	import Calendar from '$lib/components/Calendar.svelte';
 
 	let dels: Delegate[] | null = null;
 	let voteResults: VoteResult[] | null = null;
@@ -39,9 +40,27 @@
 			voteResults = tempVoteResults;
 		}
 	});
+	const date = new Date();
+	const year = date.getFullYear();
+	const month = date.getMonth();
+
+	var daysInThisMonth = new Date(year, month+1, 0).getDate();
+
+	const days = []
+
+	for (let i = 0; i < daysInThisMonth; i++) {
+		let testDate = new Date(year,month,i+1);
+		console.log(testDate);
+		console.log(testDate.getDay());
+		if (testDate.getDay() > 0 && testDate.getDay() < 6) {
+			days.push({name: (i +1).toString(), enabled: true, date: testDate})
+		}
+	}
+	
 </script>
 
 <Container>
+	<Calendar {days} headers={["Mo", "Di", "Mi", "Do", "Fr"]} />
 	{#if userVoteResults && dels}
 		<h1 class="text-2xl sm:text-4xl font-bold">Abstimmungsergebnisse nach Interesse</h1>
 
