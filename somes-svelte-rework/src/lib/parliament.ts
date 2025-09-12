@@ -111,7 +111,8 @@ export function enrichParliamentBubbles(
 			voteResult.speeches,
 			bubbles,
 			dels,
-			voteResult.legislative_initiative.pre_declined_type?.includes('p')
+			voteResult.legislative_initiative.pre_declined_type?.includes('p'),
+			setOpacity
 		);
 		if (voteResult.named_votes) {
 			enrichCirclesWithNamedVoteInfoOnSeat(voteResult.named_votes.named_votes, bubbles, dels);
@@ -208,7 +209,8 @@ export async function enrichCirclesWithSpeechInfoOnSeat(
 	speeches: Speech[],
 	circles2d: Bubble[][],
 	dels: Delegate[],
-	reversed = false
+	reversed = false,
+	setOpacity: (bubble: Bubble) => void,
 ) {
 	speeches.forEach((speech) => {
 		let del = findDelegateById(dels, speech.delegate_id);
@@ -224,16 +226,16 @@ export async function enrichCirclesWithSpeechInfoOnSeat(
 
 		circles2d[del.seat_row - 1][del.seat_col - 1].speech = speech;
 
-		let opacity = 0.2; 
 		if (infavor == null) {
 			circles2d[del.seat_row - 1][del.seat_col - 1].title = speech.opinion;
+			setOpacity(circles2d[del.seat_row - 1][del.seat_col - 1])
 		} else {
 			circles2d[del.seat_row - 1][del.seat_col - 1].title = infavor
 				? `Dafür gesprochen`
 				: `Dagegen gesprochen`;
-			opacity = infavor ? 1.0 : 0.2;
+			const opacity = infavor ? 1.0 : 0.2;
+			circles2d[del.seat_row - 1][del.seat_col - 1].opacity = opacity;
 		}
-		circles2d[del.seat_row - 1][del.seat_col - 1].opacity = opacity;
 		circles2d[del.seat_row - 1][del.seat_col - 1].r = +10.9;
 	});
 }
