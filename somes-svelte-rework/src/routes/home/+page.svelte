@@ -46,17 +46,17 @@
 </script>
 
 <Container>	
-	<h1 class="mt-2 text-2xl sm:text-4xl font-bold">
+	<h1 class="mt-2 text-3xl sm:text-5xl font-bold">
 		Neuigkeiten
 	</h1>
-	<NextSessionInfo />
+	<NextSessionInfo />	
+	<h2 class="text-xl sm:text-3xl font-bold">Letzte Abstimmungen</h2>
 	{#if userVoteResults && dels}
-		<h2 class="text-xl sm:text-3xl font-bold">Abstimmungsergebnisse nach Interesse</h2>
+		<h2 class="text-xl sm:text-3xl font-bold">nach Interesse</h2>
 
 		<VoteResults {dels} voteResults={userVoteResults} />
 		<!-- {:else if use} -->
 	{/if}
-	<h2 class="text-xl sm:text-3xl font-bold">Neuste Abstimmungsergebnisse</h2>
 	{#if voteResults && dels}
 		<VoteResults {dels} {voteResults} showHistory />
 	{:else}
