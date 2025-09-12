@@ -46,14 +46,17 @@
 </script>
 
 <Container>	
+	<h1 class="mt-2 text-2xl sm:text-4xl font-bold">
+		Neuigkeiten
+	</h1>
 	<NextSessionInfo />
 	{#if userVoteResults && dels}
-		<h1 class="text-2xl sm:text-4xl font-bold">Abstimmungsergebnisse nach Interesse</h1>
+		<h2 class="text-xl sm:text-3xl font-bold">Abstimmungsergebnisse nach Interesse</h2>
 
 		<VoteResults {dels} voteResults={userVoteResults} />
 		<!-- {:else if use} -->
 	{/if}
-	<h1 class="text-2xl sm:text-4xl font-bold">Neuste Abstimmungsergebnisse</h1>
+	<h2 class="text-xl sm:text-3xl font-bold">Neuste Abstimmungsergebnisse</h2>
 	{#if voteResults && dels}
 		<VoteResults {dels} {voteResults} showHistory />
 	{:else}
@@ -95,7 +98,7 @@
 		</section>
 	{/if}
 
-	<h1 class="mt-2 text-2xl sm:text-4xl font-bold">Ministerialentwürfe der letzten 30 Tage</h1>
+	<h2 class="mt-2 text-xl sm:text-3xl font-bold">Ministerialentwürfe der letzten 30 Tage</h2>
 
 	{#if govProposals}
 		{#if govProposals.length == 0}

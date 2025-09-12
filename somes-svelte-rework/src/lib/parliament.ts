@@ -224,7 +224,7 @@ export async function enrichCirclesWithSpeechInfoOnSeat(
 
 		circles2d[del.seat_row - 1][del.seat_col - 1].speech = speech;
 
-		let opacity = 1.0;
+		let opacity = 0.2; 
 		if (infavor == null) {
 			circles2d[del.seat_row - 1][del.seat_col - 1].title = speech.opinion;
 		} else {
