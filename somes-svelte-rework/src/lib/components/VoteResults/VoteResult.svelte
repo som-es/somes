@@ -3,6 +3,7 @@
 	import { currentVoteResultStore } from '$lib/stores/stores';
 	import { createVoteResultPath, type Delegate, type VoteResult } from '$lib/types';
 	import VoteParliament2 from '../Parliaments/VoteParliament2.svelte';
+	import VoteTypeBadge from './VoteTypeBadge.svelte';
 
 	export let voteResult: VoteResult;
 	export let dels: Delegate[];
@@ -29,14 +30,9 @@
 		>
 			<VoteParliament2 showGovs {voteResult} preview={true} />
 		</div>
-		<div class="mx-3 text-left">
+		<div class="mx-3 text-left my-1">
 			<span>{voteResult.legislative_initiative.description}</span>
-			{#if voteResult.legislative_initiative.is_law}
-				<div class="badge bg-tertiary-400 text-black mx-2 my-1">Gesetz</div>
-			{/if}
-			{#if voteResult.legislative_initiative.ityp == "AA"}
-				<div class="badge bg-tertiary-400 text-black mx-2 my-1">Abänderung</div>
-			{/if}
+			<VoteTypeBadge {voteResult} />
 		</div>
 	</div>
 </span>
