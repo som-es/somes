@@ -1,6 +1,6 @@
 <script lang="ts">
-	import Calendar from "./Calendar.svelte";
-	import type { Day } from "./types";
+	import Calendar from "../Calendar/Calendar.svelte";
+	import type { Day } from "../Calendar/types";
 
 	const date = new Date();
 	let year = date.getFullYear();

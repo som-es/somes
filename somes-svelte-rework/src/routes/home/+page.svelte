@@ -9,7 +9,8 @@
 	import LatestProposals from '$lib/components/Proposals/Latest/LatestProposals.svelte';
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache';
 	import Calendar from '$lib/components/Calendar/Calendar.svelte';
-	import PlenarCalendar from '$lib/components/Calendar/PlenarCalendar.svelte';
+	import PlenarCalendar from '$lib/components/PlenarySessions/PlenarCalendar.svelte';
+	import NextSessionInfo from '$lib/components/PlenarySessions/NextSessionInfo.svelte';
 
 	let dels: Delegate[] | null = null;
 	let voteResults: VoteResult[] | null = null;
@@ -44,8 +45,8 @@
 
 </script>
 
-<Container>
-	<PlenarCalendar />
+<Container>	
+	<NextSessionInfo />
 	{#if userVoteResults && dels}
 		<h1 class="text-2xl sm:text-4xl font-bold">Abstimmungsergebnisse nach Interesse</h1>
 
@@ -135,5 +136,5 @@
 				</div>
 			</div>
 		</section>
-	{/if}
+	{/if}	
 </Container>

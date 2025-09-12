@@ -43,7 +43,7 @@
     }
 </script>
 
-<div class="calendar max-w-[50rem] bg-primary-100 dark:bg-primary-600">
+<div class="calendar max-w-[50rem] bg-primary-100 dark:bg-primary-600 rounded-xl">
 	<div class="flex flex-col">
         <div class="flex items-center justify-around">
             <button class="px-5" on:click={() => year--}>{"<<"} </button>
