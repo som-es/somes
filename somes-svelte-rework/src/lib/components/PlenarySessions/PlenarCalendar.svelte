@@ -1,6 +1,8 @@
 <script lang="ts">
+	import { errorToNull } from "$lib/api/api";
 	import Calendar from "../Calendar/Calendar.svelte";
 	import type { Day } from "../Calendar/types";
+	import { plenar_dates, type PlenarDate } from "./api";
 
 	const date = new Date();
 	let year = date.getFullYear();
@@ -11,23 +13,40 @@
     const months = ["Jänner", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
 
 	let days: Day[] = []
+    let plenarDates: PlenarDate[] = []
 
-	const addDays = () => {
+    // const updatePlenarDays = () => {
+
+    // };
+
+	const addDays = (plenarDates: PlenarDate[]) => {
         days = []
         for (let i = 0; i < daysInThisMonth; i++) {
             let testDate = new Date(year,month,i+1);
-            console.log(testDate);
-            console.log(testDate.getDay());
             if (testDate.getDay() > 0 && testDate.getDay() < 6) {
-                days.push({name: (i +1).toString(), enabled: true, date: testDate, item: null})
+                const maybeDate = plenarDates.find(date => {
+                    const newDate = new Date(date.date);
+                    return newDate.getFullYear() == year && newDate.getMonth() == month && newDate.getDate() == i+1; 
+                }) ?? null;
+                const item = maybeDate == null ? null : {title: "Plenarsitzung", classes: "badge text-xs bg-tertiary-500"};
+                days.push({name: (i +1).toString(), enabled: true, date: testDate, item})
             }
         }
 
-        days[17].item = { title: "Plenarsitzung", classes: "badge text-xs bg-tertiary-500"}
-        days[18].item = { title: "Plenarsitzung", classes: "badge text-xs bg-tertiary-500"}
+        // days[17].item = { title: "Plenarsitzung", classes: "badge text-xs bg-tertiary-500"}
+        // days[18].item = { title: "Plenarsitzung", classes: "badge text-xs bg-tertiary-500"}
     }
 
-    $: month, year,addDays();
+    $: {
+        month; year; 
+        plenar_dates(`${year}-${month}-${date.getDate()}`).then(dates => {
+            const newDates = errorToNull(dates);
+            console.log(newDates);
+            if (newDates !== null) {
+                addDays(newDates)
+            }
+        });
+    };
 
 </script>
 
