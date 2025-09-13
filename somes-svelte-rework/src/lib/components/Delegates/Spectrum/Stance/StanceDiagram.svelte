@@ -16,7 +16,7 @@
 </script>
 
 <div class="slider-container max-w-60">
-	<span class="mr-1">{leftLabel}</span>
+	<span class="mr-[0.35rem]">{leftLabel}</span>
 	<div class="slider-track" style="--track-color: {trackColor}; --border-color: {borderColor};">
 		<div class="zero-marker"></div>
 		<div class="zero-label mb-6 text-center">{zeroLabel}</div>
@@ -25,7 +25,7 @@
 			style="left: {position}%; --knob-color: {knobColor}; --border-color: {borderColorKnob};"
 		></div>
 	</div>
-	<span class="ml-1">{rightLabel}</span>
+	<span class="ml-[0.35rem]">{rightLabel}</span>
 </div>
 
 <style>
