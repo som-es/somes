@@ -44,6 +44,7 @@
 
 	let currentlyUpdating = false;
 
+	// Remove hardcoding of filter values
 	let selectedPeriod = 'all';
 	let simpleMajorityFilter: boolean | undefined = undefined;
 	let acceptedFilter: string | undefined = undefined;
@@ -235,6 +236,7 @@
 
 <!-- Small Screen PopUps (keep them out of <div>...</div>) -->
 
+<!-- Remove hardcoding of filter html -->
 <div
 	class="z-10 card w-full p-5 self-center md:max-w-[34rem] lg:max-w-[50rem] shadow-xl py-2"
 	data-popup="mobileFilter"
@@ -454,6 +456,54 @@
 					<SButton class="bg-secondary-500 text-black">{@html filterIcon}</SButton>
 				</div>
 			</div>
+		</div>
+
+		<!-- Remove hardcoding of filter html -->
+		<div class="mt-2 flex flex-wrap gap-2">
+			{#if selectedPeriod !== 'all'}
+				<button
+					class="badge p-3 bg-tertiary-400 text-black cursor-pointer"
+					on:click={() => (selectedPeriod = 'all')}
+				>
+					{selectedPeriod} <span class="ml-1" style="font-size: 18px;">&#x2715</span>
+				</button>
+			{/if}
+			{#if acceptedFilter !== undefined}
+				<button
+					class="badge p-3 bg-tertiary-400 text-black cursor-pointer"
+					on:click={() => (acceptedFilter = undefined)}
+				>
+					{translateAcceptedValue(acceptedFilter)}
+					<span class="ml-1" style="font-size: 18px;">&#x2715</span>
+				</button>
+			{/if}
+			{#if simpleMajorityFilter !== undefined}
+				<button
+					class="badge p-3 bg-tertiary-400 text-black cursor-pointer"
+					on:click={() => (simpleMajorityFilter = undefined)}
+				>
+					{translateSimpleMajorityFilterValue(simpleMajorityFilter)}
+					<span class="ml-1" style="font-size: 18px;">&#x2715</span>
+				</button>
+			{/if}
+			{#if votingFilter !== undefined}
+				<button
+					class="badge p-3 bg-tertiary-400 text-black cursor-pointer"
+					on:click={() => (votingFilter = undefined)}
+				>
+					{translateVotingFilter(votingFilter)}
+					<span class="ml-1" style="font-size: 18px;">&#x2715</span>
+				</button>
+			{/if}
+			{#if namedVoteFilter !== undefined}
+				<button
+					class="badge p-3 bg-tertiary-400 text-black cursor-pointer"
+					on:click={() => (namedVoteFilter = undefined)}
+				>
+					{translateNamedVoteValue(namedVoteFilter)}
+					<span class="ml-1" style="font-size: 18px;">&#x2715</span>
+				</button>
+			{/if}
 		</div>
 	</div>
 
