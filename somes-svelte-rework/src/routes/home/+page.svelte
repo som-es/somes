@@ -8,8 +8,6 @@
 	import { cachedLatestGovProposals } from '$lib/caching/gov_proposals';
 	import LatestProposals from '$lib/components/Proposals/Latest/LatestProposals.svelte';
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache';
-	import Calendar from '$lib/components/Calendar/Calendar.svelte';
-	import PlenarCalendar from '$lib/components/PlenarySessions/PlenarCalendar.svelte';
 	import NextSessionInfo from '$lib/components/PlenarySessions/NextSessionInfo.svelte';
 
 	let dels: Delegate[] | null = null;
@@ -42,14 +40,11 @@
 			voteResults = tempVoteResults;
 		}
 	});
-
 </script>
 
-<Container>	
-	<h1 class="mt-2 text-3xl sm:text-5xl font-bold">
-		Neuigkeiten
-	</h1>
-	<NextSessionInfo />	
+<Container>
+	<h1 class="mt-2 text-3xl sm:text-5xl font-bold">Neuigkeiten</h1>
+	<NextSessionInfo />
 	<h2 class="text-xl sm:text-3xl font-bold">Letzte Abstimmungen</h2>
 	{#if userVoteResults && dels}
 		<h2 class="text-xl sm:text-3xl font-bold">nach Interesse</h2>
@@ -139,5 +134,5 @@
 				</div>
 			</div>
 		</section>
-	{/if}	
+	{/if}
 </Container>

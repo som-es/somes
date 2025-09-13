@@ -1,5 +1,8 @@
 <script lang="ts">
-	import { unfinished_vote_results_by_search, unfinished_vote_results_per_page } from '$lib/api/api';
+	import {
+		unfinished_vote_results_by_search,
+		unfinished_vote_results_per_page
+	} from '$lib/api/api';
 	import { cachedDelegates, filteredDelegates } from '$lib/caching/delegates';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import PaginationVoteResults from '$lib/components/VoteResults/Expandable/PaginationVoteResults.svelte';
@@ -14,11 +17,19 @@
 
 <!-- <div class="mx-auto px-5"> -->
 <Container>
-	<div class="px-4 md:px-8 lg:px-12 pt-4">
-	<h1 class="text-2xl sm:text-4xl font-bold">Unfertige Abstimmungsergebnisse</h1>
+	<div class="px-1 md:px-8 lg:px-12 pt-4">
+		<h1 class="text-2xl sm:text-4xl font-bold">Unfertige Abstimmungsergebnisse</h1>
 
-	{#if dels}
-		<PaginationVoteResults {dels} storeIdx={1} voteResultsPostFn={unfinished_vote_results_per_page} voteResultsSearchPostFn={unfinished_vote_results_by_search} showAcceptedFilter={false} showVoteTypeFilter={false} />
-	{/if}
-</Container>
+		{#if dels}
+			<PaginationVoteResults
+				{dels}
+				storeIdx={1}
+				voteResultsPostFn={unfinished_vote_results_per_page}
+				voteResultsSearchPostFn={unfinished_vote_results_by_search}
+				showAcceptedFilter={false}
+				showVoteTypeFilter={false}
+			/>
+		{/if}
+	</div></Container
+>
 <!-- </div> -->

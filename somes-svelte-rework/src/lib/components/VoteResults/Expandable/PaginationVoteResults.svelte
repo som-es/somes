@@ -1,10 +1,5 @@
 <script lang="ts">
-	import type {
-		Delegate,
-		VoteResultFilter,
-		VoteResultsWithMaxPage,
-		HasError
-	} from '$lib/types';
+	import type { Delegate, VoteResultFilter, VoteResultsWithMaxPage, HasError } from '$lib/types';
 	import { onMount } from 'svelte';
 	import { errorToNull, vote_results_by_search, vote_results_per_page } from '$lib/api/api';
 	import VoteResultExpandableBar from './VoteResultExpandableBar.svelte';
@@ -37,9 +32,8 @@
 		voteResultFilter: VoteResultFilter
 	) => Promise<VoteResultsWithMaxPage | HasError> = vote_results_by_search;
 	export let storeIdx: number = 0;
-	let currentVoteResultFilterStore = currentVoteResultFilterStores[storeIdx]
+	let currentVoteResultFilterStore = currentVoteResultFilterStores[storeIdx];
 	$: currentVoteResultFilterStore = currentVoteResultFilterStores[storeIdx];
-
 
 	let voteResults: VoteResultsWithMaxPage | null = null;
 
@@ -58,7 +52,8 @@
 
 	const maybeStoredFilter = get(currentVoteResultFilterStore);
 	if (maybeStoredFilter !== null) {
-		if (maybeStoredFilter.simple_majority !== null) simpleMajorityFilter = maybeStoredFilter.simple_majority;
+		if (maybeStoredFilter.simple_majority !== null)
+			simpleMajorityFilter = maybeStoredFilter.simple_majority;
 		if (maybeStoredFilter.legis_period !== null) selectedPeriod = maybeStoredFilter.legis_period;
 		if (maybeStoredFilter.accepted !== null) acceptedFilter = maybeStoredFilter.accepted;
 		if (maybeStoredFilter.is_named_vote !== null) namedVoteFilter = maybeStoredFilter.is_named_vote;
@@ -96,7 +91,7 @@
 			vote_type: votingFilter == undefined ? null : votingFilter,
 			topics: null,
 			is_urgent: null,
-			party_votes: null,
+			party_votes: null
 		};
 		currentVoteResultFilterStore.set(filter);
 
@@ -206,11 +201,18 @@
 		closeQuery: '.listbox-item'
 	};
 
-	const translateIsLawValue = (isLawFilter: boolean | undefined) => {
-		if (isLawFilter == undefined) {
+	const translateVotingFilter = (votingFilter: string | undefined) => {
+		if (votingFilter == undefined) {
 			return 'egal';
 		}
-		return isLawFilter ? 'ja' : 'nein';
+		switch (votingFilter) {
+			case 'Law':
+				return 'Gesetz';
+			case 'Resolution':
+				return 'Entschließung';
+			case 'Amendment':
+				return 'Abänderung';
+		}
 	};
 </script>
 
@@ -219,7 +221,7 @@
 	<span class="text-lg"> Test </span>
 </SlideToggle> -->
 
-<!-- FILTER OPTIONS 
+<!-- FILTER OPTIONS
 
 -->
 
@@ -276,9 +278,12 @@
 		active="variant-filled-secondary"
 		hover="hover:variant-soft-secondary"
 	>
-		<ListBoxItem bind:group={isLawFilter} name="isLaw" value={undefined}>egal</ListBoxItem>
-		<ListBoxItem bind:group={isLawFilter} name="isLaw" value={true}>ja</ListBoxItem>
-		<ListBoxItem bind:group={isLawFilter} name="isLaw" value={false}>nein</ListBoxItem>
+		<ListBoxItem bind:group={votingFilter} name="isLaw" value={undefined}>egal</ListBoxItem>
+		<ListBoxItem bind:group={votingFilter} name="isLaw" value={'Law'}>Gesetz</ListBoxItem>
+		<ListBoxItem bind:group={votingFilter} name="isLaw" value={'Resolution'}
+			>Entschließung</ListBoxItem
+		>
+		<ListBoxItem bind:group={votingFilter} name="isLaw" value={'Amendment'}>Abänderung</ListBoxItem>
 	</ListBox>
 </div>
 
@@ -287,7 +292,7 @@
 	<!-- Large Screens-->
 	<div class="max-lg:hidden flex flex-wrap mt-5">
 		<div class="mt-5 mr-5">
-			<h1 class="text-2xl font-bold">notwendige Mehrheit</h1>
+			<h1 class="sm:text-2xl font-bold">notwendige Mehrheit</h1>
 			<RadioGroup
 				rounded="rounded-container-token sm:!rounded-token"
 				active="variant-filled-secondary"
@@ -306,46 +311,50 @@
 			</RadioGroup>
 		</div>
 		{#if showVoteTypeFilter}
-		<div class="mt-5 mr-5">
-			<h1 class="text-2xl font-bold">Abstimmung</h1>
-			<RadioGroup active="variant-filled-secondary" hover="hover:variant-soft-secondary">
-				<RadioItem bind:group={namedVoteFilter} name="namedVote" value={undefined}>egal</RadioItem>
-				<RadioItem bind:group={namedVoteFilter} name="namedVote" value={true}
-					>namentliche Abstimmung</RadioItem
-				>
-			</RadioGroup>
-		</div>
+			<div class="mt-5 mr-5">
+				<h1 class="text-2xl font-bold">Abstimmung</h1>
+				<RadioGroup active="variant-filled-secondary" hover="hover:variant-soft-secondary">
+					<RadioItem bind:group={namedVoteFilter} name="namedVote" value={undefined}>egal</RadioItem
+					>
+					<RadioItem bind:group={namedVoteFilter} name="namedVote" value={true}
+						>namentliche Abstimmung</RadioItem
+					>
+				</RadioGroup>
+			</div>
 		{/if}
 	</div>
 	<div class="max-lg:hidden flex flex-wrap mt-5 mr-5">
 		{#if showAcceptedFilter}
-		<div class="mt-5 mr-5">
-			<h1 class="text-2xl font-bold">Angenommen</h1>
-			<RadioGroup
-				rounded="rounded-container-token sm:!rounded-token"
-				active="variant-filled-secondary"
-				hover="hover:variant-soft-secondary"
-				flexDirection="flex-col sm:flex-row"
-			>
-				<RadioItem bind:group={acceptedFilter} name="accepted" value={undefined}>egal</RadioItem>
-				<RadioItem bind:group={acceptedFilter} name="accepted" value={'a'}>angenommen</RadioItem>
-				<RadioItem bind:group={acceptedFilter} name="accepted" value={'d'}>abgelehnt</RadioItem>
-				<RadioItem
-					bind:group={acceptedFilter}
-					name="accepted"
-					value={'p'}
-					title="frühzeitig abgelehnt - vor der 3. Lesung">frühzeitig abgelehnt</RadioItem
+			<div class="mt-5 mr-5">
+				<h1 class="text-2xl font-bold">Angenommen</h1>
+				<RadioGroup
+					rounded="rounded-container-token sm:!rounded-token"
+					active="variant-filled-secondary"
+					hover="hover:variant-soft-secondary"
+					flexDirection="flex-col sm:flex-row"
 				>
-			</RadioGroup>
-		</div>
+					<RadioItem bind:group={acceptedFilter} name="accepted" value={undefined}>egal</RadioItem>
+					<RadioItem bind:group={acceptedFilter} name="accepted" value={'a'}>angenommen</RadioItem>
+					<RadioItem bind:group={acceptedFilter} name="accepted" value={'d'}>abgelehnt</RadioItem>
+					<RadioItem
+						bind:group={acceptedFilter}
+						name="accepted"
+						value={'p'}
+						title="frühzeitig abgelehnt - vor der 3. Lesung">frühzeitig abgelehnt</RadioItem
+					>
+				</RadioGroup>
+			</div>
 		{/if}
 		<div class="mt-5 mr-5">
 			<h1 class="text-2xl font-bold">Typ</h1>
 			<RadioGroup active="variant-filled-secondary" hover="hover:variant-soft-secondary">
 				<RadioItem bind:group={votingFilter} name="voting" value={undefined}>egal</RadioItem>
-				<RadioItem bind:group={votingFilter} name="voting" value={"Law"}>Gesetz</RadioItem>
-				<RadioItem bind:group={votingFilter} name="voting" value={"Resolution"}>Entschließung</RadioItem>
-				<RadioItem bind:group={votingFilter} name="voting" value={"Amendment"}>Abänderung</RadioItem>
+				<RadioItem bind:group={votingFilter} name="voting" value={'Law'}>Gesetz</RadioItem>
+				<RadioItem bind:group={votingFilter} name="voting" value={'Resolution'}
+					>Entschließung</RadioItem
+				>
+				<RadioItem bind:group={votingFilter} name="voting" value={'Amendment'}>Abänderung</RadioItem
+				>
 			</RadioGroup>
 		</div>
 	</div>
@@ -353,39 +362,48 @@
 	<!-- Small Screens-->
 	<div class="lg:hidden flex flex-wrap gap-6">
 		<div>
-			<h1 class="text-2xl font-bold">notwendige Mehrheit</h1>
+			<h1 class="text-lg sm:text-2xl font-bold">notwendige Mehrheit</h1>
 			<button
-				class="btn variant-filled-secondary w-48 justify-between"
+				class="btn btn-sm sm:btn-md variant-filled-secondary w-40 sm:w-48 justify-between"
 				use:popup={popupRequiredMajority}
 			>
 				<span class="capitalize">{translateSimpleMajorityFilterValue(simpleMajorityFilter)}</span>
 				<span>↓</span>
 			</button>
 		</div>
-	
+
 		{#if showAcceptedFilter}
 			<div>
-				<h1 class="text-2xl font-bold">Angenommen</h1>
-				<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupAccepted}>
+				<h1 class="text-lg sm:text-2xl font-bold">Angenommen</h1>
+				<button
+					class="btn btn-sm sm:btn-md variant-filled-secondary w-40 sm:w-48 justify-between"
+					use:popup={popupAccepted}
+				>
 					<span class="capitalize">{translateAcceptedValue(acceptedFilter)}</span>
 					<span>↓</span>
 				</button>
 			</div>
 		{/if}
-	
+
 		{#if showVoteTypeFilter}
-		<div>
-			<h1 class="text-2xl font-bold">Abstimmung</h1>
-			<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupNamedVote}>
-				<span class="capitalize">{translateNamedVoteValue(namedVoteFilter)}</span>
-				<span>↓</span>
-			</button>
-		</div>
+			<div>
+				<h1 class="text-lg sm:text-2xl font-bold">Abstimmung</h1>
+				<button
+					class="btn btn-sm sm:btn-md variant-filled-secondary w-40 sm:w-48 justify-between"
+					use:popup={popupNamedVote}
+				>
+					<span class="capitalize">{translateNamedVoteValue(namedVoteFilter)}</span>
+					<span>↓</span>
+				</button>
+			</div>
 		{/if}
 		<div>
-			<h1 class="text-2xl font-bold">Gesetz</h1>
-			<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupIsLaw}>
-				<span class="capitalize">{translateIsLawValue(isLawFilter)}</span>
+			<h1 class="text-lg sm:text-2xl font-bold">Typ</h1>
+			<button
+				class="btn btn-sm sm:btn-md variant-filled-secondary w-40 sm:w-48 justify-between"
+				use:popup={popupIsLaw}
+			>
+				<span class="capitalize">{translateVotingFilter(votingFilter)}</span>
 				<span>↓</span>
 			</button>
 		</div>

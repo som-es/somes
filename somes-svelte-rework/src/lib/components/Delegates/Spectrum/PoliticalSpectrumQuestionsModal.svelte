@@ -1,8 +1,6 @@
 <script lang="ts">
-	import { delegate_political_questions, errorToNull } from '$lib/api/api';
-	import type { DelegateQA, StanceTopicInfluences } from '$lib/types';
+	import type { StanceTopicInfluences } from '$lib/types';
 	import { getModalStore } from '@skeletonlabs/skeleton';
-	import DelegateQaEntry from '../QA/DelegateQAEntry.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import QaDelegateStanceInfluences from './Stance/QADelegateStanceInfluences.svelte';
 

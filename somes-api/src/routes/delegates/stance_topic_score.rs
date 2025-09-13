@@ -8,15 +8,15 @@ pub async fn extract_stance_topic_score_by_delegate(
     delegate_id: i32,
 ) -> sqlx::Result<(Vec<StanceTopicInfluences>, Vec<StanceTopicScore>)> {
     let stance_scores = query!(
-        "select 
-            answer, question, stance_llm, stance, pro_strong_ref_score, contra_strong_ref_score, ref_score, COALESCE(lis.influences, '{}') AS influences, COALESCE(lis.topics, '{}') AS topics 
-        from 
+        "select
+            answer, question, stance_llm, stance, pro_strong_ref_score, contra_strong_ref_score, ref_score, COALESCE(lis.influences, '{}') AS influences, COALESCE(lis.topics, '{}') AS topics
+        from
             political_opinions po
         left join
             (select question_id, ARRAY_AGG(topic) as topics, ARRAY_AGG(influence) as influences from political_questions_topics_influence lq group by question_id) as lis
         on lis.question_id = po.question_id
-        join political_answers pa on pa.question_id = po.question_id and pa.delegate_id = po.delegate_id
-        inner join political_questions pq on pq.id = pa.question_id 
+        join political_answers pa on pa.question_id = po.question_id and pa.delegate_id = po.delegate_id and pa.id = po.answer_id
+        inner join political_questions pq on pq.id = pa.question_id
         where po.delegate_id = $1 and model_used = 'gpt4o-mini-de-run'
         ",
         delegate_id
@@ -90,15 +90,18 @@ pub async fn extract_stance_topic_score_by_delegate(
 mod tests {
     use dataservice::connect_pg;
 
-    use crate::routes::delegates::left_right_topic_score::extract_left_right_topic_score_by_delegate;
+    use crate::routes::delegates::{
+        left_right_topic_score::extract_left_right_topic_score_by_delegate,
+        stance_topic_score::extract_stance_topic_score_by_delegate,
+    };
 
     #[tokio::test]
     async fn test_extract_stance_topic_score_by_delegate() {
         let pg = connect_pg().await;
-        let res = extract_left_right_topic_score_by_delegate(&pg, 35520)
+        let res = extract_stance_topic_score_by_delegate(&pg, 35520)
             .await
             .unwrap();
-        for r in res {
+        for r in res.0 {
             println!("res: {r:?}");
         }
     }
