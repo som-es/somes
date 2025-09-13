@@ -1,3 +1,4 @@
+mod dates;
 mod decrees;
 mod delegates;
 mod favo;
@@ -22,6 +23,7 @@ pub use proposals::*;
 pub use favo::*;
 
 use axum::Json;
+pub use dates::*;
 pub use decrees::*;
 pub use delegates::*;
 pub use legislative_initiatives::*;

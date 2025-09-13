@@ -7,9 +7,7 @@ use crate::{PgPoolConnection, RedisConnection};
 
 use super::DelegatesErrorResponse;
 
-pub struct StanceAnswerQuestion {
-
-}
+pub struct StanceAnswerQuestion {}
 
 pub async fn extract_political_position_questions(
     delegate_id: i32,

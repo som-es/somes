@@ -26,39 +26,41 @@ pub async fn extract_stance_topic_score_by_delegate(
 
     let mut topics_scores = HashMap::<String, (f64, usize)>::new();
 
-    let stance_scores = stance_scores.into_iter().map(|stance_score| {
-        let topic_influences = stance_score
-            .topics
-            .unwrap_or_default()
-            .iter()
-            .zip(&stance_score.influences.unwrap_or_default())
-            .map(|(topic, influence)| {
-                let default = if stance_score.stance_llm == "positive" {
-                    *influence * stance_score.ref_score.abs()
-                } else {
-                    *influence * stance_score.ref_score.abs() * -1.
-                };
+    let stance_scores = stance_scores
+        .into_iter()
+        .map(|stance_score| {
+            let topic_influences = stance_score
+                .topics
+                .unwrap_or_default()
+                .iter()
+                .zip(&stance_score.influences.unwrap_or_default())
+                .map(|(topic, influence)| {
+                    let default = if stance_score.stance_llm == "positive" {
+                        *influence * stance_score.ref_score.abs()
+                    } else {
+                        *influence * stance_score.ref_score.abs() * -1.
+                    };
 
-                StanceTopicScore {
-                    topic: topic.into(),
-                    score: default,
-                }
-            }).collect::<Vec<_>>();
-        StanceTopicInfluences {
-            question: stance_score.question,
-            answer: stance_score.answer,
-            stance_llm: stance_score.stance_llm,
-            topic_influences,
-        }
-    }).collect::<Vec<_>>();
-
+                    StanceTopicScore {
+                        topic: topic.into(),
+                        score: default,
+                    }
+                })
+                .collect::<Vec<_>>();
+            StanceTopicInfluences {
+                question: stance_score.question,
+                answer: stance_score.answer,
+                stance_llm: stance_score.stance_llm,
+                topic_influences,
+            }
+        })
+        .collect::<Vec<_>>();
 
     for stance_score in &stance_scores {
         if stance_score.stance_llm.to_lowercase().contains("neutral") {
             continue;
         }
-        for topic_influence in &stance_score.topic_influences
-        {
+        for topic_influence in &stance_score.topic_influences {
             topics_scores
                 .entry(topic_influence.topic.to_string())
                 .and_modify(|x| {
@@ -69,16 +71,19 @@ pub async fn extract_stance_topic_score_by_delegate(
         }
     }
 
-    Ok((stance_scores, topics_scores
-        .into_iter()
-        .map(|(topic, score)| {
-            let (score, count) = score;
-            StanceTopicScore {
-                topic,
-                score: 2.7 * score / count as f64,
-            }
-        })
-        .collect()))
+    Ok((
+        stance_scores,
+        topics_scores
+            .into_iter()
+            .map(|(topic, score)| {
+                let (score, count) = score;
+                StanceTopicScore {
+                    topic,
+                    score: 2.7 * score / count as f64,
+                }
+            })
+            .collect(),
+    ))
 }
 
 #[cfg(test)]

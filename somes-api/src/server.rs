@@ -431,6 +431,8 @@ pub async fn serve(addr: SocketAddr) {
         .route(IS_LIBERAL_PER_LEGIS, post(is_liberal_per_legis))
         .route(QUIZZES, get(get_all_quizzes))
         .route(QUIZ_ROOM, any(join_quiz_room))
+        .route(NEXT_PLENAR_DATE, get(next_plenar_date))
+        .route(PLENAR_DATES, get(plenar_dates))
         .route("/save_email", post(save_email))
         .nest_service("/assets", ServeDir::new("assets"))
         // mind conflicts e.g delegates
