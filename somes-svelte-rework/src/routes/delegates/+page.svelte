@@ -17,7 +17,7 @@
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 	import {
-	delegate_by_id,
+		delegate_by_id,
 		errorToNull,
 		general_delegate_info,
 		general_gov_official_info,
@@ -95,8 +95,8 @@
 	inputValue = maybeCurrentDelegateFilter.search_value ?? '';
 	dayOffset = maybeCurrentDelegateFilter.day_offset ?? maxDayOffset;
 	if (maybeCurrentDelegateFilter.legis_period) {
-		selectedPeriod = maybeCurrentDelegateFilter.legis_period
-		prevSelectedPeriod = maybeCurrentDelegateFilter.legis_period
+		selectedPeriod = maybeCurrentDelegateFilter.legis_period;
+		prevSelectedPeriod = maybeCurrentDelegateFilter.legis_period;
 	}
 
 	function delegateFilter(): AutocompleteOption<string>[] {
@@ -146,10 +146,10 @@
 		const paramDelegateId = url.searchParams.get('delegate');
 		if (paramDelegateId) {
 			// setting here currentDelegateStore instead of `delegate` var directly
-			// this is important for a single reason: delegates without seat by default (if the backend seat history is too short) 
+			// this is important for a single reason: delegates without seat by default (if the backend seat history is too short)
 			// wouldn't be selectable by the DataParliament component -> however, there is a reactive update happening,
 			// when `delegates` is updated (therefore the client-side seat position generation was complete) and `delegate` is null
-			currentDelegateStore.set(errorToNull(await delegate_by_id(+paramDelegateId)))
+			currentDelegateStore.set(errorToNull(await delegate_by_id(+paramDelegateId)));
 		}
 
 		finishedMounting = true;
@@ -180,10 +180,10 @@
 		supplyDate = startDate.toISOString().split('T')[0] as unknown as Date;
 
 		const url = new URL(window.location.href);
-		url.searchParams.set("date", supplyDate as unknown as string)
-		url.searchParams.set("gp", selectedPeriod)
+		url.searchParams.set('date', supplyDate as unknown as string);
+		url.searchParams.set('gp', selectedPeriod);
 		pushState(url.toString(), { replaceState: true });
-	
+
 		// console.log(`supply ${supplyDate}`);
 		// const fetchedDelsAtDate = await delegates_at(
 		// );
@@ -203,9 +203,9 @@
 	};
 
 	const updateStoredPeriod = () => {
-		maybeCurrentDelegateFilter.legis_period = selectedPeriod;	
+		maybeCurrentDelegateFilter.legis_period = selectedPeriod;
 		currentDelegateFilterStore.set(maybeCurrentDelegateFilter);
-	}
+	};
 
 	$: if (selectedPeriod) {
 		renderEndDate = null;
@@ -217,7 +217,7 @@
 		// }
 
 		// delsAtDate = [];
-		updateStoredPeriod();	
+		updateStoredPeriod();
 		updateDelsToDisplay();
 		if (finishedMounting) prevSelectedPeriod = selectedPeriod;
 	}
@@ -243,7 +243,7 @@
 		if (finishedMounting) currentDelegateStore.set(delegate);
 
 		const url = new URL(window.location.href);
-		url.searchParams.set("delegate", delegate.id.toString())
+		url.searchParams.set('delegate', delegate.id.toString());
 		pushState(url.toString(), { replaceState: true });
 
 		generalDelegateInfo = null;
@@ -277,7 +277,9 @@
 <!-- <div class="mx-auto px-10"> -->
 <Container>
 	{#if get(hasGoBackStore)}
-		<SButton class="bg-primary-500 my-3 hidden lg:block" on:click={() => history.back()}>Zurück</SButton>
+		<SButton class="bg-primary-500 my-3 hidden lg:block" on:click={() => history.back()}
+			>Zurück</SButton
+		>
 	{/if}
 	<div class="entry bg-primary-200 dark:bg-primary-400 gap-3 flex flex-wrap">
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
@@ -389,10 +391,13 @@
 
 		{#if delegate && generalDelegateInfo?.political_position}
 			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
-				<PoliticalStanceTitleBar {delegate} stanceTopicInfluences={generalDelegateInfo.stance_topic_influences} />
+				<PoliticalStanceTitleBar
+					{delegate}
+					stanceTopicInfluences={generalDelegateInfo.stance_topic_influences}
+				/>
 			</div>
 		{/if}
-		<div class="flex max-sm:flex-wrap gap-2">
+		<div class="flex max-lg:flex-wrap gap-2">
 			{#if delegate && generalDelegateInfo?.political_position}
 				<SquarePoliticalSpectrum
 					{delegate}

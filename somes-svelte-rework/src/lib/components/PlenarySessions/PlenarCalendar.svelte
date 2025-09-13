@@ -49,7 +49,7 @@
 				const item =
 					maybeDate == null
 						? null
-						: { title: 'Plenarsitzung', classes: 'badge text-xs bg-tertiary-500' };
+						: { title: 'Plenarsitzung', classes: 'badge text-xs bg-tertiary-500 text-black' };
 				days.push({ name: (i + 1).toString(), enabled: true, date: testDate, item });
 			}
 		}
