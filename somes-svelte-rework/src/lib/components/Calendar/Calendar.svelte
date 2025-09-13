@@ -1,11 +1,20 @@
 <script lang="ts">
+	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import type { Day } from './types';
 
-	export let headers: string[] = []; 
+	export let headers: string[] = [];
 	export let days: Day[] = [];
-    export let title: string;
-    export let month: number;
-    export let year: number;
+	export let title: string;
+	export let month: number;
+	export let year: number;
+
+	// eslint-disable-next-line no-undef
+	const plenarSessionInfo: PopupSettings = {
+		event: 'click',
+		target: 'plenarSessionInfo',
+		placement: 'top',
+		closeQuery: 'none'
+	};
 
 	let days2D: Day[][] = [];
 
@@ -30,31 +39,31 @@
 		month++;
 		if (month == 12) {
 			year++;
-			month=0;
+			month = 0;
 		}
 	}
 	function prev() {
-		if (month==0) {
-			month=11;
+		if (month == 0) {
+			month = 11;
 			year--;
 		} else {
 			month--;
 		}
-    }
+	}
 </script>
 
 <div class="calendar max-w-[50rem] bg-primary-100 dark:bg-primary-600 rounded-xl">
 	<div class="flex flex-col">
-        <div class="flex items-center justify-around">
-            <button class="px-5" on:click={() => year--}>{"<<"} </button>
-            <button class="px-5" on:click={prev}>{"<"}</button>
-            <span class="text-3xl text-pretty font-bold text-center">
-                {title}
-            </span>
-            <button class="px-5" on:click={next}>{">"}</button>
-            <button class="px-5" on:click={() => year++}>{">>"}</button>
-        </div>
-        
+		<div class="flex items-center justify-around">
+			<button class="px-5" on:click={() => year--}>{'<<'} </button>
+			<button class="px-5" on:click={prev}>{'<'}</button>
+			<span class="text-3xl text-pretty font-bold text-center">
+				{title}
+			</span>
+			<button class="px-5" on:click={next}>{'>'}</button>
+			<button class="px-5" on:click={() => year++}>{'>>'}</button>
+		</div>
+
 		<div class="flex flex-row">
 			{#each headers as header}
 				<span class="day-name text-secondary-500">
@@ -68,10 +77,19 @@
 				{#each Array(5) as _, i}
 					{#if week[i]}
 						{#if week[i].enabled}
-							<div class="flex-1 flex items-center">
-                                {#if week[i].item !== null}
-								    <span class="{week[i].item.classes}">{week[i].item.title}</span>
-                                {/if}
+							<div class="sm:hidden flex-1 flex items-center">
+								{#if week[i].item !== null}
+									<button class="day bg-tertiary-400" use:popup={plenarSessionInfo}>
+										{week[i].name}
+									</button>
+								{:else}
+									<div class="day">{week[i].name}</div>
+								{/if}
+							</div>
+							<div class="max-sm:hidden flex-1 flex items-center">
+								{#if week[i].item !== null}
+									<div class={week[i].item.classes}>{week[i].item.title}</div>
+								{/if}
 								<div class="day">{week[i].name}</div>
 							</div>
 						{:else}
@@ -85,6 +103,9 @@
 				{/each}
 			</div>
 		{/each}
+	</div>
+	<div class="z-50" data-popup="plenarSessionInfo">
+		<div class="badge text-xs bg-tertiary-500">Plenarsitzung</div>
 	</div>
 </div>
 

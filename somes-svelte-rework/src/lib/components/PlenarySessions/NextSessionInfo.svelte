@@ -53,7 +53,7 @@
 		>Sitzungskalender</button
 	>
 
-	<div class="z-50 max-w-sm sm:max-w-full" data-popup="plenarCalendar">
+	<div class="z-40 max-w-sm:min-w-[34rem] sm: md:min-w-[48rem]" data-popup="plenarCalendar">
 		<PlenarCalendar />
 	</div>
 </div>

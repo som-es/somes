@@ -20,6 +20,7 @@
 	import SButton from '$lib/components/UI/SButton.svelte';
 	export let showAcceptedFilter = true;
 	export let showVoteTypeFilter = true;
+	import filterIcon from '$lib/assets/misc_icons/filter-icon.svg?raw';
 
 	export let dels: Delegate[];
 	export let voteResultsPostFn: (
@@ -214,6 +215,13 @@
 				return 'Abänderung';
 		}
 	};
+
+	const mobileFilter: PopupSettings = {
+		event: 'click',
+		target: 'mobileFilter',
+		placement: 'bottom',
+		closeQuery: 'none'
+	};
 </script>
 
 <!-- <br /> -->
@@ -226,65 +234,129 @@
 -->
 
 <!-- Small Screen PopUps (keep them out of <div>...</div>) -->
-<div class="card w-48 shadow-xl py-2" data-popup="popupRequiresSimpleMajority">
-	<ListBox
-		rounded="rounded-container-token sm:!rounded-token"
-		active="variant-filled-secondary"
-		hover="hover:variant-soft-secondary"
-	>
-		<ListBoxItem bind:group={simpleMajorityFilter} name="simpleMajority" value={undefined}
-			>egal</ListBoxItem
-		>
-		<ListBoxItem bind:group={simpleMajorityFilter} name="simpleMajority" value={true}
-			>einfache Mehrheit</ListBoxItem
-		>
-		<ListBoxItem bind:group={simpleMajorityFilter} name="simpleMajority" value={false}
-			>2/3 Mehrheit</ListBoxItem
-		>
-	</ListBox>
-</div>
 
-<div class="card w-48 shadow-xl py-2" data-popup="popupAccepted">
-	<ListBox
-		rounded="rounded-container-token sm:!rounded-token"
-		active="variant-filled-secondary"
-		hover="hover:variant-soft-secondary"
-	>
-		<ListBoxItem bind:group={acceptedFilter} name="accepted" value={undefined}>egal</ListBoxItem>
-		<ListBoxItem bind:group={acceptedFilter} name="accepted" value={'a'}>angenommen</ListBoxItem>
-		<ListBoxItem bind:group={acceptedFilter} name="accepted" value={'d'}>abgelehnt</ListBoxItem>
-		<ListBoxItem bind:group={acceptedFilter} name="accepted" value={'p'}
-			>frühzeitig abgelehnt</ListBoxItem
+<div
+	class="z-10 card w-full p-5 self-center md:max-w-[34rem] lg:max-w-[50rem] shadow-xl py-2"
+	data-popup="mobileFilter"
+>
+	<div class="z-20 card w-48 shadow-xl py-2" data-popup="popupRequiresSimpleMajority">
+		<ListBox
+			rounded="rounded-container-token sm:!rounded-token"
+			active="variant-filled-secondary"
+			hover="hover:variant-soft-secondary"
 		>
-	</ListBox>
-</div>
+			<ListBoxItem bind:group={simpleMajorityFilter} name="simpleMajority" value={undefined}
+				>egal</ListBoxItem
+			>
+			<ListBoxItem bind:group={simpleMajorityFilter} name="simpleMajority" value={true}
+				>einfache Mehrheit</ListBoxItem
+			>
+			<ListBoxItem bind:group={simpleMajorityFilter} name="simpleMajority" value={false}
+				>2/3 Mehrheit</ListBoxItem
+			>
+		</ListBox>
+	</div>
 
-<div class="card w-52 shadow-xl py-2" data-popup="popupNamedVote">
-	<ListBox
-		rounded="rounded-container-token sm:!rounded-token"
-		active="variant-filled-secondary"
-		hover="hover:variant-soft-secondary"
-	>
-		<ListBoxItem bind:group={namedVoteFilter} name="namedVote" value={undefined}>egal</ListBoxItem>
-		<ListBoxItem bind:group={namedVoteFilter} name="namedVote" value={true}
-			>namentliche Abstimmung</ListBoxItem
+	<div class="z-20 card w-48 shadow-xl py-2" data-popup="popupAccepted">
+		<ListBox
+			rounded="rounded-container-token sm:!rounded-token"
+			active="variant-filled-secondary"
+			hover="hover:variant-soft-secondary"
 		>
-	</ListBox>
-</div>
+			<ListBoxItem bind:group={acceptedFilter} name="accepted" value={undefined}>egal</ListBoxItem>
+			<ListBoxItem bind:group={acceptedFilter} name="accepted" value={'a'}>angenommen</ListBoxItem>
+			<ListBoxItem bind:group={acceptedFilter} name="accepted" value={'d'}>abgelehnt</ListBoxItem>
+			<ListBoxItem bind:group={acceptedFilter} name="accepted" value={'p'}
+				>frühzeitig abgelehnt</ListBoxItem
+			>
+		</ListBox>
+	</div>
 
-<div class="card w-52 shadow-xl py-2" data-popup="popupIsLaw">
-	<ListBox
-		rounded="rounded-container-token sm:!rounded-token"
-		active="variant-filled-secondary"
-		hover="hover:variant-soft-secondary"
-	>
-		<ListBoxItem bind:group={votingFilter} name="isLaw" value={undefined}>egal</ListBoxItem>
-		<ListBoxItem bind:group={votingFilter} name="isLaw" value={'Law'}>Gesetz</ListBoxItem>
-		<ListBoxItem bind:group={votingFilter} name="isLaw" value={'Resolution'}
-			>Entschließung</ListBoxItem
+	<div class="z-20 card w-52 shadow-xl py-2" data-popup="popupNamedVote">
+		<ListBox
+			rounded="rounded-container-token sm:!rounded-token"
+			active="variant-filled-secondary"
+			hover="hover:variant-soft-secondary"
 		>
-		<ListBoxItem bind:group={votingFilter} name="isLaw" value={'Amendment'}>Abänderung</ListBoxItem>
-	</ListBox>
+			<ListBoxItem bind:group={namedVoteFilter} name="namedVote" value={undefined}>egal</ListBoxItem
+			>
+			<ListBoxItem bind:group={namedVoteFilter} name="namedVote" value={true}
+				>namentliche Abstimmung</ListBoxItem
+			>
+		</ListBox>
+	</div>
+
+	<div class="z-20 card w-52 shadow-xl py-2" data-popup="popupIsLaw">
+		<ListBox
+			rounded="rounded-container-token sm:!rounded-token"
+			active="variant-filled-secondary"
+			hover="hover:variant-soft-secondary"
+		>
+			<ListBoxItem bind:group={votingFilter} name="isLaw" value={undefined}>egal</ListBoxItem>
+			<ListBoxItem bind:group={votingFilter} name="isLaw" value={'Law'}>Gesetz</ListBoxItem>
+			<ListBoxItem bind:group={votingFilter} name="isLaw" value={'Resolution'}
+				>Entschließung</ListBoxItem
+			>
+			<ListBoxItem bind:group={votingFilter} name="isLaw" value={'Amendment'}
+				>Abänderung</ListBoxItem
+			>
+		</ListBox>
+	</div>
+
+	<div class="lg:hidden flex flex-wrap gap-6">
+		<div>
+			<h1 class="text-lg sm:text-2xl font-bold">notwendige Mehrheit</h1>
+			<button
+				class="btn btn-sm sm:btn-md variant-filled-secondary w-40 sm:w-48 justify-between"
+				use:popup={popupRequiredMajority}
+			>
+				<span class="capitalize">{translateSimpleMajorityFilterValue(simpleMajorityFilter)}</span>
+				<span>↓</span>
+			</button>
+		</div>
+
+		{#if showAcceptedFilter}
+			<div>
+				<h1 class="text-lg sm:text-2xl font-bold">Angenommen</h1>
+				<button
+					class="btn btn-sm sm:btn-md variant-filled-secondary w-40 sm:w-48 justify-between"
+					use:popup={popupAccepted}
+				>
+					<span class="capitalize">{translateAcceptedValue(acceptedFilter)}</span>
+					<span>↓</span>
+				</button>
+			</div>
+		{/if}
+
+		{#if showVoteTypeFilter}
+			<div>
+				<h1 class="text-lg sm:text-2xl font-bold">Abstimmung</h1>
+				<button
+					class="btn btn-sm sm:btn-md variant-filled-secondary w-40 sm:w-48 justify-between"
+					use:popup={popupNamedVote}
+				>
+					<span class="capitalize">{translateNamedVoteValue(namedVoteFilter)}</span>
+					<span>↓</span>
+				</button>
+			</div>
+		{/if}
+		<div>
+			<h1 class="text-lg sm:text-2xl font-bold">Typ</h1>
+			<button
+				class="btn btn-sm sm:btn-md variant-filled-secondary w-40 sm:w-48 justify-between"
+				use:popup={popupIsLaw}
+			>
+				<span class="capitalize">{translateVotingFilter(votingFilter)}</span>
+				<span>↓</span>
+			</button>
+		</div>
+	</div>
+
+	<!-- LEGIS PERIODS -->
+	<div class="mt-10">
+		<h2 class="font-bold text-2xl mb-1">Legislaturperioden</h2>
+		<LegisButtons bind:selectedPeriod />
+	</div>
 </div>
 
 <div>
@@ -359,65 +431,15 @@
 		</div>
 	</div>
 
-	<!-- Small Screens-->
-	<div class="lg:hidden flex flex-wrap gap-6">
-		<div>
-			<h1 class="text-lg sm:text-2xl font-bold">notwendige Mehrheit</h1>
-			<button
-				class="btn btn-sm sm:btn-md variant-filled-secondary w-40 sm:w-48 justify-between"
-				use:popup={popupRequiredMajority}
-			>
-				<span class="capitalize">{translateSimpleMajorityFilterValue(simpleMajorityFilter)}</span>
-				<span>↓</span>
-			</button>
-		</div>
-
-		{#if showAcceptedFilter}
-			<div>
-				<h1 class="text-lg sm:text-2xl font-bold">Angenommen</h1>
-				<button
-					class="btn btn-sm sm:btn-md variant-filled-secondary w-40 sm:w-48 justify-between"
-					use:popup={popupAccepted}
-				>
-					<span class="capitalize">{translateAcceptedValue(acceptedFilter)}</span>
-					<span>↓</span>
-				</button>
-			</div>
-		{/if}
-
-		{#if showVoteTypeFilter}
-			<div>
-				<h1 class="text-lg sm:text-2xl font-bold">Abstimmung</h1>
-				<button
-					class="btn btn-sm sm:btn-md variant-filled-secondary w-40 sm:w-48 justify-between"
-					use:popup={popupNamedVote}
-				>
-					<span class="capitalize">{translateNamedVoteValue(namedVoteFilter)}</span>
-					<span>↓</span>
-				</button>
-			</div>
-		{/if}
-		<div>
-			<h1 class="text-lg sm:text-2xl font-bold">Typ</h1>
-			<button
-				class="btn btn-sm sm:btn-md variant-filled-secondary w-40 sm:w-48 justify-between"
-				use:popup={popupIsLaw}
-			>
-				<span class="capitalize">{translateVotingFilter(votingFilter)}</span>
-				<span>↓</span>
-			</button>
-		</div>
-	</div>
-
 	<!-- LEGIS PERIODS -->
-	<div class="mt-10">
+	<div class="max-lg:hidden mt-10">
 		<h2 class="font-bold text-2xl mb-1">Legislaturperioden</h2>
 		<LegisButtons bind:selectedPeriod />
 	</div>
 
 	<!-- SEARCH OPTION -->
-	<div class="mt-10">
-		<div class="flex flex-row gap-4">
+	<div class="mt-4 sm:mt-8">
+		<div class="flex flex-row gap-3">
 			<input
 				class="rounded-lg !bg-surface-200-700-token w-full h-12 px-2 placeholder-gray-500"
 				type="search"
@@ -426,7 +448,12 @@
 				on:change={update}
 				placeholder="Suche..."
 			/>
-			<SButton class="bg-secondary-500 text-black" on:click={update}>Suchen</SButton>
+			<div class="flex flex-row gap-2">
+				<SButton class="bg-secondary-500 !px-1.5 text-black" on:click={update}>Suchen</SButton>
+				<div use:popup={mobileFilter} class="lg:hidden">
+					<SButton class="bg-secondary-500 text-black">{@html filterIcon}</SButton>
+				</div>
+			</div>
 		</div>
 	</div>
 
