@@ -21,7 +21,6 @@
 	export let showAcceptedFilter = true;
 	export let showVoteTypeFilter = true;
 	import filterIcon from '$lib/assets/misc_icons/filter-icon.svg?raw';
-	import { getRandomValues } from 'crypto';
 
 	export let dels: Delegate[];
 	export let voteResultsPostFn: (
@@ -50,32 +49,11 @@
 		closeQuery: '.listbox-item'
 	};
 
-	const translateSimpleMajorityFilterValue = (simpleMajorityFilter: boolean | undefined) => {
-		if (simpleMajorityFilter == undefined) {
-			return 'egal';
-		}
-		return simpleMajorityFilter ? 'einfache Mehrheit' : '2/3 Mehrheit';
-	};
-
 	const popupAccepted: PopupSettings = {
 		event: 'click',
 		target: 'popupAccepted',
 		placement: 'bottom',
 		closeQuery: '.listbox-item'
-	};
-
-	const translateAcceptedValue = (acceptedFilter: string | undefined) => {
-		if (acceptedFilter == undefined) {
-			return 'egal';
-		}
-		switch (acceptedFilter) {
-			case 'a':
-				return 'angenommen';
-			case 'd':
-				return 'abgelehnt';
-			case 'p':
-				return 'frühzeitig abgelehnt';
-		}
 	};
 
 	const popupNamedVote: PopupSettings = {
@@ -99,20 +77,6 @@
 		closeQuery: '.listbox-item'
 	};
 
-	const translateVotingFilter = (votingFilter: string | undefined) => {
-		if (votingFilter == undefined) {
-			return 'egal';
-		}
-		switch (votingFilter) {
-			case 'Law':
-				return 'Gesetz';
-			case 'Resolution':
-				return 'Entschließung';
-			case 'Amendment':
-				return 'Abänderung';
-		}
-	};
-
 	const mobileFilter: PopupSettings = {
 		event: 'click',
 		target: 'mobileFilter',
@@ -133,15 +97,25 @@
 	}
 
 	function translationFn<T>(filterInfo: FilterInfo<T>): string | undefined {
-		return filterInfo.values.find(value => {
-			return value == filterInfo.filterObj
-		})?.title
+		const title = filterInfo.values.find((value) => {
+			return value.value == filterInfo.filterObj;
+		})?.title;
+
+		if (title !== undefined) {
+			if (title.length > 15) {
+				return `${title.slice(0, 15)}...`;
+			}
+			return title;
+		} else {
+			return undefined;
+		}
 	}
-	
-	// @ts-ignore
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	function translationFnAny(filter: any) {
-    	return (filter.translationFn as (f: any) => string)(filter);
-  	}
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		return (filter.translationFn as (f: any) => string)(filter);
+	}
 
 	let simpleMajorityFilter: FilterInfo<boolean | undefined> = {
 		title: 'notwendige Mehrheit',
@@ -165,32 +139,39 @@
 		hidden: !showAcceptedFilter,
 		values: [
 			{ title: 'egal', value: undefined },
-			{ title: 'angenommen', value: "a" },
-			{ title: 'abgelehnt', value: "d" },
-			{ title: 'frühzeitig abgelehnt', value: "p" }
+			{ title: 'angenommen', value: 'a' },
+			{ title: 'abgelehnt', value: 'd' },
+			{ title: 'frühzeitig abgelehnt', value: 'p' }
 		]
 	};
-	let namedVoteFilter2: FilterInfo<string | undefined> = {
-		title: 'Angenommen',
-		popup: popupAccepted,
-		attributeName: 'accepted',
+	let namedVoteFilter: FilterInfo<boolean | undefined> = {
+		title: 'Abstimmung',
+		popup: popupNamedVote,
+		attributeName: 'namedVote',
 		filterObj: undefined,
 		translationFn,
-		hidden: !showAcceptedFilter,
+		hidden: !showVoteTypeFilter,
 		values: [
 			{ title: 'egal', value: undefined },
-			{ title: 'angenommen', value: "a" },
-			{ title: 'abgelehnt', value: "d" },
-			{ title: 'frühzeitig abgelehnt', value: "p" }
+			{ title: 'namentliche Abstimmung', value: true }
 		]
 	};
-	// Remove hardcoding of filter values
+	let votingFilter: FilterInfo<string | undefined> = {
+		title: 'Antragstyp',
+		popup: popupIsLaw,
+		attributeName: 'votingFilter',
+		filterObj: undefined,
+		translationFn,
+		hidden: false,
+		values: [
+			{ title: 'egal', value: undefined },
+			{ title: 'Gesetz', value: 'Law' },
+			{ title: 'Entschließung', value: 'Resolution' },
+			{ title: 'Abänderung', value: 'Amendment' }
+		]
+	};
+
 	let selectedPeriod = 'all';
-	// let simpleMajorityFilter: boolean | undefined = undefined;
-	// let acceptedFilter: string | undefined = undefined;
-	let namedVoteFilter: boolean | undefined = undefined;
-	let isLawFilter: boolean | undefined = undefined;
-	let votingFilter: string | undefined = undefined;
 
 	const maybeStoredFilter = get(currentVoteResultFilterStore);
 	if (maybeStoredFilter !== null) {
@@ -198,9 +179,9 @@
 			simpleMajorityFilter.filterObj = maybeStoredFilter.simple_majority;
 		if (maybeStoredFilter.legis_period !== null) selectedPeriod = maybeStoredFilter.legis_period;
 		if (maybeStoredFilter.accepted !== null) acceptedFilter.filterObj = maybeStoredFilter.accepted;
-		if (maybeStoredFilter.is_named_vote !== null) namedVoteFilter = maybeStoredFilter.is_named_vote;
-		if (maybeStoredFilter.is_law !== null) isLawFilter = maybeStoredFilter.is_law;
-		if (maybeStoredFilter.vote_type !== null) votingFilter = maybeStoredFilter.vote_type;
+		if (maybeStoredFilter.is_named_vote !== null)
+			namedVoteFilter.filterObj = maybeStoredFilter.is_named_vote;
+		if (maybeStoredFilter.vote_type !== null) votingFilter.filterObj = maybeStoredFilter.vote_type;
 	}
 
 	const loadVoteResults = async () => {
@@ -209,29 +190,16 @@
 			voteResults.vote_results = [];
 		}
 
-		let accepted = acceptedFilter == null ? null : acceptedFilter;
-		// switch (acceptedFilter) {
-		// 	case 'a':
-		// 		accepted = 'a';
-		// 		break;
-		// 	case 'declined':
-		// 		accepted = 'd';
-		// 		break;
-		// 	case 'invisibly':
-		// 		accepted = 'p';
-		// 		break;
-		// }
-
 		// accepted: 'a' (accepted), 'd' (declined), 'p' (pre-declined)
 		// null "egal"
 		let filter: VoteResultFilter | null = {
-			is_named_vote: namedVoteFilter == undefined ? null : namedVoteFilter,
+			is_named_vote: namedVoteFilter.filterObj == undefined ? null : namedVoteFilter.filterObj,
 			accepted: acceptedFilter.filterObj == undefined ? null : acceptedFilter.filterObj,
-			is_law: isLawFilter == undefined ? null : isLawFilter,
+			is_law: null,
 			simple_majority:
 				simpleMajorityFilter.filterObj == undefined ? null : simpleMajorityFilter.filterObj,
 			legis_period: selectedPeriod == 'all' ? null : selectedPeriod,
-			vote_type: votingFilter == undefined ? null : votingFilter,
+			vote_type: votingFilter.filterObj === undefined ? null : votingFilter.filterObj,
 			topics: null,
 			is_urgent: null,
 			party_votes: null
@@ -282,8 +250,7 @@
 		// simpleMajorityFilter.filterObj ||
 		acceptedFilter ||
 		namedVoteFilter ||
-		votingFilter ||
-		isLawFilter // ||
+		votingFilter
 		// searchValue
 	) {
 		update();
@@ -293,7 +260,7 @@
 		update();
 	}
 
-	const filters = [simpleMajorityFilter, acceptedFilter];
+	const filters = [simpleMajorityFilter, acceptedFilter, namedVoteFilter, votingFilter];
 </script>
 
 <!-- <br /> -->
@@ -331,35 +298,6 @@
 		</div>
 	{/each}
 
-	<div class="z-20 card w-48 shadow-xl py-2" data-popup="popupAccepted">
-		<ListBox
-			rounded="rounded-container-token sm:!rounded-token"
-			active="variant-filled-secondary"
-			hover="hover:variant-soft-secondary"
-		>
-			<ListBoxItem bind:group={acceptedFilter} name="accepted" value={undefined}>egal</ListBoxItem>
-			<ListBoxItem bind:group={acceptedFilter} name="accepted" value={'a'}>angenommen</ListBoxItem>
-			<ListBoxItem bind:group={acceptedFilter} name="accepted" value={'d'}>abgelehnt</ListBoxItem>
-			<ListBoxItem bind:group={acceptedFilter} name="accepted" value={'p'}
-				>frühzeitig abgelehnt</ListBoxItem
-			>
-		</ListBox>
-	</div>
-
-	<div class="z-20 card w-52 shadow-xl py-2" data-popup="popupNamedVote">
-		<ListBox
-			rounded="rounded-container-token sm:!rounded-token"
-			active="variant-filled-secondary"
-			hover="hover:variant-soft-secondary"
-		>
-			<ListBoxItem bind:group={namedVoteFilter} name="namedVote" value={undefined}>egal</ListBoxItem
-			>
-			<ListBoxItem bind:group={namedVoteFilter} name="namedVote" value={true}
-				>namentliche Abstimmung</ListBoxItem
-			>
-		</ListBox>
-	</div>
-
 	<div class="z-20 card w-52 shadow-xl py-2" data-popup="popupIsLaw">
 		<ListBox
 			rounded="rounded-container-token sm:!rounded-token"
@@ -392,29 +330,6 @@
 				</div>
 			{/if}
 		{/each}
-
-		{#if showVoteTypeFilter}
-			<div>
-				<h1 class="text-lg sm:text-2xl font-bold">Abstimmung</h1>
-				<button
-					class="btn btn-sm sm:btn-md variant-filled-secondary w-40 sm:w-48 justify-between"
-					use:popup={popupNamedVote}
-				>
-					<span class="capitalize">{translateNamedVoteValue(namedVoteFilter)}</span>
-					<span>↓</span>
-				</button>
-			</div>
-		{/if}
-		<div>
-			<h1 class="text-lg sm:text-2xl font-bold">Typ</h1>
-			<button
-				class="btn btn-sm sm:btn-md variant-filled-secondary w-40 sm:w-48 justify-between"
-				use:popup={popupIsLaw}
-			>
-				<span class="capitalize">{translateVotingFilter(votingFilter)}</span>
-				<span>↓</span>
-			</button>
-		</div>
 	</div>
 
 	<!-- LEGIS PERIODS -->
@@ -449,56 +364,7 @@
 				</div>
 			{/if}
 		{/each}
-
-		{#if showVoteTypeFilter}
-			<div class="mt-5 mr-5">
-				<h1 class="text-2xl font-bold">Abstimmung</h1>
-				<RadioGroup active="variant-filled-secondary" hover="hover:variant-soft-secondary">
-					<RadioItem bind:group={namedVoteFilter} name="namedVote" value={undefined}>egal</RadioItem
-					>
-					<RadioItem bind:group={namedVoteFilter} name="namedVote" value={true}
-						>namentliche Abstimmung</RadioItem
-					>
-				</RadioGroup>
-			</div>
-		{/if}
 	</div>
-	<div class="max-lg:hidden flex flex-wrap mt-5 mr-5">
-		{#if showAcceptedFilter}
-			<div class="mt-5 mr-5">
-				<h1 class="text-2xl font-bold">Angenommen</h1>
-				<RadioGroup
-					rounded="rounded-container-token sm:!rounded-token"
-					active="variant-filled-secondary"
-					hover="hover:variant-soft-secondary"
-					flexDirection="flex-col sm:flex-row"
-				>
-					<RadioItem bind:group={acceptedFilter} name="accepted" value={undefined}>egal</RadioItem>
-					<RadioItem bind:group={acceptedFilter} name="accepted" value={'a'}>angenommen</RadioItem>
-					<RadioItem bind:group={acceptedFilter} name="accepted" value={'d'}>abgelehnt</RadioItem>
-					<RadioItem
-						bind:group={acceptedFilter}
-						name="accepted"
-						value={'p'}
-						title="frühzeitig abgelehnt - vor der 3. Lesung">frühzeitig abgelehnt</RadioItem
-					>
-				</RadioGroup>
-			</div>
-		{/if}
-		<div class="mt-5 mr-5">
-			<h1 class="text-2xl font-bold">Typ</h1>
-			<RadioGroup active="variant-filled-secondary" hover="hover:variant-soft-secondary">
-				<RadioItem bind:group={votingFilter} name="voting" value={undefined}>egal</RadioItem>
-				<RadioItem bind:group={votingFilter} name="voting" value={'Law'}>Gesetz</RadioItem>
-				<RadioItem bind:group={votingFilter} name="voting" value={'Resolution'}
-					>Entschließung</RadioItem
-				>
-				<RadioItem bind:group={votingFilter} name="voting" value={'Amendment'}>Abänderung</RadioItem
-				>
-			</RadioGroup>
-		</div>
-	</div>
-
 	<!-- LEGIS PERIODS -->
 	<div class="max-lg:hidden mt-10">
 		<h2 class="font-bold text-2xl mb-1">Legislaturperioden</h2>
@@ -545,25 +411,6 @@
 					</button>
 				{/if}
 			{/each}
-
-			{#if votingFilter !== undefined}
-				<button
-					class="badge p-3 bg-secondary-400 text-black cursor-pointer"
-					on:click={() => (votingFilter = undefined)}
-				>
-					{translateVotingFilter(votingFilter)}
-					<span class="ml-1" style="font-size: 18px;">&#x2715</span>
-				</button>
-			{/if}
-			{#if namedVoteFilter !== undefined}
-				<button
-					class="badge p-3 bg-secondary-400 text-black cursor-pointer"
-					on:click={() => (namedVoteFilter = undefined)}
-				>
-					{translateNamedVoteValue(namedVoteFilter)}
-					<span class="ml-1" style="font-size: 18px;">&#x2715</span>
-				</button>
-			{/if}
 		</div>
 	</div>
 
