@@ -5,32 +5,14 @@
 	import VoteResultExpandableBar from './VoteResultExpandableBar.svelte';
 	import { pushState } from '$app/navigation';
 	import Pagination from '$lib/components/Pagination.svelte';
-	import {
-		ListBox,
-		ListBoxItem,
-		popup,
-		RadioGroup,
-		RadioItem,
-		type PopupSettings
-	} from '@skeletonlabs/skeleton';
-	import LegisButtons from '$lib/components/Filtering/LegisButtons.svelte';
+	import { type PopupSettings } from '@skeletonlabs/skeleton';
 	import { currentVoteResultFilterStores } from '$lib/stores/stores';
 	import { get } from 'svelte/store';
 	import ExpandablePlaceholder from './Placeholders/ExpandablePlaceholder.svelte';
-	import SButton from '$lib/components/UI/SButton.svelte';
 	export let showAcceptedFilter = true;
 	export let showVoteTypeFilter = true;
-	import filterIcon from '$lib/assets/misc_icons/filter-icon.svg?raw';
-	import {
-		translationFn,
-		translationFnAny,
-		type FilterInfo
-	} from '$lib/components/Filtering/types';
-	import FilterListBox from '$lib/components/Filtering/FilterListBox.svelte';
-	import FilterListBoxAny from '$lib/components/Filtering/FilterListBoxAny.svelte';
-	import FilterOpenerAny from '$lib/components/Filtering/FilterOpenerAny.svelte';
-	import FilterRadioGroupAny from '$lib/components/Filtering/FilterRadioGroupAny.svelte';
-	import ActiveFilter from '$lib/components/Filtering/ActiveFilter.svelte';
+	import { translationFn, type FilterInfo } from '$lib/components/Filtering/types';
+	import FiltersAny from '$lib/components/Filtering/FiltersAny.svelte';
 
 	export let dels: Delegate[];
 	export let voteResultsPostFn: (
@@ -78,13 +60,6 @@
 		target: 'popupIsLaw',
 		placement: 'bottom',
 		closeQuery: '.listbox-item'
-	};
-
-	const mobileFilter: PopupSettings = {
-		event: 'click',
-		target: 'mobileFilter',
-		placement: 'bottom',
-		closeQuery: 'none'
 	};
 
 	let currentlyUpdating = false;
@@ -220,7 +195,7 @@
 		update();
 	}
 
-	const filters = [simpleMajorityFilter, acceptedFilter, namedVoteFilter, votingFilter];
+	let filters = [simpleMajorityFilter, acceptedFilter, namedVoteFilter, votingFilter];
 </script>
 
 <!-- <br /> -->
@@ -234,78 +209,9 @@
 
 <!-- Small Screen PopUps (keep them out of <div>...</div> as much as possible) -->
 
-<div
-	class="z-10 card w-full p-5 self-center md:max-w-[34rem] lg:max-w-[50rem] shadow-xl py-2"
-	data-popup="mobileFilter"
->
-	{#each filters as filter}
-		<div class="z-20 card w-48 shadow-xl py-2" data-popup={filter.popup.target}>
-			<FilterListBoxAny bind:filter />
-		</div>
-	{/each}
-
-	<div class="lg:hidden flex flex-wrap gap-6">
-		{#each filters as filter}
-			<FilterOpenerAny {filter} />
-		{/each}
-	</div>
-
-	<!-- LEGIS PERIODS -->
-	<div class="mt-10">
-		<h2 class="font-bold text-2xl mb-1">Legislaturperioden</h2>
-		<LegisButtons bind:selectedPeriod />
-	</div>
-</div>
+<FiltersAny bind:filters bind:searchValue bind:selectedPeriod {update} />
 
 <div>
-	<!-- FILTER OPTIONS -->
-	<!-- Large Screens-->
-	<div class="max-lg:hidden flex flex-wrap mt-5">
-		{#each filters as filter}
-			<FilterRadioGroupAny bind:filter />
-		{/each}
-	</div>
-	<!-- LEGIS PERIODS -->
-	<div class="max-lg:hidden mt-10">
-		<h2 class="font-bold text-2xl mb-1">Legislaturperioden</h2>
-		<LegisButtons bind:selectedPeriod />
-	</div>
-
-	<!-- SEARCH OPTION -->
-	<div class="mt-4 sm:mt-8">
-		<div class="flex flex-row gap-3">
-			<input
-				class="rounded-lg !bg-surface-200-700-token w-full h-12 px-2 placeholder-gray-500"
-				type="search"
-				name="ac-demo"
-				bind:value={searchValue}
-				on:change={update}
-				placeholder="Suche..."
-			/>
-			<div class="flex flex-row gap-2">
-				<SButton class="bg-secondary-500 !px-1.5 text-black" on:click={update}>Suchen</SButton>
-				<div use:popup={mobileFilter} class="lg:hidden">
-					<SButton class="bg-secondary-500 text-black">{@html filterIcon}</SButton>
-				</div>
-			</div>
-		</div>
-
-		<!-- Remove hardcoding of filter html -->
-		<div class="mt-2 flex flex-wrap gap-2">
-			{#if selectedPeriod !== 'all'}
-				<button
-					class="badge p-3 bg-secondary-400 text-black cursor-pointer"
-					on:click={() => (selectedPeriod = 'all')}
-				>
-					{selectedPeriod} <span class="ml-1" style="font-size: 18px;">&#x2715</span>
-				</button>
-			{/if}
-			{#each filters as filter}
-				<ActiveFilter bind:filter />
-			{/each}
-		</div>
-	</div>
-
 	{#if voteResults}
 		{#if voteResults.vote_results.length > 0}
 			{#each voteResults.vote_results as voteResult}
