@@ -8,6 +8,8 @@
 	import { createPartyInfavorMap } from '$lib/partyInfavor';
 	import SwitchBox from '../UI/SwitchBox.svelte';
 	import App3D from './3D/App3D.svelte';
+	import GptBaseParliament from './GptBaseParliament.svelte';
+	import GptCanvasParliament from './GptCanvasParliament.svelte';
 
 	export let width = 830;
 	export let height = 900;
@@ -97,8 +99,10 @@
 	<App3D {circles2d} {selected} {preview} {select} />
 {:else}
 	<BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} />
+	<!-- <GptBaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} /> -->
+	<!-- <GptCanvasParliament {circles2d} {selected} {preview} {select} {width} {height} /> -->
 {/if}
-<!-- 
+<!--
 {#if gp === currentLegisInit && !enforceBase}
 	<BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} />
 {:else if circlesPerParty2.length > 0}

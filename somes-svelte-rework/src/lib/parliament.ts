@@ -17,6 +17,7 @@ export interface Bubble {
 	title: string | null;
 	texture: any | null;
 	material: Material | null;
+	id: number;
 }
 
 export function generateHalfCircle(n: number, r: number, w: number, h: number) {
@@ -53,7 +54,6 @@ export function generateGovCircles(r: number, w: number, h: number) {
 	const spacingFactor = 22;
 
 	let circles: { x: number; y: number; angle_rad: number }[] = [];
-
 
 	for (let i = -AMOUNT_PER_SIDE; i <= AMOUNT_PER_SIDE; i++) {
 		if (i >= -1 && i <= 1) {
@@ -141,7 +141,8 @@ export function genCirclesWithAbsenceInfo(absences: number[], dels: Delegate[]):
 				title: 'abwesen',
 				texture: null,
 				material: null,
-				angle_rad: 0
+				angle_rad: 0,
+				id: 0
 			});
 		}
 	});
@@ -167,7 +168,8 @@ export function genCirclesWithSpeechInfo(speeches: Speech[], dels: Delegate[]): 
 				title: speech.opinion,
 				texture: null,
 				material: null,
-				angle_rad: 0
+				angle_rad: 0,
+				id: 0
 			});
 		}
 	});
@@ -198,7 +200,8 @@ export function genCirclesWithNamedVoteInfo(namedVotes: NamedVote[], dels: Deleg
 				title,
 				texture: null,
 				material: null,
-				angle_rad: 0
+				angle_rad: 0,
+				id: 0
 			});
 		}
 	});
@@ -210,7 +213,7 @@ export async function enrichCirclesWithSpeechInfoOnSeat(
 	circles2d: Bubble[][],
 	dels: Delegate[],
 	reversed = false,
-	setOpacity: (bubble: Bubble) => void,
+	setOpacity: (bubble: Bubble) => void
 ) {
 	speeches.forEach((speech) => {
 		let del = findDelegateById(dels, speech.delegate_id);
@@ -228,7 +231,7 @@ export async function enrichCirclesWithSpeechInfoOnSeat(
 
 		if (infavor == null) {
 			circles2d[del.seat_row - 1][del.seat_col - 1].title = speech.opinion;
-			setOpacity(circles2d[del.seat_row - 1][del.seat_col - 1])
+			setOpacity(circles2d[del.seat_row - 1][del.seat_col - 1]);
 		} else {
 			circles2d[del.seat_row - 1][del.seat_col - 1].title = infavor
 				? `Dafür gesprochen`
@@ -285,6 +288,7 @@ export function setupParliament(
 	r: number,
 	useOffset = true
 ): Bubble[][] {
+	let id = 0;
 	let circles2d: Bubble[][] = [];
 	seats.forEach((seat, idx) => {
 		circles2d.push(
@@ -294,6 +298,7 @@ export function setupParliament(
 				width,
 				height
 			).map((circle) => {
+				id += 1;
 				return {
 					r,
 					x: circle.x,
@@ -306,7 +311,8 @@ export function setupParliament(
 					namedVote: null,
 					speech: null,
 					texture: null,
-					material: null
+					material: null,
+					id
 				};
 			})
 		);
@@ -314,6 +320,7 @@ export function setupParliament(
 
 	circles2d.push(
 		generateGovCircles(70, width, height).map((circle) => {
+			id += 1;
 			return {
 				r,
 				x: circle.x,
@@ -326,7 +333,8 @@ export function setupParliament(
 				namedVote: null,
 				speech: null,
 				texture: null,
-				material: null
+				material: null,
+				id
 			};
 		})
 	);

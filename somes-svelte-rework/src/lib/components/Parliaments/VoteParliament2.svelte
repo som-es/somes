@@ -147,7 +147,7 @@
 		{show3D}
 	/>
 {/if}
-<!-- 
+<!--
 {#if gp === currentLegisInit && !enforceBase}
 	<BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} />
 {:else if circlesPerParty2.length > 0}
