@@ -4,6 +4,7 @@
 	import { createVoteResultPath, type Speech, type VoteResult } from '$lib/types';
 	import { currentVoteResultStore } from '$lib/stores/stores';
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
+	import clockIcon from '$lib/assets/misc_icons/clock-two.svg?raw';
 	import { gotoHistory } from '$lib/goto';
 	import { getModalStore } from '@skeletonlabs/skeleton';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
@@ -43,6 +44,12 @@
 			? 'bg-secondary-400'
 			: 'dark:bg-primary-300 bg-primary-400';
 	$: hasVotes = (voteResult?.votes ?? []).length > 0;
+
+	let speechDuration: { mins: number; seconds: number } | null = null;
+	$: if (speech.duration_in_seconds !== null) {
+		const mins = Math.floor(speech.duration_in_seconds / 60);
+		speechDuration = { mins, seconds: speech.duration_in_seconds - mins * 60 };
+	}
 </script>
 
 <div class="gap-3 mt-5">
@@ -52,7 +59,16 @@
 				class="border-radius-left spacing-for-left flex dark:bg-primary-300 bg-primary-400 justify-between items-center flex-basis-left"
 			>
 				<div class="flex flex-col">
-					<div class="text-lg font-bold">{opinion}</div>
+					<div class="flex flex-row flex-wrap gap-3 items-center">
+						<div class="text-lg font-bold">{opinion}</div>
+						{#if speechDuration}
+							<div class="flex flex-wrap items-center gap-1">
+								<div title="Rededauer">{@html clockIcon}</div>
+								<div class="text-sm">{speechDuration.mins}min</div>
+								<div class="text-sm">{speechDuration.seconds}s</div>
+							</div>
+						{/if}
+					</div>
 					<div>{voteResult.legislative_initiative.description}</div>
 				</div>
 
@@ -83,18 +99,18 @@
 				</div>
 			</div>
 		{/if}
-		<!-- 
+		<!--
 	<div use:collapse={{ open, duration }}>
 		<GovProposalExpanded {govProposal} bind:open />
 	</div> -->
 	</div>
 </div>
 
-<!-- 
+<!--
 <div class="gap-3 rounded variant-filled my-1">
     {#if voteResult}
         {voteResult.legislative_initiative.description}
-        {speech.legislative_initiatives_id} {speech.opinion} 
+        {speech.legislative_initiatives_id} {speech.opinion}
         {#if voteResult.votes.length > 0}
             <div>
                 <VoteParliament2 {voteResult}></VoteParliament2>

@@ -30,9 +30,9 @@ pub async fn extract_delegate_speeches(
     // delegate_id).fetch_one(pg).await?;
 
     let all_speeches_of_delegate = query!("
-        select COUNT(*) from plenar_speeches 
+        select COUNT(*) from plenar_speeches
         INNER JOIN plenar_speech_links ON plenar_speeches.id = plenar_speech_links.plenar_speech_id where delegate_id = $1
-    ", 
+    ",
     delegate_id).fetch_one(pg).await?;
 
     Ok((
@@ -41,12 +41,12 @@ pub async fn extract_delegate_speeches(
             DbSpeechWithLink,
             "
         select duration_in_seconds, delegate_id, about, legis_init_id,     CASE
-        WHEN opinion = 'Pro' THEN true 
-        WHEN opinion = 'Contra' THEN false 
+        WHEN opinion = 'Pro' THEN true
+        WHEN opinion = 'Contra' THEN false
         ELSE NULL
-    END AS infavor, opinion, document_url from plenar_speeches 
-        INNER JOIN plenar_speech_links ON plenar_speeches.id = plenar_speech_links.plenar_speech_id 
-        inner join plenar_speech_legis_inits li on li.speech_id = plenar_speeches.id  
+    END AS infavor, opinion, document_url from plenar_speeches
+        INNER JOIN plenar_speech_links ON plenar_speeches.id = plenar_speech_links.plenar_speech_id
+        inner join plenar_speech_legis_inits li on li.speech_id = plenar_speeches.id
         inner join debates on debates.id = plenar_speeches.debate_id
         inner join plenar_infos pi on pi.id = debates.plenar_id
         where delegate_id = $1
