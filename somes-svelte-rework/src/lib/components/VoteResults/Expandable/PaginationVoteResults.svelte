@@ -42,111 +42,6 @@
 	const url = new URL(window.location.href);
 	let page = parseInt(url.searchParams.get('page') || '1') || 1;
 
-	let currentlyUpdating = false;
-
-	// Remove hardcoding of filter values
-	let selectedPeriod = 'all';
-	let simpleMajorityFilter: boolean | undefined = undefined;
-	let acceptedFilter: string | undefined = undefined;
-	let namedVoteFilter: boolean | undefined = undefined;
-	let isLawFilter: boolean | undefined = undefined;
-	let votingFilter: string | undefined = undefined;
-
-	const maybeStoredFilter = get(currentVoteResultFilterStore);
-	if (maybeStoredFilter !== null) {
-		if (maybeStoredFilter.simple_majority !== null)
-			simpleMajorityFilter = maybeStoredFilter.simple_majority;
-		if (maybeStoredFilter.legis_period !== null) selectedPeriod = maybeStoredFilter.legis_period;
-		if (maybeStoredFilter.accepted !== null) acceptedFilter = maybeStoredFilter.accepted;
-		if (maybeStoredFilter.is_named_vote !== null) namedVoteFilter = maybeStoredFilter.is_named_vote;
-		if (maybeStoredFilter.is_law !== null) isLawFilter = maybeStoredFilter.is_law;
-		if (maybeStoredFilter.vote_type !== null) votingFilter = maybeStoredFilter.vote_type;
-	}
-
-	const loadVoteResults = async () => {
-		currentlyUpdating = true;
-		if (voteResults !== null) {
-			voteResults.vote_results = [];
-		}
-
-		let accepted = acceptedFilter == null ? null : acceptedFilter;
-		// switch (acceptedFilter) {
-		// 	case 'a':
-		// 		accepted = 'a';
-		// 		break;
-		// 	case 'declined':
-		// 		accepted = 'd';
-		// 		break;
-		// 	case 'invisibly':
-		// 		accepted = 'p';
-		// 		break;
-		// }
-
-		// accepted: 'a' (accepted), 'd' (declined), 'p' (pre-declined)
-		// null "egal"
-		let filter: VoteResultFilter | null = {
-			is_named_vote: namedVoteFilter == undefined ? null : namedVoteFilter,
-			accepted,
-			is_law: isLawFilter == undefined ? null : isLawFilter,
-			simple_majority: simpleMajorityFilter == undefined ? null : simpleMajorityFilter,
-			legis_period: selectedPeriod == 'all' ? null : selectedPeriod,
-			vote_type: votingFilter == undefined ? null : votingFilter,
-			topics: null,
-			is_urgent: null,
-			party_votes: null
-		};
-		currentVoteResultFilterStore.set(filter);
-
-		// filter = null;
-
-		if (searchValue) {
-			const voteResultsSearch = errorToNull(
-				await voteResultsSearchPostFn(page, searchValue, filter)
-			);
-			if (voteResultsSearch) voteResults = voteResultsSearch;
-		} else {
-			voteResults = errorToNull(await voteResultsSearchPostFn(page, searchValue, filter));
-			// voteResults = errorToNull(await voteResultsPostFn(page - 1, filter));
-		}
-		currentlyUpdating = false;
-		console.log(voteResults);
-	};
-	onMount(async () => {
-		update();
-	});
-
-	let old_page = page;
-
-	const update = () => {
-		loadVoteResults();
-
-		// update query params
-		const url = new URL(window.location.href);
-		url.searchParams.set('page', page.toString());
-		try {
-			pushState(url.toString(), { replaceState: true });
-		} catch (e) {
-			page = old_page;
-		}
-
-		old_page = page;
-	};
-
-	let searchValue = '';
-
-	$: if (
-		page ||
-		selectedPeriod ||
-		simpleMajorityFilter ||
-		acceptedFilter ||
-		namedVoteFilter ||
-		votingFilter ||
-		isLawFilter // ||
-		// searchValue
-	) {
-		update();
-	}
-
 	const popupRequiredMajority: PopupSettings = {
 		event: 'click',
 		target: 'popupRequiresSimpleMajority',
@@ -223,6 +118,148 @@
 		placement: 'bottom',
 		closeQuery: 'none'
 	};
+
+	let currentlyUpdating = false;
+
+	interface FilterInfo<T> {
+		title: string;
+		popup: PopupSettings;
+		attributeName: string;
+		filterObj: T;
+		translationFn: (x: T) => string;
+		hidden: boolean;
+		values: { title: string; value: T }[];
+	}
+
+	let simpleMajorityFilter: FilterInfo<boolean | undefined> = {
+		title: 'notwendige Mehrheit',
+		popup: popupRequiredMajority,
+		attributeName: 'requiredMajority',
+		filterObj: undefined,
+		translationFn: translateSimpleMajorityFilterValue,
+		hidden: false,
+		values: [
+			{ title: 'egal', value: undefined },
+			{ title: 'einfache Mehrheit', value: true },
+			{ title: '2/3 Mehrheit', value: false }
+		]
+	};
+
+	console.log(simpleMajorityFilter);
+	// Remove hardcoding of filter values
+	let selectedPeriod = 'all';
+	// let simpleMajorityFilter: boolean | undefined = undefined;
+	let acceptedFilter: string | undefined = undefined;
+	let namedVoteFilter: boolean | undefined = undefined;
+	let isLawFilter: boolean | undefined = undefined;
+	let votingFilter: string | undefined = undefined;
+
+	const maybeStoredFilter = get(currentVoteResultFilterStore);
+	if (maybeStoredFilter !== null) {
+		if (maybeStoredFilter.simple_majority !== null)
+			simpleMajorityFilter.filterObj = maybeStoredFilter.simple_majority;
+		if (maybeStoredFilter.legis_period !== null) selectedPeriod = maybeStoredFilter.legis_period;
+		if (maybeStoredFilter.accepted !== null) acceptedFilter = maybeStoredFilter.accepted;
+		if (maybeStoredFilter.is_named_vote !== null) namedVoteFilter = maybeStoredFilter.is_named_vote;
+		if (maybeStoredFilter.is_law !== null) isLawFilter = maybeStoredFilter.is_law;
+		if (maybeStoredFilter.vote_type !== null) votingFilter = maybeStoredFilter.vote_type;
+	}
+
+	console.log(structuredClone(maybeStoredFilter));
+	console.log(simpleMajorityFilter);
+
+	const loadVoteResults = async () => {
+		currentlyUpdating = true;
+		if (voteResults !== null) {
+			voteResults.vote_results = [];
+		}
+
+		let accepted = acceptedFilter == null ? null : acceptedFilter;
+		// switch (acceptedFilter) {
+		// 	case 'a':
+		// 		accepted = 'a';
+		// 		break;
+		// 	case 'declined':
+		// 		accepted = 'd';
+		// 		break;
+		// 	case 'invisibly':
+		// 		accepted = 'p';
+		// 		break;
+		// }
+
+		// accepted: 'a' (accepted), 'd' (declined), 'p' (pre-declined)
+		// null "egal"
+		let filter: VoteResultFilter | null = {
+			is_named_vote: namedVoteFilter == undefined ? null : namedVoteFilter,
+			accepted,
+			is_law: isLawFilter == undefined ? null : isLawFilter,
+			simple_majority:
+				simpleMajorityFilter.filterObj == undefined ? null : simpleMajorityFilter.filterObj,
+			legis_period: selectedPeriod == 'all' ? null : selectedPeriod,
+			vote_type: votingFilter == undefined ? null : votingFilter,
+			topics: null,
+			is_urgent: null,
+			party_votes: null
+		};
+
+		console.log(simpleMajorityFilter);
+		currentVoteResultFilterStore.set(filter);
+
+		// filter = null;
+
+		if (searchValue) {
+			const voteResultsSearch = errorToNull(
+				await voteResultsSearchPostFn(page, searchValue, filter)
+			);
+			if (voteResultsSearch) voteResults = voteResultsSearch;
+		} else {
+			voteResults = errorToNull(await voteResultsSearchPostFn(page, searchValue, filter));
+			// voteResults = errorToNull(await voteResultsPostFn(page - 1, filter));
+		}
+		currentlyUpdating = false;
+		console.log(voteResults);
+	};
+	onMount(async () => {
+		update();
+	});
+
+	let old_page = page;
+
+	const update = () => {
+		loadVoteResults();
+
+		// update query params
+		const url = new URL(window.location.href);
+		url.searchParams.set('page', page.toString());
+		try {
+			pushState(url.toString(), { replaceState: true });
+		} catch (e) {
+			page = old_page;
+		}
+
+		old_page = page;
+	};
+
+	let searchValue = '';
+
+	$: if (
+		page ||
+		selectedPeriod ||
+		// simpleMajorityFilter.filterObj ||
+		acceptedFilter ||
+		namedVoteFilter ||
+		votingFilter ||
+		isLawFilter // ||
+		// searchValue
+	) {
+		update();
+	}
+
+	$: if (filters) {
+		update();
+	}
+
+	const filters = [simpleMajorityFilter];
 </script>
 
 <!-- <br /> -->
@@ -241,23 +278,24 @@
 	class="z-10 card w-full p-5 self-center md:max-w-[34rem] lg:max-w-[50rem] shadow-xl py-2"
 	data-popup="mobileFilter"
 >
-	<div class="z-20 card w-48 shadow-xl py-2" data-popup="popupRequiresSimpleMajority">
-		<ListBox
-			rounded="rounded-container-token sm:!rounded-token"
-			active="variant-filled-secondary"
-			hover="hover:variant-soft-secondary"
-		>
-			<ListBoxItem bind:group={simpleMajorityFilter} name="simpleMajority" value={undefined}
-				>egal</ListBoxItem
+	{#each filters as filter}
+		<div class="z-20 card w-48 shadow-xl py-2" data-popup={filter.popup.target}>
+			<ListBox
+				rounded="rounded-container-token sm:!rounded-token"
+				active="variant-filled-secondary"
+				hover="hover:variant-soft-secondary"
 			>
-			<ListBoxItem bind:group={simpleMajorityFilter} name="simpleMajority" value={true}
-				>einfache Mehrheit</ListBoxItem
-			>
-			<ListBoxItem bind:group={simpleMajorityFilter} name="simpleMajority" value={false}
-				>2/3 Mehrheit</ListBoxItem
-			>
-		</ListBox>
-	</div>
+				{#each filter.values as value}
+					<ListBoxItem
+						bind:group={filter.filterObj}
+						name={filter.attributeName}
+						on:click={update}
+						value={value.value}>{value.title}</ListBoxItem
+					>
+				{/each}
+			</ListBox>
+		</div>
+	{/each}
 
 	<div class="z-20 card w-48 shadow-xl py-2" data-popup="popupAccepted">
 		<ListBox
@@ -306,16 +344,20 @@
 	</div>
 
 	<div class="lg:hidden flex flex-wrap gap-6">
-		<div>
-			<h1 class="text-lg sm:text-2xl font-bold">notwendige Mehrheit</h1>
-			<button
-				class="btn btn-sm sm:btn-md variant-filled-secondary w-40 sm:w-48 justify-between"
-				use:popup={popupRequiredMajority}
-			>
-				<span class="capitalize">{translateSimpleMajorityFilterValue(simpleMajorityFilter)}</span>
-				<span>↓</span>
-			</button>
-		</div>
+		{#each filters as filter}
+			{#if !filter.hidden}
+				<div>
+					<h1 class="text-lg sm:text-2xl font-bold">{filter.title}</h1>
+					<button
+						class="btn btn-sm sm:btn-md variant-filled-secondary w-40 sm:w-48 justify-between"
+						use:popup={filter.popup}
+					>
+						<span class="capitalize">{filter.translationFn(filter.filterObj)}</span>
+						<span>↓</span>
+					</button>
+				</div>
+			{/if}
+		{/each}
 
 		{#if showAcceptedFilter}
 			<div>
@@ -365,25 +407,28 @@
 	<!-- FILTER OPTIONS -->
 	<!-- Large Screens-->
 	<div class="max-lg:hidden flex flex-wrap mt-5">
-		<div class="mt-5 mr-5">
-			<h1 class="sm:text-2xl font-bold">notwendige Mehrheit</h1>
-			<RadioGroup
-				rounded="rounded-container-token sm:!rounded-token"
-				active="variant-filled-secondary"
-				hover="hover:variant-soft-secondary"
-				flexDirection="flex-col sm:flex-row"
-			>
-				<RadioItem bind:group={simpleMajorityFilter} name="simpleMajority" value={undefined}
-					>egal</RadioItem
-				>
-				<RadioItem bind:group={simpleMajorityFilter} name="simpleMajority" value={true}
-					>einfache Mehrheit</RadioItem
-				>
-				<RadioItem bind:group={simpleMajorityFilter} name="simpleMajority" value={false}
-					>2/3 Mehrheit</RadioItem
-				>
-			</RadioGroup>
-		</div>
+		{#each filters as filter}
+			{#if !filter.hidden}
+				<div class="mt-5 mr-5">
+					<h1 class="sm:text-2xl font-bold">{filter.title}</h1>
+					<RadioGroup
+						rounded="rounded-container-token sm:!rounded-token"
+						active="variant-filled-secondary"
+						hover="hover:variant-soft-secondary"
+						flexDirection="flex-col sm:flex-row"
+					>
+						{#each filter.values as value}
+							<RadioItem
+								bind:group={filter.filterObj}
+								name={filter.attributeName}
+								value={value.value}>{value.title}</RadioItem
+							>
+						{/each}
+					</RadioGroup>
+				</div>
+			{/if}
+		{/each}
+
 		{#if showVoteTypeFilter}
 			<div class="mt-5 mr-5">
 				<h1 class="text-2xl font-bold">Abstimmung</h1>
@@ -462,33 +507,36 @@
 		<div class="mt-2 flex flex-wrap gap-2">
 			{#if selectedPeriod !== 'all'}
 				<button
-					class="badge p-3 bg-tertiary-400 text-black cursor-pointer"
+					class="badge p-3 bg-secondary-400 text-black cursor-pointer"
 					on:click={() => (selectedPeriod = 'all')}
 				>
 					{selectedPeriod} <span class="ml-1" style="font-size: 18px;">&#x2715</span>
 				</button>
 			{/if}
+			{#each filters as filter}
+				{#if filter.filterObj !== undefined}
+					<button
+						class="badge p-3 bg-secondary-400 text-black cursor-pointer"
+						on:click={() => (filter.filterObj = undefined)}
+					>
+						{filter.translationFn(filter.filterObj)}
+						<span class="ml-1" style="font-size: 18px;">&#x2715</span>
+					</button>
+				{/if}
+			{/each}
+
 			{#if acceptedFilter !== undefined}
 				<button
-					class="badge p-3 bg-tertiary-400 text-black cursor-pointer"
+					class="badge p-3 bg-secondary-400 text-black cursor-pointer"
 					on:click={() => (acceptedFilter = undefined)}
 				>
 					{translateAcceptedValue(acceptedFilter)}
 					<span class="ml-1" style="font-size: 18px;">&#x2715</span>
 				</button>
 			{/if}
-			{#if simpleMajorityFilter !== undefined}
-				<button
-					class="badge p-3 bg-tertiary-400 text-black cursor-pointer"
-					on:click={() => (simpleMajorityFilter = undefined)}
-				>
-					{translateSimpleMajorityFilterValue(simpleMajorityFilter)}
-					<span class="ml-1" style="font-size: 18px;">&#x2715</span>
-				</button>
-			{/if}
 			{#if votingFilter !== undefined}
 				<button
-					class="badge p-3 bg-tertiary-400 text-black cursor-pointer"
+					class="badge p-3 bg-secondary-400 text-black cursor-pointer"
 					on:click={() => (votingFilter = undefined)}
 				>
 					{translateVotingFilter(votingFilter)}
@@ -497,7 +545,7 @@
 			{/if}
 			{#if namedVoteFilter !== undefined}
 				<button
-					class="badge p-3 bg-tertiary-400 text-black cursor-pointer"
+					class="badge p-3 bg-secondary-400 text-black cursor-pointer"
 					on:click={() => (namedVoteFilter = undefined)}
 				>
 					{translateNamedVoteValue(namedVoteFilter)}
