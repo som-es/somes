@@ -21,6 +21,16 @@
 	export let showAcceptedFilter = true;
 	export let showVoteTypeFilter = true;
 	import filterIcon from '$lib/assets/misc_icons/filter-icon.svg?raw';
+	import {
+		translationFn,
+		translationFnAny,
+		type FilterInfo
+	} from '$lib/components/Filtering/types';
+	import FilterListBox from '$lib/components/Filtering/FilterListBox.svelte';
+	import FilterListBoxAny from '$lib/components/Filtering/FilterListBoxAny.svelte';
+	import FilterOpenerAny from '$lib/components/Filtering/FilterOpenerAny.svelte';
+	import FilterRadioGroupAny from '$lib/components/Filtering/FilterRadioGroupAny.svelte';
+	import ActiveFilter from '$lib/components/Filtering/ActiveFilter.svelte';
 
 	export let dels: Delegate[];
 	export let voteResultsPostFn: (
@@ -63,13 +73,6 @@
 		closeQuery: '.listbox-item'
 	};
 
-	const translateNamedVoteValue = (namedVoteFilter: boolean | undefined) => {
-		if (namedVoteFilter == undefined) {
-			return 'egal';
-		}
-		return namedVoteFilter ? 'namentliche' : 'nicht namentliche';
-	};
-
 	const popupIsLaw: PopupSettings = {
 		event: 'click',
 		target: 'popupIsLaw',
@@ -85,37 +88,6 @@
 	};
 
 	let currentlyUpdating = false;
-
-	interface FilterInfo<T> {
-		title: string;
-		popup: PopupSettings;
-		attributeName: string;
-		filterObj: T;
-		translationFn: (x: FilterInfo<T>) => string | undefined;
-		hidden: boolean;
-		values: { title: string; value: T }[];
-	}
-
-	function translationFn<T>(filterInfo: FilterInfo<T>): string | undefined {
-		const title = filterInfo.values.find((value) => {
-			return value.value == filterInfo.filterObj;
-		})?.title;
-
-		if (title !== undefined) {
-			if (title.length > 15) {
-				return `${title.slice(0, 15)}...`;
-			}
-			return title;
-		} else {
-			return undefined;
-		}
-	}
-
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	function translationFnAny(filter: any) {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		return (filter.translationFn as (f: any) => string)(filter);
-	}
 
 	let simpleMajorityFilter: FilterInfo<boolean | undefined> = {
 		title: 'notwendige Mehrheit',
@@ -244,19 +216,7 @@
 
 	let searchValue = '';
 
-	$: if (
-		page ||
-		selectedPeriod ||
-		// simpleMajorityFilter.filterObj ||
-		acceptedFilter ||
-		namedVoteFilter ||
-		votingFilter
-		// searchValue
-	) {
-		update();
-	}
-
-	$: if (filters) {
+	$: if (page || selectedPeriod || filters) {
 		update();
 	}
 
@@ -272,63 +232,21 @@
 
 -->
 
-<!-- Small Screen PopUps (keep them out of <div>...</div>) -->
+<!-- Small Screen PopUps (keep them out of <div>...</div> as much as possible) -->
 
-<!-- Remove hardcoding of filter html -->
 <div
 	class="z-10 card w-full p-5 self-center md:max-w-[34rem] lg:max-w-[50rem] shadow-xl py-2"
 	data-popup="mobileFilter"
 >
 	{#each filters as filter}
 		<div class="z-20 card w-48 shadow-xl py-2" data-popup={filter.popup.target}>
-			<ListBox
-				rounded="rounded-container-token sm:!rounded-token"
-				active="variant-filled-secondary"
-				hover="hover:variant-soft-secondary"
-			>
-				{#each filter.values as value}
-					<ListBoxItem
-						bind:group={filter.filterObj}
-						name={filter.attributeName}
-						on:click={update}
-						value={value.value}>{value.title}</ListBoxItem
-					>
-				{/each}
-			</ListBox>
+			<FilterListBoxAny bind:filter />
 		</div>
 	{/each}
 
-	<div class="z-20 card w-52 shadow-xl py-2" data-popup="popupIsLaw">
-		<ListBox
-			rounded="rounded-container-token sm:!rounded-token"
-			active="variant-filled-secondary"
-			hover="hover:variant-soft-secondary"
-		>
-			<ListBoxItem bind:group={votingFilter} name="isLaw" value={undefined}>egal</ListBoxItem>
-			<ListBoxItem bind:group={votingFilter} name="isLaw" value={'Law'}>Gesetz</ListBoxItem>
-			<ListBoxItem bind:group={votingFilter} name="isLaw" value={'Resolution'}
-				>Entschließung</ListBoxItem
-			>
-			<ListBoxItem bind:group={votingFilter} name="isLaw" value={'Amendment'}
-				>Abänderung</ListBoxItem
-			>
-		</ListBox>
-	</div>
-
 	<div class="lg:hidden flex flex-wrap gap-6">
 		{#each filters as filter}
-			{#if !filter.hidden}
-				<div>
-					<h1 class="text-lg sm:text-2xl font-bold">{filter.title}</h1>
-					<button
-						class="btn btn-sm sm:btn-md variant-filled-secondary w-40 sm:w-48 justify-between"
-						use:popup={filter.popup}
-					>
-						<span class="capitalize">{translationFnAny(filter)}</span>
-						<span>↓</span>
-					</button>
-				</div>
-			{/if}
+			<FilterOpenerAny {filter} />
 		{/each}
 	</div>
 
@@ -344,25 +262,7 @@
 	<!-- Large Screens-->
 	<div class="max-lg:hidden flex flex-wrap mt-5">
 		{#each filters as filter}
-			{#if !filter.hidden}
-				<div class="mt-5 mr-5">
-					<h1 class="sm:text-2xl font-bold">{filter.title}</h1>
-					<RadioGroup
-						rounded="rounded-container-token sm:!rounded-token"
-						active="variant-filled-secondary"
-						hover="hover:variant-soft-secondary"
-						flexDirection="flex-col sm:flex-row"
-					>
-						{#each filter.values as value}
-							<RadioItem
-								bind:group={filter.filterObj}
-								name={filter.attributeName}
-								value={value.value}>{value.title}</RadioItem
-							>
-						{/each}
-					</RadioGroup>
-				</div>
-			{/if}
+			<FilterRadioGroupAny bind:filter />
 		{/each}
 	</div>
 	<!-- LEGIS PERIODS -->
@@ -401,15 +301,7 @@
 				</button>
 			{/if}
 			{#each filters as filter}
-				{#if filter.filterObj !== undefined}
-					<button
-						class="badge p-3 bg-secondary-400 text-black cursor-pointer"
-						on:click={() => (filter.filterObj = undefined)}
-					>
-						{translationFnAny(filter)}
-						<span class="ml-1" style="font-size: 18px;">&#x2715</span>
-					</button>
-				{/if}
+				<ActiveFilter bind:filter />
 			{/each}
 		</div>
 	</div>
