@@ -198,17 +198,6 @@
 	let filters = [simpleMajorityFilter, acceptedFilter, namedVoteFilter, votingFilter];
 </script>
 
-<!-- <br /> -->
-<!-- <SlideToggle name="slider-large" active="bg-secondary-400" size="md">
-	<span class="text-lg"> Test </span>
-</SlideToggle> -->
-
-<!-- FILTER OPTIONS
-
--->
-
-<!-- Small Screen PopUps (keep them out of <div>...</div> as much as possible) -->
-
 <FiltersAny bind:filters bind:searchValue bind:selectedPeriod {update} />
 
 <div>

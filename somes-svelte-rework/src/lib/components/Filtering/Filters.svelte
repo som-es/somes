@@ -24,6 +24,7 @@
 	};
 </script>
 
+<!-- Small Screen PopUps (keep them out of <div>...</div> as much as possible) -->
 <div
 	class="z-10 card w-full p-5 self-center md:max-w-[34rem] lg:max-w-[50rem] shadow-xl py-2"
 	data-popup="mobileFilter"
