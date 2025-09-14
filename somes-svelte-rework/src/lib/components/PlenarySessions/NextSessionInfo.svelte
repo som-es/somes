@@ -27,7 +27,7 @@
 </script>
 
 <div
-	class="mt-2 flex items-center gap-4 bg-primary-300 dark:bg-primary-500 p-3 rounded-[0.9rem] justify-between w-full flex-wrap"
+	class="mt-5 flex items-center gap-4 bg-primary-300 dark:bg-primary-500 p-3 rounded-[0.9rem] justify-between w-full flex-wrap"
 >
 	<div>
 		<div class="mt-2 text-xl sm:text-3xl font-bold">Nächste Nationalratssitzung</div>

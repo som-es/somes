@@ -94,7 +94,7 @@
 
 <div>
 	{#if decrees}
-		<Pagination bind:page maxPage={decrees.max_page} />
+		<!-- <Pagination bind:page maxPage={decrees.max_page} /> -->
 		{#if decrees.decrees.length > 0}
 			{#each decrees.decrees as decree}
 				<DecreeBar

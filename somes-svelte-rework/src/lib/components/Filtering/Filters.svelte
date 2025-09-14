@@ -49,13 +49,13 @@
 
 <!-- FILTER OPTIONS -->
 <!-- Large Screens-->
-<div class="max-lg:hidden flex flex-wrap mt-5">
+<div class="max-lg:hidden flex flex-wrap mt-1">
 	{#each filters as filter}
 		<FilterRadioGroup bind:filter />
 	{/each}
 </div>
 <!-- LEGIS PERIODS -->
-<div class="max-lg:hidden mt-10">
+<div class="max-lg:hidden mt-5">
 	<h2 class="font-bold text-2xl mb-1">Legislaturperioden</h2>
 	<LegisButtons bind:selectedPeriod />
 </div>

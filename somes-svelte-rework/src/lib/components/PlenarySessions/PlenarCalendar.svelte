@@ -61,7 +61,7 @@
 	$: {
 		month;
 		year;
-		plenar_dates(`${year}-${month}-${date.getDate()}`).then((dates) => {
+		plenar_dates(`${year}-${month + 1}-${date.getDate()}`).then((dates) => {
 			const newDates = errorToNull(dates);
 			console.log(newDates);
 			if (newDates !== null) {

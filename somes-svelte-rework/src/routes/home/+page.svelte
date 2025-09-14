@@ -45,7 +45,7 @@
 <Container>
 	<h1 class="mt-2 text-3xl sm:text-5xl font-bold">Neuigkeiten</h1>
 	<NextSessionInfo />
-	<h2 class="text-xl sm:text-3xl font-bold">Letzte Abstimmungen</h2>
+	<h2 class="text-xl sm:text-3xl font-bold mt-4">Letzte Abstimmungen</h2>
 	{#if userVoteResults && dels}
 		<h2 class="text-xl sm:text-3xl font-bold">nach Interesse</h2>
 

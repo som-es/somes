@@ -4,7 +4,7 @@
 </script>
 
 <div class="container mx-auto mt-0 {clazz}">
-	<div class="mx-0 max-md:mx-3">
+	<div class="px-2 md:px-8 lg:px-9 pt-3">
 		<slot />
 	</div>
 </div>
