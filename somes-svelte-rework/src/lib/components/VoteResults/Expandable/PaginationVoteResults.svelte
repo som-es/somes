@@ -21,6 +21,7 @@
 	export let showAcceptedFilter = true;
 	export let showVoteTypeFilter = true;
 	import filterIcon from '$lib/assets/misc_icons/filter-icon.svg?raw';
+	import { getRandomValues } from 'crypto';
 
 	export let dels: Delegate[];
 	export let voteResultsPostFn: (
@@ -126,17 +127,28 @@
 		popup: PopupSettings;
 		attributeName: string;
 		filterObj: T;
-		translationFn: (x: T) => string;
+		translationFn: (x: FilterInfo<T>) => string | undefined;
 		hidden: boolean;
 		values: { title: string; value: T }[];
 	}
+
+	function translationFn<T>(filterInfo: FilterInfo<T>): string | undefined {
+		return filterInfo.values.find(value => {
+			return value == filterInfo.filterObj
+		})?.title
+	}
+	
+	// @ts-ignore
+	function translationFnAny(filter: any) {
+    	return (filter.translationFn as (f: any) => string)(filter);
+  	}
 
 	let simpleMajorityFilter: FilterInfo<boolean | undefined> = {
 		title: 'notwendige Mehrheit',
 		popup: popupRequiredMajority,
 		attributeName: 'requiredMajority',
 		filterObj: undefined,
-		translationFn: translateSimpleMajorityFilterValue,
+		translationFn,
 		hidden: false,
 		values: [
 			{ title: 'egal', value: undefined },
@@ -144,12 +156,38 @@
 			{ title: '2/3 Mehrheit', value: false }
 		]
 	};
-
-	console.log(simpleMajorityFilter);
+	let acceptedFilter: FilterInfo<string | undefined> = {
+		title: 'Angenommen',
+		popup: popupAccepted,
+		attributeName: 'accepted',
+		filterObj: undefined,
+		translationFn,
+		hidden: !showAcceptedFilter,
+		values: [
+			{ title: 'egal', value: undefined },
+			{ title: 'angenommen', value: "a" },
+			{ title: 'abgelehnt', value: "d" },
+			{ title: 'frühzeitig abgelehnt', value: "p" }
+		]
+	};
+	let namedVoteFilter2: FilterInfo<string | undefined> = {
+		title: 'Angenommen',
+		popup: popupAccepted,
+		attributeName: 'accepted',
+		filterObj: undefined,
+		translationFn,
+		hidden: !showAcceptedFilter,
+		values: [
+			{ title: 'egal', value: undefined },
+			{ title: 'angenommen', value: "a" },
+			{ title: 'abgelehnt', value: "d" },
+			{ title: 'frühzeitig abgelehnt', value: "p" }
+		]
+	};
 	// Remove hardcoding of filter values
 	let selectedPeriod = 'all';
 	// let simpleMajorityFilter: boolean | undefined = undefined;
-	let acceptedFilter: string | undefined = undefined;
+	// let acceptedFilter: string | undefined = undefined;
 	let namedVoteFilter: boolean | undefined = undefined;
 	let isLawFilter: boolean | undefined = undefined;
 	let votingFilter: string | undefined = undefined;
@@ -159,14 +197,11 @@
 		if (maybeStoredFilter.simple_majority !== null)
 			simpleMajorityFilter.filterObj = maybeStoredFilter.simple_majority;
 		if (maybeStoredFilter.legis_period !== null) selectedPeriod = maybeStoredFilter.legis_period;
-		if (maybeStoredFilter.accepted !== null) acceptedFilter = maybeStoredFilter.accepted;
+		if (maybeStoredFilter.accepted !== null) acceptedFilter.filterObj = maybeStoredFilter.accepted;
 		if (maybeStoredFilter.is_named_vote !== null) namedVoteFilter = maybeStoredFilter.is_named_vote;
 		if (maybeStoredFilter.is_law !== null) isLawFilter = maybeStoredFilter.is_law;
 		if (maybeStoredFilter.vote_type !== null) votingFilter = maybeStoredFilter.vote_type;
 	}
-
-	console.log(structuredClone(maybeStoredFilter));
-	console.log(simpleMajorityFilter);
 
 	const loadVoteResults = async () => {
 		currentlyUpdating = true;
@@ -191,7 +226,7 @@
 		// null "egal"
 		let filter: VoteResultFilter | null = {
 			is_named_vote: namedVoteFilter == undefined ? null : namedVoteFilter,
-			accepted,
+			accepted: acceptedFilter.filterObj == undefined ? null : acceptedFilter.filterObj,
 			is_law: isLawFilter == undefined ? null : isLawFilter,
 			simple_majority:
 				simpleMajorityFilter.filterObj == undefined ? null : simpleMajorityFilter.filterObj,
@@ -202,7 +237,6 @@
 			party_votes: null
 		};
 
-		console.log(simpleMajorityFilter);
 		currentVoteResultFilterStore.set(filter);
 
 		// filter = null;
@@ -259,7 +293,7 @@
 		update();
 	}
 
-	const filters = [simpleMajorityFilter];
+	const filters = [simpleMajorityFilter, acceptedFilter];
 </script>
 
 <!-- <br /> -->
@@ -352,25 +386,12 @@
 						class="btn btn-sm sm:btn-md variant-filled-secondary w-40 sm:w-48 justify-between"
 						use:popup={filter.popup}
 					>
-						<span class="capitalize">{filter.translationFn(filter.filterObj)}</span>
+						<span class="capitalize">{translationFnAny(filter)}</span>
 						<span>↓</span>
 					</button>
 				</div>
 			{/if}
 		{/each}
-
-		{#if showAcceptedFilter}
-			<div>
-				<h1 class="text-lg sm:text-2xl font-bold">Angenommen</h1>
-				<button
-					class="btn btn-sm sm:btn-md variant-filled-secondary w-40 sm:w-48 justify-between"
-					use:popup={popupAccepted}
-				>
-					<span class="capitalize">{translateAcceptedValue(acceptedFilter)}</span>
-					<span>↓</span>
-				</button>
-			</div>
-		{/if}
 
 		{#if showVoteTypeFilter}
 			<div>
@@ -519,21 +540,12 @@
 						class="badge p-3 bg-secondary-400 text-black cursor-pointer"
 						on:click={() => (filter.filterObj = undefined)}
 					>
-						{filter.translationFn(filter.filterObj)}
+						{translationFnAny(filter)}
 						<span class="ml-1" style="font-size: 18px;">&#x2715</span>
 					</button>
 				{/if}
 			{/each}
 
-			{#if acceptedFilter !== undefined}
-				<button
-					class="badge p-3 bg-secondary-400 text-black cursor-pointer"
-					on:click={() => (acceptedFilter = undefined)}
-				>
-					{translateAcceptedValue(acceptedFilter)}
-					<span class="ml-1" style="font-size: 18px;">&#x2715</span>
-				</button>
-			{/if}
 			{#if votingFilter !== undefined}
 				<button
 					class="badge p-3 bg-secondary-400 text-black cursor-pointer"
