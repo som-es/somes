@@ -29,6 +29,7 @@
 	export let supplyDate: Date | null = null;
 	export let circles2d: Bubble[][] = [];
 	export let showGovs: boolean = false;
+	export let enforceSvg: boolean = false;
 	if (voteResult) gp = voteResult.legislative_initiative.gp;
 	let date = new Date();
 	if (supplyDate) {
@@ -145,6 +146,7 @@
 		{seats}
 		{useOffset}
 		{show3D}
+		{enforceSvg}
 	/>
 {/if}
 <!--

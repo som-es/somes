@@ -31,6 +31,9 @@
 				floating: true
 			},
 			chart: {
+				animations: {
+					enabled: false
+				},
 				type: 'bar',
 				height
 			},

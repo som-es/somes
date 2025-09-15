@@ -191,8 +191,12 @@
 
 	let searchValue = '';
 
-	$: if (page || selectedPeriod || filters) {
+	$: if (page || selectedPeriod || filters || searchValue) {
 		update();
+	}
+
+	$: if (searchValue) {
+		page = 1;
 	}
 
 	let filters = [simpleMajorityFilter, acceptedFilter, namedVoteFilter, votingFilter];

@@ -8,7 +8,6 @@
 	import { createPartyInfavorMap } from '$lib/partyInfavor';
 	import SwitchBox from '../UI/SwitchBox.svelte';
 	import App3D from './3D/App3D.svelte';
-	import GptBaseParliament from './GptBaseParliament.svelte';
 	import GptCanvasParliament from './GptCanvasParliament.svelte';
 
 	export let width = 830;
@@ -31,6 +30,7 @@
 	export let voteResult: VoteResult | null;
 	export let supplyDate: Date | null = null;
 	export let show3D = false;
+	export let enforceSvg = false;
 
 	if (voteResult) gp = voteResult.legislative_initiative.gp;
 	let date = new Date();
@@ -98,7 +98,13 @@
 {#if checked}
 	<App3D {circles2d} {selected} {preview} {select} />
 {:else if preview}
-	<GptCanvasParliament class={clazz} {circles2d} {width} {height} />
+	{#if !enforceSvg}
+		<GptCanvasParliament class={clazz} {circles2d} {width} {height} />
+		<!-- <BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} /> -->
+	{:else}
+		<BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} />
+	{/if}
+	<!-- <BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} /> -->
 {:else}
 	<BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} />
 	<!-- <GptBaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} /> -->
