@@ -3,10 +3,9 @@
 	import { onMount, onDestroy } from 'svelte';
 
 	export let circles2d: Bubble[][] = [];
-	export let selected: Bubble | null = null;
-	export let preview: boolean = false;
-	export let select: (bubble: Bubble, event: MouseEvent | KeyboardEvent | null) => void;
 
+	let clazz = '';
+	export { clazz as class };
 	export let width = 830;
 	export let height = 900;
 
@@ -25,36 +24,14 @@
 			ctx.beginPath();
 			ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
 			ctx.globalAlpha = c.opacity;
-			ctx.fillStyle = c.color;
-			ctx.fill();
-			if (c.del?.id === selected?.del?.id) {
-				ctx.lineWidth = 4;
-				ctx.strokeStyle = 'orange';
-				ctx.stroke();
+			if (c.color) {
+				ctx.fillStyle = c.color;
 			}
+			ctx.fill();
 		}
 	}
 
 	$: drawAll();
-
-	function getPointerPos(e: MouseEvent) {
-		const rect = canvas.getBoundingClientRect();
-		return { x: e.clientX - rect.left, y: e.clientY - rect.top };
-	}
-
-	function handleClick(e: MouseEvent) {
-		if (preview) return;
-		const p = getPointerPos(e);
-		for (let i = flat.length - 1; i >= 0; i--) {
-			const c = flat[i];
-			const dx = p.x - c.x;
-			const dy = p.y - c.y;
-			if (dx * dx + dy * dy <= c.r * c.r) {
-				select(c, e);
-				break;
-			}
-		}
-	}
 
 	onMount(() => {
 		ctx = canvas.getContext('2d');
@@ -72,4 +49,6 @@
 	});
 </script>
 
-<canvas bind:this={canvas} on:click={handleClick} style="width:100%; height:auto;"></canvas>
+<div class={clazz}>
+	<canvas bind:this={canvas} style="width:100%;"></canvas>
+</div>

@@ -97,10 +97,11 @@
 
 {#if checked}
 	<App3D {circles2d} {selected} {preview} {select} />
+{:else if preview}
+	<GptCanvasParliament class={clazz} {circles2d} {width} {height} />
 {:else}
 	<BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} />
 	<!-- <GptBaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} /> -->
-	<!-- <GptCanvasParliament {circles2d} {selected} {preview} {select} {width} {height} /> -->
 {/if}
 <!--
 {#if gp === currentLegisInit && !enforceBase}
