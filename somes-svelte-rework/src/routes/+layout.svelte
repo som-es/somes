@@ -33,8 +33,8 @@
 	const drawerStore = getDrawerStore();
 
 	afterNavigate(() => {
-    	window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-  	});
+		window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+	});
 
 	// const drawerStore = getDrawerStore();
 	const modalRegistry: Record<string, ModalComponent> = {
@@ -46,7 +46,7 @@
 		allAbsences: { ref: AbsencesModal },
 		allNamedVotes: { ref: NamedVoteModal },
 		detailedInterests: { ref: DetailedInterestsModal },
-		allDecrees: { ref: DecreesModal },
+		allDecrees: { ref: DecreesModal }
 		// imdying:{ ref: ModalExample }
 	};
 </script>
@@ -63,7 +63,7 @@
 	{/if}
 </Drawer>
 
-<!-- 
+<!--
 <div class="grid h-screen grid-rows-[auto_1fr_auto]">
 	<header class="sticky top-0 z-[10000000]">
 		<Navbar />
@@ -95,3 +95,6 @@
 	</svelte:fragment>
 	<slot />
 </AppShell>
+
+<style>
+</style>
