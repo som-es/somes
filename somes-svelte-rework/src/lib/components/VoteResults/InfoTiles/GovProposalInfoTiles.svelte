@@ -49,3 +49,9 @@
 		</Square>
 	{/if}
 </div>
+
+<style>
+	.info-item {
+		grid-area: i;
+	}
+</style>

@@ -1,7 +1,12 @@
 <script lang="ts">
 	import Topics from '$lib/components/Topics/Topics.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
-	import { createVoteResultPath, type Delegate, type GovProposal, type VoteResult } from '$lib/types';
+	import {
+		createVoteResultPath,
+		type Delegate,
+		type GovProposal,
+		type VoteResult
+	} from '$lib/types';
 	import { currentDelegatesAtDateStore, currentVoteResultStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
@@ -35,6 +40,9 @@
 	}
 
 	$: rawEmphasis = govProposal.ministrial_proposal.emphasis;
+
+	$: whichGridContainer =
+		rawEmphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
 </script>
 
 <div class="sm:hidden entry bg-primary-200 dark:bg-primary-400 mt-3">
@@ -82,54 +90,40 @@
 	</div>
 </div>
 
-<div class="max-sm:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3 flex flex-wrap">
-	<!-- Inneres Migration Frauen Klimaschutz -->
+<div class="max-lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3 {whichGridContainer}">
+	<!--  -->
+	<Emphasis {rawEmphasis} isAiGenerated={false} useTitleHover />
 
-	<div class="flex flex-wrap">
-		<div class="emphasis">
-			<Emphasis {rawEmphasis} isAiGenerated={false} useTitleHover />
-		</div>
-		{#if govProposal.vote_result}
-			<button
-				class="rounded-xl ml-auto parliament-item bg-primary-100"
-				on:click={() => onShowDetails(govProposal.vote_result)}
-			>
-				<VoteParliament2 voteResult={govProposal.vote_result} preview={true} />
-			</button>
-		{/if}
-
-		{#if delegate}
-			<div class="delegate-card">
-				<DelegateCard {delegate} onlyTop showMoreDetailsBtn showImg={false} />
-			</div>
-		{/if}
-	</div>
-
-	<div class="flex flex-wrap gap-3">
-		<GovProposalInfoTiles {govProposal} />
-
-		{#if govProposal.topics.length > 0}
-			<div
-				class="topics-item flex-row flex rounded-xl justify-center items-center bg-primary-300 p-3 max-h-[169px]"
-			>
-				<Topics
-					topics={govProposal.topics.sort((a, b) => {
-						return a.topic.length - b.topic.length;
-					})}
-				/>
-			</div>
-		{/if}
-	</div>
-	<!-- <InfoTiles voteResult={govProposal} {dels} /> -->
-
-	{#if govProposal.vote_result}
-		<div class="ml-auto details-item mt-auto">
-			<SButton
-				class="bg-tertiary-500 text-black"
-				on:click={() => onShowDetails(govProposal.vote_result)}>Betreffende Abstimmung</SButton
-			>
+	{#if govProposal.topics.length > 0}
+		<div
+			class="topics-item flex-row flex rounded-xl justify-center items-center bg-primary-300 p-3 max-h-[169px]"
+		>
+			<Topics
+				topics={govProposal.topics.sort((a, b) => {
+					return a.topic.length - b.topic.length;
+				})}
+			/>
 		</div>
 	{/if}
+
+	{#if govProposal.vote_result}
+		<button
+			class="rounded-xl ml-auto parliament-item bg-primary-100"
+			on:click={() => onShowDetails(govProposal.vote_result)}
+		>
+			<VoteParliament2 voteResult={govProposal.vote_result} preview={true} />
+		</button>
+	{/if}
+
+	<GovProposalInfoTiles {govProposal} />
+	{#if delegate}
+		<div class="delegate-card gov-official">
+			<DelegateCard {delegate} onlyTop showMoreDetailsBtn showImg={false} />
+		</div>
+	{/if}
+	<!-- <div class="ml-auto details-item mt-auto">
+		<SButton class="bg-tertiary-500 text-black" on:click={onShowDetails}>Details anzeigen</SButton>
+	</div> -->
 </div>
 
 <style>
@@ -140,19 +134,51 @@
 		gap: 10px;
 	}
 
-	.emphasis {
-		flex-basis: 70%;
+	.grid-container-with-emphasis {
+		box-sizing: border-box;
+		display: grid;
+		grid-template-areas:
+			'e e e e e m m m' /* e: emphasis, p: parliament */
+			'e e e e e p p p'
+			'e e e e e p p p'
+			'i i i i i t t d'; /* a: accepted, m: majority? 2/3, 1/2, dt: date, d: details */
+		/* "i i i a"; */
+		padding: 10px;
 	}
 
-	.delegate-card {
-		flex-basis: 30%;
+	.grid-container-without-emphasis {
+		box-sizing: border-box;
+		display: grid;
+		grid-template-areas:
+			'i i i i i t p m' /* e: emphasis, p: parliament */
+			'. . . . . . d d'; /* a: accepted, m: majority? 2/3, 1/2, dt: date, d: details */
+		/* "i i i a"; */
+		padding: 10px;
 	}
-
 	.parliament-item {
-		flex-basis: 24%;
+		grid-area: p;
 	}
+
+	.topics-item {
+		grid-area: t;
+		/* overflow: hidden; */
+		/* min-width: 0;*/
+	}
+
+	.gov-official {
+		grid-area: m;
+	}
+
+	.emphasis-item {
+		grid-area: e;
+	}
+
+	.details-item {
+		grid-area: d;
+	}
+
 	.topics-item {
 		/* flex-basis: 20%; */
-		max-width: 390px;
+		max-width: 490px;
 	}
 </style>
