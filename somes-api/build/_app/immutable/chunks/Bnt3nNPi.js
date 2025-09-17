@@ -1,1 +1,0 @@
-import{n,i as o,o as l,q as c,r as a}from"./C4Mz-QYc.js";import{I as r}from"./CQH-UvOU.js";async function u(s=!1){let t=r(l);if(t==null||s||t.length==0){const e=await n(30);o(e)||(l.set(e),t=e)}return t}async function h(s=!1){let t=r(a);if(t==null||s||t.length==0){const e=await c();o(e)?(a.set(null),t=null):(a.set(e),t=e)}return t}export{u as a,h as c};

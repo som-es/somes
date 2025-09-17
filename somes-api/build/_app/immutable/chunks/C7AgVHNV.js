@@ -1,0 +1,1 @@
+import{n as l,o as n,i as o,q as a,r as c}from"./DbeTHlG_.js";import{x as r}from"./CuQKwpa-.js";async function u(s=!1){let t=r(l);if(t==null||s||t.length==0){const e=await n(30);o(e)||(l.set(e),t=e)}return t}async function h(s=!1){let t=r(a);if(t==null||s||t.length==0){const e=await c();o(e)?(a.set(null),t=null):(a.set(e),t=e)}return t}export{u as a,h as c};

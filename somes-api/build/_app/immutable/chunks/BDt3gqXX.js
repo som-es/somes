@@ -1,0 +1,1 @@
+import{x as t}from"./CuQKwpa-.js";import{p as n}from"./DbeTHlG_.js";function e(){return new Map(t(n))}const l=e();function u(r){if(r==null)return"#B8B8B8";const o=l.get(r);return o??"#B8B8B8"}export{e as g,u as p};
