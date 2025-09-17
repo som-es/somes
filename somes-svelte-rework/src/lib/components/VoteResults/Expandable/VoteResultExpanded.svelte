@@ -28,8 +28,15 @@
 
 	$: rawEmphasis = voteResult.legislative_initiative.emphasis;
 
-	$: whichGridContainer =
-		rawEmphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
+	function gridContainer(rawEmphasis: string | null, voteResult: VoteResult): string {
+		if (voteResult.legislative_initiative.accepted === null && rawEmphasis !== null) {
+			return 'grid-container-without-voting';
+		}
+		return rawEmphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
+	}
+
+	$: whichGridContainer = gridContainer(rawEmphasis, voteResult);
+	// rawEmphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
 </script>
 
 <div class="lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3">
@@ -114,6 +121,18 @@
 			'e e e e e p p p'
 			'e e e e e p p p'
 			'i i i i i t t d'; /* a: accepted, m: majority? 2/3, 1/2, dt: date, d: details */
+		/* "i i i a"; */
+		padding: 10px;
+	}
+	.grid-container-without-voting {
+		box-sizing: border-box;
+		display: grid;
+		grid-template-areas:
+			'e e e e e t t t' /* e: emphasis, p: parliament */
+			'e e e e e i i i';
+		/*'e e e e e p p p'*/
+		/*'i i i i i t t d'; */
+		/* a: accepted, m: majority? 2/3, 1/2, dt: date, d: details */
 		/* "i i i a"; */
 		padding: 10px;
 	}
