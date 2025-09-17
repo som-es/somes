@@ -21,18 +21,20 @@ pub const EMAIL_TEMPLATE: &str = include_str!("email_template.html");
 
 pub static MAILER: Lazy<SmtpTransport> = Lazy::new(|| {
     let creds = Credentials::new(SMTP_USERNAME.to_string(), SMTP_PASSWORD.to_string());
+    log::info!("SMTP USER: {}", SMTP_USERNAME);
     log::info!("Connecting to email relay...");
-    let tls_parameters = TlsParameters::builder(MAIL_SERVER.to_string())
-        .dangerous_accept_invalid_certs(true)
-        .build()
-        .expect("Failed to build TLS parameters");
 
-    SmtpTransport::relay(MAIL_SERVER)
+    // let tls_parameters = TlsParameters::builder(MAIL_SERVER.to_string())
+    //     // .dangerous_accept_invalid_certs(true)
+    //     .build()
+    //     .expect("Failed to build TLS parameters");
+
+    SmtpTransport::starttls_relay(MAIL_SERVER)
         .expect("Email relay not available.")
         .credentials(creds)
-        .tls(lettre::transport::smtp::client::Tls::Wrapper(
-            tls_parameters,
-        ))
+        // .tls(lettre::transport::smtp::client::Tls::Wrapper(
+        //     tls_parameters,
+        // ))
         .build()
 });
 
@@ -74,6 +76,6 @@ pub fn send_otp_mail(mail_to: &str, otp: &str) -> Result<(), Box<dyn std::error:
 
 #[test]
 fn test_send_mail() {
-    send_otp_mail("robin.pautsch@it.htl-hl.ac.at", "A12 3Z2 HAC").unwrap()
+    send_otp_mail("florian.nagy@it.htl-hl.ac.at", "A12 3Z2 HAC").unwrap()
     // send_mail("", "tolle_id_zum_verifizieren");
 }
