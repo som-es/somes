@@ -12,6 +12,7 @@
 	import crossmarkIcon from '$lib/assets/misc_icons/crossmark_small.svg?raw';
 	import checkmarkIcon from '$lib/assets/misc_icons/checkmark_small.svg?raw';
 	import VoteTypeBadge from '../VoteTypeBadge.svelte';
+	import { dashDateToDotDate } from '$lib/date';
 
 	export let voteResult: VoteResult;
 	export let dels: Delegate[];
@@ -36,7 +37,7 @@
 					{@html rightArrowIcon}
 				</div>
 			</div> -->
-			<div class="flex items-center justify-between w-full">
+			<div class="flex max-lg:flex-wrap items-center justify-between w-full">
 				<div class="text-md sm:text-lg font-semibold w-5/6">
 					{voteResult.legislative_initiative.description}
 				</div>
@@ -48,13 +49,14 @@
 					{/if}
 				{:else}
 					<div></div>
-					<div class="flex max-sm:flex-wrap gap-1">
+					<div class="flex max-sm:flex-wrap gap-1 mt-1">
 						{#if voteResult.legislative_initiative.requires_simple_majority}
 							<span class="badge bg-tertiary-400 text-black">einfache Mehrheit</span>
 						{:else}
 							<span class="badge bg-tertiary-400 text-black">2/3 Mehrheit</span>
 						{/if}
 						<span class="badge bg-tertiary-400 text-black">{voteResult.legislative_initiative.gp}</span>
+						<span class="badge bg-tertiary-400 text-black">{dashDateToDotDate(voteResult.legislative_initiative.created_at.toString())}</span>
 						<VoteTypeBadge {voteResult} />
 					</div>
 				{/if}
@@ -88,6 +90,7 @@
 								<span class="badge bg-tertiary-400 text-black">2/3 Mehrheit</span>
 							{/if}
 							<span class="badge bg-tertiary-400 text-black">{voteResult.legislative_initiative.gp}</span>
+							<span class="badge bg-tertiary-400 text-black">{dashDateToDotDate(voteResult.legislative_initiative.created_at.toString())}</span>
 							<VoteTypeBadge {voteResult} />
 						</div>
 					{:else}
@@ -123,6 +126,7 @@
 								<span class="badge bg-tertiary-400 text-black">2/3 Mehrheit</span>
 							{/if}
 							<span class="badge bg-tertiary-400 text-black">{voteResult.legislative_initiative.gp}</span>
+							<span class="badge bg-tertiary-400 text-black">{dashDateToDotDate(voteResult.legislative_initiative.created_at.toString())}</span>
 							<VoteTypeBadge {voteResult} />
 						</div>
 					{/if}
@@ -144,6 +148,7 @@
 						<span class="badge bg-tertiary-400 text-black">2/3 Mehrheit</span>
 					{/if}
 					<span class="badge bg-tertiary-400 text-black">{voteResult.legislative_initiative.gp}</span>
+					<span class="badge bg-tertiary-400 text-black">{dashDateToDotDate(voteResult.legislative_initiative.created_at.toString())}</span>
 					<VoteTypeBadge {voteResult} />
 				{/if}
 			</span>

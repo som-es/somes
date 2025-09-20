@@ -41,7 +41,7 @@
 		<div class="flex flex-col gap-1">
 			<span>{govProposal.gov_proposal.ministrial_proposal.description.slice(30)}</span>
 			<div class="flex flex-wrap gap-1">
-				<span class="badge bg-tertiary-400 text-black">{govProposal.gov_proposal.ministrial_proposal.ressort}</span>
+				<span class="badge bg-tertiary-400 text-black text-wrap">{govProposal.gov_proposal.ministrial_proposal.ressort}</span>
 				<span class="badge bg-tertiary-400 text-black">{dashDateToDotDate(govProposal.gov_proposal.ministrial_proposal.created_at.split('T')[0].toString())}</span>
 				<span class="badge bg-tertiary-400 text-black">{govProposal.gov_proposal.ministrial_proposal.gp}</span>
 			</div>
