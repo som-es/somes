@@ -30,6 +30,9 @@
 	import DetailedInterestsModal from '$lib/components/Delegates/Interests/DetailedInterestsModal.svelte';
 	import DecreesModal from '$lib/components/Delegates/Decrees/DecreesModal.svelte';
 	import { afterNavigate } from '$app/navigation';
+	import { partyColors, setPartyColors } from '$lib/partyColor';
+	import { cachedPartyColors } from '$lib/caching/party_color';
+	import { onMount } from 'svelte';
 	const drawerStore = getDrawerStore();
 
 	afterNavigate(() => {

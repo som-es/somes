@@ -4,7 +4,11 @@ import { partyColorsStore } from './caching/stores/stores';
 export function getPartyColors(): Map<string, string> {
 	return new Map(get(partyColorsStore));
 }
-const partyColors = getPartyColors();
+export let partyColors: Map<string, string> = getPartyColors();
+
+export function setPartyColors(val: Map<string, string>) {
+  partyColors = val;
+}
 
 export function partyToColor(party: string | null): string {
 	if (party == null) {

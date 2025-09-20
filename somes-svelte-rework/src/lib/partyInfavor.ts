@@ -1,4 +1,4 @@
-import { getPartyColors } from './partyColor';
+import { partyColors } from './partyColor';
 import type { VoteResult } from './types';
 
 export function isPartyInFavor(voteResult: VoteResult | null, party: string): boolean {
@@ -13,7 +13,7 @@ export function isPartyInFavor(voteResult: VoteResult | null, party: string): bo
 }
 
 export function createPartyInfavorMap(voteResult: VoteResult | null): Map<string, boolean> {
-	const partyToColorMap = getPartyColors();
+	const partyToColorMap = partyColors;
 
 	let partyInfavorMap = new Map<string, boolean>();
 	partyToColorMap.forEach((_v, party) => {

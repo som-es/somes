@@ -5,9 +5,11 @@
 	import { cachedPartyColors } from '$lib/caching/party_color';
 	import { cachedAllSeats } from '$lib/caching/seats';
 	import { cachedLatestVoteResults } from '$lib/caching/vote_results';
+	import { setPartyColors } from '$lib/partyColor';
 	import { onMount } from 'svelte';
 
 	onMount(async function () {
+		setPartyColors(await cachedPartyColors(true));
 		await cachedPartyColors(true);
 		await cachedAllLegisPeriods(true);
 		await cachedLatestVoteResults(true);

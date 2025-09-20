@@ -1,7 +1,7 @@
 <!-- TODO: merge this and the Parliament component in to one -->
 <script lang="ts">
 	import { type Bubble, enrichParliamentBubbles, setupParliament } from '$lib/parliament';
-	import { getPartyColors } from '$lib/partyColor';
+	import { getPartyColors, partyColors } from '$lib/partyColor';
 	import type { Delegate, VoteResult } from '$lib/types';
 	import { onMount } from 'svelte';
 	import BaseParliament from './BaseParliament.svelte';
@@ -97,13 +97,8 @@
 
 {#if checked}
 	<App3D {circles2d} {selected} {preview} {select} />
-{:else if preview}
-	{#if !enforceSvg}
-		<GptCanvasParliament class={clazz} {circles2d} {width} {height} />
-		<!-- <BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} /> -->
-	{:else}
-		<BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} />
-	{/if}
+{:else if preview && !enforceSvg}
+	<GptCanvasParliament class={clazz} {circles2d} {width} {height} />
 	<!-- <BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} /> -->
 {:else}
 	<BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} />
