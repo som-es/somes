@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { decrees_per_page, delegate_by_id, errorToNull } from '$lib/api/api';
-	import type { DecreeFilter, DecreesWithMaxPage, Delegate } from '$lib/types';
+	import {  delegate_by_id, errorToNull } from '$lib/api/api';
 	import { onMount } from 'svelte';
 	import Pagination from '../Pagination.svelte';
 	import ExpandablePlaceholder from '../VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
@@ -10,6 +9,9 @@
 	import { pushState } from '$app/navigation';
 	import FiltersAny from '../Filtering/FiltersAny.svelte';
 	import type { FilterInfo } from '../Filtering/types';
+	import type { DecreeFilter, DecreesWithMaxPage } from '../Delegates/Decrees/types';
+	import type { Delegate } from '$lib/types';
+	import { decrees_per_page } from '../Delegates/Decrees/api';
 
 	const url = new URL(window.location.href);
 	let page = parseInt(url.searchParams.get('page') || '1') || 1;

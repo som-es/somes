@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Decree } from '$lib/types';
+	import type { Decree } from "./types";
 
 	export let decree: Decree;
 	export let open: boolean;
@@ -7,7 +7,7 @@
 </script>
 
 <div class="entry bg-primary-200 dark:bg-primary-400 mt-3 flex flex-wrap">
-	
+	HI	
 	<!-- <VoteResults {voteResults} dels={[]} /> -->
 </div>
 

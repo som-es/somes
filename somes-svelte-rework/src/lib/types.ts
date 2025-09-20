@@ -1,3 +1,5 @@
+import type { Decree } from "./components/Delegates/Decrees/types";
+
 export interface DelegateSplit {
 	nr: Delegate[];
 	gov: Delegate[];
@@ -175,12 +177,6 @@ export function createVoteResultPath(voteResult: VoteResult): string {
 
 export interface VoteResultsWithMaxPage {
 	vote_results: VoteResult[];
-	entry_count: number;
-	max_page: number;
-}
-
-export interface DecreesWithMaxPage {
-	decrees: Decree[];
 	entry_count: number;
 	max_page: number;
 }
@@ -372,18 +368,6 @@ export interface NamedVote {
 	date: Date;
 }
 
-export interface Decree {
-	gov_official_id: number;
-	ris_id: string;
-	ministrial_issuer: string;
-	title: string;
-	short_title: string;
-	publication_date: string;
-	part: string;
-	gp: string | null;
-	documents: Document[];
-}
-
 export interface GeneralGovOfficialInfo {
 	gov_proposals: GovProposal[];
 	decrees: Decree[];
@@ -443,10 +427,6 @@ export interface VoteResultFilter {
 	is_urgent: boolean | null;
 }
 
-export interface DecreeFilter {
-	legis_period: string | null;
-	gov_officials: number[] | null;
-}
 
 export interface DelegateFilter {
 	search_value: string | null;

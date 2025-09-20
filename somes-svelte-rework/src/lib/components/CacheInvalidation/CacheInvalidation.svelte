@@ -10,7 +10,6 @@
 
 	onMount(async function () {
 		setPartyColors(await cachedPartyColors(true));
-		await cachedPartyColors(true);
 		await cachedAllLegisPeriods(true);
 		await cachedLatestVoteResults(true);
 		await cachedLatestGovProposals(true);
@@ -19,7 +18,7 @@
 
 	setInterval(
 		async () => {
-			cachedPartyColors(true);
+			setPartyColors(await cachedPartyColors(true));
 			cachedDelegates(true);
 		},
 		1000 * 60 * 2

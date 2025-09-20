@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { Absence, Decree, Speech, SpeechesWithMaxPage } from '$lib/types';
 	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
 	import DecreeBar from './DecreeBar.svelte';
+	import type { Decree } from './types';
 
 	export let decrees: Decree[];
 	export let delegateId: number;

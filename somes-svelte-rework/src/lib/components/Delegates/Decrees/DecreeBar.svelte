@@ -1,9 +1,10 @@
 <script lang="ts">
 	import collapse from 'svelte-collapse';
-	import type { Decree, Delegate } from '$lib/types';
-	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
+	import type {  Delegate } from '$lib/types';
 	import DecreeBarExpanded from './DecreeBarExpanded.svelte';
 	import { address } from '$lib/api/api';
+	import type { Decree } from './types';
+	import { dashDateToDotDate } from '$lib/date';
 
 	export let decree: Decree;
 	export let delegate: Delegate | null = null;
@@ -28,16 +29,13 @@
 		class="entry {coloring} text-black"
 	>
 		<div class="flex justify-between items-center">
-
-			<div class="flex gap-4">
-				<!-- <div id={open ? 'open' : 'closed'}>
-					{@html rightArrowIcon}
-				</div> -->
-
-			</div>
-
-			<div>
-				{decree.title}
+			<div class="flex flex-col gap-1">
+				{decree.short_title}
+				<div class="flex flex-wrap gap-1">
+					<span class="badge bg-secondary-400">{decree.ministrial_issuer}</span>
+					<span class="badge bg-secondary-400">{dashDateToDotDate(decree.publication_date)}</span>
+					<span class="badge bg-secondary-400">{decree.gp}</span>
+				</div>
 			</div>
 
 			{#if delegate}
@@ -48,16 +46,12 @@
 				/>
 			{/if}
 			
-			<!-- <div use:collapse={{ open, duration }}>
-				<DecreeBarExpanded {decree} bind:open />
-			</div> -->
 		</div>
 
-		<div class="flex justify-between mt-1">
-			<div></div>
-			<span class="badge bg-tertiary-400">Verordnung</span>
-		</div>
 	</div>
+	<!-- <div use:collapse={{ open, duration }}>
+		<DecreeBarExpanded {decree} bind:open />
+	</div> -->
 </div>
 
 <style>

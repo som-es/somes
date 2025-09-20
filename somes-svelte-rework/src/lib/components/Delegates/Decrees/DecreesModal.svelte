@@ -2,8 +2,8 @@
 	import { getModalStore } from '@skeletonlabs/skeleton';
 	import Pagination from '$lib/components/Pagination.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
-	import type { Decree } from '$lib/types';
 	import DecreeBar from './DecreeBar.svelte';
+	import type { Decree } from './types';
 
 	const modalStore = getModalStore();
 	export let parent;

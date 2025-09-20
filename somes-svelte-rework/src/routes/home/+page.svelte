@@ -9,6 +9,7 @@
 	import LatestProposals from '$lib/components/Proposals/Latest/LatestProposals.svelte';
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache';
 	import NextSessionInfo from '$lib/components/PlenarySessions/NextSessionInfo.svelte';
+	import { dashDateToDotDate } from '$lib/date';
 
 	let dels: Delegate[] | null = null;
 	let voteResults: VoteResult[] | null = null;
@@ -40,12 +41,25 @@
 			voteResults = tempVoteResults;
 		}
 	});
+
+	let voteDate: string | null = null;
+	$: if (voteResults) {
+		const first = voteResults.at(0)
+		if (first) {
+			voteDate = first.legislative_initiative.created_at as unknown as string
+		}
+	}
 </script>
 
 <Container>
 	<h1 class="mt-2 text-3xl sm:text-5xl font-bold">Neuigkeiten</h1>
 	<NextSessionInfo />
 	<h2 class="text-xl sm:text-3xl font-bold mt-4">Letzte Abstimmungen</h2>
+	<span class="text-xl sm:text-2xl">
+		{#if voteDate}
+			am {dashDateToDotDate(voteDate)}
+		{/if}
+	</span>
 	{#if userVoteResults && dels}
 		<h2 class="text-xl sm:text-3xl font-bold">nach Interesse</h2>
 
