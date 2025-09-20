@@ -5,6 +5,8 @@
 	import { address } from '$lib/api/api';
 	import type { Decree } from './types';
 	import { dashDateToDotDate } from '$lib/date';
+	import { gotoHistory } from '$lib/goto';
+	import { currentDecreeStore } from '$lib/stores/stores';
 
 	export let decree: Decree;
 	export let delegate: Delegate | null = null;
@@ -18,23 +20,29 @@
 	$: if (page) {
 		open = false;
 	}
+	function onShowDetails() {
+		currentDecreeStore.set(decree);
+		gotoHistory(`/decree/${decree.ris_id}`, true);
+	}
 </script>
 
 <div class="gap-3 mt-5">
 	<div
-		on:click={() => (open = !open)}
-		on:keypress={() => (open = !open)}
+		on:click={onShowDetails}
+		on:keypress={onShowDetails}
 		role="button"
 		tabindex="0"
 		class="entry {coloring} text-black"
 	>
 		<div class="flex justify-between items-center">
 			<div class="flex flex-col gap-1">
-				{decree.short_title}
+				<span class="dark:text-white">
+					{decree.short_title}
+				</span>
 				<div class="flex flex-wrap gap-1">
-					<span class="badge bg-secondary-400">{decree.ministrial_issuer}</span>
-					<span class="badge bg-secondary-400">{dashDateToDotDate(decree.publication_date)}</span>
-					<span class="badge bg-secondary-400">{decree.gp}</span>
+					<span class="badge bg-tertiary-400">{decree.ministrial_issuer}</span>
+					<span class="badge bg-tertiary-400">{dashDateToDotDate(decree.publication_date)}</span>
+					<span class="badge bg-tertiary-400">{decree.gp}</span>
 				</div>
 			</div>
 

@@ -7,6 +7,7 @@
 	import { gotoHistory } from '$lib/goto';
 	import GovProposalExpanded from '../ExpandableAtDelegate/GovProposalExpanded.svelte';
 	import { address } from '$lib/api/api';
+	import { dashDateToDotDate } from '$lib/date';
 
 	export let govProposal: GovProposalDelegate;
 	// export let dels: Delegate[];
@@ -30,12 +31,21 @@
 		tabindex="0"
 		class="entry bg-primary-300 dark:bg-primary-500 flex justify-between items-center text-black dark:text-white"
 	>
-		<div>
+		<!-- <div>
 			<div id={open ? 'open' : 'closed'}>
 				{@html rightArrowIcon}
 			</div>
+		</div> -->
+
+
+		<div class="flex flex-col gap-1">
+			<span>{govProposal.gov_proposal.ministrial_proposal.description.slice(30)}</span>
+			<div class="flex flex-wrap gap-1">
+				<span class="badge bg-tertiary-400 text-black">{govProposal.gov_proposal.ministrial_proposal.ressort}</span>
+				<span class="badge bg-tertiary-400 text-black">{dashDateToDotDate(govProposal.gov_proposal.ministrial_proposal.created_at.split('T')[0].toString())}</span>
+				<span class="badge bg-tertiary-400 text-black">{govProposal.gov_proposal.ministrial_proposal.gp}</span>
+			</div>
 		</div>
-		<div>{govProposal.gov_proposal.ministrial_proposal.description.slice(30)}</div>
 		<!-- <div>{voteResult.legislative_initiative.description}</div> -->
 
 		{#if govProposal.gov_proposal.vote_result}
@@ -50,7 +60,7 @@
 		{/if}
 		<div>
 			<img
-				class="min-w-[100px] max-h-[100px] rounded-full mx-1"
+				class="min-w-[80px] max-h-[80px] rounded-full mx-1"
 				src={`${address}/assets/${govProposal.delegate.id}.jpg`}
 				alt="Image of delegate {govProposal.delegate.name}"
 			/>

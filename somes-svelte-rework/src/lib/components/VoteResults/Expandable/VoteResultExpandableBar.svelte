@@ -19,15 +19,6 @@
 	export { clazz as class };
 	let open = false;
 	let duration = 0.35;
-
-	function onShowDetails() {
-		currentVoteResultStore.set(voteResult);
-		console.log(voteResult);
-		// $: if (browser) {
-		// gotoHistory('/vote_result', true);
-		gotoHistory(createVoteResultPath(voteResult), true);
-		// }
-	}
 </script>
 
 <div class="gap-3 mt-5 {clazz}">
@@ -57,7 +48,15 @@
 					{/if}
 				{:else}
 					<div></div>
-					<VoteTypeBadge {voteResult} />
+					<div class="flex max-sm:flex-wrap gap-1">
+						{#if voteResult.legislative_initiative.requires_simple_majority}
+							<span class="badge bg-tertiary-400 text-black">einfache Mehrheit</span>
+						{:else}
+							<span class="badge bg-tertiary-400 text-black">2/3 Mehrheit</span>
+						{/if}
+						<span class="badge bg-tertiary-400 text-black">{voteResult.legislative_initiative.gp}</span>
+						<VoteTypeBadge {voteResult} />
+					</div>
 				{/if}
 			</div>
 
@@ -81,7 +80,16 @@
 								</div>
 							{/each}
 						</div>	
-						<VoteTypeBadge {voteResult} />
+						
+						<div>
+							{#if voteResult.legislative_initiative.requires_simple_majority}
+								<span class="badge bg-tertiary-400 text-black">einfache Mehrheit</span>
+							{:else}
+								<span class="badge bg-tertiary-400 text-black">2/3 Mehrheit</span>
+							{/if}
+							<span class="badge bg-tertiary-400 text-black">{voteResult.legislative_initiative.gp}</span>
+							<VoteTypeBadge {voteResult} />
+						</div>
 					{:else}
 						<!-- Roll call votes -->
 						<div class="block sm:flex w-full mb-3">
@@ -108,7 +116,13 @@
 								{/each}
 							</div>
 						</div>
-						<div class="max-sm:hidden">
+						<div class="max-lg:hidden flex max-h-6 gap-1">
+							{#if voteResult.legislative_initiative.requires_simple_majority}
+								<span class="badge bg-tertiary-400 text-black">einfache Mehrheit</span>
+							{:else}
+								<span class="badge bg-tertiary-400 text-black">2/3 Mehrheit</span>
+							{/if}
+							<span class="badge bg-tertiary-400 text-black">{voteResult.legislative_initiative.gp}</span>
 							<VoteTypeBadge {voteResult} />
 						</div>
 					{/if}
@@ -122,8 +136,14 @@
 				{:else}
 				{/if}
 			</div>
-			<span class="sm:hidden">
+			<span class="lg:hidden">
 				{#if voteResult.named_votes != null}
+					{#if voteResult.legislative_initiative.requires_simple_majority}
+						<span class="badge bg-tertiary-400 text-black">einfache Mehrheit</span>
+					{:else}
+						<span class="badge bg-tertiary-400 text-black">2/3 Mehrheit</span>
+					{/if}
+					<span class="badge bg-tertiary-400 text-black">{voteResult.legislative_initiative.gp}</span>
 					<VoteTypeBadge {voteResult} />
 				{/if}
 			</span>

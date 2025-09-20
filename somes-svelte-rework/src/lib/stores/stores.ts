@@ -1,10 +1,10 @@
+import type { Decree, DecreeFilter } from '$lib/components/Delegates/Decrees/types';
 import type {
 	VoteResultFilter,
 	VoteResult,
 	Delegate,
 	GovPropFilter,
 	DelegateFilter,
-	DecreeFilter
 } from '$lib/types';
 import { persisted } from 'svelte-persisted-store';
 
@@ -12,6 +12,7 @@ export const currentDelegateStore = persisted<Delegate | null>('currentDelegate'
 export const useCurrentDelegate = persisted<boolean>('currentVoteResult', false);
 export const hasGoBackStore = persisted<boolean>('hasGoBack', false);
 export const currentVoteResultStore = persisted<VoteResult | null>('currentVoteResult', null);
+export const currentDecreeStore = persisted<Decree | null>('currentDecreeStore', null);
 export const currentDelegatesAtDateStore = persisted<[string, Delegate[]] | null>(
 	'currentDelegatesAtDate',
 	null
