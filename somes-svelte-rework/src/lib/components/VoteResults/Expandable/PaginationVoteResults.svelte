@@ -166,7 +166,6 @@
 			// voteResults = errorToNull(await voteResultsPostFn(page - 1, filter));
 		}
 		currentlyUpdating = false;
-		console.log(voteResults);
 	};
 	onMount(async () => {
 		update();

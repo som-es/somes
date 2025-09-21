@@ -43,7 +43,6 @@
 			pwd,
 			storeEmailAnonymously
 		);
-		console.log(jwt);
 		if (isLoginResponseError(jwt)) {
 			if (jwt.invalid_email) {
 				error = 'Felerhafte E-Mail-Adresse';
@@ -63,7 +62,6 @@
 		} else {
 			if (jwt.access_token.length > 0) {
 				jwtStore.set(jwt.access_token);
-				console.log(get(jwtStore));
 				drawerStore.close();
 				gotoHistory('/user');
 			}

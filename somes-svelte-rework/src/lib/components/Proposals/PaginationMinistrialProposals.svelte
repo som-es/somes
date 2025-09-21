@@ -66,7 +66,6 @@
 
 		if (searchValue) {
 			const govPropsSearch = errorToNull(await gov_proposals_by_search(page, searchValue, filter));
-			console.log(govPropsSearch);
 			if (govPropsSearch) govProposals = govPropsSearch;
 		} else {
 			govProposals = errorToNull(await gov_proposals_by_search(page, searchValue, filter));

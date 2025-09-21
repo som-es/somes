@@ -71,7 +71,7 @@ export async function fetchSavely<T>(fn: () => Promise<Response>): Promise<T | H
 		// }
 		return json;
 	} catch (error) {
-		console.log(response);
+		;
 		console.log(`error: ${error}`);
 		return { error: 'Error fetching data' };
 	}

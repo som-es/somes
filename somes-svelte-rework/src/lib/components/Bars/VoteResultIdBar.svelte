@@ -27,7 +27,6 @@
 		if (countObj === null) {
 			countObj = {count: 0}
 		}
-		console.log(countObj);
 		if (voteResult && acceptedCondition(voteResult) && countObj) {
 			countObj.count++;
 		}

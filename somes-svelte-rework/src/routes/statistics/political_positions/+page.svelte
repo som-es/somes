@@ -46,7 +46,7 @@
 			normalized: normalized
 		})) ?? [];
 
-		console.log(response)
+		
 
 		tableHeightDelegate = calculateTableHeight(response.length);
 
@@ -70,7 +70,7 @@
 			normalized: normalized
 		})) ?? [];
 
-		console.log(response)
+		
 
 		tableHeightDelegate = calculateTableHeight(response.length);
 
@@ -94,7 +94,7 @@
 			normalized: normalized
 		})) ?? [];
 
-		console.log(response)
+		
 
 		return response.map(val => {
 			return {

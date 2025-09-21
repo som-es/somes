@@ -71,7 +71,6 @@
 		filteredData = currentData.filter((data) => {
 			return filterParties.includes(data.party ?? '');
 		});
-		console.log(filteredData);
 	} else {
 		filteredData = currentData;
 	}

@@ -46,8 +46,6 @@
 			normalized: normalized
 		})) ?? [];
 
-		console.log(response)
-
 		tableHeightDelegate = setTableHeight(response.length);
 
 		return response.map(val => {
@@ -67,8 +65,6 @@
 			is_desc: isDesc,
 			normalized: normalized
 		})) ?? [];
-
-		console.log(response)
 
 		tableHeightParty = setTableHeight(response.length);
 
@@ -91,9 +87,6 @@
 
 		})) ?? [];
 
-
-		console.log(response)
-
 		tableHeightGender = setTableHeight(response.length);
 
 		return response.map(val => {
@@ -115,7 +108,7 @@
 
 		})) ?? [];
 
-		console.log(response)
+		
 
 		tableHeightLegis = setTableHeight(response.length);
 

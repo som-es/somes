@@ -99,7 +99,6 @@
 
 	const initChart = (chartElement: Element) => {
 		//const chartElement = document.querySelector(chartId);
-		console.log(chartElement);
 		if (chartElement && !chart) {
 			chart = new ApexCharts(chartElement, chartOptions);
 			chart.render();

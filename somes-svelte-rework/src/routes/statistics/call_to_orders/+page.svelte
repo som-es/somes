@@ -48,7 +48,7 @@
 			normalized: normalized
 		})) ?? [];
 
-		console.log(response)
+		
 
 		tableHeightDelegate = setTableHeight(response.length);
 
@@ -70,7 +70,7 @@
 			normalized: normalized
 		})) ?? [];
 
-		console.log(response)
+		
 
 		tableHeightParty = setTableHeight(response.length);
 
@@ -94,7 +94,7 @@
 		})) ?? [];
 
 
-		console.log(response)
+		
 
 		tableHeightGender = setTableHeight(response.length);
 
@@ -118,7 +118,7 @@
 		})) ?? [];
 
 
-		console.log(response)
+		
 
 		tableHeightAge = setTableHeight(response.length);
 
@@ -141,7 +141,7 @@
 
 		})) ?? [];
 
-		console.log(response)
+		
 
 		tableHeightLegis = setTableHeight(response.length);
 

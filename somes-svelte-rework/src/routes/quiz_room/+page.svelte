@@ -87,7 +87,6 @@
 				userId = null;
 				state = 'starting';
 				enteredRoom == false;
-				console.log('HIHIHI');
 			}
 			return;
 		}
