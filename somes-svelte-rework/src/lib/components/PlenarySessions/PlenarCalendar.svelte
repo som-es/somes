@@ -63,11 +63,14 @@
 		year;
 		plenar_dates(`${year}-${month + 1}-${date.getDate()}`).then((dates) => {
 			const newDates = errorToNull(dates);
-			console.log(newDates);
 			if (newDates !== null) {
 				addDays(newDates);
 			}
 		});
+	}
+
+	function mod(n: number, m: number) {
+		return ((n % m) + m) % m;
 	}
 </script>
 
@@ -76,6 +79,8 @@
 		bind:month
 		bind:year
 		title={`${months[month % 12]} ${year}`}
+		leftTitle={months[mod(month-1, 12)]}
+		rightTitle={months[(month+1) % 12]}
 		{days}
 		headers={['Mo', 'Di', 'Mi', 'Do', 'Fr']}
 	/>

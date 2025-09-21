@@ -5,6 +5,8 @@
 	export let headers: string[] = [];
 	export let days: Day[] = [];
 	export let title: string;
+	export let leftTitle: string;
+	export let rightTitle: string;
 	export let month: number;
 	export let year: number;
 
@@ -53,14 +55,14 @@
 
 <div class="calendar max-w-[50rem] bg-primary-100 dark:bg-primary-600 rounded-xl">
 	<div class="flex flex-col">
-		<div class="flex items-center justify-around bg-surface-300 dark:bg-surface-600 py-1">
-			<button class="px-5" on:click={() => year--}>{'<<'} </button>
-			<button class="px-5" on:click={prev}>{'<'}</button>
+		<div class="flex items-center justify-around bg-surface-200 dark:bg-surface-600 py-1">
+			<button class="px-5" on:click={() => year--}>{year - 1} </button>
+			<button class="px-5" on:click={prev}>{leftTitle}</button>
 			<span class="text-3xl text-pretty font-bold text-center">
 				{title}
 			</span>
-			<button class="px-5" on:click={next}>{'>'}</button>
-			<button class="px-5" on:click={() => year++}>{'>>'}</button>
+			<button class="px-5" on:click={next}>{rightTitle}</button>
+			<button class="px-5" on:click={() => year++}>{year + 1}</button>
 		</div>
 
 		<div class="flex flex-row">
