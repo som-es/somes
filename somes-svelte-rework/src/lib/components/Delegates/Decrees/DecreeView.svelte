@@ -1,5 +1,6 @@
 <script lang="ts">
-	import Emphasis from "$lib/components/VoteResults/Emphasis/Emphasis.svelte";
+	import Documents from "$lib/components/Documents/Documents.svelte";
+import Emphasis from "$lib/components/VoteResults/Emphasis/Emphasis.svelte";
 import type { Delegate } from "$lib/types";
 	import DelegateCard from "../DelegateCard.svelte";
 	import type { Decree } from "./types";
@@ -7,6 +8,7 @@ import type { Delegate } from "$lib/types";
     export let decree: Decree; 
     export let delegate: Delegate | null; 
 
+    console.log(decree);
     decree.emphasis = "Hasdfkadsfaadakjfklsafklasödjfklösdfjöklskdfljdskflsdfsdsdfdsaf\nCooler test!\n"
 </script>
 
@@ -15,7 +17,7 @@ import type { Delegate } from "$lib/types";
 </title>
 
 <div class="entry bg-primary-200 dark:bg-primary-400 mt-3 flex max-lg:flex-wrap gap-3">
-    <div class="flex flex-col gap-3">
+    <div class="flex flex-col gap-3 w-full">
         <div class="rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
             <div class="flex justify-between items-center">
                 <div>
@@ -29,10 +31,14 @@ import type { Delegate } from "$lib/types";
         {#if decree.emphasis}
             <Emphasis rawEmphasis={decree.emphasis} />
         {/if}
+        <Documents documents={decree.documents} />
     </div>
-    {#if delegate}
-        <DelegateCard {delegate} />
-    {/if}
+
+    <div class="rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
+        {#if delegate}
+            <DelegateCard {delegate} />
+        {/if}
+    </div>
 </div>
 
 <style>

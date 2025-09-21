@@ -40,7 +40,7 @@
 
 {#if emphasis}
 	{#if emphasis.length > 0}
-		<div class="emphasis-item rounded-xl bg-primary-300 dark:bg-primary-500 px-10 pt-3 pb-3">
+		<div class="emphasis-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 pt-3 pb-3">
 			<div class="flex justify-between">
 				<h1 class="font-bold text-lg md:text-2xl">Schwerpunkte</h1>
 
@@ -53,7 +53,7 @@
 				{/if}
 			</div>
 
-			<ul class="mt-1 list fill-primary-400">
+			<ul class="mt-1 list fill-primary-400 px-7">
 				{#each firstThreePoints as emph}
 					<li class="my-3">
 						<span class="badge bg-primary-500 dark:bg-primary-300"></span>

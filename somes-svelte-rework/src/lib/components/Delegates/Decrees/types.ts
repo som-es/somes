@@ -1,4 +1,4 @@
-import type { Delegate } from "$lib/types";
+import type { Delegate, Document } from "$lib/types";
 
 export interface DecreeDelegate {
     delegate: Delegate | null;

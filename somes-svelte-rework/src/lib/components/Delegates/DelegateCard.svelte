@@ -62,7 +62,7 @@
 	$: personUrl = `https://parlament.gv.at/person/${delegate.id}?utm_source=somes.at`;
 </script>
 
-<div class="!z-0 card {onlyTop ? '' : 'min-h-full'}  mx-4 drop-shadow-lg flex flex-col">
+<div class="!z-0 card bg-primary-200 {onlyTop ? '' : 'min-h-full'}  mx-4 drop-shadow-lg flex flex-col">
 	<header class="relative">
 		{#if delegateFavos}
 			{#if delegateFavos.has(delegate.id)}
