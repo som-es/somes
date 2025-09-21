@@ -40,7 +40,7 @@
 					{decree.short_title}
 				</span>
 				<div class="flex flex-wrap gap-1">
-					<span class="badge bg-tertiary-400">{decree.ministrial_issuer}</span>
+					<span class="badge bg-tertiary-400 text-wrap">{decree.ministrial_issuer}</span>
 					<span class="badge bg-tertiary-400">{dashDateToDotDate(decree.publication_date)}</span>
 					<span class="badge bg-tertiary-400">{decree.gp}</span>
 				</div>

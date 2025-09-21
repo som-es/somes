@@ -200,6 +200,8 @@
 	// const whichGridContainer =
 	// 	emphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
 	$: speeches = circles2d.flat(1).filter((circle) => circle.speech !== null);
+
+	$: parliamentUrl = `https://parlament.gv.at/gegenstand/${gp}/${ityp}/${inr}`;
 </script>
 
 <title>
@@ -220,7 +222,7 @@
 				<SButton class="bg-primary-500" on:click={goBack}>Zurück</SButton>
 			{/if}
 			<br />
-			<div class=" entry bg-primary-200 dark:bg-primary-400 mt-3 grid-container-with-emphasis">
+			<div class="entry bg-primary-200 dark:bg-primary-400 mt-3 grid-container-with-emphasis">
 				<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
 					<div class="flex justify-between items-center">
 						<div>
@@ -235,7 +237,11 @@
 							<span class="text-xl">{description}</span>
 							<VoteTypeBadge {voteResult} />
 						</div>
-						<div>
+						<div class="flex flex-wrap gap-2">
+							<a href="{parliamentUrl}" target="_blank">
+								<img class="w-12" alt="parlement.gv.at favicon" src="https://www.parlament.gv.at/static/img/favicon/favicon.svg" />
+							</a>
+
 							{#if legisInitFavos}
 								{#if legisInitFavos.has(+voteResult.legislative_initiative.id)}
 									<button

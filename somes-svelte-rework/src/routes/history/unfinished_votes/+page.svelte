@@ -17,7 +17,7 @@
 
 <!-- <div class="mx-auto px-5"> -->
 <Container>
-	<h1 class="text-2xl sm:text-4xl font-bold">Unfertige Abstimmungsergebnisse</h1>
+	<h1 class="text-2xl sm:text-4xl font-bold">Anträge zur Abstimmung</h1>
 
 	{#if dels}
 		<PaginationVoteResults

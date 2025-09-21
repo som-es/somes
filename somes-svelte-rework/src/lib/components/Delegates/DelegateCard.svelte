@@ -58,6 +58,8 @@
 	}
 
 	const modalStore = getModalStore();
+
+	$: personUrl = `https://parlament.gv.at/person/${delegate.id}`;
 </script>
 
 <div class="!z-0 card {onlyTop ? '' : 'min-h-full'}  mx-4 drop-shadow-lg flex flex-col">
@@ -89,7 +91,10 @@
 				</button>
 			{/if}
 		{/if}
-		<div class="flex justify-center items-center h-full">
+		<a class="absolute top-0 right-0 mt-2 mr-3 z-10" href={personUrl} target="_blank">
+			<img class="w-12" alt="parlament.gv.at favicon" src="https://www.parlament.gv.at/static/img/favicon/favicon.svg" />
+		</a>
+		<div class="relative flex justify-center items-center h-full">
 			{#if showImg}
 				<img
 					src={`${address}/assets/${delegate.id}.jpg`}
@@ -98,7 +103,7 @@
 					alt="Image of politician {delegate.name}"
 				/>
 			{/if}
-		</div>
+		</div>	
 	</header>
 
 	<section class="p-4 flex-grow">
