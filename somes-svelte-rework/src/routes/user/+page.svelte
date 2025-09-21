@@ -118,6 +118,7 @@
 </script>
 
 <Container>
+	{#if extendedUser}
 	<div class="entry bg-primary-200 dark:bg-primary-400 mt-3 grid-container">
 		<div
 			class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 items-center flex justify-between"
@@ -140,12 +141,15 @@
 				<h1 class="font-bold text-2xl">Benutzerinfos</h1>
 				<div class="ml-5 text-xl">E-Mail</div>
 				<div class="mx-4 text-xl">
-					{#if user}
-						{user.sub}
-					{/if}
-
 					{#if extendedUser?.is_email_hashed}
-						<span class="ml-3 text-sm font-serif">unkenntlich</span>
+						<span class="ml-3 font-serif">anonymisiert</span>
+						{#if user}
+							<span class="ml-1 text-sm text-wrap font-serif">...{user.sub.slice(36, 60)}...</span>
+						{/if}
+					{:else}
+						{#if user}
+							{user.sub}
+						{/if}
 					{/if}
 				</div>
 			</div>
@@ -162,49 +166,52 @@
 			</div>
 		</div>
 
-		{#if !extendedUser?.is_email_hashed}
 			<div
 				class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 items-center flex justify-between"
 			>
 				<div class="flex flex-wrap items-center">
-					<h1 class="font-bold text-2xl">E-Mail Benachrichtigungen</h1>
-					<div class="flex flex-wrap items-center gap-8 ml-5">
-						{#if mailSendInfo}
-							<SlideToggle
-								active="bg-secondary-400"
-								name="sendVoteResultInfoMail"
-								on:change={updateThisMailSendInfo}
-								bind:checked={mailSendInfo.send_new_vote_results_mails}
-							>
-								<span class="font-bold"> Zu neuen Abstimmungen </span>
-								<br />
-								<span class="text-sm">nach ausgewählten Interessen</span>
-							</SlideToggle>
-							<SlideToggle
-								active="bg-secondary-400"
-								name="sendnewDelegateInfo"
-								on:change={updateThisMailSendInfo}
-								bind:checked={mailSendInfo.send_new_delegate_activity_mails}
-							>
-								<span class="font-bold"> Zu Abgeordnetenaktivitäten </span>
-								<br />
-								<span class="text-sm">nach favorisierten Abgeordneten</span>
-							</SlideToggle>
-							<SlideToggle
-								active="bg-secondary-400"
-								name="sendMinistrialPropInfoMails"
-								on:change={updateThisMailSendInfo}
-								bind:checked={mailSendInfo.send_new_ministrial_prop_mails}
-							>
-								<span class="font-bold"> Zu neuen Ministerialentwürfen </span>
-								<br />
-								<span class="text-sm">nach ausgewählten Interessen</span>
-							</SlideToggle>
-						{/if}
-					</div>
+					<h1 class="font-bold md:text-2xl">E-Mail Benachrichtigungen</h1>
+
+					{#if !extendedUser?.is_email_hashed}
+						<div class="flex flex-wrap items-center gap-8 ml-5">
+							{#if mailSendInfo}
+								<SlideToggle
+									active="bg-secondary-400"
+									name="sendVoteResultInfoMail"
+									on:change={updateThisMailSendInfo}
+									bind:checked={mailSendInfo.send_new_vote_results_mails}
+								>
+									<span class="font-bold"> Zu neuen Abstimmungen </span>
+									<br />
+									<span class="text-sm">nach ausgewählten Interessen</span>
+								</SlideToggle>
+								<SlideToggle
+									active="bg-secondary-400"
+									name="sendnewDelegateInfo"
+									on:change={updateThisMailSendInfo}
+									bind:checked={mailSendInfo.send_new_delegate_activity_mails}
+								>
+									<span class="font-bold"> Zu Abgeordnetenaktivitäten </span>
+									<br />
+									<span class="text-sm">nach favorisierten Abgeordneten</span>
+								</SlideToggle>
+								<SlideToggle
+									active="bg-secondary-400"
+									name="sendMinistrialPropInfoMails"
+									on:change={updateThisMailSendInfo}
+									bind:checked={mailSendInfo.send_new_ministrial_prop_mails}
+								>
+									<span class="font-bold"> Zu neuen Ministerialentwürfen </span>
+									<br />
+									<span class="text-sm">nach ausgewählten Interessen</span>
+								</SlideToggle>
+							{/if}
+						</div>
+					{:else}
+						<span class="ml-3 font-serif ">nicht verfügbar: Anonymisierung durch Mail-Wechsel aufheben</span>
+					{/if}
 				</div>
 			</div>
-		{/if}
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
 			<h1 class="font-bold text-2xl">Wahle deine Interessen</h1>
 			<!-- todo: Searchbar -->
@@ -310,6 +317,7 @@
 			</SButton>
 		</div>
 	</div>
+	{/if}
 </Container>
 
 <style>

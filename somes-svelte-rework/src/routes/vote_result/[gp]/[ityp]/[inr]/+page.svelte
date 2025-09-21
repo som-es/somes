@@ -38,6 +38,7 @@
 	import VoteResultIdBar from '$lib/components/Bars/VoteResultIdBar.svelte';
 	import { page } from '$app/stores';
 	import VoteTypeBadge from '$lib/components/VoteResults/VoteTypeBadge.svelte';
+	import Documents from '$lib/components/Documents/Documents.svelte';
 
 	$: gp = $page.params.gp;
 	$: ityp = $page.params.ityp;
@@ -201,6 +202,11 @@
 	// 	emphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
 	$: speeches = circles2d.flat(1).filter((circle) => circle.speech !== null);
 	$: parliamentUrl = `https://parlament.gv.at/gegenstand/${gp}/${ityp}/${inr}?utm_source=somes.at`;
+	$: documents = voteResult?.documents.map(doc => {
+		const url = `https://www.parlament.gv.at${doc.document_url}`;
+		doc.document_url = url;
+		return doc;
+	}) ?? [];
 </script>
 
 <title>
@@ -236,7 +242,7 @@
 							<span class="text-xl">{description}</span>
 							<VoteTypeBadge {voteResult} />
 						</div>
-						<div class="flex flex-wrap gap-2">
+						<div class="flex flex-wrap items-center gap-1">
 							<a href="{parliamentUrl}" target="_blank">
 								<img class="w-12" alt="parlament.gv.at favicon" src="https://www.parlament.gv.at/static/img/favicon/favicon.svg" />
 							</a>
@@ -394,21 +400,7 @@
 						style="flex-basis: {voteResult.issued_by_dels.length > 0 ? '30%' : '100%;'}"
 					>
 						<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
-							<span class="font-bold text-lg md:text-3xl">Dokumente (PDFs)</span>
-							<div class="gap-3 flex flex-wrap">
-								{#each voteResult.documents.sort((a, b) => (b.title ?? '').length - (a.title ?? '').length) as document}
-									{#if document.document_type.includes('PDF')}
-										<SButton
-											class="bg-secondary-500 text-black"
-											on:click={() =>
-												window.open(
-													`https://www.parlament.gv.at${document.document_url}`,
-													'_blank'
-												)}>{document.title}</SButton
-										>
-									{/if}
-								{/each}
-							</div>
+							<Documents {documents} />
 						</div>
 						{#if voteResult.referenced_by_others_ids.length > 0}
 							<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3 h-full">
