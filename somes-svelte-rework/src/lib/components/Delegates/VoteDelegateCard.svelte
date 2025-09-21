@@ -68,10 +68,10 @@
 <DelegateCard {delegate} title={bubble.title} showMoreDetailsBtn onlyTop={true} showAI={false}>
 	<span slot="title">
 		{#if bubble.namedVote}
-			<div class="text-lg font-bold badge {opinionColor} text-white max-w-fit">{opinion}</div>
+			<div class="text-sm sm:text-base md:text-lg font-bold badge {opinionColor} text-white max-w-fit">{opinion}</div>
 		{:else}
 			{#if bubble.title}
-				<span class="badge text-white {opinionColor} font-bold text-lg">{bubble.title}</span>
+				<span class="badge text-white {opinionColor} font-bold text-sm sm:text-base md:text-lg">{bubble.title}</span>
 			{/if}
 		{/if}
 	</span>
@@ -79,7 +79,7 @@
 	<span slot="info">
 		{#if bubble.namedVote && (bubble.namedVote.similiarity_score != 0 || bubble.namedVote.manually_matched)}
 			<div class="!z-50 card p-4 w-72 shadow-xl" data-popup="popupFeatured">
-				<div class="z-50 font-bold text-xl">Unsichere Zuteilung</div>
+				<div class="z-50 font-bold md:text-xl">Unsichere Zuteilung</div>
 				<div>
 					<span class="font-bold">"{bubble.namedVote.searched_with}"</span> wurde {bubble.namedVote
 						.manually_matched

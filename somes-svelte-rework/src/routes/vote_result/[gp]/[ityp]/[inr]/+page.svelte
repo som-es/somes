@@ -200,16 +200,15 @@
 	// const whichGridContainer =
 	// 	emphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
 	$: speeches = circles2d.flat(1).filter((circle) => circle.speech !== null);
-
-	$: parliamentUrl = `https://parlament.gv.at/gegenstand/${gp}/${ityp}/${inr}`;
+	$: parliamentUrl = `https://parlament.gv.at/gegenstand/${gp}/${ityp}/${inr}?utm_source=somes.at`;
 </script>
 
 <title>
 	{#if voteResult}
 		{#if voteResult?.legislative_initiative?.accepted}
-			Abstimmungsergebnis
+			{description}
 		{:else}
-			Gegenstandsübersicht
+			{description}
 		{/if}
 	{/if}
 </title>
@@ -226,7 +225,7 @@
 				<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
 					<div class="flex justify-between items-center">
 						<div>
-							<h1 class="font-bold text-3xl">
+							<h1 class="font-bold text-xl md:text-3xl">
 								{#if voteResult?.legislative_initiative.accepted}
 									{voteResult.legislative_initiative.voted_by_name ? 'namentliche ' : ''}Abstimmung
 									über
@@ -239,7 +238,7 @@
 						</div>
 						<div class="flex flex-wrap gap-2">
 							<a href="{parliamentUrl}" target="_blank">
-								<img class="w-12" alt="parlement.gv.at favicon" src="https://www.parlament.gv.at/static/img/favicon/favicon.svg" />
+								<img class="w-12" alt="parlament.gv.at favicon" src="https://www.parlament.gv.at/static/img/favicon/favicon.svg" />
 							</a>
 
 							{#if legisInitFavos}
@@ -389,13 +388,13 @@
 					{/if}
 				</div>
 
-				<div class="flex max-md:flex-wrap gap-2 w-full">
+				<div class="flex max-lg:flex-wrap gap-2 w-full">
 					<div
 						class="flex {voteResult.issued_by_dels.length > 0 ? 'flex-col' : 'flex-row'} gap-2"
 						style="flex-basis: {voteResult.issued_by_dels.length > 0 ? '30%' : '100%;'}"
 					>
 						<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
-							<span class="font-bold text-xl">Dokumente (PDFs)</span>
+							<span class="font-bold text-lg md:text-3xl">Dokumente (PDFs)</span>
 							<div class="gap-3 flex flex-wrap">
 								{#each voteResult.documents.sort((a, b) => (b.title ?? '').length - (a.title ?? '').length) as document}
 									{#if document.document_type.includes('PDF')}
@@ -413,7 +412,7 @@
 						</div>
 						{#if voteResult.referenced_by_others_ids.length > 0}
 							<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3 h-full">
-								<span class="font-bold text-3xl">Referenziert in</span>
+								<span class="font-bold text-lg md:text-3xl">Referenziert in</span>
 								{#each voteResult.referenced_by_others_ids as refered_by}
 									<VoteResultIdBar
 										requiringVotes
@@ -427,7 +426,7 @@
 						{/if}
 						{#if voteResult.references.length > 0}
 							<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3 h-full">
-								<span class="font-bold text-3xl">
+								<span class="font-bold text-lg md:text-3xl">
 									{#if voteResult.legislative_initiative.ityp == 'AA'}
 										Hauptgegenstand
 									{:else}
@@ -449,8 +448,8 @@
 					{#if issuedByDels.size > 0}
 						<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
 							{#each issuedByDels as [text, delegate_ids]}
-								<span class="font-bold text-3xl">{text}</span>
-								<span class="font-bold text-xl"></span>
+								<span class="font-bold text-xl md:text-3xl">{text}</span>
+								<!-- <span class="font-bold text-xl"></span> -->
 								<div class="flex flex-row flex-wrap mt-3 gap-3">
 									{#each delegate_ids as delegate_id}
 										<FetchDelegateCard
@@ -471,7 +470,7 @@
 				{#if circles2d}
 					{#if circles2d.length > 0 && speeches.length > 0}
 						<div class="speeches-item bg-primary-300 dark:bg-primary-500 rounded-xl p-4 gap-3">
-							<span class="font-bold text-3xl">Reden</span>
+							<span class="font-bold text-xl md:text-3xl">Reden</span>
 							<div class="flex flex-row flex-wrap mt-3 gap-3">
 								{#each speeches as speechDelegate}
 									<div class="w-full max-w-80">
@@ -526,7 +525,7 @@
 	.entry {
 		border-radius: 0.9rem;
 		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-		padding: 20px;
+		padding: 11px;
 		gap: 10px;
 	}
 	/* .grid-container-with-emphasis {

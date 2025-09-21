@@ -21,7 +21,7 @@
 		open = false;
 	}
 	function onShowDetails() {
-		currentDecreeStore.set(decree);
+		currentDecreeStore.set({decree, delegate});
 		gotoHistory(`/decree/${decree.ris_id}`, true);
 	}
 </script>

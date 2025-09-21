@@ -59,7 +59,7 @@
 
 	const modalStore = getModalStore();
 
-	$: personUrl = `https://parlament.gv.at/person/${delegate.id}`;
+	$: personUrl = `https://parlament.gv.at/person/${delegate.id}?utm_source=somes.at`;
 </script>
 
 <div class="!z-0 card {onlyTop ? '' : 'min-h-full'}  mx-4 drop-shadow-lg flex flex-col">
@@ -98,8 +98,7 @@
 			{#if showImg}
 				<img
 					src={`${address}/assets/${delegate.id}.jpg`}
-					style="width: 200px;"
-					class="rounded-full"
+					class="rounded-full w-32 sm:w-44 md:w-52"
 					alt="Image of politician {delegate.name}"
 				/>
 			{/if}
@@ -107,10 +106,10 @@
 	</header>
 
 	<section class="p-4 flex-grow">
-		<h4 class="font-bold text-xl">
+		<h4 class="font-bold md:text-xl">
 			{delegate.name}
 			{#if delegate.is_active && showAge}
-				- {Math.floor(dateDiffInDays(new Date(delegate.birthdate), new Date()) / 365)} Jahre alt
+				- {Math.floor(dateDiffInDays(new Date(delegate.birthdate), new Date()) / 365)} 
 			{/if}
 		</h4>
 		{#if (new Date().toString() == new Date(delegate.birthdate).toString())}
@@ -118,19 +117,22 @@
 			Alles Gute zum Geburtstag!
 		{/if}
 
-		<h5 style="color: {partyToColor(delegate.party)}">
+		<h5 class="text-sm" style="color: {partyToColor(delegate.party)}">
 			{#if delegate.party == 'OK'}
 				Ohne Klub
 			{:else if delegate.party != null}
 				<span>{delegate.party}</span>
 			{/if}
 		</h5>
-		<span class="max-sm:hidden">
-			{#if delegate.active_mandates?.length == 0}
-				<h6 class="text-lg">{delegate.primary_mandate}</h6>
-			{:else}
+		{#if delegate.party == null}
+			<h6 class="text-sm md:text-lg">{delegate.primary_mandate}</h6>
+		{/if}
+		<!-- <span class="max-sm:hidden"> -->
+			{#if delegate.party && (delegate.active_mandates?.length == null || delegate.active_mandates?.length == 0)}
+				<h6 class="text-sm md:text-lg">{delegate.primary_mandate}</h6>
+			{:else if delegate.party}
 				{#each delegate.active_mandates?? [] as mandate}
-					<h6 class="text-lg">
+					<h6 class="text-sm md:text-lg">
 						{mandate}
 					</h6>
 				{/each}
@@ -154,7 +156,7 @@
 			{#if showDelegate == "true"}
 				ID: {delegate.id}
 			{/if}
-		</span>
+		<!-- </span> -->
 	</section>
 
 	<hr class="!border-t-2 my-1" />

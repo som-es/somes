@@ -42,7 +42,7 @@
 	{#if emphasis.length > 0}
 		<div class="emphasis-item rounded-xl bg-primary-300 dark:bg-primary-500 px-10 pt-3 pb-3">
 			<div class="flex justify-between">
-				<h1 class="font-bold text-2xl">Schwerpunkte</h1>
+				<h1 class="font-bold text-lg md:text-2xl">Schwerpunkte</h1>
 
 				<div class="!z-50 card p-4 w-72 shadow-xl" data-popup="emphasisAi">
 					<div class="z-50 font-bold text-xl">{aiGenText}</div>
