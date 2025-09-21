@@ -73,7 +73,7 @@
 							delegateFavos = delegateFavos;
 						}
 					}}
-					class="absolute top-0 right-0 w-14 p-2"
+					class="absolute top-0 right-0 w-14 p-2 z-10"
 				>
 					{@html starFilled}
 				</button>
@@ -85,13 +85,13 @@
 							delegateFavos = delegateFavos;
 						}
 					}}
-					class="absolute top-0 right-0 w-14 p-2"
+					class="absolute top-0 right-0 w-14 p-2 z-10"
 				>
 					{@html star}
 				</button>
 			{/if}
 		{/if}
-		<a class="absolute top-0 right-0 mt-2 mr-3 z-10" href={personUrl} target="_blank">
+		<a class="absolute {delegateFavos ? "top-10": "top-0"} right-0 mt-2 mr-3 z-10" href={personUrl} target="_blank">
 			<img class="w-12" alt="parlament.gv.at favicon" src="https://www.parlament.gv.at/static/img/favicon/favicon.svg" />
 		</a>
 		<div class="relative flex justify-center items-center h-full">
