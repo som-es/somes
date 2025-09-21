@@ -1,6 +1,8 @@
 <script lang="ts">
 	import Documents from "$lib/components/Documents/Documents.svelte";
 import Emphasis from "$lib/components/VoteResults/Emphasis/Emphasis.svelte";
+	import DecreeInfoTiles from "$lib/components/VoteResults/InfoTiles/DecreeInfoTiles.svelte";
+	import { dashDateToDotDate } from "$lib/date";
 import type { Delegate } from "$lib/types";
 	import DelegateCard from "../DelegateCard.svelte";
 	import type { Decree } from "./types";
@@ -31,11 +33,20 @@ import type { Delegate } from "$lib/types";
         {#if decree.emphasis}
             <Emphasis rawEmphasis={decree.emphasis} />
         {/if}
-        {#if decree.documents.length > 0}
-            <div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
-                <Documents documents={decree.documents} />
+        <div class="flex flex-wrap gap-2 w-full"> 
+            <div class="flex flex-wrap gap-1 rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
+                <span class="badge bg-tertiary-400 text-wrap text-lg">{decree.ministrial_issuer}</span>
+                <span class="badge bg-tertiary-400 text-lg">{dashDateToDotDate(decree.publication_date)}</span>
+                <span class="badge bg-tertiary-400 text-lg">{decree.gp}</span>
             </div>
-        {/if}
+            <!-- <DecreeInfoTiles {decree} /> -->
+            {#if decree.documents.length > 0}
+                <div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
+                    <Documents documents={decree.documents} />
+                </div>
+            {/if}
+        </div>
+        
     </div>
 
     <div class="rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
