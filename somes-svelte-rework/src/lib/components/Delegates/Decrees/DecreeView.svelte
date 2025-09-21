@@ -31,7 +31,11 @@ import type { Delegate } from "$lib/types";
         {#if decree.emphasis}
             <Emphasis rawEmphasis={decree.emphasis} />
         {/if}
-        <Documents documents={decree.documents} />
+        {#if decree.documents.length > 0}
+            <div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
+                <Documents documents={decree.documents} />
+            </div>
+        {/if}
     </div>
 
     <div class="rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
