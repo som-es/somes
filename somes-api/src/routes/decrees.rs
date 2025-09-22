@@ -44,13 +44,13 @@ async fn get_decrees_per_page_sqlx(
     let mut entry_count = 0;
     let decrees = sqlx::query!(
         r#"
-        SELECT 
-            d.gov_official_id, 
-            d.ris_id, 
-            d.ministrial_issuer, 
-            d.title, 
-            d.short_title, 
-            d.publication_date, 
+        SELECT
+            d.gov_official_id,
+            d.ris_id,
+            d.ministrial_issuer,
+            d.title,
+            d.short_title,
+            d.publication_date,
             d.part,
             d.emphasis,
             d.gp,
@@ -59,22 +59,22 @@ async fn get_decrees_per_page_sqlx(
                 json_agg(
                     json_build_object(
                         'title', doc.title,
-                        'document_type', doc.document_type,
-                        'document_url', doc.document_url
+                        'document_url', doc.document_url,
+                        'document_type', doc.document_type
                     )
                 ) FILTER (WHERE doc.id IS NOT NULL),
                 '[]'
             ) as documents
-        FROM 
+        FROM
             ministrial_decrees d
-        LEFT JOIN 
+        LEFT JOIN
             ministrial_decrees_documents doc ON d.id = doc.ministrial_decree_id
         WHERE
             ($1::TEXT IS NULL OR d.gp = $1)
             AND ($2::INT[] IS NULL OR d.gov_official_id = ANY($2))
-        GROUP BY 
-            d.gov_official_id, d.ris_id, d.ministrial_issuer, 
-            d.title, d.short_title, d.publication_date, d.part, 
+        GROUP BY
+            d.gov_official_id, d.ris_id, d.ministrial_issuer,
+            d.title, d.short_title, d.publication_date, d.part,
             d.emphasis, d.gp
         order by d.publication_date desc
         offset $3 limit $4
@@ -109,9 +109,14 @@ async fn get_decrees_per_page_sqlx(
             gp: x.gp,
             documents: x
                 .documents
-                .into_iter()
-                .flat_map(|x| serde_json::from_value::<Document>(x))
-                .collect(),
+                .map(|doc| {
+                    doc.as_array()
+                        .unwrap()
+                        .iter()
+                        .flat_map(|x| serde_json::from_value::<Document>(x.clone()))
+                        .collect()
+                })
+                .unwrap(),
         }
     })
     .collect();
@@ -145,3 +150,34 @@ mod tests {
         println!("data: {data:?}");
     }
 }
+
+/*
+
+SELECT
+    d.ris_id,
+    COUNT(*) OVER() AS entry_count,
+    COALESCE(
+        json_agg(
+            json_build_object(
+                'title', doc.title,
+                'document_type', doc.document_type,
+                'document_url', doc.document_url
+            )
+        ) FILTER (WHERE doc.id IS NOT NULL),
+        '[]'
+    ) as documents
+FROM
+    ministrial_decrees d
+LEFT JOIN
+    ministrial_decrees_documents doc ON d.id = doc.ministrial_decree_id
+WHERE
+    ($1::TEXT IS NULL OR d.gp = $1)
+    AND ($2::INT[] IS NULL OR d.gov_official_id = ANY($2))
+    ris_id = 'BGBLA_2025_II_202'
+GROUP BY
+    d.gov_official_id, d.ris_id, d.ministrial_issuer,
+    d.title, d.short_title, d.publication_date, d.part,
+    d.emphasis, d.gp;
+
+
+ */
