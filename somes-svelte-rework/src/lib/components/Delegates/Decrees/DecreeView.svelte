@@ -39,11 +39,13 @@
 		{/if}
 		<div class="flex flex-wrap gap-2 w-full">
 			<div class="flex flex-wrap gap-1 rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
-				<span class="badge bg-tertiary-400 text-wrap text-lg">{decree.ministrial_issuer}</span>
-				<span class="badge bg-tertiary-400 text-lg"
+				<span class="badge bg-tertiary-400 text-wrap text-lg text-black"
+					>{decree.ministrial_issuer}</span
+				>
+				<span class="badge bg-tertiary-400 text-lg text-black"
 					>{dashDateToDotDate(decree.publication_date)}</span
 				>
-				<span class="badge bg-tertiary-400 text-lg">{decree.gp}</span>
+				<span class="badge bg-tertiary-400 text-lg text-black">{decree.gp}</span>
 			</div>
 			<!-- <DecreeInfoTiles {decree} /> -->
 			{#if decree.documents.length > 0}
