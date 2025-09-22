@@ -64,13 +64,7 @@
 		currentGovProposalFilterStore.set(filter);
 		// filter = null;
 
-		if (searchValue) {
-			const govPropsSearch = errorToNull(await gov_proposals_by_search(page, searchValue, filter));
-			if (govPropsSearch) govProposals = govPropsSearch;
-		} else {
-			govProposals = errorToNull(await gov_proposals_by_search(page, searchValue, filter));
-			// govProposals = errorToNull(await gov_proposals_per_page(page - 1, filter));
-		}
+		govProposals = errorToNull(await gov_proposals_by_search(page, searchValue, filter));
 		currentlyUpdating = false;
 	};
 
@@ -91,7 +85,7 @@
 
 	let filters = [hasVoteResultFilter];
 
-	$: if (page || selectedPeriod || filters) {
+	$: if (page || selectedPeriod || filters || searchValue) {
 		update();
 	}
 

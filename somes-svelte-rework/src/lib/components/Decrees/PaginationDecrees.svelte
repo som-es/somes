@@ -77,7 +77,7 @@
 		old_page = page;
 	};
 
-	$: if (page || selectedPeriod || govOfficialsFilter) {
+	$: if (page || selectedPeriod || govOfficialsFilter || searchValue) {
 		update();
 	}
 

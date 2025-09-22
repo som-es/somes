@@ -1,6 +1,6 @@
 <script lang="ts">
 	import collapse from 'svelte-collapse';
-	import type {  Delegate } from '$lib/types';
+	import type { Delegate } from '$lib/types';
 	import DecreeBarExpanded from './DecreeBarExpanded.svelte';
 	import { address } from '$lib/api/api';
 	import type { Decree } from './types';
@@ -11,7 +11,7 @@
 	export let decree: Decree;
 	export let delegate: Delegate | null = null;
 	export let page: number;
-	export let coloring: string = "dark:bg-primary-300 bg-primary-400"
+	export let coloring: string = 'dark:bg-primary-300 bg-primary-400';
 	// absence.
 
 	let open: boolean = false;
@@ -21,7 +21,7 @@
 		open = false;
 	}
 	function onShowDetails() {
-		currentDecreeStore.set({decree, delegate});
+		currentDecreeStore.set({ decree, delegate });
 		gotoHistory(`/decree/${decree.ris_id}`, true);
 	}
 </script>
@@ -32,30 +32,26 @@
 		on:keypress={onShowDetails}
 		role="button"
 		tabindex="0"
-		class="entry {coloring} text-black"
+		class="entry {coloring} text-black flex justify-between items-center"
 	>
-		<div class="flex justify-between items-center">
-			<div class="flex flex-col gap-1">
-				<span class="dark:text-white">
-					{decree.short_title}
-				</span>
-				<div class="flex flex-wrap gap-1">
-					<span class="badge bg-tertiary-400 text-wrap">{decree.ministrial_issuer}</span>
-					<span class="badge bg-tertiary-400">{dashDateToDotDate(decree.publication_date)}</span>
-					<span class="badge bg-tertiary-400">{decree.gp}</span>
-				</div>
+		<div class="flex flex-col gap-1">
+			<span class="dark:text-white">
+				{decree.short_title}
+			</span>
+			<div class="flex flex-wrap gap-1">
+				<span class="badge bg-tertiary-400 text-wrap">{decree.ministrial_issuer}</span>
+				<span class="badge bg-tertiary-400">{dashDateToDotDate(decree.publication_date)}</span>
+				<span class="badge bg-tertiary-400">{decree.gp}</span>
 			</div>
-
-			{#if delegate}
-				<img
-					class="min-w-[80px] max-h-[80px] rounded-full mx-1"
-					src={`${address}/assets/${delegate.id}.jpg`}
-					alt="Image of delegate {delegate.name}"
-				/>
-			{/if}
-			
 		</div>
 
+		{#if delegate}
+			<img
+				class="min-w-[80px] max-h-[80px] rounded-full mx-1"
+				src={`${address}/assets/${delegate.id}.jpg`}
+				alt="Image of delegate {delegate.name}"
+			/>
+		{/if}
 	</div>
 	<!-- <div use:collapse={{ open, duration }}>
 		<DecreeBarExpanded {decree} bind:open />
@@ -68,15 +64,5 @@
 		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 		padding: 20px;
 		gap: 10px;
-	}
-
-	#open :global(.right-arrow) {
-		transform: rotate(90deg);
-		transition: transform 0.35s;
-	}
-
-	#closed :global(.right-arrow) {
-		transform: rotate(0deg);
-		transition: transform 0.35s;
 	}
 </style>

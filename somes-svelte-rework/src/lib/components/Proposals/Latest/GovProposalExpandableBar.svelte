@@ -1,5 +1,11 @@
 <script lang="ts">
-	import { createVoteResultPath, type Delegate, type GovProposal, type GovProposalDelegate, type VoteResult } from '$lib/types';
+	import {
+		createVoteResultPath,
+		type Delegate,
+		type GovProposal,
+		type GovProposalDelegate,
+		type VoteResult
+	} from '$lib/types';
 	import collapse from 'svelte-collapse';
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
@@ -37,13 +43,20 @@
 			</div>
 		</div> -->
 
-
 		<div class="flex flex-col gap-1">
 			<span>{govProposal.gov_proposal.ministrial_proposal.description.slice(30)}</span>
 			<div class="flex flex-wrap gap-1">
-				<span class="badge bg-tertiary-400 text-black text-wrap">{govProposal.gov_proposal.ministrial_proposal.ressort}</span>
-				<span class="badge bg-tertiary-400 text-black">{dashDateToDotDate(govProposal.gov_proposal.ministrial_proposal.created_at.split('T')[0].toString())}</span>
-				<span class="badge bg-tertiary-400 text-black">{govProposal.gov_proposal.ministrial_proposal.gp}</span>
+				<span class="badge bg-tertiary-400 text-black text-wrap"
+					>{govProposal.gov_proposal.ministrial_proposal.ressort}</span
+				>
+				<span class="badge bg-tertiary-400 text-black"
+					>{dashDateToDotDate(
+						govProposal.gov_proposal.ministrial_proposal.created_at.split('T')[0].toString()
+					)}</span
+				>
+				<span class="badge bg-tertiary-400 text-black"
+					>{govProposal.gov_proposal.ministrial_proposal.gp}</span
+				>
 			</div>
 		</div>
 		<!-- <div>{voteResult.legislative_initiative.description}</div> -->
@@ -82,19 +95,5 @@
 		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 		padding: 20px;
 		gap: 10px;
-	}
-	/* .grid-container {
-		display: grid;
-		grid-template-columns: 2fr 1fr;
-	} */
-
-	#open :global(.right-arrow) {
-		transform: rotate(90deg);
-		transition: transform 0.35s;
-	}
-
-	#closed :global(.right-arrow) {
-		transform: rotate(0deg);
-		transition: transform 0.35s;
 	}
 </style>
