@@ -63,7 +63,7 @@ pub struct StanceTopicInfluences {
     pub question: String,
     pub answer: String,
     pub stance_llm: String,
-    pub topic_influences: Vec<StanceTopicScore> 
+    pub topic_influences: Vec<StanceTopicScore>,
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
@@ -240,6 +240,11 @@ pub struct Page {
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct VoteResultById {
     pub id: i32,
+}
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct DecreeByRisId {
+    pub ris_id: String,
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
