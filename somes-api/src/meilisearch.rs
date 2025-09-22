@@ -10,7 +10,8 @@ use tokio::time::sleep;
 
 use crate::{
     routes::{
-        get_all_gov_props, get_all_updated_votes_from_legis_init, get_all_votes_from_legis_init,
+        get_all_decrees_sqlx, get_all_gov_props, get_all_updated_votes_from_legis_init,
+        get_all_votes_from_legis_init,
     },
     server::AppState,
 };
@@ -28,6 +29,45 @@ impl FromRequestParts<AppState> for MeilisearchClient {
     ) -> Result<Self, Self::Rejection> {
         Ok(Self(state.meilisearch_client.clone()))
     }
+}
+
+pub async fn update_decrees_meilisearch_index(
+    pg_pool: &sqlx::Pool<sqlx::Postgres>,
+    client: &meilisearch_sdk::client::Client,
+) -> Result<(), Box<dyn std::error::Error>> {
+    log::info!("Fetching all decrees..");
+    let all_decrees = get_all_decrees_sqlx(pg_pool).await?;
+    log::info!("Fetched all decrees");
+
+    // client.delete_index("vote_results").await?;
+
+    log::info!("Uploading {} decrees to meilisearch", all_decrees.len());
+    let settings = Settings::new()
+        .with_ranking_rules(vec![
+            "sort".to_string(),
+            "words".to_string(),
+            "typo".to_string(),
+            "proximity".to_string(),
+            "attribute".to_string(),
+            "exactness".to_string(),
+        ])
+        .with_filterable_attributes(["gp", "gov_official_id"])
+        .with_sortable_attributes(["publication_date"])
+        .with_pagination(PaginationSetting {
+            max_total_hits: 100000000,
+        });
+
+    client.index("decrees").set_settings(&settings).await?;
+
+    // client.index("decrees").delete_all_documents().await?;
+
+    client
+        .index("decrees")
+        .add_documents_in_batches(&all_decrees, Some(3000), Some("ris_id"))
+        .await?;
+
+    log::info!("Uploaded decrees");
+    Ok(())
 }
 
 pub async fn update_gov_props_meilisearch_index(
@@ -199,6 +239,7 @@ pub fn update_meilisearch_indices(
     });
 
     let pg_pool = dataservice_sqlx_pool.clone();
+    let meilisearch_client_gp = meilisearch_client.clone();
 
     // TODO: move this to dataservice
     tokio::task::spawn(async move {
@@ -206,13 +247,25 @@ pub fn update_meilisearch_indices(
             if let Err(e) = update_gov_props_meilisearch_index(
                 &mut client.get_multiplexed_tokio_connection().await.unwrap(),
                 &pg_pool,
-                &meilisearch_client,
+                &meilisearch_client_gp,
             )
             .await
             {
                 log::warn!("Could not update meilisearch index: {e:?}");
             }
             log::info!("gov prop sleep 1000s");
+            sleep(std::time::Duration::from_secs(1000)).await;
+        }
+    });
+
+    let pg_pool = dataservice_sqlx_pool.clone();
+
+    tokio::task::spawn(async move {
+        loop {
+            if let Err(e) = update_decrees_meilisearch_index(&pg_pool, &meilisearch_client).await {
+                log::error!("Could not update decree meilisearch index: {e:?}");
+            }
+            log::info!("decree meilsearch sleep 1000s");
             sleep(std::time::Duration::from_secs(1000)).await;
         }
     });

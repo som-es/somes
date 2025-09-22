@@ -35,6 +35,7 @@ use crate::{
         delegates_by_call_to_orders_and_legis_period, latest_vote_results, parties, proposals,
         save_email, speakers_by_hours, speakers_by_hours_and_legis_period, user,
     },
+    views::create_views,
     Ports, DATASERVICE_URL, HTTPS_PORT, HTTP_PORT, MEILISEARCH_SECRET, MEILISEARCH_URL,
     PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, REDIS_DB, STATIC_FRONTEND_PATH,
 };
@@ -230,6 +231,9 @@ pub async fn serve(addr: SocketAddr) {
         sleep(std::time::Duration::from_secs(19000)).await;
     });
 
+    if let Err(e) = create_views(&dataservice_sqlx_pool).await {
+        log::error!("Cannot create view: {e:?}")
+    }
     update_meilisearch_indices(client, dataservice_sqlx_pool, meilisearch_client);
 
     let config = RustlsConfig::from_pem_file(
@@ -340,6 +344,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(GOV_PROPOSALS_PER_PAGE, post(get_gov_proposals_per_page))
         .route(GOV_PROPOSALS_BY_SEARCH, post(gov_props_by_search)) // post only because js fetch...
         .route(DECREES_PER_PAGE, post(get_decrees_per_page))
+        .route(DECREES_BY_SEARCH, post(decrees_by_search))
         .route(DECREE_BY_RIS_ID, get(decree_by_ris_id))
         .route(
             DELEGATE_POLITICAL_POSITION,

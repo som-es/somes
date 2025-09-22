@@ -9,6 +9,14 @@ export async function decrees_per_page(
 	return justPost(`decrees_per_page?page=${page}`, filter);
 }
 
+export async function decrees_by_search(
+	page: number,
+	filter: DecreeFilter | null,
+	search: string
+): Promise<DecreesWithMaxPage | HasError> {
+	return justPost(`decrees_by_search?page=${page}&search=${search}`, filter);
+}
+
 export async function decree_by_ris_id(ris_id: string): Promise<Decree | HasError> {
 	return getWithRoute<Decree>(`decree_by_ris_id?ris_id=${ris_id}`);
 }

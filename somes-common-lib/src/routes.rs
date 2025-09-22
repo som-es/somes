@@ -104,6 +104,7 @@ pub const GOV_PROPOSALS_BY_OFFICIAL: &str = "/gov_proposals_by_official";
 pub const GOV_PROPOSALS_PER_PAGE: &str = "/gov_proposals_per_page";
 pub const GOV_PROPOSALS_BY_SEARCH: &str = "/gov_proposals_by_search";
 pub const DECREES_PER_PAGE: &str = "/decrees_per_page";
+pub const DECREES_BY_SEARCH: &str = "/decrees_by_search";
 pub const DECREE_BY_RIS_ID: &str = "/decree_by_ris_id";
 pub const DELEGATE_POLITICAL_POSITION: &str = "/delegate_political_position";
 pub const DELEGATE_POLITICAL_QUESTIONS: &str = "/delegate_political_questions";

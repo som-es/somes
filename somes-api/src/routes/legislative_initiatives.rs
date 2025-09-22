@@ -74,9 +74,9 @@ pub use bookmark::*;
 
 #[utoipa::path(
     post,
-    path = "/latest_vote_results", 
+    path = "/latest_vote_results",
     responses(
-        (status = 200, description = "Returned latest vote results successfully.", body = [Vec<VoteResult>]), 
+        (status = 200, description = "Returned latest vote results successfully.", body = [Vec<VoteResult>]),
         (status = 400, description = "Invalid request", body = [LegisInitErrorResponse]),
         (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
     )
@@ -93,13 +93,13 @@ pub async fn latest_vote_results(
 
 #[utoipa::path(
     post,
-    path = "/vote_results_per_page", 
+    path = "/vote_results_per_page",
     params
     (
         Page
     ),
     responses(
-        (status = 200, description = "Returned latest vote results successfully.", body = [Vec<VoteResult>]), 
+        (status = 200, description = "Returned latest vote results successfully.", body = [Vec<VoteResult>]),
         (status = 400, description = "Invalid request", body = [LegisInitErrorResponse]),
         (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
     )
@@ -185,13 +185,13 @@ pub async fn unfinished_vote_result_by_search(
 
 #[utoipa::path(
     post,
-    path = "/vote_result_by_id", 
+    path = "/vote_result_by_id",
     params
     (
         Page
     ),
     responses(
-        (status = 200, description = "Returned latest vote results successfully.", body = [Vec<VoteResult>]), 
+        (status = 200, description = "Returned latest vote results successfully.", body = [Vec<VoteResult>]),
         (status = 400, description = "Invalid request", body = [LegisInitErrorResponse]),
         (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
     )
@@ -329,7 +329,7 @@ async fn meilisearch_for_vote_results(
 
         meilisearch_filter = filter_conditions.join(" AND ")
     }
-    log::info!("meilisearch filter: {meilisearch_filter}");
+    log::info!("vote results meilisearch filter: {meilisearch_filter}, {search_query:?}");
 
     let results: SearchResults<VoteResult> = meilisearch_client
         .index("vote_results")
@@ -351,13 +351,13 @@ async fn meilisearch_for_vote_results(
         .map(|hit| hit.result)
         .collect::<Vec<_>>();
 
-    log::info!(
-        "results: {:?}",
-        vote_results
-            .iter()
-            .map(|x| x.legislative_initiative.created_at)
-            .collect::<Vec<_>>()
-    );
+    // log::info!(
+    //     "results: {:?}",
+    //     vote_results
+    //         .iter()
+    //         .map(|x| x.legislative_initiative.created_at)
+    //         .collect::<Vec<_>>()
+    // );
 
     Ok(Json(VoteResultsWithMaxPage {
         vote_results,

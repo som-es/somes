@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {  delegate_by_id, errorToNull } from '$lib/api/api';
+	import { delegate_by_id, errorToNull } from '$lib/api/api';
 	import { onMount } from 'svelte';
 	import Pagination from '../Pagination.svelte';
 	import ExpandablePlaceholder from '../VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
@@ -11,7 +11,7 @@
 	import type { FilterInfo } from '../Filtering/types';
 	import type { DecreeFilter, DecreesWithMaxPage } from '../Delegates/Decrees/types';
 	import type { Delegate } from '$lib/types';
-	import { decrees_per_page } from '../Delegates/Decrees/api';
+	import { decrees_by_search, decrees_per_page } from '../Delegates/Decrees/api';
 
 	const url = new URL(window.location.href);
 	let page = parseInt(url.searchParams.get('page') || '1') || 1;
@@ -45,13 +45,7 @@
 		currentDecreeFilterStore.set(filter);
 		// filter = null;
 
-		if (searchValue) {
-			// const govPropsSearch = errorToNull(await gov_proposals_by_search(page, searchValue, filter));
-			// console.log(govPropsSearch);
-			// if (govPropsSearch) decrees = govPropsSearch;
-		} else {
-			decrees = errorToNull(await decrees_per_page(page - 1, filter));
-		}
+		decrees = errorToNull(await decrees_by_search(page, filter, searchValue));
 
 		decrees?.decrees.forEach((decree) => {
 			const id = decree.gov_official_id;

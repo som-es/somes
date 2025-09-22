@@ -11,7 +11,6 @@
 	export let decree: Decree;
 	export let delegate: Delegate | null;
 
-	console.log(decree);
 	decree.emphasis =
 		'Hasdfkadsfaadakjfklsafklasödjfklösdfjöklskdfljdskflsdfsdsdfdsaf\nCooler test!\n';
 </script>

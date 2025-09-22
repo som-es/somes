@@ -1,11 +1,17 @@
 use axum::{extract::Query, Json};
 use dataservice::combx::{Decree, Document};
+use meilisearch_sdk::search::SearchResults;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::{DecreeByRisId, DecreeFilter, Page};
 use utoipa::ToSchema;
 
 use super::LegisInitErrorResponse;
-use crate::{get_json_cache, set_json_cache, PgPoolConnection, RedisConnection, DECREES_PER_PAGE};
+use crate::{
+    get_json_cache, meilisearch::MeilisearchClient, set_json_cache, PgPoolConnection,
+    RedisConnection, DECREES_PER_PAGE,
+};
+
+pub mod view;
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct DecreesWithMaxPage {
@@ -55,37 +61,9 @@ async fn decree_by_ris_id_sqlx(
 ) -> Result<Option<Decree>, LegisInitErrorResponse> {
     Ok(sqlx::query!(
         r#"
-            SELECT
-                d.gov_official_id,
-                d.ris_id,
-                d.ministrial_issuer,
-                d.title,
-                d.short_title,
-                d.publication_date,
-                d.part,
-                d.emphasis,
-                d.gp,
-                COUNT(*) OVER() AS entry_count,
-                COALESCE(
-                    json_agg(
-                        json_build_object(
-                            'title', doc.title,
-                            'document_url', doc.document_url,
-                            'document_type', doc.document_type
-                        )
-                    ) FILTER (WHERE doc.id IS NOT NULL),
-                    '[]'
-                ) as documents
-            FROM
-                ministrial_decrees d
-            LEFT JOIN
-                ministrial_decrees_documents doc ON d.id = doc.ministrial_decree_id
+            select * from ministrial_decrees_with_docs
             WHERE
                 ris_id = $1
-            GROUP BY
-                d.gov_official_id, d.ris_id, d.ministrial_issuer,
-                d.title, d.short_title, d.publication_date, d.part,
-                d.emphasis, d.gp
             "#,
         ris_id
     )
@@ -97,13 +75,13 @@ async fn decree_by_ris_id_sqlx(
         ))
     })?
     .map(|x| Decree {
-        gov_official_id: Some(x.gov_official_id),
-        ris_id: x.ris_id,
-        ministrial_issuer: x.ministrial_issuer,
-        title: x.title,
-        short_title: x.short_title,
-        publication_date: x.publication_date,
-        part: x.part,
+        gov_official_id: x.gov_official_id,
+        ris_id: x.ris_id.unwrap(),
+        ministrial_issuer: x.ministrial_issuer.unwrap(),
+        title: x.title.unwrap(),
+        short_title: x.short_title.unwrap(),
+        publication_date: x.publication_date.unwrap(),
+        part: x.part.unwrap(),
         emphasis: x.emphasis,
         gp: x.gp,
         documents: x
@@ -119,6 +97,39 @@ async fn decree_by_ris_id_sqlx(
     }))
 }
 
+pub async fn get_all_decrees_sqlx(pg: &sqlx::Pool<sqlx::Postgres>) -> sqlx::Result<Vec<Decree>> {
+    Ok(sqlx::query!(
+        r#"
+        select * from ministrial_decrees_with_docs
+        "#,
+    )
+    .fetch_all(pg)
+    .await?
+    .into_iter()
+    .map(|x| Decree {
+        gov_official_id: x.gov_official_id,
+        ris_id: x.ris_id.unwrap(),
+        ministrial_issuer: x.ministrial_issuer.unwrap(),
+        title: x.title.unwrap(),
+        short_title: x.short_title.unwrap(),
+        publication_date: x.publication_date.unwrap(),
+        part: x.part.unwrap(),
+        emphasis: x.emphasis,
+        gp: x.gp,
+        documents: x
+            .documents
+            .map(|doc| {
+                doc.as_array()
+                    .unwrap()
+                    .iter()
+                    .flat_map(|x| serde_json::from_value::<Document>(x.clone()))
+                    .collect()
+            })
+            .unwrap(),
+    })
+    .collect())
+}
+
 async fn get_decrees_per_page_sqlx(
     pg: &sqlx::Pool<sqlx::Postgres>,
     page: &Page,
@@ -128,38 +139,10 @@ async fn get_decrees_per_page_sqlx(
     let mut entry_count = 0;
     let decrees = sqlx::query!(
         r#"
-        SELECT
-            d.gov_official_id,
-            d.ris_id,
-            d.ministrial_issuer,
-            d.title,
-            d.short_title,
-            d.publication_date,
-            d.part,
-            d.emphasis,
-            d.gp,
-            COUNT(*) OVER() AS entry_count,
-            COALESCE(
-                json_agg(
-                    json_build_object(
-                        'title', doc.title,
-                        'document_url', doc.document_url,
-                        'document_type', doc.document_type
-                    )
-                ) FILTER (WHERE doc.id IS NOT NULL),
-                '[]'
-            ) as documents
-        FROM
-            ministrial_decrees d
-        LEFT JOIN
-            ministrial_decrees_documents doc ON d.id = doc.ministrial_decree_id
+        select * from ministrial_decrees_with_docs as d
         WHERE
             ($1::TEXT IS NULL OR d.gp = $1)
             AND ($2::INT[] IS NULL OR d.gov_official_id = ANY($2))
-        GROUP BY
-            d.gov_official_id, d.ris_id, d.ministrial_issuer,
-            d.title, d.short_title, d.publication_date, d.part,
-            d.emphasis, d.gp
         order by d.publication_date desc
         offset $3 limit $4
         "#,
@@ -182,13 +165,13 @@ async fn get_decrees_per_page_sqlx(
     .map(|x| {
         entry_count = x.entry_count.unwrap();
         Decree {
-            gov_official_id: Some(x.gov_official_id),
-            ris_id: x.ris_id,
-            ministrial_issuer: x.ministrial_issuer,
-            title: x.title,
-            short_title: x.short_title,
-            publication_date: x.publication_date,
-            part: x.part,
+            gov_official_id: x.gov_official_id,
+            ris_id: x.ris_id.unwrap(),
+            ministrial_issuer: x.ministrial_issuer.unwrap(),
+            title: x.title.unwrap(),
+            short_title: x.short_title.unwrap(),
+            publication_date: x.publication_date.unwrap(),
+            part: x.part.unwrap(),
             emphasis: x.emphasis,
             gp: x.gp,
             documents: x
@@ -210,6 +193,82 @@ async fn get_decrees_per_page_sqlx(
         entry_count,
         max_page: (entry_count as f64 / DECREES_PER_PAGE.parse().unwrap_or(15.)).ceil() as i64,
     })
+}
+
+pub async fn decrees_by_search(
+    MeilisearchClient(meilisearch_client): MeilisearchClient,
+    Query(search_query): Query<somes_common_lib::SearchQuery>,
+    Query(page): Query<somes_common_lib::Page>,
+    Json(decrees_filter): Json<Option<DecreeFilter>>,
+) -> Result<Json<DecreesWithMaxPage>, LegisInitErrorResponse> {
+    meilisearch_decrees(
+        meilisearch_client,
+        search_query,
+        page,
+        decrees_filter.as_ref(),
+    )
+    .await
+}
+
+async fn meilisearch_decrees(
+    meilisearch_client: meilisearch_sdk::client::Client,
+    search_query: somes_common_lib::SearchQuery,
+    page: Page,
+    legis_init_filter: Option<&DecreeFilter>,
+) -> Result<Json<DecreesWithMaxPage>, LegisInitErrorResponse> {
+    let stats = meilisearch_client
+        .index("decrees")
+        .get_stats()
+        .await
+        .unwrap();
+    println!("{:?}", stats);
+    let mut meilisearch_filter = String::new();
+    if let Some(filter) = legis_init_filter.as_ref() {
+        let mut filter_conditions = vec![];
+
+        if let Some(ref legis_period) = filter.legis_period {
+            filter_conditions.push(format!("gp = '{}'", legis_period));
+        }
+        if let Some(ref legis_period) = filter.gov_officials {
+            filter_conditions.push({
+                let ors = legis_period
+                    .iter()
+                    .map(|gov_official| format!("gov_official_id = {gov_official}"))
+                    .collect::<Vec<_>>()
+                    .join(" OR ");
+                format!("({ors})")
+            });
+        }
+
+        meilisearch_filter = filter_conditions.join(" AND ")
+    }
+    log::info!("decrees meilisearch filter: {meilisearch_filter}, {search_query:?}");
+
+    let results: SearchResults<Decree> = meilisearch_client
+        .index("decrees")
+        .search()
+        .with_filter(&meilisearch_filter)
+        .with_sort(&["publication_date:desc"])
+        .with_query(&search_query.search)
+        .with_hits_per_page(DECREES_PER_PAGE.parse().unwrap_or(16))
+        .with_page(page.page as usize)
+        .execute()
+        .await
+        .unwrap();
+
+    let max_page = results.total_pages.unwrap_or(1) as i64;
+
+    let decrees = results
+        .hits
+        .into_iter()
+        .map(|hit| hit.result)
+        .collect::<Vec<_>>();
+
+    Ok(Json(DecreesWithMaxPage {
+        decrees,
+        entry_count: results.estimated_total_hits.unwrap_or(1) as i64,
+        max_page,
+    }))
 }
 
 #[cfg(test)]
