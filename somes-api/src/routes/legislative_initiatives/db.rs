@@ -66,8 +66,8 @@ pub async fn get_latest_legislative_initiatives_sqlx(
 ) -> sqlx::Result<Vec<DbLegislativeInitiativeQuery>> {
     let res = sqlx::query_as!(
         DbLegislativeInitiativeQuery,
-        "select * from legislative_initiatives 
-            where created_at = (select MAX(created_at) from legislative_initiatives 
+        "select * from legislative_initiatives
+            where created_at = (select MAX(created_at) from legislative_initiatives
             where accepted is not null) and accepted is not null and is_voteable_on"
     )
     .fetch_all(pg)
@@ -106,7 +106,7 @@ pub async fn get_vote_result_by_id(
     construct_vote_result(redis_con.clone(), pg, legis_init).await
 }
 
-pub async fn get_vote_result_by_path(
+pub async fn vote_result_by_path_sqlx(
     redis_con: MultiplexedConnection,
     pg: &PgPool,
     gp: &str,
@@ -354,15 +354,15 @@ pub async fn get_speeches_from_legis_init_sqlx(
 ) -> sqlx::Result<Vec<DbSpeechWithLink>> {
     sqlx::query_as!(
         DbSpeechWithLink,
-        "select 
+        "select
             null as about, delegate_id, infavor, opinion, document_url, CAST(null AS int) as duration_in_seconds, legislative_initiatives_id as legis_init_id
-        from 
-            speeches 
-        inner join 
-            speeches_html_urls on speeches.id = speeches_html_urls.speech_id 
-            
+        from
+            speeches
+        inner join
+            speeches_html_urls on speeches.id = speeches_html_urls.speech_id
+
         where legislative_initiatives_id = $1
-            
+
             ;",
         legis_init_id
     )
@@ -376,9 +376,9 @@ pub async fn get_legis_docs_from_legis_init_sqlx(
 ) -> sqlx::Result<Vec<DbLegisDocumentOptional>> {
     sqlx::query_as!(
         DbLegisDocumentOptional,
-        "select 
-            title, document_url, document_type 
-        from 
+        "select
+            title, document_url, document_type
+        from
             legislative_documents
          where legislative_initiatives_id = $1;",
         legis_init_id

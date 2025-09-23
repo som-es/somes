@@ -212,7 +212,7 @@ pub async fn vote_result_by_path(
     PgPoolConnection(pg): PgPoolConnection,
     Path((gp, ityp, inr)): Path<(String, String, i32)>,
 ) -> Result<Json<VoteResult>, LegisInitErrorResponse> {
-    get_vote_result_by_path(redis_con, &pg, &gp, &ityp, inr)
+    vote_result_by_path_sqlx(redis_con, &pg, &gp, &ityp, inr)
         .await
         .map(Json)
         .map_err(|_| LegisInitErrorResponse::VoteResultById)

@@ -343,6 +343,7 @@ pub async fn serve(addr: SocketAddr) {
         .route(GOV_PROPOSALS_BY_OFFICIAL, get(gov_proposals_by_official))
         .route(GOV_PROPOSALS_PER_PAGE, post(get_gov_proposals_per_page))
         .route(GOV_PROPOSALS_BY_SEARCH, post(gov_props_by_search)) // post only because js fetch...
+        .route(GOV_PROPOSAL_BY_PATH, get(gov_proposal_by_path))
         .route(DECREES_PER_PAGE, post(get_decrees_per_page))
         .route(DECREES_BY_SEARCH, post(decrees_by_search))
         .route(DECREE_BY_RIS_ID, get(decree_by_ris_id))

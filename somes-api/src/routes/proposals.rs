@@ -1,9 +1,11 @@
 mod all_props;
+mod by_path;
 mod construct_gov_proposal;
 mod db;
 mod gov_props_by_delegate;
 mod gov_props_by_search;
 pub use all_props::*;
+pub use by_path::*;
 pub use construct_gov_proposal::*;
 pub use db::*;
 pub use gov_props_by_delegate::*;
@@ -119,31 +121,31 @@ pub async fn filtered_ministrial_proposals(
     let filter_count = count_filter(&filters);
 
     let query = format!(
-        "select 
+        "select
             mi.delegate_id,
-            mp.id, 
-            mp.ityp, 
-            mp.gp, 
-            mp.inr, 
-            mp.emphasis, 
-            mp.title, 
-            mp.description, 
-            mp.created_at, 
-            mp.updated_at, 
-            mp.due_to, 
-            mp.ressort, 
-            mp.ressort_shortform, 
-            mp.legis_init_gp, 
-            mp.legis_init_inr, 
+            mp.id,
+            mp.ityp,
+            mp.gp,
+            mp.inr,
+            mp.emphasis,
+            mp.title,
+            mp.description,
+            mp.created_at,
+            mp.updated_at,
+            mp.due_to,
+            mp.ressort,
+            mp.ressort_shortform,
+            mp.legis_init_gp,
+            mp.legis_init_inr,
             mp.legis_init_ityp,
             mp.has_vote_result
-        from 
-            ministrial_issuer as mi 
-        inner join 
-            ministrial_proposals as mp 
-        on 
-            mp.id = mi.ministrial_proposal_id 
-        where 
+        from
+            ministrial_issuer as mi
+        inner join
+            ministrial_proposals as mp
+        on
+            mp.id = mi.ministrial_proposal_id
+        where
             {filter}
         order by created_at DESC
         offset ${} limit ${};",
@@ -157,13 +159,13 @@ pub async fn filtered_ministrial_proposals(
     filtered_query = filtered_query.bind(page_elements);
 
     let query = format!(
-        "select 
+        "select
         COUNT(*)
-    from 
-        ministrial_issuer as mi 
-    inner join 
-        ministrial_proposals as mp 
-    on 
+    from
+        ministrial_issuer as mi
+    inner join
+        ministrial_proposals as mp
+    on
         mp.id = mi.ministrial_proposal_id
     where
         {filter}"
