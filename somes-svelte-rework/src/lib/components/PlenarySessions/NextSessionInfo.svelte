@@ -15,13 +15,18 @@
 
 	let days: number | null = null;
 
-	let nextPlenarySessionDate: string | undefined = undefined;
+	let nextPlenarySessionDateStr: string | undefined = undefined;
+	let hours: number | null = null;
 	onMount(async () => {
-		nextPlenarySessionDate = errorToNull(await next_plenar_date())?.date?.toString();
-		if (nextPlenarySessionDate) {
+		nextPlenarySessionDateStr = errorToNull(await next_plenar_date())?.date_and_time?.toString();
+		if (nextPlenarySessionDateStr) {
+			console.log(nextPlenarySessionDateStr);
 			const today = new Date();
-			const nextDate = new Date(nextPlenarySessionDate);
-			days = Math.round((nextDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+			const nextDate = new Date(nextPlenarySessionDateStr);
+			days = (nextDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+			if (days < 1) {
+				hours = Math.round(days * 24);
+			}
 		}
 	});
 </script>
@@ -33,19 +38,19 @@
 		<div class="mt-2 text-xl sm:text-3xl font-bold">Nächste Nationalratssitzung</div>
 		<span class="text-xl sm:text-2xl"
 			>am
-			{#if nextPlenarySessionDate}
-				{dashDateToDotDate(nextPlenarySessionDate)}
-				<span class="sm:text-lg"
-					>({#if days == 0}
-						heute
-					{:else}
-						in {#if days == 1}
+			{#if nextPlenarySessionDateStr}
+				{dashDateToDotDate(nextPlenarySessionDateStr.toString().split('T')[0])}
+				<span class="sm:text-lg">
+					{#if hours}
+						(in {hours} Stunden)
+					{:else if days}
+						(in {#if days == 1}
 							1 Tag)
 						{:else}
-							{days} Tagen)
+							{Math.round(days)} Tagen)
 						{/if}
-					{/if}</span
-				>
+					{/if}
+				</span>
 			{/if}
 		</span>
 	</div>

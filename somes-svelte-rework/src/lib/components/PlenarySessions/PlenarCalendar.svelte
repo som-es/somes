@@ -39,7 +39,7 @@
 			if (testDate.getDay() > 0 && testDate.getDay() < 6) {
 				const maybeDate =
 					plenarDates.find((date) => {
-						const newDate = new Date(date.date);
+						const newDate = new Date(date.date_and_time);
 						return (
 							newDate.getFullYear() == year &&
 							newDate.getMonth() == month &&
@@ -79,8 +79,8 @@
 		bind:month
 		bind:year
 		title={`${months[month % 12]} ${year}`}
-		leftTitle={months[mod(month-1, 12)]}
-		rightTitle={months[(month+1) % 12]}
+		leftTitle={months[mod(month - 1, 12)]}
+		rightTitle={months[(month + 1) % 12]}
 		{days}
 		headers={['Mo', 'Di', 'Mi', 'Do', 'Fr']}
 	/>
