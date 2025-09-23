@@ -1,4 +1,4 @@
-import type { Decree } from "./components/Delegates/Decrees/types";
+import type { Decree } from './components/Delegates/Decrees/types';
 
 export interface DelegateSplit {
 	nr: Delegate[];
@@ -64,6 +64,10 @@ export interface GovProposal {
 	ministrial_proposal: DbMinistrialProposalQuery;
 	vote_result: VoteResult | null;
 	topics: Topic[];
+	eurovoc_topics: Topic[];
+	other_keyword_topics: Topic[];
+	ministerial_issuers: number[];
+	documents: Document[];
 }
 
 export interface LegislativeInitiative {
@@ -426,7 +430,6 @@ export interface VoteResultFilter {
 	party_votes: PartyVote[] | null;
 	is_urgent: boolean | null;
 }
-
 
 export interface DelegateFilter {
 	search_value: string | null;

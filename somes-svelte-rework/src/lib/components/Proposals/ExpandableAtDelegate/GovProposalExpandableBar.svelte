@@ -1,5 +1,10 @@
 <script lang="ts">
-	import { createVoteResultPath, type Delegate, type GovProposal, type VoteResult } from '$lib/types';
+	import {
+		createVoteResultPath,
+		type Delegate,
+		type GovProposal,
+		type VoteResult
+	} from '$lib/types';
 	import collapse from 'svelte-collapse';
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
@@ -9,6 +14,7 @@
 	import { getModalStore } from '@skeletonlabs/skeleton';
 
 	export let govProposal: GovProposal;
+	export let delegate: Delegate;
 	// export let dels: Delegate[];
 	let clazz = '';
 	export { clazz as class };
@@ -54,7 +60,7 @@
 	</div>
 
 	<div use:collapse={{ open, duration }}>
-		<GovProposalExpanded {govProposal} bind:open />
+		<GovProposalExpanded {govProposal} {delegate} bind:open />
 	</div>
 </div>
 

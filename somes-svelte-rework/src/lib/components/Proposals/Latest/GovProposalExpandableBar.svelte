@@ -84,6 +84,7 @@
 		<GovProposalExpanded
 			govProposal={govProposal.gov_proposal}
 			delegate={govProposal.delegate}
+			showDelegate
 			bind:open
 		/>
 	</div>

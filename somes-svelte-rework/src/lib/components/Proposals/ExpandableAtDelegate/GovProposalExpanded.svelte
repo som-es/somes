@@ -7,24 +7,34 @@
 		type GovProposal,
 		type VoteResult
 	} from '$lib/types';
-	import { currentDelegatesAtDateStore, currentVoteResultStore } from '$lib/stores/stores';
+	import {
+		currentDelegatesAtDateStore,
+		currentGovProposalDelegateStore,
+		currentVoteResultStore
+	} from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import Emphasis from '$lib/components/VoteResults/Emphasis/Emphasis.svelte';
 	import GovProposalInfoTiles from '$lib/components/VoteResults/InfoTiles/GovProposalInfoTiles.svelte';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import { getModalStore } from '@skeletonlabs/skeleton';
+	import { createGovProposalPath } from '../types';
 
 	export let govProposal: GovProposal;
-	export let delegate: Delegate | null = null;
+	export let delegate: Delegate;
+	export let showDelegate: boolean = false;
 	// export let dels: Delegate[];
 	export let open: boolean = true;
 
 	let delsAtDate: Delegate[] = [];
 
 	const modalStore = getModalStore();
-
-	function onShowDetails(voteResult: VoteResult | null) {
+	function onShowDetails(gov_proposal: GovProposal, delegate: Delegate) {
+		modalStore.close();
+		currentGovProposalDelegateStore.set({ gov_proposal, delegate });
+		gotoHistory(createGovProposalPath(gov_proposal.ministrial_proposal), true);
+	}
+	function onShowDetailsVoteResult(voteResult: VoteResult | null) {
 		if (!voteResult) return;
 
 		modalStore.close();
@@ -33,10 +43,7 @@
 			voteResult.legislative_initiative.created_at.toString(),
 			delsAtDate
 		]);
-		// $: if (browser) {
-		// gotoHistory('/vote_result', true);
 		gotoHistory(createVoteResultPath(voteResult), true);
-		// }
 	}
 
 	$: rawEmphasis = govProposal.ministrial_proposal.emphasis;
@@ -83,7 +90,8 @@
 			<div class="ml-auto more-info-item">
 				<SButton
 					class="bg-tertiary-500 text-black"
-					on:click={() => onShowDetails(govProposal.vote_result)}>Details anzeigen</SButton
+					on:click={() => onShowDetailsVoteResult(govProposal.vote_result)}
+					>Details anzeigen</SButton
 				>
 			</div>
 		{/if}
@@ -109,21 +117,24 @@
 	{#if govProposal.vote_result}
 		<button
 			class="rounded-xl ml-auto parliament-item bg-primary-100"
-			on:click={() => onShowDetails(govProposal.vote_result)}
+			on:click={() => onShowDetailsVoteResult(govProposal.vote_result)}
 		>
 			<VoteParliament2 voteResult={govProposal.vote_result} preview={true} />
 		</button>
 	{/if}
 
 	<GovProposalInfoTiles {govProposal} />
-	{#if delegate}
+	{#if delegate && showDelegate}
 		<div class="delegate-card gov-official">
 			<DelegateCard {delegate} onlyTop showMoreDetailsBtn showImg={false} />
 		</div>
 	{/if}
-	<!-- <div class="ml-auto details-item mt-auto">
-		<SButton class="bg-tertiary-500 text-black" on:click={onShowDetails}>Details anzeigen</SButton>
-	</div> -->
+	<div class="ml-auto details-item mt-auto">
+		<SButton
+			class="bg-tertiary-500 text-black"
+			on:click={() => onShowDetails(govProposal, delegate)}>Details anzeigen</SButton
+		>
+	</div>
 </div>
 
 <style>

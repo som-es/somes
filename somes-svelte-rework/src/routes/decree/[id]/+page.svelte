@@ -3,7 +3,7 @@
 	import { delegate_by_id, errorToNull } from '$lib/api/api';
 	import { decree_by_ris_id } from '$lib/components/Delegates/Decrees/api';
 	import DecreeView from '$lib/components/Delegates/Decrees/DecreeView.svelte';
-	import type { Decree, DecreeDelegate } from '$lib/components/Delegates/Decrees/types';
+	import type { DecreeDelegate } from '$lib/components/Delegates/Decrees/types';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';

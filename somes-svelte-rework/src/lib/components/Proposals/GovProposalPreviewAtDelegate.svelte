@@ -1,9 +1,10 @@
 <script lang="ts">
-	import type { GovProposal } from '$lib/types';
+	import type { Delegate, GovProposal } from '$lib/types';
 	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
 	import GovProposalExpandableBar from './ExpandableAtDelegate/GovProposalExpandableBar.svelte';
 
 	export let govProposals: GovProposal[];
+	export let delegate: Delegate;
 
 	$: allProposals = {
 		type: 'component',
@@ -25,10 +26,11 @@
 			{govProposals.length == 1 ? 'Ministerialentwurf' : 'Ministerialentwürfe'} insgesamt
 		</h2>
 	</div>
-	<button class="btn sm:btn-lg variant-filled mt-1" on:click={() => modalStore.trigger(allProposals)}
-		>Alle anzeigen</button
+	<button
+		class="btn sm:btn-lg variant-filled mt-1"
+		on:click={() => modalStore.trigger(allProposals)}>Alle anzeigen</button
 	>
 </div>
 {#each previewGovProposals as govProposal}
-	<GovProposalExpandableBar {govProposal} />
+	<GovProposalExpandableBar {govProposal} {delegate} />
 {/each}

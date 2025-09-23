@@ -371,9 +371,9 @@
 				{/if}
 			</div>
 		</div>
-		{#if generalGovOfficialInfo?.gov_proposals && generalGovOfficialInfo.gov_proposals.length > 0}
+		{#if generalGovOfficialInfo?.gov_proposals && generalGovOfficialInfo.gov_proposals.length > 0 && delegate}
 			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
-				<GovProposalPreview govProposals={generalGovOfficialInfo.gov_proposals} />
+				<GovProposalPreview govProposals={generalGovOfficialInfo.gov_proposals} {delegate} />
 			</div>
 		{:else if generalGovOfficialInfo?.gov_proposals == null && delegate && delegate.council == 'gov'}
 			<ExpandablePlaceholder />
