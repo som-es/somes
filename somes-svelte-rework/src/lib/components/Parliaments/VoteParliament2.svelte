@@ -10,6 +10,8 @@
 	import { createPartyInfavorMap, isPartyInFavor } from '$lib/partyInfavor';
 	import { filterDelegates, filteredDelegatesNearSeats } from '$lib/caching/delegates';
 	import { cachedGovOfficials, seatSettedCachedGovOfficials } from '$lib/caching/gov_officials';
+	import { partyColors } from '$lib/partyColor';
+	import { cachedPartyColors } from '$lib/caching/party_color';
 
 	const width = 830;
 	const height = 900;
@@ -47,11 +49,16 @@
 
 	let firstFinished = false;
 
+	let localPartyColors: Map<string, string> = partyColors;
+
 	onMount(async () => {
+		if (localPartyColors.size == 0) {
+			localPartyColors = await cachedPartyColors();
+		}
 		// await updateLayout();
 	});
 
-	const updateLayout = async () => {
+	const updateLayout = async (partyColors: Map<string, string>) => {
 		const allSeats = await cachedAllSeats();
 
 		let updateDelegates = delegates;
@@ -96,7 +103,7 @@
 				all += dels.length;
 			});
 
-			const partyInfavorMap = createPartyInfavorMap(voteResult);
+			const partyInfavorMap = createPartyInfavorMap(voteResult, partyColors);
 
 			const partyToDelegatesArray = Array.from(partyToDelegates.entries());
 			partyToDelegatesArray.sort((a, b) => {
@@ -127,7 +134,7 @@
 	}
 
 	$: if (gp || date || supplyDate || voteResult) {
-		updateLayout();
+		updateLayout(localPartyColors);
 	}
 </script>
 
@@ -147,6 +154,7 @@
 		{useOffset}
 		{show3D}
 		{enforceSvg}
+		{localPartyColors}
 	/>
 {/if}
 <!--

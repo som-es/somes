@@ -9,6 +9,7 @@
 	import SwitchBox from '../UI/SwitchBox.svelte';
 	import App3D from './3D/App3D.svelte';
 	import GptCanvasParliament from './GptCanvasParliament.svelte';
+	import { cachedPartyColors } from '$lib/caching/party_color';
 
 	export let width = 830;
 	export let height = 900;
@@ -38,6 +39,7 @@
 	if (voteResult) date = voteResult.legislative_initiative.created_at;
 
 	export let circles2d: Bubble[][];
+	export let localPartyColors: Map<string, string> = partyColors;
 	circles2d = setupParliament(seats, width, height, 7.9, useOffset);
 
 	function select(bubble: Bubble, event: MouseEvent | KeyboardEvent | null) {
@@ -53,7 +55,7 @@
 		delegate = bubble.del;
 	}
 
-	$: partyInfavorMap = createPartyInfavorMap(voteResult);
+	$: partyInfavorMap = createPartyInfavorMap(voteResult, localPartyColors);
 
 	function setOpacity(bubble: Bubble) {
 		if (bubble == null || bubble.del == null) {
@@ -68,8 +70,6 @@
 
 		bubble.opacity = 1;
 	}
-
-	onMount(async () => {});
 
 	const updateLayout = async () => {
 		circles2d = setupParliament(seats, width, height, 7.9, useOffset);
