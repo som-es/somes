@@ -2,14 +2,15 @@
 	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
 	import DecreeBar from './DecreeBar.svelte';
 	import type { Decree } from './types';
+	import type { Delegate } from '$lib/types';
 
 	export let decrees: Decree[];
-	export let delegateId: number;
+	export let delegate: Delegate;
 
 	$: allDecrees = {
 		type: 'component',
 		component: 'allDecrees',
-		meta: { delegateId: delegateId, decrees }
+		meta: { delegateId: delegate.id, decrees }
 	} as ModalSettings;
 
 	const modalStore = getModalStore();
@@ -34,7 +35,7 @@
 <div class="mt-1">
 	{#each previewDecrees as decree}
 		<!-- <div class="gap-3 rounded variant-filled my-1">{speech.legislative_initiatives_id} {speech.opinion}</div> -->
-		<DecreeBar {decree} page={0}></DecreeBar>
+		<DecreeBar {decree} {delegate} page={0}></DecreeBar>
 		<!-- <GovProposalExpandableBar {govProposal} /> -->
 	{/each}
 </div>

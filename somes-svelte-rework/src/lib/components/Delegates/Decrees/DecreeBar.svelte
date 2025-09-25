@@ -11,6 +11,7 @@
 	export let decree: Decree;
 	export let delegate: Delegate | null = null;
 	export let page: number;
+	export let showDelegate: boolean = false;
 	export let coloring: string = 'dark:bg-primary-300 bg-primary-400 text-black';
 	// absence.
 
@@ -47,7 +48,7 @@
 			</div>
 		</div>
 
-		{#if delegate}
+		{#if showDelegate && delegate}
 			<img
 				class="min-w-[80px] max-h-[80px] rounded-full mx-1"
 				src={`${address}/assets/${delegate.id}.jpg`}

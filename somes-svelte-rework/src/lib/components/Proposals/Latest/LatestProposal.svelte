@@ -5,4 +5,4 @@
 	export let govProposal: GovProposalDelegate;
 </script>
 
-<GovProposalExpandableBar {govProposal} />
+<GovProposalExpandableBar {govProposal} showDelegate />

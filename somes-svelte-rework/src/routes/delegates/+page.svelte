@@ -382,7 +382,7 @@
 
 		{#if generalGovOfficialInfo?.decrees && generalGovOfficialInfo.decrees.length > 0 && delegate}
 			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
-				<DecreePreview decrees={generalGovOfficialInfo.decrees} delegateId={delegate.id} />
+				<DecreePreview decrees={generalGovOfficialInfo.decrees} {delegate} />
 			</div>
 		{:else if (generalGovOfficialInfo?.decrees == null && delegate && delegate.council == 'gov') || !delegate}
 			<ExpandablePlaceholder />

@@ -99,7 +99,7 @@
 		<!-- <Pagination bind:page maxPage={govProposals.max_page} /> -->
 		{#if govProposals.gov_proposals.length > 0}
 			{#each govProposals.gov_proposals as govProposal}
-				<GovProposalExpandableBar {govProposal} class="" />
+				<GovProposalExpandableBar {govProposal} showDelegate class="" />
 			{/each}
 		{:else if currentlyUpdating}
 			{#each { length: 9 } as _}
