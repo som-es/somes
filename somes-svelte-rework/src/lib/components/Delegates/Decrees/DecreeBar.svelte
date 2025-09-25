@@ -11,7 +11,7 @@
 	export let decree: Decree;
 	export let delegate: Delegate | null = null;
 	export let page: number;
-	export let coloring: string = 'dark:bg-primary-300 bg-primary-400';
+	export let coloring: string = 'dark:bg-primary-300 bg-primary-400 text-black';
 	// absence.
 
 	let open: boolean = false;
@@ -32,16 +32,18 @@
 		on:keypress={onShowDetails}
 		role="button"
 		tabindex="0"
-		class="entry {coloring} text-black flex justify-between items-center"
+		class="entry {coloring} flex justify-between items-center"
 	>
 		<div class="flex flex-col gap-1">
-			<span class="dark:text-white">
-				{decree.short_title}
-			</span>
+			<!-- <span class="dark:text-white"> -->
+			{decree.short_title}
+			<!-- </span> -->
 			<div class="flex flex-wrap gap-1">
-				<span class="badge bg-tertiary-400 text-wrap">{decree.ministrial_issuer}</span>
-				<span class="badge bg-tertiary-400">{dashDateToDotDate(decree.publication_date)}</span>
-				<span class="badge bg-tertiary-400">{decree.gp}</span>
+				<span class="badge bg-tertiary-400 text-wrap text-black">{decree.ministrial_issuer}</span>
+				<span class="badge bg-tertiary-400 text-black"
+					>{dashDateToDotDate(decree.publication_date)}</span
+				>
+				<span class="badge bg-tertiary-400 text-black">{decree.gp}</span>
 			</div>
 		</div>
 

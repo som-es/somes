@@ -97,7 +97,7 @@
 					{decree}
 					{page}
 					delegate={govOfficials.get(decree.gov_official_id)}
-					coloring="bg-primary-300 dark:bg-primary-500"
+					coloring="bg-primary-300 dark:bg-primary-500 dark:text-white"
 				/>
 			{/each}
 		{:else if currentlyUpdating}

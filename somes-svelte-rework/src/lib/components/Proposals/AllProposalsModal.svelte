@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { getModalStore, type PopupSettings } from '@skeletonlabs/skeleton';
-	import GovProposalExpandableBar from './ExpandableAtDelegate/GovProposalExpandableBar.svelte';
 	import AllProposalsFiltering from './AllProposalsFiltering.svelte';
 	import type { GovProposal } from '$lib/types';
+	import GovProposalExpandableBar from './Latest/GovProposalExpandableBar.svelte';
 
 	const modalStore = getModalStore();
 	export let parent;
@@ -28,7 +28,10 @@
 			allGovProposals={$modalStore[0].meta.govProposals}
 		/>
 		{#each filteredGovProposals as govProposal}
-			<GovProposalExpandableBar {govProposal} />
+			<GovProposalExpandableBar
+				govProposal={{ gov_proposal: govProposal, delegate: $modalStore[0].meta.delegate }}
+				coloring={'dark:bg-primary-300 bg-primary-400 text-black'}
+			/>
 		{/each}
 	{/if}
 </div>

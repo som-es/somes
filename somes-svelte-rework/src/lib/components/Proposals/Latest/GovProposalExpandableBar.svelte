@@ -16,6 +16,8 @@
 	import { dashDateToDotDate } from '$lib/date';
 
 	export let govProposal: GovProposalDelegate;
+	export let showDelegate: boolean = false;
+	export let coloring: string = 'bg-primary-300 dark:bg-primary-500 text-black dark:text-white';
 	// export let dels: Delegate[];
 	let clazz = '';
 	export { clazz as class };
@@ -35,7 +37,7 @@
 		on:keypress={() => (open = !open)}
 		role="button"
 		tabindex="0"
-		class="entry bg-primary-300 dark:bg-primary-500 flex justify-between items-center text-black dark:text-white"
+		class="entry flex justify-between items-center {coloring}"
 	>
 		<!-- <div>
 			<div id={open ? 'open' : 'closed'}>
@@ -71,20 +73,22 @@
 		{:else}
 			<div></div>
 		{/if}
-		<div>
-			<img
-				class="min-w-[80px] max-h-[80px] rounded-full mx-1"
-				src={`${address}/assets/${govProposal.delegate.id}.jpg`}
-				alt="Image of delegate {govProposal.delegate.name}"
-			/>
-		</div>
+		{#if showDelegate}
+			<div>
+				<img
+					class="min-w-[80px] max-h-[80px] rounded-full mx-1"
+					src={`${address}/assets/${govProposal.delegate.id}.jpg`}
+					alt="Image of delegate {govProposal.delegate.name}"
+				/>
+			</div>
+		{/if}
 	</div>
 
 	<div use:collapse={{ open, duration }}>
 		<GovProposalExpanded
 			govProposal={govProposal.gov_proposal}
 			delegate={govProposal.delegate}
-			showDelegate
+			{showDelegate}
 			bind:open
 		/>
 	</div>

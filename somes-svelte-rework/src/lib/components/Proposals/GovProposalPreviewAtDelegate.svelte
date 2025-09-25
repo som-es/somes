@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Delegate, GovProposal } from '$lib/types';
 	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
-	import GovProposalExpandableBar from './ExpandableAtDelegate/GovProposalExpandableBar.svelte';
+	import GovProposalExpandableBar from './Latest/GovProposalExpandableBar.svelte';
 
 	export let govProposals: GovProposal[];
 	export let delegate: Delegate;
@@ -9,7 +9,7 @@
 	$: allProposals = {
 		type: 'component',
 		component: 'allGovProposals',
-		meta: { govProposals: govProposals }
+		meta: { govProposals: govProposals, delegate }
 	} as ModalSettings;
 
 	const modalStore = getModalStore();
@@ -32,5 +32,8 @@
 	>
 </div>
 {#each previewGovProposals as govProposal}
-	<GovProposalExpandableBar {govProposal} {delegate} />
+	<GovProposalExpandableBar
+		govProposal={{ gov_proposal: govProposal, delegate }}
+		coloring={'dark:bg-primary-300 bg-primary-400 text-black'}
+	/>
 {/each}
