@@ -112,7 +112,7 @@
 
 	const selectRandomlyFromDels = () => {
 		delegate = delegates[Math.floor(Math.random() * delegates.length)];
-		
+
 		const maybeStoredDelegate = get(currentDelegateStore);
 		if (maybeStoredDelegate) {
 			const foundDel = delegates.find((del) => del.id == maybeStoredDelegate.id);
@@ -142,7 +142,7 @@
 		enrichDelegates(delegates);
 
 		selectRandomlyFromDels();
-		updateAutocompletion();	
+		updateAutocompletion();
 	};
 
 	onMount(runVoteResultUpdate);
@@ -153,7 +153,7 @@
 	// 	tempInr = ((+tempInr) + 1).toString();
 	// 	console.log(tempInr);
 	// 	voteResult = errorToNull(await vote_result_by_path(gp, ityp, tempInr));
-	// }, 5000)	
+	// }, 5000)
 
 	let currentlyUpdating = false;
 
@@ -202,11 +202,16 @@
 	// 	emphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
 	$: speeches = circles2d.flat(1).filter((circle) => circle.speech !== null);
 	$: parliamentUrl = `https://parlament.gv.at/gegenstand/${gp}/${ityp}/${inr}?utm_source=somes.at`;
-	$: documents = voteResult?.documents.map(doc => {
-		const url = `https://www.parlament.gv.at${doc.document_url}`;
-		doc.document_url = url;
-		return doc;
-	}) ?? [];
+	$: documents =
+		voteResult?.documents.map((doc) => {
+			const url = `https://www.parlament.gv.at${doc.document_url}`;
+			doc.document_url = url;
+			return doc;
+		}) ?? [];
+
+	$: votedByName = voteResult?.legislative_initiative.voted_by_name ?? false;
+	$: couldExtractNamedVotes =
+		(voteResult?.named_votes?.named_votes?.length ?? 0) > 0 && votedByName;
 </script>
 
 <title>
@@ -243,8 +248,12 @@
 							<VoteTypeBadge {voteResult} />
 						</div>
 						<div class="flex flex-wrap items-center gap-1">
-							<a href="{parliamentUrl}" target="_blank">
-								<img class="w-12" alt="parlament.gv.at favicon" src="https://www.parlament.gv.at/static/img/favicon/favicon.svg" />
+							<a href={parliamentUrl} target="_blank">
+								<img
+									class="w-12"
+									alt="parlament.gv.at favicon"
+									src="https://www.parlament.gv.at/static/img/favicon/favicon.svg"
+								/>
 							</a>
 
 							{#if legisInitFavos}
@@ -316,7 +325,11 @@
 					<div
 						class="simple-yes-no-item bg-primary-300 p-3 dark:bg-primary-500 rounded-xl flex flex-wrap justify-between"
 					>
-						<SimpleYesNo votes={voteResult.votes.slice()} />
+						{#if votedByName && !couldExtractNamedVotes}
+							Namentliche Abstimmungsergebnisse konnten nicht extrahiert werden.
+						{:else}
+							<SimpleYesNo votes={voteResult.votes.slice()} />
+						{/if}
 					</div>
 
 					<!-- {#if voteResult.legislative_initiative.gp == 'XXVII'} -->
@@ -381,7 +394,7 @@
 						</div>
 					{/if}
 
-					{#if voteResult.eurovoc_topics.length > 0 }
+					{#if voteResult.eurovoc_topics.length > 0}
 						<div
 							class="topics-item flex rounded-xl justify-center items-center bg-primary-300 dark:bg-primary-500 p-3 max-h-[169px]"
 						>
