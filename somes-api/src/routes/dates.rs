@@ -4,7 +4,7 @@ use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::Date;
 
-use crate::{today, GenericErrorResponse, PgPoolConnection};
+use crate::{today_and_time, GenericErrorResponse, PgPoolConnection};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PlenarDate {
@@ -14,9 +14,9 @@ pub struct PlenarDate {
 pub async fn next_plenar_date(
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<PlenarDate>, GenericErrorResponse> {
-    let now = today();
+    let now = today_and_time();
     sqlx::query!(
-        "select date, time from dates where date >= $1 and appointment_type = 'Plenarsitzung' and committee = 'Nationalrat' order by date asc limit 1",
+        "select date, time from dates where start >= $1 and appointment_type = 'Plenarsitzung' and committee = 'Nationalrat' order by date asc limit 1",
         now
     )
     .fetch_one(&pg)
