@@ -14,6 +14,8 @@ pub async fn create_ministerial_decrees_with_docs_view(pool: &PgPool) -> sqlx::R
             d.part,
             d.emphasis,
             d.gp,
+            d.eli,
+            d.document_url,
             COUNT(*) OVER() AS entry_count,
             COALESCE(
                 json_agg(

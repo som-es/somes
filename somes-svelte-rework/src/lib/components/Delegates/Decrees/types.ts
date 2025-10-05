@@ -1,8 +1,8 @@
-import type { Delegate, Document } from "$lib/types";
+import type { Delegate, Document } from '$lib/types';
 
 export interface DecreeDelegate {
-    delegate: Delegate | null;
-    decree: Decree | null;
+	delegate: Delegate | null;
+	decree: Decree | null;
 }
 
 export interface Decree {
@@ -15,9 +15,9 @@ export interface Decree {
 	part: string;
 	gp: string | null;
 	documents: Document[];
-    eli: string | null;
-    emphasis: string | null;
-    document_url: string | null;
+	eli: string | null;
+	emphasis: string | null;
+	document_url: string | null;
 }
 
 export interface DecreesWithMaxPage {

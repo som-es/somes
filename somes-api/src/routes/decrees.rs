@@ -84,6 +84,8 @@ async fn decree_by_ris_id_sqlx(
         part: x.part.unwrap(),
         emphasis: x.emphasis,
         gp: x.gp,
+        eli: x.eli.unwrap(),
+        document_url: x.document_url.unwrap(),
         documents: x
             .documents
             .map(|doc| {
@@ -115,6 +117,8 @@ pub async fn get_all_decrees_sqlx(pg: &sqlx::Pool<sqlx::Postgres>) -> sqlx::Resu
         publication_date: x.publication_date.unwrap(),
         part: x.part.unwrap(),
         emphasis: x.emphasis,
+        eli: x.eli.unwrap(),
+        document_url: x.document_url.unwrap(),
         gp: x.gp,
         documents: x
             .documents
@@ -139,7 +143,8 @@ async fn get_decrees_per_page_sqlx(
     let mut entry_count = 0;
     let decrees = sqlx::query!(
         r#"
-        select * from ministrial_decrees_with_docs as d
+        select *, COUNT(*) OVER() AS entry_count
+        from ministrial_decrees_with_docs as d
         WHERE
             ($1::TEXT IS NULL OR d.gp = $1)
             AND ($2::INT[] IS NULL OR d.gov_official_id = ANY($2))
@@ -174,6 +179,8 @@ async fn get_decrees_per_page_sqlx(
             part: x.part.unwrap(),
             emphasis: x.emphasis,
             gp: x.gp,
+            eli: x.eli.unwrap(),
+            document_url: x.document_url.unwrap(),
             documents: x
                 .documents
                 .map(|doc| {

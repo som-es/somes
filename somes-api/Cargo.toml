@@ -58,6 +58,11 @@ fake = "4"
 # axum-server = { version = "0.7.1", features = ["tls-rustls", "tls-rustls-no-provider"] }
 axum-server = { version = "0.7", features = ["tls-rustls-no-provider"] }
 
+[build-dependencies]
+tokio = { version = "1.0", features = ["full"] }
+sqlx = { version = "0.8", features = [ "runtime-tokio", "tls-rustls", "postgres", "chrono" ] }
+dotenvy_macro = "0.15"
+
 [dependencies.rustls]
 version = "0.23"
 features = ["logging", "std", "ring", "tls12"]

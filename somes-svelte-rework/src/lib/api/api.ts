@@ -23,9 +23,7 @@ import type {
 	GeneralDelegateInfo,
 	GovPropFilter,
 	GovProposalsWithMaxPage,
-	GeneralGovOfficialInfo,
-	DecreeFilter,
-	DecreesWithMaxPage
+	GeneralGovOfficialInfo
 } from '../types';
 import { jwtStore } from '../caching/stores/stores';
 
@@ -71,7 +69,6 @@ export async function fetchSavely<T>(fn: () => Promise<Response>): Promise<T | H
 		// }
 		return json;
 	} catch (error) {
-		;
 		console.log(`error: ${error}`);
 		return { error: 'Error fetching data' };
 	}
@@ -152,7 +149,11 @@ export async function vote_result_by_id(vote_result_id: string): Promise<VoteRes
 	return getWithRoute<VoteResult>(`vote_result_by_id?id=${vote_result_id}`);
 }
 
-export async function vote_result_by_path(gp: string, ityp: string, inr: string): Promise<VoteResult | HasError> {
+export async function vote_result_by_path(
+	gp: string,
+	ityp: string,
+	inr: string
+): Promise<VoteResult | HasError> {
 	return getWithRoute<VoteResult>(`vote_result/${gp}/${ityp}/${inr}`);
 }
 

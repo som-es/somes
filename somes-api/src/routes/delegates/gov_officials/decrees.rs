@@ -7,16 +7,18 @@ pub async fn extract_decrees_from_gov_official(
 ) -> sqlx::Result<Vec<Decree>> {
     Ok(sqlx::query!(
         r#"
-        SELECT 
-            d.gov_official_id, 
-            d.ris_id, 
-            d.ministrial_issuer, 
-            d.title, 
-            d.short_title, 
-            d.publication_date, 
+        SELECT
+            d.gov_official_id,
+            d.ris_id,
+            d.ministrial_issuer,
+            d.title,
+            d.short_title,
+            d.publication_date,
             d.part,
             d.emphasis,
             d.gp,
+            d.eli,
+            d.document_url,
             COALESCE(
                 json_agg(
                     json_build_object(
@@ -27,16 +29,16 @@ pub async fn extract_decrees_from_gov_official(
                 ),
                 '[]'
             ) as documents
-        FROM 
+        FROM
             ministrial_decrees d
-        LEFT JOIN 
+        LEFT JOIN
             ministrial_decrees_documents doc ON d.id = doc.ministrial_decree_id
-        WHERE 
+        WHERE
             d.gov_official_id = $1
-        GROUP BY 
-            d.gov_official_id, d.ris_id, d.ministrial_issuer, 
-            d.title, d.short_title, d.publication_date, d.part, 
-            d.emphasis, d.gp
+        GROUP BY
+            d.gov_official_id, d.ris_id, d.ministrial_issuer,
+            d.title, d.short_title, d.publication_date, d.part,
+            d.emphasis, d.gp, d.eli, d.document_url
         "#,
         delegate_id
     )
@@ -53,6 +55,8 @@ pub async fn extract_decrees_from_gov_official(
         part: x.part,
         emphasis: x.emphasis,
         gp: x.gp,
+        document_url: x.document_url.unwrap(),
+        eli: x.eli.unwrap(),
         documents: x
             .documents
             .into_iter()
