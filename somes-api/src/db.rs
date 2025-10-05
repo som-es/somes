@@ -75,7 +75,7 @@ pub async fn set_json_cache_with_relevance<T: Serialize>(
 ) -> Option<()> {
     let dur = today() - date;
     let seconds = ((dur.num_days() as f32).powf(1.2) as i64 * 30)
-        .min(60 * 60 * 24 * 30 * 5)
+        .min(60 * 60 * 24 * 2)
         .max(500);
     log::trace!(
         "seconds cached: {seconds}, (days: {})",
