@@ -11,8 +11,6 @@ use crate::{
     RedisConnection, DECREES_PER_PAGE,
 };
 
-pub mod view;
-
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct DecreesWithMaxPage {
     pub decrees: Vec<Decree>,

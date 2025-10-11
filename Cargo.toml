@@ -4,4 +4,7 @@ members = [
     "somes-common-lib",
     "deploy-rs",
     "somes-utils/websockets-test"
-]
+, "views"]
+
+[workspace.dependencies]
+sqlx = { version = "0.8", features = [ "runtime-tokio", "tls-rustls", "postgres", "chrono" ] }

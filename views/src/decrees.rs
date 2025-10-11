@@ -1,9 +1,13 @@
 use sqlx::PgPool;
 
 pub async fn create_ministerial_decrees_with_docs_view(pool: &PgPool) -> sqlx::Result<()> {
+    let mut tx = pool.begin().await?;
+    sqlx::query!("DROP VIEW IF EXISTS ministrial_decrees_with_docs;")
+        .execute(&mut *tx)
+        .await?;
     sqlx::query!(
         r#"
-        CREATE OR REPLACE VIEW ministrial_decrees_with_docs AS
+        CREATE VIEW ministrial_decrees_with_docs AS
         SELECT
             d.gov_official_id,
             d.ris_id,
@@ -16,7 +20,6 @@ pub async fn create_ministerial_decrees_with_docs_view(pool: &PgPool) -> sqlx::R
             d.gp,
             d.eli,
             d.document_url,
-            COUNT(*) OVER() AS entry_count,
             COALESCE(
                 json_agg(
                     json_build_object(
@@ -27,17 +30,16 @@ pub async fn create_ministerial_decrees_with_docs_view(pool: &PgPool) -> sqlx::R
                 ) FILTER (WHERE doc.id IS NOT NULL),
                 '[]'
             ) as documents
-        FROM
-            ministrial_decrees d
-        LEFT JOIN
-            ministrial_decrees_documents doc ON d.id = doc.ministrial_decree_id
+        FROM ministrial_decrees d
+        LEFT JOIN ministrial_decrees_documents doc
+            ON d.id = doc.ministrial_decree_id
         GROUP BY
             d.gov_official_id, d.ris_id, d.ministrial_issuer,
             d.title, d.short_title, d.publication_date, d.part,
-            d.emphasis, d.gp;
-        "#,
+            d.emphasis, d.gp, d.eli, d.document_url;
+        "#
     )
-    .execute(pool)
-    .await
-    .map(|_x| ())
+    .execute(&mut *tx)
+    .await?;
+    tx.commit().await
 }
