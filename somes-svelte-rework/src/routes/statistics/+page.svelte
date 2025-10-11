@@ -2,7 +2,7 @@
 	import Container from '$lib/components/Layout/Container.svelte';
 	import TestChart from '$lib/components/Statistics/TestChart.svelte';
 	import { onMount } from 'svelte';
-	import { justPost } from '$lib/api/api';
+	import { justPostStatistics } from '$lib/api/api';
 	import { getModalStore, popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import DelegateQaEntry from '$lib/components/Delegates/QA/DelegateQAEntry.svelte';
 	// import { Chart } from "frappe-charts"; C:\Schule4neu\DIPLO\somes\somes-svelte-rework\src\lib\api.ts
@@ -19,7 +19,7 @@
 
 	// Funktion, um Daten von der API zu laden
 	async function fetchSpeechTimeData() {
-		const response = await justPost<DelegateSpeechTime[]>('speechtime_per_delegate', {
+		const response = await justPostStatistics<DelegateSpeechTime[]>('speechtime_per_delegate', {
 			legis_period: 'XXVII',
 			party: null,
 			gender: null,

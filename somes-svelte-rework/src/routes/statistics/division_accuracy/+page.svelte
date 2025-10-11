@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { errorToNull, justPost } from '$lib/api/api';
+	import { errorToNull, justPostStatistics } from '$lib/api/api';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import DelegateBarChartControl from '$lib/components/Statistics/DelegateBarChartControl.svelte';
 	import type { DelegateData } from '$lib/types';
@@ -61,13 +61,16 @@
 	): Promise<DelegateData[]> => {
 		const response =
 			errorToNull(
-				await justPost<DelegateDivisionAccuracy[]>('divison_accuracy_score_per_delegate', {
-					legis_period: gp,
-					party: null,
-					gender,
-					is_desc: isDesc,
-					normalized: normalized
-				})
+				await justPostStatistics<DelegateDivisionAccuracy[]>(
+					'divison_accuracy_score_per_delegate',
+					{
+						legis_period: gp,
+						party: null,
+						gender,
+						is_desc: isDesc,
+						normalized: normalized
+					}
+				)
 			) ?? [];
 
 		tableHeightDelegate = setTableHeight(response.length);
@@ -89,7 +92,7 @@
 	): Promise<DelegateData[]> => {
 		const response =
 			errorToNull(
-				await justPost<DelegateDivisionAccuracy[]>('division_accuracy_score_per_party', {
+				await justPostStatistics<DelegateDivisionAccuracy[]>('division_accuracy_score_per_party', {
 					legis_period: gp,
 					party: null,
 					gender,
@@ -117,7 +120,7 @@
 	): Promise<DelegateData[]> => {
 		const response =
 			errorToNull(
-				await justPost<DelegateDivisionAccuracy[]>('division_accuracy_score_per_gender', {
+				await justPostStatistics<DelegateDivisionAccuracy[]>('division_accuracy_score_per_gender', {
 					legis_period: gp,
 					party: null,
 					gender,
@@ -145,7 +148,7 @@
 	): Promise<DelegateData[]> => {
 		const response =
 			errorToNull(
-				await justPost<DelegateDivisionAccuracy[]>('division_accuracy_score_per_age', {
+				await justPostStatistics<DelegateDivisionAccuracy[]>('division_accuracy_score_per_age', {
 					legis_period: gp,
 					party: null,
 					gender,
@@ -173,7 +176,7 @@
 	): Promise<DelegateData[]> => {
 		const response =
 			errorToNull(
-				await justPost<DelegateDivisionAccuracy[]>('division_accuracy_score_per_legis', {
+				await justPostStatistics<DelegateDivisionAccuracy[]>('division_accuracy_score_per_legis', {
 					legis_period: gp,
 					party: null,
 					gender,
