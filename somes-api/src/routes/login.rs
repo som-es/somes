@@ -1,10 +1,13 @@
 use axum::Json;
+use once_cell::sync::Lazy;
 use rand::Rng;
 use redis::AsyncCommands;
+use regex::Regex;
 use serde_json::json;
 use sha2::{Digest, Sha256};
 use somes_common_lib::{set_error_true, JWTInfo, LoginInfo};
 use sqlx::{query, query_as, PgPool};
+mod error;
 
 use crate::{
     email::send_otp_mail,
@@ -60,7 +63,10 @@ fn sha256(input: &str) -> String {
     format!("{:#x}", hasher.finalize())
 }
 
-use super::{action::EMAIL_REGEX, SignUpErrorResponse, SignUpErrorWrapper};
+pub static EMAIL_REGEX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"[^@]+@[^@]+\.[^@]+").expect("Invalid email regex"));
+
+use error::{LoginErrorResponse, SignUpErrorWrapper};
 
 #[utoipa::path(
     post,
@@ -79,7 +85,7 @@ pub async fn login(
     RedisConnection(mut redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Json(login_info): Json<LoginInfo>,
-) -> Result<Json<JWTInfo>, SignUpErrorResponse> {
+) -> Result<Json<JWTInfo>, LoginErrorResponse> {
     let mut sign_up_error = SignUpErrorWrapper::default();
 
     if login_info.email.is_empty() {
@@ -91,7 +97,7 @@ pub async fn login(
     }
 
     if sign_up_error.is_erroneous {
-        return Err(SignUpErrorResponse::SignUpError(sign_up_error));
+        return Err(LoginErrorResponse::SignUpError(sign_up_error));
     }
 
     let stored_email = if login_info.hash_email.unwrap_or_default() {
@@ -109,32 +115,32 @@ pub async fn login(
         match redis_con.get::<_, String>(&stored_email).await {
             Ok(v) => {
                 let Some(password) = login_info.password else {
-                    return Err(SignUpErrorResponse::WrongOtp);
+                    return Err(LoginErrorResponse::WrongOtp);
                 };
                 let input_otp = password.trim_matches(char::is_whitespace).replace(" ", "");
                 if input_otp.is_empty() {
                     return Ok(Json(JWTInfo::default()));
                 }
-                if verify_password(&input_otp, &v).map_err(|_| SignUpErrorResponse::Hashing)? {
+                if verify_password(&input_otp, &v).map_err(|_| LoginErrorResponse::Hashing)? {
                     redis_con
                         .unlink::<_, i32>(&login_info.email)
                         .await
-                        .map_err(|_| SignUpErrorResponse::RedisGetKeys)?;
+                        .map_err(|_| LoginErrorResponse::RedisGetKeys)?;
 
                     // select based on email (try with hash and without)
                     let Some(user) = get_user_from_mail(&pg, &stored_email).await else {
-                        return Err(SignUpErrorResponse::PostgresConnection);
+                        return Err(LoginErrorResponse::PostgresConnection);
                     };
 
                     match user {
                         Some(user) => {
                             return create_access_token(user.id, user.email, user.is_admin)
-                                .map_err(|e| SignUpErrorResponse::AuthError(e));
+                                .map_err(|e| LoginErrorResponse::AuthError(e));
                         }
                         None => {
                             let stored_email = if login_info.hash_email.unwrap_or_default() {
                                 hash_password(&login_info.email)
-                                    .map_err(|_| SignUpErrorResponse::Hashing)
+                                    .map_err(|_| LoginErrorResponse::Hashing)
                                     .unwrap()
                             } else {
                                 login_info.email.clone()
@@ -153,29 +159,29 @@ pub async fn login(
                             )
                             .fetch_one(&pg)
                             .await
-                            .map_err(|_| SignUpErrorResponse::PostgresConnection)?;
+                            .map_err(|_| LoginErrorResponse::PostgresConnection)?;
 
                             return create_access_token(id.id, stored_email, false)
-                                .map_err(|e| SignUpErrorResponse::AuthError(e));
+                                .map_err(|e| LoginErrorResponse::AuthError(e));
                         }
                     }
                 } else {
-                    return Err(SignUpErrorResponse::WrongOtp);
+                    return Err(LoginErrorResponse::WrongOtp);
                 }
             }
             Err(e) => {
                 log::error!("Failed getting email key! Error: {e}");
-                return Err(SignUpErrorResponse::RedisGetKeys);
+                return Err(LoginErrorResponse::RedisGetKeys);
             }
         }
     } else {
         let otp = generate_otp();
 
-        let otp_hash = hash_password(&otp).map_err(|_| SignUpErrorResponse::Hashing)?;
+        let otp_hash = hash_password(&otp).map_err(|_| LoginErrorResponse::Hashing)?;
 
         if let Err(e) = redis_con.set::<_, _, ()>(&stored_email, &otp_hash).await {
             log::error!("Failed setting email key to otp! Error: {e}");
-            return Err(SignUpErrorResponse::RedisGetKeys);
+            return Err(LoginErrorResponse::RedisGetKeys);
         }
 
         if let Err(e) = redis_con
@@ -187,8 +193,8 @@ pub async fn login(
             redis_con
                 .unlink::<_, i32>(&stored_email)
                 .await
-                .map_err(|_| SignUpErrorResponse::UserCreationError)?;
-            return Err(SignUpErrorResponse::UserCreationError);
+                .map_err(|_| LoginErrorResponse::UserCreationError)?;
+            return Err(LoginErrorResponse::UserCreationError);
         }
 
         tokio::task::spawn_blocking(move || {

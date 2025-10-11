@@ -12,7 +12,7 @@ use utoipa::ToSchema;
 use crate::AuthError;
 
 #[derive(Debug, ToSchema)]
-pub enum SignUpErrorResponse {
+pub enum LoginErrorResponse {
     PostgresConnection,
     RedisGetKeys,
     VerificationEmailSendingError,
@@ -23,40 +23,40 @@ pub enum SignUpErrorResponse {
     SignUpError(SignUpErrorWrapper),
 }
 
-impl IntoResponse for SignUpErrorResponse {
+impl IntoResponse for LoginErrorResponse {
     fn into_response(self) -> Response {
         match self {
-            SignUpErrorResponse::PostgresConnection => (
+            LoginErrorResponse::PostgresConnection => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(json!({"error": "An internal server error occurred. Postgres connection failed!"})),
             ).into_response(),
-            SignUpErrorResponse::RedisGetKeys => (
+            LoginErrorResponse::RedisGetKeys => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(json!({"error": "An internal server error occurred. Redis active user matching failed!"})),
             ).into_response(),
-            SignUpErrorResponse::VerificationEmailSendingError => (
+            LoginErrorResponse::VerificationEmailSendingError => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(json!({"error": "An internal server error occurred. Sending verification email was unseccessful!"})),
             )
                 .into_response(),
-            SignUpErrorResponse::UserCreationError => (
+            LoginErrorResponse::UserCreationError => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(json!({"error": "An internal server error occurred. Creating user was unsuccessful!"})),
             )
                 .into_response(),
-            SignUpErrorResponse::Hashing => (
+            LoginErrorResponse::Hashing => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(json!({"error": "Hashing error"})),
             )
                 .into_response(),
-            SignUpErrorResponse::SignUpError(signup_error) => {
+            LoginErrorResponse::SignUpError(signup_error) => {
                 (StatusCode::BAD_REQUEST, Json(signup_error.deref())).into_response()
             }
-            SignUpErrorResponse::WrongOtp => (
+            LoginErrorResponse::WrongOtp => (
                 StatusCode::BAD_REQUEST,
                 Json(json!({"error": "Wrong OTP"})),
             ).into_response(),
-            SignUpErrorResponse::AuthError(ae) => ae.into_response(),
+            LoginErrorResponse::AuthError(ae) => ae.into_response(),
         }
     }
 }

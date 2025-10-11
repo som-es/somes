@@ -7,12 +7,10 @@ pub mod dataservice;
 mod db;
 pub mod email;
 pub mod hash;
-mod initial_startup;
 pub mod jwt;
 pub mod routes;
 pub mod server;
 pub use db::*;
-pub use initial_startup::*;
 pub use jwt::AuthError;
 mod http_redirect;
 pub mod meilisearch;
@@ -44,9 +42,6 @@ pub const PRIVATE_KEY_PATH: &str = dotenv!("PRIVATE_KEY_PATH");
 pub const PUBLIC_KEY_PATH: &str = dotenv!("PUBLIC_KEY_PATH");
 pub const HTTP_PORT: &str = dotenv!("HTTP_PORT");
 pub const HTTPS_PORT: &str = dotenv!("HTTPS_PORT");
-
-// pub type PostgresPool = bb8::Pool<AsyncDieselConnectionManager<AsyncPgConnection>>;
-pub type PostgresPool = deadpool_diesel::postgres::Pool;
 
 static EMAIL_EXPIRATION_SECONDS: Lazy<usize> = Lazy::new(|| {
     dotenv!("EMAIL_EXPIRATION_SECONDS")

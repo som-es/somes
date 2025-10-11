@@ -16,10 +16,8 @@ use dataservice::{
 use log::{error, info};
 use reqwest::StatusCode;
 use somes_common_lib::{
-    CALL_TO_ORDERS_PER_PARTY_DELEGATES, DECREES_PER_PAGE, DELEGATES_BY_CALL_TO_ORDERS,
-    DELEGATES_BY_CALL_TO_ORDERS_AND_LEGIS_PERIOD, DELEGATES_ROUTE, LATEST_VOTE_RESULTS_ROUTE,
-    LOGIN_ROUTE, PARTIES, PROPOSALS_ROUTE, SIGNUP_ROUTE, SPEAKERS_BY_HOURS,
-    SPEAKERS_BY_HOURS_AND_LEGIS_PERIOD, USER, VERIFY_ROUTE,
+    DECREES_PER_PAGE, DELEGATES_BY_CALL_TO_ORDERS, DELEGATES_ROUTE, LATEST_VOTE_RESULTS_ROUTE,
+    LOGIN_ROUTE, PROPOSALS_ROUTE,
 };
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tokio::{net::TcpListener, time::sleep};
@@ -29,13 +27,8 @@ use views::create_views;
 //use headers::HeaderValue;
 use crate::{
     meilisearch::update_meilisearch_indices,
-    model::{CallToOrdersPerPartyDelegates, DelegateByCallToOrders, SpeakerByHours},
     redirect_http_to_https,
-    routes::{
-        call_to_orders_per_party_delegates, delegates,
-        delegates_by_call_to_orders_and_legis_period, latest_vote_results, parties, proposals,
-        save_email, speakers_by_hours, speakers_by_hours_and_legis_period, user,
-    },
+    routes::{delegates, latest_vote_results, proposals, save_email},
     Ports, DATASERVICE_URL, HTTPS_PORT, HTTP_PORT, MEILISEARCH_SECRET, MEILISEARCH_URL,
     PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, REDIS_DB, STATIC_FRONTEND_PATH,
 };
@@ -45,18 +38,14 @@ use tower_http::{
 };
 
 use crate::jwt::*;
+use crate::routes::login;
 use crate::routes::*;
-use crate::routes::{login, signup, verify};
 use somes_common_lib::errors::*;
 use somes_common_lib::*;
 
 #[derive(Clone)]
 pub struct AppState {
-    // this holds some api specific state
-    //verification_map: VerificationMap,
     pub redis_client: redis::Client,
-    // pub somes_db_pool: deadpool_diesel::postgres::Pool,
-    pub dataservice_db_pool: deadpool_diesel::postgres::Pool,
     pub dataservice_sqlx_pool: PgPool,
     pub meilisearch_client: meilisearch_sdk::client::Client,
 }
@@ -67,15 +56,11 @@ unsafe impl Sync for AppState {}
 impl AppState {
     pub async fn new(
         redis_client: redis::Client,
-        // somes_db_pool: deadpool_diesel::postgres::Pool,
-        dataservice_db_pool: deadpool_diesel::postgres::Pool,
         dataservice_sqlx_pool: PgPool,
         meilisearch_client: meilisearch_sdk::client::Client,
     ) -> AppState {
         AppState {
             redis_client,
-            // somes_db_pool,
-            dataservice_db_pool,
             dataservice_sqlx_pool,
             meilisearch_client,
         }
@@ -117,33 +102,24 @@ pub async fn serve(addr: SocketAddr) {
     #[derive(OpenApi)]
     #[openapi(
         paths(
-            signup,
-            verify,
             login,
             delegates,
             proposals,
             latest_vote_results,
-            speakers_by_hours,
-            delegates_by_call_to_orders,
-            speakers_by_hours_and_legis_period,
-            call_to_orders_per_party_delegates,
-            delegates_by_call_to_orders_and_legis_period,
-            user,
             parties,
             delegate
         ),
         components(
             schemas(
-                SignUpInfo, SignUpErrorResponse,
-                SignUpErrorWrapper, SignUpError,
-                JWTInfo, VerifyErrorResponse,
+                SignUpInfo,
+                SignUpError,
+                JWTInfo,
                 crate::AuthError, dataservice::db::models::DbDelegate,
                 DelegatesErrorResponse, dataservice::db::models::DbProposalQuery,
                 DbLegislativeInitiativeQuery, LegisInitErrorResponse,
                 DateRange, VoteResult,
-                LegisPeriod, SpeakerByHours,
-                DelegateByCallToOrders, CallToOrdersPerPartyDelegates,
-                UserInfo, UserErrorResponse,
+                LegisPeriod,
+                UserInfo,
                 DbParty, PartiesErrorResponse,
                 DelegateById, InterestShare,
                 Page
@@ -175,20 +151,10 @@ pub async fn serve(addr: SocketAddr) {
 
     log::info!("Established postgresql connection");
 
-    let somes_db_manager =
-        // mind the database url, it is "DATASERVICE_URL" and not "DATABASE_URL"
-        deadpool_diesel::postgres::Manager::new(/*DATABASE_URL*/DATASERVICE_URL, deadpool_diesel::Runtime::Tokio1);
     // let somes_db_pool = deadpool_diesel::postgres::Pool::builder(somes_db_manager)
     //     .max_size(100)
     //     .build()
     //     .unwrap();
-
-    let dataservice_db_manager =
-        deadpool_diesel::postgres::Manager::new(DATASERVICE_URL, deadpool_diesel::Runtime::Tokio1);
-
-    let dataservice_db_pool = deadpool_diesel::postgres::Pool::builder(dataservice_db_manager)
-        .build()
-        .unwrap();
 
     let meilisearch_client =
         meilisearch_sdk::client::Client::new(MEILISEARCH_URL, Some(MEILISEARCH_SECRET))
@@ -202,8 +168,6 @@ pub async fn serve(addr: SocketAddr) {
 
     let state = AppState::new(
         client.clone(),
-        // somes_db_pool,
-        dataservice_db_pool,
         dataservice_sqlx_pool.clone(),
         meilisearch_client.clone(),
     )
@@ -262,8 +226,6 @@ pub async fn serve(addr: SocketAddr) {
 
     let app = Router::new()
         // .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
-        .route(SIGNUP_ROUTE, post(signup))
-        .route(VERIFY_ROUTE, get(verify)) // or post?
         .route(
             LOGIN_ROUTE,
             post(login).layer(GovernorLayer {
@@ -281,22 +243,7 @@ pub async fn serve(addr: SocketAddr) {
             get(latest_ministrial_proposals),
         )
         // statistics
-        .route(SPEAKERS_BY_HOURS, get(speakers_by_hours))
-        .route(
-            DELEGATES_BY_CALL_TO_ORDERS_AND_LEGIS_PERIOD,
-            post(delegates_by_call_to_orders_and_legis_period),
-        )
-        .route(
-            SPEAKERS_BY_HOURS_AND_LEGIS_PERIOD,
-            post(speakers_by_hours_and_legis_period),
-        )
-        .route(PARTIES, get(parties))
         .route(PARTIES_AT_GP, get(parties_at_gp))
-        .route(
-            CALL_TO_ORDERS_PER_PARTY_DELEGATES,
-            get(call_to_orders_per_party_delegates),
-        )
-        .route(USER, get(user))
         .route(DELEGATE, get(delegate))
         .route(DELEGATE_INTERESTS, get(delegate_interests))
         .route(GENERAL_DELEGATE_INFO, get(general_delegate_info))

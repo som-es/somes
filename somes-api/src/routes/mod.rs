@@ -9,12 +9,9 @@ mod parties;
 mod proposals;
 mod questions;
 mod quiz;
-mod reset_password;
 mod save_email;
-mod signup;
 mod statistics;
 mod topics;
-mod user;
 mod verify;
 mod walo;
 
@@ -31,13 +28,10 @@ pub use login::*;
 pub use mail_send_info::*;
 pub use parties::*;
 pub use quiz::*;
-pub use reset_password::*;
 pub use save_email::*;
 use serde_json::json;
-pub use signup::*;
 pub use statistics::*;
 pub use topics::*;
-pub use user::*;
 pub use verify::*;
 pub use walo::*;
 
