@@ -32,6 +32,8 @@ import { jwtStore } from '../caching/stores/stores';
 export const address = import.meta.env.VITE_API_URL;
 
 // const address = "http://192.168.1.114:3000"
+//
+export const url = `${address}/api/`;
 
 export function isHasError<T>(value: T | HasError): value is HasError {
 	return (value as HasError).error !== undefined;
@@ -76,7 +78,7 @@ export async function fetchSavely<T>(fn: () => Promise<Response>): Promise<T | H
 
 export async function justPost<T>(route: string, body: any): Promise<T | HasError> {
 	return fetchSavely(() =>
-		fetch(`${address}/${route}`, {
+		fetch(`${url}${route}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -85,10 +87,13 @@ export async function justPost<T>(route: string, body: any): Promise<T | HasErro
 		})
 	);
 }
+export async function justPostStatistics<T>(route: string, body: any): Promise<T | HasError> {
+	return justPost(`statistics/${route}`, body);
+}
 
 export async function getWithRoute<T>(route: string): Promise<T | HasError> {
 	return fetchSavely(() =>
-		fetch(`${address}/${route}`, {
+		fetch(`${url}${route}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'
@@ -234,30 +239,14 @@ export async function vote_results_per_page(
 	page: number,
 	filter: VoteResultFilter | null
 ): Promise<VoteResultsWithMaxPage | HasError> {
-	return fetchSavely(() =>
-		fetch(`${address}/vote_results_per_page?page=${page}`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify(filter)
-		})
-	);
+	return justPost(`vote_results_per_page?page=${page}`, filter);
 }
 
 export async function gov_proposals_per_page(
 	page: number,
 	filter: GovPropFilter | null
 ): Promise<GovProposalsWithMaxPage | HasError> {
-	return fetchSavely(() =>
-		fetch(`${address}/gov_proposals_per_page?page=${page}`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify(filter)
-		})
-	);
+	return justPost(`gov_proposals_per_page?page=${page}`, filter);
 }
 
 export async function gov_proposals_by_search(
@@ -265,15 +254,7 @@ export async function gov_proposals_by_search(
 	search: string,
 	filter: GovPropFilter | null
 ): Promise<GovProposalsWithMaxPage | HasError> {
-	return fetchSavely(() =>
-		fetch(`${address}/gov_proposals_by_search?page=${page}&search=${search}`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify(filter)
-		})
-	);
+	return justPost(`gov_proposals_by_search?page=${page}&search=${search}`, filter);
 }
 
 export async function unfinished_vote_results_by_search(
@@ -289,13 +270,5 @@ export async function vote_results_by_search(
 	search: string,
 	filter: VoteResultFilter | null
 ): Promise<VoteResultsWithMaxPage | HasError> {
-	return fetchSavely(() =>
-		fetch(`${address}/vote_result_by_search?page=${page}&search=${search}`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify(filter)
-		})
-	);
+	return justPost(`vote_result_by_search?page=${page}&search=${search}`, filter);
 }

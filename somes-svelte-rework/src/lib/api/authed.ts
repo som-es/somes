@@ -9,29 +9,9 @@ import type {
 	Quiz,
 	UniqueTopic
 } from '$lib/types';
-import { address, fetchSavely } from './api';
+import { address, fetchSavely, url } from './api';
 import { jwtStore } from '$lib/caching/stores/stores';
 import { get } from 'svelte/store';
-
-export async function login(
-	email: string,
-	password: string | null,
-	hash_email: boolean | null
-): Promise<JWTInfo | HasError | LoginResponseError> {
-	return fetchSavely(() =>
-		fetch(`${address}/login`, {
-			method: 'POST', // only post because js fetch..
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				email: email,
-				password: password,
-				hash_email: hash_email
-			})
-		})
-	);
-}
 
 export async function getWithAuth<T>(route: string): Promise<T | HasError> {
 	const accessToken = get(jwtStore);
@@ -39,7 +19,7 @@ export async function getWithAuth<T>(route: string): Promise<T | HasError> {
 		return { error: 'No access token' };
 	}
 	return fetchSavely(() =>
-		fetch(`${address}/${route}`, {
+		fetch(`${url}/${route}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
@@ -55,7 +35,7 @@ export async function putWithAuth<T>(route: string, body: any): Promise<T | HasE
 		return { error: 'No access token' };
 	}
 	return fetchSavely(() =>
-		fetch(`${address}/${route}`, {
+		fetch(`${url}${route}`, {
 			method: 'PUT',
 			headers: {
 				'Content-Type': 'application/json',
@@ -72,7 +52,7 @@ export async function postWithAuth<T>(route: string, body: any): Promise<T | Has
 		return { error: 'No access token' };
 	}
 	return fetchSavely(() =>
-		fetch(`${address}/${route}`, {
+		fetch(`${url}${route}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -98,7 +78,7 @@ export async function deleteWithAuth<T>(
 		newBody = undefined;
 	}
 	return fetchSavely(() =>
-		fetch(`${address}/${route}`, {
+		fetch(`${url}${route}`, {
 			method: 'DELETE',
 			headers: {
 				'Content-Type': 'application/json',
@@ -167,4 +147,12 @@ export async function updateMailSendInfo(mailSendInfo: MailSendInfo): Promise<nu
 
 export async function renew_token(): Promise<JWTInfo | HasError> {
 	return postWithAuth<JWTInfo>('renew_token', {});
+}
+
+export async function login(
+	email: string,
+	password: string | null,
+	hash_email: boolean | null
+): Promise<JWTInfo | HasError | LoginResponseError> {
+	return postWithAuth('login', { email, password, hash_email });
 }

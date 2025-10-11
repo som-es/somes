@@ -178,11 +178,6 @@ pub async fn serve(addr: SocketAddr) {
         .fallback(get(|| async { Html(include_str!("../build/index.html")) }));
 
     let static_files_dir_alpha_0_1 = PathBuf::from("./build-alpha-0.1");
-    let alpha_0_1_frontend_dir =
-        ServeDir::new(static_files_dir_alpha_0_1.clone()).fallback(get(|| async {
-            Html(include_str!("../build-alpha-0.1/index.html"))
-        }));
-
     let pg_pool = dataservice_sqlx_pool.clone();
 
     tokio::task::spawn(async move {
@@ -224,8 +219,7 @@ pub async fn serve(addr: SocketAddr) {
             .unwrap(),
     );
 
-    let app = Router::new()
-        // .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
+    let api_routes = Router::new()
         .route(
             LOGIN_ROUTE,
             post(login).layer(GovernorLayer {
@@ -242,7 +236,7 @@ pub async fn serve(addr: SocketAddr) {
             LATEST_MINISTRIAL_PROPOSALS,
             get(latest_ministrial_proposals),
         )
-        // statistics
+        .route(PARTIES, get(parties))
         .route(PARTIES_AT_GP, get(parties_at_gp))
         .route(DELEGATE, get(delegate))
         .route(DELEGATE_INTERESTS, get(delegate_interests))
@@ -304,102 +298,22 @@ pub async fn serve(addr: SocketAddr) {
             get(delegate_political_questions),
         )
         .route(AI_CHAT_WS, any(ai_chat_ws_handler))
-        .route(
-            DELEGATES_BY_CALL_TO_ORDERS,
-            post(call_to_order_per_delegates),
-        )
-        .route(
-            LEGISLATIVE_INITIATIVES_WITHOUT_SIMPLE_MAJORITY,
-            post(legislative_initiatives_without_simple_majority),
-        )
-        .route(COMPLEXITY_PER_DELEGATE, post(complexity_per_delegate))
-        .route(COMPLEXITY_PER_PARTY, post(complexity_per_party))
-        .route(COMPLEXITY_PER_GENDER, post(complexity_per_gender))
-        .route(COMPLEXITY_AT_AGE, post(complexity_at_age))
-        .route(AGE_OF_DELEGATES, post(age_per_delegate))
-        .route(AGE_PER_PARTY, post(age_per_party))
-        .route(SPEECHTIME_PER_PARTY, post(speechtime_per_party))
-        .route(SPEECHTIME_PER_DELEGATE, post(speechtime_per_delegate))
-        .route(SPEECHTIME_PER_AGE, post(speechtime_per_age))
-        .route(SPEECHTIME_PER_GENDER, post(speechtime_per_gender))
-        .route(
-            TOTAL_SPEECHES_PER_DELEGATE,
-            post(total_speeches_per_delegate),
-        )
-        .route(TOTAL_SPEECHES_PER_PARTY, post(total_speeches_per_party))
-        .route(TOTAL_SPEECHES_PER_GENDER, post(total_speeches_per_gender))
-        .route(TOTAL_SPEECHES_PER_AGE, post(total_speeches_per_age))
-        .route(
-            CALL_TO_ORDERS_BY_DELEGATE,
-            post(call_to_orders_per_delegate),
-        )
-        .route(CALL_TO_ORDERS_PER_PARTY, post(call_to_orders_per_party))
-        .route(CALL_TO_ORDERS_PER_GENDER, post(call_to_orders_per_gender))
-        .route(CALL_TO_ORDERS_PER_AGE, post(call_to_orders_per_age))
-        .route(
-            DIVISION_ACCURACY_SCORE_PER_DELEGATE,
-            post(divison_accuracy_score_per_delegate),
-        )
-        .route(
-            DIVISION_ACCURACY_SCORE_PER_PARTY,
-            post(division_accuracy_score_per_party),
-        )
-        .route(
-            DIVISION_ACCURACY_SCORE_PER_GENDER,
-            post(division_accuracy_score_per_gender),
-        )
-        .route(
-            DIVISION_ACCURACY_SCORE_PER_AGE,
-            post(division_accuracy_score_per_age),
-        )
-        .route(VOTES_TOGETHER, post(votes_together))
-        .route(ABSENCES_PER_DELEGATE, post(absences_per_delegate))
-        .route(ABSENCES_PER_PARTY, post(absences_per_party))
-        .route(ABSENCES_PER_GENDER, post(absences_per_gender))
-        .route(ABSENCES_PER_AGE, post(absences_per_age))
-        .route(ABSENCES_PER_LEGIS, post(absences_per_legis))
-        .route(AGE_PER_GENDER, post(age_per_gender))
-        .route(AGE_PER_LEGIS, post(age_per_legis))
-        .route(CALL_TO_ORDERS_PER_LEGIS, post(call_to_orders_per_legis))
-        .route(COMPLEXITY_PER_LEGIS, post(complexity_per_legis))
-        .route(
-            DIVISION_ACCURACY_SCORE_PER_LEGIS,
-            post(division_accuracy_score_per_legis),
-        )
-        .route(SPEECHTIME_PER_LEGIS, post(speechtime_per_legis))
-        .route(TOTAL_SPEECHES_PER_LEGIS, post(total_speeches_per_legis))
-        .route(ADD_QUIZ, post(add_quiz))
-        .route(ACTIVITY_PER_DELEGATE, post(activity_per_delegate))
-        .route(ACTIVITY_PER_PARTY, post(activity_per_party))
-        .route(ACTIVITY_PER_GENDER, post(activity_per_gender))
-        .route(ACTIVITY_PER_AGE, post(activity_per_age))
-        .route(ACTIVITY_PER_LEGIS, post(activity_per_legis))
-        .route(IS_LEFT_PER_DELEGATE, post(is_left_per_delegate))
-        .route(IS_LEFT_PER_PARTY, post(is_left_per_party))
-        .route(IS_LEFT_PER_GENDER, post(is_left_per_gender))
-        .route(IS_LEFT_PER_AGE, post(is_left_per_age))
-        .route(IS_LEFT_PER_LEGIS, post(is_left_per_legis))
-        .route(IS_LIBERAL_PER_DELEGATE, post(is_liberal_per_delegate))
-        .route(IS_LIBERAL_PER_PARTY, post(is_liberal_per_party))
-        .route(IS_LIBERAL_PER_GENDER, post(is_liberal_per_gender))
-        .route(IS_LIBERAL_PER_AGE, post(is_liberal_per_age))
-        .route(IS_LIBERAL_PER_LEGIS, post(is_liberal_per_legis))
         .route(QUIZZES, get(get_all_quizzes))
+        .route(ADD_QUIZ, post(add_quiz))
         .route(QUIZ_ROOM, any(join_quiz_room))
         .route(NEXT_PLENAR_DATE, get(next_plenar_date))
         .route(PLENAR_DATES, get(plenar_dates))
         .route("/save_email", post(save_email))
+        .nest("/statistics", create_statistics_router());
+
+    let app = Router::new()
+        .nest("/api", api_routes)
+        // .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .nest_service("/assets", ServeDir::new("assets"))
         // mind conflicts e.g delegates
         .nest_service(
             "/alpha",
             get_service(current_frontend_dir).handle_error(|_| async move {
-                (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
-            }),
-        )
-        .nest_service(
-            "/alpha-0.1",
-            get_service(alpha_0_1_frontend_dir).handle_error(|_| async move {
                 (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
             }),
         )
