@@ -238,6 +238,7 @@ pub async fn serve(addr: SocketAddr) {
         )
         .route(PARTIES, get(parties))
         .route(PARTIES_AT_GP, get(parties_at_gp))
+        .route(USER, get(user))
         .route(DELEGATE, get(delegate))
         .route(DELEGATE_INTERESTS, get(delegate_interests))
         .route(GENERAL_DELEGATE_INFO, get(general_delegate_info))

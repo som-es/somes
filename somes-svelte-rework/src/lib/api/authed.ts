@@ -9,7 +9,7 @@ import type {
 	Quiz,
 	UniqueTopic
 } from '$lib/types';
-import { address, fetchSavely, url } from './api';
+import { address, fetchSavely, justPost, url } from './api';
 import { jwtStore } from '$lib/caching/stores/stores';
 import { get } from 'svelte/store';
 
@@ -19,7 +19,7 @@ export async function getWithAuth<T>(route: string): Promise<T | HasError> {
 		return { error: 'No access token' };
 	}
 	return fetchSavely(() =>
-		fetch(`${url}/${route}`, {
+		fetch(`${url}${route}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
@@ -154,5 +154,5 @@ export async function login(
 	password: string | null,
 	hash_email: boolean | null
 ): Promise<JWTInfo | HasError | LoginResponseError> {
-	return postWithAuth('login', { email, password, hash_email });
+	return justPost('login', { email, password, hash_email });
 }
