@@ -60,6 +60,7 @@
 			<VoteParliament2
 				voteResult={govProposal.vote_result}
 				bind:delegates={delsAtDate}
+				showGovs
 				preview={true}
 			/>
 		</div>
@@ -119,7 +120,7 @@
 			class="rounded-xl ml-auto parliament-item bg-primary-100"
 			on:click={() => onShowDetailsVoteResult(govProposal.vote_result)}
 		>
-			<VoteParliament2 voteResult={govProposal.vote_result} preview={true} />
+			<VoteParliament2 showGovs voteResult={govProposal.vote_result} preview={true} />
 		</button>
 	{/if}
 
