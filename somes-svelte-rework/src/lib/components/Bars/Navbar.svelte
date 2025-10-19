@@ -1,13 +1,11 @@
 <script lang="ts">
 	import {
-		AppBar,
 		getDrawerStore,
 		LightSwitch,
 		modeCurrent,
 		setModeCurrent,
 		type DrawerSettings
 	} from '@skeletonlabs/skeleton';
-	import userIcon from '$lib/assets/icons/user.svg?raw';
 	import somesIcon from '$lib/assets/somes_icon.svg?raw';
 	import somesIconText from '$lib/assets/somes_with_text2.svg?raw';
 	import { jwtStore } from '$lib/caching/stores/stores';

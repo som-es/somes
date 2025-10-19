@@ -8,7 +8,7 @@
 	let year = date.getFullYear();
 	let month = date.getMonth();
 
-	var daysInThisMonth = new Date(year, month + 1, 0).getDate();
+	$: daysInThisMonth = new Date(year, month + 1, 0).getDate();
 
 	const months = [
 		'Jänner',

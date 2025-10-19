@@ -17,19 +17,19 @@
 		closeQuery: 'none'
 	};
 
-	let days2D: Day[][] = [];
+	let days2D: (Day | null)[][] = [];
 
 	$: {
 		days2D = [];
-		let acc: Day[] = [];
+		let acc: (Day | null)[] = [null, null, null, null, null];
 		days.forEach((day, i) => {
-			if (i > 0 && i % 5 === 0) {
-				days2D.push([...acc]);
-				acc = [];
+			acc[day.date.getDay() - 1] = day;
+			if (day.date.getDay() == 5) {
+				days2D.push(acc);
+				acc = [null, null, null, null, null];
 			}
-			acc.push(day);
 		});
-		if (acc.length > 0) {
+		if (acc[0] != null) {
 			for (let i = 0; i < 4 - acc.length; i++) {
 				days2D.push();
 			}
