@@ -1,0 +1,1 @@
+import{v as i}from"./BQbWKBfE.js";import{l as a,a as r,i as t}from"./BUhv5aHK.js";async function f(l=!1){let e=i(a);if(e==null||l||e.length==0){const s=await r();t(s)||(a.set(s),e=s)}return e!==null&&(e=e.slice()),e}export{f as c};

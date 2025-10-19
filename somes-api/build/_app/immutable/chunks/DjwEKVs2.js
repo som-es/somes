@@ -1,0 +1,1 @@
+import{g as a,b as c}from"./BUhv5aHK.js";async function _(e,r,s){return c(`decrees_by_search?page=${e}&search=${s}`,r)}async function i(e){return a(`decree_by_ris_id?ris_id=${e}`)}export{i as a,_ as d};
