@@ -296,7 +296,9 @@
 					Anfang ({renderStartDate == null ? '' : dashDateToDotDate(renderStartDate.toString())})
 				</div>
 				<div>
-					Ende ({renderEndDate == null ? '' : dashDateToDotDate(renderEndDate.toString())})
+					Ende ({renderEndDate == null
+						? dashDateToDotDate(new Date().toISOString().split('T')[0])
+						: dashDateToDotDate(renderEndDate.toString())})
 				</div>
 			</div>
 			<input

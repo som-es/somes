@@ -96,7 +96,20 @@
 		if (filterParties.length == 1) {
 			return filterParties[0];
 		}
-		return `${filterParties[0]}, ...`;
+
+		let idx = 0;
+		let text = `${filterParties[idx]}`;
+		if (text.length > 15) {
+			return `${text.slice(0, 15)}...`;
+		}
+		while (text.length < 15 && idx <= filterParties.length - 2) {
+			idx += 1;
+			text = `${text}, ${filterParties[idx]}`;
+			if (text.length > 15) {
+				return `${text.slice(0, 15)}...`;
+			}
+		}
+		return `${text}`;
 	};
 
 	const translateGenderFilter = (gender: string | undefined) => {
@@ -128,6 +141,50 @@
 
 <LegisButtons bind:selectedPeriod />
 
+<div class="z-30 card w-48 shadow-xl py-2" data-popup="popupParty{id}">
+	<ListBox
+		rounded="rounded-container-token sm:!rounded-token"
+		active="variant-filled-secondary"
+		hover="hover:variant-soft-secondary"
+		multiple
+	>
+		{#each uniqueParties as party}
+			<ListBoxItem bind:group={filterParties} name="partyFilter" value={party}>{party}</ListBoxItem>
+		{/each}
+	</ListBox>
+</div>
+<div class="z-30 card w-48 shadow-xl py-2" data-popup="popupGender{id}">
+	<ListBox
+		rounded="rounded-container-token sm:!rounded-token"
+		active="variant-filled-secondary"
+		hover="hover:variant-soft-secondary"
+	>
+		<ListBoxItem bind:group={gender} name="genderName" value={undefined}>egal</ListBoxItem>
+		<ListBoxItem bind:group={gender} name="genderName" value={'f'}>weiblich</ListBoxItem>
+		<ListBoxItem bind:group={gender} name="genderName" value={'m'}>männlich</ListBoxItem>
+	</ListBox>
+</div>
+<div class="z-30 card w-48 shadow-xl py-2" data-popup="popupNormalized{id}">
+	<ListBox
+		rounded="rounded-container-token sm:!rounded-token"
+		active="variant-filled-secondary"
+		hover="hover:variant-soft-secondary"
+	>
+		<ListBoxItem bind:group={normalized} name="normalization" value={true}>Ja</ListBoxItem>
+		<ListBoxItem bind:group={normalized} name="normalization" value={false}>Nein</ListBoxItem>
+	</ListBox>
+</div>
+<div class="z-30 card w-48 shadow-xl py-2" data-popup="popupDesc{id}">
+	<ListBox
+		rounded="rounded-container-token sm:!rounded-token"
+		active="variant-filled-secondary"
+		hover="hover:variant-soft-secondary"
+	>
+		<ListBoxItem bind:group={isDesc} name="isDesc" value={true}>Ja</ListBoxItem>
+		<ListBoxItem bind:group={isDesc} name="isDesc" value={false}>Nein</ListBoxItem>
+	</ListBox>
+</div>
+
 <div class="flex flex-wrap gap-6">
 	<div>
 		<h1 class="text-2xl font-bold">Partei</h1>
@@ -157,50 +214,6 @@
 			<span>↓</span>
 		</button>
 	</div>
-</div>
-
-<div class="z-10 card w-48 shadow-xl py-2" data-popup="popupParty{id}">
-	<ListBox
-		rounded="rounded-container-token sm:!rounded-token"
-		active="variant-filled-secondary"
-		hover="hover:variant-soft-secondary"
-		multiple
-	>
-		{#each uniqueParties as party}
-			<ListBoxItem bind:group={filterParties} name="partyFilter" value={party}>{party}</ListBoxItem>
-		{/each}
-	</ListBox>
-</div>
-<div class="z-10 card w-48 shadow-xl py-2" data-popup="popupGender{id}">
-	<ListBox
-		rounded="rounded-container-token sm:!rounded-token"
-		active="variant-filled-secondary"
-		hover="hover:variant-soft-secondary"
-	>
-		<ListBoxItem bind:group={gender} name="genderName" value={undefined}>egal</ListBoxItem>
-		<ListBoxItem bind:group={gender} name="genderName" value={'f'}>weiblich</ListBoxItem>
-		<ListBoxItem bind:group={gender} name="genderName" value={'m'}>männlich</ListBoxItem>
-	</ListBox>
-</div>
-<div class="z-10 card w-48 shadow-xl py-2" data-popup="popupNormalized{id}">
-	<ListBox
-		rounded="rounded-container-token sm:!rounded-token"
-		active="variant-filled-secondary"
-		hover="hover:variant-soft-secondary"
-	>
-		<ListBoxItem bind:group={normalized} name="normalization" value={true}>Ja</ListBoxItem>
-		<ListBoxItem bind:group={normalized} name="normalization" value={false}>Nein</ListBoxItem>
-	</ListBox>
-</div>
-<div class="z-10 card w-48 shadow-xl py-2" data-popup="popupDesc{id}">
-	<ListBox
-		rounded="rounded-container-token sm:!rounded-token"
-		active="variant-filled-secondary"
-		hover="hover:variant-soft-secondary"
-	>
-		<ListBoxItem bind:group={isDesc} name="isDesc" value={true}>Ja</ListBoxItem>
-		<ListBoxItem bind:group={isDesc} name="isDesc" value={false}>Nein</ListBoxItem>
-	</ListBox>
 </div>
 
 <div class="graphic-container">

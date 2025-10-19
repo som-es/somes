@@ -15,15 +15,15 @@
 	let chartOptions: ApexOptions;
 
 	$: {
-		delegateData = delegateData.slice(0, 100)
-		const labels = delegateData.map(del => del.name ? `${del.name} (${del.party})` : del.party);
+		delegateData = delegateData.slice(0, 100);
+		const labels = delegateData.map((del) => (del.name ? `${del.name} (${del.party})` : del.party));
 
 		//console.log(delegateData.map(del => del.name ? `${del.name} (${del.party})` : del.party));
 
 		chartOptions = {
 			series: [
 				{
-					data: delegateData.map((del) => del.data)
+					data: delegateData.map((del) => +del.data.toPrecision(3))
 				}
 			],
 
@@ -34,7 +34,7 @@
 			},
 			chart: {
 				type: 'bar',
-				height: height,
+				height: height
 			},
 			plotOptions: {
 				bar: {
@@ -94,7 +94,7 @@
 	}
 
 	onMount(() => {
-		initChart(chartElement)
+		initChart(chartElement);
 	});
 
 	const initChart = (chartElement: Element) => {
@@ -107,16 +107,16 @@
 
 	onDestroy(() => {
 		chart?.destroy();
-	})
+	});
 
-	$: initChart(chartElement)
+	$: initChart(chartElement);
 
 	$: if (chart && chartOptions) {
 		chart.updateOptions(chartOptions);
 	}
 </script>
 
-<div bind:this={chartElement} class="text-black chart"></div>
+<div bind:this={chartElement} class="z-0 text-black chart"></div>
 
 <style>
 	.chart {
