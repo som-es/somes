@@ -7,8 +7,8 @@
 
 	export let govProposal: GovProposalDelegate;
 
-	govProposal.gov_proposal.ministrial_proposal.emphasis =
-		'Hasdfkadsfaadakjfklsafklasödjfklösdfjöklskdfljdskflsdfsdsdfdsaf\nCooler test!\n';
+	govProposal.gov_proposal.ministrial_proposal.emphasis = '';
+	// 'Hasdfkadsfaadakjfklsafklasödjfklösdfjöklskdfljdskflsdfsdsdfdsaf\nCooler test!\n';
 
 	$: documentUrl = `https://parlament.gv.at/gegenstand/${govProposal.gov_proposal.ministrial_proposal.gp}/ME/${govProposal.gov_proposal.ministrial_proposal.inr}`;
 </script>
