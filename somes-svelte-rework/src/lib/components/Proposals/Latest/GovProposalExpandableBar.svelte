@@ -68,7 +68,11 @@
 				class="max-sm:hidden z-20 w-[7.5rem] bg-primary-100 dark:bg-primary-300 rounded-md"
 				on:click={() => onShowDetails(govProposal.gov_proposal.vote_result)}
 			>
-				<VoteParliament2 voteResult={govProposal.gov_proposal.vote_result} preview={true} />
+				<VoteParliament2
+					voteResult={govProposal.gov_proposal.vote_result}
+					showGovs
+					preview={true}
+				/>
 			</button>
 		{:else}
 			<div></div>

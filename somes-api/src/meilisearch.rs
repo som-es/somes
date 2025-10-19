@@ -97,6 +97,7 @@ pub async fn update_gov_props_meilisearch_index(
         .with_filterable_attributes([
             "gov_proposal.ministrial_proposal.gp",
             "gov_proposal.ministrial_proposal.has_vote_result",
+            "gov_proposal.vote_result",
         ])
         .with_sortable_attributes(["gov_proposal.ministrial_proposal.created_at"])
         .with_pagination(PaginationSetting {

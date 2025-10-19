@@ -27,11 +27,13 @@ pub async fn gov_props_by_search(
                 legis_period
             ));
         }
-        if let Some(is_named_vote) = filter.has_vote_result {
-            filter_conditions.push(format!(
-                "gov_proposal.ministrial_proposal.has_vote_result = {}",
-                is_named_vote
-            ));
+        if let Some(has_vote_result) = filter.has_vote_result {
+            let condition = if has_vote_result {
+                "gov_proposal.vote_result IS NOT NULL"
+            } else {
+                "gov_proposal.vote_result IS NULL"
+            };
+            filter_conditions.push(condition.to_string());
         }
         meilisearch_filter = filter_conditions.join(" AND ")
     }
