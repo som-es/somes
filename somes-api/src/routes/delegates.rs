@@ -40,9 +40,9 @@ pub use speeches::*;
     params(
         DelegateById
     ),
-    path = "/delegate_interests", 
+    path = "/delegate_interests",
     responses(
-        (status = 200, description = "Returned delegate interests successfully.", body = [Vec<InterestShare>]), 
+        (status = 200, description = "Returned delegate interests successfully.", body = [Vec<InterestShare>]),
         (status = 400, description = "Invalid request", body = [DelegatesErrorResponse]),
         (status = 500, description = "Internal server error", body = [DelegatesErrorResponse])
     )
@@ -71,48 +71,48 @@ pub async fn delegate_by_id_sqlx(
     let delegate = sqlx::query_as!(
         Delegate,
         "
-        SELECT 
-    delegates.id, 
-    delegates.name, 
-    delegates.party, 
-    delegates.party AS current_party, 
-    delegates.image_url, 
-    delegates.constituency, 
-    delegates.council, 
-    delegates.seat_row, 
-    delegates.seat_col, 
-    delegates.gender, 
-    delegates.is_active, 
-    delegates.birthdate, 
+        SELECT
+    delegates.id,
+    delegates.name,
+    delegates.party,
+    delegates.party AS current_party,
+    delegates.image_url,
+    delegates.constituency,
+    delegates.council,
+    delegates.seat_row,
+    delegates.seat_col,
+    delegates.gender,
+    delegates.is_active,
+    delegates.birthdate,
     mandates.name as primary_mandate,
     mandates.start_date AS active_since,
     COALESCE(divisions.division_array, '{}') AS divisions,
     COALESCE(mandate_groups.mandate_array, '{}') AS active_mandates
-FROM 
-    mandates 
-INNER JOIN 
-    delegates ON delegates.id = mandates.delegate_id 
-LEFT JOIN 
-    (SELECT 
-        delegate_id, 
-        ARRAY_AGG(division) AS division_array 
-    FROM 
-        delegates_divisions 
-    GROUP BY 
-        delegate_id) AS divisions 
+FROM
+    mandates
+INNER JOIN
+    delegates ON delegates.id = mandates.delegate_id
+LEFT JOIN
+    (SELECT
+        delegate_id,
+        ARRAY_AGG(division) AS division_array
+    FROM
+        delegates_divisions
+    GROUP BY
+        delegate_id) AS divisions
     ON delegates.id = divisions.delegate_id
-LEFT JOIN 
-    (SELECT 
-        delegate_id, 
-        ARRAY_AGG(name) AS mandate_array 
-    FROM 
+LEFT JOIN
+    (SELECT
+        delegate_id,
+        ARRAY_AGG(name) AS mandate_array
+    FROM
         mandates
-    WHERE 
+    WHERE
         end_date IS NULL
-    GROUP BY 
+    GROUP BY
         delegate_id) AS mandate_groups
     ON delegates.id = mandate_groups.delegate_id
-WHERE 
+WHERE
      delegates.id = $1;
 
 ",
@@ -133,9 +133,9 @@ WHERE
     params(
         DelegateById
     ),
-    path = "/delegate", 
+    path = "/delegate",
     responses(
-        (status = 200, description = "Returned delegate successfully.", body = [DbDelegate]), 
+        (status = 200, description = "Returned delegate successfully.", body = [DbDelegate]),
         (status = 400, description = "Invalid request", body = [DelegatesErrorResponse]),
         (status = 500, description = "Internal server error", body = [DelegatesErrorResponse])
     )
@@ -161,9 +161,9 @@ pub async fn delegate(
 
 #[utoipa::path(
     get,
-    path = "/delegates", 
+    path = "/delegates",
     responses(
-        (status = 200, description = "Returned delegates successfully.", body = [Vec<DbDelegate>]), 
+        (status = 200, description = "Returned delegates successfully.", body = [Vec<DbDelegate>]),
         (status = 400, description = "Invalid request", body = [DelegatesErrorResponse]),
         (status = 500, description = "Internal server error", body = [DelegatesErrorResponse])
     )
@@ -237,54 +237,54 @@ pub async fn delegates(
     sqlx::query_as!(
         Delegate,
         "
-SELECT 
-    delegates.id, 
-    delegates.name, 
-    delegates.party, 
-    delegates.party AS current_party, 
-    delegates.image_url, 
-    delegates.constituency, 
-    CASE 
-        WHEN mandates.is_nr THEN 'nr' 
+SELECT
+    delegates.id,
+    delegates.name,
+    delegates.party,
+    delegates.party AS current_party,
+    delegates.image_url,
+    delegates.constituency,
+    CASE
+        WHEN mandates.is_nr THEN 'nr'
         WHEN mandates.is_gov_official THEN 'gov'
         ELSE 'gov'
     END AS council,
-    delegates.seat_row, 
-    delegates.seat_col, 
-    delegates.gender, 
-    delegates.is_active, 
-    delegates.birthdate, 
+    delegates.seat_row,
+    delegates.seat_col,
+    delegates.gender,
+    delegates.is_active,
+    delegates.birthdate,
     mandates.name as primary_mandate,
     mandates.start_date AS active_since,
     COALESCE(divisions.division_array, '{}') AS divisions,
     COALESCE(mandate_groups.mandate_array, '{}') AS active_mandates
-FROM 
-    mandates 
-INNER JOIN 
-    delegates ON delegates.id = mandates.delegate_id 
-LEFT JOIN 
-    (SELECT 
-        delegate_id, 
-        ARRAY_AGG(division) AS division_array 
-    FROM 
-        delegates_divisions 
-    GROUP BY 
-        delegate_id) AS divisions 
+FROM
+    mandates
+INNER JOIN
+    delegates ON delegates.id = mandates.delegate_id
+LEFT JOIN
+    (SELECT
+        delegate_id,
+        ARRAY_AGG(division) AS division_array
+    FROM
+        delegates_divisions
+    GROUP BY
+        delegate_id) AS divisions
     ON delegates.id = divisions.delegate_id
-LEFT JOIN 
-    (SELECT 
-        delegate_id, 
-        ARRAY_AGG(name) AS mandate_array 
-    FROM 
+LEFT JOIN
+    (SELECT
+        delegate_id,
+        ARRAY_AGG(name) AS mandate_array
+    FROM
         mandates
-    WHERE 
-        is_nr 
+    WHERE
+        is_nr
         AND end_date IS NULL
-    GROUP BY 
+    GROUP BY
         delegate_id) AS mandate_groups
     ON delegates.id = mandate_groups.delegate_id
-WHERE 
-    is_nr 
+WHERE
+    is_nr
     AND mandates.end_date IS NULL;
         "
     )
@@ -299,9 +299,9 @@ WHERE
     params(
         Date
     ),
-    path = "/delegates_at", 
+    path = "/delegates_at",
     responses(
-        (status = 200, description = "Returned delegates successfully.", body = [Vec<DbDelegate>]), 
+        (status = 200, description = "Returned delegates successfully.", body = [Vec<DbDelegate>]),
         (status = 400, description = "Invalid request", body = [DelegatesErrorResponse]),
         (status = 500, description = "Internal server error", body = [DelegatesErrorResponse])
     )
@@ -363,59 +363,59 @@ pub async fn delegates_with_seats_near_date(
     let delegates = sqlx::query_as!(
         Delegate,
         "
-SELECT 
-    d.id, 
-    d.name, 
+SELECT
+    d.id,
+    d.name,
     m.party,
-    d.party AS current_party, 
-    d.image_url, 
-    d.constituency, 
-    CASE 
-        WHEN m.is_nr THEN 'nr' 
+    d.party AS current_party,
+    d.image_url,
+    d.constituency,
+    CASE
+        WHEN m.is_nr THEN 'nr'
         WHEN m.is_gov_official THEN 'gov'
         ELSE ''
     END AS council,
-    ranked.seat_row, 
-    ranked.seat_col, 
-    d.gender, 
-    d.is_active, 
-    d.birthdate, 
+    ranked.seat_row,
+    ranked.seat_col,
+    d.gender,
+    d.is_active,
+    d.birthdate,
     m.start_date AS active_since,
     m.name as primary_mandate,
     COALESCE(divisions.division_array, '{}') AS divisions,
     COALESCE(mandate_groups.mandate_array, '{}') AS active_mandates
 FROM (
-    SELECT sh.*, 
+    SELECT sh.*,
         ROW_NUMBER() OVER (PARTITION BY sh.delegate_id ORDER BY $1 - sh.insertion_date::date ASC) AS rn
-    FROM seat_history AS sh 
+    FROM seat_history AS sh
     WHERE gp = $2 AND $1 - sh.insertion_date::date >= 0
 ) AS ranked
 JOIN delegates AS d ON d.id = ranked.delegate_id
-INNER JOIN mandates AS m ON m.delegate_id = d.id 
+INNER JOIN mandates AS m ON m.delegate_id = d.id
 LEFT JOIN (
-    SELECT 
-        delegate_id, 
-        ARRAY_AGG(division) AS division_array 
-    FROM 
-        delegates_divisions 
-    GROUP BY 
+    SELECT
+        delegate_id,
+        ARRAY_AGG(division) AS division_array
+    FROM
+        delegates_divisions
+    GROUP BY
         delegate_id
 ) AS divisions ON d.id = divisions.delegate_id
 LEFT JOIN (
-    SELECT 
-        delegate_id, 
-        ARRAY_AGG(name) AS mandate_array 
-    FROM 
+    SELECT
+        delegate_id,
+        ARRAY_AGG(name) AS mandate_array
+    FROM
         mandates
-    WHERE 
-        is_nr 
+    WHERE
+        is_nr
         AND end_date IS NULL
-    GROUP BY 
+    GROUP BY
         delegate_id
 ) AS mandate_groups ON d.id = mandate_groups.delegate_id
-WHERE 
+WHERE
     m.is_nr
-    AND m.start_date <= $1::date 
+    AND m.start_date <= $1::date
     AND (CASE WHEN m.end_date IS NULL THEN $1::date ELSE m.end_date END) >= $1::date
     AND ranked.rn = 1;
 
@@ -441,6 +441,71 @@ pub async fn gov_officials_at_date_route(
         .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
 }
 
+pub async fn gov_officials_at_date_sqlx(
+    pg: &PgPool,
+    date: &NaiveDate,
+) -> sqlx::Result<Vec<Delegate>> {
+    sqlx::query_as!(
+        Delegate,
+        "
+    SELECT DISTINCT ON (delegates.id)
+        delegates.id,
+        delegates.name,
+        mandates.party,
+        delegates.party AS current_party,
+        delegates.image_url,
+        delegates.constituency,
+        CASE
+            WHEN mandates.is_nr THEN 'nr'
+            WHEN mandates.is_gov_official THEN 'gov'
+            ELSE 'gov'
+        END AS council,
+        delegates.seat_row,
+        delegates.seat_col,
+        delegates.gender,
+        delegates.is_active,
+        delegates.birthdate,
+        mandates.name as primary_mandate,
+        mandates.start_date AS active_since,
+        COALESCE(divisions.division_array, '{}') AS divisions,
+        COALESCE(mandate_groups.mandate_array, '{}') AS active_mandates
+    FROM
+        mandates
+    INNER JOIN
+        delegates ON delegates.id = mandates.delegate_id
+    LEFT JOIN
+        (SELECT
+            delegate_id,
+            ARRAY_AGG(division) AS division_array
+        FROM
+            delegates_divisions
+        GROUP BY
+            delegate_id) AS divisions
+        ON delegates.id = divisions.delegate_id
+    LEFT JOIN
+        (SELECT
+            delegate_id,
+            ARRAY_AGG(name) AS mandate_array
+        FROM
+            mandates
+        WHERE
+            is_gov_official
+            AND end_date IS NULL
+        GROUP BY
+            delegate_id) AS mandate_groups
+        ON delegates.id = mandate_groups.delegate_id
+    WHERE
+        mandates.is_gov_official
+        AND mandates.start_date <= $1::date
+        AND (CASE WHEN mandates.end_date IS NULL THEN $1::date ELSE mandates.end_date END) >= $1::date;
+
+        ",
+        date
+    )
+    .fetch_all(pg)
+    .await
+}
+
 pub async fn gov_officials_at_date(
     pg: &PgPool,
     date: &NaiveDate,
@@ -451,66 +516,7 @@ pub async fn gov_officials_at_date(
         return Ok(delegates);
     }
 
-    let delegates = sqlx::query_as!(
-        Delegate,
-        "
-    SELECT DISTINCT ON (delegates.id) 
-        delegates.id, 
-        delegates.name, 
-        mandates.party,
-        delegates.party AS current_party, 
-        delegates.image_url, 
-        delegates.constituency, 
-        CASE 
-            WHEN mandates.is_nr THEN 'nr' 
-            WHEN mandates.is_gov_official THEN 'gov'
-            ELSE 'gov'
-        END AS council,
-        delegates.seat_row, 
-        delegates.seat_col, 
-        delegates.gender, 
-        delegates.is_active, 
-        delegates.birthdate, 
-        mandates.name as primary_mandate,
-        mandates.start_date AS active_since,
-        COALESCE(divisions.division_array, '{}') AS divisions,
-        COALESCE(mandate_groups.mandate_array, '{}') AS active_mandates
-    FROM 
-        mandates 
-    INNER JOIN 
-        delegates ON delegates.id = mandates.delegate_id 
-    LEFT JOIN 
-        (SELECT 
-            delegate_id, 
-            ARRAY_AGG(division) AS division_array 
-        FROM 
-            delegates_divisions 
-        GROUP BY 
-            delegate_id) AS divisions 
-        ON delegates.id = divisions.delegate_id
-    LEFT JOIN 
-        (SELECT 
-            delegate_id, 
-            ARRAY_AGG(name) AS mandate_array 
-        FROM 
-            mandates
-        WHERE 
-            is_gov_official 
-            AND end_date IS NULL
-        GROUP BY 
-            delegate_id) AS mandate_groups
-        ON delegates.id = mandate_groups.delegate_id
-    WHERE 
-        mandates.is_gov_official
-        AND mandates.start_date <= $1::date 
-        AND (CASE WHEN mandates.end_date IS NULL THEN $1::date ELSE mandates.end_date END) >= $1::date;
-
-        ",
-        date
-    )
-    .fetch_all(pg)
-    .await?;
-
+    let delegates = gov_officials_at_date_sqlx(pg, date).await?;
     set_json_cache_with_relevance(redis_con, &key, &delegates, *date).await;
 
     Ok(delegates)
@@ -529,55 +535,55 @@ pub async fn delegates_at_date(
     let delegates = sqlx::query_as!(
         Delegate,
         "
-    SELECT 
-        delegates.id, 
-        delegates.name, 
+    SELECT
+        delegates.id,
+        delegates.name,
         mandates.party,
-        delegates.party AS current_party, 
-        delegates.image_url, 
-        delegates.constituency, 
-        CASE 
-            WHEN mandates.is_nr THEN 'nr' 
+        delegates.party AS current_party,
+        delegates.image_url,
+        delegates.constituency,
+        CASE
+            WHEN mandates.is_nr THEN 'nr'
             WHEN mandates.is_gov_official THEN 'gov'
             ELSE 'gov'
         END AS council,
-        delegates.seat_row, 
-        delegates.seat_col, 
-        delegates.gender, 
-        delegates.is_active, 
-        delegates.birthdate, 
+        delegates.seat_row,
+        delegates.seat_col,
+        delegates.gender,
+        delegates.is_active,
+        delegates.birthdate,
         mandates.name as primary_mandate,
         mandates.start_date AS active_since,
         COALESCE(divisions.division_array, '{}') AS divisions,
         COALESCE(mandate_groups.mandate_array, '{}') AS active_mandates
-    FROM 
-        mandates 
-    INNER JOIN 
-        delegates ON delegates.id = mandates.delegate_id 
-    LEFT JOIN 
-        (SELECT 
-            delegate_id, 
-            ARRAY_AGG(division) AS division_array 
-        FROM 
-            delegates_divisions 
-        GROUP BY 
-            delegate_id) AS divisions 
+    FROM
+        mandates
+    INNER JOIN
+        delegates ON delegates.id = mandates.delegate_id
+    LEFT JOIN
+        (SELECT
+            delegate_id,
+            ARRAY_AGG(division) AS division_array
+        FROM
+            delegates_divisions
+        GROUP BY
+            delegate_id) AS divisions
         ON delegates.id = divisions.delegate_id
-    LEFT JOIN 
-        (SELECT 
-            delegate_id, 
-            ARRAY_AGG(name) AS mandate_array 
-        FROM 
+    LEFT JOIN
+        (SELECT
+            delegate_id,
+            ARRAY_AGG(name) AS mandate_array
+        FROM
             mandates
-        WHERE 
-            is_nr 
+        WHERE
+            is_nr
             AND end_date IS NULL
-        GROUP BY 
+        GROUP BY
             delegate_id) AS mandate_groups
         ON delegates.id = mandate_groups.delegate_id
-    WHERE 
+    WHERE
         mandates.is_nr
-        AND mandates.start_date <= $1::date 
+        AND mandates.start_date <= $1::date
         AND (CASE WHEN mandates.end_date IS NULL THEN $1::date ELSE mandates.end_date END) >= $1::date;
 
         ",
@@ -593,9 +599,9 @@ pub async fn delegates_at_date(
 
 #[utoipa::path(
     get,
-    path = "/proposals", 
+    path = "/proposals",
     responses(
-        (status = 200, description = "Returned proposals successfully.", body = [Vec<DbProposalQuery>]), 
+        (status = 200, description = "Returned proposals successfully.", body = [Vec<DbProposalQuery>]),
         (status = 400, description = "Invalid request", body = [DelegatesErrorResponse]),
         (status = 500, description = "Internal server error", body = [DelegatesErrorResponse])
     )

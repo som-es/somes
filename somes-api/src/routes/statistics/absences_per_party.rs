@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use axum::Json;
 
 use serde::{Deserialize, Serialize};
@@ -29,6 +31,12 @@ pub struct PartyAbsences {
     normalized_absences: f64,
 }
 
+#[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
+pub struct PartyAbsences2 {
+    delegate_party: String,
+    delegate_absences: i64,
+}
+
 // #[debug_handler]
 pub async fn absences_per_party(
     PgPoolConnection(pg): PgPoolConnection,
@@ -50,44 +58,97 @@ pub async fn absences_per_party(
 
     let filter = build_filter(&filters);
 
+    // Demonstration Performance Anspruch
+    /*
     let query = format!(
         "
-     WITH party_member_counts AS ( 
-    SELECT 
-        ds.party, 
-        COUNT(DISTINCT ds.id) AS total_party_member_count
-    FROM delegates ds
-    JOIN mandates m ON m.delegate_id = ds.id
-    JOIN plenar_infos pf ON 1=1  
-    WHERE {filter}
-        AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = pf.id)
-        AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = pf.id))
-    GROUP BY ds.party
-)
-    SELECT 
-     m.party AS delegate_party,
-     pmc.total_party_member_count AS party_members,
-     COUNT(DISTINCT ab.id) AS total_absences,
-     COUNT(DISTINCT ab.id)::FLOAT / pmc.total_party_member_count::FLOAT AS normalized_absences
-FROM 
-    absences ab
-JOIN 
-    delegates ds ON ab.delegate_id = ds.id
-JOIN 
-    mandates m ON m.delegate_id = ds.id
-JOIN 
-    plenar_infos pf ON pf.id = ab.plenary_session_id
-JOIN
-    party_member_counts pmc ON ds.party = pmc.party
-WHERE
-    {filter}
-    AND m.start_date <= (SELECT MIN(add_date) FROM plenar_infos WHERE id = pf.id)
-    AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(add_date) FROM plenar_infos WHERE id = pf.id))
-GROUP BY 
-    m.party, pmc.total_party_member_count
-ORDER BY 
-    {normalized} {desc};
+        SELECT
+             m.party AS delegate_party,
+             COUNT(DISTINCT ab.id) as delegate_absences
+        FROM
+            absences ab
+        JOIN
+            delegates ds ON ab.delegate_id = ds.id
+        JOIN
+            mandates m ON m.delegate_id = ds.id
+        JOIN
+            plenar_infos pf ON pf.id = ab.plenary_session_id
+        WHERE
+            {filter}
+            AND m.start_date <= pf.add_date
+            AND (m.end_date IS NULL OR m.end_date >= pf.add_date)
+        group by
+            ds.id, m.party
     "
+    );
+
+    let mut filtered_query = sqlx::query_as::<Postgres, PartyAbsences2>(&query);
+    filtered_query = bind_values(filtered_query, &filters);
+
+    let absences = filtered_query
+        .fetch_all(&pg)
+        .await
+        .map_err(|e| StatisticsResponse::DbSelectFailure(Some(e)))?;
+    let mut party_absences = HashMap::<String, (usize, usize)>::new();
+    for absence in absences {
+        party_absences
+            .entry(absence.delegate_party)
+            .and_modify(|absence_info| {
+                absence_info.0 += absence.delegate_absences as usize;
+            })
+            .or_insert((absence.delegate_absences as usize, 0));
+    }
+
+    Ok(Json(
+        party_absences
+            .into_iter()
+            .map(|(party, (total_absences, _))| PartyAbsences {
+                delegate_party: party,
+                party_members: 0,
+                total_absences: total_absences as i64,
+                normalized_absences: 0.,
+            })
+            .collect(),
+    ))
+    */
+    let query = format!(
+        "
+         WITH party_member_counts AS (
+        SELECT
+            ds.party,
+            COUNT(DISTINCT ds.id) AS total_party_member_count
+        FROM delegates ds
+        JOIN mandates m ON m.delegate_id = ds.id
+        JOIN plenar_infos pf ON 1=1
+        WHERE {filter}
+            AND m.start_date <=pf.add_date
+            AND (m.end_date IS NULL OR m.end_date >= pf.add_date)
+        GROUP BY ds.party
+    )
+        SELECT
+         m.party AS delegate_party,
+         pmc.total_party_member_count AS party_members,
+         COUNT(DISTINCT ab.id) AS total_absences,
+         COUNT(DISTINCT ab.id)::FLOAT / pmc.total_party_member_count::FLOAT AS normalized_absences
+    FROM
+        absences ab
+    JOIN
+        delegates ds ON ab.delegate_id = ds.id
+    JOIN
+        mandates m ON m.delegate_id = ds.id
+    JOIN
+        plenar_infos pf ON pf.id = ab.plenary_session_id
+    JOIN
+        party_member_counts pmc ON ds.party = pmc.party
+    WHERE
+        {filter}
+        AND m.start_date <= pf.add_date
+        AND (m.end_date IS NULL OR m.end_date >= pf.add_date)
+    GROUP BY
+        m.party, pmc.total_party_member_count
+    ORDER BY
+        {normalized} {desc};
+        "
     );
 
     let mut filtered_query = sqlx::query_as::<Postgres, PartyAbsences>(&query);
