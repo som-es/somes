@@ -172,6 +172,7 @@ pub struct SendMailInfo {
     pub send_new_vote_results_mails: bool,
     pub send_new_delegate_activity_mails: bool,
     pub send_new_ministrial_prop_mails: bool,
+    pub send_new_ministrial_prop_by_favo_mails: bool,
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]

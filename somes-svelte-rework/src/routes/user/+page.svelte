@@ -119,41 +119,11 @@
 
 <Container>
 	{#if extendedUser}
-	<div class="entry bg-primary-200 dark:bg-primary-400 mt-3 grid-container">
-		<div
-			class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 items-center flex justify-between"
-		>
-			<h1 class="font-bold text-5xl">Benutzer</h1>
-			<SButton
-				class="bg-tertiary-500 text-black"
-				on:click={() => {
-					jwtStore.set(null);
-					gotoHistory('/home');
-				}}
+		<div class="entry bg-primary-200 dark:bg-primary-400 mt-3 grid-container">
+			<div
+				class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 items-center flex justify-between"
 			>
-				Abmelden
-			</SButton>
-		</div>
-		<div
-			class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 items-center flex justify-between"
-		>
-			<div class="flex flex-wrap items-center">
-				<h1 class="font-bold text-2xl">Benutzerinfos</h1>
-				<div class="ml-5 text-xl">E-Mail</div>
-				<div class="mx-4 text-xl">
-					{#if extendedUser?.is_email_hashed}
-						<span class="ml-3 font-serif">anonymisiert</span>
-						{#if user}
-							<span class="ml-1 text-sm text-wrap font-serif">...{user.sub.slice(36, 60)}...</span>
-						{/if}
-					{:else}
-						{#if user}
-							{user.sub}
-						{/if}
-					{/if}
-				</div>
-			</div>
-			<div>
+				<h1 class="font-bold text-5xl">Benutzer</h1>
 				<SButton
 					class="bg-tertiary-500 text-black"
 					on:click={() => {
@@ -161,10 +131,39 @@
 						gotoHistory('/home');
 					}}
 				>
-					todo: E-Mail wechseln
+					Abmelden
 				</SButton>
 			</div>
-		</div>
+			<div
+				class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 items-center flex justify-between"
+			>
+				<div class="flex flex-wrap items-center">
+					<h1 class="font-bold text-2xl">Benutzerinfos</h1>
+					<div class="ml-5 text-xl">E-Mail</div>
+					<div class="mx-4 text-xl">
+						{#if extendedUser?.is_email_hashed}
+							<span class="ml-3 font-serif">anonymisiert</span>
+							{#if user}
+								<span class="ml-1 text-sm text-wrap font-serif">...{user.sub.slice(36, 60)}...</span
+								>
+							{/if}
+						{:else if user}
+							{user.sub}
+						{/if}
+					</div>
+				</div>
+				<div>
+					<SButton
+						class="bg-tertiary-500 text-black"
+						on:click={() => {
+							jwtStore.set(null);
+							gotoHistory('/home');
+						}}
+					>
+						todo: E-Mail wechseln
+					</SButton>
+				</div>
+			</div>
 
 			<div
 				class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 items-center flex justify-between"
@@ -173,7 +172,7 @@
 					<h1 class="font-bold md:text-2xl">E-Mail Benachrichtigungen</h1>
 
 					{#if !extendedUser?.is_email_hashed}
-						<div class="flex flex-wrap items-center gap-8 ml-5">
+						<div class="flex flex-wrap items-center gap-x-6 gap-y-3 ml-5">
 							{#if mailSendInfo}
 								<SlideToggle
 									active="bg-secondary-400"
@@ -205,118 +204,130 @@
 									<br />
 									<span class="text-sm">nach ausgewählten Interessen</span>
 								</SlideToggle>
+								<SlideToggle
+									active="bg-secondary-400"
+									name="sendMinistrialPropInfoMails"
+									on:change={updateThisMailSendInfo}
+									bind:checked={mailSendInfo.send_new_ministrial_prop_by_favo_mails}
+								>
+									<span class="font-bold"> Zu neuen Ministerialentwürfen </span>
+									<br />
+									<span class="text-sm">nach favorisierten Ministern</span>
+								</SlideToggle>
 							{/if}
 						</div>
 					{:else}
-						<span class="ml-3 font-serif ">nicht verfügbar: Anonymisierung durch Mail-Wechsel aufheben</span>
+						<span class="ml-3 font-serif"
+							>nicht verfügbar: Anonymisierung durch Mail-Wechsel aufheben</span
+						>
 					{/if}
 				</div>
 			</div>
-		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
-			<h1 class="font-bold text-2xl">Wahle deine Interessen</h1>
-			<!-- todo: Searchbar -->
-			<input
-				class="input w-[28rem] h-9 px-2"
-				type="search"
-				name="ac-demo"
-				bind:value={inputValue}
-				placeholder="Suchen..."
-				use:popup={popupSettings}
-			/>
-			{#if autocompleteOptions}
-				<div
-					class="z-10 card w-full max-w-sm max-h-64 p-4 overflow-y-auto"
-					data-popup="popupAutocomplete"
-				>
-					<AutocompleteMultiselect
-						bind:input={inputValue}
-						options={autocompleteOptions}
-						on:selection={(event) => {
-							if (event.detail.meta) {
-								if (event.detail.isSelected) {
-									selectedTopics.delete(event.detail.meta.id);
-									removeUserTopic({ id: event.detail.meta.id, topic: '' });
-								} else {
-									selectedTopics.add(event.detail.meta.id);
-									addUserTopic({ id: event.detail.meta.id, topic: '' });
+			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
+				<h1 class="font-bold text-2xl">Wahle deine Interessen</h1>
+				<!-- todo: Searchbar -->
+				<input
+					class="input w-[28rem] h-9 px-2"
+					type="search"
+					name="ac-demo"
+					bind:value={inputValue}
+					placeholder="Suchen..."
+					use:popup={popupSettings}
+				/>
+				{#if autocompleteOptions}
+					<div
+						class="z-10 card w-full max-w-sm max-h-64 p-4 overflow-y-auto"
+						data-popup="popupAutocomplete"
+					>
+						<AutocompleteMultiselect
+							bind:input={inputValue}
+							options={autocompleteOptions}
+							on:selection={(event) => {
+								if (event.detail.meta) {
+									if (event.detail.isSelected) {
+										selectedTopics.delete(event.detail.meta.id);
+										removeUserTopic({ id: event.detail.meta.id, topic: '' });
+									} else {
+										selectedTopics.add(event.detail.meta.id);
+										addUserTopic({ id: event.detail.meta.id, topic: '' });
+									}
 								}
-							}
-							selectedTopics = selectedTopics;
-						}}
-						emptyState={'Keine Themen gefunden'}
-						filter={delegateFilter}
-					/>
+								selectedTopics = selectedTopics;
+							}}
+							emptyState={'Keine Themen gefunden'}
+							filter={delegateFilter}
+						/>
+					</div>
+				{/if}
+
+				<div class="mt-3">
+					{#if topics}
+						<SelectableTopics bind:selectedTopics {topics} />
+					{/if}
 				</div>
-			{/if}
-
-			<div class="mt-3">
-				{#if topics}
-					<SelectableTopics bind:selectedTopics {topics} />
-				{/if}
 			</div>
-		</div>
 
-		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
-			<!-- make expandable -->
-			<h1 class="font-bold text-2xl">Favorisierte Abgeordnete</h1>
-			<div class="flex flex-wrap mt-3 gap-3">
-				{#if favoDelegates}
-					{#if favoDelegates.size == 0}
-						Keine favorisierten Abgeordnete vorhanden.
+			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
+				<!-- make expandable -->
+				<h1 class="font-bold text-2xl">Favorisierte Abgeordnete</h1>
+				<div class="flex flex-wrap mt-3 gap-3">
+					{#if favoDelegates}
+						{#if favoDelegates.size == 0}
+							Keine favorisierten Abgeordnete vorhanden.
+						{:else}
+							{#each favoDelegates as favoDelegateId}
+								{#await delegate_by_id(favoDelegateId)}
+									<ExpandablePlaceholder class="!w-80" />
+								{:then maybeDelegate}
+									{#if !isHasError(maybeDelegate)}
+										<DelegateCard delegate={maybeDelegate} showMoreDetailsBtn onlyTop={true} />
+									{/if}
+								{/await}
+							{/each}
+						{/if}
 					{:else}
-						{#each favoDelegates as favoDelegateId}
-							{#await delegate_by_id(favoDelegateId)}
-								<ExpandablePlaceholder class="!w-80" />
-							{:then maybeDelegate}
-								{#if !isHasError(maybeDelegate)}
-									<DelegateCard delegate={maybeDelegate} showMoreDetailsBtn onlyTop={true} />
-								{/if}
-							{/await}
-						{/each}
+						<ExpandablePlaceholder />
 					{/if}
-				{:else}
-					<ExpandablePlaceholder />
-				{/if}
+				</div>
 			</div>
-		</div>
 
-		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
-			<!-- make expandable -->
-			<h1 class="font-bold text-2xl">Favorisierte Abstimmungen</h1>
-			<div class="flex flex-wrap mt-3 gap-3">
-				{#if favoLegisInits}
-					{#if favoLegisInits.size == 0}
-						Keine favorisierte Abstimmungen vorhanden.
+			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
+				<!-- make expandable -->
+				<h1 class="font-bold text-2xl">Favorisierte Abstimmungen</h1>
+				<div class="flex flex-wrap mt-3 gap-3">
+					{#if favoLegisInits}
+						{#if favoLegisInits.size == 0}
+							Keine favorisierte Abstimmungen vorhanden.
+						{:else}
+							{#each favoLegisInits as favoLegisInitId, i}
+								{#await vote_result_by_id(favoLegisInitId.toString())}
+									<ExpandablePlaceholder class="!w-80" />
+								{:then maybeDelegate}
+									{#if !isHasError(maybeDelegate)}
+										<VoteResult dels={[]} voteResult={maybeDelegate} tabindex={i} />
+									{/if}
+								{/await}
+							{/each}
+						{/if}
 					{:else}
-						{#each favoLegisInits as favoLegisInitId, i}
-							{#await vote_result_by_id(favoLegisInitId.toString())}
-								<ExpandablePlaceholder class="!w-80" />
-							{:then maybeDelegate}
-								{#if !isHasError(maybeDelegate)}
-									<VoteResult dels={[]} voteResult={maybeDelegate} tabindex={i} />
-								{/if}
-							{/await}
-						{/each}
+						<ExpandablePlaceholder />
 					{/if}
-				{:else}
-					<ExpandablePlaceholder />
-				{/if}
+				</div>
+			</div>
+
+			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
+				<SButton
+					class="bg-error-300 text-black"
+					on:click={async () => {
+						await delete_account();
+						jwtStore.set(null);
+						gotoHistory('/home');
+					}}
+				>
+					Account löschen
+				</SButton>
 			</div>
 		</div>
-
-		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
-			<SButton
-				class="bg-error-300 text-black"
-				on:click={async () => {
-					await delete_account();
-					jwtStore.set(null);
-					gotoHistory('/home');
-				}}
-			>
-				Account löschen
-			</SButton>
-		</div>
-	</div>
 	{/if}
 </Container>
 
