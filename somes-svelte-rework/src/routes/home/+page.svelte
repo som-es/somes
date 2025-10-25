@@ -44,13 +44,14 @@
 
 	let voteDate: string | null = null;
 	$: if (voteResults) {
-		const first = voteResults.at(0)
+		const first = voteResults.at(0);
 		if (first) {
-			voteDate = first.legislative_initiative.created_at as unknown as string
+			voteDate = first.legislative_initiative.created_at as unknown as string;
 		}
 	}
 </script>
 
+<title>Neuigkeiten</title>
 <Container>
 	<h1 class="mt-2 text-3xl sm:text-5xl font-bold">Neuigkeiten</h1>
 	<NextSessionInfo />
