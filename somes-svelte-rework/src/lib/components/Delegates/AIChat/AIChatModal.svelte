@@ -113,7 +113,7 @@
 		{/each}
 	</div>
 	<div
-		class="flex items-center border-t border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-800"
+		class="flex items-center border-t border-gray-200 dark:border-gray-700 p-4 bg-primary-100 dark:bg-gray-800"
 	>
 		<input
 			type="text"
