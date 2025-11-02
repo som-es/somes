@@ -1,12 +1,12 @@
 <script lang="ts">
 	import type { HasError, UniqueTopic } from '$lib/types';
 	import { onMount } from 'svelte';
-	import ClickableSpan from '../Utils/ClickableSpan.svelte';
-	import DisplayTopic from './Topic.svelte';
 	import ExpandablePlaceholder from '../VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
-	import { cachedUserTopics } from '$lib/caching/user_topics_cache';
-	import { addUserTopic, getUserTopics, removeUserTopic } from '$lib/api/authed';
+	import { getUserTopics } from '$lib/api/authed';
 	import { isHasError } from '$lib/api/api';
+	import { translateTopicToParent } from '$lib/interestColors';
+	import { Accordion } from '@skeletonlabs/skeleton';
+	import AccordionTopics from './AccordionTopics.svelte';
 
 	export let selectedTopics: Set<number>;
 	export let topics: UniqueTopic[] = [];
@@ -23,36 +23,62 @@
 		done = true;
 	});
 
-	let addToSelection = async (topic: UniqueTopic) => {
-		selectedTopics.add(topic.id);
-		selectedTopics = new Set(selectedTopics);
+	function createGroupTopics(topics: UniqueTopic[]): Map<string, UniqueTopic[]> {
+		const groupedTopics = new Map<string, UniqueTopic[]>();
+		topics.forEach((topic) => {
+			const parentTopic = translateTopicToParent(topic.topic);
+			if (groupedTopics.has(parentTopic)) {
+				groupedTopics.get(parentTopic)?.push(topic);
+			} else {
+				groupedTopics.set(parentTopic, [topic]);
+			}
+		});
+		return groupedTopics;
+	}
 
-		await addUserTopic(topic);
-		await cachedUserTopics(true);
-	};
+	function createCombinedGroupings(topics: UniqueTopic[]): {
+		others: UniqueTopic[];
+		groupTopics: Map<string, UniqueTopic[]>;
+		combinedGroups: { parentTopics: string[]; topics: UniqueTopic[] };
+	} {
+		const groupTopics = createGroupTopics(topics);
+		const combinedGroups: { parentTopics: string[]; topics: UniqueTopic[] } = {
+			parentTopics: [],
+			topics: []
+		};
+		groupTopics.forEach((topics, parent) => {
+			if (topics.length <= 4) {
+				combinedGroups.parentTopics.push(parent);
+				combinedGroups.topics.push(...topics);
+				groupTopics.delete(parent);
+			}
+		});
+		const others = groupTopics.get('Sonstige') ?? [];
+		groupTopics.delete('Sonstige');
 
-	let removeFromSelection = async (topic: UniqueTopic) => {
-		selectedTopics.delete(topic.id);
-		selectedTopics = new Set(selectedTopics);
+		return { others, groupTopics, combinedGroups };
+	}
 
-		await removeUserTopic(topic);
-		await cachedUserTopics(true);
-	};
+	$: groupedTopics = createCombinedGroupings(topics);
 </script>
 
-<div class="flex flex-wrap gap-2 px-1">
+<div class="flex flex-wrap flex-col gap-2 px-1">
 	{#if done && selectedTopics}
-		{#each topics as topic}
-			{#if selectedTopics.has(topic.id)}
-				<ClickableSpan action={() => removeFromSelection(topic)}>
-					<DisplayTopic class={'!bg-secondary-400'}>{topic.topic}</DisplayTopic>
-				</ClickableSpan>
-			{:else}
-				<ClickableSpan action={() => addToSelection(topic)}>
-					<DisplayTopic>{topic.topic}</DisplayTopic>
-				</ClickableSpan>
-			{/if}
-		{/each}
+		<Accordion>
+			{#each groupedTopics.groupTopics as [parentTopic, topics]}
+				<AccordionTopics parentTopics={[parentTopic]} subTopics={topics} bind:selectedTopics />
+			{/each}
+			<AccordionTopics
+				parentTopics={groupedTopics.combinedGroups.parentTopics}
+				subTopics={groupedTopics.combinedGroups.topics}
+				bind:selectedTopics
+			/>
+			<AccordionTopics
+				parentTopics={['Sonstige']}
+				subTopics={groupedTopics.others}
+				bind:selectedTopics
+			/>
+		</Accordion>
 	{:else}
 		{#each { length: 15 } as _}
 			<ExpandablePlaceholder />
