@@ -23,11 +23,11 @@
 			{
 				role: 'assistant',
 				content: `Ich bin SomBOT, ein Chatbot des Demokratieprojekts "somes". Ich bin spezialisiert darauf, Fragen über ${$modalStore[0].meta.delegate.name} (${$modalStore[0].meta.delegate.party}) zu verschiedenen Themen zu beantworten.`
-			},
-			{
+			}
+			/*{
 				role: 'assistant',
 				content: `Wegen fehlender finanzieller Unterstützung ist dieser Chatbot momentan nicht erreichbar.`
-			}
+			}*/
 		];
 
 	const recvMessage = (event: MessageEvent) => {
