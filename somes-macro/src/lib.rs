@@ -48,8 +48,8 @@ pub fn derive_create_pg_composite(input: TokenStream) -> TokenStream {
     let cols_sql_joined = cols_sql.join(", ");
 
     let tokens = quote! {
-        impl #name {
-            pub fn to_sql_create_type() -> String {
+        impl ::somes_common_lib::ToCompositeType for #name {
+            fn to_sql_create_composite_type() -> String {
                 let create = format!("CREATE TYPE {} AS ({});", #sql_type_name, #cols_sql_joined);
                 create
             }
