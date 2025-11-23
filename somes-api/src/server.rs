@@ -26,11 +26,7 @@ use utoipa::OpenApi;
 use views::create_views;
 //use headers::HeaderValue;
 use crate::{
-    meilisearch::update_meilisearch_indices,
-    redirect_http_to_https,
-    routes::{delegates, latest_vote_results, proposals, save_email},
-    Ports, DATASERVICE_URL, HTTPS_PORT, HTTP_PORT, MEILISEARCH_SECRET, MEILISEARCH_URL,
-    PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, REDIS_DB, STATIC_FRONTEND_PATH,
+    DATASERVICE_URL, HTTP_PORT, HTTPS_PORT, MEILISEARCH_SECRET, MEILISEARCH_URL, PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, Ports, REDIS_DB, STATIC_FRONTEND_PATH, composite_types::create_composite_types, meilisearch::update_meilisearch_indices, redirect_http_to_https, routes::{delegates, latest_vote_results, proposals, save_email}
 };
 use tower_http::{
     cors::{Any, CorsLayer},
@@ -191,7 +187,12 @@ pub async fn serve(addr: SocketAddr) {
     });
 
     if let Err(e) = create_views(&dataservice_sqlx_pool).await {
-        log::error!("Cannot create view: {e:?}")
+        log::error!("Cannot create views: {e:?}")
+    }
+
+
+    if let Err(e) = create_composite_types(&dataservice_sqlx_pool).await {
+        log::error!("Cannot create composite types: {e:?}")
     }
 
     update_meilisearch_indices(client, dataservice_sqlx_pool, meilisearch_client);

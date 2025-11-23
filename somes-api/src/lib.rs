@@ -3,6 +3,7 @@
 // use diesel_async::{AsyncPgConnection, pooled_connection::AsyncDieselConnectionManager};
 use dotenvy_macro::dotenv;
 
+mod composite_types;
 pub mod dataservice;
 mod db;
 pub mod email;
@@ -10,6 +11,7 @@ pub mod hash;
 pub mod jwt;
 pub mod routes;
 pub mod server;
+
 pub use db::*;
 pub use jwt::AuthError;
 mod http_redirect;

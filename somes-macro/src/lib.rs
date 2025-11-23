@@ -43,15 +43,28 @@ pub fn derive_create_pg_composite(input: TokenStream) -> TokenStream {
         }
     }
 
+    let crate_name = proc_macro_crate::crate_name("somes-common-lib")
+        .ok()
+        .and_then(|res| match res {
+            proc_macro_crate::FoundCrate::Itself => Some(quote!(crate)),
+            proc_macro_crate::FoundCrate::Name(name) => {
+                let ident = syn::Ident::new(&name, proc_macro2::Span::call_site());
+                Some(quote!(::#ident))
+            }
+        })
+        .unwrap_or_else(|| quote!(::somes_common_lib)); // fallback
+
     // build SQL fields string like: "field1 integer, field2 text"
     let cols_sql: Vec<String> = cols.iter().map(|(n, t)| format!("{} {}", n, t)).collect();
     let cols_sql_joined = cols_sql.join(", ");
 
     let tokens = quote! {
-        impl ::somes_common_lib::ToCompositeType for #name {
+        impl #crate_name::ToCompositeType for #name {
+            fn type_name() -> &'static str {
+                #sql_type_name
+            }
             fn to_sql_create_composite_type() -> String {
-                let create = format!("CREATE TYPE {} AS ({});", #sql_type_name, #cols_sql_joined);
-                create
+                format!("CREATE TYPE {} AS ({});", #sql_type_name, #cols_sql_joined)
             }
         }
     };
