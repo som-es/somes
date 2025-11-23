@@ -23,10 +23,14 @@ use sqlx::{postgres::PgPoolOptions, PgPool};
 use tokio::{net::TcpListener, time::sleep};
 use tower_governor::{governor::GovernorConfigBuilder, GovernorLayer};
 use utoipa::OpenApi;
-use views::create_views;
+use views::{create_composite_types, create_views};
 //use headers::HeaderValue;
 use crate::{
-    DATASERVICE_URL, HTTP_PORT, HTTPS_PORT, MEILISEARCH_SECRET, MEILISEARCH_URL, PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, Ports, REDIS_DB, STATIC_FRONTEND_PATH, composite_types::create_composite_types, meilisearch::update_meilisearch_indices, redirect_http_to_https, routes::{delegates, latest_vote_results, proposals, save_email}
+    meilisearch::update_meilisearch_indices,
+    redirect_http_to_https,
+    routes::{delegates, latest_vote_results, proposals, save_email},
+    Ports, DATASERVICE_URL, HTTPS_PORT, HTTP_PORT, MEILISEARCH_SECRET, MEILISEARCH_URL,
+    PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, REDIS_DB, STATIC_FRONTEND_PATH,
 };
 use tower_http::{
     cors::{Any, CorsLayer},
@@ -186,13 +190,16 @@ pub async fn serve(addr: SocketAddr) {
         sleep(std::time::Duration::from_secs(19000)).await;
     });
 
-    if let Err(e) = create_views(&dataservice_sqlx_pool).await {
-        log::error!("Cannot create views: {e:?}")
-    }
-
-
-    if let Err(e) = create_composite_types(&dataservice_sqlx_pool).await {
-        log::error!("Cannot create composite types: {e:?}")
+    let update_views = std::env::var("UPDATE_VIEWS").unwrap_or_else(|_| "false".to_string());
+    if update_views == "true" {
+        let mut tx = dataservice_sqlx_pool.begin().await.unwrap();
+        if let Err(e) = create_composite_types(&mut tx).await {
+            log::error!("Cannot create composite types: {e:?}")
+        }
+        if let Err(e) = create_views(&mut tx).await {
+            log::error!("Cannot create views: {e:?}")
+        }
+        tx.commit().await.unwrap();
     }
 
     update_meilisearch_indices(client, dataservice_sqlx_pool, meilisearch_client);

@@ -1,14 +1,13 @@
-use sqlx::{PgPool};
+use sqlx::{Postgres, Transaction};
 
-pub async fn create_delegates_view(pool: &PgPool) -> sqlx::Result<()> {
-    let mut tx = pool.begin().await?;
+pub async fn create_delegates_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sqlx::Result<()> {
     sqlx::query!("DROP VIEW IF EXISTS delegates_with_mandates;")
-        .execute(&mut *tx)
+        .execute(&mut **tx)
         .await?;
 
     sqlx::query!(
         "
-    CREATE OR REPLACE VIEW delegates_with_mandates AS
+    CREATE VIEW delegates_with_mandates AS
     SELECT
         delegates.id,
         delegates.name,
@@ -24,7 +23,12 @@ pub async fn create_delegates_view(pool: &PgPool) -> sqlx::Result<()> {
         delegates.birthdate,
         COALESCE(divisions.division_array, '{}') AS divisions,
         ARRAY(
-            SELECT ROW(start_date, end_date, name, party, is_nr, is_gov_official, is_ministry, is_chancellor, function) 
+            SELECT ROW(start_date, end_date, name, party, is_nr, is_gov_official, is_ministry, is_chancellor, function)::full_mandate
+            FROM mandates m 
+            where delegate_id = delegates.id 
+        ) as \"mandates: Vec<FullMandate>\",
+        ARRAY(
+            SELECT ROW(start_date, end_date, name, party, is_nr, is_gov_official, is_ministry, is_chancellor, function)::full_mandate
             FROM mandates m 
             where delegate_id = delegates.id and end_date IS NULL
         ) as \"active_mandates: Vec<FullMandate>\"
@@ -40,7 +44,6 @@ pub async fn create_delegates_view(pool: &PgPool) -> sqlx::Result<()> {
             delegate_id) AS divisions
         ON delegates.id = divisions.delegate_id
         "
-    ).execute(&mut *tx).await?;
-
+    ).execute(&mut **tx).await?;
     Ok(())
 }

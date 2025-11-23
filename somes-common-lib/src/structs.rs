@@ -5,11 +5,22 @@ use somes_macro::CompositeType;
 use sqlx::prelude::Type;
 use utoipa::{IntoParams, ToSchema};
 
-#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, PartialEq, Clone, CompositeType, Type)]
+#[derive(
+    IntoParams,
+    ToSchema,
+    Debug,
+    Deserialize,
+    Serialize,
+    Default,
+    PartialEq,
+    Clone,
+    CompositeType,
+    Type,
+)]
 pub struct FullMandate {
-    pub start_date: NaiveDate,
+    pub start_date: Option<NaiveDate>,
     pub end_date: Option<NaiveDate>,
-    pub name: String,
+    pub name: Option<String>,
     pub party: Option<String>,
     pub is_nr: Option<bool>,
     pub is_gov_official: Option<bool>,
@@ -20,8 +31,8 @@ pub struct FullMandate {
 
 #[derive(ToSchema, PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct DelegateMandate {
-    pub id: i32,
-    pub name: String,
+    pub id: Option<i32>,
+    pub name: Option<String>,
     pub party: Option<String>,
     pub current_party: Option<String>,
     pub image_url: Option<String>,
@@ -34,26 +45,7 @@ pub struct DelegateMandate {
     pub birthdate: Option<NaiveDate>,
     pub divisions: Option<Vec<String>>,
     pub active_mandates: Option<Vec<FullMandate>>,
-}
-
-#[derive(ToSchema, PartialEq, Debug, Clone, Serialize, Deserialize)]
-pub struct Delegate {
-    pub id: i32,
-    pub name: String,
-    pub party: Option<String>,
-    pub current_party: Option<String>,
-    pub image_url: Option<String>,
-    pub constituency: Option<String>,
-    pub council: Option<String>,
-    pub seat_row: Option<i32>,
-    pub seat_col: Option<i32>,
-    pub gender: Option<String>,
-    pub is_active: Option<bool>,
-    pub birthdate: Option<NaiveDate>,
-    pub active_since: NaiveDate,
-    pub divisions: Option<Vec<String>>,
-    pub primary_mandate: Option<String>,
-    pub active_mandates: Option<Vec<String>>,
+    pub mandates: Option<Vec<FullMandate>>,
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]

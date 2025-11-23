@@ -2,7 +2,7 @@ use axum::{extract::Query, Json};
 use dataservice::{combx::GovProposal, db::models::DbMinistrialProposalQuery};
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::Delegate;
+use somes_common_lib::{DelegateMandate};
 use sqlx::{query_as, PgPool};
 use utoipa::ToSchema;
 
@@ -14,7 +14,7 @@ use crate::{
 #[derive(ToSchema, Debug, Clone, Serialize, Deserialize)]
 pub struct GovProposalDelegate {
     pub gov_proposal: GovProposal,
-    pub delegate: Delegate,
+    pub delegate: DelegateMandate,
 }
 
 pub async fn construct_ministrial_proposal_delegate(

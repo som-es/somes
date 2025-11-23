@@ -4,9 +4,9 @@ use axum::{extract::Query, Json};
 use chrono::NaiveDate;
 use dataservice::db::models::DbProposalQuery;
 use redis::aio::MultiplexedConnection;
-use somes_common_lib::{Date, Delegate, DelegateById, InterestShare, LegisPeriod};
+use somes_common_lib::FullMandate;
+use somes_common_lib::{Date, DelegateById, DelegateMandate, InterestShare, LegisPeriod};
 use sqlx::PgPool;
-use utoipa::ToSchema;
 
 use crate::{
     dataservice::get_proposals, get_json_cache, set_json_cache_with_relevance, PgPoolConnection,
@@ -62,60 +62,20 @@ pub async fn delegate_by_id_sqlx(
     delegate_id: i32,
     pg: &PgPool,
     mut redis_con: MultiplexedConnection,
-) -> sqlx::Result<Delegate> {
+) -> sqlx::Result<DelegateMandate> {
     let key = delegate_id.to_string();
-    let res = get_json_cache::<Delegate>(&mut redis_con, &key).await;
+    let res = get_json_cache::<DelegateMandate>(&mut redis_con, &key).await;
     if let Some(res) = res {
         return Ok(res);
     }
     let delegate = sqlx::query_as!(
-        Delegate,
+        DelegateMandate,
         "
         SELECT
-    delegates.id,
-    delegates.name,
-    delegates.party,
-    delegates.party AS current_party,
-    delegates.image_url,
-    delegates.constituency,
-    delegates.council,
-    delegates.seat_row,
-    delegates.seat_col,
-    delegates.gender,
-    delegates.is_active,
-    delegates.birthdate,
-    mandates.name as primary_mandate,
-    mandates.start_date AS active_since,
-    COALESCE(divisions.division_array, '{}') AS divisions,
-    COALESCE(mandate_groups.mandate_array, '{}') AS active_mandates
-FROM
-    mandates
-INNER JOIN
-    delegates ON delegates.id = mandates.delegate_id
-LEFT JOIN
-    (SELECT
-        delegate_id,
-        ARRAY_AGG(division) AS division_array
-    FROM
-        delegates_divisions
-    GROUP BY
-        delegate_id) AS divisions
-    ON delegates.id = divisions.delegate_id
-LEFT JOIN
-    (SELECT
-        delegate_id,
-        ARRAY_AGG(name) AS mandate_array
-    FROM
-        mandates
-    WHERE
-        end_date IS NULL
-    GROUP BY
-        delegate_id) AS mandate_groups
-    ON delegates.id = mandate_groups.delegate_id
-WHERE
-     delegates.id = $1;
-
-",
+            * from delegates_with_mandates d
+        WHERE
+        d.id = $1;
+    ",
         delegate_id
     )
     .fetch_one(pg)
@@ -145,7 +105,7 @@ pub async fn delegate(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(delegate_by_id): Query<DelegateById>,
-) -> Result<Json<Delegate>, DelegatesErrorResponse> {
+) -> Result<Json<DelegateMandate>, DelegatesErrorResponse> {
     delegate_by_id_sqlx(delegate_by_id.delegate_id, &pg, redis_con)
         .await
         .map(Json)
@@ -171,127 +131,27 @@ pub async fn delegate(
 pub async fn delegates(
     // DataserviceDbConnection(con): DataserviceDbConnection,
     PgPoolConnection(pg): PgPoolConnection,
-) -> Result<Json<Vec<Delegate>>, DelegatesErrorResponse> {
-    /*
-      sqlx::query_as!(
-            Delegate,
-            "
-    SELECT
-        delegates.id,
-        delegates.name,
-        delegates.party,
-        delegates.party AS current_party,
-        delegates.image_url,
-        delegates.constituency,
-        CASE
-            WHEN mandates.is_nr THEN 'nr'
-            ELSE 'gov'
-        END AS council,
-        delegates.seat_row,
-        delegates.seat_col,
-        delegates.gender,
-        delegates.is_active,
-        delegates.birthdate,
-        mandates.start_date AS active_since,
-        COALESCE(divisions.division_array, '{}') AS divisions,
-        COALESCE(mandate_groups.mandate_array, '{}') AS active_mandates
-    FROM
-        delegates
-    INNER JOIN
-        mandates ON delegates.id = mandates.delegate_id
-    LEFT JOIN
-        (SELECT
-            delegate_id,
-            ARRAY_AGG(division) AS division_array
-        FROM
-            delegates_divisions
-        GROUP BY
-            delegate_id) AS divisions
-        ON delegates.id = divisions.delegate_id
-    LEFT JOIN
-        (SELECT
-            delegate_id,
-            ARRAY_AGG(CASE WHEN is_gov_official THEN TRUE ELSE FALSE END) AS is_gov_official_array,
-            ARRAY_AGG(CASE WHEN is_nr THEN TRUE ELSE FALSE END) AS is_nr_array,
-            ARRAY_AGG(name) AS mandate_array
-        FROM
-            mandates
-        WHERE
-            (is_gov_official or is_nr)
-            AND end_date IS NULL
-        GROUP BY
-            delegate_id) AS mandate_groups
-        ON delegates.id = mandate_groups.delegate_id
-    WHERE
-        (is_gov_official or is_nr)
-        AND mandates.end_date IS NULL
-    order by mandates.start_date;
-            "
-        )
-        .fetch_all(&pg)
-        .await
-        .map(Json)
-        .map_err(|_| DelegatesErrorResponse::DelegateResponseError);
-    */
-
-    sqlx::query_as!(
-        Delegate,
+) -> Result<Json<Vec<DelegateMandate>>, DelegatesErrorResponse> {
+    Ok(sqlx::query_as!(
+        DelegateMandate,
         "
 SELECT
-    delegates.id,
-    delegates.name,
-    delegates.party,
-    delegates.party AS current_party,
-    delegates.image_url,
-    delegates.constituency,
-    CASE
-        WHEN mandates.is_nr THEN 'nr'
-        WHEN mandates.is_gov_official THEN 'gov'
-        ELSE 'gov'
-    END AS council,
-    delegates.seat_row,
-    delegates.seat_col,
-    delegates.gender,
-    delegates.is_active,
-    delegates.birthdate,
-    mandates.name as primary_mandate,
-    mandates.start_date AS active_since,
-    COALESCE(divisions.division_array, '{}') AS divisions,
-    COALESCE(mandate_groups.mandate_array, '{}') AS active_mandates
-FROM
-    mandates
-INNER JOIN
-    delegates ON delegates.id = mandates.delegate_id
-LEFT JOIN
-    (SELECT
-        delegate_id,
-        ARRAY_AGG(division) AS division_array
-    FROM
-        delegates_divisions
-    GROUP BY
-        delegate_id) AS divisions
-    ON delegates.id = divisions.delegate_id
-LEFT JOIN
-    (SELECT
-        delegate_id,
-        ARRAY_AGG(name) AS mandate_array
-    FROM
-        mandates
-    WHERE
-        is_nr
-        AND end_date IS NULL
-    GROUP BY
-        delegate_id) AS mandate_groups
-    ON delegates.id = mandate_groups.delegate_id
+    * from delegates_with_mandates
 WHERE
-    is_nr
-    AND mandates.end_date IS NULL;
+    is_active
+    -- return only delegates with at least on 'is_nr' mandate
+    AND EXISTS (
+      SELECT 1
+      FROM unnest(\"active_mandates: Vec<FullMandate>\") am
+      WHERE am.is_nr and am.end_date IS NULL
+  );
         "
     )
     .fetch_all(&pg)
     .await
     .map(Json)
-    .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
+    .unwrap())
+    // .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
 }
 
 #[utoipa::path(
@@ -311,7 +171,7 @@ pub async fn delegates_at(
     RedisConnection(mut redis_con): RedisConnection,
     Query(date): Query<Date>,
     PgPoolConnection(pg): PgPoolConnection,
-) -> Result<Json<Vec<Delegate>>, DelegatesErrorResponse> {
+) -> Result<Json<Vec<DelegateMandate>>, DelegatesErrorResponse> {
     delegates_at_date(&pg, &date.at, &mut redis_con)
         .await
         .map(Json)
@@ -335,7 +195,7 @@ pub async fn delegates_with_seats_near_date_route(
     Query(gp): Query<LegisPeriod>,
     Query(date): Query<Date>,
     PgPoolConnection(pg): PgPoolConnection,
-) -> Result<Json<Vec<Delegate>>, DelegatesErrorResponse> {
+) -> Result<Json<Vec<DelegateMandate>>, DelegatesErrorResponse> {
     if date.at
         < NaiveDate::from_str("2024-08-01")
             .map_err(|_| DelegatesErrorResponse::DateOutOfRangeError)?
@@ -354,71 +214,52 @@ pub async fn delegates_with_seats_near_date(
     date: &NaiveDate,
     redis_con: &mut MultiplexedConnection,
     gp: &str,
-) -> sqlx::Result<Vec<Delegate>> {
+) -> sqlx::Result<Vec<DelegateMandate>> {
     let key = format!("delegates_with_seats_near_date/{date:?}");
     if let Some(delegates) = get_json_cache(redis_con, &key).await {
         return Ok(delegates);
     }
 
     let delegates = sqlx::query_as!(
-        Delegate,
+        DelegateMandate,
         "
-SELECT
-    d.id,
-    d.name,
-    m.party,
-    d.party AS current_party,
-    d.image_url,
-    d.constituency,
-    CASE
-        WHEN m.is_nr THEN 'nr'
-        WHEN m.is_gov_official THEN 'gov'
-        ELSE ''
-    END AS council,
-    ranked.seat_row,
-    ranked.seat_col,
-    d.gender,
-    d.is_active,
-    d.birthdate,
-    m.start_date AS active_since,
-    m.name as primary_mandate,
-    COALESCE(divisions.division_array, '{}') AS divisions,
-    COALESCE(mandate_groups.mandate_array, '{}') AS active_mandates
-FROM (
+WITH ranked AS (
     SELECT sh.*,
-        ROW_NUMBER() OVER (PARTITION BY sh.delegate_id ORDER BY $1 - sh.insertion_date::date ASC) AS rn
-    FROM seat_history AS sh
-    WHERE gp = $2 AND $1 - sh.insertion_date::date >= 0
-) AS ranked
-JOIN delegates AS d ON d.id = ranked.delegate_id
-INNER JOIN mandates AS m ON m.delegate_id = d.id
-LEFT JOIN (
-    SELECT
-        delegate_id,
-        ARRAY_AGG(division) AS division_array
-    FROM
-        delegates_divisions
-    GROUP BY
-        delegate_id
-) AS divisions ON d.id = divisions.delegate_id
-LEFT JOIN (
-    SELECT
-        delegate_id,
-        ARRAY_AGG(name) AS mandate_array
-    FROM
-        mandates
-    WHERE
-        is_nr
-        AND end_date IS NULL
-    GROUP BY
-        delegate_id
-) AS mandate_groups ON d.id = mandate_groups.delegate_id
-WHERE
-    m.is_nr
-    AND m.start_date <= $1::date
-    AND (CASE WHEN m.end_date IS NULL THEN $1::date ELSE m.end_date END) >= $1::date
-    AND ranked.rn = 1;
-
+           ROW_NUMBER() OVER (
+               PARTITION BY sh.delegate_id
+               ORDER BY $1::date - sh.insertion_date::date ASC
+           ) AS rn
+    FROM seat_history sh
+    WHERE sh.gp = $2
+      AND $1::date - sh.insertion_date::date >= 0
+)
+SELECT
+    v.id,
+    v.name,
+    v.party,
+    v.current_party,
+    v.image_url,
+    v.constituency,
+    v.council,
+    r.seat_row,
+    r.seat_col,
+    v.gender,
+    v.is_active,
+    v.birthdate,
+    v.divisions,
+    v.\"active_mandates: Vec<FullMandate>\",
+    v.\"mandates: Vec<FullMandate>\"
+FROM ranked r
+JOIN delegates_with_mandates v ON v.id = r.delegate_id
+WHERE r.rn = 1
+ AND EXISTS (
+      SELECT 1
+      FROM unnest(\"mandates: Vec<FullMandate>\") am
+      WHERE am.is_nr 
+        AND am.start_date <= $1::date 
+        AND (CASE WHEN am.end_date IS NULL THEN $1::date ELSE am.end_date END) >= $1::date
+  );
+;
         ", date, gp
     )
     .fetch_all(pg)
@@ -434,7 +275,7 @@ pub async fn gov_officials_at_date_route(
     RedisConnection(mut redis_con): RedisConnection,
     Query(date): Query<Date>,
     PgPoolConnection(pg): PgPoolConnection,
-) -> Result<Json<Vec<Delegate>>, DelegatesErrorResponse> {
+) -> Result<Json<Vec<DelegateMandate>>, DelegatesErrorResponse> {
     gov_officials_at_date(&pg, &date.at, &mut redis_con)
         .await
         .map(Json)
@@ -444,62 +285,38 @@ pub async fn gov_officials_at_date_route(
 pub async fn gov_officials_at_date_sqlx(
     pg: &PgPool,
     date: &NaiveDate,
-) -> sqlx::Result<Vec<Delegate>> {
+) -> sqlx::Result<Vec<DelegateMandate>> {
     sqlx::query_as!(
-        Delegate,
+        DelegateMandate,
         "
-    SELECT DISTINCT ON (delegates.id)
-        delegates.id,
-        delegates.name,
-        mandates.party,
-        delegates.party AS current_party,
-        delegates.image_url,
-        delegates.constituency,
-        CASE
-            WHEN mandates.is_nr THEN 'nr'
-            WHEN mandates.is_gov_official THEN 'gov'
-            ELSE 'gov'
-        END AS council,
-        delegates.seat_row,
-        delegates.seat_col,
-        delegates.gender,
-        delegates.is_active,
-        delegates.birthdate,
-        mandates.name as primary_mandate,
-        mandates.start_date AS active_since,
-        COALESCE(divisions.division_array, '{}') AS divisions,
-        COALESCE(mandate_groups.mandate_array, '{}') AS active_mandates
-    FROM
-        mandates
-    INNER JOIN
-        delegates ON delegates.id = mandates.delegate_id
-    LEFT JOIN
-        (SELECT
-            delegate_id,
-            ARRAY_AGG(division) AS division_array
-        FROM
-            delegates_divisions
-        GROUP BY
-            delegate_id) AS divisions
-        ON delegates.id = divisions.delegate_id
-    LEFT JOIN
-        (SELECT
-            delegate_id,
-            ARRAY_AGG(name) AS mandate_array
-        FROM
-            mandates
-        WHERE
-            is_gov_official
-            AND end_date IS NULL
-        GROUP BY
-            delegate_id) AS mandate_groups
-        ON delegates.id = mandate_groups.delegate_id
-    WHERE
-        mandates.is_gov_official
-        AND mandates.start_date <= $1::date
-        AND (CASE WHEN mandates.end_date IS NULL THEN $1::date ELSE mandates.end_date END) >= $1::date;
+        SELECT
+    v.id,
+    v.name,
+    v.party,
+    v.current_party,
+    v.image_url,
+    v.constituency,
+    'gov' as council,
+    v.seat_row,
+    v.seat_col,
+    v.gender,
+    v.is_active,
+    v.birthdate,
+    v.divisions,
+    v.\"active_mandates: Vec<FullMandate>\",
+    v.\"mandates: Vec<FullMandate>\"
+FROM
+    delegates_with_mandates v
+WHERE
+    EXISTS (
+        SELECT 1
+        FROM unnest(v.\"active_mandates: Vec<FullMandate>\") am
+        WHERE am.is_gov_official
+          AND am.start_date <= $1::date
+          AND (CASE WHEN am.end_date IS NULL THEN $1::date ELSE am.end_date END) >= $1::date
+    );
 
-        ",
+            ",
         date
     )
     .fetch_all(pg)
@@ -510,7 +327,7 @@ pub async fn gov_officials_at_date(
     pg: &PgPool,
     date: &NaiveDate,
     redis_con: &mut MultiplexedConnection,
-) -> sqlx::Result<Vec<Delegate>> {
+) -> sqlx::Result<Vec<DelegateMandate>> {
     let key = format!("gov_officials_at_date/{date:?}");
     if let Some(delegates) = get_json_cache(redis_con, &key).await {
         return Ok(delegates);
@@ -526,65 +343,25 @@ pub async fn delegates_at_date(
     pg: &PgPool,
     date: &NaiveDate,
     redis_con: &mut MultiplexedConnection,
-) -> sqlx::Result<Vec<Delegate>> {
+) -> sqlx::Result<Vec<DelegateMandate>> {
     let key = format!("delegates_at/{date:?}");
     if let Some(delegates) = get_json_cache(redis_con, &key).await {
         return Ok(delegates);
     }
 
     let delegates = sqlx::query_as!(
-        Delegate,
+        DelegateMandate,
         "
-    SELECT
-        delegates.id,
-        delegates.name,
-        mandates.party,
-        delegates.party AS current_party,
-        delegates.image_url,
-        delegates.constituency,
-        CASE
-            WHEN mandates.is_nr THEN 'nr'
-            WHEN mandates.is_gov_official THEN 'gov'
-            ELSE 'gov'
-        END AS council,
-        delegates.seat_row,
-        delegates.seat_col,
-        delegates.gender,
-        delegates.is_active,
-        delegates.birthdate,
-        mandates.name as primary_mandate,
-        mandates.start_date AS active_since,
-        COALESCE(divisions.division_array, '{}') AS divisions,
-        COALESCE(mandate_groups.mandate_array, '{}') AS active_mandates
-    FROM
-        mandates
-    INNER JOIN
-        delegates ON delegates.id = mandates.delegate_id
-    LEFT JOIN
-        (SELECT
-            delegate_id,
-            ARRAY_AGG(division) AS division_array
-        FROM
-            delegates_divisions
-        GROUP BY
-            delegate_id) AS divisions
-        ON delegates.id = divisions.delegate_id
-    LEFT JOIN
-        (SELECT
-            delegate_id,
-            ARRAY_AGG(name) AS mandate_array
-        FROM
-            mandates
-        WHERE
-            is_nr
-            AND end_date IS NULL
-        GROUP BY
-            delegate_id) AS mandate_groups
-        ON delegates.id = mandate_groups.delegate_id
-    WHERE
-        mandates.is_nr
-        AND mandates.start_date <= $1::date
-        AND (CASE WHEN mandates.end_date IS NULL THEN $1::date ELSE mandates.end_date END) >= $1::date;
+SELECT
+    * from delegates_with_mandates
+WHERE
+    EXISTS (
+      SELECT 1
+      FROM unnest(\"active_mandates: Vec<FullMandate>\") am
+      WHERE am.is_nr
+      AND am.start_date <= $1::date
+      AND (CASE WHEN am.end_date IS NULL THEN $1::date ELSE am.end_date END) >= $1::date
+    );
 
         ",
         date

@@ -1,9 +1,8 @@
-use sqlx::PgPool;
+use sqlx::{Postgres, Transaction};
 
-pub async fn create_ministerial_decrees_with_docs_view(pool: &PgPool) -> sqlx::Result<()> {
-    let mut tx = pool.begin().await?;
+pub async fn create_ministerial_decrees_with_docs_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sqlx::Result<()> {
     sqlx::query!("DROP VIEW IF EXISTS ministrial_decrees_with_docs;")
-        .execute(&mut *tx)
+        .execute(&mut **tx)
         .await?;
     sqlx::query!(
         r#"
@@ -39,7 +38,7 @@ pub async fn create_ministerial_decrees_with_docs_view(pool: &PgPool) -> sqlx::R
             d.emphasis, d.gp, d.eli, d.document_url;
         "#
     )
-    .execute(&mut *tx)
+    .execute(&mut **tx)
     .await?;
-    tx.commit().await
+    Ok(())
 }
