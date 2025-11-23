@@ -232,15 +232,25 @@ WITH ranked AS (
     FROM seat_history sh
     WHERE sh.gp = $2
       AND $1::date - sh.insertion_date::date >= 0
-)
+),
+primary_mandate AS (
+    SELECT m.delegate_id,
+           m.party,
+           m.start_date AS active_since,
+           m.name AS primary_mandate
+    FROM mandates m
+    WHERE m.is_nr
+      AND m.start_date <= $1::date
+      AND COALESCE(m.end_date, $1::date) >= $1::date
+    )
 SELECT
     v.id,
     v.name,
-    v.party,
+    pm.party,
     v.current_party,
     v.image_url,
     v.constituency,
-    v.council,
+    'nr' as council,
     r.seat_row,
     r.seat_col,
     v.gender,
@@ -251,7 +261,9 @@ SELECT
     v.\"mandates: Vec<FullMandate>\"
 FROM ranked r
 JOIN delegates_with_mandates v ON v.id = r.delegate_id
+JOIN primary_mandate pm ON pm.delegate_id = v.id
 WHERE r.rn = 1
+-- this is already ensured by primary_mandate CTE
  AND EXISTS (
       SELECT 1
       FROM unnest(\"mandates: Vec<FullMandate>\") am
@@ -310,7 +322,7 @@ FROM
 WHERE
     EXISTS (
         SELECT 1
-        FROM unnest(v.\"active_mandates: Vec<FullMandate>\") am
+        FROM unnest(v.\"mandates: Vec<FullMandate>\") am
         WHERE am.is_gov_official
           AND am.start_date <= $1::date
           AND (CASE WHEN am.end_date IS NULL THEN $1::date ELSE am.end_date END) >= $1::date
@@ -352,12 +364,38 @@ pub async fn delegates_at_date(
     let delegates = sqlx::query_as!(
         DelegateMandate,
         "
-SELECT
-    * from delegates_with_mandates
+WITH primary_mandate AS (
+    SELECT m.delegate_id,
+           m.party,
+           m.start_date AS active_since,
+           m.name AS primary_mandate
+    FROM mandates m
+    WHERE m.is_nr
+      AND m.start_date <= $1::date
+      AND COALESCE(m.end_date, $1::date) >= $1::date
+)
+SELECT distinct on (v.id)
+    v.id,
+    v.name,
+    pm.party,
+    v.current_party,
+    v.image_url,
+    v.constituency,
+    'nr' as council,
+    v.seat_row,
+    v.seat_col,
+    v.gender,
+    v.is_active,
+    v.birthdate,
+    v.divisions,
+    v.\"active_mandates: Vec<FullMandate>\",
+    v.\"mandates: Vec<FullMandate>\"
+    from delegates_with_mandates v
+JOIN primary_mandate pm ON pm.delegate_id = v.id
 WHERE
     EXISTS (
       SELECT 1
-      FROM unnest(\"active_mandates: Vec<FullMandate>\") am
+      FROM unnest(\"mandates: Vec<FullMandate>\") am
       WHERE am.is_nr
       AND am.start_date <= $1::date
       AND (CASE WHEN am.end_date IS NULL THEN $1::date ELSE am.end_date END) >= $1::date
