@@ -17,8 +17,8 @@ function generateDelegate(party: string): Delegate {
 		birthdate: '2000-01-01',
 		active_since: new Date(),
 		divisions: null,
-		primary_mandate: '',
-		active_mandates: []
+		active_mandates: [],
+		mandates: []
 	};
 }
 
@@ -66,30 +66,35 @@ export function mockVoteResult(date: string = '2020-03-06'): VoteResult {
 				party: 'SPÖ',
 				fraction: 40,
 				infavor: false,
-				legislative_initiatives_id: 0
+				legislative_initiatives_id: 0,
+				code: "S"
 			},
 			{
 				party: 'FPÖ',
 				fraction: 30,
 				infavor: true,
-				legislative_initiatives_id: 0
+				legislative_initiatives_id: 0,
+				code: "F"
 			},
 			{
 				party: 'NEOS',
 				fraction: 15,
 				infavor: true,
-				legislative_initiatives_id: 0
+				legislative_initiatives_id: 0,
+				code: "N",
 			},
 			{
 				party: 'ÖVP',
 				fraction: 71,
 				infavor: false,
+				code: "V",
 				legislative_initiatives_id: 0
 			},
 			{
 				party: 'GRÜNE',
 				fraction: 26,
 				infavor: true,
+				code: "G",
 				legislative_initiatives_id: 0
 			}
 		],

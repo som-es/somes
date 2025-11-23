@@ -125,11 +125,23 @@
 			{/if}
 		</h5>
 		{#if delegate.party == null}
-			<h6 class="text-sm md:text-lg">{delegate.primary_mandate}</h6>
+			{#each delegate.mandates?? [] as mandate}
+				{#if mandate.is_nr || mandate.is_gov_official || mandate.is_chancellor}
+					<h6 class="text-sm md:text-lg">
+						{mandate}
+					</h6>
+				{/if}
+			{/each}
 		{/if}
 		<!-- <span class="max-sm:hidden"> -->
 			{#if delegate.party && (delegate.active_mandates?.length == null || delegate.active_mandates?.length == 0)}
-				<h6 class="text-sm md:text-lg">{delegate.primary_mandate}</h6>
+				{#each delegate.mandates?? [] as mandate}
+					{#if mandate.is_nr || mandate.is_gov_official || mandate.is_chancellor}
+						<h6 class="text-sm md:text-lg">
+							{mandate}
+						</h6>
+					{/if}
+				{/each}
 			{:else if delegate.party}
 				{#each delegate.active_mandates?? [] as mandate}
 					<h6 class="text-sm md:text-lg">
