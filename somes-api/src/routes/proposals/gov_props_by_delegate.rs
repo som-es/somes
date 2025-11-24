@@ -1,4 +1,7 @@
-use axum::{extract::Query, Json};
+use axum::{
+    extract::{Path, Query},
+    Json,
+};
 use dataservice::combx::GovProposal;
 use somes_common_lib::DelegateById;
 use sqlx::query_as;
@@ -11,17 +14,12 @@ use crate::{
 pub async fn gov_proposals_by_official(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
-    Query(delegate_by_id): Query<DelegateById>,
+    Path(delegate_id): Path<i32>,
 ) -> Result<Json<Vec<GovProposal>>, LegisInitErrorResponse> {
-    extract_gov_prosals_by_delegate(redis_con, &pg, delegate_by_id.delegate_id)
+    extract_gov_prosals_by_delegate(redis_con, &pg, delegate_id)
         .await
         .map(Json)
         .map_err(|_| LegisInitErrorResponse::LegisInit)
-
-    // get_vote_result_by_id(&pg, vote_result_id.id)
-    //     .await
-    //     .map(Json)
-    //     .map_err(|_| LegisInitErrorResponse::VoteResultById)
 }
 
 pub async fn extract_gov_prosals_by_delegate(
@@ -33,31 +31,31 @@ pub async fn extract_gov_prosals_by_delegate(
     let ministrial_proposals = query_as!(
         DbMinistrialProposalQuery,
         "
-        select 
+        select
             mi.delegate_id,
-            mp.id, 
-            mp.ityp, 
-            mp.gp, 
-            mp.inr, 
-            mp.emphasis, 
-            mp.title, 
-            mp.description, 
-            mp.created_at, 
-            mp.updated_at, 
-            mp.due_to, 
-            mp.ressort, 
-            mp.ressort_shortform, 
-            mp.legis_init_gp, 
-            mp.legis_init_inr, 
+            mp.id,
+            mp.ityp,
+            mp.gp,
+            mp.inr,
+            mp.emphasis,
+            mp.title,
+            mp.description,
+            mp.created_at,
+            mp.updated_at,
+            mp.due_to,
+            mp.ressort,
+            mp.ressort_shortform,
+            mp.legis_init_gp,
+            mp.legis_init_inr,
             mp.legis_init_ityp,
             mp.has_vote_result
-        from 
-            ministrial_issuer as mi 
-        inner join 
-            ministrial_proposals as mp 
-        on 
-            mp.id = mi.ministrial_proposal_id 
-        where 
+        from
+            ministrial_issuer as mi
+        inner join
+            ministrial_proposals as mp
+        on
+            mp.id = mi.ministrial_proposal_id
+        where
             delegate_id = $1
         order by created_at DESC;
     ",

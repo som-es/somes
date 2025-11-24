@@ -9,12 +9,13 @@ use dataservice::db::models::DbProposalQuery;
 use redis::aio::MultiplexedConnection;
 use somes_common_lib::{
     Date, Delegate, DelegateById, InterestShare, LegisPeriod, ALL_ACTIVE, ALL_AT_DATE,
-    ALL_AT_DATE_WITH_SEAT_INFO, DELEGATE_QA, EXTEND, ID, SPEECHES_BY_DELEGATE_PER_PAGE,
-    SPEECHES_PER_PAGE_ROUTE,
+    ALL_AT_DATE_WITH_SEAT_INFO, DELEGATE_QA, EXTEND, GOV_PROPOSALS, ID,
+    SPEECHES_BY_DELEGATE_PER_PAGE, SPEECHES_PER_PAGE_ROUTE,
 };
 use somes_common_lib::{FullMandate, DELEGATES_AT};
 use sqlx::PgPool;
 
+use crate::routes::gov_proposals_by_official;
 use crate::server::AppState;
 use crate::SPEECHES_PER_PAGE;
 use crate::{
@@ -47,6 +48,7 @@ pub use speeches::*;
 pub fn create_gov_officials_router() -> Router<AppState> {
     Router::new()
         .route(ALL_AT_DATE, get(gov_officials_at_date_route))
+        .route(GOV_PROPOSALS, get(gov_proposals_by_official))
         .route(EXTEND, get(general_gov_official_info))
 }
 

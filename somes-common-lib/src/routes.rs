@@ -89,6 +89,7 @@ pub const VOTE_RESULT_BY_SEARCH: &str = "/vote_result_by_search";
 pub const UNFINISHED_VOTE_RESULT_BY_SEARCH: &str = "/unfinished_vote_result_by_search";
 pub const DELEGATES_AT: &str = "/delegates_at";
 pub const ALL_AT_DATE: &str = "/all_at_date";
+pub const GOV_PROPOSALS: &str = "/gov_proposals/{id}";
 pub const ALL_AT_DATE_WITH_SEAT_INFO: &str = "/all_at_date_with_seat_info";
 pub const ID: &str = "/id/{id}";
 pub const EXTEND: &str = "/extend/{id}";

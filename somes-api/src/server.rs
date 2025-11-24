@@ -276,7 +276,6 @@ pub async fn serve(addr: SocketAddr) {
         .route(FAVO_LEGIS_INIT, post(add_legis_init_favo))
         .route(SEND_MAIL_INFO, put(update_send_mail_info))
         .route(SEND_MAIL_INFO, get(get_send_mail_info))
-        .route(GOV_PROPOSALS_BY_OFFICIAL, get(gov_proposals_by_official))
         .route(GOV_PROPOSALS_PER_PAGE, post(get_gov_proposals_per_page))
         .route(GOV_PROPOSALS_BY_SEARCH, post(gov_props_by_search)) // post only because js fetch...
         .route(GOV_PROPOSAL_BY_PATH, get(gov_proposal_by_path))
@@ -290,8 +289,8 @@ pub async fn serve(addr: SocketAddr) {
         .route(NEXT_PLENAR_DATE, get(next_plenar_date))
         .route(PLENAR_DATES, get(plenar_dates))
         .route("/save_email", post(save_email))
-        .nest("/statistics", create_statistics_router())
-        .nest("/delegates", create_delegates_router());
+        .nest("/v1/statistics", create_statistics_router())
+        .nest("/v1/delegates", create_delegates_router());
 
     let app = Router::new()
         .nest("/api", api_routes)

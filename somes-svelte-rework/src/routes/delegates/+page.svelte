@@ -21,7 +21,6 @@
 		errorToNull,
 		general_delegate_info,
 		general_gov_official_info,
-		gov_proposals_by_official,
 		speeches_by_delegate_per_page
 	} from '$lib/api/api';
 	import InterestTiles from '$lib/components/Delegates/InterestTiles.svelte';
