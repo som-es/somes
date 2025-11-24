@@ -30,7 +30,7 @@ pub struct FullMandate {
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, Serialize, Deserialize, Default)]
-pub struct DelegateMandate {
+pub struct Delegate {
     pub id: Option<i32>,
     pub name: Option<String>,
     pub party: Option<String>,

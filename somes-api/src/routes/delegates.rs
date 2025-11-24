@@ -1,13 +1,22 @@
 use std::{collections::HashMap, str::FromStr};
 
+use axum::extract::Path;
+use axum::routing::get;
+use axum::Router;
 use axum::{extract::Query, Json};
 use chrono::NaiveDate;
 use dataservice::db::models::DbProposalQuery;
 use redis::aio::MultiplexedConnection;
-use somes_common_lib::FullMandate;
-use somes_common_lib::{Date, DelegateById, DelegateMandate, InterestShare, LegisPeriod};
+use somes_common_lib::{
+    Date, Delegate, DelegateById, InterestShare, LegisPeriod, ALL_ACTIVE, ALL_AT_DATE,
+    ALL_AT_DATE_WITH_SEAT_INFO, DELEGATE_QA, EXTEND, ID, SPEECHES_BY_DELEGATE_PER_PAGE,
+    SPEECHES_PER_PAGE_ROUTE,
+};
+use somes_common_lib::{FullMandate, DELEGATES_AT};
 use sqlx::PgPool;
 
+use crate::server::AppState;
+use crate::SPEECHES_PER_PAGE;
 use crate::{
     dataservice::get_proposals, get_json_cache, set_json_cache_with_relevance, PgPoolConnection,
     RedisConnection,
@@ -34,6 +43,27 @@ pub use gov_officials::*;
 pub use interests::*;
 pub use qa::*;
 pub use speeches::*;
+
+pub fn create_gov_officials_router() -> Router<AppState> {
+    Router::new()
+        .route(ALL_AT_DATE, get(gov_officials_at_date_route))
+        .route(EXTEND, get(general_gov_official_info))
+}
+
+pub fn create_delegates_router() -> Router<AppState> {
+    Router::new()
+        .route(ALL_AT_DATE, get(delegates_at))
+        .route(ID, get(delegate_by_id_path))
+        .route(ALL_ACTIVE, get(delegates))
+        .route(DELEGATE_QA, get(delegate_qa))
+        .route(SPEECHES_PER_PAGE_ROUTE, get(speeches_by_delegate_per_page))
+        .route(
+            ALL_AT_DATE_WITH_SEAT_INFO,
+            get(delegates_with_seats_near_date_route),
+        )
+        .route(EXTEND, get(extended_delegate_info))
+        .nest("/gov_officials", create_gov_officials_router())
+}
 
 #[utoipa::path(
     get,
@@ -62,14 +92,14 @@ pub async fn delegate_by_id_sqlx(
     delegate_id: i32,
     pg: &PgPool,
     mut redis_con: MultiplexedConnection,
-) -> sqlx::Result<DelegateMandate> {
+) -> sqlx::Result<Delegate> {
     let key = delegate_id.to_string();
-    let res = get_json_cache::<DelegateMandate>(&mut redis_con, &key).await;
+    let res = get_json_cache::<Delegate>(&mut redis_con, &key).await;
     if let Some(res) = res {
         return Ok(res);
     }
     let delegate = sqlx::query_as!(
-        DelegateMandate,
+        Delegate,
         "
         SELECT
             * from delegates_with_mandates d
@@ -100,23 +130,26 @@ pub async fn delegate_by_id_sqlx(
         (status = 500, description = "Internal server error", body = [DelegatesErrorResponse])
     )
 )]
-pub async fn delegate(
-    // DataserviceDbConnection(con): DataserviceDbConnection,
+pub async fn delegate_by_id(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(delegate_by_id): Query<DelegateById>,
-) -> Result<Json<DelegateMandate>, DelegatesErrorResponse> {
+) -> Result<Json<Delegate>, DelegatesErrorResponse> {
     delegate_by_id_sqlx(delegate_by_id.delegate_id, &pg, redis_con)
         .await
         .map(Json)
         .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
-    // con.interact(move |con| {
-    //     get_delegate(con, delegate_by_id.delegate_id)
-    //         .map(Json)
-    //         .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
-    // })
-    // .await
-    // .map_err(|_| DelegatesErrorResponse::DelegateResponseError)?
+}
+
+pub async fn delegate_by_id_path(
+    RedisConnection(redis_con): RedisConnection,
+    PgPoolConnection(pg): PgPoolConnection,
+    Path(id): Path<i32>,
+) -> Result<Json<Delegate>, DelegatesErrorResponse> {
+    delegate_by_id_sqlx(id, &pg, redis_con)
+        .await
+        .map(Json)
+        .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
 }
 
 #[utoipa::path(
@@ -131,9 +164,9 @@ pub async fn delegate(
 pub async fn delegates(
     // DataserviceDbConnection(con): DataserviceDbConnection,
     PgPoolConnection(pg): PgPoolConnection,
-) -> Result<Json<Vec<DelegateMandate>>, DelegatesErrorResponse> {
+) -> Result<Json<Vec<Delegate>>, DelegatesErrorResponse> {
     Ok(sqlx::query_as!(
-        DelegateMandate,
+        Delegate,
         "
 SELECT
     * from delegates_with_mandates
@@ -171,7 +204,7 @@ pub async fn delegates_at(
     RedisConnection(mut redis_con): RedisConnection,
     Query(date): Query<Date>,
     PgPoolConnection(pg): PgPoolConnection,
-) -> Result<Json<Vec<DelegateMandate>>, DelegatesErrorResponse> {
+) -> Result<Json<Vec<Delegate>>, DelegatesErrorResponse> {
     delegates_at_date(&pg, &date.at, &mut redis_con)
         .await
         .map(Json)
@@ -195,7 +228,7 @@ pub async fn delegates_with_seats_near_date_route(
     Query(gp): Query<LegisPeriod>,
     Query(date): Query<Date>,
     PgPoolConnection(pg): PgPoolConnection,
-) -> Result<Json<Vec<DelegateMandate>>, DelegatesErrorResponse> {
+) -> Result<Json<Vec<Delegate>>, DelegatesErrorResponse> {
     if date.at
         < NaiveDate::from_str("2024-08-01")
             .map_err(|_| DelegatesErrorResponse::DateOutOfRangeError)?
@@ -214,14 +247,14 @@ pub async fn delegates_with_seats_near_date(
     date: &NaiveDate,
     redis_con: &mut MultiplexedConnection,
     gp: &str,
-) -> sqlx::Result<Vec<DelegateMandate>> {
+) -> sqlx::Result<Vec<Delegate>> {
     let key = format!("delegates_with_seats_near_date/{date:?}");
     if let Some(delegates) = get_json_cache(redis_con, &key).await {
         return Ok(delegates);
     }
 
     let delegates = sqlx::query_as!(
-        DelegateMandate,
+        Delegate,
         "
 WITH ranked AS (
     SELECT sh.*,
@@ -293,7 +326,7 @@ pub async fn gov_officials_at_date_route(
     RedisConnection(mut redis_con): RedisConnection,
     Query(date): Query<Date>,
     PgPoolConnection(pg): PgPoolConnection,
-) -> Result<Json<Vec<DelegateMandate>>, DelegatesErrorResponse> {
+) -> Result<Json<Vec<Delegate>>, DelegatesErrorResponse> {
     gov_officials_at_date(&pg, &date.at, &mut redis_con)
         .await
         .map(Json)
@@ -303,9 +336,9 @@ pub async fn gov_officials_at_date_route(
 pub async fn gov_officials_at_date_sqlx(
     pg: &PgPool,
     date: &NaiveDate,
-) -> sqlx::Result<Vec<DelegateMandate>> {
+) -> sqlx::Result<Vec<Delegate>> {
     sqlx::query_as!(
-        DelegateMandate,
+        Delegate,
         "
         SELECT
     v.id,
@@ -350,7 +383,7 @@ pub async fn gov_officials_at_date(
     pg: &PgPool,
     date: &NaiveDate,
     redis_con: &mut MultiplexedConnection,
-) -> sqlx::Result<Vec<DelegateMandate>> {
+) -> sqlx::Result<Vec<Delegate>> {
     let key = format!("gov_officials_at_date/{date:?}");
     if let Some(delegates) = get_json_cache(redis_con, &key).await {
         return Ok(delegates);
@@ -366,14 +399,14 @@ pub async fn delegates_at_date(
     pg: &PgPool,
     date: &NaiveDate,
     redis_con: &mut MultiplexedConnection,
-) -> sqlx::Result<Vec<DelegateMandate>> {
+) -> sqlx::Result<Vec<Delegate>> {
     let key = format!("delegates_at/{date:?}");
     if let Some(delegates) = get_json_cache(redis_con, &key).await {
         return Ok(delegates);
     }
 
     let delegates = sqlx::query_as!(
-        DelegateMandate,
+        Delegate,
         "
 SELECT
     v.id,

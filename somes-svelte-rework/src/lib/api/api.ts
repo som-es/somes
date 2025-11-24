@@ -121,7 +121,7 @@ export async function parties(): Promise<Party[] | HasError> {
 }
 
 export async function delegates(): Promise<Delegate[] | HasError> {
-	return getWithRoute<Delegate[]>('delegates');
+	return getWithRoute<Delegate[]>('delegates/all_active');
 }
 
 export async function latest_vote_results(): Promise<VoteResult[] | HasError> {
@@ -133,7 +133,7 @@ export async function all_gps(): Promise<LegisPeriod[] | HasError> {
 }
 
 export async function delegate_by_id(delegate_id: number): Promise<Delegate | HasError> {
-	return getWithRoute<Delegate>(`delegate?delegate_id=${delegate_id}`);
+	return getWithRoute<Delegate>(`delegates/id/${delegate_id}`);
 }
 
 export async function delegate_interests(delegate_id: number): Promise<InterestShare[] | HasError> {
@@ -143,11 +143,11 @@ export async function delegate_interests(delegate_id: number): Promise<InterestS
 export async function general_delegate_info(
 	delegate_id: number
 ): Promise<GeneralDelegateInfo | HasError> {
-	return getWithRoute<GeneralDelegateInfo>(`general_delegate_info?delegate_id=${delegate_id}`);
+	return getWithRoute<GeneralDelegateInfo>(`delegates/extend/${delegate_id}`);
 }
 
 export async function delegate_qa(delegate_id: number): Promise<DelegateQA[] | HasError> {
-	return getWithRoute<DelegateQA[]>(`delegate_qa?delegate_id=${delegate_id}`);
+	return getWithRoute<DelegateQA[]>(`delegates/delegate_qa/${delegate_id}`);
 }
 
 export async function vote_result_by_id(vote_result_id: string): Promise<VoteResult | HasError> {
@@ -163,11 +163,11 @@ export async function vote_result_by_path(
 }
 
 export async function delegates_at(date_at: Date): Promise<Delegate[] | HasError> {
-	return getWithRoute(`delegates_at?at=${date_at}`);
+	return getWithRoute(`delegates/all_at_date?at=${date_at}`);
 }
 
 export async function gov_officials_at(date_at: Date): Promise<Delegate[] | HasError> {
-	return getWithRoute(`gov_officials_at?at=${date_at}`);
+	return getWithRoute(`delegates/gov_officials/all_at_date?at=${date_at}`);
 }
 
 export async function gov_proposals_by_official(
@@ -179,19 +179,7 @@ export async function gov_proposals_by_official(
 export async function general_gov_official_info(
 	delegate_id: number
 ): Promise<GeneralGovOfficialInfo | HasError> {
-	return getWithRoute(`general_gov_official_info?delegate_id=${delegate_id}`);
-}
-
-export async function delegate_political_position(
-	delegate_id: number
-): Promise<PoliticalPosition | HasError> {
-	return getWithRoute(`delegate_political_position?delegate_id=${delegate_id}`);
-}
-
-export async function delegate_political_questions(
-	delegate_id: number
-): Promise<DelegateQA[] | HasError> {
-	return getWithRoute(`delegate_political_questions?delegate_id=${delegate_id}`);
+	return getWithRoute(`delegates/gov_officials/extend/${delegate_id}`);
 }
 
 export async function latest_ministrial_proposals(
@@ -205,7 +193,7 @@ export async function speeches_by_delegate_per_page(
 	page: number
 ): Promise<SpeechesWithMaxPage | HasError> {
 	return getWithRoute<SpeechesWithMaxPage>(
-		`speeches_by_delegate_per_page?delegate_id=${delegate_id}&page=${page}`
+		`delegates/speeches_per_page?delegate_id=${delegate_id}&page=${page}`
 	);
 }
 
@@ -213,7 +201,9 @@ export async function delegates_with_seats_near_date(
 	date_at: Date,
 	gp: string
 ): Promise<Delegate[] | HasError> {
-	return getWithRoute<Delegate[]>(`delegates_with_seats_near_date?at=${date_at}&period=${gp}`);
+	return getWithRoute<Delegate[]>(
+		`delegates/all_at_date_with_seat_info?at=${date_at}&period=${gp}`
+	);
 }
 
 export async function get_eurovoc_topics(): Promise<UniqueTopic[] | HasError> {

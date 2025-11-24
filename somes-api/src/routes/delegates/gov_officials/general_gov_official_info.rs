@@ -1,4 +1,7 @@
-use axum::{extract::Query, Json};
+use axum::{
+    extract::{Path, Query},
+    Json,
+};
 use dataservice::combx::{Decree, GovProposal};
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
@@ -46,9 +49,9 @@ pub async fn extract_general_gov_official_info(
 pub async fn general_gov_official_info(
     PgPoolConnection(pg): PgPoolConnection,
     RedisConnection(mut redis_con): RedisConnection,
-    Query(delegate_by_id): Query<DelegateById>,
+    Path(delegate_id): Path<i32>,
 ) -> Result<Json<GeneralGovOfficialInfo>, DelegatesErrorResponse> {
-    extract_general_gov_official_info(delegate_by_id.delegate_id, &pg, &mut redis_con)
+    extract_general_gov_official_info(delegate_id, &pg, &mut redis_con)
         .await
         .map(Json)
         .map_err(|e| DelegatesErrorResponse::DbSelectFailure(Some(e)))

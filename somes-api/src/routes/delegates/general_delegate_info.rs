@@ -1,4 +1,7 @@
-use axum::{extract::Query, Json};
+use axum::{
+    extract::{Path, Query},
+    Json,
+};
 use redis::aio::MultiplexedConnection;
 use somes_common_lib::{DelegateById, GeneralDelegateInfo, Mandate};
 use sqlx::{query_as, PgPool};
@@ -64,6 +67,16 @@ pub async fn extract_general_delegate_info(
     Ok(gdi)
 }
 
+pub async fn extended_delegate_info(
+    PgPoolConnection(pg): PgPoolConnection,
+    RedisConnection(mut redis_con): RedisConnection,
+    Path(id): Path<i32>,
+) -> Result<Json<GeneralDelegateInfo>, DelegatesErrorResponse> {
+    extract_general_delegate_info(id, &pg, &mut redis_con)
+        .await
+        .map(Json)
+        .map_err(|e| DelegatesErrorResponse::DbSelectFailure(Some(e)))
+}
 pub async fn general_delegate_info(
     PgPoolConnection(pg): PgPoolConnection,
     RedisConnection(mut redis_con): RedisConnection,

@@ -64,7 +64,12 @@
 		}
 
 		if (partyInfavorMap.has(bubble.del.party)) {
-			bubble.opacity = partyInfavorMap.get(bubble.del.party) ? 1 : againstOpacity;
+			if (bubble.del.council == 'nr')
+				bubble.opacity = partyInfavorMap.get(bubble.del.party) ? 1 : againstOpacity;
+			else {
+				bubble.opacity = 1;
+			}
+
 			return;
 		}
 

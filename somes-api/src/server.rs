@@ -107,7 +107,7 @@ pub async fn serve(addr: SocketAddr) {
             proposals,
             latest_vote_results,
             parties,
-            delegate
+            delegate_by_id
         ),
         components(
             schemas(
@@ -235,7 +235,6 @@ pub async fn serve(addr: SocketAddr) {
             }),
         )
         .route(DELETE_ACCOUNT_ROUTE, delete(delete_account))
-        .route(DELEGATES_ROUTE, get(delegates))
         .route(PROPOSALS_ROUTE, get(proposals))
         // .route(LEGIS_INIT_ROUTE, post(legis_inits))
         // .route(LATEST_LEGIS_INITS_ROUTE, get(latest_legis_inits))
@@ -247,19 +246,11 @@ pub async fn serve(addr: SocketAddr) {
         .route(PARTIES, get(parties))
         .route(PARTIES_AT_GP, get(parties_at_gp))
         .route(USER, get(user))
-        .route(DELEGATE, get(delegate))
         .route(DELEGATE_INTERESTS, get(delegate_interests))
-        .route(GENERAL_DELEGATE_INFO, get(general_delegate_info))
-        .route(GENERAL_GOV_OFFICIAL_INFO, get(general_gov_official_info))
-        .route(DELEGATE_QA, get(delegate_qa))
         .route(VOTE_RESULTS_PER_PAGE, post(vote_results_per_page)) // post only because js fetch...
         .route(
             UNFINISHED_VOTE_RESULTS_PER_PAGE,
             post(unfinished_vote_results_per_page),
-        ) // post only because js fetch...
-        .route(
-            SPEECHES_BY_DELEGATE_PER_PAGE,
-            get(speeches_by_delegate_per_page),
         ) // post only because js fetch...
         .route(VOTE_RESULT_BY_ID, get(vote_result_by_id))
         .route(VOTE_RESULT_BY_PATH, get(vote_result_by_path))
@@ -268,11 +259,6 @@ pub async fn serve(addr: SocketAddr) {
             UNFINISHED_VOTE_RESULT_BY_SEARCH,
             post(unfinished_vote_result_by_search),
         ) // post only because js fetch...
-        .route(DELEGATES_AT, get(delegates_at)) // post only because js fetch...
-        .route(
-            DELEGATES_WITH_SEATS_NEAR_DATE,
-            get(delegates_with_seats_near_date_route),
-        )
         .route(WALO_QUESTIONS, get(walo_questions))
         .route(ALL_GPS, get(all_gps))
         .route(SEATS, get(seats))
@@ -290,7 +276,6 @@ pub async fn serve(addr: SocketAddr) {
         .route(FAVO_LEGIS_INIT, post(add_legis_init_favo))
         .route(SEND_MAIL_INFO, put(update_send_mail_info))
         .route(SEND_MAIL_INFO, get(get_send_mail_info))
-        .route(GOV_OFFICIALS_AT, get(gov_officials_at_date_route))
         .route(GOV_PROPOSALS_BY_OFFICIAL, get(gov_proposals_by_official))
         .route(GOV_PROPOSALS_PER_PAGE, post(get_gov_proposals_per_page))
         .route(GOV_PROPOSALS_BY_SEARCH, post(gov_props_by_search)) // post only because js fetch...
@@ -298,14 +283,6 @@ pub async fn serve(addr: SocketAddr) {
         .route(DECREES_PER_PAGE, post(get_decrees_per_page))
         .route(DECREES_BY_SEARCH, post(decrees_by_search))
         .route(DECREE_BY_RIS_ID, get(decree_by_ris_id))
-        .route(
-            DELEGATE_POLITICAL_POSITION,
-            get(delegate_political_position),
-        )
-        .route(
-            DELEGATE_POLITICAL_QUESTIONS,
-            get(delegate_political_questions),
-        )
         .route(AI_CHAT_WS, any(ai_chat_ws_handler))
         .route(QUIZZES, get(get_all_quizzes))
         .route(ADD_QUIZ, post(add_quiz))
@@ -313,7 +290,8 @@ pub async fn serve(addr: SocketAddr) {
         .route(NEXT_PLENAR_DATE, get(next_plenar_date))
         .route(PLENAR_DATES, get(plenar_dates))
         .route("/save_email", post(save_email))
-        .nest("/statistics", create_statistics_router());
+        .nest("/statistics", create_statistics_router())
+        .nest("/delegates", create_delegates_router());
 
     let app = Router::new()
         .nest("/api", api_routes)

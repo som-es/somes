@@ -2,7 +2,7 @@ use axum::{extract::Query, Json};
 use dataservice::{combx::GovProposal, db::models::DbMinistrialProposalQuery};
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::{DelegateMandate};
+use somes_common_lib::Delegate;
 use sqlx::{query_as, PgPool};
 use utoipa::ToSchema;
 
@@ -14,7 +14,7 @@ use crate::{
 #[derive(ToSchema, Debug, Clone, Serialize, Deserialize)]
 pub struct GovProposalDelegate {
     pub gov_proposal: GovProposal,
-    pub delegate: DelegateMandate,
+    pub delegate: Delegate,
 }
 
 pub async fn construct_ministrial_proposal_delegate(
@@ -39,27 +39,27 @@ pub async fn extract_latest_ministrial_proposals(
 ) -> sqlx::Result<Vec<GovProposalDelegate>> {
     let ministrial_proposals = query_as!(
         DbMinistrialProposalQuery,
-        "select 
+        "select
         mi.delegate_id,
         mp.id,
-        mp.ityp, 
-        mp.gp, 
-        mp.inr, 
-        mp.emphasis, 
-        mp.title, 
-        mp.description, 
-        mp.created_at, 
-        mp.updated_at, 
-        mp.due_to, 
-        mp.ressort, 
-        mp.ressort_shortform, 
-        mp.legis_init_gp, 
+        mp.ityp,
+        mp.gp,
+        mp.inr,
+        mp.emphasis,
+        mp.title,
+        mp.description,
+        mp.created_at,
+        mp.updated_at,
+        mp.due_to,
+        mp.ressort,
+        mp.ressort_shortform,
+        mp.legis_init_gp,
         mp.legis_init_inr,
         mp.legis_init_ityp,
         mp.has_vote_result
-     from ministrial_issuer as mi 
-        inner join ministrial_proposals mp on mp.id = mi.ministrial_proposal_id 
-        
+     from ministrial_issuer as mi
+        inner join ministrial_proposals mp on mp.id = mi.ministrial_proposal_id
+
         where mp.created_at > NOW() - make_interval(days => $1)
     order by mp.created_at desc",
         days
