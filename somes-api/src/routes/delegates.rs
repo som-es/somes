@@ -232,21 +232,21 @@ WITH ranked AS (
     FROM seat_history sh
     WHERE sh.gp = $2
       AND $1::date - sh.insertion_date::date >= 0
-),
-primary_mandate AS (
-    SELECT m.delegate_id,
-           m.party,
-           m.start_date AS active_since,
-           m.name AS primary_mandate
-    FROM mandates m
-    WHERE m.is_nr
-      AND m.start_date <= $1::date
-      AND COALESCE(m.end_date, $1::date) >= $1::date
-    )
+)
+
 SELECT
     v.id,
     v.name,
-    pm.party,
+    (
+          SELECT m.party
+          FROM mandates m
+          WHERE m.delegate_id = v.id
+            AND m.party IS NOT NULL
+            AND m.start_date <= $1::date
+            AND COALESCE(m.end_date, $1::date) >= $1::date
+          ORDER BY m.start_date DESC
+          LIMIT 1
+        ) AS party,
     v.current_party,
     v.image_url,
     v.constituency,
@@ -257,22 +257,28 @@ SELECT
     v.is_active,
     v.birthdate,
     v.divisions,
+    ARRAY(
+                SELECT ROW(start_date, end_date, name, party, is_nr, is_gov_official, is_ministry, is_chancellor, function)::full_mandate
+                FROM mandates m
+                where delegate_id = v.id and start_date <= $1::date AND COALESCE(end_date, $1::date) >= $1::date
+            ) as \"mandates_at_time: Vec<FullMandate>\",
     v.\"active_mandates: Vec<FullMandate>\",
     v.\"mandates: Vec<FullMandate>\"
 FROM ranked r
 JOIN delegates_with_mandates v ON v.id = r.delegate_id
-JOIN primary_mandate pm ON pm.delegate_id = v.id
 WHERE r.rn = 1
 -- this is already ensured by primary_mandate CTE
  AND EXISTS (
       SELECT 1
       FROM unnest(\"mandates: Vec<FullMandate>\") am
-      WHERE am.is_nr 
-        AND am.start_date <= $1::date 
+      WHERE am.is_nr
+        AND am.start_date <= $1::date
         AND (CASE WHEN am.end_date IS NULL THEN $1::date ELSE am.end_date END) >= $1::date
   );
 ;
-        ", date, gp
+        ",
+        date,
+        gp
     )
     .fetch_all(pg)
     .await?;
@@ -315,6 +321,11 @@ pub async fn gov_officials_at_date_sqlx(
     v.is_active,
     v.birthdate,
     v.divisions,
+    ARRAY(
+            SELECT ROW(start_date, end_date, name, party, is_nr, is_gov_official, is_ministry, is_chancellor, function)::full_mandate
+            FROM mandates m
+            where delegate_id = v.id and start_date <= $1::date AND COALESCE(end_date, $1::date) >= $1::date
+        ) as \"mandates_at_time: Vec<FullMandate>\",
     v.\"active_mandates: Vec<FullMandate>\",
     v.\"mandates: Vec<FullMandate>\"
 FROM
@@ -364,20 +375,19 @@ pub async fn delegates_at_date(
     let delegates = sqlx::query_as!(
         DelegateMandate,
         "
-WITH primary_mandate AS (
-    SELECT m.delegate_id,
-           m.party,
-           m.start_date AS active_since,
-           m.name AS primary_mandate
-    FROM mandates m
-    WHERE m.is_nr
-      AND m.start_date <= $1::date
-      AND COALESCE(m.end_date, $1::date) >= $1::date
-)
-SELECT distinct on (v.id)
+SELECT
     v.id,
     v.name,
-    pm.party,
+    (
+      SELECT m.party
+      FROM mandates m
+      WHERE m.delegate_id = v.id
+        AND m.party IS NOT NULL
+        AND m.start_date <= $1::date
+        AND COALESCE(m.end_date, $1::date) >= $1::date
+      ORDER BY m.start_date DESC
+      LIMIT 1
+    ) AS party,
     v.current_party,
     v.image_url,
     v.constituency,
@@ -388,10 +398,14 @@ SELECT distinct on (v.id)
     v.is_active,
     v.birthdate,
     v.divisions,
+    ARRAY(
+        SELECT ROW(start_date, end_date, name, party, is_nr, is_gov_official, is_ministry, is_chancellor, function)::full_mandate
+        FROM mandates m
+        where delegate_id = v.id and start_date <= $1::date AND COALESCE(end_date, $1::date) >= $1::date
+    ) as \"mandates_at_time: Vec<FullMandate>\",
     v.\"active_mandates: Vec<FullMandate>\",
     v.\"mandates: Vec<FullMandate>\"
     from delegates_with_mandates v
-JOIN primary_mandate pm ON pm.delegate_id = v.id
 WHERE
     EXISTS (
       SELECT 1

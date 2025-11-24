@@ -29,7 +29,7 @@ pub struct FullMandate {
     pub function: Option<String>,
 }
 
-#[derive(ToSchema, PartialEq, Debug, Clone, Serialize, Deserialize)]
+#[derive(ToSchema, PartialEq, Debug, Clone, Serialize, Deserialize, Default)]
 pub struct DelegateMandate {
     pub id: Option<i32>,
     pub name: Option<String>,
@@ -44,6 +44,7 @@ pub struct DelegateMandate {
     pub is_active: Option<bool>,
     pub birthdate: Option<NaiveDate>,
     pub divisions: Option<Vec<String>>,
+    pub mandates_at_time: Option<Vec<FullMandate>>,
     pub active_mandates: Option<Vec<FullMandate>>,
     pub mandates: Option<Vec<FullMandate>>,
 }

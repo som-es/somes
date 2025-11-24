@@ -62,7 +62,9 @@
 	$: personUrl = `https://parlament.gv.at/person/${delegate.id}?utm_source=somes.at`;
 </script>
 
-<div class="!z-0 card bg-primary-200 {onlyTop ? '' : 'min-h-full'}  mx-4 drop-shadow-lg flex flex-col">
+<div
+	class="!z-0 card bg-primary-200 {onlyTop ? '' : 'min-h-full'}  mx-4 drop-shadow-lg flex flex-col"
+>
 	<header class="relative">
 		{#if delegateFavos}
 			{#if delegateFavos.has(delegate.id)}
@@ -91,8 +93,16 @@
 				</button>
 			{/if}
 		{/if}
-		<a class="absolute {delegateFavos ? "top-10": "top-0"} right-0 mt-2 mr-3 z-10" href={personUrl} target="_blank">
-			<img class="w-12" alt="parlament.gv.at favicon" src="https://www.parlament.gv.at/static/img/favicon/favicon.svg" />
+		<a
+			class="absolute {delegateFavos ? 'top-10' : 'top-0'} right-0 mt-2 mr-3 z-10"
+			href={personUrl}
+			target="_blank"
+		>
+			<img
+				class="w-12"
+				alt="parlament.gv.at favicon"
+				src="https://www.parlament.gv.at/static/img/favicon/favicon.svg"
+			/>
 		</a>
 		<div class="relative flex justify-center items-center h-full">
 			{#if showImg}
@@ -102,18 +112,18 @@
 					alt="Image of politician {delegate.name}"
 				/>
 			{/if}
-		</div>	
+		</div>
 	</header>
 
 	<section class="p-4 flex-grow">
 		<h4 class="font-bold md:text-xl">
 			{delegate.name}
 			{#if delegate.is_active && showAge}
-				- {Math.floor(dateDiffInDays(new Date(delegate.birthdate), new Date()) / 365)} 
+				- {Math.floor(dateDiffInDays(new Date(delegate.birthdate), new Date()) / 365)}
 			{/if}
 		</h4>
-		{#if (new Date().toString() == new Date(delegate.birthdate).toString())}
-			<hr>
+		{#if new Date().toString() == new Date(delegate.birthdate).toString()}
+			<hr />
 			Alles Gute zum Geburtstag!
 		{/if}
 
@@ -124,50 +134,28 @@
 				<span>{delegate.party}</span>
 			{/if}
 		</h5>
-		{#if delegate.party == null}
-			{#each delegate.mandates?? [] as mandate}
-				{#if mandate.is_nr || mandate.is_gov_official || mandate.is_chancellor}
-					<h6 class="text-sm md:text-lg">
-						{mandate}
-					</h6>
-				{/if}
-			{/each}
+		{#each delegate.mandates_at_time ?? [] as mandate}
+			<h6 class="text-sm md:text-lg">
+				{mandate.name}
+			</h6>
+		{/each}
+
+		{#if !onlyTop}
+			<hr class="!border-t-2 my-1" />
+			{#if delegate.constituency != null}
+				<h3>{delegate.constituency}</h3>
+			{/if}
+			<hr class="!border-t-2 my-1" />
+			<h3>{delegate.divisions?.join(', ')}</h3>
 		{/if}
-		<!-- <span class="max-sm:hidden"> -->
-			{#if delegate.party && (delegate.active_mandates?.length == null || delegate.active_mandates?.length == 0)}
-				{#each delegate.mandates?? [] as mandate}
-					{#if mandate.is_nr || mandate.is_gov_official || mandate.is_chancellor}
-						<h6 class="text-sm md:text-lg">
-							{mandate}
-						</h6>
-					{/if}
-				{/each}
-			{:else if delegate.party}
-				{#each delegate.active_mandates?? [] as mandate}
-					<h6 class="text-sm md:text-lg">
-						{mandate}
-					</h6>
-				{/each}
-				<!-- <h6 class="text-lg">{delegate.active_mandates?.join('\n')}</h6> -->
-			{/if}
 
-			{#if !onlyTop}
-				<hr class="!border-t-2 my-1" />
-				{#if delegate.constituency != null}
-					<h3>{delegate.constituency}</h3>
-				{/if}
-				<hr class="!border-t-2 my-1" />
-				<h3>{delegate.divisions?.join(', ')}</h3>
-			{/if}
-			
-			<slot name="title"></slot>
-			<slot name="info"></slot>
+		<slot name="title"></slot>
+		<slot name="info"></slot>
 
-
-			<br>
-			{#if showDelegate == "true"}
-				ID: {delegate.id}
-			{/if}
+		<br />
+		{#if showDelegate == 'true'}
+			ID: {delegate.id}
+		{/if}
 		<!-- </span> -->
 	</section>
 
@@ -182,8 +170,9 @@
 
 		{#if !onlyTop}
 			{#if showAI}
-				<button class="btn sm:btn-lg variant-filled" on:click={() => modalStore.trigger(aiChatModal)}
-					>AI Chat</button
+				<button
+					class="btn sm:btn-lg variant-filled"
+					on:click={() => modalStore.trigger(aiChatModal)}>AI Chat</button
 				>
 			{/if}
 			{#if showQA && questions.length > 0}

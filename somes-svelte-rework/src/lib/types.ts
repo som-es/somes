@@ -19,15 +19,15 @@ export interface ChartData {
 }
 
 export interface FullMandate {
-  start_date: string | null;
-  end_date: string | null;
-  name: string | null;
-  party: string | null;
-  is_nr: boolean | null;
-  is_gov_official: boolean | null;
-  is_ministry: boolean | null;
-  is_chancellor: boolean | null;
-  function: string | null;
+	start_date: string | null;
+	end_date: string | null;
+	name: string | null;
+	party: string | null;
+	is_nr: boolean | null;
+	is_gov_official: boolean | null;
+	is_ministry: boolean | null;
+	is_chancellor: boolean | null;
+	function: string | null;
 }
 
 export interface Delegate {
@@ -45,6 +45,7 @@ export interface Delegate {
 	birthdate: string;
 	active_since: Date;
 	divisions: string[] | null;
+	mandates_at_time: FullMandate[] | null;
 	active_mandates: FullMandate[] | null;
 	mandates: FullMandate[] | null;
 }
