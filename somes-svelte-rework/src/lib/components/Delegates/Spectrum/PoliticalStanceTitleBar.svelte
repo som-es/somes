@@ -27,13 +27,13 @@
 
 <div class="flex justify-between items-center">
 	<h1 class="font-bold max-lg:text-lg text-2xl">Politische Haltung und Richtung</h1>
-    <div class="flex self-center items-center">
-        <button class="text-5xl mx-2" use:popup={popupFeatured}>⚠</button>
-        <button
-            class="mr-auto btn sm:btn-lg variant-filled"
-            on:click={() => modalStore.trigger(questionDetails)}>Details</button
-        >
-    </div>
+	<div class="flex self-center items-center">
+		<button class="text-5xl mx-2" use:popup={popupFeatured}>⚠</button>
+		<button
+			class="mr-auto btn sm:btn-lg variant-filled"
+			on:click={() => modalStore.trigger(questionDetails)}>Details</button
+		>
+	</div>
 </div>
 
 <div class="!z-50 card p-4 w-72 shadow-xl" data-popup="politicalPositionHint">
@@ -45,5 +45,4 @@
 </div>
 
 <style>
-
 </style>

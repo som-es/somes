@@ -6,6 +6,26 @@ use sqlx::prelude::Type;
 use utoipa::{IntoParams, ToSchema};
 
 #[derive(
+    ToSchema,
+    IntoParams,
+    Debug,
+    Clone,
+    Serialize,
+    Deserialize,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Type,
+    CompositeType,
+)]
+pub struct Document {
+    pub title: Option<String>,
+    pub document_url: Option<String>,
+    pub document_type: Option<String>,
+}
+
+#[derive(
     IntoParams,
     ToSchema,
     Debug,

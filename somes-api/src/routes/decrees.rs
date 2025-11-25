@@ -1,8 +1,8 @@
 use axum::{extract::Query, Json};
-use dataservice::combx::{Decree, Document};
+use dataservice::combx::{Decree, OptionalDecree};
 use meilisearch_sdk::search::SearchResults;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::{DecreeByRisId, DecreeFilter, Page};
+use somes_common_lib::{DecreeByRisId, DecreeFilter, Document, Page};
 use utoipa::ToSchema;
 
 use super::LegisInitErrorResponse;
@@ -13,7 +13,7 @@ use crate::{
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct DecreesWithMaxPage {
-    pub decrees: Vec<Decree>,
+    pub decrees: Vec<OptionalDecree>,
     pub entry_count: i64,
     pub max_page: i64,
 }
@@ -43,9 +43,9 @@ pub async fn decree_by_ris_id(
     RedisConnection(mut redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(decree_by_ris_id): Query<DecreeByRisId>,
-) -> Result<Json<Option<Decree>>, LegisInitErrorResponse> {
+) -> Result<Json<Option<OptionalDecree>>, LegisInitErrorResponse> {
     let key = format!("decree/{}", &decree_by_ris_id.ris_id);
-    if let Some(decree) = get_json_cache::<Decree>(&mut redis_con, &key).await {
+    if let Some(decree) = get_json_cache::<OptionalDecree>(&mut redis_con, &key).await {
         return Ok(Json(Some(decree)));
     }
     let decree = decree_by_ris_id_sqlx(&pg, &decree_by_ris_id.ris_id).await?;
@@ -56,8 +56,9 @@ pub async fn decree_by_ris_id(
 async fn decree_by_ris_id_sqlx(
     pg: &sqlx::Pool<sqlx::Postgres>,
     ris_id: &str,
-) -> Result<Option<Decree>, LegisInitErrorResponse> {
-    Ok(sqlx::query!(
+) -> Result<Option<OptionalDecree>, LegisInitErrorResponse> {
+    Ok(sqlx::query_as!(
+        OptionalDecree,
         r#"
             select * from ministrial_decrees_with_docs
             WHERE
@@ -71,34 +72,14 @@ async fn decree_by_ris_id_sqlx(
         LegisInitErrorResponse::GenericErrorResponse(crate::GenericErrorResponse::DbSelectFailure(
             Some(x),
         ))
-    })?
-    .map(|x| Decree {
-        gov_official_id: x.gov_official_id,
-        ris_id: x.ris_id.unwrap(),
-        ministrial_issuer: x.ministrial_issuer.unwrap(),
-        title: x.title.unwrap(),
-        short_title: x.short_title.unwrap(),
-        publication_date: x.publication_date.unwrap(),
-        part: x.part.unwrap(),
-        emphasis: x.emphasis,
-        gp: x.gp,
-        eli: x.eli.unwrap(),
-        document_url: x.document_url.unwrap(),
-        documents: x
-            .documents
-            .map(|doc| {
-                doc.as_array()
-                    .unwrap()
-                    .iter()
-                    .flat_map(|x| serde_json::from_value::<Document>(x.clone()))
-                    .collect()
-            })
-            .unwrap(),
-    }))
+    })?)
 }
 
-pub async fn get_all_decrees_sqlx(pg: &sqlx::Pool<sqlx::Postgres>) -> sqlx::Result<Vec<Decree>> {
-    Ok(sqlx::query!(
+pub async fn get_all_decrees_sqlx(
+    pg: &sqlx::Pool<sqlx::Postgres>,
+) -> sqlx::Result<Vec<OptionalDecree>> {
+    Ok(sqlx::query_as!(
+        OptionalDecree,
         r#"
         select * from ministrial_decrees_with_docs
         "#,
@@ -106,29 +87,6 @@ pub async fn get_all_decrees_sqlx(pg: &sqlx::Pool<sqlx::Postgres>) -> sqlx::Resu
     .fetch_all(pg)
     .await?
     .into_iter()
-    .map(|x| Decree {
-        gov_official_id: x.gov_official_id,
-        ris_id: x.ris_id.unwrap(),
-        ministrial_issuer: x.ministrial_issuer.unwrap(),
-        title: x.title.unwrap(),
-        short_title: x.short_title.unwrap(),
-        publication_date: x.publication_date.unwrap(),
-        part: x.part.unwrap(),
-        emphasis: x.emphasis,
-        eli: x.eli.unwrap(),
-        document_url: x.document_url.unwrap(),
-        gp: x.gp,
-        documents: x
-            .documents
-            .map(|doc| {
-                doc.as_array()
-                    .unwrap()
-                    .iter()
-                    .flat_map(|x| serde_json::from_value::<Document>(x.clone()))
-                    .collect()
-            })
-            .unwrap(),
-    })
     .collect())
 }
 
@@ -167,28 +125,19 @@ async fn get_decrees_per_page_sqlx(
     .into_iter()
     .map(|x| {
         entry_count = x.entry_count.unwrap();
-        Decree {
+        OptionalDecree {
             gov_official_id: x.gov_official_id,
-            ris_id: x.ris_id.unwrap(),
-            ministrial_issuer: x.ministrial_issuer.unwrap(),
-            title: x.title.unwrap(),
-            short_title: x.short_title.unwrap(),
-            publication_date: x.publication_date.unwrap(),
-            part: x.part.unwrap(),
+            ris_id: x.ris_id,
+            ministrial_issuer: x.ministrial_issuer,
+            title: x.title,
+            short_title: x.short_title,
+            publication_date: x.publication_date,
+            part: x.part,
             emphasis: x.emphasis,
             gp: x.gp,
-            eli: x.eli.unwrap(),
-            document_url: x.document_url.unwrap(),
-            documents: x
-                .documents
-                .map(|doc| {
-                    doc.as_array()
-                        .unwrap()
-                        .iter()
-                        .flat_map(|x| serde_json::from_value::<Document>(x.clone()))
-                        .collect()
-                })
-                .unwrap(),
+            eli: x.eli,
+            document_url: x.document_url,
+            documents: x.documents,
         }
     })
     .collect();
@@ -249,7 +198,7 @@ async fn meilisearch_decrees(
     }
     log::info!("decrees meilisearch filter: {meilisearch_filter}, {search_query:?}");
 
-    let results: SearchResults<Decree> = meilisearch_client
+    let results: SearchResults<OptionalDecree> = meilisearch_client
         .index("decrees")
         .search()
         .with_filter(&meilisearch_filter)

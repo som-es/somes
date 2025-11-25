@@ -1,4 +1,4 @@
-use somes_common_lib::{FullMandate, ToCompositeType};
+use somes_common_lib::{Document, FullMandate, ToCompositeType};
 use sqlx::{PgPool, Postgres, Transaction};
 
 #[macro_export]
@@ -15,7 +15,9 @@ pub async fn create_composite_types<'a>(pool: &mut Transaction<'a, Postgres>) ->
     Ok(())
 }
 
-pub async fn create_composite_type<'a, T: ToCompositeType>(tx: &mut Transaction<'a, Postgres>) -> sqlx::Result<()> {
+pub async fn create_composite_type<'a, T: ToCompositeType>(
+    tx: &mut Transaction<'a, Postgres>,
+) -> sqlx::Result<()> {
     let create_composite_type_str = T::to_sql_create_composite_type();
     sqlx::query(&format!("DROP TYPE IF EXISTS {} cascade", T::type_name()))
         .execute(&mut **tx)

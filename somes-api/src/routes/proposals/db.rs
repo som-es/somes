@@ -1,4 +1,5 @@
-use dataservice::combx::{Document, Topic};
+use dataservice::combx::Topic;
+use somes_common_lib::Document;
 use sqlx::PgPool;
 
 pub async fn sqlx_get_docs_from_ministerial_prop(

@@ -1,4 +1,5 @@
-use dataservice::combx::{Decree, Document};
+use dataservice::combx::Decree;
+use somes_common_lib::Document;
 use sqlx::PgPool;
 
 pub async fn extract_decrees_from_gov_official(
