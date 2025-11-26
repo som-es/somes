@@ -210,8 +210,8 @@ pub async fn serve(addr: SocketAddr) {
     )
     .await;
 
-    let landing_server_dir = ServeDir::new("../deploy-rs/somes-landing").fallback(get(|| async {
-        Html(include_str!("../../deploy-rs/somes-landing/index.html"))
+    let landing_server_dir = ServeDir::new("somes-landing").fallback(get(|| async {
+        Html(include_str!("../somes-landing/index.html"))
     }));
     // let landing_app = Router::new().nest_service("/", landing_server_dir);
     // let origins = [

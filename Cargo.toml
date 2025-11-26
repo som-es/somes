@@ -2,7 +2,6 @@
 members = [
     "somes-api",
     "somes-common-lib",
-    "deploy-rs",
     "somes-utils/websockets-test"
 , "views", "somes-macro"]
 
