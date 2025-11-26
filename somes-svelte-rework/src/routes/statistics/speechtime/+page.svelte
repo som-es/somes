@@ -3,6 +3,7 @@
 	import Container from '$lib/components/Layout/Container.svelte';
 	import DelegateBarChartControl from '$lib/components/Statistics/DelegateBarChartControl.svelte';
 	import type { DelegateData } from '$lib/types';
+	import type {Config} from '$lib/components/Statistics/types'
 
 	type DelegateSpeechTime = {
 		delegate_name: string;
@@ -13,6 +14,8 @@
 		total_speech_time: number;
 		normalized_speech_time: number;
 	};
+
+
 
 	let tableHeightDelegate = 0;
 	let tableHeightParty = 0;
@@ -201,6 +204,12 @@
 		id={0}
 		delegateMakeRequest={delegateSimpleSpeechTime}
 		title="Redezeit pro Abgeordneten (in Mintuen)"
+		config={{
+			party_filter_info:"asdf",
+			gender_filter_info:"asdf",
+			normalized_filter_info:"asdf",
+			desc_filter_info:"asdf"
+		}}
 	/>
 </Container>
 
@@ -210,6 +219,12 @@
 		id={1}
 		delegateMakeRequest={partySimpleSpeechTime}
 		title="Redezeit nach Parteien (in Minuten)"
+		config={{
+			party_filter_info:null,
+			gender_filter_info:"ds",
+			normalized_filter_info:"sdfgafd",
+			desc_filter_info:"sdfsadfg"
+		}}
 	/>
 </Container>
 
@@ -219,6 +234,12 @@
 		id={2}
 		delegateMakeRequest={genderSimpleSpeechTime}
 		title="Redezeit nach Gender (in Minuten)"
+		config={{
+			party_filter_info:"",
+			gender_filter_info:"",
+			normalized_filter_info:"",
+			desc_filter_info:""
+		}}
 	/>
 </Container>
 
@@ -228,6 +249,12 @@
 		id={3}
 		delegateMakeRequest={ageSimpleSpeechTime}
 		title="Redezeit nach Alter (in Minuten)"
+		config={{
+			party_filter_info:"",
+			gender_filter_info:"",
+			normalized_filter_info:"",
+			desc_filter_info:""
+		}}
 	/>
 </Container>
 
@@ -237,5 +264,11 @@
 		id={4}
 		delegateMakeRequest={legisSimpleSpeechTime}
 		title="Redezeit nach Legislaturperiode (in Minuten)"
+		config={{
+			party_filter_info:"",
+			gender_filter_info:"",
+			normalized_filter_info:"",
+			desc_filter_info:""
+		}}
 	/>
 </Container>

@@ -4,6 +4,7 @@
 	import LegisButtons from '../Filtering/LegisButtons.svelte';
 	import { onMount } from 'svelte';
 	import ReactiveDelegateBarChart from './ReactiveDelegateBarChart.svelte';
+	import type { Config } from './types';
 
 	export let delegateMakeRequest: (
 		gp: string | null,
@@ -14,6 +15,7 @@
 	export let height: number;
 	export let title: string;
 	export let id: number;
+	export let config: Config | null
 
 	let currentData: DelegateData[] = [];
 	let filteredData: DelegateData[] = [];
@@ -137,6 +139,32 @@
 		}
 		return 'Nein';
 	};
+
+const popupInfoParty: PopupSettings = {
+    event: 'hover',
+    target: 'popupInfoParty' + id,
+    placement: 'right'
+};
+
+const popupInfoGender: PopupSettings = {
+    event: 'hover',
+    target: 'popupInfoGender' + id,
+    placement: 'right'
+};
+
+const popupInfoNormalized: PopupSettings = {
+    event: 'hover',
+    target: 'popupInfoNormalized' + id,
+    placement: 'right'
+};
+
+const popupInfoDesc: PopupSettings = {
+    event: 'hover',
+    target: 'popupInfoDesc' + id,
+    placement: 'right'
+};
+
+
 </script>
 
 <LegisButtons bind:selectedPeriod />
@@ -153,6 +181,7 @@
 		{/each}
 	</ListBox>
 </div>
+
 <div class="z-30 card w-48 shadow-xl py-2" data-popup="popupGender{id}">
 	<ListBox
 		rounded="rounded-container-token sm:!rounded-token"
@@ -185,30 +214,82 @@
 	</ListBox>
 </div>
 
+
+<div class="z-40 card w-64 p-4 shadow-xl" data-popup="popupInfoParty{id}">
+	<p class="text-sm">{config?.party_filter_info}</p>
+</div>
+
+<div class="z-40 card w-64 p-4 shadow-xl" data-popup="popupInfoGender{id}">
+	<p class="text-sm">{config?.gender_filter_info}</p>
+</div>
+
+<div class="z-40 card w-64 p-4 shadow-xl" data-popup="popupInfoNormalized{id}">
+	<p class="text-sm">{config?.normalized_filter_info}</p>
+</div>
+
+<div class="z-40 card w-64 p-4 shadow-xl" data-popup="popupInfoDesc{id}">
+	<p class="text-sm"> {config?.desc_filter_info}</p>
+</div>
+
 <div class="flex flex-wrap gap-6">
 	<div>
-		<h1 class="text-2xl font-bold">Partei</h1>
+		<div class="flex items-center gap-2">
+			<h1 class="text-2xl font-bold">Partei</h1>
+
+			{#if config?.party_filter_info}
+				<button class="btn variant-soft-primary btn-circle btn-sm" use:popup={popupInfoParty}>
+					i
+				</button>
+			{/if}
+		</div>
+
 		<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupParty}>
 			<span class="capitalize">{translatePartyFilter(filterParties)}</span>
 			<span>↓</span>
 		</button>
 	</div>
+
+		
+	
 	<div>
-		<h1 class="text-2xl font-bold">Geschlecht</h1>
+		<div class="flex items-center gap-2">
+			<h1 class="text-2xl font-bold">Geschlecht</h1>
+
+			{#if config?.gender_filter_info}
+				<button class="btn variant-soft-primary btn-circle btn-sm" use:popup={popupInfoGender}>i</button>
+			{/if}
+		</div>
+
 		<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupGender}>
 			<span class="capitalize">{translateGenderFilter(gender)}</span>
 			<span>↓ </span>
 		</button>
 	</div>
+
 	<div>
-		<h1 class="text-2xl font-bold">Normalisiert</h1>
+		<div class="flex items-center gap-2">
+    		<h1 class="text-2xl font-bold">Normalisiert</h1>
+    		{#if config?.normalized_filter_info}
+				<button class="btn variant-soft-primary btn-circle btn-sm" use:popup={popupInfoNormalized}>i</button>
+			{/if}
+		</div>
+
 		<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupNormalized}>
 			<span class="capitalize">{translateNormalizationFilter(normalized)}</span>
 			<span>↓</span>
 		</button>
 	</div>
+		
+
+
 	<div>
-		<h1 class="text-2xl font-bold">Absteigend</h1>
+		<div class="flex items-center gap-2">
+    		<h1 class="text-2xl font-bold">Absteigend</h1>
+			{#if config?.desc_filter_info}
+    			<button class="btn variant-soft-primary btn-circle btn-sm" use:popup={popupInfoDesc}>i</button>
+			{/if}
+		</div>
+
 		<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupDesc}>
 			<span class="capitalize">{translateDescFilter(isDesc)}</span>
 			<span>↓</span>
