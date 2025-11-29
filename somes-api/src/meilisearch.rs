@@ -2,7 +2,9 @@ use axum::{
     extract::{FromRef, FromRequestParts},
     http::request::Parts,
 };
-use dataservice::combx::{MeilisearchHelper, VoteResult};
+use dataservice::combx::{
+    MeilisearchHelper, OptionalMeilisearchHelper, OptionalVoteResult, VoteResult,
+};
 use meilisearch_sdk::settings::{PaginationSetting, Settings};
 use redis::aio::MultiplexedConnection;
 use reqwest::StatusCode;
@@ -125,7 +127,10 @@ pub async fn update_vote_result_meilisearch_index(
     redis_con: &mut MultiplexedConnection,
     pg_pool: &sqlx::Pool<sqlx::Postgres>,
     client: &meilisearch_sdk::client::Client,
-    vote_result_cb: impl AsyncFn(MultiplexedConnection, &sqlx::PgPool) -> sqlx::Result<Vec<VoteResult>>,
+    vote_result_cb: impl AsyncFn(
+        MultiplexedConnection,
+        &sqlx::PgPool,
+    ) -> sqlx::Result<Vec<OptionalVoteResult>>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let settings = Settings::new()
         .with_ranking_rules(vec![
@@ -162,13 +167,23 @@ pub async fn update_vote_result_meilisearch_index(
         .await?
         .into_iter()
         .map(|mut vote_result| {
-            vote_result.meilisearch_helper = MeilisearchHelper {
-                votes: vote_result
-                    .votes
-                    .iter()
-                    .map(|vote| format!("{}{:?}", vote.party, vote.infavor))
-                    .collect(),
-            };
+            vote_result.meilisearch_helper = Some(OptionalMeilisearchHelper {
+                votes: Some(
+                    vote_result
+                        .votes
+                        .as_ref()
+                        .unwrap_or(&vec![])
+                        .iter()
+                        .map(|vote| {
+                            format!(
+                                "{}{:?}",
+                                vote.party.as_ref().unwrap(),
+                                vote.infavor.unwrap()
+                            )
+                        })
+                        .collect(),
+                ),
+            });
             vote_result
         })
         .collect::<Vec<_>>();

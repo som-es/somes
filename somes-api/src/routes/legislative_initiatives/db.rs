@@ -21,7 +21,7 @@ pub struct UniqueTopic {
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct VoteResultsWithMaxPage {
-    pub vote_results: Vec<VoteResult>,
+    pub vote_results: Vec<OptionalVoteResult>,
     pub entry_count: i64,
     pub max_page: i64,
 }

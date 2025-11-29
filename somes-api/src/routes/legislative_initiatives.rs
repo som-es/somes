@@ -4,7 +4,7 @@ use axum::{
     extract::{Path, Query},
     Json,
 };
-use dataservice::combx::VoteResult;
+use dataservice::combx::{OptionalVoteResult, VoteResult};
 use meilisearch_sdk::search::SearchResults;
 use somes_common_lib::{LegisInitFilter, Page, PartyVote, VoteResultById};
 
@@ -84,7 +84,7 @@ pub use bookmark::*;
 pub async fn latest_vote_results(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
-) -> Result<Json<Vec<VoteResult>>, LegisInitErrorResponse> {
+) -> Result<Json<Vec<OptionalVoteResult>>, LegisInitErrorResponse> {
     get_latest_vote_results_sqlx(redis_con, &pg)
         .await
         .map(Json)
@@ -200,7 +200,7 @@ pub async fn vote_result_by_id(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(vote_result_id): Query<VoteResultById>,
-) -> Result<Json<VoteResult>, LegisInitErrorResponse> {
+) -> Result<Json<OptionalVoteResult>, LegisInitErrorResponse> {
     get_vote_result_by_id(redis_con, &pg, vote_result_id.id)
         .await
         .map(Json)
@@ -211,7 +211,7 @@ pub async fn vote_result_by_path(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Path((gp, ityp, inr)): Path<(String, String, i32)>,
-) -> Result<Json<VoteResult>, LegisInitErrorResponse> {
+) -> Result<Json<OptionalVoteResult>, LegisInitErrorResponse> {
     vote_result_by_path_sqlx(redis_con, &pg, &gp, &ityp, inr)
         .await
         .map(Json)
@@ -331,7 +331,7 @@ async fn meilisearch_for_vote_results(
     }
     log::info!("vote results meilisearch filter: {meilisearch_filter}, {search_query:?}");
 
-    let results: SearchResults<VoteResult> = meilisearch_client
+    let results: SearchResults<OptionalVoteResult> = meilisearch_client
         .index("vote_results")
         .search()
         .with_filter(&meilisearch_filter)

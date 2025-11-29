@@ -36,7 +36,8 @@ pub async fn construct_gov_proposal(
                 &ityp,
                 *inr,
             )
-            .await?
+            .await
+            .expect(&format!("{gp}/{ityp}/{inr}: {ministrial_proposal:?}")) // return proper error
         }
         _ => None,
     };
@@ -60,7 +61,12 @@ pub async fn construct_gov_proposal(
     };
 
     let cache_date = if let Some(ref vote_result) = gov_proposal.vote_result {
-        vote_result.legislative_initiative.created_at
+        vote_result
+            .legislative_initiative
+            .as_ref()
+            .unwrap()
+            .created_at
+            .unwrap()
     } else {
         today()
     };
