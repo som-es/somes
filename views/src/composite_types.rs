@@ -1,3 +1,9 @@
+use dataservice::combx::{
+    OptionalDbLegislativeInitiativeQuery, OptionalDbNamedVote, OptionalDbNamedVoteInfo,
+    OptionalDbNamedVotes, OptionalDbPartyNamedVoteCount, OptionalDbReference,
+    OptionalDbRelatedDelegate, OptionalDbSpeechWithLink, OptionalDbVote, OptionalMeilisearchHelper,
+    OptionalTopic,
+};
 use somes_common_lib::{Document, FullMandate, ToCompositeType};
 use sqlx::{PgPool, Postgres, Transaction};
 
@@ -11,7 +17,23 @@ macro_rules! run_composite_type_creation {
 }
 
 pub async fn create_composite_types<'a>(pool: &mut Transaction<'a, Postgres>) -> sqlx::Result<()> {
-    run_composite_type_creation!(pool, FullMandate);
+    run_composite_type_creation!(
+        pool,
+        FullMandate,
+        Document,
+        // VoteResult
+        OptionalDbRelatedDelegate,
+        OptionalDbReference,
+        OptionalDbPartyNamedVoteCount,
+        OptionalDbNamedVote,
+        OptionalDbNamedVoteInfo,
+        OptionalDbNamedVotes,
+        OptionalDbSpeechWithLink,
+        OptionalDbVote,
+        OptionalDbLegislativeInitiativeQuery,
+        OptionalTopic,
+        OptionalMeilisearchHelper
+    );
     Ok(())
 }
 
@@ -22,6 +44,7 @@ pub async fn create_composite_type<'a, T: ToCompositeType>(
     sqlx::query(&format!("DROP TYPE IF EXISTS {} cascade", T::type_name()))
         .execute(&mut **tx)
         .await?;
+
     sqlx::query(&create_composite_type_str)
         .execute(&mut **tx)
         .await?;

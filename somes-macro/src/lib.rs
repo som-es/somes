@@ -77,14 +77,18 @@ fn map_type_to_sql(ty: &Type) -> (String, bool) {
         Type::Path(tp) => {
             if let Some(seg) = tp.path.segments.last() {
                 let ident = seg.ident.to_string();
-                if ident == "Option" {
-                    // extract inner generic
-                    if let PathArguments::AngleBracketed(ab) = &seg.arguments {
-                        if let Some(GenericArgument::Type(inner_ty)) = ab.args.first() {
-                            let (s, _inner_nullable) = map_type_to_sql(inner_ty);
-                            return (s, true);
+                match ident.as_str() {
+                    "Option" => {
+                        // extract inner generic
+                        if let PathArguments::AngleBracketed(ab) = &seg.arguments {
+                            if let Some(GenericArgument::Type(inner_ty)) = ab.args.first() {
+                                let (s, _inner_nullable) = map_type_to_sql(inner_ty);
+                                return (s, true);
+                            }
                         }
                     }
+                    "Vec" => {}
+                    _ => {}
                 }
             }
 
@@ -110,6 +114,17 @@ fn map_type_to_sql(ty: &Type) -> (String, bool) {
 
                 // bigdecimal
                 "BigDecimal" => "numeric",
+                "Vec" => {
+                    if let PathArguments::AngleBracketed(inner_generics) = &last.arguments {
+                        let GenericArgument::Type(ty) = inner_generics.args.first().unwrap() else {
+                            panic!("Vec should only take a single generic type (typically)")
+                        };
+                        let (elem_sql, nullable) = map_type_to_sql(ty);
+                        return (format!("{}[]", elem_sql), nullable);
+                    } else {
+                        panic!("Vec contains nothing?")
+                    }
+                }
 
                 // fallback
                 _ => ident_snake_case.as_str(),

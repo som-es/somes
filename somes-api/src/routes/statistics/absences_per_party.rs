@@ -59,7 +59,7 @@ pub async fn absences_per_party(
     let filter = build_filter(&filters);
 
     // Demonstration Performance Anspruch
-    /*
+
     let query = format!(
         "
         SELECT
@@ -110,7 +110,7 @@ pub async fn absences_per_party(
             })
             .collect(),
     ))
-    */
+    /*
     let query = format!(
         "
          WITH party_member_counts AS (
@@ -158,5 +158,5 @@ pub async fn absences_per_party(
         .fetch_all(&pg)
         .await
         .map(Json)
-        .map_err(|e| StatisticsResponse::DbSelectFailure(Some(e)))
+        .map_err(|e| StatisticsResponse::DbSelectFailure(Some(e)))*/
 }

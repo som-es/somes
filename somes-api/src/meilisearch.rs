@@ -2,7 +2,7 @@ use axum::{
     extract::{FromRef, FromRequestParts},
     http::request::Parts,
 };
-use dataservice::combx::{MeiliesearchHelper, VoteResult};
+use dataservice::combx::{MeilisearchHelper, VoteResult};
 use meilisearch_sdk::settings::{PaginationSetting, Settings};
 use redis::aio::MultiplexedConnection;
 use reqwest::StatusCode;
@@ -162,7 +162,7 @@ pub async fn update_vote_result_meilisearch_index(
         .await?
         .into_iter()
         .map(|mut vote_result| {
-            vote_result.meilisearch_helper = MeiliesearchHelper {
+            vote_result.meilisearch_helper = MeilisearchHelper {
                 votes: vote_result
                     .votes
                     .iter()

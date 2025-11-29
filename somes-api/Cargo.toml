@@ -10,7 +10,7 @@ somes-common-lib = {path = "../somes-common-lib"}
 # somes-common-lib = { git = "https://github.com/som-es/somes" }
 common-scrapes = { path = "../../common-scrapes" }
 # common-scrapes = { git = "https://github.com/som-es/common-scrapes" }
-dataservice = { path = "../../dataservice/dataservice", default-features=false, features=["models", "utoipa"] }
+dataservice = { workspace = true }
 # dataservice = { git = "https://github.com/som-es/dataservice", default-features=false, features=["models", "utoipa"]  }
 
 axum = {version="0.8", features = ["macros", "ws"]}

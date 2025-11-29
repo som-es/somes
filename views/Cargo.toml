@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 sqlx = {workspace=true}
 somes-common-lib = {path = "../somes-common-lib"}
+dataservice = { workspace = true }

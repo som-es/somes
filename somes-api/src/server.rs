@@ -177,7 +177,7 @@ pub async fn serve(addr: SocketAddr) {
     let current_frontend_dir = ServeDir::new(static_files_dir.clone())
         .fallback(get(|| async { Html(include_str!("../build/index.html")) }));
 
-    let static_files_dir_alpha_0_1 = PathBuf::from("./build-alpha-0.1");
+    // let static_files_dir_alpha_0_1 = PathBuf::from("./build-alpha-0.1");
     let pg_pool = dataservice_sqlx_pool.clone();
 
     tokio::task::spawn(async move {

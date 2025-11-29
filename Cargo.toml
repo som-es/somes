@@ -7,3 +7,4 @@ members = [
 
 [workspace.dependencies]
 sqlx = { version = "0.8", features = [ "runtime-tokio", "tls-rustls", "postgres", "chrono" ] }
+dataservice = { path = "../dataservice/dataservice", default-features=false, features=["models", "utoipa"] }
