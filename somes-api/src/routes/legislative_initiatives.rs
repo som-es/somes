@@ -219,7 +219,6 @@ pub async fn vote_result_by_path(
 }
 
 pub async fn vote_result_by_search(
-    RedisConnection(redis_con): RedisConnection,
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,

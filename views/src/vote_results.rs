@@ -206,8 +206,6 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
           ) AS \"references: Vec<OptionalDbReference>\"
         FROM
           legislative_initiatives li
-        WHERE
-          li.is_voteable_on;
         "
     )
     .execute(&mut **tx)
