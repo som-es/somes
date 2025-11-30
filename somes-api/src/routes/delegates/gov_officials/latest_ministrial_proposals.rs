@@ -1,5 +1,5 @@
 use axum::{extract::Query, Json};
-use dataservice::{combx::GovProposal, db::models::DbMinistrialProposalQuery};
+use dataservice::{combx::GovProposal, db::models::DbMinistrialProposalQueryMeta};
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::Delegate;
@@ -18,7 +18,7 @@ pub struct GovProposalDelegate {
 }
 
 pub async fn construct_ministrial_proposal_delegate(
-    ministrial_proposal: DbMinistrialProposalQuery,
+    ministrial_proposal: DbMinistrialProposalQueryMeta,
     pg: &PgPool,
     redis_con: MultiplexedConnection,
 ) -> sqlx::Result<GovProposalDelegate> {
@@ -38,7 +38,7 @@ pub async fn extract_latest_ministrial_proposals(
     days: i32,
 ) -> sqlx::Result<Vec<GovProposalDelegate>> {
     let ministrial_proposals = query_as!(
-        DbMinistrialProposalQuery,
+        DbMinistrialProposalQueryMeta,
         "select
         mi.delegate_id,
         mp.id,

@@ -50,7 +50,7 @@ export interface Delegate {
 	mandates: FullMandate[] | null;
 }
 
-export interface DbMinistrialProposalQuery {
+export interface DbMinistrialProposalQueryMeta {
 	id: number;
 	ityp: string;
 	gp: string;
@@ -74,7 +74,7 @@ export interface GovProposalDelegate {
 }
 
 export interface GovProposal {
-	ministrial_proposal: DbMinistrialProposalQuery;
+	ministrial_proposal: DbMinistrialProposalQueryMeta;
 	vote_result: VoteResult | null;
 	topics: Topic[];
 	eurovoc_topics: Topic[];
@@ -186,7 +186,7 @@ export interface VoteResult {
 	absences: number[];
 	issued_by_dels: RelatedDelegate[];
 	referenced_by_others_ids: number[];
-	references: Reference[];
+	references_to: Reference[];
 }
 
 export function createVoteResultPath(voteResult: VoteResult): string {

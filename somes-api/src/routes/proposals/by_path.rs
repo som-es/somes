@@ -1,5 +1,5 @@
 use axum::{extract::Path, Json};
-use dataservice::combx::DbMinistrialProposalQuery;
+use dataservice::combx::DbMinistrialProposalQueryMeta;
 use redis::aio::MultiplexedConnection;
 use sqlx::PgPool;
 
@@ -26,7 +26,7 @@ pub async fn gov_proposal_delegate_by_path_sqlx(
     inr: i32,
 ) -> sqlx::Result<GovProposalDelegate> {
     let miniserial_prop = sqlx::query_as!(
-        DbMinistrialProposalQuery,
+        DbMinistrialProposalQueryMeta,
         "
             select
                 mi.delegate_id,

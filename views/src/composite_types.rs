@@ -1,7 +1,5 @@
 use dataservice::combx::{
-    DbLegislativeInitiativeQuery, DbNamedVote, DbNamedVoteInfo, DbNamedVotes,
-    DbPartyNamedVoteCount, DbReference, DbRelatedDelegate, DbSpeechWithLink, DbVote,
-    MeilisearchHelper, Topic, VoteResult,
+    DbLegislativeInitiativeQuery, DbMinistrialProposalQueryMeta, DbNamedVote, DbNamedVoteInfo, DbNamedVotes, DbPartyNamedVoteCount, DbReference, DbRelatedDelegate, DbSpeechWithLink, DbVote, MeilisearchHelper, Topic, VoteResult
 };
 use somes_common_lib::{Document, FullMandate, ToCompositeType};
 use sqlx::{PgPool, Postgres, Transaction};
@@ -20,7 +18,6 @@ pub async fn create_composite_types<'a>(pool: &mut Transaction<'a, Postgres>) ->
         pool,
         FullMandate,
         Document,
-        // VoteResult
         DbRelatedDelegate,
         DbReference,
         DbPartyNamedVoteCount,
@@ -32,7 +29,9 @@ pub async fn create_composite_types<'a>(pool: &mut Transaction<'a, Postgres>) ->
         DbLegislativeInitiativeQuery,
         Topic,
         Topic,
-        MeilisearchHelper
+        MeilisearchHelper,
+        DbMinistrialProposalQueryMeta,
+        VoteResult
     );
     Ok(())
 }
@@ -44,7 +43,7 @@ pub async fn create_composite_type<'a, T: ToCompositeType>(
     sqlx::query(&format!("DROP TYPE IF EXISTS {} cascade", T::type_name()))
         .execute(&mut **tx)
         .await?;
-
+    println!("Creating composite type: {}", create_composite_type_str);
     sqlx::query(&create_composite_type_str)
         .execute(&mut **tx)
         .await?;

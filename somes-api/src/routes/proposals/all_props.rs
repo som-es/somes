@@ -1,4 +1,4 @@
-use dataservice::db::models::DbMinistrialProposalQuery;
+use dataservice::db::models::DbMinistrialProposalQueryMeta;
 use redis::aio::MultiplexedConnection;
 use sqlx::PgPool;
 
@@ -11,7 +11,7 @@ pub async fn get_all_gov_props(
     con: &PgPool,
 ) -> sqlx::Result<Vec<GovProposalDelegate>> {
     let ministrial_props = sqlx::query_as!(
-        DbMinistrialProposalQuery,
+        DbMinistrialProposalQueryMeta,
         "
         select 
             mi.delegate_id,

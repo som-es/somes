@@ -1,4 +1,4 @@
-use dataservice::combx::{DbMinistrialProposalQuery, GovProposal};
+use dataservice::combx::{DbMinistrialProposalQueryMeta, GovProposal};
 use redis::aio::MultiplexedConnection;
 use sqlx::PgPool;
 
@@ -15,7 +15,7 @@ use crate::{
 pub async fn construct_gov_proposal(
     mut redis_con: MultiplexedConnection,
     pg: &PgPool,
-    ministrial_proposal: DbMinistrialProposalQuery,
+    ministrial_proposal: DbMinistrialProposalQueryMeta,
 ) -> sqlx::Result<GovProposal> {
     let key = format!("ministrial_prop/{}", ministrial_proposal.id);
     let res = get_json_cache::<GovProposal>(&mut redis_con, &key).await;
@@ -55,7 +55,6 @@ pub async fn construct_gov_proposal(
             ministrial_proposal.id,
         )
         .await?,
-        ministerial_issuers: sqlx_get_ministerial_issuers(pg, ministrial_proposal.id).await?,
         documents: sqlx_get_docs_from_ministerial_prop(pg, ministrial_proposal.id).await?,
         ministrial_proposal,
     };

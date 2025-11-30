@@ -23,9 +23,9 @@ pub async fn extract_gov_prosals_by_delegate(
     pg: &sqlx::Pool<sqlx::Postgres>,
     delegate_id: i32,
 ) -> sqlx::Result<Vec<GovProposal>> {
-    use dataservice::db::models::DbMinistrialProposalQuery;
+    use dataservice::db::models::DbMinistrialProposalQueryMeta;
     let ministrial_proposals = query_as!(
-        DbMinistrialProposalQuery,
+        DbMinistrialProposalQueryMeta,
         "
         select
             mi.delegate_id,

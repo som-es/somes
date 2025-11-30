@@ -12,7 +12,7 @@ pub use gov_props_by_delegate::*;
 pub use gov_props_by_search::*;
 
 use axum::{extract::Query, Json};
-use dataservice::db::models::DbMinistrialProposalQuery;
+use dataservice::db::models::DbMinistrialProposalQueryMeta;
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::{GovPropFilter, Page};
@@ -37,7 +37,7 @@ pub struct GovProposalsWithMaxPage {
 pub async fn construct_gov_delegate_proposal(
     redis_con: MultiplexedConnection,
     pg: &PgPool,
-    ministrial_proposal: DbMinistrialProposalQuery,
+    ministrial_proposal: DbMinistrialProposalQueryMeta,
 ) -> sqlx::Result<GovProposalDelegate> {
     let delegate = delegate_by_id_sqlx(ministrial_proposal.delegate_id, &pg, redis_con.clone())
         .await
@@ -107,7 +107,7 @@ pub async fn filtered_ministrial_proposals(
     page: i64,
     page_elements: i64,
     ministrial_prop_filter: Option<GovPropFilter>,
-) -> sqlx::Result<(Vec<DbMinistrialProposalQuery>, i64)> {
+) -> sqlx::Result<(Vec<DbMinistrialProposalQueryMeta>, i64)> {
     let ministrial_prop_filter = ministrial_prop_filter.unwrap_or_default();
 
     let filter_arg = ministrial_prop_filter.legis_period.with_sql_column("gp");
@@ -153,7 +153,7 @@ pub async fn filtered_ministrial_proposals(
         filter_count + 1
     );
 
-    let mut filtered_query = sqlx::query_as::<_, DbMinistrialProposalQuery>(&query);
+    let mut filtered_query = sqlx::query_as::<_, DbMinistrialProposalQueryMeta>(&query);
     filtered_query = bind_values(filtered_query, &filters);
     filtered_query = filtered_query.bind(page * page_elements);
     filtered_query = filtered_query.bind(page_elements);
@@ -193,7 +193,7 @@ pub async fn get_latest_ministrial_proposals_per_page(
     page: i64,
     page_elements: i64,
     filter: Option<GovPropFilter>,
-) -> sqlx::Result<(Vec<DbMinistrialProposalQuery>, i64)> {
+) -> sqlx::Result<(Vec<DbMinistrialProposalQueryMeta>, i64)> {
     filtered_ministrial_proposals(pg, page, page_elements, filter).await
 }
 
