@@ -1,5 +1,5 @@
 use axum::{extract::Query, Json};
-use dataservice::combx::{Decree, OptionalDecree};
+use dataservice::combx::OptionalDecree;
 use meilisearch_sdk::search::SearchResults;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::{DecreeByRisId, DecreeFilter, Document, Page};

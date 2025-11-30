@@ -15,10 +15,7 @@ use dataservice::{
 // use diesel_async::pooled_connection::AsyncDieselConnectionManager;
 use log::{error, info};
 use reqwest::StatusCode;
-use somes_common_lib::{
-    DECREES_PER_PAGE, DELEGATES_BY_CALL_TO_ORDERS, DELEGATES_ROUTE, LATEST_VOTE_RESULTS_ROUTE,
-    LOGIN_ROUTE, PROPOSALS_ROUTE,
-};
+use somes_common_lib::{DECREES_PER_PAGE, LATEST_VOTE_RESULTS_ROUTE, LOGIN_ROUTE, PROPOSALS_ROUTE};
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tokio::{net::TcpListener, time::sleep};
 use tower_governor::{governor::GovernorConfigBuilder, GovernorLayer};
@@ -28,7 +25,7 @@ use views::{create_composite_types, create_views};
 use crate::{
     meilisearch::update_meilisearch_indices,
     redirect_http_to_https,
-    routes::{delegates, latest_vote_results, proposals, save_email},
+    routes::{latest_vote_results, proposals, save_email},
     Ports, DATASERVICE_URL, HTTPS_PORT, HTTP_PORT, MEILISEARCH_SECRET, MEILISEARCH_URL,
     PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, REDIS_DB, STATIC_FRONTEND_PATH,
 };

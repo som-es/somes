@@ -1,4 +1,4 @@
-use axum::{routing::post, Json, Router};
+use axum::{routing::post, Router};
 mod absences_per_age;
 mod absences_per_delegate;
 mod absences_per_gender;

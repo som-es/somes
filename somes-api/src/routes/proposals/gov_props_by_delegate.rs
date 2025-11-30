@@ -1,9 +1,5 @@
-use axum::{
-    extract::{Path, Query},
-    Json,
-};
+use axum::{extract::Path, Json};
 use dataservice::combx::GovProposal;
-use somes_common_lib::DelegateById;
 use sqlx::query_as;
 
 use crate::{

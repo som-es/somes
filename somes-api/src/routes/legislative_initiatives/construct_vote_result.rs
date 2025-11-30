@@ -1,12 +1,9 @@
-use dataservice::{
-    combx::{OptionalVoteResult, VoteResult},
-    db::models::*,
-};
+use dataservice::{combx::OptionalVoteResult, db::models::*};
 use redis::aio::MultiplexedConnection;
 use somes_common_lib::Document;
 use sqlx::PgPool;
 
-use crate::{get_json_cache, routes::get_all_votes_from_legis_init};
+use crate::get_json_cache;
 
 const JSON_VOTE_RESULT_SQL: &str = include_str!("./json_vote_result.sql");
 
@@ -46,8 +43,8 @@ async fn test_fetch_all_vote_results() {
 
         let start = std::time::Instant::now();
         let mut lhs = fetch_vote_result_by_id(&pg, legis_init.id).await.unwrap();
-        lhs.meilisearch_helper = Some(OptionalMeilisearchHelper {
-            votes: Some(vec![]),
+        lhs.meilisearch_helper = Some(MeilisearchHelper {
+            votes: vec![],
         });
         println!("elapsed (new): {:?}", start.elapsed());
     }
@@ -78,7 +75,6 @@ pub async fn construct_vote_result(
             .as_ref()
             .unwrap()
             .created_at
-            .unwrap(),
     )
     .await
     .ok_or(sqlx::Error::WorkerCrashed)?;

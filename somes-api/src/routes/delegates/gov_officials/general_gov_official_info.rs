@@ -1,11 +1,7 @@
-use axum::{
-    extract::{Path, Query},
-    Json,
-};
+use axum::{extract::Path, Json};
 use dataservice::combx::{Decree, GovProposal};
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::DelegateById;
 use sqlx::PgPool;
 use utoipa::{IntoParams, ToSchema};
 

@@ -66,7 +66,6 @@ pub async fn construct_gov_proposal(
             .as_ref()
             .unwrap()
             .created_at
-            .unwrap()
     } else {
         today()
     };

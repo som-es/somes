@@ -1,4 +1,3 @@
-use redis::AsyncCommands;
 use sha3::{Digest, Sha3_256};
 use somes_common_lib::SignUpInfo;
 use std::time::{SystemTime, UNIX_EPOCH};

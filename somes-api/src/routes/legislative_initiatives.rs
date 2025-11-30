@@ -1,10 +1,10 @@
-use std::fmt::{format, Display};
+use std::fmt::Display;
 
 use axum::{
     extract::{Path, Query},
     Json,
 };
-use dataservice::combx::{OptionalVoteResult, VoteResult};
+use dataservice::combx::OptionalVoteResult;
 use meilisearch_sdk::search::SearchResults;
 use somes_common_lib::{LegisInitFilter, Page, PartyVote, VoteResultById};
 

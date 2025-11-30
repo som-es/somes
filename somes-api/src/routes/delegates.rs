@@ -7,17 +7,15 @@ use axum::{extract::Query, Json};
 use chrono::NaiveDate;
 use dataservice::db::models::DbProposalQuery;
 use redis::aio::MultiplexedConnection;
+use somes_common_lib::FullMandate;
 use somes_common_lib::{
     Date, Delegate, DelegateById, InterestShare, LegisPeriod, ALL_ACTIVE, ALL_AT_DATE,
-    ALL_AT_DATE_WITH_SEAT_INFO, DELEGATE_QA, EXTEND, GOV_PROPOSALS, ID,
-    SPEECHES_BY_DELEGATE_PER_PAGE, SPEECHES_PER_PAGE_ROUTE,
+    ALL_AT_DATE_WITH_SEAT_INFO, DELEGATE_QA, EXTEND, GOV_PROPOSALS, ID, SPEECHES_PER_PAGE_ROUTE,
 };
-use somes_common_lib::{FullMandate, DELEGATES_AT};
 use sqlx::PgPool;
 
 use crate::routes::gov_proposals_by_official;
 use crate::server::AppState;
-use crate::SPEECHES_PER_PAGE;
 use crate::{
     dataservice::get_proposals, get_json_cache, set_json_cache_with_relevance, PgPoolConnection,
     RedisConnection,

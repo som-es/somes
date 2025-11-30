@@ -1,7 +1,4 @@
-use axum::{
-    extract::{Path, Query},
-    Json,
-};
+use axum::{extract::Path, Json};
 use somes_common_lib::DelegateQA;
 use sqlx::{query_as, PgPool};
 

@@ -10,7 +10,7 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
         SELECT
           /* scalar */
           li.id AS id,
-          NULL::optional_meilisearch_helper as \"meilisearch_helper: OptionalMeilisearchHelper\",
+          NULL::meilisearch_helper as \"meilisearch_helper: MeilisearchHelper\",
           /* legislative initiative row */
           (
             SELECT
@@ -24,12 +24,12 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
                 law_expires_on_date, by_publication,
                 has_reference, is_voteable_on, is_urgent,
                 voting
-              )::optional_db_legislative_initiative_query
+              )::db_legislative_initiative_query
             FROM
               legislative_initiatives
             WHERE
               id = li.id
-          ) AS \"legislative_initiative: OptionalDbLegislativeInitiativeQuery\",
+          ) AS \"legislative_initiative: DbLegislativeInitiativeQuery\",
           /* votes */
           (
             CASE WHEN EXISTS (
@@ -38,7 +38,7 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
               SELECT
                 ROW(
                   m.party, NULL, COUNT(*), nv.infavor
-                )::optional_db_vote
+                )::db_vote
               FROM
                 named_vote_info nvi
                 JOIN named_votes nv ON nvi.id = nv.named_vote_info_id
@@ -55,13 +55,13 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
                 nv.infavor
             ) ELSE ARRAY(
               SELECT
-                ROW(party, NULL, fraction, infavor)::optional_db_vote
+                ROW(party, NULL, fraction, infavor)::db_vote
               FROM
                 votes v
               WHERE
                 v.legislative_initiatives_id = li.id
             ) END
-          ) AS \"votes: Vec<OptionalDbVote>\",
+          ) AS \"votes: Vec<DbVote>\",
           /* speeches */
           ARRAY(
             SELECT
@@ -77,7 +77,7 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
                 opinion,
                 document_url,
                 about
-              )::optional_db_speech_with_link
+              )::db_speech_with_link
             FROM
               plenar_speeches ps
               JOIN plenar_speech_links psl ON psl.plenar_speech_id = ps.id
@@ -85,7 +85,7 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
               JOIN debates deb ON deb.id = ps.debate_id
             WHERE
               pl.legis_init_id = li.id
-          ) AS \"speeches: Vec<OptionalDbSpeechWithLink>\",
+          ) AS \"speeches: Vec<DbSpeechWithLink>\",
           /* named votes */
           (
             SELECT
@@ -93,20 +93,20 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
                 ROW(
                   nvi.pro_count, nvi.contra_count,
                   nvi.given_vote_sum, nvi.invalid_count
-                )::optional_db_named_vote_info,
+                )::db_named_vote_info,
                 ARRAY(
                   SELECT
                     ROW(
                       id, infavor, was_absent, lev, similiarity_score,
                       searched_with, matched_with,
                       delegate_id, manually_matched
-                    )::optional_db_named_vote
+                    )::db_named_vote
                   FROM
                     named_votes nv
                   WHERE
                     nv.named_vote_info_id = nvi.id
                 )
-              )::optional_db_named_votes
+              )::db_named_votes
             FROM
               named_vote_info nvi
             WHERE
@@ -114,32 +114,32 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
               AND li.voted_by_name
             LIMIT
               1
-          ) AS \"named_votes: OptionalDbNamedVotes\",
+          ) AS \"named_votes: DbNamedVotes\",
           /* topics */
           ARRAY(
             SELECT
-              ROW(topic)::optional_topic
+              ROW(topic)::topic
             FROM
               topics_legis_init
             WHERE
               legislative_initiatives_id = li.id
-          ) AS \"topics: Vec<OptionalTopic>\",
+          ) AS \"topics: Vec<Topic>\",
           ARRAY(
             SELECT
-              ROW(topic)::optional_topic
+              ROW(topic)::topic
             FROM
               eurovoc_topics_legis_init
             WHERE
               legislative_initiatives_id = li.id
-          ) AS \"eurovoc_topics: Vec<OptionalTopic>\",
+          ) AS \"eurovoc_topics: Vec<Topic>\",
           ARRAY(
             SELECT
-              ROW(topic)::optional_topic
+              ROW(topic)::topic
             FROM
               other_keyword_topics_legis_init
             WHERE
               legislative_initiatives_id = li.id
-          ) AS \"other_keyword_topics: Vec<OptionalTopic>\",
+          ) AS \"other_keyword_topics: Vec<Topic>\",
           /* documents */
           ARRAY(
             SELECT
@@ -166,12 +166,12 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
           /* issued_by_dels */
           ARRAY(
             SELECT
-              ROW(delegate_text, delegate_id)::optional_db_related_delegate
+              ROW(delegate_text, delegate_id)::db_related_delegate
             FROM
               legis_init_delegates lid
             WHERE
               lid.legis_init_id = li.id
-          ) AS \"issued_by_dels: Vec<OptionalDbRelatedDelegate>\",
+          ) AS \"issued_by_dels: Vec<DbRelatedDelegate>\",
           /* referenced_by_others_ids */
           (
             SELECT
@@ -193,7 +193,7 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
             SELECT
               ARRAY(
                 SELECT
-                  ROW(ref_gp, ref_ityp, ref_inr)::optional_db_reference
+                  ROW(ref_gp, ref_ityp, ref_inr)::db_reference
                 FROM
                   legis_inits_refs lir
                   JOIN legislative_initiatives li2 ON li2.gp = lir.ref_gp
@@ -203,7 +203,7 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
                   origin_legis_init_id = li.id
                   AND li2.is_voteable_on
               )
-          ) AS \"references: Vec<OptionalDbReference>\"
+          ) AS \"references: Vec<DbReference>\"
         FROM
           legislative_initiatives li
         "

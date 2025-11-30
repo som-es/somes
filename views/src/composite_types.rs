@@ -1,8 +1,7 @@
 use dataservice::combx::{
-    OptionalDbLegislativeInitiativeQuery, OptionalDbNamedVote, OptionalDbNamedVoteInfo,
-    OptionalDbNamedVotes, OptionalDbPartyNamedVoteCount, OptionalDbReference,
-    OptionalDbRelatedDelegate, OptionalDbSpeechWithLink, OptionalDbVote, OptionalMeilisearchHelper,
-    OptionalTopic,
+    DbLegislativeInitiativeQuery, DbNamedVote, DbNamedVoteInfo, DbNamedVotes,
+    DbPartyNamedVoteCount, DbReference, DbRelatedDelegate, DbSpeechWithLink, DbVote,
+    MeilisearchHelper, Topic, VoteResult,
 };
 use somes_common_lib::{Document, FullMandate, ToCompositeType};
 use sqlx::{PgPool, Postgres, Transaction};
@@ -22,17 +21,18 @@ pub async fn create_composite_types<'a>(pool: &mut Transaction<'a, Postgres>) ->
         FullMandate,
         Document,
         // VoteResult
-        OptionalDbRelatedDelegate,
-        OptionalDbReference,
-        OptionalDbPartyNamedVoteCount,
-        OptionalDbNamedVote,
-        OptionalDbNamedVoteInfo,
-        OptionalDbNamedVotes,
-        OptionalDbSpeechWithLink,
-        OptionalDbVote,
-        OptionalDbLegislativeInitiativeQuery,
-        OptionalTopic,
-        OptionalMeilisearchHelper
+        DbRelatedDelegate,
+        DbReference,
+        DbPartyNamedVoteCount,
+        DbNamedVote,
+        DbNamedVoteInfo,
+        DbNamedVotes,
+        DbSpeechWithLink,
+        DbVote,
+        DbLegislativeInitiativeQuery,
+        Topic,
+        Topic,
+        MeilisearchHelper
     );
     Ok(())
 }

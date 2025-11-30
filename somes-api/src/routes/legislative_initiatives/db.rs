@@ -1,11 +1,8 @@
 use dataservice::{
     combx::{
-        DbNamedVoteInfo, DbNamedVoteInfoQuery, OptionalDbNamedVote, OptionalVoteResult, Topic,
-        VoteResult,
+        DbNamedVote, DbNamedVoteInfo, DbNamedVoteInfoQuery, OptionalDbNamedVote, OptionalVoteResult, Topic
     },
-    db::models::{
-        DbLegislativeInitiativeQuery, DbNamedVote, DbNamedVotes, DbSpeechWithLink, DbVote,
-    },
+    db::models::{DbLegislativeInitiativeQuery, DbNamedVotes, DbSpeechWithLink, DbVote},
 };
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
@@ -330,7 +327,7 @@ pub async fn get_named_votes_from_legis_init_sqlx(
     };
 
     let named_votes = sqlx::query_as!(
-        OptionalDbNamedVote,
+        DbNamedVote,
         "select id, infavor, was_absent, lev, similiarity_score, searched_with, matched_with, delegate_id, manually_matched from named_votes where named_vote_info_id = $1",
         named_vote_info.id
     )
@@ -344,7 +341,7 @@ pub async fn get_named_votes_from_legis_init_sqlx(
             given_vote_sum: named_vote_info.given_vote_sum,
             invalid_count: named_vote_info.invalid_count,
         },
-        named_votes,
+        named_votes: Some(named_votes),
     }))
 }
 
