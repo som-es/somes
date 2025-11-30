@@ -1,5 +1,4 @@
 use chrono::{NaiveDate, NaiveDateTime};
-use common_scrapes::Voting;
 use serde::{Deserialize, Serialize};
 use somes_macro::CompositeType;
 use sqlx::prelude::Type;
@@ -315,8 +314,26 @@ pub struct PartyVote {
     pub party: String,
 }
 
-#[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
+#[derive(Copy, PartialEq, Eq, Hash, Debug, ToSchema, Deserialize, Serialize, Clone)]
+pub enum Voting {
+    Amendment,  // Abänderung
+    Resolution, // Entschließung
+    Law,
+}
+impl std::fmt::Display for Voting {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let value = match self {
+            Voting::Amendment => "Amendment",
+            Voting::Resolution => "Resolution",
+            Voting::Law => "Law",
+        };
+        write!(f, "{value}")
+    }
+}
 
+
+
+#[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
 pub struct LegisInitFilter {
     pub accepted: Option<String>,
     pub is_named_vote: Option<bool>,

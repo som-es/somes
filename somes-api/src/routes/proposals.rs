@@ -39,7 +39,6 @@ pub async fn construct_gov_delegate_proposal(
     pg: &PgPool,
     ministrial_proposal: DbMinistrialProposalQueryMeta,
 ) -> sqlx::Result<GovProposalDelegate> {
-    
     let gov_proposal = construct_gov_proposal(redis_con.clone(), &pg, ministrial_proposal)
         .await
         .unwrap();
@@ -51,7 +50,7 @@ pub async fn construct_gov_delegate_proposal(
     }
     Ok(GovProposalDelegate {
         gov_proposal,
-        delegate: delegates.into_iter().next().unwrap(), // TODO: handle multiple delegates properly
+        delegate: delegates.into_iter().next(), // TODO: handle multiple delegates properly
     })
 }
 

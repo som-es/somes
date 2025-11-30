@@ -5,7 +5,7 @@ use utoipa::ToSchema;
 
 use crate::GenericErrorResponse;
 
-#[derive(ToSchema, Debug)]
+#[derive(Debug)]
 pub enum LegisInitErrorResponse {
     LegisInit,
     LatestLegisInit,

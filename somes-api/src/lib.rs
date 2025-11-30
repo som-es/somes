@@ -1,9 +1,7 @@
 #![warn(clippy::unwrap_used)]
 
-// use diesel_async::{AsyncPgConnection, pooled_connection::AsyncDieselConnectionManager};
 use dotenvy_macro::dotenv;
 
-pub mod dataservice;
 mod db;
 pub mod email;
 pub mod hash;
@@ -49,7 +47,6 @@ static EMAIL_EXPIRATION_SECONDS: Lazy<usize> = Lazy::new(|| {
         .parse()
         .expect("Supplied email expiration (in seconds) is not a (usize) number!")
 });
-// pub const EMAIL_EXPIRATION: u64 = ;
 
 pub fn today_and_time() -> chrono::NaiveDateTime {
     chrono::Local::now().naive_local()

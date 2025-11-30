@@ -1,22 +1,21 @@
-use dataservice::combx::{DbMinistrialProposalQueryMeta, GovProposal, VoteResult, models::*};
-use somes_common_lib::Document;
+use dataservice::combx::{models::*, DbMinistrialProposalQueryMeta, VoteResult};
 use redis::aio::MultiplexedConnection;
+use somes_common_lib::Document;
 use sqlx::PgPool;
 
 use crate::{
     get_json_cache,
-    routes::{
-        get_vote_result_by_unique_hints_with_accepted_required,
-        proposals::db::sqlx_get_eurovoc_topics_from_ministrial_proposal,
-        sqlx_get_docs_from_ministerial_prop, sqlx_get_ministerial_issuers,
-    },
     today,
 };
 
 pub async fn get_gov_proposal_sqlx(pg: &PgPool, id: i32) -> sqlx::Result<OptionalGovProposal> {
-    sqlx::query_as!(OptionalGovProposal, "select * from gov_proposals where id = $1", id)
-        .fetch_one(pg)
-        .await
+    sqlx::query_as!(
+        OptionalGovProposal,
+        "select * from gov_proposals where id = $1",
+        id
+    )
+    .fetch_one(pg)
+    .await
 }
 
 pub async fn construct_gov_proposal(
@@ -33,9 +32,7 @@ pub async fn construct_gov_proposal(
     let gov_proposal = get_gov_proposal_sqlx(pg, ministrial_proposal.id).await?;
 
     let cache_date = if let Some(ref vote_result) = gov_proposal.vote_result {
-        vote_result
-            .legislative_initiative
-            .created_at
+        vote_result.legislative_initiative.created_at
     } else {
         today()
     };

@@ -9,7 +9,7 @@ use somes_common_lib::LegisPeriodGp;
     get,
     path = "/parties", 
     responses(
-        (status = 200, description = "Returned parties successfully.", body = [Vec<DbParty>]), 
+        // (status = 200, description = "Returned parties successfully.", body = [Vec<Party>]), 
         (status = 400, description = "Invalid request", body = [PartiesErrorResponse]),
         (status = 500, description = "Internal server error", body = [PartiesErrorResponse])
     )
@@ -21,14 +21,6 @@ pub async fn parties(
         .await
         .map(Json)
         .map_err(|_| PartiesErrorResponse::PartiesReturn)
-
-    // con.interact(|con| {
-    //     get_parties(con)
-    //         .map(Json)
-    //         .map_err(|_| PartiesErrorResponse::PartiesReturn)
-    // })
-    // .await
-    // .map_err(|_| PartiesErrorResponse::PartiesReturn)?
 }
 
 pub async fn parties_at_gp(

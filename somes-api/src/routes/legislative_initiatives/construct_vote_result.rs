@@ -5,8 +5,6 @@ use sqlx::PgPool;
 
 use crate::get_json_cache;
 
-const JSON_VOTE_RESULT_SQL: &str = include_str!("./json_vote_result.sql");
-
 pub async fn fetch_all_vote_results(pg: &PgPool) -> sqlx::Result<Vec<OptionalVoteResult>> {
     sqlx::query_as!(OptionalVoteResult, "select * from vote_results")
         .fetch_all(pg)

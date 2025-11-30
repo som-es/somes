@@ -41,14 +41,15 @@ simple_logger = "5.0.0"
 chrono = "0.4.24"
 lettre = "0.11"
 imap = { version = "3.0.0-alpha.10", features = ["rustls-tls"] }
-utoipa = "4.2.0"
-utoipa-swagger-ui = { version = "7", features = ["axum"] }
+utoipa = { workspace = true }
+utoipa-swagger-ui = { version = "9", features = ["axum"] }
 tower = {version = "0.5", features = ["full"] }
 sqlx = {workspace=true}
 futures = "0.3.30"
 sha2 = "0.10.8"
 pollster = "0.4.0"
 fake = "4"
+utoipauto = "0.2.0"
 views = { path="../views" }
 
 # axum-server = { version = "0.7.1", features = ["tls-rustls", "tls-rustls-no-provider"] }

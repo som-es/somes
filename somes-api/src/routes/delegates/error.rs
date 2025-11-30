@@ -5,7 +5,7 @@ use reqwest::StatusCode;
 use serde_json::json;
 use utoipa::ToSchema;
 
-#[derive(ToSchema, Debug)]
+#[derive(Debug)]
 pub enum DelegatesErrorResponse {
     DelegateResponseError,
     ProposalResponseError,

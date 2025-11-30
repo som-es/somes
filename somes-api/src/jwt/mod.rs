@@ -10,6 +10,7 @@ use axum::Json;
 use jsonwebtoken::{encode, EncodingKey, Header};
 use serde::Serialize;
 use somes_common_lib::{time::timestamp_secs, JWTInfo};
+use utoipa::ToSchema;
 
 pub fn create_access_token(
     id: i32,
@@ -40,7 +41,7 @@ pub fn create_access_token_u128(
     )
 }
 
-pub fn create_access_token_with_keys_and_exp_time<T: Serialize>(
+pub fn create_access_token_with_keys_and_exp_time<T: Serialize + ToSchema>(
     id: T,
     username: String,
     is_admin: bool,

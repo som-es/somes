@@ -4,7 +4,6 @@ use rand::Rng;
 use redis::AsyncCommands;
 use regex::Regex;
 use serde_json::json;
-use sha2::{Digest, Sha256};
 use somes_common_lib::{set_error_true, JWTInfo, LoginInfo};
 use sqlx::{query, query_as, PgPool};
 mod error;
@@ -70,9 +69,9 @@ use error::{LoginErrorResponse, SignUpErrorWrapper};
     ),
     responses(
         (status = 200, description = "Successful login", body = [JWTInfo]),
-        (status = 401, description = "Invalid credentials", body = [AuthError]),
-        (status = 400, description = "Invalid request", body = [AuthError]),
-        (status = 500, description = "Internal server error", body = [AuthError])
+        (status = 401, description = "Invalid credentials", body = [LoginErrorResponse]),
+        (status = 400, description = "Invalid request", body = [LoginErrorResponse]),
+        (status = 500, description = "Internal server error", body = [LoginErrorResponse])
     )
 )]
 pub async fn login(

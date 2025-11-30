@@ -76,9 +76,9 @@ pub use bookmark::*;
     post,
     path = "/latest_vote_results",
     responses(
-        (status = 200, description = "Returned latest vote results successfully.", body = [Vec<VoteResult>]),
-        (status = 400, description = "Invalid request", body = [LegisInitErrorResponse]),
-        (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
+        (status = 200, description = "Returned latest vote results successfully.", body = [Vec<OptionalVoteResult>]),
+        // (status = 400, description = "Invalid request", body = [LegisInitErrorResponse]),
+        // (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
     )
 )]
 pub async fn latest_vote_results(
@@ -99,9 +99,9 @@ pub async fn latest_vote_results(
         Page
     ),
     responses(
-        (status = 200, description = "Returned latest vote results successfully.", body = [Vec<VoteResult>]),
-        (status = 400, description = "Invalid request", body = [LegisInitErrorResponse]),
-        (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
+        (status = 200, description = "Returned latest vote results successfully.", body = [Vec<OptionalVoteResult>]),
+        // (status = 400, description = "Invalid request", body = [LegisInitErrorResponse]),
+        // (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
     )
 )]
 pub async fn vote_results_per_page(
@@ -190,9 +190,9 @@ pub async fn unfinished_vote_result_by_search(
         Page
     ),
     responses(
-        (status = 200, description = "Returned latest vote results successfully.", body = [Vec<VoteResult>]),
-        (status = 400, description = "Invalid request", body = [LegisInitErrorResponse]),
-        (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
+        (status = 200, description = "Returned latest vote results successfully.", body = [Vec<OptionalVoteResult>]),
+        // (status = 400, description = "Invalid request", body = [LegisInitErrorResponse]),
+        // (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
     )
 )]
 pub async fn vote_result_by_id(

@@ -5,7 +5,6 @@ use axum::routing::get;
 use axum::Router;
 use axum::{extract::Query, Json};
 use chrono::NaiveDate;
-use dataservice::db::models::DbProposalQuery;
 use redis::aio::MultiplexedConnection;
 use somes_common_lib::FullMandate;
 use somes_common_lib::{
@@ -17,7 +16,7 @@ use sqlx::PgPool;
 use crate::routes::gov_proposals_by_official;
 use crate::server::AppState;
 use crate::{
-    dataservice::get_proposals, get_json_cache, set_json_cache_with_relevance, PgPoolConnection,
+    get_json_cache, set_json_cache_with_relevance, PgPoolConnection,
     RedisConnection,
 };
 
@@ -73,8 +72,8 @@ pub fn create_delegates_router() -> Router<AppState> {
     path = "/delegate_interests",
     responses(
         (status = 200, description = "Returned delegate interests successfully.", body = [Vec<InterestShare>]),
-        (status = 400, description = "Invalid request", body = [DelegatesErrorResponse]),
-        (status = 500, description = "Internal server error", body = [DelegatesErrorResponse])
+        // (status = 400, description = "Invalid request", body = [DelegatesErrorResponse]),
+        // (status = 500, description = "Internal server error", body = [DelegatesErrorResponse])
     )
 )]
 #[inline]
@@ -125,9 +124,9 @@ pub async fn delegate_by_id_sqlx(
     ),
     path = "/delegate",
     responses(
-        (status = 200, description = "Returned delegate successfully.", body = [DbDelegate]),
-        (status = 400, description = "Invalid request", body = [DelegatesErrorResponse]),
-        (status = 500, description = "Internal server error", body = [DelegatesErrorResponse])
+        (status = 200, description = "Returned delegate successfully.", body = [Delegate]),
+        // (status = 400, description = "Invalid request", body = [DelegatesErrorResponse]),
+        // (status = 500, description = "Internal server error", body = [DelegatesErrorResponse])
     )
 )]
 pub async fn delegate_by_id(
@@ -156,9 +155,9 @@ pub async fn delegate_by_id_path(
     get,
     path = "/delegates",
     responses(
-        (status = 200, description = "Returned delegates successfully.", body = [Vec<DbDelegate>]),
-        (status = 400, description = "Invalid request", body = [DelegatesErrorResponse]),
-        (status = 500, description = "Internal server error", body = [DelegatesErrorResponse])
+        (status = 200, description = "Returned delegates successfully.", body = [Vec<Delegate>]),
+        // (status = 400, description = "Invalid request", body = [DelegatesErrorResponse]),
+        // (status = 500, description = "Internal server error", body = [DelegatesErrorResponse])
     )
 )]
 pub async fn delegates(
@@ -194,9 +193,9 @@ WHERE
     ),
     path = "/delegates_at",
     responses(
-        (status = 200, description = "Returned delegates successfully.", body = [Vec<DbDelegate>]),
-        (status = 400, description = "Invalid request", body = [DelegatesErrorResponse]),
-        (status = 500, description = "Internal server error", body = [DelegatesErrorResponse])
+        (status = 200, description = "Returned delegates successfully.", body = [Vec<Delegate>]),
+        // (status = 400, description = "Invalid request", body = [DelegatesErrorResponse]),
+        // (status = 500, description = "Internal server error", body = [DelegatesErrorResponse])
     )
 )]
 pub async fn delegates_at(
@@ -459,20 +458,3 @@ WHERE
     Ok(delegates)
 }
 
-#[utoipa::path(
-    get,
-    path = "/proposals",
-    responses(
-        (status = 200, description = "Returned proposals successfully.", body = [Vec<DbProposalQuery>]),
-        (status = 400, description = "Invalid request", body = [DelegatesErrorResponse]),
-        (status = 500, description = "Internal server error", body = [DelegatesErrorResponse])
-    )
-)]
-pub async fn proposals(
-    PgPoolConnection(con): PgPoolConnection,
-) -> Result<Json<Vec<DbProposalQuery>>, DelegatesErrorResponse> {
-    get_proposals(&con)
-        .await
-        .map(Json)
-        .map_err(|_| DelegatesErrorResponse::ProposalResponseError)
-}

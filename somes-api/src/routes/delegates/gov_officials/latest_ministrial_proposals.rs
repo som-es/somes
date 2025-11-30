@@ -1,5 +1,8 @@
 use axum::{extract::Query, Json};
-use dataservice::{combx::{GovProposal, OptionalGovProposal}, db::models::DbMinistrialProposalQueryMeta};
+use dataservice::{
+    combx::{GovProposal, OptionalGovProposal},
+    db::models::DbMinistrialProposalQueryMeta,
+};
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::Delegate;
@@ -7,15 +10,18 @@ use sqlx::{query_as, PgPool};
 use utoipa::ToSchema;
 
 use crate::{
-    PgPoolConnection, RedisConnection, routes::{DelegatesErrorResponse, construct_gov_delegate_proposal, construct_gov_proposal, delegate_by_id_sqlx}
+    routes::{
+        construct_gov_delegate_proposal,
+        DelegatesErrorResponse,
+    },
+    PgPoolConnection, RedisConnection,
 };
 
 #[derive(ToSchema, Debug, Clone, Serialize, Deserialize)]
 pub struct GovProposalDelegate {
     pub gov_proposal: OptionalGovProposal,
-    pub delegate: Delegate,
+    pub delegate: Option<Delegate>,
 }
-
 
 pub async fn extract_latest_ministrial_proposals(
     pg: &PgPool,

@@ -5,7 +5,7 @@ use somes_common_lib::GovPropFilter;
 
 use crate::{
     meilisearch::MeilisearchClient, routes::GovProposalDelegate, GenericErrorResponse,
-    RedisConnection, GOV_PROPS_PER_PAGE,
+    GOV_PROPS_PER_PAGE,
 };
 
 use super::GovProposalsWithMaxPage;

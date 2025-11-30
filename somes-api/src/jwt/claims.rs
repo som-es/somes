@@ -4,14 +4,14 @@ use headers::{authorization::Bearer, Authorization};
 use jsonwebtoken::{decode, Validation};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use somes_common_lib::time::timestamp_secs;
-use utoipa::IntoParams;
+use utoipa::{IntoParams, ToSchema};
 
 use super::{error::AuthError, keys::KEYS};
 
 pub type Claims = ClaimsGen<i32>;
 
-#[derive(IntoParams, Debug, Serialize, Deserialize)]
-pub struct ClaimsGen<T> {
+#[derive(ToSchema, Debug, Serialize, Deserialize)]
+pub struct ClaimsGen<T: ToSchema> {
     pub id: T,
     pub sub: String,
     pub company: String,
@@ -19,7 +19,7 @@ pub struct ClaimsGen<T> {
     pub is_admin: bool,
 }
 
-impl<T> ClaimsGen<T> {
+impl<T: ToSchema> ClaimsGen<T> {
     pub fn new(id: T, sub: String, is_admin: bool) -> Self {
         Self {
             id,
@@ -35,7 +35,7 @@ impl<T> ClaimsGen<T> {
 impl<S, T> FromRequestParts<S> for ClaimsGen<T>
 where
     S: Send + Sync,
-    T: DeserializeOwned,
+    T: DeserializeOwned + ToSchema,
 {
     type Rejection = AuthError;
 

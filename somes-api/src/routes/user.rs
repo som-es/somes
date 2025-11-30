@@ -10,11 +10,11 @@ use crate::{jwt::Claims, model::User, GenericErrorResponse, PgPoolConnection};
 #[utoipa::path(
     post,
     path = "/user",
-    params(
-        Claims
-    ),
+    // params(
+    //     Claims
+    // ),
     responses(
-        (status = 200, description = "Returned user successfully.", body = [Vec<UserInfo>]),
+        (status = 200, description = "Returned user successfully.", body = [Vec<User>]),
         (status = 400, description = "Invalid request", body = [UserErrorResponse]),
         (status = 500, description = "Internal server error", body = [UserErrorResponse])
     )

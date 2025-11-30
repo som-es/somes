@@ -15,7 +15,7 @@ use dataservice::{
 // use diesel_async::pooled_connection::AsyncDieselConnectionManager;
 use log::{error, info};
 use reqwest::StatusCode;
-use somes_common_lib::{DECREES_PER_PAGE, LATEST_VOTE_RESULTS_ROUTE, LOGIN_ROUTE, PROPOSALS_ROUTE};
+use somes_common_lib::{DECREES_PER_PAGE, LATEST_VOTE_RESULTS_ROUTE, LOGIN_ROUTE};
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tokio::{net::TcpListener, time::sleep};
 use tower_governor::{governor::GovernorConfigBuilder, GovernorLayer};
@@ -25,7 +25,7 @@ use views::{create_composite_types, create_views};
 use crate::{
     meilisearch::update_meilisearch_indices,
     redirect_http_to_https,
-    routes::{latest_vote_results, proposals, save_email},
+    routes::{latest_vote_results, save_email},
     Ports, DATASERVICE_URL, HTTPS_PORT, HTTP_PORT, MEILISEARCH_SECRET, MEILISEARCH_URL,
     PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, REDIS_DB, STATIC_FRONTEND_PATH,
 };
@@ -96,37 +96,7 @@ pub async fn serve(addr: SocketAddr) {
 
     info!("Established redis database connection to {REDIS_DB}.");
 
-    #[derive(OpenApi)]
-    #[openapi(
-        paths(
-            login,
-            delegates,
-            proposals,
-            latest_vote_results,
-            parties,
-            delegate_by_id
-        ),
-        components(
-            schemas(
-                SignUpInfo,
-                SignUpError,
-                JWTInfo,
-                crate::AuthError, dataservice::db::models::DbDelegate,
-                DelegatesErrorResponse, dataservice::db::models::DbProposalQuery,
-                DbLegislativeInitiativeQuery, LegisInitErrorResponse,
-                DateRange, VoteResult,
-                LegisPeriod,
-                UserInfo,
-                DbParty, PartiesErrorResponse,
-                DelegateById, InterestShare,
-                Page
-            ),
-        ),
-        // modifiers(&SecurityAddon),
-        /*tags(
-            (name = "test", description = "Todo items management API")
-        )*/
-    )]
+    
     struct ApiDoc;
 
     /*successfully.
@@ -232,7 +202,6 @@ pub async fn serve(addr: SocketAddr) {
             }),
         )
         .route(DELETE_ACCOUNT_ROUTE, delete(delete_account))
-        .route(PROPOSALS_ROUTE, get(proposals))
         // .route(LEGIS_INIT_ROUTE, post(legis_inits))
         // .route(LATEST_LEGIS_INITS_ROUTE, get(latest_legis_inits))
         .route(LATEST_VOTE_RESULTS_ROUTE, get(latest_vote_results))
