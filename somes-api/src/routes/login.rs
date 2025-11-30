@@ -57,12 +57,6 @@ async fn get_user_from_mail(pg: &PgPool, stored_mail: &str) -> Option<Option<Use
     }
 }
 
-fn sha256(input: &str) -> String {
-    let mut hasher = Sha256::new();
-    hasher.update(input.as_bytes());
-    format!("{:#x}", hasher.finalize())
-}
-
 pub static EMAIL_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"[^@]+@[^@]+\.[^@]+").expect("Invalid email regex"));
 

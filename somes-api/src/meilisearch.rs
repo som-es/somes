@@ -2,7 +2,7 @@ use axum::{
     extract::{FromRef, FromRequestParts},
     http::request::Parts,
 };
-use dataservice::combx::{MeilisearchHelper, OptionalMeilisearchHelper, OptionalVoteResult};
+use dataservice::combx::{MeilisearchHelper, OptionalVoteResult};
 use meilisearch_sdk::settings::{PaginationSetting, Settings};
 use redis::aio::MultiplexedConnection;
 use reqwest::StatusCode;

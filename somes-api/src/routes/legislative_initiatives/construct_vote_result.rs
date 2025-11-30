@@ -43,9 +43,7 @@ async fn test_fetch_all_vote_results() {
 
         let start = std::time::Instant::now();
         let mut lhs = fetch_vote_result_by_id(&pg, legis_init.id).await.unwrap();
-        lhs.meilisearch_helper = Some(MeilisearchHelper {
-            votes: vec![],
-        });
+        lhs.meilisearch_helper = Some(MeilisearchHelper { votes: vec![] });
         println!("elapsed (new): {:?}", start.elapsed());
     }
     // let vote_results = fetch_all_vote_results(&pg).await.unwrap();
@@ -71,10 +69,7 @@ pub async fn construct_vote_result(
         &mut redis_con,
         &key,
         &out,
-        out.legislative_initiative
-            .as_ref()
-            .unwrap()
-            .created_at
+        out.legislative_initiative.as_ref().unwrap().created_at,
     )
     .await
     .ok_or(sqlx::Error::WorkerCrashed)?;

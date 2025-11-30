@@ -1,7 +1,5 @@
 use dataservice::{
-    combx::{
-        DbNamedVote, DbNamedVoteInfo, DbNamedVoteInfoQuery, OptionalDbNamedVote, OptionalVoteResult, Topic
-    },
+    combx::{DbNamedVote, DbNamedVoteInfo, DbNamedVoteInfoQuery, OptionalVoteResult, Topic},
     db::models::{DbLegislativeInitiativeQuery, DbNamedVotes, DbSpeechWithLink, DbVote},
 };
 use redis::aio::MultiplexedConnection;
@@ -24,7 +22,7 @@ pub struct VoteResultsWithMaxPage {
 }
 
 use super::{
-    construct_vote_result::construct_vote_result, filtering::filtered_legislative_initiatives,
+    construct_vote_result::construct_vote_result, filter::filtered_legislative_initiatives,
 };
 
 pub async fn get_latest_legis_inits_per_page(

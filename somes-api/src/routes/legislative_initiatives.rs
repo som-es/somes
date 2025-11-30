@@ -6,7 +6,7 @@ use axum::{
 };
 use dataservice::combx::OptionalVoteResult;
 use meilisearch_sdk::search::SearchResults;
-use somes_common_lib::{LegisInitFilter, Page, PartyVote, VoteResultById};
+use somes_common_lib::{LegisInitFilter, Page, VoteResultById};
 
 use crate::{
     meilisearch::MeilisearchClient, PgPoolConnection, RedisConnection, LEGIS_INITS_PER_PAGE,
@@ -15,7 +15,7 @@ use crate::{
 pub use error::*;
 mod db;
 mod error;
-pub mod filtering;
+pub mod filter;
 pub use db::*;
 mod bookmark;
 mod construct_vote_result;
@@ -167,7 +167,6 @@ pub async fn unfinished_vote_results_per_page(
 }
 
 pub async fn unfinished_vote_result_by_search(
-    RedisConnection(redis_con): RedisConnection,
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
@@ -239,24 +238,6 @@ fn create_topic_filter<T: Display>(field: &str, filter_values: impl Iterator<Ite
     filter_values
         .into_iter()
         .map(|filter_value| format!("{field} = {filter_value}"))
-        .collect::<Vec<_>>()
-        .join(" AND ")
-}
-
-#[inline]
-fn create_party_vote_filter<'a>(
-    party_field: &str,
-    infavor_field: &str,
-    filter_values: impl Iterator<Item = &'a PartyVote>,
-) -> String {
-    filter_values
-        .into_iter()
-        .map(|filter_value| {
-            format!(
-                r#"["{party_field} = {}", "{infavor_field} = {}"]"#,
-                filter_value.party, filter_value.infavor
-            )
-        })
         .collect::<Vec<_>>()
         .join(" AND ")
 }
