@@ -10,7 +10,6 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
         SELECT
           /* scalar */
           li.id AS id,
-          NULL::meilisearch_helper as \"meilisearch_helper: MeilisearchHelper\",
           /* legislative initiative row */
           (
             SELECT
@@ -203,7 +202,9 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
                   origin_legis_init_id = li.id
                   AND li2.is_voteable_on
               )
-          ) AS \"references: Vec<DbReference>\"
+          ) AS \"references: Vec<DbReference>\",
+          NULL::meilisearch_helper as \"meilisearch_helper: MeilisearchHelper\"
+
         FROM
           legislative_initiatives li
         "

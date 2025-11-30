@@ -29,7 +29,6 @@ pub async fn gov_proposal_delegate_by_path_sqlx(
         DbMinistrialProposalQueryMeta,
         "
             select
-                mi.delegate_id,
                 mp.id,
                 mp.ityp,
                 mp.gp,
@@ -47,11 +46,7 @@ pub async fn gov_proposal_delegate_by_path_sqlx(
                 mp.legis_init_ityp,
                 mp.has_vote_result
             from
-                ministrial_issuer as mi
-            inner join
                 ministrial_proposals as mp
-            on
-                mp.id = mi.ministrial_proposal_id
             where
                 gp = $1 and inr = $2
         ",

@@ -14,7 +14,6 @@ pub async fn get_all_gov_props(
         DbMinistrialProposalQueryMeta,
         "
         select 
-            mi.delegate_id,
             mp.id, 
             mp.ityp, 
             mp.gp, 
@@ -31,12 +30,8 @@ pub async fn get_all_gov_props(
             mp.legis_init_inr, 
             mp.legis_init_ityp,
             mp.has_vote_result
-        from 
-            ministrial_issuer as mi 
-        inner join 
+        from
             ministrial_proposals as mp 
-        on 
-            mp.id = mi.ministrial_proposal_id
         "
     )
     .fetch_all(con)

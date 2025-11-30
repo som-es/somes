@@ -39,15 +39,19 @@ pub async fn construct_gov_delegate_proposal(
     pg: &PgPool,
     ministrial_proposal: DbMinistrialProposalQueryMeta,
 ) -> sqlx::Result<GovProposalDelegate> {
-    let delegate = delegate_by_id_sqlx(ministrial_proposal.delegate_id, &pg, redis_con.clone())
+    
+    let gov_proposal = construct_gov_proposal(redis_con.clone(), &pg, ministrial_proposal)
         .await
         .unwrap();
-    let gov_proposal = construct_gov_proposal(redis_con, &pg, ministrial_proposal)
-        .await
-        .unwrap();
+    // TODO: display multiple gov officials if there are multiple ministerial issuers
+    let mut delegates = vec![];
+    for ministerial_issuer in gov_proposal.ministerial_issuers.as_deref().unwrap_or(&[]) {
+        let delegate = delegate_by_id_sqlx(*ministerial_issuer, &pg, redis_con.clone()).await?;
+        delegates.push(delegate);
+    }
     Ok(GovProposalDelegate {
         gov_proposal,
-        delegate,
+        delegate: delegates.into_iter().next().unwrap(), // TODO: handle multiple delegates properly
     })
 }
 

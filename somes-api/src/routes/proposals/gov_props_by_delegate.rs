@@ -1,5 +1,5 @@
 use axum::{extract::Path, Json};
-use dataservice::combx::GovProposal;
+use dataservice::combx::{GovProposal, OptionalGovProposal};
 use sqlx::query_as;
 
 use crate::{
@@ -11,7 +11,7 @@ pub async fn gov_proposals_by_official(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Path(delegate_id): Path<i32>,
-) -> Result<Json<Vec<GovProposal>>, LegisInitErrorResponse> {
+) -> Result<Json<Vec<OptionalGovProposal>>, LegisInitErrorResponse> {
     extract_gov_prosals_by_delegate(redis_con, &pg, delegate_id)
         .await
         .map(Json)
@@ -22,13 +22,12 @@ pub async fn extract_gov_prosals_by_delegate(
     redis_con: redis::aio::MultiplexedConnection,
     pg: &sqlx::Pool<sqlx::Postgres>,
     delegate_id: i32,
-) -> sqlx::Result<Vec<GovProposal>> {
+) -> sqlx::Result<Vec<OptionalGovProposal>> {
     use dataservice::db::models::DbMinistrialProposalQueryMeta;
     let ministrial_proposals = query_as!(
         DbMinistrialProposalQueryMeta,
         "
         select
-            mi.delegate_id,
             mp.id,
             mp.ityp,
             mp.gp,
@@ -59,23 +58,6 @@ pub async fn extract_gov_prosals_by_delegate(
     )
     .fetch_all(pg)
     .await?;
-
-    /*ministrial_proposals.into_iter().map(|ministrial_proposal| {
-        match (
-            &ministrial_proposal.legis_init_gp,
-            &ministrial_proposal.legis_init_ityp,
-            ministrial_proposal.legis_init_inr,
-        ) {
-            (Some(ref gp), Some(ref ityp), Some(ref inr)) => {
-                Some(
-                    get_vote_result_by_unique_hints(redis_con.clone(), &pg, gp, ityp, *inr)
-                )
-            }
-            _ => None,
-        }
-    }).collect::<Vec<_>>();*/
-
-    // let mut gov_proposal_futures = Vec::with_capacity(ministrial_proposals.len());
 
     futures::future::join_all(ministrial_proposals.into_iter().map(|ministrial_proposal| {
         let redis_con = redis_con.clone();

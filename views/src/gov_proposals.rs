@@ -11,7 +11,6 @@ pub async fn create_gov_proposals_view<'a>(tx: &mut Transaction<'a, Postgres>) -
     SELECT
         mp.id,
         (SELECT ROW(
-            delegate_id,
             inner_mp.id, 
             ityp, 
             gp, 
@@ -29,29 +28,12 @@ pub async fn create_gov_proposals_view<'a>(tx: &mut Transaction<'a, Postgres>) -
             legis_init_ityp,
             has_vote_result)::db_ministrial_proposal_query_meta
         from 
-            ministrial_issuer as mi 
-        inner join 
             ministrial_proposals inner_mp 
-        on 
-            inner_mp.id = mi.ministrial_proposal_id
         where
             inner_mp.id = mp.id
         ) as \"ministrial_proposal: DbMinistrialProposalQueryMeta\",
         (select ROW(
-                vr.\"id\",
-                vr.\"legislative_initiative: DbLegislativeInitiativeQuery\",
-                vr.\"votes: Vec<DbVote>\",
-                vr.\"speeches: Vec<DbSpeechWithLink>\",
-                vr.\"named_votes: DbNamedVotes\",
-                vr.\"topics: Vec<Topic>\",
-                vr.\"eurovoc_topics: Vec<Topic>\",
-                vr.\"other_keyword_topics: Vec<Topic>\",
-                vr.\"documents: Vec<Document>\",
-                vr.\"absences: Vec<i32>\",
-                vr.\"issued_by_dels: Vec<DbRelatedDelegate>\",
-                vr.\"referenced_by_others_ids: Vec<i32>\",
-                vr.\"references: Vec<DbReference>\",
-                vr.\"meilisearch_helper: MeilisearchHelper\"
+                vr.*
             )::vote_result
             from vote_results vr 
             where vr.id = 
@@ -66,25 +48,25 @@ pub async fn create_gov_proposals_view<'a>(tx: &mut Transaction<'a, Postgres>) -
             SELECT
               ROW(topic)::topic
             FROM
-              topics_ministrial_proposal
+              topics_ministrial_proposals
             WHERE
-              ministerial_proposal_id = mp.id
+              ministrial_proposal_id = mp.id
           ) AS \"topics: Vec<Topic>\",
           ARRAY(
             SELECT
               ROW(topic)::topic
             FROM
-              eurovoc_topics_ministrial_proposal
+              eurovoc_topics_ministrial_proposals
             WHERE
-              ministerial_proposal_id = mp.id
+              ministrial_proposal_id = mp.id
           ) AS \"eurovoc_topics: Vec<Topic>\",
           ARRAY(
             SELECT
               ROW(topic)::topic
             FROM
-              other_keyword_topics_ministrial_proposal
+              other_keyword_topics_ministrial_proposals
             WHERE
-              ministerial_proposal_id = mp.id
+              ministrial_proposal_id = mp.id
           ) AS \"other_keyword_topics: Vec<Topic>\",
           /* documents */
           ARRAY(
@@ -95,18 +77,19 @@ pub async fn create_gov_proposals_view<'a>(tx: &mut Transaction<'a, Postgres>) -
             FROM
               ministrial_proposals_documents
             WHERE
-              ministerial_proposal_id = mp.id
+              ministrial_proposal_id = mp.id
           ) AS \"documents: Vec<Document>\",
-        ARRAY(
+            /* ministerial_issuers */
+        ( SELECT
+           ARRAY(
             SELECT
-              ROW(
                 delegate_id 
-              )::int
             FROM
               ministrial_issuer
             WHERE
-              ministerial_proposal_id = mp.id
-          ) AS \"ministerial_issuers: Vec<i32>\"
+              ministrial_proposal_id = mp.id
+           ) 
+        ) AS \"ministerial_issuers: Vec<i32>\"
 
         from ministrial_proposals mp
         "

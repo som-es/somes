@@ -1,5 +1,5 @@
 use axum::{extract::Query, Json};
-use dataservice::{combx::GovProposal, db::models::DbMinistrialProposalQueryMeta};
+use dataservice::{combx::{GovProposal, OptionalGovProposal}, db::models::DbMinistrialProposalQueryMeta};
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::Delegate;
@@ -7,30 +7,15 @@ use sqlx::{query_as, PgPool};
 use utoipa::ToSchema;
 
 use crate::{
-    routes::{construct_gov_proposal, delegate_by_id_sqlx, DelegatesErrorResponse},
-    PgPoolConnection, RedisConnection,
+    PgPoolConnection, RedisConnection, routes::{DelegatesErrorResponse, construct_gov_delegate_proposal, construct_gov_proposal, delegate_by_id_sqlx}
 };
 
 #[derive(ToSchema, Debug, Clone, Serialize, Deserialize)]
 pub struct GovProposalDelegate {
-    pub gov_proposal: GovProposal,
+    pub gov_proposal: OptionalGovProposal,
     pub delegate: Delegate,
 }
 
-pub async fn construct_ministrial_proposal_delegate(
-    ministrial_proposal: DbMinistrialProposalQueryMeta,
-    pg: &PgPool,
-    redis_con: MultiplexedConnection,
-) -> sqlx::Result<GovProposalDelegate> {
-    let delegate =
-        delegate_by_id_sqlx(ministrial_proposal.delegate_id, pg, redis_con.clone()).await?;
-    let gov_proposal = construct_gov_proposal(redis_con, &pg, ministrial_proposal).await?;
-
-    Ok(GovProposalDelegate {
-        gov_proposal,
-        delegate,
-    })
-}
 
 pub async fn extract_latest_ministrial_proposals(
     pg: &PgPool,
@@ -40,7 +25,6 @@ pub async fn extract_latest_ministrial_proposals(
     let ministrial_proposals = query_as!(
         DbMinistrialProposalQueryMeta,
         "select
-        mi.delegate_id,
         mp.id,
         mp.ityp,
         mp.gp,
@@ -57,8 +41,8 @@ pub async fn extract_latest_ministrial_proposals(
         mp.legis_init_inr,
         mp.legis_init_ityp,
         mp.has_vote_result
-     from ministrial_issuer as mi
-        inner join ministrial_proposals mp on mp.id = mi.ministrial_proposal_id
+     from 
+         ministrial_proposals mp 
 
         where mp.created_at > NOW() - make_interval(days => $1)
     order by mp.created_at desc",
@@ -71,7 +55,7 @@ pub async fn extract_latest_ministrial_proposals(
         ministrial_proposals
             .into_iter()
             .map(|ministrial_proposal| {
-                construct_ministrial_proposal_delegate(ministrial_proposal, pg, redis_con.clone())
+                construct_gov_delegate_proposal(redis_con.clone(), pg, ministrial_proposal)
             })
             .collect::<Vec<_>>(),
     )
