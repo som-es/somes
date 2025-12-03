@@ -201,6 +201,12 @@
 		id={0}
 		delegateMakeRequest={delegateSimpleSpeeches}
 		title="Reden pro Abgeordneten"
+		config={{
+			party_filter_info: "Filtert die Ergebnisse nach Partei. Es werden nur Abgeordnete der ausgewählten Partei angezeigt.",
+			gender_filter_info: "Filtert die Ergebnisse nach dem Geschlecht der Abgeordneten.",
+			normalized_filter_info: "Zeigt die durchschnittlihe Anzahl an Reden pro Sitzung statt der Gesamtzahl der Reden.",
+			desc_filter_info: "Sortiert die Liste absteigend (höchste Werte zuerst), wenn aktiviert."
+		}}
 	/>
 </Container>
 
@@ -209,7 +215,14 @@
 		height={tableHeightParty}
 		id={1}
 		delegateMakeRequest={partySimpleSpeeches}
-		title="Reden nach Parteien"
+		title="Reden nach Parteien" 
+		config={{
+			party_filter_info: "Filtert die Ergebnisse nach Partei. Es nur ausgewählten Parteien angezeigt",
+			gender_filter_info: "Dieser Filter hat in dieser Ansicht keine Funktion.",
+			normalized_filter_info: "Zeigt die durchschnittliche Anzahl an Reden pro Parteimitglied statt der gesamten Reden der Partei.",
+			desc_filter_info: "Sortiert die Ergebnisse absteigend (höchste Werte zuerst)."
+		}}
+
 	/>
 </Container>
 
@@ -219,6 +232,13 @@
 		id={2}
 		delegateMakeRequest={genderSimpleSpeeches}
 		title="Reden nach Gender"
+		config={{
+			party_filter_info: "Filtert die Ergebnise nach Geschlecht. Es werden nur ausgewählte Parteien angezeigt.",
+			gender_filter_info: "Dieser Filter hat in dieser Ansicht keine Funktion.",
+			normalized_filter_info: "Zeigt die durchschnittliche Anzahl an Reden pro Person innerhalb der Geschlechtsgruppe statt der gesamten Anzahl der Reden.",
+			desc_filter_info: "Sortiert die Ergebnisse absteigend (höchste Werte zuerst)."
+		}}
+
 	/>
 </Container>
 
@@ -228,6 +248,13 @@
 		id={3}
 		delegateMakeRequest={ageSimpleSpeeches}
 		title="Reden nach Alter"
+		config={{
+			party_filter_info: "Filtert die Ergebnisse nach Altersgruppen. Es werden nur die ausgewählten Altersgruppen angezeigt.",
+			gender_filter_info: "Dieser Filter hat in dieser Ansicht keine Funktion.",
+			normalized_filter_info: "Zeigt die durchschnittliche Anzahl an Reden pro Person innerhalb der jeweiligen Altersgruppe statt der gesamten Reden dieser Altersgruppe.",
+			desc_filter_info: "Sortiert die Ergebnisse absteigend (höchste Werte zuerst)."
+		}}
+
 	/>
 </Container>
 
@@ -237,5 +264,12 @@
 		id={4}
 		delegateMakeRequest={legisSimpleSpeeches}
 		title="Reden nach Legislaturperiode"
+		config={{
+			party_filter_info: "Filtert die Ergebnisse nach Partei. Es werden nur die Reden der Mitglieder der ausgewählten Partei berücksichtigt.",
+			gender_filter_info: "Filtert die Ergebnisse nach dem Geschlecht der Abgeordneten.",
+			normalized_filter_info: "Zeigt die durchschnittliche Anzahl an Reden pro Sitzung innerhalb der jeweiligen Legislaturperiode statt der Gesamtzahl der Reden.",
+			desc_filter_info: "Sortiert die Ergebnisse absteigend (höchste Werte zuerst)."
+		}}
+
 	/>
 </Container>
