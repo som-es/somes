@@ -70,11 +70,6 @@ impl FromRef<AppState> for redis::Client {
     }
 }
 
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
-pub struct Test {
-    test: &'static str,
-}
-
 //pub type RedisClient = Arc<RwLock<redis::Client>>;
 
 pub async fn serve(addr: SocketAddr) {
@@ -126,12 +121,6 @@ pub async fn serve(addr: SocketAddr) {
     let meilisearch_client =
         meilisearch_sdk::client::Client::new(MEILISEARCH_URL, Some(MEILISEARCH_SECRET))
             .expect("Meilisearch client was not able to connect");
-
-    meilisearch_client
-        .index("test")
-        .add_documents(&[Test { test: "test" }], None)
-        .await
-        .unwrap();
 
     let state = AppState::new(
         client.clone(),
@@ -212,7 +201,6 @@ pub async fn serve(addr: SocketAddr) {
         .route(PARTIES, get(parties))
         .route(PARTIES_AT_GP, get(parties_at_gp))
         .route(USER, get(user))
-        .route(DELEGATE_INTERESTS, get(delegate_interests))
         .route(VOTE_RESULTS_PER_PAGE, post(vote_results_per_page)) // post only because js fetch...
         .route(
             UNFINISHED_VOTE_RESULTS_PER_PAGE,

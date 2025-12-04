@@ -13,7 +13,6 @@ use somes_common_lib::{
 };
 use sqlx::PgPool;
 
-use crate::routes::gov_proposals_by_official;
 use crate::server::AppState;
 use crate::{
     get_json_cache, set_json_cache_with_relevance, PgPoolConnection,

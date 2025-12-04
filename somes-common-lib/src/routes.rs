@@ -93,6 +93,7 @@ pub const ALL_AT_DATE_WITH_SEAT_INFO: &str = "/all_at_date_with_seat_info";
 pub const ID: &str = "/id/{id}";
 pub const EXTEND: &str = "/extend/{id}";
 pub const ALL_ACTIVE: &str = "/all_active";
+pub const BY_SEARCH: &str = "/by_search";
 pub const DELEGATES_WITH_SEATS_NEAR_DATE: &str = "/delegates_with_seats_near_date";
 pub const WALO_QUESTIONS: &str = "/walo_questions";
 pub const ALL_GPS: &str = "/all_gps";

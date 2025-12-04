@@ -2,30 +2,36 @@ mod all_props;
 mod by_path;
 mod construct_gov_proposal;
 mod db;
-mod gov_props_by_delegate;
 mod gov_props_by_search;
 pub use all_props::*;
 pub use by_path::*;
 pub use construct_gov_proposal::*;
 pub use db::*;
-pub use gov_props_by_delegate::*;
 pub use gov_props_by_search::*;
 
-use axum::{extract::Query, Json};
+use axum::{Json, Router, extract::Query, routing::{get, post}};
 use dataservice::db::models::DbMinistrialProposalQueryMeta;
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::{GovPropFilter, Page};
+use somes_common_lib::{BY_SEARCH, GovPropFilter, Page};
 use sqlx::{FromRow, PgPool};
 use utoipa::ToSchema;
 
-use crate::{PgPoolConnection, RedisConnection, GOV_PROPS_PER_PAGE};
+use crate::{GOV_PROPS_PER_PAGE, PgPoolConnection, RedisConnection, server::AppState};
 
 use super::{
     delegate_by_id_sqlx,
     statistics::filtering::{bind_values, build_filter, count_filter, IntoFilterArgument, Manual},
     GovProposalDelegate, LegisInitErrorResponse,
 };
+
+// TODO: router for gov proposals
+
+pub fn create_gov_proposals() -> Router<AppState> {
+    Router::new()
+        .route(BY_SEARCH, post(gov_props_by_search))
+        
+}
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct GovProposalsWithMaxPage {
