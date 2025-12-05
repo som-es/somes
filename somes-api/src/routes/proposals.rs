@@ -13,7 +13,7 @@ use axum::{Json, Router, extract::Query, routing::{get, post}};
 use dataservice::db::models::DbMinistrialProposalQueryMeta;
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::{BY_SEARCH, GovPropFilter, Page};
+use somes_common_lib::{GovPropFilter, LIVE, Page, SEARCH};
 use sqlx::{FromRow, PgPool};
 use utoipa::ToSchema;
 
@@ -25,12 +25,11 @@ use super::{
     GovProposalDelegate, LegisInitErrorResponse,
 };
 
-// TODO: router for gov proposals
-
-pub fn create_gov_proposals() -> Router<AppState> {
+pub fn create_gov_proposals_router() -> Router<AppState> {
     Router::new()
-        .route(BY_SEARCH, post(gov_props_by_search))
-        
+        .route(SEARCH, post(gov_props_by_search))
+        .route(LIVE, post(gov_proposals_per_page))
+        .route("/{gp}/{inr}", get(gov_proposal_by_path))
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
@@ -60,7 +59,7 @@ pub async fn construct_gov_delegate_proposal(
     })
 }
 
-pub async fn get_gov_proposals_per_page(
+pub async fn gov_proposals_per_page(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(page): Query<Page>,
