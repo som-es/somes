@@ -11,6 +11,38 @@ pub trait Filterable<'a, What>: Send + Sync {
         bind_on_query: sqlx::query::QueryAs<'a, sqlx::Postgres, What, sqlx::postgres::PgArguments>,
     ) -> sqlx::query::QueryAs<'a, sqlx::Postgres, What, sqlx::postgres::PgArguments>;
 }
+#[derive(Debug, Clone, Copy)]
+pub struct Nullable<T>(pub Option<Option<T>>);
+
+impl<'a, What, T: Clone + Send + Sync + Encode<'a, Postgres> + Type<Postgres>> Filterable<'a, What>
+    for Nullable<T>
+{
+    fn should_return_any(&self) -> bool {
+        self.0.is_none()
+    }
+
+    fn to_query_part(&self, sql_column_name: &str, idx: usize) -> String {
+        match &self.0 {
+            Some(inner) => {
+                let and = if idx == 0 { " " } else { " and " };
+                match inner {
+                    Some(_val) => {
+                        format!("{and}{sql_column_name} = ${}", idx + 1)
+                    }
+                    None => format!("{and}{sql_column_name} is null"),
+                }
+            }
+            None => " ".to_string(),
+        }
+    }
+
+    fn bind(
+        &'a self,
+        bind_on_query: sqlx::query::QueryAs<'a, sqlx::Postgres, What, sqlx::postgres::PgArguments>,
+    ) -> sqlx::query::QueryAs<'a, sqlx::Postgres, What, sqlx::postgres::PgArguments> {
+        bind_on_query.bind(self.0.clone())
+    }
+}
 
 #[derive(Debug, Clone, Copy)]
 pub struct Manual(pub &'static str);
@@ -88,12 +120,16 @@ pub fn count_filter<What>(filters: &[FilterArgument<'_, '_, What>]) -> usize {
 }
 
 pub fn build_filter<What>(filters: &[FilterArgument<'_, '_, What>]) -> String {
-    filters
+    let filter_part: String = filters
         .iter()
         .filter(|x| !x.value.should_return_any())
         .enumerate()
         .map(|(idx, x)| x.value.to_query_part(x.sql_column_name, idx))
-        .collect()
+        .collect();
+    if filter_part.is_empty() {
+        return " true ".to_string()
+    }
+    filter_part
 }
 
 pub fn bind_values<'a, 'b, What>(
@@ -141,6 +177,18 @@ impl<'b> IntoFilterArgument<'b> for Manual {
         FilterArgument::new(self, self.0)
     }
 }
+
+impl<'b, T: Clone + 'static + Encode<'b, Postgres> + Type<Postgres> + Send + Sync>
+    IntoFilterArgument<'b> for Nullable<T>
+{
+    fn with_sql_column<'a, What>(
+        &'b self,
+        sql_column: &'static str,
+    ) -> FilterArgument<'a, 'b, What> {
+        FilterArgument::new(self, sql_column)
+    }
+}
+
 
 #[cfg(test)]
 mod tests {
