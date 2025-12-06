@@ -335,6 +335,7 @@ impl std::fmt::Display for Voting {
 
 #[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
 pub struct LegisInitFilter {
+    pub is_finished: bool,
     pub accepted: Option<String>,
     pub is_named_vote: Option<bool>,
     pub simple_majority: Option<bool>,

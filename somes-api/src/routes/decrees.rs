@@ -1,15 +1,21 @@
-use axum::{extract::Query, Json};
+use axum::{Json, Router, extract::{Path, Query}, routing::{get, post}};
 use dataservice::combx::OptionalDecree;
 use meilisearch_sdk::search::SearchResults;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::{DecreeByRisId, DecreeFilter, Document, Page};
+use somes_common_lib::{DecreeByRisId, DecreeFilter, Document, LIVE, Page, SEARCH};
 use utoipa::ToSchema;
 
 use super::LegisInitErrorResponse;
 use crate::{
-    get_json_cache, meilisearch::MeilisearchClient, set_json_cache, PgPoolConnection,
-    RedisConnection, DECREES_PER_PAGE,
+    DECREES_PER_PAGE, PgPoolConnection, RedisConnection, get_json_cache, meilisearch::MeilisearchClient, server::AppState, set_json_cache
 };
+
+pub fn create_decrees_router() -> Router<AppState> {
+    Router::new()
+        .route(SEARCH, post(decrees_by_search))
+        .route(LIVE, post(decrees_per_page))
+        .route("/ris_id", get(decree_by_ris_id))
+}
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct DecreesWithMaxPage {
@@ -18,7 +24,7 @@ pub struct DecreesWithMaxPage {
     pub max_page: i64,
 }
 
-pub async fn get_decrees_per_page(
+pub async fn decrees_per_page(
     RedisConnection(mut redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(page): Query<Page>,

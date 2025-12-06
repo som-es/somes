@@ -193,26 +193,9 @@ pub async fn serve(addr: SocketAddr) {
         .route(DELETE_ACCOUNT_ROUTE, delete(delete_account))
         // .route(LEGIS_INIT_ROUTE, post(legis_inits))
         // .route(LATEST_LEGIS_INITS_ROUTE, get(latest_legis_inits))
-        .route(LATEST_VOTE_RESULTS_ROUTE, get(latest_vote_results))
-        .route(
-            LATEST_MINISTRIAL_PROPOSALS,
-            get(latest_ministrial_proposals),
-        )
         .route(PARTIES, get(parties))
         .route(PARTIES_AT_GP, get(parties_at_gp))
         .route(USER, get(user))
-        .route(VOTE_RESULTS_PER_PAGE, post(vote_results_per_page)) // post only because js fetch...
-        .route(
-            UNFINISHED_VOTE_RESULTS_PER_PAGE,
-            post(unfinished_vote_results_per_page),
-        ) // post only because js fetch...
-        .route(VOTE_RESULT_BY_ID, get(vote_result_by_id))
-        .route(VOTE_RESULT_BY_PATH, get(vote_result_by_path))
-        .route(VOTE_RESULT_BY_SEARCH, post(vote_result_by_search)) // post only because js fetch...
-        .route(
-            UNFINISHED_VOTE_RESULT_BY_SEARCH,
-            post(unfinished_vote_result_by_search),
-        ) // post only because js fetch...
         .route(WALO_QUESTIONS, get(walo_questions))
         .route(ALL_GPS, get(all_gps))
         .route(SEATS, get(seats))
@@ -230,9 +213,6 @@ pub async fn serve(addr: SocketAddr) {
         .route(FAVO_LEGIS_INIT, post(add_legis_init_favo))
         .route(SEND_MAIL_INFO, put(update_send_mail_info))
         .route(SEND_MAIL_INFO, get(get_send_mail_info))
-        .route(DECREES_PER_PAGE, post(get_decrees_per_page))
-        .route(DECREES_BY_SEARCH, post(decrees_by_search))
-        .route(DECREE_BY_RIS_ID, get(decree_by_ris_id))
         .route(AI_CHAT_WS, any(ai_chat_ws_handler))
         .route(QUIZZES, get(get_all_quizzes))
         .route(ADD_QUIZ, post(add_quiz))
@@ -242,7 +222,9 @@ pub async fn serve(addr: SocketAddr) {
         .route("/save_email", post(save_email))
         .nest("/v1/statistics", create_statistics_router())
         .nest("/v1/delegates", create_delegates_router())
-        .nest("/v1/gov_proposals", create_gov_proposals_router());
+        .nest("/v1/gov_proposals", create_gov_proposals_router())
+        .nest("/v1/decrees", create_decrees_router())
+        .nest("/v1/vote_results", create_vote_results_router());
 
     let app = Router::new()
         .nest("/api", api_routes)

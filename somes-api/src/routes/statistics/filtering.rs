@@ -110,6 +110,12 @@ pub fn bind_values<'a, 'b, What>(
 }
 
 pub trait IntoFilterArgument<'b> {
+    fn into_filter_arg<'a, What>(
+        &'b self,
+    ) -> FilterArgument<'a, 'b, What> {
+        self.with_sql_column("")
+    }
+    
     fn with_sql_column<'a, What>(
         &'b self,
         sql_column: &'static str,

@@ -75,7 +75,7 @@ pub struct Days {
     days: u32,
 }
 
-pub async fn latest_ministrial_proposals(
+pub async fn latest_gov_proposals(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(days): Query<Days>,

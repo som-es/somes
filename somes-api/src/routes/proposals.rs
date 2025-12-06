@@ -13,11 +13,11 @@ use axum::{Json, Router, extract::Query, routing::{get, post}};
 use dataservice::db::models::DbMinistrialProposalQueryMeta;
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::{GovPropFilter, LIVE, Page, SEARCH};
+use somes_common_lib::{GovPropFilter, LATEST, LIVE, Page, SEARCH};
 use sqlx::{FromRow, PgPool};
 use utoipa::ToSchema;
 
-use crate::{GOV_PROPS_PER_PAGE, PgPoolConnection, RedisConnection, server::AppState};
+use crate::{GOV_PROPS_PER_PAGE, PgPoolConnection, RedisConnection, routes::latest_gov_proposals, server::AppState};
 
 use super::{
     delegate_by_id_sqlx,
@@ -29,6 +29,7 @@ pub fn create_gov_proposals_router() -> Router<AppState> {
     Router::new()
         .route(SEARCH, post(gov_props_by_search))
         .route(LIVE, post(gov_proposals_per_page))
+        .route(LATEST, post(latest_gov_proposals))
         .route("/{gp}/{inr}", get(gov_proposal_by_path))
 }
 

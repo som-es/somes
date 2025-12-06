@@ -95,6 +95,7 @@ pub const EXTEND: &str = "/extend/{id}";
 pub const ALL_ACTIVE: &str = "/all_active";
 pub const SEARCH: &str = "/search";
 pub const LIVE: &str = "/live";
+pub const LATEST: &str = "/latest";
 pub const DELEGATES_WITH_SEATS_NEAR_DATE: &str = "/delegates_with_seats_near_date";
 pub const WALO_QUESTIONS: &str = "/walo_questions";
 pub const ALL_GPS: &str = "/all_gps";
