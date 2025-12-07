@@ -10,8 +10,8 @@ use tokio::time::sleep;
 
 use crate::{
     routes::{
-        get_all_decrees_sqlx, get_all_gov_props, get_all_updated_votes_from_legis_init,
-        get_all_votes_from_legis_init,
+        get_all_decrees_sqlx, get_all_gov_props, all_updated_votes_from_legis_init_sqlx,
+        all_votes_from_legis_init,
     },
     server::AppState,
 };
@@ -213,7 +213,7 @@ pub fn update_meilisearch_indices(
                 &mut client_vr.get_multiplexed_tokio_connection().await.unwrap(),
                 &pg_pool_vr,
                 &meilisearch_client_vr,
-                get_all_votes_from_legis_init,
+                all_votes_from_legis_init,
             )
             .await
             {
@@ -234,7 +234,7 @@ pub fn update_meilisearch_indices(
                 &mut client_vr.get_multiplexed_tokio_connection().await.unwrap(),
                 &pg_pool_vr,
                 &meilisearch_client_vr,
-                get_all_updated_votes_from_legis_init,
+                all_updated_votes_from_legis_init_sqlx,
             )
             .await
             {
