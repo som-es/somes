@@ -4,11 +4,10 @@ use reqwest::StatusCode;
 use somes_common_lib::GovPropFilter;
 
 use crate::{
-    meilisearch::MeilisearchClient, routes::GovProposalDelegate, GenericErrorResponse,
-    GOV_PROPS_PER_PAGE,
+    meilisearch::MeilisearchClient,
+    routes::{GovProposalDelegate, GovProposalsWithMaxPage},
+    GenericErrorResponse, GOV_PROPS_PER_PAGE,
 };
-
-use super::GovProposalsWithMaxPage;
 
 pub async fn gov_props_by_search(
     MeilisearchClient(meilisearch_client): MeilisearchClient,

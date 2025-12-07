@@ -1,23 +1,35 @@
 use axum::{extract::Query, Json};
-use dataservice::{
-    combx::{GovProposal, OptionalGovProposal},
-    db::models::DbMinistrialProposalQueryMeta,
-};
+use dataservice::db::models::DbMinistrialProposalQueryMeta;
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::Delegate;
 use sqlx::{query_as, PgPool};
 use utoipa::ToSchema;
 
 use crate::{
-    routes::{construct_gov_delegate_proposal, DelegatesErrorResponse},
+    routes::{construct_gov_delegate_proposal, DelegatesErrorResponse, GovProposalDelegate},
     PgPoolConnection, RedisConnection,
 };
 
 #[derive(ToSchema, Debug, Clone, Serialize, Deserialize)]
-pub struct GovProposalDelegate {
-    pub gov_proposal: OptionalGovProposal,
-    pub delegate: Option<Delegate>,
+pub struct Days {
+    days: u32,
+}
+
+pub async fn latest_gov_proposals(
+    RedisConnection(redis_con): RedisConnection,
+    PgPoolConnection(pg): PgPoolConnection,
+    Query(days): Query<Days>,
+) -> Result<Json<Vec<GovProposalDelegate>>, DelegatesErrorResponse> {
+    if days.days > 180 {
+        return Err(DelegatesErrorResponse::Custom(
+            "days cannot be larger than 180".to_string(),
+        ));
+    }
+
+    extract_latest_ministrial_proposals(&pg, redis_con, days.days as i32)
+        .await
+        .map(Json)
+        .map_err(|e| DelegatesErrorResponse::DbSelectFailure(Some(e)))
 }
 
 pub async fn extract_latest_ministrial_proposals(
@@ -65,26 +77,4 @@ pub async fn extract_latest_ministrial_proposals(
     .await
     .into_iter()
     .collect::<sqlx::Result<Vec<_>>>()
-}
-
-#[derive(ToSchema, Debug, Clone, Serialize, Deserialize)]
-pub struct Days {
-    days: u32,
-}
-
-pub async fn latest_gov_proposals(
-    RedisConnection(redis_con): RedisConnection,
-    PgPoolConnection(pg): PgPoolConnection,
-    Query(days): Query<Days>,
-) -> Result<Json<Vec<GovProposalDelegate>>, DelegatesErrorResponse> {
-    if days.days > 180 {
-        return Err(DelegatesErrorResponse::Custom(
-            "days cannot be larger than 180".to_string(),
-        ));
-    }
-
-    extract_latest_ministrial_proposals(&pg, redis_con, days.days as i32)
-        .await
-        .map(Json)
-        .map_err(|e| DelegatesErrorResponse::DbSelectFailure(Some(e)))
 }

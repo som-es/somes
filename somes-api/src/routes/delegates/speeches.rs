@@ -68,7 +68,7 @@ pub async fn extract_delegate_speeches(
     */
 }
 
-pub async fn speeches_by_delegate_per_page(
+pub async fn speeches_by_delegate_per_page_route(
     PgPoolConnection(pg): PgPoolConnection,
     Query(delegate_by_id_and_page): Query<DelegateByIdAndPage>,
 ) -> Result<Json<SpeechesWithMaxPage>, DelegatesErrorResponse> {

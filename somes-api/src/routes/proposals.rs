@@ -1,13 +1,11 @@
 mod all_props;
-mod by_path;
 mod construct_gov_proposal;
 mod db;
-mod gov_props_by_search;
+mod routes;
 pub use all_props::*;
-pub use by_path::*;
 pub use construct_gov_proposal::*;
 pub use db::*;
-pub use gov_props_by_search::*;
+pub use routes::*;
 
 use axum::{
     extract::Query,
@@ -21,10 +19,7 @@ use somes_common_lib::{GovPropFilter, Page, LATEST, LIVE, SEARCH};
 use sqlx::{FromRow, PgPool};
 use utoipa::ToSchema;
 
-use crate::{
-    routes::latest_gov_proposals, server::AppState, PgPoolConnection, RedisConnection,
-    GOV_PROPS_PER_PAGE,
-};
+use crate::{server::AppState, PgPoolConnection, RedisConnection, GOV_PROPS_PER_PAGE};
 
 use super::{
     delegate_by_id_sqlx,
@@ -76,7 +71,7 @@ pub async fn gov_proposals_per_page(
     if page.page < 0 {
         return Err(LegisInitErrorResponse::InvalidPage);
     }
-    let (ministrial_proposals, entry_count) = filtered_ministrial_proposals(
+    let (ministrial_proposals, entry_count) = filtered_ministrial_proposals_sqlx(
         &pg,
         page.page,
         GOV_PROPS_PER_PAGE.parse().unwrap_or(12),
@@ -118,7 +113,7 @@ pub struct Count {
     count: i64,
 }
 
-pub async fn filtered_ministrial_proposals(
+pub async fn filtered_ministrial_proposals_sqlx(
     pg: &PgPool,
     page: i64,
     page_elements: i64,
@@ -204,13 +199,13 @@ pub async fn filtered_ministrial_proposals(
     ))
 }
 
-pub async fn get_latest_ministrial_proposals_per_page(
+pub async fn get_ministrial_proposals_per_page(
     pg: &PgPool,
     page: i64,
     page_elements: i64,
     filter: Option<GovPropFilter>,
 ) -> sqlx::Result<(Vec<DbMinistrialProposalQueryMeta>, i64)> {
-    filtered_ministrial_proposals(pg, page, page_elements, filter).await
+    filtered_ministrial_proposals_sqlx(pg, page, page_elements, filter).await
 }
 
 #[cfg(test)]
@@ -218,17 +213,17 @@ mod tests {
     use dataservice::connect_pg;
     use somes_common_lib::GovPropFilter;
 
-    use crate::routes::get_latest_ministrial_proposals_per_page;
+    use crate::routes::get_ministrial_proposals_per_page;
 
     #[tokio::test]
     async fn test_filtered_ministrial_prop() {
         let pg = connect_pg().await;
-        let entries = get_latest_ministrial_proposals_per_page(&pg, 1, 10, None)
+        let entries = get_ministrial_proposals_per_page(&pg, 1, 10, None)
             .await
             .unwrap();
         println!("entries: {entries:?}");
 
-        let entries = get_latest_ministrial_proposals_per_page(
+        let entries = get_ministrial_proposals_per_page(
             &pg,
             1,
             10,

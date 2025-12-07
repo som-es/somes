@@ -3,7 +3,6 @@ use std::borrow::Cow;
 use axum::{response::IntoResponse, Json};
 use reqwest::StatusCode;
 use serde_json::json;
-use utoipa::ToSchema;
 
 #[derive(Debug)]
 pub enum DelegatesErrorResponse {

@@ -1,20 +1,23 @@
 use axum::{
-    extract::{Path, Query},
+    extract::Path,
     Json,
 };
 use redis::aio::MultiplexedConnection;
-use somes_common_lib::{DelegateById, GeneralDelegateInfo, Mandate};
+use somes_common_lib::{GeneralDelegateInfo, Mandate};
 use sqlx::{query_as, PgPool};
 
-use crate::{get_json_cache, PgPoolConnection, RedisConnection};
+use crate::{PgPoolConnection, RedisConnection, get_json_cache, routes::{DelegatesErrorResponse, delegates::{left_right_topic_score::extract_left_right_topic_score_by_delegate, named_votes::extract_named_votes_by_delegate, stance_topic_score::extract_stance_topic_score_by_delegate}, extract_absences_by_delegate, extract_delegate_qa, extract_detailed_interests_of_delegate, extract_interests_of_delegate, extract_political_position}};
 
-use super::{
-    extract_absences_by_delegate, extract_delegate_qa, extract_detailed_interests_of_delegate,
-    extract_interests_of_delegate, extract_political_position,
-    left_right_topic_score::extract_left_right_topic_score_by_delegate,
-    named_votes::extract_named_votes_by_delegate,
-    stance_topic_score::extract_stance_topic_score_by_delegate, DelegatesErrorResponse,
-};
+pub async fn extended_delegate_info_route(
+    PgPoolConnection(pg): PgPoolConnection,
+    RedisConnection(mut redis_con): RedisConnection,
+    Path(id): Path<i32>,
+) -> Result<Json<GeneralDelegateInfo>, DelegatesErrorResponse> {
+    extract_general_delegate_info(id, &pg, &mut redis_con)
+        .await
+        .map(Json)
+        .map_err(|e| DelegatesErrorResponse::DbSelectFailure(Some(e)))
+}
 
 pub async fn extract_general_delegate_info(
     delegate_id: i32,
@@ -65,25 +68,4 @@ pub async fn extract_general_delegate_info(
         .await
         .ok_or(sqlx::Error::WorkerCrashed)?;
     Ok(gdi)
-}
-
-pub async fn extended_delegate_info(
-    PgPoolConnection(pg): PgPoolConnection,
-    RedisConnection(mut redis_con): RedisConnection,
-    Path(id): Path<i32>,
-) -> Result<Json<GeneralDelegateInfo>, DelegatesErrorResponse> {
-    extract_general_delegate_info(id, &pg, &mut redis_con)
-        .await
-        .map(Json)
-        .map_err(|e| DelegatesErrorResponse::DbSelectFailure(Some(e)))
-}
-pub async fn general_delegate_info(
-    PgPoolConnection(pg): PgPoolConnection,
-    RedisConnection(mut redis_con): RedisConnection,
-    Query(delegate_by_id): Query<DelegateById>,
-) -> Result<Json<GeneralDelegateInfo>, DelegatesErrorResponse> {
-    extract_general_delegate_info(delegate_by_id.delegate_id, &pg, &mut redis_con)
-        .await
-        .map(Json)
-        .map_err(|e| DelegatesErrorResponse::DbSelectFailure(Some(e)))
 }

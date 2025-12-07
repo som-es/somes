@@ -7,18 +7,18 @@ use crate::{
     PgPoolConnection, RedisConnection,
 };
 
-pub async fn gov_proposals_by_official(
+pub async fn gov_proposals_by_official_route(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Path(delegate_id): Path<i32>,
 ) -> Result<Json<Vec<OptionalGovProposal>>, LegisInitErrorResponse> {
-    extract_gov_prosals_by_delegate(redis_con, &pg, delegate_id)
+    extract_gov_proposals_by_delegate(redis_con, &pg, delegate_id)
         .await
         .map(Json)
         .map_err(|_| LegisInitErrorResponse::LegisInit)
 }
 
-pub async fn extract_gov_prosals_by_delegate(
+pub async fn extract_gov_proposals_by_delegate(
     redis_con: redis::aio::MultiplexedConnection,
     pg: &sqlx::Pool<sqlx::Postgres>,
     delegate_id: i32,

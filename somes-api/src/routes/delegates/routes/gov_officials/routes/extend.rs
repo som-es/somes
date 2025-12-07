@@ -8,7 +8,8 @@ use utoipa::{IntoParams, ToSchema};
 use crate::{
     get_json_cache,
     routes::{
-        extract_decrees_from_gov_official, extract_gov_prosals_by_delegate, DelegatesErrorResponse,
+        extract_decrees_from_gov_official, extract_gov_proposals_by_delegate,
+        DelegatesErrorResponse,
     },
     set_json_cache, PgPoolConnection, RedisConnection,
 };
@@ -17,6 +18,17 @@ use crate::{
 pub struct GeneralGovOfficialInfo {
     pub gov_proposals: Vec<OptionalGovProposal>,
     pub decrees: Vec<Decree>,
+}
+
+pub async fn general_gov_official_info_route(
+    PgPoolConnection(pg): PgPoolConnection,
+    RedisConnection(mut redis_con): RedisConnection,
+    Path(delegate_id): Path<i32>,
+) -> Result<Json<GeneralGovOfficialInfo>, DelegatesErrorResponse> {
+    extract_general_gov_official_info(delegate_id, &pg, &mut redis_con)
+        .await
+        .map(Json)
+        .map_err(|e| DelegatesErrorResponse::DbSelectFailure(Some(e)))
 }
 
 pub async fn extract_general_gov_official_info(
@@ -32,7 +44,8 @@ pub async fn extract_general_gov_official_info(
     }
 
     let decrees = extract_decrees_from_gov_official(delegate_id, pg).await?;
-    let gov_proposals = extract_gov_prosals_by_delegate(redis_con.clone(), pg, delegate_id).await?;
+    let gov_proposals =
+        extract_gov_proposals_by_delegate(redis_con.clone(), pg, delegate_id).await?;
 
     let ggoi = GeneralGovOfficialInfo {
         gov_proposals,
@@ -40,15 +53,4 @@ pub async fn extract_general_gov_official_info(
     };
     set_json_cache(redis_con, &key, &ggoi).await;
     Ok(ggoi)
-}
-
-pub async fn general_gov_official_info(
-    PgPoolConnection(pg): PgPoolConnection,
-    RedisConnection(mut redis_con): RedisConnection,
-    Path(delegate_id): Path<i32>,
-) -> Result<Json<GeneralGovOfficialInfo>, DelegatesErrorResponse> {
-    extract_general_gov_official_info(delegate_id, &pg, &mut redis_con)
-        .await
-        .map(Json)
-        .map_err(|e| DelegatesErrorResponse::DbSelectFailure(Some(e)))
 }
