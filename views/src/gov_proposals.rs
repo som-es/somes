@@ -93,6 +93,8 @@ pub async fn create_gov_proposals_view<'a>(tx: &mut Transaction<'a, Postgres>) -
 
         from ministrial_proposals mp
         "
-    ).execute(&mut **tx).await?;
+    )
+    .execute(&mut **tx)
+    .await?;
     Ok(())
 }

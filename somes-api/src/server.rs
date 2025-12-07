@@ -91,7 +91,6 @@ pub async fn serve(addr: SocketAddr) {
 
     info!("Established redis database connection to {REDIS_DB}.");
 
-    
     struct ApiDoc;
 
     /*successfully.
@@ -190,33 +189,13 @@ pub async fn serve(addr: SocketAddr) {
                 config: governor_conf.clone(),
             }),
         )
-        .route(DELETE_ACCOUNT_ROUTE, delete(delete_account))
-        // .route(LEGIS_INIT_ROUTE, post(legis_inits))
-        // .route(LATEST_LEGIS_INITS_ROUTE, get(latest_legis_inits))
         .route(PARTIES, get(parties))
         .route(PARTIES_AT_GP, get(parties_at_gp))
-        .route(USER, get(user))
-        .route(WALO_QUESTIONS, get(walo_questions))
         .route(ALL_GPS, get(all_gps))
         .route(SEATS, get(seats))
-        .route(RENEW_TOKEN, post(renew_token))
         .route(TOPICS, get(topics))
         .route(EUROVOC_TOPICS, get(eurovoc_topics))
-        .route(TOPIC_SELECTION, post(add_user_topic))
-        .route(TOPIC_SELECTION, delete(remove_user_topic))
-        .route(TOPIC_SELECTION, get(user_topic_selection))
-        .route(FAVO_DELEGATE, post(add_delegate_favo))
-        .route(FAVO_DELEGATE, get(user_delegate_favos))
-        .route(FAVO_DELEGATE, delete(remove_user_delegate_favo))
-        .route(FAVO_LEGIS_INIT, delete(remove_user_legis_init_favo))
-        .route(FAVO_LEGIS_INIT, get(user_legis_init_favos))
-        .route(FAVO_LEGIS_INIT, post(add_legis_init_favo))
-        .route(SEND_MAIL_INFO, put(update_send_mail_info))
-        .route(SEND_MAIL_INFO, get(get_send_mail_info))
         .route(AI_CHAT_WS, any(ai_chat_ws_handler))
-        .route(QUIZZES, get(get_all_quizzes))
-        .route(ADD_QUIZ, post(add_quiz))
-        .route(QUIZ_ROOM, any(join_quiz_room))
         .route(NEXT_PLENAR_DATE, get(next_plenar_date))
         .route(PLENAR_DATES, get(plenar_dates))
         .route("/save_email", post(save_email))
@@ -224,7 +203,15 @@ pub async fn serve(addr: SocketAddr) {
         .nest("/v1/delegates", create_delegates_router())
         .nest("/v1/gov_proposals", create_gov_proposals_router())
         .nest("/v1/decrees", create_decrees_router())
+        .nest("/v1/user", create_decrees_router())
         .nest("/v1/vote_results", create_vote_results_router());
+
+    let api_routes = Router::new()
+        .route(WALO_QUESTIONS, get(walo_questions))
+        .route(QUIZZES, get(get_all_quizzes))
+        .route(ADD_QUIZ, post(add_quiz))
+        .route(QUIZ_ROOM, any(join_quiz_room))
+        .nest("/at", api_routes);
 
     let app = Router::new()
         .nest("/api", api_routes)

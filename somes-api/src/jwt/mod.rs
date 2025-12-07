@@ -75,7 +75,7 @@ mod tests {
 
     #[test]
     fn test_create_access_token() {
-        std::env::set_var("JWT_SECRET", "super_sicher");
+        unsafe { std::env::set_var("JWT_SECRET", "super_sicher") };
 
         let token = create_access_token(43, "toller_name".to_string(), false).unwrap();
         let _token = &token.access_token;

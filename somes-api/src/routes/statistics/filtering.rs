@@ -127,7 +127,7 @@ pub fn build_filter<What>(filters: &[FilterArgument<'_, '_, What>]) -> String {
         .map(|(idx, x)| x.value.to_query_part(x.sql_column_name, idx))
         .collect();
     if filter_part.is_empty() {
-        return " true ".to_string()
+        return " true ".to_string();
     }
     filter_part
 }
@@ -146,12 +146,10 @@ pub fn bind_values<'a, 'b, What>(
 }
 
 pub trait IntoFilterArgument<'b> {
-    fn into_filter_arg<'a, What>(
-        &'b self,
-    ) -> FilterArgument<'a, 'b, What> {
+    fn into_filter_arg<'a, What>(&'b self) -> FilterArgument<'a, 'b, What> {
         self.with_sql_column("")
     }
-    
+
     fn with_sql_column<'a, What>(
         &'b self,
         sql_column: &'static str,
@@ -188,7 +186,6 @@ impl<'b, T: Clone + 'static + Encode<'b, Postgres> + Type<Postgres> + Send + Syn
         FilterArgument::new(self, sql_column)
     }
 }
-
 
 #[cfg(test)]
 mod tests {

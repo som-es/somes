@@ -1,5 +1,7 @@
 use dataservice::combx::{
-    DbLegislativeInitiativeQuery, DbMinistrialProposalQueryMeta, DbNamedVote, DbNamedVoteInfo, DbNamedVotes, DbPartyNamedVoteCount, DbReference, DbRelatedDelegate, DbSpeechWithLink, DbVote, MeilisearchHelper, Topic, VoteResult
+    DbLegislativeInitiativeQuery, DbMinistrialProposalQueryMeta, DbNamedVote, DbNamedVoteInfo,
+    DbNamedVotes, DbPartyNamedVoteCount, DbReference, DbRelatedDelegate, DbSpeechWithLink, DbVote,
+    MeilisearchHelper, Topic, VoteResult,
 };
 use somes_common_lib::{Document, FullMandate, ToCompositeType};
 use sqlx::{PgPool, Postgres, Transaction};

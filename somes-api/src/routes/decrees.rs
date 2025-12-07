@@ -1,13 +1,18 @@
-use axum::{Json, Router, extract::{Path, Query}, routing::{get, post}};
+use axum::{
+    extract::{Path, Query},
+    routing::{get, post},
+    Json, Router,
+};
 use dataservice::combx::OptionalDecree;
 use meilisearch_sdk::search::SearchResults;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::{DecreeByRisId, DecreeFilter, Document, LIVE, Page, SEARCH};
+use somes_common_lib::{DecreeByRisId, DecreeFilter, Document, Page, LIVE, SEARCH};
 use utoipa::ToSchema;
 
 use super::LegisInitErrorResponse;
 use crate::{
-    DECREES_PER_PAGE, PgPoolConnection, RedisConnection, get_json_cache, meilisearch::MeilisearchClient, server::AppState, set_json_cache
+    get_json_cache, meilisearch::MeilisearchClient, server::AppState, set_json_cache,
+    PgPoolConnection, RedisConnection, DECREES_PER_PAGE,
 };
 
 pub fn create_decrees_router() -> Router<AppState> {

@@ -1,20 +1,20 @@
 use axum::Json;
 use serde_json::json;
-use somes_common_lib::LegisInitFavo;
+use somes_common_lib::DelegateFavo;
 use sqlx::query_as;
 
 use crate::{jwt::Claims, PgPoolConnection};
 
-pub async fn add_legis_init_favo(
+pub async fn add_user_delegate_bookmark(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
-    Json(delegate_favo): Json<LegisInitFavo>,
+    Json(delegate_favo): Json<DelegateFavo>,
 ) -> Result<Json<()>, Json<serde_json::Value>> {
     query_as!(
         UniqueTopic,
-        "insert into favo_legis_inits(user_id, legis_init_id) values ($1, $2) on conflict do nothing",
+        "insert into favo_dels(user_id, delegate_id) values ($1, $2) on conflict do nothing",
         claims.id,
-        delegate_favo.vote_result_id,
+        delegate_favo.delegate_id,
     )
     .execute(&pg)
     .await
@@ -22,13 +22,13 @@ pub async fn add_legis_init_favo(
     .map_err(|_| Json(json!({"error": "db error"})))
 }
 
-pub async fn user_legis_init_favos(
+pub async fn delegate_bookmarks_by_user(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
-) -> Result<Json<Vec<LegisInitFavo>>, Json<serde_json::Value>> {
+) -> Result<Json<Vec<DelegateFavo>>, Json<serde_json::Value>> {
     query_as!(
-        LegisInitFavo,
-        "select legis_init_id as vote_result_id from favo_legis_inits where user_id = $1",
+        DelegateFavo,
+        "select delegate_id from favo_dels where user_id = $1",
         claims.id,
     )
     .fetch_all(&pg)
@@ -37,16 +37,16 @@ pub async fn user_legis_init_favos(
     .map_err(|_| Json(json!({"error": "db error"})))
 }
 
-pub async fn remove_user_legis_init_favo(
+pub async fn remove_user_delegate_bookmark(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
-    Json(delegate_favo): Json<LegisInitFavo>,
+    Json(delegate_favo): Json<DelegateFavo>,
 ) -> Result<Json<()>, Json<serde_json::Value>> {
     query_as!(
         UniqueTopic,
-        "delete from favo_legis_inits where user_id = $1 and legis_init_id = $2",
+        "delete from favo_dels where user_id = $1 and delegate_id = $2",
         claims.id,
-        delegate_favo.vote_result_id
+        delegate_favo.delegate_id
     )
     .execute(&pg)
     .await

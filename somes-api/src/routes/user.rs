@@ -1,11 +1,35 @@
 mod error;
-
 pub use error::*;
 
-use axum::Json;
+mod routes;
+pub use routes::*;
+
+use axum::{
+    routing::{delete, get, post, put},
+    Json, Router,
+};
+use somes_common_lib::{BOOKMARK, RENEW_TOKEN, SEND_MAIL_INFO, TOPIC_SELECTION};
 use sqlx::query_as;
 
-use crate::{jwt::Claims, model::User, GenericErrorResponse, PgPoolConnection};
+use crate::{
+    jwt::{renew_token, Claims},
+    model::User,
+    server::AppState,
+    GenericErrorResponse, PgPoolConnection,
+};
+
+pub fn create_user_router() -> Router<AppState> {
+    Router::new()
+        .route("/delete", delete(delete_account))
+        .route(RENEW_TOKEN, post(renew_token))
+        .route(TOPIC_SELECTION, post(add_user_topic))
+        .route(TOPIC_SELECTION, delete(remove_user_topic))
+        .route(TOPIC_SELECTION, get(user_topic_selection))
+        .route(SEND_MAIL_INFO, put(update_send_mail_info))
+        .route(SEND_MAIL_INFO, get(get_send_mail_info))
+        .route("/", get(user))
+        .nest(BOOKMARK, create_bookmark_router())
+}
 
 #[utoipa::path(
     post,

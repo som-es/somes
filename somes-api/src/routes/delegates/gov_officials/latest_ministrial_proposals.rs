@@ -10,10 +10,7 @@ use sqlx::{query_as, PgPool};
 use utoipa::ToSchema;
 
 use crate::{
-    routes::{
-        construct_gov_delegate_proposal,
-        DelegatesErrorResponse,
-    },
+    routes::{construct_gov_delegate_proposal, DelegatesErrorResponse},
     PgPoolConnection, RedisConnection,
 };
 

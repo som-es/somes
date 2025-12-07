@@ -3,10 +3,7 @@ use redis::aio::MultiplexedConnection;
 use somes_common_lib::Document;
 use sqlx::PgPool;
 
-use crate::{
-    get_json_cache,
-    today,
-};
+use crate::{get_json_cache, today};
 
 pub async fn get_gov_proposal_sqlx(pg: &PgPool, id: i32) -> sqlx::Result<OptionalGovProposal> {
     sqlx::query_as!(

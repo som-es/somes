@@ -1,14 +1,17 @@
 use std::fmt::Display;
 
 use axum::{
-    Json, Router, extract::{Path, Query}, routing::{get, post}
+    extract::{Path, Query},
+    routing::{get, post},
+    Json, Router,
 };
-use dataservice::combx::{OptionalVoteResult, vote_results};
+use dataservice::combx::{vote_results, OptionalVoteResult};
 use meilisearch_sdk::search::SearchResults;
-use somes_common_lib::{ID, LATEST, LIVE, LegisInitFilter, Page, SEARCH, VoteResultById};
+use somes_common_lib::{LegisInitFilter, Page, VoteResultById, ID, LATEST, LIVE, SEARCH};
 
 use crate::{
-    LEGIS_INITS_PER_PAGE, PgPoolConnection, RedisConnection, meilisearch::MeilisearchClient, server::AppState
+    meilisearch::MeilisearchClient, server::AppState, PgPoolConnection, RedisConnection,
+    LEGIS_INITS_PER_PAGE,
 };
 
 pub use error::*;
@@ -16,9 +19,7 @@ mod db;
 mod error;
 pub mod filter;
 pub use db::*;
-mod bookmark;
 mod construct_vote_result;
-pub use bookmark::*;
 
 pub fn create_vote_results_router() -> Router<AppState> {
     Router::new()
@@ -91,7 +92,6 @@ pub async fn vote_results_per_page(
     .map(Json)
     .map_err(|_| LegisInitErrorResponse::LatestVoteResults)
 }
-
 
 #[utoipa::path(
     post,

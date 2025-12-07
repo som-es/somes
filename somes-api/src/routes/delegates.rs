@@ -14,10 +14,7 @@ use somes_common_lib::{
 use sqlx::PgPool;
 
 use crate::server::AppState;
-use crate::{
-    get_json_cache, set_json_cache_with_relevance, PgPoolConnection,
-    RedisConnection,
-};
+use crate::{get_json_cache, set_json_cache_with_relevance, PgPoolConnection, RedisConnection};
 
 pub use error::*;
 mod absences;
@@ -456,4 +453,3 @@ WHERE
 
     Ok(delegates)
 }
-

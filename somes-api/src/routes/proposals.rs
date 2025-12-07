@@ -9,15 +9,22 @@ pub use construct_gov_proposal::*;
 pub use db::*;
 pub use gov_props_by_search::*;
 
-use axum::{Json, Router, extract::Query, routing::{get, post}};
+use axum::{
+    extract::Query,
+    routing::{get, post},
+    Json, Router,
+};
 use dataservice::db::models::DbMinistrialProposalQueryMeta;
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::{GovPropFilter, LATEST, LIVE, Page, SEARCH};
+use somes_common_lib::{GovPropFilter, Page, LATEST, LIVE, SEARCH};
 use sqlx::{FromRow, PgPool};
 use utoipa::ToSchema;
 
-use crate::{GOV_PROPS_PER_PAGE, PgPoolConnection, RedisConnection, routes::latest_gov_proposals, server::AppState};
+use crate::{
+    routes::latest_gov_proposals, server::AppState, PgPoolConnection, RedisConnection,
+    GOV_PROPS_PER_PAGE,
+};
 
 use super::{
     delegate_by_id_sqlx,
