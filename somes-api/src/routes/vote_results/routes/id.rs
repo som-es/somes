@@ -1,11 +1,13 @@
-use axum::{Json, extract::Query};
+use axum::{extract::Query, Json};
 use dataservice::combx::OptionalVoteResult;
 use redis::aio::MultiplexedConnection;
 use somes_common_lib::{Page, VoteResultById};
 use sqlx::PgPool;
 
-use crate::{PgPoolConnection, RedisConnection, routes::{LegisInitErrorResponse, vote_results::construct_vote_result::construct_vote_result}};
-
+use crate::{
+    routes::{vote_results::construct_vote_result::construct_vote_result, LegisInitErrorResponse},
+    PgPoolConnection, RedisConnection,
+};
 
 #[utoipa::path(
     post,
@@ -38,4 +40,3 @@ pub async fn vote_result_by_id_sqlx(
 ) -> sqlx::Result<OptionalVoteResult> {
     construct_vote_result(redis_con.clone(), pg, legis_init_id).await
 }
-

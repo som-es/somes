@@ -1,12 +1,21 @@
-use axum::{
-    extract::Path,
-    Json,
-};
+use axum::{extract::Path, Json};
 use redis::aio::MultiplexedConnection;
 use somes_common_lib::{GeneralDelegateInfo, Mandate};
 use sqlx::{query_as, PgPool};
 
-use crate::{PgPoolConnection, RedisConnection, get_json_cache, routes::{DelegatesErrorResponse, delegates::{left_right_topic_score::extract_left_right_topic_score_by_delegate, named_votes::extract_named_votes_by_delegate, stance_topic_score::extract_stance_topic_score_by_delegate}, extract_absences_by_delegate, extract_delegate_qa, extract_detailed_interests_of_delegate, extract_interests_of_delegate, extract_political_position}};
+use crate::{
+    get_json_cache,
+    routes::{
+        delegates::{
+            left_right_topic_score::extract_left_right_topic_score_by_delegate,
+            named_votes::extract_named_votes_by_delegate,
+            stance_topic_score::extract_stance_topic_score_by_delegate,
+        },
+        extract_absences_by_delegate, extract_delegate_qa, extract_detailed_interests_of_delegate,
+        extract_interests_of_delegate, extract_political_position, DelegatesErrorResponse,
+    },
+    PgPoolConnection, RedisConnection,
+};
 
 pub async fn extended_delegate_info_route(
     PgPoolConnection(pg): PgPoolConnection,

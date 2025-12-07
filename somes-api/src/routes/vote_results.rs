@@ -6,15 +6,13 @@ use axum::{
 use dataservice::combx::OptionalVoteResult;
 use somes_common_lib::{LegisInitFilter, Page, ID, LATEST, LIVE, SEARCH};
 
-use crate::{
-    LEGIS_INITS_PER_PAGE, PgPoolConnection, RedisConnection, server::AppState
-};
+use crate::{server::AppState, PgPoolConnection, RedisConnection, LEGIS_INITS_PER_PAGE};
 
 pub use error::*;
 mod db;
 mod error;
-mod routes;
 pub mod filter;
+mod routes;
 pub use db::*;
 pub use routes::*;
 mod construct_vote_result;
@@ -71,4 +69,3 @@ pub async fn vote_results_per_page(
     .map(Json)
     .map_err(|_| LegisInitErrorResponse::LatestVoteResults)
 }
-

@@ -3,7 +3,10 @@ use dataservice::combx::{DbLegislativeInitiativeQuery, OptionalVoteResult};
 use redis::aio::MultiplexedConnection;
 use sqlx::PgPool;
 
-use crate::{PgPoolConnection, RedisConnection, routes::{LegisInitErrorResponse, vote_results::construct_vote_result::construct_vote_result}};
+use crate::{
+    routes::{vote_results::construct_vote_result::construct_vote_result, LegisInitErrorResponse},
+    PgPoolConnection, RedisConnection,
+};
 
 #[utoipa::path(
     post,

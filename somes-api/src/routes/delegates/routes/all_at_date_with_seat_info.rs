@@ -1,12 +1,14 @@
-use axum::{Json, extract::Query};
+use crate::{
+    get_json_cache, routes::DelegatesErrorResponse, set_json_cache_with_relevance,
+    PgPoolConnection, RedisConnection,
+};
+use axum::{extract::Query, Json};
 use chrono::NaiveDate;
 use redis::aio::MultiplexedConnection;
 use somes_common_lib::FullMandate;
 use somes_common_lib::{Date, Delegate, LegisPeriod};
 use sqlx::PgPool;
 use std::str::FromStr;
-use crate::{PgPoolConnection, RedisConnection, get_json_cache, routes::DelegatesErrorResponse, set_json_cache_with_relevance};
-
 
 pub async fn delegates_with_seats_near_date_route(
     RedisConnection(mut redis_con): RedisConnection,

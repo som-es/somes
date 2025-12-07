@@ -10,8 +10,8 @@ use tokio::time::sleep;
 
 use crate::{
     routes::{
-        get_all_decrees_sqlx, get_all_gov_props, all_updated_votes_from_legis_init_sqlx,
-        all_votes_from_legis_init,
+        all_updated_votes_from_legis_init_sqlx, all_votes_from_legis_init, get_all_decrees_sqlx,
+        get_all_gov_props,
     },
     server::AppState,
 };

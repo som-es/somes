@@ -1,7 +1,7 @@
+use crate::{routes::DelegatesErrorResponse, PgPoolConnection};
 use axum::{extract::Path, Json};
 use somes_common_lib::DelegateQA;
 use sqlx::{query_as, PgPool};
-use crate::{PgPoolConnection, routes::DelegatesErrorResponse};
 
 pub async fn extract_delegate_qa(delegate_id: i32, pg: &PgPool) -> sqlx::Result<Vec<DelegateQA>> {
     query_as!(DelegateQA, "select

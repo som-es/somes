@@ -1,6 +1,6 @@
+use crate::{routes::DelegatesErrorResponse, PgPoolConnection};
 use axum::Json;
 use somes_common_lib::{Delegate, FullMandate};
-use crate::{PgPoolConnection, routes::DelegatesErrorResponse};
 
 #[utoipa::path(
     get,

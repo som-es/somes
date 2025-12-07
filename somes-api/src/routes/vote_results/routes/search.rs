@@ -1,13 +1,15 @@
 use std::fmt::Display;
 
-use axum::{Json, extract::Query};
+use axum::{extract::Query, Json};
 use dataservice::combx::OptionalVoteResult;
 use meilisearch_sdk::search::SearchResults;
 use somes_common_lib::{LegisInitFilter, Page};
 
-use crate::{LEGIS_INITS_PER_PAGE, meilisearch::MeilisearchClient, routes::{LegisInitErrorResponse, VoteResultsWithMaxPage}};
-
-
+use crate::{
+    meilisearch::MeilisearchClient,
+    routes::{LegisInitErrorResponse, VoteResultsWithMaxPage},
+    LEGIS_INITS_PER_PAGE,
+};
 
 pub async fn vote_results_by_search(
     MeilisearchClient(meilisearch_client): MeilisearchClient,

@@ -1,19 +1,21 @@
 use axum::{
-    extract::{Path, Query},
+    extract::Query,
     routing::{get, post},
     Json, Router,
 };
 use dataservice::combx::OptionalDecree;
-use meilisearch_sdk::search::SearchResults;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::{DecreeByRisId, DecreeFilter, Document, Page, LIVE, SEARCH};
+use somes_common_lib::{DecreeFilter, Document, Page, LIVE, SEARCH};
 use utoipa::ToSchema;
 
 use super::LegisInitErrorResponse;
 use crate::{
-    get_json_cache, meilisearch::MeilisearchClient, server::AppState, set_json_cache,
-    PgPoolConnection, RedisConnection, DECREES_PER_PAGE,
+    get_json_cache, server::AppState, set_json_cache, PgPoolConnection, RedisConnection,
+    DECREES_PER_PAGE,
 };
+
+mod routes;
+pub use routes::*;
 
 pub fn create_decrees_router() -> Router<AppState> {
     Router::new()
@@ -48,42 +50,6 @@ pub async fn decrees_per_page(
     let decrees_per_page = get_decrees_per_page_sqlx(&pg, &page, decree_filter.as_ref()).await?;
     set_json_cache(&mut redis_con, &key, &decrees_per_page).await;
     Ok(Json(decrees_per_page))
-}
-
-pub async fn decree_by_ris_id(
-    RedisConnection(mut redis_con): RedisConnection,
-    PgPoolConnection(pg): PgPoolConnection,
-    Query(decree_by_ris_id): Query<DecreeByRisId>,
-) -> Result<Json<Option<OptionalDecree>>, LegisInitErrorResponse> {
-    let key = format!("decree/{}", &decree_by_ris_id.ris_id);
-    if let Some(decree) = get_json_cache::<OptionalDecree>(&mut redis_con, &key).await {
-        return Ok(Json(Some(decree)));
-    }
-    let decree = decree_by_ris_id_sqlx(&pg, &decree_by_ris_id.ris_id).await?;
-    set_json_cache(&mut redis_con, &key, &decree).await;
-    Ok(Json(decree))
-}
-
-async fn decree_by_ris_id_sqlx(
-    pg: &sqlx::Pool<sqlx::Postgres>,
-    ris_id: &str,
-) -> Result<Option<OptionalDecree>, LegisInitErrorResponse> {
-    Ok(sqlx::query_as!(
-        OptionalDecree,
-        r#"
-            select * from ministrial_decrees_with_docs
-            WHERE
-                ris_id = $1
-            "#,
-        ris_id
-    )
-    .fetch_optional(pg)
-    .await
-    .map_err(|x| {
-        LegisInitErrorResponse::GenericErrorResponse(crate::GenericErrorResponse::DbSelectFailure(
-            Some(x),
-        ))
-    })?)
 }
 
 pub async fn get_all_decrees_sqlx(
@@ -158,82 +124,6 @@ async fn get_decrees_per_page_sqlx(
         entry_count,
         max_page: (entry_count as f64 / DECREES_PER_PAGE.parse().unwrap_or(15.)).ceil() as i64,
     })
-}
-
-pub async fn decrees_by_search(
-    MeilisearchClient(meilisearch_client): MeilisearchClient,
-    Query(search_query): Query<somes_common_lib::SearchQuery>,
-    Query(page): Query<somes_common_lib::Page>,
-    Json(decrees_filter): Json<Option<DecreeFilter>>,
-) -> Result<Json<DecreesWithMaxPage>, LegisInitErrorResponse> {
-    meilisearch_decrees(
-        meilisearch_client,
-        search_query,
-        page,
-        decrees_filter.as_ref(),
-    )
-    .await
-}
-
-async fn meilisearch_decrees(
-    meilisearch_client: meilisearch_sdk::client::Client,
-    search_query: somes_common_lib::SearchQuery,
-    page: Page,
-    legis_init_filter: Option<&DecreeFilter>,
-) -> Result<Json<DecreesWithMaxPage>, LegisInitErrorResponse> {
-    let stats = meilisearch_client
-        .index("decrees")
-        .get_stats()
-        .await
-        .unwrap();
-    println!("{:?}", stats);
-    let mut meilisearch_filter = String::new();
-    if let Some(filter) = legis_init_filter.as_ref() {
-        let mut filter_conditions = vec![];
-
-        if let Some(ref legis_period) = filter.legis_period {
-            filter_conditions.push(format!("gp = '{}'", legis_period));
-        }
-        if let Some(ref legis_period) = filter.gov_officials {
-            filter_conditions.push({
-                let ors = legis_period
-                    .iter()
-                    .map(|gov_official| format!("gov_official_id = {gov_official}"))
-                    .collect::<Vec<_>>()
-                    .join(" OR ");
-                format!("({ors})")
-            });
-        }
-
-        meilisearch_filter = filter_conditions.join(" AND ")
-    }
-    log::info!("decrees meilisearch filter: {meilisearch_filter}, {search_query:?}");
-
-    let results: SearchResults<OptionalDecree> = meilisearch_client
-        .index("decrees")
-        .search()
-        .with_filter(&meilisearch_filter)
-        .with_sort(&["publication_date:desc"])
-        .with_query(&search_query.search)
-        .with_hits_per_page(DECREES_PER_PAGE.parse().unwrap_or(16))
-        .with_page(page.page as usize)
-        .execute()
-        .await
-        .unwrap();
-
-    let max_page = results.total_pages.unwrap_or(1) as i64;
-
-    let decrees = results
-        .hits
-        .into_iter()
-        .map(|hit| hit.result)
-        .collect::<Vec<_>>();
-
-    Ok(Json(DecreesWithMaxPage {
-        decrees,
-        entry_count: results.estimated_total_hits.unwrap_or(1) as i64,
-        max_page,
-    }))
 }
 
 #[cfg(test)]
