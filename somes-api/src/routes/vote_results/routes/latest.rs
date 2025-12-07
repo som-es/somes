@@ -17,7 +17,7 @@ use crate::{
         // (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
     )
 )]
-pub async fn latest_vote_results(
+pub async fn latest_vote_results_route(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<OptionalVoteResult>>, LegisInitErrorResponse> {

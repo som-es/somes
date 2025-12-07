@@ -4,7 +4,7 @@ use sqlx::query_as;
 
 use crate::{jwt::Claims, routes::UniqueTopic, PgPoolConnection};
 
-pub async fn add_user_topic(
+pub async fn add_user_topic_route(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
     Json(topic): Json<UniqueTopic>,
@@ -33,7 +33,7 @@ pub async fn add_user_topic(
     .map_err(|_| Json(json!({"error": "insert_failed"})))
 }
 
-pub async fn user_topic_selection(
+pub async fn user_topic_selection_route(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
 ) -> Result<Json<Vec<UniqueTopic>>, Json<serde_json::Value>> {
@@ -48,7 +48,7 @@ pub async fn user_topic_selection(
     .map_err(|_| Json(json!({"error": "db error"})))
 }
 
-pub async fn remove_user_topic(
+pub async fn remove_user_topic_route(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
     Json(topic): Json<UniqueTopic>,

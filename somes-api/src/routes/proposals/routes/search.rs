@@ -9,7 +9,7 @@ use crate::{
     GenericErrorResponse, GOV_PROPS_PER_PAGE,
 };
 
-pub async fn gov_props_by_search(
+pub async fn gov_props_by_search_route(
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,

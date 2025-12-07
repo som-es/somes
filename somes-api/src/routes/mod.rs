@@ -32,7 +32,7 @@ pub use walo::*;
 
 use crate::PgPoolConnection;
 
-pub async fn all_gps(
+pub async fn all_gps_route(
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<dataservice::combx::with_data::gps::LegislativePeriod>>, Json<serde_json::Value>>
 {

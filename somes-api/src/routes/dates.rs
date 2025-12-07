@@ -11,7 +11,7 @@ pub struct PlenarDate {
     pub date_and_time: NaiveDateTime,
 }
 
-pub async fn next_plenar_date(
+pub async fn next_plenar_date_route(
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<PlenarDate>, GenericErrorResponse> {
     let now = today_and_time();
@@ -28,7 +28,7 @@ pub async fn next_plenar_date(
     .map(Json)
 }
 
-pub async fn plenar_dates(
+pub async fn plenar_dates_route(
     Query(date): Query<Date>,
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<PlenarDate>>, GenericErrorResponse> {

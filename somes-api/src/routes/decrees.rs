@@ -19,9 +19,9 @@ pub use routes::*;
 
 pub fn create_decrees_router() -> Router<AppState> {
     Router::new()
-        .route(SEARCH, post(decrees_by_search))
-        .route(LIVE, post(decrees_per_page))
-        .route("/ris_id", get(decree_by_ris_id))
+        .route(SEARCH, post(decrees_by_search_route))
+        .route(LIVE, post(decrees_per_page_route))
+        .route("/ris_id", get(decree_by_ris_id_route))
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
@@ -31,7 +31,7 @@ pub struct DecreesWithMaxPage {
     pub max_page: i64,
 }
 
-pub async fn decrees_per_page(
+pub async fn decrees_per_page_route(
     RedisConnection(mut redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(page): Query<Page>,

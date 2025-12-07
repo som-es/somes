@@ -22,7 +22,7 @@ use crate::{
         // (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
     )
 )]
-pub async fn vote_result_by_id(
+pub async fn vote_result_by_id_route(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(vote_result_id): Query<VoteResultById>,

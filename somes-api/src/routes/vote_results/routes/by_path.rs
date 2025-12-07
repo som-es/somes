@@ -8,7 +8,7 @@ use crate::{
     PgPoolConnection, RedisConnection,
 };
 
-pub async fn vote_result_by_path(
+pub async fn vote_result_by_path_route(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Path((gp, ityp, inr)): Path<(String, String, i32)>,

@@ -8,7 +8,7 @@ use dataservice::combx::OptionalDecree;
 use meilisearch_sdk::search::SearchResults;
 use somes_common_lib::{DecreeFilter, Page};
 
-pub async fn decrees_by_search(
+pub async fn decrees_by_search_route(
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,

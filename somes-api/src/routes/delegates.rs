@@ -69,7 +69,7 @@ pub async fn delegate_interests(
         .map_err(|_| DelegatesErrorResponse::DelegateInterestsResponseError)
 }
 
-pub async fn seats() -> Json<HashMap<String, Vec<u32>>> {
+pub async fn seats_route() -> Json<HashMap<String, Vec<u32>>> {
     Json(
         [
             ("XXVII".to_string(), vec![20, 27, 37, 43, 48, 54]),

@@ -8,7 +8,7 @@ use crate::{
     PgPoolConnection, RedisConnection,
 };
 
-pub async fn gov_proposal_by_path(
+pub async fn gov_proposal_by_path_route(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Path((gp, inr)): Path<(String, i32)>,

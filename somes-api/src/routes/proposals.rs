@@ -29,10 +29,10 @@ use super::{
 
 pub fn create_gov_proposals_router() -> Router<AppState> {
     Router::new()
-        .route(SEARCH, post(gov_props_by_search))
-        .route(LIVE, post(gov_proposals_per_page))
-        .route(LATEST, post(latest_gov_proposals))
-        .route("/{gp}/{inr}", get(gov_proposal_by_path))
+        .route(SEARCH, post(gov_props_by_search_route))
+        .route(LIVE, post(gov_proposals_per_page_route))
+        .route(LATEST, post(latest_gov_proposals_route))
+        .route("/{gp}/{inr}", get(gov_proposal_by_path_route))
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
@@ -62,7 +62,7 @@ pub async fn construct_gov_delegate_proposal(
     })
 }
 
-pub async fn gov_proposals_per_page(
+pub async fn gov_proposals_per_page_route(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(page): Query<Page>,

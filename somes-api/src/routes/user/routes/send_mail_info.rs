@@ -5,7 +5,7 @@ use sqlx::query_as;
 
 use crate::{jwt::Claims, PgPoolConnection};
 
-pub async fn update_send_mail_info(
+pub async fn update_send_mail_info_route(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
     Json(delegate_favo): Json<SendMailInfo>,
@@ -25,7 +25,7 @@ pub async fn update_send_mail_info(
     .map_err(|_| Json(json!({"error": "db error"})))
 }
 
-pub async fn get_send_mail_info(
+pub async fn get_send_mail_info_route(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
 ) -> Result<Json<SendMailInfo>, Json<serde_json::Value>> {

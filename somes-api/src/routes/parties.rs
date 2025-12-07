@@ -14,7 +14,7 @@ use somes_common_lib::LegisPeriodGp;
         (status = 500, description = "Internal server error", body = [PartiesErrorResponse])
     )
 )]
-pub async fn parties(
+pub async fn parties_route(
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<Party>>, PartiesErrorResponse> {
     dataservice::combx::with_data::all_parties(&pg)
@@ -23,7 +23,7 @@ pub async fn parties(
         .map_err(|_| PartiesErrorResponse::PartiesReturn)
 }
 
-pub async fn parties_at_gp(
+pub async fn parties_at_gp_route(
     PgPoolConnection(pg): PgPoolConnection,
     Query(legis_period): Query<LegisPeriodGp>,
 ) -> Result<Json<Vec<Party>>, PartiesErrorResponse> {

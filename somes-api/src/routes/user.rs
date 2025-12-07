@@ -12,7 +12,7 @@ use somes_common_lib::{BOOKMARK, RENEW_TOKEN, SEND_MAIL_INFO, TOPIC_SELECTION};
 use sqlx::query_as;
 
 use crate::{
-    jwt::{renew_token, Claims},
+    jwt::{renew_token_route, Claims},
     model::User,
     server::AppState,
     GenericErrorResponse, PgPoolConnection,
@@ -20,14 +20,14 @@ use crate::{
 
 pub fn create_user_router() -> Router<AppState> {
     Router::new()
-        .route("/delete", delete(delete_account))
-        .route(RENEW_TOKEN, post(renew_token))
-        .route(TOPIC_SELECTION, post(add_user_topic))
-        .route(TOPIC_SELECTION, delete(remove_user_topic))
-        .route(TOPIC_SELECTION, get(user_topic_selection))
-        .route(SEND_MAIL_INFO, put(update_send_mail_info))
-        .route(SEND_MAIL_INFO, get(get_send_mail_info))
-        .route("/", get(user))
+        .route("/delete", delete(delete_account_route))
+        .route(RENEW_TOKEN, post(renew_token_route))
+        .route(TOPIC_SELECTION, post(add_user_topic_route))
+        .route(TOPIC_SELECTION, delete(remove_user_topic_route))
+        .route(TOPIC_SELECTION, get(user_topic_selection_route))
+        .route(SEND_MAIL_INFO, put(update_send_mail_info_route))
+        .route(SEND_MAIL_INFO, get(get_send_mail_info_route))
+        .route("/", get(user_route))
         .nest(BOOKMARK, create_bookmark_router())
 }
 
@@ -43,7 +43,7 @@ pub fn create_user_router() -> Router<AppState> {
         (status = 500, description = "Internal server error", body = [UserErrorResponse])
     )
 )]
-pub async fn user(
+pub async fn user_route(
     claims: Claims,
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<User>, crate::error::GenericErrorResponse> {

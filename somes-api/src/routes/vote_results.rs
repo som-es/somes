@@ -19,11 +19,11 @@ mod construct_vote_result;
 
 pub fn create_vote_results_router() -> Router<AppState> {
     Router::new()
-        .route(SEARCH, post(vote_results_by_search))
-        .route(LIVE, post(vote_results_per_page))
-        .route(LATEST, post(latest_vote_results))
-        .route("/{gp}/{ityp}/{inr}", get(vote_result_by_path))
-        .route(ID, get(vote_result_by_id))
+        .route(SEARCH, post(vote_results_by_search_route))
+        .route(LIVE, post(vote_results_per_page_route))
+        .route(LATEST, post(latest_vote_results_route))
+        .route("/{gp}/{ityp}/{inr}", get(vote_result_by_path_route))
+        .route(ID, get(vote_result_by_id_route))
 }
 
 #[utoipa::path(
@@ -39,7 +39,7 @@ pub fn create_vote_results_router() -> Router<AppState> {
         // (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
     )
 )]
-pub async fn vote_results_per_page(
+pub async fn vote_results_per_page_route(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(page): Query<Page>,

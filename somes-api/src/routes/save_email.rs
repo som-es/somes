@@ -20,7 +20,9 @@ pub fn save_email_to_file(email: &str) -> Result<(), String> {
     Ok(())
 }
 
-pub async fn save_email(Json(save_email_info): Json<SaveEmailInfo>) -> Result<Json<()>, String> {
+pub async fn save_email_route(
+    Json(save_email_info): Json<SaveEmailInfo>,
+) -> Result<Json<()>, String> {
     println!("save_email_info: {save_email_info:?}");
 
     save_email_to_file(&save_email_info.email)?;

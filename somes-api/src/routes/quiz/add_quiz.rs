@@ -73,7 +73,7 @@ pub async fn add_quiz_handler(pg: &PgPool, user_id: i32, quiz: Quiz) -> crate::R
     Ok(())
 }
 
-pub async fn add_quiz(
+pub async fn add_quiz_route(
     claims: Claims,
     PgPoolConnection(pg): PgPoolConnection,
     Json(quiz): Json<Quiz>,

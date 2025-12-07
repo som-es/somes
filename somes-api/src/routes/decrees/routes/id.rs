@@ -6,7 +6,7 @@ use axum::{extract::Query, Json};
 use dataservice::combx::OptionalDecree;
 use somes_common_lib::{DecreeByRisId, Document};
 
-pub async fn decree_by_ris_id(
+pub async fn decree_by_ris_id_route(
     RedisConnection(mut redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(decree_by_ris_id): Query<DecreeByRisId>,

@@ -11,7 +11,7 @@ use crate::{
     LEGIS_INITS_PER_PAGE,
 };
 
-pub async fn vote_results_by_search(
+pub async fn vote_results_by_search_route(
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,

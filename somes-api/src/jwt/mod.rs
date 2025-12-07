@@ -65,7 +65,7 @@ pub fn create_access_token_with_keys_and_exp_time<T: Serialize + ToSchema>(
     Ok(Json(JWTInfo { access_token }))
 }
 
-pub async fn renew_token(claims: Claims) -> Result<Json<JWTInfo>, AuthError> {
+pub async fn renew_token_route(claims: Claims) -> Result<Json<JWTInfo>, AuthError> {
     create_access_token(claims.id, claims.sub, claims.is_admin)
 }
 

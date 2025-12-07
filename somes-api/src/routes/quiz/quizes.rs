@@ -60,7 +60,7 @@ pub async fn get_all_quizzes_handler(pg: &PgPool, user_id: i32) -> crate::Result
     Ok(quizzes_with_questions)
 }
 
-pub async fn get_all_quizzes(
+pub async fn get_all_quizzes_route(
     claims: Claims,
     PgPoolConnection(pg): PgPoolConnection,
 ) -> crate::Result<Json<Vec<QuizId>>> {

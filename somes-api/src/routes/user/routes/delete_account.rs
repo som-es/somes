@@ -4,7 +4,7 @@ use sqlx::query;
 
 use crate::{jwt::Claims, PgPoolConnection};
 
-pub async fn delete_account(
+pub async fn delete_account_route(
     claims: Claims,
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<()>, Json<serde_json::Value>> {

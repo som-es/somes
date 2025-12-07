@@ -32,7 +32,7 @@ use crate::{
 
 const DEFAULT_QUIZ_ID: i32 = 4;
 
-pub async fn join_quiz_room(
+pub async fn join_quiz_room_route(
     ws: WebSocketUpgrade,
     user_agent: Option<TypedHeader<headers::UserAgent>>,
     PgPoolConnection(pg): PgPoolConnection,

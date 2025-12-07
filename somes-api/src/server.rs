@@ -4,41 +4,31 @@ use axum::{
     extract::FromRef,
     http::{self},
     response::Html,
-    routing::{any, delete, get, get_service, post, put},
+    routing::{any, get, get_service, post},
     Router,
 };
 use axum_server::tls_rustls::RustlsConfig;
-use dataservice::{
-    combx::VoteResult,
-    db::models::{DbLegislativeInitiativeQuery, DbParty},
-};
 // use diesel_async::pooled_connection::AsyncDieselConnectionManager;
 use log::{error, info};
 use reqwest::StatusCode;
-use somes_common_lib::{DECREES_PER_PAGE, LATEST_VOTE_RESULTS_ROUTE, LOGIN_ROUTE};
+use somes_common_lib::LOGIN_ROUTE;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tokio::{net::TcpListener, time::sleep};
 use tower_governor::{governor::GovernorConfigBuilder, GovernorLayer};
-use utoipa::OpenApi;
 use views::{create_composite_types, create_views};
 //use headers::HeaderValue;
+use crate::routes::login;
+use crate::routes::*;
 use crate::{
-    meilisearch::update_meilisearch_indices,
-    redirect_http_to_https,
-    routes::{latest_vote_results, save_email},
+    meilisearch::update_meilisearch_indices, redirect_http_to_https, routes::save_email_route,
     Ports, DATASERVICE_URL, HTTPS_PORT, HTTP_PORT, MEILISEARCH_SECRET, MEILISEARCH_URL,
     PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, REDIS_DB, STATIC_FRONTEND_PATH,
 };
+use somes_common_lib::*;
 use tower_http::{
     cors::{Any, CorsLayer},
     services::ServeDir,
 };
-
-use crate::jwt::*;
-use crate::routes::login;
-use crate::routes::*;
-use somes_common_lib::errors::*;
-use somes_common_lib::*;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -189,16 +179,16 @@ pub async fn serve(addr: SocketAddr) {
                 config: governor_conf.clone(),
             }),
         )
-        .route(PARTIES, get(parties))
-        .route(PARTIES_AT_GP, get(parties_at_gp))
-        .route(ALL_GPS, get(all_gps))
-        .route(SEATS, get(seats))
-        .route(TOPICS, get(topics))
-        .route(EUROVOC_TOPICS, get(eurovoc_topics))
-        .route(AI_CHAT_WS, any(ai_chat_ws_handler))
-        .route(NEXT_PLENAR_DATE, get(next_plenar_date))
-        .route(PLENAR_DATES, get(plenar_dates))
-        .route("/save_email", post(save_email))
+        .route(PARTIES, get(parties_route))
+        .route(PARTIES_AT_GP, get(parties_at_gp_route))
+        .route(ALL_GPS, get(all_gps_route))
+        .route(SEATS, get(seats_route))
+        .route(TOPICS, get(topics_route))
+        .route(EUROVOC_TOPICS, get(eurovoc_topics_route))
+        .route(AI_CHAT_WS, any(ai_chat_ws_handler_route))
+        .route(NEXT_PLENAR_DATE, get(next_plenar_date_route))
+        .route(PLENAR_DATES, get(plenar_dates_route))
+        .route("/save_email", post(save_email_route))
         .nest("/v1/statistics", create_statistics_router())
         .nest("/v1/delegates", create_delegates_router())
         .nest("/v1/gov_proposals", create_gov_proposals_router())
@@ -207,10 +197,10 @@ pub async fn serve(addr: SocketAddr) {
         .nest("/v1/vote_results", create_vote_results_router());
 
     let api_routes = Router::new()
-        .route(WALO_QUESTIONS, get(walo_questions))
-        .route(QUIZZES, get(get_all_quizzes))
-        .route(ADD_QUIZ, post(add_quiz))
-        .route(QUIZ_ROOM, any(join_quiz_room))
+        .route(WALO_QUESTIONS, get(walo_questions_route))
+        .route(QUIZZES, get(get_all_quizzes_route))
+        .route(ADD_QUIZ, post(add_quiz_route))
+        .route(QUIZ_ROOM, any(join_quiz_room_route))
         .nest("/at", api_routes);
 
     let app = Router::new()
