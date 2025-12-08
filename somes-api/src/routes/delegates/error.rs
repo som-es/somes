@@ -6,6 +6,8 @@ use reqwest::StatusCode;
 use serde_json::json;
 use thiserror::Error;
 
+use crate::ErrorInfo;
+
 #[derive(Debug, Error)]
 pub enum DelegateError {
     #[error("Database failure: {0}")]
@@ -40,11 +42,12 @@ impl IntoResponse for DelegateError {
             DelegateError::DateOutOfRange(_date) => (StatusCode::BAD_REQUEST, self.to_string()),
         };
 
-        let body = Json(json!({
-            "error": err_msg,
-            "type": "DelegateError",
-            "field": format!("{:?}", self),
-        }));
+        let body = Json(ErrorInfo {
+            error: err_msg,
+            error_type: "DelegateError",
+            field: format!("{:?}", self),
+            meta: None,
+        });
 
         (status_code, body).into_response()
     }

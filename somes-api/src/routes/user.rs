@@ -39,21 +39,20 @@ pub fn create_user_router() -> Router<AppState> {
     // ),
     responses(
         (status = 200, description = "Returned user successfully.", body = [Vec<User>]),
-        (status = 400, description = "Invalid request", body = [UserErrorResponse]),
-        (status = 500, description = "Internal server error", body = [UserErrorResponse])
+        // (status = 400, description = "Invalid request", body = [UserError]),
+        // (status = 500, description = "Internal server error", body = [UserError])
     )
 )]
 pub async fn user_route(
     claims: Claims,
     PgPoolConnection(pg): PgPoolConnection,
-) -> Result<Json<User>, crate::error::GenericErrorResponse> {
-    query_as!(
+) -> Result<Json<User>, UserError> {
+    Ok(query_as!(
         User,
         "select id, email, is_email_hashed, is_admin from somes_user where id = $1",
         claims.id
     )
     .fetch_one(&pg)
     .await
-    .map(Json)
-    .map_err(|e| GenericErrorResponse::DbSelectFailure(Some(e)))
+    .map(Json)?)
 }

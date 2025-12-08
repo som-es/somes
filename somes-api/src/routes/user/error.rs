@@ -2,64 +2,75 @@ use std::ops::{Deref, DerefMut};
 
 use axum::{response::IntoResponse, Json};
 use reqwest::StatusCode;
-use serde_json::json;
 use somes_common_lib::errors::SignUpError;
+use thiserror::Error;
 use utoipa::ToSchema;
 
-use crate::AuthError;
+use crate::{AuthError, ErrorInfo};
 
-#[derive(Debug, ToSchema)]
-pub enum UserErrorResponse {
-    RedisGetKeys,
-    PostgresConnection,
+#[derive(Debug, Error)]
+pub enum UserError {
+    #[error("Database failure: {0}")]
+    SqlFailure(#[from] sqlx::Error),
+    #[error("Redis failure: {0}")]
+    RedisFailure(#[from] redis::RedisError),
+    #[error("Meilisearch failure: {0}")]
+    MeilisearchFailure(#[from] meilisearch_sdk::errors::Error),
+    #[error("internal server error")]
+    InternalServerError,
+    #[error("invalid user")]
     InvalidUser,
+    #[error("interaction failed")]
     InteractionFailed,
+    #[error("verification email sending error")]
     VerificationEmailSendingError,
+    #[error("user creation error")]
     UserCreationError,
+    #[error("wrong OTP")]
     WrongOtp,
+    #[error("hashing error")]
     Hashing,
+    #[error("authentication error")]
     AuthError(AuthError),
+    #[error("sign up error")]
     SignUpError(SignUpErrorWrapper),
 }
 
-impl IntoResponse for UserErrorResponse {
+impl IntoResponse for UserError {
     fn into_response(self) -> axum::response::Response {
-        let (status_code, err_msg) = match self {
-            UserErrorResponse::RedisGetKeys => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "An internal server error occurred. Redis active user matching failed!",
-            ),
-            UserErrorResponse::PostgresConnection => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "An internal server error occurred. Postgres connection failed!",
-            ),
-            UserErrorResponse::InvalidUser => (
-                StatusCode::BAD_REQUEST,
-                "Invalid user id provided. User does not exist.",
-            ),
-            UserErrorResponse::InteractionFailed => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "Interaction with database failed.",
-            ),
-            UserErrorResponse::VerificationEmailSendingError => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "An internal server error occurred. Sending verification email was unseccessful!",
-            ),
-            UserErrorResponse::UserCreationError => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "An internal server error occurred. Creating user was unsuccessful!",
-            ),
-            UserErrorResponse::Hashing => (StatusCode::INTERNAL_SERVER_ERROR, "Hashing error"),
-            UserErrorResponse::SignUpError(signup_error) => {
-                return (StatusCode::BAD_REQUEST, Json(signup_error.deref())).into_response()
+        let (status_code, err_msg) = match &self {
+            UserError::SqlFailure(_e) => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()), 
+            UserError::RedisFailure(_e) => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
+            UserError::MeilisearchFailure(_e) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, self.to_string())
             }
-            UserErrorResponse::WrongOtp => (StatusCode::BAD_REQUEST, "Wrong OTP"),
-            UserErrorResponse::AuthError(ae) => return ae.into_response(),
+            UserError::InternalServerError => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
+            UserError::InvalidUser => (StatusCode::BAD_REQUEST, self.to_string()),
+            UserError::InteractionFailed => (StatusCode::BAD_REQUEST, self.to_string()), 
+            UserError::VerificationEmailSendingError => {
+                (StatusCode::INTERNAL_SERVER_ERROR, self.to_string())
+            }
+            UserError::UserCreationError => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
+            UserError::Hashing => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
+            UserError::WrongOtp => (StatusCode::BAD_REQUEST, self.to_string()),
+            UserError::SignUpError(signup_error) => {
+                return (StatusCode::BAD_REQUEST, Json(ErrorInfo {
+                    error: format!("{:?}", signup_error.sign_up_error),
+                    error_type: "SignUpError",
+                    field: format!("{:?}", self),
+                    meta: serde_json::to_value(&signup_error.sign_up_error).ok(),
+                })).into_response();
+            }
+            UserError::AuthError(ae) => return ae.into_response(),
         };
 
-        let body = Json(json!({
-            "error": err_msg,
-        }));
+        
+        let body = Json(ErrorInfo {
+            error: err_msg.to_string(),
+            error_type: "UserError",
+            field: format!("{:?}", self),
+            meta: None,
+        });
 
         (status_code, body).into_response()
     }

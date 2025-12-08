@@ -2,7 +2,16 @@ use std::borrow::Cow;
 
 use axum::{response::IntoResponse, Json};
 use reqwest::StatusCode;
+use serde::{Deserialize, Serialize};
 use serde_json::json;
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ErrorInfo {
+    pub error: String,
+    pub error_type: &'static str,
+    pub field: String,
+    pub meta: Option<serde_json::Value>,
+}
 
 #[derive(Debug)]
 pub enum GenericErrorResponse {

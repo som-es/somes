@@ -3,6 +3,8 @@ use reqwest::StatusCode;
 use serde_json::json;
 use thiserror::Error;
 
+use crate::ErrorInfo;
+
 #[derive(Debug, Error)]
 pub enum FilterError {
     #[error("Database failure: {0}")]
@@ -35,12 +37,12 @@ impl IntoResponse for FilterError {
             FilterError::InvalidDays(_page) => (StatusCode::BAD_REQUEST, self.to_string()),
         };
 
-        let body = Json(json!({
-            "error": err_msg,
-            "type": "FilterError",
-            "field": format!("{:?}", self),
-        }));
-
+        let body = Json(ErrorInfo {
+            error: err_msg,
+            error_type: "FilterError",
+            field: format!("{:?}", self),
+            meta: None,
+        });
         (status_code, body).into_response()
     }
 }
