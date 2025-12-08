@@ -1,6 +1,7 @@
 use axum::{response::IntoResponse, Json};
 use reqwest::StatusCode;
-use serde_json::json;
+
+use crate::ErrorInfo;
 
 #[derive(Debug)]
 pub enum StatisticsResponse {
@@ -9,16 +10,19 @@ pub enum StatisticsResponse {
 
 impl IntoResponse for StatisticsResponse {
     fn into_response(self) -> axum::response::Response {
-        let (status_code, err_msg) = match self {
+        let (status_code, err_msg) = match &self {
             StatisticsResponse::DbSelectFailure(e) => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 format!("db error occured: {e:?}"),
             ),
         };
 
-        let body = Json(json!({
-            "error": err_msg,
-        }));
+        let body = Json(ErrorInfo {
+            error: err_msg,
+            error_type: "StatisticsResponse",
+            field: format!("{:?}", self),
+            meta: None,
+        });
 
         (status_code, body).into_response()
     }

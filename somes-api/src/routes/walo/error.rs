@@ -1,7 +1,9 @@
-use axum::{response::IntoResponse, Json};
+use axum::{Error, Json, response::IntoResponse};
 use reqwest::StatusCode;
 use serde_json::json;
 use utoipa::ToSchema;
+
+use crate::ErrorInfo;
 
 #[derive(ToSchema, Debug)]
 pub enum WaloErrorResponse {
@@ -12,7 +14,7 @@ pub enum WaloErrorResponse {
 
 impl IntoResponse for WaloErrorResponse {
     fn into_response(self) -> axum::response::Response {
-        let (status_code, err_msg) = match self {
+        let (status_code, err_msg) = match &self {
             WaloErrorResponse::QuestionResponseError => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "could not return questions",
@@ -27,9 +29,12 @@ impl IntoResponse for WaloErrorResponse {
             ),
         };
 
-        let body = Json(json!({
-            "error": err_msg,
-        }));
+        let body = Json(ErrorInfo {
+            error: err_msg.to_string(),
+            error_type: "WaloErrorResponse",
+            field: format!("{:?}", self),
+            meta: None,
+        });
 
         (status_code, body).into_response()
     }

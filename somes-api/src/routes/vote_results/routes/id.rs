@@ -26,10 +26,11 @@ pub async fn vote_result_by_id_route(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(vote_result_id): Query<VoteResultById>,
-) -> Result<Json<Option<OptionalVoteResult>>, FilterError> {
-    Ok(Json(
-        vote_result_by_id_sqlx(redis_con, &pg, vote_result_id.id).await?,
-    ))
+) -> Result<Json<OptionalVoteResult>, FilterError> {
+    vote_result_by_id_sqlx(redis_con, &pg, vote_result_id.id)
+        .await?
+        .ok_or(FilterError::NotFound)
+        .map(Json)
 }
 
 pub async fn vote_result_by_id_sqlx(
