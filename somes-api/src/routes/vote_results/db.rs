@@ -75,9 +75,7 @@ pub async fn vote_result_by_unique_hints_with_accepted_required_sqlx(
     .fetch_optional(pg)
     .await?;
     if let Some(legis_init) = legis_init {
-        construct_vote_result(redis_con, pg, legis_init.id)
-            .await
-            .map(|e| Some(e))
+        construct_vote_result(redis_con, pg, legis_init.id).await
     } else {
         Ok(None)
     }
@@ -102,8 +100,8 @@ pub async fn vote_results_per_page_sqlx(
     futures::future::join_all(entries)
         .await
         .into_iter()
-        .collect::<sqlx::Result<Vec<OptionalVoteResult>>>()
-        .map(|x| (x, entry_count))
+        .collect::<sqlx::Result<Vec<_>>>()
+        .map(|x| (x.into_iter().flatten().collect(), entry_count))
 }
 
 pub async fn eurovoc_topics_from_legis_init_sqlx(
@@ -191,7 +189,11 @@ pub async fn all_updated_votes_from_legis_init_sqlx(
 
     for legis_init in legis_inits {
         match construct_vote_result(redis_con.clone(), con, legis_init.id).await {
-            Ok(vote_result) => vote_results.push(vote_result),
+            Ok(vote_result) => {
+                if let Some(vote_result) = vote_result {
+                    vote_results.push(vote_result);
+                }
+            }
             Err(e) => {
                 log::warn!("Error while constructing vote result, skipped in result of it: {e:?}")
             }
@@ -216,7 +218,11 @@ pub async fn all_votes_from_legis_init(
 
     for legis_init in legis_inits {
         match construct_vote_result(redis_con.clone(), con, legis_init.id).await {
-            Ok(vote_result) => vote_results.push(vote_result),
+            Ok(vote_result) => {
+                if let Some(vote_result) = vote_result {
+                    vote_results.push(vote_result);
+                }
+            }
             Err(e) => {
                 log::warn!("Error while constructing vote result, skipped in result of it: {e:?}")
             }

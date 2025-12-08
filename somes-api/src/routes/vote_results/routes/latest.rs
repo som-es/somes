@@ -21,7 +21,7 @@ use crate::{
 pub async fn latest_vote_results_route(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
-) -> Result<Json<Vec<OptionalVoteResult>>, FilterError> {
+) -> Result<Json<Vec<Option<OptionalVoteResult>>>, FilterError> {
     Ok(Json(super::latest_vote_results_sqlx(redis_con, &pg).await?))
 }
 
@@ -42,7 +42,7 @@ pub async fn latest_legislative_initiatives_sqlx(
 pub async fn latest_vote_results_sqlx(
     redis_con: MultiplexedConnection,
     pg: &PgPool,
-) -> sqlx::Result<Vec<OptionalVoteResult>> {
+) -> sqlx::Result<Vec<Option<OptionalVoteResult>>> {
     futures::future::join_all(
         latest_legislative_initiatives_sqlx(pg)
             .await?

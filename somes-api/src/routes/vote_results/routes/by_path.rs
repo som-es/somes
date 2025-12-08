@@ -12,7 +12,7 @@ pub async fn vote_result_by_path_route(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Path((gp, ityp, inr)): Path<(String, String, i32)>,
-) -> Result<Json<OptionalVoteResult>, FilterError> {
+) -> Result<Json<Option<OptionalVoteResult>>, FilterError> {
     Ok(Json(
         vote_result_by_path_sqlx(redis_con, &pg, &gp, &ityp, inr).await?,
     ))
@@ -24,7 +24,7 @@ pub async fn vote_result_by_path_sqlx(
     gp: &str,
     ityp: &str,
     inr: i32,
-) -> sqlx::Result<OptionalVoteResult> {
+) -> sqlx::Result<Option<OptionalVoteResult>> {
     let legis_init = sqlx::query_as!(
         DbLegislativeInitiativeQuery,
         "select * from legislative_initiatives where gp = $1 and ityp = $2 and inr = $3",

@@ -39,14 +39,14 @@ pub enum UserError {
 impl IntoResponse for UserError {
     fn into_response(self) -> axum::response::Response {
         let (status_code, err_msg) = match &self {
-            UserError::SqlFailure(_e) => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()), 
+            UserError::SqlFailure(_e) => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
             UserError::RedisFailure(_e) => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
             UserError::MeilisearchFailure(_e) => {
                 (StatusCode::INTERNAL_SERVER_ERROR, self.to_string())
             }
             UserError::InternalServerError => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
             UserError::InvalidUser => (StatusCode::BAD_REQUEST, self.to_string()),
-            UserError::InteractionFailed => (StatusCode::BAD_REQUEST, self.to_string()), 
+            UserError::InteractionFailed => (StatusCode::BAD_REQUEST, self.to_string()),
             UserError::VerificationEmailSendingError => {
                 (StatusCode::INTERNAL_SERVER_ERROR, self.to_string())
             }
@@ -54,17 +54,20 @@ impl IntoResponse for UserError {
             UserError::Hashing => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
             UserError::WrongOtp => (StatusCode::BAD_REQUEST, self.to_string()),
             UserError::SignUpError(signup_error) => {
-                return (StatusCode::BAD_REQUEST, Json(ErrorInfo {
-                    error: format!("{:?}", signup_error.sign_up_error),
-                    error_type: "SignUpError",
-                    field: format!("{:?}", self),
-                    meta: serde_json::to_value(&signup_error.sign_up_error).ok(),
-                })).into_response();
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Json(ErrorInfo {
+                        error: format!("{:?}", signup_error.sign_up_error),
+                        error_type: "SignUpError",
+                        field: format!("{:?}", self),
+                        meta: serde_json::to_value(&signup_error.sign_up_error).ok(),
+                    }),
+                )
+                    .into_response();
             }
             UserError::AuthError(ae) => return ae.into_response(),
         };
 
-        
         let body = Json(ErrorInfo {
             error: err_msg.to_string(),
             error_type: "UserError",

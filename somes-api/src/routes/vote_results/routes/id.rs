@@ -26,7 +26,7 @@ pub async fn vote_result_by_id_route(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(vote_result_id): Query<VoteResultById>,
-) -> Result<Json<OptionalVoteResult>, FilterError> {
+) -> Result<Json<Option<OptionalVoteResult>>, FilterError> {
     Ok(Json(
         vote_result_by_id_sqlx(redis_con, &pg, vote_result_id.id).await?,
     ))
@@ -36,6 +36,6 @@ pub async fn vote_result_by_id_sqlx(
     redis_con: MultiplexedConnection,
     pg: &PgPool,
     legis_init_id: i32,
-) -> sqlx::Result<OptionalVoteResult> {
+) -> sqlx::Result<Option<OptionalVoteResult>> {
     construct_vote_result(redis_con.clone(), pg, legis_init_id).await
 }

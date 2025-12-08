@@ -1,25 +1,29 @@
 use axum::{response::IntoResponse, Json};
 use reqwest::StatusCode;
-use serde_json::json;
-use utoipa::ToSchema;
+use thiserror::Error;
 
-#[derive(ToSchema, Debug)]
+use crate::ErrorInfo;
+
+#[derive(Error, Debug)]
 pub enum PartiesErrorResponse {
-    PartiesReturn,
+    #[error("Database failure: {0}")]
+    SqlFailure(#[from] sqlx::Error),
 }
 
 impl IntoResponse for PartiesErrorResponse {
     fn into_response(self) -> axum::response::Response {
-        let (status_code, err_msg) = match self {
-            PartiesErrorResponse::PartiesReturn => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "could not return parties",
-            ),
+        let (status_code, err_msg) = match &self {
+            PartiesErrorResponse::SqlFailure(ref e) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, self.to_string())
+            }
         };
 
-        let body = Json(json!({
-            "error": err_msg,
-        }));
+        let body = Json(ErrorInfo {
+            error: err_msg.to_string(),
+            error_type: "PartiesErrorResponse",
+            field: format!("{:?}", self),
+            meta: None,
+        });
 
         (status_code, body).into_response()
     }

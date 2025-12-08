@@ -3,7 +3,6 @@ use axum::{
     Json,
 };
 use reqwest::StatusCode;
-use serde_json::json;
 use utoipa::ToSchema;
 
 use crate::ErrorInfo;
@@ -26,7 +25,7 @@ impl IntoResponse for AuthError {
             AuthError::MissingToken => (StatusCode::BAD_REQUEST, "Missing/Invalid token"),
             AuthError::InvalidToken => (StatusCode::BAD_REQUEST, "Invalid token"),
         };
-        
+
         let body = Json(ErrorInfo {
             error: error_message.to_string(),
             error_type: "AuthError",

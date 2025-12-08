@@ -30,7 +30,10 @@ fn generate_otp() -> String {
         .collect()
 }
 
-async fn get_user_from_mail_sqlx(pg: &PgPool, stored_mail: &str) -> Result<Option<User>, UserError> {
+async fn get_user_from_mail_sqlx(
+    pg: &PgPool,
+    stored_mail: &str,
+) -> Result<Option<User>, UserError> {
     let maybe_user = query_as!(
         User,
         "select id, email, is_email_hashed, is_admin from somes_user where email = $1",
@@ -110,9 +113,7 @@ pub async fn login(
                     return Ok(Json(JWTInfo::default()));
                 }
                 if verify_password(&input_otp, &v).map_err(|_| UserError::Hashing)? {
-                    redis_con
-                        .unlink::<_, i32>(&login_info.email)
-                        .await?;
+                    redis_con.unlink::<_, i32>(&login_info.email).await?;
 
                     // select based on email (try with hash and without)
                     let user = get_user_from_mail_sqlx(&pg, &stored_email).await?;
