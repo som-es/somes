@@ -186,7 +186,7 @@ export interface VoteResult {
 	absences: number[];
 	issued_by_dels: RelatedDelegate[];
 	referenced_by_others_ids: number[];
-	references_to: Reference[];
+	references: Reference[];
 }
 
 export function createVoteResultPath(voteResult: VoteResult): string {
@@ -258,6 +258,9 @@ export interface Party {
 
 export interface HasError {
 	error: string;
+	error_type: string;
+	field: string;
+	meta: any | null;
 }
 
 export interface JWTInfo {
@@ -434,6 +437,7 @@ export interface PartyVote {
 }
 
 export interface VoteResultFilter {
+	is_finished: boolean | null;
 	is_named_vote: boolean | null;
 	accepted: string | null;
 	simple_majority: boolean | null;

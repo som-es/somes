@@ -1,4 +1,4 @@
-use axum::{Error, Json, response::IntoResponse};
+use axum::{response::IntoResponse, Error, Json};
 use reqwest::StatusCode;
 use serde_json::json;
 use utoipa::ToSchema;

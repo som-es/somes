@@ -20,7 +20,7 @@ pub fn create_decrees_router() -> Router<AppState> {
     Router::new()
         .route(SEARCH, post(decrees_by_search_route))
         .route(LIVE, post(decrees_per_page_route))
-        .route("/ris_id", get(decree_by_ris_id_route))
+        .route("/ris_id/{ris_id}", get(decree_by_ris_id_route))
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]

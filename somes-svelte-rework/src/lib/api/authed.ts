@@ -13,13 +13,13 @@ import { address, fetchSavely, justPost, url } from './api';
 import { jwtStore } from '$lib/caching/stores/stores';
 import { get } from 'svelte/store';
 
-export async function getWithAuth<T>(route: string): Promise<T | HasError> {
+export async function getWithAuth<T>(route: string, country = 'at/'): Promise<T | HasError> {
 	const accessToken = get(jwtStore);
 	if (accessToken == null) {
-		return { error: 'No access token' };
+		return { error: 'No access token', error_type: 'AuthError', field: 'MissingToken', meta: null };
 	}
 	return fetchSavely(() =>
-		fetch(`${url}${route}`, {
+		fetch(`${url}${country}${route}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
@@ -29,13 +29,13 @@ export async function getWithAuth<T>(route: string): Promise<T | HasError> {
 	);
 }
 
-export async function putWithAuth<T>(route: string, body: any): Promise<T | HasError> {
+export async function putWithAuth<T>(route: string, body: any, country = 'at/'): Promise<T | HasError> {
 	const accessToken = get(jwtStore);
 	if (accessToken == null) {
-		return { error: 'No access token' };
+		return { error: 'No access token', error_type: 'AuthError', field: 'MissingToken', meta: null };
 	}
 	return fetchSavely(() =>
-		fetch(`${url}${route}`, {
+		fetch(`${url}${country}${route}`, {
 			method: 'PUT',
 			headers: {
 				'Content-Type': 'application/json',
@@ -46,13 +46,13 @@ export async function putWithAuth<T>(route: string, body: any): Promise<T | HasE
 	);
 }
 
-export async function postWithAuth<T>(route: string, body: any): Promise<T | HasError> {
+export async function postWithAuth<T>(route: string, body: any, country = 'at/'): Promise<T | HasError> {
 	const accessToken = get(jwtStore);
 	if (accessToken == null) {
-		return { error: 'No access token' };
+		return { error: 'No access token', error_type: 'AuthError', field: 'MissingToken', meta: null };
 	}
 	return fetchSavely(() =>
-		fetch(`${url}${route}`, {
+		fetch(`${url}${country}${route}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -65,11 +65,12 @@ export async function postWithAuth<T>(route: string, body: any): Promise<T | Has
 
 export async function deleteWithAuth<T>(
 	route: string,
-	body: any | undefined
+	body: any | undefined,
+	country = 'at/'
 ): Promise<T | HasError> {
 	const accessToken = get(jwtStore);
 	if (accessToken == null) {
-		return { error: 'No access token' };
+		return { error: 'No access token', error_type: 'AuthError', field: 'MissingToken', meta: null };
 	}
 	let newBody: string | undefined;
 	if (body) {
@@ -78,7 +79,7 @@ export async function deleteWithAuth<T>(
 		newBody = undefined;
 	}
 	return fetchSavely(() =>
-		fetch(`${url}${route}`, {
+		fetch(`${url}${country}${route}`, {
 			method: 'DELETE',
 			headers: {
 				'Content-Type': 'application/json',
@@ -90,51 +91,51 @@ export async function deleteWithAuth<T>(
 }
 
 export async function addUserTopic(uniqueTopic: UniqueTopic): Promise<null | HasError> {
-	return postWithAuth('topic_selection', uniqueTopic);
+	return postWithAuth('v1/user/topic_selection', uniqueTopic);
 }
 
 export async function removeUserTopic(uniqueTopic: UniqueTopic): Promise<null | HasError> {
-	return deleteWithAuth('topic_selection', uniqueTopic);
+	return deleteWithAuth('v1/user/topic_selection', uniqueTopic);
 }
 
 export async function getUserTopics(): Promise<UniqueTopic[] | HasError> {
-	return getWithAuth('topic_selection');
+	return getWithAuth('v1/user/topic_selection');
 }
 
 export async function addDelegateFavo(uniqueTopic: DelegateFavo): Promise<null | HasError> {
-	return postWithAuth('favo_delegate', uniqueTopic);
+	return postWithAuth('v1/user/bookmark/delegate', uniqueTopic);
 }
 
 export async function removeDelegateFavo(uniqueTopic: DelegateFavo): Promise<null | HasError> {
-	return deleteWithAuth('favo_delegate', uniqueTopic);
+	return deleteWithAuth('v1/user/bookmark/delegate', uniqueTopic);
 }
 
 export async function getFavoDelegates(): Promise<DelegateFavo[] | HasError> {
-	return getWithAuth('favo_delegate');
+	return getWithAuth('v1/user/bookmark/delegate');
 }
 
 export async function addLegisInitFavo(uniqueTopic: LegisInitFavo): Promise<null | HasError> {
-	return postWithAuth('favo_legis_init', uniqueTopic);
+	return postWithAuth('v1/user/bookmark/vote_result', uniqueTopic);
 }
 
-export async function removeLegiInitFavo(uniqueTopic: LegisInitFavo): Promise<null | HasError> {
-	return deleteWithAuth('favo_legis_init', uniqueTopic);
+export async function removeLegisInitFavo(uniqueTopic: LegisInitFavo): Promise<null | HasError> {
+	return deleteWithAuth('v1/user/bookmark/vote_result', uniqueTopic);
 }
 
 export async function getFavoLegisInits(): Promise<LegisInitFavo[] | HasError> {
-	return getWithAuth('favo_legis_init');
+	return getWithAuth('v1/user/bookmark/vote_result');
 }
 
 export async function delete_account(): Promise<null | HasError> {
-	return deleteWithAuth('delete_account', undefined);
+	return deleteWithAuth('v1/user/delete_account', undefined);
 }
 
 export async function getMailSendInfo(): Promise<MailSendInfo | HasError> {
-	return getWithAuth('send_mail_info');
+	return getWithAuth('v1/user/send_mail_info');
 }
 
 export async function getUser(): Promise<ExtendedUserInfo | HasError> {
-	return getWithAuth('user');
+	return getWithAuth('v1/user');
 }
 
 export async function getQuizzes(): Promise<Quiz[] | HasError> {
@@ -142,11 +143,11 @@ export async function getQuizzes(): Promise<Quiz[] | HasError> {
 }
 
 export async function updateMailSendInfo(mailSendInfo: MailSendInfo): Promise<null | HasError> {
-	return putWithAuth('send_mail_info', mailSendInfo);
+	return putWithAuth('v1/user/send_mail_info', mailSendInfo);
 }
 
 export async function renew_token(): Promise<JWTInfo | HasError> {
-	return postWithAuth<JWTInfo>('renew_token', {});
+	return postWithAuth<JWTInfo>('v1/user/renew_token', {});
 }
 
 export async function login(
@@ -154,5 +155,5 @@ export async function login(
 	password: string | null,
 	hash_email: boolean | null
 ): Promise<JWTInfo | HasError | LoginResponseError> {
-	return justPost('login', { email, password, hash_email });
+	return justPost('v1/user/login', { email, password, hash_email });
 }

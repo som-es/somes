@@ -15,6 +15,7 @@
 	import FiltersAny from '$lib/components/Filtering/FiltersAny.svelte';
 
 	export let dels: Delegate[];
+	export let isFinished = true;
 	export let voteResultsPostFn: (
 		page: number,
 		voteResultFilter: VoteResultFilter
@@ -25,6 +26,7 @@
 		voteResultFilter: VoteResultFilter
 	) => Promise<VoteResultsWithMaxPage | HasError> = vote_results_by_search;
 	export let storeIdx: number = 0;
+
 	let currentVoteResultFilterStore = currentVoteResultFilterStores[storeIdx];
 	$: currentVoteResultFilterStore = currentVoteResultFilterStores[storeIdx];
 
@@ -140,6 +142,7 @@
 		// accepted: 'a' (accepted), 'd' (declined), 'p' (pre-declined)
 		// null "egal"
 		let filter: VoteResultFilter | null = {
+			is_finished: isFinished,
 			is_named_vote: namedVoteFilter.filterObj == undefined ? null : namedVoteFilter.filterObj,
 			accepted: acceptedFilter.filterObj == undefined ? null : acceptedFilter.filterObj,
 			is_law: null,

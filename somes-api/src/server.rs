@@ -1,4 +1,4 @@
-use std::{error::Error, fs::File, net::SocketAddr, path::PathBuf, sync::Arc};
+use std::{error::Error, fs::File, net::SocketAddr, path::PathBuf};
 
 use axum::{
     extract::FromRef,
@@ -11,13 +11,10 @@ use axum_server::tls_rustls::RustlsConfig;
 // use diesel_async::pooled_connection::AsyncDieselConnectionManager;
 use log::{error, info};
 use reqwest::StatusCode;
-use somes_common_lib::LOGIN_ROUTE;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tokio::{net::TcpListener, time::sleep};
-use tower_governor::{governor::GovernorConfigBuilder, GovernorLayer};
 use views::{create_composite_types, create_views};
 //use headers::HeaderValue;
-use crate::routes::login;
 use crate::routes::*;
 use crate::{
     meilisearch::update_meilisearch_indices, redirect_http_to_https, routes::save_email_route,
@@ -164,21 +161,7 @@ pub async fn serve(addr: SocketAddr) {
     //     "https://somes.at".parse::<HeaderValue>().unwrap(),
     // ];
 
-    let governor_conf = Arc::new(
-        GovernorConfigBuilder::default()
-            .per_second(2)
-            .burst_size(4)
-            .finish()
-            .unwrap(),
-    );
-
     let api_routes = Router::new()
-        .route(
-            LOGIN_ROUTE,
-            post(login).layer(GovernorLayer {
-                config: governor_conf.clone(),
-            }),
-        )
         .route(PARTIES, get(parties_route))
         .route(PARTIES_AT_GP, get(parties_at_gp_route))
         .route(ALL_GPS, get(all_gps_route))
@@ -193,7 +176,7 @@ pub async fn serve(addr: SocketAddr) {
         .nest("/v1/delegates", create_delegates_router())
         .nest("/v1/gov_proposals", create_gov_proposals_router())
         .nest("/v1/decrees", create_decrees_router())
-        .nest("/v1/user", create_decrees_router())
+        .nest("/v1/user", create_user_router())
         .nest("/v1/vote_results", create_vote_results_router());
 
     let api_routes = Router::new()

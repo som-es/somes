@@ -1,20 +1,20 @@
 use crate::{
     get_json_cache, routes::FilterError, set_json_cache, PgPoolConnection, RedisConnection,
 };
-use axum::{extract::Query, Json};
+use axum::{Json, extract::Path};
 use dataservice::combx::OptionalDecree;
-use somes_common_lib::{DecreeByRisId, Document};
+use somes_common_lib::Document;
 
 pub async fn decree_by_ris_id_route(
     RedisConnection(mut redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
-    Query(decree_by_ris_id): Query<DecreeByRisId>,
+    Path(decree_ris_id): Path<String>,
 ) -> Result<Json<OptionalDecree>, FilterError> {
-    let key = format!("decree/{}", &decree_by_ris_id.ris_id);
+    let key = format!("decree/{}", &decree_ris_id);
     if let Some(decree) = get_json_cache::<OptionalDecree>(&mut redis_con, &key).await {
         return Ok(Json(decree));
     }
-    let decree = decree_by_ris_id_sqlx(&pg, &decree_by_ris_id.ris_id)
+    let decree = decree_by_ris_id_sqlx(&pg, &decree_ris_id)
         .await?
         .ok_or(FilterError::NotFound)?;
     set_json_cache(&mut redis_con, &key, &decree).await;

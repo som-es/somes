@@ -14,9 +14,9 @@ export async function decrees_by_search(
 	filter: DecreeFilter | null,
 	search: string
 ): Promise<DecreesWithMaxPage | HasError> {
-	return justPost(`decrees_by_search?page=${page}&search=${search}`, filter);
+	return justPost(`v1/decrees/search?page=${page}&search=${search}`, filter);
 }
 
 export async function decree_by_ris_id(ris_id: string): Promise<Decree | HasError> {
-	return getWithRoute<Decree>(`decree_by_ris_id?ris_id=${ris_id}`);
+	return getWithRoute<Decree>(`v1/decrees/ris_id/${ris_id}`);
 }

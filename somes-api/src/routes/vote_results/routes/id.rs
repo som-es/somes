@@ -1,7 +1,6 @@
-use axum::{extract::Query, Json};
+use axum::{extract::Path, Json};
 use dataservice::combx::OptionalVoteResult;
 use redis::aio::MultiplexedConnection;
-use somes_common_lib::{Page, VoteResultById};
 use sqlx::PgPool;
 
 use crate::{
@@ -9,25 +8,12 @@ use crate::{
     PgPoolConnection, RedisConnection,
 };
 
-#[utoipa::path(
-    post,
-    path = "/vote_result_by_id",
-    params
-    (
-        Page
-    ),
-    responses(
-        (status = 200, description = "Returned latest vote results successfully.", body = [Vec<OptionalVoteResult>]),
-        // (status = 400, description = "Invalid request", body = [LegisInitErrorResponse]),
-        // (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
-    )
-)]
 pub async fn vote_result_by_id_route(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
-    Query(vote_result_id): Query<VoteResultById>,
+    Path(vote_result_id): Path<i32>,
 ) -> Result<Json<OptionalVoteResult>, FilterError> {
-    vote_result_by_id_sqlx(redis_con, &pg, vote_result_id.id)
+    vote_result_by_id_sqlx(redis_con, &pg, vote_result_id)
         .await?
         .ok_or(FilterError::NotFound)
         .map(Json)

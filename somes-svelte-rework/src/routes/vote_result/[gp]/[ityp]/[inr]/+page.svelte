@@ -31,7 +31,7 @@
 	import SimpleYesNo from '$lib/components/VoteResults/SimpleYesNo/SimpleYesNo.svelte';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import { cachedLegisInitFavos } from '$lib/caching/favos';
-	import { addLegisInitFavo, removeLegiInitFavo } from '$lib/api/authed';
+	import { addLegisInitFavo, removeLegisInitFavo } from '$lib/api/authed';
 	import star from '$lib/assets/misc_icons/star.svg?raw';
 	import starFilled from '$lib/assets/misc_icons/starFilled.svg?raw';
 	import FetchDelegateCard from '$lib/components/Delegates/FetchDelegateCard.svelte';
@@ -262,7 +262,7 @@
 										on:click={async () => {
 											if (!voteResult) return;
 											if (
-												(await removeLegiInitFavo({
+												(await removeLegisInitFavo({
 													vote_result_id: +voteResult.legislative_initiative.id
 												})) == null
 											) {

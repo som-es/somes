@@ -1,4 +1,6 @@
 mod error;
+use std::sync::Arc;
+
 pub use error::*;
 
 mod routes;
@@ -8,18 +10,33 @@ use axum::{
     routing::{delete, get, post, put},
     Json, Router,
 };
-use somes_common_lib::{BOOKMARK, RENEW_TOKEN, SEND_MAIL_INFO, TOPIC_SELECTION};
+use somes_common_lib::{BOOKMARK, LOGIN_ROUTE, RENEW_TOKEN, SEND_MAIL_INFO, TOPIC_SELECTION};
 use sqlx::query_as;
+use tower_governor::{governor::GovernorConfigBuilder, GovernorLayer};
 
 use crate::{
     jwt::{renew_token_route, Claims},
     model::User,
     server::AppState,
-    GenericErrorResponse, PgPoolConnection,
+    PgPoolConnection,
 };
 
 pub fn create_user_router() -> Router<AppState> {
+    let governor_conf = Arc::new(
+        GovernorConfigBuilder::default()
+            .per_second(2)
+            .burst_size(4)
+            .finish()
+            .unwrap(),
+    );
+
     Router::new()
+        .route(
+            LOGIN_ROUTE,
+            post(login).layer(GovernorLayer {
+                config: governor_conf.clone(),
+            }),
+        )
         .route("/delete", delete(delete_account_route))
         .route(RENEW_TOKEN, post(renew_token_route))
         .route(TOPIC_SELECTION, post(add_user_topic_route))
