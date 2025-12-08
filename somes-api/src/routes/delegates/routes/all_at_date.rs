@@ -5,10 +5,8 @@ use somes_common_lib::FullMandate;
 use somes_common_lib::{Date, Delegate};
 use sqlx::PgPool;
 
-use crate::{
-    get_json_cache, routes::DelegatesErrorResponse, set_json_cache_with_relevance,
-    PgPoolConnection, RedisConnection,
-};
+use crate::routes::DelegateError;
+use crate::{get_json_cache, set_json_cache_with_relevance, PgPoolConnection, RedisConnection};
 
 #[utoipa::path(
     get,
@@ -27,11 +25,10 @@ pub async fn delegates_at_route(
     RedisConnection(mut redis_con): RedisConnection,
     Query(date): Query<Date>,
     PgPoolConnection(pg): PgPoolConnection,
-) -> Result<Json<Vec<Delegate>>, DelegatesErrorResponse> {
-    delegates_at_date(&pg, &date.at, &mut redis_con)
+) -> Result<Json<Vec<Delegate>>, DelegateError> {
+    Ok(delegates_at_date(&pg, &date.at, &mut redis_con)
         .await
-        .map(Json)
-        .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
+        .map(Json)?)
 }
 
 pub async fn delegates_at_date(

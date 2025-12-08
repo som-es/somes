@@ -3,7 +3,7 @@ use dataservice::combx::OptionalGovProposal;
 use sqlx::query_as;
 
 use crate::{
-    routes::{construct_gov_proposal, LegisInitErrorResponse},
+    routes::{construct_gov_proposal, DelegateError},
     PgPoolConnection, RedisConnection,
 };
 
@@ -11,14 +11,15 @@ pub async fn gov_proposals_by_official_route(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Path(delegate_id): Path<i32>,
-) -> Result<Json<Vec<OptionalGovProposal>>, LegisInitErrorResponse> {
-    extract_gov_proposals_by_delegate(redis_con, &pg, delegate_id)
-        .await
-        .map(Json)
-        .map_err(|_| LegisInitErrorResponse::LegisInit)
+) -> Result<Json<Vec<OptionalGovProposal>>, DelegateError> {
+    Ok(
+        extract_gov_proposals_by_delegate_sqlx(redis_con, &pg, delegate_id)
+            .await
+            .map(Json)?,
+    )
 }
 
-pub async fn extract_gov_proposals_by_delegate(
+pub async fn extract_gov_proposals_by_delegate_sqlx(
     redis_con: redis::aio::MultiplexedConnection,
     pg: &sqlx::Pool<sqlx::Postgres>,
     delegate_id: i32,

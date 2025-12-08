@@ -1,12 +1,11 @@
 use axum::{extract::Query, Json};
 use meilisearch_sdk::search::SearchResults;
-use reqwest::StatusCode;
 use somes_common_lib::GovPropFilter;
 
 use crate::{
     meilisearch::MeilisearchClient,
-    routes::{GovProposalDelegate, GovProposalsWithMaxPage},
-    GenericErrorResponse, GOV_PROPS_PER_PAGE,
+    routes::{FilterError, GovProposalDelegate, GovProposalsWithMaxPage},
+    GOV_PROPS_PER_PAGE,
 };
 
 pub async fn gov_props_by_search_route(
@@ -14,7 +13,7 @@ pub async fn gov_props_by_search_route(
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
     Json(legis_init_filter): Json<Option<GovPropFilter>>,
-) -> Result<Json<GovProposalsWithMaxPage>, GenericErrorResponse> {
+) -> Result<Json<GovProposalsWithMaxPage>, FilterError> {
     let mut meilisearch_filter = String::new();
     if let Some(filter) = legis_init_filter {
         let mut filter_conditions = Vec::new();
@@ -45,13 +44,7 @@ pub async fn gov_props_by_search_route(
         .with_page(page.page as usize)
         .with_sort(&["gov_proposal.ministrial_proposal.created_at:desc"])
         .execute()
-        .await
-        .map_err(|e| {
-            GenericErrorResponse::CustomString((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Cannot find gov proposals: {e:?}"),
-            ))
-        })?;
+        .await?;
 
     let max_page = results.total_pages.unwrap_or(1) as i64;
 

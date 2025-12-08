@@ -4,7 +4,7 @@ use redis::aio::MultiplexedConnection;
 use sqlx::PgPool;
 
 use crate::{
-    routes::{construct_gov_delegate_proposal, GovProposalDelegate, LegisInitErrorResponse},
+    routes::{construct_gov_delegate_proposal, FilterError, GovProposalDelegate},
     PgPoolConnection, RedisConnection,
 };
 
@@ -12,11 +12,10 @@ pub async fn gov_proposal_by_path_route(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Path((gp, inr)): Path<(String, i32)>,
-) -> Result<Json<GovProposalDelegate>, LegisInitErrorResponse> {
-    gov_proposal_delegate_by_path_sqlx(redis_con, &pg, &gp, inr)
+) -> Result<Json<GovProposalDelegate>, FilterError> {
+    Ok(gov_proposal_delegate_by_path_sqlx(redis_con, &pg, &gp, inr)
         .await
-        .map(Json)
-        .map_err(|_| LegisInitErrorResponse::VoteResultById)
+        .map(Json)?)
 }
 
 pub async fn gov_proposal_delegate_by_path_sqlx(

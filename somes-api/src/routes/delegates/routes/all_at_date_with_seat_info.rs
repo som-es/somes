@@ -1,7 +1,5 @@
-use crate::{
-    get_json_cache, routes::DelegatesErrorResponse, set_json_cache_with_relevance,
-    PgPoolConnection, RedisConnection,
-};
+use crate::routes::DelegateError;
+use crate::{get_json_cache, set_json_cache_with_relevance, PgPoolConnection, RedisConnection};
 use axum::{extract::Query, Json};
 use chrono::NaiveDate;
 use redis::aio::MultiplexedConnection;
@@ -15,18 +13,16 @@ pub async fn delegates_with_seats_near_date_route(
     Query(gp): Query<LegisPeriod>,
     Query(date): Query<Date>,
     PgPoolConnection(pg): PgPoolConnection,
-) -> Result<Json<Vec<Delegate>>, DelegatesErrorResponse> {
-    if date.at
-        < NaiveDate::from_str("2024-08-01")
-            .map_err(|_| DelegatesErrorResponse::DateOutOfRangeError)?
-    {
+) -> Result<Json<Vec<Delegate>>, DelegateError> {
+    if date.at < NaiveDate::from_str("2024-08-01").map_err(|_| DelegateError::Internal)? {
         return Ok(Json(vec![]));
     }
 
-    delegates_with_seats_near_date(&pg, &date.at, &mut redis_con, &gp.period)
-        .await
-        .map(Json)
-        .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
+    Ok(
+        delegates_with_seats_near_date(&pg, &date.at, &mut redis_con, &gp.period)
+            .await
+            .map(Json)?,
+    )
 }
 
 pub async fn delegates_with_seats_near_date(

@@ -54,6 +54,7 @@ views = { path="../views" }
 
 # axum-server = { version = "0.7.1", features = ["tls-rustls", "tls-rustls-no-provider"] }
 axum-server = { version = "0.7.3", features = ["tls-rustls-no-provider"] }
+thiserror = "2.0.17"
 
 [build-dependencies]
 tokio = { version = "1.0", features = ["full"] }

@@ -1,4 +1,4 @@
-use crate::{routes::DelegatesErrorResponse, PgPoolConnection};
+use crate::{routes::DelegateError, PgPoolConnection};
 use axum::{extract::Path, Json};
 use somes_common_lib::DelegateQA;
 use sqlx::{query_as, PgPool};
@@ -15,9 +15,6 @@ pub async fn extract_delegate_qa(delegate_id: i32, pg: &PgPool) -> sqlx::Result<
 pub async fn delegate_qa_route(
     PgPoolConnection(pg): PgPoolConnection,
     Path(delegate_id): Path<i32>,
-) -> Result<Json<Vec<DelegateQA>>, DelegatesErrorResponse> {
-    extract_delegate_qa(delegate_id, &pg)
-        .await
-        .map(Json)
-        .map_err(|_| DelegatesErrorResponse::DelegateInterestsResponseError)
+) -> Result<Json<Vec<DelegateQA>>, DelegateError> {
+    Ok(extract_delegate_qa(delegate_id, &pg).await.map(Json)?)
 }

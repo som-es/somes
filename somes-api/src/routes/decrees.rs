@@ -8,10 +8,9 @@ use serde::{Deserialize, Serialize};
 use somes_common_lib::{DecreeFilter, Document, Page, LIVE, SEARCH};
 use utoipa::ToSchema;
 
-use super::LegisInitErrorResponse;
 use crate::{
-    get_json_cache, server::AppState, set_json_cache, PgPoolConnection, RedisConnection,
-    DECREES_PER_PAGE,
+    get_json_cache, routes::FilterError, server::AppState, set_json_cache, PgPoolConnection,
+    RedisConnection, DECREES_PER_PAGE,
 };
 
 mod routes;
@@ -36,9 +35,9 @@ pub async fn decrees_per_page_route(
     PgPoolConnection(pg): PgPoolConnection,
     Query(page): Query<Page>,
     Json(decree_filter): Json<Option<DecreeFilter>>,
-) -> Result<Json<DecreesWithMaxPage>, LegisInitErrorResponse> {
+) -> Result<Json<DecreesWithMaxPage>, FilterError> {
     if page.page < 0 {
-        return Err(LegisInitErrorResponse::InvalidPage);
+        return Err(FilterError::InvalidPage(page.page as u32));
     }
 
     let key = format!("decrees_per_page/{page:?}/{decree_filter:?}");
@@ -71,7 +70,7 @@ async fn get_decrees_per_page_sqlx(
     pg: &sqlx::Pool<sqlx::Postgres>,
     page: &Page,
     decree_filter: Option<&DecreeFilter>,
-) -> Result<DecreesWithMaxPage, LegisInitErrorResponse> {
+) -> Result<DecreesWithMaxPage, FilterError> {
     let page_elements = DECREES_PER_PAGE.parse().unwrap_or(15);
     let mut entry_count = 0;
     let decrees = sqlx::query!(
@@ -93,12 +92,7 @@ async fn get_decrees_per_page_sqlx(
         page_elements
     )
     .fetch_all(pg)
-    .await
-    .map_err(|x| {
-        LegisInitErrorResponse::GenericErrorResponse(crate::GenericErrorResponse::DbSelectFailure(
-            Some(x),
-        ))
-    })?
+    .await?
     .into_iter()
     .map(|x| {
         entry_count = x.entry_count.unwrap();

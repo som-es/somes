@@ -5,7 +5,7 @@ use somes_common_lib::{Page, VoteResultById};
 use sqlx::PgPool;
 
 use crate::{
-    routes::{vote_results::construct_vote_result::construct_vote_result, LegisInitErrorResponse},
+    routes::{vote_results::construct_vote_result::construct_vote_result, FilterError},
     PgPoolConnection, RedisConnection,
 };
 
@@ -26,11 +26,10 @@ pub async fn vote_result_by_id_route(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(vote_result_id): Query<VoteResultById>,
-) -> Result<Json<OptionalVoteResult>, LegisInitErrorResponse> {
-    vote_result_by_id_sqlx(redis_con, &pg, vote_result_id.id)
-        .await
-        .map(Json)
-        .map_err(|_| LegisInitErrorResponse::VoteResultById)
+) -> Result<Json<OptionalVoteResult>, FilterError> {
+    Ok(Json(
+        vote_result_by_id_sqlx(redis_con, &pg, vote_result_id.id).await?,
+    ))
 }
 
 pub async fn vote_result_by_id_sqlx(

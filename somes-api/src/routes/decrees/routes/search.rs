@@ -1,6 +1,6 @@
 use crate::{
     meilisearch::MeilisearchClient,
-    routes::{DecreesWithMaxPage, LegisInitErrorResponse},
+    routes::{DecreesWithMaxPage, FilterError},
     DECREES_PER_PAGE,
 };
 use axum::{extract::Query, Json};
@@ -13,7 +13,7 @@ pub async fn decrees_by_search_route(
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
     Json(decrees_filter): Json<Option<DecreeFilter>>,
-) -> Result<Json<DecreesWithMaxPage>, LegisInitErrorResponse> {
+) -> Result<Json<DecreesWithMaxPage>, FilterError> {
     meilisearch_decrees(
         meilisearch_client,
         search_query,
@@ -21,6 +21,7 @@ pub async fn decrees_by_search_route(
         decrees_filter.as_ref(),
     )
     .await
+    .map(Json)
 }
 
 async fn meilisearch_decrees(
@@ -28,7 +29,7 @@ async fn meilisearch_decrees(
     search_query: somes_common_lib::SearchQuery,
     page: Page,
     legis_init_filter: Option<&DecreeFilter>,
-) -> Result<Json<DecreesWithMaxPage>, LegisInitErrorResponse> {
+) -> Result<DecreesWithMaxPage, FilterError> {
     let stats = meilisearch_client
         .index("decrees")
         .get_stats()
@@ -66,8 +67,7 @@ async fn meilisearch_decrees(
         .with_hits_per_page(DECREES_PER_PAGE.parse().unwrap_or(16))
         .with_page(page.page as usize)
         .execute()
-        .await
-        .unwrap();
+        .await?;
 
     let max_page = results.total_pages.unwrap_or(1) as i64;
 
@@ -77,9 +77,9 @@ async fn meilisearch_decrees(
         .map(|hit| hit.result)
         .collect::<Vec<_>>();
 
-    Ok(Json(DecreesWithMaxPage {
+    Ok(DecreesWithMaxPage {
         decrees,
         entry_count: results.estimated_total_hits.unwrap_or(1) as i64,
         max_page,
-    }))
+    })
 }

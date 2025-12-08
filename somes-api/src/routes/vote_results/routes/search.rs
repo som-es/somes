@@ -7,7 +7,7 @@ use somes_common_lib::{LegisInitFilter, Page};
 
 use crate::{
     meilisearch::MeilisearchClient,
-    routes::{LegisInitErrorResponse, VoteResultsWithMaxPage},
+    routes::{FilterError, VoteResultsWithMaxPage},
     LEGIS_INITS_PER_PAGE,
 };
 
@@ -16,7 +16,7 @@ pub async fn vote_results_by_search_route(
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
     Json(legis_init_filter): Json<LegisInitFilter>,
-) -> Result<Json<VoteResultsWithMaxPage>, LegisInitErrorResponse> {
+) -> Result<Json<VoteResultsWithMaxPage>, FilterError> {
     meilisearch_for_vote_results(
         legis_init_filter.is_finished,
         meilisearch_client,
@@ -25,6 +25,7 @@ pub async fn vote_results_by_search_route(
         legis_init_filter,
     )
     .await
+    .map(Json)
 }
 
 #[inline]
@@ -42,7 +43,7 @@ async fn meilisearch_for_vote_results(
     search_query: somes_common_lib::SearchQuery,
     page: Page,
     filter: LegisInitFilter,
-) -> Result<Json<VoteResultsWithMaxPage>, LegisInitErrorResponse> {
+) -> Result<VoteResultsWithMaxPage, FilterError> {
     let mut filter_conditions = if is_finished {
         vec![r#"legislative_initiative.accepted IS NOT NULL"#.to_string()]
     } else {
@@ -112,8 +113,7 @@ async fn meilisearch_for_vote_results(
         .with_hits_per_page(LEGIS_INITS_PER_PAGE.parse().unwrap_or(16))
         .with_page(page.page as usize)
         .execute()
-        .await
-        .unwrap();
+        .await?;
 
     let max_page = results.total_pages.unwrap_or(1) as i64;
 
@@ -131,9 +131,9 @@ async fn meilisearch_for_vote_results(
     //         .collect::<Vec<_>>()
     // );
 
-    Ok(Json(VoteResultsWithMaxPage {
+    Ok(VoteResultsWithMaxPage {
         vote_results,
         entry_count: results.estimated_total_hits.unwrap_or(1) as i64,
         max_page,
-    }))
+    })
 }

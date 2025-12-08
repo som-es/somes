@@ -4,7 +4,7 @@ use redis::aio::MultiplexedConnection;
 use sqlx::PgPool;
 
 use crate::{
-    routes::{vote_results::construct_vote_result::construct_vote_result, LegisInitErrorResponse},
+    routes::{vote_results::construct_vote_result::construct_vote_result, FilterError},
     PgPoolConnection, RedisConnection,
 };
 
@@ -17,14 +17,12 @@ use crate::{
         // (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
     )
 )]
+
 pub async fn latest_vote_results_route(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
-) -> Result<Json<Vec<OptionalVoteResult>>, LegisInitErrorResponse> {
-    latest_vote_results_sqlx(redis_con, &pg)
-        .await
-        .map(Json)
-        .map_err(|_| LegisInitErrorResponse::LatestVoteResults)
+) -> Result<Json<Vec<OptionalVoteResult>>, FilterError> {
+    Ok(Json(super::latest_vote_results_sqlx(redis_con, &pg).await?))
 }
 
 pub async fn latest_legislative_initiatives_sqlx(

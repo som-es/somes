@@ -83,7 +83,7 @@ pub async fn vote_result_by_unique_hints_with_accepted_required_sqlx(
     }
 }
 
-pub async fn latest_vote_results_sqlx_per_page(
+pub async fn vote_results_per_page_sqlx(
     redis_con: MultiplexedConnection,
     pg: &PgPool,
     page: i64,

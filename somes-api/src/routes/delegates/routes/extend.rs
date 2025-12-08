@@ -12,7 +12,7 @@ use crate::{
             stance_topic_score::extract_stance_topic_score_by_delegate,
         },
         extract_absences_by_delegate, extract_delegate_qa, extract_detailed_interests_of_delegate,
-        extract_interests_of_delegate, extract_political_position, DelegatesErrorResponse,
+        extract_interests_of_delegate, extract_political_position, DelegateError,
     },
     PgPoolConnection, RedisConnection,
 };
@@ -21,11 +21,10 @@ pub async fn extended_delegate_info_route(
     PgPoolConnection(pg): PgPoolConnection,
     RedisConnection(mut redis_con): RedisConnection,
     Path(id): Path<i32>,
-) -> Result<Json<GeneralDelegateInfo>, DelegatesErrorResponse> {
-    extract_general_delegate_info(id, &pg, &mut redis_con)
+) -> Result<Json<GeneralDelegateInfo>, DelegateError> {
+    Ok(extract_general_delegate_info(id, &pg, &mut redis_con)
         .await
-        .map(Json)
-        .map_err(|e| DelegatesErrorResponse::DbSelectFailure(Some(e)))
+        .map(Json)?)
 }
 
 pub async fn extract_general_delegate_info(

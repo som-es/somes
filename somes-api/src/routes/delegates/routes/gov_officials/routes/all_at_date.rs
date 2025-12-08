@@ -5,7 +5,7 @@ use somes_common_lib::FullMandate;
 use somes_common_lib::{Date, Delegate};
 use sqlx::PgPool;
 
-use crate::routes::DelegatesErrorResponse;
+use crate::routes::DelegateError;
 use crate::{get_json_cache, set_json_cache_with_relevance, PgPoolConnection, RedisConnection};
 
 pub async fn gov_officials_at_date_route(
@@ -13,11 +13,10 @@ pub async fn gov_officials_at_date_route(
     RedisConnection(mut redis_con): RedisConnection,
     Query(date): Query<Date>,
     PgPoolConnection(pg): PgPoolConnection,
-) -> Result<Json<Vec<Delegate>>, DelegatesErrorResponse> {
-    gov_officials_at_date(&pg, &date.at, &mut redis_con)
+) -> Result<Json<Vec<Delegate>>, DelegateError> {
+    Ok(gov_officials_at_date(&pg, &date.at, &mut redis_con)
         .await
-        .map(Json)
-        .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
+        .map(Json)?)
 }
 
 pub async fn gov_officials_at_date_sqlx(

@@ -7,7 +7,7 @@ use somes_common_lib::FullMandate;
 use somes_common_lib::{Delegate, DelegateById};
 use sqlx::PgPool;
 
-use crate::{get_json_cache, routes::DelegatesErrorResponse, PgPoolConnection, RedisConnection};
+use crate::{get_json_cache, routes::DelegateError, PgPoolConnection, RedisConnection};
 
 pub async fn delegate_by_id_sqlx(
     delegate_id: i32,
@@ -55,20 +55,18 @@ pub async fn delegate_by_id(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(delegate_by_id): Query<DelegateById>,
-) -> Result<Json<Delegate>, DelegatesErrorResponse> {
-    delegate_by_id_sqlx(delegate_by_id.delegate_id, &pg, redis_con)
-        .await
-        .map(Json)
-        .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
+) -> Result<Json<Delegate>, DelegateError> {
+    Ok(
+        delegate_by_id_sqlx(delegate_by_id.delegate_id, &pg, redis_con)
+            .await
+            .map(Json)?,
+    )
 }
 
 pub async fn delegate_by_id_path_route(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Path(id): Path<i32>,
-) -> Result<Json<Delegate>, DelegatesErrorResponse> {
-    delegate_by_id_sqlx(id, &pg, redis_con)
-        .await
-        .map(Json)
-        .map_err(|_| DelegatesErrorResponse::DelegateResponseError)
+) -> Result<Json<Delegate>, DelegateError> {
+    Ok(delegate_by_id_sqlx(id, &pg, redis_con).await.map(Json)?)
 }

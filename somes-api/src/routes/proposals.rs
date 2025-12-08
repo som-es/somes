@@ -19,12 +19,14 @@ use somes_common_lib::{GovPropFilter, Page, LATEST, LIVE, SEARCH};
 use sqlx::{FromRow, PgPool};
 use utoipa::ToSchema;
 
-use crate::{server::AppState, PgPoolConnection, RedisConnection, GOV_PROPS_PER_PAGE};
+use crate::{
+    routes::FilterError, server::AppState, PgPoolConnection, RedisConnection, GOV_PROPS_PER_PAGE,
+};
 
 use super::{
     delegate_by_id_sqlx,
     statistics::filtering::{bind_values, build_filter, count_filter, IntoFilterArgument, Manual},
-    GovProposalDelegate, LegisInitErrorResponse,
+    GovProposalDelegate,
 };
 
 pub fn create_gov_proposals_router() -> Router<AppState> {
@@ -67,9 +69,9 @@ pub async fn gov_proposals_per_page_route(
     PgPoolConnection(pg): PgPoolConnection,
     Query(page): Query<Page>,
     Json(gov_prop_filter): Json<Option<GovPropFilter>>,
-) -> Result<Json<GovProposalsWithMaxPage>, LegisInitErrorResponse> {
+) -> Result<Json<GovProposalsWithMaxPage>, FilterError> {
     if page.page < 0 {
-        return Err(LegisInitErrorResponse::InvalidPage);
+        return Err(FilterError::InvalidPage(page.page as u32));
     }
     let (ministrial_proposals, entry_count) = filtered_ministrial_proposals_sqlx(
         &pg,
@@ -77,14 +79,9 @@ pub async fn gov_proposals_per_page_route(
         GOV_PROPS_PER_PAGE.parse().unwrap_or(12),
         gov_prop_filter,
     )
-    .await
-    .map_err(|e| {
-        LegisInitErrorResponse::GenericErrorResponse(crate::GenericErrorResponse::DbSelectFailure(
-            Some(e),
-        ))
-    })?;
+    .await?;
 
-    futures::future::join_all(
+    Ok(futures::future::join_all(
         ministrial_proposals
             .into_iter()
             .map(|ministrial_proposal| {
@@ -100,12 +97,7 @@ pub async fn gov_proposals_per_page_route(
         entry_count,
         max_page: (entry_count as f64 / GOV_PROPS_PER_PAGE.parse().unwrap_or(12.)).ceil() as i64,
     })
-    .map(Json)
-    .map_err(|e| {
-        LegisInitErrorResponse::GenericErrorResponse(crate::GenericErrorResponse::DbSelectFailure(
-            Some(e),
-        ))
-    })
+    .map(Json)?)
 }
 
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize, Copy, FromRow)]

@@ -44,15 +44,12 @@ pub async fn vote_results_per_page_route(
     PgPoolConnection(pg): PgPoolConnection,
     Query(page): Query<Page>,
     Json(legis_init_filter): Json<Option<LegisInitFilter>>,
-) -> Result<Json<VoteResultsWithMaxPage>, LegisInitErrorResponse> {
+) -> Result<Json<VoteResultsWithMaxPage>, FilterError> {
     if page.page < 0 {
-        return Err(LegisInitErrorResponse::InvalidPage);
+        return Err(FilterError::InvalidPage(page.page as u32));
     }
-    // if page.page > page_count {
-    //     return Err(LegisInitErrorResponse::InvalidPage);
-    // }
 
-    latest_vote_results_sqlx_per_page(
+    Ok(vote_results_per_page_sqlx(
         redis_con,
         &pg,
         page.page,
@@ -66,6 +63,5 @@ pub async fn vote_results_per_page_route(
         entry_count,
         max_page: (entry_count as f64 / LEGIS_INITS_PER_PAGE.parse().unwrap_or(16.)).ceil() as i64,
     })
-    .map(Json)
-    .map_err(|_| LegisInitErrorResponse::LatestVoteResults)
+    .map(Json)?)
 }

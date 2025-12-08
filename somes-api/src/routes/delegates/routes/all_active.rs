@@ -1,4 +1,4 @@
-use crate::{routes::DelegatesErrorResponse, PgPoolConnection};
+use crate::{routes::DelegateError, PgPoolConnection};
 use axum::Json;
 use somes_common_lib::{Delegate, FullMandate};
 
@@ -13,7 +13,7 @@ use somes_common_lib::{Delegate, FullMandate};
 )]
 pub async fn active_delegates_route(
     PgPoolConnection(pg): PgPoolConnection,
-) -> Result<Json<Vec<Delegate>>, DelegatesErrorResponse> {
+) -> Result<Json<Vec<Delegate>>, DelegateError> {
     Ok(sqlx::query_as!(
         Delegate,
         "
@@ -31,6 +31,5 @@ WHERE
     )
     .fetch_all(&pg)
     .await
-    .map(Json)
-    .unwrap())
+    .map(Json)?)
 }

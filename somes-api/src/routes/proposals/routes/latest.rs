@@ -6,7 +6,7 @@ use sqlx::{query_as, PgPool};
 use utoipa::ToSchema;
 
 use crate::{
-    routes::{construct_gov_delegate_proposal, DelegatesErrorResponse, GovProposalDelegate},
+    routes::{construct_gov_delegate_proposal, FilterError, GovProposalDelegate},
     PgPoolConnection, RedisConnection,
 };
 
@@ -19,17 +19,16 @@ pub async fn latest_gov_proposals_route(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(days): Query<Days>,
-) -> Result<Json<Vec<GovProposalDelegate>>, DelegatesErrorResponse> {
+) -> Result<Json<Vec<GovProposalDelegate>>, FilterError> {
     if days.days > 180 {
-        return Err(DelegatesErrorResponse::Custom(
-            "days cannot be larger than 180".to_string(),
-        ));
+        return Err(FilterError::InvalidDays(days.days as u32));
     }
 
-    extract_latest_ministrial_proposals(&pg, redis_con, days.days as i32)
-        .await
-        .map(Json)
-        .map_err(|e| DelegatesErrorResponse::DbSelectFailure(Some(e)))
+    Ok(
+        extract_latest_ministrial_proposals(&pg, redis_con, days.days as i32)
+            .await
+            .map(Json)?,
+    )
 }
 
 pub async fn extract_latest_ministrial_proposals(

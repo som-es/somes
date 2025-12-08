@@ -62,11 +62,12 @@ pub fn create_delegates_router() -> Router<AppState> {
 pub async fn delegate_interests(
     PgPoolConnection(pg): PgPoolConnection,
     Query(delegate_by_id): Query<DelegateById>,
-) -> Result<Json<Vec<InterestShare>>, DelegatesErrorResponse> {
-    extract_interests_of_delegate(delegate_by_id.delegate_id, &pg)
-        .await
-        .map(Json)
-        .map_err(|_| DelegatesErrorResponse::DelegateInterestsResponseError)
+) -> Result<Json<Vec<InterestShare>>, DelegateError> {
+    Ok(
+        extract_interests_of_delegate(delegate_by_id.delegate_id, &pg)
+            .await
+            .map(Json)?,
+    )
 }
 
 pub async fn seats_route() -> Json<HashMap<String, Vec<u32>>> {

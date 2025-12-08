@@ -1,53 +1,49 @@
 use std::borrow::Cow;
 
 use axum::{response::IntoResponse, Json};
+use chrono::NaiveDate;
 use reqwest::StatusCode;
 use serde_json::json;
+use thiserror::Error;
 
-#[derive(Debug)]
-pub enum DelegatesErrorResponse {
-    DelegateResponseError,
-    ProposalResponseError,
-    DelegateInterestsResponseError,
-    DelegateSpeechesError,
-    DateOutOfRangeError,
-    DbSelectFailure(Option<sqlx::Error>),
-    Custom(String),
+#[derive(Debug, Error)]
+pub enum DelegateError {
+    #[error("Database failure: {0}")]
+    SqlFailure(#[from] sqlx::Error),
+    #[error("Redis failure: {0}")]
+    RedisFailure(#[from] redis::RedisError),
+    #[error("Meilisearch failure: {0}")]
+    MeilisearchFailure(#[from] meilisearch_sdk::errors::Error),
+    #[error("internal server error")]
+    Internal,
+    #[error("entries not found")]
+    NotFound,
+    #[error("Invalid page: {0}")]
+    InvalidPage(u32),
+    #[error("Invalid date: {0}")]
+    DateOutOfRange(NaiveDate),
 }
 
-impl IntoResponse for DelegatesErrorResponse {
+impl IntoResponse for DelegateError {
     fn into_response(self) -> axum::response::Response {
         let (status_code, err_msg) = match &self {
-            DelegatesErrorResponse::DelegateResponseError => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Cow::Borrowed("could not return delegates"),
-            ),
-            DelegatesErrorResponse::ProposalResponseError => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Cow::Borrowed("could not return proposals"),
-            ),
-            DelegatesErrorResponse::DelegateInterestsResponseError => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Cow::Borrowed("could not return interests of delegates"),
-            ),
-            DelegatesErrorResponse::DateOutOfRangeError => {
-                (StatusCode::BAD_REQUEST, Cow::Borrowed("date out of range"))
+            DelegateError::SqlFailure(_e) => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
+            DelegateError::RedisFailure(_e) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, self.to_string())
             }
-            DelegatesErrorResponse::DelegateSpeechesError => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Cow::Borrowed("cannot return delegate speeches"),
-            ),
-            DelegatesErrorResponse::DbSelectFailure(e) => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Cow::Owned(format!("db error occured: {e:?}")),
-            ),
-            DelegatesErrorResponse::Custom(e) => {
-                (StatusCode::BAD_REQUEST, Cow::Borrowed(e.as_str()))
+            DelegateError::MeilisearchFailure(_e) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, self.to_string())
             }
+            DelegateError::Internal => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
+            DelegateError::NotFound => (StatusCode::NOT_FOUND, self.to_string()),
+            DelegateError::InvalidPage(_page) => (StatusCode::BAD_REQUEST, self.to_string()),
+            DelegateError::DateOutOfRange(_date) => (StatusCode::BAD_REQUEST, self.to_string()),
         };
 
         let body = Json(json!({
             "error": err_msg,
+            "type": "DelegateError",
+            "field": format!("{:?}", self),
         }));
 
         (status_code, body).into_response()
