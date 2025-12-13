@@ -157,6 +157,7 @@ pub async fn all_updated_votes_from_legis_init_sqlx(
         li.gp,
         li.inr,
         li.emphasis,
+        li.ai_emphasis,
         li.title,
         li.description,
         li.accepted,

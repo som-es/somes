@@ -14,7 +14,7 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
           (
             SELECT
               ROW(
-                id, ityp, doktyp, gp, inr, emphasis,
+                id, ityp, doktyp, gp, inr, emphasis, ai_emphasis,
                 title, description, accepted, created_at,
                 appeared_at, updated_at, requires_simple_majority,
                 pre_declined_type, voted_by_name,

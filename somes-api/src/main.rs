@@ -4,7 +4,7 @@ use somes_api::{email::MAILER, jwt::KEYS, server};
 #[tokio::main]
 async fn main() {
     SimpleLogger::new()
-        .with_level(log::LevelFilter::Info)
+        .with_level(log::LevelFilter::Error)
         .init()
         .unwrap();
 
