@@ -1,7 +1,7 @@
 use crate::{
     get_json_cache, routes::FilterError, set_json_cache, PgPoolConnection, RedisConnection,
 };
-use axum::{Json, extract::Path};
+use axum::{extract::Path, Json};
 use dataservice::combx::OptionalDecree;
 use somes_common_lib::Document;
 

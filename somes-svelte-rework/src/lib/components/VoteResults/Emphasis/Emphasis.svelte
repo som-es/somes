@@ -3,10 +3,11 @@
 	import collapse from 'svelte-collapse';
 
 	export let rawEmphasis: string | null;
+	export let rawAiEmphasis: string | null = null;
 	export let isAiGenerated: boolean = false;
 	export let useTitleHover: boolean = false;
 
-	$: emphasis = rawEmphasis
+	$: emphasis = (rawEmphasis ?? rawAiEmphasis)
 		?.split('\n')
 		.filter((x) => x.length > 10)
 		.map((x) => {
@@ -48,7 +49,7 @@
 					<div class="z-50 font-bold text-xl">{aiGenText}</div>
 				</div>
 
-				{#if isAiGenerated}
+				{#if isAiGenerated && rawEmphasis == null}
 					<button class="text-4xl" title={titleHover} use:popup={popupFeatured}>⚠</button>
 				{/if}
 			</div>

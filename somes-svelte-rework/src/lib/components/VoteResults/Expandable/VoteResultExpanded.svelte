@@ -27,6 +27,7 @@
 	}
 
 	$: rawEmphasis = voteResult.legislative_initiative.emphasis;
+	$: rawAiEmphasis = voteResult.legislative_initiative.ai_emphasis;
 
 	function gridContainer(rawEmphasis: string | null, voteResult: VoteResult): string {
 		if (voteResult.legislative_initiative.accepted === null && rawEmphasis !== null) {
@@ -35,13 +36,14 @@
 		return rawEmphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
 	}
 
-	$: whichGridContainer = gridContainer(rawEmphasis, voteResult);
+	$: whichGridContainer = gridContainer(rawEmphasis ?? rawAiEmphasis, voteResult);
 	// rawEmphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
 </script>
 
 <div class="lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3">
 	<Emphasis
 		{rawEmphasis}
+		{rawAiEmphasis}
 		isAiGenerated={voteResult.legislative_initiative.is_emphasis_ai_generated ?? false}
 		useTitleHover
 	/>
@@ -76,6 +78,7 @@
 
 	<Emphasis
 		{rawEmphasis}
+		{rawAiEmphasis}
 		isAiGenerated={voteResult.legislative_initiative.is_emphasis_ai_generated ?? false}
 		useTitleHover
 	/>

@@ -91,6 +91,7 @@ export interface LegislativeInitiative {
 	title: string;
 	description: string;
 	emphasis: string | null;
+	ai_emphasis: string | null;
 	accepted: string | null;
 	created_at: Date;
 	appeared_at: Date | null;

@@ -81,7 +81,8 @@
 		}
 	}
 
-	$: rawEmphasis = voteResult?.legislative_initiative?.emphasis;
+	$: rawEmphasis = voteResult?.legislative_initiative?.emphasis ?? null;
+	$: rawAiEmphasis = voteResult?.legislative_initiative?.ai_emphasis;
 
 	$: issuedByDels = new Map<string, number[]>();
 	$: description = voteResult?.legislative_initiative?.description;
@@ -296,10 +297,11 @@
 						</div>
 					</div>
 				</div>
-				{#if rawEmphasis}
+				{#if rawEmphasis || rawAiEmphasis}
 					<div class="emphasis-item">
 						<Emphasis
 							{rawEmphasis}
+							{rawAiEmphasis}
 							isAiGenerated={voteResult.legislative_initiative.is_emphasis_ai_generated ?? false}
 						></Emphasis>
 					</div>
