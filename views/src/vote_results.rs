@@ -1,3 +1,4 @@
+use sqlx::types::Json;
 use sqlx::{Postgres, Transaction};
 
 pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sqlx::Result<()> {
@@ -203,8 +204,29 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
                   AND li2.is_voteable_on
               )
           ) AS \"references: Vec<DbReference>\",
+          (
+            SELECT
+              ROW(
+                s.id,
+                full_summary,
+                short_title,
+                short_summary,
+                detailed_summary,
+                complexity_scope_of_proposal,
+                model_used,
+                version,
+                generated_at
+              )::db_ai_summary
+            FROM
+              legislative_initiative_summaries lis
+              inner join summaries s on s.id = lis.summary_id
+            WHERE
+              lis.legis_init_id = li.id
+            order by
+              s.generated_at DESC
+            LIMIT 1
+          ) AS \"ai_summary: DbAiSummary\",
           NULL::meilisearch_helper as \"meilisearch_helper: MeilisearchHelper\"
-
         FROM
           legislative_initiatives li
         "
