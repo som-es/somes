@@ -1,4 +1,3 @@
-use sqlx::types::Json;
 use sqlx::{Postgres, Transaction};
 
 pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sqlx::Result<()> {
@@ -20,8 +19,7 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
                 appeared_at, updated_at, requires_simple_majority,
                 pre_declined_type, voted_by_name,
                 plenary_session_id, is_emphasis_ai_generated,
-                is_law, law_accepted, law_come_into_effect_date,
-                law_expires_on_date, by_publication,
+                is_law, law_accepted, 
                 has_reference, is_voteable_on, is_urgent,
                 voting
               )::db_legislative_initiative_query

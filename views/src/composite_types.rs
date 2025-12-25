@@ -4,7 +4,7 @@ use dataservice::combx::{
     DbSpeechWithLink, DbVote, MeilisearchHelper, Topic, VoteResult,
 };
 use somes_common_lib::{Document, FullMandate, ToCompositeType};
-use sqlx::{PgPool, Postgres, Transaction};
+use sqlx::{Postgres, Transaction};
 
 #[macro_export]
 macro_rules! run_composite_type_creation {

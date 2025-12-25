@@ -13,6 +13,7 @@
 	import checkmarkIcon from '$lib/assets/misc_icons/checkmark_small.svg?raw';
 	import VoteTypeBadge from '../VoteTypeBadge.svelte';
 	import { dashDateToDotDate } from '$lib/date';
+	import InfoBadges from '../InfoTiles/InfoBadges.svelte';
 
 	export let voteResult: VoteResult;
 	export let dels: Delegate[];
@@ -38,9 +39,22 @@
 				</div>
 			</div> -->
 			<div class="flex max-lg:flex-wrap items-center justify-between w-full">
-				<div class="text-md sm:text-lg font-semibold w-5/6">
-					{voteResult.legislative_initiative.description}
-				</div>
+
+				{#if voteResult.ai_summary}
+					<div class="flex flex-wrap flex-col w-5/6">
+						<span class="text-md sm:text-lg font-semibold ">
+							{voteResult.ai_summary.short_title}
+						</span>
+						<span class="text-sm sm:text-md">
+							{voteResult.ai_summary.short_summary}
+						</span>
+					</div>
+				{:else}
+					<span class="text-md sm:text-lg font-semibold w-5/6">
+						{voteResult.legislative_initiative.description}
+					</span>
+				{/if}
+
 				{#if voteResult.legislative_initiative.accepted !== null}
 					{#if voteResult.legislative_initiative.accepted == "a"}
 						<span class="stroke-green-600 dark:stroke-green-500 inline-block align-middle" style="width:30px; height:30px">{@html checkmarkIcon}</span>
@@ -49,16 +63,7 @@
 					{/if}
 				{:else}
 					<div></div>
-					<div class="flex max-sm:flex-wrap gap-1 mt-1">
-						{#if voteResult.legislative_initiative.requires_simple_majority}
-							<span class="badge bg-tertiary-400 text-black">einfache Mehrheit</span>
-						{:else}
-							<span class="badge bg-tertiary-400 text-black">2/3 Mehrheit</span>
-						{/if}
-						<span class="badge bg-tertiary-400 text-black">{voteResult.legislative_initiative.gp}</span>
-						<span class="badge bg-tertiary-400 text-black">{dashDateToDotDate(voteResult.legislative_initiative.created_at.toString())}</span>
-						<VoteTypeBadge {voteResult} />
-					</div>
+					<InfoBadges {voteResult} />
 				{/if}
 			</div>
 

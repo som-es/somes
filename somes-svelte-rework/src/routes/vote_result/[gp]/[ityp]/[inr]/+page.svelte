@@ -39,6 +39,10 @@
 	import { page } from '$app/stores';
 	import VoteTypeBadge from '$lib/components/VoteResults/VoteTypeBadge.svelte';
 	import Documents from '$lib/components/Documents/Documents.svelte';
+	import { dashDateToDotDate } from '$lib/date';
+	import InfoBadges from '$lib/components/VoteResults/InfoTiles/InfoBadges.svelte';
+	import crossmarkIcon from '$lib/assets/misc_icons/crossmark.svg?raw';
+	import checkmarkIcon from '$lib/assets/misc_icons/checkmark_small.svg?raw';
 
 	$: gp = $page.params.gp;
 	$: ityp = $page.params.ityp;
@@ -80,9 +84,6 @@
 			// TODO set general absences delegates -> mind to update absence delegates
 		}
 	}
-
-	$: rawEmphasis = voteResult?.legislative_initiative?.emphasis ?? null;
-	$: rawAiEmphasis = voteResult?.legislative_initiative?.ai_emphasis;
 
 	$: issuedByDels = new Map<string, number[]>();
 	$: description = voteResult?.legislative_initiative?.description;
@@ -203,13 +204,7 @@
 	// 	emphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
 	$: speeches = circles2d.flat(1).filter((circle) => circle.speech !== null);
 	$: parliamentUrl = `https://parlament.gv.at/gegenstand/${gp}/${ityp}/${inr}?utm_source=somes.at`;
-	$: documents =
-		voteResult?.documents.map((doc) => {
-			const url = `https://www.parlament.gv.at${doc.document_url}`;
-			doc.document_url = url;
-			return doc;
-		}) ?? [];
-
+	$: documents = voteResult?.documents ?? [];
 	$: votedByName = voteResult?.legislative_initiative.voted_by_name ?? false;
 	$: couldExtractNamedVotes =
 		(voteResult?.named_votes?.named_votes?.length ?? 0) > 0 && votedByName;
@@ -236,19 +231,38 @@
 			<div class="entry bg-primary-200 dark:bg-primary-400 mt-3 grid-container-with-emphasis">
 				<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
 					<div class="flex justify-between items-center">
-						<div>
-							<h1 class="font-bold text-xl md:text-3xl">
+						<div class="flex flex-wrap flex-col gap-1">
+							<!-- <h1 class="font-bold text-xl md:text-3xl">
 								{#if voteResult?.legislative_initiative.accepted}
 									{voteResult.legislative_initiative.voted_by_name ? 'namentliche ' : ''}Abstimmung
 									über
 								{:else}
 									Gegenstand
 								{/if}
-							</h1>
-							<span class="text-xl">{description}</span>
-							<VoteTypeBadge {voteResult} />
+							</h1> -->
+
+							<div class="flex">
+								<span class="text-3xl font-bold">
+									{#if voteResult.ai_summary}
+										{voteResult.ai_summary.short_title}
+									{:else}
+										{description}
+									{/if}	
+								</span>
+								{#if voteResult.legislative_initiative.accepted}
+									{#if voteResult.legislative_initiative.accepted == 'a'}
+										<span class="mr-1 md:mr-2 stroke-green-600 dark:stroke-green-500 inline-block align-middle" style="width:60px; height:60px;">{@html checkmarkIcon}</span>
+									{:else}
+										<span class="mr-1 md:mr-2 inline-block align-middle" style="width:60px; height:60px;">{@html crossmarkIcon}</span>
+									{/if}
+
+								{/if}
+							</div>
+							<span>{voteResult.legislative_initiative.voted_by_name ? 'namentlich ' : ''}abgestimmt am {dashDateToDotDate(voteResult.legislative_initiative.created_at.toString())}</span>
+							<InfoBadges {voteResult} />
 						</div>
-						<div class="flex flex-wrap items-center gap-1">
+						
+						<div class="flex flex-wrap items-center ml-2 gap-2">
 							<a href={parliamentUrl} target="_blank">
 								<img
 									class="w-12"
@@ -256,7 +270,6 @@
 									src="https://www.parlament.gv.at/static/img/favicon/favicon.svg"
 								/>
 							</a>
-
 							{#if legisInitFavos}
 								{#if legisInitFavos.has(+voteResult.legislative_initiative.id)}
 									<button
@@ -297,12 +310,15 @@
 						</div>
 					</div>
 				</div>
-				{#if rawEmphasis || rawAiEmphasis}
+				{#if voteResult.ai_summary}
+					<div class="emphasis-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 pt-3 pb-3">
+						
+						<h1 class="font-bold text-lg md:text-2xl">Zusammenfassung</h1>
+						{voteResult.ai_summary.short_summary}	
+					</div>
 					<div class="emphasis-item">
 						<Emphasis
-							{rawEmphasis}
-							{rawAiEmphasis}
-							isAiGenerated={voteResult.legislative_initiative.is_emphasis_ai_generated ?? false}
+							emphasis={voteResult.ai_summary.full_summary.key_points}
 						></Emphasis>
 					</div>
 				{/if}

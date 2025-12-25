@@ -1,24 +1,10 @@
 <script lang="ts">
+	import type { Keypoint } from '$lib/ai_summary_types';
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import collapse from 'svelte-collapse';
 
-	export let rawEmphasis: string | null;
-	export let rawAiEmphasis: string | null = null;
-	export let isAiGenerated: boolean = false;
+	export let emphasis: Keypoint[] | null;
 	export let useTitleHover: boolean = false;
-
-	$: emphasis = (rawEmphasis ?? rawAiEmphasis)
-		?.split('\n')
-		.filter((x) => x.length > 10)
-		.map((x) => {
-			let trim = x.trim();
-			if (trim.startsWith('-')) {
-				trim = trim.slice(1).trim();
-			}
-			return trim;
-		});
-
-	$: isAiGenerated;
 
 	const popupFeatured: PopupSettings = {
 		event: 'hover',
@@ -27,12 +13,12 @@
 	};
 
 	const aiGenText =
-		'Diese Schwerpunkte wurden mittels KI aus dem jeweiligen Gesetzestext zusammengefasst.';
+		'Diese Schwerpunkte wurden mittels KI aus den jeweiligen Dokumenten zusammengefasst.';
 	const titleHover = useTitleHover ? aiGenText : '';
 
 	let open = false;
-	let firstThreePoints: string[] = [];
-	let restPoints: string[] = [];
+	let firstThreePoints: Keypoint[] = [];
+	let restPoints: Keypoint[] = [];
 	$: if (emphasis) {
 		firstThreePoints = emphasis.slice(0, 3);
 		restPoints = emphasis.slice(3);
@@ -49,16 +35,14 @@
 					<div class="z-50 font-bold text-xl">{aiGenText}</div>
 				</div>
 
-				{#if isAiGenerated && rawEmphasis == null}
-					<button class="text-4xl" title={titleHover} use:popup={popupFeatured}>⚠</button>
-				{/if}
+				<button class="text-4xl" title={titleHover} use:popup={popupFeatured}>⚠</button>
 			</div>
 
 			<ul class="mt-1 list fill-primary-400 px-7">
 				{#each firstThreePoints as emph}
 					<li class="my-3">
 						<span class="badge bg-primary-500 dark:bg-primary-300"></span>
-						<span>{emph}</span>
+						<span>{emph.point}</span>
 					</li>
 				{/each}
 
@@ -66,7 +50,7 @@
 					{#each restPoints as emph}
 						<li class="my-3">
 							<span class="badge bg-primary-500 dark:bg-primary-300"></span>
-							<span>{emph}</span>
+							<span>{emph.point}</span>
 						</li>
 					{/each}
 				</div>

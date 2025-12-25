@@ -1,3 +1,4 @@
+import type { AiSummary, DbAiSummary } from './ai_summary_types';
 import type { Decree } from './components/Delegates/Decrees/types';
 
 export interface DelegateSplit {
@@ -188,6 +189,7 @@ export interface VoteResult {
 	issued_by_dels: RelatedDelegate[];
 	referenced_by_others_ids: number[];
 	references: Reference[];
+	ai_summary: DbAiSummary | null;
 }
 
 export function createVoteResultPath(voteResult: VoteResult): string {
