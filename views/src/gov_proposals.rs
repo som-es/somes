@@ -89,7 +89,29 @@ pub async fn create_gov_proposals_view<'a>(tx: &mut Transaction<'a, Postgres>) -
             WHERE
               ministrial_proposal_id = mp.id
            ) 
-        ) AS \"ministerial_issuers: Vec<i32>\"
+        ) AS \"ministerial_issuers: Vec<i32>\",
+        (
+            SELECT
+              ROW(
+                s.id,
+                full_summary,
+                short_title,
+                short_summary,
+                detailed_summary,
+                complexity_scope_of_proposal,
+                model_used,
+                version,
+                generated_at
+              )::db_ai_summary
+            FROM
+              ministerial_proposal_summaries mps
+              inner join summaries s on s.id = mps.summary_id
+            WHERE
+              mps.ministerial_proposal_id = mp.id
+            order by
+              s.generated_at DESC
+            LIMIT 1
+          ) AS \"ai_summary: DbAiSummary\"
 
         from ministrial_proposals mp
         "
