@@ -1,7 +1,6 @@
 <script lang="ts">
 	import '../app.postcss';
 	import {
-		AppShell,
 		Drawer,
 		initializeStores,
 		Modal,
@@ -66,38 +65,25 @@
 	{/if}
 </Drawer>
 
-<!--
 <div class="grid h-screen grid-rows-[auto_1fr_auto]">
-	<header class="sticky top-0 z-[10000000]">
+	<header class="lg:hidden sticky top-0 z-[0]">
 		<Navbar />
 	</header>
-	<div class="grid grid-cols-1 md:grid-cols-[auto_1fr]">
-		<aside class="sticky top-[67.5px] z-50 col-span-1 h-[calc(100vh-67.5px)]">
-			<Sidebar class="hidden sm:grid" />
+	<div class="grid grid-cols-[auto_1fr]">
+    <!-- Left Sidebar. -->
+		<aside class="sticky top-0 col-span-1 h-screen">
+			<Sidebar class="hidden lg:grid" />
 		</aside>
-		<main class="space-y-4">
-			<slot></slot>
+		<!-- Main Content -->
+		<main>
+			<slot />
 		</main>
 	</div>
-	<footer class="sm:!hidden">
-		<Bottombar />
-	</footer>
-</div> -->
-
-<AppShell>
-	<svelte:fragment slot="header">
-		<Navbar />
-	</svelte:fragment>
-	<svelte:fragment slot="sidebarLeft">
-		<Sidebar class="hidden lg:grid" />
-	</svelte:fragment>
-	<svelte:fragment slot="footer">
-		<div class="sm:!hidden max-h-[4.5rem]">
+  	<footer class="sticky bottom-0 z-50">
+		<div class=" sm:!hidden max-h-[4.5rem]">
 			<Bottombar />
 		</div>
-	</svelte:fragment>
-	<slot />
-</AppShell>
-
+  </footer>
+</div>
 <style>
 </style>

@@ -100,28 +100,42 @@
 						</div>
 					{:else}
 						<!-- Roll call votes -->
+
 						<div class="block sm:flex w-full mb-3">
 							<div class="flex items-center mb-1 sm:mb-0">
 								<span class="mr-1 stroke-green-600 dark:stroke-green-500 inline-block align-middle" style="width:20px; height:20px;">{@html checkmarkIcon}</span>
-							{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
-								{#if vote.infavor}
-									<div class="flex items-center">
-										<h4 class="text-sm mr-1">{vote.party}</h4>
-										<h4 class="text-sm mr-2 text-gray-800">{vote.fraction}</h4>
-									</div>
-								{/if}
-							{/each}
-							</div>
-							<div class="flex flex-wrap items-center">
-								<span class="mr-1 ml-0 sm:ml-3 inline-block align-middle" style="width:20px; height:20px;">{@html crossmarkIcon}</span>
+
+							{#if voteResult.votes.length > 0}
 								{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
-									{#if !vote.infavor}
+									{#if vote.infavor}
 										<div class="flex items-center">
 											<h4 class="text-sm mr-1">{vote.party}</h4>
 											<h4 class="text-sm mr-2 text-gray-800">{vote.fraction}</h4>
 										</div>
 									{/if}
 								{/each}
+							{:else}
+								<h4 class="text-sm text-gray-800">
+									{voteResult.named_votes.named_vote_info.pro_count}
+								</h4>
+							{/if}
+							</div>
+							<div class="flex flex-wrap items-center">
+								<span class="mr-1 ml-0 sm:ml-3 inline-block align-middle" style="width:20px; height:20px;">{@html crossmarkIcon}</span>
+								{#if voteResult.votes.length > 0}
+									{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
+										{#if !vote.infavor}
+											<div class="flex items-center">
+												<h4 class="text-sm mr-1">{vote.party}</h4>
+												<h4 class="text-sm mr-2 text-gray-800">{vote.fraction}</h4>
+											</div>
+										{/if}
+									{/each}
+								{:else}
+									<h4 class="text-sm text-gray-800">
+										{voteResult.named_votes.named_vote_info.contra_count}
+									</h4>
+								{/if}
 							</div>
 						</div>
 						<div class="max-lg:hidden flex max-h-6 gap-1">

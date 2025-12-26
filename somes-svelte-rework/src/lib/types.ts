@@ -82,6 +82,7 @@ export interface GovProposal {
 	other_keyword_topics: Topic[];
 	ministerial_issuers: number[];
 	documents: Document[];
+	ai_summary: DbAiSummary | null;
 }
 
 export interface LegislativeInitiative {
@@ -103,9 +104,6 @@ export interface LegislativeInitiative {
 	pre_declined_type: string | null;
 	plenary_session_id: number | null;
 	is_law: boolean;
-	law_accepted: boolean | null;
-	law_come_into_effect_date: string | null;
-	law_expires_on_date: string | null;
 	by_publication: boolean | null;
 	voting: string | null;
 	is_voteable_on: boolean;
@@ -188,7 +186,7 @@ export interface VoteResult {
 	absences: number[];
 	issued_by_dels: RelatedDelegate[];
 	referenced_by_others_ids: number[];
-	references: Reference[];
+	references: Reference[] | null;
 	ai_summary: DbAiSummary | null;
 }
 

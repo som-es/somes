@@ -1,9 +1,11 @@
 <script lang="ts">
-	import type { Keypoint } from '$lib/ai_summary_types';
+	import type { Glossary, Keypoint } from '$lib/ai_summary_types';
+	import GlossaryText from '$lib/components/UI/GlossaryText.svelte';
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import collapse from 'svelte-collapse';
 
 	export let emphasis: Keypoint[] | null;
+	export let glossary: Glossary | null = null;
 	export let useTitleHover: boolean = false;
 
 	const popupFeatured: PopupSettings = {
@@ -20,8 +22,8 @@
 	let firstThreePoints: Keypoint[] = [];
 	let restPoints: Keypoint[] = [];
 	$: if (emphasis) {
-		firstThreePoints = emphasis.slice(0, 3);
-		restPoints = emphasis.slice(3);
+		firstThreePoints = emphasis.slice(0, 2);
+		restPoints = emphasis.slice(2);
 	}
 </script>
 
@@ -29,7 +31,7 @@
 	{#if emphasis.length > 0}
 		<div class="emphasis-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 pt-3 pb-3">
 			<div class="flex justify-between">
-				<h1 class="font-bold text-lg md:text-2xl">Schwerpunkte</h1>
+				<h1 class="font-bold text-md md:text-xl">Schwerpunkte</h1>
 
 				<div class="!z-50 card p-4 w-72 shadow-xl" data-popup="emphasisAi">
 					<div class="z-50 font-bold text-xl">{aiGenText}</div>
@@ -38,19 +40,31 @@
 				<button class="text-4xl" title={titleHover} use:popup={popupFeatured}>⚠</button>
 			</div>
 
-			<ul class="mt-1 list fill-primary-400 px-7">
+			<ul class="list fill-primary-400 px-7">
 				{#each firstThreePoints as emph}
-					<li class="my-3">
-						<span class="badge bg-primary-500 dark:bg-primary-300"></span>
-						<span>{emph.point}</span>
+					<li class="mb-3">
+						<span class="badge text-sm lg:text-base  bg-primary-500 dark:bg-primary-300"></span>
+						{#if glossary}
+							<span>
+								<GlossaryText text={emph.point} glossary={glossary} />
+							</span>
+						{:else}
+							<span>{emph.point}</span>
+						{/if}
 					</li>
 				{/each}
 
 				<div use:collapse={{ open }}>
 					{#each restPoints as emph}
 						<li class="my-3">
-							<span class="badge bg-primary-500 dark:bg-primary-300"></span>
-							<span>{emph.point}</span>
+							<span class="badge text-sm lg:text-base bg-primary-500 dark:bg-primary-300"></span>
+							{#if glossary}
+								<span>
+									<GlossaryText text={emph.point} glossary={glossary} />
+								</span>
+							{:else}
+								<span>{emph.point}</span>
+							{/if}
 						</li>
 					{/each}
 				</div>

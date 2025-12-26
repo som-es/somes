@@ -16,17 +16,14 @@
                 case "Resolution":
                     badgeText = "Entschließung"
                     break;
+                case "Report":
+                    badgeText = "Bericht"
+                    break;
                 default:
                     badgeText = ""
             }
         } else {
-            if (voteResult.legislative_initiative.is_law) {
-                badgeText = "Gesetz"
-            } else if (voteResult.legislative_initiative.ityp == "AA") {
-                badgeText = "Abänderung"
-            } else {
-                badgeText = "Entschließung"
-            }
+            badgeText = "Andere"
         }
     }
 </script>

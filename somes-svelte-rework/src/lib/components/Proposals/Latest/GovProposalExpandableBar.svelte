@@ -46,7 +46,16 @@
 		</div> -->
 
 		<div class="flex flex-col gap-1">
-			<span>{govProposal.gov_proposal.ministrial_proposal.description.slice(30)}</span>
+			{#if govProposal.gov_proposal.ai_summary}
+				<span class="text-md sm:text-lg font-semibold ">
+					{govProposal.gov_proposal.ai_summary.short_title}
+				</span>
+				<span class="text-sm sm:text-md">
+					{govProposal.gov_proposal.ai_summary.short_summary}
+				</span>
+			{:else}
+				<span>{govProposal.gov_proposal.ministrial_proposal.description.slice(30)}</span>
+			{/if}
 			<div class="flex flex-wrap gap-1">
 				<span class="badge bg-tertiary-400 text-black text-wrap"
 					>{govProposal.gov_proposal.ministrial_proposal.ressort}</span

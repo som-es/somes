@@ -7,8 +7,6 @@
 
 	export let govProposal: GovProposalDelegate;
 
-	govProposal.gov_proposal.ministrial_proposal.emphasis = '';
-	// 'Hasdfkadsfaadakjfklsafklasödjfklösdfjöklskdfljdskflsdfsdsdfdsaf\nCooler test!\n';
 
 	$: documentUrl = `https://parlament.gv.at/gegenstand/${govProposal.gov_proposal.ministrial_proposal.gp}/ME/${govProposal.gov_proposal.ministrial_proposal.inr}`;
 </script>
@@ -34,8 +32,9 @@
 				</a>
 			</div>
 		</div>
-		{#if govProposal.gov_proposal.ministrial_proposal.emphasis}
-			<Emphasis rawEmphasis={govProposal.gov_proposal.ministrial_proposal.emphasis} />
+		{#if govProposal.gov_proposal.ai_summary}
+			<Emphasis 
+				emphasis={govProposal.gov_proposal.ai_summary.full_summary.key_points} useTitleHover glossary={govProposal.gov_proposal.ai_summary.full_summary.glossary} />
 		{/if}
 		<div class="flex flex-wrap gap-2 w-full">
 			<div class="flex flex-wrap gap-1 rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
