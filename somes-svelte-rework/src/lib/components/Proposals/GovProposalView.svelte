@@ -3,6 +3,7 @@
 	import Emphasis from '$lib/components/VoteResults/Emphasis/Emphasis.svelte';
 	import { dashDateToDotDate } from '$lib/date';
 	import type { GovProposalDelegate } from '$lib/types';
+	import AiSummaryHintPopup from '../AiHint/AiSummaryHintPopup.svelte';
 	import DelegateCard from '../Delegates/DelegateCard.svelte';
 
 	export let govProposal: GovProposalDelegate;
@@ -20,7 +21,14 @@
 		<div class="rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
 			<div class="flex justify-between">
 				<div>
-					<h1 class="font-bold text-xl md:text-3xl">Ministerialentwurf</h1>
+					<div class="flex">
+						<h1 class="font-bold text-xl md:text-3xl">Ministerialentwurf</h1> 
+						{#if govProposal.gov_proposal.ai_summary}
+							<AiSummaryHintPopup
+								aiSummary={govProposal.gov_proposal.ai_summary}
+							/>
+						{/if}
+					</div>
 					<span class="md:text-xl">{govProposal.gov_proposal.ministrial_proposal.description}</span>
 				</div>
 				<a href={documentUrl} target="_blank">
@@ -34,7 +42,9 @@
 		</div>
 		{#if govProposal.gov_proposal.ai_summary}
 			<Emphasis 
-				emphasis={govProposal.gov_proposal.ai_summary.full_summary.key_points} useTitleHover glossary={govProposal.gov_proposal.ai_summary.full_summary.glossary} />
+				emphasis={govProposal.gov_proposal.ai_summary.full_summary.key_points} 
+				glossary={govProposal.gov_proposal.ai_summary.full_summary.glossary} 
+			/>
 		{/if}
 		<div class="flex flex-wrap gap-2 w-full">
 			<div class="flex flex-wrap gap-1 rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">

@@ -42,7 +42,6 @@
 		<Emphasis
 			emphasis={voteResult.ai_summary.full_summary.key_points}
 			glossary={voteResult.ai_summary.full_summary.glossary}
-			useTitleHover
 		/>
 	{/if}
 	<div class="rounded-md w-full bg-primary-100 parliament-item mt-3 mb-3">
@@ -77,7 +76,6 @@
 		<Emphasis
 			emphasis={voteResult.ai_summary.full_summary.key_points}
 			glossary={voteResult.ai_summary.full_summary.glossary}
-			useTitleHover
 		/>
 	{/if}
 

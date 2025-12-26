@@ -1,22 +1,10 @@
 <script lang="ts">
 	import type { Glossary, Keypoint } from '$lib/ai_summary_types';
 	import GlossaryText from '$lib/components/UI/GlossaryText.svelte';
-	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import collapse from 'svelte-collapse';
 
 	export let emphasis: Keypoint[] | null;
 	export let glossary: Glossary | null = null;
-	export let useTitleHover: boolean = false;
-
-	const popupFeatured: PopupSettings = {
-		event: 'hover',
-		target: 'emphasisAi',
-		placement: 'bottom'
-	};
-
-	const aiGenText =
-		'Diese Schwerpunkte wurden mittels KI aus den jeweiligen Dokumenten zusammengefasst.';
-	const titleHover = useTitleHover ? aiGenText : '';
 
 	let open = false;
 	let firstThreePoints: Keypoint[] = [];
@@ -32,12 +20,6 @@
 		<div class="emphasis-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 pt-3 pb-3">
 			<div class="flex justify-between">
 				<h1 class="font-bold text-md md:text-xl">Schwerpunkte</h1>
-
-				<div class="!z-50 card p-4 w-72 shadow-xl" data-popup="emphasisAi">
-					<div class="z-50 font-bold text-xl">{aiGenText}</div>
-				</div>
-
-				<button class="text-4xl" title={titleHover} use:popup={popupFeatured}>⚠</button>
 			</div>
 
 			<ul class="list fill-primary-400 px-7">

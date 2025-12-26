@@ -54,7 +54,7 @@
 
 <div class="sm:hidden entry bg-primary-200 dark:bg-primary-400 mt-3">
 	{#if aiSummary}
-		<Emphasis emphasis={aiSummary.full_summary.key_points} useTitleHover glossary={aiSummary.full_summary.glossary} />
+		<Emphasis emphasis={aiSummary.full_summary.key_points} glossary={aiSummary.full_summary.glossary} />
 	{/if}
 
 	{#if govProposal.vote_result}
@@ -104,7 +104,7 @@
 <div class="max-lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3 {whichGridContainer}">
 	<!--  -->
 	{#if aiSummary}
-		<Emphasis emphasis={aiSummary.full_summary.key_points} useTitleHover glossary={aiSummary.full_summary.glossary} />
+		<Emphasis emphasis={aiSummary.full_summary.key_points} glossary={aiSummary.full_summary.glossary} />
 	{/if}
 
 	{#if govProposal.topics.length > 0}

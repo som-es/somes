@@ -16,7 +16,6 @@
         const termReplacements = [];
         for (const [term, definition] of definitionMap) {
             const termRegex = new RegExp(`\\b${term}`, 'gi');
-            console.log(`regex for term "${term}":`, termRegex);
 
             const match = termRegex.exec(text);
             if (match) {

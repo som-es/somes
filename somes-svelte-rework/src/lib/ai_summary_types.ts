@@ -4,6 +4,7 @@ export type DbAiSummary = {
   short_title: string
   short_summary: string
   detailed_summary: string
+  very_detailed_summary: string
   complexity_scope_of_proposal: string
   model_used: string
   version: string
