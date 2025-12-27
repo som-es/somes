@@ -30,15 +30,14 @@ pub use verify::*;
 pub use vote_results::*;
 pub use walo::*;
 
-use crate::PgPoolConnection;
+use crate::{GenericError, PgPoolConnection};
 
 pub async fn all_gps_route(
     PgPoolConnection(pg): PgPoolConnection,
-) -> Result<Json<Vec<dataservice::combx::with_data::gps::LegislativePeriod>>, Json<serde_json::Value>>
-{
+) -> Result<Json<Vec<dataservice::combx::with_data::gps::LegislativePeriod>>, GenericError> {
     Ok(Json(
         dataservice::combx::with_data::gps::gps(&pg)
             .await
-            .map_err(|_| Json(json!({"error": "could not return all legislative periods"})))?,
+            .map_err(|e| GenericError::SqlFailure(Some(e)))?,
     ))
 }

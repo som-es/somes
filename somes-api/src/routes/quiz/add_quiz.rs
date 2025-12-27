@@ -3,7 +3,7 @@ use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use sqlx::{query, PgPool};
 
-use crate::{jwt::Claims, GenericErrorResponse, PgPoolConnection};
+use crate::{jwt::Claims, GenericError, PgPoolConnection};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct QuizQuestionNoCorrection {
@@ -35,9 +35,9 @@ pub async fn add_quiz_handler(pg: &PgPool, user_id: i32, quiz: Quiz) -> crate::R
     let is_admin = query!("select is_admin from somes_user where id = $1", user_id)
         .fetch_one(pg)
         .await
-        .map_err(|e| GenericErrorResponse::DbSelectFailure(Some(e)))?;
+        .map_err(|e| GenericError::SqlFailure(Some(e)))?;
     if !is_admin.is_admin {
-        return Err(GenericErrorResponse::Custom((
+        return Err(GenericError::Custom((
             StatusCode::UNAUTHORIZED,
             "missing permissions",
         )));
@@ -50,7 +50,7 @@ pub async fn add_quiz_handler(pg: &PgPool, user_id: i32, quiz: Quiz) -> crate::R
     )
     .fetch_one(pg)
     .await
-    .map_err(|e| GenericErrorResponse::DbSelectFailure(Some(e)))?;
+    .map_err(|e| GenericError::SqlFailure(Some(e)))?;
 
     for question in quiz.questions {
         query!(
@@ -67,7 +67,7 @@ pub async fn add_quiz_handler(pg: &PgPool, user_id: i32, quiz: Quiz) -> crate::R
         )
         .execute(pg)
         .await
-        .map_err(|e| GenericErrorResponse::DbSelectFailure(Some(e)))?;
+        .map_err(|e| GenericError::SqlFailure(Some(e)))?;
     }
 
     Ok(())

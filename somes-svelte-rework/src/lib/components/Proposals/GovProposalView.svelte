@@ -5,6 +5,7 @@
 	import type { GovProposalDelegate } from '$lib/types';
 	import AiSummaryHintPopup from '../AiHint/AiSummaryHintPopup.svelte';
 	import DelegateCard from '../Delegates/DelegateCard.svelte';
+	import GlossaryText from '../UI/GlossaryText.svelte';
 
 	export let govProposal: GovProposalDelegate;
 
@@ -13,11 +14,15 @@
 </script>
 
 <title>
-	{govProposal.gov_proposal.ministrial_proposal.description}
+	{#if govProposal.gov_proposal.ai_summary}
+		{govProposal.gov_proposal.ai_summary.short_title}
+	{:else}
+		{govProposal.gov_proposal.ministrial_proposal.description}
+	{/if}
 </title>
 
 <div class="entry bg-primary-200 dark:bg-primary-400 mt-3 flex max-lg:flex-wrap gap-3">
-	<div class="flex flex-col gap-3 w-full">
+	<div class="flex flex-col gap-2 w-full">
 		<div class="rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
 			<div class="flex justify-between">
 				<div>
@@ -29,7 +34,13 @@
 							/>
 						{/if}
 					</div>
-					<span class="md:text-xl">{govProposal.gov_proposal.ministrial_proposal.description}</span>
+					<span class="md:text-xl">
+						{#if govProposal.gov_proposal.ai_summary}
+							{govProposal.gov_proposal.ai_summary.short_title}
+						{:else}
+							{govProposal.gov_proposal.ministrial_proposal.description}
+						{/if}
+					</span>
 				</div>
 				<a href={documentUrl} target="_blank">
 					<img
@@ -40,7 +51,14 @@
 				</a>
 			</div>
 		</div>
+
 		{#if govProposal.gov_proposal.ai_summary}
+			<div class="emphasis-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 pt-3 pb-3">
+				<h1 class="font-bold text-lg md:text-xl">Zusammenfassung</h1>
+				<span class="text-sm lg:text-base">
+					<GlossaryText text={govProposal.gov_proposal.ai_summary.short_summary} glossary={govProposal.gov_proposal.ai_summary.full_summary.glossary} />
+				</span>
+			</div>
 			<Emphasis 
 				emphasis={govProposal.gov_proposal.ai_summary.full_summary.key_points} 
 				glossary={govProposal.gov_proposal.ai_summary.full_summary.glossary} 

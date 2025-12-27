@@ -34,6 +34,8 @@ pub enum UserError {
     AuthError(AuthError),
     #[error("sign up error")]
     SignUpError(SignUpErrorWrapper),
+    #[error("{1}")]
+    Custom(StatusCode, String),
 }
 
 impl IntoResponse for UserError {
@@ -66,6 +68,7 @@ impl IntoResponse for UserError {
                     .into_response();
             }
             UserError::AuthError(ae) => return ae.into_response(),
+            UserError::Custom(code, msg) => (*code, msg.clone()),
         };
 
         let body = Json(ErrorInfo {
