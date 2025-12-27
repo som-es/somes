@@ -72,7 +72,7 @@
 		</div>
 		<!-- <div>{voteResult.legislative_initiative.description}</div> -->
 
-		{#if govProposal.gov_proposal.vote_result}
+		{#if govProposal.gov_proposal.vote_result && govProposal.gov_proposal.vote_result.legislative_initiative.accepted !== null}
 			<button
 				class="max-sm:hidden z-20 w-[7.5rem] bg-primary-100 dark:bg-primary-300 rounded-md"
 				on:click={() => onShowDetails(govProposal.gov_proposal.vote_result)}

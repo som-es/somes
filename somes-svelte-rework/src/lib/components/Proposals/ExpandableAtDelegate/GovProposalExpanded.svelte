@@ -57,7 +57,7 @@
 		<Emphasis emphasis={aiSummary.full_summary.key_points} glossary={aiSummary.full_summary.glossary} />
 	{/if}
 
-	{#if govProposal.vote_result}
+	{#if govProposal.vote_result && govProposal.vote_result.legislative_initiative.accepted !== null}
 		<div class="rounded-md w-full bg-primary-100 parliament-item mt-3 mb-3">
 			<VoteParliament2
 				voteResult={govProposal.vote_result}
