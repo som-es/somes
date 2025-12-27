@@ -1,5 +1,4 @@
 use axum::Json;
-use serde_json::json;
 use somes_common_lib::LegisInitFavo;
 use sqlx::query_as;
 

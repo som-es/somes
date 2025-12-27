@@ -44,6 +44,7 @@
 	import crossmarkIcon from '$lib/assets/misc_icons/crossmark.svg?raw';
 	import checkmarkIcon from '$lib/assets/misc_icons/checkmark_small.svg?raw';
 	import GlossaryText from '$lib/components/UI/GlossaryText.svelte';
+	import AiSummaryHintPopup from '$lib/components/AiHint/AiSummaryHintPopup.svelte';
 
 	$: gp = $page.params.gp;
 	$: ityp = $page.params.ityp;
@@ -237,6 +238,9 @@
 							<div class="flex flex-col">
 								<span class="text-3xl font-bold leading-tight">
 									{#if voteResult.ai_summary}
+										<AiSummaryHintPopup
+											aiSummary={voteResult.ai_summary}
+										/>
 										{voteResult.ai_summary.short_title}
 									{:else}
 										{description}
