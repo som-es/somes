@@ -157,7 +157,10 @@
 	<div class="flex gap-3 flex-wrap">
 		{#if showAchievedVotes && voteResult.legislative_initiative.accepted}
 			<Square {squareSize} class={squareClasses}>
-				<SimpleDonut stops={conicsStopsAchievedVotes} {isLightMode} />
+				<SimpleDonut stops={conicsStopsAchievedVotes} {isLightMode} 
+					mark50={voteResult.legislative_initiative.requires_simple_majority ?? false}
+					mark66={!(voteResult.legislative_initiative.requires_simple_majority ?? true)}
+				/>
 
 				{#if showText}
 					<div>Erreichte</div>

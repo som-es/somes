@@ -290,9 +290,15 @@
 						</div>
 						
 						<div class="flex-1 flex justify-end">
-							<Topics topics={voteResult.eurovoc_topics.sort((a, b) => {
+							{#if voteResult.ai_summary && voteResult.eurovoc_topics.length == 0}
+								<Topics topics={voteResult.ai_summary.full_summary.topics.sort((a, b) => {
+										return a.length - b.length;
+									}).map(topic => {return {topic}})} />
+							{:else}
+								<Topics topics={voteResult.eurovoc_topics.sort((a, b) => {
 									return a.topic.length - b.topic.length;
 								})} />
+							{/if}
 						</div>
 					</div>
 				</div>

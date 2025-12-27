@@ -4,7 +4,7 @@
 
     export let aiSummary: DbAiSummary;
     export let useTitleHover: boolean = false;
-    export let aiGenText: string = "Titel, Zusammenfassungen, Schwerpunkte und Glossar wurden mittels KI aus den jeweiligen Dokumenten zusammengefasst.";
+    export let aiGenText: string = "Titel, Zusammenfassungen, Schwerpunkte, Gültigkeitszeiträume, Themen und Glossar wurden mittels KI aus den jeweiligen Dokumenten zusammengefasst.";
 
     $: titleHover = useTitleHover ? aiGenText : '';
 
