@@ -38,6 +38,7 @@ pub async fn speechtime_per_age(
 ) -> Result<Json<Vec<AgeSpeechTime>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
 
+
     let key = format!("speechtime_per_age/{:?}", filter);
     if let Some(entry) = get_json_cache(&mut redis_client, &key).await {
         return Ok(Json(entry));

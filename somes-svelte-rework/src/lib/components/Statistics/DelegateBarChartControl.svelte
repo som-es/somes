@@ -111,6 +111,9 @@
 				return `${text.slice(0, 15)}...`;
 			}
 		}
+		if (text.length > 15) {
+			return `${text.slice(0, 15)}...`;
+		}
 		return `${text}`;
 	};
 
