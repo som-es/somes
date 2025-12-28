@@ -194,183 +194,187 @@
 		});
 	};
 </script>
-
 <Container>
 	<DelegateBarChartControl
-	height={tableHeightDelegate}
-	id={0}
-	delegateMakeRequest={delegateSimpleSpeeches}
-	title="Reden pro Abgeordneten"
-	config={{
-		filter_info_1: {
-			name: "Partei",
-			isShown: false,
-			infoText:
-				"Filtert die Ergebnisse nach Partei. Es werden nur Abgeordnete der ausgewählten Partei angezeigt."
-		},
-		filter_info_2: {
-			name: "Geschlecht",
-			isShown: true,
-			infoText:
-				"Filtert die Ergebnisse nach dem Geschlecht der Abgeordneten."
-		},
-		filter_info_3: {
-			name: "Normalisierung",
-			isShown: true,
-			infoText:
-				"Zeigt die durchschnittlihe Anzahl an Reden pro Sitzung statt der Gesamtzahl der Reden."
-		},
-		filter_info_4: {
-			name: "Absteigend",
-			isShown: true,
-			infoText:
-				"Sortiert die Liste absteigend (höchste Werte zuerst), wenn aktiviert."
-		}
-	}}
-/>
-
+		height={tableHeightDelegate}
+		id={0}
+		delegateMakeRequest={delegateSimpleSpeeches}
+		title="Reden pro Abgeordneten"
+		config={{
+			filters: [
+				{
+					id: 'primary',
+					name: "Partei",
+					isShown: false,
+					infoText: "Filtert die Ergebnisse nach Partei. Es werden nur Abgeordnete der ausgewählten Partei angezeigt."
+				},
+				{
+					id: 'gender',
+					name: "Geschlecht",
+					isShown: true,
+					infoText: "Filtert die Ergebnisse nach dem Geschlecht der Abgeordneten."
+				},
+				{
+					id: 'normalized',
+					name: "Normalisierung",
+					isShown: true,
+					infoText: "Zeigt die durchschnittlihe Anzahl an Reden pro Sitzung statt der Gesamtzahl der Reden."
+				},
+				{
+					id: 'desc',
+					name: "Absteigend",
+					isShown: true,
+					infoText: "Sortiert die Liste absteigend (höchste Werte zuerst), wenn aktiviert."
+				}
+			]
+		}}
+	/>
 </Container>
 
 <Container>
 	<DelegateBarChartControl
-	height={tableHeightParty}
-	id={1}
-	delegateMakeRequest={partySimpleSpeeches}
-	title="Reden nach Parteien"
-	config={{
-		filter_info_1: {
-			name: "Partei",
-			isShown: true,
-			infoText:
-				"Filtert die Ergebnisse nach Partei. Es werden nur ausgewählte Parteien angezeigt."
-		},
-		filter_info_2: {
-			name: "Geschlecht",
-			isShown: false,
-			infoText:
-				"Dieser Filter hat in dieser Ansicht keine Funktion."
-		},
-		filter_info_3: {
-			name: "Normalisierung",
-			isShown: true,
-			infoText:
-				"Zeigt die durchschnittliche Anzahl an Reden pro Parteimitglied statt der gesamten Reden der Partei."
-		},
-		filter_info_4: {
-			name: "Absteigend",
-			isShown: true,
-			infoText:
-				"Sortiert die Ergebnisse absteigend (höchste Werte zuerst)."
-		}
-	}}
-/>
-
+		height={tableHeightParty}
+		id={1}
+		delegateMakeRequest={partySimpleSpeeches}
+		title="Reden nach Parteien"
+		config={{
+			filters: [
+				{
+					id: 'primary',
+					name: "Partei",
+					isShown: true,
+					infoText: "Filtert die Ergebnisse nach Partei. Es werden nur ausgewählte Parteien angezeigt."
+				},
+				{
+					id: 'gender',
+					name: "Geschlecht",
+					isShown: false,
+					infoText: "Dieser Filter hat in dieser Ansicht keine Funktion."
+				},
+				{
+					id: 'normalized',
+					name: "Normalisierung",
+					isShown: true,
+					infoText: "Zeigt die durchschnittliche Anzahl an Reden pro Parteimitglied statt der gesamten Reden der Partei."
+				},
+				{
+					id: 'desc',
+					name: "Absteigend",
+					isShown: true,
+					infoText: "Sortiert die Ergebnisse absteigend (höchste Werte zuerst)."
+				}
+			]
+		}}
+	/>
 </Container>
 
 <Container>
 	<DelegateBarChartControl
-	height={tableHeightGender}
-	id={2}
-	delegateMakeRequest={genderSimpleSpeeches}
-	title="Reden nach Gender"
-	config={{
-		filter_info_1: {
-			name: "Geschlecht",
-			isShown: true,
-			infoText:
-				"Filtert die Ergebnisse nach Geschlecht. Es werden nur ausgewählte Geschlechter angezeigt."
-		},
-		filter_info_2: {
-			name: "Partei",
-			isShown: false,
-			infoText:
-				"Dieser Filter hat in dieser Ansicht keine Funktion."
-		},
-		filter_info_3: {
-			name: "Normalisierung",
-			isShown: true,
-			infoText:
-				"Zeigt die durchschnittliche Anzahl an Reden pro Person innerhalb der Geschlechtsgruppe statt der gesamten Anzahl der Reden."
-		},
-		filter_info_4: {
-			name: "Absteigend",
-			isShown: true,
-			infoText:
-				"Sortiert die Ergebnisse absteigend (höchste Werte zuerst)."
-		}
-	}}
-/>
-
+		height={tableHeightGender}
+		id={2}
+		delegateMakeRequest={genderSimpleSpeeches}
+		title="Reden nach Gender"
+		config={{
+			filters: [
+				{
+					id: 'primary',
+					name: "Geschlecht",
+					isShown: true,
+					infoText: "Filtert die Ergebnisse nach Geschlecht. Es werden nur ausgewählte Geschlechter angezeigt."
+				},
+				{
+					id: 'gender',
+					name: "Partei",
+					isShown: false,
+					infoText: "Dieser Filter hat in dieser Ansicht keine Funktion."
+				},
+				{
+					id: 'normalized',
+					name: "Normalisierung",
+					isShown: true,
+					infoText: "Zeigt die durchschnittliche Anzahl an Reden pro Person innerhalb der Geschlechtsgruppe statt der gesamten Anzahl der Reden."
+				},
+				{
+					id: 'desc',
+					name: "Absteigend",
+					isShown: true,
+					infoText: "Sortiert die Ergebnisse absteigend (höchste Werte zuerst)."
+				}
+			]
+		}}
+	/>
 </Container>
 
 <Container>
 	<DelegateBarChartControl
-	height={tableHeightAge}
-	id={3}
-	delegateMakeRequest={ageSimpleSpeeches}
-	title="Reden nach Alter"
-	config={{
-		filter_info_1: {
-			name: "Altersgruppe",
-			isShown: true,
-			infoText:
-				"Filtert die Ergebnisse nach Altersgruppen. Es werden nur die ausgewählten Altersgruppen angezeigt."
-		},
-		filter_info_2: {
-			name: "Partei",
-			isShown: false,
-			infoText:
-				"Dieser Filter hat in dieser Ansicht keine Funktion."
-		},
-		filter_info_3: {
-			name: "Normalisierung",
-			isShown: true,
-			infoText:
-				"Zeigt die durchschnittliche Anzahl an Reden pro Person innerhalb der jeweiligen Altersgruppe statt der gesamten Reden dieser Altersgruppe."
-		},
-		filter_info_4: {
-			name: "Absteigend",
-			isShown: true,
-			infoText:
-				"Sortiert die Ergebnisse absteigend (höchste Werte zuerst)."
-		}
-	}}
-/>
-
+		height={tableHeightAge}
+		id={3}
+		delegateMakeRequest={ageSimpleSpeeches}
+		title="Reden nach Alter"
+		config={{
+			filters: [
+				{
+					id: 'primary',
+					name: "Altersgruppe",
+					isShown: true,
+					infoText: "Filtert die Ergebnisse nach Altersgruppen. Es werden nur die ausgewählten Altersgruppen angezeigt."
+				},
+				{
+					id: 'gender',
+					name: "Partei",
+					isShown: false,
+					infoText: "Dieser Filter hat in dieser Ansicht keine Funktion."
+				},
+				{
+					id: 'normalized',
+					name: "Normalisierung",
+					isShown: true,
+					infoText: "Zeigt die durchschnittliche Anzahl an Reden pro Person innerhalb der jeweiligen Altersgruppe statt der gesamten Reden dieser Altersgruppe."
+				},
+				{
+					id: 'desc',
+					name: "Absteigend",
+					isShown: true,
+					infoText: "Sortiert die Ergebnisse absteigend (höchste Werte zuerst)."
+				}
+			]
+		}}
+	/>
 </Container>
 
 <Container>
 	<DelegateBarChartControl
-	height={tableHeightLegis}
-	id={4}
-	delegateMakeRequest={legisSimpleSpeeches}
-	title="Reden nach Legislaturperiode"
-	config={{
-		filter_info_1: {
-			name: "Partei",
-			isShown: true,
-			infoText:
-				"Filtert die Ergebnisse nach Partei. Es werden nur die Reden der Mitglieder der ausgewählten Partei berücksichtigt."
-		},
-		filter_info_2: {
-			name: "Geschlecht",
-			isShown: true,
-			infoText:
-				"Filtert die Ergebnisse nach dem Geschlecht der Abgeordneten."
-		},
-		filter_info_3: {
-			name: "Normalisierung",
-			isShown: true,
-			infoText:
-				"Zeigt die durchschnittliche Anzahl an Reden pro Sitzung innerhalb der jeweiligen Legislaturperiode statt der Gesamtzahl der Reden."
-		},
-		filter_info_4: {
-			name: "Absteigend",
-			isShown: true,
-			infoText:
-				"Sortiert die Ergebnisse absteigend (höchste Werte zuerst)."
-		}
-	}}
-/>
-
+		height={tableHeightLegis}
+		id={4}
+		delegateMakeRequest={legisSimpleSpeeches}
+		title="Reden nach Legislaturperiode"
+		config={{
+			filters: [
+				{
+					id: 'primary',
+					name: "Partei",
+					isShown: true,
+					infoText: "Filtert die Ergebnisse nach Partei. Es werden nur die Reden der Mitglieder der ausgewählten Partei berücksichtigt."
+				},
+				{
+					id: 'gender',
+					name: "Geschlecht",
+					isShown: true,
+					infoText: "Filtert die Ergebnisse nach dem Geschlecht der Abgeordneten."
+				},
+				{
+					id: 'normalized',
+					name: "Normalisierung",
+					isShown: true,
+					infoText: "Zeigt die durchschnittliche Anzahl an Reden pro Sitzung innerhalb der jeweiligen Legislaturperiode statt der Gesamtzahl der Reden."
+				},
+				{
+					id: 'desc',
+					name: "Absteigend",
+					isShown: true,
+					infoText: "Sortiert die Ergebnisse absteigend (höchste Werte zuerst)."
+				}
+			]
+		}}
+	/>
 </Container>

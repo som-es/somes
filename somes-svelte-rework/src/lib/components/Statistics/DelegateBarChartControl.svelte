@@ -17,11 +17,14 @@
 	export let id: number;
 	export let config: Config | null
 
-	console.log(config)
 
 	let currentData: DelegateData[] = [];
 	let filteredData: DelegateData[] = [];
-	let filterParties: string[] = [];
+	let filterPrimaries: string[] = [];
+
+	
+
+
 
 	const addUniqueParties = () => {
 		uniqueParties = [];
@@ -38,7 +41,7 @@
 		// filteredData = currentData;
 	});
 
-	const popupParty: PopupSettings = {
+	const popupPrimary: PopupSettings = {
 		event: 'click',
 		target: 'popupParty' + id,
 		placement: 'bottom'
@@ -65,15 +68,16 @@
 		closeQuery: '.listbox-item'
 	};
 
+	
 	let selectedPeriod: string = 'XXVIII';
 	let gender: string | undefined = undefined;
 	let uniqueParties: string[] = [];
 	let normalized: boolean = true;
 	let isDesc: boolean = true;
 
-	$: if (currentData && filterParties && filterParties.length > 0) {
+	$: if (currentData && filterPrimaries && filterPrimaries.length > 0) {
 		filteredData = currentData.filter((data) => {
-			return filterParties.includes(data.party ?? '');
+			return filterPrimaries.includes(data.party ?? '');
 		});
 	} else {
 		filteredData = currentData;
@@ -93,7 +97,7 @@
 		addUniqueParties();
 	}
 
-	const translatePartyFilter = (filterParties: string[]) => {
+	const translatePrimaryFilter = (filterParties: string[]) => {
 		if (filterParties.length == 0) {
 			return 'Alle';
 		}
@@ -145,9 +149,9 @@
 		return 'Nein';
 	};
 
-const popupInfoParty: PopupSettings = {
+const popupInfoPrimary: PopupSettings = {
     event: 'hover',
-    target: 'popupInfoParty' + id,
+    target: 'popupInfoPrimary' + id,
     placement: 'right'
 };
 
@@ -169,6 +173,30 @@ const popupInfoDesc: PopupSettings = {
     placement: 'right'
 };
 
+const filterMap = {
+		primary: {
+			popup: popupPrimary,
+			infoPopup: popupInfoPrimary,
+			label: () => translatePrimaryFilter(filterPrimaries)
+		},
+		gender: {
+			popup: popupGender,
+			infoPopup: popupInfoGender,
+			label: () => translateGenderFilter(gender)
+		},
+		normalized: {
+			popup: popupNormalized,
+			infoPopup: popupInfoNormalized,
+			label: () => translateNormalizationFilter(normalized)
+		},
+		desc: {
+			popup: popupDesc,
+			infoPopup: popupInfoDesc,
+			label: () => translateDescFilter(isDesc)
+		}
+	} as const;
+
+
 
 </script>
 
@@ -182,7 +210,7 @@ const popupInfoDesc: PopupSettings = {
 		multiple
 	>
 		{#each uniqueParties as party}
-			<ListBoxItem bind:group={filterParties} name="partyFilter" value={party}>{party}</ListBoxItem>
+			<ListBoxItem bind:group={filterPrimaries} name="partyFilter" value={party}>{party}</ListBoxItem>
 		{/each}
 	</ListBox>
 </div>
@@ -220,124 +248,47 @@ const popupInfoDesc: PopupSettings = {
 </div>
 
 
-<div class="z-40 card w-64 p-4 shadow-xl" data-popup="popupInfoParty{id}">
-	<p class="text-sm">{config?.filter_info_1?.infoText}</p>
-</div>
+{#each config?.filters ?? [] as filter (filter.id)}
+	{#if filter.isShown && filter.infoText}
+		<div class="z-40 card w-64 p-4 shadow-xl" data-popup={"popupInfo" + filter.id[0].toUpperCase() + filter.id.slice(1) + id}>
+			<p class="text-sm">{filter.infoText}</p>
+		</div>
+	{/if}
+{/each}
 
-<div class="z-40 card w-64 p-4 shadow-xl" data-popup="popupInfoGender{id}">
-	<p class="text-sm">{config?.filter_info_2?.infoText}</p>
-</div>
-
-<div class="z-40 card w-64 p-4 shadow-xl" data-popup="popupInfoNormalized{id}">
-	<p class="text-sm">{config?.filter_info_3?.infoText}</p>
-</div>
-
-<div class="z-40 card w-64 p-4 shadow-xl" data-popup="popupInfoDesc{id}">
-	<p class="text-sm"> {config?.filter_info_4?.infoText}</p>
-</div>
 
 <div class="flex flex-wrap gap-6">
-	{#if config?.filter_info_1?.isShown !== false}
-		<div>
-			<div class="flex items-center gap-2">
-				<h1 class="text-2xl font-bold">
-					{config?.filter_info_1?.name ?? 'Partei'}
-				</h1>
+	<div class="flex flex-wrap gap-6">
+	{#each config?.filters ?? [] as filter (filter.id)}
+		{#if filter.isShown}
+			<div>
+				<div class="flex items-center gap-2">
+					<h1 class="text-2xl font-bold">{filter.name}</h1>
 
-				{#if config?.filter_info_1?.infoText}
-					<button
-						class="btn variant-soft-primary btn-circle btn-sm"
-						use:popup={popupInfoParty}
-					>
-						i
-					</button>
-				{/if}
+					{#if filter.infoText}
+						<button
+							class="btn variant-soft-primary btn-circle btn-sm"
+							use:popup={filterMap[filter.id].infoPopup}
+						>
+							i
+						</button>
+					{/if}
+				</div>
+
+				<button
+					class="btn variant-filled-secondary w-48 justify-between"
+					use:popup={filterMap[filter.id].popup}
+				>
+					<span class="capitalize">
+						{filterMap[filter.id].label()}
+					</span>
+					<span>↓</span>
+				</button>
 			</div>
+		{/if}
+	{/each}
+</div>
 
-
-			<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupParty}>
-				<span class="capitalize">{translatePartyFilter(filterParties)}</span>
-				<span>↓</span>
-			</button>
-		</div>
-	{/if}
-		
-	{#if config?.filter_info_2?.isShown !== false}
-		<div>
-			<div class="flex items-center gap-2">
-				<h1 class="text-2xl font-bold">
-					{config?.filter_info_2?.name ?? 'Geschlecht'}
-				</h1>
-
-				{#if config?.filter_info_2?.infoText}
-					<button
-						class="btn variant-soft-primary btn-circle btn-sm"
-						use:popup={popupInfoGender}
-					>
-						i
-					</button>
-				{/if}
-			</div>
-
-
-			<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupGender}>
-				<span class="capitalize">{translateGenderFilter(gender)}</span>
-				<span>↓ </span>
-			</button>
-		</div>
-	{/if}
-
-	{#if config?.filter_info_3?.isShown !== false}
-		<div>
-			<div class="flex items-center gap-2">
-				<h1 class="text-2xl font-bold">
-					{config?.filter_info_3?.name ?? 'Normalisiert'}
-				</h1>
-
-				{#if config?.filter_info_3?.infoText}
-					<button
-						class="btn variant-soft-primary btn-circle btn-sm"
-						use:popup={popupInfoNormalized}
-					>
-						i
-					</button>
-				{/if}
-			</div>
-
-
-			<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupNormalized}>
-				<span class="capitalize">{translateNormalizationFilter(normalized)}</span>
-				<span>↓</span>
-			</button>
-		</div>
-	{/if}	
-
-	{#if config?.filter_info_4?.isShown !== false}
-		<div>
-			<div class="flex items-center gap-2">
-				<h1 class="text-2xl font-bold">
-					{config?.filter_info_4?.name ?? 'Absteigend'}
-				</h1>
-
-				{#if config?.filter_info_4?.infoText}
-					<button
-						class="btn variant-soft-primary btn-circle btn-sm"
-						use:popup={popupInfoDesc}
-					>
-						i
-					</button>
-				{/if}
-			</div>
-
-			<button
-				class="btn variant-filled-secondary w-48 justify-between"
-				use:popup={popupDesc}
-			>
-				<span class="capitalize">{translateDescFilter(isDesc)}</span>
-				<span>↓</span>
-			</button>
-		</div>
-{/if}
 </div>
 
 <div class="graphic-container">

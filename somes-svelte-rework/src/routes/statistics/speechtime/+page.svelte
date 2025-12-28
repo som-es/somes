@@ -205,28 +205,33 @@
 		delegateMakeRequest={delegateSimpleSpeechTime}
 		title="Redezeit pro Abgeordneten (in Mintuen)"
 		config={{
-			filter_info_1: {
-				name: "Partei",
-				isShown: true,
-				infoText: "Filtert die angezeigten Abgeordneten nach Partei."
-			},
-			filter_info_2: {
-				name: "Geschlecht",
-				isShown: true,
-				infoText: "Filtert die angezeigten Abgeordneten nach Geschlecht."
-			},
-			filter_info_3: {
-				name: "Normalisiert",
-				isShown: true,
-				infoText: "Zeigt die durchschnittliche Redezeit pro Sitzung statt der gesamten Redezeit eines Abgeordneten."
-			},
-			filter_info_4: {
-				name: "Absteigend",
-				isShown: true,
-				infoText: "Sortiert die Ergebnisse absteigend (höchste Werte zuerst)."
-			}
-}}
-
+			filters: [
+				{
+					id: 'primary',
+					name: 'Partei',
+					isShown: true,
+					infoText: 'Filtert die angezeigten Abgeordneten nach Partei.'
+				},
+				{
+					id: 'gender',
+					name: 'Geschlecht',
+					isShown: true,
+					infoText: 'Filtert die angezeigten Abgeordneten nach Geschlecht.'
+				},
+				{
+					id: 'normalized',
+					name: 'Normalisiert',
+					isShown: true,
+					infoText: 'Zeigt die durchschnittliche Redezeit pro Sitzung statt der gesamten Redezeit eines Abgeordneten.'
+				},
+				{
+					id: 'desc',
+					name: 'Sortierung',
+					isShown: true,
+					infoText: 'Sortiert die Ergebnisse absteigend. (höchste Werte zuerst)'
+				}
+			]
+		}}
 	/>
 </Container>
 
@@ -237,26 +242,32 @@
 		delegateMakeRequest={partySimpleSpeechTime}
 		title="Redezeit nach Parteien (in Minuten)"
 		config={{
-			filter_info_1: {
-				name: "Partei",
-				isShown: true,
-				infoText: "Filtert die Ergebnisse nach Partei. Es werden nur ausgewählte Parteien angezeigt."
-			},
-			filter_info_2: {
-				name: "Geschlecht",
-				isShown: false,
-				infoText: null
-			},
-			filter_info_3: {
-				name: "Normalisiert",
-				isShown: true,
-				infoText: "Zeigt die durchschnittliche Redezeit pro Parteimitglied statt der gesamten Redezeit der Partei."
-			},
-			filter_info_4: {
-				name: "Absteigend",
-				isShown: true,
-				infoText: "Sortiert die Ergebnisse absteigend (höchste Werte zuerst)."
-			}
+			filters: [
+				{
+					id: 'primary',
+					name: "Partei",
+					isShown: true,
+					infoText: "Filtert die Ergebnisse nach Partei. Es werden nur ausgewählte Parteien angezeigt."
+				},
+				{
+					id: 'gender',
+					name: "Geschlecht",
+					isShown: false,
+					infoText: null
+				},
+				{
+					id: 'normalized',
+					name: "Normalisiert",
+					isShown: true,
+					infoText: "Zeigt die durchschnittliche Redezeit pro Parteimitglied statt der gesamten Redezeit der Partei."
+				},
+				{
+					id: 'desc',
+					name: "Absteigend",
+					isShown: true,
+					infoText: "Sortiert die Ergebnisse absteigend (höchste Werte zuerst)."
+				}
+			]
 		}}
 
 	/>
@@ -270,26 +281,32 @@
 		delegateMakeRequest={genderSimpleSpeechTime}
 		title="Redezeit nach Gender (in Minuten)"
 		config={{
-			filter_info_1: {
-				name: "Geschlecht",
-				isShown: true,
-				infoText: "Filtert die Ergebnisse nach Geschlecht. Es werden nur ausgewählte Parteien angezeigt."
-			},
-			filter_info_2: {
-				name: "Partei",
-				isShown: false,
-				infoText: null
-			},
-			filter_info_3: {
-				name: "Normalisiert",
-				isShown: true,
-				infoText: "Zeigt die durchschnittliche Redezeit pro Person innerhalb der jeweiligen Geschlechtsgruppe statt der gesamten Redezeit."
-			},
-			filter_info_4: {
-				name: "Absteigend",
-				isShown: true,
-				infoText: "Sortiert die Ergebnisse absteigend (höchste Werte zuerst)."
-			}
+			filters: [
+				{
+					id: 'primary',
+					name: "Geschlecht",
+					isShown: true,
+					infoText: "Filtert die Ergebnisse nach Geschlecht. Es werden nur ausgewählte Parteien angezeigt."
+				},
+				{
+					id: 'gender',
+					name: "Partei",
+					isShown: false,
+					infoText: null
+				},
+				{
+					id: 'normalized',
+					name: "Normalisiert",
+					isShown: true,
+					infoText: "Zeigt die durchschnittliche Redezeit pro Person innerhalb der jeweiligen Geschlechtsgruppe statt der gesamten Redezeit."
+				},
+				{
+					id: 'desc',
+					name: "Absteigend",
+					isShown: true,
+					infoText: "Sortiert die Ergebnisse absteigend (höchste Werte zuerst)."
+				}
+			]
 		}}
 
 	/>
@@ -303,26 +320,32 @@
 		delegateMakeRequest={ageSimpleSpeechTime}
 		title="Redezeit nach Alter (in Minuten)"
 		config={{
-			filter_info_1: {
-				name: "Altersgruppe",
-				isShown: true,
-				infoText: "Filtert die Ergebnisse nach Altersgruppen. Es werden nur ausgewählte Altersgruppen angezeigt."
-			},
-			filter_info_2: {
-				name: "Geschlecht",
-				isShown: false,
-				infoText: null
-			},
-			filter_info_3: {
-				name: "Normalisiert",
-				isShown: true,
-				infoText: "Zeigt die durchschnittliche Redezeit pro Person innerhalb der jeweiligen Altersgruppe statt der gesamten Redezeit."
-			},
-			filter_info_4: {
-				name: "Absteigend",
-				isShown: true,
-				infoText: "Sortiert die Ergebnisse absteigend (höchste Werte zuerst)."
-			}
+			filters: [
+				{
+					id: 'primary',
+					name: "Altersgruppe",
+					isShown: true,
+					infoText: "Filtert die Ergebnisse nach Altersgruppen. Es werden nur ausgewählte Altersgruppen angezeigt."
+				},
+				{
+					id: 'gender',
+					name: "Geschlecht",
+					isShown: false,
+					infoText: null
+				},
+				{
+					id: 'normalized',
+					name: "Normalisiert",
+					isShown: true,
+					infoText: "Zeigt die durchschnittliche Redezeit pro Person innerhalb der jeweiligen Altersgruppe statt der gesamten Redezeit."
+				},
+				{
+					id: 'desc',
+					name: "Absteigend",
+					isShown: true,
+					infoText: "Sortiert die Ergebnisse absteigend (höchste Werte zuerst)."
+				}
+			]
 		}}
 
 	/>
@@ -336,26 +359,32 @@
 		delegateMakeRequest={legisSimpleSpeechTime}
 		title="Redezeit nach Legislaturperiode (in Minuten)"
 		config={{
-			filter_info_1: {
-				name: "Legislaturperiode",
-				isShown: true,
-				infoText: "Filtert die Ergebnisse nach Legislaturperioden. Es werden nur ausgewählte Legislaturperioden angezeigt."
-			},
-			filter_info_2: {
-				name: "Geschlecht",
-				isShown: true,
-				infoText: "Filtert die Ergebnisse nach Geschlecht der Abgeordneten."
-			},
-			filter_info_3: {
-				name: "Normalisiert",
-				isShown: true,
-				infoText: "Zeigt die durchschnittliche Redezeit pro Sitzung in der jeweiligen Legislaturperiode statt der gesamten Redezeit."
-			},
-			filter_info_4: {
-				name: "Absteigend",
-				isShown: true,
-				infoText: "Sortiert die Ergebnisse absteigend (höchste Werte zuerst)."
-			}
+			filters: [
+				{
+					id: 'primary',
+					name: "Legislaturperiode",
+					isShown: true,
+					infoText: "Filtert die Ergebnisse nach Legislaturperioden. Es werden nur ausgewählte Legislaturperioden angezeigt."
+				},
+				{
+					id: 'gender',
+					name: "Geschlecht",
+					isShown: true,
+					infoText: "Filtert die Ergebnisse nach Geschlecht der Abgeordneten."
+				},
+				{
+					id: 'normalized',
+					name: "Normalisiert",
+					isShown: true,
+					infoText: "Zeigt die durchschnittliche Redezeit pro Sitzung in der jeweiligen Legislaturperiode statt der gesamten Redezeit."
+				},
+				{
+					id: 'desc',
+					name: "Absteigend",
+					isShown: true,
+					infoText: "Sortiert die Ergebnisse absteigend (höchste Werte zuerst)."
+				}
+			]
 		}}
 
 	/>
