@@ -36,7 +36,7 @@ pub async fn is_left_per_gender(
     let filter = filter.unwrap_or_default();
 
     let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
-    let filter_arg1 = Manual("m.is_nr").with_sql_column("");
+    let filter_arg1 = Manual("m.is_nr").into_filter_arg();
     let filters = [filter_arg, filter_arg1];
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };

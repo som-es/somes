@@ -1,47 +1,31 @@
-use std::{error::Error, fs::File, net::SocketAddr, path::PathBuf, sync::Arc};
+use std::{error::Error, fs::File, net::SocketAddr, path::PathBuf};
 
 use axum::{
     extract::FromRef,
     http::{self},
     response::Html,
-    routing::{any, delete, get, get_service, post, put},
+    routing::{any, get, get_service, post},
     Router,
 };
 use axum_server::tls_rustls::RustlsConfig;
-use dataservice::{
-    combx::VoteResult,
-    db::models::{DbLegislativeInitiativeQuery, DbParty},
-};
 // use diesel_async::pooled_connection::AsyncDieselConnectionManager;
 use log::{error, info};
 use reqwest::StatusCode;
-use somes_common_lib::{
-    DECREES_PER_PAGE, DELEGATES_BY_CALL_TO_ORDERS, DELEGATES_ROUTE, LATEST_VOTE_RESULTS_ROUTE,
-    LOGIN_ROUTE, PROPOSALS_ROUTE,
-};
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tokio::{net::TcpListener, time::sleep};
-use tower_governor::{governor::GovernorConfigBuilder, GovernorLayer};
-use utoipa::OpenApi;
 use views::{create_composite_types, create_views};
 //use headers::HeaderValue;
+use crate::routes::*;
 use crate::{
-    meilisearch::update_meilisearch_indices,
-    redirect_http_to_https,
-    routes::{delegates, latest_vote_results, proposals, save_email},
+    meilisearch::update_meilisearch_indices, redirect_http_to_https, routes::save_email_route,
     Ports, DATASERVICE_URL, HTTPS_PORT, HTTP_PORT, MEILISEARCH_SECRET, MEILISEARCH_URL,
     PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, REDIS_DB, STATIC_FRONTEND_PATH,
 };
+use somes_common_lib::*;
 use tower_http::{
     cors::{Any, CorsLayer},
     services::ServeDir,
 };
-
-use crate::jwt::*;
-use crate::routes::login;
-use crate::routes::*;
-use somes_common_lib::errors::*;
-use somes_common_lib::*;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -73,11 +57,6 @@ impl FromRef<AppState> for redis::Client {
     }
 }
 
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
-pub struct Test {
-    test: &'static str,
-}
-
 //pub type RedisClient = Arc<RwLock<redis::Client>>;
 
 pub async fn serve(addr: SocketAddr) {
@@ -99,37 +78,6 @@ pub async fn serve(addr: SocketAddr) {
 
     info!("Established redis database connection to {REDIS_DB}.");
 
-    #[derive(OpenApi)]
-    #[openapi(
-        paths(
-            login,
-            delegates,
-            proposals,
-            latest_vote_results,
-            parties,
-            delegate_by_id
-        ),
-        components(
-            schemas(
-                SignUpInfo,
-                SignUpError,
-                JWTInfo,
-                crate::AuthError, dataservice::db::models::DbDelegate,
-                DelegatesErrorResponse, dataservice::db::models::DbProposalQuery,
-                DbLegislativeInitiativeQuery, LegisInitErrorResponse,
-                DateRange, VoteResult,
-                LegisPeriod,
-                UserInfo,
-                DbParty, PartiesErrorResponse,
-                DelegateById, InterestShare,
-                Page
-            ),
-        ),
-        // modifiers(&SecurityAddon),
-        /*tags(
-            (name = "test", description = "Todo items management API")
-        )*/
-    )]
     struct ApiDoc;
 
     /*successfully.
@@ -160,12 +108,6 @@ pub async fn serve(addr: SocketAddr) {
         meilisearch_sdk::client::Client::new(MEILISEARCH_URL, Some(MEILISEARCH_SECRET))
             .expect("Meilisearch client was not able to connect");
 
-    meilisearch_client
-        .index("test")
-        .add_documents(&[Test { test: "test" }], None)
-        .await
-        .unwrap();
-
     let state = AppState::new(
         client.clone(),
         dataservice_sqlx_pool.clone(),
@@ -177,7 +119,7 @@ pub async fn serve(addr: SocketAddr) {
     let current_frontend_dir = ServeDir::new(static_files_dir.clone())
         .fallback(get(|| async { Html(include_str!("../build/index.html")) }));
 
-    let static_files_dir_alpha_0_1 = PathBuf::from("./build-alpha-0.1");
+    // let static_files_dir_alpha_0_1 = PathBuf::from("./build-alpha-0.1");
     let pg_pool = dataservice_sqlx_pool.clone();
 
     tokio::task::spawn(async move {
@@ -219,78 +161,30 @@ pub async fn serve(addr: SocketAddr) {
     //     "https://somes.at".parse::<HeaderValue>().unwrap(),
     // ];
 
-    let governor_conf = Arc::new(
-        GovernorConfigBuilder::default()
-            .per_second(2)
-            .burst_size(4)
-            .finish()
-            .unwrap(),
-    );
+    let api_routes = Router::new()
+        .route(PARTIES, get(parties_route))
+        .route(PARTIES_AT_GP, get(parties_at_gp_route))
+        .route(ALL_GPS, get(all_gps_route))
+        .route(SEATS, get(seats_route))
+        .route(TOPICS, get(topics_route))
+        .route(EUROVOC_TOPICS, get(eurovoc_topics_route))
+        .route(AI_CHAT_WS, any(ai_chat_ws_handler_route))
+        .route(NEXT_PLENAR_DATE, get(next_plenar_date_route))
+        .route(PLENAR_DATES, get(plenar_dates_route))
+        .route("/save_email", post(save_email_route))
+        .nest("/v1/statistics", create_statistics_router())
+        .nest("/v1/delegates", create_delegates_router())
+        .nest("/v1/gov_proposals", create_gov_proposals_router())
+        .nest("/v1/decrees", create_decrees_router())
+        .nest("/v1/user", create_user_router())
+        .nest("/v1/vote_results", create_vote_results_router());
 
     let api_routes = Router::new()
-        .route(
-            LOGIN_ROUTE,
-            post(login).layer(GovernorLayer {
-                config: governor_conf.clone(),
-            }),
-        )
-        .route(DELETE_ACCOUNT_ROUTE, delete(delete_account))
-        .route(PROPOSALS_ROUTE, get(proposals))
-        // .route(LEGIS_INIT_ROUTE, post(legis_inits))
-        // .route(LATEST_LEGIS_INITS_ROUTE, get(latest_legis_inits))
-        .route(LATEST_VOTE_RESULTS_ROUTE, get(latest_vote_results))
-        .route(
-            LATEST_MINISTRIAL_PROPOSALS,
-            get(latest_ministrial_proposals),
-        )
-        .route(PARTIES, get(parties))
-        .route(PARTIES_AT_GP, get(parties_at_gp))
-        .route(USER, get(user))
-        .route(DELEGATE_INTERESTS, get(delegate_interests))
-        .route(VOTE_RESULTS_PER_PAGE, post(vote_results_per_page)) // post only because js fetch...
-        .route(
-            UNFINISHED_VOTE_RESULTS_PER_PAGE,
-            post(unfinished_vote_results_per_page),
-        ) // post only because js fetch...
-        .route(VOTE_RESULT_BY_ID, get(vote_result_by_id))
-        .route(VOTE_RESULT_BY_PATH, get(vote_result_by_path))
-        .route(VOTE_RESULT_BY_SEARCH, post(vote_result_by_search)) // post only because js fetch...
-        .route(
-            UNFINISHED_VOTE_RESULT_BY_SEARCH,
-            post(unfinished_vote_result_by_search),
-        ) // post only because js fetch...
-        .route(WALO_QUESTIONS, get(walo_questions))
-        .route(ALL_GPS, get(all_gps))
-        .route(SEATS, get(seats))
-        .route(RENEW_TOKEN, post(renew_token))
-        .route(TOPICS, get(topics))
-        .route(EUROVOC_TOPICS, get(eurovoc_topics))
-        .route(TOPIC_SELECTION, post(add_user_topic))
-        .route(TOPIC_SELECTION, delete(remove_user_topic))
-        .route(TOPIC_SELECTION, get(user_topic_selection))
-        .route(FAVO_DELEGATE, post(add_delegate_favo))
-        .route(FAVO_DELEGATE, get(user_delegate_favos))
-        .route(FAVO_DELEGATE, delete(remove_user_delegate_favo))
-        .route(FAVO_LEGIS_INIT, delete(remove_user_legis_init_favo))
-        .route(FAVO_LEGIS_INIT, get(user_legis_init_favos))
-        .route(FAVO_LEGIS_INIT, post(add_legis_init_favo))
-        .route(SEND_MAIL_INFO, put(update_send_mail_info))
-        .route(SEND_MAIL_INFO, get(get_send_mail_info))
-        .route(GOV_PROPOSALS_PER_PAGE, post(get_gov_proposals_per_page))
-        .route(GOV_PROPOSALS_BY_SEARCH, post(gov_props_by_search)) // post only because js fetch...
-        .route(GOV_PROPOSAL_BY_PATH, get(gov_proposal_by_path))
-        .route(DECREES_PER_PAGE, post(get_decrees_per_page))
-        .route(DECREES_BY_SEARCH, post(decrees_by_search))
-        .route(DECREE_BY_RIS_ID, get(decree_by_ris_id))
-        .route(AI_CHAT_WS, any(ai_chat_ws_handler))
-        .route(QUIZZES, get(get_all_quizzes))
-        .route(ADD_QUIZ, post(add_quiz))
-        .route(QUIZ_ROOM, any(join_quiz_room))
-        .route(NEXT_PLENAR_DATE, get(next_plenar_date))
-        .route(PLENAR_DATES, get(plenar_dates))
-        .route("/save_email", post(save_email))
-        .nest("/v1/statistics", create_statistics_router())
-        .nest("/v1/delegates", create_delegates_router());
+        .route(WALO_QUESTIONS, get(walo_questions_route))
+        .route(QUIZZES, get(get_all_quizzes_route))
+        .route(ADD_QUIZ, post(add_quiz_route))
+        .route(QUIZ_ROOM, any(join_quiz_room_route))
+        .nest("/at", api_routes);
 
     let app = Router::new()
         .nest("/api", api_routes)

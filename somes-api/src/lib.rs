@@ -1,9 +1,7 @@
 #![warn(clippy::unwrap_used)]
 
-// use diesel_async::{AsyncPgConnection, pooled_connection::AsyncDieselConnectionManager};
 use dotenvy_macro::dotenv;
 
-pub mod dataservice;
 mod db;
 pub mod email;
 pub mod hash;
@@ -20,7 +18,7 @@ use once_cell::sync::Lazy;
 mod error;
 pub use error::*;
 
-pub type Result<T> = std::result::Result<T, crate::error::GenericErrorResponse>;
+pub type Result<T> = std::result::Result<T, crate::error::GenericError>;
 
 pub const USR_DATABASE_URL: &str = dotenv!("USR_DATABASE_URL");
 pub const DATASERVICE_URL: &str = dotenv!("DATASERVICE_URL");
@@ -49,7 +47,6 @@ static EMAIL_EXPIRATION_SECONDS: Lazy<usize> = Lazy::new(|| {
         .parse()
         .expect("Supplied email expiration (in seconds) is not a (usize) number!")
 });
-// pub const EMAIL_EXPIRATION: u64 = ;
 
 pub fn today_and_time() -> chrono::NaiveDateTime {
     chrono::Local::now().naive_local()

@@ -26,25 +26,24 @@
 		// }
 	}
 
-	$: rawEmphasis = voteResult.legislative_initiative.emphasis;
-
-	function gridContainer(rawEmphasis: string | null, voteResult: VoteResult): string {
-		if (voteResult.legislative_initiative.accepted === null && rawEmphasis !== null) {
+	function gridContainer(hasEmphasis: boolean, voteResult: VoteResult): string {
+		if (voteResult.legislative_initiative.accepted === null && hasEmphasis) {
 			return 'grid-container-without-voting';
 		}
-		return rawEmphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
+		return hasEmphasis ? 'grid-container-with-emphasis' : 'grid-container-without-emphasis';
 	}
 
-	$: whichGridContainer = gridContainer(rawEmphasis, voteResult);
+	$: whichGridContainer = gridContainer(voteResult.ai_summary ? true : false, voteResult);
 	// rawEmphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
 </script>
 
 <div class="lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3">
-	<Emphasis
-		{rawEmphasis}
-		isAiGenerated={voteResult.legislative_initiative.is_emphasis_ai_generated ?? false}
-		useTitleHover
-	/>
+	{#if voteResult.ai_summary}
+		<Emphasis
+			emphasis={voteResult.ai_summary.full_summary.key_points}
+			glossary={voteResult.ai_summary.full_summary.glossary}
+		/>
+	{/if}
 	<div class="rounded-md w-full bg-primary-100 parliament-item mt-3 mb-3">
 		<VoteParliament2 {voteResult} bind:delegates={delsAtDate} preview={true} />
 	</div>
@@ -73,12 +72,12 @@
 </div>
 <div class="max-lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3 {whichGridContainer}">
 	<!-- Inneres Migration Frauen Klimaschutz -->
-
-	<Emphasis
-		{rawEmphasis}
-		isAiGenerated={voteResult.legislative_initiative.is_emphasis_ai_generated ?? false}
-		useTitleHover
-	/>
+	{#if voteResult.ai_summary}
+		<Emphasis
+			emphasis={voteResult.ai_summary.full_summary.key_points}
+			glossary={voteResult.ai_summary.full_summary.glossary}
+		/>
+	{/if}
 
 	{#if voteResult.topics.length > 0}
 		<div

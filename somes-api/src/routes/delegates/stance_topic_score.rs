@@ -28,7 +28,7 @@ pub async fn extract_stance_topic_score_by_delegate(
 
     let stance_scores = stance_scores
         .into_iter()
-        .map(|stance_score| {
+        .flat_map(|stance_score| {
             let topic_influences = stance_score
                 .topics
                 .unwrap_or_default()
@@ -37,8 +37,10 @@ pub async fn extract_stance_topic_score_by_delegate(
                 .map(|(topic, influence)| {
                     let default = if stance_score.stance_llm == "positive" {
                         *influence * stance_score.ref_score.abs()
-                    } else {
+                    } else if stance_score.stance_llm.to_lowercase().contains("negative") {
                         *influence * stance_score.ref_score.abs() * -1.
+                    } else {
+                        0.
                     };
 
                     StanceTopicScore {
@@ -47,12 +49,12 @@ pub async fn extract_stance_topic_score_by_delegate(
                     }
                 })
                 .collect::<Vec<_>>();
-            StanceTopicInfluences {
+            Some(StanceTopicInfluences {
                 question: stance_score.question,
                 answer: stance_score.answer,
                 stance_llm: stance_score.stance_llm,
                 topic_influences,
-            }
+            })
         })
         .collect::<Vec<_>>();
 

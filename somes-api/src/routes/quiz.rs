@@ -32,7 +32,7 @@ use crate::{
 
 const DEFAULT_QUIZ_ID: i32 = 4;
 
-pub async fn join_quiz_room(
+pub async fn join_quiz_room_route(
     ws: WebSocketUpgrade,
     user_agent: Option<TypedHeader<headers::UserAgent>>,
     PgPoolConnection(pg): PgPoolConnection,
@@ -61,9 +61,6 @@ pub enum State {
 }
 
 static USER_MAP: LazyLock<Arc<RwLock<HashMap<(String, u128), f64>>>> =
-    LazyLock::new(|| Arc::new(RwLock::new(HashMap::new())));
-
-static ANSWER_LOCKED_IN: LazyLock<Arc<RwLock<HashMap<(String, u128), bool>>>> =
     LazyLock::new(|| Arc::new(RwLock::new(HashMap::new())));
 
 static SCORE_BOARD: LazyLock<Arc<RwLock<Vec<((String, u128), f64)>>>> =
@@ -254,18 +251,18 @@ async fn handle_socket(socket: WebSocket, pg: PgPool) {
     });
 
     tokio::select! {
-        rv_c = (&mut question_send_task) => {
+        _rv_c = (&mut question_send_task) => {
             // question_send_task.abort();
         }
-        rv_a = (&mut send_task) => {
+        _rv_a = (&mut send_task) => {
             // send_task.abort();
         },
-        rv_b = (&mut recv_task) => {
+        _rv_b = (&mut recv_task) => {
             // recv_task.abort();
         }
     }
 
-    if let Some(user) = &*user.read().await {
+    if let Some(_user) = &*user.read().await {
         // do not remove, only set to invisible
         // USER_MAP.write().await.remove(&(user.name.clone(), user.id));
     };

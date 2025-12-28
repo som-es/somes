@@ -5,7 +5,7 @@ pub const DATASERVICE_URL: &str = dotenv!("DATASERVICE_URL");
 
 #[tokio::main]
 async fn main() {
-    println!("cargo:rerun-if-changed=src/");
+    // println!("cargo:rerun-if-changed=src/");
     println!("cargo:rerun-if-changed=build.rs");
     let dataservice_sqlx_pool = PgPoolOptions::new()
         // pool sizes

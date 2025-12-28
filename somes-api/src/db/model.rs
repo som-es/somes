@@ -25,7 +25,7 @@ pub struct SpeakerByHours {
     hours_spoken: f32,
 }
 
-#[derive(PartialEq, Eq, Debug, Serialize, Deserialize)]
+#[derive(ToSchema, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub struct User {
     pub id: i32,
     pub email: String,

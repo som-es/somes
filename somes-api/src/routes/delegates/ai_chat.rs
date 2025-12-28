@@ -9,7 +9,7 @@ use axum::{
 };
 use axum_extra::TypedHeader;
 
-pub async fn ai_chat_ws_handler(
+pub async fn ai_chat_ws_handler_route(
     ws: WebSocketUpgrade,
     user_agent: Option<TypedHeader<headers::UserAgent>>,
     // ConnectInfo(addr): ConnectInfo<SocketAddr>,

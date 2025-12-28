@@ -1,0 +1,61 @@
+use axum::{extract::Query, Json};
+use meilisearch_sdk::search::SearchResults;
+use somes_common_lib::GovPropFilter;
+
+use crate::{
+    meilisearch::MeilisearchClient,
+    routes::{FilterError, GovProposalDelegate, GovProposalsWithMaxPage},
+    GOV_PROPS_PER_PAGE,
+};
+
+pub async fn gov_props_by_search_route(
+    MeilisearchClient(meilisearch_client): MeilisearchClient,
+    Query(search_query): Query<somes_common_lib::SearchQuery>,
+    Query(page): Query<somes_common_lib::Page>,
+    Json(legis_init_filter): Json<Option<GovPropFilter>>,
+) -> Result<Json<GovProposalsWithMaxPage>, FilterError> {
+    let mut meilisearch_filter = String::new();
+    if let Some(filter) = legis_init_filter {
+        let mut filter_conditions = Vec::new();
+
+        if let Some(ref legis_period) = filter.legis_period {
+            filter_conditions.push(format!(
+                "gov_proposal.ministrial_proposal.gp = '{}'",
+                legis_period
+            ));
+        }
+        if let Some(has_vote_result) = filter.has_vote_result {
+            let condition = if has_vote_result {
+                "gov_proposal.vote_result IS NOT NULL"
+            } else {
+                "gov_proposal.vote_result IS NULL"
+            };
+            filter_conditions.push(condition.to_string());
+        }
+        meilisearch_filter = filter_conditions.join(" AND ")
+    }
+
+    let results: SearchResults<GovProposalDelegate> = meilisearch_client
+        .index("gov_props")
+        .search()
+        .with_filter(&meilisearch_filter)
+        .with_query(&search_query.search)
+        .with_hits_per_page(GOV_PROPS_PER_PAGE.parse().unwrap_or(12))
+        .with_page(page.page as usize)
+        .with_sort(&["gov_proposal.ministrial_proposal.created_at:desc"])
+        .execute()
+        .await?;
+
+    let max_page = results.total_pages.unwrap_or(1) as i64;
+
+    let gov_proposals = results
+        .hits
+        .into_iter()
+        .map(|hit| hit.result)
+        .collect::<Vec<_>>();
+    Ok(Json(GovProposalsWithMaxPage {
+        gov_proposals,
+        entry_count: results.estimated_total_hits.unwrap_or(1) as i64,
+        max_page,
+    }))
+}

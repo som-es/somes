@@ -21,7 +21,7 @@ pub struct WaloQuestion {
     erklaerbaer: Option<String>,
 }
 
-pub async fn walo_questions(
+pub async fn walo_questions_route(
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<WaloQuestion>>, WaloErrorResponse> {
     sqlx::query_as!(

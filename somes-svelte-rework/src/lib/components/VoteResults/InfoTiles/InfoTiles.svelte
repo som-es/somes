@@ -19,7 +19,12 @@
 	export let showAchievedVotes = true;
 	export let showAccepted = true;
 	export let showText = true;
-	export let showLawStuff = true;
+
+	showDate = false
+	showRequiredMajority = false
+	showDate = false
+	showAccepted = false
+
 
 	$: NOT_REACHED_COLOR = getModeUserPrefers()
 		? 'rgb(var(--color-primary-600))'
@@ -152,7 +157,10 @@
 	<div class="flex gap-3 flex-wrap">
 		{#if showAchievedVotes && voteResult.legislative_initiative.accepted}
 			<Square {squareSize} class={squareClasses}>
-				<SimpleDonut stops={conicsStopsAchievedVotes} {isLightMode} />
+				<SimpleDonut stops={conicsStopsAchievedVotes} {isLightMode} 
+					mark50={voteResult.legislative_initiative.requires_simple_majority ?? false}
+					mark66={!(voteResult.legislative_initiative.requires_simple_majority ?? true)}
+				/>
 
 				{#if showText}
 					<div>Erreichte</div>
@@ -177,31 +185,6 @@
 			</Square>
 		{/if}
 	</div>
-	{#if voteResult.legislative_initiative.is_law}
-		{#if showLawStuff && voteResult.legislative_initiative.law_come_into_effect_date}
-			<Square {squareSize} class={squareClasses}>
-				<div class="font-bold text-lg">
-					{dashDateToDotDate(
-						voteResult.legislative_initiative.law_come_into_effect_date.toString()
-					)}
-				</div>
-				{#if showText}
-					<div>in Kraft am</div>
-				{/if}
-			</Square>
-		{/if}
-
-		{#if showLawStuff && voteResult.legislative_initiative.law_expires_on_date && voteResult.legislative_initiative.law_expires_on_date > (voteResult.legislative_initiative.law_come_into_effect_date ?? '')}
-			<Square {squareSize} class={squareClasses}>
-				<div class="font-bold text-lg">
-					{dashDateToDotDate(voteResult.legislative_initiative.law_expires_on_date.toString())}
-				</div>
-				{#if showText}
-					<div>außer Kraft am</div>
-				{/if}
-			</Square>
-		{/if}
-	{/if}
 </div>
 
 <style>

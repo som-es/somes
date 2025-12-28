@@ -1,3 +1,4 @@
+import type { AiSummary, DbAiSummary } from './ai_summary_types';
 import type { Decree } from './components/Delegates/Decrees/types';
 
 export interface DelegateSplit {
@@ -50,7 +51,7 @@ export interface Delegate {
 	mandates: FullMandate[] | null;
 }
 
-export interface DbMinistrialProposalQuery {
+export interface DbMinistrialProposalQueryMeta {
 	id: number;
 	ityp: string;
 	gp: string;
@@ -74,13 +75,14 @@ export interface GovProposalDelegate {
 }
 
 export interface GovProposal {
-	ministrial_proposal: DbMinistrialProposalQuery;
+	ministrial_proposal: DbMinistrialProposalQueryMeta;
 	vote_result: VoteResult | null;
 	topics: Topic[];
 	eurovoc_topics: Topic[];
 	other_keyword_topics: Topic[];
 	ministerial_issuers: number[];
 	documents: Document[];
+	ai_summary: DbAiSummary | null;
 }
 
 export interface LegislativeInitiative {
@@ -91,6 +93,7 @@ export interface LegislativeInitiative {
 	title: string;
 	description: string;
 	emphasis: string | null;
+	ai_emphasis: string | null;
 	accepted: string | null;
 	created_at: Date;
 	appeared_at: Date | null;
@@ -101,9 +104,6 @@ export interface LegislativeInitiative {
 	pre_declined_type: string | null;
 	plenary_session_id: number | null;
 	is_law: boolean;
-	law_accepted: boolean | null;
-	law_come_into_effect_date: string | null;
-	law_expires_on_date: string | null;
 	by_publication: boolean | null;
 	voting: string | null;
 	is_voteable_on: boolean;
@@ -186,7 +186,8 @@ export interface VoteResult {
 	absences: number[];
 	issued_by_dels: RelatedDelegate[];
 	referenced_by_others_ids: number[];
-	references: Reference[];
+	references: Reference[] | null;
+	ai_summary: DbAiSummary | null;
 }
 
 export function createVoteResultPath(voteResult: VoteResult): string {
@@ -258,6 +259,9 @@ export interface Party {
 
 export interface HasError {
 	error: string;
+	error_type: string;
+	field: string;
+	meta: any | null;
 }
 
 export interface JWTInfo {
@@ -434,6 +438,7 @@ export interface PartyVote {
 }
 
 export interface VoteResultFilter {
+	is_finished: boolean | null;
 	is_named_vote: boolean | null;
 	accepted: string | null;
 	simple_majority: boolean | null;

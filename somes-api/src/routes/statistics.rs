@@ -1,6 +1,4 @@
-use axum::{routing::post, Json, Router};
-use somes_common_lib::LegisPeriod;
-use utoipa::ToSchema;
+use axum::{routing::post, Router};
 mod absences_per_age;
 mod absences_per_delegate;
 mod absences_per_gender;

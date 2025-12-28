@@ -4,7 +4,7 @@ use axum::{
 };
 
 use chrono::NaiveDate;
-use redis::{aio::MultiplexedConnection, AsyncCommands, Commands};
+use redis::{aio::MultiplexedConnection, AsyncCommands};
 use reqwest::StatusCode;
 use serde::{de::DeserializeOwned, Serialize};
 use sqlx::PgPool;
@@ -13,6 +13,9 @@ pub mod model;
 pub use model::*;
 
 use crate::{server::AppState, today};
+
+#[cfg(not(debug_assertions))]
+use redis::Commands;
 
 pub async fn get_json_cache<T: DeserializeOwned>(
     redis_client: &mut MultiplexedConnection,

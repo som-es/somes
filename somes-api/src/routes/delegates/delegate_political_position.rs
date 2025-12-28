@@ -3,9 +3,7 @@ use redis::aio::MultiplexedConnection;
 use somes_common_lib::{DelegateById, DelegateQA, PoliticalPosition};
 use sqlx::{query, query_as, PgPool};
 
-use crate::{PgPoolConnection, RedisConnection};
-
-use super::DelegatesErrorResponse;
+use crate::{routes::DelegateError, PgPoolConnection, RedisConnection};
 
 pub struct StanceAnswerQuestion {}
 
@@ -52,11 +50,12 @@ pub async fn delegate_political_questions(
     PgPoolConnection(pg): PgPoolConnection,
     RedisConnection(mut redis_con): RedisConnection,
     Query(delegate_by_id): Query<DelegateById>,
-) -> Result<Json<Vec<DelegateQA>>, DelegatesErrorResponse> {
-    extract_political_position_questions(delegate_by_id.delegate_id, &pg, &mut redis_con)
-        .await
-        .map(Json)
-        .map_err(|_| DelegatesErrorResponse::DelegateInterestsResponseError)
+) -> Result<Json<Vec<DelegateQA>>, DelegateError> {
+    Ok(
+        extract_political_position_questions(delegate_by_id.delegate_id, &pg, &mut redis_con)
+            .await
+            .map(Json)?,
+    )
 }
 
 pub async fn extract_political_position(
@@ -78,11 +77,11 @@ pub async fn extract_political_position(
 pub async fn delegate_political_position(
     PgPoolConnection(pg): PgPoolConnection,
     Query(delegate_by_id): Query<DelegateById>,
-) -> Result<Json<Option<PoliticalPosition>>, DelegatesErrorResponse> {
+) -> Result<Json<PoliticalPosition>, DelegateError> {
     extract_political_position(delegate_by_id.delegate_id, &pg)
-        .await
+        .await?
+        .ok_or(DelegateError::NotFound)
         .map(Json)
-        .map_err(|_| DelegatesErrorResponse::DelegateInterestsResponseError)
 }
 
 // pub async fn extract_political_answers_by_delegate(delegate_id: i32, pg: &PgPool) -> sqlx::Result<Vec<>> {

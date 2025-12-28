@@ -71,14 +71,14 @@ export async function fetchSavely<T>(fn: () => Promise<Response>): Promise<T | H
 		// }
 		return json;
 	} catch (error) {
-		console.log(`error: ${error}`);
-		return { error: 'Error fetching data' };
+		console.log(`error: ${error}, response: ${response?.url}`);
+		return { error: 'Error fetching data', error_type: 'FetchError', field: '', meta: null };
 	}
 }
 
-export async function justPost<T>(route: string, body: any): Promise<T | HasError> {
+export async function justPost<T>(route: string, body: any, country = 'at/'): Promise<T | HasError> {
 	return fetchSavely(() =>
-		fetch(`${url}${route}`, {
+		fetch(`${url}${country}${route}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -91,9 +91,9 @@ export async function justPostStatistics<T>(route: string, body: any): Promise<T
 	return justPost(`v1/statistics/${route}`, body);
 }
 
-export async function getWithRoute<T>(route: string): Promise<T | HasError> {
+export async function getWithRoute<T>(route: string, country = 'at/'): Promise<T | HasError> {
 	return fetchSavely(() =>
-		fetch(`${url}${route}`, {
+		fetch(`${url}${country}${route}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'
@@ -113,7 +113,7 @@ export async function seats(): Promise<Map<string, number[]> | HasError> {
 		return new Map(Object.entries(response));
 	}
 
-	return { error: 'Error fetching data' };
+	return { error: 'Error fetching data', error_type: 'FetchError', field: '', meta: null };
 }
 
 export async function parties(): Promise<Party[] | HasError> {
@@ -125,7 +125,7 @@ export async function delegates(): Promise<Delegate[] | HasError> {
 }
 
 export async function latest_vote_results(): Promise<VoteResult[] | HasError> {
-	return getWithRoute<VoteResult[]>('latest_vote_results');
+	return getWithRoute<VoteResult[]>('v1/vote_results/latest');
 }
 
 export async function all_gps(): Promise<LegisPeriod[] | HasError> {
@@ -151,7 +151,7 @@ export async function delegate_qa(delegate_id: number): Promise<DelegateQA[] | H
 }
 
 export async function vote_result_by_id(vote_result_id: string): Promise<VoteResult | HasError> {
-	return getWithRoute<VoteResult>(`vote_result_by_id?id=${vote_result_id}`);
+	return getWithRoute<VoteResult>(`v1/vote_results/id/${vote_result_id}`);
 }
 
 export async function vote_result_by_path(
@@ -159,7 +159,7 @@ export async function vote_result_by_path(
 	ityp: string,
 	inr: string
 ): Promise<VoteResult | HasError> {
-	return getWithRoute<VoteResult>(`vote_result/${gp}/${ityp}/${inr}`);
+	return getWithRoute<VoteResult>(`v1/vote_results/${gp}/${ityp}/${inr}`);
 }
 
 export async function delegates_at(date_at: Date): Promise<Delegate[] | HasError> {
@@ -185,7 +185,7 @@ export async function general_gov_official_info(
 export async function latest_ministrial_proposals(
 	days: number
 ): Promise<GovProposalDelegate[] | HasError> {
-	return getWithRoute(`latest_ministrial_proposals?days=${days}`);
+	return getWithRoute(`v1/gov_proposals/latest?days=${days}`);
 }
 
 export async function speeches_by_delegate_per_page(
@@ -215,28 +215,21 @@ export async function get_topics(): Promise<UniqueTopic[] | HasError> {
 }
 
 export async function walo_questions(): Promise<WaloQuestion[] | HasError> {
-	return getWithRoute<WaloQuestion[]>('walo_questions');
-}
-
-export async function unfinished_vote_results_per_page(
-	page: number,
-	filter: VoteResultFilter | null
-): Promise<VoteResultsWithMaxPage | HasError> {
-	return justPost(`unfinished_vote_results_per_page?page=${page}`, filter);
+	return getWithRoute<WaloQuestion[]>('walo_questions', "");
 }
 
 export async function vote_results_per_page(
 	page: number,
 	filter: VoteResultFilter | null
 ): Promise<VoteResultsWithMaxPage | HasError> {
-	return justPost(`vote_results_per_page?page=${page}`, filter);
+	return justPost(`v1/vote_results/live/?page=${page}`, filter);
 }
 
 export async function gov_proposals_per_page(
 	page: number,
 	filter: GovPropFilter | null
 ): Promise<GovProposalsWithMaxPage | HasError> {
-	return justPost(`gov_proposals_per_page?page=${page}`, filter);
+	return justPost(`v1/gov_proposals/live/?page=${page}`, filter);
 }
 
 export async function gov_proposals_by_search(
@@ -244,15 +237,7 @@ export async function gov_proposals_by_search(
 	search: string,
 	filter: GovPropFilter | null
 ): Promise<GovProposalsWithMaxPage | HasError> {
-	return justPost(`gov_proposals_by_search?page=${page}&search=${search}`, filter);
-}
-
-export async function unfinished_vote_results_by_search(
-	page: number,
-	search: string,
-	filter: VoteResultFilter | null
-): Promise<VoteResultsWithMaxPage | HasError> {
-	return justPost(`unfinished_vote_result_by_search?page=${page}&search=${search}`, filter);
+	return justPost(`v1/gov_proposals/search?page=${page}&search=${search}`, filter);
 }
 
 export async function vote_results_by_search(
@@ -260,5 +245,5 @@ export async function vote_results_by_search(
 	search: string,
 	filter: VoteResultFilter | null
 ): Promise<VoteResultsWithMaxPage | HasError> {
-	return justPost(`vote_result_by_search?page=${page}&search=${search}`, filter);
+	return justPost(`v1/vote_results/search?page=${page}&search=${search}`, filter);
 }

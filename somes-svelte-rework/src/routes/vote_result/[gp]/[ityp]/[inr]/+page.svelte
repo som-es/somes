@@ -31,7 +31,7 @@
 	import SimpleYesNo from '$lib/components/VoteResults/SimpleYesNo/SimpleYesNo.svelte';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import { cachedLegisInitFavos } from '$lib/caching/favos';
-	import { addLegisInitFavo, removeLegiInitFavo } from '$lib/api/authed';
+	import { addLegisInitFavo, removeLegisInitFavo } from '$lib/api/authed';
 	import star from '$lib/assets/misc_icons/star.svg?raw';
 	import starFilled from '$lib/assets/misc_icons/starFilled.svg?raw';
 	import FetchDelegateCard from '$lib/components/Delegates/FetchDelegateCard.svelte';
@@ -39,6 +39,12 @@
 	import { page } from '$app/stores';
 	import VoteTypeBadge from '$lib/components/VoteResults/VoteTypeBadge.svelte';
 	import Documents from '$lib/components/Documents/Documents.svelte';
+	import { dashDateToDotDate } from '$lib/date';
+	import InfoBadges from '$lib/components/VoteResults/InfoTiles/InfoBadges.svelte';
+	import crossmarkIcon from '$lib/assets/misc_icons/crossmark.svg?raw';
+	import checkmarkIcon from '$lib/assets/misc_icons/checkmark_small.svg?raw';
+	import GlossaryText from '$lib/components/UI/GlossaryText.svelte';
+	import AiSummaryHintPopup from '$lib/components/AiHint/AiSummaryHintPopup.svelte';
 
 	$: gp = $page.params.gp;
 	$: ityp = $page.params.ityp;
@@ -80,8 +86,6 @@
 			// TODO set general absences delegates -> mind to update absence delegates
 		}
 	}
-
-	$: rawEmphasis = voteResult?.legislative_initiative?.emphasis;
 
 	$: issuedByDels = new Map<string, number[]>();
 	$: description = voteResult?.legislative_initiative?.description;
@@ -202,13 +206,7 @@
 	// 	emphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
 	$: speeches = circles2d.flat(1).filter((circle) => circle.speech !== null);
 	$: parliamentUrl = `https://parlament.gv.at/gegenstand/${gp}/${ityp}/${inr}?utm_source=somes.at`;
-	$: documents =
-		voteResult?.documents.map((doc) => {
-			const url = `https://www.parlament.gv.at${doc.document_url}`;
-			doc.document_url = url;
-			return doc;
-		}) ?? [];
-
+	$: documents = voteResult?.documents ?? [];
 	$: votedByName = voteResult?.legislative_initiative.voted_by_name ?? false;
 	$: couldExtractNamedVotes =
 		(voteResult?.named_votes?.named_votes?.length ?? 0) > 0 && votedByName;
@@ -216,11 +214,11 @@
 
 <title>
 	{#if voteResult}
-		{#if voteResult?.legislative_initiative?.accepted}
-			{description}
+		{#if voteResult.ai_summary}
+			{voteResult.ai_summary.short_title}
 		{:else}
 			{description}
-		{/if}
+		{/if}	
 	{/if}
 </title>
 <Container>
@@ -234,73 +232,87 @@
 			<br />
 			<div class="entry bg-primary-200 dark:bg-primary-400 mt-3 grid-container-with-emphasis">
 				<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
-					<div class="flex justify-between items-center">
-						<div>
-							<h1 class="font-bold text-xl md:text-3xl">
-								{#if voteResult?.legislative_initiative.accepted}
-									{voteResult.legislative_initiative.voted_by_name ? 'namentliche ' : ''}Abstimmung
-									über
-								{:else}
-									Gegenstand
-								{/if}
-							</h1>
-							<span class="text-xl">{description}</span>
-							<VoteTypeBadge {voteResult} />
-						</div>
-						<div class="flex flex-wrap items-center gap-1">
-							<a href={parliamentUrl} target="_blank">
-								<img
-									class="w-12"
-									alt="parlament.gv.at favicon"
-									src="https://www.parlament.gv.at/static/img/favicon/favicon.svg"
-								/>
-							</a>
+					<div class="flex justify-between items-start">
+						<div class="flex items-center gap-4">
+							<!-- Title & Date Stack -->
+							<div class="flex flex-col">
+								<span class="text-3xl font-bold leading-tight">
+									{#if voteResult.ai_summary}
+										<AiSummaryHintPopup
+											aiSummary={voteResult.ai_summary}
+										/>
+										{voteResult.ai_summary.short_title}
+									{:else}
+										{description}
+									{/if}	
+								</span>
 
-							{#if legisInitFavos}
-								{#if legisInitFavos.has(+voteResult.legislative_initiative.id)}
-									<button
-										on:click={async () => {
-											if (!voteResult) return;
-											if (
-												(await removeLegiInitFavo({
-													vote_result_id: +voteResult.legislative_initiative.id
-												})) == null
-											) {
-												legisInitFavos?.delete(+voteResult.legislative_initiative.id);
-												legisInitFavos = legisInitFavos;
-											}
-										}}
-										class="w-14 p-2"
-									>
-										{@html starFilled}
-									</button>
-								{:else}
-									<button
-										on:click={async () => {
-											if (!voteResult) return;
-											if (
-												(await addLegisInitFavo({
-													vote_result_id: +voteResult.legislative_initiative.id
-												})) == null
-											) {
-												legisInitFavos?.add(+voteResult.legislative_initiative.id);
-												legisInitFavos = legisInitFavos;
-											}
-										}}
-										class="w-14 p-2"
-									>
-										{@html star}
-									</button>
+								{#if voteResult.legislative_initiative.accepted}
+									<span class="text-sm opacity-90 -mt-1">
+										{voteResult.legislative_initiative.voted_by_name ? 'namentlich ' : ''}
+										abgestimmt am {dashDateToDotDate(voteResult.legislative_initiative.created_at.toString())}
+									</span>
 								{/if}
+							</div>
+
+							<!-- Result Icon -->
+							{#if voteResult.legislative_initiative.accepted}
+								<div class="flex-shrink-0">
+									{#if voteResult.legislative_initiative.accepted == 'a'}
+										<span class="stroke-green-600 dark:stroke-green-500 block" style="width:60px; height:60px;">
+											{@html checkmarkIcon}
+										</span>
+									{:else}
+										<span class="block" style="width:60px; height:60px;">
+											{@html crossmarkIcon}
+										</span>
+									{/if}
+								</div>
+							{/if}
+						</div>
+
+						<!-- Right Actions (Fixed Width) -->
+						<div class="flex flex-wrap items-center ml-2 gap-2 flex-shrink-0">
+							<a href={parliamentUrl} target="_blank">
+								<img class="w-12" alt="favicon" src="https://www.parlament.gv.at/static/img/favicon/favicon.svg" />
+							</a>
+							{#if legisInitFavos}
+								<button on:click={async () => {/* toggle logic */}} class="w-14 p-2">
+									{@html legisInitFavos.has(+voteResult.legislative_initiative.id) ? starFilled : star}
+								</button>
+							{/if}
+						</div>
+					</div>
+
+					<div class="flex flex-wrap justify-between items-center gap-3 w-full border-t border-black/5 dark:border-white/5 pt-1 ">
+						<div class="flex-shrink-0">
+							<InfoBadges {voteResult} />
+						</div>
+						
+						<div class="flex-1 flex justify-end">
+							{#if voteResult.ai_summary && voteResult.eurovoc_topics.length == 0}
+								<Topics topics={voteResult.ai_summary.full_summary.topics.sort((a, b) => {
+										return a.length - b.length;
+									}).map(topic => {return {topic}})} />
+							{:else}
+								<Topics topics={voteResult.eurovoc_topics.sort((a, b) => {
+									return a.topic.length - b.topic.length;
+								})} />
 							{/if}
 						</div>
 					</div>
 				</div>
-				{#if rawEmphasis}
+				{#if voteResult.ai_summary}
+					<div class="emphasis-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 pt-3 pb-3">
+						
+						<h1 class="font-bold text-lg md:text-xl">Zusammenfassung</h1>
+						<span class="text-sm lg:text-base">
+							<GlossaryText text={voteResult.ai_summary.short_summary} glossary={voteResult.ai_summary.full_summary.glossary} />
+						</span>
+					</div>
 					<div class="emphasis-item">
 						<Emphasis
-							{rawEmphasis}
-							isAiGenerated={voteResult.legislative_initiative.is_emphasis_ai_generated ?? false}
+							emphasis={voteResult.ai_summary.full_summary.key_points} glossary={voteResult.ai_summary.full_summary.glossary}
 						></Emphasis>
 					</div>
 				{/if}
@@ -384,7 +396,7 @@
 				{/if}
 
 				<!-- {/if} -->
-				<div class="flex flex-wrap justify-between min-w-full gap-3">
+				<!-- <div class="flex flex-wrap justify-between min-w-full gap-3">
 					{#if delegates}
 						<div class="md:hidden info-item">
 							<InfoTiles {voteResult} dels={delegates} isCenter />
@@ -393,19 +405,7 @@
 							<InfoTiles {voteResult} dels={delegates} />
 						</div>
 					{/if}
-
-					{#if voteResult.eurovoc_topics.length > 0}
-						<div
-							class="topics-item flex rounded-xl justify-center items-center bg-primary-300 dark:bg-primary-500 p-3 max-h-[169px]"
-						>
-							<Topics
-								topics={voteResult.eurovoc_topics.sort((a, b) => {
-									return a.topic.length - b.topic.length;
-								})}
-							/>
-						</div>
-					{/if}
-				</div>
+				</div> -->
 
 				<div class="flex max-lg:flex-wrap gap-2 w-full">
 					<div
@@ -429,7 +429,7 @@
 								{/each}
 							</div>
 						{/if}
-						{#if voteResult.references.length > 0}
+						{#if voteResult.references && voteResult.references.length > 0}
 							<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3 h-full">
 								<span class="font-bold text-lg md:text-3xl">
 									{#if voteResult.legislative_initiative.ityp == 'AA'}

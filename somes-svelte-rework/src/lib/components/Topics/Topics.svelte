@@ -12,7 +12,7 @@
 	});
 </script>
 
-<div class="flex flex-wrap gap-2 px-1">
+<div class="flex flex-wrap gap-1 px-1">
 	{#each topics as topic}
 		{#if userTopics.has(topic.topic)}
 			<DisplayTopic class={'!bg-secondary-400'}>{topic.topic}</DisplayTopic>

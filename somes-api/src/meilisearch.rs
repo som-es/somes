@@ -2,7 +2,7 @@ use axum::{
     extract::{FromRef, FromRequestParts},
     http::request::Parts,
 };
-use dataservice::combx::{MeiliesearchHelper, VoteResult};
+use dataservice::combx::{MeilisearchHelper, OptionalVoteResult};
 use meilisearch_sdk::settings::{PaginationSetting, Settings};
 use redis::aio::MultiplexedConnection;
 use reqwest::StatusCode;
@@ -10,8 +10,8 @@ use tokio::time::sleep;
 
 use crate::{
     routes::{
-        get_all_decrees_sqlx, get_all_gov_props, get_all_updated_votes_from_legis_init,
-        get_all_votes_from_legis_init,
+        all_updated_votes_from_legis_init_sqlx, all_votes_from_legis_init, get_all_decrees_sqlx,
+        get_all_gov_props,
     },
     server::AppState,
 };
@@ -125,7 +125,10 @@ pub async fn update_vote_result_meilisearch_index(
     redis_con: &mut MultiplexedConnection,
     pg_pool: &sqlx::Pool<sqlx::Postgres>,
     client: &meilisearch_sdk::client::Client,
-    vote_result_cb: impl AsyncFn(MultiplexedConnection, &sqlx::PgPool) -> sqlx::Result<Vec<VoteResult>>,
+    vote_result_cb: impl AsyncFn(
+        MultiplexedConnection,
+        &sqlx::PgPool,
+    ) -> sqlx::Result<Vec<OptionalVoteResult>>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let settings = Settings::new()
         .with_ranking_rules(vec![
@@ -162,13 +165,15 @@ pub async fn update_vote_result_meilisearch_index(
         .await?
         .into_iter()
         .map(|mut vote_result| {
-            vote_result.meilisearch_helper = MeiliesearchHelper {
+            vote_result.meilisearch_helper = Some(MeilisearchHelper {
                 votes: vote_result
                     .votes
+                    .as_ref()
+                    .unwrap_or(&vec![])
                     .iter()
                     .map(|vote| format!("{}{:?}", vote.party, vote.infavor))
                     .collect(),
-            };
+            });
             vote_result
         })
         .collect::<Vec<_>>();
@@ -208,7 +213,7 @@ pub fn update_meilisearch_indices(
                 &mut client_vr.get_multiplexed_tokio_connection().await.unwrap(),
                 &pg_pool_vr,
                 &meilisearch_client_vr,
-                get_all_votes_from_legis_init,
+                all_votes_from_legis_init,
             )
             .await
             {
@@ -229,7 +234,7 @@ pub fn update_meilisearch_indices(
                 &mut client_vr.get_multiplexed_tokio_connection().await.unwrap(),
                 &pg_pool_vr,
                 &meilisearch_client_vr,
-                get_all_updated_votes_from_legis_init,
+                all_updated_votes_from_legis_init_sqlx,
             )
             .await
             {

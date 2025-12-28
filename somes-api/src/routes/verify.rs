@@ -1,14 +1,7 @@
-use redis::AsyncCommands;
 use sha3::{Digest, Sha3_256};
 use somes_common_lib::SignUpInfo;
 use std::time::{SystemTime, UNIX_EPOCH};
 use uuid::Uuid;
-
-// use self::error::VerifyErrorResponse;
-
-pub use error::VerifyErrorResponse;
-
-mod error;
 
 pub fn create_verification_id(signup_info: &SignUpInfo) -> String {
     let mut bytes = Uuid::new_v4().as_bytes().to_vec();

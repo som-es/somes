@@ -3,10 +3,11 @@ use axum::{
     Json,
 };
 use reqwest::StatusCode;
-use serde_json::json;
 use utoipa::ToSchema;
 
-#[derive(ToSchema, Debug)]
+use crate::ErrorInfo;
+
+#[derive(ToSchema, Debug, Clone, Copy)]
 pub enum AuthError {
     WrongCredentials,
     MissingCredentials,
@@ -24,9 +25,13 @@ impl IntoResponse for AuthError {
             AuthError::MissingToken => (StatusCode::BAD_REQUEST, "Missing/Invalid token"),
             AuthError::InvalidToken => (StatusCode::BAD_REQUEST, "Invalid token"),
         };
-        let body = Json(json!({
-            "error": error_message,
-        }));
+
+        let body = Json(ErrorInfo {
+            error: error_message.to_string(),
+            error_type: "AuthError",
+            field: format!("{:?}", self),
+            meta: None,
+        });
         (status, body).into_response()
     }
 }

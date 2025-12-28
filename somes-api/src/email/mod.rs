@@ -2,9 +2,8 @@
 
 use dotenvy_macro::dotenv;
 use lettre::{
-    message::header::ContentType,
-    transport::smtp::{authentication::Credentials, client::TlsParameters},
-    Message, SmtpTransport, Transport,
+    message::header::ContentType, transport::smtp::authentication::Credentials, Message,
+    SmtpTransport, Transport,
 };
 use once_cell::sync::Lazy;
 

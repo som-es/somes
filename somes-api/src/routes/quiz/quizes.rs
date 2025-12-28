@@ -3,7 +3,7 @@ use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use sqlx::{query, query_as, PgPool};
 
-use crate::{jwt::Claims, routes::QuizQuestion, GenericErrorResponse, PgPoolConnection};
+use crate::{jwt::Claims, routes::QuizQuestion, GenericError, PgPoolConnection};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct QuizQuery {
@@ -24,10 +24,10 @@ pub async fn get_all_quizzes_handler(pg: &PgPool, user_id: i32) -> crate::Result
     let is_admin = query!("SELECT is_admin FROM somes_user WHERE id = $1", user_id)
         .fetch_one(pg)
         .await
-        .map_err(|e| GenericErrorResponse::DbSelectFailure(Some(e)))?;
+        .map_err(|e| GenericError::SqlFailure(Some(e)))?;
 
     if !is_admin.is_admin {
-        return Err(GenericErrorResponse::Custom((
+        return Err(GenericError::Custom((
             StatusCode::UNAUTHORIZED,
             "missing permissions",
         )));
@@ -36,7 +36,7 @@ pub async fn get_all_quizzes_handler(pg: &PgPool, user_id: i32) -> crate::Result
     let quizzes = query_as!(QuizQuery, "SELECT id, title,  description FROM quiz")
         .fetch_all(pg)
         .await
-        .map_err(|e| GenericErrorResponse::DbSelectFailure(Some(e)))?;
+        .map_err(|e| GenericError::SqlFailure(Some(e)))?;
 
     let mut quizzes_with_questions = Vec::new();
     for quiz_query in quizzes {
@@ -47,7 +47,7 @@ pub async fn get_all_quizzes_handler(pg: &PgPool, user_id: i32) -> crate::Result
         )
         .fetch_all(pg)
         .await
-        .map_err(|e| GenericErrorResponse::DbSelectFailure(Some(e)))?;
+        .map_err(|e| GenericError::SqlFailure(Some(e)))?;
 
         quizzes_with_questions.push(QuizId {
             id: quiz_query.id,
@@ -60,7 +60,7 @@ pub async fn get_all_quizzes_handler(pg: &PgPool, user_id: i32) -> crate::Result
     Ok(quizzes_with_questions)
 }
 
-pub async fn get_all_quizzes(
+pub async fn get_all_quizzes_route(
     claims: Claims,
     PgPoolConnection(pg): PgPoolConnection,
 ) -> crate::Result<Json<Vec<QuizId>>> {

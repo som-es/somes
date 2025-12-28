@@ -10,6 +10,7 @@ use axum::Json;
 use jsonwebtoken::{encode, EncodingKey, Header};
 use serde::Serialize;
 use somes_common_lib::{time::timestamp_secs, JWTInfo};
+use utoipa::ToSchema;
 
 pub fn create_access_token(
     id: i32,
@@ -40,7 +41,7 @@ pub fn create_access_token_u128(
     )
 }
 
-pub fn create_access_token_with_keys_and_exp_time<T: Serialize>(
+pub fn create_access_token_with_keys_and_exp_time<T: Serialize + ToSchema>(
     id: T,
     username: String,
     is_admin: bool,
@@ -64,7 +65,7 @@ pub fn create_access_token_with_keys_and_exp_time<T: Serialize>(
     Ok(Json(JWTInfo { access_token }))
 }
 
-pub async fn renew_token(claims: Claims) -> Result<Json<JWTInfo>, AuthError> {
+pub async fn renew_token_route(claims: Claims) -> Result<Json<JWTInfo>, AuthError> {
     create_access_token(claims.id, claims.sub, claims.is_admin)
 }
 
@@ -74,7 +75,7 @@ mod tests {
 
     #[test]
     fn test_create_access_token() {
-        std::env::set_var("JWT_SECRET", "super_sicher");
+        unsafe { std::env::set_var("JWT_SECRET", "super_sicher") };
 
         let token = create_access_token(43, "toller_name".to_string(), false).unwrap();
         let _token = &token.access_token;

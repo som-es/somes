@@ -46,16 +46,18 @@
 		gotoHistory(createVoteResultPath(voteResult), true);
 	}
 
-	$: rawEmphasis = govProposal.ministrial_proposal.emphasis;
+	$: aiSummary = govProposal.ai_summary;
 
 	$: whichGridContainer =
-		rawEmphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
+		aiSummary == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
 </script>
 
 <div class="sm:hidden entry bg-primary-200 dark:bg-primary-400 mt-3">
-	<Emphasis {rawEmphasis} isAiGenerated={false} useTitleHover />
+	{#if aiSummary}
+		<Emphasis emphasis={aiSummary.full_summary.key_points} glossary={aiSummary.full_summary.glossary} />
+	{/if}
 
-	{#if govProposal.vote_result}
+	{#if govProposal.vote_result && govProposal.vote_result.legislative_initiative.accepted !== null}
 		<div class="rounded-md w-full bg-primary-100 parliament-item mt-3 mb-3">
 			<VoteParliament2
 				voteResult={govProposal.vote_result}
@@ -101,7 +103,9 @@
 
 <div class="max-lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3 {whichGridContainer}">
 	<!--  -->
-	<Emphasis {rawEmphasis} isAiGenerated={false} useTitleHover />
+	{#if aiSummary}
+		<Emphasis emphasis={aiSummary.full_summary.key_points} glossary={aiSummary.full_summary.glossary} />
+	{/if}
 
 	{#if govProposal.topics.length > 0}
 		<div

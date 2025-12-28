@@ -39,7 +39,7 @@
 		<div>Fällig bis</div>
 	</Square>
 
-	{#if govProposal.vote_result}
+	{#if govProposal.vote_result && govProposal.vote_result.legislative_initiative.accepted !== null}
 		<Square>
 			<div class="font-bold text-lg">
 				{dashDateToDotDate(govProposal.vote_result.legislative_initiative.created_at.toString())}
