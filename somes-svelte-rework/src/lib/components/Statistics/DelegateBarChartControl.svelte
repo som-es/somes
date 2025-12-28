@@ -17,6 +17,8 @@
 	export let id: number;
 	export let config: Config | null
 
+	console.log(config)
+
 	let currentData: DelegateData[] = [];
 	let filteredData: DelegateData[] = [];
 	let filterParties: string[] = [];
@@ -219,85 +221,123 @@ const popupInfoDesc: PopupSettings = {
 
 
 <div class="z-40 card w-64 p-4 shadow-xl" data-popup="popupInfoParty{id}">
-	<p class="text-sm">{config?.party_filter_info}</p>
+	<p class="text-sm">{config?.filter_info_1?.infoText}</p>
 </div>
 
 <div class="z-40 card w-64 p-4 shadow-xl" data-popup="popupInfoGender{id}">
-	<p class="text-sm">{config?.gender_filter_info}</p>
+	<p class="text-sm">{config?.filter_info_2?.infoText}</p>
 </div>
 
 <div class="z-40 card w-64 p-4 shadow-xl" data-popup="popupInfoNormalized{id}">
-	<p class="text-sm">{config?.normalized_filter_info}</p>
+	<p class="text-sm">{config?.filter_info_3?.infoText}</p>
 </div>
 
 <div class="z-40 card w-64 p-4 shadow-xl" data-popup="popupInfoDesc{id}">
-	<p class="text-sm"> {config?.desc_filter_info}</p>
+	<p class="text-sm"> {config?.filter_info_4?.infoText}</p>
 </div>
 
 <div class="flex flex-wrap gap-6">
-	<div>
-		<div class="flex items-center gap-2">
-			<h1 class="text-2xl font-bold">Partei</h1>
+	{#if config?.filter_info_1?.isShown !== false}
+		<div>
+			<div class="flex items-center gap-2">
+				<h1 class="text-2xl font-bold">
+					{config?.filter_info_1?.name ?? 'Partei'}
+				</h1>
 
-			{#if config?.party_filter_info}
-				<button class="btn variant-soft-primary btn-circle btn-sm" use:popup={popupInfoParty}>
-					i
-				</button>
-			{/if}
+				{#if config?.filter_info_1?.infoText}
+					<button
+						class="btn variant-soft-primary btn-circle btn-sm"
+						use:popup={popupInfoParty}
+					>
+						i
+					</button>
+				{/if}
+			</div>
+
+
+			<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupParty}>
+				<span class="capitalize">{translatePartyFilter(filterParties)}</span>
+				<span>↓</span>
+			</button>
 		</div>
-
-		<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupParty}>
-			<span class="capitalize">{translatePartyFilter(filterParties)}</span>
-			<span>↓</span>
-		</button>
-	</div>
-
+	{/if}
 		
-	
-	<div>
-		<div class="flex items-center gap-2">
-			<h1 class="text-2xl font-bold">Geschlecht</h1>
+	{#if config?.filter_info_2?.isShown !== false}
+		<div>
+			<div class="flex items-center gap-2">
+				<h1 class="text-2xl font-bold">
+					{config?.filter_info_2?.name ?? 'Geschlecht'}
+				</h1>
 
-			{#if config?.gender_filter_info}
-				<button class="btn variant-soft-primary btn-circle btn-sm" use:popup={popupInfoGender}>i</button>
-			{/if}
+				{#if config?.filter_info_2?.infoText}
+					<button
+						class="btn variant-soft-primary btn-circle btn-sm"
+						use:popup={popupInfoGender}
+					>
+						i
+					</button>
+				{/if}
+			</div>
+
+
+			<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupGender}>
+				<span class="capitalize">{translateGenderFilter(gender)}</span>
+				<span>↓ </span>
+			</button>
 		</div>
+	{/if}
 
-		<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupGender}>
-			<span class="capitalize">{translateGenderFilter(gender)}</span>
-			<span>↓ </span>
-		</button>
-	</div>
+	{#if config?.filter_info_3?.isShown !== false}
+		<div>
+			<div class="flex items-center gap-2">
+				<h1 class="text-2xl font-bold">
+					{config?.filter_info_3?.name ?? 'Normalisiert'}
+				</h1>
 
-	<div>
-		<div class="flex items-center gap-2">
-    		<h1 class="text-2xl font-bold">Normalisiert</h1>
-    		{#if config?.normalized_filter_info}
-				<button class="btn variant-soft-primary btn-circle btn-sm" use:popup={popupInfoNormalized}>i</button>
-			{/if}
+				{#if config?.filter_info_3?.infoText}
+					<button
+						class="btn variant-soft-primary btn-circle btn-sm"
+						use:popup={popupInfoNormalized}
+					>
+						i
+					</button>
+				{/if}
+			</div>
+
+
+			<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupNormalized}>
+				<span class="capitalize">{translateNormalizationFilter(normalized)}</span>
+				<span>↓</span>
+			</button>
 		</div>
+	{/if}	
 
-		<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupNormalized}>
-			<span class="capitalize">{translateNormalizationFilter(normalized)}</span>
-			<span>↓</span>
-		</button>
-	</div>
-		
+	{#if config?.filter_info_4?.isShown !== false}
+		<div>
+			<div class="flex items-center gap-2">
+				<h1 class="text-2xl font-bold">
+					{config?.filter_info_4?.name ?? 'Absteigend'}
+				</h1>
 
+				{#if config?.filter_info_4?.infoText}
+					<button
+						class="btn variant-soft-primary btn-circle btn-sm"
+						use:popup={popupInfoDesc}
+					>
+						i
+					</button>
+				{/if}
+			</div>
 
-	<div>
-		<div class="flex items-center gap-2">
-    		<h1 class="text-2xl font-bold">Absteigend</h1>
-			{#if config?.desc_filter_info}
-    			<button class="btn variant-soft-primary btn-circle btn-sm" use:popup={popupInfoDesc}>i</button>
-			{/if}
+			<button
+				class="btn variant-filled-secondary w-48 justify-between"
+				use:popup={popupDesc}
+			>
+				<span class="capitalize">{translateDescFilter(isDesc)}</span>
+				<span>↓</span>
+			</button>
 		</div>
-
-		<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupDesc}>
-			<span class="capitalize">{translateDescFilter(isDesc)}</span>
-			<span>↓</span>
-		</button>
-	</div>
+{/if}
 </div>
 
 <div class="graphic-container">
