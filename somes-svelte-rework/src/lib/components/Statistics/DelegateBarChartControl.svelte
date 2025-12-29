@@ -22,7 +22,19 @@
 	let filteredData: DelegateData[] = [];
 	let filterPrimaries: string[] = [];
 
-	
+
+	let filterValues: Record<string, any> = {};
+if (config) {
+	config.filters.forEach(filter => {
+		const isMulti = filter.multiple === true;
+
+		filterValues[filter.id] =
+			filter.default ??
+			(isMulti ? [] : filter.options?.[0] ?? null);
+	});
+}
+
+		
 
 
 
@@ -41,33 +53,7 @@
 		// filteredData = currentData;
 	});
 
-	const popupPrimary: PopupSettings = {
-		event: 'click',
-		target: 'popupParty' + id,
-		placement: 'bottom'
-	};
-
-	const popupGender: PopupSettings = {
-		event: 'click',
-		target: 'popupGender' + id,
-		placement: 'bottom',
-		closeQuery: '.listbox-item'
-	};
-
-	const popupNormalized: PopupSettings = {
-		event: 'click',
-		target: 'popupNormalized' + id,
-		placement: 'bottom',
-		closeQuery: '.listbox-item'
-	};
-
-	const popupDesc: PopupSettings = {
-		event: 'click',
-		target: 'popupDesc' + id,
-		placement: 'bottom',
-		closeQuery: '.listbox-item'
-	};
-
+	
 	
 	let selectedPeriod: string = 'XXVIII';
 	let gender: string | undefined = undefined;
@@ -149,108 +135,40 @@
 		return 'Nein';
 	};
 
-const popupInfoPrimary: PopupSettings = {
-    event: 'hover',
-    target: 'popupInfoPrimary' + id,
-    placement: 'right'
-};
 
-const popupInfoGender: PopupSettings = {
-    event: 'hover',
-    target: 'popupInfoGender' + id,
-    placement: 'right'
-};
-
-const popupInfoNormalized: PopupSettings = {
-    event: 'hover',
-    target: 'popupInfoNormalized' + id,
-    placement: 'right'
-};
-
-const popupInfoDesc: PopupSettings = {
-    event: 'hover',
-    target: 'popupInfoDesc' + id,
-    placement: 'right'
-};
-
-const filterMap = {
-		primary: {
-			popup: popupPrimary,
-			infoPopup: popupInfoPrimary,
-			label: () => translatePrimaryFilter(filterPrimaries)
-		},
-		gender: {
-			popup: popupGender,
-			infoPopup: popupInfoGender,
-			label: () => translateGenderFilter(gender)
-		},
-		normalized: {
-			popup: popupNormalized,
-			infoPopup: popupInfoNormalized,
-			label: () => translateNormalizationFilter(normalized)
-		},
-		desc: {
-			popup: popupDesc,
-			infoPopup: popupInfoDesc,
-			label: () => translateDescFilter(isDesc)
-		}
-	} as const;
+const createPopup = (filterId: string, type: 'dropDown' | 'info') => ({
+	event: type === 'dropDown' ? 'click' : 'hover',
+	target: type === 'dropDown' ? 'popup_'+filterId+id: 'popup_info'+filterId+id,
+	placement: type === 'dropDown' ? 'bottom' : 'right',
+	closeQuery: type === 'dropDown' ? '.listbox-item' : undefined
+});
 
 
+let filterPopups: Record<string, {popup: any, infoPopup: any, label: () => string}> = {};
 
+
+if (config) {
+	config.filters.forEach(filter => {
+		const value = filterValues[filter.id];
+		const labelFn = filter.label ?? ((val: any) => String(val ?? '')); // Default Label
+		filterPopups[filter.id] = {
+			popup: createPopup(filter.id, 'dropDown'),
+			infoPopup: createPopup(filter.id, 'info'),
+			label: () => labelFn(filterValues[filter.id])
+		};
+	});
+}
+
+
+console.log(filterPopups)
 </script>
 
 <LegisButtons bind:selectedPeriod />
 
-<div class="z-30 card w-48 shadow-xl py-2" data-popup="popupParty{id}">
-	<ListBox
-		rounded="rounded-container-token sm:!rounded-token"
-		active="variant-filled-secondary"
-		hover="hover:variant-soft-secondary"
-		multiple
-	>
-		{#each uniqueParties as party}
-			<ListBoxItem bind:group={filterPrimaries} name="partyFilter" value={party}>{party}</ListBoxItem>
-		{/each}
-	</ListBox>
-</div>
-
-<div class="z-30 card w-48 shadow-xl py-2" data-popup="popupGender{id}">
-	<ListBox
-		rounded="rounded-container-token sm:!rounded-token"
-		active="variant-filled-secondary"
-		hover="hover:variant-soft-secondary"
-	>
-		<ListBoxItem bind:group={gender} name="genderName" value={undefined}>egal</ListBoxItem>
-		<ListBoxItem bind:group={gender} name="genderName" value={'f'}>weiblich</ListBoxItem>
-		<ListBoxItem bind:group={gender} name="genderName" value={'m'}>männlich</ListBoxItem>
-	</ListBox>
-</div>
-<div class="z-30 card w-48 shadow-xl py-2" data-popup="popupNormalized{id}">
-	<ListBox
-		rounded="rounded-container-token sm:!rounded-token"
-		active="variant-filled-secondary"
-		hover="hover:variant-soft-secondary"
-	>
-		<ListBoxItem bind:group={normalized} name="normalization" value={true}>Ja</ListBoxItem>
-		<ListBoxItem bind:group={normalized} name="normalization" value={false}>Nein</ListBoxItem>
-	</ListBox>
-</div>
-<div class="z-30 card w-48 shadow-xl py-2" data-popup="popupDesc{id}">
-	<ListBox
-		rounded="rounded-container-token sm:!rounded-token"
-		active="variant-filled-secondary"
-		hover="hover:variant-soft-secondary"
-	>
-		<ListBoxItem bind:group={isDesc} name="isDesc" value={true}>Ja</ListBoxItem>
-		<ListBoxItem bind:group={isDesc} name="isDesc" value={false}>Nein</ListBoxItem>
-	</ListBox>
-</div>
-
 
 {#each config?.filters ?? [] as filter (filter.id)}
 	{#if filter.isShown && filter.infoText}
-		<div class="z-40 card w-64 p-4 shadow-xl" data-popup={"popupInfo" + filter.id[0].toUpperCase() + filter.id.slice(1) + id}>
+		<div class="z-40 card w-64 p-4 shadow-xl" data-popup={"popup_info" + filter.id + id}>
 			<p class="text-sm">{filter.infoText}</p>
 		</div>
 	{/if}
@@ -268,19 +186,42 @@ const filterMap = {
 					{#if filter.infoText}
 						<button
 							class="btn variant-soft-primary btn-circle btn-sm"
-							use:popup={filterMap[filter.id].infoPopup}
+							use:popup={filterPopups[filter.id].infoPopup}
 						>
 							i
 						</button>
 					{/if}
 				</div>
 
+
+
+				<div
+					class="z-30 card w-48 shadow-xl py-2"
+					data-popup={"popup_" + filter.id + id}
+				>
+
+					<ListBox
+						rounded="rounded-container-token sm:!rounded-token"
+						active="variant-filled-secondary"
+						hover="hover:variant-soft-secondary"
+						multiple={filter.multiple === true}
+						bind:group={filterValues[filter.id]}
+					>
+						{#each filter.options ?? [] as option}
+						<!-- @ts-ignore -->
+							<ListBoxItem value={option} name={filter.id}>
+								{String(filter.label?.(option) ?? option)}
+							</ListBoxItem>
+						{/each}
+					</ListBox>
+
+				</div>
 				<button
 					class="btn variant-filled-secondary w-48 justify-between"
-					use:popup={filterMap[filter.id].popup}
+					use:popup={filterPopups[filter.id].popup}
 				>
 					<span class="capitalize">
-						{filterMap[filter.id].label()}
+						{filterPopups[filter.id].label()}
 					</span>
 					<span>↓</span>
 				</button>

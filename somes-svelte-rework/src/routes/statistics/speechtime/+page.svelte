@@ -4,6 +4,7 @@
 	import DelegateBarChartControl from '$lib/components/Statistics/DelegateBarChartControl.svelte';
 	import type { DelegateData } from '$lib/types';
 	import type {Config} from '$lib/components/Statistics/types'
+	import { list } from 'postcss';
 
 	type DelegateSpeechTime = {
 		delegate_name: string;
@@ -210,25 +211,44 @@
 					id: 'primary',
 					name: 'Partei',
 					isShown: true,
-					infoText: 'Filtert die angezeigten Abgeordneten nach Partei.'
+					multiple: true,
+					infoText: 'Filtert die angezeigten Abgeordneten nach Partei.',
+					options: [], // wird dynamisch aus `currentData` gefüllt
+					default: null,
+					//label: (val) => val && val.length > 0 ? val.join(', ') : 'Alle'
 				},
 				{
 					id: 'gender',
 					name: 'Geschlecht',
 					isShown: true,
-					infoText: 'Filtert die angezeigten Abgeordneten nach Geschlecht.'
+					multiple: false,
+					infoText: 'Filtert die angezeigten Abgeordneten nach Geschlecht.',
+					options: [undefined, 'f', 'm'],
+					default: undefined,
+					label: (val) => {
+						if (!val) return 'egal';
+						return val === 'f' ? 'weiblich' : 'männlich';
+					}
 				},
 				{
 					id: 'normalized',
 					name: 'Normalisiert',
 					isShown: true,
-					infoText: 'Zeigt die durchschnittliche Redezeit pro Sitzung statt der gesamten Redezeit eines Abgeordneten.'
+					multiple: false,
+					infoText: 'Zeigt die durchschnittliche Redezeit pro Sitzung statt der gesamten Redezeit eines Abgeordneten.',
+					options: [true, false],
+					default: true,
+					label: (val) => val ? 'Ja' : 'Nein'
 				},
 				{
 					id: 'desc',
 					name: 'Sortierung',
 					isShown: true,
-					infoText: 'Sortiert die Ergebnisse absteigend. (höchste Werte zuerst)'
+					multiple: false,
+					infoText: 'Sortiert die Ergebnisse absteigend. (höchste Werte zuerst)',
+					options: [true, false],
+					default: true,
+					label: (val) => val ? 'Ja' : 'Nein'
 				}
 			]
 		}}
