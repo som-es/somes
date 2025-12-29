@@ -1,3 +1,4 @@
+use chrono::NaiveDateTime;
 use dataservice::{
     combx::{DbNamedVote, DbNamedVoteInfo, DbNamedVoteInfoQuery, OptionalVoteResult, Topic},
     db::models::{DbLegislativeInitiativeQuery, DbNamedVotes, DbSpeechWithLink, DbVote},
@@ -19,6 +20,7 @@ pub struct VoteResultsWithMaxPage {
     pub vote_results: Vec<OptionalVoteResult>,
     pub entry_count: i64,
     pub max_page: i64,
+    pub updated_at: Option<NaiveDateTime>,
 }
 
 use super::{
