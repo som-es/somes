@@ -28,28 +28,23 @@
 <div class="entry bg-primary-200 dark:bg-primary-400 mt-3 flex max-lg:flex-wrap gap-3">
 	<div class="flex flex-col gap-2 w-full">
 		<div class="rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
-			<div class="flex jusify-between items-start ">
+			<div class="flex jusify-between items-start">
 				<div class="flex items-center gap-4">
 					<div class="flex flex-col">
 						<span class="leading-tight">
 							{#if aiSummary}
-								<AiSummaryHintPopup
-									aiSummary={aiSummary}
-								/>
-								<span class="text-3xl font-bold ">
+								<AiSummaryHintPopup {aiSummary} />
+								<span class="text-3xl font-bold">
 									{aiSummary.short_title}
 								</span>
 							{:else}
-								<span class="text-3xl font-bold ">
+								<span class="text-3xl font-bold">
 									{govProposal.gov_proposal.ministrial_proposal.description}
 								</span>
-							{/if}	
+							{/if}
 						</span>
-						<span class="text-sm opacity-90">
-							Ministerialentwurf vom
-						</span>
+						<span class="text-sm opacity-90"> Ministerialentwurf vom </span>
 					</div>
-					
 				</div>
 				<a href={documentUrl} target="_blank">
 					<img
@@ -59,22 +54,38 @@
 					/>
 				</a>
 			</div>
-			<div class="flex flex-wrap justify-between items-center gap-3 w-full border-t border-black/5 dark:border-white/5 pt-1 ">
+			<div
+				class="flex flex-wrap justify-between items-center gap-3 w-full border-t border-black/5 dark:border-white/5 pt-1"
+			>
 				<div class="flex-shrink-0">
-					<InfoBadgesCustom texts={
-						[govProposal.gov_proposal.ministrial_proposal.ressort, 
-						dashDateToDotDate(govProposal.gov_proposal.ministrial_proposal.created_at.toString().split("T")[0]), govProposal.gov_proposal.ministrial_proposal.gp]} />
+					<InfoBadgesCustom
+						texts={[
+							govProposal.gov_proposal.ministrial_proposal.ressort,
+							dashDateToDotDate(
+								govProposal.gov_proposal.ministrial_proposal.created_at.toString().split('T')[0]
+							),
+							govProposal.gov_proposal.ministrial_proposal.gp
+						]}
+					/>
 				</div>
-				
+
 				<div class="flex-1 flex justify-end">
 					{#if aiSummary && govProposal.gov_proposal.eurovoc_topics.length == 0}
-						<Topics topics={aiSummary.full_summary.topics.sort((a, b) => {
-								return a.length - b.length;
-							}).map(topic => {return {topic}})} />
+						<Topics
+							topics={aiSummary.full_summary.topics
+								.sort((a, b) => {
+									return a.length - b.length;
+								})
+								.map((topic) => {
+									return { topic };
+								})}
+						/>
 					{:else}
-						<Topics topics={govProposal.gov_proposal.eurovoc_topics.sort((a, b) => {
+						<Topics
+							topics={govProposal.gov_proposal.eurovoc_topics.sort((a, b) => {
 								return a.topic.length - b.topic.length;
-							})} />
+							})}
+						/>
 					{/if}
 				</div>
 			</div>
@@ -84,12 +95,15 @@
 			<div class="emphasis-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 pt-3 pb-3">
 				<h1 class="font-bold text-lg md:text-xl">Zusammenfassung</h1>
 				<span class="text-sm lg:text-base">
-					<GlossaryText text={govProposal.gov_proposal.ai_summary.short_summary} glossary={govProposal.gov_proposal.ai_summary.full_summary.glossary} />
+					<GlossaryText
+						text={govProposal.gov_proposal.ai_summary.short_summary}
+						glossary={govProposal.gov_proposal.ai_summary.full_summary.glossary}
+					/>
 				</span>
 			</div>
-			<Emphasis 
-				emphasis={govProposal.gov_proposal.ai_summary.full_summary.key_points} 
-				glossary={govProposal.gov_proposal.ai_summary.full_summary.glossary} 
+			<Emphasis
+				emphasis={govProposal.gov_proposal.ai_summary.full_summary.key_points}
+				glossary={govProposal.gov_proposal.ai_summary.full_summary.glossary}
 			/>
 		{/if}
 		<div class="flex flex-wrap gap-2 w-full">

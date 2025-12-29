@@ -1,11 +1,6 @@
 <script lang="ts">
 	import '../app.postcss';
-	import {
-		Drawer,
-		initializeStores,
-		Modal,
-		type ModalComponent
-	} from '@skeletonlabs/skeleton';
+	import { Drawer, initializeStores, Modal, type ModalComponent } from '@skeletonlabs/skeleton';
 	import CacheInvalidation from '$lib/components/CacheInvalidation/CacheInvalidation.svelte';
 	import Sidebar from '$lib/components/Bars/Sidebar.svelte';
 	import Bottombar from '$lib/components/Bars/Bottombar.svelte';
@@ -70,7 +65,7 @@
 		<Navbar />
 	</header>
 	<div class="grid grid-cols-[auto_1fr]">
-    <!-- Left Sidebar. -->
+		<!-- Left Sidebar. -->
 		<aside class="sticky top-0 col-span-1 h-screen">
 			<Sidebar class="hidden lg:grid" />
 		</aside>
@@ -79,11 +74,12 @@
 			<slot />
 		</main>
 	</div>
-  	<footer class="sticky bottom-0 z-50">
+	<footer class="sticky bottom-0 z-50">
 		<div class=" sm:!hidden max-h-[4.5rem]">
 			<Bottombar />
 		</div>
-  </footer>
+	</footer>
 </div>
+
 <style>
 </style>
