@@ -172,7 +172,7 @@
 		{#if showDate}
 			<Square {squareSize} class={squareClasses}>
 				<div class="font-bold text-lg">
-					{dashDateToDotDate(voteResult.legislative_initiative.created_at.toString())}
+					{dashDateToDotDate(voteResult.legislative_initiative.nr_plenary_activity_date.toString())}
 				</div>
 				{#if showText}
 					{#if voteResult.votes.length > 0}

@@ -95,8 +95,11 @@ export interface LegislativeInitiative {
 	emphasis: string | null;
 	ai_emphasis: string | null;
 	accepted: string | null;
-	created_at: Date;
-	appeared_at: Date | null;
+	nr_plenary_activity_date: Date;
+	vote_date: Date | null;
+	raw_data_created_at: Date | null;
+	raw_data_updated_at: Date | null;
+	created_at: Date | null;
 	updated_at: Date | null;
 	requires_simple_majority: boolean | null;
 	voted_by_name: boolean | null;

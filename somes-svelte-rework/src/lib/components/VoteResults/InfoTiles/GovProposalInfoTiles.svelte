@@ -42,7 +42,7 @@
 	{#if govProposal.vote_result && govProposal.vote_result.legislative_initiative.accepted !== null}
 		<Square>
 			<div class="font-bold text-lg">
-				{dashDateToDotDate(govProposal.vote_result.legislative_initiative.created_at.toString())}
+				{dashDateToDotDate(govProposal.vote_result.legislative_initiative.nr_plenary_activity_date.toString())}
 			</div>
 			<div>Abgestimmt am</div>
 			<div>(finale Version)</div>

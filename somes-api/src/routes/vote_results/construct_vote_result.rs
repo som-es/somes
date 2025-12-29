@@ -75,7 +75,10 @@ pub async fn construct_vote_result(
         &mut redis_con,
         &key,
         &out,
-        out.legislative_initiative.as_ref().unwrap().created_at,
+        out.legislative_initiative
+            .as_ref()
+            .unwrap()
+            .nr_plenary_activity_date,
     )
     .await
     .ok_or(sqlx::Error::WorkerCrashed)?;
