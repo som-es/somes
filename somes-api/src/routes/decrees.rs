@@ -1,9 +1,12 @@
+use std::ops::Mul;
+
 use axum::{
     extract::Query,
     routing::{get, post},
     Json, Router,
 };
 use dataservice::combx::OptionalDecree;
+use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::{DecreeFilter, Document, Page, LIVE, SEARCH};
 use utoipa::ToSchema;
@@ -28,6 +31,7 @@ pub struct DecreesWithMaxPage {
     pub decrees: Vec<OptionalDecree>,
     pub entry_count: i64,
     pub max_page: i64,
+    pub updated_at: Option<chrono::NaiveDateTime>,
 }
 
 pub async fn decrees_per_page_route(
@@ -46,7 +50,8 @@ pub async fn decrees_per_page_route(
     {
         return Ok(Json(decrees_with_max_page));
     }
-    let decrees_per_page = get_decrees_per_page_sqlx(&pg, &page, decree_filter.as_ref()).await?;
+    let decrees_per_page =
+        get_decrees_per_page_sqlx(&mut redis_con, &pg, &page, decree_filter.as_ref()).await?;
     set_json_cache(&mut redis_con, &key, &decrees_per_page).await;
     Ok(Json(decrees_per_page))
 }
@@ -67,10 +72,19 @@ pub async fn get_all_decrees_sqlx(
 }
 
 async fn get_decrees_per_page_sqlx(
+    redis_con: &mut MultiplexedConnection,
     pg: &sqlx::Pool<sqlx::Postgres>,
     page: &Page,
     decree_filter: Option<&DecreeFilter>,
 ) -> Result<DecreesWithMaxPage, FilterError> {
+    let updated_at = crate::meilisearch::get_update_time_of_index(
+        redis_con,
+        &crate::meilisearch::Index::Decrees,
+    )
+    .await
+    .ok()
+    .map(|date| date.naive_local());
+
     let page_elements = DECREES_PER_PAGE.parse().unwrap_or(15);
     let mut entry_count = 0;
     let decrees = sqlx::query!(
@@ -117,6 +131,7 @@ async fn get_decrees_per_page_sqlx(
         decrees,
         entry_count,
         max_page: (entry_count as f64 / DECREES_PER_PAGE.parse().unwrap_or(15.)).ceil() as i64,
+        updated_at,
     })
 }
 
@@ -130,7 +145,13 @@ mod tests {
     #[tokio::test]
     async fn test_get_decrees_per_page_sqlx() {
         let pg = connect_pg().await;
+        let mut redis_con = redis::Client::open(crate::REDIS_DB)
+            .unwrap()
+            .get_multiplexed_async_connection()
+            .await
+            .unwrap();
         let data = get_decrees_per_page_sqlx(
+            &mut redis_con,
             &pg,
             &Page { page: 1 },
             Some(&DecreeFilter {

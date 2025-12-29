@@ -42,6 +42,7 @@ pub struct GovProposalsWithMaxPage {
     pub gov_proposals: Vec<GovProposalDelegate>,
     pub entry_count: i64,
     pub max_page: i64,
+    pub updated_at: Option<chrono::NaiveDateTime>,
 }
 
 pub async fn construct_gov_delegate_proposal(
@@ -81,6 +82,14 @@ pub async fn gov_proposals_per_page_route(
     )
     .await?;
 
+    let updated_at = crate::meilisearch::get_update_time_of_index(
+        &mut redis_con.clone(),
+        &crate::meilisearch::Index::GovProposals,
+    )
+    .await
+    .ok()
+    .map(|date| date.naive_local());
+
     Ok(futures::future::join_all(
         ministrial_proposals
             .into_iter()
@@ -96,6 +105,7 @@ pub async fn gov_proposals_per_page_route(
         gov_proposals,
         entry_count,
         max_page: (entry_count as f64 / GOV_PROPS_PER_PAGE.parse().unwrap_or(12.)).ceil() as i64,
+        updated_at,
     })
     .map(Json)?)
 }
