@@ -35,7 +35,7 @@ pub async fn vote_results_by_search_route(
 fn create_topic_filter<T: Display>(field: &str, filter_values: impl Iterator<Item = T>) -> String {
     filter_values
         .into_iter()
-        .map(|filter_value| format!("{field} = {filter_value}"))
+        .map(|filter_value| format!("{field} = '{filter_value}'"))
         .collect::<Vec<_>>()
         .join(" AND ")
 }
