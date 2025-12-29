@@ -43,31 +43,24 @@
 	let voteResults: VoteResultsWithMaxPage | null = null;
 
 
-	// states for filtering
+	// TOPIC FILTER
 	let topics: UniqueTopic[] = [];
 	let selectedTopics: Set<string> = new Set();
 	let topicSearchValue = '';
 
-	// get all parties available in the request
+	// PARTY FILTER - get all parties available in the request
 	$: uniqueParties = [...new Set(dels.map((d) => d.party))].sort();
-
-	// Variables to count active filters
-	$: activePartyFiltersCount = Object.values(partyFilterState).filter((v) => v !== 'egal').length;
-	$: activeTopicFiltersCount = selectedTopics.size;
-	$: activeGenericFiltersCount = genericFilters.filter((f) => f.activeValue !== undefined && f.activeValue !== "all").length;
 
 	// Track each party's filter preference: 'egal' = no filter, 'pro' = voted in favor, 'contra' = voted against
 	type PartyFilterOption = 'egal' | 'pro' | 'contra';
 	let partyFilterState: Record<string, PartyFilterOption> = {};
 
 	// Initialize new parties with 'egal' (no filter)
-	$: {
-		for (const party of uniqueParties) {
+	$: {for (const party of uniqueParties) {
 			if (!(party in partyFilterState)) {
 				partyFilterState[party] = 'egal';
 			}
-		}
-	}
+		}}
 
 	// Convert State to API format
 	$: partyVotesFilter = Object.entries(partyFilterState)
@@ -78,7 +71,8 @@
 		}));
 
 
-	// General Filter storage and render format
+
+	// GENERIC FILTER - storage and render format
 	type GenericFilterGroup<T extends string | boolean> = {
         title: string;
         activeValue: T | undefined;
@@ -146,12 +140,19 @@
         }
     ];
 
-	// used for managing state of popup filter
+	// Variables to count active filters
+	$: activePartyFiltersCount = Object.values(partyFilterState).filter((v) => v !== 'egal').length;
+	$: activeTopicFiltersCount = selectedTopics.size;
+	$: activeGenericFiltersCount = genericFilters.filter((f) => f.activeValue !== undefined && f.activeValue !== "all").length;
+
+
+	// PARTY, TOPIC, GENERIC filters - used for managing state of popup filter
 	let isPartiesFilterOpen = false;
 	const popupParties: PopupSettings = {
 		event: 'click',
 		target: 'popupParties',
 		placement: 'bottom',
+		closeQuery: '.close-explicitly',
 		state: (e) => {
 			isPartiesFilterOpen = e.state;
 		}
@@ -162,6 +163,7 @@
 		event: 'click',
 		target: 'popupTopics',
 		placement: 'bottom',
+		closeQuery: '.close-explicitly',
 		state: (e) => {
 			isTopicFilterOpen = e.state;
 		}
@@ -172,6 +174,7 @@
 		event: 'click',
 		target: 'popupGenericFilter',
 		placement: 'bottom',
+		closeQuery: '.close-explicitly',
 		state: (e) => {
 			isGenericFilterOpen = e.state;
 		}
@@ -236,9 +239,10 @@
 		}
 		currentlyUpdating = false;
 	};
+
 	onMount(async () => {
 		update();
-		// CHRISTOPH REWORK - Fetch available topics
+		// TOPIC FILTER - Fetch available topics
 		const fetchedTopics = errorToNull(await get_eurovoc_topics());
 		if (fetchedTopics) {
 			topics = fetchedTopics;
@@ -264,7 +268,18 @@
 
 	let searchValue = '';
 
-	$: if (page || selectedPeriod || searchValue || partyVotesFilter || selectedTopics) {
+	$: if (
+		page ||
+		selectedPeriod ||
+		searchValue ||
+		partyVotesFilter ||
+		selectedTopics ||
+		genericFilters[0].activeValue ||
+		genericFilters[1].activeValue ||
+		genericFilters[2].activeValue ||
+		genericFilters[3].activeValue ||
+		genericFilters[4].activeValue
+	) {
 		update();
 	}
 
@@ -293,7 +308,7 @@
 			bind:value={searchValue}
 		/>
 	</div>
-	<!-- Filters -->
+	<!-- Filter Buttons -->
 	<!-- Parteien Filter -->
 	<div class="flex w-full md:w-auto h-10 mt-2 md:mt-0">
 		<div
@@ -357,6 +372,7 @@
 		</div>
 	</div>
 
+	<!-- Filter PopUps -->
 	<!-- Parteien Filter PopUp-->
 	<div
 		class="bg-surface-50 border border-gray-300 px-6 py-4 z-10 shadow-lg rounded-xl w-72"
@@ -471,7 +487,7 @@
                         <button
                             class="px-2 py-1 text-xs md:text-sm cursor-pointer rounded-lg"
                             class:bg-primary-300={group.activeValue === option.value}
-                            on:click={() => { group.activeValue = option.value; update(); }}
+                            on:click={() => { group.activeValue = option.value; }}
                         >
                             <span class="text-nowrap">{option.title}</span>
                         </button>
@@ -486,7 +502,7 @@
                         <button
                             class="px-2 py-1 text-xs md:text-sm cursor-pointer rounded-lg border border-primary-300"
                             class:bg-primary-300={genericFilters[4].activeValue === option.value}
-                            on:click={() => { genericFilters[4].activeValue = option.value; update(); }}
+                            on:click={() => { genericFilters[4].activeValue = option.value; }}
                         >
                             <span class="text-nowrap">{option.title}</span>
                         </button>
