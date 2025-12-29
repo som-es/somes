@@ -2,7 +2,7 @@ use crate::{
     decrees::create_ministerial_decrees_with_docs_view, delegates::create_delegates_view,
     gov_proposals::create_gov_proposals_view, vote_results::create_vote_results_view,
 };
-use sqlx::{Executor, PgPool, Postgres, Transaction};
+use sqlx::{Postgres, Transaction};
 
 pub mod composite_types;
 pub mod decrees;

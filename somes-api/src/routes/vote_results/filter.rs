@@ -46,7 +46,7 @@ pub async fn filtered_legislative_initiatives(
     let count_query = query.clone().replace('*', "COUNT(*)");
 
     query.push_str(&format!(
-        " ORDER BY created_at DESC OFFSET ${} LIMIT ${}",
+        " ORDER BY nr_plenary_activity_date DESC OFFSET ${} LIMIT ${}",
         param_index,
         param_index + 1
     ));

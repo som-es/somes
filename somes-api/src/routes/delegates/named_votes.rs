@@ -8,7 +8,7 @@ pub async fn extract_named_votes_by_delegate(
     query_as!(
         NamedVote,
         "select 
-            infavor, was_absent, legis_init_id, named_vote_info_id, created_at as date
+            infavor, was_absent, legis_init_id, named_vote_info_id, nr_plenary_activity_date as date
         from 
             named_votes 
         inner join named_vote_info nvi on nvi.id = named_vote_info_id 

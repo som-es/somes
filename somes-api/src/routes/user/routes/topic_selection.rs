@@ -1,6 +1,5 @@
 use axum::Json;
 use reqwest::StatusCode;
-use serde_json::json;
 use sqlx::query_as;
 
 use crate::{jwt::Claims, routes::UniqueTopic, GenericError, PgPoolConnection};

@@ -42,7 +42,7 @@ pub async fn filtered_legis_inits_per_page(
                 "Add filter object when using not finished extraction"
             );
             (sqlx::query_as!(DbLegislativeInitiativeQuery,
-                "select distinct * from legislative_initiatives where is_voteable_on and accepted is not null order by created_at desc offset $1 limit $2",
+                "select distinct * from legislative_initiatives where is_voteable_on and accepted is not null order by nr_plenary_activity_date desc offset $1 limit $2",
                 page * page_elements,
                 page_elements
             )
@@ -162,7 +162,10 @@ pub async fn all_updated_votes_from_legis_init_sqlx(
         li.description,
         li.accepted,
         li.created_at,
-        li.appeared_at,
+        li.raw_data_created_at,
+        li.raw_data_updated_at,
+        li.vote_date,
+        li.nr_plenary_activity_date,
         li.updated_at,
         li.requires_simple_majority,
         li.pre_declined_type,

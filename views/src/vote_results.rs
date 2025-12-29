@@ -15,13 +15,13 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
             SELECT
               ROW(
                 id, ityp, doktyp, gp, inr, emphasis, ai_emphasis,
-                title, description, accepted, created_at,
-                appeared_at, updated_at, requires_simple_majority,
+                title, description, accepted, nr_plenary_activity_date, vote_date,
+                raw_data_created_at, raw_data_updated_at, created_at, updated_at, requires_simple_majority,
                 pre_declined_type, voted_by_name,
                 plenary_session_id, is_emphasis_ai_generated,
                 is_law, law_accepted, 
                 has_reference, is_voteable_on, is_urgent,
-                voting
+                voting 
               )::db_legislative_initiative_query
             FROM
               legislative_initiatives
@@ -44,8 +44,8 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
               WHERE
                 nvi.legis_init_id = li.id
                 AND m.name LIKE '%Abge%National%'
-                AND m.start_date <= li.created_at
-                AND (COALESCE(m.end_date, li.created_at) >= li.created_at)
+                AND m.start_date <= li.nr_plenary_activity_date
+                AND (COALESCE(m.end_date, li.nr_plenary_activity_date) >= li.nr_plenary_activity_date)
                 AND nv.infavor IS NOT NULL
                 AND m.party IS NOT NULL
               GROUP BY

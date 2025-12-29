@@ -153,7 +153,7 @@ pub async fn update_vote_result_meilisearch_index(
             "topics",
             "meilisearch_helper.votes",
         ])
-        .with_sortable_attributes(["legislative_initiative.created_at"])
+        .with_sortable_attributes(["legislative_initiative.nr_plenary_activity_date"])
         .with_pagination(PaginationSetting {
             max_total_hits: 100000000,
         });

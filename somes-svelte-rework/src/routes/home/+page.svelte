@@ -46,7 +46,7 @@
 	$: if (voteResults) {
 		const first = voteResults.at(0);
 		if (first) {
-			voteDate = first.legislative_initiative.created_at as unknown as string;
+			voteDate = first.legislative_initiative.nr_plenary_activity_date as unknown as string;
 		}
 	}
 </script>

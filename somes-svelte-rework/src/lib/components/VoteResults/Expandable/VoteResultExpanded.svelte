@@ -17,7 +17,7 @@
 	function onShowDetails() {
 		currentVoteResultStore.set(voteResult);
 		currentDelegatesAtDateStore.set([
-			voteResult.legislative_initiative.created_at.toString(),
+			voteResult.legislative_initiative.nr_plenary_activity_date.toString(),
 			delsAtDate
 		]);
 		// $: if (browser) {
