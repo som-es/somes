@@ -1,7 +1,7 @@
 use crate::{
     meilisearch::MeilisearchClient,
     routes::{DecreesWithMaxPage, FilterError},
-    DECREES_PER_PAGE,
+    RedisConnection, DECREES_PER_PAGE,
 };
 use axum::{extract::Query, Json};
 use dataservice::combx::OptionalDecree;
@@ -9,12 +9,14 @@ use meilisearch_sdk::search::SearchResults;
 use somes_common_lib::{DecreeFilter, Page};
 
 pub async fn decrees_by_search_route(
+    RedisConnection(mut redis_con): RedisConnection,
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
     Json(decrees_filter): Json<Option<DecreeFilter>>,
 ) -> Result<Json<DecreesWithMaxPage>, FilterError> {
     meilisearch_decrees(
+        &mut redis_con,
         meilisearch_client,
         search_query,
         page,
@@ -25,6 +27,7 @@ pub async fn decrees_by_search_route(
 }
 
 async fn meilisearch_decrees(
+    redis_con: &mut redis::aio::MultiplexedConnection,
     meilisearch_client: meilisearch_sdk::client::Client,
     search_query: somes_common_lib::SearchQuery,
     page: Page,
@@ -77,9 +80,18 @@ async fn meilisearch_decrees(
         .map(|hit| hit.result)
         .collect::<Vec<_>>();
 
+    let updated_at = crate::meilisearch::get_update_time_of_index(
+        redis_con,
+        &crate::meilisearch::Index::Decrees,
+    )
+    .await
+    .ok()
+    .map(|date| date.naive_local());
+
     Ok(DecreesWithMaxPage {
         decrees,
         entry_count: results.estimated_total_hits.unwrap_or(1) as i64,
         max_page,
+        updated_at,
     })
 }
