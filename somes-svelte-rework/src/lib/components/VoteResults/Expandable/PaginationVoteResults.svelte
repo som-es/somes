@@ -41,11 +41,20 @@
 	$: currentVoteResultFilterStore = currentVoteResultFilterStores[storeIdx];
 
 	let voteResults: VoteResultsWithMaxPage | null = null;
+
+
+	// states for filtering
 	let topics: UniqueTopic[] = [];
 	let selectedTopics: Set<string> = new Set();
 	let topicSearchValue = '';
 
+	// get all parties available in the request
 	$: uniqueParties = [...new Set(dels.map((d) => d.party))].sort();
+
+	// Variables to count active filters
+	$: activePartyFiltersCount = Object.values(partyFilterState).filter((v) => v !== 'egal').length;
+	$: activeTopicFiltersCount = selectedTopics.size;
+	$: activeGenericFiltersCount = genericFilters.filter((f) => f.activeValue !== undefined).length;
 
 	// Track each party's filter preference: 'egal' = no filter, 'pro' = voted in favor, 'contra' = voted against
 	type PartyFilterOption = 'egal' | 'pro' | 'contra';
@@ -60,16 +69,16 @@
 		}
 	}
 
-	// Convert filter state to API format (only include parties with active filters)
+	// Convert State to API format
 	$: partyVotesFilter = Object.entries(partyFilterState)
-		.filter(([party, filterOption]) => filterOption !== 'egal')
+		.filter(([_, filterOption]) => filterOption !== 'egal')
 		.map(([party, filterOption]) => ({
 			party: party,
 			infavor: filterOption === 'pro'
 		}));
 
 
-	// General Filter
+	// General Filter storage and render format
 	type GenericFilterGroup<T extends string | boolean> = {
         title: string;
         activeValue: T | undefined;
@@ -119,20 +128,7 @@
             ]
         }
     ];
-	// CHRISTOPH REWORK END
 
-	// get page number from query params
-	const url = new URL(window.location.href);
-	let page = parseInt(url.searchParams.get('page') || '1') || 1;
-
-	const popupNamedVote: PopupSettings = {
-		event: 'click',
-		target: 'popupNamedVote',
-		placement: 'bottom',
-		closeQuery: '.listbox-item'
-	};
-
-	// CHRISTOPH REWORK
 	// used for managing state of popup filter
 	let isPartiesFilterOpen = false;
 	const popupParties: PopupSettings = {
@@ -163,8 +159,13 @@
 			isGenericFilterOpen = e.state;
 		}
 	};
-	// CHRISTOPH REWORK END
+	
 
+	// get page number from query params
+	const url = new URL(window.location.href);
+	let page = parseInt(url.searchParams.get('page') || '1') || 1;
+
+	// keep filters up to date
 	let currentlyUpdating = false;
 	let selectedPeriod = 'all';
 
@@ -260,7 +261,7 @@
 	>Abstimmungen aktualisiert am: {latestVoteDate}</span
 > -->
 
-<div class="flex mt-12">
+<div class="md:flex mt-12">
 	<!-- Search bar -->
 	<div class="flex flex-grow h-10 rounded-xl border-[2px] border-gray-400">
 		<div class="w-10 h-9 flex items-center justify-center text-gray-600">
@@ -275,18 +276,68 @@
 	</div>
 	<!-- Filters -->
 	<!-- Parteien Filter -->
-	<div
-		class="px-2 ml-2 rounded-xl bg-secondary-500 flex items-center justify-center gap-1"
-		use:popup={popupParties}
-	>
-		<span class="text-white ml-1">Parteien</span>
+	<div class="flex w-full md:w-auto h-10 mt-2 md:mt-0">
 		<div
-			class="block text-white w-4 transition-transform duration-200"
-			class:rotate-180={isPartiesFilterOpen}
+			class="flex-grow md:flex-grow-0 px-2 md:ml-2 rounded-xl bg-secondary-500 flex items-center justify-center gap-1"
+			use:popup={popupParties}
 		>
-			{@html downArrowIcon}
+			{#if activePartyFiltersCount > 0}
+				<div
+					class="flex items-center justify-center w-5 h-5 text-xs font-semibold text-white border rounded-full"
+				>
+					{activePartyFiltersCount}
+				</div>
+			{/if}
+			<span class="text-white ml-1">Parteien</span>
+			<div
+				class="block text-white w-4 transition-transform duration-200"
+				class:rotate-180={isPartiesFilterOpen}
+			>
+				{@html downArrowIcon}
+			</div>
+		</div>
+		<!-- Themen Filter -->
+		<div
+			class="flex-grow md:flex-grow-0 px-2 ml-2 rounded-xl bg-secondary-500 flex items-center justify-center gap-1"
+			use:popup={popupTopics}
+		>
+			{#if activeTopicFiltersCount > 0}
+				<div
+					class="flex items-center justify-center w-5 h-5 text-xs font-semibold text-white border rounded-full"
+				>
+					{activeTopicFiltersCount}
+				</div>
+			{/if}
+			<span class="text-white ml-1">Themen</span>
+			<div
+				class="block text-white w-4 transition-transform duration-200"
+				class:rotate-180={isTopicFilterOpen}
+			>
+				{@html downArrowIcon}
+			</div>
+		</div>
+		<!-- Generic Filter -->
+		<div
+			class="flex-grow md:flex-grow-0 px-2 ml-2 rounded-xl bg-secondary-500 flex items-center justify-center gap-1"
+			use:popup={popupGenericFilter}
+		>
+			{#if activeGenericFiltersCount > 0}
+				<div
+					class="flex items-center justify-center w-5 h-5 text-xs font-semibold text-white border rounded-full"
+				>
+					{activeGenericFiltersCount}
+				</div>
+			{/if}
+			<span class="text-white ml-1">Filter</span>
+			<div
+				class="block text-white w-4 transition-transform duration-200"
+				class:rotate-180={isGenericFilterOpen}
+			>
+				{@html downArrowIcon}
+			</div>
 		</div>
 	</div>
+
 	<!-- Parteien Filter PopUp-->
 	<div
 		class="bg-surface-50 border border-gray-300 px-6 py-4 z-10 shadow-lg rounded-xl w-72"
@@ -335,19 +386,7 @@
 		</div>
 		<div class="arrow bg-surface-50 border border-gray-300" />
 	</div>
-	<!-- Themen Filter -->
-	<div
-		class="px-2 ml-2 rounded-xl bg-secondary-500 flex items-center justify-center gap-1"
-		use:popup={popupTopics}
-	>
-		<span class="text-white ml-1">Themen</span>
-		<div
-			class="block text-white w-4 transition-transform duration-200"
-			class:rotate-180={isTopicFilterOpen}
-		>
-			{@html downArrowIcon}
-		</div>
-	</div>
+	
 	<!-- Themen Filter PopUp -->
 	<div
 		class="bg-surface-50 border border-gray-300 z-10 shadow-lg rounded-xl w-72"
@@ -399,22 +438,10 @@
 		</div>
 		<div class="arrow bg-surface-50 border border-gray-300" />
 	</div>
-	<!-- Generic Filter -->
-	<div
-		class="px-2 ml-2 rounded-xl bg-secondary-500 flex items-center justify-center gap-1"
-		use:popup={popupGenericFilter}
-	>
-		<span class="text-white ml-1">Filter</span>
-		<div
-			class="block text-white w-4 transition-transform duration-200"
-			class:rotate-180={isGenericFilterOpen}
-		>
-			{@html downArrowIcon}
-		</div>
-	</div>
+	
 	<!-- Generic Filter PopUp -->
 	<div
-        class="bg-surface-50 border border-gray-300 px-6 pt-4 pb-5 z-10 shadow-lg rounded-xl w-82"
+        class="bg-surface-50 border border-gray-300 px-5 md:px-6 pt-4 pb-5 z-10 shadow-lg rounded-xl w-auto md:w-82"
         data-popup="popupGenericFilter"
     >
         {#each genericFilters as group}
@@ -423,7 +450,7 @@
                 <div class="flex w-fit text-sm border border-primary-300 rounded-lg gap-1">
                     {#each group.options as option}
                         <button
-                            class="px-2 py-1 text-sm cursor-pointer rounded-lg"
+                            class="px-2 py-1 text-xs md:text-sm cursor-pointer rounded-lg"
                             class:bg-primary-300={group.activeValue === option.value}
                             on:click={() => { group.activeValue = option.value; update(); }}
                         >
@@ -460,6 +487,3 @@
 		<!-- <CenterPrograssRadial /> -->
 	{/if}
 </div>
-
-<style>
-</style>
