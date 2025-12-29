@@ -54,7 +54,7 @@
 	// Variables to count active filters
 	$: activePartyFiltersCount = Object.values(partyFilterState).filter((v) => v !== 'egal').length;
 	$: activeTopicFiltersCount = selectedTopics.size;
-	$: activeGenericFiltersCount = genericFilters.filter((f) => f.activeValue !== undefined).length;
+	$: activeGenericFiltersCount = genericFilters.filter((f) => f.activeValue !== undefined && f.activeValue !== "all").length;
 
 	// Track each party's filter preference: 'egal' = no filter, 'pro' = voted in favor, 'contra' = voted against
 	type PartyFilterOption = 'egal' | 'pro' | 'contra';
@@ -88,6 +88,7 @@
 		GenericFilterGroup<boolean>,
 		GenericFilterGroup<string>,
 		GenericFilterGroup<boolean>,
+		GenericFilterGroup<string>,
 		GenericFilterGroup<string>
 	] = [
         {
@@ -125,6 +126,22 @@
                 { title: 'Gesetz', value: 'Law' },
                 { title: 'Entschließung', value: 'Resolution' },
                 { title: 'Abänderung', value: 'Amendment' }
+            ]
+        },
+		{
+            title: 'Legislaturperiode',
+            activeValue: 'all',
+            options: [
+                { title: 'Alle', value: 'all' },
+                { title: 'XX', value: 'XX' },
+                { title: 'XXI', value: 'XXI' },
+                { title: 'XXII', value: 'XXII' },
+                { title: 'XXIII', value: 'XXIII' },
+				{ title: 'XXIV', value: 'XXIV' },
+				{ title: 'XXV', value: 'XXV' },
+				{ title: 'XXVI', value: 'XXVI' },
+				{ title: 'XXVII', value: 'XXVII' },
+				{ title: 'XXVIII', value: 'XXVIII' },
             ]
         }
     ];
@@ -173,7 +190,7 @@
 	if (maybeStoredFilter !== null) {
 		if (maybeStoredFilter.simple_majority !== null)
 			genericFilters[0].activeValue = maybeStoredFilter.simple_majority;
-		// if (maybeStoredFilter.legis_period !== null) selectedPeriod = maybeStoredFilter.legis_period;
+		if (maybeStoredFilter.legis_period !== null) genericFilters[4].activeValue = maybeStoredFilter.legis_period;
 		if (maybeStoredFilter.accepted !== null) genericFilters[1].activeValue = maybeStoredFilter.accepted;
 		if (maybeStoredFilter.is_named_vote !== null)
 			genericFilters[2].activeValue = maybeStoredFilter.is_named_vote;
@@ -195,7 +212,9 @@
 			is_law: null,
 			simple_majority:
 				genericFilters[0].activeValue == undefined ? null : genericFilters[0].activeValue,
-			legis_period: selectedPeriod == 'all' ? null : selectedPeriod,
+			legis_period:
+				genericFilters[4].activeValue == 'all' || 
+				genericFilters[4].activeValue === undefined ? null : genericFilters[4].activeValue,
 			vote_type: genericFilters[3].activeValue === undefined ? null : genericFilters[3].activeValue,
 			topics: selectedTopics.size > 0 ? [...selectedTopics] : null,
 			is_urgent: null,
@@ -444,7 +463,7 @@
         class="bg-surface-50 border border-gray-300 px-5 md:px-6 pt-4 pb-5 z-10 shadow-lg rounded-xl w-auto md:w-82"
         data-popup="popupGenericFilter"
     >
-        {#each genericFilters as group}
+        {#each genericFilters.slice(0, 4) as group}
             <div class="mt-4 first:mt-0">
                 <span class="text-gray-800 text-base font-semibold">{group.title}</span>
                 <div class="flex w-fit text-sm border border-primary-300 rounded-lg gap-1">
@@ -460,6 +479,20 @@
                 </div>
             </div>
         {/each}
+		<div class="mt-4 first:mt-0">
+                <span class="text-gray-800 text-base font-semibold">{genericFilters[4].title}</span>
+                <div class="flex flex-wrap text-sm gap-1 w-72">
+                    {#each genericFilters[4].options as option}
+                        <button
+                            class="px-2 py-1 text-xs md:text-sm cursor-pointer rounded-lg border border-primary-300"
+                            class:bg-primary-300={genericFilters[4].activeValue === option.value}
+                            on:click={() => { genericFilters[4].activeValue = option.value; update(); }}
+                        >
+                            <span class="text-nowrap">{option.title}</span>
+                        </button>
+                    {/each}
+                </div>
+            </div>
         <div class="arrow bg-surface-50 border border-gray-300" />
     </div>
 </div>
