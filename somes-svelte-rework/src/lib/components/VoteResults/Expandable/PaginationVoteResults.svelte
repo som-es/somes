@@ -42,7 +42,6 @@
 
 	let voteResults: VoteResultsWithMaxPage | null = null;
 
-
 	// TOPIC FILTER
 	let topics: UniqueTopic[] = [];
 	let selectedTopics: Set<string> = new Set();
@@ -56,11 +55,13 @@
 	let partyFilterState: Record<string, PartyFilterOption> = {};
 
 	// Initialize new parties with 'egal' (no filter)
-	$: {for (const party of uniqueParties) {
+	$: {
+		for (const party of uniqueParties) {
 			if (!(party in partyFilterState)) {
 				partyFilterState[party] = 'egal';
 			}
-		}}
+		}
+	}
 
 	// Convert State to API format
 	$: partyVotesFilter = Object.entries(partyFilterState)
@@ -70,14 +71,12 @@
 			infavor: filterOption === 'pro'
 		}));
 
-
-
 	// GENERIC FILTER - storage and render format
 	type GenericFilterGroup<T extends string | boolean> = {
-        title: string;
-        activeValue: T | undefined;
-        options: { title: string; value: T | undefined }[];
-    };
+		title: string;
+		activeValue: T | undefined;
+		options: { title: string; value: T | undefined }[];
+	};
 	let genericFilters: [
 		GenericFilterGroup<boolean>,
 		GenericFilterGroup<string>,
@@ -85,66 +84,67 @@
 		GenericFilterGroup<string>,
 		GenericFilterGroup<string>
 	] = [
-        {
-            title: 'notwendige Mehrheit',
-            activeValue: undefined,
-            options: [
-                { title: 'egal', value: undefined },
-                { title: 'einfache Mehrheit', value: true },
-                { title: '2/3 Mehrheit', value: false }
-            ]
-        },
-        {
-            title: 'Angenommen',
-            activeValue: undefined,
-            options: [
-                { title: 'egal', value: undefined },
-                { title: 'angenommen', value: 'a' },
-                { title: 'abgelehnt', value: 'd' },
-                { title: 'frühzeitig abgelehnt', value: 'p' }
-            ]
-        },
-        {
-            title: 'Abstimmung',
-            activeValue: undefined,
-            options: [
-                { title: 'egal', value: undefined },
-                { title: 'namentliche Abstimmung', value: true }
-            ]
-        },
-        {
-            title: 'Antragstyp',
-            activeValue: undefined,
-            options: [
-                { title: 'egal', value: undefined },
-                { title: 'Gesetz', value: 'Law' },
-                { title: 'Entschließung', value: 'Resolution' },
-                { title: 'Abänderung', value: 'Amendment' }
-            ]
-        },
 		{
-            title: 'Legislaturperiode',
-            activeValue: 'all',
-            options: [
-                { title: 'Alle', value: 'all' },
-                { title: 'XX', value: 'XX' },
-                { title: 'XXI', value: 'XXI' },
-                { title: 'XXII', value: 'XXII' },
-                { title: 'XXIII', value: 'XXIII' },
+			title: 'notwendige Mehrheit',
+			activeValue: undefined,
+			options: [
+				{ title: 'egal', value: undefined },
+				{ title: 'einfache Mehrheit', value: true },
+				{ title: '2/3 Mehrheit', value: false }
+			]
+		},
+		{
+			title: 'Angenommen',
+			activeValue: undefined,
+			options: [
+				{ title: 'egal', value: undefined },
+				{ title: 'angenommen', value: 'a' },
+				{ title: 'abgelehnt', value: 'd' },
+				{ title: 'frühzeitig abgelehnt', value: 'p' }
+			]
+		},
+		{
+			title: 'Abstimmung',
+			activeValue: undefined,
+			options: [
+				{ title: 'egal', value: undefined },
+				{ title: 'namentliche Abstimmung', value: true }
+			]
+		},
+		{
+			title: 'Antragstyp',
+			activeValue: undefined,
+			options: [
+				{ title: 'egal', value: undefined },
+				{ title: 'Gesetz', value: 'Law' },
+				{ title: 'Entschließung', value: 'Resolution' },
+				{ title: 'Abänderung', value: 'Amendment' }
+			]
+		},
+		{
+			title: 'Legislaturperiode',
+			activeValue: 'all',
+			options: [
+				{ title: 'Alle', value: 'all' },
+				{ title: 'XX', value: 'XX' },
+				{ title: 'XXI', value: 'XXI' },
+				{ title: 'XXII', value: 'XXII' },
+				{ title: 'XXIII', value: 'XXIII' },
 				{ title: 'XXIV', value: 'XXIV' },
 				{ title: 'XXV', value: 'XXV' },
 				{ title: 'XXVI', value: 'XXVI' },
 				{ title: 'XXVII', value: 'XXVII' },
-				{ title: 'XXVIII', value: 'XXVIII' },
-            ]
-        }
-    ];
+				{ title: 'XXVIII', value: 'XXVIII' }
+			]
+		}
+	];
 
 	// Variables to count active filters
 	$: activePartyFiltersCount = Object.values(partyFilterState).filter((v) => v !== 'egal').length;
 	$: activeTopicFiltersCount = selectedTopics.size;
-	$: activeGenericFiltersCount = genericFilters.filter((f) => f.activeValue !== undefined && f.activeValue !== "all").length;
-
+	$: activeGenericFiltersCount = genericFilters.filter(
+		(f) => f.activeValue !== undefined && f.activeValue !== 'all'
+	).length;
 
 	// PARTY, TOPIC, GENERIC filters - used for managing state of popup filter
 	let isPartiesFilterOpen = false;
@@ -179,11 +179,19 @@
 			isGenericFilterOpen = e.state;
 		}
 	};
-	
 
 	// get page number from query params
 	const url = new URL(window.location.href);
 	let page = parseInt(url.searchParams.get('page') || '1') || 1;
+
+	// Get and format updated_at date
+	$: updatedAt = voteResults?.updated_at
+		? new Intl.DateTimeFormat('de-AT', {
+				day: '2-digit',
+				month: '2-digit',
+				year: 'numeric'
+			}).format(new Date(voteResults.updated_at))
+		: 'Unbekannt';
 
 	// keep filters up to date
 	let currentlyUpdating = false;
@@ -193,11 +201,14 @@
 	if (maybeStoredFilter !== null) {
 		if (maybeStoredFilter.simple_majority !== null)
 			genericFilters[0].activeValue = maybeStoredFilter.simple_majority;
-		if (maybeStoredFilter.legis_period !== null) genericFilters[4].activeValue = maybeStoredFilter.legis_period;
-		if (maybeStoredFilter.accepted !== null) genericFilters[1].activeValue = maybeStoredFilter.accepted;
+		if (maybeStoredFilter.legis_period !== null)
+			genericFilters[4].activeValue = maybeStoredFilter.legis_period;
+		if (maybeStoredFilter.accepted !== null)
+			genericFilters[1].activeValue = maybeStoredFilter.accepted;
 		if (maybeStoredFilter.is_named_vote !== null)
 			genericFilters[2].activeValue = maybeStoredFilter.is_named_vote;
-		if (maybeStoredFilter.vote_type !== null) genericFilters[3].activeValue = maybeStoredFilter.vote_type;
+		if (maybeStoredFilter.vote_type !== null)
+			genericFilters[3].activeValue = maybeStoredFilter.vote_type;
 	}
 
 	const loadVoteResults = async () => {
@@ -210,14 +221,16 @@
 		// null "egal"
 		let filter: VoteResultFilter | null = {
 			is_finished: isFinished,
-			is_named_vote: genericFilters[2].activeValue == undefined ? null : genericFilters[2].activeValue,
+			is_named_vote:
+				genericFilters[2].activeValue == undefined ? null : genericFilters[2].activeValue,
 			accepted: genericFilters[1].activeValue == undefined ? null : genericFilters[1].activeValue,
 			is_law: null,
 			simple_majority:
 				genericFilters[0].activeValue == undefined ? null : genericFilters[0].activeValue,
 			legis_period:
-				genericFilters[4].activeValue == 'all' || 
-				genericFilters[4].activeValue === undefined ? null : genericFilters[4].activeValue,
+				genericFilters[4].activeValue == 'all' || genericFilters[4].activeValue === undefined
+					? null
+					: genericFilters[4].activeValue,
 			vote_type: genericFilters[3].activeValue === undefined ? null : genericFilters[3].activeValue,
 			topics: selectedTopics.size > 0 ? [...selectedTopics] : null,
 			is_urgent: null,
@@ -290,10 +303,9 @@
 
 <!-- HERE IS THE HTML -->
 
-<!-- TODO: Fetch API from Backend (waiting for backend)
- <span class="block text-base text-gray-800 mt-1 mb-2"
-	>Abstimmungen aktualisiert am: {latestVoteDate}</span
-> -->
+<span class="block text-base text-gray-800 mt-1 mb-2">
+	Abstimmungen aktualisiert am: {updatedAt}
+</span>
 
 <div class="md:flex mt-12">
 	<!-- Search bar -->
@@ -421,7 +433,7 @@
 		</div>
 		<div class="arrow bg-surface-50 border border-gray-300" />
 	</div>
-	
+
 	<!-- Themen Filter PopUp -->
 	<div
 		class="bg-surface-50 border border-gray-300 z-10 shadow-lg rounded-xl w-72"
@@ -473,44 +485,48 @@
 		</div>
 		<div class="arrow bg-surface-50 border border-gray-300" />
 	</div>
-	
+
 	<!-- Generic Filter PopUp -->
 	<div
-        class="bg-surface-50 border border-gray-300 px-5 md:px-6 pt-4 pb-5 z-10 shadow-lg rounded-xl w-auto md:w-82"
-        data-popup="popupGenericFilter"
-    >
-        {#each genericFilters.slice(0, 4) as group}
-            <div class="mt-4 first:mt-0">
-                <span class="text-gray-800 text-base font-semibold">{group.title}</span>
-                <div class="flex w-fit text-sm border border-primary-300 rounded-lg gap-1">
-                    {#each group.options as option}
-                        <button
-                            class="px-2 py-1 text-xs md:text-sm cursor-pointer rounded-lg"
-                            class:bg-primary-300={group.activeValue === option.value}
-                            on:click={() => { group.activeValue = option.value; }}
-                        >
-                            <span class="text-nowrap">{option.title}</span>
-                        </button>
-                    {/each}
-                </div>
-            </div>
-        {/each}
+		class="bg-surface-50 border border-gray-300 px-5 md:px-6 pt-4 pb-5 z-10 shadow-lg rounded-xl w-auto md:w-82"
+		data-popup="popupGenericFilter"
+	>
+		{#each genericFilters.slice(0, 4) as group}
+			<div class="mt-4 first:mt-0">
+				<span class="text-gray-800 text-base font-semibold">{group.title}</span>
+				<div class="flex w-fit text-sm border border-primary-300 rounded-lg gap-1">
+					{#each group.options as option}
+						<button
+							class="px-2 py-1 text-xs md:text-sm cursor-pointer rounded-lg"
+							class:bg-primary-300={group.activeValue === option.value}
+							on:click={() => {
+								group.activeValue = option.value;
+							}}
+						>
+							<span class="text-nowrap">{option.title}</span>
+						</button>
+					{/each}
+				</div>
+			</div>
+		{/each}
 		<div class="mt-4 first:mt-0">
-                <span class="text-gray-800 text-base font-semibold">{genericFilters[4].title}</span>
-                <div class="flex flex-wrap text-sm gap-1 w-72">
-                    {#each genericFilters[4].options as option}
-                        <button
-                            class="px-2 py-1 text-xs md:text-sm cursor-pointer rounded-lg border border-primary-300"
-                            class:bg-primary-300={genericFilters[4].activeValue === option.value}
-                            on:click={() => { genericFilters[4].activeValue = option.value; }}
-                        >
-                            <span class="text-nowrap">{option.title}</span>
-                        </button>
-                    {/each}
-                </div>
-            </div>
-        <div class="arrow bg-surface-50 border border-gray-300" />
-    </div>
+			<span class="text-gray-800 text-base font-semibold">{genericFilters[4].title}</span>
+			<div class="flex flex-wrap text-sm gap-1 w-72">
+				{#each genericFilters[4].options as option}
+					<button
+						class="px-2 py-1 text-xs md:text-sm cursor-pointer rounded-lg border border-primary-300"
+						class:bg-primary-300={genericFilters[4].activeValue === option.value}
+						on:click={() => {
+							genericFilters[4].activeValue = option.value;
+						}}
+					>
+						<span class="text-nowrap">{option.title}</span>
+					</button>
+				{/each}
+			</div>
+		</div>
+		<div class="arrow bg-surface-50 border border-gray-300" />
+	</div>
 </div>
 
 <div>

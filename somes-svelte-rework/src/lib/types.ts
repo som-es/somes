@@ -198,6 +198,7 @@ export interface VoteResultsWithMaxPage {
 	vote_results: VoteResult[];
 	entry_count: number;
 	max_page: number;
+	updated_at: string | null;
 }
 
 export interface GovProposalsWithMaxPage {

@@ -32,12 +32,6 @@
 		class="entry bg-primary-300 dark:bg-primary-500"
 	>
 		<div class="flex">
-			<!-- REWORK - Arrow for opening/closing -->
-			<!-- <div>
-				<div class="mr-2" id={open ? 'open' : 'closed'}>
-					{@html rightArrowIcon}
-				</div>
-			</div> -->
 			<div class="flex max-lg:flex-wrap items-center justify-between w-full">
 				{#if voteResult.ai_summary}
 					<div class="flex flex-wrap flex-col w-5/6">
@@ -175,13 +169,6 @@
 							<VoteTypeBadge {voteResult} />
 						</div>
 					{/if}
-					<!-- REWORK - Mini Parlament <button
-						class="max-sm:hidden z-20 w-[7.5rem] bg-primary-100 dark:bg-primary-300 rounded-md"
-						on:click={onShowDetails}
-					>
-						<VoteParliament2 {voteResult} preview={true} />
-					</button>
-					-->
 				{:else}{/if}
 			</div>
 			<span class="lg:hidden">
