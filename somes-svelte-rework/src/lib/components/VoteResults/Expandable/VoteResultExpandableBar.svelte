@@ -3,17 +3,13 @@
 	import collapse from 'svelte-collapse';
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
 	import VoteResultExpanded from './VoteResultExpanded.svelte';
-	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
-	import SButton from '$lib/components/UI/SButton.svelte';
-
-	import { currentDelegatesAtDateStore, currentVoteResultStore } from '$lib/stores/stores';
-	import { gotoHistory } from '$lib/goto';
-	import InfoTiles from '../InfoTiles/InfoTiles.svelte';
 	import crossmarkIcon from '$lib/assets/misc_icons/crossmark_small.svg?raw';
 	import checkmarkIcon from '$lib/assets/misc_icons/checkmark_small.svg?raw';
 	import VoteTypeBadge from '../VoteTypeBadge.svelte';
 	import { dashDateToDotDate } from '$lib/date';
 	import InfoBadges from '../InfoTiles/InfoBadges.svelte';
+	import { currentDelegatesAtDateStore, currentVoteResultStore } from '$lib/stores/stores';
+	import { gotoHistory } from '$lib/goto';
 
 	export let voteResult: VoteResult;
 	export let dels: Delegate[];
@@ -21,12 +17,27 @@
 	export { clazz as class };
 	let open = false;
 	let duration = 0.35;
+
+	// changed to directly open vote detail page on mobile
+	function onShowDetails() {
+		currentVoteResultStore.set(voteResult);
+		currentDelegatesAtDateStore.set([voteResult.legislative_initiative.created_at.toString(), []]);
+		gotoHistory(createVoteResultPath(voteResult), true);
+	}
+
+	function toggleOpen() {
+		if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+			onShowDetails();
+		} else {
+			open = !open;
+		}
+	}
 </script>
 
 <div class="gap-3 mt-5 {clazz}">
 	<div
-		on:click={() => (open = !open)}
-		on:keypress={() => (open = !open)}
+		on:click={toggleOpen}
+		on:keypress={toggleOpen}
 		role="button"
 		tabindex="0"
 		class="entry bg-primary-300 dark:bg-primary-500"
