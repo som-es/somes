@@ -74,7 +74,7 @@
 		}
 
 		delegatesAtDate = delegates;
-		// delegatesAtDate = (errorToNull(await delegates_at(voteResult.legislative_initiative.created_at))) ?? [];
+		// delegatesAtDate = (errorToNull(await delegates_at(voteResult.legislative_initiative.nr_plenary_activity_date))) ?? [];
 		if (delegatesAtDate) {
 			generalSpeechDelegates = genCirclesWithSpeechInfo(voteResult.speeches, delegatesAtDate);
 			if (voteResult.named_votes) {
@@ -240,11 +240,11 @@
 									</span>
 								</div>
 
-								{#if voteResult.legislative_initiative.accepted}
-									<span class="text-base text-gray-800">
+								{#if voteResult.legislative_initiative.accepted && voteResult.legislative_initiative.vote_date}
+									<span class="text-sm opacity-90 -mt-1">
 										{voteResult.legislative_initiative.voted_by_name ? 'namentlich ' : ''}
 										abgestimmt am {dashDateToDotDate(
-											voteResult.legislative_initiative.created_at.toString()
+											voteResult.legislative_initiative.vote_date.toString()
 										)}
 									</span>
 								{/if}
@@ -502,7 +502,7 @@
 								<VoteDelegateCard
 									bubble={selectedBubble}
 									gp={voteResult.legislative_initiative.gp}
-									date={voteResult.legislative_initiative.created_at}
+									date={voteResult.legislative_initiative.vote_date ?? voteResult.legislative_initiative.nr_plenary_activity_date}
 								/>
 							</div>
 						{/if}
@@ -596,7 +596,8 @@
 										<VoteDelegateCard
 											bubble={speechDelegate}
 											gp={voteResult.legislative_initiative.gp}
-											date={voteResult.legislative_initiative.created_at}
+											date={voteResult.legislative_initiative.vote_date ??
+												voteResult.legislative_initiative.nr_plenary_activity_date}
 										/>
 									</div>
 								{/each}
@@ -619,7 +620,8 @@
 											class="w-80"
 											bubble={namedVoteDelegate}
 											gp={voteResult.legislative_initiative.gp}
-											date={voteResult.legislative_initiative.created_at}
+											date={voteResult.legislative_initiative.vote_date ??
+												voteResult.legislative_initiative.nr_plenary_activity_date}
 										/>
 									</div>
 								{/each}

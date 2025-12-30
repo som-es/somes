@@ -5,10 +5,11 @@ use somes_common_lib::GovPropFilter;
 use crate::{
     meilisearch::MeilisearchClient,
     routes::{FilterError, GovProposalDelegate, GovProposalsWithMaxPage},
-    GOV_PROPS_PER_PAGE,
+    RedisConnection, GOV_PROPS_PER_PAGE,
 };
 
 pub async fn gov_props_by_search_route(
+    RedisConnection(mut redis_con): RedisConnection,
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
@@ -48,6 +49,14 @@ pub async fn gov_props_by_search_route(
 
     let max_page = results.total_pages.unwrap_or(1) as i64;
 
+    let updated_at = crate::meilisearch::get_update_time_of_index(
+        &mut redis_con,
+        &crate::meilisearch::Index::GovProposals,
+    )
+    .await
+    .ok()
+    .map(|date| date.naive_local());
+
     let gov_proposals = results
         .hits
         .into_iter()
@@ -57,5 +66,6 @@ pub async fn gov_props_by_search_route(
         gov_proposals,
         entry_count: results.estimated_total_hits.unwrap_or(1) as i64,
         max_page,
+        updated_at,
     }))
 }

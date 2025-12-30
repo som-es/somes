@@ -31,7 +31,7 @@ pub async fn latest_legislative_initiatives_sqlx(
     let res = sqlx::query_as!(
         DbLegislativeInitiativeQuery,
         "select * from legislative_initiatives
-            where created_at = (select MAX(created_at) from legislative_initiatives
+            where nr_plenary_activity_date = (select MAX(nr_plenary_activity_date) from legislative_initiatives
             where accepted is not null) and accepted is not null and is_voteable_on"
     )
     .fetch_all(pg)

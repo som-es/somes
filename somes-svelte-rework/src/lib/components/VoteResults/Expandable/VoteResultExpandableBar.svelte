@@ -115,7 +115,9 @@
 								>{voteResult.legislative_initiative.gp}</span
 							>
 							<span class="badge bg-tertiary-400 text-black"
-								>{dashDateToDotDate(voteResult.legislative_initiative.created_at.toString())}</span
+								>{dashDateToDotDate(
+									voteResult.legislative_initiative.nr_plenary_activity_date.toString()
+								)}</span
 							>
 							<VoteTypeBadge {voteResult} />
 						</div>
@@ -175,7 +177,9 @@
 								>{voteResult.legislative_initiative.gp}</span
 							>
 							<span class="badge bg-tertiary-400 text-black"
-								>{dashDateToDotDate(voteResult.legislative_initiative.created_at.toString())}</span
+								>{dashDateToDotDate(
+									voteResult.legislative_initiative.nr_plenary_activity_date.toString()
+								)}</span
 							>
 							<VoteTypeBadge {voteResult} />
 						</div>
@@ -193,7 +197,9 @@
 						>{voteResult.legislative_initiative.gp}</span
 					>
 					<span class="badge bg-tertiary-400 text-black"
-						>{dashDateToDotDate(voteResult.legislative_initiative.created_at.toString())}</span
+						>{dashDateToDotDate(
+							voteResult.legislative_initiative.nr_plenary_activity_date.toString()
+						)}</span
 					>
 					<VoteTypeBadge {voteResult} />
 				{/if}

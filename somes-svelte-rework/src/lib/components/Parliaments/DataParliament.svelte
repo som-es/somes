@@ -36,7 +36,7 @@
 	if (voteResult) gp = voteResult.legislative_initiative.gp;
 	let date = new Date();
 	if (supplyDate) date = supplyDate;
-	if (voteResult) date = voteResult.legislative_initiative.created_at;
+	if (voteResult) date = voteResult.legislative_initiative.nr_plenary_activity_date;
 
 	export let circles2d: Bubble[][];
 	export let localPartyColors: Map<string, string> = partyColors;

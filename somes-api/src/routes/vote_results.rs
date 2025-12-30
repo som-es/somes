@@ -40,7 +40,7 @@ pub fn create_vote_results_router() -> Router<AppState> {
     )
 )]
 pub async fn vote_results_per_page_route(
-    RedisConnection(redis_con): RedisConnection,
+    RedisConnection(mut redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(page): Query<Page>,
     Json(legis_init_filter): Json<Option<LegisInitFilter>>,
@@ -48,6 +48,14 @@ pub async fn vote_results_per_page_route(
     if page.page < 0 {
         return Err(FilterError::InvalidPage(page.page as u32));
     }
+
+    let updated_at = crate::meilisearch::get_update_time_of_index(
+        &mut redis_con,
+        &crate::meilisearch::Index::VoteResults,
+    )
+    .await
+    .ok()
+    .map(|date| date.naive_local());
 
     Ok(vote_results_per_page_sqlx(
         redis_con,
@@ -62,6 +70,7 @@ pub async fn vote_results_per_page_route(
         vote_results,
         entry_count,
         max_page: (entry_count as f64 / LEGIS_INITS_PER_PAGE.parse().unwrap_or(16.)).ceil() as i64,
+        updated_at,
     })
     .map(Json)?)
 }

@@ -1,5 +1,4 @@
 use axum::Json;
-use serde_json::json;
 use sqlx::query;
 
 use crate::{jwt::Claims, GenericError, PgPoolConnection};

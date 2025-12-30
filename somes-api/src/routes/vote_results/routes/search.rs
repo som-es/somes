@@ -3,16 +3,18 @@ use std::fmt::Display;
 use axum::{extract::Query, Json};
 use dataservice::combx::OptionalVoteResult;
 use meilisearch_sdk::search::SearchResults;
+use redis::aio::MultiplexedConnection;
 use somes_common_lib::{LegisInitFilter, Page};
 
 use crate::{
     meilisearch::MeilisearchClient,
     routes::{FilterError, VoteResultsWithMaxPage},
-    LEGIS_INITS_PER_PAGE,
+    RedisConnection, LEGIS_INITS_PER_PAGE,
 };
 
 pub async fn vote_results_by_search_route(
     MeilisearchClient(meilisearch_client): MeilisearchClient,
+    RedisConnection(mut redis_con): RedisConnection,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
     Json(legis_init_filter): Json<LegisInitFilter>,
@@ -23,6 +25,7 @@ pub async fn vote_results_by_search_route(
         search_query,
         page,
         legis_init_filter,
+        &mut redis_con,
     )
     .await
     .map(Json)
@@ -32,7 +35,7 @@ pub async fn vote_results_by_search_route(
 fn create_topic_filter<T: Display>(field: &str, filter_values: impl Iterator<Item = T>) -> String {
     filter_values
         .into_iter()
-        .map(|filter_value| format!("{field} = {filter_value}"))
+        .map(|filter_value| format!("{field} = '{filter_value}'"))
         .collect::<Vec<_>>()
         .join(" AND ")
 }
@@ -43,6 +46,7 @@ async fn meilisearch_for_vote_results(
     search_query: somes_common_lib::SearchQuery,
     page: Page,
     filter: LegisInitFilter,
+    redis_con: &mut MultiplexedConnection,
 ) -> Result<VoteResultsWithMaxPage, FilterError> {
     let mut filter_conditions = if is_finished {
         vec![r#"legislative_initiative.accepted IS NOT NULL"#.to_string()]
@@ -108,7 +112,7 @@ async fn meilisearch_for_vote_results(
         .index("vote_results")
         .search()
         .with_filter(&meilisearch_filter)
-        .with_sort(&["legislative_initiative.created_at:desc"])
+        .with_sort(&["legislative_initiative.nr_plenary_activity_date:desc"])
         .with_query(&search_query.search)
         .with_hits_per_page(LEGIS_INITS_PER_PAGE.parse().unwrap_or(16))
         .with_page(page.page as usize)
@@ -116,7 +120,6 @@ async fn meilisearch_for_vote_results(
         .await?;
 
     let max_page = results.total_pages.unwrap_or(1) as i64;
-
     let vote_results = results
         .hits
         .into_iter()
@@ -135,5 +138,12 @@ async fn meilisearch_for_vote_results(
         vote_results,
         entry_count: results.estimated_total_hits.unwrap_or(1) as i64,
         max_page,
+        updated_at: crate::meilisearch::get_update_time_of_index(
+            redis_con,
+            &crate::meilisearch::Index::VoteResults,
+        )
+        .await
+        .ok()
+        .map(|date| date.naive_local()),
     })
 }
