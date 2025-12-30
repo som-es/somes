@@ -108,10 +108,6 @@
 		loadVoteResult();
 	};
 
-	const goBack = () => {
-		history.back();
-	};
-
 	const updateAutocompletion = () => {
 		autocompleteOptions = convertDelegatesToAutocompleteOptions(delegates, [], voteResult);
 	};
@@ -183,12 +179,6 @@
 		delegate = event.detail.meta;
 		inputValue = event.detail.label;
 	}
-
-	let popupSettings: PopupSettings = {
-		event: 'focus-click',
-		target: 'popupAutocomplete',
-		placement: 'bottom-start'
-	};
 
 	// let emphasis: string[] | undefined = undefined;
 	// $: if (voteResult || voteResultId) emphasis = voteResult?.legislative_initiative.emphasis
@@ -312,7 +302,7 @@
 					{/if}
 
 					<div class="flex flex-wrap justify-between items-center gap-3 w-full pt-1">
-						<div class="flex-shrink-0">
+						<div>
 							<InfoBadges {voteResult} />
 						</div>
 

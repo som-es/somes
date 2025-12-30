@@ -303,7 +303,7 @@
 
 <!-- HERE IS THE HTML -->
 
-<span class="block text-base text-gray-800 mt-1 mb-2">
+<span class="block text-base text-gray-800 ml-1 sm:ml-0 sm:mt-1 mb-2">
 	Abstimmungen aktualisiert am: {updatedAt}
 </span>
 
@@ -488,7 +488,7 @@
 
 	<!-- Generic Filter PopUp -->
 	<div
-		class="bg-surface-50 border border-gray-300 px-5 md:px-6 pt-4 pb-5 z-10 shadow-lg rounded-xl w-auto md:w-82"
+		class="bg-surface-50 border border-gray-300 px-5 md:px-6 pt-4 pb-5 z-10 shadow-lg rounded-xl w-auto md:w-82 max-w-[96vw]"
 		data-popup="popupGenericFilter"
 	>
 		{#each genericFilters.slice(0, 4) as group}
