@@ -201,6 +201,7 @@ console.log(filterPopups)
 				>
 
 					<ListBox
+						name={filter.id}
 						rounded="rounded-container-token sm:!rounded-token"
 						active="variant-filled-secondary"
 						hover="hover:variant-soft-secondary"
@@ -208,8 +209,8 @@ console.log(filterPopups)
 						bind:group={filterValues[filter.id]}
 					>
 						{#each filter.options ?? [] as option}
-						<!-- @ts-ignore -->
-							<ListBoxItem value={option} name={filter.id}>
+							<!-- @ts-ignore Skeleton ListBoxItem requires group, but receives it via ListBox context -->
+							<ListBoxItem value={option}>
 								{String(filter.label?.(option) ?? option)}
 							</ListBoxItem>
 						{/each}
