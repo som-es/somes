@@ -136,7 +136,7 @@
 			class="bg-primary-600 p-2 px-3 rounded-xl text-white"
 			on:click={() => modalStore.trigger(delegateQAModal)}
 		>
-			<h4>Verstellung</h4>
+			<h4>Vorstellung</h4>
 		</button>
 	</div>
 </div>

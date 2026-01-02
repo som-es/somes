@@ -112,7 +112,7 @@
 		search_value: '',
 		legis_period: selectedPeriod
 	};
-	inputValue = maybeCurrentDelegateFilter.search_value ?? '';
+	// inputValue = maybeCurrentDelegateFilter.search_value ?? '';
 	dayOffset = maybeCurrentDelegateFilter.day_offset ?? maxDayOffset;
 	if (maybeCurrentDelegateFilter.legis_period) {
 		selectedPeriod = maybeCurrentDelegateFilter.legis_period;
@@ -125,10 +125,10 @@
 		return delegateFilterOptions(_options, _inputValue);
 	}
 
-	$: if (inputValue) {
-		maybeCurrentDelegateFilter.search_value = inputValue;
-		currentDelegateFilterStore.set(maybeCurrentDelegateFilter);
-	}
+	// $: if (inputValue) {
+	// 	maybeCurrentDelegateFilter.search_value = inputValue;
+	// 	currentDelegateFilterStore.set(maybeCurrentDelegateFilter);
+	// }
 
 	function onDelegateSelection(event: CustomEvent<AutocompleteOption<string>>): void {
 		// @ts-ignore
@@ -305,23 +305,22 @@
 		Aktualisiert am: Unknown
 	</span>
 
+	<div class="flex flex-grow h-10 rounded-xl border-[2px] border-gray-400 mt-12">
+		<div class="w-10 h-9 flex items-center justify-center text-gray-600">
+			{@html searchIcon}
+		</div>
+		<input
+			type="search"
+			class="block w-full py-2 focus:outline-none bg-transparent placeholder:text-gray-600"
+			placeholder="Suche..."
+			bind:value={inputValue}
+		/>
+	</div>
 
-	<div class="entry bg-primary-200 dark:bg-primary-400 gap-3 flex flex-wrap mt-12">
+	<div class="gap-3 flex flex-wrap mt-5">
 		<!-- <div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
 			<LegisButtons bind:periods bind:selectedPeriod showAllButton={false}></LegisButtons>
 		</div> -->
-
-		<div class="flex flex-grow h-10 rounded-xl border-[2px] border-gray-400 mb-5">
-			<div class="w-10 h-9 flex items-center justify-center text-gray-600">
-				{@html searchIcon}
-			</div>
-			<input
-				type="search"
-				class="block w-full py-2 focus:outline-none bg-transparent placeholder:text-gray-600"
-				placeholder="Suche..."
-				bind:value={inputValue}
-			/>
-		</div>
 
 		<!--------------------->
 		<!-- Timeline Slider -->
