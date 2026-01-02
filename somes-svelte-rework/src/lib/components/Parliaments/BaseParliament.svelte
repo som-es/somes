@@ -63,8 +63,7 @@
 
 <div class={clazz}>
 	<svg
-		viewBox="0 0 {width}
-		{height * 0.5 + 60}"
+		viewBox="0 0 {width} {height * 0.5 + 60}"
 		style="width: 100%;"
 		class="parliament-svg hover:cursor-default"
 		on:click={() => (active = true)}

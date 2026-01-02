@@ -241,7 +241,7 @@
 								</div>
 
 								{#if voteResult.legislative_initiative.accepted && voteResult.legislative_initiative.vote_date}
-									<span class="text-sm opacity-90 -mt-1">
+									<span class="text-sm opacity-90">
 										{voteResult.legislative_initiative.voted_by_name ? 'namentlich ' : ''}
 										abgestimmt am {dashDateToDotDate(
 											voteResult.legislative_initiative.vote_date.toString()

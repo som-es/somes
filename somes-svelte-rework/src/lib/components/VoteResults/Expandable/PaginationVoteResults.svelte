@@ -13,6 +13,7 @@
 		vote_results_per_page,
 		get_eurovoc_topics
 	} from '$lib/api/api';
+	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 	import VoteResultExpandableBar from './VoteResultExpandableBar.svelte';
 	import { pushState } from '$app/navigation';
 	import Pagination from '$lib/components/Pagination.svelte';
@@ -124,18 +125,7 @@
 		{
 			title: 'Legislaturperiode',
 			activeValue: 'all',
-			options: [
-				{ title: 'Alle', value: 'all' },
-				{ title: 'XX', value: 'XX' },
-				{ title: 'XXI', value: 'XXI' },
-				{ title: 'XXII', value: 'XXII' },
-				{ title: 'XXIII', value: 'XXIII' },
-				{ title: 'XXIV', value: 'XXIV' },
-				{ title: 'XXV', value: 'XXV' },
-				{ title: 'XXVI', value: 'XXVI' },
-				{ title: 'XXVII', value: 'XXVII' },
-				{ title: 'XXVIII', value: 'XXVIII' }
-			]
+			options: [{ title: 'Alle', value: 'all' }]
 		}
 	];
 
@@ -259,6 +249,16 @@
 		const fetchedTopics = errorToNull(await get_eurovoc_topics());
 		if (fetchedTopics) {
 			topics = fetchedTopics;
+		}
+
+		// Generic filter - Legislative period
+		const fetchedPeriods = await cachedAllLegisPeriods();
+		if (fetchedPeriods) {
+			genericFilters[4].options = [
+				{ title: 'Alle', value: 'all' },
+				...fetchedPeriods.map((p) => ({ title: p.gp, value: p.gp }))
+			];
+			genericFilters = genericFilters;
 		}
 	});
 
