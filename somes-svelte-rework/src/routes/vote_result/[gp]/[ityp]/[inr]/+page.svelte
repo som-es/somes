@@ -207,7 +207,7 @@
 	$: speeches = circles2d.flat(1).filter((circle) => circle.speech !== null);
 	$: parliamentUrl = `https://parlament.gv.at/gegenstand/${gp}/${ityp}/${inr}?utm_source=somes.at`;
 	$: documents = voteResult?.documents ?? [];
-	$: votedByName = voteResult?.legislative_initiative.voted_by_name ?? false;
+	$: votedByName = voteResult?.legislative_initiative?.voted_by_name ?? false;
 	$: couldExtractNamedVotes =
 		(voteResult?.named_votes?.named_votes?.length ?? 0) > 0 && votedByName;
 </script>

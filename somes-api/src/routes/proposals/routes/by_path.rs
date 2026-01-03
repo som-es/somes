@@ -35,6 +35,8 @@ pub async fn gov_proposal_delegate_by_path_sqlx(
                 mp.emphasis,
                 mp.title,
                 mp.description,
+                mp.raw_data_created_at,
+                mp.raw_data_updated_at,
                 mp.created_at,
                 mp.updated_at,
                 mp.due_to,

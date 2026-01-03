@@ -27,7 +27,7 @@
 	</Square>
 	<Square>
 		<div class="font-bold text-lg">
-			{dashDateToDotDate(govProposal.ministrial_proposal.created_at.split('T')[0].toString())}
+			{dashDateToDotDate(govProposal.ministrial_proposal.raw_data_created_at.split('T')[0].toString())}
 		</div>
 		<div>Veröffentlicht am</div>
 	</Square>

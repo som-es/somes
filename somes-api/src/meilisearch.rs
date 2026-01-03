@@ -127,7 +127,7 @@ pub async fn update_gov_props_meilisearch_index(
             "gov_proposal.ministrial_proposal.has_vote_result",
             "gov_proposal.vote_result",
         ])
-        .with_sortable_attributes(["gov_proposal.ministrial_proposal.created_at"])
+        .with_sortable_attributes(["gov_proposal.ministrial_proposal.raw_data_created_at"])
         .with_pagination(PaginationSetting {
             max_total_hits: 100000000,
         });

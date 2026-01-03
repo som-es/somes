@@ -1,4 +1,4 @@
-use chrono::{NaiveDate, NaiveDateTime};
+use chrono::{DateTime, NaiveDate, NaiveDateTime, Utc};
 use serde::{Deserialize, Serialize};
 use somes_macro::CompositeType;
 use sqlx::prelude::Type;
@@ -80,7 +80,7 @@ pub struct LegisInitFavo {
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct Absence {
-    pub date: NaiveDate,
+    pub date: DateTime<Utc>,
     pub inr: i32,
     pub gp: String,
     pub plenary_session_id: i32,
