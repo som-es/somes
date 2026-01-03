@@ -20,6 +20,8 @@ pub async fn extract_decrees_from_gov_official(
             d.gp,
             d.eli,
             d.document_url,
+            d.created_at,
+            d.updated_at,
             COALESCE(
                 json_agg(
                     json_build_object(
@@ -39,7 +41,7 @@ pub async fn extract_decrees_from_gov_official(
         GROUP BY
             d.gov_official_id, d.ris_id, d.ministrial_issuer,
             d.title, d.short_title, d.publication_date, d.part,
-            d.emphasis, d.gp, d.eli, d.document_url
+            d.emphasis, d.gp, d.eli, d.document_url, d.created_at, d.updated_at
         "#,
         delegate_id
     )
@@ -63,6 +65,8 @@ pub async fn extract_decrees_from_gov_official(
             .into_iter()
             .flat_map(|x| serde_json::from_value::<Document>(x))
             .collect(),
+        created_at: Some(x.created_at),
+        updated_at: x.updated_at,
     })
     .collect())
 }
