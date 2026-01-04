@@ -80,7 +80,7 @@
 	};
 </script>
 
-<div class=" z-[10000] login_container flex flex-col text-black">
+<div class=" z-10000 login_container flex flex-col text-black">
 	<button
 		on:click={() => {
 			drawerStore.close();

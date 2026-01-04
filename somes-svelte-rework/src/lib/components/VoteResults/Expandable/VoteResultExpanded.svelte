@@ -37,7 +37,7 @@
 	// rawEmphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
 </script>
 
-<div class="lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3">
+<div class="lg:hidden! entry bg-primary-200 dark:bg-primary-400 mt-3">
 	{#if voteResult.ai_summary}
 		<Emphasis
 			emphasis={voteResult.ai_summary.full_summary.key_points}
@@ -70,7 +70,7 @@
 		</div>
 	</div>
 </div>
-<div class="max-lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3 {whichGridContainer}">
+<div class="max-lg:hidden! entry bg-primary-200 dark:bg-primary-400 mt-3 {whichGridContainer}">
 	<!-- Inneres Migration Frauen Klimaschutz -->
 	{#if voteResult.ai_summary}
 		<Emphasis

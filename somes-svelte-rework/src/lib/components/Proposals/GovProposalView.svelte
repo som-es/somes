@@ -61,7 +61,7 @@
 				</a>
 			</div>
 			<div class="flex flex-wrap justify-between items-center gap-3 w-full border-t border-black/5 dark:border-white/5 pt-1 ">
-				<div class="flex-shrink-0">
+				<div class="shrink-0">
 					<InfoBadgesCustom texts={
 						[govProposal.gov_proposal.ministrial_proposal.ressort, 
 						date, govProposal.gov_proposal.ministrial_proposal.gp]} />

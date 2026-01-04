@@ -66,7 +66,7 @@
 </Drawer>
 
 <div class="grid h-screen grid-rows-[auto_1fr_auto]">
-	<header class="lg:hidden sticky top-0 z-[0]">
+	<header class="lg:hidden sticky top-0 z-0">
 		<Navbar />
 	</header>
 	<div class="grid grid-cols-[auto_1fr]">
@@ -80,7 +80,7 @@
 		</main>
 	</div>
   	<footer class="sticky bottom-0 z-50">
-		<div class=" sm:!hidden max-h-[4.5rem]">
+		<div class=" sm:hidden! max-h-18">
 			<Bottombar />
 		</div>
   </footer>

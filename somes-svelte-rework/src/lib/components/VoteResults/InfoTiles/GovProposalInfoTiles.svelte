@@ -14,7 +14,7 @@
 	};
 </script>
 
-<div class="!z-50 card p-4 w-72 shadow-xl" data-popup="ressort">
+<div class="z-50! card p-4 w-72 shadow-xl" data-popup="ressort">
 	<div class="z-50 font-bold text-xl">{govProposal.ministrial_proposal.ressort}</div>
 </div>
 

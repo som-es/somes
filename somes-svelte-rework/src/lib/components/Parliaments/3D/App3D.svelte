@@ -20,7 +20,7 @@
 	};
 </script>
 
-<div id="canvas" class="min-h-[30rem] max-h-[30rem">
+<div id="canvas" class="min-h-120 max-h-[30rem">
 	<Canvas>
 		<BaseParliament3D {circles2d} {selected} {preview} {select} />
 	</Canvas>

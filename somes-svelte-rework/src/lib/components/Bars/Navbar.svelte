@@ -49,9 +49,9 @@
 </script>
 
 <!--
-<AppBar class="!bg-surface-100-800-token" slotTrail="!space-x-2">
+<AppBar class="!bg-surface-100-800-token" slotTrail="space-x-2!">
 	<svelte:fragment slot="lead">
-		<button on:click={drawerOpen} class="btn-icon btn-icon-sm lg:!hidden">
+		<button on:click={drawerOpen} class="btn-icon btn-icon-sm lg:hidden!">
 			{@html hamburgerIcon}
 		</button>
 		<a class="mx-4 fill-current stroke-current w-32" href="/">
@@ -98,7 +98,7 @@
 	<div class="flex flex-row gap-3">
 		<LightSwitch class="mt-1" />
 		<div class="flex items-center justify-center">
-			<button on:click={drawerOpen} class="fill-current btn-icon btn-icon-sm lg:!hidden">
+			<button on:click={drawerOpen} class="fill-current btn-icon btn-icon-sm lg:hidden!">
 				{@html hamburgerIcon}
 			</button>
 		</div>

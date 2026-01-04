@@ -17,7 +17,7 @@
 		{#if userTopics.has(topic.topic)}
 			<DisplayTopic class={'!bg-secondary-400'}>{topic.topic}</DisplayTopic>
 		{:else if topic.topic == 'namentliche Abstimmung'}
-			<DisplayTopic class={'!bg-tertiary-500 !text-black'}>{topic.topic}</DisplayTopic>
+			<DisplayTopic class={'!bg-tertiary-500 text-black!'}>{topic.topic}</DisplayTopic>
 		{:else}
 			<DisplayTopic>{topic.topic}</DisplayTopic>
 		{/if}

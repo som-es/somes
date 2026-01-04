@@ -50,7 +50,7 @@
 </script>
 
 <div class="card p-8 max-w-7xl">
-	<div class="!z-50 card p-4 w-72 shadow-xl" data-popup="extractedFromIntroductionVideo">
+	<div class="z-50! card p-4 w-72 shadow-xl" data-popup="extractedFromIntroductionVideo">
 		<div class="z-50 font-bold text-xl">
 			Die Fragen und Antworten wurden aus dem Portraitvideo des Abgeordneten extrahiert.
 		</div>
@@ -78,22 +78,22 @@
 		</div>
 
 		<div
-			class="rounded-xl min-w-40 min-h-40 w-[20rem] h-[20rem] bg-primary-300 dark:bg-primary-500 flex items-center justify-center"
+			class="rounded-xl min-w-40 min-h-40 w-[20rem] h-80 bg-primary-300 dark:bg-primary-500 flex items-center justify-center"
 		>
 			Sprachkomplexität
 		</div>
 		<div
-			class="rounded-xl min-w-40 min-h-40 w-[20rem] h-[20rem] bg-primary-300 dark:bg-primary-500 flex items-center justify-center"
+			class="rounded-xl min-w-40 min-h-40 w-[20rem] h-80 bg-primary-300 dark:bg-primary-500 flex items-center justify-center"
 		>
 			Aktivitätsscoring
 		</div>
 		<div
-			class="rounded-xl min-w-40 min-h-40 w-[20rem] h-[20rem] bg-primary-300 dark:bg-primary-500 flex items-center justify-center"
+			class="rounded-xl min-w-40 min-h-40 w-[20rem] h-80 bg-primary-300 dark:bg-primary-500 flex items-center justify-center"
 		>
 			Redezeit
 		</div>
 		<div
-			class="rounded-xl min-w-40 min-h-40 w-[20rem] h-[20rem] bg-primary-300 dark:bg-primary-500 flex items-center justify-center"
+			class="rounded-xl min-w-40 min-h-40 w-[20rem] h-80 bg-primary-300 dark:bg-primary-500 flex items-center justify-center"
 		>
 			Ordnungsrufe
 		</div>

@@ -14,7 +14,7 @@
 </script>
 
 {#if $modalStore.length > 0 && $modalStore[0].meta}
-	<div class="card p-8 max-w-7xl w-[80rem]">
+	<div class="card p-8 max-w-7xl w-7xl">
 		<span class="font-bold text-2xl">Detailierte Interessen</span>
 		<button
 			on:click={() => {

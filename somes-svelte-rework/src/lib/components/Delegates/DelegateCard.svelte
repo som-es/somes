@@ -63,7 +63,7 @@
 </script>
 
 <div
-	class="!z-0 card bg-primary-200 {onlyTop ? '' : 'min-h-full'}  mx-4 drop-shadow-lg flex flex-col"
+	class="z-0! card bg-primary-200 {onlyTop ? '' : 'min-h-full'}  mx-4 drop-shadow-lg flex flex-col"
 >
 	<header class="relative">
 		{#if delegateFavos}
@@ -115,7 +115,7 @@
 		</div>
 	</header>
 
-	<section class="p-4 flex-grow">
+	<section class="p-4 grow">
 		<h4 class="font-bold md:text-xl">
 			{delegate.name}
 			{#if delegate.is_active && showAge}
@@ -141,11 +141,11 @@
 		{/each}
 
 		{#if !onlyTop}
-			<hr class="!border-t-2 my-1" />
+			<hr class="border-t-2! my-1" />
 			{#if delegate.constituency != null}
 				<h3>{delegate.constituency}</h3>
 			{/if}
-			<hr class="!border-t-2 my-1" />
+			<hr class="border-t-2! my-1" />
 			<h3>{delegate.divisions?.join(', ')}</h3>
 		{/if}
 
@@ -159,7 +159,7 @@
 		<!-- </span> -->
 	</section>
 
-	<hr class="!border-t-2 my-1" />
+	<hr class="border-t-2! my-1" />
 	<!-- <footer class="card-footer flex justify-end items-end mt-3"> -->
 	<footer class="card-footer flex justify-between mt-1">
 		<slot name="footerButtons"></slot>

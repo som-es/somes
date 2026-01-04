@@ -17,7 +17,7 @@
 
 <div class="grid-tile {bgColor} flex flex-row flex-wrap interests-item gap-3">
 	{#each interests as interest}
-		<Square class=" break-words {squareColor}">
+		<Square class=" wrap-break-word {squareColor}">
 			<div
 				class="text-center font-bold {calcSizeForText(interest.topic)}"
 				style="max-width: 140px;"

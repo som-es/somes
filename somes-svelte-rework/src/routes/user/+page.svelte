@@ -227,7 +227,7 @@
 				<h1 class="font-bold text-2xl">Wahle deine Interessen</h1>
 				<!-- todo: Searchbar -->
 				<input
-					class="input w-[28rem] h-9 px-2"
+					class="input w-md h-9 px-2"
 					type="search"
 					name="ac-demo"
 					bind:value={inputValue}
@@ -277,7 +277,7 @@
 						{:else}
 							{#each favoDelegates as favoDelegateId}
 								{#await delegate_by_id(favoDelegateId)}
-									<ExpandablePlaceholder class="!w-80" />
+									<ExpandablePlaceholder class="w-80!" />
 								{:then maybeDelegate}
 									{#if !isHasError(maybeDelegate)}
 										<DelegateCard delegate={maybeDelegate} showMoreDetailsBtn onlyTop={true} />
@@ -301,7 +301,7 @@
 						{:else}
 							{#each favoLegisInits as favoLegisInitId, i}
 								{#await vote_result_by_id(favoLegisInitId.toString())}
-									<ExpandablePlaceholder class="!w-80" />
+									<ExpandablePlaceholder class="w-80!" />
 								{:then maybeDelegate}
 									{#if !isHasError(maybeDelegate)}
 										<VoteResult dels={[]} voteResult={maybeDelegate} tabindex={i} />

@@ -26,7 +26,7 @@
 
 <!-- Small Screen PopUps (keep them out of <div>...</div> as much as possible) -->
 <div
-	class="z-10 card w-full p-5 self-center md:max-w-[34rem] lg:max-w-[50rem] shadow-xl py-2"
+	class="z-10 card w-full p-5 self-center md:max-w-136 lg:max-w-200 shadow-xl py-2"
 	data-popup="mobileFilter"
 >
 	{#each filters as filter}
@@ -73,7 +73,7 @@
 			placeholder="Suche..."
 		/>
 		<div class="flex flex-row gap-2">
-			<SButton class="bg-secondary-500 !px-1.5 text-black" on:click={update}>Suchen</SButton>
+			<SButton class="bg-secondary-500 px-1.5! text-black" on:click={update}>Suchen</SButton>
 			<div use:popup={mobileFilter} class="lg:hidden">
 				<SButton class="bg-secondary-500 text-black">{@html filterIcon}</SButton>
 			</div>

@@ -40,7 +40,7 @@
 
 <ListBoxItem
 	hover="hover:bg-secondary-200"
-	class=" !rounded-[3rem] w-full min-w-full bg-primary-300 !text-black my-3"
+	class=" rounded-[3rem]! w-full min-w-full bg-primary-300 text-black! my-3"
 	spacing="space-y-4"
 	active="bg-secondary-500"
 	bind:group={partyGroup}

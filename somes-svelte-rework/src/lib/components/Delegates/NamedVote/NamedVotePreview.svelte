@@ -31,7 +31,7 @@
 </div>
 <div class="mt-5">
 	{#each previewNamedVotes as namedVote}
-		<!-- <div class="gap-3 rounded variant-filled my-1">{speech.legislative_initiatives_id} {speech.opinion}</div> -->
+		<!-- <div class="gap-3 rounded-sm variant-filled my-1">{speech.legislative_initiatives_id} {speech.opinion}</div> -->
 		<NamedVoteBar {namedVote}></NamedVoteBar>
 	{/each}
 </div>

@@ -82,7 +82,7 @@
 
 				{#if hasVotes}
 					<button
-						class="max-sm:hidden z-20 w-[7.5rem] bg-primary-100 dark:bg-primary-300 rounded-md"
+						class="max-sm:hidden z-20 w-30 bg-primary-100 dark:bg-primary-300 rounded-md"
 						on:click={() => onShowDetails(voteResult)}
 					>
 						<VoteParliament2 {voteResult} preview={true} />

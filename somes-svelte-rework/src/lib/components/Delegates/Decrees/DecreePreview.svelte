@@ -34,7 +34,7 @@
 
 <div class="mt-1">
 	{#each previewDecrees as decree}
-		<!-- <div class="gap-3 rounded variant-filled my-1">{speech.legislative_initiatives_id} {speech.opinion}</div> -->
+		<!-- <div class="gap-3 rounded-sm variant-filled my-1">{speech.legislative_initiatives_id} {speech.opinion}</div> -->
 		<DecreeBar {decree} {delegate} page={0}></DecreeBar>
 		<!-- <GovProposalExpandableBar {govProposal} /> -->
 	{/each}

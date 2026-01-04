@@ -257,7 +257,7 @@
 
 							<!-- Result Icon -->
 							{#if voteResult.legislative_initiative.accepted}
-								<div class="flex-shrink-0">
+								<div class="shrink-0">
 									{#if voteResult.legislative_initiative.accepted == 'a'}
 										<span class="stroke-green-600 dark:stroke-green-500 block" style="width:60px; height:60px;">
 											{@html checkmarkIcon}
@@ -272,7 +272,7 @@
 						</div>
 
 						<!-- Right Actions (Fixed Width) -->
-						<div class="flex flex-wrap items-center ml-2 gap-2 flex-shrink-0">
+						<div class="flex flex-wrap items-center ml-2 gap-2 shrink-0">
 							<a href={parliamentUrl} target="_blank">
 								<img class="w-12" alt="favicon" src="https://www.parlament.gv.at/static/img/favicon/favicon.svg" />
 							</a>
@@ -285,7 +285,7 @@
 					</div>
 
 					<div class="flex flex-wrap justify-between items-center gap-3 w-full border-t border-black/5 dark:border-white/5 pt-1 ">
-						<div class="flex-shrink-0">
+						<div class="shrink-0">
 							<InfoBadges {voteResult} />
 						</div>
 						
@@ -346,9 +346,9 @@
 
 					<!-- {#if voteResult.legislative_initiative.gp == 'XXVII'} -->
 
-					<div class="!z-20 search-item text-token space-y-5">
+					<div class="z-20! search-item text-token space-y-5">
 						<input
-							class="!rounded-xl w-full h-12 px-2 input"
+							class="rounded-xl! w-full h-12 px-2 input"
 							type="search"
 							name="ac-demo"
 							bind:value={inputValue}
@@ -357,7 +357,7 @@
 						/>
 
 						{#if autocompleteOptions}
-							<div class="!z-10 card max-h-64 p-4 overflow-y-auto" data-popup="popupAutocomplete">
+							<div class="z-10! card max-h-64 p-4 overflow-y-auto" data-popup="popupAutocomplete">
 								<Autocomplete
 									bind:input={inputValue}
 									options={autocompleteOptions}
