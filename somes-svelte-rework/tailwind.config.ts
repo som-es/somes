@@ -13,10 +13,6 @@ export default {
 		extend: {}
 	},
 	plugins: [
-		skeleton({
-			themes: {
-				custom: [somes]
-			}
-		})
+		
 	]
 } satisfies Config;
