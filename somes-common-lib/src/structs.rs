@@ -66,6 +66,8 @@ pub struct Delegate {
     pub mandates_at_time: Option<Vec<FullMandate>>,
     pub active_mandates: Option<Vec<FullMandate>>,
     pub mandates: Option<Vec<FullMandate>>,
+    pub created_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<DateTime<Utc>>,
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]

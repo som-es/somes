@@ -40,6 +40,8 @@ pub async fn gov_officials_at_date_sqlx(
     v.is_active,
     v.birthdate,
     v.divisions,
+    v.created_at,
+    v.updated_at,
     ARRAY(
             SELECT ROW(start_date, end_date, name, party, is_nr, is_gov_official, is_ministry, is_chancellor, function)::full_mandate
             FROM mandates m
