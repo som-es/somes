@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@tailwind variants;
+
+html,
+body {
+	@apply h-full;
+}
+
+body ::selection {
+	background: rgb(var(--color-secondary-300));
+	color: #000;
+}
