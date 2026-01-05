@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { isHasError, isThere } from '$lib/api/api';
 	import type { GovProposal } from '$lib/types';
-	import { RadioGroup, RadioItem } from '@skeletonlabs/skeleton';
+	import { Segment } from '@skeletonlabs/skeleton-svelte';
 
 	export let filteredGovProposals: GovProposal[];
 	export let allGovProposals: GovProposal[] | undefined;
@@ -24,29 +24,29 @@
 <div class="max-lg:hidden flex gap-4 flex-wrap">
 	<div class="mt-5">
 		<h1 class="text-2xl font-bold">Mit Abstimmung</h1>
-		<RadioGroup
-			rounded="rounded-container-token sm:!rounded-token"
-			active="variant-filled-secondary"
-			hover="hover:variant-soft-secondary"
+		<Segment
+			rounded="rounded-container sm:!rounded-base"
+			active="preset-filled-secondary-500"
+			hover="hover:preset-tonal-secondary"
 			flexDirection="flex-col sm:flex-row"
 		>
-			<RadioItem bind:group={alreadyVotedOnFilter} name="alreadyVotedOn" value={undefined}
-				>egal</RadioItem
+			<Segment.Item bind:group={alreadyVotedOnFilter} name="alreadyVotedOn" value={undefined}
+				>egal</Segment.Item
 			>
-			<RadioItem bind:group={alreadyVotedOnFilter} name="alreadyVotedOn" value={false}
-				>keine Abstimmung</RadioItem
+			<Segment.Item bind:group={alreadyVotedOnFilter} name="alreadyVotedOn" value={false}
+				>keine Abstimmung</Segment.Item
 			>
-			<RadioItem bind:group={alreadyVotedOnFilter} name="alreadyVotedOn" value={true}
-				>mit Abstimmung</RadioItem
+			<Segment.Item bind:group={alreadyVotedOnFilter} name="alreadyVotedOn" value={true}
+				>mit Abstimmung</Segment.Item
 			>
-		</RadioGroup>
+		</Segment>
 	</div>
 	<div class="mt-5">
 		<h1 class="text-2xl font-bold">Angenommen</h1>
-		<RadioGroup
-			rounded="rounded-container-token sm:!rounded-token"
-			active="variant-filled-secondary"
-			hover="hover:variant-soft-secondary"
+		<Segment
+			rounded="rounded-container sm:!rounded-base"
+			active="preset-filled-secondary-500"
+			hover="hover:preset-tonal-secondary"
 			flexDirection="flex-col sm:flex-row"
 		>
 			<!-- <RadioItem bind:group={acceptedFilter} name="accepted" value={undefined}>egal</RadioItem>
@@ -58,7 +58,7 @@
 				value={'p'}
 				title="frühzeitig abgelehnt - vor der 3. Lesung">frühzeitig abgelehnt</RadioItem
 			> -->
-		</RadioGroup>
+		</Segment>
 	</div>
 	<div class="mt-5">
 		<h1 class="text-2xl font-bold">Abstimmung</h1>

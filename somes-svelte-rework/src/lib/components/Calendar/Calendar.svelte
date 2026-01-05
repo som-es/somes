@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
+	import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
 	import type { Day } from './types';
 
 	export let headers: string[] = [];

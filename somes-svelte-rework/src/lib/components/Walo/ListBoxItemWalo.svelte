@@ -2,8 +2,6 @@
 	import { areDeeplyEqual } from '$lib/types';
 
 	// import ListBoxItem from "../UI/ListBoxItem.svelte";
-	import { ListBoxItem } from '@skeletonlabs/skeleton';
-
 	export let partyGroup: string[];
 	export let twoTimeWeightsGroup: string[];
 	export let justification: [string | null, number];

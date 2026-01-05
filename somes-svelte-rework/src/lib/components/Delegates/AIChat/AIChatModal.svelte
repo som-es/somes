@@ -1,6 +1,6 @@
 <script lang="ts">
 	import SButton from '$lib/components/UI/SButton.svelte';
-	import { getModalStore, popup, type PopupSettings } from '@skeletonlabs/skeleton';
+	import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
 	import Chat from './Chat.svelte';
 	import { onDestroy } from 'svelte';
 	import Warning from '$lib/components/UI/Warning.svelte';
@@ -85,7 +85,7 @@
 	</div>
 </div>
 <div
-	class="flex flex-col justify-between w-full max-w-7xl h-[90vh] bg-primary-100-800-token shadow-lg rounded-lg overflow-hidden"
+	class="flex flex-col justify-between w-full max-w-7xl h-[90vh] bg-primary-100-900 shadow-lg rounded-lg overflow-hidden"
 >
 	<div class="p-4 bg-primary text-center text-lg font-bold flex justify-between">
 		<button class="text-4xl" use:popup={popupFeatured}>⚠</button>
@@ -98,7 +98,7 @@
 			style="font-size: 34px"
 			class="w-5 unselectable"
 		>
-			&#x2715
+			✕
 		</button>
 	</div>
 	<div class="flex-1 p-4 overflow-y-auto bg-gray-50 dark:bg-gray-900">

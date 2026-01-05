@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { getModalStore } from '@skeletonlabs/skeleton';
-	import Pagination from '$lib/components/Pagination.svelte';
+		import Pagination from '$lib/components/Pagination.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import AbsenceBar from './AbsenceBar.svelte';
 	import type { Absence } from '$lib/types';
@@ -30,7 +29,7 @@
 			style="font-size: 34px"
 			class="w-5 unselectable float-right"
 		>
-			&#x2715
+			✕
 		</button>
 
 		<Pagination bind:page maxPage={Math.ceil($modalStore[0].meta.absences.length / ENTRIES)} />

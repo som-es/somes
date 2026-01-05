@@ -6,7 +6,6 @@
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
 	import clockIcon from '$lib/assets/misc_icons/clock-two.svg?raw';
 	import { gotoHistory } from '$lib/goto';
-	import { getModalStore } from '@skeletonlabs/skeleton';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 
 	export let speech: Speech;

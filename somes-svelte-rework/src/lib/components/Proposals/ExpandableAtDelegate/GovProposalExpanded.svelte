@@ -17,7 +17,6 @@
 	import Emphasis from '$lib/components/VoteResults/Emphasis/Emphasis.svelte';
 	import GovProposalInfoTiles from '$lib/components/VoteResults/InfoTiles/GovProposalInfoTiles.svelte';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
-	import { getModalStore } from '@skeletonlabs/skeleton';
 	import { createGovProposalPath } from '../types';
 
 	export let govProposal: GovProposal;

@@ -3,7 +3,7 @@
 	import TestChart from '$lib/components/Statistics/TestChart.svelte';
 	import { onMount } from 'svelte';
 	import { justPostStatistics } from '$lib/api/api';
-	import { getModalStore, popup, type PopupSettings } from '@skeletonlabs/skeleton';
+	import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
 	import DelegateQaEntry from '$lib/components/Delegates/QA/DelegateQAEntry.svelte';
 	// import { Chart } from "frappe-charts"; C:\Schule4neu\DIPLO\somes\somes-svelte-rework\src\lib\api.ts
 
@@ -61,7 +61,7 @@
 			modalStore.close();
 		}}
 		style="font-size: 34px"
-		class="w-5 unselectable">&#x2715</button
+		class="w-5 unselectable">✕</button
 	>
 	<button class="text-4xl float-right" use:popup={popupFeatured}>⚠</button>
 	{#if $modalStore.length > 0}

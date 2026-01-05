@@ -3,7 +3,7 @@
 
 	import SButton from '../UI/SButton.svelte';
 
-	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
+	import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
 	import FilterListBox from './FilterListBox.svelte';
 	import FilterOpener from './FilterOpener.svelte';
 	import FilterRadioGroup from './FilterRadioGroup.svelte';
@@ -65,7 +65,7 @@
 <div class="mt-4 sm:mt-8">
 	<div class="flex flex-row gap-3">
 		<input
-			class="rounded-lg !bg-surface-200-700-token w-full h-12 px-2 placeholder-gray-500"
+			class="rounded-lg !bg-surface-200-800 w-full h-12 px-2 placeholder-gray-500"
 			type="search"
 			name="ac-demo"
 			bind:value={searchValue}
@@ -87,7 +87,7 @@
 				class="badge p-3 bg-secondary-400 text-black cursor-pointer"
 				on:click={() => (selectedPeriod = 'all')}
 			>
-				{selectedPeriod} <span class="ml-1" style="font-size: 18px;">&#x2715</span>
+				{selectedPeriod} <span class="ml-1" style="font-size: 18px;">✕</span>
 			</button>
 		{/if}
 		{#each filters as filter}

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { partyToColor } from '$lib/partyColor';
 	import type { Delegate, DelegateFavo, DelegateQA, Mandate } from '$lib/types';
-	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
+	import { type ModalSettings } from '@skeletonlabs/skeleton-svelte';
 	import SButton from '../UI/SButton.svelte';
 	import { currentDelegateStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
@@ -171,13 +171,13 @@
 		{#if !onlyTop}
 			{#if showAI}
 				<button
-					class="btn sm:btn-lg variant-filled"
+					class="btn sm:btn-lg preset-filled"
 					on:click={() => modalStore.trigger(aiChatModal)}>AI Chat</button
 				>
 			{/if}
 			{#if showQA && questions.length > 0}
 				<button
-					class="btn sm:btn-lg variant-filled"
+					class="btn sm:btn-lg preset-filled"
 					on:click={() => modalStore.trigger(delegateQAModal)}>Vorstellung</button
 				>
 			{/if}

@@ -1,4 +1,4 @@
-import type { DrawerSettings } from '@skeletonlabs/skeleton';
+import type { DrawerSettings } from '@skeletonlabs/skeleton-svelte';
 
 export const loginDrawerSettings: DrawerSettings = {
 	id: 'login-drawer',

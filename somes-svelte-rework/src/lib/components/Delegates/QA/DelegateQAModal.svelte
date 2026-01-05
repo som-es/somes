@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getModalStore, popup, type PopupSettings } from '@skeletonlabs/skeleton';
+	import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
 	import DelegateQaEntry from './DelegateQAEntry.svelte';
 
 	const modalStore = getModalStore();
@@ -28,7 +28,7 @@
 			modalStore.close();
 		}}
 		style="font-size: 34px"
-		class="w-5 unselectable float-right">&#x2715</button
+		class="w-5 unselectable float-right">✕</button
 	>
 	<!-- </div> -->
 	{#if $modalStore.length > 0}

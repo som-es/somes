@@ -1,23 +1,16 @@
 <script lang="ts">
-	import '../app.postcss';
 	import {
-		Drawer,
-		initializeStores,
-		Modal,
 		type ModalComponent
-	} from '@skeletonlabs/skeleton';
+	} from '@skeletonlabs/skeleton-svelte';
 	import CacheInvalidation from '$lib/components/CacheInvalidation/CacheInvalidation.svelte';
 	import Sidebar from '$lib/components/Bars/Sidebar.svelte';
 	import Bottombar from '$lib/components/Bars/Bottombar.svelte';
 	import Navbar from '$lib/components/Bars/Navbar.svelte';
 
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
-	import { storePopup } from '@skeletonlabs/skeleton';
 	import LoginDrawer from '$lib/components/Login/LoginDrawer.svelte';
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 	initializeStores();
-
-	import { getDrawerStore } from '@skeletonlabs/skeleton';
 	import RenewToken from '$lib/components/Login/RenewToken.svelte';
 	import DelegateQAModal from '$lib/components/Delegates/QA/DelegateQAModal.svelte';
 	import AiChatModal from '$lib/components/Delegates/AIChat/AIChatModal.svelte';

@@ -5,7 +5,6 @@
 	import { currentVoteResultStore } from '$lib/stores/stores';
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
 	import { gotoHistory } from '$lib/goto';
-	import { getModalStore } from '@skeletonlabs/skeleton';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import { removeUserTopic } from '$lib/api/authed';
 	import { createEventDispatcher } from 'svelte';

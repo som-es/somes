@@ -1,11 +1,7 @@
 <script lang="ts">
 	import {
-		getDrawerStore,
-		LightSwitch,
-		modeCurrent,
-		setModeCurrent,
 		type DrawerSettings
-	} from '@skeletonlabs/skeleton';
+	} from '@skeletonlabs/skeleton-svelte';
 	import somesIcon from '$lib/assets/somes_icon.svg?raw';
 	import somesIconText from '$lib/assets/somes_with_text2.svg?raw';
 	import { jwtStore } from '$lib/caching/stores/stores';
@@ -82,7 +78,7 @@
 </AppBar>
 -->
 
-<div class="w-full flex justify-between items-center pr-6 pl-8 !bg-surface-100-800-token">
+<div class="w-full flex justify-between items-center pr-6 pl-8 !bg-surface-100-900">
 	<!-- Logo -->
 	<div class="w-24 flex items-center py-4">
 		<a class="fill-current stroke-current block sm:hidden min-w-[38px] min-h-[38px]" href="/">

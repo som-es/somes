@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
+	import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
 	import PlenarCalendar from './PlenarCalendar.svelte';
 	import { dashDateToDotDate } from '$lib/date';
 	import { onMount } from 'svelte';
@@ -53,7 +53,7 @@
 			{/if}
 		</span>
 	</div>
-	<button class="btn sm:btn-lg variant-filled mt-1" use:popup={plenarCalendar} on:click={() => {}}
+	<button class="btn sm:btn-lg preset-filled mt-1" use:popup={plenarCalendar} on:click={() => {}}
 		>Sitzungskalender</button
 	>
 

@@ -6,7 +6,7 @@
 	import statsIcon from '$lib/assets/icons/statistics.svg?raw';
 	import waloIcon from '$lib/assets/icons/walo.svg?raw';
 	import somesIcon from '$lib/assets/somes_icon.svg?raw';
-	import { AppRail, AppRailAnchor, AppRailTile, getDrawerStore, LightSwitch } from '@skeletonlabs/skeleton';
+	import { Navigation } from '@skeletonlabs/skeleton-svelte';
 	import { mockDelegates, mockVoteResult } from '$lib/parliaments/mock';
 	import { base } from '$app/paths';
 	import VoteParliament2 from '../Parliaments/VoteParliament2.svelte';
@@ -109,12 +109,12 @@
 		}
 	];
 
-	$: listboxItemActive = (href: string) => (isSelected(href) ? 'bg-primary-active-token' : '');
+	$: listboxItemActive = (href: string) => (isSelected(href) ? 'preset-filled-primary-500' : '');
 	// $: activeAnchorColor = (href: string) => ($page.url.pathname?.includes(href) ? 'flex flex-col justify-center items-stretch bg-primary-active-token' : 'bg-primary-hover-token');
 </script>
 
 <div class="h-full bg-surface-50 grid-cols-[auto_1fr] flex {$$props.class ?? ''}">
-	<AppRail width="w-20 border-r border-surface-500/30">
+	<Navigation width="w-20 border-r border-surface-500/30">
 		<!-- <svelte:fragment slot="lead">
 			<AppRailAnchor href="/" >(icon)</AppRailAnchor>
 		</svelte:fragment> -->
@@ -230,9 +230,9 @@
 				</AppRailAnchor>
 			</div>
 		</svelte:fragment>
-	</AppRail>
+	</Navigation>
 	{#if isSelected('/statistics') || isSelected('/history')}
-		<section class="p-4 pb-20 space-y-4 overflow-y-auto !bg-surface-200-700-token max-w-60">
+		<section class="p-4 pb-20 space-y-4 overflow-y-auto !bg-surface-200-800 max-w-60">
 			{#each submenu as segment, i}
 				{#if isSelected(segment.route)}
 					<!-- Title -->

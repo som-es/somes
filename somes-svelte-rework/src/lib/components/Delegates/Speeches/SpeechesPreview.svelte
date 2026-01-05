@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Speech, SpeechesWithMaxPage } from '$lib/types';
-	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
+	import { type ModalSettings } from '@skeletonlabs/skeleton-svelte';
 	import SpeechBar from './SpeechBar.svelte';
 
 	export let speechesPage0: SpeechesWithMaxPage;
@@ -26,7 +26,7 @@
 			{speechesPage0.entry_count == 1 ? 'Rede' : 'Reden'} insgesamt
 		</h2>
 	</div>
-	<button class="btn sm:btn-lg variant-filled mt-1" on:click={() => modalStore.trigger(allSpeeches)}
+	<button class="btn sm:btn-lg preset-filled mt-1" on:click={() => modalStore.trigger(allSpeeches)}
 		>Alle anzeigen</button
 	>
 </div>

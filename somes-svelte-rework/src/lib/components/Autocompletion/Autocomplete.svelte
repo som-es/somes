@@ -19,10 +19,9 @@
 	import { dynamicTransition } from '$lib/internal/transition.js';
 
 	import type {
-		prefersReducedMotionStore,
 		Transition,
 		TransitionParams
-	} from '@skeletonlabs/skeleton';
+	} from '@skeletonlabs/skeleton-svelte';
 
 	import { createEventDispatcher } from 'svelte';
 	// import { flip } from 'svelte/animate';

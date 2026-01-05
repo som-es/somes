@@ -2,7 +2,6 @@
 	import ReactiveGenericBarChart from '$lib/components/GeneralCharts/ReactiveGenericBarChart.svelte';
 	import { topicColors } from '$lib/interestColors';
 	import type { InterestShare } from '$lib/types';
-	import { getModalStore } from '@skeletonlabs/skeleton';
 	export let parent;
 
 	const modalStore = getModalStore();
@@ -23,7 +22,7 @@
 			style="font-size: 34px"
 			class="w-5 unselectable float-right"
 		>
-			&#x2715
+			✕
 		</button>
 		<br />
 		<span class="text-lg">meist behandelte Themen</span>

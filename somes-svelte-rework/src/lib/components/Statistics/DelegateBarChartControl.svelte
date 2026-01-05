@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { DelegateData } from '$lib/types';
-	import { ListBox, ListBoxItem, popup, type PopupSettings } from '@skeletonlabs/skeleton';
+	import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
 	import LegisButtons from '../Filtering/LegisButtons.svelte';
 	import { onMount } from 'svelte';
 	import ReactiveDelegateBarChart from './ReactiveDelegateBarChart.svelte';
@@ -143,9 +143,9 @@
 
 <div class="z-30 card w-48 shadow-xl py-2" data-popup="popupParty{id}">
 	<ListBox
-		rounded="rounded-container-token sm:!rounded-token"
-		active="variant-filled-secondary"
-		hover="hover:variant-soft-secondary"
+		rounded="rounded-container sm:!rounded-base"
+		active="preset-filled-secondary-500"
+		hover="hover:preset-tonal-secondary"
 		multiple
 	>
 		{#each uniqueParties as party}
@@ -155,9 +155,9 @@
 </div>
 <div class="z-30 card w-48 shadow-xl py-2" data-popup="popupGender{id}">
 	<ListBox
-		rounded="rounded-container-token sm:!rounded-token"
-		active="variant-filled-secondary"
-		hover="hover:variant-soft-secondary"
+		rounded="rounded-container sm:!rounded-base"
+		active="preset-filled-secondary-500"
+		hover="hover:preset-tonal-secondary"
 	>
 		<ListBoxItem bind:group={gender} name="genderName" value={undefined}>egal</ListBoxItem>
 		<ListBoxItem bind:group={gender} name="genderName" value={'f'}>weiblich</ListBoxItem>
@@ -166,9 +166,9 @@
 </div>
 <div class="z-30 card w-48 shadow-xl py-2" data-popup="popupNormalized{id}">
 	<ListBox
-		rounded="rounded-container-token sm:!rounded-token"
-		active="variant-filled-secondary"
-		hover="hover:variant-soft-secondary"
+		rounded="rounded-container sm:!rounded-base"
+		active="preset-filled-secondary-500"
+		hover="hover:preset-tonal-secondary"
 	>
 		<ListBoxItem bind:group={normalized} name="normalization" value={true}>Ja</ListBoxItem>
 		<ListBoxItem bind:group={normalized} name="normalization" value={false}>Nein</ListBoxItem>
@@ -176,9 +176,9 @@
 </div>
 <div class="z-30 card w-48 shadow-xl py-2" data-popup="popupDesc{id}">
 	<ListBox
-		rounded="rounded-container-token sm:!rounded-token"
-		active="variant-filled-secondary"
-		hover="hover:variant-soft-secondary"
+		rounded="rounded-container sm:!rounded-base"
+		active="preset-filled-secondary-500"
+		hover="hover:preset-tonal-secondary"
 	>
 		<ListBoxItem bind:group={isDesc} name="isDesc" value={true}>Ja</ListBoxItem>
 		<ListBoxItem bind:group={isDesc} name="isDesc" value={false}>Nein</ListBoxItem>
@@ -188,28 +188,28 @@
 <div class="flex flex-wrap gap-6">
 	<div>
 		<h1 class="text-2xl font-bold">Partei</h1>
-		<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupParty}>
+		<button class="btn preset-filled-secondary-500 w-48 justify-between" use:popup={popupParty}>
 			<span class="capitalize">{translatePartyFilter(filterParties)}</span>
 			<span>↓</span>
 		</button>
 	</div>
 	<div>
 		<h1 class="text-2xl font-bold">Geschlecht</h1>
-		<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupGender}>
+		<button class="btn preset-filled-secondary-500 w-48 justify-between" use:popup={popupGender}>
 			<span class="capitalize">{translateGenderFilter(gender)}</span>
 			<span>↓ </span>
 		</button>
 	</div>
 	<div>
 		<h1 class="text-2xl font-bold">Normalisiert</h1>
-		<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupNormalized}>
+		<button class="btn preset-filled-secondary-500 w-48 justify-between" use:popup={popupNormalized}>
 			<span class="capitalize">{translateNormalizationFilter(normalized)}</span>
 			<span>↓</span>
 		</button>
 	</div>
 	<div>
 		<h1 class="text-2xl font-bold">Absteigend</h1>
-		<button class="btn variant-filled-secondary w-48 justify-between" use:popup={popupDesc}>
+		<button class="btn preset-filled-secondary-500 w-48 justify-between" use:popup={popupDesc}>
 			<span class="capitalize">{translateDescFilter(isDesc)}</span>
 			<span>↓</span>
 		</button>

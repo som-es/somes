@@ -14,7 +14,7 @@
 		Speech,
 		SpeechesWithMaxPage
 	} from '$lib/types';
-	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
+	import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
 	import { onMount } from 'svelte';
 	import {
 		delegate_by_id,
@@ -323,7 +323,7 @@
 			{/if}
 		</div>
 		<!-- {#if delegates} -->
-		<div class="text-token w-full space-y-2">
+		<div class="base-font-color w-full space-y-2">
 			<input
 				class="input w-full h-12 px-2"
 				type="search"

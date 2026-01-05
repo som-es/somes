@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { NamedVote, Speech, SpeechesWithMaxPage } from '$lib/types';
-	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
+	import { type ModalSettings } from '@skeletonlabs/skeleton-svelte';
 	import NamedVoteBar from './NamedVoteBar.svelte';
 
 	export let namedVotes: NamedVote[];
@@ -25,7 +25,7 @@
 			{namedVotes.length == 1 ? 'Abstimmung' : 'Abstimmungen'} insgesamt
 		</h2>
 	</div>
-	<button class="btn sm:btn-lg variant-filled mt-1" on:click={() => modalStore.trigger(allNamedVotes)}
+	<button class="btn sm:btn-lg preset-filled mt-1" on:click={() => modalStore.trigger(allNamedVotes)}
 		>Alle anzeigen</button
 	>
 </div>

@@ -27,7 +27,7 @@
 	} from '$lib/components/Autocompletion/filtering';
 	import type { AutocompleteOption } from '$lib/components/Autocompletion/types';
 	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
-	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
+	import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
 	import SimpleYesNo from '$lib/components/VoteResults/SimpleYesNo/SimpleYesNo.svelte';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import { cachedLegisInitFavos } from '$lib/caching/favos';
@@ -346,7 +346,7 @@
 
 					<!-- {#if voteResult.legislative_initiative.gp == 'XXVII'} -->
 
-					<div class="z-20! search-item text-token space-y-5">
+					<div class="z-20! search-item base-font-color space-y-5">
 						<input
 							class="rounded-xl! w-full h-12 px-2 input"
 							type="search"

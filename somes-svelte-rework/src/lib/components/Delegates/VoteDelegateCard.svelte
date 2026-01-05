@@ -4,7 +4,7 @@
 	import { partyToColor } from '$lib/partyColor';
 	import { currentDelegateStore } from '$lib/stores/stores';
 	import type { Delegate } from '$lib/types';
-	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
+	import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
 	import SButton from '../UI/SButton.svelte';
 	import DelegateCard from './DelegateCard.svelte';
 
@@ -91,7 +91,7 @@
 					</div>
 				</div>
 
-				<div class="z-10! arrow bg-surface-100-800-token" />
+				<div class="z-10! arrow bg-surface-100-900" />
 			</div>
 
 			<button class="text-2xl" use:popup={popupFeatured}>⚠</button>

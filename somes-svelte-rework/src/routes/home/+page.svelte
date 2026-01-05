@@ -112,7 +112,7 @@
 
 	{#if govProposals}
 		{#if govProposals.length == 0}
-			<div class="w-full p-20 text-center bg-surface-100-800-token rounded-lg">Keine</div>
+			<div class="w-full p-20 text-center bg-surface-100-900 rounded-lg">Keine</div>
 		{:else}
 			<LatestProposals {govProposals} />
 		{/if}

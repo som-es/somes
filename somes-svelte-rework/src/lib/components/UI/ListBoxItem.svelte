@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { areDeeplyEqual } from '$lib/types';
-	import type { CssClasses, SvelteEvent } from '@skeletonlabs/skeleton';
+	import type { CssClasses, SvelteEvent } from '@skeletonlabs/skeleton-svelte';
 	// Slots
 	/**
 	 * @slot lead - Positioned on the left of each row item.

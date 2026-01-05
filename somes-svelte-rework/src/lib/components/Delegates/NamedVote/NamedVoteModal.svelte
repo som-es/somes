@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getModalStore, type PopupSettings } from '@skeletonlabs/skeleton';
+	import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
 	import type { GovProposal, NamedVote, Speech } from '$lib/types';
 	import Pagination from '$lib/components/Pagination.svelte';
 	import NamedVoteBar from './NamedVoteBar.svelte';
@@ -38,7 +38,7 @@
 			style="font-size: 34px"
 			class="w-5 unselectable float-right"
 		>
-			&#x2715
+			✕
 		</button>
 		<Pagination bind:page maxPage={Math.ceil($modalStore[0].meta.namedVotes.length / ENTRIES)} />
 		<!-- <AllProposalsFiltering bind:filteredGovProposals={filteredGovProposals} allGovProposals={$modalStore[0].meta.govProposals} /> -->

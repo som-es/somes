@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { DbAiSummary } from "$lib/ai_summary_types";
-	import { popup, type PopupSettings } from "@skeletonlabs/skeleton";
+	import { type PopupSettings } from "@skeletonlabs/skeleton-svelte";
 
     export let aiSummary: DbAiSummary;
     export let useTitleHover: boolean = false;

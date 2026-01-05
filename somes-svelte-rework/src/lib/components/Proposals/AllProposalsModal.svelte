@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getModalStore, type PopupSettings } from '@skeletonlabs/skeleton';
+	import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
 	import AllProposalsFiltering from './AllProposalsFiltering.svelte';
 	import type { GovProposal } from '$lib/types';
 	import GovProposalExpandableBar from './Latest/GovProposalExpandableBar.svelte';
@@ -19,7 +19,7 @@
 		style="font-size: 34px"
 		class="w-5 unselectable float-right"
 	>
-		&#x2715
+		✕
 	</button>
 
 	{#if $modalStore.length > 0 && $modalStore[0].meta}
