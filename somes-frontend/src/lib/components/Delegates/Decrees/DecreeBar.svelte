@@ -1,5 +1,4 @@
 <script lang="ts">
-	// import collapse from 'svelte-collapse';
 	import type { Delegate } from '$lib/types';
 	import DecreeBarExpanded from './DecreeBarExpanded.svelte';
 	import { address } from '$lib/api/api';

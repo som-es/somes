@@ -1,25 +1,28 @@
 <script lang="ts">
 	import type { Absence } from '$lib/types';
-	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
 	import AbsenceBarExpanded from './AbsenceBarExpanded.svelte';
-	// import collapse from 'svelte-collapse';
+	import { slide } from 'svelte/transition';
+	
+	interface Props {
+		absence: Absence;
+		page: number;
+	}
 
-	export let absence: Absence;
-	export let page: number;
+	let { absence, page }: Props = $props();
 	// absence.
 
-	let open: boolean = false;
+	let open: boolean = $state(false);
 	let duration = 0.35;
 
-	$: if (page) {
-		open = false;
-	}
+	$effect(() => {
+		if (page) open = false;
+	})
 </script>
 
 <div class="gap-3 mt-5">
 	<div
-		on:click={() => (open = !open)}
-		on:keypress={() => (open = !open)}
+		onclick={() => (open = !open)}
+		onkeypress={() => (open = !open)}
 		role="button"
 		tabindex="0"
 		class="entry dark:bg-primary-300 bg-primary-400 text-black"
@@ -49,10 +52,11 @@
 			<span class="badge bg-tertiary-400">Abwesenheit</span>
 		</div>
 	</div>
-
-	<!-- <div use:collapse={{ open, duration }}> -->
-		<!-- <AbsenceBarExpanded {absence} bind:open /> -->
-	<!-- </div> -->
+	{#if open}
+		<div transition:slide={{ duration: 240 }}>
+			<AbsenceBarExpanded {absence} bind:open />
+		</div>
+	{/if}
 </div>
 
 <style>

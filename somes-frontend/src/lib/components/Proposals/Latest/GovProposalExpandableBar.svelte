@@ -6,8 +6,7 @@
 		type GovProposalDelegate,
 		type VoteResult
 	} from '$lib/types';
-	// import collapse from 'svelte-collapse';
-	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
+	import { slide } from 'svelte/transition';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import { currentVoteResultStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
@@ -97,14 +96,16 @@
 		{/if}
 	</div>
 
-	<!-- <div use:collapse={{ open, duration }}>
-		<GovProposalExpanded
-			govProposal={govProposal.gov_proposal}
-			delegate={govProposal.delegate}
-			{showDelegate}
-			bind:open
-		/>
-	</div> -->
+	{#if open}
+		<div transition:slide={{ duration: 240 }}>
+			<GovProposalExpanded
+				govProposal={govProposal.gov_proposal}
+				delegate={govProposal.delegate}
+				{showDelegate}
+				bind:open
+			/>
+		</div>
+	{/if}
 </div>
 {/if}
 

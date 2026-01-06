@@ -176,8 +176,6 @@
 			<VoteResultExpanded {voteResult} {dels} bind:open />
 		</div>
 	{/if}
-	<!-- <div use:collapse={{ open, duration }}>
-	</div> -->
 </div>
 
 <style>

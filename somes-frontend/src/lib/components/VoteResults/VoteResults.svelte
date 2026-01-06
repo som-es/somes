@@ -1,20 +1,23 @@
 <script lang="ts">
 	import type { Delegate, VoteResult } from '$lib/types';
 	import VoteResultComp from './VoteResult.svelte';
-	// import collapse from 'svelte-collapse';
+	import { slide } from 'svelte/transition';
 	import SButton from '../UI/SButton.svelte';
 	import { gotoHistory } from '$lib/goto';
-	import VoteResultExpandableBar from './Expandable/VoteResultExpandableBar.svelte';
 
-	export let dels: Delegate[];
 
-	export let voteResults: VoteResult[];
-	export let showHistory: boolean = false;
+	interface Props {
+		dels: Delegate[];
+		voteResults: VoteResult[];
+		showHistory?: boolean;
+	}
 
-	$: firstThreeVotes = voteResults.slice(0, 3);
-	$: restVotes = voteResults.slice(3);
+	let { dels, voteResults, showHistory = false }: Props = $props();
 
-	let open = false;
+	let firstThreeVotes = $derived(voteResults.slice(0, 3));
+	let restVotes = $derived(voteResults.slice(3));
+
+	let open = $state(false);
 </script>
 
 {#if voteResults}
@@ -23,7 +26,6 @@
 	{/if}
 	<div class="card-container">
 		{#each firstThreeVotes as voteResult, i}
-			<VoteResultExpandableBar {dels} {voteResult} class=""  />
 			<VoteResultComp {dels} {voteResult} tabindex={i} />
 		{/each}
 	</div>
@@ -51,19 +53,13 @@
 	</div>
 	<hr />
 
-	<!-- <div use:collapse={{ open }}>
-		<div
-			on:click={() => (open = !open)}
-			on:keypress={() => (open = !open)}
-			class="card-container z-0 mt-4"
-			role="button"
-			tabindex="0"
-		>
+	{#if open}
+		<div transition:slide={{ duration: 240 }} class="card-container z-0 mt-4">
 			{#each restVotes as voteResult, i}
 				<VoteResultComp {dels} {voteResult} tabindex={i} />
 			{/each}
 		</div>
-	</div> -->
+	{/if}
 {/if}
 
 <style>

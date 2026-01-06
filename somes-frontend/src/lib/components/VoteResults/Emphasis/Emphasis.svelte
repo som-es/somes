@@ -1,18 +1,25 @@
 <script lang="ts">
 	import type { Glossary, Keypoint } from '$lib/ai_summary_types';
 	import GlossaryText from '$lib/components/UI/GlossaryText.svelte';
-	// import collapse from 'svelte-collapse';
+	import { slide } from 'svelte/transition';
 
-	export let emphasis: Keypoint[] | null;
-	export let glossary: Glossary | null = null;
-
-	let open = false;
-	let firstThreePoints: Keypoint[] = [];
-	let restPoints: Keypoint[] = [];
-	$: if (emphasis) {
-		firstThreePoints = emphasis.slice(0, 2);
-		restPoints = emphasis.slice(2);
+	interface Props {
+		emphasis: Keypoint[] | null;
+		glossary?: Glossary | null;
 	}
+
+	let { emphasis, glossary = null }: Props = $props();
+
+	let open = $state(false);
+	let firstThreePoints: Keypoint[] = $state([]);
+	let restPoints: Keypoint[] = $state([]);
+
+	$effect(() => {
+		if (emphasis) {
+			firstThreePoints = emphasis.slice(0, 2);
+			restPoints = emphasis.slice(2);
+		}
+	});
 </script>
 
 {#if emphasis}
@@ -35,24 +42,26 @@
 						{/if}
 					</li>
 				{/each}
-<!-- 
-				<div use:collapse={{ open }}>
-					{#each restPoints as emph}
-						<li class="my-3">
-							<span class="badge text-sm lg:text-base bg-primary-500 dark:bg-primary-300"></span>
-							{#if glossary}
-								<span>
-									<GlossaryText text={emph.point} glossary={glossary} />
-								</span>
-							{:else}
-								<span>{emph.point}</span>
-							{/if}
-						</li>
-					{/each}
-				</div> -->
+
+				{#if open}
+					<div transition:slide={{ duration: 240 }}>
+						{#each restPoints as emph}
+							<li class="my-3">
+								<span class="badge text-sm lg:text-base bg-primary-500 dark:bg-primary-300"></span>
+								{#if glossary}
+									<span>
+										<GlossaryText text={emph.point} glossary={glossary} />
+									</span>
+								{:else}
+									<span>{emph.point}</span>
+								{/if}
+							</li>
+						{/each}
+					</div> 
+				{/if}
 
 				{#if emphasis.length > 3}
-					<button class=" font-bold text-xl" on:click={() => (open = !open)}>
+					<button class=" font-bold text-xl" onclick={() => (open = !open)}>
 						<span>{open ? 'Weniger' : 'Mehr'} anzeigen</span>
 					</button>
 				{/if}
