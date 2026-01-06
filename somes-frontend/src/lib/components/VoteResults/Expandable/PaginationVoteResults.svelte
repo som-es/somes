@@ -6,7 +6,6 @@
 	import { pushState } from '$app/navigation';
 	import Pagination from '$lib/components/Pagination.svelte';
 	import { currentVoteResultFilterStores } from '$lib/stores/stores';
-	import { get } from 'svelte/store';
 	import ExpandablePlaceholder from './Placeholders/ExpandablePlaceholder.svelte';
 	export let showAcceptedFilter = true;
 	export let showVoteTypeFilter = true;
@@ -35,39 +34,10 @@
 	const url = new URL(window.location.href);
 	let page = parseInt(url.searchParams.get('page') || '1') || 1;
 
-	const popupRequiredMajority: PopupSettings = {
-		event: 'click',
-		target: 'popupRequiresSimpleMajority',
-		placement: 'bottom',
-		closeQuery: '.listbox-item'
-	};
-
-	const popupAccepted: PopupSettings = {
-		event: 'click',
-		target: 'popupAccepted',
-		placement: 'bottom',
-		closeQuery: '.listbox-item'
-	};
-
-	const popupNamedVote: PopupSettings = {
-		event: 'click',
-		target: 'popupNamedVote',
-		placement: 'bottom',
-		closeQuery: '.listbox-item'
-	};
-
-	const popupIsLaw: PopupSettings = {
-		event: 'click',
-		target: 'popupIsLaw',
-		placement: 'bottom',
-		closeQuery: '.listbox-item'
-	};
-
 	let currentlyUpdating = false;
 
 	let simpleMajorityFilter: FilterInfo<boolean | undefined> = {
 		title: 'notwendige Mehrheit',
-		popup: popupRequiredMajority,
 		attributeName: 'requiredMajority',
 		filterObj: undefined,
 		translationFn,
@@ -80,7 +50,6 @@
 	};
 	let acceptedFilter: FilterInfo<string | undefined> = {
 		title: 'Angenommen',
-		popup: popupAccepted,
 		attributeName: 'accepted',
 		filterObj: undefined,
 		translationFn,
@@ -94,7 +63,6 @@
 	};
 	let namedVoteFilter: FilterInfo<boolean | undefined> = {
 		title: 'Abstimmung',
-		popup: popupNamedVote,
 		attributeName: 'namedVote',
 		filterObj: undefined,
 		translationFn,
@@ -106,7 +74,6 @@
 	};
 	let votingFilter: FilterInfo<string | undefined> = {
 		title: 'Antragstyp',
-		popup: popupIsLaw,
 		attributeName: 'votingFilter',
 		filterObj: undefined,
 		translationFn,
@@ -203,7 +170,7 @@
 	let filters = [simpleMajorityFilter, acceptedFilter, namedVoteFilter, votingFilter];
 </script>
 
-<FiltersAny bind:filters bind:searchValue bind:selectedPeriod {update} />
+<!-- <FiltersAny bind:filters bind:searchValue bind:selectedPeriod {update} /> -->
 
 <div>
 	{#if voteResults}

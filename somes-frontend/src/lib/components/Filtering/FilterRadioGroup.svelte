@@ -1,5 +1,5 @@
 <script lang="ts" generics="T">
-	import { Segment } from '@skeletonlabs/skeleton-svelte';
+	// import { Segment } from '@skeletonlabs/skeleton-svelte';
 	import type { FilterInfo } from './types';
 
 	export let filter: FilterInfo<T>;
@@ -8,7 +8,7 @@
 {#if !filter.hidden}
 	<div class="mt-5 mr-5">
 		<h1 class="sm:text-2xl font-bold">{filter.title}</h1>
-		<Segment
+		<!-- <Segment
 			rounded="rounded-container sm:!rounded-base"
 			active="preset-filled-secondary-500"
 			hover="hover:preset-tonal-secondary"
@@ -19,6 +19,6 @@
 					>{value.title}</Segment.Item
 				>
 			{/each}
-		</Segment>
+		</Segment> -->
 	</div>
 {/if}

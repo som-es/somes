@@ -1,8 +1,6 @@
-import type { PopupSettings } from '@skeletonlabs/skeleton-svelte';
 
 export interface FilterInfo<T> {
 	title: string;
-	popup: PopupSettings;
 	attributeName: string;
 	filterObj: T;
 	translationFn: (x: FilterInfo<T>) => string | undefined;

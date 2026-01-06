@@ -21,16 +21,8 @@
 	let searchValue = '';
 	let selectedPeriod = 'all';
 
-	const popupHasVote: PopupSettings = {
-		event: 'click',
-		target: 'popupHasVotes',
-		placement: 'bottom',
-		closeQuery: '.listbox-item'
-	};
-
 	let hasVoteResultFilter: FilterInfo<boolean | undefined> = {
 		title: 'Abstimmungsstatus',
-		popup: popupHasVote,
 		attributeName: 'hasVoteFilter',
 		filterObj: undefined,
 		translationFn,
@@ -91,7 +83,7 @@
 	onMount(update);
 </script>
 
-<FiltersAny bind:filters bind:selectedPeriod bind:searchValue {update} />
+<!-- <FiltersAny bind:filters bind:selectedPeriod bind:searchValue {update} /> -->
 
 <div>
 	{#if govProposals}

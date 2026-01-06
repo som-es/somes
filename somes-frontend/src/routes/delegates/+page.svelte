@@ -15,7 +15,10 @@
 		errorToNull,
 		general_delegate_info,
 		general_gov_official_info,
-		speeches_by_delegate_per_page
+		speeches_by_delegate_per_page,
+
+		toActualDateString
+
 	} from '$lib/api/api';
 	import {
 		currentDelegateFilterStore,
@@ -107,7 +110,6 @@
 
 		const firstIdx = periods.findIndex((x) => x.gp == selectedPeriod);
 		if (firstIdx == -1) return;
-		// ).toISOString().split('T')[0] as unknown as Date
 		const endDate = periods[firstIdx + 1]?.start_date;
 		const newDate = new Date(endDate ? endDate : new Date());
 		newDate.setDate(newDate.getDate() - 1);
@@ -121,8 +123,8 @@
 			prevSelectedPeriod = selectedPeriod;
 		}
 		supplyDate = paramDate
-			? (paramDate as unknown as Date)
-			: (newDate.toISOString().split('T')[0] as unknown as Date);
+			? (new Date(paramDate))
+			: (newDate);
 		// console.log(supplyDate);
 
 		const paramDelegateId = url.searchParams.get('delegate');
@@ -159,10 +161,10 @@
 		currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
 		startDate.setDate(startDate.getDate() + dayOffset - 2);
 
-		supplyDate = startDate.toISOString().split('T')[0] as unknown as Date;
+		supplyDate = startDate;
 
 		const url = new URL(window.location.href);
-		url.searchParams.set('date', supplyDate as unknown as string);
+		url.searchParams.set('date', toActualDateString(supplyDate));
 		url.searchParams.set('gp', selectedPeriod);
 		pushState(url.toString(), { replaceState: true });
 
@@ -314,34 +316,6 @@
 				onDelegateSelection={onDelegateSelection} 
 				delegateFilter={delegateFilter} 
 			/>
-			<!-- 			
-			<input
-				id="autocomplete-input" 
-				class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-				type="search"
-				name="ac-demo"
-				bind:value={inputValue}
-				placeholder="Suchen..."
-				autocomplete="off"
-			/> -->
-		<!-- <Popover 
-			triggeredBy="#autocomplete-input" 
-			trigger="click" 
-			placement="bottom-start"
-			class="w-full max-w-sm p-4 text-sm z-50 bg-white border border-gray-200 rounded-lg shadow-xl"
-		>
-			{#if autocompleteOptions.length > 0}
-				<div class="max-h-64 overflow-y-auto">
-					<Autocomplete
-						bind:input={inputValue}
-						options={autocompleteOptions}
-						onselection={onDelegateSelection}
-						emptyState={'Keine Person gefunden'}
-						filter={delegateFilter}
-					/>
-				</div>
-			{/if}
-		</Popover> -->
 		</div>
 		<div class="flex flex-wrap min-w-full justify-between">
 			<div class="rounded-xl w-full parliament-item bg-primary-300 dark:bg-primary-200">

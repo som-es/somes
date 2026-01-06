@@ -3,13 +3,13 @@
 	import { type Bubble } from '$lib/parliament';
 	import type { Delegate, VoteResult } from '$lib/types';
 	import { onMount } from 'svelte';
-	import { delegates_at, errorToNull } from '$lib/api/api';
+	import { delegates_at, errorToNull, toActualDateString } from '$lib/api/api';
 	import { groupPartyDelegates, setSeatsOfDels } from '$lib/parliaments/defaultParliament';
 	import { cachedAllSeats, getSeats } from '$lib/caching/seats';
 	import DataParliament from './DataParliament.svelte';
-	import { createPartyInfavorMap, isPartyInFavor } from '$lib/partyInfavor';
+	import { createPartyInfavorMap } from '$lib/partyInfavor';
 	import { filterDelegates, filteredDelegatesNearSeats } from '$lib/caching/delegates.svelte';
-	import { cachedGovOfficials, seatSettedCachedGovOfficials } from '$lib/caching/gov_officials';
+	import { seatSettedCachedGovOfficials } from '$lib/caching/gov_officials';
 	import { partyColors } from '$lib/partyColor';
 	import { cachedPartyColors } from '$lib/caching/party_color';
 
@@ -38,7 +38,7 @@
 	if (supplyDate) {
 		date = supplyDate;
 	}
-	if (voteResult) date = voteResult.legislative_initiative.nr_plenary_activity_date;
+	if (voteResult) date = new Date(voteResult.legislative_initiative.nr_plenary_activity_date);
 
 	let seats: number[];
 	export let delegates: Delegate[] = [];
@@ -65,7 +65,7 @@
 		let updateDelegates = delegates;
 
 		if (!overrideDelegates) {
-			const fetchedDelegates = await filteredDelegatesNearSeats(date as unknown as string, gp);
+			const fetchedDelegates = await filteredDelegatesNearSeats(toActualDateString(date), gp);
 
 			if (fetchedDelegates) {
 				updateDelegates = fetchedDelegates.nr;
@@ -74,7 +74,7 @@
 
 			// we do not have seat information, therefore we fetch them in a base format
 			if (updateDelegates.length == 0) {
-				const fetchedDelegates = errorToNull(await delegates_at(date));
+				const fetchedDelegates = errorToNull(await delegates_at(toActualDateString(date)));
 				if (fetchedDelegates) {
 					const filteredDelegates = filterDelegates(fetchedDelegates);
 					updateDelegates = filteredDelegates.nr;
@@ -123,7 +123,7 @@
 			setSeatsOfDels(partyToDelegatesArray, all, seats.slice());
 		}
 		if (showGovs && !overrideDelegates) {
-			govOfficials = (await seatSettedCachedGovOfficials(date as unknown as string)) ?? [];
+			govOfficials = (await seatSettedCachedGovOfficials(toActualDateString(date))) ?? [];
 			updateDelegates = updateDelegates.concat(govOfficials);
 		}
 		delegates = updateDelegates;

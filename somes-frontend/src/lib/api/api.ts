@@ -32,6 +32,10 @@ export const address = import.meta.env.VITE_API_URL;
 //
 export const url = `${address}/api/`;
 
+export function toActualDateString(date: Date): string {
+	return date.toISOString().split('T')[0];
+}
+
 export function isHasError<T>(value: T | HasError): value is HasError {
 	return (value as HasError).error !== undefined;
 }
@@ -159,11 +163,11 @@ export async function vote_result_by_path(
 	return getWithRoute<VoteResult>(`v1/vote_results/${gp}/${ityp}/${inr}`);
 }
 
-export async function delegates_at(date_at: Date): Promise<Delegate[] | HasError> {
+export async function delegates_at(date_at: string): Promise<Delegate[] | HasError> {
 	return getWithRoute(`v1/delegates/all_at_date?at=${date_at}`);
 }
 
-export async function gov_officials_at(date_at: Date): Promise<Delegate[] | HasError> {
+export async function gov_officials_at(date_at: string): Promise<Delegate[] | HasError> {
 	return getWithRoute(`v1/delegates/gov_officials/all_at_date?at=${date_at}`);
 }
 

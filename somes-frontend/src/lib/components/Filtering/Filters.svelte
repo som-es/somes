@@ -1,26 +1,15 @@
 <script lang="ts" , generics="T">
 	import ActiveFilter from './ActiveFilter.svelte';
-
 	import SButton from '../UI/SButton.svelte';
-
-	import FilterListBox from './FilterListBox.svelte';
 	import FilterOpener from './FilterOpener.svelte';
 	import FilterRadioGroup from './FilterRadioGroup.svelte';
 	import LegisButtons from './LegisButtons.svelte';
 	import type { FilterInfo } from './types';
-	import filterIcon from '$lib/assets/misc_icons/filter-icon.svg?raw';
 
 	export let filters: FilterInfo<T>[];
 	export let selectedPeriod: string;
 	export let searchValue: string;
 	export let update: () => void;
-
-	// const mobileFilter: PopupSettings = {
-	// 	event: 'click',
-	// 	target: 'mobileFilter',
-	// 	placement: 'bottom',
-	// 	closeQuery: 'none'
-	// };
 </script>
 
 <!-- Small Screen PopUps (keep them out of <div>...</div> as much as possible) -->
@@ -28,11 +17,11 @@
 	class="z-10 card w-full p-5 self-center md:max-w-136 lg:max-w-200 shadow-xl py-2"
 	data-popup="mobileFilter"
 >
-	{#each filters as filter}
+	<!-- {#each filters as filter}
 		<div class="z-20 card w-48 shadow-xl py-2" data-popup={filter.popup.target}>
 			<FilterListBox bind:filter />
 		</div>
-	{/each}
+	{/each} -->
 
 	<div class="lg:hidden flex flex-wrap gap-6">
 		{#each filters as filter}

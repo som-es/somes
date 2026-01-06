@@ -20,8 +20,81 @@
         };
 	});
 
+    const submenu = [
+		/*{
+			title: 'Statistiken',
+			route: '/statistics',
+			list: [
+				{ href: resolve(`/statistics/overview`), label: 'Übersicht', keywords: '' },
+				{ href: resolve(`/statistics/age`), label: 'Alter', keywords: '' },
+				{
+					href: resolve(`/statistics/political_positions`),
+					label: 'Politische Positionen',
+					keywords: ''
+				}
+			]
+		},
+		{
+			title: 'Redebezogen',
+			route: '/statistics',
+			list: [
+				{ href: resolve(`/statistics/speechtime`), label: 'Redezeit', keywords: '' },
+				{ href: resolve(`/statistics/total_speeches`), label: 'Gehaltene Reden', keywords: '' },
+				{ href: resolve(`/statistics/speechcomplexity`), label: 'Sprachkomplexität', keywords: '' }
+			]
+		},
+		{
+			title: 'Aktivitäten',
+			route: '/statistics',
+			list: [
+				{ href: resolve(`/statistics/absences`), label: 'Abwesenheiten', keywords: '' },
+				{ href: resolve(`/statistics/activity`), label: 'Aktivität', keywords: '' },
+				{
+					href: resolve(`/statistics/division_accuracy`),
+					label: 'Bereichssprechergenauigkeit',
+					keywords: ''
+				},
+				{ href: resolve(`/statistics/call_to_orders`), label: 'Ordnungsrufe', keywords: '' }
+			]
+		},
+		{
+			title: 'Abstimmungen',
+			route: '/statistics',
+			list: [
+				{
+					href: resolve(`/statistics/absolute_majority_initiatives`),
+					label: '2/3 Abstimmugnen',
+					keywords: ''
+				},
+				{
+					href: resolve(`/statistics/votes_together`),
+					label: 'Zusammenabstimmen der Parteien',
+					keywords: ''
+				}
+			]
+		},*/
+
+		{
+			title: 'Nationalrat',
+			route: '/history',
+			list: [
+				{ href: resolve(`/history/votes`), label: 'Abstimmungen', keywords: '' },
+				{ href: resolve(`/history/unfinished_votes`), label: 'Zur Abstimmung', keywords: '' }
+			]
+		},
+		{
+			title: 'Regierung',
+			route: '/history',
+			list: [
+				{ href: resolve(`/history/proposals`), label: 'Ministerialentwürfe', keywords: '' },
+				{ href: resolve(`/history/decrees`), label: 'Verordnungen', keywords: '' }
+			]
+		}
+	];
+
 </script>
 
+<div class="h-full bg-surface-50 grid-cols-[auto_1fr] flex lg:grid">
 <div class="w-19 flex flex-col items-center justify-center gap-4 h-screen bg-surface-500">
     <a 
         href="{resolve("/home")}" 
@@ -42,7 +115,7 @@
         </span>
     </a>
     <a 
-        href="{resolve("/history")}" 
+        href="{resolve("/history/votes")}" 
         title="Abstimmungshistorie"
         class="{activeUrl?.includes("/history") ? 'bg-tertiary-500 stroke-black' : ' stroke-white'} hover:cursor-pointer rounded-xl h-9 w-9 flex justify-center items-center"
     >
@@ -93,4 +166,35 @@
         </a>
 
     </div>
+</div>
+
+{#if activeUrl?.includes('/statistics') || activeUrl?.includes('/history')}
+    <section class="p-3 text-white pb-20 space-y-4 overflow-y-auto bg-primary-500 max-w-60">
+        {#each submenu as segment, i}
+            {#if activeUrl?.includes(segment.route)}
+                <!-- Title -->
+                <p class="font-bold pl-4 text-2xl">{segment.title}</p>
+                <!-- Nav List -->
+                <nav class="list-nav">
+                    <ul class="my-1">
+                        {#each segment.list as { href, label }}
+                            <li class="p-2">
+                                <a
+                                    {href}
+                                    class="p-2 rounded-3xl {activeUrl?.includes(href) ? 'bg-secondary-500 text-black' : 'hover:bg-secondary-300'}"
+                                    data-sveltekit-preload-data="hover"
+                                >
+                                    <span class="flex-auto">{@html label}</span>
+                                    <!-- {#if badge}<span class="badge variant-filled-secondary">{badge}</span>{/if} -->
+                                </a>
+                            </li>
+                        {/each}
+                    </ul>
+                </nav>
+                <!-- Divider -->
+                {#if i + 1 < submenu.length}<hr class="my-6! opacity-50" />{/if}
+            {/if}
+        {/each}
+    </section>
+{/if}
 </div>
