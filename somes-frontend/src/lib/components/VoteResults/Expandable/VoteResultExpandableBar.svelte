@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { type Delegate, type VoteResult } from '$lib/types';
 	import VoteResultExpanded from './VoteResultExpanded.svelte';
+	import { slide } from 'svelte/transition';
 
 	import crossmarkIcon from '$lib/assets/misc_icons/crossmark_small.svg?raw';
 	import checkmarkIcon from '$lib/assets/misc_icons/checkmark_small.svg?raw';
 	import VoteTypeBadge from '../VoteTypeBadge.svelte';
 	import { dashDateToDotDate } from '$lib/date';
 	import InfoBadges from '../InfoTiles/InfoBadges.svelte';
-	import { Collapsible } from 'bits-ui';
 
 	interface Props {
 		voteResult: VoteResult;
@@ -21,13 +21,12 @@
 	let duration = 0.35;
 </script>
 
-<Collapsible.Root class="gap-3 mt-5 {clazz}">
-	<Collapsible.Trigger
+<div class="gap-3 mt-5 {clazz}">
+	<div
 		onclick={() => (open = !open)}
 		onkeypress={() => (open = !open)}
 		role="button"
-	>
-	<div
+		tabindex="0"
 		class="entry bg-primary-300 dark:bg-primary-500"
 	>
 		<div class="flex">
@@ -37,7 +36,7 @@
 					{@html rightArrowIcon}
 				</div>
 			</div> -->
-			<div class="flex max-lg:flex-wrap items-center text-left justify-between w-full">
+			<div class="flex max-lg:flex-wrap items-center justify-between w-full">
 
 				{#if voteResult.ai_summary}
 					<div class="flex flex-wrap flex-col w-5/6">
@@ -172,16 +171,14 @@
 			</span>
 		</div>
 	</div>
-	</Collapsible.Trigger>
-	<Collapsible.Content
-		class="data-[state=open]:animate-collapse-down data-[state=closed]:animate-collapse-up"
-	>
-		<VoteResultExpanded {voteResult} {dels} />
-	</Collapsible.Content>
+	{#if open}
+		<div transition:slide={{ duration: 240 }}>
+			<VoteResultExpanded {voteResult} {dels} bind:open />
+		</div>
+	{/if}
 	<!-- <div use:collapse={{ open, duration }}>
-		<VoteResultExpanded {voteResult} {dels} bind:open />
 	</div> -->
-</Collapsible.Root>
+</div>
 
 <style>
 	.entry {
