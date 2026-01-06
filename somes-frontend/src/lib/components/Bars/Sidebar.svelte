@@ -7,16 +7,10 @@
 	import { page } from '$app/state';
 
 	let activeUrl = $state(page.url.pathname);
-	const spanClass = 'flex-1 ms-3 whitespace-nowrap';
-	const activeClass =
-		'flex items-center p-2 text-base font-normal text-primary-900 bg-primary-200 dark:bg-primary-700 rounded-lg dark:text-white hover:bg-primary-100 dark:hover:bg-gray-700';
-	const nonActiveClass =
-		'flex items-center p-2 text-base font-normal text-green-900 rounded-lg dark:text-white hover:bg-green-100 dark:hover:bg-green-700';
-	let isDemoOpen = $state(false);
     let isSelected: (href: string) => boolean = () => false;
     import { resolve } from '$app/paths';
 	import VoteParliament2 from '../Parliaments/VoteParliament2.svelte';
-	import { mockDelegates, mockDelegatesNoColor, mockVoteResult } from '$lib/parliaments/mock';
+	import { mockDelegatesNoColor, mockVoteResult } from '$lib/parliaments/mock';
 
 	$effect(() => {
 		activeUrl = page.url.pathname;
@@ -28,14 +22,13 @@
 
 </script>
 
-<!-- <SidebarButton onclick={demoSidebarUi.toggle} class="mb-2" /> -->
 <div class="w-19 flex flex-col items-center justify-center gap-4 h-screen bg-surface-500">
     <a 
         href="{resolve("/home")}" 
         title="Somes" 
         class="hover:cursor-pointer stroke-white fill-white rounded-xl h-9 w-9 mt-4 flex justify-center items-center"
     >
-        <span class="w-7 flex items-center justify-center">
+        <span class="w-7 flex items-center justify-center stroke-white! fill-white ">
             {@html somesIcon}
         </span>
     </a>

@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import './index.css';
+@plugin "tailwindcss-animate";
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
@@ -136,6 +137,7 @@
 
 	--animate-progress-indeterminate: anim-progress-indeterminate 2s linear infinite;
 	--animate-ring-indeterminate: anim-ring-indeterminate 2s linear infinite;
+	  
 }
 
 dialog {
@@ -146,5 +148,10 @@ dialog {
 	input[type='search']::-webkit-search-cancel-button {
 		display: none;
 	}
-	
+}
+
+body ::selection {
+	/* background: rgb(var(--color-secondary-300)); */
+	background: rgb(239 204 197);
+	color: #000;
 }

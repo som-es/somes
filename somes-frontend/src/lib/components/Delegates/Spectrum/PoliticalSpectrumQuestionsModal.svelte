@@ -1,36 +1,31 @@
 <script lang="ts">
 	import type { StanceTopicInfluences } from '$lib/types';
-	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import QaDelegateStanceInfluences from './Stance/QADelegateStanceInfluences.svelte';
+	import { Dialog } from 'bits-ui';
 
-	// export let parent;
-	// const modalStore = getModalStore();
+	interface Props {
+		stanceTopicInfluences?: StanceTopicInfluences[];
+	}
 
-	let stanceTopicInfluences: StanceTopicInfluences[] = [];
+	let { stanceTopicInfluences = [] }: Props = $props();
 
-	// if ($modalStore.length > 0) {
-	// 	stanceTopicInfluences = $modalStore[0].meta.stanceTopicInfluences;
-	// }
 </script>
 
 <div class="card p-8 w-full min-w-7xl max-w-7xl">
-	<button
-		on:click={() => {
-			// modalStore.close();
-		}}
-		style="font-size: 34px"
-		class="w-5 unselectable float-right">✕</button
-	>
+	<Dialog.Close class="float-right">
+		<button
+			style="font-size: 34px"
+			class="w-5">✕</button
+		>
+	</Dialog.Close>
+	
 
 	{#if stanceTopicInfluences.length > 0}
 		{#each stanceTopicInfluences as qa}
 			<QaDelegateStanceInfluences class="mt-3" stanceTopicInfluences={qa} />
 		{/each}
 	{:else}
-		<!-- IMPORTANT THIS THING IS SOMEHOW REQUIRED TO MAKE THE MODAL SCROLLABLE. SOMEHOW IT IS ONLY CHECK AT MOUNTING WHETHER THIS NEEDS TO BE SCROLLABLE!!!! -->
-		{#each { length: 30 } as _}
-			<ExpandablePlaceholder class="min-w-7xl w-full" />
-		{/each}
+		<p class="text-center">Keine Fragen und Antworten verfügbar.</p>	
 	{/if}
 </div>
 

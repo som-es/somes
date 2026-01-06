@@ -1,5 +1,7 @@
 <script lang="ts">
-	import type { Day } from './types';
+	import { Popover } from 'bits-ui';
+import type { Day } from './types';
+	import { Triangle } from 'three';
 
 	export let headers: string[] = [];
 	export let days: Day[] = [];
@@ -79,12 +81,20 @@
 						{#if week[i].enabled}
 							<div class="sm:hidden flex-1 flex items-center">
 								{#if week[i].item !== null}
-									<button class="day bg-tertiary-400" >
-										{week[i].name}
-									</button>
-									<!-- <Popover class="w-64 text-sm font-light ">
-										Plenarsitzung
-									</Popover> -->
+									<Popover.Root>
+										<Popover.Trigger>
+											<button class="day bg-tertiary-400" >
+												{week[i].name}
+											</button>
+										</Popover.Trigger>
+										<Popover.Portal>
+											<Popover.Content
+												class="z-90 max-w-sm:min-w-136 mt-3 sm: md:min-w-3x"
+											>
+												<div class={week[i].item.classes}>{week[i].item.title}</div>
+											</Popover.Content>
+										</Popover.Portal>
+									</Popover.Root>
 								{:else}
 									<div class="day">{week[i].name}</div>
 								{/if}

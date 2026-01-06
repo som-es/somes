@@ -64,14 +64,15 @@
 		</Popover.Trigger>
 		<Popover.Portal>
 			<Popover.Content
-				class="z-50 max-w-sm:min-w-136 mt-3 sm: md:min-w-3xl bg-primary-400"
+				class="
+				data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 
+				data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 
+				z-50 max-w-sm:min-w-136 mt-3 sm: md:min-w-3xl bg-primary-400"
 			>
 				<PlenarCalendar />
 			</Popover.Content>
 		</Popover.Portal>
   </Popover.Root>	
-	<!-- <Popover placement="bottom" trigger="click"  transitionParams={{ duration: 200 }} class="z-40 max-w-sm:min-w-136 sm: md:min-w-3xl"> -->
-	<!-- </Popover> -->
 
 <!-- 
 	<div class="z-40 max-w-sm:min-w-[34rem] sm: md:min-w-3xl" data-popup="plenarCalendar">

@@ -44,6 +44,7 @@
 	import PoliticalStanceTitleBar from '$lib/components/Delegates/Spectrum/PoliticalStanceTitleBar.svelte';
 	import DecreePreview from '$lib/components/Delegates/Decrees/DecreePreview.svelte';
 	import { pushState } from '$app/navigation';
+	import AutocompleteWithPopover from '$lib/components/Autocompletion/AutocompleteWithPopover.svelte';
 
 	let delegates: Delegate[];
 	let delegate: Delegate | null;
@@ -307,7 +308,13 @@
 		</div>
 		<!-- {#if delegates} -->
 		<div class="base-font-color w-full space-y-2">
-			
+			<AutocompleteWithPopover 
+				bind:inputValue={inputValue} 
+				autocompleteOptions={autocompleteOptions} 
+				onDelegateSelection={onDelegateSelection} 
+				delegateFilter={delegateFilter} 
+			/>
+			<!-- 			
 			<input
 				id="autocomplete-input" 
 				class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
@@ -316,7 +323,7 @@
 				bind:value={inputValue}
 				placeholder="Suchen..."
 				autocomplete="off"
-			/>
+			/> -->
 		<!-- <Popover 
 			triggeredBy="#autocomplete-input" 
 			trigger="click" 
@@ -381,7 +388,6 @@
 		{#if delegate && generalDelegateInfo?.political_position}
 			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
 				<PoliticalStanceTitleBar
-					{delegate}
 					stanceTopicInfluences={generalDelegateInfo.stance_topic_influences}
 				/>
 			</div>

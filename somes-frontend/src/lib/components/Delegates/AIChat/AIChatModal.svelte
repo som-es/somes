@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
 	import type { Delegate } from '$lib/types';
+	import { Dialog, Popover } from 'bits-ui';
 
 	let isGenerating = false;
 
@@ -65,15 +66,32 @@
 	class="flex flex-col justify-between w-full max-w-7xl h-[90vh] bg-primary-100-900 shadow-lg rounded-lg overflow-hidden"
 >
 	<div class="p-4 bg-primary-300 text-center  items-center text-lg font-bold flex justify-between">
-		<button class="text-4xl">⚠</button>
+		<Popover.Root>
+			<Popover.Trigger openOnHover openDelay={100}>
+				<button class="text-4xl">⚠</button>
+			</Popover.Trigger>
+			<Popover.Portal>
+				<Popover.Content
+					class="z-90 text-sm w-72 p-4 bg-primary-100 dark:bg-primary-600 rounded-lg shadow-lg"
+				>
+					Die Antworten des Chatbots basieren auf Ausschnitten von Reden der jeweiligen Person. Diese
+					Ausschnitte können unvollständig oder aus dem Kontext gerissen sein, was zu ungenauen oder
+					irreführenden Antworten führen kann. Bitte beachten Sie, dass der Chatbot nicht die tatsächlichen
+					Meinungen oder Aussagen der Person widerspiegelt.
+				</Popover.Content>
+			</Popover.Portal>
+		</Popover.Root>
 		<!-- <Popover title="Hinweis" placement="bottom" trigger="hover"  transitionParams={{ duration: 200 }} class="z-40 text-sm w-72 p-4">
 			Die Antworten des Chatbots basieren auf Ausschnitten von Reden der jeweiligen Person. Diese
 			Ausschnitte können unvollständig oder aus dem Kontext gerissen sein, was zu ungenauen oder
 			irreführenden Antworten führen kann. Bitte beachten Sie, dass der Chatbot nicht die tatsächlichen
 			Meinungen oder Aussagen der Person widerspiegelt.
 		</Popover> -->
-		<div>Chat</div>
-		<div></div>
+		<div>AI Chat</div>
+		 <Dialog.Close>
+			<button class="text-5xl">✕</button>
+		 </Dialog.Close>
+		<!-- <X /> -->
 	</div>
 	<div class="flex-1 p-4 overflow-y-auto bg-gray-50 dark:bg-gray-900">
 		{#each messages as { role, content }}

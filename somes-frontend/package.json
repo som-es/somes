@@ -47,6 +47,7 @@
 		"@threlte/core": "^8.3.1",
 		"@threlte/extras": "^9.7.1",
 		"bits-ui": "^2.15.3",
+		"tailwindcss-animate": "^1.0.7",
 		"three": "^0.182.0"
 	}
 }
