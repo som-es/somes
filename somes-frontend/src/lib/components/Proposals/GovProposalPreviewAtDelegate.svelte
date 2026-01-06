@@ -1,18 +1,17 @@
 <script lang="ts">
 	import type { Delegate, GovProposal } from '$lib/types';
-	import { type ModalSettings } from '@skeletonlabs/skeleton-svelte';
 	import GovProposalExpandableBar from './Latest/GovProposalExpandableBar.svelte';
 
 	export let govProposals: GovProposal[];
 	export let delegate: Delegate;
 
-	$: allProposals = {
-		type: 'component',
-		component: 'allGovProposals',
-		meta: { govProposals: govProposals, delegate }
-	} as ModalSettings;
+	// $: allProposals = {
+	// 	type: 'component',
+	// 	component: 'allGovProposals',
+	// 	meta: { govProposals: govProposals, delegate }
+	// } as ModalSettings;
 
-	const modalStore = getModalStore();
+	// const modalStore = getModalStore();
 
 	$: previewGovProposals = govProposals.slice(0, 2);
 </script>
@@ -28,7 +27,7 @@
 	</div>
 	<button
 		class="btn sm:btn-lg preset-filled mt-1"
-		on:click={() => modalStore.trigger(allProposals)}>Alle anzeigen</button
+		on:click={() => {}/*modalStore.trigger(allProposals)*/}>Alle anzeigen</button
 	>
 </div>
 {#each previewGovProposals as govProposal}

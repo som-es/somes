@@ -4,7 +4,7 @@
 	import { onMount } from 'svelte';
 	import { next_plenar_date } from './api';
 	import { errorToNull } from '$lib/api/api';
-	import { Popover } from 'flowbite-svelte';
+	import { Popover, Portal } from 'bits-ui';
 
 	// const plenarCalendar: PopupSettings = {
 	// 	event: 'click',
@@ -53,12 +53,25 @@
 			{/if}
 		</span>
 	</div>
-	<button class="btn sm:btn-lg bg-primary-500 text-white preset-filled mt-1" on:click={() => {}}
-		>Sitzungskalender</button
-	>
-	<Popover placement="bottom" trigger="click"  transitionParams={{ duration: 200 }} class="z-40 max-w-sm:min-w-136 sm: md:min-w-3xl">
-		<PlenarCalendar />
-	</Popover>
+	<Popover.Root>
+		<Popover.Trigger
+			class="rounded-input bg-dark
+			text-background shadow-mini hover:bg-dark/95 inline-flex h-10 select-none items-center justify-center whitespace-nowrap px-[21px] text-[15px] font-medium transition-all hover:cursor-pointer active:scale-[0.98]"
+		>
+			<button class="btn sm:btn-lg bg-primary-500 text-white preset-filled mt-1" on:click={() => {}}>
+				Sitzungskalender
+			</button>
+		</Popover.Trigger>
+		<Popover.Portal>
+			<Popover.Content
+				class="z-50 max-w-sm:min-w-136 mt-3 sm: md:min-w-3xl bg-primary-400"
+			>
+				<PlenarCalendar />
+			</Popover.Content>
+		</Popover.Portal>
+  </Popover.Root>	
+	<!-- <Popover placement="bottom" trigger="click"  transitionParams={{ duration: 200 }} class="z-40 max-w-sm:min-w-136 sm: md:min-w-3xl"> -->
+	<!-- </Popover> -->
 
 <!-- 
 	<div class="z-40 max-w-sm:min-w-[34rem] sm: md:min-w-3xl" data-popup="plenarCalendar">

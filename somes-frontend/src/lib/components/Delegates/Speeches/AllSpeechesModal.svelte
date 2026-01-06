@@ -1,34 +1,34 @@
 <script lang="ts">
-	import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
+	// import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
 	import type { GovProposal, Speech } from '$lib/types';
 	import Pagination from '$lib/components/Pagination.svelte';
 	import SpeechBar from './SpeechBar.svelte';
 	import { errorToNull, speeches_by_delegate_per_page } from '$lib/api/api';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 
-	const modalStore = getModalStore();
-	export let parent;
+	// const modalStore = getModalStore();
+	// export let parent;
 
 	let filteredSpeeches: Speech[] = [];
 	let currentPageSpeeches: Speech[] = [];
 
-	$: if ($modalStore.length > 0 && $modalStore[0].meta) {
-		currentPageSpeeches = $modalStore[0].meta.speechesPage0.speeches;
-	}
+	// $: if ($modalStore.length > 0 && $modalStore[0].meta) {
+	// 	currentPageSpeeches = $modalStore[0].meta.speechesPage0.speeches;
+	// }
 
 	let page = 1;
 
-	$: if (page && $modalStore.length > 0 && $modalStore[0].meta) {
-		currentPageSpeeches = [];
-		speeches_by_delegate_per_page($modalStore[0].meta.delegateId, page - 1).then((res) => {
-			currentPageSpeeches = errorToNull(res)?.speeches ?? [];
-		});
-	}
+	// $: if (page && $modalStore.length > 0 && $modalStore[0].meta) {
+	// 	currentPageSpeeches = [];
+	// 	speeches_by_delegate_per_page($modalStore[0].meta.delegateId, page - 1).then((res) => {
+	// 		currentPageSpeeches = errorToNull(res)?.speeches ?? [];
+	// 	});
+	// }
 
 	// $: speeches =
 </script>
 
-{#if $modalStore.length > 0 && $modalStore[0].meta}
+<!-- {#if $modalStore.length > 0 && $modalStore[0].meta}
 	<div class="card p-8 max-w-7xl w-7xl">
 		<h1 class="font-bold text-2xl">Letzte Reden</h1>
 		<button
@@ -42,10 +42,8 @@
 		</button>
 
 		<Pagination bind:page maxPage={$modalStore[0].meta.speechesPage0.max_page} />
-		<!-- <AllProposalsFiltering bind:filteredGovProposals={filteredGovProposals} allGovProposals={$modalStore[0].meta.govProposals} /> -->
 		{#each currentPageSpeeches as speech}
 			<SpeechBar {speech} />
-			<!-- <GovProposalExpandableBar {govProposal} /> -->
 		{/each}
 		{#if currentPageSpeeches.length == 0}
 			{#each { length: 10 } as _}
@@ -56,4 +54,4 @@
 			<Pagination bind:page maxPage={$modalStore[0].meta.speechesPage0.max_page} />
 		</div>
 	</div>
-{/if}
+{/if} -->

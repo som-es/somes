@@ -1,9 +1,6 @@
 <script lang="ts">
-	import SButton from '$lib/components/UI/SButton.svelte';
-	// import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
-	import Chat from './Chat.svelte';
 	import { onDestroy } from 'svelte';
-	import Warning from '$lib/components/UI/Warning.svelte';
+	import type { Delegate } from '$lib/types';
 
 	let isGenerating = false;
 
@@ -13,19 +10,15 @@
 		chatSocket.close();
 	});
 
-	// const modalStore = getModalStore();
-	export let parent;
+	export let delegate: Delegate;
 
-	// $modalStore[0].meta.
 	let messages: any[] = [];
-	/*if ($modalStore.length > 0) {
-		messages = [
-			{
-				role: 'assistant',
-				content: `Ich bin SomBOT, ein Chatbot des Demokratieprojekts "somes". Ich bin spezialisiert darauf, Fragen über ${$modalStore[0].meta.delegate.name} (${$modalStore[0].meta.delegate.party}) zu verschiedenen Themen zu beantworten.`
-			}
-		];
-	}*/
+	messages = [
+		{
+			role: 'assistant',
+			content: `Ich bin SomBOT, ein Chatbot des Demokratieprojekts "somes". Ich bin spezialisiert darauf, Fragen über ${delegate.name} (${delegate.party}) zu verschiedenen Themen zu beantworten.`
+		}
+	];
 	const recvMessage = (event: MessageEvent) => {
 		// console.log(event.data)
 		if (event.data.includes('[END]')) {
@@ -47,7 +40,7 @@
 		const sentMessage = newMessage.trim();
 		if (!sentMessage || !chatSocket || chatSocket.readyState !== WebSocket.OPEN) return;
 
-		/*if ($modalStore.length > 0 && newMessage.length > 0) {
+		if (newMessage.length > 0) {
 			const chatHistory = messages.slice();
 			messages = [
 				...messages,
@@ -57,45 +50,30 @@
 			chatSocket.send(
 				JSON.stringify({
 					question: sentMessage,
-					delegate_id: $modalStore[0].meta.delegate.id,
+					delegate_id: delegate.id,
 					chat_history: chatHistory
 				})
 			);
 
 			isGenerating = true;
 			newMessage = '';
-		}*/
+		}
 	};
-
-	// const popupFeatured: PopupSettings = {
-	// 	event: 'hover',
-	// 	target: 'extractedFromIntroductionVideo',
-	// 	placement: 'bottom'
-	// };
 </script>
 
-<div class="z-50! card p-4 w-72 shadow-xl" data-popup="extractedFromIntroductionVideo">
-	<div class="z-50 font-bold text-xl">
-		Die Fragen werden an ein self-hosted LLM gesendet und nicht an die jeweilige Person. Als Basis
-		für die Informationen werden Auschnitte aus den gehaltenen Reden genommen.
-	</div>
-</div>
 <div
 	class="flex flex-col justify-between w-full max-w-7xl h-[90vh] bg-primary-100-900 shadow-lg rounded-lg overflow-hidden"
 >
-	<div class="p-4 bg-primary text-center text-lg font-bold flex justify-between">
+	<div class="p-4 bg-primary-300 text-center  items-center text-lg font-bold flex justify-between">
 		<button class="text-4xl">⚠</button>
+		<!-- <Popover title="Hinweis" placement="bottom" trigger="hover"  transitionParams={{ duration: 200 }} class="z-40 text-sm w-72 p-4">
+			Die Antworten des Chatbots basieren auf Ausschnitten von Reden der jeweiligen Person. Diese
+			Ausschnitte können unvollständig oder aus dem Kontext gerissen sein, was zu ungenauen oder
+			irreführenden Antworten führen kann. Bitte beachten Sie, dass der Chatbot nicht die tatsächlichen
+			Meinungen oder Aussagen der Person widerspiegelt.
+		</Popover> -->
 		<div>Chat</div>
-<!-- 
-		<button
-			on:click={() => {
-				modalStore.close();
-			}}
-			style="font-size: 34px"
-			class="w-5 unselectable"
-		>
-			✕
-		</button> -->
+		<div></div>
 	</div>
 	<div class="flex-1 p-4 overflow-y-auto bg-gray-50 dark:bg-gray-900">
 		{#each messages as { role, content }}

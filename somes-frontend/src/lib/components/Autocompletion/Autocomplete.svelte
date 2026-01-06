@@ -78,20 +78,21 @@
 	});
 
 	const sliceLimit = $derived(limit ?? optionsFiltered.length);
+	// console.log(optionsFiltered);
 </script>
 
 <div class="autocomplete {className} z-40">
 	{#if optionsFiltered.length > 0}
 		<nav class="autocomplete-nav {regionNav} z-40">
 			<ul class="autocomplete-list {regionList}">
-				{#each optionsFiltered.slice(0, sliceLimit) as option (option.value)}
+				{#each optionsFiltered.slice(0, sliceLimit) as option, i (i)}
 					<li
 						class="autocomplete-item {regionItem} z-40"
 						in:slide={transitions ? transitionInParams : { duration: 0 }}
 						out:slide={transitions ? transitionOutParams : { duration: 0 }}
 					>
 						<button
-							class="z-40 flex justify-between autocomplete-button {regionButton}"
+							class="z-40 flex justify-between p-3 hover:bg-secondary-400 dark:hover:bg-secondary-600 rounded-3xl autocomplete-button {regionButton}"
 							type="button"
 							onclick={() => onselection?.(option)}
 						>

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { Popover } from 'flowbite-svelte';
 	import type { Day } from './types';
 
 	export let headers: string[] = [];
@@ -83,9 +82,9 @@
 									<button class="day bg-tertiary-400" >
 										{week[i].name}
 									</button>
-									<Popover class="w-64 text-sm font-light ">
+									<!-- <Popover class="w-64 text-sm font-light ">
 										Plenarsitzung
-									</Popover>
+									</Popover> -->
 								{:else}
 									<div class="day">{week[i].name}</div>
 								{/if}

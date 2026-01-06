@@ -2,16 +2,15 @@
 	import Square from '$lib/components/UI/Square.svelte';
 	import { dashDateToDotDate } from '$lib/date';
 	import type { GovProposal } from '$lib/types';
-	import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
 
 	export let govProposal: GovProposal;
 	export let isCenter = false;
 
-	const popupFeatured: PopupSettings = {
-		event: 'click',
-		target: 'ressort',
-		placement: 'bottom'
-	};
+	// const popupFeatured: PopupSettings = {
+	// 	event: 'click',
+	// 	target: 'ressort',
+	// 	placement: 'bottom'
+	// };
 </script>
 
 <div class="z-50! card p-4 w-72 shadow-xl" data-popup="ressort">
@@ -20,9 +19,9 @@
 
 <div class="flex flex-wrap {isCenter ? 'justify-center' : ''} info-item gap-3">
 	<Square>
-		<div class="cursor-pointer font-bold text-lg" use:popup={popupFeatured}>
+		<!-- <div class="cursor-pointer font-bold text-lg" use:popup={popupFeatured}>
 			{govProposal.ministrial_proposal.ressort_shortform}
-		</div>
+		</div> -->
 		<div>Ressort</div>
 	</Square>
 	<Square>

@@ -1,6 +1,5 @@
 @import 'tailwindcss';
 @import './index.css';
-@plugin 'flowbite/plugin';
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
@@ -139,8 +138,10 @@
 	--animate-ring-indeterminate: anim-ring-indeterminate 2s linear infinite;
 }
 
-@source '../../node_modules/flowbite-svelte/dist';
-@source '../../node_modules/flowbite-svelte-icons/dist';
+dialog {
+	background-color: transparent;
+}
+
 @layer base {
 	input[type='search']::-webkit-search-cancel-button {
 		display: none;

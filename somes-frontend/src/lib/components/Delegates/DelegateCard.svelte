@@ -11,6 +11,7 @@
 	import { addDelegateFavo, removeDelegateFavo } from '$lib/api/authed';
 	import { delegatesStore } from '$lib/caching/stores/stores.svelte';
 	import { address } from '$lib/api/api';
+	import AIChatModal from './AIChat/AIChatModal.svelte';
 
 	export let delegate: Delegate;
 	export let onlyTop: boolean = false;
@@ -55,8 +56,7 @@
 
 		return Math.floor((utc2 - utc1) / _MS_PER_DAY);
 	}
-
-	// const modalStore = getModalStore();
+  	let aiChatModal = false;
 
 	$: personUrl = `https://parlament.gv.at/person/${delegate.id}?utm_source=somes.at`;
 </script>
@@ -171,8 +171,9 @@
 			{#if showAI}
 				<button
 					class="btn sm:btn-lg preset-filled"
-					on:click={() => {}/*() => modalStore.trigger(aiChatModal)*/}>AI Chat
+					on:click={() => aiChatModal = true}>AI Chat
 				</button>
+					<!-- <AIChatModal {delegate} /> -->
 			{/if}
 			{#if showQA && questions.length > 0}
 				<button

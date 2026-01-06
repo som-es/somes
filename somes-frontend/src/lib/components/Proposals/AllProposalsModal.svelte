@@ -3,15 +3,15 @@
 	import type { GovProposal } from '$lib/types';
 	import GovProposalExpandableBar from './Latest/GovProposalExpandableBar.svelte';
 
-	const modalStore = getModalStore();
-	export let parent;
+	// const modalStore = getModalStore();
+	// export let parent;
 
 	let filteredGovProposals: GovProposal[] = [];
 </script>
 
 <div class="card p-8 max-w-7xl">
 	<h1 class="font-bold text-2xl">Ministerialentwürfe</h1>
-	<button
+	<!-- <button
 		on:click={() => {
 			modalStore.close();
 		}}
@@ -19,8 +19,8 @@
 		class="w-5 unselectable float-right"
 	>
 		✕
-	</button>
-
+	</button> -->
+<!-- 
 	{#if $modalStore.length > 0 && $modalStore[0].meta}
 		<AllProposalsFiltering
 			bind:filteredGovProposals
@@ -32,5 +32,5 @@
 				coloring={'dark:bg-primary-300 bg-primary-400 text-black'}
 			/>
 		{/each}
-	{/if}
+	{/if} -->
 </div>

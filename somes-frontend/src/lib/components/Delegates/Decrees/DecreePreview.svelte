@@ -26,9 +26,9 @@
 			{decrees.length == 1 ? 'Verordnung' : 'Verordnungen'} insgesamt
 		</h2>
 	</div>
-	<button class="btn sm:btn-lg preset-filled mt-1" on:click={() => modalStore.trigger(allDecrees)}
-		>Alle anzeigen</button
-	>
+	<button class="btn sm:btn-lg preset-filled mt-1" on:click={() => {}/*modalStore.trigger(allDecrees)*/}
+		>Alle anzeigen
+	</button>
 </div>
 
 <div class="mt-1">

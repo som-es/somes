@@ -3,20 +3,20 @@
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import QaDelegateStanceInfluences from './Stance/QADelegateStanceInfluences.svelte';
 
-	export let parent;
-	const modalStore = getModalStore();
+	// export let parent;
+	// const modalStore = getModalStore();
 
 	let stanceTopicInfluences: StanceTopicInfluences[] = [];
 
-	if ($modalStore.length > 0) {
-		stanceTopicInfluences = $modalStore[0].meta.stanceTopicInfluences;
-	}
+	// if ($modalStore.length > 0) {
+	// 	stanceTopicInfluences = $modalStore[0].meta.stanceTopicInfluences;
+	// }
 </script>
 
 <div class="card p-8 w-full min-w-7xl max-w-7xl">
 	<button
 		on:click={() => {
-			modalStore.close();
+			// modalStore.close();
 		}}
 		style="font-size: 34px"
 		class="w-5 unselectable float-right">✕</button

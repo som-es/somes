@@ -44,7 +44,6 @@
 	import PoliticalStanceTitleBar from '$lib/components/Delegates/Spectrum/PoliticalStanceTitleBar.svelte';
 	import DecreePreview from '$lib/components/Delegates/Decrees/DecreePreview.svelte';
 	import { pushState } from '$app/navigation';
-	import { Popover } from 'flowbite-svelte';
 
 	let delegates: Delegate[];
 	let delegate: Delegate | null;
@@ -284,6 +283,7 @@
 				</div>
 			</div>
 			<input
+				class="min-w-full"
 				bind:value={dayOffset}
 				on:change={onLettingGoOfDaySlider}
 				type="range"
@@ -317,7 +317,7 @@
 				placeholder="Suchen..."
 				autocomplete="off"
 			/>
-		<Popover 
+		<!-- <Popover 
 			triggeredBy="#autocomplete-input" 
 			trigger="click" 
 			placement="bottom-start"
@@ -334,7 +334,7 @@
 					/>
 				</div>
 			{/if}
-		</Popover>
+		</Popover> -->
 		</div>
 		<div class="flex flex-wrap min-w-full justify-between">
 			<div class="rounded-xl w-full parliament-item bg-primary-300 dark:bg-primary-200">

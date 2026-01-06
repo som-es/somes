@@ -31,7 +31,7 @@ export async function cachedDelegatesNearSeats(
 		delegatesNearDate.push([date, gp], fetchedDels);
 		dels = fetchedDels;
 	}
-	return structuredClone(dels.slice());
+	return structuredClone($state.snapshot(dels.slice()));
 }
 
 export function filterDelegates(dels: Delegate[]): DelegateSplit {

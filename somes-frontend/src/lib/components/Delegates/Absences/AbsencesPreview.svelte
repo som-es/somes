@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Absence, Speech, SpeechesWithMaxPage } from '$lib/types';
-	import { type ModalSettings } from '@skeletonlabs/skeleton-svelte';
+	// import { type ModalSettings } from '@skeletonlabs/skeleton-svelte';
 	import AbsenceBar from './AbsenceBar.svelte';
 
 	export let absences: Absence[];
