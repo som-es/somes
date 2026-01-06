@@ -2,7 +2,6 @@
 	import SimpleDonut from '$lib/components/UI/SimpleDonut.svelte';
 	import crossmarkIcon from '$lib/assets/misc_icons/crossmark.svg?raw';
 	import checkmarkIcon from '$lib/assets/misc_icons/checkmark.svg?raw';
-	import { type ConicStop } from '@skeletonlabs/skeleton-svelte';
 	import { partyToColor } from '$lib/partyColor';
 	import type { Delegate, Vote, VoteResult } from '$lib/types';
 	import Square from '$lib/components/UI/Square.svelte';
@@ -25,8 +24,13 @@
 	showDate = false
 	showAccepted = false
 
+	interface ConicStop {
+		color: string;
+		start: number;
+		end: number;
+	}
 
-	$: NOT_REACHED_COLOR = getModeUserPrefers()
+	$: NOT_REACHED_COLOR = isLightMode
 		? 'rgb(var(--color-primary-600))'
 		: 'rgb(var(--color-primary-800))';
 
@@ -47,8 +51,8 @@
 	let isLightMode = true;
 
 	$: {
-		isLightMode = $modeCurrent;
-		NOT_REACHED_COLOR = $modeCurrent
+		isLightMode = true;
+		NOT_REACHED_COLOR =isLightMode 
 			? 'rgb(var(--color-primary-600))'
 			: 'rgb(var(--color-primary-800))';
 		conicStopsOtherMajority = [

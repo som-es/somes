@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { type Delegate, type VoteResult } from '$lib/types';
-	// import collapse from 'svelte-collapse';
 	import VoteResultExpanded from './VoteResultExpanded.svelte';
 
 	import crossmarkIcon from '$lib/assets/misc_icons/crossmark_small.svg?raw';
@@ -8,21 +7,27 @@
 	import VoteTypeBadge from '../VoteTypeBadge.svelte';
 	import { dashDateToDotDate } from '$lib/date';
 	import InfoBadges from '../InfoTiles/InfoBadges.svelte';
+	import { Collapsible } from 'bits-ui';
 
-	export let voteResult: VoteResult;
-	export let dels: Delegate[];
-	let clazz;
-	export { clazz as class };
-	let open = false;
+	interface Props {
+		voteResult: VoteResult;
+		dels: Delegate[];
+		class: any;
+	}
+
+	let { voteResult, dels, class: clazz }: Props = $props();
+	
+	let open = $state(false);
 	let duration = 0.35;
 </script>
 
-<div class="gap-3 mt-5 {clazz}">
-	<div
-		on:click={() => (open = !open)}
-		on:keypress={() => (open = !open)}
+<Collapsible.Root class="gap-3 mt-5 {clazz}">
+	<Collapsible.Trigger
+		onclick={() => (open = !open)}
+		onkeypress={() => (open = !open)}
 		role="button"
-		tabindex="0"
+	>
+	<div
 		class="entry bg-primary-300 dark:bg-primary-500"
 	>
 		<div class="flex">
@@ -32,7 +37,7 @@
 					{@html rightArrowIcon}
 				</div>
 			</div> -->
-			<div class="flex max-lg:flex-wrap items-center justify-between w-full">
+			<div class="flex max-lg:flex-wrap items-center text-left justify-between w-full">
 
 				{#if voteResult.ai_summary}
 					<div class="flex flex-wrap flex-col w-5/6">
@@ -167,10 +172,16 @@
 			</span>
 		</div>
 	</div>
+	</Collapsible.Trigger>
+	<Collapsible.Content
+		class="data-[state=open]:animate-collapse-down data-[state=closed]:animate-collapse-up"
+	>
+		<VoteResultExpanded {voteResult} {dels} />
+	</Collapsible.Content>
 	<!-- <div use:collapse={{ open, duration }}>
 		<VoteResultExpanded {voteResult} {dels} bind:open />
 	</div> -->
-</div>
+</Collapsible.Root>
 
 <style>
 	.entry {

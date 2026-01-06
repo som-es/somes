@@ -4,6 +4,7 @@
 	// import collapse from 'svelte-collapse';
 	import SButton from '../UI/SButton.svelte';
 	import { gotoHistory } from '$lib/goto';
+	import VoteResultExpandableBar from './Expandable/VoteResultExpandableBar.svelte';
 
 	export let dels: Delegate[];
 
@@ -22,6 +23,7 @@
 	{/if}
 	<div class="card-container">
 		{#each firstThreeVotes as voteResult, i}
+			<VoteResultExpandableBar {dels} {voteResult} class=""  />
 			<VoteResultComp {dels} {voteResult} tabindex={i} />
 		{/each}
 	</div>
