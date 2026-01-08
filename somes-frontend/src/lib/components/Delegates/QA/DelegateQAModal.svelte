@@ -16,7 +16,7 @@
 
 		<Popover.Root>
 			<Popover.Trigger openOnHover openDelay={100}>
-				<button class="text-4xl">⚠</button>
+				<span class="text-4xl">⚠</span>
 			</Popover.Trigger>
 			<Popover.Portal>
 				<Popover.Content class="z-51 p-4 w-72 bg-primary-300 dark:bg-primary-800 rounded-lg shadow-lg">

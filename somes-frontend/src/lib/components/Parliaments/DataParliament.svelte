@@ -1,9 +1,8 @@
-<!-- TODO: merge this and the Parliament component in to one -->
 <script lang="ts">
 	import { type Bubble, enrichParliamentBubbles, setupParliament } from '$lib/parliament';
 	import { getPartyColors, partyColors } from '$lib/partyColor';
 	import type { Delegate, VoteResult } from '$lib/types';
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import BaseParliament from './BaseParliament.svelte';
 	import { createPartyInfavorMap } from '$lib/partyInfavor';
 	import SwitchBox from '../UI/SwitchBox.svelte';
@@ -11,39 +10,56 @@
 	import GptCanvasParliament from './GptCanvasParliament.svelte';
 	import { cachedPartyColors } from '$lib/caching/party_color';
 
-	export let width = 830;
-	export let height = 900;
+	interface Props {
+		width?: number;
+		height?: number;
+		class?: string;
+		preview?: boolean;
+		againstOpacity?: number;
+		useOffset?: boolean;
+		delegate?: Delegate | null;
+		selected?: Bubble | null;
+		delegates: Delegate[];
+		seats: number[];
+		voteResult: VoteResult | null;
+		show3D?: boolean;
+		enforceSvg?: boolean;
+		forceColor?: string | null;
+		localPartyColors?: Map<string, string>;
+	}
 
-	let clazz = '';
-	export { clazz as class };
+	let {
+		width = 830,
+		height = 900,
+		class: className = '',
+		preview = false,
+		againstOpacity = 0.16,
+		useOffset = true,
+		delegate = $bindable(),
+		selected = $bindable(),
+		delegates,
+		seats,
+		voteResult,
+		show3D = false,
+		enforceSvg = false,
+		forceColor = null,
+		localPartyColors = partyColors
+	}: Props = $props();
 
-	export let preview: boolean = false;
-	export let againstOpacity: number = 0.16;
-	export let useOffset: boolean = true;
+	let partyInfavorMap = $derived(createPartyInfavorMap(voteResult, localPartyColors));
 
-	export let delegate: Delegate | null = null;
-	export let selected: Bubble | null = null;
+	let circles2d = $derived.by(() => {
+		void delegates; 
+		void voteResult;
 
-	export let delegates: Delegate[];
+		return untrack(() => {
+			const bubbles = setupParliament(seats, width, height, 7.9, useOffset);
+			enrichParliamentBubbles(bubbles, $state.snapshot(delegates), voteResult, setOpacity);
+			return bubbles;
+		});
+	});
 
-	export let seats: number[];
-	export let gp: string = 'XXVIII';
-	export let voteResult: VoteResult | null;
-	export let supplyDate: Date | null = null;
-	export let show3D = false;
-	export let enforceSvg = false;
-	export let forceColor: string | null = null;
-
-	if (voteResult) gp = voteResult.legislative_initiative.gp;
-	let date = new Date();
-	if (supplyDate) date = supplyDate;
-	if (voteResult) date = new Date(voteResult.legislative_initiative.nr_plenary_activity_date);
-
-	export let circles2d: Bubble[][];
-	export let localPartyColors: Map<string, string> = partyColors;
-	circles2d = setupParliament(seats, width, height, 7.9, useOffset);
-
-	function select(bubble: Bubble, event: MouseEvent | KeyboardEvent | null) {
+	function select(bubble: Bubble, event: MouseEvent | KeyboardEvent | null, updateDelegate: boolean = true) {
 		if (event != null) {
 			event.stopPropagation();
 		}
@@ -53,10 +69,8 @@
 		}
 
 		selected = bubble;
-		delegate = bubble.del;
+		if (updateDelegate) delegate = bubble.del;
 	}
-
-	$: partyInfavorMap = createPartyInfavorMap(voteResult, localPartyColors);
 
 	function setOpacity(bubble: Bubble) {
 		if (bubble == null || bubble.del == null) {
@@ -77,21 +91,14 @@
 		bubble.opacity = 1;
 	}
 
-	const updateLayout = async () => {
-		circles2d = setupParliament(seats, width, height, 7.9, useOffset);
-		enrichParliamentBubbles(circles2d, delegates, voteResult, setOpacity);
-		circles2d = circles2d;
-	};
 
-	$: if (delegate && delegate.seat_row != null && circles2d.length >= 1) {
-		select(circles2d[delegate.seat_row - 1][delegate.seat_col! - 1], null);
-	}
+	$effect(() => {
+		if (delegate && delegate.seat_row != null && circles2d.length >= 1) {
+			select(circles2d[delegate.seat_row - 1][delegate.seat_col! - 1], null, false);
+		}
+	});
 
-	$: if (delegates || voteResult) {
-		updateLayout();
-	}
-
-	$: checked = false;
+	let checked = $state(false);
 </script>
 
 {#if show3D}
@@ -104,10 +111,10 @@
 {#if checked}
 	<!-- <App3D {circles2d} {selected} {preview} {select} /> -->
 {:else if preview && !enforceSvg}
-	<GptCanvasParliament class={clazz} {circles2d} {width} {height} />
+	<GptCanvasParliament class={className} {circles2d} {width} {height} />
 	<!-- <BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} /> -->
 {:else}
-	<BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} {forceColor} />
+	<BaseParliament class={className} {circles2d} {selected} {preview} {select} {width} {height} {forceColor} />
 	<!-- <GptBaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} /> -->
 {/if}
 <!--

@@ -109,13 +109,13 @@
 		// null "egal"
 		let filter: VoteResultFilter | null = {
 			is_finished: isFinished,
-			is_named_vote: namedVoteFilter.filterObj == undefined ? null : namedVoteFilter.filterObj,
-			accepted: acceptedFilter.filterObj == undefined ? null : acceptedFilter.filterObj,
+			is_named_vote: (namedVoteFilter.filterObj == undefined || namedVoteFilter.filterObj === "") ? null : namedVoteFilter.filterObj,
+			accepted: (acceptedFilter.filterObj == undefined || acceptedFilter.filterObj === "") ? null : acceptedFilter.filterObj,
 			is_law: null,
 			simple_majority:
-				simpleMajorityFilter.filterObj == undefined ? null : simpleMajorityFilter.filterObj,
+				(simpleMajorityFilter.filterObj == undefined || simpleMajorityFilter.filterObj === "") ? null : simpleMajorityFilter.filterObj,
 			legis_period: selectedPeriod == 'all' ? null : selectedPeriod,
-			vote_type: votingFilter.filterObj === undefined ? null : votingFilter.filterObj,
+			vote_type: (votingFilter.filterObj === undefined || votingFilter.filterObj === "") ? null : votingFilter.filterObj,
 			topics: null,
 			is_urgent: null,
 			party_votes: null
@@ -170,7 +170,7 @@
 	let filters = [simpleMajorityFilter, acceptedFilter, namedVoteFilter, votingFilter];
 </script>
 
-<!-- <FiltersAny bind:filters bind:searchValue bind:selectedPeriod {update} /> -->
+<FiltersAny bind:filters bind:searchValue bind:selectedPeriod {update} />
 
 <div>
 	{#if voteResults}

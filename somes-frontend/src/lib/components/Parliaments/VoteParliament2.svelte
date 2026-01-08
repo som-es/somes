@@ -1,152 +1,167 @@
-<!-- TODO: merge this and the Parliament component in to one -->
 <script lang="ts">
 	import { type Bubble } from '$lib/parliament';
 	import type { Delegate, VoteResult } from '$lib/types';
-	import { onMount } from 'svelte';
-	import { delegates_at, errorToNull, toActualDateString } from '$lib/api/api';
+	import { onMount, untrack } from 'svelte';
 	import { groupPartyDelegates, setSeatsOfDels } from '$lib/parliaments/defaultParliament';
 	import { cachedAllSeats, getSeats } from '$lib/caching/seats';
 	import DataParliament from './DataParliament.svelte';
 	import { createPartyInfavorMap } from '$lib/partyInfavor';
-	import { filterDelegates, filteredDelegatesNearSeats } from '$lib/caching/delegates.svelte';
-	import { seatSettedCachedGovOfficials } from '$lib/caching/gov_officials';
 	import { partyColors } from '$lib/partyColor';
 	import { cachedPartyColors } from '$lib/caching/party_color';
+	import { fetchDelegates } from '$lib/api/fetch_delegates';
+	import { toActualDateString } from '$lib/api/api';
 
 	const width = 830;
 	const height = 900;
 
-	let clazz = '';
-	export { clazz as class };
+	let {
+		class: clazz = " ",
+		orderingFactor = 1,
+		preview = false,
+		againstOpacity = 0.16,
+		delegate = $bindable(),
+		selected = $bindable(),
+		gp = $bindable('XXVIII'),
+		voteResult = null,
+		supplyDate = null,
+		circles2d = $bindable([]),
+		showGovs = false,
+		enforceSvg = false,
+		forceColor = null,
+		delegates = $bindable([]),
+		govOfficials = $bindable([]),
+		overrideDelegates = false,
+		noSeats = $bindable(false),
+		useOffset = $bindable(true),
+		show3D = false,
+		syncDelegates = $bindable([]),
+		allSeats = null 
+	}: {
+		class?: string,
+		orderingFactor?: number,
+		preview?: boolean,
+		againstOpacity?: number,
+		delegate?: Delegate | null,
+		selected?: Bubble | null,
+		gp?: string,
+		voteResult?: VoteResult | null,
+		supplyDate?: Date | null,
+		circles2d?: Bubble[][],
+		showGovs?: boolean,
+		enforceSvg?: boolean,
+		forceColor?: string | null,
+		delegates?: Delegate[],
+		govOfficials?: Delegate[],
+		overrideDelegates?: boolean,
+		noSeats?: boolean,
+		useOffset?: boolean,
+		show3D?: boolean,
+		syncDelegates?: Delegate[],
+		allSeats?: Map<string, number[]> | null
+	} = $props();
 
-	export let orderingFactor: number = 1;
-	export let preview: boolean = false;
-	export let againstOpacity: number = 0.16;
+	const effectiveGp = $derived(voteResult?.legislative_initiative.gp ?? gp);
 
-	export let delegate: Delegate | null = null;
-	export let selected: Bubble | null = null;
+	let seats: number[] = $derived.by(() => {
+		if (allSeats) {
+			if (noSeats) {
+				return getSeats(allSeats, 'XX', true);
+			} else {
+				return getSeats(allSeats, effectiveGp);
+			}
+		} else {
+			return []
+		}
+	});
 
-	export let gp: string = 'XXVIII';
-	export let voteResult: VoteResult | null;
-	export let supplyDate: Date | null = null;
-	export let circles2d: Bubble[][] = [];
-	export let showGovs: boolean = false;
-	export let enforceSvg: boolean = false;
-	export let forceColor: string | null = null;
-	if (voteResult) gp = voteResult.legislative_initiative.gp;
-	let date = new Date();
-	if (supplyDate) {
-		date = supplyDate;
-	}
-	if (voteResult) date = new Date(voteResult.legislative_initiative.nr_plenary_activity_date);
+	let localPartyColors: Map<string, string> = $state(partyColors);
 
-	let seats: number[];
-	export let delegates: Delegate[] = [];
-	export let govOfficials: Delegate[] = [];
-	export let overrideDelegates: boolean = false;
-	export let noSeats = false;
-	export let useOffset = true;
-	export let show3D = false;
-
-	let firstFinished = false;
-
-	let localPartyColors: Map<string, string> = partyColors;
+	const activeDate = $derived.by(() => {
+		if (supplyDate) {
+			return supplyDate
+		};
+		if (voteResult && voteResult.legislative_initiative.nr_plenary_activity_date) {
+			return new Date(voteResult.legislative_initiative.nr_plenary_activity_date)
+		};
+		return new Date();
+	});
 
 	onMount(async () => {
+		if (allSeats == null) {
+			allSeats = await cachedAllSeats();
+		}
 		if (localPartyColors.size == 0) {
 			localPartyColors = await cachedPartyColors();
 		}
-		// await updateLayout();
+		await updateDelegates();
 	});
 
-	const updateLayout = async (partyColors: Map<string, string>) => {
-		const allSeats = await cachedAllSeats();
+	let displayDelegates = $derived.by(() => {
+		if (delegates.length == 0) {
+			return [];
+		}
+		if (!noSeats) {
+			return delegates
+		}
 
-		let updateDelegates = delegates;
+		let newDelegates = structuredClone($state.snapshot(delegates));
+		let partyToDelegates = groupPartyDelegates(newDelegates);
+		let all = 0;
+		partyToDelegates.forEach((dels, _party) => {
+			all += dels.length;
+		});
 
-		if (!overrideDelegates) {
-			const fetchedDelegates = await filteredDelegatesNearSeats(toActualDateString(date), gp);
+		const partyInfavorMap = createPartyInfavorMap(voteResult, partyColors);
+
+		const partyToDelegatesArray = Array.from(partyToDelegates.entries());
+		partyToDelegatesArray.sort((a, b) => {
+			const aInfavor = partyInfavorMap.get(a[0]);
+			const bInfavor = partyInfavorMap.get(b[0]);
+			if (aInfavor == bInfavor) {
+				return (b[1].length - a[1].length) * orderingFactor;
+			} else if (aInfavor == true && bInfavor == false) {
+				return -1;
+			} else {
+				return 1;
+			}
+		});
+
+		setSeatsOfDels(partyToDelegatesArray, all, seats.slice());
+
+		return newDelegates
+	});
+
+	$effect(() => {
+		void displayDelegates;
+		untrack(() => {
+			syncDelegates = displayDelegates;
+		});
+	});
+
+
+	const updateDelegates = async () => {
+		const dateStr = toActualDateString(activeDate);
+		
+		if (!overrideDelegates && delegates.length == 0) {
+			const { hasSeatInfo, delegates: fetchedDelegates } = await fetchDelegates(dateStr, effectiveGp)
+			noSeats = !hasSeatInfo;
+			useOffset = hasSeatInfo;
 
 			if (fetchedDelegates) {
-				updateDelegates = fetchedDelegates.nr;
-				// delegates = fetchedDelegates.all;
-			}
-
-			// we do not have seat information, therefore we fetch them in a base format
-			if (updateDelegates.length == 0) {
-				const fetchedDelegates = errorToNull(await delegates_at(toActualDateString(date)));
-				if (fetchedDelegates) {
-					const filteredDelegates = filterDelegates(fetchedDelegates);
-					updateDelegates = filteredDelegates.nr;
-					// delegates = filteredDelegates.all
-					// delegates = fetchedDelegates;
-				}
-				noSeats = true;
-				useOffset = false;
-			} else {
-				noSeats = false;
-				useOffset = true;
+				delegates = fetchedDelegates;
 			}
 		}
-
-		if (allSeats) {
-			if (noSeats) {
-				seats = getSeats(allSeats, 'XX', true);
-			} else {
-				seats = getSeats(allSeats, gp);
-			}
-		}
-
-		if (noSeats) {
-			let partyToDelegates = groupPartyDelegates(updateDelegates);
-			let all = 0;
-			partyToDelegates.forEach((dels, _party) => {
-				all += dels.length;
-			});
-
-			const partyInfavorMap = createPartyInfavorMap(voteResult, partyColors);
-
-			const partyToDelegatesArray = Array.from(partyToDelegates.entries());
-			partyToDelegatesArray.sort((a, b) => {
-				const aInfavor = partyInfavorMap.get(a[0]);
-				const bInfavor = partyInfavorMap.get(b[0]);
-				if (aInfavor == bInfavor) {
-					return (b[1].length - a[1].length) * orderingFactor;
-				} else if (aInfavor == true && bInfavor == false) {
-					return -1;
-				} else {
-					return 1;
-				}
-				// return b[1].length - a[1].length
-			});
-
-			setSeatsOfDels(partyToDelegatesArray, all, seats.slice());
-		}
-		if (showGovs && !overrideDelegates) {
-			govOfficials = (await seatSettedCachedGovOfficials(toActualDateString(date))) ?? [];
-			updateDelegates = updateDelegates.concat(govOfficials);
-		}
-		delegates = updateDelegates;
-		firstFinished = true;
 	};
-
-	$: if (supplyDate) {
-		date = supplyDate;
-	}
-
-	$: if (gp || date || supplyDate || voteResult) {
-		updateLayout(localPartyColors);
-	}
+	
 </script>
 
-{#if firstFinished}
+{#if displayDelegates.length > 0}
 	<DataParliament
 		bind:delegate
 		bind:selected
-		bind:circles2d
 		{againstOpacity}
 		class={clazz}
-		{delegates}
+		delegates={displayDelegates}
 		{preview}
 		{width}
 		{height}

@@ -13,11 +13,13 @@ export function groupPartyDelegates(
 		if (checkSeat && dels[idx].seat_col == null) {
 			continue;
 		}
-		dels[idx].seat_row = null;
-		dels[idx].seat_col = null;
+
 		if (del.party == null || del.council != 'nr') {
 			continue;
 		}
+		dels[idx].seat_row = null;
+		dels[idx].seat_col = null;
+		
 
 		if (!partyToDelegates.has(del.party)) {
 			partyToDelegates.set(del.party, []);
@@ -116,6 +118,5 @@ export function setSeatsOfDels(
 			startIdxs[row] += 1;
 			row += 1;
 		}
-		// console.log(` ${party} ${restSeats}`);
 	});
 }

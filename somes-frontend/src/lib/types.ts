@@ -1,3 +1,4 @@
+import { resolve } from '$app/paths';
 import type { AiSummary, DbAiSummary } from './ai_summary_types';
 import type { Decree } from './components/Delegates/Decrees/types';
 // import type { Decree } from './components/Delegates/Decrees/types';
@@ -197,7 +198,7 @@ export interface VoteResult {
 }
 
 export function createVoteResultPath(voteResult: VoteResult): string {
-	return `/vote_result/${voteResult.legislative_initiative.gp}/${voteResult.legislative_initiative.ityp}/${voteResult.legislative_initiative.inr}`;
+	return resolve("/vote_result/[gp]/[ityp]/[inr]", {gp: voteResult.legislative_initiative.gp, ityp: voteResult.legislative_initiative.ityp, inr: voteResult.legislative_initiative.inr.toString()});	
 }
 
 export interface VoteResultsWithMaxPage {

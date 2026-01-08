@@ -5,25 +5,24 @@
 	import Emphasis from '../Emphasis/Emphasis.svelte';
 	import InfoTiles from '../InfoTiles/InfoTiles.svelte';
 	import { currentDelegatesAtDateStore, currentVoteResultStore } from '$lib/stores/stores';
-	import { gotoHistory } from '$lib/goto';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
-
+	import { goto } from '$app/navigation';
 	export let voteResult: VoteResult;
 	export let dels: Delegate[];
 	export let open: boolean = true;
 
 	let delsAtDate: Delegate[] = [];
 
-	function onShowDetails() {
+	function onShowDetails(event: Event) {
+		event.preventDefault();
+
 		currentVoteResultStore.value = voteResult;
 		currentDelegatesAtDateStore.value = [
 			voteResult.legislative_initiative.nr_plenary_activity_date.toString(),
 			delsAtDate
 		];
-		// $: if (browser) {
-		gotoHistory(createVoteResultPath(voteResult), true);
 
-		// }
+		goto(createVoteResultPath(voteResult), { replaceState: false });
 	}
 
 	function gridContainer(hasEmphasis: boolean, voteResult: VoteResult): string {
@@ -65,8 +64,7 @@
 		>
 		<!-- <div class="accepted-item bg-primary-300">Angenommen: {voteResult.legislative_initiative.accepted}</div> -->
 		<div class="ml-auto more-info-item">
-			<SButton class="bg-tertiary-500 text-black" on:click={onShowDetails}>Details anzeigen</SButton
-			>
+			<a class="btn btn-sm bg-tertiary-500 text-black" href="{createVoteResultPath(voteResult)}" on:click={onShowDetails}>Details anzeigen</a>
 		</div>
 	</div>
 </div>
@@ -92,16 +90,17 @@
 	{/if}
 
 	{#if voteResult.legislative_initiative.accepted}
-		<button
+		<a
 			class="rounded-xl min-w-full max-w-full ml-auto parliament-item bg-primary-100"
+			href="{createVoteResultPath(voteResult)}"
 			on:click={onShowDetails}
 		>
 			<VoteParliament2 showGovs {voteResult} preview={true} />
-		</button>
+		</a>
 	{/if}
 	<InfoTiles {voteResult} {dels} />
 	<div class="ml-auto details-item mt-auto">
-		<SButton class="bg-tertiary-500 text-black" on:click={onShowDetails}>Details anzeigen</SButton>
+		<a class="btn bg-secondary-500 hover:cursor-pointer text-black" href="{createVoteResultPath(voteResult)}" on:click={onShowDetails}>Details anzeigen</a>
 	</div>
 </div>
 

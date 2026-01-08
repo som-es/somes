@@ -13,28 +13,6 @@
 </script>
 
 <!-- Small Screen PopUps (keep them out of <div>...</div> as much as possible) -->
-<div
-	class="z-10 card w-full p-5 self-center md:max-w-136 lg:max-w-200 shadow-xl py-2"
-	data-popup="mobileFilter"
->
-	<!-- {#each filters as filter}
-		<div class="z-20 card w-48 shadow-xl py-2" data-popup={filter.popup.target}>
-			<FilterListBox bind:filter />
-		</div>
-	{/each} -->
-
-	<div class="lg:hidden flex flex-wrap gap-6">
-		{#each filters as filter}
-			<FilterOpener {filter} />
-		{/each}
-	</div>
-
-	<!-- LEGIS PERIODS -->
-	<div class="mt-10">
-		<h2 class="font-bold text-2xl mb-1">Legislaturperioden</h2>
-		<LegisButtons bind:selectedPeriod />
-	</div>
-</div>
 
 <!-- FILTER OPTIONS -->
 <!-- Large Screens-->

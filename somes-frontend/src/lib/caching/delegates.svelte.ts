@@ -1,4 +1,4 @@
-import { delegates, delegates_with_seats_near_date, isHasError } from '$lib/api/api';
+import { delegates, delegates_at, delegates_with_seats_near_date, isHasError } from '$lib/api/api';
 import { CircularBuffer } from '$lib/CircularBuffer';
 import type { Delegate, DelegateSplit, HasError } from '$lib/types';
 import { delegatesStore } from './stores/stores.svelte';
@@ -17,17 +17,29 @@ export async function cachedDelegates(refetch: boolean = false): Promise<Delegat
 	return dels;
 }
 
-const delegatesNearDate: CircularBuffer<[string, string], Delegate[]> = new CircularBuffer(100);
+const delegatesNearDate: CircularBuffer<[string, string], Delegate[]> = new CircularBuffer(200);
 
 export async function cachedDelegatesNearSeats(
 	date: string,
 	gp: string,
-	refetch: boolean = false
+	refetch: boolean = false,
+	fetcher: typeof fetch = fetch
 ): Promise<Delegate[] | null> {
 	let dels = delegatesNearDate.findBy((e) => e[0] == date && e[1] == gp);
 	if (dels == undefined || refetch || dels.length == 0) {
-		const fetchedDels = await delegates_with_seats_near_date(date as unknown as Date, gp);
+		const fetchedDels = await delegates_with_seats_near_date(date as unknown as Date, gp, fetcher);
 		if (isHasError(fetchedDels)) return null;
+		delegatesNearDate.push([date, gp], fetchedDels);
+		dels = fetchedDels;
+	}
+	return structuredClone($state.snapshot(dels.slice()));
+}
+
+export async function cachedDelegatedAtDate(date: string, gp: string, refetch: boolean = false, fetcher: typeof fetch = fetch): Promise<Delegate[] | HasError> {
+	let dels = delegatesNearDate.findBy((e) => e[0] == date && e[1] == gp);
+	if (dels == undefined || refetch || dels.length == 0) {
+		const fetchedDels = await delegates_at(date, fetcher);
+		if (isHasError(fetchedDels)) return fetchedDels;
 		delegatesNearDate.push([date, gp], fetchedDels);
 		dels = fetchedDels;
 	}
@@ -65,9 +77,10 @@ export function filterDelegates(dels: Delegate[]): DelegateSplit {
 export async function filteredDelegatesNearSeats(
 	date: string,
 	gp: string,
-	refetch: boolean = false
+	refetch: boolean = false,
+	fetcher: typeof fetch = fetch
 ): Promise<DelegateSplit | null> {
-	const dels = await cachedDelegatesNearSeats(date, gp, refetch);
+	const dels = await cachedDelegatesNearSeats(date, gp, refetch, fetcher);
 	if (dels == null) {
 		return null;
 	}

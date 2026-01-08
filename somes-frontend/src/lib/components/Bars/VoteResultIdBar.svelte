@@ -50,12 +50,13 @@
 		}	
 	}
 
-	function onShowDetails(voteResult: VoteResult | null) {
+	function onShowDetails(voteResult: VoteResult | null, e: Event) {
+		// e.preventDefault();
 		if (!voteResult) return;
-		dispatch("dataUpdated", voteResult);
+		// dispatch("dataUpdated", voteResult);
 		currentVoteResultStore.value = voteResult;
 		// modalStore.close();
-		gotoHistory(createVoteResultPath(voteResult), true);
+		// gotoHistory(createVoteResultPath(voteResult), true);
 	}
 
 	$: arrowBackground =
@@ -68,7 +69,7 @@
 {#if (requiringVotes && hasVotes) || !requiringVotes || loadingVoteResult}
 <div class="gap-3 mt-5">
 	{#if voteResult}
-		<button class="w-full entry flex {arrowBackground} justify-between items-center text-black" on:click={() => onShowDetails(voteResult)}>
+		<a class="w-full entry flex {arrowBackground} justify-between items-center text-black" href="{createVoteResultPath(voteResult)}" on:click={(e) => onShowDetails(voteResult, e)}>
 			<div
 				class="border-radius-left spacing-for-left flex dark:bg-primary-300 bg-primary-400 justify-between items-center flex-basis-left"
 			>
@@ -78,22 +79,21 @@
 				</div>
 
 				{#if hasVotes}
-					<button
+					<div
 						class="max-sm:hidden z-20 w-30 bg-primary-100 dark:bg-primary-300 rounded-md"
-						on:click={() => onShowDetails(voteResult)}
 					>
 						<VoteParliament2 {voteResult} preview={true} />
-					</button>
+					</div>
 				{/if}
 			</div>
 
 			{#if hasVotes}
-				<button class="spacing-for-right p-36" on:click={() => onShowDetails(voteResult)}>
+				<div class="spacing-for-right p-36">
 					{@html rightArrowIcon}
-				</button>
+				</div>
 			{/if}
 		
-		</button>
+		</a>
 	{:else if loadingVoteResult}
 		<ExpandablePlaceholder class="min-w-7xl w-7xl" />
 		<!-- {:else if named_vote.about}

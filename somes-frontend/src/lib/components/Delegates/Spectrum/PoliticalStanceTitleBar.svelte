@@ -16,7 +16,7 @@
 	<div class="flex self-center items-center">
 		<Popover.Root>
 			<Popover.Trigger openOnHover openDelay={100}>
-				<button class="text-5xl mx-2" >⚠</button>
+				<span class="text-5xl mx-2" >⚠</span>
 			</Popover.Trigger>
 			<Popover.Portal>
 				<Popover.Content class="z-40 p-4 w-72 bg-primary-100 dark:bg-primary-600 rounded-lg shadow-lg">

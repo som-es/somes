@@ -209,13 +209,13 @@ pub async fn update_vote_result_meilisearch_index(
     log::info!("Fetched all vote results");
 
     // this should only run when there are structural differences (type changes)
+    // client.index(index).delete_all_documents().await?;
     // client.delete_index(index).await?;
 
     log::info!(
         "Uploading {} vote results to meilisearch",
         all_vote_results.len()
     );
-    // client.index(index).delete_all_documents().await?;
 
     client
         .index(index)

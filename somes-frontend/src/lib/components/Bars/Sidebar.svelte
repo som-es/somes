@@ -11,11 +11,11 @@
     import { resolve } from '$app/paths';
 	import VoteParliament2 from '../Parliaments/VoteParliament2.svelte';
 	import { mockDelegatesNoColor, mockVoteResult } from '$lib/parliaments/mock';
+	import { getSeats } from '$lib/caching/seats';
 
 	$effect(() => {
 		activeUrl = page.url.pathname;
         isSelected = (href: string) => {
-            console.log(href);
             return activeUrl?.includes(href);
         };
 	});
@@ -124,6 +124,7 @@
 					againstOpacity={0.3}
 					voteResult={mockVoteResult()}
 					delegates={mockDelegatesNoColor()}
+                    allSeats={new Map([["XX", getSeats(new Map(), "XX", true)]])}
 					preview
 					overrideDelegates
 					noSeats

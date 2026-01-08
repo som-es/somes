@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import type { AutocompleteOption } from '$lib/components/Autocompletion/types';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
@@ -9,7 +11,7 @@
 		LegisPeriod,
 		SpeechesWithMaxPage
 	} from '$lib/types';
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import {
 		delegate_by_id,
 		errorToNull,
@@ -34,7 +36,6 @@
 	} from '$lib/components/Autocompletion/filtering';
 	import LegisButtons from '$lib/components/Filtering/LegisButtons.svelte';
 	import AllBadges from '$lib/components/VoteResults/SimpleYesNo/AllBadges.svelte';
-	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 	import { dashDateToDotDate } from '$lib/date';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import GovProposalPreview from '$lib/components/Proposals/GovProposalPreviewAtDelegate.svelte';
@@ -46,43 +47,83 @@
 	import StanceTypeSwitcher from '$lib/components/Delegates/Spectrum/Stance/StanceTypeSwitcher.svelte';
 	import PoliticalStanceTitleBar from '$lib/components/Delegates/Spectrum/PoliticalStanceTitleBar.svelte';
 	import DecreePreview from '$lib/components/Delegates/Decrees/DecreePreview.svelte';
-	import { pushState } from '$app/navigation';
+	import { goto, pushState, replaceState } from '$app/navigation';
 	import AutocompleteWithPopover from '$lib/components/Autocompletion/AutocompleteWithPopover.svelte';
+	import type { PageProps } from './$types';
 
-	let delegates: Delegate[];
-	let delegate: Delegate | null;
+	let { data }: PageProps = $props();
 
-	let selectedPeriod = 'XXVIII';
-	let prevSelectedPeriod = selectedPeriod;
-	let periods: LegisPeriod[] = [];
+	let delegates: Delegate[] = $derived(data.delegates ?? []);
 
-	let autocompleteOptions: AutocompleteOption<string>[] = [];
-	let speechesPage0: SpeechesWithMaxPage | null = null;
-	let generalDelegateInfo: GeneralDelegateInfo | null = null;
-	let generalGovOfficialInfo: GeneralGovOfficialInfo | null = null;
-	let maxDayOffset = 365 * 5;
-	let dayOffset = maxDayOffset;
+	function selectFittingDelegate(delegates: Delegate[]): Delegate | null {
+		if (delegates.length === 0) {
+			return null;
+		}
+		let tempDelegate = null;
+		const maybeStoredDelegate = currentDelegateStore.value;
+		if (maybeStoredDelegate) {
+			tempDelegate = maybeStoredDelegate;
+			const foundDel = delegates.find((del) => del.id === maybeStoredDelegate.id);
+			if (foundDel) {
+				tempDelegate = foundDel;
+			} else {
+				tempDelegate = delegates[Math.floor(Math.random() * delegates.length)];
+			}
+		} else {
+			tempDelegate = delegates[Math.floor(Math.random() * delegates.length)];
+		}
+		return tempDelegate;
+	}
 
-	let renderStartDate: Date | null;
-	let renderEndDate: Date | null;
 
-	let finishedMounting = false;
-	let supplyDate: Date | null = null;
+	let syncDelegates: Delegate[] = $state([]);
 
-	let inputValue = '';
-	let prevSelectedDelegateId = 0;
+	let delegate: Delegate | null = $derived.by(() => {
+		if (syncDelegates.length == 0) {
+			return null;
+		}
+		if (data.delegate !== null) {
+			// @ts-ignore
+			const found = syncDelegates.find((d) => d.id === data.delegate.id);
+			if (found) {
+				return found;
+			}
+		};
+		const delegate = untrack(() => {
+			return selectFittingDelegate($state.snapshot(syncDelegates));
+		});		
 
-	let maybeCurrentDelegateFilter = currentDelegateFilterStore.value ?? {
+		return delegate
+	});
+
+	let periods: LegisPeriod[] = $derived(data.cachedPeriods ?? []);
+
+	let speechesPage0: SpeechesWithMaxPage | null = $state(null);
+	let generalDelegateInfo: GeneralDelegateInfo | null = $state(null);
+	let generalGovOfficialInfo: GeneralGovOfficialInfo | null = $state(null);
+	let maxDayOffset = $state(365 * 5);
+
+	let renderStartDate: Date | null = $state(null);
+	let renderEndDate: Date | null = $state(null);
+
+	let finishedMounting = $state(false);
+	let supplyDate: Date | null = $derived(new Date(data.date ?? new Date()));
+
+	let prevSelectedDelegateId = $state(0);
+
+	let maybeCurrentDelegateFilter = $derived(currentDelegateFilterStore.value ?? {
 		day_offset: maxDayOffset,
 		search_value: '',
-		legis_period: selectedPeriod
-	};
-	inputValue = maybeCurrentDelegateFilter.search_value ?? '';
-	dayOffset = maybeCurrentDelegateFilter.day_offset ?? maxDayOffset;
-	if (maybeCurrentDelegateFilter.legis_period) {
-		selectedPeriod = maybeCurrentDelegateFilter.legis_period;
-		prevSelectedPeriod = maybeCurrentDelegateFilter.legis_period;
-	}
+		legis_period: data.gp ?? 'XXVIII' 
+	});
+
+	let inputValue = $derived(maybeCurrentDelegateFilter.search_value ?? '');
+	let dayOffset = $derived(maybeCurrentDelegateFilter.day_offset ?? maxDayOffset);
+
+	let selectedPeriod = $derived(maybeCurrentDelegateFilter.legis_period ?? 'XXVIII');
+	let prevSelectedPeriod = $derived(maybeCurrentDelegateFilter.legis_period ?? 'XXVIII');
+
+	let autocompleteOptions: AutocompleteOption<string>[] = $derived(convertDelegatesToAutocompleteOptions(delegates));
 
 	function delegateFilter(): AutocompleteOption<string>[] {
 		let _options = [...autocompleteOptions];
@@ -90,10 +131,12 @@
 		return delegateFilterOptions(_options, _inputValue);
 	}
 
-	$: if (inputValue) {
-		maybeCurrentDelegateFilter.search_value = inputValue;
-		currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
-	}
+	run(() => {
+		if (inputValue) {
+			maybeCurrentDelegateFilter.search_value = inputValue;
+			currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
+		}
+	});
 
 	function onDelegateSelection(event: AutocompleteOption<string>): void {
 		// @ts-ignore
@@ -103,11 +146,6 @@
 
 	onMount(async () => {
 		const url = new URL(window.location.href);
-		selectedPeriod = url.searchParams.get('gp') || selectedPeriod;
-
-		const cachedPeriods = await cachedAllLegisPeriods();
-		if (cachedPeriods) periods = cachedPeriods.reverse();
-
 		const firstIdx = periods.findIndex((x) => x.gp == selectedPeriod);
 		if (firstIdx == -1) return;
 		const endDate = periods[firstIdx + 1]?.start_date;
@@ -159,24 +197,21 @@
 		}
 		maybeCurrentDelegateFilter.day_offset = dayOffset;
 		currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
-		startDate.setDate(startDate.getDate() + dayOffset - 2);
+		startDate.setDate(startDate.getDate() + dayOffset);
 
 		supplyDate = startDate;
 
 		const url = new URL(window.location.href);
+		const previousDate = url.searchParams.get('date');
+		const previousPeriod = url.searchParams.get('gp');
+		
+		if (previousDate === toActualDateString(supplyDate) && previousPeriod === selectedPeriod) {
+			return;
+		}
+
 		url.searchParams.set('date', toActualDateString(supplyDate));
 		url.searchParams.set('gp', selectedPeriod);
-		pushState(url.toString(), { replaceState: true });
-
-		// console.log(`supply ${supplyDate}`);
-		// const fetchedDelsAtDate = await delegates_at(
-		// );
-		// console.log(fetchedDelsAtDate);
-
-		// if (fetchedDelsAtDate) {
-		// delsAtDate = fetchedDelsAtDate;
-		// autocompleteOptions = convertDelegatesToAutocompleteOptions(delsAtDate);
-		// }
+		goto(url.toString());
 	};
 
 	const onLettingGoOfDaySlider = () => {
@@ -191,71 +226,75 @@
 		currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
 	};
 
-	$: if (selectedPeriod) {
-		renderEndDate = null;
-		renderStartDate = null;
-		// if (window !== null) {
-		// 	const url = new URL(window.location.href);
-		// 	url.searchParams.set('gp', selectedPeriod);
-		// 	replaceState(url, history.state);
-		// }
+	$effect(() => {
+		void selectedPeriod;
+		untrack(() => {
 
-		// delsAtDate = [];
-		updateStoredPeriod();
-		updateDelsToDisplay();
-		if (finishedMounting) prevSelectedPeriod = selectedPeriod;
-	}
+			renderEndDate = null;
+			renderStartDate = null;
+			
+			updateStoredPeriod();
+			updateDelsToDisplay();
+			if (finishedMounting) prevSelectedPeriod = selectedPeriod;
+		});
+	});
 
-	$: if (delegates && delegate == null) {
-		const maybeStoredDelegate = currentDelegateStore.value;
-		if (maybeStoredDelegate) {
-			delegate = maybeStoredDelegate;
-			const foundDel = delegates.find((del) => del.id === maybeStoredDelegate.id);
-			if (foundDel) {
-				delegate = foundDel;
-			} else {
-				delegate = delegates[Math.floor(Math.random() * delegates.length)];
-			}
-		} else {
-			delegate = delegates[Math.floor(Math.random() * delegates.length)];
-		}
-	}
-	$: if (delegates) autocompleteOptions = convertDelegatesToAutocompleteOptions(delegates);
+	// let generalDelegateInfo	 = $derived.by()
 
-	$: if (delegate && prevSelectedDelegateId != delegate.id) {
-		// interests = null;
-		if (finishedMounting) currentDelegateStore.value = delegate;
-
+	function updateDelegateIdInUrl(delegate: Delegate) {
 		const url = new URL(window.location.href);
+		const newId = delegate.id.toString();
+
+		if (url.searchParams.get('delegate') === newId) return;
 		url.searchParams.set('delegate', delegate.id.toString());
-		pushState(url.toString(), { replaceState: true });
-
-		generalDelegateInfo = null;
-		general_delegate_info(delegate.id).then((res) => {
-			generalDelegateInfo = errorToNull(res);
-			if (generalDelegateInfo) {
-				generalDelegateInfo.interests.sort((a, b) => b.self_share - a.self_share);
-				generalDelegateInfo.detailed_interests.sort((a, b) => b.self_share - a.self_share);
-				// console.log(`absences length: ${generalDelegateInfo.absences.length}, ${generalDelegateInfo.named_votes.length}`);
-			}
-		});
-
-		generalGovOfficialInfo = null;
-		general_gov_official_info(delegate.id).then((res) => {
-			generalGovOfficialInfo = errorToNull(res);
-		});
-
-		// gov_proposals_by_official(delegate.id).then((res) => {
-		// 	govProposals = errorToNull(res);
-		// });
-
-		speechesPage0 = null;
-		speeches_by_delegate_per_page(delegate.id, 0).then((res) => {
-			speechesPage0 = errorToNull(res);
-		});
-
-		prevSelectedDelegateId = delegate.id;
+		replaceState(url.toString(), {});
+		currentDelegateStore.value = delegate;
 	}
+
+	$effect(() => {
+		void delegate;
+		if (delegate) {
+			updateDelegateIdInUrl(delegate);	
+		}
+
+		untrack(() => {
+
+			if (delegate && prevSelectedDelegateId != delegate.id) {
+
+				generalDelegateInfo = null;
+				general_delegate_info(delegate.id).then((res) => {
+					generalDelegateInfo = errorToNull(res);
+					if (generalDelegateInfo) {
+						generalDelegateInfo.interests.sort((a, b) => b.self_share - a.self_share);
+						generalDelegateInfo.detailed_interests.sort((a, b) => b.self_share - a.self_share);
+					}
+				});
+
+				generalGovOfficialInfo = null;
+				general_gov_official_info(delegate.id).then((res) => {
+					generalGovOfficialInfo = errorToNull(res);
+				});
+
+				speechesPage0 = null;
+				speeches_by_delegate_per_page(delegate.id, 0).then((res) => {
+					speechesPage0 = errorToNull(res);
+				});
+
+				prevSelectedDelegateId = delegate.id;
+			}
+		})
+	});
+
+	/*run(() => {
+		if (delegate && prevSelectedDelegateId != delegate.id) {
+			// interests = null;
+
+			const url = new URL(window.location.href);
+			url.searchParams.set('delegate', delegate.id.toString());
+			pushState(url.toString(), { replaceState: true });
+
+		}
+	});*/
 </script>
 
 <!-- <div class="mx-auto px-10"> -->
@@ -288,7 +327,7 @@
 			<input
 				class="min-w-full"
 				bind:value={dayOffset}
-				on:change={onLettingGoOfDaySlider}
+				onchange={onLettingGoOfDaySlider}
 				type="range"
 				min="2"
 				max={maxDayOffset + 2}
@@ -305,7 +344,7 @@
 		</div>
 		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
 			{#if periods.length > 0 && delegates}
-				<AllBadges delsAtDate={structuredClone(delegates)} />
+				<AllBadges delsAtDate={structuredClone($state.snapshot(delegates))} />
 			{/if}
 		</div>
 		<!-- {#if delegates} -->
@@ -320,17 +359,22 @@
 		<div class="flex flex-wrap min-w-full justify-between">
 			<div class="rounded-xl w-full parliament-item bg-primary-300 dark:bg-primary-200">
 				<div class="px-5">
-					{#if supplyDate}
+					{#if supplyDate && finishedMounting}
 						<VoteParliament2
 							againstOpacity={1}
 							voteResult={null}
 							bind:delegate
-							bind:delegates
+							bind:syncDelegates
+							{delegates}
+							allSeats={data.cachedSeats}
 							gp={selectedPeriod}
 							{supplyDate}
 							orderingFactor={-1}
 							showGovs={true}
 							show3D
+							overrideDelegates
+							noSeats={!data.hasSeatInfo}
+							useOffset={data.hasSeatInfo}
 						/>
 					{/if}
 				</div>
@@ -397,11 +441,6 @@
 						interests={generalDelegateInfo.interests.slice(0, 8)}
 					/>
 				</span>
-				<!-- <div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
-
-					<h1 class="font-bold text-2xl mb-2">Top 4 Interessen</h1>
-					<InterestTiles bgColor={"bg-primary-300 dark:bg-primary-500"} squareColor={"dark:bg-primary-300 bg-primary-400"} interests={generalDelegateInfo.interests.slice(0, 4)} />
-				</div> -->
 			{/if}
 		{:else}
 			<ExpandablePlaceholder class={'my-3'} />

@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { groupPartyDelegates } from '$lib/parliaments/defaultParliament';
 	import type { Delegate, Vote } from '$lib/types';
-	import ExpandablePlaceholder from '../Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import BadgeList from './BadgeList.svelte';
 	import BadgePlaceholder from './BadgePlaceholder.svelte';
 

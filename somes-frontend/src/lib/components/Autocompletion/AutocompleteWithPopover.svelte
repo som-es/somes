@@ -15,7 +15,7 @@
 
 <Popover.Root>
     <Popover.Trigger>
-        {#snippet child({ props })}
+        <!-- {#snippet child({ props })}
             <input
                 {...props}
                 id="autocomplete-input" 
@@ -26,7 +26,7 @@
                 placeholder="Suchen..."
                 autocomplete="off"
             />
-        {/snippet}
+        {/snippet} -->
     </Popover.Trigger>
     <Popover.Portal>
         <Popover.Content class="w-full max-w-sm p-4 text-sm z-50 bg-white border border-gray-200 rounded-lg shadow-xl">

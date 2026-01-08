@@ -14,6 +14,7 @@
 	import AIChatModal from './AIChat/AIChatModal.svelte';
 	import { Dialog } from 'bits-ui';
 	import DelegateQAModal from './QA/DelegateQAModal.svelte';
+	import { resolve } from '$app/paths';
 
 	export let delegate: Delegate;
 	export let onlyTop: boolean = false;
@@ -29,7 +30,7 @@
 
 	const onShowDetails = () => {
 		currentDelegateStore.value = delegate;
-		gotoHistory(`/delegates`, true);
+		gotoHistory(resolve(`/delegates`), true);
 	};
 
 	let delegateFavos: Set<number> | null = null;
@@ -58,8 +59,6 @@
 
 		return Math.floor((utc2 - utc1) / _MS_PER_DAY);
 	}
-  	let aiChatModal = false;
-
 	$: personUrl = `https://parlament.gv.at/person/${delegate.id}?utm_source=somes.at`;
 </script>
 
@@ -173,10 +172,11 @@
 			{#if showAI}
 				<Dialog.Root>
 					<Dialog.Trigger>
-						<button
+						<div
 							class="btn sm:btn-lg bg-secondary-500 text-white preset-filled"
-							on:click={() => aiChatModal = true}>AI Chat
-						</button>
+						>
+							AI Chat
+						</div>
 					</Dialog.Trigger>
 					<Dialog.Portal>
 						<Dialog.Overlay

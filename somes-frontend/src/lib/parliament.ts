@@ -79,6 +79,11 @@ export function setDelOnBubble(
 	if (del.seat_row == null || del.seat_col == null) {
 		return;
 	}
+
+	if (!circles2d[del.seat_row - 1] || !circles2d[del.seat_row - 1][del.seat_col - 1]) {
+		return;
+	}
+	// console.log(circles2d[del.seat_row - 1][del.seat_col - 1]);
 	circles2d[del.seat_row - 1][del.seat_col - 1].del = del;
 	circles2d[del.seat_row - 1][del.seat_col - 1].title = '';
 	// circles2d[del.seat_row-1][del.seat_col-1].color = partyToColor(del.party);
@@ -102,7 +107,13 @@ export function enrichParliamentBubbles(
 		setDelOnBubble(del, bubbles, partyToColor);
 
 		if (del.seat_col != null && del.seat_row != null) {
-			setOpacity(bubbles[del.seat_row - 1][del.seat_col - 1]);
+			try {
+				setOpacity(bubbles[del.seat_row - 1][del.seat_col - 1]);
+			} catch (e) {
+				const x = bubbles[del.seat_row - 1];
+				console.error(x);
+				console.error("could not set opacity for delegate:", del);
+			}
 		}
 	});
 

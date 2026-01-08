@@ -83,9 +83,9 @@ import type { Day } from './types';
 								{#if week[i].item !== null}
 									<Popover.Root>
 										<Popover.Trigger>
-											<button class="day bg-tertiary-400" >
+											<div class="day bg-tertiary-400" >
 												{week[i].name}
-											</button>
+											</div>
 										</Popover.Trigger>
 										<Popover.Portal>
 											<Popover.Content

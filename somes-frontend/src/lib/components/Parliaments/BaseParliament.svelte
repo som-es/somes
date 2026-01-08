@@ -1,25 +1,32 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import type { Bubble } from '$lib/parliament';
 	import { onDestroy, onMount } from 'svelte';
-	import { string } from 'three/tsl';
 
-	export let circles2d: Bubble[][];
-	export let selected: Bubble | null;
-	export let preview: boolean = false;
-	export let select: (bubble: Bubble, event: MouseEvent | KeyboardEvent | null) => void;
-	export let forceColor: string | null = null;
+	let active = $state(false);
 
-	export let width = 830;
-	export let height = 900;
-
-	let active = false;
-
-	let clazz = '';
-	export { clazz as class };
-
-	$: if (circles2d && selected) {
+	interface Props {
+		circles2d: Bubble[][];
+		selected?: Bubble | null;
+		preview?: boolean;
+		select: (bubble: Bubble, event: MouseEvent | KeyboardEvent | null) => void;
+		forceColor?: string | null;
+		width?: number;
+		height?: number;
+		class?: string;
 	}
 
+	let {
+		circles2d,
+		selected = null,
+		preview = false,
+		select,
+		forceColor = null,
+		width = 830,
+		height = 900,
+		class: clazz = ''
+	}: Props = $props();
+	
 	function handleKey(e: KeyboardEvent) {
 		if (!active || preview || !circles2d.length) return;
 		if (!selected || !selected.del || !selected.del.seat_row || !selected.del.seat_col) return;
@@ -58,8 +65,10 @@
 	});
 
 	onDestroy(() => {
-		window.removeEventListener('keydown', handleKey);
-		window.removeEventListener('mousedown', deactivateOnOutsideClick);
+		if (browser) {
+			window.removeEventListener('keydown', handleKey);
+			window.removeEventListener('mousedown', deactivateOnOutsideClick);
+		}
 	});
 </script>
 
@@ -69,8 +78,8 @@
 		{height * 0.5 + 60}"
 		style="width: 100%;"
 		class="parliament-svg hover:cursor-default"
-		on:click={() => (active = true)}
-		on:keydown={() => (active = true)}
+		onclick={() => (active = true)}
+		onkeydown={() => (active = true)}
 		role="button"
 		tabindex="0"
 	>
@@ -82,11 +91,11 @@
 				cy={circle.y}
 				r={circle.r}
 				role="button"
-				on:click={(event) => {
+				onclick={(event) => {
 					if (preview) return;
 					select(circle, event);
 				}}
-				on:keypress={(event) => {
+				onkeypress={(event) => {
 					if (preview) return;
 					select(circle, event);
 				}}

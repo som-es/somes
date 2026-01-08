@@ -68,7 +68,7 @@
 	<div class="p-4 bg-primary-300 text-center  items-center text-lg font-bold flex justify-between">
 		<Popover.Root>
 			<Popover.Trigger openOnHover openDelay={100}>
-				<button class="text-4xl">⚠</button>
+				<span class="text-4xl">⚠</span>
 			</Popover.Trigger>
 			<Popover.Portal>
 				<Popover.Content

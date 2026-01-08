@@ -7,11 +7,12 @@ const govOfficialsAtDate: CircularBuffer<string, Delegate[]> = new CircularBuffe
 
 export async function cachedGovOfficials(
 	date: string,
-	refetch: boolean = false
+	refetch: boolean = false,
+	fetcher: typeof fetch = fetch
 ): Promise<Delegate[] | null> {
 	let dels = govOfficialsAtDate.findBy((e) => e == date);
 	if (dels == undefined || refetch || dels.length == 0) {
-		const fetchedDels = await gov_officials_at(date as unknown as Date);
+		const fetchedDels = await gov_officials_at(date, fetcher);
 		if (isHasError(fetchedDels)) return null;
 		govOfficialsAtDate.push(date, fetchedDels);
 		dels = fetchedDels;
@@ -19,8 +20,10 @@ export async function cachedGovOfficials(
 	return structuredClone(dels.slice());
 }
 
-export async function seatSettedCachedGovOfficials(date: string): Promise<Delegate[] | null> {
-	const dels: Delegate[] | null = await cachedGovOfficials(date);
+export async function seatSettedCachedGovOfficials(date: string, 
+	fetcher: typeof fetch = fetch
+): Promise<Delegate[] | null> {
+	const dels: Delegate[] | null = await cachedGovOfficials(date, false, fetcher);
 	if (dels == null) {
 		return null;
 	}

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import './layout.css';
 	import favicon from '$lib/assets/somes_logo.png';
+	import somesWithText from '$lib/assets/somes_with_text2.svg?raw';
 	import Sidebar from '$lib/components/Bars/Sidebar.svelte';
 
 	let { children } = $props();
@@ -20,7 +21,7 @@
 			<Sidebar  />
 		</aside>
 		<!-- Main Content -->
-		<main>
+		<main class="mb-35">
 			{@render children()}
 		</main>
 	</div>
@@ -28,7 +29,21 @@
 		<div class=" sm:hidden! max-h-18">
 			<!-- <Bottombar /> -->
 		</div>
-  </footer>
+  	</footer>
+	<footer class="bg-primary-600 text-white p-7 flex items-center justify-between flex-wrap">
+		<div class="flex gap-10">
+			<span class="stroke-white fill-white">
+				{@html somesWithText}
+			</span>
+			<!-- <img src="https://www.netidee.at/sites/default/files/2016-12/netidee-Logo-HiRes300dpi-Projekte-Standard.jpg" alt="Netidee Logo" class="h-8" /> -->
+		</div>
+		<div class="flex flex-wrap gap-4">
+			<span>Verein</span>
+			<span>Netidee</span>
+			<span>Impressum</span>
+			<span>Datenschutz</span>
+		</div>
+	</footer>
 </div>
 <style>
 </style>

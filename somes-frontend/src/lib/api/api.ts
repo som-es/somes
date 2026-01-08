@@ -73,7 +73,7 @@ export async function fetchSavely<T>(fn: () => Promise<Response>): Promise<T | H
 		return json;
 	} catch (error) {
 		console.log(`error: ${error}, response: ${response?.url}`);
-		return { error: 'Error fetching data', error_type: 'FetchError', field: '', meta: null };
+		return { error: 'Error data', error_type: 'FetchError', field: '', meta: null };
 	}
 }
 
@@ -92,9 +92,9 @@ export async function justPostStatistics<T>(route: string, body: any): Promise<T
 	return justPost(`v1/statistics/${route}`, body);
 }
 
-export async function getWithRoute<T>(route: string, country = 'at/'): Promise<T | HasError> {
+export async function getWithRoute<T>(route: string, country = 'at/', fetcher: typeof fetch = fetch): Promise<T | HasError> {
 	return fetchSavely(() =>
-		fetch(`${url}${country}${route}`, {
+		fetcher(`${url}${country}${route}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'
@@ -133,8 +133,8 @@ export async function all_gps(): Promise<LegisPeriod[] | HasError> {
 	return getWithRoute<LegisPeriod[]>('all_gps');
 }
 
-export async function delegate_by_id(delegate_id: number): Promise<Delegate | HasError> {
-	return getWithRoute<Delegate>(`v1/delegates/id/${delegate_id}`);
+export async function delegate_by_id(delegate_id: number, fetcher: typeof fetch = fetch): Promise<Delegate | HasError> {
+	return getWithRoute<Delegate>(`v1/delegates/id/${delegate_id}`, 'at/', fetcher);
 }
 
 export async function delegate_interests(delegate_id: number): Promise<InterestShare[] | HasError> {
@@ -158,17 +158,24 @@ export async function vote_result_by_id(vote_result_id: string): Promise<VoteRes
 export async function vote_result_by_path(
 	gp: string,
 	ityp: string,
-	inr: string
+	inr: string,
+	fetcher: typeof fetch = fetch
 ): Promise<VoteResult | HasError> {
-	return getWithRoute<VoteResult>(`v1/vote_results/${gp}/${ityp}/${inr}`);
+	return getWithRoute<VoteResult>(`v1/vote_results/${gp}/${ityp}/${inr}`, "at/", fetcher);
 }
 
-export async function delegates_at(date_at: string): Promise<Delegate[] | HasError> {
-	return getWithRoute(`v1/delegates/all_at_date?at=${date_at}`);
+export async function delegates_at(
+	date_at: string,
+	fetcher: typeof fetch = fetch
+): Promise<Delegate[] | HasError> {
+	return getWithRoute(`v1/delegates/all_at_date?at=${date_at}`, "at/", fetcher);
 }
 
-export async function gov_officials_at(date_at: string): Promise<Delegate[] | HasError> {
-	return getWithRoute(`v1/delegates/gov_officials/all_at_date?at=${date_at}`);
+export async function gov_officials_at(
+	date_at: string,
+	fetcher: typeof fetch = fetch
+): Promise<Delegate[] | HasError> {
+	return getWithRoute(`v1/delegates/gov_officials/all_at_date?at=${date_at}`, "at/", fetcher);
 }
 
 export async function gov_proposals_by_official(
@@ -200,10 +207,11 @@ export async function speeches_by_delegate_per_page(
 
 export async function delegates_with_seats_near_date(
 	date_at: Date,
-	gp: string
+	gp: string,
+	fetcher: typeof fetch = fetch
 ): Promise<Delegate[] | HasError> {
 	return getWithRoute<Delegate[]>(
-		`v1/delegates/all_at_date_with_seat_info?at=${date_at}&period=${gp}`
+		`v1/delegates/all_at_date_with_seat_info?at=${date_at}&period=${gp}`, "at/", fetcher
 	);
 }
 

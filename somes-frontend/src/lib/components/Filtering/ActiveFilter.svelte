@@ -2,7 +2,7 @@
 	export let filter;
 </script>
 
-{#if filter.filterObj !== undefined}
+{#if filter.filterObj !== undefined && filter.filterObj !== ""}
 	<button
 		class="badge p-3 bg-secondary-400 text-black cursor-pointer"
 		on:click={() => (filter.filterObj = undefined)}
