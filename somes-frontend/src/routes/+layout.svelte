@@ -3,8 +3,18 @@
 	import favicon from '$lib/assets/somes_logo.png';
 	import somesWithText from '$lib/assets/somes_with_text2.svg?raw';
 	import Sidebar from '$lib/components/Bars/Sidebar.svelte';
+	import { onMount } from 'svelte';
 
 	let { children } = $props();
+	
+
+	onMount(() => {
+		document.documentElement.classList.toggle(
+		"dark",
+		localStorage.theme === "dark" ||
+			(!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches),
+	);
+	});
 </script>
 
 <svelte:head>

@@ -12,6 +12,7 @@
 	import VoteParliament2 from '../Parliaments/VoteParliament2.svelte';
 	import { mockDelegatesNoColor, mockVoteResult } from '$lib/parliaments/mock';
 	import { getSeats } from '$lib/caching/seats';
+	import LightSwitch from '../UI/LightSwitch.svelte';
 
 	$effect(() => {
 		activeUrl = page.url.pathname;
@@ -155,6 +156,7 @@
     </a>
 
     <div class="flex flex-col mt-auto mb-4 gap-3">
+        <LightSwitch />
         <!-- <DarkMode class="text-primary-500 dark:text-primary-600 border dark:border-gray-800 hover:bg-primary-800" /> -->
         <a 
             href="{resolve("/user")}" 

@@ -6,7 +6,6 @@
 	import type { Delegate, Vote, VoteResult } from '$lib/types';
 	import Square from '$lib/components/UI/Square.svelte';
 	import { dashDateToDotDate } from '$lib/date';
-	import { get } from 'svelte/store';
 
 	export let voteResult: VoteResult;
 	export let dels: Delegate[];
@@ -34,7 +33,7 @@
 		? 'var(--color-primary-600)'
 		: 'var(--color-primary-800)';
 
-	const REACHED_COLOR = 'rgb(var(--color-secondary-300))';
+	const REACHED_COLOR = 'var(--color-secondary-300)';
 
 	let conicStopsSimpleMajority: ConicStop[] = [
 		{ color: 'rgb(var(--color-secondary-400))', start: 0, end: 180 },
