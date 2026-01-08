@@ -1,19 +1,17 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-
-	let currentMode = $state('light');
+	import { lightModeStore } from "$lib/lightmode.svelte";
 
 	$effect(() => {
 		const wantsDark =
-			localStorage.getItem('theme') === 'dark' ||
+			lightModeStore.value === 'dark' ||
 			(!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
 		if (wantsDark) {
-			currentMode = 'dark';
+			lightModeStore.value = 'dark';
 		} else {
-			currentMode = 'light';
+			lightModeStore.value = 'light';
 		}
-		document.documentElement.classList.toggle('dark', currentMode == 'dark' || wantsDark);
+		document.documentElement.classList.toggle('dark', lightModeStore.value == 'dark' || wantsDark);
 	});
 </script>
 
@@ -25,13 +23,13 @@
 	aria-checked="false"
 	title="Toggle Dark Mode"
 	onclick={() => {
-		currentMode = currentMode == 'light' ? 'dark' : 'light';
-		localStorage.setItem('theme', currentMode);
+		lightModeStore.value = lightModeStore.value == 'light' ? 'dark' : 'light';
+		localStorage.setItem('theme', lightModeStore.value);
 	}}
 	class="rounded-input hover:bg-dark-10 focus-visible:ring-foreground focus-visible:ring-offset-background relative inline-flex h-10 w-10 cursor-pointer items-center justify-center px-2 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden"
 	><!--[!-->
 	<div class="absolute inline-flex h-full w-full items-center justify-center">
-		{#if currentMode == 'dark'}
+		{#if lightModeStore.value == 'dark'}
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				width="1em"

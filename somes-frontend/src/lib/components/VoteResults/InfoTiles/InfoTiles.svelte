@@ -6,65 +6,62 @@
 	import type { Delegate, Vote, VoteResult } from '$lib/types';
 	import Square from '$lib/components/UI/Square.svelte';
 	import { dashDateToDotDate } from '$lib/date';
+	import { lightModeStore } from '$lib/lightmode.svelte';
 
-	export let voteResult: VoteResult;
-	export let dels: Delegate[];
-	export let squareSize = '140px';
-	export let squareClasses = '';
-	export let isCenter: boolean = false;
-	export let showRequiredMajority = true;
-	export let showDate = true;
-	export let showAchievedVotes = true;
-	export let showAccepted = true;
-	export let showText = true;
+	interface Props {
+		voteResult: VoteResult;
+		dels: Delegate[];
+		squareSize?: string;
+		squareClasses?: string;
+		isCenter?: boolean;
+		showRequiredMajority?: boolean;
+		showDate?: boolean;
+		showAchievedVotes?: boolean;
+		showAccepted?: boolean;
+		showText?: boolean;
+	}
+
+	let {
+		voteResult,
+		dels,
+		squareSize = '140px',
+		squareClasses = '',
+		isCenter = false,
+		showRequiredMajority = $bindable(true),
+		showDate = $bindable(true),
+		showAchievedVotes = true,
+		showAccepted = $bindable(true),
+		showText = true
+	}: Props = $props();
 
 	showDate = false
 	showRequiredMajority = false
 	showDate = false
 	showAccepted = false
 
+	let isLightMode = $derived(lightModeStore.value === 'light');
+
 	interface ConicStop {
 		color: string;
 		start: number;
 		end: number;
 	}
-
-	$: NOT_REACHED_COLOR = isLightMode
+	let NOT_REACHED_COLOR = $derived(isLightMode
 		? 'var(--color-primary-600)'
-		: 'var(--color-primary-800)';
+		: 'var(--color-primary-800)');
 
 	const REACHED_COLOR = 'var(--color-secondary-300)';
 
-	let conicStopsSimpleMajority: ConicStop[] = [
+	let conicStopsSimpleMajority: ConicStop[] = $derived([
 		{ color: 'rgb(var(--color-secondary-400))', start: 0, end: 180 },
 		{ color: NOT_REACHED_COLOR, start: 180, end: 360 }
-	];
+	]);
 
-	let conicStopsOtherMajority: ConicStop[] = [
+	let conicStopsOtherMajority: ConicStop[] = $derived([
 		{ color: 'rgb(var(--color-secondary-400))', start: 0, end: 240 },
 		{ color: NOT_REACHED_COLOR, start: 240, end: 360 }
-	];
+	]);
 
-	$: conicsStopsAchievedVotes = generateConicStopsForAchievedVotes();
-
-	let isLightMode = true;
-
-	$: {
-		isLightMode = true;
-		NOT_REACHED_COLOR =isLightMode 
-			? 'rgb(var(--color-primary-600))'
-			: 'rgb(var(--color-primary-800))';
-		conicStopsOtherMajority = [
-			{ color: 'rgb(var(--color-secondary-400))', start: 0, end: 240 },
-			{ color: NOT_REACHED_COLOR, start: 240, end: 360 }
-		];
-		conicStopsSimpleMajority = [
-			{ color: 'rgb(var(--color-secondary-400))', start: 0, end: 180 },
-			{ color: NOT_REACHED_COLOR, start: 180, end: 360 }
-		];
-		voteResult;
-		conicsStopsAchievedVotes = generateConicStopsForAchievedVotes();
-	}
 	function generateConicStopsWithVoteForAchiedVotesWithVoteSum(
 		votes: Vote[],
 		voteSum: number
@@ -117,6 +114,8 @@
 
 		return generateConicStopsWithVoteForAchiedVotesWithVoteSum(votes, voteSum);
 	}
+
+	let conicsStopsAchievedVotes = $derived(generateConicStopsForAchievedVotes());
 </script>
 
 <div class="flex flex-wrap {isCenter ? 'justify-center' : ''} info-item gap-3">
