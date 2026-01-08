@@ -31,8 +31,8 @@
 	}
 
 	$: NOT_REACHED_COLOR = isLightMode
-		? 'rgb(var(--color-primary-600))'
-		: 'rgb(var(--color-primary-800))';
+		? 'var(--color-primary-600)'
+		: 'var(--color-primary-800)';
 
 	const REACHED_COLOR = 'rgb(var(--color-secondary-300))';
 

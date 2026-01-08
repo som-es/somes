@@ -118,10 +118,10 @@
 	});
 
 	let inputValue = $derived(maybeCurrentDelegateFilter.search_value ?? '');
-	let dayOffset = $derived(maybeCurrentDelegateFilter.day_offset ?? maxDayOffset);
+	let dayOffset = $state(maybeCurrentDelegateFilter.day_offset ?? maxDayOffset);
 
 	let selectedPeriod = $derived(maybeCurrentDelegateFilter.legis_period ?? 'XXVIII');
-	let prevSelectedPeriod = $derived(maybeCurrentDelegateFilter.legis_period ?? 'XXVIII');
+	let prevSelectedPeriod = $state(maybeCurrentDelegateFilter.legis_period ?? 'XXVIII');
 
 	let autocompleteOptions: AutocompleteOption<string>[] = $derived(convertDelegatesToAutocompleteOptions(delegates));
 
@@ -197,7 +197,7 @@
 		}
 		maybeCurrentDelegateFilter.day_offset = dayOffset;
 		currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
-		startDate.setDate(startDate.getDate() + dayOffset);
+		startDate.setDate(startDate.getDate() + dayOffset-1);
 
 		supplyDate = startDate;
 
@@ -205,13 +205,14 @@
 		const previousDate = url.searchParams.get('date');
 		const previousPeriod = url.searchParams.get('gp');
 		
+		startDate.setDate(startDate.getDate());
 		if (previousDate === toActualDateString(supplyDate) && previousPeriod === selectedPeriod) {
 			return;
 		}
 
 		url.searchParams.set('date', toActualDateString(supplyDate));
 		url.searchParams.set('gp', selectedPeriod);
-		goto(url.toString());
+		goto(url.toString(), { noScroll: true });
 	};
 
 	const onLettingGoOfDaySlider = () => {

@@ -1,24 +1,27 @@
 <script lang="ts">
-	import { afterUpdate } from 'svelte';
+	interface Props {
+		stops?: any;
+		isLightMode?: boolean;
+		mark50?: boolean;
+		mark66?: boolean;
+	}
 
-
-	export let stops = [{ color: 'red', start: 0, end: 360 }];
-	export let isLightMode: boolean = true;
-	export let mark50 = false;
-	export let mark66 = false;
+	let {
+		stops = [{ color: 'red', start: 0, end: 360 }],
+		isLightMode = true,
+		mark50 = false,
+		mark66 = false
+	}: Props = $props();
 
 	function setColorValue(color: any): string {
 		return color;
 	}
-	let cone: string;
-
-	function genConicGradient(): void {
-		let d: any = stops.map((v) => `${setColorValue(v.color)} ${v.start}deg ${v.end}deg`);
-		cone = `conic-gradient(${d.join(', ')})`;
-	}
-	afterUpdate(() => {
-		genConicGradient();
+	let cone: string | undefined = $derived.by(() => {
+		const cssStops = stops.map((v: any) => `${setColorValue(v.color)} ${v.start}deg ${v.end}deg`);
+		const conicGradient = `conic-gradient(${cssStops.join(', ')})`;
+		return conicGradient;
 	});
+
 </script>
 
 {#if cone}
@@ -36,11 +39,11 @@
 {/if}
 
 <style>
-.wrapper {
-	position: relative;
-	width: 60px;
-	height: 60px;
-}
+	.wrapper {
+		position: relative;
+		width: 60px;
+		height: 60px;
+	}
 	.donut::before {
 		content: '';
 		min-height: 40px;
@@ -48,13 +51,13 @@
 		width: 40px;
 		height: 40px;
 		border-radius: 50%;
-		/* background: rgb(var(--bg-primary-300)); */
-		background: rgb(var(--color-primary-300));
-		z-index: 10;
+		/* background: green; */
+		background: var(--color-primary-300);
+		z-index: 100;
 	}
 
 	.dark-donut::before {
-		background: rgb(var(--color-primary-500));
+		background: var(--color-primary-500);
 	}
 
 	.donut {
@@ -79,7 +82,7 @@
 		height: 30%;           /* radius length */
 		background: black;
 		transform-origin: bottom center;
-		z-index: 20;
+		z-index: 100;
 	}
 
 	.mark-50 {
@@ -94,7 +97,7 @@
 		height: 30%;           /* radius length */
 		background: black;
 		transform-origin: bottom center;
-		z-index: 20;
+		z-index: 100;
 		transform: rotate(90deg) translateY(0%);
 	}
 	
