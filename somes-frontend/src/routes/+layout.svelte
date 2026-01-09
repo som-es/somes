@@ -45,9 +45,9 @@
 		<div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-5">
 			<div class="col-span-1 md:col-span-2 mb-4">
 				<!-- <span class="text-2xl font-bold text-white block mb-4">somes.at</span> -->
-				<span class="stroke-white fill-white">
+				<div class="stroke-white fill-white w-72">
 					{@html somesWithText}
-				</span>
+				</div>
 				<p class="text-sm max-w-xs mt-2">
 					Parteiübergreifend machen wir Demokratie transparent, verständlich und zugänglich.
 				</p>

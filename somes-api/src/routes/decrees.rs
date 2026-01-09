@@ -8,7 +8,7 @@ use axum::{
 use dataservice::combx::OptionalDecree;
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::{DecreeFilter, Document, Page, LIVE, SEARCH};
+use somes_common_lib::{DecreeFilter, Document, LATEST, LIVE, Page, SEARCH};
 use utoipa::ToSchema;
 
 use crate::{
@@ -23,6 +23,7 @@ pub fn create_decrees_router() -> Router<AppState> {
     Router::new()
         .route(SEARCH, post(decrees_by_search_route))
         .route(LIVE, post(decrees_per_page_route))
+        .route(LATEST, get(latest_decrees_route))
         .route("/ris_id/{ris_id}", get(decree_by_ris_id_route))
 }
 

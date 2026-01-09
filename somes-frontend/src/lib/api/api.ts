@@ -125,8 +125,8 @@ export async function delegates(): Promise<Delegate[] | HasError> {
 	return getWithRoute<Delegate[]>('v1/delegates/all_active');
 }
 
-export async function latest_vote_results(): Promise<VoteResult[] | HasError> {
-	return getWithRoute<VoteResult[]>('v1/vote_results/latest');
+export async function latest_vote_results(fetcher: typeof fetch = fetch): Promise<VoteResult[] | HasError> {
+	return getWithRoute<VoteResult[]>('v1/vote_results/latest', "at/", fetcher);
 }
 
 export async function all_gps(): Promise<LegisPeriod[] | HasError> {
@@ -191,9 +191,10 @@ export async function general_gov_official_info(
 }
 
 export async function latest_ministrial_proposals(
-	days: number
+	days: number,
+	fetcher: typeof fetch = fetch
 ): Promise<GovProposalDelegate[] | HasError> {
-	return getWithRoute(`v1/gov_proposals/latest?days=${days}`);
+	return getWithRoute(`v1/gov_proposals/latest?days=${days}`, "at/", fetcher);
 }
 
 export async function speeches_by_delegate_per_page(

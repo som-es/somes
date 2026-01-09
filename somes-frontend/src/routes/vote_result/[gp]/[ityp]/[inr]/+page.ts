@@ -1,8 +1,7 @@
-import { errorToNull, isHasError } from '$lib/api/api';
+import { isHasError } from '$lib/api/api';
 import { vote_result_by_path } from '$lib/api/api';
 import { fetchDelegates } from '$lib/api/fetch_delegates';
 import { cachedAllSeats } from '$lib/caching/seats';
-import { currentVoteResultStore } from '$lib/stores/stores';
 import type { Delegate} from '$lib/types';
 import type { PageLoad } from './$types';
 
