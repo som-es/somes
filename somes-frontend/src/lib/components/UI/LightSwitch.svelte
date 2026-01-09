@@ -26,7 +26,7 @@
 		lightModeStore.value = lightModeStore.value == 'light' ? 'dark' : 'light';
 		localStorage.setItem('theme', lightModeStore.value);
 	}}
-	class="rounded-input hover:bg-dark-10 focus-visible:ring-foreground focus-visible:ring-offset-background relative inline-flex h-10 w-10 cursor-pointer items-center justify-center px-2 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden"
+	class="rounded-input hover:bg-primary-600 rounded-xl focus-visible:ring-foreground focus-visible:ring-offset-background relative inline-flex h-10 w-10 cursor-pointer items-center justify-center px-2 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden"
 	><!--[!-->
 	<div class="absolute inline-flex h-full w-full items-center justify-center">
 		{#if lightModeStore.value == 'dark'}
