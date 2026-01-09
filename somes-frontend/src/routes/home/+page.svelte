@@ -75,11 +75,11 @@
 	{#if userVoteResults && dels}
 		<h2 class="text-xl sm:text-3xl font-bold">nach Interesse</h2>
 
-		<VoteResults {dels} voteResults={userVoteResults} />
+		<VoteResults {dels} allSeats={data.allSeats} voteResults={userVoteResults} />
 		<!-- {:else if use} -->
 	{/if}
 	{#if voteResults && dels}
-		<VoteResults {dels} {voteResults} showHistory />
+		<VoteResults {dels} allSeats={data.allSeats} {voteResults} showHistory />
 	{:else}
 		<section class="card w-full animate-pulse">
 			<div class="p-4 space-y-4">

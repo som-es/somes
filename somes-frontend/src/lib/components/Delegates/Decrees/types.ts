@@ -1,8 +1,8 @@
 import type { Delegate, Document } from '$lib/types';
 
 export interface DecreeDelegate {
-	delegate: Delegate | null;
-	decree: Decree | null;
+	delegate: Delegate;
+	decree: Decree;
 }
 
 export interface Decree {

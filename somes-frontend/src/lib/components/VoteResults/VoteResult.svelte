@@ -24,9 +24,12 @@
 				showGovs
 				{voteResult}
 				{allSeats}
+				delegates={dels}
+				overrideDelegates
 				noSeats={false}
 				useOffset={true}
-				show3D
+				preview
+				enforceSvg
 			/>
 		</div>
 		<div class="mx-3 my-1 text-left">

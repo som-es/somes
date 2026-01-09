@@ -16,8 +16,8 @@
 </script>
 
 <Popover.Root>
-    <Popover.Trigger class="text-3xl" title={titleHover}>⚠</Popover.Trigger>
-    <Popover.Content class="z-50! card p-4 w-72 shadow-xl" data-popup="emphasisAi">
+    <Popover.Trigger openOnHover openDelay={100} class="text-3xl" title={titleHover}>⚠</Popover.Trigger>
+    <Popover.Content class="z-50! card bg-primary-300-700 p-4 w-72 shadow-xl" data-popup="emphasisAi">
         <div class="z-50 font-bold text-base">{aiGenText}</div>
         <div class="flex flex-col flex-wrap text-sm! font-thin!">
             <span>Generiert am: {generatedAtDate.toLocaleDateString()} {generatedAtDate.toLocaleTimeString()}</span>

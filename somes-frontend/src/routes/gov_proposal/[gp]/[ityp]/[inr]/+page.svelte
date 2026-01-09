@@ -1,64 +1,71 @@
 <script lang="ts">
-	import { page } from '$app/stores';
 	import { errorToNull } from '$lib/api/api';
 	import Container from '$lib/components/Layout/Container.svelte';
-	import { gov_proposal_by_path } from '$lib/components/Proposals/api';
-	import GovProposalView from '$lib/components/Proposals/GovProposalView.svelte';
+	import MinisterialView from '$lib/components/MinisterialView/MinisterialView.svelte';
+	import type { MinisterialViewData } from '$lib/components/MinisterialView/types';
+	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
-	import { currentGovProposalDelegateStore, hasGoBackStore } from '$lib/stores/stores';
+	import { hasGoBackStore } from '$lib/stores/stores';
 	import type { GovProposalDelegate } from '$lib/types';
-	import { onMount } from 'svelte';
-	import { get } from 'svelte/store';
+	import type { PageProps } from './$types';
 
-	let govProposalDelegate: GovProposalDelegate | null = null;
-	let currentlyUpdating = false;
+	let { data }: PageProps = $props();
 
-	$: gp = $page.params.gp;
-	$: inr = $page.params.inr;
-
-	const loadGovProposal = async () => {
-		currentlyUpdating = true;
-		govProposalDelegate = errorToNull(await gov_proposal_by_path(gp, inr));
-		currentGovProposalDelegateStore.set(govProposalDelegate);
-		currentlyUpdating = false;
-	};
-
-	const runGovProposalUpdate = () => {
-		govProposalDelegate = get(currentGovProposalDelegateStore);
-		const storedGp = govProposalDelegate?.gov_proposal.ministrial_proposal?.gp;
-		const storedInr = govProposalDelegate?.gov_proposal.ministrial_proposal?.inr?.toString();
-		if (gp != storedGp || inr != storedInr) {
-			loadGovProposal();
-		}
-	};
-
-	onMount(runGovProposalUpdate);
+	let govProposalDelegate: GovProposalDelegate | null = $derived(errorToNull(data.govProposal));
 
 	const goBack = () => {
 		history.back();
 	};
+
+	let ministerialData: MinisterialViewData | null = $derived.by(() => {
+		if (govProposalDelegate == null) return null;
+		return {
+			aiSummary: govProposalDelegate.gov_proposal.ai_summary,
+			alternativeTitle: govProposalDelegate.gov_proposal.ministrial_proposal.description,
+			date: govProposalDelegate.gov_proposal.ministrial_proposal.raw_data_created_at,
+			originalDocumentUrl: `https://parlament.gv.at/gegenstand/${govProposalDelegate.gov_proposal.ministrial_proposal.gp}/ME/${govProposalDelegate.gov_proposal.ministrial_proposal.inr}`,
+			documents: govProposalDelegate.gov_proposal.documents,
+			topics: govProposalDelegate.gov_proposal.topics,
+			otherKeywordTopics: govProposalDelegate.gov_proposal.other_keyword_topics,
+			eurovocTopics: govProposalDelegate.gov_proposal.eurovoc_topics,
+			delegate: govProposalDelegate.delegate,
+			ressort: govProposalDelegate.gov_proposal.ministrial_proposal.ressort,
+			ressortShortform: govProposalDelegate.gov_proposal.ministrial_proposal.ressort_shortform,
+			ministerialIssuers: govProposalDelegate.gov_proposal.ministerial_issuers,
+			type: "gov_proposal",
+			infoBadges: [
+				govProposalDelegate.gov_proposal.ministrial_proposal.ressort,
+				new Date(
+					govProposalDelegate.gov_proposal.ministrial_proposal.raw_data_created_at
+				).toLocaleDateString(),
+				govProposalDelegate.gov_proposal.ministrial_proposal.gp
+			].filter((x) => x !== null) as string[]
+		};
+	});
 </script>
 
 <svelte:head>
-    <title>Ministerialentwurf</title>
-    <meta name="description" content="Spezifischer Ministerialentwurf" />
+	<title>Ministerialentwurf</title>
+	<meta name="description" content="Spezifischer Ministerialentwurf" />
 </svelte:head>
 
 <Container>
-	{#if currentlyUpdating}
-		<!-- <CenterPrograssRadial /> -->
-	{:else}
-		{#if get(hasGoBackStore)}
-			<SButton class="bg-primary-500" on:click={goBack}>Zurück</SButton>
-		{/if}
+	{#if hasGoBackStore.value}
+		<SButton class="bg-primary-500" on:click={goBack}>Zurück</SButton>
+	{/if}
 
-		{#if govProposalDelegate}
-			<GovProposalView govProposal={govProposalDelegate} />
-		{:else}
-			{#each { length: 10 } as _}
-				<ExpandablePlaceholder />
-			{/each}
-		{/if}
+	{#if ministerialData && govProposalDelegate}
+		<MinisterialView ministerialData={ministerialData}>
+			<!-- <div class="">
+				{#if govProposalDelegate.gov_proposal.vote_result}
+					<VoteParliament2 voteResult={govProposalDelegate.gov_proposal.vote_result} />
+				{/if}
+			</div> -->
+		</MinisterialView>
+	{:else}
+		{#each { length: 10 } as _}
+			<ExpandablePlaceholder />
+		{/each}
 	{/if}
 </Container>

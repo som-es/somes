@@ -516,7 +516,7 @@
 				Engagiere dich
 			</h2>
 			<h3 class="font-heading text-4xl font-bold text-surface-900 dark:text-surface-50">
-				Events & Diskussionen
+				Events
 			</h3>
 		</div>
 

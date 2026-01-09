@@ -1,28 +1,30 @@
 <script lang="ts">
 	import Documents from '$lib/components/Documents/Documents.svelte';
 	import Emphasis from '$lib/components/VoteResults/Emphasis/Emphasis.svelte';
-	import { dashDateToDotDate } from '$lib/date';
-	import type { GovProposalDelegate } from '$lib/types';
-	import { split } from 'postcss/lib/list';
+	import type { Snippet } from 'svelte';
 	import AiSummaryHintPopup from '../AiHint/AiSummaryHintPopup.svelte';
 	import DelegateCard from '../Delegates/DelegateCard.svelte';
 	import Topics from '../Topics/Topics.svelte';
 	import GlossaryText from '../UI/GlossaryText.svelte';
 	import InfoBadgesCustom from '../VoteResults/InfoTiles/InfoBadgesCustom.svelte';
+	import type { MinisterialViewData } from './types';
 
-	export let govProposal: GovProposalDelegate;
+	interface Props {
+		ministerialData: MinisterialViewData;
+		children?: Snippet
+	}
 
-	$: aiSummary = govProposal.gov_proposal.ai_summary;
+	let { ministerialData, children }: Props = $props();
 
-	$: documentUrl = `https://parlament.gv.at/gegenstand/${govProposal.gov_proposal.ministrial_proposal.gp}/ME/${govProposal.gov_proposal.ministrial_proposal.inr}`;
-	$: date = new Date(govProposal.gov_proposal.ministrial_proposal.raw_data_created_at).toLocaleDateString();
+	let aiSummary = $derived(ministerialData.aiSummary);
+	let date = $derived(new Date(ministerialData.date).toLocaleDateString());
 </script>
 
 <title>
-	{#if govProposal.gov_proposal.ai_summary}
-		{govProposal.gov_proposal.ai_summary.short_title}
+	{#if ministerialData.aiSummary}
+		{ministerialData.aiSummary.short_title}
 	{:else}
-		{govProposal.gov_proposal.ministrial_proposal.description}
+		{ministerialData.alternativeTitle}
 	{/if}
 </title>
 
@@ -42,17 +44,17 @@
 								</span>
 							{:else}
 								<span class="text-3xl font-bold ">
-									{govProposal.gov_proposal.ministrial_proposal.description}
+									{ministerialData.alternativeTitle}
 								</span>
 							{/if}	
 						</span>
 						<span class="text-sm opacity-90">
-							Ministerialentwurf vom
+							{ministerialData.type == "decree" ? "Verordnung" : "Ministerialentwurf"} vom {date}
 						</span>
 					</div>
 					
 				</div>
-				<a href={documentUrl} target="_blank">
+				<a href={ministerialData.originalDocumentUrl} target="_blank">
 					<img
 						class="w-28"
 						alt="parlament.gv.at favicon"
@@ -62,18 +64,16 @@
 			</div>
 			<div class="flex flex-wrap justify-between items-center gap-3 w-full border-t border-black/5 dark:border-white/5 pt-1 ">
 				<div class="shrink-0">
-					<InfoBadgesCustom texts={
-						[govProposal.gov_proposal.ministrial_proposal.ressort, 
-						date, govProposal.gov_proposal.ministrial_proposal.gp]} />
+					<InfoBadgesCustom texts={ministerialData.infoBadges} />
 				</div>
 				
 				<div class="flex-1 flex justify-end">
-					{#if aiSummary && govProposal.gov_proposal.eurovoc_topics.length == 0}
+					{#if aiSummary && ministerialData.eurovocTopics.length == 0}
 						<Topics topics={aiSummary.full_summary.topics.sort((a, b) => {
 								return a.length - b.length;
 							}).map(topic => {return {topic}})} />
 					{:else}
-						<Topics topics={govProposal.gov_proposal.eurovoc_topics.sort((a, b) => {
+						<Topics topics={ministerialData.eurovocTopics.sort((a, b) => {
 								return a.topic.length - b.topic.length;
 							})} />
 					{/if}
@@ -81,30 +81,33 @@
 			</div>
 		</div>
 
-		{#if govProposal.gov_proposal.ai_summary}
+		{#if ministerialData.aiSummary}
 			<div class="emphasis-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 pt-3 pb-3">
 				<h1 class="font-bold text-lg md:text-xl">Zusammenfassung</h1>
 				<span class="text-sm lg:text-base">
-					<GlossaryText text={govProposal.gov_proposal.ai_summary.short_summary} glossary={govProposal.gov_proposal.ai_summary.full_summary.glossary} />
+					<GlossaryText text={ministerialData.aiSummary.short_summary} glossary={ministerialData.aiSummary.full_summary.glossary} />
 				</span>
 			</div>
 			<Emphasis 
-				emphasis={govProposal.gov_proposal.ai_summary.full_summary.key_points} 
-				glossary={govProposal.gov_proposal.ai_summary.full_summary.glossary} 
+				emphasis={ministerialData.aiSummary.full_summary.key_points} 
+				glossary={ministerialData.aiSummary.full_summary.glossary} 
 			/>
 		{/if}
 		<div class="flex flex-wrap gap-2 w-full">
-			{#if govProposal.gov_proposal.documents.length > 0}
+			{#if ministerialData.documents.length > 0}
 				<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
-					<Documents documents={govProposal.gov_proposal.documents} />
+					<Documents documents={ministerialData.documents} />
 				</div>
 			{/if}
 		</div>
+		{#if children}
+			{@render children()}
+		{/if}
 	</div>
 
 	<div class="rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
-		<DelegateCard delegate={govProposal.delegate} />
-	</div>
+		<DelegateCard delegate={ministerialData.delegate} />
+	</div>	
 </div>
 
 <style>

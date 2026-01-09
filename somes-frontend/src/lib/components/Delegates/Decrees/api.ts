@@ -17,6 +17,7 @@ export async function decrees_by_search(
 	return justPost(`v1/decrees/search?page=${page}&search=${search}`, filter);
 }
 
-export async function decree_by_ris_id(ris_id: string): Promise<Decree | HasError> {
-	return getWithRoute<Decree>(`v1/decrees/ris_id/${ris_id}`);
+export async function decree_by_ris_id(ris_id: string, fetcher: typeof fetch = fetch
+): Promise<Decree | HasError> {
+	return getWithRoute<Decree>(`v1/decrees/ris_id/${ris_id}`, "at/", fetcher);
 }

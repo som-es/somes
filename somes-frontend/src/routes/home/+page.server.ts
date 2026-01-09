@@ -47,6 +47,7 @@ export const load: PageServerLoad = async ({ fetch, setHeaders }) => {
         latestVotes,
         latestMinisterialProposals,
         latestDecrees,
-        delegates
+        delegates,
+        allSeats
     };
 }
