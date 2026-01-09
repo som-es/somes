@@ -2,12 +2,13 @@ import { seatsStore } from './stores/stores.svelte';
 import { isHasError, seats } from '$lib/api/api';
 
 export async function cachedAllSeats(
-	refetch: boolean = false
+	refetch: boolean = false,
+	fetcher: typeof fetch = fetch
 ): Promise<Map<string, number[]> | null> {
 	let maybeCached = seatsStore.value;
 
 	if (maybeCached == null || refetch || maybeCached.length == 0) {
-		const fetched = await seats();
+		const fetched = await seats(fetcher);
 		if (!isHasError(fetched)) {
 			const colorsArray = Array.from(fetched.entries());
 			maybeCached = colorsArray;

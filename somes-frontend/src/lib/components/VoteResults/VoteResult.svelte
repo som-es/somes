@@ -1,41 +1,40 @@
 <script lang="ts">
-	import { gotoHistory } from '$lib/goto';
-	import { currentVoteResultStore } from '$lib/stores/stores';
 	import { createVoteResultPath, type Delegate, type VoteResult } from '$lib/types';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import VoteTypeBadge from '$lib/components/VoteResults/VoteTypeBadge.svelte';
 
-	export let voteResult: VoteResult;
-	export let dels: Delegate[];
-	export let tabindex: number;
-
-	function onClick() {
-		currentVoteResultStore.value = voteResult;
-		// $: if (browser) {
-
-		gotoHistory(createVoteResultPath(voteResult), true);
-		// }
+	interface Props {
+		voteResult: VoteResult;
+		dels: Delegate[];
+		tabindex: number;
+		allSeats: Map<string, number[]> | null;
 	}
+
+	let { voteResult, dels, tabindex, allSeats }: Props = $props();
 </script>
 
-<span class="card tile hover:cursor-pointer"
-	on:click={onClick}
-	on:keypress={onClick}
-	role="link"
+<a
+	class="tile card hover:cursor-pointer"
+	href={createVoteResultPath(voteResult)}
 	tabindex={10 + tabindex}
 >
 	<div class="tile-content">
-		<div
-			class="w-[360px]"
-		>
-			<VoteParliament2 showGovs {voteResult} preview={true} />
+		<div class="w-[360px]">
+			<VoteParliament2
+				showGovs
+				{voteResult}
+				{allSeats}
+				noSeats={false}
+				useOffset={true}
+				show3D
+			/>
 		</div>
-		<div class="mx-3 text-left my-1">
+		<div class="mx-3 my-1 text-left">
 			<span>{voteResult.legislative_initiative.description}</span>
 			<VoteTypeBadge {voteResult} />
 		</div>
 	</div>
-</span>
+</a>
 
 <style>
 	.tile {

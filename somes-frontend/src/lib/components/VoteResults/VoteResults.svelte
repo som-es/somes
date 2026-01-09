@@ -10,9 +10,10 @@
 		dels: Delegate[];
 		voteResults: VoteResult[];
 		showHistory?: boolean;
+		allSeats: Map<string, number[]> | null;
 	}
 
-	let { dels, voteResults, showHistory = false }: Props = $props();
+	let { dels, voteResults, allSeats, showHistory = false }: Props = $props();
 
 	let firstThreeVotes = $derived(voteResults.slice(0, 3));
 	let restVotes = $derived(voteResults.slice(3));
@@ -26,7 +27,7 @@
 	{/if}
 	<div class="card-container">
 		{#each firstThreeVotes as voteResult, i}
-			<VoteResultComp {dels} {voteResult} tabindex={i} />
+			<VoteResultComp {dels} {voteResult} {allSeats} tabindex={i} />
 		{/each}
 	</div>
 	<div class="flex justify-between px-3">
@@ -56,7 +57,7 @@
 	{#if open}
 		<div transition:slide={{ duration: 240 }} class="card-container z-0 mt-4">
 			{#each restVotes as voteResult, i}
-				<VoteResultComp {dels} {voteResult} tabindex={i} />
+				<VoteResultComp {dels} {voteResult} {allSeats} tabindex={i} />
 			{/each}
 		</div>
 	{/if}

@@ -12,7 +12,7 @@ export const load: PageServerLoad = async ({ fetch, params, setHeaders }) => {
             'cache-control': 'max-age=120'
         });
     }
-    const cachedSeats = await cachedAllSeats();
+    const cachedSeats = await cachedAllSeats(false, fetch);
     const voteResult = await vote_result_by_path(params.gp, params.ityp, params.inr, fetch);
 
     let delegates: Delegate[] | null = null;

@@ -104,8 +104,8 @@ export async function getWithRoute<T>(route: string, country = 'at/', fetcher: t
 	);
 }
 
-export async function seats(): Promise<Map<string, number[]> | HasError> {
-	const response = await getWithRoute<{ [key: string]: number[] }>('seats');
+export async function seats(fetcher: typeof fetch = fetch): Promise<Map<string, number[]> | HasError> {
+	const response = await getWithRoute<{ [key: string]: number[] }>('seats', 'at/', fetcher);
 
 	if ('error' in response) {
 		return response as HasError;

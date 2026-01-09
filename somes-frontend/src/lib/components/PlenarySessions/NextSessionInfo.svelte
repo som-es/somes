@@ -2,32 +2,23 @@
 	import PlenarCalendar from './PlenarCalendar.svelte';
 	import { dashDateToDotDate } from '$lib/date';
 	import { onMount } from 'svelte';
-	import { next_plenar_date } from './api';
-	import { errorToNull } from '$lib/api/api';
 	import { Popover, Portal } from 'bits-ui';
 
-	// const plenarCalendar: PopupSettings = {
-	// 	event: 'click',
-	// 	target: 'plenarCalendar',
-	// 	placement: 'bottom',
-	// 	closeQuery: 'none'
-	// };
+	interface Props {
+		// };
+		nextPlenarySessionDateStr?: string | null;
+	}
 
-	let days: number | null = null;
+	let { nextPlenarySessionDateStr = undefined }: Props = $props();
 
-	let nextPlenarySessionDateStr: string | undefined = undefined;
-	let hours: number | null = null;
-	onMount(async () => {
-		nextPlenarySessionDateStr = errorToNull(await next_plenar_date())?.date_and_time?.toString();
-		if (nextPlenarySessionDateStr) {
-			const today = new Date();
-			const nextDate = new Date(nextPlenarySessionDateStr);
-			days = (nextDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
-			if (days < 1) {
-				hours = Math.round(days * 24);
-			}
-		}
+	let days: number | null = $derived.by(() => {
+		if (nextPlenarySessionDateStr == null) return null;
+		const today = new Date();
+		const nextDate = new Date(nextPlenarySessionDateStr);
+		return (nextDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
 	});
+
+	let hours: number | null = $derived(days == null ? null : days < 1 ? Math.round(days * 24) : null);
 </script>
 
 <div

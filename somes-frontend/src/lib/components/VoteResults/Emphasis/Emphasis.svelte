@@ -11,15 +11,8 @@
 	let { emphasis, glossary = null }: Props = $props();
 
 	let open = $state(false);
-	let firstThreePoints: Keypoint[] = $state([]);
-	let restPoints: Keypoint[] = $state([]);
-
-	$effect(() => {
-		if (emphasis) {
-			firstThreePoints = emphasis.slice(0, 2);
-			restPoints = emphasis.slice(2);
-		}
-	});
+	let firstThreePoints: Keypoint[] = $derived((emphasis ?? []).slice(0, 2));
+	let restPoints: Keypoint[] = $derived((emphasis ?? []).slice(2));
 </script>
 
 {#if emphasis}

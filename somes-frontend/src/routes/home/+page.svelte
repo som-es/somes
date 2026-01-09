@@ -10,17 +10,21 @@
 	import { dashDateToDotDate } from '$lib/date';
 	import { filteredDelegates } from '$lib/caching/delegates.svelte';
 	import LatestProposals from '$lib/components/Proposals/Latest/LatestProposals.svelte';
+	import type { PageProps } from './$types';
+	import { errorToNull } from '$lib/api/api';
 
-	let dels: Delegate[] | null = null;
-	let voteResults: VoteResult[] | null = null;
-	let govProposals: GovProposalDelegate[] | null = null;
-	let userVoteResults: VoteResult[] | null = null;
+	let { data }: PageProps = $props();
+
+	let dels: Delegate[] | null = $derived(data.delegates);
+	let voteResults: VoteResult[] | null = $derived(errorToNull(data.latestVotes));
+	let govProposals: GovProposalDelegate[] | null = $derived(errorToNull(data.latestMinisterialProposals));
+
+	let userVoteResults: VoteResult[] | null = $state(null);
+
 	onMount(async function () {
-		// await updateColorStorage();
-		dels = (await filteredDelegates())?.nr ?? null;
 		const userTopics = await cachedUserTopics();
-		const tempVoteResults = await cachedLatestVoteResults(false);
-		govProposals = await cachedLatestGovProposals();
+
+		const tempVoteResults = structuredClone($state.snapshot(voteResults));
 
 		if (userTopics && tempVoteResults) {
 			voteResults = [];
@@ -42,13 +46,16 @@
 		}
 	});
 
-	let voteDate: string | null = null;
-	$: if (voteResults) {
+	const voteDate: string | null = $derived.by(() => {
+		if (voteResults == null) return null;
 		const first = voteResults.at(0);
-		if (first) {
-			voteDate = first.legislative_initiative.nr_plenary_activity_date as unknown as string;
-		}
-	}
+		if (first == null) return null;
+		return first.legislative_initiative.nr_plenary_activity_date
+
+	});
+
+	const nextPlenarySessionDateStr = $derived(errorToNull(data.nextPlenarDate)?.date_and_time?.toString());
+	
 </script>
 
 <svelte:head>
@@ -58,7 +65,7 @@
 
 <Container>
 	<h1 class="mt-2 text-3xl sm:text-5xl font-bold">Neuigkeiten</h1>
-	<NextSessionInfo />
+	<NextSessionInfo nextPlenarySessionDateStr={nextPlenarySessionDateStr} />
 	<h2 class="text-xl sm:text-3xl font-bold mt-4">Letzte Abstimmungen</h2>
 	<span class="text-xl sm:text-2xl">
 		{#if voteDate}
@@ -76,37 +83,37 @@
 	{:else}
 		<section class="card w-full animate-pulse">
 			<div class="p-4 space-y-4">
-				<div class="placeholder" />
+				<div class="placeholder"></div>
 				<div class="grid grid-cols-3 gap-8">
-					<div class="placeholder" />
-					<div class="placeholder" />
-					<div class="placeholder" />
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
 				</div>
 				<div class="grid grid-cols-4 gap-4">
-					<div class="placeholder" />
-					<div class="placeholder" />
-					<div class="placeholder" />
-					<div class="placeholder" />
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
 				</div>
 				<div class="grid grid-cols-3 gap-8">
-					<div class="placeholder" />
-					<div class="placeholder" />
-					<div class="placeholder" />
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
 				</div>
 				<div class="grid grid-cols-2 gap-5">
-					<div class="placeholder" />
-					<div class="placeholder" />
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
 				</div>
 				<div class="grid grid-cols-3 gap-7">
-					<div class="placeholder" />
-					<div class="placeholder" />
-					<div class="placeholder" />
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
 				</div>
 				<div class="grid grid-cols-4 gap-3">
-					<div class="placeholder" />
-					<div class="placeholder" />
-					<div class="placeholder" />
-					<div class="placeholder" />
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
 				</div>
 			</div>
 		</section>
@@ -123,33 +130,33 @@
 	{:else}
 		<section class="card w-full animate-pulse">
 			<div class="p-4 space-y-4">
-				<div class="placeholder" />
+				<div class="placeholder"></div>
 				<div class="grid grid-cols-3 gap-8">
-					<div class="placeholder" />
-					<div class="placeholder" />
-					<div class="placeholder" />
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
 				</div>
 				<div class="grid grid-cols-4 gap-4">
-					<div class="placeholder" />
-					<div class="placeholder" />
-					<div class="placeholder" />
-					<div class="placeholder" />
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
 				</div>
 			</div>
 		</section>
 		<section class="card mt-1 w-full animate-pulse">
 			<div class="p-4 space-y-4">
-				<div class="placeholder" />
+				<div class="placeholder"></div>
 				<div class="grid grid-cols-3 gap-8">
-					<div class="placeholder" />
-					<div class="placeholder" />
-					<div class="placeholder" />
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
 				</div>
 				<div class="grid grid-cols-4 gap-4">
-					<div class="placeholder" />
-					<div class="placeholder" />
-					<div class="placeholder" />
-					<div class="placeholder" />
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
 				</div>
 			</div>
 		</section>
