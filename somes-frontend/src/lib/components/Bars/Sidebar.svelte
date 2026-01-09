@@ -97,7 +97,7 @@
 <div class="flex h-full grid-cols-[auto_1fr] bg-surface-50 lg:grid">
 	<div class="flex h-screen w-21 flex-col items-center justify-center gap-4 bg-surface-500">
 		<a
-			href={resolve('/home')}
+			href={resolve('/')}
 			title="Somes"
 			class="mt-4 flex items-center justify-center rounded-xl fill-white stroke-white hover:cursor-pointer"
 		>
