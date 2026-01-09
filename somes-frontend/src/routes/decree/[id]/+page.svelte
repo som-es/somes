@@ -43,6 +43,11 @@
 	};
 </script>
 
+<svelte:head>
+    <title>Verordnung</title>
+    <meta name="description" content="Spezifische Verordnung" />
+</svelte:head>
+
 <Container>
 	{#if currentlyUpdating}
 		<!-- <CenterPrograssRadial /> -->

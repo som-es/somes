@@ -298,6 +298,11 @@
 	});*/
 </script>
 
+<svelte:head>
+    <title>Abgeordnete zum Nationalrat</title>
+    <meta name="description" content="Auswahl und spezifische Informationen über Abgeordnete" />
+</svelte:head>
+
 <!-- <div class="mx-auto px-10"> -->
 <Container>
 	{#if hasGoBackStore.value}

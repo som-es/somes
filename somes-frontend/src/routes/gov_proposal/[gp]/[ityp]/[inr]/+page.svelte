@@ -40,6 +40,11 @@
 	};
 </script>
 
+<svelte:head>
+    <title>Ministerialentwurf</title>
+    <meta name="description" content="Spezifischer Ministerialentwurf" />
+</svelte:head>
+
 <Container>
 	{#if currentlyUpdating}
 		<!-- <CenterPrograssRadial /> -->

@@ -2,9 +2,14 @@ import { delegate_by_id, errorToNull } from "$lib/api/api";
 import { fetchDelegates } from "$lib/api/fetch_delegates";
 import { cachedAllLegisPeriods } from "$lib/caching/legis_periods";
 import { cachedAllSeats } from "$lib/caching/seats";
-import type { PageLoad } from "./$types";
+import type { PageServerLoad } from "./$types";
 
-export const load: PageLoad = async ({ fetch, url, setHeaders }) => { 
+export const load: PageServerLoad = async ({ fetch, url, setHeaders }) => { 
+    if (process.env.NODE_ENV === 'production') {
+        setHeaders({
+            'cache-control': 'max-age=120'
+        });
+    }
     const delegateId = url.searchParams.get("delegate");    
     const gp = url.searchParams.get("gp");    
     const date = url.searchParams.get("date") ?? new Date().toISOString().split('T')[0];
@@ -17,12 +22,7 @@ export const load: PageLoad = async ({ fetch, url, setHeaders }) => {
 
     if (delegateId) {
         delegate = errorToNull(await delegate_by_id(+delegateId, fetch));
-    }
-
-
-    setHeaders({
-        'cache-control': 'max-age=120'
-    });
+    } 
     
     return { ...delegates, delegate, delegateId, cachedPeriods, gp, cachedSeats, date };
 }

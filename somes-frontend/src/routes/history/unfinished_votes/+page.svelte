@@ -11,6 +11,11 @@
 	});
 </script>
 
+<svelte:head>
+    <title>Eingebrachte Anträge</title>
+    <meta name="description" content="Filterbare Liste an Anträgen, die eingebracht wurden und bald zur Abstimmung stehen" />
+</svelte:head>
+
 <!-- <div class="mx-auto px-5"> -->
 <Container>
 	<h1 class="text-2xl sm:text-4xl font-bold">Anträge zur Abstimmung</h1>

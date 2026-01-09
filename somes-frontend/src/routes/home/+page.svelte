@@ -51,7 +51,11 @@
 	}
 </script>
 
-<title>Neuigkeiten</title>
+<svelte:head>
+    <title>Neuigkeiten</title>
+    <meta name="description" content="Neue Ereignisse im Nationalrat" />
+</svelte:head>
+
 <Container>
 	<h1 class="mt-2 text-3xl sm:text-5xl font-bold">Neuigkeiten</h1>
 	<NextSessionInfo />

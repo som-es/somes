@@ -4,6 +4,10 @@
 	import somesWithText from '$lib/assets/somes_with_text2.svg?raw';
 	import { resolve } from '$app/paths';
 	import type { PlatformItem, PlatformItemType } from './types';
+	import type { PageProps } from './$types';
+	import { errorToNull } from '$lib/api/api';
+
+	let { data }: PageProps = $props();
 
 	interface Event {
 		id: number;
@@ -26,47 +30,58 @@
 
 	// --- CONFIGURATION / MOCK DATA (As requested in script tag) ---
 
-	let nextPlenaryDate = $state(new Date('2026-02-15T09:00:00'));
+	let nextPlenaryDate: Date | null = $derived.by(() => {
+		const date = errorToNull(data.nextPlenarDate);
+
+		if (!date) return null;
+
+		return new Date(date.date_and_time);
+	});
+
 	let developmentProgress = $state(30); // 30% Progress
 
-	const rawPlatformItems: PlatformItem[] = [
-		{
-			id: 1,
-			type: 'vote',
-			title: 'Änderung des Ökostromgesetzes 2012',
-			date: '2025-01-10',
-			status: 'accepted'
-		},
-		{
-			id: 2,
-			type: 'vote',
-			title: 'Bundesfinanzgesetz 2025',
-			date: '2025-01-08',
-			status: 'rejected'
-		},
-		{
-			id: 3,
-			type: 'proposal',
-			title: 'Antrag betreffend Ausbau der Kinderbetreuung',
-			date: '2025-01-12',
-			status: 'pending'
-		},
-		{
-			id: 4,
-			type: 'proposal',
-			title: 'Dringliche Anfrage zur Bildungspolitik',
-			date: '2025-01-11',
-			status: 'pending'
-		},
-		{ id: 5, type: 'decree', title: 'Verordnung über Luftreinhaltung', date: '2025-01-05' },
-		{
-			id: 6,
-			type: 'vote',
-			title: 'Novelle zum Universitätsgesetz',
-			date: '2025-01-02',
-			status: 'accepted'
-		}
-	];
+	const rawPlatformItems: PlatformItem[] = $derived(data.platformItems);
+
+	// const rawPlatformItems: PlatformItem[] = [
+	// 	{
+	// 		id: 1,
+	// 		type: 'vote',
+	// 		title: 'Änderung des Ökostromgesetzes 2012',
+	// 		date: '2025-01-10',
+	// 		status: 'accepted'
+	// 	},
+	// 	{
+	// 		id: 2,
+	// 		type: 'vote',
+	// 		title: 'Bundesfinanzgesetz 2025',
+	// 		date: '2025-01-08',
+	// 		status: 'rejected'
+	// 	},
+	// 	{
+	// 		id: 3,
+	// 		type: 'proposal',
+	// 		title: 'Antrag betreffend Ausbau der Kinderbetreuung',
+	// 		date: '2025-01-12',
+	// 		status: 'pending'
+	// 	},
+	// 	{
+	// 		id: 4,
+	// 		type: 'proposal',
+	// 		title: 'Dringliche Anfrage zur Bildungspolitik',
+	// 		date: '2025-01-11',
+	// 		status: 'pending'
+	// 	},
+	// 	{ id: 5, type: 'decree', title: 'Verordnung über Luftreinhaltung', date: '2025-01-05' },
+	// 	{
+	// 		id: 6,
+	// 		type: 'vote',
+	// 		title: 'Novelle zum Universitätsgesetz',
+	// 		date: '2025-01-02',
+	// 		status: 'accepted'
+	// 	}
+	// ];
+
+
 
 	// 3. Association Events
 	const eventsData: Event[] = [
@@ -209,6 +224,11 @@
 	});
 </script>
 
+<svelte:head>
+    <title>Somes</title>
+    <meta name="description" content="Verlinkung zur Plattform und Informationen über den Verein" />
+</svelte:head>
+
 <div
 	class="text-base-font-color font-base dark:bg-surface-950 min-h-screen pb-20 dark:text-surface-50"
 >
@@ -256,12 +276,12 @@
 		></div>
 
 		<div class="flex flex-wrap-reverse items-center justify-around gap-5">
-			<div class="text-center flex flex-col items-center justify-center">
-				<div class="w-80 md:w-110 lg:w-150 fill-current stroke-current">
+			<div class="flex flex-col items-center justify-center text-center">
+				<div class="w-80 fill-current stroke-current md:w-110 lg:w-150">
 					{@html somesWithText}
 				</div>
 				<div
-					class="mt-4 mb-4 inline-block rounded-full border border-tertiary-300 bg-tertiary-200 px-3 py-1 text-sm md:text-base font-bold tracking-wider text-tertiary-900 uppercase dark:border-tertiary-700 dark:bg-tertiary-900/50 dark:text-tertiary-100"
+					class="mt-4 mb-4 inline-block rounded-full border border-tertiary-300 bg-tertiary-200 px-3 py-1 text-sm font-bold tracking-wider text-tertiary-900 uppercase md:text-base dark:border-tertiary-700 dark:bg-tertiary-900/50 dark:text-tertiary-100"
 				>
 					Verein für Demokratie und Transparenz
 				</div>
@@ -271,20 +291,20 @@
 					class="font-heading text-5xl leading-tight font-extrabold text-primary-900 md:text-7xl dark:text-primary-50"
 				>
 					Demokratie <span
-						class="bg-linear-to-r from-secondary-500 to-error-500 bg-clip-text text-transparent"
+						class="bg-linear-to-r from-secondary-700 dark:from-secondary-400 to-secondary-500 bg-clip-text text-transparent"
 						>verstehen.</span
 					><br />
 					Zukunft
 					<span
-						class="bg-linear-to-r from-tertiary-500 to-success-600 bg-clip-text text-transparent"
+						class="bg-linear-to-r from-primary-500 dark:from-tertiary-500 to-tertiary-700 bg-clip-text text-transparent"
 						>gestalten.</span
 					>
 				</h1>
 				<p
 					class="mx-auto max-w-2xl text-lg leading-relaxed text-surface-600 md:text-xl dark:text-surface-300"
 				>
-					Wir bringen Demokratie direkt zu dir. Mit der somes Plattform und interaktiven
-					Events machen wir Politik transparent und einfach greifbar.
+					Wir bringen Demokratie direkt zu dir. Mit der somes Plattform und interaktiven Events
+					machen wir Politik transparent und einfach greifbar.
 				</p>
 
 				<div class="flex flex-wrap justify-center gap-4 pt-4">
@@ -314,7 +334,7 @@
 						Unsere Events
 					</a>
 				</div>
-			</div>	
+			</div>
 		</div>
 	</section>
 
@@ -346,18 +366,20 @@
 						<p class="mt-2 text-xs text-surface-400"></p>
 					</div>
 
-					<div class="rounded-xl border border-primary-700/50 bg-primary-900/50 p-4">
-						<span class="mb-1 block text-xs tracking-wide text-primary-300 uppercase"
-							>Nächste Nationalratssitzung</span
-						>
-						<span class="font-mono text-xl font-bold text-white">
-							{nextPlenaryDate.toLocaleDateString('de-AT', {
-								weekday: 'long',
-								day: 'numeric',
-								month: 'long'
-							})}
-						</span>
-					</div>
+					{#if nextPlenaryDate}
+						<div class="rounded-xl border border-primary-700/50 bg-primary-900/50 p-4">
+							<span class="mb-1 block text-xs tracking-wide text-primary-300 uppercase"
+								>Nächste Nationalratssitzung</span
+							>
+							<span class="font-mono text-xl font-bold text-white">
+								{nextPlenaryDate.toLocaleDateString('de-AT', {
+									weekday: 'long',
+									day: 'numeric',
+									month: 'long'
+								})}
+							</span>
+						</div>
+					{/if}
 				</div>
 
 				<!-- Right: The "Live" Ticker Widget -->
@@ -369,7 +391,15 @@
 						<div
 							class="bg-surface-850 flex flex-wrap items-center justify-between gap-2 border-b border-surface-700 p-4"
 						>
-							<div></div>
+						<div class="bg-surface-850 border-t border-surface-700 p-3 text-center">
+							<a
+								href="{resolve("/history")}/votes"
+								class="group flex items-center justify-center gap-1 text-xs text-primary-400 hover:text-primary-300"
+							>
+								Alle Details auf somes.at ansehen
+								<span class="transition-transform group-hover:translate-x-1">→</span>
+							</a>
+						</div>
 							<!-- <div class="flex gap-2">
 								<div class="w-3 h-3 rounded-full bg-error-500"></div>
 								<div class="w-3 h-3 rounded-full bg-warning-500"></div>
@@ -408,7 +438,7 @@
 
 						<!-- Widget Content Area -->
 						<div
-							class="relative flex flex-1 items-center justify-center bg-linear-to-br from-surface-800 to-surface-900 p-8"
+							class="relative flex flex-1  justify-center bg-linear-to-br from-surface-800 to-surface-900 p-8"
 						>
 							{#key currentTickerItem}
 								<div
@@ -419,7 +449,7 @@
 									{#if currentTickerItem}
 										<!-- Badge -->
 										<span
-											class="mb-6 inline-flex items-center rounded-full px-3 py-1 text-xs font-bold tracking-wider uppercase
+											class="mb-3 inline-flex items-center rounded-full px-3 py-1 text-xs font-bold tracking-wider uppercase
 											{currentTickerItem.type === 'vote'
 												? 'border border-secondary-500/30 bg-secondary-500/20 text-secondary-300'
 												: currentTickerItem.type === 'proposal'
@@ -435,7 +465,7 @@
 
 										<!-- Title -->
 										<h3
-											class="font-heading mb-4 text-2xl leading-tight font-bold text-white md:text-3xl"
+											class="font-heading mb-4 text-lg leading-tight font-semibold text-white md:text-2xl"
 										>
 											{currentTickerItem.title}
 										</h3>
@@ -461,12 +491,10 @@
 											{/if}
 										</div>
 
-										<!-- Progress Indicator for Timer -->
 										<div
 											class="absolute -bottom-16 left-1/2 h-1 w-full -translate-x-1/2 overflow-hidden rounded-full bg-surface-700"
 										>
 											<div class="h-full animate-progress-indeterminate bg-white/20"></div>
-											<!-- Note: Using custom animation defined in theme or standard CSS -->
 										</div>
 									{:else}
 										<p class="text-surface-500">Keine Daten verfügbar.</p>
@@ -475,16 +503,6 @@
 							{/key}
 						</div>
 
-						<!-- Footer Link -->
-						<div class="bg-surface-850 border-t border-surface-700 p-3 text-center">
-							<a
-								href="https://somes.at"
-								class="group flex items-center justify-center gap-1 text-xs text-primary-400 hover:text-primary-300"
-							>
-								Alle Details auf somes.at ansehen
-								<span class="transition-transform group-hover:translate-x-1">→</span>
-							</a>
-						</div>
 					</div>
 				</div>
 			</div>

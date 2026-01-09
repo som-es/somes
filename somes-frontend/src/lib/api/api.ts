@@ -1,3 +1,4 @@
+import type { Decree } from '$lib/components/Delegates/Decrees/types';
 import type {
 	Delegate,
 	HasError,
@@ -195,6 +196,12 @@ export async function latest_ministrial_proposals(
 	fetcher: typeof fetch = fetch
 ): Promise<GovProposalDelegate[] | HasError> {
 	return getWithRoute(`v1/gov_proposals/latest?days=${days}`, "at/", fetcher);
+}
+export async function latest_decrees(
+	days: number,
+	fetcher: typeof fetch = fetch
+): Promise<Decree[] | HasError> {
+	return getWithRoute(`v1/decrees/latest?days=${days}`, "at/", fetcher);
 }
 
 export async function speeches_by_delegate_per_page(

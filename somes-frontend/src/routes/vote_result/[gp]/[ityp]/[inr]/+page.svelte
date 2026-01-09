@@ -156,6 +156,11 @@
 		$derived((voteResult?.named_votes?.named_votes?.length ?? 0) > 0 && votedByName);
 </script>
 
+<svelte:head>
+    <title>Abstimmungsergebnis</title>
+    <meta name="description" content="Spezifisches Abstimmungsergebnis" />
+</svelte:head>
+
 <title>
 	{#if voteResult}
 		{#if voteResult.ai_summary}

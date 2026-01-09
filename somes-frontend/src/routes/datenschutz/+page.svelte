@@ -2,6 +2,13 @@
 	import Container from '$lib/components/Layout/Container.svelte';
 </script>
 
+<svelte:head>
+    <title>Datenschutzerklärung</title>
+    <meta name="description" content="Datenschutzerklärung" />
+</svelte:head>
+
+
+
 <Container>
 	<!-- Main Content Card -->
 	<div class="bg-surface-50 dark:bg-surface-800 rounded-3xl p-6 md:p-10 border border-surface-200 dark:border-surface-700 shadow-sm mt-6">
