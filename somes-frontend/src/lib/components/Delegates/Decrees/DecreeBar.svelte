@@ -1,36 +1,28 @@
 <script lang="ts">
 	import type { Delegate } from '$lib/types';
-	import DecreeBarExpanded from './DecreeBarExpanded.svelte';
 	import { address } from '$lib/api/api';
 	import type { Decree } from './types';
 	import { dashDateToDotDate } from '$lib/date';
 	import { gotoHistory } from '$lib/goto';
-	import { currentDecreeStore } from '$lib/stores/stores';
+	import { createDecreePath } from './api';
 
 	export let decree: Decree;
 	export let delegate: Delegate | null = null;
 	export let page: number;
 	export let showDelegate: boolean = false;
 	export let coloring: string = 'dark:bg-primary-300 bg-primary-400 text-black';
-	// absence.
 
 	let open: boolean = false;
-	let duration = 0.35;
 
-	$: if (page) {
-		open = false;
-	}
 	function onShowDetails() {
-		currentDecreeStore.value = { decree, delegate };
-		gotoHistory(`/decree/${decree.ris_id}`, true);
+		// currentDecreeStore.value = { decree, delegate };
+		gotoHistory(createDecreePath(decree.ris_id), true);
 	}
 </script>
 
 <div class="gap-3 mt-5">
-	<div
-		on:click={onShowDetails}
-		on:keypress={onShowDetails}
-		role="button"
+	<a
+		href="{createDecreePath(decree.ris_id)}"
 		tabindex="0"
 		class="entry {coloring} flex justify-between items-center"
 	>
@@ -54,7 +46,7 @@
 				alt="Image of delegate {delegate.name}"
 			/>
 		{/if}
-	</div>
+	</a>
 	<!-- <div use:collapse={{ open, duration }}>
 		<DecreeBarExpanded {decree} bind:open />
 	</div> -->

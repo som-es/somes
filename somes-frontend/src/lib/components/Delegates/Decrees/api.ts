@@ -1,6 +1,11 @@
+import { resolve } from '$app/paths';
 import { getWithRoute, justPost } from '$lib/api/api';
 import type { HasError } from '$lib/types';
 import type { Decree, DecreeFilter, DecreesWithMaxPage } from './types';
+
+export function createDecreePath(ris_id: string): string {
+	return resolve("/decree/[id]", { id: ris_id });
+}
 
 export async function decrees_per_page(
 	page: number,

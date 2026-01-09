@@ -5,6 +5,8 @@
 	import { resolve } from '$app/paths';
 	import type { PlatformItem, PlatformItemType } from './types';
 	import type { PageProps } from './$types';
+	import checkmarkIcon from '$lib/assets/misc_icons/checkmark_small.svg?raw';
+	import crossmarkIcon from '$lib/assets/misc_icons/crossmark_small.svg?raw';
 	import { errorToNull } from '$lib/api/api';
 
 	let { data }: PageProps = $props();
@@ -28,8 +30,6 @@
 		image?: string;
 	}
 
-	// --- CONFIGURATION / MOCK DATA (As requested in script tag) ---
-
 	let nextPlenaryDate: Date | null = $derived.by(() => {
 		const date = errorToNull(data.nextPlenarDate);
 
@@ -38,50 +38,9 @@
 		return new Date(date.date_and_time);
 	});
 
-	let developmentProgress = $state(30); // 30% Progress
+	let developmentProgress = $state(35); // 35% Progress
 
 	const rawPlatformItems: PlatformItem[] = $derived(data.platformItems);
-
-	// const rawPlatformItems: PlatformItem[] = [
-	// 	{
-	// 		id: 1,
-	// 		type: 'vote',
-	// 		title: 'Änderung des Ökostromgesetzes 2012',
-	// 		date: '2025-01-10',
-	// 		status: 'accepted'
-	// 	},
-	// 	{
-	// 		id: 2,
-	// 		type: 'vote',
-	// 		title: 'Bundesfinanzgesetz 2025',
-	// 		date: '2025-01-08',
-	// 		status: 'rejected'
-	// 	},
-	// 	{
-	// 		id: 3,
-	// 		type: 'proposal',
-	// 		title: 'Antrag betreffend Ausbau der Kinderbetreuung',
-	// 		date: '2025-01-12',
-	// 		status: 'pending'
-	// 	},
-	// 	{
-	// 		id: 4,
-	// 		type: 'proposal',
-	// 		title: 'Dringliche Anfrage zur Bildungspolitik',
-	// 		date: '2025-01-11',
-	// 		status: 'pending'
-	// 	},
-	// 	{ id: 5, type: 'decree', title: 'Verordnung über Luftreinhaltung', date: '2025-01-05' },
-	// 	{
-	// 		id: 6,
-	// 		type: 'vote',
-	// 		title: 'Novelle zum Universitätsgesetz',
-	// 		date: '2025-01-02',
-	// 		status: 'accepted'
-	// 	}
-	// ];
-
-
 
 	// 3. Association Events
 	const eventsData: Event[] = [
@@ -371,7 +330,7 @@
 							<span class="mb-1 block text-xs tracking-wide text-primary-300 uppercase"
 								>Nächste Nationalratssitzung</span
 							>
-							<span class="font-mono text-xl font-bold text-white">
+							<span class="font-bold text-xl text-white">
 								{nextPlenaryDate.toLocaleDateString('de-AT', {
 									weekday: 'long',
 									day: 'numeric',
@@ -471,11 +430,18 @@
 										</h3>
 
 										<!-- Meta Info -->
-										<div class="flex justify-center gap-4 font-mono text-sm text-surface-400">
-											<span>{formatDate(currentTickerItem.date)}</span>
+										<div class="flex justify-center font-light gap-4 text-sm text-surface-400">
+											<span class="">{formatDate(currentTickerItem.date)}</span>
 											{#if currentTickerItem.status}
 												<span class="mx-2">•</span>
-												<span
+												{#if currentTickerItem.status === "accepted"}
+													<span class="stroke-green-600 dark:stroke-green-500 inline-block align-middle" style="width:40px; height:40px">{@html checkmarkIcon}</span>
+												{:else if currentTickerItem.status === "rejected"}
+													<span class="inline-block align-middle" style="width:40px; height:40px;">{@html crossmarkIcon}</span>
+												{:else}
+													<span class="text-warning-400">In Bearbeitung</span>
+												{/if}
+												<!-- <span
 													class={currentTickerItem.status === 'accepted'
 														? 'text-success-400'
 														: currentTickerItem.status === 'rejected'
@@ -487,7 +453,7 @@
 														: currentTickerItem.status === 'rejected'
 															? 'Abgelehnt'
 															: 'In Bearbeitung'}
-												</span>
+												</span> -->
 											{/if}
 										</div>
 

@@ -18,18 +18,24 @@
 	import GovProposalInfoTiles from '$lib/components/VoteResults/InfoTiles/GovProposalInfoTiles.svelte';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import { createGovProposalPath } from '../types';
+	
+	interface Props {
+		govProposal: GovProposal;
+		delegate: Delegate;
+		showDelegate?: boolean;
+		open?: boolean;
+	}
 
-	export let govProposal: GovProposal;
-	export let delegate: Delegate;
-	export let showDelegate: boolean = false;
-	// export let dels: Delegate[];
-	export let open: boolean = true;
+	let {
+		govProposal,
+		delegate,
+		showDelegate = false,
+		open = $bindable(true)
+	}: Props = $props();
 
-	let delsAtDate: Delegate[] = [];
+	let delsAtDate: Delegate[] = $state([]);
 
-	// const modalStore = getModalStore();
 	function onShowDetails(gov_proposal: GovProposal, delegate: Delegate) {
-		// modalStore.close();
 		currentGovProposalDelegateStore.value = { gov_proposal, delegate };
 		gotoHistory(createGovProposalPath(gov_proposal.ministrial_proposal), true);
 	}
@@ -45,10 +51,10 @@
 		gotoHistory(createVoteResultPath(voteResult), true);
 	}
 
-	$: aiSummary = govProposal.ai_summary;
+	let aiSummary = $derived(govProposal.ai_summary);
 
-	$: whichGridContainer =
-		aiSummary == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
+	let whichGridContainer =
+		$derived(aiSummary == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis');
 </script>
 
 <div class="sm:hidden entry bg-primary-200 dark:bg-primary-400 mt-3">
@@ -90,10 +96,10 @@
 		<!-- <div class="accepted-item bg-primary-300">Angenommen: {voteResult.legislative_initiative.accepted}</div> -->
 		{#if govProposal.vote_result}
 			<div class="ml-auto more-info-item">
-				<SButton
+				<a
 					class="bg-tertiary-500 text-black"
-					on:click={() => onShowDetailsVoteResult(govProposal.vote_result)}
-					>Details anzeigen</SButton
+					href="{createGovProposalPath(govProposal.ministrial_proposal)}"
+					>Details anzeigen</a>
 				>
 			</div>
 		{/if}
@@ -121,7 +127,7 @@
 	{#if govProposal.vote_result}
 		<button
 			class="rounded-xl ml-auto parliament-item bg-primary-100"
-			on:click={() => onShowDetailsVoteResult(govProposal.vote_result)}
+			onclick={() => onShowDetailsVoteResult(govProposal.vote_result)}
 		>
 			<VoteParliament2 showGovs voteResult={govProposal.vote_result} preview={true} />
 		</button>
@@ -134,9 +140,12 @@
 		</div>
 	{/if}
 	<div class="ml-auto details-item mt-auto">
-		<SButton
-			class="bg-tertiary-500 text-black"
-			on:click={() => onShowDetails(govProposal, delegate)}>Details anzeigen</SButton
+		<a
+			class="bg-secondary-500 btn text-black"
+			href="{createGovProposalPath(govProposal.ministrial_proposal)}"
+			onclick={() => onShowDetails(govProposal, delegate)}
+		>
+			Details anzeigen</a
 		>
 	</div>
 </div>
