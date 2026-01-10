@@ -8,13 +8,11 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
         .await?;
 
     let legis_init_fields = DbLegislativeInitiativeQuery::field_orders().join(" ,");
-    let summary_fields = DbAiSummary::field_orders().into_iter().map(|field| {
-      if field == "id" {
-        "s.id"
-      } else {
-        field
-      }
-    }).collect::<Vec<_>>().join(" ,");
+    let summary_fields = DbAiSummary::field_orders()
+        .into_iter()
+        .map(|field| if field == "id" { "s.id" } else { field })
+        .collect::<Vec<_>>()
+        .join(" ,");
 
     sqlx::query(
         &format!("

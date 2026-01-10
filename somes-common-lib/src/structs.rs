@@ -1,7 +1,7 @@
 use chrono::{DateTime, NaiveDate, NaiveDateTime, Utc};
 use serde::{Deserialize, Serialize};
-use somes_macro::CompositeType;
-use somes_meilisearch_filter::FilterOp;
+use somes_macro::{CompositeType, MeilisearchFilter};
+use somes_meilisearch_filter::{FilterArgument, FilterOp};
 use sqlx::prelude::Type;
 use utoipa::{IntoParams, ToSchema};
 
@@ -18,27 +18,12 @@ use utoipa::{IntoParams, ToSchema};
     Ord,
     Type,
     CompositeType,
+    MeilisearchFilter,
 )]
 pub struct Document {
     pub title: Option<String>,
     pub document_url: Option<String>,
     pub document_type: Option<String>,
-}
-
-#[derive(
-    ToSchema,
-    IntoParams,
-    Debug,
-    Clone,
-    Serialize,
-    Deserialize,
-    PartialEq,
-    Eq
-)]
-pub struct DocumentFilter {
-    pub title: Option<FilterOp<String>>,
-    pub document_url: Option<FilterOp<String>>,
-    pub document_type: Option<FilterOp<String>>,
 }
 
 #[derive(

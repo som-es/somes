@@ -53,7 +53,7 @@ impl<T> FilterOp<T> {
             | FilterOp::Nsw(val) => val,
         }
     }
-    
+
     pub fn to_value(self) -> T {
         match self {
             FilterOp::Eq(val)
@@ -75,7 +75,10 @@ impl<T> FilterOp<T> {
 impl<Tz: chrono::TimeZone> From<chrono::DateTime<Tz>> for Filterable {
     fn from(value: chrono::DateTime<Tz>) -> Self {
         Filterable {
-            value_as_string: format!("{}", value.to_utc().to_rfc3339_opts(SecondsFormat::Micros, true)),
+            value_as_string: format!(
+                "{}",
+                value.to_utc().to_rfc3339_opts(SecondsFormat::Micros, true)
+            ),
         }
     }
 }
@@ -179,9 +182,19 @@ impl<T: Into<Filterable>> IntoFilterArgument for FilterOp<T> {
 }
 
 pub fn to_meilisearch_filter(filter_args: &[Option<FilterArgument>]) -> String {
-    filter_args.iter().flatten().map(|filter_arg| {
-        format!("{attribute} {op} {value}", attribute=filter_arg.filter_attribute_path, op=filter_arg.filter_op.to_meilisearch_op(), value=filter_arg.filter_op.as_value().value_as_string)
-    }).collect::<Vec<String>>().join(" AND ")
+    filter_args
+        .iter()
+        .flatten()
+        .map(|filter_arg| {
+            format!(
+                "{attribute} {op} {value}",
+                attribute = filter_arg.filter_attribute_path,
+                op = filter_arg.filter_op.to_meilisearch_op(),
+                value = filter_arg.filter_op.as_value().value_as_string
+            )
+        })
+        .collect::<Vec<String>>()
+        .join(" AND ")
 }
 
 #[cfg(test)]
@@ -189,7 +202,6 @@ mod tests {
     use serde::{Deserialize, Serialize};
 
     use crate::{FilterOp, Filterable, IntoFilterArgument, to_meilisearch_filter};
-
 
     #[derive(Default, Debug, Deserialize, Serialize, Clone)]
     pub struct DecreeFilter2 {
@@ -209,7 +221,10 @@ mod tests {
 
         let data = serde_qs::from_str::<DecreeFilter2>(query_str).unwrap();
         dbg!(&data);
-        let filter = [data.gov_officials.into_filter("gov_official_id"), data.legis_period.into_filter("gp")];
+        let filter = [
+            data.gov_officials.into_filter("gov_official_id"),
+            data.legis_period.into_filter("gp"),
+        ];
         let filter = to_meilisearch_filter(&filter);
         dbg!(filter);
 

@@ -4,7 +4,7 @@ use crate::{
     Qs, RedisConnection, DECREES_PER_PAGE,
 };
 use axum::{extract::Query, Json};
-use dataservice::combx::OptionalDecree;
+use dataservice::combx::{OptionalDecree, OptionalDecreeFilter};
 use meilisearch_sdk::search::SearchResults;
 use somes_common_lib::{DecreeFilter, Page};
 use somes_meilisearch_filter::to_meilisearch_filter;
@@ -14,7 +14,7 @@ pub async fn decrees_by_search_route(
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
-    Qs(decrees_filter): Qs<DecreeFilter>,
+    Qs(decrees_filter): Qs<OptionalDecreeFilter>,
 ) -> Result<Json<DecreesWithMaxPage>, FilterError> {
     meilisearch_decrees(
         &mut redis_con,
@@ -32,13 +32,9 @@ async fn meilisearch_decrees(
     meilisearch_client: meilisearch_sdk::client::Client,
     search_query: somes_common_lib::SearchQuery,
     page: Page,
-    decree_filter: DecreeFilter,
+    decree_filter: OptionalDecreeFilter,
 ) -> Result<DecreesWithMaxPage, FilterError> {
-    use somes_meilisearch_filter::IntoFilterArgument;
-    let meilisearch_filter = to_meilisearch_filter(&[
-        decree_filter.gov_officials.into_filter("gov_official_id"),
-        decree_filter.legis_period.into_filter("gp"),
-    ]);
+    let meilisearch_filter = to_meilisearch_filter(&decree_filter.filter_arguments());
 
     // let stats = meilisearch_client
     //     .index("decrees")
