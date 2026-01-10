@@ -13,7 +13,7 @@ pub async fn gov_props_by_search_route(
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
-    Json(legis_init_filter): Json<Option<GovPropFilter>>,
+    Query(legis_init_filter): Query<Option<GovPropFilter>>,
 ) -> Result<Json<GovProposalsWithMaxPage>, FilterError> {
     let mut meilisearch_filter = String::new();
     if let Some(filter) = legis_init_filter {

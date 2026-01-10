@@ -31,7 +31,7 @@ use super::{
 
 pub fn create_gov_proposals_router() -> Router<AppState> {
     Router::new()
-        .route(SEARCH, post(gov_props_by_search_route))
+        .route(SEARCH, get(gov_props_by_search_route))
         .route(LIVE, post(gov_proposals_per_page_route))
         .route(LATEST, get(latest_gov_proposals_route))
         .route("/{gp}/{inr}", get(gov_proposal_by_path_route))

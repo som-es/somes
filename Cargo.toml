@@ -2,10 +2,15 @@
 members = [
     "somes-api",
     "somes-common-lib",
-    "somes-utils/websockets-test"
-, "views", "somes-macro"]
+    "somes-utils/websockets-test", 
+    "views", 
+    "somes-macro",
+    "somes-meilisearch-filter"
+]
 
 [workspace.dependencies]
 sqlx = { version = "0.8", features = [ "runtime-tokio", "tls-rustls", "postgres", "chrono" ] }
 dataservice = { path = "../dataservice/dataservice", default-features=false, features=["models", "utoipa"] }
 utoipa = { version = "5", features = ["chrono", "axum_extras"] }
+somes-meilisearch-filter = { path = "somes-meilisearch-filter" }
+chrono = "0.4.24"

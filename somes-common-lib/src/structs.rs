@@ -1,6 +1,7 @@
 use chrono::{DateTime, NaiveDate, NaiveDateTime, Utc};
 use serde::{Deserialize, Serialize};
 use somes_macro::CompositeType;
+use somes_meilisearch_filter::FilterOp;
 use sqlx::prelude::Type;
 use utoipa::{IntoParams, ToSchema};
 
@@ -22,6 +23,22 @@ pub struct Document {
     pub title: Option<String>,
     pub document_url: Option<String>,
     pub document_type: Option<String>,
+}
+
+#[derive(
+    ToSchema,
+    IntoParams,
+    Debug,
+    Clone,
+    Serialize,
+    Deserialize,
+    PartialEq,
+    Eq
+)]
+pub struct DocumentFilter {
+    pub title: Option<FilterOp<String>>,
+    pub document_url: Option<FilterOp<String>>,
+    pub document_type: Option<FilterOp<String>>,
 }
 
 #[derive(
@@ -355,8 +372,8 @@ pub struct GovPropFilter {
 
 #[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
 pub struct DecreeFilter {
-    pub legis_period: Option<String>,
-    pub gov_officials: Option<Vec<i32>>,
+    pub legis_period: Option<FilterOp<String>>,
+    pub gov_officials: Option<FilterOp<Vec<i32>>>,
 }
 
 #[derive(PartialEq, Eq, IntoParams, ToSchema, PartialOrd, Ord, Debug, Serialize, Deserialize)]

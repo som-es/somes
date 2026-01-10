@@ -43,7 +43,7 @@
   	</footer>
 	<footer class="bg-surface-900 text-surface-400 py-12 border-t border-surface-800">
 		<div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-5">
-			<div class="col-span-1 md:col-span-2 mb-4">
+			<div class="col-span-1 md:col-span-2">
 				<!-- <span class="text-2xl font-bold text-white block mb-4">somes.at</span> -->
 				<div class="stroke-white fill-white w-72">
 					{@html somesWithText}
@@ -84,7 +84,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="max-w-7xl mx-auto px-4 mt-8 pt-8 border-t border-surface-800 text-center text-xs">
+		<div class="max-w-7xl mx-auto px-4 mt-1 pt-8 border-t border-surface-800 text-center text-xs">
 			&copy; {new Date().getFullYear()} somes - Verein für Demokratie und politische Transparenz.
 		</div>
 	</footer>

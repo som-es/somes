@@ -1,26 +1,27 @@
 use crate::{
     meilisearch::MeilisearchClient,
     routes::{DecreesWithMaxPage, FilterError},
-    RedisConnection, DECREES_PER_PAGE,
+    Qs, RedisConnection, DECREES_PER_PAGE,
 };
 use axum::{extract::Query, Json};
 use dataservice::combx::OptionalDecree;
 use meilisearch_sdk::search::SearchResults;
 use somes_common_lib::{DecreeFilter, Page};
+use somes_meilisearch_filter::to_meilisearch_filter;
 
 pub async fn decrees_by_search_route(
     RedisConnection(mut redis_con): RedisConnection,
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
-    Json(decrees_filter): Json<Option<DecreeFilter>>,
+    Qs(decrees_filter): Qs<DecreeFilter>,
 ) -> Result<Json<DecreesWithMaxPage>, FilterError> {
     meilisearch_decrees(
         &mut redis_con,
         meilisearch_client,
         search_query,
         page,
-        decrees_filter.as_ref(),
+        decrees_filter,
     )
     .await
     .map(Json)
@@ -31,34 +32,21 @@ async fn meilisearch_decrees(
     meilisearch_client: meilisearch_sdk::client::Client,
     search_query: somes_common_lib::SearchQuery,
     page: Page,
-    legis_init_filter: Option<&DecreeFilter>,
+    decree_filter: DecreeFilter,
 ) -> Result<DecreesWithMaxPage, FilterError> {
-    let stats = meilisearch_client
-        .index("decrees")
-        .get_stats()
-        .await
-        .unwrap();
-    println!("{:?}", stats);
-    let mut meilisearch_filter = String::new();
-    if let Some(filter) = legis_init_filter.as_ref() {
-        let mut filter_conditions = vec![];
+    use somes_meilisearch_filter::IntoFilterArgument;
+    let meilisearch_filter = to_meilisearch_filter(&[
+        decree_filter.gov_officials.into_filter("gov_official_id"),
+        decree_filter.legis_period.into_filter("gp"),
+    ]);
 
-        if let Some(ref legis_period) = filter.legis_period {
-            filter_conditions.push(format!("gp = '{}'", legis_period));
-        }
-        if let Some(ref legis_period) = filter.gov_officials {
-            filter_conditions.push({
-                let ors = legis_period
-                    .iter()
-                    .map(|gov_official| format!("gov_official_id = {gov_official}"))
-                    .collect::<Vec<_>>()
-                    .join(" OR ");
-                format!("({ors})")
-            });
-        }
+    // let stats = meilisearch_client
+    //     .index("decrees")
+    //     .get_stats()
+    //     .await
+    //     .unwrap();
+    // println!("{:?}", stats);
 
-        meilisearch_filter = filter_conditions.join(" AND ")
-    }
     log::info!("decrees meilisearch filter: {meilisearch_filter}, {search_query:?}");
 
     let results: SearchResults<OptionalDecree> = meilisearch_client

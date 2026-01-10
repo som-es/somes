@@ -19,7 +19,7 @@ mod construct_vote_result;
 
 pub fn create_vote_results_router() -> Router<AppState> {
     Router::new()
-        .route(SEARCH, post(vote_results_by_search_route))
+        .route(SEARCH, get(vote_results_by_search_route))
         .route(LIVE, post(vote_results_per_page_route))
         .route(LATEST, get(latest_vote_results_route))
         .route("/{gp}/{ityp}/{inr}", get(vote_result_by_path_route))

@@ -6,7 +6,6 @@
 	import Pagination from '../Pagination.svelte';
 	import ExpandablePlaceholder from '../VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import { currentGovProposalFilterStore } from '$lib/stores/stores';
-	import { get } from 'svelte/store';
 	import GovProposalExpandableBar from './Latest/GovProposalExpandableBar.svelte';
 	import { translationFn, type FilterInfo } from '../Filtering/types';
 	import FiltersAny from '../Filtering/FiltersAny.svelte';

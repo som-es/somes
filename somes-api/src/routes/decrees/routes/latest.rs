@@ -2,14 +2,11 @@ use axum::{extract::Query, Json};
 use dataservice::combx::OptionalDecree;
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
+use somes_common_lib::Document;
 use sqlx::{query_as, PgPool};
 use utoipa::ToSchema;
-use somes_common_lib::Document;
 
-use crate::{
-    routes::FilterError,
-    PgPoolConnection, RedisConnection,
-};
+use crate::{routes::FilterError, PgPoolConnection, RedisConnection};
 
 #[derive(ToSchema, Debug, Clone, Serialize, Deserialize)]
 pub struct Days {
@@ -24,11 +21,9 @@ pub async fn latest_decrees_route(
         return Err(FilterError::InvalidDays(days.days as u32));
     }
 
-    Ok(
-        extract_latest_ministrial_decrees(&pg, days.days as i32)
-            .await
-            .map(Json)?,
-    )
+    Ok(extract_latest_ministrial_decrees(&pg, days.days as i32)
+        .await
+        .map(Json)?)
 }
 
 pub async fn extract_latest_ministrial_decrees(

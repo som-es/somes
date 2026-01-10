@@ -53,7 +53,7 @@
                         <div class="grid sm:grid-cols-2 gap-4">
                             <div>
                                 <span class="block text-xs uppercase text-primary-500 font-bold tracking-wider mb-1">Zuständige Behörde</span>
-                                <span class="text-surface-700 dark:text-surface-300">Bezirkshauptmannschaft Tulln</span>
+                                <span class="text-surface-700 dark:text-surface-300">Bezirkshauptmannschaft Tulln an der Donau</span>
                             </div>
                             <div>
                                 <span class="block text-xs uppercase text-primary-500 font-bold tracking-wider mb-1">Anwendbare Vorschriften</span>

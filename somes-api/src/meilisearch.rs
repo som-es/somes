@@ -77,7 +77,10 @@ pub async fn update_decrees_meilisearch_index(
             "attribute".to_string(),
             "exactness".to_string(),
         ])
-        .with_filterable_attributes(["gp", "gov_official_id"])
+        .with_filterable_attributes([
+            "*"
+        ]
+        )
         .with_sortable_attributes(["publication_date"])
         .with_pagination(PaginationSetting {
             max_total_hits: 100000000,
@@ -127,7 +130,7 @@ pub async fn update_gov_props_meilisearch_index(
             "gov_proposal.ministrial_proposal.has_vote_result",
             "gov_proposal.vote_result",
         ])
-        .with_sortable_attributes(["gov_proposal.ministrial_proposal.raw_data_created_at"])
+        .with_sortable_attributes(["*"])
         .with_pagination(PaginationSetting {
             max_total_hits: 100000000,
         });
@@ -169,18 +172,7 @@ pub async fn update_vote_result_meilisearch_index(
             "exactness".to_string(),
         ])
         .with_filterable_attributes([
-            "legislative_initiative.accepted",
-            "legislative_initiative.requires_simple_majority",
-            "legislative_initiative.gp",
-            "legislative_initiative.voted_by_name",
-            "legislative_initiative.is_law",
-            "legislative_initiative.ityp",
-            "legislative_initiative.has_reference",
-            "legislative_initiative.by_publication",
-            "legislative_initiative.is_urgent",
-            "legislative_initiative.voting",
-            "topics",
-            "meilisearch_helper.votes",
+            "*"
         ])
         .with_sortable_attributes(["legislative_initiative.nr_plenary_activity_date"])
         .with_pagination(PaginationSetting {

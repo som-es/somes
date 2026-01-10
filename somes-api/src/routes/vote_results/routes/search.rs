@@ -17,7 +17,7 @@ pub async fn vote_results_by_search_route(
     RedisConnection(mut redis_con): RedisConnection,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
-    Json(legis_init_filter): Json<LegisInitFilter>,
+    Query(legis_init_filter): Query<LegisInitFilter>,
 ) -> Result<Json<VoteResultsWithMaxPage>, FilterError> {
     meilisearch_for_vote_results(
         legis_init_filter.is_finished,

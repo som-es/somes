@@ -1,5 +1,3 @@
-use std::ops::Mul;
-
 use axum::{
     extract::Query,
     routing::{get, post},
@@ -8,7 +6,7 @@ use axum::{
 use dataservice::combx::OptionalDecree;
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::{DecreeFilter, Document, LATEST, LIVE, Page, SEARCH};
+use somes_common_lib::{DecreeFilter, Document, Page, LATEST, LIVE, SEARCH};
 use utoipa::ToSchema;
 
 use crate::{
@@ -21,7 +19,7 @@ pub use routes::*;
 
 pub fn create_decrees_router() -> Router<AppState> {
     Router::new()
-        .route(SEARCH, post(decrees_by_search_route))
+        .route(SEARCH, get(decrees_by_search_route))
         .route(LIVE, post(decrees_per_page_route))
         .route(LATEST, get(latest_decrees_route))
         .route("/ris_id/{ris_id}", get(decree_by_ris_id_route))
@@ -52,7 +50,7 @@ pub async fn decrees_per_page_route(
         return Ok(Json(decrees_with_max_page));
     }
     let decrees_per_page =
-        get_decrees_per_page_sqlx(&mut redis_con, &pg, &page, decree_filter.as_ref()).await?;
+        get_decrees_per_page_sqlx(&mut redis_con, &pg, &page, decree_filter).await?;
     set_json_cache(&mut redis_con, &key, &decrees_per_page).await;
     Ok(Json(decrees_per_page))
 }
@@ -76,7 +74,7 @@ async fn get_decrees_per_page_sqlx(
     redis_con: &mut MultiplexedConnection,
     pg: &sqlx::Pool<sqlx::Postgres>,
     page: &Page,
-    decree_filter: Option<&DecreeFilter>,
+    decree_filter: Option<DecreeFilter>,
 ) -> Result<DecreesWithMaxPage, FilterError> {
     let updated_at = crate::meilisearch::get_update_time_of_index(
         redis_con,
@@ -88,6 +86,10 @@ async fn get_decrees_per_page_sqlx(
 
     let page_elements = DECREES_PER_PAGE.parse().unwrap_or(15);
     let mut entry_count = 0;
+
+    let decree_filter = decree_filter.unwrap_or_default();
+    let gov_officals = decree_filter.gov_officials.map(|x| x.to_value());
+
     let decrees = sqlx::query!(
         r#"
         select *, COUNT(*) OVER() AS entry_count
@@ -98,11 +100,8 @@ async fn get_decrees_per_page_sqlx(
         order by d.publication_date desc
         offset $3 limit $4
         "#,
-        decree_filter.map(|x| x.legis_period.as_ref()).flatten(),
-        decree_filter
-            .map(|x| x.gov_officials.as_ref())
-            .flatten()
-            .map(|x| &**x),
+        decree_filter.legis_period.map(|x| x.to_value()),
+        gov_officals.as_deref(),
         page.page * page_elements,
         page_elements
     )
@@ -142,6 +141,7 @@ async fn get_decrees_per_page_sqlx(
 mod tests {
     use dataservice::connect_pg;
     use somes_common_lib::{DecreeFilter, Page};
+    use somes_meilisearch_filter::FilterOp;
 
     use crate::routes::decrees::get_decrees_per_page_sqlx;
 
@@ -157,9 +157,9 @@ mod tests {
             &mut redis_con,
             &pg,
             &Page { page: 1 },
-            Some(&DecreeFilter {
-                legis_period: Some("XXVII".to_string()),
-                gov_officials: Some(vec![57488]),
+            Some(DecreeFilter {
+                legis_period: Some(FilterOp::Eq("XXVII".to_string())),
+                gov_officials: Some(FilterOp::Eq(vec![57488])),
             }),
         )
         .await;

@@ -38,7 +38,7 @@ base16ct = { version = "0.2.0", features = ["std"] }
 redis = { version = "0.29", features = ["tokio-comp"] }
 log = "0.4.17"
 simple_logger = "5.0.0"
-chrono = "0.4.24"
+chrono = { workspace = true } 
 lettre = "0.11"
 imap = { version = "3.0.0-alpha.10", features = ["rustls-tls"] }
 utoipa = { workspace = true }
@@ -55,6 +55,8 @@ views = { path="../views" }
 # axum-server = { version = "0.7.1", features = ["tls-rustls", "tls-rustls-no-provider"] }
 axum-server = { version = "0.7.3", features = ["tls-rustls-no-provider"] }
 thiserror = "2.0.17"
+serde_qs = "0.15.0"
+somes-meilisearch-filter = { workspace = true }
 
 [build-dependencies]
 tokio = { version = "1.0", features = ["full"] }
