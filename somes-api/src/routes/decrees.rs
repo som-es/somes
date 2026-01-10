@@ -1,18 +1,10 @@
-use axum::{
-    extract::Query,
-    routing::{get, post},
-    Json, Router,
-};
+use axum::{routing::get, Router};
 use dataservice::combx::OptionalDecree;
-use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::{DecreeFilter, Document, Page, LATEST, LIVE, SEARCH};
+use somes_common_lib::{Document, LATEST, SEARCH};
 use utoipa::ToSchema;
 
-use crate::{
-    get_json_cache, routes::FilterError, server::AppState, set_json_cache, PgPoolConnection,
-    RedisConnection, DECREES_PER_PAGE,
-};
+use crate::server::AppState;
 
 mod routes;
 pub use routes::*;
@@ -20,7 +12,7 @@ pub use routes::*;
 pub fn create_decrees_router() -> Router<AppState> {
     Router::new()
         .route(SEARCH, get(decrees_by_search_route))
-        .route(LIVE, post(decrees_per_page_route))
+        // .route(LIVE, post(decrees_per_page_route))
         .route(LATEST, get(latest_decrees_route))
         .route("/ris_id/{ris_id}", get(decree_by_ris_id_route))
 }
@@ -32,7 +24,7 @@ pub struct DecreesWithMaxPage {
     pub max_page: i64,
     pub updated_at: Option<chrono::NaiveDateTime>,
 }
-
+/*
 pub async fn decrees_per_page_route(
     RedisConnection(mut redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
@@ -53,7 +45,7 @@ pub async fn decrees_per_page_route(
         get_decrees_per_page_sqlx(&mut redis_con, &pg, &page, decree_filter).await?;
     set_json_cache(&mut redis_con, &key, &decrees_per_page).await;
     Ok(Json(decrees_per_page))
-}
+}*/
 
 pub async fn get_all_decrees_sqlx(
     pg: &sqlx::Pool<sqlx::Postgres>,
@@ -70,7 +62,7 @@ pub async fn get_all_decrees_sqlx(
     .collect())
 }
 
-async fn get_decrees_per_page_sqlx(
+/*async fn get_decrees_per_page_sqlx(
     redis_con: &mut MultiplexedConnection,
     pg: &sqlx::Pool<sqlx::Postgres>,
     page: &Page,
@@ -135,65 +127,4 @@ async fn get_decrees_per_page_sqlx(
         max_page: (entry_count as f64 / DECREES_PER_PAGE.parse().unwrap_or(15.)).ceil() as i64,
         updated_at,
     })
-}
-
-#[cfg(test)]
-mod tests {
-    use dataservice::connect_pg;
-    use somes_common_lib::{DecreeFilter, Page};
-    use somes_meilisearch_filter::FilterOp;
-
-    use crate::routes::decrees::get_decrees_per_page_sqlx;
-
-    #[tokio::test]
-    async fn test_get_decrees_per_page_sqlx() {
-        let pg = connect_pg().await;
-        let mut redis_con = redis::Client::open(crate::REDIS_DB)
-            .unwrap()
-            .get_multiplexed_async_connection()
-            .await
-            .unwrap();
-        let data = get_decrees_per_page_sqlx(
-            &mut redis_con,
-            &pg,
-            &Page { page: 1 },
-            Some(DecreeFilter {
-                legis_period: Some(FilterOp::Eq("XXVII".to_string())),
-                gov_officials: Some(FilterOp::Eq(vec![57488])),
-            }),
-        )
-        .await;
-        println!("data: {data:?}");
-    }
-}
-
-/*
-
-SELECT
-    d.ris_id,
-    COUNT(*) OVER() AS entry_count,
-    COALESCE(
-        json_agg(
-            json_build_object(
-                'title', doc.title,
-                'document_type', doc.document_type,
-                'document_url', doc.document_url
-            )
-        ) FILTER (WHERE doc.id IS NOT NULL),
-        '[]'
-    ) as documents
-FROM
-    ministrial_decrees d
-LEFT JOIN
-    ministrial_decrees_documents doc ON d.id = doc.ministrial_decree_id
-WHERE
-    ($1::TEXT IS NULL OR d.gp = $1)
-    AND ($2::INT[] IS NULL OR d.gov_official_id = ANY($2))
-    ris_id = 'BGBLA_2025_II_202'
-GROUP BY
-    d.gov_official_id, d.ris_id, d.ministrial_issuer,
-    d.title, d.short_title, d.publication_date, d.part,
-    d.emphasis, d.gp;
-
-
- */
+}*/

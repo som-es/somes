@@ -1,4 +1,4 @@
-use chrono::SecondsFormat;
+use chrono::{NaiveTime, SecondsFormat};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
@@ -75,17 +75,17 @@ impl<T> FilterOp<T> {
 impl<Tz: chrono::TimeZone> From<chrono::DateTime<Tz>> for Filterable {
     fn from(value: chrono::DateTime<Tz>) -> Self {
         Filterable {
-            value_as_string: format!(
-                "{}",
-                value.to_utc().to_rfc3339_opts(SecondsFormat::Micros, true)
-            ),
+            value_as_string: format!("{:?}", value.to_utc().timestamp()),
         }
     }
 }
 impl From<chrono::NaiveDate> for Filterable {
     fn from(value: chrono::NaiveDate) -> Self {
         Filterable {
-            value_as_string: format!("{}", value.to_string()),
+            value_as_string: format!(
+                "{:?}",
+                value.and_time(NaiveTime::default()).and_utc().timestamp()
+            ),
         }
     }
 }

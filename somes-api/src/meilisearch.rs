@@ -2,10 +2,11 @@ use axum::{
     extract::{FromRef, FromRequestParts},
     http::request::Parts,
 };
-use dataservice::combx::{MeilisearchHelper, OptionalVoteResult};
+use dataservice::combx::{MeilisearchHelper, OptionalDecreeFilter, OptionalVoteResult};
 use meilisearch_sdk::settings::{PaginationSetting, Settings};
 use redis::aio::MultiplexedConnection;
 use reqwest::StatusCode;
+use serde_json::json;
 use tokio::time::sleep;
 
 use crate::{
@@ -77,7 +78,7 @@ pub async fn update_decrees_meilisearch_index(
             "attribute".to_string(),
             "exactness".to_string(),
         ])
-        .with_filterable_attributes(["*"])
+        .with_filterable_attributes(OptionalDecreeFilter::filterable_fields())
         .with_sortable_attributes(["publication_date"])
         .with_pagination(PaginationSetting {
             max_total_hits: 100000000,
@@ -87,6 +88,31 @@ pub async fn update_decrees_meilisearch_index(
     client.index(index).set_settings(&settings).await?;
 
     // client.index("decrees").delete_all_documents().await?;
+
+    let all_decrees = all_decrees
+        .iter()
+        .map(|decree| {
+            let mut doc_json = serde_json::to_value(decree).unwrap();
+
+            if let Some(publication_date) = decree.publication_date {
+                let timestamp = publication_date
+                    .and_hms_opt(0, 0, 0)
+                    .unwrap()
+                    .and_utc()
+                    .timestamp();
+                doc_json["publication_date"] = json!(timestamp);
+            }
+            if let Some(created_at) = decree.created_at {
+                let timestamp = created_at.timestamp();
+                doc_json["created_at"] = json!(timestamp);
+            }
+            if let Some(updated_at) = decree.updated_at {
+                let timestamp = updated_at.timestamp();
+                doc_json["updated_at"] = json!(timestamp);
+            }
+            doc_json
+        })
+        .collect::<Vec<_>>();
 
     client
         .index(index)

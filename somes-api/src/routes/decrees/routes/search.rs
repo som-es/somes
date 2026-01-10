@@ -4,9 +4,11 @@ use crate::{
     Qs, RedisConnection, DECREES_PER_PAGE,
 };
 use axum::{extract::Query, Json};
-use dataservice::combx::{OptionalDecree, OptionalDecreeFilter};
+use chrono::DateTime;
+use dataservice::combx::OptionalDecreeFilter;
 use meilisearch_sdk::search::SearchResults;
-use somes_common_lib::{DecreeFilter, Page};
+use serde_json::Value;
+use somes_common_lib::Page;
 use somes_meilisearch_filter::to_meilisearch_filter;
 
 pub async fn decrees_by_search_route(
@@ -45,7 +47,7 @@ async fn meilisearch_decrees(
 
     log::info!("decrees meilisearch filter: {meilisearch_filter}, {search_query:?}");
 
-    let results: SearchResults<OptionalDecree> = meilisearch_client
+    let results: SearchResults<Value> = meilisearch_client
         .index("decrees")
         .search()
         .with_filter(&meilisearch_filter)
@@ -61,7 +63,23 @@ async fn meilisearch_decrees(
     let decrees = results
         .hits
         .into_iter()
-        .map(|hit| hit.result)
+        .map(|hit| {
+            let mut decree = hit.result;
+            if let Some(timestamp) = decree["publication_date"].as_i64() {
+                let date = DateTime::from_timestamp(timestamp, 0).map(|dt| dt.date_naive());
+                decree["publication_date"] = serde_json::json!(date);
+            }
+            if let Some(timestamp) = decree["created_at"].as_i64() {
+                let date = DateTime::from_timestamp(timestamp, 0);
+                decree["created_at"] = serde_json::json!(date);
+            }
+            if let Some(timestamp) = decree["updated_at"].as_i64() {
+                let date = DateTime::from_timestamp(timestamp, 0);
+                decree["updated_at"] = serde_json::json!(date);
+            }
+
+            serde_json::from_value(decree).expect("Failed to deserialize Decree")
+        })
         .collect::<Vec<_>>();
 
     let updated_at = crate::meilisearch::get_update_time_of_index(

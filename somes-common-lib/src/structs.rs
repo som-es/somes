@@ -355,12 +355,6 @@ pub struct GovPropFilter {
     pub legis_period: Option<String>,
 }
 
-#[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
-pub struct DecreeFilter {
-    pub legis_period: Option<FilterOp<String>>,
-    pub gov_officials: Option<FilterOp<Vec<i32>>>,
-}
-
 #[derive(PartialEq, Eq, IntoParams, ToSchema, PartialOrd, Ord, Debug, Serialize, Deserialize)]
 pub struct LegisPeriod {
     pub period: String,

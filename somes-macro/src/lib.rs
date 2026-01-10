@@ -86,7 +86,7 @@ struct DecreeFilter {
     documents: Option<Vec<Document>>
 }
 */
-#[proc_macro_derive(MeilisearchFilter)]
+#[proc_macro_derive(MeilisearchFilter, attributes(filter))]
 pub fn derive_meilisearch_filter(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let name = input.ident;
@@ -153,6 +153,14 @@ pub fn derive_meilisearch_filter(input: TokenStream) -> TokenStream {
         Some(quote! { self.#field_name.into_filter(#field_name_str), })
     });
 
+    let filterable_fields = updated_fields.iter().flat_map(|(field_name, ty)| {
+        if ty.unrecognized_ident.is_some() {
+            return None;
+        }
+        let field_name = field_name.to_string();
+        Some(quote! { #field_name, })
+    });
+
     let updated_fields = updated_fields.iter().map(|(field_name, ty)| {
         let type_tokens = &ty.updated_path;
         quote! {
@@ -172,6 +180,10 @@ pub fn derive_meilisearch_filter(input: TokenStream) -> TokenStream {
             #vis fn filter_arguments(self) -> Vec<Option<FilterArgument>> {
                 use somes_meilisearch_filter::IntoFilterArgument;
                 vec![#( #simple_filter_args )*]
+            }
+
+            #vis fn filterable_fields() -> Vec<&'static str> {
+                vec![#( #filterable_fields )*]
             }
         }
     };
