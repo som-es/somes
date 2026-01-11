@@ -5,7 +5,7 @@ use dataservice::{
 };
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::{Document, LegisInitFilter};
+use somes_common_lib::{AddonVoteResultFilter, Document};
 use sqlx::PgPool;
 use utoipa::ToSchema;
 
@@ -31,7 +31,7 @@ pub async fn filtered_legis_inits_per_page(
     pg: &PgPool,
     page: i64,
     page_elements: i64,
-    filter: Option<&LegisInitFilter>,
+    filter: Option<&AddonVoteResultFilter>,
     is_finished: bool,
 ) -> sqlx::Result<(Vec<DbLegislativeInitiativeQuery>, i64)> {
     let res = match filter {
@@ -88,7 +88,7 @@ pub async fn vote_results_per_page_sqlx(
     pg: &PgPool,
     page: i64,
     page_elements: i64,
-    filter: Option<&LegisInitFilter>,
+    filter: Option<&AddonVoteResultFilter>,
     is_finished: bool,
 ) -> sqlx::Result<(Vec<OptionalVoteResult>, i64)> {
     let (entries, entry_count) =

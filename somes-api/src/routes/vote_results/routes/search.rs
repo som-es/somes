@@ -1,10 +1,12 @@
 use std::fmt::Display;
 
 use axum::{extract::Query, Json};
-use dataservice::combx::{DbLegislativeInitiative, OptionalVoteResult, OptionalVoteResultFilter};
+use dataservice::combx::{
+    AiSummaryFilter, OptionalVoteResult, OptionalVoteResultFilter, TopicFilter,
+};
 use meilisearch_sdk::search::SearchResults;
 use redis::aio::MultiplexedConnection;
-use somes_common_lib::{LegisInitFilter, Page};
+use somes_common_lib::{AddonVoteResultFilter, Page};
 use somes_meilisearch_filter::{to_meilisearch_filters, CombineOp, FilterOptions};
 
 use crate::{
@@ -18,7 +20,7 @@ pub async fn vote_results_by_search_route(
     RedisConnection(mut redis_con): RedisConnection,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
-    Query(legis_init_filter): Query<LegisInitFilter>,
+    Query(legis_init_filter): Query<AddonVoteResultFilter>,
     Qs(optional_vote_result_filter): Qs<OptionalVoteResultFilter>,
 ) -> Result<Json<VoteResultsWithMaxPage>, FilterError> {
     meilisearch_for_vote_results(
@@ -48,7 +50,7 @@ async fn meilisearch_for_vote_results(
     meilisearch_client: meilisearch_sdk::client::Client,
     search_query: somes_common_lib::SearchQuery,
     page: Page,
-    filter: LegisInitFilter,
+    filter: AddonVoteResultFilter,
     vote_result_filter: OptionalVoteResultFilter,
     redis_con: &mut MultiplexedConnection,
 ) -> Result<VoteResultsWithMaxPage, FilterError> {
@@ -79,26 +81,52 @@ async fn meilisearch_for_vote_results(
     );
     filter_conditions.extend(top_level_filters);
 
-    let topics = vote_result_filter
-        .eurovoc_topics
-        .unwrap_or_default()
-        .iter()
-        .map(|topic| topic.filter_arguments())
-        .flatten()
-        .collect::<Vec<_>>();
-    let topics_filter = to_meilisearch_filters(
-        &topics,
+    filter_conditions.extend(to_topics_filter(
+        vote_result_filter
+            .eurovoc_topics
+            .unwrap_or_default()
+            .as_slice(),
+        "eurovoc_topics",
+    ));
+
+    filter_conditions.extend(to_topics_filter(
+        vote_result_filter
+            .other_keyword_topics
+            .unwrap_or_default()
+            .as_slice(),
+        "other_keyword_topics",
+    ));
+
+    filter_conditions.extend(to_topics_filter(
+        vote_result_filter.topics.unwrap_or_default().as_slice(),
+        "topics",
+    ));
+
+    filter_conditions.extend(to_meilisearch_filters(
+        &vote_result_filter
+            .ai_summary
+            .as_ref()
+            .map(|ai_summary| ai_summary.filter_arguments())
+            .unwrap_or_default(),
         &FilterOptions {
-            combine_op: CombineOp::Or,
-            prefix: Some("eurovoc_topics".into()),
+            prefix: Some("ai_summary".into()),
+            ..Default::default()
         },
-    );
+    ));
 
-    filter_conditions.extend(topics_filter);
-
-    // if let Some(topics) = &filter.topics {
-    //     filter_conditions.push(create_topic_filter("topics.topic", topics.iter()));
-    // }
+    filter_conditions.extend(to_meilisearch_filters(
+        &vote_result_filter
+            .issued_by_dels
+            .unwrap_or_default()
+            .iter()
+            .map(|issued_by_del| issued_by_del.filter_arguments())
+            .flatten()
+            .collect::<Vec<_>>(),
+        &FilterOptions {
+            prefix: Some("issued_by_dels".into()),
+            combine_op: CombineOp::Or,
+        },
+    ));
 
     if let Some(party_votes) = &filter.party_votes {
         filter_conditions.push(create_topic_filter(
@@ -156,4 +184,19 @@ async fn meilisearch_for_vote_results(
         .ok()
         .map(|date| date.naive_local()),
     })
+}
+
+fn to_topics_filter(topics: &[TopicFilter], prefix: &str) -> Vec<String> {
+    let topics = topics
+        .iter()
+        .map(|topic| topic.filter_arguments())
+        .flatten()
+        .collect::<Vec<_>>();
+    to_meilisearch_filters(
+        &topics,
+        &FilterOptions {
+            combine_op: CombineOp::Or,
+            prefix: Some(prefix.into()),
+        },
+    )
 }

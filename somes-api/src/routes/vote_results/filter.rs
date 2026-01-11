@@ -1,12 +1,12 @@
 use dataservice::db::models::DbLegislativeInitiativeQuery;
-use somes_common_lib::LegisInitFilter;
+use somes_common_lib::AddonVoteResultFilter;
 use sqlx::PgPool;
 
 pub async fn filtered_legislative_initiatives(
     pg: &PgPool,
     page: i64,
     page_elements: i64,
-    filter: &LegisInitFilter,
+    filter: &AddonVoteResultFilter,
     is_finished: bool,
 ) -> Result<(Vec<DbLegislativeInitiativeQuery>, i64), sqlx::Error> {
     todo!()

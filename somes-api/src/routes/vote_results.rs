@@ -4,7 +4,7 @@ use axum::{
     Json, Router,
 };
 use dataservice::combx::OptionalVoteResult;
-use somes_common_lib::{LegisInitFilter, Page, ID, LATEST, LIVE, SEARCH};
+use somes_common_lib::{AddonVoteResultFilter, Page, ID, LATEST, LIVE, SEARCH};
 
 use crate::{server::AppState, PgPoolConnection, RedisConnection, LEGIS_INITS_PER_PAGE};
 
@@ -43,7 +43,7 @@ pub async fn vote_results_per_page_route(
     RedisConnection(mut redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(page): Query<Page>,
-    Json(legis_init_filter): Json<Option<LegisInitFilter>>,
+    Json(legis_init_filter): Json<Option<AddonVoteResultFilter>>,
 ) -> Result<Json<VoteResultsWithMaxPage>, FilterError> {
     if page.page < 0 {
         return Err(FilterError::InvalidPage(page.page as u32));

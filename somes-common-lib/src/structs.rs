@@ -336,7 +336,7 @@ impl std::fmt::Display for Voting {
 }
 
 #[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
-pub struct LegisInitFilter {
+pub struct AddonVoteResultFilter {
     pub is_finished: bool,
     pub party_votes: Option<Vec<PartyVote>>,
     // pub accepted: Option<String>,
