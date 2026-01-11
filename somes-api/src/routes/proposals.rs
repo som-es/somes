@@ -7,32 +7,22 @@ pub use construct_gov_proposal::*;
 pub use db::*;
 pub use routes::*;
 
-use axum::{
-    extract::Query,
-    routing::{get, post},
-    Json, Router,
-};
+use axum::{routing::get, Router};
 use dataservice::db::models::DbMinistrialProposalQueryMeta;
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::{GovPropFilter, Page, LATEST, LIVE, SEARCH};
-use sqlx::{FromRow, PgPool};
+use somes_common_lib::{LATEST, SEARCH};
+use sqlx::PgPool;
 use utoipa::ToSchema;
 
-use crate::{
-    routes::FilterError, server::AppState, PgPoolConnection, RedisConnection, GOV_PROPS_PER_PAGE,
-};
+use crate::server::AppState;
 
-use super::{
-    delegate_by_id_sqlx,
-    statistics::filtering::{bind_values, build_filter, count_filter, IntoFilterArgument, Manual},
-    GovProposalDelegate,
-};
+use super::{delegate_by_id_sqlx, GovProposalDelegate};
 
 pub fn create_gov_proposals_router() -> Router<AppState> {
     Router::new()
         .route(SEARCH, get(gov_props_by_search_route))
-        .route(LIVE, post(gov_proposals_per_page_route))
+        // .route(LIVE, post(gov_proposals_per_page_route))
         .route(LATEST, get(latest_gov_proposals_route))
         .route("/{gp}/{inr}", get(gov_proposal_by_path_route))
 }
@@ -64,7 +54,7 @@ pub async fn construct_gov_delegate_proposal(
         delegate: delegates.into_iter().next(), // TODO: handle multiple delegates properly
     })
 }
-
+/*
 pub async fn gov_proposals_per_page_route(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
@@ -209,7 +199,6 @@ pub async fn get_ministrial_proposals_per_page(
 ) -> sqlx::Result<(Vec<DbMinistrialProposalQueryMeta>, i64)> {
     filtered_ministrial_proposals_sqlx(pg, page, page_elements, filter).await
 }
-
 #[cfg(test)]
 mod tests {
     use dataservice::connect_pg;
@@ -239,3 +228,4 @@ mod tests {
         println!("entries: {entries:?}");
     }
 }
+*/

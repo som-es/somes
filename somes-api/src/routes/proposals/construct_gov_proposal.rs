@@ -29,7 +29,11 @@ pub async fn construct_gov_proposal(
     let gov_proposal = get_gov_proposal_sqlx(pg, ministrial_proposal.id).await?;
 
     let cache_date = if let Some(ref vote_result) = gov_proposal.vote_result {
-        vote_result.legislative_initiative.nr_plenary_activity_date
+        vote_result
+            .legislative_initiative
+            .as_ref()
+            .unwrap()
+            .nr_plenary_activity_date
     } else {
         today()
     };

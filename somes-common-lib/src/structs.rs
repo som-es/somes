@@ -37,6 +37,7 @@ pub struct Document {
     Clone,
     CompositeType,
     Type,
+    MeilisearchFilter,
 )]
 pub struct FullMandate {
     pub start_date: Option<NaiveDate>,
@@ -50,7 +51,7 @@ pub struct FullMandate {
     pub function: Option<String>,
 }
 
-#[derive(ToSchema, PartialEq, Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(ToSchema, PartialEq, Debug, Clone, Serialize, Deserialize, Default, MeilisearchFilter)]
 pub struct Delegate {
     pub id: Option<i32>,
     pub name: Option<String>,
@@ -339,20 +340,6 @@ impl std::fmt::Display for Voting {
 pub struct AddonVoteResultFilter {
     pub is_finished: bool,
     pub party_votes: Option<Vec<PartyVote>>,
-    // pub accepted: Option<String>,
-    // pub is_named_vote: Option<bool>,
-    // pub simple_majority: Option<bool>,
-    // pub legis_period: Option<String>,
-    // pub is_law: Option<bool>,
-    // pub vote_type: Option<Voting>,
-    // pub topics: Option<Vec<String>>,
-    // pub is_urgent: Option<bool>,
-}
-
-#[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
-pub struct GovPropFilter {
-    pub has_vote_result: Option<bool>,
-    pub legis_period: Option<String>,
 }
 
 #[derive(PartialEq, Eq, IntoParams, ToSchema, PartialOrd, Ord, Debug, Serialize, Deserialize)]

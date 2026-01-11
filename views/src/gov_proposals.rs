@@ -43,7 +43,7 @@ pub async fn create_gov_proposals_view<'a>(tx: &mut Transaction<'a, Postgres>) -
             where gp = mp.legis_init_gp 
             and inr = mp.legis_init_inr 
             and ityp = mp.legis_init_ityp)::int
-        ) as \"vote_result: VoteResult\",
+        ) as \"vote_result: OptionalVoteResult\",
         ARRAY(
             SELECT
               ROW(topic)::topic

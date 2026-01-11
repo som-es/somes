@@ -17,6 +17,8 @@ pub enum FilterOp<T> {
     In(T),
     Nin(T),
     Nsw(T),
+    IsN(T),
+    NIsN(T),
 }
 
 impl<T> FilterOp<T> {
@@ -34,6 +36,8 @@ impl<T> FilterOp<T> {
             FilterOp::Nsw(_) => format!("NOT STARTS WITH"),
             FilterOp::In(_) => format!("IN"),
             FilterOp::Nin(_) => format!("NOT IN"),
+            FilterOp::IsN(_) => format!("IS NULL"),
+            FilterOp::NIsN(_) => format!("IS NOT NULL"),
         }
     }
 
@@ -50,6 +54,8 @@ impl<T> FilterOp<T> {
             | FilterOp::Sw(val)
             | FilterOp::In(val)
             | FilterOp::Nin(val)
+            | FilterOp::IsN(val)
+            | FilterOp::NIsN(val)
             | FilterOp::Nsw(val) => val,
         }
     }
@@ -67,6 +73,8 @@ impl<T> FilterOp<T> {
             | FilterOp::Sw(val)
             | FilterOp::In(val)
             | FilterOp::Nin(val)
+            | FilterOp::IsN(val)
+            | FilterOp::NIsN(val)
             | FilterOp::Nsw(val) => val,
         }
     }
@@ -227,6 +235,8 @@ impl<T: ToFilterable> ToFilterArgument for FilterOp<T> {
             FilterOp::Sw(val) => FilterOp::Sw(val.to_filterable()),
             FilterOp::In(val) => FilterOp::In(val.to_filterable()),
             FilterOp::Nin(val) => FilterOp::Nin(val.to_filterable()),
+            FilterOp::NIsN(val) => FilterOp::NIsN(val.to_filterable()),
+            FilterOp::IsN(val) => FilterOp::IsN(val.to_filterable()),
             FilterOp::Nsw(val) => FilterOp::Nsw(val.to_filterable()),
         };
 

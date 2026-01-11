@@ -13,4 +13,5 @@ sqlx = { version = "0.8", features = [ "runtime-tokio", "tls-rustls", "postgres"
 dataservice = { path = "../dataservice/dataservice", default-features=false, features=["models", "utoipa"] }
 utoipa = { version = "5", features = ["chrono", "axum_extras"] }
 somes-meilisearch-filter = { path = "somes-meilisearch-filter" }
+somes-macro = { path = "somes-macro" }
 chrono = "0.4.24"

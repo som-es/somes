@@ -1,10 +1,15 @@
 use axum::{extract::Query, Json};
+use dataservice::combx::{
+    meilisearch_filters_gov_props, meilisearch_filters_vote_result, OptionalGovProposalFilter,
+};
 use meilisearch_sdk::search::SearchResults;
-use somes_common_lib::GovPropFilter;
+use somes_meilisearch_filter::{to_meilisearch_filters, FilterOptions};
 
 use crate::{
     meilisearch::MeilisearchClient,
-    routes::{FilterError, GovProposalDelegate, GovProposalsWithMaxPage},
+    routes::{
+        FilterError, GovProposalDelegate, GovProposalDelegateFilter, GovProposalsWithMaxPage,
+    },
     RedisConnection, GOV_PROPS_PER_PAGE,
 };
 
@@ -13,28 +18,24 @@ pub async fn gov_props_by_search_route(
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
-    Query(legis_init_filter): Query<Option<GovPropFilter>>,
+    Query(gov_prop_filter): Query<GovProposalDelegateFilter>,
 ) -> Result<Json<GovProposalsWithMaxPage>, FilterError> {
-    let mut meilisearch_filter = String::new();
-    if let Some(filter) = legis_init_filter {
-        let mut filter_conditions = Vec::new();
+    let mut filter_conditions = to_meilisearch_filters(
+        &gov_prop_filter.filter_arguments(),
+        &FilterOptions::default(),
+    );
 
-        if let Some(ref legis_period) = filter.legis_period {
-            filter_conditions.push(format!(
-                "gov_proposal.ministrial_proposal.gp = '{}'",
-                legis_period
-            ));
-        }
-        if let Some(has_vote_result) = filter.has_vote_result {
-            let condition = if has_vote_result {
-                "gov_proposal.vote_result IS NOT NULL"
-            } else {
-                "gov_proposal.vote_result IS NULL"
-            };
-            filter_conditions.push(condition.to_string());
-        }
-        meilisearch_filter = filter_conditions.join(" AND ")
+    if let Some(gov_proposal_filter) = gov_prop_filter.gov_proposal {
+        filter_conditions.extend(meilisearch_filters_gov_props(gov_proposal_filter));
     }
+    if let Some(delegate) = &gov_prop_filter.delegate {
+        filter_conditions.extend(to_meilisearch_filters(
+            &delegate.filter_arguments(),
+            &FilterOptions::default(),
+        ));
+    }
+
+    let meilisearch_filter = filter_conditions.join(" AND ");
 
     let results: SearchResults<GovProposalDelegate> = meilisearch_client
         .index("gov_props")

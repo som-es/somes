@@ -6,14 +6,18 @@ use dataservice::combx::OptionalGovProposal;
 pub use decrees::*;
 pub use routes::*;
 
+use crate::server::AppState;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::{Delegate, ALL_AT_DATE, EXTEND, GOV_PROPOSALS};
+use somes_common_lib::{Delegate, DelegateFilter, ALL_AT_DATE, EXTEND, GOV_PROPOSALS};
+use somes_macro::MeilisearchFilter;
+use somes_meilisearch_filter::{FilterArgument, FilterOp};
 use utoipa::ToSchema;
 
-use crate::server::AppState;
+use dataservice::combx::OptionalGovProposalFilter;
 
-#[derive(ToSchema, Debug, Clone, Serialize, Deserialize)]
+#[derive(ToSchema, Debug, Clone, Serialize, Deserialize, MeilisearchFilter)]
 pub struct GovProposalDelegate {
+    #[filter(make_optional)]
     pub gov_proposal: OptionalGovProposal,
     pub delegate: Option<Delegate>,
 }

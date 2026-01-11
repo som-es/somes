@@ -152,12 +152,8 @@ pub async fn update_gov_props_meilisearch_index(
             "attribute".to_string(),
             "exactness".to_string(),
         ])
-        .with_filterable_attributes([
-            "gov_proposal.ministrial_proposal.gp",
-            "gov_proposal.ministrial_proposal.has_vote_result",
-            "gov_proposal.vote_result",
-        ])
-        .with_sortable_attributes(["*"])
+        .with_filterable_attributes(["gov_proposal", "delegate"])
+        .with_sortable_attributes(["gov_proposal.ministrial_proposal.raw_data_created_at"])
         .with_pagination(PaginationSetting {
             max_total_hits: 100000000,
         });
@@ -193,8 +189,6 @@ pub async fn update_vote_result_meilisearch_index(
         .into_iter()
         .map(|field| field.to_string())
         .collect::<Vec<String>>();
-    log::info!("{:?}", filterable_fields);
-    // filterable_fields.push("meilisearch_helper.votes".to_string());
 
     let settings = Settings::new()
         .with_ranking_rules(vec![

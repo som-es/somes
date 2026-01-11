@@ -13,35 +13,53 @@ pub(crate) fn rebuild_type(
     convert_to_vec: bool,
     convert_to_optional: bool,
 ) -> RebuildInfo {
-    let mut rebuilt_info = rebuild_type_inner(ty, convert_to_vec, convert_to_optional);
+    let mut has_top_level_optional = false;
+    let mut rebuilt_info = rebuild_type_inner(
+        ty,
+        convert_to_vec,
+        convert_to_optional,
+        &mut has_top_level_optional,
+    );
     if !rebuilt_info.has_updated && rebuilt_info.unrecognized_ident.is_none() {
-        let mut updated_path = if convert_to_vec {
+        let updated_path = if convert_to_vec {
             quote! { FilterOp<Vec<#ty>> }
         } else {
             quote! { FilterOp<#ty> }
         };
-        if convert_to_optional {
-            updated_path = quote! { Option<#updated_path> };
-        }
         rebuilt_info.updated_path = updated_path;
+    }
+    if !rebuilt_info.has_updated && !has_top_level_optional {
+        let updated_path = &rebuilt_info.updated_path;
+        if convert_to_optional {
+            rebuilt_info.updated_path = quote! { Option<#updated_path> };
+        }
     }
     rebuilt_info
 }
 
-fn rebuild_type_inner(ty: &Type, convert_to_vec: bool, convert_to_optional: bool) -> RebuildInfo {
+fn rebuild_type_inner(
+    ty: &Type,
+    convert_to_vec: bool,
+    convert_to_optional: bool,
+    has_top_level_optional: &mut bool,
+) -> RebuildInfo {
     match ty {
         Type::Path(tp) => {
             if let Some(seg) = tp.path.segments.last() {
                 let ident = seg.ident.to_string();
                 match ident.as_str() {
                     "Option" | "Vec" | "Json" => {
+                        if ident == "Option" {
+                            *has_top_level_optional = true;
+                        }
                         // extract inner generic
                         if let PathArguments::AngleBracketed(ab) = &seg.arguments {
                             if let Some(GenericArgument::Type(inner_ty)) = ab.args.first() {
                                 let rebuild_info = rebuild_type_inner(
                                     inner_ty,
                                     convert_to_vec,
-                                    convert_to_optional,
+                                    convert_to_optional && !*has_top_level_optional,
+                                    has_top_level_optional,
                                 );
                                 let inner = rebuild_info.updated_path;
                                 let ident = &seg.ident;
@@ -76,12 +94,9 @@ fn rebuild_type_inner(ty: &Type, convert_to_vec: bool, convert_to_optional: bool
                                         }
                                     }
                                 };
-                                let new_path = if convert_to_optional {
-                                    if ident == "Option" {
-                                        new_path
-                                    } else {
-                                        quote! { Option<#new_path> }
-                                    }
+
+                                let new_path = if convert_to_optional && ident != "Option" {
+                                    quote! { Option<#new_path> }
                                 } else {
                                     new_path
                                 };
