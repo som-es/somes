@@ -12,7 +12,7 @@ where
 
     async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
         let query = parts.uri.query().unwrap_or("");
-        let config = serde_qs::Config::new(5, false);
+        let config = serde_qs::Config::new(10, false);
 
         let value = config
             .deserialize_str(query)

@@ -79,12 +79,32 @@ impl<Tz: chrono::TimeZone> From<chrono::DateTime<Tz>> for Filterable {
         }
     }
 }
+
+impl ToFilterable for chrono::DateTime<chrono::Utc> {
+    fn to_filterable(&self) -> Filterable {
+        Filterable {
+            value_as_string: format!("{:?}", self.timestamp()),
+        }
+    }
+}
+
 impl From<chrono::NaiveDate> for Filterable {
     fn from(value: chrono::NaiveDate) -> Self {
         Filterable {
             value_as_string: format!(
                 "{:?}",
                 value.and_time(NaiveTime::default()).and_utc().timestamp()
+            ),
+        }
+    }
+}
+
+impl ToFilterable for chrono::NaiveDate {
+    fn to_filterable(&self) -> Filterable {
+        Filterable {
+            value_as_string: format!(
+                "{:?}",
+                self.and_time(NaiveTime::default()).and_utc().timestamp()
             ),
         }
     }
@@ -98,10 +118,26 @@ impl From<String> for Filterable {
     }
 }
 
+impl ToFilterable for String {
+    fn to_filterable(&self) -> Filterable {
+        Filterable {
+            value_as_string: format!("{:?}", self),
+        }
+    }
+}
+
 impl From<&str> for Filterable {
     fn from(value: &str) -> Self {
         Filterable {
             value_as_string: format!("{:?}", value),
+        }
+    }
+}
+
+impl ToFilterable for &String {
+    fn to_filterable(&self) -> Filterable {
+        Filterable {
+            value_as_string: format!("{:?}", self),
         }
     }
 }
@@ -116,13 +152,21 @@ macro_rules! impl_filterable {
                     }
                 }
             }
+
+            impl ToFilterable for $val {
+                fn to_filterable(&self) -> Filterable {
+                    Filterable {
+                        value_as_string: self.to_string()
+                    }
+                }
+            }
         )*
     };
 }
 
 impl_filterable! {
     f32, f64, i8, i16, i32, i64, i128,
-    isize, u8, u16, u32, u64, u128, usize
+    isize, u8, u16, u32, u64, u128, usize, bool
 }
 
 impl<T: Into<Filterable> + std::fmt::Debug> From<Vec<T>> for Filterable {
@@ -133,9 +177,21 @@ impl<T: Into<Filterable> + std::fmt::Debug> From<Vec<T>> for Filterable {
     }
 }
 
+impl<T: ToFilterable + std::fmt::Debug> ToFilterable for Vec<T> {
+    fn to_filterable(&self) -> Filterable {
+        Filterable {
+            value_as_string: format!("{:?}", self),
+        }
+    }
+}
+
 #[derive(Default, Debug, Deserialize, Serialize, Clone)]
 pub struct Filterable {
     value_as_string: String,
+}
+
+pub trait ToFilterable {
+    fn to_filterable(&self) -> Filterable;
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -144,34 +200,34 @@ pub struct FilterArgument {
     filter_op: FilterOp<Filterable>,
 }
 
-pub trait IntoFilterArgument {
-    fn into_filter(self, attribute_path: &str) -> Option<FilterArgument>;
+pub trait ToFilterArgument {
+    fn to_filter(&self, attribute_path: &str) -> Option<FilterArgument>;
 }
 
-impl<T: IntoFilterArgument> IntoFilterArgument for Option<T> {
-    fn into_filter(self, attribute_path: &str) -> Option<FilterArgument> {
+impl<T: ToFilterArgument> ToFilterArgument for Option<T> {
+    fn to_filter(&self, attribute_path: &str) -> Option<FilterArgument> {
         match self {
-            Some(val) => val.into_filter(attribute_path),
+            Some(val) => val.to_filter(attribute_path),
             None => None,
         }
     }
 }
 
-impl<T: Into<Filterable>> IntoFilterArgument for FilterOp<T> {
-    fn into_filter(self, attribute_path: &str) -> Option<FilterArgument> {
+impl<T: ToFilterable> ToFilterArgument for FilterOp<T> {
+    fn to_filter(&self, attribute_path: &str) -> Option<FilterArgument> {
         let filter_op = match self {
-            FilterOp::Eq(val) => FilterOp::Eq(val.into()),
-            FilterOp::Gt(val) => FilterOp::Gt(val.into()),
-            FilterOp::Lt(val) => FilterOp::Lt(val.into()),
-            FilterOp::Cn(val) => FilterOp::Cn(val.into()),
-            FilterOp::Ne(val) => FilterOp::Ne(val.into()),
-            FilterOp::Gte(val) => FilterOp::Gte(val.into()),
-            FilterOp::Lte(val) => FilterOp::Lte(val.into()),
-            FilterOp::Ncn(val) => FilterOp::Ncn(val.into()),
-            FilterOp::Sw(val) => FilterOp::Sw(val.into()),
-            FilterOp::In(val) => FilterOp::In(val.into()),
-            FilterOp::Nin(val) => FilterOp::Nin(val.into()),
-            FilterOp::Nsw(val) => FilterOp::Nsw(val.into()),
+            FilterOp::Eq(val) => FilterOp::Eq(val.to_filterable()),
+            FilterOp::Gt(val) => FilterOp::Gt(val.to_filterable()),
+            FilterOp::Lt(val) => FilterOp::Lt(val.to_filterable()),
+            FilterOp::Cn(val) => FilterOp::Cn(val.to_filterable()),
+            FilterOp::Ne(val) => FilterOp::Ne(val.to_filterable()),
+            FilterOp::Gte(val) => FilterOp::Gte(val.to_filterable()),
+            FilterOp::Lte(val) => FilterOp::Lte(val.to_filterable()),
+            FilterOp::Ncn(val) => FilterOp::Ncn(val.to_filterable()),
+            FilterOp::Sw(val) => FilterOp::Sw(val.to_filterable()),
+            FilterOp::In(val) => FilterOp::In(val.to_filterable()),
+            FilterOp::Nin(val) => FilterOp::Nin(val.to_filterable()),
+            FilterOp::Nsw(val) => FilterOp::Nsw(val.to_filterable()),
         };
 
         Some(FilterArgument {
@@ -181,32 +237,85 @@ impl<T: Into<Filterable>> IntoFilterArgument for FilterOp<T> {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum CombineOp {
+    #[default]
+    And,
+    Or,
+}
+
+impl CombineOp {
+    pub fn to_meilisearch_op(&self) -> &'static str {
+        match self {
+            CombineOp::And => "AND",
+            CombineOp::Or => "OR",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct FilterOptions {
+    pub combine_op: CombineOp,
+    pub prefix: Option<String>,
+}
+
 pub fn to_meilisearch_filter(filter_args: &[Option<FilterArgument>]) -> String {
+    to_meilisearch_filter_with_ops(filter_args, &FilterOptions::default())
+}
+
+pub fn to_meilisearch_filters(
+    filter_args: &[Option<FilterArgument>],
+    options: &FilterOptions,
+) -> Vec<String> {
     filter_args
         .iter()
         .flatten()
         .map(|filter_arg| {
+            let prefix = if let Some(prefix) = &options.prefix {
+                format!("{}.", prefix)
+            } else {
+                "".to_string()
+            };
             format!(
-                "{attribute} {op} {value}",
+                "{prefix}{attribute} {op} {value}",
                 attribute = filter_arg.filter_attribute_path,
                 op = filter_arg.filter_op.to_meilisearch_op(),
                 value = filter_arg.filter_op.as_value().value_as_string
             )
         })
         .collect::<Vec<String>>()
-        .join(" AND ")
+}
+
+pub fn to_meilisearch_filter_with_ops(
+    filter_args: &[Option<FilterArgument>],
+    options: &FilterOptions,
+) -> String {
+    to_meilisearch_filters(filter_args, options)
+        .join(&format!(" {} ", options.combine_op.to_meilisearch_op()))
 }
 
 #[cfg(test)]
 mod tests {
     use serde::{Deserialize, Serialize};
 
-    use crate::{FilterOp, Filterable, IntoFilterArgument, to_meilisearch_filter};
+    use crate::{FilterOp, Filterable, ToFilterArgument, to_meilisearch_filter};
+
+    #[derive(Default, Debug, Deserialize, Serialize, Clone)]
+    pub struct InnerGpFilter {
+        pub legis_period: Option<FilterOp<Vec<String>>>,
+    }
+
+    #[derive(Debug, Deserialize, Serialize, Clone)]
+    pub struct TopicFilter {
+        pub topic: FilterOp<String>,
+    }
 
     #[derive(Default, Debug, Deserialize, Serialize, Clone)]
     pub struct DecreeFilter2 {
         pub legis_period: Option<FilterOp<String>>,
         pub gov_officials: Option<FilterOp<Vec<i32>>>,
+        pub inner_gp: Option<InnerGpFilter>,
+        pub topics: Option<Vec<TopicFilter>>,
     }
 
     #[test]
@@ -217,16 +326,20 @@ mod tests {
         let res = format!("servas_oida = {}", x.value_as_string);
         dbg!(res);
 
-        let query_str = "legis_period[eq]=XXVIII&gov_officials[in][0]=1";
-
+        let query_str =
+            "legis_period[eq]=XXVIII&gov_officials[in][0]=1&inner_gp[legis_period][in][0]=XXVII";
         let data = serde_qs::from_str::<DecreeFilter2>(query_str).unwrap();
         dbg!(&data);
         let filter = [
-            data.gov_officials.into_filter("gov_official_id"),
-            data.legis_period.into_filter("gp"),
+            data.gov_officials.to_filter("gov_official_id"),
+            data.legis_period.to_filter("gp"),
         ];
         let filter = to_meilisearch_filter(&filter);
         dbg!(filter);
+
+        let query_str = "topics[0][topic][sw]=Education&topics[1][topic][sw]=Health";
+        let data = serde_qs::from_str::<DecreeFilter2>(query_str).unwrap();
+        dbg!(&data);
 
         // let res = data.
         // dbg!(res);

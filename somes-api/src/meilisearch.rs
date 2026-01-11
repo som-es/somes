@@ -2,7 +2,11 @@ use axum::{
     extract::{FromRef, FromRequestParts},
     http::request::Parts,
 };
-use dataservice::combx::{MeilisearchHelper, OptionalDecreeFilter, OptionalVoteResult};
+use chrono::format;
+use dataservice::combx::{
+    DbAiSummaryFilter, DbLegislativeInitiativeQueryFilter, MeilisearchHelper, OptionalDecreeFilter,
+    OptionalVoteResult, OptionalVoteResultFilter,
+};
 use meilisearch_sdk::settings::{PaginationSetting, Settings};
 use redis::aio::MultiplexedConnection;
 use reqwest::StatusCode;
@@ -185,6 +189,13 @@ pub async fn update_vote_result_meilisearch_index(
         &sqlx::PgPool,
     ) -> sqlx::Result<Vec<OptionalVoteResult>>,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    let filterable_fields = OptionalVoteResultFilter::filterable_fields()
+        .into_iter()
+        .map(|field| field.to_string())
+        .collect::<Vec<String>>();
+    log::info!("{:?}", filterable_fields);
+    // filterable_fields.push("meilisearch_helper.votes".to_string());
+
     let settings = Settings::new()
         .with_ranking_rules(vec![
             "sort".to_string(),
@@ -194,7 +205,7 @@ pub async fn update_vote_result_meilisearch_index(
             "attribute".to_string(),
             "exactness".to_string(),
         ])
-        .with_filterable_attributes(["*"])
+        .with_filterable_attributes(&filterable_fields)
         .with_sortable_attributes(["legislative_initiative.nr_plenary_activity_date"])
         .with_pagination(PaginationSetting {
             max_total_hits: 100000000,

@@ -338,15 +338,15 @@ impl std::fmt::Display for Voting {
 #[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
 pub struct LegisInitFilter {
     pub is_finished: bool,
-    pub accepted: Option<String>,
-    pub is_named_vote: Option<bool>,
-    pub simple_majority: Option<bool>,
-    pub legis_period: Option<String>,
-    pub is_law: Option<bool>,
-    pub vote_type: Option<Voting>,
-    pub topics: Option<Vec<String>>,
     pub party_votes: Option<Vec<PartyVote>>,
-    pub is_urgent: Option<bool>,
+    // pub accepted: Option<String>,
+    // pub is_named_vote: Option<bool>,
+    // pub simple_majority: Option<bool>,
+    // pub legis_period: Option<String>,
+    // pub is_law: Option<bool>,
+    // pub vote_type: Option<Voting>,
+    // pub topics: Option<Vec<String>>,
+    // pub is_urgent: Option<bool>,
 }
 
 #[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]

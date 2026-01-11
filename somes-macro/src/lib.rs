@@ -110,12 +110,20 @@ pub fn derive_meilisearch_filter(input: TokenStream) -> TokenStream {
         Fields::Named(named) => {
             for f in named.named.iter() {
                 let mut has_make_vec = false;
+                let mut has_make_optional = false;
+                let mut has_skip = false;
                 for attr in &f.attrs {
                     if attr.path().is_ident("filter") {
                         let parse_result = attr.parse_nested_meta(|meta| {
                             // Check if the token inside is 'make_vec'
                             if meta.path.is_ident("make_vec") {
                                 has_make_vec = true;
+                                Ok(())
+                            } else if meta.path.is_ident("make_optional") {
+                                has_make_optional = true;
+                                Ok(())
+                            } else if meta.path.is_ident("skip") {
+                                has_skip = true;
                                 Ok(())
                             } else {
                                 // Handle other options inside #[filter(...)] if necessary
@@ -129,9 +137,12 @@ pub fn derive_meilisearch_filter(input: TokenStream) -> TokenStream {
                     }
                 }
 
+                if has_skip {
+                    continue;
+                }
                 let ident = f.ident.as_ref().unwrap();
                 let rust_field_name = ident.clone();
-                let rebuilt_type = rebuild_type(&f.ty, has_make_vec);
+                let rebuilt_type = rebuild_type(&f.ty, has_make_vec, has_make_optional);
                 updated_fields.push((rust_field_name, rebuilt_type));
             }
         }
@@ -150,13 +161,10 @@ pub fn derive_meilisearch_filter(input: TokenStream) -> TokenStream {
             return None;
         }
         let field_name_str = field_name.to_string();
-        Some(quote! { self.#field_name.into_filter(#field_name_str), })
+        Some(quote! { self.#field_name.to_filter(#field_name_str), })
     });
 
-    let filterable_fields = updated_fields.iter().flat_map(|(field_name, ty)| {
-        if ty.unrecognized_ident.is_some() {
-            return None;
-        }
+    let filterable_fields = updated_fields.iter().map(|(field_name, _ty)| {
         let field_name = field_name.to_string();
         Some(quote! { #field_name, })
     });
@@ -177,8 +185,8 @@ pub fn derive_meilisearch_filter(input: TokenStream) -> TokenStream {
         }
 
         impl #filter_name {
-            #vis fn filter_arguments(self) -> Vec<Option<FilterArgument>> {
-                use somes_meilisearch_filter::IntoFilterArgument;
+            #vis fn filter_arguments(&self) -> Vec<Option<FilterArgument>> {
+                use somes_meilisearch_filter::ToFilterArgument;
                 vec![#( #simple_filter_args )*]
             }
 
