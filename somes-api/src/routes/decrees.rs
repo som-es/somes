@@ -123,6 +123,8 @@ async fn get_decrees_per_page_sqlx(
             eli: x.eli,
             document_url: x.document_url,
             documents: x.documents,
+            created_at: x.created_at,
+            updated_at: x.updated_at,
         }
     })
     .collect();

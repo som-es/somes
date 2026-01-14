@@ -5,5 +5,5 @@ export async function gov_proposal_by_path(
 	gp: string,
 	inr: string
 ): Promise<GovProposalDelegate | HasError> {
-	return getWithRoute<GovProposalDelegate>(`gov_proposal/${gp}/${inr}`);
+	return getWithRoute<GovProposalDelegate>(`v1/gov_proposals/${gp}/${inr}`);
 }

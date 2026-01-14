@@ -46,6 +46,8 @@ pub async fn extract_latest_ministrial_proposals(
         mp.emphasis,
         mp.title,
         mp.description,
+        mp.raw_data_created_at,
+        mp.raw_data_updated_at,
         mp.created_at,
         mp.updated_at,
         mp.due_to,
@@ -58,8 +60,8 @@ pub async fn extract_latest_ministrial_proposals(
      from 
          ministrial_proposals mp 
 
-        where mp.created_at > NOW() - make_interval(days => $1)
-    order by mp.created_at desc",
+        where mp.raw_data_created_at > NOW() - make_interval(days => $1)
+    order by mp.raw_data_created_at desc",
         days
     )
     .fetch_all(pg)

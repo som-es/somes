@@ -21,6 +21,8 @@ pub async fn create_ministerial_decrees_with_docs_view<'a>(
             d.gp,
             d.eli,
             d.document_url,
+            d.created_at,
+            d.updated_at,
             ARRAY(
                 SELECT ROW(title, document_url, document_type)::document
                 from ministrial_decrees_documents doc

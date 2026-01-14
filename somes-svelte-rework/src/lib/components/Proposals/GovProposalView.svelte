@@ -15,6 +15,7 @@
 	$: aiSummary = govProposal.gov_proposal.ai_summary;
 
 	$: documentUrl = `https://parlament.gv.at/gegenstand/${govProposal.gov_proposal.ministrial_proposal.gp}/ME/${govProposal.gov_proposal.ministrial_proposal.inr}`;
+	$: date = new Date(govProposal.gov_proposal.ministrial_proposal.raw_data_created_at).toLocaleDateString();
 </script>
 
 <title>
@@ -63,7 +64,7 @@
 				<div class="flex-shrink-0">
 					<InfoBadgesCustom texts={
 						[govProposal.gov_proposal.ministrial_proposal.ressort, 
-						dashDateToDotDate(govProposal.gov_proposal.ministrial_proposal.created_at.toString().split("T")[0]), govProposal.gov_proposal.ministrial_proposal.gp]} />
+						date, govProposal.gov_proposal.ministrial_proposal.gp]} />
 				</div>
 				
 				<div class="flex-1 flex justify-end">

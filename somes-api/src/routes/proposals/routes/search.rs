@@ -43,7 +43,7 @@ pub async fn gov_props_by_search_route(
         .with_query(&search_query.search)
         .with_hits_per_page(GOV_PROPS_PER_PAGE.parse().unwrap_or(12))
         .with_page(page.page as usize)
-        .with_sort(&["gov_proposal.ministrial_proposal.created_at:desc"])
+        .with_sort(&["gov_proposal.ministrial_proposal.raw_data_created_at:desc"])
         .execute()
         .await?;
 
