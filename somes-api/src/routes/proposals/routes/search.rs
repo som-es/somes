@@ -20,6 +20,7 @@ pub async fn gov_props_by_search_route(
     Query(page): Query<somes_common_lib::Page>,
     Query(gov_prop_filter): Query<GovProposalDelegateFilter>,
 ) -> Result<Json<GovProposalsWithMaxPage>, FilterError> {
+    dbg!(&gov_prop_filter);
     let mut filter_conditions = to_meilisearch_filters(
         &gov_prop_filter.filter_arguments(),
         &FilterOptions::default(),
