@@ -213,9 +213,8 @@
 					isShown: true,
 					multiple: true,
 					infoText: 'Filtert die angezeigten Abgeordneten nach Partei.',
-					options: [], // wird dynamisch aus `currentData` gefüllt
-					default: null,
-					//label: (val) => val && val.length > 0 ? val.join(', ') : 'Alle'
+					options: [],
+					default: []
 				},
 				{
 					id: 'gender',
@@ -223,10 +222,10 @@
 					isShown: true,
 					multiple: false,
 					infoText: 'Filtert die angezeigten Abgeordneten nach Geschlecht.',
-					options: [undefined, 'f', 'm'],
-					default: undefined,
+					options: ['all', 'f', 'm'],
+					default: 'all',
 					label: (val) => {
-						if (!val) return 'egal';
+						if (val === 'all') return 'egal';
 						return val === 'f' ? 'weiblich' : 'männlich';
 					}
 				},
@@ -235,10 +234,11 @@
 					name: 'Normalisiert',
 					isShown: true,
 					multiple: false,
-					infoText: 'Zeigt die durchschnittliche Redezeit pro Sitzung statt der gesamten Redezeit eines Abgeordneten.',
+					infoText:
+						'Zeigt die durchschnittliche Redezeit pro Sitzung statt der gesamten Redezeit eines Abgeordneten.',
 					options: [true, false],
 					default: true,
-					label: (val) => val ? 'Ja' : 'Nein'
+					label: (val) => (val ? 'Ja' : 'Nein')
 				},
 				{
 					id: 'desc',
@@ -248,10 +248,11 @@
 					infoText: 'Sortiert die Ergebnisse absteigend. (höchste Werte zuerst)',
 					options: [true, false],
 					default: true,
-					label: (val) => val ? 'Ja' : 'Nein'
+					label: (val) => (val ? 'Ja' : 'Nein')
 				}
 			]
 		}}
+
 	/>
 </Container>
 
@@ -265,27 +266,44 @@
 			filters: [
 				{
 					id: 'primary',
-					name: "Partei",
+					name: 'Partei',
 					isShown: true,
-					infoText: "Filtert die Ergebnisse nach Partei. Es werden nur ausgewählte Parteien angezeigt."
+					multiple: true,
+					infoText:
+						'Filtert die Ergebnisse nach Partei. Es werden nur ausgewählte Parteien angezeigt.',
+					options: [],
+					default: []
 				},
 				{
 					id: 'gender',
-					name: "Geschlecht",
+					name: 'Geschlecht',
 					isShown: false,
-					infoText: null
+					multiple: false,
+					infoText: null,
+					options: ['all', 'f', 'm'],
+					default: 'all'
 				},
 				{
 					id: 'normalized',
-					name: "Normalisiert",
+					name: 'Normalisiert',
 					isShown: true,
-					infoText: "Zeigt die durchschnittliche Redezeit pro Parteimitglied statt der gesamten Redezeit der Partei."
+					multiple: false,
+					infoText:
+						'Zeigt die durchschnittliche Redezeit pro Parteimitglied statt der gesamten Redezeit der Partei.',
+					options: [true, false],
+					default: true,
+					label: (val) => (val ? 'Ja' : 'Nein')
 				},
 				{
 					id: 'desc',
-					name: "Absteigend",
+					name: 'Absteigend',
 					isShown: true,
-					infoText: "Sortiert die Ergebnisse absteigend (höchste Werte zuerst)."
+					multiple: false,
+					infoText:
+						'Sortiert die Ergebnisse absteigend (höchste Werte zuerst).',
+					options: [true, false],
+					default: true,
+					label: (val) => (val ? 'Ja' : 'Nein')
 				}
 			]
 		}}
@@ -304,30 +322,48 @@
 			filters: [
 				{
 					id: 'primary',
-					name: "Geschlecht",
+					name: 'Geschlecht',
 					isShown: true,
-					infoText: "Filtert die Ergebnisse nach Geschlecht. Es werden nur ausgewählte Parteien angezeigt."
+					multiple: true,
+					infoText:
+						'Filtert die Ergebnisse nach Geschlecht. Es werden nur ausgewählte Parteien angezeigt.',
+					options: ['f', 'm'],
+					default: []
 				},
 				{
 					id: 'gender',
-					name: "Partei",
+					name: 'Partei',
 					isShown: false,
-					infoText: null
+					multiple: false,
+					infoText: null,
+					options: ['all'],
+					default: 'all'
 				},
 				{
 					id: 'normalized',
-					name: "Normalisiert",
+					name: 'Normalisiert',
 					isShown: true,
-					infoText: "Zeigt die durchschnittliche Redezeit pro Person innerhalb der jeweiligen Geschlechtsgruppe statt der gesamten Redezeit."
+					multiple: false,
+					infoText:
+						'Zeigt die durchschnittliche Redezeit pro Person innerhalb der jeweiligen Geschlechtsgruppe statt der gesamten Redezeit.',
+					options: [true, false],
+					default: true,
+					label: (val) => (val ? 'Ja' : 'Nein')
 				},
 				{
 					id: 'desc',
-					name: "Absteigend",
+					name: 'Absteigend',
 					isShown: true,
-					infoText: "Sortiert die Ergebnisse absteigend (höchste Werte zuerst)."
+					multiple: false,
+					infoText:
+						'Sortiert die Ergebnisse absteigend (höchste Werte zuerst).',
+					options: [true, false],
+					default: true,
+					label: (val) => (val ? 'Ja' : 'Nein')
 				}
 			]
 		}}
+
 
 	/>
 </Container>
@@ -343,30 +379,48 @@
 			filters: [
 				{
 					id: 'primary',
-					name: "Altersgruppe",
+					name: 'Altersgruppe',
 					isShown: true,
-					infoText: "Filtert die Ergebnisse nach Altersgruppen. Es werden nur ausgewählte Altersgruppen angezeigt."
+					multiple: true,
+					infoText:
+						'Filtert die Ergebnisse nach Altersgruppen. Es werden nur ausgewählte Altersgruppen angezeigt.',
+					options: [],
+					default: []
 				},
 				{
 					id: 'gender',
-					name: "Geschlecht",
+					name: 'Geschlecht',
 					isShown: false,
-					infoText: null
+					multiple: false,
+					infoText: null,
+					options: ['all', 'f', 'm'],
+					default: 'all'
 				},
 				{
 					id: 'normalized',
-					name: "Normalisiert",
+					name: 'Normalisiert',
 					isShown: true,
-					infoText: "Zeigt die durchschnittliche Redezeit pro Person innerhalb der jeweiligen Altersgruppe statt der gesamten Redezeit."
+					multiple: false,
+					infoText:
+						'Zeigt die durchschnittliche Redezeit pro Person innerhalb der jeweiligen Altersgruppe statt der gesamten Redezeit.',
+					options: [true, false],
+					default: true,
+					label: (val) => (val ? 'Ja' : 'Nein')
 				},
 				{
 					id: 'desc',
-					name: "Absteigend",
+					name: 'Absteigend',
 					isShown: true,
-					infoText: "Sortiert die Ergebnisse absteigend (höchste Werte zuerst)."
+					multiple: false,
+					infoText:
+						'Sortiert die Ergebnisse absteigend (höchste Werte zuerst).',
+					options: [true, false],
+					default: true,
+					label: (val) => (val ? 'Ja' : 'Nein')
 				}
 			]
 		}}
+
 
 	/>
 </Container>
@@ -382,30 +436,49 @@
 			filters: [
 				{
 					id: 'primary',
-					name: "Legislaturperiode",
+					name: 'Legislaturperiode',
 					isShown: true,
-					infoText: "Filtert die Ergebnisse nach Legislaturperioden. Es werden nur ausgewählte Legislaturperioden angezeigt."
+					multiple: true,
+					infoText:
+						'Filtert die Ergebnisse nach Legislaturperioden. Es werden nur ausgewählte Legislaturperioden angezeigt.',
+					options: [],
+					default: []
 				},
 				{
 					id: 'gender',
-					name: "Geschlecht",
+					name: 'Geschlecht',
 					isShown: true,
-					infoText: "Filtert die Ergebnisse nach Geschlecht der Abgeordneten."
+					multiple: false,
+					infoText:
+						'Filtert die Ergebnisse nach Geschlecht der Abgeordneten.',
+					options: ['all', 'f', 'm'],
+					default: 'all'
 				},
 				{
 					id: 'normalized',
-					name: "Normalisiert",
+					name: 'Normalisiert',
 					isShown: true,
-					infoText: "Zeigt die durchschnittliche Redezeit pro Sitzung in der jeweiligen Legislaturperiode statt der gesamten Redezeit."
+					multiple: false,
+					infoText:
+						'Zeigt die durchschnittliche Redezeit pro Sitzung in der jeweiligen Legislaturperiode statt der gesamten Redezeit.',
+					options: [true, false],
+					default: true,
+					label: (val) => (val ? 'Ja' : 'Nein')
 				},
 				{
 					id: 'desc',
-					name: "Absteigend",
+					name: 'Absteigend',
 					isShown: true,
-					infoText: "Sortiert die Ergebnisse absteigend (höchste Werte zuerst)."
+					multiple: false,
+					infoText:
+						'Sortiert die Ergebnisse absteigend (höchste Werte zuerst).',
+					options: [true, false],
+					default: true,
+					label: (val) => (val ? 'Ja' : 'Nein')
 				}
 			]
 		}}
+
 
 	/>
 </Container>

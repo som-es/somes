@@ -4,7 +4,7 @@
 	import LegisButtons from '../Filtering/LegisButtons.svelte';
 	import { onMount } from 'svelte';
 	import ReactiveDelegateBarChart from './ReactiveDelegateBarChart.svelte';
-	import type { Config } from './types';
+	import type { Config, FilterInfoStatistics, FilterOption } from './types';
 
 	export let delegateMakeRequest: (
 		gp: string | null,
@@ -23,19 +23,36 @@
 	let filterPrimaries: string[] = [];
 
 
-	let filterValues: Record<string, any> = {};
-if (config) {
-	config.filters.forEach(filter => {
-		const isMulti = filter.multiple === true;
+	let singleValues: Record<string, FilterOption> = {};
+	let multiValues: Record<string, FilterOption[]> = {};
 
-		filterValues[filter.id] =
-			filter.default ??
-			(isMulti ? [] : filter.options?.[0] ?? null);
-	});
-}
+	$: if (config) {
+		for (const filter of config.filters) {
+			if (filter.multiple) {
+				// Multi-Werte: immer ein Array, niemals undefined
+				multiValues[filter.id] = [];
+				if (Array.isArray(filter.default)) {
+					multiValues[filter.id] = filter.default;
+				} else if (filter.default !== undefined) {
+					multiValues[filter.id] = [filter.default as FilterOption];
+				}
+			} else {
+				// Single-Werte: immer ein Wert, niemals undefined
+				if (Array.isArray(filter.default)) {
+					singleValues[filter.id] = filter.default[0] ?? filter.options?.[0] ?? '';
+				} else {
+					singleValues[filter.id] = filter.default ?? filter.options?.[0] ?? '';
+				}
+			}
+		}
+	}
 
-		
-
+	// Helper um sicher zu gehen, dass bind:group immer ein Wert hat
+	const getGroup = (filter: FilterInfoStatistics) => {
+		return filter.multiple
+			? multiValues[filter.id] || []
+			: singleValues[filter.id] ?? '';
+	};
 
 
 	const addUniqueParties = () => {
@@ -136,31 +153,46 @@ if (config) {
 	};
 
 
-const createPopup = (filterId: string, type: 'dropDown' | 'info') => ({
-	event: type === 'dropDown' ? 'click' : 'hover',
-	target: type === 'dropDown' ? 'popup_'+filterId+id: 'popup_info'+filterId+id,
-	placement: type === 'dropDown' ? 'bottom' : 'right',
-	closeQuery: type === 'dropDown' ? '.listbox-item' : undefined
-});
+	const createPopup = (filterId: string, type: 'dropDown' | 'info') => ({
+		event: type === 'dropDown' ? 'click' : 'hover',
+		target: type === 'dropDown' ? 'popup_'+filterId+id: 'popup_info'+filterId+id,
+		placement: type === 'dropDown' ? 'bottom' : 'right',
+		closeQuery: type === 'dropDown' ? '.listbox-item' : undefined
+	} as const);
 
 
-let filterPopups: Record<string, {popup: any, infoPopup: any, label: () => string}> = {};
+	let filterPopups: Record<
+		string,
+		{ popup: PopupSettings; infoPopup: PopupSettings; label: () => string }
+	> = {};
+
+	$: if (config) {
+		filterPopups = {};
+
+		for (const filter of config.filters) {
+			const labelFn = filter.label ?? ((val: any) => String(val ?? ''));
+
+			filterPopups[filter.id] = {
+				popup: createPopup(filter.id, 'dropDown'),
+				infoPopup: createPopup(filter.id, 'info'),
+				label: () =>
+					labelFn(
+						filter.multiple
+							? multiValues[filter.id]
+							: singleValues[filter.id]
+					)
+			};
+		}
+	}
 
 
-if (config) {
-	config.filters.forEach(filter => {
-		const value = filterValues[filter.id];
-		const labelFn = filter.label ?? ((val: any) => String(val ?? '')); // Default Label
-		filterPopups[filter.id] = {
-			popup: createPopup(filter.id, 'dropDown'),
-			infoPopup: createPopup(filter.id, 'info'),
-			label: () => labelFn(filterValues[filter.id])
-		};
-	});
-}
+const isGroupReady = (filter: any) =>
+	filter.multiple
+		? Array.isArray(multiValues[filter.id])
+		: filter.id in singleValues;
 
 
-console.log(filterPopups)
+
 </script>
 
 <LegisButtons bind:selectedPeriod />
@@ -199,23 +231,38 @@ console.log(filterPopups)
 					class="z-30 card w-48 shadow-xl py-2"
 					data-popup={"popup_" + filter.id + id}
 				>
-
-					<ListBox
-						name={filter.id}
-						rounded="rounded-container-token sm:!rounded-token"
-						active="variant-filled-secondary"
-						hover="hover:variant-soft-secondary"
-						multiple={filter.multiple === true}
-						bind:group={filterValues[filter.id]}
-					>
-						{#each filter.options ?? [] as option}
-							<!-- @ts-ignore Skeleton ListBoxItem requires group, but receives it via ListBox context -->
-							<ListBoxItem value={option}>
-								{String(filter.label?.(option) ?? option)}
-							</ListBoxItem>
-						{/each}
-					</ListBox>
-
+					{#if isGroupReady(filter)}
+						{#if filter.multiple}
+							<ListBox
+								name={filter.id}
+								multiple
+								bind:group={multiValues[filter.id]}
+								rounded="rounded-container-token sm:!rounded-token"
+								active="variant-filled-secondary"
+								hover="hover:variant-soft-secondary"
+							>
+								{#each filter.options ?? [] as option}
+									<ListBoxItem value={option}>
+										{String(filter.label?.(option) ?? option)}
+									</ListBoxItem>
+								{/each}
+							</ListBox>
+						{:else}
+							<ListBox
+								name={filter.id}
+								bind:group={singleValues[filter.id]}
+								rounded="rounded-container-token sm:!rounded-token"
+								active="variant-filled-secondary"
+								hover="hover:variant-soft-secondary"
+							>
+								{#each filter.options ?? [] as option}
+									<ListBoxItem value={option}>
+										{String(filter.label?.(option) ?? option)}
+									</ListBoxItem>
+								{/each}
+							</ListBox>
+						{/if}
+					{/if}
 				</div>
 				<button
 					class="btn variant-filled-secondary w-48 justify-between"
