@@ -23,7 +23,7 @@
 		{#each circles2d as circleRow, r}
 			{#each circleRow as circle, c}
 				<circle
-					class="outline-none"
+					class="outline-hidden"
 					type="button"
 					cx={((c % MAX_WIDTH) + r * MAX_WIDTH) * 30}
 					cy={Math.floor(c / MAX_WIDTH) * 30 + 30}

@@ -73,7 +73,7 @@
 	>
 		{#each circles2d.flat(1) as circle, i}
 			<circle
-				class="translated-circle outline-none"
+				class="translated-circle outline-hidden"
 				type="button"
 				cx={circle.x}
 				cy={circle.y}

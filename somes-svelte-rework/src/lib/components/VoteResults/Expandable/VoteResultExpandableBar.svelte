@@ -184,7 +184,19 @@
 							<VoteTypeBadge {voteResult} />
 						</div>
 					{/if}
+<<<<<<< HEAD
 				{:else}{/if}
+=======
+					<!-- REWORK - Mini Parlament <button
+						class="max-sm:hidden z-20 w-30 bg-primary-100 dark:bg-primary-300 rounded-md"
+						on:click={onShowDetails}
+					>
+						<VoteParliament2 {voteResult} preview={true} />
+					</button>
+					-->
+				{:else}
+				{/if}
+>>>>>>> sveltev5
 			</div>
 			<span class="lg:hidden">
 				{#if voteResult.named_votes != null}

@@ -1,15 +1,17 @@
 use std::fmt::Display;
 
 use axum::{extract::Query, Json};
-use dataservice::combx::OptionalVoteResult;
+use dataservice::combx::{
+    meilisearch_filters_vote_result, OptionalVoteResult, OptionalVoteResultFilter,
+};
 use meilisearch_sdk::search::SearchResults;
 use redis::aio::MultiplexedConnection;
-use somes_common_lib::{LegisInitFilter, Page};
+use somes_common_lib::{AddonVoteResultFilter, Page};
 
 use crate::{
     meilisearch::MeilisearchClient,
     routes::{FilterError, VoteResultsWithMaxPage},
-    RedisConnection, LEGIS_INITS_PER_PAGE,
+    Qs, RedisConnection, LEGIS_INITS_PER_PAGE,
 };
 
 pub async fn vote_results_by_search_route(
@@ -17,7 +19,8 @@ pub async fn vote_results_by_search_route(
     RedisConnection(mut redis_con): RedisConnection,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
-    Json(legis_init_filter): Json<LegisInitFilter>,
+    Query(legis_init_filter): Query<AddonVoteResultFilter>,
+    Qs(optional_vote_result_filter): Qs<OptionalVoteResultFilter>,
 ) -> Result<Json<VoteResultsWithMaxPage>, FilterError> {
     meilisearch_for_vote_results(
         legis_init_filter.is_finished,
@@ -25,6 +28,7 @@ pub async fn vote_results_by_search_route(
         search_query,
         page,
         legis_init_filter,
+        optional_vote_result_filter,
         &mut redis_con,
     )
     .await
@@ -45,18 +49,19 @@ async fn meilisearch_for_vote_results(
     meilisearch_client: meilisearch_sdk::client::Client,
     search_query: somes_common_lib::SearchQuery,
     page: Page,
-    filter: LegisInitFilter,
+    filter: AddonVoteResultFilter,
+    vote_result_filter: OptionalVoteResultFilter,
     redis_con: &mut MultiplexedConnection,
 ) -> Result<VoteResultsWithMaxPage, FilterError> {
+    // dbg!(&vote_result_filter);
     let mut filter_conditions = if is_finished {
         vec![r#"legislative_initiative.accepted IS NOT NULL"#.to_string()]
     } else {
         vec![r#"legislative_initiative.accepted IS NULL AND legislative_initiative.has_reference = false"#.to_string()]
     };
+    filter_conditions.extend(meilisearch_filters_vote_result(vote_result_filter));
 
-    if let Some(topics) = &filter.topics {
-        filter_conditions.push(create_topic_filter("topics.topic", topics.iter()));
-    }
+    // dataservice::combx::DbLegislativeInitiativeQueryFilter ;
 
     if let Some(party_votes) = &filter.party_votes {
         filter_conditions.push(create_topic_filter(
@@ -70,38 +75,6 @@ async fn meilisearch_for_vote_results(
         //     "votes.infavor",
         //     party_votes.iter(),
         // ));
-    }
-
-    if let Some(accepted) = &filter.accepted {
-        filter_conditions.push(format!("legislative_initiative.accepted = '{}'", accepted));
-    }
-    if let Some(simple_majority) = filter.simple_majority {
-        filter_conditions.push(format!(
-            "legislative_initiative.requires_simple_majority = {}",
-            simple_majority
-        ));
-    }
-    if let Some(ref legis_period) = filter.legis_period {
-        filter_conditions.push(format!("legislative_initiative.gp = '{}'", legis_period));
-    }
-
-    if let Some(is_named_vote) = filter.is_named_vote {
-        filter_conditions.push(format!(
-            "legislative_initiative.voted_by_name = {}",
-            is_named_vote
-        ));
-    }
-
-    if let Some(is_law) = filter.is_law {
-        filter_conditions.push(format!("legislative_initiative.is_law = {}", is_law));
-    }
-
-    if let Some(voting) = filter.vote_type {
-        filter_conditions.push(format!("legislative_initiative.voting = {voting}"));
-    }
-
-    if let Some(is_urgent) = filter.is_urgent {
-        filter_conditions.push(format!("legislative_initiative.is_urgent = {is_urgent}"));
     }
 
     let meilisearch_filter = filter_conditions.join(" AND ");

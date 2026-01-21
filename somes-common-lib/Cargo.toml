@@ -13,5 +13,6 @@ utoipa = { workspace = true }
 chrono = {version = "0.4", features = ["serde"]}
 serde_json = "1.0"
 common-scrapes = { path = "../../common-scrapes" }
-somes-macro = { path = "../somes-macro" }
+somes-macro = { workspace = true }
 sqlx = {workspace=true}
+somes-meilisearch-filter = { workspace = true }

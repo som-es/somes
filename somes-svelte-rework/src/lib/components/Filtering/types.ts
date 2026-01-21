@@ -1,4 +1,4 @@
-import type { PopupSettings } from '@skeletonlabs/skeleton';
+import type { PopupSettings } from '@skeletonlabs/skeleton-svelte';
 
 export interface FilterInfo<T> {
 	title: string;

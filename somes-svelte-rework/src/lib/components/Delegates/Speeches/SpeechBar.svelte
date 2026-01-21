@@ -6,7 +6,6 @@
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
 	import clockIcon from '$lib/assets/misc_icons/clock-two.svg?raw';
 	import { gotoHistory } from '$lib/goto';
-	import { getModalStore } from '@skeletonlabs/skeleton';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 
 	export let speech: Speech;
@@ -74,7 +73,7 @@
 
 				{#if hasVotes}
 					<button
-						class="max-sm:hidden z-20 w-[7.5rem] bg-primary-100 dark:bg-primary-300 rounded-md"
+						class="max-sm:hidden z-20 w-30 bg-primary-100 dark:bg-primary-300 rounded-md"
 						on:click={() => onShowDetails(voteResult)}
 					>
 						<VoteParliament2 {voteResult} preview={true} />
@@ -107,7 +106,7 @@
 </div>
 
 <!--
-<div class="gap-3 rounded variant-filled my-1">
+<div class="gap-3 rounded-sm variant-filled my-1">
     {#if voteResult}
         {voteResult.legislative_initiative.description}
         {speech.legislative_initiatives_id} {speech.opinion}

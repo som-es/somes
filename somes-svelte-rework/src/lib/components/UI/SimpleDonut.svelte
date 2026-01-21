@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { afterUpdate } from 'svelte';
 
-	import type { ConicStop } from '@skeletonlabs/skeleton';
+	import type { ConicStop } from '@skeletonlabs/skeleton-svelte';
 
 	export let stops: ConicStop[] = [{ color: 'red', start: 0, end: 360 }];
 	export let isLightMode: boolean = true;

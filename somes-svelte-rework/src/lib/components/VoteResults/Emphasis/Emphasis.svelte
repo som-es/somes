@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Glossary, Keypoint } from '$lib/ai_summary_types';
 	import GlossaryText from '$lib/components/UI/GlossaryText.svelte';
-	import collapse from 'svelte-collapse';
+	// import collapse from 'svelte-collapse';
 
 	export let emphasis: Keypoint[] | null;
 	export let glossary: Glossary | null = null;
@@ -36,7 +36,7 @@
 					</li>
 				{/each}
 
-				<div use:collapse={{ open }}>
+				<!-- <div use:collapse={{ open }}>
 					{#each restPoints as emph}
 						<li class="my-3">
 							<span class="badge bg-primary-500 dark:bg-primary-300"></span>
@@ -49,7 +49,7 @@
 							{/if}
 						</li>
 					{/each}
-				</div>
+				</div> -->
 
 				{#if emphasis.length > 3}
 					<button class="font-semibold text-md" on:click={() => (open = !open)}>

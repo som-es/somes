@@ -1,6 +1,7 @@
 use chrono::{DateTime, NaiveDate, NaiveDateTime, Utc};
 use serde::{Deserialize, Serialize};
-use somes_macro::CompositeType;
+use somes_macro::{CompositeType, MeilisearchFilter};
+use somes_meilisearch_filter::{FilterArgument, FilterOp};
 use sqlx::prelude::Type;
 use utoipa::{IntoParams, ToSchema};
 
@@ -17,6 +18,7 @@ use utoipa::{IntoParams, ToSchema};
     Ord,
     Type,
     CompositeType,
+    MeilisearchFilter,
 )]
 pub struct Document {
     pub title: Option<String>,
@@ -35,6 +37,7 @@ pub struct Document {
     Clone,
     CompositeType,
     Type,
+    MeilisearchFilter,
 )]
 pub struct FullMandate {
     pub start_date: Option<NaiveDate>,
@@ -48,7 +51,7 @@ pub struct FullMandate {
     pub function: Option<String>,
 }
 
-#[derive(ToSchema, PartialEq, Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(ToSchema, PartialEq, Debug, Clone, Serialize, Deserialize, Default, MeilisearchFilter)]
 pub struct Delegate {
     pub id: Option<i32>,
     pub name: Option<String>,
@@ -334,29 +337,9 @@ impl std::fmt::Display for Voting {
 }
 
 #[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
-pub struct LegisInitFilter {
+pub struct AddonVoteResultFilter {
     pub is_finished: bool,
-    pub accepted: Option<String>,
-    pub is_named_vote: Option<bool>,
-    pub simple_majority: Option<bool>,
-    pub legis_period: Option<String>,
-    pub is_law: Option<bool>,
-    pub vote_type: Option<Voting>,
-    pub topics: Option<Vec<String>>,
     pub party_votes: Option<Vec<PartyVote>>,
-    pub is_urgent: Option<bool>,
-}
-
-#[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
-pub struct GovPropFilter {
-    pub has_vote_result: Option<bool>,
-    pub legis_period: Option<String>,
-}
-
-#[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
-pub struct DecreeFilter {
-    pub legis_period: Option<String>,
-    pub gov_officials: Option<Vec<i32>>,
 }
 
 #[derive(PartialEq, Eq, IntoParams, ToSchema, PartialOrd, Ord, Debug, Serialize, Deserialize)]

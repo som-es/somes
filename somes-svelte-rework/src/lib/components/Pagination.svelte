@@ -119,7 +119,7 @@
 	{#each pageSuggestions as suggestion}
 		{#if suggestion > 0 && suggestion <= maxPage}
 			<SButton
-				class="mt-5 mb-5 text-center !rounded-lg {isActive(suggestion)
+				class="mt-5 mb-5 text-center rounded-lg! {isActive(suggestion)
 					? 'bg-secondary-300'
 					: 'bg-tertiary-300'}"
 				on:click={() => {

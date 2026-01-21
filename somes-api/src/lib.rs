@@ -5,12 +5,14 @@ use dotenvy_macro::dotenv;
 
 mod db;
 pub mod email;
+mod filter_querying;
 pub mod hash;
 pub mod jwt;
 pub mod routes;
 pub mod server;
 
 pub use db::*;
+pub use filter_querying::*;
 pub use jwt::AuthError;
 mod http_redirect;
 pub mod meilisearch;

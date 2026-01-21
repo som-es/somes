@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { ProgressRadial } from '@skeletonlabs/skeleton';
+	import { ProgressRing } from '@skeletonlabs/skeleton-svelte';
 </script>
 
 <div class="flex justify-center items-center mt-2 mb-2">
-	<ProgressRadial />
+	<ProgressRing />
 </div>

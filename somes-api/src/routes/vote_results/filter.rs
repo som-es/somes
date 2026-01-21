@@ -1,15 +1,16 @@
 use dataservice::db::models::DbLegislativeInitiativeQuery;
-use somes_common_lib::LegisInitFilter;
+use somes_common_lib::AddonVoteResultFilter;
 use sqlx::PgPool;
 
 pub async fn filtered_legislative_initiatives(
     pg: &PgPool,
     page: i64,
     page_elements: i64,
-    filter: &LegisInitFilter,
+    filter: &AddonVoteResultFilter,
     is_finished: bool,
 ) -> Result<(Vec<DbLegislativeInitiativeQuery>, i64), sqlx::Error> {
-    let default_where_clause = if is_finished {
+    todo!()
+    /*let default_where_clause = if is_finished {
         "accepted is not null and is_voteable_on"
     } else {
         "accepted is null and not has_reference and ityp != 'EUBTG' and is_voteable_on"
@@ -81,5 +82,5 @@ pub async fn filtered_legislative_initiatives(
     Ok((
         filtered_query.fetch_all(pg).await?,
         count_query.fetch_one(pg).await?.0,
-    ))
+    ))*/
 }

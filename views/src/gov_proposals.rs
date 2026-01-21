@@ -7,24 +7,20 @@ pub async fn create_gov_proposals_view<'a>(tx: &mut Transaction<'a, Postgres>) -
         .execute(&mut **tx)
         .await?;
 
-    let ministrial_proposal_fields = DbMinistrialProposalQueryMeta::field_orders().into_iter().map(|field| {
-      if field == "id" {
-        "inner_mp.id"
-      } else {
-        field
-      }
-    }).collect::<Vec<_>>().join(" ,");
+    let ministrial_proposal_fields = DbMinistrialProposalQueryMeta::field_orders()
+        .into_iter()
+        .map(|field| if field == "id" { "inner_mp.id" } else { field })
+        .collect::<Vec<_>>()
+        .join(" ,");
 
-    let summary_fields = DbAiSummary::field_orders().into_iter().map(|field| {
-      if field == "id" {
-        "s.id"
-      } else {
-        field
-      }
-    }).collect::<Vec<_>>().join(" ,");
+    let summary_fields = DbAiSummary::field_orders()
+        .into_iter()
+        .map(|field| if field == "id" { "s.id" } else { field })
+        .collect::<Vec<_>>()
+        .join(" ,");
 
-    sqlx::query(
-        &format!("
+    sqlx::query(&format!(
+        "
     CREATE VIEW gov_proposals AS
     SELECT
         mp.id,
@@ -47,7 +43,7 @@ pub async fn create_gov_proposals_view<'a>(tx: &mut Transaction<'a, Postgres>) -
             where gp = mp.legis_init_gp 
             and inr = mp.legis_init_inr 
             and ityp = mp.legis_init_ityp)::int
-        ) as \"vote_result: VoteResult\",
+        ) as \"vote_result: OptionalVoteResult\",
         ARRAY(
             SELECT
               ROW(topic)::topic
@@ -111,7 +107,7 @@ pub async fn create_gov_proposals_view<'a>(tx: &mut Transaction<'a, Postgres>) -
 
         from ministrial_proposals mp
         "
-        ))
+    ))
     .execute(&mut **tx)
     .await?;
     Ok(())

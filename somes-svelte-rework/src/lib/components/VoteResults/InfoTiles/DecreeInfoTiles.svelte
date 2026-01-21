@@ -7,7 +7,7 @@
 	export let isCenter = false;
 </script>
 <div class="flex flex-wrap {isCenter ? 'justify-center' : ''} info-item gap-3">
-	<Square class="!min-w-[250px]">
+	<Square class="min-w-[250px]!">
 		<div class="cursor-pointer text-center text-lg ">
 			{decree.ministrial_issuer}
 		</div>

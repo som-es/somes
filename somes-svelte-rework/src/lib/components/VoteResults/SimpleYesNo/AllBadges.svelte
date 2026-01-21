@@ -15,6 +15,7 @@
 			newVotes.push({
 				party,
 				fraction: dels.length,
+				code: null,
 				infavor: true,
 				legislative_initiatives_id: 0
 			});

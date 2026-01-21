@@ -17,7 +17,6 @@
 	import Emphasis from '$lib/components/VoteResults/Emphasis/Emphasis.svelte';
 	import GovProposalInfoTiles from '$lib/components/VoteResults/InfoTiles/GovProposalInfoTiles.svelte';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
-	import { getModalStore } from '@skeletonlabs/skeleton';
 	import { createGovProposalPath } from '../types';
 
 	export let govProposal: GovProposal;
@@ -101,7 +100,7 @@
 	</div>
 </div>
 
-<div class="max-lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3 {whichGridContainer}">
+<div class="max-lg:hidden! entry bg-primary-200 dark:bg-primary-400 mt-3 {whichGridContainer}">
 	<!--  -->
 	{#if aiSummary}
 		<Emphasis emphasis={aiSummary.full_summary.key_points} glossary={aiSummary.full_summary.glossary} />

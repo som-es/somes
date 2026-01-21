@@ -5,7 +5,6 @@
 	import { currentVoteResultStore } from '$lib/stores/stores';
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
 	import { gotoHistory } from '$lib/goto';
-	import { getModalStore } from '@skeletonlabs/skeleton';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import { removeUserTopic } from '$lib/api/authed';
 	import { createEventDispatcher } from 'svelte';
@@ -82,7 +81,7 @@
 
 				{#if hasVotes}
 					<button
-						class="max-sm:hidden z-20 w-[7.5rem] bg-primary-100 dark:bg-primary-300 rounded-md"
+						class="max-sm:hidden z-20 w-30 bg-primary-100 dark:bg-primary-300 rounded-md"
 						on:click={() => onShowDetails(voteResult)}
 					>
 						<VoteParliament2 {voteResult} preview={true} />

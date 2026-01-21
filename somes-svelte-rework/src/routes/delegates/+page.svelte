@@ -14,7 +14,7 @@
 		Speech,
 		SpeechesWithMaxPage
 	} from '$lib/types';
-	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
+	import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
 	import { onMount } from 'svelte';
 	import {
 		delegate_by_id,

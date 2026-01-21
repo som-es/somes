@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
+	import { type ModalSettings } from '@skeletonlabs/skeleton-svelte';
 	import DecreeBar from './DecreeBar.svelte';
 	import type { Decree } from './types';
 	import type { Delegate } from '$lib/types';
@@ -27,14 +27,14 @@
 			{decrees.length == 1 ? 'Verordnung' : 'Verordnungen'} insgesamt
 		</h2>
 	</div>
-	<button class="btn sm:btn-lg variant-filled mt-1" on:click={() => modalStore.trigger(allDecrees)}
+	<button class="btn sm:btn-lg preset-filled mt-1" on:click={() => modalStore.trigger(allDecrees)}
 		>Alle anzeigen</button
 	>
 </div>
 
 <div class="mt-1">
 	{#each previewDecrees as decree}
-		<!-- <div class="gap-3 rounded variant-filled my-1">{speech.legislative_initiatives_id} {speech.opinion}</div> -->
+		<!-- <div class="gap-3 rounded-sm variant-filled my-1">{speech.legislative_initiatives_id} {speech.opinion}</div> -->
 		<DecreeBar {decree} {delegate} page={0}></DecreeBar>
 		<!-- <GovProposalExpandableBar {govProposal} /> -->
 	{/each}

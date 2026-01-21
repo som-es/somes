@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { getModalStore } from '@skeletonlabs/skeleton';
-	import Pagination from '$lib/components/Pagination.svelte';
+		import Pagination from '$lib/components/Pagination.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import DecreeBar from './DecreeBar.svelte';
 	import type { Decree } from './types';
@@ -21,7 +20,7 @@
 </script>
 
 {#if $modalStore.length > 0 && $modalStore[0].meta}
-	<div class="card p-8 max-w-7xl w-[80rem]">
+	<div class="card p-8 max-w-7xl w-7xl">
 		<h1 class="font-bold text-2xl">Letzte Verordnungen</h1>
 		<button
 			on:click={() => {
@@ -30,7 +29,7 @@
 			style="font-size: 34px"
 			class="w-5 unselectable float-right"
 		>
-			&#x2715
+			✕
 		</button>
 
 		<Pagination bind:page maxPage={Math.ceil($modalStore[0].meta.decrees.length / ENTRIES)} />

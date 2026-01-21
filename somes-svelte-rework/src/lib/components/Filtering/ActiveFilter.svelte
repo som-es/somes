@@ -8,6 +8,6 @@
 		on:click={() => (filter.filterObj = undefined)}
 	>
 		{filter.translationFn(filter)}
-		<span class="ml-1" style="font-size: 18px;">&#x2715</span>
+		<span class="ml-1" style="font-size: 18px;">✕</span>
 	</button>
 {/if}

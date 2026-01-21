@@ -2,7 +2,7 @@
 	import SimpleDonut from '$lib/components/UI/SimpleDonut.svelte';
 	import crossmarkIcon from '$lib/assets/misc_icons/crossmark.svg?raw';
 	import checkmarkIcon from '$lib/assets/misc_icons/checkmark.svg?raw';
-	import { getModeUserPrefers, modeCurrent, type ConicStop } from '@skeletonlabs/skeleton';
+	import { type ConicStop } from '@skeletonlabs/skeleton-svelte';
 	import { partyToColor } from '$lib/partyColor';
 	import type { Delegate, Vote, VoteResult } from '$lib/types';
 	import Square from '$lib/components/UI/Square.svelte';

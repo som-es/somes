@@ -2,10 +2,15 @@ use axum::{
     extract::{FromRef, FromRequestParts},
     http::request::Parts,
 };
-use dataservice::combx::{MeilisearchHelper, OptionalVoteResult};
+use chrono::format;
+use dataservice::combx::{
+    DbAiSummaryFilter, DbLegislativeInitiativeQueryFilter, MeilisearchHelper, OptionalDecreeFilter,
+    OptionalVoteResult, OptionalVoteResultFilter,
+};
 use meilisearch_sdk::settings::{PaginationSetting, Settings};
 use redis::aio::MultiplexedConnection;
 use reqwest::StatusCode;
+use serde_json::json;
 use tokio::time::sleep;
 
 use crate::{
@@ -77,7 +82,7 @@ pub async fn update_decrees_meilisearch_index(
             "attribute".to_string(),
             "exactness".to_string(),
         ])
-        .with_filterable_attributes(["gp", "gov_official_id"])
+        .with_filterable_attributes(OptionalDecreeFilter::filterable_fields())
         .with_sortable_attributes(["publication_date"])
         .with_pagination(PaginationSetting {
             max_total_hits: 100000000,
@@ -87,6 +92,31 @@ pub async fn update_decrees_meilisearch_index(
     client.index(index).set_settings(&settings).await?;
 
     // client.index("decrees").delete_all_documents().await?;
+
+    let all_decrees = all_decrees
+        .iter()
+        .map(|decree| {
+            let mut doc_json = serde_json::to_value(decree).unwrap();
+
+            if let Some(publication_date) = decree.publication_date {
+                let timestamp = publication_date
+                    .and_hms_opt(0, 0, 0)
+                    .unwrap()
+                    .and_utc()
+                    .timestamp();
+                doc_json["publication_date"] = json!(timestamp);
+            }
+            if let Some(created_at) = decree.created_at {
+                let timestamp = created_at.timestamp();
+                doc_json["created_at"] = json!(timestamp);
+            }
+            if let Some(updated_at) = decree.updated_at {
+                let timestamp = updated_at.timestamp();
+                doc_json["updated_at"] = json!(timestamp);
+            }
+            doc_json
+        })
+        .collect::<Vec<_>>();
 
     client
         .index(index)
@@ -122,11 +152,7 @@ pub async fn update_gov_props_meilisearch_index(
             "attribute".to_string(),
             "exactness".to_string(),
         ])
-        .with_filterable_attributes([
-            "gov_proposal.ministrial_proposal.gp",
-            "gov_proposal.ministrial_proposal.has_vote_result",
-            "gov_proposal.vote_result",
-        ])
+        .with_filterable_attributes(["gov_proposal", "delegate"])
         .with_sortable_attributes(["gov_proposal.ministrial_proposal.raw_data_created_at"])
         .with_pagination(PaginationSetting {
             max_total_hits: 100000000,
@@ -159,6 +185,11 @@ pub async fn update_vote_result_meilisearch_index(
         &sqlx::PgPool,
     ) -> sqlx::Result<Vec<OptionalVoteResult>>,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    let filterable_fields = OptionalVoteResultFilter::filterable_fields()
+        .into_iter()
+        .map(|field| field.to_string())
+        .collect::<Vec<String>>();
+
     let settings = Settings::new()
         .with_ranking_rules(vec![
             "sort".to_string(),
@@ -168,20 +199,7 @@ pub async fn update_vote_result_meilisearch_index(
             "attribute".to_string(),
             "exactness".to_string(),
         ])
-        .with_filterable_attributes([
-            "legislative_initiative.accepted",
-            "legislative_initiative.requires_simple_majority",
-            "legislative_initiative.gp",
-            "legislative_initiative.voted_by_name",
-            "legislative_initiative.is_law",
-            "legislative_initiative.ityp",
-            "legislative_initiative.has_reference",
-            "legislative_initiative.by_publication",
-            "legislative_initiative.is_urgent",
-            "legislative_initiative.voting",
-            "topics",
-            "meilisearch_helper.votes",
-        ])
+        .with_filterable_attributes(&filterable_fields)
         .with_sortable_attributes(["legislative_initiative.nr_plenary_activity_date"])
         .with_pagination(PaginationSetting {
             max_total_hits: 100000000,
@@ -209,13 +227,13 @@ pub async fn update_vote_result_meilisearch_index(
     log::info!("Fetched all vote results");
 
     // this should only run when there are structural differences (type changes)
+    // client.index(index).delete_all_documents().await?;
     // client.delete_index(index).await?;
 
     log::info!(
         "Uploading {} vote results to meilisearch",
         all_vote_results.len()
     );
-    // client.index(index).delete_all_documents().await?;
 
     client
         .index(index)

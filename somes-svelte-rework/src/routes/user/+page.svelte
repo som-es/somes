@@ -37,7 +37,7 @@
 		type MailSendInfo,
 		type UniqueTopic
 	} from '$lib/types';
-	import { popup, SlideToggle, type PopupSettings } from '@skeletonlabs/skeleton';
+	import { type PopupSettings, Switch } from '@skeletonlabs/skeleton-svelte';
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
 
@@ -174,7 +174,7 @@
 					{#if !extendedUser?.is_email_hashed}
 						<div class="flex flex-wrap items-center gap-x-6 gap-y-3 ml-5">
 							{#if mailSendInfo}
-								<SlideToggle
+								<Switch
 									active="bg-secondary-400"
 									name="sendVoteResultInfoMail"
 									on:change={updateThisMailSendInfo}
@@ -183,8 +183,8 @@
 									<span class="font-bold"> Zu neuen Abstimmungen </span>
 									<br />
 									<span class="text-sm">nach ausgewählten Interessen</span>
-								</SlideToggle>
-								<SlideToggle
+								</Switch>
+								<Switch
 									active="bg-secondary-400"
 									name="sendnewDelegateInfo"
 									on:change={updateThisMailSendInfo}
@@ -193,8 +193,8 @@
 									<span class="font-bold"> Zu Abgeordnetenaktivitäten </span>
 									<br />
 									<span class="text-sm">nach favorisierten Abgeordneten</span>
-								</SlideToggle>
-								<SlideToggle
+								</Switch>
+								<Switch
 									active="bg-secondary-400"
 									name="sendMinistrialPropInfoMails"
 									on:change={updateThisMailSendInfo}
@@ -203,8 +203,8 @@
 									<span class="font-bold"> Zu neuen Ministerialentwürfen </span>
 									<br />
 									<span class="text-sm">nach ausgewählten Interessen</span>
-								</SlideToggle>
-								<SlideToggle
+								</Switch>
+								<Switch
 									active="bg-secondary-400"
 									name="sendMinistrialPropInfoMails"
 									on:change={updateThisMailSendInfo}
@@ -213,7 +213,7 @@
 									<span class="font-bold"> Zu neuen Ministerialentwürfen </span>
 									<br />
 									<span class="text-sm">nach favorisierten Ministern</span>
-								</SlideToggle>
+								</Switch>
 							{/if}
 						</div>
 					{:else}
@@ -227,7 +227,7 @@
 				<h1 class="font-bold text-2xl">Wahle deine Interessen</h1>
 				<!-- todo: Searchbar -->
 				<input
-					class="input w-[28rem] h-9 px-2"
+					class="input w-md h-9 px-2"
 					type="search"
 					name="ac-demo"
 					bind:value={inputValue}
@@ -277,7 +277,7 @@
 						{:else}
 							{#each favoDelegates as favoDelegateId}
 								{#await delegate_by_id(favoDelegateId)}
-									<ExpandablePlaceholder class="!w-80" />
+									<ExpandablePlaceholder class="w-80!" />
 								{:then maybeDelegate}
 									{#if !isHasError(maybeDelegate)}
 										<DelegateCard delegate={maybeDelegate} showMoreDetailsBtn onlyTop={true} />
@@ -301,7 +301,7 @@
 						{:else}
 							{#each favoLegisInits as favoLegisInitId, i}
 								{#await vote_result_by_id(favoLegisInitId.toString())}
-									<ExpandablePlaceholder class="!w-80" />
+									<ExpandablePlaceholder class="w-80!" />
 								{:then maybeDelegate}
 									{#if !isHasError(maybeDelegate)}
 										<VoteResult dels={[]} voteResult={maybeDelegate} tabindex={i} />

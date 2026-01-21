@@ -27,7 +27,7 @@
 	} from '$lib/components/Autocompletion/filtering';
 	import type { AutocompleteOption } from '$lib/components/Autocompletion/types';
 	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
-	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
+	import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
 	import SimpleYesNo from '$lib/components/VoteResults/SimpleYesNo/SimpleYesNo.svelte';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import { cachedLegisInitFavos } from '$lib/caching/favos';
@@ -258,7 +258,7 @@
 							</a>
 							<!-- Result Icon -->
 							{#if voteResult.legislative_initiative.accepted}
-								<div class="flex-shrink-0">
+								<div class="shrink-0">
 									{#if voteResult.legislative_initiative.accepted == 'a'}
 										<span
 											class="stroke-green-600 dark:stroke-green-500 block"
@@ -460,9 +460,9 @@
 
 				
 
-					<div class="!z-20 search-item text-token space-y-5">
+					<div class="z-20! search-item base-font-color space-y-5">
 						<input
-							class="!rounded-xl w-full h-12 px-2 input"
+							class="rounded-xl! w-full h-12 px-2 input"
 							type="search"
 							name="ac-demo"
 							bind:value={inputValue}
@@ -471,7 +471,7 @@
 						/>
 
 						{#if autocompleteOptions}
-							<div class="!z-10 card max-h-64 p-4 overflow-y-auto" data-popup="popupAutocomplete">
+							<div class="z-10! card max-h-64 p-4 overflow-y-auto" data-popup="popupAutocomplete">
 								<Autocomplete
 									bind:input={inputValue}
 									options={autocompleteOptions}

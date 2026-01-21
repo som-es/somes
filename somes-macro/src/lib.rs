@@ -1,7 +1,12 @@
+mod composite_type;
+mod filter;
+
 use heck::ToSnakeCase;
 use proc_macro::TokenStream;
-use quote::quote;
-use syn::{Data, DeriveInput, Fields, GenericArgument, PathArguments, Type, parse_macro_input};
+use quote::{format_ident, quote};
+use syn::{Data, DeriveInput, Fields, parse_macro_input};
+
+use crate::{composite_type::map_type_to_sql, filter::rebuild_type};
 
 #[proc_macro_derive(CompositeType)]
 pub fn derive_create_pg_composite(input: TokenStream) -> TokenStream {
@@ -13,12 +18,9 @@ pub fn derive_create_pg_composite(input: TokenStream) -> TokenStream {
     let fields = match input.data {
         Data::Struct(ds) => ds.fields,
         _ => {
-            return syn::Error::new_spanned(
-                name,
-                "CreatePgComposite can only be derived for structs",
-            )
-            .to_compile_error()
-            .into();
+            return syn::Error::new_spanned(name, "CompositeType can only be derived for structs")
+                .to_compile_error()
+                .into();
         }
     };
 
@@ -34,12 +36,9 @@ pub fn derive_create_pg_composite(input: TokenStream) -> TokenStream {
             }
         }
         Fields::Unnamed(_) | Fields::Unit => {
-            return syn::Error::new_spanned(
-                name,
-                "CreatePgComposite needs a struct with named fields",
-            )
-            .to_compile_error()
-            .into();
+            return syn::Error::new_spanned(name, "CompositeType needs a struct with named fields")
+                .to_compile_error()
+                .into();
         }
     }
 
@@ -77,71 +76,125 @@ pub fn derive_create_pg_composite(input: TokenStream) -> TokenStream {
     tokens.into()
 }
 
-fn map_type_to_sql(ty: &Type) -> (String, bool) {
-    match ty {
-        Type::Path(tp) => {
-            if let Some(seg) = tp.path.segments.last() {
-                let ident = seg.ident.to_string();
-                match ident.as_str() {
-                    "Option" => {
-                        // extract inner generic
-                        if let PathArguments::AngleBracketed(ab) = &seg.arguments {
-                            if let Some(GenericArgument::Type(inner_ty)) = ab.args.first() {
-                                let (s, _inner_nullable) = map_type_to_sql(inner_ty);
-                                return (s, true);
+/*
+struct DecreeFilter {
+    // Option<String>
+    ministerial_issuer: Option<FilterOp<String>>,
+    // Option<Vec<i32>>
+    gov_official_ids: Option<FilterOp<Vec<i32>>>,
+    // Option<Vec<Document>>
+    documents: Option<Vec<Document>>
+}
+*/
+#[proc_macro_derive(MeilisearchFilter, attributes(filter))]
+pub fn derive_meilisearch_filter(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    let name = input.ident;
+    let vis = input.vis;
+
+    let fields = match input.data {
+        Data::Struct(ds) => ds.fields,
+        _ => {
+            return syn::Error::new_spanned(
+                name,
+                "MeilisearchFilter can only be derived for structs",
+            )
+            .to_compile_error()
+            .into();
+        }
+    };
+
+    let mut updated_fields = Vec::new();
+
+    match fields {
+        Fields::Named(named) => {
+            for f in named.named.iter() {
+                let mut has_make_vec = false;
+                let mut has_make_optional = false;
+                let mut has_skip = false;
+                for attr in &f.attrs {
+                    if attr.path().is_ident("filter") {
+                        let parse_result = attr.parse_nested_meta(|meta| {
+                            // Check if the token inside is 'make_vec'
+                            if meta.path.is_ident("make_vec") {
+                                has_make_vec = true;
+                                Ok(())
+                            } else if meta.path.is_ident("make_optional") {
+                                has_make_optional = true;
+                                Ok(())
+                            } else if meta.path.is_ident("skip") {
+                                has_skip = true;
+                                Ok(())
+                            } else {
+                                // Handle other options inside #[filter(...)] if necessary
+                                Ok(())
                             }
+                        });
+
+                        if let Err(e) = parse_result {
+                            return e.to_compile_error().into();
                         }
                     }
-                    "Vec" => {}
-                    _ => {}
                 }
+
+                if has_skip {
+                    continue;
+                }
+                let ident = f.ident.as_ref().unwrap();
+                let rust_field_name = ident.clone();
+                let rebuilt_type = rebuild_type(&f.ty, has_make_vec, has_make_optional);
+                updated_fields.push((rust_field_name, rebuilt_type));
+            }
+        }
+        Fields::Unnamed(_) | Fields::Unit => {
+            return syn::Error::new_spanned(
+                name,
+                "MeilisearchFilter needs a struct with named fields",
+            )
+            .to_compile_error()
+            .into();
+        }
+    }
+
+    let simple_filter_args = updated_fields.iter().flat_map(|(field_name, ty)| {
+        if ty.unrecognized_ident.is_some() {
+            return None;
+        }
+        let field_name_str = field_name.to_string();
+        Some(quote! { self.#field_name.to_filter(#field_name_str), })
+    });
+
+    let filterable_fields = updated_fields.iter().map(|(field_name, _ty)| {
+        let field_name = field_name.to_string();
+        Some(quote! { #field_name, })
+    });
+
+    let updated_fields = updated_fields.iter().map(|(field_name, ty)| {
+        let type_tokens = &ty.updated_path;
+        quote! {
+            #vis #field_name: #type_tokens,
+        }
+    });
+
+    let filter_name = format_ident!("{}Filter", name);
+
+    let tokens = quote! {
+        #[derive(Debug, Serialize, Deserialize)]
+        #vis struct #filter_name {
+            #( #updated_fields )*
+        }
+
+        impl #filter_name {
+            #vis fn filter_arguments(&self) -> Vec<Option<FilterArgument>> {
+                use somes_meilisearch_filter::ToFilterArgument;
+                vec![#( #simple_filter_args )*]
             }
 
-            let last = tp.path.segments.last().unwrap();
-            let ident = last.ident.to_string();
-            let ident_snake_case = ident.to_snake_case();
-
-            let sql = match ident.as_str() {
-                "i8" | "i16" | "i32" | "isize" => "integer",
-                "i64" => "bigint",
-                "u8" | "u16" | "u32" | "u64" | "usize" => "bigint",
-                "f32" => "real",
-                "f64" => "double precision",
-                "bool" => "boolean",
-                "String" | "str" => "text",
-                "Uuid" => "uuid",
-                "Json" | "Value" => "jsonb",
-
-                // chrono types
-                "NaiveDate" => "date",
-                "NaiveDateTime" => "timestamp",
-                "DateTime" => "timestamptz",
-
-                // bigdecimal
-                "BigDecimal" => "numeric",
-                "Vec" => {
-                    if let PathArguments::AngleBracketed(inner_generics) = &last.arguments {
-                        let GenericArgument::Type(ty) = inner_generics.args.first().unwrap() else {
-                            panic!("Vec should only take a single generic type (typically)")
-                        };
-                        let (elem_sql, nullable) = map_type_to_sql(ty);
-                        return (format!("{}[]", elem_sql), nullable);
-                    } else {
-                        panic!("Vec contains nothing?")
-                    }
-                }
-
-                // fallback
-                _ => ident_snake_case.as_str(),
-            };
-
-            (sql.to_string(), false)
+            #vis fn filterable_fields() -> Vec<&'static str> {
+                vec![#( #filterable_fields )*]
+            }
         }
-        Type::Reference(tr) => map_type_to_sql(&tr.elem),
-        Type::Array(ta) => {
-            let (elem_sql, nullable) = map_type_to_sql(&ta.elem);
-            (format!("{}[]", elem_sql), nullable)
-        }
-        _ => ("text".to_string(), false),
-    }
+    };
+
+    tokens.into()
 }
