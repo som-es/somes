@@ -20,7 +20,6 @@
 	onMount(async () => {
 		nextPlenarySessionDateStr = errorToNull(await next_plenar_date())?.date_and_time?.toString();
 		if (nextPlenarySessionDateStr) {
-			console.log(nextPlenarySessionDateStr);
 			const today = new Date();
 			const nextDate = new Date(nextPlenarySessionDateStr);
 			days = (nextDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);

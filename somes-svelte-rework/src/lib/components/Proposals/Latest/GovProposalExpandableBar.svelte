@@ -29,8 +29,10 @@
 		currentVoteResultStore.set(voteResult);
 		gotoHistory(createVoteResultPath(voteResult), true);
 	}
+	$: date = new Date(govProposal.gov_proposal.ministrial_proposal.raw_data_created_at).toLocaleDateString();
 </script>
 
+{#if govProposal}
 <div class="gap-3 mt-5">
 	<div
 		on:click={() => (open = !open)}
@@ -61,9 +63,7 @@
 					>{govProposal.gov_proposal.ministrial_proposal.ressort}</span
 				>
 				<span class="badge bg-tertiary-400 text-black"
-					>{dashDateToDotDate(
-						govProposal.gov_proposal.ministrial_proposal.created_at.split('T')[0].toString()
-					)}</span
+					>{date}</span
 				>
 				<span class="badge bg-tertiary-400 text-black"
 					>{govProposal.gov_proposal.ministrial_proposal.gp}</span
@@ -106,6 +106,7 @@
 		/>
 	</div>
 </div>
+{/if}
 
 <style>
 	.entry {

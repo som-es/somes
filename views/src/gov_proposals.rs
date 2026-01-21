@@ -1,3 +1,5 @@
+use dataservice::combx::{DbAiSummary, DbMinistrialProposalQueryMeta};
+use somes_common_lib::ToCompositeType;
 use sqlx::{Postgres, Transaction};
 
 pub async fn create_gov_proposals_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sqlx::Result<()> {
@@ -5,28 +7,30 @@ pub async fn create_gov_proposals_view<'a>(tx: &mut Transaction<'a, Postgres>) -
         .execute(&mut **tx)
         .await?;
 
-    sqlx::query!(
-        "
+    let ministrial_proposal_fields = DbMinistrialProposalQueryMeta::field_orders().into_iter().map(|field| {
+      if field == "id" {
+        "inner_mp.id"
+      } else {
+        field
+      }
+    }).collect::<Vec<_>>().join(" ,");
+
+    let summary_fields = DbAiSummary::field_orders().into_iter().map(|field| {
+      if field == "id" {
+        "s.id"
+      } else {
+        field
+      }
+    }).collect::<Vec<_>>().join(" ,");
+
+    sqlx::query(
+        &format!("
     CREATE VIEW gov_proposals AS
     SELECT
         mp.id,
         (SELECT ROW(
-            inner_mp.id, 
-            ityp, 
-            gp, 
-            inr, 
-            emphasis, 
-            title, 
-            description, 
-            created_at, 
-            updated_at, 
-            due_to, 
-            ressort, 
-            ressort_shortform, 
-            legis_init_gp, 
-            legis_init_inr, 
-            legis_init_ityp,
-            has_vote_result)::db_ministrial_proposal_query_meta
+          {ministrial_proposal_fields}
+)::db_ministrial_proposal_query_meta
         from 
             ministrial_proposals inner_mp 
         where
@@ -93,15 +97,7 @@ pub async fn create_gov_proposals_view<'a>(tx: &mut Transaction<'a, Postgres>) -
         (
             SELECT
               ROW(
-                s.id,
-                full_summary,
-                short_title,
-                short_summary,
-                detailed_summary,
-                complexity_scope_of_proposal,
-                model_used,
-                version,
-                generated_at
+                {summary_fields}
               )::db_ai_summary
             FROM
               ministerial_proposal_summaries mps
@@ -115,7 +111,7 @@ pub async fn create_gov_proposals_view<'a>(tx: &mut Transaction<'a, Postgres>) -
 
         from ministrial_proposals mp
         "
-    )
+        ))
     .execute(&mut **tx)
     .await?;
     Ok(())

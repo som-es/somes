@@ -1,5 +1,6 @@
 #![warn(clippy::unwrap_used)]
 
+use chrono::Local;
 use dotenvy_macro::dotenv;
 
 mod db;
@@ -48,8 +49,8 @@ static EMAIL_EXPIRATION_SECONDS: Lazy<usize> = Lazy::new(|| {
         .expect("Supplied email expiration (in seconds) is not a (usize) number!")
 });
 
-pub fn today_and_time() -> chrono::NaiveDateTime {
-    chrono::Local::now().naive_local()
+pub fn today_and_time() -> chrono::DateTime<Local> {
+    chrono::Local::now()
 }
 
 pub fn today() -> chrono::NaiveDate {

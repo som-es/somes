@@ -10,6 +10,9 @@ pub use routes::*;
 pub use structs::*;
 
 pub trait ToCompositeType {
+    fn field_orders() -> Vec<&'static str> {
+        vec![]
+    }
     fn type_name() -> &'static str;
     fn to_sql_create_composite_type() -> String;
 }

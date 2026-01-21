@@ -1,9 +1,9 @@
 <script lang="ts">
-	import Parliament from "@/components/Parliament.svelte";
 	import { delegates } from "$lib/api";
 	import { onMount } from "svelte";
 	import type { Delegate } from "$lib/types";
 	import { t } from "$lib/translations";
+	import Parliament from "../../components/Parliament.svelte";
 
 	let dels: Delegate[];
 

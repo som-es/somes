@@ -1,11 +1,23 @@
+use dataservice::combx::{DbAiSummary, DbLegislativeInitiativeQuery};
+use somes_common_lib::ToCompositeType;
 use sqlx::{Postgres, Transaction};
 
 pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sqlx::Result<()> {
     sqlx::query!("DROP VIEW IF EXISTS vote_results;")
         .execute(&mut **tx)
         .await?;
-    sqlx::query!(
-        "
+
+    let legis_init_fields = DbLegislativeInitiativeQuery::field_orders().join(" ,");
+    let summary_fields = DbAiSummary::field_orders().into_iter().map(|field| {
+      if field == "id" {
+        "s.id"
+      } else {
+        field
+      }
+    }).collect::<Vec<_>>().join(" ,");
+
+    sqlx::query(
+        &format!("
         CREATE VIEW vote_results AS
         SELECT
           /* scalar */
@@ -14,14 +26,7 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
           (
             SELECT
               ROW(
-                id, ityp, doktyp, gp, inr, emphasis, ai_emphasis,
-                title, description, accepted, nr_plenary_activity_date, vote_date,
-                raw_data_created_at, raw_data_updated_at, created_at, updated_at, requires_simple_majority,
-                pre_declined_type, voted_by_name,
-                plenary_session_id, is_emphasis_ai_generated,
-                is_law, law_accepted, 
-                has_reference, is_voteable_on, is_urgent,
-                voting 
+                {legis_init_fields}
               )::db_legislative_initiative_query
             FROM
               legislative_initiatives
@@ -205,15 +210,7 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
           (
             SELECT
               ROW(
-                s.id,
-                full_summary,
-                short_title,
-                short_summary,
-                detailed_summary,
-                complexity_scope_of_proposal,
-                model_used,
-                version,
-                generated_at
+                {summary_fields}
               )::db_ai_summary
             FROM
               legislative_initiative_summaries lis
@@ -228,7 +225,7 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
         FROM
           legislative_initiatives li
         "
-    )
+        ))
     .execute(&mut **tx)
     .await?;
     Ok(())

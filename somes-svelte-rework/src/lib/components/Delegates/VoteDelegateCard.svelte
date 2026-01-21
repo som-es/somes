@@ -9,7 +9,7 @@
 	import DelegateCard from './DelegateCard.svelte';
 
 	export let bubble: Bubble;
-	export let date: Date;
+	export let date: string;
 	export let gp: string;
 
 	let delegate: Delegate;

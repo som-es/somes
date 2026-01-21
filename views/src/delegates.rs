@@ -21,6 +21,8 @@ pub async fn create_delegates_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sq
         delegates.gender,
         delegates.is_active,
         delegates.birthdate,
+        delegates.created_at,
+        delegates.updated_at,
         ARRAY(
                     SELECT ROW(start_date, end_date, name, party, is_nr, is_gov_official, is_ministry, is_chancellor, function)::full_mandate
                     FROM mandates m

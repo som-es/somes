@@ -48,7 +48,7 @@ pub async fn extract_delegate_speeches(
         inner join debates on debates.id = plenar_speeches.debate_id
         inner join plenar_infos pi on pi.id = debates.plenar_id
         where delegate_id = $1
-        order by add_date desc offset $2 limit $3
+        order by raw_data_created_at desc offset $2 limit $3
     ",
             delegate_id,
             page * page_elements,

@@ -1,4 +1,4 @@
-use chrono::{NaiveDate, NaiveDateTime};
+use chrono::{DateTime, NaiveDate, NaiveDateTime, Utc};
 use serde::{Deserialize, Serialize};
 use somes_macro::CompositeType;
 use sqlx::prelude::Type;
@@ -66,6 +66,8 @@ pub struct Delegate {
     pub mandates_at_time: Option<Vec<FullMandate>>,
     pub active_mandates: Option<Vec<FullMandate>>,
     pub mandates: Option<Vec<FullMandate>>,
+    pub created_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<DateTime<Utc>>,
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
@@ -80,7 +82,7 @@ pub struct LegisInitFavo {
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct Absence {
-    pub date: NaiveDate,
+    pub date: DateTime<Utc>,
     pub inr: i32,
     pub gp: String,
     pub plenary_session_id: i32,

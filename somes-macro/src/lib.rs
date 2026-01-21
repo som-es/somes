@@ -58,8 +58,13 @@ pub fn derive_create_pg_composite(input: TokenStream) -> TokenStream {
     let cols_sql: Vec<String> = cols.iter().map(|(n, t)| format!("{} {}", n, t)).collect();
     let cols_sql_joined = cols_sql.join(", ");
 
+    let cols_names = cols.iter().map(|c| &c.0);
+
     let tokens = quote! {
         impl #crate_name::ToCompositeType for #name {
+            fn field_orders() -> Vec<&'static str> {
+                vec![#(stringify!(#cols_names)),*]
+            }
             fn type_name() -> &'static str {
                 #sql_type_name
             }

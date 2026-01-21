@@ -36,6 +36,8 @@ pub async fn extract_gov_proposals_by_delegate_sqlx(
             mp.emphasis,
             mp.title,
             mp.description,
+            mp.raw_data_created_at,
+            mp.raw_data_updated_at,
             mp.created_at,
             mp.updated_at,
             mp.due_to,
