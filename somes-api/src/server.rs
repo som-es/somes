@@ -164,6 +164,7 @@ pub async fn serve(addr: SocketAddr) {
     let api_routes = Router::new()
         .route(PARTIES, get(parties_route))
         .route(PARTIES_AT_GP, get(parties_at_gp_route))
+        .route(PARTIES_PER_GP, get(parties_per_gp_route))
         .route(ALL_GPS, get(all_gps_route))
         .route(SEATS, get(seats_route))
         .route(TOPICS, get(topics_route))

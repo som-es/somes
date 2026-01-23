@@ -17,11 +17,7 @@
 	import VoteResultExpandableBar from './VoteResultExpandableBar.svelte';
 	import { pushState } from '$app/navigation';
 	import Pagination from '$lib/components/Pagination.svelte';
-<<<<<<< HEAD
 	import { type PopupSettings, popup } from '@skeletonlabs/skeleton';
-=======
-	// import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
->>>>>>> sveltev5
 	import { currentVoteResultFilterStores } from '$lib/stores/stores';
 	import { get } from 'svelte/store';
 	import ExpandablePlaceholder from './Placeholders/ExpandablePlaceholder.svelte';

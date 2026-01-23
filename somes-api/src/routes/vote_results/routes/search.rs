@@ -86,7 +86,7 @@ async fn meilisearch_for_vote_results(
         .search()
         .with_filter(&meilisearch_filter)
         .with_sort(&["legislative_initiative.nr_plenary_activity_date:desc"])
-        .with_query(&search_query.search)
+        .with_query(&search_query.search.unwrap_or_default())
         .with_hits_per_page(LEGIS_INITS_PER_PAGE.parse().unwrap_or(16))
         .with_page(page.page as usize)
         .execute()

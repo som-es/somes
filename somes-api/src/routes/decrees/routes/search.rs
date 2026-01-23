@@ -52,7 +52,7 @@ async fn meilisearch_decrees(
         .search()
         .with_filter(&meilisearch_filter)
         .with_sort(&["publication_date:desc"])
-        .with_query(&search_query.search)
+        .with_query(&search_query.search.unwrap_or_default())
         .with_hits_per_page(DECREES_PER_PAGE.parse().unwrap_or(16))
         .with_page(page.page as usize)
         .execute()

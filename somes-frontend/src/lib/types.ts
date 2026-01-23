@@ -205,6 +205,7 @@ export interface VoteResultsWithMaxPage {
 	vote_results: VoteResult[];
 	entry_count: number;
 	max_page: number;
+	updated_at: string;
 }
 
 export interface GovProposalsWithMaxPage {
@@ -449,9 +450,8 @@ export interface VoteResultFilter {
 	is_named_vote: boolean | null;
 	accepted: string | null;
 	simple_majority: boolean | null;
-	legis_period: string | null;
-	is_law: boolean | null;
-	vote_type: string | null;
+	gps: string[];
+	vote_type: string[];
 	topics: string[] | null;
 	party_votes: PartyVote[] | null;
 	is_urgent: boolean | null;

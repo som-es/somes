@@ -122,6 +122,10 @@ export async function parties(): Promise<Party[] | HasError> {
 	return getWithRoute('parties');
 }
 
+export async function parties_per_gp(fetcher: typeof fetch = fetch): Promise<Record<string, Party[]> | HasError> {
+	return getWithRoute('parties_per_gp', "at/", fetcher);
+}
+
 export async function delegates(): Promise<Delegate[] | HasError> {
 	return getWithRoute<Delegate[]>('v1/delegates/all_active');
 }
@@ -263,4 +267,11 @@ export async function vote_results_by_search(
 	filter: VoteResultFilter | null
 ): Promise<VoteResultsWithMaxPage | HasError> {
 	return justPost(`v1/vote_results/search?page=${page}&search=${search}`, filter);
+}
+
+export async function vote_results_by_query_search(
+	query: string,
+	fetcher: typeof fetch = fetch
+): Promise<VoteResultsWithMaxPage | HasError> {
+	return getWithRoute(`v1/vote_results/search?${query}`, "at/", fetcher);
 }

@@ -300,7 +300,7 @@ pub struct DecreeByRisId {
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct SearchQuery {
-    pub search: String,
+    pub search: Option<String>,
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
