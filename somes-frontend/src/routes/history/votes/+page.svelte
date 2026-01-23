@@ -25,7 +25,7 @@
 
 <!-- <div class="mx-auto px-5"> -->
 <Container>
-	<h1 class="text-2xl sm:text-4xl font-bold">Vergangene Abstimmungsergebnisse</h1>
+	<h1 class="text-3xl sm:text-4xl font-bold pt-2 px-1 sm:p-0">Vergangene Abstimmungsergebnisse</h1>
 
 	{#if dels && voteResults && partiesPerGp}
 		<PaginationVoteResults {dels} {voteResults} {partiesPerGp} {selectedGp} />

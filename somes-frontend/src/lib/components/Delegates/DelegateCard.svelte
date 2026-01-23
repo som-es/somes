@@ -16,15 +16,35 @@
 	import DelegateQAModal from './QA/DelegateQAModal.svelte';
 	import { resolve } from '$app/paths';
 
-	export let delegate: Delegate;
-	export let onlyTop: boolean = false;
-	export let showQA: boolean = false;
-	export let showAI: boolean = true;
-	export let questions: DelegateQA[] = [];
-	export let showMoreDetailsBtn = false;
-	export let showImg = true;
-	export let showAge = true;
-	export let title: string | null = null;
+	interface Props {
+		delegate: Delegate;
+		onlyTop?: boolean;
+		showQA?: boolean;
+		showAI?: boolean;
+		questions?: DelegateQA[];
+		showMoreDetailsBtn?: boolean;
+		showImg?: boolean;
+		showAge?: boolean;
+		title?: string | null;
+		top?: import('svelte').Snippet;
+		info?: import('svelte').Snippet;
+		footerButtons?: import('svelte').Snippet;
+	}
+
+	let {
+		delegate,
+		onlyTop = false,
+		showQA = false,
+		showAI = true,
+		questions = [],
+		showMoreDetailsBtn = false,
+		showImg = true,
+		showAge = true,
+		title = null,
+		top,
+		info,
+		footerButtons
+	}: Props = $props();
 
 	const showDelegate = import.meta.env.VITE_SHOW_DELEGATE_ID;
 
@@ -33,24 +53,10 @@
 		gotoHistory(resolve(`/delegates`), true);
 	};
 
-	let delegateFavos: Set<number> | null = null;
+	let delegateFavos: Set<number> | null = $state(null);
 	onMount(async () => {
 		delegateFavos = await cachedDelegateFavos();
 	});
-
-	// console.log(delegate)
-
-	// $: delegateQAModal = {
-	// 	type: 'component',
-	// 	component: 'delegateQA',
-	// 	meta: { questions: questions }
-	// } as ModalSettings;
-
-	// $: aiChatModal = {
-	// 	type: 'component',
-	// 	component: 'aiChat',
-	// 	meta: { delegate: delegate }
-	// } as ModalSettings;
 
 	function dateDiffInDays(a: Date, b: Date) {
 		const _MS_PER_DAY = 1000 * 60 * 60 * 24;
@@ -59,7 +65,7 @@
 
 		return Math.floor((utc2 - utc1) / _MS_PER_DAY);
 	}
-	$: personUrl = `https://parlament.gv.at/person/${delegate.id}?utm_source=somes.at`;
+	let personUrl = $derived(`https://parlament.gv.at/person/${delegate.id}?utm_source=somes.at`);
 </script>
 
 <div
@@ -69,7 +75,7 @@
 		{#if delegateFavos}
 			{#if delegateFavos.has(delegate.id)}
 				<button
-					on:click={async () => {
+					onclick={async () => {
 						if ((await removeDelegateFavo({ delegate_id: delegate.id })) == null) {
 							delegateFavos?.delete(delegate.id);
 							delegateFavos = delegateFavos;
@@ -81,7 +87,7 @@
 				</button>
 			{:else}
 				<button
-					on:click={async () => {
+					onclick={async () => {
 						if ((await addDelegateFavo({ delegate_id: delegate.id })) == null) {
 							delegateFavos?.add(delegate.id);
 							delegateFavos = delegateFavos;
@@ -149,8 +155,8 @@
 			<h3>{delegate.divisions?.join(', ')}</h3>
 		{/if}
 
-		<slot name="title"></slot>
-		<slot name="info"></slot>
+		{@render top?.()}
+		{@render info?.()}
 
 		<br />
 		{#if showDelegate == 'true'}
@@ -162,7 +168,7 @@
 	<hr class="border-t-2! my-1" />
 	<!-- <footer class="card-footer flex justify-end items-end mt-3"> -->
 	<footer class="card-footer flex justify-between mt-1 p-2">
-		<slot name="footerButtons"></slot>
+		{@render footerButtons?.()}
 		{#if showMoreDetailsBtn}
 			<div></div>
 			<SButton class="bg-tertiary-500 text-black" on:click={onShowDetails}>Zur Person</SButton>

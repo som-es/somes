@@ -188,35 +188,3 @@
 		{/if}
 	</div>
 </div>
-
-<style>
-	:global(.accepted-item) {
-		grid-area: a;
-	}
-
-	.majority-item {
-		grid-area: m;
-	}
-
-	.date-item {
-		grid-area: dt;
-	}
-
-	.info-item {
-		grid-area: i;
-	}
-
-	.details-item {
-		grid-area: d;
-	}
-
-	.item {
-		grid-column: 1fr;
-	}
-
-	/* @media not all and (min-width: 1254px) {
-        .responsive-accepted-hidden {
-            display: none !important;
-        }
-    } */
-</style>

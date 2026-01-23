@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { type Delegate, type VoteResult } from '$lib/types';
+	import { createVoteResultPath, type Delegate, type VoteResult } from '$lib/types';
 	import VoteResultExpanded from './VoteResultExpanded.svelte';
 	import { slide } from 'svelte/transition';
 
@@ -8,6 +8,8 @@
 	import VoteTypeBadge from '../VoteTypeBadge.svelte';
 	import { dashDateToDotDate } from '$lib/date';
 	import InfoBadges from '../InfoTiles/InfoBadges.svelte';
+	import { gotoHistory } from '$lib/goto';
+	import { currentVoteResultStore } from '$lib/stores/stores';
 
 	interface Props {
 		voteResult: VoteResult;
@@ -16,31 +18,39 @@
 	}
 
 	let { voteResult, dels, class: clazz }: Props = $props();
+
+	function onShowDetails() {
+		currentVoteResultStore.value = voteResult;
+		gotoHistory(createVoteResultPath(voteResult), true);
+	}
+
+	function toggleOpen() {
+		if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+			onShowDetails();
+		} else {
+			open = !open;
+		}
+	}
 	
 	let open = $state(false);
-	let duration = 0.35;
 </script>
 
 <div class="gap-3 mt-5 {clazz}">
 	<div
-		onclick={() => (open = !open)}
-		onkeypress={() => (open = !open)}
+		onclick={toggleOpen}
+		onkeypress={toggleOpen}
 		role="button"
 		tabindex="0"
 		class="entry bg-primary-300 dark:bg-primary-500"
 	>
 		<div class="flex">
-			<!-- REWORK - Arrow for opening/closing -->
-			<!-- <div>
-				<div class="mr-2" id={open ? 'open' : 'closed'}>
-					{@html rightArrowIcon}
-				</div>
-			</div> -->
 			<div class="flex max-lg:flex-wrap items-center justify-between w-full">
-
 				{#if voteResult.ai_summary}
 					<div class="flex flex-wrap flex-col w-5/6">
-						<span class="text-md sm:text-lg font-semibold ">
+						<span
+							class="text-xl font-semibold"
+							style="hyphens: auto; word-break: normal; overflow-wrap: break-word;"
+						>
 							{voteResult.ai_summary.short_title}
 						</span>
 						<span class="text-sm sm:text-md">
@@ -48,28 +58,32 @@
 						</span>
 					</div>
 				{:else}
-					<span class="text-md sm:text-lg font-semibold w-5/6">
+					<span class="text-md font-semibold w-5/6">
 						{voteResult.legislative_initiative.description}
 					</span>
 				{/if}
 
 				{#if voteResult.legislative_initiative.accepted !== null}
-					{#if voteResult.legislative_initiative.accepted == "a"}
-						<span class="stroke-green-600 dark:stroke-green-500 inline-block align-middle" style="width:30px; height:30px">{@html checkmarkIcon}</span>
+					{#if voteResult.legislative_initiative.accepted == 'a'}
+						<span
+							class="stroke-green-600 dark:stroke-green-500 inline-block align-middle"
+							style="width:30px; height:30px">{@html checkmarkIcon}</span
+						>
 					{:else}
-						<span class="inline-block align-middle" style="width:30px; height:30px">{@html crossmarkIcon}</span>
+						<span class="inline-block align-middle" style="width:30px; height:30px"
+							>{@html crossmarkIcon}</span
+						>
 					{/if}
 				{:else}
 					<div></div>
 					<InfoBadges {voteResult} />
 				{/if}
 			</div>
-
 		</div>
 
 		<!-- REWORK - checks if vote was cast and checks for normal or roll call vote-->
 		<div>
-			<div class="block sm:flex justify-between mt-4">			
+			<div class="block sm:flex justify-between mt-4">
 				{#if voteResult.legislative_initiative.accepted}
 					{#if voteResult.named_votes == null}
 						<!-- Normal votes -->
@@ -78,22 +92,34 @@
 								<div class="flex items-center">
 									<h4 class="text-sm">{vote.party}</h4>
 									{#if vote.infavor}
-										<span class="mr-1 md:mr-2 stroke-green-600 dark:stroke-green-500 inline-block align-middle" style="width:20px; height:20px;">{@html checkmarkIcon}</span>
+										<span
+											class="mr-1 md:mr-2 stroke-green-600 dark:stroke-green-500 inline-block align-middle"
+											style="width:20px; height:20px;">{@html checkmarkIcon}</span
+										>
 									{:else}
-										<span class="mr-1 md:mr-2 inline-block align-middle" style="width:20px; height:20px;">{@html crossmarkIcon}</span>
+										<span
+											class="mr-1 md:mr-2 inline-block align-middle"
+											style="width:20px; height:20px;">{@html crossmarkIcon}</span
+										>
 									{/if}
 								</div>
 							{/each}
-						</div>	
-						
+						</div>
+
 						<div>
 							{#if voteResult.legislative_initiative.requires_simple_majority}
 								<span class="badge bg-tertiary-400 text-black">einfache Mehrheit</span>
 							{:else}
 								<span class="badge bg-tertiary-400 text-black">2/3 Mehrheit</span>
 							{/if}
-							<span class="badge bg-tertiary-400 text-black">{voteResult.legislative_initiative.gp}</span>
-							<span class="badge bg-tertiary-400 text-black">{dashDateToDotDate(voteResult.legislative_initiative.nr_plenary_activity_date.toString())}</span>
+							<span class="badge bg-tertiary-400 text-black"
+								>{voteResult.legislative_initiative.gp}</span
+							>
+							<span class="badge bg-tertiary-400 text-black"
+								>{dashDateToDotDate(
+									voteResult.legislative_initiative.nr_plenary_activity_date.toString()
+								)}</span
+							>
 							<VoteTypeBadge {voteResult} />
 						</div>
 					{:else}
@@ -101,25 +127,31 @@
 
 						<div class="block sm:flex w-full mb-3">
 							<div class="flex items-center mb-1 sm:mb-0">
-								<span class="mr-1 stroke-green-600 dark:stroke-green-500 inline-block align-middle" style="width:20px; height:20px;">{@html checkmarkIcon}</span>
+								<span
+									class="mr-1 stroke-green-600 dark:stroke-green-500 inline-block align-middle"
+									style="width:20px; height:20px;">{@html checkmarkIcon}</span
+								>
 
-							{#if voteResult.votes.length > 0}
-								{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
-									{#if vote.infavor}
-										<div class="flex items-center">
-											<h4 class="text-sm mr-1">{vote.party}</h4>
-											<h4 class="text-sm mr-2 text-gray-800">{vote.fraction}</h4>
-										</div>
-									{/if}
-								{/each}
-							{:else}
-								<h4 class="text-sm text-gray-800">
-									{voteResult.named_votes.named_vote_info.pro_count}
-								</h4>
-							{/if}
+								{#if voteResult.votes.length > 0}
+									{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
+										{#if vote.infavor}
+											<div class="flex items-center">
+												<h4 class="text-sm mr-1">{vote.party}</h4>
+												<h4 class="text-sm mr-2 text-gray-800">{vote.fraction}</h4>
+											</div>
+										{/if}
+									{/each}
+								{:else}
+									<h4 class="text-sm text-gray-800">
+										{voteResult.named_votes.named_vote_info.pro_count}
+									</h4>
+								{/if}
 							</div>
 							<div class="flex flex-wrap items-center">
-								<span class="mr-1 ml-0 sm:ml-3 inline-block align-middle" style="width:20px; height:20px;">{@html crossmarkIcon}</span>
+								<span
+									class="mr-1 ml-0 sm:ml-3 inline-block align-middle"
+									style="width:20px; height:20px;">{@html crossmarkIcon}</span
+								>
 								{#if voteResult.votes.length > 0}
 									{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
 										{#if !vote.infavor}
@@ -142,20 +174,18 @@
 							{:else}
 								<span class="badge bg-tertiary-400 text-black">2/3 Mehrheit</span>
 							{/if}
-							<span class="badge bg-tertiary-400 text-black">{voteResult.legislative_initiative.gp}</span>
-							<span class="badge bg-tertiary-400 text-black">{dashDateToDotDate(voteResult.legislative_initiative.nr_plenary_activity_date.toString())}</span>
+							<span class="badge bg-tertiary-400 text-black"
+								>{voteResult.legislative_initiative.gp}</span
+							>
+							<span class="badge bg-tertiary-400 text-black"
+								>{dashDateToDotDate(
+									voteResult.legislative_initiative.nr_plenary_activity_date.toString()
+								)}</span
+							>
 							<VoteTypeBadge {voteResult} />
 						</div>
 					{/if}
-					<!-- REWORK - Mini Parlament <button
-						class="max-sm:hidden z-20 w-30 bg-primary-100 dark:bg-primary-300 rounded-md"
-						on:click={onShowDetails}
-					>
-						<VoteParliament2 {voteResult} preview={true} />
-					</button>
-					-->
-				{:else}
-				{/if}
+				{:else}{/if}
 			</div>
 			<span class="lg:hidden">
 				{#if voteResult.named_votes != null}
@@ -164,8 +194,14 @@
 					{:else}
 						<span class="badge bg-tertiary-400 text-black">2/3 Mehrheit</span>
 					{/if}
-					<span class="badge bg-tertiary-400 text-black">{voteResult.legislative_initiative.gp}</span>
-					<span class="badge bg-tertiary-400 text-black">{dashDateToDotDate(voteResult.legislative_initiative.nr_plenary_activity_date.toString())}</span>
+					<span class="badge bg-tertiary-400 text-black"
+						>{voteResult.legislative_initiative.gp}</span
+					>
+					<span class="badge bg-tertiary-400 text-black"
+						>{dashDateToDotDate(
+							voteResult.legislative_initiative.nr_plenary_activity_date.toString()
+						)}</span
+					>
 					<VoteTypeBadge {voteResult} />
 				{/if}
 			</span>

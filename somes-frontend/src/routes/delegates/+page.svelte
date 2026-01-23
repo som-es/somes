@@ -50,6 +50,15 @@
 	import { goto, pushState, replaceState } from '$app/navigation';
 	import AutocompleteWithPopover from '$lib/components/Autocompletion/AutocompleteWithPopover.svelte';
 	import type { PageProps } from './$types';
+	import downArrowIcon from '$lib/assets/misc_icons/down-arrow.svg?raw';
+	import { partyColors } from '$lib/partyColor';
+	import { groupPartyDelegates } from '$lib/parliaments/defaultParliament';
+	import searchIcon from '$lib/assets/misc_icons/search-glass.svg?raw';
+	import { Popover } from 'bits-ui';
+
+	// Christoph Rework
+	const sliderSteps = [25, 50, 75, 365];
+	// Christoph Rework end
 
 	let { data }: PageProps = $props();
 
@@ -120,8 +129,9 @@
 	let inputValue = $derived(maybeCurrentDelegateFilter.search_value ?? '');
 	let dayOffset = $state(maybeCurrentDelegateFilter.day_offset ?? maxDayOffset);
 
-	let selectedPeriod = $derived(maybeCurrentDelegateFilter.legis_period ?? 'XXVIII');
-	let prevSelectedPeriod = $state(maybeCurrentDelegateFilter.legis_period ?? 'XXVIII');
+	let latestPeriod = $derived(data.cachedPeriods?.reverse()[0]?.gp ?? "XXVIII")
+	let selectedPeriod = $derived(maybeCurrentDelegateFilter.legis_period ?? latestPeriod);
+	let prevSelectedPeriod = $state(maybeCurrentDelegateFilter.legis_period ?? latestPeriod);
 
 	let autocompleteOptions: AutocompleteOption<string>[] = $derived(convertDelegatesToAutocompleteOptions(delegates));
 
@@ -131,12 +141,12 @@
 		return delegateFilterOptions(_options, _inputValue);
 	}
 
-	run(() => {
-		if (inputValue) {
-			maybeCurrentDelegateFilter.search_value = inputValue;
-			currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
-		}
-	});
+	// run(() => {
+	// 	if (inputValue) {
+	// 		maybeCurrentDelegateFilter.search_value = inputValue;
+	// 		currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
+	// 	}
+	// });
 
 	function onDelegateSelection(event: AutocompleteOption<string>): void {
 		// @ts-ignore
@@ -229,6 +239,7 @@
 
 	$effect(() => {
 		void selectedPeriod;
+		void periods;
 		untrack(() => {
 
 			renderEndDate = null;
@@ -303,68 +314,159 @@
     <meta name="description" content="Auswahl und spezifische Informationen über Abgeordnete" />
 </svelte:head>
 
-<!-- <div class="mx-auto px-10"> -->
 <Container>
-	{#if hasGoBackStore.value}
-		<SButton class="bg-primary-500 my-3 hidden lg:block" on:click={() => history.back()}
-			>Zurück</SButton
-		>
-	{/if}
-	<div class="entry bg-primary-200 dark:bg-primary-400 gap-3 flex flex-wrap">
-		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
-			<h1 class="font-bold max-lg:text-xl lg:text-4xl">Abgeordnete des Nationalrats</h1>
+	<h1 class="text-3xl sm:text-4xl font-bold pt-2 px-1 sm:p-0">Abgeordnete des Nationalrats</h1>
+	<span class="block text-base text-gray-800 ml-1 sm:ml-0 sm:mt-1 mb-2">
+		Aktualisiert am: Unknown
+	</span>
+
+	<div class="flex flex-grow h-10 rounded-xl border-[2px] border-gray-400 mt-12">
+		<div class="w-10 h-9 flex items-center justify-center text-gray-600">
+			{@html searchIcon}
 		</div>
-		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
+		<input
+			type="search"
+			class="block w-full py-2 focus:outline-none bg-transparent placeholder:text-gray-600"
+			placeholder="Suche..."
+			bind:value={inputValue}
+		/>
+	</div>
+
+	<div class="gap-3 flex flex-wrap mt-5">
+		<!-- <div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
 			<LegisButtons bind:periods bind:selectedPeriod showAllButton={false}></LegisButtons>
-		</div>
-		<div
-			class="flex flex-row flex-wrap title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3"
-		>
-			<div class="flex justify-between min-w-full">
-				<div>
-					Anfang ({renderStartDate == null ? '' : dashDateToDotDate(renderStartDate.toString())})
+		</div> -->
+
+		<!--------------------->
+		<!-- Timeline Slider -->
+		<!--------------------->
+		<div class="rounded-xl flex bg-primary-300 dark:bg-primary-500 p-3 w-full">
+			<!-- Slider -->
+			<div class="flex-1">
+				<div class="flex justify-between min-w-full px-1 mb-1 text-base text-gray-800">
+					<div>
+						Anfang - {renderStartDate == null ? '' : dashDateToDotDate(renderStartDate.toString())}
+					</div>
+					<div>
+						Ende -
+						{renderEndDate == null
+							? dashDateToDotDate(new Date().toISOString().split('T')[0])
+							: dashDateToDotDate(renderEndDate.toString())}
+					</div>
 				</div>
-				<div>
-					Ende ({renderEndDate == null
-						? dashDateToDotDate(new Date().toISOString().split('T')[0])
-						: dashDateToDotDate(renderEndDate.toString())})
+				<input
+					class="w-full h-2 bg-primary-200/80 rounded-lg appearance-none cursor-pointer range-slider"
+					bind:value={dayOffset}
+					onchange={onLettingGoOfDaySlider}
+					type="range"
+					min="2"
+					max={maxDayOffset + 2}
+					step={1}
+					list="steplist"
+				/>
+				<div class="w-full flex">
+					{#each sliderSteps as step}
+						<div class="relative w-[1px] h-2 bg-white" style="left: calc({((step - 2) / maxDayOffset) * 100}% + {10 - (step / maxDayOffset) * 24}px)">
+
+					</div>
+				{/each}
 				</div>
+				<datalist id="steplist">
+					{#each sliderSteps as step}
+						<option>{step}</option>
+					{/each}
+				</datalist>
 			</div>
+			<!-- LegisPeriod Filter -->
+			<div class="flex items-center ml-3">
+				<Popover.Root>
+					<Popover.Trigger>
+						<div 
+							class="bg-primary-600 flex items-center gap-1 p-2 px-3 rounded-xl text-white"
+						>
+							
+							<h4>{selectedPeriod}</h4>
+							<div
+								class="block text-white w-4 transition-transform duration-200"
+								class:rotate-180={true}
+							>
+								{@html downArrowIcon}
+							</div>
+						</div>
+					</Popover.Trigger>
+					<Popover.Portal>
+						<Popover.Content>
+							<div
+								class="bg-surface-50 border border-gray-300 px-5 md:px-6 pt-4 pb-5 z-10 shadow-lg rounded-xl w-auto max-w-[96vw]"
+								data-popup="popupLegisPeriod"
+							>
+								<div class="mt-4 first:mt-0">
+									<span class="text-gray-800 text-base font-semibold">Legislaturperiode</span>
+									<div class="flex flex-wrap text-sm gap-1 w-60">
+										{#each [...periods].reverse() as period}
+											<button
+												class="close-explicitly px-2 py-1 text-xs md:text-sm cursor-pointer rounded-lg border border-primary-300"
+												class:bg-primary-300={selectedPeriod === period.gp}
+												onclick={() => {
+													selectedPeriod = period.gp;
+												}}
+											>
+												<span class="text-nowrap">{period.gp}</span>
+											</button>
+										{/each}
+									</div>
+								</div>
+								<div class="arrow bg-surface-50 border border-gray-300" />
+							</div>
+						</Popover.Content>
+					</Popover.Portal>
+				</Popover.Root>
+				
+			</div>
+			<!-- LegisPeriod Filter PopUp -->
+		</div>
+<!-- 
+		<div class="text-token w-full space-y-2">
 			<input
-				class="min-w-full"
-				bind:value={dayOffset}
-				onchange={onLettingGoOfDaySlider}
-				type="range"
-				min="2"
-				max={maxDayOffset + 2}
-				step={1}
-				list="steplist"
+				class="input w-full h-12 px-2"
+				type="search"
+				name="ac-demo"
+				bind:value={inputValue}
+				placeholder="Suchen..."
+				use:popup={popupSettings}
 			/>
-			<datalist id="steplist">
-				<option>0</option>
-				<option>25</option>
-				<option>50</option>
-				<option>75</option>
-				<option>365</option>
-			</datalist>
-		</div>
-		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
-			{#if periods.length > 0 && delegates}
-				<AllBadges delsAtDate={structuredClone($state.snapshot(delegates))} />
+
+			{#if autocompleteOptions}
+				<div
+					class="z-10 card w-full max-w-sm max-h-64 p-4 overflow-y-auto"
+					data-popup="popupAutocomplete"
+				>
+					<Autocomplete
+						bind:input={inputValue}
+						options={autocompleteOptions}
+						on:selection={onDelegateSelection}
+						emptyState={'Keine Person gefunden'}
+						filter={delegateFilter}
+					/>
+				</div>
 			{/if}
-		</div>
-		<!-- {#if delegates} -->
-		<div class="base-font-color w-full space-y-2">
-			<AutocompleteWithPopover 
-				bind:inputValue={inputValue} 
-				autocompleteOptions={autocompleteOptions} 
-				onDelegateSelection={onDelegateSelection} 
-				delegateFilter={delegateFilter} 
-			/>
-		</div>
-		<div class="flex flex-wrap min-w-full justify-between">
-			<div class="rounded-xl w-full parliament-item bg-primary-300 dark:bg-primary-200">
-				<div class="px-5">
+		</div> -->
+		<div class="flex min-w-full justify-between bg-primary-300 dark:bg-primary-200 rounded-xl ">
+			<div class="w-3/4">
+				<div class="py-5 px-8 relative">
+					{#if delegates && delegates.length > 0}
+						<div class="z-10 absolute top-5 left-8">
+							{#each [...groupPartyDelegates(structuredClone(delegates))].sort((a, b) => b[1].length - a[1].length) as [party, partyDelegates]}
+								<div class="flex items-center gap-2">
+									<div
+										class="w-3 h-3 rounded-full"
+										style="background-color: {partyColors.get(party) ?? '#ccc'};"
+									></div>
+									<span class="text-lg text-gray-800 font-medium">{party} ({partyDelegates.length})</span>
+								</div>
+							{/each}
+						</div>
+					{/if}
 					{#if supplyDate && finishedMounting}
 						<VoteParliament2
 							againstOpacity={1}
@@ -377,7 +479,6 @@
 							{supplyDate}
 							orderingFactor={-1}
 							showGovs={true}
-							show3D
 							overrideDelegates
 							noSeats={!data.hasSeatInfo}
 							useOffset={data.hasSeatInfo}
@@ -385,12 +486,13 @@
 					{/if}
 				</div>
 			</div>
-			<div class="rounded-xl delegate-item bg-primary-300 dark:bg-primary-500">
+			<div class="w-[480px] p-4">
 				{#if delegate}
 					<DelegateCard {delegate} questions={generalDelegateInfo?.delegate_qa ?? []} showQA />
 				{/if}
 			</div>
 		</div>
+
 		{#if generalGovOfficialInfo?.gov_proposals && generalGovOfficialInfo.gov_proposals.length > 0 && delegate}
 			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
 				<GovProposalPreview govProposals={generalGovOfficialInfo.gov_proposals} {delegate} />
@@ -447,6 +549,11 @@
 						interests={generalDelegateInfo.interests.slice(0, 8)}
 					/>
 				</span>
+				<!-- <div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
+
+					<h1 class="font-bold text-2xl mb-2">Top 4 Interessen</h1>
+					<InterestTiles bgColor={"bg-primary-300 dark:bg-primary-500"} squareColor={"dark:bg-primary-300 bg-primary-400"} interests={generalDelegateInfo.interests.slice(0, 4)} />
+				</div> -->
 			{/if}
 		{:else}
 			<ExpandablePlaceholder class={'my-3'} />
@@ -532,17 +639,6 @@
 		padding: 20px 0;
 	}
 
-	/* :global(.parliament-item) {
-		grid-area: p;
-	} */
-
-	@media (min-width: 768px) {
-		.parliament-item {
-			grid-area: p;
-			flex-basis: 66%;
-		}
-	}
-
 	@media (min-width: 768px) {
 		.delegate-item {
 			grid-area: d;
@@ -569,5 +665,44 @@
 		justify-content: center;
 		flex-direction: column;
 		align-items: center;
+	}
+
+	/* Custom CSS for the slider */
+	.range-slider::-webkit-slider-thumb {
+		appearance: none;
+		height: 20px;
+		width: 20px;
+		border-radius: 50%;
+		background: #6881A1;
+		cursor: pointer;
+		border: none;
+	}
+
+	.range-slider::-moz-range-thumb {
+		height: 20px;
+		width: 20px;
+		border-radius: 50%;
+		background: #6881A1;
+		cursor: pointer;
+		border: none;
+	}
+
+	.range-slider::-webkit-slider-runnable-track {
+		background: linear-gradient(to right, #6881A1 0%, #6881A1 var(--progress), #e5e7eb var(--progress), #e5e7eb 100%);
+		height: 8px;
+		border-radius: 4px;
+	}
+
+	.range-slider::-moz-range-track {
+		background: #e5e7eb;
+		height: 8px;
+		border-radius: 4px;
+		border: none;
+	}
+
+	.range-slider::-moz-range-progress {
+		background: #6881A1;
+		height: 8px;
+		border-radius: 4px;
 	}
 </style>
