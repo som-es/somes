@@ -27,11 +27,9 @@ pub async fn parties_route(
 pub async fn parties_per_gp_route(
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<HashMap<String, Vec<Party>>>, PartiesErrorResponse> {
-    Ok(
-        dataservice::combx::with_data::all_parties_per_gp(&pg)
-            .await
-            .map(Json)?,
-    )
+    Ok(dataservice::combx::with_data::all_parties_per_gp(&pg)
+        .await
+        .map(Json)?)
 }
 
 pub async fn parties_at_gp_route(
