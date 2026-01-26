@@ -176,16 +176,6 @@
 	</title>
 {/if}
 
-
-<title>
-	{#if voteResult}
-		{#if voteResult.ai_summary}
-			{voteResult.ai_summary.short_title}
-		{:else}
-			{description}
-		{/if}
-	{/if}
-</title>
 <Container>
 	{#if voteResult}
 		{#if currentlyUpdating}

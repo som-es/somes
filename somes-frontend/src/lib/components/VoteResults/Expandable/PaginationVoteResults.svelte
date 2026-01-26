@@ -308,7 +308,6 @@
 		void genericFilters[2].activeValue
 		void genericFilters[3].activeValue
 		void genericFilters[4].activeValue
-		console.log("update");
 		untrack(update)
 	});
 
