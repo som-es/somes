@@ -16,5 +16,5 @@ export const load: PageServerLoad = async ({ fetch, params, setHeaders, url }) =
     const filter = `${queryParams}&is_finished=true`
     const voteResults = await vote_results_by_query_search(filter, fetch);
     const partiesPerGp = await parties_per_gp(fetch);
-    return { voteResults, partiesPerGp, selectedGp: searchParams.get("legislative_initiative[gp][in][0]") }
+    return { voteResults, partiesPerGp, selectedGp: null }
 }

@@ -300,8 +300,8 @@ pub fn to_meilisearch_filter_with_ops(
     filter_args: &[Option<FilterArgument>],
     options: &FilterOptions,
 ) -> String {
-    to_meilisearch_filters(filter_args, options)
-        .join(&format!(" {} ", options.combine_op.to_meilisearch_op()))
+    format!("({})", to_meilisearch_filters(filter_args, options)
+        .join(&format!(" {} ", options.combine_op.to_meilisearch_op())))
 }
 
 #[cfg(test)]

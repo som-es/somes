@@ -3,7 +3,18 @@ import { next_plenar_date } from "$lib/components/PlenarySessions/api";
 import type { PageServerLoad } from "./$types";
 import type { PlatformItem } from "./types";
 
+let internalCache: {
+    data: any;
+    timestamp: number;
+} | null = null;
+
+const CACHE_DURATION_MS = 1000 * 60 * 10;
+
 export const load: PageServerLoad = async ({ fetch, setHeaders }) => { 
+    const now = Date.now();
+    if (internalCache && (now - internalCache.timestamp < CACHE_DURATION_MS)) {
+        return internalCache.data;
+    }
     if (process.env.NODE_ENV === 'production') {
         setHeaders({
             'cache-control': 'max-age=320'
@@ -61,10 +72,17 @@ export const load: PageServerLoad = async ({ fetch, setHeaders }) => {
         });
     }
 
-    platformItems.sort((a, b) => a.id - b.id);
+    platformItems.sort((a, b) => a.id - b.id); 
     
-    return {
+    const data = {
         nextPlenarDate,
         platformItems
     };
+
+    internalCache = {
+        data,
+        timestamp: now
+    };
+
+    return data;
 }

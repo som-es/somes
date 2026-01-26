@@ -58,6 +58,7 @@
 
 	// Christoph Rework
 	const sliderSteps = [25, 50, 75, 365];
+	let isLegisPeriodFilterOpen = $state(false);
 	// Christoph Rework end
 
 	let { data }: PageProps = $props();
@@ -379,7 +380,7 @@
 			</div>
 			<!-- LegisPeriod Filter -->
 			<div class="flex items-center ml-3">
-				<Popover.Root>
+				<Popover.Root bind:open={isLegisPeriodFilterOpen}>
 					<Popover.Trigger>
 						<div 
 							class="bg-primary-600 flex items-center gap-1 p-2 px-3 rounded-xl text-white"
@@ -388,7 +389,7 @@
 							<h4>{selectedPeriod}</h4>
 							<div
 								class="block text-white w-4 transition-transform duration-200"
-								class:rotate-180={true}
+								class:rotate-180={isLegisPeriodFilterOpen}
 							>
 								{@html downArrowIcon}
 							</div>

@@ -1,8 +1,13 @@
 <script lang="ts">
-	let { maxPage, page = $bindable() }: { maxPage: number; page: number } = $props();
+	import { page as sveltePage } from '$app/state';
+
+	let { maxPage }: { maxPage: number; } = $props();
+
+	let page = $derived(
+        Number(sveltePage.url.searchParams.get('page')) || 1
+    );
 
 	let isMobile = $state(false);
-	let writtenPage = $state(`${page}`);
 
 	const offsets = [
 		[0, 11, 4, 4, 4, 4, 4, 7, 0], [0, 10, 3, 3, 3, 3, 3, 6, 0],
@@ -13,10 +18,6 @@
 		[0, 1, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0],
 		[0, 0, 0, 0, 0, 0, 0, 0, 0]
 	];
-
-	$effect(() => {
-		writtenPage = `${page}`;
-	});
 
 	$effect(() => {
 		const handleResize = () => (isMobile = window.innerWidth < 640);
@@ -58,20 +59,26 @@
 		
 		return [...new Set(suggestions)].sort((a, b) => a - b);
 	});
+
+	function createHref(page: number): string {
+		const nextUrl = new URL(sveltePage.url); 
+		nextUrl.searchParams.set('page', page.toString());
+		return nextUrl.href;
+	}
 </script>
 
 <div class="flex flex-row flex-wrap gap-[0.4rem] items-center text-black pagination-wrapper">
 	{#each pageSuggestions as suggestion}
-		<button
+		<a
 			class="btn mt-5 mb-5 px-2 py-1 text-center rounded-lg! {suggestion === page
 				? 'bg-secondary-400'
 				: 'bg-tertiary-400'}"
-			onclick={() => (page = suggestion)}
+			href="{createHref(suggestion)}"
 		>
 			<div class="font-bold text-lg w-[30px] h-[30px] items-center flex justify-center">
 				{suggestion}
 			</div>
-		</button>
+		</a>
 	{/each}
 </div>
 

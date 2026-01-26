@@ -5,6 +5,13 @@ import { next_plenar_date } from "$lib/components/PlenarySessions/api";
 import type { Delegate, HasError, VoteResult } from "$lib/types";
 import type { PageServerLoad } from "./$types";
 
+let internalCache: {
+    data: any;
+    timestamp: number;
+} | null = null;
+
+const CACHE_DURATION_MS = 1000 * 60 * 10;
+
 async function fetchDelegatesFromVoteResult(latestVotes: VoteResult[] | HasError, fetcher: typeof fetch): Promise<Delegate[] | null> {
     if (isHasError(latestVotes)) {
         return []
@@ -17,9 +24,14 @@ async function fetchDelegatesFromVoteResult(latestVotes: VoteResult[] | HasError
 }
 
 export const load: PageServerLoad = async ({ fetch, setHeaders }) => { 
+
+    const now = Date.now();
+    if (internalCache && (now - internalCache.timestamp < CACHE_DURATION_MS)) {
+        return internalCache.data;
+    }
     if (process.env.NODE_ENV === 'production') {
         setHeaders({
-            'cache-control': 'max-age=320'
+            'cache-control': 'max-age=1020'
         });
     }
 
@@ -42,7 +54,7 @@ export const load: PageServerLoad = async ({ fetch, setHeaders }) => {
 
     // TODO error handling
 
-    return {
+    const data = {
         nextPlenarDate,
         latestVotes,
         latestMinisterialProposals,
@@ -50,4 +62,11 @@ export const load: PageServerLoad = async ({ fetch, setHeaders }) => {
         delegates,
         allSeats
     };
+
+    internalCache = {
+        data,
+        timestamp: now
+    };
+
+    return data;
 }

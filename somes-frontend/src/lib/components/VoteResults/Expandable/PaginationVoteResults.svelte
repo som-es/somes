@@ -11,7 +11,7 @@
 		Party
 
 	} from '$lib/types';
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import {
 		errorToNull,
 		vote_results_by_search,
@@ -20,7 +20,7 @@
 	} from '$lib/api/api';
 	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 	import VoteResultExpandableBar from './VoteResultExpandableBar.svelte';
-	import { pushState } from '$app/navigation';
+	import { goto, pushState } from '$app/navigation';
 	import Pagination from '$lib/components/Pagination.svelte';
 	import { currentVoteResultFilterStores } from '$lib/stores/stores';
 	import ExpandablePlaceholder from './Placeholders/ExpandablePlaceholder.svelte';
@@ -28,6 +28,7 @@
 	import downArrowIcon from '$lib/assets/misc_icons/down-arrow.svg?raw';
 	import { Popover } from 'bits-ui';
 	import { SvelteSet } from 'svelte/reactivity';
+	import { page } from '$app/state';
 
 
 	interface Props {
@@ -81,10 +82,12 @@
 	let partyFilterState: Record<string, PartyFilterOption> = $state({});
 
 	// Initialize new parties with 'egal' (no filter)
-	onMount(() => {
+	$effect(() => {
 		for (const party of uniqueParties) {
 			if (!(party.name in partyFilterState)) {
-				partyFilterState[party.name] = 'egal';
+				untrack(() => {
+					partyFilterState[party.name] = 'egal';
+				})
 			}
 		}
 	});
@@ -166,39 +169,9 @@
 	let isPartiesFilterOpen = false;
 	let isTopicFilterOpen = false;
 	let isGenericFilterOpen = false;
-	// const popupParties: PopupSettings = {
-	// 	event: 'click',
-	// 	target: 'popupParties',
-	// 	placement: 'bottom',
-	// 	closeQuery: '.close-explicitly',
-	// 	state: (e) => {
-	// 		isPartiesFilterOpen = e.state;
-	// 	}
-	// };
-
-	// const popupTopics: PopupSettings = {
-	// 	event: 'click',
-	// 	target: 'popupTopics',
-	// 	placement: 'bottom',
-	// 	closeQuery: '.close-explicitly',
-	// 	state: (e) => {
-	// 		isTopicFilterOpen = e.state;
-	// 	}
-	// };
-
-	// const popupGenericFilter: PopupSettings = {
-	// 	event: 'click',
-	// 	target: 'popupGenericFilter',
-	// 	placement: 'bottom',
-	// 	closeQuery: '.close-explicitly',
-	// 	state: (e) => {
-	// 		isGenericFilterOpen = e.state;
-	// 	}
-	// };
 
 	// get page number from query params
 	const url = new URL(window.location.href);
-	let page = $state(parseInt(url.searchParams.get('page') || '1') || 1);
 
 	// Get and format updated_at date
 	let updatedAt = $derived(voteResults?.updated_at
@@ -255,6 +228,49 @@
 			party_votes: partyVotesFilter.length > 0 ? partyVotesFilter : null
 		};
 
+		const nextUrl = new URL(page.url); 
+		let paramPage = nextUrl.searchParams.get("page");
+		if (paramPage == null) {
+			paramPage = "1"
+		}
+
+		nextUrl.search = "";
+		if (paramPage) nextUrl.searchParams.set("page", paramPage);
+		if (filter.is_named_vote !== null) {
+			nextUrl.searchParams.set("legislative_initiative[voted_by_name][eq]", filter.is_named_vote.toString());
+		}
+		if (filter.accepted !== null) {
+			nextUrl.searchParams.set("legislative_initiative[accepted][eq]", filter.accepted);
+		}
+		if (filter.vote_type.length > 0) {
+			nextUrl.searchParams.set("legislative_initiative[voting][in][0]", filter.vote_type[0])
+		}
+
+		if (filter.gps.length > 0) {
+			nextUrl.searchParams.set("legislative_initiative[gp][in][0]", filter.gps[0])
+		}
+
+		if (filter.simple_majority !== null) {
+			nextUrl.searchParams.set("legislative_initiative[requires_simple_majority][eq]", filter.simple_majority.toString())
+		}
+
+		filter.party_votes?.forEach((partyVotes, i) => {
+			nextUrl.searchParams.set(`party_votes[${i}][infavor]`, partyVotes.infavor.toString());
+			nextUrl.searchParams.set(`party_votes[${i}][party]`, partyVotes.party);
+		})
+
+		nextUrl.searchParams.set("search", searchValue);
+
+		filter.topics?.forEach((topic, i) => {
+			nextUrl.searchParams.set(`eurovoc_topics[${i}][topic][cn]`, topic)
+		})
+
+		goto(nextUrl, { 
+			keepFocus: true,
+			replaceState: true,
+			noScroll: true
+		});
+
 		currentVoteResultFilterStore.value = filter;
 
 		currentlyUpdating = false;
@@ -278,30 +294,26 @@
 		}
 	});
 
-	let old_page = page;
-
 	const update = () => {
 		loadVoteResults();
-
-		// update query params
-		const url = new URL(window.location.href);
-		url.searchParams.set('page', page.toString());
-		try {
-			pushState(url.toString(), { replaceState: true });
-		} catch (e) {
-			page = old_page;
-		}
-
-		old_page = page;
 	};
+
+	$effect(() => {
+		void selectedPeriod
+		void searchValue
+		void partyVotesFilter
+		void selectedTopics.size
+		void genericFilters[0].activeValue
+		void genericFilters[1].activeValue
+		void genericFilters[2].activeValue
+		void genericFilters[3].activeValue
+		void genericFilters[4].activeValue
+		console.log("update");
+		untrack(update)
+	});
 
 	let searchValue = $state('');
 
-	// run(() => {
-	// 	if (searchValue) {
-	// 		page = 1;
-	// 	}
-	// });
 </script>
 
 <!-- HERE IS THE HTML -->
@@ -501,7 +513,7 @@
 			<Popover.Portal>
 				<Popover.Content>
 	<div
-		class="bg-surface-50 border border-gray-300 px-5 md:px-6 pt-4 pb-5 z-10 shadow-lg rounded-xl w-auto md:w-82 max-w-[96vw]"
+		class="bg-surface-50 border border-gray-300 px-5 md:px-6 pt-4 pb-5 z-10 shadow-lg rounded-xl w-auto"
 		data-popup="popupGenericFilter"
 	>
 		{#each genericFilters.slice(0, 4) as group}
@@ -560,7 +572,7 @@
 			Keine Abstimmungsergebnisse gefunden
 		{/if}
 		<div class="float-right">
-			<Pagination bind:page maxPage={voteResults.max_page} />
+			<Pagination maxPage={voteResults.max_page} />
 		</div>
 	{:else}
 		{#each { length: 9 } as _}
