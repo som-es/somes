@@ -27,17 +27,13 @@ export const load: PageServerLoad = async ({ fetch, setHeaders }) => {
 
     const now = Date.now();
     if (internalCache && (now - internalCache.timestamp < CACHE_DURATION_MS)) {
-        // return internalCache.data;
+        return internalCache.data;
     }
     if (process.env.NODE_ENV === 'production') {
-        // setHeaders({
-        //     'cache-control': 'max-age=1020'
-        // });
+        setHeaders({
+            'cache-control': 'max-age=1020'
+        });
     }
-
-    // console.log("LOADING VOTE RESULTS");
-    // const latestVotes = await latest_vote_results(fetch);
-    // console.log("LOADED VOTE RESULTS");
 
     const [
         nextPlenarDate, 
@@ -53,7 +49,7 @@ export const load: PageServerLoad = async ({ fetch, setHeaders }) => {
         cachedAllSeats(false, fetch)
     ]);
     
-    const delegates = fetchDelegatesFromVoteResult(latestVotes, fetch);
+    const delegates = await fetchDelegatesFromVoteResult(latestVotes, fetch);
 
     // TODO error handling
 

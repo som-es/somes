@@ -24,7 +24,8 @@
 		gotoHistory(createVoteResultPath(voteResult), true);
 	}
 
-	function toggleOpen() {
+	function toggleOpen(e: Event) {
+		e.preventDefault();
 		if (typeof window !== 'undefined' && window.innerWidth < 1024) {
 			onShowDetails();
 		} else {
@@ -36,12 +37,13 @@
 </script>
 
 <div class="gap-3 mt-5 {clazz}">
-	<div
+	<a
+		href="{createVoteResultPath(voteResult)}"
 		onclick={toggleOpen}
 		onkeypress={toggleOpen}
 		role="button"
 		tabindex="0"
-		class="entry bg-primary-300 dark:bg-primary-500"
+		class="entry block bg-primary-300 dark:bg-primary-500"
 	>
 		<div class="flex">
 			<div class="flex max-lg:flex-wrap items-center justify-between w-full">
@@ -206,7 +208,7 @@
 				{/if}
 			</span>
 		</div>
-	</div>
+	</a>
 	{#if open}
 		<div transition:slide={{ duration: 240 }}>
 			<VoteResultExpanded {voteResult} {dels} bind:open />

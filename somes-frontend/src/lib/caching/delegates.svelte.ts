@@ -27,13 +27,10 @@ export async function cachedDelegatesNearSeats(
 ): Promise<Delegate[] | null> {
 	let dels = delegatesNearDate.findBy((e) => e[0] == date && e[1] == gp);
 	if (dels == undefined || refetch || dels.length == 0) {
-		console.log("NO DELEGATE CACHE");
 		const fetchedDels = await delegates_with_seats_near_date(date as unknown as Date, gp, fetcher);
 		if (isHasError(fetchedDels)) return null;
 		delegatesNearDate.push([date, gp], fetchedDels);
 		dels = fetchedDels;
-	} else {
-		console.log("DELEGATE CACHE");
 	}
 	return structuredClone($state.snapshot(dels.slice()));
 }
