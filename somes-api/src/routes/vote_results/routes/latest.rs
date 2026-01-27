@@ -27,12 +27,9 @@ pub async fn latest_vote_results_route(
 
 pub async fn latest_legislative_initiatives_sqlx(
     pg: &PgPool,
-) -> sqlx::Result<Vec<DbLegislativeInitiativeQuery>> {
-    let res = sqlx::query_as!(
-        DbLegislativeInitiativeQuery,
-        "select * from legislative_initiatives
-            where nr_plenary_activity_date = (select MAX(nr_plenary_activity_date) from legislative_initiatives
-            where accepted is not null) and accepted is not null and is_voteable_on"
+) -> sqlx::Result<Vec<Option<i32>>> {
+    let res = sqlx::query_scalar!(
+        "select id from latest_legislative_initiatives"
     )
     .fetch_all(pg)
     .await?;
@@ -47,7 +44,8 @@ pub async fn latest_vote_results_sqlx(
         latest_legislative_initiatives_sqlx(pg)
             .await?
             .into_iter()
-            .map(|legis_init| construct_vote_result(redis_con.clone(), pg, legis_init.id))
+            .flatten()
+            .map(|legis_init_id| construct_vote_result(redis_con.clone(), pg, legis_init_id))
             .collect::<Vec<_>>(),
     )
     .await
