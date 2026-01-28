@@ -9,7 +9,9 @@
 		GeneralDelegateInfo,
 		GeneralGovOfficialInfo,
 		LegisPeriod,
-		SpeechesWithMaxPage
+		SpeechesWithMaxPage,
+		HasError,
+		Party
 	} from '$lib/types';
 	import { onMount, untrack } from 'svelte';
 	import {
@@ -18,9 +20,7 @@
 		general_delegate_info,
 		general_gov_official_info,
 		speeches_by_delegate_per_page,
-
 		toActualDateString
-
 	} from '$lib/api/api';
 	import {
 		currentDelegateFilterStore,
@@ -59,11 +59,37 @@
 	// Christoph Rework
 	const sliderSteps = [25, 50, 75, 365];
 	let isLegisPeriodFilterOpen = $state(false);
+	let isSearchPopupOpen = $state(false);
+	let searchInput = $state('');
 	// Christoph Rework end
 
 	let { data }: PageProps = $props();
 
 	let delegates: Delegate[] = $derived(data.delegates ?? []);
+	let partiesPerGp: Record<string, Party[]> = $derived(data.partiesPerGp ?? {});
+
+	let uniqueParties = $derived.by(() => {
+		if (false) {
+			return partiesPerGp[selectedPeriod].sort((a, b) => {
+				return b.fraction - a.fraction;
+			});
+		} else {
+			const parties: Party[] = [];
+			const namedParties = new Set();
+			const keys = Object.keys(partiesPerGp).sort().reverse();
+			keys.forEach((key) => {
+				partiesPerGp[key].forEach((party) => {
+					if (!namedParties.has(party.code)) {
+						namedParties.add(party.code);
+						parties.push(party);
+					}
+				});
+			});
+			return parties.sort((a, b) => {
+				return b.fraction - a.fraction;
+			});
+		}
+	});
 
 	function selectFittingDelegate(delegates: Delegate[]): Delegate | null {
 		if (delegates.length === 0) {
@@ -85,7 +111,6 @@
 		return tempDelegate;
 	}
 
-
 	let syncDelegates: Delegate[] = $state([]);
 
 	let delegate: Delegate | null = $derived.by(() => {
@@ -98,12 +123,12 @@
 			if (found) {
 				return found;
 			}
-		};
+		}
 		const delegate = untrack(() => {
 			return selectFittingDelegate($state.snapshot(syncDelegates));
-		});		
+		});
 
-		return delegate
+		return delegate;
 	});
 
 	let periods: LegisPeriod[] = $derived(data.cachedPeriods ?? []);
@@ -121,20 +146,24 @@
 
 	let prevSelectedDelegateId = $state(0);
 
-	let maybeCurrentDelegateFilter = $derived(currentDelegateFilterStore.value ?? {
-		day_offset: maxDayOffset,
-		search_value: '',
-		legis_period: data.gp ?? 'XXVIII' 
-	});
+	let maybeCurrentDelegateFilter = $derived(
+		currentDelegateFilterStore.value ?? {
+			day_offset: maxDayOffset,
+			search_value: '',
+			legis_period: data.gp ?? 'XXVIII'
+		}
+	);
 
 	let inputValue = $derived(maybeCurrentDelegateFilter.search_value ?? '');
 	let dayOffset = $state(maybeCurrentDelegateFilter.day_offset ?? maxDayOffset);
 
-	let latestPeriod = $derived(data.cachedPeriods?.reverse()[0]?.gp ?? "XXVIII")
+	let latestPeriod = $derived(data.cachedPeriods?.reverse()[0]?.gp ?? 'XXVIII');
 	let selectedPeriod = $derived(maybeCurrentDelegateFilter.legis_period ?? latestPeriod);
 	let prevSelectedPeriod = $state(maybeCurrentDelegateFilter.legis_period ?? latestPeriod);
 
-	let autocompleteOptions: AutocompleteOption<string>[] = $derived(convertDelegatesToAutocompleteOptions(delegates));
+	let autocompleteOptions: AutocompleteOption<string>[] = $derived(
+		convertDelegatesToAutocompleteOptions(delegates)
+	);
 
 	function delegateFilter(): AutocompleteOption<string>[] {
 		let _options = [...autocompleteOptions];
@@ -171,9 +200,7 @@
 			// this prevents that dayOffset is overwritten with max
 			prevSelectedPeriod = selectedPeriod;
 		}
-		supplyDate = paramDate
-			? (new Date(paramDate))
-			: (newDate);
+		supplyDate = paramDate ? new Date(paramDate) : newDate;
 		// console.log(supplyDate);
 
 		const paramDelegateId = url.searchParams.get('delegate');
@@ -192,6 +219,7 @@
 		if (!periods || periods.length == 0) {
 			return;
 		}
+
 		const firstIdx = periods.findIndex((x) => x.gp == selectedPeriod);
 		if (firstIdx == -1) return;
 		// delegate = null;
@@ -208,14 +236,14 @@
 		}
 		maybeCurrentDelegateFilter.day_offset = dayOffset;
 		currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
-		startDate.setDate(startDate.getDate() + dayOffset-1);
+		startDate.setDate(startDate.getDate() + dayOffset - 1);
 
 		supplyDate = startDate;
 
 		const url = new URL(window.location.href);
 		const previousDate = url.searchParams.get('date');
 		const previousPeriod = url.searchParams.get('gp');
-		
+
 		startDate.setDate(startDate.getDate());
 		if (previousDate === toActualDateString(supplyDate) && previousPeriod === selectedPeriod) {
 			return;
@@ -233,6 +261,82 @@
 		if (finishedMounting) prevSelectedPeriod = selectedPeriod;
 	};
 
+	function getMandatePeriods(delegate: Delegate, periods: LegisPeriod[]): string {
+		if (!delegate.mandates || !delegate.active_mandates || delegate.mandates.length === 0) {
+			return 'unbekannt';
+		}
+
+		// Sort mandates by start date
+		const sortedMandates = [...delegate.mandates, ...delegate.active_mandates].sort(
+			(a, b) => new Date(a.start_date || '').getTime() - new Date(b.start_date || '').getTime()
+		);
+
+		// Find the period for a given date
+		const findPeriod = (date: string): string | null => {
+			const d = new Date(date);
+			for (let i = 0; i < periods.length; i++) {
+				const periodStart = new Date(periods[i].start_date);
+				const periodEnd = periods[i + 1] ? new Date(periods[i + 1].start_date) : new Date();
+
+				if (d >= periodStart && d < periodEnd) {
+					return periods[i].gp;
+				}
+			}
+			return null;
+		};
+
+		// Get first and last period
+		const firstPeriod = findPeriod(sortedMandates[0].start_date || '');
+		const lastMandate = sortedMandates.reduce((latest, current) => {
+			if (!current.end_date) return current; // Active mandate always wins
+			if (!latest.end_date) return latest;
+			return new Date(current.end_date) > new Date(latest.end_date) ? current : latest;
+		});
+		const lastPeriod = lastMandate.end_date ? findPeriod(lastMandate.end_date) : 'dato';
+
+		if (!firstPeriod) return `unbekannt - ${lastPeriod}`;
+
+		return `${firstPeriod} - ${lastPeriod}`;
+	}
+
+	function sortDelegates(delegates: Delegate[]): Delegate[] {
+		const filter = maybeCurrentDelegateFilter;
+
+		// If there's a search value, prioritize matching delegates
+		if (filter.search_value && filter.search_value.trim()) {
+			const searchLower = filter.search_value.toLowerCase().trim();
+
+			return [...delegates].sort((a, b) => {
+				const aName = a.name.toLowerCase();
+				const bName = b.name.toLowerCase();
+
+				// Exact matches first
+				const aExactMatch = aName === searchLower;
+				const bExactMatch = bName === searchLower;
+				if (aExactMatch && !bExactMatch) return -1;
+				if (!aExactMatch && bExactMatch) return 1;
+
+				// Starts with search term
+				const aStartsWith = aName.startsWith(searchLower);
+				const bStartsWith = bName.startsWith(searchLower);
+				if (aStartsWith && !bStartsWith) return -1;
+				if (!aStartsWith && bStartsWith) return 1;
+
+				// Contains search term
+				const aContains = aName.includes(searchLower);
+				const bContains = bName.includes(searchLower);
+				if (aContains && !bContains) return -1;
+				if (!aContains && bContains) return 1;
+
+				// Alphabetical as fallback
+				return aName.localeCompare(bName);
+			});
+		}
+
+		// Default: sort alphabetically by name
+		return [...delegates].sort((a, b) => a.name.localeCompare(b.name));
+	}
+
 	const updateStoredPeriod = () => {
 		maybeCurrentDelegateFilter.legis_period = selectedPeriod;
 		currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
@@ -242,10 +346,9 @@
 		void selectedPeriod;
 		void periods;
 		untrack(() => {
-
 			renderEndDate = null;
 			renderStartDate = null;
-			
+
 			updateStoredPeriod();
 			updateDelsToDisplay();
 			if (finishedMounting) prevSelectedPeriod = selectedPeriod;
@@ -267,13 +370,11 @@
 	$effect(() => {
 		void delegate;
 		if (delegate) {
-			updateDelegateIdInUrl(delegate);	
+			updateDelegateIdInUrl(delegate);
 		}
 
 		untrack(() => {
-
 			if (delegate && prevSelectedDelegateId != delegate.id) {
-
 				generalDelegateInfo = null;
 				general_delegate_info(delegate.id).then((res) => {
 					generalDelegateInfo = errorToNull(res);
@@ -295,7 +396,7 @@
 
 				prevSelectedDelegateId = delegate.id;
 			}
-		})
+		});
 	});
 
 	/*run(() => {
@@ -311,29 +412,118 @@
 </script>
 
 <svelte:head>
-    <title>Abgeordnete zum Nationalrat</title>
-    <meta name="description" content="Auswahl und spezifische Informationen über Abgeordnete" />
+	<title>Abgeordnete zum Nationalrat</title>
+	<meta name="description" content="Auswahl und spezifische Informationen über Abgeordnete" />
 </svelte:head>
 
 <Container>
-	<h1 class="text-3xl sm:text-4xl font-bold pt-2 px-1 sm:p-0">Abgeordnete des Nationalrats</h1>
-	<span class="block text-base text-gray-800 ml-1 sm:ml-0 sm:mt-1 mb-2">
+	<h1 class="px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">Abgeordnete des Nationalrats</h1>
+	<span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0">
 		Aktualisiert am: Unknown
 	</span>
 
-	<div class="flex flex-grow h-10 rounded-xl border-[2px] border-gray-400 mt-12">
-		<div class="w-10 h-9 flex items-center justify-center text-gray-600">
-			{@html searchIcon}
+	<div class="relative">
+		<div class="mt-12 flex h-10 flex-grow rounded-xl border-[2px] border-gray-400">
+			<div class="flex h-9 w-10 items-center justify-center text-gray-600">
+				{@html searchIcon}
+			</div>
+			<input
+				type="search"
+				class="block w-full bg-transparent py-2 placeholder:text-gray-600 focus:outline-none"
+				placeholder="Suche..."
+				bind:value={inputValue}
+				oninput={(e) => {
+					maybeCurrentDelegateFilter.search_value = e.currentTarget.value;
+					currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
+				}}
+				onfocus={() => (isSearchPopupOpen = true)}
+				onblur={() => (isSearchPopupOpen = false)}
+			/>
 		</div>
-		<input
-			type="search"
-			class="block w-full py-2 focus:outline-none bg-transparent placeholder:text-gray-600"
-			placeholder="Suche..."
-			bind:value={inputValue}
-		/>
+
+		{#if isSearchPopupOpen}
+			<div
+				class="absolute top-full right-0 left-0 z-100 mt-2 w-full rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg md:px-6"
+				data-popup="popupSearch"
+				role="button"
+				tabindex="0"
+				onmousedown={(e) => e.preventDefault()}
+			>
+				<div class="flex">
+					<!-- Filters -->
+					<div>
+						<div class="flex flex-col gap-2">
+							{#each uniqueParties as party}
+								<div class="flex items-center gap-2">
+									<!-- Party Name and Color -->
+									<div class="flex items-center gap-2">
+										<div
+											class="h-3 w-3 rounded-full"
+											style="background-color: {party.color ?? '#ccc'};"
+										></div>
+										<span class="text-base font-semibold text-gray-800">{party.name}</span>
+									</div>
+									<!-- Party Checkbox -->
+									<!-- <div class="ml-auto flex items-center gap-1">
+										<button
+											class="cursor-pointer rounded-lg px-2 py-1 text-sm"
+											class:bg-primary-300={partyFilterState[party.name] === 'pro'}
+											onclick={() =>
+												(partyFilterState[party.name] =
+													partyFilterState[party.name] === 'pro' ? 'egal' : 'pro')}
+										>
+											Pro
+										</button>
+										<button
+											class="cursor-pointer rounded-lg px-2 py-1 text-sm"
+											class:bg-primary-300={partyFilterState[party.name] === 'egal'}
+											onclick={() => (partyFilterState[party.name] = 'egal')}
+										>
+											Egal
+										</button>
+										<button
+											class="cursor-pointer rounded-lg px-2 py-1 text-sm"
+											class:bg-primary-300={partyFilterState[party.name] === 'contra'}
+											onclick={() =>
+												(partyFilterState[party.name] =
+													partyFilterState[party.name] === 'contra' ? 'egal' : 'contra')}
+										>
+											Contra
+										</button>
+									</div> -->
+								</div>
+							{/each}
+						</div>
+					</div>
+					<div class="mt-2">
+						<span class="text-base font-semibold text-gray-800">Suchergebnisse</span>
+						{#each sortDelegates(delegates) as delegate}
+							<div class="mb-3 flex w-full justify-between rounded-xl bg-primary-300 p-2">
+								<div class="flex">
+									<img class="h-14 rounded-full" src={delegate.image_url} alt={delegate.name} />
+									<div class="mt-1 ml-3">
+										<h4 class="text-lg/5 font-semibold text-gray-900">{delegate.name}</h4>
+										<div class="flex items-center gap-2">
+											<div
+												class="h-2 w-2 rounded-full"
+												style="background-color: {partyColors.get(delegate.party) ?? '#ccc'};"
+											></div>
+											<span class="text-sm font-medium text-gray-800">{delegate.party}</span>
+										</div>
+									</div>
+								</div>
+								<div class="text-sm font-medium text-gray-800">
+									{getMandatePeriods(delegate, periods)}
+								</div>
+							</div>
+						{/each}
+					</div>
+				</div>
+			</div>
+		{/if}
 	</div>
 
-	<div class="gap-3 flex flex-wrap mt-5">
+	<div class="mt-5 flex flex-wrap gap-3">
 		<!-- <div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
 			<LegisButtons bind:periods bind:selectedPeriod showAllButton={false}></LegisButtons>
 		</div> -->
@@ -341,10 +531,10 @@
 		<!--------------------->
 		<!-- Timeline Slider -->
 		<!--------------------->
-		<div class="rounded-xl flex bg-primary-300 dark:bg-primary-500 p-3 w-full">
+		<div class="flex w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 			<!-- Slider -->
 			<div class="flex-1">
-				<div class="flex justify-between min-w-full px-1 mb-1 text-base text-gray-800">
+				<div class="mb-1 flex min-w-full justify-between px-1 text-base text-gray-800">
 					<div>
 						Anfang - {renderStartDate == null ? '' : dashDateToDotDate(renderStartDate.toString())}
 					</div>
@@ -356,7 +546,7 @@
 					</div>
 				</div>
 				<input
-					class="w-full h-2 bg-primary-200/80 rounded-lg appearance-none cursor-pointer range-slider"
+					class="range-slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-primary-200/80"
 					bind:value={dayOffset}
 					onchange={onLettingGoOfDaySlider}
 					type="range"
@@ -365,12 +555,14 @@
 					step={1}
 					list="steplist"
 				/>
-				<div class="w-full flex">
+				<div class="flex w-full">
 					{#each sliderSteps as step}
-						<div class="relative w-[1px] h-2 bg-white" style="left: calc({((step - 2) / maxDayOffset) * 100}% + {10 - (step / maxDayOffset) * 24}px)">
-
-					</div>
-				{/each}
+						<div
+							class="relative h-2 w-[1px] bg-white"
+							style="left: calc({((step - 2) / maxDayOffset) * 100}% + {10 -
+								(step / maxDayOffset) * 24}px)"
+						></div>
+					{/each}
 				</div>
 				<datalist id="steplist">
 					{#each sliderSteps as step}
@@ -379,16 +571,13 @@
 				</datalist>
 			</div>
 			<!-- LegisPeriod Filter -->
-			<div class="flex items-center ml-3">
+			<div class="ml-3 flex items-center">
 				<Popover.Root bind:open={isLegisPeriodFilterOpen}>
 					<Popover.Trigger>
-						<div 
-							class="bg-primary-600 flex items-center gap-1 p-2 px-3 rounded-xl text-white"
-						>
-							
+						<div class="flex items-center gap-1 rounded-xl bg-primary-600 p-2 px-3 text-white">
 							<h4>{selectedPeriod}</h4>
 							<div
-								class="block text-white w-4 transition-transform duration-200"
+								class="block w-4 text-white transition-transform duration-200"
 								class:rotate-180={isLegisPeriodFilterOpen}
 							>
 								{@html downArrowIcon}
@@ -398,15 +587,15 @@
 					<Popover.Portal>
 						<Popover.Content>
 							<div
-								class="bg-surface-50 border border-gray-300 px-5 md:px-6 pt-4 pb-5 z-10 shadow-lg rounded-xl w-auto max-w-[96vw]"
+								class="z-10 w-auto max-w-[96vw] rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg md:px-6"
 								data-popup="popupLegisPeriod"
 							>
 								<div class="mt-4 first:mt-0">
-									<span class="text-gray-800 text-base font-semibold">Legislaturperiode</span>
-									<div class="flex flex-wrap text-sm gap-1 w-60">
+									<span class="text-base font-semibold text-gray-800">Legislaturperiode</span>
+									<div class="flex w-60 flex-wrap gap-1 text-sm">
 										{#each [...periods].reverse() as period}
 											<button
-												class="close-explicitly px-2 py-1 text-xs md:text-sm cursor-pointer rounded-lg border border-primary-300"
+												class="close-explicitly cursor-pointer rounded-lg border border-primary-300 px-2 py-1 text-xs md:text-sm"
 												class:bg-primary-300={selectedPeriod === period.gp}
 												onclick={() => {
 													selectedPeriod = period.gp;
@@ -417,16 +606,15 @@
 										{/each}
 									</div>
 								</div>
-								<div class="arrow bg-surface-50 border border-gray-300" />
+								<div class="arrow border border-gray-300 bg-surface-50" />
 							</div>
 						</Popover.Content>
 					</Popover.Portal>
 				</Popover.Root>
-				
 			</div>
 			<!-- LegisPeriod Filter PopUp -->
 		</div>
-<!-- 
+		<!-- 
 		<div class="text-token w-full space-y-2">
 			<input
 				class="input w-full h-12 px-2"
@@ -452,18 +640,20 @@
 				</div>
 			{/if}
 		</div> -->
-		<div class="flex min-w-full justify-between bg-primary-300 dark:bg-primary-200 rounded-xl ">
+		<div class="flex min-w-full justify-between rounded-xl bg-primary-300 dark:bg-primary-200">
 			<div class="w-3/4">
-				<div class="py-5 px-8 relative">
+				<div class="relative px-8 py-5">
 					{#if delegates && delegates.length > 0}
-						<div class="z-10 absolute top-5 left-8">
+						<div class="absolute top-5 left-8 z-10">
 							{#each [...groupPartyDelegates(structuredClone(delegates))].sort((a, b) => b[1].length - a[1].length) as [party, partyDelegates]}
 								<div class="flex items-center gap-2">
 									<div
-										class="w-3 h-3 rounded-full"
+										class="h-3 w-3 rounded-full"
 										style="background-color: {partyColors.get(party) ?? '#ccc'};"
 									></div>
-									<span class="text-lg text-gray-800 font-medium">{party} ({partyDelegates.length})</span>
+									<span class="text-lg font-medium text-gray-800"
+										>{party} ({partyDelegates.length})</span
+									>
 								</div>
 							{/each}
 						</div>
@@ -495,7 +685,7 @@
 		</div>
 
 		{#if generalGovOfficialInfo?.gov_proposals && generalGovOfficialInfo.gov_proposals.length > 0 && delegate}
-			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
+			<div class="title-item w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 				<GovProposalPreview govProposals={generalGovOfficialInfo.gov_proposals} {delegate} />
 			</div>
 		{:else if generalGovOfficialInfo?.gov_proposals == null && delegate && delegate.council == 'gov'}
@@ -504,7 +694,7 @@
 		{/if}
 
 		{#if generalGovOfficialInfo?.decrees && generalGovOfficialInfo.decrees.length > 0 && delegate}
-			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
+			<div class="title-item w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 				<DecreePreview decrees={generalGovOfficialInfo.decrees} {delegate} />
 			</div>
 		{:else if (generalGovOfficialInfo?.decrees == null && delegate && delegate.council == 'gov') || !delegate}
@@ -513,13 +703,13 @@
 		{/if}
 
 		{#if delegate && generalDelegateInfo?.political_position}
-			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
+			<div class="title-item rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 				<PoliticalStanceTitleBar
 					stanceTopicInfluences={generalDelegateInfo.stance_topic_influences}
 				/>
 			</div>
 		{/if}
-		<div class="flex max-lg:flex-wrap gap-2">
+		<div class="flex gap-2 max-lg:flex-wrap">
 			{#if delegate && generalDelegateInfo?.political_position}
 				<SquarePoliticalSpectrum
 					{delegate}
@@ -538,13 +728,13 @@
 
 		{#if generalDelegateInfo?.interests && generalDelegateInfo?.detailed_interests}
 			{#if generalDelegateInfo?.interests?.length > 0}
-				<span class="max-sm:hidden w-full">
+				<span class="w-full max-sm:hidden">
 					<TopicsChart
 						detailedInterests={generalDelegateInfo.detailed_interests}
 						interests={generalDelegateInfo.interests}
 					/>
 				</span>
-				<span class="sm:hidden w-full">
+				<span class="w-full sm:hidden">
 					<TopicsChart
 						detailedInterests={generalDelegateInfo.detailed_interests}
 						interests={generalDelegateInfo.interests.slice(0, 8)}
@@ -561,7 +751,7 @@
 		{/if}
 
 		{#if speechesPage0 && delegate && speechesPage0.speeches.length > 0}
-			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
+			<div class="title-item w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 				<SpeechesPreview delegateId={delegate.id} {speechesPage0} />
 			</div>
 		{:else if speechesPage0 == null && delegate && delegate.council == 'gov'}
@@ -570,7 +760,7 @@
 		{/if}
 
 		{#if generalDelegateInfo?.absences && delegate && generalDelegateInfo?.absences.length > 0}
-			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
+			<div class="title-item w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 				<AbsencesPreview delegateId={delegate.id} absences={generalDelegateInfo.absences} />
 			</div>
 		{:else if generalDelegateInfo?.absences == null || !delegate}
@@ -579,7 +769,7 @@
 		{/if}
 
 		{#if generalDelegateInfo?.named_votes && delegate && generalDelegateInfo?.named_votes.length > 0}
-			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
+			<div class="title-item w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 				<NamedVotePreview delegateId={delegate.id} namedVotes={generalDelegateInfo.named_votes} />
 			</div>
 		{:else if generalDelegateInfo?.absences == null || !delegate}
@@ -674,7 +864,7 @@
 		height: 20px;
 		width: 20px;
 		border-radius: 50%;
-		background: #6881A1;
+		background: #6881a1;
 		cursor: pointer;
 		border: none;
 	}
@@ -683,13 +873,19 @@
 		height: 20px;
 		width: 20px;
 		border-radius: 50%;
-		background: #6881A1;
+		background: #6881a1;
 		cursor: pointer;
 		border: none;
 	}
 
 	.range-slider::-webkit-slider-runnable-track {
-		background: linear-gradient(to right, #6881A1 0%, #6881A1 var(--progress), #e5e7eb var(--progress), #e5e7eb 100%);
+		background: linear-gradient(
+			to right,
+			#6881a1 0%,
+			#6881a1 var(--progress),
+			#e5e7eb var(--progress),
+			#e5e7eb 100%
+		);
 		height: 8px;
 		border-radius: 4px;
 	}
@@ -702,7 +898,7 @@
 	}
 
 	.range-slider::-moz-range-progress {
-		background: #6881A1;
+		background: #6881a1;
 		height: 8px;
 		border-radius: 4px;
 	}
