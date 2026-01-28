@@ -101,7 +101,7 @@
 			title="Somes"
 			class="mt-4 flex items-center justify-center rounded-xl fill-white stroke-white hover:cursor-pointer"
 		>
-			<span class="flex w-10 items-center justify-center fill-white stroke-white! mt-3">
+			<span class="mt-3 flex w-10 items-center justify-center fill-white stroke-white!">
 				{@html somesIcon}
 			</span>
 		</a>
@@ -110,7 +110,7 @@
 			title="Neuigkeiten"
 			class="{activeUrl?.includes('/home')
 				? 'bg-tertiary-500! stroke-black'
-				: ' stroke-white'} flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer mt-5 hover:bg-tertiary-400/60 hover:stroke-black"
+				: ' stroke-white'} mt-5 flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60 hover:stroke-black"
 		>
 			<span class="w-8">
 				{@html homeIcon}
@@ -121,7 +121,7 @@
 			title="Abstimmungshistorie"
 			class="{activeUrl?.includes('/history')
 				? 'bg-tertiary-500! stroke-black'
-				: ' stroke-white'} flex h-10 w-10  items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60"
+				: ' stroke-white'} flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60"
 		>
 			<span class="w-15">
 				<VoteParliament2
@@ -180,7 +180,7 @@
 	</div>
 
 	{#if activeUrl?.includes('/statistics') || activeUrl?.includes('/history')}
-		<section class="max-w-60 space-y-4 overflow-y-auto bg-primary-500 dark:bg-surface-600 p-3 pb-20 text-white">
+		<section class="max-w-60 space-y-4 overflow-y-auto bg-gray-300 p-3 pb-20 dark:bg-surface-600">
 			{#each submenu as segment, i}
 				{#if activeUrl?.includes(segment.route)}
 					<!-- Title -->
@@ -192,9 +192,9 @@
 								<li class="p-2">
 									<a
 										{href}
-										class="rounded-3xl p-2 {activeUrl?.includes(href)
-											? 'bg-secondary-500 text-black'
-											: 'hover:bg-secondary-300'}"
+										class="flex w-full rounded-3xl p-2 pl-3 {activeUrl?.includes(href)
+											? 'bg-primary-600'
+											: 'hover:bg-primary-300'}"
 										data-sveltekit-preload-data="hover"
 									>
 										<span class="flex-auto">{@html label}</span>
