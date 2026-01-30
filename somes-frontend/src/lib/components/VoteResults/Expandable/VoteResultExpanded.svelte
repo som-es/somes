@@ -9,7 +9,6 @@
 	import VoteTypeBadge from '../VoteTypeBadge.svelte';
 
 	export let voteResult: VoteResult;
-	export let dels: Delegate[];
 	export let open: boolean = true;
 
 	let delsAtDate: Delegate[] = [];

@@ -1,4 +1,11 @@
 
+export type GenericFilterGroup<T extends string | boolean> = {
+	title: string;
+	activeValue: T | undefined;
+	hidden: boolean;
+	options: { title: string; value: T | undefined }[];
+};
+
 export interface FilterInfo<T> {
 	title: string;
 	attributeName: string;

@@ -13,11 +13,10 @@
 
 	interface Props {
 		voteResult: VoteResult;
-		dels: Delegate[];
 		class: any;
 	}
 
-	let { voteResult, dels, class: clazz }: Props = $props();
+	let { voteResult, class: clazz }: Props = $props();
 
 	function onShowDetails() {
 		currentVoteResultStore.value = voteResult;
@@ -211,7 +210,7 @@
 	</a>
 	{#if open}
 		<div transition:slide={{ duration: 240 }}>
-			<VoteResultExpanded {voteResult} {dels} bind:open />
+			<VoteResultExpanded {voteResult} bind:open />
 		</div>
 	{/if}
 </div>

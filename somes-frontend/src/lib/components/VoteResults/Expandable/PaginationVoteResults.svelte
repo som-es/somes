@@ -1,21 +1,11 @@
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	import type {
-		Delegate,
 		VoteResultFilter,
 		VoteResultsWithMaxPage,
-		HasError,
-		UniqueTopic,
 		Party
 	} from '$lib/types';
 	import { onMount, untrack } from 'svelte';
-	import {
-		errorToNull,
-		vote_results_by_search,
-		vote_results_per_page,
-		get_eurovoc_topics
-	} from '$lib/api/api';
+	
 	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 	import VoteResultExpandableBar from './VoteResultExpandableBar.svelte';
 	import { goto, pushState } from '$app/navigation';
@@ -23,35 +13,42 @@
 	import { currentVoteResultFilterStores } from '$lib/stores/stores';
 	import ExpandablePlaceholder from './Placeholders/ExpandablePlaceholder.svelte';
 	import searchIcon from '$lib/assets/misc_icons/search-glass.svg?raw';
-	import downArrowIcon from '$lib/assets/misc_icons/down-arrow.svg?raw';
 	import { Popover } from 'bits-ui';
 	import { SvelteSet } from 'svelte/reactivity';
 	import { page } from '$app/state';
+	import FilterDropdown from '$lib/components/Filtering/FilterDropdown.svelte';
+	import type { GenericFilterGroup } from '$lib/components/Filtering/types';
+	import TopicsFilter from '$lib/components/Filtering/TopicsFilter.svelte';
+	import GenericFilters from '$lib/components/Filtering/GenericFilters.svelte';
 
 	interface Props {
 		voteResults: VoteResultsWithMaxPage;
 		partiesPerGp: Record<string, Party[]>;
 		selectedGp: string | null;
-		dels: Delegate[];
 		isFinished?: boolean;
 		storeIdx?: number;
+		showPartyFilter?: boolean;
+		showReqMajorityFilter?: boolean;
+		showAcceptedFilter?: boolean;
+		showNamedVoteFilter?: boolean;
 	}
 
 	let {
-		dels,
 		isFinished = true,
 		voteResults,
 		partiesPerGp,
 		selectedGp,
-		storeIdx = 0
+		storeIdx = 0,
+		showPartyFilter = false,
+		showReqMajorityFilter = false,
+		showAcceptedFilter = false,
+		showNamedVoteFilter = false,
 	}: Props = $props();
 
 	let currentVoteResultFilterStore = $derived(currentVoteResultFilterStores[storeIdx]);
 
 	// TOPIC FILTER
-	let topics: UniqueTopic[] = $state([]);
-	let selectedTopics: SvelteSet<string> = new SvelteSet();
-	let topicSearchValue = $state('');
+	let selectedTopics: SvelteSet<string> = $state(new SvelteSet());
 
 	// PARTY FILTER - get all parties available in the request
 	// let uniqueParties = $derived([...new Set(dels.map((d) => d.party))].sort());
@@ -104,21 +101,17 @@
 	);
 
 	// GENERIC FILTER - storage and render format
-	type GenericFilterGroup<T extends string | boolean> = {
-		title: string;
-		activeValue: T | undefined;
-		options: { title: string; value: T | undefined }[];
-	};
 	let genericFilters: [
 		GenericFilterGroup<boolean>,
 		GenericFilterGroup<string>,
 		GenericFilterGroup<boolean>,
 		GenericFilterGroup<string>,
 		GenericFilterGroup<string>
-	] = $state([
+	] = $derived([
 		{
 			title: 'notwendige Mehrheit',
 			activeValue: undefined,
+			hidden: !showReqMajorityFilter,
 			options: [
 				{ title: 'egal', value: undefined },
 				{ title: 'einfache Mehrheit', value: true },
@@ -128,6 +121,7 @@
 		{
 			title: 'Angenommen',
 			activeValue: undefined,
+			hidden: !showAcceptedFilter,
 			options: [
 				{ title: 'egal', value: undefined },
 				{ title: 'angenommen', value: 'a' },
@@ -138,6 +132,7 @@
 		{
 			title: 'Abstimmung',
 			activeValue: undefined,
+			hidden: !showNamedVoteFilter,
 			options: [
 				{ title: 'egal', value: undefined },
 				{ title: 'namentliche Abstimmung', value: true }
@@ -146,6 +141,7 @@
 		{
 			title: 'Antragstyp',
 			activeValue: undefined,
+			hidden: false,
 			options: [
 				{ title: 'egal', value: undefined },
 				{ title: 'Gesetz', value: 'Law' },
@@ -156,6 +152,7 @@
 		{
 			title: 'Legislaturperiode',
 			activeValue: 'XXVIII',
+			hidden: false,
 			options: [{ title: 'Alle', value: 'all' }]
 		}
 	]);
@@ -164,19 +161,10 @@
 	let activePartyFiltersCount = $derived(
 		Object.values(partyFilterState).filter((v) => v !== 'egal').length
 	);
-	let activeTopicFiltersCount = $derived(selectedTopics.size);
-	let activeGenericFiltersCount = $derived(
-		genericFilters.filter((f) => f.activeValue !== undefined && f.activeValue !== 'all').length
-	);
 
 	// PARTY, TOPIC, GENERIC filters - used for managing state of popup filter
 
 	let isPartiesFilterOpen = $state(false);
-	let isTopicFilterOpen = $state(false);
-	let isGenericFilterOpen = $state(false);
-
-	// get page number from query params
-	const url = new URL(window.location.href);
 
 	// Get and format updated_at date
 	let updatedAt = $derived(
@@ -290,11 +278,6 @@
 
 	onMount(async () => {
 		update();
-		// TOPIC FILTER - Fetch available topics
-		const fetchedTopics = errorToNull(await get_eurovoc_topics());
-		if (fetchedTopics) {
-			topics = fetchedTopics;
-		}
 
 		// Generic filter - Legislative period
 		const fetchedPeriods = await cachedAllLegisPeriods();
@@ -323,12 +306,14 @@
 		untrack(update);
 	});
 
+	let visibleFilters = $derived(genericFilters.slice(0, 4));
+
 	let searchValue = $state('');
 </script>
 
 <!-- HERE IS THE HTML -->
 
-<span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0">
+<span class="mb-2 ml-1 block text-base text-gray-800 dark:text-gray-300 sm:mt-1 sm:ml-0">
 	Abstimmungen aktualisiert am: {updatedAt}
 </span>
 
@@ -348,218 +333,70 @@
 	<!-- Filter Buttons -->
 	<!-- Parteien Filter -->
 	<div class="mt-2 flex h-10 w-full md:mt-0 md:w-auto">
-		<Popover.Root bind:open={isPartiesFilterOpen}>
-			<Popover.Trigger>
-				<div
-					class="flex h-full grow items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 md:ml-2 md:grow-0"
-				>
-					{#if activePartyFiltersCount > 0}
-						<div
-							class="flex h-5 w-5 items-center justify-center rounded-full border text-xs font-semibold text-white"
-						>
-							{activePartyFiltersCount}
-						</div>
-					{/if}
-					<span class="ml-1 text-white">Parteien</span>
+		{#if showPartyFilter}
+			<Popover.Root bind:open={isPartiesFilterOpen}>
+				<Popover.Trigger>
+					<FilterDropdown title="Parteien" activefilterCount={activePartyFiltersCount} isOpen={isPartiesFilterOpen} />
+				</Popover.Trigger>
+				<Popover.Content sideOffset={8}>
 					<div
-						class="block w-4 text-white transition-transform duration-200"
-						class:rotate-180={isPartiesFilterOpen}
+						class="z-10 w-72 rounded-xl border border-gray-300 bg-surface-50 px-6 py-4 shadow-lg"
+						data-popup="popupParties"
 					>
-						{@html downArrowIcon}
-					</div>
-				</div>
-			</Popover.Trigger>
-			<Popover.Content sideOffset={8}>
-				<div
-					class="z-10 w-72 rounded-xl border border-gray-300 bg-surface-50 px-6 py-4 shadow-lg"
-					data-popup="popupParties"
-				>
-					<div class="flex flex-col gap-2">
-						{#each uniqueParties as party}
-							<div class="flex items-center gap-2">
-								<!-- Party Name and Color -->
+						<div class="flex flex-col gap-2">
+							{#each uniqueParties as party}
 								<div class="flex items-center gap-2">
-									<div
-										class="h-3 w-3 rounded-full"
-										style="background-color: {party.color ?? '#ccc'};"
-									></div>
-									<span class="text-base font-semibold text-gray-800">{party.name}</span>
+									<!-- Party Name and Color -->
+									<div class="flex items-center gap-2">
+										<div
+											class="h-3 w-3 rounded-full"
+											style="background-color: {party.color ?? '#ccc'};"
+										></div>
+										<span class="text-base font-semibold text-gray-800">{party.name}</span>
+									</div>
+									<!-- Party Checkbox -->
+									<div class="ml-auto flex items-center gap-1">
+										<button
+											class="cursor-pointer rounded-lg px-2 py-1 text-sm"
+											class:bg-primary-300={partyFilterState[party.name] === 'pro'}
+											onclick={() =>
+												(partyFilterState[party.name] =
+													partyFilterState[party.name] === 'pro' ? 'egal' : 'pro')}
+										>
+											Pro
+										</button>
+										<button
+											class="cursor-pointer rounded-lg px-2 py-1 text-sm"
+											class:bg-primary-300={partyFilterState[party.name] === 'egal'}
+											onclick={() => (partyFilterState[party.name] = 'egal')}
+										>
+											Egal
+										</button>
+										<button
+											class="cursor-pointer rounded-lg px-2 py-1 text-sm"
+											class:bg-primary-300={partyFilterState[party.name] === 'contra'}
+											onclick={() =>
+												(partyFilterState[party.name] =
+													partyFilterState[party.name] === 'contra' ? 'egal' : 'contra')}
+										>
+											Contra
+										</button>
+									</div>
 								</div>
-								<!-- Party Checkbox -->
-								<div class="ml-auto flex items-center gap-1">
-									<button
-										class="cursor-pointer rounded-lg px-2 py-1 text-sm"
-										class:bg-primary-300={partyFilterState[party.name] === 'pro'}
-										onclick={() =>
-											(partyFilterState[party.name] =
-												partyFilterState[party.name] === 'pro' ? 'egal' : 'pro')}
-									>
-										Pro
-									</button>
-									<button
-										class="cursor-pointer rounded-lg px-2 py-1 text-sm"
-										class:bg-primary-300={partyFilterState[party.name] === 'egal'}
-										onclick={() => (partyFilterState[party.name] = 'egal')}
-									>
-										Egal
-									</button>
-									<button
-										class="cursor-pointer rounded-lg px-2 py-1 text-sm"
-										class:bg-primary-300={partyFilterState[party.name] === 'contra'}
-										onclick={() =>
-											(partyFilterState[party.name] =
-												partyFilterState[party.name] === 'contra' ? 'egal' : 'contra')}
-									>
-										Contra
-									</button>
-								</div>
-							</div>
-						{/each}
-					</div>
-					<Popover.Arrow class="rounded-sm fill-current stroke-gray-300 text-gray-300" />
-				</div>
-			</Popover.Content>
-		</Popover.Root>
-		<!-- Themen Filter -->
-		<Popover.Root bind:open={isTopicFilterOpen}>
-			<Popover.Trigger>
-				<div
-					class="ml-2 flex h-full grow items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 md:grow-0"
-				>
-					{#if activeTopicFiltersCount > 0}
-						<div
-							class="flex h-5 w-5 items-center justify-center rounded-full border text-xs font-semibold text-white"
-						>
-							{activeTopicFiltersCount}
-						</div>
-					{/if}
-					<span class="ml-1 text-white">Themen</span>
-					<div
-						class="block w-4 text-white transition-transform duration-200"
-						class:rotate-180={isTopicFilterOpen}
-					>
-						{@html downArrowIcon}
-					</div>
-				</div>
-			</Popover.Trigger>
-			<Popover.Content sideOffset={8}>
-				<div
-					class="z-10 w-72 rounded-xl border border-gray-300 bg-surface-50 shadow-lg"
-					data-popup="popupTopics"
-				>
-					<!-- Search bar -->
-					<div class="flex items-center gap-2 border-b border-gray-400 px-2 py-1">
-						<div class="flex h-9 w-10 items-center justify-center text-gray-600">
-							{@html searchIcon}
-						</div>
-						<input
-							type="search"
-							class="block w-full bg-transparent py-2 placeholder:text-gray-600 focus:outline-none"
-							placeholder="Suche nach Themen..."
-							bind:value={topicSearchValue}
-						/>
-					</div>
-					<div class="flex max-h-72 flex-col gap-1 overflow-y-auto px-3 py-2">
-						<!-- Selected topics first -->
-						{#each topics.filter((t) => selectedTopics.has(t.topic) && t.topic
-									.toLowerCase()
-									.includes(topicSearchValue.toLowerCase())) as topic}
-							<button
-								class="flex cursor-pointer items-center gap-2"
-								onclick={() => {
-									selectedTopics.delete(topic.topic);
-									selectedTopics = selectedTopics;
-								}}
-							>
-								<div class="h-4 w-4 rounded-md bg-primary-500"></div>
-								<span class="text-left text-sm font-semibold text-gray-800">{topic.topic}</span>
-							</button>
-						{/each}
-						<!-- Unselected topics -->
-						{#each topics.filter((t) => !selectedTopics.has(t.topic) && t.topic
-									.toLowerCase()
-									.includes(topicSearchValue.toLowerCase())) as topic}
-							<button
-								class="flex cursor-pointer items-center gap-2"
-								onclick={() => {
-									selectedTopics.add(topic.topic);
-									selectedTopics = selectedTopics;
-								}}
-							>
-								<div class="h-4 w-4 rounded-md border-[2px] border-primary-500"></div>
-								<span class="text-left text-sm text-gray-800">{topic.topic}</span>
-							</button>
-						{/each}
-					</div>
-					<Popover.Arrow class="rounded-sm fill-current stroke-gray-300 text-gray-300" />
-				</div>
-			</Popover.Content>
-		</Popover.Root>
-		<!-- Generic Filter -->
-		<Popover.Root bind:open={isGenericFilterOpen}>
-			<Popover.Trigger>
-				<div
-					class="ml-2 flex h-full grow items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 md:grow-0"
-				>
-					{#if activeGenericFiltersCount > 0}
-						<div
-							class="flex h-5 w-5 items-center justify-center rounded-full border text-xs font-semibold text-white"
-						>
-							{activeGenericFiltersCount}
-						</div>
-					{/if}
-					<span class="ml-1 text-white">Filter</span>
-					<div
-						class="block w-4 text-white transition-transform duration-200"
-						class:rotate-180={isGenericFilterOpen}
-					>
-						{@html downArrowIcon}
-					</div>
-				</div>
-			</Popover.Trigger>
-			<Popover.Content sideOffset={8}>
-				<div
-					class="z-10 w-auto rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg md:px-6"
-					data-popup="popupGenericFilter"
-				>
-					{#each genericFilters.slice(0, 4) as group}
-						<div class="mt-4 first:mt-0">
-							<span class="text-base font-semibold text-gray-800">{group.title}</span>
-							<div class="flex w-fit gap-1 rounded-lg border border-primary-300 text-sm">
-								{#each group.options as option}
-									<button
-										class="cursor-pointer rounded-lg px-2 py-1 text-xs md:text-sm"
-										class:bg-primary-300={group.activeValue === option.value}
-										onclick={() => {
-											group.activeValue = option.value;
-										}}
-									>
-										<span class="text-nowrap">{option.title}</span>
-									</button>
-								{/each}
-							</div>
-						</div>
-					{/each}
-					<div class="mt-4 first:mt-0">
-						<span class="text-base font-semibold text-gray-800">{genericFilters[4].title}</span>
-						<div class="flex w-72 flex-wrap gap-1 text-sm">
-							{#each genericFilters[4].options as option}
-								<button
-									class="cursor-pointer rounded-lg border border-primary-300 px-2 py-1 text-xs md:text-sm"
-									class:bg-primary-300={genericFilters[4].activeValue === option.value}
-									onclick={() => {
-										genericFilters[4].activeValue = option.value;
-									}}
-								>
-									<span class="text-nowrap">{option.title}</span>
-								</button>
 							{/each}
 						</div>
+						<Popover.Arrow class="rounded-sm fill-current stroke-gray-300 text-gray-300" />
 					</div>
-					<Popover.Arrow class="rounded-sm fill-current stroke-gray-300 text-gray-300" />
-				</div>
-			</Popover.Content>
-		</Popover.Root>
+				</Popover.Content>
+			</Popover.Root>
+		{/if}
+		<!-- Themen Filter -->
+		<TopicsFilter bind:selectedTopics />
+		<!-- Generic Filter -->
+		<GenericFilters 
+			genericFilters={visibleFilters} 	
+			bind:legisPeriodFilter={genericFilters[4]} 
+		/>
 	</div>
 </div>
 
@@ -567,7 +404,7 @@
 	{#if voteResults}
 		{#if voteResults.vote_results.length > 0}
 			{#each voteResults.vote_results as voteResult}
-				<VoteResultExpandableBar {dels} {voteResult} class="" />
+				<VoteResultExpandableBar {voteResult} class="" />
 			{/each}
 		{:else if currentlyUpdating}
 			{#each { length: 9 } as _}
