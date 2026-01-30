@@ -8,10 +8,10 @@
         legisPeriodFilter?: GenericFilterGroup<string>;
     }
 
-    let { genericFilters, legisPeriodFilter = $bindable() }: Props = $props();
+    let { genericFilters = $bindable(), legisPeriodFilter = $bindable() }: Props = $props();
 
     let activeGenericFiltersCount = $derived(
-		genericFilters.filter((f) => f.activeValue !== undefined && f.activeValue !== 'all').length
+		genericFilters.filter((f) => f.activeValue !== undefined && f.activeValue !== 'all').length + +(legisPeriodFilter?.activeValue !== "all")
 	);
 	let isGenericFilterOpen = $state(false);
 </script>
@@ -22,7 +22,6 @@
     <Popover.Content sideOffset={8}>
         <div
             class="z-10 w-auto rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg md:px-6"
-            data-popup="popupGenericFilter"
         >
             {#each genericFilters as group}
                 {#if !group.hidden}

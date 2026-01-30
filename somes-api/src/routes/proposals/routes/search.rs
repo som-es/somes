@@ -10,7 +10,7 @@ use crate::{
     routes::{
         FilterError, GovProposalDelegate, GovProposalDelegateFilter, GovProposalsWithMaxPage,
     },
-    RedisConnection, GOV_PROPS_PER_PAGE,
+    Qs, RedisConnection, GOV_PROPS_PER_PAGE,
 };
 
 pub async fn gov_props_by_search_route(
@@ -18,25 +18,29 @@ pub async fn gov_props_by_search_route(
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
-    Query(gov_prop_filter): Query<GovProposalDelegateFilter>,
+    Qs(gov_prop_filter): Qs<GovProposalDelegateFilter>,
 ) -> Result<Json<GovProposalsWithMaxPage>, FilterError> {
-    dbg!(&gov_prop_filter);
     let mut filter_conditions = to_meilisearch_filters(
         &gov_prop_filter.filter_arguments(),
         &FilterOptions::default(),
     );
 
     if let Some(gov_proposal_filter) = gov_prop_filter.gov_proposal {
-        filter_conditions.extend(meilisearch_filters_gov_props(gov_proposal_filter));
+        filter_conditions.extend(meilisearch_filters_gov_props(gov_proposal_filter, Some("gov_proposal")));
     }
     if let Some(delegate) = &gov_prop_filter.delegate {
         filter_conditions.extend(to_meilisearch_filters(
             &delegate.filter_arguments(),
-            &FilterOptions::default(),
+            &FilterOptions {
+                prefix: Some("delegate".into()),
+                ..Default::default()
+            },
         ));
     }
 
     let meilisearch_filter = filter_conditions.join(" AND ");
+
+    log::info!("meilisearch filter: {meilisearch_filter}");
 
     let results: SearchResults<GovProposalDelegate> = meilisearch_client
         .index("gov_props")

@@ -273,6 +273,13 @@ pub fn to_meilisearch_filter(filter_args: &[Option<FilterArgument>]) -> String {
     to_meilisearch_filter_with_ops(filter_args, &FilterOptions::default())
 }
 
+pub fn build_prefix(prefix: &str, prev_prefix: Option<&str>) -> String {
+    match prev_prefix {
+        Some(prev_prefix) => format!("{prev_prefix}.{prefix}"),
+        None => prefix.to_string(),
+    }
+}
+
 pub fn to_meilisearch_filters(
     filter_args: &[Option<FilterArgument>],
     options: &FilterOptions,

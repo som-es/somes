@@ -60,7 +60,7 @@ async fn meilisearch_for_vote_results(
     } else {
         vec![r#"legislative_initiative.accepted IS NULL AND legislative_initiative.has_reference = false"#.to_string()]
     };
-    filter_conditions.extend(meilisearch_filters_vote_result(vote_result_filter));
+    filter_conditions.extend(meilisearch_filters_vote_result(vote_result_filter, None));
 
     // dataservice::combx::DbLegislativeInitiativeQueryFilter ;
 

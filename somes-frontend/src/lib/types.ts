@@ -212,6 +212,7 @@ export interface GovProposalsWithMaxPage {
 	gov_proposals: GovProposalDelegate[];
 	entry_count: number;
 	max_page: number;
+	updated_at: string;
 }
 
 export interface WaloQuestion {
@@ -471,6 +472,7 @@ export interface StanceTopicScore {
 export interface GovPropFilter {
 	legis_period: string | null;
 	has_vote_result: boolean | null;
+	topics: string[] | null;
 }
 
 export interface NamedVote {

@@ -12,7 +12,6 @@
 	import Pagination from '$lib/components/Pagination.svelte';
 	import { currentVoteResultFilterStores } from '$lib/stores/stores';
 	import ExpandablePlaceholder from './Placeholders/ExpandablePlaceholder.svelte';
-	import searchIcon from '$lib/assets/misc_icons/search-glass.svg?raw';
 	import { Popover } from 'bits-ui';
 	import { SvelteSet } from 'svelte/reactivity';
 	import { page } from '$app/state';
@@ -20,6 +19,8 @@
 	import type { GenericFilterGroup } from '$lib/components/Filtering/types';
 	import TopicsFilter from '$lib/components/Filtering/TopicsFilter.svelte';
 	import GenericFilters from '$lib/components/Filtering/GenericFilters.svelte';
+	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
+	import { convertVoteResultFilterToUrl } from './urlConversion';
 
 	interface Props {
 		voteResults: VoteResultsWithMaxPage;
@@ -107,7 +108,7 @@
 		GenericFilterGroup<boolean>,
 		GenericFilterGroup<string>,
 		GenericFilterGroup<string>
-	] = $derived([
+	] = $state([
 		{
 			title: 'notwendige Mehrheit',
 			activeValue: undefined,
@@ -194,6 +195,14 @@
 				genericFilters[2].activeValue = maybeStoredFilter.is_named_vote;
 			if (maybeStoredFilter.vote_type !== null && maybeStoredFilter.vote_type.length > 0)
 				genericFilters[3].activeValue = maybeStoredFilter.vote_type[0];
+			if (maybeStoredFilter.topics !== null) {
+				selectedTopics = new SvelteSet(maybeStoredFilter.topics)
+			}
+			if (maybeStoredFilter.party_votes !== null) {
+				maybeStoredFilter.party_votes.forEach(party => {
+					partyFilterState[party.party] = party.infavor ? "pro" : "contra"
+				})
+			}
 		}
 	});
 
@@ -205,7 +214,7 @@
 
 		// accepted: 'a' (accepted), 'd' (declined), 'p' (pre-declined)
 		// null "egal"
-		let filter: VoteResultFilter | null = {
+		let filter: VoteResultFilter = {
 			is_finished: isFinished,
 			is_named_vote:
 				genericFilters[2].activeValue == undefined ? null : genericFilters[2].activeValue,
@@ -222,48 +231,7 @@
 			party_votes: partyVotesFilter.length > 0 ? partyVotesFilter : null
 		};
 
-		const nextUrl = new URL(page.url);
-		let paramPage = nextUrl.searchParams.get('page');
-		if (paramPage == null) {
-			paramPage = '1';
-		}
-
-		nextUrl.search = '';
-		if (paramPage) nextUrl.searchParams.set('page', paramPage);
-		if (filter.is_named_vote !== null) {
-			nextUrl.searchParams.set(
-				'legislative_initiative[voted_by_name][eq]',
-				filter.is_named_vote.toString()
-			);
-		}
-		if (filter.accepted !== null) {
-			nextUrl.searchParams.set('legislative_initiative[accepted][eq]', filter.accepted);
-		}
-		if (filter.vote_type.length > 0) {
-			nextUrl.searchParams.set('legislative_initiative[voting][in][0]', filter.vote_type[0]);
-		}
-
-		if (filter.gps.length > 0) {
-			nextUrl.searchParams.set('legislative_initiative[gp][in][0]', filter.gps[0]);
-		}
-
-		if (filter.simple_majority !== null) {
-			nextUrl.searchParams.set(
-				'legislative_initiative[requires_simple_majority][eq]',
-				filter.simple_majority.toString()
-			);
-		}
-
-		filter.party_votes?.forEach((partyVotes, i) => {
-			nextUrl.searchParams.set(`party_votes[${i}][infavor]`, partyVotes.infavor.toString());
-			nextUrl.searchParams.set(`party_votes[${i}][party]`, partyVotes.party);
-		});
-
-		nextUrl.searchParams.set('search', searchValue);
-
-		filter.topics?.forEach((topic, i) => {
-			nextUrl.searchParams.set(`eurovoc_topics[${i}][topic][cn]`, topic);
-		});
+		const nextUrl = convertVoteResultFilterToUrl(filter, searchValue, new URL(page.url), isFinished);
 
 		goto(nextUrl, {
 			keepFocus: true,
@@ -294,7 +262,6 @@
 	};
 
 	$effect(() => {
-		void selectedPeriod;
 		void searchValue;
 		void partyVotesFilter;
 		void selectedTopics.size;
@@ -317,19 +284,9 @@
 	Abstimmungen aktualisiert am: {updatedAt}
 </span>
 
-<div class="mt-12 md:flex">
+<div class="mt-7 md:flex">
 	<!-- Search bar -->
-	<div class="flex h-10 flex-grow rounded-xl border-[2px] border-gray-400">
-		<div class="flex h-9 w-10 items-center justify-center text-gray-600">
-			{@html searchIcon}
-		</div>
-		<input
-			type="search"
-			class="block w-full bg-transparent py-2 placeholder:text-gray-600 focus:outline-none"
-			placeholder="Suche..."
-			bind:value={searchValue}
-		/>
-	</div>
+	<SearchBar bind:searchValue />	
 	<!-- Filter Buttons -->
 	<!-- Parteien Filter -->
 	<div class="mt-2 flex h-10 w-full md:mt-0 md:w-auto">
@@ -394,7 +351,7 @@
 		<TopicsFilter bind:selectedTopics />
 		<!-- Generic Filter -->
 		<GenericFilters 
-			genericFilters={visibleFilters} 	
+			bind:genericFilters={visibleFilters} 	
 			bind:legisPeriodFilter={genericFilters[4]} 
 		/>
 	</div>

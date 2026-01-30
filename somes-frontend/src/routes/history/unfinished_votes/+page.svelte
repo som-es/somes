@@ -25,6 +25,7 @@
 			{voteResults} 
 			{partiesPerGp} 
 			{selectedGp} 
+			storeIdx={1}
 		/>
 	{/if}
 </Container>

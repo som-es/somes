@@ -25,14 +25,10 @@ pub async fn latest_vote_results_route(
     Ok(Json(super::latest_vote_results_sqlx(redis_con, &pg).await?))
 }
 
-pub async fn latest_legislative_initiatives_sqlx(
-    pg: &PgPool,
-) -> sqlx::Result<Vec<Option<i32>>> {
-    let res = sqlx::query_scalar!(
-        "select id from latest_legislative_initiatives"
-    )
-    .fetch_all(pg)
-    .await?;
+pub async fn latest_legislative_initiatives_sqlx(pg: &PgPool) -> sqlx::Result<Vec<Option<i32>>> {
+    let res = sqlx::query_scalar!("select id from latest_legislative_initiatives")
+        .fetch_all(pg)
+        .await?;
     Ok(res)
 }
 

@@ -72,26 +72,28 @@ pub async fn construct_vote_result(
     };
 
     // already decided on vote results should live longer in the cache (HOWEVER: often, raw data updates still follow, especially in the early phase after voting => update cache on demand inside dataservice )
-    let cache_date = if out.legislative_initiative.as_ref().unwrap().accepted.is_some() {
+    let cache_date = if out
+        .legislative_initiative
+        .as_ref()
+        .unwrap()
+        .accepted
+        .is_some()
+    {
         out.legislative_initiative
             .as_ref()
             .unwrap()
-            .nr_plenary_activity_date.checked_sub_days(chrono::Days::new(15)).unwrap()
+            .nr_plenary_activity_date
+            .checked_sub_days(chrono::Days::new(15))
+            .unwrap()
     } else {
         out.legislative_initiative
             .as_ref()
             .unwrap()
             .nr_plenary_activity_date
     };
-    
 
-    crate::set_json_cache_with_relevance(
-        &mut redis_con,
-        &key,
-        &out,
-        cache_date
-    )
-    .await
-    .ok_or(sqlx::Error::WorkerCrashed)?;
+    crate::set_json_cache_with_relevance(&mut redis_con, &key, &out, cache_date)
+        .await
+        .ok_or(sqlx::Error::WorkerCrashed)?;
     Ok(Some(out))
 }
