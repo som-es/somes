@@ -1,0 +1,20 @@
+<script lang="ts">
+	import searchIcon from '$lib/assets/misc_icons/search-glass.svg?raw';
+
+    interface Props {
+        searchValue: string;
+    }
+
+    let { searchValue = $bindable() }: Props = $props();
+</script>
+<div class="flex h-10 flex-grow rounded-xl border-[2px] border-gray-400">
+    <div class="flex h-9 w-10 items-center justify-center text-gray-600">
+        {@html searchIcon}
+    </div>
+    <input
+        type="search"
+        class="block w-full bg-transparent py-2 placeholder:text-gray-600 focus:outline-none"
+        placeholder="Suche..."
+        bind:value={searchValue}
+    />
+</div>

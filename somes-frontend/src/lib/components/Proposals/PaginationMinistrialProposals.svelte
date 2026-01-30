@@ -12,6 +12,7 @@
 	import GenericFilters from '../Filtering/GenericFilters.svelte';
 	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
 
 	interface Props {
 		govProposals: GovProposalsWithMaxPage;
@@ -92,8 +93,24 @@
 		
 		if (paramPage) nextUrl.searchParams.set('page', paramPage);
 		if (filter.has_vote_result) {
-			
+			nextUrl.searchParams.set("gov_proposal[ministrial_proposal][has_vote_result][eq]", filter.has_vote_result.toString());
 		}
+		if (filter.legis_period !== null) {
+        	nextUrl.searchParams.set('gov_proposal[ministrial_proposal][gp][in][0]', filter.legis_period);
+    	}
+		filter.topics?.forEach((topic, i) => {
+  	    	nextUrl.searchParams.set(`gov_proposal[eurovoc_topics][${i}][topic][cn]`, topic);
+    	});
+    	
+		nextUrl.searchParams.set('search', searchValue);
+
+		goto(nextUrl, {
+			keepFocus: true,
+			replaceState: true,
+			noScroll: true
+		});
+
+
 		
 		console.log(filter);
 	};
