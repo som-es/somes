@@ -178,6 +178,9 @@
 	let selectedPeriod = $derived(maybeCurrentDelegateFilter.legis_period ?? latestPeriod);
 	let prevSelectedPeriod = $state(maybeCurrentDelegateFilter.legis_period ?? latestPeriod);
 
+	// Caches the sorted delegates
+	let sortedDelegates = $derived(sortDelegates(delegates));
+
 	let autocompleteOptions: AutocompleteOption<string>[] = $derived(
 		convertDelegatesToAutocompleteOptions(delegates)
 	);
@@ -615,26 +618,40 @@
 						</div>
 						</div>
 					</div>
+
+					<!-- Search Results -->
 					<div class="mt-3">
 						<span class="text-base font-semibold text-gray-800">Suchergebnisse</span>
 						<div class="max-h-96 overflow-y-auto mt-1">
-							{#each sortDelegates(delegates) as delegate}
-								<div class="mb-3 flex w-full justify-between rounded-xl bg-primary-300 p-2">
+							{#each sortedDelegates as d}
+								<!-- svelte-ignore a11y_click_events_have_key_events -->
+								<!-- svelte-ignore a11y_no_static_element_interactions -->
+								<div
+									class="mb-3 flex w-full justify-between rounded-xl bg-primary-300 p-2 transition-colors hover:cursor-pointer hover:bg-primary-400"
+									onclick={() => {
+										const url = new URL(window.location.href);
+										url.searchParams.set('delegate', d.id.toString());
+										goto(url.toString(), { noScroll: true });
+										isSearchPopupOpen = false;
+										maybeCurrentDelegateFilter.search_value = d.name;
+										currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
+									}}
+								>
 									<div class="flex">
-										<img class="h-14 rounded-full" src={delegate.image_url} alt={delegate.name} />
-										<div class="mt-1 ml-3">
-											<h4 class="text-lg/5 font-semibold text-gray-900">{delegate.name}</h4>
+										<img class="h-14 rounded-full" src={d.image_url} alt={d.name} />
+										<div class="ml-3 mt-1">
+											<h4 class="text-lg/5 font-semibold text-gray-900">{d.name}</h4>
 											<div class="flex items-center gap-2">
 												<div
 													class="h-2 w-2 rounded-full"
-													style="background-color: {partyColors.get(delegate.party) ?? '#ccc'};"
+													style="background-color: {partyColors.get(d.party) ?? '#ccc'};"
 												></div>
-												<span class="text-sm font-medium text-gray-800">{delegate.party}</span>
+												<span class="text-sm font-medium text-gray-800">{d.party}</span>
 											</div>
 										</div>
 									</div>
 									<div class="text-sm font-medium text-gray-800">
-										{getMandatePeriods(delegate, periods)}
+										{getMandatePeriods(d, periods)}
 									</div>
 								</div>
 							{/each}
