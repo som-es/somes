@@ -54,14 +54,9 @@
 	import { partyColors } from '$lib/partyColor';
 	import { groupPartyDelegates } from '$lib/parliaments/defaultParliament';
 	import searchIcon from '$lib/assets/misc_icons/search-glass.svg?raw';
-	import { Popover } from 'bits-ui';
-
-	// Christoph Rework
-	const sliderSteps = [25, 50, 75, 365];
-	let isLegisPeriodFilterOpen = $state(false);
-	let isSearchPopupOpen = $state(false);
-	let searchInput = $state('');
-	// Christoph Rework end
+	import { Popover, Select } from 'bits-ui';
+	import upDownArrowIcon from '$lib/assets/misc_icons/up-down-arrow.svg?raw';
+	import checkmark_small from '$lib/assets/misc_icons/checkmark_small.svg?raw';
 
 	let { data }: PageProps = $props();
 
@@ -90,6 +85,28 @@
 			});
 		}
 	});
+
+	// Christoph Rework
+	const sliderSteps = [25, 50, 75, 365];
+	let isLegisPeriodFilterOpen = $state(false);
+	let isSearchPopupOpen = $state(true);
+	let searchInput = $state('');
+	let selectedParty = $state<Party | undefined>(undefined);
+	let selectedSearchPeriod = $state<string | undefined>(undefined);
+
+
+	// Filter Elements to Keep the PopUp open
+	let searchWrapper: HTMLDivElement | undefined = $state();
+	function handleFocusOut(e: FocusEvent) {
+		const relatedTarget = e.relatedTarget as Node | null;
+		if (relatedTarget) {
+			if (searchWrapper?.contains(relatedTarget)) return;
+			if ((relatedTarget as Element).closest('.search-filter-portal')) return;
+		}
+		isSearchPopupOpen = false;
+	}
+
+	// Christoph Rework end
 
 	function selectFittingDelegate(delegates: Delegate[]): Delegate | null {
 		if (delegates.length === 0) {
@@ -302,11 +319,46 @@
 	function sortDelegates(delegates: Delegate[]): Delegate[] {
 		const filter = maybeCurrentDelegateFilter;
 
+		// Filter for Party
+		let filteredDelegates = delegates;
+		if (selectedParty !== undefined) {
+			filteredDelegates = filteredDelegates.filter((d) => d.party === selectedParty?.name);
+		}
+
+		// Filter by Legislative Period
+		if (selectedSearchPeriod !== undefined) {
+			const sortedPeriods = [...periods].sort(
+				(a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
+			);
+			const periodIndex = sortedPeriods.findIndex((p) => p.gp === selectedSearchPeriod);
+
+			if (periodIndex !== -1) {
+				const periodStart = new Date(sortedPeriods[periodIndex].start_date);
+
+				const nextPeriod = sortedPeriods[periodIndex + 1];
+				const periodEnd = nextPeriod ? new Date(nextPeriod.start_date) : new Date();
+
+				filteredDelegates = filteredDelegates.filter((delegate) => {
+					const allMandates = [
+						...(delegate.mandates ?? []),
+						...(delegate.active_mandates ?? [])
+					];
+
+					return allMandates.some((mandate) => {
+						const mandateStart = new Date(mandate.start_date ?? '1900-01-01');
+						const mandateEnd = mandate.end_date ? new Date(mandate.end_date) : new Date();
+
+						return mandateStart < periodEnd && mandateEnd > periodStart;
+					});
+				});
+			}
+		}
+
 		// If there's a search value, prioritize matching delegates
 		if (filter.search_value && filter.search_value.trim()) {
 			const searchLower = filter.search_value.toLowerCase().trim();
 
-			return [...delegates].sort((a, b) => {
+			return [...filteredDelegates].sort((a, b) => {
 				const aName = a.name.toLowerCase();
 				const bName = b.name.toLowerCase();
 
@@ -334,7 +386,7 @@
 		}
 
 		// Default: sort alphabetically by name
-		return [...delegates].sort((a, b) => a.name.localeCompare(b.name));
+		return [...filteredDelegates].sort((a, b) => a.name.localeCompare(b.name));
 	}
 
 	const updateStoredPeriod = () => {
@@ -422,7 +474,9 @@
 		Aktualisiert am: Unknown
 	</span>
 
-	<div class="relative">
+	<!-- Search PopUp -->
+	<div class="relative" bind:this={searchWrapper} onfocusout={handleFocusOut}>
+		<!-- Search Input -->
 		<div class="mt-12 flex h-10 flex-grow rounded-xl border-[2px] border-gray-400">
 			<div class="flex h-9 w-10 items-center justify-center text-gray-600">
 				{@html searchIcon}
@@ -437,92 +491,161 @@
 					currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
 				}}
 				onfocus={() => (isSearchPopupOpen = true)}
-				onblur={() => (isSearchPopupOpen = false)}
 			/>
 		</div>
 
+		<!-- PopUp -->
 		{#if isSearchPopupOpen}
 			<div
-				class="absolute top-full right-0 left-0 z-100 mt-2 w-full rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg md:px-6"
+				class="absolute top-full right-0 left-0 z-100 mt-2 w-150 rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg md:px-6"
 				data-popup="popupSearch"
 				role="button"
 				tabindex="0"
 				onmousedown={(e) => e.preventDefault()}
 			>
-				<div class="flex">
+				<div>
 					<!-- Filters -->
-					<div>
-						<div class="flex flex-col gap-2">
-							{#each uniqueParties as party}
-								<div class="flex items-center gap-2">
-									<!-- Party Name and Color -->
+					<div class="mr-4">
+						<span class="text-base font-semibold text-gray-800">Filter</span>
+						<div class="flex gap-3">
+						<!-- Period Filter -->
+						<div class="flex flex-col gap-2 mt-1">
+							<Select.Root
+								type="single"
+								value={selectedSearchPeriod}
+								onValueChange={(v) => (selectedSearchPeriod = v)}
+								items={periods.map((p) => ({ value: p.gp, label: p.gp })).reverse()}
+								allowDeselect={true}
+							>
+								<Select.Trigger
+									class="inline-flex h-10 w-[200px] items-center justify-between rounded-xl bg-secondary-500 px-[11px] text-white transition-colors placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+								>
 									<div class="flex items-center gap-2">
-										<div
-											class="h-3 w-3 rounded-full"
-											style="background-color: {party.color ?? '#ccc'};"
-										></div>
-										<span class="text-base font-semibold text-gray-800">{party.name}</span>
+										<span class="truncate">{selectedSearchPeriod || 'Alle Perioden'}</span>
 									</div>
-									<!-- Party Checkbox -->
-									<!-- <div class="ml-auto flex items-center gap-1">
-										<button
-											class="cursor-pointer rounded-lg px-2 py-1 text-sm"
-											class:bg-primary-300={partyFilterState[party.name] === 'pro'}
-											onclick={() =>
-												(partyFilterState[party.name] =
-													partyFilterState[party.name] === 'pro' ? 'egal' : 'pro')}
-										>
-											Pro
-										</button>
-										<button
-											class="cursor-pointer rounded-lg px-2 py-1 text-sm"
-											class:bg-primary-300={partyFilterState[party.name] === 'egal'}
-											onclick={() => (partyFilterState[party.name] = 'egal')}
-										>
-											Egal
-										</button>
-										<button
-											class="cursor-pointer rounded-lg px-2 py-1 text-sm"
-											class:bg-primary-300={partyFilterState[party.name] === 'contra'}
-											onclick={() =>
-												(partyFilterState[party.name] =
-													partyFilterState[party.name] === 'contra' ? 'egal' : 'contra')}
-										>
-											Contra
-										</button>
-									</div> -->
+									{@html upDownArrowIcon}
+								</Select.Trigger>
+								<Select.Portal>
+									<Select.Content
+										class="z-500 max-h-60 w-[200px] min-w-[var(--bits-select-anchor-width)] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg"
+										sideOffset={8}
+									>
+										<Select.Viewport class="p-1">
+											{#each [...periods].reverse() as period}
+												<Select.Item
+													class="flex h-10 w-full cursor-pointer select-none items-center rounded-lg py-3 pl-3 pr-1.5 text-sm capitalize outline-none transition-all duration-75 data-[highlighted]:bg-gray-100"
+													value={period.gp}
+													label={period.gp}
+												>
+													{#snippet children({ selected })}
+														<div class="flex items-center gap-2">
+															{period.gp}
+														</div>
+														{#if selected}
+															<div class="ml-auto h-4" style="stroke:black">
+																{@html checkmark_small}
+															</div>
+														{/if}
+													{/snippet}
+												</Select.Item>
+											{/each}
+										</Select.Viewport>
+									</Select.Content>
+								</Select.Portal>
+							</Select.Root>
+						</div>
+						<!-- Parteien Filter -->
+						<div class="flex flex-col gap-2 mt-1">
+							<Select.Root
+								type="single"
+								value={selectedParty?.code}
+								onValueChange={(v) => (selectedParty = uniqueParties.find((p) => p.code === v) || undefined)}
+								items={uniqueParties.map((p) => ({ value: p.code, label: p.name }))}
+								allowDeselect={true}
+							>
+								<Select.Trigger
+									class="inline-flex h-10 w-[200px] items-center justify-between rounded-xl px-[11px] bg-secondary-500 text-white transition-colors placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+								>
+									<div class="flex items-center gap-2">
+										{#if selectedParty}
+											<div
+												class="h-3 w-3 rounded-full"
+												style="background-color: {selectedParty.color};"
+											></div>
+										{/if}
+										<span class="truncate">{selectedParty?.name ||'Alle Parteien'}</span>
+									</div>
+									{@html upDownArrowIcon}
+								</Select.Trigger>
+								<Select.Portal>
+									<Select.Content
+										class="z-500 max-h-60 w-[200px] min-w-[var(--bits-select-anchor-width)] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg"
+										sideOffset={8}
+									>
+										<Select.Viewport class="p-1">
+											{#each uniqueParties as party}
+												<Select.Item
+													class="flex h-10 w-full cursor-pointer select-none items-center rounded-lg py-3 pl-3 pr-1.5 text-sm capitalize outline-none transition-all duration-75 data-[highlighted]:bg-gray-100"
+													value={party.code}
+													label={party.name}
+												>
+													{#snippet children({ selected })}
+														<div class="flex items-center gap-2">
+															<div
+																class="h-3 w-3 rounded-full"
+																style="background-color: {party.color};"
+															></div>
+															{party.name}
+														</div>
+														{#if selected}
+													<div
+														class="ml-auto h-4"
+														style="stroke:black"
+													>
+																{@html checkmark_small}
+															</div>
+														{/if}
+													{/snippet}
+												</Select.Item>
+											{/each}
+										</Select.Viewport>
+									</Select.Content>
+								</Select.Portal>
+							</Select.Root>
+						</div>
+						</div>
+					</div>
+					<div class="mt-3">
+						<span class="text-base font-semibold text-gray-800">Suchergebnisse</span>
+						<div class="max-h-96 overflow-y-auto mt-1">
+							{#each sortDelegates(delegates) as delegate}
+								<div class="mb-3 flex w-full justify-between rounded-xl bg-primary-300 p-2">
+									<div class="flex">
+										<img class="h-14 rounded-full" src={delegate.image_url} alt={delegate.name} />
+										<div class="mt-1 ml-3">
+											<h4 class="text-lg/5 font-semibold text-gray-900">{delegate.name}</h4>
+											<div class="flex items-center gap-2">
+												<div
+													class="h-2 w-2 rounded-full"
+													style="background-color: {partyColors.get(delegate.party) ?? '#ccc'};"
+												></div>
+												<span class="text-sm font-medium text-gray-800">{delegate.party}</span>
+											</div>
+										</div>
+									</div>
+									<div class="text-sm font-medium text-gray-800">
+										{getMandatePeriods(delegate, periods)}
+									</div>
 								</div>
 							{/each}
 						</div>
-					</div>
-					<div class="mt-2">
-						<span class="text-base font-semibold text-gray-800">Suchergebnisse</span>
-						{#each sortDelegates(delegates) as delegate}
-							<div class="mb-3 flex w-full justify-between rounded-xl bg-primary-300 p-2">
-								<div class="flex">
-									<img class="h-14 rounded-full" src={delegate.image_url} alt={delegate.name} />
-									<div class="mt-1 ml-3">
-										<h4 class="text-lg/5 font-semibold text-gray-900">{delegate.name}</h4>
-										<div class="flex items-center gap-2">
-											<div
-												class="h-2 w-2 rounded-full"
-												style="background-color: {partyColors.get(delegate.party) ?? '#ccc'};"
-											></div>
-											<span class="text-sm font-medium text-gray-800">{delegate.party}</span>
-										</div>
-									</div>
-								</div>
-								<div class="text-sm font-medium text-gray-800">
-									{getMandatePeriods(delegate, periods)}
-								</div>
-							</div>
-						{/each}
 					</div>
 				</div>
 			</div>
 		{/if}
 	</div>
 
+	<!-- Normal Page proceed -->
 	<div class="mt-5 flex flex-wrap gap-3">
 		<!-- <div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
 			<LegisButtons bind:periods bind:selectedPeriod showAllButton={false}></LegisButtons>
@@ -532,6 +655,49 @@
 		<!-- Timeline Slider -->
 		<!--------------------->
 		<div class="flex w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
+			<!-- LegisPeriod Filter -->
+			<div class="mx-3 flex items-center">
+				<Popover.Root bind:open={isLegisPeriodFilterOpen}>
+					<Popover.Trigger>
+						<div class="flex items-center gap-1 rounded-xl bg-primary-600 p-2 px-3 text-white">
+							<h4>{selectedPeriod}</h4>
+							<div
+								class="block w-4 text-white transition-transform duration-200"
+								class:rotate-180={isLegisPeriodFilterOpen}
+							>
+								{@html downArrowIcon}
+							</div>
+						</div>
+					</Popover.Trigger>
+					<!-- LegisPeriod Filter PopUp -->
+					<Popover.Portal>
+						<Popover.Content class="z-[1000]">
+							<div
+								class="relative w-auto max-w-[96vw] top-1 rounded-xl border border-gray-300 bg-surface-50 px-6 pt-4 pb-5 shadow-lg"
+								data-popup="popupLegisPeriod"
+							>
+								<div class="mt-4 first:mt-0">
+									<span class="text-base font-semibold text-gray-800">Legislaturperiode</span>
+									<div class="flex w-60 flex-wrap gap-1 text-sm">
+										{#each [...periods].reverse() as period}
+											<button
+												class="close-explicitly cursor-pointer rounded-lg border border-primary-300 px-2 py-1 text-sm"
+												class:bg-primary-300={selectedPeriod === period.gp}
+												onclick={() => {
+													selectedPeriod = period.gp;
+												}}
+											>
+												<span class="text-nowrap">{period.gp}</span>
+											</button>
+										{/each}
+									</div>
+								</div>
+								<Popover.Arrow class="rounded-sm fill-current stroke-gray-300 text-gray-300" />
+							</div>
+						</Popover.Content>
+					</Popover.Portal>
+				</Popover.Root>
+			</div>
 			<!-- Slider -->
 			<div class="flex-1">
 				<div class="mb-1 flex min-w-full justify-between px-1 text-base text-gray-800">
@@ -570,49 +736,6 @@
 					{/each}
 				</datalist>
 			</div>
-			<!-- LegisPeriod Filter -->
-			<div class="ml-3 flex items-center">
-				<Popover.Root bind:open={isLegisPeriodFilterOpen}>
-					<Popover.Trigger>
-						<div class="flex items-center gap-1 rounded-xl bg-primary-600 p-2 px-3 text-white">
-							<h4>{selectedPeriod}</h4>
-							<div
-								class="block w-4 text-white transition-transform duration-200"
-								class:rotate-180={isLegisPeriodFilterOpen}
-							>
-								{@html downArrowIcon}
-							</div>
-						</div>
-					</Popover.Trigger>
-					<Popover.Portal>
-						<Popover.Content>
-							<div
-								class="z-10 w-auto max-w-[96vw] rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg md:px-6"
-								data-popup="popupLegisPeriod"
-							>
-								<div class="mt-4 first:mt-0">
-									<span class="text-base font-semibold text-gray-800">Legislaturperiode</span>
-									<div class="flex w-60 flex-wrap gap-1 text-sm">
-										{#each [...periods].reverse() as period}
-											<button
-												class="close-explicitly cursor-pointer rounded-lg border border-primary-300 px-2 py-1 text-xs md:text-sm"
-												class:bg-primary-300={selectedPeriod === period.gp}
-												onclick={() => {
-													selectedPeriod = period.gp;
-												}}
-											>
-												<span class="text-nowrap">{period.gp}</span>
-											</button>
-										{/each}
-									</div>
-								</div>
-								<div class="arrow border border-gray-300 bg-surface-50" />
-							</div>
-						</Popover.Content>
-					</Popover.Portal>
-				</Popover.Root>
-			</div>
-			<!-- LegisPeriod Filter PopUp -->
 		</div>
 		<!-- 
 		<div class="text-token w-full space-y-2">
