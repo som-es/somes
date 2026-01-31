@@ -26,7 +26,10 @@ pub async fn gov_props_by_search_route(
     );
 
     if let Some(gov_proposal_filter) = gov_prop_filter.gov_proposal {
-        filter_conditions.extend(meilisearch_filters_gov_props(gov_proposal_filter, Some("gov_proposal")));
+        filter_conditions.extend(meilisearch_filters_gov_props(
+            gov_proposal_filter,
+            Some("gov_proposal"),
+        ));
     }
     if let Some(delegate) = &gov_prop_filter.delegate {
         filter_conditions.extend(to_meilisearch_filters(

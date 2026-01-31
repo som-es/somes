@@ -42,4 +42,3 @@ pub async fn departments_per_gp(
 
     Ok(Json(departments_per_gp))
 }
-
