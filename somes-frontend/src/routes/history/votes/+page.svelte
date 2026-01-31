@@ -30,6 +30,7 @@
 			showNamedVoteFilter
 			showPartyFilter
 			showReqMajorityFilter
+			showIsUrgentFilter
 		/>
 	{/if}
 </Container>

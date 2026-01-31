@@ -17,10 +17,12 @@
 	import { page } from '$app/state';
 	import FilterDropdown from '$lib/components/Filtering/FilterDropdown.svelte';
 	import type { GenericFilterGroup } from '$lib/components/Filtering/types';
-	import TopicsFilter from '$lib/components/Filtering/TopicsFilter.svelte';
+	import TopicsFilter from '$lib/components/Filtering/MultiValuesFilter.svelte';
 	import GenericFilters from '$lib/components/Filtering/GenericFilters.svelte';
 	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
 	import { convertVoteResultFilterToUrl } from './urlConversion';
+	import { errorToNull, get_eurovoc_topics } from '$lib/api/api';
+	import MultiValuesFilter from '$lib/components/Filtering/MultiValuesFilter.svelte';
 
 	interface Props {
 		voteResults: VoteResultsWithMaxPage;
@@ -32,6 +34,7 @@
 		showReqMajorityFilter?: boolean;
 		showAcceptedFilter?: boolean;
 		showNamedVoteFilter?: boolean;
+		showIsUrgentFilter?: boolean;
 	}
 
 	let {
@@ -44,6 +47,7 @@
 		showReqMajorityFilter = false,
 		showAcceptedFilter = false,
 		showNamedVoteFilter = false,
+		showIsUrgentFilter = false,
 	}: Props = $props();
 
 	let currentVoteResultFilterStore = $derived(currentVoteResultFilterStores[storeIdx]);
@@ -107,7 +111,7 @@
 		GenericFilterGroup<string>,
 		GenericFilterGroup<boolean>,
 		GenericFilterGroup<string>,
-		GenericFilterGroup<string>
+		GenericFilterGroup<boolean>,
 	] = $state([
 		{
 			title: 'notwendige Mehrheit',
@@ -131,12 +135,13 @@
 			]
 		},
 		{
-			title: 'Abstimmung',
+			title: 'namentliche Abstimmung',
 			activeValue: undefined,
 			hidden: !showNamedVoteFilter,
 			options: [
 				{ title: 'egal', value: undefined },
-				{ title: 'namentliche Abstimmung', value: true }
+				{ title: 'Ja', value: true },
+				{ title: 'Nein', value: false }
 			]
 		},
 		{
@@ -151,12 +156,24 @@
 			]
 		},
 		{
-			title: 'Legislaturperiode',
-			activeValue: 'XXVIII',
-			hidden: false,
-			options: [{ title: 'Alle', value: 'all' }]
-		}
+			title: 'Dringlich',
+			activeValue: undefined,
+			hidden: !showIsUrgentFilter,
+			options: [
+				{ title: 'egal', value: undefined },
+				{ title: 'Ja', value: true },
+				{ title: 'Nein', value: false },
+			]
+		},
+		
 	]);
+
+	let legisPeriodFilter = $state({
+		title: 'Legislaturperiode',
+		activeValue: 'XXVIII',
+		hidden: false,
+		options: [{ title: 'Alle', value: 'all' }]
+	});
 
 	// Variables to count active filters
 	let activePartyFiltersCount = $derived(
@@ -188,7 +205,7 @@
 			if (maybeStoredFilter.simple_majority !== null)
 				genericFilters[0].activeValue = maybeStoredFilter.simple_majority;
 			if (maybeStoredFilter.gps !== null && maybeStoredFilter.gps.length > 0) {
-				genericFilters[4].activeValue = maybeStoredFilter.gps[0];
+				legisPeriodFilter.activeValue = maybeStoredFilter.gps[0];
 			}
 			if (maybeStoredFilter.accepted !== null)
 				genericFilters[1].activeValue = maybeStoredFilter.accepted;
@@ -203,6 +220,9 @@
 				maybeStoredFilter.party_votes.forEach(party => {
 					partyFilterState[party.party] = party.infavor ? "pro" : "contra"
 				})
+			}
+			if (maybeStoredFilter.is_urgent !== null) {
+				genericFilters[4].activeValue = maybeStoredFilter.is_urgent
 			}
 		}
 	});
@@ -223,12 +243,12 @@
 			simple_majority:
 				genericFilters[0].activeValue == undefined ? null : genericFilters[0].activeValue,
 			gps:
-				genericFilters[4].activeValue == 'all' || genericFilters[4].activeValue === undefined
+				legisPeriodFilter.activeValue == 'all' || legisPeriodFilter.activeValue === undefined
 					? []
-					: [genericFilters[4].activeValue],
+					: [legisPeriodFilter.activeValue],
 			vote_type: genericFilters[3].activeValue === undefined ? [] : [genericFilters[3].activeValue],
 			topics: selectedTopics.size > 0 ? [...selectedTopics] : null,
-			is_urgent: null,
+			is_urgent: genericFilters[4].activeValue === undefined ? null : genericFilters[4].activeValue,
 			party_votes: partyVotesFilter.length > 0 ? partyVotesFilter : null
 		};
 
@@ -244,6 +264,8 @@
 
 		currentlyUpdating = false;
 	};
+	
+	let topics: string[] = $state([]);
 
 	onMount(async () => {
 		update();
@@ -251,10 +273,15 @@
 		// Generic filter - Legislative period
 		const fetchedPeriods = await cachedAllLegisPeriods();
 		if (fetchedPeriods) {
-			genericFilters[4].options = [
+			legisPeriodFilter.options = [
 				{ title: 'Alle', value: 'all' },
 				...fetchedPeriods.map((p) => ({ title: p.gp, value: p.gp }))
 			];
+		}
+		
+		const eurovocTopics = errorToNull(await get_eurovoc_topics());
+		if (eurovocTopics) {
+			topics = eurovocTopics.map(topic => topic.topic)
 		}
 	});
 
@@ -266,15 +293,12 @@
 		void searchValue;
 		void partyVotesFilter;
 		void selectedTopics.size;
-		void genericFilters[0].activeValue;
-		void genericFilters[1].activeValue;
-		void genericFilters[2].activeValue;
-		void genericFilters[3].activeValue;
-		void genericFilters[4].activeValue;
+		for (let i = 0; i < genericFilters.length; i++) {
+			void genericFilters[i].activeValue;
+		} 
+		void legisPeriodFilter.activeValue
 		untrack(update);
 	});
-
-	let visibleFilters = $derived(genericFilters.slice(0, 4));
 
 	let searchValue = $state('');
 </script>
@@ -349,11 +373,11 @@
 			</Popover.Root>
 		{/if}
 		<!-- Themen Filter -->
-		<TopicsFilter bind:selectedTopics />
+		<MultiValuesFilter title="Themen" bind:selectedValues={selectedTopics} values={topics} />
 		<!-- Generic Filter -->
 		<GenericFilters 
-			bind:genericFilters={visibleFilters} 	
-			bind:legisPeriodFilter={genericFilters[4]} 
+			bind:genericFilters 	
+			bind:legisPeriodFilter 
 		/>
 	</div>
 </div>

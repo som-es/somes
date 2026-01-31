@@ -8,20 +8,24 @@
 	import { type GenericFilterGroup } from '../Filtering/types';
 	import SearchBar from '../Filtering/SearchBar.svelte';
 	import { SvelteSet } from 'svelte/reactivity';
-	import TopicsFilter from '../Filtering/TopicsFilter.svelte';
+	import TopicsFilter from '../Filtering/MultiValuesFilter.svelte';
 	import GenericFilters from '../Filtering/GenericFilters.svelte';
 	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
+	import { errorToNull, get_eurovoc_topics } from '$lib/api/api';
+	import MultiValuesFilter from '../Filtering/MultiValuesFilter.svelte';
 
 	interface Props {
 		govProposals: GovProposalsWithMaxPage;
 		selectedGp: string | null;
+		departmentsPerGp: Record<string, string[]>;
 	}
 
 	let {
 		govProposals,
 		selectedGp,
+		departmentsPerGp
 	}: Props = $props();
 
 	let genericFilters: [
@@ -60,6 +64,26 @@
 	);
 
 	let selectedTopics: SvelteSet<string> = $state(new SvelteSet());
+	let selectedDepartments: SvelteSet<string> = $state(new SvelteSet());
+
+	let departments = $derived.by(() => {
+		if (selectedGp) {
+			return departmentsPerGp[selectedGp]
+		} else {
+			const departments: string[] = [];
+			const departmentSet = new Set();
+			const keys = Object.keys(departmentsPerGp).sort().reverse();
+			keys.forEach((key) => {
+				departmentsPerGp[key].forEach((department) => {
+					if (!departmentSet.has(department)) {
+						departmentSet.add(department);
+						departments.push(department);
+					}
+				});
+			});
+			return departments
+		}
+	});
 
 	onMount(() => {
 		const maybeStoredFilter = currentGovProposalFilterStore.value;
@@ -70,6 +94,9 @@
 			if (maybeStoredFilter.topics !== null) {
 				selectedTopics = new SvelteSet(maybeStoredFilter.topics)
 			}
+			if (maybeStoredFilter.departments !== null) {
+				selectedDepartments = new SvelteSet(maybeStoredFilter.departments)
+			}
 		}
 	})
 
@@ -79,6 +106,7 @@
 				genericFilters[0].activeValue == undefined ? null : genericFilters[0].activeValue,
 			legis_period: legisPeriodFilter.activeValue == 'all' ? null : legisPeriodFilter.activeValue,
 			topics: selectedTopics.size > 0 ? [...selectedTopics] : null,
+			departments: selectedDepartments.size > 0 ? [...selectedDepartments] : null,
 		};
 		currentGovProposalFilterStore.value = filter;
 		
@@ -101,6 +129,9 @@
 		filter.topics?.forEach((topic, i) => {
   	    	nextUrl.searchParams.set(`gov_proposal[eurovoc_topics][${i}][topic][cn]`, topic);
     	});
+		filter.departments?.forEach((department, i) => {
+  	    	nextUrl.searchParams.set(`gov_proposal[ministrial_proposal][ressort][in][${i}]`, department);
+    	});
     	
 		nextUrl.searchParams.set('search', searchValue);
 
@@ -119,10 +150,13 @@
 	$effect(() => {
 		void searchValue;
 		void selectedTopics.size;
+		void selectedDepartments.size;
 		void genericFilters[0].activeValue;
 		void legisPeriodFilter.activeValue;
 		untrack(update);
 	});
+
+	let topics: string[] = $state([]);
 
 	onMount(async () => {
 		update();
@@ -135,6 +169,11 @@
 				...fetchedPeriods.map((p) => ({ title: p.gp, value: p.gp }))
 			];
 		}
+
+		const eurovocTopics = errorToNull(await get_eurovoc_topics());
+		if (eurovocTopics) {
+			topics = eurovocTopics.map(topic => topic.topic)
+		}
 	});
 </script>
 
@@ -146,7 +185,8 @@
 <div class="mt-7 md:flex">
 	<!-- Search bar -->
 	<SearchBar bind:searchValue />	
-	<TopicsFilter bind:selectedTopics />
+	<MultiValuesFilter title="Ministerien" bind:selectedValues={selectedDepartments} values={departments} />
+	<MultiValuesFilter title="Themen" bind:selectedValues={selectedTopics} values={topics} />
 	<GenericFilters 
 		bind:genericFilters
 		bind:legisPeriodFilter

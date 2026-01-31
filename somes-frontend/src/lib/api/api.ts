@@ -253,6 +253,11 @@ export async function gov_proposals_per_page(
 	return justPost(`v1/gov_proposals/live/?page=${page}`, filter);
 }
 
+export async function departments_per_gp(
+	fetcher: typeof fetch = fetch,
+): Promise<Record<string, string[]> | HasError> {
+	return getWithRoute(`departments_per_gp`, "at/", fetcher);
+}
 export async function gov_proposals_by_search(
 	query: string,
 	fetcher: typeof fetch = fetch,

@@ -1,4 +1,4 @@
-import { gov_proposals_by_search, parties_per_gp, vote_results_by_query_search } from "$lib/api/api";
+import { departments_per_gp, gov_proposals_by_search, parties_per_gp, vote_results_by_query_search } from "$lib/api/api";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ fetch, setHeaders, url }) => {
@@ -15,5 +15,6 @@ export const load: PageServerLoad = async ({ fetch, setHeaders, url }) => {
     const queryParams = searchParams.toString();
     const filter = `${queryParams}`
     const govProposals = await gov_proposals_by_search(filter, fetch);
-    return { govProposals, selectedGp: null }
+    const departmentsPerGp = await departments_per_gp(fetch);
+    return { govProposals, selectedGp: searchParams.get("gov_proposal[ministrial_proposal][gp][in][0]"), departmentsPerGp }
 }

@@ -473,6 +473,7 @@ export interface GovPropFilter {
 	legis_period: string | null;
 	has_vote_result: boolean | null;
 	topics: string[] | null;
+	departments: string[] | null;
 }
 
 export interface NamedVote {

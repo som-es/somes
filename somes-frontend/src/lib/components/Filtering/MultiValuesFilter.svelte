@@ -2,35 +2,25 @@
 	import { Popover } from "bits-ui";
 	import FilterDropdown from "./FilterDropdown.svelte";
 	import type { SvelteSet } from "svelte/reactivity";
-	import { onMount } from "svelte";
-	import { errorToNull, get_eurovoc_topics } from "$lib/api/api";
-	import type { UniqueTopic } from "$lib/types";
 	import searchIcon from '$lib/assets/misc_icons/search-glass.svg?raw';
 
     interface Props {
-        selectedTopics: SvelteSet<string>
+        title: string;
+        selectedValues: SvelteSet<string>
+        values: string[]
     }
 
-    let { selectedTopics = $bindable() }: Props = $props();
+    let { selectedValues: selectedTopics = $bindable(), title, values }: Props = $props();
 
-    let topics: UniqueTopic[] = $state([]);
 	let isTopicFilterOpen = $state(false);
 
 	let topicSearchValue = $state('');
 	let activeTopicFiltersCount = $derived(selectedTopics.size);
-
-    onMount(async () => {
-        const fetchedTopics = errorToNull(await get_eurovoc_topics());
-		if (fetchedTopics) {
-			topics = fetchedTopics;
-		}
-    })
-
 </script>
 
 <Popover.Root bind:open={isTopicFilterOpen}>
     <Popover.Trigger>
-        <FilterDropdown title="Themen" activefilterCount={activeTopicFiltersCount} isOpen={isTopicFilterOpen} />
+        <FilterDropdown {title} activefilterCount={activeTopicFiltersCount} isOpen={isTopicFilterOpen} />
     </Popover.Trigger>
     <Popover.Content sideOffset={8}>
         <div
@@ -45,37 +35,37 @@
                 <input
                     type="search"
                     class="block w-full bg-transparent py-2 placeholder:text-gray-600 focus:outline-none"
-                    placeholder="Suche nach Themen..."
+                    placeholder="Suche nach {title}..."
                     bind:value={topicSearchValue}
                 />
             </div>
             <div class="flex max-h-72 flex-col gap-1 overflow-y-auto px-3 py-2">
                 <!-- Selected topics first -->
-                {#each topics.filter((t) => selectedTopics.has(t.topic) && t.topic
+                {#each values.filter((t) => selectedTopics.has(t) && t
                             .toLowerCase()
                             .includes(topicSearchValue.toLowerCase())) as topic}
                     <button
                         class="flex cursor-pointer items-center gap-2"
                         onclick={() => {
-                            selectedTopics.delete(topic.topic);
+                            selectedTopics.delete(topic);
                         }}
                     >
                         <div class="h-4 w-4 rounded-md bg-primary-500"></div>
-                        <span class="text-left text-sm font-semibold text-gray-800">{topic.topic}</span>
+                        <span class="text-left text-sm font-semibold text-gray-800">{topic}</span>
                     </button>
                 {/each}
                 <!-- Unselected topics -->
-                {#each topics.filter((t) => !selectedTopics.has(t.topic) && t.topic
+                {#each values.filter((t) => !selectedTopics.has(t) && t
                             .toLowerCase()
                             .includes(topicSearchValue.toLowerCase())) as topic}
                     <button
                         class="flex cursor-pointer items-center gap-2"
                         onclick={() => {
-                            selectedTopics.add(topic.topic);
+                            selectedTopics.add(topic);
                         }}
                     >
                         <div class="h-4 w-4 rounded-md border-[2px] border-primary-500"></div>
-                        <span class="text-left text-sm text-gray-800">{topic.topic}</span>
+                        <span class="text-left text-sm text-gray-800">{topic}</span>
                     </button>
                 {/each}
             </div>

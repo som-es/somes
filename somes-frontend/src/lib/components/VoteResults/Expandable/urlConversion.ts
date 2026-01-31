@@ -41,6 +41,13 @@ export function convertVoteResultFilterToUrl(filter: VoteResultFilter | null, se
         );
     }
 
+    if (filter.is_urgent !== null) {
+        nextUrl.searchParams.set(
+            'legislative_initiative[is_urgent][eq]',
+            filter.is_urgent.toString()
+        );
+    }
+
     filter.party_votes?.forEach((partyVotes, i) => {
         nextUrl.searchParams.set(`party_votes[${i}][infavor]`, partyVotes.infavor.toString());
         nextUrl.searchParams.set(`party_votes[${i}][party]`, partyVotes.party);

@@ -8,6 +8,7 @@
 	let { data }: PageProps = $props();
 
 	let govProposals: GovProposalsWithMaxPage | null = $derived(errorToNull(data.govProposals))
+	let departmentsPerGp: Record<string, string[]> | null = $derived(errorToNull(data.departmentsPerGp))
 </script>
 
 <svelte:head>
@@ -18,8 +19,8 @@
 <!-- <div class="mx-auto px-5"> -->
 <Container>
 	<h1 class="text-2xl sm:text-4xl font-bold">Ministerialentwürfe</h1>
-	{#if govProposals}
-		<PaginationMinistrialProposals {govProposals} selectedGp={data.selectedGp} />
+	{#if govProposals && departmentsPerGp}
+		<PaginationMinistrialProposals {govProposals} selectedGp={data.selectedGp} {departmentsPerGp} />
 	{/if}
 </Container>
 <!-- </div> -->
