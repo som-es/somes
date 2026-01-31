@@ -68,10 +68,10 @@
 					{#if voteResult.legislative_initiative.accepted == 'a'}
 						<span
 							class="inline-block shrink-0 align-middle stroke-green-600 dark:stroke-green-500"
-							style="width:20px; height:20px">{@html checkmarkIcon}</span
+							style="width:25px; height:25px">{@html checkmarkIcon}</span
 						>
 					{:else}
-						<span class="inline-block shrink-0 align-middle" style="width:20px; height:20px"
+						<span class="inline-block shrink-0 align-middle" style="width:22px; height:22px"
 							>{@html crossmarkIcon}</span
 						>
 					{/if}
@@ -96,12 +96,12 @@
 									{#if vote.infavor}
 										<span
 											class="mr-1 md:mr-2 stroke-green-600 dark:stroke-green-500 inline-block align-middle"
-											style="width:20px; height:20px;">{@html checkmarkIcon}</span
+											style="width:18px; height:18px;">{@html checkmarkIcon}</span
 										>
 									{:else}
 										<span
 											class="mr-1 md:mr-2 inline-block align-middle"
-											style="width:20px; height:20px;">{@html crossmarkIcon}</span
+											style="width:18px; height:18px;">{@html crossmarkIcon}</span
 										>
 									{/if}
 								</div>

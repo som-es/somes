@@ -100,7 +100,7 @@
 					>
 						<span>{item.label}</span>
 						<div
-							class="h-5 w-5 transition-transform duration-200 {expandedItems[item.label]
+							class="h-7 w-7 transition-transform duration-200 {expandedItems[item.label]
 								? 'rotate-90'
 								: ''} [&>svg]:h-full [&>svg]:w-full [&>svg]:fill-white [&>svg]:stroke-white"
 						>

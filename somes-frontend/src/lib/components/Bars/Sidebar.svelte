@@ -172,7 +172,7 @@
 					? 'bg-tertiary-500! fill-black'
 					: ' fill-white'} flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60 hover:fill-black"
 			>
-				<span class="w-6">
+				<span class="w-5 h-5">
 					{@html userIcon}
 				</span>
 			</a>

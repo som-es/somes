@@ -26,7 +26,7 @@
 >
 	<div>
 		<div class="text-xl font-bold">Nächste Nationalratssitzung</div>
-		<span class="text-lg text-gray-800"
+		<span class="text-md text-gray-800"
 			>am
 			{#if nextPlenarySessionDateStr}
 				{dashDateToDotDate(nextPlenarySessionDateStr.toString().split('T')[0])}
@@ -45,9 +45,10 @@
 		</span>
 	</div>
 	<Popover.Root>
+		<!-- ToDo: Does currently not show Calendar on mobile as it is not responsive -->
 		<Popover.Trigger
-			class="rounded-input bg-dark
-			text-background shadow-mini hover:bg-dark/95 inline-flex h-10 select-none items-center justify-center whitespace-nowrap px-[21px] text-[15px] font-medium transition-all hover:cursor-pointer active:scale-[0.98]"
+			class="rounded-input bg-dark hidden md:inline-flex
+			text-background shadow-mini hover:bg-dark/95 h-10 select-none items-center justify-center whitespace-nowrap px-[21px] text-[15px] font-medium transition-all hover:cursor-pointer active:scale-[0.98]"
 		>
 			<span class="btn bg-primary-500 dark:bg-primary-300 text-white preset-filled mt-1">
 				Sitzungskalender

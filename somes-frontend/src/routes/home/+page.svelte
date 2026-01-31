@@ -13,7 +13,7 @@
 	import type { PageProps } from './$types';
 	import { errorToNull } from '$lib/api/api';
 	import VoteResultExpandableBar from '$lib/components/VoteResults/Expandable/VoteResultExpandableBar.svelte';
-	import RightArrowIcon from '$lib/assets/misc_icons/right-arrow-small.svg';
+	import { resolve } from '$app/paths';
 
 	let { data }: PageProps = $props();
 
@@ -66,12 +66,11 @@
 </svelte:head>
 
 <Container>
-	<h1 class="text-3xl sm:text-4xl font-bold pt-2 px-1 sm:p-0">Neuigkeiten</h1>
 	<NextSessionInfo nextPlenarySessionDateStr={nextPlenarySessionDateStr} />
-	<h2 class="text-2xl font-bold mt-8">Letzte Abstimmungen</h2>
-	<span class="ml-1 -mb-3 block text-base text-gray-800">
+	<h2 class="text-3xl sm:text-4xl font-bold pt-2 px-1 sm:p-0 mt-6">Letzte Abstimmungen</h2>
+	<span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0">
 		{#if voteDate}
-			am {dashDateToDotDate(voteDate)}
+			Abgestimmt am {dashDateToDotDate(voteDate)}
 		{/if}
 	</span>
 	<!-- User Interests -->
@@ -86,7 +85,12 @@
 			<VoteResultExpandableBar {dels} {voteResult} class="" />
 		{/each}
 		<div class="mt-3">
-			<span class="text-base text-gray-800">Weitere Abstimmungen &#8594;</span>
+			<a
+				href={resolve('/history/votes')}
+				class="flex w-fit items-center gap-1 text-base text-gray-800 hover:text-black"
+			>
+				Weitere Abstimmungen &#8594;
+			</a>
 		</div>
 	{:else}
 		<section class="card w-full animate-pulse">
@@ -128,7 +132,7 @@
 	{/if}
 
 	
-	<h2 class="text-2xl font-bold mt-8">Ministerialentwürfe der letzten 30 Tage</h2>
+	<h2 class="text-3xl sm:text-4xl font-bold pt-2 px-1 sm:p-0 mt-12">Ministerialentwürfe der letzten 30 Tage</h2>
 	{#if govProposals}
 		{#if govProposals.length == 0}
 			<div class="w-full p-20 text-center bg-surface-100-900 rounded-lg">Keine</div>

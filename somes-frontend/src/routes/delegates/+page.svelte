@@ -89,7 +89,7 @@
 	// Christoph Rework
 	const sliderSteps = [25, 50, 75, 365];
 	let isLegisPeriodFilterOpen = $state(false);
-	let isSearchPopupOpen = $state(true);
+	let isSearchPopupOpen = $state(false);
 	let searchInput = $state('');
 	let selectedParty = $state<Party | undefined>(undefined);
 	let selectedSearchPeriod = $state<string | undefined>(undefined);
