@@ -22,11 +22,11 @@
 </script>
 
 <div
-	class="mt-5 flex items-center gap-4 bg-primary-300 dark:bg-primary-500 p-3 rounded-[0.9rem] justify-between w-full flex-wrap"
+	class="mt-3 flex items-center gap-4 bg-primary-300 dark:bg-primary-500 p-3 rounded-xl justify-between w-full flex-wrap"
 >
 	<div>
-		<div class="mt-2 text-xl sm:text-3xl font-bold">Nächste Nationalratssitzung</div>
-		<span class="text-xl sm:text-2xl"
+		<div class="text-xl font-bold">Nächste Nationalratssitzung</div>
+		<span class="text-lg text-gray-800"
 			>am
 			{#if nextPlenarySessionDateStr}
 				{dashDateToDotDate(nextPlenarySessionDateStr.toString().split('T')[0])}
@@ -49,7 +49,7 @@
 			class="rounded-input bg-dark
 			text-background shadow-mini hover:bg-dark/95 inline-flex h-10 select-none items-center justify-center whitespace-nowrap px-[21px] text-[15px] font-medium transition-all hover:cursor-pointer active:scale-[0.98]"
 		>
-			<span class="btn sm:btn-lg bg-primary-500 dark:bg-primary-300 text-white preset-filled mt-1">
+			<span class="btn bg-primary-500 dark:bg-primary-300 text-white preset-filled mt-1">
 				Sitzungskalender
 			</span>
 		</Popover.Trigger>

@@ -12,6 +12,8 @@
 	import LatestProposals from '$lib/components/Proposals/Latest/LatestProposals.svelte';
 	import type { PageProps } from './$types';
 	import { errorToNull } from '$lib/api/api';
+	import VoteResultExpandableBar from '$lib/components/VoteResults/Expandable/VoteResultExpandableBar.svelte';
+	import RightArrowIcon from '$lib/assets/misc_icons/right-arrow-small.svg';
 
 	let { data }: PageProps = $props();
 
@@ -64,14 +66,15 @@
 </svelte:head>
 
 <Container>
-	<h1 class="mt-2 text-3xl sm:text-5xl font-bold">Neuigkeiten</h1>
+	<h1 class="text-3xl sm:text-4xl font-bold pt-2 px-1 sm:p-0">Neuigkeiten</h1>
 	<NextSessionInfo nextPlenarySessionDateStr={nextPlenarySessionDateStr} />
-	<h2 class="text-xl sm:text-3xl font-bold mt-4">Letzte Abstimmungen</h2>
-	<span class="text-xl sm:text-2xl">
+	<h2 class="text-2xl font-bold mt-8">Letzte Abstimmungen</h2>
+	<span class="ml-1 -mb-3 block text-base text-gray-800">
 		{#if voteDate}
 			am {dashDateToDotDate(voteDate)}
 		{/if}
 	</span>
+	<!-- User Interests -->
 	{#if userVoteResults && dels}
 		<h2 class="text-xl sm:text-3xl font-bold">nach Interesse</h2>
 
@@ -79,7 +82,12 @@
 		<!-- {:else if use} -->
 	{/if}
 	{#if voteResults && dels}
-		<VoteResults {dels} allSeats={data.allSeats} {voteResults} showHistory />
+		{#each voteResults.slice(0, 3) as voteResult}
+			<VoteResultExpandableBar {dels} {voteResult} class="" />
+		{/each}
+		<div class="mt-3">
+			<span class="text-base text-gray-800">Weitere Abstimmungen &#8594;</span>
+		</div>
 	{:else}
 		<section class="card w-full animate-pulse">
 			<div class="p-4 space-y-4">
@@ -119,8 +127,8 @@
 		</section>
 	{/if}
 
-	<h2 class="mt-2 text-xl sm:text-3xl font-bold">Ministerialentwürfe der letzten 30 Tage</h2>
-
+	
+	<h2 class="text-2xl font-bold mt-8">Ministerialentwürfe der letzten 30 Tage</h2>
 	{#if govProposals}
 		{#if govProposals.length == 0}
 			<div class="w-full p-20 text-center bg-surface-100-900 rounded-lg">Keine</div>
