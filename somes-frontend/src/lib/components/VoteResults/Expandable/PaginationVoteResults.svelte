@@ -187,8 +187,9 @@
 		if (maybeStoredFilter !== null) {
 			if (maybeStoredFilter.simple_majority !== null)
 				genericFilters[0].activeValue = maybeStoredFilter.simple_majority;
-			if (maybeStoredFilter.gps !== null && maybeStoredFilter.gps.length > 0)
+			if (maybeStoredFilter.gps !== null && maybeStoredFilter.gps.length > 0) {
 				genericFilters[4].activeValue = maybeStoredFilter.gps[0];
+			}
 			if (maybeStoredFilter.accepted !== null)
 				genericFilters[1].activeValue = maybeStoredFilter.accepted;
 			if (maybeStoredFilter.is_named_vote !== null)
@@ -297,7 +298,7 @@
 				</Popover.Trigger>
 				<Popover.Content sideOffset={8}>
 					<div
-						class="z-10 w-72 rounded-xl border border-gray-300 bg-surface-50 px-6 py-4 shadow-lg"
+						class="z-10 text-black w-72 rounded-xl border border-gray-300 bg-surface-50 px-6 py-4 shadow-lg"
 						data-popup="popupParties"
 					>
 						<div class="flex flex-col gap-2">

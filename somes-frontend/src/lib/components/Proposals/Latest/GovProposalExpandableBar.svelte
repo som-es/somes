@@ -13,6 +13,7 @@
 	import GovProposalExpanded from '../ExpandableAtDelegate/GovProposalExpanded.svelte';
 	import { address } from '$lib/api/api';
 	import { dashDateToDotDate } from '$lib/date';
+	import { browser } from '$app/environment';
 
 	export let govProposal: GovProposalDelegate;
 	export let showDelegate: boolean = false;
@@ -71,9 +72,9 @@
 		</div>
 		<!-- <div>{voteResult.legislative_initiative.description}</div> -->
 
-		{#if govProposal.gov_proposal.vote_result && govProposal.gov_proposal.vote_result.legislative_initiative.accepted !== null}
+		<!-- {#if browser && govProposal.gov_proposal.vote_result && govProposal.gov_proposal.vote_result.legislative_initiative.accepted !== null}
 			<button
-				class="max-sm:hidden z-20 w-30 bg-primary-100 dark:bg-primary-300 rounded-md"
+				class="max-sm:hidden w-30 bg-primary-100 dark:bg-primary-300 rounded-md"
 				on:click={() => onShowDetails(govProposal.gov_proposal.vote_result)}
 			>
 				<VoteParliament2
@@ -84,7 +85,7 @@
 			</button>
 		{:else}
 			<div></div>
-		{/if}
+		{/if} -->
 		{#if showDelegate}
 			<div>
 				<img

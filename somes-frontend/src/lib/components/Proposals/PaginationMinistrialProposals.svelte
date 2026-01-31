@@ -110,9 +110,6 @@
 			noScroll: true
 		});
 
-
-		
-		console.log(filter);
 	};
 
 	const update = () => {
