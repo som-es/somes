@@ -71,7 +71,7 @@
 		</a>
 		<button
 			onclick={toggleMenu}
-			class="rounded fill-white stroke-white p-2 hover:bg-surface-400"
+			class="rounded fill-white stroke-white p-2 hover:bg-surface-400 touch-manipulation"
 			aria-label="Menu"
 		>
 			<!-- Hamburger Icon / Close Icon -->
@@ -95,14 +95,14 @@
 			{#each navItems as item}
 				{#if item.subItems}
 					<button
-						class="flex w-full items-center justify-between p-4 text-base font-medium text-white hover:bg-surface-400"
+						class="flex w-full items-center justify-between p-4 touch-manipulation text-base font-medium text-white hover:bg-surface-400"
 						onclick={() => toggleSubmenu(item.label)}
 					>
 						<span>{item.label}</span>
 						<div
 							class="h-5 w-5 transition-transform duration-200 {expandedItems[item.label]
 								? 'rotate-90'
-								: ''} [&>svg]:h-full [&>svg]:w-full [&>svg]:fill-white"
+								: ''} [&>svg]:h-full [&>svg]:w-full [&>svg]:fill-white [&>svg]:stroke-white"
 						>
 							{@html rightArrowIcon}
 						</div>
@@ -150,7 +150,7 @@
 				{:else}
 					<a
 						href={resolve((item.href || '') as any)}
-						class="flex w-full items-center p-4 text-base font-medium hover:bg-surface-400 {page.url.pathname.includes(
+						class="flex w-full items-center p-4 touch-manipulation text-base font-medium hover:bg-surface-400 {page.url.pathname.includes(
 							item.href || ''
 						)
 							? 'text-tertiary-500'
