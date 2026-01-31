@@ -3,6 +3,7 @@
 	import favicon from '$lib/assets/somes_logo.png';
 	import somesWithText from '$lib/assets/somes_with_text2.svg?raw';
 	import Sidebar from '$lib/components/Bars/Sidebar.svelte';
+	import Navbar from '$lib/components/Bars/Navbar.svelte';
 	import { onMount } from 'svelte';
 	import { resolve } from '$app/paths';
 	import { lightModeStore } from '$lib/lightmode.svelte';
@@ -23,16 +24,17 @@
 </svelte:head>
 
 <div class="grid h-screen grid-rows-[auto_1fr_auto]">
-	<header class="lg:hidden sticky top-0 z-0">
-		<!-- <Navbar /> -->
+	<header class="lg:hidden sticky top-0 z-50">
+		<Navbar />
 	</header>
-	<div class="grid grid-cols-[auto_1fr]">
+	
+	<div class="grid grid-cols-1 lg:grid-cols-[auto_1fr]">
     <!-- Left Sidebar. -->
-		<aside class="sticky top-0 col-span-1 h-screen">
+		<aside class="hidden lg:block sticky top-0 col-span-1 h-screen">
 			<Sidebar  />
 		</aside>
 		<!-- Main Content -->
-		<main class="mb-35">
+		<main class="mb-35 w-full min-w-0">
 			{@render children()}
 		</main>
 	</div>

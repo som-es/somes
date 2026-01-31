@@ -45,40 +45,42 @@
 		class="entry block bg-primary-300 dark:bg-primary-500"
 	>
 		<div class="flex">
-			<div class="flex max-lg:flex-wrap items-center justify-between w-full">
+			<div class="flex w-full flex-wrap items-start justify-between gap-2 lg:flex-nowrap">
 				{#if voteResult.ai_summary}
-					<div class="flex flex-wrap flex-col w-5/6">
+					<div class="flex flex-1 flex-col flex-wrap min-w-0 max-lg:contents">
 						<span
-							class="text-xl font-semibold"
+							class="text-xl font-semibold max-lg:order-1 max-lg:flex-1 max-lg:min-w-0"
 							style="hyphens: auto; word-break: normal; overflow-wrap: break-word;"
 						>
 							{voteResult.ai_summary.short_title}
 						</span>
-						<span class="text-sm sm:text-md">
+						<span class="text-sm sm:text-md max-lg:order-3 max-lg:w-full">
 							{voteResult.ai_summary.short_summary}
 						</span>
 					</div>
 				{:else}
-					<span class="text-md font-semibold w-5/6">
+					<span class="text-md flex-1 font-semibold min-w-0">
 						{voteResult.legislative_initiative.description}
 					</span>
 				{/if}
 
-				{#if voteResult.legislative_initiative.accepted !== null}
+				<div class="shrink-0 max-lg:order-2">
+					{#if voteResult.legislative_initiative.accepted !== null}
 					{#if voteResult.legislative_initiative.accepted == 'a'}
 						<span
-							class="stroke-green-600 dark:stroke-green-500 inline-block align-middle"
-							style="width:30px; height:30px">{@html checkmarkIcon}</span
+							class="inline-block shrink-0 align-middle stroke-green-600 dark:stroke-green-500"
+							style="width:25px; height:25px">{@html checkmarkIcon}</span
 						>
 					{:else}
-						<span class="inline-block align-middle" style="width:30px; height:30px"
+						<span class="inline-block shrink-0 align-middle" style="width:22px; height:22px"
 							>{@html crossmarkIcon}</span
 						>
 					{/if}
 				{:else}
 					<div></div>
 					<InfoBadges {voteResult} />
-				{/if}
+					{/if}
+				</div>
 			</div>
 		</div>
 
@@ -95,12 +97,12 @@
 									{#if vote.infavor}
 										<span
 											class="mr-1 md:mr-2 stroke-green-600 dark:stroke-green-500 inline-block align-middle"
-											style="width:20px; height:20px;">{@html checkmarkIcon}</span
+											style="width:18px; height:18px;">{@html checkmarkIcon}</span
 										>
 									{:else}
 										<span
 											class="mr-1 md:mr-2 inline-block align-middle"
-											style="width:20px; height:20px;">{@html crossmarkIcon}</span
+											style="width:18px; height:18px;">{@html crossmarkIcon}</span
 										>
 									{/if}
 								</div>

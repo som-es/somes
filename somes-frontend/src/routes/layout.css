@@ -154,3 +154,8 @@ body ::selection {
 	background: rgb(239 204 197);
 	color: #000;
 }
+
+/* Disable Blue Flash on IOS */
+* {
+  -webkit-tap-highlight-color: transparent;
+}

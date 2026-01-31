@@ -185,12 +185,15 @@
 <div class="mt-7 md:flex">
 	<!-- Search bar -->
 	<SearchBar bind:searchValue />	
-	<MultiValuesFilter title="Ministerien" bind:selectedValues={selectedDepartments} values={departments} />
-	<MultiValuesFilter title="Themen" bind:selectedValues={selectedTopics} values={topics} />
-	<GenericFilters 
-		bind:genericFilters
-		bind:legisPeriodFilter
-	/>
+
+	<div class="mt-2 flex h-10 w-full md:mt-0 md:w-auto md:ml-2 gap-2">
+		<MultiValuesFilter title="Ministerien" bind:selectedValues={selectedDepartments} values={departments} />
+		<MultiValuesFilter title="Themen" bind:selectedValues={selectedTopics} values={topics} />
+		<GenericFilters 
+			bind:genericFilters
+			bind:legisPeriodFilter
+		/>
+	</div>
 </div>
 <div>
 	{#if govProposals}

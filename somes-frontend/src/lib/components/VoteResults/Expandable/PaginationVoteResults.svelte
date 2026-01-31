@@ -314,15 +314,15 @@
 	<SearchBar bind:searchValue />	
 	<!-- Filter Buttons -->
 	<!-- Parteien Filter -->
-	<div class="mt-2 flex h-10 w-full md:mt-0 md:w-auto">
+	<div class="mt-2 flex h-10 w-full md:mt-0 md:w-auto md:ml-2 gap-2">
 		{#if showPartyFilter}
 			<Popover.Root bind:open={isPartiesFilterOpen}>
-				<Popover.Trigger>
+				<Popover.Trigger class="touch-manipulation flex h-full grow items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 md:grow-0">
 					<FilterDropdown title="Parteien" activefilterCount={activePartyFiltersCount} isOpen={isPartiesFilterOpen} />
 				</Popover.Trigger>
 				<Popover.Content sideOffset={8}>
 					<div
-						class="z-10 text-black w-72 rounded-xl border border-gray-300 bg-surface-50 px-6 py-4 shadow-lg"
+						class="z-10 touch-manipulation text-black w-72 rounded-xl border border-gray-300 bg-surface-50 px-6 py-4 shadow-lg"
 						data-popup="popupParties"
 					>
 						<div class="flex flex-col gap-2">
@@ -373,7 +373,11 @@
 			</Popover.Root>
 		{/if}
 		<!-- Themen Filter -->
-		<MultiValuesFilter title="Themen" bind:selectedValues={selectedTopics} values={topics} />
+		<MultiValuesFilter 
+			title="Themen" 
+			bind:selectedValues={selectedTopics} 
+			values={topics} 
+		/>
 		<!-- Generic Filter -->
 		<GenericFilters 
 			bind:genericFilters 	
