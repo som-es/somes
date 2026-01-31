@@ -4,6 +4,10 @@ import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 
 export default defineConfig({
+	server: {
+		host: true, // expose to network for mobil testing
+	},
+
 	plugins: [tailwindcss(), sveltekit()],
 
 	test: {
