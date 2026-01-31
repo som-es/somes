@@ -165,6 +165,8 @@ pub async fn serve(addr: SocketAddr) {
         .route(PARTIES, get(parties_route))
         .route(PARTIES_AT_GP, get(parties_at_gp_route))
         .route(PARTIES_PER_GP, get(parties_per_gp_route))
+        .route(DEPARTMENTS, get(departments))
+        .route(DEPARTMENTS_PER_GP, get(departments_per_gp))
         .route(ALL_GPS, get(all_gps_route))
         .route(SEATS, get(seats_route))
         .route(TOPICS, get(topics_route))

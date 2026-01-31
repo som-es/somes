@@ -1019,15 +1019,7 @@
 	}
 
 	.range-slider::-webkit-slider-runnable-track {
-		background: linear-gradient(
-			to right,
-			#6881a1 0%,
-			#6881a1 var(--progress),
-			#e5e7eb var(--progress),
-			#e5e7eb 100%
-		);
-		height: 8px;
-		border-radius: 4px;
+		background: linear-gradient(to right, #6881A1 0%, #6881A1 var(--progress), #e5e7eb var(--progress), #e5e7eb 100%);
 	}
 
 	.range-slider::-moz-range-track {

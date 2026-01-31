@@ -35,22 +35,21 @@ export const load: PageServerLoad = async ({ fetch, setHeaders }) => {
         });
     }
 
-    const latestVotes = await latest_vote_results(fetch);
-
     const [
         nextPlenarDate, 
+        latestVotes,
         latestMinisterialProposals, 
         latestDecrees,
-        delegates,
         allSeats
     ] = await Promise.all([
         next_plenar_date(fetch),
-        // latest_vote_results(fetch),
-        latest_ministrial_proposals(21, fetch),
+        latest_vote_results(fetch),
+        latest_ministrial_proposals(30, fetch),
         latest_decrees(7, fetch),
-        fetchDelegatesFromVoteResult(latestVotes, fetch),
         cachedAllSeats(false, fetch)
     ]);
+    
+    const delegates = await fetchDelegatesFromVoteResult(latestVotes, fetch);
 
     // TODO error handling
 

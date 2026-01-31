@@ -253,12 +253,16 @@ export async function gov_proposals_per_page(
 	return justPost(`v1/gov_proposals/live/?page=${page}`, filter);
 }
 
+export async function departments_per_gp(
+	fetcher: typeof fetch = fetch,
+): Promise<Record<string, string[]> | HasError> {
+	return getWithRoute(`departments_per_gp`, "at/", fetcher);
+}
 export async function gov_proposals_by_search(
-	page: number,
-	search: string,
-	filter: GovPropFilter | null
+	query: string,
+	fetcher: typeof fetch = fetch,
 ): Promise<GovProposalsWithMaxPage | HasError> {
-	return justPost(`v1/gov_proposals/search?page=${page}&search=${search}`, filter);
+	return getWithRoute(`v1/gov_proposals/search?${query}`, "at/", fetcher);
 }
 
 export async function vote_results_by_search(

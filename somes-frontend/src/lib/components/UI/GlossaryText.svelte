@@ -21,7 +21,11 @@
             if (match) {
                 const start = match.index 
                 const end = match.index + match[0].length
-                termReplacements.push({start, end, definition, match: match[0]})
+                if (termReplacements.findIndex(term => {
+                    return start <= term.end && end >= term.start
+                }) == -1) {
+                    termReplacements.push({start, end, definition, match: match[0]})
+                }
             }
         }
 

@@ -13,18 +13,18 @@
 
 	interface Props {
 		voteResult: VoteResult;
-		dels: Delegate[];
 		class: any;
 	}
 
-	let { voteResult, dels, class: clazz }: Props = $props();
+	let { voteResult, class: clazz }: Props = $props();
 
 	function onShowDetails() {
 		currentVoteResultStore.value = voteResult;
 		gotoHistory(createVoteResultPath(voteResult), true);
 	}
 
-	function toggleOpen() {
+	function toggleOpen(e: Event) {
+		e.preventDefault();
 		if (typeof window !== 'undefined' && window.innerWidth < 1024) {
 			onShowDetails();
 		} else {
@@ -36,12 +36,13 @@
 </script>
 
 <div class="gap-3 mt-5 {clazz}">
-	<div
+	<a
+		href="{createVoteResultPath(voteResult)}"
 		onclick={toggleOpen}
 		onkeypress={toggleOpen}
 		role="button"
 		tabindex="0"
-		class="entry bg-primary-300 dark:bg-primary-500"
+		class="entry block bg-primary-300 dark:bg-primary-500"
 	>
 		<div class="flex">
 			<div class="flex w-full flex-wrap items-start justify-between gap-2 lg:flex-nowrap">
@@ -208,10 +209,10 @@
 				{/if}
 			</span>
 		</div>
-	</div>
+	</a>
 	{#if open}
 		<div transition:slide={{ duration: 240 }}>
-			<VoteResultExpanded {voteResult} {dels} bind:open />
+			<VoteResultExpanded {voteResult} bind:open />
 		</div>
 	{/if}
 </div>
