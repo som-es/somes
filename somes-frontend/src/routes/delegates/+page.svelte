@@ -500,7 +500,7 @@
 		<!-- PopUp -->
 		{#if isSearchPopupOpen}
 			<div
-				class="absolute top-full right-0 left-0 z-100 mt-2 w-150 rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg md:px-6"
+				class="absolute top-full right-0 left-0 z-100 mt-2 w-140 rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg md:px-6"
 				data-popup="popupSearch"
 				role="button"
 				tabindex="0"

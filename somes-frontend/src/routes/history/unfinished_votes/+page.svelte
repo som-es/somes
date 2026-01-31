@@ -19,7 +19,7 @@
 
 <!-- <div class="mx-auto px-5"> -->
 <Container>
-	<h1 class="text-2xl sm:text-4xl font-bold">Anträge zur Abstimmung</h1>
+	<h1 class="text-3xl sm:text-4xl font-bold pt-2 px-1 sm:p-0 mt-2 sm:mt-0">Anträge zur Abstimmung</h1>
 	{#if voteResults && partiesPerGp}
 		<PaginationVoteResults 
 			{voteResults} 

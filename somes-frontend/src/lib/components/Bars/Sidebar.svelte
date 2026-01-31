@@ -13,8 +13,6 @@
 	import { mockDelegatesNoColor, mockVoteResult } from '$lib/parliaments/mock';
 	import { getSeats } from '$lib/caching/seats';
 	import LightSwitch from '../UI/LightSwitch.svelte';
-	import { convertVoteResultFilterToUrl } from '../VoteResults/Expandable/urlConversion';
-	import { currentVoteResultFilterStore } from '$lib/stores/stores';
 
 	$effect(() => {
 		activeUrl = page.url.pathname;
@@ -94,9 +92,6 @@
 			]
 		}
 	];
-
-	// const votesUrl = $derived(convertVoteResultFilterToUrl(currentVoteResultFilterStore.value, "", undefined))
-
 </script>
 
 <div class="flex h-full grid-cols-[auto_1fr] bg-surface-50 lg:grid">
@@ -122,7 +117,7 @@
 			</span>
 		</a>
 		<a
-			href={resolve("/history/votes")}
+			href={resolve('/history/votes')}
 			title="Abstimmungshistorie"
 			class="{activeUrl?.includes('/history')
 				? 'bg-tertiary-500! stroke-black'
@@ -185,21 +180,21 @@
 	</div>
 
 	{#if activeUrl?.includes('/statistics') || activeUrl?.includes('/history')}
-		<section class="max-w-60 space-y-4 overflow-y-auto bg-primary-500 text-white p-3 pb-20 dark:bg-surface-600">
+		<section class="max-w-60 space-y-4 overflow-y-auto bg-gray-300 p-3 pb-15 dark:bg-surface-600">
 			{#each submenu as segment, i}
 				{#if activeUrl?.includes(segment.route)}
 					<!-- Title -->
-					<p class="pl-4 text-2xl font-bold">{segment.title}</p>
+					<p class="pl-4 text-2xl mb-0 pb-0 mt-3 font-bold">{segment.title}</p>
 					<!-- Nav List -->
 					<nav class="list-nav">
-						<ul class="my-1">
+						<ul class="mb-2">
 							{#each segment.list as { href, label }}
-								<li class="p-2">
+								<li class="px-2 py-1">
 									<a
 										{href}
-										class="flex w-full rounded-3xl p-2 pl-3 {activeUrl?.includes(href)
-											? 'bg-secondary-500 text-black'
-											: 'hover:bg-secondary-300'}"
+										class="flex w-fit rounded-3xl p-2 px-4 {activeUrl?.includes(href)
+											? 'bg-primary-600'
+											: 'hover:bg-primary-300'}"
 										data-sveltekit-preload-data="hover"
 									>
 										<span class="flex-auto">{@html label}</span>

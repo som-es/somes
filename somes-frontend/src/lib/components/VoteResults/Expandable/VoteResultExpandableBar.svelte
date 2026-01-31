@@ -76,10 +76,7 @@
 							>{@html crossmarkIcon}</span
 						>
 					{/if}
-				{:else}
-					<div></div>
-					<InfoBadges {voteResult} />
-					{/if}
+				{/if}
 				</div>
 			</div>
 		</div>
@@ -188,7 +185,9 @@
 							<VoteTypeBadge {voteResult} />
 						</div>
 					{/if}
-				{:else}{/if}
+				{:else}
+					<InfoBadges {voteResult} />
+				{/if}
 			</div>
 			<span class="lg:hidden">
 				{#if voteResult.named_votes != null}
