@@ -1726,3 +1726,8 @@
 		stroke-dashoffset: -140;
 	}
 }
+
+/* Disable Blue Flash on IOS */
+* {
+  -webkit-tap-highlight-color: transparent;
+}

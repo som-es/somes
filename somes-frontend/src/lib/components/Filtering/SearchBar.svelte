@@ -7,7 +7,7 @@
 
     let { searchValue = $bindable() }: Props = $props();
 </script>
-<div class="flex h-10 flex-grow rounded-xl border-[2px] border-gray-400">
+<div class="flex h-10 flex-grow rounded-xl border-[2px] border-gray-400 touch-manipulation">
     <div class="flex h-9 w-10 items-center justify-center text-gray-600">
         {@html searchIcon}
     </div>

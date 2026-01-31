@@ -16,12 +16,12 @@
 	let isGenericFilterOpen = $state(false);
 </script>
 <Popover.Root bind:open={isGenericFilterOpen}>
-    <Popover.Trigger>
+    <Popover.Trigger class="touch-manipulation flex h-full grow items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 md:grow-0">
         <FilterDropdown title="Filter" activefilterCount={activeGenericFiltersCount} isOpen={isGenericFilterOpen} />
     </Popover.Trigger>
     <Popover.Content sideOffset={8}>
         <div
-            class="z-10 text-black w-auto rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg md:px-6"
+            class="z-10 touch-manipulation text-black w-auto rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg md:px-6"
         >
             {#each genericFilters as group}
                 {#if !group.hidden}

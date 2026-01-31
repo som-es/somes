@@ -19,12 +19,12 @@
 </script>
 
 <Popover.Root bind:open={isTopicFilterOpen}>
-    <Popover.Trigger>
+    <Popover.Trigger class="touch-manipulation flex h-full grow items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 md:grow-0">
         <FilterDropdown {title} activefilterCount={activeTopicFiltersCount} isOpen={isTopicFilterOpen} />
     </Popover.Trigger>
     <Popover.Content sideOffset={8}>
         <div
-            class="z-10 w-72 rounded-xl border border-gray-300 bg-surface-50 shadow-lg"
+            class="z-10 w-72 touch-manipulation rounded-xl border border-gray-300 bg-surface-50 shadow-lg"
             data-popup="popupTopics"
         >
             <!-- Search bar -->
