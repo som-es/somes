@@ -12,6 +12,7 @@ mod user;
 mod verify;
 mod vote_results;
 mod walo;
+mod departments;
 
 pub use proposals::*;
 
@@ -22,13 +23,13 @@ pub use delegates::*;
 pub use parties::*;
 pub use quiz::*;
 pub use save_email::*;
-use serde_json::json;
 pub use statistics::*;
 pub use topics::*;
 pub use user::*;
 pub use verify::*;
 pub use vote_results::*;
 pub use walo::*;
+pub use departments::*;
 
 use crate::{GenericError, PgPoolConnection};
 
