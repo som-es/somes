@@ -334,13 +334,13 @@
 
 <div class="mt-12 md:flex">
 	<!-- Search bar -->
-	<div class="flex h-10 flex-grow rounded-xl border-[2px] border-gray-400">
+	<div class="flex h-10 flex-grow rounded-xl border-[2px] border-gray-400 touch-manipulation">
 		<div class="flex h-9 w-10 items-center justify-center text-gray-600">
 			{@html searchIcon}
 		</div>
 		<input
 			type="search"
-			class="block w-full bg-transparent py-2 placeholder:text-gray-600 focus:outline-none"
+			class="block w-full bg-transparent py-2 text-base placeholder:text-gray-600 focus:outline-none"
 			placeholder="Suche..."
 			bind:value={searchValue}
 		/>
@@ -349,10 +349,9 @@
 	<!-- Parteien Filter -->
 	<div class="mt-2 flex h-10 w-full md:mt-0 md:w-auto">
 		<Popover.Root bind:open={isPartiesFilterOpen}>
-			<Popover.Trigger>
-				<div
-					class="flex h-full grow items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 md:ml-2 md:grow-0"
-				>
+			<Popover.Trigger
+				class="touch-manipulation flex h-full grow items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 md:ml-2 md:grow-0"
+			>
 					{#if activePartyFiltersCount > 0}
 						<div
 							class="flex h-5 w-5 items-center justify-center rounded-full border text-xs font-semibold text-white"
@@ -367,7 +366,6 @@
 					>
 						{@html downArrowIcon}
 					</div>
-				</div>
 			</Popover.Trigger>
 			<Popover.Content sideOffset={8}>
 				<div
@@ -388,7 +386,7 @@
 								<!-- Party Checkbox -->
 								<div class="ml-auto flex items-center gap-1">
 									<button
-										class="cursor-pointer rounded-lg px-2 py-1 text-sm"
+										class="cursor-pointer touch-manipulation rounded-lg px-2 py-1 text-sm"
 										class:bg-primary-300={partyFilterState[party.name] === 'pro'}
 										onclick={() =>
 											(partyFilterState[party.name] =
@@ -397,14 +395,14 @@
 										Pro
 									</button>
 									<button
-										class="cursor-pointer rounded-lg px-2 py-1 text-sm"
+										class="cursor-pointer touch-manipulation rounded-lg px-2 py-1 text-sm"
 										class:bg-primary-300={partyFilterState[party.name] === 'egal'}
 										onclick={() => (partyFilterState[party.name] = 'egal')}
 									>
 										Egal
 									</button>
 									<button
-										class="cursor-pointer rounded-lg px-2 py-1 text-sm"
+										class="cursor-pointer touch-manipulation rounded-lg px-2 py-1 text-sm"
 										class:bg-primary-300={partyFilterState[party.name] === 'contra'}
 										onclick={() =>
 											(partyFilterState[party.name] =
@@ -422,10 +420,9 @@
 		</Popover.Root>
 		<!-- Themen Filter -->
 		<Popover.Root bind:open={isTopicFilterOpen}>
-			<Popover.Trigger>
-				<div
-					class="ml-2 flex h-full grow items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 md:grow-0"
-				>
+			<Popover.Trigger
+				class="touch-manipulation ml-2 flex h-full grow items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 md:grow-0"
+			>
 					{#if activeTopicFiltersCount > 0}
 						<div
 							class="flex h-5 w-5 items-center justify-center rounded-full border text-xs font-semibold text-white"
@@ -440,7 +437,6 @@
 					>
 						{@html downArrowIcon}
 					</div>
-				</div>
 			</Popover.Trigger>
 			<Popover.Content sideOffset={8}>
 				<div
@@ -454,7 +450,7 @@
 						</div>
 						<input
 							type="search"
-							class="block w-full bg-transparent py-2 placeholder:text-gray-600 focus:outline-none"
+							class="block w-full bg-transparent py-2 text-base placeholder:text-gray-600 focus:outline-none"
 							placeholder="Suche nach Themen..."
 							bind:value={topicSearchValue}
 						/>
@@ -465,7 +461,7 @@
 									.toLowerCase()
 									.includes(topicSearchValue.toLowerCase())) as topic}
 							<button
-								class="flex cursor-pointer items-center gap-2"
+								class="flex cursor-pointer touch-manipulation items-center gap-2"
 								onclick={() => {
 									selectedTopics.delete(topic.topic);
 									selectedTopics = selectedTopics;
@@ -480,7 +476,7 @@
 									.toLowerCase()
 									.includes(topicSearchValue.toLowerCase())) as topic}
 							<button
-								class="flex cursor-pointer items-center gap-2"
+								class="flex cursor-pointer touch-manipulation items-center gap-2"
 								onclick={() => {
 									selectedTopics.add(topic.topic);
 									selectedTopics = selectedTopics;
@@ -497,10 +493,9 @@
 		</Popover.Root>
 		<!-- Generic Filter -->
 		<Popover.Root bind:open={isGenericFilterOpen}>
-			<Popover.Trigger>
-				<div
-					class="ml-2 flex h-full grow items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 md:grow-0"
-				>
+			<Popover.Trigger
+				class="touch-manipulation ml-2 flex h-full grow items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 md:grow-0"
+			>
 					{#if activeGenericFiltersCount > 0}
 						<div
 							class="flex h-5 w-5 items-center justify-center rounded-full border text-xs font-semibold text-white"
@@ -515,7 +510,6 @@
 					>
 						{@html downArrowIcon}
 					</div>
-				</div>
 			</Popover.Trigger>
 			<Popover.Content sideOffset={8}>
 				<div
@@ -528,7 +522,7 @@
 							<div class="flex w-fit gap-1 rounded-lg border border-primary-300 text-sm">
 								{#each group.options as option}
 									<button
-										class="cursor-pointer rounded-lg px-2 py-1 text-xs md:text-sm"
+										class="cursor-pointer touch-manipulation rounded-lg px-2 py-1 text-xs md:text-sm"
 										class:bg-primary-300={group.activeValue === option.value}
 										onclick={() => {
 											group.activeValue = option.value;
@@ -545,7 +539,7 @@
 						<div class="flex w-72 flex-wrap gap-1 text-sm">
 							{#each genericFilters[4].options as option}
 								<button
-									class="cursor-pointer rounded-lg border border-primary-300 px-2 py-1 text-xs md:text-sm"
+									class="cursor-pointer touch-manipulation rounded-lg border border-primary-300 px-2 py-1 text-xs md:text-sm"
 									class:bg-primary-300={genericFilters[4].activeValue === option.value}
 									onclick={() => {
 										genericFilters[4].activeValue = option.value;
