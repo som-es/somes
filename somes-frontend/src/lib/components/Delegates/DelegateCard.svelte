@@ -6,6 +6,7 @@
 	import { gotoHistory } from '$lib/goto';
 	import star from '$lib/assets/misc_icons/star.svg?raw';
 	import starFilled from '$lib/assets/misc_icons/starFilled.svg?raw';
+	import externalLink from '$lib/assets/misc_icons/external-link.svg?raw';
 	import { onMount } from 'svelte';
 	import { cachedDelegateFavos } from '$lib/caching/favos';
 	import { addDelegateFavo, removeDelegateFavo } from '$lib/api/authed';
@@ -68,10 +69,10 @@
 	let personUrl = $derived(`https://parlament.gv.at/person/${delegate.id}?utm_source=somes.at`);
 </script>
 
-<div
-	class="z-0! card bg-primary-200 {onlyTop ? '' : 'min-h-full'}  mx-4 drop-shadow-lg flex flex-col"
->
-	<header class="relative">
+<div class="card bg-primary-200 p-5 h-full flex flex-col h-[calc(100%-1rem)]">
+	<!-- Top Row: Fav button & External Link -->
+	<div class="w-full flex justify-end gap-2 items-center">
+		<!-- Favorite Button -->
 		{#if delegateFavos}
 			{#if delegateFavos.has(delegate.id)}
 				<button
@@ -81,7 +82,7 @@
 							delegateFavos = delegateFavos;
 						}
 					}}
-					class="absolute top-0 right-0 w-14 p-2 z-10"
+					class="w-6 h-6 text-yellow-500"
 				>
 					{@html starFilled}
 				</button>
@@ -93,67 +94,80 @@
 							delegateFavos = delegateFavos;
 						}
 					}}
-					class="absolute top-0 right-0 w-14 p-2 z-10"
+					class="w-6 h-6 text-gray-500 hover:text-yellow-500"
 				>
 					{@html star}
 				</button>
 			{/if}
 		{/if}
-		<a
-			class="absolute {delegateFavos ? 'top-10' : 'top-0'} right-0 mt-2 mr-3 z-10"
-			href={personUrl}
-			target="_blank"
-		>
-			<img
-				class="w-12"
-				alt="parlament.gv.at favicon"
-				src="https://www.parlament.gv.at/static/img/favicon/favicon.svg"
-			/>
-		</a>
-		<div class="relative flex justify-center items-center h-full">
-			{#if showImg}
-				<img
-					src={`${address}/assets/${delegate.id}.jpg`}
-					class="rounded-full w-32 sm:w-44 md:w-52"
-					alt="Image of politician {delegate.name}"
-				/>
-			{/if}
-		</div>
-	</header>
 
-	<section class="p-4 grow">
+		<!-- Parlament.at link to person -->
+		<div class="w-4 h-4 text-gray-500">
+			<a href={personUrl} target="_blank">
+				{@html externalLink}
+			</a>
+		</div>
+	</div>
+
+	<!-- Show image if avaiable -->
+	{#if showImg}
+		<div class="flex justify-center pb-6">
+			<img
+				src={`${address}/assets/${delegate.id}.jpg`}
+				class="rounded-full w-32 sm:w-44 md:w-52"
+				alt="Image of politician {delegate.name}"
+			/>
+		</div>
+	{/if}
+
+	<!-- Delegate name and party-->
+	<div>
+		<!-- Name and Age -->
 		<h4 class="font-bold md:text-xl">
 			{delegate.name}
 			{#if delegate.is_active && showAge}
 				- {Math.floor(dateDiffInDays(new Date(delegate.birthdate), new Date()) / 365)}
 			{/if}
 		</h4>
+		<!-- Birthday Check -->
 		{#if new Date().toString() == new Date(delegate.birthdate).toString()}
 			<hr />
 			Alles Gute zum Geburtstag!
 		{/if}
 
-		<h5 class="text-sm" style="color: {partyToColor(delegate.party)}">
-			{#if delegate.party == 'OK'}
-				Ohne Klub
-			{:else if delegate.party != null}
-				<span>{delegate.party}</span>
-			{/if}
-		</h5>
-		{#each delegate.mandates_at_time ?? [] as mandate}
-			<h6 class="text-sm md:text-lg">
-				{mandate.name}
-			</h6>
-		{/each}
+		<!-- Party -->
+		<div class="flex items-center">
+			<div class="w-2 h-2 rounded-full mx-2" style="background-color: {partyToColor(delegate.party)}"></div>
+			<p class="text-base text-gray-800">
+				{#if delegate.party == 'OK'}
+					Ohne Klub
+				{:else if delegate.party != null}
+					<span>{delegate.party}</span>
+				{/if}
+			</p>
+		</div>
+	</div>
 
-		{#if !onlyTop}
-			<hr class="border-t-2! my-1" />
+	<!-- Mandate if so -->
+	<div class="mt-4">
+		{#each delegate.mandates_at_time ?? [] as mandate}
+			<div class="flex w-full items-center mt-1">
+				<h6 class="text-sm text-wrap md:text-base xl:leading-tight">
+					{mandate.name}
+				</h6>
+			</div>
+		{/each}
+	</div>
+
+	{#if !onlyTop}
+		<div>
+			<hr class="!border-t-2 my-1 border-gray-500" />
 			{#if delegate.constituency != null}
 				<h3>{delegate.constituency}</h3>
 			{/if}
-			<hr class="border-t-2! my-1" />
+			<hr class="!border-t-2 my-1 border-gray-500" />
 			<h3>{delegate.divisions?.join(', ')}</h3>
-		{/if}
+		</div>
 
 		{@render top?.()}
 		{@render info?.()}
@@ -162,12 +176,10 @@
 		{#if showDelegate == 'true'}
 			ID: {delegate.id}
 		{/if}
-		<!-- </span> -->
-	</section>
+	{/if}
 
-	<hr class="border-t-2! my-1" />
-	<!-- <footer class="card-footer flex justify-end items-end mt-3"> -->
-	<footer class="card-footer flex justify-between mt-1 p-2">
+	<!-- Buttons -->
+	<div class="w-full flex justify-between mt-auto items-end">
 		{@render footerButtons?.()}
 		{#if showMoreDetailsBtn}
 			<div></div>
@@ -178,11 +190,9 @@
 			{#if showAI}
 				<Dialog.Root>
 					<Dialog.Trigger>
-						<div
-							class="btn sm:btn-lg bg-secondary-500 text-white preset-filled"
-						>
-							AI Chat
-						</div>
+						<button class="bg-primary-600 p-2 px-3 rounded-xl text-white">
+							<h4>AI Chat</h4>
+						</button>
 					</Dialog.Trigger>
 					<Dialog.Portal>
 						<Dialog.Overlay
@@ -197,15 +207,13 @@
 						</Dialog.Content>
 					</Dialog.Portal>
 				</Dialog.Root>
-					<!-- <AIChatModal {delegate} /> -->
 			{/if}
+
 			{#if showQA && questions.length > 0}
 				<Dialog.Root>
 					<Dialog.Trigger>
-						<button
-							class="btn sm:btn-lg bg-secondary-500 text-white"
-						>
-							Fragen & Antworten
+						<button class="bg-primary-600 p-2 px-3 rounded-xl text-white">
+							<h4>Vorstellung</h4>
 						</button>
 					</Dialog.Trigger>
 					<Dialog.Portal>
@@ -225,5 +233,5 @@
 				</Dialog.Root>
 			{/if}
 		{/if}
-	</footer>
+	</div>
 </div>

@@ -22,15 +22,15 @@
 </script>
 
 <div
-	class="mt-3 flex items-center gap-4 bg-primary-300 dark:bg-primary-500 p-3 rounded-xl justify-between w-full flex-wrap"
+	class="mt-3 flex items-center gap-4 bg-primary-300 dark:bg-primary-500 p-3 rounded-xl justify-between w-full flex-wrap shadow-md"
 >
 	<div>
 		<div class="text-xl font-bold">Nächste Nationalratssitzung</div>
-		<span class="text-md text-gray-800"
+		<span class="text-base text-gray-800"
 			>am
 			{#if nextPlenarySessionDateStr}
 				{dashDateToDotDate(nextPlenarySessionDateStr.toString().split('T')[0])}
-				<span class="sm:text-lg">
+				<span>
 					{#if hours}
 						(in {hours} Stunden)
 					{:else if days}
