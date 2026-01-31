@@ -1,4 +1,4 @@
-import { delegate_by_id, errorToNull } from "$lib/api/api";
+import { delegate_by_id, errorToNull, parties_per_gp } from "$lib/api/api";
 import { fetchDelegates } from "$lib/api/fetch_delegates";
 import { cachedAllLegisPeriods } from "$lib/caching/legis_periods";
 import { cachedAllSeats } from "$lib/caching/seats";
@@ -17,6 +17,7 @@ export const load: PageServerLoad = async ({ fetch, url, setHeaders }) => {
     const delegates = await fetchDelegates(date, gp ?? 'XXVIII', fetch);
 	const cachedPeriods = (await cachedAllLegisPeriods())?.reverse();
 	const cachedSeats = await cachedAllSeats();
+	const partiesPerGp = errorToNull(await parties_per_gp(fetch));
 
     let delegate = null;
 
@@ -24,5 +25,5 @@ export const load: PageServerLoad = async ({ fetch, url, setHeaders }) => {
         delegate = errorToNull(await delegate_by_id(+delegateId, fetch));
     } 
     
-    return { ...delegates, delegate, delegateId, cachedPeriods, gp, cachedSeats, date };
+    return { ...delegates, delegate, delegateId, cachedPeriods, gp, cachedSeats, date, partiesPerGp };
 }

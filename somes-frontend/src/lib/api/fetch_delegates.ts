@@ -19,7 +19,9 @@ export async function fetchDelegates(dateStr: string, gp: string,
     }
     if (delegates ) {
 		const govOfficials = (await seatSettedCachedGovOfficials(dateStr, fetcher)) ?? [];
-        delegates = delegates.concat(govOfficials)
+        const allDelegates = delegates.concat(govOfficials);
+        // Deduplicate by id
+        delegates = [...new Map(allDelegates.map(d => [d.id, d])).values()];
     }
     return { hasSeatInfo, delegates };
 }
