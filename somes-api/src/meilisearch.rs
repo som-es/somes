@@ -258,7 +258,7 @@ pub fn update_meilisearch_indices(
     tokio::task::spawn(async move {
         loop {
             if let Err(e) = update_vote_result_meilisearch_index(
-                &mut client_vr.get_multiplexed_tokio_connection().await.unwrap(),
+                &mut client_vr.get_multiplexed_async_connection().await.unwrap(),
                 &pg_pool_vr,
                 &meilisearch_client_vr,
                 all_votes_from_legis_init,
@@ -279,7 +279,7 @@ pub fn update_meilisearch_indices(
     tokio::task::spawn(async move {
         loop {
             if let Err(e) = update_vote_result_meilisearch_index(
-                &mut client_vr.get_multiplexed_tokio_connection().await.unwrap(),
+                &mut client_vr.get_multiplexed_async_connection().await.unwrap(),
                 &pg_pool_vr,
                 &meilisearch_client_vr,
                 all_updated_votes_from_legis_init_sqlx,
@@ -300,7 +300,7 @@ pub fn update_meilisearch_indices(
     tokio::task::spawn(async move {
         loop {
             if let Err(e) = update_gov_props_meilisearch_index(
-                &mut client_vr.get_multiplexed_tokio_connection().await.unwrap(),
+                &mut client_vr.get_multiplexed_async_connection().await.unwrap(),
                 &pg_pool,
                 &meilisearch_client_gp,
             )
@@ -319,7 +319,7 @@ pub fn update_meilisearch_indices(
         loop {
             if let Err(e) = update_decrees_meilisearch_index(
                 &pg_pool,
-                &mut client.get_multiplexed_tokio_connection().await.unwrap(),
+                &mut client.get_multiplexed_async_connection().await.unwrap(),
                 &meilisearch_client,
             )
             .await
