@@ -8,12 +8,12 @@
     let { searchValue = $bindable() }: Props = $props();
 </script>
 <div class="flex h-10 flex-grow rounded-xl border-[2px] border-gray-400 touch-manipulation">
-    <div class="flex h-9 w-10 items-center justify-center text-gray-600">
+    <div class="flex h-9 w-10 items-center justify-center text-gray-600 dark:text-gray-400">
         {@html searchIcon}
     </div>
     <input
         type="search"
-        class="block w-full bg-transparent py-2 placeholder:text-gray-600 focus:outline-none"
+        class="block w-full bg-transparent py-2 placeholder:text-gray-600 dark:placeholder:text-gray-400 focus:outline-none"
         placeholder="Suche..."
         bind:value={searchValue}
     />

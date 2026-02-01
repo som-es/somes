@@ -472,15 +472,15 @@
 </svelte:head>
 
 <Container>
-	<h1 class="px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">Abgeordnete des Nationalrats</h1>
-	<span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0">
+	<h1 class="px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">Abgeordnete zum Nationalrat</h1>
+	<span class="mb-2 ml-1 block text-base text-gray-800 dark:text-gray-300 sm:mt-1 sm:ml-0">
 		Aktualisiert am: Unknown
 	</span>
 
 	<!-- Search PopUp -->
 	<div class="relative" bind:this={searchWrapper} onfocusout={handleFocusOut}>
 		<!-- Search Input -->
-		<div class="mt-12 flex h-10 flex-grow rounded-xl border-[2px] border-gray-400">
+		<div class="mt-7 flex h-10 flex-grow rounded-xl border-[2px] border-gray-400">
 			<div class="flex h-9 w-10 items-center justify-center text-gray-600">
 				{@html searchIcon}
 			</div>

@@ -68,7 +68,7 @@
 <Container>
 	<NextSessionInfo nextPlenarySessionDateStr={nextPlenarySessionDateStr} />
 	<h2 class="text-3xl sm:text-4xl font-bold pt-2 px-1 sm:p-0 mt-6">Letzte Abstimmungen</h2>
-	<span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0">
+	<span class="mb-2 ml-1 block text-base text-gray-800 dark:text-gray-300 sm:mt-1 sm:ml-0">
 		{#if voteDate}
 			Abgestimmt am {dashDateToDotDate(voteDate)}
 		{/if}
@@ -82,14 +82,15 @@
 	{/if}
 	{#if voteResults && dels}
 		{#each voteResults.slice(0, 3) as voteResult}
-			<VoteResultExpandableBar {dels} {voteResult} class="" />
+			<VoteResultExpandableBar {voteResult} class="" />
 		{/each}
 		<div class="mt-3">
 			<a
 				href={resolve('/history/votes')}
-				class="flex w-fit items-center gap-1 text-base text-gray-800 hover:text-black"
+				class="group flex w-fit items-center gap-1 text-base text-gray-800 dark:text-gray-300 hover:text-black dark:hover:text-white"
 			>
-				Weitere Abstimmungen &#8594;
+				Weitere Abstimmungen 
+				<span class="transition-transform group-hover:translate-x-1">→</span>
 			</a>
 		</div>
 	{:else}
