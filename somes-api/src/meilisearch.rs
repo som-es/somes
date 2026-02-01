@@ -93,31 +93,6 @@ pub async fn update_decrees_meilisearch_index(
 
     // client.index("decrees").delete_all_documents().await?;
 
-    let all_decrees = all_decrees
-        .iter()
-        .map(|decree| {
-            let mut doc_json = serde_json::to_value(decree).unwrap();
-
-            if let Some(publication_date) = decree.publication_date {
-                let timestamp = publication_date
-                    .and_hms_opt(0, 0, 0)
-                    .unwrap()
-                    .and_utc()
-                    .timestamp();
-                doc_json["publication_date"] = json!(timestamp);
-            }
-            if let Some(created_at) = decree.created_at {
-                let timestamp = created_at.timestamp();
-                doc_json["created_at"] = json!(timestamp);
-            }
-            if let Some(updated_at) = decree.updated_at {
-                let timestamp = updated_at.timestamp();
-                doc_json["updated_at"] = json!(timestamp);
-            }
-            doc_json
-        })
-        .collect::<Vec<_>>();
-
     client
         .index(index)
         .add_documents_in_batches(&all_decrees, Some(3000), Some("ris_id"))
