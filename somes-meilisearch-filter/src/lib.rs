@@ -99,7 +99,7 @@ impl ToFilterable for chrono::DateTime<chrono::Utc> {
 impl From<chrono::NaiveDate> for Filterable {
     fn from(value: chrono::NaiveDate) -> Self {
         Filterable {
-            value_as_string: format!("{:?}", value.to_string())
+            value_as_string: format!("{:?}", value.to_string()),
         }
     }
 }
@@ -107,7 +107,7 @@ impl From<chrono::NaiveDate> for Filterable {
 impl ToFilterable for chrono::NaiveDate {
     fn to_filterable(&self) -> Filterable {
         Filterable {
-            value_as_string: format!("{:?}", self.to_string())
+            value_as_string: format!("{:?}", self.to_string()),
         }
     }
 }

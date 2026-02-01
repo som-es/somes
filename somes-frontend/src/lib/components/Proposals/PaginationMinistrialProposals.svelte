@@ -8,7 +8,6 @@
 	import { type GenericFilterGroup } from '../Filtering/types';
 	import SearchBar from '../Filtering/SearchBar.svelte';
 	import { SvelteSet } from 'svelte/reactivity';
-	import TopicsFilter from '../Filtering/MultiValuesFilter.svelte';
 	import GenericFilters from '../Filtering/GenericFilters.svelte';
 	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 	import { page } from '$app/state';

@@ -21,12 +21,15 @@ export interface Decree {
 }
 
 export interface DecreesWithMaxPage {
-	decrees: Decree[];
+	decrees: DecreeDelegate[];
 	entry_count: number;
 	max_page: number;
+	updated_at: string;
 }
 
 export interface DecreeFilter {
 	legis_period: string | null;
 	gov_officials: number[] | null;
+	topics: string[] | null;
+	departments: string[] | null;
 }

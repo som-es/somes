@@ -1,13 +1,26 @@
 use axum::{routing::get, Router};
 use dataservice::combx::OptionalDecree;
+use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
+use somes_common_lib::{Delegate, DelegateFilter};
 use somes_common_lib::{Document, LATEST, SEARCH};
+use somes_macro::MeilisearchFilter;
+use somes_meilisearch_filter::FilterArgument;
 use utoipa::ToSchema;
 
+use crate::routes::delegate_by_id_sqlx;
 use crate::server::AppState;
+use dataservice::combx::OptionalDecreeFilter;
 
 mod routes;
 pub use routes::*;
+
+#[derive(ToSchema, Debug, Clone, Serialize, Deserialize, MeilisearchFilter)]
+pub struct DecreeDelegate {
+    #[filter(make_optional)]
+    pub decree: OptionalDecree,
+    pub delegate: Option<Delegate>,
+}
 
 pub fn create_decrees_router() -> Router<AppState> {
     Router::new()
@@ -19,7 +32,7 @@ pub fn create_decrees_router() -> Router<AppState> {
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct DecreesWithMaxPage {
-    pub decrees: Vec<OptionalDecree>,
+    pub decrees: Vec<DecreeDelegate>,
     pub entry_count: i64,
     pub max_page: i64,
     pub updated_at: Option<chrono::NaiveDateTime>,
@@ -49,8 +62,9 @@ pub async fn decrees_per_page_route(
 
 pub async fn get_all_decrees_sqlx(
     pg: &sqlx::Pool<sqlx::Postgres>,
-) -> sqlx::Result<Vec<OptionalDecree>> {
-    Ok(sqlx::query_as!(
+    redis_con: MultiplexedConnection,
+) -> sqlx::Result<Vec<DecreeDelegate>> {
+    let decrees = sqlx::query_as!(
         OptionalDecree,
         r#"
         select * from ministrial_decrees_with_docs
@@ -59,7 +73,24 @@ pub async fn get_all_decrees_sqlx(
     .fetch_all(pg)
     .await?
     .into_iter()
-    .collect())
+    .collect::<Vec<_>>();
+
+    let mut decree_delegates = Vec::with_capacity(decrees.len());
+    for decree in decrees {
+        let delegate = match decree.gov_official_id {
+            Some(delegate_id) => {
+                delegate_by_id_sqlx(delegate_id, &pg, redis_con.clone()).await.ok()
+            }
+            None => None,
+        };
+
+        decree_delegates.push(DecreeDelegate {
+            delegate,
+            decree
+        })
+
+    }
+    Ok(decree_delegates)
 }
 
 /*async fn get_decrees_per_page_sqlx(

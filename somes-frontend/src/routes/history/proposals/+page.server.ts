@@ -1,4 +1,4 @@
-import { departments_per_gp, gov_proposals_by_search, parties_per_gp, vote_results_by_query_search } from "$lib/api/api";
+import { departments_per_gp, gov_proposals_by_search } from "$lib/api/api";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ fetch, setHeaders, url }) => {

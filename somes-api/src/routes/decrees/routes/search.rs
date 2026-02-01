@@ -1,6 +1,6 @@
 use crate::{
     meilisearch::MeilisearchClient,
-    routes::{DecreesWithMaxPage, FilterError},
+    routes::{DecreeDelegate, DecreeDelegateFilter, DecreesWithMaxPage, FilterError},
     Qs, RedisConnection, DECREES_PER_PAGE,
 };
 use axum::{extract::Query, Json};
@@ -9,14 +9,14 @@ use dataservice::combx::{OptionalDecree, OptionalDecreeFilter};
 use meilisearch_sdk::search::SearchResults;
 use serde_json::Value;
 use somes_common_lib::Page;
-use somes_meilisearch_filter::to_meilisearch_filter;
+use somes_meilisearch_filter::{to_meilisearch_filter, to_meilisearch_filters, FilterOptions};
 
 pub async fn decrees_by_search_route(
     RedisConnection(mut redis_con): RedisConnection,
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
-    Qs(decrees_filter): Qs<OptionalDecreeFilter>,
+    Qs(decrees_filter): Qs<DecreeDelegateFilter>,
 ) -> Result<Json<DecreesWithMaxPage>, FilterError> {
     meilisearch_decrees(
         &mut redis_con,
@@ -34,9 +34,30 @@ async fn meilisearch_decrees(
     meilisearch_client: meilisearch_sdk::client::Client,
     search_query: somes_common_lib::SearchQuery,
     page: Page,
-    decree_filter: OptionalDecreeFilter,
+    decree_filter: DecreeDelegateFilter,
 ) -> Result<DecreesWithMaxPage, FilterError> {
-    let meilisearch_filter = to_meilisearch_filter(&decree_filter.filter_arguments());
+    let mut filter_conditions =
+        to_meilisearch_filters(&decree_filter.filter_arguments(), &FilterOptions::default());
+
+    if let Some(decree_filter) = decree_filter.decree {
+        filter_conditions.extend(to_meilisearch_filters(
+            &decree_filter.filter_arguments(),
+            &FilterOptions {
+                prefix: Some("decree".into()),
+                ..Default::default()
+            },
+        ));
+    }
+    if let Some(delegate) = &decree_filter.delegate {
+        filter_conditions.extend(to_meilisearch_filters(
+            &delegate.filter_arguments(),
+            &FilterOptions {
+                prefix: Some("delegate".into()),
+                ..Default::default()
+            },
+        ));
+    }
+    let meilisearch_filter = filter_conditions.join(" AND ");
 
     // let stats = meilisearch_client
     //     .index("decrees")
@@ -47,11 +68,11 @@ async fn meilisearch_decrees(
 
     log::info!("decrees meilisearch filter: {meilisearch_filter}, {search_query:?}");
 
-    let results: SearchResults<OptionalDecree> = meilisearch_client
+    let results: SearchResults<DecreeDelegate> = meilisearch_client
         .index("decrees")
         .search()
         .with_filter(&meilisearch_filter)
-        .with_sort(&["publication_date:desc"])
+        .with_sort(&["decree.publication_date:desc"])
         .with_query(&search_query.search.unwrap_or_default())
         .with_hits_per_page(DECREES_PER_PAGE.parse().unwrap_or(16))
         .with_page(page.page as usize)

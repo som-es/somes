@@ -15,8 +15,7 @@ use tokio::time::sleep;
 
 use crate::{
     routes::{
-        all_updated_votes_from_legis_init_sqlx, all_votes_from_legis_init, get_all_decrees_sqlx,
-        get_all_gov_props,
+        DecreeDelegate, all_updated_votes_from_legis_init_sqlx, all_votes_from_legis_init, get_all_decrees_sqlx, get_all_gov_props
     },
     server::AppState,
 };
@@ -67,10 +66,10 @@ pub async fn update_decrees_meilisearch_index(
     client: &meilisearch_sdk::client::Client,
 ) -> Result<(), Box<dyn std::error::Error>> {
     log::info!("Fetching all decrees..");
-    let all_decrees = get_all_decrees_sqlx(pg_pool).await?;
+    let all_decrees = get_all_decrees_sqlx(pg_pool, redis_con.clone()).await?;
     log::info!("Fetched all decrees");
 
-    // client.delete_index("vote_results").await?;
+    // client.delete_index("decrees").await?;
 
     log::info!("Uploading {} decrees to meilisearch", all_decrees.len());
     let settings = Settings::new()
@@ -82,8 +81,8 @@ pub async fn update_decrees_meilisearch_index(
             "attribute".to_string(),
             "exactness".to_string(),
         ])
-        .with_filterable_attributes(OptionalDecreeFilter::filterable_fields())
-        .with_sortable_attributes(["publication_date"])
+        .with_filterable_attributes(["decree", "delegate"])
+        .with_sortable_attributes(["decree.publication_date"])
         .with_pagination(PaginationSetting {
             max_total_hits: 100000000,
         });
@@ -95,7 +94,7 @@ pub async fn update_decrees_meilisearch_index(
 
     client
         .index(index)
-        .add_documents_in_batches(&all_decrees, Some(3000), Some("ris_id"))
+        .add_documents_in_batches(&all_decrees, Some(3000), Some("decree.ris_id"))
         .await?;
     update_time::update_update_time_of_index(redis_con, &Index::Decrees).await?;
 

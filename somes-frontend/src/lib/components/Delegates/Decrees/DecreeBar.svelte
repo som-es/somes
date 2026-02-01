@@ -1,49 +1,50 @@
 <script lang="ts">
-	import type { Delegate } from '$lib/types';
 	import { address } from '$lib/api/api';
-	import type { Decree } from './types';
+	import type { Decree, DecreeDelegate } from './types';
 	import { dashDateToDotDate } from '$lib/date';
 	import { gotoHistory } from '$lib/goto';
 	import { createDecreePath } from './api';
 
-	export let decree: Decree;
-	export let delegate: Delegate | null = null;
-	export let page: number;
-	export let showDelegate: boolean = false;
-	export let coloring: string = 'dark:bg-primary-300 bg-primary-400 text-black';
+	interface Props {
+		decree: DecreeDelegate;
+		showDelegate?: boolean;
+		coloring?: string;
+	}
+
+	let { decree, showDelegate = false, coloring = 'dark:bg-primary-300 bg-primary-400 text-black' }: Props = $props();
 
 	let open: boolean = false;
 
 	function onShowDetails() {
 		// currentDecreeStore.value = { decree, delegate };
-		gotoHistory(createDecreePath(decree.ris_id), true);
+		gotoHistory(createDecreePath(decree.decree.ris_id), true);
 	}
 </script>
 
 <div class="gap-3 mt-5">
 	<a
-		href="{createDecreePath(decree.ris_id)}"
+		href="{createDecreePath(decree.decree.ris_id)}"
 		tabindex="0"
 		class="entry {coloring} flex justify-between items-center"
 	>
 		<div class="flex flex-col gap-1">
 			<!-- <span class="dark:text-white"> -->
-			{decree.short_title}
+			{decree.decree.short_title}
 			<!-- </span> -->
 			<div class="flex flex-wrap gap-1">
-				<span class="badge bg-tertiary-400 text-wrap text-black">{decree.ministrial_issuer}</span>
+				<span class="badge bg-tertiary-400 text-wrap text-black">{decree.decree.ministrial_issuer}</span>
 				<span class="badge bg-tertiary-400 text-black"
-					>{dashDateToDotDate(decree.publication_date)}</span
+					>{dashDateToDotDate(decree.decree.publication_date)}</span
 				>
-				<span class="badge bg-tertiary-400 text-black">{decree.gp}</span>
+				<span class="badge bg-tertiary-400 text-black">{decree.decree.gp}</span>
 			</div>
 		</div>
 
-		{#if showDelegate && delegate}
+		{#if showDelegate && decree.delegate}
 			<img
 				class="min-w-[80px] max-h-[80px] rounded-full mx-1"
-				src={`${address}/assets/${delegate.id}.jpg`}
-				alt="Image of delegate {delegate.name}"
+				src={`${address}/assets/${decree.delegate.id}.jpg`}
+				alt="Image of delegate {decree.delegate.name}"
 			/>
 		{/if}
 	</a>
