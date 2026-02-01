@@ -1,16 +1,18 @@
 <script lang="ts">
-	import { delegate_by_id, errorToNull, get_eurovoc_topics } from '$lib/api/api';
+	import { errorToNull, get_eurovoc_topics } from '$lib/api/api';
 	import { onMount, untrack } from 'svelte';
 	import Pagination from '../Pagination.svelte';
 	import ExpandablePlaceholder from '../VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import { currentDecreeFilterStore } from '$lib/stores/stores';
 	import DecreeBar from '../Delegates/Decrees/DecreeBar.svelte';
-	import type { FilterInfo } from '../Filtering/types';
 	import type { DecreeFilter, DecreesWithMaxPage } from '../Delegates/Decrees/types';
-	import type { Delegate } from '$lib/types';
 	import { SvelteSet } from 'svelte/reactivity';
 	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
+	import SearchBar from '../Filtering/SearchBar.svelte';
+	import MultiValuesFilter from '../Filtering/MultiValuesFilter.svelte';
+	import GenericFilters from '../Filtering/GenericFilters.svelte';
 	interface Props {
 		decrees: DecreesWithMaxPage;
 		selectedGp: string | null;
@@ -78,8 +80,6 @@
 	})
 
 
-	const govOfficials = new Map<number, Delegate>();
-
 	const loadDecrees = async () => {
 		if (decrees !== null) {
 			decrees.decrees = [];
@@ -103,13 +103,13 @@
 	
 		if (paramPage) nextUrl.searchParams.set('page', paramPage);
 		if (filter.legis_period !== null) {
-        	nextUrl.searchParams.set('gov_proposal[ministrial_proposal][gp][in][0]', filter.legis_period);
+        	nextUrl.searchParams.set('decree[gp][in][0]', filter.legis_period);
     	}
-		filter.topics?.forEach((topic, i) => {
-  	    	nextUrl.searchParams.set(`gov_proposal[eurovoc_topics][${i}][topic][cn]`, topic);
-    	});
+		// filter.topics?.forEach((topic, i) => {
+  	    // 	nextUrl.searchParams.set(`gov_proposal[eurovoc_topics][${i}][topic][cn]`, topic);
+    	// });
 		filter.departments?.forEach((department, i) => {
-  	    	nextUrl.searchParams.set(`gov_proposal[ministrial_proposal][ressort][in][${i}]`, department);
+  	    	nextUrl.searchParams.set(`decree[ministrial_issuer][in][${i}]`, department);
     	});
     	
 		nextUrl.searchParams.set('search', searchValue);
@@ -159,6 +159,23 @@
 	});
 </script>
 
+<span class="mb-2 ml-1 block text-base text-gray-800 dark:text-gray-300 sm:mt-1 sm:ml-0">
+	Verordnungen aktualisiert am: {updatedAt}
+</span>
+
+<div class="mt-7 md:flex">
+	<!-- Search bar -->
+	<SearchBar bind:searchValue />	
+
+	<div class="mt-2 flex h-10 w-full md:mt-0 md:w-auto md:ml-2 gap-2">
+		<MultiValuesFilter title="Ministerien" bind:selectedValues={selectedDepartments} values={departments} />
+		<MultiValuesFilter title="Themen" bind:selectedValues={selectedTopics} values={topics} />
+		<GenericFilters 
+			genericFilters={[]}
+			bind:legisPeriodFilter
+		/>
+	</div>
+</div>
 
 <div>
 	{#if decrees}
