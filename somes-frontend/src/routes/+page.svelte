@@ -38,7 +38,7 @@
 		return new Date(date.date_and_time);
 	});
 
-	let developmentProgress = $state(35); // 35% Progress
+	let developmentProgress = $state(47); // 47% Progress
 
 	const rawPlatformItems: PlatformItem[] = $derived(data.platformItems);
 

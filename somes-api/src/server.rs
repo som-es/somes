@@ -13,6 +13,7 @@ use log::{error, info};
 use reqwest::StatusCode;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tokio::{net::TcpListener, time::sleep};
+use tower::ServiceBuilder;
 use views::{create_composite_types, create_views};
 //use headers::HeaderValue;
 use crate::routes::*;
@@ -23,8 +24,7 @@ use crate::{
 };
 use somes_common_lib::*;
 use tower_http::{
-    cors::{Any, CorsLayer},
-    services::ServeDir,
+    compression::CompressionLayer, cors::{Any, CorsLayer}, decompression::RequestDecompressionLayer, services::ServeDir
 };
 
 #[derive(Clone)]
@@ -220,6 +220,11 @@ pub async fn serve(addr: SocketAddr) {
                     http::Method::PUT,
                 ])
                 .allow_headers([http::header::CONTENT_TYPE, http::header::AUTHORIZATION]),
+        )
+        .layer(
+            ServiceBuilder::new()
+                .layer(RequestDecompressionLayer::new())
+                .layer(CompressionLayer::new()),
         )
         // .layer(RateLimitLayer::new(num, per))
         .with_state(state);
