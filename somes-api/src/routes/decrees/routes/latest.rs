@@ -1,12 +1,12 @@
 use axum::{extract::Query, Json};
-use dataservice::combx::OptionalDecree;
+use dataservice::combx::{OptionalDecree, DbAiSummary};
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::Document;
 use sqlx::{query_as, PgPool};
 use utoipa::ToSchema;
 
-use crate::{routes::FilterError, PgPoolConnection, RedisConnection};
+use crate::{routes::FilterError, PgPoolConnection, RedisConnection, };
 
 #[derive(ToSchema, Debug, Clone, Serialize, Deserialize)]
 pub struct Days {

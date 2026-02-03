@@ -1,5 +1,5 @@
 use axum::{routing::get, Router};
-use dataservice::combx::OptionalDecree;
+use dataservice::combx::{OptionalDecree, DbAiSummary};
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::{Delegate, DelegateFilter};

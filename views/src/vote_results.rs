@@ -227,6 +227,10 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
     .execute(&mut **tx)
     .await?;
 
+    sqlx::query!("DROP materialized VIEW IF EXISTS latest_legislative_initiatives;")
+        .execute(&mut **tx)
+        .await?;
+
     sqlx::query!("
         create materialized view latest_legislative_initiatives as 
         select * from legislative_initiatives

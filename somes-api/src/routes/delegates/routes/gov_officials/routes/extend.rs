@@ -1,5 +1,5 @@
 use axum::{extract::Path, Json};
-use dataservice::combx::{Decree, OptionalGovProposal};
+use dataservice::combx::{Decree, OptionalDecree, OptionalGovProposal};
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
@@ -16,7 +16,7 @@ use crate::{
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct GeneralGovOfficialInfo {
     pub gov_proposals: Vec<OptionalGovProposal>,
-    pub decrees: Vec<Decree>,
+    pub decrees: Vec<OptionalDecree>,
 }
 
 pub async fn general_gov_official_info_route(

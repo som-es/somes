@@ -2,7 +2,7 @@ use crate::{
     get_json_cache, routes::FilterError, set_json_cache, PgPoolConnection, RedisConnection,
 };
 use axum::{extract::Path, Json};
-use dataservice::combx::OptionalDecree;
+use dataservice::combx::{OptionalDecree, DbAiSummary};
 use somes_common_lib::Document;
 
 pub async fn decree_by_ris_id_route(

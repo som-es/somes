@@ -19,7 +19,7 @@
 	let ministerialData: MinisterialViewData | null = $derived.by(() => {
 		if (decreeDelegate == null) return null;
 		return {
-			aiSummary: null,
+			aiSummary: decreeDelegate.decree.ai_summary,
 			alternativeTitle: decreeDelegate.decree.short_title,
 			date: decreeDelegate.decree.publication_date,
 			originalDocumentUrl: decreeDelegate.decree.document_url,

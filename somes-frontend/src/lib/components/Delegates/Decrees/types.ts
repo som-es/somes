@@ -1,3 +1,4 @@
+import type { DbAiSummary } from '$lib/ai_summary_types';
 import type { Delegate, Document } from '$lib/types';
 
 export interface DecreeDelegate {
@@ -13,6 +14,7 @@ export interface Decree {
 	short_title: string;
 	publication_date: string;
 	part: string;
+	ai_summary: DbAiSummary | null;	
 	gp: string | null;
 	documents: Document[];
 	eli: string | null;

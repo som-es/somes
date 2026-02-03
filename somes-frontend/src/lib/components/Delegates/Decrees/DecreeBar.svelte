@@ -28,8 +28,19 @@
 		class="entry {coloring} flex justify-between items-center"
 	>
 		<div class="flex flex-col gap-1">
+			{#if decree.decree.ai_summary}
+				<span class="text-md sm:text-lg font-semibold ">
+					{decree.decree.ai_summary.short_title}
+				</span>
+				<span class="text-sm sm:text-md">
+					{decree.decree.ai_summary.short_summary}
+				</span>
+			{:else}
+				<span>
+					{decree.decree.short_title}
+				</span>
+			{/if}
 			<!-- <span class="dark:text-white"> -->
-			{decree.decree.short_title}
 			<!-- </span> -->
 			<div class="flex flex-wrap gap-1">
 				<span class="badge bg-tertiary-400 text-wrap text-black">{decree.decree.ministrial_issuer}</span>
