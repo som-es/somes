@@ -19,12 +19,8 @@
 		departmentsPerGp: Record<string, string[]>;
 	}
 
-	let {
-		decrees,
-		selectedGp,
-		departmentsPerGp
-	}: Props = $props();
-	
+	let { decrees, selectedGp, departmentsPerGp }: Props = $props();
+
 	let legisPeriodFilter = $state({
 		title: 'Legislaturperiode',
 		activeValue: 'XXVIII',
@@ -49,7 +45,7 @@
 
 	let departments = $derived.by(() => {
 		if (selectedGp) {
-			return departmentsPerGp[selectedGp]
+			return departmentsPerGp[selectedGp];
 		} else {
 			const departments: string[] = [];
 			const departmentSet = new Set();
@@ -62,23 +58,30 @@
 					}
 				});
 			});
-			return departments
+			return departments;
 		}
 	});
-	
+
 	onMount(() => {
 		const maybeStoredFilter = currentDecreeFilterStore.value;
 		if (maybeStoredFilter !== null) {
-			if (maybeStoredFilter.legis_period) legisPeriodFilter.activeValue = maybeStoredFilter.legis_period;
+			if (maybeStoredFilter.legis_period)
+				legisPeriodFilter.activeValue = maybeStoredFilter.legis_period;
 			if (maybeStoredFilter.topics !== null) {
-				selectedTopics = new SvelteSet(maybeStoredFilter.topics)
+				selectedTopics = new SvelteSet(maybeStoredFilter.topics);
 			}
 			if (maybeStoredFilter.departments !== null) {
-				selectedDepartments = new SvelteSet(maybeStoredFilter.departments)
+				selectedDepartments = new SvelteSet(maybeStoredFilter.departments);
 			}
 		}
-	})
+	});
 
+	$effect(() => {
+		void legisPeriodFilter.activeValue;
+		untrack(() => {
+			selectedDepartments = new SvelteSet();
+		});
+	});
 
 	const loadDecrees = async () => {
 		if (decrees !== null) {
@@ -88,30 +91,30 @@
 			gov_officials: null,
 			legis_period: legisPeriodFilter.activeValue == 'all' ? null : legisPeriodFilter.activeValue,
 			topics: selectedTopics.size > 0 ? [...selectedTopics] : null,
-			departments: selectedDepartments.size > 0 ? [...selectedDepartments] : null,
+			departments: selectedDepartments.size > 0 ? [...selectedDepartments] : null
 		};
 		currentDecreeFilterStore.value = filter;
-		
+
 		const nextUrl = new URL(page.url);
-		
+
 		let paramPage = nextUrl.searchParams.get('page');
 		if (paramPage == null) {
 			paramPage = '1';
 		}
 
 		nextUrl.search = '';
-	
+
 		if (paramPage) nextUrl.searchParams.set('page', paramPage);
 		if (filter.legis_period !== null) {
-        	nextUrl.searchParams.set('decree[gp][in][0]', filter.legis_period);
-    	}
+			nextUrl.searchParams.set('decree[gp][in][0]', filter.legis_period);
+		}
 		// filter.topics?.forEach((topic, i) => {
-  	    // 	nextUrl.searchParams.set(`gov_proposal[eurovoc_topics][${i}][topic][cn]`, topic);
-    	// });
+		// 	nextUrl.searchParams.set(`gov_proposal[eurovoc_topics][${i}][topic][cn]`, topic);
+		// });
 		filter.departments?.forEach((department, i) => {
-  	    	nextUrl.searchParams.set(`decree[ministrial_issuer][in][${i}]`, department);
-    	});
-    	
+			nextUrl.searchParams.set(`decree[ministrial_issuer][in][${i}]`, department);
+		});
+
 		nextUrl.searchParams.set('search', searchValue);
 
 		goto(nextUrl, {
@@ -122,13 +125,11 @@
 		// filter = null;
 
 		// decrees = errorToNull(await decrees_by_search(page, filter, searchValue));
-
 	};
 
 	const update = () => {
 		loadDecrees();
 	};
-
 
 	$effect(() => {
 		void searchValue;
@@ -142,7 +143,7 @@
 
 	onMount(async () => {
 		update();
-	
+
 		// Generic filter - Legislative period
 		const fetchedPeriods = await cachedAllLegisPeriods();
 		if (fetchedPeriods) {
@@ -154,26 +155,27 @@
 
 		const eurovocTopics = errorToNull(await get_eurovoc_topics());
 		if (eurovocTopics) {
-			topics = eurovocTopics.map(topic => topic.topic)
+			topics = eurovocTopics.map((topic) => topic.topic);
 		}
 	});
 </script>
 
-<span class="mb-2 ml-1 block text-base text-gray-800 dark:text-gray-300 sm:mt-1 sm:ml-0">
+<span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0 dark:text-gray-300">
 	Verordnungen aktualisiert am: {updatedAt}
 </span>
 
 <div class="mt-7 md:flex">
 	<!-- Search bar -->
-	<SearchBar bind:searchValue />	
+	<SearchBar bind:searchValue />
 
-	<div class="mt-2 flex h-10 w-full md:mt-0 md:w-auto md:ml-2 gap-2">
-		<MultiValuesFilter title="Ministerien" bind:selectedValues={selectedDepartments} values={departments} />
-		<MultiValuesFilter title="Themen" bind:selectedValues={selectedTopics} values={topics} />
-		<GenericFilters 
-			genericFilters={[]}
-			bind:legisPeriodFilter
+	<div class="mt-2 flex h-10 w-full gap-2 md:mt-0 md:ml-2 md:w-auto">
+		<MultiValuesFilter
+			title="Ministerien"
+			bind:selectedValues={selectedDepartments}
+			values={departments}
 		/>
+		<MultiValuesFilter title="Themen" bind:selectedValues={selectedTopics} values={topics} />
+		<GenericFilters genericFilters={[]} bind:legisPeriodFilter />
 	</div>
 </div>
 

@@ -25,12 +25,17 @@
 
 <div class="entry bg-primary-200 dark:bg-primary-400 mt-3 p-2 lg:block hidden">
 	<div class="flex gap-2">
-		{#if voteResult.ai_summary}
 			<div class="flex-grow basis-3/4">
+			{#if voteResult.ai_summary}
 				<Emphasis
 					emphasis={voteResult.ai_summary.full_summary.key_points}
 					glossary={voteResult.ai_summary.full_summary.glossary}
 				/>
+			{:else}
+				<!-- <Emphasis
+					emphasis={}
+				/> -->
+			{/if}
 			</div>
 			<div class="flex flex-col justify-between flex-grow basis-1/4 min-w-[320px]">
 				<!-- <div class="flex gap-2">
@@ -54,6 +59,5 @@
 					</button>
 				</div>
 			</div>
-		{/if}
 	</div>
 </div>

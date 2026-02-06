@@ -1,14 +1,10 @@
 <script lang="ts">
-	import type {
-		VoteResultFilter,
-		VoteResultsWithMaxPage,
-		Party
-	} from '$lib/types';
+	import type { VoteResultFilter, VoteResultsWithMaxPage, Party } from '$lib/types';
 	import { onMount, untrack } from 'svelte';
-	
+
 	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 	import VoteResultExpandableBar from './VoteResultExpandableBar.svelte';
-	import { goto, pushState } from '$app/navigation';
+	import { goto } from '$app/navigation';
 	import Pagination from '$lib/components/Pagination.svelte';
 	import { currentVoteResultFilterStores } from '$lib/stores/stores';
 	import ExpandablePlaceholder from './Placeholders/ExpandablePlaceholder.svelte';
@@ -17,7 +13,6 @@
 	import { page } from '$app/state';
 	import FilterDropdown from '$lib/components/Filtering/FilterDropdown.svelte';
 	import type { GenericFilterGroup } from '$lib/components/Filtering/types';
-	import TopicsFilter from '$lib/components/Filtering/MultiValuesFilter.svelte';
 	import GenericFilters from '$lib/components/Filtering/GenericFilters.svelte';
 	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
 	import { convertVoteResultFilterToUrl } from './urlConversion';
@@ -47,7 +42,7 @@
 		showReqMajorityFilter = false,
 		showAcceptedFilter = false,
 		showNamedVoteFilter = false,
-		showIsUrgentFilter = false,
+		showIsUrgentFilter = false
 	}: Props = $props();
 
 	let currentVoteResultFilterStore = $derived(currentVoteResultFilterStores[storeIdx]);
@@ -86,6 +81,7 @@
 
 	// Initialize new parties with 'egal' (no filter)
 	$effect(() => {
+		void legisPeriodFilter.activeValue;
 		for (const party of uniqueParties) {
 			if (!(party.name in partyFilterState)) {
 				untrack(() => {
@@ -93,6 +89,14 @@
 				});
 			}
 		}
+	});
+	$effect(() => {
+		void legisPeriodFilter.activeValue;
+		untrack(() => {
+			for (const party of uniqueParties) {
+				partyFilterState[party.name] = 'egal';
+			}
+		});
 	});
 
 	// Convert State to API format
@@ -111,7 +115,7 @@
 		GenericFilterGroup<string>,
 		GenericFilterGroup<boolean>,
 		GenericFilterGroup<string>,
-		GenericFilterGroup<boolean>,
+		GenericFilterGroup<boolean>
 	] = $state([
 		{
 			title: 'notwendige Mehrheit',
@@ -162,10 +166,9 @@
 			options: [
 				{ title: 'egal', value: undefined },
 				{ title: 'Ja', value: true },
-				{ title: 'Nein', value: false },
+				{ title: 'Nein', value: false }
 			]
-		},
-		
+		}
 	]);
 
 	let legisPeriodFilter = $state({
@@ -197,15 +200,18 @@
 
 	// keep filters up to date
 	let currentlyUpdating = $state(false);
-	let selectedPeriod = 'all';
 
 	const maybeStoredFilter = $derived(currentVoteResultFilterStore.value);
 	onMount(() => {
 		if (maybeStoredFilter !== null) {
 			if (maybeStoredFilter.simple_majority !== null)
 				genericFilters[0].activeValue = maybeStoredFilter.simple_majority;
-			if (maybeStoredFilter.gps !== null && maybeStoredFilter.gps.length > 0) {
-				legisPeriodFilter.activeValue = maybeStoredFilter.gps[0];
+			if (maybeStoredFilter.gps !== null) {
+				if (maybeStoredFilter.gps.length > 0) {
+					legisPeriodFilter.activeValue = maybeStoredFilter.gps[0];
+				} else {
+					legisPeriodFilter.activeValue = 'all';
+				}
 			}
 			if (maybeStoredFilter.accepted !== null)
 				genericFilters[1].activeValue = maybeStoredFilter.accepted;
@@ -214,15 +220,15 @@
 			if (maybeStoredFilter.vote_type !== null && maybeStoredFilter.vote_type.length > 0)
 				genericFilters[3].activeValue = maybeStoredFilter.vote_type[0];
 			if (maybeStoredFilter.topics !== null) {
-				selectedTopics = new SvelteSet(maybeStoredFilter.topics)
+				selectedTopics = new SvelteSet(maybeStoredFilter.topics);
 			}
 			if (maybeStoredFilter.party_votes !== null) {
-				maybeStoredFilter.party_votes.forEach(party => {
-					partyFilterState[party.party] = party.infavor ? "pro" : "contra"
-				})
+				maybeStoredFilter.party_votes.forEach((party) => {
+					partyFilterState[party.party] = party.infavor ? 'pro' : 'contra';
+				});
 			}
 			if (maybeStoredFilter.is_urgent !== null) {
-				genericFilters[4].activeValue = maybeStoredFilter.is_urgent
+				genericFilters[4].activeValue = maybeStoredFilter.is_urgent;
 			}
 		}
 	});
@@ -252,7 +258,12 @@
 			party_votes: partyVotesFilter.length > 0 ? partyVotesFilter : null
 		};
 
-		const nextUrl = convertVoteResultFilterToUrl(filter, searchValue, new URL(page.url), isFinished);
+		const nextUrl = convertVoteResultFilterToUrl(
+			filter,
+			searchValue,
+			new URL(page.url),
+			isFinished
+		);
 
 		goto(nextUrl, {
 			keepFocus: true,
@@ -264,7 +275,7 @@
 
 		currentlyUpdating = false;
 	};
-	
+
 	let topics: string[] = $state([]);
 
 	onMount(async () => {
@@ -278,10 +289,10 @@
 				...fetchedPeriods.map((p) => ({ title: p.gp, value: p.gp }))
 			];
 		}
-		
+
 		const eurovocTopics = errorToNull(await get_eurovoc_topics());
 		if (eurovocTopics) {
-			topics = eurovocTopics.map(topic => topic.topic)
+			topics = eurovocTopics.map((topic) => topic.topic);
 		}
 	});
 
@@ -295,8 +306,8 @@
 		void selectedTopics.size;
 		for (let i = 0; i < genericFilters.length; i++) {
 			void genericFilters[i].activeValue;
-		} 
-		void legisPeriodFilter.activeValue
+		}
+		void legisPeriodFilter.activeValue;
 		untrack(update);
 	});
 
@@ -305,24 +316,30 @@
 
 <!-- HERE IS THE HTML -->
 
-<span class="mb-2 ml-1 block text-base text-gray-800 dark:text-gray-300 sm:mt-1 sm:ml-0">
+<span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0 dark:text-gray-300">
 	Abstimmungen aktualisiert am: {updatedAt}
 </span>
 
 <div class="mt-7 md:flex">
 	<!-- Search bar -->
-	<SearchBar bind:searchValue />	
+	<SearchBar bind:searchValue />
 	<!-- Filter Buttons -->
 	<!-- Parteien Filter -->
-	<div class="mt-2 flex h-10 w-full md:mt-0 md:w-auto md:ml-2 gap-2">
+	<div class="mt-2 flex h-10 w-full gap-2 md:mt-0 md:ml-2 md:w-auto">
 		{#if showPartyFilter}
 			<Popover.Root bind:open={isPartiesFilterOpen}>
-				<Popover.Trigger class="touch-manipulation flex h-full grow items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 md:grow-0">
-					<FilterDropdown title="Parteien" activefilterCount={activePartyFiltersCount} isOpen={isPartiesFilterOpen} />
+				<Popover.Trigger
+					class="flex h-full grow touch-manipulation items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 md:grow-0"
+				>
+					<FilterDropdown
+						title="Parteien"
+						activefilterCount={activePartyFiltersCount}
+						isOpen={isPartiesFilterOpen}
+					/>
 				</Popover.Trigger>
 				<Popover.Content sideOffset={8}>
 					<div
-						class="z-10 touch-manipulation text-black w-72 rounded-xl border border-gray-300 bg-surface-50 px-6 py-4 shadow-lg"
+						class="z-10 w-72 touch-manipulation rounded-xl border border-gray-300 bg-surface-50 px-6 py-4 text-black shadow-lg"
 						data-popup="popupParties"
 					>
 						<div class="flex flex-col gap-2">
@@ -373,16 +390,9 @@
 			</Popover.Root>
 		{/if}
 		<!-- Themen Filter -->
-		<MultiValuesFilter 
-			title="Themen" 
-			bind:selectedValues={selectedTopics} 
-			values={topics} 
-		/>
+		<MultiValuesFilter title="Themen" bind:selectedValues={selectedTopics} values={topics} />
 		<!-- Generic Filter -->
-		<GenericFilters 
-			bind:genericFilters 	
-			bind:legisPeriodFilter 
-		/>
+		<GenericFilters bind:genericFilters bind:legisPeriodFilter />
 	</div>
 </div>
 

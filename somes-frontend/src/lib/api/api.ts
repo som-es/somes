@@ -98,7 +98,8 @@ export async function getWithRoute<T>(route: string, country = 'at/', fetcher: t
 		fetcher(`${url}${country}${route}`, {
 			method: 'GET',
 			headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
+				'Accept-Encoding': 'gzip'
 			}
 		})
 	);
