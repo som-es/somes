@@ -313,6 +313,7 @@ where
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct PageEntryCount {
     #[serde(deserialize_with = "deserialize_page_limit")]
+    #[serde(default)]
     pub entries_per_page: Option<usize>,
 }
 
