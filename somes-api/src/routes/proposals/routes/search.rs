@@ -16,6 +16,7 @@ pub async fn gov_props_by_search_route(
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
+    Query(entry_count_per_page): Query<somes_common_lib::PageEntryCount>,
     Qs(gov_prop_filter): Qs<GovProposalDelegateFilter>,
 ) -> Result<Json<GovProposalsWithMaxPage>, FilterError> {
     let mut filter_conditions = to_meilisearch_filters(
@@ -48,7 +49,11 @@ pub async fn gov_props_by_search_route(
         .search()
         .with_filter(&meilisearch_filter)
         .with_query(&search_query.search.unwrap_or_default())
-        .with_hits_per_page(GOV_PROPS_PER_PAGE.parse().unwrap_or(12))
+        .with_hits_per_page(
+            entry_count_per_page
+                .entries_per_page
+                .unwrap_or(GOV_PROPS_PER_PAGE.parse().unwrap_or(12)),
+        )
         .with_page(page.page as usize)
         .with_sort(&["gov_proposal.ministrial_proposal.raw_data_created_at:desc"])
         .execute()

@@ -4,24 +4,25 @@ use crate::{
     Qs, RedisConnection, DECREES_PER_PAGE,
 };
 use axum::{extract::Query, Json};
-use chrono::DateTime;
-use dataservice::combx::{OptionalDecree, OptionalDecreeFilter};
 use meilisearch_sdk::search::SearchResults;
-use serde_json::Value;
 use somes_common_lib::Page;
-use somes_meilisearch_filter::{to_meilisearch_filter, to_meilisearch_filters, FilterOptions};
+use somes_meilisearch_filter::{to_meilisearch_filters, FilterOptions};
 
 pub async fn decrees_by_search_route(
     RedisConnection(mut redis_con): RedisConnection,
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
+    Query(entry_count_per_page): Query<somes_common_lib::PageEntryCount>,
     Qs(decrees_filter): Qs<DecreeDelegateFilter>,
 ) -> Result<Json<DecreesWithMaxPage>, FilterError> {
     meilisearch_decrees(
         &mut redis_con,
         meilisearch_client,
         search_query,
+        entry_count_per_page
+            .entries_per_page
+            .unwrap_or(DECREES_PER_PAGE.parse().unwrap_or(16)),
         page,
         decrees_filter,
     )
@@ -33,6 +34,7 @@ async fn meilisearch_decrees(
     redis_con: &mut redis::aio::MultiplexedConnection,
     meilisearch_client: meilisearch_sdk::client::Client,
     search_query: somes_common_lib::SearchQuery,
+    entries_per_page: usize,
     page: Page,
     decree_filter: DecreeDelegateFilter,
 ) -> Result<DecreesWithMaxPage, FilterError> {
@@ -74,7 +76,7 @@ async fn meilisearch_decrees(
         .with_filter(&meilisearch_filter)
         .with_sort(&["decree.publication_date:desc"])
         .with_query(&search_query.search.unwrap_or_default())
-        .with_hits_per_page(DECREES_PER_PAGE.parse().unwrap_or(16))
+        .with_hits_per_page(entries_per_page)
         .with_page(page.page as usize)
         .execute()
         .await?;

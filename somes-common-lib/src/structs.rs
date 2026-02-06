@@ -290,7 +290,14 @@ pub struct Page {
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct PageEntryCount {
-    pub entries_per_page: Option<i64>,
+    pub entries_per_page: Option<usize>,
+}
+
+#[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub enum Sort {
+    Asc,
+    #[default]
+    Desc,
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]

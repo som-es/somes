@@ -19,6 +19,7 @@ pub async fn vote_results_by_search_route(
     RedisConnection(mut redis_con): RedisConnection,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
+    Query(entry_count_per_page): Query<somes_common_lib::PageEntryCount>,
     Qs(legis_init_filter): Qs<AddonVoteResultFilter>,
     Qs(optional_vote_result_filter): Qs<OptionalVoteResultFilter>,
 ) -> Result<Json<VoteResultsWithMaxPage>, FilterError> {
@@ -27,6 +28,9 @@ pub async fn vote_results_by_search_route(
         legis_init_filter.is_finished,
         meilisearch_client,
         search_query,
+        entry_count_per_page
+            .entries_per_page
+            .unwrap_or(LEGIS_INITS_PER_PAGE.parse().unwrap_or(16)),
         page,
         legis_init_filter,
         optional_vote_result_filter,
@@ -49,6 +53,7 @@ async fn meilisearch_for_vote_results(
     is_finished: bool,
     meilisearch_client: meilisearch_sdk::client::Client,
     search_query: somes_common_lib::SearchQuery,
+    entries_per_page: usize,
     page: Page,
     filter: AddonVoteResultFilter,
     vote_result_filter: OptionalVoteResultFilter,
@@ -88,7 +93,7 @@ async fn meilisearch_for_vote_results(
         .with_filter(&meilisearch_filter)
         .with_sort(&["legislative_initiative.nr_plenary_activity_date:desc"])
         .with_query(&search_query.search.unwrap_or_default())
-        .with_hits_per_page(LEGIS_INITS_PER_PAGE.parse().unwrap_or(16))
+        .with_hits_per_page(entries_per_page)
         .with_page(page.page as usize)
         .execute()
         .await?;
