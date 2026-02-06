@@ -289,6 +289,11 @@ pub struct Page {
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct PageEntryCount {
+    pub entries_per_page: Option<i64>,
+}
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct VoteResultById {
     pub id: i32,
 }

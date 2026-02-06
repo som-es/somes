@@ -11,11 +11,13 @@ use meilisearch_sdk::settings::{PaginationSetting, Settings};
 use redis::aio::MultiplexedConnection;
 use reqwest::StatusCode;
 use serde_json::json;
+use somes_common_lib::DelegateFilter;
 use tokio::time::sleep;
 
 use crate::{
     routes::{
-        DecreeDelegate, all_updated_votes_from_legis_init_sqlx, all_votes_from_legis_init, get_all_decrees_sqlx, get_all_gov_props
+        all_delegates, all_updated_votes_from_legis_init_sqlx, all_votes_from_legis_init,
+        get_all_decrees_sqlx, get_all_gov_props, DecreeDelegate,
     },
     server::AppState,
 };
@@ -28,6 +30,7 @@ pub enum Index {
     VoteResults,
     GovProposals,
     Decrees,
+    Delegates,
 }
 
 impl Index {
@@ -36,6 +39,7 @@ impl Index {
             Index::VoteResults => "vote_results",
             Index::GovProposals => "gov_props",
             Index::Decrees => "decrees",
+            Index::Delegates => "delegates",
         }
     }
 }
@@ -58,6 +62,53 @@ impl FromRequestParts<AppState> for MeilisearchClient {
     ) -> Result<Self, Self::Rejection> {
         Ok(Self(state.meilisearch_client.clone()))
     }
+}
+
+pub async fn update_delegates_meilisearch_index(
+    pg_pool: &sqlx::Pool<sqlx::Postgres>,
+    redis_con: &mut MultiplexedConnection,
+    client: &meilisearch_sdk::client::Client,
+) -> Result<(), Box<dyn std::error::Error>> {
+    log::info!("Fetching all delegates..");
+    let all_delegates = all_delegates(pg_pool).await?;
+    log::info!("Fetched all delegates");
+
+    let filterable_fields = DelegateFilter::filterable_fields()
+        .into_iter()
+        .map(|field| field.to_string())
+        .collect::<Vec<String>>();
+
+    // client.delete_index("decrees").await?;
+
+    log::info!("Uploading {} delegates to meilisearch", all_delegates.len());
+    let settings = Settings::new()
+        .with_ranking_rules(vec![
+            "sort".to_string(),
+            "words".to_string(),
+            "typo".to_string(),
+            "proximity".to_string(),
+            "attribute".to_string(),
+            "exactness".to_string(),
+        ])
+        .with_filterable_attributes(&filterable_fields)
+        .with_sortable_attributes(["name", "birthdate", "decree.mandates.start_date"])
+        .with_pagination(PaginationSetting {
+            max_total_hits: 100000000,
+        });
+
+    let index = Index::Delegates.as_str();
+    client.index(index).set_settings(&settings).await?;
+
+    // client.index("").delete_all_documents().await?;
+
+    client
+        .index(index)
+        .add_documents_in_batches(&all_delegates, Some(3000), Some("id"))
+        .await?;
+    update_time::update_update_time_of_index(redis_con, &Index::Delegates).await?;
+
+    log::info!("Uploaded delegates");
+    Ok(())
 }
 
 pub async fn update_decrees_meilisearch_index(
@@ -289,18 +340,39 @@ pub fn update_meilisearch_indices(
 
     let pg_pool = dataservice_sqlx_pool.clone();
 
+    let meilisearch_client_gp = meilisearch_client.clone();
+    let client_vr = client.clone();
+
     tokio::task::spawn(async move {
         loop {
             if let Err(e) = update_decrees_meilisearch_index(
                 &pg_pool,
-                &mut client.get_multiplexed_async_connection().await.unwrap(),
-                &meilisearch_client,
+                &mut client_vr.get_multiplexed_async_connection().await.unwrap(),
+                &meilisearch_client_gp,
             )
             .await
             {
                 log::error!("Could not update decree meilisearch index: {e:?}");
             }
             log::info!("decree meilsearch sleep 1000s");
+            sleep(std::time::Duration::from_secs(1000)).await;
+        }
+    });
+
+    let pg_pool = dataservice_sqlx_pool.clone();
+
+    tokio::task::spawn(async move {
+        loop {
+            if let Err(e) = update_delegates_meilisearch_index(
+                &pg_pool,
+                &mut client.get_multiplexed_async_connection().await.unwrap(),
+                &meilisearch_client,
+            )
+            .await
+            {
+                log::error!("Could not update delegate meilisearch index: {e:?}");
+            }
+            log::info!("delegate meilsearch sleep 1000s");
             sleep(std::time::Duration::from_secs(1000)).await;
         }
     });

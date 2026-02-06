@@ -21,3 +21,6 @@ pub use speeches_per_page::*;
 
 mod all_at_date;
 pub use all_at_date::*;
+
+mod search;
+pub use search::*;
