@@ -22,6 +22,7 @@ pub async fn delegates_by_search_route(
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
     Query(entry_count_per_page): Query<somes_common_lib::PageEntryCount>,
+    Query(sort): Query<somes_common_lib::SortParams>,
     Qs(delegate_filter): Qs<DelegateFilter>,
 ) -> Result<Json<DelegatesWithMaxPage>, FilterError> {
     let mut filter_conditions = to_meilisearch_filters(
@@ -44,6 +45,11 @@ pub async fn delegates_by_search_route(
 
     log::info!("meilisearch filter: {meilisearch_filter}");
 
+    // match sort.sort.unwrap_or_default() {
+    //     somes_common_lib::Sort::Asc => todo!(),
+    //     somes_common_lib::Sort::Desc => todo!(),
+    // }
+
     let results: SearchResults<Delegate> = meilisearch_client
         .index("delegates")
         .search()
@@ -51,7 +57,7 @@ pub async fn delegates_by_search_route(
         .with_query(&search_query.search.unwrap_or_default())
         .with_hits_per_page(entry_count_per_page.entries_per_page.unwrap_or(100) as usize)
         .with_page(page.page as usize)
-        // .with_sort(&["gov_proposal.ministrial_proposal.raw_data_created_at:desc"])
+        // .with_sort(&[""])
         .execute()
         .await?;
 

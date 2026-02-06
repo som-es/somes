@@ -5,7 +5,7 @@ use crate::{
 };
 use axum::{extract::Query, Json};
 use meilisearch_sdk::search::SearchResults;
-use somes_common_lib::Page;
+use somes_common_lib::{Page, Sort};
 use somes_meilisearch_filter::{to_meilisearch_filters, FilterOptions};
 
 pub async fn decrees_by_search_route(
@@ -14,6 +14,7 @@ pub async fn decrees_by_search_route(
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
     Query(entry_count_per_page): Query<somes_common_lib::PageEntryCount>,
+    Query(sort): Query<somes_common_lib::SortParams>,
     Qs(decrees_filter): Qs<DecreeDelegateFilter>,
 ) -> Result<Json<DecreesWithMaxPage>, FilterError> {
     meilisearch_decrees(
@@ -23,6 +24,7 @@ pub async fn decrees_by_search_route(
         entry_count_per_page
             .entries_per_page
             .unwrap_or(DECREES_PER_PAGE.parse().unwrap_or(16)),
+        sort.sort.unwrap_or_default(),
         page,
         decrees_filter,
     )
@@ -35,6 +37,7 @@ async fn meilisearch_decrees(
     meilisearch_client: meilisearch_sdk::client::Client,
     search_query: somes_common_lib::SearchQuery,
     entries_per_page: usize,
+    sort: Sort,
     page: Page,
     decree_filter: DecreeDelegateFilter,
 ) -> Result<DecreesWithMaxPage, FilterError> {
@@ -70,11 +73,16 @@ async fn meilisearch_decrees(
 
     log::info!("decrees meilisearch filter: {meilisearch_filter}, {search_query:?}");
 
+    let sort = match sort {
+        Sort::Asc => "decree.publication_date:asc",
+        Sort::Desc => "decree.publication_date:desc",
+    };
+
     let results: SearchResults<DecreeDelegate> = meilisearch_client
         .index("decrees")
         .search()
         .with_filter(&meilisearch_filter)
-        .with_sort(&["decree.publication_date:desc"])
+        .with_sort(&[sort])
         .with_query(&search_query.search.unwrap_or_default())
         .with_hits_per_page(entries_per_page)
         .with_page(page.page as usize)

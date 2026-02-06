@@ -1,5 +1,5 @@
 use chrono::{DateTime, NaiveDate, NaiveDateTime, Utc};
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use somes_macro::{CompositeType, MeilisearchFilter};
 use somes_meilisearch_filter::{FilterArgument, FilterOp};
 use sqlx::prelude::Type;
@@ -288,9 +288,37 @@ pub struct Page {
     pub page: i64,
 }
 
+pub fn deserialize_page_limit<'de, D>(deserializer: D) -> Result<Option<usize>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let count: Option<usize> = Option::deserialize(deserializer)?;
+
+    if let Some(count) = count {
+        let max_allowed_count = std::env::var("MAX_ENTRIES_PER_PAGE")
+            .ok()
+            .map(|entries_count| entries_count.parse::<usize>().ok())
+            .flatten()
+            .unwrap_or(1000);
+        if count > max_allowed_count {
+            return Err(serde::de::Error::custom(format!(
+                "Cannot request more than {max_allowed_count} entries per page, got {count}"
+            )));
+        }
+    }
+
+    Ok(count)
+}
+
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct PageEntryCount {
+    #[serde(deserialize_with = "deserialize_page_limit")]
     pub entries_per_page: Option<usize>,
+}
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct SortParams {
+    pub sort: Option<Sort>,
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
@@ -298,6 +326,16 @@ pub enum Sort {
     Asc,
     #[default]
     Desc,
+}
+
+impl Sort {
+    #[inline]
+    pub fn to_meilisearch(&self) -> &'static str {
+        match self {
+            Sort::Asc => "asc",
+            Sort::Desc => "desc",
+        }
+    }
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
