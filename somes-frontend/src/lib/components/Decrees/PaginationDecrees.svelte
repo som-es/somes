@@ -97,14 +97,7 @@
 
 		const nextUrl = new URL(page.url);
 
-		let paramPage = nextUrl.searchParams.get('page');
-		if (paramPage == null) {
-			paramPage = '1';
-		}
-
-		nextUrl.search = '';
-
-		if (paramPage) nextUrl.searchParams.set('page', paramPage);
+		nextUrl.searchParams.set('page', '1');
 		if (filter.legis_period !== null) {
 			nextUrl.searchParams.set('decree[gp][in][0]', filter.legis_period);
 		}

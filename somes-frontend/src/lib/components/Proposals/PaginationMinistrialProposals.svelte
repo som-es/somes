@@ -112,14 +112,7 @@
 
 		const nextUrl = new URL(page.url);
 
-		let paramPage = nextUrl.searchParams.get('page');
-		if (paramPage == null) {
-			paramPage = '1';
-		}
-
-		nextUrl.search = '';
-
-		if (paramPage) nextUrl.searchParams.set('page', paramPage);
+		nextUrl.searchParams.set('page', '1');
 		if (filter.has_vote_result) {
 			nextUrl.searchParams.set(
 				'gov_proposal[ministrial_proposal][has_vote_result][eq]',

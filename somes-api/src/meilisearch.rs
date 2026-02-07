@@ -7,6 +7,7 @@ use dataservice::combx::{
     DbAiSummaryFilter, DbLegislativeInitiativeQueryFilter, MeilisearchHelper, OptionalDecreeFilter,
     OptionalVoteResult, OptionalVoteResultFilter,
 };
+use futures::FutureExt;
 use meilisearch_sdk::settings::{PaginationSetting, Settings};
 use redis::aio::MultiplexedConnection;
 use reqwest::StatusCode;
@@ -201,6 +202,39 @@ pub async fn update_gov_props_meilisearch_index(
     Ok(())
 }
 
+pub async fn party_of_delegate_at_time(
+    date: chrono::NaiveDate,
+    delegate_id: i32,
+    pool: &sqlx::PgPool,
+) -> sqlx::Result<Option<String>> {
+    sqlx::query_scalar!("
+        SELECT party
+        FROM mandates m
+        where is_nr and delegate_id = $2 and start_date <= $1::date AND COALESCE(end_date, $1::date) >= $1::date
+        LIMIT 1", date, delegate_id)
+    .fetch_one(pool).await
+}
+
+pub async fn party_of_delegates_at_time(
+    date: chrono::NaiveDate,
+    delegate_ids: &[i32],
+    pool: &sqlx::PgPool,
+) -> Vec<String> {
+    let start = tokio::time::Instant::now();
+    let data = futures::future::join_all(delegate_ids.iter().map(|delegate_id| async {
+        party_of_delegate_at_time(date, *delegate_id, pool)
+            .await
+            .ok()
+            .flatten()
+    }))
+    .map(|parties| parties.into_iter().flatten().collect::<Vec<_>>())
+    .await;
+
+    log::info!("party selection duration: {:?}", start.elapsed());
+
+    data
+}
+
 pub async fn update_vote_result_meilisearch_index(
     redis_con: &mut MultiplexedConnection,
     pg_pool: &sqlx::Pool<sqlx::Postgres>,
@@ -233,22 +267,21 @@ pub async fn update_vote_result_meilisearch_index(
     client.index(index).set_settings(&settings).await?;
 
     log::info!("Fetching all vote results..");
-    let all_vote_results = vote_result_cb(redis_con.clone(), pg_pool)
-        .await?
-        .into_iter()
-        .map(|mut vote_result| {
-            vote_result.meilisearch_helper = Some(MeilisearchHelper {
-                votes: vote_result
-                    .votes
-                    .as_ref()
-                    .unwrap_or(&vec![])
-                    .iter()
-                    .map(|vote| format!("{}{:?}", vote.party, vote.infavor))
-                    .collect(),
-            });
-            vote_result
-        })
-        .collect::<Vec<_>>();
+    let mut all_vote_results = vote_result_cb(redis_con.clone(), pg_pool).await?;
+
+    for vote_result in &mut all_vote_results {
+        dbg!(&vote_result.meilisearch_helper);
+        if let Some(meilisearch_helper) = vote_result.meilisearch_helper.as_mut() {
+            meilisearch_helper.votes = vote_result
+                .votes
+                .as_ref()
+                .unwrap_or(&vec![])
+                .iter()
+                .map(|vote| format!("{}{:?}", vote.party, vote.infavor))
+                .collect();
+        }
+    }
+
     log::info!("Fetched all vote results");
 
     // this should only run when there are structural differences (type changes)
