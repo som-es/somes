@@ -270,7 +270,6 @@ pub async fn update_vote_result_meilisearch_index(
     let mut all_vote_results = vote_result_cb(redis_con.clone(), pg_pool).await?;
 
     for vote_result in &mut all_vote_results {
-        dbg!(&vote_result.meilisearch_helper);
         if let Some(meilisearch_helper) = vote_result.meilisearch_helper.as_mut() {
             meilisearch_helper.votes = vote_result
                 .votes

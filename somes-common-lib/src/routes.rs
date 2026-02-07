@@ -74,6 +74,7 @@ pub const CALL_TO_ORDERS_PER_PARTY_DELEGATES: &str = "/call_to_orders_per_party_
 pub const PARTIES: &str = "/parties";
 pub const PARTIES_AT_GP: &str = "/parties_at_gp";
 pub const PARTIES_PER_GP: &str = "/parties_per_gp";
+pub const COALITION_PARTIES_PER_GP: &str = "/coalition_parties_per_gp";
 pub const DEPARTMENTS: &str = "/departments";
 pub const DEPARTMENTS_PER_GP: &str = "/departments_per_gp";
 pub const USER: &str = "/user";

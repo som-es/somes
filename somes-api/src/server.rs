@@ -24,7 +24,10 @@ use crate::{
 };
 use somes_common_lib::*;
 use tower_http::{
-    compression::CompressionLayer, cors::{Any, CorsLayer}, decompression::RequestDecompressionLayer, services::ServeDir
+    compression::CompressionLayer,
+    cors::{Any, CorsLayer},
+    decompression::RequestDecompressionLayer,
+    services::ServeDir,
 };
 
 #[derive(Clone)]
@@ -165,6 +168,10 @@ pub async fn serve(addr: SocketAddr) {
         .route(PARTIES, get(parties_route))
         .route(PARTIES_AT_GP, get(parties_at_gp_route))
         .route(PARTIES_PER_GP, get(parties_per_gp_route))
+        .route(
+            COALITION_PARTIES_PER_GP,
+            get(coalition_parties_per_gp_route),
+        )
         .route(DEPARTMENTS, get(departments))
         .route(DEPARTMENTS_PER_GP, get(departments_per_gp))
         .route(ALL_GPS, get(all_gps_route))
