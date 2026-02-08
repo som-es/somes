@@ -8,6 +8,8 @@ async fn main() {
         .init()
         .unwrap();
 
+    let _ = dotenvy::dotenv().ok();
+
     // if a JWT_SECRET is not present, crash the application
     let _ = &KEYS.decoding;
 
