@@ -1,7 +1,7 @@
 mod error;
 use std::collections::HashMap;
 
-use crate::{GenericError, PgPoolConnection, RedisConnection};
+use crate::{get_json_cache, GenericError, PgPoolConnection, RedisConnection};
 use axum::{extract::Query, Json};
 use common_scrapes::Party;
 use dataservice::combx::DbVote;
@@ -52,10 +52,10 @@ pub struct PartyStates {
     pub coalition_parties: Vec<Party>,
 }
 
-#[derive(Debug, sqlx::FromRow)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct LegislativeInitiativeWithVotes {
-    pub id: i32,
-    pub gp: String,
+    pub id: Option<i32>,
+    pub gp: Option<String>,
     pub votes: Option<Vec<DbVote>>,
 }
 
@@ -68,24 +68,25 @@ pub async fn coalition_parties_per_gp_route(
         .map(Json)?)
 }
 
-pub async fn get_initiatives_with_votes(
+pub async fn initiatives_with_votes_cached(
+    pool: &PgPool,
+    redis_con: &mut redis::aio::MultiplexedConnection,
+) -> Result<Vec<LegislativeInitiativeWithVotes>, sqlx::Error> {
+    if let Some(initiatives_with_votes) = get_json_cache(redis_con, "votes_only_legis_inits").await
+    {
+        return Ok(initiatives_with_votes);
+    }
+
+    initiatives_with_votes(pool).await
+}
+
+pub async fn initiatives_with_votes(
     pool: &PgPool,
 ) -> Result<Vec<LegislativeInitiativeWithVotes>, sqlx::Error> {
     let initiatives = sqlx::query_as!(
         LegislativeInitiativeWithVotes,
         r#"
-        SELECT
-            li.id,
-            li.gp,
-            ARRAY(
-                SELECT ROW(v.party, NULL, v.fraction, v.infavor)::db_vote
-                FROM votes v
-                WHERE v.legislative_initiatives_id = li.id
-            ) AS "votes: Vec<DbVote>"
-        FROM
-            legislative_initiatives li
-        WHERE
-            accepted = 'a'
+            select * from legislative_initiatives_with_votes
         "#
     )
     .fetch_all(pool)
@@ -96,9 +97,9 @@ pub async fn get_initiatives_with_votes(
 
 pub async fn determine_party_states_per_gp(
     pool: &PgPool,
-    redis_con: redis::aio::MultiplexedConnection,
+    mut redis_con: redis::aio::MultiplexedConnection,
 ) -> crate::Result<HashMap<String, PartyStates>> {
-    let legis_inits_with_votes = get_initiatives_with_votes(pool)
+    let legis_inits_with_votes = initiatives_with_votes_cached(pool, &mut redis_con)
         .await
         .map_err(|e| GenericError::SqlFailure(Some(e)))?;
 
@@ -161,11 +162,10 @@ pub fn determine_coalition_from_voting_behaviour_per_gp(
             .or_insert(vec![(party, infavor_count)]);
     }
 
-    dbg!(&votes_with_infavor_count);
-
     votes_with_infavor_count
         .into_iter()
         .map(|(gp, infavor_counts)| {
+            let gp = gp.as_ref().expect("Only nullable because of view");
             let (_max_party, max_infavor_count) = infavor_counts
                 .iter()
                 .max_by(|(_party, infavor_count), (_b_party, b_infavor_count)| {

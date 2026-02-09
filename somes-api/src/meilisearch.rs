@@ -300,9 +300,9 @@ pub async fn update_vote_result_meilisearch_index(
 }
 
 pub fn update_meilisearch_indices(
-    client: redis::Client,
-    dataservice_sqlx_pool: sqlx::Pool<sqlx::Postgres>,
-    meilisearch_client: meilisearch_sdk::client::Client,
+    client: &redis::Client,
+    dataservice_sqlx_pool: &sqlx::Pool<sqlx::Postgres>,
+    meilisearch_client: &meilisearch_sdk::client::Client,
 ) {
     let pg_pool_vr = dataservice_sqlx_pool.clone();
     let client_vr = client.clone();
@@ -389,13 +389,15 @@ pub fn update_meilisearch_indices(
     });
 
     let pg_pool = dataservice_sqlx_pool.clone();
+    let meilisearch_client_gp = meilisearch_client.clone();
+    let client_vr = client.clone();
 
     tokio::task::spawn(async move {
         loop {
             if let Err(e) = update_delegates_meilisearch_index(
                 &pg_pool,
-                &mut client.get_multiplexed_async_connection().await.unwrap(),
-                &meilisearch_client,
+                &mut client_vr.get_multiplexed_async_connection().await.unwrap(),
+                &meilisearch_client_gp,
             )
             .await
             {

@@ -8,6 +8,7 @@ pub mod email;
 mod filter_querying;
 pub mod hash;
 pub mod jwt;
+pub mod refresh_views;
 pub mod routes;
 pub mod server;
 
@@ -20,6 +21,7 @@ pub use http_redirect::*;
 use once_cell::sync::Lazy;
 mod error;
 pub use error::*;
+pub use refresh_views::*;
 
 pub type Result<T> = std::result::Result<T, crate::error::GenericError>;
 

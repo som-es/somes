@@ -29,6 +29,18 @@ pub async fn get_json_cache<T: DeserializeOwned>(
     serde_json::from_str(&redis_client.get::<&str, String>(key).await.ok()?).ok()
 }
 
+pub async fn set_json_cache_no_expire<T: Serialize>(
+    redis_client: &mut MultiplexedConnection,
+    key: &str,
+    value: &T,
+) -> Option<()> {
+    redis_client
+        .set::<_, _, ()>(key, serde_json::to_string(value).ok()?)
+        .await
+        .ok()?;
+    Some(())
+}
+
 pub async fn set_json_cache_secs<T: Serialize>(
     redis_client: &mut MultiplexedConnection,
     key: &str,

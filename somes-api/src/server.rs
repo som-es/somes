@@ -147,7 +147,8 @@ pub async fn serve(addr: SocketAddr) {
         tx.commit().await.unwrap();
     }
 
-    update_meilisearch_indices(client, dataservice_sqlx_pool, meilisearch_client);
+    update_meilisearch_indices(&client, &dataservice_sqlx_pool, &meilisearch_client);
+    crate::refresh_views(&dataservice_sqlx_pool, &client);
 
     let config = RustlsConfig::from_pem_file(
         PathBuf::from(PUBLIC_KEY_PATH),
