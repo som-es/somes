@@ -3,25 +3,17 @@
 	import { fade, fly, slide } from 'svelte/transition';
 	import somesWithText from '$lib/assets/somes_with_text2.svg?raw';
 	import { resolve } from '$app/paths';
-	import type { PlatformItem, PlatformItemType } from './types';
+	import type { PlatformItem, PlatformItemType, SomesEvent as Event } from './types';
 	import type { PageProps } from './$types';
 	import checkmarkIcon from '$lib/assets/misc_icons/checkmark_small.svg?raw';
 	import crossmarkIcon from '$lib/assets/misc_icons/crossmark_small.svg?raw';
 	import { errorToNull } from '$lib/api/api';
+	import CreateEventModal from '$lib/components/Events/CreateEventModal.svelte';
+	import { Dialog } from 'bits-ui';
+	import EditButton from '$lib/components/Events/EditButton.svelte';
+	import { getUser } from '$lib/api/authed';
 
 	let { data }: PageProps = $props();
-
-	interface Event {
-		id: number;
-		title: string;
-		location: string;
-		date: string; // ISO format YYYY-MM-DD
-		time: string;
-		description: string;
-		image?: string;
-		requiresMembership?: boolean;
-		requiresRegistration?: boolean;
-	}
 
 	interface Member {
 		name: string;
@@ -78,7 +70,7 @@
 			id: 4,
 			title: 'Parlamentsführung & Ausklang',
 			location: 'Parlament Wien / Cafe Rathaus',
-			date: '2026-01-24',
+			date: '2026-02-24',
 			time: '14:00',
 			description:
 				'Parlamentsführung und abschließend Ausklang im Cafe Rathaus mit Nationalratsabgeordneten Paul Stich (SPÖ).',
@@ -150,6 +142,9 @@
 			.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 	); // Newest past first
 
+	let editDialogOpen = $state(false);
+	let dialogOpen = $state(false);
+
 	// --- EFFECTS & FUNCTIONS ---
 
 	function startTicker() {
@@ -174,8 +169,15 @@
 		return d.toLocaleDateString('de-AT', { day: '2-digit', month: '2-digit', year: 'numeric' });
 	}
 
-	onMount(() => {
+	let isAdmin = $state(false);
+
+	onMount(async () => {
 		startTicker();
+
+		const user = errorToNull(await getUser());
+		if (user) {
+			isAdmin = user.is_admin;
+		}
 	});
 
 	onDestroy(() => {
@@ -184,8 +186,8 @@
 </script>
 
 <svelte:head>
-    <title>Somes</title>
-    <meta name="description" content="Verlinkung zur Plattform und Informationen über den Verein" />
+	<title>Somes</title>
+	<meta name="description" content="Verlinkung zur Plattform und Informationen über den Verein" />
 </svelte:head>
 
 <div
@@ -250,12 +252,12 @@
 					class="font-heading text-5xl leading-tight font-extrabold text-primary-900 md:text-7xl dark:text-primary-50"
 				>
 					Demokratie <span
-						class="bg-linear-to-r from-secondary-700 dark:from-secondary-400 to-secondary-500 bg-clip-text text-transparent"
+						class="bg-linear-to-r from-secondary-700 to-secondary-500 bg-clip-text text-transparent dark:from-secondary-400"
 						>verstehen.</span
 					><br />
 					Zukunft
 					<span
-						class="bg-linear-to-r from-primary-500 dark:from-tertiary-500 to-tertiary-700 bg-clip-text text-transparent"
+						class="bg-linear-to-r from-primary-500 to-tertiary-700 bg-clip-text text-transparent dark:from-tertiary-500"
 						>gestalten.</span
 					>
 				</h1>
@@ -330,7 +332,7 @@
 							<span class="mb-1 block text-xs tracking-wide text-primary-300 uppercase"
 								>Nächste Nationalratssitzung</span
 							>
-							<span class="font-bold text-xl text-white">
+							<span class="text-xl font-bold text-white">
 								{nextPlenaryDate.toLocaleDateString('de-AT', {
 									weekday: 'long',
 									day: 'numeric',
@@ -350,15 +352,15 @@
 						<div
 							class="bg-surface-850 flex flex-wrap items-center justify-between gap-2 border-b border-surface-700 p-4"
 						>
-						<div class="bg-surface-850 border-t border-surface-700 p-3 text-center">
-							<a
-								href="{resolve("/history")}/votes"
-								class="group flex items-center justify-center gap-1 text-xs text-primary-400 hover:text-primary-300"
-							>
-								Alle Details auf somes.at ansehen
-								<span class="transition-transform group-hover:translate-x-1">→</span>
-							</a>
-						</div>
+							<div class="bg-surface-850 border-t border-surface-700 p-3 text-center">
+								<a
+									href="{resolve('/history')}/votes"
+									class="group flex items-center justify-center gap-1 text-xs text-primary-400 hover:text-primary-300"
+								>
+									Alle Details auf somes.at ansehen
+									<span class="transition-transform group-hover:translate-x-1">→</span>
+								</a>
+							</div>
 							<!-- <div class="flex gap-2">
 								<div class="w-3 h-3 rounded-full bg-error-500"></div>
 								<div class="w-3 h-3 rounded-full bg-warning-500"></div>
@@ -397,7 +399,7 @@
 
 						<!-- Widget Content Area -->
 						<div
-							class="relative flex flex-1  justify-center bg-linear-to-br from-surface-800 to-surface-900 p-8"
+							class="relative flex flex-1 justify-center bg-linear-to-br from-surface-800 to-surface-900 p-8"
 						>
 							{#key currentTickerItem}
 								<div
@@ -430,14 +432,19 @@
 										</h3>
 
 										<!-- Meta Info -->
-										<div class="flex justify-center font-light gap-4 text-sm text-surface-400">
+										<div class="flex justify-center gap-4 text-sm font-light text-surface-400">
 											<span class="">{formatDate(currentTickerItem.date)}</span>
 											{#if currentTickerItem.status}
 												<span class="mx-2">•</span>
-												{#if currentTickerItem.status === "accepted"}
-													<span class="stroke-green-600 dark:stroke-green-500 inline-block align-middle" style="width:40px; height:40px">{@html checkmarkIcon}</span>
-												{:else if currentTickerItem.status === "rejected"}
-													<span class="inline-block align-middle" style="width:40px; height:40px;">{@html crossmarkIcon}</span>
+												{#if currentTickerItem.status === 'accepted'}
+													<span
+														class="inline-block stroke-green-600 align-middle dark:stroke-green-500"
+														style="width:40px; height:40px">{@html checkmarkIcon}</span
+													>
+												{:else if currentTickerItem.status === 'rejected'}
+													<span class="inline-block align-middle" style="width:40px; height:40px;"
+														>{@html crossmarkIcon}</span
+													>
 												{:else}
 													<span class="text-warning-400">In Bearbeitung</span>
 												{/if}
@@ -468,7 +475,6 @@
 								</div>
 							{/key}
 						</div>
-
 					</div>
 				</div>
 			</div>
@@ -481,9 +487,7 @@
 			<h2 class="mb-2 text-sm font-bold tracking-widest text-primary-600 uppercase">
 				Engagiere dich
 			</h2>
-			<h3 class="font-heading text-4xl font-bold text-surface-900 dark:text-surface-50">
-				Events
-			</h3>
+			<h3 class="font-heading text-4xl font-bold text-surface-900 dark:text-surface-50">Events</h3>
 		</div>
 
 		<!-- Upcoming Events -->
@@ -497,12 +501,13 @@
 				</div>
 
 				<div class="grid gap-6 md:grid-cols-2">
-					{#each upcomingEvents as event}
+					{#each upcomingEvents as event (event.id)}
 						<div
 							class="group relative overflow-hidden rounded-2xl border border-primary-100 bg-white p-6 shadow-lg transition-all hover:-translate-y-1 hover:border-secondary-300 dark:border-surface-700 dark:bg-surface-800"
 						>
 							<div class="absolute top-0 left-0 h-full w-2 bg-secondary-500"></div>
 
+							<!-- Header Row -->
 							<div class="mb-4 flex items-start justify-between pl-4">
 								<div
 									class="rounded-lg border border-secondary-100 bg-secondary-50 px-3 py-1 text-center font-bold text-secondary-800 dark:border-secondary-700 dark:bg-secondary-900 dark:text-secondary-100"
@@ -512,24 +517,37 @@
 									</div>
 									<div class="text-xl">{new Date(event.date).getDate()}</div>
 								</div>
-								<span
-									class="flex items-center gap-1 text-sm font-medium text-surface-500 dark:text-surface-400"
-								>
-									<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-										><path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-										/><path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-										/></svg
+
+								<!-- Location & Edit Button Wrapper -->
+								<div class="flex flex-col items-end gap-2">
+									<!-- Edit Button -->
+									{#if isAdmin}
+										<Dialog.Root>
+											<Dialog.Trigger>
+												<EditButton />
+											</Dialog.Trigger>
+											<CreateEventModal bind:dialogOpen={editDialogOpen} formData={event} />
+										</Dialog.Root>
+									{/if}
+									<span
+										class="flex items-center gap-1 text-sm font-medium text-surface-500 dark:text-surface-400"
 									>
-									{event.location}
-								</span>
+										<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+											><path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+											/><path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+											/></svg
+										>
+										{event.location}
+									</span>
+								</div>
 							</div>
 
 							<div class="pl-4">
@@ -546,23 +564,28 @@
 									<div class="mb-2 text-xs font-medium text-primary-500">
 										🔒 Mitgliedschaft erforderlich
 									</div>
-								{:else if !event.requiresMembership}
+								{:else}
 									<div class="mb-2 text-xs font-medium text-success-500">
 										✅ Offen für alle - einfach kommen!
 									</div>
 								{/if}
-								{#if event.requiresRegistration}
-									<div class="mb-2 text-xs font-medium text-primary-500">
-										📝 Anmeldung erforderlich
-									</div>
-								{/if}
-								<!-- <button class="text-primary-600 font-bold text-sm flex items-center gap-1 group/btn">
-									Details & Anmeldung
-									<span class="group-hover/btn:translate-x-1 transition-transform">→</span>
-								</button> -->
 							</div>
 						</div>
 					{/each}
+
+					{#if isAdmin}
+						<Dialog.Root>
+							<Dialog.Trigger>
+								<button
+									class="flex h-full min-h-[300px] w-full items-center justify-center rounded-2xl border-2 border-dashed border-surface-300 bg-surface-50 text-6xl text-surface-300 transition-all hover:cursor-pointer hover:border-primary-400 hover:bg-primary-50 hover:text-primary-500 dark:border-surface-700 dark:bg-surface-800/50 dark:hover:border-primary-700 dark:hover:bg-surface-800"
+									aria-label="Create new event"
+								>
+									+
+								</button>
+							</Dialog.Trigger>
+							<CreateEventModal bind:dialogOpen />
+						</Dialog.Root>
+					{/if}
 				</div>
 			</div>
 		{/if}
@@ -575,7 +598,7 @@
 			</div>
 
 			<div class="space-y-4">
-				{#each pastEvents as event}
+				{#each pastEvents as event (event.id)}
 					<div
 						class="flex flex-col gap-4 rounded-xl border border-surface-200/50 bg-surface-50 p-5 transition-colors hover:bg-white md:flex-row dark:border-surface-700 dark:bg-surface-800/50 dark:hover:bg-surface-800"
 					>
@@ -585,9 +608,19 @@
 							<span class="font-bold">{formatDate(event.date)}</span>
 						</div>
 						<div class="flex-1">
-							<h5 class="text-lg font-bold text-surface-700 dark:text-surface-100">
-								{event.title}
-							</h5>
+							<div class="flex justify-between">
+								<h5 class="text-lg font-bold text-surface-700 dark:text-surface-100">
+									{event.title}
+								</h5>
+								{#if isAdmin}
+									<Dialog.Root>
+										<Dialog.Trigger>
+											<EditButton />
+										</Dialog.Trigger>
+										<CreateEventModal bind:dialogOpen={editDialogOpen} formData={event} />
+									</Dialog.Root>
+								{/if}
+							</div>
 							<p class="mt-1 text-sm text-surface-500 dark:text-surface-400">{event.description}</p>
 							<div class="flex flex-wrap justify-between">
 								<div class="mt-2 text-xs font-medium text-primary-500">
@@ -664,7 +697,7 @@
 			</h2>
 
 			<div class="flex flex-wrap justify-center gap-8 md:gap-12">
-				{#each boardMembers as member}
+				{#each boardMembers as member (member.name)}
 					<div class="group flex flex-col items-center">
 						<div
 							class="relative mb-4 h-32 w-32 overflow-hidden rounded-full border-4 border-white bg-linear-to-br from-tertiary-300 to-tertiary-400 shadow-lg dark:border-surface-800"
@@ -703,7 +736,7 @@
 			</h2>
 
 			<div class="flex flex-wrap justify-center gap-8 md:gap-12">
-				{#each devTeamMembers as member}
+				{#each devTeamMembers as member (member.name)}
 					<div class="group flex flex-col items-center">
 						<div
 							class="relative mb-4 h-32 w-32 overflow-hidden rounded-full border-4 border-white bg-linear-to-br from-tertiary-300 to-tertiary-400 shadow-lg dark:border-surface-800"
