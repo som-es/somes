@@ -21,11 +21,21 @@
 		];
 		gotoHistory(createVoteResultPath(voteResult), true);
 	}
+
+	$: topics = (
+		voteResult.eurovoc_topics.length > 0
+			? voteResult.eurovoc_topics
+			: (voteResult.ai_summary?.full_summary?.topics ?? []).map((topic) => {
+					return { topic };
+				})
+	).sort((a, b) => {
+		return a.topic.length - b.topic.length;
+	});
 </script>
 
-<div class="entry bg-primary-200 dark:bg-primary-400 mt-3 p-2 lg:block hidden">
+<div class="entry mt-3 hidden bg-primary-200 p-2 lg:block dark:bg-primary-400">
 	<div class="flex gap-2">
-			<div class="flex-grow basis-3/4">
+		<div class="flex-grow basis-3/4">
 			{#if voteResult.ai_summary}
 				<Emphasis
 					emphasis={voteResult.ai_summary.full_summary.key_points}
@@ -36,9 +46,9 @@
 					emphasis={}
 				/> -->
 			{/if}
-			</div>
-			<div class="flex flex-col justify-between flex-grow basis-1/4 min-w-[320px]">
-				<!-- <div class="flex gap-2">
+		</div>
+		<div class="flex min-w-[320px] flex-grow basis-1/4 flex-col justify-between">
+			<!-- <div class="flex gap-2">
 					<div class="flex flex-1">
 						<InfoTiles {voteResult} showRequiredMajority={false} showAchievedVotes={true} {dels} />
 					</div>
@@ -46,18 +56,14 @@
 						<InfoTiles {voteResult} showRequiredMajority={true} showAchievedVotes={false} {dels} />
 					</div>
 				</div> -->
-				<div class="pt-2">
-					<Topics
-						topics={voteResult.eurovoc_topics.sort((a, b) => {
-							return a.topic.length - b.topic.length;
-						})}
-					/>
-				</div>
-				<div class="flex items-center justify-end h-8 rounded-xl px-2">
-					<button on:click={onShowDetails} class="rounded-lg px-2 py-1 bg-primary-300">
-						<span class="text-base font-semibold">Mehr Details &#8594;</span>
-					</button>
-				</div>
+			<div class="pt-2">
+				<Topics {topics} />
 			</div>
+			<div class="flex h-8 items-center justify-end rounded-xl px-2">
+				<button on:click={onShowDetails} class="rounded-lg bg-primary-300 px-2 py-1">
+					<span class="text-base font-semibold">Mehr Details &#8594;</span>
+				</button>
+			</div>
+		</div>
 	</div>
 </div>
