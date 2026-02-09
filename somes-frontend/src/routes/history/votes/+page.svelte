@@ -21,7 +21,7 @@
 <Container>
 	<h1 class="text-3xl sm:text-4xl font-bold pt-2 px-1 sm:p-0 mt-2 sm:mt-0">Vergangene Abstimmungsergebnisse</h1>
 
-	{#if voteResults && partiesPerGp}
+	{#if partiesPerGp}
 		<PaginationVoteResults 
 			{voteResults} 
 			{partiesPerGp} 

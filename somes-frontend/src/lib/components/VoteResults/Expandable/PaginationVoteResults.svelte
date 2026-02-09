@@ -25,7 +25,7 @@
 	import MultiValuesFilter from '$lib/components/Filtering/MultiValuesFilter.svelte';
 
 	interface Props {
-		voteResults: VoteResultsWithMaxPage;
+		voteResults: VoteResultsWithMaxPage | null;
 		partiesPerGp: Record<string, Party[]>;
 		selectedGp: string | null;
 		isFinished?: boolean;
@@ -174,6 +174,7 @@
 		hidden: false,
 		options: [{ title: 'Alle', value: 'all' }]
 	});
+	
 
 	// Variables to count active filters
 	let activePartyFiltersCount = $derived(
@@ -403,9 +404,14 @@
 			<Pagination maxPage={voteResults.max_page} />
 		</div>
 	{:else}
-		{#each { length: 9 } as _}
-			<ExpandablePlaceholder class="my-4" />
-		{/each}
+		<!-- Fixes bug of not showing anything if no vote results are found -->
+		{#if currentlyUpdating}
+			{#each { length: 9 } as _}
+				<ExpandablePlaceholder class="my-4" />
+			{/each}
+		{:else}
+			Keine Abstimmungsergebnisse gefunden
+		{/if}
 		<!-- <CenterPrograssRadial /> -->
 	{/if}
 </div>
