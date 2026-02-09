@@ -13,6 +13,10 @@
 	import { mockDelegatesNoColor, mockVoteResult } from '$lib/parliaments/mock';
 	import { getSeats } from '$lib/caching/seats';
 	import LightSwitch from '../UI/LightSwitch.svelte';
+	import { jwtStore, loginDrawerOpenStore } from '$lib/caching/stores/stores.svelte';
+	import { isHasError } from '$lib/api/api';
+	import { renew_token } from '$lib/api/authed';
+	import { goto } from '$app/navigation';
 
 	$effect(() => {
 		activeUrl = page.url.pathname;
@@ -92,6 +96,18 @@
 			]
 		}
 	];
+	const accountOrLogin = async () => {
+		const jwt = jwtStore.value;
+		if (jwt) {
+			if (isHasError(await renew_token())) {
+				loginDrawerOpenStore.value = true;
+			} else {
+				goto(resolve('/user'));
+			}
+		} else {
+			loginDrawerOpenStore.value = true;
+		}
+	};
 </script>
 
 <div class="flex h-full grid-cols-[auto_1fr] bg-surface-50 lg:grid">
@@ -165,17 +181,19 @@
 		<div class="mt-auto mb-4 flex flex-col gap-3">
 			<LightSwitch />
 			<!-- <DarkMode class="text-primary-500 dark:text-primary-600 border dark:border-gray-800 hover:bg-primary-800" /> -->
-			<a
-				href={resolve('/user')}
+			<button
+				onclick={async () => {
+					await accountOrLogin();
+				}}
 				title="Benutzerprofil"
 				class="{activeUrl?.includes('/user')
 					? 'bg-tertiary-500! fill-black'
 					: ' fill-white'} flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60 hover:fill-black"
 			>
-				<span class="w-5 h-5">
+				<span class="h-5 w-5">
 					{@html userIcon}
 				</span>
-			</a>
+			</button>
 		</div>
 	</div>
 
@@ -184,7 +202,7 @@
 			{#each submenu as segment, i}
 				{#if activeUrl?.includes(segment.route)}
 					<!-- Title -->
-					<p class="pl-4 text-2xl mb-0 pb-0 mt-3 font-bold">{segment.title}</p>
+					<p class="mt-3 mb-0 pb-0 pl-4 text-2xl font-bold">{segment.title}</p>
 					<!-- Nav List -->
 					<nav class="list-nav">
 						<ul class="mb-2">

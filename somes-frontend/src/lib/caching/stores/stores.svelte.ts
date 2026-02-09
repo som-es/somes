@@ -22,3 +22,5 @@ export const jwtStore = persisted<string | null>('access_token', null);
 export const jwtQuizStore = persisted<string | null>('access_token_quiz', null);
 export const userTopicsStore = persisted<UniqueTopic[] | null>('user_topics', null);
 export const userDelegateFavosStore = persisted<DelegateFavo[] | null>('delegate_favos', null);
+
+export const loginDrawerOpenStore = persisted<boolean>('login_drawer', false);
