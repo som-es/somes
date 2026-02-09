@@ -89,7 +89,7 @@
 
 	{#if isOpen}
 		<nav
-			class="absolute top-full right-0 left-0 z-50 flex flex-col border-t border-surface-400 bg-surface-500 shadow-xl"
+			class="absolute top-full right-0 left-0 z-60 flex flex-col border-t border-surface-400 bg-surface-500 shadow-xl"
 			transition:slide={{ duration: 200 }}
 		>
 			{#each navItems as item}

@@ -13,7 +13,9 @@
 	import GovProposalExpanded from '../ExpandableAtDelegate/GovProposalExpanded.svelte';
 	import { address } from '$lib/api/api';
 	import { dashDateToDotDate } from '$lib/date';
+	import { currentDelegatesAtDateStore, currentGovProposalDelegateStore } from '$lib/stores/stores';
 	import { browser } from '$app/environment';
+	import { createGovProposalPath } from '../types';
 
 	export let govProposal: GovProposalDelegate;
 	export let showDelegate: boolean = false;
@@ -24,22 +26,37 @@
 	let open = false;
 	let duration = 0.35;
 
-	function onShowDetails(voteResult: VoteResult | null) {
-		if (!voteResult) return;
-		currentVoteResultStore.value = voteResult;
-		gotoHistory(createVoteResultPath(voteResult), true);
+
+
+	function onShowDetails(govProposal: GovProposal, delegate: Delegate) {
+		currentGovProposalDelegateStore.value = { gov_proposal: govProposal, delegate };
+		gotoHistory(createGovProposalPath(govProposal.ministrial_proposal), true);
 	}
-	$: date = new Date(govProposal.gov_proposal.ministrial_proposal.raw_data_created_at).toLocaleDateString();
+
+
+	function toggleOpen(e: Event) {
+		e.preventDefault();
+		if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+			onShowDetails(govProposal.gov_proposal, govProposal.delegate);
+		} else {
+			open = !open;
+		}
+	}
+
+	$: date = dashDateToDotDate(
+		govProposal.gov_proposal.ministrial_proposal.raw_data_created_at.toString().split('T')[0]
+	);
 </script>
 
 {#if govProposal}
-<div class="gap-3 mt-5">
-	<div
-		on:click={() => (open = !open)}
-		on:keypress={() => (open = !open)}
+<div class="mt-5">
+	<a
+		href="{createGovProposalPath(govProposal.gov_proposal.ministrial_proposal)}"
+		onclick={toggleOpen}
+		onkeypress={toggleOpen}
 		role="button"
 		tabindex="0"
-		class="entry flex justify-between items-center {coloring}"
+				class="entry flex justify-between items-center {coloring}"
 	>
 		<!-- <div>
 			<div id={open ? 'open' : 'closed'}>
@@ -47,9 +64,10 @@
 			</div>
 		</div> -->
 
+
 		<div class="flex flex-col gap-1">
 			{#if govProposal.gov_proposal.ai_summary}
-				<span class="text-md sm:text-lg font-semibold ">
+				<span class="text-xl font-semibold" style="hyphens: auto; word-break: normal; overflow-wrap: break-word;">
 					{govProposal.gov_proposal.ai_summary.short_title}
 				</span>
 				<span class="text-sm sm:text-md">
@@ -58,7 +76,7 @@
 			{:else}
 				<span>{govProposal.gov_proposal.ministrial_proposal.description.slice(30)}</span>
 			{/if}
-			<div class="flex flex-wrap gap-1">
+			<div class="flex flex-wrap gap-1 md:mt-4 mt-2">
 				<span class="badge bg-tertiary-400 text-black text-wrap"
 					>{govProposal.gov_proposal.ministrial_proposal.ressort}</span
 				>
@@ -87,15 +105,16 @@
 			<div></div>
 		{/if} -->
 		{#if showDelegate}
-			<div>
+			<div class="hidden sm:block">
 				<img
 					class="min-w-[80px] max-h-[80px] rounded-full mx-1"
 					src={`${address}/assets/${govProposal.delegate.id}.jpg`}
+					title={govProposal.delegate.name}
 					alt="Image of delegate {govProposal.delegate.name}"
 				/>
 			</div>
 		{/if}
-	</div>
+	</a>
 
 	{#if open}
 		<div transition:slide={{ duration: 240 }}>

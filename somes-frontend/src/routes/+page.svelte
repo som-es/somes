@@ -193,7 +193,7 @@
 >
 	<!-- NAVIGATION / HEADER -->
 	<header
-		class="sticky top-0 z-50 border-b border-surface-200 bg-surface-50/90 shadow-sm backdrop-blur-md dark:border-surface-700 dark:bg-surface-900/90"
+		class="sticky top-0 z-10 border-b border-surface-200 bg-surface-50/90 shadow-sm backdrop-blur-md dark:border-surface-700 dark:bg-surface-900/90"
 	>
 		<div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
 			<nav class="hidden gap-6 text-sm font-medium text-surface-600 md:flex dark:text-surface-300">

@@ -630,10 +630,10 @@
 									}}
 								>
 									<div class="flex">
-										<img class="h-14 rounded-full" src={d.image_url} alt={d.name} />
+										<img class="h-14 rounded-full mx-1" src={d.image_url} alt={d.name} />
 										<div class="ml-3 mt-1">
 											<h4 class="text-lg/5 font-semibold text-gray-900">{d.name}</h4>
-											<div class="flex items-center gap-2">
+											<div class="flex items-center gap-2 mt-1">
 												<div
 													class="h-2 w-2 rounded-full"
 													style="background-color: {partyColors.get(d.party) ?? '#ccc'};"
@@ -709,7 +709,7 @@
 			</div>
 			<!-- Slider -->
 			<div class="flex-1">
-				<div class="mb-1 flex min-w-full justify-between px-1 text-base text-gray-800">
+				<div class="mt-1 flex min-w-full justify-between px-1 text-base text-gray-800">
 					<div>
 						Anfang - {renderStartDate == null ? '' : dashDateToDotDate(renderStartDate.toString())}
 					</div>
