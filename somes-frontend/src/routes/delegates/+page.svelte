@@ -57,6 +57,7 @@
 	import { Popover, Select } from 'bits-ui';
 	import upDownArrowIcon from '$lib/assets/misc_icons/up-down-arrow.svg?raw';
 	import checkmark_small from '$lib/assets/misc_icons/checkmark_small.svg?raw';
+	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -472,30 +473,21 @@
 </svelte:head>
 
 <Container>
-	<h1 class="px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">Abgeordnete des Nationalrats</h1>
-	<span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0">
+	<h1 class="px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">Abgeordnete zum Nationalrat</h1>
+	<span class="mb-2 ml-1 block text-base text-gray-800 dark:text-gray-300 sm:mt-1 sm:ml-0">
 		Aktualisiert am: Unknown
 	</span>
 
 	<!-- Search PopUp -->
-	<div class="relative" bind:this={searchWrapper} onfocusout={handleFocusOut}>
+	<div class="relative mt-7" bind:this={searchWrapper} onfocusout={handleFocusOut}>
 		<!-- Search Input -->
-		<div class="mt-12 flex h-10 flex-grow rounded-xl border-[2px] border-gray-400">
-			<div class="flex h-9 w-10 items-center justify-center text-gray-600">
-				{@html searchIcon}
-			</div>
-			<input
-				type="search"
-				class="block w-full bg-transparent py-2 placeholder:text-gray-600 focus:outline-none"
-				placeholder="Suche..."
-				bind:value={inputValue}
-				oninput={(e) => {
-					maybeCurrentDelegateFilter.search_value = e.currentTarget.value;
-					currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
-				}}
-				onfocus={() => (isSearchPopupOpen = true)}
-			/>
-		</div>
+		<SearchBar oninput={(e) => {
+				maybeCurrentDelegateFilter.search_value = e.currentTarget.value;
+				currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
+			}} 
+			onfocus={() => (isSearchPopupOpen = true)}
+			bind:searchValue={inputValue}
+		/>
 
 		<!-- PopUp -->
 		{#if isSearchPopupOpen}

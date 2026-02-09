@@ -219,7 +219,29 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
               s.generated_at DESC
             LIMIT 1
           ) AS \"ai_summary: DbAiSummary\",
-          NULL::meilisearch_helper as \"meilisearch_helper: MeilisearchHelper\"
+          (
+          SELECT
+            ROW(
+              /* votes */
+              ARRAY[]::text[],
+
+              /* issuer_parties */
+              ARRAY(
+                SELECT
+                  DISTINCT m.party
+                FROM
+                  legis_init_delegates lid
+                  JOIN mandates m
+                    ON m.delegate_id = lid.delegate_id
+                WHERE
+                  lid.legis_init_id = li.id
+                  AND m.is_nr
+                  AND m.start_date <= li.nr_plenary_activity_date::date
+                  AND COALESCE(m.end_date, li.nr_plenary_activity_date::date) >= li.nr_plenary_activity_date::date
+                  AND m.party IS NOT NULL
+              )
+            )::meilisearch_helper
+        ) AS \"meilisearch_helper: MeilisearchHelper\"
         FROM
           legislative_initiatives li
         "
@@ -227,8 +249,12 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
     .execute(&mut **tx)
     .await?;
 
+    sqlx::query!("DROP materialized VIEW IF EXISTS latest_legislative_initiatives;")
+        .execute(&mut **tx)
+        .await?;
+
     sqlx::query!("
-        create materialized view latest_legislative_initiatives as 
+        create materialized view latest_legislative_initiatives as
         select * from legislative_initiatives
             where nr_plenary_activity_date = (select MAX(nr_plenary_activity_date) from legislative_initiatives
             where accepted is not null) and accepted is not null and is_voteable_on

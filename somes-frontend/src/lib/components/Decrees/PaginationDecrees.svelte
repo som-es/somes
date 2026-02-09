@@ -1,91 +1,176 @@
 <script lang="ts">
-	import { delegate_by_id, errorToNull } from '$lib/api/api';
-	import { onMount } from 'svelte';
+	import { errorToNull, get_eurovoc_topics } from '$lib/api/api';
+	import { onMount, untrack } from 'svelte';
 	import Pagination from '../Pagination.svelte';
 	import ExpandablePlaceholder from '../VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import { currentDecreeFilterStore } from '$lib/stores/stores';
 	import DecreeBar from '../Delegates/Decrees/DecreeBar.svelte';
-	import { pushState } from '$app/navigation';
-	import FiltersAny from '../Filtering/FiltersAny.svelte';
-	import type { FilterInfo } from '../Filtering/types';
 	import type { DecreeFilter, DecreesWithMaxPage } from '../Delegates/Decrees/types';
-	import type { Delegate } from '$lib/types';
-	import { decrees_by_search } from '../Delegates/Decrees/api';
-
-	const url = new URL(window.location.href);
-	let page = parseInt(url.searchParams.get('page') || '1') || 1;
-
-	let old_page = page;
-	let currentlyUpdating = false;
-	let decrees: DecreesWithMaxPage | null = null;
-
-	let searchValue = '';
-	let selectedPeriod = 'all';
-	let govOfficialsFilter: number[] | undefined = undefined;
-
-	const maybeStoredFilter = currentDecreeFilterStore.value;
-	if (maybeStoredFilter !== null) {
-		if (maybeStoredFilter.gov_officials) govOfficialsFilter = maybeStoredFilter.gov_officials;
-		if (maybeStoredFilter.legis_period) selectedPeriod = maybeStoredFilter.legis_period;
+	import { SvelteSet } from 'svelte/reactivity';
+	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
+	import SearchBar from '../Filtering/SearchBar.svelte';
+	import MultiValuesFilter from '../Filtering/MultiValuesFilter.svelte';
+	import GenericFilters from '../Filtering/GenericFilters.svelte';
+	interface Props {
+		decrees: DecreesWithMaxPage;
+		selectedGp: string | null;
+		departmentsPerGp: Record<string, string[]>;
 	}
 
-	const govOfficials = new Map<number, Delegate>();
+	let { decrees, selectedGp, departmentsPerGp }: Props = $props();
 
-	const loadGovProps = async () => {
-		currentlyUpdating = true;
+	let legisPeriodFilter = $state({
+		title: 'Legislaturperiode',
+		activeValue: 'XXVIII',
+		hidden: false,
+		options: [{ title: 'Alle', value: 'all' }]
+	});
+
+	let searchValue = $state('');
+
+	let updatedAt = $derived(
+		decrees.updated_at
+			? new Intl.DateTimeFormat('de-AT', {
+					day: '2-digit',
+					month: '2-digit',
+					year: 'numeric'
+				}).format(new Date(decrees.updated_at))
+			: 'Unbekannt'
+	);
+
+	let selectedTopics: SvelteSet<string> = $state(new SvelteSet());
+	let selectedDepartments: SvelteSet<string> = $state(new SvelteSet());
+
+	let departments = $derived.by(() => {
+		if (selectedGp) {
+			return departmentsPerGp[selectedGp];
+		} else {
+			const departments: string[] = [];
+			const departmentSet = new Set();
+			const keys = Object.keys(departmentsPerGp).sort().reverse();
+			keys.forEach((key) => {
+				departmentsPerGp[key].forEach((department) => {
+					if (!departmentSet.has(department)) {
+						departmentSet.add(department);
+						departments.push(department);
+					}
+				});
+			});
+			return departments;
+		}
+	});
+
+	onMount(() => {
+		const maybeStoredFilter = currentDecreeFilterStore.value;
+		if (maybeStoredFilter !== null) {
+			if (maybeStoredFilter.legis_period)
+				legisPeriodFilter.activeValue = maybeStoredFilter.legis_period;
+			if (maybeStoredFilter.topics !== null) {
+				selectedTopics = new SvelteSet(maybeStoredFilter.topics);
+			}
+			if (maybeStoredFilter.departments !== null) {
+				selectedDepartments = new SvelteSet(maybeStoredFilter.departments);
+			}
+		}
+	});
+
+	$effect(() => {
+		void legisPeriodFilter.activeValue;
+		untrack(() => {
+			selectedDepartments = new SvelteSet();
+		});
+	});
+
+	const loadDecrees = async () => {
 		if (decrees !== null) {
 			decrees.decrees = [];
 		}
-
-		let filter: DecreeFilter | null = {
+		let filter: DecreeFilter = {
 			gov_officials: null,
-			legis_period: selectedPeriod == 'all' ? null : selectedPeriod
+			legis_period: legisPeriodFilter.activeValue == 'all' ? null : legisPeriodFilter.activeValue,
+			topics: selectedTopics.size > 0 ? [...selectedTopics] : null,
+			departments: selectedDepartments.size > 0 ? [...selectedDepartments] : null
 		};
 		currentDecreeFilterStore.value = filter;
-		// filter = null;
 
-		decrees = errorToNull(await decrees_by_search(page, filter, searchValue));
+		const nextUrl = new URL(page.url);
 
-		decrees?.decrees.forEach((decree) => {
-			const id = decree.gov_official_id;
-			if (govOfficials.has(id)) return;
-			delegate_by_id(id).then((del) => {
-				const mayDel = errorToNull(del);
-				if (mayDel) {
-					govOfficials.set(id, mayDel);
-					decrees = decrees;
-				}
-			});
+		nextUrl.searchParams.set('page', '1');
+		if (filter.legis_period !== null) {
+			nextUrl.searchParams.set('decree[gp][in][0]', filter.legis_period);
+		}
+		// filter.topics?.forEach((topic, i) => {
+		// 	nextUrl.searchParams.set(`gov_proposal[eurovoc_topics][${i}][topic][cn]`, topic);
+		// });
+		filter.departments?.forEach((department, i) => {
+			nextUrl.searchParams.set(`decree[ministrial_issuer][in][${i}]`, department);
 		});
 
-		currentlyUpdating = false;
+		nextUrl.searchParams.set('search', searchValue);
+
+		goto(nextUrl, {
+			keepFocus: true,
+			replaceState: true,
+			noScroll: true
+		});
+		// filter = null;
+
+		// decrees = errorToNull(await decrees_by_search(page, filter, searchValue));
 	};
 
 	const update = () => {
-		loadGovProps();
-
-		// update query params
-		const url = new URL(window.location.href);
-		url.searchParams.set('page', page.toString());
-		try {
-			pushState(url.toString(), { replaceState: true });
-		} catch (e) {
-			page = old_page;
-		}
-
-		old_page = page;
+		loadDecrees();
 	};
 
-	$: if (page || selectedPeriod || govOfficialsFilter || searchValue) {
+	$effect(() => {
+		void searchValue;
+		void selectedTopics.size;
+		void selectedDepartments.size;
+		void legisPeriodFilter.activeValue;
+		untrack(update);
+	});
+
+	let topics: string[] = $state([]);
+
+	onMount(async () => {
 		update();
-	}
 
-	onMount(update);
+		// Generic filter - Legislative period
+		const fetchedPeriods = await cachedAllLegisPeriods();
+		if (fetchedPeriods) {
+			legisPeriodFilter.options = [
+				{ title: 'Alle', value: 'all' },
+				...fetchedPeriods.map((p) => ({ title: p.gp, value: p.gp }))
+			];
+		}
 
-	let filters: FilterInfo<boolean | undefined>[] = [];
+		const eurovocTopics = errorToNull(await get_eurovoc_topics());
+		if (eurovocTopics) {
+			topics = eurovocTopics.map((topic) => topic.topic);
+		}
+	});
 </script>
 
-<!-- <FiltersAny bind:filters bind:searchValue bind:selectedPeriod {update} /> -->
+<span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0 dark:text-gray-300">
+	Verordnungen aktualisiert am: {updatedAt}
+</span>
+
+<div class="mt-7 md:flex">
+	<!-- Search bar -->
+	<SearchBar bind:searchValue />
+
+	<div class="mt-2 flex h-10 w-full gap-2 md:mt-0 md:ml-2 md:w-auto">
+		<MultiValuesFilter
+			title="Ministerien"
+			bind:selectedValues={selectedDepartments}
+			values={departments}
+		/>
+		<MultiValuesFilter title="Themen" bind:selectedValues={selectedTopics} values={topics} />
+		<GenericFilters genericFilters={[]} bind:legisPeriodFilter />
+	</div>
+</div>
 
 <div>
 	{#if decrees}
@@ -94,13 +179,11 @@
 			{#each decrees.decrees as decree}
 				<DecreeBar
 					{decree}
-					{page}
-					delegate={govOfficials.get(decree.gov_official_id)}
 					coloring="bg-primary-300 dark:bg-primary-500 dark:text-white"
 					showDelegate
 				/>
 			{/each}
-		{:else if currentlyUpdating}
+		{:else if false}
 			{#each { length: 9 } as _}
 				<ExpandablePlaceholder class="my-4" />
 			{/each}
@@ -108,7 +191,7 @@
 			Keine Verordnungen gefunden
 		{/if}
 		<div class="float-right">
-			<Pagination bind:page maxPage={decrees.max_page} />
+			<Pagination maxPage={decrees.max_page} />
 		</div>
 	{:else}
 		{#each { length: 9 } as _}

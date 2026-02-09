@@ -15,11 +15,10 @@ export async function decrees_per_page(
 }
 
 export async function decrees_by_search(
-	page: number,
-	filter: DecreeFilter | null,
-	search: string
+	query: string,
+	fetcher: typeof fetch = fetch
 ): Promise<DecreesWithMaxPage | HasError> {
-	return justPost(`v1/decrees/search?page=${page}&search=${search}`, filter);
+	return getWithRoute<DecreesWithMaxPage>(`v1/decrees/search?${query}`, "at/", fetcher);
 }
 
 export async function decree_by_ris_id(ris_id: string, fetcher: typeof fetch = fetch

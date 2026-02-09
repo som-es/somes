@@ -24,7 +24,7 @@ pub async fn get_update_time_of_index(
     let datetime = chrono::DateTime::parse_from_rfc3339(&time)
         .map_err(|e| {
             redis::RedisError::from((
-                redis::ErrorKind::TypeError,
+                redis::ErrorKind::UnexpectedReturnType,
                 "Failed to parse datetime",
                 e.to_string(),
             ))

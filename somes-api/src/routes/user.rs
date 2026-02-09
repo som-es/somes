@@ -12,7 +12,10 @@ use axum::{
 };
 use somes_common_lib::{BOOKMARK, LOGIN_ROUTE, RENEW_TOKEN, SEND_MAIL_INFO, TOPIC_SELECTION};
 use sqlx::query_as;
-use tower_governor::{governor::GovernorConfigBuilder, GovernorLayer};
+use tower_governor::{
+    governor::{GovernorConfig, GovernorConfigBuilder},
+    GovernorLayer,
+};
 
 use crate::{
     jwt::{renew_token_route, Claims},
@@ -33,9 +36,7 @@ pub fn create_user_router() -> Router<AppState> {
     Router::new()
         .route(
             LOGIN_ROUTE,
-            post(login).layer(GovernorLayer {
-                config: governor_conf.clone(),
-            }),
+            post(login).layer(GovernorLayer::new(governor_conf)),
         )
         .route("/delete", delete(delete_account_route))
         .route(RENEW_TOKEN, post(renew_token_route))

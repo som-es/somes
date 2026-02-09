@@ -19,6 +19,8 @@ pub async fn vote_results_by_search_route(
     RedisConnection(mut redis_con): RedisConnection,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
+    Query(entry_count_per_page): Query<somes_common_lib::PageEntryCount>,
+    Query(sort): Query<somes_common_lib::SortParams>,
     Qs(legis_init_filter): Qs<AddonVoteResultFilter>,
     Qs(optional_vote_result_filter): Qs<OptionalVoteResultFilter>,
 ) -> Result<Json<VoteResultsWithMaxPage>, FilterError> {
@@ -27,7 +29,11 @@ pub async fn vote_results_by_search_route(
         legis_init_filter.is_finished,
         meilisearch_client,
         search_query,
+        entry_count_per_page
+            .entries_per_page
+            .unwrap_or(LEGIS_INITS_PER_PAGE.parse().unwrap_or(16)),
         page,
+        sort.sort.unwrap_or_default(),
         legis_init_filter,
         optional_vote_result_filter,
         &mut redis_con,
@@ -49,7 +55,9 @@ async fn meilisearch_for_vote_results(
     is_finished: bool,
     meilisearch_client: meilisearch_sdk::client::Client,
     search_query: somes_common_lib::SearchQuery,
+    entries_per_page: usize,
     page: Page,
+    sort: somes_common_lib::Sort,
     filter: AddonVoteResultFilter,
     vote_result_filter: OptionalVoteResultFilter,
     redis_con: &mut MultiplexedConnection,
@@ -82,13 +90,18 @@ async fn meilisearch_for_vote_results(
 
     log::info!("vote results meilisearch filter: {meilisearch_filter}, {search_query:?}");
 
+    let sort = match sort {
+        somes_common_lib::Sort::Asc => "legislative_initiative.nr_plenary_activity_date:asc",
+        somes_common_lib::Sort::Desc => "legislative_initiative.nr_plenary_activity_date:desc",
+    };
+
     let results: SearchResults<OptionalVoteResult> = meilisearch_client
         .index("vote_results")
         .search()
         .with_filter(&meilisearch_filter)
-        .with_sort(&["legislative_initiative.nr_plenary_activity_date:desc"])
+        .with_sort(&[sort])
         .with_query(&search_query.search.unwrap_or_default())
-        .with_hits_per_page(LEGIS_INITS_PER_PAGE.parse().unwrap_or(16))
+        .with_hits_per_page(entries_per_page)
         .with_page(page.page as usize)
         .execute()
         .await?;

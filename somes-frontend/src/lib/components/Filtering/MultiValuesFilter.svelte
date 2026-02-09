@@ -50,7 +50,7 @@
                             selectedTopics.delete(topic);
                         }}
                     >
-                        <div class="h-4 w-4 rounded-md bg-primary-500"></div>
+                        <div class="min-h-4 min-w-4 rounded-md bg-primary-500"></div>
                         <span class="text-left text-sm font-semibold text-gray-800">{topic}</span>
                     </button>
                 {/each}
@@ -64,7 +64,7 @@
                             selectedTopics.add(topic);
                         }}
                     >
-                        <div class="h-4 w-4 rounded-md border-[2px] border-primary-500"></div>
+                        <div class="min-h-4 min-w-4 rounded-md border-[2px] border-primary-500"></div>
                         <span class="text-left text-sm text-gray-800">{topic}</span>
                     </button>
                 {/each}

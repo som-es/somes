@@ -83,7 +83,7 @@ impl<T> FilterOp<T> {
 impl<Tz: chrono::TimeZone> From<chrono::DateTime<Tz>> for Filterable {
     fn from(value: chrono::DateTime<Tz>) -> Self {
         Filterable {
-            value_as_string: format!("{:?}", value.to_utc().timestamp()),
+            value_as_string: format!("{:?}", value),
         }
     }
 }
@@ -91,7 +91,7 @@ impl<Tz: chrono::TimeZone> From<chrono::DateTime<Tz>> for Filterable {
 impl ToFilterable for chrono::DateTime<chrono::Utc> {
     fn to_filterable(&self) -> Filterable {
         Filterable {
-            value_as_string: format!("{:?}", self.timestamp()),
+            value_as_string: format!("{:?}", self),
         }
     }
 }
@@ -99,10 +99,7 @@ impl ToFilterable for chrono::DateTime<chrono::Utc> {
 impl From<chrono::NaiveDate> for Filterable {
     fn from(value: chrono::NaiveDate) -> Self {
         Filterable {
-            value_as_string: format!(
-                "{:?}",
-                value.and_time(NaiveTime::default()).and_utc().timestamp()
-            ),
+            value_as_string: format!("{:?}", value.to_string()),
         }
     }
 }
@@ -110,10 +107,7 @@ impl From<chrono::NaiveDate> for Filterable {
 impl ToFilterable for chrono::NaiveDate {
     fn to_filterable(&self) -> Filterable {
         Filterable {
-            value_as_string: format!(
-                "{:?}",
-                self.and_time(NaiveTime::default()).and_utc().timestamp()
-            ),
+            value_as_string: format!("{:?}", self.to_string()),
         }
     }
 }

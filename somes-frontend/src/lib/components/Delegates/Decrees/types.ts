@@ -1,3 +1,4 @@
+import type { DbAiSummary } from '$lib/ai_summary_types';
 import type { Delegate, Document } from '$lib/types';
 
 export interface DecreeDelegate {
@@ -13,6 +14,7 @@ export interface Decree {
 	short_title: string;
 	publication_date: string;
 	part: string;
+	ai_summary: DbAiSummary | null;	
 	gp: string | null;
 	documents: Document[];
 	eli: string | null;
@@ -21,12 +23,15 @@ export interface Decree {
 }
 
 export interface DecreesWithMaxPage {
-	decrees: Decree[];
+	decrees: DecreeDelegate[];
 	entry_count: number;
 	max_page: number;
+	updated_at: string;
 }
 
 export interface DecreeFilter {
 	legis_period: string | null;
 	gov_officials: number[] | null;
+	topics: string[] | null;
+	departments: string[] | null;
 }

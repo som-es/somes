@@ -1,7 +1,5 @@
 use axum::{extract::Query, Json};
-use dataservice::combx::{
-    meilisearch_filters_gov_props, meilisearch_filters_vote_result, OptionalGovProposalFilter,
-};
+use dataservice::combx::meilisearch_filters_gov_props;
 use meilisearch_sdk::search::SearchResults;
 use somes_meilisearch_filter::{to_meilisearch_filters, FilterOptions};
 
@@ -18,6 +16,8 @@ pub async fn gov_props_by_search_route(
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
+    Query(entry_count_per_page): Query<somes_common_lib::PageEntryCount>,
+    Query(sort): Query<somes_common_lib::SortParams>,
     Qs(gov_prop_filter): Qs<GovProposalDelegateFilter>,
 ) -> Result<Json<GovProposalsWithMaxPage>, FilterError> {
     let mut filter_conditions = to_meilisearch_filters(
@@ -26,7 +26,10 @@ pub async fn gov_props_by_search_route(
     );
 
     if let Some(gov_proposal_filter) = gov_prop_filter.gov_proposal {
-        filter_conditions.extend(meilisearch_filters_gov_props(gov_proposal_filter, Some("gov_proposal")));
+        filter_conditions.extend(meilisearch_filters_gov_props(
+            gov_proposal_filter,
+            Some("gov_proposal"),
+        ));
     }
     if let Some(delegate) = &gov_prop_filter.delegate {
         filter_conditions.extend(to_meilisearch_filters(
@@ -42,14 +45,23 @@ pub async fn gov_props_by_search_route(
 
     log::info!("meilisearch filter: {meilisearch_filter}");
 
+    let sort = match sort.sort.unwrap_or_default() {
+        somes_common_lib::Sort::Asc => "gov_proposal.ministrial_proposal.raw_data_created_at:asc",
+        somes_common_lib::Sort::Desc => "gov_proposal.ministrial_proposal.raw_data_created_at:desc",
+    };
+
     let results: SearchResults<GovProposalDelegate> = meilisearch_client
         .index("gov_props")
         .search()
         .with_filter(&meilisearch_filter)
         .with_query(&search_query.search.unwrap_or_default())
-        .with_hits_per_page(GOV_PROPS_PER_PAGE.parse().unwrap_or(12))
+        .with_hits_per_page(
+            entry_count_per_page
+                .entries_per_page
+                .unwrap_or(GOV_PROPS_PER_PAGE.parse().unwrap_or(12)),
+        )
         .with_page(page.page as usize)
-        .with_sort(&["gov_proposal.ministrial_proposal.raw_data_created_at:desc"])
+        .with_sort(&[sort])
         .execute()
         .await?;
 

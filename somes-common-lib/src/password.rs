@@ -1,8 +1,7 @@
-use dotenv_codegen::dotenv;
 use once_cell::sync::Lazy;
 
 pub static MIN_PASSWORD_LEN: Lazy<usize> = Lazy::new(|| {
-    let min_password_len_str: &str = dotenv!("MIN_PASSWORD_LEN");
+    let min_password_len_str: String = std::env::var("MIN_PASSWORD_LEN").unwrap_or("10".into());
     min_password_len_str
         .parse::<usize>()
         .expect("The value provided for MIN_PASSWORD_LEN in the .env is not a number!")
