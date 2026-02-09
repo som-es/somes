@@ -179,7 +179,8 @@ pub async fn all_updated_votes_from_legis_init_sqlx(
         li.has_reference,
         li.is_voteable_on,
         li.is_urgent,
-        li.voting
+        li.voting,
+        li.hash
     FROM legis_init_was_updated
     INNER JOIN legislative_initiatives li ON li.id = legis_init_was_updated.legis_init_id
     WHERE li.is_voteable_on

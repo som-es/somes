@@ -3,10 +3,7 @@ use axum::{
     http::request::Parts,
 };
 use chrono::format;
-use dataservice::combx::{
-    DbAiSummaryFilter, DbLegislativeInitiativeQueryFilter, MeilisearchHelper, OptionalDecreeFilter,
-    OptionalVoteResult, OptionalVoteResultFilter,
-};
+use dataservice::combx::{OptionalVoteResult, OptionalVoteResultFilter};
 use futures::FutureExt;
 use meilisearch_sdk::settings::{PaginationSetting, Settings};
 use redis::aio::MultiplexedConnection;

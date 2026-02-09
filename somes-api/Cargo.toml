@@ -38,7 +38,7 @@ base16ct = { version = "1.0.0", features = ["alloc"] }
 redis = { version = "1.0", features = ["tokio-comp"] }
 log = "0.4.17"
 simple_logger = "5.0.0"
-chrono = { workspace = true } 
+chrono = { workspace = true }
 lettre = "0.11"
 imap = { version = "3.0.0-alpha.10", features = ["rustls-tls"] }
 utoipa = { workspace = true }

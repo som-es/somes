@@ -19,6 +19,7 @@ use utoipa::{IntoParams, ToSchema};
     Type,
     CompositeType,
     MeilisearchFilter,
+    Hash,
 )]
 pub struct Document {
     pub title: Option<String>,

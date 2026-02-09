@@ -38,7 +38,10 @@ pub async fn delegates_by_search_route(
             .map(|mandate| mandate.filter_arguments())
             .flatten()
             .collect::<Vec<_>>(),
-        &FilterOptions::default(),
+        &FilterOptions {
+            prefix: Some("mandates".into()),
+            ..Default::default()
+        },
     ));
 
     let meilisearch_filter = filter_conditions.join(" AND ");
