@@ -36,6 +36,7 @@ export interface PlatformItem {
 export interface DialogEvent {
 	event: SomesEvent;
 	dialogOpen: boolean;
+	hidden: boolean;
 }
 
 export interface SomesEvent {
