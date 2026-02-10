@@ -13,8 +13,8 @@ export interface SomesEvent {
 	id: number | null;
 	title: string;
 	location: string;
-	date: string; // ISO format YYYY-MM-DD
-	time: string;
+	event_date: string; // ISO format YYYY-MM-DD
+	start_time: string;
 	description: string;
 	image?: string;
 	requiresMembership?: boolean;

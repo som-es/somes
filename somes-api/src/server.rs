@@ -188,7 +188,8 @@ pub async fn serve(addr: SocketAddr) {
         .nest("/v1/gov_proposals", create_gov_proposals_router())
         .nest("/v1/decrees", create_decrees_router())
         .nest("/v1/user", create_user_router())
-        .nest("/v1/vote_results", create_vote_results_router());
+        .nest("/v1/vote_results", create_vote_results_router())
+        .nest("/v1/events", create_events_router());
 
     let api_routes = Router::new()
         .route(WALO_QUESTIONS, get(walo_questions_route))
