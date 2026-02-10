@@ -186,7 +186,7 @@ export async function delegates_search_persons(
 	party: string | null = null,
 	fetcher: typeof fetch = fetch
 ): Promise<DelegatesWithMaxPage | HasError> {
-	let query = `v1/delegates/search?page=${page}&entries_per_page=${entries_per_page}&is_active[eq]=true`;
+	let query = `v1/delegates/search?page=${page}&entries_per_page=${entries_per_page}`;
 	if (name) query += `&name[cn]=${encodeURIComponent(name)}`;
 	if (period) query += `&period[eq]=${period}`;
 	if (party) query += `&party[eq]=${encodeURIComponent(party)}`;

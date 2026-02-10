@@ -50,6 +50,7 @@
 	import PoliticalStanceTitleBar from '$lib/components/Delegates/Spectrum/PoliticalStanceTitleBar.svelte';
 	import DecreePreview from '$lib/components/Delegates/Decrees/DecreePreview.svelte';
 	import { goto, pushState, replaceState } from '$app/navigation';
+	import { navigating } from '$app/stores';
 	import AutocompleteWithPopover from '$lib/components/Autocompletion/AutocompleteWithPopover.svelte';
 	import type { PageProps } from './$types';
 	import downArrowIcon from '$lib/assets/misc_icons/down-arrow.svg?raw';
@@ -115,8 +116,10 @@
 }
 
 
+	// Search PopUp, refetch delegates if filters present
+
+	// Search PopUp, refetch delegates if filters present
 	$effect(() => {
-		// clear previous debounce
 		clearTimeout(timeout);
 
 		const sv = searchInput;
@@ -344,42 +347,82 @@
 		if (finishedMounting) prevSelectedPeriod = selectedPeriod;
 	};
 
+	function findPeriodForDate(date: Date, periods: LegisPeriod[]): string | null {
+		for (let i = 0; i < periods.length; i++) {
+			const periodStart = new Date(periods[i].start_date);
+			const periodEnd = periods[i + 1] ? new Date(periods[i + 1].start_date) : new Date();
+
+			if (date >= periodStart && date < periodEnd) {
+				return periods[i].gp;
+			}
+		}
+		return null;
+	}
+
+	function getMandateDateRange(delegate: Delegate) {
+		let firstDate: Date | null = null;
+		let lastDate: Date | null = null;
+
+		delegate.mandates?.forEach((mandate) => {
+			if (mandate.start_date) {
+				const startDate = new Date(mandate.start_date);
+				if (!firstDate || startDate < firstDate) {
+					firstDate = startDate;
+				}
+			}
+			if (mandate.end_date) {
+				const endDate = new Date(mandate.end_date);
+				if (!lastDate || endDate > lastDate) {
+					lastDate = endDate;
+				}
+			}
+		});
+
+		return { firstDate, lastDate };
+	}
+
+	function getMandateLatestPeriod(delegate: Delegate, periods: LegisPeriod[]) {
+		const latestPeriod = periods[periods.length - 1];
+		const fallbackGp = latestPeriod?.gp || 'XXVIII';
+		const fallbackDate = new Date();
+
+		if (!delegate.mandates || !delegate.active_mandates) {
+			return { date: fallbackDate, gp: fallbackGp };
+		}
+
+		if (delegate.active_mandates.length > 0) {
+			return { date: fallbackDate, gp: fallbackGp };
+		}
+
+		const { lastDate } = getMandateDateRange(delegate);
+		
+		if (lastDate) {
+			const foundGp = findPeriodForDate(lastDate, periods);
+			return {
+				date: lastDate,
+				gp: foundGp || fallbackGp
+			};
+		}
+
+		return {
+			date: fallbackDate,
+			gp: fallbackGp
+		};
+	}
+
 	function getMandatePeriods(delegate: Delegate, periods: LegisPeriod[]): string {
 		if (!delegate.mandates || !delegate.active_mandates || delegate.mandates.length === 0) {
 			return 'unbekannt';
 		}
 
-		// Sort mandates by start date
-		const sortedMandates = [...delegate.mandates, ...delegate.active_mandates].sort(
-			(a, b) => new Date(a.start_date || '').getTime() - new Date(b.start_date || '').getTime()
-		);
+		const { firstDate, lastDate } = getMandateDateRange(delegate);
 
-		// Find the period for a given date
-		const findPeriod = (date: string): string | null => {
-			const d = new Date(date);
-			for (let i = 0; i < periods.length; i++) {
-				const periodStart = new Date(periods[i].start_date);
-				const periodEnd = periods[i + 1] ? new Date(periods[i + 1].start_date) : new Date();
+		const firstPeriod = firstDate ? findPeriodForDate(firstDate, periods) : null;
+		const lastPeriod = delegate.active_mandates.length > 0 ? 'dato' : lastDate ? findPeriodForDate(lastDate, periods) : null;
 
-				if (d >= periodStart && d < periodEnd) {
-					return periods[i].gp;
-				}
-			}
-			return null;
-		};
+		if (!firstPeriod) return `unbekannt - ${lastPeriod || 'unbekannt'}`;
 
-		// Get first and last period
-		const firstPeriod = findPeriod(sortedMandates[0].start_date || '');
-		const lastMandate = sortedMandates.reduce((latest, current) => {
-			if (!current.end_date) return current; // Active mandate always wins
-			if (!latest.end_date) return latest;
-			return new Date(current.end_date) > new Date(latest.end_date) ? current : latest;
-		});
-		const lastPeriod = lastMandate.end_date ? findPeriod(lastMandate.end_date) : 'dato';
-
-		if (!firstPeriod) return `unbekannt - ${lastPeriod}`;
-
-		return `${firstPeriod} - ${lastPeriod}`;
+		return `${firstPeriod} - ${lastPeriod || 'unbekannt'}`;
 	}
 
 	const updateStoredPeriod = () => {
@@ -414,6 +457,7 @@
 
 	$effect(() => {
 		void delegate;
+		if ($navigating) return;
 		if (delegate) {
 			updateDelegateIdInUrl(delegate);
 		}
@@ -616,12 +660,34 @@
 									<div
 										class="mb-3 flex w-full justify-between rounded-xl bg-primary-300 p-2 transition-colors hover:cursor-pointer hover:bg-primary-400"
 										onclick={() => {
+											const { date, gp } = getMandateLatestPeriod(d, periods);
+											
+											const period = periods.find(p => p.gp === gp);
+											let newDayOffset = 0;
+											if (period) {
+												const startDate = new Date(period.start_date);
+												const diffTime = Math.abs(date.getTime() - startDate.getTime());
+												newDayOffset = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+											}
+
+											dayOffset = newDayOffset;
+											prevSelectedPeriod = gp;
+
 											const url = new URL(window.location.href);
 											url.searchParams.set('delegate', d.id.toString());
+											url.searchParams.set('gp', gp);
+											url.searchParams.set('date', toActualDateString(date));
+											
+											currentDelegateStore.value = d;
+											
+											const newFilter = { ...maybeCurrentDelegateFilter };
+											newFilter.search_value = d.name;
+											newFilter.legis_period = gp;
+											newFilter.day_offset = newDayOffset;
+											currentDelegateFilterStore.value = newFilter;
+
 											goto(url.toString(), { noScroll: true });
 											isSearchPopupOpen = false;
-											maybeCurrentDelegateFilter.search_value = d.name;
-											currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
 										}}
 									>
 										<div class="flex">
@@ -772,17 +838,14 @@
 			<div class="w-3/4">
 				<div class="relative px-8 py-5">
 					{#if delegates && delegates.length > 0}
-						<div class="absolute top-5 left-8 z-10">
+						<div class="absolute top-5 left-8 z-10 grid grid-cols-[min-content_auto_min-content] items-center gap-x-3 gap-y-1">
 							{#each [...groupPartyDelegates(structuredClone(delegates))].sort((a, b) => b[1].length - a[1].length) as [party, partyDelegates]}
-								<div class="flex items-center gap-2">
-									<div
-										class="h-3 w-3 rounded-full"
-										style="background-color: {partyColors.get(party) ?? '#ccc'};"
-									></div>
-									<span class="text-lg font-medium text-gray-800"
-										>{party} ({partyDelegates.length})</span
-									>
-								</div>
+								<div
+									class="h-3 w-3 rounded-full"
+									style="background-color: {partyColors.get(party) ?? '#ccc'};"
+								></div>
+								<span class="text-lg font-medium text-gray-800">{party}</span>
+								<span class="text-lg font-medium text-gray-800 text-right">({partyDelegates.length})</span>
 							{/each}
 						</div>
 					{/if}
