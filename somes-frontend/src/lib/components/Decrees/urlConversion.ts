@@ -10,7 +10,7 @@ export function convertDecreeFilterToUrl(
 	const nextUrl = currentUrl
 		? currentUrl
 		: new URL(
-				resolve('/history/proposals'),
+				resolve('/history/decrees'),
 				page.url.origin
 			);
     nextUrl.search = ""

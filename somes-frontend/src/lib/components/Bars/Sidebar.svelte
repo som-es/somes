@@ -16,14 +16,25 @@
 	import { renew_token } from '$lib/api/authed';
 	import { goto } from '$app/navigation';
 	import { convertVoteResultFilterToUrl } from '../VoteResults/Expandable/urlConversion';
-	import { currentVoteResultFilterStore } from '$lib/stores/stores';
+	import { currentDecreeFilterStore, currentGovProposalFilterStore, currentUnfinshedVoteResultFilterStore, currentVoteResultFilterStore } from '$lib/stores/stores';
+	import { convertGovPropFilterToUrl } from '../Proposals/urlConversion';
+	import { convertDecreeFilterToUrl } from '../Decrees/urlConversion';
 
 	let activeUrl = $derived(page.url.pathname);
 	let isSelected: (href: string) => boolean = () => false;
 
-	const voteResultUrl = $derived.by(() => {
-		return convertVoteResultFilterToUrl(currentVoteResultFilterStore.value, "", undefined, true);
-	});
+	const voteResultUrl = $derived(
+		convertVoteResultFilterToUrl(currentVoteResultFilterStore.value, "", undefined, true)
+	);
+	const unfinishedVoteResultUrl = $derived(
+		convertVoteResultFilterToUrl(currentUnfinshedVoteResultFilterStore.value, "", undefined, false)
+	);
+	const govProposalUrl = $derived(
+		convertGovPropFilterToUrl(currentGovProposalFilterStore.value, "", undefined)
+	);
+	const decreeUrl = $derived(
+		convertDecreeFilterToUrl(currentDecreeFilterStore.value, "", undefined)
+	);
 
 	const submenu = $derived([
 		/*{
@@ -84,15 +95,15 @@
 			route: '/history',
 			list: [
 				{ href: voteResultUrl.href, label: 'Abstimmungen', keywords: '' },
-				{ href: resolve(`/history/unfinished_votes`), label: 'Zur Abstimmung', keywords: '' }
+				{ href: unfinishedVoteResultUrl.href, label: 'Zur Abstimmung', keywords: '' }
 			]
 		},
 		{
 			title: 'Regierung',
 			route: '/history',
 			list: [
-				{ href: resolve(`/history/proposals`), label: 'Ministerialentwürfe', keywords: '' },
-				{ href: resolve(`/history/decrees`), label: 'Verordnungen', keywords: '' }
+				{ href: govProposalUrl.href, label: 'Ministerialentwürfe', keywords: '' },
+				{ href: decreeUrl.href, label: 'Verordnungen', keywords: '' }
 			]
 		}
 	]);
