@@ -113,7 +113,7 @@
 						<input
 							id="username"
 							placeholder="dergertrud@gmail.com"
-							type="text"
+							type="email"
 							class="custom-input"
 							onkeydown={onEnterDoLogin}
 							bind:value={email}

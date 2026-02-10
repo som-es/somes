@@ -46,7 +46,7 @@
 			} else {
 				if (events) {
 					formDataSnapshot.id = status.id;
-					events.push({event: formDataSnapshot, dialogOpen: false})
+					events.push({event: formDataSnapshot, dialogOpen: false, hidden: false });
 				}
 			}
 
@@ -62,7 +62,7 @@
 			} else if (events) {
 				const index = events.findIndex(e => e.event.id === formData.id);
 				if (index !== -1) {
-					events.splice(index, 1);
+					events[index].hidden = true;
 				}
 			}
 			dialogOpen = false;
