@@ -14,6 +14,7 @@
 	import { goto } from '$app/navigation';
 	import { errorToNull, get_eurovoc_topics } from '$lib/api/api';
 	import MultiValuesFilter from '../Filtering/MultiValuesFilter.svelte';
+	import { convertGovPropFilterToUrl } from './urlConversion';
 
 	interface Props {
 		govProposals: GovProposalsWithMaxPage;
@@ -110,27 +111,7 @@
 		};
 		currentGovProposalFilterStore.value = filter;
 
-		const nextUrl = new URL(page.url);
-
-		nextUrl.searchParams.set('page', '1');
-		if (filter.has_vote_result) {
-			nextUrl.searchParams.set(
-				'gov_proposal[ministrial_proposal][has_vote_result][eq]',
-				filter.has_vote_result.toString()
-			);
-		}
-		if (filter.legis_period !== null) {
-			nextUrl.searchParams.set('gov_proposal[ministrial_proposal][gp][in][0]', filter.legis_period);
-		}
-		filter.topics?.forEach((topic, i) => {
-			nextUrl.searchParams.set(`gov_proposal[eurovoc_topics][${i}][topic][cn]`, topic);
-		});
-		filter.departments?.forEach((department, i) => {
-			nextUrl.searchParams.set(`gov_proposal[ministrial_proposal][ressort][in][${i}]`, department);
-		});
-
-		nextUrl.searchParams.set('search', searchValue);
-
+		const nextUrl = convertGovPropFilterToUrl(filter, searchValue, new URL(page.url));
 		goto(nextUrl, {
 			keepFocus: true,
 			replaceState: true,

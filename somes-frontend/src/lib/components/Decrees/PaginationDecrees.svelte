@@ -13,6 +13,7 @@
 	import SearchBar from '../Filtering/SearchBar.svelte';
 	import MultiValuesFilter from '../Filtering/MultiValuesFilter.svelte';
 	import GenericFilters from '../Filtering/GenericFilters.svelte';
+	import { convertDecreeFilterToUrl } from './urlConversion';
 	interface Props {
 		decrees: DecreesWithMaxPage;
 		selectedGp: string | null;
@@ -95,21 +96,11 @@
 		};
 		currentDecreeFilterStore.value = filter;
 
-		const nextUrl = new URL(page.url);
-
-		nextUrl.searchParams.set('page', '1');
-		if (filter.legis_period !== null) {
-			nextUrl.searchParams.set('decree[gp][in][0]', filter.legis_period);
-		}
-		filter.topics?.forEach((topic, i) => {
-			// nextUrl.searchParams.set(`decree[ai_summary][full_summary][topics][${i}][cn]`, topic);
-		});
-
-		filter.departments?.forEach((department, i) => {
-			nextUrl.searchParams.set(`decree[ministrial_issuer][in][${i}]`, department);
-		});
-
-		nextUrl.searchParams.set('search', searchValue);
+		const nextUrl = convertDecreeFilterToUrl(
+			filter,
+			searchValue,
+			new URL(page.url)
+		);
 
 		goto(nextUrl, {
 			keepFocus: true,
