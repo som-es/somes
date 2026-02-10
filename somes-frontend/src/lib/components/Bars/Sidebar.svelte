@@ -21,7 +21,6 @@
 	import { convertDecreeFilterToUrl } from '../Decrees/urlConversion';
 
 	let activeUrl = $derived(page.url.pathname);
-	let isSelected: (href: string) => boolean = () => false;
 
 	const voteResultUrl = $derived(
 		convertVoteResultFilterToUrl(currentVoteResultFilterStore.value, "", undefined, true)
