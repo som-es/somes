@@ -6,8 +6,6 @@
 	import userIcon from '$lib/assets/icons/user.svg?raw';
 	import { page } from '$app/state';
 
-	let activeUrl = $state(page.url.pathname);
-	let isSelected: (href: string) => boolean = () => false;
 	import { resolve } from '$app/paths';
 	import VoteParliament2 from '../Parliaments/VoteParliament2.svelte';
 	import { mockDelegatesNoColor, mockVoteResult } from '$lib/parliaments/mock';
@@ -17,15 +15,27 @@
 	import { isHasError } from '$lib/api/api';
 	import { renew_token } from '$lib/api/authed';
 	import { goto } from '$app/navigation';
+	import { convertVoteResultFilterToUrl } from '../VoteResults/Expandable/urlConversion';
+	import { currentDecreeFilterStore, currentGovProposalFilterStore, currentUnfinshedVoteResultFilterStore, currentVoteResultFilterStore } from '$lib/stores/stores';
+	import { convertGovPropFilterToUrl } from '../Proposals/urlConversion';
+	import { convertDecreeFilterToUrl } from '../Decrees/urlConversion';
 
-	$effect(() => {
-		activeUrl = page.url.pathname;
-		isSelected = (href: string) => {
-			return activeUrl?.includes(href);
-		};
-	});
+	let activeUrl = $derived(page.url.pathname);
 
-	const submenu = [
+	const voteResultUrl = $derived(
+		convertVoteResultFilterToUrl(currentVoteResultFilterStore.value, "", undefined, true)
+	);
+	const unfinishedVoteResultUrl = $derived(
+		convertVoteResultFilterToUrl(currentUnfinshedVoteResultFilterStore.value, "", undefined, false)
+	);
+	const govProposalUrl = $derived(
+		convertGovPropFilterToUrl(currentGovProposalFilterStore.value, "", undefined)
+	);
+	const decreeUrl = $derived(
+		convertDecreeFilterToUrl(currentDecreeFilterStore.value, "", undefined)
+	);
+
+	const submenu = $derived([
 		/*{
 			title: 'Statistiken',
 			route: '/statistics',
@@ -83,19 +93,19 @@
 			title: 'Nationalrat',
 			route: '/history',
 			list: [
-				{ href: resolve(`/history/votes`), label: 'Abstimmungen', keywords: '' },
-				{ href: resolve(`/history/unfinished_votes`), label: 'Zur Abstimmung', keywords: '' }
+				{ href: voteResultUrl.href, label: 'Abstimmungen', keywords: '' },
+				{ href: unfinishedVoteResultUrl.href, label: 'Zur Abstimmung', keywords: '' }
 			]
 		},
 		{
 			title: 'Regierung',
 			route: '/history',
 			list: [
-				{ href: resolve(`/history/proposals`), label: 'Ministerialentwürfe', keywords: '' },
-				{ href: resolve(`/history/decrees`), label: 'Verordnungen', keywords: '' }
+				{ href: govProposalUrl.href, label: 'Ministerialentwürfe', keywords: '' },
+				{ href: decreeUrl.href, label: 'Verordnungen', keywords: '' }
 			]
 		}
-	];
+	]);
 	const accountOrLogin = async () => {
 		const jwt = jwtStore.value;
 		if (jwt) {
@@ -108,6 +118,7 @@
 			loginDrawerOpenStore.value = true;
 		}
 	};
+
 </script>
 
 <div class="flex h-full grid-cols-[auto_1fr] bg-surface-50 lg:grid">
@@ -133,7 +144,7 @@
 			</span>
 		</a>
 		<a
-			href={resolve('/history/votes')}
+			href={voteResultUrl.href}
 			title="Abstimmungshistorie"
 			class="{activeUrl?.includes('/history')
 				? 'bg-tertiary-500! stroke-black'
@@ -210,7 +221,7 @@
 								<li class="px-2 py-1">
 									<a
 										{href}
-										class="flex w-fit rounded-3xl p-2 px-4 {activeUrl?.includes(href)
+										class="flex w-fit rounded-3xl p-2 px-4 {href.includes(activeUrl)
 											? 'bg-primary-600'
 											: 'hover:bg-primary-300'}"
 										data-sveltekit-preload-data="hover"

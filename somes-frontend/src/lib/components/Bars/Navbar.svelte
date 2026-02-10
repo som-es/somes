@@ -6,11 +6,15 @@
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
 	import { slide } from 'svelte/transition';
+	import { convertVoteResultFilterToUrl } from '../VoteResults/Expandable/urlConversion';
+	import { currentDecreeFilterStore, currentGovProposalFilterStore, currentUnfinshedVoteResultFilterStore, currentVoteResultFilterStore } from '$lib/stores/stores';
+	import { convertDecreeFilterToUrl } from '../Decrees/urlConversion';
+	import { convertGovPropFilterToUrl } from '../Proposals/urlConversion';
 
 	let isOpen = $state(false);
 	let expandedItems = $state<Record<string, boolean>>({});
 
-	type SubItem = { label: string; href: string };
+	type SubItem = { label: string; href: string; pathname: string };
 	type SubItemGroup = { title: string; items: SubItem[] };
 
 	type NavItem = {
@@ -18,32 +22,45 @@
 		href?: string;
 		subItems?: (SubItem | SubItemGroup)[];
 	};
+	
+	const voteResultUrl = $derived(
+		convertVoteResultFilterToUrl(currentVoteResultFilterStore.value, "", undefined, true)
+	);
+	const unfinishedVoteResultUrl = $derived(
+		convertVoteResultFilterToUrl(currentUnfinshedVoteResultFilterStore.value, "", undefined, false)
+	);
+	const govProposalUrl = $derived(
+		convertGovPropFilterToUrl(currentGovProposalFilterStore.value, "", undefined)
+	);
+	const decreeUrl = $derived(
+		convertDecreeFilterToUrl(currentDecreeFilterStore.value, "", undefined)
+	);
 
-	const navItems: NavItem[] = [
-		{ href: '/home', label: 'Neuigkeiten' },
+	const navItems: NavItem[] = $derived([
+		{ href: resolve('/home'), label: 'Neuigkeiten' },
 		{
 			label: 'Abstimmungen',
 			subItems: [
 				{
 					title: 'Nationalrat',
 					items: [
-						{ href: '/history/votes', label: 'Abstimmungen' },
-						{ href: '/history/unfinished_votes', label: 'Zur Abstimmung' }
+						{ href: voteResultUrl.href, pathname: voteResultUrl.pathname, label: 'Abstimmungen' },
+						{ href: unfinishedVoteResultUrl.href, pathname: unfinishedVoteResultUrl.pathname, label: 'Zur Abstimmung' }
 					]
 				},
 				{
 					title: 'Regierung',
 					items: [
-						{ href: '/history/proposals', label: 'Ministerialentwürfe' },
-						{ href: '/history/decrees', label: 'Verordnungen' }
+						{ href: govProposalUrl.href, pathname: govProposalUrl.pathname, label: 'Ministerialentwürfe' },
+						{ href: decreeUrl.href, pathname: decreeUrl.pathname, label: 'Verordnungen' }
 					]
 				}
 			]
 		},
-		{ href: '/delegates', label: 'Abgeordnete' },
-		{ href: '/statistics', label: 'Statistiken' },
-		{ href: '/user', label: 'Benutzerprofil' }
-	];
+		{ href: resolve('/delegates'), label: 'Abgeordnete' },
+		{ href: resolve('/statistics'), label: 'Statistiken' },
+		{ href: resolve('/user'), label: 'Benutzerprofil' }
+	]);
 
 	function toggleMenu() {
 		isOpen = !isOpen;
@@ -119,10 +136,8 @@
 									<div class="ml-5 border-l-2 border-surface-400">
 									{#each subItem.items as nestedItem}
 										<a
-											href={resolve(nestedItem.href as any)}
-											class="flex w-full items-center py-2 pl-4 text-sm font-medium hover:bg-surface-500 {page.url.pathname.includes(
-												nestedItem.href
-											)
+											href={nestedItem.href}
+											class="flex w-full items-center py-2 pl-4 text-sm font-medium hover:bg-surface-500 {page.url.pathname.includes(nestedItem.pathname)
 												? 'text-tertiary-500'
 												: 'text-white/90'}"
 											onclick={closeMenu}
@@ -133,10 +148,8 @@
 									</div>
 								{:else}
 									<a
-										href={resolve(subItem.href as any)}
-										class="flex w-full items-center py-2 pr-4 pl-5 text-sm font-medium hover:bg-surface-500 {page.url.pathname.includes(
-											subItem.href
-										)
+										href={subItem.href}
+										class="flex w-full items-center py-2 pr-4 pl-5 text-sm font-medium hover:bg-surface-500 {page.url.pathname.includes(subItem.pathname)
 											? 'text-tertiary-500'
 											: 'text-white/90'}"
 										onclick={closeMenu}
@@ -149,10 +162,8 @@
 					{/if}
 				{:else}
 					<a
-						href={resolve((item.href || '') as any)}
-						class="flex w-full items-center p-4 touch-manipulation text-base font-medium hover:bg-surface-400 {page.url.pathname.includes(
-							item.href || ''
-						)
+						href={item.href || ''}
+						class="flex w-full items-center p-4 touch-manipulation text-base font-medium hover:bg-surface-400 {page.url.pathname.includes(item.href || '')
 							? 'text-tertiary-500'
 							: 'text-white'}"
 						onclick={closeMenu}

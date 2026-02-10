@@ -3,7 +3,7 @@
 	import { fade, fly, slide } from 'svelte/transition';
 	import somesWithText from '$lib/assets/somes_with_text2.svg?raw';
 	import { resolve } from '$app/paths';
-	import type { PlatformItem, PlatformItemType, SomesEvent as Event } from './types';
+	import type { PlatformItem, PlatformItemType, SomesEvent as Event, DialogEvent } from './types';
 	import type { PageProps } from './$types';
 	import checkmarkIcon from '$lib/assets/misc_icons/checkmark_small.svg?raw';
 	import crossmarkIcon from '$lib/assets/misc_icons/crossmark_small.svg?raw';
@@ -34,49 +34,7 @@
 
 	const rawPlatformItems: PlatformItem[] = $derived(data.platformItems);
 
-	// 3. Association Events
-	const eventsData: Event[] = [
-		{
-			id: 1,
-			title: 'EU Wahl 2024 - Podiumsdiskussion',
-			location: 'HTL Hollabrunn, Stadtsaal',
-			date: '2024-04-22',
-			time: '10:00',
-			description:
-				'Podiumsdiskussion zur EU-Wahl 2024 🇪🇺. Wir wählen in diesem Jahr das Europäische Parlament! Deshalb veranstalten wir von der Schülervertretung eine Podiumsdiskussion zur Europawahl. Wir veranstalten diese Diskussion zusammen mit @somes.at. Es kommen spannende Kandidaten und ihr werdet die Möglichkeit haben, diese Diskussion mitzugestalten.',
-			requiresMembership: false
-		},
-		{
-			id: 2,
-			title: 'Nationalratswahl 2024 - Podiumsdiskussion',
-			location: 'HTL Hollabrunn, Stadtsaal',
-			date: '2024-09-17',
-			time: '09:00',
-			description:
-				'Das war die Podiumsdiskussion der Schülervertretung zur Nationalratswahl 🇦🇹! Fünf Parteien stellten sich den spannenden Fragen. Rund 790 SchülerInnen der @htlhollabrunn nahmen an dieser lebhaften Debatte teil. Besonders gefreut haben wir uns über die Anwesenheit des Vize-Kanzlers.',
-			requiresMembership: false
-		},
-		{
-			id: 3,
-			title: 'Demokratietag 2025',
-			location: 'HTL Hollabrunn, Stadtsaal',
-			date: '2025-03-24',
-			time: '08:30',
-			description:
-				'Danke fürs Dabeisein! 🙌 Über 650 Schüler:innen, spannende Gäste 🎤, ein interaktives Politikquiz 🧠 & ein offener Gesprächskreis. Organisiert von der @sv_htlhollabrunn & @somes.at, mit dem Ziel: Positive Perspektiven geben und Demokratie erlebbar machen. Interesse an Somes? Schreib uns!',
-			requiresMembership: false
-		},
-		{
-			id: 4,
-			title: 'Parlamentsführung & Ausklang',
-			location: 'Parlament Wien / Cafe Rathaus',
-			date: '2026-02-24',
-			time: '14:00',
-			description:
-				'Parlamentsführung und abschließend Ausklang im Cafe Rathaus mit Nationalratsabgeordneten Paul Stich (SPÖ).',
-			requiresMembership: true
-		}
-	];
+	let eventsData: DialogEvent[] = $state($state.snapshot(data.somesEvents).map(event => { return { event, dialogOpen: false}}));
 
 	// 4. Board Members
 	const boardMembers: Member[] = [
@@ -133,16 +91,15 @@
 
 	let upcomingEvents = $derived(
 		eventsData
-			.filter((e) => new Date(e.date) >= today)
-			.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+			.filter((e) => new Date(e.event.event_date) >= today)
+			.sort((a, b) => new Date(a.event.event_date).getTime() - new Date(b.event.event_date).getTime())
 	);
 	let pastEvents = $derived(
 		eventsData
-			.filter((e) => new Date(e.date) < today)
-			.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+			.filter((e) => new Date(e.event.event_date) < today)
+			.sort((a, b) => new Date(b.event.event_date).getTime() - new Date(a.event.event_date).getTime())
 	); // Newest past first
 
-	let editDialogOpen = $state(false);
 	let dialogOpen = $state(false);
 
 	// --- EFFECTS & FUNCTIONS ---
@@ -491,7 +448,7 @@
 		</div>
 
 		<!-- Upcoming Events -->
-		{#if upcomingEvents.length > 0}
+		{#if upcomingEvents.length > 0 || isAdmin}
 			<div class="mb-16">
 				<div class="mb-6 flex items-center gap-4">
 					<h4 class="text-2xl font-bold text-primary-800 dark:text-primary-200">
@@ -501,7 +458,7 @@
 				</div>
 
 				<div class="grid gap-6 md:grid-cols-2">
-					{#each upcomingEvents as event (event.id)}
+					{#each upcomingEvents as dialogEvent, i (dialogEvent.event.id)}
 						<div
 							class="group relative overflow-hidden rounded-2xl border border-primary-100 bg-white p-6 shadow-lg transition-all hover:-translate-y-1 hover:border-secondary-300 dark:border-surface-700 dark:bg-surface-800"
 						>
@@ -513,20 +470,23 @@
 									class="rounded-lg border border-secondary-100 bg-secondary-50 px-3 py-1 text-center font-bold text-secondary-800 dark:border-secondary-700 dark:bg-secondary-900 dark:text-secondary-100"
 								>
 									<div class="text-xs uppercase">
-										{new Date(event.date).toLocaleDateString('de-AT', { month: 'short' })}
+										{new Date(dialogEvent.event.event_date).toLocaleDateString('de-AT', { month: 'short' })}
 									</div>
-									<div class="text-xl">{new Date(event.date).getDate()}</div>
+									<div class="text-xl">{new Date(dialogEvent.event.event_date).getDate()}</div>
 								</div>
 
 								<!-- Location & Edit Button Wrapper -->
 								<div class="flex flex-col items-end gap-2">
 									<!-- Edit Button -->
 									{#if isAdmin}
-										<Dialog.Root>
+										<Dialog.Root bind:open={upcomingEvents[i].dialogOpen}>
 											<Dialog.Trigger>
 												<EditButton />
 											</Dialog.Trigger>
-											<CreateEventModal bind:dialogOpen={editDialogOpen} formData={event} />
+											<CreateEventModal
+												bind:dialogOpen={upcomingEvents[i].dialogOpen}
+												bind:event={upcomingEvents[i].event}
+											/>
 										</Dialog.Root>
 									{/if}
 									<span
@@ -545,7 +505,7 @@
 												d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
 											/></svg
 										>
-										{event.location}
+										{dialogEvent.event.location}
 									</span>
 								</div>
 							</div>
@@ -554,13 +514,13 @@
 								<h5
 									class="mb-2 text-xl font-bold text-surface-900 transition-colors group-hover:text-secondary-600 dark:text-surface-100 dark:group-hover:text-secondary-400"
 								>
-									{event.title}
+									{dialogEvent.event.title}
 								</h5>
 								<p class="mb-4 line-clamp-3 text-sm text-surface-600 dark:text-surface-300">
-									{event.description}
+									{dialogEvent.event.description}
 								</p>
 
-								{#if event.requiresMembership}
+								{#if dialogEvent.event.requires_membership}
 									<div class="mb-2 text-xs font-medium text-primary-500">
 										🔒 Mitgliedschaft erforderlich
 									</div>
@@ -574,7 +534,7 @@
 					{/each}
 
 					{#if isAdmin}
-						<Dialog.Root>
+						<Dialog.Root bind:open={dialogOpen}>
 							<Dialog.Trigger>
 								<button
 									class="flex h-full min-h-[300px] w-full items-center justify-center rounded-2xl border-2 border-dashed border-surface-300 bg-surface-50 text-6xl text-surface-300 transition-all hover:cursor-pointer hover:border-primary-400 hover:bg-primary-50 hover:text-primary-500 dark:border-surface-700 dark:bg-surface-800/50 dark:hover:border-primary-700 dark:hover:bg-surface-800"
@@ -583,7 +543,7 @@
 									+
 								</button>
 							</Dialog.Trigger>
-							<CreateEventModal bind:dialogOpen />
+							<CreateEventModal bind:dialogOpen bind:events={eventsData} />
 						</Dialog.Root>
 					{/if}
 				</div>
@@ -598,40 +558,43 @@
 			</div>
 
 			<div class="space-y-4">
-				{#each pastEvents as event (event.id)}
+				{#each pastEvents as dialogEvent, i (dialogEvent.event.id)}
 					<div
 						class="flex flex-col gap-4 rounded-xl border border-surface-200/50 bg-surface-50 p-5 transition-colors hover:bg-white md:flex-row dark:border-surface-700 dark:bg-surface-800/50 dark:hover:bg-surface-800"
 					>
 						<div
 							class="flex shrink-0 items-center gap-2 text-surface-400 md:w-24 md:flex-col md:justify-center md:gap-0 dark:text-surface-400"
 						>
-							<span class="font-bold">{formatDate(event.date)}</span>
+							<span class="font-bold">{formatDate(dialogEvent.event.event_date)}</span>
 						</div>
 						<div class="flex-1">
 							<div class="flex justify-between">
 								<h5 class="text-lg font-bold text-surface-700 dark:text-surface-100">
-									{event.title}
+									{dialogEvent.event.title}
 								</h5>
 								{#if isAdmin}
-									<Dialog.Root>
+									<Dialog.Root bind:open={pastEvents[i].dialogOpen}>
 										<Dialog.Trigger>
 											<EditButton />
 										</Dialog.Trigger>
-										<CreateEventModal bind:dialogOpen={editDialogOpen} formData={event} />
+										<CreateEventModal
+											bind:dialogOpen={pastEvents[i].dialogOpen}
+											bind:event={pastEvents[i].event}
+										/>
 									</Dialog.Root>
 								{/if}
 							</div>
-							<p class="mt-1 text-sm text-surface-500 dark:text-surface-400">{event.description}</p>
+							<p class="mt-1 text-sm text-surface-500 dark:text-surface-400">{dialogEvent.event.description}</p>
 							<div class="flex flex-wrap justify-between">
 								<div class="mt-2 text-xs font-medium text-primary-500">
-									📍 {event.location}
+									📍 {dialogEvent.event.location}
 								</div>
-								{#if event.requiresMembership}
+								{#if dialogEvent.event.requires_membership}
 									<div class="mt-2 text-xs font-medium text-primary-500">
 										🔒 Mitgliedschaft erforderlich
 									</div>
 								{/if}
-								{#if event.requiresRegistration}
+								{#if dialogEvent.event.requires_registration}
 									<div class="mt-2 text-xs font-medium text-primary-500">
 										📝 Anmeldung erforderlich
 									</div>

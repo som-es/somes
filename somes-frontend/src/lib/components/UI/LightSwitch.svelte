@@ -12,6 +12,7 @@
 			lightModeStore.value = 'light';
 		}
 		document.documentElement.classList.toggle('dark', lightModeStore.value == 'dark' || wantsDark);
+		document.cookie = `theme=${lightModeStore.value}; path=/; expires=${new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString()}`;
 	});
 </script>
 

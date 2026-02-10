@@ -4,6 +4,7 @@ use crate::{
     Qs, RedisConnection, DECREES_PER_PAGE,
 };
 use axum::{extract::Query, Json};
+use dataservice::combx::meilisearch_filters_ai_summary;
 use meilisearch_sdk::search::SearchResults;
 use somes_common_lib::{Page, Sort};
 use somes_meilisearch_filter::{to_meilisearch_filters, FilterOptions};
@@ -52,7 +53,12 @@ async fn meilisearch_decrees(
                 ..Default::default()
             },
         ));
+        filter_conditions.extend(meilisearch_filters_ai_summary(
+            decree_filter.ai_summary,
+            Some("decree.ai_summary".into()),
+        ));
     }
+
     if let Some(delegate) = &decree_filter.delegate {
         filter_conditions.extend(to_meilisearch_filters(
             &delegate.filter_arguments(),

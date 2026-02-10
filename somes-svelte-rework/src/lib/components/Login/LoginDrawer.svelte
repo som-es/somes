@@ -90,7 +90,7 @@
 	>
 	<h2 class="text-center mb-4">
 		{#if isLogin}
-			Anmeldung
+			Anmelden
 		{:else}
 			Registrierung
 		{/if}

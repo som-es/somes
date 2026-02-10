@@ -95,7 +95,10 @@ fn rebuild_type_inner(
                                     }
                                 };
 
-                                let new_path = if convert_to_optional && ident != "Option" {
+                                let new_path = if convert_to_optional
+                                    && ident != "Option"
+                                    && ident != "Json"
+                                {
                                     quote! { Option<#new_path> }
                                 } else {
                                     new_path

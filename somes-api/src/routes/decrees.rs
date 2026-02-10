@@ -1,5 +1,5 @@
 use axum::{routing::get, Router};
-use dataservice::combx::{OptionalDecree, DbAiSummary};
+use dataservice::combx::{DbAiSummary, OptionalDecree};
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::{Delegate, DelegateFilter};
@@ -78,17 +78,13 @@ pub async fn get_all_decrees_sqlx(
     let mut decree_delegates = Vec::with_capacity(decrees.len());
     for decree in decrees {
         let delegate = match decree.gov_official_id {
-            Some(delegate_id) => {
-                delegate_by_id_sqlx(delegate_id, &pg, redis_con.clone()).await.ok()
-            }
+            Some(delegate_id) => delegate_by_id_sqlx(delegate_id, &pg, redis_con.clone())
+                .await
+                .ok(),
             None => None,
         };
 
-        decree_delegates.push(DecreeDelegate {
-            delegate,
-            decree
-        })
-
+        decree_delegates.push(DecreeDelegate { delegate, decree })
     }
     Ok(decree_delegates)
 }

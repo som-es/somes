@@ -1,5 +1,5 @@
 use axum::{extract::Query, Json};
-use dataservice::combx::meilisearch_filters_gov_props;
+use dataservice::combx::{meilisearch_filters_ai_summary, meilisearch_filters_gov_props};
 use meilisearch_sdk::search::SearchResults;
 use somes_meilisearch_filter::{to_meilisearch_filters, FilterOptions};
 
