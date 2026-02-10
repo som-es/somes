@@ -1,18 +1,20 @@
 use axum::{
-    Json, Router, routing::{delete, get, post, put}
+    routing::{delete, get, post, put},
+    Json, Router,
 };
 use chrono::{NaiveDate, NaiveTime};
+use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 
-use crate::{PgPoolConnection, server::AppState};
+use crate::{PgPoolConnection, jwt::Claims, server::AppState};
 
 #[derive(Debug, Serialize, Deserialize, Hash, Eq, PartialEq)]
 pub struct SomesEvent {
-    pub id: i32,
+    pub id: Option<i32>,
     pub title: String,
     pub location: String,
-    pub event_date: NaiveDate, 
+    pub event_date: NaiveDate,
     pub start_time: NaiveTime,
     pub description: String,
     pub image: Option<String>,
@@ -20,30 +22,34 @@ pub struct SomesEvent {
     pub requires_registration: Option<bool>,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct EventId {
     pub id: i32,
 }
 
-
 pub async fn create_event_route(
+    claims: Claims,
     PgPoolConnection(pg): PgPoolConnection,
     Json(event): Json<SomesEvent>,
-) -> crate::Result<Json<()>> {
+) -> crate::Result<Json<EventId>> {
+    if !claims.is_admin {
+        return Err(crate::GenericError::Custom((StatusCode::UNAUTHORIZED, "insufficient permissions")))
+    }
     create_event_sqlx(&pg, &event)
         .await
-        .map(Json)
+        .map(|id| Json(EventId { id }))
         .map_err(|e| crate::GenericError::SqlFailure(Some(e)))
 }
 
-pub async fn create_event_sqlx(pg: &PgPool, event: &SomesEvent) -> sqlx::Result<()> {
-    sqlx::query!(
+pub async fn create_event_sqlx(pg: &PgPool, event: &SomesEvent) -> sqlx::Result<i32> {
+    let id = sqlx::query_scalar!(
         r#"
         INSERT INTO events (
             title, location, event_date, start_time, description, 
             image, requires_membership, requires_registration
         )
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        RETURNING id
         "#,
         event.title,
         event.location,
@@ -54,16 +60,20 @@ pub async fn create_event_sqlx(pg: &PgPool, event: &SomesEvent) -> sqlx::Result<
         event.requires_membership,
         event.requires_registration
     )
-    .execute(pg)
+    .fetch_one(pg)
     .await?;
 
-    Ok(())
+    Ok(id)
 }
 
 pub async fn delete_event_route(
+    claims: Claims,
     PgPoolConnection(pg): PgPoolConnection,
     Json(payload): Json<EventId>,
 ) -> crate::Result<Json<()>> {
+    if !claims.is_admin {
+        return Err(crate::GenericError::Custom((StatusCode::UNAUTHORIZED, "insufficient permissions")))
+    }
     delete_event_sqlx(&pg, payload.id)
         .await
         .map(Json)
@@ -71,20 +81,21 @@ pub async fn delete_event_route(
 }
 
 pub async fn delete_event_sqlx(pg: &PgPool, id: i32) -> sqlx::Result<()> {
-    sqlx::query!(
-        "DELETE FROM events WHERE id = $1",
-        id
-    )
-    .execute(pg)
-    .await?;
+    sqlx::query!("DELETE FROM events WHERE id = $1", id)
+        .execute(pg)
+        .await?;
 
     Ok(())
 }
 
 pub async fn update_event_route(
+    claims: Claims,
     PgPoolConnection(pg): PgPoolConnection,
     Json(event): Json<SomesEvent>,
 ) -> crate::Result<Json<()>> {
+    if !claims.is_admin {
+        return Err(crate::GenericError::Custom((StatusCode::UNAUTHORIZED, "insufficient permissions")))
+    }
     update_event_sqlx(&pg, &event)
         .await
         .map(Json)
@@ -92,6 +103,9 @@ pub async fn update_event_route(
 }
 
 pub async fn update_event_sqlx(pg: &PgPool, event: &SomesEvent) -> sqlx::Result<()> {
+    if event.id.is_none() {
+        return Err(sqlx::Error::RowNotFound);
+    }
     sqlx::query!(
         r#"
         UPDATE events 

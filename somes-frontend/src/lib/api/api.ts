@@ -38,7 +38,7 @@ export function toActualDateString(date: Date): string {
 }
 
 export function isHasError<T>(value: T | HasError): value is HasError {
-	return (value as HasError).error !== undefined;
+	return (value as HasError)?.error !== undefined;
 }
 
 export function isThere<T>(value: T | null): boolean {

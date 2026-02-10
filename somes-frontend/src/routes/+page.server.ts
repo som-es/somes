@@ -6,7 +6,7 @@ import {
 } from '$lib/api/api';
 import { next_plenar_date } from '$lib/components/PlenarySessions/api';
 import type { PageServerLoad } from './$types';
-import type { PlatformItem } from './types';
+import { events, type PlatformItem } from './types';
 
 let internalCache: {
 	data: any;
@@ -26,12 +26,13 @@ export const load: PageServerLoad = async ({ fetch, setHeaders }) => {
 		});
 	}
 
-	const [nextPlenarDate, latestVotes, latestMinisterialProposals, latestDecrees] =
+	const [nextPlenarDate, latestVotes, latestMinisterialProposals, latestDecrees, somesEvents] =
 		await Promise.all([
 			next_plenar_date(fetch),
 			latest_vote_results(fetch),
 			latest_ministrial_proposals(21, fetch),
-			latest_decrees(7, fetch)
+			latest_decrees(7, fetch),
+			events(fetch)
 		]);
 
 	const platformItems: PlatformItem[] = [];
@@ -84,7 +85,8 @@ export const load: PageServerLoad = async ({ fetch, setHeaders }) => {
 
 	const data = {
 		nextPlenarDate,
-		platformItems
+		platformItems,
+		somesEvents
 	};
 
 	internalCache = {

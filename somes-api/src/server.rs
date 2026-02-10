@@ -228,7 +228,7 @@ pub async fn serve(addr: SocketAddr) {
                     http::Method::DELETE,
                     http::Method::PUT,
                 ])
-                .allow_headers([http::header::CONTENT_TYPE, http::header::AUTHORIZATION]),
+                .allow_headers([http::header::CONTENT_TYPE, http::header::AUTHORIZATION, http::header::ACCEPT_ENCODING]),
         )
         .layer(
             ServiceBuilder::new()

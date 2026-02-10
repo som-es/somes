@@ -1,49 +1,70 @@
 <script lang="ts">
 	import { Dialog } from 'bits-ui';
-	import type { SomesEvent } from '../../../routes/types';
+	import { createEvent, deleteEvent, updateEvent, type DialogEvent, type SomesEvent } from '../../../routes/types';
+	import { isHasError } from '$lib/api/api';
+	import { browser } from '$app/environment';
 
 	interface Props {
 		event?: SomesEvent;
+		events?: DialogEvent[];
 		dialogOpen: boolean;
 	}
 
 	let {
 		dialogOpen = $bindable(false),
-		event = {
+		event = $bindable({
 			id: null,
 			title: '',
 			location: '',
-			date: '',
-			time: '',
+			event_date: '',
+			start_time: '',
 			description: '',
-			requiresMembership: false,
-			requiresRegistration: false
-		}
+			requires_membership: false,
+			requires_registration: false,
+			image: null,
+		}),
+		events = $bindable(),
 	}: Props = $props();
 
-	let formData = $state($state.snapshot(event));
+	let formData: SomesEvent = $state($state.snapshot(event));
 
 	let isEditing = $derived(formData.id !== null);
 
-	function handleSubmit(e: Event) {
+	async function handleSubmit(e: Event) {
 		e.preventDefault();
+		const formDataSnapshot = $state.snapshot(formData);
 		if (isEditing) {
-			console.log('Update Event ID:', formData.id, $state.snapshot(formData));
+			const status = await updateEvent(formData);
+			if (isHasError(status)) {
+				console.error(status)
+			}
+			event = formDataSnapshot;
 		} else {
-			console.log('Create New Event:', $state.snapshot(formData));
+			const status = await createEvent(formData);
+			if (isHasError(status)) {
+				console.error(status);
+			} else {
+				if (events) {
+					formDataSnapshot.id = status.id;
+					events.push({event: formDataSnapshot, dialogOpen: false})
+				}
+			}
+
 		}
 		dialogOpen = false;
 	}
 
-	$effect(() => {
-		JSON.stringify(formData);
-		console.log('Something changed:', formData);
-	});
-
-	function handleDelete() {
-		if (isEditing) {
-			// console.log('Delete Event ID:', editingId);
-			// Add logic to remove event
+	async function handleDelete() {
+		if (isEditing && formData.id) {
+			const status = await deleteEvent(formData.id);
+			if (isHasError(status)) {
+				console.error(status);
+			} else if (events) {
+				const index = events.findIndex(e => e.event.id === formData.id);
+				if (index !== -1) {
+					events.splice(index, 1);
+				}
+			}
 			dialogOpen = false;
 		}
 	}
@@ -157,7 +178,7 @@
 						<input
 							type="date"
 							id="date"
-							bind:value={formData.date}
+							bind:value={formData.event_date}
 							class="w-full rounded-lg border border-surface-300 bg-surface-50 px-4 py-2.5 text-surface-900 focus:border-secondary-500 focus:ring-2 focus:ring-secondary-500/20 focus:outline-none dark:border-surface-700 dark:bg-surface-800 dark:text-surface-100"
 							required
 						/>
@@ -171,7 +192,7 @@
 						<input
 							type="time"
 							id="time"
-							bind:value={formData.time}
+							bind:value={formData.start_time}
 							class="w-full rounded-lg border border-surface-300 bg-surface-50 px-4 py-2.5 text-surface-900 focus:border-secondary-500 focus:ring-2 focus:ring-secondary-500/20 focus:outline-none dark:border-surface-700 dark:bg-surface-800 dark:text-surface-100"
 							required
 						/>
@@ -202,7 +223,7 @@
 						<div class="flex h-5 items-center">
 							<input
 								type="checkbox"
-								bind:checked={formData.requiresMembership}
+								bind:checked={formData.requires_membership}
 								class="h-4 w-4 rounded border-surface-300 text-secondary-600 focus:ring-secondary-500 dark:border-surface-600"
 							/>
 						</div>
@@ -218,7 +239,7 @@
 						<div class="flex h-5 items-center">
 							<input
 								type="checkbox"
-								bind:checked={formData.requiresRegistration}
+								bind:checked={formData.requires_registration}
 								class="h-4 w-4 rounded border-surface-300 text-secondary-600 focus:ring-secondary-500 dark:border-surface-600"
 							/>
 						</div>
