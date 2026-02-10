@@ -3,13 +3,13 @@
 	import type { SomesEvent } from '../../../routes/types';
 
 	interface Props {
-		formData?: SomesEvent;
+		event?: SomesEvent;
 		dialogOpen: boolean;
 	}
 
 	let {
 		dialogOpen = $bindable(false),
-		formData = $bindable({
+		event = {
 			id: null,
 			title: '',
 			location: '',
@@ -18,8 +18,10 @@
 			description: '',
 			requiresMembership: false,
 			requiresRegistration: false
-		})
+		}
 	}: Props = $props();
+
+	let formData = $state($state.snapshot(event));
 
 	let isEditing = $derived(formData.id !== null);
 
@@ -32,6 +34,11 @@
 		}
 		dialogOpen = false;
 	}
+
+	$effect(() => {
+		JSON.stringify(formData);
+		console.log('Something changed:', formData);
+	});
 
 	function handleDelete() {
 		if (isEditing) {

@@ -101,7 +101,7 @@
 
 				<Drawer.Title class="mb-6 text-center text-2xl font-bold">
 					{#if isLogin}
-						Anmeldung
+						Anmelden
 					{:else}
 						Registrierung
 					{/if}
@@ -124,18 +124,27 @@
 						<div class="flex items-center gap-3">
 							<Switch.Root
 								bind:checked={storeEmailAnonymously}
-								class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-gray-300"
+								class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
+								id="storeEmailAnonymously"
+
 							>
 								<Switch.Thumb
 									class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
 								/>
 							</Switch.Root>
-							<span
-								class="cursor-pointer text-sm"
-								onclick={() => (storeEmailAnonymously = !storeEmailAnonymously)}
+							<label
+								class="cursor-pointer"
+								for="storeEmailAnonymously"
 							>
-								E-Mail anonymisiert abspeichern
-							</span>
+								<div class="flex flex-col">
+									<span class="font-semibold ">
+										E-Mail anonymisiert speichern
+									</span>
+									<span class=" text-sm">
+										Achtung: Optionale E-Mail-Benachrichtungen zu Abstimmungen, etc. sind nicht möglich
+									</span>
+								</div>
+							</label>
 						</div>
 					{/if}
 

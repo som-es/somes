@@ -526,7 +526,10 @@
 											<Dialog.Trigger>
 												<EditButton />
 											</Dialog.Trigger>
-											<CreateEventModal bind:dialogOpen={editDialogOpen} formData={event} />
+											<CreateEventModal
+												bind:dialogOpen={editDialogOpen}
+												event={$state.snapshot(event)}
+											/>
 										</Dialog.Root>
 									{/if}
 									<span
@@ -617,7 +620,10 @@
 										<Dialog.Trigger>
 											<EditButton />
 										</Dialog.Trigger>
-										<CreateEventModal bind:dialogOpen={editDialogOpen} formData={event} />
+										<CreateEventModal
+											bind:dialogOpen={editDialogOpen}
+											event={$state.snapshot(event)}
+										/>
 									</Dialog.Root>
 								{/if}
 							</div>
