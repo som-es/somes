@@ -3,7 +3,7 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
-use dataservice::combx::OptionalVoteResult;
+use dataservice::combx::{Index, OptionalVoteResult};
 use somes_common_lib::{AddonVoteResultFilter, Page, ID, LATEST, LIVE, SEARCH};
 
 use crate::{server::AppState, PgPoolConnection, RedisConnection, LEGIS_INITS_PER_PAGE};
@@ -51,7 +51,7 @@ pub async fn vote_results_per_page_route(
 
     let updated_at = crate::meilisearch::get_update_time_of_index(
         &mut redis_con,
-        &crate::meilisearch::Index::VoteResults,
+        &Index::VoteResults,
     )
     .await
     .ok()

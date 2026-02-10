@@ -11,6 +11,7 @@ pub mod jwt;
 pub mod refresh_views;
 pub mod routes;
 pub mod server;
+pub mod updater;
 
 pub use db::*;
 pub use filter_querying::*;
@@ -22,6 +23,7 @@ use once_cell::sync::Lazy;
 mod error;
 pub use error::*;
 pub use refresh_views::*;
+pub use updater::*;
 
 pub type Result<T> = std::result::Result<T, crate::error::GenericError>;
 

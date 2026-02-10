@@ -1,5 +1,5 @@
 use axum::{extract::Query, Json};
-use dataservice::combx::{meilisearch_filters_ai_summary, meilisearch_filters_gov_props};
+use dataservice::combx::{Index, meilisearch_filters_ai_summary, meilisearch_filters_gov_props};
 use meilisearch_sdk::search::SearchResults;
 use somes_meilisearch_filter::{to_meilisearch_filters, FilterOptions};
 
@@ -69,7 +69,7 @@ pub async fn gov_props_by_search_route(
 
     let updated_at = crate::meilisearch::get_update_time_of_index(
         &mut redis_con,
-        &crate::meilisearch::Index::GovProposals,
+        &Index::GovProposals,
     )
     .await
     .ok()

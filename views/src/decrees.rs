@@ -18,6 +18,7 @@ pub async fn create_ministerial_decrees_with_docs_view<'a>(
         "
         CREATE VIEW ministrial_decrees_with_docs AS
         SELECT
+            d.id,
             d.gov_official_id,
             d.ris_id,
             d.ministrial_issuer,

@@ -1,5 +1,5 @@
 use axum::{extract::Query, Json};
-use dataservice::combx::meilisearch_filters_gov_props;
+use dataservice::combx::{Index, meilisearch_filters_gov_props};
 use meilisearch_sdk::search::SearchResults;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::{Delegate, DelegateFilter};
@@ -68,7 +68,7 @@ pub async fn delegates_by_search_route(
 
     let updated_at = crate::meilisearch::get_update_time_of_index(
         &mut redis_con,
-        &crate::meilisearch::Index::Delegates,
+        &Index::Delegates,
     )
     .await
     .ok()

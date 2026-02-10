@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use axum::{extract::Query, Json};
 use dataservice::combx::{
-    meilisearch_filters_vote_result, OptionalVoteResult, OptionalVoteResultFilter,
+    Index, OptionalVoteResult, OptionalVoteResultFilter, meilisearch_filters_vote_result
 };
 use meilisearch_sdk::search::SearchResults;
 use redis::aio::MultiplexedConnection;
@@ -127,7 +127,7 @@ async fn meilisearch_for_vote_results(
         max_page,
         updated_at: crate::meilisearch::get_update_time_of_index(
             redis_con,
-            &crate::meilisearch::Index::VoteResults,
+            &Index::VoteResults,
         )
         .await
         .ok()
