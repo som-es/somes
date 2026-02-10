@@ -82,6 +82,8 @@
 			</div>
 		</div>
 
+
+		
 		<!-- REWORK - checks if vote was cast and checks for normal or roll call vote-->
 		<div>
 			<div class="block sm:flex justify-between mt-4">

@@ -34,7 +34,7 @@
 	import Documents from '$lib/components/Documents/Documents.svelte';
 	import { dashDateToDotDate } from '$lib/date';
 	import InfoBadges from '$lib/components/VoteResults/InfoTiles/InfoBadges.svelte';
-	import crossmarkIcon from '$lib/assets/misc_icons/crossmark.svg?raw';
+	import crossmarkIcon from '$lib/assets/misc_icons/crossmark_small.svg?raw';
 	import checkmarkIcon from '$lib/assets/misc_icons/checkmark_small.svg?raw';
 	import GlossaryText from '$lib/components/UI/GlossaryText.svelte';
 	import AiSummaryHintPopup from '$lib/components/AiHint/AiSummaryHintPopup.svelte';
@@ -225,12 +225,12 @@
 									{#if voteResult.legislative_initiative.accepted == 'a'}
 										<span
 											class="stroke-green-600 dark:stroke-green-500 block"
-											style="width:40px; height:40px;"
+											style="width:34px; height:34px;"
 										>
 											{@html checkmarkIcon}
 										</span>
 									{:else}
-										<span class="block" style="width:45px; height:45px;">
+										<span class="block" style="width:34px; height:34px;">
 											{@html crossmarkIcon}
 										</span>
 									{/if}
@@ -313,18 +313,21 @@
 								<div>
 									{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
 										{#if vote.infavor}
-											<div class="flex items-center justify-between">
+											<div class="flex items-center justify-between gap-4">
 												<div class="flex items-center gap-2">
 													<div
-														class="w-3 h-3 rounded-full"
+														class="w-2 h-2 rounded-full"
 														style="background-color: {partyColors.get(vote.party) ?? '#ccc'};"
 													></div>
 													<span class="text-base text-gray-800 font-medium"
-														>{vote.party} ({vote.fraction})</span
+														>{vote.party}</span
 													>
 												</div>
-												<div class="w-5 h-5">
-													<span class="stroke-green-600 dark:stroke-green-500"
+												<div class="flex items-center gap-1">
+													<span class="text-base text-gray-800 font-medium">({vote.fraction})</span>
+													<span
+														class="stroke-green-600 dark:stroke-green-500 inline-block align-middle"
+														style="width:18px; height:18px;"
 														>{@html checkmarkIcon}</span
 													>
 												</div>
@@ -335,18 +338,21 @@
 								<div>
 									{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
 										{#if !vote.infavor}
-											<div class="flex items-center justify-between">
+											<div class="flex items-center justify-between gap-4">
 												<div class="flex items-center gap-2 mr-1">
 													<div
-														class="w-3 h-3 rounded-full"
+														class="w-2 h-2 rounded-full"
 														style="background-color: {partyColors.get(vote.party) ?? '#ccc'};"
 													></div>
 													<span class="text-base text-gray-800 font-medium"
-														>{vote.party} ({vote.fraction})</span
+														>{vote.party}</span
 													>
 												</div>
-												<div class="w-5 h-5">
-													<span class="stroke-red-600 dark:stroke-red-500"
+												<div class="flex items-center gap-1">
+													<span class="text-base text-gray-800 font-medium">({vote.fraction})</span>
+													<span
+														class="inline-block align-middle"
+														style="width:18px; height:18px;"
 														>{@html crossmarkIcon}</span
 													>
 												</div>
@@ -362,21 +368,26 @@
 							<h3 class="font-semibold text-lg md:text-xl">Abstimmung</h3>
 							<div class="ml-1">
 								{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
-									<div class="flex items-center justify-between">
+									<div class="flex items-center justify-between gap-4">
 										<div class="flex items-center gap-2">
 											<div
-												class="w-3 h-3 rounded-full"
+												class="w-2.5 h-2.5 rounded-full"
 												style="background-color: {partyColors.get(vote.party) ?? '#ccc'};"
 											></div>
-											<span class="text-sm lg:text-base">{vote.party} ({vote.fraction})</span>
+											<span class="text-sm lg:text-base">{vote.party}</span>
 										</div>
-										<div class="w-5 h-5">
+										<div class="flex items-center gap-1">
+											<span class="text-sm lg:text-base">({vote.fraction})</span>
 											{#if vote.infavor}
-												<span class="fill-green-600 dark:fill-green-500 "
+												<span
+													class="stroke-green-600 dark:stroke-green-500 inline-block align-middle"
+													style="width:18px; height:18px;"
 													>{@html checkmarkIcon}</span
 												>
 											{:else}
-												<span class="stroke-red-600 dark:stroke-red-500">{@html crossmarkIcon}</span
+												<span
+													class="inline-block align-middle"
+													style="width:18px; height:18px;">{@html crossmarkIcon}</span
 												>
 											{/if}
 										</div>
