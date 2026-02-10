@@ -14,9 +14,7 @@
 	export let delegate: Delegate;
 	export let showDelegate: boolean = false;
 	export let open: boolean = true;
-
-	let delsAtDate: Delegate[] = [];
-
+	
 	function onShowDetails(govProposal: GovProposal, delegate: Delegate) {
 		currentGovProposalDelegateStore.value = { gov_proposal: govProposal, delegate };
 		gotoHistory(createGovProposalPath(govProposal.ministrial_proposal), true);

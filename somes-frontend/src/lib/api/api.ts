@@ -22,7 +22,8 @@ import type {
 	GeneralDelegateInfo,
 	GovPropFilter,
 	GovProposalsWithMaxPage,
-	GeneralGovOfficialInfo
+	GeneralGovOfficialInfo,
+	DelegatesWithMaxPage
 } from '../types';
 
 // const address = 'https://somes.at';
@@ -175,6 +176,22 @@ export async function delegates_at(
 	fetcher: typeof fetch = fetch
 ): Promise<Delegate[] | HasError> {
 	return getWithRoute(`v1/delegates/all_at_date?at=${date_at}`, "at/", fetcher);
+}
+
+export async function delegates_search_persons(
+	page: number,
+	entries_per_page: number,
+	name: string | null = null,
+	period: number | null = null,
+	party: string | null = null,
+	fetcher: typeof fetch = fetch
+): Promise<DelegatesWithMaxPage | HasError> {
+	let query = `v1/delegates/search?page=${page}&entries_per_page=${entries_per_page}&is_active[eq]=true`;
+	if (name) query += `&q=${encodeURIComponent(name)}`;
+	if (period) query += `&period[eq]=${period}`;
+	if (party) query += `&party[eq]=${encodeURIComponent(party)}`;
+
+	return getWithRoute<DelegatesWithMaxPage>(query, 'at/', fetcher);
 }
 
 export async function gov_officials_at(

@@ -208,6 +208,12 @@ export interface VoteResultsWithMaxPage {
 	updated_at: string;
 }
 
+export interface DelegatesWithMaxPage {
+	delegates: Delegate[];
+	entry_count: number;
+	max_page: number;
+}
+
 export interface GovProposalsWithMaxPage {
 	gov_proposals: GovProposalDelegate[];
 	entry_count: number;

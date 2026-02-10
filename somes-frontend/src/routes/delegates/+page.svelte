@@ -20,7 +20,9 @@
 		general_delegate_info,
 		general_gov_official_info,
 		speeches_by_delegate_per_page,
-		toActualDateString
+		toActualDateString,
+		delegates_search_persons,
+		isHasError
 	} from '$lib/api/api';
 	import {
 		currentDelegateFilterStore,
@@ -64,29 +66,6 @@
 	let delegates: Delegate[] = $derived(data.delegates ?? []);
 	let partiesPerGp: Record<string, Party[]> = $derived(data.partiesPerGp ?? {});
 
-	let uniqueParties = $derived.by(() => {
-		if (false) {
-			return partiesPerGp[selectedPeriod].sort((a, b) => {
-				return b.fraction - a.fraction;
-			});
-		} else {
-			const parties: Party[] = [];
-			const namedParties = new Set();
-			const keys = Object.keys(partiesPerGp).sort().reverse();
-			keys.forEach((key) => {
-				partiesPerGp[key].forEach((party) => {
-					if (!namedParties.has(party.code)) {
-						namedParties.add(party.code);
-						parties.push(party);
-					}
-				});
-			});
-			return parties.sort((a, b) => {
-				return b.fraction - a.fraction;
-			});
-		}
-	});
-
 	// Christoph Rework
 	const sliderSteps = [25, 50, 75, 365];
 	let isLegisPeriodFilterOpen = $state(false);
@@ -94,6 +73,10 @@
 	let searchInput = $state('');
 	let selectedParty = $state<Party | undefined>(undefined);
 	let selectedSearchPeriod = $state<string | undefined>(undefined);
+	let timeout:any;
+
+	let searchResults: Delegate[] = $state(data.delegates ?? []);
+	let isLoadingSearch = $state(false);
 
 
 	// Filter Elements to Keep the PopUp open
@@ -106,6 +89,64 @@
 		}
 		isSearchPopupOpen = false;
 	}
+
+	export function romanToInt(s: string): number {
+	const map: Record<string, number> = {
+		I: 1,
+		V: 5,
+		X: 10,
+		L: 50,
+		C: 100,
+		D: 500,
+		M: 1000
+	};
+	let result = 0;
+	for (let i = 0; i < s.length; i++) {
+		const curr = map[s[i]];
+		const next = map[s[i + 1]];
+		if (next > curr) {
+			result += next - curr;
+			i++;
+		} else {
+			result += curr;
+		}
+	}
+	return result;
+}
+
+
+	$effect(() => {
+		// clear previous debounce
+		clearTimeout(timeout);
+
+		const sv = searchInput;
+		const sp = selectedSearchPeriod;
+		const party = selectedParty;
+
+		// debounce fetch
+		timeout = setTimeout(async () => {
+			isLoadingSearch = true;
+			if (!sv && !sp && !party) {
+				searchResults = data.delegates ?? [];
+				isLoadingSearch = false;
+				return;
+			}
+			
+			const res = await delegates_search_persons(
+				1,
+				50,
+				sv || null,
+				sp ? romanToInt(sp) : null,
+				party?.name || null
+			);
+
+			if (!isHasError(res)) {
+				searchResults = res.delegates;
+			}
+			isLoadingSearch = false;
+		}, 400);
+	});
+
 
 	// Christoph Rework end
 
@@ -179,8 +220,28 @@
 	let selectedPeriod = $derived(maybeCurrentDelegateFilter.legis_period ?? latestPeriod);
 	let prevSelectedPeriod = $state(maybeCurrentDelegateFilter.legis_period ?? latestPeriod);
 
-	// Caches the sorted delegates
-	let sortedDelegates = $derived(sortDelegates(delegates));
+	let uniqueParties = $derived.by(() => {
+		if (false) {
+			return partiesPerGp[selectedPeriod].sort((a, b) => {
+				return b.fraction - a.fraction;
+			});
+		} else {
+			const parties: Party[] = [];
+			const namedParties = new Set();
+			const keys = Object.keys(partiesPerGp).sort().reverse();
+			keys.forEach((key) => {
+				partiesPerGp[key].forEach((party) => {
+					if (!namedParties.has(party.code)) {
+						namedParties.add(party.code);
+						parties.push(party);
+					}
+				});
+			});
+			return parties.sort((a, b) => {
+				return b.fraction - a.fraction;
+			});
+		}
+	});
 
 	let autocompleteOptions: AutocompleteOption<string>[] = $derived(
 		convertDelegatesToAutocompleteOptions(delegates)
@@ -203,6 +264,7 @@
 		// @ts-ignore
 		delegate = event.meta;
 		inputValue = event.label;
+		searchInput = "Dere";
 	}
 
 	onMount(async () => {
@@ -320,79 +382,6 @@
 		return `${firstPeriod} - ${lastPeriod}`;
 	}
 
-	function sortDelegates(delegates: Delegate[]): Delegate[] {
-		const filter = maybeCurrentDelegateFilter;
-
-		// Filter for Party
-		let filteredDelegates = delegates;
-		if (selectedParty !== undefined) {
-			filteredDelegates = filteredDelegates.filter((d) => d.party === selectedParty?.name);
-		}
-
-		// Filter by Legislative Period
-		if (selectedSearchPeriod !== undefined) {
-			const sortedPeriods = [...periods].sort(
-				(a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
-			);
-			const periodIndex = sortedPeriods.findIndex((p) => p.gp === selectedSearchPeriod);
-
-			if (periodIndex !== -1) {
-				const periodStart = new Date(sortedPeriods[periodIndex].start_date);
-
-				const nextPeriod = sortedPeriods[periodIndex + 1];
-				const periodEnd = nextPeriod ? new Date(nextPeriod.start_date) : new Date();
-
-				filteredDelegates = filteredDelegates.filter((delegate) => {
-					const allMandates = [
-						...(delegate.mandates ?? []),
-						...(delegate.active_mandates ?? [])
-					];
-
-					return allMandates.some((mandate) => {
-						const mandateStart = new Date(mandate.start_date ?? '1900-01-01');
-						const mandateEnd = mandate.end_date ? new Date(mandate.end_date) : new Date();
-
-						return mandateStart < periodEnd && mandateEnd > periodStart;
-					});
-				});
-			}
-		}
-
-		// If there's a search value, prioritize matching delegates
-		if (filter.search_value && filter.search_value.trim()) {
-			const searchLower = filter.search_value.toLowerCase().trim();
-
-			return [...filteredDelegates].sort((a, b) => {
-				const aName = a.name.toLowerCase();
-				const bName = b.name.toLowerCase();
-
-				// Exact matches first
-				const aExactMatch = aName === searchLower;
-				const bExactMatch = bName === searchLower;
-				if (aExactMatch && !bExactMatch) return -1;
-				if (!aExactMatch && bExactMatch) return 1;
-
-				// Starts with search term
-				const aStartsWith = aName.startsWith(searchLower);
-				const bStartsWith = bName.startsWith(searchLower);
-				if (aStartsWith && !bStartsWith) return -1;
-				if (!aStartsWith && bStartsWith) return 1;
-
-				// Contains search term
-				const aContains = aName.includes(searchLower);
-				const bContains = bName.includes(searchLower);
-				if (aContains && !bContains) return -1;
-				if (!aContains && bContains) return 1;
-
-				// Alphabetical as fallback
-				return aName.localeCompare(bName);
-			});
-		}
-
-		// Default: sort alphabetically by name
-		return [...filteredDelegates].sort((a, b) => a.name.localeCompare(b.name));
-	}
-
 	const updateStoredPeriod = () => {
 		maybeCurrentDelegateFilter.legis_period = selectedPeriod;
 		currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
@@ -483,6 +472,7 @@
 		<!-- Search Input -->
 		<SearchBar oninput={(e) => {
 				maybeCurrentDelegateFilter.search_value = e.currentTarget.value;
+				searchInput = e.currentTarget.value;
 				currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
 			}} 
 			onfocus={() => (isSearchPopupOpen = true)}
@@ -615,38 +605,44 @@
 					<div class="mt-3">
 						<span class="text-base font-semibold text-gray-800">Suchergebnisse</span>
 						<div class="max-h-96 overflow-y-auto mt-1">
-							{#each sortedDelegates as d}
-								<!-- svelte-ignore a11y_click_events_have_key_events -->
-								<!-- svelte-ignore a11y_no_static_element_interactions -->
-								<div
-									class="mb-3 flex w-full justify-between rounded-xl bg-primary-300 p-2 transition-colors hover:cursor-pointer hover:bg-primary-400"
-									onclick={() => {
-										const url = new URL(window.location.href);
-										url.searchParams.set('delegate', d.id.toString());
-										goto(url.toString(), { noScroll: true });
-										isSearchPopupOpen = false;
-										maybeCurrentDelegateFilter.search_value = d.name;
-										currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
-									}}
-								>
-									<div class="flex">
-										<img class="h-14 rounded-full mx-1" src={d.image_url} alt={d.name} />
-										<div class="ml-3 mt-1">
-											<h4 class="text-lg/5 font-semibold text-gray-900">{d.name}</h4>
-											<div class="flex items-center gap-2 mt-1">
-												<div
-													class="h-2 w-2 rounded-full"
-													style="background-color: {partyColors.get(d.party) ?? '#ccc'};"
-												></div>
-												<span class="text-sm font-medium text-gray-800">{d.party}</span>
+							{#if isLoadingSearch}
+								<div class="flex justify-center p-4">
+									<span class="text-gray-500">Loading...</span>
+								</div>
+							{:else}
+								{#each searchResults as d}
+									<!-- svelte-ignore a11y_click_events_have_key_events -->
+									<!-- svelte-ignore a11y_no_static_element_interactions -->
+									<div
+										class="mb-3 flex w-full justify-between rounded-xl bg-primary-300 p-2 transition-colors hover:cursor-pointer hover:bg-primary-400"
+										onclick={() => {
+											const url = new URL(window.location.href);
+											url.searchParams.set('delegate', d.id.toString());
+											goto(url.toString(), { noScroll: true });
+											isSearchPopupOpen = false;
+											maybeCurrentDelegateFilter.search_value = d.name;
+											currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
+										}}
+									>
+										<div class="flex">
+											<img class="h-14 rounded-full mx-1" src={d.image_url} alt={d.name} />
+											<div class="ml-3 mt-1">
+												<h4 class="text-lg/5 font-semibold text-gray-900">{d.name}</h4>
+												<div class="flex items-center gap-2 mt-1">
+													<div
+														class="h-2 w-2 rounded-full"
+														style="background-color: {partyColors.get(d.party) ?? '#ccc'};"
+													></div>
+													<span class="text-sm font-medium text-gray-800">{d.party}</span>
+												</div>
 											</div>
 										</div>
+										<div class="text-sm font-medium text-gray-800">
+											{getMandatePeriods(d, periods)}
+										</div>
 									</div>
-									<div class="text-sm font-medium text-gray-800">
-										{getMandatePeriods(d, periods)}
-									</div>
-								</div>
-							{/each}
+								{/each}
+							{/if}
 						</div>
 					</div>
 				</div>
