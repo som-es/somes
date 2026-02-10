@@ -1,4 +1,4 @@
-use dataservice::combx::{models::*, DbMinistrialProposalQueryMeta, VoteResult};
+use dataservice::combx::{models::*, CombinedData, DbMinistrialProposalQueryMeta, VoteResult};
 use redis::aio::MultiplexedConnection;
 use somes_common_lib::Document;
 use sqlx::PgPool;
@@ -20,7 +20,7 @@ pub async fn construct_gov_proposal(
     pg: &PgPool,
     ministrial_proposal: DbMinistrialProposalQueryMeta,
 ) -> sqlx::Result<OptionalGovProposal> {
-    let key = format!("ministrial_prop/{}", ministrial_proposal.id);
+    let key = format!("{}/{}", GovProposal::INDEX, ministrial_proposal.id);
     let res = get_json_cache::<OptionalGovProposal>(&mut redis_con, &key).await;
     if let Some(res) = res {
         return Ok(res);

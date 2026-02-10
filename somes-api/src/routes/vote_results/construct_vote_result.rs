@@ -1,4 +1,7 @@
-use dataservice::{combx::OptionalVoteResult, db::models::*};
+use dataservice::{
+    combx::{CombinedData, OptionalVoteResult},
+    db::models::*,
+};
 use redis::aio::MultiplexedConnection;
 use somes_common_lib::Document;
 use sqlx::PgPool;
@@ -61,7 +64,11 @@ pub async fn construct_vote_result(
     pg: &PgPool,
     legis_init_id: i32,
 ) -> sqlx::Result<Option<OptionalVoteResult>> {
-    let key = format!("vote_result/{}", legis_init_id.to_string());
+    let key = format!(
+        "{}/{}",
+        OptionalVoteResult::INDEX,
+        legis_init_id.to_string()
+    );
     let res = get_json_cache::<OptionalVoteResult>(&mut redis_con, &key).await;
     if let Some(res) = res {
         return Ok(Some(res));

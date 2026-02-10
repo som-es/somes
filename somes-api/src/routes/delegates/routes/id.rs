@@ -2,6 +2,7 @@ use axum::{
     extract::{Path, Query},
     Json,
 };
+use dataservice::combx::Index;
 use redis::aio::MultiplexedConnection;
 use somes_common_lib::FullMandate;
 use somes_common_lib::{Delegate, DelegateById};
@@ -14,7 +15,7 @@ pub async fn delegate_by_id_sqlx(
     pg: &PgPool,
     mut redis_con: MultiplexedConnection,
 ) -> sqlx::Result<Delegate> {
-    let key = delegate_id.to_string();
+    let key = format!("{}/{}", Index::Delegates, delegate_id.to_string());
     let res = get_json_cache::<Delegate>(&mut redis_con, &key).await;
     if let Some(res) = res {
         return Ok(res);

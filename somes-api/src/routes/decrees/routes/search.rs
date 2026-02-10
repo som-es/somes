@@ -4,7 +4,7 @@ use crate::{
     Qs, RedisConnection, DECREES_PER_PAGE,
 };
 use axum::{extract::Query, Json};
-use dataservice::combx::{Index, meilisearch_filters_ai_summary};
+use dataservice::combx::{meilisearch_filters_ai_summary, Index};
 use meilisearch_sdk::search::SearchResults;
 use somes_common_lib::{Page, Sort};
 use somes_meilisearch_filter::{to_meilisearch_filters, FilterOptions};
@@ -103,13 +103,10 @@ async fn meilisearch_decrees(
         .map(|decree| decree.result)
         .collect();
 
-    let updated_at = crate::meilisearch::get_update_time_of_index(
-        redis_con,
-        &Index::Decrees,
-    )
-    .await
-    .ok()
-    .map(|date| date.naive_local());
+    let updated_at = crate::meilisearch::get_update_time_of_index(redis_con, &Index::Decrees)
+        .await
+        .ok()
+        .map(|date| date.naive_local());
 
     Ok(DecreesWithMaxPage {
         decrees,

@@ -2,7 +2,10 @@ use axum::{
     extract::{FromRef, FromRequestParts},
     http::request::Parts,
 };
-use dataservice::combx::{Index, OptionalVoteResult, OptionalVoteResultFilter};
+use dataservice::combx::{
+    CombinedData, Decree, GovProposal, Index, OptionalVoteResult, OptionalVoteResultFilter,
+    VoteResult,
+};
 use futures::FutureExt;
 use meilisearch_sdk::settings::{PaginationSetting, Settings};
 use redis::aio::MultiplexedConnection;
@@ -75,7 +78,11 @@ pub async fn update_delegates_meilisearch_index(
 
     client
         .index(index)
-        .add_documents_in_batches(&all_delegates, Some(3000), Some("id"))
+        .add_documents_in_batches(
+            &all_delegates,
+            Some(3000),
+            Some(OptionalVoteResult::PRIMARY_KEY),
+        )
         .await?;
     update_time::update_update_time_of_index(redis_con, &Index::Delegates).await?;
 
@@ -117,7 +124,7 @@ pub async fn update_decrees_meilisearch_index(
 
     client
         .index(index)
-        .add_documents_in_batches(&all_decrees, Some(3000), Some("decree.ris_id"))
+        .add_documents_in_batches(&all_decrees, Some(3000), Some(Decree::PRIMARY_KEY))
         .await?;
     update_time::update_update_time_of_index(redis_con, &Index::Decrees).await?;
 
@@ -161,11 +168,7 @@ pub async fn update_gov_props_meilisearch_index(
 
     client
         .index(index)
-        .add_documents_in_batches(
-            &all_gov_props,
-            Some(3000),
-            Some("gov_proposal.ministrial_proposal.id"),
-        )
+        .add_documents_in_batches(&all_gov_props, Some(3000), Some(GovProposal::PRIMARY_KEY))
         .await?;
     update_time::update_update_time_of_index(redis_con, &Index::GovProposals).await?;
 

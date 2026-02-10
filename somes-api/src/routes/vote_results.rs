@@ -49,13 +49,11 @@ pub async fn vote_results_per_page_route(
         return Err(FilterError::InvalidPage(page.page as u32));
     }
 
-    let updated_at = crate::meilisearch::get_update_time_of_index(
-        &mut redis_con,
-        &Index::VoteResults,
-    )
-    .await
-    .ok()
-    .map(|date| date.naive_local());
+    let updated_at =
+        crate::meilisearch::get_update_time_of_index(&mut redis_con, &Index::VoteResults)
+            .await
+            .ok()
+            .map(|date| date.naive_local());
 
     Ok(vote_results_per_page_sqlx(
         redis_con,

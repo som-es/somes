@@ -1,5 +1,5 @@
 use axum::{extract::Query, Json};
-use dataservice::combx::{Index, meilisearch_filters_gov_props};
+use dataservice::combx::{meilisearch_filters_gov_props, Index};
 use meilisearch_sdk::search::SearchResults;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::{Delegate, DelegateFilter};
@@ -66,13 +66,11 @@ pub async fn delegates_by_search_route(
 
     let max_page = results.total_pages.unwrap_or(1) as i64;
 
-    let updated_at = crate::meilisearch::get_update_time_of_index(
-        &mut redis_con,
-        &Index::Delegates,
-    )
-    .await
-    .ok()
-    .map(|date| date.naive_local());
+    let updated_at =
+        crate::meilisearch::get_update_time_of_index(&mut redis_con, &Index::Delegates)
+            .await
+            .ok()
+            .map(|date| date.naive_local());
 
     let delegates = results
         .hits
