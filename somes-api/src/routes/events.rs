@@ -7,7 +7,7 @@ use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 
-use crate::{PgPoolConnection, jwt::Claims, server::AppState};
+use crate::{jwt::Claims, server::AppState, PgPoolConnection};
 
 #[derive(Debug, Serialize, Deserialize, Hash, Eq, PartialEq)]
 pub struct SomesEvent {
@@ -33,7 +33,10 @@ pub async fn create_event_route(
     Json(event): Json<SomesEvent>,
 ) -> crate::Result<Json<EventId>> {
     if !claims.is_admin {
-        return Err(crate::GenericError::Custom((StatusCode::UNAUTHORIZED, "insufficient permissions")))
+        return Err(crate::GenericError::Custom((
+            StatusCode::UNAUTHORIZED,
+            "insufficient permissions",
+        )));
     }
     create_event_sqlx(&pg, &event)
         .await
@@ -72,7 +75,10 @@ pub async fn delete_event_route(
     Json(payload): Json<EventId>,
 ) -> crate::Result<Json<()>> {
     if !claims.is_admin {
-        return Err(crate::GenericError::Custom((StatusCode::UNAUTHORIZED, "insufficient permissions")))
+        return Err(crate::GenericError::Custom((
+            StatusCode::UNAUTHORIZED,
+            "insufficient permissions",
+        )));
     }
     delete_event_sqlx(&pg, payload.id)
         .await
@@ -94,7 +100,10 @@ pub async fn update_event_route(
     Json(event): Json<SomesEvent>,
 ) -> crate::Result<Json<()>> {
     if !claims.is_admin {
-        return Err(crate::GenericError::Custom((StatusCode::UNAUTHORIZED, "insufficient permissions")))
+        return Err(crate::GenericError::Custom((
+            StatusCode::UNAUTHORIZED,
+            "insufficient permissions",
+        )));
     }
     update_event_sqlx(&pg, &event)
         .await

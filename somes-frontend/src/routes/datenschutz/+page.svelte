@@ -59,6 +59,16 @@
 					sind.
 				</p>
 			</section>
+			
+			<section>
+				<h2 class="text-xl font-bold text-primary-800 dark:text-primary-200 mb-3">Cookies</h2>
+				Wir verwenden ausschließlich technisch notwendige Cookies, um die grundlegenden Funktionen dieser Website zu gewährleisten.
+				<ul class="list-disc pl-5 space-y-1 marker:text-secondary-500">
+					<li><span class="font-bold">Dunkel-/Hellmodus Einstellungen: </span> Ein Cookie (theme) wird gespeichert, um Ihre bevorzugten Anzeigeeinstellungen (Dunkel-/Hellmodus) zu speichern, sofern Sie diese angepasst haben. Das vermeidet z.B. ein Flackern von Weiß auf Schwarz, wenn Sie die Seite neu laden. (SSR)</li>	
+				</ul>
+				<br>
+				Diese Cookies werden nicht für Tracking- oder Marketingzwecke verwendet.
+			</section>
 
 			<section>
 				<h2 class="text-xl font-bold text-primary-800 dark:text-primary-200 mb-3">Ihre Rechte als Betroffener</h2>
@@ -75,7 +85,7 @@
 					<li>Einschränkung</li>
 				</ul>
 				<p class="mt-4">
-					Wenn sie vermuten, dass im Zuge der Verarbeitung Ihrer Daten Verstöße gegen das Datenschutzrecht
+					Wenn Sie vermuten, dass im Zuge der Verarbeitung Ihrer Daten Verstöße gegen das Datenschutzrecht
 					passiert sind, so haben Sie die Möglichkeit sich bei uns 
 					(<a href="mailto:somes.austria@gmail.com" class="text-primary-600 hover:text-primary-500 underline decoration-primary-300 underline-offset-2">somes.austria@gmail.com</a>) 
 					oder der Datenschutzbehörde zu beschweren.

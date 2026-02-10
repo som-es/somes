@@ -101,9 +101,10 @@
 		if (filter.legis_period !== null) {
 			nextUrl.searchParams.set('decree[gp][in][0]', filter.legis_period);
 		}
-		// filter.topics?.forEach((topic, i) => {
-		// 	nextUrl.searchParams.set(`gov_proposal[eurovoc_topics][${i}][topic][cn]`, topic);
-		// });
+		filter.topics?.forEach((topic, i) => {
+			// nextUrl.searchParams.set(`decree[ai_summary][full_summary][topics][${i}][cn]`, topic);
+		});
+
 		filter.departments?.forEach((department, i) => {
 			nextUrl.searchParams.set(`decree[ministrial_issuer][in][${i}]`, department);
 		});
