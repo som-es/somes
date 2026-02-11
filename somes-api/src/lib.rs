@@ -3,6 +3,7 @@
 use chrono::Local;
 use dotenvy_macro::dotenv;
 
+pub mod cache_updater;
 mod db;
 pub mod email;
 mod filter_querying;
@@ -11,7 +12,6 @@ pub mod jwt;
 pub mod refresh_views;
 pub mod routes;
 pub mod server;
-pub mod updater;
 
 pub use db::*;
 pub use filter_querying::*;
@@ -21,9 +21,9 @@ pub mod meilisearch;
 pub use http_redirect::*;
 use once_cell::sync::Lazy;
 mod error;
+pub use cache_updater::*;
 pub use error::*;
 pub use refresh_views::*;
-pub use updater::*;
 
 pub type Result<T> = std::result::Result<T, crate::error::GenericError>;
 
@@ -49,6 +49,22 @@ pub const PRIVATE_KEY_PATH: &str = dotenv!("PRIVATE_KEY_PATH");
 pub const PUBLIC_KEY_PATH: &str = dotenv!("PUBLIC_KEY_PATH");
 pub const HTTP_PORT: &str = dotenv!("HTTP_PORT");
 pub const HTTPS_PORT: &str = dotenv!("HTTPS_PORT");
+
+static IS_PROD: Lazy<bool> = Lazy::new(|| is_prod());
+
+pub fn is_prod() -> bool {
+    std::env::var("IS_PROD")
+        .unwrap_or("false".into())
+        .parse::<bool>()
+        .unwrap_or_default()
+}
+
+pub fn reset_cache() -> bool {
+    std::env::var("RESET_CACHE")
+        .unwrap_or("false".into())
+        .parse::<bool>()
+        .unwrap_or_default()
+}
 
 static EMAIL_EXPIRATION_SECONDS: Lazy<usize> = Lazy::new(|| {
     dotenv!("EMAIL_EXPIRATION_SECONDS")

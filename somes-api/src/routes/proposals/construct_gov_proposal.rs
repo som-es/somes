@@ -3,7 +3,7 @@ use redis::aio::MultiplexedConnection;
 use somes_common_lib::Document;
 use sqlx::PgPool;
 
-use crate::{get_json_cache, today};
+use crate::{get_json_cache, today, IS_PROD};
 
 pub async fn get_gov_proposal_sqlx(pg: &PgPool, id: i32) -> sqlx::Result<OptionalGovProposal> {
     sqlx::query_as!(
@@ -37,9 +37,15 @@ pub async fn construct_gov_proposal(
     } else {
         today()
     };
-    crate::set_json_cache_with_relevance(&mut redis_con, &key, &gov_proposal, cache_date)
-        .await
-        .ok_or(sqlx::Error::WorkerCrashed)?;
 
+    if *IS_PROD {
+        crate::set_json_cache_no_expire(&mut redis_con, &key, &gov_proposal)
+            .await
+            .ok_or(sqlx::Error::WorkerCrashed)?;
+    } else {
+        crate::set_json_cache_with_relevance(&mut redis_con, &key, &gov_proposal, cache_date)
+            .await
+            .ok_or(sqlx::Error::WorkerCrashed)?;
+    }
     Ok(gov_proposal)
 }

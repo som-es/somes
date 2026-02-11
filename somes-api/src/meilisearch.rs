@@ -15,13 +15,14 @@ use tokio::time::sleep;
 
 use crate::{
     routes::{
-        all_delegates, all_updated_votes_from_legis_init_sqlx, all_votes_from_legis_init,
-        get_all_decrees_sqlx, get_all_gov_props, DecreeDelegate,
+        all_delegates, all_votes_from_legis_init, get_all_decrees_sqlx, get_all_gov_props,
+        DecreeDelegate,
     },
     server::AppState,
+    IS_PROD,
 };
 
-mod update_time;
+pub mod update_time;
 pub use update_time::*;
 
 #[derive(FromRef)]
@@ -237,11 +238,18 @@ pub async fn update_vote_result_meilisearch_index(
         .with_pagination(PaginationSetting {
             max_total_hits: 100000000,
         });
-    let index = Index::VoteResults.as_str();
-    client.index(index).set_settings(&settings).await?;
 
     log::info!("Fetching all vote results..");
     let mut all_vote_results = vote_result_cb(redis_con.clone(), pg_pool).await?;
+
+    let index = Index::VoteResults.as_str();
+
+    // this should only run when there are structural differences (type changes)
+    if *IS_PROD {
+        client.index(index).delete_all_documents().await?;
+        client.delete_index(index).await?;
+    }
+    client.index(index).set_settings(&settings).await?;
 
     for vote_result in &mut all_vote_results {
         if let Some(meilisearch_helper) = vote_result.meilisearch_helper.as_mut() {
@@ -256,10 +264,6 @@ pub async fn update_vote_result_meilisearch_index(
     }
 
     log::info!("Fetched all vote results");
-
-    // this should only run when there are structural differences (type changes)
-    // client.index(index).delete_all_documents().await?;
-    // client.delete_index(index).await?;
 
     log::info!(
         "Uploading {} vote results to meilisearch",
@@ -298,28 +302,10 @@ pub fn update_meilisearch_indices(
             {
                 log::warn!("Could not update meilisearch index: {e:?}");
             }
-            sleep(std::time::Duration::from_secs(1900)).await;
-        }
-    });
-
-    let pg_pool_vr = dataservice_sqlx_pool.clone();
-    let client_vr = client.clone();
-    let meilisearch_client_vr = meilisearch_client.clone();
-
-    // TODO: move this to dataservice
-    tokio::task::spawn(async move {
-        loop {
-            if let Err(e) = update_vote_result_meilisearch_index(
-                &mut client_vr.get_multiplexed_async_connection().await.unwrap(),
-                &pg_pool_vr,
-                &meilisearch_client_vr,
-                all_updated_votes_from_legis_init_sqlx,
-            )
-            .await
-            {
-                log::warn!("Could not update meilisearch index: {e:?}");
+            if *IS_PROD {
+                break;
             }
-            sleep(std::time::Duration::from_secs(30)).await;
+            sleep(std::time::Duration::from_secs(1900)).await;
         }
     });
 
@@ -338,6 +324,9 @@ pub fn update_meilisearch_indices(
             .await
             {
                 log::warn!("Could not update meilisearch index: {e:?}");
+            }
+            if *IS_PROD {
+                break;
             }
             log::info!("gov prop sleep 1000s");
             sleep(std::time::Duration::from_secs(1000)).await;
@@ -360,6 +349,9 @@ pub fn update_meilisearch_indices(
             {
                 log::error!("Could not update decree meilisearch index: {e:?}");
             }
+            if *IS_PROD {
+                break;
+            }
             log::info!("decree meilsearch sleep 1000s");
             sleep(std::time::Duration::from_secs(1000)).await;
         }
@@ -379,6 +371,9 @@ pub fn update_meilisearch_indices(
             .await
             {
                 log::error!("Could not update delegate meilisearch index: {e:?}");
+            }
+            if *IS_PROD {
+                break;
             }
             log::info!("delegate meilsearch sleep 1000s");
             sleep(std::time::Duration::from_secs(1000)).await;

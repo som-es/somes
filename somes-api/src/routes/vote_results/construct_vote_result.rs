@@ -6,7 +6,7 @@ use redis::aio::MultiplexedConnection;
 use somes_common_lib::Document;
 use sqlx::PgPool;
 
-use crate::get_json_cache;
+use crate::{get_json_cache, IS_PROD};
 
 pub async fn fetch_all_vote_results(pg: &PgPool) -> sqlx::Result<Vec<OptionalVoteResult>> {
     sqlx::query_as!(OptionalVoteResult, "select * from vote_results")
@@ -50,7 +50,10 @@ async fn test_fetch_all_vote_results() {
             .await
             .unwrap()
             .unwrap();
-        lhs.meilisearch_helper = Some(MeilisearchHelper { votes: vec![] });
+        lhs.meilisearch_helper = Some(MeilisearchHelper {
+            votes: vec![],
+            issuer_parties: vec![],
+        });
         println!("elapsed (new): {:?}", start.elapsed());
     }
     // let vote_results = fetch_all_vote_results(&pg).await.unwrap();
@@ -99,8 +102,14 @@ pub async fn construct_vote_result(
             .nr_plenary_activity_date
     };
 
-    crate::set_json_cache_with_relevance(&mut redis_con, &key, &out, cache_date)
-        .await
-        .ok_or(sqlx::Error::WorkerCrashed)?;
+    if *IS_PROD {
+        crate::set_json_cache_no_expire(&mut redis_con, &key, &out)
+            .await
+            .ok_or(sqlx::Error::WorkerCrashed)?;
+    } else {
+        crate::set_json_cache_with_relevance(&mut redis_con, &key, &out, cache_date)
+            .await
+            .ok_or(sqlx::Error::WorkerCrashed)?;
+    }
     Ok(Some(out))
 }

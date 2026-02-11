@@ -8,7 +8,7 @@ use somes_common_lib::FullMandate;
 use somes_common_lib::{Delegate, DelegateById};
 use sqlx::PgPool;
 
-use crate::{get_json_cache, routes::DelegateError, PgPoolConnection, RedisConnection};
+use crate::{get_json_cache, routes::DelegateError, PgPoolConnection, RedisConnection, IS_PROD};
 
 pub async fn delegate_by_id_sqlx(
     delegate_id: i32,
@@ -33,10 +33,15 @@ pub async fn delegate_by_id_sqlx(
     .fetch_one(pg)
     .await?;
 
-    crate::set_json_cache(&mut redis_con, &key, &delegate)
-        .await
-        .ok_or(sqlx::Error::WorkerCrashed)?;
-
+    if *IS_PROD {
+        crate::set_json_cache_no_expire(&mut redis_con, &key, &delegate)
+            .await
+            .ok_or(sqlx::Error::WorkerCrashed)?;
+    } else {
+        crate::set_json_cache(&mut redis_con, &key, &delegate)
+            .await
+            .ok_or(sqlx::Error::WorkerCrashed)?;
+    }
     Ok(delegate)
 }
 

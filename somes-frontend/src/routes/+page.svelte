@@ -34,7 +34,11 @@
 
 	const rawPlatformItems: PlatformItem[] = $derived(data.platformItems);
 
-	let eventsData: DialogEvent[] = $state($state.snapshot(data.somesEvents).map(event => { return { event, dialogOpen: false, hidden: false }}));
+	let eventsData: DialogEvent[] = $state(
+		$state.snapshot(data.somesEvents).map((event) => {
+			return { event, dialogOpen: false, hidden: false };
+		})
+	);
 
 	// 4. Board Members
 	const boardMembers: Member[] = [
@@ -92,12 +96,16 @@
 	let upcomingEvents = $derived(
 		eventsData
 			.filter((e) => new Date(e.event.event_date) >= today)
-			.sort((a, b) => new Date(a.event.event_date).getTime() - new Date(b.event.event_date).getTime())
+			.sort(
+				(a, b) => new Date(a.event.event_date).getTime() - new Date(b.event.event_date).getTime()
+			)
 	);
 	let pastEvents = $derived(
 		eventsData
 			.filter((e) => new Date(e.event.event_date) < today)
-			.sort((a, b) => new Date(b.event.event_date).getTime() - new Date(a.event.event_date).getTime())
+			.sort(
+				(a, b) => new Date(b.event.event_date).getTime() - new Date(a.event.event_date).getTime()
+			)
 	); // Newest past first
 
 	let dialogOpen = $state(false);
@@ -460,7 +468,9 @@
 				<div class="grid gap-6 md:grid-cols-2">
 					{#each upcomingEvents as dialogEvent, i (dialogEvent.event.id)}
 						<div
-							class="{dialogEvent.hidden ? 'hidden' : ''} group relative overflow-hidden rounded-2xl border border-primary-100 bg-white p-6 shadow-lg transition-all hover:-translate-y-1 hover:border-secondary-300 dark:border-surface-700 dark:bg-surface-800"
+							class="{dialogEvent.hidden
+								? 'hidden'
+								: ''} group relative overflow-hidden rounded-2xl border border-primary-100 bg-white p-6 shadow-lg transition-all hover:-translate-y-1 hover:border-secondary-300 dark:border-surface-700 dark:bg-surface-800"
 						>
 							<div class="absolute top-0 left-0 h-full w-2 bg-secondary-500"></div>
 
@@ -470,7 +480,9 @@
 									class="rounded-lg border border-secondary-100 bg-secondary-50 px-3 py-1 text-center font-bold text-secondary-800 dark:border-secondary-700 dark:bg-secondary-900 dark:text-secondary-100"
 								>
 									<div class="text-xs uppercase">
-										{new Date(dialogEvent.event.event_date).toLocaleDateString('de-AT', { month: 'short' })}
+										{new Date(dialogEvent.event.event_date).toLocaleDateString('de-AT', {
+											month: 'short'
+										})}
 									</div>
 									<div class="text-xl">{new Date(dialogEvent.event.event_date).getDate()}</div>
 								</div>
@@ -486,7 +498,7 @@
 											<CreateEventModal
 												bind:dialogOpen={upcomingEvents[i].dialogOpen}
 												bind:event={upcomingEvents[i].event}
-												bind:events={eventsData} 
+												bind:events={eventsData}
 											/>
 										</Dialog.Root>
 									{/if}
@@ -544,10 +556,7 @@
 									+
 								</button>
 							</Dialog.Trigger>
-							<CreateEventModal 
-								bind:dialogOpen 
-								bind:events={eventsData} 
-							/>
+							<CreateEventModal bind:dialogOpen bind:events={eventsData} />
 						</Dialog.Root>
 					{/if}
 				</div>
@@ -564,7 +573,9 @@
 			<div class="space-y-4">
 				{#each pastEvents as dialogEvent, i (dialogEvent.event.id)}
 					<div
-						class="{dialogEvent.hidden ? 'hidden' : ''} flex flex-col gap-4 rounded-xl border border-surface-200/50 bg-surface-50 p-5 transition-colors hover:bg-white md:flex-row dark:border-surface-700 dark:bg-surface-800/50 dark:hover:bg-surface-800"
+						class="{dialogEvent.hidden
+							? 'hidden'
+							: ''} flex flex-col gap-4 rounded-xl border border-surface-200/50 bg-surface-50 p-5 transition-colors hover:bg-white md:flex-row dark:border-surface-700 dark:bg-surface-800/50 dark:hover:bg-surface-800"
 					>
 						<div
 							class="flex shrink-0 items-center gap-2 text-surface-400 md:w-24 md:flex-col md:justify-center md:gap-0 dark:text-surface-400"
@@ -584,12 +595,14 @@
 										<CreateEventModal
 											bind:dialogOpen={pastEvents[i].dialogOpen}
 											bind:event={pastEvents[i].event}
-											bind:events={eventsData} 
+											bind:events={eventsData}
 										/>
 									</Dialog.Root>
 								{/if}
 							</div>
-							<p class="mt-1 text-sm text-surface-500 dark:text-surface-400">{dialogEvent.event.description}</p>
+							<p class="mt-1 text-sm text-surface-500 dark:text-surface-400">
+								{dialogEvent.event.description}
+							</p>
 							<div class="flex flex-wrap justify-between">
 								<div class="mt-2 text-xs font-medium text-primary-500">
 									📍 {dialogEvent.event.location}

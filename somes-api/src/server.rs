@@ -16,12 +16,13 @@ use tokio::{net::TcpListener, time::sleep};
 use tower::ServiceBuilder;
 use views::{create_composite_types, create_views};
 //use headers::HeaderValue;
-use crate::routes::*;
 use crate::{
-    meilisearch::update_meilisearch_indices, redirect_http_to_https, routes::save_email_route,
-    Ports, DATASERVICE_URL, HTTPS_PORT, HTTP_PORT, MEILISEARCH_SECRET, MEILISEARCH_URL,
-    PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, REDIS_DB, STATIC_FRONTEND_PATH,
+    meilisearch::update_meilisearch_indices, redirect_http_to_https, reset_cache,
+    routes::save_email_route, update_caches, Ports, DATASERVICE_URL, HTTPS_PORT, HTTP_PORT,
+    MEILISEARCH_SECRET, MEILISEARCH_URL, PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, REDIS_DB,
+    STATIC_FRONTEND_PATH,
 };
+use crate::{routes::*, IS_PROD};
 use somes_common_lib::*;
 use tower_http::{
     compression::CompressionLayer,
@@ -73,8 +74,7 @@ pub async fn serve(addr: SocketAddr) {
         return;
     }
 
-    #[cfg(debug_assertions)]
-    {
+    if reset_cache() {
         let mut con = client.get_connection().unwrap();
         redis::cmd("FLUSHALL").query::<()>(&mut con).unwrap();
     }
@@ -148,6 +148,9 @@ pub async fn serve(addr: SocketAddr) {
     }
 
     update_meilisearch_indices(&client, &dataservice_sqlx_pool, &meilisearch_client);
+    if *IS_PROD {
+        update_caches(&client, &dataservice_sqlx_pool, &meilisearch_client);
+    }
     crate::refresh_views(&dataservice_sqlx_pool, &client);
 
     let config = RustlsConfig::from_pem_file(

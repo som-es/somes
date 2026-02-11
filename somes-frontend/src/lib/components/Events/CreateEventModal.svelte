@@ -1,8 +1,13 @@
 <script lang="ts">
 	import { Dialog } from 'bits-ui';
-	import { createEvent, deleteEvent, updateEvent, type DialogEvent, type SomesEvent } from '../../../routes/types';
+	import {
+		createEvent,
+		deleteEvent,
+		updateEvent,
+		type DialogEvent,
+		type SomesEvent
+	} from '../../../routes/types';
 	import { isHasError } from '$lib/api/api';
-	import { browser } from '$app/environment';
 
 	interface Props {
 		event?: SomesEvent;
@@ -21,9 +26,9 @@
 			description: '',
 			requires_membership: false,
 			requires_registration: false,
-			image: null,
+			image: null
 		}),
-		events = $bindable(),
+		events = $bindable()
 	}: Props = $props();
 
 	let formData: SomesEvent = $state($state.snapshot(event));
@@ -36,7 +41,7 @@
 		if (isEditing) {
 			const status = await updateEvent(formData);
 			if (isHasError(status)) {
-				console.error(status)
+				console.error(status);
 			}
 			event = formDataSnapshot;
 		} else {
@@ -46,10 +51,9 @@
 			} else {
 				if (events) {
 					formDataSnapshot.id = status.id;
-					events.push({event: formDataSnapshot, dialogOpen: false, hidden: false });
+					events.push({ event: formDataSnapshot, dialogOpen: false, hidden: false });
 				}
 			}
-
 		}
 		dialogOpen = false;
 	}
@@ -60,7 +64,7 @@
 			if (isHasError(status)) {
 				console.error(status);
 			} else if (events) {
-				const index = events.findIndex(e => e.event.id === formData.id);
+				const index = events.findIndex((e) => e.event.id === formData.id);
 				if (index !== -1) {
 					events[index].hidden = true;
 				}

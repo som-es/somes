@@ -16,6 +16,7 @@ mod routes;
 pub use db::*;
 pub use routes::*;
 mod construct_vote_result;
+pub use construct_vote_result::*;
 
 pub fn create_vote_results_router() -> Router<AppState> {
     Router::new()
