@@ -1,19 +1,17 @@
 <script lang="ts">
 	import type { NamedVote, Speech, SpeechesWithMaxPage } from '$lib/types';
+	import ExtendInfoDialog from '../ExtendInfoDialog.svelte';
 	import NamedVoteBar from './NamedVoteBar.svelte';
+	import NamedVoteModal from './NamedVoteModal.svelte';
 
-	export let namedVotes: NamedVote[];
-	export let delegateId: number;
+	interface Props {
+		namedVotes: NamedVote[];
+		delegateId: number;
+	}
 
-	// $: allNamedVotes = {
-	// 	type: 'component',
-	// 	component: 'allNamedVotes',
-	// 	meta: { delegateId, namedVotes }
-	// } as ModalSettings;
+	let { namedVotes, delegateId }: Props = $props();
 
-	// const modalStore = getModalStore();
-
-	$: previewNamedVotes = namedVotes.slice(0, 2);
+	let previewNamedVotes = $derived(namedVotes.slice(0, 2));
 </script>
 
 <div class="flex flex-wrap justify-between items-center">
@@ -24,13 +22,12 @@
 			{namedVotes.length == 1 ? 'Abstimmung' : 'Abstimmungen'} insgesamt
 		</h2>
 	</div>
-	<button class="btn sm:btn-lg preset-filled mt-1" on:click={() => {}/*modalStore.trigger(allNamedVotes)*/}
-		>Alle anzeigen</button
-	>
+	<ExtendInfoDialog title="Alle anzeigen">
+		<NamedVoteModal {delegateId} {namedVotes} />
+	</ExtendInfoDialog>
 </div>
 <div class="mt-5">
 	{#each previewNamedVotes as namedVote}
-		<!-- <div class="gap-3 rounded-sm variant-filled my-1">{speech.legislative_initiatives_id} {speech.opinion}</div> -->
 		<NamedVoteBar {namedVote}></NamedVoteBar>
 	{/each}
 </div>

@@ -12,7 +12,7 @@
 
 </script>
 
-<div class="card p-8 w-full min-w-7xl max-w-7xl">
+<div class="card p-8">
 	<Dialog.Close class="float-right">
 		<ModalCloseButton />	
 	</Dialog.Close>

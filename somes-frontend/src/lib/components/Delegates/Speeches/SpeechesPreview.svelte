@@ -1,16 +1,11 @@
 <script lang="ts">
 	import type { Speech, SpeechesWithMaxPage } from '$lib/types';
+	import ExtendInfoDialog from '../ExtendInfoDialog.svelte';
+	import AllSpeechesModal from './AllSpeechesModal.svelte';
 	import SpeechBar from './SpeechBar.svelte';
 
 	export let speechesPage0: SpeechesWithMaxPage;
 	export let delegateId: number;
-
-	// $: allSpeeches = {
-	// 	type: 'component',
-	// 	component: 'allSpeeches',
-	// 	meta: { delegateId: delegateId, speechesPage0: speechesPage0 }
-	// } as ModalSettings;
-
 
 	$: previewSpeeches = speechesPage0.speeches.slice(0, 2);
 </script>
@@ -24,9 +19,9 @@
 			{speechesPage0.entry_count == 1 ? 'Rede' : 'Reden'} insgesamt
 		</h2>
 	</div>
-	<button class="btn sm:btn-lg preset-filled mt-1" on:click={() => {}/*modalStore.trigger(allSpeeches)*/}
-		>Alle anzeigen</button
-	>
+	<ExtendInfoDialog title="Alle anzeigen">
+		<AllSpeechesModal {delegateId} {speechesPage0} />
+	</ExtendInfoDialog>
 </div>
 <div class="mt-5">
 	{#each previewSpeeches as speech}

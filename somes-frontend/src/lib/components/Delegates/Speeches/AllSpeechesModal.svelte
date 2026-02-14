@@ -1,57 +1,49 @@
 <script lang="ts">
-	// import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
-	import type { GovProposal, Speech } from '$lib/types';
+	import type { Speech } from '$lib/types';
 	import Pagination from '$lib/components/Pagination.svelte';
 	import SpeechBar from './SpeechBar.svelte';
 	import { errorToNull, speeches_by_delegate_per_page } from '$lib/api/api';
-	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
+	import { Dialog } from 'bits-ui';
+	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
 
 	// const modalStore = getModalStore();
-	// export let parent;
+	
+
+	interface Props {
+		// export let parent;
+		delegateId: number;
+		speechesPage0: { speeches: Speech[]; max_page: number };
+	}
+
+	let { delegateId, speechesPage0 }: Props = $props();
 
 	let filteredSpeeches: Speech[] = [];
-	let currentPageSpeeches: Speech[] = [];
+	let currentPageSpeeches: Speech[] = $derived(speechesPage0.speeches);
 
-	// $: if ($modalStore.length > 0 && $modalStore[0].meta) {
-	// 	currentPageSpeeches = $modalStore[0].meta.speechesPage0.speeches;
-	// }
+	let page = $state(1);
 
-	let page = 1;
+	$effect(() => {
+		console.log("hit effect", page);
+		speeches_by_delegate_per_page(delegateId, page - 1).then((res) => {
+			currentPageSpeeches = errorToNull(res)?.speeches ?? [];
+		});
+	});
 
-	// $: if (page && $modalStore.length > 0 && $modalStore[0].meta) {
-	// 	currentPageSpeeches = [];
-	// 	speeches_by_delegate_per_page($modalStore[0].meta.delegateId, page - 1).then((res) => {
-	// 		currentPageSpeeches = errorToNull(res)?.speeches ?? [];
-	// 	});
-	// }
-
-	// $: speeches =
 </script>
 
-<!-- {#if $modalStore.length > 0 && $modalStore[0].meta}
-	<div class="card p-8 max-w-7xl w-7xl">
+<div class="card p-8 ">
+	<div class="flex justify-between">
 		<h1 class="font-bold text-2xl">Letzte Reden</h1>
-		<button
-			on:click={() => {
-				modalStore.close();
-			}}
-			style="font-size: 34px"
-			class="w-5 unselectable float-right"
-		>
-			✕
-		</button>
-
-		<Pagination bind:page maxPage={$modalStore[0].meta.speechesPage0.max_page} />
-		{#each currentPageSpeeches as speech}
-			<SpeechBar {speech} />
-		{/each}
-		{#if currentPageSpeeches.length == 0}
-			{#each { length: 10 } as _}
-				<ExpandablePlaceholder class="min-w-7xl w-7xl" />
-			{/each}
-		{/if}
-		<div class="float-right">
-			<Pagination bind:page maxPage={$modalStore[0].meta.speechesPage0.max_page} />
-		</div>
+		<Dialog.Close>
+			<ModalCloseButton />
+		</Dialog.Close>	
 	</div>
-{/if} -->
+
+	{#each currentPageSpeeches as speech}
+		<SpeechBar {speech} />
+	{/each}
+
+	<div class="float-right">
+		<Pagination bind:dynPage={page} maxPage={speechesPage0.max_page} />
+	</div>
+</div>

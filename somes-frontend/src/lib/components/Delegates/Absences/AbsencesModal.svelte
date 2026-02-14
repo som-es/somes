@@ -17,7 +17,7 @@
 
 </script>
 
-<div class="card p-8 max-w-7xl w-7xl">
+<div class="card p-8">
 	<div class="flex justify-between items-center">
 		<h1 class="font-bold text-2xl">Letzte Abwesenheiten</h1>
 		<Dialog.Close>
