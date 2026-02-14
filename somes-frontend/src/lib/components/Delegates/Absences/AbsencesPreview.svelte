@@ -1,20 +1,17 @@
 <script lang="ts">
 	import type { Absence, Speech, SpeechesWithMaxPage } from '$lib/types';
-	// import { type ModalSettings } from '@skeletonlabs/skeleton-svelte';
+	import ExtendInfoDialog from '../ExtendInfoDialog.svelte';
 	import AbsenceBar from './AbsenceBar.svelte';
+	import AbsencesModal from './AbsencesModal.svelte';
 
-	export let absences: Absence[];
-	export let delegateId: number;
+	interface Props {
+		absences: Absence[];
+		delegateId: number;
+	}
 
-	// $: allAbsences = {
-	// 	type: 'component',
-	// 	component: 'allAbsences',
-	// 	meta: { delegateId: delegateId, absences }
-	// } as ModalSettings;
+	let { absences, delegateId }: Props = $props();
 
-	// const modalStore = getModalStore();
-
-	$: previewSpeeches = absences.slice(0, 2);
+	let previewSpeeches = $derived(absences.slice(0, 2));
 </script>
 
 <div class="flex flex-wrap justify-between items-center">
@@ -26,9 +23,9 @@
 			{absences.length == 1 ? 'Abwesenheit' : 'Abwesenheiten'} insgesamt
 		</h2>
 	</div>
-	<button class="btn sm:btn-lg preset-filled mt-1" on:click={() => {}/*modalStore.trigger(allAbsences)*/}
-		>Alle anzeigen</button
-	>
+	<ExtendInfoDialog title="Alle anzeigen">
+		<AbsencesModal absences={absences} />
+	</ExtendInfoDialog>
 </div>
 
 <div class="mt-1">

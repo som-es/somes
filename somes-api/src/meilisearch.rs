@@ -122,6 +122,7 @@ pub async fn update_decrees_meilisearch_index(
     client.index(index).set_settings(&settings).await?;
 
     // client.index("decrees").delete_all_documents().await?;
+    // client.index("decrees").delete_all_documents().await?;
 
     client
         .index(index)

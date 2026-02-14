@@ -2,6 +2,7 @@
 	import { onDestroy } from 'svelte';
 	import type { Delegate } from '$lib/types';
 	import { Dialog, Popover } from 'bits-ui';
+	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
 
 	let isGenerating = false;
 
@@ -89,7 +90,7 @@
 		</Popover> -->
 		<div>AI Chat</div>
 		 <Dialog.Close>
-			<button class="text-5xl">✕</button>
+			<ModalCloseButton />
 		 </Dialog.Close>
 		<!-- <X /> -->
 	</div>

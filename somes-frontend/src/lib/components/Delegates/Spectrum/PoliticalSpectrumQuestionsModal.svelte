@@ -1,4 +1,5 @@
 <script lang="ts">
+	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
 	import type { StanceTopicInfluences } from '$lib/types';
 	import QaDelegateStanceInfluences from './Stance/QADelegateStanceInfluences.svelte';
 	import { Dialog } from 'bits-ui';
@@ -13,10 +14,7 @@
 
 <div class="card p-8 w-full min-w-7xl max-w-7xl">
 	<Dialog.Close class="float-right">
-		<button
-			style="font-size: 34px"
-			class="w-5">✕</button
-		>
+		<ModalCloseButton />	
 	</Dialog.Close>
 	
 

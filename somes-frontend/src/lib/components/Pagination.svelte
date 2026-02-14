@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { page as sveltePage } from '$app/state';
 
-	let { maxPage }: { maxPage: number; } = $props();
+	let { dynPage = $bindable(), maxPage }: { dynPage?: number; maxPage: number; } = $props();
 
 	let page = $derived(
-        Number(sveltePage.url.searchParams.get('page')) || 1
+        dynPage || Number(sveltePage.url.searchParams.get('page')) || 1
     );
 
 	let isMobile = $state(false);
@@ -69,6 +69,21 @@
 
 <div class="flex flex-row flex-wrap gap-[0.4rem] items-center text-black pagination-wrapper">
 	{#each pageSuggestions as suggestion}
+		{#if dynPage}
+			<button
+				class="btn mt-5 mb-5 px-2 py-1 text-center rounded-lg! {suggestion === page
+					? 'bg-secondary-400'
+					: 'bg-tertiary-400'}"
+				onclick={(e) => {
+					e.preventDefault();
+					dynPage = suggestion;
+				}}
+			>
+				<div class="font-bold text-lg w-[30px] h-[30px] items-center flex justify-center">
+					{suggestion}
+				</div>
+			</button>
+		{:else}
 		<a
 			class="btn mt-5 mb-5 px-2 py-1 text-center rounded-lg! {suggestion === page
 				? 'bg-secondary-400'
@@ -79,6 +94,7 @@
 				{suggestion}
 			</div>
 		</a>
+		{/if}
 	{/each}
 </div>
 

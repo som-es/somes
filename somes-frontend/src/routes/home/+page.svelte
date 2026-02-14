@@ -68,7 +68,7 @@
 <Container>
 	<NextSessionInfo nextPlenarySessionDateStr={nextPlenarySessionDateStr} />
 	<h2 class="text-3xl sm:text-4xl font-bold pt-2 px-1 sm:p-0 mt-6">Letzte Abstimmungen</h2>
-	<span class="mb-2 ml-1 block text-base text-gray-800 dark:text-gray-300 sm:mt-1 sm:ml-0">
+	<span class="mb-2 ml-1 block text-base text-gray-800 dark:text-gray-200 sm:mt-1 sm:ml-0">
 		{#if voteDate}
 			Abgestimmt am {dashDateToDotDate(voteDate)}
 		{/if}

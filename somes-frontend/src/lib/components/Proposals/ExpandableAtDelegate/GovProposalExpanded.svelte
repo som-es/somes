@@ -9,6 +9,7 @@
 	import VoteTypeBadge from '../../VoteResults/VoteTypeBadge.svelte';
 	import { type GovProposal } from '$lib/types';
 	import { createGovProposalPath } from '../types';
+	import MovingArrowButton from '$lib/components/UI/MovingArrowButton.svelte';
 
 	export let govProposal: GovProposal;
 	export let delegate: Delegate;
@@ -58,12 +59,10 @@
 				<Topics {topics} />
 			</div>
 			<div class="flex h-8 items-center justify-end rounded-xl px-2">
-				<button
-					on:click={() => onShowDetails(govProposal, delegate)}
-					class="rounded-lg bg-primary-300 px-2 py-1"
-				>
-					<span class="text-base font-semibold">Mehr Details &#8594;</span>
-				</button>
+				<MovingArrowButton
+					text="Mehr Details"
+					onclick={() => onShowDetails(govProposal, delegate)}
+				/>
 			</div>
 		</div>
 	</div>

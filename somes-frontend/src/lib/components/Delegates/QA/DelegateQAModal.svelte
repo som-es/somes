@@ -2,6 +2,7 @@
 	import type { DelegateQA } from '$lib/types';
 	import { Dialog, Popover } from 'bits-ui';
 	import DelegateQaEntry from './DelegateQAEntry.svelte';
+	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
 
 	interface Props {
 		questions: DelegateQA[];
@@ -26,7 +27,7 @@
 		</Popover.Root>
 
 		<Dialog.Close>
-			<button class="w-5 unselectable float-right text-5xl">✕</button>
+			<ModalCloseButton />
 		</Dialog.Close>
 
 	</div>

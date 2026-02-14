@@ -7,6 +7,7 @@
 	import { currentDelegatesAtDateStore, currentVoteResultStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
 	import VoteTypeBadge from '../VoteTypeBadge.svelte';
+	import MovingArrowButton from '$lib/components/UI/MovingArrowButton.svelte';
 
 	export let voteResult: VoteResult;
 	export let open: boolean = true;
@@ -60,9 +61,9 @@
 				<Topics {topics} />
 			</div>
 			<div class="flex h-8 items-center justify-end rounded-xl px-2">
-				<button on:click={onShowDetails} class="rounded-lg bg-primary-300 px-2 py-1">
-					<span class="text-base font-semibold">Mehr Details &#8594;</span>
-				</button>
+				<MovingArrowButton  
+					onclick={onShowDetails}
+				/>
 			</div>
 		</div>
 	</div>
