@@ -1,42 +1,69 @@
 <script lang="ts">
-	// import ReactiveGenericBarChart from '$lib/components/GeneralCharts/ReactiveGenericBarChart.svelte';
 	import { topicColors } from '$lib/interestColors';
 	import type { InterestShare } from '$lib/types';
-	// import { type ModalSettings } from '@skeletonlabs/skeleton-svelte';
+	import { Axis, BarChart, Bars, Canvas, Group, Svg } from 'layerchart';
+	import { color } from 'three/tsl';
+	import ExtendInfoDialog from '../ExtendInfoDialog.svelte';
+	import DetailedInterestsModal from './DetailedInterestsModal.svelte';
 
-	export let interests: InterestShare[];
-	export let detailedInterests: InterestShare[];
+	interface Props {
+		interests: InterestShare[];
+		detailedInterests: InterestShare[];
+	}
 
-	// $: detailedInterestsModal = {
-	// 	type: 'component',
-	// 	component: 'detailedInterests',
-	// 	meta: { detailedInterests }
-	// } as ModalSettings;
+	let { interests, detailedInterests }: Props = $props();
 
-	// const modalStore = getModalStore();
+	let dateSeriesData = $derived(
+		interests.map((interest) => {
+			return {
+				topic: interest.topic,
+				occurences: interest.occurences,
+				color: topicColors.get(interest.topic) ?? 'black'
+			};
+		})
+	);
+
+	let cDomain = $derived(interests.map(i => i.topic));
+
+	let cRange = $derived(
+		interests.map((interest) => {
+			return topicColors.get(interest.topic) ?? 'black';
+		})
+	);
 </script>
 
 <div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 gap-1 w-full">
-	<span class="font-bold max-lg:text-lg text-2xl">Meist behandelte Themen</span>
 
-	{#if detailedInterests.length > 0}
-		<div class="flex justify-between">
-			<div></div>
-			<button
-				class="btn sm:btn-lg preset-filled"
-				on:click={() => {} /*modalStore.trigger(detailedInterestsModal)*/}>Details</button
-			>
-		</div>
-	{/if}
-	<!-- <ReactiveGenericBarChart
-		height={300}
-		title={''}
-		chartData={interests.map((interest) => {
-			return {
-				label: interest.topic,
-				data: interest.occurences,
-				color: topicColors.get(interest.topic) ?? 'black'
-			};
-		})}
-	/> -->
+	<div class="flex justify-between">
+		<span class="font-bold max-lg:text-lg text-2xl">Meist behandelte Themen</span>
+
+		{#if detailedInterests.length > 0}
+			<ExtendInfoDialog title="Details">
+				<DetailedInterestsModal {detailedInterests} />
+			</ExtendInfoDialog>	
+		{/if}
+	</div>
+	<div class="h-[300px] p-4 border rounded-sm mt-2">
+  		<BarChart 
+			data={dateSeriesData} 
+			{cRange} 
+			x="topic" 
+			y="occurences" 
+			{cDomain} 
+			c="topic" 
+			renderContext="canvas"
+			padding={{ left: 40, top: 20, bottom: 120 }}
+			props={{
+				xAxis: {
+					tickLabelProps: {
+						rotate: -45,
+						textAnchor: 'end',
+						dx: -8,
+						dy: 8,
+					},
+				},
+			}}
+		>	
+	</BarChart>
+	</div>
 </div>

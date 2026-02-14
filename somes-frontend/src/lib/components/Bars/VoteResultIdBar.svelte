@@ -74,7 +74,25 @@
 				class="border-radius-left spacing-for-left flex dark:bg-primary-300 bg-primary-400 justify-between items-center flex-basis-left"
 			>
 				<div class="flex flex-col gap-1">
-					<div class="sm:text-xl">{voteResult.legislative_initiative.description}</div>
+					{#if voteResult.ai_summary}
+						<div class="flex flex-1 flex-col flex-wrap min-w-0 max-lg:contents">
+							<span
+								class="text-xl font-semibold max-lg:order-1 max-lg:flex-1 max-lg:min-w-0"
+								style="hyphens: auto; word-break: normal; overflow-wrap: break-word;"
+							>
+								{voteResult.ai_summary.short_title}
+							</span>
+							<span class="text-sm sm:text-md max-lg:order-3 max-lg:w-full">
+								{voteResult.ai_summary.short_summary}
+							</span>
+						</div>
+					{:else}
+						<span class="text-md flex-1 font-semibold min-w-0">
+							{voteResult.legislative_initiative.description}
+						</span>
+					{/if}
+
+
 					<slot />
 				</div>
 

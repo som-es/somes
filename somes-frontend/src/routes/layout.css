@@ -3,6 +3,8 @@
 @plugin "tailwindcss-animate";
 @custom-variant dark (&:where(.dark, .dark *));
 
+@source '../node_modules/layerchart/dist';
+
 @theme {
 	--theme-font-family-base: system-ui;
 	--theme-font-family-heading: system-ui;
@@ -96,6 +98,8 @@
 	--color-surface-700: rgb(27 30 47);
 	--color-surface-800: rgb(22 24 37);
 	--color-surface-900: rgb(18 20 30);
+
+	--color-surface-content: rgb(0, 0, 0);
 
 	--spacing: 0.25rem;
 	--text-scaling: 1;
