@@ -34,9 +34,9 @@
 	});
 </script>
 
-<div class="entry mt-3 hidden bg-primary-200 p-2 lg:block dark:bg-primary-400">
+<div class="entry rounded-xl mt-3 hidden bg-primary-200 p-2 lg:block dark:bg-primary-400">
 	<div class="flex gap-2">
-		<div class="flex-grow basis-3/4">
+		<div class="grow basis-3/4">
 			{#if voteResult.ai_summary}
 				<Emphasis
 					emphasis={voteResult.ai_summary.full_summary.key_points}

@@ -524,7 +524,7 @@
 		<!-- PopUp -->
 		{#if isSearchPopupOpen}
 			<div
-				class="absolute top-full right-0 left-0 z-100 mt-2 w-140 rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg md:px-6"
+				class="absolute top-full right-0 left-0 z-100 mt-2 w-[98%] max-md:mx-auto md:w-140 rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg md:px-6"
 				data-popup="popupSearch"
 				role="button"
 				tabindex="0"
@@ -545,7 +545,7 @@
 								allowDeselect={true}
 							>
 								<Select.Trigger
-									class="inline-flex h-10 w-[200px] items-center justify-between rounded-xl bg-secondary-500 px-[11px] text-white transition-colors placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+									class="inline-flex h-10 md:w-[200px] items-center justify-between rounded-xl bg-secondary-500 px-[11px] text-white transition-colors placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
 								>
 									<div class="flex items-center gap-2">
 										<span class="truncate">{selectedSearchPeriod || 'Alle Perioden'}</span>
@@ -554,13 +554,13 @@
 								</Select.Trigger>
 								<Select.Portal>
 									<Select.Content
-										class="z-500 max-h-60 w-[200px] min-w-[var(--bits-select-anchor-width)] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg"
+										class="z-500 max-h-60 w-[200px] min-w-[var(--bits-select-anchor-width)] overflow-hidden rounded-xl border border-gray-200 bg-surface-100 dark:bg-surface-500 shadow-lg"
 										sideOffset={8}
 									>
 										<Select.Viewport class="p-1">
 											{#each [...periods].reverse() as period}
 												<Select.Item
-													class="flex h-10 w-full cursor-pointer select-none items-center rounded-lg py-3 pl-3 pr-1.5 text-sm capitalize outline-none transition-all duration-75 data-[highlighted]:bg-gray-100"
+													class="flex h-10 w-full cursor-pointer select-none items-center rounded-lg py-3 pl-3 pr-1.5 text-sm capitalize outline-none transition-all duration-75 data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-400"
 													value={period.gp}
 													label={period.gp}
 												>
@@ -569,7 +569,7 @@
 															{period.gp}
 														</div>
 														{#if selected}
-															<div class="ml-auto h-4" style="stroke:black">
+															<div class="ml-auto h-4 stroke-black dark:stroke-white">
 																{@html checkmark_small}
 															</div>
 														{/if}
@@ -591,7 +591,7 @@
 								allowDeselect={true}
 							>
 								<Select.Trigger
-									class="inline-flex h-10 w-[200px] items-center justify-between rounded-xl px-[11px] bg-secondary-500 text-white transition-colors placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+									class="inline-flex h-10 md:w-[200px] items-center justify-between rounded-xl px-[11px] bg-secondary-500 text-white transition-colors placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
 								>
 									<div class="flex items-center gap-2">
 										{#if selectedParty}
@@ -606,13 +606,13 @@
 								</Select.Trigger>
 								<Select.Portal>
 									<Select.Content
-										class="z-500 max-h-60 w-[200px] min-w-[var(--bits-select-anchor-width)] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg"
+										class="z-500 max-h-60 w-[200px] min-w-[var(--bits-select-anchor-width)] overflow-hidden rounded-xl border border-gray-200 bg-surface-100 dark:bg-surface-500 shadow-lg"
 										sideOffset={8}
 									>
 										<Select.Viewport class="p-1">
 											{#each uniqueParties as party}
 												<Select.Item
-													class="flex h-10 w-full cursor-pointer select-none items-center rounded-lg py-3 pl-3 pr-1.5 text-sm capitalize outline-none transition-all duration-75 data-[highlighted]:bg-gray-100"
+													class="flex h-10 w-full cursor-pointer select-none items-center rounded-lg py-3 pl-3 pr-1.5 text-sm capitalize outline-none transition-all duration-75 data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-400"
 													value={party.code}
 													label={party.name}
 												>
@@ -728,7 +728,7 @@
 			<div class="mx-3 flex items-center">
 				<Popover.Root bind:open={isLegisPeriodFilterOpen}>
 					<Popover.Trigger>
-						<div class="flex items-center gap-1 rounded-xl bg-primary-600 p-2 px-3 text-white">
+						<div class="flex items-center gap-1 rounded-xl bg-primary-600 dark:bg-primary-400 p-2 px-3 text-white">
 							<h4>{selectedPeriod}</h4>
 							<div
 								class="block w-4 text-white transition-transform duration-200"
@@ -742,7 +742,7 @@
 					<Popover.Portal>
 						<Popover.Content class="z-[1000]">
 							<div
-								class="relative w-auto max-w-[96vw] top-1 rounded-xl border border-gray-300 bg-surface-50 px-6 pt-4 pb-5 shadow-lg"
+								class="relative w-auto max-w-[96vw] top-1 rounded-xl border border-gray-300 bg-surface-50 px-6 pt-4 pb-5 shadow-lg text-black"
 								data-popup="popupLegisPeriod"
 							>
 								<div class="mt-4 first:mt-0">
@@ -833,8 +833,8 @@
 			{/if}
 		</div> -->
 		<div class="flex min-w-full justify-between rounded-xl bg-primary-300 dark:bg-primary-200">
-			<div class="w-3/4">
-				<div class="relative px-8 py-5">
+			<div class="md:w-3/4">
+				<div class="max-md:hidden relative px-8 py-5">
 					{#if delegates && delegates.length > 0}
 						<div class="absolute top-5 left-8 z-10 grid grid-cols-[min-content_auto_min-content] items-center gap-x-3 gap-y-1">
 							{#each [...groupPartyDelegates(structuredClone(delegates))].sort((a, b) => b[1].length - a[1].length) as [party, partyDelegates]}
@@ -1053,22 +1053,21 @@
 		height: 20px;
 		width: 20px;
 		border-radius: 50%;
-		background: #6881a1;
+		background: var(--color-primary-500);
 		cursor: pointer;
 		border: none;
 	}
-
 	.range-slider::-moz-range-thumb {
 		height: 20px;
 		width: 20px;
 		border-radius: 50%;
-		background: #6881a1;
+		background: var(--color-primary-500);
 		cursor: pointer;
 		border: none;
 	}
 
 	.range-slider::-webkit-slider-runnable-track {
-		background: linear-gradient(to right, #6881A1 0%, #6881A1 var(--progress), #e5e7eb var(--progress), #e5e7eb 100%);
+		background: linear-gradient(to right, var(--color-primary-500) 0%, var(--color-primary-500) var(--progress), #e5e7eb var(--progress), #e5e7eb 100%);
 	}
 
 	.range-slider::-moz-range-track {
@@ -1079,8 +1078,28 @@
 	}
 
 	.range-slider::-moz-range-progress {
-		background: #6881a1;
+		background: var(--color-primary-500);
 		height: 8px;
 		border-radius: 4px;
+	}
+
+	:global(.dark) .range-slider::-webkit-slider-thumb {
+		background: var(--color-primary-400);
+	}
+
+	:global(.dark) .range-slider::-moz-range-thumb {
+		background: var(--color-primary-400);
+	}
+
+	:global(.dark) .range-slider::-webkit-slider-runnable-track {
+		background: linear-gradient(to right, var(--color-primary-400) 0%, var(--color-primary-400) var(--progress), #374151 var(--progress), #374151 100%);
+	}
+
+	:global(.dark) .range-slider::-moz-range-track {
+		background: #374151;
+	}
+
+	:global(.dark) .range-slider::-moz-range-progress {
+		background: var(--color-primary-400);
 	}
 </style>

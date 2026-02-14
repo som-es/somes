@@ -69,7 +69,7 @@
 	let personUrl = $derived(`https://parlament.gv.at/person/${delegate.id}?utm_source=somes.at`);
 </script>
 
-<div class="card bg-primary-200 p-5 h-full flex flex-col h-[calc(100%-1rem)]">
+<div class="card bg-primary-200 dark:bg-primary-400 p-5 h-full flex flex-col h-[calc(100%-1rem)]">
 	<!-- Top Row: Fav button & External Link -->
 	<div class="w-full flex justify-end gap-2 items-center">
 		<!-- Favorite Button -->

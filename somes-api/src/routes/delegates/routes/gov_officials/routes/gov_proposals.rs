@@ -55,7 +55,7 @@ pub async fn extract_gov_proposals_by_delegate_sqlx(
             mp.id = mi.ministrial_proposal_id
         where
             delegate_id = $1
-        order by created_at DESC;
+        order by raw_data_created_at DESC;
     ",
         delegate_id
     )
