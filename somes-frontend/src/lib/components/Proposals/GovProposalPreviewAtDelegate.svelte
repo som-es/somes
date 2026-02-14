@@ -1,19 +1,17 @@
 <script lang="ts">
 	import type { Delegate, GovProposal } from '$lib/types';
+	import ExtendInfoDialog from '../Delegates/ExtendInfoDialog.svelte';
+	import AllProposalsModal from './AllProposalsModal.svelte';
 	import GovProposalExpandableBar from './Latest/GovProposalExpandableBar.svelte';
 
-	export let govProposals: GovProposal[];
-	export let delegate: Delegate;
+	interface Props {
+		govProposals: GovProposal[];
+		delegate: Delegate;
+	}
 
-	// $: allProposals = {
-	// 	type: 'component',
-	// 	component: 'allGovProposals',
-	// 	meta: { govProposals: govProposals, delegate }
-	// } as ModalSettings;
+	let { govProposals, delegate }: Props = $props();
 
-	// const modalStore = getModalStore();
-
-	$: previewGovProposals = govProposals.slice(0, 2);
+	let previewGovProposals = $derived(govProposals.slice(0, 2));
 </script>
 
 <div class="flex flex-wrap justify-between items-center">
@@ -25,10 +23,9 @@
 			{govProposals.length == 1 ? 'Ministerialentwurf' : 'Ministerialentwürfe'} insgesamt
 		</h2>
 	</div>
-	<button
-		class="btn sm:btn-lg preset-filled mt-1"
-		on:click={() => {}/*modalStore.trigger(allProposals)*/}>Alle anzeigen</button
-	>
+	<ExtendInfoDialog title="Alle anzeigen">
+		<AllProposalsModal govProposals={govProposals} delegate={delegate} />
+	</ExtendInfoDialog>
 </div>
 {#each previewGovProposals as govProposal}
 	<GovProposalExpandableBar

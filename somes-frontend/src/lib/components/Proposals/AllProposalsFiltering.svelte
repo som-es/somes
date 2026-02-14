@@ -1,58 +1,42 @@
 <script lang="ts">
-	import { isHasError, isThere } from '$lib/api/api';
+
+	import { isThere } from '$lib/api/api';
 	import type { GovProposal } from '$lib/types';
-	// import { Segment } from '@skeletonlabs/skeleton-svelte';
+	import FilterGroup from '../Filtering/FilterGroup.svelte';
+	
+	interface Props {
+		filteredGovProposals: GovProposal[];
+		allGovProposals: GovProposal[];
+	}
 
-	export let filteredGovProposals: GovProposal[];
-	export let allGovProposals: GovProposal[] | undefined;
+	let { filteredGovProposals = $bindable(), allGovProposals }: Props = $props();
 
-	let alreadyVotedOnFilter: boolean | undefined = undefined;
-	// let alreadyVotedOnFilter: boolean | undefined = undefined;
+	let filters = $state([
+		{
+			title: 'mit Abstimmung',
+			activeValue: undefined,
+			hidden: false,
+			options: [
+				{ title: 'egal', value: undefined },
+				{ title: 'Ja', value: true },
+				{ title: 'Nein', value: false }
+			]
+		}]);
 
-	$: if (allGovProposals) {
+	$effect(() => {
 		filteredGovProposals = allGovProposals.filter((prop) => {
 			let keep = true;
-			if (alreadyVotedOnFilter != undefined) {
-				keep = keep && isThere(prop.vote_result) == alreadyVotedOnFilter;
+			if (filters[0].activeValue != undefined) {
+				keep = keep && isThere(prop.vote_result) == filters[0].activeValue;
 			}
 			return keep;
 		});
-		// filteredGovProposals = filteredGovProposals;
-	}
+	});
+
 </script>
-<!-- 
-<div class="max-lg:hidden flex gap-4 flex-wrap">
-	<div class="mt-5">
-		<h1 class="text-2xl font-bold">Mit Abstimmung</h1>
-		<Segment
-			rounded="rounded-container sm:!rounded-base"
-			active="preset-filled-secondary-500"
-			hover="hover:preset-tonal-secondary"
-			flexDirection="flex-col sm:flex-row"
-		>
-			<Segment.Item bind:group={alreadyVotedOnFilter} name="alreadyVotedOn" value={undefined}
-				>egal</Segment.Item
-			>
-			<Segment.Item bind:group={alreadyVotedOnFilter} name="alreadyVotedOn" value={false}
-				>keine Abstimmung</Segment.Item
-			>
-			<Segment.Item bind:group={alreadyVotedOnFilter} name="alreadyVotedOn" value={true}
-				>mit Abstimmung</Segment.Item
-			>
-		</Segment>
-	</div>
-	<div class="mt-5">
-		<h1 class="text-2xl font-bold">Angenommen</h1>
-		<Segment
-			rounded="rounded-container sm:!rounded-base"
-			active="preset-filled-secondary-500"
-			hover="hover:preset-tonal-secondary"
-			flexDirection="flex-col sm:flex-row"
-		>
-		</Segment>
-	</div>
-	<div class="mt-5">
-		<h1 class="text-2xl font-bold">Abstimmung</h1>
-		
-	</div>
-</div> -->
+
+<FilterGroup group={filters[0]} />
+
+{#if filteredGovProposals.length === 0}
+	<p class="text-center">Keine Ministerialentwürfe gefunden.</p>
+{/if}

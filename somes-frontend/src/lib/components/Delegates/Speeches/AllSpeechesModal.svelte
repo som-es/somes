@@ -32,7 +32,7 @@
 </script>
 
 <div class="card p-8 ">
-	<div class="flex justify-between">
+	<div class="flex justify-between items-center">
 		<h1 class="font-bold text-2xl">Letzte Reden</h1>
 		<Dialog.Close>
 			<ModalCloseButton />

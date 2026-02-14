@@ -2,6 +2,7 @@
 	import { Popover } from "bits-ui";
 	import type { GenericFilterGroup } from "./types";
 	import FilterDropdown from "./FilterDropdown.svelte";
+	import FilterGroup from "./FilterGroup.svelte";
 
     interface Props {
         genericFilters: (GenericFilterGroup<string> | GenericFilterGroup<boolean>)[];
@@ -24,24 +25,7 @@
             class="z-10 touch-manipulation text-black w-auto rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg md:px-6"
         >
             {#each genericFilters as group}
-                {#if !group.hidden}
-                    <div class="mt-4 first:mt-0">
-                        <span class="text-base font-semibold text-gray-800">{group.title}</span>
-                        <div class="flex w-fit gap-1 rounded-lg border border-primary-300 text-sm">
-                            {#each group.options as option}
-                                <button
-                                    class="cursor-pointer rounded-lg px-2 py-1 text-xs md:text-sm"
-                                    class:bg-primary-300={group.activeValue === option.value}
-                                    onclick={() => {
-                                        group.activeValue = option.value;
-                                    }}
-                                >
-                                    <span class="text-nowrap">{option.title}</span>
-                                </button>
-                            {/each}
-                        </div>
-                    </div>
-                {/if}
+                <FilterGroup {group} /> 
             {/each}
             {#if legisPeriodFilter}
                 <div class="mt-4 first:mt-0">

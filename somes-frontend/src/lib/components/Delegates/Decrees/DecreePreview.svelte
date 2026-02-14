@@ -2,6 +2,8 @@
 	import DecreeBar from './DecreeBar.svelte';
 	import type { Decree, DecreeDelegate } from './types';
 	import type { Delegate } from '$lib/types';
+	import ExtendInfoDialog from '../ExtendInfoDialog.svelte';
+	import DecreesModal from './DecreesModal.svelte';
 
 	interface Props {
 		decrees: Decree[];
@@ -33,9 +35,9 @@
 			{decrees.length == 1 ? 'Verordnung' : 'Verordnungen'} insgesamt
 		</h2>
 	</div>
-	<button class="btn sm:btn-lg preset-filled mt-1" onclick={() => {}}
-		>Alle anzeigen
-	</button>
+	<ExtendInfoDialog title="Alle anzeigen">
+		<DecreesModal decrees={delegateDecrees} />
+	</ExtendInfoDialog>
 </div>
 
 <div class="mt-1">

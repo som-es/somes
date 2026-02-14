@@ -1,48 +1,41 @@
 <script lang="ts">
-		import Pagination from '$lib/components/Pagination.svelte';
+	import Pagination from '$lib/components/Pagination.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
+	import { Dialog } from 'bits-ui';
 	import DecreeBar from './DecreeBar.svelte';
-	import type { Decree } from './types';
+	import type { Decree, DecreeDelegate } from './types';
+	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
 
-	// const modalStore = getModalStore();
-	// export let parent;
+	interface Props {
+		decrees: DecreeDelegate[];
+	}
+
+	let { decrees }: Props = $props();
 
 	const ENTRIES = 15;
+	let page = $state(1);
 
-	let currentPageDecrees: Decree[] = [];
-	let page = 1;
+	let currentPageDecrees: DecreeDelegate[] = $derived(decrees.slice((page - 1) * ENTRIES, page * ENTRIES));
 
-	// $: if ($modalStore.length > 0 && $modalStore[0].meta) {
-	// 	currentPageDecrees = $modalStore[0].meta.decrees.slice((page - 1) * ENTRIES, page * ENTRIES);
-	// }
-
-	// $: speeches =
 </script>
 
-<!-- {#if $modalStore.length > 0 && $modalStore[0].meta}
-	<div class="card p-8 max-w-7xl w-7xl">
+<div class="card p-8 max-w-7xl w-7xl">
+	<div class="flex justify-between items-center">
 		<h1 class="font-bold text-2xl">Letzte Verordnungen</h1>
-		<button
-			on:click={() => {
-				modalStore.close();
-			}}
-			style="font-size: 34px"
-			class="w-5 unselectable float-right"
-		>
-			✕
-		</button>
-
-		<Pagination bind:page maxPage={Math.ceil($modalStore[0].meta.decrees.length / ENTRIES)} />
-		{#each currentPageDecrees as decree}
-			<DecreeBar {decree} {page} />
-		{/each}
-		{#if currentPageDecrees.length == 0}
-			{#each { length: 15 } as _}
-				<ExpandablePlaceholder class="min-w-7xl w-7xl" />
-			{/each}
-		{/if}
-		<div class="float-right">
-			<Pagination bind:page maxPage={Math.ceil($modalStore[0].meta.decrees.length / ENTRIES)} />
-		</div>
+		<Dialog.Close>
+			<ModalCloseButton />
+		</Dialog.Close>	
 	</div>
-{/if} -->
+
+	{#each currentPageDecrees as decree}
+		<DecreeBar {decree} />
+	{/each}
+	{#if currentPageDecrees.length == 0}
+		{#each { length: 15 } as _}
+			<ExpandablePlaceholder class="min-w-7xl w-7xl" />
+		{/each}
+	{/if}
+	<div class="float-right">
+		<Pagination bind:dynPage={page} maxPage={Math.ceil(decrees.length / ENTRIES)} />
+	</div>
+</div>

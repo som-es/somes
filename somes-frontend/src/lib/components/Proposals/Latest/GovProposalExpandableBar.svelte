@@ -74,7 +74,7 @@
 					{govProposal.gov_proposal.ai_summary.short_summary}
 				</span>
 			{:else}
-				<span>{govProposal.gov_proposal.ministrial_proposal.description.slice(30)}</span>
+				<span>{govProposal.gov_proposal.ministrial_proposal.title.split("|")[0]}</span>
 			{/if}
 			<div class="flex flex-wrap gap-1 md:mt-4 mt-2">
 				<span class="badge bg-tertiary-400 text-black text-wrap"
