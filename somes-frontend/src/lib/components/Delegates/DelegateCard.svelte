@@ -11,7 +11,7 @@
 	import { cachedDelegateFavos } from '$lib/caching/favos';
 	import { addDelegateFavo, removeDelegateFavo } from '$lib/api/authed';
 	import { delegatesStore } from '$lib/caching/stores/stores.svelte';
-	import { address } from '$lib/api/api';
+	import { address, url } from '$lib/api/api';
 	import AIChatModal from './AIChat/AIChatModal.svelte';
 	import { Dialog } from 'bits-ui';
 	import DelegateQAModal from './QA/DelegateQAModal.svelte';
@@ -113,7 +113,7 @@
 	{#if showImg}
 		<div class="flex justify-center pb-6">
 			<img
-				src={`${address}/assets/${delegate.id}.jpg`}
+				src={`${url}/assets/${delegate.id}.jpg`}
 				class="rounded-full w-32 sm:w-44 md:w-52"
 				alt="Image of politician {delegate.name}"
 			/>

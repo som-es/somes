@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { address } from '$lib/api/api';
+	import { address, url } from '$lib/api/api';
 	import type { Decree, DecreeDelegate } from './types';
 	import { dashDateToDotDate } from '$lib/date';
 	import { gotoHistory } from '$lib/goto';
@@ -54,7 +54,7 @@
 		{#if showDelegate && decree.delegate}
 			<img
 				class="min-w-[80px] max-h-[80px] rounded-full mx-1"
-				src={`${address}/assets/${decree.delegate.id}.jpg`}
+				src={`${url}/assets/${decree.delegate.id}.jpg`}
 				alt="Image of delegate {decree.delegate.name}"
 			/>
 		{/if}

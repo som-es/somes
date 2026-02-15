@@ -11,7 +11,7 @@
 	import { currentVoteResultStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
 	import GovProposalExpanded from '../ExpandableAtDelegate/GovProposalExpanded.svelte';
-	import { address } from '$lib/api/api';
+	import { address, url } from '$lib/api/api';
 	import { dashDateToDotDate } from '$lib/date';
 	import { currentDelegatesAtDateStore, currentGovProposalDelegateStore } from '$lib/stores/stores';
 	import { browser } from '$app/environment';
@@ -108,7 +108,7 @@
 			<div class="hidden sm:block">
 				<img
 					class="min-w-[80px] max-h-[80px] rounded-full mx-1"
-					src={`${address}/assets/${govProposal.delegate.id}.jpg`}
+					src={`${url}/assets/${govProposal.delegate.id}.jpg`}
 					title={govProposal.delegate.name}
 					alt="Image of delegate {govProposal.delegate.name}"
 				/>

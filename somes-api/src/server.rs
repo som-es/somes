@@ -199,12 +199,12 @@ pub async fn serve(addr: SocketAddr) {
         .route(QUIZZES, get(get_all_quizzes_route))
         .route(ADD_QUIZ, post(add_quiz_route))
         .route(QUIZ_ROOM, any(join_quiz_room_route))
+        .nest_service("/assets", ServeDir::new("assets"))
         .nest("/at", api_routes);
 
     let app = Router::new()
         .nest("/api", api_routes)
         // .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
-        .nest_service("/assets", ServeDir::new("assets"))
         // mind conflicts e.g delegates
         .nest_service(
             "/alpha",
