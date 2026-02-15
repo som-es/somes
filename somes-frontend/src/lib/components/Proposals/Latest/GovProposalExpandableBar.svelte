@@ -108,7 +108,7 @@
 			<div class="hidden sm:block">
 				<img
 					class="min-w-[80px] max-h-[80px] rounded-full mx-1"
-					src={`${url}/assets/${govProposal.delegate.id}.jpg`}
+					src={`${url}assets/${govProposal.delegate.id}.jpg`}
 					title={govProposal.delegate.name}
 					alt="Image of delegate {govProposal.delegate.name}"
 				/>

@@ -54,7 +54,7 @@
 		{#if showDelegate && decree.delegate}
 			<img
 				class="min-w-[80px] max-h-[80px] rounded-full mx-1"
-				src={`${url}/assets/${decree.delegate.id}.jpg`}
+				src={`${url}assets/${decree.delegate.id}.jpg`}
 				alt="Image of delegate {decree.delegate.name}"
 			/>
 		{/if}

@@ -113,7 +113,7 @@
 	{#if showImg}
 		<div class="flex justify-center pb-6">
 			<img
-				src={`${url}/assets/${delegate.id}.jpg`}
+				src={`${url}assets/${delegate.id}.jpg`}
 				class="rounded-full w-32 sm:w-44 md:w-52"
 				alt="Image of politician {delegate.name}"
 			/>
