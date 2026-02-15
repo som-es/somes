@@ -29,6 +29,12 @@
 			return topicColors.get(interest.topic) ?? 'black';
 		})
 	);
+	const ROW_HEIGHT = 45;
+	const VERTICAL_PADDING = 40; 
+
+	let dynamicHeight = $derived(
+		Math.max(detailedInterests.length * ROW_HEIGHT + VERTICAL_PADDING, 150)
+	);
 </script>
 <div class="card p-8 max-w-7xl w-7xl">
 	<div class="flex justify-between">
@@ -38,10 +44,9 @@
 		</Dialog.Close>
 	</div>
 	
-	<br />
 	<span class="text-lg">meist behandelte Themen</span>
 	
-	<div class="h-[2000px] p-4 border rounded-sm mt-2">
+	<div style="height: {dynamicHeight}px" class="p-4 border rounded-sm mt-2">
 		<BarChart 
 			data={dateSeriesData} 
 			{cRange} 
@@ -50,8 +55,24 @@
 			{cDomain} 
 			c="topic" 
 			orientation="horizontal"
-			renderContext="canvas"
-			padding={{ left: 150, top: 20, bottom: 12 }}
+			renderContext="svg"
+			padding={{ left: 300, top: 20, bottom: 12 }}
+			props={{
+				xAxis: {
+					tickLabelProps: {
+						class: "fill-black dark:fill-white stroke-none stroke-0 text-sm font-semibold"
+					}
+				},
+				yAxis: {
+					tickLabelProps: {
+						class: "fill-black dark:fill-white stroke-none stroke-0 text-sm font-semibold"
+					}
+				},
+				bars: {
+					strokeWidth: 0
+				}	
+			}}
+			
 		/>	
 	</div>
 </div>

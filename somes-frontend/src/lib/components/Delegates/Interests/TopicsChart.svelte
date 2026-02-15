@@ -51,19 +51,28 @@
 			y="occurences" 
 			{cDomain} 
 			c="topic" 
-			renderContext="canvas"
+			renderContext="svg"
 			padding={{ left: 40, top: 20, bottom: 120 }}
 			props={{
 				xAxis: {
 					tickLabelProps: {
-						rotate: -45,
+						rotate: -30,
 						textAnchor: 'end',
 						dx: -8,
 						dy: 8,
-					},
+						class: "fill-black dark:fill-white stroke-none stroke-0 text-sm font-semibold"
+					}
 				},
+				yAxis: {
+					tickLabelProps: {
+						class: "fill-black dark:fill-white stroke-none stroke-0 text-sm font-semibold"
+					}
+				},
+				bars: {
+					strokeWidth: 0
+				}	
 			}}
 		>	
-	</BarChart>
+		</BarChart>
 	</div>
 </div>
