@@ -638,7 +638,7 @@
 				class="absolute bottom-0 left-0 h-64 w-64 -translate-x-1/2 translate-y-1/2 rounded-full bg-secondary-600 opacity-50 blur-3xl"
 			></div>
 
-			<div class="relative z-10">
+			<div class="relative z-5">
 				<h2 class="font-heading mb-6 text-3xl font-bold md:text-5xl">Werde Teil von Somes</h2>
 				<p class="mx-auto mb-8 max-w-2xl text-lg text-primary-100">
 					Unterstütze uns dabei, den einfachen Zugang zu politischen Inhalten zu revolutionieren.

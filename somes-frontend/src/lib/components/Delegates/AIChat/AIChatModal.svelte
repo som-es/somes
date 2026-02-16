@@ -113,7 +113,7 @@
 			bind:value={newMessage}
 			placeholder="Stelle deine Frage..."
 			on:keypress={(e) => e.key === 'Enter' && sendMessage()}
-			class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-full text-base outline-hidden focus:ring-3 focus:ring-primary text-black"
+			class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-full text-base outline-hidden focus:ring-3 focus:ring-primary"
 		/>
 		<button
 			on:click={sendMessage}
