@@ -364,7 +364,7 @@
 						</div>
 
 						<!-- Abstimmung, Fractions, Result and Mini Parlament - Desktop-->
-						<div class="max-lg:hidden">
+						<div class="max-lg:hidden absolute">
 							<h3 class="font-semibold text-lg md:text-xl">Abstimmung</h3>
 							<div class="ml-1">
 								{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
@@ -396,7 +396,8 @@
 							</div>
 						</div>
 
-						<div class="max-lg:hidden max-w-md parliament-item m-auto">
+						<div class="w-full flex justify-center items-end">
+							<div class="w-2/3">
 							<VoteParliament2
 								{voteResult}
 								bind:delegate
@@ -407,10 +408,19 @@
 								useOffset={data.hasSeatInfo}
 								showGovs
 								overrideDelegates
-							/>
+							/></div>
 						</div>
 
-						<div class="max-lg:hidden w-40"></div>
+						<div class="w-100">
+							{#if selectedBubble}
+								<VoteDelegateCard
+									bubble={selectedBubble}
+									gp={voteResult.legislative_initiative.gp}
+									date={voteResult.legislative_initiative.vote_date ??
+										voteResult.legislative_initiative.nr_plenary_activity_date}
+								/>
+							{/if}
+						</div>
 					</div>
 				{/if}
 

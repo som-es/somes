@@ -832,21 +832,35 @@
 				</div>
 			{/if}
 		</div> -->
-		<div class="flex min-w-full justify-between rounded-xl bg-primary-300 dark:bg-primary-200">
-			<div class="md:w-3/4">
-				<div class="max-md:hidden relative px-8 py-5">
-					{#if delegates && delegates.length > 0}
-						<div class="absolute top-5 left-8 z-10 grid grid-cols-[min-content_auto_min-content] items-center gap-x-3 gap-y-1">
-							{#each [...groupPartyDelegates(structuredClone(delegates))].sort((a, b) => b[1].length - a[1].length) as [party, partyDelegates]}
-								<div
-									class="h-3 w-3 rounded-full"
-									style="background-color: {partyColors.get(party) ?? '#ccc'};"
-								></div>
-								<span class="text-lg font-medium text-gray-800">{party}</span>
-								<span class="text-lg font-medium text-gray-800 text-right">({partyDelegates.length})</span>
-							{/each}
-						</div>
-					{/if}
+		<div class="flex flex-wrap lg:flex-nowrap min-w-full justify-between rounded-xl bg-primary-300 dark:bg-primary-200 px-5 pt-3 pb-3 relative">
+			{#if delegates && delegates.length > 0}
+				<div class="w-full max-lg:block hidden mb-4 pl-4">
+					<div class="grid items-center">
+						{#each [...groupPartyDelegates(structuredClone(delegates))].sort((a, b) => b[1].length - a[1].length) as [party, partyDelegates]}
+							<div
+								class="h-2.5 w-2.5 rounded-full"
+								style="background-color: {partyColors.get(party) ?? '#ccc'};"
+							></div>
+							<span class="text-base font-medium text-gray-800">{party}</span>
+							<span class="text-base font-medium text-gray-800 text-right">({partyDelegates.length})</span>
+						{/each}
+					</div>
+				</div>
+
+				<div class="max-lg:hidden absolute top-5 left-8 z-10 grid grid-cols-[min-content_auto_min-content] items-center gap-x-2 gap-y-0">
+					{#each [...groupPartyDelegates(structuredClone(delegates))].sort((a, b) => b[1].length - a[1].length) as [party, partyDelegates]}
+						<div
+							class="h-2.5 w-2.5 rounded-full"
+							style="background-color: {partyColors.get(party) ?? '#ccc'};"
+						></div>
+						<span class="text-base font-medium text-gray-800">{party}</span>
+						<span class="text-base font-medium text-gray-800 text-right">({partyDelegates.length})</span>
+					{/each}
+				</div>
+			{/if}
+
+			<div class="w-full flex justify-center items-center">
+				<div class="w-2/3">
 					{#if supplyDate && finishedMounting}
 						<VoteParliament2
 							againstOpacity={1}
@@ -866,7 +880,8 @@
 					{/if}
 				</div>
 			</div>
-			<div class="w-[450px] p-4">
+
+			<div class="w-100">
 				{#if delegate}
 					<DelegateCard {delegate} questions={generalDelegateInfo?.delegate_qa ?? []} showQA />
 				{/if}

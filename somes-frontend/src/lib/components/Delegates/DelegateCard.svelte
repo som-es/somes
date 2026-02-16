@@ -114,7 +114,7 @@
 		<div class="flex justify-center pb-6">
 			<img
 				src={`${url}assets/${delegate.id}.jpg`}
-				class="rounded-full w-32 sm:w-44 md:w-52"
+				class="rounded-full w-24 sm:w-32 md:w-46"
 				alt="Image of politician {delegate.name}"
 			/>
 		</div>
@@ -179,11 +179,13 @@
 	{/if}
 
 	<!-- Buttons -->
-	<div class="w-full flex justify-between mt-auto items-end">
+	<div class="w-full flex justify-between mt-auto items-end pt-6">
 		{@render footerButtons?.()}
 		{#if showMoreDetailsBtn}
 			<div></div>
-			<SButton class="bg-tertiary-500 text-black" on:click={onShowDetails}>Zur Person</SButton>
+			<button class="bg-primary-600 p-2 px-3 rounded-xl text-white" onclick={onShowDetails}>
+				<h4>AI Chat</h4>
+			</button>
 		{/if}
 
 		{#if !onlyTop}

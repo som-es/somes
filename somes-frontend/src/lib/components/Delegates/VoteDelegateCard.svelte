@@ -73,7 +73,7 @@
 {#if delegate}
 <DelegateCard {delegate} title={bubble.title} showMoreDetailsBtn onlyTop={true} showAI={false}>
 	{#snippet top()}
-		<span >
+		<span>
 			{#if bubble.namedVote}
 				<div class="text-sm sm:text-base md:text-lg font-bold badge {opinionColor} text-white max-w-fit">{opinion}</div>
 			{:else}
@@ -117,14 +117,12 @@
 		</span>
 	{/snippet}
 	{#snippet footerButtons()}
-		<span >
+		<span>
 			{#if bubble.speech}
-				<SButton
-					class="bg-secondary-500 text-black"
-					on:click={() =>
-						window.open(`https://www.parlament.gv.at${bubble.speech?.document_url}`, '_blank')}
-					>Rede</SButton
-				>
+			<button class="bg-primary-600 p-2 px-3 rounded-xl text-white" on:click={() =>
+						window.open(`https://www.parlament.gv.at${bubble.speech?.document_url}`, '_blank')}>
+				<h4>Rede</h4>
+			</button>
 			{/if}
 		</span>
 	{/snippet}
