@@ -36,7 +36,7 @@ pub struct GovProposalsWithMaxPage {
 }
 
 pub async fn construct_gov_delegate_proposal(
-    redis_con: MultiplexedConnection,
+    mut redis_con: MultiplexedConnection,
     pg: &PgPool,
     ministrial_proposal: DbMinistrialProposalQueryMeta,
 ) -> sqlx::Result<GovProposalDelegate> {
@@ -46,7 +46,7 @@ pub async fn construct_gov_delegate_proposal(
     // TODO: display multiple gov officials if there are multiple ministerial issuers
     let mut delegates = vec![];
     for ministerial_issuer in gov_proposal.ministerial_issuers.as_deref().unwrap_or(&[]) {
-        let delegate = delegate_by_id_sqlx(*ministerial_issuer, &pg, redis_con.clone()).await?;
+        let delegate = delegate_by_id_sqlx(*ministerial_issuer, &pg, &mut redis_con).await?;
         delegates.push(delegate);
     }
     Ok(GovProposalDelegate {

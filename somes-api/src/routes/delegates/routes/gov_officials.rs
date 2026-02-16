@@ -2,7 +2,7 @@ mod decrees;
 mod routes;
 
 use axum::{routing::get, Router};
-use dataservice::combx::OptionalGovProposal;
+use dataservice::combx::{CombinedData, OptionalGovProposal};
 pub use decrees::*;
 pub use routes::*;
 
@@ -20,6 +20,16 @@ pub struct GovProposalDelegate {
     #[filter(make_optional)]
     pub gov_proposal: OptionalGovProposal,
     pub delegate: Option<Delegate>,
+}
+
+impl CombinedData for GovProposalDelegate {
+    const INDEX: dataservice::combx::Index = OptionalGovProposal::INDEX;
+
+    const PRIMARY_KEY: &str = OptionalGovProposal::PRIMARY_KEY;
+
+    fn id(&self) -> u64 {
+        self.gov_proposal.id.unwrap() as u64
+    }
 }
 
 pub fn create_gov_officials_router() -> Router<AppState> {
