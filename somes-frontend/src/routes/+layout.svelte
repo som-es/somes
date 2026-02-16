@@ -19,12 +19,6 @@
 			lightModeStore.value === 'dark' ||
 				(!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
 		);
-
-		if (!localStorage.getItem('cleared_feb_15')) {
-			localStorage.clear();
-			localStorage.setItem('cleared_feb_15', 'true');
-			window.location.reload(); 
-		}
 	});
 </script>
 
