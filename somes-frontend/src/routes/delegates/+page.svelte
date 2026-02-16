@@ -89,29 +89,6 @@
 		isSearchPopupOpen = false;
 	}
 
-	export function romanToInt(s: string): number {
-	const map: Record<string, number> = {
-		I: 1,
-		V: 5,
-		X: 10,
-		L: 50,
-		C: 100,
-		D: 500,
-		M: 1000
-	};
-	let result = 0;
-	for (let i = 0; i < s.length; i++) {
-		const curr = map[s[i]];
-		const next = map[s[i + 1]];
-		if (next > curr) {
-			result += next - curr;
-			i++;
-		} else {
-			result += curr;
-		}
-	}
-	return result;
-}
 
 
 	// Search PopUp, refetch delegates if filters present
@@ -132,12 +109,12 @@
 				isLoadingSearch = false;
 				return;
 			}
-			
+
 			const res = await delegates_search_persons(
 				1,
 				50,
 				sv || null,
-				sp ? romanToInt(sp) : null,
+				sp ? 10 + periods.findIndex((p) => p.gp === sp) : null,
 				party?.name || null
 			);
 

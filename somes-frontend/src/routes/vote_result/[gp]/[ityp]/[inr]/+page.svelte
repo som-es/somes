@@ -396,7 +396,7 @@
 							</div>
 						</div>
 
-						<div class="w-full flex justify-center items-end">
+						<div class="w-full flex justify-center items-center">
 							<div class="w-2/3">
 							<VoteParliament2
 								{voteResult}
