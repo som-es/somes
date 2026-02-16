@@ -1,11 +1,13 @@
+mod update_gov_proposals;
 mod update_vote_results;
 
 use std::time::Duration;
 
 use dataservice::combx::{self, CombinedData};
+use redis::aio::MultiplexedConnection;
 use serde::{de::DeserializeOwned, Serialize};
 
-use crate::set_json_cache_no_expire;
+use crate::{meilisearch::update_time, set_json_cache_no_expire};
 
 pub fn update_caches(
     redis_client: &redis::Client,
@@ -60,7 +62,7 @@ pub async fn update_cache_for_index<T: Serialize + DeserializeOwned + CombinedDa
     client: &redis::Client,
     intercept_and_update_cb: impl AsyncFn(&T) -> combx::Result<T>,
     notify_dependencies: impl AsyncFn(&redis::Client, &T) -> combx::Result<()>,
-    update_meilisearch_index_cb: impl AsyncFn(&mut [T]) -> combx::Result<()>,
+    update_meilisearch_index_cb: impl AsyncFn(Vec<T>) -> combx::Result<()>,
 ) {
     let mut last_id = "$".to_string();
     let stream_id = T::INDEX.as_str();
@@ -80,7 +82,7 @@ pub async fn update_cache_for_index<T: Serialize + DeserializeOwned + CombinedDa
                     log::error!("Cannot update redis caches {stream_id}: {e:?}");
                 }
                 // probably still better to update periodically (or add dependencies) - custom function, e.g. gov proposal is missing delegate
-                if let Err(e) = update_meilisearch_index_cb(&mut to_update).await {
+                if let Err(e) = update_meilisearch_index_cb(to_update).await {
                     log::error!("Cannot update meilisearch index {stream_id}: {e:?}");
                 }
             }
@@ -91,6 +93,20 @@ pub async fn update_cache_for_index<T: Serialize + DeserializeOwned + CombinedDa
             }
         }
     }
+}
+
+pub async fn update_meilisearch_index<T: CombinedData + serde::Serialize + Send + Sync>(
+    data: &[T],
+    meilisearch_client: &meilisearch_sdk::client::Client,
+    redis_con: &mut MultiplexedConnection,
+) -> combx::Result<()> {
+    meilisearch_client
+        .index(T::INDEX.as_str())
+        .add_documents_in_batches(&data, Some(3000), Some(T::PRIMARY_KEY))
+        .await?;
+
+    update_time::update_update_time_of_index(redis_con, &T::INDEX).await?;
+    Ok(())
 }
 
 pub async fn update_redis_entries<T: CombinedData + Serialize>(

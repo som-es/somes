@@ -13,10 +13,10 @@ use crate::{get_json_cache, routes::DelegateError, PgPoolConnection, RedisConnec
 pub async fn delegate_by_id_sqlx(
     delegate_id: i32,
     pg: &PgPool,
-    mut redis_con: MultiplexedConnection,
+    mut redis_con: &mut MultiplexedConnection,
 ) -> sqlx::Result<Delegate> {
     let key = format!("{}/{}", Index::Delegates, delegate_id.to_string());
-    let res = get_json_cache::<Delegate>(&mut redis_con, &key).await;
+    let res = get_json_cache::<Delegate>(redis_con, &key).await;
     if let Some(res) = res {
         return Ok(res);
     }
@@ -34,11 +34,11 @@ pub async fn delegate_by_id_sqlx(
     .await?;
 
     if *IS_PROD {
-        crate::set_json_cache_no_expire(&mut redis_con, &key, &delegate)
+        crate::set_json_cache_no_expire(redis_con, &key, &delegate)
             .await
             .ok_or(sqlx::Error::WorkerCrashed)?;
     } else {
-        crate::set_json_cache(&mut redis_con, &key, &delegate)
+        crate::set_json_cache(redis_con, &key, &delegate)
             .await
             .ok_or(sqlx::Error::WorkerCrashed)?;
     }
@@ -58,21 +58,23 @@ pub async fn delegate_by_id_sqlx(
     )
 )]
 pub async fn delegate_by_id(
-    RedisConnection(redis_con): RedisConnection,
+    RedisConnection(mut redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(delegate_by_id): Query<DelegateById>,
 ) -> Result<Json<Delegate>, DelegateError> {
     Ok(
-        delegate_by_id_sqlx(delegate_by_id.delegate_id, &pg, redis_con)
+        delegate_by_id_sqlx(delegate_by_id.delegate_id, &pg, &mut redis_con)
             .await
             .map(Json)?,
     )
 }
 
 pub async fn delegate_by_id_path_route(
-    RedisConnection(redis_con): RedisConnection,
+    RedisConnection(mut redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Path(id): Path<i32>,
 ) -> Result<Json<Delegate>, DelegateError> {
-    Ok(delegate_by_id_sqlx(id, &pg, redis_con).await.map(Json)?)
+    Ok(delegate_by_id_sqlx(id, &pg, &mut redis_con)
+        .await
+        .map(Json)?)
 }

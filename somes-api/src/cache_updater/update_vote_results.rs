@@ -1,10 +1,10 @@
 use dataservice::{
-    combx::{self, GovProposal, Index, OptionalVoteResult},
+    combx::{self, GovProposal, OptionalVoteResult},
     notify_update_streamed,
 };
 use sqlx::PgPool;
 
-use crate::{meilisearch::update_time, routes::fetch_vote_result_by_id, update_cache_for_index};
+use crate::{routes::fetch_vote_result_by_id, update_cache_for_index, update_meilisearch_index};
 
 pub async fn update_cache_vote_results(
     redis_client: redis::Client,
@@ -13,35 +13,29 @@ pub async fn update_cache_vote_results(
 ) {
     let meilisearch_client = meilisearch_client.clone();
     let inner_redis_client = redis_client.clone();
-    let update_meilisearch_index =
-        move |vote_results: &mut [dataservice::combx::OptionalVoteResult]| {
-            let meilisearch_client = meilisearch_client.clone();
-            let redis_client = inner_redis_client.clone();
-            for vote_result in vote_results.iter_mut() {
-                if let Some(meilisearch_helper) = vote_result.meilisearch_helper.as_mut() {
-                    meilisearch_helper.votes = vote_result
-                        .votes
-                        .as_ref()
-                        .unwrap_or(&vec![])
-                        .iter()
-                        .map(|vote| format!("{}{:?}", vote.party, vote.infavor))
-                        .collect();
-                }
+    let update_meilisearch_index = move |mut vote_results: Vec<
+        dataservice::combx::OptionalVoteResult,
+    >| {
+        let meilisearch_client = meilisearch_client.clone();
+        let redis_client = inner_redis_client.clone();
+        for vote_result in vote_results.iter_mut() {
+            if let Some(meilisearch_helper) = vote_result.meilisearch_helper.as_mut() {
+                meilisearch_helper.votes = vote_result
+                    .votes
+                    .as_ref()
+                    .unwrap_or(&vec![])
+                    .iter()
+                    .map(|vote| format!("{}{:?}", vote.party, vote.infavor))
+                    .collect();
             }
+        }
 
-            let vote_results = vote_results.to_vec();
-            async move {
-                meilisearch_client
-                    .index(Index::VoteResults.as_str())
-                    .add_documents_in_batches(&vote_results, Some(3000), Some("id"))
-                    .await?;
-
-                let mut redis_con = redis_client.get_multiplexed_async_connection().await?;
-                update_time::update_update_time_of_index(&mut redis_con, &Index::VoteResults)
-                    .await?;
-                Ok(())
-            }
-        };
+        async move {
+            let mut redis_con = redis_client.get_multiplexed_async_connection().await?;
+            update_meilisearch_index(&vote_results, &meilisearch_client, &mut redis_con).await?;
+            Ok(())
+        }
+    };
 
     let inner_pool = pool.clone();
     let intercept_and_update_cb = move |data: &dataservice::combx::OptionalVoteResult| {

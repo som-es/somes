@@ -62,7 +62,7 @@ pub async fn decrees_per_page_route(
 
 pub async fn get_all_decrees_sqlx(
     pg: &sqlx::Pool<sqlx::Postgres>,
-    redis_con: MultiplexedConnection,
+    mut redis_con: MultiplexedConnection,
 ) -> sqlx::Result<Vec<DecreeDelegate>> {
     let decrees = sqlx::query_as!(
         OptionalDecree,
@@ -78,7 +78,7 @@ pub async fn get_all_decrees_sqlx(
     let mut decree_delegates = Vec::with_capacity(decrees.len());
     for decree in decrees {
         let delegate = match decree.gov_official_id {
-            Some(delegate_id) => delegate_by_id_sqlx(delegate_id, &pg, redis_con.clone())
+            Some(delegate_id) => delegate_by_id_sqlx(delegate_id, &pg, &mut redis_con)
                 .await
                 .ok(),
             None => None,

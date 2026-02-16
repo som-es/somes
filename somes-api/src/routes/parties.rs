@@ -22,9 +22,11 @@ use sqlx::PgPool;
 pub async fn parties_route(
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<Party>>, PartiesErrorResponse> {
-    Ok(dataservice::combx::with_data::all_parties_by_most_recent_gp(&pg)
-        .await
-        .map(Json)?)
+    Ok(
+        dataservice::combx::with_data::all_parties_by_most_recent_gp(&pg)
+            .await
+            .map(Json)?,
+    )
 }
 
 pub async fn parties_per_gp_route(
