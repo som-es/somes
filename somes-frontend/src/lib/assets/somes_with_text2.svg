@@ -8,7 +8,7 @@
       <path id="Pfad_5" data-name="Pfad 5" d="M476.39,237.82a539.283,539.283,0,0,0-9.074,93.2,513.542,513.542,0,0,0,3.9,69.879c4.276,32.493,16.2,90.685,55.675,160.517" transform="translate(-85.563 -173.784)" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="30"></path>
       <line id="Linie_1" data-name="Linie 1" y2="304.028" transform="translate(244.324 68.644)" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="30"></line>
     </g>
-    <text id="somes_" data-name="somes" transform="translate(-7313 13505)" font-size="500" font-family="Tahoma">
+    <text id="somes_" data-name="somes" transform="translate(-7313 13505)" font-size="500" font-family="Tahoma, Geneva, Verdana, sans-serif">
       <tspan x="0" y="460">somes</tspan>
     </text>
   </g>
