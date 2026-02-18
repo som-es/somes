@@ -212,6 +212,16 @@
             </div>
 		</section>
 
+        <section class="mt-5">
+            <h2 class="text-xl font-bold text-primary-800 dark:text-primary-200 mb-4 border-l-4 border-secondary-500 pl-3">
+                Haftungsausschluss
+            </h2>
+
+            Die Inhalte dieser Webseite wurden mit größter Sorgfalt erstellt, dennoch kann nicht ausgeschlossen werden, dass Fehler auftreten. Es wird keine Haftung für die Richtigkeit, Vollständigkeit oder Aktualität der Informationen übernommen, ebenso wenig wie für die Fehlerfreiheit der auf der Webseite angebotenen Tools oder die Ausgaben, die bei deren Verwendung entstehen. Die Nutzung dieser Webseite erfolgt daher auf eigene Gefahr.
+
+            Des Weiteren kann diese Webseite Links zu externen Webseiten Dritter enthalten, auf deren Inhalte kein Einfluss genommen werden kann. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seite verantwortlich. Zum Zeitpunkt der Verlinkung wurden die verlinkten Seiten auf mögliche Rechtsverletzungen geprüft und es waren keine rechtswidrigen Inhalte erkennbar. Jedoch kann eine permanente Überwachung der verlinkten Seiten nicht gewährleistet werden. Bei Bekanntwerden von Rechtsverletzungen auf verlinkten Webseiten werden diese Links umgehend entfernt.
+        </section>
+
         <!-- ODR & Footer Info -->
         <div class="text-xs text-surface-500 border-t border-surface-200 dark:border-surface-700 pt-6 mt-8">
             Verbraucher haben die Möglichkeit, Beschwerden an die Online-Streitbeilegungsplattform der EU zu richten: 

@@ -23,6 +23,16 @@ pub fn update_caches(
         inner_pool,
         inner_meilisearch_client,
     ));
+
+    let inner_redis_client = redis_client.clone();
+    let inner_pool = dataservice_sqlx_pool.clone();
+    let inner_meilisearch_client = meilisearch_client.clone();
+
+    tokio::task::spawn(update_gov_proposals::update_cache_gov_proposals(
+        inner_redis_client,
+        inner_pool,
+        inner_meilisearch_client,
+    ));
 }
 
 pub(crate) async fn read_update_stream<T: DeserializeOwned>(

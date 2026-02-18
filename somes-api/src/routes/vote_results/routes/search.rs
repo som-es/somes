@@ -33,7 +33,7 @@ pub async fn vote_results_by_search_route(
             .entries_per_page
             .unwrap_or(LEGIS_INITS_PER_PAGE.parse().unwrap_or(16)),
         page,
-        sort.sort.unwrap_or_default(),
+        sort.sort,
         legis_init_filter,
         optional_vote_result_filter,
         &mut redis_con,
@@ -57,7 +57,7 @@ async fn meilisearch_for_vote_results(
     search_query: somes_common_lib::SearchQuery,
     entries_per_page: usize,
     page: Page,
-    sort: somes_common_lib::Sort,
+    sort: Option<somes_common_lib::Sort>,
     filter: AddonVoteResultFilter,
     vote_result_filter: OptionalVoteResultFilter,
     redis_con: &mut MultiplexedConnection,
@@ -90,16 +90,33 @@ async fn meilisearch_for_vote_results(
 
     log::info!("vote results meilisearch filter: {meilisearch_filter}, {search_query:?}");
 
+    let sort = if search_query.search.is_none() {
+        Some(sort.unwrap_or(somes_common_lib::Sort::Desc))
+    } else {
+        sort
+    };
+
     let sort = match sort {
-        somes_common_lib::Sort::Asc => "legislative_initiative.nr_plenary_activity_date:asc",
-        somes_common_lib::Sort::Desc => "legislative_initiative.nr_plenary_activity_date:desc",
+        Some(sort) => {
+            vec![match sort {
+                somes_common_lib::Sort::Asc => {
+                    "legislative_initiative.nr_plenary_activity_date:asc"
+                }
+                somes_common_lib::Sort::Desc => {
+                    "legislative_initiative.nr_plenary_activity_date:desc"
+                }
+            }]
+        }
+        None => {
+            vec![]
+        }
     };
 
     let results: SearchResults<OptionalVoteResult> = meilisearch_client
         .index("vote_results")
         .search()
         .with_filter(&meilisearch_filter)
-        .with_sort(&[sort])
+        .with_sort(&sort)
         .with_query(&search_query.search.unwrap_or_default())
         .with_hits_per_page(entries_per_page)
         .with_page(page.page as usize)

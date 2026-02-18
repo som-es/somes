@@ -279,7 +279,7 @@
 					<!-- Development Progress -->
 					<div class="rounded-xl border border-surface-700 bg-surface-800 p-5 shadow-inner">
 						<div class="mb-2 flex items-end justify-between">
-							<span class="text-sm font-medium text-surface-300">Entwicklung v1.0 - 31.04.2026</span
+							<span class="text-sm font-medium text-surface-300">Entwicklung v1.0 - 30.04.2026</span
 							>
 							<span class="text-2xl font-bold text-primary-300">{developmentProgress}%</span>
 						</div>

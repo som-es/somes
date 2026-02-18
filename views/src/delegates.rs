@@ -29,7 +29,7 @@ pub async fn create_delegates_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sq
                     where delegate_id = delegates.id and end_date IS NULL
                 ) as \"mandates_at_time: Vec<FullMandate>\",
         ARRAY(
-            select division from delegates_divisions where delegate_id = delegates.id
+            select division from delegates_divisions where delegate_id = delegates.id order by insertion_date desc limit 1
         ) as divisions,
         ARRAY(
             SELECT ROW(start_date, end_date, name, party, is_nr, is_gov_official, is_ministry, is_chancellor, function)::full_mandate
