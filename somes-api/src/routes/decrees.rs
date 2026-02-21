@@ -1,8 +1,7 @@
 use axum::{routing::get, Router};
-use dataservice::combx::{DbAiSummary, OptionalDecree};
+use dataservice::combx::{DbAiSummary, Delegate, DelegateFilter, OptionalDecree};
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::{Delegate, DelegateFilter};
 use somes_common_lib::{Document, LATEST, SEARCH};
 use somes_macro::MeilisearchFilter;
 use somes_meilisearch_filter::FilterArgument;

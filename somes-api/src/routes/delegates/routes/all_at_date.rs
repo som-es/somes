@@ -1,8 +1,8 @@
 use axum::{extract::Query, Json};
 use chrono::NaiveDate;
+use dataservice::combx::{Delegate, FullMandate};
 use redis::aio::MultiplexedConnection;
-use somes_common_lib::FullMandate;
-use somes_common_lib::{Date, Delegate};
+use somes_common_lib::Date;
 use sqlx::PgPool;
 
 use crate::routes::DelegateError;

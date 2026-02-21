@@ -1,8 +1,7 @@
 use axum::{extract::Query, Json};
-use dataservice::combx::{meilisearch_filters_gov_props, Index};
+use dataservice::combx::{Delegate, DelegateFilter, Index};
 use meilisearch_sdk::search::SearchResults;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::{Delegate, DelegateFilter};
 use somes_meilisearch_filter::{to_meilisearch_filters, FilterOptions};
 use utoipa::ToSchema;
 

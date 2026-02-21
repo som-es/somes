@@ -52,7 +52,7 @@ pub async fn update_cache_gov_proposals(
     };
 
     let inner_pool = pool.clone();
-    let intercept_and_update_cb = move |data: &dataservice::combx::OptionalGovProposal| {
+    let intercept_and_update_cb = move |data: dataservice::combx::OptionalGovProposal| {
         let pool = inner_pool.clone();
         let id = data.id;
         async move {
@@ -70,7 +70,7 @@ pub async fn update_cache_gov_proposals(
             Ok(())
         };
 
-    update_cache_for_index::<OptionalGovProposal>(
+    update_cache_for_index::<OptionalGovProposal, OptionalGovProposal>(
         &redis_client,
         intercept_and_update_cb,
         notify_dependencies,

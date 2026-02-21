@@ -38,7 +38,7 @@ pub async fn update_cache_vote_results(
     };
 
     let inner_pool = pool.clone();
-    let intercept_and_update_cb = move |data: &dataservice::combx::OptionalVoteResult| {
+    let intercept_and_update_cb = move |data: dataservice::combx::OptionalVoteResult| {
         let pool = inner_pool.clone();
         let id = data.id;
         async move {
@@ -80,7 +80,7 @@ pub async fn update_cache_vote_results(
             }
         };
 
-    update_cache_for_index::<OptionalVoteResult>(
+    update_cache_for_index::<OptionalVoteResult, OptionalVoteResult>(
         &redis_client,
         intercept_and_update_cb,
         notify_dependencies,

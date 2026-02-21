@@ -3,14 +3,13 @@ use axum::{
     http::request::Parts,
 };
 use dataservice::combx::{
-    CombinedData, Decree, GovProposal, Index, OptionalVoteResult, OptionalVoteResultFilter,
-    VoteResult,
+    CombinedData, Decree, DelegateFilter, GovProposal, Index, OptionalVoteResult,
+    OptionalVoteResultFilter, VoteResult,
 };
 use futures::FutureExt;
 use meilisearch_sdk::settings::{PaginationSetting, Settings};
 use redis::aio::MultiplexedConnection;
 use reqwest::StatusCode;
-use somes_common_lib::DelegateFilter;
 use tokio::time::sleep;
 
 use crate::{

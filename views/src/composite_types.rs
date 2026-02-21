@@ -1,9 +1,9 @@
 use dataservice::combx::{
     DbAiSummary, DbLegislativeInitiativeQuery, DbMinistrialProposalQueryMeta, DbNamedVote,
     DbNamedVoteInfo, DbNamedVotes, DbPartyNamedVoteCount, DbReference, DbRelatedDelegate,
-    DbSpeechWithLink, DbVote, MeilisearchHelper, Topic, VoteResult,
+    DbSpeechWithLink, DbVote, FullMandate, MeilisearchHelper, Topic, VoteResult,
 };
-use somes_common_lib::{Document, FullMandate, ToCompositeType};
+use somes_common_lib::{Document, ToCompositeType};
 use sqlx::{Postgres, Transaction};
 
 #[macro_export]

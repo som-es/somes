@@ -5,8 +5,9 @@ use crate::PgPoolConnection;
 use axum::routing::get;
 use axum::Router;
 use axum::{extract::Query, Json};
+use dataservice::combx::{Delegate, FullMandate};
 use somes_common_lib::{
-    Delegate, DelegateById, FullMandate, InterestShare, ALL_ACTIVE, ALL_AT_DATE,
+    DelegateById, InterestShare, ALL_ACTIVE, ALL_AT_DATE,
     ALL_AT_DATE_WITH_SEAT_INFO, DELEGATE_QA, EXTEND, ID, SEARCH, SPEECHES_PER_PAGE_ROUTE,
 };
 
