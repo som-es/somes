@@ -8,7 +8,10 @@ use dataservice::combx::{self, CombinedData};
 use redis::aio::MultiplexedConnection;
 use serde::{de::DeserializeOwned, Serialize};
 
-use crate::{cache_updater::update_delegates::update_cache_delegates, meilisearch::update_time, set_json_cache_no_expire};
+use crate::{
+    cache_updater::update_delegates::update_cache_delegates, meilisearch::update_time,
+    set_json_cache_no_expire,
+};
 
 pub fn update_caches(
     redis_client: &redis::Client,
@@ -34,7 +37,7 @@ pub fn update_caches(
         inner_pool,
         inner_meilisearch_client,
     ));
-    
+
     let inner_redis_client = redis_client.clone();
     let inner_pool = dataservice_sqlx_pool.clone();
     let inner_meilisearch_client = meilisearch_client.clone();
