@@ -26,33 +26,44 @@
 	let singleValues: Record<string, FilterOption> = {};
 	let multiValues: Record<string, FilterOption[]> = {};
 
-	$: if (config) {
+	
+	if (config) {
 		for (const filter of config.filters) {
 			if (filter.multiple) {
-				// Multi-Werte: immer ein Array, niemals undefined
-				multiValues[filter.id] = [];
-				if (Array.isArray(filter.default)) {
-					multiValues[filter.id] = filter.default;
-				} else if (filter.default !== undefined) {
-					multiValues[filter.id] = [filter.default as FilterOption];
-				}
+				multiValues[filter.id] = Array.isArray(filter.default) ? filter.default : [];
 			} else {
-				// Single-Werte: immer ein Wert, niemals undefined
-				if (Array.isArray(filter.default)) {
-					singleValues[filter.id] = filter.default[0] ?? filter.options?.[0] ?? '';
-				} else {
-					singleValues[filter.id] = filter.default ?? filter.options?.[0] ?? '';
-				}
+				singleValues[filter.id] = Array.isArray(filter.default)
+					? filter.default[0] ?? filter.options?.[0] ?? ''
+					: filter.default ?? filter.options?.[0] ?? '';
 			}
 		}
 	}
 
-	// Helper um sicher zu gehen, dass bind:group immer ein Wert hat
+	$: if (config?.filters) {
+		for (const filter of config.filters) {
+			if (filter.multiple) {
+				multiValues[filter.id] ??= [];
+			} else {
+				singleValues[filter.id] ??= filter.options?.[0] ?? '';
+			}
+		}
+	}
+
+
+
+	// Ensure group is always defined
 	const getGroup = (filter: FilterInfoStatistics) => {
-		return filter.multiple
-			? multiValues[filter.id] || []
-			: singleValues[filter.id] ?? '';
+		if (filter.multiple) {
+			// always an array
+			if (!multiValues[filter.id]) multiValues[filter.id] = [];
+			return multiValues[filter.id];
+		} else {
+			// always a single value (fallback to first option or empty string)
+			if (!singleValues[filter.id]) singleValues[filter.id] = filter.options?.[0] ?? '';
+			return singleValues[filter.id];
+		}
 	};
+
 
 
 	const addUniqueParties = () => {
@@ -231,7 +242,7 @@ const isGroupReady = (filter: any) =>
 					class="z-30 card w-48 shadow-xl py-2"
 					data-popup={"popup_" + filter.id + id}
 				>
-					{#if isGroupReady(filter)}
+					{#if isGroupReady(filter) && (filter.options?.length ?? 0) > 0}
 						{#if filter.multiple}
 							<ListBox
 								name={filter.id}
@@ -241,7 +252,7 @@ const isGroupReady = (filter: any) =>
 								active="variant-filled-secondary"
 								hover="hover:variant-soft-secondary"
 							>
-								{#each filter.options ?? [] as option}
+								{#each filter.options as option}
 									<ListBoxItem value={option}>
 										{String(filter.label?.(option) ?? option)}
 									</ListBoxItem>
@@ -255,7 +266,7 @@ const isGroupReady = (filter: any) =>
 								active="variant-filled-secondary"
 								hover="hover:variant-soft-secondary"
 							>
-								{#each filter.options ?? [] as option}
+								{#each filter.options as option}
 									<ListBoxItem value={option}>
 										{String(filter.label?.(option) ?? option)}
 									</ListBoxItem>
@@ -263,6 +274,9 @@ const isGroupReady = (filter: any) =>
 							</ListBox>
 						{/if}
 					{/if}
+
+
+
 				</div>
 				<button
 					class="btn variant-filled-secondary w-48 justify-between"
