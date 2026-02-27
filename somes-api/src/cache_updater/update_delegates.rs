@@ -1,9 +1,13 @@
-use dataservice::{combx::{self, Delegate, FullMandate, GovProposal}, notify_update_streamed};
+use dataservice::{
+    combx::{self, Delegate, FullMandate, GovProposal},
+    notify_update_streamed,
+};
+use redis::aio::MultiplexedConnection;
 use sqlx::PgPool;
 
 use crate::{update_cache_for_index, update_meilisearch_index};
 
-pub async fn update_cache_delegates(
+pub(crate) async fn update_cache_delegates(
     redis_client: redis::Client,
     pool: PgPool,
     meilisearch_client: meilisearch_sdk::client::Client,
@@ -50,11 +54,10 @@ pub async fn update_cache_delegates(
 
     let inner_pool = pool.clone();
     let notify_dependencies =
-        move |redis_client: &redis::Client, data: &dataservice::combx::Delegate| {
+        move |mut redis_con: MultiplexedConnection, data: &dataservice::combx::Delegate| {
             let pool = inner_pool.clone();
             let id = data.id;
-            let redis_client = redis_client.clone();
-            async move { 
+            async move {
                 let id = id.ok_or(sqlx::Error::RowNotFound)?;
                 let ministerial_prop_id = sqlx::query_scalar!(
                     "select ministrial_proposal_id from ministrial_issuer where delegate_id = $1 limit 1",
@@ -66,9 +69,10 @@ pub async fn update_cache_delegates(
                         id: Some(ministerial_prop_id),
                         ..Default::default()
                     };
-                    notify_update_streamed(combx::Index::GovProposals, &data, &redis_client).await?;
+                    notify_update_streamed(combx::Index::GovProposals, &data, &mut redis_con)
+                        .await?;
                 }
-                Ok(()) 
+                Ok(())
             }
         };
 

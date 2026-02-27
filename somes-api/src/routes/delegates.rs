@@ -14,6 +14,7 @@ use somes_common_lib::{
 pub use error::*;
 mod absences;
 mod ai_chat;
+mod call_to_orders;
 mod delegate_political_position;
 mod error;
 mod interests;
@@ -24,6 +25,7 @@ mod speeches;
 mod stance_topic_score;
 pub use absences::*;
 pub use ai_chat::*;
+pub use call_to_orders::*;
 pub use delegate_political_position::*;
 pub use interests::*;
 pub use routes::*;

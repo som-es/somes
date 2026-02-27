@@ -10,6 +10,7 @@ use axum::{
 use axum_server::tls_rustls::RustlsConfig;
 // use diesel_async::pooled_connection::AsyncDieselConnectionManager;
 use log::{error, info};
+use redis::Commands;
 use reqwest::StatusCode;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tokio::{net::TcpListener, time::sleep};

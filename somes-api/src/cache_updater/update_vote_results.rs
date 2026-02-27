@@ -2,6 +2,7 @@ use dataservice::{
     combx::{self, GovProposal, OptionalVoteResult},
     notify_update_streamed,
 };
+use redis::aio::MultiplexedConnection;
 use sqlx::PgPool;
 
 use crate::{routes::fetch_vote_result_by_id, update_cache_for_index, update_meilisearch_index};
@@ -54,13 +55,13 @@ pub async fn update_cache_vote_results(
 
     let inner_pool = pool.clone();
     let notify_dependencies =
-        move |redis_client: &redis::Client, data: &dataservice::combx::OptionalVoteResult| {
+        move |mut redis_con: MultiplexedConnection,
+              data: &dataservice::combx::OptionalVoteResult| {
             let pool = inner_pool.clone();
             let legis_init = data.legislative_initiative.as_ref().unwrap();
             let gp = legis_init.gp.clone();
             let ityp = legis_init.ityp.clone();
             let inr = legis_init.inr;
-            let client = redis_client.clone();
             async move {
                 let ministerial_props = sqlx::query!("
                 select id from ministrial_proposals where legis_init_gp = $1 and legis_init_inr = $2 and legis_init_ityp = $3",
@@ -74,7 +75,8 @@ pub async fn update_cache_vote_results(
                         id: Some(ministerial_prop.id),
                         ..Default::default()
                     };
-                    notify_update_streamed(combx::Index::GovProposals, &data, &client).await?;
+                    notify_update_streamed(combx::Index::GovProposals, &data, &mut redis_con)
+                        .await?;
                 }
                 Ok(())
             }

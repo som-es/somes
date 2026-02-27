@@ -5,15 +5,12 @@ mod update_vote_results;
 use std::time::Duration;
 
 use dataservice::combx::{self, CombinedData};
-use redis::aio::MultiplexedConnection;
+use redis::{aio::MultiplexedConnection, AsyncCommands};
 use serde::{de::DeserializeOwned, Serialize};
 
-use crate::{
-    cache_updater::update_delegates::update_cache_delegates, meilisearch::update_time,
-    set_json_cache_no_expire,
-};
+use crate::{meilisearch::update_time, set_json_cache_no_expire};
 
-pub fn update_caches(
+pub(crate) fn update_caches(
     redis_client: &redis::Client,
     dataservice_sqlx_pool: &sqlx::Pool<sqlx::Postgres>,
     meilisearch_client: &meilisearch_sdk::client::Client,
@@ -52,20 +49,22 @@ pub fn update_caches(
 pub(crate) async fn read_update_stream<T: DeserializeOwned>(
     stream_id: &str,
     last_id: &mut String,
-    client: &redis::Client,
+    con: &mut MultiplexedConnection,
 ) -> dataservice::combx::Result<Vec<T>> {
-    let mut con = client.get_multiplexed_async_connection().await?;
+    // const BLOCK_MS: usize = 2000;
+
+    let key = format!("{stream_id}/last_id");
+    *last_id = con.get::<_, String>(&key).await.unwrap_or("0".into());
 
     let reply: Vec<(String, Vec<(String, Vec<(String, String)>)>)> = redis::cmd("XREAD")
-        .arg("BLOCK")
-        .arg(5000)
         .arg("STREAMS")
         .arg(stream_id)
         .arg(&*last_id)
-        .query_async(&mut con)
+        .query_async(con)
         .await
         .unwrap_or_default();
 
+    log::info!("reply len: {}", reply.len());
     let mut out = Vec::new();
 
     for (_stream, entries) in reply {
@@ -79,6 +78,7 @@ pub(crate) async fn read_update_stream<T: DeserializeOwned>(
         }
     }
 
+    con.set::<_, &str, ()>(&key, last_id.as_str()).await?;
     Ok(out)
 }
 
@@ -88,19 +88,23 @@ pub async fn update_cache_for_index<
 >(
     client: &redis::Client,
     intercept_and_update_cb: impl AsyncFn(T) -> combx::Result<I>,
-    notify_dependencies: impl AsyncFn(&redis::Client, &I) -> combx::Result<()>,
+    notify_dependencies: impl AsyncFn(MultiplexedConnection, &I) -> combx::Result<()>,
     update_meilisearch_index_cb: impl AsyncFn(Vec<I>) -> combx::Result<()>,
 ) {
-    let mut last_id = "$".to_string();
+    // let mut last_id = "$".to_string();
+    let mut last_id = "0".to_string();
     let stream_id = I::INDEX.as_str();
+    let mut con = client.get_multiplexed_async_connection().await.unwrap();
     loop {
-        let to_update = read_update_stream::<T>(stream_id, &mut last_id, client).await;
+        let to_update = read_update_stream::<T>(stream_id, &mut last_id, &mut con).await;
 
         match to_update {
             Ok(to_update) => {
+                log::info!("({stream_id}) received {} entries", to_update.len());
                 // e.g. vote result fetch for gov proposals, meilisearch helper for vote results
                 let to_update = convert_entries(to_update, &intercept_and_update_cb).await;
-                if let Err(e) = update_redis_entries(&notify_dependencies, client, &to_update).await
+                if let Err(e) =
+                    update_redis_entries(&notify_dependencies, &mut con, &to_update).await
                 {
                     log::error!("Cannot update redis caches {stream_id}: {e:?}");
                 }
@@ -111,10 +115,11 @@ pub async fn update_cache_for_index<
             }
             Err(e) => {
                 log::error!("Cannot read update stream for {stream_id}: {e:?}");
-                tokio::time::sleep(Duration::from_millis(30)).await;
+                tokio::time::sleep(Duration::from_millis(500)).await;
                 continue;
             }
         }
+        tokio::time::sleep(Duration::from_millis(500)).await;
     }
 }
 
@@ -147,15 +152,14 @@ pub async fn convert_entries<T, I>(
 }
 
 pub async fn update_redis_entries<T: CombinedData + Serialize>(
-    notify_dependencies: &impl AsyncFn(&redis::Client, &T) -> combx::Result<()>,
-    client: &redis::Client,
+    notify_dependencies: &impl AsyncFn(MultiplexedConnection, &T) -> combx::Result<()>,
+    con: &mut MultiplexedConnection,
     to_update: &[T],
 ) -> combx::Result<()> {
-    let mut con = client.get_multiplexed_async_connection().await?;
     for data in to_update {
-        notify_dependencies(client, data).await?;
+        notify_dependencies(con.clone(), data).await?;
         let key = format!("{}/{}", T::INDEX.as_str(), data.id());
-        let _ = set_json_cache_no_expire(&mut con, &key, data);
+        let _ = set_json_cache_no_expire(con, &key, data);
     }
 
     Ok(())

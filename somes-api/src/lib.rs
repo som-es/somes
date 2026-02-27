@@ -50,7 +50,7 @@ pub const PUBLIC_KEY_PATH: &str = dotenv!("PUBLIC_KEY_PATH");
 pub const HTTP_PORT: &str = dotenv!("HTTP_PORT");
 pub const HTTPS_PORT: &str = dotenv!("HTTPS_PORT");
 
-static IS_PROD: Lazy<bool> = Lazy::new(|| is_prod());
+pub static IS_PROD: Lazy<bool> = Lazy::new(|| is_prod());
 
 pub fn is_prod() -> bool {
     std::env::var("IS_PROD")

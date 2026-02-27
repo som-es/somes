@@ -1,5 +1,5 @@
 use simple_logger::SimpleLogger;
-use somes_api::{email::MAILER, jwt::KEYS, server};
+use somes_api::{email::MAILER, jwt::KEYS, server, IS_PROD};
 
 #[tokio::main]
 async fn main() {
@@ -7,6 +7,11 @@ async fn main() {
         .with_level(log::LevelFilter::Info)
         .init()
         .unwrap();
+    if *IS_PROD {
+        log::info!("Running in production mode");
+    } else {
+        log::info!("Running in development mode");
+    }
 
     let _ = dotenvy::dotenv().ok();
 

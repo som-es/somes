@@ -1,4 +1,5 @@
 use dataservice::combx::OptionalGovProposal;
+use redis::aio::MultiplexedConnection;
 use sqlx::PgPool;
 
 use crate::{
@@ -66,9 +67,8 @@ pub async fn update_cache_gov_proposals(
     };
 
     let notify_dependencies =
-        move |_redis_client: &redis::Client, _data: &dataservice::combx::OptionalGovProposal| async move {
-            Ok(())
-        };
+        move |_redis_client: MultiplexedConnection,
+              _data: &dataservice::combx::OptionalGovProposal| async move { Ok(()) };
 
     update_cache_for_index::<OptionalGovProposal, OptionalGovProposal>(
         &redis_client,
