@@ -33,8 +33,8 @@
 	$: opinion =
 		speech.infavor != null
 			? speech.infavor
-				? 'Dafür gesprochen'
-				: 'Dagegen gesprochen'
+				? 'Pro'
+				: 'Contra'
 			: speech.opinion;
 	$: arrowBackground =
 		voteResult != null && voteResult.votes.length > 0
