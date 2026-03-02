@@ -14,7 +14,7 @@
 		Speech,
 		SpeechesWithMaxPage
 	} from '$lib/types';
-	import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
+	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 	import {
 		delegate_by_id,
@@ -28,6 +28,7 @@
 	import {
 		currentDelegateFilterStore,
 		currentDelegateStore,
+		hasGoBackStore
 	} from '$lib/stores/stores';
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
@@ -55,33 +56,11 @@
 	import PoliticalStanceTitleBar from '$lib/components/Delegates/Spectrum/PoliticalStanceTitleBar.svelte';
 	import DecreePreview from '$lib/components/Delegates/Decrees/DecreePreview.svelte';
 	import { pushState } from '$app/navigation';
-	import downArrowIcon from '$lib/assets/misc_icons/down-arrow.svg?raw';
-	import { partyColors } from '$lib/partyColor';
-	import { groupPartyDelegates } from '$lib/parliaments/defaultParliament';
-	import searchIcon from '$lib/assets/misc_icons/search-glass.svg?raw';
-
-	// Christoph Rework
-	const sliderSteps = [25, 50, 75, 365];
-
-	// LegisPeriod filter - used for managing state of popup filter
-	let isLegisPeriodFilterOpen = false;
-	const popupLegisPeriod: PopupSettings = {
-		event: 'click',
-		target: 'popupLegisPeriod',
-		placement: 'bottom',
-		closeQuery: '.close-explicitly',
-		state: (e) => {
-			isLegisPeriodFilterOpen = e.state;
-		}
-	};
-
-
-	// Christoph Rework end
 
 	let delegates: Delegate[];
 	let delegate: Delegate | null;
 
-	let selectedPeriod = '';
+	let selectedPeriod = 'XXVIII';
 	let prevSelectedPeriod = selectedPeriod;
 	let periods: LegisPeriod[] = [];
 
@@ -112,7 +91,7 @@
 		search_value: '',
 		legis_period: selectedPeriod
 	};
-	// inputValue = maybeCurrentDelegateFilter.search_value ?? '';
+	inputValue = maybeCurrentDelegateFilter.search_value ?? '';
 	dayOffset = maybeCurrentDelegateFilter.day_offset ?? maxDayOffset;
 	if (maybeCurrentDelegateFilter.legis_period) {
 		selectedPeriod = maybeCurrentDelegateFilter.legis_period;
@@ -125,10 +104,10 @@
 		return delegateFilterOptions(_options, _inputValue);
 	}
 
-	// $: if (inputValue) {
-	// 	maybeCurrentDelegateFilter.search_value = inputValue;
-	// 	currentDelegateFilterStore.set(maybeCurrentDelegateFilter);
-	// }
+	$: if (inputValue) {
+		maybeCurrentDelegateFilter.search_value = inputValue;
+		currentDelegateFilterStore.set(maybeCurrentDelegateFilter);
+	}
 
 	function onDelegateSelection(event: CustomEvent<AutocompleteOption<string>>): void {
 		// @ts-ignore
@@ -142,11 +121,6 @@
 
 		const cachedPeriods = await cachedAllLegisPeriods();
 		if (cachedPeriods) periods = cachedPeriods.reverse();
-
-		if (!selectedPeriod && periods.length > 0) {
-			selectedPeriod = periods[0].gp;
-			prevSelectedPeriod = selectedPeriod;
-		}
 
 		const firstIdx = periods.findIndex((x) => x.gp == selectedPeriod);
 		if (firstIdx == -1) return;
@@ -232,7 +206,7 @@
 		currentDelegateFilterStore.set(maybeCurrentDelegateFilter);
 	};
 
-	$: if (selectedPeriod && periods) {
+	$: if (selectedPeriod) {
 		renderEndDate = null;
 		renderStartDate = null;
 		// if (window !== null) {
@@ -299,110 +273,56 @@
 	}
 </script>
 
+<!-- <div class="mx-auto px-10"> -->
 <Container>
-	<h1 class="text-3xl sm:text-4xl font-bold pt-2 px-1 sm:p-0">Abgeordnete des Nationalrats</h1>
-	<span class="block text-base text-gray-800 ml-1 sm:ml-0 sm:mt-1 mb-2">
-		Aktualisiert am: Unknown
-	</span>
-
-	<div class="flex flex-grow h-10 rounded-xl border-[2px] border-gray-400 mt-12">
-		<div class="w-10 h-9 flex items-center justify-center text-gray-600">
-			{@html searchIcon}
+	{#if get(hasGoBackStore)}
+		<SButton class="bg-primary-500 my-3 hidden lg:block" on:click={() => history.back()}
+			>Zurück</SButton
+		>
+	{/if}
+	<div class="entry bg-primary-200 dark:bg-primary-400 gap-3 flex flex-wrap">
+		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
+			<h1 class="font-bold max-lg:text-xl lg:text-4xl">Abgeordnete des Nationalrats</h1>
 		</div>
-		<input
-			type="search"
-			class="block w-full py-2 focus:outline-none bg-transparent placeholder:text-gray-600"
-			placeholder="Suche..."
-			bind:value={inputValue}
-		/>
-	</div>
-
-	<div class="gap-3 flex flex-wrap mt-5">
-		<!-- <div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
+		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
 			<LegisButtons bind:periods bind:selectedPeriod showAllButton={false}></LegisButtons>
-		</div> -->
-
-		<!--------------------->
-		<!-- Timeline Slider -->
-		<!--------------------->
-		<div class="rounded-xl flex bg-primary-300 dark:bg-primary-500 p-3 w-full">
-			<!-- Slider -->
-			<div class="flex-1">
-				<div class="flex justify-between min-w-full px-1 mb-1 text-base text-gray-800">
-					<div>
-						Anfang - {renderStartDate == null ? '' : dashDateToDotDate(renderStartDate.toString())}
-					</div>
-					<div>
-						Ende -
-						{renderEndDate == null
-							? dashDateToDotDate(new Date().toISOString().split('T')[0])
-							: dashDateToDotDate(renderEndDate.toString())}
-					</div>
-				</div>
-				<input
-					class="w-full h-2 bg-primary-200/80 rounded-lg appearance-none cursor-pointer range-slider"
-					bind:value={dayOffset}
-					on:change={onLettingGoOfDaySlider}
-					type="range"
-					min="2"
-					max={maxDayOffset + 2}
-					step={1}
-					list="steplist"
-				/>
-				<div class="w-full flex">
-					{#each sliderSteps as step}
-						<div class="relative w-[1px] h-2 bg-white" style="left: calc({((step - 2) / maxDayOffset) * 100}% + {10 - (step / maxDayOffset) * 24}px)">
-
-					</div>
-				{/each}
-				</div>
-				<datalist id="steplist">
-					{#each sliderSteps as step}
-						<option>{step}</option>
-					{/each}
-				</datalist>
-			</div>
-			<!-- LegisPeriod Filter -->
-			<div class="flex items-center ml-3">
-				<div 
-					class="bg-primary-600 flex items-center gap-1 p-2 px-3 rounded-xl text-white"
-					use:popup={popupLegisPeriod}
-				>
-					
-					<h4>{selectedPeriod}</h4>
-					<div
-						class="block text-white w-4 transition-transform duration-200"
-						class:rotate-180={isLegisPeriodFilterOpen}
-					>
-						{@html downArrowIcon}
-					</div>
-				</div>
-			</div>
-			<!-- LegisPeriod Filter PopUp -->
-			<div
-				class="bg-surface-50 border border-gray-300 px-5 md:px-6 pt-4 pb-5 z-10 shadow-lg rounded-xl w-auto max-w-[96vw]"
-				data-popup="popupLegisPeriod"
-			>
-				<div class="mt-4 first:mt-0">
-					<span class="text-gray-800 text-base font-semibold">Legislaturperiode</span>
-					<div class="flex flex-wrap text-sm gap-1 w-60">
-						{#each [...periods].reverse() as period}
-							<button
-								class="close-explicitly px-2 py-1 text-xs md:text-sm cursor-pointer rounded-lg border border-primary-300"
-								class:bg-primary-300={selectedPeriod === period.gp}
-								on:click={() => {
-									selectedPeriod = period.gp;
-								}}
-							>
-								<span class="text-nowrap">{period.gp}</span>
-							</button>
-						{/each}
-					</div>
-				</div>
-				<div class="arrow bg-surface-50 border border-gray-300" />
-			</div>
 		</div>
-<!-- 
+		<div
+			class="flex flex-row flex-wrap title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3"
+		>
+			<div class="flex justify-between min-w-full">
+				<div>
+					Anfang ({renderStartDate == null ? '' : dashDateToDotDate(renderStartDate.toString())})
+				</div>
+				<div>
+					Ende ({renderEndDate == null
+						? dashDateToDotDate(new Date().toISOString().split('T')[0])
+						: dashDateToDotDate(renderEndDate.toString())})
+				</div>
+			</div>
+			<input
+				bind:value={dayOffset}
+				on:change={onLettingGoOfDaySlider}
+				type="range"
+				min="2"
+				max={maxDayOffset + 2}
+				step={1}
+				list="steplist"
+			/>
+			<datalist id="steplist">
+				<option>0</option>
+				<option>25</option>
+				<option>50</option>
+				<option>75</option>
+				<option>365</option>
+			</datalist>
+		</div>
+		<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
+			{#if periods.length > 0 && delegates}
+				<AllBadges delsAtDate={structuredClone(delegates)} />
+			{/if}
+		</div>
+		<!-- {#if delegates} -->
 		<div class="text-token w-full space-y-2">
 			<input
 				class="input w-full h-12 px-2"
@@ -427,23 +347,10 @@
 					/>
 				</div>
 			{/if}
-		</div> -->
-		<div class="flex min-w-full justify-between bg-primary-300 dark:bg-primary-200 rounded-xl ">
-			<div class="w-3/4">
-				<div class="py-5 px-8 relative">
-					{#if delegates && delegates.length > 0}
-						<div class="z-10 absolute top-5 left-8">
-							{#each [...groupPartyDelegates(structuredClone(delegates))].sort((a, b) => b[1].length - a[1].length) as [party, partyDelegates]}
-								<div class="flex items-center gap-2">
-									<div
-										class="w-3 h-3 rounded-full"
-										style="background-color: {partyColors.get(party) ?? '#ccc'};"
-									></div>
-									<span class="text-lg text-gray-800 font-medium">{party} ({partyDelegates.length})</span>
-								</div>
-							{/each}
-						</div>
-					{/if}
+		</div>
+		<div class="flex flex-wrap min-w-full justify-between">
+			<div class="rounded-xl w-full parliament-item bg-primary-300 dark:bg-primary-200">
+				<div class="px-5">
 					{#if supplyDate}
 						<VoteParliament2
 							againstOpacity={1}
@@ -459,33 +366,12 @@
 					{/if}
 				</div>
 			</div>
-			<div class="w-[480px] p-4">
+			<div class="rounded-xl delegate-item bg-primary-300 dark:bg-primary-500">
 				{#if delegate}
 					<DelegateCard {delegate} questions={generalDelegateInfo?.delegate_qa ?? []} showQA />
 				{/if}
 			</div>
 		</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		
 		{#if generalGovOfficialInfo?.gov_proposals && generalGovOfficialInfo.gov_proposals.length > 0 && delegate}
 			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
 				<GovProposalPreview govProposals={generalGovOfficialInfo.gov_proposals} {delegate} />
@@ -633,6 +519,17 @@
 		padding: 20px 0;
 	}
 
+	/* :global(.parliament-item) {
+		grid-area: p;
+	} */
+
+	@media (min-width: 768px) {
+		.parliament-item {
+			grid-area: p;
+			flex-basis: 66%;
+		}
+	}
+
 	@media (min-width: 768px) {
 		.delegate-item {
 			grid-area: d;
@@ -659,44 +556,5 @@
 		justify-content: center;
 		flex-direction: column;
 		align-items: center;
-	}
-
-	/* Custom CSS for the slider */
-	.range-slider::-webkit-slider-thumb {
-		appearance: none;
-		height: 20px;
-		width: 20px;
-		border-radius: 50%;
-		background: #6881A1;
-		cursor: pointer;
-		border: none;
-	}
-
-	.range-slider::-moz-range-thumb {
-		height: 20px;
-		width: 20px;
-		border-radius: 50%;
-		background: #6881A1;
-		cursor: pointer;
-		border: none;
-	}
-
-	.range-slider::-webkit-slider-runnable-track {
-		background: linear-gradient(to right, #6881A1 0%, #6881A1 var(--progress), #e5e7eb var(--progress), #e5e7eb 100%);
-		height: 8px;
-		border-radius: 4px;
-	}
-
-	.range-slider::-moz-range-track {
-		background: #e5e7eb;
-		height: 8px;
-		border-radius: 4px;
-		border: none;
-	}
-
-	.range-slider::-moz-range-progress {
-		background: #6881A1;
-		height: 8px;
-		border-radius: 4px;
 	}
 </style>

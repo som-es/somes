@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Absence, Speech, SpeechesWithMaxPage } from '$lib/types';
-	import { type ModalSettings } from '@skeletonlabs/skeleton-svelte';
+	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
 	import AbsenceBar from './AbsenceBar.svelte';
 
 	export let absences: Absence[];
@@ -26,14 +26,14 @@
 			{absences.length == 1 ? 'Abwesenheit' : 'Abwesenheiten'} insgesamt
 		</h2>
 	</div>
-	<button class="btn sm:btn-lg preset-filled mt-1" on:click={() => modalStore.trigger(allAbsences)}
+	<button class="btn sm:btn-lg variant-filled mt-1" on:click={() => modalStore.trigger(allAbsences)}
 		>Alle anzeigen</button
 	>
 </div>
 
 <div class="mt-1">
 	{#each previewSpeeches as absence}
-		<!-- <div class="gap-3 rounded-sm variant-filled my-1">{speech.legislative_initiatives_id} {speech.opinion}</div> -->
+		<!-- <div class="gap-3 rounded variant-filled my-1">{speech.legislative_initiatives_id} {speech.opinion}</div> -->
 		<AbsenceBar {absence} page={0}></AbsenceBar>
 		<!-- <GovProposalExpandableBar {govProposal} /> -->
 	{/each}

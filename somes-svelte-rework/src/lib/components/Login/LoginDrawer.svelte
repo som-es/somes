@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { JWTInfo, HasError, LoginResponseError } from '$lib/types';
-	import { Switch } from '@skeletonlabs/skeleton-svelte';
+	import { getDrawerStore, SlideToggle } from '@skeletonlabs/skeleton';
 	import { goto } from '$app/navigation';
 	import { get } from 'svelte/store';
 	import { browser } from '$app/environment';
@@ -80,17 +80,17 @@
 	};
 </script>
 
-<div class=" z-10000 login_container flex flex-col text-black">
+<div class=" z-[10000] login_container flex flex-col text-black">
 	<button
 		on:click={() => {
 			drawerStore.close();
 		}}
 		style="font-size: 27px"
-		class="w-5 font-bold unselectable">✕</button
+		class="w-5 font-bold unselectable">&#x2715</button
 	>
 	<h2 class="text-center mb-4">
 		{#if isLogin}
-			Anmelden
+			Anmeldung
 		{:else}
 			Registrierung
 		{/if}
@@ -107,9 +107,9 @@
 	</div>
 
 	{#if !isLogin}
-		<Switch active="bg-secondary-500" name="anonymously" bind:checked={storeEmailAnonymously}>
+		<SlideToggle active="bg-secondary-500" name="anonymously" bind:checked={storeEmailAnonymously}>
 			<p>E-Mail anonymisiert abspeichern</p>
-		</Switch>
+		</SlideToggle>
 		<!-- <label class="ml-2 flex items-center space-x-2">
 		</label> -->
 	{/if}

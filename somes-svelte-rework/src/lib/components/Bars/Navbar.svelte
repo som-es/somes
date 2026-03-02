@@ -1,7 +1,11 @@
 <script lang="ts">
 	import {
+		getDrawerStore,
+		LightSwitch,
+		modeCurrent,
+		setModeCurrent,
 		type DrawerSettings
-	} from '@skeletonlabs/skeleton-svelte';
+	} from '@skeletonlabs/skeleton';
 	import somesIcon from '$lib/assets/somes_icon.svg?raw';
 	import somesIconText from '$lib/assets/somes_with_text2.svg?raw';
 	import { jwtStore } from '$lib/caching/stores/stores';
@@ -45,9 +49,9 @@
 </script>
 
 <!--
-<AppBar class="!bg-surface-100-800-token" slotTrail="space-x-2!">
+<AppBar class="!bg-surface-100-800-token" slotTrail="!space-x-2">
 	<svelte:fragment slot="lead">
-		<button on:click={drawerOpen} class="btn-icon btn-icon-sm lg:hidden!">
+		<button on:click={drawerOpen} class="btn-icon btn-icon-sm lg:!hidden">
 			{@html hamburgerIcon}
 		</button>
 		<a class="mx-4 fill-current stroke-current w-32" href="/">
@@ -78,7 +82,7 @@
 </AppBar>
 -->
 
-<div class="w-full flex justify-between items-center pr-6 pl-8 !bg-surface-100-900">
+<div class="w-full flex justify-between items-center pr-6 pl-8 !bg-surface-100-800-token">
 	<!-- Logo -->
 	<div class="w-24 flex items-center py-4">
 		<a class="fill-current stroke-current block sm:hidden min-w-[38px] min-h-[38px]" href="/">
@@ -94,7 +98,7 @@
 	<div class="flex flex-row gap-3">
 		<LightSwitch class="mt-1" />
 		<div class="flex items-center justify-center">
-			<button on:click={drawerOpen} class="fill-current btn-icon btn-icon-sm lg:hidden!">
+			<button on:click={drawerOpen} class="fill-current btn-icon btn-icon-sm lg:!hidden">
 				{@html hamburgerIcon}
 			</button>
 		</div>

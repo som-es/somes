@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
+	import { getModalStore, type PopupSettings } from '@skeletonlabs/skeleton';
 	import type { GovProposal, Speech } from '$lib/types';
 	import Pagination from '$lib/components/Pagination.svelte';
 	import SpeechBar from './SpeechBar.svelte';
@@ -29,7 +29,7 @@
 </script>
 
 {#if $modalStore.length > 0 && $modalStore[0].meta}
-	<div class="card p-8 max-w-7xl w-7xl">
+	<div class="card p-8 max-w-7xl w-[80rem]">
 		<h1 class="font-bold text-2xl">Letzte Reden</h1>
 		<button
 			on:click={() => {
@@ -38,7 +38,7 @@
 			style="font-size: 34px"
 			class="w-5 unselectable float-right"
 		>
-			✕
+			&#x2715
 		</button>
 
 		<Pagination bind:page maxPage={$modalStore[0].meta.speechesPage0.max_page} />

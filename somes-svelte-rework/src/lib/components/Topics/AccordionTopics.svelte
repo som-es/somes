@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { UniqueTopic } from '$lib/types';
-	import { Accordion } from '@skeletonlabs/skeleton-svelte';
+	import { AccordionItem } from '@skeletonlabs/skeleton';
 	import ClickableSpan from '../Utils/ClickableSpan.svelte';
 	import DisplayTopic from './Topic.svelte';
 	import { addUserTopic, removeUserTopic } from '$lib/api/authed';
@@ -27,7 +27,7 @@
 	};
 </script>
 
-<Accordion.Item>
+<AccordionItem>
 	<svelte:fragment slot="summary">
 		{#each parentTopics as parentTopic}
 			<span class="text-xl font-bold bg-primary-400 badge m-1">
@@ -50,4 +50,4 @@
 			{/each}
 		</div>
 	</svelte:fragment>
-</Accordion.Item>
+</AccordionItem>

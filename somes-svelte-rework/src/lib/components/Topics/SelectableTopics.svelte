@@ -5,7 +5,7 @@
 	import { getUserTopics } from '$lib/api/authed';
 	import { isHasError } from '$lib/api/api';
 	import { translateTopicToParent } from '$lib/interestColors';
-	import { Accordion } from '@skeletonlabs/skeleton-svelte';
+	import { Accordion } from '@skeletonlabs/skeleton';
 	import AccordionTopics from './AccordionTopics.svelte';
 
 	export let selectedTopics: Set<number>;

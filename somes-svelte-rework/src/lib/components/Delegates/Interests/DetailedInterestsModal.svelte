@@ -2,6 +2,7 @@
 	import ReactiveGenericBarChart from '$lib/components/GeneralCharts/ReactiveGenericBarChart.svelte';
 	import { topicColors } from '$lib/interestColors';
 	import type { InterestShare } from '$lib/types';
+	import { getModalStore } from '@skeletonlabs/skeleton';
 	export let parent;
 
 	const modalStore = getModalStore();
@@ -13,7 +14,7 @@
 </script>
 
 {#if $modalStore.length > 0 && $modalStore[0].meta}
-	<div class="card p-8 max-w-7xl w-7xl">
+	<div class="card p-8 max-w-7xl w-[80rem]">
 		<span class="font-bold text-2xl">Detailierte Interessen</span>
 		<button
 			on:click={() => {
@@ -22,7 +23,7 @@
 			style="font-size: 34px"
 			class="w-5 unselectable float-right"
 		>
-			✕
+			&#x2715
 		</button>
 		<br />
 		<span class="text-lg">meist behandelte Themen</span>

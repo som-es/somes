@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Delegate, GovProposal } from '$lib/types';
-	import { type ModalSettings } from '@skeletonlabs/skeleton-svelte';
+	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
 	import GovProposalExpandableBar from './Latest/GovProposalExpandableBar.svelte';
 
 	export let govProposals: GovProposal[];
@@ -27,7 +27,7 @@
 		</h2>
 	</div>
 	<button
-		class="btn sm:btn-lg preset-filled mt-1"
+		class="btn sm:btn-lg variant-filled mt-1"
 		on:click={() => modalStore.trigger(allProposals)}>Alle anzeigen</button
 	>
 </div>

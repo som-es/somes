@@ -37,7 +37,7 @@
 	if (supplyDate) {
 		date = supplyDate;
 	}
-	if (voteResult) date = new Date(voteResult.legislative_initiative.nr_plenary_activity_date);
+	if (voteResult) date = voteResult.legislative_initiative.nr_plenary_activity_date;
 
 	let seats: number[];
 	export let delegates: Delegate[] = [];

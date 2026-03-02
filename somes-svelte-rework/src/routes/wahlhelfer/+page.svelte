@@ -7,6 +7,7 @@
 	import ResultChartReactive from '$lib/components/Walo/ResultChartReactive.svelte';
 	import { partyToColor } from '$lib/partyColor';
 	import type { WaloQuestion } from '$lib/types';
+	import { ListBox, ListBoxItem } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 
 	let waloQuestions: WaloQuestion[];

@@ -2,7 +2,7 @@
 	import SimpleDonut from '$lib/components/UI/SimpleDonut.svelte';
 	import crossmarkIcon from '$lib/assets/misc_icons/crossmark.svg?raw';
 	import checkmarkIcon from '$lib/assets/misc_icons/checkmark.svg?raw';
-	import { type ConicStop } from '@skeletonlabs/skeleton-svelte';
+	import { getModeUserPrefers, modeCurrent, type ConicStop } from '@skeletonlabs/skeleton';
 	import { partyToColor } from '$lib/partyColor';
 	import type { Delegate, Vote, VoteResult } from '$lib/types';
 	import Square from '$lib/components/UI/Square.svelte';
@@ -20,9 +20,11 @@
 	export let showAccepted = true;
 	export let showText = true;
 
-	showDate = false;
-	showDate = false;
-	showAccepted = false;
+	showDate = false
+	showRequiredMajority = false
+	showDate = false
+	showAccepted = false
+
 
 	$: NOT_REACHED_COLOR = getModeUserPrefers()
 		? 'rgb(var(--color-primary-600))'
@@ -114,43 +116,105 @@
 	}
 </script>
 
-<div class="bg-primary-300 rounded-xl dark:bg-primary-400 p-4 flex-1 justify-center min-w-[150px]">
-	{#if showAchievedVotes && voteResult.legislative_initiative.accepted}
-		<div class="flex gap-3">
-			<SimpleDonut
-				stops={conicsStopsAchievedVotes}
-				{isLightMode}
-				mark50={voteResult.legislative_initiative.requires_simple_majority ?? false}
-				mark66={!(voteResult.legislative_initiative.requires_simple_majority ?? true)}
-			/>
+<div class="flex flex-wrap {isCenter ? 'justify-center' : ''} info-item gap-3">
+	<div class="flex gap-3 flex-wrap">
+		{#if showAccepted && voteResult.legislative_initiative.accepted}
+			<Square {squareSize} class="accepted-item {squareClasses}">
+				{#if voteResult.legislative_initiative.accepted == 'a'}
+					<span class="fill-green-600 dark:fill-green-500">
+						{@html checkmarkIcon}
+					</span>
+					{#if showText}
+						<div>Angenommen</div>
+					{/if}
+				{:else}
+					{@html crossmarkIcon}
+					{#if showText}
+						<div>Abgelehnt</div>
+						{#if voteResult.legislative_initiative.accepted == 'p'}
+							<div>(frühzeitig)</div>
+						{/if}
+					{/if}
+				{/if}
+			</Square>
+		{/if}
+		{#if showRequiredMajority}
+			<Square {squareSize} class="majority-item {squareClasses}">
+				<SimpleDonut
+					{isLightMode}
+					stops={voteResult.legislative_initiative.requires_simple_majority
+						? conicStopsSimpleMajority
+						: conicStopsOtherMajority}
+				/>
 
-			{#if showText}
-				<div class="flex flex-col justify-center">
-					<div class="flex-col text-sm">
-						<div>Erreichte</div>
-						<div>Stimmen</div>
-					</div>
-				</div>
-			{/if}
-		</div>
-	{/if}
-	{#if showRequiredMajority}
-		<div class="flex gap-3">
-			<SimpleDonut
-				{isLightMode}
-				stops={voteResult.legislative_initiative.requires_simple_majority
-					? conicStopsSimpleMajority
-					: conicStopsOtherMajority}
-			/>
+				{#if showText}
+					<div>Notwendige</div>
+					<div>Mehrheit</div>
+				{/if}
+			</Square>
+		{/if}
+	</div>
+	<div class="flex gap-3 flex-wrap">
+		{#if showAchievedVotes && voteResult.legislative_initiative.accepted}
+			<Square {squareSize} class={squareClasses}>
+				<SimpleDonut stops={conicsStopsAchievedVotes} {isLightMode} 
+					mark50={voteResult.legislative_initiative.requires_simple_majority ?? false}
+					mark66={!(voteResult.legislative_initiative.requires_simple_majority ?? true)}
+				/>
 
-			{#if showText}
-				<div class="flex flex-col justify-center">
-					<div class="flex-col text-sm">
-						<div>Mindest-</div>
-						<div>Mehrheit</div>
-					</div>
+				{#if showText}
+					<div>Erreichte</div>
+					<div>Stimmen</div>
+				{/if}
+				<!-- {voteResult.legislative_initiative.requires_simple_majority ? "1/2" : "2/3" } -->
+			</Square>
+		{/if}
+		{#if showDate}
+			<Square {squareSize} class={squareClasses}>
+				<div class="font-bold text-lg">
+					{dashDateToDotDate(voteResult.legislative_initiative.nr_plenary_activity_date.toString())}
 				</div>
-			{/if}
-		</div>
-	{/if}
+				{#if showText}
+					{#if voteResult.votes.length > 0}
+						<div>Abgestimmt am</div>
+					{:else}
+						<div>Letzte</div>
+						<div>Plenaraktivität</div>
+					{/if}
+				{/if}
+			</Square>
+		{/if}
+	</div>
 </div>
+
+<style>
+	:global(.accepted-item) {
+		grid-area: a;
+	}
+
+	.majority-item {
+		grid-area: m;
+	}
+
+	.date-item {
+		grid-area: dt;
+	}
+
+	.info-item {
+		grid-area: i;
+	}
+
+	.details-item {
+		grid-area: d;
+	}
+
+	.item {
+		grid-column: 1fr;
+	}
+
+	/* @media not all and (min-width: 1254px) {
+        .responsive-accepted-hidden {
+            display: none !important;
+        }
+    } */
+</style>
