@@ -25,7 +25,7 @@ fn get_provider_config(provider: &str) -> OAuthProviderConfig {
         "google" => OAuthProviderConfig {
             client_id: std::env::var("GOOGLE_CLIENT_ID").unwrap(),
             client_secret: std::env::var("GOOGLE_CLIENT_SECRET").unwrap(),
-            redirect_uri: "http://localhost:3000/api/oauth/google/callback".to_string(),
+            redirect_uri: std::env::var("GOOGLE_REDIRECT_URI").unwrap(),
             auth_url: "https://accounts.google.com/o/oauth2/v2/auth".to_string(),
             token_url: "https://oauth2.googleapis.com/token".to_string(),
             userinfo_url: "https://www.googleapis.com/oauth2/v3/userinfo".to_string(),
@@ -34,7 +34,7 @@ fn get_provider_config(provider: &str) -> OAuthProviderConfig {
         "github" => OAuthProviderConfig {
             client_id: std::env::var("GITHUB_CLIENT_ID").unwrap(),
             client_secret: std::env::var("GITHUB_CLIENT_SECRET").unwrap(),
-            redirect_uri: "http://localhost:3000/api/oauth/github/callback".to_string(),
+            redirect_uri: std::env::var("GITHUB_REDIRECT_URI").unwrap(),
             auth_url: "https://github.com/login/oauth/authorize".to_string(),
             token_url: "https://github.com/login/oauth/access_token".to_string(),
             userinfo_url: "https://api.github.com/user/emails".to_string(),
@@ -43,7 +43,7 @@ fn get_provider_config(provider: &str) -> OAuthProviderConfig {
         "discord" => OAuthProviderConfig {
             client_id: std::env::var("DISCORD_CLIENT_ID").unwrap(),
             client_secret: std::env::var("DISCORD_CLIENT_SECRET").unwrap(),
-            redirect_uri: "http://localhost:3000/api/oauth/discord/callback".to_string(),
+            redirect_uri: std::env::var("DISCORD_REDIRECT_URI").unwrap(),
             auth_url: "https://discord.com/api/oauth2/authorize".to_string(),
             token_url: "https://discord.com/api/oauth2/token".to_string(),
             userinfo_url: "https://discord.com/api/users/@me".to_string(),
@@ -52,7 +52,7 @@ fn get_provider_config(provider: &str) -> OAuthProviderConfig {
         "microsoft" => OAuthProviderConfig {
             client_id: std::env::var("MICROSOFT_CLIENT_ID").unwrap(),
             client_secret: std::env::var("MICROSOFT_CLIENT_SECRET").unwrap(),
-            redirect_uri: "http://localhost:3000/api/oauth/microsoft/callback".to_string(),
+            redirect_uri: std::env::var("MICROSOFT_REDIRECT_URI").unwrap(),
             auth_url: "https://login.microsoftonline.com/common/oauth2/v2.0/authorize".to_string(),
             token_url: "https://login.microsoftonline.com/common/oauth2/v2.0/token".to_string(),
             userinfo_url: "https://graph.microsoft.com/v1.0/me".to_string(),
