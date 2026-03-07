@@ -158,7 +158,9 @@
 			</div>
 		{/each}
 	</div>
-
+	
+	{@render top?.()}
+	{@render info?.()}
 	{#if !onlyTop}
 		<div>
 			<hr class="!border-t-2 my-1 border-gray-500" />
@@ -169,8 +171,6 @@
 			<h3>{delegate.divisions?.join(', ')}</h3>
 		</div>
 
-		{@render top?.()}
-		{@render info?.()}
 
 		<br />
 		{#if showDelegate == 'true'}

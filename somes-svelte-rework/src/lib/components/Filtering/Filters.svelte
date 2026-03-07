@@ -3,7 +3,7 @@
 
 	import SButton from '../UI/SButton.svelte';
 
-	import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
+	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import FilterListBox from './FilterListBox.svelte';
 	import FilterOpener from './FilterOpener.svelte';
 	import FilterRadioGroup from './FilterRadioGroup.svelte';
@@ -26,7 +26,7 @@
 
 <!-- Small Screen PopUps (keep them out of <div>...</div> as much as possible) -->
 <div
-	class="z-10 card w-full p-5 self-center md:max-w-136 lg:max-w-200 shadow-xl py-2"
+	class="z-10 card w-full p-5 self-center md:max-w-[34rem] lg:max-w-[50rem] shadow-xl py-2"
 	data-popup="mobileFilter"
 >
 	{#each filters as filter}
@@ -65,7 +65,7 @@
 <div class="mt-4 sm:mt-8">
 	<div class="flex flex-row gap-3">
 		<input
-			class="rounded-lg !bg-surface-200-800 w-full h-12 px-2 placeholder-gray-500"
+			class="rounded-lg !bg-surface-200-700-token w-full h-12 px-2 placeholder-gray-500"
 			type="search"
 			name="ac-demo"
 			bind:value={searchValue}
@@ -73,7 +73,7 @@
 			placeholder="Suche..."
 		/>
 		<div class="flex flex-row gap-2">
-			<SButton class="bg-secondary-500 px-1.5! text-black" on:click={update}>Suchen</SButton>
+			<SButton class="bg-secondary-500 !px-1.5 text-black" on:click={update}>Suchen</SButton>
 			<div use:popup={mobileFilter} class="lg:hidden">
 				<SButton class="bg-secondary-500 text-black">{@html filterIcon}</SButton>
 			</div>
@@ -87,7 +87,7 @@
 				class="badge p-3 bg-secondary-400 text-black cursor-pointer"
 				on:click={() => (selectedPeriod = 'all')}
 			>
-				{selectedPeriod} <span class="ml-1" style="font-size: 18px;">✕</span>
+				{selectedPeriod} <span class="ml-1" style="font-size: 18px;">&#x2715</span>
 			</button>
 		{/if}
 		{#each filters as filter}

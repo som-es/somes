@@ -2,7 +2,7 @@
 	import ReactiveGenericBarChart from '$lib/components/GeneralCharts/ReactiveGenericBarChart.svelte';
 	import { topicColors } from '$lib/interestColors';
 	import type { InterestShare } from '$lib/types';
-	import { type ModalSettings } from '@skeletonlabs/skeleton-svelte';
+	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
 
 	export let interests: InterestShare[];
 	export let detailedInterests: InterestShare[];
@@ -23,7 +23,7 @@
 		<div class="flex justify-between">
 			<div></div>
 			<button
-				class="btn sm:btn-lg preset-filled"
+				class="btn sm:btn-lg variant-filled"
 				on:click={() => modalStore.trigger(detailedInterestsModal)}>Details</button
 			>
 		</div>

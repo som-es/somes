@@ -2,6 +2,8 @@
 	import { onMount } from 'svelte';
 	import ApexCharts, { type ApexOptions } from 'apexcharts';
 	import type { ChartData } from '$lib/types';
+	import { modeCurrent } from '@skeletonlabs/skeleton';
+
 	export let chartData: ChartData[];
 
 	export let title: string;

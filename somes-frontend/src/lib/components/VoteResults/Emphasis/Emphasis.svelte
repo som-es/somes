@@ -27,7 +27,7 @@
 					<li class="mb-3">
 						<span class="badge bg-primary-500 dark:bg-primary-300"></span>
 						{#if glossary}
-							<span class="text-base lg:text-base text-gray-800">
+							<span class="text-base lg:text-base text-gray-800 dark:text-gray-200">
 								<GlossaryText text={emph.point} {glossary} />
 							</span>
 						{:else}

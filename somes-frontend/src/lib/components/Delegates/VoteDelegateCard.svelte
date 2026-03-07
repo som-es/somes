@@ -37,11 +37,17 @@
 	// };
 
 	let infoText = $derived(bubble.namedVote ? `unsichere Zuteilung: "${bubble.namedVote.searched_with}" wurde ${bubble.namedVote.manually_matched ? 'manuell' : 'automatisch'} "${bubble.namedVote.matched_with}" zugeteilt` : "");
-	let opinion = $derived(bubble.namedVote ? (bubble.namedVote.infavor != null
+	let namedVoteText = $derived(bubble.namedVote ? (bubble.namedVote.infavor != null
 					? bubble.namedVote.infavor
 						? 'Ja'
 						: 'Nein'
 					: 'Abwesend/keine Stimme abgegeben') : "");
+	
+	let speechText = $derived(bubble.speech?.infavor != null
+		? bubble.speech.infavor
+			? 'Pro'
+			: 'Contra'
+		: bubble.speech?.opinion ?? "");
 	
 	let opinionColor = $derived.by(() => {
 		let color = "#ccc";
@@ -71,14 +77,14 @@
 </script>
 
 {#if delegate}
-<DelegateCard {delegate} title={bubble.title} showMoreDetailsBtn onlyTop={true} showAI={false}>
+<DelegateCard {delegate} title={bubble.title} showMoreDetailsBtn onlyTop showAI={false}>
 	{#snippet top()}
-		<span>
+		<span class="mt-2">
 			{#if bubble.namedVote}
-				<div class="text-sm sm:text-base md:text-lg font-bold badge {opinionColor} text-white max-w-fit">{opinion}</div>
+				<div class="text-sm sm:text-base md:text-lg font-bold badge {opinionColor} text-white max-w-fit">{namedVoteText}</div>
 			{:else}
 				{#if bubble.title}
-					<span class="badge text-white {opinionColor} font-bold text-sm sm:text-base md:text-lg">{bubble.title}</span>
+					<span class="badge text-white {opinionColor} font-bold text-sm sm:text-base md:text-lg">{speechText}</span>
 				{/if}
 			{/if}
 		</span>
@@ -87,7 +93,7 @@
 	{#snippet info()}
 		<span >
 			{#if bubble.namedVote && (bubble.namedVote.similiarity_score != 0 || bubble.namedVote.manually_matched)}
-								<Popover.Root>
+				<Popover.Root>
 					<Popover.Trigger>
 						<button class="text-2xl">⚠</button>
 					</Popover.Trigger>
@@ -119,8 +125,8 @@
 	{#snippet footerButtons()}
 		<span>
 			{#if bubble.speech}
-			<button class="bg-primary-600 p-2 px-3 rounded-xl text-white" on:click={() =>
-						window.open(`https://www.parlament.gv.at${bubble.speech?.document_url}`, '_blank')}>
+			<button class="bg-primary-600 p-2 px-3 rounded-xl text-white" onclick={() =>
+						window.open(`${bubble.speech?.document_url}`, '_blank')}>
 				<h4>Rede</h4>
 			</button>
 			{/if}

@@ -15,8 +15,12 @@
 		type Scorer
 	} from '$lib/types';
 	import {
+		ListBox,
+		ListBoxItem,
+		popup,
+		setModeCurrent,
 		type PopupSettings
-	} from '@skeletonlabs/skeleton-svelte';
+	} from '@skeletonlabs/skeleton';
 	import { onDestroy, onMount } from 'svelte';
 	import { get } from 'svelte/store';
 
@@ -202,9 +206,9 @@
 
 <div class="card w-48 shadow-xl py-2" data-popup="popupQuizSelection">
 	<ListBox
-		rounded="rounded-container sm:!rounded-base"
-		active="preset-filled-secondary-500"
-		hover="hover:preset-tonal-secondary"
+		rounded="rounded-container-token sm:!rounded-token"
+		active="variant-filled-secondary"
+		hover="hover:variant-soft-secondary"
 	>
 		{#each allQuizzes as quiz}
 			<ListBoxItem bind:group={inputQuizId} name="inputQuizId" value={quiz.id}
@@ -233,7 +237,7 @@
 				<div>
 					<h1 class="text-2xl font-bold">Quiz</h1>
 					<button
-						class="btn preset-filled-secondary-500 w-48 justify-between"
+						class="btn variant-filled-secondary w-48 justify-between"
 						use:popup={popupQuizSelection}
 					>
 						<span class="capitalize">Quiz</span>
@@ -355,7 +359,7 @@
 
 					<div style=" flex-basis: 48%">
 						<span class="text-4xl font-bold"> Scoreboard </span>
-						<table class="table  w-[70%]">
+						<table class="table table-hover w-[70%]">
 							<thead>
 								<tr>
 									<th>Teilnehmer</th>

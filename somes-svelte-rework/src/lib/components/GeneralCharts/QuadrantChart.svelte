@@ -1,5 +1,6 @@
 <script lang="ts">
-		import { onMount } from 'svelte';
+	import { modeCurrent } from '@skeletonlabs/skeleton';
+	import { onMount } from 'svelte';
 	import type { DataPoint } from './types';
 
 	export let width: number;

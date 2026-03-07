@@ -6,7 +6,7 @@
 	import InfoTiles from '../InfoTiles/InfoTiles.svelte';
 	import { currentDelegatesAtDateStore, currentVoteResultStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
-	import VoteTypeBadge from '../VoteTypeBadge.svelte';
+	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 
 	export let voteResult: VoteResult;
 	export let dels: Delegate[];
@@ -20,47 +20,24 @@
 			voteResult.legislative_initiative.nr_plenary_activity_date.toString(),
 			delsAtDate
 		]);
+		// $: if (browser) {
 		gotoHistory(createVoteResultPath(voteResult), true);
+
+		// }
 	}
+
+	function gridContainer(hasEmphasis: boolean, voteResult: VoteResult): string {
+		if (voteResult.legislative_initiative.accepted === null && hasEmphasis) {
+			return 'grid-container-without-voting';
+		}
+		return hasEmphasis ? 'grid-container-with-emphasis' : 'grid-container-without-emphasis';
+	}
+
+	$: whichGridContainer = gridContainer(voteResult.ai_summary ? true : false, voteResult);
+	// rawEmphasis == null ? 'grid-container-without-emphasis' : 'grid-container-with-emphasis';
 </script>
 
-<<<<<<< HEAD
-<div class="entry bg-primary-200 dark:bg-primary-400 mt-3 p-2 lg:block hidden">
-	<div class="flex gap-2">
-		{#if voteResult.ai_summary}
-			<div class="flex-grow basis-3/4">
-				<Emphasis
-					emphasis={voteResult.ai_summary.full_summary.key_points}
-					glossary={voteResult.ai_summary.full_summary.glossary}
-				/>
-			</div>
-			<div class="flex flex-col justify-between flex-grow basis-1/4 min-w-[320px]">
-				<!-- <div class="flex gap-2">
-					<div class="flex flex-1">
-						<InfoTiles {voteResult} showRequiredMajority={false} showAchievedVotes={true} {dels} />
-					</div>
-					<div class="xl:flex flex-1 hidden">
-						<InfoTiles {voteResult} showRequiredMajority={true} showAchievedVotes={false} {dels} />
-					</div>
-				</div> -->
-				<div class="pt-2">
-					<Topics
-						topics={voteResult.eurovoc_topics.sort((a, b) => {
-							return a.topic.length - b.topic.length;
-						})}
-					/>
-				</div>
-				<div class="flex items-center justify-end h-8 rounded-xl px-2">
-					<button on:click={onShowDetails} class="rounded-lg px-2 py-1 bg-primary-300">
-						<span class="text-base font-semibold">Mehr Details &#8594;</span>
-					</button>
-				</div>
-			</div>
-		{/if}
-	</div>
-</div>
-=======
-<div class="lg:hidden! entry bg-primary-200 dark:bg-primary-400 mt-3">
+<div class="lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3">
 	{#if voteResult.ai_summary}
 		<Emphasis
 			emphasis={voteResult.ai_summary.full_summary.key_points}
@@ -93,7 +70,7 @@
 		</div>
 	</div>
 </div>
-<div class="max-lg:hidden! entry bg-primary-200 dark:bg-primary-400 mt-3 {whichGridContainer}">
+<div class="max-lg:!hidden entry bg-primary-200 dark:bg-primary-400 mt-3 {whichGridContainer}">
 	<!-- Inneres Migration Frauen Klimaschutz -->
 	{#if voteResult.ai_summary}
 		<Emphasis
@@ -203,4 +180,3 @@
 		grid-column: 1fr;
 	}
 </style>
->>>>>>> sveltev5

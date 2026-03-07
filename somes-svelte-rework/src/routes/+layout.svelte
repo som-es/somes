@@ -1,21 +1,23 @@
 <script lang="ts">
-<<<<<<< HEAD
 	import '../app.postcss';
-	import { Drawer, initializeStores, Modal, type ModalComponent } from '@skeletonlabs/skeleton';
-=======
 	import {
+		Drawer,
+		initializeStores,
+		Modal,
 		type ModalComponent
-	} from '@skeletonlabs/skeleton-svelte';
->>>>>>> sveltev5
+	} from '@skeletonlabs/skeleton';
 	import CacheInvalidation from '$lib/components/CacheInvalidation/CacheInvalidation.svelte';
 	import Sidebar from '$lib/components/Bars/Sidebar.svelte';
 	import Bottombar from '$lib/components/Bars/Bottombar.svelte';
 	import Navbar from '$lib/components/Bars/Navbar.svelte';
 
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
+	import { storePopup } from '@skeletonlabs/skeleton';
 	import LoginDrawer from '$lib/components/Login/LoginDrawer.svelte';
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 	initializeStores();
+
+	import { getDrawerStore } from '@skeletonlabs/skeleton';
 	import RenewToken from '$lib/components/Login/RenewToken.svelte';
 	import DelegateQAModal from '$lib/components/Delegates/QA/DelegateQAModal.svelte';
 	import AiChatModal from '$lib/components/Delegates/AIChat/AIChatModal.svelte';
@@ -64,11 +66,11 @@
 </Drawer>
 
 <div class="grid h-screen grid-rows-[auto_1fr_auto]">
-	<header class="lg:hidden sticky top-0 z-0">
+	<header class="lg:hidden sticky top-0 z-[0]">
 		<Navbar />
 	</header>
 	<div class="grid grid-cols-[auto_1fr]">
-		<!-- Left Sidebar. -->
+    <!-- Left Sidebar. -->
 		<aside class="sticky top-0 col-span-1 h-screen">
 			<Sidebar class="hidden lg:grid" />
 		</aside>
@@ -77,17 +79,11 @@
 			<slot />
 		</main>
 	</div>
-<<<<<<< HEAD
-	<footer class="sticky bottom-0 z-50">
-		<div class=" sm:!hidden max-h-[4.5rem]">
-=======
   	<footer class="sticky bottom-0 z-50">
-		<div class=" sm:hidden! max-h-18">
->>>>>>> sveltev5
+		<div class=" sm:!hidden max-h-[4.5rem]">
 			<Bottombar />
 		</div>
-	</footer>
+  </footer>
 </div>
-
 <style>
 </style>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
+	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 	let messages = [
 		{ type: 'received', content: 'Hello! How can I help you today?' },

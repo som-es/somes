@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { StanceTopicInfluences } from '$lib/types';
+	import { getModalStore } from '@skeletonlabs/skeleton';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import QaDelegateStanceInfluences from './Stance/QADelegateStanceInfluences.svelte';
 
@@ -19,7 +20,7 @@
 			modalStore.close();
 		}}
 		style="font-size: 34px"
-		class="w-5 unselectable float-right">✕</button
+		class="w-5 unselectable float-right">&#x2715</button
 	>
 
 	{#if stanceTopicInfluences.length > 0}

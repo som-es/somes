@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { areDeeplyEqual } from '$lib/types';
-	import type { CssClasses, SvelteEvent } from '@skeletonlabs/skeleton-svelte';
+	import type { CssClasses, SvelteEvent } from '@skeletonlabs/skeleton';
 	// Slots
 	/**
 	 * @slot lead - Positioned on the left of each row item.
@@ -22,7 +22,7 @@
 	// Context
 	export let disabled: boolean = getContext('disabled');
 	export let multiple: string = getContext('multiple');
-	export let rounded: CssClasses = getContext('rounded-sm');
+	export let rounded: CssClasses = getContext('rounded');
 	export let active: CssClasses = getContext('active');
 	export let hover: CssClasses = getContext('hover');
 	export let padding: CssClasses = getContext('padding');
@@ -32,7 +32,7 @@
 
 	// Classes
 	const cBase = 'cursor-pointer -outline-offset-[3px]';
-	const cDisabled = 'opacity-50 cursor-default!';
+	const cDisabled = 'opacity-50 !cursor-default';
 	const cLabel = 'flex items-center space-x-4';
 
 	// Local

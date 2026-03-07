@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { GeneralDelegateInfo } from "$lib/types";
-	import { Tab, Tabs } from "@skeletonlabs/skeleton-svelte";
+	import { Tab, TabGroup } from "@skeletonlabs/skeleton";
 	import Stances from "./Stances.svelte";
 
     export let delegateInfo: GeneralDelegateInfo;
@@ -13,7 +13,7 @@
 		? 'p-4'
 		: ''} rounded-xl"
 >
-	<Tabs>
+	<TabGroup>
 		<Tab bind:group={tabSet} name="infavor" value={0}>
 			<!-- <svelte:fragment slot="lead">(icon)</svelte:fragment> -->
 			<span>Haltung</span>
@@ -27,5 +27,5 @@
 				<Stances stances={delegateInfo.left_right_stances} />
 			{/if}
 		</svelte:fragment>
-	</Tabs>
+	</TabGroup>
 </div>

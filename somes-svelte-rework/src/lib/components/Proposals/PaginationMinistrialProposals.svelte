@@ -8,7 +8,7 @@
 	import { currentGovProposalFilterStore } from '$lib/stores/stores';
 	import { get } from 'svelte/store';
 	import GovProposalExpandableBar from './Latest/GovProposalExpandableBar.svelte';
-	import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
+	import { type PopupSettings } from '@skeletonlabs/skeleton';
 	import { translationFn, type FilterInfo } from '../Filtering/types';
 	import FiltersAny from '../Filtering/FiltersAny.svelte';
 

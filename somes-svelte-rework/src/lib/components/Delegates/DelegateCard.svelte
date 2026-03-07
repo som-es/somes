@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { partyToColor } from '$lib/partyColor';
 	import type { Delegate, DelegateFavo, DelegateQA, Mandate } from '$lib/types';
-	import { type ModalSettings } from '@skeletonlabs/skeleton-svelte';
+	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
 	import SButton from '../UI/SButton.svelte';
 	import { currentDelegateStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
@@ -12,7 +12,6 @@
 	import { addDelegateFavo, removeDelegateFavo } from '$lib/api/authed';
 	import { delegatesStore } from '$lib/caching/stores/stores';
 	import { address } from '$lib/api/api';
-	import externalLink from '$lib/assets/misc_icons/external-link.svg?raw';
 
 	export let delegate: Delegate;
 	export let onlyTop: boolean = false;
@@ -63,80 +62,125 @@
 	$: personUrl = `https://parlament.gv.at/person/${delegate.id}?utm_source=somes.at`;
 </script>
 
-
-<div class="card bg-primary-200 p-5 h-full flex flex-col h-[calc(100%-1rem)]">
-	<!-- Parlament.at link to person -->
-	<div class="w-full flex justify-end">
-		<div class="w-4 h-4 text-gray-500">
-			<a href={personUrl} target="_blank">
-				{@html externalLink}
-			</a>
-		</div>
-	</div>
-	<!-- Show image if avaiable -->
-	{#if showImg}
-		<div class="flex justify-center pb-6">
+<div
+	class="!z-0 card bg-primary-200 {onlyTop ? '' : 'min-h-full'}  mx-4 drop-shadow-lg flex flex-col"
+>
+	<header class="relative">
+		{#if delegateFavos}
+			{#if delegateFavos.has(delegate.id)}
+				<button
+					on:click={async () => {
+						if ((await removeDelegateFavo({ delegate_id: delegate.id })) == null) {
+							delegateFavos?.delete(delegate.id);
+							delegateFavos = delegateFavos;
+						}
+					}}
+					class="absolute top-0 right-0 w-14 p-2 z-10"
+				>
+					{@html starFilled}
+				</button>
+			{:else}
+				<button
+					on:click={async () => {
+						if ((await addDelegateFavo({ delegate_id: delegate.id })) == null) {
+							delegateFavos?.add(delegate.id);
+							delegateFavos = delegateFavos;
+						}
+					}}
+					class="absolute top-0 right-0 w-14 p-2 z-10"
+				>
+					{@html star}
+				</button>
+			{/if}
+		{/if}
+		<a
+			class="absolute {delegateFavos ? 'top-10' : 'top-0'} right-0 mt-2 mr-3 z-10"
+			href={personUrl}
+			target="_blank"
+		>
 			<img
-				src={`${address}/assets/${delegate.id}.jpg`}
-				class="rounded-full w-32 sm:w-44 md:w-52"
-				alt="Image of politician {delegate.name}"
+				class="w-12"
+				alt="parlament.gv.at favicon"
+				src="https://www.parlament.gv.at/static/img/favicon/favicon.svg"
 			/>
+		</a>
+		<div class="relative flex justify-center items-center h-full">
+			{#if showImg}
+				<img
+					src={`${address}/assets/${delegate.id}.jpg`}
+					class="rounded-full w-32 sm:w-44 md:w-52"
+					alt="Image of politician {delegate.name}"
+				/>
+			{/if}
 		</div>
-	{/if}
+	</header>
 
-	<!-- Delegate name and party-->
-	<div>
-		<!-- Name and Age -->
+	<section class="p-4 flex-grow">
 		<h4 class="font-bold md:text-xl">
 			{delegate.name}
 			{#if delegate.is_active && showAge}
 				- {Math.floor(dateDiffInDays(new Date(delegate.birthdate), new Date()) / 365)}
 			{/if}
 		</h4>
-		<!-- Party -->
-		<div class="flex items-center">
-			<div class="w-2 h-2 rounded-full mx-2" style="background-color: {partyToColor(delegate.party)}"></div>
-			<p class="text-base text-gray-800">
-				{#if delegate.party == 'OK'}
-					Ohne Klub
-				{:else if delegate.party != null}
-					<span>{delegate.party}</span>
-				{/if}
-			</p>
-		</div>
-	</div>
-	<!-- Mandate if so -->
-	<div class="mt-4">
+		{#if new Date().toString() == new Date(delegate.birthdate).toString()}
+			<hr />
+			Alles Gute zum Geburtstag!
+		{/if}
+
+		<h5 class="text-sm" style="color: {partyToColor(delegate.party)}">
+			{#if delegate.party == 'OK'}
+				Ohne Klub
+			{:else if delegate.party != null}
+				<span>{delegate.party}</span>
+			{/if}
+		</h5>
 		{#each delegate.mandates_at_time ?? [] as mandate}
-		<div class="flex w-full items-center mt-1">
-			<h6 class="text-sm text-wrap md:text-base xl:leading-tight">
+			<h6 class="text-sm md:text-lg">
 				{mandate.name}
 			</h6>
-		</div>
 		{/each}
-	</div>
 
-	<div>
-		<hr class="!border-t-2 my-1" />
-		{#if delegate.constituency != null}
-			<h3>{delegate.constituency}</h3>
+		{#if !onlyTop}
+			<hr class="!border-t-2 my-1" />
+			{#if delegate.constituency != null}
+				<h3>{delegate.constituency}</h3>
+			{/if}
+			<hr class="!border-t-2 my-1" />
+			<h3>{delegate.divisions?.join(', ')}</h3>
 		{/if}
-		<hr class="!border-t-2 my-1" />
-		<h3>{delegate.divisions?.join(', ')}</h3>
-	</div>
-	<!-- Buttons -->
-	<div class="w-full flex justify-between mt-auto">
-		<button 
-			class="bg-primary-600 p-2 px-3 rounded-xl text-white"
-			on:click={() => modalStore.trigger(aiChatModal)}
-		>
-			<h4>AI Chat</h4>
-		</button>
-		<button 
-			class="bg-primary-600 p-2 px-3 rounded-xl text-white"
-			on:click={() => modalStore.trigger(delegateQAModal)}
-		>
-			<h4>Vorstellung</h4>
-		</button>
-	</div>
+
+		<slot name="title"></slot>
+		<slot name="info"></slot>
+
+		<br />
+		{#if showDelegate == 'true'}
+			ID: {delegate.id}
+		{/if}
+		<!-- </span> -->
+	</section>
+
+	<hr class="!border-t-2 my-1" />
+	<!-- <footer class="card-footer flex justify-end items-end mt-3"> -->
+	<footer class="card-footer flex justify-between mt-1">
+		<slot name="footerButtons"></slot>
+		{#if showMoreDetailsBtn}
+			<div></div>
+			<SButton class="bg-tertiary-500 text-black" on:click={onShowDetails}>Zur Person</SButton>
+		{/if}
+
+		{#if !onlyTop}
+			{#if showAI}
+				<button
+					class="btn sm:btn-lg variant-filled"
+					on:click={() => modalStore.trigger(aiChatModal)}>AI Chat</button
+				>
+			{/if}
+			{#if showQA && questions.length > 0}
+				<button
+					class="btn sm:btn-lg variant-filled"
+					on:click={() => modalStore.trigger(delegateQAModal)}>Vorstellung</button
+				>
+			{/if}
+		{/if}
+	</footer>
 </div>

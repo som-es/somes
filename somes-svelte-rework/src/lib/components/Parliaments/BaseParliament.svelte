@@ -63,7 +63,8 @@
 
 <div class={clazz}>
 	<svg
-		viewBox="0 0 {width} {height * 0.5 + 60}"
+		viewBox="0 0 {width}
+		{height * 0.5 + 60}"
 		style="width: 100%;"
 		class="parliament-svg hover:cursor-default"
 		on:click={() => (active = true)}
@@ -73,7 +74,7 @@
 	>
 		{#each circles2d.flat(1) as circle, i}
 			<circle
-				class="translated-circle outline-hidden"
+				class="translated-circle outline-none"
 				type="button"
 				cx={circle.x}
 				cy={circle.y}

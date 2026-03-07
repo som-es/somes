@@ -255,7 +255,7 @@
 					{#if voteResult.ai_summary}
 						<div class="mt-5 pb-3">
 							<h1 class="font-semibold text-lg md:text-xl">Zusammenfassung</h1>
-							<span class="text-base lg:text-base text-gray-800">
+							<span class="text-base lg:text-base text-gray-800 dark:text-gray-200">
 								<GlossaryText
 									text={voteResult.ai_summary.short_summary}
 									glossary={voteResult.ai_summary.full_summary.glossary}
@@ -344,12 +344,12 @@
 														class="w-2 h-2 rounded-full"
 														style="background-color: {partyColors.get(vote.party) ?? '#ccc'};"
 													></div>
-													<span class="text-base text-gray-800 font-medium"
+													<span class="text-base font-medium"
 														>{vote.party}</span
 													>
 												</div>
 												<div class="flex items-center gap-1">
-													<span class="text-base text-gray-800 font-medium">({vote.fraction})</span>
+													<span class="text-base font-medium">({vote.fraction})</span>
 													<span
 														class="inline-block align-middle"
 														style="width:18px; height:18px;"

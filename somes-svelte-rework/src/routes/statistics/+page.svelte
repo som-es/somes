@@ -3,7 +3,7 @@
 	import TestChart from '$lib/components/Statistics/TestChart.svelte';
 	import { onMount } from 'svelte';
 	import { justPostStatistics } from '$lib/api/api';
-	import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
+	import { getModalStore, popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import DelegateQaEntry from '$lib/components/Delegates/QA/DelegateQAEntry.svelte';
 	// import { Chart } from "frappe-charts"; C:\Schule4neu\DIPLO\somes\somes-svelte-rework\src\lib\api.ts
 
@@ -50,7 +50,7 @@
 </script>
 
 <div class="card p-8 max-w-7xl">
-	<div class="z-50! card p-4 w-72 shadow-xl" data-popup="extractedFromIntroductionVideo">
+	<div class="!z-50 card p-4 w-72 shadow-xl" data-popup="extractedFromIntroductionVideo">
 		<div class="z-50 font-bold text-xl">
 			Die Fragen und Antworten wurden aus dem Portraitvideo des Abgeordneten extrahiert.
 		</div>
@@ -61,7 +61,7 @@
 			modalStore.close();
 		}}
 		style="font-size: 34px"
-		class="w-5 unselectable">✕</button
+		class="w-5 unselectable">&#x2715</button
 	>
 	<button class="text-4xl float-right" use:popup={popupFeatured}>⚠</button>
 	{#if $modalStore.length > 0}
@@ -78,22 +78,22 @@
 		</div>
 
 		<div
-			class="rounded-xl min-w-40 min-h-40 w-[20rem] h-80 bg-primary-300 dark:bg-primary-500 flex items-center justify-center"
+			class="rounded-xl min-w-40 min-h-40 w-[20rem] h-[20rem] bg-primary-300 dark:bg-primary-500 flex items-center justify-center"
 		>
 			Sprachkomplexität
 		</div>
 		<div
-			class="rounded-xl min-w-40 min-h-40 w-[20rem] h-80 bg-primary-300 dark:bg-primary-500 flex items-center justify-center"
+			class="rounded-xl min-w-40 min-h-40 w-[20rem] h-[20rem] bg-primary-300 dark:bg-primary-500 flex items-center justify-center"
 		>
 			Aktivitätsscoring
 		</div>
 		<div
-			class="rounded-xl min-w-40 min-h-40 w-[20rem] h-80 bg-primary-300 dark:bg-primary-500 flex items-center justify-center"
+			class="rounded-xl min-w-40 min-h-40 w-[20rem] h-[20rem] bg-primary-300 dark:bg-primary-500 flex items-center justify-center"
 		>
 			Redezeit
 		</div>
 		<div
-			class="rounded-xl min-w-40 min-h-40 w-[20rem] h-80 bg-primary-300 dark:bg-primary-500 flex items-center justify-center"
+			class="rounded-xl min-w-40 min-h-40 w-[20rem] h-[20rem] bg-primary-300 dark:bg-primary-500 flex items-center justify-center"
 		>
 			Ordnungsrufe
 		</div>
