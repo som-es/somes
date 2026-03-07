@@ -1,14 +1,12 @@
 <script lang="ts">
 	import type { AutocompleteOption } from '$lib/components/Autocompletion/types';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
-	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
 	import type {
 		Delegate,
 		GeneralDelegateInfo,
 		GeneralGovOfficialInfo,
 		LegisPeriod,
 		SpeechesWithMaxPage,
-		HasError,
 		Party
 	} from '$lib/types';
 	import { onMount, untrack } from 'svelte';
@@ -25,17 +23,13 @@
 	import {
 		currentDelegateFilterStore,
 		currentDelegateStore,
-		hasGoBackStore
 	} from '$lib/stores/stores';
-	import SButton from '$lib/components/UI/SButton.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import {
 		convertDelegatesToAutocompleteOptions,
 		delegateFilterOptions
 	} from '$lib/components/Autocompletion/filtering';
-	import LegisButtons from '$lib/components/Filtering/LegisButtons.svelte';
-	import AllBadges from '$lib/components/VoteResults/SimpleYesNo/AllBadges.svelte';
 	import { dashDateToDotDate } from '$lib/date';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import GovProposalPreview from '$lib/components/Proposals/GovProposalPreviewAtDelegate.svelte';
@@ -47,18 +41,18 @@
 	import StanceTypeSwitcher from '$lib/components/Delegates/Spectrum/Stance/StanceTypeSwitcher.svelte';
 	import PoliticalStanceTitleBar from '$lib/components/Delegates/Spectrum/PoliticalStanceTitleBar.svelte';
 	import DecreePreview from '$lib/components/Delegates/Decrees/DecreePreview.svelte';
-	import { goto, pushState, replaceState } from '$app/navigation';
-	import { navigating } from '$app/stores';
-	import AutocompleteWithPopover from '$lib/components/Autocompletion/AutocompleteWithPopover.svelte';
+	import { goto, replaceState } from '$app/navigation';
 	import type { PageProps } from './$types';
 	import downArrowIcon from '$lib/assets/misc_icons/down-arrow.svg?raw';
 	import { partyColors } from '$lib/partyColor';
 	import { groupPartyDelegates } from '$lib/parliaments/defaultParliament';
-	import searchIcon from '$lib/assets/misc_icons/search-glass.svg?raw';
 	import { Popover, Select } from 'bits-ui';
 	import upDownArrowIcon from '$lib/assets/misc_icons/up-down-arrow.svg?raw';
 	import checkmark_small from '$lib/assets/misc_icons/checkmark_small.svg?raw';
 	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
+	import { getMandateLatestPeriod, getMandatePeriods } from './searchDelegates';
+	import GenericFilters from '$lib/components/Filtering/GenericFilters.svelte';
+	import { type GenericFilterGroup } from '$lib/components/Filtering/types';
 
 	let { data }: PageProps = $props();
 
@@ -70,13 +64,51 @@
 	let isLegisPeriodFilterOpen = $state(false);
 	let isSearchPopupOpen = $state(false);
 	let searchInput = $state('');
-	let selectedParty = $state<Party | undefined>(undefined);
-	let selectedSearchPeriod = $state<string | undefined>(undefined);
-	let timeout:any;
+
+	let selectedPartiesNames = $state<string[]>([]);
+	let selectedParties = $state<Party[]>([]);
+
+	let selectedSearchPeriod = $state<string[]>([]);
+	let timeout: any;
 
 	let searchResults: Delegate[] = $state(data.delegates ?? []);
 	let isLoadingSearch = $state(false);
-
+	
+	let genericFilters: [
+		GenericFilterGroup<boolean>,
+		GenericFilterGroup<boolean>,
+		GenericFilterGroup<boolean>,
+	] = $state([
+		{
+			title: 'Mandatsart',
+			activeValue: undefined,
+			hidden: false,
+			options: [
+				{ title: 'egal', value: undefined },
+				{ title: 'Regierung', value: true },
+				{ title: 'Nationalrat', value: false }
+			]
+		},
+		{
+			title: 'Aktives Mandat',
+			activeValue: undefined,
+			hidden: false,
+			options: [
+				{ title: 'egal', value: undefined },
+				{ title: 'Ja', value: true },
+				{ title: 'Nein', value: false }
+			]
+		},
+		{
+			title: 'Ehemalige Parteizugehörigkeit beachten ',
+			activeValue: true,
+			hidden: false,
+			options: [
+				{ title: 'Ja', value: true },
+				{ title: 'Nein', value: false }
+			]
+		},
+	]);
 
 	// Filter Elements to Keep the PopUp open
 	let searchWrapper: HTMLDivElement | undefined = $state();
@@ -89,22 +121,21 @@
 		isSearchPopupOpen = false;
 	}
 
-
-
-	// Search PopUp, refetch delegates if filters present
-
 	// Search PopUp, refetch delegates if filters present
 	$effect(() => {
 		clearTimeout(timeout);
 
 		const sv = searchInput;
-		const sp = selectedSearchPeriod;
-		const party = selectedParty;
+		const searchPeriods = selectedSearchPeriod;
+		const searchParties = selectedParties;
+		const onlyGov = genericFilters[0].activeValue;
+		const hasActiveMandate = genericFilters[1].activeValue;
+		const mindPreviousPartyMembership = genericFilters[2].activeValue;
 
 		// debounce fetch
 		timeout = setTimeout(async () => {
 			isLoadingSearch = true;
-			if (!sv && !sp && !party) {
+			if (!sv && !searchPeriods && !searchParties) {
 				searchResults = data.delegates ?? [];
 				isLoadingSearch = false;
 				return;
@@ -114,8 +145,11 @@
 				1,
 				50,
 				sv || null,
-				sp ? 10 + periods.findIndex((p) => p.gp === sp) : null,
-				party?.name || null
+				searchPeriods,
+				searchParties.map((party) => party.name),
+				onlyGov,
+				mindPreviousPartyMembership,
+				hasActiveMandate
 			);
 
 			if (!isHasError(res)) {
@@ -124,7 +158,6 @@
 			isLoadingSearch = false;
 		}, 400);
 	});
-
 
 	// Christoph Rework end
 
@@ -242,7 +275,7 @@
 		// @ts-ignore
 		delegate = event.meta;
 		inputValue = event.label;
-		searchInput = "Dere";
+		searchInput = 'Dere';
 	}
 
 	onMount(async () => {
@@ -262,7 +295,6 @@
 			prevSelectedPeriod = selectedPeriod;
 		}
 		supplyDate = paramDate ? new Date(paramDate) : newDate;
-		// console.log(supplyDate);
 
 		const paramDelegateId = url.searchParams.get('delegate');
 		if (paramDelegateId) {
@@ -322,84 +354,6 @@
 		if (finishedMounting) prevSelectedPeriod = selectedPeriod;
 	};
 
-	function findPeriodForDate(date: Date, periods: LegisPeriod[]): string | null {
-		for (let i = 0; i < periods.length; i++) {
-			const periodStart = new Date(periods[i].start_date);
-			const periodEnd = periods[i + 1] ? new Date(periods[i + 1].start_date) : new Date();
-
-			if (date >= periodStart && date < periodEnd) {
-				return periods[i].gp;
-			}
-		}
-		return null;
-	}
-
-	function getMandateDateRange(delegate: Delegate) {
-		let firstDate: Date | null = null;
-		let lastDate: Date | null = null;
-
-		delegate.mandates?.forEach((mandate) => {
-			if (mandate.start_date) {
-				const startDate = new Date(mandate.start_date);
-				if (!firstDate || startDate < firstDate) {
-					firstDate = startDate;
-				}
-			}
-			if (mandate.end_date) {
-				const endDate = new Date(mandate.end_date);
-				if (!lastDate || endDate > lastDate) {
-					lastDate = endDate;
-				}
-			}
-		});
-
-		return { firstDate, lastDate };
-	}
-
-	function getMandateLatestPeriod(delegate: Delegate, periods: LegisPeriod[]) {
-		const latestPeriod = periods[periods.length - 1];
-		const fallbackGp = latestPeriod?.gp || 'XXVIII';
-		const fallbackDate = new Date();
-
-		if (!delegate.mandates || !delegate.active_mandates) {
-			return { date: fallbackDate, gp: fallbackGp };
-		}
-
-		if (delegate.active_mandates.length > 0) {
-			return { date: fallbackDate, gp: fallbackGp };
-		}
-
-		const { lastDate } = getMandateDateRange(delegate);
-		
-		if (lastDate) {
-			const foundGp = findPeriodForDate(lastDate, periods);
-			return {
-				date: lastDate,
-				gp: foundGp || fallbackGp
-			};
-		}
-
-		return {
-			date: fallbackDate,
-			gp: fallbackGp
-		};
-	}
-
-	function getMandatePeriods(delegate: Delegate, periods: LegisPeriod[]): string {
-		if (!delegate.mandates || !delegate.active_mandates || delegate.mandates.length === 0) {
-			return 'unbekannt';
-		}
-
-		const { firstDate, lastDate } = getMandateDateRange(delegate);
-
-		const firstPeriod = firstDate ? findPeriodForDate(firstDate, periods) : null;
-		const lastPeriod = delegate.active_mandates.length > 0 ? 'dato' : lastDate ? findPeriodForDate(lastDate, periods) : null;
-
-		if (!firstPeriod) return `unbekannt - ${lastPeriod || 'unbekannt'}`;
-
-		return `${firstPeriod} - ${lastPeriod || 'unbekannt'}`;
-	}
-
 	const updateStoredPeriod = () => {
 		maybeCurrentDelegateFilter.legis_period = selectedPeriod;
 		currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
@@ -432,7 +386,7 @@
 
 	$effect(() => {
 		void delegate;
-		if ($navigating) return;
+		// if ($navigating) return;
 		if (delegate) {
 			updateDelegateIdInUrl(delegate);
 		}
@@ -461,7 +415,7 @@
 				prevSelectedDelegateId = delegate.id;
 			}
 		});
-	});
+	});	
 
 	/*run(() => {
 		if (delegate && prevSelectedDelegateId != delegate.id) {
@@ -482,18 +436,19 @@
 
 <Container>
 	<h1 class="px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">Abgeordnete zum Nationalrat</h1>
-	<span class="mb-2 ml-1 block text-base text-gray-800 dark:text-gray-300 sm:mt-1 sm:ml-0">
+	<span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0 dark:text-gray-300">
 		Aktualisiert am: Unknown
 	</span>
 
 	<!-- Search PopUp -->
 	<div class="relative mt-7" bind:this={searchWrapper} onfocusout={handleFocusOut}>
 		<!-- Search Input -->
-		<SearchBar oninput={(e) => {
+		<SearchBar
+			oninput={(e) => {
 				maybeCurrentDelegateFilter.search_value = e.currentTarget.value;
 				searchInput = e.currentTarget.value;
 				currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
-			}} 
+			}}
 			onfocus={() => (isSearchPopupOpen = true)}
 			bind:searchValue={inputValue}
 		/>
@@ -501,7 +456,7 @@
 		<!-- PopUp -->
 		{#if isSearchPopupOpen}
 			<div
-				class="absolute top-full right-0 left-0 z-100 mt-2 w-[98%] max-md:mx-auto md:w-140 rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg md:px-6"
+				class="absolute top-full right-0 left-0 z-100 mt-2 w-[98%] rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg max-md:mx-auto md:w-140 md:px-6"
 				data-popup="popupSearch"
 				role="button"
 				tabindex="0"
@@ -512,132 +467,147 @@
 					<div class="mr-4">
 						<span class="text-base font-semibold text-gray-800">Filter</span>
 						<div class="flex gap-3">
-						<!-- Period Filter -->
-						<div class="flex flex-col gap-2 mt-1">
-							<Select.Root
-								type="single"
-								value={selectedSearchPeriod}
-								onValueChange={(v) => (selectedSearchPeriod = v)}
-								items={periods.map((p) => ({ value: p.gp, label: p.gp })).reverse()}
-								allowDeselect={true}
-							>
-								<Select.Trigger
-									class="inline-flex h-10 md:w-[200px] items-center justify-between rounded-xl bg-secondary-500 px-[11px] text-white transition-colors placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+							<!-- Period Filter -->
+							<div class="mt-1 flex flex-col gap-2">
+								<Select.Root
+									type="multiple"
+									bind:value={selectedSearchPeriod}
+									items={periods.map((p) => ({ value: p.gp, label: p.gp })).reverse()}
+									allowDeselect={true}
 								>
-									<div class="flex items-center gap-2">
-										<span class="truncate">{selectedSearchPeriod || 'Alle Perioden'}</span>
-									</div>
-									{@html upDownArrowIcon}
-								</Select.Trigger>
-								<Select.Portal>
-									<Select.Content
-										class="z-500 max-h-60 w-[200px] min-w-[var(--bits-select-anchor-width)] overflow-hidden rounded-xl border border-gray-200 bg-surface-100 dark:bg-surface-500 shadow-lg"
-										sideOffset={8}
+									<Select.Trigger
+										class="inline-flex h-10 items-center justify-between rounded-xl bg-secondary-500 px-[11px] text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none md:w-[200px]"
 									>
-										<Select.Viewport class="p-1">
-											{#each [...periods].reverse() as period}
-												<Select.Item
-													class="flex h-10 w-full cursor-pointer select-none items-center rounded-lg py-3 pl-3 pr-1.5 text-sm capitalize outline-none transition-all duration-75 data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-400"
-													value={period.gp}
-													label={period.gp}
-												>
-													{#snippet children({ selected })}
-														<div class="flex items-center gap-2">
-															{period.gp}
-														</div>
-														{#if selected}
-															<div class="ml-auto h-4 stroke-black dark:stroke-white">
-																{@html checkmark_small}
-															</div>
-														{/if}
-													{/snippet}
-												</Select.Item>
+										<div class="flex items-center gap-2">
+											{#each selectedSearchPeriod.slice(0, 2) as period}
+												<span class="truncate">{period}</span>
 											{/each}
-										</Select.Viewport>
-									</Select.Content>
-								</Select.Portal>
-							</Select.Root>
-						</div>
-						<!-- Parteien Filter -->
-						<div class="flex flex-col gap-2 mt-1">
-							<Select.Root
-								type="single"
-								value={selectedParty?.code}
-								onValueChange={(v) => (selectedParty = uniqueParties.find((p) => p.code === v) || undefined)}
-								items={uniqueParties.map((p) => ({ value: p.code, label: p.name }))}
-								allowDeselect={true}
-							>
-								<Select.Trigger
-									class="inline-flex h-10 md:w-[200px] items-center justify-between rounded-xl px-[11px] bg-secondary-500 text-white transition-colors placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
-								>
-									<div class="flex items-center gap-2">
-										{#if selectedParty}
-											<div
-												class="h-3 w-3 rounded-full"
-												style="background-color: {selectedParty.color};"
-											></div>
-										{/if}
-										<span class="truncate">{selectedParty?.name ||'Alle Parteien'}</span>
-									</div>
-									{@html upDownArrowIcon}
-								</Select.Trigger>
-								<Select.Portal>
-									<Select.Content
-										class="z-500 max-h-60 w-[200px] min-w-[var(--bits-select-anchor-width)] overflow-hidden rounded-xl border border-gray-200 bg-surface-100 dark:bg-surface-500 shadow-lg"
-										sideOffset={8}
-									>
-										<Select.Viewport class="p-1">
-											{#each uniqueParties as party}
-												<Select.Item
-													class="flex h-10 w-full cursor-pointer select-none items-center rounded-lg py-3 pl-3 pr-1.5 text-sm capitalize outline-none transition-all duration-75 data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-400"
-													value={party.code}
-													label={party.name}
-												>
-													{#snippet children({ selected })}
-														<div class="flex items-center gap-2">
-															<div
-																class="h-3 w-3 rounded-full"
-																style="background-color: {party.color};"
-															></div>
-															{party.name}
-														</div>
-														{#if selected}
-													<div
-														class="ml-auto h-4"
-														style="stroke:black"
+											{#if selectedSearchPeriod.length > 2}
+												<span class="truncate">+{selectedSearchPeriod.length - 2} weitere</span>
+											{/if}
+											{#if selectedSearchPeriod.length === 0}
+												<span class="truncate">Alle Perioden</span>
+											{/if}
+										</div>
+										{@html upDownArrowIcon}
+									</Select.Trigger>
+									<Select.Portal>
+										<Select.Content
+											class="z-500 max-h-60 w-[200px] min-w-[var(--bits-select-anchor-width)] overflow-hidden rounded-xl border border-gray-200 bg-surface-100 shadow-lg dark:bg-surface-500"
+											sideOffset={8}
+										>
+											<Select.Viewport class="p-1">
+												{#each [...periods].reverse() as period}
+													<Select.Item
+														class="flex h-10 w-full cursor-pointer items-center rounded-lg py-3 pr-1.5 pl-3 text-sm capitalize transition-all duration-75 outline-none select-none data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-400"
+														value={period.gp}
+														label={period.gp}
 													>
-																{@html checkmark_small}
+														{#snippet children({ selected })}
+															<div class="flex items-center gap-2">
+																{period.gp}
 															</div>
-														{/if}
-													{/snippet}
-												</Select.Item>
+															{#if selected}
+																<div class="ml-auto h-4 stroke-black dark:stroke-white">
+																	{@html checkmark_small}
+																</div>
+															{/if}
+														{/snippet}
+													</Select.Item>
+												{/each}
+											</Select.Viewport>
+										</Select.Content>
+									</Select.Portal>
+								</Select.Root>
+							</div>
+							<!-- Parteien Filter -->
+							<div class="mt-1 flex flex-col gap-2">
+								<Select.Root
+									type="multiple"
+									bind:value={selectedPartiesNames}
+									onValueChange={(v) => {
+										selectedParties = uniqueParties.filter((party) => v.includes(party.name));
+									}}
+									items={uniqueParties.map((p) => ({ value: p.name, label: p.name }))}
+								>
+									<Select.Trigger
+										class="inline-flex h-10 items-center justify-between rounded-xl bg-secondary-500 px-[11px] text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none md:w-[200px]"
+									>
+										<div class="flex items-center gap-2">
+											{#each selectedParties.slice(0, 1) as party}
+												<div
+													class="h-3 w-3 rounded-full"
+													style="background-color: {party.color};"
+												></div>
+												<span class="truncate">{party.name}</span>
 											{/each}
-										</Select.Viewport>
-									</Select.Content>
-								</Select.Portal>
-							</Select.Root>
-						</div>
+											{#if selectedParties.length > 1}
+												<span class="truncate">+{selectedParties.length - 1} weitere</span>
+											{/if}
+											{#if selectedParties.length === 0}
+												<span class="truncate">Alle Parteien</span>
+											{/if}
+										</div>
+										{@html upDownArrowIcon}
+									</Select.Trigger>
+									<Select.Portal>
+										<Select.Content
+											class="z-500 max-h-60 w-[200px] min-w-[var(--bits-select-anchor-width)] overflow-hidden rounded-xl border border-gray-200 bg-surface-100 shadow-lg dark:bg-surface-500"
+											sideOffset={8}
+										>
+											<Select.Viewport class="p-1">
+												{#each uniqueParties as party}
+													<Select.Item
+														class="flex h-10 w-full cursor-pointer items-center rounded-lg py-3 pr-1.5 pl-3 text-sm capitalize transition-all duration-75 outline-none select-none data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-400"
+														value={party.name}
+														label={party.name}
+													>
+														{#snippet children({ selected })}
+															<div class="flex items-center gap-2">
+																<div
+																	class="h-3 w-3 rounded-full"
+																	style="background-color: {party.color};"
+																></div>
+																{party.name}
+															</div>
+															{#if selected}
+																<div class="ml-auto h-4 stroke-black dark:stroke-white">
+																	{@html checkmark_small}
+																</div>
+															{/if}
+														{/snippet}
+													</Select.Item>
+												{/each}
+											</Select.Viewport>
+										</Select.Content>
+									</Select.Portal>
+								</Select.Root>
+							</div>
+							<div>
+								<GenericFilters bind:genericFilters />
+							</div>
 						</div>
 					</div>
 
 					<!-- Search Results -->
 					<div class="mt-3">
 						<span class="text-base font-semibold text-gray-800">Suchergebnisse</span>
-						<div class="max-h-96 overflow-y-auto mt-1">
+						<div class="mt-1 max-h-96 overflow-y-auto">
 							{#if isLoadingSearch}
 								<div class="flex justify-center p-4">
 									<span class="text-gray-500">Loading...</span>
 								</div>
 							{:else}
 								{#each searchResults as d}
-									<!-- svelte-ignore a11y_click_events_have_key_events -->
-									<!-- svelte-ignore a11y_no_static_element_interactions -->
-									<div
+									{@const nrMandates = getMandatePeriods(d, periods, false)}
+									{@const govMandates = getMandatePeriods(d, periods, true)}
+
+									<button
 										class="mb-3 flex w-full justify-between rounded-xl bg-primary-300 p-2 transition-colors hover:cursor-pointer hover:bg-primary-400"
 										onclick={() => {
 											const { date, gp } = getMandateLatestPeriod(d, periods);
-											
-											const period = periods.find(p => p.gp === gp);
+
+											const period = periods.find((p) => p.gp === gp);
 											let newDayOffset = 0;
 											if (period) {
 												const startDate = new Date(period.start_date);
@@ -652,9 +622,9 @@
 											url.searchParams.set('delegate', d.id.toString());
 											url.searchParams.set('gp', gp);
 											url.searchParams.set('date', toActualDateString(date));
-											
+
 											currentDelegateStore.value = d;
-											
+
 											const newFilter = { ...maybeCurrentDelegateFilter };
 											newFilter.search_value = d.name;
 											newFilter.legis_period = gp;
@@ -666,10 +636,10 @@
 										}}
 									>
 										<div class="flex">
-											<img class="h-14 rounded-full mx-1" src={d.image_url} alt={d.name} />
-											<div class="ml-3 mt-1">
+											<img class="mx-1 h-14 rounded-full" src={d.image_url} alt={d.name} />
+											<div class="mt-1 ml-3">
 												<h4 class="text-lg/5 font-semibold text-gray-900">{d.name}</h4>
-												<div class="flex items-center gap-2 mt-1">
+												<div class="mt-1 flex items-center gap-2">
 													<div
 														class="h-2 w-2 rounded-full"
 														style="background-color: {partyColors.get(d.party) ?? '#ccc'};"
@@ -678,10 +648,22 @@
 												</div>
 											</div>
 										</div>
-										<div class="text-sm font-medium text-gray-800">
-											{getMandatePeriods(d, periods)}
+										<div class="flex flex-col flex-wrap">
+											{#if govMandates !== '' && govMandates !== 'unbekannt'}
+												<div class="text-sm font-medium text-gray-800">
+													{govMandates}
+													<span class="font-light text-gray-700"> (Regierung) </span>
+												</div>
+											{/if}
+
+											{#if nrMandates !== '' && nrMandates !== 'unbekannt'}
+												<div class="text-sm font-medium text-gray-800">
+													{nrMandates}
+													<span class="font-light text-gray-700"> (Nationalrat) </span>
+												</div>
+											{/if}
 										</div>
-									</div>
+									</button>
 								{/each}
 							{/if}
 						</div>
@@ -705,7 +687,9 @@
 			<div class="mx-3 flex items-center">
 				<Popover.Root bind:open={isLegisPeriodFilterOpen}>
 					<Popover.Trigger>
-						<div class="flex items-center gap-1 rounded-xl bg-primary-600 dark:bg-primary-400 p-2 px-3 text-white">
+						<div
+							class="flex items-center gap-1 rounded-xl bg-primary-600 p-2 px-3 text-white dark:bg-primary-400"
+						>
 							<h4>{selectedPeriod}</h4>
 							<div
 								class="block w-4 text-white transition-transform duration-200"
@@ -719,7 +703,7 @@
 					<Popover.Portal>
 						<Popover.Content class="z-[1000]">
 							<div
-								class="relative w-auto max-w-[96vw] top-1 rounded-xl border border-gray-300 bg-surface-50 px-6 pt-4 pb-5 shadow-lg text-black"
+								class="relative top-1 w-auto max-w-[96vw] rounded-xl border border-gray-300 bg-surface-50 px-6 pt-4 pb-5 text-black shadow-lg"
 								data-popup="popupLegisPeriod"
 							>
 								<div class="mt-4 first:mt-0">
@@ -809,9 +793,12 @@
 				</div>
 			{/if}
 		</div> -->
-		<div class="flex flex-wrap lg:flex-nowrap min-w-full justify-between rounded-xl bg-primary-300 dark:bg-primary-200 px-5 pt-3 pb-3 relative">
-			{#if delegates && delegates.length > 0}
-				<div class="w-full max-lg:block hidden mb-4 pl-4">
+
+		{#if delegates && delegates.length > 0 && supplyDate}
+			<div
+				class="relative flex min-w-full flex-wrap justify-between rounded-xl bg-primary-300 px-5 pt-3 pb-3 lg:flex-nowrap dark:bg-primary-200"
+			>
+				<div class="mb-4 hidden w-full pl-4 max-lg:block">
 					<div class="grid items-center">
 						{#each [...groupPartyDelegates(structuredClone(delegates))].sort((a, b) => b[1].length - a[1].length) as [party, partyDelegates]}
 							<div
@@ -819,51 +806,57 @@
 								style="background-color: {partyColors.get(party) ?? '#ccc'};"
 							></div>
 							<span class="text-base font-medium text-gray-800">{party}</span>
-							<span class="text-base font-medium text-gray-800 text-right">({partyDelegates.length})</span>
+							<span class="text-right text-base font-medium text-gray-800"
+								>({partyDelegates.length})</span
+							>
 						{/each}
 					</div>
 				</div>
 
-				<div class="max-lg:hidden absolute top-5 left-8 z-10 grid grid-cols-[min-content_auto_min-content] items-center gap-x-2 gap-y-0">
+				<div
+					class="absolute top-5 left-8 z-10 grid grid-cols-[min-content_auto_min-content] items-center gap-x-2 gap-y-0 max-lg:hidden"
+				>
 					{#each [...groupPartyDelegates(structuredClone(delegates))].sort((a, b) => b[1].length - a[1].length) as [party, partyDelegates]}
 						<div
 							class="h-2.5 w-2.5 rounded-full"
 							style="background-color: {partyColors.get(party) ?? '#ccc'};"
 						></div>
 						<span class="text-base font-medium text-gray-800">{party}</span>
-						<span class="text-base font-medium text-gray-800 text-right">({partyDelegates.length})</span>
+						<span class="text-right text-base font-medium text-gray-800"
+							>({partyDelegates.length})</span
+						>
 					{/each}
 				</div>
-			{/if}
 
-			<div class="w-full flex justify-center items-center">
-				<div class="w-2/3">
-					{#if supplyDate && finishedMounting}
-						<VoteParliament2
-							againstOpacity={1}
-							voteResult={null}
-							bind:delegate
-							bind:syncDelegates
-							{delegates}
-							allSeats={data.cachedSeats}
-							gp={selectedPeriod}
-							{supplyDate}
-							orderingFactor={-1}
-							showGovs={true}
-							overrideDelegates
-							noSeats={!data.hasSeatInfo}
-							useOffset={data.hasSeatInfo}
-						/>
+				<div class="flex w-full items-center justify-center">
+					<div class="w-2/3">
+						{#if supplyDate}
+							<VoteParliament2
+								againstOpacity={1}
+								voteResult={null}
+								bind:delegate
+								bind:syncDelegates
+								{delegates}
+								allSeats={data.cachedSeats}
+								gp={selectedPeriod}
+								{supplyDate}
+								orderingFactor={-1}
+								showGovs={true}
+								overrideDelegates
+								noSeats={!data.hasSeatInfo}
+								useOffset={data.hasSeatInfo}
+							/>
+						{/if}
+					</div>
+				</div>
+
+				<div class="w-100">
+					{#if delegate}
+						<DelegateCard {delegate} questions={generalDelegateInfo?.delegate_qa ?? []} showQA />
 					{/if}
 				</div>
 			</div>
-
-			<div class="w-100">
-				{#if delegate}
-					<DelegateCard {delegate} questions={generalDelegateInfo?.delegate_qa ?? []} showQA />
-				{/if}
-			</div>
-		</div>
+		{/if}
 
 		{#if generalGovOfficialInfo?.gov_proposals && generalGovOfficialInfo.gov_proposals.length > 0 && delegate}
 			<div class="title-item w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
@@ -1059,7 +1052,13 @@
 	}
 
 	.range-slider::-webkit-slider-runnable-track {
-		background: linear-gradient(to right, var(--color-primary-500) 0%, var(--color-primary-500) var(--progress), #e5e7eb var(--progress), #e5e7eb 100%);
+		background: linear-gradient(
+			to right,
+			var(--color-primary-500) 0%,
+			var(--color-primary-500) var(--progress),
+			#e5e7eb var(--progress),
+			#e5e7eb 100%
+		);
 	}
 
 	.range-slider::-moz-range-track {
@@ -1084,7 +1083,13 @@
 	}
 
 	:global(.dark) .range-slider::-webkit-slider-runnable-track {
-		background: linear-gradient(to right, var(--color-primary-400) 0%, var(--color-primary-400) var(--progress), #374151 var(--progress), #374151 100%);
+		background: linear-gradient(
+			to right,
+			var(--color-primary-400) 0%,
+			var(--color-primary-400) var(--progress),
+			#374151 var(--progress),
+			#374151 100%
+		);
 	}
 
 	:global(.dark) .range-slider::-moz-range-track {

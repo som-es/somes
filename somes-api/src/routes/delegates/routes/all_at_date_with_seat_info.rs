@@ -81,7 +81,10 @@ SELECT
                 where delegate_id = v.id and start_date <= $1::date AND COALESCE(end_date, $1::date) >= $1::date
             ) as \"mandates_at_time: Vec<FullMandate>\",
     v.\"active_mandates: Vec<FullMandate>\",
-    v.\"mandates: Vec<FullMandate>\"
+    v.\"mandates: Vec<FullMandate>\",
+    v.\"active_gps: Vec<String>\",
+    v.\"active_nr_gps: Vec<String>\",
+    v.\"active_gov_gps: Vec<String>\"
 FROM ranked r
 JOIN delegates_with_mandates v ON v.id = r.delegate_id
 WHERE r.rn = 1

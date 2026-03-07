@@ -12,7 +12,7 @@
     let { genericFilters = $bindable(), legisPeriodFilter = $bindable() }: Props = $props();
 
     let activeGenericFiltersCount = $derived(
-		genericFilters.filter((f) => f.activeValue !== undefined && f.activeValue !== 'all').length + +(legisPeriodFilter?.activeValue !== "all")
+		genericFilters.filter((f) => f.activeValue !== undefined && f.activeValue !== 'all').length + (legisPeriodFilter ? +(legisPeriodFilter?.activeValue !== "all") : 0)
 	);
 	let isGenericFilterOpen = $state(false);
 </script>
