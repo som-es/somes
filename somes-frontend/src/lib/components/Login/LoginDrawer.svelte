@@ -13,6 +13,8 @@
 	// Props
 	let { open = $bindable(false) } = $props();
 
+	const API_BASE = import.meta.env.VITE_API_URL
+
 	// State
 	let email = $state('');
 	let storeEmailAnonymously = $state(false);
@@ -77,6 +79,20 @@
 	const toggleMode = () => {
 		isLogin = !isLogin;
 	};
+
+	type OAuthProvider = 'google' | 'github' | 'discord' | 'microsoft';
+
+	// OAuth Buttons
+	const providers = [
+		{ name: 'Google', key: 'google', color: 'bg-red-500', icon: 'G' },
+		{ name: 'GitHub', key: 'github', color: 'bg-gray-800', icon: '🐱' },
+		{ name: 'Discord', key: 'discord', color: 'bg-indigo-500', icon: 'D' },
+		{ name: 'Microsoft', key: 'microsoft', color: 'bg-blue-600', icon: 'M' },
+	];
+
+	function startOAuth(providerKey: string) {
+		window.location.href = `${API_BASE}/api/oauth/${providerKey}`;
+	}
 </script>
 
 <Drawer.Root bind:open>
@@ -199,6 +215,27 @@
 							</button>
 						</div>
 					</div>
+
+					<!-- Divider -->
+					<div class="my-6 flex items-center">
+						<div class="h-px flex-1 bg-gray-200"></div>
+						<span class="px-3 text-sm text-gray-500">oder</span>
+						<div class="h-px flex-1 bg-gray-200"></div>
+					</div>
+
+					<!-- OAuth Buttons -->
+					<div class="flex flex-col gap-3 mt-4">
+						{#each providers as provider}
+							<button
+								class="flex items-center justify-center gap-2 rounded-md px-4 py-3 text-white font-medium shadow-md transition-all hover:brightness-110 active:scale-[0.98] {provider.color}"
+								onclick={() => startOAuth(provider.key)}
+							>
+								<span class="text-lg">{provider.icon}</span>
+								<span>Mit {provider.name} anmelden</span>
+							</button>
+						{/each}
+					</div>
+
 				</div>
 			</div>
 		</Drawer.Content>
@@ -222,5 +259,23 @@
 	.custom-input:focus {
 		box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.15);
 		border-color: #d1d5db;
+	}
+	.oauth-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.75rem;
+		width: 100%;
+		padding: 0.75rem 1rem;
+		border: 1px solid #e5e7eb;
+		border-radius: 0.5rem;
+		background: white;
+		font-size: 0.875rem;
+		font-weight: 500;
+		transition: background 0.2s ease;
+	}
+
+	.oauth-btn:hover {
+		background: #f9fafb;
 	}
 </style>

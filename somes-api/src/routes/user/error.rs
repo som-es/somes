@@ -36,6 +36,8 @@ pub enum UserError {
     SignUpError(SignUpErrorWrapper),
     #[error("{1}")]
     Custom(StatusCode, String),
+    #[error("missing email from OAuth provider")]
+    MissingEmail,
 }
 
 impl IntoResponse for UserError {
@@ -69,6 +71,7 @@ impl IntoResponse for UserError {
             }
             UserError::AuthError(ae) => return ae.into_response(),
             UserError::Custom(code, msg) => (*code, msg.clone()),
+            UserError::MissingEmail => (StatusCode::BAD_REQUEST, self.to_string()),
         };
 
         let body = Json(ErrorInfo {
