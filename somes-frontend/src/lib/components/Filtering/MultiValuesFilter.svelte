@@ -24,17 +24,17 @@
     </Popover.Trigger>
     <Popover.Content sideOffset={8}>
         <div
-            class="z-10 w-72 touch-manipulation rounded-xl border border-gray-300 bg-surface-50 shadow-lg"
+            class="z-10 w-72 touch-manipulation rounded-xl border border-gray-300 bg-surface-50 dark:bg-surface-600 shadow-lg"
             data-popup="popupTopics"
         >
             <!-- Search bar -->
             <div class="flex items-center gap-2 border-b border-gray-400 px-2 py-1">
-                <div class="flex h-9 w-10 items-center justify-center text-gray-600">
+                <div class="flex h-9 w-10 items-center justify-center text-gray-600 dark:text-gray-200">
                     {@html searchIcon}
                 </div>
                 <input
                     type="search"
-                    class="block w-full bg-transparent py-2 placeholder:text-gray-600 focus:outline-none"
+                    class="block w-full bg-transparent py-2 placeholder:text-gray-600 dark:placeholder:text-gray-300 focus:outline-none"
                     placeholder="Suche nach {title}..."
                     bind:value={topicSearchValue}
                 />
@@ -51,7 +51,7 @@
                         }}
                     >
                         <div class="min-h-4 min-w-4 rounded-md bg-primary-500"></div>
-                        <span class="text-left text-sm font-semibold text-gray-800">{topic}</span>
+                        <span class="text-left text-sm font-semibold text-gray-800 dark:text-gray-300">{topic}</span>
                     </button>
                 {/each}
                 <!-- Unselected topics -->
@@ -65,11 +65,11 @@
                         }}
                     >
                         <div class="min-h-4 min-w-4 rounded-md border-[2px] border-primary-500"></div>
-                        <span class="text-left text-sm text-gray-800">{topic}</span>
+                        <span class="text-left text-sm text-gray-800 dark:text-gray-300">{topic}</span>
                     </button>
                 {/each}
             </div>
-            <Popover.Arrow class="rounded-sm fill-current stroke-gray-300 text-gray-300" />
+            <Popover.Arrow class="rounded-sm fill-current stroke-gray-300 dark:stroke-gray-600 text-gray-300 dark:text-gray-600" />
         </div>
     </Popover.Content>
 </Popover.Root>

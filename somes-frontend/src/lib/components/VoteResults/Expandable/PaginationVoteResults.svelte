@@ -340,7 +340,7 @@
 				</Popover.Trigger>
 				<Popover.Content sideOffset={8}>
 					<div
-						class="z-10 w-72 touch-manipulation rounded-xl border border-gray-300 bg-surface-50 px-6 py-4 text-black shadow-lg"
+						class="z-10 w-72 touch-manipulation rounded-xl border border-gray-300 bg-surface-50 dark:bg-surface-600 px-6 py-4 shadow-lg"
 						data-popup="popupParties"
 					>
 						<div class="flex flex-col gap-2">
@@ -352,13 +352,12 @@
 											class="h-3 w-3 rounded-full"
 											style="background-color: {party.color ?? '#ccc'};"
 										></div>
-										<span class="text-base font-semibold text-gray-800">{party.name}</span>
+										<span class="text-base font-semibold text-gray-800 dark:text-gray-200">{party.name}</span>
 									</div>
 									<!-- Party Checkbox -->
 									<div class="ml-auto flex items-center gap-1">
 										<button
-											class="cursor-pointer rounded-lg px-2 py-1 text-sm"
-											class:bg-primary-300={partyFilterState[party.name] === 'pro'}
+											class="cursor-pointer rounded-lg px-2 py-1 text-sm {partyFilterState[party.name] === 'pro' ? "bg-primary-300 dark:bg-primary-400" : ""}"
 											onclick={() =>
 												(partyFilterState[party.name] =
 													partyFilterState[party.name] === 'pro' ? 'egal' : 'pro')}
@@ -366,15 +365,13 @@
 											Pro
 										</button>
 										<button
-											class="cursor-pointer rounded-lg px-2 py-1 text-sm"
-											class:bg-primary-300={partyFilterState[party.name] === 'egal'}
+											class="cursor-pointer rounded-lg px-2 py-1 text-sm {partyFilterState[party.name] === 'egal' ? "bg-primary-300 dark:bg-primary-400" : ""}"
 											onclick={() => (partyFilterState[party.name] = 'egal')}
 										>
 											Egal
 										</button>
 										<button
-											class="cursor-pointer rounded-lg px-2 py-1 text-sm"
-											class:bg-primary-300={partyFilterState[party.name] === 'contra'}
+											class="cursor-pointer rounded-lg px-2 py-1 text-sm {partyFilterState[party.name] === 'contra' ? "bg-primary-300 dark:bg-primary-400" : ""}"
 											onclick={() =>
 												(partyFilterState[party.name] =
 													partyFilterState[party.name] === 'contra' ? 'egal' : 'contra')}

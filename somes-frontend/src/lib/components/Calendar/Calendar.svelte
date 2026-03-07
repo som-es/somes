@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Popover } from 'bits-ui';
-import type { Day } from './types';
+	import type { Day } from './types';
 	import { Triangle } from 'three';
 
 	export let headers: string[] = [];

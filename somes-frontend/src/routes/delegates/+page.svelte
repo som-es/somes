@@ -68,7 +68,7 @@
 	let selectedPartiesNames = $state<string[]>([]);
 	let selectedParties = $state<Party[]>([]);
 
-	let selectedSearchPeriod = $state<string[]>([]);
+	let selectedSearchPeriod = $state<string[]>([data.cachedPeriods?.at(data.cachedPeriods.length -1)?.gp || "XXVIII"]);
 	let timeout: any;
 
 	let searchResults: Delegate[] = $state(data.delegates ?? []);
@@ -456,7 +456,7 @@
 		<!-- PopUp -->
 		{#if isSearchPopupOpen}
 			<div
-				class="absolute top-full right-0 left-0 z-100 mt-2 w-[98%] rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg max-md:mx-auto md:w-140 md:px-6"
+				class="absolute top-full right-0 left-0 z-100 mt-2 w-[98%] rounded-xl border border-gray-300 bg-surface-50 dark:bg-surface-600 px-5 pt-4 pb-5 shadow-lg max-md:mx-auto md:w-140 md:px-6"
 				data-popup="popupSearch"
 				role="button"
 				tabindex="0"
@@ -465,7 +465,7 @@
 				<div>
 					<!-- Filters -->
 					<div class="mr-4">
-						<span class="text-base font-semibold text-gray-800">Filter</span>
+						<span class="text-base font-semibold text-gray-800 dark:text-gray-200">Filter</span>
 						<div class="flex gap-3">
 							<!-- Period Filter -->
 							<div class="mt-1 flex flex-col gap-2">
@@ -591,7 +591,7 @@
 
 					<!-- Search Results -->
 					<div class="mt-3">
-						<span class="text-base font-semibold text-gray-800">Suchergebnisse</span>
+						<span class="text-base font-semibold text-gray-800 dark:text-gray-200">Suchergebnisse</span>
 						<div class="mt-1 max-h-96 overflow-y-auto">
 							{#if isLoadingSearch}
 								<div class="flex justify-center p-4">
@@ -603,7 +603,7 @@
 									{@const govMandates = getMandatePeriods(d, periods, true)}
 
 									<button
-										class="mb-3 flex w-full justify-between rounded-xl bg-primary-300 p-2 transition-colors hover:cursor-pointer hover:bg-primary-400"
+										class="mb-3 flex w-full justify-between rounded-xl bg-primary-300 dark:bg-primary-500 p-2 transition-colors hover:cursor-pointer hover:bg-primary-400"
 										onclick={() => {
 											const { date, gp } = getMandateLatestPeriod(d, periods);
 
@@ -638,28 +638,28 @@
 										<div class="flex">
 											<img class="mx-1 h-14 rounded-full" src={d.image_url} alt={d.name} />
 											<div class="mt-1 ml-3">
-												<h4 class="text-lg/5 font-semibold text-gray-900">{d.name}</h4>
+												<h4 class="text-lg/5 font-semibold text-gray-900 dark:text-gray-50">{d.name}</h4>
 												<div class="mt-1 flex items-center gap-2">
 													<div
 														class="h-2 w-2 rounded-full"
 														style="background-color: {partyColors.get(d.party) ?? '#ccc'};"
 													></div>
-													<span class="text-sm font-medium text-gray-800">{d.party}</span>
+													<span class="text-sm font-medium text-gray-800 dark:text-gray-200">{d.party}</span>
 												</div>
 											</div>
 										</div>
 										<div class="flex flex-col flex-wrap">
 											{#if govMandates !== '' && govMandates !== 'unbekannt'}
-												<div class="text-sm font-medium text-gray-800">
+												<div class="text-sm font-medium text-gray-800 dark:text-gray-200!">
 													{govMandates}
-													<span class="font-light text-gray-700"> (Regierung) </span>
+													<span class="font-light text-gray-700 dark:text-gray-300!"> (Regierung) </span>
 												</div>
 											{/if}
 
 											{#if nrMandates !== '' && nrMandates !== 'unbekannt'}
-												<div class="text-sm font-medium text-gray-800">
+												<div class="text-sm font-medium text-gray-800 dark:text-gray-200">
 													{nrMandates}
-													<span class="font-light text-gray-700"> (Nationalrat) </span>
+													<span class="font-light text-gray-700 dark:text-gray-300"> (Nationalrat) </span>
 												</div>
 											{/if}
 										</div>
@@ -688,7 +688,7 @@
 				<Popover.Root bind:open={isLegisPeriodFilterOpen}>
 					<Popover.Trigger>
 						<div
-							class="flex items-center gap-1 rounded-xl bg-primary-600 p-2 px-3 text-white dark:bg-primary-400"
+							class="flex items-center gap-1 rounded-xl bg-primary-600 p-2 px-3 text-white dark:bg-surface-500"
 						>
 							<h4>{selectedPeriod}</h4>
 							<div
@@ -703,11 +703,11 @@
 					<Popover.Portal>
 						<Popover.Content class="z-[1000]">
 							<div
-								class="relative top-1 w-auto max-w-[96vw] rounded-xl border border-gray-300 bg-surface-50 px-6 pt-4 pb-5 text-black shadow-lg"
+								class="relative top-1 w-auto max-w-[96vw] rounded-xl border border-gray-300 bg-surface-50 dark:bg-surface-600 px-6 pt-4 pb-5 shadow-lg"
 								data-popup="popupLegisPeriod"
 							>
 								<div class="mt-4 first:mt-0">
-									<span class="text-base font-semibold text-gray-800">Legislaturperiode</span>
+									<span class="text-base font-semibold text-gray-800 dark:text-gray-200">Legislaturperiode</span>
 									<div class="flex w-60 flex-wrap gap-1 text-sm">
 										{#each [...periods].reverse() as period}
 											<button

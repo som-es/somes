@@ -24,8 +24,8 @@
         <div
             class="z-10 touch-manipulation text-black w-auto rounded-xl border border-gray-300 bg-surface-50 dark:bg-surface-600 dark:text-white px-5 pt-4 pb-5 shadow-lg md:px-6"
         >
-            {#each genericFilters as group}
-                <FilterGroup {group} /> 
+            {#each genericFilters as group, i }
+                <FilterGroup bind:group={genericFilters[i]} /> 
             {/each}
             {#if legisPeriodFilter}
                 <div class="mt-4 first:mt-0">

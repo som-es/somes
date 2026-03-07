@@ -35,7 +35,7 @@
 
 </script>
 
-<FilterGroup group={filters[0]} />
+<FilterGroup bind:group={filters[0]} />
 
 {#if filteredGovProposals.length === 0}
 	<p class="text-center">Keine Ministerialentwürfe gefunden.</p>
