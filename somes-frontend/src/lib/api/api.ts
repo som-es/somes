@@ -182,14 +182,36 @@ export async function delegates_search_persons(
 	page: number,
 	entries_per_page: number,
 	name: string | null = null,
-	period: number | null = null,
-	party: string | null = null,
+	searchPeriods: string[] = [],
+	searchParties: string[] = [],
+	onlyGov: boolean | null = null,
+	mindPreviousPartyMembership: boolean = true,
+	hasActiveMandate: boolean | null = null,
 	fetcher: typeof fetch = fetch
 ): Promise<DelegatesWithMaxPage | HasError> {
 	let query = `v1/delegates/search?page=${page}&entries_per_page=${entries_per_page}`;
 	if (name) query += `&search=${encodeURIComponent(name)}`;
-	if (period) query += `&period[eq]=${period}`;
-	if (party) query += `&party[eq]=${encodeURIComponent(party)}`;
+
+	searchPeriods.forEach((searchPeriod, i) => {
+		const gps = onlyGov ? (onlyGov ? "active_gov_gps" : "active_nr_gps") : "active_gps";
+		query += `&${gps}[in][${i}]=${encodeURIComponent(searchPeriod)}`
+	});
+	
+	searchParties.forEach((party, i) => {
+		if (mindPreviousPartyMembership) {
+			query += `&mandates[0][party][in][${i}]=${encodeURIComponent(party)}`;
+		} else {
+			query += `&party[in][${i}]=${encodeURIComponent(party)}`;
+		}
+	});
+
+	if (onlyGov !== null) {
+		query += `&mandates[0][is_gov_official][eq]=${onlyGov}`
+	}
+	
+	if (hasActiveMandate !== null) {
+		query += `&is_active[eq]=${hasActiveMandate}`
+	}
 
 	return getWithRoute<DelegatesWithMaxPage>(query, 'at/', fetcher);
 }

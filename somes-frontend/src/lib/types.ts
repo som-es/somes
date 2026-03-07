@@ -51,6 +51,9 @@ export interface Delegate {
 	mandates_at_time: FullMandate[] | null;
 	active_mandates: FullMandate[] | null;
 	mandates: FullMandate[] | null;
+	active_gps: string[] | null;
+	active_nr_gps: string[] | null;
+	active_gov_gps: string[] | null;
 }
 
 export interface DbMinistrialProposalQueryMeta {
@@ -212,6 +215,7 @@ export interface DelegatesWithMaxPage {
 	delegates: Delegate[];
 	entry_count: number;
 	max_page: number;
+	updated_at: string;
 }
 
 export interface GovProposalsWithMaxPage {

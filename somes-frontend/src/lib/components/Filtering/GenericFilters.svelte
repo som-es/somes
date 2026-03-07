@@ -12,7 +12,7 @@
     let { genericFilters = $bindable(), legisPeriodFilter = $bindable() }: Props = $props();
 
     let activeGenericFiltersCount = $derived(
-		genericFilters.filter((f) => f.activeValue !== undefined && f.activeValue !== 'all').length + +(legisPeriodFilter?.activeValue !== "all")
+		genericFilters.filter((f) => f.activeValue !== undefined && f.activeValue !== 'all').length + (legisPeriodFilter ? +(legisPeriodFilter?.activeValue !== "all") : 0)
 	);
 	let isGenericFilterOpen = $state(false);
 </script>
@@ -22,19 +22,18 @@
     </Popover.Trigger>
     <Popover.Content sideOffset={8}>
         <div
-            class="z-10 touch-manipulation text-black w-auto rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg md:px-6"
+            class="z-10 touch-manipulation text-black w-auto rounded-xl border border-gray-300 bg-surface-50 dark:bg-surface-600 dark:text-white px-5 pt-4 pb-5 shadow-lg md:px-6"
         >
             {#each genericFilters as group}
                 <FilterGroup {group} /> 
             {/each}
             {#if legisPeriodFilter}
                 <div class="mt-4 first:mt-0">
-                    <span class="text-base font-semibold text-gray-800">{legisPeriodFilter.title}</span>
+                    <span class="text-base font-semibold text-gray-800 dark:text-gray-50">{legisPeriodFilter.title}</span>
                     <div class="flex w-72 flex-wrap gap-1 text-sm">
                         {#each legisPeriodFilter.options as option}
                             <button
-                                class="cursor-pointer rounded-lg border border-primary-300 px-2 py-1 text-xs md:text-sm"
-                                class:bg-primary-300={legisPeriodFilter.activeValue === option.value}
+                                class="cursor-pointer rounded-lg border border-primary-300 {legisPeriodFilter.activeValue === option.value ? "bg-primary-300 dark:bg-primary-400" : ""} px-2 py-1 text-xs md:text-sm"
                                 onclick={() => {
                                     legisPeriodFilter.activeValue = option.value;
                                 }}
