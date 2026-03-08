@@ -93,11 +93,11 @@ pub async fn all_delegates(pg: &PgPool) -> sqlx::Result<Vec<Delegate>> {
             SELECT
                 * from delegates_with_mandates
             WHERE
-                -- return only delegates with at least a single 'is_nr' mandate
+                -- return only delegates with at least a single 'is_nr' or 'is_gov_official' mandate
                 EXISTS (
                 SELECT 1
                 FROM unnest(\"mandates: Vec<FullMandate>\") am
-                WHERE am.is_nr
+                WHERE am.is_nr or am.is_gov_official
             );
         "
     )
