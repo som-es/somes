@@ -466,9 +466,9 @@
 					<!-- Filters -->
 					<div class="mr-4">
 						<span class="text-base font-semibold text-gray-800 dark:text-gray-200">Filter</span>
-						<div class="flex gap-3">
+						<div class="flex flex-wrap items-center gap-3 mt-1">
 							<!-- Period Filter -->
-							<div class="mt-1 flex flex-col gap-2">
+							<div class="flex flex-col gap-2">
 								<Select.Root
 									type="multiple"
 									bind:value={selectedSearchPeriod}
@@ -476,7 +476,7 @@
 									allowDeselect={true}
 								>
 									<Select.Trigger
-										class="inline-flex h-10 items-center justify-between rounded-xl bg-secondary-500 px-[11px] text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none md:w-[200px]"
+										class="inline-flex h-10 items-center justify-between rounded-xl bg-secondary-500 px-[11px] text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none md:w-[130px]"
 									>
 										<div class="flex items-center gap-2">
 											{#each selectedSearchPeriod.slice(0, 2) as period}
@@ -521,7 +521,7 @@
 								</Select.Root>
 							</div>
 							<!-- Parteien Filter -->
-							<div class="mt-1 flex flex-col gap-2">
+							<div class="flex flex-col gap-2">
 								<Select.Root
 									type="multiple"
 									bind:value={selectedPartiesNames}
@@ -531,7 +531,7 @@
 									items={uniqueParties.map((p) => ({ value: p.name, label: p.name }))}
 								>
 									<Select.Trigger
-										class="inline-flex h-10 items-center justify-between rounded-xl bg-secondary-500 px-[11px] text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none md:w-[200px]"
+										class="inline-flex h-10 items-center justify-between rounded-xl bg-secondary-500 px-[11px] text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none md:w-[180px]"
 									>
 										<div class="flex items-center gap-2">
 											{#each selectedParties.slice(0, 1) as party}
@@ -583,7 +583,7 @@
 									</Select.Portal>
 								</Select.Root>
 							</div>
-							<div>
+							<div class="h-10">
 								<GenericFilters bind:genericFilters />
 							</div>
 						</div>

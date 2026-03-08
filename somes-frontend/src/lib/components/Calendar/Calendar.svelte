@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { Popover } from 'bits-ui';
 	import type { Day } from './types';
-	import { Triangle } from 'three';
 
 	export let headers: string[] = [];
 	export let days: Day[] = [];
@@ -54,16 +53,18 @@
 	}
 </script>
 
-<div class="calendar max-w-200 bg-primary-100 dark:bg-primary-600 rounded-xl">
+<div class="calendar w-full max-w-200 rounded-xl bg-primary-100 dark:bg-primary-600">
 	<div class="flex flex-col">
-		<div class="flex items-center justify-around bg-surface-200 dark:bg-surface-600 py-1">
-			<button class="px-5" on:click={() => year--}>{year - 1} </button>
-			<button class="px-5" on:click={prev}>{leftTitle}</button>
-			<span class="text-3xl text-pretty font-bold text-center">
+		<div
+			class="flex flex-wrap items-center justify-around gap-1 bg-surface-200 py-1 dark:bg-surface-600"
+		>
+			<button class="px-3 sm:px-5" on:click={() => year--}>{year - 1}</button>
+			<button class="px-3 sm:px-5" on:click={prev}>{leftTitle}</button>
+			<span class="flex-1 text-center text-xl font-bold text-pretty sm:text-3xl">
 				{title}
 			</span>
-			<button class="px-5" on:click={next}>{rightTitle}</button>
-			<button class="px-5" on:click={() => year++}>{year + 1}</button>
+			<button class="px-3 sm:px-5" on:click={next}>{rightTitle}</button>
+			<button class="px-3 sm:px-5" on:click={() => year++}>{year + 1}</button>
 		</div>
 
 		<div class="flex flex-row">
@@ -79,27 +80,25 @@
 				{#each Array(5) as _, i}
 					{#if week[i]}
 						{#if week[i].enabled}
-							<div class="sm:hidden flex-1 flex items-center">
-								{#if week[i].item !== null}
-									<Popover.Root>
-										<Popover.Trigger>
-											<div class="day bg-tertiary-400" >
-												{week[i].name}
-											</div>
+							<Popover.Root>
+								<div class="flex flex-1 items-center md:hidden">
+									{#if week[i].item !== null}
+										<Popover.Trigger class="day bg-tertiary-400">
+											{week[i].name}
 										</Popover.Trigger>
 										<Popover.Portal>
 											<Popover.Content
-												class="z-90 max-w-sm:min-w-136 mt-3 sm: md:min-w-3x"
+												class="z-90 mt-3 flex min-w-40 items-center justify-center sm:min-w-56"
 											>
 												<div class={week[i].item.classes}>{week[i].item.title}</div>
 											</Popover.Content>
 										</Popover.Portal>
-									</Popover.Root>
-								{:else}
-									<div class="day">{week[i].name}</div>
-								{/if}
-							</div>
-							<div class="max-sm:hidden flex-1 flex items-center">
+									{:else}
+										<div class="day">{week[i].name}</div>
+									{/if}
+								</div>
+							</Popover.Root>
+							<div class="flex min-w-37 flex-1 items-center max-md:hidden">
 								{#if week[i].item !== null}
 									<div class={week[i].item.classes}>{week[i].item.title}</div>
 								{/if}
@@ -134,25 +133,40 @@
 		flex-direction: row;
 	}
 
-	.day {
+	:global(.day) {
 		border-bottom: 1px solid rgba(166, 168, 179, 0.12);
 		border-right: 1px solid rgba(166, 168, 179, 0.12);
 		text-align: right;
-		padding: 14px 20px;
-		font-size: 14px;
+		padding: 10px 12px;
+		font-size: 12px;
 		color: #98a0a6;
-		flex: 1; /* evenly distribute 5 days per row */
-		box-sizing: border-box;
+		flex: 1;
+		min-height: 48px;
+	}
+
+	@media (min-width: 640px) {
+		:global(.day) {
+			padding: 14px 20px;
+			font-size: 14px;
+			min-height: 60px;
+		}
 	}
 
 	.day-name {
-		font-size: 12px;
+		font-size: 10px;
 		text-transform: uppercase;
 		text-align: center;
 		border-bottom: 1px solid rgba(166, 168, 179, 0.12);
-		line-height: 50px;
+		line-height: 40px;
 		font-weight: 500;
-		flex: 1; /* evenly distribute headers */
+		flex: 1;
+	}
+
+	@media (min-width: 640px) {
+		.day-name {
+			font-size: 12px;
+			line-height: 50px;
+		}
 	}
 
 	.day-disabled {
