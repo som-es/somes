@@ -4,7 +4,7 @@ use tokio::time::sleep;
 use crate::{routes::initiatives_with_votes, set_json_cache_no_expire};
 
 async fn refresh_legis_inits_with_votes(pool: &PgPool) -> sqlx::Result<()> {
-    sqlx::query!("refresh materialized view legislative_initiatives_with_votes")
+    sqlx::query!("refresh materialized view CONCURRENTLY legislative_initiatives_with_votes")
         .execute(pool)
         .await
         .map(|_| ())
