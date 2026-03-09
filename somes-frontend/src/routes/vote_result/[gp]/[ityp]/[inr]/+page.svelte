@@ -182,7 +182,7 @@
 			<!-- <CenterPrograssRadial /> -->
 		{:else}
 			<br />
-			<div class="entry bg-primary-200 dark:bg-primary-400 md:mt-3 grid-container-with-emphasis">
+			<div class="entry bg-primary-200 dark:bg-primary-400 grid-container-with-emphasis">
 				<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-6 py-5">
 					<!-- Title, Date and Result Icon -->
 					<div class="flex justify-between items-start">
@@ -396,7 +396,7 @@
 							</div>
 						</div>
 
-						<div class="w-full flex justify-center items-center">
+						<div class="w-full flex justify-center items-center max-lg:hidden">
 							<div class="w-2/3">
 							<VoteParliament2
 								{voteResult}
@@ -411,7 +411,7 @@
 							/></div>
 						</div>
 
-						<div class="w-100">
+						<div class="w-100 max-lg:hidden">
 							{#if selectedBubble}
 								<VoteDelegateCard
 									bubble={selectedBubble}
