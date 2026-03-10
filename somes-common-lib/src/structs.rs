@@ -345,6 +345,14 @@ impl std::fmt::Display for Voting {
 pub struct AddonVoteResultFilter {
     pub is_finished: bool,
     pub party_votes: Option<Vec<PartyVote>>,
+    pub date_from: Option<NaiveDate>,
+    pub date_to: Option<NaiveDate>,
+}
+
+#[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
+pub struct DateRangeQueryFilter {
+    pub date_from: Option<NaiveDate>,
+    pub date_to: Option<NaiveDate>,
 }
 
 #[derive(PartialEq, Eq, IntoParams, ToSchema, PartialOrd, Ord, Debug, Serialize, Deserialize)]

@@ -466,6 +466,8 @@ export interface VoteResultFilter {
 	topics: string[] | null;
 	party_votes: PartyVote[] | null;
 	is_urgent: boolean | null;
+	date_from: string | null;
+	date_to: string | null;
 }
 
 export interface DelegateFilter {
@@ -484,6 +486,8 @@ export interface GovPropFilter {
 	has_vote_result: boolean | null;
 	topics: string[] | null;
 	departments: string[] | null;
+	date_from: string | null;
+	date_to: string | null;
 }
 
 export interface NamedVote {

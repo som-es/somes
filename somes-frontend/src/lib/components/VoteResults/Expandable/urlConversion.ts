@@ -54,6 +54,13 @@ export function convertVoteResultFilterToUrl(
 		nextUrl.searchParams.set(`party_votes[${i}][party]`, partyVotes.party);
 	});
 
+	if (filter.date_from) {
+		nextUrl.searchParams.set('date_from', filter.date_from);
+	}
+	if (filter.date_to) {
+		nextUrl.searchParams.set('date_to', filter.date_to);
+	}
+
 	nextUrl.searchParams.set('search', searchValue);
 
 	filter.topics?.forEach((topic, i) => {

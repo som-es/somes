@@ -31,6 +31,13 @@ export function convertDecreeFilterToUrl(
         nextUrl.searchParams.set(`decree[ministrial_issuer][in][${i}]`, department);
     });
 
+    if (filter.date_from) {
+        nextUrl.searchParams.set('date_from', filter.date_from);
+    }
+    if (filter.date_to) {
+        nextUrl.searchParams.set('date_to', filter.date_to);
+    }
+
     nextUrl.searchParams.set('search', searchValue);
 
     return nextUrl;

@@ -36,6 +36,13 @@ export function convertGovPropFilterToUrl(
         nextUrl.searchParams.set(`gov_proposal[ministrial_proposal][ressort][in][${i}]`, department);
     });
 
+    if (filter.date_from) {
+        nextUrl.searchParams.set('date_from', filter.date_from);
+    }
+    if (filter.date_to) {
+        nextUrl.searchParams.set('date_to', filter.date_to);
+    }
+
     nextUrl.searchParams.set('search', searchValue);
 
     return nextUrl;

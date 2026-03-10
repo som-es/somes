@@ -18,6 +18,7 @@
 	import { convertVoteResultFilterToUrl } from './urlConversion';
 	import { errorToNull, get_eurovoc_topics } from '$lib/api/api';
 	import MultiValuesFilter from '$lib/components/Filtering/MultiValuesFilter.svelte';
+	import DateRangeFilter from '$lib/components/Filtering/DateRangeFilter.svelte';
 
 	interface Props {
 		voteResults: VoteResultsWithMaxPage | null;
@@ -49,6 +50,10 @@
 
 	// TOPIC FILTER
 	let selectedTopics: SvelteSet<string> = $state(new SvelteSet());
+
+	// DATE RANGE FILTER
+	let dateFrom = $state('');
+	let dateTo = $state('');
 
 	// PARTY FILTER - get all parties available in the request
 	// let uniqueParties = $derived([...new Set(dels.map((d) => d.party))].sort());
@@ -231,6 +236,8 @@
 			if (maybeStoredFilter.is_urgent !== null) {
 				genericFilters[4].activeValue = maybeStoredFilter.is_urgent;
 			}
+			if (maybeStoredFilter.date_from) dateFrom = maybeStoredFilter.date_from;
+			if (maybeStoredFilter.date_to) dateTo = maybeStoredFilter.date_to;
 		}
 	});
 
@@ -256,7 +263,9 @@
 			vote_type: genericFilters[3].activeValue === undefined ? [] : [genericFilters[3].activeValue],
 			topics: selectedTopics.size > 0 ? [...selectedTopics] : null,
 			is_urgent: genericFilters[4].activeValue === undefined ? null : genericFilters[4].activeValue,
-			party_votes: partyVotesFilter.length > 0 ? partyVotesFilter : null
+			party_votes: partyVotesFilter.length > 0 ? partyVotesFilter : null,
+			date_from: dateFrom || null,
+			date_to: dateTo || null
 		};
 
 		const nextUrl = convertVoteResultFilterToUrl(
@@ -309,6 +318,8 @@
 			void genericFilters[i].activeValue;
 		}
 		void legisPeriodFilter.activeValue;
+		void dateFrom;
+		void dateTo;
 		untrack(update);
 	});
 
@@ -389,6 +400,8 @@
 		{/if}
 		<!-- Themen Filter -->
 		<MultiValuesFilter title="Themen" bind:selectedValues={selectedTopics} values={topics} />
+		<!-- Date Range Filter -->
+		<DateRangeFilter bind:dateFrom bind:dateTo />
 		<!-- Generic Filter -->
 		<GenericFilters bind:genericFilters bind:legisPeriodFilter />
 	</div>
