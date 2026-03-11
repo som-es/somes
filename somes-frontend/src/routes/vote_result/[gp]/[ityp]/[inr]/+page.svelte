@@ -4,6 +4,7 @@
 		currentDelegateStore,
 		currentVoteResultStore,
 		hasGoBackStore,
+		aiViewEnabledStore,
 	} from '$lib/stores/stores';
 	import { onMount } from 'svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
@@ -167,7 +168,7 @@
 {#if browser}
 	<title>
 		{#if voteResult}
-			{#if voteResult.ai_summary}
+			{#if aiViewEnabledStore.value && voteResult.ai_summary}
 				{voteResult.ai_summary.short_title}
 			{:else}
 				{description}
@@ -194,7 +195,7 @@
 										class="text-xl lg:text-3xl font-bold leading-tight"
 										style="hyphens: auto; word-break: normal; overflow-wrap: break-word;"
 									>
-										{#if voteResult.ai_summary}
+										{#if aiViewEnabledStore.value && voteResult.ai_summary}
 											<AiSummaryHintPopup aiSummary={voteResult.ai_summary} />
 											{voteResult.ai_summary.short_title}
 										{:else}
@@ -252,7 +253,7 @@
 					</div>
 
 					<!-- Zusammenfassung -->
-					{#if voteResult.ai_summary}
+					{#if aiViewEnabledStore.value && voteResult.ai_summary}
 						<div class="mt-5 pb-3">
 							<h1 class="font-semibold text-lg md:text-xl">Zusammenfassung</h1>
 							<span class="text-base lg:text-base text-gray-800 dark:text-gray-200">
@@ -270,7 +271,7 @@
 						</div>
 
 						<div class="flex-1 flex justify-end">
-							{#if voteResult.ai_summary && voteResult.eurovoc_topics.length == 0}
+							{#if aiViewEnabledStore.value && voteResult.ai_summary && voteResult.eurovoc_topics.length == 0}
 								<Topics
 									topics={voteResult.ai_summary.full_summary.topics
 										.sort((a, b) => {
@@ -292,7 +293,7 @@
 				</div>
 
 				<!-- CARD main topics  -->
-				{#if voteResult.ai_summary}
+				{#if aiViewEnabledStore.value && voteResult.ai_summary}
 					<div class="emphasis-item">
 						<Emphasis
 							emphasis={voteResult.ai_summary.full_summary.key_points}

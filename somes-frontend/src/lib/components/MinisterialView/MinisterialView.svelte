@@ -8,6 +8,7 @@
 	import GlossaryText from '../UI/GlossaryText.svelte';
 	import InfoBadgesCustom from '../VoteResults/InfoTiles/InfoBadgesCustom.svelte';
 	import type { MinisterialViewData } from './types';
+	import { aiViewEnabledStore } from '$lib/stores/stores';
 
 	interface Props {
 		ministerialData: MinisterialViewData;
@@ -18,10 +19,11 @@
 
 	let aiSummary = $derived(ministerialData.aiSummary);
 	let date = $derived(new Date(ministerialData.date).toLocaleDateString());
+	let displayAiSummary = $derived(aiViewEnabledStore.value && aiSummary);
 </script>
 
 <title>
-	{#if ministerialData.aiSummary}
+	{#if aiViewEnabledStore.value && ministerialData.aiSummary}
 		{ministerialData.aiSummary.short_title}
 	{:else}
 		{ministerialData.alternativeTitle}
@@ -35,7 +37,7 @@
 				<div class="flex items-center gap-4">
 					<div class="flex flex-col">
 						<span class="leading-tight">
-							{#if aiSummary}
+							{#if aiViewEnabledStore.value && aiSummary}
 								<AiSummaryHintPopup
 									aiSummary={aiSummary}
 								/>
@@ -68,7 +70,7 @@
 				</div>
 				
 				<div class="flex-1 flex justify-end">
-					{#if aiSummary && ministerialData.eurovocTopics.length == 0}
+					{#if aiViewEnabledStore.value && aiSummary && ministerialData.eurovocTopics.length == 0}
 						<Topics topics={aiSummary.full_summary.topics.sort((a, b) => {
 								return a.length - b.length;
 							}).map(topic => {return {topic}})} />
@@ -81,7 +83,7 @@
 			</div>
 		</div>
 
-		{#if ministerialData.aiSummary}
+		{#if aiViewEnabledStore.value && ministerialData.aiSummary}
 			<div class="emphasis-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 pt-3 pb-3">
 				<h1 class="font-bold text-lg md:text-xl">Zusammenfassung</h1>
 				<span class="text-sm lg:text-base">
