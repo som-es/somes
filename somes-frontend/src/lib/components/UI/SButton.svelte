@@ -1,16 +1,28 @@
 <!-- A button component -->
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	import { createEventDispatcher } from 'svelte';
 
 	const dispatch = createEventDispatcher();
 
-	function handleClick(event: any) {
+	interface Props {
+		onclick?: (event: MouseEvent) => void;
+		title?: string;
+		class?: string;
+		disabled?: boolean;
+		children?: Snippet;
+	}
+
+	let { onclick, title, class: className = '', disabled = false, children }: Props = $props();
+
+	function handleClick(event: MouseEvent) {
 		dispatch('click', event);
+		onclick?.(event);
 	}
 </script>
 
-<button title={$$props.title} class="button {$$props.class}" on:click={handleClick}>
-	<slot />
+<button {title} {disabled} class="button {className}" onclick={handleClick}>
+	{@render children?.()}
 </button>
 
 <style>
