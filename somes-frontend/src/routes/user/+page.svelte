@@ -28,6 +28,7 @@
 	import SelectableTopics from '$lib/components/Topics/SelectableTopics.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
+	import VoteResult from '$lib/components/VoteResults/VoteResult.svelte';
 	import { gotoHistory } from '$lib/goto';
 	import {
 		getUserFromJwt,
@@ -52,6 +53,7 @@
 	let autocompleteOptions = $state<AutocompleteOptionMultiselect<string, UniqueTopic>[]>([]);
 	let inputValue = $state('');
 	let allOwnTopics = $state<UniqueTopic[]>([]);
+	let isSearchPopupOpen = $state(false);
 
 	function delegateFilter(): AutocompleteOptionMultiselect<string, UniqueTopic>[] {
 		let _options = [...autocompleteOptions];
@@ -138,183 +140,196 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Benutzerprofil</title>
+	<meta name="description" content="Dein persönliches Benutzerprofil und Einstellungen" />
+</svelte:head>
+
 <Container>
 	{#if extendedUser}
-		<div class="entry bg-primary-200 dark:bg-primary-400 mt-3 grid-container">
-			<div
-				class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 items-center flex justify-between"
-			>
-				<h1 class="font-bold text-5xl">Benutzer</h1>
-				<SButton
-					class="bg-tertiary-500 text-black"
-					onclick={handleLogout}
-				>
-					Abmelden
-				</SButton>
-			</div>
-			<div
-				class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 items-center flex justify-between"
-			>
-				<div class="flex flex-wrap items-center">
-					<h1 class="font-bold text-2xl">Benutzerinfos</h1>
-					<div class="ml-5 text-xl">E-Mail</div>
-					<div class="mx-4 text-xl">
-						{#if extendedUser?.is_email_hashed}
-							<span class="ml-3 font-serif">anonymisiert</span>
-							{#if user}
-								<span class="ml-1 text-sm text-wrap font-serif">...{user.sub.slice(36, 60)}...</span
-								>
-							{/if}
-						{:else if user}
-							{user.sub}
-						{/if}
-					</div>
-				</div>
-				<div>
-					<SButton
-						class="bg-tertiary-500 text-black"
-						onclick={() => {
-							jwtStore.value = null;
-							gotoHistory('/home');
-						}}
-					>
-						todo: E-Mail wechseln
-					</SButton>
-				</div>
-			</div>
+		<!-- Header Section -->
+		<h1 class="px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">Benutzerprofil</h1>
+		<span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0 dark:text-gray-300">
+			Verwalte deine Einstellungen und Präferenzen
+		</span>
 
-			<div
-				class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3 items-center flex justify-between"
-			>
-				<div class="flex flex-wrap items-center">
-					<h1 class="font-bold md:text-2xl">E-Mail Benachrichtigungen</h1>
-
-					{#if !extendedUser?.is_email_hashed}
-						<div class="flex flex-wrap items-center gap-x-6 gap-y-3 ml-5">
-							{#if mailSendInfo}
-								<div class="flex items-center gap-3">
-									<Switch.Root
-										bind:checked={mailSendInfo.send_new_vote_results_mails}
-										onCheckedChange={updateThisMailSendInfo}
-										class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-400 data-[state=unchecked]:bg-gray-300"
-										id="sendVoteResultInfoMail"
-									>
-										<Switch.Thumb
-											class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
-										/>
-									</Switch.Root>
-									<label class="cursor-pointer" for="sendVoteResultInfoMail">
-										<div class="flex flex-col">
-											<span class="font-bold">Zu neuen Abstimmungen</span>
-											<span class="text-sm">nach ausgewählten Interessen</span>
-										</div>
-									</label>
-								</div>
-								<div class="flex items-center gap-3">
-									<Switch.Root
-										bind:checked={mailSendInfo.send_new_delegate_activity_mails}
-										onCheckedChange={updateThisMailSendInfo}
-										class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-400 data-[state=unchecked]:bg-gray-300"
-										id="sendnewDelegateInfo"
-									>
-										<Switch.Thumb
-											class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
-										/>
-									</Switch.Root>
-									<label class="cursor-pointer" for="sendnewDelegateInfo">
-										<div class="flex flex-col">
-											<span class="font-bold">Zu Abgeordnetenaktivitäten</span>
-											<span class="text-sm">nach favorisierten Abgeordneten</span>
-										</div>
-									</label>
-								</div>
-								<div class="flex items-center gap-3">
-									<Switch.Root
-										bind:checked={mailSendInfo.send_new_ministrial_prop_mails}
-										onCheckedChange={updateThisMailSendInfo}
-										class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-400 data-[state=unchecked]:bg-gray-300"
-										id="sendMinistrialPropInfoMails"
-									>
-										<Switch.Thumb
-											class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
-										/>
-									</Switch.Root>
-									<label class="cursor-pointer" for="sendMinistrialPropInfoMails">
-										<div class="flex flex-col">
-											<span class="font-bold">Zu neuen Ministerialentwürfen</span>
-											<span class="text-sm">nach ausgewählten Interessen</span>
-										</div>
-									</label>
-								</div>
-								<div class="flex items-center gap-3">
-									<Switch.Root
-										bind:checked={mailSendInfo.send_new_ministrial_prop_by_favo_mails}
-										onCheckedChange={updateThisMailSendInfo}
-										class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-400 data-[state=unchecked]:bg-gray-300"
-										id="sendMinistrialPropByFavoMails"
-									>
-										<Switch.Thumb
-											class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
-										/>
-									</Switch.Root>
-									<label class="cursor-pointer" for="sendMinistrialPropByFavoMails">
-										<div class="flex flex-col">
-											<span class="font-bold">Zu neuen Ministerialentwürfen</span>
-											<span class="text-sm">nach favorisierten Ministern</span>
-										</div>
-									</label>
-								</div>
+		<div class="mt-5 flex flex-col gap-4">
+			<!-- User Info Card -->
+			<div class="w-full rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
+				<div class="flex flex-wrap items-center justify-between gap-3">
+					<div class="flex flex-wrap items-center gap-3">
+						<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">Benutzerinfos</h2>
+						<div class="flex items-center gap-2 text-base text-gray-800 dark:text-gray-200">
+							<span class="font-medium">E-Mail:</span>
+							{#if extendedUser?.is_email_hashed}
+								<span class="font-serif">anonymisiert</span>
+								{#if user}
+									<span class="text-sm text-gray-600 dark:text-gray-400">...{user.sub.slice(36, 60)}...</span>
+								{/if}
+							{:else if user}
+								<span>{user.sub}</span>
 							{/if}
 						</div>
-					{:else}
-						<span class="ml-3 font-serif"
-							>nicht verfügbar: Anonymisierung durch Mail-Wechsel aufheben</span
+					</div>
+					<div class="flex gap-2">
+						<SButton
+							class="bg-secondary-500 text-white hover:bg-secondary-600"
+							onclick={handleLogout}
 						>
-					{/if}
+							Abmelden
+						</SButton>
+						<SButton
+							class="bg-tertiary-500 text-black hover:bg-tertiary-600"
+							onclick={() => {
+								jwtStore.value = null;
+								gotoHistory('/home');
+							}}
+						>
+							E-Mail wechseln
+						</SButton>
+					</div>
 				</div>
 			</div>
-			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
-				<h1 class="font-bold text-2xl">Wahle deine Interessen</h1>
-				<!-- Searchbar with Popover -->
-				<Popover.Root>
-					<Popover.Trigger>
-						<input
-							class="input w-[28rem] h-9 px-2"
-							type="search"
-							name="ac-demo"
-							bind:value={inputValue}
-							placeholder="Suchen..."
-						/>
-					</Popover.Trigger>
-					<Popover.Portal>
-						<Popover.Content class="z-10 card w-full max-w-sm max-h-64 p-4 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-xl">
-							{#if autocompleteOptions}
-								<AutocompleteMultiselect
-									input={inputValue}
-									options={autocompleteOptions}
-									onselection={handleTopicSelection}
-									emptyState={'Keine Themen gefunden'}
-									filter={delegateFilter}
-								/>
-							{/if}
-						</Popover.Content>
-					</Popover.Portal>
-				</Popover.Root>
 
-				<div class="mt-3">
-					{#if topics}
+			<!-- Email Notifications Card -->
+			<div class="w-full rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
+				<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">E-Mail Benachrichtigungen</h2>
+				
+				{#if !extendedUser?.is_email_hashed}
+					<div class="mt-4 grid gap-4 sm:grid-cols-2">
+						{#if mailSendInfo}
+							<div class="flex items-start gap-3">
+								<Switch.Root
+									bind:checked={mailSendInfo.send_new_vote_results_mails}
+									onCheckedChange={updateThisMailSendInfo}
+									class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
+									id="sendVoteResultInfoMail"
+								>
+									<Switch.Thumb
+										class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+									/>
+								</Switch.Root>
+								<label class="cursor-pointer" for="sendVoteResultInfoMail">
+									<div class="flex flex-col">
+										<span class="font-semibold text-gray-900 dark:text-gray-50">Zu neuen Abstimmungen</span>
+										<span class="text-sm text-gray-600 dark:text-gray-300">nach ausgewählten Interessen</span>
+									</div>
+								</label>
+							</div>
+							<div class="flex items-start gap-3">
+								<Switch.Root
+									bind:checked={mailSendInfo.send_new_delegate_activity_mails}
+									onCheckedChange={updateThisMailSendInfo}
+									class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
+									id="sendnewDelegateInfo"
+								>
+									<Switch.Thumb
+										class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+									/>
+								</Switch.Root>
+								<label class="cursor-pointer" for="sendnewDelegateInfo">
+									<div class="flex flex-col">
+										<span class="font-semibold text-gray-900 dark:text-gray-50">Zu Abgeordnetenaktivitäten</span>
+										<span class="text-sm text-gray-600 dark:text-gray-300">nach favorisierten Abgeordneten</span>
+									</div>
+								</label>
+							</div>
+							<div class="flex items-start gap-3">
+								<Switch.Root
+									bind:checked={mailSendInfo.send_new_ministrial_prop_mails}
+									onCheckedChange={updateThisMailSendInfo}
+									class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
+									id="sendMinistrialPropInfoMails"
+								>
+									<Switch.Thumb
+										class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+									/>
+								</Switch.Root>
+								<label class="cursor-pointer" for="sendMinistrialPropInfoMails">
+									<div class="flex flex-col">
+										<span class="font-semibold text-gray-900 dark:text-gray-50">Zu neuen Ministerialentwürfen</span>
+										<span class="text-sm text-gray-600 dark:text-gray-300">nach ausgewählten Interessen</span>
+									</div>
+								</label>
+							</div>
+							<div class="flex items-start gap-3">
+								<Switch.Root
+									bind:checked={mailSendInfo.send_new_ministrial_prop_by_favo_mails}
+									onCheckedChange={updateThisMailSendInfo}
+									class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
+									id="sendMinistrialPropByFavoMails"
+								>
+									<Switch.Thumb
+										class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+									/>
+								</Switch.Root>
+								<label class="cursor-pointer" for="sendMinistrialPropByFavoMails">
+									<div class="flex flex-col">
+										<span class="font-semibold text-gray-900 dark:text-gray-50">Zu neuen Ministerialentwürfen</span>
+										<span class="text-sm text-gray-600 dark:text-gray-300">nach favorisierten Ministern</span>
+									</div>
+								</label>
+							</div>
+						{/if}
+					</div>
+				{:else}
+					<p class="mt-3 text-gray-600 dark:text-gray-300">
+						nicht verfügbar: Anonymisierung durch Mail-Wechsel aufheben
+					</p>
+				{/if}
+			</div>
+
+			<!-- Interest Topics Card -->
+			<div class="w-full rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
+				<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">Wähle deine Interessen</h2>
+				
+				<!-- Searchbar with Popover -->
+				<div class="relative mt-3">
+					<Popover.Root bind:open={isSearchPopupOpen}>
+						<Popover.Trigger>
+							<input
+								class="h-10 w-full rounded-xl border border-gray-300 bg-white px-4 text-base focus:border-secondary-500 focus:ring-2 focus:ring-secondary-500/20 focus:outline-none dark:bg-surface-100 dark:text-gray-50"
+								type="search"
+								name="topic-search"
+								bind:value={inputValue}
+								placeholder="Interessen suchen..."
+							/>
+						</Popover.Trigger>
+						<Popover.Portal>
+							<Popover.Content
+								class="z-[1000] max-h-64 w-[var(--bits-popover-anchor-width)] overflow-y-auto rounded-xl border border-gray-300 bg-surface-50 p-4 shadow-lg dark:bg-surface-600"
+								sideOffset={8}
+							>
+								{#if autocompleteOptions.length > 0}
+									<AutocompleteMultiselect
+										input={inputValue}
+										options={autocompleteOptions}
+										onselection={handleTopicSelection}
+										emptyState={'Keine Themen gefunden'}
+										filter={delegateFilter}
+									/>
+								{:else}
+									<p class="text-center text-gray-500">Keine Themen verfügbar</p>
+								{/if}
+							</Popover.Content>
+						</Popover.Portal>
+					</Popover.Root>
+				</div>
+
+				<div class="mt-4">
+					{#if topics.length > 0}
 						<SelectableTopics bind:selectedTopics {topics} />
 					{/if}
 				</div>
 			</div>
 
-			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
-				<!-- make expandable -->
-				<h1 class="font-bold text-2xl">Favorisierte Abgeordnete</h1>
-				<div class="flex flex-wrap mt-3 gap-3">
+			<!-- Favorite Delegates Card -->
+			<div class="w-full rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
+				<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">Favorisierte Abgeordnete</h2>
+				<div class="mt-3 flex flex-wrap gap-3">
 					{#if favoDelegates}
 						{#if favoDelegates.size == 0}
-							Keine favorisierten Abgeordnete vorhanden.
+							<p class="text-gray-600 dark:text-gray-300">Keine favorisierten Abgeordnete vorhanden.</p>
 						{:else}
 							{#each favoDelegates as favoDelegateId}
 								{#await delegate_by_id(favoDelegateId)}
@@ -332,13 +347,13 @@
 				</div>
 			</div>
 
-			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
-				<!-- make expandable -->
-				<h1 class="font-bold text-2xl">Favorisierte Abstimmungen</h1>
-				<div class="flex flex-wrap mt-3 gap-3">
+			<!-- Favorite Votes Card -->
+			<div class="w-full rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
+				<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">Favorisierte Abstimmungen</h2>
+				<div class="mt-3 flex flex-wrap gap-3">
 					{#if favoLegisInits}
 						{#if favoLegisInits.size == 0}
-							Keine favorisierte Abstimmungen vorhanden.
+							<p class="text-gray-600 dark:text-gray-300">Keine favorisierten Abstimmungen vorhanden.</p>
 						{:else}
 							{#each favoLegisInits as favoLegisInitId, i}
 								{#await vote_result_by_id(favoLegisInitId.toString())}
@@ -356,31 +371,21 @@
 				</div>
 			</div>
 
-			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
-				<SButton
-					class="bg-error-300 text-black"
-					onclick={handleDeleteAccount}
-				>
-					Account löschen
-				</SButton>
+			<!-- Danger Zone Card -->
+			<div class="w-full rounded-xl border border-error-300 bg-error-50 p-4 dark:border-error-500 dark:bg-error-900/20">
+				<h2 class="text-xl font-bold text-error-700 dark:text-error-400">Gefahrenbereich</h2>
+				<p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
+					Diese Aktion kann nicht rückgängig gemacht werden.
+				</p>
+				<div class="mt-3">
+					<SButton
+						class="bg-error-500 text-white hover:bg-error-600"
+						onclick={handleDeleteAccount}
+					>
+						Account löschen
+					</SButton>
+				</div>
 			</div>
 		</div>
 	{/if}
 </Container>
-
-<style>
-	.title-item {
-		flex-basis: 100%;
-	}
-	.entry {
-		border-radius: 0.9rem;
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-		padding: 20px;
-		gap: 10px;
-	}
-
-	.grid-container {
-		display: flex;
-		flex-wrap: wrap;
-	}
-</style>
