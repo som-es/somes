@@ -20,10 +20,7 @@
 		delegates_search_persons,
 		isHasError
 	} from '$lib/api/api';
-	import {
-		currentDelegateFilterStore,
-		currentDelegateStore,
-	} from '$lib/stores/stores';
+	import { currentDelegateFilterStore, currentDelegateStore } from '$lib/stores/stores';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import {
@@ -53,6 +50,7 @@
 	import { getMandateLatestPeriod, getMandatePeriods } from './searchDelegates';
 	import GenericFilters from '$lib/components/Filtering/GenericFilters.svelte';
 	import { type GenericFilterGroup } from '$lib/components/Filtering/types';
+	import AbsensePreviewHeatmap from '$lib/components/Delegates/Absences/AbsensePreviewHeatmap.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -68,16 +66,18 @@
 	let selectedPartiesNames = $state<string[]>([]);
 	let selectedParties = $state<Party[]>([]);
 
-	let selectedSearchPeriod = $state<string[]>([data.cachedPeriods?.at(data.cachedPeriods.length -1)?.gp || "XXVIII"]);
+	let selectedSearchPeriod = $state<string[]>([
+		data.cachedPeriods?.at(data.cachedPeriods.length - 1)?.gp || 'XXVIII'
+	]);
 	let timeout: any;
 
 	let searchResults: Delegate[] = $state(data.delegates ?? []);
 	let isLoadingSearch = $state(false);
-	
+
 	let genericFilters: [
 		GenericFilterGroup<boolean>,
 		GenericFilterGroup<boolean>,
-		GenericFilterGroup<boolean>,
+		GenericFilterGroup<boolean>
 	] = $state([
 		{
 			title: 'Mandatsart',
@@ -107,7 +107,7 @@
 				{ title: 'Ja', value: true },
 				{ title: 'Nein', value: false }
 			]
-		},
+		}
 	]);
 
 	// Filter Elements to Keep the PopUp open
@@ -415,7 +415,7 @@
 				prevSelectedDelegateId = delegate.id;
 			}
 		});
-	});	
+	});
 
 	/*run(() => {
 		if (delegate && prevSelectedDelegateId != delegate.id) {
@@ -456,7 +456,7 @@
 		<!-- PopUp -->
 		{#if isSearchPopupOpen}
 			<div
-				class="absolute top-full right-0 left-0 z-100 mt-2 w-[98%] rounded-xl border border-gray-300 bg-surface-50 dark:bg-surface-600 px-5 pt-4 pb-5 shadow-lg max-md:mx-auto md:w-140 md:px-6"
+				class="absolute top-full right-0 left-0 z-100 mt-2 w-[98%] rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg max-md:mx-auto md:w-140 md:px-6 dark:bg-surface-600"
 				data-popup="popupSearch"
 				role="button"
 				tabindex="0"
@@ -466,9 +466,11 @@
 					<!-- Filters -->
 					<div class="mr-4">
 						<span class="text-base font-semibold text-gray-800 dark:text-gray-200">Filter</span>
-						<div class="flex flex-wrap items-center gap-3 mt-1">
+						<div class="mt-2 flex h-10 w-full gap-2 md:mt-1 md:w-auto">
 							<!-- Period Filter -->
-							<div class="flex flex-col gap-2">
+							<div
+								class="flex h-full grow touch-manipulation items-center justify-center gap-1 md:grow-0"
+							>
 								<Select.Root
 									type="multiple"
 									bind:value={selectedSearchPeriod}
@@ -476,7 +478,7 @@
 									allowDeselect={true}
 								>
 									<Select.Trigger
-										class="inline-flex h-10 items-center justify-between rounded-xl bg-secondary-500 px-[11px] text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none md:w-[130px]"
+										class="flex h-full grow touch-manipulation items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none md:grow-0"
 									>
 										<div class="flex items-center gap-2">
 											{#each selectedSearchPeriod.slice(0, 2) as period}
@@ -521,7 +523,9 @@
 								</Select.Root>
 							</div>
 							<!-- Parteien Filter -->
-							<div class="flex flex-col gap-2">
+							<div
+								class="flex h-full grow touch-manipulation items-center justify-center gap-1 md:grow-0"
+							>
 								<Select.Root
 									type="multiple"
 									bind:value={selectedPartiesNames}
@@ -531,7 +535,7 @@
 									items={uniqueParties.map((p) => ({ value: p.name, label: p.name }))}
 								>
 									<Select.Trigger
-										class="inline-flex h-10 items-center justify-between rounded-xl bg-secondary-500 px-[11px] text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none md:w-[180px]"
+										class="flex h-full grow touch-manipulation items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none md:grow-0"
 									>
 										<div class="flex items-center gap-2">
 											{#each selectedParties.slice(0, 1) as party}
@@ -583,7 +587,9 @@
 									</Select.Portal>
 								</Select.Root>
 							</div>
-							<div class="h-10">
+							<div
+								class="flex h-full grow touch-manipulation items-center justify-center gap-1 md:grow-0"
+							>
 								<GenericFilters bind:genericFilters />
 							</div>
 						</div>
@@ -591,7 +597,9 @@
 
 					<!-- Search Results -->
 					<div class="mt-3">
-						<span class="text-base font-semibold text-gray-800 dark:text-gray-200">Suchergebnisse</span>
+						<span class="text-base font-semibold text-gray-800 dark:text-gray-200"
+							>Suchergebnisse</span
+						>
 						<div class="mt-1 max-h-96 overflow-y-auto">
 							{#if isLoadingSearch}
 								<div class="flex justify-center p-4">
@@ -603,7 +611,7 @@
 									{@const govMandates = getMandatePeriods(d, periods, true)}
 
 									<button
-										class="mb-3 flex w-full justify-between rounded-xl bg-primary-300 dark:bg-primary-500 p-2 transition-colors hover:cursor-pointer hover:bg-primary-400"
+										class="mb-3 flex w-full justify-between rounded-xl bg-primary-300 p-2 transition-colors hover:cursor-pointer hover:bg-primary-400 dark:bg-primary-500"
 										onclick={() => {
 											const { date, gp } = getMandateLatestPeriod(d, periods);
 
@@ -638,13 +646,17 @@
 										<div class="flex">
 											<img class="mx-1 h-14 rounded-full" src={d.image_url} alt={d.name} />
 											<div class="mt-1 ml-3">
-												<h4 class="text-lg/5 font-semibold text-gray-900 dark:text-gray-50">{d.name}</h4>
+												<h4 class="text-lg/5 font-semibold text-gray-900 dark:text-gray-50">
+													{d.name}
+												</h4>
 												<div class="mt-1 flex items-center gap-2">
 													<div
 														class="h-2 w-2 rounded-full"
 														style="background-color: {partyColors.get(d.party) ?? '#ccc'};"
 													></div>
-													<span class="text-sm font-medium text-gray-800 dark:text-gray-200">{d.party}</span>
+													<span class="text-sm font-medium text-gray-800 dark:text-gray-200"
+														>{d.party}</span
+													>
 												</div>
 											</div>
 										</div>
@@ -652,14 +664,18 @@
 											{#if govMandates !== '' && govMandates !== 'unbekannt'}
 												<div class="text-sm font-medium text-gray-800 dark:text-gray-200!">
 													{govMandates}
-													<span class="font-light text-gray-700 dark:text-gray-300!"> (Regierung) </span>
+													<span class="font-light text-gray-700 dark:text-gray-300!">
+														(Regierung)
+													</span>
 												</div>
 											{/if}
 
 											{#if nrMandates !== '' && nrMandates !== 'unbekannt'}
 												<div class="text-sm font-medium text-gray-800 dark:text-gray-200">
 													{nrMandates}
-													<span class="font-light text-gray-700 dark:text-gray-300"> (Nationalrat) </span>
+													<span class="font-light text-gray-700 dark:text-gray-300">
+														(Nationalrat)
+													</span>
 												</div>
 											{/if}
 										</div>
@@ -703,11 +719,13 @@
 					<Popover.Portal>
 						<Popover.Content class="z-[1000]">
 							<div
-								class="relative top-1 w-auto max-w-[96vw] rounded-xl border border-gray-300 bg-surface-50 dark:bg-surface-600 px-6 pt-4 pb-5 shadow-lg"
+								class="relative top-1 w-auto max-w-[96vw] rounded-xl border border-gray-300 bg-surface-50 px-6 pt-4 pb-5 shadow-lg dark:bg-surface-600"
 								data-popup="popupLegisPeriod"
 							>
 								<div class="mt-4 first:mt-0">
-									<span class="text-base font-semibold text-gray-800 dark:text-gray-200">Legislaturperiode</span>
+									<span class="text-base font-semibold text-gray-800 dark:text-gray-200"
+										>Legislaturperiode</span
+									>
 									<div class="flex w-60 flex-wrap gap-1 text-sm">
 										{#each [...periods].reverse() as period}
 											<button
@@ -900,44 +918,52 @@
 			{/if}
 		</div>
 
-		{#if generalDelegateInfo?.interests && generalDelegateInfo?.detailed_interests}
-			{#if generalDelegateInfo?.interests?.length > 0}
-				<span class="w-full max-sm:hidden">
-					<TopicsChart
-						detailedInterests={generalDelegateInfo.detailed_interests}
-						interests={generalDelegateInfo.interests}
-					/>
-				</span>
-				<span class="w-full sm:hidden">
-					<TopicsChart
-						detailedInterests={generalDelegateInfo.detailed_interests}
-						interests={generalDelegateInfo.interests.slice(0, 8)}
-					/>
-				</span>
-				<!-- <div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
-
-					<h1 class="font-bold text-2xl mb-2">Top 4 Interessen</h1>
-					<InterestTiles bgColor={"bg-primary-300 dark:bg-primary-500"} squareColor={"dark:bg-primary-300 bg-primary-400"} interests={generalDelegateInfo.interests.slice(0, 4)} />
-				</div> -->
+		<!-- Meist behandelte Themen & Abwesenheiten -->
+		<div
+			class="flex w-full flex-col gap-4 {!generalDelegateInfo ||
+			generalDelegateInfo.interests?.length > 0
+				? 'lg:flex-row'
+				: ''}"
+		>
+			<!-- Meist behandelte Themen  -->
+			{#if !generalDelegateInfo || generalDelegateInfo.interests?.length > 0}
+				<div class="flex w-full flex-col gap-4 lg:w-2/3">
+					{#if generalDelegateInfo?.interests && generalDelegateInfo?.detailed_interests}
+						<span class="w-full max-sm:hidden">
+							<TopicsChart
+								detailedInterests={generalDelegateInfo.detailed_interests}
+								interests={generalDelegateInfo.interests}
+							/>
+						</span>
+						<span class="w-full sm:hidden">
+							<TopicsChart
+								detailedInterests={generalDelegateInfo.detailed_interests}
+								interests={generalDelegateInfo.interests.slice(0, 8)}
+							/>
+						</span>
+					{/if}
+				</div>
 			{/if}
-		{:else}
-			<ExpandablePlaceholder class={'my-3'} />
-		{/if}
+
+			<!-- Abwesenheiten -->
+			<div
+				class="flex w-full flex-col gap-4 {!generalDelegateInfo ||
+				generalDelegateInfo.interests?.length > 0
+					? 'lg:w-1/3'
+					: ''}"
+			>
+				{#if delegate && generalDelegateInfo?.absences && generalDelegateInfo.absences.length > 0}
+					<!-- <AbsencesPreview delegateId={delegate.id} absences={generalDelegateInfo.absences} /> -->
+					<AbsensePreviewHeatmap delegateId={delegate.id} absences={generalDelegateInfo.absences} />
+				{/if}
+			</div>
+		</div>
 
 		{#if speechesPage0 && delegate && speechesPage0.speeches.length > 0}
 			<div class="title-item w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 				<SpeechesPreview delegateId={delegate.id} {speechesPage0} />
 			</div>
 		{:else if speechesPage0 == null && delegate && delegate.council == 'gov'}
-			<ExpandablePlaceholder />
-			<ExpandablePlaceholder />
-		{/if}
-
-		{#if generalDelegateInfo?.absences && delegate && generalDelegateInfo?.absences.length > 0}
-			<div class="title-item w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
-				<AbsencesPreview delegateId={delegate.id} absences={generalDelegateInfo.absences} />
-			</div>
-		{:else if generalDelegateInfo?.absences == null || !delegate}
 			<ExpandablePlaceholder />
 			<ExpandablePlaceholder />
 		{/if}
