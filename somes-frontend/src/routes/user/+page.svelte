@@ -22,12 +22,12 @@
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache.svelte';
 	import { filterOptionsMultiSelect } from '$lib/components/Autocompletion/filtering';
 	import type { AutocompleteOptionMultiselect } from '$lib/components/Autocompletion/types';
+	import AutocompleteMultiselect from '$lib/components/Autocompletion/AutocompleteMultiselect.svelte';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import SelectableTopics from '$lib/components/Topics/SelectableTopics.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
-	import VoteResult from '$lib/components/VoteResults/VoteResult.svelte';
 	import { gotoHistory } from '$lib/goto';
 	import {
 		getUserFromJwt,
@@ -36,20 +36,22 @@
 		type MailSendInfo,
 		type UniqueTopic
 	} from '$lib/types';
+	import { Switch, Popover } from 'bits-ui';
 	import { onMount } from 'svelte';
-	import { get } from 'svelte/store';
+	import VoteResultExpandableBar from '$lib/components/VoteResults/Expandable/VoteResultExpandableBar.svelte';
 
-	let topics: UniqueTopic[] = [];
-	let selectedTopics = new Set<number>();
-	let user: BasicUserInfo | null;
-	let extendedUser: ExtendedUserInfo | null;
-	let mailSendInfo: MailSendInfo | null;
-	let favoDelegates: Set<number> | null;
-	let favoLegisInits: Set<number> | null;
+	// State with Svelte 5 runes
+	let topics = $state<UniqueTopic[]>([]);
+	let selectedTopics = $state<Set<number>>(new Set<number>());
+	let user = $state<BasicUserInfo | null>(null);
+	let extendedUser = $state<ExtendedUserInfo | null>(null);
+	let mailSendInfo = $state<MailSendInfo | null>(null);
+	let favoDelegates = $state<Set<number> | null>(null);
+	let favoLegisInits = $state<Set<number> | null>(null);
 
-	let autocompleteOptions: AutocompleteOptionMultiselect<string, UniqueTopic>[] = [];
-	let inputValue = '';
-	let allOwnTopics: UniqueTopic[] = [];
+	let autocompleteOptions = $state<AutocompleteOptionMultiselect<string, UniqueTopic>[]>([]);
+	let inputValue = $state('');
+	let allOwnTopics = $state<UniqueTopic[]>([]);
 
 	function delegateFilter(): AutocompleteOptionMultiselect<string, UniqueTopic>[] {
 		let _options = [...autocompleteOptions];
@@ -57,14 +59,7 @@
 		return filterOptionsMultiSelect(_options, _inputValue);
 	}
 
-	// let popupSettings: PopupSettings = {
-	// 	event: 'focus-click',
-	// 	target: 'popupAutocomplete',
-	// 	placement: 'bottom-start',
-	// 	closeQuery: ''
-	// };
-
-	export function convertDelegatesToAutocompleteOptions(): AutocompleteOptionMultiselect<
+	function convertDelegatesToAutocompleteOptions(): AutocompleteOptionMultiselect<
 		string,
 		UniqueTopic
 	>[] {
@@ -80,7 +75,11 @@
 		});
 	}
 
-	$: if (selectedTopics) autocompleteOptions = convertDelegatesToAutocompleteOptions();
+	$effect(() => {
+		if (selectedTopics) {
+			autocompleteOptions = convertDelegatesToAutocompleteOptions();
+		}
+	});
 
 	onMount(async () => {
 		const jwtToken = jwtStore.value;
@@ -103,7 +102,6 @@
 			allOwnTopics = data;
 			selectedTopics = new Set<number>(data.map((topic) => topic.id));
 		}
-		// selectedTopics = new Set<UniqueTopic>(selectedTopics)
 	});
 
 	const updateThisMailSendInfo = async () => {
@@ -113,6 +111,31 @@
 
 		await updateMailSendInfo(mailSendInfo);
 	};
+
+	function handleTopicSelection(event: AutocompleteOptionMultiselect<string, UniqueTopic>) {
+		if (event.meta) {
+			if (event.isSelected) {
+				selectedTopics.delete(event.meta.id);
+				removeUserTopic({ id: event.meta.id, topic: '' });
+			} else {
+				selectedTopics.add(event.meta.id);
+				addUserTopic({ id: event.meta.id, topic: '' });
+			}
+		}
+		// Trigger reactivity
+		selectedTopics = selectedTopics;
+	}
+
+	async function handleLogout() {
+		jwtStore.value = null;
+		gotoHistory('/home');
+	}
+
+	async function handleDeleteAccount() {
+		await delete_account();
+		jwtStore.value = null;
+		gotoHistory('/home');
+	}
 </script>
 
 <Container>
@@ -124,10 +147,7 @@
 				<h1 class="font-bold text-5xl">Benutzer</h1>
 				<SButton
 					class="bg-tertiary-500 text-black"
-					on:click={() => {
-						jwtStore.value = null;
-						gotoHistory('/home');
-					}}
+					onclick={handleLogout}
 				>
 					Abmelden
 				</SButton>
@@ -153,8 +173,8 @@
 				<div>
 					<SButton
 						class="bg-tertiary-500 text-black"
-						on:click={() => {
-							jwtStore.set(null);
+						onclick={() => {
+							jwtStore.value = null;
 							gotoHistory('/home');
 						}}
 					>
@@ -172,46 +192,78 @@
 					{#if !extendedUser?.is_email_hashed}
 						<div class="flex flex-wrap items-center gap-x-6 gap-y-3 ml-5">
 							{#if mailSendInfo}
-								<SlideToggle
-									active="bg-secondary-400"
-									name="sendVoteResultInfoMail"
-									on:change={updateThisMailSendInfo}
-									bind:checked={mailSendInfo.send_new_vote_results_mails}
-								>
-									<span class="font-bold"> Zu neuen Abstimmungen </span>
-									<br />
-									<span class="text-sm">nach ausgewählten Interessen</span>
-								</SlideToggle>
-								<SlideToggle
-									active="bg-secondary-400"
-									name="sendnewDelegateInfo"
-									on:change={updateThisMailSendInfo}
-									bind:checked={mailSendInfo.send_new_delegate_activity_mails}
-								>
-									<span class="font-bold"> Zu Abgeordnetenaktivitäten </span>
-									<br />
-									<span class="text-sm">nach favorisierten Abgeordneten</span>
-								</SlideToggle>
-								<SlideToggle
-									active="bg-secondary-400"
-									name="sendMinistrialPropInfoMails"
-									on:change={updateThisMailSendInfo}
-									bind:checked={mailSendInfo.send_new_ministrial_prop_mails}
-								>
-									<span class="font-bold"> Zu neuen Ministerialentwürfen </span>
-									<br />
-									<span class="text-sm">nach ausgewählten Interessen</span>
-								</SlideToggle>
-								<SlideToggle
-									active="bg-secondary-400"
-									name="sendMinistrialPropInfoMails"
-									on:change={updateThisMailSendInfo}
-									bind:checked={mailSendInfo.send_new_ministrial_prop_by_favo_mails}
-								>
-									<span class="font-bold"> Zu neuen Ministerialentwürfen </span>
-									<br />
-									<span class="text-sm">nach favorisierten Ministern</span>
-								</SlideToggle>
+								<div class="flex items-center gap-3">
+									<Switch.Root
+										bind:checked={mailSendInfo.send_new_vote_results_mails}
+										onCheckedChange={updateThisMailSendInfo}
+										class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-400 data-[state=unchecked]:bg-gray-300"
+										id="sendVoteResultInfoMail"
+									>
+										<Switch.Thumb
+											class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+										/>
+									</Switch.Root>
+									<label class="cursor-pointer" for="sendVoteResultInfoMail">
+										<div class="flex flex-col">
+											<span class="font-bold">Zu neuen Abstimmungen</span>
+											<span class="text-sm">nach ausgewählten Interessen</span>
+										</div>
+									</label>
+								</div>
+								<div class="flex items-center gap-3">
+									<Switch.Root
+										bind:checked={mailSendInfo.send_new_delegate_activity_mails}
+										onCheckedChange={updateThisMailSendInfo}
+										class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-400 data-[state=unchecked]:bg-gray-300"
+										id="sendnewDelegateInfo"
+									>
+										<Switch.Thumb
+											class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+										/>
+									</Switch.Root>
+									<label class="cursor-pointer" for="sendnewDelegateInfo">
+										<div class="flex flex-col">
+											<span class="font-bold">Zu Abgeordnetenaktivitäten</span>
+											<span class="text-sm">nach favorisierten Abgeordneten</span>
+										</div>
+									</label>
+								</div>
+								<div class="flex items-center gap-3">
+									<Switch.Root
+										bind:checked={mailSendInfo.send_new_ministrial_prop_mails}
+										onCheckedChange={updateThisMailSendInfo}
+										class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-400 data-[state=unchecked]:bg-gray-300"
+										id="sendMinistrialPropInfoMails"
+									>
+										<Switch.Thumb
+											class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+										/>
+									</Switch.Root>
+									<label class="cursor-pointer" for="sendMinistrialPropInfoMails">
+										<div class="flex flex-col">
+											<span class="font-bold">Zu neuen Ministerialentwürfen</span>
+											<span class="text-sm">nach ausgewählten Interessen</span>
+										</div>
+									</label>
+								</div>
+								<div class="flex items-center gap-3">
+									<Switch.Root
+										bind:checked={mailSendInfo.send_new_ministrial_prop_by_favo_mails}
+										onCheckedChange={updateThisMailSendInfo}
+										class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-400 data-[state=unchecked]:bg-gray-300"
+										id="sendMinistrialPropByFavoMails"
+									>
+										<Switch.Thumb
+											class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+										/>
+									</Switch.Root>
+									<label class="cursor-pointer" for="sendMinistrialPropByFavoMails">
+										<div class="flex flex-col">
+											<span class="font-bold">Zu neuen Ministerialentwürfen</span>
+											<span class="text-sm">nach favorisierten Ministern</span>
+										</div>
+									</label>
+								</div>
 							{/if}
 						</div>
 					{:else}
@@ -223,40 +275,31 @@
 			</div>
 			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
 				<h1 class="font-bold text-2xl">Wahle deine Interessen</h1>
-				<!-- todo: Searchbar -->
-				<input
-					class="input w-[28rem] h-9 px-2"
-					type="search"
-					name="ac-demo"
-					bind:value={inputValue}
-					placeholder="Suchen..."
-					use:popup={popupSettings}
-				/>
-				{#if autocompleteOptions}
-					<div
-						class="z-10 card w-full max-w-sm max-h-64 p-4 overflow-y-auto"
-						data-popup="popupAutocomplete"
-					>
-						<AutocompleteMultiselect
-							bind:input={inputValue}
-							options={autocompleteOptions}
-							on:selection={(event) => {
-								if (event.detail.meta) {
-									if (event.detail.isSelected) {
-										selectedTopics.delete(event.detail.meta.id);
-										removeUserTopic({ id: event.detail.meta.id, topic: '' });
-									} else {
-										selectedTopics.add(event.detail.meta.id);
-										addUserTopic({ id: event.detail.meta.id, topic: '' });
-									}
-								}
-								selectedTopics = selectedTopics;
-							}}
-							emptyState={'Keine Themen gefunden'}
-							filter={delegateFilter}
+				<!-- Searchbar with Popover -->
+				<Popover.Root>
+					<Popover.Trigger>
+						<input
+							class="input w-[28rem] h-9 px-2"
+							type="search"
+							name="ac-demo"
+							bind:value={inputValue}
+							placeholder="Suchen..."
 						/>
-					</div>
-				{/if}
+					</Popover.Trigger>
+					<Popover.Portal>
+						<Popover.Content class="z-10 card w-full max-w-sm max-h-64 p-4 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-xl">
+							{#if autocompleteOptions}
+								<AutocompleteMultiselect
+									input={inputValue}
+									options={autocompleteOptions}
+									onselection={handleTopicSelection}
+									emptyState={'Keine Themen gefunden'}
+									filter={delegateFilter}
+								/>
+							{/if}
+						</Popover.Content>
+					</Popover.Portal>
+				</Popover.Root>
 
 				<div class="mt-3">
 					{#if topics}
@@ -300,9 +343,9 @@
 							{#each favoLegisInits as favoLegisInitId, i}
 								{#await vote_result_by_id(favoLegisInitId.toString())}
 									<ExpandablePlaceholder class="!w-80" />
-								{:then maybeDelegate}
-									{#if !isHasError(maybeDelegate)}
-										<VoteResult dels={[]} voteResult={maybeDelegate} tabindex={i} />
+								{:then voteResult}
+									{#if !isHasError(voteResult)}
+										<VoteResultExpandableBar {voteResult} />
 									{/if}
 								{/await}
 							{/each}
@@ -316,11 +359,7 @@
 			<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
 				<SButton
 					class="bg-error-300 text-black"
-					on:click={async () => {
-						await delete_account();
-						jwtStore.set(null);
-						gotoHistory('/home');
-					}}
+					onclick={handleDeleteAccount}
 				>
 					Account löschen
 				</SButton>

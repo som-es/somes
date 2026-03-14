@@ -13,7 +13,7 @@
 
 	interface Props {
 		voteResult: VoteResult;
-		class: any;
+		class?: any;
 	}
 
 	let { voteResult, class: clazz }: Props = $props();

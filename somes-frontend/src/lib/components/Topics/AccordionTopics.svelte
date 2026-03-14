@@ -1,14 +1,18 @@
 <script lang="ts">
 	import type { UniqueTopic } from '$lib/types';
+	import { Accordion, type WithoutChildrenOrChild } from "bits-ui";
 	// import { Accordion } from '@skeletonlabs/skeleton-svelte';
+
 	import ClickableSpan from '../Utils/ClickableSpan.svelte';
 	import DisplayTopic from './Topic.svelte';
 	import { addUserTopic, removeUserTopic } from '$lib/api/authed';
-	import { cachedUserTopics } from '$lib/caching/user_topics_cache';
+	import { cachedUserTopics } from '$lib/caching/user_topics_cache.svelte';
 
-	export let parentTopics: string[];
-	export let subTopics: UniqueTopic[];
-	export let selectedTopics: Set<number>;
+	let { parentTopics, subTopics, selectedTopics } = $props<{
+		parentTopics: string[];
+		subTopics: UniqueTopic[];
+		selectedTopics: Set<number>;
+	}>();
 
 	let addToSelection = async (topic: UniqueTopic) => {
 		selectedTopics.add(topic.id);
@@ -27,7 +31,9 @@
 	};
 </script>
 
-<!-- <Accordion.Item>
+<!-- Original Skeleton implementation kept for reference -->
+<!--
+<Accordion.Item>
 	<svelte:fragment slot="summary">
 		{#each parentTopics as parentTopic}
 			<span class="text-xl font-bold bg-primary-400 badge m-1">
@@ -50,4 +56,37 @@
 			{/each}
 		</div>
 	</svelte:fragment>
-</Accordion.Item> -->
+</Accordion.Item>
+-->
+
+<Accordion.Root type="multiple">
+	<Accordion.Item value={parentTopics.join('-')}>
+		<Accordion.Trigger>
+			{#each parentTopics as parentTopic}
+				<span class="text-xl font-bold bg-primary-400 badge m-1">
+					{parentTopic}
+				</span>
+			{/each}
+		</Accordion.Trigger>
+
+		<Accordion.Content>
+			<div class="flex flex-wrap gap-2 px-1 mt-1">
+				{#each subTopics as topic}
+					{#if selectedTopics.has(topic.id)}
+						<ClickableSpan action={() => removeFromSelection(topic)}>
+							<DisplayTopic class={'!bg-secondary-400'}>
+								{topic.topic}
+							</DisplayTopic>
+						</ClickableSpan>
+					{:else}
+						<ClickableSpan action={() => addToSelection(topic)}>
+							<DisplayTopic>
+								{topic.topic}
+							</DisplayTopic>
+						</ClickableSpan>
+					{/if}
+				{/each}
+			</div>
+		</Accordion.Content>
+	</Accordion.Item>
+</Accordion.Root>
