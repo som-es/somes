@@ -85,10 +85,13 @@ pub async fn create_delegates_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sq
         "#
     ).execute(&mut **tx).await?;
 
-    sqlx::query!("
+    sqlx::query!(
+        "
         CREATE UNIQUE INDEX idx_delegates_with_mandates_id ON delegates_with_mandates(id);
-    ").execute(&mut **tx).await?;
-
+    "
+    )
+    .execute(&mut **tx)
+    .await?;
 
     Ok(())
 }

@@ -2,10 +2,11 @@ mod update_delegates;
 mod update_gov_proposals;
 mod update_vote_results;
 
-use std::time::Duration;
+use std::{sync::{Arc, RwLock}, time::Duration};
 
 use dataservice::combx::{self, CombinedData};
 use redis::{aio::MultiplexedConnection, AsyncCommands};
+use reqwest::blocking;
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{meilisearch::update_time, set_json_cache_no_expire};
@@ -50,21 +51,25 @@ pub(crate) async fn read_update_stream<T: DeserializeOwned>(
     stream_id: &str,
     last_id: &mut String,
     con: &mut MultiplexedConnection,
+    blocking_con: Arc<RwLock<redis::Connection>>,
 ) -> dataservice::combx::Result<Vec<T>> {
     // const BLOCK_MS: usize = 2000;
 
     let key = format!("{stream_id}/last_id");
     *last_id = con.get::<_, String>(&key).await.unwrap_or("0".into());
 
-    let reply: Vec<(String, Vec<(String, Vec<(String, String)>)>)> = redis::cmd("XREAD")
-        .arg("STREAMS")
-        .arg(stream_id)
-        .arg(&*last_id)
-        .query_async(con)
-        .await
-        .unwrap_or_default();
+    let inner_last_id = last_id.clone();
+    let stream_id = stream_id.to_string();
+    let reply: Vec<(String, Vec<(String, Vec<(String, String)>)>)> = tokio::task::spawn_blocking(move || {
+        let mut blocking_con = blocking_con.write().unwrap();
+        redis::cmd("XREAD")
+            .arg("STREAMS")
+            .arg(stream_id)
+            .arg(&inner_last_id)
+            .query(&mut blocking_con)
+    })
+    .await??;
 
-    log::info!("reply len: {}", reply.len());
     let mut out = Vec::new();
 
     for (_stream, entries) in reply {
@@ -90,17 +95,19 @@ pub async fn update_cache_for_index<
     intercept_and_update_cb: impl AsyncFn(T) -> combx::Result<I>,
     notify_dependencies: impl AsyncFn(MultiplexedConnection, &I) -> combx::Result<()>,
     update_meilisearch_index_cb: impl AsyncFn(Vec<I>) -> combx::Result<()>,
-) {
-    // let mut last_id = "$".to_string();
+) -> combx::Result<()> {
     let mut last_id = "0".to_string();
     let stream_id = I::INDEX.as_str();
-    let mut con = client.get_multiplexed_async_connection().await.unwrap();
+    let mut con = client.get_multiplexed_async_connection().await?;
+    let blocking_con = Arc::new(RwLock::new(client.get_connection()?));
     loop {
-        let to_update = read_update_stream::<T>(stream_id, &mut last_id, &mut con).await;
+        let to_update = read_update_stream::<T>(stream_id, &mut last_id, &mut con, blocking_con.clone()).await;
 
         match to_update {
             Ok(to_update) => {
-                log::info!("({stream_id}) received {} entries", to_update.len());
+                if !to_update.is_empty() {
+                    log::info!("({stream_id}) received {} entries", to_update.len());
+                }
                 // e.g. vote result fetch for gov proposals, meilisearch helper for vote results
                 let to_update = convert_entries(to_update, &intercept_and_update_cb).await;
                 if let Err(e) =
