@@ -49,6 +49,8 @@
 	import type { PageProps } from './$types';
 	import { browser } from '$app/environment';
 	import { partyColors } from '$lib/partyColor';
+	import type { SvelteSet } from 'svelte/reactivity';
+	import { addLegisInitFavo, removeLegisInitFavo } from '$lib/api/authed';
 
 	let { data }: PageProps = $props();
 
@@ -114,7 +116,7 @@
 		}
 	};
 
-	let legisInitFavos: Set<number> | null = $state(null);
+	let legisInitFavos: SvelteSet<number> | null = $state(null);
 
 	const runVoteResultUpdate = async () => {
 		legisInitFavos = await cachedLegisInitFavos();
@@ -239,8 +241,21 @@
 							{/if}
 							{#if legisInitFavos}
 								<button
-									on:click={async () => {
-										/* toggle logic */
+									onclick={async () => {
+										if (!voteResult || !legisInitFavos) return;
+
+										if (legisInitFavos.has(+voteResult.legislative_initiative.id)) {
+											const res = await removeLegisInitFavo({ vote_result_id: +voteResult.legislative_initiative.id });
+											if (res === null) {
+												legisInitFavos.delete(+voteResult.legislative_initiative.id);
+											}
+										} else {
+											const res = await addLegisInitFavo({ vote_result_id: +voteResult.legislative_initiative.id });
+											if (res === null) {
+												legisInitFavos.add(+voteResult.legislative_initiative.id)
+											}
+										}
+										
 									}}
 									class="w-14 p-2"
 								>

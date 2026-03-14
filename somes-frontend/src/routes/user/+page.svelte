@@ -37,15 +37,16 @@
 	import { Switch, Popover } from 'bits-ui';
 	import { onMount } from 'svelte';
 	import searchIcon from '$lib/assets/misc_icons/search-glass.svg?raw';
+	import { SvelteSet } from 'svelte/reactivity';
 
 	// State with Svelte 5 runes
 	let topics = $state<UniqueTopic[]>([]);
-	let selectedTopics = $state<Set<number>>(new Set<number>());
+	let selectedTopics = $state<SvelteSet<number>>(new SvelteSet<number>());
 	let user = $state<BasicUserInfo | null>(null);
 	let extendedUser = $state<ExtendedUserInfo | null>(null);
 	let mailSendInfo = $state<MailSendInfo | null>(null);
-	let favoDelegates = $state<Set<number> | null>(null);
-	let favoLegisInits = $state<Set<number> | null>(null);
+	let favoDelegates = $state<SvelteSet<number> | null>(null);
+	let favoLegisInits = $state<SvelteSet<number> | null>(null);
 
 	let topicSearchValue = $state('');
 	let isSearchPopupOpen = $state(false);
@@ -87,7 +88,7 @@
 		const data = await cachedUserTopics(true);
 
 		if (data) {
-			selectedTopics = new Set<number>(data.map((topic) => topic.id));
+			selectedTopics = new SvelteSet<number>(data.map((topic) => topic.id));
 		}
 	});
 
@@ -108,7 +109,7 @@
 			addUserTopic({ id: topic.id, topic: '' });
 		}
 		// Trigger reactivity
-		selectedTopics = new Set(selectedTopics);
+		selectedTopics = new SvelteSet(selectedTopics);
 	}
 
 	async function handleLogout() {
@@ -365,11 +366,11 @@
 
 			<!-- Favorite Delegates Card -->
 			<div class="w-full rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
-				<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">Favorisierte Abgeordnete</h2>
+				<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">Favorisierte Personen</h2>
 				<div class="mt-3 flex flex-wrap gap-3">
 					{#if favoDelegates}
 						{#if favoDelegates.size == 0}
-							<p class="text-gray-600 dark:text-gray-300">Keine favorisierten Abgeordnete vorhanden.</p>
+							<p class="text-gray-600 dark:text-gray-300">Keine favorisierten Personen vorhanden.</p>
 						{:else}
 							{#each favoDelegates as favoDelegateId}
 								{#await delegate_by_id(favoDelegateId)}
@@ -388,34 +389,56 @@
 			</div>
 
 			<!-- Favorite Votes Card -->
-			<div class="w-full rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
-				<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">Favorisierte Abstimmungen</h2>
-				<div class="mt-3 flex flex-wrap gap-3">
-					{#if favoLegisInits}
-						{#if favoLegisInits.size == 0}
-							<p class="text-gray-600 dark:text-gray-300">
-								Keine favorisierten Abstimmungen vorhanden.
-							</p>
-						{:else}
-							{#each favoLegisInits as favoLegisInitId}
-								{#await vote_result_by_id(favoLegisInitId.toString())}
-									<ExpandablePlaceholder class="!w-80" />
-								{:then voteResult}
-									{#if !isHasError(voteResult)}
-										<VoteResultExpandableBar {voteResult} />
-									{/if}
-								{/await}
-							{/each}
-						{/if}
+			<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">Favorisierte Abstimmungen</h2>
+			<div class="flex flex-wrap gap-3">
+				{#if favoLegisInits}
+					{#if favoLegisInits.size == 0}
+						<p class="text-gray-600 dark:text-gray-300">
+							Keine favorisierten Abstimmungen vorhanden.
+						</p>
 					{:else}
-						<ExpandablePlaceholder />
+						{#each favoLegisInits as favoLegisInitId}
+							{#await vote_result_by_id(favoLegisInitId.toString())}
+								<ExpandablePlaceholder class="!w-80" />
+							{:then voteResult}
+								{#if !isHasError(voteResult)}
+									<VoteResultExpandableBar {voteResult} class="mt-1!" />
+								{/if}
+							{/await}
+						{/each}
 					{/if}
-				</div>
+				{:else}
+					<ExpandablePlaceholder />
+				{/if}
 			</div>
+
+			<!-- Favorite gov proposals Card -->
+			<!-- <h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">Favorisierte Ministerialentwürfe</h2>
+			<div class="flex flex-wrap gap-3">
+				{#if favoLegisInits}
+					{#if favoLegisInits.size == 0}
+						<p class="text-gray-600 dark:text-gray-300">
+							Keine favorisierten Abstimmungen vorhanden.
+						</p>
+					{:else}
+						{#each favoLegisInits as favoLegisInitId}
+							{#await vote_result_by_id(favoLegisInitId.toString())}
+								<ExpandablePlaceholder class="!w-80" />
+							{:then voteResult}
+								{#if !isHasError(voteResult)}
+									<VoteResultExpandableBar {voteResult} class="mt-1!" />
+								{/if}
+							{/await}
+						{/each}
+					{/if}
+				{:else}
+					<ExpandablePlaceholder />
+				{/if}
+			</div> -->
 
 			<!-- Danger Zone Card -->
 			<div
-				class="w-full rounded-xl border border-error-300 bg-error-50 p-4 dark:border-error-500 dark:bg-error-900/20"
+				class="mt-7 w-full rounded-xl border border-error-300 bg-error-50 p-4 dark:border-error-500 dark:bg-error-900/20"
 			>
 				<h2 class="text-xl font-bold text-error-700 dark:text-error-400">Gefahrenbereich</h2>
 				<p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
