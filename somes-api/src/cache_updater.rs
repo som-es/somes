@@ -6,7 +6,6 @@ use std::{sync::{Arc, RwLock}, time::Duration};
 
 use dataservice::combx::{self, CombinedData};
 use redis::{aio::MultiplexedConnection, AsyncCommands};
-use reqwest::blocking;
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{meilisearch::update_time, set_json_cache_no_expire};

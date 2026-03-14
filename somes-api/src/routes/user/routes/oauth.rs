@@ -271,9 +271,12 @@ pub async fn oauth_callback(
             format!("JWT creation failed: {:?}", e),
         )
     })?;
+
+    let redirect_to = std::env::var("OAUTH_REDIRECT_URI").unwrap_or("https://somes.at/resolve_token?token=".into());
+
     // 5️⃣ Redirect ins Frontend mit JWT
     Ok(Redirect::to(&format!(
-        "http://localhost:5173/user?token={}",
+        "{redirect_to}{}",
         jwt.access_token
     )))
 }

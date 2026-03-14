@@ -62,7 +62,6 @@ pub async fn update_cache_vote_results(
             let gp = legis_init.gp.clone();
             let ityp = legis_init.ityp.clone();
             let inr = legis_init.inr;
-            log::info!("notify dependencies for vote result {:?}", data.id);
             async move {
                 let ministerial_props = sqlx::query!("
                 select id from ministrial_proposals where legis_init_gp = $1 and legis_init_inr = $2 and legis_init_ityp = $3",
