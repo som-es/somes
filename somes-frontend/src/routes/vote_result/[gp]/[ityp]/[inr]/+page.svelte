@@ -1,10 +1,6 @@
 <script lang="ts">
-	import { errorToNull, get_eurovoc_topics, vote_result_by_path } from '$lib/api/api';
-	import {
-		currentDelegateStore,
-		currentVoteResultStore,
-		hasGoBackStore,
-	} from '$lib/stores/stores';
+	import { errorToNull, get_eurovoc_topics, vote_result_by_path, url } from '$lib/api/api';
+	import { currentDelegateStore, currentVoteResultStore, hasGoBackStore } from '$lib/stores/stores';
 	import { onMount } from 'svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
@@ -40,6 +36,8 @@
 	import AiSummaryHintPopup from '$lib/components/AiHint/AiSummaryHintPopup.svelte';
 	import { page } from '$app/state';
 	import linkIcon from '$lib/assets/misc_icons/external-link.svg?raw';
+	import searchIcon from '$lib/assets/misc_icons/search-glass.svg?raw';
+	import DelegateListItem from '$lib/components/Delegates/DelegateListItem.svelte';
 
 	let gp = $derived(page.params.gp);
 	let ityp = $derived(page.params.ityp);
@@ -48,6 +46,7 @@
 	import type { PageProps } from './$types';
 	import { browser } from '$app/environment';
 	import { partyColors } from '$lib/partyColor';
+	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -56,13 +55,15 @@
 
 	let delegate: Delegate | null = $state(null);
 	let selectedBubble: Bubble | undefined = $state();
+	let searchValue: string = $state('');
+	let showMobileSearch: boolean = $state(false);
 
 	let autocompleteOptions: AutocompleteOption<string>[] = [];
 	let inputValue = '';
 
 	let generalSpeechDelegates = $derived.by(() => {
-		const res = voteResult ? genCirclesWithSpeechInfo(voteResult.speeches, delegates) : []
-		return res
+		const res = voteResult ? genCirclesWithSpeechInfo(voteResult.speeches, delegates) : [];
+		return res;
 	});
 
 	let generalNamedVoteDelegates: Bubble[] | null = $derived(
@@ -72,7 +73,6 @@
 	);
 
 	let generalAbsencesDelegates: Bubble[] | null = $state(null);
-
 
 	let description = $derived(voteResult?.legislative_initiative?.description);
 
@@ -152,16 +152,19 @@
 		}
 	});*/
 
-	let parliamentUrl = $derived(`https://parlament.gv.at/gegenstand/${gp}/${ityp}/${inr}?utm_source=somes.at`);
+	let parliamentUrl = $derived(
+		`https://parlament.gv.at/gegenstand/${gp}/${ityp}/${inr}?utm_source=somes.at`
+	);
 	let documents = $derived(voteResult?.documents ?? []);
 	let votedByName = $derived(voteResult?.legislative_initiative?.voted_by_name ?? false);
-	let couldExtractNamedVotes =
-		$derived((voteResult?.named_votes?.named_votes?.length ?? 0) > 0 && votedByName);
+	let couldExtractNamedVotes = $derived(
+		(voteResult?.named_votes?.named_votes?.length ?? 0) > 0 && votedByName
+	);
 </script>
 
 <svelte:head>
-    <title>Abstimmungsergebnis</title>
-    <meta name="description" content="Spezifisches Abstimmungsergebnis" />
+	<title>Abstimmungsergebnis</title>
+	<meta name="description" content="Spezifisches Abstimmungsergebnis" />
 </svelte:head>
 
 {#if browser}
@@ -171,7 +174,7 @@
 				{voteResult.ai_summary.short_title}
 			{:else}
 				{description}
-			{/if}	
+			{/if}
 		{/if}
 	</title>
 {/if}
@@ -182,16 +185,16 @@
 			<!-- <CenterPrograssRadial /> -->
 		{:else}
 			<br />
-			<div class="entry bg-primary-200 dark:bg-primary-400 grid-container-with-emphasis">
-				<div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 px-6 py-5">
+			<div class="entry grid-container-with-emphasis bg-primary-200 dark:bg-primary-400">
+				<div class="title-item rounded-xl bg-primary-300 px-6 py-5 dark:bg-primary-500">
 					<!-- Title, Date and Result Icon -->
-					<div class="flex justify-between items-start">
+					<div class="flex items-start justify-between">
 						<div class="flex items-center gap-4">
 							<!-- Title & Date Stack -->
 							<div class="flex flex-col">
 								<div class="flex items-start gap-2">
 									<span
-										class="text-xl lg:text-3xl font-bold leading-tight"
+										class="text-xl leading-tight font-bold lg:text-3xl"
 										style="hyphens: auto; word-break: normal; overflow-wrap: break-word;"
 									>
 										{#if voteResult.ai_summary}
@@ -215,7 +218,7 @@
 						</div>
 
 						<!-- Right Actions, Result Icon and  Star -->
-						<div class="flex flex-wrap items-center gap-2 flex-shrink-0">
+						<div class="flex flex-shrink-0 flex-wrap items-center gap-2">
 							<a href={parliamentUrl} target="_blank" class="w-5 text-gray-500">
 								{@html linkIcon}
 							</a>
@@ -224,7 +227,7 @@
 								<div class="shrink-0">
 									{#if voteResult.legislative_initiative.accepted == 'a'}
 										<span
-											class="stroke-green-600 dark:stroke-green-500 block"
+											class="block stroke-green-600 dark:stroke-green-500"
 											style="width:34px; height:34px;"
 										>
 											{@html checkmarkIcon}
@@ -238,7 +241,7 @@
 							{/if}
 							{#if legisInitFavos}
 								<button
-									on:click={async () => {
+									onclick={async () => {
 										/* toggle logic */
 									}}
 									class="w-14 p-2"
@@ -254,8 +257,8 @@
 					<!-- Zusammenfassung -->
 					{#if voteResult.ai_summary}
 						<div class="mt-5 pb-3">
-							<h1 class="font-semibold text-lg md:text-xl">Zusammenfassung</h1>
-							<span class="text-base lg:text-base text-gray-800 dark:text-gray-200">
+							<h1 class="text-lg font-semibold md:text-xl">Zusammenfassung</h1>
+							<span class="text-base text-gray-800 lg:text-base dark:text-gray-200">
 								<GlossaryText
 									text={voteResult.ai_summary.short_summary}
 									glossary={voteResult.ai_summary.full_summary.glossary}
@@ -264,12 +267,12 @@
 						</div>
 					{/if}
 
-					<div class="flex flex-wrap justify-between items-center gap-3 w-full pt-1">
+					<div class="flex w-full flex-wrap items-center justify-between gap-3 pt-1">
 						<div>
 							<InfoBadges {voteResult} />
 						</div>
 
-						<div class="flex-1 flex justify-end">
+						<div class="flex flex-1 justify-end">
 							{#if voteResult.ai_summary && voteResult.eurovoc_topics.length == 0}
 								<Topics
 									topics={voteResult.ai_summary.full_summary.topics
@@ -304,123 +307,212 @@
 				<!-- Mini Parlament and Vote Results-->
 				{#if voteResult && voteResult.votes}
 					<div
-						class="emphasis-item rounded-xl bg-primary-300 dark:bg-primary-500 px-5 pt-3 pb-3 flex"
+						class="emphasis-item rounded-xl bg-primary-300 px-5 pt-5 pb-3 dark:bg-primary-500"
 					>
-						<!-- Abstimmung, Fractions, Result - Mobile -->
-						<div class="w-full max-lg:block hidden">
-							<h3 class="font-semibold text-lg md:text-xl">Abstimmung</h3>
-							<div class="ml-1 flex justify-between w-full">
-								<div>
-									{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
-										{#if vote.infavor}
-											<div class="flex items-center justify-between gap-4">
-												<div class="flex items-center gap-2">
-													<div
-														class="w-2 h-2 rounded-full"
-														style="background-color: {partyColors.get(vote.party) ?? '#ccc'};"
-													></div>
-													<span class="text-base text-gray-800 font-medium"
-														>{vote.party}</span
-													>
-												</div>
-												<div class="flex items-center gap-1">
-													<span class="text-base text-gray-800 font-medium">({vote.fraction})</span>
-													<span
-														class="stroke-green-600 dark:stroke-green-500 inline-block align-middle"
-														style="width:18px; height:18px;"
-														>{@html checkmarkIcon}</span
-													>
-												</div>
-											</div>
-										{/if}
-									{/each}
-								</div>
-								<div>
-									{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
-										{#if !vote.infavor}
-											<div class="flex items-center justify-between gap-4">
-												<div class="flex items-center gap-2 mr-1">
-													<div
-														class="w-2 h-2 rounded-full"
-														style="background-color: {partyColors.get(vote.party) ?? '#ccc'};"
-													></div>
-													<span class="text-base font-medium"
-														>{vote.party}</span
-													>
-												</div>
-												<div class="flex items-center gap-1">
-													<span class="text-base font-medium">({vote.fraction})</span>
-													<span
-														class="inline-block align-middle"
-														style="width:18px; height:18px;"
-														>{@html crossmarkIcon}</span
-													>
-												</div>
-											</div>
-										{/if}
-									{/each}
-								</div>
-							</div>
-						</div>
-
-						<!-- Abstimmung, Fractions, Result and Mini Parlament - Desktop-->
-						<div class="max-lg:hidden absolute">
-							<h3 class="font-semibold text-lg md:text-xl">Abstimmung</h3>
-							<div class="ml-1">
-								{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
-									<div class="flex items-center justify-between gap-4">
-										<div class="flex items-center gap-2">
-											<div
-												class="w-2.5 h-2.5 rounded-full"
-												style="background-color: {partyColors.get(vote.party) ?? '#ccc'};"
-											></div>
-											<span class="text-sm lg:text-base">{vote.party}</span>
+					<div class="hidden lg:block">
+						<SearchBar bind:searchValue={searchValue} placeholder="Suche nach Abgeordneten..."/>
+					</div>
+					
+					<!-- Mobile Search Overlay -->
+					{#if showMobileSearch}
+						<div class="fixed inset-0 z-50 flex items-start justify-center bg-black/50 p-4 backdrop-blur-sm lg:hidden">
+							<div class="w-full max-w-md rounded-2xl bg-primary-100 p-4 shadow-xl dark:bg-primary-600">
+								<div class="mb-4 flex items-center justify-between">
+									<h3 class="text-lg font-semibold">Suche</h3>
+									<button class="p-1" onclick={() => showMobileSearch = false}>
+										<div class="h-6 w-6 text-gray-800 dark:text-gray-200">
+											{@html crossmarkIcon}
 										</div>
-										<div class="flex items-center gap-1">
-											<span class="text-sm lg:text-base">({vote.fraction})</span>
-											{#if vote.infavor}
-												<span
-													class="stroke-green-600 dark:stroke-green-500 inline-block align-middle"
-													style="width:18px; height:18px;"
-													>{@html checkmarkIcon}</span
+									</button>
+								</div>
+								<SearchBar bind:searchValue={searchValue} placeholder="Suche nach Abgeordneten..." autofocus={true} />
+								
+								<div class="mt-4 max-h-[60vh] overflow-y-auto">
+									{#if searchValue.length > 0}
+										<!-- Render search results for mobile view -->
+										<div class="space-y-2">
+											{#each delegates.filter(d => d.name.toLowerCase().includes(searchValue.toLowerCase())) as del}
+												{@const namedVote = generalNamedVoteDelegates?.find(b => b.del?.id === del.id)}
+												{@const partyVoteInfo = voteResult.votes.find(v => v.party === del.party)}
+												<DelegateListItem
+													delegate={del}
+													class="w-full"
 												>
-											{:else}
-												<span
-													class="inline-block align-middle"
-													style="width:18px; height:18px;">{@html crossmarkIcon}</span
-												>
+													{#if namedVote && namedVote.namedVote}
+														{#if namedVote.namedVote.infavor}
+															<span class="inline-block stroke-green-600 dark:stroke-green-500" style="width:24px; height:24px;">{@html checkmarkIcon}</span>
+														{:else if namedVote.namedVote.was_absent}
+															<span class="text-xs font-medium text-gray-500">Nicht abgestimmt</span>
+														{:else}
+															<span class="inline-block" style="width:24px; height:24px;">{@html crossmarkIcon}</span>
+														{/if}
+													{:else if partyVoteInfo}
+														{#if partyVoteInfo.infavor}
+															<span class="inline-block stroke-green-600 dark:stroke-green-500 opacity-60" style="width:24px; height:24px;">{@html checkmarkIcon}</span>
+														{:else}
+															<span class="inline-block opacity-60" style="width:24px; height:24px;">{@html crossmarkIcon}</span>
+														{/if}
+													{/if}
+												</DelegateListItem>
+											{/each}
+											{#if delegates.filter(d => d.name.toLowerCase().includes(searchValue.toLowerCase())).length === 0}
+												<div class="p-4 text-center text-gray-500">Keine Ergebnisse gefunden</div>
 											{/if}
 										</div>
+									{/if}
+								</div>
+							</div>
+						</div>
+					{/if}
+
+						<div class="flex">
+							<!-- Abstimmung, Fractions, Result - Mobile -->
+							<div class="hidden w-full max-lg:block">
+								<div class="flex w-full items-center justify-between mb-2">
+									<h3 class="text-lg font-semibold md:text-xl">Abstimmung</h3>
+									<button class="flex items-center justify-center" onclick={() => showMobileSearch = true}>
+										<div class="h-6 w-6 text-gray-800 dark:text-gray-200 flex items-center">
+											{@html searchIcon}
+										</div>
+									</button>
+								</div>
+								
+								<div class="flex flex-col gap-4">
+									<!-- In Favor -->
+									<div class="rounded-xl bg-primary-200/50 p-3 dark:bg-primary-600/50">
+										<div class="mb-2 flex items-center gap-2">
+											<span class="inline-block stroke-green-600" style="width:20px; height:20px;">{@html checkmarkIcon}</span>
+											<span class="font-semibold">Dafür</span>
+										</div>
+										<div class="flex flex-col gap-2 pl-2">
+											{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
+												{#if vote.infavor}
+													<div class="flex items-center justify-between">
+														<div class="flex items-center gap-2">
+															<div
+																class="h-2.5 w-2.5 rounded-full"
+																style="background-color: {partyColors.get(vote.party) ?? '#ccc'};"
+															></div>
+															<span class="text-base font-medium text-gray-800">{vote.party}</span>
+														</div>
+														<span class="text-base font-medium text-gray-800">({vote.fraction})</span>
+													</div>
+												{/if}
+											{/each}
+										</div>
 									</div>
-								{/each}
+
+									<!-- Against -->
+									<div class="rounded-xl bg-primary-200/50 p-3 dark:bg-primary-600/50">
+										<div class="mb-2 flex items-center gap-2">
+											<span class="inline-block stroke-red-600" style="width:20px; height:20px;">{@html crossmarkIcon}</span>
+											<span class="font-semibold">Dagegen</span>
+										</div>
+										<div class="flex flex-col gap-2 pl-2">
+											{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
+												{#if !vote.infavor}
+													<div class="flex items-center justify-between">
+														<div class="flex items-center gap-2">
+															<div
+																class="h-2.5 w-2.5 rounded-full"
+																style="background-color: {partyColors.get(vote.party) ?? '#ccc'};"
+															></div>
+															<span class="text-base font-medium">{vote.party}</span>
+														</div>
+														<span class="text-base font-medium">({vote.fraction})</span>
+													</div>
+												{/if}
+											{/each}
+										</div>
+									</div>
+								</div>
+							</div>
+							
+							<!-- Abstimmung, Fractions, Result and Mini Parlament - Desktop-->
+							<div class="absolute max-lg:hidden">
+								<h3 class="text-lg font-semibold md:text-xl mb-1">Abstimmung</h3>
+								<div class="ml-1">
+									{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
+										<div class="flex items-center justify-between gap-4">
+											<div class="flex items-center gap-2">
+												<div
+													class="h-2.5 w-2.5 rounded-full"
+													style="background-color: {partyColors.get(vote.party) ?? '#ccc'};"
+												></div>
+												<span class="text-sm lg:text-base">{vote.party}</span>
+											</div>
+											<div class="flex items-center gap-1">
+												<span class="text-sm lg:text-base">({vote.fraction})</span>
+												{#if vote.infavor}
+													<span
+														class="inline-block stroke-green-600 align-middle dark:stroke-green-500"
+														style="width:18px; height:18px;">{@html checkmarkIcon}</span
+													>
+												{:else}
+													<span class="inline-block align-middle" style="width:18px; height:18px;"
+														>{@html crossmarkIcon}</span
+													>
+												{/if}
+											</div>
+										</div>
+									{/each}
+								</div>
+							</div>
+
+							<div class="flex w-full items-center justify-center max-lg:hidden">
+								<div class="w-2/3">
+									<VoteParliament2
+										{voteResult}
+										bind:delegate
+										{delegates}
+										allSeats={data.cachedSeats}
+										bind:selected={selectedBubble}
+										noSeats={!data.hasSeatInfo}
+										useOffset={data.hasSeatInfo}
+										showGovs
+										overrideDelegates
+										{searchValue}
+									/>
+								</div>
+							</div>
+
+							<div class="w-100 max-lg:hidden">
+								{#if selectedBubble}
+									<VoteDelegateCard
+										bubble={selectedBubble}
+										gp={voteResult.legislative_initiative.gp}
+										date={voteResult.legislative_initiative.vote_date ??
+											voteResult.legislative_initiative.nr_plenary_activity_date}
+									/>
+								{/if}
 							</div>
 						</div>
 
-						<div class="w-full flex justify-center items-center max-lg:hidden">
-							<div class="w-2/3">
-							<VoteParliament2
-								{voteResult}
-								bind:delegate
-								{delegates}
-								allSeats={data.cachedSeats}
-								bind:selected={selectedBubble}
-								noSeats={!data.hasSeatInfo}
-								useOffset={data.hasSeatInfo}
-								showGovs
-								overrideDelegates
-							/></div>
-						</div>
-
-						<div class="w-100 max-lg:hidden">
-							{#if selectedBubble}
-								<VoteDelegateCard
-									bubble={selectedBubble}
-									gp={voteResult.legislative_initiative.gp}
-									date={voteResult.legislative_initiative.vote_date ??
-										voteResult.legislative_initiative.nr_plenary_activity_date}
-								/>
-							{/if}
-						</div>
+						<!-- Eingebracht von -->
+						{#if issuedByDels.size > 0}
+							<!-- Divider -->
+							<hr class="my-4 border-t border-gray-400 dark:border-gray-600" />
+							<div class="mb-1">
+								<h3 class="text-md font-semibold md:text-lg">Eingebracht von</h3>
+								<div class="mt-1 flex flex-col md:flex-row md:flex-wrap gap-2 md:gap-3">
+									{#each Array.from(issuedByDels.entries()) as [text, delegate_ids]}
+										{#each delegate_ids as delegate_id}
+											{@const del = delegates.find((d) => d.id === delegate_id)}
+											{#if del}
+												<DelegateListItem
+													delegate={del}
+													class="w-full md:w-auto md:max-w-full"
+													onclick={() => {
+														delegate = del;
+														selectedBubble = undefined;
+													}}
+												/>
+											{/if}
+										{/each}
+									{/each}
+								</div>
+							</div>
+						{/if}
 					</div>
 				{/if}
 
@@ -515,17 +607,14 @@
 					{/if}
 				</div> -->
 
-				<div class="flex max-lg:flex-wrap gap-2 w-full">
+				<div class="flex w-full gap-2 max-lg:flex-wrap">
 					<div
 						class="flex {voteResult.issued_by_dels.length > 0 ? 'flex-col' : 'flex-row'} gap-2"
 						style="flex-basis: {voteResult.issued_by_dels.length > 0 ? '30%' : '100%;'}"
 					>
-						<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
-							<Documents {documents} />
-						</div>
 						{#if voteResult.referenced_by_others_ids.length > 0}
-							<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3 h-full">
-								<span class="font-bold text-lg md:text-3xl">Referenziert in</span>
+							<div class="h-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
+								<span class="text-lg font-bold md:text-3xl">Referenziert in</span>
 								{#each voteResult.referenced_by_others_ids as refered_by}
 									<VoteResultIdBar
 										requiringVotes
@@ -538,8 +627,8 @@
 							</div>
 						{/if}
 						{#if voteResult.references && voteResult.references.length > 0}
-							<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3 h-full">
-								<span class="font-bold text-lg md:text-3xl">
+							<div class="h-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
+								<span class="text-lg font-bold md:text-3xl">
 									{#if voteResult.legislative_initiative.ityp == 'AA'}
 										Hauptgegenstand
 									{:else}
@@ -558,39 +647,19 @@
 							</div>
 						{/if}
 					</div>
-					{#if issuedByDels.size > 0}
-						<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
-							{#each issuedByDels as [text, delegate_ids]}
-								<span class="font-bold text-xl md:text-3xl">{text}</span>
-								<!-- <span class="font-bold text-xl"></span> -->
-								<div class="flex flex-row flex-wrap mt-3 gap-3">
-									{#each delegate_ids as delegate_id}
-										<FetchDelegateCard
-											delegateId={delegate_id}
-											showAI={false}
-											showQA={false}
-											onlyTop={true}
-											showMoreDetailsBtn={true}
-											showImg={true}
-											showAge={false}
-										/>
-									{/each}
-								</div>
-							{/each}
-						</div>
-					{/if}
 				</div>
-							{#if generalSpeechDelegates != null}
+				{#if generalSpeechDelegates != null}
 					{#if generalSpeechDelegates.length > 0}
-						<div class="speeches-item bg-primary-300 dark:bg-primary-500 rounded-xl p-4 gap-3">
-							<span class="font-bold text-xl md:text-3xl">Reden</span>
-							<div class="flex flex-row flex-wrap mt-3 gap-3">
+						<div class="speeches-item gap-3 rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
+							<span class="text-xl font-bold md:text-3xl">Reden</span>
+							<div class="mt-3 flex flex-row flex-wrap gap-3">
 								{#each generalSpeechDelegates as speechDelegate}
 									<div class="w-full max-w-80">
 										<VoteDelegateCard
 											bubble={speechDelegate}
 											gp={voteResult.legislative_initiative.gp}
-											date={voteResult.legislative_initiative.vote_date ?? voteResult.legislative_initiative.nr_plenary_activity_date}
+											date={voteResult.legislative_initiative.vote_date ??
+												voteResult.legislative_initiative.nr_plenary_activity_date}
 										/>
 									</div>
 								{/each}
@@ -601,12 +670,12 @@
 					{#each { length: voteResult.speeches.length * 4 } as _}
 						<ExpandablePlaceholder class="" />
 					{/each}
-				{/if}	
+				{/if}
 				{#if generalNamedVoteDelegates != null}
 					{#if generalNamedVoteDelegates.length > 0}
-						<div class="speeches-item bg-primary-300 dark:bg-primary-500 rounded-xl p-4 gap-3">
-							<span class="font-bold text-3xl">namentliche Abstimmungsergebnisse</span>
-							<div class="flex flex-row flex-wrap mt-3 gap-3">
+						<div class="speeches-item gap-3 rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
+							<span class="text-3xl font-bold">namentliche Abstimmungsergebnisse</span>
+							<div class="mt-3 flex flex-row flex-wrap gap-3">
 								{#each generalNamedVoteDelegates as namedVoteDelegate}
 									<div>
 										<VoteDelegateCard
@@ -626,6 +695,9 @@
 						<ExpandablePlaceholder class="" />
 					{/each}
 				{/if}
+				<div class="rounded-xl bg-primary-300 p-3 dark:bg-primary-500 w-full">
+					<Documents {documents} />
+				</div>
 			</div>
 		{/if}
 	{:else}

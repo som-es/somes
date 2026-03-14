@@ -4,9 +4,10 @@
 		
     interface Props extends HTMLInputAttributes {
         searchValue: string;
+        placeholder?: string;
     }
 
-    let { searchValue = $bindable(), ...rest }: Props = $props();
+    let { searchValue = $bindable(), placeholder = "Suche...", ...rest }: Props = $props();
 </script>
 <div class="flex h-10 flex-grow rounded-xl border-[2px] border-gray-400 touch-manipulation">
     <div class="flex h-9 w-10 items-center justify-center text-gray-600 dark:text-gray-300">
@@ -15,7 +16,7 @@
     <input
         type="search"
         class="block w-full bg-transparent py-2 placeholder:text-gray-600 dark:placeholder:text-gray-300 focus:outline-none"
-        placeholder="Suche..."
+        placeholder={placeholder}
         bind:value={searchValue}
         {...rest}
     />
