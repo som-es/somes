@@ -2,7 +2,10 @@ mod update_delegates;
 mod update_gov_proposals;
 mod update_vote_results;
 
-use std::{sync::{Arc, RwLock}, time::Duration};
+use std::{
+    sync::{Arc, RwLock},
+    time::Duration,
+};
 
 use dataservice::combx::{self, CombinedData};
 use redis::{aio::MultiplexedConnection, AsyncCommands};
@@ -59,15 +62,16 @@ pub(crate) async fn read_update_stream<T: DeserializeOwned>(
 
     let inner_last_id = last_id.clone();
     let stream_id = stream_id.to_string();
-    let reply: Vec<(String, Vec<(String, Vec<(String, String)>)>)> = tokio::task::spawn_blocking(move || {
-        let mut blocking_con = blocking_con.write().unwrap();
-        redis::cmd("XREAD")
-            .arg("STREAMS")
-            .arg(stream_id)
-            .arg(&inner_last_id)
-            .query(&mut blocking_con)
-    })
-    .await??;
+    let reply: Vec<(String, Vec<(String, Vec<(String, String)>)>)> =
+        tokio::task::spawn_blocking(move || {
+            let mut blocking_con = blocking_con.write().unwrap();
+            redis::cmd("XREAD")
+                .arg("STREAMS")
+                .arg(stream_id)
+                .arg(&inner_last_id)
+                .query(&mut blocking_con)
+        })
+        .await??;
 
     let mut out = Vec::new();
 
@@ -100,7 +104,8 @@ pub async fn update_cache_for_index<
     let mut con = client.get_multiplexed_async_connection().await?;
     let blocking_con = Arc::new(RwLock::new(client.get_connection()?));
     loop {
-        let to_update = read_update_stream::<T>(stream_id, &mut last_id, &mut con, blocking_con.clone()).await;
+        let to_update =
+            read_update_stream::<T>(stream_id, &mut last_id, &mut con, blocking_con.clone()).await;
 
         match to_update {
             Ok(to_update) => {

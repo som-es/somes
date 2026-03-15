@@ -399,7 +399,7 @@
 					{:else}
 						{#each favoLegisInits as favoLegisInitId}
 							{#await vote_result_by_id(favoLegisInitId.toString())}
-								<ExpandablePlaceholder class="!w-80" />
+								<ExpandablePlaceholder class="w-80!" />
 							{:then voteResult}
 								{#if !isHasError(voteResult)}
 									<VoteResultExpandableBar {voteResult} class="mt-1!" />
