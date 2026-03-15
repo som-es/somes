@@ -172,6 +172,8 @@ export interface MailSendInfo {
 	send_new_delegate_activity_mails: boolean;
 	send_new_ministrial_prop_mails: boolean;
 	send_new_ministrial_prop_by_favo_mails: boolean;
+	send_new_decree_mails: boolean;
+	send_new_decree_by_favo_mails: boolean;
 }
 
 export interface RelatedDelegate {

@@ -349,9 +349,10 @@ pub fn update_meilisearch_indices(
             {
                 log::error!("Could not update decree meilisearch index: {e:?}");
             }
-            if *IS_PROD {
-                break;
-            }
+            // TODO: there is currently no static cache for decrees
+            // if *IS_PROD {
+            //     break;
+            // }
             log::info!("decree meilsearch sleep 1000s");
             sleep(std::time::Duration::from_secs(1000)).await;
         }

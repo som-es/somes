@@ -272,6 +272,52 @@
 									</div>
 								</label>
 							</div>
+							<div class="flex items-start gap-3">
+								<Switch.Root
+									bind:checked={mailSendInfo.send_new_decree_by_favo_mails}
+									onCheckedChange={updateThisMailSendInfo}
+									class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
+									id="sendMinistrialPropByFavoMails"
+								>
+									<Switch.Thumb
+										class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+									/>
+								</Switch.Root>
+								<label class="cursor-pointer" for="sendMinistrialPropByFavoMails">
+									<div class="flex flex-col">
+										<span class="font-semibold text-gray-900 dark:text-gray-50"
+											>Zu neuen Verordnungen</span
+										>
+										<span class="text-sm text-gray-600 dark:text-gray-300"
+											>nach favorisierten Ministern</span
+										>
+									</div>
+								</label>
+							</div>
+							<div class="flex items-start gap-3">
+								<Switch.Root
+									bind:checked={mailSendInfo.send_new_decree_mails}
+									onCheckedChange={updateThisMailSendInfo}
+									class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
+									id="sendMinistrialPropByFavoMails"
+								>
+									<Switch.Thumb
+										class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+									/>
+								</Switch.Root>
+								<label class="cursor-pointer" for="sendMinistrialPropByFavoMails">
+									<div class="flex flex-col">
+										<span class="font-semibold text-gray-900 dark:text-gray-50"
+											>Zu neuen Verordnungen</span
+										>
+										<span class="text-sm text-gray-600 dark:text-gray-300"
+											>nach favorisierten Themen</span
+										>
+									</div>
+								</label>
+							</div>
+
+
 						{/if}
 					</div>
 				{:else}
