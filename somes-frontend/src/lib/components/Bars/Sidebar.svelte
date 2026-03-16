@@ -20,6 +20,7 @@
 	import { currentDecreeFilterStore, currentGovProposalFilterStore, currentUnfinshedVoteResultFilterStore, currentVoteResultFilterStore } from '$lib/stores/stores';
 	import { convertGovPropFilterToUrl } from '../Proposals/urlConversion';
 	import { convertDecreeFilterToUrl } from '../Decrees/urlConversion';
+	import { accountOrLogin } from './user';
 
 	let activeUrl = $derived(page.url.pathname);
 
@@ -106,19 +107,7 @@
 				{ href: decreeUrl.href, label: 'Verordnungen', keywords: '' }
 			]
 		}
-	]);
-	const accountOrLogin = async () => {
-		const jwt = jwtStore.value;
-		if (jwt) {
-			if (isHasError(await renew_token())) {
-				loginDrawerOpenStore.value = true;
-			} else {
-				goto(resolve('/user'));
-			}
-		} else {
-			loginDrawerOpenStore.value = true;
-		}
-	};
+	]);	
 
 </script>
 

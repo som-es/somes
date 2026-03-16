@@ -10,6 +10,7 @@
 	import { currentDecreeFilterStore, currentGovProposalFilterStore, currentUnfinshedVoteResultFilterStore, currentVoteResultFilterStore } from '$lib/stores/stores';
 	import { convertDecreeFilterToUrl } from '../Decrees/urlConversion';
 	import { convertGovPropFilterToUrl } from '../Proposals/urlConversion';
+	import { accountOrLogin } from './user';
 
 	let isOpen = $state(false);
 	let expandedItems = $state<Record<string, boolean>>({});
@@ -59,7 +60,6 @@
 		},
 		{ href: resolve('/delegates'), label: 'Abgeordnete' },
 		{ href: resolve('/statistics'), label: 'Statistiken' },
-		{ href: resolve('/user'), label: 'Benutzerprofil' }
 	]);
 
 	function toggleMenu() {
@@ -172,6 +172,18 @@
 					</a>
 				{/if}
 			{/each}
+			<button
+				
+				class="flex w-full items-center p-4 touch-manipulation text-base font-medium hover:bg-surface-400 {page.url.pathname.includes("user")
+					? 'text-tertiary-500'
+					: 'text-white'}"
+				onclick={async () => {
+					await accountOrLogin();
+					closeMenu();
+				}}
+			>
+				Benutzerprofil
+			</button>
 		</nav>
 	{/if}
 </div>
