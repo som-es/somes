@@ -139,9 +139,9 @@
 		<div class="flex items-center">
 			<div class="w-2 h-2 rounded-full mx-2" style="background-color: {partyToColor(delegate.party)}"></div>
 			<p class="text-base text-gray-800">
-				{#if delegate.party == 'OK'}
+				{#if delegate.party == null || delegate.party == 'OK'}
 					Ohne Klub
-				{:else if delegate.party != null}
+				{:else}
 					<span>{delegate.party}</span>
 				{/if}
 			</p>
