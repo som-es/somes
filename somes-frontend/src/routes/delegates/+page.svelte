@@ -50,8 +50,7 @@
 	import { getMandateLatestPeriod, getMandatePeriods } from './searchDelegates';
 	import GenericFilters from '$lib/components/Filtering/GenericFilters.svelte';
 	import { type GenericFilterGroup } from '$lib/components/Filtering/types';
-	import AbsensePreviewHeatmap from '$lib/components/Delegates/Absences/AbsensePreviewHeatmap.svelte';
-
+	
 	let { data }: PageProps = $props();
 
 	let delegates: Delegate[] = $derived(data.delegates ?? []);
@@ -954,7 +953,7 @@
 			>
 				{#if delegate && generalDelegateInfo?.absences && generalDelegateInfo.absences.length > 0}
 					<!-- <AbsencesPreview delegateId={delegate.id} absences={generalDelegateInfo.absences} /> -->
-					<AbsensePreviewHeatmap delegateId={delegate.id} absences={generalDelegateInfo.absences} />
+					<AbsencesPreview delegateId={delegate.id} absences={generalDelegateInfo.absences} />
 				{/if}
 			</div>
 		</div>
