@@ -423,17 +423,29 @@ export interface StanceTopicInfluences {
 	topic_influences: StanceTopicScore[];
 }
 
+export interface CallToOrder {
+	date: string;
+	inr: number;
+	gp: string;
+	plenary_session_id: number;
+}
+
+export interface IssuedProposal {
+	legis_init_id: number;
+}
+
 export interface GeneralDelegateInfo {
 	interests: InterestShare[];
 	detailed_interests: InterestShare[];
 	delegate_qa: DelegateQA[];
-	mandates: Mandate[];
 	political_position: PoliticalPosition | null;
 	absences: Absence[];
 	named_votes: NamedVote[];
 	stance_topic_influences: StanceTopicInfluences[];
 	stance_topic_scores: StanceTopicScore[];
 	left_right_stances: StanceTopicScore[];
+	received_call_to_orders: CallToOrder[];
+	issued_proposals: IssuedProposal[];
 }
 
 export interface DelegateQA {
