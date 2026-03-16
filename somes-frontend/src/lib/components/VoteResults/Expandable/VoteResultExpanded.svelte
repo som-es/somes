@@ -4,7 +4,7 @@
 	import { createVoteResultPath, type Delegate, type VoteResult } from '$lib/types';
 	import Emphasis from '../Emphasis/Emphasis.svelte';
 	import InfoTiles from '../InfoTiles/InfoTiles.svelte';
-	import { currentDelegatesAtDateStore, currentVoteResultStore } from '$lib/stores/stores';
+	import { currentDelegatesAtDateStore, currentVoteResultStore, aiViewEnabledStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
 	import VoteTypeBadge from '../VoteTypeBadge.svelte';
 	import MovingArrowButton from '$lib/components/UI/MovingArrowButton.svelte';
@@ -26,9 +26,11 @@
 	$: topics = (
 		voteResult.eurovoc_topics.length > 0
 			? voteResult.eurovoc_topics
-			: (voteResult.ai_summary?.full_summary?.topics ?? []).map((topic) => {
+			: (aiViewEnabledStore.value && voteResult.ai_summary?.full_summary?.topics
+				? voteResult.ai_summary.full_summary.topics.map((topic) => {
 					return { topic };
 				})
+				: [])
 	).sort((a, b) => {
 		return a.topic.length - b.topic.length;
 	});
@@ -37,7 +39,7 @@
 <div class="entry rounded-xl mt-3 hidden bg-primary-200 p-2 lg:block dark:bg-primary-400">
 	<div class="flex gap-2">
 		<div class="grow basis-3/4">
-			{#if voteResult.ai_summary}
+			{#if aiViewEnabledStore.value && voteResult.ai_summary}
 				<Emphasis
 					emphasis={voteResult.ai_summary.full_summary.key_points}
 					glossary={voteResult.ai_summary.full_summary.glossary}

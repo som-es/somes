@@ -1,6 +1,11 @@
 <script lang="ts">
 	import { errorToNull, get_eurovoc_topics, vote_result_by_path, url } from '$lib/api/api';
-	import { currentDelegateStore, currentVoteResultStore, hasGoBackStore } from '$lib/stores/stores';
+	import {
+		currentDelegateStore,
+		currentVoteResultStore,
+		hasGoBackStore,
+		aiViewEnabledStore,
+	} from '$lib/stores/stores';
 	import { onMount } from 'svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
@@ -47,6 +52,8 @@
 	import { browser } from '$app/environment';
 	import { partyColors } from '$lib/partyColor';
 	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
+	import type { SvelteSet } from 'svelte/reactivity';
+	import { addLegisInitFavo, removeLegisInitFavo } from '$lib/api/authed';
 
 	let { data }: PageProps = $props();
 
@@ -113,7 +120,7 @@
 		}
 	};
 
-	let legisInitFavos: Set<number> | null = $state(null);
+	let legisInitFavos: SvelteSet<number> | null = $state(null);
 
 	const runVoteResultUpdate = async () => {
 		legisInitFavos = await cachedLegisInitFavos();
@@ -170,7 +177,7 @@
 {#if browser}
 	<title>
 		{#if voteResult}
-			{#if voteResult.ai_summary}
+			{#if aiViewEnabledStore.value && voteResult.ai_summary}
 				{voteResult.ai_summary.short_title}
 			{:else}
 				{description}
@@ -197,7 +204,7 @@
 										class="text-xl leading-tight font-bold lg:text-3xl"
 										style="hyphens: auto; word-break: normal; overflow-wrap: break-word;"
 									>
-										{#if voteResult.ai_summary}
+										{#if aiViewEnabledStore.value && voteResult.ai_summary}
 											<AiSummaryHintPopup aiSummary={voteResult.ai_summary} />
 											{voteResult.ai_summary.short_title}
 										{:else}
@@ -242,7 +249,20 @@
 							{#if legisInitFavos}
 								<button
 									onclick={async () => {
-										/* toggle logic */
+										if (!voteResult || !legisInitFavos) return;
+
+										if (legisInitFavos.has(+voteResult.legislative_initiative.id)) {
+											const res = await removeLegisInitFavo({ vote_result_id: +voteResult.legislative_initiative.id });
+											if (res === null) {
+												legisInitFavos.delete(+voteResult.legislative_initiative.id);
+											}
+										} else {
+											const res = await addLegisInitFavo({ vote_result_id: +voteResult.legislative_initiative.id });
+											if (res === null) {
+												legisInitFavos.add(+voteResult.legislative_initiative.id)
+											}
+										}
+										
 									}}
 									class="w-14 p-2"
 								>
@@ -255,7 +275,7 @@
 					</div>
 
 					<!-- Zusammenfassung -->
-					{#if voteResult.ai_summary}
+					{#if aiViewEnabledStore.value && voteResult.ai_summary}
 						<div class="mt-5 pb-3">
 							<h1 class="text-lg font-semibold md:text-xl">Zusammenfassung</h1>
 							<span class="text-base text-gray-800 lg:text-base dark:text-gray-200">
@@ -272,8 +292,8 @@
 							<InfoBadges {voteResult} />
 						</div>
 
-						<div class="flex flex-1 justify-end">
-							{#if voteResult.ai_summary && voteResult.eurovoc_topics.length == 0}
+						<div class="flex-1 flex justify-end">
+							{#if aiViewEnabledStore.value && voteResult.ai_summary && voteResult.eurovoc_topics.length == 0}
 								<Topics
 									topics={voteResult.ai_summary.full_summary.topics
 										.sort((a, b) => {
@@ -295,7 +315,7 @@
 				</div>
 
 				<!-- CARD main topics  -->
-				{#if voteResult.ai_summary}
+				{#if aiViewEnabledStore.value && voteResult.ai_summary}
 					<div class="emphasis-item">
 						<Emphasis
 							emphasis={voteResult.ai_summary.full_summary.key_points}

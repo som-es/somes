@@ -8,7 +8,8 @@ pub async fn create_delegates_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sq
     sqlx::query!(
         r#"CREATE MATERIALIZED VIEW delegates_with_mandates AS
     WITH period_starts AS (
-        SELECT legislative_period AS gp, MIN(raw_data_created_at)::date AS start_date
+        SELECT legislative_period AS gp, 
+        (MIN(raw_data_created_at) AT TIME ZONE 'Europe/Vienna')::date AS start_date
         FROM plenar_infos
         GROUP BY legislative_period 
         HAVING COUNT(*) > 1
@@ -84,10 +85,13 @@ pub async fn create_delegates_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sq
         "#
     ).execute(&mut **tx).await?;
 
-    sqlx::query!("
+    sqlx::query!(
+        "
         CREATE UNIQUE INDEX idx_delegates_with_mandates_id ON delegates_with_mandates(id);
-    ").execute(&mut **tx).await?;
-
+    "
+    )
+    .execute(&mut **tx)
+    .await?;
 
     Ok(())
 }

@@ -86,6 +86,19 @@ async fn meilisearch_for_vote_results(
         // ));
     }
 
+    if let Some(date_from) = filter.date_from {
+        filter_conditions.push(format!(
+            "legislative_initiative.nr_plenary_activity_date >= {:?}",
+            date_from.to_string()
+        ));
+    }
+    if let Some(date_to) = filter.date_to {
+        filter_conditions.push(format!(
+            "legislative_initiative.nr_plenary_activity_date <= {:?}",
+            date_to.to_string()
+        ));
+    }
+
     let meilisearch_filter = filter_conditions.join(" AND ");
 
     log::info!("vote results meilisearch filter: {meilisearch_filter}, {search_query:?}");

@@ -46,3 +46,5 @@ export const currentDelegateFilterStore = persisted<DelegateFilter | null>(
 	'currentDelegateFilter',
 	null
 );
+
+export const aiViewEnabledStore = persisted<boolean>('aiViewEnabled', true);

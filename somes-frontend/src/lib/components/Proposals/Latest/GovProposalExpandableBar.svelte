@@ -8,7 +8,7 @@
 	} from '$lib/types';
 	import { slide } from 'svelte/transition';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
-	import { currentVoteResultStore } from '$lib/stores/stores';
+	import { currentVoteResultStore, aiViewEnabledStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
 	import GovProposalExpanded from '../ExpandableAtDelegate/GovProposalExpanded.svelte';
 	import { address, url } from '$lib/api/api';
@@ -66,7 +66,7 @@
 
 
 		<div class="flex flex-col gap-1">
-			{#if govProposal.gov_proposal.ai_summary}
+			{#if aiViewEnabledStore.value && govProposal.gov_proposal.ai_summary}
 				<span class="text-xl font-semibold" style="hyphens: auto; word-break: normal; overflow-wrap: break-word;">
 					{govProposal.gov_proposal.ai_summary.short_title}
 				</span>

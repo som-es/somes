@@ -18,6 +18,7 @@ pub async fn gov_props_by_search_route(
     Query(page): Query<somes_common_lib::Page>,
     Query(entry_count_per_page): Query<somes_common_lib::PageEntryCount>,
     Query(sort): Query<somes_common_lib::SortParams>,
+    Query(date_range): Query<somes_common_lib::DateRangeQueryFilter>,
     Qs(gov_prop_filter): Qs<GovProposalDelegateFilter>,
 ) -> Result<Json<GovProposalsWithMaxPage>, FilterError> {
     let mut filter_conditions = to_meilisearch_filters(
@@ -38,6 +39,19 @@ pub async fn gov_props_by_search_route(
                 prefix: Some("delegate".into()),
                 ..Default::default()
             },
+        ));
+    }
+
+    if let Some(date_from) = date_range.date_from {
+        filter_conditions.push(format!(
+            "gov_proposal.ministrial_proposal.raw_data_created_at >= {:?}",
+            date_from.to_string()
+        ));
+    }
+    if let Some(date_to) = date_range.date_to {
+        filter_conditions.push(format!(
+            "gov_proposal.ministrial_proposal.raw_data_created_at <= {:?}",
+            date_to.to_string()
         ));
     }
 

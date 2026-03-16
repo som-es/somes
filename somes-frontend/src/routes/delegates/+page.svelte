@@ -481,11 +481,11 @@
 										class="flex h-full grow touch-manipulation items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none md:grow-0"
 									>
 										<div class="flex items-center gap-2">
-											{#each selectedSearchPeriod.slice(0, 2) as period}
+											{#each selectedSearchPeriod.slice(0, 1) as period}
 												<span class="truncate">{period}</span>
 											{/each}
-											{#if selectedSearchPeriod.length > 2}
-												<span class="truncate">+{selectedSearchPeriod.length - 2} weitere</span>
+											{#if selectedSearchPeriod.length > 1}
+												<span class="truncate">+{selectedSearchPeriod.length - 1} weitere</span>
 											{/if}
 											{#if selectedSearchPeriod.length === 0}
 												<span class="truncate">Alle Perioden</span>
@@ -562,7 +562,7 @@
 											<Select.Viewport class="p-1">
 												{#each uniqueParties as party}
 													<Select.Item
-														class="flex h-10 w-full cursor-pointer items-center rounded-lg py-3 pr-1.5 pl-3 text-sm capitalize transition-all duration-75 outline-none select-none data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-400"
+														class="flex h-10 w-full cursor-pointer justify-between rounded-lg py-3 pr-1.5 pl-3 text-sm capitalize transition-all duration-75 outline-none select-none data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-400"
 														value={party.name}
 														label={party.name}
 													>
@@ -714,8 +714,10 @@
 									<div class="flex w-60 flex-wrap gap-1 text-sm">
 										{#each [...periods].reverse() as period}
 											<button
-												class="close-explicitly cursor-pointer rounded-lg border border-primary-300 px-2 py-1 text-sm"
-												class:bg-primary-300={selectedPeriod === period.gp}
+												class="close-explicitly cursor-pointer rounded-lg border {selectedPeriod ===
+												period.gp
+													? 'bg-primary-300 dark:bg-primary-400'
+													: ''} border-primary-300 px-2 py-1 text-sm"
 												onclick={() => {
 													selectedPeriod = period.gp;
 												}}

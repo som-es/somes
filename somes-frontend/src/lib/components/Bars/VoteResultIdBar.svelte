@@ -2,7 +2,7 @@
 	import { errorToNull, vote_result_by_id, vote_result_by_path } from '$lib/api/api';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import { createVoteResultPath, type NamedVote, type Reference, type VoteResult } from '$lib/types';
-	import { currentVoteResultStore } from '$lib/stores/stores';
+	import { currentVoteResultStore, aiViewEnabledStore } from '$lib/stores/stores';
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
 	import { gotoHistory } from '$lib/goto';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
@@ -74,7 +74,7 @@
 				class="border-radius-left spacing-for-left flex dark:bg-primary-300 bg-primary-400 justify-between items-center flex-basis-left"
 			>
 				<div class="flex flex-col gap-1">
-					{#if voteResult.ai_summary}
+					{#if aiViewEnabledStore.value && voteResult.ai_summary}
 						<div class="flex flex-1 flex-col flex-wrap min-w-0 max-lg:contents">
 							<span
 								class="text-xl font-semibold max-lg:order-1 max-lg:flex-1 max-lg:min-w-0"

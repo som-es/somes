@@ -196,6 +196,8 @@ pub async fn serve(addr: SocketAddr) {
         .nest("/v1/events", create_events_router());
 
     let api_routes = Router::new()
+        .route("/oauth/{provider}", get(start_oauth))
+        .route("/oauth/{provider}/callback", get(oauth_callback))
         .route(WALO_QUESTIONS, get(walo_questions_route))
         .route(QUIZZES, get(get_all_quizzes_route))
         .route(ADD_QUIZ, post(add_quiz_route))

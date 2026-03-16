@@ -1,26 +1,14 @@
 <script lang="ts">
-	import type { HasError, UniqueTopic } from '$lib/types';
-	import { onMount } from 'svelte';
-	import ExpandablePlaceholder from '../VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
-	import { getUserTopics } from '$lib/api/authed';
-	import { isHasError } from '$lib/api/api';
+	import type { UniqueTopic } from '$lib/types';
 	import { translateTopicToParent } from '$lib/interestColors';
 	import AccordionTopics from './AccordionTopics.svelte';
 
-	export let selectedTopics: Set<number>;
-	export let topics: UniqueTopic[] = [];
-	let done = false;
+	interface Props {
+		selectedTopics: Set<number>;
+		topics?: UniqueTopic[];
+	}
 
-	onMount(async () => {
-		const data: UniqueTopic[] | HasError = await getUserTopics();
-
-		if (!isHasError(data)) {
-			selectedTopics = new Set<number>(data.map((topic) => topic.id));
-			topics = topics;
-		}
-
-		done = true;
-	});
+	let { selectedTopics = $bindable(), topics = [] }: Props = $props();
 
 	function createGroupTopics(topics: UniqueTopic[]): Map<string, UniqueTopic[]> {
 		const groupedTopics = new Map<string, UniqueTopic[]>();
@@ -37,7 +25,7 @@
 
 	function createCombinedGroupings(topics: UniqueTopic[]): {
 		others: UniqueTopic[];
-		groupTopics: Map<string, UniqueTopic[]>;
+		groupTopicsEntries: [string, UniqueTopic[]][];
 		combinedGroups: { parentTopics: string[]; topics: UniqueTopic[] };
 	} {
 		const groupTopics = createGroupTopics(topics);
@@ -55,32 +43,30 @@
 		const others = groupTopics.get('Sonstige') ?? [];
 		groupTopics.delete('Sonstige');
 
-		return { others, groupTopics, combinedGroups };
+		return { others, groupTopicsEntries: Array.from(groupTopics.entries()), combinedGroups };
 	}
 
-	$: groupedTopics = createCombinedGroupings(topics);
+	let groupedTopics = $derived(createCombinedGroupings(topics));
 </script>
 
-<div class="flex flex-wrap flex-col gap-2 px-1">
-	<!-- {#if done && selectedTopics}
-		<Accordion>
-			{#each groupedTopics.groupTopics as [parentTopic, topics]}
-				<AccordionTopics parentTopics={[parentTopic]} subTopics={topics} bind:selectedTopics />
-			{/each}
+<div class="flex flex-col gap-2 px-1">
+	{#if topics.length > 0}
+		{#each groupedTopics.groupTopicsEntries as [parentTopic, subTopics]}
+			<AccordionTopics parentTopics={[parentTopic]} {subTopics} bind:selectedTopics />
+		{/each}
+		{#if groupedTopics.combinedGroups.topics.length > 0}
 			<AccordionTopics
 				parentTopics={groupedTopics.combinedGroups.parentTopics}
 				subTopics={groupedTopics.combinedGroups.topics}
 				bind:selectedTopics
 			/>
+		{/if}
+		{#if groupedTopics.others.length > 0}
 			<AccordionTopics
 				parentTopics={['Sonstige']}
 				subTopics={groupedTopics.others}
 				bind:selectedTopics
 			/>
-		</Accordion>
-	{:else}
-		{#each { length: 15 } as _}
-			<ExpandablePlaceholder />
-		{/each}
-	{/if} -->
+		{/if}
+	{/if}
 </div>

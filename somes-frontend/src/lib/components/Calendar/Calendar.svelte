@@ -53,10 +53,10 @@
 	}
 </script>
 
-<div class="calendar w-full max-w-200 rounded-xl bg-primary-100 dark:bg-primary-600">
+<div class="calendar w-full max-w-200 rounded-xl bg-primary-200 dark:bg-primary-600">
 	<div class="flex flex-col">
 		<div
-			class="flex flex-wrap items-center justify-around gap-1 bg-surface-200 py-1 dark:bg-surface-600"
+			class="flex flex-wrap items-center justify-around gap-1 bg-primary-400 py-1 dark:bg-surface-600"
 		>
 			<button class="px-3 sm:px-5" on:click={() => year--}>{year - 1}</button>
 			<button class="px-3 sm:px-5" on:click={prev}>{leftTitle}</button>
