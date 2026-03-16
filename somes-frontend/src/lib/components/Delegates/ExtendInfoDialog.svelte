@@ -14,7 +14,7 @@
 <Dialog.Root>
     <Dialog.Trigger>
         <button
-            class="mr-auto btn sm:btn-lg bg-secondary-500 text-white"
+            class="mr-auto btn bg-secondary-500 text-white"
         >
             {title}
         </button>

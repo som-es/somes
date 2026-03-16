@@ -26,6 +26,7 @@
 		enforceSvg?: boolean;
 		forceColor?: string | null;
 		localPartyColors?: Map<string, string>;
+		searchValue?: string;
 	}
 
 	let {
@@ -43,7 +44,8 @@
 		show3D = false,
 		enforceSvg = false,
 		forceColor = null,
-		localPartyColors = partyColors
+		localPartyColors = partyColors,
+		searchValue = ''
 	}: Props = $props();
 
 	let partyInfavorMap = $derived(createPartyInfavorMap(voteResult, localPartyColors));
@@ -51,6 +53,7 @@
 	let circles2d = $derived.by(() => {
 		void delegates; 
 		void voteResult;
+		void searchValue;
 
 		return untrack(() => {
 			const bubbles = setupParliament(seats, width, height, 7.9, useOffset);
@@ -75,6 +78,26 @@
 	function setOpacity(bubble: Bubble) {
 		if (bubble == null || bubble.del == null) {
 			bubble.opacity = 0.2;
+			return;
+		}
+
+
+		if (searchValue.trim().length > 0) {
+			if(bubble.del.name.toLowerCase().includes(searchValue.trim().toLowerCase())){
+				bubble.opacity = 1;
+			} else {
+				bubble.opacity = 0.2;
+			}
+			return;
+		}
+
+		if (bubble.speech && bubble.speech.infavor != null) {
+			bubble.opacity = bubble.speech.infavor ? 1.0 : 0.2;
+			return;
+		}
+
+		if (bubble.namedVote && !bubble.namedVote.was_absent) {
+			bubble.opacity = bubble.namedVote.infavor ? 1.0 : 0.2;
 			return;
 		}
 

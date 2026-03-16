@@ -8,6 +8,9 @@
 	import GlossaryText from '../UI/GlossaryText.svelte';
 	import InfoBadgesCustom from '../VoteResults/InfoTiles/InfoBadgesCustom.svelte';
 	import type { MinisterialViewData } from './types';
+
+	import { dashDateToDotDate } from '$lib/date';
+	import linkIcon from '$lib/assets/misc_icons/external-link.svg?raw';
 	import { aiViewEnabledStore } from '$lib/stores/stores';
 
 	interface Props {
@@ -18,7 +21,7 @@
 	let { ministerialData, children }: Props = $props();
 
 	let aiSummary = $derived(ministerialData.aiSummary);
-	let date = $derived(new Date(ministerialData.date).toLocaleDateString());
+  let date = $derived(dashDateToDotDate(ministerialData.date.toString().split('T')[0]));
 	let displayAiSummary = $derived(aiViewEnabledStore.value && aiSummary);
 </script>
 
@@ -30,54 +33,68 @@
 	{/if}
 </title>
 
+
 <div class="entry bg-primary-200 dark:bg-primary-400 mt-3 flex max-lg:flex-wrap gap-3">
 	<div class="flex flex-col gap-2 w-full">
-		<div class="rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
-			<div class="flex jusify-between items-start ">
+		<div class="rounded-xl bg-primary-300 dark:bg-primary-500 px-6 py-5">
+			<div class="flex justify-between items-start">
 				<div class="flex items-center gap-4">
 					<div class="flex flex-col">
-						<span class="leading-tight">
-							{#if aiViewEnabledStore.value && aiSummary}
-								<AiSummaryHintPopup
-									aiSummary={aiSummary}
-								/>
-								<span class="text-3xl font-bold ">
+						<div class="flex items-start gap-2">
+							<span
+								class="text-xl lg:text-3xl font-bold leading-tight"
+								style="hyphens: auto; word-break: normal; overflow-wrap: break-word;"
+							>
+								{#if aiViewEnabledStore.value && aiSummary}
+									<AiSummaryHintPopup aiSummary={aiSummary} />
 									{aiSummary.short_title}
-								</span>
-							{:else}
-								<span class="text-3xl font-bold ">
+								{:else}
 									{ministerialData.alternativeTitle}
-								</span>
-							{/if}	
-						</span>
+								{/if}
+							</span>
+						</div>
+
 						<span class="text-sm opacity-90">
 							{ministerialData.type == "decree" ? "Verordnung" : "Ministerialentwurf"} vom {date}
 						</span>
 					</div>
-					
 				</div>
-				<a href={ministerialData.originalDocumentUrl} target="_blank">
-					<img
-						class="w-28"
-						alt="parlament.gv.at favicon"
-						src="https://www.parlament.gv.at/static/img/favicon/favicon.svg"
-					/>
-				</a>
+
+				<div class="flex flex-wrap items-center gap-2 flex-shrink-0">
+					<a href={ministerialData.originalDocumentUrl} target="_blank" class="w-5 text-gray-500">
+						{@html linkIcon}
+					</a>
+				</div>
 			</div>
-			<div class="flex flex-wrap justify-between items-center gap-3 w-full border-t border-black/5 dark:border-white/5 pt-1 ">
-				<div class="shrink-0">
+
+			{#if ministerialData.aiSummary}
+				<div class="mt-5 pb-3">
+					<h1 class="font-semibold text-lg md:text-xl">Zusammenfassung</h1>
+					<span class="text-base lg:text-base text-gray-800 dark:text-gray-200">
+						<GlossaryText
+							text={ministerialData.aiSummary.short_summary}
+							glossary={ministerialData.aiSummary.full_summary.glossary}
+						/>
+					</span>
+				</div>
+			{/if}
+
+			<div class="flex flex-wrap justify-between items-center gap-3 w-full pt-1">
+				<div>
 					<InfoBadgesCustom texts={ministerialData.infoBadges} />
 				</div>
-				
+
 				<div class="flex-1 flex justify-end">
 					{#if aiViewEnabledStore.value && aiSummary && ministerialData.eurovocTopics.length == 0}
 						<Topics topics={aiSummary.full_summary.topics.sort((a, b) => {
 								return a.length - b.length;
 							}).map(topic => {return {topic}})} />
 					{:else}
-						<Topics topics={ministerialData.eurovocTopics.sort((a, b) => {
+						<Topics
+							topics={ministerialData.eurovocTopics.sort((a, b) => {
 								return a.topic.length - b.topic.length;
-							})} />
+							})}
+						/>
 					{/if}
 				</div>
 			</div>

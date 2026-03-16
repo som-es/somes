@@ -4,19 +4,13 @@
 	import MinisterialView from '$lib/components/MinisterialView/MinisterialView.svelte';
 	import type { MinisterialViewData } from '$lib/components/MinisterialView/types';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
-	import SButton from '$lib/components/UI/SButton.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
-	import { hasGoBackStore } from '$lib/stores/stores';
 	import type { GovProposalDelegate } from '$lib/types';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
 	let govProposalDelegate: GovProposalDelegate | null = $derived(errorToNull(data.govProposal));
-
-	const goBack = () => {
-		history.back();
-	};
 
 	let ministerialData: MinisterialViewData | null = $derived.by(() => {
 		if (govProposalDelegate == null) return null;
@@ -51,10 +45,6 @@
 </svelte:head>
 
 <Container>
-	{#if hasGoBackStore.value}
-		<SButton class="bg-primary-500" on:click={goBack}>Zurück</SButton>
-	{/if}
-
 	{#if ministerialData && govProposalDelegate}
 		<MinisterialView ministerialData={ministerialData}>
 			<!-- <div class="">

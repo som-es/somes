@@ -50,6 +50,7 @@
 	import { getMandateLatestPeriod, getMandatePeriods } from './searchDelegates';
 	import GenericFilters from '$lib/components/Filtering/GenericFilters.svelte';
 	import { type GenericFilterGroup } from '$lib/components/Filtering/types';
+	import AbsensePreviewHeatmap from '$lib/components/Delegates/Absences/AbsensePreviewHeatmap.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -465,9 +466,11 @@
 					<!-- Filters -->
 					<div class="mr-4">
 						<span class="text-base font-semibold text-gray-800 dark:text-gray-200">Filter</span>
-						<div class="mt-1 flex flex-wrap items-center gap-3">
+						<div class="mt-2 flex h-10 w-full gap-2 md:mt-1 md:w-auto">
 							<!-- Period Filter -->
-							<div class="flex flex-col gap-2">
+							<div
+								class="flex h-full grow touch-manipulation items-center justify-center gap-1 md:grow-0"
+							>
 								<Select.Root
 									type="multiple"
 									bind:value={selectedSearchPeriod}
@@ -475,7 +478,7 @@
 									allowDeselect={true}
 								>
 									<Select.Trigger
-										class="inline-flex h-10 items-center justify-between rounded-xl bg-secondary-500 px-[11px] text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none md:w-[150px]"
+										class="flex h-full grow touch-manipulation items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none md:grow-0"
 									>
 										<div class="flex items-center gap-2">
 											{#each selectedSearchPeriod.slice(0, 1) as period}
@@ -520,7 +523,9 @@
 								</Select.Root>
 							</div>
 							<!-- Parteien Filter -->
-							<div class="flex flex-col gap-2">
+							<div
+								class="flex h-full grow touch-manipulation items-center justify-center gap-1 md:grow-0"
+							>
 								<Select.Root
 									type="multiple"
 									bind:value={selectedPartiesNames}
@@ -530,7 +535,7 @@
 									items={uniqueParties.map((p) => ({ value: p.name, label: p.name }))}
 								>
 									<Select.Trigger
-										class="inline-flex h-10 items-center justify-between rounded-xl bg-secondary-500 px-[11px] text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none md:w-[180px]"
+										class="flex h-full grow touch-manipulation items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none md:grow-0"
 									>
 										<div class="flex items-center gap-2">
 											{#each selectedParties.slice(0, 1) as party}
@@ -582,7 +587,9 @@
 									</Select.Portal>
 								</Select.Root>
 							</div>
-							<div class="h-10">
+							<div
+								class="flex h-full grow touch-manipulation items-center justify-center gap-1 md:grow-0"
+							>
 								<GenericFilters bind:genericFilters />
 							</div>
 						</div>
@@ -913,44 +920,52 @@
 			{/if}
 		</div>
 
-		{#if generalDelegateInfo?.interests && generalDelegateInfo?.detailed_interests}
-			{#if generalDelegateInfo?.interests?.length > 0}
-				<span class="w-full max-sm:hidden">
-					<TopicsChart
-						detailedInterests={generalDelegateInfo.detailed_interests}
-						interests={generalDelegateInfo.interests}
-					/>
-				</span>
-				<span class="w-full sm:hidden">
-					<TopicsChart
-						detailedInterests={generalDelegateInfo.detailed_interests}
-						interests={generalDelegateInfo.interests.slice(0, 8)}
-					/>
-				</span>
-				<!-- <div class="title-item rounded-xl bg-primary-300 dark:bg-primary-500 p-3 w-full">
-
-					<h1 class="font-bold text-2xl mb-2">Top 4 Interessen</h1>
-					<InterestTiles bgColor={"bg-primary-300 dark:bg-primary-500"} squareColor={"dark:bg-primary-300 bg-primary-400"} interests={generalDelegateInfo.interests.slice(0, 4)} />
-				</div> -->
+		<!-- Meist behandelte Themen & Abwesenheiten -->
+		<div
+			class="flex w-full flex-col gap-4 {!generalDelegateInfo ||
+			generalDelegateInfo.interests?.length > 0
+				? 'lg:flex-row'
+				: ''}"
+		>
+			<!-- Meist behandelte Themen  -->
+			{#if !generalDelegateInfo || generalDelegateInfo.interests?.length > 0}
+				<div class="flex w-full flex-col gap-4 lg:w-2/3">
+					{#if generalDelegateInfo?.interests && generalDelegateInfo?.detailed_interests}
+						<span class="w-full max-sm:hidden">
+							<TopicsChart
+								detailedInterests={generalDelegateInfo.detailed_interests}
+								interests={generalDelegateInfo.interests}
+							/>
+						</span>
+						<span class="w-full sm:hidden">
+							<TopicsChart
+								detailedInterests={generalDelegateInfo.detailed_interests}
+								interests={generalDelegateInfo.interests.slice(0, 8)}
+							/>
+						</span>
+					{/if}
+				</div>
 			{/if}
-		{:else}
-			<ExpandablePlaceholder class={'my-3'} />
-		{/if}
+
+			<!-- Abwesenheiten -->
+			<div
+				class="flex w-full flex-col gap-4 {!generalDelegateInfo ||
+				generalDelegateInfo.interests?.length > 0
+					? 'lg:w-1/3'
+					: ''}"
+			>
+				{#if delegate && generalDelegateInfo?.absences && generalDelegateInfo.absences.length > 0}
+					<!-- <AbsencesPreview delegateId={delegate.id} absences={generalDelegateInfo.absences} /> -->
+					<AbsensePreviewHeatmap delegateId={delegate.id} absences={generalDelegateInfo.absences} />
+				{/if}
+			</div>
+		</div>
 
 		{#if speechesPage0 && delegate && speechesPage0.speeches.length > 0}
 			<div class="title-item w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 				<SpeechesPreview delegateId={delegate.id} {speechesPage0} />
 			</div>
 		{:else if speechesPage0 == null && delegate && delegate.council == 'gov'}
-			<ExpandablePlaceholder />
-			<ExpandablePlaceholder />
-		{/if}
-
-		{#if generalDelegateInfo?.absences && delegate && generalDelegateInfo?.absences.length > 0}
-			<div class="title-item w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
-				<AbsencesPreview delegateId={delegate.id} absences={generalDelegateInfo.absences} />
-			</div>
-		{:else if generalDelegateInfo?.absences == null || !delegate}
 			<ExpandablePlaceholder />
 			<ExpandablePlaceholder />
 		{/if}

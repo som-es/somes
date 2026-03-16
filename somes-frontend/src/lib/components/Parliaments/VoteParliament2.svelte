@@ -35,7 +35,8 @@
 		useOffset = $bindable(true),
 		show3D = false,
 		syncDelegates = $bindable([]),
-		allSeats = null 
+		allSeats = null,
+		searchValue = '' 
 	}: {
 		class?: string,
 		orderingFactor?: number,
@@ -57,7 +58,8 @@
 		useOffset?: boolean,
 		show3D?: boolean,
 		syncDelegates?: Delegate[],
-		allSeats?: Map<string, number[]> | null
+		allSeats?: Map<string, number[]> | null,
+		searchValue?: string
 	} = $props();
 
 	const effectiveGp = $derived(voteResult?.legislative_initiative.gp ?? gp);
@@ -172,6 +174,7 @@
 		{enforceSvg}
 		{localPartyColors}
 		{forceColor}
+		{searchValue}
 	/>
 {/if}
 <!--

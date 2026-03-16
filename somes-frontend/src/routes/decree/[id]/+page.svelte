@@ -3,9 +3,7 @@
 	import Container from '$lib/components/Layout/Container.svelte';
 	import MinisterialView from '$lib/components/MinisterialView/MinisterialView.svelte';
 	import type { MinisterialViewData } from '$lib/components/MinisterialView/types';
-	import SButton from '$lib/components/UI/SButton.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
-	import { hasGoBackStore } from '$lib/stores/stores';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -36,10 +34,6 @@
 			
 		};
 	});
-
-	const goBack = () => {
-		history.back();
-	};
 </script>
 
 <svelte:head>
@@ -48,10 +42,6 @@
 </svelte:head>
 
 <Container>
-	{#if hasGoBackStore.value}
-		<SButton class="bg-primary-500" on:click={goBack}>Zurück</SButton>
-	{/if}
-
 	{#if ministerialData}
 		<MinisterialView ministerialData={ministerialData}></MinisterialView>
 	{:else}
