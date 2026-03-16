@@ -467,7 +467,7 @@
 							</div>
 
 							<!-- Abstimmung, Fractions, Result and Mini Parlament - Desktop-->
-							<div class="absolute max-lg:hidden">
+							<div class="absolute max-lg:hidden ml-1">
 								<h3 class="mb-1 text-lg font-semibold md:text-xl">Abstimmung</h3>
 								<div class="ml-1">
 									{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}

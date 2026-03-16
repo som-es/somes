@@ -7,10 +7,11 @@
 		delegate: Delegate;
 		onclick?: () => void;
 		class?: string;
+		size?: 'sm' | 'md';
 		children?: import('svelte').Snippet;
 	}
 
-	let { delegate, onclick, class: className = '', children }: Props = $props();
+	let { delegate, onclick, class: className = '', size = 'sm', children }: Props = $props();
 </script>
 
 <button
@@ -21,10 +22,10 @@
 		<img
 			src={`${url}assets/${delegate.id}.jpg`}
 			alt={delegate.name}
-			class="h-8 w-8 shrink-0 rounded-full object-cover md:h-10 md:w-10"
+			class="{size == 'sm' ? 'h-8 w-8' : 'h-10 w-10'} shrink-0 rounded-full object-cover"
 		/>
 		<div class="flex flex-col overflow-hidden">
-			<span class="truncate text-sm font-medium leading-tight">{delegate.name}</span>
+			<span class="{size == 'sm' ? 'text-sm' : 'text-md'} truncate font-medium leading-tight">{delegate.name}</span>
 			<div class="mt-0.5 flex items-center gap-1 md:gap-1.5">
 				<div
 					class="h-1.5 w-1.5 shrink-0 rounded-full md:h-2 md:w-2"
