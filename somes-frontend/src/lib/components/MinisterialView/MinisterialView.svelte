@@ -8,8 +8,10 @@
 	import GlossaryText from '../UI/GlossaryText.svelte';
 	import InfoBadgesCustom from '../VoteResults/InfoTiles/InfoBadgesCustom.svelte';
 	import type { MinisterialViewData } from './types';
+
 	import { dashDateToDotDate } from '$lib/date';
 	import linkIcon from '$lib/assets/misc_icons/external-link.svg?raw';
+	import { aiViewEnabledStore } from '$lib/stores/stores';
 
 	interface Props {
 		ministerialData: MinisterialViewData;
@@ -19,12 +21,12 @@
 	let { ministerialData, children }: Props = $props();
 
 	let aiSummary = $derived(ministerialData.aiSummary);
-	// split("T") splitrs full ISO timestamp
-	let date = $derived(dashDateToDotDate(ministerialData.date.toString().split('T')[0]));
+  let date = $derived(dashDateToDotDate(ministerialData.date.toString().split('T')[0]));
+	let displayAiSummary = $derived(aiViewEnabledStore.value && aiSummary);
 </script>
 
 <title>
-	{#if ministerialData.aiSummary}
+	{#if aiViewEnabledStore.value && ministerialData.aiSummary}
 		{ministerialData.aiSummary.short_title}
 	{:else}
 		{ministerialData.alternativeTitle}
@@ -43,7 +45,7 @@
 								class="text-xl lg:text-3xl font-bold leading-tight"
 								style="hyphens: auto; word-break: normal; overflow-wrap: break-word;"
 							>
-								{#if aiSummary}
+								{#if aiViewEnabledStore.value && aiSummary}
 									<AiSummaryHintPopup aiSummary={aiSummary} />
 									{aiSummary.short_title}
 								{:else}
@@ -83,16 +85,10 @@
 				</div>
 
 				<div class="flex-1 flex justify-end">
-					{#if aiSummary && ministerialData.eurovocTopics.length == 0}
-						<Topics
-							topics={aiSummary.full_summary.topics
-								.sort((a, b) => {
-									return a.length - b.length;
-								})
-								.map((topic) => {
-									return { topic };
-								})}
-						/>
+					{#if aiViewEnabledStore.value && aiSummary && ministerialData.eurovocTopics.length == 0}
+						<Topics topics={aiSummary.full_summary.topics.sort((a, b) => {
+								return a.length - b.length;
+							}).map(topic => {return {topic}})} />
 					{:else}
 						<Topics
 							topics={ministerialData.eurovocTopics.sort((a, b) => {
@@ -104,10 +100,16 @@
 			</div>
 		</div>
 
-		{#if ministerialData.aiSummary}
-			<Emphasis
-				emphasis={ministerialData.aiSummary.full_summary.key_points}
-				glossary={ministerialData.aiSummary.full_summary.glossary}
+		{#if aiViewEnabledStore.value && ministerialData.aiSummary}
+			<div class="emphasis-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 pt-3 pb-3">
+				<h1 class="font-bold text-lg md:text-xl">Zusammenfassung</h1>
+				<span class="text-sm lg:text-base">
+					<GlossaryText text={ministerialData.aiSummary.short_summary} glossary={ministerialData.aiSummary.full_summary.glossary} />
+				</span>
+			</div>
+			<Emphasis 
+				emphasis={ministerialData.aiSummary.full_summary.key_points} 
+				glossary={ministerialData.aiSummary.full_summary.glossary} 
 			/>
 		{/if}
 		<div class="flex flex-wrap gap-2 w-full">

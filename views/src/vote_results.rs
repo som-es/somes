@@ -261,10 +261,14 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
     ").execute(&mut **tx)
     .await?;
 
-    sqlx::query!("
+    sqlx::query!(
+        "
     CREATE UNIQUE INDEX latest_legislative_initiatives_uidx
       ON public.latest_legislative_initiatives (id);
-    ").execute(&mut **tx).await?;
+    "
+    )
+    .execute(&mut **tx)
+    .await?;
 
     if std::env::var("FULL_VIEW_UPDATE")
         .unwrap_or("false".into())
@@ -295,10 +299,14 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
         .execute(&mut **tx)
         .await?;
 
-      sqlx::query!("
+        sqlx::query!(
+            "
       CREATE UNIQUE INDEX legislative_initiatives_with_votes_uidx
         ON public.legislative_initiatives_with_votes (id);
-      ").execute(&mut **tx).await?;
+      "
+        )
+        .execute(&mut **tx)
+        .await?;
     }
     Ok(())
 }

@@ -9,11 +9,11 @@
 	import { dashDateToDotDate } from '$lib/date';
 	import InfoBadges from '../InfoTiles/InfoBadges.svelte';
 	import { gotoHistory } from '$lib/goto';
-	import { currentVoteResultStore } from '$lib/stores/stores';
+	import { currentVoteResultStore, aiViewEnabledStore } from '$lib/stores/stores';
 
 	interface Props {
 		voteResult: VoteResult;
-		class: any;
+		class?: any;
 	}
 
 	let { voteResult, class: clazz }: Props = $props();
@@ -47,7 +47,7 @@
 	>
 		<div class="flex">
 			<div class="flex w-full flex-wrap items-start justify-between gap-2 lg:flex-nowrap">
-				{#if voteResult.ai_summary}
+				{#if aiViewEnabledStore.value && voteResult.ai_summary}
 					<div class="flex flex-1 flex-col flex-wrap min-w-0 max-lg:contents">
 						<span
 							class="text-xl font-semibold max-lg:order-1 max-lg:flex-1 max-lg:min-w-0"

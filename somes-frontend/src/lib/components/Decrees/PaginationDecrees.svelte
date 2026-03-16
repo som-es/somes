@@ -13,6 +13,7 @@
 	import SearchBar from '../Filtering/SearchBar.svelte';
 	import MultiValuesFilter from '../Filtering/MultiValuesFilter.svelte';
 	import GenericFilters from '../Filtering/GenericFilters.svelte';
+	import DateRangeFilter from '../Filtering/DateRangeFilter.svelte';
 	import { convertDecreeFilterToUrl } from './urlConversion';
 	interface Props {
 		decrees: DecreesWithMaxPage;
@@ -43,6 +44,8 @@
 
 	let selectedTopics: SvelteSet<string> = $state(new SvelteSet());
 	let selectedDepartments: SvelteSet<string> = $state(new SvelteSet());
+	let dateFrom = $state('');
+	let dateTo = $state('');
 
 	let departments = $derived.by(() => {
 		if (selectedGp) {
@@ -74,6 +77,8 @@
 			if (maybeStoredFilter.departments !== null) {
 				selectedDepartments = new SvelteSet(maybeStoredFilter.departments);
 			}
+			if (maybeStoredFilter.date_from) dateFrom = maybeStoredFilter.date_from;
+			if (maybeStoredFilter.date_to) dateTo = maybeStoredFilter.date_to;
 		}
 	});
 
@@ -92,7 +97,9 @@
 			gov_officials: null,
 			legis_period: legisPeriodFilter.activeValue == 'all' ? null : legisPeriodFilter.activeValue,
 			topics: selectedTopics.size > 0 ? [...selectedTopics] : null,
-			departments: selectedDepartments.size > 0 ? [...selectedDepartments] : null
+			departments: selectedDepartments.size > 0 ? [...selectedDepartments] : null,
+			date_from: dateFrom || null,
+			date_to: dateTo || null
 		};
 		currentDecreeFilterStore.value = filter;
 
@@ -121,6 +128,8 @@
 		void selectedTopics.size;
 		void selectedDepartments.size;
 		void legisPeriodFilter.activeValue;
+		void dateFrom;
+		void dateTo;
 		untrack(update);
 	});
 
@@ -160,6 +169,7 @@
 			values={departments}
 		/>
 		<MultiValuesFilter title="Themen" bind:selectedValues={selectedTopics} values={topics} />
+		<DateRangeFilter bind:dateFrom bind:dateTo />
 		<GenericFilters genericFilters={[]} bind:legisPeriodFilter />
 	</div>
 </div>

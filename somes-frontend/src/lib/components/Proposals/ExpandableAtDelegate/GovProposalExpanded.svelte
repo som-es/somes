@@ -4,7 +4,7 @@
 	import { createVoteResultPath, type Delegate, type VoteResult } from '$lib/types';
 	import Emphasis from '../../VoteResults/Emphasis/Emphasis.svelte';
 	import InfoTiles from '../../VoteResults/InfoTiles/InfoTiles.svelte';
-	import { currentDelegatesAtDateStore, currentGovProposalDelegateStore } from '$lib/stores/stores';
+	import { currentDelegatesAtDateStore, currentGovProposalDelegateStore, aiViewEnabledStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
 	import VoteTypeBadge from '../../VoteResults/VoteTypeBadge.svelte';
 	import { type GovProposal } from '$lib/types';
@@ -24,9 +24,11 @@
 	$: topics = (
 		govProposal.eurovoc_topics.length > 0
 			? govProposal.eurovoc_topics
-			: (govProposal.ai_summary?.full_summary?.topics ?? []).map((topic) => {
+			: (aiViewEnabledStore.value && govProposal.ai_summary?.full_summary?.topics
+				? govProposal.ai_summary.full_summary.topics.map((topic) => {
 					return { topic };
 				})
+				: [])
 	).sort((a, b) => {
 		return a.topic.length - b.topic.length;
 	});
@@ -35,7 +37,7 @@
 <div class="entry rounded-xl mt-3 hidden bg-primary-200 p-2 lg:block dark:bg-primary-400">
 	<div class="flex gap-2">
 		<div class="grow basis-3/4">
-			{#if govProposal.ai_summary}
+			{#if aiViewEnabledStore.value && govProposal.ai_summary}
 				<Emphasis
 					emphasis={govProposal.ai_summary.full_summary.key_points}
 					glossary={govProposal.ai_summary.full_summary.glossary}

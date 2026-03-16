@@ -177,6 +177,8 @@ pub struct SendMailInfo {
     pub send_new_delegate_activity_mails: bool,
     pub send_new_ministrial_prop_mails: bool,
     pub send_new_ministrial_prop_by_favo_mails: bool,
+    pub send_new_decree_mails: bool,
+    pub send_new_decree_by_favo_mails: bool,
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
@@ -345,6 +347,14 @@ impl std::fmt::Display for Voting {
 pub struct AddonVoteResultFilter {
     pub is_finished: bool,
     pub party_votes: Option<Vec<PartyVote>>,
+    pub date_from: Option<NaiveDate>,
+    pub date_to: Option<NaiveDate>,
+}
+
+#[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
+pub struct DateRangeQueryFilter {
+    pub date_from: Option<NaiveDate>,
+    pub date_to: Option<NaiveDate>,
 }
 
 #[derive(PartialEq, Eq, IntoParams, ToSchema, PartialOrd, Ord, Debug, Serialize, Deserialize)]

@@ -30,7 +30,7 @@ fn generate_otp() -> String {
         .collect()
 }
 
-async fn get_user_from_mail_sqlx(
+pub async fn get_user_from_mail_sqlx(
     pg: &PgPool,
     stored_mail: &str,
 ) -> Result<Option<User>, UserError> {

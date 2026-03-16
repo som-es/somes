@@ -16,6 +16,7 @@ pub async fn decrees_by_search_route(
     Query(page): Query<somes_common_lib::Page>,
     Query(entry_count_per_page): Query<somes_common_lib::PageEntryCount>,
     Query(sort): Query<somes_common_lib::SortParams>,
+    Query(date_range): Query<somes_common_lib::DateRangeQueryFilter>,
     Qs(decrees_filter): Qs<DecreeDelegateFilter>,
 ) -> Result<Json<DecreesWithMaxPage>, FilterError> {
     meilisearch_decrees(
@@ -28,6 +29,7 @@ pub async fn decrees_by_search_route(
         sort.sort.unwrap_or_default(),
         page,
         decrees_filter,
+        date_range,
     )
     .await
     .map(Json)
@@ -41,6 +43,7 @@ async fn meilisearch_decrees(
     sort: Sort,
     page: Page,
     decree_filter: DecreeDelegateFilter,
+    date_range: somes_common_lib::DateRangeQueryFilter,
 ) -> Result<DecreesWithMaxPage, FilterError> {
     let mut filter_conditions =
         to_meilisearch_filters(&decree_filter.filter_arguments(), &FilterOptions::default());
@@ -68,6 +71,20 @@ async fn meilisearch_decrees(
             },
         ));
     }
+
+    if let Some(date_from) = date_range.date_from {
+        filter_conditions.push(format!(
+            "decree.publication_date >= {:?}",
+            date_from.to_string()
+        ));
+    }
+    if let Some(date_to) = date_range.date_to {
+        filter_conditions.push(format!(
+            "decree.publication_date <= {:?}",
+            date_to.to_string()
+        ));
+    }
+
     let meilisearch_filter = filter_conditions.join(" AND ");
 
     // let stats = meilisearch_client

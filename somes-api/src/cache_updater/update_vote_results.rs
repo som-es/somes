@@ -75,6 +75,7 @@ pub async fn update_cache_vote_results(
                         id: Some(ministerial_prop.id),
                         ..Default::default()
                     };
+                    log::info!("notify {:?}", data);
                     notify_update_streamed(combx::Index::GovProposals, &data, &mut redis_con)
                         .await?;
                 }

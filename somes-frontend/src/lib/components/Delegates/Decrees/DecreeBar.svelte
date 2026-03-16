@@ -4,6 +4,7 @@
 	import { dashDateToDotDate } from '$lib/date';
 	import { gotoHistory } from '$lib/goto';
 	import { createDecreePath } from './api';
+	import { aiViewEnabledStore } from '$lib/stores/stores';
 
 	interface Props {
 		decree: DecreeDelegate;
@@ -28,7 +29,7 @@
 		class="entry {coloring} flex justify-between items-center"
 	>
 		<div class="flex flex-col gap-1">
-			{#if decree.decree.ai_summary}
+			{#if aiViewEnabledStore.value && decree.decree.ai_summary}
 				<span class="text-md sm:text-lg font-semibold ">
 					{decree.decree.ai_summary.short_title}
 				</span>
