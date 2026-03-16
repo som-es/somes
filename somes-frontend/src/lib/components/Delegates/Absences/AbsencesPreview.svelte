@@ -9,7 +9,7 @@
 		delegateId: number;
 	}
 
-	let { absences, delegateId }: Props = $props();
+	let { absences = [], delegateId }: Props = $props();
 
 	// Sort absences by date descending
 	let sortedAbsences = $derived(
@@ -40,7 +40,10 @@
 		}).format(new Date(dateString));
 	}
 </script>
-<div class="title-item flex h-full w-full flex-col rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
+
+<div
+	class="title-item flex h-full w-full flex-col rounded-xl bg-primary-300 p-5 dark:bg-primary-500"
+>
 	<div class="flex-1">
 		<div class="flex items-center justify-between">
 			<div class="flex flex-col">
@@ -54,12 +57,12 @@
 			</div>
 		</div>
 
-		{#if recentAbsences.length > 0}
-			<div class="mt-4">
-				<h3 class="mb-2 text-sm font-semibold tracking-wider text-primary-800 dark:text-primary-200">
-					Zuletzt abwesend
-				</h3>
-				<div class="flex flex-col gap-2">
+		<div class="mt-4">
+			<h3 class="mb-2 text-sm font-semibold tracking-wider text-primary-800 dark:text-primary-200">
+				Zuletzt abwesend
+			</h3>
+			<div class="flex flex-col gap-2">
+				{#if recentAbsences.length > 0}
 					{#each recentAbsences as absence}
 						<div
 							class="flex items-center justify-between rounded-lg bg-primary-200 p-3 text-sm dark:bg-primary-800/40 dark:hover:bg-primary-800/60"
@@ -75,14 +78,24 @@
 							</div>
 						</div>
 					{/each}
-				</div>
+				{:else}
+					<div class="flex flex-col gap-2">
+						<div
+							class="flex items-center justify-center rounded-lg bg-primary-200 p-3 text-sm dark:bg-primary-800/40"
+						>
+							<span class="text-primary-600 dark:text-primary-400">Keine Abwesenheiten</span>
+						</div>
+					</div>
+				{/if}
 			</div>
-		{/if}
+		</div>
 	</div>
 
-	<div class="mt-auto flex justify-end pt-4">
-		<ExtendInfoDialog title="Alle Abwesenheiten anzeigen">
-			<AbsencesModal {absences} />
-		</ExtendInfoDialog>
-	</div>
+	{#if recentAbsences.length > 0}
+		<div class="mt-auto flex justify-end pt-4">
+			<ExtendInfoDialog title="Alle Abwesenheiten anzeigen">
+				<AbsencesModal {absences} />
+			</ExtendInfoDialog>
+		</div>
+	{/if}
 </div>

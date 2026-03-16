@@ -951,7 +951,7 @@
 					? 'lg:w-1/3'
 					: ''}"
 			>
-				{#if delegate && generalDelegateInfo?.absences && generalDelegateInfo.absences.length > 0}
+				{#if delegate && generalDelegateInfo?.absences}
 					<!-- <AbsencesPreview delegateId={delegate.id} absences={generalDelegateInfo.absences} /> -->
 					<AbsencesPreview delegateId={delegate.id} absences={generalDelegateInfo.absences} />
 				{/if}

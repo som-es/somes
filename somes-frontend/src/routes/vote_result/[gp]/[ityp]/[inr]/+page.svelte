@@ -47,8 +47,6 @@
 	import { browser } from '$app/environment';
 	import { partyColors } from '$lib/partyColor';
 	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
-	import { Popover } from 'bits-ui';
-	import FilterDropdown from '$lib/components/Filtering/FilterDropdown.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -62,7 +60,6 @@
 
 	let autocompleteOptions: AutocompleteOption<string>[] = [];
 	let inputValue = '';
-	let isPartiesFilterOpen = $state(false);
 
 	let generalSpeechDelegates = $derived.by(() => {
 		const res = voteResult ? genCirclesWithSpeechInfo(voteResult.speeches, delegates) : [];
