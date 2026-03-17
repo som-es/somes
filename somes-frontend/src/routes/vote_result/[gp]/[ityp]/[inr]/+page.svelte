@@ -326,86 +326,118 @@
 
 				<!-- Mini Parlament and Vote Results-->
 				{#if voteResult && voteResult.votes}
-					<div
-						class="emphasis-item rounded-xl bg-primary-300 px-5 pt-5 pb-3 dark:bg-primary-500"
-					>
-					<div class="hidden lg:block">
-						<SearchBar bind:searchValue={searchValue} placeholder="Suche nach Abgeordneten..."/>
-					</div>
-					
-					<!-- Mobile Search Overlay -->
-					{#if showMobileSearch}
-						<div class="fixed inset-0 z-50 flex items-start justify-center bg-black/50 p-4 backdrop-blur-sm lg:hidden">
-							<div class="w-full max-w-md rounded-2xl bg-primary-100 p-4 shadow-xl dark:bg-primary-600">
-								<div class="mb-4 flex items-center justify-between">
-									<h3 class="text-lg font-semibold">Suche</h3>
-									<button class="p-1" onclick={() => showMobileSearch = false}>
-										<div class="h-6 w-6 text-gray-800 dark:text-gray-200">
-											{@html crossmarkIcon}
-										</div>
-									</button>
-								</div>
-								<SearchBar bind:searchValue={searchValue} placeholder="Suche nach Abgeordneten..." autofocus={true} />
-								
-								<div class="mt-4 max-h-[60vh] overflow-y-auto">
-									{#if searchValue.length > 0}
-										<!-- Render search results for mobile view -->
-										<div class="space-y-2">
-											{#each delegates.filter(d => d.name.toLowerCase().includes(searchValue.toLowerCase())) as del}
-												{@const namedVote = generalNamedVoteDelegates?.find(b => b.del?.id === del.id)}
-												{@const partyVoteInfo = voteResult.votes.find(v => v.party === del.party)}
-												<DelegateListItem
-													delegate={del}
-													class="w-full"
-												>
-													{#if namedVote && namedVote.namedVote}
-														{#if namedVote.namedVote.infavor}
-															<span class="inline-block stroke-green-600 dark:stroke-green-500" style="width:24px; height:24px;">{@html checkmarkIcon}</span>
-														{:else if namedVote.namedVote.was_absent}
-															<span class="text-xs font-medium text-gray-500">Nicht abgestimmt</span>
-														{:else}
-															<span class="inline-block" style="width:24px; height:24px;">{@html crossmarkIcon}</span>
+					<div class="emphasis-item rounded-xl bg-primary-300 px-5 pt-5 pb-3 dark:bg-primary-500">
+						<div class="hidden lg:block mb-3">
+							<SearchBar bind:searchValue placeholder="Suche nach Abgeordneten..." />
+						</div>
+
+						<!-- Mobile Search Overlay -->
+						{#if showMobileSearch}
+							<div
+								class="fixed inset-0 z-50 flex items-start justify-center bg-black/50 p-4 backdrop-blur-sm lg:hidden"
+							>
+								<div
+									class="w-full max-w-md rounded-2xl bg-primary-100 p-4 shadow-xl dark:bg-primary-600"
+								>
+									<div class="mb-4 flex items-center justify-between">
+										<h3 class="text-lg font-semibold">Suche</h3>
+										<button class="p-1" onclick={() => (showMobileSearch = false)}>
+											<div class="h-6 w-6 text-gray-800 dark:text-gray-200">
+												{@html crossmarkIcon}
+											</div>
+										</button>
+									</div>
+									<SearchBar
+										bind:searchValue
+										placeholder="Suche nach Abgeordneten..."
+										autofocus={true}
+									/>
+									<!-- Party Filter -->
+
+									<div class="mt-4 max-h-[60vh] overflow-y-auto">
+										{#if searchValue.length > 0}
+											<!-- Render search results for mobile view -->
+											<div class="space-y-2">
+												{#each delegates.filter((d) => d.name
+														.toLowerCase()
+														.includes(searchValue.toLowerCase())) as del}
+													{@const namedVote = generalNamedVoteDelegates?.find(
+														(b) => b.del?.id === del.id
+													)}
+													{@const partyVoteInfo = voteResult.votes.find(
+														(v) => v.party === del.party
+													)}
+													<DelegateListItem delegate={del} class="w-full">
+														{#if namedVote && namedVote.namedVote}
+															{#if namedVote.namedVote.infavor}
+																<span
+																	class="inline-block stroke-green-600 dark:stroke-green-500"
+																	style="width:24px; height:24px;">{@html checkmarkIcon}</span
+																>
+															{:else if namedVote.namedVote.was_absent}
+																<span class="text-xs font-medium text-gray-500"
+																	>Nicht abgestimmt</span
+																>
+															{:else}
+																<span class="inline-block" style="width:24px; height:24px;"
+																	>{@html crossmarkIcon}</span
+																>
+															{/if}
+														{:else if partyVoteInfo}
+															{#if partyVoteInfo.infavor}
+																<span
+																	class="inline-block stroke-green-600 opacity-60 dark:stroke-green-500"
+																	style="width:24px; height:24px;">{@html checkmarkIcon}</span
+																>
+															{:else}
+																<span
+																	class="inline-block opacity-60"
+																	style="width:24px; height:24px;">{@html crossmarkIcon}</span
+																>
+															{/if}
 														{/if}
-													{:else if partyVoteInfo}
-														{#if partyVoteInfo.infavor}
-															<span class="inline-block stroke-green-600 dark:stroke-green-500 opacity-60" style="width:24px; height:24px;">{@html checkmarkIcon}</span>
-														{:else}
-															<span class="inline-block opacity-60" style="width:24px; height:24px;">{@html crossmarkIcon}</span>
-														{/if}
-													{/if}
-												</DelegateListItem>
-											{/each}
-											{#if delegates.filter(d => d.name.toLowerCase().includes(searchValue.toLowerCase())).length === 0}
-												<div class="p-4 text-center text-gray-500">Keine Ergebnisse gefunden</div>
-											{/if}
-										</div>
-									{/if}
+													</DelegateListItem>
+												{/each}
+												{#if delegates.filter((d) => d.name
+														.toLowerCase()
+														.includes(searchValue.toLowerCase())).length === 0}
+													<div class="p-4 text-center text-gray-500">Keine Ergebnisse gefunden</div>
+												{/if}
+											</div>
+										{/if}
+									</div>
 								</div>
 							</div>
-						</div>
-					{/if}
+						{/if}
 
 						<div class="flex">
 							<!-- Abstimmung, Fractions, Result - Mobile -->
 							<div class="hidden w-full max-lg:block">
-								<div class="flex w-full items-center justify-between mb-2">
-									<h3 class="text-lg font-semibold md:text-xl">Abstimmung</h3>
-									<button class="flex items-center justify-center" onclick={() => showMobileSearch = true}>
-										<div class="h-6 w-6 text-gray-800 dark:text-gray-200 flex items-center">
+								<div class="flex w-full items-center justify-between">
+									<h3 class="text-lg font-semibold leading-none md:text-xl">Abstimmung</h3>
+									<button
+										class="flex items-center justify-center"
+										onclick={() => (showMobileSearch = true)}
+									>
+										<div class="flex h-6 w-6 items-center text-gray-800 dark:text-gray-200">
 											{@html searchIcon}
 										</div>
 									</button>
 								</div>
-								
+
 								<div class="flex flex-col gap-4">
 									<!-- In Favor -->
 									<div class="rounded-xl bg-primary-200/50 p-3 dark:bg-primary-600/50">
 										<div class="mb-2 flex items-center gap-2">
-											<span class="inline-block stroke-green-600" style="width:20px; height:20px;">{@html checkmarkIcon}</span>
+											<span class="inline-block stroke-green-600" style="width:20px; height:20px;"
+												>{@html checkmarkIcon}</span
+											>
 											<span class="font-semibold">Dafür</span>
 										</div>
 										<div class="flex flex-col gap-2 pl-2">
-											{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
+											{#each voteResult.votes
+												.slice()
+												.sort((a, b) => b.fraction - a.fraction) as vote}
 												{#if vote.infavor}
 													<div class="flex items-center justify-between">
 														<div class="flex items-center gap-2">
@@ -415,7 +447,9 @@
 															></div>
 															<span class="text-base font-medium text-gray-800">{vote.party}</span>
 														</div>
-														<span class="text-base font-medium text-gray-800">({vote.fraction})</span>
+														<span class="text-base font-medium text-gray-800"
+															>({vote.fraction})</span
+														>
 													</div>
 												{/if}
 											{/each}
@@ -425,11 +459,15 @@
 									<!-- Against -->
 									<div class="rounded-xl bg-primary-200/50 p-3 dark:bg-primary-600/50">
 										<div class="mb-2 flex items-center gap-2">
-											<span class="inline-block stroke-red-600" style="width:20px; height:20px;">{@html crossmarkIcon}</span>
+											<span class="inline-block stroke-red-600" style="width:20px; height:20px;"
+												>{@html crossmarkIcon}</span
+											>
 											<span class="font-semibold">Dagegen</span>
 										</div>
 										<div class="flex flex-col gap-2 pl-2">
-											{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
+											{#each voteResult.votes
+												.slice()
+												.sort((a, b) => b.fraction - a.fraction) as vote}
 												{#if !vote.infavor}
 													<div class="flex items-center justify-between">
 														<div class="flex items-center gap-2">
@@ -447,10 +485,10 @@
 									</div>
 								</div>
 							</div>
-							
+
 							<!-- Abstimmung, Fractions, Result and Mini Parlament - Desktop-->
-							<div class="absolute max-lg:hidden">
-								<h3 class="text-lg font-semibold md:text-xl mb-1">Abstimmung</h3>
+							<div class="absolute max-lg:hidden ml-1">
+								<h3 class="mb-1 text-lg font-semibold md:text-xl">Abstimmung</h3>
 								<div class="ml-1">
 									{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
 										<div class="flex items-center justify-between gap-4">
@@ -496,7 +534,7 @@
 								</div>
 							</div>
 
-							<div class="w-100 max-lg:hidden">
+							<div class="w-100 max-lg:hidden mt-1">
 								{#if selectedBubble}
 									<VoteDelegateCard
 										bubble={selectedBubble}
@@ -514,7 +552,7 @@
 							<hr class="my-4 border-t border-gray-400 dark:border-gray-600" />
 							<div class="mb-1">
 								<h3 class="text-md font-semibold md:text-lg">Eingebracht von</h3>
-								<div class="mt-1 flex flex-col md:flex-row md:flex-wrap gap-2 md:gap-3">
+								<div class="mt-1 flex flex-col gap-2 md:flex-row md:flex-wrap md:gap-3">
 									{#each Array.from(issuedByDels.entries()) as [text, delegate_ids]}
 										{#each delegate_ids as delegate_id}
 											{@const del = delegates.find((d) => d.id === delegate_id)}
@@ -715,7 +753,7 @@
 						<ExpandablePlaceholder class="" />
 					{/each}
 				{/if}
-				<div class="rounded-xl bg-primary-300 p-3 dark:bg-primary-500 w-full">
+				<div class="w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 					<Documents {documents} />
 				</div>
 			</div>

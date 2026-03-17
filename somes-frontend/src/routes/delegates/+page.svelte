@@ -50,8 +50,8 @@
 	import { getMandateLatestPeriod, getMandatePeriods } from './searchDelegates';
 	import GenericFilters from '$lib/components/Filtering/GenericFilters.svelte';
 	import { type GenericFilterGroup } from '$lib/components/Filtering/types';
-	import AbsensePreviewHeatmap from '$lib/components/Delegates/Absences/AbsensePreviewHeatmap.svelte';
-
+	import DelegateListItem from '$lib/components/Delegates/DelegateListItem.svelte';
+	
 	let { data }: PageProps = $props();
 
 	let delegates: Delegate[] = $derived(data.delegates ?? []);
@@ -610,8 +610,10 @@
 									{@const nrMandates = getMandatePeriods(d, periods, false)}
 									{@const govMandates = getMandatePeriods(d, periods, true)}
 
-									<button
-										class="mb-3 flex w-full justify-between rounded-xl bg-primary-300 p-2 transition-colors hover:cursor-pointer hover:bg-primary-400 dark:bg-primary-500"
+									<DelegateListItem
+										delegate={d}
+										size="md"
+										class="mb-3 w-full bg-primary-300"
 										onclick={() => {
 											const { date, gp } = getMandateLatestPeriod(d, periods);
 
@@ -643,28 +645,11 @@
 											isSearchPopupOpen = false;
 										}}
 									>
-										<div class="flex">
-											<img class="mx-1 h-14 rounded-full" src={d.image_url} alt={d.name} />
-											<div class="mt-1 ml-3">
-												<h4 class="text-lg/5 font-semibold text-gray-900 dark:text-gray-50">
-													{d.name}
-												</h4>
-												<div class="mt-1 flex items-center gap-2">
-													<div
-														class="h-2 w-2 rounded-full"
-														style="background-color: {partyColors.get(d.party) ?? '#ccc'};"
-													></div>
-													<span class="text-sm font-medium text-gray-800 dark:text-gray-200"
-														>{d.party}</span
-													>
-												</div>
-											</div>
-										</div>
-										<div class="flex flex-col flex-wrap">
+										<div class="flex flex-col flex-wrap items-end gap-1">
 											{#if govMandates !== '' && govMandates !== 'unbekannt'}
-												<div class="text-sm font-medium text-gray-800 dark:text-gray-200!">
+												<div class="text-sm font-medium text-gray-800 dark:text-gray-200">
 													{govMandates}
-													<span class="font-light text-gray-700 dark:text-gray-300!">
+													<span class="font-light text-gray-700 dark:text-gray-300">
 														(Regierung)
 													</span>
 												</div>
@@ -679,7 +664,7 @@
 												</div>
 											{/if}
 										</div>
-									</button>
+									</DelegateListItem>
 								{/each}
 							{/if}
 						</div>
@@ -954,9 +939,9 @@
 					? 'lg:w-1/3'
 					: ''}"
 			>
-				{#if delegate && generalDelegateInfo?.absences && generalDelegateInfo.absences.length > 0}
+				{#if delegate && generalDelegateInfo?.absences}
 					<!-- <AbsencesPreview delegateId={delegate.id} absences={generalDelegateInfo.absences} /> -->
-					<AbsensePreviewHeatmap delegateId={delegate.id} absences={generalDelegateInfo.absences} />
+					<AbsencesPreview delegateId={delegate.id} absences={generalDelegateInfo.absences} />
 				{/if}
 			</div>
 		</div>
