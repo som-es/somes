@@ -40,7 +40,8 @@ pub async fn extract_general_delegate_info(
     println!("interests took {:?}", start.elapsed());
     let detailed_interests = extract_detailed_interests_of_delegate(delegate_id, pg).await?;
     println!("detailed_interests took {:?}", start.elapsed());
-    let delegate_qa = extract_delegate_qa(delegate_id, pg).await?;
+    // let delegate_qa = extract_delegate_qa(delegate_id, pg).await?;
+    let delegate_qa = vec![];
     println!("delegate_qa took {:?}", start.elapsed());
     let political_position = extract_political_position(delegate_id, pg).await?;
     println!("political_position took {:?}", start.elapsed());

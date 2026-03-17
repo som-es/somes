@@ -39,7 +39,7 @@ pub fn create_delegates_router() -> Router<AppState> {
         .route(ALL_AT_DATE, get(delegates_at_route))
         .route(ID, get(delegate_by_id_path_route))
         .route(ALL_ACTIVE, get(active_delegates_route))
-        .route(DELEGATE_QA, get(delegate_qa_route))
+        // .route(DELEGATE_QA, get(delegate_qa_route))
         .route(SEARCH, get(delegates_by_search_route))
         .route(
             SPEECHES_PER_PAGE_ROUTE,

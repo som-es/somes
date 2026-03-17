@@ -184,7 +184,7 @@
 		{#if showMoreDetailsBtn}
 			<div></div>
 			<button class="bg-primary-600 p-2 px-3 rounded-xl text-white" onclick={onShowDetails}>
-				<h4>AI Chat</h4>
+				<h4>Details</h4>
 			</button>
 		{/if}
 
