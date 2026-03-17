@@ -102,7 +102,7 @@
 		{/if}
 
 		<!-- Parlament.at link to person -->
-		<div class="w-4 h-4 text-gray-500">
+		<div class="w-4 h-4 text-gray-500 dark:text-gray-200">
 			<a href={personUrl} target="_blank">
 				{@html externalLink}
 			</a>
