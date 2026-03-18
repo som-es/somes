@@ -26,13 +26,10 @@
 	let open = false;
 	let duration = 0.35;
 
-
-
 	function onShowDetails(govProposal: GovProposal, delegate: Delegate) {
 		currentGovProposalDelegateStore.value = { gov_proposal: govProposal, delegate };
 		gotoHistory(createGovProposalPath(govProposal.ministrial_proposal), true);
 	}
-
 
 	function toggleOpen(e: Event) {
 		e.preventDefault();
@@ -49,48 +46,48 @@
 </script>
 
 {#if govProposal}
-<div class="mt-5">
-	<a
-		href="{createGovProposalPath(govProposal.gov_proposal.ministrial_proposal)}"
-		onclick={toggleOpen}
-		onkeypress={toggleOpen}
-		role="button"
-		tabindex="0"
-				class="entry flex justify-between items-center {coloring}"
-	>
-		<!-- <div>
+	<div class="mt-5">
+		<a
+			href={createGovProposalPath(govProposal.gov_proposal.ministrial_proposal)}
+			onclick={toggleOpen}
+			onkeypress={toggleOpen}
+			role="button"
+			tabindex="0"
+			class="entry flex items-center justify-between {coloring}"
+		>
+			<!-- <div>
 			<div id={open ? 'open' : 'closed'}>
 				{@html rightArrowIcon}
 			</div>
 		</div> -->
 
-
-		<div class="flex flex-col gap-1">
-			{#if aiViewEnabledStore.value && govProposal.gov_proposal.ai_summary}
-				<span class="text-xl font-semibold" style="hyphens: auto; word-break: normal; overflow-wrap: break-word;">
-					{govProposal.gov_proposal.ai_summary.short_title}
-				</span>
-				<span class="text-sm sm:text-md">
-					{govProposal.gov_proposal.ai_summary.short_summary}
-				</span>
-			{:else}
-				<span>{govProposal.gov_proposal.ministrial_proposal.title.split("|")[0]}</span>
-			{/if}
-			<div class="flex flex-wrap gap-1 md:mt-4 mt-2">
-				<span class="badge bg-tertiary-400 text-black text-wrap"
-					>{govProposal.gov_proposal.ministrial_proposal.ressort}</span
-				>
-				<span class="badge bg-tertiary-400 text-black"
-					>{date}</span
-				>
-				<span class="badge bg-tertiary-400 text-black"
-					>{govProposal.gov_proposal.ministrial_proposal.gp}</span
-				>
+			<div class="flex flex-col gap-1">
+				{#if aiViewEnabledStore.value && govProposal.gov_proposal.ai_summary}
+					<span
+						class="text-xl font-semibold"
+						style="hyphens: auto; word-break: normal; overflow-wrap: break-word;"
+					>
+						{govProposal.gov_proposal.ai_summary.short_title}
+					</span>
+					<span class="sm:text-md text-sm">
+						{govProposal.gov_proposal.ai_summary.short_summary}
+					</span>
+				{:else}
+					<span>{govProposal.gov_proposal.ministrial_proposal.title.split('|')[0]}</span>
+				{/if}
+				<div class="mt-2 flex flex-wrap gap-1 md:mt-4">
+					<span class="badge bg-tertiary-400 text-wrap text-black"
+						>{govProposal.gov_proposal.ministrial_proposal.ressort}</span
+					>
+					<span class="badge bg-tertiary-400 text-black">{date}</span>
+					<span class="badge bg-tertiary-400 text-black"
+						>{govProposal.gov_proposal.ministrial_proposal.gp}</span
+					>
+				</div>
 			</div>
-		</div>
-		<!-- <div>{voteResult.legislative_initiative.description}</div> -->
+			<!-- <div>{voteResult.legislative_initiative.description}</div> -->
 
-		<!-- {#if browser && govProposal.gov_proposal.vote_result && govProposal.gov_proposal.vote_result.legislative_initiative.accepted !== null}
+			<!-- {#if browser && govProposal.gov_proposal.vote_result && govProposal.gov_proposal.vote_result.legislative_initiative.accepted !== null}
 			<button
 				class="max-sm:hidden w-30 bg-primary-100 dark:bg-primary-300 rounded-md"
 				on:click={() => onShowDetails(govProposal.gov_proposal.vote_result)}
@@ -104,29 +101,36 @@
 		{:else}
 			<div></div>
 		{/if} -->
-		{#if showDelegate}
-			<div class="hidden sm:block">
-				<img
-					class="min-w-[80px] max-h-[80px] rounded-full mx-1"
-					src={`${url}assets/${govProposal.delegate.id}.jpg`}
-					title={govProposal.delegate.name}
-					alt="Image of delegate {govProposal.delegate.name}"
+			{#if showDelegate}
+				<div class="hidden flex-col sm:flex">
+					<img
+						class="mx-1 max-h-[80px] min-w-[80px] rounded-full"
+						src={`${url}assets/${govProposal.delegate.id}.jpg`}
+						title={govProposal.delegate.name}
+						alt="Image of delegate {govProposal.delegate.name}"
+					/>
+					<span class="bottom-0 rounded text-[8px]">
+						{#if govProposal.delegate.image_copyright}
+							&copy {govProposal.delegate.image_copyright}
+						{:else}
+							&copy Parlamentsdirektion
+						{/if}
+					</span>
+				</div>
+			{/if}
+		</a>
+
+		{#if open}
+			<div transition:slide={{ duration: 240 }}>
+				<GovProposalExpanded
+					govProposal={govProposal.gov_proposal}
+					delegate={govProposal.delegate}
+					{showDelegate}
+					bind:open
 				/>
 			</div>
 		{/if}
-	</a>
-
-	{#if open}
-		<div transition:slide={{ duration: 240 }}>
-			<GovProposalExpanded
-				govProposal={govProposal.gov_proposal}
-				delegate={govProposal.delegate}
-				{showDelegate}
-				bind:open
-			/>
-		</div>
-	{/if}
-</div>
+	</div>
 {/if}
 
 <style>

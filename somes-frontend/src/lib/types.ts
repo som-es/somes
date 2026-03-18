@@ -39,6 +39,7 @@ export interface Delegate {
 	party: string;
 	current_party: string;
 	image_url: string | null;
+	image_copyright: string | null;
 	constituency: string;
 	council: string;
 	seat_row: number | null;
@@ -203,7 +204,11 @@ export interface VoteResult {
 }
 
 export function createVoteResultPath(voteResult: VoteResult): string {
-	return resolve("/vote_result/[gp]/[ityp]/[inr]", {gp: voteResult.legislative_initiative.gp, ityp: voteResult.legislative_initiative.ityp, inr: voteResult.legislative_initiative.inr.toString()});	
+	return resolve('/vote_result/[gp]/[ityp]/[inr]', {
+		gp: voteResult.legislative_initiative.gp,
+		ityp: voteResult.legislative_initiative.ityp,
+		inr: voteResult.legislative_initiative.inr.toString()
+	});
 }
 
 export interface VoteResultsWithMaxPage {
