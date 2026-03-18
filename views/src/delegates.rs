@@ -8,14 +8,14 @@ pub async fn create_delegates_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sq
     sqlx::query!(
         r#"CREATE MATERIALIZED VIEW delegates_with_mandates AS
     WITH period_starts AS (
-        SELECT legislative_period AS gp, 
+        SELECT legislative_period AS gp,
         (MIN(raw_data_created_at) AT TIME ZONE 'Europe/Vienna')::date AS start_date
         FROM plenar_infos
-        GROUP BY legislative_period 
+        GROUP BY legislative_period
         HAVING COUNT(*) > 1
     ),
     periods AS (
-        SELECT 
+        SELECT
             gp,
             start_date,
             LEAD(start_date) OVER (ORDER BY start_date ASC) AS end_date
@@ -27,6 +27,7 @@ pub async fn create_delegates_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sq
         delegates.party,
         delegates.party AS current_party,
         delegates.image_url,
+        delegates.image_copyright,
         delegates.constituency,
         delegates.council,
         delegates.seat_row,
@@ -54,11 +55,11 @@ pub async fn create_delegates_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sq
             FROM mandates m
             where delegate_id = delegates.id and end_date IS NULL
         ) as "active_mandates: Vec<FullMandate>",
-        
+
         ARRAY(
             SELECT DISTINCT p.gp
             FROM mandates m
-            JOIN periods p 
+            JOIN periods p
                 ON m.start_date <= COALESCE(p.end_date, 'infinity'::date)
                AND COALESCE(m.end_date, 'infinity'::date) >= p.start_date
             WHERE m.delegate_id = delegates.id
@@ -66,7 +67,7 @@ pub async fn create_delegates_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sq
         ARRAY(
             SELECT DISTINCT p.gp
             FROM mandates m
-            JOIN periods p 
+            JOIN periods p
                 ON m.start_date <= COALESCE(p.end_date, 'infinity'::date)
                AND COALESCE(m.end_date, 'infinity'::date) >= p.start_date
             WHERE m.delegate_id = delegates.id AND m.is_nr = true
@@ -74,14 +75,14 @@ pub async fn create_delegates_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sq
         ARRAY(
             SELECT DISTINCT p.gp
             FROM mandates m
-            JOIN periods p 
+            JOIN periods p
                 ON m.start_date <= COALESCE(p.end_date, 'infinity'::date)
                AND COALESCE(m.end_date, 'infinity'::date) >= p.start_date
             WHERE m.delegate_id = delegates.id AND m.is_gov_official = true
         ) as "active_gov_gps: Vec<String>"
-        
+
     FROM
-        delegates; 
+        delegates;
         "#
     ).execute(&mut **tx).await?;
 

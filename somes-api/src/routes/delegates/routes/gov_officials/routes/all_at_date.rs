@@ -32,6 +32,7 @@ pub async fn gov_officials_at_date_sqlx(
     v.party,
     v.current_party,
     v.image_url,
+    v.image_copyright,
     v.constituency,
     'gov' as council,
     v.seat_row,
