@@ -43,6 +43,8 @@
 	import linkIcon from '$lib/assets/misc_icons/external-link.svg?raw';
 	import searchIcon from '$lib/assets/misc_icons/search-glass.svg?raw';
 	import DelegateListItem from '$lib/components/Delegates/DelegateListItem.svelte';
+	import { Select } from 'bits-ui';
+	import upDownArrowIcon from '$lib/assets/misc_icons/up-down-arrow.svg?raw';
 
 	let gp = $derived(page.params.gp);
 	let ityp = $derived(page.params.ityp);
@@ -63,7 +65,44 @@
 	let delegate: Delegate | null = $state(null);
 	let selectedBubble: Bubble | undefined = $state();
 	let searchValue: string = $state('');
+
+	// Search PopUp Logic
 	let showMobileSearch: boolean = $state(false);
+
+	let isSearchPopupOpen = $state(false);
+	let searchWrapper: HTMLDivElement | undefined = $state();
+	function handleFocusOut(e: FocusEvent) {
+		const relatedTarget = e.relatedTarget as Node | null;
+		if (relatedTarget) {
+			if (searchWrapper?.contains(relatedTarget)) return;
+			if ((relatedTarget as Element).closest('.search-filter-portal')) return;
+		}
+		isSearchPopupOpen = false;
+	}
+
+	let selectedPartiesNames = $state<string[]>([]);
+	let uniqueParties = $derived.by(() => {
+		const parties = new Set<string>();
+		delegates.forEach(d => parties.add(d.party?.trim() ? d.party : 'Ohne Klub'));
+		return Array.from(parties).map(party => ({
+			name: party,
+			color: partyColors.get(party) ?? '#ccc'
+		}));
+	});
+
+	let filteredDelegates = $derived.by(() => {
+		let res = delegates;
+		if (searchValue) {
+			res = res.filter(d => d.name.toLowerCase().includes(searchValue.toLowerCase()));
+		}
+		if (selectedPartiesNames.length > 0) {
+			res = res.filter(d => {
+				const p = d.party?.trim() ? d.party : 'Ohne Klub';
+				return selectedPartiesNames.includes(p);
+			});
+		}
+		return res;
+	});
 
 	let autocompleteOptions: AutocompleteOption<string>[] = [];
 	let inputValue = '';
@@ -324,11 +363,165 @@
 					</div>
 				{/if}
 
+				{#snippet searchContent(onClose: () => void)}
+					<div class="mt-4 lg:mt-0">
+						<span class="text-sm lg:text-base font-semibold text-gray-800 dark:text-gray-200">Filter</span>
+						<div class="mt-2 flex h-10 w-full gap-2 md:mt-1 md:w-auto">
+							<!-- Parteien Filter -->
+							<div
+								class="flex h-full grow lg:grow-0 touch-manipulation items-center justify-center gap-1"
+							>
+								<Select.Root
+									type="multiple"
+									bind:value={selectedPartiesNames}
+									items={uniqueParties.map((p) => ({ value: p.name, label: p.name }))}
+								>
+									<Select.Trigger
+										class="flex h-full w-full lg:w-auto touch-manipulation items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 lg:px-3 text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none"
+									>
+										<div class="flex items-center gap-2">
+											{#each selectedPartiesNames.slice(0, 1) as partyName}
+												{@const party = uniqueParties.find(p => p.name === partyName)}
+												{#if party}
+													<div
+														class="h-3 w-3 rounded-full"
+														style="background-color: {party.color};"
+													></div>
+													<span class="truncate">{party.name}</span>
+												{/if}
+											{/each}
+											{#if selectedPartiesNames.length > 1}
+												<span class="truncate">+{selectedPartiesNames.length - 1}</span>
+											{/if}
+											{#if selectedPartiesNames.length === 0}
+												<span class="truncate">Alle Parteien</span>
+											{/if}
+										</div>
+										{@html upDownArrowIcon}
+									</Select.Trigger>
+									<Select.Portal>
+										<Select.Content
+											class="z-500 max-h-60 w-[calc(100vw-2rem)] md:w-[200px] min-w-[var(--bits-select-anchor-width)] overflow-hidden rounded-xl border border-gray-200 bg-surface-100 shadow-lg dark:bg-surface-500"
+											sideOffset={8}
+										>
+											<Select.Viewport class="p-1">
+												{#each uniqueParties as party}
+													<Select.Item
+														class="flex h-10 w-full cursor-pointer justify-between rounded-lg py-3 pr-1.5 pl-3 text-sm capitalize transition-all duration-75 outline-none select-none data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-400"
+														value={party.name}
+														label={party.name}
+													>
+														{#snippet children({ selected })}
+															<div class="flex items-center gap-2">
+																<div
+																	class="h-3 w-3 rounded-full"
+																	style="background-color: {party.color};"
+																></div>
+																{party.name}
+															</div>
+															{#if selected}
+																<div class="ml-auto h-4 stroke-black dark:stroke-white">
+																	{@html checkmarkIcon}
+																</div>
+															{/if}
+														{/snippet}
+													</Select.Item>
+												{/each}
+											</Select.Viewport>
+										</Select.Content>
+									</Select.Portal>
+								</Select.Root>
+							</div>
+						</div>
+					</div>
+
+					<!-- Search Results -->
+					<div class="mt-3 lg:mt-4 max-h-[50vh] lg:max-h-70 overflow-y-auto">
+						{#if searchValue.length > 0 || selectedPartiesNames.length > 0 || isSearchPopupOpen}
+							<div class="mb-1">
+								<span class="text-sm lg:text-base font-semibold text-gray-800 dark:text-gray-200"
+									>Suchergebnisse</span
+								>
+							</div>
+							<div class="space-y-2">
+								{#each filteredDelegates as del}
+									{@const namedVote = generalNamedVoteDelegates?.find(
+										(b) => b.del?.id === del.id
+									)}
+									{@const partyVoteInfo = voteResult?.votes.find(
+										(v) => v.party === del.party
+									)}
+									<DelegateListItem 
+										delegate={del} 
+										class="w-full bg-primary-200 lg:bg-primary-300 dark:bg-primary-500"
+										onclick={() => {
+											delegate = del;
+											selectedBubble = undefined;
+											onClose();
+										}}
+									>
+										{#if namedVote && namedVote.namedVote}
+											{#if namedVote.namedVote.infavor}
+												<span
+													class="inline-block stroke-green-600 dark:stroke-green-500"
+													style="width:24px; height:24px;">{@html checkmarkIcon}</span
+												>
+											{:else if namedVote.namedVote.was_absent}
+												<span class="text-xs font-medium text-gray-500"
+													>Nicht abgestimmt</span
+												>
+											{:else}
+												<span class="inline-block" style="width:24px; height:24px;"
+													>{@html crossmarkIcon}</span
+												>
+											{/if}
+										{:else if partyVoteInfo}
+											{#if partyVoteInfo.infavor}
+												<span
+													class="inline-block stroke-green-600 opacity-60 dark:stroke-green-500"
+													style="width:24px; height:24px;">{@html checkmarkIcon}</span
+												>
+											{:else}
+												<span
+													class="inline-block opacity-60"
+													style="width:24px; height:24px;">{@html crossmarkIcon}</span
+												>
+											{/if}
+										{/if}
+									</DelegateListItem>
+								{/each}
+								{#if filteredDelegates.length === 0}
+									<div class="p-4 text-center text-gray-500">Keine Ergebnisse gefunden</div>
+								{/if}
+							</div>
+						{/if}
+					</div>
+				{/snippet}
+
 				<!-- Mini Parlament and Vote Results-->
 				{#if voteResult && voteResult.votes}
 					<div class="emphasis-item rounded-xl bg-primary-300 px-5 pt-5 pb-3 dark:bg-primary-500">
-						<div class="hidden lg:block mb-3">
-							<SearchBar bind:searchValue placeholder="Suche nach Abgeordneten..." />
+						<!-- Desktop Search PopUp -->
+						<div class="relative hidden lg:block mb-3" bind:this={searchWrapper} onfocusout={handleFocusOut}>
+							<SearchBar
+								onfocus={() => (isSearchPopupOpen = true)}
+								onclick={() => (isSearchPopupOpen = true)}
+								oninput={() => (isSearchPopupOpen = true)}
+								bind:searchValue
+								placeholder="Suche nach Abgeordneten..."
+							/>
+
+							{#if isSearchPopupOpen}
+								<div
+									class="absolute top-full right-0 left-0 z-100 mt-2 w-[98%] md:w-140 rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg dark:bg-surface-600"
+									data-popup="popupSearch"
+									role="button"
+									tabindex="0"
+									onmousedown={(e) => e.preventDefault()}
+								>
+									{@render searchContent(() => { isSearchPopupOpen = false; })}
+								</div>
+							{/if}
 						</div>
 
 						<!-- Mobile Search Overlay -->
@@ -352,60 +545,8 @@
 										placeholder="Suche nach Abgeordneten..."
 										autofocus={true}
 									/>
-									<!-- Party Filter -->
-
-									<div class="mt-4 max-h-[60vh] overflow-y-auto">
-										{#if searchValue.length > 0}
-											<!-- Render search results for mobile view -->
-											<div class="space-y-2">
-												{#each delegates.filter((d) => d.name
-														.toLowerCase()
-														.includes(searchValue.toLowerCase())) as del}
-													{@const namedVote = generalNamedVoteDelegates?.find(
-														(b) => b.del?.id === del.id
-													)}
-													{@const partyVoteInfo = voteResult.votes.find(
-														(v) => v.party === del.party
-													)}
-													<DelegateListItem delegate={del} class="w-full">
-														{#if namedVote && namedVote.namedVote}
-															{#if namedVote.namedVote.infavor}
-																<span
-																	class="inline-block stroke-green-600 dark:stroke-green-500"
-																	style="width:24px; height:24px;">{@html checkmarkIcon}</span
-																>
-															{:else if namedVote.namedVote.was_absent}
-																<span class="text-xs font-medium text-gray-500"
-																	>Nicht abgestimmt</span
-																>
-															{:else}
-																<span class="inline-block" style="width:24px; height:24px;"
-																	>{@html crossmarkIcon}</span
-																>
-															{/if}
-														{:else if partyVoteInfo}
-															{#if partyVoteInfo.infavor}
-																<span
-																	class="inline-block stroke-green-600 opacity-60 dark:stroke-green-500"
-																	style="width:24px; height:24px;">{@html checkmarkIcon}</span
-																>
-															{:else}
-																<span
-																	class="inline-block opacity-60"
-																	style="width:24px; height:24px;">{@html crossmarkIcon}</span
-																>
-															{/if}
-														{/if}
-													</DelegateListItem>
-												{/each}
-												{#if delegates.filter((d) => d.name
-														.toLowerCase()
-														.includes(searchValue.toLowerCase())).length === 0}
-													<div class="p-4 text-center text-gray-500">Keine Ergebnisse gefunden</div>
-												{/if}
-											</div>
-										{/if}
-									</div>
+									
+									{@render searchContent(() => { showMobileSearch = false; })}
 								</div>
 							</div>
 						{/if}
@@ -425,7 +566,7 @@
 									</button>
 								</div>
 
-								<div class="flex flex-col gap-4">
+								<div class="flex flex-col gap-4 mt-2">
 									<!-- In Favor -->
 									<div class="rounded-xl bg-primary-200/50 p-3 dark:bg-primary-600/50">
 										<div class="mb-2 flex items-center gap-2">

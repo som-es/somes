@@ -22,16 +22,16 @@
 		<img
 			src={`${url}assets/${delegate.id}.jpg`}
 			alt={delegate.name}
-			class="{size == 'sm' ? 'h-8 w-8' : 'h-10 w-10'} shrink-0 rounded-full object-cover"
+			class="{size == 'sm' ? 'h-8 w-8' : 'h-10 w-10'} shrink-0 rounded-full object-cover text-[1px]"
 		/>
 		<div class="flex flex-col overflow-hidden">
 			<span class="{size == 'sm' ? 'text-sm' : 'text-md'} truncate font-medium leading-tight">{delegate.name}</span>
 			<div class="mt-0.5 flex items-center gap-1 md:gap-1.5">
 				<div
 					class="h-1.5 w-1.5 shrink-0 rounded-full md:h-2 md:w-2"
-					style="background-color: {partyColors.get(delegate.party) ?? '#ccc'};"
+					style="background-color: {partyColors.get(delegate.party?.trim() ? delegate.party : 'Ohne Klub') ?? '#ccc'};"
 				></div>
-				<span class="truncate text-xs text-gray-700 dark:text-gray-300">{delegate.party}</span>
+				<span class="truncate text-xs text-gray-700 dark:text-gray-300">{delegate.party?.trim() ? delegate.party : 'Ohne Klub'}</span>
 			</div>
 		</div>
 	</div>
