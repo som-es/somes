@@ -10,20 +10,24 @@ pub async fn update_send_mail_info_route(
     Json(delegate_favo): Json<SendMailInfo>,
 ) -> Result<Json<()>, GenericError> {
     query!(
-        "update somes_user set 
-            send_new_vote_results_mails = $1, 
-            send_new_delegate_activity_mails = $2, 
-            send_new_ministrial_prop_mails=$3, 
+        "update somes_user set
+            send_new_vote_results_mails = $1,
+            send_new_delegate_activity_mails = $2,
+            send_new_ministrial_prop_mails=$3,
             send_new_ministrial_prop_by_favo_mails=$4,
             send_new_decree_mails=$5,
-            send_new_decree_by_favo_mails=$6
-        where id = $7",
+            send_new_decree_by_favo_mails=$6,
+            send_new_proposal_mails=$7,
+            send_new_proposal_by_favo_mails=$8
+        where id = $9",
         delegate_favo.send_new_vote_results_mails,
         delegate_favo.send_new_delegate_activity_mails,
         delegate_favo.send_new_ministrial_prop_mails,
         delegate_favo.send_new_ministrial_prop_by_favo_mails,
         delegate_favo.send_new_decree_mails,
         delegate_favo.send_new_decree_by_favo_mails,
+        delegate_favo.send_new_proposal_mails,
+        delegate_favo.send_new_proposal_by_favo_mails,
         claims.id,
     )
     .execute(&pg)
@@ -38,13 +42,15 @@ pub async fn get_send_mail_info_route(
 ) -> Result<Json<SendMailInfo>, GenericError> {
     let mail_info = query_as!(
         SendMailInfo,
-        "select 
-            send_new_vote_results_mails, 
-            send_new_delegate_activity_mails, 
-            send_new_ministrial_prop_mails, 
+        "select
+            send_new_vote_results_mails,
+            send_new_delegate_activity_mails,
+            send_new_ministrial_prop_mails,
             send_new_ministrial_prop_by_favo_mails,
             send_new_decree_mails,
-            send_new_decree_by_favo_mails
+            send_new_decree_by_favo_mails,
+            send_new_proposal_mails,
+            send_new_proposal_by_favo_mails
         from somes_user where id = $1",
         claims.id,
     )

@@ -187,6 +187,8 @@ pub struct SendMailInfo {
     pub send_new_ministrial_prop_by_favo_mails: bool,
     pub send_new_decree_mails: bool,
     pub send_new_decree_by_favo_mails: bool,
+    pub send_new_proposal_mails: bool,
+    pub send_new_proposal_by_favo_mails: bool,
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]

@@ -20,7 +20,11 @@
 		delegates_search_persons,
 		isHasError
 	} from '$lib/api/api';
-	import { currentDelegateFilterStore, currentDelegateStore } from '$lib/stores/stores';
+	import {
+		aiViewEnabledStore,
+		currentDelegateFilterStore,
+		currentDelegateStore
+	} from '$lib/stores/stores';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import {
@@ -881,7 +885,7 @@
 			<ExpandablePlaceholder />
 		{/if}
 
-		{#if delegate && generalDelegateInfo?.political_position}
+		{#if delegate && generalDelegateInfo?.political_position && aiViewEnabledStore.value}
 			<div class="title-item rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 				<PoliticalStanceTitleBar
 					stanceTopicInfluences={generalDelegateInfo.stance_topic_influences}
@@ -889,7 +893,7 @@
 			</div>
 		{/if}
 		<div class="flex w-full gap-2 max-lg:flex-wrap">
-			{#if delegate && generalDelegateInfo?.political_position}
+			{#if delegate && generalDelegateInfo?.political_position && aiViewEnabledStore.value}
 				<SquarePoliticalSpectrum
 					{delegate}
 					politicalPosition={generalDelegateInfo.political_position}
@@ -898,7 +902,7 @@
 				<ExpandablePlaceholder class={'my-3'} />
 			{/if}
 
-			{#if delegate && generalDelegateInfo?.left_right_stances.length && generalDelegateInfo.left_right_stances.length > 0}
+			{#if delegate && generalDelegateInfo?.left_right_stances.length && generalDelegateInfo.left_right_stances.length > 0 && aiViewEnabledStore.value}
 				<StanceTypeSwitcher delegateInfo={generalDelegateInfo} />
 			{:else if !generalDelegateInfo}
 				<ExpandablePlaceholder class={'my-3'} />

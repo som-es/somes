@@ -4,7 +4,7 @@
 		currentDelegateStore,
 		currentVoteResultStore,
 		hasGoBackStore,
-		aiViewEnabledStore,
+		aiViewEnabledStore
 	} from '$lib/stores/stores';
 	import { onMount } from 'svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
@@ -83,8 +83,8 @@
 	let selectedPartiesNames = $state<string[]>([]);
 	let uniqueParties = $derived.by(() => {
 		const parties = new Set<string>();
-		delegates.forEach(d => parties.add(d.party?.trim() ? d.party : 'Ohne Klub'));
-		return Array.from(parties).map(party => ({
+		delegates.forEach((d) => parties.add(d.party?.trim() ? d.party : 'Ohne Klub'));
+		return Array.from(parties).map((party) => ({
 			name: party,
 			color: partyColors.get(party) ?? '#ccc'
 		}));
@@ -93,10 +93,10 @@
 	let filteredDelegates = $derived.by(() => {
 		let res = delegates;
 		if (searchValue) {
-			res = res.filter(d => d.name.toLowerCase().includes(searchValue.toLowerCase()));
+			res = res.filter((d) => d.name.toLowerCase().includes(searchValue.toLowerCase()));
 		}
 		if (selectedPartiesNames.length > 0) {
-			res = res.filter(d => {
+			res = res.filter((d) => {
 				const p = d.party?.trim() ? d.party : 'Ohne Klub';
 				return selectedPartiesNames.includes(p);
 			});
@@ -291,17 +291,20 @@
 										if (!voteResult || !legisInitFavos) return;
 
 										if (legisInitFavos.has(+voteResult.legislative_initiative.id)) {
-											const res = await removeLegisInitFavo({ vote_result_id: +voteResult.legislative_initiative.id });
+											const res = await removeLegisInitFavo({
+												vote_result_id: +voteResult.legislative_initiative.id
+											});
 											if (res === null) {
 												legisInitFavos.delete(+voteResult.legislative_initiative.id);
 											}
 										} else {
-											const res = await addLegisInitFavo({ vote_result_id: +voteResult.legislative_initiative.id });
+											const res = await addLegisInitFavo({
+												vote_result_id: +voteResult.legislative_initiative.id
+											});
 											if (res === null) {
-												legisInitFavos.add(+voteResult.legislative_initiative.id)
+												legisInitFavos.add(+voteResult.legislative_initiative.id);
 											}
 										}
-										
 									}}
 									class="w-14 p-2"
 								>
@@ -331,7 +334,7 @@
 							<InfoBadges {voteResult} />
 						</div>
 
-						<div class="flex-1 flex justify-end">
+						<div class="flex flex-1 justify-end">
 							{#if aiViewEnabledStore.value && voteResult.ai_summary && voteResult.eurovoc_topics.length == 0}
 								<Topics
 									topics={voteResult.ai_summary.full_summary.topics
@@ -365,11 +368,13 @@
 
 				{#snippet searchContent(onClose: () => void)}
 					<div class="mt-4 lg:mt-0">
-						<span class="text-sm lg:text-base font-semibold text-gray-800 dark:text-gray-200">Filter</span>
+						<span class="text-sm font-semibold text-gray-800 lg:text-base dark:text-gray-200"
+							>Filter</span
+						>
 						<div class="mt-2 flex h-10 w-full gap-2 md:mt-1 md:w-auto">
 							<!-- Parteien Filter -->
 							<div
-								class="flex h-full grow lg:grow-0 touch-manipulation items-center justify-center gap-1"
+								class="flex h-full grow touch-manipulation items-center justify-center gap-1 lg:grow-0"
 							>
 								<Select.Root
 									type="multiple"
@@ -377,11 +382,11 @@
 									items={uniqueParties.map((p) => ({ value: p.name, label: p.name }))}
 								>
 									<Select.Trigger
-										class="flex h-full w-full lg:w-auto touch-manipulation items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 lg:px-3 text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none"
+										class="flex h-full w-full touch-manipulation items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none lg:w-auto lg:px-3"
 									>
 										<div class="flex items-center gap-2">
 											{#each selectedPartiesNames.slice(0, 1) as partyName}
-												{@const party = uniqueParties.find(p => p.name === partyName)}
+												{@const party = uniqueParties.find((p) => p.name === partyName)}
 												{#if party}
 													<div
 														class="h-3 w-3 rounded-full"
@@ -401,7 +406,7 @@
 									</Select.Trigger>
 									<Select.Portal>
 										<Select.Content
-											class="z-500 max-h-60 w-[calc(100vw-2rem)] md:w-[200px] min-w-[var(--bits-select-anchor-width)] overflow-hidden rounded-xl border border-gray-200 bg-surface-100 shadow-lg dark:bg-surface-500"
+											class="z-500 max-h-60 w-[calc(100vw-2rem)] min-w-[var(--bits-select-anchor-width)] overflow-hidden rounded-xl border border-gray-200 bg-surface-100 shadow-lg md:w-[200px] dark:bg-surface-500"
 											sideOffset={8}
 										>
 											<Select.Viewport class="p-1">
@@ -436,23 +441,19 @@
 					</div>
 
 					<!-- Search Results -->
-					<div class="mt-3 lg:mt-4 max-h-[50vh] lg:max-h-70 overflow-y-auto">
+					<div class="mt-3 max-h-[50vh] overflow-y-auto lg:mt-4 lg:max-h-70">
 						{#if searchValue.length > 0 || selectedPartiesNames.length > 0 || isSearchPopupOpen}
 							<div class="mb-1">
-								<span class="text-sm lg:text-base font-semibold text-gray-800 dark:text-gray-200"
+								<span class="text-sm font-semibold text-gray-800 lg:text-base dark:text-gray-200"
 									>Suchergebnisse</span
 								>
 							</div>
 							<div class="space-y-2">
 								{#each filteredDelegates as del}
-									{@const namedVote = generalNamedVoteDelegates?.find(
-										(b) => b.del?.id === del.id
-									)}
-									{@const partyVoteInfo = voteResult?.votes.find(
-										(v) => v.party === del.party
-									)}
-									<DelegateListItem 
-										delegate={del} 
+									{@const namedVote = generalNamedVoteDelegates?.find((b) => b.del?.id === del.id)}
+									{@const partyVoteInfo = voteResult?.votes.find((v) => v.party === del.party)}
+									<DelegateListItem
+										delegate={del}
 										class="w-full bg-primary-200 lg:bg-primary-300 dark:bg-primary-500"
 										onclick={() => {
 											delegate = del;
@@ -467,9 +468,7 @@
 													style="width:24px; height:24px;">{@html checkmarkIcon}</span
 												>
 											{:else if namedVote.namedVote.was_absent}
-												<span class="text-xs font-medium text-gray-500"
-													>Nicht abgestimmt</span
-												>
+												<span class="text-xs font-medium text-gray-500">Nicht abgestimmt</span>
 											{:else}
 												<span class="inline-block" style="width:24px; height:24px;"
 													>{@html crossmarkIcon}</span
@@ -482,9 +481,8 @@
 													style="width:24px; height:24px;">{@html checkmarkIcon}</span
 												>
 											{:else}
-												<span
-													class="inline-block opacity-60"
-													style="width:24px; height:24px;">{@html crossmarkIcon}</span
+												<span class="inline-block opacity-60" style="width:24px; height:24px;"
+													>{@html crossmarkIcon}</span
 												>
 											{/if}
 										{/if}
@@ -499,10 +497,14 @@
 				{/snippet}
 
 				<!-- Mini Parlament and Vote Results-->
-				{#if voteResult && voteResult.votes}
+				{#if voteResult && voteResult.votes.length > 0}
 					<div class="emphasis-item rounded-xl bg-primary-300 px-5 pt-5 pb-3 dark:bg-primary-500">
 						<!-- Desktop Search PopUp -->
-						<div class="relative hidden lg:block mb-3" bind:this={searchWrapper} onfocusout={handleFocusOut}>
+						<div
+							class="relative mb-3 hidden lg:block"
+							bind:this={searchWrapper}
+							onfocusout={handleFocusOut}
+						>
 							<SearchBar
 								onfocus={() => (isSearchPopupOpen = true)}
 								onclick={() => (isSearchPopupOpen = true)}
@@ -513,13 +515,15 @@
 
 							{#if isSearchPopupOpen}
 								<div
-									class="absolute top-full right-0 left-0 z-100 mt-2 w-[98%] md:w-140 rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg dark:bg-surface-600"
+									class="absolute top-full right-0 left-0 z-100 mt-2 w-[98%] rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg md:w-140 dark:bg-surface-600"
 									data-popup="popupSearch"
 									role="button"
 									tabindex="0"
 									onmousedown={(e) => e.preventDefault()}
 								>
-									{@render searchContent(() => { isSearchPopupOpen = false; })}
+									{@render searchContent(() => {
+										isSearchPopupOpen = false;
+									})}
 								</div>
 							{/if}
 						</div>
@@ -545,8 +549,10 @@
 										placeholder="Suche nach Abgeordneten..."
 										autofocus={true}
 									/>
-									
-									{@render searchContent(() => { showMobileSearch = false; })}
+
+									{@render searchContent(() => {
+										showMobileSearch = false;
+									})}
 								</div>
 							</div>
 						{/if}
@@ -555,7 +561,7 @@
 							<!-- Abstimmung, Fractions, Result - Mobile -->
 							<div class="hidden w-full max-lg:block">
 								<div class="flex w-full items-center justify-between">
-									<h3 class="text-lg font-semibold leading-none md:text-xl">Abstimmung</h3>
+									<h3 class="text-lg leading-none font-semibold md:text-xl">Abstimmung</h3>
 									<button
 										class="flex items-center justify-center"
 										onclick={() => (showMobileSearch = true)}
@@ -566,7 +572,7 @@
 									</button>
 								</div>
 
-								<div class="flex flex-col gap-4 mt-2">
+								<div class="mt-2 flex flex-col gap-4">
 									<!-- In Favor -->
 									<div class="rounded-xl bg-primary-200/50 p-3 dark:bg-primary-600/50">
 										<div class="mb-2 flex items-center gap-2">
@@ -628,7 +634,7 @@
 							</div>
 
 							<!-- Abstimmung, Fractions, Result and Mini Parlament - Desktop-->
-							<div class="absolute max-lg:hidden ml-1">
+							<div class="absolute ml-1 max-lg:hidden">
 								<h3 class="mb-1 text-lg font-semibold md:text-xl">Abstimmung</h3>
 								<div class="ml-1">
 									{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
@@ -675,7 +681,7 @@
 								</div>
 							</div>
 
-							<div class="w-100 max-lg:hidden mt-1">
+							<div class="mt-1 w-100 max-lg:hidden">
 								{#if selectedBubble}
 									<VoteDelegateCard
 										bubble={selectedBubble}
@@ -713,6 +719,27 @@
 							</div>
 						{/if}
 					</div>
+				{:else if issuedByDels.size > 0}
+					<div class="emphasis-item rounded-xl bg-primary-300 px-5 pt-3 pb-3 dark:bg-primary-500">
+						<h3 class="text-md font-semibold md:text-lg">Eingebracht von</h3>
+						<div class="mt-1 flex flex-col gap-2 md:flex-row md:flex-wrap md:gap-3">
+							{#each Array.from(issuedByDels.entries()) as [text, delegate_ids]}
+								{#each delegate_ids as delegate_id}
+									{@const del = delegates.find((d) => d.id === delegate_id)}
+									{#if del}
+										<DelegateListItem
+											delegate={del}
+											class="w-full md:w-auto md:max-w-full"
+											onclick={() => {
+												delegate = del;
+												selectedBubble = undefined;
+											}}
+										/>
+									{/if}
+								{/each}
+							{/each}
+						</div>
+					</div>
 				{/if}
 
 				<!-- {#if voteResult.named_votes}
@@ -743,7 +770,7 @@
 						{/if}
 					</div>
 
-				
+
 
 					<div class="z-20! search-item base-font-color space-y-5">
 						<input
