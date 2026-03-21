@@ -12,7 +12,11 @@
 		coloring?: string;
 	}
 
-	let { decree, showDelegate = false, coloring = 'dark:bg-primary-300 bg-primary-400 text-black' }: Props = $props();
+	let {
+		decree,
+		showDelegate = false,
+		coloring = 'dark:bg-primary-300 bg-primary-400 text-black'
+	}: Props = $props();
 
 	let open: boolean = false;
 
@@ -22,18 +26,18 @@
 	}
 </script>
 
-<div class="gap-3 mt-5">
+<div class="mt-5 gap-3">
 	<a
-		href="{createDecreePath(decree.decree.ris_id)}"
+		href={createDecreePath(decree.decree.ris_id)}
 		tabindex="0"
-		class="entry {coloring} flex justify-between items-center"
+		class="entry {coloring} flex items-center justify-between"
 	>
 		<div class="flex flex-col gap-1">
 			{#if aiViewEnabledStore.value && decree.decree.ai_summary}
-				<span class="text-md sm:text-lg font-semibold ">
+				<span class="text-md font-semibold sm:text-lg">
 					{decree.decree.ai_summary.short_title}
 				</span>
-				<span class="text-sm sm:text-md">
+				<span class="sm:text-md text-sm">
 					{decree.decree.ai_summary.short_summary}
 				</span>
 			{:else}
@@ -44,7 +48,9 @@
 			<!-- <span class="dark:text-white"> -->
 			<!-- </span> -->
 			<div class="flex flex-wrap gap-1">
-				<span class="badge bg-tertiary-400 text-wrap text-black">{decree.decree.ministrial_issuer}</span>
+				<span class="badge bg-tertiary-400 text-wrap text-black"
+					>{decree.decree.ministrial_issuer}</span
+				>
 				<span class="badge bg-tertiary-400 text-black"
 					>{dashDateToDotDate(decree.decree.publication_date)}</span
 				>
@@ -53,11 +59,20 @@
 		</div>
 
 		{#if showDelegate && decree.delegate}
-			<img
-				class="min-w-[80px] max-h-[80px] rounded-full mx-1"
-				src={`${url}assets/${decree.delegate.id}.jpg`}
-				alt="Image of delegate {decree.delegate.name}"
-			/>
+			<div class="hidden flex-col gap-0 sm:flex">
+				<img
+					class="mx-1 max-h-[80px] min-w-[80px] rounded-full"
+					src={`${url}assets/${decree.delegate.id}.jpg`}
+					alt="Image of delegate {decree.delegate.name}"
+				/>
+				<span class="bottom-0 rounded text-[8px]">
+					{#if decree.delegate.image_copyright}
+						&copy {decree.delegate.image_copyright}
+					{:else}
+						&copy Parlamentsdirektion
+					{/if}
+				</span>
+			</div>
 		{/if}
 	</a>
 	<!-- <div use:collapse={{ open, duration }}>

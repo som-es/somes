@@ -161,7 +161,8 @@
 				{ title: 'egal', value: undefined },
 				{ title: 'Gesetz', value: 'Law' },
 				{ title: 'Entschließung', value: 'Resolution' },
-				{ title: 'Abänderung', value: 'Amendment' }
+				{ title: 'Abänderung', value: 'Amendment' },
+				{ title: 'Bericht', value: 'Report' }
 			]
 		},
 		{

@@ -12,14 +12,14 @@
 		? 'p-4'
 		: ''} rounded-xl"
 >
-	<Tabs.Root value="stance">
+	<Tabs.Root value="direction">
 		<Tabs.List>
-			<Tabs.Trigger
+			<!-- <Tabs.Trigger
 				value="stance"
 				class="data-[state=active]:border-b-2 p-1 px-3"
 			>
 				Haltung
-			</Tabs.Trigger>
+			</Tabs.Trigger> -->
 			<Tabs.Trigger
 				value="direction"
 				class="data-[state=active]:border-b-2 p-1 px-3"

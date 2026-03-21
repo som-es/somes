@@ -38,6 +38,14 @@ pub struct LegisInitFavo {
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct CallToOrder {
+    pub date: DateTime<Utc>,
+    pub inr: i32,
+    pub gp: String,
+    pub plenary_session_id: i32,
+}
+
+#[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct Absence {
     pub date: DateTime<Utc>,
     pub inr: i32,
@@ -203,8 +211,12 @@ pub struct Mandate {
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct IssuedProposal {
+    pub legis_init_id: i32,
+}
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct GeneralDelegateInfo {
-    pub mandates: Vec<Mandate>,
     pub interests: Vec<InterestShare>,
     pub detailed_interests: Vec<InterestShare>,
     pub delegate_qa: Vec<DelegateQA>,
@@ -214,6 +226,8 @@ pub struct GeneralDelegateInfo {
     pub left_right_stances: Vec<StanceTopicScore>,
     pub stance_topic_influences: Vec<StanceTopicInfluences>,
     pub stance_topic_scores: Vec<StanceTopicScore>,
+    pub received_call_to_orders: Vec<CallToOrder>,
+    pub issued_proposals: Vec<IssuedProposal>,
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]

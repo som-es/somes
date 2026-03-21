@@ -18,6 +18,7 @@ mod call_to_orders;
 mod delegate_political_position;
 mod error;
 mod interests;
+mod issued_proposals;
 mod left_right_topic_score;
 mod named_votes;
 mod routes;
@@ -28,6 +29,7 @@ pub use ai_chat::*;
 pub use call_to_orders::*;
 pub use delegate_political_position::*;
 pub use interests::*;
+pub use issued_proposals::*;
 pub use routes::*;
 pub use speeches::*;
 use sqlx::PgPool;
@@ -37,7 +39,7 @@ pub fn create_delegates_router() -> Router<AppState> {
         .route(ALL_AT_DATE, get(delegates_at_route))
         .route(ID, get(delegate_by_id_path_route))
         .route(ALL_ACTIVE, get(active_delegates_route))
-        .route(DELEGATE_QA, get(delegate_qa_route))
+        // .route(DELEGATE_QA, get(delegate_qa_route))
         .route(SEARCH, get(delegates_by_search_route))
         .route(
             SPEECHES_PER_PAGE_ROUTE,

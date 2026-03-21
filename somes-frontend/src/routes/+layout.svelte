@@ -10,6 +10,7 @@
 	import RenewToken from '$lib/components/Login/RenewToken.svelte';
 	import LoginDrawer from '$lib/components/Login/LoginDrawer.svelte';
 	import { loginDrawerOpenStore } from '$lib/caching/stores/stores.svelte';
+	import { page } from '$app/state';
 
 	let { children } = $props();
 
@@ -42,6 +43,47 @@
 		<!-- Main Content -->
 		<main class="mb-35 w-full min-w-0">
 			{@render children()}
+			{#if (page.url.pathname == "/") || page.url.pathname == "/user" || page.url.pathname == "/impressum" || page.url.pathname == "/datenschutz"}
+				<span></span>
+			{:else if !page.url.pathname.includes("decree")}
+				<div class="mx-auto mt-20 flex w-120 items-center justify-center text-lg">
+					<span class="text-center">
+						Diese Rohdaten werden von dem
+						<a
+							class="text-secondary-500"
+							href="https://www.parlament.gv.at/recherchieren/open-data/daten-und-lizenz/index.html"
+							target="_blank">Open-Data Angebot</a
+						>
+						des Österreichischen Parlaments bereitgestellt und sind nach
+						<a
+							class="text-secondary-500"
+							href="https://creativecommons.org/licenses/by/4.0/deed.de"
+							target="_blank"
+						>
+							CC-BY 4.0
+						</a> lizenziert. Der zugehörige Eintrag auf der Parlamentsseite ist bei der Somes-Detailseite im Titel verlinkt.</span
+					>
+				</div>
+			{:else}
+			<div class="mx-auto mt-20 flex w-120 items-center justify-center text-lg">
+				<span class="text-center">
+					Diese Rohdaten werden von dem
+					<a
+						class="text-secondary-500"
+						href="https://www.ris.bka.gv.at/UI/Ogd.aspx"
+						target="_blank">Open-Data Angebot</a
+					>
+					des Österreichischen Rechtsinformationssystem des Bundes bereitgestellt und sind nach
+					<a
+						class="text-secondary-500"
+						href="https://creativecommons.org/licenses/by/4.0/deed.de"
+						target="_blank"
+					>
+						CC-BY 4.0
+					</a> lizenziert. Der zugehörige Eintrag im RIS ist bei der Somes-Detailseite im Titel verlinkt.</span
+				>
+			</div>
+			{/if}
 		</main>
 	</div>
 	<footer class="sticky bottom-0 z-50">

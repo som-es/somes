@@ -61,7 +61,7 @@
 				</div>
 
 				<div class="flex flex-wrap items-center gap-2 flex-shrink-0">
-					<a href={ministerialData.originalDocumentUrl} target="_blank" class="w-5 text-gray-500">
+					<a href={ministerialData.originalDocumentUrl} target="_blank" class="w-5 text-gray-500 dark:text-gray-300">
 						{@html linkIcon}
 					</a>
 				</div>

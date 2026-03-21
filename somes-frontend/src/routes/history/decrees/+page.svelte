@@ -21,6 +21,6 @@
 	<h1 class="text-2xl sm:text-4xl font-bold">Verordnungen</h1>
 	{#if decrees && departmentsPerGp}
 		<PaginationDecrees {decrees} selectedGp={data.selectedGp} {departmentsPerGp} />
-	{/if}
+	{/if}	
 </Container>
 <!-- </div> -->

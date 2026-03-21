@@ -69,9 +69,9 @@
 	let personUrl = $derived(`https://parlament.gv.at/person/${delegate.id}?utm_source=somes.at`);
 </script>
 
-<div class="card bg-primary-200 dark:bg-primary-400 p-5 h-full flex flex-col h-[calc(100%-1rem)]">
+<div class="flex h-[calc(100%-1rem)] h-full flex-col card bg-primary-200 p-5 dark:bg-primary-400">
 	<!-- Top Row: Fav button & External Link -->
-	<div class="w-full flex justify-end gap-2 items-center">
+	<div class="flex w-full items-center justify-end gap-2">
 		<!-- Favorite Button -->
 		{#if delegateFavos}
 			{#if delegateFavos.has(delegate.id)}
@@ -82,7 +82,7 @@
 							delegateFavos = delegateFavos;
 						}
 					}}
-					class="w-6 h-6 text-yellow-500"
+					class="h-6 w-6 text-yellow-500"
 				>
 					{@html starFilled}
 				</button>
@@ -94,7 +94,7 @@
 							delegateFavos = delegateFavos;
 						}
 					}}
-					class="w-6 h-6 text-gray-500 hover:text-yellow-500"
+					class="h-6 w-6 text-gray-500 hover:text-yellow-500"
 				>
 					{@html star}
 				</button>
@@ -102,7 +102,7 @@
 		{/if}
 
 		<!-- Parlament.at link to person -->
-		<div class="w-4 h-4 text-gray-500">
+		<div class="h-4 w-4 text-gray-500 dark:text-gray-200">
 			<a href={personUrl} target="_blank">
 				{@html externalLink}
 			</a>
@@ -111,12 +111,19 @@
 
 	<!-- Show image if avaiable -->
 	{#if showImg}
-		<div class="flex justify-center pb-6">
+		<div class="relative flex justify-center pb-6">
 			<img
 				src={`${url}assets/${delegate.id}.jpg`}
-				class="rounded-full w-24 sm:w-32 md:w-46"
+				class="w-24 rounded-full sm:w-32 md:w-46"
 				alt="Image of politician {delegate.name}"
 			/>
+			<span class="absolute bottom-0 rounded px-1 text-[10px]">
+				{#if delegate.image_copyright}
+					&copy {delegate.image_copyright}
+				{:else}
+					&copy Parlamentsdirektion
+				{/if}
+			</span>
 		</div>
 	{/if}
 
@@ -137,7 +144,10 @@
 
 		<!-- Party -->
 		<div class="flex items-center">
-			<div class="w-2 h-2 rounded-full mx-2" style="background-color: {partyToColor(delegate.party)}"></div>
+			<div
+				class="mx-2 h-2 w-2 rounded-full"
+				style="background-color: {partyToColor(delegate.party)}"
+			></div>
 			<p class="text-base text-gray-800">
 				{#if delegate.party == null || delegate.party == 'OK'}
 					Ohne Klub
@@ -151,26 +161,25 @@
 	<!-- Mandate if so -->
 	<div class="mt-4">
 		{#each delegate.mandates_at_time ?? [] as mandate}
-			<div class="flex w-full items-center mt-1">
+			<div class="mt-1 flex w-full items-center">
 				<h6 class="text-sm text-wrap md:text-base xl:leading-tight">
 					{mandate.name}
 				</h6>
 			</div>
 		{/each}
 	</div>
-	
+
 	{@render top?.()}
 	{@render info?.()}
 	{#if !onlyTop}
 		<div>
-			<hr class="!border-t-2 my-1 border-gray-500" />
+			<hr class="my-1 !border-t-2 border-gray-500" />
 			{#if delegate.constituency != null}
 				<h3>{delegate.constituency}</h3>
 			{/if}
-			<hr class="!border-t-2 my-1 border-gray-500" />
+			<hr class="my-1 !border-t-2 border-gray-500" />
 			<h3>{delegate.divisions?.join(', ')}</h3>
 		</div>
-
 
 		<br />
 		{#if showDelegate == 'true'}
@@ -179,12 +188,12 @@
 	{/if}
 
 	<!-- Buttons -->
-	<div class="w-full flex justify-between mt-auto items-end pt-6">
+	<div class="mt-auto flex w-full items-end justify-between pt-6">
 		{@render footerButtons?.()}
 		{#if showMoreDetailsBtn}
 			<div></div>
-			<button class="bg-primary-600 p-2 px-3 rounded-xl text-white" onclick={onShowDetails}>
-				<h4>AI Chat</h4>
+			<button class="rounded-xl bg-primary-600 p-2 px-3 text-white" onclick={onShowDetails}>
+				<h4>Details</h4>
 			</button>
 		{/if}
 
@@ -192,18 +201,18 @@
 			{#if showAI}
 				<Dialog.Root>
 					<Dialog.Trigger>
-						<button class="bg-primary-600 p-2 px-3 rounded-xl text-white">
+						<button class="rounded-xl bg-primary-600 p-2 px-3 text-white">
 							<h4>AI Chat</h4>
 						</button>
 					</Dialog.Trigger>
 					<Dialog.Portal>
 						<Dialog.Overlay
-							class="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/80"
+							class="fixed inset-0 z-50 bg-black/80 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0"
 						/>
 
 						<Dialog.Content
 							class="
-							shadow-popover data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 outline-hidden fixed left-[50%] top-[50%] z-50 translate-x-[-50%] translate-y-[-50%] z -50 w-full max-w-4xl h-[90vh] bg-primary-100 dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden"
+							shadow-popover z -50 fixed top-[50%] left-[50%] z-50 h-[90vh] w-full max-w-4xl translate-x-[-50%] translate-y-[-50%] overflow-hidden rounded-lg bg-primary-100 shadow-lg outline-hidden data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 dark:bg-gray-800"
 						>
 							<AIChatModal {delegate} />
 						</Dialog.Content>
@@ -214,20 +223,20 @@
 			{#if showQA && questions.length > 0}
 				<Dialog.Root>
 					<Dialog.Trigger>
-						<button class="bg-primary-600 p-2 px-3 rounded-xl text-white">
+						<button class="rounded-xl bg-primary-600 p-2 px-3 text-white">
 							<h4>Vorstellung</h4>
 						</button>
 					</Dialog.Trigger>
 					<Dialog.Portal>
 						<Dialog.Overlay
-							class="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-30 bg-black/80"
+							class="fixed inset-0 z-30 bg-black/80 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0"
 						/>
 						<Dialog.Content
 							class="
-							    overflow-y-scroll
-								data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 
-								data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 
-								outline-hidden fixed left-[50%] top-[50%] z-30 translate-x-[-50%] translate-y-[-50%] w-full max-w-7xl h-[90vh] bg-primary-100 dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden"
+							    fixed
+								top-[50%] left-[50%] z-30
+								h-[90vh] w-full max-w-7xl
+								translate-x-[-50%] translate-y-[-50%] overflow-hidden overflow-y-scroll rounded-lg bg-primary-100 shadow-lg outline-hidden data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 dark:bg-gray-800"
 						>
 							<DelegateQAModal {questions} />
 						</Dialog.Content>

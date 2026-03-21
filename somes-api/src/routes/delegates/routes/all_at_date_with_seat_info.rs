@@ -65,6 +65,7 @@ SELECT
         ) AS party,
     v.current_party,
     v.image_url,
+    v.image_copyright,
     v.constituency,
     'nr' as council,
     r.seat_row,
