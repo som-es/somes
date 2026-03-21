@@ -61,7 +61,7 @@
 			children: [
 				...mapWithLocalMax(topItems),
 				{
-					name: 'Weitere Themen ->',
+					name: 'Weitere Themen → ',
 					value: remainingSum,
 					color: '#64748b',
 					opacity: 1,
@@ -100,7 +100,7 @@
 		</div>
 	</div>
 
-	<div class="mt-3 h-[450px] md:h-[320px] w-full overflow-hidden rounded-xl bg-white/5">
+	<div class="mt-3 h-[450px] w-full overflow-hidden rounded-xl bg-white/5 md:h-[320px]">
 		<Chart data={hierarchyRoot} flatData={hierarchyRoot.leaves()}>
 			<Svg>
 				<Treemap hierarchy={hierarchyRoot}>
@@ -136,33 +136,29 @@
 											rx={4}
 										/>
 
-
-											<foreignObject
-												x={0}
-												y={0}
-												width={w}
-												height={h}
-												class="pointer-events-none p-1"
+										<foreignObject x={0} y={0} width={w} height={h} class="pointer-events-none p-1">
+											<div
+												class="flex h-full w-full flex-col items-center justify-center overflow-hidden text-center"
 											>
-												<div
-													class="flex h-full w-full flex-col items-center justify-center overflow-hidden text-center"
+												<p
+													class="w-full font-bold tracking-tighter text-white uppercase"
+													lang="de"
+													style="text-shadow: 0 1px 2px rgba(0,0,0,0.5); font-size: {labelSize}px; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: {Math.max(
+														2,
+														Math.floor(h / 14)
+													)}; -webkit-box-orient: vertical; overflow: hidden; hyphens: auto; word-break: break-word; overflow-wrap: anywhere;"
 												>
-													<p
-														class="w-full font-bold tracking-tighter text-white uppercase"
-														lang="de"
-														style="text-shadow: 0 1px 2px rgba(0,0,0,0.5); font-size: {labelSize}px; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: {Math.max(2, Math.floor(h / 14))}; -webkit-box-orient: vertical; overflow: hidden; hyphens: auto; word-break: break-word; overflow-wrap: anywhere;"
-													>
-														{node.data.name}
-													</p>
+													{node.data.name}
+												</p>
 
-													<p
-														class="mt-0.5 font-mono text-white/80"
-														style="text-shadow: 0 1px 3px rgba(0,0,0,0.6); font-size: {valueSize}px;"
-													>
-														{node.data.actualValue ?? node.value}
-													</p>
-												</div>
-											</foreignObject>
+												<p
+													class="mt-0.5 font-mono text-white/80"
+													style="text-shadow: 0 1px 3px rgba(0,0,0,0.6); font-size: {valueSize}px;"
+												>
+													{node.data.actualValue ?? node.value}
+												</p>
+											</div>
+										</foreignObject>
 									</g>
 								</Group>
 							{/if}
