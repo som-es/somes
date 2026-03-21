@@ -59,7 +59,7 @@
 	// Selected topics first, then unselected
 	let selectedFilteredTopics = $derived(filteredTopics.filter((t) => selectedTopics.has(t.id)));
 	let unselectedFilteredTopics = $derived(filteredTopics.filter((t) => !selectedTopics.has(t.id)));
-	
+
 	let searchWrapper: HTMLDivElement | undefined = $state();
 	function handleFocusOut(e: FocusEvent) {
 		const relatedTarget = e.relatedTarget as Node | null;
@@ -208,22 +208,22 @@
 							</div>
 							<div class="flex items-start gap-3">
 								<Switch.Root
-									bind:checked={mailSendInfo.send_new_delegate_activity_mails}
+									bind:checked={mailSendInfo.send_new_vote_result_by_favo_mails}
 									onCheckedChange={updateThisMailSendInfo}
 									class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
-									id="sendnewDelegateInfo"
+									id="sendVoteResultInfoMailByPerson"
 								>
 									<Switch.Thumb
 										class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
 									/>
 								</Switch.Root>
-								<label class="cursor-pointer" for="sendnewDelegateInfo">
+								<label class="cursor-pointer" for="sendVoteResultInfoMail">
 									<div class="flex flex-col">
 										<span class="font-semibold text-gray-900 dark:text-gray-50"
-											>Zu Abgeordnetenaktivitäten</span
+											>Zu neuen Abstimmungen</span
 										>
 										<span class="text-sm text-gray-600 dark:text-gray-300"
-											>nach favorisierten Abgeordneten</span
+											>nach favorisierten Personen</span
 										>
 									</div>
 								</label>
@@ -316,8 +316,71 @@
 									</div>
 								</label>
 							</div>
-
-
+							<div class="flex items-start gap-3">
+								<Switch.Root
+									bind:checked={mailSendInfo.send_new_proposal_mails}
+									onCheckedChange={updateThisMailSendInfo}
+									class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
+									id="sendProposalMails"
+								>
+									<Switch.Thumb
+										class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+									/>
+								</Switch.Root>
+								<label class="cursor-pointer" for="sendProposalMails">
+									<div class="flex flex-col">
+										<span class="font-semibold text-gray-900 dark:text-gray-50"
+											>Zu neuen Anträgen</span
+										>
+										<span class="text-sm text-gray-600 dark:text-gray-300"
+											>nach ausgewählten Themen</span
+										>
+									</div>
+								</label>
+							</div>
+							<div class="flex items-start gap-3">
+								<Switch.Root
+									bind:checked={mailSendInfo.send_new_proposal_by_favo_mails}
+									onCheckedChange={updateThisMailSendInfo}
+									class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
+									id="sendProposalMailsByDelegateFavo"
+								>
+									<Switch.Thumb
+										class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+									/>
+								</Switch.Root>
+								<label class="cursor-pointer" for="sendProposalMailsByDelegateFavo">
+									<div class="flex flex-col">
+										<span class="font-semibold text-gray-900 dark:text-gray-50"
+											>Zu neuen Anträgen</span
+										>
+										<span class="text-sm text-gray-600 dark:text-gray-300"
+											>nach favorisierten Personen</span
+										>
+									</div>
+								</label>
+							</div>
+							<div class="flex items-start gap-3">
+								<Switch.Root
+									bind:checked={mailSendInfo.send_new_delegate_activity_mails}
+									onCheckedChange={updateThisMailSendInfo}
+									class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
+									id="sendnewDelegateInfo"
+								>
+									<Switch.Thumb
+										class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+									/>
+								</Switch.Root>
+								<label class="cursor-pointer" for="sendnewDelegateInfo">
+									<div class="flex flex-col">
+										<span class="font-semibold text-gray-900 dark:text-gray-50">Zu Aktivitäten</span
+										>
+										<span class="text-sm text-gray-600 dark:text-gray-300"
+											>nach favorisierten Personen</span
+										>
+									</div>
+								</label>
+							</div>
 						{/if}
 					</div>
 				{:else}
@@ -342,14 +405,13 @@
 
 				<!-- Inline search with dropdown (like MultiValuesFilter) -->
 				<!-- svelte-ignore a11y_no_static_element_interactions -->
-				<div
-					class="relative mt-3"
-					bind:this={searchWrapper} onfocusout={handleFocusOut}
-				>
+				<div class="relative mt-3" bind:this={searchWrapper} onfocusout={handleFocusOut}>
 					<div
 						class="flex w-full items-center gap-2 rounded-xl border border-gray-300 bg-white px-3 py-2 focus-within:border-secondary-500 focus-within:ring-2 focus-within:ring-secondary-500/20 dark:bg-surface-100"
 					>
-						<div class="flex h-5 w-5 shrink-0 items-center justify-center text-gray-500 dark:text-gray-500">
+						<div
+							class="flex h-5 w-5 shrink-0 items-center justify-center text-gray-500 dark:text-gray-500"
+						>
 							{@html searchIcon}
 						</div>
 						<input
@@ -391,7 +453,9 @@
 											class="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-primary-100 dark:hover:bg-primary-700"
 											onclick={() => handleTopicToggle(topic)}
 										>
-											<div class="min-h-4 min-w-4 rounded-md border-[2px] border-secondary-500"></div>
+											<div
+												class="min-h-4 min-w-4 rounded-md border-[2px] border-secondary-500"
+											></div>
 											<span class="text-left text-sm text-gray-800 dark:text-gray-300"
 												>{topic.topic}</span
 											>
@@ -416,7 +480,9 @@
 				<div class="mt-3 flex flex-wrap gap-3">
 					{#if favoDelegates}
 						{#if favoDelegates.size == 0}
-							<p class="text-gray-600 dark:text-gray-300">Keine favorisierten Personen vorhanden.</p>
+							<p class="text-gray-600 dark:text-gray-300">
+								Keine favorisierten Personen vorhanden.
+							</p>
 						{:else}
 							{#each favoDelegates as favoDelegateId}
 								{#await delegate_by_id(favoDelegateId)}
@@ -491,10 +557,7 @@
 					Diese Aktion kann nicht rückgängig gemacht werden.
 				</p>
 				<div class="mt-3">
-					<SButton
-						class="bg-error-500 text-white hover:bg-error-600"
-						onclick={handleDeleteAccount}
-					>
+					<SButton class="bg-error-500 text-white hover:bg-error-600" onclick={handleDeleteAccount}>
 						Account löschen
 					</SButton>
 				</div>

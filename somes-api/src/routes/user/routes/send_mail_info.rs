@@ -18,8 +18,9 @@ pub async fn update_send_mail_info_route(
             send_new_decree_mails=$5,
             send_new_decree_by_favo_mails=$6,
             send_new_proposal_mails=$7,
-            send_new_proposal_by_favo_mails=$8
-        where id = $9",
+            send_new_proposal_by_favo_mails=$8,
+            send_new_vote_result_by_favo_mails=$9
+        where id = $10",
         delegate_favo.send_new_vote_results_mails,
         delegate_favo.send_new_delegate_activity_mails,
         delegate_favo.send_new_ministrial_prop_mails,
@@ -28,6 +29,7 @@ pub async fn update_send_mail_info_route(
         delegate_favo.send_new_decree_by_favo_mails,
         delegate_favo.send_new_proposal_mails,
         delegate_favo.send_new_proposal_by_favo_mails,
+        delegate_favo.send_new_vote_results_mails,
         claims.id,
     )
     .execute(&pg)
@@ -50,7 +52,8 @@ pub async fn get_send_mail_info_route(
             send_new_decree_mails,
             send_new_decree_by_favo_mails,
             send_new_proposal_mails,
-            send_new_proposal_by_favo_mails
+            send_new_proposal_by_favo_mails,
+            send_new_vote_result_by_favo_mails
         from somes_user where id = $1",
         claims.id,
     )
