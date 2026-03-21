@@ -112,58 +112,65 @@
 							{@const labelSize = getLabelSize(w, h)}
 							{@const valueSize = getLabelSize(w, h)}
 							{#if !node.children}
-								<Group x={node.x0} y={node.y0}>
-									<g
-										role="button"
-										tabindex="0"
-										class="outline-none {node.data.isOther
-											? 'cursor-pointer transition-opacity hover:opacity-80'
-											: ''}"
-										onclick={() => {
-											if (node.data.isOther) showRemaining = true;
-										}}
-										onkeydown={(e) => {
-											if (e.key === 'Enter' && node.data.isOther) showRemaining = true;
-										}}
+								<g
+									role="button"
+									tabindex="0"
+									class="outline-none {node.data.isOther ? 'cursor-pointer' : ''}"
+									onclick={() => {
+										if (node.data.isOther) showRemaining = true;
+									}}
+									onkeydown={(e) => {
+										if (e.key === 'Enter' && node.data.isOther) showRemaining = true;
+									}}
+								>
+									<Rect
+										x={node.x0}
+										y={node.y0}
+										width={w}
+										height={h}
+										fill={node.data.color}
+										fill-opacity={node.data.opacity}
+										stroke="rgba(255,255,255,0.2)"
+										strokeWidth={1}
+										rx={4}
+										class={node.data.isOther ? 'transition-opacity hover:opacity-80' : ''}
+									/>
+
+									<foreignObject 
+										x={node.x0} 
+										y={node.y0} 
+										width={w} 
+										height={h} 
+										class="pointer-events-none"
 									>
-										<Rect
-											width={w}
-											height={h}
-											fill={node.data.color}
-											fill-opacity={node.data.opacity}
-											stroke="rgba(255,255,255,0.2)"
-											strokeWidth={1}
-											rx={4}
-										/>
-
-										<foreignObject x={0} y={0} width={w} height={h} class="pointer-events-none p-1">
-											<div
-												class="flex h-full w-full flex-col items-center justify-center overflow-hidden text-center"
+										<div
+											xmlns="http://www.w3.org/1999/xhtml"
+											class="flex flex-col items-center justify-center overflow-hidden text-center p-1 {node.data.isOther ? 'transition-opacity hover:opacity-80' : ''}"
+											style="width: {w}px; height: {h}px;"
+										>
+											<p
+												class="w-full font-bold tracking-tighter text-white uppercase"
+												lang="de"
+												style="text-shadow: 0 1px 2px rgba(0,0,0,0.5); font-size: {labelSize}px; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: {Math.max(
+													2,
+													Math.floor(h / 14)
+												)}; -webkit-box-orient: vertical; overflow: hidden; hyphens: auto; word-break: break-word; overflow-wrap: anywhere;"
 											>
-												<p
-													class="w-full font-bold tracking-tighter text-white uppercase"
-													lang="de"
-													style="text-shadow: 0 1px 2px rgba(0,0,0,0.5); font-size: {labelSize}px; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: {Math.max(
-														2,
-														Math.floor(h / 14)
-													)}; -webkit-box-orient: vertical; overflow: hidden; hyphens: auto; word-break: break-word; overflow-wrap: anywhere;"
-												>
-													{node.data.name}
-												</p>
+												{node.data.name}
+											</p>
 
-												<p
-													class="mt-0.5 font-mono text-white/80"
-													style="text-shadow: 0 1px 3px rgba(0,0,0,0.6); font-size: {valueSize}px;"
-												>
-													{node.data.actualValue ?? node.value}
-												</p>
-											</div>
-										</foreignObject>
-									</g>
-								</Group>
+											<p
+												class="mt-0.5 font-mono text-white/80"
+												style="text-shadow: 0 1px 3px rgba(0,0,0,0.6); font-size: {valueSize}px;"
+											>
+												{node.data.actualValue ?? node.value}
+											</p>
+										</div>
+									</foreignObject>
+								</g>
 							{/if}
 						{/each}
-					{/snippet}
+					{/snippet}	
 				</Treemap>
 			</Svg>
 		</Chart>
