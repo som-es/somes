@@ -51,7 +51,7 @@
 	import GenericFilters from '$lib/components/Filtering/GenericFilters.svelte';
 	import { type GenericFilterGroup } from '$lib/components/Filtering/types';
 	import DelegateListItem from '$lib/components/Delegates/DelegateListItem.svelte';
-	
+
 	let { data }: PageProps = $props();
 
 	let delegates: Delegate[] = $derived(data.delegates ?? []);
@@ -772,7 +772,7 @@
 				</datalist>
 			</div>
 		</div>
-		<!-- 
+		<!--
 		<div class="text-token w-full space-y-2">
 			<input
 				class="input w-full h-12 px-2"
@@ -888,7 +888,7 @@
 				/>
 			</div>
 		{/if}
-		<div class="flex gap-2 max-lg:flex-wrap">
+		<div class="flex w-full gap-2 max-lg:flex-wrap">
 			{#if delegate && generalDelegateInfo?.political_position}
 				<SquarePoliticalSpectrum
 					{delegate}

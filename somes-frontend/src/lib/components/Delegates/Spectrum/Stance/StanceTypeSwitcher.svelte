@@ -1,14 +1,14 @@
 <script lang="ts">
-	import type { GeneralDelegateInfo } from "$lib/types";
-	import { Tabs } from "bits-ui";
-	import Stances from "./Stances.svelte";
+	import type { GeneralDelegateInfo } from '$lib/types';
+	import { Tabs } from 'bits-ui';
+	import Stances from './Stances.svelte';
 
-    export let delegateInfo: GeneralDelegateInfo;
-
+	export let delegateInfo: GeneralDelegateInfo;
 </script>
 
 <div
-	class="bg-primary-300 flex flex-wrap dark:bg-primary-500 {delegateInfo.left_right_stances.length > 0 || delegateInfo.stance_topic_scores.length > 0
+	class="flex w-full flex-wrap bg-primary-300 dark:bg-primary-500 {delegateInfo.left_right_stances
+		.length > 0 || delegateInfo.stance_topic_scores.length > 0
 		? 'p-4'
 		: ''} rounded-xl"
 >
@@ -20,17 +20,14 @@
 			>
 				Haltung
 			</Tabs.Trigger> -->
-			<Tabs.Trigger
-				value="direction"
-				class="data-[state=active]:border-b-2 p-1 px-3"
-			>
+			<Tabs.Trigger value="direction" class="p-1 px-3 data-[state=active]:border-b-2">
 				Richtung
 			</Tabs.Trigger>
 		</Tabs.List>
 		<Tabs.Content value="stance" class="mt-4">
 			<Stances
-				leftLabel={"Dagegen"}
-				rightLabel={"Dafür"}
+				leftLabel={'Dagegen'}
+				rightLabel={'Dafür'}
 				stances={delegateInfo.stance_topic_scores}
 			/>
 		</Tabs.Content>

@@ -112,7 +112,7 @@ export function enrichParliamentBubbles(
 			} catch (e) {
 				const x = bubbles[del.seat_row - 1];
 				console.error(x);
-				console.error("could not set opacity for delegate:", del);
+				console.error('could not set opacity for delegate:', del);
 			}
 		}
 	});
@@ -126,7 +126,12 @@ export function enrichParliamentBubbles(
 			setOpacity
 		);
 		if (voteResult.named_votes) {
-			enrichCirclesWithNamedVoteInfoOnSeat(voteResult.named_votes.named_votes, bubbles, dels, setOpacity);
+			enrichCirclesWithNamedVoteInfoOnSeat(
+				voteResult.named_votes.named_votes,
+				bubbles,
+				dels,
+				setOpacity
+			);
 		}
 		enrichtCirclesWithAbsenceInfoOnSeat(voteResult.absences, bubbles, dels);
 	}
@@ -237,9 +242,7 @@ export async function enrichCirclesWithSpeechInfoOnSeat(
 		if (infavor == null) {
 			circles2d[del.seat_row - 1][del.seat_col - 1].title = speech.opinion;
 		} else {
-			circles2d[del.seat_row - 1][del.seat_col - 1].title = infavor
-				? `Pro`
-				: `Contra`;
+			circles2d[del.seat_row - 1][del.seat_col - 1].title = infavor ? `Pro` : `Contra`;
 		}
 		setOpacity(circles2d[del.seat_row - 1][del.seat_col - 1]);
 		circles2d[del.seat_row - 1][del.seat_col - 1].r = +10.9;

@@ -188,6 +188,7 @@ export interface Reference {
 	inr: number;
 }
 export interface VoteResult {
+	id: number;
 	legislative_initiative: LegislativeInitiative;
 	votes: Vote[];
 	speeches: Speech[];

@@ -183,7 +183,6 @@
 		hidden: false,
 		options: [{ title: 'Alle', value: 'all' }]
 	});
-	
 
 	// Variables to count active filters
 	let activePartyFiltersCount = $derived(
@@ -338,7 +337,7 @@
 	<SearchBar bind:searchValue />
 	<!-- Filter Buttons -->
 	<!-- Parteien Filter -->
-	<div class="mt-2 flex h-10 w-full gap-2 md:mt-0 md:ml-2 md:w-auto">
+	<div class="mt-2 flex h-10 w-full gap-2 text-xs sm:text-base md:mt-0 md:ml-2 md:w-auto">
 		{#if showPartyFilter}
 			<Popover.Root bind:open={isPartiesFilterOpen}>
 				<Popover.Trigger
@@ -352,11 +351,11 @@
 				</Popover.Trigger>
 				<Popover.Content sideOffset={8}>
 					<div
-						class="z-10 w-72 touch-manipulation rounded-xl border border-gray-300 bg-surface-50 dark:bg-surface-600 px-6 py-4 shadow-lg"
+						class="z-10 w-72 touch-manipulation rounded-xl border border-gray-300 bg-surface-50 px-6 py-4 shadow-lg dark:bg-surface-600"
 						data-popup="popupParties"
 					>
 						<div class="flex flex-col gap-2">
-							{#each uniqueParties as party}
+							{#each uniqueParties as party (party.name)}
 								<div class="flex items-center gap-2">
 									<!-- Party Name and Color -->
 									<div class="flex items-center gap-2">
@@ -364,12 +363,18 @@
 											class="h-3 w-3 rounded-full"
 											style="background-color: {party.color ?? '#ccc'};"
 										></div>
-										<span class="text-base font-semibold text-gray-800 dark:text-gray-200">{party.name}</span>
+										<span class="text-base font-semibold text-gray-800 dark:text-gray-200"
+											>{party.name}</span
+										>
 									</div>
 									<!-- Party Checkbox -->
 									<div class="ml-auto flex items-center gap-1">
 										<button
-											class="cursor-pointer rounded-lg px-2 py-1 text-sm {partyFilterState[party.name] === 'pro' ? "bg-primary-300 dark:bg-primary-400" : ""}"
+											class="cursor-pointer rounded-lg px-2 py-1 text-sm {partyFilterState[
+												party.name
+											] === 'pro'
+												? 'bg-primary-300 dark:bg-primary-400'
+												: ''}"
 											onclick={() =>
 												(partyFilterState[party.name] =
 													partyFilterState[party.name] === 'pro' ? 'egal' : 'pro')}
@@ -377,13 +382,21 @@
 											Pro
 										</button>
 										<button
-											class="cursor-pointer rounded-lg px-2 py-1 text-sm {partyFilterState[party.name] === 'egal' ? "bg-primary-300 dark:bg-primary-400" : ""}"
+											class="cursor-pointer rounded-lg px-2 py-1 text-sm {partyFilterState[
+												party.name
+											] === 'egal'
+												? 'bg-primary-300 dark:bg-primary-400'
+												: ''}"
 											onclick={() => (partyFilterState[party.name] = 'egal')}
 										>
 											Egal
 										</button>
 										<button
-											class="cursor-pointer rounded-lg px-2 py-1 text-sm {partyFilterState[party.name] === 'contra' ? "bg-primary-300 dark:bg-primary-400" : ""}"
+											class="cursor-pointer rounded-lg px-2 py-1 text-sm {partyFilterState[
+												party.name
+											] === 'contra'
+												? 'bg-primary-300 dark:bg-primary-400'
+												: ''}"
 											onclick={() =>
 												(partyFilterState[party.name] =
 													partyFilterState[party.name] === 'contra' ? 'egal' : 'contra')}
@@ -411,7 +424,7 @@
 <div>
 	{#if voteResults}
 		{#if voteResults.vote_results.length > 0}
-			{#each voteResults.vote_results as voteResult}
+			{#each voteResults.vote_results as voteResult (voteResult.id)}
 				<VoteResultExpandableBar {voteResult} class="" />
 			{/each}
 		{:else if currentlyUpdating}

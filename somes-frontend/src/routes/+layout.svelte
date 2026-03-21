@@ -43,10 +43,10 @@
 		<!-- Main Content -->
 		<main class="mb-35 w-full min-w-0">
 			{@render children()}
-			{#if (page.url.pathname == "/") || page.url.pathname == "/user" || page.url.pathname == "/impressum" || page.url.pathname == "/datenschutz"}
+			{#if page.url.pathname == '/' || page.url.pathname == '/user' || page.url.pathname == '/impressum' || page.url.pathname == '/datenschutz'}
 				<span></span>
-			{:else if !page.url.pathname.includes("decree")}
-				<div class="mx-auto mt-20 flex w-120 items-center justify-center text-lg">
+			{:else if !page.url.pathname.includes('decree')}
+				<div class="mx-auto mt-20 flex w-full items-center justify-center text-lg sm:w-120">
 					<span class="text-center">
 						Diese Rohdaten werden von dem
 						<a
@@ -61,28 +61,29 @@
 							target="_blank"
 						>
 							CC-BY 4.0
-						</a> lizenziert. Der zugehörige Eintrag auf der Parlamentsseite ist bei der Somes-Detailseite im Titel verlinkt.</span
+						</a> lizenziert. Der zugehörige Eintrag auf der Parlamentsseite ist bei der Somes-Detailseite
+						im Titel verlinkt.</span
 					>
 				</div>
 			{:else}
-			<div class="mx-auto mt-20 flex w-120 items-center justify-center text-lg">
-				<span class="text-center">
-					Diese Rohdaten werden von dem
-					<a
-						class="text-secondary-500"
-						href="https://www.ris.bka.gv.at/UI/Ogd.aspx"
-						target="_blank">Open-Data Angebot</a
+				<div class="mx-auto mt-20 flex w-120 max-w-full items-center justify-center text-lg">
+					<span class="text-center">
+						Diese Rohdaten werden von dem
+						<a
+							class="text-secondary-500"
+							href="https://www.ris.bka.gv.at/UI/Ogd.aspx"
+							target="_blank">Open-Data Angebot</a
+						>
+						des Österreichischen Rechtsinformationssystem des Bundes bereitgestellt und sind nach
+						<a
+							class="text-secondary-500"
+							href="https://creativecommons.org/licenses/by/4.0/deed.de"
+							target="_blank"
+						>
+							CC-BY 4.0
+						</a> lizenziert. Der zugehörige Eintrag im RIS ist bei der Somes-Detailseite im Titel verlinkt.</span
 					>
-					des Österreichischen Rechtsinformationssystem des Bundes bereitgestellt und sind nach
-					<a
-						class="text-secondary-500"
-						href="https://creativecommons.org/licenses/by/4.0/deed.de"
-						target="_blank"
-					>
-						CC-BY 4.0
-					</a> lizenziert. Der zugehörige Eintrag im RIS ist bei der Somes-Detailseite im Titel verlinkt.</span
-				>
-			</div>
+				</div>
 			{/if}
 		</main>
 	</div>
