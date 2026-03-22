@@ -30,6 +30,7 @@ pub struct Document {
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct DelegateFavo {
     pub delegate_id: i32,
+    pub user_info_days: i32,
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]

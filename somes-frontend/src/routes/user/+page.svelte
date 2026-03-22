@@ -34,10 +34,11 @@
 		type MailSendInfo,
 		type UniqueTopic
 	} from '$lib/types';
-	import { Switch, Popover } from 'bits-ui';
+	import { Switch, Popover, Select } from 'bits-ui';
 	import { onMount } from 'svelte';
 	import searchIcon from '$lib/assets/misc_icons/search-glass.svg?raw';
 	import { SvelteSet } from 'svelte/reactivity';
+	import DelegateUserCard from '$lib/components/Delegates/DelegateUserCard.svelte';
 
 	// State with Svelte 5 runes
 	let topics = $state<UniqueTopic[]>([]);
@@ -484,12 +485,12 @@
 								Keine favorisierten Personen vorhanden.
 							</p>
 						{:else}
-							{#each favoDelegates as favoDelegateId}
+							{#each favoDelegates as favoDelegateId (favoDelegateId)}
 								{#await delegate_by_id(favoDelegateId)}
 									<ExpandablePlaceholder class="!w-80" />
 								{:then maybeDelegate}
 									{#if !isHasError(maybeDelegate)}
-										<DelegateCard delegate={maybeDelegate} showMoreDetailsBtn onlyTop={true} />
+										<DelegateUserCard {delegate} />
 									{/if}
 								{/await}
 							{/each}
