@@ -30,6 +30,7 @@
 	import {
 		getUserFromJwt,
 		type BasicUserInfo,
+		type DelegateFavo,
 		type ExtendedUserInfo,
 		type MailSendInfo,
 		type UniqueTopic
@@ -37,7 +38,7 @@
 	import { Switch, Popover, Select } from 'bits-ui';
 	import { onMount } from 'svelte';
 	import searchIcon from '$lib/assets/misc_icons/search-glass.svg?raw';
-	import { SvelteSet } from 'svelte/reactivity';
+	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 	import DelegateUserCard from '$lib/components/Delegates/DelegateUserCard.svelte';
 
 	// State with Svelte 5 runes
@@ -46,7 +47,7 @@
 	let user = $state<BasicUserInfo | null>(null);
 	let extendedUser = $state<ExtendedUserInfo | null>(null);
 	let mailSendInfo = $state<MailSendInfo | null>(null);
-	let favoDelegates = $state<SvelteSet<number> | null>(null);
+	let favoDelegates = $state<SvelteMap<number, DelegateFavo> | null>(null);
 	let favoLegisInits = $state<SvelteSet<number> | null>(null);
 
 	let topicSearchValue = $state('');
@@ -485,12 +486,15 @@
 								Keine favorisierten Personen vorhanden.
 							</p>
 						{:else}
-							{#each favoDelegates as favoDelegateId (favoDelegateId)}
-								{#await delegate_by_id(favoDelegateId)}
+							{#each favoDelegates as favoDelegateId (favoDelegateId[0])}
+								{#await delegate_by_id(favoDelegateId[0])}
 									<ExpandablePlaceholder class="!w-80" />
 								{:then maybeDelegate}
 									{#if !isHasError(maybeDelegate)}
-										<DelegateUserCard {delegate} />
+										<DelegateUserCard
+											delegate={maybeDelegate}
+											currentNotifyInfoDays={favoDelegateId[1].user_info_days}
+										/>
 									{/if}
 								{/await}
 							{/each}

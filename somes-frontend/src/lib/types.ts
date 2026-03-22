@@ -162,6 +162,7 @@ export interface UniqueTopic {
 
 export interface DelegateFavo {
 	delegate_id: number;
+	user_info_days: number;
 }
 
 export interface LegisInitFavo {

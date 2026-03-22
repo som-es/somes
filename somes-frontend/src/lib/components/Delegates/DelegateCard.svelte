@@ -16,6 +16,7 @@
 	import { Dialog } from 'bits-ui';
 	import DelegateQAModal from './QA/DelegateQAModal.svelte';
 	import { resolve } from '$app/paths';
+	import type { SvelteMap, SvelteSet } from 'svelte/reactivity';
 
 	interface Props {
 		delegate: Delegate;
@@ -54,7 +55,7 @@
 		gotoHistory(resolve(`/delegates`), true);
 	};
 
-	let delegateFavos: Set<number> | null = $state(null);
+	let delegateFavos: SvelteMap<number, DelegateFavo> | null = $state(null);
 	onMount(async () => {
 		delegateFavos = await cachedDelegateFavos();
 	});
@@ -77,7 +78,9 @@
 			{#if delegateFavos.has(delegate.id)}
 				<button
 					onclick={async () => {
-						if ((await removeDelegateFavo({ delegate_id: delegate.id })) == null) {
+						if (
+							(await removeDelegateFavo({ delegate_id: delegate.id, user_info_days: 0 })) == null
+						) {
 							delegateFavos?.delete(delegate.id);
 							delegateFavos = delegateFavos;
 						}
@@ -89,8 +92,8 @@
 			{:else}
 				<button
 					onclick={async () => {
-						if ((await addDelegateFavo({ delegate_id: delegate.id })) == null) {
-							delegateFavos?.add(delegate.id);
+						if ((await addDelegateFavo({ delegate_id: delegate.id, user_info_days: 7 })) == null) {
+							delegateFavos?.set(delegate.id, { delegate_id: delegate.id, user_info_days: 7 });
 							delegateFavos = delegateFavos;
 						}
 					}}

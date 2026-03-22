@@ -28,7 +28,11 @@ export async function getWithAuth<T>(route: string, country = 'at/'): Promise<T 
 	);
 }
 
-export async function putWithAuth<T>(route: string, body: any, country = 'at/'): Promise<T | HasError> {
+export async function putWithAuth<T>(
+	route: string,
+	body: any,
+	country = 'at/'
+): Promise<T | HasError> {
 	const accessToken = jwtStore.value;
 	if (accessToken == null) {
 		return { error: 'No access token', error_type: 'AuthError', field: 'MissingToken', meta: null };
@@ -45,7 +49,11 @@ export async function putWithAuth<T>(route: string, body: any, country = 'at/'):
 	);
 }
 
-export async function postWithAuth<T>(route: string, body: any, country = 'at/'): Promise<T | HasError> {
+export async function postWithAuth<T>(
+	route: string,
+	body: any,
+	country = 'at/'
+): Promise<T | HasError> {
 	const accessToken = jwtStore.value;
 	if (accessToken == null) {
 		return { error: 'No access token', error_type: 'AuthError', field: 'MissingToken', meta: null };
@@ -99,6 +107,10 @@ export async function removeUserTopic(uniqueTopic: UniqueTopic): Promise<null | 
 
 export async function getUserTopics(): Promise<UniqueTopic[] | HasError> {
 	return getWithAuth('v1/user/topic_selection');
+}
+
+export async function updateDelegateFavo(delegateFavo: DelegateFavo): Promise<null | HasError> {
+	return putWithAuth('v1/user/bookmark/delegate', delegateFavo);
 }
 
 export async function addDelegateFavo(uniqueTopic: DelegateFavo): Promise<null | HasError> {

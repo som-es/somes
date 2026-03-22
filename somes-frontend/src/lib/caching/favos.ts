@@ -1,23 +1,28 @@
 import { isHasError } from '$lib/api/api';
 import { getFavoDelegates, getFavoLegisInits } from '$lib/api/authed';
-import { SvelteSet } from 'svelte/reactivity';
+import type { DelegateFavo } from '$lib/types';
+import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 
-export let favoDelegates: SvelteSet<number> | null = null;
+export let favoDelegates: SvelteMap<number, DelegateFavo> | null = null;
 export let favoLegisInits: SvelteSet<number> | null = null;
 
-export async function cachedDelegateFavos(refetch: boolean = false): Promise<SvelteSet<number> | null> {
+export async function cachedDelegateFavos(
+	refetch: boolean = false
+): Promise<SvelteMap<number, DelegateFavo> | null> {
 	let maybeCached = favoDelegates;
 	if (maybeCached == null || refetch || maybeCached.size == 0) {
 		const fetched = await getFavoDelegates();
 		if (!isHasError(fetched)) {
-			maybeCached = new SvelteSet(fetched.map((x) => x.delegate_id));
+			maybeCached = new SvelteMap(fetched.map((favo) => [favo.delegate_id, favo]));
 		}
 	}
 	return maybeCached;
 }
 
-export async function cachedLegisInitFavos(refetch: boolean = false): Promise<SvelteSet<number> | null> {
-	let maybeCached = favoDelegates;
+export async function cachedLegisInitFavos(
+	refetch: boolean = false
+): Promise<SvelteSet<number> | null> {
+	let maybeCached = favoLegisInits;
 	if (maybeCached == null || refetch || maybeCached.size == 0) {
 		const fetched = await getFavoLegisInits();
 		if (!isHasError(fetched)) {
