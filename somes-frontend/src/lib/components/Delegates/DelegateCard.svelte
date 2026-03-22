@@ -151,7 +151,7 @@
 				class="mx-2 h-2 w-2 rounded-full"
 				style="background-color: {partyToColor(delegate.party)}"
 			></div>
-			<p class="text-base text-gray-800">
+			<p class="text-base text-gray-800 dark:text-gray-50">
 				{#if delegate.party == null || delegate.party == 'OK'}
 					Ohne Klub
 				{:else}

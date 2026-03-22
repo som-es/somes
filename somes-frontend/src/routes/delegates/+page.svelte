@@ -348,7 +348,7 @@
 
 		url.searchParams.set('date', toActualDateString(supplyDate));
 		url.searchParams.set('gp', selectedPeriod);
-		goto(url.toString(), { noScroll: true });
+		goto(url.toString(), { noScroll: true, replaceState: true });
 	};
 
 	const onLettingGoOfDaySlider = () => {
