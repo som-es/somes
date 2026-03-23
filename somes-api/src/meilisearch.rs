@@ -234,7 +234,10 @@ pub async fn update_vote_result_meilisearch_index(
             "exactness".to_string(),
         ])
         .with_filterable_attributes(&filterable_fields)
-        .with_sortable_attributes(["legislative_initiative.nr_plenary_activity_date"])
+        .with_sortable_attributes([
+            "legislative_initiative.nr_plenary_activity_date",
+            "legislative_initiative.raw_data_created_at",
+        ])
         .with_pagination(PaginationSetting {
             max_total_hits: 100000000,
         });

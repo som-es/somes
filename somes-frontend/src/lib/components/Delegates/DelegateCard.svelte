@@ -191,7 +191,7 @@
 	{/if}
 
 	<!-- Buttons -->
-	<div class="mt-auto flex w-full items-end justify-between pt-6">
+	<div class="mt-auto flex w-full items-end justify-between gap-1 pt-6">
 		{@render footerButtons?.()}
 		{#if showMoreDetailsBtn}
 			<div></div>
