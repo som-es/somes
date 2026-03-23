@@ -103,17 +103,6 @@ async fn meilisearch_for_vote_results(
 
     log::info!("vote results meilisearch filter: {meilisearch_filter}, {search_query:?}");
 
-    let sort = if search_query
-        .search
-        .as_ref()
-        .map(|search| search.is_empty())
-        .unwrap_or(true)
-    {
-        Some(sort.unwrap_or(somes_common_lib::Sort::Desc))
-    } else {
-        sort
-    };
-
     let sort = match sort {
         Some(sort) => match sort {
             somes_common_lib::Sort::Asc => {

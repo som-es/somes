@@ -59,9 +59,16 @@ pub async fn gov_props_by_search_route(
 
     log::info!("meilisearch filter: {meilisearch_filter}");
 
-    let sort = match sort.sort.unwrap_or_default() {
-        somes_common_lib::Sort::Asc => "gov_proposal.ministrial_proposal.raw_data_created_at:asc",
-        somes_common_lib::Sort::Desc => "gov_proposal.ministrial_proposal.raw_data_created_at:desc",
+    let sort = match sort.sort {
+        Some(somes_common_lib::Sort::Asc) => {
+            vec!["gov_proposal.ministrial_proposal.raw_data_created_at:asc"]
+        }
+        Some(somes_common_lib::Sort::Desc) => {
+            vec!["gov_proposal.ministrial_proposal.raw_data_created_at:desc"]
+        }
+        None => {
+            vec![]
+        }
     };
 
     let results: SearchResults<GovProposalDelegate> = meilisearch_client
@@ -75,7 +82,7 @@ pub async fn gov_props_by_search_route(
                 .unwrap_or(GOV_PROPS_PER_PAGE.parse().unwrap_or(12)),
         )
         .with_page(page.page as usize)
-        .with_sort(&[sort])
+        .with_sort(&sort)
         .execute()
         .await?;
 
