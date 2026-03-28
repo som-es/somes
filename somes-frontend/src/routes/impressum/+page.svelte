@@ -358,7 +358,7 @@
 							(entstanden aus einer HTL-Diplomarbeit) und steht in
 							<strong>keiner offiziellen Verbindung</strong> zur Republik Österreich, der Parlamentsdirektion,
 							Regierungsorganen oder politischen Parteien. Weder die Betreiber und Entwickler dieser Website,
-							noch die Mitglieder des Vereinsvorstands, sind Mitglied bei einer politischen Partei oder
+							noch die Mitglieder des Vereinvorstands, sind Mitglied bei einer politischen Partei oder
 							stehen einer nahe.
 						</p>
 					</div>

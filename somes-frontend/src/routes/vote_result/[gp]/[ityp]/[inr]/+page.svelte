@@ -56,6 +56,7 @@
 	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
 	import type { SvelteSet } from 'svelte/reactivity';
 	import { addLegisInitFavo, removeLegisInitFavo } from '$lib/api/authed';
+	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -538,11 +539,7 @@
 								>
 									<div class="mb-4 flex items-center justify-between">
 										<h3 class="text-lg font-semibold">Suche</h3>
-										<button class="p-1" onclick={() => (showMobileSearch = false)}>
-											<div class="h-6 w-6 text-gray-800 dark:text-gray-200">
-												{@html crossmarkIcon}
-											</div>
-										</button>
+										<ModalCloseButton class="p-1" onclick={() => (showMobileSearch = false)} />
 									</div>
 									<SearchBar
 										bind:searchValue
@@ -592,11 +589,9 @@
 																class="h-2.5 w-2.5 rounded-full"
 																style="background-color: {partyColors.get(vote.party) ?? '#ccc'};"
 															></div>
-															<span class="text-base font-medium text-gray-800">{vote.party}</span>
+															<span class="text-base font-medium">{vote.party}</span>
 														</div>
-														<span class="text-base font-medium text-gray-800"
-															>({vote.fraction})</span
-														>
+														<span class="text-base font-medium">({vote.fraction})</span>
 													</div>
 												{/if}
 											{/each}
