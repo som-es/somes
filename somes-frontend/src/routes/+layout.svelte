@@ -92,7 +92,7 @@
 			<!-- <Bottombar /> -->
 		</div>
 	</footer>
-	<footer class="border-t border-surface-800 bg-surface-900 py-12 text-surface-400">
+	<footer class="border-t border-surface-800 bg-surface-900 py-12 text-surface-300">
 		<div class="mx-auto grid max-w-7xl grid-cols-1 px-4 md:grid-cols-5">
 			<div class="col-span-1 md:col-span-2">
 				<!-- <span class="text-2xl font-bold text-white block mb-4">somes.at</span> -->
@@ -102,12 +102,12 @@
 				<p class="mt-2 max-w-xs text-sm">
 					Parteiübergreifend machen wir Demokratie transparent, verständlich und zugänglich.
 				</p>
-				<p class="mt-2 max-w-xs text-sm font-thin">
+				<p class="mt-2 max-w-xs text-sm font-light">
 					Das Entwicklungsteam wird seit 03.11.2025 von <a
 						href="https://www.netidee.at"
 						target="_blank"
 						rel="noopener noreferrer"
-						class="hover:text-secondary-400">Netidee</a
+						class="underline hover:text-secondary-400">Netidee</a
 					> gefördert.
 				</p>
 			</div>
