@@ -283,7 +283,7 @@ pub async fn update_vote_result_meilisearch_index(
     Ok(())
 }
 
-pub fn update_meilisearch_indices(
+pub async fn update_meilisearch_indices(
     client: &redis::Client,
     dataservice_sqlx_pool: &sqlx::Pool<sqlx::Postgres>,
     meilisearch_client: &meilisearch_sdk::client::Client,
@@ -292,8 +292,10 @@ pub fn update_meilisearch_indices(
     let client_vr = client.clone();
     let meilisearch_client_vr = meilisearch_client.clone();
 
+    let mut prod_wait_handles = vec![];
+
     // TODO: move this to dataservice
-    tokio::task::spawn(async move {
+    prod_wait_handles.push(tokio::task::spawn(async move {
         loop {
             if let Err(e) = update_vote_result_meilisearch_index(
                 &mut client_vr.get_multiplexed_async_connection().await.unwrap(),
@@ -310,14 +312,14 @@ pub fn update_meilisearch_indices(
             }
             sleep(std::time::Duration::from_secs(1900)).await;
         }
-    });
+    }));
 
     let pg_pool = dataservice_sqlx_pool.clone();
     let meilisearch_client_gp = meilisearch_client.clone();
     let client_vr = client.clone();
 
     // TODO: move this to dataservice
-    tokio::task::spawn(async move {
+    prod_wait_handles.push(tokio::task::spawn(async move {
         loop {
             if let Err(e) = update_gov_props_meilisearch_index(
                 &mut client_vr.get_multiplexed_async_connection().await.unwrap(),
@@ -334,7 +336,7 @@ pub fn update_meilisearch_indices(
             log::info!("gov prop sleep 1000s");
             sleep(std::time::Duration::from_secs(1000)).await;
         }
-    });
+    }));
 
     let pg_pool = dataservice_sqlx_pool.clone();
 
@@ -365,7 +367,7 @@ pub fn update_meilisearch_indices(
     let meilisearch_client_gp = meilisearch_client.clone();
     let client_vr = client.clone();
 
-    tokio::task::spawn(async move {
+    prod_wait_handles.push(tokio::task::spawn(async move {
         loop {
             if let Err(e) = update_delegates_meilisearch_index(
                 &pg_pool,
@@ -382,5 +384,13 @@ pub fn update_meilisearch_indices(
             log::info!("delegate meilsearch sleep 1000s");
             sleep(std::time::Duration::from_secs(1000)).await;
         }
-    });
+    }));
+
+    if *IS_PROD {
+        for handle in prod_wait_handles {
+            if let Err(e) = handle.await {
+                log::error!("Could not force update for cache: {e:}")
+            }
+        }
+    }
 }

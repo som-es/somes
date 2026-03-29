@@ -75,7 +75,7 @@ pub async fn serve(addr: SocketAddr) {
         return;
     }
 
-    if reset_cache() {
+    if reset_cache() || *IS_PROD {
         let mut con = client.get_connection().unwrap();
         redis::cmd("FLUSHALL").query::<()>(&mut con).unwrap();
     }
@@ -148,11 +148,16 @@ pub async fn serve(addr: SocketAddr) {
         tx.commit().await.unwrap();
     }
 
-    update_meilisearch_indices(&client, &dataservice_sqlx_pool, &meilisearch_client);
-    if *IS_PROD {
-        update_caches(&client, &dataservice_sqlx_pool, &meilisearch_client);
-    }
     crate::refresh_views(&dataservice_sqlx_pool, &client);
+
+    tokio::task::spawn(async move {
+        // this function will block on IS_PROD => streamed updates would invalidate in memory data of in progress fetches inside this function resulting in outdated indices
+        update_meilisearch_indices(&client, &dataservice_sqlx_pool, &meilisearch_client).await;
+
+        if *IS_PROD {
+            update_caches(&client, &dataservice_sqlx_pool, &meilisearch_client);
+        }
+    });
 
     let config = RustlsConfig::from_pem_file(
         PathBuf::from(PUBLIC_KEY_PATH),
