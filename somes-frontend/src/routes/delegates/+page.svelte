@@ -268,13 +268,6 @@
 		return delegateFilterOptions(_options, _inputValue);
 	}
 
-	// run(() => {
-	// 	if (inputValue) {
-	// 		maybeCurrentDelegateFilter.search_value = inputValue;
-	// 		currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
-	// 	}
-	// });
-
 	function onDelegateSelection(event: AutocompleteOption<string>): void {
 		// @ts-ignore
 		delegate = event.meta;
@@ -384,18 +377,18 @@
 
 		if (url.searchParams.get('delegate') === newId) return;
 		url.searchParams.set('delegate', delegate.id.toString());
-		replaceState(url.toString(), {});
+		goto(url.toString(), { noScroll: true, replaceState: true });
 		currentDelegateStore.value = delegate;
 	}
 
 	$effect(() => {
 		void delegate;
 		// if ($navigating) return;
-		if (delegate) {
-			updateDelegateIdInUrl(delegate);
-		}
-
 		untrack(() => {
+			if (delegate) {
+				updateDelegateIdInUrl(delegate);
+			}
+
 			if (delegate && prevSelectedDelegateId != delegate.id) {
 				generalDelegateInfo = null;
 				general_delegate_info(delegate.id).then((res) => {
@@ -420,17 +413,6 @@
 			}
 		});
 	});
-
-	/*run(() => {
-		if (delegate && prevSelectedDelegateId != delegate.id) {
-			// interests = null;
-
-			const url = new URL(window.location.href);
-			url.searchParams.set('delegate', delegate.id.toString());
-			pushState(url.toString(), { replaceState: true });
-
-		}
-	});*/
 </script>
 
 <svelte:head>

@@ -34,7 +34,7 @@
 	>
 		<div class="flex flex-col gap-1">
 			{#if aiViewEnabledStore.value && decree.decree.ai_summary}
-				<span class="text-md font-semibold sm:text-lg">
+				<span class="text-xl font-semibold">
 					{decree.decree.ai_summary.short_title}
 				</span>
 				<span class="sm:text-md text-sm">
@@ -47,7 +47,7 @@
 			{/if}
 			<!-- <span class="dark:text-white"> -->
 			<!-- </span> -->
-			<div class="flex flex-wrap gap-1">
+			<div class="mt-2 flex flex-wrap gap-1 md:mt-4">
 				<span class="badge bg-tertiary-400 text-wrap text-black"
 					>{decree.decree.ministrial_issuer}</span
 				>

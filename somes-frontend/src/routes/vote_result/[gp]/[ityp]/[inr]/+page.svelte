@@ -232,7 +232,7 @@
 			<!-- <CenterPrograssRadial /> -->
 		{:else}
 			<br />
-			<div class="entry grid-container-with-emphasis bg-primary-200 dark:bg-primary-400">
+			<div class="grid-container-with-emphasis flex gap-3">
 				<div class="title-item rounded-xl bg-primary-300 px-6 py-5 dark:bg-primary-500">
 					<!-- Title, Date and Result Icon -->
 					<div class="flex items-start justify-between">
@@ -450,7 +450,7 @@
 								>
 							</div>
 							<div class="space-y-2">
-								{#each filteredDelegates as del}
+								{#each filteredDelegates as del (del.id)}
 									{@const namedVote = generalNamedVoteDelegates?.find((b) => b.del?.id === del.id)}
 									{@const partyVoteInfo = voteResult?.votes.find((v) => v.party === del.party)}
 									<DelegateListItem
@@ -469,7 +469,9 @@
 													style="width:24px; height:24px;">{@html checkmarkIcon}</span
 												>
 											{:else if namedVote.namedVote.was_absent}
-												<span class="text-xs font-medium text-gray-500">Nicht abgestimmt</span>
+												<span class="text-xs font-medium text-gray-500 dark:text-gray-200"
+													>Nicht abgestimmt</span
+												>
 											{:else}
 												<span class="inline-block" style="width:24px; height:24px;"
 													>{@html crossmarkIcon}</span

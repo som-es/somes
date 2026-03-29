@@ -33,7 +33,7 @@
 	{/if}
 </title>
 
-<div class="entry mt-3 flex gap-3 bg-primary-200 max-lg:flex-wrap dark:bg-primary-400">
+<div class="mt-3 flex gap-3 max-lg:flex-wrap">
 	<div class="flex w-full flex-col gap-2">
 		<div class="rounded-xl bg-primary-300 px-6 py-5 dark:bg-primary-500">
 			<div class="flex items-start justify-between">

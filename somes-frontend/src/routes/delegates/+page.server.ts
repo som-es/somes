@@ -1,29 +1,29 @@
-import { delegate_by_id, errorToNull, parties_per_gp } from "$lib/api/api";
-import { fetchDelegates } from "$lib/api/fetch_delegates";
-import { cachedAllLegisPeriods } from "$lib/caching/legis_periods";
-import { cachedAllSeats } from "$lib/caching/seats";
-import type { PageServerLoad } from "./$types";
+import { delegate_by_id, errorToNull, parties_per_gp } from '$lib/api/api';
+import { fetchDelegates } from '$lib/api/fetch_delegates';
+import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
+import { cachedAllSeats } from '$lib/caching/seats';
+import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ fetch, url, setHeaders }) => { 
-    if (process.env.NODE_ENV === 'production') {
-        setHeaders({
-            'cache-control': 'max-age=120'
-        });
-    }
-    const delegateId = url.searchParams.get("delegate");    
-    const gp = url.searchParams.get("gp");    
-    const date = url.searchParams.get("date") ?? new Date().toISOString().split('T')[0];
+export const load: PageServerLoad = async ({ fetch, url, setHeaders }) => {
+	if (process.env.NODE_ENV === 'production') {
+		setHeaders({
+			'cache-control': 'max-age=120'
+		});
+	}
+	const delegateId = url.searchParams.get('delegate');
+	const gp = url.searchParams.get('gp');
+	const date = url.searchParams.get('date') ?? new Date().toISOString().split('T')[0];
 
-    const delegates = await fetchDelegates(date, gp ?? 'XXVIII', fetch);
+	const delegates = await fetchDelegates(date, gp ?? 'XXVIII', fetch);
 	const cachedPeriods = (await cachedAllLegisPeriods())?.reverse();
 	const cachedSeats = await cachedAllSeats();
 	const partiesPerGp = errorToNull(await parties_per_gp(fetch));
 
-    let delegate = null;
+	let delegate = null;
 
-    if (delegateId) {
-        delegate = errorToNull(await delegate_by_id(+delegateId, fetch));
-    } 
-    
-    return { ...delegates, delegate, delegateId, cachedPeriods, gp, cachedSeats, date, partiesPerGp };
-}
+	if (delegateId) {
+		delegate = errorToNull(await delegate_by_id(+delegateId, fetch));
+	}
+
+	return { ...delegates, delegate, delegateId, cachedPeriods, gp, cachedSeats, date, partiesPerGp };
+};
