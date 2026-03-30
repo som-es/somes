@@ -9,6 +9,8 @@
 	import { jwtStore } from '$lib/caching/stores/stores.svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import crossmarkIcon from '$lib/assets/misc_icons/crossmark_small.svg?raw';
+	import googleIcon from '$lib/assets/misc_icons/google.svg?raw';
 
 	// Props
 	let { open = $bindable(false) } = $props();
@@ -99,89 +101,83 @@
 	<Drawer.Portal>
 		<!-- Backdrop -->
 		<Drawer.Overlay
-			class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0"
+			class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0"
 		/>
 
 		<!-- Drawer Content (Sliding from Right) -->
 		<Drawer.Content
-			class="fixed top-0 right-0 z-50 h-full w-[500px] max-w-[100vw] border-l bg-white p-6 shadow-2xl transition ease-in-out data-[state=closed]:duration-200 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:duration-300 data-[state=open]:animate-in data-[state=open]:slide-in-from-right sm:max-w-[500px]"
+			class="fixed top-0 right-0 z-50 h-full w-[440px] max-w-[100vw] border-l border-gray-200 bg-white shadow-2xl transition ease-in-out data-[state=closed]:duration-200 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:duration-300 data-[state=open]:animate-in data-[state=open]:slide-in-from-right"
 		>
-			<div class="flex h-full flex-col text-black">
-				<!-- Close Button -->
-				<Drawer.Close
-					class="ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-4 right-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none"
-				>
-					<span class="text-2xl font-bold">✕</span>
-					<span class="sr-only">Close</span>
-				</Drawer.Close>
+			<div class="flex h-full flex-col">
+				<!-- Header -->
+				<div class="border-b border-gray-100 px-8 pt-6 pb-6">
+					<Drawer.Close
+						class="absolute top-5 right-5 flex h-8 w-8 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+					>
+						<span class="w-5 inline-block">{@html crossmarkIcon}</span>
+					</Drawer.Close>
 
-				<Drawer.Title class="mb-6 text-center text-2xl font-bold">
-					{#if isLogin}
-						Anmelden
-					{:else}
-						Registrierung
-					{/if}
-				</Drawer.Title>
+					<Drawer.Title class="text-2xl font-semibold text-gray-900">
+						{#if isLogin}Anmelden{:else}Registrierung{/if}
+					</Drawer.Title>
+					<p class="mt-1 text-sm text-gray-500">
+						{#if isLogin}
+							Willkommen zurück. Gib deine E-Mail-Adresse ein.
+						{:else}
+							Erstelle ein neues Konto mit deiner E-Mail-Adresse.
+						{/if}
+					</p>
+				</div>
 
-				<div class="mt-4 flex flex-col gap-4">
-					<div>
-						<label for="username" class="mb-2 block font-medium">E-Mail</label>
+				<!-- Form Body -->
+				<div class="flex flex-col gap-5 px-8 py-7">
+					<!-- Email Field -->
+					<div class="flex flex-col gap-1.5">
+						<label for="username" class="text-sm font-medium text-gray-700">E-Mail</label>
 						<input
 							id="username"
 							placeholder="dergertrud@gmail.com"
 							type="email"
-							class="custom-input"
+							class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-base text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-[rgb(104,129,161)] focus:shadow-[0_0_0_3px_rgba(104,129,161,0.15)]"
 							onkeydown={onEnterDoLogin}
 							bind:value={email}
 						/>
 					</div>
 
 					{#if !isLogin}
-						<div class="flex items-center gap-3">
+						<div class="flex items-start gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3">
 							<Switch.Root
-								bind:checked={storeEmailAnonymously}
-								class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
+							bind:checked={storeEmailAnonymously}
+							class="mt-0.5 inline-flex h-[22px] w-[40px] shrink-0 cursor-pointer touch-manipulation items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary-500 data-[state=unchecked]:bg-gray-300"
 								id="storeEmailAnonymously"
-
 							>
 								<Switch.Thumb
-									class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+									class="pointer-events-none block h-4 w-4 rounded-full bg-white shadow ring-0 transition-transform data-[state=checked]:translate-x-[18px] data-[state=unchecked]:translate-x-0"
 								/>
 							</Switch.Root>
-							<label
-								class="cursor-pointer"
-								for="storeEmailAnonymously"
-							>
-								<div class="flex flex-col">
-									<span class="font-semibold ">
-										E-Mail anonymisiert speichern
-									</span>
-									<span class=" text-sm">
-										Achtung: Optionale E-Mail-Benachrichtungen zu Abstimmungen, etc. sind nicht möglich
-									</span>
-								</div>
+							<label class="cursor-pointer" for="storeEmailAnonymously">
+								<span class="block text-sm font-medium text-gray-800">E-Mail anonymisiert speichern</span>
+								<span class="block text-xs text-gray-500 mt-0.5">
+									Optionale E-Mail-Benachrichtigungen zu Abstimmungen sind dann nicht möglich.
+								</span>
 							</label>
 						</div>
 					{/if}
 
-					{#if success}
-						{#if sent && done}
-							<div
-								class="rounded-md border border-green-200 bg-green-50 p-3 text-sm text-green-700"
-							>
-								An die angegebene E-Mail-Addresse wurde eine Mail mit One-Time Passwort versendet.
-							</div>
-						{/if}
+					{#if success && sent && done}
+						<div class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+							An deine E-Mail-Adresse wurde ein One-Time Passwort gesendet.
+						</div>
 					{/if}
 
 					{#if otp_done}
-						<div>
-							<label class="mb-2 block font-medium" for="password">One-Time Passwort (OTP)</label>
+						<div class="flex flex-col gap-1.5">
+							<label class="text-sm font-medium text-gray-700" for="password">One-Time Passwort (OTP)</label>
 							<input
 								id="password"
 								placeholder="MAS DS5 4DA"
 								type="password"
-								class="custom-input"
+								class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-base text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-[rgb(104,129,161)] focus:shadow-[0_0_0_3px_rgba(104,129,161,0.15)]"
 								onkeydown={onEnterDoLogin}
 								bind:value={pwd}
 							/>
@@ -189,93 +185,46 @@
 					{/if}
 
 					{#if sent && !success}
-						<div class="text-sm font-medium text-red-500">{error}</div>
+						<p class="text-sm text-red-500">{error}</p>
 					{/if}
 
-					<!-- Action Button -->
+					<!-- Primary Action Button -->
 					<button
 						onclick={onLogin}
-						class="mt-4 w-full rounded-md bg-tertiary-500 px-4 py-3 text-lg font-medium text-white shadow-md transition-all hover:brightness-110 active:scale-[0.98]"
+						class="w-full rounded-lg bg-secondary-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:brightness-110 active:scale-[0.98]"
 					>
 						{isLogin ? 'Anmelden' : 'Registrieren'}
 					</button>
 
-					<span class="text-center text-red-500">{invalidCreds}</span>
-
-					<div class="mt-2 flex items-center justify-between">
-						<div class="flex-grow"></div>
-						<div class="text-sm text-gray-600">
-							oder
-							<button
-								type="button"
-								class="ml-1 cursor-pointer border-none bg-transparent p-0 text-blue-500 underline hover:text-blue-700"
-								onclick={toggleMode}
-							>
-								{#if isLogin}registrieren{:else}anmelden{/if}
-							</button>
-						</div>
-					</div>
+					<!-- Toggle mode -->
+					<p class="text-center text-sm text-gray-500">
+						{isLogin ? 'Noch kein Konto?' : 'Bereits registriert?'}
+						<button
+							type="button"
+							class="ml-1 font-medium text-primary-600 hover:text-primary-800 hover:underline bg-transparent border-none p-0"
+							onclick={toggleMode}
+						>
+							{#if isLogin}Registrieren{:else}Anmelden{/if}
+						</button>
+					</p>
 
 					<!-- Divider -->
-					<div class="my-6 flex items-center">
+					<div class="flex items-center gap-3">
 						<div class="h-px flex-1 bg-gray-200"></div>
-						<span class="px-3 text-sm text-gray-500">oder</span>
+						<span class="text-xs font-medium text-gray-400 uppercase tracking-wide">oder</span>
 						<div class="h-px flex-1 bg-gray-200"></div>
 					</div>
 
-					<!-- OAuth Buttons -->
-					<div class="flex flex-col gap-3 mt-4">
-						{#each providers as provider}
-							<button
-								class="flex items-center justify-center gap-2 rounded-md px-4 py-3 text-white font-medium shadow-md transition-all hover:brightness-110 active:scale-[0.98] {provider.color}"
-								onclick={() => startOAuth(provider.key)}
-							>
-								<span class="text-lg">{provider.icon}</span>
-								<span>Mit {provider.name} anmelden</span>
-							</button>
-						{/each}
-					</div>
-
+					<!-- Google OAuth Button -->
+					<button
+						class="flex w-full items-center justify-center gap-2.5 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 hover:shadow active:bg-gray-100"
+						onclick={() => startOAuth('google')}
+					>
+						{@html googleIcon}
+						<span>Mit Google anmelden</span>
+					</button>
 				</div>
 			</div>
 		</Drawer.Content>
 	</Drawer.Portal>
 </Drawer.Root>
-
-<style>
-	/* Kept the specific shadow/border styles from original logic,
-	   but moved generic layout properties to Tailwind above */
-	.custom-input {
-		width: 100%;
-		padding: 10px;
-		border: 1px solid #e5e7eb;
-		border-radius: 5px;
-		box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.05);
-		font-size: 16px;
-		outline: none;
-		transition: box-shadow 0.2s;
-	}
-
-	.custom-input:focus {
-		box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.15);
-		border-color: #d1d5db;
-	}
-	.oauth-btn {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 0.75rem;
-		width: 100%;
-		padding: 0.75rem 1rem;
-		border: 1px solid #e5e7eb;
-		border-radius: 0.5rem;
-		background: white;
-		font-size: 0.875rem;
-		font-weight: 500;
-		transition: background 0.2s ease;
-	}
-
-	.oauth-btn:hover {
-		background: #f9fafb;
-	}
-</style>
