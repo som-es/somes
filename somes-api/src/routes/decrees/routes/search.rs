@@ -26,7 +26,7 @@ pub async fn decrees_by_search_route(
         entry_count_per_page
             .entries_per_page
             .unwrap_or(DECREES_PER_PAGE.parse().unwrap_or(16)),
-        sort.sort.unwrap_or_default(),
+        sort.sort,
         page,
         decrees_filter,
         date_range,
@@ -40,7 +40,7 @@ async fn meilisearch_decrees(
     meilisearch_client: meilisearch_sdk::client::Client,
     search_query: somes_common_lib::SearchQuery,
     entries_per_page: usize,
-    sort: Sort,
+    sort: Option<Sort>,
     page: Page,
     decree_filter: DecreeDelegateFilter,
     date_range: somes_common_lib::DateRangeQueryFilter,
@@ -97,15 +97,16 @@ async fn meilisearch_decrees(
     log::info!("decrees meilisearch filter: {meilisearch_filter}, {search_query:?}");
 
     let sort = match sort {
-        Sort::Asc => "decree.publication_date:asc",
-        Sort::Desc => "decree.publication_date:desc",
+        Some(Sort::Asc) => vec!["decree.publication_date:asc"],
+        Some(Sort::Desc) => vec!["decree.publication_date:desc"],
+        None => vec![],
     };
 
     let results: SearchResults<DecreeDelegate> = meilisearch_client
         .index("decrees")
         .search()
         .with_filter(&meilisearch_filter)
-        .with_sort(&[sort])
+        .with_sort(&sort)
         .with_query(&search_query.search.unwrap_or_default())
         .with_hits_per_page(entries_per_page)
         .with_page(page.page as usize)

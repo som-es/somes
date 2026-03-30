@@ -15,13 +15,13 @@
 
 	interface Props {
 		ministerialData: MinisterialViewData;
-		children?: Snippet
+		children?: Snippet;
 	}
 
 	let { ministerialData, children }: Props = $props();
 
 	let aiSummary = $derived(ministerialData.aiSummary);
-  let date = $derived(dashDateToDotDate(ministerialData.date.toString().split('T')[0]));
+	let date = $derived(dashDateToDotDate(ministerialData.date.toString().split('T')[0]));
 	let displayAiSummary = $derived(aiViewEnabledStore.value && aiSummary);
 </script>
 
@@ -33,20 +33,19 @@
 	{/if}
 </title>
 
-
-<div class="entry bg-primary-200 dark:bg-primary-400 mt-3 flex max-lg:flex-wrap gap-3">
-	<div class="flex flex-col gap-2 w-full">
-		<div class="rounded-xl bg-primary-300 dark:bg-primary-500 px-6 py-5">
-			<div class="flex justify-between items-start">
+<div class="mt-3 flex gap-3 max-lg:flex-wrap">
+	<div class="flex w-full flex-col gap-2">
+		<div class="rounded-xl bg-primary-300 px-6 py-5 dark:bg-primary-500">
+			<div class="flex items-start justify-between">
 				<div class="flex items-center gap-4">
 					<div class="flex flex-col">
 						<div class="flex items-start gap-2">
 							<span
-								class="text-xl lg:text-3xl font-bold leading-tight"
+								class="text-xl leading-tight font-bold lg:text-3xl"
 								style="hyphens: auto; word-break: normal; overflow-wrap: break-word;"
 							>
 								{#if aiViewEnabledStore.value && aiSummary}
-									<AiSummaryHintPopup aiSummary={aiSummary} />
+									<AiSummaryHintPopup {aiSummary} />
 									{aiSummary.short_title}
 								{:else}
 									{ministerialData.alternativeTitle}
@@ -55,13 +54,17 @@
 						</div>
 
 						<span class="text-sm opacity-90">
-							{ministerialData.type == "decree" ? "Verordnung" : "Ministerialentwurf"} vom {date}
+							{ministerialData.type == 'decree' ? 'Verordnung' : 'Ministerialentwurf'} vom {date}
 						</span>
 					</div>
 				</div>
 
-				<div class="flex flex-wrap items-center gap-2 flex-shrink-0">
-					<a href={ministerialData.originalDocumentUrl} target="_blank" class="w-5 text-gray-500 dark:text-gray-300">
+				<div class="flex flex-shrink-0 flex-wrap items-center gap-2">
+					<a
+						href={ministerialData.originalDocumentUrl}
+						target="_blank"
+						class="w-5 text-gray-500 dark:text-gray-300"
+					>
 						{@html linkIcon}
 					</a>
 				</div>
@@ -69,8 +72,8 @@
 
 			{#if ministerialData.aiSummary}
 				<div class="mt-5 pb-3">
-					<h1 class="font-semibold text-lg md:text-xl">Zusammenfassung</h1>
-					<span class="text-base lg:text-base text-gray-800 dark:text-gray-200">
+					<h1 class="text-lg font-semibold md:text-xl">Zusammenfassung</h1>
+					<span class="text-base text-gray-800 lg:text-base dark:text-gray-200">
 						<GlossaryText
 							text={ministerialData.aiSummary.short_summary}
 							glossary={ministerialData.aiSummary.full_summary.glossary}
@@ -79,16 +82,22 @@
 				</div>
 			{/if}
 
-			<div class="flex flex-wrap justify-between items-center gap-3 w-full pt-1">
+			<div class="flex w-full flex-wrap items-center justify-between gap-3 pt-1">
 				<div>
 					<InfoBadgesCustom texts={ministerialData.infoBadges} />
 				</div>
 
-				<div class="flex-1 flex justify-end">
+				<div class="flex flex-1 justify-end">
 					{#if aiViewEnabledStore.value && aiSummary && ministerialData.eurovocTopics.length == 0}
-						<Topics topics={aiSummary.full_summary.topics.sort((a, b) => {
-								return a.length - b.length;
-							}).map(topic => {return {topic}})} />
+						<Topics
+							topics={aiSummary.full_summary.topics
+								.sort((a, b) => {
+									return a.length - b.length;
+								})
+								.map((topic) => {
+									return { topic };
+								})}
+						/>
 					{:else}
 						<Topics
 							topics={ministerialData.eurovocTopics.sort((a, b) => {
@@ -101,20 +110,14 @@
 		</div>
 
 		{#if aiViewEnabledStore.value && ministerialData.aiSummary}
-			<div class="emphasis-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 pt-3 pb-3">
-				<h1 class="font-bold text-lg md:text-xl">Zusammenfassung</h1>
-				<span class="text-sm lg:text-base">
-					<GlossaryText text={ministerialData.aiSummary.short_summary} glossary={ministerialData.aiSummary.full_summary.glossary} />
-				</span>
-			</div>
-			<Emphasis 
-				emphasis={ministerialData.aiSummary.full_summary.key_points} 
-				glossary={ministerialData.aiSummary.full_summary.glossary} 
+			<Emphasis
+				emphasis={ministerialData.aiSummary.full_summary.key_points}
+				glossary={ministerialData.aiSummary.full_summary.glossary}
 			/>
 		{/if}
-		<div class="flex flex-wrap gap-2 w-full">
+		<div class="flex w-full flex-wrap gap-2">
 			{#if ministerialData.documents.length > 0}
-				<div class="rounded-xl bg-primary-300 dark:bg-primary-500 p-3">
+				<div class="rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 					<Documents documents={ministerialData.documents} />
 				</div>
 			{/if}
@@ -124,9 +127,9 @@
 		{/if}
 	</div>
 
-	<div class="rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3">
+	<div class="rounded-xl bg-primary-300 px-3 py-3 dark:bg-primary-500">
 		<DelegateCard delegate={ministerialData.delegate} />
-	</div>	
+	</div>
 </div>
 
 <style>

@@ -87,9 +87,9 @@
 	// OAuth Buttons
 	const providers = [
 		{ name: 'Google', key: 'google', color: 'bg-red-500', icon: 'G' },
-		{ name: 'GitHub', key: 'github', color: 'bg-gray-800', icon: '🐱' },
-		{ name: 'Discord', key: 'discord', color: 'bg-indigo-500', icon: 'D' },
-		{ name: 'Microsoft', key: 'microsoft', color: 'bg-blue-600', icon: 'M' },
+		// { name: 'GitHub', key: 'github', color: 'bg-gray-800', icon: '🐱' },
+		// { name: 'Discord', key: 'discord', color: 'bg-indigo-500', icon: 'D' },
+		// { name: 'Microsoft', key: 'microsoft', color: 'bg-blue-600', icon: 'M' },
 	];
 
 	function startOAuth(providerKey: string) {

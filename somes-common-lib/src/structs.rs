@@ -30,6 +30,7 @@ pub struct Document {
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct DelegateFavo {
     pub delegate_id: i32,
+    pub user_info_days: i32,
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
@@ -182,11 +183,14 @@ pub struct DelegateById {
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct SendMailInfo {
     pub send_new_vote_results_mails: bool,
+    pub send_new_vote_result_by_favo_mails: bool,
     pub send_new_delegate_activity_mails: bool,
     pub send_new_ministrial_prop_mails: bool,
     pub send_new_ministrial_prop_by_favo_mails: bool,
     pub send_new_decree_mails: bool,
     pub send_new_decree_by_favo_mails: bool,
+    pub send_new_proposal_mails: bool,
+    pub send_new_proposal_by_favo_mails: bool,
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]

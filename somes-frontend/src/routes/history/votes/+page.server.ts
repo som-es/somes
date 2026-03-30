@@ -13,7 +13,7 @@ export const load: PageServerLoad = async ({ fetch, setHeaders, url }) => {
 		searchParams.set('page', '1');
 	}
 	const queryParams = searchParams.toString();
-	const filter = `${queryParams}&is_finished=true&sort=Desc`;
+	const filter = `${queryParams}&is_finished=true`;
 	const voteResults = await vote_results_by_query_search(filter, fetch);
 	const partiesPerGp = await parties_per_gp(fetch);
 	return {

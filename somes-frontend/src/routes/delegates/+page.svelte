@@ -20,7 +20,11 @@
 		delegates_search_persons,
 		isHasError
 	} from '$lib/api/api';
-	import { currentDelegateFilterStore, currentDelegateStore } from '$lib/stores/stores';
+	import {
+		aiViewEnabledStore,
+		currentDelegateFilterStore,
+		currentDelegateStore
+	} from '$lib/stores/stores';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import {
@@ -51,7 +55,7 @@
 	import GenericFilters from '$lib/components/Filtering/GenericFilters.svelte';
 	import { type GenericFilterGroup } from '$lib/components/Filtering/types';
 	import DelegateListItem from '$lib/components/Delegates/DelegateListItem.svelte';
-	
+
 	let { data }: PageProps = $props();
 
 	let delegates: Delegate[] = $derived(data.delegates ?? []);
@@ -264,13 +268,6 @@
 		return delegateFilterOptions(_options, _inputValue);
 	}
 
-	// run(() => {
-	// 	if (inputValue) {
-	// 		maybeCurrentDelegateFilter.search_value = inputValue;
-	// 		currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
-	// 	}
-	// });
-
 	function onDelegateSelection(event: AutocompleteOption<string>): void {
 		// @ts-ignore
 		delegate = event.meta;
@@ -344,7 +341,7 @@
 
 		url.searchParams.set('date', toActualDateString(supplyDate));
 		url.searchParams.set('gp', selectedPeriod);
-		goto(url.toString(), { noScroll: true });
+		goto(url.toString(), { noScroll: true, replaceState: true });
 	};
 
 	const onLettingGoOfDaySlider = () => {
@@ -380,18 +377,18 @@
 
 		if (url.searchParams.get('delegate') === newId) return;
 		url.searchParams.set('delegate', delegate.id.toString());
-		replaceState(url.toString(), {});
+		goto(url.toString(), { noScroll: true, replaceState: true });
 		currentDelegateStore.value = delegate;
 	}
 
 	$effect(() => {
 		void delegate;
 		// if ($navigating) return;
-		if (delegate) {
-			updateDelegateIdInUrl(delegate);
-		}
-
 		untrack(() => {
+			if (delegate) {
+				updateDelegateIdInUrl(delegate);
+			}
+
 			if (delegate && prevSelectedDelegateId != delegate.id) {
 				generalDelegateInfo = null;
 				general_delegate_info(delegate.id).then((res) => {
@@ -416,17 +413,6 @@
 			}
 		});
 	});
-
-	/*run(() => {
-		if (delegate && prevSelectedDelegateId != delegate.id) {
-			// interests = null;
-
-			const url = new URL(window.location.href);
-			url.searchParams.set('delegate', delegate.id.toString());
-			pushState(url.toString(), { replaceState: true });
-
-		}
-	});*/
 </script>
 
 <svelte:head>
@@ -772,7 +758,7 @@
 				</datalist>
 			</div>
 		</div>
-		<!-- 
+		<!--
 		<div class="text-token w-full space-y-2">
 			<input
 				class="input w-full h-12 px-2"
@@ -881,15 +867,15 @@
 			<ExpandablePlaceholder />
 		{/if}
 
-		{#if delegate && generalDelegateInfo?.political_position}
+		{#if delegate && generalDelegateInfo?.political_position && aiViewEnabledStore.value}
 			<div class="title-item rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 				<PoliticalStanceTitleBar
 					stanceTopicInfluences={generalDelegateInfo.stance_topic_influences}
 				/>
 			</div>
 		{/if}
-		<div class="flex gap-2 max-lg:flex-wrap">
-			{#if delegate && generalDelegateInfo?.political_position}
+		<div class="flex w-full gap-2 max-lg:flex-wrap">
+			{#if delegate && generalDelegateInfo?.political_position && aiViewEnabledStore.value}
 				<SquarePoliticalSpectrum
 					{delegate}
 					politicalPosition={generalDelegateInfo.political_position}
@@ -898,7 +884,7 @@
 				<ExpandablePlaceholder class={'my-3'} />
 			{/if}
 
-			{#if delegate && generalDelegateInfo?.left_right_stances.length && generalDelegateInfo.left_right_stances.length > 0}
+			{#if delegate && generalDelegateInfo?.left_right_stances.length && generalDelegateInfo.left_right_stances.length > 0 && aiViewEnabledStore.value}
 				<StanceTypeSwitcher delegateInfo={generalDelegateInfo} />
 			{:else if !generalDelegateInfo}
 				<ExpandablePlaceholder class={'my-3'} />

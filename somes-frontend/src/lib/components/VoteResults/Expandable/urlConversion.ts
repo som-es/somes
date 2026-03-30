@@ -61,6 +61,10 @@ export function convertVoteResultFilterToUrl(
 		nextUrl.searchParams.set('date_to', filter.date_to);
 	}
 
+	// enforce with frontend => add user sorting
+	if (searchValue.length == 0) {
+		nextUrl.searchParams.set('sort', 'Desc');
+	}
 	nextUrl.searchParams.set('search', searchValue);
 
 	filter.topics?.forEach((topic, i) => {

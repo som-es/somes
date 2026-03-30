@@ -9,26 +9,32 @@
 	}
 
 	let { stanceTopicInfluences }: Props = $props();
-
 </script>
 
-<div class="flex justify-between items-center">
-	<h1 class="font-bold max-lg:text-lg text-2xl">Politische Haltung und Richtung</h1>
-	<div class="flex self-center items-center">
+<div class="flex items-center justify-between">
+	<h1 class="text-2xl font-bold max-lg:text-lg">Politische Haltung und Richtung</h1>
+	<div class="flex items-center self-center">
 		<Popover.Root>
 			<Popover.Trigger openOnHover openDelay={100}>
-				<span class="text-5xl mx-2" >⚠</span>
+				<div class="flex items-center">
+					<span class="font-bold">Hinweis &#8594; </span>
+					<span class="mx-2 text-5xl">⚠</span>
+				</div>
 			</Popover.Trigger>
 			<Popover.Portal>
-				<Popover.Content class="z-40 p-4 w-72 bg-primary-100 dark:bg-primary-600 rounded-lg shadow-lg">
-					Die Einordnung der politischen Position ist eine grobe Schätzung und muss nicht der Realität
-					entsprechen. Verwendet wurden AI generierte Antworten zu Fragen, die nicht immer vollständig
-					korrekt sind und unter 'Details' abrufbar sind.
+				<Popover.Content
+					class="z-40 w-72 rounded-lg bg-primary-100 p-4 shadow-lg dark:bg-primary-600"
+				>
+					Die Einordnung der politischen Position ist eine grobe Schätzung und muss nicht der
+					Realität entsprechen. Verwendet wurden AI generierte Antworten zu Fragen, die nicht immer
+					vollständig korrekt und unter 'Details' abrufbar sind. <span class="font-bold"
+						>Eine Beschreibung der Methodik und Verbesserungen folgen!</span
+					>
 				</Popover.Content>
 			</Popover.Portal>
 		</Popover.Root>
 		<ExtendInfoDialog title="Details">
-			<PoliticalSpectrumQuestionsModal stanceTopicInfluences={stanceTopicInfluences}  />
+			<PoliticalSpectrumQuestionsModal {stanceTopicInfluences} />
 		</ExtendInfoDialog>
 	</div>
 </div>

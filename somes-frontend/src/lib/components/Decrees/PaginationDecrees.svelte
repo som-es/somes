@@ -103,11 +103,7 @@
 		};
 		currentDecreeFilterStore.value = filter;
 
-		const nextUrl = convertDecreeFilterToUrl(
-			filter,
-			searchValue,
-			new URL(page.url)
-		);
+		const nextUrl = convertDecreeFilterToUrl(filter, searchValue, new URL(page.url));
 
 		goto(nextUrl, {
 			keepFocus: true,
@@ -162,7 +158,7 @@
 	<!-- Search bar -->
 	<SearchBar bind:searchValue />
 
-	<div class="mt-2 flex h-10 w-full gap-2 md:mt-0 md:ml-2 md:w-auto">
+	<div class="mt-2 flex h-10 w-full gap-2 text-xs sm:text-base md:mt-0 md:ml-2 md:w-auto">
 		<MultiValuesFilter
 			title="Ministerien"
 			bind:selectedValues={selectedDepartments}

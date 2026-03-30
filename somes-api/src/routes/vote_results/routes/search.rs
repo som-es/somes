@@ -103,23 +103,21 @@ async fn meilisearch_for_vote_results(
 
     log::info!("vote results meilisearch filter: {meilisearch_filter}, {search_query:?}");
 
-    let sort = if search_query.search.is_none() {
-        Some(sort.unwrap_or(somes_common_lib::Sort::Desc))
-    } else {
-        sort
-    };
-
     let sort = match sort {
-        Some(sort) => {
-            vec![match sort {
-                somes_common_lib::Sort::Asc => {
-                    "legislative_initiative.nr_plenary_activity_date:asc"
-                }
-                somes_common_lib::Sort::Desc => {
-                    "legislative_initiative.nr_plenary_activity_date:desc"
-                }
-            }]
-        }
+        Some(sort) => match sort {
+            somes_common_lib::Sort::Asc => {
+                vec![
+                    "legislative_initiative.nr_plenary_activity_date:asc",
+                    "legislative_initiative.raw_data_created_at:asc",
+                ]
+            }
+            somes_common_lib::Sort::Desc => {
+                vec![
+                    "legislative_initiative.nr_plenary_activity_date:desc",
+                    "legislative_initiative.raw_data_created_at:asc",
+                ]
+            }
+        },
         None => {
             vec![]
         }
