@@ -11,11 +11,12 @@
 	import { resolve } from '$app/paths';
 	import crossmarkIcon from '$lib/assets/misc_icons/crossmark_small.svg?raw';
 	import googleIcon from '$lib/assets/misc_icons/google.svg?raw';
+	import ModalCloseButton from '../UI/ModalCloseButton.svelte';
 
 	// Props
 	let { open = $bindable(false) } = $props();
 
-	const API_BASE = import.meta.env.VITE_API_URL
+	const API_BASE = import.meta.env.VITE_API_URL;
 
 	// State
 	let email = $state('');
@@ -86,7 +87,7 @@
 
 	// OAuth Buttons
 	const providers = [
-		{ name: 'Google', key: 'google', color: 'bg-red-500', icon: 'G' },
+		{ name: 'Google', key: 'google', color: 'bg-red-500', icon: 'G' }
 		// { name: 'GitHub', key: 'github', color: 'bg-gray-800', icon: '🐱' },
 		// { name: 'Discord', key: 'discord', color: 'bg-indigo-500', icon: 'D' },
 		// { name: 'Microsoft', key: 'microsoft', color: 'bg-blue-600', icon: 'M' },
@@ -114,7 +115,7 @@
 					<Drawer.Close
 						class="absolute top-5 right-5 flex h-8 w-8 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
 					>
-						<span class="w-5 inline-block">{@html crossmarkIcon}</span>
+						<ModalCloseButton />
 					</Drawer.Close>
 
 					<Drawer.Title class="text-2xl font-semibold text-gray-900">
@@ -138,7 +139,7 @@
 							id="username"
 							placeholder="dergertrud@gmail.com"
 							type="email"
-							class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-base text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-[rgb(104,129,161)] focus:shadow-[0_0_0_3px_rgba(104,129,161,0.15)]"
+							class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-base text-gray-900 transition outline-none placeholder:text-gray-400 focus:border-[rgb(104,129,161)] focus:shadow-[0_0_0_3px_rgba(104,129,161,0.15)]"
 							onkeydown={onEnterDoLogin}
 							bind:value={email}
 						/>
@@ -147,8 +148,8 @@
 					{#if !isLogin}
 						<div class="flex items-start gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3">
 							<Switch.Root
-							bind:checked={storeEmailAnonymously}
-							class="mt-0.5 inline-flex h-[22px] w-[40px] shrink-0 cursor-pointer touch-manipulation items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary-500 data-[state=unchecked]:bg-gray-300"
+								bind:checked={storeEmailAnonymously}
+								class="mt-0.5 inline-flex h-[22px] w-[40px] shrink-0 cursor-pointer touch-manipulation items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary-500 data-[state=unchecked]:bg-gray-300"
 								id="storeEmailAnonymously"
 							>
 								<Switch.Thumb
@@ -156,8 +157,10 @@
 								/>
 							</Switch.Root>
 							<label class="cursor-pointer" for="storeEmailAnonymously">
-								<span class="block text-sm font-medium text-gray-800">E-Mail anonymisiert speichern</span>
-								<span class="block text-xs text-gray-500 mt-0.5">
+								<span class="block text-sm font-medium text-gray-800"
+									>E-Mail anonymisiert speichern</span
+								>
+								<span class="mt-0.5 block text-xs text-gray-500">
 									Optionale E-Mail-Benachrichtigungen zu Abstimmungen sind dann nicht möglich.
 								</span>
 							</label>
@@ -165,19 +168,23 @@
 					{/if}
 
 					{#if success && sent && done}
-						<div class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+						<div
+							class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700"
+						>
 							An deine E-Mail-Adresse wurde ein One-Time Passwort gesendet.
 						</div>
 					{/if}
 
 					{#if otp_done}
 						<div class="flex flex-col gap-1.5">
-							<label class="text-sm font-medium text-gray-700" for="password">One-Time Passwort (OTP)</label>
+							<label class="text-sm font-medium text-gray-700" for="password"
+								>One-Time Passwort (OTP)</label
+							>
 							<input
 								id="password"
 								placeholder="MAS DS5 4DA"
 								type="password"
-								class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-base text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-[rgb(104,129,161)] focus:shadow-[0_0_0_3px_rgba(104,129,161,0.15)]"
+								class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-base text-gray-900 transition outline-none placeholder:text-gray-400 focus:border-[rgb(104,129,161)] focus:shadow-[0_0_0_3px_rgba(104,129,161,0.15)]"
 								onkeydown={onEnterDoLogin}
 								bind:value={pwd}
 							/>
@@ -201,7 +208,7 @@
 						{isLogin ? 'Noch kein Konto?' : 'Bereits registriert?'}
 						<button
 							type="button"
-							class="ml-1 font-medium text-primary-600 hover:text-primary-800 hover:underline bg-transparent border-none p-0"
+							class="ml-1 border-none bg-transparent p-0 font-medium text-primary-600 hover:text-primary-800 hover:underline"
 							onclick={toggleMode}
 						>
 							{#if isLogin}Registrieren{:else}Anmelden{/if}
@@ -211,7 +218,7 @@
 					<!-- Divider -->
 					<div class="flex items-center gap-3">
 						<div class="h-px flex-1 bg-gray-200"></div>
-						<span class="text-xs font-medium text-gray-400 uppercase tracking-wide">oder</span>
+						<span class="text-xs font-medium tracking-wide text-gray-400 uppercase">oder</span>
 						<div class="h-px flex-1 bg-gray-200"></div>
 					</div>
 

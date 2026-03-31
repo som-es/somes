@@ -1,9 +1,10 @@
 <script lang="ts">
-    let props = $props(); 
+	let props = $props();
 </script>
+
 <button
-    class="unselectable text-5xl text-gray-500 hover:text-gray-700 transition-colors"
-    {...props}
+	class="unselectable text-2xl text-gray-500 transition-colors hover:text-gray-700 md:text-3xl lg:text-4xl"
+	{...props}
 >
-        ✕
+	✕
 </button>
