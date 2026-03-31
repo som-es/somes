@@ -18,7 +18,7 @@ use crate::{
         DecreeDelegate,
     },
     server::AppState,
-    IS_PROD,
+    IS_PROD, RESET_CACHE,
 };
 
 pub mod update_time;
@@ -43,6 +43,7 @@ pub async fn update_delegates_meilisearch_index(
     pg_pool: &sqlx::Pool<sqlx::Postgres>,
     redis_con: &mut MultiplexedConnection,
     client: &meilisearch_sdk::client::Client,
+    delete_index_before_update: bool,
 ) -> Result<(), Box<dyn std::error::Error>> {
     log::info!("Fetching all delegates..");
     let all_delegates = all_delegates(pg_pool).await?;
@@ -53,7 +54,10 @@ pub async fn update_delegates_meilisearch_index(
         .map(|field| field.to_string())
         .collect::<Vec<String>>();
 
-    // client.delete_index("decrees").await?;
+    let index = Index::Delegates.as_str();
+    if delete_index_before_update {
+        client.delete_index(index).await?;
+    }
 
     log::info!("Uploading {} delegates to meilisearch", all_delegates.len());
     let settings = Settings::new()
@@ -71,10 +75,7 @@ pub async fn update_delegates_meilisearch_index(
             max_total_hits: 100000000,
         });
 
-    let index = Index::Delegates.as_str();
     client.index(index).set_settings(&settings).await?;
-
-    // client.index("").delete_all_documents().await?;
 
     client
         .index(index)
@@ -90,16 +91,20 @@ pub async fn update_delegates_meilisearch_index(
     Ok(())
 }
 
-pub async fn update_decrees_meilisearch_index(
+pub async fn create_or_update_decrees_meilisearch_index(
     pg_pool: &sqlx::Pool<sqlx::Postgres>,
     redis_con: &mut MultiplexedConnection,
     client: &meilisearch_sdk::client::Client,
+    delete_index_before_update: bool,
 ) -> Result<(), Box<dyn std::error::Error>> {
     log::info!("Fetching all decrees..");
     let all_decrees = get_all_decrees_sqlx(pg_pool, redis_con.clone()).await?;
     log::info!("Fetched all decrees");
 
-    // client.delete_index("decrees").await?;
+    let index = Index::Decrees.as_str();
+    if delete_index_before_update {
+        client.delete_index(index).await?;
+    }
 
     log::info!("Uploading {} decrees to meilisearch", all_decrees.len());
     let settings = Settings::new()
@@ -116,12 +121,7 @@ pub async fn update_decrees_meilisearch_index(
         .with_pagination(PaginationSetting {
             max_total_hits: 100000000,
         });
-
-    let index = Index::Decrees.as_str();
     client.index(index).set_settings(&settings).await?;
-
-    // client.index("decrees").delete_all_documents().await?;
-    // client.index("decrees").delete_all_documents().await?;
 
     client
         .index(index)
@@ -133,16 +133,21 @@ pub async fn update_decrees_meilisearch_index(
     Ok(())
 }
 
-pub async fn update_gov_props_meilisearch_index(
+pub async fn create_or_update_gov_props_meilisearch_index(
     redis_con: &mut MultiplexedConnection,
     pg_pool: &sqlx::Pool<sqlx::Postgres>,
     client: &meilisearch_sdk::client::Client,
+    delete_index_before_update: bool,
 ) -> Result<(), Box<dyn std::error::Error>> {
     log::info!("Fetching all gov proposals..");
     let all_gov_props = get_all_gov_props(redis_con.clone(), pg_pool).await?;
     log::info!("Fetched all gov proposals");
 
-    // client.delete_index("vote_results").await?;
+    let index = Index::GovProposals.as_str();
+
+    if delete_index_before_update {
+        client.delete_index(index).await?;
+    }
 
     log::info!(
         "Uploading {} gov proposals to meilisearch",
@@ -162,10 +167,7 @@ pub async fn update_gov_props_meilisearch_index(
         .with_pagination(PaginationSetting {
             max_total_hits: 100000000,
         });
-    let index = Index::GovProposals.as_str();
     client.index(index).set_settings(&settings).await?;
-
-    client.index(index).delete_all_documents().await?;
 
     client
         .index(index)
@@ -218,6 +220,7 @@ pub async fn update_vote_result_meilisearch_index(
         MultiplexedConnection,
         &sqlx::PgPool,
     ) -> sqlx::Result<Vec<OptionalVoteResult>>,
+    delete_index_before_update: bool,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let filterable_fields = OptionalVoteResultFilter::filterable_fields()
         .into_iter()
@@ -246,10 +249,8 @@ pub async fn update_vote_result_meilisearch_index(
     let mut all_vote_results = vote_result_cb(redis_con.clone(), pg_pool).await?;
 
     let index = Index::VoteResults.as_str();
-
     // this should only run when there are structural differences (type changes)
-    if *IS_PROD {
-        client.index(index).delete_all_documents().await?;
+    if delete_index_before_update {
         client.delete_index(index).await?;
     }
     client.index(index).set_settings(&settings).await?;
@@ -294,7 +295,6 @@ pub async fn update_meilisearch_indices(
 
     let mut prod_wait_handles = vec![];
 
-    // TODO: move this to dataservice
     prod_wait_handles.push(tokio::task::spawn(async move {
         loop {
             if let Err(e) = update_vote_result_meilisearch_index(
@@ -302,6 +302,7 @@ pub async fn update_meilisearch_indices(
                 &pg_pool_vr,
                 &meilisearch_client_vr,
                 all_votes_from_legis_init,
+                *IS_PROD || *RESET_CACHE,
             )
             .await
             {
@@ -318,13 +319,13 @@ pub async fn update_meilisearch_indices(
     let meilisearch_client_gp = meilisearch_client.clone();
     let client_vr = client.clone();
 
-    // TODO: move this to dataservice
     prod_wait_handles.push(tokio::task::spawn(async move {
         loop {
-            if let Err(e) = update_gov_props_meilisearch_index(
+            if let Err(e) = create_or_update_gov_props_meilisearch_index(
                 &mut client_vr.get_multiplexed_async_connection().await.unwrap(),
                 &pg_pool,
                 &meilisearch_client_gp,
+                *IS_PROD || *RESET_CACHE,
             )
             .await
             {
@@ -344,15 +345,19 @@ pub async fn update_meilisearch_indices(
     let client_vr = client.clone();
 
     tokio::task::spawn(async move {
+        let mut is_first_run = true;
         loop {
-            if let Err(e) = update_decrees_meilisearch_index(
+            if let Err(e) = create_or_update_decrees_meilisearch_index(
                 &pg_pool,
                 &mut client_vr.get_multiplexed_async_connection().await.unwrap(),
                 &meilisearch_client_gp,
+                (*IS_PROD && is_first_run) || *RESET_CACHE,
             )
             .await
             {
                 log::error!("Could not update decree meilisearch index: {e:?}");
+            } else {
+                is_first_run = false;
             }
             // TODO: there is currently no static cache for decrees
             // if *IS_PROD {
@@ -373,6 +378,7 @@ pub async fn update_meilisearch_indices(
                 &pg_pool,
                 &mut client_vr.get_multiplexed_async_connection().await.unwrap(),
                 &meilisearch_client_gp,
+                *IS_PROD || *RESET_CACHE,
             )
             .await
             {

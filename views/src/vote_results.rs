@@ -46,7 +46,7 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
                 JOIN mandates m ON m.delegate_id = nv.delegate_id
               WHERE
                 nvi.legis_init_id = li.id
-                AND m.name LIKE '%Abge%National%'
+                AND m.is_nr
                 AND m.start_date <= li.nr_plenary_activity_date
                 AND (COALESCE(m.end_date, li.nr_plenary_activity_date) >= li.nr_plenary_activity_date)
                 AND nv.infavor IS NOT NULL

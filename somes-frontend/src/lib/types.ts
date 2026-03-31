@@ -78,7 +78,7 @@ export interface DbMinistrialProposalQueryMeta {
 }
 
 export interface GovProposalDelegate {
-	delegate: Delegate;
+	delegates: Delegate[] | null;
 	gov_proposal: GovProposal;
 }
 
