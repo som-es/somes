@@ -51,7 +51,7 @@
 	let partyInfavorMap = $derived(createPartyInfavorMap(voteResult, localPartyColors));
 
 	let circles2d = $derived.by(() => {
-		void delegates; 
+		void delegates;
 		void voteResult;
 		void searchValue;
 
@@ -62,7 +62,11 @@
 		});
 	});
 
-	function select(bubble: Bubble, event: MouseEvent | KeyboardEvent | null, updateDelegate: boolean = true) {
+	function select(
+		bubble: Bubble,
+		event: MouseEvent | KeyboardEvent | null,
+		updateDelegate: boolean = true
+	) {
 		if (event != null) {
 			event.stopPropagation();
 		}
@@ -81,9 +85,8 @@
 			return;
 		}
 
-
 		if (searchValue.trim().length > 0) {
-			if(bubble.del.name.toLowerCase().includes(searchValue.trim().toLowerCase())){
+			if (bubble.del.name.toLowerCase().includes(searchValue.trim().toLowerCase())) {
 				bubble.opacity = 1;
 			} else {
 				bubble.opacity = 0.2;
@@ -91,13 +94,13 @@
 			return;
 		}
 
-		if (bubble.speech && bubble.speech.infavor != null) {
-			bubble.opacity = bubble.speech.infavor ? 1.0 : 0.2;
+		if (bubble.namedVote && !bubble.namedVote.was_absent) {
+			bubble.opacity = bubble.namedVote.infavor ? 1.0 : 0.2;
 			return;
 		}
 
-		if (bubble.namedVote && !bubble.namedVote.was_absent) {
-			bubble.opacity = bubble.namedVote.infavor ? 1.0 : 0.2;
+		if (bubble.speech && bubble.speech.infavor != null) {
+			bubble.opacity = bubble.speech.infavor ? 1.0 : 0.2;
 			return;
 		}
 
@@ -113,7 +116,6 @@
 
 		bubble.opacity = 1;
 	}
-
 
 	$effect(() => {
 		if (delegate && delegate.seat_row != null && circles2d.length >= 1) {
@@ -137,7 +139,16 @@
 	<GptCanvasParliament class={className} {circles2d} {width} {height} />
 	<!-- <BaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} /> -->
 {:else}
-	<BaseParliament class={className} {circles2d} {selected} {preview} {select} {width} {height} {forceColor} />
+	<BaseParliament
+		class={className}
+		{circles2d}
+		{selected}
+		{preview}
+		{select}
+		{width}
+		{height}
+		{forceColor}
+	/>
 	<!-- <GptBaseParliament class={clazz} {circles2d} {selected} {preview} {select} {width} {height} /> -->
 {/if}
 <!--
