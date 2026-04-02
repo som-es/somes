@@ -179,7 +179,7 @@
 			activeValue: undefined,
 			hidden: false,
 			advanced: true,
-			id: 'datum',
+			id: 'dateRange',
 			data: { dateFrom: '', dateTo: '' },
 			options: []
 		}
@@ -331,6 +331,11 @@
 		untrack(update);
 	});
 
+	// used to set generic filter count when dateRange filter is active
+	$effect(() => {
+		genericFilters[5].activeValue = (genericFilters[5].data?.dateFrom || genericFilters[5].data?.dateTo) ? 'set' : undefined;
+	});
+
 	let searchValue = $state('');
 </script>
 
@@ -423,24 +428,24 @@
 		<!-- Themen Filter -->
 		<MultiValuesFilter title="Themen" bind:selectedValues={selectedTopics} values={topics} />
 		<!-- Generic Filter -->
-		{#snippet datumSnippet()}
+		{#snippet dateRangeSnippet()}
 			<div class="mt-1 flex flex-col gap-3">
-			<div class="flex gap-2">
+			<div class="flex gap-2 w-full justify-between">
 				<div class="flex-1">
-					<label for="date-from" class="text-sm font-semibold text-gray-600 dark:text-gray-50">Von</label>
+					<label for="date-from" class="block w-full text-sm font-semibold text-gray-600 dark:text-gray-50">Von</label>
 					<input
 						id="date-from"
 						type="date"
-						class="mt-1 w-full rounded-lg border border-primary-300 dark:border-primary-400 bg-transparent px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary-400"
+						class="mt-1 w-full appearance-none rounded-lg border border-primary-300 dark:border-primary-400 bg-transparent px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary-400"
 						bind:value={genericFilters[5].data!.dateFrom}
 					/>
 				</div>
 				<div class="flex-1">
-					<label for="date-to" class="text-sm font-semibold text-gray-600 dark:text-gray-50">Bis</label>
+					<label for="date-to" class="block w-full text-sm font-semibold text-gray-600 dark:text-gray-50">Bis</label>
 					<input
 						id="date-to"
 						type="date"
-						class="mt-1 w-full rounded-lg border border-primary-300 dark:border-primary-400 bg-transparent px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary-400"
+						class="mt-1 w-full appearance-none rounded-lg border border-primary-300 dark:border-primary-400 bg-transparent px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary-400"
 						bind:value={genericFilters[5].data!.dateTo}
 					/>
 				</div>
@@ -455,7 +460,7 @@
 				{/if}
 			</div>
 		{/snippet}
-		<GenericFilters bind:genericFilters bind:legisPeriodFilter snippets={{ datum: datumSnippet }} />
+		<GenericFilters bind:genericFilters bind:legisPeriodFilter snippets={{ dateRange: dateRangeSnippet }} />
 	</div>
 </div>
 
