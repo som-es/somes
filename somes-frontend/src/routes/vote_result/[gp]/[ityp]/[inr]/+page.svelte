@@ -80,8 +80,15 @@
 		}
 		isSearchPopupOpen = false;
 	}
+	let generalNamedVoteDelegates: Bubble[] | null = $derived(
+		voteResult && voteResult.named_votes
+			? genCirclesWithNamedVoteInfo(voteResult.named_votes.named_votes, delegates)
+			: []
+	);
 
 	let selectedPartiesNames = $state<string[]>([]);
+	let selectedInfavor = $state<string | undefined>(undefined);
+
 	let uniqueParties = $derived.by(() => {
 		const parties = new Set<string>();
 		delegates.forEach((d) => parties.add(d.party?.trim() ? d.party : 'Ohne Klub'));
@@ -91,15 +98,60 @@
 		}));
 	});
 
+	let searchableDelegates = $derived.by(() => {
+		return delegates.map((delegate) => {
+			const namedVoteInfo = generalNamedVoteDelegates.find(
+				(namedVoteDelegate) => namedVoteDelegate.del?.id === delegate.id
+			);
+			if (namedVoteInfo?.namedVote) {
+				return {
+					absent: namedVoteInfo.namedVote.was_absent,
+					infavor: namedVoteInfo.namedVote.infavor,
+					delegate,
+					isNamedVote: true
+				};
+			}
+			const partyVote = voteResult?.votes.find((v) => v.party === delegate.party);
+			if (partyVote && voteResult) {
+				const absent = voteResult.absences.find((id) => id === delegate.id) ? true : false;
+				return {
+					absent,
+					infavor: absent ? null : partyVote.infavor,
+					delegate,
+					isNamedVote: false
+				};
+			}
+			return {
+				absent: null,
+				infavor: null,
+				delegate,
+				isNamedVote: false
+			};
+		});
+	});
+
 	let filteredDelegates = $derived.by(() => {
-		let res = delegates;
+		let res = searchableDelegates;
 		if (searchValue) {
-			res = res.filter((d) => d.name.toLowerCase().includes(searchValue.toLowerCase()));
+			res = res.filter((d) => d.delegate.name.toLowerCase().includes(searchValue.toLowerCase()));
 		}
 		if (selectedPartiesNames.length > 0) {
 			res = res.filter((d) => {
-				const p = d.party?.trim() ? d.party : 'Ohne Klub';
+				const p = d.delegate.party?.trim() ? d.delegate.party : 'Ohne Klub';
 				return selectedPartiesNames.includes(p);
+			});
+		}
+		if (selectedInfavor) {
+			res = res.filter((d) => {
+				if (selectedInfavor === 'NoVote') {
+					return d.absent === true;
+				}
+				if (selectedInfavor === 'Infavor') {
+					return d.infavor === true;
+				}
+				if (selectedInfavor === 'Against') {
+					return d.infavor === false;
+				}
 			});
 		}
 		return res;
@@ -112,12 +164,6 @@
 		const res = voteResult ? genCirclesWithSpeechInfo(voteResult.speeches, delegates) : [];
 		return res;
 	});
-
-	let generalNamedVoteDelegates: Bubble[] | null = $derived(
-		voteResult && voteResult.named_votes
-			? genCirclesWithNamedVoteInfo(voteResult.named_votes.named_votes, delegates)
-			: []
-	);
 
 	let generalAbsencesDelegates: Bubble[] | null = $state(null);
 
@@ -207,6 +253,12 @@
 	let couldExtractNamedVotes = $derived(
 		(voteResult?.named_votes?.named_votes?.length ?? 0) > 0 && votedByName
 	);
+
+	const infavorOptions = [
+		{ value: 'Infavor', label: 'Dafür' },
+		{ value: 'NoVote', label: 'Nicht abgestimmt' },
+		{ value: 'Against', label: 'Dagegen' }
+	];
 </script>
 
 <svelte:head>
@@ -386,7 +438,7 @@
 										class="flex h-full w-full touch-manipulation items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none lg:w-auto lg:px-3"
 									>
 										<div class="flex items-center gap-2">
-											{#each selectedPartiesNames.slice(0, 1) as partyName}
+											{#each selectedPartiesNames.slice(0, 1) as partyName (partyName)}
 												{@const party = uniqueParties.find((p) => p.name === partyName)}
 												{#if party}
 													<div
@@ -411,7 +463,7 @@
 											sideOffset={8}
 										>
 											<Select.Viewport class="p-1">
-												{#each uniqueParties as party}
+												{#each uniqueParties as party (party.name)}
 													<Select.Item
 														class="flex h-10 w-full cursor-pointer justify-between rounded-lg py-3 pr-1.5 pl-3 text-sm capitalize transition-all duration-75 outline-none select-none data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-400"
 														value={party.name}
@@ -424,6 +476,57 @@
 																	style="background-color: {party.color};"
 																></div>
 																{party.name}
+															</div>
+															{#if selected}
+																<div class="ml-auto h-4 stroke-black dark:stroke-white">
+																	{@html checkmarkIcon}
+																</div>
+															{/if}
+														{/snippet}
+													</Select.Item>
+												{/each}
+											</Select.Viewport>
+										</Select.Content>
+									</Select.Portal>
+								</Select.Root>
+								<Select.Root
+									type="single"
+									allowDeselect
+									bind:value={selectedInfavor}
+									items={infavorOptions}
+								>
+									<Select.Trigger
+										class="flex h-full w-full touch-manipulation items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none lg:w-auto lg:px-3"
+									>
+										<div class="flex items-center gap-2">
+											{#if selectedInfavor}
+												{@const option = infavorOptions.find((p) => p.value === selectedInfavor)}
+												{#if option}
+													<div class="h-3 w-3 rounded-full"></div>
+													<span class="truncate">{option.label}</span>
+												{/if}
+											{:else}
+												<span class="truncate">Abstimmungsverhalten</span>
+											{/if}
+										</div>
+										{@html upDownArrowIcon}
+									</Select.Trigger>
+									<Select.Portal>
+										<Select.Content
+											class="z-500 max-h-60 w-[calc(100vw-2rem)] min-w-[var(--bits-select-anchor-width)] overflow-hidden rounded-xl border border-gray-200 bg-surface-100 shadow-lg md:w-[200px] dark:bg-surface-500"
+											sideOffset={8}
+										>
+											<Select.Viewport class="p-1">
+												{#each infavorOptions as infavorOption (infavorOption.value)}
+													<Select.Item
+														class="flex h-10 w-full cursor-pointer justify-between rounded-lg py-3 pr-1.5 pl-3 text-sm transition-all duration-75 outline-none select-none data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-400"
+														value={infavorOption.value}
+														label={infavorOption.label}
+													>
+														{#snippet children({ selected })}
+															<div class="flex items-center gap-2">
+																<div class="h-3 w-3 rounded-full"></div>
+																{infavorOption.label}
 															</div>
 															{#if selected}
 																<div class="ml-auto h-4 stroke-black dark:stroke-white">
@@ -450,43 +553,34 @@
 								>
 							</div>
 							<div class="space-y-2">
-								{#each filteredDelegates as del (del.id)}
-									{@const namedVote = generalNamedVoteDelegates?.find((b) => b.del?.id === del.id)}
-									{@const partyVoteInfo = voteResult?.votes.find((v) => v.party === del.party)}
+								{#each filteredDelegates as del (del.delegate.id)}
 									<DelegateListItem
-										delegate={del}
+										delegate={del.delegate}
 										class="w-full bg-primary-200 lg:bg-primary-300 dark:bg-surface-600 dark:lg:bg-primary-500"
 										onclick={() => {
-											delegate = del;
+											delegate = del.delegate;
 											selectedBubble = undefined;
 											onClose();
 										}}
 									>
-										{#if namedVote && namedVote.namedVote}
-											{#if namedVote.namedVote.infavor}
-												<span
-													class="inline-block stroke-green-600 dark:stroke-green-500"
-													style="width:24px; height:24px;">{@html checkmarkIcon}</span
-												>
-											{:else if namedVote.namedVote.was_absent}
-												<span class="text-xs font-medium text-gray-500 dark:text-gray-200"
-													>Nicht abgestimmt</span
-												>
-											{:else}
-												<span class="inline-block" style="width:24px; height:24px;"
-													>{@html crossmarkIcon}</span
-												>
+										{#if del.infavor === true}
+											<span
+												class="inline-block stroke-green-600 dark:stroke-green-500"
+												style="width:24px; height:24px;">{@html checkmarkIcon}</span
+											>
+											{#if !del.isNamedVote}
+												<span class="text-xs font-light"> (Partei) </span>
 											{/if}
-										{:else if partyVoteInfo}
-											{#if partyVoteInfo.infavor}
-												<span
-													class="inline-block stroke-green-600 opacity-60 dark:stroke-green-500"
-													style="width:24px; height:24px;">{@html checkmarkIcon}</span
-												>
-											{:else}
-												<span class="inline-block opacity-60" style="width:24px; height:24px;"
-													>{@html crossmarkIcon}</span
-												>
+										{:else if del.absent === true}
+											<span class="text-xs font-medium text-gray-500 dark:text-gray-200"
+												>Nicht abgestimmt</span
+											>
+										{:else if del.infavor === false}
+											<span class="inline-block" style="width:24px; height:24px;"
+												>{@html crossmarkIcon}</span
+											>
+											{#if !del.isNamedVote}
+												<span class="text-xs font-light"> (Partei) </span>
 											{/if}
 										{/if}
 									</DelegateListItem>
