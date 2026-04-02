@@ -43,7 +43,6 @@ pub async fn construct_gov_delegate_proposal(
     let gov_proposal = construct_gov_proposal(redis_con.clone(), &pg, ministrial_proposal)
         .await
         .unwrap();
-    // TODO: display multiple gov officials if there are multiple ministerial issuers
     let mut delegates = vec![];
     for ministerial_issuer in gov_proposal.ministerial_issuers.as_deref().unwrap_or(&[]) {
         let delegate = delegate_by_id_sqlx(*ministerial_issuer, &pg, &mut redis_con).await?;
@@ -51,7 +50,7 @@ pub async fn construct_gov_delegate_proposal(
     }
     Ok(GovProposalDelegate {
         gov_proposal,
-        delegate: delegates.into_iter().next(), // TODO: handle multiple delegates properly
+        delegates: Some(delegates),
     })
 }
 /*

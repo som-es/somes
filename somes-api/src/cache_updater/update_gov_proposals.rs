@@ -29,20 +29,22 @@ pub async fn update_cache_gov_proposals(
                 .get_multiplexed_async_connection()
                 .await?;
             for gov_proposal in gov_proposals {
-                let delegate = match gov_proposal
+                let mut delegates = vec![];
+                for ministerial_issuer in gov_proposal
                     .ministerial_issuers
                     .as_deref()
                     .unwrap_or(&[])
                     .iter()
-                    .next()
                 {
-                    Some(id) => Some(delegate_by_id_sqlx(*id, &inner_pool, &mut redis_con).await?),
-                    None => None,
-                };
+                    delegates.push(
+                        delegate_by_id_sqlx(*ministerial_issuer, &inner_pool, &mut redis_con)
+                            .await?,
+                    );
+                }
 
                 gov_proposal_delegates.push(GovProposalDelegate {
                     gov_proposal,
-                    delegate,
+                    delegates: Some(delegates),
                 })
             }
 

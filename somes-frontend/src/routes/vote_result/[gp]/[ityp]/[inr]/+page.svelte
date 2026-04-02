@@ -443,7 +443,7 @@
 
 					<!-- Search Results -->
 					<div class="mt-3 max-h-[50vh] overflow-y-auto lg:mt-4 lg:max-h-70">
-						{#if searchValue.length > 0 || selectedPartiesNames.length > 0 || isSearchPopupOpen}
+						{#if isSearchPopupOpen}
 							<div class="mb-1">
 								<span class="text-sm font-semibold text-gray-800 lg:text-base dark:text-gray-200"
 									>Suchergebnisse</span
@@ -455,7 +455,7 @@
 									{@const partyVoteInfo = voteResult?.votes.find((v) => v.party === del.party)}
 									<DelegateListItem
 										delegate={del}
-										class="w-full bg-primary-200 lg:bg-primary-300 dark:bg-primary-500"
+										class="w-full bg-primary-200 lg:bg-primary-300 dark:bg-surface-600 dark:lg:bg-primary-500"
 										onclick={() => {
 											delegate = del;
 											selectedBubble = undefined;
@@ -546,6 +546,9 @@
 									<SearchBar
 										bind:searchValue
 										placeholder="Suche nach Abgeordneten..."
+										onfocus={() => (isSearchPopupOpen = true)}
+										onclick={() => (isSearchPopupOpen = true)}
+										oninput={() => (isSearchPopupOpen = true)}
 										autofocus={true}
 									/>
 
@@ -563,7 +566,10 @@
 									<h3 class="text-lg leading-none font-semibold md:text-xl">Abstimmung</h3>
 									<button
 										class="flex items-center justify-center"
-										onclick={() => (showMobileSearch = true)}
+										onclick={() => {
+											showMobileSearch = true;
+											isSearchPopupOpen = true;
+										}}
 									>
 										<div class="flex h-6 w-6 items-center text-gray-800 dark:text-gray-200">
 											{@html searchIcon}

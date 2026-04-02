@@ -43,6 +43,8 @@
 	$: date = dashDateToDotDate(
 		govProposal.gov_proposal.ministrial_proposal.raw_data_created_at.toString().split('T')[0]
 	);
+
+	$: delegate = govProposal.delegates?.at(0);
 </script>
 
 {#if govProposal}
@@ -101,17 +103,17 @@
 		{:else}
 			<div></div>
 		{/if} -->
-			{#if showDelegate}
+			{#if showDelegate && delegate}
 				<div class="hidden flex-col sm:flex">
 					<img
 						class="mx-1 max-h-[80px] min-w-[80px] rounded-full"
-						src={`${url}assets/${govProposal.delegate.id}.jpg`}
-						title={govProposal.delegate.name}
-						alt="Image of delegate {govProposal.delegate.name}"
+						src={`${url}assets/${delegate.id}.jpg`}
+						title={delegate.name}
+						alt="Image of delegate {delegate.name}"
 					/>
 					<span class="bottom-0 rounded text-[8px]">
-						{#if govProposal.delegate.image_copyright}
-							&copy {govProposal.delegate.image_copyright}
+						{#if delegate.image_copyright}
+							&copy {delegate.image_copyright}
 						{:else}
 							&copy Parlamentsdirektion
 						{/if}

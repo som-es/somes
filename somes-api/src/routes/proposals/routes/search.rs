@@ -32,11 +32,17 @@ pub async fn gov_props_by_search_route(
             Some("gov_proposal"),
         ));
     }
-    if let Some(delegate) = &gov_prop_filter.delegate {
+    if let Some(delegates) = &gov_prop_filter.delegates {
+        let filter_args = delegates
+            .iter()
+            .map(|delegate| delegate.filter_arguments())
+            .flatten()
+            .collect::<Vec<_>>();
+
         filter_conditions.extend(to_meilisearch_filters(
-            &delegate.filter_arguments(),
+            &filter_args,
             &FilterOptions {
-                prefix: Some("delegate".into()),
+                prefix: Some("delegates".into()),
                 ..Default::default()
             },
         ));

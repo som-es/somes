@@ -51,6 +51,7 @@ pub const HTTP_PORT: &str = dotenv!("HTTP_PORT");
 pub const HTTPS_PORT: &str = dotenv!("HTTPS_PORT");
 
 pub static IS_PROD: Lazy<bool> = Lazy::new(|| is_prod());
+pub static RESET_CACHE: Lazy<bool> = Lazy::new(|| reset_cache());
 
 pub fn is_prod() -> bool {
     std::env::var("IS_PROD")

@@ -19,7 +19,7 @@ use dataservice::combx::OptionalGovProposalFilter;
 pub struct GovProposalDelegate {
     #[filter(make_optional)]
     pub gov_proposal: OptionalGovProposal,
-    pub delegate: Option<Delegate>,
+    pub delegates: Option<Vec<Delegate>>,
 }
 
 impl CombinedData for GovProposalDelegate {
