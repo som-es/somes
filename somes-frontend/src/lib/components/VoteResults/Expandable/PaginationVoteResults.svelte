@@ -18,7 +18,7 @@
 	import { convertVoteResultFilterToUrl } from './urlConversion';
 	import { errorToNull, get_eurovoc_topics } from '$lib/api/api';
 	import MultiValuesFilter from '$lib/components/Filtering/MultiValuesFilter.svelte';
-	import DateRangeFilter from '$lib/components/Filtering/DateRangeFilter.svelte';
+
 
 	interface Props {
 		voteResults: VoteResultsWithMaxPage | null;
@@ -51,9 +51,6 @@
 	// TOPIC FILTER
 	let selectedTopics: SvelteSet<string> = $state(new SvelteSet());
 
-	// DATE RANGE FILTER
-	let dateFrom = $state('');
-	let dateTo = $state('');
 
 	// PARTY FILTER - get all parties available in the request
 	// let uniqueParties = $derived([...new Set(dels.map((d) => d.party))].sort());
@@ -120,7 +117,8 @@
 		GenericFilterGroup<string>,
 		GenericFilterGroup<boolean>,
 		GenericFilterGroup<string>,
-		GenericFilterGroup<boolean>
+		GenericFilterGroup<boolean>,
+		GenericFilterGroup<string>
 	] = $state([
 		{
 			title: 'notwendige Mehrheit',
@@ -169,11 +167,21 @@
 			title: 'Dringlich',
 			activeValue: undefined,
 			hidden: !showIsUrgentFilter,
+			advanced: true,
 			options: [
 				{ title: 'egal', value: undefined },
 				{ title: 'Ja', value: true },
 				{ title: 'Nein', value: false }
 			]
+		},
+		{
+			title: 'Datum',
+			activeValue: undefined,
+			hidden: false,
+			advanced: true,
+			id: 'datum',
+			data: { dateFrom: '', dateTo: '' },
+			options: []
 		}
 	]);
 
@@ -236,8 +244,8 @@
 			if (maybeStoredFilter.is_urgent !== null) {
 				genericFilters[4].activeValue = maybeStoredFilter.is_urgent;
 			}
-			if (maybeStoredFilter.date_from) dateFrom = maybeStoredFilter.date_from;
-			if (maybeStoredFilter.date_to) dateTo = maybeStoredFilter.date_to;
+			if (maybeStoredFilter.date_from) genericFilters[5].data!.dateFrom = maybeStoredFilter.date_from;
+			if (maybeStoredFilter.date_to) genericFilters[5].data!.dateTo = maybeStoredFilter.date_to;
 		}
 	});
 
@@ -264,8 +272,8 @@
 			topics: selectedTopics.size > 0 ? [...selectedTopics] : null,
 			is_urgent: genericFilters[4].activeValue === undefined ? null : genericFilters[4].activeValue,
 			party_votes: partyVotesFilter.length > 0 ? partyVotesFilter : null,
-			date_from: dateFrom || null,
-			date_to: dateTo || null
+			date_from: genericFilters[5].data?.dateFrom || null,
+			date_to: genericFilters[5].data?.dateTo || null
 		};
 
 		const nextUrl = convertVoteResultFilterToUrl(
@@ -318,8 +326,8 @@
 			void genericFilters[i].activeValue;
 		}
 		void legisPeriodFilter.activeValue;
-		void dateFrom;
-		void dateTo;
+		void genericFilters[5].data?.dateFrom;
+		void genericFilters[5].data?.dateTo;
 		untrack(update);
 	});
 
@@ -414,10 +422,40 @@
 		{/if}
 		<!-- Themen Filter -->
 		<MultiValuesFilter title="Themen" bind:selectedValues={selectedTopics} values={topics} />
-		<!-- Date Range Filter -->
-		<DateRangeFilter bind:dateFrom bind:dateTo />
 		<!-- Generic Filter -->
-		<GenericFilters bind:genericFilters bind:legisPeriodFilter />
+		{#snippet datumSnippet()}
+			<div class="mt-1 flex flex-col gap-3">
+			<div class="flex gap-2">
+				<div class="flex-1">
+					<label for="date-from" class="text-sm font-semibold text-gray-600 dark:text-gray-50">Von</label>
+					<input
+						id="date-from"
+						type="date"
+						class="mt-1 w-full rounded-lg border border-primary-300 dark:border-primary-400 bg-transparent px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary-400"
+						bind:value={genericFilters[5].data!.dateFrom}
+					/>
+				</div>
+				<div class="flex-1">
+					<label for="date-to" class="text-sm font-semibold text-gray-600 dark:text-gray-50">Bis</label>
+					<input
+						id="date-to"
+						type="date"
+						class="mt-1 w-full rounded-lg border border-primary-300 dark:border-primary-400 bg-transparent px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary-400"
+						bind:value={genericFilters[5].data!.dateTo}
+					/>
+				</div>
+			</div>
+				{#if genericFilters[5].data?.dateFrom || genericFilters[5].data?.dateTo}
+					<button
+						class="cursor-pointer rounded-lg border border-primary-300 dark:border-primary-400 px-2 py-1 text-xs hover:bg-primary-300 dark:hover:bg-primary-400 md:text-sm"
+						onclick={() => { genericFilters[5].data!.dateFrom = ''; genericFilters[5].data!.dateTo = ''; }}
+					>
+						Zurücksetzen
+					</button>
+				{/if}
+			</div>
+		{/snippet}
+		<GenericFilters bind:genericFilters bind:legisPeriodFilter snippets={{ datum: datumSnippet }} />
 	</div>
 </div>
 
