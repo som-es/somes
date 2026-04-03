@@ -18,6 +18,7 @@
 	import { convertVoteResultFilterToUrl } from './urlConversion';
 	import { errorToNull, get_eurovoc_topics } from '$lib/api/api';
 	import MultiValuesFilter from '$lib/components/Filtering/MultiValuesFilter.svelte';
+	import DateRangeSnippet from '$lib/components/Filtering/GenericFilterSnippets/DataRangeSnippet.svelte';
 
 
 	interface Props {
@@ -429,36 +430,7 @@
 		<MultiValuesFilter title="Themen" bind:selectedValues={selectedTopics} values={topics} />
 		<!-- Generic Filter -->
 		{#snippet dateRangeSnippet()}
-			<div class="mt-1 flex flex-col gap-3">
-			<div class="flex gap-2 w-full justify-between">
-				<div class="flex-1">
-					<label for="date-from" class="block w-full text-sm font-semibold text-gray-600 dark:text-gray-50">Von</label>
-					<input
-						id="date-from"
-						type="date"
-						class="mt-1 w-full appearance-none rounded-lg border border-primary-300 dark:border-primary-400 bg-transparent px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary-400"
-						bind:value={genericFilters[5].data!.dateFrom}
-					/>
-				</div>
-				<div class="flex-1">
-					<label for="date-to" class="block w-full text-sm font-semibold text-gray-600 dark:text-gray-50">Bis</label>
-					<input
-						id="date-to"
-						type="date"
-						class="mt-1 w-full appearance-none rounded-lg border border-primary-300 dark:border-primary-400 bg-transparent px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary-400"
-						bind:value={genericFilters[5].data!.dateTo}
-					/>
-				</div>
-			</div>
-				{#if genericFilters[5].data?.dateFrom || genericFilters[5].data?.dateTo}
-					<button
-						class="cursor-pointer rounded-lg border border-primary-300 dark:border-primary-400 px-2 py-1 text-xs hover:bg-primary-300 dark:hover:bg-primary-400 md:text-sm"
-						onclick={() => { genericFilters[5].data!.dateFrom = ''; genericFilters[5].data!.dateTo = ''; }}
-					>
-						Zurücksetzen
-					</button>
-				{/if}
-			</div>
+			<DateRangeSnippet bind:dateFrom={genericFilters[5].data!.dateFrom} bind:dateTo={genericFilters[5].data!.dateTo} />
 		{/snippet}
 		<GenericFilters bind:genericFilters bind:legisPeriodFilter snippets={{ dateRange: dateRangeSnippet }} />
 	</div>

@@ -14,8 +14,8 @@
 	import { goto } from '$app/navigation';
 	import { errorToNull, get_eurovoc_topics } from '$lib/api/api';
 	import MultiValuesFilter from '../Filtering/MultiValuesFilter.svelte';
-	import DateRangeFilter from '../Filtering/DateRangeFilter.svelte';
 	import { convertGovPropFilterToUrl } from './urlConversion';
+	import DateRangeSnippet from '../Filtering/GenericFilterSnippets/DataRangeSnippet.svelte';
 
 	interface Props {
 		govProposals: GovProposalsWithMaxPage;
@@ -25,7 +25,7 @@
 
 	let { govProposals, selectedGp, departmentsPerGp }: Props = $props();
 
-	let genericFilters: [GenericFilterGroup<boolean>] = $state([
+	let genericFilters: [GenericFilterGroup<boolean>, GenericFilterGroup<string>] = $state([
 		{
 			title: 'Abstimmungsstatus',
 			activeValue: undefined,
@@ -35,6 +35,15 @@
 				{ title: 'mit Abstimmung', value: true },
 				{ title: 'ohne Abstimmung', value: false }
 			]
+		},
+		{
+			title: 'Datum',
+			activeValue: undefined,
+			hidden: false,
+			advanced: true,
+			id: 'dateRange',
+			data: { dateFrom: '', dateTo: '' },
+			options: []
 		}
 	]);
 
@@ -57,10 +66,9 @@
 			: 'Unbekannt'
 	);
 
+	
 	let selectedTopics: SvelteSet<string> = $state(new SvelteSet());
 	let selectedDepartments: SvelteSet<string> = $state(new SvelteSet());
-	let dateFrom = $state('');
-	let dateTo = $state('');
 
 	let departments = $derived.by(() => {
 		if (selectedGp) {
@@ -101,8 +109,8 @@
 			if (maybeStoredFilter.departments !== null) {
 				selectedDepartments = new SvelteSet(maybeStoredFilter.departments);
 			}
-			if (maybeStoredFilter.date_from) dateFrom = maybeStoredFilter.date_from;
-			if (maybeStoredFilter.date_to) dateTo = maybeStoredFilter.date_to;
+			if (maybeStoredFilter.date_from) genericFilters[1].data!.dateFrom = maybeStoredFilter.date_from;
+			if (maybeStoredFilter.date_to) genericFilters[1].data!.dateTo = maybeStoredFilter.date_to;
 		}
 	});
 
@@ -113,8 +121,8 @@
 			legis_period: legisPeriodFilter.activeValue == 'all' ? null : legisPeriodFilter.activeValue,
 			topics: selectedTopics.size > 0 ? [...selectedTopics] : null,
 			departments: selectedDepartments.size > 0 ? [...selectedDepartments] : null,
-			date_from: dateFrom || null,
-			date_to: dateTo || null
+			date_from: genericFilters[1].data?.dateFrom || null,
+			date_to: genericFilters[1].data?.dateTo || null
 		};
 		currentGovProposalFilterStore.value = filter;
 
@@ -136,9 +144,13 @@
 		void selectedDepartments.size;
 		void genericFilters[0].activeValue;
 		void legisPeriodFilter.activeValue;
-		void dateFrom;
-		void dateTo;
+		void genericFilters[1].data?.dateFrom;
+		void genericFilters[1].data?.dateTo;
 		untrack(update);
+	});
+
+	$effect(() => {
+		genericFilters[1].activeValue = (genericFilters[1].data?.dateFrom || genericFilters[1].data?.dateTo) ? 'set' : undefined;
 	});
 
 	let topics: string[] = $state([]);
@@ -178,8 +190,10 @@
 			values={departments}
 		/>
 		<MultiValuesFilter title="Themen" bind:selectedValues={selectedTopics} values={topics} />
-		<DateRangeFilter bind:dateFrom bind:dateTo />
-		<GenericFilters bind:genericFilters bind:legisPeriodFilter />
+		{#snippet dateRangeSnippet()}
+			<DateRangeSnippet bind:dateFrom={genericFilters[1].data!.dateFrom} bind:dateTo={genericFilters[1].data!.dateTo} />
+		{/snippet}
+		<GenericFilters bind:genericFilters bind:legisPeriodFilter snippets={{ dateRange: dateRangeSnippet }} />
 	</div>
 </div>
 <div>

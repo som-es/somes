@@ -13,8 +13,9 @@
 	import SearchBar from '../Filtering/SearchBar.svelte';
 	import MultiValuesFilter from '../Filtering/MultiValuesFilter.svelte';
 	import GenericFilters from '../Filtering/GenericFilters.svelte';
-	import DateRangeFilter from '../Filtering/DateRangeFilter.svelte';
+	import type { GenericFilterGroup } from '../Filtering/types';
 	import { convertDecreeFilterToUrl } from './urlConversion';
+	import DateRangeSnippet from '../Filtering/GenericFilterSnippets/DataRangeSnippet.svelte';
 	interface Props {
 		decrees: DecreesWithMaxPage;
 		selectedGp: string | null;
@@ -42,10 +43,20 @@
 			: 'Unbekannt'
 	);
 
+	let genericFilters: [GenericFilterGroup<string>] = $state([
+		{
+			title: 'Datum',
+			activeValue: undefined,
+			hidden: false,
+			advanced: true,
+			id: 'dateRange',
+			data: { dateFrom: '', dateTo: '' },
+			options: []
+		}
+	]);
+
 	let selectedTopics: SvelteSet<string> = $state(new SvelteSet());
 	let selectedDepartments: SvelteSet<string> = $state(new SvelteSet());
-	let dateFrom = $state('');
-	let dateTo = $state('');
 
 	let departments = $derived.by(() => {
 		if (selectedGp) {
@@ -77,8 +88,8 @@
 			if (maybeStoredFilter.departments !== null) {
 				selectedDepartments = new SvelteSet(maybeStoredFilter.departments);
 			}
-			if (maybeStoredFilter.date_from) dateFrom = maybeStoredFilter.date_from;
-			if (maybeStoredFilter.date_to) dateTo = maybeStoredFilter.date_to;
+			if (maybeStoredFilter.date_from) genericFilters[0].data!.dateFrom = maybeStoredFilter.date_from;
+			if (maybeStoredFilter.date_to) genericFilters[0].data!.dateTo = maybeStoredFilter.date_to;
 		}
 	});
 
@@ -98,8 +109,8 @@
 			legis_period: legisPeriodFilter.activeValue == 'all' ? null : legisPeriodFilter.activeValue,
 			topics: selectedTopics.size > 0 ? [...selectedTopics] : null,
 			departments: selectedDepartments.size > 0 ? [...selectedDepartments] : null,
-			date_from: dateFrom || null,
-			date_to: dateTo || null
+			date_from: genericFilters[0].data?.dateFrom || null,
+			date_to: genericFilters[0].data?.dateTo || null
 		};
 		currentDecreeFilterStore.value = filter;
 
@@ -124,9 +135,13 @@
 		void selectedTopics.size;
 		void selectedDepartments.size;
 		void legisPeriodFilter.activeValue;
-		void dateFrom;
-		void dateTo;
+		void genericFilters[0].data?.dateFrom;
+		void genericFilters[0].data?.dateTo;
 		untrack(update);
+	});
+
+	$effect(() => {
+		genericFilters[0].activeValue = (genericFilters[0].data?.dateFrom || genericFilters[0].data?.dateTo) ? 'set' : undefined;
 	});
 
 	let topics: string[] = $state([]);
@@ -165,8 +180,10 @@
 			values={departments}
 		/>
 		<MultiValuesFilter title="Themen" bind:selectedValues={selectedTopics} values={topics} />
-		<DateRangeFilter bind:dateFrom bind:dateTo />
-		<GenericFilters genericFilters={[]} bind:legisPeriodFilter />
+		{#snippet dateRangeSnippet()}
+		<DateRangeSnippet bind:dateFrom={genericFilters[0].data!.dateFrom} bind:dateTo={genericFilters[0].data!.dateTo} />
+	{/snippet}
+		<GenericFilters bind:genericFilters bind:legisPeriodFilter snippets={{ dateRange: dateRangeSnippet }} />
 	</div>
 </div>
 
