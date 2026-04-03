@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { errorToNull, get_eurovoc_topics, vote_result_by_path, url } from '$lib/api/api';
+	import { errorToNull, get_eurovoc_topics, vote_result_by_path, vote_result_by_id, url } from '$lib/api/api';
 	import {
 		currentDelegateStore,
 		currentVoteResultStore,
@@ -10,7 +10,8 @@
 	import SButton from '$lib/components/UI/SButton.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import Topics from '$lib/components/Topics/Topics.svelte';
-	import type { Delegate, VoteResult } from '$lib/types';
+	import Topic from '$lib/components/Topics/Topic.svelte';
+	import { createVoteResultPath, type Delegate, type VoteResult } from '$lib/types';
 	import Emphasis from '$lib/components/VoteResults/Emphasis/Emphasis.svelte';
 	import VoteDelegateCard from '$lib/components/Delegates/VoteDelegateCard.svelte';
 	import {
@@ -35,12 +36,15 @@
 	import Documents from '$lib/components/Documents/Documents.svelte';
 	import { dashDateToDotDate } from '$lib/date';
 	import InfoBadges from '$lib/components/VoteResults/InfoTiles/InfoBadges.svelte';
+	import VoteTypeBadge from '$lib/components/VoteResults/VoteTypeBadge.svelte';
+	import ReferencedByBar from '$lib/components/Bars/ReferencedByBar.svelte';
 	import crossmarkIcon from '$lib/assets/misc_icons/crossmark_small.svg?raw';
 	import checkmarkIcon from '$lib/assets/misc_icons/checkmark_small.svg?raw';
 	import GlossaryText from '$lib/components/UI/GlossaryText.svelte';
 	import AiSummaryHintPopup from '$lib/components/AiHint/AiSummaryHintPopup.svelte';
 	import { page } from '$app/state';
 	import linkIcon from '$lib/assets/misc_icons/external-link.svg?raw';
+	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
 	import searchIcon from '$lib/assets/misc_icons/search-glass.svg?raw';
 	import DelegateListItem from '$lib/components/Delegates/DelegateListItem.svelte';
 	import { Select } from 'bits-ui';
@@ -697,6 +701,9 @@
 													</div>
 												{/if}
 											{/each}
+											{#if !voteResult.votes.some((v) => v.infavor)}
+												<span class="text-sm text-gray-500">Keine Parteien</span>
+											{/if}
 										</div>
 									</div>
 
@@ -725,6 +732,9 @@
 													</div>
 												{/if}
 											{/each}
+											{#if !voteResult.votes.some((v) => !v.infavor)}
+												<span class="text-sm text-gray-500">Keine Parteien</span>
+											{/if}
 										</div>
 									</div>
 								</div>
@@ -839,138 +849,37 @@
 					</div>
 				{/if}
 
-				<!-- {#if voteResult.named_votes}
-					<div
-						class="text-lg named-vote-info-item rounded-xl bg-primary-300 dark:bg-primary-500 px-3 py-3"
-					>
-						abgegebene Stimmen: <span class="font-bold"
-							>{voteResult.named_votes.named_vote_info.given_vote_sum}</span
-						>, Ja-Stimmen:
-						<span class="font-bold">{voteResult.named_votes.named_vote_info.pro_count}</span>,
-						Nein-Stimmen:
-						<span class="font-bold">{voteResult.named_votes.named_vote_info.contra_count}</span>
-						{#if voteResult.named_votes.named_vote_info.invalid_count > 0}
-							Ungültige Stimmen:
-							<span class="font-bold">{voteResult.named_votes.named_vote_info.invalid_count}</span>
-						{/if}
+				<!-- Referenziert in -->
+				{#if data.referencedByResults.length > 0}
+					<div class="rounded-xl bg-primary-300 dark:bg-primary-500 px-5 pt-4 pb-2 w-full">
+						<span class="font-semibold text-lg md:text-xl">Referenziert in</span>
+						<div class="my-0.5 flex flex-col rounded-xl">
+							{#each data.referencedByResults as ref}
+								<ReferencedByBar {ref} />
+							{/each}
+						</div>
 					</div>
 				{/if}
 
-				{#if voteResult.legislative_initiative.accepted}
-					<div
-						class="simple-yes-no-item bg-primary-300 p-3 dark:bg-primary-500 rounded-xl flex flex-wrap justify-between"
-					>
-						{#if votedByName && !couldExtractNamedVotes}
-							Namentliche Abstimmungsergebnisse konnten nicht extrahiert werden.
-						{:else}
-							<SimpleYesNo votes={voteResult.votes.slice()} />
-						{/if}
-					</div>
-
-
-
-					<div class="z-20! search-item base-font-color space-y-5">
-						<input
-							class="rounded-xl! w-full h-12 px-2 input"
-							type="search"
-							name="ac-demo"
-							bind:value={inputValue}
-							placeholder="Suchen..."
-							use:popup={popupSettings}
-						/>
-
-						{#if autocompleteOptions}
-							<div class="z-10! card max-h-64 p-4 overflow-y-auto" data-popup="popupAutocomplete">
-								<Autocomplete
-									bind:input={inputValue}
-									options={autocompleteOptions}
-									on:selection={onDelegateSelection}
-									emptyState={'Keine Person gefunden'}
-									filter={delegateFilter}
-								/>
-							</div>
-						{/if}
-					</div>
-
-					<div class="flex flex-wrap min-w-full justify-between">
-						<div class="rounded-xl w-full parliament-item flex- bg-primary-200 dark:bg-primary-200">
-							<VoteParliament2
-								{voteResult}
-								bind:delegate
-								bind:delegates
-								bind:selected={selectedBubble}
-								bind:circles2d
-								showGovs
-								show3D
-							/>
+				<!-- Hauptgegenstand / Bezug zu -->
+				{#if data.referencesResults.length > 0}
+					<div class="rounded-xl bg-primary-300 dark:bg-primary-500 px-5 pt-4 pb-2 w-full">
+						<span class="font-semibold text-lg md:text-xl">
+							{#if voteResult.legislative_initiative.ityp == 'AA'}
+								Hauptgegenstand
+							{:else}
+								Bezug zu
+							{/if}
+						</span>
+						
+						<div class="my-0.5 flex flex-col rounded-xl">
+							{#each data.referencesResults as ref}
+								<ReferencedByBar {ref} />
+							{/each}
 						</div>
-						{#if selectedBubble}
-							<div
-								class="max-md:hidden delegate-item rounded-xl bg-primary-300 dark:bg-primary-500"
-							>
-								<VoteDelegateCard
-									bubble={selectedBubble}
-									gp={voteResult.legislative_initiative.gp}
-									date={voteResult.legislative_initiative.vote_date ?? voteResult.legislative_initiative.nr_plenary_activity_date}
-								/>
-							</div>
-						{/if}
 					</div>
-				{/if} -->
+				{/if}
 
-				<!-- {/if} -->
-				<!-- <div class="flex flex-wrap justify-between min-w-full gap-3">
-					{#if delegates}
-						<div class="md:hidden info-item">
-							<InfoTiles {voteResult} dels={delegates} isCenter />
-						</div>
-						<div class="max-md:hidden info-item">
-							<InfoTiles {voteResult} dels={delegates} />
-						</div>
-					{/if}
-				</div> -->
-
-				<div class="flex w-full gap-2 max-lg:flex-wrap">
-					<div
-						class="flex {voteResult.issued_by_dels.length > 0 ? 'flex-col' : 'flex-row'} gap-2"
-						style="flex-basis: {voteResult.issued_by_dels.length > 0 ? '30%' : '100%;'}"
-					>
-						{#if voteResult.referenced_by_others_ids.length > 0}
-							<div class="h-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
-								<span class="text-lg font-bold md:text-3xl">Referenziert in</span>
-								{#each voteResult.referenced_by_others_ids as refered_by}
-									<VoteResultIdBar
-										requiringVotes
-										on:dataUpdated={(event) => {
-											voteResult = { ...event.detail };
-										}}
-										legis_init_id={refered_by}
-									/>
-								{/each}
-							</div>
-						{/if}
-						{#if voteResult.references && voteResult.references.length > 0}
-							<div class="h-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
-								<span class="text-lg font-bold md:text-3xl">
-									{#if voteResult.legislative_initiative.ityp == 'AA'}
-										Hauptgegenstand
-									{:else}
-										Bezug zu
-									{/if}
-								</span>
-								{#each voteResult.references as refered_by}
-									<VoteResultIdBar
-										requiringVotes
-										on:dataUpdated={(event) => {
-											voteResult = { ...event.detail };
-										}}
-										legis_init_ref={refered_by}
-									/>
-								{/each}
-							</div>
-						{/if}
-					</div>
-				</div>
 				{#if generalSpeechDelegates != null}
 					{#if generalSpeechDelegates.length > 0}
 						<div class="speeches-item gap-3 rounded-xl bg-primary-300 p-4 dark:bg-primary-500">

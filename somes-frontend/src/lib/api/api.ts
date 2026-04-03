@@ -158,8 +158,8 @@ export async function delegate_qa(delegate_id: number): Promise<DelegateQA[] | H
 	return getWithRoute<DelegateQA[]>(`v1/delegates/delegate_qa/${delegate_id}`);
 }
 
-export async function vote_result_by_id(vote_result_id: string): Promise<VoteResult | HasError> {
-	return getWithRoute<VoteResult>(`v1/vote_results/id/${vote_result_id}`);
+export async function vote_result_by_id(vote_result_id: string, fetcher: typeof fetch = fetch): Promise<VoteResult | HasError> {
+	return getWithRoute<VoteResult>(`v1/vote_results/id/${vote_result_id}`, 'at/', fetcher);
 }
 
 export async function vote_result_by_path(
