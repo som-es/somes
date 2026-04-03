@@ -19,7 +19,9 @@
 
 	let dels: Delegate[] | null = $derived(data.delegates);
 	let voteResults: VoteResult[] | null = $derived(errorToNull(data.latestVotes));
-	let govProposals: GovProposalDelegate[] | null = $derived(errorToNull(data.latestMinisterialProposals));
+	let govProposals: GovProposalDelegate[] | null = $derived(
+		errorToNull(data.latestMinisterialProposals)
+	);
 
 	let userVoteResults: VoteResult[] | null = $state(null);
 
@@ -52,50 +54,52 @@
 		if (voteResults == null) return null;
 		const first = voteResults.at(0);
 		if (first == null) return null;
-		return first.legislative_initiative.nr_plenary_activity_date
-
+		return first.legislative_initiative.nr_plenary_activity_date;
 	});
 
-	const nextPlenarySessionDateStr = $derived(errorToNull(data.nextPlenarDate)?.date_and_time?.toString());
-	
+	const nextPlenarySessionDateStr = $derived(
+		errorToNull(data.nextPlenarDate)?.date_and_time?.toString()
+	);
 </script>
 
 <svelte:head>
-    <title>Neuigkeiten</title>
-    <meta name="description" content="Neue Ereignisse im Nationalrat" />
+	<title>Neuigkeiten</title>
+	<meta name="description" content="Neue Ereignisse im Nationalrat" />
 </svelte:head>
 
 <Container>
-	<NextSessionInfo nextPlenarySessionDateStr={nextPlenarySessionDateStr} />
-	<h2 class="text-3xl sm:text-4xl font-bold pt-2 px-1 sm:p-0 mt-6">Letzte Abstimmungen</h2>
-	<span class="mb-2 ml-1 block text-base text-gray-800 dark:text-gray-200 sm:mt-1 sm:ml-0">
+	<NextSessionInfo {nextPlenarySessionDateStr} />
+	<h2 class="mt-6 px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">Letzte Abstimmungen</h2>
+	<span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0 dark:text-gray-200">
 		{#if voteDate}
 			Abgestimmt am {dashDateToDotDate(voteDate)}
 		{/if}
 	</span>
 	<!-- User Interests -->
 	{#if userVoteResults && dels}
-		<h2 class="text-xl sm:text-3xl font-bold">nach Interesse</h2>
+		<h2 class="text-xl font-bold sm:text-3xl">nach Interesse</h2>
 
 		<VoteResults {dels} allSeats={data.allSeats} voteResults={userVoteResults} />
 		<!-- {:else if use} -->
 	{/if}
 	{#if voteResults && dels}
-		{#each voteResults.slice(0, 3) as voteResult}
-			<VoteResultExpandableBar {voteResult} class="" />
-		{/each}
+		<div class="mt-5 flex flex-col gap-5">
+			{#each voteResults.slice(0, 3) as voteResult}
+				<VoteResultExpandableBar {voteResult} class="" />
+			{/each}
+		</div>
 		<div class="mt-3">
 			<a
 				href={resolve('/history/votes')}
-				class="group flex w-fit items-center gap-1 text-base text-gray-800 dark:text-gray-300 hover:text-black dark:hover:text-white"
+				class="group flex w-fit items-center gap-1 text-base text-gray-800 hover:text-black dark:text-gray-300 dark:hover:text-white"
 			>
-				Weitere Abstimmungen 
+				Weitere Abstimmungen
 				<span class="transition-transform group-hover:translate-x-1">→</span>
 			</a>
 		</div>
 	{:else}
-		<section class="card w-full animate-pulse">
-			<div class="p-4 space-y-4">
+		<section class="w-full animate-pulse card">
+			<div class="space-y-4 p-4">
 				<div class="placeholder"></div>
 				<div class="grid grid-cols-3 gap-8">
 					<div class="placeholder"></div>
@@ -132,17 +136,18 @@
 		</section>
 	{/if}
 
-	
-	<h2 class="text-3xl sm:text-4xl font-bold pt-2 px-1 sm:p-0 mt-12">Ministerialentwürfe der letzten 30 Tage</h2>
+	<h2 class="mt-12 px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">
+		Ministerialentwürfe der letzten 30 Tage
+	</h2>
 	{#if govProposals}
 		{#if govProposals.length == 0}
-			<div class="w-full p-20 text-center bg-surface-100-900 rounded-lg">Keine</div>
+			<div class="w-full rounded-lg bg-surface-100-900 p-20 text-center">Keine</div>
 		{:else}
 			<LatestProposals {govProposals} />
 		{/if}
 	{:else}
-		<section class="card w-full animate-pulse">
-			<div class="p-4 space-y-4">
+		<section class="w-full animate-pulse card">
+			<div class="space-y-4 p-4">
 				<div class="placeholder"></div>
 				<div class="grid grid-cols-3 gap-8">
 					<div class="placeholder"></div>
@@ -157,8 +162,8 @@
 				</div>
 			</div>
 		</section>
-		<section class="card mt-1 w-full animate-pulse">
-			<div class="p-4 space-y-4">
+		<section class="mt-1 w-full animate-pulse card">
+			<div class="space-y-4 p-4">
 				<div class="placeholder"></div>
 				<div class="grid grid-cols-3 gap-8">
 					<div class="placeholder"></div>

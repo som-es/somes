@@ -5,6 +5,7 @@
 	import type { MinisterialViewData } from '$lib/components/MinisterialView/types';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
+	import VoteResultExpandableBar from '$lib/components/VoteResults/Expandable/VoteResultExpandableBar.svelte';
 	import type { GovProposalDelegate } from '$lib/types';
 	import type { PageProps } from './$types';
 
@@ -27,7 +28,7 @@
 			ressort: govProposalDelegate.gov_proposal.ministrial_proposal.ressort,
 			ressortShortform: govProposalDelegate.gov_proposal.ministrial_proposal.ressort_shortform,
 			ministerialIssuers: govProposalDelegate.gov_proposal.ministerial_issuers,
-			type: "gov_proposal",
+			type: 'gov_proposal',
 			infoBadges: [
 				govProposalDelegate.gov_proposal.ministrial_proposal.ressort,
 				new Date(
@@ -46,11 +47,15 @@
 
 <Container>
 	{#if ministerialData && govProposalDelegate}
-		<MinisterialView ministerialData={ministerialData}>
+		<MinisterialView {ministerialData}>
+			{#if govProposalDelegate.gov_proposal.vote_result}
+				<div class="entry block bg-primary-300 p-4 dark:bg-primary-500">
+					<span class="text-lg font-semibold md:text-xl"> Regierungsvorlage </span>
+					<VoteResultExpandableBar voteResult={govProposalDelegate.gov_proposal.vote_result} />
+				</div>
+			{/if}
 			<!-- <div class="">
-				{#if govProposalDelegate.gov_proposal.vote_result}
 					<VoteParliament2 voteResult={govProposalDelegate.gov_proposal.vote_result} />
-				{/if}
 			</div> -->
 		</MinisterialView>
 	{:else}
@@ -59,3 +64,11 @@
 		{/each}
 	{/if}
 </Container>
+
+<style>
+	.entry {
+		border-radius: 0.9rem;
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+		gap: 10px;
+	}
+</style>

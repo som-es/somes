@@ -14,9 +14,10 @@
 	interface Props {
 		voteResult: VoteResult;
 		class?: any;
+		unexpandable?: boolean;
 	}
 
-	let { voteResult, class: clazz }: Props = $props();
+	let { voteResult, class: clazz, unexpandable = false }: Props = $props();
 
 	function onShowDetails() {
 		currentVoteResultStore.value = voteResult;
@@ -31,14 +32,13 @@
 			open = !open;
 		}
 	}
-	
-	
+
 	let open = $state(false);
 </script>
 
-<div class="gap-3 mt-5 {clazz}">
+<div class="gap-3 {clazz}">
 	<a
-		href="{createVoteResultPath(voteResult)}"
+		href={createVoteResultPath(voteResult)}
 		onclick={toggleOpen}
 		onkeypress={toggleOpen}
 		role="button"
@@ -48,60 +48,58 @@
 		<div class="flex">
 			<div class="flex w-full flex-wrap items-start justify-between gap-2 lg:flex-nowrap">
 				{#if aiViewEnabledStore.value && voteResult.ai_summary}
-					<div class="flex flex-1 flex-col flex-wrap min-w-0 max-lg:contents">
+					<div class="flex min-w-0 flex-1 flex-col flex-wrap max-lg:contents">
 						<span
-							class="text-xl font-semibold max-lg:order-1 max-lg:flex-1 max-lg:min-w-0"
+							class="text-xl font-semibold max-lg:order-1 max-lg:min-w-0 max-lg:flex-1"
 							style="hyphens: auto; word-break: normal; overflow-wrap: break-word;"
 						>
 							{voteResult.ai_summary.short_title}
 						</span>
-						<span class="text-sm sm:text-md max-lg:order-3 max-lg:w-full">
+						<span class="sm:text-md text-sm max-lg:order-3 max-lg:w-full">
 							{voteResult.ai_summary.short_summary}
 						</span>
 					</div>
 				{:else}
-					<span class="text-md flex-1 font-semibold min-w-0">
+					<span class="text-md min-w-0 flex-1 font-semibold">
 						{voteResult.legislative_initiative.description}
 					</span>
 				{/if}
 
 				<div class="shrink-0 max-lg:order-2">
 					{#if voteResult.legislative_initiative.accepted !== null}
-					{#if voteResult.legislative_initiative.accepted == 'a'}
-						<span
-							class="inline-block shrink-0 align-middle stroke-green-600 dark:stroke-green-500"
-							style="width:25px; height:25px">{@html checkmarkIcon}</span
-						>
-					{:else}
-						<span class="inline-block shrink-0 align-middle" style="width:22px; height:22px"
-							>{@html crossmarkIcon}</span
-						>
+						{#if voteResult.legislative_initiative.accepted == 'a'}
+							<span
+								class="inline-block shrink-0 stroke-green-600 align-middle dark:stroke-green-500"
+								style="width:25px; height:25px">{@html checkmarkIcon}</span
+							>
+						{:else}
+							<span class="inline-block shrink-0 align-middle" style="width:22px; height:22px"
+								>{@html crossmarkIcon}</span
+							>
+						{/if}
 					{/if}
-				{/if}
 				</div>
 			</div>
 		</div>
 
-
-		
 		<!-- REWORK - checks if vote was cast and checks for normal or roll call vote-->
 		<div>
-			<div class="block sm:flex justify-between mt-4">
+			<div class="mt-4 block justify-between sm:flex">
 				{#if voteResult.legislative_initiative.accepted}
 					{#if voteResult.named_votes == null}
 						<!-- Normal votes -->
-						<div class="flex justify-between md:items-center mx-1 mb-3 sm:mb-0">
+						<div class="mx-1 mb-3 flex justify-between sm:mb-0 md:items-center">
 							{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
 								<div class="flex items-center">
 									<h4 class="text-sm">{vote.party}</h4>
 									{#if vote.infavor}
 										<span
-											class="mr-1 md:mr-2 stroke-green-600 dark:stroke-green-500 inline-block align-middle"
+											class="mr-1 inline-block stroke-green-600 align-middle md:mr-2 dark:stroke-green-500"
 											style="width:18px; height:18px;">{@html checkmarkIcon}</span
 										>
 									{:else}
 										<span
-											class="mr-1 md:mr-2 inline-block align-middle"
+											class="mr-1 inline-block align-middle md:mr-2"
 											style="width:18px; height:18px;">{@html crossmarkIcon}</span
 										>
 									{/if}
@@ -128,10 +126,10 @@
 					{:else}
 						<!-- Roll call votes -->
 
-						<div class="block sm:flex w-full mb-3">
-							<div class="flex items-center mb-1 sm:mb-0">
+						<div class="mb-3 block w-full sm:flex">
+							<div class="mb-1 flex items-center sm:mb-0">
 								<span
-									class="mr-1 stroke-green-600 dark:stroke-green-500 inline-block align-middle"
+									class="mr-1 inline-block stroke-green-600 align-middle dark:stroke-green-500"
 									style="width:20px; height:20px;">{@html checkmarkIcon}</span
 								>
 
@@ -139,8 +137,8 @@
 									{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
 										{#if vote.infavor}
 											<div class="flex items-center">
-												<h4 class="text-sm mr-1">{vote.party}</h4>
-												<h4 class="text-sm mr-2 text-gray-800">{vote.fraction}</h4>
+												<h4 class="mr-1 text-sm">{vote.party}</h4>
+												<h4 class="mr-2 text-sm text-gray-800">{vote.fraction}</h4>
 											</div>
 										{/if}
 									{/each}
@@ -152,15 +150,15 @@
 							</div>
 							<div class="flex flex-wrap items-center">
 								<span
-									class="mr-1 ml-0 sm:ml-3 inline-block align-middle"
+									class="mr-1 ml-0 inline-block align-middle sm:ml-3"
 									style="width:20px; height:20px;">{@html crossmarkIcon}</span
 								>
 								{#if voteResult.votes.length > 0}
 									{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
 										{#if !vote.infavor}
 											<div class="flex items-center">
-												<h4 class="text-sm mr-1">{vote.party}</h4>
-												<h4 class="text-sm mr-2 text-gray-800">{vote.fraction}</h4>
+												<h4 class="mr-1 text-sm">{vote.party}</h4>
+												<h4 class="mr-2 text-sm text-gray-800">{vote.fraction}</h4>
 											</div>
 										{/if}
 									{/each}
@@ -171,7 +169,7 @@
 								{/if}
 							</div>
 						</div>
-						<div class="max-lg:hidden flex max-h-6 gap-1">
+						<div class="flex max-h-6 gap-1 max-lg:hidden">
 							{#if voteResult.legislative_initiative.requires_simple_majority}
 								<span class="badge bg-tertiary-400 text-black">einfache Mehrheit</span>
 							{:else}
@@ -212,7 +210,7 @@
 			</span>
 		</div>
 	</a>
-	{#if open}
+	{#if open && !unexpandable}
 		<div transition:slide={{ duration: 240 }}>
 			<VoteResultExpanded {voteResult} bind:open />
 		</div>

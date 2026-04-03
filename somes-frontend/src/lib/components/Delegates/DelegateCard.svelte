@@ -196,7 +196,9 @@
 	<div class="mt-auto flex w-full items-end justify-between gap-1 pt-6">
 		{@render footerButtons?.()}
 		{#if showMoreDetailsBtn}
-			<div></div>
+			{#if !footerButtons && !showAI}
+				<div></div>
+			{/if}
 			<button class="rounded-xl bg-primary-600 p-2 px-3 text-white" onclick={onShowDetails}>
 				<h4>Details</h4>
 			</button>
