@@ -16,6 +16,7 @@
 	interface Props {
 		ministerialData: MinisterialViewData;
 		children?: Snippet;
+		outerSnippet?: Snippet;
 	}
 
 	let { ministerialData, children }: Props = $props();
@@ -126,21 +127,27 @@
 				glossary={ministerialData.aiSummary.full_summary.glossary}
 			/>
 		{/if}
-		<div class="flex w-full flex-wrap gap-2">
-			{#if ministerialData.documents.length > 0}
-				<div class="rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
+		{#if ministerialData.documents.length > 0 && !children}
+			<div class="flex min-w-full flex-wrap gap-2">
+				<div class="min-w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 					<Documents documents={ministerialData.documents} />
 				</div>
-			{/if}
-		</div>
+			</div>
+		{/if}
 		{#if children}
 			{@render children()}
 		{/if}
 	</div>
 
 	{#if delegates.length > 0}
-		<div class="w-100 flex flex-col gap-2 rounded-xl bg-primary-300 px-3 py-3 dark:bg-primary-500">
-			<DelegateCard delegate={delegates[currentDelegateIndex]} />
+		<div class="flex w-100 flex-col gap-2 rounded-xl bg-primary-300 px-3 py-3 dark:bg-primary-500">
+			<DelegateCard
+				delegate={delegates[currentDelegateIndex]}
+				showMoreDetailsBtn
+				onlyTop
+				showAI={false}
+				date={ministerialData.date}
+			/>
 			{#if delegates.length > 1}
 				<div class="flex items-center justify-center gap-3">
 					<button
@@ -151,7 +158,9 @@
 						<span class="transition-transform group-hover:-translate-x-1">&#8592;</span>
 					</button>
 
-					<span class="min-w-[3rem] text-center text-sm font-medium text-gray-600 dark:text-gray-300">
+					<span
+						class="min-w-[3rem] text-center text-sm font-medium text-gray-600 dark:text-gray-300"
+					>
 						{currentDelegateIndex + 1}/{delegates.length}
 					</span>
 
@@ -167,6 +176,13 @@
 		</div>
 	{/if}
 </div>
+{#if ministerialData.documents.length > 0 && ministerialData.type === 'gov_proposal' && children}
+	<div class="mt-2 flex min-w-full flex-wrap gap-2">
+		<div class="min-w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
+			<Documents documents={ministerialData.documents} />
+		</div>
+	</div>
+{/if}
 
 <style>
 	.entry {

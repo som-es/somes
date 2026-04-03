@@ -20,7 +20,6 @@
 	import MultiValuesFilter from '$lib/components/Filtering/MultiValuesFilter.svelte';
 	import DateRangeSnippet from '$lib/components/Filtering/GenericFilterSnippets/DataRangeSnippet.svelte';
 
-
 	interface Props {
 		voteResults: VoteResultsWithMaxPage | null;
 		partiesPerGp: Record<string, Party[]>;
@@ -51,7 +50,6 @@
 
 	// TOPIC FILTER
 	let selectedTopics: SvelteSet<string> = $state(new SvelteSet());
-
 
 	// PARTY FILTER - get all parties available in the request
 	// let uniqueParties = $derived([...new Set(dels.map((d) => d.party))].sort());
@@ -245,7 +243,8 @@
 			if (maybeStoredFilter.is_urgent !== null) {
 				genericFilters[4].activeValue = maybeStoredFilter.is_urgent;
 			}
-			if (maybeStoredFilter.date_from) genericFilters[5].data!.dateFrom = maybeStoredFilter.date_from;
+			if (maybeStoredFilter.date_from)
+				genericFilters[5].data!.dateFrom = maybeStoredFilter.date_from;
 			if (maybeStoredFilter.date_to) genericFilters[5].data!.dateTo = maybeStoredFilter.date_to;
 		}
 	});
@@ -334,7 +333,8 @@
 
 	// used to set generic filter count when dateRange filter is active
 	$effect(() => {
-		genericFilters[5].activeValue = (genericFilters[5].data?.dateFrom || genericFilters[5].data?.dateTo) ? 'set' : undefined;
+		genericFilters[5].activeValue =
+			genericFilters[5].data?.dateFrom || genericFilters[5].data?.dateTo ? 'set' : undefined;
 	});
 
 	let searchValue = $state('');
@@ -430,13 +430,20 @@
 		<MultiValuesFilter title="Themen" bind:selectedValues={selectedTopics} values={topics} />
 		<!-- Generic Filter -->
 		{#snippet dateRangeSnippet()}
-			<DateRangeSnippet bind:dateFrom={genericFilters[5].data!.dateFrom} bind:dateTo={genericFilters[5].data!.dateTo} />
+			<DateRangeSnippet
+				bind:dateFrom={genericFilters[5].data!.dateFrom}
+				bind:dateTo={genericFilters[5].data!.dateTo}
+			/>
 		{/snippet}
-		<GenericFilters bind:genericFilters bind:legisPeriodFilter snippets={{ dateRange: dateRangeSnippet }} />
+		<GenericFilters
+			bind:genericFilters
+			bind:legisPeriodFilter
+			snippets={{ dateRange: dateRangeSnippet }}
+		/>
 	</div>
 </div>
 
-<div>
+<div class="mt-5 flex flex-col gap-5">
 	{#if voteResults}
 		{#if voteResults.vote_results.length > 0}
 			{#each voteResults.vote_results as voteResult (voteResult.id)}
