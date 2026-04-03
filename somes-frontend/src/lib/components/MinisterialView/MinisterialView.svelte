@@ -129,7 +129,7 @@
 		{/if}
 		{#if ministerialData.documents.length > 0 && !children}
 			<div class="flex min-w-full flex-wrap gap-2">
-				<div class="rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
+				<div class="min-w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 					<Documents documents={ministerialData.documents} />
 				</div>
 			</div>
@@ -141,7 +141,13 @@
 
 	{#if delegates.length > 0}
 		<div class="flex w-100 flex-col gap-2 rounded-xl bg-primary-300 px-3 py-3 dark:bg-primary-500">
-			<DelegateCard delegate={delegates[currentDelegateIndex]} showMoreDetailsBtn />
+			<DelegateCard
+				delegate={delegates[currentDelegateIndex]}
+				showMoreDetailsBtn
+				onlyTop
+				showAI={false}
+				date={ministerialData.date}
+			/>
 			{#if delegates.length > 1}
 				<div class="flex items-center justify-center gap-3">
 					<button

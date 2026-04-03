@@ -28,6 +28,7 @@
 		showImg?: boolean;
 		showAge?: boolean;
 		title?: string | null;
+		date?: string;
 		top?: import('svelte').Snippet;
 		info?: import('svelte').Snippet;
 		footerButtons?: import('svelte').Snippet;
@@ -43,6 +44,7 @@
 		showImg = true,
 		showAge = true,
 		title = null,
+		date,
 		top,
 		info,
 		footerButtons
@@ -68,6 +70,25 @@
 		return Math.floor((utc2 - utc1) / _MS_PER_DAY);
 	}
 	let personUrl = $derived(`https://parlament.gv.at/person/${delegate.id}?utm_source=somes.at`);
+
+	const showMandates = $derived.by(() => {
+		if (date) {
+			const cmpDate = new Date(date);
+			console.log(delegate.mandates);
+			const filter = delegate.mandates?.filter((mandate) => {
+				if (!mandate.start_date) {
+					return false;
+				}
+				let startDate = new Date(mandate.start_date);
+				let endDate = mandate.end_date ? new Date(mandate.end_date) : new Date();
+				return cmpDate >= startDate && cmpDate <= endDate;
+			});
+			console.log(filter);
+			return filter;
+		} else {
+			return delegate.mandates_at_time;
+		}
+	});
 </script>
 
 <div class="flex h-[calc(100%-1rem)] h-full flex-col card bg-primary-200 p-5 dark:bg-primary-400">
@@ -163,7 +184,7 @@
 
 	<!-- Mandate if so -->
 	<div class="mt-4">
-		{#each delegate.mandates_at_time ?? [] as mandate}
+		{#each showMandates ?? [] as mandate}
 			<div class="mt-1 flex w-full items-center">
 				<h6 class="text-sm text-wrap md:text-base xl:leading-tight">
 					{mandate.name}
