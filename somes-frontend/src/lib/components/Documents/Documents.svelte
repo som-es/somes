@@ -6,8 +6,8 @@
 	export let documents: Document[];
 </script>
 
-<span class="font-bold text-lg md:text-xl">Dokumente (PDFs)</span>
-<div class="gap-3 flex flex-wrap">
+<span class="text-lg ml-2 font-semibold md:text-xl">Dokumente (PDFs)</span>
+<div class="gap-3 ml-3 flex flex-wrap">
 	{#each documents.sort((a, b) => (b.title ?? '').length - (a.title ?? '').length) as document}
 		{#if document.document_type.includes('PDF')}
 			<a
@@ -30,3 +30,4 @@
 		{/if}
 	{/each}
 </div>
+

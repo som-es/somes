@@ -23,7 +23,7 @@
 			topics: govProposalDelegate.gov_proposal.topics,
 			otherKeywordTopics: govProposalDelegate.gov_proposal.other_keyword_topics,
 			eurovocTopics: govProposalDelegate.gov_proposal.eurovoc_topics,
-			delegate: govProposalDelegate.delegate,
+			delegates: govProposalDelegate.delegates,
 			ressort: govProposalDelegate.gov_proposal.ministrial_proposal.ressort,
 			ressortShortform: govProposalDelegate.gov_proposal.ministrial_proposal.ressort_shortform,
 			ministerialIssuers: govProposalDelegate.gov_proposal.ministerial_issuers,

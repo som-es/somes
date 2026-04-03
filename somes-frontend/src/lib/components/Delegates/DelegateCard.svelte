@@ -176,12 +176,14 @@
 	{@render info?.()}
 	{#if !onlyTop}
 		<div>
-			<hr class="my-1 !border-t-2 border-gray-500" />
 			{#if delegate.constituency != null}
+				<hr class="my-1 !border-t-2 border-gray-500" />
 				<h3>{delegate.constituency}</h3>
 			{/if}
-			<hr class="my-1 !border-t-2 border-gray-500" />
-			<h3>{delegate.divisions?.join(', ')}</h3>
+			{#if delegate.divisions != null && delegate.divisions.length > 0}
+				<hr class="my-1 !border-t-2 border-gray-500" />
+				<h3>{delegate.divisions.join(', ')}</h3>
+			{/if}
 		</div>
 
 		<br />

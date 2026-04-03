@@ -23,6 +23,17 @@
 	let aiSummary = $derived(ministerialData.aiSummary);
 	let date = $derived(dashDateToDotDate(ministerialData.date.toString().split('T')[0]));
 	let displayAiSummary = $derived(aiViewEnabledStore.value && aiSummary);
+
+	let currentDelegateIndex = $state(0);
+	const delegates = $derived(ministerialData.delegates ?? []);
+
+	function prevDelegate() {
+		if (currentDelegateIndex > 0) currentDelegateIndex--;
+	}
+
+	function nextDelegate() {
+		if (currentDelegateIndex < delegates.length - 1) currentDelegateIndex++;
+	}
 </script>
 
 <title>
@@ -127,9 +138,34 @@
 		{/if}
 	</div>
 
-	<div class="rounded-xl bg-primary-300 px-3 py-3 dark:bg-primary-500">
-		<DelegateCard delegate={ministerialData.delegate} />
-	</div>
+	{#if delegates.length > 0}
+		<div class="w-100 flex flex-col gap-2 rounded-xl bg-primary-300 px-3 py-3 dark:bg-primary-500">
+			<DelegateCard delegate={delegates[currentDelegateIndex]} />
+			{#if delegates.length > 1}
+				<div class="flex items-center justify-center gap-3">
+					<button
+						onclick={prevDelegate}
+						disabled={currentDelegateIndex === 0}
+						class="group flex gap-1 rounded-lg bg-primary-300 px-2 py-1 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-primary-500"
+					>
+						<span class="transition-transform group-hover:-translate-x-1">&#8592;</span>
+					</button>
+
+					<span class="min-w-[3rem] text-center text-sm font-medium text-gray-600 dark:text-gray-300">
+						{currentDelegateIndex + 1}/{delegates.length}
+					</span>
+
+					<button
+						onclick={nextDelegate}
+						disabled={currentDelegateIndex === delegates.length - 1}
+						class="group flex gap-1 rounded-lg bg-primary-300 px-2 py-1 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-primary-500"
+					>
+						<span class="transition-transform group-hover:translate-x-1">&#8594;</span>
+					</button>
+				</div>
+			{/if}
+		</div>
+	{/if}
 </div>
 
 <style>

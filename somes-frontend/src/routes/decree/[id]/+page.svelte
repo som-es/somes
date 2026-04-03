@@ -25,7 +25,7 @@
 			topics: [],
 			otherKeywordTopics: [],
 			eurovocTopics: [],
-			delegate: decreeDelegate.delegate,
+			delegates: [decreeDelegate.delegate],
 			ressort: decreeDelegate.decree.ministrial_issuer,
 			ressortShortform: null,
 			ministerialIssuers: [decreeDelegate.delegate.id],

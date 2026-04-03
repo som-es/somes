@@ -2,7 +2,7 @@ import type { DbAiSummary } from "$lib/ai_summary_types";
 import type { Delegate, Document, Topic } from "$lib/types";
 
 export interface MinisterialViewData {
-	delegate: Delegate;
+	delegates: Delegate[] | null;
     topics: Topic[];
     type: "decree" | "gov_proposal";
 	eurovocTopics: Topic[];
