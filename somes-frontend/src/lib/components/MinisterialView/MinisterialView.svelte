@@ -140,7 +140,7 @@
 	</div>
 
 	{#if delegates.length > 0}
-		<div class="flex w-100 flex-col gap-2 rounded-xl bg-primary-300 px-3 py-3 dark:bg-primary-500">
+		<div class="flex w-115 flex-col gap-2 rounded-xl bg-primary-300 px-3 py-3 dark:bg-primary-500">
 			<DelegateCard
 				delegate={delegates[currentDelegateIndex]}
 				showMoreDetailsBtn

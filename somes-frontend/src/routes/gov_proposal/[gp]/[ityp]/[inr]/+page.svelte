@@ -6,6 +6,7 @@
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import VoteResultExpandableBar from '$lib/components/VoteResults/Expandable/VoteResultExpandableBar.svelte';
+	import ReferencedByBar from '$lib/components/Bars/ReferencedByBar.svelte';
 	import type { GovProposalDelegate } from '$lib/types';
 	import type { PageProps } from './$types';
 
@@ -48,10 +49,13 @@
 <Container>
 	{#if ministerialData && govProposalDelegate}
 		<MinisterialView {ministerialData}>
+			<!-- Regierungsvorlage -->
 			{#if govProposalDelegate.gov_proposal.vote_result}
-				<div class="entry block bg-primary-300 p-4 dark:bg-primary-500">
-					<span class="text-lg font-semibold md:text-xl"> Regierungsvorlage </span>
-					<VoteResultExpandableBar voteResult={govProposalDelegate.gov_proposal.vote_result} />
+				<div class="rounded-xl bg-primary-300 dark:bg-primary-500 px-5 pt-4 pb-2 w-full">
+					<span class="font-semibold text-lg md:text-xl">Regierungsvorlage</span>
+					<div class="my-0.5 mt-1 flex flex-col rounded-xl">
+						<ReferencedByBar ref={govProposalDelegate.gov_proposal.vote_result} />
+					</div>
 				</div>
 			{/if}
 			<!-- <div class="">
