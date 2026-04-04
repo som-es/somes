@@ -93,7 +93,7 @@
 
 	{#if recentAbsences.length > 0}
 		<div class="mt-auto flex justify-end pt-4">
-			<ExtendInfoDialog title="Alle Abwesenheiten anzeigen">
+			<ExtendInfoDialog title="Alle anzeigen">
 				<AbsencesModal {absences} />
 			</ExtendInfoDialog>
 		</div>

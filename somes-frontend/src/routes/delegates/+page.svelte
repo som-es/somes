@@ -40,6 +40,7 @@
 	import NamedVotePreview from '$lib/components/Delegates/NamedVote/NamedVotePreview.svelte';
 	import TopicsChart from '$lib/components/Delegates/Interests/TopicsChart.svelte';
 	import StanceTypeSwitcher from '$lib/components/Delegates/Spectrum/Stance/StanceTypeSwitcher.svelte';
+	import LeftRightChart from '$lib/components/Delegates/Spectrum/Stance/LeftRightChart.svelte';
 	import PoliticalStanceTitleBar from '$lib/components/Delegates/Spectrum/PoliticalStanceTitleBar.svelte';
 	import DecreePreview from '$lib/components/Delegates/Decrees/DecreePreview.svelte';
 	import { goto, replaceState } from '$app/navigation';
@@ -885,7 +886,9 @@
 			{/if}
 
 			{#if delegate && generalDelegateInfo?.left_right_stances.length && generalDelegateInfo.left_right_stances.length > 0 && aiViewEnabledStore.value}
-				<StanceTypeSwitcher delegateInfo={generalDelegateInfo} />
+				{console.log(generalDelegateInfo)}
+				<!-- <StanceTypeSwitcher delegateInfo={generalDelegateInfo} /> -->
+					<LeftRightChart stances={generalDelegateInfo.left_right_stances} interests={generalDelegateInfo.interests}/>
 			{:else if !generalDelegateInfo}
 				<ExpandablePlaceholder class={'my-3'} />
 			{/if}
