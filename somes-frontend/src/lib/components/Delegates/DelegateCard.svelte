@@ -74,8 +74,7 @@
 	const showMandates = $derived.by(() => {
 		if (date) {
 			const cmpDate = new Date(date);
-			console.log(delegate.mandates);
-			const filter = delegate.mandates?.filter((mandate) => {
+			return delegate.mandates?.filter((mandate) => {
 				if (!mandate.start_date) {
 					return false;
 				}
@@ -83,8 +82,6 @@
 				let endDate = mandate.end_date ? new Date(mandate.end_date) : new Date();
 				return cmpDate >= startDate && cmpDate <= endDate;
 			});
-			console.log(filter);
-			return filter;
 		} else {
 			return delegate.mandates_at_time;
 		}

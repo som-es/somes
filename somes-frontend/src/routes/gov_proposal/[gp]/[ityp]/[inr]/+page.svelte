@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { errorToNull } from '$lib/api/api';
+	import ReferencedByBar from '$lib/components/Bars/ReferencedByBar.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import MinisterialView from '$lib/components/MinisterialView/MinisterialView.svelte';
 	import type { MinisterialViewData } from '$lib/components/MinisterialView/types';
@@ -50,8 +51,12 @@
 		<MinisterialView {ministerialData}>
 			{#if govProposalDelegate.gov_proposal.vote_result}
 				<div class="entry block bg-primary-300 p-4 dark:bg-primary-500">
-					<span class="text-lg font-semibold md:text-xl"> Regierungsvorlage </span>
-					<VoteResultExpandableBar voteResult={govProposalDelegate.gov_proposal.vote_result} />
+					<span class="mb-1 text-lg font-semibold md:text-xl"> Regierungsvorlage </span>
+					<ReferencedByBar
+						ref={govProposalDelegate.gov_proposal.vote_result}
+						showRequiredMajority
+					/>
+					<!-- <VoteResultExpandableBar voteResult={govProposalDelegate.gov_proposal.vote_result} /> -->
 				</div>
 			{/if}
 			<!-- <div class="">
