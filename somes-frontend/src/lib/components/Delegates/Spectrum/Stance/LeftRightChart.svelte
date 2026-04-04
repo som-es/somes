@@ -58,21 +58,13 @@
 	}
 </script>
 
-<div class="w-full rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
-	<div class="w-full flex items-center justify-between">
-		<div class="flex flex-col">
-			<span class="text-lg font-bold text-black xl:text-xl dark:text-white">
-				Richtung
-			</span>
-		</div>
-
-		<div class="flex items-center gap-2">
-			{#if stances.length > 8}
-				<ExtendInfoDialog title="Details">
-					<DetailedLeftRightChart {stances} />
-				</ExtendInfoDialog>
-			{/if}
-		</div>
+<div class="relative w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
+	<div class="absolute top-3 right-3">
+		{#if stances.length > 8}
+			<ExtendInfoDialog title="Details">
+				<DetailedLeftRightChart {stances} />
+			</ExtendInfoDialog>
+		{/if}
 	</div>
 
 	<svg viewBox="0 0 {CHART_W} {CHART_H}" class="w-full" style="height: {CHART_H}px;">
