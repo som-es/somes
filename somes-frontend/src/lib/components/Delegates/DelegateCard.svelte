@@ -135,7 +135,7 @@
 		<div class="relative flex justify-center pb-6">
 			<img
 				src={`${url}assets/${delegate.id}.jpg`}
-				class="w-24 rounded-full sm:w-32 md:w-46"
+				class="w-42 rounded-full md:w-46"
 				alt="Image of politician {delegate.name}"
 			/>
 			<span class="absolute bottom-0 rounded px-1 text-[10px]">
@@ -151,7 +151,7 @@
 	<!-- Delegate name and party-->
 	<div>
 		<!-- Name and Age -->
-		<h4 class="font-bold md:text-xl">
+		<h4 class="font-bold text-xl">
 			{delegate.name}
 			{#if delegate.is_active && showAge}
 				- {Math.floor(dateDiffInDays(new Date(delegate.birthdate), new Date()) / 365)}
@@ -183,7 +183,7 @@
 	<div class="mt-4">
 		{#each showMandates ?? [] as mandate}
 			<div class="mt-1 flex w-full items-center">
-				<h6 class="text-sm text-wrap md:text-base xl:leading-tight">
+				<h6 class="text-wrap text-base xl:leading-tight">
 					{mandate.name}
 				</h6>
 			</div>

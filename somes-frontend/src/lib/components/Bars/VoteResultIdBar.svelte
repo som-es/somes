@@ -113,7 +113,7 @@
 		
 		</a>
 	{:else if loadingVoteResult}
-		<ExpandablePlaceholder class="min-w-7xl w-7xl" />
+		<ExpandablePlaceholder class="w-full" />
 		<!-- {:else if named_vote.about}
 		<div class="rounded-[0.9rem] spacing-for-left flex dark:bg-primary-300 bg-primary-400 justify-between items-center flex-basis-left">
 			<div class="flex flex-col">
