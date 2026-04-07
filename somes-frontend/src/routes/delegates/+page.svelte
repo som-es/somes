@@ -671,6 +671,7 @@
 				<!-- Mobile -->
 				<div
 					class="fixed top-0 left-0 z-50 flex h-[100dvh] w-full items-start justify-center bg-black/50 p-2 backdrop-blur-sm lg:hidden"
+					onmousedown={(e) => e.preventDefault()}
 				>
 					<div
 						class="w-full max-w-md rounded-2xl bg-primary-100 p-4 shadow-xl dark:bg-primary-600"
@@ -804,7 +805,7 @@
 		<!-------------------------------------------->
 		{#if delegates && delegates.length > 0 && supplyDate}
 			<div
-				class="relative hidden min-w-full flex-wrap justify-between rounded-xl bg-primary-300 px-5 pt-3 pb-3 lg:flex lg:flex-nowrap dark:bg-primary-200"
+				class="relative hidden min-w-full flex-wrap justify-between rounded-xl bg-primary-300 py-5 px-3 lg:flex lg:flex-nowrap dark:bg-primary-200"
 			>
 				<div class="mb-4 hidden w-full pl-4 max-lg:block">
 					<div class="grid items-center">
