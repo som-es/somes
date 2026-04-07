@@ -12,13 +12,20 @@
 
 	let { stances, interests }: Props = $props();
 
-	const DOT_R = 6;
+	let containerWidth = $state(700);
+	let isMobile = $derived(containerWidth < 640);
+
 	const CHART_W = 700;
 	const PAD_LEFT = 10;
 	const PAD_RIGHT = 10;
 	const PAD_TOP = 10;
-	const ROW_H = 30;
-	const BOTTOM_H = 30;
+
+	const DOT_R = $derived(isMobile ? 11 :5);
+	const ROW_H = $derived(isMobile ? 70 : 28);
+	const BOTTOM_H = $derived(isMobile ? 55 : 30);
+	const FONT_TOPIC = $derived(isMobile ? 25 : 11);
+	const FONT_AXIS = $derived(isMobile ? 26 : 12);
+	const Y_AXIS_TEXT = $derived(isMobile ? 30 : 20);
 
 	// Maps score (-0.5..0.5) to SVG x coordinate
 	function scoreToX(score: number): number {
@@ -48,17 +55,17 @@
 		
 
 	const numRows = positioned.length > 0 ? Math.max(...positioned.map((p) => p.row)) + 1 : 1;
-	const CHART_H = numRows * ROW_H + PAD_TOP + BOTTOM_H;
-
-	const axisY = CHART_H - BOTTOM_H;
 	const centerX = PAD_LEFT + (CHART_W - PAD_LEFT - PAD_RIGHT) / 2;
+
+	const CHART_H = $derived(numRows * ROW_H + PAD_TOP + BOTTOM_H);
+	const axisY = $derived(CHART_H - BOTTOM_H);
 
 	function rowToY(row: number): number {
 		return PAD_TOP + row * ROW_H + DOT_R;
 	}
 </script>
 
-<div class="relative w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
+<div class="relative w-full rounded-xl bg-primary-300 px-5 pb-3 dark:bg-primary-500 pt-12 sm:pt-5" bind:clientWidth={containerWidth}>
 	<div class="absolute top-3 right-3">
 		{#if stances.length > 8}
 			<ExtendInfoDialog title="Details">
@@ -67,7 +74,7 @@
 		{/if}
 	</div>
 
-	<svg viewBox="0 0 {CHART_W} {CHART_H}" class="w-full" style="height: {CHART_H}px;">
+	<svg viewBox="0 0 {CHART_W} {CHART_H}" class="w-full">
 		<!-- Center vertical line -->
 		<line x1={centerX} y1={PAD_TOP} x2={centerX} y2={axisY} stroke="#888" stroke-width="1" />
 
@@ -84,16 +91,21 @@
 		<!-- Dots and labels -->
 		{#each positioned as item}
 			{@const y = rowToY(item.row)}
+			{@const isRight = item.x > centerX}
 			<circle cx={item.x} cy={y} r={DOT_R} fill={topicColors.get(item.topic) ?? '#888'} />
-			<text x={item.x + DOT_R + 4} y={y + 5} font-size="12" fill="currentColor"
-				>{item.topic}</text
-			>
+			<text
+				x={isRight ? item.x - DOT_R - 6 : item.x + DOT_R + 4}
+				y={y + (isMobile ? 6 : 3)}
+				font-size={FONT_TOPIC}
+				fill="currentColor"
+				text-anchor={isRight ? 'end' : 'start'}
+			>{item.topic}</text>
 		{/each}
 
 		<!-- Axis labels -->
-		<text x={PAD_LEFT} y={axisY + 20} font-size="13" fill="#888" text-anchor="start">← Links</text>
-		<text x={centerX} y={axisY + 20} font-size="13" fill="#888" text-anchor="middle">Mitte</text>
-		<text x={CHART_W - PAD_RIGHT} y={axisY + 20} font-size="13" fill="#888" text-anchor="end"
+		<text x={PAD_LEFT} y={axisY + Y_AXIS_TEXT} font-size={FONT_AXIS} fill="#888" text-anchor="start">← Links</text>
+		<text x={centerX} y={axisY + Y_AXIS_TEXT} font-size={FONT_AXIS} fill="#888" text-anchor="middle">Mitte</text>
+		<text x={CHART_W - PAD_RIGHT} y={axisY + Y_AXIS_TEXT} font-size={FONT_AXIS} fill="#888" text-anchor="end"
 			>Rechts →</text
 		>
 	</svg>

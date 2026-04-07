@@ -616,7 +616,8 @@
 									isSearchPopupOpen = false;
 								}}
 							>
-								<div class="flex flex-col flex-wrap items-end gap-1">
+							<!-- disable mandate infor on mobile -->
+								<div class="hidden sm:flex flex-col flex-wrap items-end gap-1">
 									{#if govMandates !== '' && govMandates !== 'unbekannt'}
 										<div class="text-sm font-medium text-gray-800 dark:text-gray-200">
 											{govMandates}
@@ -900,7 +901,7 @@
 				/>
 			</div>
 		{/if}
-		<div class="flex w-full gap-2 max-lg:flex-wrap">
+		<div class="flex w-full flex-col gap-2 lg:flex-row">
 			{#if delegate && generalDelegateInfo?.political_position && aiViewEnabledStore.value}
 				<SquarePoliticalSpectrum
 					{delegate}
@@ -911,8 +912,9 @@
 			{/if}
 
 			{#if delegate && generalDelegateInfo?.left_right_stances.length && generalDelegateInfo.left_right_stances.length > 0 && aiViewEnabledStore.value}
-				<!-- <StanceTypeSwitcher delegateInfo={generalDelegateInfo} /> -->
+				<div class="lg:flex-1">
 					<LeftRightChart stances={generalDelegateInfo.left_right_stances} interests={generalDelegateInfo.interests}/>
+				</div>
 			{:else if !generalDelegateInfo}
 				<ExpandablePlaceholder class={'my-3'} />
 			{/if}

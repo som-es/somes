@@ -1,94 +1,88 @@
 <script lang="ts">
-		import { onMount } from 'svelte';
 	import type { DataPoint } from './types';
 
-	export let width: number;
-	export let height: number;
-	export let xLabels: string[];
-	export let yLabels: string[];
-	export let dataPoints: { [key: string]: DataPoint[] };
+	let {
+		width = 240,
+		height = 240,
+		xLabels,
+		yLabels,
+		dataPoints
+	}: {
+		width?: number;
+		height?: number;
+		xLabels: string[];
+		yLabels: string[];
+		dataPoints: { [key: string]: DataPoint[] };
+	} = $props();
 
-	// export let dataPoints: { [key: string]: DataPoint[] } = {
-	//     Q1: [
-	//     { x: 60, y: 30, label: 'A', color: "" },
-	//     { x: 80, y: 50, label: 'B' },
-	//     { x: 100, y: 35, label: 'C' },
-	//     ],
-	//     Q2: [
-	//     { x: -60, y: 30, label: 'D' },
-	//     { x: -80, y: 45, label: 'E' },
-	//     { x: -100, y: 35, label: 'F' },
-	//     ],
-	//     Q3: [
-	//     { x: -60, y: -30, label: 'G' },
-	//     { x: -80, y: -20, label: 'H' },
-	//     { x: -100, y: -60, label: 'I' },
-	//     ],
-	//     Q4: [
-	//     { x: 60, y: -40, label: 'J' },
-	//     { x: 80, y: -50, label: 'K' },
-	//     { x: 100, y: -55, label: 'L' },
-	//     ],
-	// };
+	let canvas: HTMLCanvasElement | undefined = $state();
 
-	let canvas: HTMLCanvasElement;
+	// takes with from outer div and calculates svg dimensions
+	let containerWidth = $state(0);
 
 	const drawChart = (textColor: string, lineColor: string) => {
-		if (!canvas) return;
+		if (!canvas || containerWidth === 0) return;
 		const ctx = canvas.getContext('2d');
 		if (!ctx) return;
 
-		const width = canvas.width;
-		const height = canvas.height;
+		const scale = containerWidth / width;
+		const canvasW = containerWidth;
+		const canvasH = Math.round(height * scale);
 
-		ctx.clearRect(0, 0, width, height);
+		canvas.width = canvasW;
+		canvas.height = canvasH;
+
+		ctx.clearRect(0, 0, canvasW, canvasH);
 
 		ctx.strokeStyle = lineColor;
 		ctx.lineWidth = 2;
 		ctx.beginPath();
-		ctx.moveTo(width / 2, 0);
-		ctx.lineTo(width / 2, height);
-		ctx.moveTo(0, height / 2);
-		ctx.lineTo(width, height / 2);
+		ctx.moveTo(canvasW / 2, 0);
+		ctx.lineTo(canvasW / 2, canvasH);
+		ctx.moveTo(0, canvasH / 2);
+		ctx.lineTo(canvasW, canvasH / 2);
 		ctx.stroke();
 
-		ctx.fillStyle = textColor;
-		ctx.font = '14px Arial';
+		const fontSize = Math.max(10, Math.round(14 * scale));
+		const labelOffset = Math.max(12, Math.round(20 * scale));
 
+		ctx.fillStyle = textColor;
+		ctx.font = `${fontSize}px Arial`;
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'middle';
 
 		ctx.save();
-		ctx.translate(width - 20, height / 2);
+		ctx.translate(canvasW - labelOffset, canvasH / 2);
 		ctx.rotate(-Math.PI / 2);
 		ctx.fillText(xLabels[0], 0, 0);
 		ctx.restore();
 
 		ctx.save();
-		ctx.translate(20, height / 2);
+		ctx.translate(labelOffset, canvasH / 2);
 		ctx.rotate(-Math.PI / 2);
 		ctx.fillText(xLabels[1], 0, 0);
 		ctx.restore();
 
-		ctx.textAlign = 'center';
+		ctx.fillText(yLabels[0], canvasW / 2, labelOffset);
+		ctx.fillText(yLabels[1], canvasW / 2, canvasH - labelOffset);
 
-		ctx.fillText(yLabels[0], width / 2, 20);
-		ctx.fillText(yLabels[1], width / 2, height - 20);
+		const dotRadius = Math.max(4, Math.round(8 * scale));
+		const pointFontSize = Math.max(9, Math.round(11 * scale));
 
 		Object.values(dataPoints).forEach((quadrant) => {
 			quadrant.forEach(({ x, y, label, color }) => {
-				const canvasX = width / 2 + x;
-				const canvasY = height / 2 - y;
+				const canvasX = canvasW / 2 + x * scale;
+				const canvasY = canvasH / 2 - y * scale;
 
 				ctx.fillStyle = color;
 				ctx.beginPath();
-				ctx.arc(canvasX, canvasY, 8, 0, Math.PI * 2);
+				ctx.arc(canvasX, canvasY, dotRadius, 0, Math.PI * 2);
 				ctx.fill();
 
 				ctx.fillStyle = textColor;
-				ctx.font = '11px Arial';
+				ctx.font = `${pointFontSize}px Arial`;
 				ctx.textAlign = 'center';
-				ctx.fillText(label, canvasX, canvasY - 15);
+				ctx.fillText(label, canvasX, canvasY - dotRadius - 4);
 			});
 		});
 	};
@@ -96,28 +90,26 @@
 	const drawWithMode = () => {
 		// TODO: fix white mode
 		const isLightMode = true;
-		let borderColor = '#FFFFFF2b';
-		let textColor = '#FFFFFF';
-		if (isLightMode) {
-			borderColor = '#0000002b';
-			textColor = '#000000';
-		}
+		const borderColor = isLightMode ? '#0000002b' : '#FFFFFF2b';
+		const textColor = isLightMode ? '#000000' : '#FFFFFF';
 		drawChart(textColor, borderColor);
 	};
 
-	onMount(() => {
+	$effect(() => {
+		containerWidth;
+		dataPoints;
 		drawWithMode();
 	});
-
-	$: if (dataPoints /*|| $modeCurrent*/) {
-		drawWithMode();
-	}
 </script>
 
-<canvas class="border-black dark:border-white" {width} {height} bind:this={canvas}></canvas>
+<div class="w-full" bind:clientWidth={containerWidth}>
+	<canvas class="border-black dark:border-white" bind:this={canvas}></canvas>
+</div>
 
 <style>
 	canvas {
 		border: 3px solid;
+		display: block;
+		width: 100%;
 	}
 </style>
