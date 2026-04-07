@@ -6,13 +6,10 @@
 
 
 
-	let { politicalPosition, 
-		delegate, 
-		isMobile }: { 
-			politicalPosition: PoliticalPosition; 
-			delegate: Delegate; 
-			isMobile: boolean 
-		} = $props();
+	let { politicalPosition, delegate }: { politicalPosition: PoliticalPosition; delegate: Delegate } = $props();
+
+	let windowWidth = $state(700);
+	let isMobile = $derived(windowWidth < 640);
 
 	let color = $derived(partyToColor(delegate.party));
 
@@ -25,7 +22,9 @@
 	});
 </script>
 
-<div class={isMobile ? 'w-45' : 'w-65'}>
+<svelte:window bind:innerWidth={windowWidth} />
+
+<div class={isMobile ? 'w-40' : 'w-60'}>
 	<QuadrantChart
 		{dataPoints}
 		xLabels={['KAPITALISTISCH', 'SOZIALISTISCH']}

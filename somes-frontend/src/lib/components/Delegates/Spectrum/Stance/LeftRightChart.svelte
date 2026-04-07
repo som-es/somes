@@ -20,12 +20,13 @@
 	const PAD_RIGHT = 10;
 	const PAD_TOP = 10;
 
-	const DOT_R = $derived(isMobile ? 11 :5);
-	const ROW_H = $derived(isMobile ? 70 : 28);
+	const DOT_R = $derived(isMobile ? 12 :5);
+	const ROW_H = $derived(isMobile ? 75 : 26);
 	const BOTTOM_H = $derived(isMobile ? 55 : 30);
-	const FONT_TOPIC = $derived(isMobile ? 25 : 11);
-	const FONT_AXIS = $derived(isMobile ? 26 : 12);
+	const FONT_TOPIC = $derived(isMobile ? 26 : 10);
+	const FONT_AXIS = $derived(isMobile ? 26 : 11);
 	const Y_AXIS_TEXT = $derived(isMobile ? 30 : 20);
+	const LABEL_OFFSET = $derived(isMobile ? 8 : 4);
 
 	// Maps score (-0.5..0.5) to SVG x coordinate
 	function scoreToX(score: number): number {
@@ -94,8 +95,8 @@
 			{@const isRight = item.x > centerX}
 			<circle cx={item.x} cy={y} r={DOT_R} fill={topicColors.get(item.topic) ?? '#888'} />
 			<text
-				x={isRight ? item.x - DOT_R - 6 : item.x + DOT_R + 4}
-				y={y + (isMobile ? 6 : 3)}
+				x={isRight ? item.x - DOT_R - LABEL_OFFSET : item.x + DOT_R + LABEL_OFFSET}
+				y={y + (isMobile ? 8 : 3)}
 				font-size={FONT_TOPIC}
 				fill="currentColor"
 				text-anchor={isRight ? 'end' : 'start'}
