@@ -46,7 +46,7 @@
 			{#if page.url.pathname == '/' || page.url.pathname == '/user' || page.url.pathname == '/impressum' || page.url.pathname == '/datenschutz'}
 				<span></span>
 			{:else if !page.url.pathname.includes('decree')}
-				<div class="mx-auto mt-20 flex w-full items-center justify-center text-lg sm:w-120">
+				<div class="mx-auto mt-20 flex w-full items-center justify-center text-md sm:text-lg sm:w-120">
 					<span class="text-center">
 						Diese Rohdaten werden von dem
 						<a
@@ -66,7 +66,7 @@
 					>
 				</div>
 			{:else}
-				<div class="mx-auto mt-20 flex w-120 max-w-full items-center justify-center text-lg">
+				<div class="mx-auto mt-20 flex w-120 max-w-full items-center justify-center text-md sm:text-lg">
 					<span class="text-center">
 						Diese Rohdaten werden von dem
 						<a

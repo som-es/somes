@@ -911,7 +911,6 @@
 			{/if}
 
 			{#if delegate && generalDelegateInfo?.left_right_stances.length && generalDelegateInfo.left_right_stances.length > 0 && aiViewEnabledStore.value}
-				{console.log(generalDelegateInfo)}
 				<!-- <StanceTypeSwitcher delegateInfo={generalDelegateInfo} /> -->
 					<LeftRightChart stances={generalDelegateInfo.left_right_stances} interests={generalDelegateInfo.interests}/>
 			{:else if !generalDelegateInfo}
