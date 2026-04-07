@@ -14,19 +14,23 @@
 	let previewNamedVotes = $derived(namedVotes.slice(0, 2));
 </script>
 
-<div class="flex flex-wrap justify-between items-center">
-	<div>
-		<h1 class="font-bold text-lg sm:text-2xl">Letzte namentliche Abstimmungen</h1>
-		<h2 class="sm:text-lg">
-			{namedVotes.length}
-			{namedVotes.length == 1 ? 'Abstimmung' : 'Abstimmungen'} insgesamt
-		</h2>
+<div>
+	<div class="flex items-start justify-between">
+		<div>
+			<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">
+				Letzte namentliche Abstimmungen
+			</h1>
+			<h2 class="text-sm text-primary-600 dark:text-primary-300">
+				{namedVotes.length}
+				{namedVotes.length == 1 ? 'Abstimmung' : 'Abstimmungen'} insgesamt
+			</h2>
+		</div>
+		<ExtendInfoDialog title="Alle anzeigen">
+			<NamedVoteModal {delegateId} {namedVotes} />
+		</ExtendInfoDialog>
 	</div>
-	<ExtendInfoDialog title="Alle anzeigen">
-		<NamedVoteModal {delegateId} {namedVotes} />
-	</ExtendInfoDialog>
 </div>
-<div class="mt-5">
+<div>
 	{#each previewNamedVotes as namedVote}
 		<NamedVoteBar {namedVote}></NamedVoteBar>
 	{/each}

@@ -1,6 +1,7 @@
 <script lang="ts">
-	import type { NamedVote } from '$lib/types';
-	import VoteResultBar from '$lib/components/Bars/VoteResultIdBar.svelte';
+	import { type NamedVote, type VoteResult, createVoteResultPath } from '$lib/types';
+	import { aiViewEnabledStore, currentVoteResultStore } from '$lib/stores/stores';
+	import { errorToNull, vote_result_by_id } from '$lib/api/api';
 
 	interface Props {
 		namedVote: NamedVote;
@@ -8,20 +9,58 @@
 
 	let { namedVote }: Props = $props();
 
-	let opinion =
-		$derived(namedVote.infavor != null
+	let voteResult = $state<VoteResult | null>(null);
+
+	$effect(() => {
+		voteResult = null;
+		vote_result_by_id(namedVote.legis_init_id.toString()).then((res) => {
+			voteResult = errorToNull(res);
+		});
+	});
+
+	let opinion = $derived(
+		namedVote.infavor != null
 			? namedVote.infavor
-				? 'Ja'
-				: 'Nein'
-			: 'Abwesend/keine Stimme abgegeben');
-	let opinionColor =
-		$derived(namedVote.infavor != null
+				? 'Pro'
+				: 'Contra'
+			: 'Abwesend/keine Stimme abgegeben'
+	);
+	let opinionColor = $derived(
+		namedVote.infavor != null
 			? namedVote.infavor
 				? 'bg-success-600'
 				: 'bg-red-600'
-			: 'bg-primary-500');
+			: 'bg-primary-500'
+	);
 </script>
 
-<VoteResultBar legis_init_id={namedVote.legis_init_id}> 
-	<div class=" text-sm sm:text-lg font-bold badge {opinionColor} text-white max-w-fit">{opinion}</div>
-</VoteResultBar>
+<a
+	class="mt-2 flex w-full items-center justify-between rounded-xl bg-primary-400 p-3 dark:bg-primary-300 transition-colors hover:bg-primary-500 dark:hover:bg-primary-400"
+	href={voteResult ? createVoteResultPath(voteResult) : undefined}
+	onclick={() => { if (voteResult) currentVoteResultStore.value = voteResult; }}
+>
+	<div>
+		{#if voteResult}
+			{#if aiViewEnabledStore.value && voteResult.ai_summary}
+				<div class="flex min-w-0 flex-1 flex-col flex-wrap max-lg:contents">
+					<span
+						class="text-xl font-semibold max-lg:order-1 max-lg:min-w-0 max-lg:flex-1"
+						style="hyphens: auto; word-break: normal; overflow-wrap: break-word;"
+					>
+						{voteResult.ai_summary.short_title}
+					</span>
+					<span class="sm:text-md text-sm max-lg:order-3 max-lg:w-full">
+						{voteResult.ai_summary.short_summary}
+					</span>
+				</div>
+			{:else}
+				<span class="text-md min-w-0 flex-1 font-semibold">
+					{voteResult.legislative_initiative.description}
+				</span>
+			{/if}
+		{/if}
+	</div>
+	<div class="badge text-sm font-bold {opinionColor} ml-5 max-w-fit text-white">
+		{opinion}
+	</div>
+</a>

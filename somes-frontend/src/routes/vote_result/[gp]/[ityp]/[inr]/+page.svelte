@@ -32,7 +32,6 @@
 	import star from '$lib/assets/misc_icons/star.svg?raw';
 	import starFilled from '$lib/assets/misc_icons/starFilled.svg?raw';
 	import FetchDelegateCard from '$lib/components/Delegates/FetchDelegateCard.svelte';
-	import VoteResultIdBar from '$lib/components/Bars/VoteResultIdBar.svelte';
 	import Documents from '$lib/components/Documents/Documents.svelte';
 	import { dashDateToDotDate } from '$lib/date';
 	import InfoBadges from '$lib/components/VoteResults/InfoTiles/InfoBadges.svelte';
