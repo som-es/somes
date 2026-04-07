@@ -875,7 +875,7 @@
 					</div>
 				</div>
 
-				<div class="w-100">
+				<div class="w-100 min-h-130">
 					{#if delegate}
 						<DelegateCard {delegate} questions={generalDelegateInfo?.delegate_qa ?? []} showQA />
 					{/if}

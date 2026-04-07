@@ -2,6 +2,7 @@
 	import { type NamedVote, type VoteResult, createVoteResultPath } from '$lib/types';
 	import { aiViewEnabledStore, currentVoteResultStore } from '$lib/stores/stores';
 	import { errorToNull, vote_result_by_id } from '$lib/api/api';
+	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 
 	interface Props {
 		namedVote: NamedVote;
@@ -10,11 +11,14 @@
 	let { namedVote }: Props = $props();
 
 	let voteResult = $state<VoteResult | null>(null);
+	let loading = $state(true);
 
 	$effect(() => {
 		voteResult = null;
+		loading = true;
 		vote_result_by_id(namedVote.legis_init_id.toString()).then((res) => {
 			voteResult = errorToNull(res);
+			loading = false;
 		});
 	});
 
@@ -40,7 +44,9 @@
 	onclick={() => { if (voteResult) currentVoteResultStore.value = voteResult; }}
 >
 	<div>
-		{#if voteResult}
+		{#if loading}
+			<ExpandablePlaceholder />
+		{:else if voteResult}
 			{#if aiViewEnabledStore.value && voteResult.ai_summary}
 				<div class="flex min-w-0 flex-1 flex-col flex-wrap max-lg:contents">
 					<span
