@@ -16,7 +16,7 @@
 
 <div class="flex flex-wrap justify-between items-center">
 	<div>
-		<h1 class="font-bold text-lg sm:text-2xl">Ministerialentwürfe</h1>
+		<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">sdf Ministerialentwürfe</h1>
 
 		<h2 class="sm:text-lg">
 			{govProposals.length}

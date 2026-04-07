@@ -46,6 +46,7 @@
 	import { goto, replaceState } from '$app/navigation';
 	import type { PageProps } from './$types';
 	import downArrowIcon from '$lib/assets/misc_icons/down-arrow.svg?raw';
+	import searchIcon from '$lib/assets/misc_icons/search-glass.svg?raw';
 	import { partyColors } from '$lib/partyColor';
 	import { groupPartyDelegates } from '$lib/parliaments/defaultParliament';
 	import { Popover, Select } from 'bits-ui';
@@ -645,16 +646,31 @@
 		{/snippet}
 
 		<div class="relative mt-7" bind:this={searchWrapper} onfocusout={handleFocusOut}>
-			<!-- Search Input -->
-			<SearchBar
-				oninput={(e) => {
-					maybeCurrentDelegateFilter.search_value = e.currentTarget.value;
-					searchInput = e.currentTarget.value;
-					currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
-				}}
-				onfocus={() => (isSearchPopupOpen = true)}
-				bind:searchValue={inputValue}
-			/>
+			<!-- Search Input (desktop) -->
+			<div class="hidden lg:block">
+				<SearchBar
+					oninput={(e) => {
+						maybeCurrentDelegateFilter.search_value = e.currentTarget.value;
+						searchInput = e.currentTarget.value;
+						currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
+					}}
+					onfocus={() => (isSearchPopupOpen = true)}
+					bind:searchValue={inputValue}
+				/>
+			</div>
+
+			<!-- Dummy search button (mobile) -->
+			<button
+				class="flex lg:hidden h-10 w-full touch-manipulation items-center rounded-xl border-[2px] border-gray-400 text-left"
+				onclick={() => (isSearchPopupOpen = true)}
+			>
+				<div class="flex h-9 w-10 shrink-0 items-center justify-center text-gray-600 dark:text-gray-300">
+					{@html searchIcon}
+				</div>
+				<span class="truncate">
+					{inputValue || 'Suche...'}
+				</span>
+			</button>
 
 			<!-- PopUp -->
 			{#if isSearchPopupOpen}
@@ -687,7 +703,7 @@
 								searchInput = e.currentTarget.value;
 								currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
 							}}
-							bind:searchValue={searchInput}
+							bind:searchValue={inputValue}
 							placeholder="Suche nach Abgeordneten..."
 							autofocus={true}
 						/>
