@@ -20,27 +20,31 @@
 
 	// const modalStore = getModalStore();
 
-	let delegateDecrees: DecreeDelegate[] = $derived(decrees.map(decree => {return {decree, delegate }}));
-
+	let delegateDecrees: DecreeDelegate[] = $derived(
+		decrees.map((decree) => {
+			return { decree, delegate };
+		})
+	);
 
 	let previewDecrees = $derived(delegateDecrees.slice(0, 2));
 </script>
 
-<div class="flex flex-wrap justify-between items-center">
-	<div>
-		<h1 class="font-bold text-lg sm:text-2xl">Letzte Verordnungen</h1>
+<div>
+	<div class="flex items-start justify-between">
+		<div>
+			<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">Letzte Verordnungen</h1>
 
-		<h2 class="sm:text-lg">
-			{decrees.length}
-			{decrees.length == 1 ? 'Verordnung' : 'Verordnungen'} insgesamt
-		</h2>
+			<h2 class="text-sm text-primary-600 dark:text-primary-300">
+				{decrees.length}
+				{decrees.length == 1 ? 'Verordnung' : 'Verordnungen'} insgesamt
+			</h2>
+		</div>
+		<ExtendInfoDialog title="Alle anzeigen">
+			<DecreesModal decrees={delegateDecrees} />
+		</ExtendInfoDialog>
 	</div>
-	<ExtendInfoDialog title="Alle anzeigen">
-		<DecreesModal decrees={delegateDecrees} />
-	</ExtendInfoDialog>
 </div>
-
-<div class="mt-1">
+<div>
 	{#each previewDecrees as decree}
 		<!-- <div class="gap-3 rounded-sm variant-filled my-1">{speech.legislative_initiatives_id} {speech.opinion}</div> -->
 		<DecreeBar {decree}></DecreeBar>

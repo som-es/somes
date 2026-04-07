@@ -10,20 +10,22 @@
 	$: previewSpeeches = speechesPage0.speeches.slice(0, 2);
 </script>
 
-<div class="flex flex-wrap justify-between items-center">
-	<div>
-		<h1 class="font-bold text-lg sm:text-2xl">Letzte Reden</h1>
+<div>
+	<div class="flex items-start justify-between">
+		<div>
+			<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">Letzte Reden</h1>
 
-		<h2 class="sm:text-lg">
-			{speechesPage0.entry_count}
-			{speechesPage0.entry_count == 1 ? 'Rede' : 'Reden'} insgesamt
-		</h2>
+			<h2 class="text-sm text-primary-600 dark:text-primary-300">
+				{speechesPage0.entry_count}
+				{speechesPage0.entry_count == 1 ? 'Rede' : 'Reden'} insgesamt
+			</h2>
+		</div>
+		<ExtendInfoDialog title="Alle anzeigen">
+			<AllSpeechesModal {delegateId} {speechesPage0} />
+		</ExtendInfoDialog>
 	</div>
-	<ExtendInfoDialog title="Alle anzeigen">
-		<AllSpeechesModal {delegateId} {speechesPage0} />
-	</ExtendInfoDialog>
 </div>
-<div class="mt-5">
+<div>
 	{#each previewSpeeches as speech}
 		<!-- <div class="gap-3 rounded-sm variant-filled my-1">{speech.legislative_initiatives_id} {speech.opinion}</div> -->
 		<SpeechBar {speech}></SpeechBar>

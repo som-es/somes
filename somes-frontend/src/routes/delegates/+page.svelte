@@ -894,7 +894,7 @@
 		</div>
 
 		{#if generalGovOfficialInfo?.gov_proposals && generalGovOfficialInfo.gov_proposals.length > 0 && delegate}
-			<div class="title-item w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
+			<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
 				<GovProposalPreview govProposals={generalGovOfficialInfo.gov_proposals} {delegate} />
 			</div>
 		{:else if generalGovOfficialInfo?.gov_proposals == null && delegate && delegate.council == 'gov'}
@@ -903,7 +903,7 @@
 		{/if}
 
 		{#if generalGovOfficialInfo?.decrees && generalGovOfficialInfo.decrees.length > 0 && delegate}
-			<div class="title-item w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
+			<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
 				<DecreePreview decrees={generalGovOfficialInfo.decrees} {delegate} />
 			</div>
 		{:else if (generalGovOfficialInfo?.decrees == null && delegate && delegate.council == 'gov') || !delegate}
@@ -979,7 +979,7 @@
 		</div>
 
 		{#if speechesPage0 && delegate && speechesPage0.speeches.length > 0}
-			<div class="title-item w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
+			<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
 				<SpeechesPreview delegateId={delegate.id} {speechesPage0} />
 			</div>
 		{:else if speechesPage0 == null && delegate && delegate.council == 'gov'}
@@ -988,7 +988,7 @@
 		{/if}
 
 		{#if generalDelegateInfo?.named_votes && delegate && generalDelegateInfo?.named_votes.length > 0}
-			<div class="title-item w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
+			<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
 				<NamedVotePreview delegateId={delegate.id} namedVotes={generalDelegateInfo.named_votes} />
 			</div>
 		{:else if generalDelegateInfo?.absences == null || !delegate}

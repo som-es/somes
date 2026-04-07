@@ -14,22 +14,23 @@
 	let previewGovProposals = $derived(govProposals.slice(0, 2));
 </script>
 
-<div class="flex flex-wrap justify-between items-center">
-	<div>
-		<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">sdf Ministerialentwürfe</h1>
-
-		<h2 class="sm:text-lg">
-			{govProposals.length}
-			{govProposals.length == 1 ? 'Ministerialentwurf' : 'Ministerialentwürfe'} insgesamt
-		</h2>
+<div>
+	<div class="flex items-start justify-between">
+		<div>
+			<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">Ministerialentwürfe</h1>
+			<h2 class="text-sm text-primary-600 dark:text-primary-300">
+				{govProposals.length}
+				{govProposals.length == 1 ? 'Ministerialentwurf' : 'Ministerialentwürfe'} insgesamt
+			</h2>
+		</div>
+		<ExtendInfoDialog title="Alle anzeigen">
+			<AllProposalsModal {govProposals} {delegate} />
+		</ExtendInfoDialog>
 	</div>
-	<ExtendInfoDialog title="Alle anzeigen">
-		<AllProposalsModal govProposals={govProposals} delegate={delegate} />
-	</ExtendInfoDialog>
 </div>
 {#each previewGovProposals as govProposal}
 	<GovProposalExpandableBar
-		govProposal={{ gov_proposal: govProposal, delegate }}
+		govProposal={{ gov_proposal: govProposal, delegates: [delegate] }}
 		coloring={'dark:bg-primary-300 bg-primary-400 text-black'}
 	/>
 {/each}
