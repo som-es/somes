@@ -54,6 +54,10 @@
 	let topicSearchValue = $state('');
 	let isSearchPopupOpen = $state(false);
 
+	let anonymizeEmail = $state<boolean>(!!extendedUser?.is_email_hashed);
+	let showChangeEmail = $state(false);
+	let newEmail = $state('');
+
 	// Filtered topics based on search input
 	let filteredTopics = $derived(
 		topics.filter((t) => t.topic.toLowerCase().includes(topicSearchValue.toLowerCase()))
@@ -147,6 +151,30 @@
 		jwtStore.value = null;
 		gotoHistory('/home');
 	}
+
+	async function toggleEmailAnonymization(checked: boolean) {
+	anonymizeEmail = checked;
+
+	// TODO: API call
+	await fetch('/api/user/anonymize-email', {
+		method: 'POST',
+		body: JSON.stringify({ anonymize: checked })
+	});
+}
+
+async function changeEmail() {
+	if (!newEmail) return;
+
+	// TODO: API call
+	await fetch('/api/user/change-email', {
+		method: 'POST',
+		body: JSON.stringify({ email: newEmail })
+	});
+
+	showChangeEmail = false;
+	newEmail = '';
+}
+
 </script>
 
 <svelte:head>
@@ -182,6 +210,27 @@
 							{/if}
 						</div>
 					</div>
+
+					<div class="mt-3 flex items-center gap-3">
+						<span class="text-sm text-gray-700 dark:text-gray-300">
+							E-Mail anonymisieren
+						</span>
+
+						<Switch.Root
+							checked={anonymizeEmail}
+							onCheckedChange={toggleEmailAnonymization}
+							class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
+						>
+							<Switch.Thumb
+								class="block h-5 w-5 rounded-full bg-white shadow transition-transform data-[state=checked]:translate-x-5"
+							/>
+						</Switch.Root>
+
+						<span class="text-xs text-gray-500">
+							{anonymizeEmail ? 'Ja' : 'Nein'}
+						</span>
+					</div>
+
 					<div class="flex gap-2">
 						<SButton
 							class="bg-secondary-500 text-white hover:bg-secondary-600"
@@ -189,15 +238,41 @@
 						>
 							Abmelden
 						</SButton>
-						<!-- <SButton
+						 <SButton
 							class="bg-tertiary-500 text-black hover:bg-tertiary-600"
-							onclick={() => {
-								jwtStore.value = null;
-								gotoHistory('/home');
-							}}
+							onclick={() => (showChangeEmail = !showChangeEmail)}
 						>
 							E-Mail wechseln
-						</SButton> -->
+						</SButton>
+						{#if showChangeEmail}
+							<div class="mt-3 flex flex-col gap-2">
+								<input
+									type="email"
+									placeholder="Neue E-Mail eingeben"
+									class="rounded-lg border px-3 py-2 text-sm dark:bg-gray-800"
+									bind:value={newEmail}
+								/>
+
+								<div class="flex gap-2">
+									<SButton
+										class="bg-secondary-500 text-white hover:bg-secondary-600"
+										onclick={changeEmail}
+									>
+										Speichern
+									</SButton>
+
+									<SButton
+										class="bg-gray-300 hover:bg-gray-400"
+										onclick={() => {
+											showChangeEmail = false;
+											newEmail = '';
+										}}
+									>
+										Abbrechen
+									</SButton>
+								</div>
+							</div>
+						{/if}
 					</div>
 				</div>
 			</div>
