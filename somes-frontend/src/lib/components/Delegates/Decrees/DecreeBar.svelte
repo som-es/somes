@@ -32,9 +32,9 @@
 		tabindex="0"
 		class="entry {coloring} flex items-center justify-between"
 	>
-		<div class="flex flex-col gap-1">
+		<div class="flex flex-col gap-1 min-w-0">
 			{#if aiViewEnabledStore.value && decree.decree.ai_summary}
-				<span class="text-xl font-semibold">
+				<span class="text-xl font-semibold" style="hyphens: auto; word-break: normal; overflow-wrap: break-word;">
 					{decree.decree.ai_summary.short_title}
 				</span>
 				<span class="sm:text-md text-sm">

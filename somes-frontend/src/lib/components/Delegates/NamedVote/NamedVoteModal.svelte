@@ -19,8 +19,8 @@
 	let currentNamedVotes: NamedVote[] = $derived(namedVotes.slice((page - 1) * ENTRIES, page * ENTRIES));
 	
 </script>
-<div class="card p-8 ">
-	<div class="flex justify-between items-center">
+<div class="card px-4">
+	<div class="flex justify-between items-center p-8">
 
 		<h1 class="font-bold text-2xl">Letzte namentliche Abstimmungen</h1>
 		<Dialog.Close>

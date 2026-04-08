@@ -63,7 +63,7 @@
 			</div>
 		</div> -->
 
-			<div class="flex flex-col gap-1">
+			<div class="flex flex-col gap-1 min-w-0">
 				{#if aiViewEnabledStore.value && govProposal.gov_proposal.ai_summary}
 					<span
 						class="text-xl font-semibold"
