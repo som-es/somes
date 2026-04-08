@@ -722,9 +722,6 @@
 			<LegisButtons bind:periods bind:selectedPeriod showAllButton={false}></LegisButtons>
 		</div> -->
 
-		<!------------------------------------->
-		<!-- Timeline Slider  (only Desktop) -->
-		<!------------------------------------->
 		<div class="hidden lg:flex w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 			<!-- LegisPeriod Filter -->
 			<div class="mx-3 flex items-center">
@@ -775,6 +772,10 @@
 					</Popover.Portal>
 				</Popover.Root>
 			</div>
+
+			<!------------------------------------->
+			<!-- Timeline Slider  (only Desktop) -->
+			<!------------------------------------->
 			<!-- Slider -->
 			<div class="flex-1">
 				<div class="mt-1 flex min-w-full justify-between px-1 text-base text-gray-800">

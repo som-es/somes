@@ -6,6 +6,7 @@
 	import { addUserTopic, removeUserTopic } from '$lib/api/authed';
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache.svelte';
 	import arrowDown from '$lib/assets/misc_icons/down-arrow.svg?raw';
+	import checkmark from '$lib/assets/misc_icons/checkmark_small.svg?raw';
 
 	interface Props {
 		parentTopics: string[];
@@ -30,23 +31,57 @@
 		await removeUserTopic(topic);
 		await cachedUserTopics(true);
 	};
+
+	let allSelected = $derived(subTopics.every((t) => selectedTopics.has(t.id)));
+	let someSelected = $derived(subTopics.some((t) => selectedTopics.has(t.id)));
+
+	let toggleAll = async () => {
+		if (allSelected) {
+			await Promise.all(subTopics.map(removeFromSelection));
+		} else {
+			const unselected = subTopics.filter((t) => !selectedTopics.has(t.id));
+			await Promise.all(unselected.map(addToSelection));
+		}
+	};
 </script>
 
 <Accordion.Root type="multiple">
 	<Accordion.Item value={parentTopics.join('-')}>
 		<Accordion.Trigger
-			class="flex w-full flex-wrap items-center justify-between gap-1 rounded-lg px-2 py-2 text-left hover:bg-primary-200 dark:hover:bg-primary-600 [&[data-state=open]>span>svg]:rotate-180"
+			class="group flex w-full items-center justify-between gap-2 rounded-xl bg-primary-100 px-4 py-3
+           text-left hover:bg-primary-200 data-[state=open]:rounded-b-none
+           data-[state=open]:bg-primary-200 dark:bg-primary-700
+           dark:hover:bg-primary-600 dark:data-[state=open]:bg-primary-600"
 		>
-			{#each parentTopics as parentTopic (parentTopic)}
-				<span class="rounded-md bg-primary-400 px-2 py-0.5 text-sm font-bold dark:bg-primary-700">
-					{parentTopic}
+			<div class="flex min-w-0 flex-1 items-center gap-2">
+				<button
+					onclick={(e) => { e.stopPropagation(); toggleAll(); }}
+					class="flex h-4 w-4 shrink-0 items-center justify-center rounded border-2
+					       transition-colors
+					       {allSelected
+							? 'border-secondary-500 bg-secondary-400 text-white'
+							: someSelected
+								? 'border-secondary-400 bg-secondary-400 hover:border-secondary-500 dark:border-secondary-400'
+								: 'border-primary-400 bg-transparent hover:border-secondary-400 dark:border-primary-400'}"
+				>
+					{#if allSelected}
+						<span class="w-3 mt-0.5 [&_path]:stroke-white">{@html checkmark}</span>
+					{/if}
+				</button>
+				<span class="truncate text-sm font-semibold text-primary-900 dark:text-primary-100">
+					{parentTopics.join('  ·  ')}
 				</span>
-			{/each}
-			<span class="w-5">{@html arrowDown}</span>
+			</div>
+			<span class="shrink-0 text-xs text-primary-500 dark:text-primary-400">{subTopics.length} topics</span>
+			<span class="w-4">{@html arrowDown}</span>
 		</Accordion.Trigger>
 
 		<Accordion.Content>
-			<div class="flex flex-wrap gap-2 px-2 py-2">
+			<div
+				class="flex flex-wrap gap-2 rounded-b-xl border-t border-primary-300 bg-primary-200
+                px-3 py-3
+                dark:border-primary-500 dark:bg-primary-600"
+			>
 				{#each subTopics as topic (topic.id)}
 					{#if selectedTopics.has(topic.id)}
 						<ClickableSpan action={() => removeFromSelection(topic)}>

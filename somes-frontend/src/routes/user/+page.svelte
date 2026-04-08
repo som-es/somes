@@ -37,9 +37,10 @@
 	} from '$lib/types';
 	import { Switch, Popover, Select } from 'bits-ui';
 	import { onMount } from 'svelte';
-	import searchIcon from '$lib/assets/misc_icons/search-glass.svg?raw';
+	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
 	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 	import DelegateUserCard from '$lib/components/Delegates/DelegateUserCard.svelte';
+	import MailTopicCard from '$lib/components/UI/MailTopicCard.svelte';
 
 	// State with Svelte 5 runes
 	let topics = $state<UniqueTopic[]>([]);
@@ -93,6 +94,28 @@
 			selectedTopics = new SvelteSet<number>(data.map((topic) => topic.id));
 		}
 	});
+
+	const allMailFields: (keyof MailSendInfo)[] = [
+		'send_new_vote_results_mails',
+		'send_new_vote_result_by_favo_mails',
+		'send_new_delegate_activity_mails',
+		'send_new_ministrial_prop_mails',
+		'send_new_ministrial_prop_by_favo_mails',
+		'send_new_decree_mails',
+		'send_new_decree_by_favo_mails',
+		'send_new_proposal_mails',
+		'send_new_proposal_by_favo_mails'
+	];
+
+	let allChecked = $derived(!!mailSendInfo && allMailFields.every((f) => mailSendInfo![f]));
+
+	const toggleAll = async (checked: boolean) => {
+		if (!mailSendInfo) return;
+		for (const field of allMailFields) {
+			mailSendInfo[field] = checked;
+		}
+		await updateMailSendInfo(mailSendInfo);
+	};
 
 	const updateThisMailSendInfo = async () => {
 		if (!mailSendInfo) {
@@ -181,210 +204,44 @@
 
 			<!-- Email Notifications Card -->
 			<div class="w-full rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
-				<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">E-Mail Benachrichtigungen</h2>
+				<div class="flex items-center justify-between">
+					<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">E-Mail Benachrichtigungen</h2>
+					<div class="flex items-center gap-2">
+						<p class="text-sm">Alle</p>
+						<Switch.Root
+							checked={allChecked}
+							onCheckedChange={toggleAll}
+							class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
+						>
+							<Switch.Thumb
+								class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+							/>
+						</Switch.Root>
+					</div>
+				</div>
 
 				{#if !extendedUser?.is_email_hashed}
-					<div class="mt-4 grid gap-4 sm:grid-cols-2">
-						{#if mailSendInfo}
-							<div class="flex items-start gap-3">
-								<Switch.Root
-									bind:checked={mailSendInfo.send_new_vote_results_mails}
-									onCheckedChange={updateThisMailSendInfo}
-									class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
-									id="sendVoteResultInfoMail"
-								>
-									<Switch.Thumb
-										class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
-									/>
-								</Switch.Root>
-								<label class="cursor-pointer" for="sendVoteResultInfoMail">
-									<div class="flex flex-col">
-										<span class="font-semibold text-gray-900 dark:text-gray-50"
-											>Zu neuen Abstimmungen</span
-										>
-										<span class="text-sm text-gray-600 dark:text-gray-300"
-											>nach ausgewählten Interessen</span
-										>
-									</div>
-								</label>
+					{#if mailSendInfo}
+						<div>
+							<p class="text-sm font-semibold text-gray-600 dark:text-gray-300">Nach Interessen & Themen</p>
+							<div class="flex flex-wrap gap-2 mt-2">
+								<MailTopicCard title="Abstimmungen" description="Neue Abstimmungen nach deinen Interessen" bind:checked={mailSendInfo.send_new_vote_results_mails} onchange={updateThisMailSendInfo} />
+								<MailTopicCard title="Ministerialentwürfe" description="Neue Ministerialentwürfe nach deinen Interessen" bind:checked={mailSendInfo.send_new_ministrial_prop_mails} onchange={updateThisMailSendInfo} />
+								<MailTopicCard title="Verordnungen" description="Neue Verordnungen nach deinen Themen" bind:checked={mailSendInfo.send_new_decree_mails} onchange={updateThisMailSendInfo} />
+								<MailTopicCard title="Anträge" description="Neue Anträge nach deinen Themen" bind:checked={mailSendInfo.send_new_proposal_mails} onchange={updateThisMailSendInfo} />
 							</div>
-							<div class="flex items-start gap-3">
-								<Switch.Root
-									bind:checked={mailSendInfo.send_new_vote_result_by_favo_mails}
-									onCheckedChange={updateThisMailSendInfo}
-									class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
-									id="sendVoteResultInfoMailByPerson"
-								>
-									<Switch.Thumb
-										class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
-									/>
-								</Switch.Root>
-								<label class="cursor-pointer" for="sendVoteResultInfoMail">
-									<div class="flex flex-col">
-										<span class="font-semibold text-gray-900 dark:text-gray-50"
-											>Zu neuen Abstimmungen</span
-										>
-										<span class="text-sm text-gray-600 dark:text-gray-300"
-											>nach favorisierten Personen</span
-										>
-									</div>
-								</label>
+						</div>
+						<div>
+							<p class="text-sm font-semibold text-gray-600 dark:text-gray-300 mt-3">Nach favourisierten Ministern & Personen</p>
+							<div class="flex flex-wrap gap-2 mt-2">
+								<MailTopicCard title="Abstimmungen" description="Neue Abstimmungen nach favorisierten Personen" bind:checked={mailSendInfo.send_new_vote_result_by_favo_mails} onchange={updateThisMailSendInfo} />
+								<MailTopicCard title="Ministerialentwürfe" description="Neue Ministerialentwürfe nach favorisierten Ministern" bind:checked={mailSendInfo.send_new_ministrial_prop_by_favo_mails} onchange={updateThisMailSendInfo} />
+								<MailTopicCard title="Verordnungen" description="Neue Verordnungen nach favorisierten Ministern" bind:checked={mailSendInfo.send_new_decree_by_favo_mails} onchange={updateThisMailSendInfo} />
+								<MailTopicCard title="Anträge" description="Neue Anträge nach favorisierten Personen" bind:checked={mailSendInfo.send_new_proposal_by_favo_mails} onchange={updateThisMailSendInfo} />
+								<MailTopicCard title="Aktivitäten" description="Neue Aktivitäten nach favorisierten Personen" bind:checked={mailSendInfo.send_new_delegate_activity_mails} onchange={updateThisMailSendInfo} />
 							</div>
-							<div class="flex items-start gap-3">
-								<Switch.Root
-									bind:checked={mailSendInfo.send_new_ministrial_prop_mails}
-									onCheckedChange={updateThisMailSendInfo}
-									class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
-									id="sendMinistrialPropInfoMails"
-								>
-									<Switch.Thumb
-										class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
-									/>
-								</Switch.Root>
-								<label class="cursor-pointer" for="sendMinistrialPropInfoMails">
-									<div class="flex flex-col">
-										<span class="font-semibold text-gray-900 dark:text-gray-50"
-											>Zu neuen Ministerialentwürfen</span
-										>
-										<span class="text-sm text-gray-600 dark:text-gray-300"
-											>nach ausgewählten Interessen</span
-										>
-									</div>
-								</label>
-							</div>
-							<div class="flex items-start gap-3">
-								<Switch.Root
-									bind:checked={mailSendInfo.send_new_ministrial_prop_by_favo_mails}
-									onCheckedChange={updateThisMailSendInfo}
-									class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
-									id="sendMinistrialPropByFavoMails"
-								>
-									<Switch.Thumb
-										class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
-									/>
-								</Switch.Root>
-								<label class="cursor-pointer" for="sendMinistrialPropByFavoMails">
-									<div class="flex flex-col">
-										<span class="font-semibold text-gray-900 dark:text-gray-50"
-											>Zu neuen Ministerialentwürfen</span
-										>
-										<span class="text-sm text-gray-600 dark:text-gray-300"
-											>nach favorisierten Ministern</span
-										>
-									</div>
-								</label>
-							</div>
-							<div class="flex items-start gap-3">
-								<Switch.Root
-									bind:checked={mailSendInfo.send_new_decree_by_favo_mails}
-									onCheckedChange={updateThisMailSendInfo}
-									class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
-									id="sendMinistrialPropByFavoMails"
-								>
-									<Switch.Thumb
-										class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
-									/>
-								</Switch.Root>
-								<label class="cursor-pointer" for="sendMinistrialPropByFavoMails">
-									<div class="flex flex-col">
-										<span class="font-semibold text-gray-900 dark:text-gray-50"
-											>Zu neuen Verordnungen</span
-										>
-										<span class="text-sm text-gray-600 dark:text-gray-300"
-											>nach favorisierten Ministern</span
-										>
-									</div>
-								</label>
-							</div>
-							<div class="flex items-start gap-3">
-								<Switch.Root
-									bind:checked={mailSendInfo.send_new_decree_mails}
-									onCheckedChange={updateThisMailSendInfo}
-									class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
-									id="sendMinistrialPropByFavoMails"
-								>
-									<Switch.Thumb
-										class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
-									/>
-								</Switch.Root>
-								<label class="cursor-pointer" for="sendMinistrialPropByFavoMails">
-									<div class="flex flex-col">
-										<span class="font-semibold text-gray-900 dark:text-gray-50"
-											>Zu neuen Verordnungen</span
-										>
-										<span class="text-sm text-gray-600 dark:text-gray-300"
-											>nach favorisierten Themen</span
-										>
-									</div>
-								</label>
-							</div>
-							<div class="flex items-start gap-3">
-								<Switch.Root
-									bind:checked={mailSendInfo.send_new_proposal_mails}
-									onCheckedChange={updateThisMailSendInfo}
-									class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
-									id="sendProposalMails"
-								>
-									<Switch.Thumb
-										class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
-									/>
-								</Switch.Root>
-								<label class="cursor-pointer" for="sendProposalMails">
-									<div class="flex flex-col">
-										<span class="font-semibold text-gray-900 dark:text-gray-50"
-											>Zu neuen Anträgen</span
-										>
-										<span class="text-sm text-gray-600 dark:text-gray-300"
-											>nach ausgewählten Themen</span
-										>
-									</div>
-								</label>
-							</div>
-							<div class="flex items-start gap-3">
-								<Switch.Root
-									bind:checked={mailSendInfo.send_new_proposal_by_favo_mails}
-									onCheckedChange={updateThisMailSendInfo}
-									class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
-									id="sendProposalMailsByDelegateFavo"
-								>
-									<Switch.Thumb
-										class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
-									/>
-								</Switch.Root>
-								<label class="cursor-pointer" for="sendProposalMailsByDelegateFavo">
-									<div class="flex flex-col">
-										<span class="font-semibold text-gray-900 dark:text-gray-50"
-											>Zu neuen Anträgen</span
-										>
-										<span class="text-sm text-gray-600 dark:text-gray-300"
-											>nach favorisierten Personen</span
-										>
-									</div>
-								</label>
-							</div>
-							<div class="flex items-start gap-3">
-								<Switch.Root
-									bind:checked={mailSendInfo.send_new_delegate_activity_mails}
-									onCheckedChange={updateThisMailSendInfo}
-									class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
-									id="sendnewDelegateInfo"
-								>
-									<Switch.Thumb
-										class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
-									/>
-								</Switch.Root>
-								<label class="cursor-pointer" for="sendnewDelegateInfo">
-									<div class="flex flex-col">
-										<span class="font-semibold text-gray-900 dark:text-gray-50">Zu Aktivitäten</span
-										>
-										<span class="text-sm text-gray-600 dark:text-gray-300"
-											>nach favorisierten Personen</span
-										>
-									</div>
-								</label>
-							</div>
-						{/if}
-					</div>
+						</div>
+					{/if}
 				{:else}
 					<p class="mt-3 text-gray-600 dark:text-gray-300">
 						nicht verfügbar: Anonymisierung durch Mail-Wechsel aufheben
@@ -408,24 +265,13 @@
 				<!-- Inline search with dropdown (like MultiValuesFilter) -->
 				<!-- svelte-ignore a11y_no_static_element_interactions -->
 				<div class="relative mt-3" bind:this={searchWrapper} onfocusout={handleFocusOut}>
-					<div
-						class="flex w-full items-center gap-2 rounded-xl border border-gray-300 bg-white px-3 py-2 focus-within:border-secondary-500 focus-within:ring-2 focus-within:ring-secondary-500/20 dark:bg-surface-100"
-					>
-						<div
-							class="flex h-5 w-5 shrink-0 items-center justify-center text-gray-500 dark:text-gray-500"
-						>
-							{@html searchIcon}
-						</div>
-						<input
-							class="w-full bg-transparent text-base text-gray-900 placeholder:text-gray-500 focus:outline-none dark:text-gray-800 dark:placeholder:text-gray-400"
-							type="search"
-							name="topic-search"
-							bind:value={topicSearchValue}
-							placeholder="Themen suchen..."
-							onfocus={() => (isSearchPopupOpen = true)}
-							oninput={() => (isSearchPopupOpen = true)}
-						/>
-					</div>
+					<SearchBar
+						bind:searchValue={topicSearchValue}
+						placeholder="Themen suchen..."
+						name="topic-search"
+						onfocus={() => (isSearchPopupOpen = true)}
+						oninput={() => (isSearchPopupOpen = true)}
+					/>
 					{#if isSearchPopupOpen}
 						<div
 							class="absolute top-full left-0 z-[1000] mt-1.5 w-full rounded-xl border border-gray-300 bg-surface-50 shadow-lg dark:bg-surface-600"
