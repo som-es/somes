@@ -659,7 +659,7 @@
 				/>
 			</div>
 
-			<!-- Dummy search button (mobile) -->
+			<!-- Dummy search Input (mobile) -->
 			<button
 				class="flex lg:hidden h-10 w-full touch-manipulation items-center rounded-xl border-[2px] border-gray-400 text-left"
 				onclick={() => (isSearchPopupOpen = true)}
@@ -687,7 +687,7 @@
 				<!-- Mobile -->
 				<div
 					class="fixed top-0 left-0 z-50 flex h-[100dvh] w-full items-start justify-center bg-black/50 p-2 backdrop-blur-sm lg:hidden"
-					onmousedown={(e) => e.preventDefault()}
+					onfocusout={(e) => e.stopPropagation()}
 				>
 					<div
 						class="w-full max-w-md rounded-2xl bg-primary-100 p-4 shadow-xl dark:bg-primary-600"

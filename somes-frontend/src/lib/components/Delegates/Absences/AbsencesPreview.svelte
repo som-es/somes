@@ -35,7 +35,7 @@
 	function formatDate(dateString: Date | string) {
 		return new Intl.DateTimeFormat('de-AT', {
 			day: '2-digit',
-			month: 'short',
+			month: '2-digit',
 			year: 'numeric'
 		}).format(new Date(dateString));
 	}
