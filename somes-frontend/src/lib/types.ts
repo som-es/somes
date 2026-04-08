@@ -492,6 +492,7 @@ export interface VoteResultFilter {
 	is_urgent: boolean | null;
 	date_from: string | null;
 	date_to: string | null;
+	issuer_parties: string[] | null;
 }
 
 export interface DelegateFilter {

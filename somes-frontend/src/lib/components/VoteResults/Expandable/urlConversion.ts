@@ -71,5 +71,9 @@ export function convertVoteResultFilterToUrl(
 		nextUrl.searchParams.set(`eurovoc_topics[${i}][topic][cn]`, topic);
 	});
 
+	filter.issuer_parties?.forEach((party, i) => {
+		nextUrl.searchParams.set(`meilisearch_helper[issuer_parties][in][${i}]`, party);
+	});
+
 	return nextUrl;
 }

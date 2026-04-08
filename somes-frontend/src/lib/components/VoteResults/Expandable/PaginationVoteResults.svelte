@@ -8,7 +8,9 @@
 	import Pagination from '$lib/components/Pagination.svelte';
 	import { currentVoteResultFilterStores } from '$lib/stores/stores';
 	import ExpandablePlaceholder from './Placeholders/ExpandablePlaceholder.svelte';
-	import { Popover } from 'bits-ui';
+	import { Popover, Select } from 'bits-ui';
+	import upDownArrowIcon from '$lib/assets/misc_icons/up-down-arrow.svg?raw';
+	import checkmark_small from '$lib/assets/misc_icons/checkmark_small.svg?raw';
 	import { SvelteSet } from 'svelte/reactivity';
 	import { page } from '$app/state';
 	import FilterDropdown from '$lib/components/Filtering/FilterDropdown.svelte';
@@ -51,6 +53,9 @@
 	// TOPIC FILTER
 	let selectedTopics: SvelteSet<string> = $state(new SvelteSet());
 
+	// ISSUER PARTIES FILTER
+	let selectedIssuerParties: string[] = $state([]);
+
 	// PARTY FILTER - get all parties available in the request
 	// let uniqueParties = $derived([...new Set(dels.map((d) => d.party))].sort());
 	let uniqueParties = $derived.by(() => {
@@ -75,6 +80,10 @@
 			});
 		}
 	});
+
+	let selectedIssuerPartiesObjects = $derived(
+		uniqueParties.filter((p) => selectedIssuerParties.includes(p.name))
+	);
 
 	// Track each party's filter preference: 'egal' = no filter, 'pro' = voted in favor, 'contra' = voted against
 	type PartyFilterOption = 'egal' | 'pro' | 'contra';
@@ -117,6 +126,7 @@
 		GenericFilterGroup<boolean>,
 		GenericFilterGroup<string>,
 		GenericFilterGroup<boolean>,
+		GenericFilterGroup<string>,
 		GenericFilterGroup<string>
 	] = $state([
 		{
@@ -180,6 +190,14 @@
 			advanced: true,
 			id: 'dateRange',
 			data: { dateFrom: '', dateTo: '' },
+			options: []
+		},
+		{
+			title: 'Eingebracht von',
+			activeValue: undefined,
+			hidden: false,
+			advanced: false,
+			id: 'issuerParties',
 			options: []
 		}
 	]);
@@ -246,6 +264,9 @@
 			if (maybeStoredFilter.date_from)
 				genericFilters[5].data!.dateFrom = maybeStoredFilter.date_from;
 			if (maybeStoredFilter.date_to) genericFilters[5].data!.dateTo = maybeStoredFilter.date_to;
+			if (maybeStoredFilter.issuer_parties !== null) {
+				selectedIssuerParties = [...maybeStoredFilter.issuer_parties];
+			}
 		}
 	});
 
@@ -273,7 +294,8 @@
 			is_urgent: genericFilters[4].activeValue === undefined ? null : genericFilters[4].activeValue,
 			party_votes: partyVotesFilter.length > 0 ? partyVotesFilter : null,
 			date_from: genericFilters[5].data?.dateFrom || null,
-			date_to: genericFilters[5].data?.dateTo || null
+			date_to: genericFilters[5].data?.dateTo || null,
+			issuer_parties: selectedIssuerParties.length > 0 ? selectedIssuerParties : null
 		};
 
 		const nextUrl = convertVoteResultFilterToUrl(
@@ -322,6 +344,7 @@
 		void searchValue;
 		void partyVotesFilter;
 		void selectedTopics.size;
+		void selectedIssuerParties.length;
 		for (let i = 0; i < genericFilters.length; i++) {
 			void genericFilters[i].activeValue;
 		}
@@ -335,6 +358,11 @@
 	$effect(() => {
 		genericFilters[5].activeValue =
 			genericFilters[5].data?.dateFrom || genericFilters[5].data?.dateTo ? 'set' : undefined;
+	});
+
+	// used to set generic filter count when issuer parties filter is active
+	$effect(() => {
+		genericFilters[6].activeValue = selectedIssuerParties.length > 0 ? 'set' : undefined;
 	});
 
 	let searchValue = $state('');
@@ -435,10 +463,63 @@
 				bind:dateTo={genericFilters[5].data!.dateTo}
 			/>
 		{/snippet}
+		{#snippet issuerPartiesSnippet()}
+			<Select.Root
+				type="multiple"
+				bind:value={selectedIssuerParties}
+				items={uniqueParties.map((p) => ({ value: p.name, label: p.name }))}
+			>
+				<Select.Trigger
+					class="mt-1 flex w-full touch-manipulation items-center justify-between gap-1 rounded-xl border-2 border-primary-300 px-2 py-1 text-sm dark:border-primary-400"
+				>
+					<div class="flex items-center gap-2">
+						{#each selectedIssuerPartiesObjects.slice(0, 1) as party}
+							<div class="h-3 w-3 rounded-full" style="background-color: {party.color};"></div>
+							<span class="truncate">{party.name}</span>
+						{/each}
+						{#if selectedIssuerParties.length > 1}
+							<span class="truncate">+{selectedIssuerParties.length - 1} weitere</span>
+						{/if}
+						{#if selectedIssuerParties.length === 0}
+							<span>Alle Parteien</span>
+						{/if}
+					</div>
+					<span class="block w-4 mr-2 [&>svg]:fill-primary-400 [&>svg]:stroke-primary-400">{@html upDownArrowIcon}</span>
+				</Select.Trigger>
+				<Select.Portal>
+					<Select.Content
+						class="z-500 max-h-60 w-[200px] overflow-hidden rounded-xl border border-gray-200 bg-surface-100 shadow-lg dark:bg-surface-500"
+					align="start"
+					>
+						<Select.Viewport class="p-1">
+							{#each uniqueParties as party}
+								<Select.Item
+									class="flex h-10 w-full cursor-pointer justify-between rounded-lg py-3 pr-1.5 pl-3 text-sm transition-all duration-75 outline-none select-none data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-400"
+									value={party.name}
+									label={party.name}
+								>
+									{#snippet children({ selected })}
+										<div class="flex items-center gap-2">
+											<div class="h-3 w-3 rounded-full" style="background-color: {party.color};"></div>
+											{party.name}
+										</div>
+										{#if selected}
+											<div class="ml-auto h-4 stroke-black dark:stroke-white">
+												{@html checkmark_small}
+											</div>
+										{/if}
+									{/snippet}
+								</Select.Item>
+							{/each}
+						</Select.Viewport>
+					</Select.Content>
+				</Select.Portal>
+			</Select.Root>
+		{/snippet}
 		<GenericFilters
 			bind:genericFilters
 			bind:legisPeriodFilter
-			snippets={{ dateRange: dateRangeSnippet }}
+			snippets={{ dateRange: dateRangeSnippet, issuerParties: issuerPartiesSnippet }}
 		/>
 	</div>
 </div>
