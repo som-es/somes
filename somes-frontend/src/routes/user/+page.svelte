@@ -57,6 +57,9 @@
 	let anonymizeEmail = $state<boolean>(!!extendedUser?.is_email_hashed);
 	let showChangeEmail = $state(false);
 	let newEmail = $state('');
+	let otp = $state('');
+	let otpStep = $state(false);
+	
 
 	// Filtered topics based on search input
 	let filteredTopics = $derived(
@@ -165,16 +168,28 @@
 async function changeEmail() {
 	if (!newEmail) return;
 
-	// TODO: API call
 	await fetch('/api/user/change-email', {
 		method: 'POST',
 		body: JSON.stringify({ email: newEmail })
 	});
 
-	showChangeEmail = false;
-	newEmail = '';
+	otpStep = true; 
 }
 
+async function verifyOtp() {
+	if (!otp) return;
+
+	await fetch('/api/user/verify-email-change', {
+		method: 'POST',
+		body: JSON.stringify({ otp })
+	});
+
+	// reset
+	showChangeEmail = false;
+	newEmail = '';
+	otp = '';
+	otpStep = false;
+}
 </script>
 
 <svelte:head>
@@ -193,87 +208,105 @@ async function changeEmail() {
 		<div class="mt-5 flex flex-col gap-4">
 			<!-- User Info Card -->
 			<div class="w-full rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
-				<div class="flex flex-wrap items-center justify-between gap-3">
-					<div class="flex flex-wrap items-center gap-3">
-						<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">Benutzerinfos</h2>
-						<div class="flex items-center gap-2 text-base text-gray-800 dark:text-gray-200">
-							<span class="font-medium">E-Mail:</span>
-							{#if extendedUser?.is_email_hashed}
-								<span class="font-serif">anonymisiert</span>
-								{#if user}
-									<span class="text-sm text-gray-600 dark:text-gray-400"
-										>...{user.sub.slice(36, 60)}...</span
-									>
+				<div class="flex flex-col gap-3">
+					<!-- OBERE ZEILE -->
+					<div class="flex flex-wrap items-center justify-between gap-3">
+						<div class="flex flex-wrap items-center gap-3">
+							<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">Benutzerinfos</h2>
+							<div class="flex items-center gap-2 text-base text-gray-800 dark:text-gray-200">
+								<span class="font-medium">E-Mail:</span>
+								{#if extendedUser?.is_email_hashed}
+									<span class="font-serif">anonymisiert</span>
+									{#if user}
+										<span class="text-sm text-gray-600 dark:text-gray-400"
+											>...{user.sub.slice(36, 60)}...</span
+										>
+									{/if}
+								{:else if user}
+									<span>{user.sub}</span>
 								{/if}
-							{:else if user}
-								<span>{user.sub}</span>
-							{/if}
-						</div>
-					</div>
-
-					<div class="mt-3 flex items-center gap-3">
-						<span class="text-sm text-gray-700 dark:text-gray-300">
-							E-Mail anonymisieren
-						</span>
-
-						<Switch.Root
-							checked={anonymizeEmail}
-							onCheckedChange={toggleEmailAnonymization}
-							class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
-						>
-							<Switch.Thumb
-								class="block h-5 w-5 rounded-full bg-white shadow transition-transform data-[state=checked]:translate-x-5"
-							/>
-						</Switch.Root>
-
-						<span class="text-xs text-gray-500">
-							{anonymizeEmail ? 'Ja' : 'Nein'}
-						</span>
-					</div>
-
-					<div class="flex gap-2">
-						<SButton
-							class="bg-secondary-500 text-white hover:bg-secondary-600"
-							onclick={handleLogout}
-						>
-							Abmelden
-						</SButton>
-						 <SButton
-							class="bg-tertiary-500 text-black hover:bg-tertiary-600"
-							onclick={() => (showChangeEmail = !showChangeEmail)}
-						>
-							E-Mail wechseln
-						</SButton>
-						{#if showChangeEmail}
-							<div class="mt-3 flex flex-col gap-2">
-								<input
-									type="email"
-									placeholder="Neue E-Mail eingeben"
-									class="rounded-lg border px-3 py-2 text-sm dark:bg-gray-800"
-									bind:value={newEmail}
-								/>
-
-								<div class="flex gap-2">
-									<SButton
-										class="bg-secondary-500 text-white hover:bg-secondary-600"
-										onclick={changeEmail}
-									>
-										Speichern
-									</SButton>
-
-									<SButton
-										class="bg-gray-300 hover:bg-gray-400"
-										onclick={() => {
-											showChangeEmail = false;
-											newEmail = '';
-										}}
-									>
-										Abbrechen
-									</SButton>
-								</div>
 							</div>
-						{/if}
-					</div>
+						</div>
+
+						<div class="mt-3 flex items-center gap-3">
+							<span class="text-sm text-gray-700 dark:text-gray-300">
+								E-Mail anonymisieren
+							</span>
+
+							<Switch.Root
+								checked={anonymizeEmail}
+								onCheckedChange={toggleEmailAnonymization}
+								class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
+							>
+								<Switch.Thumb
+									class="block h-5 w-5 rounded-full bg-white shadow transition-transform data-[state=checked]:translate-x-5"
+								/>
+							</Switch.Root>
+
+							<span class="text-xs text-gray-500">
+								{anonymizeEmail ? 'Ja' : 'Nein'}
+							</span>
+						</div>
+
+						<div class="flex gap-2">
+							<SButton
+								class="bg-secondary-500 text-white hover:bg-secondary-600"
+								onclick={handleLogout}
+							>
+								Abmelden
+							</SButton>
+							<SButton
+								class="bg-tertiary-500 text-black hover:bg-tertiary-600"
+								onclick={() => (showChangeEmail = !showChangeEmail)}
+							>
+								E-Mail wechseln
+							</SButton>
+							
+						</div>
+					</div> <!-- ENDE obere Zeile -->
+						{#if showChangeEmail}
+						<div class="flex items-center gap-2 border-t pt-3">
+
+							<input
+								type="email"
+								placeholder="Neue E-Mail"
+								class="flex-1 rounded-lg border px-3 py-2 text-sm dark:bg-gray-800"
+								bind:value={newEmail}
+							/>
+
+							{#if otpStep}
+								<input
+									type="text"
+									placeholder="OTP"
+									class="w-32 rounded-lg border px-3 py-2 text-sm dark:bg-gray-800"
+									bind:value={otp}
+								/>
+							{/if}
+
+							{#if !otpStep}
+								<SButton class="bg-secondary-500 text-white" onclick={changeEmail}>
+									OTP
+								</SButton>
+							{:else}
+								<SButton class="bg-secondary-500 text-white" onclick={verifyOtp}>
+									Speichern
+								</SButton>
+							{/if}
+
+							<SButton
+								class="bg-gray-300"
+								onclick={() => {
+									showChangeEmail = false;
+									newEmail = '';
+									otp = '';
+									otpStep = false;
+								}}
+							>
+								Abbrechen
+							</SButton>
+
+						</div>
+					{/if}
 				</div>
 			</div>
 
