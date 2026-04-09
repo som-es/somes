@@ -265,46 +265,62 @@ async function verifyOtp() {
 						</div>
 					</div> <!-- ENDE obere Zeile -->
 						{#if showChangeEmail}
-						<div class="flex items-center gap-2 border-t pt-3">
+						<div class="flex justify-end items-end gap-4 border-t pt-3">
 
-							<input
-								type="email"
-								placeholder="Neue E-Mail"
-								class="flex-1 rounded-lg border px-3 py-2 text-sm dark:bg-gray-800"
-								bind:value={newEmail}
-							/>
-
-							{#if otpStep}
+							<!-- EMAIL -->
+							<div class="flex flex-col items-end">
+								<label for="email" class="text-l font-medium text-gray-700">
+									Neue E-Mail
+								</label>
 								<input
-									type="text"
-									placeholder="OTP"
-									class="w-32 rounded-lg border px-3 py-2 text-sm dark:bg-gray-800"
-									bind:value={otp}
+									id="email"
+									type="email"
+									placeholder="dergertrud@gmail.com"
+									class="w-48 rounded-lg border px-3 py-2 text-sm text-right dark:bg-gray-800"
+									bind:value={newEmail}
 								/>
+							</div>
+
+							<!-- OTP -->
+							{#if otpStep}
+								<div class="flex flex-col items-end">
+									<label for="otp" class="text-l font-medium text-gray-700">
+										One-Time Passwort (OTP)
+									</label>
+									<input
+										id="otp"
+										type="text"
+										placeholder="MAS DS5 4DA"
+										class="w-48 rounded-lg border px-3 py-2 text-sm text-right dark:bg-gray-800"
+										bind:value={otp}
+									/>
+								</div>
 							{/if}
 
-							{#if !otpStep}
-								<SButton class="bg-secondary-500 text-white" onclick={changeEmail}>
-									OTP
-								</SButton>
-							{:else}
-								<SButton class="bg-secondary-500 text-white" onclick={verifyOtp}>
-									Speichern
-								</SButton>
-							{/if}
+							<!-- BUTTONS -->
+							<div class="flex items-end gap-2">
+								{#if !otpStep}
+									<SButton class="bg-secondary-500 text-white" onclick={changeEmail}>
+										Weiter
+									</SButton>
+								{:else}
+									<SButton class="bg-secondary-500 text-white" onclick={verifyOtp}>
+										Speichern
+									</SButton>
+								{/if}
 
-							<SButton
-								class="bg-gray-300"
-								onclick={() => {
-									showChangeEmail = false;
-									newEmail = '';
-									otp = '';
-									otpStep = false;
-								}}
-							>
-								Abbrechen
-							</SButton>
-
+								<SButton
+									class="bg-gray-300"
+									onclick={() => {
+										showChangeEmail = false;
+										newEmail = '';
+										otp = '';
+										otpStep = false;
+									}}
+								>
+									Abbrechen
+								</SButton>
+							</div>
 						</div>
 					{/if}
 				</div>
