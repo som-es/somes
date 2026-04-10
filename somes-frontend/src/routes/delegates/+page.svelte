@@ -43,6 +43,7 @@
 	import LeftRightChart from '$lib/components/Delegates/Spectrum/Stance/LeftRightChart.svelte';
 	import PoliticalStanceTitleBar from '$lib/components/Delegates/Spectrum/PoliticalStanceTitleBar.svelte';
 	import DecreePreview from '$lib/components/Delegates/Decrees/DecreePreview.svelte';
+	import IssuedProposalPreview from '$lib/components/Delegates/IssuedProposal/IssuedProposalPreview.svelte';
 	import { goto, replaceState } from '$app/navigation';
 	import type { PageProps } from './$types';
 	import downArrowIcon from '$lib/assets/misc_icons/down-arrow.svg?raw';
@@ -979,6 +980,7 @@
 			</div>
 		</div>
 
+		<!-- Letzte Reden -->
 		{#if speechesPage0 && delegate && speechesPage0.speeches.length > 0}
 			<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
 				<SpeechesPreview delegateId={delegate.id} {speechesPage0} />
@@ -988,6 +990,7 @@
 			<ExpandablePlaceholder />
 		{/if}
 
+		<!-- Letzte namentliche Abstimmungen -->
 		{#if generalDelegateInfo?.named_votes && delegate && generalDelegateInfo?.named_votes.length > 0}
 			<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
 				<NamedVotePreview delegateId={delegate.id} namedVotes={generalDelegateInfo.named_votes} />
@@ -996,6 +999,18 @@
 			<ExpandablePlaceholder />
 			<ExpandablePlaceholder />
 		{/if}
+
+		<!-- Letzte eingebrachte Anträge -->
+		{#if generalDelegateInfo?.issued_proposals && delegate && generalDelegateInfo.issued_proposals.length > 0}
+			<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
+				<IssuedProposalPreview delegateId={delegate.id} issuedProposals={generalDelegateInfo.issued_proposals} />
+			</div>
+		{:else if generalDelegateInfo?.issued_proposals == null || !delegate}
+			<ExpandablePlaceholder />
+			<ExpandablePlaceholder />
+		{/if}
+
+		<!--  -->
 
 		<!-- <div class="flex gap-2 w-full">
 		<ExpandablePlaceholder class={'my-3 w-full min-w-full'} />
