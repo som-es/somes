@@ -14,6 +14,8 @@
 	import { errorToNull } from '$lib/api/api';
 	import VoteResultExpandableBar from '$lib/components/VoteResults/Expandable/VoteResultExpandableBar.svelte';
 	import { resolve } from '$app/paths';
+	import { convertVoteResultFilterToUrl } from '$lib/components/VoteResults/Expandable/urlConversion';
+	import { currentVoteResultFilterStore } from '$lib/stores/stores';
 
 	let { data }: PageProps = $props();
 
@@ -60,6 +62,9 @@
 	const nextPlenarySessionDateStr = $derived(
 		errorToNull(data.nextPlenarDate)?.date_and_time?.toString()
 	);
+	const voteResultUrl = $derived(
+		convertVoteResultFilterToUrl(currentVoteResultFilterStore.value, '', undefined, true)
+	);
 </script>
 
 <svelte:head>
@@ -90,7 +95,7 @@
 		</div>
 		<div class="mt-3">
 			<a
-				href={resolve('/history/votes')}
+				href={voteResultUrl.href}
 				class="group flex w-fit items-center gap-1 text-base text-gray-800 hover:text-black dark:text-gray-300 dark:hover:text-white"
 			>
 				Weitere Abstimmungen

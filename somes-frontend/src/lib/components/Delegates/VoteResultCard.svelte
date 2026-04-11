@@ -15,9 +15,11 @@
 </script>
 
 <a
-	class="mt-2 flex w-full flex-col lg:flex-row lg:items-center lg:justify-between rounded-xl bg-primary-400 p-3 dark:bg-primary-300 transition-colors hover:bg-primary-500 dark:hover:bg-primary-400 {extraClass}"
+	class="mt-2 flex w-full flex-col rounded-xl bg-primary-400 p-3 transition-colors hover:bg-primary-500 lg:flex-row lg:items-center lg:justify-between dark:bg-primary-300 dark:text-black dark:hover:bg-primary-400 {extraClass}"
 	href={voteResult ? createVoteResultPath(voteResult) : undefined}
-	onclick={() => { if (voteResult) currentVoteResultStore.value = voteResult; }}
+	onclick={() => {
+		if (voteResult) currentVoteResultStore.value = voteResult;
+	}}
 >
 	<div class="flex flex-col">
 		{#if loading}

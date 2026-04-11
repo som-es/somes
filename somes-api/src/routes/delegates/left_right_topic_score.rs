@@ -8,16 +8,17 @@ pub async fn extract_left_right_topic_score_by_delegate(
     delegate_id: i32,
 ) -> sqlx::Result<Vec<StanceTopicScore>> {
     let stance_scores = query!(
-        "select 
-            question, answer, is_liberal, is_left, stance_llm, stance, pro_strong_ref_score, contra_strong_ref_score, ref_score, COALESCE(lis.topics, '{}') AS topics 
-        from 
+        "select DISTINCT ON (pa.question_id)
+            question, answer, is_liberal, is_left, stance_llm, stance, pro_strong_ref_score, contra_strong_ref_score, ref_score, COALESCE(lis.topics, '{}') AS topics
+        from
             political_opinions po
         left join
             (select question_id, ARRAY_AGG(topic) as topics from political_questions_topics lq group by question_id) as lis
         on lis.question_id = po.question_id
         join political_answers pa on pa.question_id = po.question_id and pa.delegate_id = po.delegate_id
-        inner join political_questions pq on pq.id = pa.question_id 
-        where po.delegate_id = $1 and model_used = 'gpt4o-mini-de-run'
+        inner join political_questions pq on pq.id = pa.question_id
+        where po.delegate_id = $1
+        order by pa.question_id, created_at DESC
         ",
         delegate_id
     )

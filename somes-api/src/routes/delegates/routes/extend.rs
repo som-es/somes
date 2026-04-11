@@ -4,13 +4,18 @@ use somes_common_lib::{GeneralDelegateInfo, Mandate};
 use sqlx::{query_as, PgPool};
 
 use crate::{
-    PgPoolConnection, RedisConnection, get_json_cache, routes::{
-        DelegateError, delegates::{
+    get_json_cache,
+    routes::{
+        delegates::{
             left_right_topic_score::extract_left_right_topic_score_by_delegate,
             named_votes::extract_named_votes_by_delegate,
             stance_topic_score::extract_stance_topic_score_by_delegate,
-        }, extract_absences_by_delegate, extract_call_to_orders_by_delegate, extract_delegate_qa, extract_detailed_interests_of_delegate, extract_interests_of_delegate, extract_issued_proposals_by_delegate, extract_political_position
-    }
+        },
+        extract_absences_by_delegate, extract_call_to_orders_by_delegate, extract_delegate_qa,
+        extract_detailed_interests_of_delegate, extract_interests_of_delegate,
+        extract_issued_proposals_by_delegate, extract_political_position, DelegateError,
+    },
+    PgPoolConnection, RedisConnection, IS_PROD,
 };
 
 pub async fn extended_delegate_info_route(
@@ -30,10 +35,12 @@ pub async fn extract_general_delegate_info(
 ) -> sqlx::Result<GeneralDelegateInfo> {
     let key = format!("general_delegate_info_{delegate_id}");
 
-    // let res = get_json_cache::<GeneralDelegateInfo>(redis_con, &key).await;
-    // if let Some(res) = res {
-    //     return Ok(res);
-    // }
+    if *IS_PROD {
+        let res = get_json_cache::<GeneralDelegateInfo>(redis_con, &key).await;
+        if let Some(res) = res {
+            return Ok(res);
+        }
+    }
 
     let start = tokio::time::Instant::now();
     let interests = extract_interests_of_delegate(delegate_id, pg).await?;
@@ -53,7 +60,7 @@ pub async fn extract_general_delegate_info(
     println!("left_right_stances took {:?}", start.elapsed());
     let (stance_topic_influences, stance_topic_scores) =
         extract_stance_topic_score_by_delegate(pg, delegate_id).await?;
-        println!("stance_topic_influences took {:?}", start.elapsed());
+    println!("stance_topic_influences took {:?}", start.elapsed());
     let received_call_to_orders = extract_call_to_orders_by_delegate(delegate_id, pg).await?;
     println!("received_call_to_orders took {:?}", start.elapsed());
     let issued_proposals = extract_issued_proposals_by_delegate(delegate_id, pg).await?;
