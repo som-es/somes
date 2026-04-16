@@ -48,6 +48,7 @@ pub async fn extract_left_right_topic_score_by_delegate(
             continue;
         };
 
+        log::info!("stance_score: {stance_score:?}");
         for topic in &stance_score.topics.unwrap_or_default() {
             topics_scores
                 .entry(topic.to_string())

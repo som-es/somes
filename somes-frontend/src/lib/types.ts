@@ -493,6 +493,7 @@ export interface VoteResultFilter {
 	date_from: string | null;
 	date_to: string | null;
 	issuer_parties: string[] | null;
+	is_from_governemnt: boolean | null;
 }
 
 export interface DelegateFilter {

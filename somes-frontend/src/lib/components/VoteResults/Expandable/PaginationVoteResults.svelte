@@ -127,7 +127,8 @@
 		GenericFilterGroup<string>,
 		GenericFilterGroup<boolean>,
 		GenericFilterGroup<string>,
-		GenericFilterGroup<string>
+		GenericFilterGroup<string>,
+		GenericFilterGroup<boolean>
 	] = $state([
 		{
 			title: 'notwendige Mehrheit',
@@ -199,6 +200,17 @@
 			advanced: false,
 			id: 'issuerParties',
 			options: []
+		},
+		{
+			title: 'Von Regierung',
+			activeValue: undefined,
+			hidden: false,
+			advanced: true,
+			options: [
+				{ title: 'egal', value: undefined },
+				{ title: 'Ja', value: true },
+				{ title: 'Nein', value: false }
+			]
 		}
 	]);
 
@@ -267,6 +279,9 @@
 			if (maybeStoredFilter.issuer_parties !== null) {
 				selectedIssuerParties = [...maybeStoredFilter.issuer_parties];
 			}
+			if (maybeStoredFilter.is_from_governemnt !== null) {
+				genericFilters[7].activeValue = maybeStoredFilter.is_from_governemnt;
+			}
 		}
 	});
 
@@ -295,7 +310,9 @@
 			party_votes: partyVotesFilter.length > 0 ? partyVotesFilter : null,
 			date_from: genericFilters[5].data?.dateFrom || null,
 			date_to: genericFilters[5].data?.dateTo || null,
-			issuer_parties: selectedIssuerParties.length > 0 ? selectedIssuerParties : null
+			issuer_parties: selectedIssuerParties.length > 0 ? selectedIssuerParties : null,
+			is_from_governemnt:
+				genericFilters[7].activeValue === undefined ? null : genericFilters[7].activeValue
 		};
 
 		const nextUrl = convertVoteResultFilterToUrl(
@@ -484,12 +501,14 @@
 							<span>Alle Parteien</span>
 						{/if}
 					</div>
-					<span class="block w-4 mr-2 [&>svg]:fill-primary-400 [&>svg]:stroke-primary-400">{@html upDownArrowIcon}</span>
+					<span class="mr-2 block w-4 [&>svg]:fill-primary-400 [&>svg]:stroke-primary-400"
+						>{@html upDownArrowIcon}</span
+					>
 				</Select.Trigger>
 				<Select.Portal>
 					<Select.Content
 						class="z-500 max-h-60 w-[200px] overflow-hidden rounded-xl border border-gray-200 bg-surface-100 shadow-lg dark:bg-surface-500"
-					align="start"
+						align="start"
 					>
 						<Select.Viewport class="p-1">
 							{#each uniqueParties as party}
@@ -500,7 +519,10 @@
 								>
 									{#snippet children({ selected })}
 										<div class="flex items-center gap-2">
-											<div class="h-3 w-3 rounded-full" style="background-color: {party.color};"></div>
+											<div
+												class="h-3 w-3 rounded-full"
+												style="background-color: {party.color};"
+											></div>
 											{party.name}
 										</div>
 										{#if selected}
