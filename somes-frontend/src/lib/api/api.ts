@@ -23,7 +23,8 @@ import type {
 	GovPropFilter,
 	GovProposalsWithMaxPage,
 	GeneralGovOfficialInfo,
-	DelegatesWithMaxPage
+	DelegatesWithMaxPage,
+	PartyStates
 } from '../types';
 
 // const address = 'https://somes.at';
@@ -79,7 +80,11 @@ export async function fetchSavely<T>(fn: () => Promise<Response>): Promise<T | H
 	}
 }
 
-export async function justPost<T>(route: string, body: any, country = 'at/'): Promise<T | HasError> {
+export async function justPost<T>(
+	route: string,
+	body: any,
+	country = 'at/'
+): Promise<T | HasError> {
 	return fetchSavely(() =>
 		fetch(`${url}${country}${route}`, {
 			method: 'POST',
@@ -94,7 +99,11 @@ export async function justPostStatistics<T>(route: string, body: any): Promise<T
 	return justPost(`v1/statistics/${route}`, body);
 }
 
-export async function getWithRoute<T>(route: string, country = 'at/', fetcher: typeof fetch = fetch): Promise<T | HasError> {
+export async function getWithRoute<T>(
+	route: string,
+	country = 'at/',
+	fetcher: typeof fetch = fetch
+): Promise<T | HasError> {
 	return fetchSavely(() =>
 		fetcher(`${url}${country}${route}`, {
 			method: 'GET',
@@ -106,7 +115,9 @@ export async function getWithRoute<T>(route: string, country = 'at/', fetcher: t
 	);
 }
 
-export async function seats(fetcher: typeof fetch = fetch): Promise<Map<string, number[]> | HasError> {
+export async function seats(
+	fetcher: typeof fetch = fetch
+): Promise<Map<string, number[]> | HasError> {
 	const response = await getWithRoute<{ [key: string]: number[] }>('seats', 'at/', fetcher);
 
 	if ('error' in response) {
@@ -124,23 +135,36 @@ export async function parties(): Promise<Party[] | HasError> {
 	return getWithRoute('parties');
 }
 
-export async function parties_per_gp(fetcher: typeof fetch = fetch): Promise<Record<string, Party[]> | HasError> {
-	return getWithRoute('parties_per_gp', "at/", fetcher);
+export async function parties_per_gp(
+	fetcher: typeof fetch = fetch
+): Promise<Record<string, Party[]> | HasError> {
+	return getWithRoute('parties_per_gp', 'at/', fetcher);
+}
+
+export async function coalition_parties_per_gp(
+	fetcher: typeof fetch = fetch
+): Promise<Record<string, PartyStates> | HasError> {
+	return getWithRoute('coalition_parties_per_gp', 'at/', fetcher);
 }
 
 export async function delegates(): Promise<Delegate[] | HasError> {
 	return getWithRoute<Delegate[]>('v1/delegates/all_active');
 }
 
-export async function latest_vote_results(fetcher: typeof fetch = fetch): Promise<VoteResult[] | HasError> {
-	return getWithRoute<VoteResult[]>('v1/vote_results/latest', "at/", fetcher);
+export async function latest_vote_results(
+	fetcher: typeof fetch = fetch
+): Promise<VoteResult[] | HasError> {
+	return getWithRoute<VoteResult[]>('v1/vote_results/latest', 'at/', fetcher);
 }
 
 export async function all_gps(): Promise<LegisPeriod[] | HasError> {
 	return getWithRoute<LegisPeriod[]>('all_gps');
 }
 
-export async function delegate_by_id(delegate_id: number, fetcher: typeof fetch = fetch): Promise<Delegate | HasError> {
+export async function delegate_by_id(
+	delegate_id: number,
+	fetcher: typeof fetch = fetch
+): Promise<Delegate | HasError> {
 	return getWithRoute<Delegate>(`v1/delegates/id/${delegate_id}`, 'at/', fetcher);
 }
 
@@ -158,7 +182,10 @@ export async function delegate_qa(delegate_id: number): Promise<DelegateQA[] | H
 	return getWithRoute<DelegateQA[]>(`v1/delegates/delegate_qa/${delegate_id}`);
 }
 
-export async function vote_result_by_id(vote_result_id: string, fetcher: typeof fetch = fetch): Promise<VoteResult | HasError> {
+export async function vote_result_by_id(
+	vote_result_id: string,
+	fetcher: typeof fetch = fetch
+): Promise<VoteResult | HasError> {
 	return getWithRoute<VoteResult>(`v1/vote_results/id/${vote_result_id}`, 'at/', fetcher);
 }
 
@@ -168,14 +195,14 @@ export async function vote_result_by_path(
 	inr: string,
 	fetcher: typeof fetch = fetch
 ): Promise<VoteResult | HasError> {
-	return getWithRoute<VoteResult>(`v1/vote_results/${gp}/${ityp}/${inr}`, "at/", fetcher);
+	return getWithRoute<VoteResult>(`v1/vote_results/${gp}/${ityp}/${inr}`, 'at/', fetcher);
 }
 
 export async function delegates_at(
 	date_at: string,
 	fetcher: typeof fetch = fetch
 ): Promise<Delegate[] | HasError> {
-	return getWithRoute(`v1/delegates/all_at_date?at=${date_at}`, "at/", fetcher);
+	return getWithRoute(`v1/delegates/all_at_date?at=${date_at}`, 'at/', fetcher);
 }
 
 export async function delegates_search_persons(
@@ -193,10 +220,10 @@ export async function delegates_search_persons(
 	if (name) query += `&search=${encodeURIComponent(name)}`;
 
 	searchPeriods.forEach((searchPeriod, i) => {
-		const gps = onlyGov ? (onlyGov ? "active_gov_gps" : "active_nr_gps") : "active_gps";
-		query += `&${gps}[in][${i}]=${encodeURIComponent(searchPeriod)}`
+		const gps = onlyGov ? (onlyGov ? 'active_gov_gps' : 'active_nr_gps') : 'active_gps';
+		query += `&${gps}[in][${i}]=${encodeURIComponent(searchPeriod)}`;
 	});
-	
+
 	searchParties.forEach((party, i) => {
 		if (mindPreviousPartyMembership) {
 			query += `&mandates[0][party][in][${i}]=${encodeURIComponent(party)}`;
@@ -206,11 +233,11 @@ export async function delegates_search_persons(
 	});
 
 	if (onlyGov !== null) {
-		query += `&mandates[0][is_gov_official][eq]=${onlyGov}`
+		query += `&mandates[0][is_gov_official][eq]=${onlyGov}`;
 	}
-	
+
 	if (hasActiveMandate !== null) {
-		query += `&is_active[eq]=${hasActiveMandate}`
+		query += `&is_active[eq]=${hasActiveMandate}`;
 	}
 
 	return getWithRoute<DelegatesWithMaxPage>(query, 'at/', fetcher);
@@ -220,7 +247,7 @@ export async function gov_officials_at(
 	date_at: string,
 	fetcher: typeof fetch = fetch
 ): Promise<Delegate[] | HasError> {
-	return getWithRoute(`v1/delegates/gov_officials/all_at_date?at=${date_at}`, "at/", fetcher);
+	return getWithRoute(`v1/delegates/gov_officials/all_at_date?at=${date_at}`, 'at/', fetcher);
 }
 
 export async function gov_proposals_by_official(
@@ -239,13 +266,13 @@ export async function latest_ministrial_proposals(
 	days: number,
 	fetcher: typeof fetch = fetch
 ): Promise<GovProposalDelegate[] | HasError> {
-	return getWithRoute(`v1/gov_proposals/latest?days=${days}`, "at/", fetcher);
+	return getWithRoute(`v1/gov_proposals/latest?days=${days}`, 'at/', fetcher);
 }
 export async function latest_decrees(
 	days: number,
 	fetcher: typeof fetch = fetch
 ): Promise<Decree[] | HasError> {
-	return getWithRoute(`v1/decrees/latest?days=${days}`, "at/", fetcher);
+	return getWithRoute(`v1/decrees/latest?days=${days}`, 'at/', fetcher);
 }
 
 export async function speeches_by_delegate_per_page(
@@ -263,7 +290,9 @@ export async function delegates_with_seats_near_date(
 	fetcher: typeof fetch = fetch
 ): Promise<Delegate[] | HasError> {
 	return getWithRoute<Delegate[]>(
-		`v1/delegates/all_at_date_with_seat_info?at=${date_at}&period=${gp}`, "at/", fetcher
+		`v1/delegates/all_at_date_with_seat_info?at=${date_at}&period=${gp}`,
+		'at/',
+		fetcher
 	);
 }
 
@@ -276,7 +305,7 @@ export async function get_topics(): Promise<UniqueTopic[] | HasError> {
 }
 
 export async function walo_questions(): Promise<WaloQuestion[] | HasError> {
-	return getWithRoute<WaloQuestion[]>('walo_questions', "");
+	return getWithRoute<WaloQuestion[]>('walo_questions', '');
 }
 
 export async function vote_results_per_page(
@@ -294,15 +323,15 @@ export async function gov_proposals_per_page(
 }
 
 export async function departments_per_gp(
-	fetcher: typeof fetch = fetch,
+	fetcher: typeof fetch = fetch
 ): Promise<Record<string, string[]> | HasError> {
-	return getWithRoute(`departments_per_gp`, "at/", fetcher);
+	return getWithRoute(`departments_per_gp`, 'at/', fetcher);
 }
 export async function gov_proposals_by_search(
 	query: string,
-	fetcher: typeof fetch = fetch,
+	fetcher: typeof fetch = fetch
 ): Promise<GovProposalsWithMaxPage | HasError> {
-	return getWithRoute(`v1/gov_proposals/search?${query}`, "at/", fetcher);
+	return getWithRoute(`v1/gov_proposals/search?${query}`, 'at/', fetcher);
 }
 
 export async function vote_results_by_search(
@@ -317,5 +346,5 @@ export async function vote_results_by_query_search(
 	query: string,
 	fetcher: typeof fetch = fetch
 ): Promise<VoteResultsWithMaxPage | HasError> {
-	return getWithRoute(`v1/vote_results/search?${query}`, "at/", fetcher);
+	return getWithRoute(`v1/vote_results/search?${query}`, 'at/', fetcher);
 }

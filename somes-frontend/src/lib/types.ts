@@ -288,6 +288,11 @@ export interface Party {
 	code: string;
 }
 
+export interface PartyStates {
+	opposition_parties: Party[];
+	coalition_parties: Party[];
+}
+
 export interface HasError {
 	error: string;
 	error_type: string;
@@ -494,6 +499,7 @@ export interface VoteResultFilter {
 	date_to: string | null;
 	issuer_parties: string[] | null;
 	is_from_governemnt: boolean | null;
+	issuer_association: boolean | null;
 }
 
 export interface DelegateFilter {
