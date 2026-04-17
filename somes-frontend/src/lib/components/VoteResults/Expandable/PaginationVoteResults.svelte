@@ -1,5 +1,11 @@
 <script lang="ts">
-	import type { VoteResultFilter, VoteResultsWithMaxPage, Party, PartyStates } from '$lib/types';
+	import type {
+		VoteResultFilter,
+		VoteResultsWithMaxPage,
+		Party,
+		PartyStates,
+		UniqueTopic
+	} from '$lib/types';
 	import { onMount, untrack } from 'svelte';
 
 	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
@@ -22,6 +28,7 @@
 	import MultiValuesFilter from '$lib/components/Filtering/MultiValuesFilter.svelte';
 	import DateRangeSnippet from '$lib/components/Filtering/GenericFilterSnippets/DataRangeSnippet.svelte';
 	import FilterGroup from '$lib/components/Filtering/FilterGroup.svelte';
+	import { cachedUserTopics } from '$lib/caching/user_topics_cache.svelte';
 
 	interface Props {
 		voteResults: VoteResultsWithMaxPage | null;
@@ -399,10 +406,11 @@
 	};
 
 	let topics: string[] = $state([]);
-
+	let userTopics: UniqueTopic[] | null = null;
 	onMount(async () => {
 		update();
 
+		userTopics = await cachedUserTopics();
 		// Generic filter - Legislative period
 		const fetchedPeriods = await cachedAllLegisPeriods();
 		if (fetchedPeriods) {
@@ -537,7 +545,19 @@
 			</Popover.Root>
 		{/if}
 		<!-- Themen Filter -->
-		<MultiValuesFilter title="Themen" bind:selectedValues={selectedTopics} values={topics} />
+		<MultiValuesFilter title="Themen" bind:selectedValues={selectedTopics} values={topics}>
+			{#snippet prefillSnippet()}
+				{#if userTopics !== null}
+					<button
+						onclick={() =>
+							(selectedTopics = new SvelteSet(userTopics?.map((topic) => topic.topic)))}
+						class="badge bg-secondary-500 text-white">Interessen</button
+					>
+				{:else}
+					<span></span>
+				{/if}
+			{/snippet}
+		</MultiValuesFilter>
 		<!-- Generic Filter -->
 		{#snippet dateRangeSnippet()}
 			<DateRangeSnippet
