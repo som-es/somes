@@ -159,7 +159,14 @@
 	}
 
 	$effect(() => {
-		if (!selectedGp || selectedIssuerParties.length == 0) {
+		if (!selectedGp) {
+			issuerAssociation.disabled = true;
+			return;
+		} else {
+			issuerAssociation.disabled = false;
+		}
+
+		if (selectedIssuerParties.length == 0) {
 			return;
 		}
 
