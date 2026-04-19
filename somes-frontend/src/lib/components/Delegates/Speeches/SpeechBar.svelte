@@ -40,6 +40,12 @@
 		voteResult != null && voteResult.votes.length > 0
 			? 'bg-secondary-400'
 			: 'dark:bg-primary-300 bg-primary-400';
+	$: barColor =
+		speech.infavor === true
+			? 'bg-green-600'
+			: speech.infavor === false
+				? 'bg-red-500'
+				: 'bg-gray-400';
 	$: hasVotes = (voteResult?.votes ?? []).length > 0;
 
 	let speechDuration: { mins: number; seconds: number } | null = null;
@@ -49,51 +55,85 @@
 	}
 </script>
 
-<div class="gap-3 mt-5">
-	<div class="entry flex {arrowBackground} justify-between items-center text-black">
+<div class="mt-5">
+	<div class="entry flex bg-primary-100 dark:bg-primary-300 items-stretch text-black overflow-hidden">
+		<div class="w-1.5 shrink-0 {barColor}"></div>
 		{#if voteResult}
 			<div
-				class="border-radius-left spacing-for-left flex dark:bg-primary-300 bg-primary-400 justify-between items-center flex-basis-left"
+				class="flex-1 flex justify-between items-start gap-3 p-3 lg:p-5 min-w-0 cursor-pointer"
+				role="button"
+				tabindex="0"
+				on:click={() => onShowDetails(voteResult)}
+				on:keypress={(e) => (e.key === 'Enter' || e.key === ' ') && onShowDetails(voteResult)}
 			>
-				<div class="flex flex-col">
-					<div class="flex flex-row flex-wrap gap-3 items-center">
-						<div class="text-lg font-bold">{opinion}</div>
-						{#if speechDuration}
-							<div class="flex flex-wrap items-center gap-1">
-								<div title="Rededauer">{@html clockIcon}</div>
-								<div class="text-sm">{speechDuration.mins}min</div>
-								<div class="text-sm">{speechDuration.seconds}s</div>
+				<div class="flex flex-col w-full min-w-0">
+					<div class="flex items-start justify-between gap-2">
+						<div class="flex flex-row flex-wrap gap-3 items-center min-w-0">
+							<div class="text-sm lg:text-lg font-semibold leading-snug">
+								{voteResult.legislative_initiative.title}
 							</div>
-						{/if}
+							<div class="hidden lg:flex gap-2 items-center text-gray-700 dark:text-gray-300">
+								{#if speech.document_url}
+									<a href={speech.document_url} target="_blank" aria-label="Dokument" on:click|stopPropagation>
+										<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H2zM22 4h-7a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h8z"/></svg>
+									</a>
+								{/if}
+								<button on:click={() => onShowDetails(voteResult)} aria-label="Abspielen">
+									<svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9z"/></svg>
+								</button>
+							</div>
+						</div>
+						<svg class="lg:hidden h-4 w-4 text-green-600 shrink-0 mt-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
 					</div>
-					<div>{voteResult.legislative_initiative.description}</div>
+					<div class="mt-1 text-[10px] lg:text-xs text-gray-600 dark:text-gray-300">
+						{voteResult.legislative_initiative.vote_date
+							? new Date(voteResult.legislative_initiative.vote_date).toLocaleDateString('de-AT')
+							: ''}
+					</div>
+					<div class="mt-2 text-[10px] lg:text-base font-normal line-clamp-3 lg:line-clamp-none">
+						Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+					</div>
+					<div class="mt-3 flex items-center justify-between lg:hidden">
+						<button
+							class="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-300"
+							on:click={() => onShowDetails(voteResult)}
+						>
+							Mehr lesen ↓
+						</button>
+						<div class="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+							{#if speech.document_url}
+								<a href={speech.document_url} target="_blank" aria-label="Dokument" on:click|stopPropagation>
+									<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H2zM22 4h-7a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h8z"/></svg>
+								</a>
+							{/if}
+							<button on:click={() => onShowDetails(voteResult)} aria-label="Abspielen">
+								<svg class="h-3 w-3" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9z"/></svg>
+							</button>
+						</div>
+					</div>
 				</div>
-
+				<svg class="hidden lg:block self-center h-7 w-7 text-green-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
 				{#if hasVotes}
-					<button
-						class="max-sm:hidden z-20 w-30 bg-primary-100 dark:bg-primary-300 rounded-md"
-						on:click={() => onShowDetails(voteResult)}
-					>
+					<button class="hidden" on:click={() => onShowDetails(voteResult)}>
 						<VoteParliament2 {voteResult} preview={true} />
 					</button>
+					<button class="hidden" on:click={() => onShowDetails(voteResult)}>
+						{@html rightArrowIcon}
+					</button>
+				{/if}
+				{#if speechDuration}
+					<div class="hidden">
+						{@html clockIcon}
+						{speechDuration.mins}min {speechDuration.seconds}s
+					</div>
 				{/if}
 			</div>
-
-			{#if hasVotes}
-				<button class="spacing-for-right" on:click={() => onShowDetails(voteResult)}>
-					{@html rightArrowIcon}
-				</button>
-			{/if}
 		{:else if loadingVoteResult}
-			<ExpandablePlaceholder class="min-w-7xl w-7xl" />
+			<ExpandablePlaceholder class="flex-1" />
 		{:else if speech.about}
-			<div
-				class="rounded-[0.9rem] spacing-for-left flex dark:bg-primary-300 bg-primary-400 justify-between items-center flex-basis-left"
-			>
-				<div class="flex flex-col">
-					<div class="text-lg font-bold">{opinion}</div>
-					<div>{speech.about}</div>
-				</div>
+			<div class="flex-1 p-5 flex flex-col gap-1">
+				<div class="text-sm lg:text-lg font-semibold">{opinion}</div>
+				<div class="text-[10px] lg:text-base">{speech.about}</div>
 			</div>
 		{/if}
 		<!--
