@@ -7,10 +7,9 @@
 
 	interface Props {
 		namedVotes: NamedVote[];
-		delegateId: number;
 	}
 
-	let { namedVotes, delegateId }: Props = $props();
+	let { namedVotes }: Props = $props();
 
 	const ENTRIES = 14;
 	

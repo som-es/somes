@@ -44,6 +44,7 @@
 	import PoliticalStanceTitleBar from '$lib/components/Delegates/Spectrum/PoliticalStanceTitleBar.svelte';
 	import DecreePreview from '$lib/components/Delegates/Decrees/DecreePreview.svelte';
 	import IssuedProposalPreview from '$lib/components/Delegates/IssuedProposal/IssuedProposalPreview.svelte';
+	import MandatesPreview from '$lib/components/Delegates/Mandates/MandatesPreview.svelte';
 	import { goto, replaceState } from '$app/navigation';
 	import type { PageProps } from './$types';
 	import downArrowIcon from '$lib/assets/misc_icons/down-arrow.svg?raw';
@@ -991,9 +992,9 @@
 		{/if}
 
 		<!-- Letzte namentliche Abstimmungen -->
-		{#if generalDelegateInfo?.named_votes && delegate && generalDelegateInfo?.named_votes.length > 0}
+		{#if generalDelegateInfo?.named_votes && generalDelegateInfo?.named_votes.length > 0}
 			<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
-				<NamedVotePreview delegateId={delegate.id} namedVotes={generalDelegateInfo.named_votes} />
+				<NamedVotePreview namedVotes={generalDelegateInfo.named_votes} />
 			</div>
 		{:else if generalDelegateInfo?.absences == null || !delegate}
 			<ExpandablePlaceholder />
@@ -1001,11 +1002,21 @@
 		{/if}
 
 		<!-- Letzte eingebrachte Anträge -->
-		{#if generalDelegateInfo?.issued_proposals && delegate && generalDelegateInfo.issued_proposals.length > 0}
+		{#if generalDelegateInfo?.issued_proposals && generalDelegateInfo.issued_proposals.length > 0}
 			<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
-				<IssuedProposalPreview delegateId={delegate.id} issuedProposals={generalDelegateInfo.issued_proposals} />
+				<IssuedProposalPreview issuedProposals={generalDelegateInfo.issued_proposals} />
 			</div>
 		{:else if generalDelegateInfo?.issued_proposals == null || !delegate}
+			<ExpandablePlaceholder />
+			<ExpandablePlaceholder />
+		{/if}
+
+		<!-- Mandateninformation -->
+		{#if delegate?.mandates}
+			<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
+				<MandatesPreview mandates={delegate.mandates} {periods} gender={delegate.gender} />
+			</div>
+		{:else if !delegate}
 			<ExpandablePlaceholder />
 			<ExpandablePlaceholder />
 		{/if}

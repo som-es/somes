@@ -6,10 +6,9 @@
 
 	interface Props {
 		namedVotes: NamedVote[];
-		delegateId: number;
 	}
 
-	let { namedVotes, delegateId }: Props = $props();
+	let { namedVotes }: Props = $props();
 
 	let previewNamedVotes = $derived(namedVotes.slice(0, 2));
 </script>
@@ -26,7 +25,7 @@
 			</h2>
 		</div>
 		<ExtendInfoDialog title="Alle anzeigen">
-			<NamedVoteModal {delegateId} {namedVotes} />
+			<NamedVoteModal {namedVotes} />
 		</ExtendInfoDialog>
 	</div>
 </div>

@@ -6,10 +6,9 @@
 
 	interface Props {
 		issuedProposals: IssuedProposal[];
-		delegateId: number;
 	}
 
-	let { issuedProposals, delegateId }: Props = $props();
+	let { issuedProposals }: Props = $props();
 
 	let previewProposals = $derived(issuedProposals.slice(0, 2));
 </script>
