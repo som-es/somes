@@ -395,6 +395,10 @@
 			}
 
 			if (delegate && prevSelectedDelegateId != delegate.id) {
+				const newFilter = { ...maybeCurrentDelegateFilter };
+				newFilter.search_value = delegate.name;
+				currentDelegateFilterStore.value = newFilter;
+
 				generalDelegateInfo = null;
 				general_delegate_info(delegate.id).then((res) => {
 					generalDelegateInfo = errorToNull(res);

@@ -3,6 +3,7 @@
 	import { dashDateToDotDate } from '$lib/date';
 	import { onMount } from 'svelte';
 	import { Popover, Portal } from 'bits-ui';
+	import calendarIcon from '$lib/assets/icons/calendar.svg?raw';
 
 	interface Props {
 		// };
@@ -18,55 +19,65 @@
 		return (nextDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
 	});
 
-	let hours: number | null = $derived(days == null ? null : days < 1 ? Math.round(days * 24) : null);
+	let hours: number | null = $derived(
+		days == null ? null : days < 1 ? Math.round(days * 24) : null
+	);
 </script>
 
 <div
-	class="mt-3 flex items-center gap-4 bg-primary-300 dark:bg-primary-500 p-3 rounded-xl justify-between w-full flex-wrap shadow-md"
+	class="mt-3 flex w-full flex-wrap items-center justify-between gap-4 rounded-xl bg-primary-300 p-3 shadow-md dark:bg-primary-500"
 >
-	<div>
-		<div class="text-xl font-bold">Nächste Nationalratssitzung</div>
-		<span class="text-base text-gray-800 dark:text-gray-200"
-			>am
-			{#if nextPlenarySessionDateStr}
-				{dashDateToDotDate(nextPlenarySessionDateStr.toString().split('T')[0])}
-				<span>
-					{#if hours}
-						(in {hours} Stunden)
-					{:else if days}
-						(in {#if days == 1}
-							1 Tag)
-						{:else}
-							{Math.round(days)} Tagen)
+	<div class="flex">
+		<div class="w-12 mr-2 flex items-center justify-center">
+			<div class="h-8 w-8">
+				{@html calendarIcon}
+			</div>
+		</div>
+
+		<div class="items-center gap-2">
+			<div class="text-xl font-bold">Nächste Nationalratssitzung</div>
+			<span class="text-base text-gray-800 dark:text-gray-200"
+				>am
+				{#if nextPlenarySessionDateStr}
+					{dashDateToDotDate(nextPlenarySessionDateStr.toString().split('T')[0])}
+					<span>
+						{#if hours}
+							(in {hours} Stunden)
+						{:else if days}
+							(in {#if days == 1}
+								1 Tag)
+							{:else}
+								{Math.round(days)} Tagen)
+							{/if}
 						{/if}
-					{/if}
-				</span>
-			{/if}
-		</span>
+					</span>
+				{/if}
+			</span>
+		</div>
 	</div>
 	<Popover.Root>
 		<!-- ToDo: Does currently not show Calendar on mobile as it is not responsive -->
 		<Popover.Trigger
-			class="rounded-input bg-dark inline-flex
-			text-background shadow-mini hover:bg-dark/95 h-10 select-none items-center justify-center whitespace-nowrap px-[21px] text-[15px] font-medium transition-all hover:cursor-pointer active:scale-[0.98]"
+			class="rounded-input bg-dark text-background
+			shadow-mini hover:bg-dark/95 inline-flex h-10 items-center justify-center px-[21px] text-[15px] font-medium whitespace-nowrap transition-all select-none hover:cursor-pointer active:scale-[0.98]"
 		>
-			<span class="btn bg-primary-500 dark:bg-surface-500 text-white preset-filled mt-1">
+			<span class="preset-filled mt-1 btn bg-primary-500 text-white dark:bg-surface-500">
 				Sitzungskalender
 			</span>
 		</Popover.Trigger>
 		<Popover.Portal>
 			<Popover.Content
 				class="
-				data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 
-				data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 
-				z-50  mt-3 "
+				z-50 mt-3 data-[state=closed]:animate-out 
+				data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in 
+				data-[state=open]:fade-in-0  data-[state=open]:zoom-in-95 "
 			>
 				<PlenarCalendar />
 			</Popover.Content>
 		</Popover.Portal>
-  </Popover.Root>	
+	</Popover.Root>
 
-<!-- 
+	<!-- 
 	<div class="z-40 max-w-sm:min-w-[34rem] sm: md:min-w-3xl" data-popup="plenarCalendar">
 	</div> -->
 </div>

@@ -401,14 +401,14 @@
 
 			<!-- Danger Zone Card -->
 			<div
-				class="mt-7 w-full rounded-xl border border-error-300 bg-error-50 p-4 dark:border-error-500 dark:bg-error-900/20"
+				class="mt-7 w-full rounded-xl border border-red-300 bg-red-50 p-4 dark:border-red-500 dark:bg-red-900/20"
 			>
-				<h2 class="text-xl font-bold text-error-700 dark:text-error-400">Gefahrenbereich</h2>
+				<h2 class="text-xl font-bold text-red-700 dark:text-red-400">Gefahrenbereich</h2>
 				<p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
 					Diese Aktion kann nicht rückgängig gemacht werden.
 				</p>
 				<div class="mt-3">
-					<SButton class="bg-error-500 text-white hover:bg-error-600" onclick={handleDeleteAccount}>
+					<SButton class="bg-red-500 text-white hover:bg-red-600" onclick={handleDeleteAccount}>
 						Account löschen
 					</SButton>
 				</div>

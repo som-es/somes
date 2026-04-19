@@ -362,7 +362,7 @@
 											}
 										}
 									}}
-									class="w-14 p-2"
+									class="w-8 {legisInitFavos.has(+voteResult.legislative_initiative.id) ? 'text-yellow-500' : 'text-gray-400 hover:text-yellow-500'}"
 								>
 									{@html legisInitFavos.has(+voteResult.legislative_initiative.id)
 										? starFilled
