@@ -112,7 +112,7 @@
 						</div>
 					</div>
 				</div>
-				<svg class="hidden lg:block self-center h-7 w-7 text-green-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+				<svg class="hidden lg:block self-start h-7 w-7 text-green-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
 				{#if hasVotes}
 					<button class="hidden" on:click={() => onShowDetails(voteResult)}>
 						<VoteParliament2 {voteResult} preview={true} />
