@@ -747,7 +747,7 @@
 					</Popover.Trigger>
 					<!-- LegisPeriod Filter PopUp -->
 					<Popover.Portal>
-						<Popover.Content class="z-[1000]">
+						<Popover.Content class="z-[1000]" sideOffset={5} align="start" side="bottom">
 							<div
 								class="relative top-1 w-auto max-w-[96vw] rounded-xl border border-gray-300 bg-surface-50 px-6 pt-4 pb-5 shadow-lg dark:bg-surface-600"
 								data-popup="popupLegisPeriod"
@@ -892,8 +892,8 @@
 		<!----------------------------------------->
 		<!-- Delegat Card  (only Mobile / Table) -->
 		<!----------------------------------------->
-		<div class="flex sm:hidden w-full justify-center rounded-xl bg-primary-300 p-3">
-			<div class="w-full">
+		<div class="flex lg:hidden w-full justify-center rounded-xl bg-primary-300 p-3">
+			<div class="w-full sm:w-100">
 				{#if delegate}
 					<DelegateCard {delegate} questions={generalDelegateInfo?.delegate_qa ?? []} showQA />
 				{/if}

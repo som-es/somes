@@ -59,7 +59,7 @@
 		<!-- ToDo: Does currently not show Calendar on mobile as it is not responsive -->
 		<Popover.Trigger
 			class="rounded-input bg-dark text-background
-			shadow-mini hover:bg-dark/95 inline-flex h-10 items-center justify-center px-[21px] text-[15px] font-medium whitespace-nowrap transition-all select-none hover:cursor-pointer active:scale-[0.98]"
+			shadow-mini hover:bg-dark/95 inline-flex h-10 items-center justify-center sm:px-[21px] text-[15px] font-medium whitespace-nowrap transition-all select-none hover:cursor-pointer active:scale-[0.98]"
 		>
 			<span class="preset-filled mt-1 btn bg-primary-500 text-white dark:bg-surface-500">
 				Sitzungskalender
