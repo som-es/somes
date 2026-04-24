@@ -1,4 +1,4 @@
-import type { DelegateFavo, LegisPeriod } from './types';
+import type { LegisPeriod } from './types';
 
 export function dashDateToDotDate(date: string): string {
 	const dateParts = date.split('-');
