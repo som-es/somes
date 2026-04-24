@@ -20,5 +20,5 @@ export function isEntryNew(date: Date) {
 	const diffMs = today.getTime() - date.getTime();
 	const diffDays = Math.abs(diffMs) / (1000 * 60 * 60 * 24);
 
-	return diffDays <= 7;
+	return diffDays <= 10;
 }

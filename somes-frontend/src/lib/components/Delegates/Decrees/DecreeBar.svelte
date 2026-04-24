@@ -5,6 +5,7 @@
 	import { gotoHistory } from '$lib/goto';
 	import { createDecreePath } from './api';
 	import { aiViewEnabledStore } from '$lib/stores/stores';
+	import NewBadge from '$lib/components/UI/NewBadge.svelte';
 
 	interface Props {
 		decree: DecreeDelegate;
@@ -32,9 +33,12 @@
 		tabindex="0"
 		class="entry {coloring} flex items-center justify-between"
 	>
-		<div class="flex flex-col gap-1 min-w-0">
+		<div class="flex w-full flex-col gap-1">
 			{#if aiViewEnabledStore.value && decree.decree.ai_summary}
-				<span class="text-xl font-semibold" style="hyphens: auto; word-break: normal; overflow-wrap: break-word;">
+				<span
+					class="text-xl font-semibold"
+					style="hyphens: auto; word-break: normal; overflow-wrap: break-word;"
+				>
 					{decree.decree.ai_summary.short_title}
 				</span>
 				<span class="sm:text-md text-sm">
@@ -47,17 +51,22 @@
 			{/if}
 			<!-- <span class="dark:text-white"> -->
 			<!-- </span> -->
-			<div class="mt-2 flex flex-wrap gap-1 md:mt-4">
-				<span class="badge bg-tertiary-400 text-wrap text-black"
-					>{decree.decree.ministrial_issuer}</span
-				>
-				<span class="badge bg-tertiary-400 text-black"
-					>{dashDateToDotDate(decree.decree.publication_date)}</span
-				>
-				<span class="badge bg-tertiary-400 text-black">{decree.decree.gp}</span>
+			<div class="flex items-center justify-between">
+				<div class="mt-2 flex flex-wrap gap-1 md:mt-4">
+					<span class="badge bg-tertiary-400 text-wrap text-black"
+						>{decree.decree.ministrial_issuer}</span
+					>
+					<span class="badge bg-tertiary-400 text-black"
+						>{dashDateToDotDate(decree.decree.publication_date)}</span
+					>
+					<span class="badge bg-tertiary-400 text-black">{decree.decree.gp}</span>
+				</div>
+
+				{#if !showDelegate}
+					<NewBadge date={decree.decree.publication_date} />
+				{/if}
 			</div>
 		</div>
-
 		{#if showDelegate && decree.delegate}
 			<div class="hidden flex-col gap-0 sm:flex">
 				<img
