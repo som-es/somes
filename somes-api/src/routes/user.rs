@@ -45,6 +45,8 @@ pub fn create_user_router() -> Router<AppState> {
         .route(TOPIC_SELECTION, get(user_topic_selection_route))
         .route(SEND_MAIL_INFO, put(update_send_mail_info_route))
         .route(SEND_MAIL_INFO, get(get_send_mail_info_route))
+        .route("/change_email", post(change_mail))
+        .route("/verify_email_change", post(verify_email_change))
         .route("/", get(user_route))
         .nest(BOOKMARK, create_bookmark_router())
 }

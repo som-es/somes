@@ -168,3 +168,11 @@ export async function login(
 ): Promise<JWTInfo | HasError | LoginResponseError> {
 	return justPost('v1/user/login', { email, password, hash_email });
 }
+
+export async function change_email(new_email: string): Promise<any | HasError> {
+	return justPost('v1/user/change_email', { new_email });
+}
+
+export async function verify_email_change(new_email: string, otp: string): Promise<any | HasError> {
+	return postWithAuth('v1/user/verify_email_change', { new_email, otp });
+}

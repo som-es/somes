@@ -10,12 +10,14 @@
 	} from '$lib/api/api';
 	import {
 		addUserTopic,
+		change_email,
 		delete_account,
 		getMailSendInfo,
 		getUser,
 		removeUserTopic,
 		renew_token,
-		updateMailSendInfo
+		updateMailSendInfo,
+		verify_email_change
 	} from '$lib/api/authed';
 	import { cachedDelegateFavos, cachedLegisInitFavos } from '$lib/caching/favos';
 	import { jwtStore } from '$lib/caching/stores/stores.svelte';
@@ -42,6 +44,10 @@
 	import DelegateUserCard from '$lib/components/Delegates/DelegateUserCard.svelte';
 	import MailTopicCard from '$lib/components/UI/MailTopicCard.svelte';
 
+
+
+	const API_BASE = import.meta.env.VITE_API_URL;
+
 	// State with Svelte 5 runes
 	let topics = $state<UniqueTopic[]>([]);
 	let selectedTopics = $state<SvelteSet<number>>(new SvelteSet<number>());
@@ -59,6 +65,9 @@
 	let newEmail = $state('');
 	let otp = $state('');
 	let otpStep = $state(false);
+	let error = $state('');
+	let success = $state('');
+	let sent = $state(false);
 	
 
 	// Filtered topics based on search input
@@ -159,7 +168,7 @@
 	anonymizeEmail = checked;
 
 	// TODO: API call
-	await fetch('/api/user/anonymize-email', {
+	await fetch(`${API_BASE}/api/user/anonymize_email`, {
 		method: 'POST',
 		body: JSON.stringify({ anonymize: checked })
 	});
@@ -168,27 +177,69 @@
 async function changeEmail() {
 	if (!newEmail) return;
 
-	await fetch('/api/user/change-email', {
-		method: 'POST',
-		body: JSON.stringify({ email: newEmail })
-	});
+	error = '';
+	success = '';
+	sent = false;
 
-	otpStep = true; 
+	try {
+		const result = await change_email(newEmail);
+		
+		if (isHasError(result)) {
+			if (result.error.includes('fehlt')) {
+				error = 'E-Mail-Adresse fehlt';
+			} else if (result.error.includes('Fehlerhafte')) {
+				error = 'Fehlerhafte E-Mail-Adresse';
+			} else {
+				error = 'Ein serverseitiger Fehler ist aufgetreten. Es kann nicht fortgefahren werden.';
+			}
+		} else {
+			// Success - OTP sent
+			otpStep = true;
+			sent = true;
+			success = 'An deine E-Mail-Adresse wurde ein One-Time Passwort gesendet.';
+		}
+	} catch (e) {
+		error = 'Ein serverseitiger Fehler ist aufgetreten. Es kann nicht fortgefahren werden.';
+		console.error('Email change error:', e);
+	}
 }
 
 async function verifyOtp() {
-	if (!otp) return;
+	if (!otp || !newEmail) return;
 
-	await fetch('/api/user/verify-email-change', {
-		method: 'POST',
-		body: JSON.stringify({ otp })
-	});
+	error = '';
+	success = '';
 
-	// reset
-	showChangeEmail = false;
-	newEmail = '';
-	otp = '';
-	otpStep = false;
+	try {
+		const result = await verify_email_change(newEmail, otp);
+
+		if (isHasError(result)) {
+			error = 'Ein serverseitiger Fehler ist aufgetreten.';
+			return;
+		}
+
+		if (result.access_token) {
+			jwtStore.value = result.access_token;
+			user = getUserFromJwt(result.access_token)
+		}
+
+		extendedUser = errorToNull(await getUser());
+
+		success = 'E-Mail-Adresse erfolgreich geändert.';
+
+		setTimeout(() => {
+			showChangeEmail = false;
+			newEmail = '';
+			otp = '';
+			otpStep = false;
+			error = '';
+			success = '';
+		}, 1500);
+
+	} catch (e) {
+		error = 'Ein serverseitiger Fehler ist aufgetreten.';
+		console.error(e);
+	}
 }
 </script>
 
@@ -316,12 +367,28 @@ async function verifyOtp() {
 										newEmail = '';
 										otp = '';
 										otpStep = false;
+										error = '';
+										success = '';
+										sent = false;
 									}}
 								>
 									Abbrechen
 								</SButton>
 							</div>
 						</div>
+
+						<!-- Success and Error Messages -->
+						{#if sent && success}
+							<div
+								class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700"
+							>
+								{success}
+							</div>
+						{/if}
+
+						{#if error}
+							<p class="text-sm text-red-500">{error}</p>
+						{/if}
 					{/if}
 				</div>
 			</div>
