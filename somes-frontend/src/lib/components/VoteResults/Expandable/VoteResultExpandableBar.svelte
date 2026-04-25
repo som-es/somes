@@ -14,10 +14,16 @@
 	interface Props {
 		voteResult: VoteResult;
 		class?: any;
+		coloring?: string;
 		unexpandable?: boolean;
 	}
 
-	let { voteResult, class: clazz, unexpandable = false }: Props = $props();
+	let {
+		voteResult,
+		class: clazz,
+		coloring = 'bg-primary-300 dark:bg-primary-500',
+		unexpandable = false
+	}: Props = $props();
 
 	function onShowDetails() {
 		currentVoteResultStore.value = voteResult;
@@ -43,7 +49,7 @@
 		onkeypress={toggleOpen}
 		role="button"
 		tabindex="0"
-		class="entry block bg-primary-300 dark:bg-primary-500"
+		class="entry block {coloring}"
 	>
 		<div class="flex">
 			<div class="flex w-full flex-wrap items-start justify-between gap-2 lg:flex-nowrap">

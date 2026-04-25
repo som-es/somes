@@ -44,7 +44,7 @@ pub async fn get_user_from_mail_sqlx(
     match maybe_user {
         Some(user) => Ok(Some(user)),
         None => {
-            let hashed_email = hash_password(stored_mail).map_err(|_| UserError::Hashing)?;
+            let hashed_email = hash_password(stored_mail, false).map_err(|_| UserError::Hashing)?;
             Ok(query_as!(
                 User,
                 "select id, email, is_email_hashed, is_admin from somes_user where email = $1",
@@ -125,7 +125,7 @@ pub async fn login(
                         }
                         None => {
                             let stored_email = if login_info.hash_email.unwrap_or_default() {
-                                hash_password(&login_info.email)
+                                hash_password(&login_info.email, false)
                                     .map_err(|_| UserError::Hashing)
                                     .unwrap()
                             } else {
@@ -162,7 +162,7 @@ pub async fn login(
     } else {
         let otp = generate_otp();
 
-        let otp_hash = hash_password(&otp).map_err(|_| UserError::Hashing)?;
+        let otp_hash = hash_password(&otp, true).map_err(|_| UserError::Hashing)?;
 
         if let Err(e) = redis_con.set::<_, _, ()>(&stored_email, &otp_hash).await {
             log::error!("Failed setting email key to otp! Error: {e}");

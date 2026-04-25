@@ -28,9 +28,11 @@
 		</Dialog.Close>
 	</div>
 
-	{#each currentProposals as issuedProposal}
-		<IssuedProposalBar {issuedProposal} />
-	{/each}
+	<div class="flex flex-col gap-2">
+		{#each currentProposals as issuedProposal (issuedProposal.legis_init_id)}
+			<IssuedProposalBar {issuedProposal} />
+		{/each}
+	</div>
 
 	<div class="float-right">
 		<Pagination bind:dynPage={page} maxPage={Math.ceil(issuedProposals.length / ENTRIES)} />

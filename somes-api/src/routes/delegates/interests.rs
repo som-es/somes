@@ -50,11 +50,11 @@ pub async fn extract_interests_of_delegate(
     pg: &PgPool,
 ) -> sqlx::Result<Vec<InterestShare>> {
     // let absolute_interests_eurovoc_proposals = sqlx::query!("
-    //     select topic,COUNT(*) as talk_count 
-    //     from eurovoc_topics_proposals 
-    //     inner join proposal_delegates on eurovoc_topics_proposals.proposals_id = proposal_delegates.proposal_id 
+    //     select topic,COUNT(*) as talk_count
+    //     from eurovoc_topics_proposals
+    //     inner join proposal_delegates on eurovoc_topics_proposals.proposals_id = proposal_delegates.proposal_id
     //     inner join delegates on delegates.id = delegate_id where delegates.id = $1 and is_receiver=false
-    //     group by topic 
+    //     group by topic
     //     order by topic;
     // ", delegate_id).fetch_all(pg).await?;
 

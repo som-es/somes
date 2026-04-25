@@ -5,6 +5,7 @@
 	import VoteResultCard from '../VoteResultCard.svelte';
 	import checkmarkIcon from '$lib/assets/misc_icons/checkmark_small.svg?raw';
 	import crossmarkIcon from '$lib/assets/misc_icons/crossmark_small.svg?raw';
+	import VoteResultExpandableBar from '$lib/components/VoteResults/Expandable/VoteResultExpandableBar.svelte';
 
 	interface Props {
 		issuedProposal: IssuedProposal;
@@ -25,6 +26,13 @@
 	});
 </script>
 
+{#if !loading && voteResult}
+	<VoteResultExpandableBar
+		{voteResult}
+		coloring="bg-primary-400 dark:bg-primary-300 text-black! "
+	/>
+{/if}
+<!--
 <VoteResultCard {voteResult} {loading}>
 	{#if !loading && voteResult}
 		{#if voteResult.legislative_initiative.accepted === null}
@@ -43,4 +51,4 @@
 			>{@html crossmarkIcon}</span>
 		{/if}
 	{/if}
-</VoteResultCard>
+</VoteResultCard> -->

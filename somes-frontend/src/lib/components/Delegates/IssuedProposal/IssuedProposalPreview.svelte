@@ -29,7 +29,7 @@
 		</ExtendInfoDialog>
 	</div>
 </div>
-<div>
+<div class="mt-5 flex flex-col gap-2">
 	{#each previewProposals as issuedProposal}
 		<IssuedProposalBar {issuedProposal} />
 	{/each}
