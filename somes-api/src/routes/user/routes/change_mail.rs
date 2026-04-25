@@ -69,26 +69,17 @@ pub async fn change_mail(
     RedisConnection(mut redis_con): RedisConnection,
     Json(body): Json<ChangeMailBody>,
 ) -> Result<Json<ChangeMailResponse>, UserError> {
-    println!("DEBUG: change_mail called with email: {}", body.new_email);
-
     let mut sign_up_error = SignUpErrorWrapper::default();
 
     if body.new_email.is_empty() {
-        println!("DEBUG: Email is empty");
         set_error_true!(sign_up_error, missing_email);
     }
 
     if !EMAIL_REGEX.is_match(&body.new_email) || body.new_email.len() >= 356 {
-        println!(
-            "DEBUG: Email validation failed - regex match: {}, length: {}",
-            EMAIL_REGEX.is_match(&body.new_email),
-            body.new_email.len()
-        );
         set_error_true!(sign_up_error, invalid_email);
     }
 
     if sign_up_error.is_erroneous {
-        println!("DEBUG: Returning SignUpError");
         return Err(UserError::SignUpError(sign_up_error));
     }
 
@@ -102,7 +93,6 @@ pub async fn change_mail(
         return Err(UserError::WrongOtp);
     } else {
         let otp = generate_otp();
-        println!("OTP: {}", otp);
         let otp_hash = hash_password(&otp).map_err(|_| UserError::Hashing)?;
 
         if let Err(e) = redis_con.set::<_, _, ()>(&stored_email, &otp_hash).await {
@@ -142,10 +132,6 @@ pub async fn verify_email_change(
     claims: Claims,
     Json(body): Json<VerifyEmailChangeBody>,
 ) -> Result<Json<ChangeMailResponse>, UserError> {
-    println!("DEBUG: verify_email_change START");
-    println!("DEBUG: user_id = {}", claims.id);
-    println!("DEBUG: email = {}", body.new_email);
-    println!("DEBUG: otp = {}", body.otp);
 
     if body.new_email.is_empty() || body.otp.is_empty() {
         return Err(UserError::WrongOtp);
@@ -156,7 +142,7 @@ pub async fn verify_email_change(
     let stored_hash = match redis_con.get::<_, String>(&body.new_email).await {
         Ok(v) => v,
         Err(_) => {
-            println!("DEBUG: no redis entry found");
+            log::warn!("No Redis entry found for email: {}", body.new_email);
             return Err(UserError::WrongOtp);
         }
     };
@@ -164,7 +150,7 @@ pub async fn verify_email_change(
     let is_valid = verify_password(&input_otp, &stored_hash).map_err(|_| UserError::Hashing)?;
 
     if !is_valid {
-        println!("DEBUG: otp invalid");
+        log::warn!("Invalid OTP for email: {}", body.new_email);
         return Err(UserError::WrongOtp);
     }
 
@@ -185,16 +171,12 @@ pub async fn verify_email_change(
     .execute(&pg)
     .await
     .map_err(|e| {
-        println!("SQL ERROR: {:?}", e);
+        log::error!("Failed to update email for user {}: {:?}", user.id, e);
         UserError::UserCreationError
     })?;
 
-    println!("DEBUG: email updated");
-
-   let Json(jwt_info) = create_access_token(user.id, body.new_email.clone(), user.is_admin)
-    .map_err(UserError::AuthError)?;
-
-    println!("DEBUG: email updated + jwt created");
+    let Json(jwt_info) = create_access_token(user.id, body.new_email.clone(), user.is_admin)
+        .map_err(UserError::AuthError)?;
 
     Ok(Json(ChangeMailResponse {
         success: true,
