@@ -136,7 +136,7 @@ export interface Speech {
 	document_url: string | null;
 	about: string | null;
 	duration_in_seconds: number | null;
-	legis_init_id: number | null;
+	vote_result_ids: number[] | null;
 }
 
 export interface SpeechesWithMaxPage {
