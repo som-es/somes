@@ -1,6 +1,5 @@
 use axum::Json;
 use once_cell::sync::Lazy;
-use rand::Rng;
 use redis::AsyncCommands;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
@@ -8,26 +7,12 @@ use somes_common_lib::set_error_true;
 use sqlx::PgPool;
 
 use crate::{
-    email::send_otp_mail,
-    hash::{hash_password, verify_password},
+    hash::verify_password,
     jwt::{create_access_token, Claims},
     model::User,
-    routes::{SignUpErrorWrapper, UserError},
-    PgPoolConnection, RedisConnection, EMAIL_EXPIRATION_SECONDS,
+    routes::{send_otp, SignUpErrorWrapper, UserError},
+    PgPoolConnection, RedisConnection,
 };
-
-fn generate_otp() -> String {
-    let mut rng = rand::rng();
-    (0..9)
-        .map(|_| {
-            if rng.random_range(0f32..1f32) > 0.2 {
-                rng.random_range('A'..='Z')
-            } else {
-                rng.random_range('0'..='9')
-            }
-        })
-        .collect()
-}
 
 pub static EMAIL_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"[^@]+@[^@]+\.[^@]+").expect("Invalid email regex"));
@@ -92,34 +77,7 @@ pub async fn change_mail(
     {
         return Err(UserError::WrongOtp);
     } else {
-        let otp = generate_otp();
-
-        println!("OTP: {}", otp);
-
-        let otp_hash = hash_password(&otp).map_err(|_| UserError::Hashing)?;
-
-        if let Err(e) = redis_con.set::<_, _, ()>(&stored_email, &otp_hash).await {
-            log::error!("Failed setting email key to otp! Error: {e}");
-            return Err(UserError::RedisFailure(e));
-        }
-
-        if let Err(e) = redis_con
-            .expire::<_, ()>(&stored_email, *EMAIL_EXPIRATION_SECONDS as i64)
-            .await
-        {
-            log::error!("Expiration of new user entry could not be set! Error: {e}");
-            redis_con
-                .unlink::<_, i32>(&stored_email)
-                .await
-                .map_err(|_| UserError::UserCreationError)?;
-            return Err(UserError::UserCreationError);
-        }
-
-        tokio::task::spawn_blocking(move || {
-            if let Err(e) = send_otp_mail(&body.new_email, &otp) {
-                log::error!("Error sending verification email: {e:?}");
-            }
-        });
+        send_otp(&mut redis_con, &body.new_email, &stored_email).await?;
     }
 
     Ok(Json(ChangeMailResponse {

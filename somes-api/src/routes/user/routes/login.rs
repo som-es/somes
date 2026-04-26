@@ -55,6 +55,45 @@ pub async fn get_user_from_mail_sqlx(
         }
     }
 }
+pub async fn send_otp(
+    redis_con: &mut redis::aio::MultiplexedConnection,
+    email: &str,
+    stored_email: &str,
+) -> Result<(), UserError> {
+    let otp = generate_otp();
+
+    println!("OTP: {}", otp);
+
+    let otp_hash = hash_password(&otp, true).map_err(|_| UserError::Hashing)?;
+
+    if let Err(e) = redis_con.set::<_, _, ()>(stored_email, &otp_hash).await {
+        log::error!("Failed setting email key to otp! Error: {e}");
+        return Err(UserError::RedisFailure(e));
+    }
+
+    if let Err(e) = redis_con
+        .expire::<_, ()>(stored_email, *EMAIL_EXPIRATION_SECONDS as i64)
+        .await
+    {
+        log::error!("Expiration of otp could not be set! Error: {e}");
+
+        redis_con
+            .unlink::<_, i32>(stored_email)
+            .await
+            .map_err(|_| UserError::UserCreationError)?;
+
+        return Err(UserError::UserCreationError);
+    }
+
+    let email = email.to_string();
+    tokio::task::spawn_blocking(move || {
+        if let Err(e) = send_otp_mail(&email, &otp) {
+            log::error!("Error sending verification email: {e:?}");
+        }
+    });
+
+    Ok(())
+}
 
 pub static EMAIL_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"[^@]+@[^@]+\.[^@]+").expect("Invalid email regex"));
@@ -160,37 +199,7 @@ pub async fn login(
             }
         }
     } else {
-        let otp = generate_otp();
-
-        println!("OTP: {}", otp);
-
-
-        let otp_hash = hash_password(&otp, true).map_err(|_| UserError::Hashing)?;
-
-        if let Err(e) = redis_con.set::<_, _, ()>(&stored_email, &otp_hash).await {
-            log::error!("Failed setting email key to otp! Error: {e}");
-            return Err(UserError::RedisFailure(e));
-        }
-
-        if let Err(e) = redis_con
-            .expire::<_, ()>(&stored_email, *EMAIL_EXPIRATION_SECONDS as i64)
-            // .expire::<_, ()>(&login_info.email, 120)
-            .await
-        {
-            log::error!("Expiration of new user entry could not be set! Error: {e}");
-            redis_con
-                .unlink::<_, i32>(&stored_email)
-                .await
-                .map_err(|_| UserError::UserCreationError)?;
-            return Err(UserError::UserCreationError);
-        }
-
-        tokio::task::spawn_blocking(move || {
-            // mails need to be encrypted!!! verify id could be grabbed
-            if let Err(e) = send_otp_mail(&login_info.email, &otp) {
-                log::error!("Error sending verification email: {e:?}");
-            }
-        });
+        send_otp(&mut redis_con, &login_info.email, &stored_email).await?;
     }
 
     // check redis

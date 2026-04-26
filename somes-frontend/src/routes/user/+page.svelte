@@ -23,7 +23,6 @@
 	import { cachedDelegateFavos, cachedLegisInitFavos } from '$lib/caching/favos';
 	import { jwtStore } from '$lib/caching/stores/stores.svelte';
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache.svelte';
-	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import SelectableTopics from '$lib/components/Topics/SelectableTopics.svelte';
 	import SButton from '$lib/components/UI/SButton.svelte';
@@ -38,7 +37,7 @@
 		type MailSendInfo,
 		type UniqueTopic
 	} from '$lib/types';
-	import { Switch, Popover, Select } from 'bits-ui';
+	import { Switch } from 'bits-ui';
 	import { onMount } from 'svelte';
 	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
 	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
@@ -47,7 +46,6 @@
 
 
 
-	const API_BASE = import.meta.env.VITE_API_URL;
 
 	// State with Svelte 5 runes
 	let topics = $state<UniqueTopic[]>([]);
@@ -63,6 +61,7 @@
 
 	let anonymizeEmail = $state<boolean>(!!extendedUser?.is_email_hashed);
 	let showChangeEmail = $state(false);
+	let isDeanonymizing = $state(false);
 	let newEmail = $state('');
 	let otp = $state('');
 	let otpStep = $state(false);
@@ -101,6 +100,7 @@
 		user = getUserFromJwt(jwtToken);
 		mailSendInfo = errorToNull(await getMailSendInfo());
 		extendedUser = errorToNull(await getUser());
+		anonymizeEmail = !!extendedUser?.is_email_hashed;
 		favoDelegates = errorToNull(await cachedDelegateFavos(true));
 		favoLegisInits = errorToNull(await cachedLegisInitFavos(true));
 
@@ -166,8 +166,31 @@
 	}
 
 	async function toggleEmailAnonymization(checked: boolean) {
-		anonymizeEmail = checked;
-		await anonymize_email(checked);
+		if (!checked && extendedUser?.is_email_hashed) {
+			showChangeEmail = true;
+			isDeanonymizing = true;
+		} else {
+			anonymizeEmail = checked;
+			const result = await anonymize_email(checked);
+			
+			if (result && !isHasError(result) && result.access_token) {
+				jwtStore.value = result.access_token;
+				user = getUserFromJwt(result.access_token);
+			}
+			
+			extendedUser = errorToNull(await getUser());
+		}
+	}
+
+	function resetEmailDialog() {
+		showChangeEmail = false;
+		isDeanonymizing = false;
+		newEmail = '';
+		otp = '';
+		otpStep = false;
+		error = '';
+		success = '';
+		sent = false;
 	}
 
 async function changeEmail() {
@@ -178,21 +201,51 @@ async function changeEmail() {
 	sent = false;
 
 	try {
-		const result = await change_email(newEmail);
-		
-		if (isHasError(result)) {
-			if (result.error.includes('fehlt')) {
-				error = 'E-Mail-Adresse fehlt';
-			} else if (result.error.includes('Fehlerhafte')) {
-				error = 'Fehlerhafte E-Mail-Adresse';
-			} else {
-				error = 'Ein serverseitiger Fehler ist aufgetreten. Es kann nicht fortgefahren werden.';
+		if (isDeanonymizing) {
+			const result = await anonymize_email(false, newEmail);
+
+			if (isHasError(result)) {
+				error = 'Ein serverseitiger Fehler ist aufgetreten.';
+				return;
 			}
+
+			if (result.requires_otp) {
+				otpStep = true;
+				sent = true;
+				success = result.message || 'OTP wurde gesendet.';
+				return;
+			}
+
+			if (result.access_token) {
+				jwtStore.value = result.access_token;
+				user = getUserFromJwt(result.access_token);
+			}
+
+			extendedUser = errorToNull(await getUser());
+			anonymizeEmail = !!extendedUser?.is_email_hashed;
+
+			success = result.message || 'E-Mail erfolgreich geändert.';
+
+			setTimeout(() => {
+				resetEmailDialog();
+			}, 1500);
 		} else {
-			// Success - OTP sent
-			otpStep = true;
-			sent = true;
-			success = 'An deine E-Mail-Adresse wurde ein One-Time Passwort gesendet.';
+			const result = await change_email(newEmail);
+			
+			if (isHasError(result)) {
+				if (result.error.includes('fehlt')) {
+					error = 'E-Mail-Adresse fehlt';
+				} else if (result.error.includes('Fehlerhafte')) {
+					error = 'Fehlerhafte E-Mail-Adresse';
+				} else {
+					error = 'Ein serverseitiger Fehler ist aufgetreten. Es kann nicht fortgefahren werden.';
+				}
+			} else {
+				// Success - OTP sent
+				otpStep = true;
+				sent = true;
+				success = 'An deine E-Mail-Adresse wurde ein One-Time Passwort gesendet.';
+			}
 		}
 	} catch (e) {
 		error = 'Ein serverseitiger Fehler ist aufgetreten. Es kann nicht fortgefahren werden.';
@@ -220,16 +273,12 @@ async function verifyOtp() {
 		}
 
 		extendedUser = errorToNull(await getUser());
+		anonymizeEmail = !!extendedUser?.is_email_hashed;
 
 		success = 'E-Mail-Adresse erfolgreich geändert.';
 
 		setTimeout(() => {
-			showChangeEmail = false;
-			newEmail = '';
-			otp = '';
-			otpStep = false;
-			error = '';
-			success = '';
+			resetEmailDialog();
 		}, 1500);
 
 	} catch (e) {
@@ -317,7 +366,7 @@ async function verifyOtp() {
 							<!-- EMAIL -->
 							<div class="flex flex-col items-end">
 								<label for="email" class="text-l font-medium text-gray-700">
-									Neue E-Mail
+									{isDeanonymizing ? 'E-Mail-Adresse' : 'Neue E-Mail'}
 								</label>
 								<input
 									id="email"
@@ -348,7 +397,7 @@ async function verifyOtp() {
 							<div class="flex items-end gap-2">
 								{#if !otpStep}
 									<SButton class="bg-secondary-500 text-white" onclick={changeEmail}>
-										Weiter
+										{isDeanonymizing ? 'Entanonymisieren' : 'Weiter'}
 									</SButton>
 								{:else}
 									<SButton class="bg-secondary-500 text-white" onclick={verifyOtp}>
@@ -360,12 +409,12 @@ async function verifyOtp() {
 									class="bg-gray-300"
 									onclick={() => {
 										showChangeEmail = false;
+										isDeanonymizing = false;
 										newEmail = '';
 										otp = '';
 										otpStep = false;
 										error = '';
 										success = '';
-										sent = false;
 									}}
 								>
 									Abbrechen
@@ -431,7 +480,7 @@ async function verifyOtp() {
 					{/if}
 				{:else}
 					<p class="mt-3 text-gray-600 dark:text-gray-300">
-						nicht verfügbar: Anonymisierung durch Mail-Wechsel aufheben
+						nicht verfügbar wenn E-Mail anonymisiert ist
 					</p>
 				{/if}
 			</div>
@@ -471,7 +520,7 @@ async function verifyOtp() {
 									</p>
 								{:else}
 									<!-- Selected topics first -->
-									{#each selectedFilteredTopics as topic}
+									{#each selectedFilteredTopics as topic (topic.id)}
 										<button
 											class="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-primary-100 dark:hover:bg-primary-700"
 											onclick={() => handleTopicToggle(topic)}
@@ -483,7 +532,7 @@ async function verifyOtp() {
 										</button>
 									{/each}
 									<!-- Unselected topics -->
-									{#each unselectedFilteredTopics as topic}
+									{#each unselectedFilteredTopics as topic (topic.id)}
 										<button
 											class="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-primary-100 dark:hover:bg-primary-700"
 											onclick={() => handleTopicToggle(topic)}
@@ -547,15 +596,15 @@ async function verifyOtp() {
 							Keine favorisierten Abstimmungen vorhanden.
 						</p>
 					{:else}
-						{#each favoLegisInits as favoLegisInitId}
-							{#await vote_result_by_id(favoLegisInitId.toString())}
-								<ExpandablePlaceholder class="w-80!" />
-							{:then voteResult}
-								{#if !isHasError(voteResult)}
-									<VoteResultExpandableBar {voteResult} class="mt-1!" />
-								{/if}
-							{/await}
-						{/each}
+						{#each favoLegisInits as favoLegisInitId (favoLegisInitId)}
+	{#await vote_result_by_id(favoLegisInitId.toString())}
+		<ExpandablePlaceholder class="w-80!" />
+	{:then voteResult}
+		{#if !isHasError(voteResult)}
+			<VoteResultExpandableBar {voteResult} class="mt-1!" />
+		{/if}
+	{/await}
+{/each}
 					{/if}
 				{:else}
 					<ExpandablePlaceholder />

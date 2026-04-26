@@ -177,6 +177,6 @@ export async function verify_email_change(new_email: string, otp: string): Promi
 	return postWithAuth('v1/user/verify_email_change', { new_email, otp });
 }
 
-export async function anonymize_email(anonymize: boolean): Promise<any | HasError> {
-	return postWithAuth('v1/user/anonymize_email', { anonymize });
+export async function anonymize_email(anonymize: boolean, email?: string): Promise<any | HasError> {
+	return postWithAuth('v1/user/anonymize_email', { anonymize, email: email || null });
 }
