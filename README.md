@@ -21,3 +21,10 @@ The source code of the somes repository.
 - **[`dataservice`]** different repo - somes software for scraping and storing gathered data (and do some dl with it) 
 
 [`dataservice`]: https://github.com/som-es/dataservice
+
+
+---
+
+## Auto-generated contribution
+
+Added by bounty bot.
