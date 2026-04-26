@@ -1,4 +1,9 @@
-import { parties_per_gp, vote_results_by_query_search, vote_results_by_search } from '$lib/api/api';
+import {
+	coalition_parties_per_gp,
+	parties_per_gp,
+	vote_results_by_query_search,
+	vote_results_by_search
+} from '$lib/api/api';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ fetch, params, setHeaders, url }) => {
@@ -14,11 +19,17 @@ export const load: PageServerLoad = async ({ fetch, params, setHeaders, url }) =
 	}
 	const queryParams = searchParams.toString();
 	const filter = `${queryParams}&is_finished=false`;
-	const voteResults = await vote_results_by_query_search(filter, fetch);
-	const partiesPerGp = await parties_per_gp(fetch);
+
+	const [voteResults, partiesPerGp, coalitionPartiesPerGp] = await Promise.all([
+		vote_results_by_query_search(filter, fetch),
+		parties_per_gp(fetch),
+		coalition_parties_per_gp(fetch)
+	]);
+
 	return {
 		voteResults,
 		partiesPerGp,
+		coalitionPartiesPerGp,
 		selectedGp: searchParams.get('legislative_initiative[gp][in][0]')
 	};
 };

@@ -68,7 +68,11 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
             SELECT
               ROW(
                 delegate_id,
-                legis_init_id,
+                array_remove(ARRAY(
+                    SELECT legis_init_id
+                    FROM plenar_speech_legis_inits
+                    WHERE speech_id = ps.id
+                ), NULL),
                 CASE WHEN opinion = 'Pro' THEN (
                   li.pre_declined_type NOT LIKE '%p%'
                 ) WHEN opinion = 'Contra' THEN (
@@ -84,8 +88,8 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
               JOIN plenar_speech_links psl ON psl.plenar_speech_id = ps.id
               JOIN plenar_speech_legis_inits pl ON pl.speech_id = ps.id
               JOIN debates deb ON deb.id = ps.debate_id
-            WHERE
-              pl.legis_init_id = li.id
+              WHERE
+                pl.legis_init_id = li.id
           ) AS \"speeches: Vec<DbSpeechWithLink>\",
           /* named votes */
           (

@@ -21,9 +21,9 @@
 	});
 
 	$: if (delegateId) {
-		delegate_by_id(delegateId).then(x => {
-			delegate = errorToNull(x)
-		})
+		delegate_by_id(delegateId).then((x) => {
+			delegate = errorToNull(x);
+		});
 	}
 </script>
 

@@ -136,7 +136,7 @@ export interface Speech {
 	document_url: string | null;
 	about: string | null;
 	duration_in_seconds: number | null;
-	legis_init_id: number | null;
+	vote_result_ids: number[] | null;
 }
 
 export interface SpeechesWithMaxPage {
@@ -286,6 +286,11 @@ export interface Party {
 	color: string;
 	fraction: number;
 	code: string;
+}
+
+export interface PartyStates {
+	opposition_parties: Party[];
+	coalition_parties: Party[];
 }
 
 export interface HasError {
@@ -493,6 +498,8 @@ export interface VoteResultFilter {
 	date_from: string | null;
 	date_to: string | null;
 	issuer_parties: string[] | null;
+	is_from_governemnt: boolean | null;
+	issuer_association: boolean | null;
 }
 
 export interface DelegateFilter {

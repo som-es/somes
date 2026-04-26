@@ -61,6 +61,13 @@ export function convertVoteResultFilterToUrl(
 		nextUrl.searchParams.set('date_to', filter.date_to);
 	}
 
+	if (filter.is_from_governemnt !== null) {
+		nextUrl.searchParams.set(
+			`legislative_initiative[doktyp][${filter.is_from_governemnt ? 'in' : 'nin'}][0]`,
+			'RV'
+		);
+	}
+
 	// enforce with frontend => add user sorting
 	if (searchValue.length == 0) {
 		nextUrl.searchParams.set('sort', 'Desc');

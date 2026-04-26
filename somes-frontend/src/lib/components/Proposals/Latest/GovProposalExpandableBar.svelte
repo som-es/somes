@@ -12,10 +12,11 @@
 	import { gotoHistory } from '$lib/goto';
 	import GovProposalExpanded from '../ExpandableAtDelegate/GovProposalExpanded.svelte';
 	import { address, url } from '$lib/api/api';
-	import { dashDateToDotDate } from '$lib/date';
+	import { dashDateToDotDate, isEntryNew } from '$lib/date';
 	import { currentDelegatesAtDateStore, currentGovProposalDelegateStore } from '$lib/stores/stores';
 	import { browser } from '$app/environment';
 	import { createGovProposalPath } from '../types';
+	import NewBadge from '$lib/components/UI/NewBadge.svelte';
 
 	export let govProposal: GovProposalDelegate;
 	export let showDelegate: boolean = false;
@@ -63,7 +64,7 @@
 			</div>
 		</div> -->
 
-			<div class="flex flex-col gap-1 min-w-0">
+			<div class="flex w-full flex-col gap-1">
 				{#if aiViewEnabledStore.value && govProposal.gov_proposal.ai_summary}
 					<span
 						class="text-xl font-semibold"
@@ -77,14 +78,19 @@
 				{:else}
 					<span>{govProposal.gov_proposal.ministrial_proposal.title.split('|')[0]}</span>
 				{/if}
-				<div class="mt-2 flex flex-wrap gap-1 md:mt-4">
-					<span class="badge bg-tertiary-400 text-wrap text-black"
-						>{govProposal.gov_proposal.ministrial_proposal.ressort}</span
-					>
-					<span class="badge bg-tertiary-400 text-black">{date}</span>
-					<span class="badge bg-tertiary-400 text-black"
-						>{govProposal.gov_proposal.ministrial_proposal.gp}</span
-					>
+				<div class="flex items-center justify-between">
+					<div class="mt-2 flex flex-wrap gap-1 md:mt-4">
+						<span class="badge bg-tertiary-400 text-wrap text-black"
+							>{govProposal.gov_proposal.ministrial_proposal.ressort}</span
+						>
+						<span class="badge bg-tertiary-400 text-black">{date}</span>
+						<span class="badge bg-tertiary-400 text-black"
+							>{govProposal.gov_proposal.ministrial_proposal.gp}</span
+						>
+					</div>
+					{#if !showDelegate}
+						<NewBadge date={govProposal.gov_proposal.ministrial_proposal.raw_data_created_at} />
+					{/if}
 				</div>
 			</div>
 			<!-- <div>{voteResult.legislative_initiative.description}</div> -->

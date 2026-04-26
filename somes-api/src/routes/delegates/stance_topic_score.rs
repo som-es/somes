@@ -8,7 +8,7 @@ pub async fn extract_stance_topic_score_by_delegate(
     delegate_id: i32,
 ) -> sqlx::Result<(Vec<StanceTopicInfluences>, Vec<StanceTopicScore>)> {
     let stance_scores = query!(
-        "select
+        "select DISTINCT ON (pa.question_id)
             answer, question, stance_llm, stance, pro_strong_ref_score, contra_strong_ref_score, ref_score, COALESCE(lis.influences, '{}') AS influences, COALESCE(lis.topics, '{}') AS topics
         from
             political_opinions po
@@ -17,7 +17,8 @@ pub async fn extract_stance_topic_score_by_delegate(
         on lis.question_id = po.question_id
         join political_answers pa on pa.question_id = po.question_id and pa.delegate_id = po.delegate_id and pa.id = po.answer_id
         inner join political_questions pq on pq.id = pa.question_id
-        where po.delegate_id = $1 and model_used = 'gpt4o-mini-de-run'
+        where po.delegate_id = $1
+        order by pa.question_id, created_at DESC;
         ",
         delegate_id
     )
@@ -35,7 +36,7 @@ pub async fn extract_stance_topic_score_by_delegate(
                 .iter()
                 .zip(&stance_score.influences.unwrap_or_default())
                 .map(|(topic, influence)| {
-                    let default = if stance_score.stance_llm == "positive" {
+                    let default = if stance_score.stance_llm.to_lowercase().contains("positive") {
                         *influence * stance_score.ref_score.abs()
                     } else if stance_score.stance_llm.to_lowercase().contains("negative") {
                         *influence * stance_score.ref_score.abs() * -1.

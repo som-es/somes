@@ -1,8 +1,9 @@
 <script lang="ts">
 	import type { Speech, SpeechesWithMaxPage } from '$lib/types';
-	import ExtendInfoDialog from '../ExtendInfoDialog.svelte';
+	import { Dialog } from 'bits-ui';
 	import AllSpeechesModal from './AllSpeechesModal.svelte';
 	import SpeechBar from './SpeechBar.svelte';
+	import ExtendInfoDialog from '../ExtendInfoDialog.svelte';
 
 	export let speechesPage0: SpeechesWithMaxPage;
 	export let delegateId: number;
@@ -13,13 +14,13 @@
 <div>
 	<div class="flex items-start justify-between">
 		<div>
-			<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">Letzte Reden</h1>
-
-			<h2 class="text-sm text-primary-600 dark:text-primary-300">
+			<h1 class="text-lg font-semibold text-black xl:text-xl dark:text-white">Letzte Reden</h1>
+			<h2 class="text-sm text-gray-800 dark:text-gray-300">
 				{speechesPage0.entry_count}
 				{speechesPage0.entry_count == 1 ? 'Rede' : 'Reden'} insgesamt
 			</h2>
 		</div>
+
 		<ExtendInfoDialog title="Alle anzeigen">
 			<AllSpeechesModal {delegateId} {speechesPage0} />
 		</ExtendInfoDialog>
@@ -27,8 +28,14 @@
 </div>
 <div>
 	{#each previewSpeeches as speech}
-		<!-- <div class="gap-3 rounded-sm variant-filled my-1">{speech.legislative_initiatives_id} {speech.opinion}</div> -->
 		<SpeechBar {speech}></SpeechBar>
-		<!-- <GovProposalExpandableBar {govProposal} /> -->
 	{/each}
+</div>
+<div class="float-right mt-3 flex items-center gap-4 text-sm text-black dark:text-white">
+	<div class="flex items-center gap-2">
+		<span class="h-2 w-2 rounded-full bg-green-600"></span>Pro
+	</div>
+	<div class="flex items-center gap-2">
+		<span class="h-2 w-2 rounded-full bg-red-500"></span>Contra
+	</div>
 </div>

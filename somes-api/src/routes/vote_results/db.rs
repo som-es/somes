@@ -166,7 +166,10 @@ pub async fn all_votes_from_legis_init(
                 }
             }
             Err(e) => {
-                log::warn!("Error while constructing vote result, skipped in result of it: {e:?}")
+                log::warn!(
+                    "Error while constructing vote result {}, skipped in result of it: {e:?}",
+                    legis_init.id
+                )
             }
         }
     }
@@ -213,27 +216,27 @@ pub async fn named_votes_from_legis_init_sqlx(
     }))
 }
 
-pub async fn speeches_from_legis_init_sqlx(
-    con: &PgPool,
-    legis_init_id: i32,
-) -> sqlx::Result<Vec<DbSpeechWithLink>> {
-    sqlx::query_as!(
-        DbSpeechWithLink,
-        "select
-            null as about, delegate_id, infavor, opinion, document_url, CAST(null AS int) as duration_in_seconds, legislative_initiatives_id as legis_init_id
-        from
-            speeches
-        inner join
-            speeches_html_urls on speeches.id = speeches_html_urls.speech_id
+// pub async fn speeches_from_legis_init_sqlx(
+//     con: &PgPool,
+//     legis_init_id: i32,
+// ) -> sqlx::Result<Vec<DbSpeechWithLink>> {
+//     sqlx::query_as!(
+//         DbSpeechWithLink,
+//         "select
+//             null as about, delegate_id, infavor, opinion, document_url, CAST(null AS int) as duration_in_seconds, legislative_initiatives_id as legis_init_id
+//         from
+//             speeches
+//         inner join
+//             speeches_html_urls on speeches.id = speeches_html_urls.speech_id
 
-        where legislative_initiatives_id = $1
+//         where legislative_initiatives_id = $1
 
-            ;",
-        legis_init_id
-    )
-    .fetch_all(con)
-    .await
-}
+//             ;",
+//         legis_init_id
+//     )
+//     .fetch_all(con)
+//     .await
+// }
 
 pub async fn legis_docs_from_legis_init_sqlx(
     con: &PgPool,

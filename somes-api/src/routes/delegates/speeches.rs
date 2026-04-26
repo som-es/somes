@@ -37,19 +37,36 @@ pub async fn extract_delegate_speeches(
         all_speeches_of_delegate.count.unwrap_or_default(),
         query_as!(
             DbSpeechWithLink,
-            "
-        select duration_in_seconds, delegate_id, about, legis_init_id,     CASE
-        WHEN opinion = 'Pro' THEN true
-        WHEN opinion = 'Contra' THEN false
-        ELSE NULL
-    END AS infavor, opinion, document_url from plenar_speeches
-        INNER JOIN plenar_speech_links ON plenar_speeches.id = plenar_speech_links.plenar_speech_id
-        inner join plenar_speech_legis_inits li on li.speech_id = plenar_speeches.id
-        inner join debates on debates.id = plenar_speeches.debate_id
-        inner join plenar_infos pi on pi.id = debates.plenar_id
-        where delegate_id = $1
-        order by raw_data_created_at desc offset $2 limit $3
-    ",
+            r#"
+            SELECT
+                duration_in_seconds,
+                delegate_id,
+                about,
+                COALESCE(array_remove(array_agg(li.legis_init_id), NULL), ARRAY[]::integer[]) AS "vote_result_ids",
+                CASE
+                    WHEN opinion = 'Pro' THEN true
+                    WHEN opinion = 'Contra' THEN false
+                    ELSE NULL
+                END AS infavor,
+                opinion,
+                document_url
+            FROM plenar_speeches
+            INNER JOIN plenar_speech_links ON plenar_speeches.id = plenar_speech_links.plenar_speech_id
+            INNER JOIN plenar_speech_legis_inits li ON li.speech_id = plenar_speeches.id
+            INNER JOIN debates ON debates.id = plenar_speeches.debate_id
+            INNER JOIN plenar_infos pi ON pi.id = debates.plenar_id
+            WHERE delegate_id = $1
+            GROUP BY
+                plenar_speeches.id,
+                duration_in_seconds,
+                delegate_id,
+                about,
+                opinion,
+                document_url,
+                raw_data_created_at
+            ORDER BY raw_data_created_at DESC
+            OFFSET $2 LIMIT $3
+            "#,
             delegate_id,
             page * page_elements,
             page_elements
@@ -57,6 +74,7 @@ pub async fn extract_delegate_speeches(
         .fetch_all(pg)
         .await?,
     ))
+
     /*
         Ok((all_speeches_of_delegate.count.unwrap_or_default(), query_as!(DbSpeechWithLink, "
             select delegate_id, legislative_initiatives_id, infavor, opinion, document_url from speeches

@@ -13,27 +13,27 @@ pub async fn get_all_gov_props(
     let ministrial_props = sqlx::query_as!(
         DbMinistrialProposalQueryMeta,
         "
-        select 
-            mp.id, 
-            mp.ityp, 
-            mp.gp, 
-            mp.inr, 
-            mp.emphasis, 
-            mp.title, 
-            mp.description, 
-            mp.raw_data_created_at, 
-            mp.raw_data_updated_at, 
-            mp.created_at, 
-            mp.updated_at, 
-            mp.due_to, 
-            mp.ressort, 
-            mp.ressort_shortform, 
-            mp.legis_init_gp, 
-            mp.legis_init_inr, 
+        select
+            mp.id,
+            mp.ityp,
+            mp.gp,
+            mp.inr,
+            mp.emphasis,
+            mp.title,
+            mp.description,
+            mp.raw_data_created_at,
+            mp.raw_data_updated_at,
+            mp.created_at,
+            mp.updated_at,
+            mp.due_to,
+            mp.ressort,
+            mp.ressort_shortform,
+            mp.legis_init_gp,
+            mp.legis_init_inr,
             mp.legis_init_ityp,
             mp.has_vote_result
         from
-            ministrial_proposals as mp 
+            ministrial_proposals as mp
         "
     )
     .fetch_all(con)
@@ -42,10 +42,14 @@ pub async fn get_all_gov_props(
     let mut gov_props_dels = Vec::with_capacity(ministrial_props.len());
 
     for ministrial_prop in ministrial_props {
+        let id = ministrial_prop.id;
         match construct_gov_delegate_proposal(redis_con.clone(), con, ministrial_prop).await {
             Ok(vote_result) => gov_props_dels.push(vote_result),
             Err(e) => {
-                log::warn!("Error while constructing gov proposal, skipped in result of it: {e:?}")
+                log::warn!(
+                    "Error while constructing gov proposal {:?}, skipped in result of it: {e:?}",
+                    id
+                )
             }
         }
     }

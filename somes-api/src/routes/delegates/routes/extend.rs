@@ -15,7 +15,7 @@ use crate::{
         extract_detailed_interests_of_delegate, extract_interests_of_delegate,
         extract_issued_proposals_by_delegate, extract_political_position, DelegateError,
     },
-    PgPoolConnection, RedisConnection,
+    PgPoolConnection, RedisConnection, IS_PROD,
 };
 
 pub async fn extended_delegate_info_route(
@@ -35,10 +35,12 @@ pub async fn extract_general_delegate_info(
 ) -> sqlx::Result<GeneralDelegateInfo> {
     let key = format!("general_delegate_info_{delegate_id}");
 
-    // let res = get_json_cache::<GeneralDelegateInfo>(redis_con, &key).await;
-    // if let Some(res) = res {
-    //     return Ok(res);
-    // }
+    if *IS_PROD {
+        let res = get_json_cache::<GeneralDelegateInfo>(redis_con, &key).await;
+        if let Some(res) = res {
+            return Ok(res);
+        }
+    }
 
     let start = tokio::time::Instant::now();
     let interests = extract_interests_of_delegate(delegate_id, pg).await?;

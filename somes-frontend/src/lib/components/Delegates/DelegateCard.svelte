@@ -90,7 +90,7 @@
 
 <div class="flex h-[calc(100%-1rem)] h-full flex-col card bg-primary-200 p-5 dark:bg-primary-400">
 	<!-- Top Row: Fav button & External Link -->
-	<div class="flex w-full items-center justify-end gap-2">
+	<div class="flex w-full items-center justify-between">
 		<!-- Favorite Button -->
 		{#if delegateFavos}
 			{#if delegateFavos.has(delegate.id)}
@@ -103,7 +103,7 @@
 							delegateFavos = delegateFavos;
 						}
 					}}
-					class="h-6 w-6 text-yellow-500"
+					class="h-5 w-5 text-yellow-500"
 				>
 					{@html starFilled}
 				</button>
@@ -115,7 +115,7 @@
 							delegateFavos = delegateFavos;
 						}
 					}}
-					class="h-6 w-6 text-gray-500 hover:text-yellow-500"
+					class="h-5 w-5 text-gray-400 hover:text-yellow-500"
 				>
 					{@html star}
 				</button>

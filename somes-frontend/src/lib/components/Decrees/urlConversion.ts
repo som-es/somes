@@ -32,6 +32,7 @@ export function convertDecreeFilterToUrl(
 	if (filter.date_to) {
 		nextUrl.searchParams.set('date_to', filter.date_to);
 	}
+
 	// enforce with frontend => add user sorting
 	if (searchValue.length == 0) {
 		nextUrl.searchParams.set('sort', 'Desc');

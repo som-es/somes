@@ -1,5 +1,11 @@
 <script lang="ts">
-	import type { VoteResultFilter, VoteResultsWithMaxPage, Party } from '$lib/types';
+	import type {
+		VoteResultFilter,
+		VoteResultsWithMaxPage,
+		Party,
+		PartyStates,
+		UniqueTopic
+	} from '$lib/types';
 	import { onMount, untrack } from 'svelte';
 
 	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
@@ -8,7 +14,7 @@
 	import Pagination from '$lib/components/Pagination.svelte';
 	import { currentVoteResultFilterStores } from '$lib/stores/stores';
 	import ExpandablePlaceholder from './Placeholders/ExpandablePlaceholder.svelte';
-	import { Popover, Select } from 'bits-ui';
+	import { Popover, Select, ToggleGroup } from 'bits-ui';
 	import upDownArrowIcon from '$lib/assets/misc_icons/up-down-arrow.svg?raw';
 	import checkmark_small from '$lib/assets/misc_icons/checkmark_small.svg?raw';
 	import { SvelteSet } from 'svelte/reactivity';
@@ -21,10 +27,13 @@
 	import { errorToNull, get_eurovoc_topics } from '$lib/api/api';
 	import MultiValuesFilter from '$lib/components/Filtering/MultiValuesFilter.svelte';
 	import DateRangeSnippet from '$lib/components/Filtering/GenericFilterSnippets/DataRangeSnippet.svelte';
+	import FilterGroup from '$lib/components/Filtering/FilterGroup.svelte';
+	import { cachedUserTopics } from '$lib/caching/user_topics_cache.svelte';
 
 	interface Props {
 		voteResults: VoteResultsWithMaxPage | null;
 		partiesPerGp: Record<string, Party[]>;
+		coalitionPartiesPerGp: Record<string, PartyStates>;
 		selectedGp: string | null;
 		isFinished?: boolean;
 		storeIdx?: number;
@@ -39,6 +48,7 @@
 		isFinished = true,
 		voteResults,
 		partiesPerGp,
+		coalitionPartiesPerGp,
 		selectedGp,
 		storeIdx = 0,
 		showPartyFilter = false,
@@ -52,9 +62,6 @@
 
 	// TOPIC FILTER
 	let selectedTopics: SvelteSet<string> = $state(new SvelteSet());
-
-	// ISSUER PARTIES FILTER
-	let selectedIssuerParties: string[] = $state([]);
 
 	// PARTY FILTER - get all parties available in the request
 	// let uniqueParties = $derived([...new Set(dels.map((d) => d.party))].sort());
@@ -119,6 +126,69 @@
 			}))
 	);
 
+	let issuerAssociation: GenericFilterGroup<boolean> = $state({
+		title: 'Lager',
+		activeValue: undefined,
+		hidden: false,
+		options: [
+			{ title: 'egal', value: undefined },
+			{ title: 'Regier.', value: true },
+			{ title: 'Opp.', value: false }
+		]
+	});
+
+	// ISSUER PARTIES FILTER
+	let selectedIssuerParties: string[] = $state([]);
+	$effect(() => {
+		if (!selectedGp) {
+			selectedIssuerParties = [];
+			return;
+		}
+
+		if (issuerAssociation.activeValue !== undefined) {
+			const partyStates = coalitionPartiesPerGp[selectedGp];
+			const activeParties = issuerAssociation.activeValue
+				? partyStates.coalition_parties
+				: partyStates.opposition_parties;
+
+			selectedIssuerParties = activeParties.map((party) => party.name);
+		}
+	});
+
+	function matchesSelection(selection: string[], matchWith: string[]) {
+		if (selection.length != matchWith.length) {
+			return false;
+		}
+		for (let idx = 0; idx < selection.length; idx++) {
+			if (!matchWith.find((val) => val == selection[idx])) return false;
+		}
+		return true;
+	}
+
+	$effect(() => {
+		if (!selectedGp) {
+			issuerAssociation.disabled = true;
+			return;
+		} else {
+			issuerAssociation.disabled = false;
+		}
+
+		if (selectedIssuerParties.length == 0) {
+			return;
+		}
+
+		const partyStates = coalitionPartiesPerGp[selectedGp];
+		const coalitionParties = partyStates.coalition_parties.map((party) => party.name);
+		const oppositionParties = partyStates.opposition_parties.map((party) => party.name);
+		if (matchesSelection(coalitionParties, selectedIssuerParties)) {
+			issuerAssociation.activeValue = true;
+		} else if (matchesSelection(oppositionParties, selectedIssuerParties)) {
+			issuerAssociation.activeValue = false;
+		} else {
+			issuerAssociation.activeValue = undefined;
+		}
+	});
+
 	// GENERIC FILTER - storage and render format
 	let genericFilters: [
 		GenericFilterGroup<boolean>,
@@ -127,7 +197,8 @@
 		GenericFilterGroup<string>,
 		GenericFilterGroup<boolean>,
 		GenericFilterGroup<string>,
-		GenericFilterGroup<string>
+		GenericFilterGroup<string>,
+		GenericFilterGroup<boolean>
 	] = $state([
 		{
 			title: 'notwendige Mehrheit',
@@ -199,6 +270,17 @@
 			advanced: false,
 			id: 'issuerParties',
 			options: []
+		},
+		{
+			title: 'Von Regierung',
+			activeValue: undefined,
+			hidden: false,
+			advanced: true,
+			options: [
+				{ title: 'egal', value: undefined },
+				{ title: 'Ja', value: true },
+				{ title: 'Nein', value: false }
+			]
 		}
 	]);
 
@@ -267,6 +349,9 @@
 			if (maybeStoredFilter.issuer_parties !== null) {
 				selectedIssuerParties = [...maybeStoredFilter.issuer_parties];
 			}
+			if (maybeStoredFilter.issuer_association !== null) {
+				issuerAssociation.activeValue = maybeStoredFilter.issuer_association;
+			}
 		}
 	});
 
@@ -295,7 +380,11 @@
 			party_votes: partyVotesFilter.length > 0 ? partyVotesFilter : null,
 			date_from: genericFilters[5].data?.dateFrom || null,
 			date_to: genericFilters[5].data?.dateTo || null,
-			issuer_parties: selectedIssuerParties.length > 0 ? selectedIssuerParties : null
+			issuer_parties: selectedIssuerParties.length > 0 ? selectedIssuerParties : null,
+			is_from_governemnt:
+				genericFilters[7].activeValue === undefined ? null : genericFilters[7].activeValue,
+			issuer_association:
+				issuerAssociation.activeValue === undefined ? null : issuerAssociation.activeValue
 		};
 
 		const nextUrl = convertVoteResultFilterToUrl(
@@ -317,10 +406,11 @@
 	};
 
 	let topics: string[] = $state([]);
-
+	let userTopics: UniqueTopic[] | null = null;
 	onMount(async () => {
 		update();
 
+		userTopics = await cachedUserTopics();
 		// Generic filter - Legislative period
 		const fetchedPeriods = await cachedAllLegisPeriods();
 		if (fetchedPeriods) {
@@ -455,7 +545,19 @@
 			</Popover.Root>
 		{/if}
 		<!-- Themen Filter -->
-		<MultiValuesFilter title="Themen" bind:selectedValues={selectedTopics} values={topics} />
+		<MultiValuesFilter title="Themen" bind:selectedValues={selectedTopics} values={topics}>
+			{#snippet prefillSnippet()}
+				{#if userTopics !== null}
+					<button
+						onclick={() =>
+							(selectedTopics = new SvelteSet(userTopics?.map((topic) => topic.topic)))}
+						class="badge bg-secondary-500 text-white">Interessen</button
+					>
+				{:else}
+					<span></span>
+				{/if}
+			{/snippet}
+		</MultiValuesFilter>
 		<!-- Generic Filter -->
 		{#snippet dateRangeSnippet()}
 			<DateRangeSnippet
@@ -464,57 +566,80 @@
 			/>
 		{/snippet}
 		{#snippet issuerPartiesSnippet()}
-			<Select.Root
-				type="multiple"
-				bind:value={selectedIssuerParties}
-				items={uniqueParties.map((p) => ({ value: p.name, label: p.name }))}
-			>
-				<Select.Trigger
-					class="mt-1 flex w-full touch-manipulation items-center justify-between gap-1 rounded-xl border-2 border-primary-300 px-2 py-1 text-sm dark:border-primary-400"
-				>
-					<div class="flex items-center gap-2">
-						{#each selectedIssuerPartiesObjects.slice(0, 1) as party}
-							<div class="h-3 w-3 rounded-full" style="background-color: {party.color};"></div>
-							<span class="truncate">{party.name}</span>
-						{/each}
-						{#if selectedIssuerParties.length > 1}
-							<span class="truncate">+{selectedIssuerParties.length - 1} weitere</span>
-						{/if}
-						{#if selectedIssuerParties.length === 0}
-							<span>Alle Parteien</span>
-						{/if}
-					</div>
-					<span class="block w-4 mr-2 [&>svg]:fill-primary-400 [&>svg]:stroke-primary-400">{@html upDownArrowIcon}</span>
-				</Select.Trigger>
-				<Select.Portal>
-					<Select.Content
-						class="z-500 max-h-60 w-[200px] overflow-hidden rounded-xl border border-gray-200 bg-surface-100 shadow-lg dark:bg-surface-500"
-					align="start"
-					>
-						<Select.Viewport class="p-1">
-							{#each uniqueParties as party}
-								<Select.Item
-									class="flex h-10 w-full cursor-pointer justify-between rounded-lg py-3 pr-1.5 pl-3 text-sm transition-all duration-75 outline-none select-none data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-400"
-									value={party.name}
-									label={party.name}
+			<div class="mt-4 first:mt-0">
+				<div class="flex flex-row items-center justify-center gap-3">
+					<!-- 3-State Switch for Government / Any / Opposition -->
+					<FilterGroup bind:group={issuerAssociation} />
+
+					<div class="flex w-full flex-col">
+						<span class="text-base font-semibold text-gray-800 dark:text-gray-50"
+							>Eingebracht von</span
+						>
+						<Select.Root
+							type="multiple"
+							bind:value={selectedIssuerParties}
+							onValueChange={() => {
+								issuerAssociation.activeValue = undefined;
+							}}
+							items={uniqueParties.map((p) => ({ value: p.name, label: p.name }))}
+						>
+							<Select.Trigger
+								class="mt-1 flex w-full touch-manipulation items-center justify-between gap-1 rounded-xl border-2 border-primary-300 px-2 py-1 text-sm dark:border-primary-400"
+							>
+								<div class="flex items-center gap-2">
+									{#each selectedIssuerPartiesObjects.slice(0, 1) as party}
+										<div
+											class="h-3 w-3 rounded-full"
+											style="background-color: {party.color};"
+										></div>
+										<span class="truncate">{party.name}</span>
+									{/each}
+									{#if selectedIssuerParties.length > 1}
+										<span class="truncate">+{selectedIssuerParties.length - 1} weitere</span>
+									{/if}
+									{#if selectedIssuerParties.length === 0}
+										<span>Alle Parteien</span>
+									{/if}
+								</div>
+								<span class="mr-2 block w-4 [&>svg]:fill-primary-400 [&>svg]:stroke-primary-400"
+									>{@html upDownArrowIcon}</span
 								>
-									{#snippet children({ selected })}
-										<div class="flex items-center gap-2">
-											<div class="h-3 w-3 rounded-full" style="background-color: {party.color};"></div>
-											{party.name}
-										</div>
-										{#if selected}
-											<div class="ml-auto h-4 stroke-black dark:stroke-white">
-												{@html checkmark_small}
-											</div>
-										{/if}
-									{/snippet}
-								</Select.Item>
-							{/each}
-						</Select.Viewport>
-					</Select.Content>
-				</Select.Portal>
-			</Select.Root>
+							</Select.Trigger>
+							<Select.Portal>
+								<Select.Content
+									class="z-500 max-h-60 w-[200px] overflow-hidden rounded-xl border border-gray-200 bg-surface-100 shadow-lg dark:bg-surface-500"
+									align="start"
+								>
+									<Select.Viewport class="p-1">
+										{#each uniqueParties as party}
+											<Select.Item
+												class="flex h-10 w-full cursor-pointer justify-between rounded-lg py-3 pr-1.5 pl-3 text-sm transition-all duration-75 outline-none select-none data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-400"
+												value={party.name}
+												label={party.name}
+											>
+												{#snippet children({ selected })}
+													<div class="flex items-center gap-2">
+														<div
+															class="h-3 w-3 rounded-full"
+															style="background-color: {party.color};"
+														></div>
+														{party.name}
+													</div>
+													{#if selected}
+														<div class="ml-auto h-4 stroke-black dark:stroke-white">
+															{@html checkmark_small}
+														</div>
+													{/if}
+												{/snippet}
+											</Select.Item>
+										{/each}
+									</Select.Viewport>
+								</Select.Content>
+							</Select.Portal>
+						</Select.Root>
+					</div>
+				</div>
+			</div>
 		{/snippet}
 		<GenericFilters
 			bind:genericFilters

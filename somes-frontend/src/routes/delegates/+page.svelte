@@ -43,6 +43,8 @@
 	import LeftRightChart from '$lib/components/Delegates/Spectrum/Stance/LeftRightChart.svelte';
 	import PoliticalStanceTitleBar from '$lib/components/Delegates/Spectrum/PoliticalStanceTitleBar.svelte';
 	import DecreePreview from '$lib/components/Delegates/Decrees/DecreePreview.svelte';
+	import IssuedProposalPreview from '$lib/components/Delegates/IssuedProposal/IssuedProposalPreview.svelte';
+	import MandatesPreview from '$lib/components/Delegates/Mandates/MandatesPreview.svelte';
 	import { goto, replaceState } from '$app/navigation';
 	import type { PageProps } from './$types';
 	import downArrowIcon from '$lib/assets/misc_icons/down-arrow.svg?raw';
@@ -393,6 +395,10 @@
 			}
 
 			if (delegate && prevSelectedDelegateId != delegate.id) {
+				const newFilter = { ...maybeCurrentDelegateFilter };
+				newFilter.search_value = delegate.name;
+				currentDelegateFilterStore.value = newFilter;
+
 				generalDelegateInfo = null;
 				general_delegate_info(delegate.id).then((res) => {
 					generalDelegateInfo = errorToNull(res);
@@ -741,7 +747,7 @@
 					</Popover.Trigger>
 					<!-- LegisPeriod Filter PopUp -->
 					<Popover.Portal>
-						<Popover.Content class="z-[1000]">
+						<Popover.Content class="z-[1000]" sideOffset={5} align="start" side="bottom">
 							<div
 								class="relative top-1 w-auto max-w-[96vw] rounded-xl border border-gray-300 bg-surface-50 px-6 pt-4 pb-5 shadow-lg dark:bg-surface-600"
 								data-popup="popupLegisPeriod"
@@ -886,8 +892,8 @@
 		<!----------------------------------------->
 		<!-- Delegat Card  (only Mobile / Table) -->
 		<!----------------------------------------->
-		<div class="flex sm:hidden w-full justify-center rounded-xl bg-primary-300 p-3">
-			<div class="w-full">
+		<div class="flex lg:hidden w-full justify-center rounded-xl bg-primary-300 p-3">
+			<div class="w-full sm:w-100">
 				{#if delegate}
 					<DelegateCard {delegate} questions={generalDelegateInfo?.delegate_qa ?? []} showQA />
 				{/if}
@@ -979,6 +985,7 @@
 			</div>
 		</div>
 
+		<!-- Letzte Reden -->
 		{#if speechesPage0 && delegate && speechesPage0.speeches.length > 0}
 			<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
 				<SpeechesPreview delegateId={delegate.id} {speechesPage0} />
@@ -988,14 +995,37 @@
 			<ExpandablePlaceholder />
 		{/if}
 
-		{#if generalDelegateInfo?.named_votes && delegate && generalDelegateInfo?.named_votes.length > 0}
+		<!-- Letzte namentliche Abstimmungen -->
+		{#if generalDelegateInfo?.named_votes && generalDelegateInfo?.named_votes.length > 0}
 			<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
-				<NamedVotePreview delegateId={delegate.id} namedVotes={generalDelegateInfo.named_votes} />
+				<NamedVotePreview namedVotes={generalDelegateInfo.named_votes} />
 			</div>
 		{:else if generalDelegateInfo?.absences == null || !delegate}
 			<ExpandablePlaceholder />
 			<ExpandablePlaceholder />
 		{/if}
+
+		<!-- Letzte eingebrachte Anträge -->
+		{#if generalDelegateInfo?.issued_proposals && generalDelegateInfo.issued_proposals.length > 0}
+			<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
+				<IssuedProposalPreview issuedProposals={generalDelegateInfo.issued_proposals} />
+			</div>
+		{:else if generalDelegateInfo?.issued_proposals == null || !delegate}
+			<ExpandablePlaceholder />
+			<ExpandablePlaceholder />
+		{/if}
+
+		<!-- Mandateninformation -->
+		{#if delegate?.mandates}
+			<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
+				<MandatesPreview mandates={delegate.mandates} {periods} gender={delegate.gender} />
+			</div>
+		{:else if !delegate}
+			<ExpandablePlaceholder />
+			<ExpandablePlaceholder />
+		{/if}
+
+		<!--  -->
 
 		<!-- <div class="flex gap-2 w-full">
 		<ExpandablePlaceholder class={'my-3 w-full min-w-full'} />
