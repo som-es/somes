@@ -42,7 +42,7 @@ pub async fn extract_delegate_speeches(
                 duration_in_seconds,
                 delegate_id,
                 about,
-                COALESCE(array_agg(li.legis_init_id), ARRAY[]::integer[]) AS "vote_result_ids!",
+                COALESCE(array_remove(array_agg(li.legis_init_id), NULL), ARRAY[]::integer[]) AS "vote_result_ids",
                 CASE
                     WHEN opinion = 'Pro' THEN true
                     WHEN opinion = 'Contra' THEN false

@@ -166,7 +166,10 @@ pub async fn all_votes_from_legis_init(
                 }
             }
             Err(e) => {
-                log::warn!("Error while constructing vote result, skipped in result of it: {e:?}")
+                log::warn!(
+                    "Error while constructing vote result {}, skipped in result of it: {e:?}",
+                    legis_init.id
+                )
             }
         }
     }

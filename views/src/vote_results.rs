@@ -68,11 +68,11 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
             SELECT
               ROW(
                 delegate_id,
-                ARRAY(
+                array_remove(ARRAY(
                     SELECT legis_init_id
                     FROM plenar_speech_legis_inits
                     WHERE speech_id = ps.id
-                ),
+                ), NULL),
                 CASE WHEN opinion = 'Pro' THEN (
                   li.pre_declined_type NOT LIKE '%p%'
                 ) WHEN opinion = 'Contra' THEN (
