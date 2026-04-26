@@ -176,3 +176,7 @@ export async function change_email(new_email: string): Promise<any | HasError> {
 export async function verify_email_change(new_email: string, otp: string): Promise<any | HasError> {
 	return postWithAuth('v1/user/verify_email_change', { new_email, otp });
 }
+
+export async function anonymize_email(anonymize: boolean): Promise<any | HasError> {
+	return postWithAuth('v1/user/anonymize_email', { anonymize });
+}

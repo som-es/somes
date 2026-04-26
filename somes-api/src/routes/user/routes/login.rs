@@ -162,6 +162,8 @@ pub async fn login(
     } else {
         let otp = generate_otp();
 
+        println!("OTP: {}", otp);
+
         let otp_hash = hash_password(&otp).map_err(|_| UserError::Hashing)?;
 
         if let Err(e) = redis_con.set::<_, _, ()>(&stored_email, &otp_hash).await {

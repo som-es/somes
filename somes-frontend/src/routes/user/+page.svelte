@@ -10,6 +10,7 @@
 	} from '$lib/api/api';
 	import {
 		addUserTopic,
+		anonymize_email,
 		change_email,
 		delete_account,
 		getMailSendInfo,
@@ -165,14 +166,9 @@
 	}
 
 	async function toggleEmailAnonymization(checked: boolean) {
-	anonymizeEmail = checked;
-
-	// TODO: API call
-	await fetch(`${API_BASE}/api/user/anonymize_email`, {
-		method: 'POST',
-		body: JSON.stringify({ anonymize: checked })
-	});
-}
+		anonymizeEmail = checked;
+		await anonymize_email(checked);
+	}
 
 async function changeEmail() {
 	if (!newEmail) return;
