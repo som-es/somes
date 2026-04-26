@@ -40,9 +40,7 @@ pub async fn construct_gov_delegate_proposal(
     pg: &PgPool,
     ministrial_proposal: DbMinistrialProposalQueryMeta,
 ) -> sqlx::Result<GovProposalDelegate> {
-    let gov_proposal = construct_gov_proposal(redis_con.clone(), &pg, ministrial_proposal)
-        .await
-        .unwrap();
+    let gov_proposal = construct_gov_proposal(redis_con.clone(), &pg, ministrial_proposal).await?;
     let mut delegates = vec![];
     for ministerial_issuer in gov_proposal.ministerial_issuers.as_deref().unwrap_or(&[]) {
         let delegate = delegate_by_id_sqlx(*ministerial_issuer, &pg, &mut redis_con).await?;
