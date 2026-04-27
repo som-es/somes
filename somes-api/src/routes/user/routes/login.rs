@@ -62,8 +62,6 @@ pub async fn send_otp(
 ) -> Result<(), UserError> {
     let otp = generate_otp();
 
-    println!("OTP: {}", otp);
-
     let otp_hash = hash_password(&otp, true).map_err(|_| UserError::Hashing)?;
 
     if let Err(e) = redis_con.set::<_, _, ()>(stored_email, &otp_hash).await {
@@ -177,7 +175,6 @@ pub async fn login(
                                 false
                             };
 
-                            // create new user
                             let id = sqlx::query!(
                                 "insert into somes_user(email, is_email_hashed, is_admin) values ($1, $2, $3) returning id",
                                 &stored_email, login_info.hash_email.unwrap_or_default(), is_admin

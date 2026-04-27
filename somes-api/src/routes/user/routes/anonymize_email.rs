@@ -30,10 +30,7 @@ pub async fn anonymize_email(
     RedisConnection(mut redis_con): RedisConnection,
     Json(body): Json<AnonymizeEmailBody>,
 ) -> Result<Json<AnonymizeEmailResponse>, UserError> {
-    println!(
-        "Anonymize email request: {:?} {} - {}",
-        body, claims.id, claims.sub
-    );
+
 
     let current_user = sqlx::query_as!(
         User,
