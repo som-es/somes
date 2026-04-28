@@ -26,7 +26,7 @@ pub use events::*;
 pub use parties::*;
 pub use quiz::*;
 pub use save_email::*;
-pub use statistics::*;
+pub use statistics::create_statistics_router;
 pub use topics::*;
 pub use user::*;
 pub use verify::*;

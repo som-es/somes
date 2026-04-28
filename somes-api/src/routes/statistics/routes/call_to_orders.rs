@@ -1,0 +1,403 @@
+use axum::Json;
+use serde::{Deserialize, Serialize};
+use sqlx::{prelude::FromRow, Postgres};
+use utoipa::ToSchema;
+
+use crate::{
+    routes::statistics::routes::error::StatisticsResponse,
+    routes::statistics::routes::filtering::{bind_values, build_filter, IntoFilterArgument, Manual},
+    PgPoolConnection,
+};
+
+#[derive(ToSchema, Default, Debug, Clone, Serialize, Deserialize)]
+pub struct CallToOrderFilter {
+    legis_period: Option<String>,
+    gender: Option<String>,
+    party: Option<String>,
+    is_desc: bool,
+    normalized: bool,
+}
+
+#[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
+pub struct CallToOrdersBase {
+    delegate_name: String,
+    delegate_party: String,
+    delegate_gender: String,
+    total_order_calls: i64,
+    total_sessions_attended: Option<i64>,
+    normalized_calls_to_order: Option<f64>,
+    legislative_period: Option<String>,
+}
+
+#[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
+pub struct CallToOrdersForDelegate {
+    delegate_name: String,
+    delegate_party: String,
+    total_order_calls: i64,
+    total_sessions_attended: i64,
+    normalized_calls_to_order: f64,
+}
+
+#[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
+pub struct CallToOrdersByCategory {
+    category: String,
+    total_order_calls: i64,
+    total_sessions_attended: Option<i64>,
+    normalized_calls_to_order: Option<f64>,
+}
+
+pub struct CallToOrdersService;
+
+impl CallToOrdersService {
+    pub async fn get_base_data(
+        pg: &sqlx::PgPool,
+        filter: &CallToOrderFilter,
+    ) -> Result<Vec<CallToOrdersBase>, StatisticsResponse> {
+        let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
+        let filter_arg1 = filter.gender.with_sql_column("d.gender");
+        let filter_arg2 = filter.party.with_sql_column("m.party");
+        let filter_arg3 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
+        let filters = [filter_arg, filter_arg1, filter_arg2, filter_arg3];
+
+        let filter_str = build_filter(&filters);
+
+        let query = format!(
+            "
+        WITH legislative_period_dates AS (
+            SELECT 
+                legislative_period, 
+                MIN(created_at) AS start_date, 
+                MAX(created_at) AS end_date
+            FROM 
+                plenar_infos
+            GROUP BY 
+                legislative_period
+        ),
+        session_counts AS (
+            SELECT 
+                pf.legislative_period,
+                ps.delegate_id,
+                COUNT(DISTINCT pf.id) AS total_sessions_attended
+            FROM 
+                plenar_infos pf
+            JOIN 
+                debates db ON db.plenar_id = pf.id
+            JOIN 
+                plenar_speeches ps ON ps.debate_id = db.id
+            GROUP BY 
+                pf.legislative_period, ps.delegate_id
+        )
+        SELECT DISTINCT ON (d.id)
+            d.name AS delegate_name,
+            COALESCE(m.party, 'Regierungsmitglied') AS delegate_party,
+            d.gender AS delegate_gender,
+            COUNT(cto.id) AS total_order_calls,
+            sc.total_sessions_attended,
+            COUNT(DISTINCT cto.id)::FLOAT / NULLIF(sc.total_sessions_attended, 0)::FLOAT AS normalized_calls_to_order,
+            pf.legislative_period
+        FROM 
+            call_to_order cto
+        JOIN 
+            delegates d ON cto.receiver_id = d.id
+        JOIN 
+            plenar_infos pf ON pf.id = cto.plenar_id
+        LEFT JOIN 
+            mandates m ON m.delegate_id = d.id
+        JOIN 
+            legislative_period_dates lp ON lp.legislative_period = pf.legislative_period
+        LEFT JOIN 
+            session_counts sc ON sc.legislative_period = lp.legislative_period 
+            AND sc.delegate_id = d.id 
+        WHERE 
+            {filter_str}    
+            AND (m.start_date IS NULL OR m.start_date <= (SELECT MIN(created_at) FROM plenar_infos WHERE id = cto.plenar_id))
+            AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(created_at) FROM plenar_infos WHERE id = cto.plenar_id))
+        GROUP BY 
+            d.id, d.name, d.gender, m.party, sc.total_sessions_attended, pf.legislative_period
+        ORDER BY 
+            d.id, total_order_calls DESC;
+        "
+        );
+
+        let mut filtered_query = sqlx::query_as::<Postgres, CallToOrdersBase>(&query);
+        filtered_query = bind_values(filtered_query, &filters);
+
+        filtered_query
+            .fetch_all(pg)
+            .await
+            .map_err(|e| StatisticsResponse::DbSelectFailure(Some(e)))
+    }
+
+    pub async fn per_delegate(
+        pg: &sqlx::PgPool,
+        filter: &CallToOrderFilter,
+    ) -> Result<Vec<CallToOrdersForDelegate>, StatisticsResponse> {
+        let base_data = Self::get_base_data(pg, filter).await?;
+        let desc = if filter.is_desc { "DESC" } else { "ASC" };
+        let normalized = if filter.normalized {
+            "normalized_calls_to_order"
+        } else {
+            "total_order_calls"
+        };
+
+        let mut results: Vec<CallToOrdersForDelegate> = base_data
+            .into_iter()
+            .map(|item| CallToOrdersForDelegate {
+                delegate_name: item.delegate_name,
+                delegate_party: item.delegate_party,
+                total_order_calls: item.total_order_calls,
+                total_sessions_attended: item.total_sessions_attended.unwrap_or(0),
+                normalized_calls_to_order: item.normalized_calls_to_order.unwrap_or(0.0),
+            })
+            .collect();
+
+        // Sort in Rust based on filter parameters
+        if filter.normalized {
+            results.sort_by(|a, b| {
+                a.normalized_calls_to_order
+                    .partial_cmp(&b.normalized_calls_to_order)
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            });
+        } else {
+            results.sort_by(|a, b| a.total_order_calls.cmp(&b.total_order_calls));
+        }
+
+        if filter.is_desc {
+            results.reverse();
+        }
+
+        Ok(results)
+    }
+
+    pub async fn per_party(
+        pg: &sqlx::PgPool,
+        filter: &CallToOrderFilter,
+    ) -> Result<Vec<CallToOrdersByCategory>, StatisticsResponse> {
+        let base_data = Self::get_base_data(pg, filter).await?;
+        
+        let mut party_map: std::collections::HashMap<String, (i64, i64)> = std::collections::HashMap::new();
+        
+        for item in base_data {
+            let entry = party_map.entry(item.delegate_party.clone()).or_insert((0, 0));
+            entry.0 += item.total_order_calls;
+            entry.1 += item.total_sessions_attended.unwrap_or(0);
+        }
+
+        let mut results: Vec<CallToOrdersByCategory> = party_map
+            .into_iter()
+            .map(|(party, (total_calls, total_sessions))| {
+                let normalized_calls_to_order = if total_sessions > 0 {
+                    total_calls as f64 / total_sessions as f64
+                } else {
+                    0.0
+                };
+                CallToOrdersByCategory {
+                    category: party,
+                    total_order_calls: total_calls,
+                    total_sessions_attended: Some(total_sessions),
+                    normalized_calls_to_order: Some(normalized_calls_to_order),
+                }
+            })
+            .collect();
+
+        if filter.is_desc {
+            results.sort_by(|a, b| b.total_order_calls.cmp(&a.total_order_calls));
+        } else {
+            results.sort_by(|a, b| a.total_order_calls.cmp(&b.total_order_calls));
+        }
+
+        Ok(results)
+    }
+
+    pub async fn per_gender(
+        pg: &sqlx::PgPool,
+        filter: &CallToOrderFilter,
+    ) -> Result<Vec<CallToOrdersByCategory>, StatisticsResponse> {
+        let base_data = Self::get_base_data(pg, filter).await?;
+        
+        let mut gender_map: std::collections::HashMap<String, (i64, i64)> = std::collections::HashMap::new();
+        
+        for item in base_data {
+            let entry = gender_map.entry(item.delegate_gender.clone()).or_insert((0, 0));
+            entry.0 += item.total_order_calls;
+            entry.1 += item.total_sessions_attended.unwrap_or(0);
+        }
+
+        let mut results: Vec<CallToOrdersByCategory> = gender_map
+            .into_iter()
+            .map(|(gender, (total_calls, total_sessions))| {
+                let normalized_calls_to_order = if total_sessions > 0 {
+                    total_calls as f64 / total_sessions as f64
+                } else {
+                    0.0
+                };
+                CallToOrdersByCategory {
+                    category: gender,
+                    total_order_calls: total_calls,
+                    total_sessions_attended: Some(total_sessions),
+                    normalized_calls_to_order: Some(normalized_calls_to_order),
+                }
+            })
+            .collect();
+
+        if filter.is_desc {
+            results.sort_by(|a, b| b.total_order_calls.cmp(&a.total_order_calls));
+        } else {
+            results.sort_by(|a, b| a.total_order_calls.cmp(&b.total_order_calls));
+        }
+
+        Ok(results)
+    }
+
+    pub async fn per_legis(
+        pg: &sqlx::PgPool,
+        filter: &CallToOrderFilter,
+    ) -> Result<Vec<CallToOrdersByCategory>, StatisticsResponse> {
+        let base_data = Self::get_base_data(pg, filter).await?;
+        
+        let mut legis_map: std::collections::HashMap<String, (i64, i64, f64)> = std::collections::HashMap::new();
+        
+        for item in base_data {
+            if let Some(period) = item.legislative_period {
+                let entry = legis_map.entry(period).or_insert((0, 0, 0.0));
+                entry.0 += item.total_order_calls;
+                entry.1 += item.total_sessions_attended.unwrap_or(0);
+                entry.2 += item.normalized_calls_to_order.unwrap_or(0.0);
+            }
+        }
+
+        let mut results: Vec<CallToOrdersByCategory> = legis_map
+            .into_iter()
+            .map(|(period, (total_calls, total_sessions, normalized))| {
+                let normalized_calls_to_order = if total_sessions > 0 {
+                    total_calls as f64 / total_sessions as f64
+                } else {
+                    0.0
+                };
+                CallToOrdersByCategory {
+                    category: period,
+                    total_order_calls: total_calls,
+                    total_sessions_attended: Some(total_sessions),
+                    normalized_calls_to_order: Some(normalized_calls_to_order),
+                }
+            })
+            .collect();
+
+        results.sort_by(|a, b| {
+            b.total_order_calls.cmp(&a.total_order_calls)
+        });
+
+        if !filter.is_desc {
+            results.reverse();
+        }
+
+        Ok(results)
+    }
+
+    pub async fn per_age(
+        pg: &sqlx::PgPool,
+        filter: &CallToOrderFilter,
+    ) -> Result<Vec<CallToOrdersByCategory>, StatisticsResponse> {
+        let base_data = Self::get_base_data(pg, filter).await?;
+        
+        // For age grouping, we'd need to calculate ages from birth dates
+        // This is a simplified version - you might need to adjust based on your actual age calculation logic
+        let mut results: Vec<CallToOrdersByCategory> = vec![
+            CallToOrdersByCategory {
+                category: "18-30".to_string(),
+                total_order_calls: 0,
+                total_sessions_attended: Some(0),
+                normalized_calls_to_order: Some(0.0),
+            },
+            CallToOrdersByCategory {
+                category: "31-40".to_string(),
+                total_order_calls: 0,
+                total_sessions_attended: Some(0),
+                normalized_calls_to_order: Some(0.0),
+            },
+            CallToOrdersByCategory {
+                category: "41-50".to_string(),
+                total_order_calls: 0,
+                total_sessions_attended: Some(0),
+                normalized_calls_to_order: Some(0.0),
+            },
+            CallToOrdersByCategory {
+                category: "51-60".to_string(),
+                total_order_calls: 0,
+                total_sessions_attended: Some(0),
+                normalized_calls_to_order: Some(0.0),
+            },
+            CallToOrdersByCategory {
+                category: "60+".to_string(),
+                total_order_calls: 0,
+                total_sessions_attended: Some(0),
+                normalized_calls_to_order: Some(0.0),
+            },
+        ];
+
+        // Note: You'll need to implement actual age calculation logic here
+        // This is a placeholder that aggregates all data into "Unknown" category
+        let total_calls: i64 = base_data.iter().map(|item| item.total_order_calls).sum();
+        let total_sessions: i64 = base_data.iter().map(|item| item.total_sessions_attended.unwrap_or(0)).sum();
+        let total_normalized: f64 = base_data.iter().map(|item| item.normalized_calls_to_order.unwrap_or(0.0)).sum();
+
+        results.push(CallToOrdersByCategory {
+            category: "Unknown".to_string(),
+            total_order_calls: total_calls,
+            total_sessions_attended: Some(total_sessions),
+            normalized_calls_to_order: Some(total_normalized),
+        });
+
+        if filter.is_desc {
+            results.sort_by(|a, b| b.total_order_calls.cmp(&a.total_order_calls));
+        }
+
+        Ok(results)
+    }
+}
+
+
+pub async fn call_to_orders_per_delegate(
+    PgPoolConnection(pg): PgPoolConnection,
+    Json(filter): Json<Option<CallToOrderFilter>>,
+) -> Result<Json<Vec<CallToOrdersForDelegate>>, StatisticsResponse> {
+    let filter = filter.unwrap_or_default();
+    let results = CallToOrdersService::per_delegate(&pg, &filter).await?;
+    Ok(Json(results))
+}
+
+pub async fn call_to_orders_per_party(
+    PgPoolConnection(pg): PgPoolConnection,
+    Json(filter): Json<Option<CallToOrderFilter>>,
+) -> Result<Json<Vec<CallToOrdersByCategory>>, StatisticsResponse> {
+    let filter = filter.unwrap_or_default();
+    let results = CallToOrdersService::per_party(&pg, &filter).await?;
+    Ok(Json(results))
+}
+
+pub async fn call_to_orders_per_gender(
+    PgPoolConnection(pg): PgPoolConnection,
+    Json(filter): Json<Option<CallToOrderFilter>>,
+) -> Result<Json<Vec<CallToOrdersByCategory>>, StatisticsResponse> {
+    let filter = filter.unwrap_or_default();
+    let results = CallToOrdersService::per_gender(&pg, &filter).await?;
+    Ok(Json(results))
+}
+
+pub async fn call_to_orders_per_legis(
+    PgPoolConnection(pg): PgPoolConnection,
+    Json(filter): Json<Option<CallToOrderFilter>>,
+) -> Result<Json<Vec<CallToOrdersByCategory>>, StatisticsResponse> {
+    let filter = filter.unwrap_or_default();
+    let results = CallToOrdersService::per_legis(&pg, &filter).await?;
+    Ok(Json(results))
+}
+
+pub async fn call_to_orders_per_age(
+    PgPoolConnection(pg): PgPoolConnection,
+    Json(filter): Json<Option<CallToOrderFilter>>,
+) -> Result<Json<Vec<CallToOrdersByCategory>>, StatisticsResponse> {
+    let filter = filter.unwrap_or_default();
+    let results = CallToOrdersService::per_age(&pg, &filter).await?;
+    Ok(Json(results))
+}

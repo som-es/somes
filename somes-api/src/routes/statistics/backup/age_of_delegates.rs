@@ -34,6 +34,7 @@ pub async fn age_per_delegate(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<DelegateAgeFilter>>,
 ) -> Result<Json<Vec<DelegateAge>>, StatisticsResponse> {
+    println!("filter: {:?}", filter);
     let filter = filter.unwrap_or_default();
 
     let filter_arg = filter
@@ -77,8 +78,8 @@ JOIN
     delegate_ages dga ON dga.delegate_id = ds.id
 WHERE
     {filter}
-    AND m.start_date <= pf.add_date
-    AND (m.end_date IS NULL OR m.end_date >= pf.add_date)
+    AND m.start_date <= pf.created_at
+    AND (m.end_date IS NULL OR m.end_date >= pf.created_at)
 GROUP BY 
     ds.name, m.party, dga.age_at_start
 ORDER BY 
@@ -94,5 +95,8 @@ ORDER BY
         .fetch_all(&pg)
         .await
         .map(Json)
-        .map_err(|e| StatisticsResponse::DbSelectFailure(Some(e)))
+        .map_err(|e| {
+            println!("error: {:?}", e);
+            StatisticsResponse::DbSelectFailure(Some(e))
+        })
 }
