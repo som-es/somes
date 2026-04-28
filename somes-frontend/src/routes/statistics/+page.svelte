@@ -84,11 +84,11 @@
 	let selectedSpeechesCategory = 'delegate';
 
 	const categoryOptions = [
-		{ value: 'delegate', label: 'Pro Abgeordneten' },
-		{ value: 'party', label: 'Nach Parteien' },
-		{ value: 'gender', label: 'Nach Gender' },
-		{ value: 'age', label: 'Nach Alter' },
-		{ value: 'legis', label: 'Nach Legislaturperiode' }
+		{ value: 'delegate', label: 'Pro Abgeordneten', icon: '👤' },
+		{ value: 'party', label: 'Nach Parteien', icon: '🏛️' },
+		{ value: 'gender', label: 'Nach Gender', icon: '⚧️' },
+		{ value: 'age', label: 'Nach Alter', icon: '📅' },
+		{ value: 'legis', label: 'Nach Legislaturperiode', icon: '🏛️' }
 	];
 
 	// Age statistics functions
@@ -467,226 +467,380 @@
 	<h1 class="text-3xl font-bold mb-8">Statistiken</h1>
 
 	<!-- Age Statistics Section -->
-	<div class="bg-card rounded-xl p-6 shadow-sm mb-8">
-		<div class="flex items-center justify-between mb-6">
-			<h2 class="text-2xl font-bold">👥 Altersstatistiken</h2>
-			<Select.Root
-				type="single"
-				bind:value={selectedAgeCategory}
-				items={categoryOptions}
-			>
-				<Select.Trigger class="w-64">
-					<span>Kategorie wählen</span>
-				</Select.Trigger>
-				<Select.Portal>
-					<Select.Content>
-						<Select.Viewport>
-							{#each categoryOptions as option}
-								<Select.Item value={option.value} label={option.label}>
-									{option.label}
-								</Select.Item>
-							{/each}
-						</Select.Viewport>
-					</Select.Content>
-				</Select.Portal>
-			</Select.Root>
+	<div class="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl p-8 shadow-lg border border-blue-200/50 dark:border-blue-800/50 mb-8">
+		<div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
+			<div class="flex items-center gap-3">
+				<div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center text-white text-xl shadow-lg">
+					👥
+				</div>
+				<div>
+					<h2 class="text-2xl font-bold text-slate-800 dark:text-slate-200">Altersstatistiken</h2>
+					<p class="text-sm text-slate-600 dark:text-slate-400">Analyse der Altersverteilung im Parlament</p>
+				</div>
+			</div>
+			<!-- Kategorie-Auswahl kompakt rechts oben -->
+			<div class="flex flex-col items-end gap-2">
+				<div class="flex items-center gap-2">
+					<div class="w-1 h-4 bg-blue-500 rounded-full"></div>
+					<h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kategorie auswählen</h3>
+				</div>
+				<div class="bg-white dark:bg-slate-800 rounded-xl p-1 shadow-md w-full lg:w-72">
+					<Select.Root
+						type="single"
+						bind:value={selectedAgeCategory}
+						items={categoryOptions}
+					>
+						<Select.Trigger class="w-full h-10 bg-white dark:bg-slate-800 border-0 rounded-lg px-3 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+							<span class="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+								<span class="text-base">{categoryOptions.find(opt => opt.value === selectedAgeCategory)?.icon || '📊'}</span>
+								<span class="text-sm">{categoryOptions.find(opt => opt.value === selectedAgeCategory)?.label || 'Kategorie auswählen'}</span>
+							</span>
+						</Select.Trigger>
+					<Select.Portal>
+						<Select.Content class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl">
+							<Select.Viewport>
+								{#each categoryOptions as option}
+									<Select.Item value={option.value} label={option.label} class="px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer flex items-center gap-3">
+										<span class="text-lg">{option.icon}</span>
+										<div>
+											<div class="font-medium">{option.label}</div>
+										</div>
+									</Select.Item>
+								{/each}
+							</Select.Viewport>
+						</Select.Content>
+					</Select.Portal>
+				</Select.Root>
+			</div>
+			</div>
 		</div>
 		<DelegateBarChartControl
 			height={400}
 			delegateMakeRequest={ageFunction}
-			title={ageTitle}
 		/>
 	</div>
 
 	<!-- Absences Statistics Section -->
-	<div class="bg-card rounded-xl p-6 shadow-sm mb-8">
-		<div class="flex items-center justify-between mb-6">
-			<h2 class="text-2xl font-bold">📋 Abwesenheitsstatistiken</h2>
-			<Select.Root
-				type="single"
-				bind:value={selectedAbsencesCategory}
-				items={categoryOptions}
-			>
-				<Select.Trigger class="w-64">
-					<span>Kategorie wählen</span>
-				</Select.Trigger>
-				<Select.Portal>
-					<Select.Content>
-						<Select.Viewport>
-							{#each categoryOptions as option}
-								<Select.Item value={option.value} label={option.label}>
-									{option.label}
-								</Select.Item>
-							{/each}
-						</Select.Viewport>
-					</Select.Content>
-				</Select.Portal>
-			</Select.Root>
+	<div class="bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900/20 dark:to-orange-900/20 rounded-2xl p-8 shadow-lg border border-amber-200/50 dark:border-amber-800/50 mb-8">
+		<div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
+			<div class="flex items-center gap-3">
+				<div class="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center text-white text-xl shadow-lg">
+					📋
+				</div>
+				<div>
+					<h2 class="text-2xl font-bold text-slate-800 dark:text-slate-200">Abwesenheitsstatistiken</h2>
+					<p class="text-sm text-slate-600 dark:text-slate-400">Analyse der Abwesenheiten und Anwesenheiten</p>
+				</div>
+			</div>
+			<!-- Kategorie-Auswahl kompakt rechts oben -->
+			<div class="flex flex-col items-end gap-2">
+				<div class="flex items-center gap-2">
+					<div class="w-1 h-4 bg-amber-500 rounded-full"></div>
+					<h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kategorie auswählen</h3>
+				</div>
+				<div class="bg-white dark:bg-slate-800 rounded-xl p-1 shadow-md w-full lg:w-72">
+					<Select.Root
+						type="single"
+						bind:value={selectedAbsencesCategory}
+						items={categoryOptions}
+					>
+						<Select.Trigger class="w-full h-10 bg-white dark:bg-slate-800 border-0 rounded-lg px-3 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+							<span class="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+								<span class="text-base">{categoryOptions.find(opt => opt.value === selectedAbsencesCategory)?.icon || '📊'}</span>
+								<span class="text-sm">{categoryOptions.find(opt => opt.value === selectedAbsencesCategory)?.label || 'Kategorie auswählen'}</span>
+							</span>
+						</Select.Trigger>
+					<Select.Portal>
+						<Select.Content class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl">
+							<Select.Viewport>
+								{#each categoryOptions as option}
+									<Select.Item value={option.value} label={option.label} class="px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer flex items-center gap-3">
+										<span class="text-lg">{option.icon}</span>
+										<div>
+											<div class="font-medium">{option.label}</div>
+										</div>
+									</Select.Item>
+								{/each}
+							</Select.Viewport>
+						</Select.Content>
+					</Select.Portal>
+				</Select.Root>
+			</div>
+			</div>
 		</div>
 		<DelegateBarChartControl
 			height={400}
 			delegateMakeRequest={absencesFunction}
-			title={absencesTitle}
 		/>
 	</div>
 
 	<!-- Activity Statistics Section -->
-	<div class="bg-card rounded-xl p-6 shadow-sm mb-8">
-		<div class="flex items-center justify-between mb-6">
-			<h2 class="text-2xl font-bold">⚡ Aktivitätsstatistiken</h2>
-			<Select.Root
-				type="single"
-				bind:value={selectedActivityCategory}
-				items={categoryOptions}
-			>
-				<Select.Trigger class="w-64">
-					<span>Kategorie wählen</span>
-				</Select.Trigger>
-				<Select.Portal>
-					<Select.Content>
-						<Select.Viewport>
-							{#each categoryOptions as option}
-								<Select.Item value={option.value} label={option.label}>
-									{option.label}
-								</Select.Item>
-							{/each}
-						</Select.Viewport>
-					</Select.Content>
-				</Select.Portal>
-			</Select.Root>
+	<div class="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-8 shadow-lg border border-green-200/50 dark:border-green-800/50 mb-8">
+		<div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
+			<div class="flex items-center gap-3">
+				<div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center text-white text-xl shadow-lg">
+					⚡
+				</div>
+				<div>
+					<h2 class="text-2xl font-bold text-slate-800 dark:text-slate-200">Aktivitätsstatistiken</h2>
+					<p class="text-sm text-slate-600 dark:text-slate-400">Analyse der parlamentarischen Aktivität</p>
+				</div>
+			</div>
+			<!-- Kategorie-Auswahl kompakt rechts oben -->
+			<div class="flex flex-col items-end gap-2">
+				<div class="flex items-center gap-2">
+					<div class="w-1 h-4 bg-green-500 rounded-full"></div>
+					<h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kategorie auswählen</h3>
+				</div>
+				<div class="bg-white dark:bg-slate-800 rounded-xl p-1 shadow-md w-full lg:w-72">
+					<Select.Root
+						type="single"
+						bind:value={selectedActivityCategory}
+						items={categoryOptions}
+					>
+						<Select.Trigger class="w-full h-10 bg-white dark:bg-slate-800 border-0 rounded-lg px-3 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+							<span class="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+								<span class="text-base">{categoryOptions.find(opt => opt.value === selectedActivityCategory)?.icon || '📊'}</span>
+								<span class="text-sm">{categoryOptions.find(opt => opt.value === selectedActivityCategory)?.label || 'Kategorie auswählen'}</span>
+							</span>
+						</Select.Trigger>
+					<Select.Portal>
+						<Select.Content class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl">
+							<Select.Viewport>
+								{#each categoryOptions as option}
+									<Select.Item value={option.value} label={option.label} class="px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer flex items-center gap-3">
+										<span class="text-lg">{option.icon}</span>
+										<div>
+											<div class="font-medium">{option.label}</div>
+										</div>
+									</Select.Item>
+								{/each}
+							</Select.Viewport>
+						</Select.Content>
+					</Select.Portal>
+				</Select.Root>
+			</div>
+			</div>
 		</div>
 		<DelegateBarChartControl
 			height={400}
 			delegateMakeRequest={activityFunction}
-			title={activityTitle}
 		/>
 	</div>
 
 	<!-- Call to Orders Statistics Section -->
-	<div class="bg-card rounded-xl p-6 shadow-sm mb-8">
-		<div class="flex items-center justify-between mb-6">
-			<h2 class="text-2xl font-bold">🔔 Ordnungsrufstatistiken</h2>
-			<Select.Root
-				type="single"
-				bind:value={selectedCallsCategory}
-				items={categoryOptions}
-			>
-				<Select.Trigger class="w-64">
-					<span>Kategorie wählen</span>
-				</Select.Trigger>
-				<Select.Portal>
-					<Select.Content>
-						<Select.Viewport>
-							{#each categoryOptions as option}
-								<Select.Item value={option.value} label={option.label}>
-									{option.label}
-								</Select.Item>
-							{/each}
-						</Select.Viewport>
-					</Select.Content>
-				</Select.Portal>
-			</Select.Root>
+	<div class="bg-gradient-to-br from-purple-50 to-violet-100 dark:from-purple-900/20 dark:to-violet-900/20 rounded-2xl p-8 shadow-lg border border-purple-200/50 dark:border-purple-800/50 mb-8">
+		<div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
+			<div class="flex items-center gap-3">
+				<div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center text-white text-xl shadow-lg">
+					🔔
+				</div>
+				<div>
+					<h2 class="text-2xl font-bold text-slate-800 dark:text-slate-200">Ordnungsrufstatistiken</h2>
+					<p class="text-sm text-slate-600 dark:text-slate-400">Analyse der Ordnungsrufe im Parlament</p>
+				</div>
+			</div>
+			<!-- Kategorie-Auswahl kompakt rechts oben -->
+			<div class="flex flex-col items-end gap-2">
+				<div class="flex items-center gap-2">
+					<div class="w-1 h-4 bg-purple-500 rounded-full"></div>
+					<h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kategorie auswählen</h3>
+				</div>
+				<div class="bg-white dark:bg-slate-800 rounded-xl p-1 shadow-md w-full lg:w-72">
+					<Select.Root
+						type="single"
+						bind:value={selectedCallsCategory}
+						items={categoryOptions}
+					>
+						<Select.Trigger class="w-full h-10 bg-white dark:bg-slate-800 border-0 rounded-lg px-3 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+							<span class="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+								<span class="text-base">{categoryOptions.find(opt => opt.value === selectedCallsCategory)?.icon || '📊'}</span>
+								<span class="text-sm">{categoryOptions.find(opt => opt.value === selectedCallsCategory)?.label || 'Kategorie auswählen'}</span>
+							</span>
+						</Select.Trigger>
+					<Select.Portal>
+						<Select.Content class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl">
+							<Select.Viewport>
+								{#each categoryOptions as option}
+									<Select.Item value={option.value} label={option.label} class="px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer flex items-center gap-3">
+										<span class="text-lg">{option.icon}</span>
+										<div>
+											<div class="font-medium">{option.label}</div>
+										</div>
+									</Select.Item>
+								{/each}
+							</Select.Viewport>
+						</Select.Content>
+					</Select.Portal>
+				</Select.Root>
+			</div>
+			</div>
 		</div>
 		<DelegateBarChartControl
 			height={400}
 			delegateMakeRequest={callsFunction}
-			title={callsTitle}
 		/>
 	</div>
 
 	<!-- Speech Complexity Statistics Section -->
-	<div class="bg-card rounded-xl p-6 shadow-sm mb-8">
-		<div class="flex items-center justify-between mb-6">
-			<h2 class="text-2xl font-bold">🧠 Sprachkomplexitätsstatistiken</h2>
-			<Select.Root
-				type="single"
-				bind:value={selectedComplexityCategory}
-				items={categoryOptions}
-			>
-				<Select.Trigger class="w-64">
-					<span>Kategorie wählen</span>
-				</Select.Trigger>
-				<Select.Portal>
-					<Select.Content>
-						<Select.Viewport>
-							{#each categoryOptions as option}
-								<Select.Item value={option.value} label={option.label}>
-									{option.label}
-								</Select.Item>
-							{/each}
-						</Select.Viewport>
-					</Select.Content>
-				</Select.Portal>
-			</Select.Root>
+	<div class="bg-gradient-to-br from-rose-50 to-pink-100 dark:from-rose-900/20 dark:to-pink-900/20 rounded-2xl p-8 shadow-lg border border-rose-200/50 dark:border-rose-800/50 mb-8">
+		<div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
+			<div class="flex items-center gap-3">
+				<div class="w-12 h-12 bg-rose-500 rounded-xl flex items-center justify-center text-white text-xl shadow-lg">
+					🧠
+				</div>
+				<div>
+					<h2 class="text-2xl font-bold text-slate-800 dark:text-slate-200">Redekomplexität</h2>
+					<p class="text-sm text-slate-600 dark:text-slate-400">Analyse der Komplexität der Reden</p>
+				</div>
+			</div>
+			<!-- Kategorie-Auswahl kompakt rechts oben -->
+			<div class="flex flex-col items-end gap-2">
+				<div class="flex items-center gap-2">
+					<div class="w-1 h-4 bg-rose-500 rounded-full"></div>
+					<h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kategorie auswählen</h3>
+				</div>
+				<div class="bg-white dark:bg-slate-800 rounded-xl p-1 shadow-md w-full lg:w-72">
+					<Select.Root
+						type="single"
+						bind:value={selectedComplexityCategory}
+						items={categoryOptions}
+					>
+						<Select.Trigger class="w-full h-10 bg-white dark:bg-slate-800 border-0 rounded-lg px-3 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+							<span class="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+								<span class="text-base">{categoryOptions.find(opt => opt.value === selectedComplexityCategory)?.icon || '📊'}</span>
+								<span class="text-sm">{categoryOptions.find(opt => opt.value === selectedComplexityCategory)?.label || 'Kategorie auswählen'}</span>
+							</span>
+						</Select.Trigger>
+					<Select.Portal>
+						<Select.Content class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl">
+							<Select.Viewport>
+								{#each categoryOptions as option}
+									<Select.Item value={option.value} label={option.label} class="px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer flex items-center gap-3">
+										<span class="text-lg">{option.icon}</span>
+										<div>
+											<div class="font-medium">{option.label}</div>
+										</div>
+									</Select.Item>
+								{/each}
+							</Select.Viewport>
+						</Select.Content>
+					</Select.Portal>
+				</Select.Root>
+			</div>
+			</div>
 		</div>
 		<DelegateBarChartControl
 			height={400}
 			delegateMakeRequest={complexityFunction}
-			title={complexityTitle}
 		/>
 	</div>
 
 	<!-- Speech Time Statistics Section -->
-	<div class="bg-card rounded-xl p-6 shadow-sm mb-8">
-		<div class="flex items-center justify-between mb-6">
-			<h2 class="text-2xl font-bold">⏱️ Redezeitstatistiken</h2>
-			<Select.Root
-				type="single"
-				bind:value={selectedSpeechTimeCategory}
-				items={categoryOptions}
-			>
-				<Select.Trigger class="w-64">
-					<span>Kategorie wählen</span>
-				</Select.Trigger>
-				<Select.Portal>
-					<Select.Content>
-						<Select.Viewport>
-							{#each categoryOptions as option}
-								<Select.Item value={option.value} label={option.label}>
-									{option.label}
-								</Select.Item>
-							{/each}
-						</Select.Viewport>
-					</Select.Content>
-				</Select.Portal>
-			</Select.Root>
+	<div class="bg-gradient-to-br from-cyan-50 to-sky-100 dark:from-cyan-900/20 dark:to-sky-900/20 rounded-2xl p-8 shadow-lg border border-cyan-200/50 dark:border-cyan-800/50 mb-8">
+		<div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
+			<div class="flex items-center gap-3">
+				<div class="w-12 h-12 bg-cyan-500 rounded-xl flex items-center justify-center text-white text-xl shadow-lg">
+					⏱️
+				</div>
+				<div>
+					<h2 class="text-2xl font-bold text-slate-800 dark:text-slate-200">Redezeit</h2>
+					<p class="text-sm text-slate-600 dark:text-slate-400">Analyse der Redezeit im Parlament</p>
+				</div>
+			</div>
+			<!-- Kategorie-Auswahl kompakt rechts oben -->
+			<div class="flex flex-col items-end gap-2">
+				<div class="flex items-center gap-2">
+					<div class="w-1 h-4 bg-cyan-500 rounded-full"></div>
+					<h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kategorie auswählen</h3>
+				</div>
+				<div class="bg-white dark:bg-slate-800 rounded-xl p-1 shadow-md w-full lg:w-72">
+					<Select.Root
+						type="single"
+						bind:value={selectedSpeechTimeCategory}
+						items={categoryOptions}
+					>
+						<Select.Trigger class="w-full h-10 bg-white dark:bg-slate-800 border-0 rounded-lg px-3 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+							<span class="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+								<span class="text-base">{categoryOptions.find(opt => opt.value === selectedSpeechTimeCategory)?.icon || '📊'}</span>
+								<span class="text-sm">{categoryOptions.find(opt => opt.value === selectedSpeechTimeCategory)?.label || 'Kategorie auswählen'}</span>
+							</span>
+						</Select.Trigger>
+						<Select.Portal>
+							<Select.Content class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl">
+								<Select.Viewport>
+									{#each categoryOptions as option}
+										<Select.Item value={option.value} label={option.label} class="px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer flex items-center gap-3">
+											<span class="text-lg">{option.icon}</span>
+											<div>
+												<div class="font-medium">{option.label}</div>
+											</div>
+										</Select.Item>
+									{/each}
+								</Select.Viewport>
+							</Select.Content>
+						</Select.Portal>
+					</Select.Root>
+				</div>
+			</div>
 		</div>
 		<DelegateBarChartControl
 			height={400}
 			delegateMakeRequest={speechTimeFunction}
-			title={speechTimeTitle}
 		/>
 	</div>
 
 	<!-- Total Speeches Statistics Section -->
-	<div class="bg-card rounded-xl p-6 shadow-sm mb-8">
-		<div class="flex items-center justify-between mb-6">
-			<h2 class="text-2xl font-bold">🎤 Redenzahlstatistiken</h2>
-			<Select.Root
-				type="single"
-				bind:value={selectedSpeechesCategory}
-				items={categoryOptions}
-			>
-				<Select.Trigger class="w-64">
-					<span>Kategorie wählen</span>
-				</Select.Trigger>
-				<Select.Portal>
-					<Select.Content>
-						<Select.Viewport>
-							{#each categoryOptions as option}
-								<Select.Item value={option.value} label={option.label}>
-									{option.label}
-								</Select.Item>
-							{/each}
-						</Select.Viewport>
-					</Select.Content>
-				</Select.Portal>
-			</Select.Root>
+	<div class="bg-gradient-to-br from-emerald-50 to-teal-100 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-2xl p-8 shadow-lg border border-emerald-200/50 dark:border-emerald-800/50 mb-8">
+		<div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
+			<div class="flex items-center gap-3">
+				<div class="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center text-white text-xl shadow-lg">
+					🎤
+				</div>
+				<div>
+					<h2 class="text-2xl font-bold text-slate-800 dark:text-slate-200">Redenanzahl</h2>
+					<p class="text-sm text-slate-600 dark:text-slate-400">Analyse der Anzahl der Reden</p>
+				</div>
+			</div>
+			<!-- Kategorie-Auswahl kompakt rechts oben -->
+			<div class="flex flex-col items-end gap-2">
+				<div class="flex items-center gap-2">
+					<div class="w-1 h-4 bg-emerald-500 rounded-full"></div>
+					<h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kategorie auswählen</h3>
+				</div>
+				<div class="bg-white dark:bg-slate-800 rounded-xl p-1 shadow-md w-full lg:w-72">
+					<Select.Root
+						type="single"
+						bind:value={selectedSpeechesCategory}
+						items={categoryOptions}
+					>
+						<Select.Trigger class="w-full h-10 bg-white dark:bg-slate-800 border-0 rounded-lg px-3 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+							<span class="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+								<span class="text-base">{categoryOptions.find(opt => opt.value === selectedSpeechesCategory)?.icon || '📊'}</span>
+								<span class="text-sm">{categoryOptions.find(opt => opt.value === selectedSpeechesCategory)?.label || 'Kategorie auswählen'}</span>
+							</span>
+						</Select.Trigger>
+					<Select.Portal>
+						<Select.Content class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl">
+							<Select.Viewport>
+								{#each categoryOptions as option}
+									<Select.Item value={option.value} label={option.label} class="px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer flex items-center gap-3">
+										<span class="text-lg">{option.icon}</span>
+										<div>
+											<div class="font-medium">{option.label}</div>
+										</div>
+									</Select.Item>
+								{/each}
+							</Select.Viewport>
+						</Select.Content>
+					</Select.Portal>
+				</Select.Root>
+			</div>
+			</div>
 		</div>
 		<DelegateBarChartControl
 			height={400}
 			delegateMakeRequest={speechesFunction}
-			title={speechesTitle}
 		/>
 	</div>
 </div>
