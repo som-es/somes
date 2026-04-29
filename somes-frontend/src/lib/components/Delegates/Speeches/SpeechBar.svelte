@@ -139,8 +139,8 @@
 										stroke-width="2"
 										><path
 											d="M2 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H2zM22 4h-7a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h8z"
-										/></svg
-									>
+										/>
+									</svg>
 								</a>
 							{/if}
 							<button on:click={() => onShowDetails(voteResult)} aria-label="Abspielen">
