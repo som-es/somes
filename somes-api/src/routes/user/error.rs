@@ -38,6 +38,9 @@ pub enum UserError {
     Custom(StatusCode, String),
     #[error("missing email from OAuth provider")]
     MissingEmail,
+
+    #[error("already anonymised")]
+    AlreadyAnonymised,
 }
 
 impl IntoResponse for UserError {
@@ -72,6 +75,7 @@ impl IntoResponse for UserError {
             UserError::AuthError(ae) => return ae.into_response(),
             UserError::Custom(code, msg) => (*code, msg.clone()),
             UserError::MissingEmail => (StatusCode::BAD_REQUEST, self.to_string()),
+            UserError::AlreadyAnonymised => (StatusCode::BAD_REQUEST, self.to_string()),
         };
 
         let body = Json(ErrorInfo {
