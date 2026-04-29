@@ -224,6 +224,21 @@
 	let supplyDate: Date | null = $derived(new Date(data.date ?? new Date()));
 
 	let prevSelectedDelegateId = $state(0);
+	
+	let activeTab = $state<'analysis' | 'activities' | 'gov'>('analysis');
+	
+	// Watcher to reset tab if the delegate doesn't have gov info but tab is gov
+	$effect(() => {
+		if (delegate && activeTab === 'gov') {
+			if (
+				delegate.council !== 'gov' &&
+				!(generalGovOfficialInfo?.gov_proposals && generalGovOfficialInfo.gov_proposals.length > 0) &&
+				!(generalGovOfficialInfo?.decrees && generalGovOfficialInfo.decrees.length > 0)
+			) {
+				activeTab = 'analysis';
+			}
+		}
+	});
 
 	let maybeCurrentDelegateFilter = $derived(
 		currentDelegateFilterStore.value ?? {
@@ -900,129 +915,156 @@
 			</div>
 		</div>
 
-		{#if generalGovOfficialInfo?.gov_proposals && generalGovOfficialInfo.gov_proposals.length > 0 && delegate}
-			<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
-				<GovProposalPreview govProposals={generalGovOfficialInfo.gov_proposals} {delegate} />
-			</div>
-		{:else if generalGovOfficialInfo?.gov_proposals == null && delegate && delegate.council == 'gov'}
-			<ExpandablePlaceholder />
-			<ExpandablePlaceholder />
-		{/if}
-
-		{#if generalGovOfficialInfo?.decrees && generalGovOfficialInfo.decrees.length > 0 && delegate}
-			<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
-				<DecreePreview decrees={generalGovOfficialInfo.decrees} {delegate} />
-			</div>
-		{:else if (generalGovOfficialInfo?.decrees == null && delegate && delegate.council == 'gov') || !delegate}
-			<ExpandablePlaceholder />
-			<ExpandablePlaceholder />
-		{/if}
-
-		{#if delegate && generalDelegateInfo?.political_position && aiViewEnabledStore.value}
-			<div class="title-item rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
-				<PoliticalStanceTitleBar
-					stanceTopicInfluences={generalDelegateInfo.stance_topic_influences}
-				/>
-			</div>
-		{/if}
-		<div class="flex w-full flex-col gap-2 lg:flex-row">
-			{#if delegate && generalDelegateInfo?.political_position && aiViewEnabledStore.value}
-				<SquarePoliticalSpectrum
-					{delegate}
-					politicalPosition={generalDelegateInfo.political_position}
-				/>
-			{:else if !generalDelegateInfo}
-				<ExpandablePlaceholder class={'my-3'} />
-			{/if}
-
-			{#if delegate && generalDelegateInfo?.left_right_stances.length && generalDelegateInfo.left_right_stances.length > 0 && aiViewEnabledStore.value}
-				<div class="lg:flex-1">
-					<LeftRightChart stances={generalDelegateInfo.left_right_stances} interests={generalDelegateInfo.interests}/>
-				</div>
-			{:else if !generalDelegateInfo}
-				<ExpandablePlaceholder class={'my-3'} />
+		<!-- Navigation Tabs -->
+		<div class="mt-6 mb-2 gap-1 flex w-full rounded-xl bg-primary-300 p-1 dark:bg-surface-600">
+			<button
+				class="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium {activeTab === 'analysis' ? 'bg-primary-600 text-white' : 'text-gray-700 hover:bg-primary-400 dark:text-gray-300 dark:hover:bg-primary-500'}"
+				onclick={() => activeTab = 'analysis'}
+			>
+				Übersicht
+			</button>
+			<button
+				class="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium {activeTab === 'activities' ? 'bg-primary-600 text-white' : 'text-gray-700 hover:bg-primary-400 dark:text-gray-400 dark:hover:bg-primary-500'}"
+				onclick={() => activeTab = 'activities'}
+			>
+				Aktivitäten
+			</button>
+			{#if delegate?.council === 'gov' || (generalGovOfficialInfo?.gov_proposals && generalGovOfficialInfo.gov_proposals.length > 0) || (generalGovOfficialInfo?.decrees && generalGovOfficialInfo.decrees.length > 0)}
+			<button
+				class="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium {activeTab === 'gov' ? 'bg-primary-600 text-white' : 'text-gray-700 hover:bg-primary-400 dark:text-gray-400 dark:hover:bg-primary-500'}"
+				onclick={() => activeTab = 'gov'}
+			>
+				Regierung
+			</button>
 			{/if}
 		</div>
 
-		<!-- Meist behandelte Themen & Abwesenheiten -->
-		<div
-			class="flex w-full flex-col gap-4 {!generalDelegateInfo ||
-			generalDelegateInfo.interests?.length > 0
-				? 'lg:flex-row'
-				: ''}"
-		>
-			<!-- Meist behandelte Themen  -->
-			{#if !generalDelegateInfo || generalDelegateInfo.interests?.length > 0}
-				<div class="flex w-full flex-col gap-4 lg:w-2/3">
-					{#if generalDelegateInfo?.interests && generalDelegateInfo?.detailed_interests}
-						<span class="w-full max-sm:hidden">
-							<TopicsChart
-								detailedInterests={generalDelegateInfo.detailed_interests}
-								interests={generalDelegateInfo.interests}
-							/>
-						</span>
-						<span class="w-full sm:hidden">
-							<TopicsChart
-								detailedInterests={generalDelegateInfo.detailed_interests}
-								interests={generalDelegateInfo.interests.slice(0, 8)}
-							/>
-						</span>
-					{/if}
+		<!-- Tab Content -->
+		{#if activeTab === 'gov'}
+			{#if generalGovOfficialInfo?.gov_proposals && generalGovOfficialInfo.gov_proposals.length > 0 && delegate}
+				<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
+					<GovProposalPreview govProposals={generalGovOfficialInfo.gov_proposals} {delegate} />
 				</div>
+			{:else if generalGovOfficialInfo?.gov_proposals == null && delegate && delegate.council == 'gov'}
+				<ExpandablePlaceholder />
+				<ExpandablePlaceholder />
 			{/if}
 
-			<!-- Abwesenheiten -->
+			{#if generalGovOfficialInfo?.decrees && generalGovOfficialInfo.decrees.length > 0 && delegate}
+				<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
+					<DecreePreview decrees={generalGovOfficialInfo.decrees} {delegate} />
+				</div>
+			{:else if (generalGovOfficialInfo?.decrees == null && delegate && delegate.council == 'gov') || !delegate}
+				<ExpandablePlaceholder />
+				<ExpandablePlaceholder />
+			{/if}
+		{:else if activeTab === 'analysis'}
+			{#if delegate && generalDelegateInfo?.political_position && aiViewEnabledStore.value}
+				<div class="title-item rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
+					<PoliticalStanceTitleBar
+						stanceTopicInfluences={generalDelegateInfo.stance_topic_influences}
+					/>
+				</div>
+			{/if}
+			<div class="flex w-full flex-col gap-2 lg:flex-row">
+				{#if delegate && generalDelegateInfo?.political_position && aiViewEnabledStore.value}
+					<SquarePoliticalSpectrum
+						{delegate}
+						politicalPosition={generalDelegateInfo.political_position}
+					/>
+				{:else if !generalDelegateInfo}
+					<ExpandablePlaceholder class={'my-3'} />
+				{/if}
+
+				{#if delegate && generalDelegateInfo?.left_right_stances.length && generalDelegateInfo.left_right_stances.length > 0 && aiViewEnabledStore.value}
+					<div class="lg:flex-1">
+						<LeftRightChart stances={generalDelegateInfo.left_right_stances} interests={generalDelegateInfo.interests}/>
+					</div>
+				{:else if !generalDelegateInfo}
+					<ExpandablePlaceholder class={'my-3'} />
+				{/if}
+			</div>
+
+			<!-- Meist behandelte Themen & Abwesenheiten -->
 			<div
 				class="flex w-full flex-col gap-4 {!generalDelegateInfo ||
 				generalDelegateInfo.interests?.length > 0
-					? 'lg:w-1/3'
+					? 'lg:flex-row'
 					: ''}"
 			>
-				{#if delegate && generalDelegateInfo?.absences}
-					<!-- <AbsencesPreview delegateId={delegate.id} absences={generalDelegateInfo.absences} /> -->
-					<AbsencesPreview delegateId={delegate.id} absences={generalDelegateInfo.absences} />
+				<!-- Meist behandelte Themen  -->
+				{#if !generalDelegateInfo || generalDelegateInfo.interests?.length > 0}
+					<div class="flex w-full flex-col gap-4 lg:w-2/3">
+						{#if generalDelegateInfo?.interests && generalDelegateInfo?.detailed_interests}
+							<span class="w-full max-sm:hidden">
+								<TopicsChart
+									detailedInterests={generalDelegateInfo.detailed_interests}
+									interests={generalDelegateInfo.interests}
+								/>
+							</span>
+							<span class="w-full sm:hidden">
+								<TopicsChart
+									detailedInterests={generalDelegateInfo.detailed_interests}
+									interests={generalDelegateInfo.interests.slice(0, 8)}
+								/>
+							</span>
+						{/if}
+					</div>
 				{/if}
-			</div>
-		</div>
 
-		<!-- Letzte Reden -->
-		{#if speechesPage0 && delegate && speechesPage0.speeches.length > 0}
-			<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
-				<SpeechesPreview delegateId={delegate.id} {speechesPage0} />
+				<!-- Abwesenheiten -->
+				<div
+					class="flex w-full flex-col gap-4 {!generalDelegateInfo ||
+					generalDelegateInfo.interests?.length > 0
+						? 'lg:w-1/3'
+						: ''}"
+				>
+					{#if delegate && generalDelegateInfo?.absences}
+						<!-- <AbsencesPreview delegateId={delegate.id} absences={generalDelegateInfo.absences} /> -->
+						<AbsencesPreview delegateId={delegate.id} absences={generalDelegateInfo.absences} />
+					{/if}
+				</div>
 			</div>
-		{:else if speechesPage0 == null && delegate && delegate.council == 'gov'}
-			<ExpandablePlaceholder />
-			<ExpandablePlaceholder />
-		{/if}
 
-		<!-- Letzte namentliche Abstimmungen -->
-		{#if generalDelegateInfo?.named_votes && generalDelegateInfo?.named_votes.length > 0}
-			<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
-				<NamedVotePreview namedVotes={generalDelegateInfo.named_votes} />
-			</div>
-		{:else if generalDelegateInfo?.absences == null || !delegate}
-			<ExpandablePlaceholder />
-			<ExpandablePlaceholder />
-		{/if}
+			<!-- Mandateninformation -->
+			{#if delegate?.mandates}
+				<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
+					<MandatesPreview mandates={delegate.mandates} {periods} gender={delegate.gender} />
+				</div>
+			{:else if !delegate}
+				<ExpandablePlaceholder />
+				<ExpandablePlaceholder />
+			{/if}
+		{:else if activeTab === 'activities'}
+			<!-- Letzte Reden -->
+			{#if speechesPage0 && delegate && speechesPage0.speeches.length > 0}
+				<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
+					<SpeechesPreview delegateId={delegate.id} {speechesPage0} />
+				</div>
+			{:else if speechesPage0 == null && delegate && delegate.council == 'gov'}
+				<ExpandablePlaceholder />
+				<ExpandablePlaceholder />
+			{/if}
 
-		<!-- Letzte eingebrachte Anträge -->
-		{#if generalDelegateInfo?.issued_proposals && generalDelegateInfo.issued_proposals.length > 0}
-			<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
-				<IssuedProposalPreview issuedProposals={generalDelegateInfo.issued_proposals} />
-			</div>
-		{:else if generalDelegateInfo?.issued_proposals == null || !delegate}
-			<ExpandablePlaceholder />
-			<ExpandablePlaceholder />
-		{/if}
+			<!-- Letzte namentliche Abstimmungen -->
+			{#if generalDelegateInfo?.named_votes && generalDelegateInfo?.named_votes.length > 0}
+				<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
+					<NamedVotePreview namedVotes={generalDelegateInfo.named_votes} />
+				</div>
+			{:else if generalDelegateInfo?.absences == null || !delegate}
+				<ExpandablePlaceholder />
+				<ExpandablePlaceholder />
+			{/if}
 
-		<!-- Mandateninformation -->
-		{#if delegate?.mandates}
-			<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
-				<MandatesPreview mandates={delegate.mandates} {periods} gender={delegate.gender} />
-			</div>
-		{:else if !delegate}
-			<ExpandablePlaceholder />
-			<ExpandablePlaceholder />
+			<!-- Letzte eingebrachte Anträge -->
+			{#if generalDelegateInfo?.issued_proposals && generalDelegateInfo.issued_proposals.length > 0}
+				<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
+					<IssuedProposalPreview issuedProposals={generalDelegateInfo.issued_proposals} />
+				</div>
+			{:else if generalDelegateInfo?.issued_proposals == null || !delegate}
+				<ExpandablePlaceholder />
+				<ExpandablePlaceholder />
+			{/if}
 		{/if}
 
 		<!--  -->
