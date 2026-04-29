@@ -14,8 +14,12 @@ static PEPPER: Lazy<String> = Lazy::new(|| {
     pepper
 });
 
-pub fn hash_password(password: &str) -> Result<String> {
-    let salt = SaltString::generate(&mut OsRng);
+pub fn hash_password(password: &str, use_salt: bool) -> Result<String> {
+    let salt = if use_salt {
+        SaltString::generate(&mut OsRng)
+    } else {
+        SaltString::encode_b64(&[0; 8]).unwrap()
+    };
 
     let argon2 = Argon2::default();
     let password_hash = argon2
@@ -44,7 +48,9 @@ mod tests {
     #[test]
     fn test_hash_password() -> argon2::password_hash::Result<()> {
         let password = "hunter42";
-        let password_hash = hash_password(password)?;
+        let password_hash = hash_password(password, true)?;
+        // $argon2id$v=19$m=19456,t=2,p=1$hNr15789WAynWhDlIXoMRA$X571YoarjaMKaapP3mXkFj/T2hODeZuXZ00vKcLw5yM
+        println!("passwort hash: {password_hash}");
 
         assert!(verify_password(password, &password_hash)?);
 

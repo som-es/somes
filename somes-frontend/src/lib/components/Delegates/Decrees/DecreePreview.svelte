@@ -34,7 +34,7 @@
 		<div>
 			<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">Letzte Verordnungen</h1>
 
-			<h2 class="text-sm text-primary-600 dark:text-primary-300">
+			<h2 class="text-sm text-gray-800 dark:text-gray-300">
 				{decrees.length}
 				{decrees.length == 1 ? 'Verordnung' : 'Verordnungen'} insgesamt
 			</h2>

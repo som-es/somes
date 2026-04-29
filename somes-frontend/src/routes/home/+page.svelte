@@ -1,6 +1,6 @@
 <script lang="ts">
 	import VoteResults from '$lib/components/VoteResults/VoteResults.svelte';
-	import type { Delegate, GovProposalDelegate, VoteResult } from '$lib/types';
+	import type { Delegate, GovProposalDelegate, Topic, UniqueTopic, VoteResult } from '$lib/types';
 	import { onMount } from 'svelte';
 	import { cachedLatestVoteResults } from '$lib/caching/vote_results';
 	import Container from '$lib/components/Layout/Container.svelte';
@@ -15,7 +15,15 @@
 	import VoteResultExpandableBar from '$lib/components/VoteResults/Expandable/VoteResultExpandableBar.svelte';
 	import { resolve } from '$app/paths';
 	import { convertVoteResultFilterToUrl } from '$lib/components/VoteResults/Expandable/urlConversion';
-	import { currentVoteResultFilterStore } from '$lib/stores/stores';
+	import {
+		currentDecreeFilterStore,
+		currentGovProposalFilterStore,
+		currentVoteResultFilterStore
+	} from '$lib/stores/stores';
+	import { convertGovPropFilterToUrl } from '$lib/components/Proposals/urlConversion';
+	import type { Decree, DecreeDelegate } from '$lib/components/Delegates/Decrees/types';
+	import DecreeBar from '$lib/components/Delegates/Decrees/DecreeBar.svelte';
+	import { convertDecreeFilterToUrl } from '$lib/components/Decrees/urlConversion';
 
 	let { data }: PageProps = $props();
 
@@ -25,30 +33,83 @@
 		errorToNull(data.latestMinisterialProposals)
 	);
 
+	let decrees: DecreeDelegate[] | null = $derived(errorToNull(data.latestDelegateDecrees));
+
 	let userVoteResults: VoteResult[] | null = $state(null);
+	let userGovProposals: GovProposalDelegate[] | null = $state(null);
+	let userDecrees: DecreeDelegate[] | null = $state(null);
+
+	function hasFavorites(favoriteTopics: UniqueTopic[], entryTopics: Topic[]): boolean {
+		for (let i = 0; i < entryTopics.length; i++) {
+			for (let j = 0; j < favoriteTopics.length; j++) {
+				if (entryTopics[i].topic == favoriteTopics[j].topic) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 
 	onMount(async function () {
 		const userTopics = await cachedUserTopics();
 
 		const tempVoteResults = structuredClone($state.snapshot(voteResults));
+		const tempGovProposals = structuredClone($state.snapshot(govProposals));
+		const tempDecrees = structuredClone($state.snapshot(decrees));
 
-		if (userTopics && tempVoteResults) {
+		if (userTopics && tempVoteResults && tempGovProposals && tempDecrees) {
 			voteResults = [];
 			userVoteResults = tempVoteResults.filter((voteResult) => {
-				for (let i = 0; i < voteResult.eurovoc_topics.length; i++) {
-					for (let j = 0; j < userTopics.length; j++) {
-						if (voteResult.eurovoc_topics[i].topic == userTopics[j].topic) {
-							return true;
-						}
-					}
+				if (hasFavorites(userTopics, voteResult.eurovoc_topics)) {
+					return true;
 				}
 				voteResults?.push(voteResult);
 				return false;
 			});
 
 			voteResults = voteResults;
+
+			govProposals = [];
+			userGovProposals = tempGovProposals.filter((govProp) => {
+				if (
+					hasFavorites(
+						userTopics,
+						govProp.gov_proposal.eurovoc_topics.length > 0
+							? govProp.gov_proposal.eurovoc_topics
+							: (govProp.gov_proposal.ai_summary?.full_summary.topics?.map((topic) => {
+									return { topic };
+								}) ?? [])
+					)
+				) {
+					return true;
+				}
+				govProposals?.push(govProp);
+				return false;
+			});
+
+			govProposals = govProposals;
+
+			decrees = [];
+			userDecrees = tempDecrees.filter((decree) => {
+				if (
+					hasFavorites(
+						userTopics,
+						decree.decree.ai_summary?.full_summary.topics.map((topic) => {
+							return { topic };
+						}) ?? []
+					)
+				) {
+					return true;
+				}
+				decrees?.push(decree);
+				return false;
+			});
+
+			decrees = decrees;
 		} else {
 			voteResults = tempVoteResults;
+			govProposals = tempGovProposals;
+			decrees = tempDecrees;
 		}
 	});
 
@@ -64,6 +125,12 @@
 	);
 	const voteResultUrl = $derived(
 		convertVoteResultFilterToUrl(currentVoteResultFilterStore.value, '', undefined, true)
+	);
+	const ministerialHistoryUrl = $derived(
+		convertGovPropFilterToUrl(currentGovProposalFilterStore.value, '', undefined)
+	);
+	const decreeHistoryUrl = $derived(
+		convertDecreeFilterToUrl(currentDecreeFilterStore.value, '', undefined)
 	);
 </script>
 
@@ -82,7 +149,7 @@
 	</span>
 	<!-- User Interests -->
 	{#if userVoteResults && dels}
-		<h2 class="text-xl font-bold sm:text-3xl">nach Interesse</h2>
+		<h2 class="text-xl font-semibold sm:text-2xl">nach Interesse</h2>
 
 		<VoteResults {dels} allSeats={data.allSeats} voteResults={userVoteResults} />
 		<!-- {:else if use} -->
@@ -145,11 +212,99 @@
 		Ministerialentwürfe der letzten 30 Tage
 	</h2>
 	{#if govProposals}
+		{#if userGovProposals}
+			<h2 class="text-xl font-semibold sm:text-2xl">nach Interesse</h2>
+
+			<LatestProposals govProposals={userGovProposals} />
+		{/if}
+		{#if userGovProposals}
+			<h2 class="mt-2 text-xl font-semibold sm:text-2xl">sonstige</h2>
+		{/if}
 		{#if govProposals.length == 0}
 			<div class="w-full rounded-lg bg-surface-100-900 p-20 text-center">Keine</div>
 		{:else}
 			<LatestProposals {govProposals} />
 		{/if}
+		<div class="mt-3">
+			<a
+				href={ministerialHistoryUrl.href}
+				class="group flex w-fit items-center gap-1 text-base text-gray-800 hover:text-black dark:text-gray-300 dark:hover:text-white"
+			>
+				Weitere Ministerialentwürfe
+				<span class="transition-transform group-hover:translate-x-1">→</span>
+			</a>
+		</div>
+	{:else}
+		<section class="w-full animate-pulse card">
+			<div class="space-y-4 p-4">
+				<div class="placeholder"></div>
+				<div class="grid grid-cols-3 gap-8">
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
+				</div>
+				<div class="grid grid-cols-4 gap-4">
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
+				</div>
+			</div>
+		</section>
+		<section class="mt-1 w-full animate-pulse card">
+			<div class="space-y-4 p-4">
+				<div class="placeholder"></div>
+				<div class="grid grid-cols-3 gap-8">
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
+				</div>
+				<div class="grid grid-cols-4 gap-4">
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
+					<div class="placeholder"></div>
+				</div>
+			</div>
+		</section>
+	{/if}
+	<h2 class="mt-12 px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">
+		Verordnungen der letzten Woche
+	</h2>
+	{#if decrees}
+		{#if userDecrees}
+			<h2 class="text-xl font-semibold sm:text-2xl">nach Interesse</h2>
+			{#each userDecrees as decree (decree.decree.ris_id)}
+				<DecreeBar
+					{decree}
+					showDelegate
+					coloring="bg-primary-300 dark:bg-primary-500 dark:text-white"
+				/>
+			{/each}
+		{/if}
+		{#if userDecrees}
+			<h2 class="mt-2 text-xl font-semibold sm:text-2xl">sonstige</h2>
+		{/if}
+		{#if decrees.length == 0}
+			<div class="w-full rounded-lg bg-surface-100-900 p-20 text-center">Keine</div>
+		{:else}
+			{#each decrees as decree (decree.decree.ris_id)}
+				<DecreeBar
+					{decree}
+					showDelegate
+					coloring="bg-primary-300 dark:bg-primary-500 dark:text-white"
+				/>
+			{/each}
+		{/if}
+		<div class="mt-3">
+			<a
+				href={decreeHistoryUrl.href}
+				class="group flex w-fit items-center gap-1 text-base text-gray-800 hover:text-black dark:text-gray-300 dark:hover:text-white"
+			>
+				Weitere Verordnungen
+				<span class="transition-transform group-hover:translate-x-1">→</span>
+			</a>
+		</div>
 	{:else}
 		<section class="w-full animate-pulse card">
 			<div class="space-y-4 p-4">

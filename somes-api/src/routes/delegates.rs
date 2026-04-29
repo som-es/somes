@@ -8,25 +8,22 @@ use axum::{extract::Query, Json};
 use dataservice::combx::{Delegate, FullMandate};
 use somes_common_lib::{
     DelegateById, InterestShare, ALL_ACTIVE, ALL_AT_DATE, ALL_AT_DATE_WITH_SEAT_INFO, DELEGATE_QA,
-    EXTEND, ID, SEARCH, SPEECHES_PER_PAGE_ROUTE,
+    EXTEND, ID, INTERJECTIONS_ROUTE, SEARCH, SPEECHES_PER_PAGE_ROUTE,
 };
 
 pub use error::*;
 mod absences;
 mod ai_chat;
-mod call_to_orders;
 mod delegate_political_position;
 mod error;
 mod interests;
 mod issued_proposals;
 mod left_right_topic_score;
-mod named_votes;
 mod routes;
 mod speeches;
 mod stance_topic_score;
 pub use absences::*;
 pub use ai_chat::*;
-pub use call_to_orders::*;
 pub use delegate_political_position::*;
 pub use interests::*;
 pub use issued_proposals::*;
@@ -41,6 +38,10 @@ pub fn create_delegates_router() -> Router<AppState> {
         .route(ALL_ACTIVE, get(active_delegates_route))
         // .route(DELEGATE_QA, get(delegate_qa_route))
         .route(SEARCH, get(delegates_by_search_route))
+        // .route(
+        //     INTERJECTIONS_ROUTE,
+        //     get(interjections_by_delegate_route),
+        // )
         .route(
             SPEECHES_PER_PAGE_ROUTE,
             get(speeches_by_delegate_per_page_route),

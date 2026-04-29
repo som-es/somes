@@ -297,6 +297,7 @@ async fn process_message(
                         id as u128,
                         name.clone(),
                         false,
+                        false,
                         &KEYS2.read().await.encoding,
                     )
                     .map(|x| x.access_token.clone())

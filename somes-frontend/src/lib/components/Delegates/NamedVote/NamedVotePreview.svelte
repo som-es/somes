@@ -19,7 +19,7 @@
 			<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">
 				Letzte namentliche Abstimmungen
 			</h1>
-			<h2 class="text-sm text-primary-600 dark:text-primary-300">
+			<h2 class="text-sm text-gray-800 dark:text-gray-300">
 				{namedVotes.length}
 				{namedVotes.length == 1 ? 'Abstimmung' : 'Abstimmungen'} insgesamt
 			</h2>

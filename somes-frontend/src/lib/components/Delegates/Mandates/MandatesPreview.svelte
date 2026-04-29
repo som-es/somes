@@ -20,7 +20,7 @@
 
 	function getMandateType(mandate: FullMandate): string {
 		const isFemale = gender === 'f';
-		
+
 		switch (mandate.function) {
 			case 'EP':
 				return 'EU Parlament';
@@ -59,7 +59,7 @@
 	// GP tick marks that fall within (or right before) the time range
 	let visibleTicks = $derived.by(() => {
 		if (sortedPeriods.length === 0) return [];
-		
+
 		let startIndex = 0;
 		// Find the first period that started before or exactly at our minimum time
 		for (let i = sortedPeriods.length - 1; i >= 0; i--) {
@@ -77,7 +77,7 @@
 				break;
 			}
 		}
-		
+
 		return sortedPeriods.slice(startIndex, endIndex + 1);
 	});
 
@@ -100,13 +100,17 @@
 
 		for (let i = 0; i < n; i++) {
 			const slotStart = new Date(ticks[i].start_date);
-			const slotEnd = i + 1 < n ? new Date(ticks[i + 1].start_date) : new Date(Math.max(now.getTime(), timeRange.max.getTime()));
+			const slotEnd =
+				i + 1 < n
+					? new Date(ticks[i + 1].start_date)
+					: new Date(Math.max(now.getTime(), timeRange.max.getTime()));
 
 			if (date <= slotStart && i === 0) return 0;
 
 			if (date <= slotEnd) {
 				const slotDuration = slotEnd.getTime() - slotStart.getTime();
-				const fraction = slotDuration > 0 ? (date.getTime() - slotStart.getTime()) / slotDuration : 0;
+				const fraction =
+					slotDuration > 0 ? (date.getTime() - slotStart.getTime()) / slotDuration : 0;
 				const clampedFraction = Math.max(0, Math.min(1, fraction));
 				return (i + clampedFraction) * slotWidth;
 			}
@@ -149,13 +153,13 @@
 
 <div>
 	<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">Mandate</h1>
-	<h2 class="text-sm text-primary-600 dark:text-primary-300">
+	<h2 class="text-sm text-gray-800 dark:text-gray-300">
 		{mandates.length}
 		{mandates.length === 1 ? 'Eintrag' : 'Einträge'}
 	</h2>
 </div>
 
-<div class="mt-4 w-full overflow-x-auto md:overflow-visible pb-4">
+<div class="mt-4 w-full overflow-x-auto pb-4 md:overflow-visible">
 	<div class="min-w-[500px] md:min-w-0">
 		<!-- GP tick labels row -->
 		<div class="flex gap-3">
@@ -164,7 +168,7 @@
 				{#each visibleTicks as period}
 					{@const left = ordinalPercent(new Date(period.start_date))}
 					<span
-						class="absolute -translate-x-1/2 whitespace-nowrap text-xs text-gray-400 dark:text-gray-500"
+						class="absolute -translate-x-1/2 text-xs whitespace-nowrap text-gray-800 dark:text-gray-300"
 						style="left: {left}%"
 					>
 						{period.gp}
@@ -176,28 +180,32 @@
 		<!-- Main layout: Unified rows with background ticks -->
 		<div class="relative mt-2">
 			<!-- Background layer for ticks & today marker -->
-			<div class="absolute inset-0 left-[calc(9rem+0.75rem+0.5rem)] pointer-events-none">
+			<div class="pointer-events-none absolute inset-0 left-[calc(9rem+0.75rem+0.5rem)]">
 				<!-- Vertical tick lines -->
 				{#each visibleTicks as period}
 					{@const left = ordinalPercent(new Date(period.start_date))}
-					<div class="absolute top-0 h-full w-px bg-gray-200 dark:bg-gray-700" style="left: {left}%"></div>
+					<div
+						class="absolute top-0 h-full w-px bg-gray-600 dark:bg-gray-300"
+						style="left: {left}%"
+					></div>
 				{/each}
 
 				<!-- Today marker -->
 				{#if hasActiveMandate}
-					<div class="absolute top-0 z-10 h-full w-0.5 bg-primary-500 dark:bg-primary-400" style="left: {todayPercent}%"></div>
+					<div
+						class="absolute top-0 z-10 h-full w-0.5 bg-primary-500 dark:bg-primary-400"
+						style="left: {todayPercent}%"
+					></div>
 				{/if}
 			</div>
 
 			<!-- Foreground layer: Rows -->
-			<div class="flex flex-col gap-1 relative z-10">
+			<div class="relative z-10 flex flex-col gap-1">
 				<Tooltip.Provider delayDuration={150} disableCloseOnTriggerClick={true}>
 					{#each mandates as mandate, i}
-						<Tooltip.Root 
-							open={hoverStates[i] ?? false} 
-						>
-							<div 
-								class="group relative flex items-center gap-3 h-10 rounded-lg hover:bg-primary-200 dark:hover:bg-primary-200 transition-colors px-2"
+						<Tooltip.Root open={hoverStates[i] ?? false}>
+							<div
+								class="group relative flex h-10 items-center gap-3 rounded-lg px-2 transition-colors hover:bg-primary-200 dark:hover:bg-primary-200"
 								onpointerenter={(e) => handleRowEnter(i, e)}
 								onpointerleave={(e) => handleRowLeave(i)}
 								onfocus={() => handleRowEnter(i)}
@@ -206,37 +214,45 @@
 								role="button"
 							>
 								<!-- Label -->
-								<div class="flex w-36 shrink-0 flex-col justify-center pointer-events-none">
+								<div class="pointer-events-none flex w-36 shrink-0 flex-col justify-center">
 									<span class="truncate text-sm font-semibold text-gray-800 dark:text-gray-200">
 										{getMandateType(mandate)}
 									</span>
-									<span class="text-xs text-gray-400 dark:text-gray-500">
-										{formatYear(mandate.start_date)} - {mandate.end_date ? formatYear(mandate.end_date) : 'dato'}
+									<span class="text-xs text-gray-800 dark:text-gray-300">
+										{formatYear(mandate.start_date)} - {mandate.end_date
+											? formatYear(mandate.end_date)
+											: 'dato'}
 									</span>
 								</div>
 
 								<!-- Bar Container -->
-								<div class="relative flex-1 h-7">
+								<div class="relative h-7 flex-1">
 									<Tooltip.Trigger>
 										{#snippet child({ props })}
 											<div
 												{...props}
-												class="absolute h-full rounded-md transition-opacity opacity-85 group-hover:opacity-100 shadow-sm"
+												class="absolute h-full rounded-md opacity-85 shadow-sm transition-opacity group-hover:opacity-100"
 												style={barStyle(mandate)}
 											></div>
 										{/snippet}
 									</Tooltip.Trigger>
 								</div>
 							</div>
-							
-							<Tooltip.Content 
-								sideOffset={6} 
-								class="z-[100] max-w-[300px] rounded-md bg-gray-900 px-3 py-2 text-xs text-white shadow-xl dark:bg-gray-100 dark:text-gray-900 pointer-events-none"
+
+							<Tooltip.Content
+								sideOffset={6}
+								class="pointer-events-none z-[100] max-w-[300px] rounded-md bg-gray-900 px-3 py-2 text-xs text-white shadow-xl dark:bg-gray-100 dark:text-gray-900"
 							>
 								<Tooltip.Arrow class="text-gray-900 dark:text-gray-100" />
-								<div class="font-bold text-sm mb-0.5 whitespace-normal">{mandate.name || getMandateType(mandate)}</div>
+								<div class="mb-0.5 text-sm font-bold whitespace-normal">
+									{mandate.name || getMandateType(mandate)}
+								</div>
 								<div class="text-gray-300 dark:text-gray-600">
-									{mandate.start_date ? new Date(mandate.start_date).toLocaleDateString('de-AT') : '?'} – {mandate.end_date ? new Date(mandate.end_date).toLocaleDateString('de-AT') : 'dato'}
+									{mandate.start_date
+										? new Date(mandate.start_date).toLocaleDateString('de-AT')
+										: '?'} – {mandate.end_date
+										? new Date(mandate.end_date).toLocaleDateString('de-AT')
+										: 'dato'}
 								</div>
 							</Tooltip.Content>
 						</Tooltip.Root>

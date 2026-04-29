@@ -19,7 +19,7 @@
 			<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">
 				Letzte eingebrachte Anträge
 			</h1>
-			<h2 class="text-sm text-primary-600 dark:text-primary-300">
+			<h2 class="text-sm text-gray-800 dark:text-gray-300">
 				{issuedProposals.length}
 				{issuedProposals.length == 1 ? 'Antrag' : 'Anträge'} insgesamt
 			</h2>
@@ -29,7 +29,7 @@
 		</ExtendInfoDialog>
 	</div>
 </div>
-<div>
+<div class="mt-5 flex flex-col gap-2">
 	{#each previewProposals as issuedProposal}
 		<IssuedProposalBar {issuedProposal} />
 	{/each}

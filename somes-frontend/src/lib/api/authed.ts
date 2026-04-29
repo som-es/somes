@@ -138,7 +138,7 @@ export async function getFavoLegisInits(): Promise<LegisInitFavo[] | HasError> {
 }
 
 export async function delete_account(): Promise<null | HasError> {
-	return deleteWithAuth('v1/user/delete_account', undefined);
+	return deleteWithAuth('v1/user/delete', undefined);
 }
 
 export async function getMailSendInfo(): Promise<MailSendInfo | HasError> {
@@ -167,4 +167,16 @@ export async function login(
 	hash_email: boolean | null
 ): Promise<JWTInfo | HasError | LoginResponseError> {
 	return justPost('v1/user/login', { email, password, hash_email });
+}
+
+export async function change_email(new_email: string): Promise<any | HasError> {
+	return postWithAuth('v1/user/change_email', { new_email });
+}
+
+export async function verify_email_change(new_email: string, otp: string): Promise<any | HasError> {
+	return postWithAuth('v1/user/verify_email_change', { new_email, otp });
+}
+
+export async function anonymize_email(): Promise<any | HasError> {
+	return postWithAuth('v1/user/anonymize_email', {});
 }

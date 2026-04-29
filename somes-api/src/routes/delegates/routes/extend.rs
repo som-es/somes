@@ -1,4 +1,7 @@
 use axum::{extract::Path, Json};
+use dataservice::combx::with_data::delegates::{
+    extract_call_to_orders_by_delegate, extract_named_votes_by_delegate,
+};
 use redis::aio::MultiplexedConnection;
 use somes_common_lib::{GeneralDelegateInfo, Mandate};
 use sqlx::{query_as, PgPool};
@@ -8,12 +11,11 @@ use crate::{
     routes::{
         delegates::{
             left_right_topic_score::extract_left_right_topic_score_by_delegate,
-            named_votes::extract_named_votes_by_delegate,
             stance_topic_score::extract_stance_topic_score_by_delegate,
         },
-        extract_absences_by_delegate, extract_call_to_orders_by_delegate, extract_delegate_qa,
-        extract_detailed_interests_of_delegate, extract_interests_of_delegate,
-        extract_issued_proposals_by_delegate, extract_political_position, DelegateError,
+        extract_absences_by_delegate, extract_delegate_qa, extract_detailed_interests_of_delegate,
+        extract_interests_of_delegate, extract_issued_proposals_by_delegate,
+        extract_political_position, DelegateError,
     },
     PgPoolConnection, RedisConnection, IS_PROD,
 };
