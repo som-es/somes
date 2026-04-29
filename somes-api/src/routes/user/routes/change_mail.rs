@@ -70,7 +70,7 @@ pub async fn change_mail(
         return Err(UserError::SignUpError(sign_up_error));
     }
 
-    let stored_email = body.new_email.clone();
+    let stored_email = format!("change_mail/{}", body.new_email.clone());
 
     if claims.is_anonymised {
         let skip_otp =
@@ -122,7 +122,9 @@ pub async fn verify_email_change(
 
     let input_otp = body.otp.trim_matches(char::is_whitespace).replace(" ", "");
 
-    let stored_hash = match redis_con.get::<_, String>(&body.new_email).await {
+    let email_key = format!("change_mail/{}", body.new_email);
+
+    let stored_hash = match redis_con.get::<_, String>(&email_key).await {
         Ok(v) => v,
         Err(_) => {
             log::warn!("No Redis entry found for email: {}", body.new_email);
@@ -137,7 +139,7 @@ pub async fn verify_email_change(
         return Err(UserError::WrongOtp);
     }
 
-    redis_con.unlink::<_, i32>(&body.new_email).await?;
+    redis_con.unlink::<_, i32>(&email_key).await?;
 
     let jwt_info = change_to_clear_text_email(pg, claims, &body.new_email).await?;
 
@@ -174,7 +176,7 @@ async fn change_to_clear_text_email(
         user.id,
         new_email.to_string(),
         user.is_admin,
-        user.is_email_hashed,
+        false,
     )
     .map_err(UserError::AuthError)?;
     Ok(jwt_info)

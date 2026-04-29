@@ -60,6 +60,7 @@ pub async fn send_otp(
     email: &str,
     stored_email: &str,
 ) -> Result<(), UserError> {
+
     let otp = generate_otp();
 
     let otp_hash = hash_password(&otp, true).map_err(|_| UserError::Hashing)?;
@@ -135,12 +136,14 @@ pub async fn login(
         login_info.email.clone()
     };
 
+    let key = format!("login/{stored_email}");
+
     if redis_con
-        .exists::<_, bool>(&stored_email)
+        .exists::<_, bool>(&key)
         .await
         .unwrap_or_default()
     {
-        match redis_con.get::<_, String>(&stored_email).await {
+        match redis_con.get::<_, String>(&key).await {
             Ok(v) => {
                 let Some(password) = login_info.password else {
                     return Err(UserError::WrongOtp);
@@ -150,7 +153,7 @@ pub async fn login(
                     return Ok(Json(JWTInfo::default()));
                 }
                 if verify_password(&input_otp, &v).map_err(|_| UserError::Hashing)? {
-                    redis_con.unlink::<_, i32>(&login_info.email).await?;
+                    redis_con.unlink::<_, i32>(&key).await?;
 
                     // select based on email (try with hash and without)
                     let user = get_user_from_mail_or_hash_sqlx(&pg, &stored_email).await?;
@@ -200,7 +203,7 @@ pub async fn login(
             }
         }
     } else {
-        send_otp(&mut redis_con, &login_info.email, &stored_email).await?;
+        send_otp(&mut redis_con, &login_info.email, &key).await?;
     }
 
     // check redis
