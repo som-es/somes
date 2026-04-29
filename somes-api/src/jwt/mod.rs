@@ -16,11 +16,13 @@ pub fn create_access_token(
     id: i32,
     username: String,
     is_admin: bool,
+    is_anonymised: bool,
 ) -> Result<Json<JWTInfo>, AuthError> {
     create_access_token_with_keys_and_exp_time(
         id,
         username,
         is_admin,
+        is_anonymised,
         (timestamp_secs() + 60 * 60 * 24 * 3) as usize,
         &KEYS.encoding,
     )
@@ -30,12 +32,14 @@ pub fn create_access_token_u128(
     id: u128,
     username: String,
     is_admin: bool,
+    is_anonymised: bool,
     key: &EncodingKey,
 ) -> Result<Json<JWTInfo>, AuthError> {
     create_access_token_with_keys_and_exp_time(
         id,
         username,
         is_admin,
+        is_anonymised,
         (timestamp_secs() + 60 * 60 * 3) as usize,
         key,
     )
@@ -45,6 +49,7 @@ pub fn create_access_token_with_keys_and_exp_time<T: Serialize + ToSchema>(
     id: T,
     username: String,
     is_admin: bool,
+    is_anonymised: bool,
     exp_secs: usize,
     key: &EncodingKey,
 ) -> Result<Json<JWTInfo>, AuthError> {
@@ -56,6 +61,7 @@ pub fn create_access_token_with_keys_and_exp_time<T: Serialize + ToSchema>(
         // Mandatory expiry time as UNIX timestamp
         exp: exp_secs,
         is_admin,
+        is_anonymised,
     };
 
     // Create the authorization token
@@ -66,7 +72,7 @@ pub fn create_access_token_with_keys_and_exp_time<T: Serialize + ToSchema>(
 }
 
 pub async fn renew_token_route(claims: Claims) -> Result<Json<JWTInfo>, AuthError> {
-    create_access_token(claims.id, claims.sub, claims.is_admin)
+    create_access_token(claims.id, claims.sub, claims.is_admin, claims.is_anonymised)
 }
 
 #[cfg(test)]
@@ -77,7 +83,7 @@ mod tests {
     fn test_create_access_token() {
         unsafe { std::env::set_var("JWT_SECRET", "super_sicher") };
 
-        let token = create_access_token(43, "toller_name".to_string(), false).unwrap();
+        let token = create_access_token(43, "toller_name".to_string(), false, false).unwrap();
         let _token = &token.access_token;
     }
 }

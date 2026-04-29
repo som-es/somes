@@ -59,9 +59,7 @@
 	let topicSearchValue = $state('');
 	let isSearchPopupOpen = $state(false);
 
-	let anonymizeEmail = $state<boolean>(!!extendedUser?.is_email_hashed);
 	let showChangeEmail = $state(false);
-	let isDeanonymizing = $state(false);
 	let newEmail = $state('');
 	let otp = $state('');
 	let otpStep = $state(false);
@@ -100,7 +98,6 @@
 		user = getUserFromJwt(jwtToken);
 		mailSendInfo = errorToNull(await getMailSendInfo());
 		extendedUser = errorToNull(await getUser());
-		anonymizeEmail = !!extendedUser?.is_email_hashed;
 		favoDelegates = errorToNull(await cachedDelegateFavos(true));
 		favoLegisInits = errorToNull(await cachedLegisInitFavos(true));
 
@@ -165,26 +162,19 @@
 		gotoHistory('/home');
 	}
 
-	async function toggleEmailAnonymization(checked: boolean) {
-		if (!checked && extendedUser?.is_email_hashed) {
-			showChangeEmail = true;
-			isDeanonymizing = true;
-		} else {
-			anonymizeEmail = checked;
-			const result = await anonymize_email(checked);
-			
-			if (result && !isHasError(result) && result.access_token) {
-				jwtStore.value = result.access_token;
-				user = getUserFromJwt(result.access_token);
-			}
-			
-			extendedUser = errorToNull(await getUser());
+	async function toggleEmailAnonymization() {
+		const result = await anonymize_email();
+		
+		if (result && !isHasError(result) && result.access_token) {
+			jwtStore.value = result.access_token;
+			user = getUserFromJwt(result.access_token);
 		}
+		
+		extendedUser = errorToNull(await getUser());
 	}
 
 	function resetEmailDialog() {
 		showChangeEmail = false;
-		isDeanonymizing = false;
 		newEmail = '';
 		otp = '';
 		otpStep = false;
@@ -201,51 +191,21 @@ async function changeEmail() {
 	sent = false;
 
 	try {
-		if (isDeanonymizing) {
-			const result = await anonymize_email(false, newEmail);
-
-			if (isHasError(result)) {
-				error = 'Ein serverseitiger Fehler ist aufgetreten.';
-				return;
-			}
-
-			if (result.requires_otp) {
-				otpStep = true;
-				sent = true;
-				success = result.message || 'OTP wurde gesendet.';
-				return;
-			}
-
-			if (result.access_token) {
-				jwtStore.value = result.access_token;
-				user = getUserFromJwt(result.access_token);
-			}
-
-			extendedUser = errorToNull(await getUser());
-			anonymizeEmail = !!extendedUser?.is_email_hashed;
-
-			success = result.message || 'E-Mail erfolgreich geändert.';
-
-			setTimeout(() => {
-				resetEmailDialog();
-			}, 1500);
-		} else {
-			const result = await change_email(newEmail);
-			
-			if (isHasError(result)) {
-				if (result.error.includes('fehlt')) {
-					error = 'E-Mail-Adresse fehlt';
-				} else if (result.error.includes('Fehlerhafte')) {
-					error = 'Fehlerhafte E-Mail-Adresse';
-				} else {
-					error = 'Ein serverseitiger Fehler ist aufgetreten. Es kann nicht fortgefahren werden.';
-				}
+		const result = await change_email(newEmail);
+		
+		if (isHasError(result)) {
+			if (result.error.includes('fehlt')) {
+				error = 'E-Mail-Adresse fehlt';
+			} else if (result.error.includes('Fehlerhafte')) {
+				error = 'Fehlerhafte E-Mail-Adresse';
 			} else {
-				// Success - OTP sent
-				otpStep = true;
-				sent = true;
-				success = 'An deine E-Mail-Adresse wurde ein One-Time Passwort gesendet.';
+				error = 'Ein serverseitiger Fehler ist aufgetreten. Es kann nicht fortgefahren werden.';
 			}
+		} else {
+			// Success - OTP sent
+			otpStep = true;
+			sent = true;
+			success = 'An deine E-Mail-Adresse wurde ein One-Time Passwort gesendet.';
 		}
 	} catch (e) {
 		error = 'Ein serverseitiger Fehler ist aufgetreten. Es kann nicht fortgefahren werden.';
@@ -273,7 +233,6 @@ async function verifyOtp() {
 		}
 
 		extendedUser = errorToNull(await getUser());
-		anonymizeEmail = !!extendedUser?.is_email_hashed;
 
 		success = 'E-Mail-Adresse erfolgreich geändert.';
 
@@ -325,7 +284,7 @@ async function verifyOtp() {
 						</div>
 
 						<div class="mt-3 flex items-center gap-3">
-							<span class="text-sm text-gray-700 dark:text-gray-300">
+							<!-- <span class="text-sm text-gray-700 dark:text-gray-300">
 								E-Mail anonymisieren
 							</span>
 
@@ -337,11 +296,11 @@ async function verifyOtp() {
 								<Switch.Thumb
 									class="block h-5 w-5 rounded-full bg-white shadow transition-transform data-[state=checked]:translate-x-5"
 								/>
-							</Switch.Root>
+							</Switch.Root> -->
 
-							<span class="text-xs text-gray-500">
+							<!-- <span class="text-xs text-gray-500">
 								{anonymizeEmail ? 'Ja' : 'Nein'}
-							</span>
+							</span> -->
 						</div>
 
 						<div class="flex gap-2">
@@ -351,6 +310,14 @@ async function verifyOtp() {
 							>
 								Abmelden
 							</SButton>
+							{#if !extendedUser?.is_email_hashed}
+							<SButton
+								class="bg-primary-400 text-black hover:bg-primary-500"
+								onclick={toggleEmailAnonymization}
+							>
+								Anonymisieren	
+							</SButton>
+							{/if}
 							<SButton
 								class="bg-tertiary-500 text-black hover:bg-tertiary-600"
 								onclick={() => (showChangeEmail = !showChangeEmail)}
@@ -366,7 +333,7 @@ async function verifyOtp() {
 							<!-- EMAIL -->
 							<div class="flex flex-col items-end">
 								<label for="email" class="text-l font-medium text-gray-700">
-									{isDeanonymizing ? 'E-Mail-Adresse' : 'Neue E-Mail'}
+									Neue E-Mail
 								</label>
 								<input
 									id="email"
@@ -397,7 +364,7 @@ async function verifyOtp() {
 							<div class="flex items-end gap-2">
 								{#if !otpStep}
 									<SButton class="bg-secondary-500 text-white" onclick={changeEmail}>
-										{isDeanonymizing ? 'Entanonymisieren' : 'Weiter'}
+										Weiter
 									</SButton>
 								{:else}
 									<SButton class="bg-secondary-500 text-white" onclick={verifyOtp}>
@@ -409,7 +376,6 @@ async function verifyOtp() {
 									class="bg-gray-300"
 									onclick={() => {
 										showChangeEmail = false;
-										isDeanonymizing = false;
 										newEmail = '';
 										otp = '';
 										otpStep = false;
@@ -442,18 +408,21 @@ async function verifyOtp() {
 			<div class="w-full rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
 				<div class="flex items-center justify-between">
 					<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">E-Mail Benachrichtigungen</h2>
-					<div class="flex items-center gap-2">
-						<p class="text-sm">Alle</p>
-						<Switch.Root
-							checked={allChecked}
-							onCheckedChange={toggleAll}
-							class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
-						>
-							<Switch.Thumb
-								class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
-							/>
-						</Switch.Root>
-					</div>
+
+					{#if !extendedUser?.is_email_hashed}
+						<div class="flex items-center gap-2">
+							<p class="text-sm">Alle</p>
+							<Switch.Root
+								checked={allChecked}
+								onCheckedChange={toggleAll}
+								class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
+							>
+								<Switch.Thumb
+									class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+								/>
+							</Switch.Root>
+						</div>
+					{/if}
 				</div>
 
 				{#if !extendedUser?.is_email_hashed}

@@ -52,7 +52,8 @@ pub struct ChangeMailResponse {
 
 pub async fn change_mail(
     RedisConnection(mut redis_con): RedisConnection,
-    _claims: Claims,
+    PgPoolConnection(pg): PgPoolConnection,
+    claims: Claims,
     Json(body): Json<ChangeMailBody>,
 ) -> Result<Json<ChangeMailResponse>, UserError> {
     let mut sign_up_error = SignUpErrorWrapper::default();
@@ -70,6 +71,21 @@ pub async fn change_mail(
     }
 
     let stored_email = body.new_email.clone();
+
+    if claims.is_anonymised {
+        let skip_otp =
+            verify_password(&body.new_email, &claims.sub).map_err(|_| UserError::Hashing)?;
+
+        if skip_otp {
+            let jwt_info = change_to_clear_text_email(pg, claims, &body.new_email).await?;
+            return Ok(Json(ChangeMailResponse {
+                success: true,
+                message: "E-Mail-Adresse erfolgreich entanonymisiert.".to_string(),
+                requires_otp: false,
+                access_token: Some(jwt_info.access_token),
+            }));
+        }
+    }
 
     if redis_con
         .exists::<_, bool>(&stored_email)
@@ -117,16 +133,29 @@ pub async fn verify_email_change(
 
     redis_con.unlink::<_, i32>(&body.new_email).await?;
 
-    let current_user = get_current_user_from_sqlx(&pg, claims.id).await?;
+    let jwt_info = change_to_clear_text_email(pg, claims, &body.new_email).await?;
 
+    Ok(Json(ChangeMailResponse {
+        success: true,
+        message: "E-Mail-Adresse erfolgreich geändert.".to_string(),
+        requires_otp: false,
+        access_token: Some(jwt_info.access_token),
+    }))
+}
+
+async fn change_to_clear_text_email(
+    pg: sqlx::Pool<sqlx::Postgres>,
+    claims: crate::jwt::ClaimsGen<i32>,
+    new_email: &str,
+) -> Result<somes_common_lib::JWTInfo, UserError> {
+    let current_user = get_current_user_from_sqlx(&pg, claims.id).await?;
     let user = match current_user {
         Some(user) => user,
         None => return Err(UserError::UserCreationError),
     };
-
     sqlx::query!(
         "update somes_user set email = $1, is_email_hashed = false where id = $2",
-        &body.new_email,
+        new_email,
         user.id
     )
     .execute(&pg)
@@ -135,14 +164,12 @@ pub async fn verify_email_change(
         log::error!("Failed to update email for user {}: {:?}", user.id, e);
         UserError::UserCreationError
     })?;
-
-    let Json(jwt_info) = create_access_token(user.id, body.new_email.clone(), user.is_admin)
-        .map_err(UserError::AuthError)?;
-
-    Ok(Json(ChangeMailResponse {
-        success: true,
-        message: "E-Mail-Adresse erfolgreich geändert.".to_string(),
-        requires_otp: false,
-        access_token: Some(jwt_info.access_token),
-    }))
+    let Json(jwt_info) = create_access_token(
+        user.id,
+        new_email.to_string(),
+        user.is_admin,
+        user.is_email_hashed,
+    )
+    .map_err(UserError::AuthError)?;
+    Ok(jwt_info)
 }

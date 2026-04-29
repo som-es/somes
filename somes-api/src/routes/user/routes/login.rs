@@ -157,8 +157,13 @@ pub async fn login(
 
                     match user {
                         Some(user) => {
-                            return create_access_token(user.id, user.email, user.is_admin)
-                                .map_err(|e| UserError::AuthError(e));
+                            return create_access_token(
+                                user.id,
+                                user.email,
+                                user.is_admin,
+                                user.is_email_hashed,
+                            )
+                            .map_err(|e| UserError::AuthError(e));
                         }
                         None => {
                             let stored_email = if login_info.hash_email.unwrap_or_default() {
@@ -176,8 +181,13 @@ pub async fn login(
                             .fetch_one(&pg)
                             .await?;
 
-                            return create_access_token(id.id, stored_email, false)
-                                .map_err(|e| UserError::AuthError(e));
+                            return create_access_token(
+                                id.id,
+                                stored_email,
+                                false,
+                                login_info.hash_email.unwrap_or_default(),
+                            )
+                            .map_err(|e| UserError::AuthError(e));
                         }
                     }
                 } else {

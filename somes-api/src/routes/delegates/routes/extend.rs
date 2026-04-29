@@ -1,6 +1,6 @@
 use axum::{extract::Path, Json};
 use dataservice::combx::with_data::delegates::{
-     extract_call_to_orders_by_delegate, extract_named_votes_by_delegate
+    extract_call_to_orders_by_delegate, extract_named_votes_by_delegate,
 };
 use redis::aio::MultiplexedConnection;
 use somes_common_lib::{GeneralDelegateInfo, Mandate};

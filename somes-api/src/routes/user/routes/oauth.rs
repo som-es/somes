@@ -265,7 +265,13 @@ pub async fn oauth_callback(
     };
 
     // 4️⃣ JWT erzeugen
-    let jwt = create_access_token(user.id, user.email.clone(), user.is_admin).map_err(|e| {
+    let jwt = create_access_token(
+        user.id,
+        user.email.clone(),
+        user.is_admin,
+        user.is_email_hashed,
+    )
+    .map_err(|e| {
         UserError::Custom(
             axum::http::StatusCode::INTERNAL_SERVER_ERROR,
             format!("JWT creation failed: {:?}", e),
