@@ -273,7 +273,7 @@ pub async fn oauth_callback(
     })?;
 
     let redirect_to = std::env::var("OAUTH_REDIRECT_URI")
-        .unwrap_or("http://localhost:5173/resolve_token?token=".into());
+        .unwrap_or("https://somes.at/resolve_token?token=".into());
 
     // 5️⃣ Redirect ins Frontend mit JWT
     Ok(Redirect::to(&format!("{redirect_to}{}", jwt.access_token)))

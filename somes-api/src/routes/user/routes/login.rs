@@ -169,15 +169,9 @@ pub async fn login(
                                 login_info.email.clone()
                             };
 
-                            let is_admin = if login_info.email == "florian.nagy@it.htl-hl.ac.at" {
-                                true
-                            } else {
-                                false
-                            };
-
                             let id = sqlx::query!(
                                 "insert into somes_user(email, is_email_hashed, is_admin) values ($1, $2, $3) returning id",
-                                &stored_email, login_info.hash_email.unwrap_or_default(), is_admin
+                                &stored_email, login_info.hash_email.unwrap_or_default(), false
                             )
                             .fetch_one(&pg)
                             .await?;

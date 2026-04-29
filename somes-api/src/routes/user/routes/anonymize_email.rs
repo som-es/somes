@@ -1,6 +1,5 @@
 use axum::Json;
 use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
 
 use crate::{
     hash::hash_password,
@@ -100,7 +99,7 @@ pub async fn anonymize_email(
                 access_token: Some(new_token.access_token.clone()),
             }))
         } else {
-            let redis_key = email.clone();
+            let redis_key = email;
 
             send_otp(&mut redis_con, &email, &redis_key).await?;
 

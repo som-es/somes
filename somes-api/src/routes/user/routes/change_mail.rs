@@ -52,6 +52,7 @@ pub struct ChangeMailResponse {
 
 pub async fn change_mail(
     RedisConnection(mut redis_con): RedisConnection,
+    _claims: Claims,
     Json(body): Json<ChangeMailBody>,
 ) -> Result<Json<ChangeMailResponse>, UserError> {
     let mut sign_up_error = SignUpErrorWrapper::default();
