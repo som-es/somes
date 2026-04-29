@@ -138,7 +138,7 @@ export async function getFavoLegisInits(): Promise<LegisInitFavo[] | HasError> {
 }
 
 export async function delete_account(): Promise<null | HasError> {
-	return deleteWithAuth('v1/user/delete_account', undefined);
+	return deleteWithAuth('v1/user/delete', undefined);
 }
 
 export async function getMailSendInfo(): Promise<MailSendInfo | HasError> {

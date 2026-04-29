@@ -30,7 +30,7 @@ fn generate_otp() -> String {
         .collect()
 }
 
-pub async fn get_user_from_mail_sqlx(
+pub async fn get_user_from_mail_or_hash_sqlx(
     pg: &PgPool,
     stored_mail: &str,
 ) -> Result<Option<User>, UserError> {
@@ -153,7 +153,7 @@ pub async fn login(
                     redis_con.unlink::<_, i32>(&login_info.email).await?;
 
                     // select based on email (try with hash and without)
-                    let user = get_user_from_mail_sqlx(&pg, &stored_email).await?;
+                    let user = get_user_from_mail_or_hash_sqlx(&pg, &stored_email).await?;
 
                     match user {
                         Some(user) => {

@@ -60,6 +60,10 @@
 	let isSearchPopupOpen = $state(false);
 
 	let showChangeEmail = $state(false);
+	let finished = $derived.by(() => {
+		showChangeEmail;
+		return false;
+	});
 	let newEmail = $state('');
 	let otp = $state('');
 	let otpStep = $state(false);
@@ -202,6 +206,20 @@ async function changeEmail() {
 				error = 'Ein serverseitiger Fehler ist aufgetreten. Es kann nicht fortgefahren werden.';
 			}
 		} else {
+			if (!result.requires_otp) {
+				if (result.access_token) {
+					jwtStore.value = result.access_token;
+					user = getUserFromJwt(result.access_token);
+				}
+				extendedUser = errorToNull(await getUser());
+				success = 'E-Mail-Adresse erfolgreich geändert.';
+				setTimeout(() => {
+					resetEmailDialog();
+				}, 2500);
+				finished = true;
+				sent = true;
+				return;
+			}
 			// Success - OTP sent
 			otpStep = true;
 			sent = true;
@@ -235,10 +253,11 @@ async function verifyOtp() {
 		extendedUser = errorToNull(await getUser());
 
 		success = 'E-Mail-Adresse erfolgreich geändert.';
+		finished = true;
 
 		setTimeout(() => {
 			resetEmailDialog();
-		}, 1500);
+		}, 2500);
 
 	} catch (e) {
 		error = 'Ein serverseitiger Fehler ist aufgetreten.';
@@ -283,26 +302,6 @@ async function verifyOtp() {
 							</div>
 						</div>
 
-						<div class="mt-3 flex items-center gap-3">
-							<!-- <span class="text-sm text-gray-700 dark:text-gray-300">
-								E-Mail anonymisieren
-							</span>
-
-							<Switch.Root
-								checked={anonymizeEmail}
-								onCheckedChange={toggleEmailAnonymization}
-								class="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors data-[state=checked]:bg-secondary-500 data-[state=unchecked]:bg-gray-300"
-							>
-								<Switch.Thumb
-									class="block h-5 w-5 rounded-full bg-white shadow transition-transform data-[state=checked]:translate-x-5"
-								/>
-							</Switch.Root> -->
-
-							<!-- <span class="text-xs text-gray-500">
-								{anonymizeEmail ? 'Ja' : 'Nein'}
-							</span> -->
-						</div>
-
 						<div class="flex gap-2">
 							<SButton
 								class="bg-secondary-500 text-white hover:bg-secondary-600"
@@ -330,62 +329,71 @@ async function verifyOtp() {
 						{#if showChangeEmail}
 						<div class="flex justify-end items-end gap-4 border-t pt-3">
 
-							<!-- EMAIL -->
-							<div class="flex flex-col items-end">
-								<label for="email" class="text-l font-medium text-gray-700">
-									Neue E-Mail
-								</label>
-								<input
-									id="email"
-									type="email"
-									placeholder="dergertrud@gmail.com"
-									class="w-48 rounded-lg border px-3 py-2 text-sm text-right dark:bg-gray-800"
-									bind:value={newEmail}
-								/>
-							</div>
-
-							<!-- OTP -->
-							{#if otpStep}
+							{#if !finished}
+								<!-- EMAIL -->
 								<div class="flex flex-col items-end">
-									<label for="otp" class="text-l font-medium text-gray-700">
-										One-Time Passwort (OTP)
+									<label for="email" class="text-l font-medium text-gray-700">
+										{#if extendedUser?.is_email_hashed}
+											<span class="ml-1 text-sm text-gray-600 dark:text-gray-400"
+												>Entanonymisieren oder</span
+											>
+										{/if}
+										Neue E-Mail
+
+										
 									</label>
 									<input
-										id="otp"
-										type="text"
-										placeholder="MAS DS5 4DA"
+										id="email"
+										type="email"
+										placeholder="dergertrud@gmail.com"
 										class="w-48 rounded-lg border px-3 py-2 text-sm text-right dark:bg-gray-800"
-										bind:value={otp}
+										bind:value={newEmail}
 									/>
 								</div>
-							{/if}
 
-							<!-- BUTTONS -->
-							<div class="flex items-end gap-2">
-								{#if !otpStep}
-									<SButton class="bg-secondary-500 text-white" onclick={changeEmail}>
-										Weiter
-									</SButton>
-								{:else}
-									<SButton class="bg-secondary-500 text-white" onclick={verifyOtp}>
-										Speichern
-									</SButton>
+								<!-- OTP -->
+								{#if otpStep}
+									<div class="flex flex-col items-end">
+										<label for="otp" class="text-l font-medium text-gray-700">
+											One-Time Passwort (OTP)
+										</label>
+										<input
+											id="otp"
+											type="text"
+											placeholder="MAS DS5 4DA"
+											class="w-48 rounded-lg border px-3 py-2 text-sm text-right dark:bg-gray-800"
+											bind:value={otp}
+										/>
+									</div>
 								{/if}
 
-								<SButton
-									class="bg-gray-300"
-									onclick={() => {
-										showChangeEmail = false;
-										newEmail = '';
-										otp = '';
-										otpStep = false;
-										error = '';
-										success = '';
-									}}
-								>
-									Abbrechen
-								</SButton>
-							</div>
+								<!-- BUTTONS -->
+								<div class="flex items-end gap-2">
+									{#if !otpStep}
+										<SButton class="bg-secondary-500 text-white" onclick={changeEmail}>
+											Weiter
+										</SButton>
+									{:else}
+										<SButton class="bg-secondary-500 text-white" onclick={verifyOtp}>
+											Speichern
+										</SButton>
+									{/if}
+
+									<SButton
+										class="bg-gray-300"
+										onclick={() => {
+											showChangeEmail = false;
+											newEmail = '';
+											otp = '';
+											otpStep = false;
+											error = '';
+											success = '';
+										}}
+									>
+										Abbrechen
+									</SButton>
+								</div>
+							{/if}
 						</div>
 
 						<!-- Success and Error Messages -->

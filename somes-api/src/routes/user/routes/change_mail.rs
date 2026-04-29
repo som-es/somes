@@ -92,7 +92,13 @@ pub async fn change_mail(
         .await
         .unwrap_or_default()
     {
-        return Err(UserError::WrongOtp);
+        return Ok(Json(ChangeMailResponse {
+            success: true,
+            message: "An deine E-Mail-Adresse wurde bereits ein One-Time Passwort gesendet."
+                .to_string(),
+            requires_otp: true,
+            access_token: None,
+        }));
     } else {
         send_otp(&mut redis_con, &body.new_email, &stored_email).await?;
     }
