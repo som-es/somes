@@ -15,6 +15,23 @@ export interface DelegateData {
 	data: number;
 }
 
+export interface DelegateStatistics {
+	type: 'delegate';
+	name: string;
+	party: string;
+	value: number;
+	metadata?: Record<string, number>;
+}
+
+export interface CategoryStatistics {
+	type: 'category';
+	category: string;
+	value: number;
+	metadata?: Record<string, number>;
+}
+
+export type StatisticsData = DelegateStatistics | CategoryStatistics;
+
 export interface ChartData {
 	label: string;
 	data: number;

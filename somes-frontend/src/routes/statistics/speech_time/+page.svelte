@@ -2,131 +2,129 @@
 	import { justPostStatistics } from '$lib/api/api';
 	import DelegateBarChartControl from '$lib/components/Statistics/DelegateBarChartControl.svelte';
 	import type { StatisticsData } from '$lib/types';
-	import { mapCallToOrdersDelegate, mapCallToOrdersCategory } from '$lib/api/statistics-adapter';
+	import { mapSpeechTimeDelegate, mapSpeechTimeCategory } from '$lib/api/statistics-adapter';
 
-	const delegateSimpleCallsToOrder = async (
+	const delegateSimpleSpeechTime = async (
 		gp: string | null,
 		gender: string | null,
 		isDesc: boolean,
 		normalized: boolean
 	): Promise<StatisticsData[]> => {
-		const response = await justPostStatistics<any[]>('call_to_orders_by_delegate', {
+		const response = await justPostStatistics<any[]>('speechtime_per_delegate', {
 			legis_period: gp,
 			party: null,
 			gender,
-			is_desc: isDesc,
-			normalized: normalized
+			is_desc: isDesc
 		});
 
 		if ('error' in response) {
 			return [];
 		}
 
-		return mapCallToOrdersDelegate(response);
+		return mapSpeechTimeDelegate(response);
 	};
 
-	const partySimpleCallsToOrder = async (
+	const partySimpleSpeechTime = async (
 		gp: string | null,
 		gender: string | null,
 		isDesc: boolean,
 		normalized: boolean
 	): Promise<StatisticsData[]> => {
-		const response = await justPostStatistics<any[]>('call_to_orders_per_party', {
+		const response = await justPostStatistics<any[]>('speechtime_per_party', {
 			legis_period: gp,
 			party: null,
 			gender,
-			is_desc: isDesc,
-			normalized: normalized
+			is_desc: isDesc
 		});
 
 		if ('error' in response) {
 			return [];
 		}
 
-		return mapCallToOrdersCategory(response);
+		return mapSpeechTimeCategory(response);
 	};
 
-	const genderSimpleCallsToOrder = async (
+	const genderSimpleSpeechTime = async (
 		gp: string | null,
 		gender: string | null,
 		isDesc: boolean,
 		normalized: boolean
 	): Promise<StatisticsData[]> => {
-		const response = await justPostStatistics<any[]>('call_to_orders_per_gender', {
+		const response = await justPostStatistics<any[]>('speechtime_per_gender', {
 			legis_period: gp,
 			party: null,
 			gender,
-			is_desc: isDesc,
-			normalized: normalized
+			is_desc: isDesc
 		});
 
 		if ('error' in response) {
 			return [];
 		}
 
-		return mapCallToOrdersCategory(response);
+		return mapSpeechTimeCategory(response);
 	};
 
-	const ageSimpleCallsToOrder = async (
+	const ageSimpleSpeechTime = async (
 		gp: string | null,
 		gender: string | null,
 		isDesc: boolean,
 		normalized: boolean
 	): Promise<StatisticsData[]> => {
-		const response = await justPostStatistics<any[]>('call_to_orders_per_age', {
+		const response = await justPostStatistics<any[]>('speechtime_per_age', {
 			legis_period: gp,
 			party: null,
 			gender,
-			is_desc: isDesc,
-			normalized: normalized
+			is_desc: isDesc
 		});
 
 		if ('error' in response) {
 			return [];
 		}
 
-		return mapCallToOrdersCategory(response);
+		return mapSpeechTimeCategory(response);
 	};
 
-	const legisSimpleCallsToOrder = async (
+	const legisSimpleSpeechTime = async (
 		gp: string | null,
 		gender: string | null,
 		isDesc: boolean,
 		normalized: boolean
 	): Promise<StatisticsData[]> => {
-		const response = await justPostStatistics<any[]>('call_to_orders_per_legis', {
+		const response = await justPostStatistics<any[]>('speechtime_per_legis', {
 			legis_period: gp,
 			party: null,
 			gender,
-			is_desc: isDesc,
-			normalized: normalized
+			is_desc: isDesc
 		});
 
 		if ('error' in response) {
 			return [];
 		}
 
-		return mapCallToOrdersCategory(response);
+		return mapSpeechTimeCategory(response);
 	};
 
 	// Use delegate function by default (category is controlled from parent)
-	$: currentFunction = delegateSimpleCallsToOrder;
+	$: currentFunction = delegateSimpleSpeechTime;
 
 	// Static title
-	$: currentTitle = 'Ordnungsrufstatistiken';
+	$: currentTitle = 'Redezeitstatistiken';
 </script>
 
 <svelte:head>
-    <title>Ordnungsrufstatistiken</title>
-    <meta name="description" content="Ordnungsrufstatistiken über den Nationalrat und deren Abgeordnete" />
+	<title>Redezeitstatistiken - Parlamentsinformationssystem</title>
+	<meta name="description" content="Analyse der Redezeiten im Parlament" />
 </svelte:head>
 
-<div class="container mx-auto px-4 py-8">
+
+<!-- Main Content -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 	<!-- Chart -->
-	<div class="bg-card rounded-xl p-6 shadow-sm">
+	<div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-inner">
 		<DelegateBarChartControl
-			height={500}
 			delegateMakeRequest={currentFunction}
+			height={600}
 		/>
 	</div>
 </div>
+

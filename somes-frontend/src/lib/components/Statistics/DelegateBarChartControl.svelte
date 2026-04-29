@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Chart, BarChart, Axis, Tooltip } from 'layerchart';
 	import { onMount } from 'svelte';
-	import type { DelegateData } from '$lib/types';
+	import type { StatisticsData, DelegateStatistics, CategoryStatistics } from '$lib/types';
 	import { Select } from 'bits-ui';
 	import SButton from '$lib/components/UI/SButton.svelte';
 
@@ -10,11 +10,11 @@
 		gender: string | null,
 		isDesc: boolean,
 		normalized: boolean
-	) => Promise<DelegateData[]>;
+	) => Promise<StatisticsData[]>;
 	export let height: number = 400;
 
-	let currentData: DelegateData[] = [];
-	let filteredData: DelegateData[] = [];
+	let currentData: StatisticsData[] = [];
+	let filteredData: StatisticsData[] = [];
 	let loading = false;
 	let error: string | null = null;
 
@@ -70,7 +70,7 @@
 
 	$: if (currentData.length > 0 && selectedParties.length > 0) {
 		filteredData = currentData.filter((data) => 
-			selectedParties.includes(data.party || '')
+			data.type === 'delegate' && selectedParties.includes(data.party)
 		);
 	} else {
 		filteredData = currentData;
@@ -94,16 +94,38 @@
 		}
 	}
 
-	// Get unique parties from current data
-	$: uniqueParties = [...new Set(currentData.map(d => d.party).filter(Boolean))];
+	// Get unique parties from current data (only for delegate type)
+	$: uniqueParties = [...new Set(currentData.filter(d => d.type === 'delegate').map(d => (d as DelegateStatistics).party).filter(Boolean))];
 
 	// Prepare data for LayerChart with all available metrics
-	$: chartData = filteredData.map(item => ({
-		category: item.name || item.party || 'Unknown',
-		value: item.data,
-		// Additional metadata for tooltips (if available in API response)
-		...item
-	}));
+	$: chartData = filteredData.map(item => {
+		// Handle old format (name, party, data) and new format (StatisticsData)
+		if (item.type === 'delegate') {
+			return {
+				category: item.name,
+				value: item.value,
+				party: item.party,
+				metadata: item.metadata
+			};
+		} else if (item.type === 'category') {
+			return {
+				category: item.category,
+				value: item.value,
+				metadata: item.metadata
+			};
+		} else {
+			// Old format fallback - cast to any to handle legacy data
+			const legacyItem = item as any;
+			return {
+				category: legacyItem.name,
+				value: legacyItem.data || 0,
+				party: legacyItem.party,
+				metadata: {}
+			};
+		}
+	});
+
+	
 
 	function toggleGender(genderValue: string) {
 		if (selectedGenders.includes(genderValue)) {
@@ -340,8 +362,9 @@
 					<p class="text-sm text-slate-500 dark:text-slate-400">Versuchen Sie, die Filter anzupassen oder eine andere Kategorie zu wählen</p>
 				</div>
 			</div>
-		{:else}
+		{:else if chartData && chartData.length > 0}
 			<div class="p-4" style="height: {height}px;">
+
 				<BarChart
 					data={chartData}
 					x="category"
@@ -350,6 +373,18 @@
 					orientation="vertical"
 					padding={{ left: 80, right: 20, top: 20, bottom: 60 }}
 				/>
+			</div>
+		{:else}
+			<div class="flex flex-col items-center justify-center p-8 gap-4" style="min-height: {height}px;">
+				<div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
+					<svg class="w-8 h-8 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+					</svg>
+				</div>
+				<div class="text-center">
+					<p class="text-lg font-medium text-slate-700 dark:text-slate-300">Keine Daten verfügbar</p>
+					<p class="text-sm text-slate-500 dark:text-slate-400">Versuchen Sie, die Filter anzupassen oder eine andere Kategorie zu wählen</p>
+				</div>
 			</div>
 		{/if}
 	</div>

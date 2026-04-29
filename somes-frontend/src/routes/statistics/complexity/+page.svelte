@@ -2,15 +2,15 @@
 	import { justPostStatistics } from '$lib/api/api';
 	import DelegateBarChartControl from '$lib/components/Statistics/DelegateBarChartControl.svelte';
 	import type { StatisticsData } from '$lib/types';
-	import { mapTotalSpeechesDelegate, mapTotalSpeechesCategory } from '$lib/api/statistics-adapter';
+	import { mapComplexityDelegate, mapComplexityCategory } from '$lib/api/statistics-adapter';
 
-	const delegateSimpleTotalSpeeches = async (
+	const delegateSimpleComplexity = async (
 		gp: string | null,
 		gender: string | null,
 		isDesc: boolean,
 		normalized: boolean
 	): Promise<StatisticsData[]> => {
-		const response = await justPostStatistics<any[]>('total_speeches_per_delegate', {
+		const response = await justPostStatistics<any[]>('complexity_per_delegate', {
 			legis_period: gp,
 			party: null,
 			gender,
@@ -21,16 +21,16 @@
 			return [];
 		}
 
-		return mapTotalSpeechesDelegate(response);
+		return mapComplexityDelegate(response);
 	};
 
-	const partySimpleTotalSpeeches = async (
+	const partySimpleComplexity = async (
 		gp: string | null,
 		gender: string | null,
 		isDesc: boolean,
 		normalized: boolean
 	): Promise<StatisticsData[]> => {
-		const response = await justPostStatistics<any[]>('total_speeches_per_party', {
+		const response = await justPostStatistics<any[]>('complexity_per_party', {
 			legis_period: gp,
 			party: null,
 			gender,
@@ -41,16 +41,16 @@
 			return [];
 		}
 
-		return mapTotalSpeechesCategory(response);
+		return mapComplexityCategory(response);
 	};
 
-	const genderSimpleTotalSpeeches = async (
+	const genderSimpleComplexity = async (
 		gp: string | null,
 		gender: string | null,
 		isDesc: boolean,
 		normalized: boolean
 	): Promise<StatisticsData[]> => {
-		const response = await justPostStatistics<any[]>('total_speeches_per_gender', {
+		const response = await justPostStatistics<any[]>('complexity_per_gender', {
 			legis_period: gp,
 			party: null,
 			gender,
@@ -61,16 +61,16 @@
 			return [];
 		}
 
-		return mapTotalSpeechesCategory(response);
+		return mapComplexityCategory(response);
 	};
 
-	const ageSimpleTotalSpeeches = async (
+	const ageSimpleComplexity = async (
 		gp: string | null,
 		gender: string | null,
 		isDesc: boolean,
 		normalized: boolean
 	): Promise<StatisticsData[]> => {
-		const response = await justPostStatistics<any[]>('total_speeches_per_age', {
+		const response = await justPostStatistics<any[]>('complexity_per_age', {
 			legis_period: gp,
 			party: null,
 			gender,
@@ -81,16 +81,16 @@
 			return [];
 		}
 
-		return mapTotalSpeechesCategory(response);
+		return mapComplexityCategory(response);
 	};
 
-	const legisSimpleTotalSpeeches = async (
+	const legisSimpleComplexity = async (
 		gp: string | null,
 		gender: string | null,
 		isDesc: boolean,
 		normalized: boolean
 	): Promise<StatisticsData[]> => {
-		const response = await justPostStatistics<any[]>('total_speeches_per_legis', {
+		const response = await justPostStatistics<any[]>('complexity_per_legis', {
 			legis_period: gp,
 			party: null,
 			gender,
@@ -101,30 +101,29 @@
 			return [];
 		}
 
-		return mapTotalSpeechesCategory(response);
+		return mapComplexityCategory(response);
 	};
 
 	// Use delegate function by default (category is controlled from parent)
-	$: currentFunction = delegateSimpleTotalSpeeches;
+	$: currentFunction = delegateSimpleComplexity;
 
 	// Static title
-	$: currentTitle = 'Anzahl der Reden';
+	$: currentTitle = 'Komplexitätsstatistiken';
 </script>
 
 <svelte:head>
-	<title>Anzahl der Reden - Parlamentsinformationssystem</title>
-	<meta name="description" content="Analyse der Anzahl der parlamentarischen Reden" />
+	<title>Komplexitätsstatistiken - Parlamentsinformationssystem</title>
+	<meta name="description" content="Analyse der Komplexität von parlamentarischen Reden" />
 </svelte:head>
 
-	
-
+<!-- Main Content -->
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-	
-	<!-- Chart -->
-	<div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-inner">
-		<DelegateBarChartControl
-			delegateMakeRequest={currentFunction}
-			height={600}
-		/>
-	</div>
+		<!-- Chart -->
+		<div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-inner">
+			<DelegateBarChartControl
+				delegateMakeRequest={currentFunction}
+				height={600}
+			/>
+		</div>
 </div>
+
