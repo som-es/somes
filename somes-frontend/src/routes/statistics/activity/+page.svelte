@@ -4,6 +4,8 @@
 	import type { StatisticsData } from '$lib/types';
 	import { mapActivityDelegate, mapActivityCategory } from '$lib/api/statistics-adapter';
 
+	export let selectedCategory: string = 'delegate';
+
 	const delegateSimpleActivity = async (
 		gp: string | null,
 		gender: string | null,
@@ -109,8 +111,17 @@
 		return mapActivityCategory(response);
 	};
 
-	// Use delegate function by default (category is controlled from parent)
-	$: currentFunction = delegateSimpleActivity;
+	// Get the appropriate function based on selected category
+	$: currentFunction = (() => {
+		switch (selectedCategory) {
+			case 'delegate': return delegateSimpleActivity;
+			case 'party': return partySimpleActivity;
+			case 'gender': return genderSimpleActivity;
+			case 'age': return ageSimpleActivity;
+			case 'legis': return legisSimpleActivity;
+			default: return delegateSimpleActivity;
+		}
+	})();
 
 	// Static title
 	$: currentTitle = 'Aktivitätsstatistiken';

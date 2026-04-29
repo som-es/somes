@@ -108,9 +108,7 @@ impl SpeechService {
         filter: &SpeechFilter,
     ) -> Result<Vec<SpeechForDelegate>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        println!("Base data: {:?}", base_data);
-        println!("Base data length: {}", base_data.len());
-        let mut results: Vec<SpeechForDelegate> = base_data
+         let mut results: Vec<SpeechForDelegate> = base_data
             .into_iter()
             .map(|item| SpeechForDelegate {
                 delegate_name: item.delegate_name,
@@ -399,9 +397,7 @@ pub async fn speechtime_per_delegate(
 ) -> Result<Json<Vec<SpeechForDelegate>>, StatisticsResponse> {
     let mut filter = filter.unwrap_or_default();
     filter.speech_type = "speechtime".to_string();
-    println!("🔍 STATISTICS ENDPOINT: speechtime_per_delegate called with filter: {:?}", filter);
     let results = SpeechService::per_delegate(&pg, &filter).await?;
-    println!("✅ STATISTICS ENDPOINT: speechtime_per_delegate returning {} results", results.len());
     Ok(Json(results))
 }
 
@@ -411,9 +407,7 @@ pub async fn speechtime_per_party(
 ) -> Result<Json<Vec<SpeechByCategory>>, StatisticsResponse> {
     let mut filter = filter.unwrap_or_default();
     filter.speech_type = "speechtime".to_string();
-    println!("🔍 STATISTICS ENDPOINT: speechtime_per_party called with filter: {:?}", filter);
     let results = SpeechService::per_party(&pg, &filter).await?;
-    println!("✅ STATISTICS ENDPOINT: speechtime_per_party returning {} results", results.len());
     Ok(Json(results))
 }
 
@@ -423,9 +417,7 @@ pub async fn speechtime_per_gender(
 ) -> Result<Json<Vec<SpeechByCategory>>, StatisticsResponse> {
     let mut filter = filter.unwrap_or_default();
     filter.speech_type = "speechtime".to_string();
-    println!("🔍 STATISTICS ENDPOINT: speechtime_per_gender called with filter: {:?}", filter);
     let results = SpeechService::per_gender(&pg, &filter).await?;
-    println!("✅ STATISTICS ENDPOINT: speechtime_per_gender returning {} results", results.len());
     Ok(Json(results))
 }
 
@@ -435,9 +427,7 @@ pub async fn speechtime_per_legis(
 ) -> Result<Json<Vec<SpeechByCategory>>, StatisticsResponse> {
     let mut filter = filter.unwrap_or_default();
     filter.speech_type = "speechtime".to_string();
-    println!("🔍 STATISTICS ENDPOINT: speechtime_per_legis called with filter: {:?}", filter);
     let results = SpeechService::per_legis(&pg, &filter).await?;
-    println!("✅ STATISTICS ENDPOINT: speechtime_per_legis returning {} results", results.len());
     Ok(Json(results))
 }
 
@@ -447,9 +437,7 @@ pub async fn speechtime_per_age(
 ) -> Result<Json<Vec<SpeechByCategory>>, StatisticsResponse> {
     let mut filter = filter.unwrap_or_default();
     filter.speech_type = "speechtime".to_string();
-    println!("🔍 STATISTICS ENDPOINT: speechtime_per_age called with filter: {:?}", filter);
     let results = SpeechService::per_age(&pg, &filter).await?;
-    println!("✅ STATISTICS ENDPOINT: speechtime_per_age returning {} results", results.len());
     Ok(Json(results))
 }
 
@@ -459,9 +447,7 @@ pub async fn total_speeches_per_delegate(
 ) -> Result<Json<Vec<SpeechForDelegate>>, StatisticsResponse> {
     let mut filter = filter.unwrap_or_default();
     filter.speech_type = "total_speeches".to_string();
-    println!("🔍 STATISTICS ENDPOINT: total_speeches_per_delegate called with filter: {:?}", filter);
     let results = SpeechService::per_delegate(&pg, &filter).await?;
-    println!("✅ STATISTICS ENDPOINT: total_speeches_per_delegate returning {} results", results.len());
     Ok(Json(results))
 }
 
@@ -471,9 +457,7 @@ pub async fn total_speeches_per_party(
 ) -> Result<Json<Vec<SpeechByCategory>>, StatisticsResponse> {
     let mut filter = filter.unwrap_or_default();
     filter.speech_type = "total_speeches".to_string();
-    println!("🔍 STATISTICS ENDPOINT: total_speeches_per_party called with filter: {:?}", filter);
     let results = SpeechService::per_party(&pg, &filter).await?;
-    println!("✅ STATISTICS ENDPOINT: total_speeches_per_party returning {} results", results.len());
     Ok(Json(results))
 }
 
@@ -483,9 +467,7 @@ pub async fn total_speeches_per_gender(
 ) -> Result<Json<Vec<SpeechByCategory>>, StatisticsResponse> {
     let mut filter = filter.unwrap_or_default();
     filter.speech_type = "total_speeches".to_string();
-    println!("🔍 STATISTICS ENDPOINT: total_speeches_per_gender called with filter: {:?}", filter);
     let results = SpeechService::per_gender(&pg, &filter).await?;
-    println!("✅ STATISTICS ENDPOINT: total_speeches_per_gender returning {} results", results.len());
     Ok(Json(results))
 }
 
@@ -495,9 +477,7 @@ pub async fn total_speeches_per_legis(
 ) -> Result<Json<Vec<SpeechByCategory>>, StatisticsResponse> {
     let mut filter = filter.unwrap_or_default();
     filter.speech_type = "total_speeches".to_string();
-    println!("🔍 STATISTICS ENDPOINT: total_speeches_per_legis called with filter: {:?}", filter);
     let results = SpeechService::per_legis(&pg, &filter).await?;
-    println!("✅ STATISTICS ENDPOINT: total_speeches_per_legis returning {} results", results.len());
     Ok(Json(results))
 }
 
@@ -507,8 +487,6 @@ pub async fn total_speeches_per_age(
 ) -> Result<Json<Vec<SpeechByCategory>>, StatisticsResponse> {
     let mut filter = filter.unwrap_or_default();
     filter.speech_type = "total_speeches".to_string();
-    println!("🔍 STATISTICS ENDPOINT: total_speeches_per_age called with filter: {:?}", filter);
     let results = SpeechService::per_age(&pg, &filter).await?;
-    println!("✅ STATISTICS ENDPOINT: total_speeches_per_age returning {} results", results.len());
     Ok(Json(results))
 }

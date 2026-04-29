@@ -4,6 +4,8 @@
 	import type { StatisticsData } from '$lib/types';
 	import { mapComplexityDelegate, mapComplexityCategory } from '$lib/api/statistics-adapter';
 
+	export let selectedCategory: string = 'delegate';
+
 	const delegateSimpleComplexity = async (
 		gp: string | null,
 		gender: string | null,
@@ -104,8 +106,17 @@
 		return mapComplexityCategory(response);
 	};
 
-	// Use delegate function by default (category is controlled from parent)
-	$: currentFunction = delegateSimpleComplexity;
+	// Get the appropriate function based on selected category
+	$: currentFunction = (() => {
+		switch (selectedCategory) {
+			case 'delegate': return delegateSimpleComplexity;
+			case 'party': return partySimpleComplexity;
+			case 'gender': return genderSimpleComplexity;
+			case 'age': return ageSimpleComplexity;
+			case 'legis': return legisSimpleComplexity;
+			default: return delegateSimpleComplexity;
+		}
+	})();
 
 	// Static title
 	$: currentTitle = 'Komplexitätsstatistiken';

@@ -4,6 +4,8 @@
 	import type { StatisticsData } from '$lib/types';
 	import { mapAgeDelegate, mapAgeCategory } from '$lib/api/statistics-adapter';
 
+	export let selectedCategory: string = 'delegate';
+
 	const delegateSimpleAge = async (
 		gp: string | null,
 		gender: string | null,
@@ -64,6 +66,26 @@
 		return mapAgeCategory(response);
 	};
 
+	const ageSimpleAge = async (
+		gp: string | null,
+		gender: string | null,
+		isDesc: boolean,
+		normalized: boolean
+	): Promise<StatisticsData[]> => {
+		const response = await justPostStatistics<any[]>('age_per_age', {
+			legis_period: gp,
+			party: null,
+			gender,
+			is_desc: isDesc
+		});
+
+		if ('error' in response) {
+			return [];
+		}
+
+		return mapAgeCategory(response);
+	};
+
 	const legisSimpleAge = async (
 		gp: string | null,
 		gender: string | null,
@@ -84,8 +106,17 @@
 		return mapAgeCategory(response);
 	};
 
-	// Use delegate function by default (category is controlled from parent)
-	$: currentFunction = delegateSimpleAge;
+	// Get the appropriate function based on selected category
+	$: currentFunction = (() => {
+		switch (selectedCategory) {
+			case 'delegate': return delegateSimpleAge;
+			case 'party': return partySimpleAge;
+			case 'gender': return genderSimpleAge;
+			case 'age': return ageSimpleAge;
+			case 'legis': return legisSimpleAge;
+			default: return delegateSimpleAge;
+		}
+	})();
 
 	// Static title
 	$: currentTitle = 'Altersstatistiken';

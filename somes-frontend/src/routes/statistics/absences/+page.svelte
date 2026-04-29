@@ -4,6 +4,8 @@
 	import type { StatisticsData } from '$lib/types';
 	import { mapAbsencesDelegate, mapAbsencesCategory } from '$lib/api/statistics-adapter';
 
+	export let selectedCategory: string = 'delegate';
+
 	const delegateSimpleAbsences = async (
 		gp: string | null,
 		gender: string | null,
@@ -109,8 +111,17 @@
 		return mapAbsencesCategory(response);
 	};
 
-	// Use delegate function by default (category is controlled from parent)
-	$: currentFunction = delegateSimpleAbsences;
+	// Get the appropriate function based on selected category
+	$: currentFunction = (() => {
+		switch (selectedCategory) {
+			case 'delegate': return delegateSimpleAbsences;
+			case 'party': return partySimpleAbsences;
+			case 'gender': return genderSimpleAbsences;
+			case 'age': return ageSimpleAbsences;
+			case 'legis': return legisSimpleAbsences;
+			default: return delegateSimpleAbsences;
+		}
+	})();
 
 	// Static title
 	$: currentTitle = 'Abwesenheitsstatistiken';

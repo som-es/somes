@@ -4,6 +4,8 @@
 	import type { StatisticsData } from '$lib/types';
 	import { mapCallToOrdersDelegate, mapCallToOrdersCategory } from '$lib/api/statistics-adapter';
 
+	export let selectedCategory: string = 'delegate';
+
 	const delegateSimpleCallsToOrder = async (
 		gp: string | null,
 		gender: string | null,
@@ -109,8 +111,17 @@
 		return mapCallToOrdersCategory(response);
 	};
 
-	// Use delegate function by default (category is controlled from parent)
-	$: currentFunction = delegateSimpleCallsToOrder;
+	// Get the appropriate function based on selected category
+	$: currentFunction = (() => {
+		switch (selectedCategory) {
+			case 'delegate': return delegateSimpleCallsToOrder;
+			case 'party': return partySimpleCallsToOrder;
+			case 'gender': return genderSimpleCallsToOrder;
+			case 'age': return ageSimpleCallsToOrder;
+			case 'legis': return legisSimpleCallsToOrder;
+			default: return delegateSimpleCallsToOrder;
+		}
+	})();
 
 	// Static title
 	$: currentTitle = 'Ordnungsrufstatistiken';

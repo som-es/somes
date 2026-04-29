@@ -4,6 +4,8 @@
 	import type { StatisticsData } from '$lib/types';
 	import { mapSpeechTimeDelegate, mapSpeechTimeCategory } from '$lib/api/statistics-adapter';
 
+	export let selectedCategory: string = 'delegate';
+
 	const delegateSimpleSpeechTime = async (
 		gp: string | null,
 		gender: string | null,
@@ -104,8 +106,17 @@
 		return mapSpeechTimeCategory(response);
 	};
 
-	// Use delegate function by default (category is controlled from parent)
-	$: currentFunction = delegateSimpleSpeechTime;
+	// Get the appropriate function based on selected category
+	$: currentFunction = (() => {
+		switch (selectedCategory) {
+			case 'delegate': return delegateSimpleSpeechTime;
+			case 'party': return partySimpleSpeechTime;
+			case 'gender': return genderSimpleSpeechTime;
+			case 'age': return ageSimpleSpeechTime;
+			case 'legis': return legisSimpleSpeechTime;
+			default: return delegateSimpleSpeechTime;
+		}
+	})();
 
 	// Static title
 	$: currentTitle = 'Redezeitstatistiken';

@@ -255,6 +255,7 @@ pub async fn age_of_delegates(
 ) -> Result<Json<Vec<AgeForDelegate>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
     let results = AgeService::per_delegate(&pg, &filter).await?;
+    println!("results: {:#?}", results);
     Ok(Json(results))
 }
 

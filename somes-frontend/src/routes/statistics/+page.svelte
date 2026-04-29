@@ -4,11 +4,14 @@
 	import type { StatisticsData } from '$lib/types';
 	import { Select } from 'bits-ui';
 
-	// Category selection for each statistics type
+	// Independent category selection for each statistics type
 	let selectedCallsCategory: string = 'delegate';
 	let selectedAbsencesCategory: string = 'delegate';
 	let selectedActivityCategory: string = 'delegate';
 	let selectedAgeCategory: string = 'delegate';
+	let selectedComplexityCategory: string = 'delegate';
+	let selectedSpeechTimeCategory: string = 'delegate';
+	let selectedTotalSpeechesCategory: string = 'delegate';
 
 	const categoryOptions = [
 		{ value: 'delegate', label: 'Pro Abgeordneten', icon: '👤' },
@@ -30,7 +33,7 @@
 	// Statistics sections data
 	const statisticsSections = [
 		{
-			id: 'call-to-orders',
+			id: 'call_to_orders',
 			title: 'Ordnungsrufstatistiken',
 			description: 'Analyse der Ordnungsrufe im Parlament',
 			icon: '🔔',
@@ -66,31 +69,31 @@
 			onCategoryChange: (value: string) => selectedAgeCategory = value
 		},
 		{
-			id: 'speech-complexity',
+			id: 'speech_complexity',
 			title: 'Komplexitätsstatistiken',
 			description: 'Analyse der Komplexität von parlamentarischen Reden',
 			icon: '🧠',
 			component: SpeechComplexityPage,
-			selectedCategory: selectedCallsCategory,
-			onCategoryChange: (value: string) => selectedCallsCategory = value
+			selectedCategory: selectedComplexityCategory,
+			onCategoryChange: (value: string) => selectedComplexityCategory = value
 		},
 		{
-			id: 'speech-time',
+			id: 'speech_time',
 			title: 'Redezeitstatistiken',
 			description: 'Analyse der Redezeiten im Parlament',
 			icon: '🎤',
 			component: SpeechTimePage,
-			selectedCategory: selectedCallsCategory,
-			onCategoryChange: (value: string) => selectedCallsCategory = value
+			selectedCategory: selectedSpeechTimeCategory,
+			onCategoryChange: (value: string) => selectedSpeechTimeCategory = value
 		},
 		{
-			id: 'total-speeches',
+			id: 'total_speeches',
 			title: 'Anzahl der Reden',
 			description: 'Analyse der Anzahl der parlamentarischen Reden',
 			icon: '🎙',
 			component: TotalSpeechesPage,
-			selectedCategory: selectedCallsCategory,
-			onCategoryChange: (value: string) => selectedCallsCategory = value
+			selectedCategory: selectedTotalSpeechesCategory,
+			onCategoryChange: (value: string) => selectedTotalSpeechesCategory = value
 		}
 	];
 
@@ -179,7 +182,7 @@
 
 				<!-- Statistics Component -->
 				<div class="bg-white dark:bg-slate-800 rounded-xl shadow-inner">
-					<svelte:component this={section.component} />
+					<svelte:component this={section.component} selectedCategory={section.selectedCategory} />
 				</div>
 			</div>
 		{/each}

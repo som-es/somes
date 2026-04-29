@@ -4,6 +4,8 @@
 	import type { StatisticsData } from '$lib/types';
 	import { mapTotalSpeechesDelegate, mapTotalSpeechesCategory } from '$lib/api/statistics-adapter';
 
+	export let selectedCategory: string = 'delegate';
+
 	const delegateSimpleTotalSpeeches = async (
 		gp: string | null,
 		gender: string | null,
@@ -104,8 +106,17 @@
 		return mapTotalSpeechesCategory(response);
 	};
 
-	// Use delegate function by default (category is controlled from parent)
-	$: currentFunction = delegateSimpleTotalSpeeches;
+	// Get the appropriate function based on selected category
+	$: currentFunction = (() => {
+		switch (selectedCategory) {
+			case 'delegate': return delegateSimpleTotalSpeeches;
+			case 'party': return partySimpleTotalSpeeches;
+			case 'gender': return genderSimpleTotalSpeeches;
+			case 'age': return ageSimpleTotalSpeeches;
+			case 'legis': return legisSimpleTotalSpeeches;
+			default: return delegateSimpleTotalSpeeches;
+		}
+	})();
 
 	// Static title
 	$: currentTitle = 'Anzahl der Reden';
