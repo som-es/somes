@@ -219,17 +219,17 @@
 
 <div class="space-y-6">
 	<!-- Filters -->
-	<div class="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+	<div class="bg-gradient-to-r from-surface-50 to-surface-100 dark:from-surface-800 dark:to-surface-900 rounded-xl p-6 border border-surface-200 dark:border-surface-700">
 		<div class="flex items-center gap-2 mb-4">
-			<div class="w-1 h-5 bg-primary rounded-full"></div>
-			<h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200">Filter & Einstellungen</h3>
+			<div class="w-1 h-5 bg-primary-500 rounded-full"></div>
+			<h3 class="text-lg font-semibold text-surface-800 dark:text-surface-200">Filter & Einstellungen</h3>
 		</div>
 		
 		<!-- Legislaturperiode Slider - Full Width -->
 		{#if filterConfig.showPeriod}
 		<div class="space-y-4 mb-6">
-			<div class="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
-				<span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+			<div class="text-sm font-medium text-surface-700 dark:text-surface-300 flex items-center gap-2">
+				<span class="w-2 h-2 bg-primary-500 rounded-full"></span>
 				Legislaturperiode
 			</div>
 			
@@ -239,8 +239,8 @@
 					onclick={toggleAllPeriods}
 					class={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
 						showAllPeriods 
-							? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30' 
-							: 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
+							? 'bg-primary-500 text-white shadow-lg shadow-primary-500/30' 
+							: 'bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-600'
 					}`}
 					role="switch"
 					aria-checked={showAllPeriods}
@@ -267,10 +267,10 @@
 			<div class={`space-y-3 transition-all duration-300 ${showAllPeriods ? 'opacity-50 pointer-events-none' : ''}`}>
 				<div class="relative">
 					<!-- Slider Track -->
-					<div class="relative h-3 bg-slate-200 dark:bg-slate-700 rounded-full">
+					<div class="relative h-3 bg-surface-200 dark:bg-surface-700 rounded-full">
 						<!-- Progress Bar -->
 						<div 
-							class="absolute h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full transition-all duration-300"
+							class="absolute h-full bg-gradient-to-r from-primary-400 to-primary-600 rounded-full transition-all duration-300"
 							style="width: {(sliderValue / (periods.length - 1)) * 100}%"
 						></div>
 					</div>
@@ -289,7 +289,7 @@
 					
 					<!-- Slider Thumb -->
 					<div 
-						class="absolute top-1/2 -translate-y-1/2 w-8 h-8 bg-white border-4 border-blue-500 rounded-full shadow-lg transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:hover:scale-100"
+						class="absolute top-1/2 -translate-y-1/2 w-8 h-8 bg-white border-4 border-primary-500 rounded-full shadow-lg transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:hover:scale-100"
 						style="left: {(sliderValue / (periods.length - 1)) * 100}%; transform: translateX(-50%);"
 					></div>
 				</div>
@@ -298,11 +298,11 @@
 				<div class="relative h-6">
 					{#each periods as period, index}
 						<span
-							class="absolute text-sm text-slate-600 dark:text-slate-400 font-medium transition-all duration-200"
+							class="absolute text-sm text-surface-600 dark:text-surface-400 font-medium transition-all duration-200"
 							style="left: {(index / (periods.length - 1)) * 100}%; transform: translateX(-50%);"
 						>
 							<span class={`${index === sliderValue && !showAllPeriods 
-								? 'text-blue-600 dark:text-blue-400 font-bold text-lg' 
+								? 'text-primary-600 dark:text-primary-400 font-bold text-lg' 
 								: ''}`}>
 								{period}
 							</span>
@@ -312,7 +312,7 @@
 				
 				<!-- Current Selection Display -->
 				<div class="text-center">
-					<span class="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-base font-medium">
+					<span class="inline-flex items-center gap-2 px-4 py-2 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-full text-base font-medium">
 						<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 						</svg>
@@ -329,19 +329,19 @@
 				<!-- Geschlecht (hidden when category is gender) -->
 				{#if filterConfig.showGender && selectedCategory !== 'gender'}
 					<div class="space-y-2">
-						<div class="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
-							<span class="w-2 h-2 bg-green-500 rounded-full"></span>
+						<div class="text-sm font-medium text-surface-700 dark:text-surface-300 flex items-center gap-2">
+							<span class="w-2 h-2 bg-secondary-500 rounded-full"></span>
 							Geschlecht
 						</div>
 						<div class="flex gap-2" role="group" aria-label="Geschlecht filtern">
 							<button
-								class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 {selectedGenders.includes('m') ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'}"
+								class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 {selectedGenders.includes('m') ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/30' : 'bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-600'}"
 								onclick={() => toggleGender('m')}
 							>
 								Männlich
 							</button>
 							<button
-								class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 {selectedGenders.includes('f') ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/30' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'}"
+								class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 {selectedGenders.includes('f') ? 'bg-tertiary-500 text-white shadow-lg shadow-tertiary-500/30' : 'bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-600'}"
 								onclick={() => toggleGender('f')}
 							>
 								Weiblich
@@ -352,20 +352,20 @@
 
 				<!-- Sortierung -->
 				<div class="space-y-2">
-					<div class="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
-						<span class="w-2 h-2 bg-purple-500 rounded-full"></span>
+					<div class="text-sm font-medium text-surface-700 dark:text-surface-300 flex items-center gap-2">
+						<span class="w-2 h-2 bg-secondary-600 rounded-full"></span>
 						Sortierung
 					</div>
 					<button
 						onclick={toggleSort}
-						class="h-10 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-3 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200 flex items-center justify-between group w-40"
+						class="h-10 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg px-3 hover:bg-surface-50 dark:hover:bg-surface-700 transition-all duration-200 flex items-center justify-between group w-40"
 						aria-label="Sortierung umkehren"
 					>
-						<span class="text-slate-700 dark:text-slate-300 font-medium text-sm">
+						<span class="text-surface-700 dark:text-surface-300 font-medium text-sm">
 							{isDesc ? 'Absteigend' : 'Aufsteigend'}
 						</span>
 						<div class={`transition-transform duration-300 ${isDesc ? 'rotate-0' : 'rotate-180'}`}>
-							<svg class="w-5 h-5 text-slate-500 group-hover:text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<svg class="w-5 h-5 text-surface-500 group-hover:text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
 							</svg>
 						</div>
@@ -375,16 +375,16 @@
 				<!-- Normalisiert -->
 				{#if filterConfig.showNormalized}
 				<div class="space-y-2">
-					<div class="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
-						<span class="w-2 h-2 bg-orange-500 rounded-full"></span>
+					<div class="text-sm font-medium text-surface-700 dark:text-surface-300 flex items-center gap-2">
+						<span class="w-2 h-2 bg-tertiary-600 rounded-full"></span>
 						Normalisiert
 					</div>
 					<button
 						onclick={() => normalized = !normalized}
 						class={`h-10 rounded-lg px-3 transition-all duration-200 flex items-center justify-between w-40 ${
 							normalized
-								? 'bg-orange-500 text-white shadow-md'
-								: 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm'
+								? 'bg-tertiary-500 text-white shadow-md'
+								: 'bg-white dark:bg-surface-800 text-surface-700 dark:text-surface-300 border border-surface-300 dark:border-surface-600 hover:bg-surface-50 dark:hover:bg-surface-700 shadow-sm'
 						}`}
 						role="switch"
 						aria-checked={normalized}
@@ -393,7 +393,7 @@
 						<span class="font-medium text-sm">{normalized ? 'Ja' : 'Nein'}</span>
 						<div class="relative">
 							<div class={`w-12 h-6 rounded-full transition-colors duration-200 ${
-								normalized ? 'bg-orange-600' : 'bg-slate-300 dark:bg-slate-600'
+								normalized ? 'bg-tertiary-600' : 'bg-surface-300 dark:bg-surface-600'
 							}`}></div>
 							<div class={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 ${
 								normalized ? 'translate-x-7' : 'translate-x-1'
@@ -407,15 +407,15 @@
 
 	<!-- Party Filters -->
 	{#if uniqueParties.length > 0}
-		<div class="mt-6 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+		<div class="mt-6 bg-gradient-to-r from-surface-50 to-surface-100 dark:from-surface-800 dark:to-surface-900 rounded-xl p-6 border border-surface-200 dark:border-surface-700">
 			<div class="flex items-center justify-between mb-4">
 				<div class="flex items-center gap-2">
-					<div class="w-1 h-5 bg-primary rounded-full"></div>
-					<h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200">Parteien-Filter</h3>
+					<div class="w-1 h-5 bg-primary-500 rounded-full"></div>
+					<h3 class="text-lg font-semibold text-surface-800 dark:text-surface-200">Parteien-Filter</h3>
 				</div>
 				{#if selectedParties.length > 0}
 					<SButton 
-						class="text-sm px-4 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors" 
+						class="text-sm px-4 py-2 bg-white dark:bg-surface-800 text-surface-700 dark:text-surface-300 border border-surface-300 dark:border-surface-600 hover:bg-surface-50 dark:hover:bg-surface-700 transition-colors" 
 						onclick={clearPartyFilters}
 					>
 						<span class="flex items-center gap-2">
@@ -433,8 +433,8 @@
 						onclick={() => toggleParty(party || '')}
 						class={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 transform hover:scale-105 ${
 							selectedParties.includes(party || '') 
-								? 'bg-primary text-primary-foreground shadow-lg ring-2 ring-primary/20' 
-								: 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm'
+								? 'bg-primary-500 text-primary-foreground shadow-lg ring-2 ring-primary-500/20' 
+								: 'bg-white dark:bg-surface-800 text-surface-700 dark:text-surface-300 border border-surface-300 dark:border-surface-600 hover:bg-surface-50 dark:hover:bg-surface-700 shadow-sm'
 						}`}
 					>
 						{#if selectedParties.includes(party || '')}
@@ -451,16 +451,16 @@
 	</div>
 
 	<!-- Chart -->
-	<div class="w-full bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden" style="min-height: {height}px;">
+	<div class="w-full bg-white dark:bg-surface-800 rounded-2xl shadow-xl border border-surface-200 dark:border-surface-700 overflow-hidden" style="min-height: {height}px;">
 		{#if loading}
 			<div class="flex flex-col items-center justify-center p-8 gap-4" style="min-height: {height}px;">
 				<div class="relative">
-					<div class="w-12 h-12 border-4 border-slate-200 dark:border-slate-700 border-t-primary rounded-full animate-spin"></div>
-					<div class="absolute inset-0 w-12 h-12 border-4 border-transparent border-t-primary/30 rounded-full animate-spin animation-delay-150"></div>
+					<div class="w-12 h-12 border-4 border-surface-200 dark:border-surface-700 border-t-primary-500 rounded-full animate-spin"></div>
+					<div class="absolute inset-0 w-12 h-12 border-4 border-transparent border-t-primary-500/30 rounded-full animate-spin animation-delay-150"></div>
 				</div>
 				<div class="text-center">
-					<p class="text-lg font-medium text-slate-700 dark:text-slate-300 animate-pulse">Daten werden geladen</p>
-					<p class="text-sm text-slate-500 dark:text-slate-400">Bitte warten Sie einen Moment...</p>
+					<p class="text-lg font-medium text-surface-700 dark:text-surface-300 animate-pulse">Daten werden geladen</p>
+					<p class="text-sm text-surface-500 dark:text-surface-400">Bitte warten Sie einen Moment...</p>
 				</div>
 			</div>
 		{:else if error}
@@ -483,40 +483,40 @@
 			</div>
 		{:else if chartData.length === 0}
 			<div class="flex flex-col items-center justify-center p-8 gap-4" style="min-height: {height}px;">
-				<div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
-					<svg class="w-8 h-8 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<div class="w-16 h-16 bg-surface-100 dark:bg-surface-800 rounded-full flex items-center justify-center">
+					<svg class="w-8 h-8 text-surface-400 dark:text-surface-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
 					</svg>
 				</div>
 				<div class="text-center">
-					<p class="text-lg font-medium text-slate-700 dark:text-slate-300">Keine Daten verfügbar</p>
-					<p class="text-sm text-slate-500 dark:text-slate-400">Versuchen Sie, die Filter anzupassen oder eine andere Kategorie zu wählen</p>
+					<p class="text-lg font-medium text-surface-700 dark:text-surface-300">Keine Daten verfügbar</p>
+					<p class="text-sm text-surface-500 dark:text-surface-400">Versuchen Sie, die Filter anzupassen oder eine andere Kategorie zu wählen</p>
 				</div>
 			</div>
 		{:else if chartData && chartData.length > 0}
 			<div class="p-4" style="height: {height}px;">
 				<div class="flex items-start justify-between mb-2">
-					<div class="text-sm font-medium text-slate-600 dark:text-slate-400">
+					<div class="text-sm font-medium text-surface-600 dark:text-surface-400">
 						{normalized ? normalizedValueLabel : valueLabel}
 					</div>
 					{#if infoQuestion && infoAnswer}
 						<div class="flex items-center gap-2">
 							{#if infoQuestion}
-								<div class="text-sm font-medium text-slate-600 dark:text-slate-400">
+								<div class="text-sm font-medium text-surface-600 dark:text-surface-400">
 									{infoQuestion}
 								</div>
 							{/if}
 							<div class="relative group">
 								<button 
 									type="button" 
-									class="w-4 h-4 rounded-full bg-blue-100 hover:bg-blue-200 text-blue-600 flex items-center justify-center text-xs font-medium transition-colors"
+									class="w-4 h-4 rounded-full bg-primary-100 hover:bg-primary-200 text-primary-600 flex items-center justify-center text-xs font-medium transition-colors"
 									onclick={(e) => e.preventDefault()}
 								>
 									i
 								</button>
-								<div class="absolute right-0 top-6 w-80 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+								<div class="absolute right-0 top-6 w-80 p-3 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-600 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
 									<div class="text-sm">
-										<div class="text-slate-700 dark:text-slate-300 space-y-1">
+										<div class="text-surface-700 dark:text-surface-300 space-y-1">
 											{@html infoAnswer}
 										</div>
 									</div>
@@ -539,14 +539,14 @@
 			</div>
 		{:else}
 			<div class="flex flex-col items-center justify-center p-8 gap-4" style="min-height: {height}px;">
-				<div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
-					<svg class="w-8 h-8 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<div class="w-16 h-16 bg-surface-100 dark:bg-surface-800 rounded-full flex items-center justify-center">
+					<svg class="w-8 h-8 text-surface-400 dark:text-surface-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
 					</svg>
 				</div>
 				<div class="text-center">
-					<p class="text-lg font-medium text-slate-700 dark:text-slate-300">Keine Daten verfügbar</p>
-					<p class="text-sm text-slate-500 dark:text-slate-400">Versuchen Sie, die Filter anzupassen oder eine andere Kategorie zu wählen</p>
+					<p class="text-lg font-medium text-surface-700 dark:text-surface-300">Keine Daten verfügbar</p>
+					<p class="text-sm text-surface-500 dark:text-surface-400">Versuchen Sie, die Filter anzupassen oder eine andere Kategorie zu wählen</p>
 				</div>
 			</div>
 		{/if}

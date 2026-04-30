@@ -132,15 +132,37 @@
     <meta name="description" content="Abwesenheitsstatistiken über den Nationalrat und deren Abgeordnete" />
 </svelte:head>
 
-<div class="container mx-auto px-4 py-8">
-	<!-- Chart -->
-	<div class="bg-card rounded-xl p-6 shadow-sm">
-		<DelegateBarChartControl
-			height={500}
-			delegateMakeRequest={currentFunction}
-			selectedCategory={selectedCategory}
-			valueLabel="Abwesenheiten"
-			normalizedValueLabel="Abwesenheitsquote (Anteil an Sitzungen)"
-		/>
+<div class="text-base-font-color font-base dark:bg-surface-950 min-h-screen">
+	<!-- Header -->
+	<header class="sticky top-0 z-10 border-b border-surface-200 bg-surface-50/90 shadow-sm backdrop-blur-md dark:border-surface-700 dark:bg-surface-900/90">
+		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
+			<div class="flex items-center justify-between">
+				<div>
+					<h1 class="text-3xl font-bold text-surface-900 dark:text-surface-50">Abwesenheitsstatistiken</h1>
+					<p class="mt-2 text-lg text-surface-600 dark:text-surface-400">
+						Analyse der Abwesenheiten im Parlament
+					</p>
+				</div>
+				<div class="flex items-center gap-3">
+					<div class="w-12 h-12 bg-primary-500 rounded-xl flex items-center justify-center text-white text-xl shadow-lg">
+						📋
+					</div>
+				</div>
+			</div>
+		</div>
+	</header>
+
+	<!-- Main Content -->
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<!-- Chart -->
+		<div class="bg-white dark:bg-surface-800 rounded-xl p-6 shadow-sm border border-surface-200 dark:border-surface-700">
+			<DelegateBarChartControl
+				height={500}
+				delegateMakeRequest={currentFunction}
+				selectedCategory={selectedCategory}
+				valueLabel="Abwesenheiten"
+				normalizedValueLabel="Abwesenheitsquote (Anteil an Sitzungen)"
+			/>
+		</div>
 	</div>
 </div>
