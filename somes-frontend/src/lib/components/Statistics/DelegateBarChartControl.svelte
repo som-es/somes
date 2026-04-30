@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { Chart, BarChart, Axis, Tooltip } from 'layerchart';
+	import { BarChart, Tooltip } from 'layerchart';
 	import { onMount } from 'svelte';
-	import type { StatisticsData, DelegateStatistics, CategoryStatistics } from '$lib/types';
+	import type { StatisticsData } from '$lib/types';
 	import { Select } from 'bits-ui';
 	import SButton from '$lib/components/UI/SButton.svelte';
 
@@ -12,44 +12,54 @@
 		normalized: boolean
 	) => Promise<StatisticsData[]>;
 	export let height: number = 400;
+	export let selectedCategory: string = 'delegate';
+	export let valueLabel: string = 'Wert';
+	export let normalizedValueLabel: string = 'Wert (normalisiert)';
+	export let infoQuestion: string | null = null;
+	export let infoAnswer: string | null = null;
+	export let filterConfig: {
+		showNormalized?: boolean;
+		showPeriod?: boolean;
+		showGender?: boolean;
+		showParty?: boolean;
+	} = {
+		showNormalized: true,
+		showPeriod: true,
+		showGender: true,
+		showParty: true
+	};
 
 	let currentData: StatisticsData[] = [];
 	let filteredData: StatisticsData[] = [];
 	let loading = false;
 	let error: string | null = null;
 
-	// Filter states
-	let selectedPeriod: string = 'XXVIII';
-	let selectedGenders: string[] = ['m', 'f']; // Beide am Anfang ausgewählt
+	
+	// All available periods in order (oldest to newest)
+	const periods = ['XX', 'XXI', 'XXII', 'XXIII', 'XXIV', 'XXV', 'XXVI', 'XXVII', 'XXVIII'];
+	let selectedGenders: string[] = ['m', 'f']; 
 	let normalized: boolean = true;
 	let isDesc: boolean = true;
 	let selectedParties: string[] = [];
 
-	// Select options
-	const periodOptions = [
-		{ value: 'all', label: 'Alle' },
-		{ value: 'XXVIII', label: 'XXVIII' },
-		{ value: 'XXVII', label: 'XXVII' }
-	];
+	// Slider states
+	let selectedPeriod: string = 'XXVIII';
+	let showAllPeriods: boolean = false;
+	let sliderValue: number = periods.indexOf(selectedPeriod);
 
-	const genderOptions = [
-		{ value: 'all', label: 'Alle' },
-		{ value: 'm', label: 'Männlich' },
-		{ value: 'f', label: 'Weiblich' }
-	];
+	// Automatically set showAllPeriods to true when category is 'legis'
+	$: if (selectedCategory === 'legis' && !showAllPeriods) {
+		showAllPeriods = true;
+	}
 
-	const sortOptions = [
-		{ value: 'true', label: 'Absteigend' },
-		{ value: 'false', label: 'Aufsteigend' }
-	];
-
-	const normalizedOptions = [
-		{ value: 'true', label: 'Ja' },
-		{ value: 'false', label: 'Nein' }
-	];
-
+	// Update selected period when slider changes
+	$: if (!showAllPeriods && sliderValue >= 0 && sliderValue < periods.length) {
+		selectedPeriod = periods[sliderValue];
+	}
+	
 	// Track previous values to avoid unnecessary reloads
 	let prevPeriod = selectedPeriod;
+	let prevShowAll = showAllPeriods;
 	let prevGenders = [...selectedGenders];
 	let prevIsDesc = isDesc;
 	let prevNormalized = normalized;
@@ -59,8 +69,9 @@
 	onMount(() => {
 		loadData();
 	});
-	$: if (selectedPeriod !== prevPeriod || JSON.stringify(selectedGenders) !== JSON.stringify(prevGenders) || isDesc !== prevIsDesc || normalized !== prevNormalized || delegateMakeRequest !== prevFunction) {
+	$: if (selectedPeriod !== prevPeriod || showAllPeriods !== prevShowAll || JSON.stringify(selectedGenders) !== JSON.stringify(prevGenders) || isDesc !== prevIsDesc || normalized !== prevNormalized || delegateMakeRequest !== prevFunction) {
 		prevPeriod = selectedPeriod;
+		prevShowAll = showAllPeriods;
 		prevGenders = [...selectedGenders];
 		prevIsDesc = isDesc;
 		prevNormalized = normalized;
@@ -70,7 +81,7 @@
 
 	$: if (currentData.length > 0 && selectedParties.length > 0) {
 		filteredData = currentData.filter((data) => 
-			data.type === 'delegate' && selectedParties.includes(data.party)
+			data.type === 'delegate' && data.party && selectedParties.includes(data.party)
 		);
 	} else {
 		filteredData = currentData;
@@ -81,7 +92,7 @@
 		error = null;
 		
 		try {
-			const gp = selectedPeriod === 'all' ? null : selectedPeriod;
+			const gp = showAllPeriods ? null : selectedPeriod;
 			// Wenn beide Geschlechter ausgewählt sind, sende null (wie kein Filter)
 			const genderFilter = selectedGenders.length === 2 ? null : selectedGenders.join(',');
 			
@@ -95,31 +106,67 @@
 	}
 
 	// Get unique parties from current data (only for delegate type)
-	$: uniqueParties = [...new Set(currentData.filter(d => d.type === 'delegate').map(d => (d as DelegateStatistics).party).filter(Boolean))];
+	$: uniqueParties = partyOrder.filter(party => 
+		currentData.filter(d => d.type === 'delegate').map(d => d.party).filter(Boolean).includes(party)
+	);
+
+	// Austrian party color mapping
+	const partyColors: Record<string, string> = {
+		'ÖVP': '#00CED1', // Türkis
+		'SPÖ': '#E53935', // Rot
+		'FPÖ': '#0D47A1', // Dunkelblau
+		'Die Grünen': '#2E7D32', // Grün
+		'GRÜNE': '#2E7D32', // Grün (alternative)
+		'NEOS': '#E91E63', // Pink/Rose
+		'KPÖ': '#E53935', // Rot
+		'Regierungsmitglied': '#757575', // Grau
+		'ÖVP.Österreichische Volkspartei': '#00CED1', // ÖVP (vollständig)
+		'SPÖ.Sozialdemokratische Partei Österreichs': '#E53935', // SPÖ (vollständig)
+		'FPÖ.Freiheitliche Partei Österreichs': '#0D47A1', // FPÖ (vollständig)
+		'Die Grünen.Die Grüne Alternative': '#2E7D32', // Grüne (vollständig)
+		'NEOS.Das Neue Österreich': '#E91E63', // NEOS (vollständig)
+	};
+
+	// Create stable party order and color range
+	const partyOrder = Object.keys(partyColors);
+	$: uniquePartiesInData = [...new Set(chartData.map(d => d.party))];
+	$: colorRange = uniquePartiesInData.map((p) => partyColors[p] || '#6366f1');
 
 	// Prepare data for LayerChart with all available metrics
 	$: chartData = filteredData.map(item => {
 		// Handle old format (name, party, data) and new format (StatisticsData)
 		if (item.type === 'delegate') {
+			const normalizedParty = item.party?.trim() || 'Unbekannt';
+			const label = normalized ? normalizedValueLabel : valueLabel;
 			return {
-				category: item.name,
+				category: `${item.label} (${normalizedParty})`,
 				value: item.value,
-				party: item.party,
+				party: normalizedParty,
+				color: partyColors[normalizedParty] || '#6366f1',
+				valueLabel: label,
 				metadata: item.metadata
 			};
 		} else if (item.type === 'category') {
+			const label = normalized ? normalizedValueLabel : valueLabel;
 			return {
-				category: item.category,
+				category: item.label,
 				value: item.value,
+				party: 'default',
+				color: '#6366f1',
+				valueLabel: label,
 				metadata: item.metadata
 			};
 		} else {
 			// Old format fallback - cast to any to handle legacy data
 			const legacyItem = item as any;
+			const normalizedParty = legacyItem.party?.trim() || 'Unbekannt';
+			const label = normalized ? normalizedValueLabel : valueLabel;
 			return {
-				category: legacyItem.name,
+				category: `${legacyItem.name} (${normalizedParty})`,
 				value: legacyItem.data || 0,
-				party: legacyItem.party,
+				party: normalizedParty,
+				color: partyColors[normalizedParty] || '#6366f1',
+				valueLabel: label,
 				metadata: {}
 			};
 		}
@@ -138,8 +185,15 @@
 		}
 	}
 
-	function clearGenderFilters() {
-		selectedGenders = [];
+
+
+	function toggleAllPeriods() {
+		showAllPeriods = !showAllPeriods;
+	}
+	
+	function handleSliderChange(event: Event) {
+		const target = event.target as HTMLInputElement;
+		sliderValue = parseInt(target.value);
 	}
 
 	function toggleSort() {
@@ -171,113 +225,189 @@
 			<h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200">Filter & Einstellungen</h3>
 		</div>
 		
-		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-			<!-- Legislaturperiode -->
-			<div class="space-y-2">
-				<div class="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
-					<span class="w-2 h-2 bg-blue-500 rounded-full"></span>
-					Legislaturperiode
-				</div>
-				<Select.Root
-					type="single"
-					bind:value={selectedPeriod}
-					items={periodOptions}
-				>
-					<Select.Trigger class="w-full h-10 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-3 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors" aria-label="Legislaturperiode wählen">
-						<span class="text-slate-500 dark:text-slate-400">Periode wählen</span>
-					</Select.Trigger>
-					<Select.Portal>
-						<Select.Content class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg">
-							<Select.Viewport>
-								{#each periodOptions as option}
-									<Select.Item value={option.value} label={option.label} class="px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer">
-										{option.label}
-									</Select.Item>
-								{/each}
-							</Select.Viewport>
-						</Select.Content>
-					</Select.Portal>
-				</Select.Root>
+		<!-- Legislaturperiode Slider - Full Width -->
+		{#if filterConfig.showPeriod}
+		<div class="space-y-4 mb-6">
+			<div class="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+				<span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+				Legislaturperiode
 			</div>
-
-			<!-- Geschlecht -->
-			<div class="space-y-2">
-				<div class="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
-					<span class="w-2 h-2 bg-green-500 rounded-full"></span>
-					Geschlecht
-				</div>
-				<div class="flex gap-2" role="group" aria-label="Geschlecht filtern">
-					<button
-						class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 {selectedGenders.includes('m') ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'}"
-						onclick={() => toggleGender('m')}
-					>
-						Männlich
-					</button>
-					<button
-						class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 {selectedGenders.includes('f') ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/30' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'}"
-						onclick={() => toggleGender('f')}
-					>
-						Weiblich
-					</button>
-				</div>
-			</div>
-
-			<!-- Sortierung -->
-			<div class="space-y-2">
-				<div class="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
-					<span class="w-2 h-2 bg-purple-500 rounded-full"></span>
-					Sortierung
-				</div>
+			
+			<!-- Alle Perioden Toggle -->
+			<div class="flex items-center gap-3">
 				<button
-					onclick={toggleSort}
-					class="w-full h-10 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-3 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200 flex items-center justify-between group"
-					aria-label="Sortierung umkehren"
-				>
-					<span class="text-slate-700 dark:text-slate-300 font-medium">
-						{isDesc ? 'Absteigend' : 'Aufsteigend'}
-					</span>
-					<div class={`transition-transform duration-300 ${isDesc ? 'rotate-0' : 'rotate-180'}`}>
-						<svg class="w-5 h-5 text-slate-500 group-hover:text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-						</svg>
-					</div>
-				</button>
-			</div>
-
-			<!-- Normalisiert -->
-			<div class="space-y-2">
-				<div class="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
-					<span class="w-2 h-2 bg-orange-500 rounded-full"></span>
-					Normalisiert
-				</div>
-				<button
-					onclick={() => normalized = !normalized}
-					class={`w-full h-10 rounded-lg px-3 transition-all duration-200 flex items-center justify-between ${
-						normalized
-							? 'bg-orange-500 text-white shadow-md'
-							: 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm'
+					onclick={toggleAllPeriods}
+					class={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+						showAllPeriods 
+							? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30' 
+							: 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
 					}`}
 					role="switch"
-					aria-checked={normalized}
-					aria-label="Normalisierung umschalten"
+					aria-checked={showAllPeriods}
+					aria-label="Alle Legislaturperioden auswählen"
 				>
-					<span class="font-medium">{normalized ? 'Ja' : 'Nein'}</span>
-					<div class="relative">
-						<div class={`w-12 h-6 rounded-full transition-colors duration-200 ${
-							normalized ? 'bg-orange-600' : 'bg-slate-300 dark:bg-slate-600'
-						}`}></div>
-						<div class={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 ${
-							normalized ? 'translate-x-7' : 'translate-x-1'
-						}`}></div>
-					</div>
+					<span class="flex items-center gap-2">
+						{#if showAllPeriods}
+							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+							</svg>
+							Alle Perioden
+						{:else}
+							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+							</svg>
+							Alle Perioden
+						{/if}
+					</span>
 				</button>
 			</div>
+			
+			<!-- Large Slider Container (hidden when category is legis) -->
+			{#if selectedCategory !== 'legis'}
+			<div class={`space-y-3 transition-all duration-300 ${showAllPeriods ? 'opacity-50 pointer-events-none' : ''}`}>
+				<div class="relative">
+					<!-- Slider Track -->
+					<div class="relative h-3 bg-slate-200 dark:bg-slate-700 rounded-full">
+						<!-- Progress Bar -->
+						<div 
+							class="absolute h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full transition-all duration-300"
+							style="width: {(sliderValue / (periods.length - 1)) * 100}%"
+						></div>
+					</div>
+					
+					<!-- Slider Input -->
+					<input
+						type="range"
+						min="0"
+						max={periods.length - 1}
+						bind:value={sliderValue}
+						onchange={handleSliderChange}
+						disabled={showAllPeriods}
+						class="absolute top-0 w-full h-3 opacity-0 cursor-pointer disabled:cursor-not-allowed"
+						aria-label="Legislaturperiode auswählen"
+					/>
+					
+					<!-- Slider Thumb -->
+					<div 
+						class="absolute top-1/2 -translate-y-1/2 w-8 h-8 bg-white border-4 border-blue-500 rounded-full shadow-lg transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:hover:scale-100"
+						style="left: {(sliderValue / (periods.length - 1)) * 100}%; transform: translateX(-50%);"
+					></div>
+				</div>
+				
+				<!-- Period Labels -->
+				<div class="relative h-6">
+					{#each periods as period, index}
+						<span
+							class="absolute text-sm text-slate-600 dark:text-slate-400 font-medium transition-all duration-200"
+							style="left: {(index / (periods.length - 1)) * 100}%; transform: translateX(-50%);"
+						>
+							<span class={`${index === sliderValue && !showAllPeriods 
+								? 'text-blue-600 dark:text-blue-400 font-bold text-lg' 
+								: ''}`}>
+								{period}
+							</span>
+						</span>
+					{/each}
+				</div>
+				
+				<!-- Current Selection Display -->
+				<div class="text-center">
+					<span class="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-base font-medium">
+						<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+						</svg>
+						{showAllPeriods ? 'Alle Perioden' : periods[sliderValue]}
+					</span>
+				</div>
+			</div>
+			{/if}
 		</div>
-	</div>
+		{/if}
+		<!-- Other Filters - Centered Container -->
+		<div class="flex flex-col items-center space-y-4">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl" class:md:grid-cols-3={selectedCategory !== 'gender'}>
+				<!-- Geschlecht (hidden when category is gender) -->
+				{#if filterConfig.showGender && selectedCategory !== 'gender'}
+					<div class="space-y-2">
+						<div class="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+							<span class="w-2 h-2 bg-green-500 rounded-full"></span>
+							Geschlecht
+						</div>
+						<div class="flex gap-2" role="group" aria-label="Geschlecht filtern">
+							<button
+								class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 {selectedGenders.includes('m') ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'}"
+								onclick={() => toggleGender('m')}
+							>
+								Männlich
+							</button>
+							<button
+								class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 {selectedGenders.includes('f') ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/30' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'}"
+								onclick={() => toggleGender('f')}
+							>
+								Weiblich
+							</button>
+						</div>
+					</div>
+				{/if}
+
+				<!-- Sortierung -->
+				<div class="space-y-2">
+					<div class="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+						<span class="w-2 h-2 bg-purple-500 rounded-full"></span>
+						Sortierung
+					</div>
+					<button
+						onclick={toggleSort}
+						class="h-10 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-3 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200 flex items-center justify-between group w-40"
+						aria-label="Sortierung umkehren"
+					>
+						<span class="text-slate-700 dark:text-slate-300 font-medium text-sm">
+							{isDesc ? 'Absteigend' : 'Aufsteigend'}
+						</span>
+						<div class={`transition-transform duration-300 ${isDesc ? 'rotate-0' : 'rotate-180'}`}>
+							<svg class="w-5 h-5 text-slate-500 group-hover:text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+							</svg>
+						</div>
+					</button>
+				</div>
+
+				<!-- Normalisiert -->
+				{#if filterConfig.showNormalized}
+				<div class="space-y-2">
+					<div class="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+						<span class="w-2 h-2 bg-orange-500 rounded-full"></span>
+						Normalisiert
+					</div>
+					<button
+						onclick={() => normalized = !normalized}
+						class={`h-10 rounded-lg px-3 transition-all duration-200 flex items-center justify-between w-40 ${
+							normalized
+								? 'bg-orange-500 text-white shadow-md'
+								: 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm'
+						}`}
+						role="switch"
+						aria-checked={normalized}
+						aria-label="Normalisierung umschalten"
+					>
+						<span class="font-medium text-sm">{normalized ? 'Ja' : 'Nein'}</span>
+						<div class="relative">
+							<div class={`w-12 h-6 rounded-full transition-colors duration-200 ${
+								normalized ? 'bg-orange-600' : 'bg-slate-300 dark:bg-slate-600'
+							}`}></div>
+							<div class={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 ${
+								normalized ? 'translate-x-7' : 'translate-x-1'
+							}`}></div>
+						</div>
+					</button>
+				</div>
+				{/if}
+			</div>
+		</div>
 
 	<!-- Party Filters -->
 	{#if uniqueParties.length > 0}
-		<div class="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+		<div class="mt-6 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
 			<div class="flex items-center justify-between mb-4">
 				<div class="flex items-center gap-2">
 					<div class="w-1 h-5 bg-primary rounded-full"></div>
@@ -318,6 +448,7 @@
 			</div>
 		</div>
 	{/if}
+	</div>
 
 	<!-- Chart -->
 	<div class="w-full bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden" style="min-height: {height}px;">
@@ -364,14 +495,46 @@
 			</div>
 		{:else if chartData && chartData.length > 0}
 			<div class="p-4" style="height: {height}px;">
-
+				<div class="flex items-start justify-between mb-2">
+					<div class="text-sm font-medium text-slate-600 dark:text-slate-400">
+						{normalized ? normalizedValueLabel : valueLabel}
+					</div>
+					{#if infoQuestion && infoAnswer}
+						<div class="flex items-center gap-2">
+							{#if infoQuestion}
+								<div class="text-sm font-medium text-slate-600 dark:text-slate-400">
+									{infoQuestion}
+								</div>
+							{/if}
+							<div class="relative group">
+								<button 
+									type="button" 
+									class="w-4 h-4 rounded-full bg-blue-100 hover:bg-blue-200 text-blue-600 flex items-center justify-center text-xs font-medium transition-colors"
+									onclick={(e) => e.preventDefault()}
+								>
+									i
+								</button>
+								<div class="absolute right-0 top-6 w-80 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+									<div class="text-sm">
+										<div class="text-slate-700 dark:text-slate-300 space-y-1">
+											{@html infoAnswer}
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					{/if}
+				</div>
+				{console.log(chartData)}
 				<BarChart
 					data={chartData}
 					x="category"
 					y="value"
-					color="party"
+					c="party"
+					cRange={colorRange}
 					orientation="vertical"
 					padding={{ left: 80, right: 20, top: 20, bottom: 60 }}
+					tooltip={true}
 				/>
 			</div>
 		{:else}
@@ -389,7 +552,6 @@
 		{/if}
 	</div>
 </div>
-
 <style>
 	:global(.layerchart) {
 		font-family: inherit;

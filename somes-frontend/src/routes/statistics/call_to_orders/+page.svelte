@@ -24,7 +24,7 @@
 			return [];
 		}
 
-		return mapCallToOrdersDelegate(response);
+		return mapCallToOrdersDelegate(response, normalized);
 	};
 
 	const partySimpleCallsToOrder = async (
@@ -45,7 +45,7 @@
 			return [];
 		}
 
-		return mapCallToOrdersCategory(response);
+		return mapCallToOrdersCategory(response, normalized);
 	};
 
 	const genderSimpleCallsToOrder = async (
@@ -66,7 +66,7 @@
 			return [];
 		}
 
-		return mapCallToOrdersCategory(response);
+		return mapCallToOrdersCategory(response, normalized);
 	};
 
 	const ageSimpleCallsToOrder = async (
@@ -87,7 +87,7 @@
 			return [];
 		}
 
-		return mapCallToOrdersCategory(response);
+		return mapCallToOrdersCategory(response, normalized);
 	};
 
 	const legisSimpleCallsToOrder = async (
@@ -108,7 +108,7 @@
 			return [];
 		}
 
-		return mapCallToOrdersCategory(response);
+		return mapCallToOrdersCategory(response, normalized);
 	};
 
 	// Get the appropriate function based on selected category
@@ -136,8 +136,11 @@
 	<!-- Chart -->
 	<div class="bg-card rounded-xl p-6 shadow-sm">
 		<DelegateBarChartControl
-			height={500}
 			delegateMakeRequest={currentFunction}
+			height={500}
+			selectedCategory={selectedCategory}
+			valueLabel="Ordnungsrufe"
+			normalizedValueLabel="Durchschnittliche Ordnungsrufe pro Sitzung"
 		/>
 	</div>
 </div>

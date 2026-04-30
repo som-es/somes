@@ -133,12 +133,7 @@ impl CallToOrdersService {
         filter: &CallToOrderFilter,
     ) -> Result<Vec<CallToOrdersForDelegate>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        let desc = if filter.is_desc { "DESC" } else { "ASC" };
-        let normalized = if filter.normalized {
-            "normalized_calls_to_order"
-        } else {
-            "total_order_calls"
-        };
+    
 
         let mut results: Vec<CallToOrdersForDelegate> = base_data
             .into_iter()
@@ -150,22 +145,26 @@ impl CallToOrdersService {
                 normalized_calls_to_order: item.normalized_calls_to_order.unwrap_or(0.0),
             })
             .collect();
-
+        
         // Sort in Rust based on filter parameters
         if filter.normalized {
             results.sort_by(|a, b| {
                 a.normalized_calls_to_order
                     .partial_cmp(&b.normalized_calls_to_order)
                     .unwrap_or(std::cmp::Ordering::Equal)
+                    .then_with(|| a.delegate_name.cmp(&b.delegate_name))
             });
         } else {
-            results.sort_by(|a, b| a.total_order_calls.cmp(&b.total_order_calls));
+            results.sort_by(|a, b| {
+                a.total_order_calls
+                    .cmp(&b.total_order_calls)
+                    .then_with(|| a.delegate_name.cmp(&b.delegate_name))
+            });
         }
 
         if filter.is_desc {
             results.reverse();
         }
-
         Ok(results)
     }
 
@@ -200,10 +199,36 @@ impl CallToOrdersService {
             })
             .collect();
 
-        if filter.is_desc {
-            results.sort_by(|a, b| b.total_order_calls.cmp(&a.total_order_calls));
+        if filter.normalized {
+            if filter.is_desc {
+                results.sort_by(|a, b| {
+                    b.normalized_calls_to_order
+                        .partial_cmp(&a.normalized_calls_to_order)
+                        .unwrap_or(std::cmp::Ordering::Equal)
+                        .then_with(|| a.category.cmp(&b.category))
+                });
+            } else {
+                results.sort_by(|a, b| {
+                    a.normalized_calls_to_order
+                        .partial_cmp(&b.normalized_calls_to_order)
+                        .unwrap_or(std::cmp::Ordering::Equal)
+                        .then_with(|| a.category.cmp(&b.category))
+                });
+            }
         } else {
-            results.sort_by(|a, b| a.total_order_calls.cmp(&b.total_order_calls));
+            if filter.is_desc {
+                results.sort_by(|a, b| {
+                    b.total_order_calls
+                        .cmp(&a.total_order_calls)
+                        .then_with(|| a.category.cmp(&b.category))
+                });
+            } else {
+                results.sort_by(|a, b| {
+                    a.total_order_calls
+                        .cmp(&b.total_order_calls)
+                        .then_with(|| a.category.cmp(&b.category))
+                });
+            }
         }
 
         Ok(results)
@@ -240,10 +265,36 @@ impl CallToOrdersService {
             })
             .collect();
 
-        if filter.is_desc {
-            results.sort_by(|a, b| b.total_order_calls.cmp(&a.total_order_calls));
+        if filter.normalized {
+            if filter.is_desc {
+                results.sort_by(|a, b| {
+                    b.normalized_calls_to_order
+                        .partial_cmp(&a.normalized_calls_to_order)
+                        .unwrap_or(std::cmp::Ordering::Equal)
+                        .then_with(|| a.category.cmp(&b.category))
+                });
+            } else {
+                results.sort_by(|a, b| {
+                    a.normalized_calls_to_order
+                        .partial_cmp(&b.normalized_calls_to_order)
+                        .unwrap_or(std::cmp::Ordering::Equal)
+                        .then_with(|| a.category.cmp(&b.category))
+                });
+            }
         } else {
-            results.sort_by(|a, b| a.total_order_calls.cmp(&b.total_order_calls));
+            if filter.is_desc {
+                results.sort_by(|a, b| {
+                    b.total_order_calls
+                        .cmp(&a.total_order_calls)
+                        .then_with(|| a.category.cmp(&b.category))
+                });
+            } else {
+                results.sort_by(|a, b| {
+                    a.total_order_calls
+                        .cmp(&b.total_order_calls)
+                        .then_with(|| a.category.cmp(&b.category))
+                });
+            }
         }
 
         Ok(results)
@@ -283,12 +334,36 @@ impl CallToOrdersService {
             })
             .collect();
 
-        results.sort_by(|a, b| {
-            b.total_order_calls.cmp(&a.total_order_calls)
-        });
-
-        if !filter.is_desc {
-            results.reverse();
+        if filter.normalized {
+            if filter.is_desc {
+                results.sort_by(|a, b| {
+                    b.normalized_calls_to_order
+                        .partial_cmp(&a.normalized_calls_to_order)
+                        .unwrap_or(std::cmp::Ordering::Equal)
+                        .then_with(|| a.category.cmp(&b.category))
+                });
+            } else {
+                results.sort_by(|a, b| {
+                    a.normalized_calls_to_order
+                        .partial_cmp(&b.normalized_calls_to_order)
+                        .unwrap_or(std::cmp::Ordering::Equal)
+                        .then_with(|| a.category.cmp(&b.category))
+                });
+            }
+        } else {
+            if filter.is_desc {
+                results.sort_by(|a, b| {
+                    b.total_order_calls
+                        .cmp(&a.total_order_calls)
+                        .then_with(|| a.category.cmp(&b.category))
+                });
+            } else {
+                results.sort_by(|a, b| {
+                    a.total_order_calls
+                        .cmp(&b.total_order_calls)
+                        .then_with(|| a.category.cmp(&b.category))
+                });
+            }
         }
 
         Ok(results)

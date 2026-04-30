@@ -52,8 +52,9 @@ impl ComplexityService {
     ) -> Result<Vec<ComplexityBase>, StatisticsResponse> {
         let filter_arg1 = filter.party.with_sql_column("m.party");
         let filter_arg2 = filter.gender.with_sql_column("d.gender");
-        let filter_arg3 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
-        let filters = [filter_arg1, filter_arg2, filter_arg3];
+        let filter_arg3 = filter.legis_period.with_sql_column("p.gp");
+        let filter_arg4 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
+        let filters = [filter_arg1, filter_arg2, filter_arg3, filter_arg4];
 
         let filter_str = build_filter(&filters);
 
@@ -74,7 +75,7 @@ impl ComplexityService {
                 END
             )::FLOAT8 AS complexity_score,
             COUNT(p.id) AS total_proposals,
-            NULL::text AS legislative_period
+            p.gp AS legislative_period
         FROM 
             proposals p
         JOIN 
@@ -86,7 +87,7 @@ impl ComplexityService {
             pd.is_receiver = false
             AND {filter_str}
         GROUP BY 
-            d.id, d.name, d.gender, m.party
+            d.id, d.name, d.gender, m.party, p.gp
         ORDER BY 
             d.id, complexity_score DESC;
         "
@@ -230,26 +231,37 @@ impl ComplexityService {
     ) -> Result<Vec<ComplexityByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
         
-        // Since legislative_period is always NULL, we'll aggregate all data
-        let mut results: Vec<ComplexityByCategory> = vec![];
-
-        let total_complexity: f64 = base_data.iter().map(|item| item.complexity_score).sum();
-        let total_proposals: i64 = base_data.iter().map(|item| item.total_proposals).sum();
-        let delegate_count: i64 = base_data.len() as i64;
-
-        let average_complexity = if delegate_count > 0 {
-            total_complexity / delegate_count as f64
-        } else {
-            0.0
-        };
-
-        results.push(ComplexityByCategory {
-            category: "All Periods".to_string(),
-            average_complexity,
-            total_proposals,
-            delegate_count,
-        });
-
+        // Group by legislative_period
+        let mut period_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> = std::collections::HashMap::new();
+        
+        for item in base_data {
+            if let Some(period) = item.legislative_period {
+                let entry = period_map.entry(period).or_insert((Vec::new(), 0, 0));
+                entry.0.push(item.complexity_score);
+                entry.1 += item.total_proposals;
+                entry.2 += 1; // delegate count
+            }
+        }
+        
+        let mut results: Vec<ComplexityByCategory> = period_map
+            .into_iter()
+            .map(|(period, (scores, total_proposals, delegate_count))| {
+                let average_complexity = if !scores.is_empty() {
+                    scores.iter().sum::<f64>() / scores.len() as f64
+                } else {
+                    0.0
+                };
+                
+                ComplexityByCategory {
+                    category: period,
+                    average_complexity,
+                    total_proposals,
+                    delegate_count,
+                }
+            })
+            .collect();
+        
+        // Sort based on filter parameters
         results.sort_by(|a, b| {
             b.average_complexity
                 .partial_cmp(&a.average_complexity)

@@ -60,24 +60,34 @@ impl AgeService {
 
         let query = format!(
             "
-        SELECT DISTINCT ON (d.id)
+        WITH legislative_period_dates AS (
+            SELECT 
+                legislative_period, 
+                MIN(created_at) AS start_date, 
+                MAX(created_at) AS end_date
+            FROM 
+                plenar_infos
+            GROUP BY 
+                legislative_period
+        )
+        SELECT DISTINCT ON (d.id, lp.legislative_period, m.party)
             d.name AS delegate_name,
             COALESCE(m.party, 'Regierungsmitglied') AS delegate_party,
             d.gender AS delegate_gender,
-            EXTRACT(YEAR FROM AGE(CURRENT_DATE, d.birthdate))::INT AS age,
+            EXTRACT(YEAR FROM AGE(GREATEST(m.start_date, lp.start_date), d.birthdate))::INT AS age,
             d.birthdate,
-            pf.legislative_period
+            lp.legislative_period
         FROM 
             delegates d
         LEFT JOIN mandates m ON m.delegate_id = d.id
-        LEFT JOIN plenar_infos pf ON 1=1
+        CROSS JOIN legislative_period_dates lp
         WHERE 
             d.birthdate IS NOT NULL
             AND {filter_str}
-            AND (m.start_date IS NULL OR m.start_date <= CURRENT_DATE)
-            AND (m.end_date IS NULL OR m.end_date >= CURRENT_DATE)
+            AND m.start_date <= lp.end_date
+            AND (m.end_date IS NULL OR m.end_date >= lp.start_date)
         ORDER BY 
-            d.id, age DESC;
+            d.id, lp.legislative_period, m.party, age DESC;
         "
         );
 
@@ -255,7 +265,6 @@ pub async fn age_of_delegates(
 ) -> Result<Json<Vec<AgeForDelegate>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
     let results = AgeService::per_delegate(&pg, &filter).await?;
-    println!("results: {:#?}", results);
     Ok(Json(results))
 }
 

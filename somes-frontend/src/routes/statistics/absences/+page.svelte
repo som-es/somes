@@ -24,7 +24,7 @@
 			return [];
 		}
 
-		return mapAbsencesDelegate(response);
+		return mapAbsencesDelegate(response, normalized);
 	};
 
 	const partySimpleAbsences = async (
@@ -45,7 +45,7 @@
 			return [];
 		}
 
-		return mapAbsencesCategory(response);
+		return mapAbsencesCategory(response, normalized);
 	};
 
 	const genderSimpleAbsences = async (
@@ -66,7 +66,7 @@
 			return [];
 		}
 
-		return mapAbsencesCategory(response);
+		return mapAbsencesCategory(response, normalized);
 	};
 
 	const ageSimpleAbsences = async (
@@ -87,7 +87,7 @@
 			return [];
 		}
 
-		return mapAbsencesCategory(response);
+		return mapAbsencesCategory(response, normalized);
 	};
 
 	const legisSimpleAbsences = async (
@@ -108,7 +108,7 @@
 			return [];
 		}
 
-		return mapAbsencesCategory(response);
+		return mapAbsencesCategory(response, normalized);
 	};
 
 	// Get the appropriate function based on selected category
@@ -138,6 +138,9 @@
 		<DelegateBarChartControl
 			height={500}
 			delegateMakeRequest={currentFunction}
+			selectedCategory={selectedCategory}
+			valueLabel="Abwesenheiten"
+			normalizedValueLabel="Abwesenheitsquote (Anteil an Sitzungen)"
 		/>
 	</div>
 </div>

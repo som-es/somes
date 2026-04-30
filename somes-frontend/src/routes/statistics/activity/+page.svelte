@@ -24,7 +24,7 @@
 			return [];
 		}
 
-		return mapActivityDelegate(response);
+		return mapActivityDelegate(response, normalized);
 	};
 
 	const partySimpleActivity = async (
@@ -45,7 +45,7 @@
 			return [];
 		}
 
-		return mapActivityCategory(response);
+		return mapActivityCategory(response, normalized);
 	};
 
 	const genderSimpleActivity = async (
@@ -66,7 +66,7 @@
 			return [];
 		}
 
-		return mapActivityCategory(response);
+		return mapActivityCategory(response, normalized);
 	};
 
 	const ageSimpleActivity = async (
@@ -87,7 +87,7 @@
 			return [];
 		}
 
-		return mapActivityCategory(response);
+		return mapActivityCategory(response, normalized);
 	};
 
 	const legisSimpleActivity = async (
@@ -108,7 +108,7 @@
 			return [];
 		}
 
-		return mapActivityCategory(response);
+		return mapActivityCategory(response, normalized);
 	};
 
 	// Get the appropriate function based on selected category
@@ -138,6 +138,20 @@
 		<DelegateBarChartControl
 			height={500}
 			delegateMakeRequest={currentFunction}
+			selectedCategory={selectedCategory}
+			valueLabel="Aktivitäts-Punkte"
+			normalizedValueLabel="durchschnittliche Aktivitäts-Punkte (pro Sitzung)"
+			infoQuestion="Wie werden Aktivitäts-Punkte berechnet?"
+			infoAnswer="
+				<p><strong>Aktivitäts-Punkte:</strong> Summe der gewichteten Vorstösse</p>
+				<ul class='ml-4 space-y-1 text-xs'>
+					<li>• Motion: <strong>1 Punkt</strong></li>
+					<li>• Postulat: <strong>1.2 x Anzahl</strong></li>
+					<li>• Anfrage: <strong>1.2 x Anzahl</strong></li>
+					<li>• Dringliche Anfrage: <strong>1.15 x Anzahl</strong></li>
+					<li>• Initiative: <strong>1.3 x Anzahl</strong></li>
+				</ul>
+			"
 		/>
 	</div>
 </div>

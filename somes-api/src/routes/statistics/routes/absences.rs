@@ -26,6 +26,7 @@ pub struct AbsenceBase {
     total_absences: i64,
     total_sessions: i64,
     normalized_absences: f64,
+    legislative_period: Option<String>,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
@@ -120,7 +121,10 @@ impl AbsenceService {
         filtered_query
             .fetch_all(pg)
             .await
-            .map_err(|e| StatisticsResponse::DbSelectFailure(Some(e)))
+            .map_err(|e| {
+                println!("Error absences: {:?}", e);
+                StatisticsResponse::DbSelectFailure(Some(e))
+            })
     }
 
     pub async fn per_delegate(
@@ -254,77 +258,42 @@ impl AbsenceService {
         pg: &sqlx::PgPool,
         filter: &AbsenceFilter,
     ) -> Result<Vec<AbsenceByCategory>, StatisticsResponse> {
-        let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
-        let filter_arg1 = filter.gender.with_sql_column("ds.gender");
-        let filter_arg2 = filter.party.with_sql_column("m.party");
-        let filter_arg3 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
-        let filters = [filter_arg, filter_arg1, filter_arg2, filter_arg3];
-
-        let filter_str = build_filter(&filters);
-
-        let query = format!(
-            "
-        WITH legislative_period_dates AS (
-            SELECT 
-                legislative_period, 
-                MIN(add_date) AS start_date, 
-                MAX(add_date) AS end_date
-            FROM 
-                plenar_infos
-            GROUP BY 
-                legislative_period
-        ),
-        session_counts AS (
-            SELECT 
-                pf.legislative_period, 
-                COUNT(DISTINCT pf.id) AS total_sessions
-            FROM 
-                plenar_infos pf
-            JOIN 
-                absences ab ON ab.plenary_session_id = pf.id
-            GROUP BY 
-                pf.legislative_period
-        )
-        SELECT 
-            pf.legislative_period AS category,
-            COUNT(DISTINCT ab.id) AS total_absences,
-            sc.total_sessions,
-            COUNT(DISTINCT ab.id)::FLOAT / NULLIF(sc.total_sessions, 0)::FLOAT AS normalized_absences
-        FROM
-            absences ab
-        JOIN 
-            delegates ds ON ab.delegate_id = ds.id
-        JOIN 
-            mandates m ON m.delegate_id = ds.id
-        JOIN 
-            plenar_infos pf ON pf.id = ab.plenary_session_id
-        JOIN 
-            legislative_period_dates lp ON lp.legislative_period = pf.legislative_period
-        JOIN 
-            session_counts sc ON sc.legislative_period = lp.legislative_period 
-        WHERE
-            {filter_str}
-            AND m.start_date <= lp.end_date
-            AND (m.end_date IS NULL OR m.end_date >= lp.start_date)
-        GROUP BY 
-            pf.legislative_period, sc.total_sessions
-        ORDER BY 
-            total_absences DESC;
-        "
-        );
-
-        let mut filtered_query = sqlx::query_as::<Postgres, AbsenceByCategory>(&query);
-        filtered_query = bind_values(filtered_query, &filters);
-
-        let mut results = filtered_query
-            .fetch_all(pg)
-            .await
-            .map_err(|e| StatisticsResponse::DbSelectFailure(Some(e)))?;
-
+        let base_data = Self::get_base_data(pg, filter).await?;
+        
+        // Gruppiere nach legislative_period
+        let mut period_map: std::collections::HashMap<String, (i64, i64, Vec<f64>)> = std::collections::HashMap::new();
+        
+        for item in base_data {
+            let period = item.legislative_period.unwrap_or("Unknown".to_string());
+            let entry = period_map.entry(period)
+                .or_insert((0, 0, Vec::new()));
+            entry.0 += item.total_absences;
+            entry.1 += item.total_sessions;
+            entry.2.push(item.normalized_absences);
+        }
+        
+        let mut results: Vec<AbsenceByCategory> = period_map
+            .into_iter()
+            .map(|(period, (total_absences, total_sessions, normalized_values))| {
+                let avg_normalized = if !normalized_values.is_empty() {
+                    normalized_values.iter().sum::<f64>() / normalized_values.len() as f64
+                } else {
+                    0.0
+                };
+                
+                AbsenceByCategory {
+                    category: period,
+                    total_absences,
+                    total_sessions,
+                    normalized_absences: avg_normalized,
+                }
+            })
+            .collect();
+        
         if !filter.is_desc {
             results.reverse();
         }
-
+        
         Ok(results)
     }
 

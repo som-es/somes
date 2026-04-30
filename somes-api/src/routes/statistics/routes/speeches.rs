@@ -21,6 +21,8 @@ pub struct SpeechFilter {
     is_desc: bool,
     #[serde(default)]
     speech_type: String, // "speechtime" or "total_speeches"
+    #[serde(default)]
+    normalized: bool,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
@@ -119,16 +121,24 @@ impl SpeechService {
             })
             .collect();
 
-        // Sort based on speech type
+        // Sort based on speech type and normalized flag
         match filter.speech_type.as_str() {
             "speechtime" => {
-                results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
+                if filter.normalized {
+                    results.sort_by(|a, b| b.average_speech_time.partial_cmp(&a.average_speech_time).unwrap_or(std::cmp::Ordering::Equal));
+                } else {
+                    results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
+                }
             }
             "total_speeches" => {
                 results.sort_by(|a, b| b.total_speeches.cmp(&a.total_speeches));
             }
             _ => {
-                results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
+                if filter.normalized {
+                    results.sort_by(|a, b| b.average_speech_time.partial_cmp(&a.average_speech_time).unwrap_or(std::cmp::Ordering::Equal));
+                } else {
+                    results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
+                }
             }
         }
 
@@ -176,16 +186,24 @@ impl SpeechService {
             })
             .collect();
 
-        // Sort based on speech type
+        // Sort based on speech type and normalized flag
         match filter.speech_type.as_str() {
             "speechtime" => {
-                results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
+                if filter.normalized {
+                    results.sort_by(|a, b| b.average_speech_time.partial_cmp(&a.average_speech_time).unwrap_or(std::cmp::Ordering::Equal));
+                } else {
+                    results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
+                }
             }
             "total_speeches" => {
                 results.sort_by(|a, b| b.total_speeches.cmp(&a.total_speeches));
             }
             _ => {
-                results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
+                if filter.normalized {
+                    results.sort_by(|a, b| b.average_speech_time.partial_cmp(&a.average_speech_time).unwrap_or(std::cmp::Ordering::Equal));
+                } else {
+                    results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
+                }
             }
         }
 
@@ -233,16 +251,24 @@ impl SpeechService {
             })
             .collect();
 
-        // Sort based on speech type
+        // Sort based on speech type and normalized flag
         match filter.speech_type.as_str() {
             "speechtime" => {
-                results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
+                if filter.normalized {
+                    results.sort_by(|a, b| b.average_speech_time.partial_cmp(&a.average_speech_time).unwrap_or(std::cmp::Ordering::Equal));
+                } else {
+                    results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
+                }
             }
             "total_speeches" => {
                 results.sort_by(|a, b| b.total_speeches.cmp(&a.total_speeches));
             }
             _ => {
-                results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
+                if filter.normalized {
+                    results.sort_by(|a, b| b.average_speech_time.partial_cmp(&a.average_speech_time).unwrap_or(std::cmp::Ordering::Equal));
+                } else {
+                    results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
+                }
             }
         }
 
@@ -282,16 +308,24 @@ impl SpeechService {
             delegate_count,
         });
 
-        // Sort based on speech type
+        // Sort based on speech type and normalized flag
         match filter.speech_type.as_str() {
             "speechtime" => {
-                results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
+                if filter.normalized {
+                    results.sort_by(|a, b| b.average_speech_time.partial_cmp(&a.average_speech_time).unwrap_or(std::cmp::Ordering::Equal));
+                } else {
+                    results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
+                }
             }
             "total_speeches" => {
                 results.sort_by(|a, b| b.total_speeches.cmp(&a.total_speeches));
             }
             _ => {
-                results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
+                if filter.normalized {
+                    results.sort_by(|a, b| b.average_speech_time.partial_cmp(&a.average_speech_time).unwrap_or(std::cmp::Ordering::Equal));
+                } else {
+                    results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
+                }
             }
         }
 
@@ -369,16 +403,24 @@ impl SpeechService {
             delegate_count,
         });
 
-        // Sort based on speech type
+        // Sort based on speech type and normalized flag
         match filter.speech_type.as_str() {
             "speechtime" => {
-                results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
+                if filter.normalized {
+                    results.sort_by(|a, b| b.average_speech_time.partial_cmp(&a.average_speech_time).unwrap_or(std::cmp::Ordering::Equal));
+                } else {
+                    results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
+                }
             }
             "total_speeches" => {
                 results.sort_by(|a, b| b.total_speeches.cmp(&a.total_speeches));
             }
             _ => {
-                results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
+                if filter.normalized {
+                    results.sort_by(|a, b| b.average_speech_time.partial_cmp(&a.average_speech_time).unwrap_or(std::cmp::Ordering::Equal));
+                } else {
+                    results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
+                }
             }
         }
 

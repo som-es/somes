@@ -136,6 +136,15 @@
 		<DelegateBarChartControl
 			delegateMakeRequest={currentFunction}
 			height={600}
+			selectedCategory={selectedCategory}
+			valueLabel="Anzahl Reden"
+			normalizedValueLabel="Anzahl Reden"
+			filterConfig={{
+				showNormalized: false,
+				showPeriod: true,
+				showGender: true,
+				showParty: true
+			}}
 		/>
 	</div>
 </div>

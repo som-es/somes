@@ -18,12 +18,12 @@
 			gender,
 			is_desc: isDesc
 		});
-
+		
 		if ('error' in response) {
 			return [];
 		}
 
-		return mapSpeechTimeDelegate(response);
+		return mapSpeechTimeDelegate(response, normalized);
 	};
 
 	const partySimpleSpeechTime = async (
@@ -43,7 +43,7 @@
 			return [];
 		}
 
-		return mapSpeechTimeCategory(response);
+		return mapSpeechTimeCategory(response, normalized);
 	};
 
 	const genderSimpleSpeechTime = async (
@@ -63,7 +63,7 @@
 			return [];
 		}
 
-		return mapSpeechTimeCategory(response);
+		return mapSpeechTimeCategory(response, normalized);
 	};
 
 	const ageSimpleSpeechTime = async (
@@ -83,7 +83,7 @@
 			return [];
 		}
 
-		return mapSpeechTimeCategory(response);
+		return mapSpeechTimeCategory(response, normalized);
 	};
 
 	const legisSimpleSpeechTime = async (
@@ -103,7 +103,7 @@
 			return [];
 		}
 
-		return mapSpeechTimeCategory(response);
+		return mapSpeechTimeCategory(response, normalized);
 	};
 
 	// Get the appropriate function based on selected category
@@ -135,6 +135,7 @@
 		<DelegateBarChartControl
 			delegateMakeRequest={currentFunction}
 			height={600}
+			selectedCategory={selectedCategory}
 		/>
 	</div>
 </div>

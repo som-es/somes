@@ -130,11 +130,31 @@
 <!-- Main Content -->
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 		<!-- Chart -->
-		<div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-inner">
-			<DelegateBarChartControl
-				delegateMakeRequest={currentFunction}
-				height={600}
-			/>
-		</div>
+	<div class="bg-card rounded-xl p-6 shadow-sm">
+		<DelegateBarChartControl
+			height={500}
+			delegateMakeRequest={currentFunction}
+			selectedCategory={selectedCategory}
+			valueLabel="Komplexitäts-Score"
+			normalizedValueLabel="Komplexitäts-Score"
+			filterConfig={{
+				showNormalized: false,
+				showPeriod: true,
+				showGender: true,
+				showParty: true
+			}}
+			infoQuestion="Wie wird der Komplexitäts-Score berechnet?"
+			infoAnswer="
+				<p><strong>Komplexitäts-Score:</strong> Durchschnittliche Komplexität der Vorstösse</p>
+				<ul class='ml-4 space-y-1 text-xs'>
+					<li>• Motion: <strong>1.0 Punkte</strong></li>
+					<li>• Postulat: <strong>1.2 Punkte</strong></li>
+					<li>• Anfrage: <strong>1.2 Punkte</strong></li>
+					<li>• Dringliche Anfrage: <strong>1.15 Punkte</strong></li>
+					<li>• Initiative: <strong>1.3 Punkte</strong></li>
+				</ul>
+				<p class='mt-2'><strong>Berechnung:</strong> Durchschnitt der Komplexitätswerte aller Vorstösse des Delegierten</p>
+			"
+		/>
+	</div>
 </div>
-

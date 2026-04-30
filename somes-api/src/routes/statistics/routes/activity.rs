@@ -15,6 +15,7 @@ pub struct ActivityFilter {
     gender: Option<String>,
     party: Option<String>,
     is_desc: bool,
+    normalized: bool,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
@@ -23,8 +24,9 @@ pub struct ActivityBase {
     delegate_party: String,
     delegate_gender: String,
     activity_score: f64,
+    raw_activity_score: f64,
     total_proposals: i64,
-    mandate_duration_days: i64,
+    session_count: i64,
     legislative_period: Option<String>,
 }
 
@@ -33,14 +35,16 @@ pub struct ActivityForDelegate {
     delegate_name: String,
     delegate_party: String,
     activity_score: f64,
+    raw_activity_score: f64,
     total_proposals: i64,
-    mandate_duration_days: i64,
+    session_count: i64,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct ActivityByCategory {
     category: String,
     activity_score: f64,
+    raw_activity_score: f64,
     total_proposals: i64,
     delegate_count: i64,
 }
@@ -52,9 +56,9 @@ impl ActivityService {
         pg: &sqlx::PgPool,
         filter: &ActivityFilter,
     ) -> Result<Vec<ActivityBase>, StatisticsResponse> {
-        let filter_arg1 = filter.party.with_sql_column("m.party");
+        let filter_arg1 = filter.party.with_sql_column("d.party");
         let filter_arg2 = filter.gender.with_sql_column("d.gender");
-        let filter_arg3 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
+        let filter_arg3 = filter.legis_period.with_sql_column("p.gp");
         let filters = [filter_arg1, filter_arg2, filter_arg3];
 
         let filter_str = build_filter(&filters);
@@ -63,7 +67,7 @@ impl ActivityService {
             "
         SELECT DISTINCT ON (d.id)
             d.name AS delegate_name,
-            COALESCE(MAX(m.party), '') AS delegate_party,
+            COALESCE(d.party, '') AS delegate_party,
             COALESCE(d.gender, '') AS delegate_gender,
             (
                 SUM(
@@ -75,19 +79,27 @@ impl ActivityService {
                         WHEN p.ityp = 'I' THEN 1.3 * proposal_counts.proposal_count
                         ELSE 0
                     END
-                ) / NULLIF(COALESCE(mandate_duration.mandate_duration_days, 1), 0)
+                ) / NULLIF(COALESCE(session_count.session_count, 1), 0)
             )::float8 AS activity_score,
+            SUM(
+                CASE 
+                    WHEN p.ityp = 'J' THEN 1
+                    WHEN p.ityp = 'AA' THEN 1.2 * proposal_counts.proposal_count
+                    WHEN p.ityp = 'A' THEN 1.2 * proposal_counts.proposal_count
+                    WHEN p.ityp = 'UEA' THEN 1.15 * proposal_counts.proposal_count
+                    WHEN p.ityp = 'I' THEN 1.3 * proposal_counts.proposal_count
+                    ELSE 0
+                END
+            )::float8 AS raw_activity_score,
             COUNT(p.id) AS total_proposals,
-            COALESCE(mandate_duration.mandate_duration_days, 0) AS mandate_duration_days,
-            NULL::text AS legislative_period
+            COALESCE(session_count.session_count, 0) AS session_count,
+            p.gp AS legislative_period
         FROM 
             proposals p
         JOIN 
             proposal_delegates pd ON p.id = pd.proposal_id
         JOIN 
             delegates d ON pd.delegate_id = d.id
-        LEFT JOIN mandates m ON m.delegate_id = d.id
-        -- LEFT JOIN plenar_infos pf ON pf.id = p.plenar_id -- No plenar_id in proposals table
         LEFT JOIN (
             SELECT 
                 p.id AS proposal_id,
@@ -102,25 +114,24 @@ impl ActivityService {
                 p.id
         ) AS proposal_counts ON p.id = proposal_counts.proposal_id
         LEFT JOIN (
-            SELECT
-                m.delegate_id,
-                SUM(
-                    CASE
-                        WHEN m.end_date IS NULL THEN (CURRENT_DATE - m.start_date)
-                        ELSE (m.end_date - m.start_date)
-                    END
-                ) AS mandate_duration_days
-            FROM mandates m
-            WHERE
-                m.is_nr = true
-                AND m.is_gov_official = true
-            GROUP BY m.delegate_id
-        ) AS mandate_duration ON d.id = mandate_duration.delegate_id
+            SELECT 
+                pd.delegate_id,
+                COUNT(DISTINCT pi.id) AS session_count
+            FROM proposal_delegates pd
+            JOIN proposals p ON pd.proposal_id = p.id
+            JOIN plenar_infos pi ON pi.legislative_period = (
+                SELECT MAX(legislative_period) 
+                FROM plenar_infos 
+                WHERE raw_data_created_at <= p.created_at
+            )
+            WHERE pd.is_receiver = false
+            GROUP BY pd.delegate_id
+        ) AS session_count ON d.id = session_count.delegate_id
         WHERE 
             pd.is_receiver = false
             AND {filter_str}
         GROUP BY 
-            d.id, d.name, mandate_duration.mandate_duration_days
+            d.id, d.name, session_count.session_count, p.gp
         ORDER BY 
             d.id, activity_score DESC;
         "
@@ -132,7 +143,10 @@ impl ActivityService {
         filtered_query
             .fetch_all(pg)
             .await
-            .map_err(|e| StatisticsResponse::DbSelectFailure(Some(e)))
+            .map_err(|e| {
+                println!("Error fetching activity data: {}", e);
+                StatisticsResponse::DbSelectFailure(Some(e))
+            })
     }
 
     pub async fn per_delegate(
@@ -146,17 +160,26 @@ impl ActivityService {
                 delegate_name: item.delegate_name,
                 delegate_party: item.delegate_party,
                 activity_score: item.activity_score,
+                raw_activity_score: item.raw_activity_score,
                 total_proposals: item.total_proposals,
-                mandate_duration_days: item.mandate_duration_days,
+                session_count: item.session_count,
             })
             .collect();
 
-        // Sort by activity score
-        results.sort_by(|a, b| {
-            b.activity_score
-                .partial_cmp(&a.activity_score)
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
+        // Sort by activity score based on normalized flag
+        if filter.normalized {
+            results.sort_by(|a, b| {
+                b.activity_score
+                    .partial_cmp(&a.activity_score)
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            });
+        } else {
+            results.sort_by(|a, b| {
+                b.raw_activity_score
+                    .partial_cmp(&a.raw_activity_score)
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            });
+        }
 
         if !filter.is_desc {
             results.reverse();
@@ -171,30 +194,41 @@ impl ActivityService {
     ) -> Result<Vec<ActivityByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
         
-        let mut party_map: std::collections::HashMap<String, (f64, i64, i64)> = std::collections::HashMap::new();
+        let mut party_map: std::collections::HashMap<String, (f64, f64, i64, i64)> = std::collections::HashMap::new();
         
         for item in base_data {
-            let entry = party_map.entry(item.delegate_party.clone()).or_insert((0.0, 0, 0));
+            let entry = party_map.entry(item.delegate_party.clone()).or_insert((0.0, 0.0, 0, 0));
             entry.0 += item.activity_score;
-            entry.1 += item.total_proposals;
-            entry.2 += 1; // delegate count
+            entry.1 += item.raw_activity_score;
+            entry.2 += item.total_proposals;
+            entry.3 += 1; // delegate count
         }
 
         let mut results: Vec<ActivityByCategory> = party_map
             .into_iter()
-            .map(|(party, (total_score, total_proposals, delegate_count))| ActivityByCategory {
+            .map(|(party, (total_norm_score, total_raw_score, total_proposals, delegate_count))| ActivityByCategory {
                 category: party,
-                activity_score: total_score / delegate_count as f64, // average score
+                activity_score: total_norm_score / delegate_count as f64, // average normalized score
+                raw_activity_score: total_raw_score / delegate_count as f64, // average raw score
                 total_proposals,
                 delegate_count,
             })
             .collect();
 
-        results.sort_by(|a, b| {
-            b.activity_score
-                .partial_cmp(&a.activity_score)
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
+        // Sort based on filter parameters
+        if filter.normalized {
+            results.sort_by(|a, b| {
+                b.activity_score
+                    .partial_cmp(&a.activity_score)
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            });
+        } else {
+            results.sort_by(|a, b| {
+                b.raw_activity_score
+                    .partial_cmp(&a.raw_activity_score)
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            });
+        }
 
         if !filter.is_desc {
             results.reverse();
@@ -209,30 +243,41 @@ impl ActivityService {
     ) -> Result<Vec<ActivityByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
         
-        let mut gender_map: std::collections::HashMap<String, (f64, i64, i64)> = std::collections::HashMap::new();
+        let mut gender_map: std::collections::HashMap<String, (f64, f64, i64, i64)> = std::collections::HashMap::new();
         
         for item in base_data {
-            let entry = gender_map.entry(item.delegate_gender.clone()).or_insert((0.0, 0, 0));
+            let entry = gender_map.entry(item.delegate_gender.clone()).or_insert((0.0, 0.0, 0, 0));
             entry.0 += item.activity_score;
-            entry.1 += item.total_proposals;
-            entry.2 += 1; // delegate count
+            entry.1 += item.raw_activity_score;
+            entry.2 += item.total_proposals;
+            entry.3 += 1; // delegate count
         }
 
         let mut results: Vec<ActivityByCategory> = gender_map
             .into_iter()
-            .map(|(gender, (total_score, total_proposals, delegate_count))| ActivityByCategory {
+            .map(|(gender, (total_norm_score, total_raw_score, total_proposals, delegate_count))| ActivityByCategory {
                 category: gender,
-                activity_score: total_score / delegate_count as f64, // average score
+                activity_score: total_norm_score / delegate_count as f64, // average normalized score
+                raw_activity_score: total_raw_score / delegate_count as f64, // average raw score
                 total_proposals,
                 delegate_count,
             })
             .collect();
 
-        results.sort_by(|a, b| {
-            b.activity_score
-                .partial_cmp(&a.activity_score)
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
+        // Sort based on filter parameters
+        if filter.normalized {
+            results.sort_by(|a, b| {
+                b.activity_score
+                    .partial_cmp(&a.activity_score)
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            });
+        } else {
+            results.sort_by(|a, b| {
+                b.raw_activity_score
+                    .partial_cmp(&a.raw_activity_score)
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            });
+        }
 
         if !filter.is_desc {
             results.reverse();
@@ -246,33 +291,45 @@ impl ActivityService {
         filter: &ActivityFilter,
     ) -> Result<Vec<ActivityByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
-        let mut legis_map: std::collections::HashMap<String, (f64, i64, i64)> = std::collections::HashMap::new();
+        println!("base_data {:?}", base_data);
+        println!("✅ STATISTICS ENDPOINT: activity_per_legis - processing {} items", base_data.len());
+        let mut legis_map: std::collections::HashMap<String, (f64, f64, i64, i64)> = std::collections::HashMap::new();
         
         for item in base_data {
             if let Some(period) = item.legislative_period {
-                let entry = legis_map.entry(period).or_insert((0.0, 0, 0));
+                let entry = legis_map.entry(period).or_insert((0.0, 0.0, 0, 0));
                 entry.0 += item.activity_score;
-                entry.1 += item.total_proposals;
-                entry.2 += 1; // delegate count
+                entry.1 += item.raw_activity_score;
+                entry.2 += item.total_proposals;
+                entry.3 += 1; // delegate count
             }
         }
 
         let mut results: Vec<ActivityByCategory> = legis_map
             .into_iter()
-            .map(|(period, (total_score, total_proposals, delegate_count))| ActivityByCategory {
+            .map(|(period, (total_norm_score, total_raw_score, total_proposals, delegate_count))| ActivityByCategory {
                 category: period,
-                activity_score: total_score / delegate_count as f64, // average score
+                activity_score: total_norm_score / delegate_count as f64, // average normalized score
+                raw_activity_score: total_raw_score / delegate_count as f64, // average raw score
                 total_proposals,
                 delegate_count,
             })
             .collect();
 
-        results.sort_by(|a, b| {
-            b.activity_score
-                .partial_cmp(&a.activity_score)
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
+        // Sort based on filter parameters
+        if filter.normalized {
+            results.sort_by(|a, b| {
+                b.activity_score
+                    .partial_cmp(&a.activity_score)
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            });
+        } else {
+            results.sort_by(|a, b| {
+                b.raw_activity_score
+                    .partial_cmp(&a.raw_activity_score)
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            });
+        }
 
         if !filter.is_desc {
             results.reverse();
@@ -293,30 +350,35 @@ impl ActivityService {
             ActivityByCategory {
                 category: "18-30".to_string(),
                 activity_score: 0.0,
+                raw_activity_score: 0.0,
                 total_proposals: 0,
                 delegate_count: 0,
             },
             ActivityByCategory {
                 category: "31-40".to_string(),
                 activity_score: 0.0,
+                raw_activity_score: 0.0,
                 total_proposals: 0,
                 delegate_count: 0,
             },
             ActivityByCategory {
                 category: "41-50".to_string(),
                 activity_score: 0.0,
+                raw_activity_score: 0.0,
                 total_proposals: 0,
                 delegate_count: 0,
             },
             ActivityByCategory {
                 category: "51-60".to_string(),
                 activity_score: 0.0,
+                raw_activity_score: 0.0,
                 total_proposals: 0,
                 delegate_count: 0,
             },
             ActivityByCategory {
                 category: "60+".to_string(),
                 activity_score: 0.0,
+                raw_activity_score: 0.0,
                 total_proposals: 0,
                 delegate_count: 0,
             },
@@ -324,22 +386,33 @@ impl ActivityService {
 
         // Note: You'll need to implement actual age calculation logic here
         // This is a placeholder that aggregates all data into "Unknown" category
-        let total_score: f64 = base_data.iter().map(|item| item.activity_score).sum();
+        let total_norm_score: f64 = base_data.iter().map(|item| item.activity_score).sum();
+        let total_raw_score: f64 = base_data.iter().map(|item| item.raw_activity_score).sum();
         let total_proposals: i64 = base_data.iter().map(|item| item.total_proposals).sum();
         let delegate_count: i64 = base_data.len() as i64;
 
         results.push(ActivityByCategory {
             category: "Unknown".to_string(),
-            activity_score: if delegate_count > 0 { total_score / delegate_count as f64 } else { 0.0 },
+            activity_score: if delegate_count > 0 { total_norm_score / delegate_count as f64 } else { 0.0 },
+            raw_activity_score: if delegate_count > 0 { total_raw_score / delegate_count as f64 } else { 0.0 },
             total_proposals,
             delegate_count,
         });
 
-        results.sort_by(|a, b| {
-            b.activity_score
-                .partial_cmp(&a.activity_score)
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
+        // Sort based on filter parameters
+        if filter.normalized {
+            results.sort_by(|a, b| {
+                b.activity_score
+                    .partial_cmp(&a.activity_score)
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            });
+        } else {
+            results.sort_by(|a, b| {
+                b.raw_activity_score
+                    .partial_cmp(&a.raw_activity_score)
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            });
+        }
 
         if !filter.is_desc {
             results.reverse();
@@ -432,6 +505,7 @@ pub async fn activity_per_legis(
 ) -> Result<Json<Vec<ActivityByCategory>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
     let results = ActivityService::per_legis(&pg, &filter).await?;
+    println!("✅ STATISTICS ENDPOINT: activity_per_legis returning {} results", results.len());
     Ok(Json(results))
 }
 
