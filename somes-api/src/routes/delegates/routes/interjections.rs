@@ -9,11 +9,9 @@ use crate::{
 
 pub fn create_delegate_interjections_router() -> Router<AppState> {
     Router::new()
-        .route("received", get(interjections_received_by_delegate_per_page_route))
-        .route("made", get(interjections_made_by_delegate_per_page_route))
+        .route("/received", get(interjections_received_by_delegate_per_page_route))
+        .route("/made", get(interjections_made_by_delegate_per_page_route))
 }
-
-
 
 pub async fn interjections_made_by_delegate_per_page_route(
     PgPoolConnection(pg): PgPoolConnection,

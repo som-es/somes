@@ -42,8 +42,11 @@ pub async fn extract_interjections_made_by_delegate(
             FROM interjections i
             INNER JOIN delegate_matching dm
                 ON dm.id = i.delegate_matching_id
-            WHERE i.interjector_delegate_id = $1 
-            ORDER BY i.id
+            INNER JOIN plenar_speeches s on s.id = i.plenar_speech_id
+            INNER JOIN debates on debates.id = s.debate_id 
+            INNER JOIN plenar_infos pi on pi.id = debates.plenar_id 
+            WHERE i.interjector_delegate_id = $1 and dm.similiarity_score <= 100
+            ORDER BY pi.raw_data_created_at DESC, i.id 
             OFFSET $2 LIMIT $3
         "#,
         delegate_id,
@@ -66,8 +69,9 @@ pub async fn extract_interjections_received_by_delegate(
     pg_pool: &PgPool,
 ) -> sqlx::Result<InterjectionsWithMaxPage> {
     let all_interjections_count = sqlx::query_scalar!(
-        r#"select COUNT(*) as "count!" from interjections i INNER JOIN delegate_matching dm
-                ON dm.id = i.delegate_matching_id where dm.delegate_id = $1"#,
+        r#"select COUNT(*) as "count!" from interjections i 
+            INNER JOIN plenar_speeches s on s.id = i.plenar_speech_id
+            where s.delegate_id = $1"#,
         delegate_id
     )
     .fetch_one(pg_pool)
@@ -92,8 +96,11 @@ pub async fn extract_interjections_received_by_delegate(
             FROM interjections i
             INNER JOIN delegate_matching dm
                 ON dm.id = i.delegate_matching_id
-            WHERE dm.delegate_id = $1 
-            ORDER BY i.id
+            INNER JOIN plenar_speeches s on s.id = i.plenar_speech_id
+            INNER JOIN debates on debates.id = s.debate_id 
+            INNER JOIN plenar_infos pi on pi.id = debates.plenar_id 
+            WHERE s.delegate_id = $1 and dm.similiarity_score <= 7
+            ORDER BY  pi.raw_data_created_at DESC, i.id
             OFFSET $2 LIMIT $3
         "#,
         delegate_id,
