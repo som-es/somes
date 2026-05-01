@@ -7,9 +7,10 @@
 
 	interface Props {
 		absences: Absence[];
-	}
+		title?: string;
+		showDetails?: boolean; }
 
-	let { absences = [] }: Props = $props();
+	let { absences = [], title = 'Letzte Abwesenheiten', showDetails = true }: Props = $props();
 	const ENTRIES = 15;
 	let page = $state(1);
 
@@ -19,13 +20,13 @@
 
 <div class="card p-8">
 	<div class="flex justify-between items-center">
-		<h1 class="font-bold text-2xl">Letzte Abwesenheiten</h1>
+		<h1 class="font-bold text-2xl">{title}</h1>
 		<Dialog.Close>
 			<ModalCloseButton />	
 		</Dialog.Close>
 	</div>
 	{#each currentPageAbsences as absence}
-		<AbsenceBar {absence} {page} />
+		<AbsenceBar {absence} {page} {showDetails} />
 	{/each}
 	
 	<div class="float-right">

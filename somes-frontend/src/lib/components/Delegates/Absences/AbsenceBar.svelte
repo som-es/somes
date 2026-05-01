@@ -5,10 +5,11 @@
 	
 	interface Props {
 		absence: Absence;
+		showDetails?: boolean;
 		page: number;
 	}
 
-	let { absence, page }: Props = $props();
+	let { absence, page, showDetails = true }: Props = $props();
 	// absence.
 
 	let open: boolean = $state(false);
@@ -28,34 +29,35 @@
 		class="entry dark:bg-primary-300 bg-primary-400 text-black"
 	>
 		<div class="flex justify-between items-center">
-			<div class="flex gap-4">
-				<!-- <div id={open ? 'open' : 'closed'}>
+			<!-- <div class="flex gap-4">
+				<div id={open ? 'open' : 'closed'}>
 					{@html rightArrowIcon}
-				</div> -->
-
-			</div>
+				</div>
+			</div> -->
 
 			<div>
 				{absence.inr}. Nationalratssitzung | {absence.gp}
 			</div>
-			<div>
-				{absence.missed_legis_init_ids.length} verpasste
-				{#if absence.missed_legis_init_ids.length == 1}
-					Abstimmung
-				{:else}
-					Abstimmungen
-				{/if}
-			</div>
+			{#if showDetails}
+				<div>
+					{absence.missed_legis_init_ids.length} verpasste
+					{#if absence.missed_legis_init_ids.length == 1}
+						Abstimmung
+					{:else}
+						Abstimmungen
+					{/if}
+				</div>
+			{/if}
 		</div>
-		<div class="flex justify-between mt-1">
+		<!-- <div class="flex justify-between mt-1">
 			<div></div>
 			<span class="badge bg-tertiary-400">Abwesenheit</span>
-		</div>
+		</div> -->
 	</div>
 	{#if open}
-		<div transition:slide={{ duration: 240 }}>
+		<!-- <div transition:slide={{ duration: 240 }}>
 			<AbsenceBarExpanded {absence} bind:open />
-		</div>
+		</div> -->
 	{/if}
 </div>
 

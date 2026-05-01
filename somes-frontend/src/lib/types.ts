@@ -411,7 +411,7 @@ export interface Mandate {
 }
 
 export interface Absence {
-	date: Date;
+	date: string;
 	inr: number;
 	gp: string;
 	plenary_session_id: number;
