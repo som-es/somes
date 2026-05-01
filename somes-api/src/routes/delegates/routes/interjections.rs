@@ -1,13 +1,19 @@
-use axum::{extract::Query, Json};
+use axum::{Json, Router, extract::Query, routing::get};
 use somes_common_lib::DelegateByIdAndPage;
 
 use crate::{
-    routes::{
-        extract_interjections_made_by_delegate, extract_interjections_received_by_delegate,
-        DelegateError, InterjectionsWithMaxPage,
-    },
-    PgPoolConnection,
+    PgPoolConnection, routes::{
+        DelegateError, InterjectionsWithMaxPage, extract_interjections_made_by_delegate, extract_interjections_received_by_delegate
+    }, server::AppState
 };
+
+pub fn create_delegate_interjections_router() -> Router<AppState> {
+    Router::new()
+        .route("received", get(interjections_received_by_delegate_per_page_route))
+        .route("made", get(interjections_made_by_delegate_per_page_route))
+}
+
+
 
 pub async fn interjections_made_by_delegate_per_page_route(
     PgPoolConnection(pg): PgPoolConnection,
