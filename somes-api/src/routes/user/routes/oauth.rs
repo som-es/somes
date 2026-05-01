@@ -232,12 +232,14 @@ pub async fn oauth_callback(
         }
     };
     // 3️⃣ Prüfen oder neuen User anlegen
-    let user: User = match get_user_from_mail_or_hash_sqlx(&pg, &email).await.map_err(|e| {
-        UserError::Custom(
-            axum::http::StatusCode::BAD_GATEWAY,
-            format!("Database lookup failed: {}", e),
-        )
-    })? {
+    let user: User = match get_user_from_mail_or_hash_sqlx(&pg, &email)
+        .await
+        .map_err(|e| {
+            UserError::Custom(
+                axum::http::StatusCode::BAD_GATEWAY,
+                format!("Database lookup failed: {}", e),
+            )
+        })? {
         Some(u) => u,
         None => {
             let id = sqlx::query!(

@@ -60,7 +60,6 @@ pub async fn send_otp(
     email: &str,
     stored_email: &str,
 ) -> Result<(), UserError> {
-
     let otp = generate_otp();
 
     let otp_hash = hash_password(&otp, true).map_err(|_| UserError::Hashing)?;
@@ -138,11 +137,7 @@ pub async fn login(
 
     let key = format!("login/{stored_email}");
 
-    if redis_con
-        .exists::<_, bool>(&key)
-        .await
-        .unwrap_or_default()
-    {
+    if redis_con.exists::<_, bool>(&key).await.unwrap_or_default() {
         match redis_con.get::<_, String>(&key).await {
             Ok(v) => {
                 let Some(password) = login_info.password else {

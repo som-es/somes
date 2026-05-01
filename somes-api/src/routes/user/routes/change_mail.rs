@@ -172,12 +172,7 @@ async fn change_to_clear_text_email(
         log::error!("Failed to update email for user {}: {:?}", user.id, e);
         UserError::UserCreationError
     })?;
-    let Json(jwt_info) = create_access_token(
-        user.id,
-        new_email.to_string(),
-        user.is_admin,
-        false,
-    )
-    .map_err(UserError::AuthError)?;
+    let Json(jwt_info) = create_access_token(user.id, new_email.to_string(), user.is_admin, false)
+        .map_err(UserError::AuthError)?;
     Ok(jwt_info)
 }
