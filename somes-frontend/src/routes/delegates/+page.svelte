@@ -1126,8 +1126,8 @@
 					{#if delegate && interjectionsMadePage0 && interjectionsReceivedPage0}
 						<InterjectionsPreview
 							issuerDelegate={delegate}
-							receivedInterjectionsPage0={interjectionsReceivedPage0.interjections}
-							issuedInterjectionsPage0={interjectionsMadePage0.interjections}
+							receivedInterjectionsPage0={interjectionsReceivedPage0}
+							issuedInterjectionsPage0={interjectionsMadePage0}
 						/>
 					{:else if interjectionsMadePage0 == null && delegate && delegate.council == 'gov'}
 						<ExpandablePlaceholder />

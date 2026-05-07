@@ -1,21 +1,21 @@
 <script lang="ts">
-	import type { Delegate, HasError, Interjection } from '$lib/types';
+	import type { Delegate, HasError, Interjection, InterjectionsWithMaxPage } from '$lib/types';
 	import { Popover } from 'bits-ui';
 	import ExtendInfoDialog from '../ExtendInfoDialog.svelte';
 	import { delegate_by_id, isHasError, url } from '$lib/api/api';
 	import DelegateCard from '../DelegateCard.svelte';
+	import InterjectionsModal from './InterjectionsModal.svelte';
+	import { currentDelegateStore } from '$lib/stores/stores';
+	import { gotoHistory } from '$lib/goto';
+	import { resolve } from '$app/paths';
 
 	interface Props {
 		issuerDelegate: Delegate;
-		issuedInterjectionsPage0: Interjection[];
-		receivedInterjectionsPage0: Interjection[];
+		issuedInterjectionsPage0: InterjectionsWithMaxPage;
+		receivedInterjectionsPage0: InterjectionsWithMaxPage;
 	}
 
-	let {
-		issuerDelegate,
-		issuedInterjectionsPage0 = [],
-		receivedInterjectionsPage0 = []
-	}: Props = $props();
+	let { issuerDelegate, issuedInterjectionsPage0, receivedInterjectionsPage0 }: Props = $props();
 
 	function formatDate(dateString: Date | string) {
 		return new Intl.DateTimeFormat('de-AT', {
@@ -28,7 +28,7 @@
 	// interjections = interjections.sort(
 	// 	(a, b) => (a.interjection_text?.length ?? 0) - (b.interjection_text?.length ?? 0)
 	// );
-	let activeTab = $state('issued');
+	let activeTab: 'issued' | 'received' = $state('issued');
 
 	function collectTillLengthExceeds(entries: Interjection[]) {
 		let currentLen = 0;
@@ -40,8 +40,8 @@
 
 	let interjections = $derived(
 		activeTab === 'issued'
-			? collectTillLengthExceeds(issuedInterjectionsPage0)
-			: collectTillLengthExceeds(receivedInterjectionsPage0)
+			? collectTillLengthExceeds(issuedInterjectionsPage0.interjections)
+			: collectTillLengthExceeds(receivedInterjectionsPage0.interjections)
 	);
 
 	const fetchDelegate = async (id: number): Promise<Delegate | HasError> => {
@@ -49,6 +49,10 @@
 			return issuerDelegate;
 		}
 		return delegate_by_id(id);
+	};
+	const onShowDetails = (delegate: Delegate) => {
+		currentDelegateStore.value = delegate;
+		gotoHistory(resolve(`/delegates`), true);
 	};
 </script>
 
@@ -64,7 +68,13 @@
 					</span>
 					<div>
 						<ExtendInfoDialog title="Alle anzeigen">
-							<!-- <AbsencesModal absences={sortedAbsences} {title} {showDetails} /> -->
+							<InterjectionsModal
+								delegateId={issuerDelegate.id}
+								ty={activeTab}
+								interjectionsPage0={activeTab === 'issued'
+									? issuedInterjectionsPage0
+									: receivedInterjectionsPage0}
+							/>
 						</ExtendInfoDialog>
 					</div>
 				</div>
@@ -108,7 +118,12 @@
 									Lädt Redner..
 								{:then delegate}
 									{#if !isHasError(delegate)}
-										<div class="flex flex-row items-center gap-2">
+										<button
+											onclick={() => {
+												onShowDetails(delegate);
+											}}
+											class="flex flex-row items-center gap-2"
+										>
 											<div class="relative flex justify-center pb-6">
 												<img
 													src={`${url}assets/${delegate.id}.jpg`}
@@ -124,7 +139,7 @@
 												</span>
 											</div>
 											<span class="font-bold">{delegate.name}</span>
-										</div>
+										</button>
 									{/if}
 								{/await}
 							</div>
