@@ -24,7 +24,8 @@ import type {
 	GovProposalsWithMaxPage,
 	GeneralGovOfficialInfo,
 	DelegatesWithMaxPage,
-	PartyStates
+	PartyStates,
+	InterjectionsWithMaxPage
 } from '../types';
 
 // const address = 'https://somes.at';
@@ -281,6 +282,24 @@ export async function speeches_by_delegate_per_page(
 ): Promise<SpeechesWithMaxPage | HasError> {
 	return getWithRoute<SpeechesWithMaxPage>(
 		`v1/delegates/speeches_per_page?delegate_id=${delegate_id}&page=${page}`
+	);
+}
+
+export async function interjections_made_by_delegate_per_page(
+	delegate_id: number,
+	page: number
+): Promise<InterjectionsWithMaxPage | HasError> {
+	return getWithRoute<InterjectionsWithMaxPage>(
+		`v1/delegates/interjections/made?delegate_id=${delegate_id}&page=${page}`
+	);
+}
+
+export async function interjections_received_by_delegate_per_page(
+	delegate_id: number,
+	page: number
+): Promise<InterjectionsWithMaxPage | HasError> {
+	return getWithRoute<InterjectionsWithMaxPage>(
+		`v1/delegates/interjections/received?delegate_id=${delegate_id}&page=${page}`
 	);
 }
 

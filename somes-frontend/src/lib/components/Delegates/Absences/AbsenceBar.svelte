@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { dashDateToDotDate } from '$lib/date';
 	import type { Absence } from '$lib/types';
 	import AbsenceBarExpanded from './AbsenceBarExpanded.svelte';
 	import { slide } from 'svelte/transition';
@@ -49,10 +50,10 @@
 				</div>
 			{/if}
 		</div>
-		<!-- <div class="flex justify-between mt-1">
+		<div class="flex justify-between mt-1">
 			<div></div>
-			<span class="badge bg-tertiary-400">Abwesenheit</span>
-		</div> -->
+			<span class="badge bg-tertiary-400">{dashDateToDotDate(absence.date.split("T")[0])}</span>
+		</div>
 	</div>
 	{#if open}
 		<!-- <div transition:slide={{ duration: 240 }}>

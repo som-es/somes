@@ -138,7 +138,11 @@ export interface Speech {
 	duration_in_seconds: number | null;
 	vote_result_ids: number[] | null;
 }
-
+export interface InterjectionsWithMaxPage {
+	interjections: Interjection[];
+	entry_count: number;
+	max_page: number;
+}
 export interface SpeechesWithMaxPage {
 	speeches: Speech[];
 	entry_count: number;
@@ -408,6 +412,25 @@ export interface Mandate {
 	start_date: Date;
 	end_date: Date | null;
 	name: string;
+}
+
+export interface DelegateMatch {
+	delegate_id: number;
+	searched_with: string;
+	matched_with: string;
+	similiarity_score: number;
+	manually_matched: boolean | null;
+}
+
+export interface Interjection {
+	interjection_text: string | null;
+	interjector_delegate_id: number;
+	speaker_delegate_id: number;
+	date: string;
+	plenar_speech_id: number;
+	rel_start_idx: number;
+	rel_end_idx: number;
+	delegate_match: DelegateMatch;
 }
 
 export interface Absence {

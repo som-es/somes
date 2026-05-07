@@ -32,6 +32,8 @@ pub async fn extract_interjections_made_by_delegate(
                 i.plenar_speech_id,
                 i.rel_start_idx,
                 i.rel_end_idx,
+                s.delegate_id as speaker_delegate_id,
+                raw_data_created_at as "date!",
                 ROW(
                     dm.similiarity_score,
                     dm.searched_with,
@@ -43,10 +45,10 @@ pub async fn extract_interjections_made_by_delegate(
             INNER JOIN delegate_matching dm
                 ON dm.id = i.delegate_matching_id
             INNER JOIN plenar_speeches s on s.id = i.plenar_speech_id
-            INNER JOIN debates on debates.id = s.debate_id 
-            INNER JOIN plenar_infos pi on pi.id = debates.plenar_id 
+            INNER JOIN debates on debates.id = s.debate_id
+            INNER JOIN plenar_infos pi on pi.id = debates.plenar_id
             WHERE i.interjector_delegate_id = $1 and dm.similiarity_score <= 100
-            ORDER BY pi.raw_data_created_at DESC, i.id 
+            ORDER BY pi.raw_data_created_at DESC, i.id
             OFFSET $2 LIMIT $3
         "#,
         delegate_id,
@@ -69,7 +71,7 @@ pub async fn extract_interjections_received_by_delegate(
     pg_pool: &PgPool,
 ) -> sqlx::Result<InterjectionsWithMaxPage> {
     let all_interjections_count = sqlx::query_scalar!(
-        r#"select COUNT(*) as "count!" from interjections i 
+        r#"select COUNT(*) as "count!" from interjections i
             INNER JOIN plenar_speeches s on s.id = i.plenar_speech_id
             where s.delegate_id = $1"#,
         delegate_id
@@ -86,6 +88,8 @@ pub async fn extract_interjections_received_by_delegate(
                 i.plenar_speech_id,
                 i.rel_start_idx,
                 i.rel_end_idx,
+                raw_data_created_at as "date!",
+                s.delegate_id as speaker_delegate_id,
                 ROW(
                     dm.similiarity_score,
                     dm.searched_with,
@@ -97,8 +101,8 @@ pub async fn extract_interjections_received_by_delegate(
             INNER JOIN delegate_matching dm
                 ON dm.id = i.delegate_matching_id
             INNER JOIN plenar_speeches s on s.id = i.plenar_speech_id
-            INNER JOIN debates on debates.id = s.debate_id 
-            INNER JOIN plenar_infos pi on pi.id = debates.plenar_id 
+            INNER JOIN debates on debates.id = s.debate_id
+            INNER JOIN plenar_infos pi on pi.id = debates.plenar_id
             WHERE s.delegate_id = $1 and dm.similiarity_score <= 7
             ORDER BY  pi.raw_data_created_at DESC, i.id
             OFFSET $2 LIMIT $3

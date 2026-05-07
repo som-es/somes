@@ -23,6 +23,7 @@
 		onlyTop?: boolean;
 		showQA?: boolean;
 		showAI?: boolean;
+		showMandates: boolean;
 		questions?: DelegateQA[];
 		showMoreDetailsBtn?: boolean;
 		showImg?: boolean;
@@ -43,6 +44,7 @@
 		showMoreDetailsBtn = false,
 		showImg = true,
 		showAge = true,
+		showMandates = true,
 		title = null,
 		date,
 		top,
@@ -71,7 +73,7 @@
 	}
 	let personUrl = $derived(`https://parlament.gv.at/person/${delegate.id}?utm_source=somes.at`);
 
-	const showMandates = $derived.by(() => {
+	const mandatesToDisplay = $derived.by(() => {
 		if (date) {
 			const cmpDate = new Date(date);
 			return delegate.mandates?.filter((mandate) => {
@@ -151,7 +153,7 @@
 	<!-- Delegate name and party-->
 	<div>
 		<!-- Name and Age -->
-		<h4 class="font-bold text-xl">
+		<h4 class="text-xl font-bold">
 			{delegate.name}
 			{#if delegate.is_active && showAge}
 				- {Math.floor(dateDiffInDays(new Date(delegate.birthdate), new Date()) / 365)}
@@ -179,16 +181,18 @@
 		</div>
 	</div>
 
-	<!-- Mandate if so -->
-	<div class="mt-4">
-		{#each showMandates ?? [] as mandate}
-			<div class="mt-1 flex w-full items-center">
-				<h6 class="text-wrap text-base xl:leading-tight">
-					{mandate.name}
-				</h6>
-			</div>
-		{/each}
-	</div>
+	{#if showMandates}
+		<!-- Mandate if so -->
+		<div class="mt-4">
+			{#each mandatesToDisplay ?? [] as mandate}
+				<div class="mt-1 flex w-full items-center">
+					<h6 class="text-base text-wrap xl:leading-tight">
+						{mandate.name}
+					</h6>
+				</div>
+			{/each}
+		</div>
+	{/if}
 
 	{@render top?.()}
 	{@render info?.()}

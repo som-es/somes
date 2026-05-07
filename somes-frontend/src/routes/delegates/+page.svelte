@@ -7,7 +7,8 @@
 		GeneralGovOfficialInfo,
 		LegisPeriod,
 		SpeechesWithMaxPage,
-		Party
+		Party,
+		InterjectionsWithMaxPage
 	} from '$lib/types';
 	import { onMount, untrack } from 'svelte';
 	import {
@@ -18,7 +19,9 @@
 		speeches_by_delegate_per_page,
 		toActualDateString,
 		delegates_search_persons,
-		isHasError
+		isHasError,
+		interjections_made_by_delegate_per_page,
+		interjections_received_by_delegate_per_page
 	} from '$lib/api/api';
 	import {
 		aiViewEnabledStore,
@@ -60,6 +63,7 @@
 	import { type GenericFilterGroup } from '$lib/components/Filtering/types';
 	import DelegateListItem from '$lib/components/Delegates/DelegateListItem.svelte';
 	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
+	import InterjectionsPreview from '$lib/components/Delegates/Interjections/InterjectionsPreview.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -213,6 +217,8 @@
 	let periods: LegisPeriod[] = $derived(data.cachedPeriods ?? []);
 
 	let speechesPage0: SpeechesWithMaxPage | null = $state(null);
+	let interjectionsMadePage0: InterjectionsWithMaxPage | null = $state(null);
+	let interjectionsReceivedPage0: InterjectionsWithMaxPage | null = $state(null);
 	let generalDelegateInfo: GeneralDelegateInfo | null = $state(null);
 	let generalGovOfficialInfo: GeneralGovOfficialInfo | null = $state(null);
 	let maxDayOffset = $state(365 * 5);
@@ -433,6 +439,14 @@
 				speechesPage0 = null;
 				speeches_by_delegate_per_page(delegate.id, 0).then((res) => {
 					speechesPage0 = errorToNull(res);
+				});
+				interjectionsMadePage0 = null;
+				interjections_made_by_delegate_per_page(delegate.id, 0).then((res) => {
+					interjectionsMadePage0 = errorToNull(res);
+				});
+				interjectionsReceivedPage0 = null;
+				interjections_received_by_delegate_per_page(delegate.id, 0).then((res) => {
+					interjectionsReceivedPage0 = errorToNull(res);
 				});
 
 				prevSelectedDelegateId = delegate.id;
@@ -936,8 +950,7 @@
 			</button>
 			{#if delegate?.council === 'gov' || delegate?.mandates?.find((mandate) => {
 					return mandate.is_gov_official;
-				}) !== undefined
-			}
+				}) !== undefined}
 				<button
 					class="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium {activeTab === 'gov'
 						? 'bg-primary-600 text-white'
@@ -976,7 +989,7 @@
 					/>
 				</div>
 			{/if}
-			<div class="flex w-full flex-col gap-2 lg:flex-row">
+			<div class="flex w-full flex-col gap-3 lg:flex-row">
 				{#if delegate && generalDelegateInfo?.political_position && aiViewEnabledStore.value}
 					<SquarePoliticalSpectrum
 						{delegate}
@@ -1000,7 +1013,7 @@
 
 			<!-- Meist behandelte Themen & Abwesenheiten -->
 			<div
-				class="flex w-full flex-col gap-4 {!generalDelegateInfo ||
+				class="flex w-full flex-col gap-3 {!generalDelegateInfo ||
 				generalDelegateInfo.interests?.length > 0
 					? 'lg:flex-row'
 					: ''}"
@@ -1077,32 +1090,52 @@
 				<ExpandablePlaceholder />
 				<ExpandablePlaceholder />
 			{/if}
-			<div
-				class="flex w-full flex-col gap-4 {!generalDelegateInfo ||
-				generalDelegateInfo.interests?.length > 0
-					? 'lg:w-1/3'
-					: ''}"
-			>
-				{#if delegate && generalDelegateInfo?.received_call_to_orders}
-					<AbsencesPreview 
-						title="Ordnungsrufe"
-						explanation="Zur Ordnung gerufen"
-						lastEntriesText="Letzte Ordnungsrufe"
-						noEntriesText="Keine Ordnungsrufe erhalten"
-						delegateId={delegate.id} 
-						showTotal
-						showDetails={false}
-						absences={generalDelegateInfo.received_call_to_orders.map((cto) => ({
-							date: cto.date,
-							gp: cto.gp,
-							inr: cto.inr,
-							plenary_session_id: cto.plenary_session_id,
-							missed_legis_init_ids: []
-						}))} 
-					/>
-				{/if}
+
+			<div class="flex w-full flex-col gap-3 lg:flex-row">
+				<div
+					class="flex w-full flex-col gap-4 {!generalDelegateInfo ||
+					generalDelegateInfo.interests?.length > 0
+						? 'lg:w-1/3'
+						: ''}"
+				>
+					{#if delegate && generalDelegateInfo?.received_call_to_orders}
+						<AbsencesPreview
+							title="Ordnungsrufe"
+							explanation="Zur Ordnung gerufen"
+							lastEntriesText="Letzte Ordnungsrufe"
+							noEntriesText="Keine Ordnungsrufe erhalten"
+							delegateId={delegate.id}
+							showTotal
+							showDetails={false}
+							absences={generalDelegateInfo.received_call_to_orders.map((cto) => ({
+								date: cto.date,
+								gp: cto.gp,
+								inr: cto.inr,
+								plenary_session_id: cto.plenary_session_id,
+								missed_legis_init_ids: []
+							}))}
+						/>
+					{/if}
+				</div>
+				<div
+					class="flex w-full flex-col gap-4 {!generalDelegateInfo ||
+					generalDelegateInfo.interests?.length > 0
+						? 'lg:w-2/3'
+						: ''}"
+				>
+					{#if delegate && interjectionsMadePage0 && interjectionsReceivedPage0}
+						<InterjectionsPreview
+							issuerDelegate={delegate}
+							receivedInterjectionsPage0={interjectionsReceivedPage0.interjections}
+							issuedInterjectionsPage0={interjectionsMadePage0.interjections}
+						/>
+					{:else if interjectionsMadePage0 == null && delegate && delegate.council == 'gov'}
+						<ExpandablePlaceholder />
+						<ExpandablePlaceholder />
+					{/if}
+				</div>
+				<!-- {#if generalDelegateInfo.} -->
 			</div>
-			<!-- {#if generalDelegateInfo.} -->
 		{/if}
 
 		<!--  -->
