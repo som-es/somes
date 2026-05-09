@@ -21,7 +21,7 @@
 		onlyTop?: boolean;
 		showQA?: boolean;
 		showAI?: boolean;
-		showMandates: boolean;
+		showMandates?: boolean;
 		questions?: DelegateQA[];
 		showMoreDetailsBtn?: boolean;
 		showImg?: boolean;
@@ -228,9 +228,9 @@
 			{#if showAI}
 				<Dialog.Root>
 					<Dialog.Trigger>
-						<button class="rounded-xl bg-primary-600 p-2 px-3 text-white">
+						<div class="rounded-xl bg-primary-600 p-2 px-3 text-white">
 							<h4>AI Chat</h4>
-						</button>
+						</div>
 					</Dialog.Trigger>
 					<Dialog.Portal>
 						<Dialog.Overlay
@@ -250,9 +250,9 @@
 			{#if showQA && questions.length > 0}
 				<Dialog.Root>
 					<Dialog.Trigger>
-						<button class="rounded-xl bg-primary-600 p-2 px-3 text-white">
+						<div class="rounded-xl bg-primary-600 p-2 px-3 text-white">
 							<h4>Vorstellung</h4>
-						</button>
+						</div>
 					</Dialog.Trigger>
 					<Dialog.Portal>
 						<Dialog.Overlay

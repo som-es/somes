@@ -45,6 +45,9 @@
 	</div>
 
 	<div class="flex flex-col gap-2">
+		{#if currentPageInterjections.length === 0}
+			<div class="w-full rounded-lg bg-surface-100-900 p-20 text-center">Keine</div>
+		{/if}
 		{#each currentPageInterjections as interjection}
 			<InterjectionBar
 				{interjection}

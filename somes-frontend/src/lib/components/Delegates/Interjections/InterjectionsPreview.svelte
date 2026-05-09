@@ -66,17 +66,19 @@
 					<span class="text-lg font-bold text-black xl:text-xl dark:text-white">
 						Zwischenrufe
 					</span>
-					<div>
-						<ExtendInfoDialog title="Alle anzeigen">
-							<InterjectionsModal
-								delegateId={issuerDelegate.id}
-								ty={activeTab}
-								interjectionsPage0={activeTab === 'issued'
-									? issuedInterjectionsPage0
-									: receivedInterjectionsPage0}
-							/>
-						</ExtendInfoDialog>
-					</div>
+					{#if interjections.length !== 0}
+						<div>
+							<ExtendInfoDialog title="Alle anzeigen">
+								<InterjectionsModal
+									delegateId={issuerDelegate.id}
+									ty={activeTab}
+									interjectionsPage0={activeTab === 'issued'
+										? issuedInterjectionsPage0
+										: receivedInterjectionsPage0}
+								/>
+							</ExtendInfoDialog>
+						</div>
+					{/if}
 				</div>
 				<div
 					class="mt-1 mb-2 flex max-w-fit gap-1 rounded-xl bg-primary-400 p-0.5 dark:bg-surface-500"
@@ -102,6 +104,9 @@
 		</div>
 
 		<div class="mt-4 flex flex-wrap">
+			{#if interjections.length === 0}
+				<div class="w-full rounded-lg bg-surface-100-900 p-20 text-center">Keine</div>
+			{/if}
 			{#each interjections as interjection}
 				<Popover.Root>
 					<Popover.Trigger>
