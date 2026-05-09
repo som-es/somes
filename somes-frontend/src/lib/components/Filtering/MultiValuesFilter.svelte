@@ -11,7 +11,7 @@
 		title: string;
 		selectedValues: SvelteSet<string>;
 		values: string[];
-		prefillSnippet?: Snippet;
+		prefillSnippet?: Snippet<[SvelteSet<string>]>;
 	}
 
 	let {

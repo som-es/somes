@@ -16,6 +16,7 @@
 	import type { GenericFilterGroup } from '../Filtering/types';
 	import { convertDecreeFilterToUrl } from './urlConversion';
 	import DateRangeSnippet from '../Filtering/GenericFilterSnippets/DataRangeSnippet.svelte';
+	import TopicFilter from '../Filtering/TopicFilter.svelte';
 	interface Props {
 		decrees: DecreesWithMaxPage;
 		selectedGp: string | null;
@@ -88,7 +89,8 @@
 			if (maybeStoredFilter.departments !== null) {
 				selectedDepartments = new SvelteSet(maybeStoredFilter.departments);
 			}
-			if (maybeStoredFilter.date_from) genericFilters[0].data!.dateFrom = maybeStoredFilter.date_from;
+			if (maybeStoredFilter.date_from)
+				genericFilters[0].data!.dateFrom = maybeStoredFilter.date_from;
 			if (maybeStoredFilter.date_to) genericFilters[0].data!.dateTo = maybeStoredFilter.date_to;
 		}
 	});
@@ -141,7 +143,8 @@
 	});
 
 	$effect(() => {
-		genericFilters[0].activeValue = (genericFilters[0].data?.dateFrom || genericFilters[0].data?.dateTo) ? 'set' : undefined;
+		genericFilters[0].activeValue =
+			genericFilters[0].data?.dateFrom || genericFilters[0].data?.dateTo ? 'set' : undefined;
 	});
 
 	let topics: string[] = $state([]);
@@ -179,11 +182,18 @@
 			bind:selectedValues={selectedDepartments}
 			values={departments}
 		/>
-		<MultiValuesFilter title="Themen" bind:selectedValues={selectedTopics} values={topics} />
+		<TopicFilter bind:selectedTopics {topics} />
 		{#snippet dateRangeSnippet()}
-		<DateRangeSnippet bind:dateFrom={genericFilters[0].data!.dateFrom} bind:dateTo={genericFilters[0].data!.dateTo} />
-	{/snippet}
-		<GenericFilters bind:genericFilters bind:legisPeriodFilter snippets={{ dateRange: dateRangeSnippet }} />
+			<DateRangeSnippet
+				bind:dateFrom={genericFilters[0].data!.dateFrom}
+				bind:dateTo={genericFilters[0].data!.dateTo}
+			/>
+		{/snippet}
+		<GenericFilters
+			bind:genericFilters
+			bind:legisPeriodFilter
+			snippets={{ dateRange: dateRangeSnippet }}
+		/>
 	</div>
 </div>
 

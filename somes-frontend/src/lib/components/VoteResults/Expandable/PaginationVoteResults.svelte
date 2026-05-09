@@ -29,6 +29,7 @@
 	import DateRangeSnippet from '$lib/components/Filtering/GenericFilterSnippets/DataRangeSnippet.svelte';
 	import FilterGroup from '$lib/components/Filtering/FilterGroup.svelte';
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache.svelte';
+	import TopicFilter from '$lib/components/Filtering/TopicFilter.svelte';
 
 	interface Props {
 		voteResults: VoteResultsWithMaxPage | null;
@@ -406,7 +407,7 @@
 	};
 
 	let topics: string[] = $state([]);
-	let userTopics: UniqueTopic[] | null = null;
+	let userTopics: UniqueTopic[] | null = $state(null);
 	onMount(async () => {
 		update();
 
@@ -545,19 +546,7 @@
 			</Popover.Root>
 		{/if}
 		<!-- Themen Filter -->
-		<MultiValuesFilter title="Themen" bind:selectedValues={selectedTopics} values={topics}>
-			{#snippet prefillSnippet()}
-				{#if userTopics !== null}
-					<button
-						onclick={() =>
-							(selectedTopics = new SvelteSet(userTopics?.map((topic) => topic.topic)))}
-						class="badge bg-secondary-500 text-white">Interessen</button
-					>
-				{:else}
-					<span></span>
-				{/if}
-			{/snippet}
-		</MultiValuesFilter>
+		<TopicFilter bind:selectedTopics {topics} />
 		<!-- Generic Filter -->
 		{#snippet dateRangeSnippet()}
 			<DateRangeSnippet

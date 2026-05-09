@@ -16,6 +16,7 @@
 	import MultiValuesFilter from '../Filtering/MultiValuesFilter.svelte';
 	import { convertGovPropFilterToUrl } from './urlConversion';
 	import DateRangeSnippet from '../Filtering/GenericFilterSnippets/DataRangeSnippet.svelte';
+	import TopicFilter from '../Filtering/TopicFilter.svelte';
 
 	interface Props {
 		govProposals: GovProposalsWithMaxPage;
@@ -66,7 +67,6 @@
 			: 'Unbekannt'
 	);
 
-	
 	let selectedTopics: SvelteSet<string> = $state(new SvelteSet());
 	let selectedDepartments: SvelteSet<string> = $state(new SvelteSet());
 
@@ -109,7 +109,8 @@
 			if (maybeStoredFilter.departments !== null) {
 				selectedDepartments = new SvelteSet(maybeStoredFilter.departments);
 			}
-			if (maybeStoredFilter.date_from) genericFilters[1].data!.dateFrom = maybeStoredFilter.date_from;
+			if (maybeStoredFilter.date_from)
+				genericFilters[1].data!.dateFrom = maybeStoredFilter.date_from;
 			if (maybeStoredFilter.date_to) genericFilters[1].data!.dateTo = maybeStoredFilter.date_to;
 		}
 	});
@@ -150,7 +151,8 @@
 	});
 
 	$effect(() => {
-		genericFilters[1].activeValue = (genericFilters[1].data?.dateFrom || genericFilters[1].data?.dateTo) ? 'set' : undefined;
+		genericFilters[1].activeValue =
+			genericFilters[1].data?.dateFrom || genericFilters[1].data?.dateTo ? 'set' : undefined;
 	});
 
 	let topics: string[] = $state([]);
@@ -189,11 +191,18 @@
 			bind:selectedValues={selectedDepartments}
 			values={departments}
 		/>
-		<MultiValuesFilter title="Themen" bind:selectedValues={selectedTopics} values={topics} />
+		<TopicFilter bind:selectedTopics {topics} />
 		{#snippet dateRangeSnippet()}
-			<DateRangeSnippet bind:dateFrom={genericFilters[1].data!.dateFrom} bind:dateTo={genericFilters[1].data!.dateTo} />
+			<DateRangeSnippet
+				bind:dateFrom={genericFilters[1].data!.dateFrom}
+				bind:dateTo={genericFilters[1].data!.dateTo}
+			/>
 		{/snippet}
-		<GenericFilters bind:genericFilters bind:legisPeriodFilter snippets={{ dateRange: dateRangeSnippet }} />
+		<GenericFilters
+			bind:genericFilters
+			bind:legisPeriodFilter
+			snippets={{ dateRange: dateRangeSnippet }}
+		/>
 	</div>
 </div>
 <div>
