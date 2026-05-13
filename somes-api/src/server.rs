@@ -2,14 +2,14 @@ use std::{error::Error, fs::File, net::SocketAddr, path::PathBuf};
 
 use axum::{
     extract::FromRef,
-    http::{self},
+    http::{self, HeaderValue},
     response::Html,
     routing::{any, get, get_service, post},
     Router,
 };
 use axum_server::tls_rustls::RustlsConfig;
 // use diesel_async::pooled_connection::AsyncDieselConnectionManager;
-use log::{error, info};
+use log::info;
 use redis::Commands;
 use reqwest::StatusCode;
 use sqlx::{postgres::PgPoolOptions, PgPool};
@@ -27,10 +27,12 @@ use crate::{routes::*, IS_PROD};
 use somes_common_lib::*;
 use tower_http::{
     compression::CompressionLayer,
-    cors::{Any, CorsLayer},
+    cors::{AllowOrigin, CorsLayer},
     decompression::RequestDecompressionLayer,
     services::ServeDir,
 };
+
+type ServerResult<T> = Result<T, Box<dyn Error + Send + Sync>>;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -38,9 +40,6 @@ pub struct AppState {
     pub dataservice_sqlx_pool: PgPool,
     pub meilisearch_client: meilisearch_sdk::client::Client,
 }
-
-unsafe impl Send for AppState {}
-unsafe impl Sync for AppState {}
 
 impl AppState {
     pub async fn new(
@@ -64,20 +63,42 @@ impl FromRef<AppState> for redis::Client {
 
 //pub type RedisClient = Arc<RwLock<redis::Client>>;
 
-pub async fn serve(addr: SocketAddr) {
-    let Ok(client) = redis::Client::open(REDIS_DB) else {
-        error!("Could not establish redis database connection!");
-        return;
-    };
-
-    if client.get_connection().is_err() {
-        error!("Could not establish redis database connection!");
-        return;
+fn allowed_cors_origin() -> AllowOrigin {
+    if !*IS_PROD {
+        return AllowOrigin::any();
     }
 
+    match std::env::var("CORS_ALLOWED_ORIGINS") {
+        Ok(origins) => {
+            let origins = origins
+                .split(',')
+                .filter_map(|origin| origin.trim().parse::<HeaderValue>().ok())
+                .collect::<Vec<_>>();
+
+            if origins.is_empty() {
+                AllowOrigin::list([
+                    HeaderValue::from_static("https://somes.at"),
+                    HeaderValue::from_static("https://www.somes.at"),
+                ])
+            } else {
+                AllowOrigin::list(origins)
+            }
+        }
+        Err(_) => AllowOrigin::list([
+            HeaderValue::from_static("https://somes.at"),
+            HeaderValue::from_static("https://www.somes.at"),
+        ]),
+    }
+}
+
+pub async fn serve(addr: SocketAddr) -> ServerResult<()> {
+    let client = redis::Client::open(REDIS_DB)?;
+
+    client.get_connection()?;
+
     if reset_cache() || *IS_PROD {
-        let mut con = client.get_connection().unwrap();
-        redis::cmd("FLUSHALL").query::<()>(&mut con).unwrap();
+        let mut con = client.get_connection()?;
+        redis::cmd("FLUSHALL").query::<()>(&mut con)?;
     }
 
     info!("Established redis database connection to {REDIS_DB}.");
@@ -98,8 +119,7 @@ pub async fn serve(addr: SocketAddr) {
         // pool sizes
         .max_connections(20)
         .connect(DATASERVICE_URL)
-        .await
-        .unwrap();
+        .await?;
 
     log::info!("Established postgresql connection");
 
@@ -109,8 +129,7 @@ pub async fn serve(addr: SocketAddr) {
     //     .unwrap();
 
     let meilisearch_client =
-        meilisearch_sdk::client::Client::new(MEILISEARCH_URL, Some(MEILISEARCH_SECRET))
-            .expect("Meilisearch client was not able to connect");
+        meilisearch_sdk::client::Client::new(MEILISEARCH_URL, Some(MEILISEARCH_SECRET))?;
 
     let state = AppState::new(
         client.clone(),
@@ -138,14 +157,14 @@ pub async fn serve(addr: SocketAddr) {
 
     let update_views = std::env::var("UPDATE_VIEWS").unwrap_or_else(|_| "false".to_string());
     if update_views == "true" {
-        let mut tx = dataservice_sqlx_pool.begin().await.unwrap();
+        let mut tx = dataservice_sqlx_pool.begin().await?;
         if let Err(e) = create_composite_types(&mut tx).await {
             log::error!("Cannot create composite types: {e:?}")
         }
         if let Err(e) = create_views(&mut tx).await {
             log::error!("Cannot create views: {e:?}")
         }
-        tx.commit().await.unwrap();
+        tx.commit().await?;
     }
 
     crate::refresh_views(&dataservice_sqlx_pool, &client);
@@ -232,7 +251,7 @@ pub async fn serve(addr: SocketAddr) {
         .layer(
             CorsLayer::new()
                 // .allow_origin("https://somes.at".parse::<HeaderValue>().unwrap())
-                .allow_origin(Any)
+                .allow_origin(allowed_cors_origin())
                 .allow_methods([
                     http::Method::GET,
                     http::Method::POST,
@@ -265,28 +284,22 @@ pub async fn serve(addr: SocketAddr) {
 
     if std::env::var("SOMES_DEBUG").unwrap_or_default() == "DEBUG" {
         info!("Binding API on {addr}");
-        let listener = match TcpListener::bind(&addr).await {
-            Ok(listener) => listener,
-            Err(e) => panic!("Could not initialize API: {e}"),
-        };
+        let listener = TcpListener::bind(&addr).await?;
 
         info!("Now listening..");
-        if let Err(e) = axum::serve(
+        axum::serve(
             listener,
             app.into_make_service_with_connect_info::<SocketAddr>(),
         )
-        .await
-        {
-            error!("API returned error state: {e}")
-        }
-        return;
+        .await?;
+        return Ok(());
     }
 
     match config {
         Ok(config) => {
             let ports = Ports {
-                http: HTTP_PORT.parse().unwrap(),
-                https: HTTPS_PORT.parse().unwrap(),
+                http: HTTP_PORT.parse()?,
+                https: HTTPS_PORT.parse()?,
             };
             let mut sock_addr = addr;
             tokio::spawn(redirect_http_to_https(ports, sock_addr));
@@ -296,27 +309,21 @@ pub async fn serve(addr: SocketAddr) {
             info!("Binding API on {sock_addr}");
             axum_server::bind_rustls(sock_addr, config.clone())
                 .serve(app.into_make_service_with_connect_info::<SocketAddr>())
-                .await
-                .unwrap();
+                .await?;
         }
         Err(_) => {
             info!("Binding API on {addr}");
-            let listener = match TcpListener::bind(&addr).await {
-                Ok(listener) => listener,
-                Err(e) => panic!("Could not initialize API: {e}"),
-            };
+            let listener = TcpListener::bind(&addr).await?;
 
             info!("Now listening..");
-            if let Err(e) = axum::serve(
+            axum::serve(
                 listener,
                 app.into_make_service_with_connect_info::<SocketAddr>(),
             )
-            .await
-            {
-                error!("API returned error state: {e}")
-            }
+            .await?;
         }
     }
+    Ok(())
 }
 
 async fn update_delegate_assets(

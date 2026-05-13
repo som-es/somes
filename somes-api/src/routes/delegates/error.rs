@@ -7,11 +7,11 @@ use crate::ErrorInfo;
 
 #[derive(Debug, Error)]
 pub enum DelegateError {
-    #[error("Database failure: {0}")]
+    #[error("Database failure")]
     SqlFailure(#[from] sqlx::Error),
-    #[error("Redis failure: {0}")]
+    #[error("Redis failure")]
     RedisFailure(#[from] redis::RedisError),
-    #[error("Meilisearch failure: {0}")]
+    #[error("Meilisearch failure")]
     MeilisearchFailure(#[from] meilisearch_sdk::errors::Error),
     #[error("internal server error")]
     Internal,
@@ -25,24 +25,49 @@ pub enum DelegateError {
 
 impl IntoResponse for DelegateError {
     fn into_response(self) -> axum::response::Response {
-        let (status_code, err_msg) = match &self {
-            DelegateError::SqlFailure(_e) => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
-            DelegateError::RedisFailure(_e) => {
-                (StatusCode::INTERNAL_SERVER_ERROR, self.to_string())
+        let (status_code, err_msg, field) = match &self {
+            DelegateError::SqlFailure(e) => {
+                log::error!("delegate db error occurred: {e:?}");
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Internal server error".to_string(),
+                    "SqlFailure",
+                )
             }
-            DelegateError::MeilisearchFailure(_e) => {
-                (StatusCode::INTERNAL_SERVER_ERROR, self.to_string())
+            DelegateError::RedisFailure(e) => {
+                log::error!("delegate redis error occurred: {e:?}");
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Internal server error".to_string(),
+                    "RedisFailure",
+                )
             }
-            DelegateError::Internal => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
-            DelegateError::NotFound => (StatusCode::NOT_FOUND, self.to_string()),
-            DelegateError::InvalidPage(_page) => (StatusCode::BAD_REQUEST, self.to_string()),
-            DelegateError::DateOutOfRange(_date) => (StatusCode::BAD_REQUEST, self.to_string()),
+            DelegateError::MeilisearchFailure(e) => {
+                log::error!("delegate meilisearch error occurred: {e:?}");
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Internal server error".to_string(),
+                    "MeilisearchFailure",
+                )
+            }
+            DelegateError::Internal => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                self.to_string(),
+                "Internal",
+            ),
+            DelegateError::NotFound => (StatusCode::NOT_FOUND, self.to_string(), "NotFound"),
+            DelegateError::InvalidPage(_page) => {
+                (StatusCode::BAD_REQUEST, self.to_string(), "InvalidPage")
+            }
+            DelegateError::DateOutOfRange(_date) => {
+                (StatusCode::BAD_REQUEST, self.to_string(), "DateOutOfRange")
+            }
         };
 
         let body = Json(ErrorInfo {
             error: err_msg,
             error_type: "DelegateError",
-            field: format!("{:?}", self),
+            field: field.to_string(),
             meta: None,
         });
 

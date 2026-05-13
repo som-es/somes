@@ -1,6 +1,48 @@
 use dataservice::db::models::DbLegislativeInitiativeQuery;
 use somes_common_lib::AddonVoteResultFilter;
-use sqlx::PgPool;
+use sqlx::{PgPool, Postgres, QueryBuilder};
+
+fn push_base_filter<'a>(
+    query: &mut QueryBuilder<'a, Postgres>,
+    filter: &'a AddonVoteResultFilter,
+    is_finished: bool,
+) {
+    if is_finished {
+        query.push(" li.accepted IS NOT NULL AND li.is_voteable_on");
+    } else {
+        query.push(
+            " li.accepted IS NULL AND NOT li.has_reference AND li.ityp != 'EUBTG' AND li.is_voteable_on",
+        );
+    }
+
+    if let Some(date_from) = filter.date_from {
+        query
+            .push(" AND li.nr_plenary_activity_date >= ")
+            .push_bind(date_from);
+    }
+
+    if let Some(date_to) = filter.date_to {
+        query
+            .push(" AND li.nr_plenary_activity_date <= ")
+            .push_bind(date_to);
+    }
+
+    if let Some(party_votes) = &filter.party_votes {
+        for party_vote in party_votes {
+            query.push(
+                " AND EXISTS (
+                    SELECT 1
+                    FROM votes
+                    WHERE votes.legislative_initiatives_id = li.id
+                        AND votes.party = ",
+            );
+            query.push_bind(&party_vote.party);
+            query.push(" AND votes.infavor = ");
+            query.push_bind(party_vote.infavor);
+            query.push(")");
+        }
+    }
+}
 
 pub async fn filtered_legislative_initiatives(
     pg: &PgPool,
@@ -9,78 +51,30 @@ pub async fn filtered_legislative_initiatives(
     filter: &AddonVoteResultFilter,
     is_finished: bool,
 ) -> Result<(Vec<DbLegislativeInitiativeQuery>, i64), sqlx::Error> {
-    todo!()
-    /*let default_where_clause = if is_finished {
-        "accepted is not null and is_voteable_on"
-    } else {
-        "accepted is null and not has_reference and ityp != 'EUBTG' and is_voteable_on"
-    };
-    let mut query =
-        format!("SELECT DISTINCT * FROM legislative_initiatives WHERE {default_where_clause}");
+    let offset = page.max(0) * page_elements.max(0);
+    let limit = page_elements.max(0);
 
-    let mut param_index = 1;
-    if filter.accepted.is_some() {
-        query.push_str(&format!(" AND accepted = ${}", param_index));
-        param_index += 1;
-    }
+    let mut entries_query =
+        QueryBuilder::new("SELECT DISTINCT li.* FROM legislative_initiatives li WHERE");
+    push_base_filter(&mut entries_query, filter, is_finished);
+    entries_query
+        .push(" ORDER BY li.nr_plenary_activity_date DESC OFFSET ")
+        .push_bind(offset)
+        .push(" LIMIT ")
+        .push_bind(limit);
 
-    if filter.simple_majority.is_some() {
-        query.push_str(&format!(" AND requires_simple_majority = ${}", param_index));
-        param_index += 1;
-    }
+    let mut count_query =
+        QueryBuilder::new("SELECT COUNT(DISTINCT li.id) FROM legislative_initiatives li WHERE");
+    push_base_filter(&mut count_query, filter, is_finished);
 
-    if filter.legis_period.is_some() {
-        query.push_str(&format!(" AND gp = ${}", param_index));
-        param_index += 1;
-    }
-
-    if filter.is_named_vote.is_some() {
-        query.push_str(&format!(" AND voted_by_name = ${}", param_index));
-        param_index += 1;
-    }
-
-    if filter.is_law.is_some() {
-        query.push_str(&format!(" AND is_law = ${}", param_index));
-        param_index += 1;
-    }
-
-    let count_query = query.clone().replace('*', "COUNT(*)");
-
-    query.push_str(&format!(
-        " ORDER BY nr_plenary_activity_date DESC OFFSET ${} LIMIT ${}",
-        param_index,
-        param_index + 1
-    ));
-
-    let mut filtered_query = sqlx::query_as::<_, DbLegislativeInitiativeQuery>(&query);
-    let mut count_query = sqlx::query_as::<_, (i64,)>(&count_query);
-
-    if let Some(accepted_value) = &filter.accepted {
-        filtered_query = filtered_query.bind(accepted_value);
-        count_query = count_query.bind(accepted_value);
-    }
-    if let Some(simple_majority) = filter.simple_majority {
-        filtered_query = filtered_query.bind(simple_majority);
-        count_query = count_query.bind(simple_majority);
-    }
-    if let Some(legis_period) = &filter.legis_period {
-        filtered_query = filtered_query.bind(legis_period);
-        count_query = count_query.bind(legis_period);
-    }
-    if let Some(is_named_vote) = &filter.is_named_vote {
-        filtered_query = filtered_query.bind(is_named_vote);
-        count_query = count_query.bind(is_named_vote);
-    }
-
-    if let Some(is_law) = &filter.is_law {
-        filtered_query = filtered_query.bind(is_law);
-        count_query = count_query.bind(is_law);
-    }
-    filtered_query = filtered_query
-        .bind(page * page_elements)
-        .bind(page_elements);
     Ok((
-        filtered_query.fetch_all(pg).await?,
-        count_query.fetch_one(pg).await?.0,
-    ))*/
+        entries_query
+            .build_query_as::<DbLegislativeInitiativeQuery>()
+            .fetch_all(pg)
+            .await?,
+        count_query
+            .build_query_scalar::<i64>()
+            .fetch_one(pg)
+            .await?,
+    ))
 }

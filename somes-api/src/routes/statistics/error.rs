@@ -10,17 +10,21 @@ pub enum StatisticsResponse {
 
 impl IntoResponse for StatisticsResponse {
     fn into_response(self) -> axum::response::Response {
-        let (status_code, err_msg) = match &self {
-            StatisticsResponse::DbSelectFailure(e) => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("db error occured: {e:?}"),
-            ),
+        let (status_code, err_msg, field) = match &self {
+            StatisticsResponse::DbSelectFailure(e) => {
+                log::error!("statistics db error occurred: {e:?}");
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Internal server error",
+                    "DbSelectFailure",
+                )
+            }
         };
 
         let body = Json(ErrorInfo {
-            error: err_msg,
+            error: err_msg.to_string(),
             error_type: "StatisticsResponse",
-            field: format!("{:?}", self),
+            field: field.to_string(),
             meta: None,
         });
 
