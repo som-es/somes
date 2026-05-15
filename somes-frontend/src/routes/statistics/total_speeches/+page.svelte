@@ -142,7 +142,7 @@
 	<DelegateBarChartControl
 		delegateMakeRequest={currentFunction}
 		height={560}
-		{selectedCategory}
+		bind:selectedCategory
 		valueLabel="Anzahl Reden"
 		normalizedValueLabel="Anzahl Reden"
 		filterConfig={{

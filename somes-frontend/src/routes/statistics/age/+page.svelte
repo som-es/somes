@@ -140,7 +140,7 @@
 	<DelegateBarChartControl
 		height={520}
 		delegateMakeRequest={currentFunction}
-		{selectedCategory}
+		bind:selectedCategory
 		valueLabel="Alter"
 		normalizedValueLabel="Alter"
 		filterConfig={{

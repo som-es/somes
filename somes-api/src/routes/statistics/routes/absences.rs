@@ -5,7 +5,9 @@ use utoipa::ToSchema;
 
 use crate::{
     routes::statistics::routes::error::StatisticsResponse,
-    routes::statistics::routes::filtering::{bind_values, build_filter, IntoFilterArgument, Manual},
+    routes::statistics::routes::filtering::{
+        bind_values, build_filter, IntoFilterArgument, Manual,
+    },
     PgPoolConnection,
 };
 
@@ -27,6 +29,7 @@ pub struct AbsenceBase {
     total_sessions: i64,
     normalized_absences: f64,
     legislative_period: Option<String>,
+    delegate_age_bucket: String,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
@@ -91,7 +94,15 @@ impl AbsenceService {
             COUNT(DISTINCT ab.id) AS total_absences,
             sc.total_sessions,
             COUNT(DISTINCT ab.id)::FLOAT / NULLIF(sc.total_sessions, 0)::FLOAT AS normalized_absences,
-            pf.legislative_period
+            pf.legislative_period,
+            CASE
+                WHEN d.birthdate IS NULL THEN 'Unbekannt'
+                WHEN EXTRACT(YEAR FROM AGE(lp.start_date, d.birthdate)) <= 30 THEN '18-30'
+                WHEN EXTRACT(YEAR FROM AGE(lp.start_date, d.birthdate)) <= 40 THEN '31-40'
+                WHEN EXTRACT(YEAR FROM AGE(lp.start_date, d.birthdate)) <= 50 THEN '41-50'
+                WHEN EXTRACT(YEAR FROM AGE(lp.start_date, d.birthdate)) <= 60 THEN '51-60'
+                ELSE '60+'
+            END AS delegate_age_bucket
         FROM
             absences ab
         JOIN 
@@ -109,7 +120,7 @@ impl AbsenceService {
             AND m.start_date <= lp.end_date
             AND (m.end_date IS NULL OR m.end_date >= lp.start_date)
         GROUP BY 
-            d.id, d.name, d.gender, m.party, sc.total_sessions, pf.legislative_period
+            d.id, d.name, d.gender, d.birthdate, m.party, sc.total_sessions, pf.legislative_period, lp.start_date
         ORDER BY 
             d.id, total_absences DESC;
         "
@@ -118,13 +129,10 @@ impl AbsenceService {
         let mut filtered_query = sqlx::query_as::<Postgres, AbsenceBase>(&query);
         filtered_query = bind_values(filtered_query, &filters);
 
-        filtered_query
-            .fetch_all(pg)
-            .await
-            .map_err(|e| {
-                println!("Error absences: {:?}", e);
-                StatisticsResponse::DbSelectFailure(Some(e))
-            })
+        filtered_query.fetch_all(pg).await.map_err(|e| {
+            println!("Error absences: {:?}", e);
+            StatisticsResponse::DbSelectFailure(Some(e))
+        })
     }
 
     pub async fn per_delegate(
@@ -132,7 +140,7 @@ impl AbsenceService {
         filter: &AbsenceFilter,
     ) -> Result<Vec<AbsenceForDelegate>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
+
         let mut results: Vec<AbsenceForDelegate> = base_data
             .into_iter()
             .map(|item| AbsenceForDelegate {
@@ -167,11 +175,14 @@ impl AbsenceService {
         filter: &AbsenceFilter,
     ) -> Result<Vec<AbsenceByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
-        let mut party_map: std::collections::HashMap<String, (i64, i64, f64)> = std::collections::HashMap::new();
-        
+
+        let mut party_map: std::collections::HashMap<String, (i64, i64, f64)> =
+            std::collections::HashMap::new();
+
         for item in base_data {
-            let entry = party_map.entry(item.delegate_party.clone()).or_insert((0, 0, 0.0));
+            let entry = party_map
+                .entry(item.delegate_party.clone())
+                .or_insert((0, 0, 0.0));
             entry.0 += item.total_absences;
             entry.1 += item.total_sessions;
             entry.2 += item.normalized_absences;
@@ -179,12 +190,14 @@ impl AbsenceService {
 
         let mut results: Vec<AbsenceByCategory> = party_map
             .into_iter()
-            .map(|(party, (total_absences, total_sessions, normalized))| AbsenceByCategory {
-                category: party,
-                total_absences,
-                total_sessions,
-                normalized_absences: normalized,
-            })
+            .map(
+                |(party, (total_absences, total_sessions, normalized))| AbsenceByCategory {
+                    category: party,
+                    total_absences,
+                    total_sessions,
+                    normalized_absences: normalized,
+                },
+            )
             .collect();
 
         // Sort based on filter parameters
@@ -210,11 +223,14 @@ impl AbsenceService {
         filter: &AbsenceFilter,
     ) -> Result<Vec<AbsenceByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
-        let mut gender_map: std::collections::HashMap<String, (i64, i64)> = std::collections::HashMap::new();
-        
+
+        let mut gender_map: std::collections::HashMap<String, (i64, i64)> =
+            std::collections::HashMap::new();
+
         for item in base_data {
-            let entry = gender_map.entry(item.delegate_gender.clone()).or_insert((0, 0));
+            let entry = gender_map
+                .entry(item.delegate_gender.clone())
+                .or_insert((0, 0));
             entry.0 += item.total_absences;
             entry.1 += item.total_sessions;
         }
@@ -259,41 +275,43 @@ impl AbsenceService {
         filter: &AbsenceFilter,
     ) -> Result<Vec<AbsenceByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
+
         // Gruppiere nach legislative_period
-        let mut period_map: std::collections::HashMap<String, (i64, i64, Vec<f64>)> = std::collections::HashMap::new();
-        
+        let mut period_map: std::collections::HashMap<String, (i64, i64, Vec<f64>)> =
+            std::collections::HashMap::new();
+
         for item in base_data {
             let period = item.legislative_period.unwrap_or("Unknown".to_string());
-            let entry = period_map.entry(period)
-                .or_insert((0, 0, Vec::new()));
+            let entry = period_map.entry(period).or_insert((0, 0, Vec::new()));
             entry.0 += item.total_absences;
             entry.1 += item.total_sessions;
             entry.2.push(item.normalized_absences);
         }
-        
+
         let mut results: Vec<AbsenceByCategory> = period_map
             .into_iter()
-            .map(|(period, (total_absences, total_sessions, normalized_values))| {
-                let avg_normalized = if !normalized_values.is_empty() {
-                    normalized_values.iter().sum::<f64>() / normalized_values.len() as f64
-                } else {
-                    0.0
-                };
-                
-                AbsenceByCategory {
-                    category: period,
-                    total_absences,
-                    total_sessions,
-                    normalized_absences: avg_normalized,
-                }
-            })
+            .map(
+                |(period, (total_absences, total_sessions, normalized_values))| {
+                    let avg_normalized = if !normalized_values.is_empty() {
+                        normalized_values.iter().sum::<f64>() / normalized_values.len() as f64
+                    } else {
+                        0.0
+                    };
+
+                    AbsenceByCategory {
+                        category: period,
+                        total_absences,
+                        total_sessions,
+                        normalized_absences: avg_normalized,
+                    }
+                },
+            )
             .collect();
-        
+
         if !filter.is_desc {
             results.reverse();
         }
-        
+
         Ok(results)
     }
 
@@ -302,54 +320,31 @@ impl AbsenceService {
         filter: &AbsenceFilter,
     ) -> Result<Vec<AbsenceByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
-        // For age grouping, we'd need to calculate ages from birth dates
-        // This is a simplified version - you might need to adjust based on your actual age calculation logic
-        let mut results: Vec<AbsenceByCategory> = vec![
-            AbsenceByCategory {
-                category: "18-30".to_string(),
-                total_absences: 0,
-                total_sessions: 0,
-                normalized_absences: 0.0,
-            },
-            AbsenceByCategory {
-                category: "31-40".to_string(),
-                total_absences: 0,
-                total_sessions: 0,
-                normalized_absences: 0.0,
-            },
-            AbsenceByCategory {
-                category: "41-50".to_string(),
-                total_absences: 0,
-                total_sessions: 0,
-                normalized_absences: 0.0,
-            },
-            AbsenceByCategory {
-                category: "51-60".to_string(),
-                total_absences: 0,
-                total_sessions: 0,
-                normalized_absences: 0.0,
-            },
-            AbsenceByCategory {
-                category: "60+".to_string(),
-                total_absences: 0,
-                total_sessions: 0,
-                normalized_absences: 0.0,
-            },
-        ];
+        let mut age_map: std::collections::HashMap<String, (i64, i64)> =
+            std::collections::HashMap::new();
 
-        // Note: You'll need to implement actual age calculation logic here
-        // This is a placeholder that aggregates all data into "Unknown" category
-        let total_absences: i64 = base_data.iter().map(|item| item.total_absences).sum();
-        let total_sessions: i64 = base_data.iter().map(|item| item.total_sessions).sum();
-        let total_normalized: f64 = base_data.iter().map(|item| item.normalized_absences).sum();
+        for item in base_data {
+            let entry = age_map.entry(item.delegate_age_bucket).or_insert((0, 0));
+            entry.0 += item.total_absences;
+            entry.1 += item.total_sessions;
+        }
 
-        results.push(AbsenceByCategory {
-            category: "Unknown".to_string(),
-            total_absences,
-            total_sessions,
-            normalized_absences: total_normalized,
-        });
+        let mut results: Vec<AbsenceByCategory> = age_map
+            .into_iter()
+            .map(|(category, (total_absences, total_sessions))| {
+                let normalized_absences = if total_sessions > 0 {
+                    total_absences as f64 / total_sessions as f64
+                } else {
+                    0.0
+                };
+                AbsenceByCategory {
+                    category,
+                    total_absences,
+                    total_sessions,
+                    normalized_absences,
+                }
+            })
+            .collect();
 
         // Sort based on filter parameters
         if filter.normalized {

@@ -150,7 +150,7 @@
 	<DelegateBarChartControl
 		height={520}
 		delegateMakeRequest={currentFunction}
-		{selectedCategory}
+		bind:selectedCategory
 		valueLabel="Abwesenheiten"
 		normalizedValueLabel="Abwesenheitsquote (Anteil an Sitzungen)"
 	/>

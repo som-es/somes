@@ -5,7 +5,9 @@ use utoipa::ToSchema;
 
 use crate::{
     routes::statistics::routes::error::StatisticsResponse,
-    routes::statistics::routes::filtering::{bind_values, build_filter, IntoFilterArgument, Manual},
+    routes::statistics::routes::filtering::{
+        bind_values, build_filter, IntoFilterArgument, Manual,
+    },
     PgPoolConnection,
 };
 
@@ -103,7 +105,7 @@ impl PoliticalOrientationService {
         filter: &PoliticalOrientationFilter,
     ) -> Result<Vec<PoliticalOrientationForDelegate>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
+
         let mut results: Vec<PoliticalOrientationForDelegate> = base_data
             .into_iter()
             .map(|item| PoliticalOrientationForDelegate {
@@ -132,11 +134,14 @@ impl PoliticalOrientationService {
         filter: &PoliticalOrientationFilter,
     ) -> Result<Vec<PoliticalOrientationByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
-        let mut party_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> = std::collections::HashMap::new();
-        
+
+        let mut party_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> =
+            std::collections::HashMap::new();
+
         for item in base_data {
-            let entry = party_map.entry(item.delegate_party.clone()).or_insert((Vec::new(), 0, 0));
+            let entry = party_map
+                .entry(item.delegate_party.clone())
+                .or_insert((Vec::new(), 0, 0));
             entry.0.push(item.orientation_score);
             entry.1 += item.total_votes;
             entry.2 += 1; // delegate count
@@ -150,7 +155,7 @@ impl PoliticalOrientationService {
                 } else {
                     0.0
                 };
-                
+
                 PoliticalOrientationByCategory {
                     category: party,
                     average_orientation,
@@ -178,11 +183,15 @@ impl PoliticalOrientationService {
         filter: &PoliticalOrientationFilter,
     ) -> Result<Vec<PoliticalOrientationByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
-        let mut gender_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> = std::collections::HashMap::new();
-        
+
+        let mut gender_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> =
+            std::collections::HashMap::new();
+
         for item in base_data {
-            let entry = gender_map.entry(item.delegate_gender.clone()).or_insert((Vec::new(), 0, 0));
+            let entry =
+                gender_map
+                    .entry(item.delegate_gender.clone())
+                    .or_insert((Vec::new(), 0, 0));
             entry.0.push(item.orientation_score);
             entry.1 += item.total_votes;
             entry.2 += 1; // delegate count
@@ -196,7 +205,7 @@ impl PoliticalOrientationService {
                 } else {
                     0.0
                 };
-                
+
                 PoliticalOrientationByCategory {
                     category: gender,
                     average_orientation,
@@ -281,7 +290,7 @@ impl PoliticalOrientationService {
         filter: &PoliticalOrientationFilter,
     ) -> Result<Vec<PoliticalOrientationByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
+
         let mut results: Vec<PoliticalOrientationByCategory> = vec![
             PoliticalOrientationByCategory {
                 category: "18-30".to_string(),
@@ -315,7 +324,10 @@ impl PoliticalOrientationService {
             },
         ];
 
-        let scores: Vec<f64> = base_data.iter().map(|item| item.orientation_score).collect();
+        let scores: Vec<f64> = base_data
+            .iter()
+            .map(|item| item.orientation_score)
+            .collect();
         let total_votes: i64 = base_data.iter().map(|item| item.total_votes).sum();
         let delegate_count: i64 = base_data.len() as i64;
 
@@ -365,7 +377,10 @@ pub async fn votes_together(
     Json(filter): Json<Option<VotesTogetherFilter>>,
 ) -> Result<Json<Vec<VotesTogether>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
-    println!("🔍 STATISTICS ENDPOINT: votes_together called with filter: {:?}", filter);
+    println!(
+        "🔍 STATISTICS ENDPOINT: votes_together called with filter: {:?}",
+        filter
+    );
 
     let filter_arg = filter.legis_period.with_sql_column("gp");
     let filters = [filter_arg];
@@ -419,7 +434,10 @@ ORDER BY
         .await
         .map(Json)
         .map_err(|e| StatisticsResponse::DbSelectFailure(Some(e)))?;
-    println!("✅ STATISTICS ENDPOINT: votes_together returning {} results", results.len());
+    println!(
+        "✅ STATISTICS ENDPOINT: votes_together returning {} results",
+        results.len()
+    );
     Ok(results)
 }
 
@@ -429,9 +447,15 @@ pub async fn is_left_per_delegate(
 ) -> Result<Json<Vec<PoliticalOrientationForDelegate>>, StatisticsResponse> {
     let mut filter = filter.unwrap_or_default();
     filter.orientation_type = "left".to_string();
-    println!("🔍 STATISTICS ENDPOINT: is_left_per_delegate called with filter: {:?}", filter);
+    println!(
+        "🔍 STATISTICS ENDPOINT: is_left_per_delegate called with filter: {:?}",
+        filter
+    );
     let results = PoliticalOrientationService::per_delegate(&pg, &filter).await?;
-    println!("✅ STATISTICS ENDPOINT: is_left_per_delegate returning {} results", results.len());
+    println!(
+        "✅ STATISTICS ENDPOINT: is_left_per_delegate returning {} results",
+        results.len()
+    );
     Ok(Json(results))
 }
 
@@ -441,9 +465,15 @@ pub async fn is_left_per_party(
 ) -> Result<Json<Vec<PoliticalOrientationByCategory>>, StatisticsResponse> {
     let mut filter = filter.unwrap_or_default();
     filter.orientation_type = "left".to_string();
-    println!("🔍 STATISTICS ENDPOINT: is_left_per_party called with filter: {:?}", filter);
+    println!(
+        "🔍 STATISTICS ENDPOINT: is_left_per_party called with filter: {:?}",
+        filter
+    );
     let results = PoliticalOrientationService::per_party(&pg, &filter).await?;
-    println!("✅ STATISTICS ENDPOINT: is_left_per_party returning {} results", results.len());
+    println!(
+        "✅ STATISTICS ENDPOINT: is_left_per_party returning {} results",
+        results.len()
+    );
     Ok(Json(results))
 }
 
@@ -453,9 +483,15 @@ pub async fn is_left_per_gender(
 ) -> Result<Json<Vec<PoliticalOrientationByCategory>>, StatisticsResponse> {
     let mut filter = filter.unwrap_or_default();
     filter.orientation_type = "left".to_string();
-    println!("🔍 STATISTICS ENDPOINT: is_left_per_gender called with filter: {:?}", filter);
+    println!(
+        "🔍 STATISTICS ENDPOINT: is_left_per_gender called with filter: {:?}",
+        filter
+    );
     let results = PoliticalOrientationService::per_gender(&pg, &filter).await?;
-    println!("✅ STATISTICS ENDPOINT: is_left_per_gender returning {} results", results.len());
+    println!(
+        "✅ STATISTICS ENDPOINT: is_left_per_gender returning {} results",
+        results.len()
+    );
     Ok(Json(results))
 }
 
@@ -465,9 +501,15 @@ pub async fn is_left_per_legis(
 ) -> Result<Json<Vec<PoliticalOrientationByCategory>>, StatisticsResponse> {
     let mut filter = filter.unwrap_or_default();
     filter.orientation_type = "left".to_string();
-    println!("🔍 STATISTICS ENDPOINT: is_left_per_legis called with filter: {:?}", filter);
+    println!(
+        "🔍 STATISTICS ENDPOINT: is_left_per_legis called with filter: {:?}",
+        filter
+    );
     let results = PoliticalOrientationService::per_legis(&pg, &filter).await?;
-    println!("✅ STATISTICS ENDPOINT: is_left_per_legis returning {} results", results.len());
+    println!(
+        "✅ STATISTICS ENDPOINT: is_left_per_legis returning {} results",
+        results.len()
+    );
     Ok(Json(results))
 }
 
@@ -477,9 +519,15 @@ pub async fn is_left_per_age(
 ) -> Result<Json<Vec<PoliticalOrientationByCategory>>, StatisticsResponse> {
     let mut filter = filter.unwrap_or_default();
     filter.orientation_type = "left".to_string();
-    println!("🔍 STATISTICS ENDPOINT: is_left_per_age called with filter: {:?}", filter);
+    println!(
+        "🔍 STATISTICS ENDPOINT: is_left_per_age called with filter: {:?}",
+        filter
+    );
     let results = PoliticalOrientationService::per_age(&pg, &filter).await?;
-    println!("✅ STATISTICS ENDPOINT: is_left_per_age returning {} results", results.len());
+    println!(
+        "✅ STATISTICS ENDPOINT: is_left_per_age returning {} results",
+        results.len()
+    );
     Ok(Json(results))
 }
 
@@ -490,9 +538,15 @@ pub async fn is_liberal_per_delegate(
 ) -> Result<Json<Vec<PoliticalOrientationForDelegate>>, StatisticsResponse> {
     let mut filter = filter.unwrap_or_default();
     filter.orientation_type = "liberal".to_string();
-    println!("🔍 STATISTICS ENDPOINT: is_liberal_per_delegate called with filter: {:?}", filter);
+    println!(
+        "🔍 STATISTICS ENDPOINT: is_liberal_per_delegate called with filter: {:?}",
+        filter
+    );
     let results = PoliticalOrientationService::per_delegate(&pg, &filter).await?;
-    println!("✅ STATISTICS ENDPOINT: is_liberal_per_delegate returning {} results", results.len());
+    println!(
+        "✅ STATISTICS ENDPOINT: is_liberal_per_delegate returning {} results",
+        results.len()
+    );
     Ok(Json(results))
 }
 
@@ -502,9 +556,15 @@ pub async fn is_liberal_per_party(
 ) -> Result<Json<Vec<PoliticalOrientationByCategory>>, StatisticsResponse> {
     let mut filter = filter.unwrap_or_default();
     filter.orientation_type = "liberal".to_string();
-    println!("🔍 STATISTICS ENDPOINT: is_liberal_per_party called with filter: {:?}", filter);
+    println!(
+        "🔍 STATISTICS ENDPOINT: is_liberal_per_party called with filter: {:?}",
+        filter
+    );
     let results = PoliticalOrientationService::per_party(&pg, &filter).await?;
-    println!("✅ STATISTICS ENDPOINT: is_liberal_per_party returning {} results", results.len());
+    println!(
+        "✅ STATISTICS ENDPOINT: is_liberal_per_party returning {} results",
+        results.len()
+    );
     Ok(Json(results))
 }
 
@@ -514,9 +574,15 @@ pub async fn is_liberal_per_gender(
 ) -> Result<Json<Vec<PoliticalOrientationByCategory>>, StatisticsResponse> {
     let mut filter = filter.unwrap_or_default();
     filter.orientation_type = "liberal".to_string();
-    println!("🔍 STATISTICS ENDPOINT: is_liberal_per_gender called with filter: {:?}", filter);
+    println!(
+        "🔍 STATISTICS ENDPOINT: is_liberal_per_gender called with filter: {:?}",
+        filter
+    );
     let results = PoliticalOrientationService::per_gender(&pg, &filter).await?;
-    println!("✅ STATISTICS ENDPOINT: is_liberal_per_gender returning {} results", results.len());
+    println!(
+        "✅ STATISTICS ENDPOINT: is_liberal_per_gender returning {} results",
+        results.len()
+    );
     Ok(Json(results))
 }
 
@@ -526,9 +592,15 @@ pub async fn is_liberal_per_legis(
 ) -> Result<Json<Vec<PoliticalOrientationByCategory>>, StatisticsResponse> {
     let mut filter = filter.unwrap_or_default();
     filter.orientation_type = "liberal".to_string();
-    println!("🔍 STATISTICS ENDPOINT: is_liberal_per_legis called with filter: {:?}", filter);
+    println!(
+        "🔍 STATISTICS ENDPOINT: is_liberal_per_legis called with filter: {:?}",
+        filter
+    );
     let results = PoliticalOrientationService::per_legis(&pg, &filter).await?;
-    println!("✅ STATISTICS ENDPOINT: is_liberal_per_legis returning {} results", results.len());
+    println!(
+        "✅ STATISTICS ENDPOINT: is_liberal_per_legis returning {} results",
+        results.len()
+    );
     Ok(Json(results))
 }
 
@@ -538,8 +610,14 @@ pub async fn is_liberal_per_age(
 ) -> Result<Json<Vec<PoliticalOrientationByCategory>>, StatisticsResponse> {
     let mut filter = filter.unwrap_or_default();
     filter.orientation_type = "liberal".to_string();
-    println!("🔍 STATISTICS ENDPOINT: is_liberal_per_age called with filter: {:?}", filter);
+    println!(
+        "🔍 STATISTICS ENDPOINT: is_liberal_per_age called with filter: {:?}",
+        filter
+    );
     let results = PoliticalOrientationService::per_age(&pg, &filter).await?;
-    println!("✅ STATISTICS ENDPOINT: is_liberal_per_age returning {} results", results.len());
+    println!(
+        "✅ STATISTICS ENDPOINT: is_liberal_per_age returning {} results",
+        results.len()
+    );
     Ok(Json(results))
 }

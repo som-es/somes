@@ -5,7 +5,9 @@ use utoipa::ToSchema;
 
 use crate::{
     routes::statistics::routes::error::StatisticsResponse,
-    routes::statistics::routes::filtering::{bind_values, build_filter, IntoFilterArgument, Manual},
+    routes::statistics::routes::filtering::{
+        bind_values, build_filter, IntoFilterArgument, Manual,
+    },
     PgPoolConnection,
 };
 
@@ -25,6 +27,7 @@ pub struct ComplexityBase {
     complexity_score: f64,
     total_proposals: i64,
     legislative_period: Option<String>,
+    delegate_age_bucket: String,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
@@ -75,7 +78,15 @@ impl ComplexityService {
                 END
             )::FLOAT8 AS complexity_score,
             COUNT(p.id) AS total_proposals,
-            p.gp AS legislative_period
+            p.gp AS legislative_period,
+            CASE
+                WHEN d.birthdate IS NULL THEN 'Unbekannt'
+                WHEN EXTRACT(YEAR FROM AGE(p.created_at, d.birthdate)) <= 30 THEN '18-30'
+                WHEN EXTRACT(YEAR FROM AGE(p.created_at, d.birthdate)) <= 40 THEN '31-40'
+                WHEN EXTRACT(YEAR FROM AGE(p.created_at, d.birthdate)) <= 50 THEN '41-50'
+                WHEN EXTRACT(YEAR FROM AGE(p.created_at, d.birthdate)) <= 60 THEN '51-60'
+                ELSE '60+'
+            END AS delegate_age_bucket
         FROM 
             proposals p
         JOIN 
@@ -87,7 +98,7 @@ impl ComplexityService {
             pd.is_receiver = false
             AND {filter_str}
         GROUP BY 
-            d.id, d.name, d.gender, m.party, p.gp
+            d.id, d.name, d.gender, d.birthdate, m.party, p.gp
         ORDER BY 
             d.id, complexity_score DESC;
         "
@@ -96,13 +107,10 @@ impl ComplexityService {
         let mut filtered_query = sqlx::query_as::<Postgres, ComplexityBase>(&query);
         filtered_query = bind_values(filtered_query, &filters);
 
-        filtered_query
-            .fetch_all(pg)
-            .await
-            .map_err(|e| {
-                println!("Error fetching complexity data: {}", e);
-                StatisticsResponse::DbSelectFailure(Some(e))
-            })
+        filtered_query.fetch_all(pg).await.map_err(|e| {
+            println!("Error fetching complexity data: {}", e);
+            StatisticsResponse::DbSelectFailure(Some(e))
+        })
     }
 
     pub async fn per_delegate(
@@ -138,11 +146,14 @@ impl ComplexityService {
         filter: &ComplexityFilter,
     ) -> Result<Vec<ComplexityByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
-        let mut party_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> = std::collections::HashMap::new();
-        
+
+        let mut party_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> =
+            std::collections::HashMap::new();
+
         for item in base_data {
-            let entry = party_map.entry(item.delegate_party.clone()).or_insert((Vec::new(), 0, 0));
+            let entry = party_map
+                .entry(item.delegate_party.clone())
+                .or_insert((Vec::new(), 0, 0));
             entry.0.push(item.complexity_score);
             entry.1 += item.total_proposals;
             entry.2 += 1; // delegate count
@@ -156,7 +167,7 @@ impl ComplexityService {
                 } else {
                     0.0
                 };
-                
+
                 ComplexityByCategory {
                     category: party,
                     average_complexity,
@@ -184,11 +195,15 @@ impl ComplexityService {
         filter: &ComplexityFilter,
     ) -> Result<Vec<ComplexityByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
-        let mut gender_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> = std::collections::HashMap::new();
-        
+
+        let mut gender_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> =
+            std::collections::HashMap::new();
+
         for item in base_data {
-            let entry = gender_map.entry(item.delegate_gender.clone()).or_insert((Vec::new(), 0, 0));
+            let entry =
+                gender_map
+                    .entry(item.delegate_gender.clone())
+                    .or_insert((Vec::new(), 0, 0));
             entry.0.push(item.complexity_score);
             entry.1 += item.total_proposals;
             entry.2 += 1; // delegate count
@@ -202,7 +217,7 @@ impl ComplexityService {
                 } else {
                     0.0
                 };
-                
+
                 ComplexityByCategory {
                     category: gender,
                     average_complexity,
@@ -230,10 +245,11 @@ impl ComplexityService {
         filter: &ComplexityFilter,
     ) -> Result<Vec<ComplexityByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
+
         // Group by legislative_period
-        let mut period_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> = std::collections::HashMap::new();
-        
+        let mut period_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> =
+            std::collections::HashMap::new();
+
         for item in base_data {
             if let Some(period) = item.legislative_period {
                 let entry = period_map.entry(period).or_insert((Vec::new(), 0, 0));
@@ -242,7 +258,7 @@ impl ComplexityService {
                 entry.2 += 1; // delegate count
             }
         }
-        
+
         let mut results: Vec<ComplexityByCategory> = period_map
             .into_iter()
             .map(|(period, (scores, total_proposals, delegate_count))| {
@@ -251,7 +267,7 @@ impl ComplexityService {
                 } else {
                     0.0
                 };
-                
+
                 ComplexityByCategory {
                     category: period,
                     average_complexity,
@@ -260,7 +276,7 @@ impl ComplexityService {
                 }
             })
             .collect();
-        
+
         // Sort based on filter parameters
         results.sort_by(|a, b| {
             b.average_complexity
@@ -280,60 +296,35 @@ impl ComplexityService {
         filter: &ComplexityFilter,
     ) -> Result<Vec<ComplexityByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
-        // For age grouping, we'd need to calculate ages from birth dates
-        // This is a simplified version - you might need to adjust based on your actual age calculation logic
-        let mut results: Vec<ComplexityByCategory> = vec![
-            ComplexityByCategory {
-                category: "18-30".to_string(),
-                average_complexity: 0.0,
-                total_proposals: 0,
-                delegate_count: 0,
-            },
-            ComplexityByCategory {
-                category: "31-40".to_string(),
-                average_complexity: 0.0,
-                total_proposals: 0,
-                delegate_count: 0,
-            },
-            ComplexityByCategory {
-                category: "41-50".to_string(),
-                average_complexity: 0.0,
-                total_proposals: 0,
-                delegate_count: 0,
-            },
-            ComplexityByCategory {
-                category: "51-60".to_string(),
-                average_complexity: 0.0,
-                total_proposals: 0,
-                delegate_count: 0,
-            },
-            ComplexityByCategory {
-                category: "60+".to_string(),
-                average_complexity: 0.0,
-                total_proposals: 0,
-                delegate_count: 0,
-            },
-        ];
+        let mut age_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> =
+            std::collections::HashMap::new();
 
-        // Note: You'll need to implement actual age calculation logic here
-        // This is a placeholder that aggregates all data into "Unknown" category
-        let scores: Vec<f64> = base_data.iter().map(|item| item.complexity_score).collect();
-        let total_proposals: i64 = base_data.iter().map(|item| item.total_proposals).sum();
-        let delegate_count: i64 = base_data.len() as i64;
+        for item in base_data {
+            let entry = age_map
+                .entry(item.delegate_age_bucket)
+                .or_insert((Vec::new(), 0, 0));
+            entry.0.push(item.complexity_score);
+            entry.1 += item.total_proposals;
+            entry.2 += 1;
+        }
 
-        let average_complexity = if !scores.is_empty() {
-            scores.iter().sum::<f64>() / scores.len() as f64
-        } else {
-            0.0
-        };
+        let mut results: Vec<ComplexityByCategory> = age_map
+            .into_iter()
+            .map(|(category, (scores, total_proposals, delegate_count))| {
+                let average_complexity = if !scores.is_empty() {
+                    scores.iter().sum::<f64>() / scores.len() as f64
+                } else {
+                    0.0
+                };
 
-        results.push(ComplexityByCategory {
-            category: "Unknown".to_string(),
-            average_complexity,
-            total_proposals,
-            delegate_count,
-        });
+                ComplexityByCategory {
+                    category,
+                    average_complexity,
+                    total_proposals,
+                    delegate_count,
+                }
+            })
+            .collect();
 
         results.sort_by(|a, b| {
             b.average_complexity

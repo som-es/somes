@@ -150,7 +150,7 @@
 	<DelegateBarChartControl
 		height={520}
 		delegateMakeRequest={currentFunction}
-		{selectedCategory}
+		bind:selectedCategory
 		valueLabel="Aktivitäts-Punkte"
 		normalizedValueLabel="durchschnittliche Aktivitäts-Punkte (pro Sitzung)"
 		infoQuestion="Wie werden Aktivitäts-Punkte berechnet?"

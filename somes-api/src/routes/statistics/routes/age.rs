@@ -5,7 +5,9 @@ use utoipa::ToSchema;
 
 use crate::{
     routes::statistics::routes::error::StatisticsResponse,
-    routes::statistics::routes::filtering::{bind_values, build_filter, IntoFilterArgument, Manual},
+    routes::statistics::routes::filtering::{
+        bind_values, build_filter, IntoFilterArgument, Manual,
+    },
     PgPoolConnection,
 };
 
@@ -94,13 +96,10 @@ impl AgeService {
         let mut filtered_query = sqlx::query_as::<Postgres, AgeBase>(&query);
         filtered_query = bind_values(filtered_query, &filters);
 
-        filtered_query
-            .fetch_all(pg)
-            .await
-            .map_err(|e| {
-                println!("Error: {:?}", e);
-                StatisticsResponse::DbSelectFailure(Some(e))
-            })
+        filtered_query.fetch_all(pg).await.map_err(|e| {
+            println!("Error: {:?}", e);
+            StatisticsResponse::DbSelectFailure(Some(e))
+        })
     }
 
     pub async fn per_delegate(
@@ -131,11 +130,15 @@ impl AgeService {
         filter: &AgeFilter,
     ) -> Result<Vec<AgeByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
-        let mut party_map: std::collections::HashMap<String, Vec<i32>> = std::collections::HashMap::new();
-        
+
+        let mut party_map: std::collections::HashMap<String, Vec<i32>> =
+            std::collections::HashMap::new();
+
         for item in base_data {
-            party_map.entry(item.delegate_party.clone()).or_insert_with(Vec::new).push(item.age);
+            party_map
+                .entry(item.delegate_party.clone())
+                .or_insert_with(Vec::new)
+                .push(item.age);
         }
 
         let mut results: Vec<AgeByCategory> = party_map
@@ -145,7 +148,7 @@ impl AgeService {
                 let average_age = ages.iter().sum::<i32>() as f64 / delegate_count as f64;
                 let min_age = *ages.iter().min().unwrap_or(&0);
                 let max_age = *ages.iter().max().unwrap_or(&0);
-                
+
                 AgeByCategory {
                     category: party,
                     average_age,
@@ -174,11 +177,15 @@ impl AgeService {
         filter: &AgeFilter,
     ) -> Result<Vec<AgeByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
-        let mut gender_map: std::collections::HashMap<String, Vec<i32>> = std::collections::HashMap::new();
-        
+
+        let mut gender_map: std::collections::HashMap<String, Vec<i32>> =
+            std::collections::HashMap::new();
+
         for item in base_data {
-            gender_map.entry(item.delegate_gender.clone()).or_insert_with(Vec::new).push(item.age);
+            gender_map
+                .entry(item.delegate_gender.clone())
+                .or_insert_with(Vec::new)
+                .push(item.age);
         }
 
         let mut results: Vec<AgeByCategory> = gender_map
@@ -188,7 +195,7 @@ impl AgeService {
                 let average_age = ages.iter().sum::<i32>() as f64 / delegate_count as f64;
                 let min_age = *ages.iter().min().unwrap_or(&0);
                 let max_age = *ages.iter().max().unwrap_or(&0);
-                
+
                 AgeByCategory {
                     category: gender,
                     average_age,
@@ -217,12 +224,16 @@ impl AgeService {
         filter: &AgeFilter,
     ) -> Result<Vec<AgeByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
-        let mut legis_map: std::collections::HashMap<String, Vec<i32>> = std::collections::HashMap::new();
-        
+
+        let mut legis_map: std::collections::HashMap<String, Vec<i32>> =
+            std::collections::HashMap::new();
+
         for item in base_data {
             if let Some(period) = item.legislative_period {
-                legis_map.entry(period).or_insert_with(Vec::new).push(item.age);
+                legis_map
+                    .entry(period)
+                    .or_insert_with(Vec::new)
+                    .push(item.age);
             }
         }
 
@@ -233,9 +244,63 @@ impl AgeService {
                 let average_age = ages.iter().sum::<i32>() as f64 / delegate_count as f64;
                 let min_age = *ages.iter().min().unwrap_or(&0);
                 let max_age = *ages.iter().max().unwrap_or(&0);
-                
+
                 AgeByCategory {
                     category: period,
+                    average_age,
+                    delegate_count,
+                    min_age,
+                    max_age,
+                }
+            })
+            .collect();
+
+        results.sort_by(|a, b| {
+            b.average_age
+                .partial_cmp(&a.average_age)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
+
+        if !filter.is_desc {
+            results.reverse();
+        }
+
+        Ok(results)
+    }
+
+    pub async fn per_age(
+        pg: &sqlx::PgPool,
+        filter: &AgeFilter,
+    ) -> Result<Vec<AgeByCategory>, StatisticsResponse> {
+        let base_data = Self::get_base_data(pg, filter).await?;
+
+        let mut age_map: std::collections::HashMap<String, Vec<i32>> =
+            std::collections::HashMap::new();
+
+        for item in base_data {
+            let category = match item.age {
+                age if age <= 30 => "18-30",
+                age if age <= 40 => "31-40",
+                age if age <= 50 => "41-50",
+                age if age <= 60 => "51-60",
+                _ => "60+",
+            };
+            age_map
+                .entry(category.to_string())
+                .or_insert_with(Vec::new)
+                .push(item.age);
+        }
+
+        let mut results: Vec<AgeByCategory> = age_map
+            .into_iter()
+            .map(|(category, ages)| {
+                let delegate_count = ages.len() as i64;
+                let average_age = ages.iter().sum::<i32>() as f64 / delegate_count as f64;
+                let min_age = *ages.iter().min().unwrap_or(&0);
+                let max_age = *ages.iter().max().unwrap_or(&0);
+
+                AgeByCategory {
+                    category,
                     average_age,
                     delegate_count,
                     min_age,
@@ -292,5 +357,14 @@ pub async fn age_per_legis(
 ) -> Result<Json<Vec<AgeByCategory>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
     let results = AgeService::per_legis(&pg, &filter).await?;
+    Ok(Json(results))
+}
+
+pub async fn age_per_age(
+    PgPoolConnection(pg): PgPoolConnection,
+    Json(filter): Json<Option<AgeFilter>>,
+) -> Result<Json<Vec<AgeByCategory>>, StatisticsResponse> {
+    let filter = filter.unwrap_or_default();
+    let results = AgeService::per_age(&pg, &filter).await?;
     Ok(Json(results))
 }

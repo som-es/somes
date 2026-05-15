@@ -39,7 +39,7 @@
 	</Popover.Trigger>
 	<Popover.Content sideOffset={8}>
 		<div
-			class="z-10 w-72 touch-manipulation rounded-xl border border-gray-300 bg-surface-50 shadow-lg dark:bg-surface-600"
+			class="z-[1000] w-72 touch-manipulation rounded-xl border border-gray-300 bg-surface-50 shadow-lg dark:bg-surface-600"
 			data-popup="popupTopics"
 		>
 			<!-- Search bar -->
@@ -56,7 +56,7 @@
 			</div>
 			<div class="flex justify-between gap-1 px-1 pt-1">
 				{#if prefillSnippet}
-					{@render prefillSnippet()}
+					{@render prefillSnippet(selectedTopics)}
 				{:else}
 					<span></span>
 				{/if}

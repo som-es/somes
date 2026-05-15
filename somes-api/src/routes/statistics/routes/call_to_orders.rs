@@ -5,7 +5,9 @@ use utoipa::ToSchema;
 
 use crate::{
     routes::statistics::routes::error::StatisticsResponse,
-    routes::statistics::routes::filtering::{bind_values, build_filter, IntoFilterArgument, Manual},
+    routes::statistics::routes::filtering::{
+        bind_values, build_filter, IntoFilterArgument, Manual,
+    },
     PgPoolConnection,
 };
 
@@ -27,6 +29,7 @@ pub struct CallToOrdersBase {
     total_sessions_attended: Option<i64>,
     normalized_calls_to_order: Option<f64>,
     legislative_period: Option<String>,
+    delegate_age_bucket: String,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
@@ -94,7 +97,15 @@ impl CallToOrdersService {
             COUNT(cto.id) AS total_order_calls,
             sc.total_sessions_attended,
             COUNT(DISTINCT cto.id)::FLOAT / NULLIF(sc.total_sessions_attended, 0)::FLOAT AS normalized_calls_to_order,
-            pf.legislative_period
+            pf.legislative_period,
+            CASE
+                WHEN d.birthdate IS NULL THEN 'Unbekannt'
+                WHEN EXTRACT(YEAR FROM AGE(lp.start_date, d.birthdate)) <= 30 THEN '18-30'
+                WHEN EXTRACT(YEAR FROM AGE(lp.start_date, d.birthdate)) <= 40 THEN '31-40'
+                WHEN EXTRACT(YEAR FROM AGE(lp.start_date, d.birthdate)) <= 50 THEN '41-50'
+                WHEN EXTRACT(YEAR FROM AGE(lp.start_date, d.birthdate)) <= 60 THEN '51-60'
+                ELSE '60+'
+            END AS delegate_age_bucket
         FROM 
             call_to_order cto
         JOIN 
@@ -113,7 +124,7 @@ impl CallToOrdersService {
             AND (m.start_date IS NULL OR m.start_date <= (SELECT MIN(created_at) FROM plenar_infos WHERE id = cto.plenar_id))
             AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(created_at) FROM plenar_infos WHERE id = cto.plenar_id))
         GROUP BY 
-            d.id, d.name, d.gender, m.party, sc.total_sessions_attended, pf.legislative_period
+            d.id, d.name, d.gender, d.birthdate, m.party, sc.total_sessions_attended, pf.legislative_period, lp.start_date
         ORDER BY 
             d.id, total_order_calls DESC;
         "
@@ -133,7 +144,6 @@ impl CallToOrdersService {
         filter: &CallToOrderFilter,
     ) -> Result<Vec<CallToOrdersForDelegate>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-    
 
         let mut results: Vec<CallToOrdersForDelegate> = base_data
             .into_iter()
@@ -145,7 +155,7 @@ impl CallToOrdersService {
                 normalized_calls_to_order: item.normalized_calls_to_order.unwrap_or(0.0),
             })
             .collect();
-        
+
         // Sort in Rust based on filter parameters
         if filter.normalized {
             results.sort_by(|a, b| {
@@ -173,11 +183,14 @@ impl CallToOrdersService {
         filter: &CallToOrderFilter,
     ) -> Result<Vec<CallToOrdersByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
-        let mut party_map: std::collections::HashMap<String, (i64, i64)> = std::collections::HashMap::new();
-        
+
+        let mut party_map: std::collections::HashMap<String, (i64, i64)> =
+            std::collections::HashMap::new();
+
         for item in base_data {
-            let entry = party_map.entry(item.delegate_party.clone()).or_insert((0, 0));
+            let entry = party_map
+                .entry(item.delegate_party.clone())
+                .or_insert((0, 0));
             entry.0 += item.total_order_calls;
             entry.1 += item.total_sessions_attended.unwrap_or(0);
         }
@@ -239,11 +252,14 @@ impl CallToOrdersService {
         filter: &CallToOrderFilter,
     ) -> Result<Vec<CallToOrdersByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
-        let mut gender_map: std::collections::HashMap<String, (i64, i64)> = std::collections::HashMap::new();
-        
+
+        let mut gender_map: std::collections::HashMap<String, (i64, i64)> =
+            std::collections::HashMap::new();
+
         for item in base_data {
-            let entry = gender_map.entry(item.delegate_gender.clone()).or_insert((0, 0));
+            let entry = gender_map
+                .entry(item.delegate_gender.clone())
+                .or_insert((0, 0));
             entry.0 += item.total_order_calls;
             entry.1 += item.total_sessions_attended.unwrap_or(0);
         }
@@ -305,9 +321,10 @@ impl CallToOrdersService {
         filter: &CallToOrderFilter,
     ) -> Result<Vec<CallToOrdersByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
-        let mut legis_map: std::collections::HashMap<String, (i64, i64, f64)> = std::collections::HashMap::new();
-        
+
+        let mut legis_map: std::collections::HashMap<String, (i64, i64, f64)> =
+            std::collections::HashMap::new();
+
         for item in base_data {
             if let Some(period) = item.legislative_period {
                 let entry = legis_map.entry(period).or_insert((0, 0, 0.0));
@@ -319,7 +336,7 @@ impl CallToOrdersService {
 
         let mut results: Vec<CallToOrdersByCategory> = legis_map
             .into_iter()
-            .map(|(period, (total_calls, total_sessions, normalized))| {
+            .map(|(period, (total_calls, total_sessions, _normalized))| {
                 let normalized_calls_to_order = if total_sessions > 0 {
                     total_calls as f64 / total_sessions as f64
                 } else {
@@ -374,54 +391,31 @@ impl CallToOrdersService {
         filter: &CallToOrderFilter,
     ) -> Result<Vec<CallToOrdersByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
-        // For age grouping, we'd need to calculate ages from birth dates
-        // This is a simplified version - you might need to adjust based on your actual age calculation logic
-        let mut results: Vec<CallToOrdersByCategory> = vec![
-            CallToOrdersByCategory {
-                category: "18-30".to_string(),
-                total_order_calls: 0,
-                total_sessions_attended: Some(0),
-                normalized_calls_to_order: Some(0.0),
-            },
-            CallToOrdersByCategory {
-                category: "31-40".to_string(),
-                total_order_calls: 0,
-                total_sessions_attended: Some(0),
-                normalized_calls_to_order: Some(0.0),
-            },
-            CallToOrdersByCategory {
-                category: "41-50".to_string(),
-                total_order_calls: 0,
-                total_sessions_attended: Some(0),
-                normalized_calls_to_order: Some(0.0),
-            },
-            CallToOrdersByCategory {
-                category: "51-60".to_string(),
-                total_order_calls: 0,
-                total_sessions_attended: Some(0),
-                normalized_calls_to_order: Some(0.0),
-            },
-            CallToOrdersByCategory {
-                category: "60+".to_string(),
-                total_order_calls: 0,
-                total_sessions_attended: Some(0),
-                normalized_calls_to_order: Some(0.0),
-            },
-        ];
+        let mut age_map: std::collections::HashMap<String, (i64, i64)> =
+            std::collections::HashMap::new();
 
-        // Note: You'll need to implement actual age calculation logic here
-        // This is a placeholder that aggregates all data into "Unknown" category
-        let total_calls: i64 = base_data.iter().map(|item| item.total_order_calls).sum();
-        let total_sessions: i64 = base_data.iter().map(|item| item.total_sessions_attended.unwrap_or(0)).sum();
-        let total_normalized: f64 = base_data.iter().map(|item| item.normalized_calls_to_order.unwrap_or(0.0)).sum();
+        for item in base_data {
+            let entry = age_map.entry(item.delegate_age_bucket).or_insert((0, 0));
+            entry.0 += item.total_order_calls;
+            entry.1 += item.total_sessions_attended.unwrap_or(0);
+        }
 
-        results.push(CallToOrdersByCategory {
-            category: "Unknown".to_string(),
-            total_order_calls: total_calls,
-            total_sessions_attended: Some(total_sessions),
-            normalized_calls_to_order: Some(total_normalized),
-        });
+        let mut results: Vec<CallToOrdersByCategory> = age_map
+            .into_iter()
+            .map(|(category, (total_calls, total_sessions))| {
+                let normalized_calls_to_order = if total_sessions > 0 {
+                    total_calls as f64 / total_sessions as f64
+                } else {
+                    0.0
+                };
+                CallToOrdersByCategory {
+                    category,
+                    total_order_calls: total_calls,
+                    total_sessions_attended: Some(total_sessions),
+                    normalized_calls_to_order: Some(normalized_calls_to_order),
+                }
+            })
+            .collect();
 
         if filter.is_desc {
             results.sort_by(|a, b| b.total_order_calls.cmp(&a.total_order_calls));
@@ -430,7 +424,6 @@ impl CallToOrdersService {
         Ok(results)
     }
 }
-
 
 pub async fn call_to_orders_per_delegate(
     PgPoolConnection(pg): PgPoolConnection,

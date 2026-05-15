@@ -73,7 +73,7 @@
 		isDesc: boolean,
 		normalized: boolean
 	): Promise<StatisticsData[]> => {
-		const response = await justPostStatistics<any[]>('complexity_per_age', {
+		const response = await justPostStatistics<any[]>('complexity_at_age', {
 			legis_period: gp,
 			party: null,
 			gender,
@@ -142,7 +142,7 @@
 	<DelegateBarChartControl
 		height={520}
 		delegateMakeRequest={currentFunction}
-		{selectedCategory}
+		bind:selectedCategory
 		valueLabel="Komplexitäts-Score"
 		normalizedValueLabel="Komplexitäts-Score"
 		filterConfig={{

@@ -5,7 +5,9 @@ use utoipa::ToSchema;
 
 use crate::{
     routes::statistics::routes::error::StatisticsResponse,
-    routes::statistics::routes::filtering::{bind_values, build_filter, IntoFilterArgument, Manual},
+    routes::statistics::routes::filtering::{
+        bind_values, build_filter, IntoFilterArgument, Manual,
+    },
     PgPoolConnection,
 };
 
@@ -95,7 +97,7 @@ impl DivisionAccuracyService {
         filter: &DivisionAccuracyFilter,
     ) -> Result<Vec<DivisionAccuracyForDelegate>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
+
         let mut results: Vec<DivisionAccuracyForDelegate> = base_data
             .into_iter()
             .map(|item| DivisionAccuracyForDelegate {
@@ -124,11 +126,14 @@ impl DivisionAccuracyService {
         filter: &DivisionAccuracyFilter,
     ) -> Result<Vec<DivisionAccuracyByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
-        let mut party_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> = std::collections::HashMap::new();
-        
+
+        let mut party_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> =
+            std::collections::HashMap::new();
+
         for item in base_data {
-            let entry = party_map.entry(item.delegate_party.clone()).or_insert((Vec::new(), 0, 0));
+            let entry = party_map
+                .entry(item.delegate_party.clone())
+                .or_insert((Vec::new(), 0, 0));
             entry.0.push(item.accuracy_score);
             entry.1 += item.total_votes;
             entry.2 += 1; // delegate count
@@ -142,7 +147,7 @@ impl DivisionAccuracyService {
                 } else {
                     0.0
                 };
-                
+
                 DivisionAccuracyByCategory {
                     category: party,
                     average_accuracy,
@@ -170,11 +175,15 @@ impl DivisionAccuracyService {
         filter: &DivisionAccuracyFilter,
     ) -> Result<Vec<DivisionAccuracyByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
-        let mut gender_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> = std::collections::HashMap::new();
-        
+
+        let mut gender_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> =
+            std::collections::HashMap::new();
+
         for item in base_data {
-            let entry = gender_map.entry(item.delegate_gender.clone()).or_insert((Vec::new(), 0, 0));
+            let entry =
+                gender_map
+                    .entry(item.delegate_gender.clone())
+                    .or_insert((Vec::new(), 0, 0));
             entry.0.push(item.accuracy_score);
             entry.1 += item.total_votes;
             entry.2 += 1; // delegate count
@@ -188,7 +197,7 @@ impl DivisionAccuracyService {
                 } else {
                     0.0
                 };
-                
+
                 DivisionAccuracyByCategory {
                     category: gender,
                     average_accuracy,
@@ -266,7 +275,7 @@ impl DivisionAccuracyService {
         filter: &DivisionAccuracyFilter,
     ) -> Result<Vec<DivisionAccuracyByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
+
         // For age grouping, we'd need to calculate ages from birth dates
         // This is a simplified version - you might need to adjust based on your actual age calculation logic
         let mut results: Vec<DivisionAccuracyByCategory> = vec![
@@ -341,9 +350,15 @@ pub async fn division_accuracy_score_per_delegate(
     Json(filter): Json<Option<DivisionAccuracyFilter>>,
 ) -> Result<Json<Vec<DivisionAccuracyForDelegate>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
-    println!("🔍 STATISTICS ENDPOINT: division_accuracy_score_per_delegate called with filter: {:?}", filter);
+    println!(
+        "🔍 STATISTICS ENDPOINT: division_accuracy_score_per_delegate called with filter: {:?}",
+        filter
+    );
     let results = DivisionAccuracyService::per_delegate(&pg, &filter).await?;
-    println!("✅ STATISTICS ENDPOINT: division_accuracy_score_per_delegate returning {} results", results.len());
+    println!(
+        "✅ STATISTICS ENDPOINT: division_accuracy_score_per_delegate returning {} results",
+        results.len()
+    );
     Ok(Json(results))
 }
 
@@ -352,9 +367,15 @@ pub async fn division_accuracy_score_per_party(
     Json(filter): Json<Option<DivisionAccuracyFilter>>,
 ) -> Result<Json<Vec<DivisionAccuracyByCategory>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
-    println!("🔍 STATISTICS ENDPOINT: division_accuracy_score_per_party called with filter: {:?}", filter);
+    println!(
+        "🔍 STATISTICS ENDPOINT: division_accuracy_score_per_party called with filter: {:?}",
+        filter
+    );
     let results = DivisionAccuracyService::per_party(&pg, &filter).await?;
-    println!("✅ STATISTICS ENDPOINT: division_accuracy_score_per_party returning {} results", results.len());
+    println!(
+        "✅ STATISTICS ENDPOINT: division_accuracy_score_per_party returning {} results",
+        results.len()
+    );
     Ok(Json(results))
 }
 
@@ -363,9 +384,15 @@ pub async fn division_accuracy_score_per_gender(
     Json(filter): Json<Option<DivisionAccuracyFilter>>,
 ) -> Result<Json<Vec<DivisionAccuracyByCategory>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
-    println!("🔍 STATISTICS ENDPOINT: division_accuracy_score_per_gender called with filter: {:?}", filter);
+    println!(
+        "🔍 STATISTICS ENDPOINT: division_accuracy_score_per_gender called with filter: {:?}",
+        filter
+    );
     let results = DivisionAccuracyService::per_gender(&pg, &filter).await?;
-    println!("✅ STATISTICS ENDPOINT: division_accuracy_score_per_gender returning {} results", results.len());
+    println!(
+        "✅ STATISTICS ENDPOINT: division_accuracy_score_per_gender returning {} results",
+        results.len()
+    );
     Ok(Json(results))
 }
 
@@ -374,9 +401,15 @@ pub async fn division_accuracy_score_per_legis(
     Json(filter): Json<Option<DivisionAccuracyFilter>>,
 ) -> Result<Json<Vec<DivisionAccuracyByCategory>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
-    println!("🔍 STATISTICS ENDPOINT: division_accuracy_score_per_legis called with filter: {:?}", filter);
+    println!(
+        "🔍 STATISTICS ENDPOINT: division_accuracy_score_per_legis called with filter: {:?}",
+        filter
+    );
     let results = DivisionAccuracyService::per_legis(&pg, &filter).await?;
-    println!("✅ STATISTICS ENDPOINT: division_accuracy_score_per_legis returning {} results", results.len());
+    println!(
+        "✅ STATISTICS ENDPOINT: division_accuracy_score_per_legis returning {} results",
+        results.len()
+    );
     Ok(Json(results))
 }
 
@@ -385,8 +418,14 @@ pub async fn division_accuracy_score_per_age(
     Json(filter): Json<Option<DivisionAccuracyFilter>>,
 ) -> Result<Json<Vec<DivisionAccuracyByCategory>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
-    println!("🔍 STATISTICS ENDPOINT: division_accuracy_score_per_age called with filter: {:?}", filter);
+    println!(
+        "🔍 STATISTICS ENDPOINT: division_accuracy_score_per_age called with filter: {:?}",
+        filter
+    );
     let results = DivisionAccuracyService::per_age(&pg, &filter).await?;
-    println!("✅ STATISTICS ENDPOINT: division_accuracy_score_per_age returning {} results", results.len());
+    println!(
+        "✅ STATISTICS ENDPOINT: division_accuracy_score_per_age returning {} results",
+        results.len()
+    );
     Ok(Json(results))
 }

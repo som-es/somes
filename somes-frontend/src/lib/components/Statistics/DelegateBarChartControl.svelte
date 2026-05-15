@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { onMount, untrack } from 'svelte';
+	import { onMount, tick, untrack } from 'svelte';
 	import { SvelteSet } from 'svelte/reactivity';
-	import { BarChart, LineChart, PieChart } from 'layerchart';
+	import { BarChart, LineChart } from 'layerchart';
 	import GenericFilters from '$lib/components/Filtering/GenericFilters.svelte';
 	import MultiValuesFilter from '$lib/components/Filtering/MultiValuesFilter.svelte';
 	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
@@ -40,7 +40,7 @@
 	let {
 		delegateMakeRequest,
 		height = 480,
-		selectedCategory = 'delegate',
+		selectedCategory = $bindable('delegate'),
 		valueLabel = 'Wert',
 		normalizedValueLabel = 'Wert (normalisiert)',
 		infoQuestion = null,
@@ -70,12 +70,15 @@
 	const periodOrder = ['XX', 'XXI', 'XXII', 'XXIII', 'XXIV', 'XXV', 'XXVI', 'XXVII', 'XXVIII'];
 
 	let currentData: StatisticsData[] = $state([]);
+	let currentDataCategory: string | null = $state(null);
 	let loading = $state(false);
 	let error: string | null = $state(null);
 	let searchValue = $state('');
 	let selectedParties = $state(new SvelteSet<string>());
 	let topLimit = $state(25);
 	let mounted = false;
+	let requestId = 0;
+	let previousSelectedCategory = selectedCategory;
 
 	let legisPeriodFilter = $state({
 		title: 'Legislaturperiode',
@@ -144,10 +147,29 @@
 	let chartMode = $derived(
 		requestedChartMode === 'line' && !canUseLineChart ? 'bar' : requestedChartMode
 	);
+	let canUseTopLimit = $derived(selectedCategory === 'delegate' && chartMode !== 'line');
 
 	let activeCategoryLabel = $derived(
 		categoryOptions.find((option) => option.value === selectedCategory)?.label ?? 'Abgeordnete'
 	);
+	let chartDescription = $derived.by(() => {
+		if (chartMode === 'line') {
+			return 'Zeitlicher Vergleich über alle verfügbaren Legislaturperioden.';
+		}
+		if (chartMode === 'donut') {
+			return 'Anteil der größten Werte an der aktuell gefilterten Auswahl.';
+		}
+		if (selectedCategory === 'delegate') {
+			return 'Rangliste der Abgeordneten mit lesbaren Namen und Parteifarben.';
+		}
+		if (selectedCategory === 'age') {
+			return 'Vergleich nach Altersgruppen zum Beginn der jeweiligen Legislaturperiode.';
+		}
+		if (selectedCategory === 'legis') {
+			return 'Vergleich der Legislaturperioden auf Basis der ausgewählten Kennzahl.';
+		}
+		return 'Gruppierter Vergleich der aktuell ausgewählten Auswertung.';
+	});
 
 	let selectedGp = $derived(
 		selectedCategory === 'legis' || legisPeriodFilter.activeValue === 'all'
@@ -181,9 +203,40 @@
 		return categoryColors[label] ?? '#6b7280';
 	}
 
+	function romanToNumber(value: string) {
+		const romanValues: Record<string, number> = {
+			I: 1,
+			V: 5,
+			X: 10,
+			L: 50,
+			C: 100,
+			D: 500,
+			M: 1000
+		};
+		let total = 0;
+		let previous = 0;
+		for (const char of value.toUpperCase().split('').reverse()) {
+			const current = romanValues[char];
+			if (!current) return null;
+			total += current < previous ? -current : current;
+			previous = current;
+		}
+		return total;
+	}
+
+	function periodRank(gp: string) {
+		const knownIndex = periodOrder.indexOf(gp);
+		return knownIndex === -1 ? (romanToNumber(gp) ?? Number.MIN_SAFE_INTEGER) : knownIndex;
+	}
+
+	let displayData: StatisticsData[] = $derived.by((): StatisticsData[] => {
+		if (currentDataCategory !== selectedCategory) return [];
+		return currentData;
+	});
+
 	let uniqueParties = $derived.by(() => {
 		const parties = new Set<string>();
-		for (const item of currentData) {
+		for (const item of displayData) {
 			if (item.type === 'delegate' && item.party) parties.add(item.party);
 		}
 		return [...parties].sort((a, b) => a.localeCompare(b, 'de-AT'));
@@ -191,7 +244,7 @@
 
 	let filteredData = $derived.by(() => {
 		const search = searchValue.trim().toLowerCase();
-		return currentData
+		return displayData
 			.filter((item) => {
 				if (
 					canUsePartyFilter &&
@@ -206,7 +259,9 @@
 			.sort((a, b) => (isDesc ? b.value - a.value : a.value - b.value));
 	});
 
-	let shownData = $derived(topLimit === 0 ? filteredData : filteredData.slice(0, topLimit));
+	let shownData = $derived(
+		!canUseTopLimit || topLimit === 0 ? filteredData : filteredData.slice(0, topLimit)
+	);
 
 	let chartData = $derived(
 		shownData.map((item) => {
@@ -247,7 +302,7 @@
 
 	let lineData = $derived(
 		[...chartData]
-			.sort((a, b) => periodOrder.indexOf(a.category) - periodOrder.indexOf(b.category))
+			.sort((a, b) => periodRank(a.category) - periodRank(b.category))
 			.map((item) => ({
 				period: item.category,
 				value: item.value,
@@ -256,16 +311,30 @@
 	);
 
 	let cRange = $derived(chartData.map((item) => item.color));
-	let donutRange = $derived(donutData.map((item) => item.color));
+	let donutTotal = $derived(donutData.reduce((sum, item) => sum + Math.max(item.value, 0), 0));
+	let donutGradient = $derived.by(() => {
+		if (donutTotal <= 0) return '#e5e7eb';
+		let cursor = 0;
+		const stops = donutData.map((item) => {
+			const start = cursor;
+			const end = cursor + (Math.max(item.value, 0) / donutTotal) * 100;
+			cursor = end;
+			return `${item.color} ${start}% ${end}%`;
+		});
+		return `conic-gradient(${stops.join(', ')})`;
+	});
+	let largestDonutItem = $derived(
+		donutData.reduce<(typeof donutData)[number] | null>(
+			(current, item) => (!current || item.value > current.value ? item : current),
+			null
+		)
+	);
 	let chartHeight = $derived(
 		chartMode === 'bar' ? Math.max(height, chartData.length * (isMobile ? 30 : 34) + 80) : height
 	);
 	let chartPaddingLeft = $derived(isMobile ? 150 : selectedCategory === 'delegate' ? 285 : 190);
 
 	$effect(() => {
-		if (selectedCategory === 'legis') {
-			legisPeriodFilter.activeValue = 'all';
-		}
 		genericFilters[0].hidden = filterConfig.showGender === false || selectedCategory === 'gender';
 		genericFilters[2].hidden = filterConfig.showNormalized === false;
 		genericFilters[3].options = canUseLineChart
@@ -284,6 +353,17 @@
 	});
 
 	$effect(() => {
+		if (selectedCategory === previousSelectedCategory) return;
+		previousSelectedCategory = selectedCategory;
+		genericFilters[0].activeValue = 'all';
+		selectedParties.clear();
+		searchValue = '';
+		if (selectedCategory === 'legis') {
+			genericFilters[3].activeValue = 'line';
+		}
+	});
+
+	$effect(() => {
 		selectedCategory;
 		selectedGp;
 		genderFilter;
@@ -297,26 +377,39 @@
 		mounted = true;
 		const periods = await cachedAllLegisPeriods();
 		if (periods && periods.length > 0) {
+			const sortedPeriods = periods
+				.slice()
+				.sort((a, b) => periodRank(b.gp) - periodRank(a.gp));
+			const latestPeriod = sortedPeriods.at(0)?.gp ?? 'XXVIII';
 			legisPeriodFilter.options = [
 				{ title: 'Alle', value: 'all' },
-				...periods.map((period) => ({ title: period.gp, value: period.gp }))
+				...sortedPeriods.map((period) => ({ title: period.gp, value: period.gp }))
 			];
-			legisPeriodFilter.activeValue = periods.at(-1)?.gp ?? 'XXVIII';
+			legisPeriodFilter.activeValue = latestPeriod;
 		}
 		await loadData();
 	});
 
 	async function loadData() {
+		const currentRequestId = ++requestId;
+		const requestedCategory = selectedCategory;
 		loading = true;
 		error = null;
+		currentData = [];
+		currentDataCategory = null;
+		await tick();
+		if (currentRequestId !== requestId) return;
 		try {
 			const result = await delegateMakeRequest(selectedGp, genderFilter, isDesc, normalized);
+			if (currentRequestId !== requestId) return;
 			currentData = result;
+			currentDataCategory = requestedCategory;
 		} catch (err) {
+			if (currentRequestId !== requestId) return;
 			error =
 				err instanceof Error ? err.message : 'Die Statistikdaten konnten nicht geladen werden.';
 		} finally {
-			loading = false;
+			if (currentRequestId === requestId) loading = false;
 		}
 	}
 </script>
@@ -325,7 +418,7 @@
 
 <div class="space-y-5">
 	<section
-		class="rounded-xl border border-gray-300 bg-surface-50 p-4 shadow-sm dark:border-surface-700 dark:bg-surface-700/60"
+		class="relative z-20 rounded-xl border border-gray-300 bg-surface-50 p-4 shadow-sm dark:border-surface-700 dark:bg-surface-700/60"
 	>
 		<div class="flex flex-col gap-4">
 			<div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
@@ -373,7 +466,9 @@
 						{/if}
 						<GenericFilters
 							bind:genericFilters
-							legisPeriodFilter={filterConfig.showPeriod === false ? undefined : legisPeriodFilter}
+							legisPeriodFilter={filterConfig.showPeriod === false || selectedCategory === 'legis'
+								? undefined
+								: legisPeriodFilter}
 						/>
 					</div>
 				</div>
@@ -383,35 +478,44 @@
 				class="flex flex-col gap-3 border-t border-gray-300 pt-4 md:flex-row md:items-center md:justify-between dark:border-surface-600"
 			>
 				<div class="flex flex-wrap items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
-					<span class="font-semibold">{filteredData.length}</span>
-					<span>Einträge in</span>
-					<span class="rounded-lg bg-surface-200 px-2 py-1 font-semibold dark:bg-surface-600"
-						>{activeCategoryLabel}</span
-					>
-					<span>{metricLabel}</span>
-				</div>
-				<div
-					class="flex flex-wrap gap-1 rounded-xl border border-primary-300 p-1 dark:border-primary-400"
-				>
-					{#each topOptions as option}
-						<button
-							type="button"
-							class="rounded-lg px-3 py-1.5 text-sm font-semibold transition {topLimit ===
-							option.value
-								? 'bg-primary-300 text-black dark:bg-primary-400'
-								: 'hover:bg-primary-100 dark:hover:bg-surface-500'}"
-							onclick={() => (topLimit = option.value)}
+					{#if loading}
+						<span>Daten werden geladen für</span>
+						<span class="rounded-lg bg-surface-200 px-2 py-1 font-semibold dark:bg-surface-600"
+							>{activeCategoryLabel}</span
 						>
-							{option.label}
-						</button>
-					{/each}
+					{:else}
+						<span class="font-semibold">{filteredData.length}</span>
+						<span>Einträge in</span>
+						<span class="rounded-lg bg-surface-200 px-2 py-1 font-semibold dark:bg-surface-600"
+							>{activeCategoryLabel}</span
+						>
+						<span>{metricLabel}</span>
+					{/if}
 				</div>
+				{#if canUseTopLimit}
+					<div
+						class="flex flex-wrap gap-1 rounded-xl border border-primary-300 p-1 dark:border-primary-400"
+					>
+						{#each topOptions as option}
+							<button
+								type="button"
+								class="rounded-lg px-3 py-1.5 text-sm font-semibold transition {topLimit ===
+								option.value
+									? 'bg-primary-300 text-black dark:bg-primary-400'
+									: 'hover:bg-primary-100 dark:hover:bg-surface-500'}"
+								onclick={() => (topLimit = option.value)}
+							>
+								{option.label}
+							</button>
+						{/each}
+					</div>
+				{/if}
 			</div>
 		</div>
 	</section>
 
 	<section
-		class="rounded-xl border border-gray-300 bg-white shadow-sm dark:border-surface-700 dark:bg-surface-800"
+		class="relative z-0 rounded-xl border border-gray-300 bg-white shadow-sm dark:border-surface-700 dark:bg-surface-800"
 	>
 		<div
 			class="flex flex-col gap-2 border-b border-gray-200 p-4 md:flex-row md:items-start md:justify-between dark:border-surface-700"
@@ -419,11 +523,7 @@
 			<div>
 				<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">{metricLabel}</h2>
 				<p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
-					{chartMode === 'bar'
-						? 'Horizontale Balken halten lange Namen lesbar.'
-						: chartMode === 'line'
-							? 'Verlauf über die Legislaturperioden.'
-							: 'Anteile der größten Einträge, übrige Werte zusammengefasst.'}
+					{chartDescription}
 				</p>
 			</div>
 			{#if infoQuestion && infoAnswer}
@@ -475,32 +575,50 @@
 				class="grid gap-4 p-4 lg:grid-cols-[minmax(0,1fr)_20rem]"
 				style="min-height: {height}px;"
 			>
-				<div class="h-[420px] min-w-0">
-					<PieChart
-						data={donutData}
-						key="key"
-						label="label"
-						value="value"
-						c="key"
-						cRange={donutRange}
-						innerRadius={0.52}
-						cornerRadius={3}
-						padAngle={1}
-					/>
+				<div class="flex min-h-[420px] min-w-0 items-center justify-center">
+					<div class="relative aspect-square w-full max-w-[360px]">
+						<div
+							class="absolute inset-0 rounded-full shadow-inner"
+							style="background: {donutGradient};"
+							role="img"
+							aria-label="Anteilsdiagramm für {metricLabel}"
+						></div>
+						<div
+							class="absolute inset-[22%] flex flex-col items-center justify-center rounded-full border border-gray-200 bg-white text-center shadow-sm dark:border-surface-700 dark:bg-surface-800"
+						>
+							<span class="text-xs font-semibold text-gray-500 uppercase dark:text-gray-400"
+								>Summe</span
+							>
+							<span class="mt-1 text-2xl font-bold text-gray-900 tabular-nums dark:text-gray-50"
+								>{donutTotal.toFixed(donutTotal < 10 ? 2 : 0)}</span
+							>
+							{#if largestDonutItem}
+								<span class="mt-2 max-w-32 truncate text-xs text-gray-600 dark:text-gray-300"
+									>{largestDonutItem.label}</span
+								>
+							{/if}
+						</div>
+					</div>
 				</div>
 				<div
 					class="max-h-[420px] overflow-y-auto rounded-lg border border-gray-200 p-3 dark:border-surface-700"
 				>
 					{#each donutData as item}
+						{@const share = donutTotal > 0 ? (item.value / donutTotal) * 100 : 0}
 						<div
 							class="flex items-center gap-2 border-b border-gray-100 py-2 last:border-0 dark:border-surface-700"
 						>
 							<span class="h-3 w-3 shrink-0 rounded-full" style="background-color: {item.color}"
 							></span>
 							<span class="min-w-0 flex-1 truncate text-sm font-medium">{item.label}</span>
-							<span class="text-sm text-gray-600 tabular-nums dark:text-gray-300"
-								>{item.value.toFixed(item.value < 10 ? 2 : 0)}</span
-							>
+							<div class="text-right">
+								<div class="text-sm text-gray-600 tabular-nums dark:text-gray-300">
+									{item.value.toFixed(item.value < 10 ? 2 : 0)}
+								</div>
+								<div class="text-xs text-gray-500 tabular-nums dark:text-gray-400">
+									{share.toFixed(1)}%
+								</div>
+							</div>
 						</div>
 					{/each}
 				</div>

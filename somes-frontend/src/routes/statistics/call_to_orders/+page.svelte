@@ -150,7 +150,7 @@
 	<DelegateBarChartControl
 		delegateMakeRequest={currentFunction}
 		height={520}
-		{selectedCategory}
+		bind:selectedCategory
 		valueLabel="Ordnungsrufe"
 		normalizedValueLabel="Durchschnittliche Ordnungsrufe pro Sitzung"
 	/>

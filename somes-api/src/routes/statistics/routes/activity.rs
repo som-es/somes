@@ -5,7 +5,9 @@ use utoipa::ToSchema;
 
 use crate::{
     routes::statistics::routes::error::StatisticsResponse,
-    routes::statistics::routes::filtering::{bind_values, build_filter, IntoFilterArgument, Manual},
+    routes::statistics::routes::filtering::{
+        bind_values, build_filter, IntoFilterArgument, Manual,
+    },
     PgPoolConnection,
 };
 
@@ -28,6 +30,7 @@ pub struct ActivityBase {
     total_proposals: i64,
     session_count: i64,
     legislative_period: Option<String>,
+    delegate_age_bucket: String,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
@@ -93,7 +96,15 @@ impl ActivityService {
             )::float8 AS raw_activity_score,
             COUNT(p.id) AS total_proposals,
             COALESCE(session_count.session_count, 0) AS session_count,
-            p.gp AS legislative_period
+            p.gp AS legislative_period,
+            CASE
+                WHEN d.birthdate IS NULL THEN 'Unbekannt'
+                WHEN EXTRACT(YEAR FROM AGE(p.created_at, d.birthdate)) <= 30 THEN '18-30'
+                WHEN EXTRACT(YEAR FROM AGE(p.created_at, d.birthdate)) <= 40 THEN '31-40'
+                WHEN EXTRACT(YEAR FROM AGE(p.created_at, d.birthdate)) <= 50 THEN '41-50'
+                WHEN EXTRACT(YEAR FROM AGE(p.created_at, d.birthdate)) <= 60 THEN '51-60'
+                ELSE '60+'
+            END AS delegate_age_bucket
         FROM 
             proposals p
         JOIN 
@@ -131,7 +142,7 @@ impl ActivityService {
             pd.is_receiver = false
             AND {filter_str}
         GROUP BY 
-            d.id, d.name, session_count.session_count, p.gp
+            d.id, d.name, d.birthdate, session_count.session_count, p.gp
         ORDER BY 
             d.id, activity_score DESC;
         "
@@ -140,13 +151,10 @@ impl ActivityService {
         let mut filtered_query = sqlx::query_as::<Postgres, ActivityBase>(&query);
         filtered_query = bind_values(filtered_query, &filters);
 
-        filtered_query
-            .fetch_all(pg)
-            .await
-            .map_err(|e| {
-                println!("Error fetching activity data: {}", e);
-                StatisticsResponse::DbSelectFailure(Some(e))
-            })
+        filtered_query.fetch_all(pg).await.map_err(|e| {
+            println!("Error fetching activity data: {}", e);
+            StatisticsResponse::DbSelectFailure(Some(e))
+        })
     }
 
     pub async fn per_delegate(
@@ -193,11 +201,14 @@ impl ActivityService {
         filter: &ActivityFilter,
     ) -> Result<Vec<ActivityByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
-        let mut party_map: std::collections::HashMap<String, (f64, f64, i64, i64)> = std::collections::HashMap::new();
-        
+
+        let mut party_map: std::collections::HashMap<String, (f64, f64, i64, i64)> =
+            std::collections::HashMap::new();
+
         for item in base_data {
-            let entry = party_map.entry(item.delegate_party.clone()).or_insert((0.0, 0.0, 0, 0));
+            let entry = party_map
+                .entry(item.delegate_party.clone())
+                .or_insert((0.0, 0.0, 0, 0));
             entry.0 += item.activity_score;
             entry.1 += item.raw_activity_score;
             entry.2 += item.total_proposals;
@@ -206,13 +217,17 @@ impl ActivityService {
 
         let mut results: Vec<ActivityByCategory> = party_map
             .into_iter()
-            .map(|(party, (total_norm_score, total_raw_score, total_proposals, delegate_count))| ActivityByCategory {
-                category: party,
-                activity_score: total_norm_score / delegate_count as f64, // average normalized score
-                raw_activity_score: total_raw_score / delegate_count as f64, // average raw score
-                total_proposals,
-                delegate_count,
-            })
+            .map(
+                |(party, (total_norm_score, total_raw_score, total_proposals, delegate_count))| {
+                    ActivityByCategory {
+                        category: party,
+                        activity_score: total_norm_score / delegate_count as f64, // average normalized score
+                        raw_activity_score: total_raw_score / delegate_count as f64, // average raw score
+                        total_proposals,
+                        delegate_count,
+                    }
+                },
+            )
             .collect();
 
         // Sort based on filter parameters
@@ -242,11 +257,14 @@ impl ActivityService {
         filter: &ActivityFilter,
     ) -> Result<Vec<ActivityByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
-        let mut gender_map: std::collections::HashMap<String, (f64, f64, i64, i64)> = std::collections::HashMap::new();
-        
+
+        let mut gender_map: std::collections::HashMap<String, (f64, f64, i64, i64)> =
+            std::collections::HashMap::new();
+
         for item in base_data {
-            let entry = gender_map.entry(item.delegate_gender.clone()).or_insert((0.0, 0.0, 0, 0));
+            let entry = gender_map
+                .entry(item.delegate_gender.clone())
+                .or_insert((0.0, 0.0, 0, 0));
             entry.0 += item.activity_score;
             entry.1 += item.raw_activity_score;
             entry.2 += item.total_proposals;
@@ -255,13 +273,17 @@ impl ActivityService {
 
         let mut results: Vec<ActivityByCategory> = gender_map
             .into_iter()
-            .map(|(gender, (total_norm_score, total_raw_score, total_proposals, delegate_count))| ActivityByCategory {
-                category: gender,
-                activity_score: total_norm_score / delegate_count as f64, // average normalized score
-                raw_activity_score: total_raw_score / delegate_count as f64, // average raw score
-                total_proposals,
-                delegate_count,
-            })
+            .map(
+                |(gender, (total_norm_score, total_raw_score, total_proposals, delegate_count))| {
+                    ActivityByCategory {
+                        category: gender,
+                        activity_score: total_norm_score / delegate_count as f64, // average normalized score
+                        raw_activity_score: total_raw_score / delegate_count as f64, // average raw score
+                        total_proposals,
+                        delegate_count,
+                    }
+                },
+            )
             .collect();
 
         // Sort based on filter parameters
@@ -292,9 +314,13 @@ impl ActivityService {
     ) -> Result<Vec<ActivityByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
         println!("base_data {:?}", base_data);
-        println!("✅ STATISTICS ENDPOINT: activity_per_legis - processing {} items", base_data.len());
-        let mut legis_map: std::collections::HashMap<String, (f64, f64, i64, i64)> = std::collections::HashMap::new();
-        
+        println!(
+            "✅ STATISTICS ENDPOINT: activity_per_legis - processing {} items",
+            base_data.len()
+        );
+        let mut legis_map: std::collections::HashMap<String, (f64, f64, i64, i64)> =
+            std::collections::HashMap::new();
+
         for item in base_data {
             if let Some(period) = item.legislative_period {
                 let entry = legis_map.entry(period).or_insert((0.0, 0.0, 0, 0));
@@ -307,13 +333,17 @@ impl ActivityService {
 
         let mut results: Vec<ActivityByCategory> = legis_map
             .into_iter()
-            .map(|(period, (total_norm_score, total_raw_score, total_proposals, delegate_count))| ActivityByCategory {
-                category: period,
-                activity_score: total_norm_score / delegate_count as f64, // average normalized score
-                raw_activity_score: total_raw_score / delegate_count as f64, // average raw score
-                total_proposals,
-                delegate_count,
-            })
+            .map(
+                |(period, (total_norm_score, total_raw_score, total_proposals, delegate_count))| {
+                    ActivityByCategory {
+                        category: period,
+                        activity_score: total_norm_score / delegate_count as f64, // average normalized score
+                        raw_activity_score: total_raw_score / delegate_count as f64, // average raw score
+                        total_proposals,
+                        delegate_count,
+                    }
+                },
+            )
             .collect();
 
         // Sort based on filter parameters
@@ -343,61 +373,34 @@ impl ActivityService {
         filter: &ActivityFilter,
     ) -> Result<Vec<ActivityByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        
-        // For age grouping, we'd need to calculate ages from birth dates
-        // This is a simplified version - you might need to adjust based on your actual age calculation logic
-        let mut results: Vec<ActivityByCategory> = vec![
-            ActivityByCategory {
-                category: "18-30".to_string(),
-                activity_score: 0.0,
-                raw_activity_score: 0.0,
-                total_proposals: 0,
-                delegate_count: 0,
-            },
-            ActivityByCategory {
-                category: "31-40".to_string(),
-                activity_score: 0.0,
-                raw_activity_score: 0.0,
-                total_proposals: 0,
-                delegate_count: 0,
-            },
-            ActivityByCategory {
-                category: "41-50".to_string(),
-                activity_score: 0.0,
-                raw_activity_score: 0.0,
-                total_proposals: 0,
-                delegate_count: 0,
-            },
-            ActivityByCategory {
-                category: "51-60".to_string(),
-                activity_score: 0.0,
-                raw_activity_score: 0.0,
-                total_proposals: 0,
-                delegate_count: 0,
-            },
-            ActivityByCategory {
-                category: "60+".to_string(),
-                activity_score: 0.0,
-                raw_activity_score: 0.0,
-                total_proposals: 0,
-                delegate_count: 0,
-            },
-        ];
+        let mut age_map: std::collections::HashMap<String, (f64, f64, i64, i64)> =
+            std::collections::HashMap::new();
 
-        // Note: You'll need to implement actual age calculation logic here
-        // This is a placeholder that aggregates all data into "Unknown" category
-        let total_norm_score: f64 = base_data.iter().map(|item| item.activity_score).sum();
-        let total_raw_score: f64 = base_data.iter().map(|item| item.raw_activity_score).sum();
-        let total_proposals: i64 = base_data.iter().map(|item| item.total_proposals).sum();
-        let delegate_count: i64 = base_data.len() as i64;
+        for item in base_data {
+            let entry = age_map
+                .entry(item.delegate_age_bucket)
+                .or_insert((0.0, 0.0, 0, 0));
+            entry.0 += item.activity_score;
+            entry.1 += item.raw_activity_score;
+            entry.2 += item.total_proposals;
+            entry.3 += 1;
+        }
 
-        results.push(ActivityByCategory {
-            category: "Unknown".to_string(),
-            activity_score: if delegate_count > 0 { total_norm_score / delegate_count as f64 } else { 0.0 },
-            raw_activity_score: if delegate_count > 0 { total_raw_score / delegate_count as f64 } else { 0.0 },
-            total_proposals,
-            delegate_count,
-        });
+        let mut results: Vec<ActivityByCategory> = age_map
+            .into_iter()
+            .map(
+                |(
+                    category,
+                    (total_norm_score, total_raw_score, total_proposals, delegate_count),
+                )| ActivityByCategory {
+                    category,
+                    activity_score: total_norm_score / delegate_count as f64,
+                    raw_activity_score: total_raw_score / delegate_count as f64,
+                    total_proposals,
+                    delegate_count,
+                },
+            )
+            .collect();
 
         // Sort based on filter parameters
         if filter.normalized {
@@ -505,7 +508,10 @@ pub async fn activity_per_legis(
 ) -> Result<Json<Vec<ActivityByCategory>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
     let results = ActivityService::per_legis(&pg, &filter).await?;
-    println!("✅ STATISTICS ENDPOINT: activity_per_legis returning {} results", results.len());
+    println!(
+        "✅ STATISTICS ENDPOINT: activity_per_legis returning {} results",
+        results.len()
+    );
     Ok(Json(results))
 }
 
