@@ -8,7 +8,7 @@
 	import type { GenericFilterGroup } from '$lib/components/Filtering/types';
 	import type { StatisticsData } from '$lib/types';
 	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
-	import { partyToColor } from '$lib/partyColor';
+	import { partyColors, partyToColor } from '$lib/partyColor';
 
 	type ChartMode = 'bar' | 'donut' | 'line';
 	type CategoryOption = {
@@ -270,11 +270,14 @@
 	let chartData = $derived(
 		shownData.map((item) => {
 			const party = item.type === 'delegate' ? (item.party?.trim() ?? 'Unbekannt') : item.label;
+			console.log(item);
+			const color =
+				item.type === 'delegate' ? colorForParty(item.party) : colorForCategory(item.label);
 			return {
 				category: item.label,
 				value: Number(item.value ?? 0),
 				party,
-				color: item.type === 'delegate' ? colorForParty(item.party) : colorForCategory(item.label),
+				color,
 				valueLabel: metricLabel,
 				metadata: item.metadata
 			};
@@ -314,7 +317,34 @@
 			}))
 	);
 
-	let cRange = $derived(chartData.map((item) => item.color));
+	const cDomain = $derived.by(() => {
+		const domain =
+			selectedCategory === 'delegate'
+				? partyColors
+						.keys()
+						.map((key) => key)
+						.toArray()
+				: undefined;
+
+		if (domain) {
+			domain.push('Unbekannt', 'Regierungsmitglied');
+		}
+
+		return domain;
+	});
+
+	const cRange = $derived.by(() => {
+		if (selectedCategory === 'delegate') {
+			const values = partyColors
+				.values()
+				.map((key) => key)
+				.toArray();
+			values.push('grey', 'grey');
+			return values;
+		}
+
+		return chartData.map((item) => item.color);
+	});
 	let donutTotal = $derived(donutData.reduce((sum, item) => sum + Math.max(item.value, 0), 0));
 	let donutGradient = $derived.by(() => {
 		if (donutTotal <= 0) return '#e5e7eb';
@@ -381,9 +411,7 @@
 		mounted = true;
 		const periods = await cachedAllLegisPeriods();
 		if (periods && periods.length > 0) {
-			const sortedPeriods = periods
-				.slice()
-				.sort((a, b) => periodRank(b.gp) - periodRank(a.gp));
+			const sortedPeriods = periods.slice().sort((a, b) => periodRank(b.gp) - periodRank(a.gp));
 			const latestPeriod = sortedPeriods.at(0)?.gp ?? 'XXVIII';
 			legisPeriodFilter.options = [
 				{ title: 'Alle', value: 'all' },
@@ -658,6 +686,7 @@
 						x="value"
 						y="category"
 						c="party"
+						{cDomain}
 						{cRange}
 						orientation="horizontal"
 						padding={{ left: chartPaddingLeft, right: 36, top: 24, bottom: 32 }}
