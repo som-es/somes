@@ -69,8 +69,8 @@ impl CallToOrdersService {
         WITH legislative_period_dates AS (
             SELECT 
                 legislative_period, 
-                MIN(created_at) AS start_date, 
-                MAX(created_at) AS end_date
+                MIN(raw_data_created_at) AS start_date, 
+                MAX(raw_data_created_at) AS end_date
             FROM 
                 plenar_infos
             GROUP BY 
@@ -121,8 +121,8 @@ impl CallToOrdersService {
             AND sc.delegate_id = d.id 
         WHERE 
             {filter_str}    
-            AND (m.start_date IS NULL OR m.start_date <= (SELECT MIN(created_at) FROM plenar_infos WHERE id = cto.plenar_id))
-            AND (m.end_date IS NULL OR m.end_date >= (SELECT MAX(created_at) FROM plenar_infos WHERE id = cto.plenar_id))
+            AND (m.start_date IS NULL OR m.start_date <= pf.raw_data_created_at::date)
+            AND (m.end_date IS NULL OR m.end_date >= pf.raw_data_created_at::date)
         GROUP BY 
             d.id, d.name, d.gender, d.birthdate, m.party, sc.total_sessions_attended, pf.legislative_period, lp.start_date
         ORDER BY 

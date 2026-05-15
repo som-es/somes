@@ -77,7 +77,7 @@ impl SpeechService {
         WITH legislative_period_dates AS (
             SELECT
                 legislative_period,
-                MIN(created_at) AS start_date
+                MIN(raw_data_created_at) AS start_date
             FROM plenar_infos
             GROUP BY legislative_period
         )
@@ -101,10 +101,12 @@ impl SpeechService {
             plenar_speeches ps
         JOIN 
             delegates d ON ps.delegate_id = d.id
-        LEFT JOIN mandates m ON m.delegate_id = d.id
         LEFT JOIN debates db ON ps.debate_id = db.id
         LEFT JOIN plenar_infos pf ON db.plenar_id = pf.id
         LEFT JOIN legislative_period_dates lp ON lp.legislative_period = pf.legislative_period
+        LEFT JOIN mandates m ON m.delegate_id = d.id
+            AND (m.start_date IS NULL OR m.start_date <= pf.raw_data_created_at::date)
+            AND (m.end_date IS NULL OR m.end_date >= pf.raw_data_created_at::date)
         WHERE 
             ps.duration_in_seconds IS NOT NULL
             AND {filter_str}

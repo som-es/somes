@@ -94,6 +94,8 @@ impl ComplexityService {
         JOIN 
             delegates d ON pd.delegate_id = d.id
         LEFT JOIN mandates m ON m.delegate_id = d.id
+            AND (m.start_date IS NULL OR m.start_date <= p.created_at::date)
+            AND (m.end_date IS NULL OR m.end_date >= p.created_at::date)
         WHERE 
             pd.is_receiver = false
             AND {filter_str}

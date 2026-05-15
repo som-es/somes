@@ -52,7 +52,7 @@ impl AgeService {
         pg: &sqlx::PgPool,
         filter: &AgeFilter,
     ) -> Result<Vec<AgeBase>, StatisticsResponse> {
-        let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
+        let filter_arg = filter.legis_period.with_sql_column("lp.legislative_period");
         let filter_arg1 = filter.party.with_sql_column("m.party");
         let filter_arg2 = filter.gender.with_sql_column("d.gender");
         let filter_arg3 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
@@ -65,8 +65,8 @@ impl AgeService {
         WITH legislative_period_dates AS (
             SELECT 
                 legislative_period, 
-                MIN(created_at) AS start_date, 
-                MAX(created_at) AS end_date
+                MIN(raw_data_created_at) AS start_date, 
+                MAX(raw_data_created_at) AS end_date
             FROM 
                 plenar_infos
             GROUP BY 
@@ -76,18 +76,28 @@ impl AgeService {
             d.name AS delegate_name,
             COALESCE(m.party, 'Regierungsmitglied') AS delegate_party,
             d.gender AS delegate_gender,
-            EXTRACT(YEAR FROM AGE(GREATEST(m.start_date, lp.start_date), d.birthdate))::INT AS age,
+            EXTRACT(YEAR FROM AGE(GREATEST(m.start_date, lp.start_date::date), d.birthdate))::INT AS age,
             d.birthdate,
             lp.legislative_period
         FROM 
             delegates d
-        LEFT JOIN mandates m ON m.delegate_id = d.id
         CROSS JOIN legislative_period_dates lp
+        JOIN LATERAL (
+            SELECT *
+            FROM mandates m
+            WHERE
+                m.delegate_id = d.id
+                AND (m.is_nr OR m.is_gov_official)
+                AND (m.start_date IS NULL OR m.start_date <= lp.end_date::date)
+                AND (m.end_date IS NULL OR m.end_date >= lp.start_date::date)
+            ORDER BY
+                COALESCE(m.end_date, lp.end_date::date) DESC,
+                m.start_date DESC
+            LIMIT 1
+        ) m ON true
         WHERE 
             d.birthdate IS NOT NULL
             AND {filter_str}
-            AND m.start_date <= lp.end_date
-            AND (m.end_date IS NULL OR m.end_date >= lp.start_date)
         ORDER BY 
             d.id, lp.legislative_period, m.party, age DESC;
         "

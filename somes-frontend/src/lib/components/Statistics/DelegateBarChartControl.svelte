@@ -187,6 +187,10 @@
 	}
 
 	function colorForCategory(label: string) {
+		if (selectedCategory === 'party') {
+			return partyToColor(label);
+		}
+
 		const categoryColors: Record<string, string> = {
 			m: '#4f46e5',
 			f: '#db2777',

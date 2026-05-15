@@ -58,7 +58,7 @@ impl AbsenceService {
     ) -> Result<Vec<AbsenceBase>, StatisticsResponse> {
         let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
         let filter_arg1 = filter.party.with_sql_column("m.party");
-        let filter_arg2 = filter.gender.with_sql_column("ds.gender");
+        let filter_arg2 = filter.gender.with_sql_column("d.gender");
         let filter_arg3 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
         let filters = [filter_arg, filter_arg1, filter_arg2, filter_arg3];
 
@@ -69,8 +69,8 @@ impl AbsenceService {
         WITH legislative_period_dates AS (
             SELECT 
                 legislative_period, 
-                MIN(created_at) AS start_date, 
-                MAX(created_at) AS end_date
+                MIN(raw_data_created_at) AS start_date, 
+                MAX(raw_data_created_at) AS end_date
             FROM 
                 plenar_infos
             GROUP BY 
@@ -117,8 +117,8 @@ impl AbsenceService {
             session_counts sc ON sc.legislative_period = lp.legislative_period 
         WHERE
             {filter_str}
-            AND m.start_date <= lp.end_date
-            AND (m.end_date IS NULL OR m.end_date >= lp.start_date)
+            AND (m.start_date IS NULL OR m.start_date <= pf.raw_data_created_at::date)
+            AND (m.end_date IS NULL OR m.end_date >= pf.raw_data_created_at::date)
         GROUP BY 
             d.id, d.name, d.gender, d.birthdate, m.party, sc.total_sessions, pf.legislative_period, lp.start_date
         ORDER BY 

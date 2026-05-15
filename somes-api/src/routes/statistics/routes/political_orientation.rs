@@ -54,7 +54,7 @@ impl PoliticalOrientationService {
     ) -> Result<Vec<PoliticalOrientationBase>, StatisticsResponse> {
         let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
         let filter_arg1 = filter.party.with_sql_column("m.party");
-        let filter_arg2 = filter.gender.with_sql_column("ds.gender");
+        let filter_arg2 = filter.gender.with_sql_column("d.gender");
         let filter_arg3 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
         let filters = [filter_arg, filter_arg1, filter_arg2, filter_arg3];
 
@@ -78,8 +78,10 @@ impl PoliticalOrientationService {
             delegate_votes dv
         JOIN 
             delegates d ON dv.delegate_id = d.id
-        LEFT JOIN mandates m ON m.delegate_id = d.id
         LEFT JOIN plenar_infos pf ON pf.id = dv.plenar_id
+        LEFT JOIN mandates m ON m.delegate_id = d.id
+            AND (m.start_date IS NULL OR m.start_date <= pf.raw_data_created_at::date)
+            AND (m.end_date IS NULL OR m.end_date >= pf.raw_data_created_at::date)
         WHERE 
             {} IS NOT NULL
             AND {filter_str}
@@ -233,7 +235,7 @@ impl PoliticalOrientationService {
         filter: &PoliticalOrientationFilter,
     ) -> Result<Vec<PoliticalOrientationByCategory>, StatisticsResponse> {
         let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
-        let filter_arg1 = filter.gender.with_sql_column("ds.gender");
+        let filter_arg1 = filter.gender.with_sql_column("d.gender");
         let filter_arg2 = filter.party.with_sql_column("m.party");
         let filter_arg3 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
         let filters = [filter_arg, filter_arg1, filter_arg2, filter_arg3];
@@ -257,8 +259,10 @@ impl PoliticalOrientationService {
             delegate_votes dv
         JOIN 
             delegates d ON dv.delegate_id = d.id
-        LEFT JOIN mandates m ON m.delegate_id = d.id
         JOIN plenar_infos pf ON pf.id = dv.plenar_id
+        LEFT JOIN mandates m ON m.delegate_id = d.id
+            AND (m.start_date IS NULL OR m.start_date <= pf.raw_data_created_at::date)
+            AND (m.end_date IS NULL OR m.end_date >= pf.raw_data_created_at::date)
         WHERE 
             {} IS NOT NULL
             AND {filter_str}

@@ -59,10 +59,11 @@ impl ActivityService {
         pg: &sqlx::PgPool,
         filter: &ActivityFilter,
     ) -> Result<Vec<ActivityBase>, StatisticsResponse> {
-        let filter_arg1 = filter.party.with_sql_column("d.party");
+        let filter_arg1 = filter.party.with_sql_column("m.party");
         let filter_arg2 = filter.gender.with_sql_column("d.gender");
         let filter_arg3 = filter.legis_period.with_sql_column("p.gp");
-        let filters = [filter_arg1, filter_arg2, filter_arg3];
+        let filter_arg4 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
+        let filters = [filter_arg1, filter_arg2, filter_arg3, filter_arg4];
 
         let filter_str = build_filter(&filters);
 
@@ -70,7 +71,7 @@ impl ActivityService {
             "
         SELECT DISTINCT ON (d.id)
             d.name AS delegate_name,
-            COALESCE(d.party, '') AS delegate_party,
+            COALESCE(m.party, 'Regierungsmitglied') AS delegate_party,
             COALESCE(d.gender, '') AS delegate_gender,
             (
                 SUM(
@@ -111,6 +112,9 @@ impl ActivityService {
             proposal_delegates pd ON p.id = pd.proposal_id
         JOIN 
             delegates d ON pd.delegate_id = d.id
+        LEFT JOIN mandates m ON m.delegate_id = d.id
+            AND (m.start_date IS NULL OR m.start_date <= p.created_at::date)
+            AND (m.end_date IS NULL OR m.end_date >= p.created_at::date)
         LEFT JOIN (
             SELECT 
                 p.id AS proposal_id,
@@ -142,7 +146,7 @@ impl ActivityService {
             pd.is_receiver = false
             AND {filter_str}
         GROUP BY 
-            d.id, d.name, d.birthdate, session_count.session_count, p.gp
+            d.id, d.name, d.birthdate, m.party, session_count.session_count, p.gp
         ORDER BY 
             d.id, activity_score DESC;
         "
