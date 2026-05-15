@@ -3,6 +3,7 @@
 	import DelegateBarChartControl from '$lib/components/Statistics/DelegateBarChartControl.svelte';
 	import type { StatisticsData } from '$lib/types';
 	import { mapAbsencesDelegate, mapAbsencesCategory } from '$lib/api/statistics-adapter';
+	import Container from '$lib/components/Layout/Container.svelte';
 
 	export let selectedCategory: string = 'delegate';
 
@@ -114,55 +115,43 @@
 	// Get the appropriate function based on selected category
 	$: currentFunction = (() => {
 		switch (selectedCategory) {
-			case 'delegate': return delegateSimpleAbsences;
-			case 'party': return partySimpleAbsences;
-			case 'gender': return genderSimpleAbsences;
-			case 'age': return ageSimpleAbsences;
-			case 'legis': return legisSimpleAbsences;
-			default: return delegateSimpleAbsences;
+			case 'delegate':
+				return delegateSimpleAbsences;
+			case 'party':
+				return partySimpleAbsences;
+			case 'gender':
+				return genderSimpleAbsences;
+			case 'age':
+				return ageSimpleAbsences;
+			case 'legis':
+				return legisSimpleAbsences;
+			default:
+				return delegateSimpleAbsences;
 		}
 	})();
-
-	// Static title
-	$: currentTitle = 'Abwesenheitsstatistiken';
 </script>
 
 <svelte:head>
-    <title>Abwesenheitsstatistiken</title>
-    <meta name="description" content="Abwesenheitsstatistiken über den Nationalrat und deren Abgeordnete" />
+	<title>Abwesenheitsstatistiken</title>
+	<meta
+		name="description"
+		content="Abwesenheitsstatistiken über den Nationalrat und deren Abgeordnete"
+	/>
 </svelte:head>
 
-<div class="text-base-font-color font-base dark:bg-surface-950 min-h-screen">
-	<!-- Header -->
-	<header class="sticky top-0 z-10 border-b border-surface-200 bg-surface-50/90 shadow-sm backdrop-blur-md dark:border-surface-700 dark:bg-surface-900/90">
-		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
-			<div class="flex items-center justify-between">
-				<div>
-					<h1 class="text-3xl font-bold text-surface-900 dark:text-surface-50">Abwesenheitsstatistiken</h1>
-					<p class="mt-2 text-lg text-surface-600 dark:text-surface-400">
-						Analyse der Abwesenheiten im Parlament
-					</p>
-				</div>
-				<div class="flex items-center gap-3">
-					<div class="w-12 h-12 bg-primary-500 rounded-xl flex items-center justify-center text-white text-xl shadow-lg">
-						📋
-					</div>
-				</div>
-			</div>
-		</div>
-	</header>
-
-	<!-- Main Content -->
-	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-		<!-- Chart -->
-		<div class="bg-white dark:bg-surface-800 rounded-xl p-6 shadow-sm border border-surface-200 dark:border-surface-700">
-			<DelegateBarChartControl
-				height={500}
-				delegateMakeRequest={currentFunction}
-				selectedCategory={selectedCategory}
-				valueLabel="Abwesenheiten"
-				normalizedValueLabel="Abwesenheitsquote (Anteil an Sitzungen)"
-			/>
-		</div>
+<Container class="pb-12">
+	<div class="mt-2 mb-6">
+		<h1 class="text-3xl font-bold sm:text-4xl">Abwesenheitsstatistiken</h1>
+		<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
+			Analyse der Abwesenheiten im Parlament.
+		</p>
 	</div>
-</div>
+
+	<DelegateBarChartControl
+		height={520}
+		delegateMakeRequest={currentFunction}
+		{selectedCategory}
+		valueLabel="Abwesenheiten"
+		normalizedValueLabel="Abwesenheitsquote (Anteil an Sitzungen)"
+	/>
+</Container>
