@@ -30,7 +30,7 @@
 		return new Date(date.date_and_time);
 	});
 
-	let developmentProgress = $state(64); // 64% Progress
+	let developmentProgress = $state(0);
 
 	const rawPlatformItems: PlatformItem[] = $derived(data.platformItems);
 
@@ -279,8 +279,7 @@
 					<!-- Development Progress -->
 					<div class="rounded-xl border border-surface-700 bg-surface-800 p-5 shadow-inner">
 						<div class="mb-2 flex items-end justify-between">
-							<span class="text-sm font-medium text-surface-300">Entwicklung v1.0 - 30.04.2026</span
-							>
+							<span class="text-sm font-medium text-surface-300">EU-Expansion - 12.2026</span>
 							<span class="text-2xl font-bold text-primary-300">{developmentProgress}%</span>
 						</div>
 						<div class="h-2.5 w-full overflow-hidden rounded-full bg-surface-700">

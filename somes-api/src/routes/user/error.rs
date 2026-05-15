@@ -10,11 +10,11 @@ use crate::{AuthError, ErrorInfo};
 
 #[derive(Debug, Error)]
 pub enum UserError {
-    #[error("Database failure: {0}")]
+    #[error("Database failure")]
     SqlFailure(#[from] sqlx::Error),
-    #[error("Redis failure: {0}")]
+    #[error("Redis failure")]
     RedisFailure(#[from] redis::RedisError),
-    #[error("Meilisearch failure: {0}")]
+    #[error("Meilisearch failure")]
     MeilisearchFailure(#[from] meilisearch_sdk::errors::Error),
     #[error("internal server error")]
     InternalServerError,
@@ -38,25 +38,65 @@ pub enum UserError {
     Custom(StatusCode, String),
     #[error("missing email from OAuth provider")]
     MissingEmail,
+
+    #[error("already anonymised")]
+    AlreadyAnonymised,
 }
 
 impl IntoResponse for UserError {
     fn into_response(self) -> axum::response::Response {
-        let (status_code, err_msg) = match &self {
-            UserError::SqlFailure(_e) => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
-            UserError::RedisFailure(_e) => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
-            UserError::MeilisearchFailure(_e) => {
-                (StatusCode::INTERNAL_SERVER_ERROR, self.to_string())
+        let (status_code, err_msg, field) = match &self {
+            UserError::SqlFailure(e) => {
+                log::error!("user db error occurred: {e:?}");
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Internal server error".to_string(),
+                    "SqlFailure",
+                )
             }
-            UserError::InternalServerError => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
-            UserError::InvalidUser => (StatusCode::BAD_REQUEST, self.to_string()),
-            UserError::InteractionFailed => (StatusCode::BAD_REQUEST, self.to_string()),
-            UserError::VerificationEmailSendingError => {
-                (StatusCode::INTERNAL_SERVER_ERROR, self.to_string())
+            UserError::RedisFailure(e) => {
+                log::error!("user redis error occurred: {e:?}");
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Internal server error".to_string(),
+                    "RedisFailure",
+                )
             }
-            UserError::UserCreationError => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
-            UserError::Hashing => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
-            UserError::WrongOtp => (StatusCode::BAD_REQUEST, self.to_string()),
+            UserError::MeilisearchFailure(e) => {
+                log::error!("user meilisearch error occurred: {e:?}");
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Internal server error".to_string(),
+                    "MeilisearchFailure",
+                )
+            }
+            UserError::InternalServerError => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                self.to_string(),
+                "InternalServerError",
+            ),
+            UserError::InvalidUser => (StatusCode::BAD_REQUEST, self.to_string(), "InvalidUser"),
+            UserError::InteractionFailed => (
+                StatusCode::BAD_REQUEST,
+                self.to_string(),
+                "InteractionFailed",
+            ),
+            UserError::VerificationEmailSendingError => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                self.to_string(),
+                "VerificationEmailSendingError",
+            ),
+            UserError::UserCreationError => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                self.to_string(),
+                "UserCreationError",
+            ),
+            UserError::Hashing => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                self.to_string(),
+                "Hashing",
+            ),
+            UserError::WrongOtp => (StatusCode::BAD_REQUEST, self.to_string(), "WrongOtp"),
             UserError::SignUpError(signup_error) => {
                 return (
                     StatusCode::BAD_REQUEST,
@@ -70,14 +110,19 @@ impl IntoResponse for UserError {
                     .into_response();
             }
             UserError::AuthError(ae) => return ae.into_response(),
-            UserError::Custom(code, msg) => (*code, msg.clone()),
-            UserError::MissingEmail => (StatusCode::BAD_REQUEST, self.to_string()),
+            UserError::Custom(code, msg) => (*code, msg.clone(), "Custom"),
+            UserError::MissingEmail => (StatusCode::BAD_REQUEST, self.to_string(), "MissingEmail"),
+            UserError::AlreadyAnonymised => (
+                StatusCode::BAD_REQUEST,
+                self.to_string(),
+                "AlreadyAnonymised",
+            ),
         };
 
         let body = Json(ErrorInfo {
             error: err_msg.to_string(),
             error_type: "UserError",
-            field: format!("{:?}", self),
+            field: field.to_string(),
             meta: None,
         });
 

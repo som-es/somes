@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { partyToColor } from '$lib/partyColor';
-	import type { Delegate, DelegateFavo, DelegateQA, Mandate } from '$lib/types';
-	import SButton from '../UI/SButton.svelte';
+	import type { Delegate, DelegateFavo, DelegateQA } from '$lib/types';
 	import { currentDelegateStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
 	import star from '$lib/assets/misc_icons/star.svg?raw';
@@ -10,19 +9,19 @@
 	import { onMount } from 'svelte';
 	import { cachedDelegateFavos } from '$lib/caching/favos';
 	import { addDelegateFavo, removeDelegateFavo } from '$lib/api/authed';
-	import { delegatesStore } from '$lib/caching/stores/stores.svelte';
-	import { address, url } from '$lib/api/api';
+	import { url } from '$lib/api/api';
 	import AIChatModal from './AIChat/AIChatModal.svelte';
 	import { Dialog } from 'bits-ui';
 	import DelegateQAModal from './QA/DelegateQAModal.svelte';
 	import { resolve } from '$app/paths';
-	import type { SvelteMap, SvelteSet } from 'svelte/reactivity';
+	import type { SvelteMap } from 'svelte/reactivity';
 
 	interface Props {
 		delegate: Delegate;
 		onlyTop?: boolean;
 		showQA?: boolean;
 		showAI?: boolean;
+		showMandates?: boolean;
 		questions?: DelegateQA[];
 		showMoreDetailsBtn?: boolean;
 		showImg?: boolean;
@@ -43,6 +42,7 @@
 		showMoreDetailsBtn = false,
 		showImg = true,
 		showAge = true,
+		showMandates = true,
 		title = null,
 		date,
 		top,
@@ -71,7 +71,7 @@
 	}
 	let personUrl = $derived(`https://parlament.gv.at/person/${delegate.id}?utm_source=somes.at`);
 
-	const showMandates = $derived.by(() => {
+	const mandatesToDisplay = $derived.by(() => {
 		if (date) {
 			const cmpDate = new Date(date);
 			return delegate.mandates?.filter((mandate) => {
@@ -151,7 +151,7 @@
 	<!-- Delegate name and party-->
 	<div>
 		<!-- Name and Age -->
-		<h4 class="font-bold text-xl">
+		<h4 class="text-xl font-bold">
 			{delegate.name}
 			{#if delegate.is_active && showAge}
 				- {Math.floor(dateDiffInDays(new Date(delegate.birthdate), new Date()) / 365)}
@@ -179,16 +179,18 @@
 		</div>
 	</div>
 
-	<!-- Mandate if so -->
-	<div class="mt-4">
-		{#each showMandates ?? [] as mandate}
-			<div class="mt-1 flex w-full items-center">
-				<h6 class="text-wrap text-base xl:leading-tight">
-					{mandate.name}
-				</h6>
-			</div>
-		{/each}
-	</div>
+	{#if showMandates}
+		<!-- Mandate if so -->
+		<div class="mt-4">
+			{#each mandatesToDisplay ?? [] as mandate}
+				<div class="mt-1 flex w-full items-center">
+					<h6 class="text-base text-wrap xl:leading-tight">
+						{mandate.name}
+					</h6>
+				</div>
+			{/each}
+		</div>
+	{/if}
 
 	{@render top?.()}
 	{@render info?.()}
@@ -226,9 +228,9 @@
 			{#if showAI}
 				<Dialog.Root>
 					<Dialog.Trigger>
-						<button class="rounded-xl bg-primary-600 p-2 px-3 text-white">
+						<div class="rounded-xl bg-primary-600 p-2 px-3 text-white">
 							<h4>AI Chat</h4>
-						</button>
+						</div>
 					</Dialog.Trigger>
 					<Dialog.Portal>
 						<Dialog.Overlay
@@ -248,9 +250,9 @@
 			{#if showQA && questions.length > 0}
 				<Dialog.Root>
 					<Dialog.Trigger>
-						<button class="rounded-xl bg-primary-600 p-2 px-3 text-white">
+						<div class="rounded-xl bg-primary-600 p-2 px-3 text-white">
 							<h4>Vorstellung</h4>
-						</button>
+						</div>
 					</Dialog.Trigger>
 					<Dialog.Portal>
 						<Dialog.Overlay

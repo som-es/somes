@@ -18,7 +18,7 @@ pub fn hash_password(password: &str, use_salt: bool) -> Result<String> {
     let salt = if use_salt {
         SaltString::generate(&mut OsRng)
     } else {
-        SaltString::encode_b64(&[0; 4]).unwrap()
+        SaltString::encode_b64(&[0; 8]).unwrap()
     };
 
     let argon2 = Argon2::default();

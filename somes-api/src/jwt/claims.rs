@@ -14,17 +14,19 @@ pub type Claims = ClaimsGen<i32>;
 pub struct ClaimsGen<T: ToSchema> {
     pub id: T,
     pub sub: String,
+    pub is_anonymised: bool,
     pub company: String,
     pub exp: usize,
     pub is_admin: bool,
 }
 
 impl<T: ToSchema> ClaimsGen<T> {
-    pub fn new(id: T, sub: String, is_admin: bool) -> Self {
+    pub fn new(id: T, sub: String, is_admin: bool, is_anonymised: bool) -> Self {
         Self {
             id,
             sub,
             company: "".to_string(),
+            is_anonymised,
             // Mandatory expiry time as UNIX timestamp
             exp: (timestamp_secs() + 60 * 60 * 24 * 3) as usize,
             is_admin,

@@ -7,28 +7,27 @@ use axum::Router;
 use axum::{extract::Query, Json};
 use dataservice::combx::{Delegate, FullMandate};
 use somes_common_lib::{
-    DelegateById, InterestShare, ALL_ACTIVE, ALL_AT_DATE, ALL_AT_DATE_WITH_SEAT_INFO, DELEGATE_QA,
-    EXTEND, ID, SEARCH, SPEECHES_PER_PAGE_ROUTE,
+    DelegateById, InterestShare, ALL_ACTIVE, ALL_AT_DATE, ALL_AT_DATE_WITH_SEAT_INFO, EXTEND, ID,
+    INTERJECTIONS_ROUTE, SEARCH, SPEECHES_PER_PAGE_ROUTE,
 };
 
 pub use error::*;
 mod absences;
 mod ai_chat;
-mod call_to_orders;
 mod delegate_political_position;
 mod error;
 mod interests;
+mod interjections;
 mod issued_proposals;
 mod left_right_topic_score;
-mod named_votes;
 mod routes;
 mod speeches;
 mod stance_topic_score;
 pub use absences::*;
 pub use ai_chat::*;
-pub use call_to_orders::*;
 pub use delegate_political_position::*;
 pub use interests::*;
+pub use interjections::*;
 pub use issued_proposals::*;
 pub use routes::*;
 pub use speeches::*;
@@ -50,6 +49,7 @@ pub fn create_delegates_router() -> Router<AppState> {
             get(delegates_with_seats_near_date_route),
         )
         .route(EXTEND, get(extended_delegate_info_route))
+        .nest(INTERJECTIONS_ROUTE, create_delegate_interjections_router())
         .nest("/gov_officials", create_gov_officials_router())
 }
 

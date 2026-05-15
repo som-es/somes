@@ -7,7 +7,8 @@
 		GeneralGovOfficialInfo,
 		LegisPeriod,
 		SpeechesWithMaxPage,
-		Party
+		Party,
+		InterjectionsWithMaxPage
 	} from '$lib/types';
 	import { onMount, untrack } from 'svelte';
 	import {
@@ -18,7 +19,9 @@
 		speeches_by_delegate_per_page,
 		toActualDateString,
 		delegates_search_persons,
-		isHasError
+		isHasError,
+		interjections_made_by_delegate_per_page,
+		interjections_received_by_delegate_per_page
 	} from '$lib/api/api';
 	import {
 		aiViewEnabledStore,
@@ -60,6 +63,7 @@
 	import { type GenericFilterGroup } from '$lib/components/Filtering/types';
 	import DelegateListItem from '$lib/components/Delegates/DelegateListItem.svelte';
 	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
+	import InterjectionsPreview from '$lib/components/Delegates/Interjections/InterjectionsPreview.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -190,7 +194,7 @@
 		return tempDelegate;
 	}
 
-	let syncDelegates: Delegate[] = $state([]);
+	let syncDelegates: Delegate[] = $state(delegates);
 
 	let delegate: Delegate | null = $derived.by(() => {
 		if (syncDelegates.length == 0) {
@@ -213,6 +217,8 @@
 	let periods: LegisPeriod[] = $derived(data.cachedPeriods ?? []);
 
 	let speechesPage0: SpeechesWithMaxPage | null = $state(null);
+	let interjectionsMadePage0: InterjectionsWithMaxPage | null = $state(null);
+	let interjectionsReceivedPage0: InterjectionsWithMaxPage | null = $state(null);
 	let generalDelegateInfo: GeneralDelegateInfo | null = $state(null);
 	let generalGovOfficialInfo: GeneralGovOfficialInfo | null = $state(null);
 	let maxDayOffset = $state(365 * 5);
@@ -224,6 +230,23 @@
 	let supplyDate: Date | null = $derived(new Date(data.date ?? new Date()));
 
 	let prevSelectedDelegateId = $state(0);
+
+	let activeTab = $state<'analysis' | 'activities' | 'gov'>('analysis');
+
+	// Watcher to reset tab if the delegate doesn't have gov info but tab is gov
+	$effect(() => {
+		if (delegate && activeTab === 'gov') {
+			if (
+				delegate.council !== 'gov' &&
+				!(
+					generalGovOfficialInfo?.gov_proposals && generalGovOfficialInfo.gov_proposals.length > 0
+				) &&
+				!(generalGovOfficialInfo?.decrees && generalGovOfficialInfo.decrees.length > 0)
+			) {
+				activeTab = 'analysis';
+			}
+		}
+	});
 
 	let maybeCurrentDelegateFilter = $derived(
 		currentDelegateFilterStore.value ?? {
@@ -417,6 +440,14 @@
 				speeches_by_delegate_per_page(delegate.id, 0).then((res) => {
 					speechesPage0 = errorToNull(res);
 				});
+				interjectionsMadePage0 = null;
+				interjections_made_by_delegate_per_page(delegate.id, 0).then((res) => {
+					interjectionsMadePage0 = errorToNull(res);
+				});
+				interjectionsReceivedPage0 = null;
+				interjections_received_by_delegate_per_page(delegate.id, 0).then((res) => {
+					interjectionsReceivedPage0 = errorToNull(res);
+				});
 
 				prevSelectedDelegateId = delegate.id;
 			}
@@ -440,215 +471,215 @@
 	<!------------------>
 	<div>
 		{#snippet searchContent()}
-		<div>
-			<!-- Filters -->
 			<div>
-				<span class="text-base font-semibold text-gray-800 dark:text-gray-200">Filter</span>
-				<div class="mt-2 flex h-10 w-full gap-2 md:mt-1 md:w-auto">
-					<!-- Period Filter -->
-					<div
-						class="flex h-full grow touch-manipulation items-center justify-center gap-1 md:grow-0"
-					>
-						<Select.Root
-							type="multiple"
-							bind:value={selectedSearchPeriod}
-							items={periods.map((p) => ({ value: p.gp, label: p.gp })).reverse()}
-							allowDeselect={true}
+				<!-- Filters -->
+				<div>
+					<span class="text-base font-semibold text-gray-800 dark:text-gray-200">Filter</span>
+					<div class="mt-2 flex h-10 w-full gap-2 md:mt-1 md:w-auto">
+						<!-- Period Filter -->
+						<div
+							class="flex h-full grow touch-manipulation items-center justify-center gap-1 md:grow-0"
 						>
-							<Select.Trigger
-								class="flex h-full grow touch-manipulation items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none md:grow-0"
+							<Select.Root
+								type="multiple"
+								bind:value={selectedSearchPeriod}
+								items={periods.map((p) => ({ value: p.gp, label: p.gp })).reverse()}
+								allowDeselect={true}
 							>
-								<div class="flex items-center gap-2">
-									{#each selectedSearchPeriod.slice(0, 1) as period}
-										<span class="truncate">{period}</span>
-									{/each}
-									{#if selectedSearchPeriod.length > 1}
-										<span class="truncate">+{selectedSearchPeriod.length - 1} weitere</span>
-									{/if}
-									{#if selectedSearchPeriod.length === 0}
-										<span class="truncate">Alle Perioden</span>
-									{/if}
-								</div>
-								{@html upDownArrowIcon}
-							</Select.Trigger>
-							<Select.Portal>
-								<Select.Content
-									class="z-500 max-h-60 w-[200px] min-w-[var(--bits-select-anchor-width)] overflow-hidden rounded-xl border border-gray-200 bg-surface-100 shadow-lg dark:bg-surface-500"
-									sideOffset={8}
+								<Select.Trigger
+									class="flex h-full grow touch-manipulation items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none md:grow-0"
 								>
-									<Select.Viewport class="p-1">
-										{#each [...periods].reverse() as period}
-											<Select.Item
-												class="flex h-10 w-full cursor-pointer items-center rounded-lg py-3 pr-1.5 pl-3 text-sm capitalize transition-all duration-75 outline-none select-none data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-400"
-												value={period.gp}
-												label={period.gp}
-											>
-												{#snippet children({ selected })}
-													<div class="flex items-center gap-2">
-														{period.gp}
-													</div>
-													{#if selected}
-														<div class="ml-auto h-4 stroke-black dark:stroke-white">
-															{@html checkmark_small}
-														</div>
-													{/if}
-												{/snippet}
-											</Select.Item>
+									<div class="flex items-center gap-2">
+										{#each selectedSearchPeriod.slice(0, 1) as period}
+											<span class="truncate">{period}</span>
 										{/each}
-									</Select.Viewport>
-								</Select.Content>
-							</Select.Portal>
-						</Select.Root>
-					</div>
-					<!-- Parteien Filter -->
-					<div
-						class="flex h-full grow touch-manipulation items-center justify-center gap-1 md:grow-0"
-					>
-						<Select.Root
-							type="multiple"
-							bind:value={selectedPartiesNames}
-							onValueChange={(v) => {
-								selectedParties = uniqueParties.filter((party) => v.includes(party.name));
-							}}
-							items={uniqueParties.map((p) => ({ value: p.name, label: p.name }))}
-						>
-							<Select.Trigger
-								class="flex h-full grow touch-manipulation items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none md:grow-0"
-							>
-								<div class="flex items-center gap-2">
-									{#each selectedParties.slice(0, 1) as party}
-										<div
-											class="h-3 w-3 rounded-full"
-											style="background-color: {party.color};"
-										></div>
-										<span class="truncate">{party.name}</span>
-									{/each}
-									{#if selectedParties.length > 1}
-										<span class="truncate">+{selectedParties.length - 1} weitere</span>
-									{/if}
-									{#if selectedParties.length === 0}
-										<span class="truncate">Alle Parteien</span>
-									{/if}
-								</div>
-								{@html upDownArrowIcon}
-							</Select.Trigger>
-							<Select.Portal>
-								<Select.Content
-									class="z-500 max-h-60 w-[200px] min-w-[var(--bits-select-anchor-width)] overflow-hidden rounded-xl border border-gray-200 bg-surface-100 shadow-lg dark:bg-surface-500"
-									sideOffset={8}
-								>
-									<Select.Viewport class="p-1">
-										{#each uniqueParties as party}
-											<Select.Item
-												class="flex h-10 w-full cursor-pointer justify-between rounded-lg py-3 pr-1.5 pl-3 text-sm capitalize transition-all duration-75 outline-none select-none data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-400"
-												value={party.name}
-												label={party.name}
-											>
-												{#snippet children({ selected })}
-													<div class="flex items-center gap-2">
-														<div
-															class="h-3 w-3 rounded-full"
-															style="background-color: {party.color};"
-														></div>
-														{party.name}
-													</div>
-													{#if selected}
-														<div class="ml-auto h-4 stroke-black dark:stroke-white">
-															{@html checkmark_small}
+										{#if selectedSearchPeriod.length > 1}
+											<span class="truncate">+{selectedSearchPeriod.length - 1} weitere</span>
+										{/if}
+										{#if selectedSearchPeriod.length === 0}
+											<span class="truncate">Alle Perioden</span>
+										{/if}
+									</div>
+									{@html upDownArrowIcon}
+								</Select.Trigger>
+								<Select.Portal>
+									<Select.Content
+										class="z-500 max-h-60 w-[200px] min-w-[var(--bits-select-anchor-width)] overflow-hidden rounded-xl border border-gray-200 bg-surface-100 shadow-lg dark:bg-surface-500"
+										sideOffset={8}
+									>
+										<Select.Viewport class="p-1">
+											{#each [...periods].reverse() as period}
+												<Select.Item
+													class="flex h-10 w-full cursor-pointer items-center rounded-lg py-3 pr-1.5 pl-3 text-sm capitalize transition-all duration-75 outline-none select-none data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-400"
+													value={period.gp}
+													label={period.gp}
+												>
+													{#snippet children({ selected })}
+														<div class="flex items-center gap-2">
+															{period.gp}
 														</div>
-													{/if}
-												{/snippet}
-											</Select.Item>
-										{/each}
-									</Select.Viewport>
-								</Select.Content>
-							</Select.Portal>
-						</Select.Root>
-					</div>
-					<div
-						class="flex h-full grow touch-manipulation items-center justify-center gap-1 md:grow-0"
-					>
-						<GenericFilters bind:genericFilters />
-					</div>
-				</div>
-			</div>
-
-			<!-- Search Results -->
-			<div class="mt-3">
-				<span class="text-base font-semibold text-gray-800 dark:text-gray-200"
-					>Suchergebnisse</span
-				>
-				<div class="mt-1 max-h-96 overflow-y-auto">
-					{#if isLoadingSearch}
-						<div class="flex justify-center p-4">
-							<span class="text-gray-500">Loading...</span>
+														{#if selected}
+															<div class="ml-auto h-4 stroke-black dark:stroke-white">
+																{@html checkmark_small}
+															</div>
+														{/if}
+													{/snippet}
+												</Select.Item>
+											{/each}
+										</Select.Viewport>
+									</Select.Content>
+								</Select.Portal>
+							</Select.Root>
 						</div>
-					{:else}
-						{#each searchResults as d}
-							{@const nrMandates = getMandatePeriods(d, periods, false)}
-							{@const govMandates = getMandatePeriods(d, periods, true)}
-
-							<DelegateListItem
-								delegate={d}
-								size="md"
-								class="mb-3 w-full bg-primary-300"
-								onclick={() => {
-									const { date, gp } = getMandateLatestPeriod(d, periods);
-
-									const period = periods.find((p) => p.gp === gp);
-									let newDayOffset = 0;
-									if (period) {
-										const startDate = new Date(period.start_date);
-										const diffTime = Math.abs(date.getTime() - startDate.getTime());
-										newDayOffset = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-									}
-
-									dayOffset = newDayOffset;
-									prevSelectedPeriod = gp;
-
-									const url = new URL(window.location.href);
-									url.searchParams.set('delegate', d.id.toString());
-									url.searchParams.set('gp', gp);
-									url.searchParams.set('date', toActualDateString(date));
-
-									currentDelegateStore.value = d;
-
-									const newFilter = { ...maybeCurrentDelegateFilter };
-									newFilter.search_value = d.name;
-									newFilter.legis_period = gp;
-									newFilter.day_offset = newDayOffset;
-									currentDelegateFilterStore.value = newFilter;
-
-									goto(url.toString(), { noScroll: true });
-									isSearchPopupOpen = false;
+						<!-- Parteien Filter -->
+						<div
+							class="flex h-full grow touch-manipulation items-center justify-center gap-1 md:grow-0"
+						>
+							<Select.Root
+								type="multiple"
+								bind:value={selectedPartiesNames}
+								onValueChange={(v) => {
+									selectedParties = uniqueParties.filter((party) => v.includes(party.name));
 								}}
+								items={uniqueParties.map((p) => ({ value: p.name, label: p.name }))}
 							>
-							<!-- disable mandate infor on mobile -->
-								<div class="hidden sm:flex flex-col flex-wrap items-end gap-1">
-									{#if govMandates !== '' && govMandates !== 'unbekannt'}
-										<div class="text-sm font-medium text-gray-800 dark:text-gray-200">
-											{govMandates}
-											<span class="font-light text-gray-700 dark:text-gray-300">
-												(Regierung)
-											</span>
-										</div>
-									{/if}
+								<Select.Trigger
+									class="flex h-full grow touch-manipulation items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none md:grow-0"
+								>
+									<div class="flex items-center gap-2">
+										{#each selectedParties.slice(0, 1) as party}
+											<div
+												class="h-3 w-3 rounded-full"
+												style="background-color: {party.color};"
+											></div>
+											<span class="truncate">{party.name}</span>
+										{/each}
+										{#if selectedParties.length > 1}
+											<span class="truncate">+{selectedParties.length - 1} weitere</span>
+										{/if}
+										{#if selectedParties.length === 0}
+											<span class="truncate">Alle Parteien</span>
+										{/if}
+									</div>
+									{@html upDownArrowIcon}
+								</Select.Trigger>
+								<Select.Portal>
+									<Select.Content
+										class="z-500 max-h-60 w-[200px] min-w-[var(--bits-select-anchor-width)] overflow-hidden rounded-xl border border-gray-200 bg-surface-100 shadow-lg dark:bg-surface-500"
+										sideOffset={8}
+									>
+										<Select.Viewport class="p-1">
+											{#each uniqueParties as party}
+												<Select.Item
+													class="flex h-10 w-full cursor-pointer justify-between rounded-lg py-3 pr-1.5 pl-3 text-sm capitalize transition-all duration-75 outline-none select-none data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-400"
+													value={party.name}
+													label={party.name}
+												>
+													{#snippet children({ selected })}
+														<div class="flex items-center gap-2">
+															<div
+																class="h-3 w-3 rounded-full"
+																style="background-color: {party.color};"
+															></div>
+															{party.name}
+														</div>
+														{#if selected}
+															<div class="ml-auto h-4 stroke-black dark:stroke-white">
+																{@html checkmark_small}
+															</div>
+														{/if}
+													{/snippet}
+												</Select.Item>
+											{/each}
+										</Select.Viewport>
+									</Select.Content>
+								</Select.Portal>
+							</Select.Root>
+						</div>
+						<div
+							class="flex h-full grow touch-manipulation items-center justify-center gap-1 md:grow-0"
+						>
+							<GenericFilters bind:genericFilters />
+						</div>
+					</div>
+				</div>
 
-									{#if nrMandates !== '' && nrMandates !== 'unbekannt'}
-										<div class="text-sm font-medium text-gray-800 dark:text-gray-200">
-											{nrMandates}
-											<span class="font-light text-gray-700 dark:text-gray-300">
-												(Nationalrat)
-											</span>
-										</div>
-									{/if}
-								</div>
-							</DelegateListItem>
-						{/each}
-					{/if}
+				<!-- Search Results -->
+				<div class="mt-3">
+					<span class="text-base font-semibold text-gray-800 dark:text-gray-200"
+						>Suchergebnisse</span
+					>
+					<div class="mt-1 max-h-96 overflow-y-auto">
+						{#if isLoadingSearch}
+							<div class="flex justify-center p-4">
+								<span class="text-gray-500">Loading...</span>
+							</div>
+						{:else}
+							{#each searchResults as d}
+								{@const nrMandates = getMandatePeriods(d, periods, false)}
+								{@const govMandates = getMandatePeriods(d, periods, true)}
+
+								<DelegateListItem
+									delegate={d}
+									size="md"
+									class="mb-3 w-full bg-primary-300"
+									onclick={() => {
+										const { date, gp } = getMandateLatestPeriod(d, periods);
+
+										const period = periods.find((p) => p.gp === gp);
+										let newDayOffset = 0;
+										if (period) {
+											const startDate = new Date(period.start_date);
+											const diffTime = Math.abs(date.getTime() - startDate.getTime());
+											newDayOffset = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+										}
+
+										dayOffset = newDayOffset;
+										prevSelectedPeriod = gp;
+
+										const url = new URL(window.location.href);
+										url.searchParams.set('delegate', d.id.toString());
+										url.searchParams.set('gp', gp);
+										url.searchParams.set('date', toActualDateString(date));
+
+										currentDelegateStore.value = d;
+
+										const newFilter = { ...maybeCurrentDelegateFilter };
+										newFilter.search_value = d.name;
+										newFilter.legis_period = gp;
+										newFilter.day_offset = newDayOffset;
+										currentDelegateFilterStore.value = newFilter;
+
+										goto(url.toString(), { noScroll: true });
+										isSearchPopupOpen = false;
+									}}
+								>
+									<!-- disable mandate infor on mobile -->
+									<div class="hidden flex-col flex-wrap items-end gap-1 sm:flex">
+										{#if govMandates !== '' && govMandates !== 'unbekannt'}
+											<div class="text-sm font-medium text-gray-800 dark:text-gray-200">
+												{govMandates}
+												<span class="font-light text-gray-700 dark:text-gray-300">
+													(Regierung)
+												</span>
+											</div>
+										{/if}
+
+										{#if nrMandates !== '' && nrMandates !== 'unbekannt'}
+											<div class="text-sm font-medium text-gray-800 dark:text-gray-200">
+												{nrMandates}
+												<span class="font-light text-gray-700 dark:text-gray-300">
+													(Nationalrat)
+												</span>
+											</div>
+										{/if}
+									</div>
+								</DelegateListItem>
+							{/each}
+						{/if}
+					</div>
 				</div>
 			</div>
-		</div>
 		{/snippet}
 
 		<div class="relative mt-7" bind:this={searchWrapper} onfocusout={handleFocusOut}>
@@ -667,10 +698,12 @@
 
 			<!-- Dummy search Input (mobile) -->
 			<button
-				class="flex lg:hidden h-10 w-full touch-manipulation items-center rounded-xl border-[2px] border-gray-400 text-left"
+				class="flex h-10 w-full touch-manipulation items-center rounded-xl border-[2px] border-gray-400 text-left lg:hidden"
 				onclick={() => (isSearchPopupOpen = true)}
 			>
-				<div class="flex h-9 w-10 shrink-0 items-center justify-center text-gray-600 dark:text-gray-300">
+				<div
+					class="flex h-9 w-10 shrink-0 items-center justify-center text-gray-600 dark:text-gray-300"
+				>
 					{@html searchIcon}
 				</div>
 				<span class="truncate">
@@ -681,7 +714,7 @@
 			<!-- PopUp -->
 			{#if isSearchPopupOpen}
 				<div
-					class="hidden lg:block absolute top-full right-0 left-0 z-100 mt-2 w-[98%] rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg max-md:mx-auto md:w-140 md:px-6 dark:bg-surface-600"
+					class="absolute top-full right-0 left-0 z-100 mt-2 hidden w-[98%] rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg max-md:mx-auto md:w-140 md:px-6 lg:block dark:bg-surface-600"
 					data-popup="popupSearch"
 					role="button"
 					tabindex="0"
@@ -695,24 +728,22 @@
 					class="fixed top-0 left-0 z-50 flex h-[100dvh] w-full items-start justify-center bg-black/50 p-2 backdrop-blur-sm lg:hidden"
 					onfocusout={(e) => e.stopPropagation()}
 				>
-					<div
-						class="w-full max-w-md rounded-2xl bg-primary-100 p-4 shadow-xl dark:bg-primary-600"
-					>
-						<div class="flex mb-1 items-center justify-between">
+					<div class="w-full max-w-md rounded-2xl bg-primary-100 p-4 shadow-xl dark:bg-primary-600">
+						<div class="mb-1 flex items-center justify-between">
 							<h3 class="text-lg font-semibold">Suche</h3>
 							<ModalCloseButton class="p-1" onclick={() => (isSearchPopupOpen = false)} />
 						</div>
 						<div class="mb-2">
-						<SearchBar
-							oninput={(e) => {
-								maybeCurrentDelegateFilter.search_value = e.currentTarget.value;
-								searchInput = e.currentTarget.value;
-								currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
-							}}
-							bind:searchValue={inputValue}
-							placeholder="Suche nach Abgeordneten..."
-							autofocus={true}
-						/>
+							<SearchBar
+								oninput={(e) => {
+									maybeCurrentDelegateFilter.search_value = e.currentTarget.value;
+									searchInput = e.currentTarget.value;
+									currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
+								}}
+								bind:searchValue={inputValue}
+								placeholder="Suche nach Abgeordneten..."
+								autofocus={true}
+							/>
 						</div>
 
 						{@render searchContent()}
@@ -728,7 +759,7 @@
 			<LegisButtons bind:periods bind:selectedPeriod showAllButton={false}></LegisButtons>
 		</div> -->
 
-		<div class="hidden lg:flex w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
+		<div class="hidden w-full rounded-xl bg-primary-300 p-3 lg:flex dark:bg-primary-500">
 			<!-- LegisPeriod Filter -->
 			<div class="mx-3 flex items-center">
 				<Popover.Root bind:open={isLegisPeriodFilterOpen}>
@@ -822,13 +853,12 @@
 			</div>
 		</div>
 
-
 		<!-------------------------------------------->
 		<!-- Parliament and Delegat  (only Desktop) -->
 		<!-------------------------------------------->
 		{#if delegates && delegates.length > 0 && supplyDate}
 			<div
-				class="relative hidden min-w-full flex-wrap justify-between rounded-xl bg-primary-300 py-5 px-3 lg:flex lg:flex-nowrap dark:bg-primary-200"
+				class="relative hidden min-w-full flex-wrap justify-between rounded-xl bg-primary-300 px-3 py-5 lg:flex lg:flex-nowrap dark:bg-primary-200"
 			>
 				<div class="mb-4 hidden w-full pl-4 max-lg:block">
 					<div class="grid items-center">
@@ -882,7 +912,7 @@
 					</div>
 				</div>
 
-				<div class="w-100 min-h-130">
+				<div class="min-h-130 w-100">
 					{#if delegate}
 						<DelegateCard {delegate} questions={generalDelegateInfo?.delegate_qa ?? []} showQA />
 					{/if}
@@ -892,7 +922,7 @@
 		<!----------------------------------------->
 		<!-- Delegat Card  (only Mobile / Table) -->
 		<!----------------------------------------->
-		<div class="flex lg:hidden w-full justify-center rounded-xl bg-primary-300 p-3">
+		<div class="flex w-full justify-center rounded-xl bg-primary-300 p-3 lg:hidden">
 			<div class="w-full sm:w-100">
 				{#if delegate}
 					<DelegateCard {delegate} questions={generalDelegateInfo?.delegate_qa ?? []} showQA />
@@ -900,129 +930,212 @@
 			</div>
 		</div>
 
-		{#if generalGovOfficialInfo?.gov_proposals && generalGovOfficialInfo.gov_proposals.length > 0 && delegate}
-			<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
-				<GovProposalPreview govProposals={generalGovOfficialInfo.gov_proposals} {delegate} />
-			</div>
-		{:else if generalGovOfficialInfo?.gov_proposals == null && delegate && delegate.council == 'gov'}
-			<ExpandablePlaceholder />
-			<ExpandablePlaceholder />
-		{/if}
-
-		{#if generalGovOfficialInfo?.decrees && generalGovOfficialInfo.decrees.length > 0 && delegate}
-			<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
-				<DecreePreview decrees={generalGovOfficialInfo.decrees} {delegate} />
-			</div>
-		{:else if (generalGovOfficialInfo?.decrees == null && delegate && delegate.council == 'gov') || !delegate}
-			<ExpandablePlaceholder />
-			<ExpandablePlaceholder />
-		{/if}
-
-		{#if delegate && generalDelegateInfo?.political_position && aiViewEnabledStore.value}
-			<div class="title-item rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
-				<PoliticalStanceTitleBar
-					stanceTopicInfluences={generalDelegateInfo.stance_topic_influences}
-				/>
-			</div>
-		{/if}
-		<div class="flex w-full flex-col gap-2 lg:flex-row">
-			{#if delegate && generalDelegateInfo?.political_position && aiViewEnabledStore.value}
-				<SquarePoliticalSpectrum
-					{delegate}
-					politicalPosition={generalDelegateInfo.political_position}
-				/>
-			{:else if !generalDelegateInfo}
-				<ExpandablePlaceholder class={'my-3'} />
-			{/if}
-
-			{#if delegate && generalDelegateInfo?.left_right_stances.length && generalDelegateInfo.left_right_stances.length > 0 && aiViewEnabledStore.value}
-				<div class="lg:flex-1">
-					<LeftRightChart stances={generalDelegateInfo.left_right_stances} interests={generalDelegateInfo.interests}/>
-				</div>
-			{:else if !generalDelegateInfo}
-				<ExpandablePlaceholder class={'my-3'} />
+		<!-- Navigation Tabs -->
+		<div class="mt-6 mb-2 flex w-full gap-1 rounded-xl bg-primary-300 p-1 dark:bg-surface-600">
+			<button
+				class="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium {activeTab === 'analysis'
+					? 'bg-primary-600 text-white'
+					: 'text-gray-700 hover:bg-primary-400 dark:text-gray-300 dark:hover:bg-primary-500'}"
+				onclick={() => (activeTab = 'analysis')}
+			>
+				Übersicht
+			</button>
+			<button
+				class="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium {activeTab === 'activities'
+					? 'bg-primary-600 text-white'
+					: 'text-gray-700 hover:bg-primary-400 dark:text-gray-400 dark:hover:bg-primary-500'}"
+				onclick={() => (activeTab = 'activities')}
+			>
+				Aktivitäten
+			</button>
+			{#if delegate?.council === 'gov' || delegate?.mandates?.find((mandate) => {
+					return mandate.is_gov_official;
+				}) !== undefined}
+				<button
+					class="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium {activeTab === 'gov'
+						? 'bg-primary-600 text-white'
+						: 'text-gray-700 hover:bg-primary-400 dark:text-gray-400 dark:hover:bg-primary-500'}"
+					onclick={() => (activeTab = 'gov')}
+				>
+					Regierung
+				</button>
 			{/if}
 		</div>
 
-		<!-- Meist behandelte Themen & Abwesenheiten -->
-		<div
-			class="flex w-full flex-col gap-4 {!generalDelegateInfo ||
-			generalDelegateInfo.interests?.length > 0
-				? 'lg:flex-row'
-				: ''}"
-		>
-			<!-- Meist behandelte Themen  -->
-			{#if !generalDelegateInfo || generalDelegateInfo.interests?.length > 0}
-				<div class="flex w-full flex-col gap-4 lg:w-2/3">
-					{#if generalDelegateInfo?.interests && generalDelegateInfo?.detailed_interests}
-						<span class="w-full max-sm:hidden">
-							<TopicsChart
-								detailedInterests={generalDelegateInfo.detailed_interests}
-								interests={generalDelegateInfo.interests}
-							/>
-						</span>
-						<span class="w-full sm:hidden">
-							<TopicsChart
-								detailedInterests={generalDelegateInfo.detailed_interests}
-								interests={generalDelegateInfo.interests.slice(0, 8)}
-							/>
-						</span>
-					{/if}
+		<!-- Tab Content -->
+		{#if activeTab === 'gov'}
+			{#if generalGovOfficialInfo?.gov_proposals && generalGovOfficialInfo.gov_proposals.length > 0 && delegate}
+				<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
+					<GovProposalPreview govProposals={generalGovOfficialInfo.gov_proposals} {delegate} />
 				</div>
+			{:else if generalGovOfficialInfo?.gov_proposals == null && delegate && delegate.council == 'gov'}
+				<ExpandablePlaceholder />
+				<ExpandablePlaceholder />
 			{/if}
 
-			<!-- Abwesenheiten -->
-			<div
-				class="flex w-full flex-col gap-4 {!generalDelegateInfo ||
-				generalDelegateInfo.interests?.length > 0
-					? 'lg:w-1/3'
-					: ''}"
-			>
-				{#if delegate && generalDelegateInfo?.absences}
-					<!-- <AbsencesPreview delegateId={delegate.id} absences={generalDelegateInfo.absences} /> -->
-					<AbsencesPreview delegateId={delegate.id} absences={generalDelegateInfo.absences} />
+			{#if generalGovOfficialInfo?.decrees && generalGovOfficialInfo.decrees.length > 0 && delegate}
+				<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
+					<DecreePreview decrees={generalGovOfficialInfo.decrees} {delegate} />
+				</div>
+			{:else if (generalGovOfficialInfo?.decrees == null && delegate && delegate.council == 'gov') || !delegate}
+				<ExpandablePlaceholder />
+				<ExpandablePlaceholder />
+			{/if}
+		{:else if activeTab === 'analysis'}
+			{#if delegate && generalDelegateInfo?.political_position && aiViewEnabledStore.value}
+				<div class="title-item rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
+					<PoliticalStanceTitleBar
+						stanceTopicInfluences={generalDelegateInfo.stance_topic_influences}
+					/>
+				</div>
+			{/if}
+			<div class="flex w-full flex-col gap-3 lg:flex-row">
+				{#if delegate && generalDelegateInfo?.political_position && aiViewEnabledStore.value}
+					<SquarePoliticalSpectrum
+						{delegate}
+						politicalPosition={generalDelegateInfo.political_position}
+					/>
+				{:else if !generalDelegateInfo}
+					<ExpandablePlaceholder class={'my-3'} />
+				{/if}
+
+				{#if delegate && generalDelegateInfo?.left_right_stances.length && generalDelegateInfo.left_right_stances.length > 0 && aiViewEnabledStore.value}
+					<div class="lg:flex-1">
+						<LeftRightChart
+							stances={generalDelegateInfo.left_right_stances}
+							interests={generalDelegateInfo.interests}
+						/>
+					</div>
+				{:else if !generalDelegateInfo}
+					<ExpandablePlaceholder class={'my-3'} />
 				{/if}
 			</div>
-		</div>
 
-		<!-- Letzte Reden -->
-		{#if speechesPage0 && delegate && speechesPage0.speeches.length > 0}
-			<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
-				<SpeechesPreview delegateId={delegate.id} {speechesPage0} />
-			</div>
-		{:else if speechesPage0 == null && delegate && delegate.council == 'gov'}
-			<ExpandablePlaceholder />
-			<ExpandablePlaceholder />
-		{/if}
+			<!-- Meist behandelte Themen & Abwesenheiten -->
+			<div
+				class="flex w-full flex-col gap-3 {!generalDelegateInfo ||
+				generalDelegateInfo.interests?.length > 0
+					? 'lg:flex-row'
+					: ''}"
+			>
+				<!-- Meist behandelte Themen  -->
+				{#if !generalDelegateInfo || generalDelegateInfo.interests?.length > 0}
+					<div class="flex w-full flex-col gap-4 lg:w-2/3">
+						{#if generalDelegateInfo?.interests && generalDelegateInfo?.detailed_interests}
+							<span class="w-full max-sm:hidden">
+								<TopicsChart
+									detailedInterests={generalDelegateInfo.detailed_interests}
+									interests={generalDelegateInfo.interests}
+								/>
+							</span>
+							<span class="w-full sm:hidden">
+								<TopicsChart
+									detailedInterests={generalDelegateInfo.detailed_interests}
+									interests={generalDelegateInfo.interests.slice(0, 8)}
+								/>
+							</span>
+						{/if}
+					</div>
+				{/if}
 
-		<!-- Letzte namentliche Abstimmungen -->
-		{#if generalDelegateInfo?.named_votes && generalDelegateInfo?.named_votes.length > 0}
-			<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
-				<NamedVotePreview namedVotes={generalDelegateInfo.named_votes} />
+				<!-- Abwesenheiten -->
+				<div
+					class="flex w-full flex-col gap-4 {!generalDelegateInfo ||
+					generalDelegateInfo.interests?.length > 0
+						? 'lg:w-1/3'
+						: ''}"
+				>
+					{#if delegate && generalDelegateInfo?.absences}
+						<AbsencesPreview delegateId={delegate.id} absences={generalDelegateInfo.absences} />
+					{/if}
+				</div>
 			</div>
-		{:else if generalDelegateInfo?.absences == null || !delegate}
-			<ExpandablePlaceholder />
-			<ExpandablePlaceholder />
-		{/if}
 
-		<!-- Letzte eingebrachte Anträge -->
-		{#if generalDelegateInfo?.issued_proposals && generalDelegateInfo.issued_proposals.length > 0}
-			<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
-				<IssuedProposalPreview issuedProposals={generalDelegateInfo.issued_proposals} />
-			</div>
-		{:else if generalDelegateInfo?.issued_proposals == null || !delegate}
-			<ExpandablePlaceholder />
-			<ExpandablePlaceholder />
-		{/if}
+			<!-- Mandateninformation -->
+			{#if delegate?.mandates}
+				<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
+					<MandatesPreview mandates={delegate.mandates} {periods} gender={delegate.gender} />
+				</div>
+			{:else if !delegate}
+				<ExpandablePlaceholder />
+				<ExpandablePlaceholder />
+			{/if}
+		{:else if activeTab === 'activities'}
+			<!-- Letzte Reden -->
+			{#if speechesPage0 && delegate && speechesPage0.speeches.length > 0}
+				<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
+					<SpeechesPreview delegateId={delegate.id} {speechesPage0} />
+				</div>
+			{:else if speechesPage0 == null && delegate && delegate.council == 'gov'}
+				<ExpandablePlaceholder />
+				<ExpandablePlaceholder />
+			{/if}
 
-		<!-- Mandateninformation -->
-		{#if delegate?.mandates}
-			<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
-				<MandatesPreview mandates={delegate.mandates} {periods} gender={delegate.gender} />
+			<!-- Letzte namentliche Abstimmungen -->
+			{#if generalDelegateInfo?.named_votes && generalDelegateInfo?.named_votes.length > 0}
+				<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
+					<NamedVotePreview namedVotes={generalDelegateInfo.named_votes} />
+				</div>
+			{:else if generalDelegateInfo?.absences == null || !delegate}
+				<ExpandablePlaceholder />
+				<ExpandablePlaceholder />
+			{/if}
+
+			<!-- Letzte eingebrachte Anträge -->
+			{#if generalDelegateInfo?.issued_proposals && generalDelegateInfo.issued_proposals.length > 0}
+				<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
+					<IssuedProposalPreview issuedProposals={generalDelegateInfo.issued_proposals} />
+				</div>
+			{:else if generalDelegateInfo?.issued_proposals == null || !delegate}
+				<ExpandablePlaceholder />
+				<ExpandablePlaceholder />
+			{/if}
+
+			<div class="flex w-full flex-col gap-3 lg:flex-row">
+				<div
+					class="flex w-full flex-col gap-4 {!generalDelegateInfo ||
+					generalDelegateInfo.interests?.length > 0
+						? 'lg:w-1/3'
+						: ''}"
+				>
+					{#if delegate && generalDelegateInfo?.received_call_to_orders}
+						<AbsencesPreview
+							title="Ordnungsrufe"
+							explanation="Zur Ordnung gerufen"
+							lastEntriesText="Letzte Ordnungsrufe"
+							noEntriesText="Keine Ordnungsrufe erhalten"
+							delegateId={delegate.id}
+							showTotal
+							showDetails={false}
+							absences={generalDelegateInfo.received_call_to_orders.map((cto) => ({
+								date: cto.date,
+								gp: cto.gp,
+								inr: cto.inr,
+								plenary_session_id: cto.plenary_session_id,
+								missed_legis_init_ids: []
+							}))}
+						/>
+					{/if}
+				</div>
+				<div
+					class="flex w-full flex-col gap-4 {!generalDelegateInfo ||
+					generalDelegateInfo.interests?.length > 0
+						? 'lg:w-2/3'
+						: ''}"
+				>
+					{#if delegate && interjectionsMadePage0 && interjectionsReceivedPage0}
+						<InterjectionsPreview
+							issuerDelegate={delegate}
+							receivedInterjectionsPage0={interjectionsReceivedPage0}
+							issuedInterjectionsPage0={interjectionsMadePage0}
+						/>
+					{:else if interjectionsMadePage0 == null && delegate && delegate.council == 'gov'}
+						<ExpandablePlaceholder />
+						<ExpandablePlaceholder />
+					{/if}
+				</div>
+				<!-- {#if generalDelegateInfo.} -->
 			</div>
-		{:else if !delegate}
-			<ExpandablePlaceholder />
-			<ExpandablePlaceholder />
 		{/if}
 
 		<!--  -->

@@ -7,7 +7,6 @@
 	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
 
 	// const modalStore = getModalStore();
-	
 
 	interface Props {
 		// export let parent;
@@ -23,20 +22,18 @@
 	let page = $state(1);
 
 	$effect(() => {
-		console.log("hit effect", page);
 		speeches_by_delegate_per_page(delegateId, page - 1).then((res) => {
 			currentPageSpeeches = errorToNull(res)?.speeches ?? [];
 		});
 	});
-
 </script>
 
-<div class="card p-8 ">
-	<div class="flex justify-between items-center">
-		<h1 class="font-bold text-2xl">Letzte Reden</h1>
+<div class="card p-8">
+	<div class="flex items-center justify-between">
+		<h1 class="text-2xl font-bold">Letzte Reden</h1>
 		<Dialog.Close>
 			<ModalCloseButton />
-		</Dialog.Close>	
+		</Dialog.Close>
 	</div>
 
 	{#each currentPageSpeeches as speech}

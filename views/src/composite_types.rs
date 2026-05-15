@@ -1,7 +1,7 @@
 use dataservice::combx::{
     DbAiSummary, DbLegislativeInitiativeQuery, DbMinistrialProposalQueryMeta, DbNamedVote,
     DbNamedVoteInfo, DbNamedVotes, DbPartyNamedVoteCount, DbReference, DbRelatedDelegate,
-    DbSpeechWithLink, DbVote, FullMandate, MeilisearchHelper, Topic, VoteResult,
+    DbSpeechWithLink, DbVote, DelegateMatch, FullMandate, MeilisearchHelper, Topic, VoteResult,
 };
 use somes_common_lib::{Document, ToCompositeType};
 use sqlx::{Postgres, Transaction};
@@ -34,7 +34,8 @@ pub async fn create_composite_types<'a>(pool: &mut Transaction<'a, Postgres>) ->
         Topic,
         MeilisearchHelper,
         DbMinistrialProposalQueryMeta,
-        VoteResult
+        VoteResult,
+        DelegateMatch
     );
     Ok(())
 }

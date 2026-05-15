@@ -1,22 +1,5 @@
-use std::{error::Error, fs::File, net::SocketAddr, path::PathBuf};
+use std::{error::Error, fs::File, net::SocketAddr, path::PathBuf, time::Duration};
 
-use axum::{
-    extract::FromRef,
-    http::{self},
-    response::Html,
-    routing::{any, get, get_service, post},
-    Router,
-};
-use axum_server::tls_rustls::RustlsConfig;
-// use diesel_async::pooled_connection::AsyncDieselConnectionManager;
-use log::{error, info};
-use redis::Commands;
-use reqwest::StatusCode;
-use sqlx::{postgres::PgPoolOptions, PgPool};
-use tokio::{net::TcpListener, time::sleep};
-use tower::ServiceBuilder;
-use views::{create_composite_types, create_views};
-//use headers::HeaderValue;
 use crate::{
     meilisearch::update_meilisearch_indices, redirect_http_to_https, reset_cache,
     routes::save_email_route, update_caches, Ports, DATASERVICE_URL, HTTPS_PORT, HTTP_PORT,
@@ -24,13 +7,30 @@ use crate::{
     STATIC_FRONTEND_PATH,
 };
 use crate::{routes::*, IS_PROD};
-use somes_common_lib::*;
-use tower_http::{
-    compression::CompressionLayer,
-    cors::{Any, CorsLayer},
-    decompression::RequestDecompressionLayer,
-    services::ServeDir,
+use axum::{
+    extract::FromRef,
+    http::{self, HeaderValue},
+    response::Html,
+    routing::{any, get, get_service, post},
+    Router,
 };
+use axum_server::tls_rustls::RustlsConfig;
+use log::info;
+use reqwest::StatusCode;
+use somes_common_lib::*;
+use sqlx::{postgres::PgPoolOptions, PgPool};
+use tokio::{net::TcpListener, time::sleep};
+use tower::ServiceBuilder;
+use tower_http::{
+    compression::CompressionLayer, cors::AllowOrigin, cors::CorsLayer,
+    decompression::RequestDecompressionLayer, services::ServeDir,
+};
+use views::{create_composite_types, create_views};
+
+type ServerResult<T> = Result<T, Box<dyn Error + Send + Sync>>;
+
+const DEFAULT_ALLOWED_ORIGINS: [&str; 2] = ["https://somes.at", "https://www.somes.at"];
+const ASSET_REFRESH_DELAY: Duration = Duration::from_secs(19_000);
 
 #[derive(Clone)]
 pub struct AppState {
@@ -39,11 +39,8 @@ pub struct AppState {
     pub meilisearch_client: meilisearch_sdk::client::Client,
 }
 
-unsafe impl Send for AppState {}
-unsafe impl Sync for AppState {}
-
 impl AppState {
-    pub async fn new(
+    pub fn new(
         redis_client: redis::Client,
         dataservice_sqlx_pool: PgPool,
         meilisearch_client: meilisearch_sdk::client::Client,
@@ -62,119 +59,102 @@ impl FromRef<AppState> for redis::Client {
     }
 }
 
-//pub type RedisClient = Arc<RwLock<redis::Client>>;
-
-pub async fn serve(addr: SocketAddr) {
-    let Ok(client) = redis::Client::open(REDIS_DB) else {
-        error!("Could not establish redis database connection!");
-        return;
-    };
-
-    if client.get_connection().is_err() {
-        error!("Could not establish redis database connection!");
-        return;
+fn allowed_cors_origin() -> AllowOrigin {
+    if !*IS_PROD {
+        return AllowOrigin::any();
     }
 
+    match std::env::var("CORS_ALLOWED_ORIGINS") {
+        Ok(origins) => {
+            let origins = origins
+                .split(',')
+                .filter_map(|origin| origin.trim().parse::<HeaderValue>().ok())
+                .collect::<Vec<_>>();
+
+            (!origins.is_empty())
+                .then(|| AllowOrigin::list(origins))
+                .unwrap_or_else(default_allowed_origins)
+        }
+        Err(_) => default_allowed_origins(),
+    }
+}
+
+fn default_allowed_origins() -> AllowOrigin {
+    AllowOrigin::list(DEFAULT_ALLOWED_ORIGINS.map(HeaderValue::from_static))
+}
+
+fn connect_redis() -> ServerResult<redis::Client> {
+    let client = redis::Client::open(REDIS_DB)?;
+    client.get_connection()?;
     if reset_cache() || *IS_PROD {
-        let mut con = client.get_connection().unwrap();
-        redis::cmd("FLUSHALL").query::<()>(&mut con).unwrap();
+        let mut con = client.get_connection()?;
+        redis::cmd("FLUSHALL").query::<()>(&mut con)?;
     }
-
     info!("Established redis database connection to {REDIS_DB}.");
+    Ok(client)
+}
 
-    struct ApiDoc;
-
-    /*successfully.
-    let config = AsyncDieselConnectionManager::<diesel_async::AsyncPgConnection>::new(DATABASE_URL);
-    let postgres_pool = bb8::Pool::builder().build(config).await.unwrap();
-     */
-
+async fn connect_dataservice() -> ServerResult<PgPool> {
     log::info!(
         "Connecting to database {}",
         DATASERVICE_URL.split("@").last().unwrap_or_default()
     );
 
-    let dataservice_sqlx_pool = PgPoolOptions::new()
-        // pool sizes
+    let pool = PgPoolOptions::new()
         .max_connections(20)
         .connect(DATASERVICE_URL)
-        .await
-        .unwrap();
+        .await?;
 
     log::info!("Established postgresql connection");
+    Ok(pool)
+}
 
-    // let somes_db_pool = deadpool_diesel::postgres::Pool::builder(somes_db_manager)
-    //     .max_size(100)
-    //     .build()
-    //     .unwrap();
+async fn maybe_update_views(dataservice_sqlx_pool: &PgPool) -> ServerResult<()> {
+    if std::env::var("UPDATE_VIEWS").unwrap_or_else(|_| "false".to_string()) != "true" {
+        return Ok(());
+    }
 
-    let meilisearch_client =
-        meilisearch_sdk::client::Client::new(MEILISEARCH_URL, Some(MEILISEARCH_SECRET))
-            .expect("Meilisearch client was not able to connect");
+    let mut tx = dataservice_sqlx_pool.begin().await?;
+    if let Err(e) = create_composite_types(&mut tx).await {
+        log::error!("Cannot create composite types: {e:?}");
+    }
+    if let Err(e) = create_views(&mut tx).await {
+        log::error!("Cannot create views: {e:?}");
+    }
+    tx.commit().await?;
+    Ok(())
+}
 
-    let state = AppState::new(
-        client.clone(),
-        dataservice_sqlx_pool.clone(),
-        meilisearch_client.clone(),
-    )
-    .await;
-
-    let static_files_dir = PathBuf::from(STATIC_FRONTEND_PATH);
-    let current_frontend_dir = ServeDir::new(static_files_dir.clone())
-        .fallback(get(|| async { Html(include_str!("../build/index.html")) }));
-
-    // let static_files_dir_alpha_0_1 = PathBuf::from("./build-alpha-0.1");
-    let pg_pool = dataservice_sqlx_pool.clone();
-
+fn spawn_asset_refresh(pg_pool: PgPool) {
     tokio::task::spawn(async move {
         if tokio::fs::try_exists("assets").await.unwrap_or_default() {
-            sleep(std::time::Duration::from_secs(19000)).await
+            sleep(ASSET_REFRESH_DELAY).await;
         }
         if let Err(e) = update_delegate_assets(&pg_pool).await {
             log::error!("Could not download assets {e:?}");
         }
-        sleep(std::time::Duration::from_secs(19000)).await;
+        sleep(ASSET_REFRESH_DELAY).await;
     });
+}
 
-    let update_views = std::env::var("UPDATE_VIEWS").unwrap_or_else(|_| "false".to_string());
-    if update_views == "true" {
-        let mut tx = dataservice_sqlx_pool.begin().await.unwrap();
-        if let Err(e) = create_composite_types(&mut tx).await {
-            log::error!("Cannot create composite types: {e:?}")
-        }
-        if let Err(e) = create_views(&mut tx).await {
-            log::error!("Cannot create views: {e:?}")
-        }
-        tx.commit().await.unwrap();
-    }
-
-    crate::refresh_views(&dataservice_sqlx_pool, &client);
-
+fn spawn_search_refresh(
+    client: redis::Client,
+    dataservice_sqlx_pool: PgPool,
+    meilisearch_client: meilisearch_sdk::client::Client,
+) {
     tokio::task::spawn(async move {
-        // this function will block on IS_PROD => streamed updates would invalidate in memory data of in progress fetches inside this function resulting in outdated indices
+        // This function blocks in production so streamed updates do not invalidate in-flight fetches
+        // and leave Meilisearch with outdated indices.
         update_meilisearch_indices(&client, &dataservice_sqlx_pool, &meilisearch_client).await;
 
         if *IS_PROD {
             update_caches(&client, &dataservice_sqlx_pool, &meilisearch_client);
         }
     });
+}
 
-    let config = RustlsConfig::from_pem_file(
-        PathBuf::from(PUBLIC_KEY_PATH),
-        PathBuf::from(PRIVATE_KEY_PATH),
-    )
-    .await;
-
-    let landing_server_dir = ServeDir::new("somes-landing").fallback(get(|| async {
-        Html(include_str!("../somes-landing/index.html"))
-    }));
-    // let landing_app = Router::new().nest_service("/", landing_server_dir);
-    // let origins = [
-    //     "https://somes.at".parse::<HeaderValue>().unwrap(),
-    //     "https://somes.at".parse::<HeaderValue>().unwrap(),
-    // ];
-
-    let api_routes = Router::new()
+fn api_router() -> Router<AppState> {
+    let at_routes = Router::new()
         .route(PARTIES, get(parties_route))
         .route(PARTIES_AT_GP, get(parties_at_gp_route))
         .route(PARTIES_PER_GP, get(parties_per_gp_route))
@@ -200,7 +180,7 @@ pub async fn serve(addr: SocketAddr) {
         .nest("/v1/vote_results", create_vote_results_router())
         .nest("/v1/events", create_events_router());
 
-    let api_routes = Router::new()
+    Router::new()
         .route("/oauth/{provider}", get(start_oauth))
         .route("/oauth/{provider}/callback", get(oauth_callback))
         .route(WALO_QUESTIONS, get(walo_questions_route))
@@ -208,12 +188,20 @@ pub async fn serve(addr: SocketAddr) {
         .route(ADD_QUIZ, post(add_quiz_route))
         .route(QUIZ_ROOM, any(join_quiz_room_route))
         .nest_service("/assets", ServeDir::new("assets"))
-        .nest("/at", api_routes);
+        .nest("/at", at_routes)
+}
 
-    let app = Router::new()
-        .nest("/api", api_routes)
-        // .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
-        // mind conflicts e.g delegates
+fn app_router(state: AppState) -> Router {
+    let static_files_dir = PathBuf::from(STATIC_FRONTEND_PATH);
+    let current_frontend_dir = ServeDir::new(static_files_dir)
+        .fallback(get(|| async { Html(include_str!("../build/index.html")) }));
+
+    let landing_server_dir = ServeDir::new("somes-landing").fallback(get(|| async {
+        Html(include_str!("../somes-landing/index.html"))
+    }));
+
+    Router::new()
+        .nest("/api", api_router())
         .nest_service(
             "/alpha",
             get_service(current_frontend_dir).handle_error(|_| async move {
@@ -225,14 +213,9 @@ pub async fn serve(addr: SocketAddr) {
                 (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
             }),
         )
-        // .nest("/", landing_app)
-        // .fallback_service(get_service(serve_dir).handle_error(|_| async move {
-        //     (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
-        // }))
         .layer(
             CorsLayer::new()
-                // .allow_origin("https://somes.at".parse::<HeaderValue>().unwrap())
-                .allow_origin(Any)
+                .allow_origin(allowed_cors_origin())
                 .allow_methods([
                     http::Method::GET,
                     http::Method::POST,
@@ -250,94 +233,106 @@ pub async fn serve(addr: SocketAddr) {
                 .layer(RequestDecompressionLayer::new())
                 .layer(CompressionLayer::new()),
         )
-        // .layer(RateLimitLayer::new(num, per))
-        .with_state(state);
-    //.with_state(verification_map)
-    //.with_state(verification_hasher);
-    // let config = RustlsConfig::from_pem_file(
-    //     PathBuf::from("/etc/letsencrypt/live/somes.at/fullchain.pem"),
-    //     PathBuf::from("/etc/letsencrypt/live/somes.at/privkey.pem"),
-    // )
-    // .await
-    // .unwrap();
+        .with_state(state)
+}
 
-    // let server = axum_server::bind_rustls(addr, config);
+async fn serve_plain(addr: SocketAddr, app: Router) -> ServerResult<()> {
+    info!("Binding API on {addr}");
+    let listener = TcpListener::bind(&addr).await?;
+
+    info!("Now listening..");
+    axum::serve(
+        listener,
+        app.into_make_service_with_connect_info::<SocketAddr>(),
+    )
+    .await?;
+    Ok(())
+}
+
+async fn serve_tls(addr: SocketAddr, config: RustlsConfig, app: Router) -> ServerResult<()> {
+    let ports = Ports {
+        http: HTTP_PORT.parse()?,
+        https: HTTPS_PORT.parse()?,
+    };
+    let mut sock_addr = addr;
+    tokio::spawn(redirect_http_to_https(ports, sock_addr));
+
+    sock_addr.set_port(ports.https);
+
+    info!("Binding API on {sock_addr}");
+    axum_server::bind_rustls(sock_addr, config)
+        .serve(app.into_make_service_with_connect_info::<SocketAddr>())
+        .await?;
+    Ok(())
+}
+
+pub async fn serve(addr: SocketAddr) -> ServerResult<()> {
+    let client = connect_redis()?;
+    let dataservice_sqlx_pool = connect_dataservice().await?;
+
+    let meilisearch_client =
+        meilisearch_sdk::client::Client::new(MEILISEARCH_URL, Some(MEILISEARCH_SECRET))?;
+
+    let state = AppState::new(
+        client.clone(),
+        dataservice_sqlx_pool.clone(),
+        meilisearch_client.clone(),
+    );
+
+    spawn_asset_refresh(dataservice_sqlx_pool.clone());
+    maybe_update_views(&dataservice_sqlx_pool).await?;
+
+    crate::refresh_views(&dataservice_sqlx_pool, &client);
+
+    spawn_search_refresh(client, dataservice_sqlx_pool, meilisearch_client);
+
+    let config = RustlsConfig::from_pem_file(
+        PathBuf::from(PUBLIC_KEY_PATH),
+        PathBuf::from(PRIVATE_KEY_PATH),
+    )
+    .await;
+
+    let app = app_router(state);
 
     if std::env::var("SOMES_DEBUG").unwrap_or_default() == "DEBUG" {
-        info!("Binding API on {addr}");
-        let listener = match TcpListener::bind(&addr).await {
-            Ok(listener) => listener,
-            Err(e) => panic!("Could not initialize API: {e}"),
-        };
-
-        info!("Now listening..");
-        if let Err(e) = axum::serve(
-            listener,
-            app.into_make_service_with_connect_info::<SocketAddr>(),
-        )
-        .await
-        {
-            error!("API returned error state: {e}")
-        }
-        return;
+        return serve_plain(addr, app).await;
     }
 
     match config {
-        Ok(config) => {
-            let ports = Ports {
-                http: HTTP_PORT.parse().unwrap(),
-                https: HTTPS_PORT.parse().unwrap(),
-            };
-            let mut sock_addr = addr;
-            tokio::spawn(redirect_http_to_https(ports, sock_addr));
-
-            sock_addr.set_port(ports.https);
-
-            info!("Binding API on {sock_addr}");
-            axum_server::bind_rustls(sock_addr, config.clone())
-                .serve(app.into_make_service_with_connect_info::<SocketAddr>())
-                .await
-                .unwrap();
-        }
-        Err(_) => {
-            info!("Binding API on {addr}");
-            let listener = match TcpListener::bind(&addr).await {
-                Ok(listener) => listener,
-                Err(e) => panic!("Could not initialize API: {e}"),
-            };
-
-            info!("Now listening..");
-            if let Err(e) = axum::serve(
-                listener,
-                app.into_make_service_with_connect_info::<SocketAddr>(),
-            )
-            .await
-            {
-                error!("API returned error state: {e}")
-            }
-        }
+        Ok(config) => serve_tls(addr, config, app).await,
+        Err(_) => serve_plain(addr, app).await,
     }
 }
 
-async fn update_delegate_assets(
-    pg_pool: &sqlx::Pool<sqlx::Postgres>,
-) -> Result<(), Box<dyn Error>> {
+async fn update_delegate_assets(pg_pool: &sqlx::Pool<sqlx::Postgres>) -> ServerResult<()> {
     let _ = tokio::fs::create_dir("assets").await;
 
     let img_urls = sqlx::query!("select id, image_url from delegates where image_url is not null")
         .fetch_all(pg_pool)
         .await?;
 
-    std::thread::spawn(move || {
+    tokio::task::spawn_blocking(move || {
         let client = reqwest::blocking::Client::new();
         for img_url in img_urls {
-            let Ok(mut res) = client.get(&img_url.image_url.unwrap()).send() else {
+            let Some(image_url) = img_url.image_url else {
+                continue;
+            };
+            let Ok(mut res) = client.get(&image_url).send() else {
+                log::warn!("Could not download delegate asset from {image_url}");
                 continue;
             };
 
-            let mut file = File::create(format!("assets/{}.jpg", img_url.id)).unwrap();
-            res.copy_to(&mut file).unwrap();
+            let path = format!("assets/{}.jpg", img_url.id);
+            let Ok(mut file) = File::create(&path) else {
+                log::warn!("Could not create delegate asset file {path}");
+                continue;
+            };
+            if let Err(e) = res.copy_to(&mut file) {
+                log::warn!("Could not save delegate asset {path}: {e:?}");
+            }
         }
-    });
+    })
+    .await?;
+
     Ok(())
 }

@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { topicColors } from '$lib/interestColors';
 	import type { InterestShare } from '$lib/types';
-	import { Chart, Svg, Treemap, Group, Rect } from 'layerchart';
+	import { Chart, Svg, Group, Rect } from 'layerchart';
 	import { hierarchy } from 'd3-hierarchy';
 	import ExtendInfoDialog from '../ExtendInfoDialog.svelte';
 	import DetailedInterestsModal from './DetailedInterestsModal.svelte';
+	import { Treemap } from 'layerchart/hierarchy';
 
 	interface Props {
 		interests: InterestShare[];
@@ -136,16 +137,19 @@
 										class={node.data.isOther ? 'transition-opacity hover:opacity-80' : ''}
 									/>
 
-									<foreignObject 
-										x={node.x0} 
-										y={node.y0} 
-										width={w} 
-										height={h} 
+									<foreignObject
+										x={node.x0}
+										y={node.y0}
+										width={w}
+										height={h}
 										class="pointer-events-none"
 									>
 										<div
 											xmlns="http://www.w3.org/1999/xhtml"
-											class="flex flex-col items-center justify-center overflow-hidden text-center p-1 {node.data.isOther ? 'transition-opacity hover:opacity-80' : ''}"
+											class="flex flex-col items-center justify-center overflow-hidden p-1 text-center {node
+												.data.isOther
+												? 'transition-opacity hover:opacity-80'
+												: ''}"
 											style="width: {w}px; height: {h}px;"
 										>
 											<p
@@ -170,7 +174,7 @@
 								</g>
 							{/if}
 						{/each}
-					{/snippet}	
+					{/snippet}
 				</Treemap>
 			</Svg>
 		</Chart>

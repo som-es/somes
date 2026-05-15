@@ -1,15 +1,30 @@
 <script lang="ts">
 	import type { Absence } from '$lib/types';
-	import { onMount } from 'svelte';
 	import ExtendInfoDialog from '../ExtendInfoDialog.svelte';
 	import AbsencesModal from './AbsencesModal.svelte';
 
 	interface Props {
 		absences: Absence[];
+		title?: string;
+		explanation?: string;
+		lastEntriesText?: string;
+		noEntriesText?: string;
+		showTotal?: boolean;
+		showDetails?: boolean;
 		delegateId: number;
 	}
 
-	let { absences = [], delegateId }: Props = $props();
+	let currentYear = new Date().getFullYear();
+	let {
+		absences = [],
+		delegateId,
+		title = 'Abwesenheiten',
+		explanation = `Verpasste Plenarsitzungen (${currentYear})`,
+		lastEntriesText = 'Zuletzt abwesend',
+		noEntriesText = 'Keine Abwesenheiten',
+		showTotal = false,
+		showDetails = true
+	}: Props = $props();
 
 	// Sort absences by date descending
 	let sortedAbsences = $derived(
@@ -29,8 +44,15 @@
 		)
 	);
 
-	let currentYear = new Date().getFullYear();
 	let absencesThisYear = $derived(absencesByYear[currentYear] || 0);
+
+	const entryCount = $derived.by(() => {
+		if (showTotal) {
+			return absences.length;
+		} else {
+			return absencesThisYear;
+		}
+	})
 
 	function formatDate(dateString: Date | string) {
 		return new Intl.DateTimeFormat('de-AT', {
@@ -47,19 +69,19 @@
 	<div class="flex-1">
 		<div class="flex items-center justify-between">
 			<div class="flex flex-col">
-				<span class="text-lg font-bold text-black xl:text-xl dark:text-white"> Abwesenheiten </span>
+				<span class="text-lg font-bold text-black xl:text-xl dark:text-white"> {title} </span>
 				<p class="text-sm text-primary-600 dark:text-primary-300">
-					Verpasste Plenarsitzungen ({currentYear}):
+					{explanation}
 				</p>
 				<span class="mt-1 text-4xl font-black text-primary-800 dark:text-primary-100"
-					>{absencesThisYear}</span
+					>{entryCount}</span
 				>
 			</div>
 		</div>
 
 		<div class="mt-4">
 			<h3 class="mb-2 text-sm font-semibold tracking-wider text-primary-800 dark:text-primary-200">
-				Zuletzt abwesend
+				{lastEntriesText}
 			</h3>
 			<div class="flex flex-col gap-2">
 				{#if recentAbsences.length > 0}
@@ -83,7 +105,7 @@
 						<div
 							class="flex items-center justify-center rounded-lg bg-primary-200 p-3 text-sm dark:bg-primary-800/40"
 						>
-							<span class="text-primary-600 dark:text-primary-400">Keine Abwesenheiten</span>
+							<span class="text-primary-600 dark:text-primary-400">{noEntriesText}</span>
 						</div>
 					</div>
 				{/if}
@@ -91,10 +113,10 @@
 		</div>
 	</div>
 
-	{#if recentAbsences.length > 0}
+	{#if recentAbsences.length > 0 &&  absences.length > recentAbsences.length}
 		<div class="mt-auto flex justify-end pt-4">
 			<ExtendInfoDialog title="Alle anzeigen">
-				<AbsencesModal {absences} />
+				<AbsencesModal absences={sortedAbsences} title={title} showDetails={showDetails} />
 			</ExtendInfoDialog>
 		</div>
 	{/if}

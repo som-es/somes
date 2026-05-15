@@ -1,5 +1,3 @@
-use std::borrow::Cow;
-
 use axum::{response::IntoResponse, Json};
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
@@ -23,29 +21,41 @@ pub enum GenericError {
 
 impl IntoResponse for GenericError {
     fn into_response(self) -> axum::response::Response {
-        let (status_code, err_msg) = match &self {
-            GenericError::SqlFailure(e) => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Cow::Owned(format!("db error occured: {e:?}")),
-            ),
-            GenericError::CustomString((status_code, reason)) => {
-                (*status_code, Cow::Borrowed(reason.as_str()))
+        let (status_code, err_msg, field) = match &self {
+            GenericError::SqlFailure(e) => {
+                log::error!("db error occurred: {e:?}");
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Internal server error",
+                    "SqlFailure",
+                )
             }
-            GenericError::Custom((status_code, reason)) => (*status_code, Cow::Borrowed(*reason)),
-            GenericError::RedisFailure(redis_error) => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Cow::Owned(format!("redis error occured: {redis_error:?}")),
-            ),
-            GenericError::MeilisearchFailure(error) => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Cow::Owned(format!("meilisearch error occured: {error:?}")),
-            ),
+            GenericError::CustomString((status_code, reason)) => {
+                (*status_code, reason.as_str(), "CustomString")
+            }
+            GenericError::Custom((status_code, reason)) => (*status_code, *reason, "Custom"),
+            GenericError::RedisFailure(redis_error) => {
+                log::error!("redis error occurred: {redis_error:?}");
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Internal server error",
+                    "RedisFailure",
+                )
+            }
+            GenericError::MeilisearchFailure(error) => {
+                log::error!("meilisearch error occurred: {error:?}");
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Internal server error",
+                    "MeilisearchFailure",
+                )
+            }
         };
 
         let body = Json(ErrorInfo {
             error: err_msg.to_string(),
             error_type: "GenericErrorResponse",
-            field: format!("{:?}", self),
+            field: field.to_string(),
             meta: None,
         });
 
