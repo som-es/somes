@@ -53,6 +53,7 @@ pub const COMPLEXITY_PER_LEGIS: &str = "/complexity_per_legis";
 pub const DIVISION_ACCURACY_SCORE_PER_LEGIS: &str = "/division_accuracy_score_per_legis";
 pub const SPEECHTIME_PER_LEGIS: &str = "/speechtime_per_legis";
 pub const TOTAL_SPEECHES_PER_LEGIS: &str = "/total_speeches_per_legis";
+pub const LATEST_SESSION_ACTIVITY_OVERVIEW: &str = "/latest_session_activity_overview";
 pub const IS_LEFT_PER_DELEGATE: &str = "/is_left_per_delegate";
 pub const IS_LEFT_PER_PARTY: &str = "/is_left_per_party";
 pub const IS_LEFT_PER_GENDER: &str = "/is_left_per_gender";

@@ -7,6 +7,7 @@ pub mod division_accuracy_score;
 pub mod error;
 pub mod filtering;
 pub mod political_orientation;
+pub mod session_activity;
 pub mod speeches;
 
 pub use absences::*;
@@ -18,4 +19,5 @@ pub use division_accuracy_score::*;
 pub use error::*;
 pub use filtering::*;
 pub use political_orientation::*;
+pub use session_activity::*;
 pub use speeches::*;

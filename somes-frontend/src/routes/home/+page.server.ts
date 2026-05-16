@@ -4,6 +4,7 @@ import {
 	isHasError,
 	latest_decrees,
 	latest_ministrial_proposals,
+	latest_session_activity_overview,
 	latest_vote_results
 } from '$lib/api/api';
 import { fetchDelegates } from '$lib/api/fetch_delegates';
@@ -19,6 +20,13 @@ let internalCache: {
 } | null = null;
 
 const CACHE_DURATION_MS = 1000 * 60 * 10;
+
+function hasDelegate(value: {
+	decree: DecreeDelegate['decree'];
+	delegate: Delegate | undefined;
+}): value is DecreeDelegate {
+	return value.delegate !== undefined;
+}
 
 async function fetchDelegatesFromVoteResult(
 	latestVotes: VoteResult[] | HasError,
@@ -45,14 +53,21 @@ export const load: PageServerLoad = async ({ fetch, setHeaders }) => {
 		});
 	}
 
-	const [nextPlenarDate, latestVotes, latestMinisterialProposals, latestDecrees, allSeats] =
-		await Promise.all([
-			next_plenar_date(fetch),
-			latest_vote_results(fetch),
-			latest_ministrial_proposals(30, fetch),
-			latest_decrees(7, fetch),
-			cachedAllSeats(false, fetch)
-		]);
+	const [
+		nextPlenarDate,
+		latestVotes,
+		latestMinisterialProposals,
+		latestDecrees,
+		allSeats,
+		latestSessionActivity
+	] = await Promise.all([
+		next_plenar_date(fetch),
+		latest_vote_results(fetch),
+		latest_ministrial_proposals(30, fetch),
+		latest_decrees(7, fetch),
+		cachedAllSeats(false, fetch),
+		latest_session_activity_overview(fetch)
+	]);
 
 	const delegates = await fetchDelegatesFromVoteResult(latestVotes, fetch);
 	const res = errorToNull(latestDecrees)?.map(async (latestDecree) => {
@@ -65,7 +80,7 @@ export const load: PageServerLoad = async ({ fetch, setHeaders }) => {
 		return { decree: latestDecree, delegate };
 	});
 	const latestDelegateDecrees: DecreeDelegate[] = (await Promise.all(res ?? [])).filter(
-		(val) => val.delegate !== undefined
+		hasDelegate
 	);
 
 	// TODO error handling
@@ -76,6 +91,7 @@ export const load: PageServerLoad = async ({ fetch, setHeaders }) => {
 		latestMinisterialProposals,
 		latestDecrees,
 		latestDelegateDecrees,
+		latestSessionActivity,
 		delegates,
 		allSeats
 	};

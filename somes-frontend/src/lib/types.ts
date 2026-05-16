@@ -494,6 +494,45 @@ export interface GeneralDelegateInfo {
 	issued_proposals: IssuedProposal[];
 }
 
+export interface SessionSpeaker {
+	delegate_name: string;
+	delegate_party: string;
+	total_speeches: number;
+	total_speech_time: number;
+	longest_speech_time: number;
+}
+
+export interface SessionCallToOrder {
+	delegate_name: string;
+	delegate_party: string;
+	total_order_calls: number;
+}
+
+export interface SessionActivityPercentiles {
+	vote_count_p95: number;
+	speaker_count_p95: number;
+	absence_count_p95: number;
+	delegate_speech_time_p95: number;
+	complexity_p95: number;
+}
+
+export interface SessionActivityOverview {
+	plenary_session_id: number;
+	date: string | null;
+	legislative_period: string | null;
+	inr: number | null;
+	vote_count: number;
+	call_to_order_count: number;
+	speaker_count: number;
+	speech_count: number;
+	total_speech_time: number;
+	absence_count: number;
+	average_complexity: number;
+	percentiles: SessionActivityPercentiles;
+	top_speakers: SessionSpeaker[];
+	call_to_orders: SessionCallToOrder[];
+}
+
 export interface DelegateQA {
 	question: string;
 	answer: string;
