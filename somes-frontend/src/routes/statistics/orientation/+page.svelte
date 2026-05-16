@@ -1,11 +1,17 @@
 <script lang="ts">
 	import { justPostStatistics } from '$lib/api/api';
-	import { mapOrientationCategory, mapOrientationDelegate } from '$lib/api/statistics-adapter';
+	import {
+		mapOrientationCategory,
+		mapOrientationDelegate,
+		mapPoliticalSpectrumCategory,
+		mapPoliticalSpectrumDelegate
+	} from '$lib/api/statistics-adapter';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import DelegateBarChartControl from '$lib/components/Statistics/DelegateBarChartControl.svelte';
 	import type { StatisticsData } from '$lib/types';
 
 	type Orientation = 'left' | 'right' | 'liberal' | 'authoritarian';
+	type ChartMode = 'bar' | 'donut' | 'line' | 'spectrum';
 
 	let selectedCategory = $state('delegate');
 
@@ -51,14 +57,37 @@
 	let selectedOrientation = $state<Orientation>('left');
 
 	const selectedOrientationOption = $derived(
-		orientationOptions.find((option) => option.value === selectedOrientation) ?? orientationOptions[0]
+		orientationOptions.find((option) => option.value === selectedOrientation) ??
+			orientationOptions[0]
 	);
 
 	const loadOrientation = async (
 		gp: string | null,
 		gender: string | null,
-		isDesc: boolean
+		isDesc: boolean,
+		_normalized: boolean,
+		chartMode?: ChartMode
 	): Promise<StatisticsData[]> => {
+		if (chartMode === 'spectrum') {
+			const response = await justPostStatistics<any[]>(
+				`political_spectrum_per_${selectedCategory}`,
+				{
+					legis_period: gp,
+					party: null,
+					gender,
+					is_desc: isDesc
+				}
+			);
+
+			if ('error' in response) {
+				return [];
+			}
+
+			return selectedCategory === 'delegate'
+				? mapPoliticalSpectrumDelegate(response)
+				: mapPoliticalSpectrumCategory(response);
+		}
+
 		const response = await justPostStatistics<any[]>(
 			`is_${selectedOrientation}_per_${selectedCategory}`,
 			{
@@ -81,10 +110,7 @@
 
 <svelte:head>
 	<title>Politische Positionen</title>
-	<meta
-		name="description"
-		content="Statistiken zu politischen Positionswerten von Abgeordneten"
-	/>
+	<meta name="description" content="Statistiken zu politischen Positionswerten von Abgeordneten" />
 </svelte:head>
 
 <Container class="pb-12">
@@ -99,7 +125,9 @@
 		class="mb-5 rounded-xl border border-gray-300 bg-surface-50 p-4 shadow-sm dark:border-surface-700 dark:bg-surface-700/60"
 	>
 		<p class="text-sm font-semibold text-gray-600 dark:text-gray-300">Position</p>
-		<div class="mt-2 flex flex-wrap gap-1 rounded-xl border border-primary-300 p-1 dark:border-primary-400">
+		<div
+			class="mt-2 flex flex-wrap gap-1 rounded-xl border border-primary-300 p-1 dark:border-primary-400"
+		>
 			{#each orientationOptions as option}
 				<button
 					type="button"
@@ -130,6 +158,7 @@
 			showGender: true,
 			showParty: true
 		}}
+		showSpectrumMode={true}
 		infoQuestion="Was zeigt diese Statistik?"
 		infoAnswer="<p>Die Werte stammen aus der Tabelle <strong>political_positions</strong>. Diese Positionswerte sind aktuell nicht nach Legislaturperioden versioniert, daher wird hier keine Periodenfilterung angeboten.</p>"
 	/>

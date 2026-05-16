@@ -100,10 +100,21 @@ pub fn create_statistics_router() -> Router<AppState> {
             post(is_authoritarian_per_gender),
         )
         .route(IS_AUTHORITARIAN_PER_AGE, post(is_authoritarian_per_age))
+        .route(IS_AUTHORITARIAN_PER_LEGIS, post(is_authoritarian_per_legis))
+        // Political Orientation - Combined Spectrum endpoints
         .route(
-            IS_AUTHORITARIAN_PER_LEGIS,
-            post(is_authoritarian_per_legis),
+            POLITICAL_SPECTRUM_PER_DELEGATE,
+            post(political_spectrum_per_delegate),
         )
+        .route(
+            POLITICAL_SPECTRUM_PER_PARTY,
+            post(political_spectrum_per_party),
+        )
+        .route(
+            POLITICAL_SPECTRUM_PER_GENDER,
+            post(political_spectrum_per_gender),
+        )
+        .route(POLITICAL_SPECTRUM_PER_AGE, post(political_spectrum_per_age))
         // Speeches - Speechtime endpoints
         .route(SPEECHTIME_PER_DELEGATE, post(speechtime_per_delegate))
         .route(SPEECHTIME_PER_PARTY, post(speechtime_per_party))

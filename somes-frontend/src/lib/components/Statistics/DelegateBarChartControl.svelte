@@ -9,8 +9,9 @@
 	import type { StatisticsData } from '$lib/types';
 	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 	import { partyColors, partyToColor } from '$lib/partyColor';
+	import PoliticalSpectrumChart from './PoliticalSpectrumChart.svelte';
 
-	type ChartMode = 'bar' | 'donut' | 'line';
+	type ChartMode = 'bar' | 'donut' | 'line' | 'spectrum';
 	type CategoryOption = {
 		value: string;
 		label: string;
@@ -26,7 +27,8 @@
 			gp: string | null,
 			gender: string | null,
 			isDesc: boolean,
-			normalized: boolean
+			normalized: boolean,
+			chartMode?: ChartMode
 		) => Promise<StatisticsData[]>;
 		height?: number;
 		selectedCategory?: string;
@@ -42,6 +44,8 @@
 		};
 		categoryOptions?: CategoryOption[];
 		reloadKey?: unknown;
+		showSpectrumMode?: boolean;
+		selectedChartMode?: ChartMode;
 	}
 
 	const defaultCategoryOptions: CategoryOption[] = [
@@ -67,7 +71,9 @@
 			showParty: true
 		},
 		categoryOptions = defaultCategoryOptions,
-		reloadKey = null
+		reloadKey = null,
+		showSpectrumMode = false,
+		selectedChartMode = $bindable<ChartMode>('bar')
 	}: Props = $props();
 
 	const topOptions = [
@@ -79,7 +85,8 @@
 	const chartModeOptions: ChartModeOption[] = [
 		{ value: 'bar', label: 'Balken', title: 'Balkendiagramm anzeigen' },
 		{ value: 'donut', label: 'Anteile', title: 'Anteilsdiagramm anzeigen' },
-		{ value: 'line', label: 'Verlauf', title: 'Verlaufsdiagramm anzeigen' }
+		{ value: 'line', label: 'Verlauf', title: 'Verlaufsdiagramm anzeigen' },
+		{ value: 'spectrum', label: 'Spektrum', title: 'Politisches Spektrum anzeigen' }
 	];
 	const periodOrder = ['XX', 'XXI', 'XXII', 'XXIII', 'XXIV', 'XXV', 'XXVI', 'XXVII', 'XXVIII'];
 
@@ -90,7 +97,6 @@
 	let searchValue = $state('');
 	let selectedParties = $state(new SvelteSet<string>());
 	let topLimit = $state(25);
-	let selectedChartMode = $state<ChartMode>('bar');
 	let mounted = false;
 	let requestId = 0;
 	let previousSelectedCategory = selectedCategory;
@@ -142,17 +148,29 @@
 	let selectedGender = $derived(genericFilters[0].activeValue);
 	let isDesc = $derived(genericFilters[1].activeValue !== 'asc');
 	let normalized = $derived(genericFilters[2].activeValue !== 'absolute');
-	let metricLabel = $derived(normalized ? normalizedValueLabel : valueLabel);
 	let canUsePartyFilter = $derived(
 		filterConfig.showParty !== false && selectedCategory === 'delegate'
 	);
 	let canUseLineChart = $derived(selectedCategory === 'legis');
-	let chartMode: ChartMode = $derived.by((): ChartMode =>
-		selectedChartMode === 'line' && !canUseLineChart ? 'bar' : selectedChartMode
+	let chartMode: ChartMode = $derived.by((): ChartMode => {
+		if (selectedChartMode === 'line' && !canUseLineChart) return 'bar';
+		if (selectedChartMode === 'spectrum' && !showSpectrumMode) return 'bar';
+		return selectedChartMode;
+	});
+	let metricLabel = $derived(
+		chartMode === 'spectrum'
+			? 'Politisches Spektrum'
+			: normalized
+				? normalizedValueLabel
+				: valueLabel
 	);
 	let canUseTopLimit = $derived(selectedCategory === 'delegate' && chartMode !== 'line');
 	let availableChartModeOptions = $derived(
-		canUseLineChart ? chartModeOptions : chartModeOptions.filter((option) => option.value !== 'line')
+		chartModeOptions.filter((option) => {
+			if (option.value === 'line') return canUseLineChart;
+			if (option.value === 'spectrum') return showSpectrumMode;
+			return true;
+		})
 	);
 
 	let activeCategoryLabel = $derived(
@@ -161,6 +179,9 @@
 	let chartDescription = $derived.by(() => {
 		if (chartMode === 'line') {
 			return 'Zeitlicher Vergleich über alle verfügbaren Legislaturperioden.';
+		}
+		if (chartMode === 'spectrum') {
+			return 'Zweidimensionale Einordnung zwischen sozialistisch und kapitalistisch sowie libertär und autoritär.';
 		}
 		if (chartMode === 'donut') {
 			return 'Anteil der größten Werte an der aktuell gefilterten Auswahl.';
@@ -179,8 +200,8 @@
 
 	let selectedGp = $derived(
 		filterConfig.showPeriod === false ||
-		selectedCategory === 'legis' ||
-		legisPeriodFilter.activeValue === 'all'
+			selectedCategory === 'legis' ||
+			legisPeriodFilter.activeValue === 'all'
 			? null
 			: (legisPeriodFilter.activeValue ?? null)
 	);
@@ -381,6 +402,9 @@
 		if (!canUseLineChart && selectedChartMode === 'line') {
 			selectedChartMode = 'bar';
 		}
+		if (!showSpectrumMode && selectedChartMode === 'spectrum') {
+			selectedChartMode = 'bar';
+		}
 	});
 
 	$effect(() => {
@@ -400,6 +424,7 @@
 		genderFilter;
 		isDesc;
 		normalized;
+		chartMode;
 		delegateMakeRequest;
 		reloadKey;
 		if (mounted) untrack(loadData);
@@ -430,7 +455,13 @@
 		await tick();
 		if (currentRequestId !== requestId) return;
 		try {
-			const result = await delegateMakeRequest(selectedGp, genderFilter, isDesc, normalized);
+			const result = await delegateMakeRequest(
+				selectedGp,
+				genderFilter,
+				isDesc,
+				normalized,
+				chartMode
+			);
 			if (currentRequestId !== requestId) return;
 			currentData = result;
 			currentDataCategory = requestedCategory;
@@ -573,7 +604,7 @@
 										<path d="M12 3v6h6" />
 										<circle cx="12" cy="12" r="3" />
 									</svg>
-								{:else}
+								{:else if option.value === 'line'}
 									<svg
 										viewBox="0 0 24 24"
 										class="h-5 w-5"
@@ -588,6 +619,24 @@
 										<path d="M4 19V5" />
 										<path d="M4 19h16" />
 										<path d="m7 15 4-5 3 3 5-7" />
+									</svg>
+								{:else}
+									<svg
+										viewBox="0 0 24 24"
+										class="h-5 w-5"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										aria-hidden="true"
+									>
+										<title>{option.title}</title>
+										<path d="M12 4v16" />
+										<path d="M4 12h16" />
+										<circle cx="15.5" cy="8.5" r="1.5" />
+										<circle cx="8.5" cy="15.5" r="1.5" />
+										<circle cx="14" cy="14" r="1.5" />
 									</svg>
 								{/if}
 							</button>
@@ -673,6 +722,8 @@
 					Passen Sie Suche, Parteien oder Filter an.
 				</p>
 			</div>
+		{:else if chartMode === 'spectrum'}
+			<PoliticalSpectrumChart data={shownData} {height} {selectedCategory} />
 		{:else if chartMode === 'donut'}
 			<div
 				class="grid gap-4 p-4 lg:grid-cols-[minmax(0,1fr)_20rem]"
