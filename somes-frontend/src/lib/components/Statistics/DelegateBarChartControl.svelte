@@ -40,7 +40,17 @@
 			showGender?: boolean;
 			showParty?: boolean;
 		};
+		categoryOptions?: CategoryOption[];
+		reloadKey?: unknown;
 	}
+
+	const defaultCategoryOptions: CategoryOption[] = [
+		{ value: 'delegate', label: 'Abgeordnete' },
+		{ value: 'party', label: 'Parteien' },
+		{ value: 'gender', label: 'Geschlecht' },
+		{ value: 'age', label: 'Alter' },
+		{ value: 'legis', label: 'Legislaturperioden' }
+	];
 
 	let {
 		delegateMakeRequest,
@@ -55,16 +65,10 @@
 			showPeriod: true,
 			showGender: true,
 			showParty: true
-		}
+		},
+		categoryOptions = defaultCategoryOptions,
+		reloadKey = null
 	}: Props = $props();
-
-	const categoryOptions: CategoryOption[] = [
-		{ value: 'delegate', label: 'Abgeordnete' },
-		{ value: 'party', label: 'Parteien' },
-		{ value: 'gender', label: 'Geschlecht' },
-		{ value: 'age', label: 'Alter' },
-		{ value: 'legis', label: 'Legislaturperioden' }
-	];
 
 	const topOptions = [
 		{ value: 10, label: 'Top 10' },
@@ -395,6 +399,7 @@
 		isDesc;
 		normalized;
 		delegateMakeRequest;
+		reloadKey;
 		if (mounted) untrack(loadData);
 	});
 

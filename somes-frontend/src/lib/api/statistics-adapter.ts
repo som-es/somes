@@ -292,6 +292,25 @@ export function mapIsLiberalCategory(data: any[]): StatisticsData[] {
 	});
 }
 
+export function mapOrientationDelegate(data: any[]): StatisticsData[] {
+	return mapData(data, {
+		type: 'delegate',
+		labelField: 'delegate_name',
+		valueField: 'orientation_score',
+		partyField: 'delegate_party',
+		metadataFields: ['orientation_score', 'total_votes']
+	});
+}
+
+export function mapOrientationCategory(data: any[]): StatisticsData[] {
+	return mapData(data, {
+		type: 'category',
+		labelField: 'category',
+		valueField: 'average_orientation',
+		metadataFields: ['average_orientation', 'total_votes', 'delegate_count']
+	});
+}
+
 
 export function mapSpeechTimeCategory(data: any[], normalized: boolean = false): StatisticsData[] {
 	return mapData(data, {

@@ -5,9 +5,7 @@ use utoipa::ToSchema;
 
 use crate::{
     routes::statistics::routes::error::StatisticsResponse,
-    routes::statistics::routes::filtering::{
-        bind_values, build_filter, IntoFilterArgument, Manual,
-    },
+    routes::statistics::routes::filtering::{bind_values, build_filter, IntoFilterArgument},
     PgPoolConnection,
 };
 
@@ -17,7 +15,7 @@ pub struct PoliticalOrientationFilter {
     gender: Option<String>,
     party: Option<String>,
     is_desc: bool,
-    orientation_type: String, // "left" or "liberal"
+    orientation_type: String, // "left", "right", "liberal" or "authoritarian"
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
@@ -27,6 +25,7 @@ pub struct PoliticalOrientationBase {
     delegate_gender: String,
     orientation_score: f64,
     total_votes: i64,
+    delegate_age_bucket: String,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
@@ -52,49 +51,78 @@ impl PoliticalOrientationService {
         pg: &sqlx::PgPool,
         filter: &PoliticalOrientationFilter,
     ) -> Result<Vec<PoliticalOrientationBase>, StatisticsResponse> {
-        let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
-        let filter_arg1 = filter.party.with_sql_column("m.party");
-        let filter_arg2 = filter.gender.with_sql_column("d.gender");
-        let filter_arg3 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
-        let filters = [filter_arg, filter_arg1, filter_arg2, filter_arg3];
-
-        let filter_str = build_filter(&filters);
-
         let orientation_column = match filter.orientation_type.as_str() {
-            "left" => "dv.is_left_vote",
-            "liberal" => "dv.is_liberal_vote",
-            _ => "dv.is_left_vote", // default to left
+            "right" => "pp.is_not_left",
+            "liberal" => "pp.is_liberal",
+            "authoritarian" => "pp.is_not_liberal",
+            _ => "pp.is_left",
         };
 
         let query = format!(
             "
-        SELECT 
+        WITH period_bounds AS (
+            SELECT
+                pf.legislative_period AS gp,
+                MIN(pf.raw_data_created_at)::date AS start_date,
+                MAX(pf.raw_data_created_at)::date AS end_date,
+                MAX(pf.raw_data_created_at)::date AS reference_date
+            FROM plenar_infos pf
+            GROUP BY pf.legislative_period
+        )
+        SELECT
             d.name AS delegate_name,
-            COALESCE(m.party, 'Regierungsmitglied') AS delegate_party,
-            d.gender AS delegate_gender,
-            AVG(CASE WHEN {} = true THEN 1.0 ELSE 0.0 END) AS orientation_score,
-            COUNT(dv.id) AS total_votes
-        FROM 
-            delegate_votes dv
-        JOIN 
-            delegates d ON dv.delegate_id = d.id
-        LEFT JOIN plenar_infos pf ON pf.id = dv.plenar_id
-        LEFT JOIN mandates m ON m.delegate_id = d.id
-            AND (m.start_date IS NULL OR m.start_date <= pf.raw_data_created_at::date)
-            AND (m.end_date IS NULL OR m.end_date >= pf.raw_data_created_at::date)
-        WHERE 
-            {} IS NOT NULL
-            AND {filter_str}
-        GROUP BY 
-            d.id, d.name, m.party, d.gender
-        ORDER BY 
+            COALESCE(active_mandate.party, d.party, 'Regierungsmitglied') AS delegate_party,
+            COALESCE(d.gender, '') AS delegate_gender,
+            {}::float8 AS orientation_score,
+            pp.neutral_count::bigint AS total_votes,
+            CASE
+                WHEN d.birthdate IS NULL THEN 'Unbekannt'
+                WHEN EXTRACT(YEAR FROM AGE(COALESCE(pb.reference_date, CURRENT_DATE), d.birthdate)) <= 30 THEN '18-30'
+                WHEN EXTRACT(YEAR FROM AGE(COALESCE(pb.reference_date, CURRENT_DATE), d.birthdate)) <= 40 THEN '31-40'
+                WHEN EXTRACT(YEAR FROM AGE(COALESCE(pb.reference_date, CURRENT_DATE), d.birthdate)) <= 50 THEN '41-50'
+                WHEN EXTRACT(YEAR FROM AGE(COALESCE(pb.reference_date, CURRENT_DATE), d.birthdate)) <= 60 THEN '51-60'
+                ELSE '60+'
+            END AS delegate_age_bucket
+        FROM political_positions pp
+        JOIN delegates d ON pp.delegate_id = d.id
+        LEFT JOIN period_bounds pb ON pb.gp = $1
+        LEFT JOIN LATERAL (
+            SELECT m.id, m.party
+            FROM mandates m
+            WHERE m.delegate_id = d.id
+                AND (m.is_nr OR m.is_gov_official)
+                AND (
+                    $1::text IS NULL
+                    OR (
+                        m.start_date <= pb.end_date
+                        AND (m.end_date IS NULL OR m.end_date >= pb.start_date)
+                    )
+                )
+            ORDER BY
+                CASE
+                    WHEN $1::text IS NULL THEN COALESCE(m.end_date, 'infinity'::date)
+                    ELSE LEAST(COALESCE(m.end_date, pb.end_date), pb.end_date)
+                END DESC,
+                m.start_date DESC
+            LIMIT 1
+        ) active_mandate ON true
+        WHERE
+            ($1::text IS NULL OR active_mandate.id IS NOT NULL)
+            AND ($2::text IS NULL OR d.gender = $2)
+            AND (
+                $3::text IS NULL
+                OR COALESCE(active_mandate.party, d.party, 'Regierungsmitglied') = $3
+            )
+        ORDER BY
             orientation_score DESC;
         ",
-            orientation_column, orientation_column
+            orientation_column
         );
 
-        let mut filtered_query = sqlx::query_as::<Postgres, PoliticalOrientationBase>(&query);
-        filtered_query = bind_values(filtered_query, &filters);
+        let filtered_query = sqlx::query_as::<Postgres, PoliticalOrientationBase>(&query)
+            .bind(filter.legis_period.as_deref())
+            .bind(filter.gender.as_deref())
+            .bind(filter.party.as_deref());
 
         filtered_query
             .fetch_all(pg)
@@ -234,48 +262,59 @@ impl PoliticalOrientationService {
         pg: &sqlx::PgPool,
         filter: &PoliticalOrientationFilter,
     ) -> Result<Vec<PoliticalOrientationByCategory>, StatisticsResponse> {
-        let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
-        let filter_arg1 = filter.gender.with_sql_column("d.gender");
-        let filter_arg2 = filter.party.with_sql_column("m.party");
-        let filter_arg3 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
-        let filters = [filter_arg, filter_arg1, filter_arg2, filter_arg3];
-
-        let filter_str = build_filter(&filters);
-
         let orientation_column = match filter.orientation_type.as_str() {
-            "left" => "dv.is_left_vote",
-            "liberal" => "dv.is_liberal_vote",
-            _ => "dv.is_left_vote",
+            "right" => "pp.is_not_left",
+            "liberal" => "pp.is_liberal",
+            "authoritarian" => "pp.is_not_liberal",
+            _ => "pp.is_left",
         };
 
         let query = format!(
             "
-        SELECT 
-            pf.legislative_period AS category,
-            AVG(CASE WHEN {} = true THEN 1.0 ELSE 0.0 END) AS average_orientation,
-            COUNT(dv.id) AS total_votes,
+        WITH period_bounds AS (
+            SELECT
+                pf.legislative_period AS gp,
+                MIN(pf.raw_data_created_at)::date AS start_date,
+                MAX(pf.raw_data_created_at)::date AS end_date
+            FROM plenar_infos pf
+            GROUP BY pf.legislative_period
+        )
+        SELECT
+            pb.gp AS category,
+            AVG({}::float8) AS average_orientation,
+            SUM(pp.neutral_count)::bigint AS total_votes,
             COUNT(DISTINCT d.id) AS delegate_count
-        FROM 
-            delegate_votes dv
-        JOIN 
-            delegates d ON dv.delegate_id = d.id
-        JOIN plenar_infos pf ON pf.id = dv.plenar_id
-        LEFT JOIN mandates m ON m.delegate_id = d.id
-            AND (m.start_date IS NULL OR m.start_date <= pf.raw_data_created_at::date)
-            AND (m.end_date IS NULL OR m.end_date >= pf.raw_data_created_at::date)
-        WHERE 
-            {} IS NOT NULL
-            AND {filter_str}
-        GROUP BY 
-            pf.legislative_period
-        ORDER BY 
+        FROM period_bounds pb
+        JOIN political_positions pp ON true
+        JOIN delegates d ON pp.delegate_id = d.id
+        JOIN LATERAL (
+            SELECT m.id, m.party
+            FROM mandates m
+            WHERE m.delegate_id = d.id
+                AND (m.is_nr OR m.is_gov_official)
+                AND m.start_date <= pb.end_date
+                AND (m.end_date IS NULL OR m.end_date >= pb.start_date)
+            ORDER BY
+                LEAST(COALESCE(m.end_date, pb.end_date), pb.end_date) DESC,
+                m.start_date DESC
+            LIMIT 1
+        ) active_mandate ON true
+        WHERE
+            ($1::text IS NULL OR pb.gp = $1)
+            AND ($2::text IS NULL OR d.gender = $2)
+            AND ($3::text IS NULL OR COALESCE(active_mandate.party, d.party, 'Regierungsmitglied') = $3)
+        GROUP BY
+            pb.gp
+        ORDER BY
             average_orientation DESC;
         ",
-            orientation_column, orientation_column
+            orientation_column
         );
 
-        let mut filtered_query = sqlx::query_as::<Postgres, PoliticalOrientationByCategory>(&query);
-        filtered_query = bind_values(filtered_query, &filters);
+        let filtered_query = sqlx::query_as::<Postgres, PoliticalOrientationByCategory>(&query)
+            .bind(filter.legis_period.as_deref())
+            .bind(filter.gender.as_deref())
+            .bind(filter.party.as_deref());
 
         let mut results = filtered_query
             .fetch_all(pg)
@@ -295,58 +334,35 @@ impl PoliticalOrientationService {
     ) -> Result<Vec<PoliticalOrientationByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
 
-        let mut results: Vec<PoliticalOrientationByCategory> = vec![
-            PoliticalOrientationByCategory {
-                category: "18-30".to_string(),
-                average_orientation: 0.0,
-                total_votes: 0,
-                delegate_count: 0,
-            },
-            PoliticalOrientationByCategory {
-                category: "31-40".to_string(),
-                average_orientation: 0.0,
-                total_votes: 0,
-                delegate_count: 0,
-            },
-            PoliticalOrientationByCategory {
-                category: "41-50".to_string(),
-                average_orientation: 0.0,
-                total_votes: 0,
-                delegate_count: 0,
-            },
-            PoliticalOrientationByCategory {
-                category: "51-60".to_string(),
-                average_orientation: 0.0,
-                total_votes: 0,
-                delegate_count: 0,
-            },
-            PoliticalOrientationByCategory {
-                category: "60+".to_string(),
-                average_orientation: 0.0,
-                total_votes: 0,
-                delegate_count: 0,
-            },
-        ];
+        let mut age_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> =
+            std::collections::HashMap::new();
 
-        let scores: Vec<f64> = base_data
-            .iter()
-            .map(|item| item.orientation_score)
+        for item in base_data {
+            let entry = age_map
+                .entry(item.delegate_age_bucket)
+                .or_insert((Vec::new(), 0, 0));
+            entry.0.push(item.orientation_score);
+            entry.1 += item.total_votes;
+            entry.2 += 1;
+        }
+
+        let mut results: Vec<PoliticalOrientationByCategory> = age_map
+            .into_iter()
+            .map(|(age, (scores, total_votes, delegate_count))| {
+                let average_orientation = if scores.is_empty() {
+                    0.0
+                } else {
+                    scores.iter().sum::<f64>() / scores.len() as f64
+                };
+
+                PoliticalOrientationByCategory {
+                    category: age,
+                    average_orientation,
+                    total_votes,
+                    delegate_count,
+                }
+            })
             .collect();
-        let total_votes: i64 = base_data.iter().map(|item| item.total_votes).sum();
-        let delegate_count: i64 = base_data.len() as i64;
-
-        let average_orientation = if !scores.is_empty() {
-            scores.iter().sum::<f64>() / scores.len() as f64
-        } else {
-            0.0
-        };
-
-        results.push(PoliticalOrientationByCategory {
-            category: "Unknown".to_string(),
-            average_orientation,
-            total_votes,
-            delegate_count,
-        });
 
         results.sort_by(|a, b| {
             b.average_orientation
@@ -535,6 +551,56 @@ pub async fn is_left_per_age(
     Ok(Json(results))
 }
 
+pub async fn is_right_per_delegate(
+    PgPoolConnection(pg): PgPoolConnection,
+    Json(filter): Json<Option<PoliticalOrientationFilter>>,
+) -> Result<Json<Vec<PoliticalOrientationForDelegate>>, StatisticsResponse> {
+    let mut filter = filter.unwrap_or_default();
+    filter.orientation_type = "right".to_string();
+    let results = PoliticalOrientationService::per_delegate(&pg, &filter).await?;
+    Ok(Json(results))
+}
+
+pub async fn is_right_per_party(
+    PgPoolConnection(pg): PgPoolConnection,
+    Json(filter): Json<Option<PoliticalOrientationFilter>>,
+) -> Result<Json<Vec<PoliticalOrientationByCategory>>, StatisticsResponse> {
+    let mut filter = filter.unwrap_or_default();
+    filter.orientation_type = "right".to_string();
+    let results = PoliticalOrientationService::per_party(&pg, &filter).await?;
+    Ok(Json(results))
+}
+
+pub async fn is_right_per_gender(
+    PgPoolConnection(pg): PgPoolConnection,
+    Json(filter): Json<Option<PoliticalOrientationFilter>>,
+) -> Result<Json<Vec<PoliticalOrientationByCategory>>, StatisticsResponse> {
+    let mut filter = filter.unwrap_or_default();
+    filter.orientation_type = "right".to_string();
+    let results = PoliticalOrientationService::per_gender(&pg, &filter).await?;
+    Ok(Json(results))
+}
+
+pub async fn is_right_per_legis(
+    PgPoolConnection(pg): PgPoolConnection,
+    Json(filter): Json<Option<PoliticalOrientationFilter>>,
+) -> Result<Json<Vec<PoliticalOrientationByCategory>>, StatisticsResponse> {
+    let mut filter = filter.unwrap_or_default();
+    filter.orientation_type = "right".to_string();
+    let results = PoliticalOrientationService::per_legis(&pg, &filter).await?;
+    Ok(Json(results))
+}
+
+pub async fn is_right_per_age(
+    PgPoolConnection(pg): PgPoolConnection,
+    Json(filter): Json<Option<PoliticalOrientationFilter>>,
+) -> Result<Json<Vec<PoliticalOrientationByCategory>>, StatisticsResponse> {
+    let mut filter = filter.unwrap_or_default();
+    filter.orientation_type = "right".to_string();
+    let results = PoliticalOrientationService::per_age(&pg, &filter).await?;
+    Ok(Json(results))
+}
+
 // Legacy endpoint functions for backward compatibility - Is Liberal
 pub async fn is_liberal_per_delegate(
     PgPoolConnection(pg): PgPoolConnection,
@@ -623,5 +689,55 @@ pub async fn is_liberal_per_age(
         "✅ STATISTICS ENDPOINT: is_liberal_per_age returning {} results",
         results.len()
     );
+    Ok(Json(results))
+}
+
+pub async fn is_authoritarian_per_delegate(
+    PgPoolConnection(pg): PgPoolConnection,
+    Json(filter): Json<Option<PoliticalOrientationFilter>>,
+) -> Result<Json<Vec<PoliticalOrientationForDelegate>>, StatisticsResponse> {
+    let mut filter = filter.unwrap_or_default();
+    filter.orientation_type = "authoritarian".to_string();
+    let results = PoliticalOrientationService::per_delegate(&pg, &filter).await?;
+    Ok(Json(results))
+}
+
+pub async fn is_authoritarian_per_party(
+    PgPoolConnection(pg): PgPoolConnection,
+    Json(filter): Json<Option<PoliticalOrientationFilter>>,
+) -> Result<Json<Vec<PoliticalOrientationByCategory>>, StatisticsResponse> {
+    let mut filter = filter.unwrap_or_default();
+    filter.orientation_type = "authoritarian".to_string();
+    let results = PoliticalOrientationService::per_party(&pg, &filter).await?;
+    Ok(Json(results))
+}
+
+pub async fn is_authoritarian_per_gender(
+    PgPoolConnection(pg): PgPoolConnection,
+    Json(filter): Json<Option<PoliticalOrientationFilter>>,
+) -> Result<Json<Vec<PoliticalOrientationByCategory>>, StatisticsResponse> {
+    let mut filter = filter.unwrap_or_default();
+    filter.orientation_type = "authoritarian".to_string();
+    let results = PoliticalOrientationService::per_gender(&pg, &filter).await?;
+    Ok(Json(results))
+}
+
+pub async fn is_authoritarian_per_legis(
+    PgPoolConnection(pg): PgPoolConnection,
+    Json(filter): Json<Option<PoliticalOrientationFilter>>,
+) -> Result<Json<Vec<PoliticalOrientationByCategory>>, StatisticsResponse> {
+    let mut filter = filter.unwrap_or_default();
+    filter.orientation_type = "authoritarian".to_string();
+    let results = PoliticalOrientationService::per_legis(&pg, &filter).await?;
+    Ok(Json(results))
+}
+
+pub async fn is_authoritarian_per_age(
+    PgPoolConnection(pg): PgPoolConnection,
+    Json(filter): Json<Option<PoliticalOrientationFilter>>,
+) -> Result<Json<Vec<PoliticalOrientationByCategory>>, StatisticsResponse> {
+    let mut filter = filter.unwrap_or_default();
+    filter.orientation_type = "authoritarian".to_string();
+    let results = PoliticalOrientationService::per_age(&pg, &filter).await?;
     Ok(Json(results))
 }

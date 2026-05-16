@@ -155,14 +155,15 @@
 		normalizedValueLabel="durchschnittliche Aktivitäts-Punkte (pro Sitzung)"
 		infoQuestion="Wie werden Aktivitäts-Punkte berechnet?"
 		infoAnswer="
-			<p><strong>Aktivitäts-Punkte:</strong> Summe der gewichteten Vorstösse</p>
+			<p><strong>Aktivitäts-Punkte:</strong> gewichtete Summe der eingebrachten parlamentarischen Initiativen.</p>
 			<ul class='ml-4 space-y-1 text-xs'>
-				<li>Motion: <strong>1 Punkt</strong></li>
-				<li>Postulat: <strong>1.2 x Anzahl</strong></li>
-				<li>Anfrage: <strong>1.2 x Anzahl</strong></li>
-				<li>Dringliche Anfrage: <strong>1.15 x Anzahl</strong></li>
-				<li>Initiative: <strong>1.3 x Anzahl</strong></li>
+				<li>Anfragen (J): <strong>0,35 Punkte</strong></li>
+				<li>Unselbständige Entschließungsanträge (UEA): <strong>0,75 Punkte</strong></li>
+				<li>Abänderungsanträge (AA): <strong>0,9 Punkte</strong></li>
+				<li>Selbständige Anträge (A): <strong>1 Punkt</strong></li>
+				<li>Initiativen (I): <strong>1,25 Punkte</strong></li>
 			</ul>
+			<p class='mt-2'>Normalisiert wird durch die Anzahl der Sitzungen der jeweiligen Legislaturperiode geteilt.</p>
 		"
 	/>
 </Container>

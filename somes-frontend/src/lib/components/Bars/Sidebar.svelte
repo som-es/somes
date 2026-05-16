@@ -60,8 +60,7 @@
 			route: '/statistics',
 			list: [
 				{ href: resolve('/statistics/speech_time'), label: 'Redezeit', keywords: '' },
-				{ href: resolve('/statistics/total_speeches'), label: 'Gehaltene Reden', keywords: '' },
-				{ href: resolve('/statistics/complexity'), label: 'Sprachkomplexität', keywords: '' }
+				{ href: resolve('/statistics/total_speeches'), label: 'Gehaltene Reden', keywords: '' }
 			]
 		},
 		{
@@ -72,6 +71,11 @@
 				{ href: resolve('/statistics/activity'), label: 'Aktivität', keywords: '' },
 				{ href: resolve('/statistics/call_to_orders'), label: 'Ordnungsrufe', keywords: '' }
 			]
+		},
+		{
+			title: 'Positionen',
+			route: '/statistics',
+			list: [{ href: resolve('/statistics/orientation'), label: 'Politische Positionen', keywords: '' }]
 		},
 
 		{

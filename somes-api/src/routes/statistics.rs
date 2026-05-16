@@ -77,12 +77,33 @@ pub fn create_statistics_router() -> Router<AppState> {
         .route(IS_LEFT_PER_GENDER, post(is_left_per_gender))
         .route(IS_LEFT_PER_AGE, post(is_left_per_age))
         .route(IS_LEFT_PER_LEGIS, post(is_left_per_legis))
+        // Political Orientation - Is Right endpoints
+        .route(IS_RIGHT_PER_DELEGATE, post(is_right_per_delegate))
+        .route(IS_RIGHT_PER_PARTY, post(is_right_per_party))
+        .route(IS_RIGHT_PER_GENDER, post(is_right_per_gender))
+        .route(IS_RIGHT_PER_AGE, post(is_right_per_age))
+        .route(IS_RIGHT_PER_LEGIS, post(is_right_per_legis))
         // Political Orientation - Is Liberal endpoints
         .route(IS_LIBERAL_PER_DELEGATE, post(is_liberal_per_delegate))
         .route(IS_LIBERAL_PER_PARTY, post(is_liberal_per_party))
         .route(IS_LIBERAL_PER_GENDER, post(is_liberal_per_gender))
         .route(IS_LIBERAL_PER_AGE, post(is_liberal_per_age))
         .route(IS_LIBERAL_PER_LEGIS, post(is_liberal_per_legis))
+        // Political Orientation - Is Authoritarian endpoints
+        .route(
+            IS_AUTHORITARIAN_PER_DELEGATE,
+            post(is_authoritarian_per_delegate),
+        )
+        .route(IS_AUTHORITARIAN_PER_PARTY, post(is_authoritarian_per_party))
+        .route(
+            IS_AUTHORITARIAN_PER_GENDER,
+            post(is_authoritarian_per_gender),
+        )
+        .route(IS_AUTHORITARIAN_PER_AGE, post(is_authoritarian_per_age))
+        .route(
+            IS_AUTHORITARIAN_PER_LEGIS,
+            post(is_authoritarian_per_legis),
+        )
         // Speeches - Speechtime endpoints
         .route(SPEECHTIME_PER_DELEGATE, post(speechtime_per_delegate))
         .route(SPEECHTIME_PER_PARTY, post(speechtime_per_party))

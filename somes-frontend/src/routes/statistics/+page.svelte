@@ -15,8 +15,9 @@
 		},
 		{
 			title: 'Sprachkomplexität',
-			description: 'Vergleich der berechneten Komplexitätswerte parlamentarischer Beiträge.',
-			href: resolve('/statistics/complexity')
+			description: 'Derzeit deaktiviert, bis wieder belastbare Sprachkomplexitätsdaten verfügbar sind.',
+			href: null,
+			disabled: true
 		},
 		{
 			title: 'Abwesenheiten',
@@ -37,6 +38,11 @@
 			title: 'Alter',
 			description: 'Altersstruktur und Durchschnittsalter der Abgeordneten.',
 			href: resolve('/statistics/age')
+		},
+		{
+			title: 'Politische Positionen',
+			description: 'Ranglisten nach linken, rechten, libertären und autoritären Positionswerten.',
+			href: resolve('/statistics/orientation')
 		}
 	];
 </script>
@@ -57,13 +63,31 @@
 
 	<div class="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
 		{#each statisticsSections as section}
-			<a
-				href={section.href}
-				class="rounded-xl border border-gray-300 bg-surface-50 p-5 shadow-sm transition hover:border-primary-400 hover:bg-primary-50 dark:border-surface-700 dark:bg-surface-700/60 dark:hover:bg-surface-700"
-			>
-				<h2 class="text-xl font-bold">{section.title}</h2>
-				<p class="mt-2 text-sm leading-6 text-gray-700 dark:text-gray-300">{section.description}</p>
-			</a>
+			{#if section.disabled}
+				<div
+					class="rounded-xl border border-gray-300 bg-surface-100 p-5 opacity-70 shadow-sm dark:border-surface-700 dark:bg-surface-800"
+				>
+					<div class="flex items-center justify-between gap-3">
+						<h2 class="text-xl font-bold">{section.title}</h2>
+						<span class="rounded-lg bg-surface-200 px-2 py-1 text-xs font-semibold dark:bg-surface-700"
+							>Deaktiviert</span
+						>
+					</div>
+					<p class="mt-2 text-sm leading-6 text-gray-700 dark:text-gray-300">
+						{section.description}
+					</p>
+				</div>
+			{:else}
+				<a
+					href={section.href}
+					class="rounded-xl border border-gray-300 bg-surface-50 p-5 shadow-sm transition hover:border-primary-400 hover:bg-primary-50 dark:border-surface-700 dark:bg-surface-700/60 dark:hover:bg-surface-700"
+				>
+					<h2 class="text-xl font-bold">{section.title}</h2>
+					<p class="mt-2 text-sm leading-6 text-gray-700 dark:text-gray-300">
+						{section.description}
+					</p>
+				</a>
+			{/if}
 		{/each}
 	</div>
 </Container>

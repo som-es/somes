@@ -59,101 +59,100 @@ impl ActivityService {
         pg: &sqlx::PgPool,
         filter: &ActivityFilter,
     ) -> Result<Vec<ActivityBase>, StatisticsResponse> {
-        let filter_arg1 = filter.party.with_sql_column("m.party");
-        let filter_arg2 = filter.gender.with_sql_column("d.gender");
-        let filter_arg3 = filter.legis_period.with_sql_column("p.gp");
-        let filter_arg4 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
-        let filters = [filter_arg1, filter_arg2, filter_arg3, filter_arg4];
-
-        let filter_str = build_filter(&filters);
-
-        let query = format!(
-            "
-        SELECT DISTINCT ON (d.id)
+        let query = "
+        WITH initiative_rows AS (
+            SELECT
+                li.id,
+                li.ityp,
+                li.gp,
+                COALESCE(
+                    li.nr_plenary_activity_date,
+                    li.raw_data_created_at::date,
+                    li.created_at::date
+                ) AS activity_date
+            FROM legislative_initiatives li
+            WHERE ($1::text IS NULL OR li.gp = $1)
+        ),
+        session_counts AS (
+            SELECT
+                pf.legislative_period AS gp,
+                COUNT(*)::bigint AS session_count
+            FROM plenar_infos pf
+            GROUP BY pf.legislative_period
+        )
+        SELECT
             d.name AS delegate_name,
-            COALESCE(m.party, 'Regierungsmitglied') AS delegate_party,
+            COALESCE(active_mandate.party, d.party, 'Regierungsmitglied') AS delegate_party,
             COALESCE(d.gender, '') AS delegate_gender,
             (
                 SUM(
-                    CASE 
-                        WHEN p.ityp = 'J' THEN 1
-                        WHEN p.ityp = 'AA' THEN 1.2 * proposal_counts.proposal_count
-                        WHEN p.ityp = 'A' THEN 1.2 * proposal_counts.proposal_count
-                        WHEN p.ityp = 'UEA' THEN 1.15 * proposal_counts.proposal_count
-                        WHEN p.ityp = 'I' THEN 1.3 * proposal_counts.proposal_count
+                    CASE
+                        WHEN ir.ityp = 'J' THEN 0.35
+                        WHEN ir.ityp = 'AA' THEN 0.9
+                        WHEN ir.ityp = 'A' THEN 1.0
+                        WHEN ir.ityp = 'UEA' THEN 0.75
+                        WHEN ir.ityp = 'I' THEN 1.25
                         ELSE 0
                     END
-                ) / NULLIF(COALESCE(session_count.session_count, 1), 0)
+                ) / NULLIF(COALESCE(sc.session_count, 1), 0)
             )::float8 AS activity_score,
             SUM(
-                CASE 
-                    WHEN p.ityp = 'J' THEN 1
-                    WHEN p.ityp = 'AA' THEN 1.2 * proposal_counts.proposal_count
-                    WHEN p.ityp = 'A' THEN 1.2 * proposal_counts.proposal_count
-                    WHEN p.ityp = 'UEA' THEN 1.15 * proposal_counts.proposal_count
-                    WHEN p.ityp = 'I' THEN 1.3 * proposal_counts.proposal_count
+                CASE
+                    WHEN ir.ityp = 'J' THEN 0.35
+                    WHEN ir.ityp = 'AA' THEN 0.9
+                    WHEN ir.ityp = 'A' THEN 1.0
+                    WHEN ir.ityp = 'UEA' THEN 0.75
+                    WHEN ir.ityp = 'I' THEN 1.25
                     ELSE 0
                 END
             )::float8 AS raw_activity_score,
-            COUNT(p.id) AS total_proposals,
-            COALESCE(session_count.session_count, 0) AS session_count,
-            p.gp AS legislative_period,
+            COUNT(DISTINCT ir.id)::bigint AS total_proposals,
+            COALESCE(sc.session_count, 0) AS session_count,
+            ir.gp AS legislative_period,
             CASE
                 WHEN d.birthdate IS NULL THEN 'Unbekannt'
-                WHEN EXTRACT(YEAR FROM AGE(p.created_at, d.birthdate)) <= 30 THEN '18-30'
-                WHEN EXTRACT(YEAR FROM AGE(p.created_at, d.birthdate)) <= 40 THEN '31-40'
-                WHEN EXTRACT(YEAR FROM AGE(p.created_at, d.birthdate)) <= 50 THEN '41-50'
-                WHEN EXTRACT(YEAR FROM AGE(p.created_at, d.birthdate)) <= 60 THEN '51-60'
+                WHEN EXTRACT(YEAR FROM AGE(MAX(ir.activity_date), d.birthdate)) <= 30 THEN '18-30'
+                WHEN EXTRACT(YEAR FROM AGE(MAX(ir.activity_date), d.birthdate)) <= 40 THEN '31-40'
+                WHEN EXTRACT(YEAR FROM AGE(MAX(ir.activity_date), d.birthdate)) <= 50 THEN '41-50'
+                WHEN EXTRACT(YEAR FROM AGE(MAX(ir.activity_date), d.birthdate)) <= 60 THEN '51-60'
                 ELSE '60+'
             END AS delegate_age_bucket
-        FROM 
-            proposals p
-        JOIN 
-            proposal_delegates pd ON p.id = pd.proposal_id
-        JOIN 
-            delegates d ON pd.delegate_id = d.id
-        LEFT JOIN mandates m ON m.delegate_id = d.id
-            AND (m.start_date IS NULL OR m.start_date <= p.created_at::date)
-            AND (m.end_date IS NULL OR m.end_date >= p.created_at::date)
-        LEFT JOIN (
-            SELECT 
-                p.id AS proposal_id,
-                COUNT(p.id) AS proposal_count
-            FROM 
-                proposals p
-            JOIN 
-                proposal_delegates pd ON p.id = pd.proposal_id
-            WHERE 
-                pd.is_receiver = false
-            GROUP BY 
-                p.id
-        ) AS proposal_counts ON p.id = proposal_counts.proposal_id
-        LEFT JOIN (
-            SELECT 
-                pd.delegate_id,
-                COUNT(DISTINCT pi.id) AS session_count
-            FROM proposal_delegates pd
-            JOIN proposals p ON pd.proposal_id = p.id
-            JOIN plenar_infos pi ON pi.legislative_period = (
-                SELECT MAX(legislative_period) 
-                FROM plenar_infos 
-                WHERE raw_data_created_at <= p.created_at
+        FROM initiative_rows ir
+        JOIN legis_init_delegates lid ON lid.legis_init_id = ir.id
+        JOIN delegates d ON lid.delegate_id = d.id
+        LEFT JOIN LATERAL (
+            SELECT m.party
+            FROM mandates m
+            WHERE m.delegate_id = d.id
+                AND (m.is_nr OR m.is_gov_official)
+                AND m.start_date <= ir.activity_date
+                AND (m.end_date IS NULL OR m.end_date >= ir.activity_date)
+            ORDER BY m.is_nr DESC, m.start_date DESC
+            LIMIT 1
+        ) active_mandate ON true
+        LEFT JOIN session_counts sc ON sc.gp = ir.gp
+        WHERE
+            ($2::text IS NULL OR d.gender = $2)
+            AND (
+                $3::text IS NULL
+                OR COALESCE(active_mandate.party, d.party, 'Regierungsmitglied') = $3
             )
-            WHERE pd.is_receiver = false
-            GROUP BY pd.delegate_id
-        ) AS session_count ON d.id = session_count.delegate_id
-        WHERE 
-            pd.is_receiver = false
-            AND {filter_str}
-        GROUP BY 
-            d.id, d.name, d.birthdate, m.party, session_count.session_count, p.gp
-        ORDER BY 
-            d.id, activity_score DESC;
-        "
-        );
+        GROUP BY
+            d.id,
+            d.name,
+            d.birthdate,
+            COALESCE(active_mandate.party, d.party, 'Regierungsmitglied'),
+            COALESCE(d.gender, ''),
+            sc.session_count,
+            ir.gp
+        ORDER BY
+            activity_score DESC;
+        ";
 
-        let mut filtered_query = sqlx::query_as::<Postgres, ActivityBase>(&query);
-        filtered_query = bind_values(filtered_query, &filters);
+        let filtered_query = sqlx::query_as::<Postgres, ActivityBase>(query)
+            .bind(filter.legis_period.as_deref())
+            .bind(filter.gender.as_deref())
+            .bind(filter.party.as_deref());
 
         filtered_query.fetch_all(pg).await.map_err(|e| {
             println!("Error fetching activity data: {}", e);
@@ -317,11 +316,6 @@ impl ActivityService {
         filter: &ActivityFilter,
     ) -> Result<Vec<ActivityByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        println!("base_data {:?}", base_data);
-        println!(
-            "✅ STATISTICS ENDPOINT: activity_per_legis - processing {} items",
-            base_data.len()
-        );
         let mut legis_map: std::collections::HashMap<String, (f64, f64, i64, i64)> =
             std::collections::HashMap::new();
 
@@ -512,10 +506,6 @@ pub async fn activity_per_legis(
 ) -> Result<Json<Vec<ActivityByCategory>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
     let results = ActivityService::per_legis(&pg, &filter).await?;
-    println!(
-        "✅ STATISTICS ENDPOINT: activity_per_legis returning {} results",
-        results.len()
-    );
     Ok(Json(results))
 }
 
