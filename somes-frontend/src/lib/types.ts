@@ -15,6 +15,14 @@ export interface DelegateData {
 	data: number;
 }
 
+export type StatisticsData = {
+	type: 'delegate' | 'category';
+	label: string;
+	value: number;
+	party?: string;
+	metadata: Record<string, any>;
+};
+
 export interface ChartData {
 	label: string;
 	data: number;

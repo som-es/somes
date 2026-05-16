@@ -17,79 +17,66 @@
 	import { renew_token } from '$lib/api/authed';
 	import { goto } from '$app/navigation';
 	import { convertVoteResultFilterToUrl } from '../VoteResults/Expandable/urlConversion';
-	import { currentDecreeFilterStore, currentGovProposalFilterStore, currentUnfinshedVoteResultFilterStore, currentVoteResultFilterStore } from '$lib/stores/stores';
+	import {
+		currentDecreeFilterStore,
+		currentGovProposalFilterStore,
+		currentUnfinshedVoteResultFilterStore,
+		currentVoteResultFilterStore
+	} from '$lib/stores/stores';
 	import { convertGovPropFilterToUrl } from '../Proposals/urlConversion';
 	import { convertDecreeFilterToUrl } from '../Decrees/urlConversion';
 	import { accountOrLogin } from './user';
 
 	let activeUrl = $derived(page.url.pathname);
 
+	function hrefPath(href: string) {
+		return new URL(href, page.url.origin).pathname;
+	}
+
 	const voteResultUrl = $derived(
-		convertVoteResultFilterToUrl(currentVoteResultFilterStore.value, "", undefined, true)
+		convertVoteResultFilterToUrl(currentVoteResultFilterStore.value, '', undefined, true)
 	);
 	const unfinishedVoteResultUrl = $derived(
-		convertVoteResultFilterToUrl(currentUnfinshedVoteResultFilterStore.value, "", undefined, false)
+		convertVoteResultFilterToUrl(currentUnfinshedVoteResultFilterStore.value, '', undefined, false)
 	);
 	const govProposalUrl = $derived(
-		convertGovPropFilterToUrl(currentGovProposalFilterStore.value, "", undefined)
+		convertGovPropFilterToUrl(currentGovProposalFilterStore.value, '', undefined)
 	);
 	const decreeUrl = $derived(
-		convertDecreeFilterToUrl(currentDecreeFilterStore.value, "", undefined)
+		convertDecreeFilterToUrl(currentDecreeFilterStore.value, '', undefined)
 	);
 
 	const submenu = $derived([
-		/*{
+		{
 			title: 'Statistiken',
 			route: '/statistics',
 			list: [
-				{ href: resolve(`/statistics/overview`), label: 'Übersicht', keywords: '' },
-				{ href: resolve(`/statistics/age`), label: 'Alter', keywords: '' },
-				{
-					href: resolve(`/statistics/political_positions`),
-					label: 'Politische Positionen',
-					keywords: ''
-				}
+				{ href: resolve('/statistics'), label: 'Übersicht', keywords: '' },
+				{ href: resolve('/statistics/age'), label: 'Alter', keywords: '' }
 			]
 		},
 		{
-			title: 'Redebezogen',
+			title: 'Reden',
 			route: '/statistics',
 			list: [
-				{ href: resolve(`/statistics/speechtime`), label: 'Redezeit', keywords: '' },
-				{ href: resolve(`/statistics/total_speeches`), label: 'Gehaltene Reden', keywords: '' },
-				{ href: resolve(`/statistics/speechcomplexity`), label: 'Sprachkomplexität', keywords: '' }
+				{ href: resolve('/statistics/speech_time'), label: 'Redezeit', keywords: '' },
+				{ href: resolve('/statistics/total_speeches'), label: 'Gehaltene Reden', keywords: '' }
 			]
 		},
 		{
 			title: 'Aktivitäten',
 			route: '/statistics',
 			list: [
-				{ href: resolve(`/statistics/absences`), label: 'Abwesenheiten', keywords: '' },
-				{ href: resolve(`/statistics/activity`), label: 'Aktivität', keywords: '' },
-				{
-					href: resolve(`/statistics/division_accuracy`),
-					label: 'Bereichssprechergenauigkeit',
-					keywords: ''
-				},
-				{ href: resolve(`/statistics/call_to_orders`), label: 'Ordnungsrufe', keywords: '' }
+				{ href: resolve('/statistics/absences'), label: 'Abwesenheiten', keywords: '' },
+				{ href: resolve('/statistics/activity'), label: 'Aktivität', keywords: '' },
+				{ href: resolve('/statistics/call_to_orders'), label: 'Ordnungsrufe', keywords: '' }
 			]
 		},
 		{
-			title: 'Abstimmungen',
+			title: 'Positionen',
 			route: '/statistics',
-			list: [
-				{
-					href: resolve(`/statistics/absolute_majority_initiatives`),
-					label: '2/3 Abstimmugnen',
-					keywords: ''
-				},
-				{
-					href: resolve(`/statistics/votes_together`),
-					label: 'Zusammenabstimmen der Parteien',
-					keywords: ''
-				}
-			]
-		},*/
+			list: [{ href: resolve('/statistics/orientation'), label: 'Politische Positionen', keywords: '' }]
+		},
 
 		{
 			title: 'Nationalrat',
@@ -107,8 +94,7 @@
 				{ href: decreeUrl.href, label: 'Verordnungen', keywords: '' }
 			]
 		}
-	]);	
-
+	]);
 </script>
 
 <div class="flex h-full grid-cols-[auto_1fr] bg-surface-50 lg:grid">
@@ -212,7 +198,7 @@
 								<li class="px-2 py-1">
 									<a
 										{href}
-										class="flex w-fit rounded-3xl p-2 px-4 {href.includes(activeUrl)
+										class="flex w-fit rounded-3xl p-2 px-4 {hrefPath(href) === activeUrl
 											? 'bg-primary-600'
 											: 'hover:bg-primary-300'}"
 										data-sveltekit-preload-data="hover"
