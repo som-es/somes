@@ -154,10 +154,10 @@ impl ActivityService {
             .bind(filter.gender.as_deref())
             .bind(filter.party.as_deref());
 
-        filtered_query.fetch_all(pg).await.map_err(|e| {
-            println!("Error fetching activity data: {}", e);
-            StatisticsResponse::DbSelectFailure(Some(e))
-        })
+        filtered_query
+            .fetch_all(pg)
+            .await
+            .map_err(|e| StatisticsResponse::DbSelectFailure(Some(e)))
     }
 
     pub async fn per_delegate(
@@ -440,7 +440,6 @@ pub async fn legislative_initiatives_without_simple_majority(
     Json(filter): Json<Option<LegislativeInitiativeFilter>>,
 ) -> Result<Json<Vec<LegislativeInitiativeStats>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
-    println!("🔍 STATISTICS ENDPOINT: legislative_initiatives_without_simple_majority called with filter: {:?}", filter);
 
     let filter_arg = filter.legis_period.with_sql_column("gp");
     let filter_arg1 = filter.accepted.with_sql_column("accepted");
@@ -468,7 +467,6 @@ pub async fn legislative_initiatives_without_simple_majority(
         .await
         .map(Json)
         .map_err(|e| StatisticsResponse::DbSelectFailure(Some(e)))?;
-    println!("✅ STATISTICS ENDPOINT: legislative_initiatives_without_simple_majority returning {} results", results.len());
     Ok(results)
 }
 

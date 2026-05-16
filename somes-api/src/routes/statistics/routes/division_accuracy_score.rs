@@ -354,15 +354,7 @@ pub async fn division_accuracy_score_per_delegate(
     Json(filter): Json<Option<DivisionAccuracyFilter>>,
 ) -> Result<Json<Vec<DivisionAccuracyForDelegate>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
-    println!(
-        "🔍 STATISTICS ENDPOINT: division_accuracy_score_per_delegate called with filter: {:?}",
-        filter
-    );
     let results = DivisionAccuracyService::per_delegate(&pg, &filter).await?;
-    println!(
-        "✅ STATISTICS ENDPOINT: division_accuracy_score_per_delegate returning {} results",
-        results.len()
-    );
     Ok(Json(results))
 }
 
@@ -371,15 +363,7 @@ pub async fn division_accuracy_score_per_party(
     Json(filter): Json<Option<DivisionAccuracyFilter>>,
 ) -> Result<Json<Vec<DivisionAccuracyByCategory>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
-    println!(
-        "🔍 STATISTICS ENDPOINT: division_accuracy_score_per_party called with filter: {:?}",
-        filter
-    );
     let results = DivisionAccuracyService::per_party(&pg, &filter).await?;
-    println!(
-        "✅ STATISTICS ENDPOINT: division_accuracy_score_per_party returning {} results",
-        results.len()
-    );
     Ok(Json(results))
 }
 
@@ -388,15 +372,7 @@ pub async fn division_accuracy_score_per_gender(
     Json(filter): Json<Option<DivisionAccuracyFilter>>,
 ) -> Result<Json<Vec<DivisionAccuracyByCategory>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
-    println!(
-        "🔍 STATISTICS ENDPOINT: division_accuracy_score_per_gender called with filter: {:?}",
-        filter
-    );
     let results = DivisionAccuracyService::per_gender(&pg, &filter).await?;
-    println!(
-        "✅ STATISTICS ENDPOINT: division_accuracy_score_per_gender returning {} results",
-        results.len()
-    );
     Ok(Json(results))
 }
 
@@ -405,15 +381,7 @@ pub async fn division_accuracy_score_per_legis(
     Json(filter): Json<Option<DivisionAccuracyFilter>>,
 ) -> Result<Json<Vec<DivisionAccuracyByCategory>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
-    println!(
-        "🔍 STATISTICS ENDPOINT: division_accuracy_score_per_legis called with filter: {:?}",
-        filter
-    );
     let results = DivisionAccuracyService::per_legis(&pg, &filter).await?;
-    println!(
-        "✅ STATISTICS ENDPOINT: division_accuracy_score_per_legis returning {} results",
-        results.len()
-    );
     Ok(Json(results))
 }
 
@@ -422,14 +390,6 @@ pub async fn division_accuracy_score_per_age(
     Json(filter): Json<Option<DivisionAccuracyFilter>>,
 ) -> Result<Json<Vec<DivisionAccuracyByCategory>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
-    println!(
-        "🔍 STATISTICS ENDPOINT: division_accuracy_score_per_age called with filter: {:?}",
-        filter
-    );
     let results = DivisionAccuracyService::per_age(&pg, &filter).await?;
-    println!(
-        "✅ STATISTICS ENDPOINT: division_accuracy_score_per_age returning {} results",
-        results.len()
-    );
     Ok(Json(results))
 }

@@ -106,10 +106,10 @@ impl AgeService {
         let mut filtered_query = sqlx::query_as::<Postgres, AgeBase>(&query);
         filtered_query = bind_values(filtered_query, &filters);
 
-        filtered_query.fetch_all(pg).await.map_err(|e| {
-            println!("Error: {:?}", e);
-            StatisticsResponse::DbSelectFailure(Some(e))
-        })
+        filtered_query
+            .fetch_all(pg)
+            .await
+            .map_err(|e| StatisticsResponse::DbSelectFailure(Some(e)))
     }
 
     pub async fn per_delegate(

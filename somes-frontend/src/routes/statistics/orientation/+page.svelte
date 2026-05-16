@@ -13,8 +13,7 @@
 		{ value: 'delegate', label: 'Abgeordnete' },
 		{ value: 'party', label: 'Parteien' },
 		{ value: 'gender', label: 'Geschlecht' },
-		{ value: 'age', label: 'Alter' },
-		{ value: 'legis', label: 'Legislaturperioden' }
+		{ value: 'age', label: 'Alter' }
 	];
 
 	const orientationOptions: {
@@ -127,11 +126,11 @@
 		normalizedValueLabel={selectedOrientationOption.valueLabel}
 		filterConfig={{
 			showNormalized: false,
-			showPeriod: true,
+			showPeriod: false,
 			showGender: true,
 			showParty: true
 		}}
 		infoQuestion="Was zeigt diese Statistik?"
-		infoAnswer="<p>Die Werte stammen aus der Tabelle <strong>political_positions</strong>. Die Legislaturperiode filtert Abgeordnete danach, ob sie in dieser Periode ein Nationalrats- oder Regierungsmandat hatten; die Positionswerte selbst sind nicht zeitlich versioniert.</p>"
+		infoAnswer="<p>Die Werte stammen aus der Tabelle <strong>political_positions</strong>. Diese Positionswerte sind aktuell nicht nach Legislaturperioden versioniert, daher wird hier keine Periodenfilterung angeboten.</p>"
 	/>
 </Container>

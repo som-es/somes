@@ -178,7 +178,9 @@
 	});
 
 	let selectedGp = $derived(
-		selectedCategory === 'legis' || legisPeriodFilter.activeValue === 'all'
+		filterConfig.showPeriod === false ||
+		selectedCategory === 'legis' ||
+		legisPeriodFilter.activeValue === 'all'
 			? null
 			: (legisPeriodFilter.activeValue ?? null)
 	);
