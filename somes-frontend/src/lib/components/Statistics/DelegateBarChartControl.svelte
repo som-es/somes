@@ -15,6 +15,11 @@
 		value: string;
 		label: string;
 	};
+	type ChartModeOption = {
+		value: ChartMode;
+		label: string;
+		title: string;
+	};
 
 	interface Props {
 		delegateMakeRequest: (
@@ -67,6 +72,11 @@
 		{ value: 50, label: 'Top 50' },
 		{ value: 0, label: 'Alle' }
 	];
+	const chartModeOptions: ChartModeOption[] = [
+		{ value: 'bar', label: 'Balken', title: 'Balkendiagramm anzeigen' },
+		{ value: 'donut', label: 'Anteile', title: 'Anteilsdiagramm anzeigen' },
+		{ value: 'line', label: 'Verlauf', title: 'Verlaufsdiagramm anzeigen' }
+	];
 	const periodOrder = ['XX', 'XXI', 'XXII', 'XXIII', 'XXIV', 'XXV', 'XXVI', 'XXVII', 'XXVIII'];
 
 	let currentData: StatisticsData[] = $state([]);
@@ -76,6 +86,7 @@
 	let searchValue = $state('');
 	let selectedParties = $state(new SvelteSet<string>());
 	let topLimit = $state(25);
+	let selectedChartMode = $state<ChartMode>('bar');
 	let mounted = false;
 	let requestId = 0;
 	let previousSelectedCategory = selectedCategory;
@@ -88,7 +99,6 @@
 	});
 
 	let genericFilters: [
-		GenericFilterGroup<string>,
 		GenericFilterGroup<string>,
 		GenericFilterGroup<string>,
 		GenericFilterGroup<string>
@@ -120,16 +130,6 @@
 				{ title: 'Normalisiert', value: 'normalized' },
 				{ title: 'Absolut', value: 'absolute' }
 			]
-		},
-		{
-			title: 'Darstellung',
-			activeValue: 'bar',
-			hidden: false,
-			options: [
-				{ title: 'Balken', value: 'bar' },
-				{ title: 'Anteile', value: 'donut' },
-				{ title: 'Verlauf', value: 'line' }
-			]
 		}
 	]);
 
@@ -138,16 +138,18 @@
 	let selectedGender = $derived(genericFilters[0].activeValue);
 	let isDesc = $derived(genericFilters[1].activeValue !== 'asc');
 	let normalized = $derived(genericFilters[2].activeValue !== 'absolute');
-	let requestedChartMode = $derived(genericFilters[3].activeValue as ChartMode);
 	let metricLabel = $derived(normalized ? normalizedValueLabel : valueLabel);
 	let canUsePartyFilter = $derived(
 		filterConfig.showParty !== false && selectedCategory === 'delegate'
 	);
 	let canUseLineChart = $derived(selectedCategory === 'legis');
-	let chartMode = $derived(
-		requestedChartMode === 'line' && !canUseLineChart ? 'bar' : requestedChartMode
+	let chartMode: ChartMode = $derived.by((): ChartMode =>
+		selectedChartMode === 'line' && !canUseLineChart ? 'bar' : selectedChartMode
 	);
 	let canUseTopLimit = $derived(selectedCategory === 'delegate' && chartMode !== 'line');
+	let availableChartModeOptions = $derived(
+		canUseLineChart ? chartModeOptions : chartModeOptions.filter((option) => option.value !== 'line')
+	);
 
 	let activeCategoryLabel = $derived(
 		categoryOptions.find((option) => option.value === selectedCategory)?.label ?? 'Abgeordnete'
@@ -270,7 +272,6 @@
 	let chartData = $derived(
 		shownData.map((item) => {
 			const party = item.type === 'delegate' ? (item.party?.trim() ?? 'Unbekannt') : item.label;
-			console.log(item);
 			const color =
 				item.type === 'delegate' ? colorForParty(item.party) : colorForCategory(item.label);
 			return {
@@ -371,18 +372,8 @@
 	$effect(() => {
 		genericFilters[0].hidden = filterConfig.showGender === false || selectedCategory === 'gender';
 		genericFilters[2].hidden = filterConfig.showNormalized === false;
-		genericFilters[3].options = canUseLineChart
-			? [
-					{ title: 'Balken', value: 'bar' },
-					{ title: 'Anteile', value: 'donut' },
-					{ title: 'Verlauf', value: 'line' }
-				]
-			: [
-					{ title: 'Balken', value: 'bar' },
-					{ title: 'Anteile', value: 'donut' }
-				];
-		if (!canUseLineChart && genericFilters[3].activeValue === 'line') {
-			genericFilters[3].activeValue = 'bar';
+		if (!canUseLineChart && selectedChartMode === 'line') {
+			selectedChartMode = 'bar';
 		}
 	});
 
@@ -393,7 +384,7 @@
 		selectedParties.clear();
 		searchValue = '';
 		if (selectedCategory === 'legis') {
-			genericFilters[3].activeValue = 'line';
+			selectedChartMode = 'line';
 		}
 	});
 
@@ -524,24 +515,97 @@
 						<span>{metricLabel}</span>
 					{/if}
 				</div>
-				{#if canUseTopLimit}
+				<div class="flex flex-wrap items-center gap-2">
 					<div
 						class="flex flex-wrap gap-1 rounded-xl border border-primary-300 p-1 dark:border-primary-400"
+						aria-label="Darstellung"
 					>
-						{#each topOptions as option}
+						{#each availableChartModeOptions as option}
 							<button
 								type="button"
-								class="rounded-lg px-3 py-1.5 text-sm font-semibold transition {topLimit ===
+								title={option.title}
+								aria-label={option.label}
+								aria-pressed={selectedChartMode === option.value}
+								class="grid h-9 w-9 place-items-center rounded-lg transition {chartMode ===
 								option.value
 									? 'bg-primary-300 text-black dark:bg-primary-400'
-									: 'hover:bg-primary-100 dark:hover:bg-surface-500'}"
-								onclick={() => (topLimit = option.value)}
+									: 'text-gray-700 hover:bg-primary-100 dark:text-gray-100 dark:hover:bg-surface-500'}"
+								onclick={() => (selectedChartMode = option.value)}
 							>
-								{option.label}
+								{#if option.value === 'bar'}
+									<svg
+										viewBox="0 0 24 24"
+										class="h-5 w-5"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										aria-hidden="true"
+									>
+										<title>{option.title}</title>
+										<path d="M4 19V5" />
+										<path d="M4 19h16" />
+										<path d="M8 16h9" />
+										<path d="M8 12h6" />
+										<path d="M8 8h11" />
+									</svg>
+								{:else if option.value === 'donut'}
+									<svg
+										viewBox="0 0 24 24"
+										class="h-5 w-5"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										aria-hidden="true"
+									>
+										<title>{option.title}</title>
+										<path d="M12 3a9 9 0 1 1-8.49 6" />
+										<path d="M12 3v6h6" />
+										<circle cx="12" cy="12" r="3" />
+									</svg>
+								{:else}
+									<svg
+										viewBox="0 0 24 24"
+										class="h-5 w-5"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										aria-hidden="true"
+									>
+										<title>{option.title}</title>
+										<path d="M4 19V5" />
+										<path d="M4 19h16" />
+										<path d="m7 15 4-5 3 3 5-7" />
+									</svg>
+								{/if}
 							</button>
 						{/each}
 					</div>
-				{/if}
+
+					{#if canUseTopLimit}
+						<div
+							class="flex flex-wrap gap-1 rounded-xl border border-primary-300 p-1 dark:border-primary-400"
+						>
+							{#each topOptions as option}
+								<button
+									type="button"
+									class="rounded-lg px-3 py-1.5 text-sm font-semibold transition {topLimit ===
+									option.value
+										? 'bg-primary-300 text-black dark:bg-primary-400'
+										: 'hover:bg-primary-100 dark:hover:bg-surface-500'}"
+									onclick={() => (topLimit = option.value)}
+								>
+									{option.label}
+								</button>
+							{/each}
+						</div>
+					{/if}
+				</div>
 			</div>
 		</div>
 	</section>
