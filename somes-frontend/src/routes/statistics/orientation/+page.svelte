@@ -1,11 +1,6 @@
 <script lang="ts">
 	import { justPostStatistics } from '$lib/api/api';
-	import {
-		mapOrientationCategory,
-		mapOrientationDelegate,
-		mapPoliticalSpectrumCategory,
-		mapPoliticalSpectrumDelegate
-	} from '$lib/api/statistics-adapter';
+	import { mapOrientationCategory, mapOrientationDelegate } from '$lib/api/statistics-adapter';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import DelegateBarChartControl from '$lib/components/Statistics/DelegateBarChartControl.svelte';
 	import type { StatisticsData } from '$lib/types';
@@ -14,6 +9,7 @@
 	type ChartMode = 'bar' | 'donut' | 'line' | 'spectrum';
 
 	let selectedCategory = $state('delegate');
+	let selectedChartMode = $state<ChartMode>('bar');
 
 	const categoryOptions = [
 		{ value: 'delegate', label: 'Abgeordnete' },
@@ -30,15 +26,15 @@
 	}[] = [
 		{
 			value: 'left',
-			label: 'Links',
-			valueLabel: 'Links-Score',
-			description: 'Abgeordnete mit den höchsten gespeicherten Linksorientierungswerten.'
+			label: 'Sozialistisch',
+			valueLabel: 'Sozialismus-Score',
+			description: 'Abgeordnete mit den höchsten gespeicherten sozialistischen Positionswerten.'
 		},
 		{
 			value: 'right',
-			label: 'Rechts',
-			valueLabel: 'Rechts-Score',
-			description: 'Abgeordnete mit den höchsten gespeicherten Rechtsorientierungswerten.'
+			label: 'Kapitalistisch',
+			valueLabel: 'Kapitalismus-Score',
+			description: 'Abgeordnete mit den höchsten gespeicherten kapitalistischen Positionswerten.'
 		},
 		{
 			value: 'liberal',
@@ -61,6 +57,84 @@
 			orientationOptions[0]
 	);
 
+	function orientationValue(item: any) {
+		return Number(item.orientation_score ?? item.average_orientation ?? 0);
+	}
+
+	function spectrumKey(item: any) {
+		if (selectedCategory === 'delegate') {
+			return `${item.delegate_name}\u0000${item.delegate_party}`;
+		}
+		return item.category;
+	}
+
+	async function loadSpectrum(
+		gp: string | null,
+		gender: string | null,
+		isDesc: boolean
+	): Promise<StatisticsData[]> {
+		const body = {
+			legis_period: gp,
+			party: null,
+			gender,
+			is_desc: true
+		};
+		const [socialist, capitalist, liberal, authoritarian] = await Promise.all([
+			justPostStatistics<any[]>(`is_left_per_${selectedCategory}`, body),
+			justPostStatistics<any[]>(`is_right_per_${selectedCategory}`, body),
+			justPostStatistics<any[]>(`is_liberal_per_${selectedCategory}`, body),
+			justPostStatistics<any[]>(`is_authoritarian_per_${selectedCategory}`, body)
+		]);
+
+		if (
+			'error' in socialist ||
+			'error' in capitalist ||
+			'error' in liberal ||
+			'error' in authoritarian
+		) {
+			return [];
+		}
+
+		const capitalistByKey = new Map(capitalist.map((item) => [spectrumKey(item), item]));
+		const liberalByKey = new Map(liberal.map((item) => [spectrumKey(item), item]));
+		const authoritarianByKey = new Map(authoritarian.map((item) => [spectrumKey(item), item]));
+
+		const data = socialist.flatMap((socialistItem): StatisticsData[] => {
+			const key = spectrumKey(socialistItem);
+			const capitalistItem = capitalistByKey.get(key);
+			const liberalItem = liberalByKey.get(key);
+			const authoritarianItem = authoritarianByKey.get(key);
+
+			if (!capitalistItem || !liberalItem || !authoritarianItem) {
+				return [];
+			}
+
+			const leftRightScore = orientationValue(capitalistItem) - orientationValue(socialistItem);
+			const liberalAuthoritarianScore =
+				orientationValue(authoritarianItem) - orientationValue(liberalItem);
+			const spectrumMagnitude = Math.hypot(leftRightScore, liberalAuthoritarianScore);
+			const isDelegate = selectedCategory === 'delegate';
+
+			return [
+				{
+					type: isDelegate ? 'delegate' : 'category',
+					label: isDelegate ? socialistItem.delegate_name : socialistItem.category,
+					value: spectrumMagnitude,
+					party: isDelegate ? socialistItem.delegate_party : undefined,
+					metadata: {
+						left_right_score: leftRightScore,
+						liberal_authoritarian_score: liberalAuthoritarianScore,
+						spectrum_magnitude: spectrumMagnitude,
+						total_votes: socialistItem.total_votes,
+						delegate_count: socialistItem.delegate_count
+					}
+				}
+			];
+		});
+
+		return data.sort((a, b) => (isDesc ? b.value - a.value : a.value - b.value));
+	}
+
 	const loadOrientation = async (
 		gp: string | null,
 		gender: string | null,
@@ -69,23 +143,7 @@
 		chartMode?: ChartMode
 	): Promise<StatisticsData[]> => {
 		if (chartMode === 'spectrum') {
-			const response = await justPostStatistics<any[]>(
-				`political_spectrum_per_${selectedCategory}`,
-				{
-					legis_period: gp,
-					party: null,
-					gender,
-					is_desc: isDesc
-				}
-			);
-
-			if ('error' in response) {
-				return [];
-			}
-
-			return selectedCategory === 'delegate'
-				? mapPoliticalSpectrumDelegate(response)
-				: mapPoliticalSpectrumCategory(response);
+			return loadSpectrum(gp, gender, isDesc);
 		}
 
 		const response = await justPostStatistics<any[]>(
@@ -121,28 +179,30 @@
 		</p>
 	</div>
 
-	<section
-		class="mb-5 rounded-xl border border-gray-300 bg-surface-50 p-4 shadow-sm dark:border-surface-700 dark:bg-surface-700/60"
-	>
-		<p class="text-sm font-semibold text-gray-600 dark:text-gray-300">Position</p>
-		<div
-			class="mt-2 flex flex-wrap gap-1 rounded-xl border border-primary-300 p-1 dark:border-primary-400"
+	{#if selectedChartMode !== 'spectrum'}
+		<section
+			class="mb-5 rounded-xl border border-gray-300 bg-surface-50 p-4 shadow-sm dark:border-surface-700 dark:bg-surface-700/60"
 		>
-			{#each orientationOptions as option}
-				<button
-					type="button"
-					title={option.description}
-					class="rounded-lg px-3 py-1.5 text-sm font-semibold transition {selectedOrientation ===
-					option.value
-						? 'bg-primary-300 text-black dark:bg-primary-400'
-						: 'hover:bg-primary-100 dark:hover:bg-surface-500'}"
-					onclick={() => (selectedOrientation = option.value)}
-				>
-					{option.label}
-				</button>
-			{/each}
-		</div>
-	</section>
+			<p class="text-sm font-semibold text-gray-600 dark:text-gray-300">Position</p>
+			<div
+				class="mt-2 flex flex-wrap gap-1 rounded-xl border border-primary-300 p-1 dark:border-primary-400"
+			>
+				{#each orientationOptions as option}
+					<button
+						type="button"
+						title={option.description}
+						class="rounded-lg px-3 py-1.5 text-sm font-semibold transition {selectedOrientation ===
+						option.value
+							? 'bg-primary-300 text-black dark:bg-primary-400'
+							: 'hover:bg-primary-100 dark:hover:bg-surface-500'}"
+						onclick={() => (selectedOrientation = option.value)}
+					>
+						{option.label}
+					</button>
+				{/each}
+			</div>
+		</section>
+	{/if}
 
 	<DelegateBarChartControl
 		height={520}
@@ -159,6 +219,7 @@
 			showParty: true
 		}}
 		showSpectrumMode={true}
+		bind:selectedChartMode
 		infoQuestion="Was zeigt diese Statistik?"
 		infoAnswer="<p>Die Werte stammen aus der Tabelle <strong>political_positions</strong>. Diese Positionswerte sind aktuell nicht nach Legislaturperioden versioniert, daher wird hier keine Periodenfilterung angeboten.</p>"
 	/>
