@@ -55,6 +55,175 @@ pub struct ActivityByCategory {
 pub struct ActivityService;
 
 impl ActivityService {
+    fn sort_categories(results: &mut [ActivityByCategory], is_desc: bool, normalized: bool) {
+        if normalized {
+            results.sort_by(|a, b| {
+                b.activity_score
+                    .partial_cmp(&a.activity_score)
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            });
+        } else {
+            results.sort_by(|a, b| {
+                b.raw_activity_score
+                    .partial_cmp(&a.raw_activity_score)
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            });
+        }
+
+        if !is_desc {
+            results.reverse();
+        }
+    }
+
+    fn aggregate_by_party(
+        base_data: Vec<ActivityBase>,
+        is_desc: bool,
+        normalized: bool,
+    ) -> Vec<ActivityByCategory> {
+        let mut party_map: std::collections::HashMap<String, (f64, f64, i64, i64)> =
+            std::collections::HashMap::new();
+
+        for item in base_data {
+            let entry = party_map
+                .entry(item.delegate_party.clone())
+                .or_insert((0.0, 0.0, 0, 0));
+            entry.0 += item.activity_score;
+            entry.1 += item.raw_activity_score;
+            entry.2 += item.total_proposals;
+            entry.3 += 1;
+        }
+
+        let mut results: Vec<ActivityByCategory> = party_map
+            .into_iter()
+            .map(
+                |(party, (total_norm_score, total_raw_score, total_proposals, delegate_count))| {
+                    ActivityByCategory {
+                        category: party,
+                        activity_score: total_norm_score / delegate_count as f64,
+                        raw_activity_score: total_raw_score / delegate_count as f64,
+                        total_proposals,
+                        delegate_count,
+                    }
+                },
+            )
+            .collect();
+
+        Self::sort_categories(&mut results, is_desc, normalized);
+        results
+    }
+
+    fn aggregate_by_gender(
+        base_data: Vec<ActivityBase>,
+        is_desc: bool,
+        normalized: bool,
+    ) -> Vec<ActivityByCategory> {
+        let mut gender_map: std::collections::HashMap<String, (f64, f64, i64, i64)> =
+            std::collections::HashMap::new();
+
+        for item in base_data {
+            let entry = gender_map
+                .entry(item.delegate_gender.clone())
+                .or_insert((0.0, 0.0, 0, 0));
+            entry.0 += item.activity_score;
+            entry.1 += item.raw_activity_score;
+            entry.2 += item.total_proposals;
+            entry.3 += 1;
+        }
+
+        let mut results: Vec<ActivityByCategory> = gender_map
+            .into_iter()
+            .map(
+                |(gender, (total_norm_score, total_raw_score, total_proposals, delegate_count))| {
+                    ActivityByCategory {
+                        category: gender,
+                        activity_score: total_norm_score / delegate_count as f64,
+                        raw_activity_score: total_raw_score / delegate_count as f64,
+                        total_proposals,
+                        delegate_count,
+                    }
+                },
+            )
+            .collect();
+
+        Self::sort_categories(&mut results, is_desc, normalized);
+        results
+    }
+
+    fn aggregate_by_legis(
+        base_data: Vec<ActivityBase>,
+        is_desc: bool,
+        normalized: bool,
+    ) -> Vec<ActivityByCategory> {
+        let mut legis_map: std::collections::HashMap<String, (f64, f64, i64, i64)> =
+            std::collections::HashMap::new();
+
+        for item in base_data {
+            if let Some(period) = item.legislative_period {
+                let entry = legis_map.entry(period).or_insert((0.0, 0.0, 0, 0));
+                entry.0 += item.activity_score;
+                entry.1 += item.raw_activity_score;
+                entry.2 += item.total_proposals;
+                entry.3 += 1;
+            }
+        }
+
+        let mut results: Vec<ActivityByCategory> = legis_map
+            .into_iter()
+            .map(
+                |(period, (total_norm_score, total_raw_score, total_proposals, delegate_count))| {
+                    ActivityByCategory {
+                        category: period,
+                        activity_score: total_norm_score / delegate_count as f64,
+                        raw_activity_score: total_raw_score / delegate_count as f64,
+                        total_proposals,
+                        delegate_count,
+                    }
+                },
+            )
+            .collect();
+
+        Self::sort_categories(&mut results, is_desc, normalized);
+        results
+    }
+
+    fn aggregate_by_age(
+        base_data: Vec<ActivityBase>,
+        is_desc: bool,
+        normalized: bool,
+    ) -> Vec<ActivityByCategory> {
+        let mut age_map: std::collections::HashMap<String, (f64, f64, i64, i64)> =
+            std::collections::HashMap::new();
+
+        for item in base_data {
+            let entry = age_map
+                .entry(item.delegate_age_bucket)
+                .or_insert((0.0, 0.0, 0, 0));
+            entry.0 += item.activity_score;
+            entry.1 += item.raw_activity_score;
+            entry.2 += item.total_proposals;
+            entry.3 += 1;
+        }
+
+        let mut results: Vec<ActivityByCategory> = age_map
+            .into_iter()
+            .map(
+                |(
+                    category,
+                    (total_norm_score, total_raw_score, total_proposals, delegate_count),
+                )| ActivityByCategory {
+                    category,
+                    activity_score: total_norm_score / delegate_count as f64,
+                    raw_activity_score: total_raw_score / delegate_count as f64,
+                    total_proposals,
+                    delegate_count,
+                },
+            )
+            .collect();
+
+        Self::sort_categories(&mut results, is_desc, normalized);
+        results
+    }
+
     pub async fn get_base_data(
         pg: &sqlx::PgPool,
         filter: &ActivityFilter,
@@ -204,55 +373,11 @@ impl ActivityService {
         filter: &ActivityFilter,
     ) -> Result<Vec<ActivityByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-
-        let mut party_map: std::collections::HashMap<String, (f64, f64, i64, i64)> =
-            std::collections::HashMap::new();
-
-        for item in base_data {
-            let entry = party_map
-                .entry(item.delegate_party.clone())
-                .or_insert((0.0, 0.0, 0, 0));
-            entry.0 += item.activity_score;
-            entry.1 += item.raw_activity_score;
-            entry.2 += item.total_proposals;
-            entry.3 += 1; // delegate count
-        }
-
-        let mut results: Vec<ActivityByCategory> = party_map
-            .into_iter()
-            .map(
-                |(party, (total_norm_score, total_raw_score, total_proposals, delegate_count))| {
-                    ActivityByCategory {
-                        category: party,
-                        activity_score: total_norm_score / delegate_count as f64, // average normalized score
-                        raw_activity_score: total_raw_score / delegate_count as f64, // average raw score
-                        total_proposals,
-                        delegate_count,
-                    }
-                },
-            )
-            .collect();
-
-        // Sort based on filter parameters
-        if filter.normalized {
-            results.sort_by(|a, b| {
-                b.activity_score
-                    .partial_cmp(&a.activity_score)
-                    .unwrap_or(std::cmp::Ordering::Equal)
-            });
-        } else {
-            results.sort_by(|a, b| {
-                b.raw_activity_score
-                    .partial_cmp(&a.raw_activity_score)
-                    .unwrap_or(std::cmp::Ordering::Equal)
-            });
-        }
-
-        if !filter.is_desc {
-            results.reverse();
-        }
-
-        Ok(results)
+        Ok(Self::aggregate_by_party(
+            base_data,
+            filter.is_desc,
+            filter.normalized,
+        ))
     }
 
     pub async fn per_gender(
@@ -260,55 +385,11 @@ impl ActivityService {
         filter: &ActivityFilter,
     ) -> Result<Vec<ActivityByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-
-        let mut gender_map: std::collections::HashMap<String, (f64, f64, i64, i64)> =
-            std::collections::HashMap::new();
-
-        for item in base_data {
-            let entry = gender_map
-                .entry(item.delegate_gender.clone())
-                .or_insert((0.0, 0.0, 0, 0));
-            entry.0 += item.activity_score;
-            entry.1 += item.raw_activity_score;
-            entry.2 += item.total_proposals;
-            entry.3 += 1; // delegate count
-        }
-
-        let mut results: Vec<ActivityByCategory> = gender_map
-            .into_iter()
-            .map(
-                |(gender, (total_norm_score, total_raw_score, total_proposals, delegate_count))| {
-                    ActivityByCategory {
-                        category: gender,
-                        activity_score: total_norm_score / delegate_count as f64, // average normalized score
-                        raw_activity_score: total_raw_score / delegate_count as f64, // average raw score
-                        total_proposals,
-                        delegate_count,
-                    }
-                },
-            )
-            .collect();
-
-        // Sort based on filter parameters
-        if filter.normalized {
-            results.sort_by(|a, b| {
-                b.activity_score
-                    .partial_cmp(&a.activity_score)
-                    .unwrap_or(std::cmp::Ordering::Equal)
-            });
-        } else {
-            results.sort_by(|a, b| {
-                b.raw_activity_score
-                    .partial_cmp(&a.raw_activity_score)
-                    .unwrap_or(std::cmp::Ordering::Equal)
-            });
-        }
-
-        if !filter.is_desc {
-            results.reverse();
-        }
-
-        Ok(results)
+        Ok(Self::aggregate_by_gender(
+            base_data,
+            filter.is_desc,
+            filter.normalized,
+        ))
     }
 
     pub async fn per_legis(
@@ -316,54 +397,11 @@ impl ActivityService {
         filter: &ActivityFilter,
     ) -> Result<Vec<ActivityByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        let mut legis_map: std::collections::HashMap<String, (f64, f64, i64, i64)> =
-            std::collections::HashMap::new();
-
-        for item in base_data {
-            if let Some(period) = item.legislative_period {
-                let entry = legis_map.entry(period).or_insert((0.0, 0.0, 0, 0));
-                entry.0 += item.activity_score;
-                entry.1 += item.raw_activity_score;
-                entry.2 += item.total_proposals;
-                entry.3 += 1; // delegate count
-            }
-        }
-
-        let mut results: Vec<ActivityByCategory> = legis_map
-            .into_iter()
-            .map(
-                |(period, (total_norm_score, total_raw_score, total_proposals, delegate_count))| {
-                    ActivityByCategory {
-                        category: period,
-                        activity_score: total_norm_score / delegate_count as f64, // average normalized score
-                        raw_activity_score: total_raw_score / delegate_count as f64, // average raw score
-                        total_proposals,
-                        delegate_count,
-                    }
-                },
-            )
-            .collect();
-
-        // Sort based on filter parameters
-        if filter.normalized {
-            results.sort_by(|a, b| {
-                b.activity_score
-                    .partial_cmp(&a.activity_score)
-                    .unwrap_or(std::cmp::Ordering::Equal)
-            });
-        } else {
-            results.sort_by(|a, b| {
-                b.raw_activity_score
-                    .partial_cmp(&a.raw_activity_score)
-                    .unwrap_or(std::cmp::Ordering::Equal)
-            });
-        }
-
-        if !filter.is_desc {
-            results.reverse();
-        }
-
-        Ok(results)
+        Ok(Self::aggregate_by_legis(
+            base_data,
+            filter.is_desc,
+            filter.normalized,
+        ))
     }
 
     pub async fn per_age(
@@ -371,55 +409,11 @@ impl ActivityService {
         filter: &ActivityFilter,
     ) -> Result<Vec<ActivityByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        let mut age_map: std::collections::HashMap<String, (f64, f64, i64, i64)> =
-            std::collections::HashMap::new();
-
-        for item in base_data {
-            let entry = age_map
-                .entry(item.delegate_age_bucket)
-                .or_insert((0.0, 0.0, 0, 0));
-            entry.0 += item.activity_score;
-            entry.1 += item.raw_activity_score;
-            entry.2 += item.total_proposals;
-            entry.3 += 1;
-        }
-
-        let mut results: Vec<ActivityByCategory> = age_map
-            .into_iter()
-            .map(
-                |(
-                    category,
-                    (total_norm_score, total_raw_score, total_proposals, delegate_count),
-                )| ActivityByCategory {
-                    category,
-                    activity_score: total_norm_score / delegate_count as f64,
-                    raw_activity_score: total_raw_score / delegate_count as f64,
-                    total_proposals,
-                    delegate_count,
-                },
-            )
-            .collect();
-
-        // Sort based on filter parameters
-        if filter.normalized {
-            results.sort_by(|a, b| {
-                b.activity_score
-                    .partial_cmp(&a.activity_score)
-                    .unwrap_or(std::cmp::Ordering::Equal)
-            });
-        } else {
-            results.sort_by(|a, b| {
-                b.raw_activity_score
-                    .partial_cmp(&a.raw_activity_score)
-                    .unwrap_or(std::cmp::Ordering::Equal)
-            });
-        }
-
-        if !filter.is_desc {
-            results.reverse();
-        }
-
-        Ok(results)
+        Ok(Self::aggregate_by_age(
+            base_data,
+            filter.is_desc,
+            filter.normalized,
+        ))
     }
 }
 
@@ -452,9 +446,9 @@ pub async fn legislative_initiatives_without_simple_majority(
         "
         SELECT
             COUNT(*) AS total_initiatives
-        FROM 
+        FROM
             legislative_initiatives li
-        WHERE 
+        WHERE
             {filter_str}
         "
     );
@@ -515,3 +509,7 @@ pub async fn activity_per_age(
     let results = ActivityService::per_age(&pg, &filter).await?;
     Ok(Json(results))
 }
+
+#[cfg(test)]
+#[path = "tests/activity.rs"]
+mod tests;

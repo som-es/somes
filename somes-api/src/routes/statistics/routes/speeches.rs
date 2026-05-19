@@ -60,6 +60,160 @@ pub struct SpeechByCategory {
 pub struct SpeechService;
 
 impl SpeechService {
+    fn sort_categories(
+        results: &mut [SpeechByCategory],
+        is_desc: bool,
+        speech_type: &str,
+        normalized: bool,
+    ) {
+        match speech_type {
+            "speechtime" => {
+                if normalized {
+                    results.sort_by(|a, b| {
+                        b.average_speech_time
+                            .partial_cmp(&a.average_speech_time)
+                            .unwrap_or(std::cmp::Ordering::Equal)
+                    });
+                } else {
+                    results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
+                }
+            }
+            "total_speeches" => {
+                results.sort_by(|a, b| b.total_speeches.cmp(&a.total_speeches));
+            }
+            _ => {
+                if normalized {
+                    results.sort_by(|a, b| {
+                        b.average_speech_time
+                            .partial_cmp(&a.average_speech_time)
+                            .unwrap_or(std::cmp::Ordering::Equal)
+                    });
+                } else {
+                    results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
+                }
+            }
+        }
+
+        if !is_desc {
+            results.reverse();
+        }
+    }
+
+    fn aggregate_by_category(
+        base_data: Vec<SpeechBase>,
+        mut category_for: impl FnMut(&SpeechBase) -> Option<String>,
+        is_desc: bool,
+        speech_type: &str,
+        normalized: bool,
+    ) -> Vec<SpeechByCategory> {
+        let mut category_map: std::collections::HashMap<String, (i64, i64, Vec<f64>, i64)> =
+            std::collections::HashMap::new();
+
+        for item in base_data {
+            if let Some(category) = category_for(&item) {
+                let entry = category_map
+                    .entry(category)
+                    .or_insert((0, 0, Vec::new(), 0));
+                entry.0 += item.total_speeches;
+                entry.1 += item.total_speech_time;
+                if item.average_speech_time > 0.0 {
+                    entry.2.push(item.average_speech_time);
+                }
+                entry.3 += 1;
+            }
+        }
+
+        let mut results: Vec<SpeechByCategory> = category_map
+            .into_iter()
+            .map(
+                |(category, (total_speeches, total_speech_time, avg_times, delegate_count))| {
+                    let average_speech_time = if !avg_times.is_empty() {
+                        avg_times.iter().sum::<f64>() / avg_times.len() as f64
+                    } else {
+                        0.0
+                    };
+
+                    SpeechByCategory {
+                        category,
+                        total_speeches,
+                        total_speech_time,
+                        average_speech_time,
+                        delegate_count,
+                    }
+                },
+            )
+            .collect();
+
+        Self::sort_categories(&mut results, is_desc, speech_type, normalized);
+        results
+    }
+
+    fn aggregate_by_party(
+        base_data: Vec<SpeechBase>,
+        is_desc: bool,
+        speech_type: &str,
+        normalized: bool,
+    ) -> Vec<SpeechByCategory> {
+        Self::aggregate_by_category(
+            base_data,
+            |item| Some(item.delegate_party.clone()),
+            is_desc,
+            speech_type,
+            normalized,
+        )
+    }
+
+    fn aggregate_by_gender(
+        base_data: Vec<SpeechBase>,
+        is_desc: bool,
+        speech_type: &str,
+        normalized: bool,
+    ) -> Vec<SpeechByCategory> {
+        Self::aggregate_by_category(
+            base_data,
+            |item| Some(item.delegate_gender.clone()),
+            is_desc,
+            speech_type,
+            normalized,
+        )
+    }
+
+    fn aggregate_by_legis(
+        base_data: Vec<SpeechBase>,
+        is_desc: bool,
+        speech_type: &str,
+        normalized: bool,
+    ) -> Vec<SpeechByCategory> {
+        Self::aggregate_by_category(
+            base_data,
+            |item| {
+                Some(
+                    item.legislative_period
+                        .clone()
+                        .unwrap_or_else(|| "Unbekannt".to_string()),
+                )
+            },
+            is_desc,
+            speech_type,
+            normalized,
+        )
+    }
+
+    fn aggregate_by_age(
+        base_data: Vec<SpeechBase>,
+        is_desc: bool,
+        speech_type: &str,
+        normalized: bool,
+    ) -> Vec<SpeechByCategory> {
+        Self::aggregate_by_category(
+            base_data,
+            |item| Some(item.delegate_age_bucket.clone()),
+            is_desc,
+            speech_type,
+            normalized,
+        )
+    }
+
     pub async fn get_base_data(
         pg: &sqlx::PgPool,
         filter: &SpeechFilter,
@@ -81,7 +235,7 @@ impl SpeechService {
             FROM plenar_infos
             GROUP BY legislative_period
         )
-        SELECT 
+        SELECT
             d.name AS delegate_name,
             COALESCE(m.party, 'Regierungsmitglied') AS delegate_party,
             d.gender AS delegate_gender,
@@ -97,9 +251,9 @@ impl SpeechService {
                 WHEN EXTRACT(YEAR FROM AGE(lp.start_date, d.birthdate)) <= 60 THEN '51-60'
                 ELSE '60+'
             END AS delegate_age_bucket
-        FROM 
+        FROM
             plenar_speeches ps
-        JOIN 
+        JOIN
             delegates d ON ps.delegate_id = d.id
         LEFT JOIN debates db ON ps.debate_id = db.id
         LEFT JOIN plenar_infos pf ON db.plenar_id = pf.id
@@ -107,12 +261,12 @@ impl SpeechService {
         LEFT JOIN mandates m ON m.delegate_id = d.id
             AND (m.start_date IS NULL OR m.start_date <= pf.raw_data_created_at::date)
             AND (m.end_date IS NULL OR m.end_date >= pf.raw_data_created_at::date)
-        WHERE 
+        WHERE
             ps.duration_in_seconds IS NOT NULL
             AND {filter_str}
-        GROUP BY 
+        GROUP BY
             d.id, d.name, m.party, d.gender, d.birthdate, pf.legislative_period, lp.start_date
-        ORDER BY 
+        ORDER BY
             total_speech_time DESC;
         "
         );
@@ -183,78 +337,12 @@ impl SpeechService {
         filter: &SpeechFilter,
     ) -> Result<Vec<SpeechByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-
-        let mut party_map: std::collections::HashMap<String, (i64, i64, Vec<f64>, i64)> =
-            std::collections::HashMap::new();
-
-        for item in base_data {
-            let entry =
-                party_map
-                    .entry(item.delegate_party.clone())
-                    .or_insert((0, 0, Vec::new(), 0));
-            entry.0 += item.total_speeches;
-            entry.1 += item.total_speech_time;
-            if item.average_speech_time > 0.0 {
-                entry.2.push(item.average_speech_time);
-            }
-            entry.3 += 1; // delegate count
-        }
-
-        let mut results: Vec<SpeechByCategory> = party_map
-            .into_iter()
-            .map(
-                |(party, (total_speeches, total_speech_time, avg_times, delegate_count))| {
-                    let average_speech_time = if !avg_times.is_empty() {
-                        avg_times.iter().sum::<f64>() / avg_times.len() as f64
-                    } else {
-                        0.0
-                    };
-
-                    SpeechByCategory {
-                        category: party,
-                        total_speeches,
-                        total_speech_time,
-                        average_speech_time,
-                        delegate_count,
-                    }
-                },
-            )
-            .collect();
-
-        // Sort based on speech type and normalized flag
-        match filter.speech_type.as_str() {
-            "speechtime" => {
-                if filter.normalized {
-                    results.sort_by(|a, b| {
-                        b.average_speech_time
-                            .partial_cmp(&a.average_speech_time)
-                            .unwrap_or(std::cmp::Ordering::Equal)
-                    });
-                } else {
-                    results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
-                }
-            }
-            "total_speeches" => {
-                results.sort_by(|a, b| b.total_speeches.cmp(&a.total_speeches));
-            }
-            _ => {
-                if filter.normalized {
-                    results.sort_by(|a, b| {
-                        b.average_speech_time
-                            .partial_cmp(&a.average_speech_time)
-                            .unwrap_or(std::cmp::Ordering::Equal)
-                    });
-                } else {
-                    results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
-                }
-            }
-        }
-
-        if !filter.is_desc {
-            results.reverse();
-        }
-
-        Ok(results)
+        Ok(Self::aggregate_by_party(
+            base_data,
+            filter.is_desc,
+            &filter.speech_type,
+            filter.normalized,
+        ))
     }
 
     pub async fn per_gender(
@@ -262,78 +350,12 @@ impl SpeechService {
         filter: &SpeechFilter,
     ) -> Result<Vec<SpeechByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-
-        let mut gender_map: std::collections::HashMap<String, (i64, i64, Vec<f64>, i64)> =
-            std::collections::HashMap::new();
-
-        for item in base_data {
-            let entry =
-                gender_map
-                    .entry(item.delegate_gender.clone())
-                    .or_insert((0, 0, Vec::new(), 0));
-            entry.0 += item.total_speeches;
-            entry.1 += item.total_speech_time;
-            if item.average_speech_time > 0.0 {
-                entry.2.push(item.average_speech_time);
-            }
-            entry.3 += 1; // delegate count
-        }
-
-        let mut results: Vec<SpeechByCategory> = gender_map
-            .into_iter()
-            .map(
-                |(gender, (total_speeches, total_speech_time, avg_times, delegate_count))| {
-                    let average_speech_time = if !avg_times.is_empty() {
-                        avg_times.iter().sum::<f64>() / avg_times.len() as f64
-                    } else {
-                        0.0
-                    };
-
-                    SpeechByCategory {
-                        category: gender,
-                        total_speeches,
-                        total_speech_time,
-                        average_speech_time,
-                        delegate_count,
-                    }
-                },
-            )
-            .collect();
-
-        // Sort based on speech type and normalized flag
-        match filter.speech_type.as_str() {
-            "speechtime" => {
-                if filter.normalized {
-                    results.sort_by(|a, b| {
-                        b.average_speech_time
-                            .partial_cmp(&a.average_speech_time)
-                            .unwrap_or(std::cmp::Ordering::Equal)
-                    });
-                } else {
-                    results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
-                }
-            }
-            "total_speeches" => {
-                results.sort_by(|a, b| b.total_speeches.cmp(&a.total_speeches));
-            }
-            _ => {
-                if filter.normalized {
-                    results.sort_by(|a, b| {
-                        b.average_speech_time
-                            .partial_cmp(&a.average_speech_time)
-                            .unwrap_or(std::cmp::Ordering::Equal)
-                    });
-                } else {
-                    results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
-                }
-            }
-        }
-
-        if !filter.is_desc {
-            results.reverse();
-        }
-
-        Ok(results)
+        Ok(Self::aggregate_by_gender(
+            base_data,
+            filter.is_desc,
+            &filter.speech_type,
+            filter.normalized,
+        ))
     }
 
     pub async fn per_legis(
@@ -341,77 +363,12 @@ impl SpeechService {
         filter: &SpeechFilter,
     ) -> Result<Vec<SpeechByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        let mut period_map: std::collections::HashMap<String, (i64, i64, Vec<f64>, i64)> =
-            std::collections::HashMap::new();
-
-        for item in base_data {
-            let period = item
-                .legislative_period
-                .unwrap_or_else(|| "Unbekannt".to_string());
-            let entry = period_map.entry(period).or_insert((0, 0, Vec::new(), 0));
-            entry.0 += item.total_speeches;
-            entry.1 += item.total_speech_time;
-            if item.average_speech_time > 0.0 {
-                entry.2.push(item.average_speech_time);
-            }
-            entry.3 += 1;
-        }
-
-        let mut results: Vec<SpeechByCategory> = period_map
-            .into_iter()
-            .map(
-                |(period, (total_speeches, total_speech_time, avg_times, delegate_count))| {
-                    let average_speech_time = if !avg_times.is_empty() {
-                        avg_times.iter().sum::<f64>() / avg_times.len() as f64
-                    } else {
-                        0.0
-                    };
-
-                    SpeechByCategory {
-                        category: period,
-                        total_speeches,
-                        total_speech_time,
-                        average_speech_time,
-                        delegate_count,
-                    }
-                },
-            )
-            .collect();
-
-        // Sort based on speech type and normalized flag
-        match filter.speech_type.as_str() {
-            "speechtime" => {
-                if filter.normalized {
-                    results.sort_by(|a, b| {
-                        b.average_speech_time
-                            .partial_cmp(&a.average_speech_time)
-                            .unwrap_or(std::cmp::Ordering::Equal)
-                    });
-                } else {
-                    results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
-                }
-            }
-            "total_speeches" => {
-                results.sort_by(|a, b| b.total_speeches.cmp(&a.total_speeches));
-            }
-            _ => {
-                if filter.normalized {
-                    results.sort_by(|a, b| {
-                        b.average_speech_time
-                            .partial_cmp(&a.average_speech_time)
-                            .unwrap_or(std::cmp::Ordering::Equal)
-                    });
-                } else {
-                    results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
-                }
-            }
-        }
-
-        if !filter.is_desc {
-            results.reverse();
-        }
-
-        Ok(results)
+        Ok(Self::aggregate_by_legis(
+            base_data,
+            filter.is_desc,
+            &filter.speech_type,
+            filter.normalized,
+        ))
     }
 
     pub async fn per_age(
@@ -419,76 +376,12 @@ impl SpeechService {
         filter: &SpeechFilter,
     ) -> Result<Vec<SpeechByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        let mut age_map: std::collections::HashMap<String, (i64, i64, Vec<f64>, i64)> =
-            std::collections::HashMap::new();
-
-        for item in base_data {
-            let entry = age_map
-                .entry(item.delegate_age_bucket)
-                .or_insert((0, 0, Vec::new(), 0));
-            entry.0 += item.total_speeches;
-            entry.1 += item.total_speech_time;
-            if item.average_speech_time > 0.0 {
-                entry.2.push(item.average_speech_time);
-            }
-            entry.3 += 1;
-        }
-
-        let mut results: Vec<SpeechByCategory> = age_map
-            .into_iter()
-            .map(
-                |(category, (total_speeches, total_speech_time, avg_times, delegate_count))| {
-                    let average_speech_time = if !avg_times.is_empty() {
-                        avg_times.iter().sum::<f64>() / avg_times.len() as f64
-                    } else {
-                        0.0
-                    };
-
-                    SpeechByCategory {
-                        category,
-                        total_speeches,
-                        total_speech_time,
-                        average_speech_time,
-                        delegate_count,
-                    }
-                },
-            )
-            .collect();
-
-        // Sort based on speech type and normalized flag
-        match filter.speech_type.as_str() {
-            "speechtime" => {
-                if filter.normalized {
-                    results.sort_by(|a, b| {
-                        b.average_speech_time
-                            .partial_cmp(&a.average_speech_time)
-                            .unwrap_or(std::cmp::Ordering::Equal)
-                    });
-                } else {
-                    results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
-                }
-            }
-            "total_speeches" => {
-                results.sort_by(|a, b| b.total_speeches.cmp(&a.total_speeches));
-            }
-            _ => {
-                if filter.normalized {
-                    results.sort_by(|a, b| {
-                        b.average_speech_time
-                            .partial_cmp(&a.average_speech_time)
-                            .unwrap_or(std::cmp::Ordering::Equal)
-                    });
-                } else {
-                    results.sort_by(|a, b| b.total_speech_time.cmp(&a.total_speech_time));
-                }
-            }
-        }
-
-        if !filter.is_desc {
-            results.reverse();
-        }
-
-        Ok(results)
+        Ok(Self::aggregate_by_age(
+            base_data,
+            filter.is_desc,
+            &filter.speech_type,
+            filter.normalized,
+        ))
     }
 }
 
@@ -592,3 +485,7 @@ pub async fn total_speeches_per_age(
     let results = SpeechService::per_age(&pg, &filter).await?;
     Ok(Json(results))
 }
+
+#[cfg(test)]
+#[path = "tests/speeches.rs"]
+mod tests;
