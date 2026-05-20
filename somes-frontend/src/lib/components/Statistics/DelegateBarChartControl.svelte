@@ -1,15 +1,16 @@
 <script lang="ts">
 	import { onMount, tick, untrack } from 'svelte';
 	import { SvelteSet } from 'svelte/reactivity';
-	import { LineChart } from 'layerchart';
 	import GenericFilters from '$lib/components/Filtering/GenericFilters.svelte';
 	import MultiValuesFilter from '$lib/components/Filtering/MultiValuesFilter.svelte';
 	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
 	import type { GenericFilterGroup } from '$lib/components/Filtering/types';
 	import type { StatisticsData } from '$lib/types';
 	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
-	import { partyColors, partyToColor } from '$lib/partyColor';
-	import CustomBarChart from './CustomBarChart.svelte';
+	import { partyToColor } from '$lib/partyColor';
+	import CustomBarChart from './charts/CustomBarChart.svelte';
+	import CustomDonutChart from './charts/CustomDonutChart.svelte';
+	import CustomLineChart from './charts/CustomLineChart.svelte';
 	import PoliticalSpectrumChart from './PoliticalSpectrumChart.svelte';
 
 	type ChartMode = 'bar' | 'donut' | 'line' | 'spectrum';
@@ -333,69 +334,6 @@
 		})
 	);
 
-	let donutData = $derived.by(() => {
-		const source = chartData.slice(0, 12);
-		const rest = chartData.slice(12);
-		const restValue = rest.reduce((sum, item) => sum + item.value, 0);
-		const items = source.map((item) => ({
-			key: item.category,
-			label: item.category,
-			value: item.value,
-			party: item.party,
-			color: item.color
-		}));
-		if (restValue > 0) {
-			items.push({
-				key: 'Weitere',
-				label: 'Weitere',
-				value: restValue,
-				party: 'Weitere',
-				color: '#94a3b8'
-			});
-		}
-		return items;
-	});
-
-	let lineData = $derived(
-		[...chartData]
-			.sort((a, b) => periodRank(a.category) - periodRank(b.category))
-			.map((item) => ({
-				period: item.category,
-				value: item.value,
-				party: item.party
-			}))
-	);
-
-	const cRange = $derived.by(() => {
-		if (selectedCategory === 'delegate') {
-			const values = partyColors
-				.values()
-				.map((key) => key)
-				.toArray();
-			values.push('grey', 'grey');
-			return values;
-		}
-
-		return chartData.map((item) => item.color);
-	});
-	let donutTotal = $derived(donutData.reduce((sum, item) => sum + Math.max(item.value, 0), 0));
-	let donutGradient = $derived.by(() => {
-		if (donutTotal <= 0) return '#e5e7eb';
-		let cursor = 0;
-		const stops = donutData.map((item) => {
-			const start = cursor;
-			const end = cursor + (Math.max(item.value, 0) / donutTotal) * 100;
-			cursor = end;
-			return `${item.color} ${start}% ${end}%`;
-		});
-		return `conic-gradient(${stops.join(', ')})`;
-	});
-	let largestDonutItem = $derived(
-		donutData.reduce<(typeof donutData)[number] | null>(
-			(current, item) => (!current || item.value > current.value ? item : current),
-			null
-		)
-	);
 	let chartStickyTopOffset = $derived(controlsHeight);
 
 	$effect(() => {
@@ -730,81 +668,9 @@
 		{:else if chartMode === 'spectrum'}
 			<PoliticalSpectrumChart data={shownData} {height} {selectedCategory} />
 		{:else if chartMode === 'donut'}
-			<div
-				class="grid gap-4 p-4 lg:grid-cols-[minmax(0,1fr)_20rem]"
-				style="min-height: {height}px;"
-			>
-				<div class="flex min-h-[420px] min-w-0 items-center justify-center">
-					<div class="relative aspect-square w-full max-w-[360px]">
-						<div
-							class="absolute inset-0 rounded-full shadow-inner"
-							style="background: {donutGradient};"
-							role="img"
-							aria-label="Anteilsdiagramm für {metricLabel}"
-						></div>
-						<div
-							class="absolute inset-[22%] flex flex-col items-center justify-center rounded-full border border-gray-200 bg-white text-center shadow-sm dark:border-surface-700 dark:bg-surface-800"
-						>
-							<span class="text-xs font-semibold text-gray-500 uppercase dark:text-gray-400"
-								>Summe</span
-							>
-							<span class="mt-1 text-2xl font-bold text-gray-900 tabular-nums dark:text-gray-50"
-								>{donutTotal.toFixed(donutTotal < 10 ? 2 : 0)}</span
-							>
-							{#if largestDonutItem}
-								<span class="mt-2 max-w-32 truncate text-xs text-gray-600 dark:text-gray-300"
-									>{largestDonutItem.label}</span
-								>
-							{/if}
-						</div>
-					</div>
-				</div>
-				<div
-					class="max-h-[420px] overflow-y-auto rounded-lg border border-gray-200 p-3 dark:border-surface-700"
-				>
-					{#each donutData as item}
-						{@const share = donutTotal > 0 ? (item.value / donutTotal) * 100 : 0}
-						<div
-							class="flex items-center gap-2 border-b border-gray-100 py-2 last:border-0 dark:border-surface-700"
-						>
-							<span class="h-3 w-3 shrink-0 rounded-full" style="background-color: {item.color}"
-							></span>
-							<span class="min-w-0 flex-1 truncate text-sm font-medium">{item.label}</span>
-							<div class="text-right">
-								<div class="text-sm text-gray-600 tabular-nums dark:text-gray-300">
-									{item.value.toFixed(item.value < 10 ? 2 : 0)}
-								</div>
-								<div class="text-xs text-gray-500 tabular-nums dark:text-gray-400">
-									{share.toFixed(1)}%
-								</div>
-							</div>
-						</div>
-					{/each}
-				</div>
-			</div>
+			<CustomDonutChart data={chartData} {height} {metricLabel} />
 		{:else if chartMode === 'line'}
-			<div class="p-4" style="height: {height}px;">
-				<LineChart
-					data={lineData}
-					x="period"
-					y="value"
-					c="party"
-					{cRange}
-					padding={{ left: 64, right: 24, top: 24, bottom: 48 }}
-					props={{
-						xAxis: {
-							tickLabelProps: {
-								class: 'fill-black dark:fill-white stroke-none text-xs font-semibold'
-							}
-						},
-						yAxis: {
-							tickLabelProps: {
-								class: 'fill-black dark:fill-white stroke-none text-xs font-semibold'
-							}
-						}
-					}}
-				/>
-			</div>
+			<CustomLineChart data={chartData} {height} {selectedCategory} />
 		{:else}
 			<CustomBarChart
 				data={chartData}
