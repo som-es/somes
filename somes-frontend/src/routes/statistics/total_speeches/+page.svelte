@@ -7,6 +7,16 @@
 
 	export let selectedCategory: string = 'delegate';
 
+	const chartDescriptions = {
+		delegate: 'Gezählte Reden je Abgeordneter oder Abgeordnetem.',
+		party: 'Gezählte Reden, nach Parteien zusammengefasst.',
+		gender: 'Gezählte Reden im Vergleich nach Geschlecht.',
+		age: 'Gezählte Reden nach Altersgruppen.',
+		legis: 'Gezählte Reden je Legislaturperiode.',
+		line: 'Entwicklung der gezählten Reden über die Legislaturperioden.',
+		donut: 'Anteil der höchsten Redeanzahlen in der aktuellen Auswahl.'
+	};
+
 	const delegateSimpleTotalSpeeches = async (
 		gp: string | null,
 		gender: string | null,
@@ -128,14 +138,14 @@
 
 <svelte:head>
 	<title>Anzahl der Reden - Parlamentsinformationssystem</title>
-	<meta name="description" content="Analyse der Anzahl der parlamentarischen Reden" />
+	<meta name="description" content="Anzahl parlamentarischer Reden nach Personen und Gruppen" />
 </svelte:head>
 
 <Container class="pb-12">
 	<div class="mt-2 mb-6">
 		<h1 class="text-3xl font-bold sm:text-4xl">Anzahl der Reden</h1>
 		<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
-			Analyse der Anzahl parlamentarischer Reden.
+			Wie oft im Parlament gesprochen wurde, nach Personen und Gruppen.
 		</p>
 	</div>
 
@@ -145,6 +155,7 @@
 		bind:selectedCategory
 		valueLabel="Anzahl Reden"
 		normalizedValueLabel="Anzahl Reden"
+		{chartDescriptions}
 		filterConfig={{
 			showNormalized: false,
 			showPeriod: true,

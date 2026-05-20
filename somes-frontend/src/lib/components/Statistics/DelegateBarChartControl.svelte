@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount, tick, untrack } from 'svelte';
 	import { SvelteSet } from 'svelte/reactivity';
-	import { BarChart, LineChart } from 'layerchart';
+	import { LineChart } from 'layerchart';
 	import GenericFilters from '$lib/components/Filtering/GenericFilters.svelte';
 	import MultiValuesFilter from '$lib/components/Filtering/MultiValuesFilter.svelte';
 	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
@@ -9,6 +9,7 @@
 	import type { StatisticsData } from '$lib/types';
 	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 	import { partyColors, partyToColor } from '$lib/partyColor';
+	import CustomBarChart from './CustomBarChart.svelte';
 	import PoliticalSpectrumChart from './PoliticalSpectrumChart.svelte';
 
 	type ChartMode = 'bar' | 'donut' | 'line' | 'spectrum';
@@ -43,6 +44,7 @@
 			showParty?: boolean;
 		};
 		categoryOptions?: CategoryOption[];
+		chartDescriptions?: Record<string, string>;
 		reloadKey?: unknown;
 		showSpectrumMode?: boolean;
 		selectedChartMode?: ChartMode;
@@ -71,6 +73,7 @@
 			showParty: true
 		},
 		categoryOptions = defaultCategoryOptions,
+		chartDescriptions = {},
 		reloadKey = null,
 		showSpectrumMode = false,
 		selectedChartMode = $bindable<ChartMode>('bar')
@@ -97,6 +100,7 @@
 	let searchValue = $state('');
 	let selectedParties = $state(new SvelteSet<string>());
 	let topLimit = $state(25);
+	let controlsHeight = $state(0);
 	let mounted = false;
 	let requestId = 0;
 	let previousSelectedCategory = selectedCategory;
@@ -176,26 +180,43 @@
 	let activeCategoryLabel = $derived(
 		categoryOptions.find((option) => option.value === selectedCategory)?.label ?? 'Abgeordnete'
 	);
+
+	function descriptionFor(key: string) {
+		const mode = normalized ? 'normalized' : 'absolute';
+		return chartDescriptions[`${key}.${mode}`] ?? chartDescriptions[key];
+	}
+
 	let chartDescription = $derived.by(() => {
 		if (chartMode === 'line') {
-			return 'Zeitlicher Vergleich über alle verfügbaren Legislaturperioden.';
+			return (
+				descriptionFor('line') ??
+				descriptionFor('legis') ??
+				'Entwicklung über die verfügbaren Legislaturperioden.'
+			);
 		}
 		if (chartMode === 'spectrum') {
-			return 'Zweidimensionale Einordnung zwischen sozialistisch und kapitalistisch sowie libertär und autoritär.';
+			return (
+				descriptionFor('spectrum') ??
+				'Einordnung zwischen sozialistisch und kapitalistisch sowie libertär und autoritär.'
+			);
 		}
 		if (chartMode === 'donut') {
-			return 'Anteil der größten Werte an der aktuell gefilterten Auswahl.';
+			return descriptionFor('donut') ?? 'Anteile der aktuell sichtbaren Werte.';
+		}
+		const categoryDescription = descriptionFor(selectedCategory);
+		if (categoryDescription) {
+			return categoryDescription;
 		}
 		if (selectedCategory === 'delegate') {
-			return 'Rangliste der Abgeordneten mit lesbaren Namen und Parteifarben.';
+			return 'Werte der einzelnen Abgeordneten in der aktuellen Auswahl.';
 		}
 		if (selectedCategory === 'age') {
-			return 'Vergleich nach Altersgruppen zum Beginn der jeweiligen Legislaturperiode.';
+			return 'Vergleich nach Altersgruppen in der aktuellen Auswahl.';
 		}
 		if (selectedCategory === 'legis') {
-			return 'Vergleich der Legislaturperioden auf Basis der ausgewählten Kennzahl.';
+			return 'Vergleich der Legislaturperioden für diese Kennzahl.';
 		}
-		return 'Gruppierter Vergleich der aktuell ausgewählten Auswertung.';
+		return 'Vergleich der aktuell ausgewählten Gruppen.';
 	});
 
 	let selectedGp = $derived(
@@ -345,22 +366,6 @@
 			}))
 	);
 
-	const cDomain = $derived.by(() => {
-		const domain =
-			selectedCategory === 'delegate'
-				? partyColors
-						.keys()
-						.map((key) => key)
-						.toArray()
-				: undefined;
-
-		if (domain) {
-			domain.push('Unbekannt', 'Regierungsmitglied');
-		}
-
-		return domain;
-	});
-
 	const cRange = $derived.by(() => {
 		if (selectedCategory === 'delegate') {
 			const values = partyColors
@@ -391,10 +396,7 @@
 			null
 		)
 	);
-	let chartHeight = $derived(
-		chartMode === 'bar' ? Math.max(height, chartData.length * (isMobile ? 30 : 34) + 80) : height
-	);
-	let chartPaddingLeft = $derived(isMobile ? 150 : selectedCategory === 'delegate' ? 285 : 190);
+	let chartStickyTopOffset = $derived(controlsHeight);
 
 	$effect(() => {
 		genericFilters[0].hidden = filterConfig.showGender === false || selectedCategory === 'gender';
@@ -477,9 +479,10 @@
 
 <svelte:window bind:innerWidth={windowWidth} />
 
-<div class="space-y-5">
+<div class="delegate-chart-control space-y-5 overflow-y-auto pr-2">
 	<section
-		class="relative z-20 rounded-xl border border-gray-300 bg-surface-50 p-4 shadow-sm dark:border-surface-700 dark:bg-surface-700/60"
+		bind:clientHeight={controlsHeight}
+		class="sticky top-0 z-30 rounded-xl border border-gray-300 bg-surface-50/95 p-4 shadow-sm backdrop-blur dark:border-surface-700 dark:bg-surface-700/95"
 	>
 		<div class="flex flex-col gap-4">
 			<div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
@@ -669,33 +672,35 @@
 	<section
 		class="relative z-0 rounded-xl border border-gray-300 bg-white shadow-sm dark:border-surface-700 dark:bg-surface-800"
 	>
-		<div
-			class="flex flex-col gap-2 border-b border-gray-200 p-4 md:flex-row md:items-start md:justify-between dark:border-surface-700"
-		>
-			<div>
-				<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">{metricLabel}</h2>
-				<p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
-					{chartDescription}
-				</p>
-			</div>
-			{#if infoQuestion && infoAnswer}
-				<div class="group relative">
-					<button
-						type="button"
-						class="rounded-lg border border-primary-300 px-3 py-1.5 text-sm font-semibold hover:bg-primary-100 dark:border-primary-400 dark:hover:bg-surface-700"
-					>
-						{infoQuestion}
-					</button>
-					<div
-						class="invisible absolute top-10 right-0 z-30 w-80 rounded-xl border border-gray-300 bg-surface-50 p-4 text-sm opacity-0 shadow-lg transition group-hover:visible group-hover:opacity-100 dark:border-surface-600 dark:bg-surface-700"
-					>
-						<div class="space-y-2 text-gray-700 dark:text-gray-100">
-							{@html infoAnswer}
+		{#if chartMode !== 'bar'}
+			<div
+				class="flex flex-col gap-2 border-b border-gray-200 p-4 md:flex-row md:items-start md:justify-between dark:border-surface-700"
+			>
+				<div>
+					<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">{metricLabel}</h2>
+					<p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
+						{chartDescription}
+					</p>
+				</div>
+				{#if infoQuestion && infoAnswer}
+					<div class="group relative">
+						<button
+							type="button"
+							class="rounded-lg border border-primary-300 px-3 py-1.5 text-sm font-semibold hover:bg-primary-100 dark:border-primary-400 dark:hover:bg-surface-700"
+						>
+							{infoQuestion}
+						</button>
+						<div
+							class="invisible absolute top-10 right-0 z-30 w-80 rounded-xl border border-gray-300 bg-surface-50 p-4 text-sm opacity-0 shadow-lg transition group-hover:visible group-hover:opacity-100 dark:border-surface-600 dark:bg-surface-700"
+						>
+							<div class="space-y-2 text-gray-700 dark:text-gray-100">
+								{@html infoAnswer}
+							</div>
 						</div>
 					</div>
-				</div>
-			{/if}
-		</div>
+				{/if}
+			</div>
+		{/if}
 
 		{#if loading}
 			<div class="flex min-h-80 items-center justify-center p-8">
@@ -801,43 +806,47 @@
 				/>
 			</div>
 		{:else}
-			<div class="overflow-x-auto">
-				<div class="min-w-[760px] p-4" style="height: {chartHeight}px;">
-					<BarChart
-						data={chartData}
-						x="value"
-						y="category"
-						c="party"
-						{cDomain}
-						{cRange}
-						orientation="horizontal"
-						padding={{ left: chartPaddingLeft, right: 36, top: 24, bottom: 32 }}
-						props={{
-							xAxis: {
-								tickLabelProps: {
-									class: 'fill-black dark:fill-white stroke-none text-xs font-semibold'
-								}
-							},
-							yAxis: {
-								tickLabelProps: {
-									class: 'fill-black dark:fill-white stroke-none font-semibold',
-									'font-size': isMobile ? 9 : 11,
-									textAnchor: 'end'
-								}
-							},
-							bars: {
-								strokeWidth: 0,
-								rx: 3
-							}
-						}}
-					/>
-				</div>
-			</div>
+			<CustomBarChart
+				data={chartData}
+				{height}
+				{metricLabel}
+				{selectedCategory}
+				{chartDescription}
+				stickyTopOffset={chartStickyTopOffset}
+				{infoQuestion}
+				{infoAnswer}
+			/>
 		{/if}
 	</section>
 </div>
 
 <style>
+	.delegate-chart-control {
+		max-height: calc(100vh - 1rem);
+		scrollbar-width: thin;
+		scrollbar-color: rgb(156 163 175) transparent;
+	}
+
+	.delegate-chart-control::-webkit-scrollbar {
+		width: 10px;
+	}
+
+	.delegate-chart-control::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	.delegate-chart-control::-webkit-scrollbar-thumb {
+		background: rgb(156 163 175);
+		border: 3px solid transparent;
+		border-radius: 999px;
+		background-clip: content-box;
+	}
+
+	.delegate-chart-control::-webkit-scrollbar-thumb:hover {
+		background: rgb(107 114 128);
+		background-clip: content-box;
+	}
+
 	:global(.layerchart) {
 		font-family: inherit;
 	}

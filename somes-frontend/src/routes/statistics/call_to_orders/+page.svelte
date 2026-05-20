@@ -7,6 +7,23 @@
 
 	export let selectedCategory: string = 'delegate';
 
+	const chartDescriptions = {
+		'delegate.normalized': 'Ordnungsrufe je besuchter Sitzung der Abgeordneten.',
+		'delegate.absolute': 'Gezählte Ordnungsrufe je Abgeordneter oder Abgeordnetem.',
+		'party.normalized': 'Ordnungsrufe je besuchter Sitzung, nach Parteien zusammengefasst.',
+		'party.absolute': 'Gezählte Ordnungsrufe, nach Parteien zusammengefasst.',
+		'gender.normalized': 'Ordnungsrufe je besuchter Sitzung im Vergleich nach Geschlecht.',
+		'gender.absolute': 'Gezählte Ordnungsrufe im Vergleich nach Geschlecht.',
+		'age.normalized': 'Ordnungsrufe je besuchter Sitzung nach Altersgruppen.',
+		'age.absolute': 'Gezählte Ordnungsrufe nach Altersgruppen.',
+		'legis.normalized': 'Ordnungsrufe je besuchter Sitzung, je Legislaturperiode.',
+		'legis.absolute': 'Gezählte Ordnungsrufe je Legislaturperiode.',
+		'line.normalized': 'Entwicklung der Ordnungsrufe je besuchter Sitzung über die Perioden.',
+		'line.absolute': 'Entwicklung der gezählten Ordnungsrufe über die Perioden.',
+		'donut.normalized': 'Anteil der höchsten Ordnungsrufquoten in der aktuellen Auswahl.',
+		'donut.absolute': 'Anteil der höchsten Ordnungsrufzahlen in der aktuellen Auswahl.'
+	};
+
 	const delegateSimpleCallsToOrder = async (
 		gp: string | null,
 		gender: string | null,
@@ -143,7 +160,7 @@
 	<div class="mt-2 mb-6">
 		<h1 class="text-3xl font-bold sm:text-4xl">Ordnungsrufstatistiken</h1>
 		<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
-			Analyse der Ordnungsrufe im Parlament.
+			Ordnungsrufe im Parlament, absolut oder im Verhältnis zu besuchten Sitzungen.
 		</p>
 	</div>
 
@@ -152,6 +169,7 @@
 		height={520}
 		bind:selectedCategory
 		valueLabel="Ordnungsrufe"
-		normalizedValueLabel="Durchschnittliche Ordnungsrufe pro Sitzung"
+		normalizedValueLabel="Ordnungsrufe pro besuchter Sitzung"
+		{chartDescriptions}
 	/>
 </Container>

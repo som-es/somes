@@ -7,6 +7,25 @@
 
 	export let selectedCategory: string = 'delegate';
 
+	const chartDescriptions = {
+		'delegate.normalized':
+			'Gewichtete Initiativen je Abgeordneter oder Abgeordnetem, geteilt durch die Sitzungen der Periode.',
+		'delegate.absolute': 'Summe der gewichteten Initiativen je Abgeordneter oder Abgeordnetem.',
+		'party.normalized': 'Durchschnittliche Aktivitäts-Punkte pro Sitzung, je Partei.',
+		'party.absolute': 'Durchschnittliche Aktivitäts-Punkte der Abgeordneten einer Partei.',
+		'gender.normalized': 'Durchschnittliche Aktivitäts-Punkte pro Sitzung, nach Geschlecht.',
+		'gender.absolute': 'Durchschnittliche Aktivitäts-Punkte nach Geschlecht.',
+		'age.normalized': 'Durchschnittliche Aktivitäts-Punkte pro Sitzung, nach Altersgruppen.',
+		'age.absolute': 'Durchschnittliche Aktivitäts-Punkte nach Altersgruppen.',
+		'legis.normalized': 'Durchschnittliche Aktivitäts-Punkte pro Sitzung, je Legislaturperiode.',
+		'legis.absolute': 'Durchschnittliche Aktivitäts-Punkte je Legislaturperiode.',
+		'line.normalized':
+			'Entwicklung der durchschnittlichen Aktivität pro Sitzung über die Perioden.',
+		'line.absolute': 'Entwicklung der durchschnittlichen Aktivitäts-Punkte über die Perioden.',
+		'donut.normalized': 'Anteil der höchsten Aktivitätswerte pro Sitzung in der aktuellen Auswahl.',
+		'donut.absolute': 'Anteil der höchsten Aktivitäts-Punkte in der aktuellen Auswahl.'
+	};
+
 	const delegateSimpleActivity = async (
 		gp: string | null,
 		gender: string | null,
@@ -143,7 +162,7 @@
 	<div class="mt-2 mb-6">
 		<h1 class="text-3xl font-bold sm:text-4xl">Aktivitätsstatistiken</h1>
 		<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
-			Analyse der parlamentarischen Aktivitäten.
+			Parlamentarische Aktivität anhand eingebrachter Initiativen.
 		</p>
 	</div>
 
@@ -153,6 +172,7 @@
 		bind:selectedCategory
 		valueLabel="Aktivitäts-Punkte"
 		normalizedValueLabel="durchschnittliche Aktivitäts-Punkte (pro Sitzung)"
+		{chartDescriptions}
 		infoQuestion="Wie werden Aktivitäts-Punkte berechnet?"
 		infoAnswer="
 			<p><strong>Aktivitäts-Punkte:</strong> gewichtete Summe der eingebrachten parlamentarischen Initiativen.</p>

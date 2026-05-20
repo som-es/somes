@@ -7,6 +7,24 @@
 
 	export let selectedCategory: string = 'delegate';
 
+	const chartDescriptions = {
+		'delegate.normalized': 'Durchschnittliche Dauer einer Rede je Abgeordneter oder Abgeordnetem.',
+		'delegate.absolute': 'Gesamte Redezeit je Abgeordneter oder Abgeordnetem.',
+		'party.normalized': 'Durchschnittliche Rededauer der Abgeordneten einer Partei.',
+		'party.absolute': 'Gesamte Redezeit, nach Parteien zusammengefasst.',
+		'gender.normalized': 'Durchschnittliche Rededauer im Vergleich nach Geschlecht.',
+		'gender.absolute': 'Gesamte Redezeit im Vergleich nach Geschlecht.',
+		'age.normalized': 'Durchschnittliche Rededauer nach Altersgruppen.',
+		'age.absolute': 'Gesamte Redezeit nach Altersgruppen.',
+		'legis.normalized': 'Durchschnittliche Rededauer je Legislaturperiode.',
+		'legis.absolute': 'Gesamte Redezeit je Legislaturperiode.',
+		'line.normalized': 'Entwicklung der durchschnittlichen Rededauer über die Perioden.',
+		'line.absolute': 'Entwicklung der gesamten Redezeit über die Perioden.',
+		'donut.normalized':
+			'Anteil der höchsten durchschnittlichen Rededauern in der aktuellen Auswahl.',
+		'donut.absolute': 'Anteil der höchsten Redezeiten in der aktuellen Auswahl.'
+	};
+
 	const delegateSimpleSpeechTime = async (
 		gp: string | null,
 		gender: string | null,
@@ -17,7 +35,8 @@
 			legis_period: gp,
 			party: null,
 			gender,
-			is_desc: isDesc
+			is_desc: isDesc,
+			normalized
 		});
 
 		if ('error' in response) {
@@ -37,7 +56,8 @@
 			legis_period: gp,
 			party: null,
 			gender,
-			is_desc: isDesc
+			is_desc: isDesc,
+			normalized
 		});
 
 		if ('error' in response) {
@@ -57,7 +77,8 @@
 			legis_period: gp,
 			party: null,
 			gender,
-			is_desc: isDesc
+			is_desc: isDesc,
+			normalized
 		});
 
 		if ('error' in response) {
@@ -77,7 +98,8 @@
 			legis_period: gp,
 			party: null,
 			gender,
-			is_desc: isDesc
+			is_desc: isDesc,
+			normalized
 		});
 
 		if ('error' in response) {
@@ -97,7 +119,8 @@
 			legis_period: gp,
 			party: null,
 			gender,
-			is_desc: isDesc
+			is_desc: isDesc,
+			normalized
 		});
 
 		if ('error' in response) {
@@ -128,14 +151,14 @@
 
 <svelte:head>
 	<title>Redezeitstatistiken - Parlamentsinformationssystem</title>
-	<meta name="description" content="Analyse der Redezeiten im Parlament" />
+	<meta name="description" content="Redezeiten im Parlament nach Personen und Gruppen" />
 </svelte:head>
 
 <Container class="pb-12">
 	<div class="mt-2 mb-6">
 		<h1 class="text-3xl font-bold sm:text-4xl">Redezeitstatistiken</h1>
 		<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
-			Analyse der Redezeiten im Parlament.
+			Gesamte Redezeit und durchschnittliche Rededauer im Parlament.
 		</p>
 	</div>
 
@@ -144,6 +167,7 @@
 		height={560}
 		bind:selectedCategory
 		valueLabel="Redezeit"
-		normalizedValueLabel="Durchschnittliche Redezeit"
+		normalizedValueLabel="Durchschnittliche Rededauer"
+		{chartDescriptions}
 	/>
 </Container>

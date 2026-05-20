@@ -5,43 +5,44 @@
 	const statisticsSections = [
 		{
 			title: 'Redezeit',
-			description: 'Gesamte und durchschnittliche Redezeiten nach Abgeordneten und Gruppen.',
+			description: 'Gesamte Redezeit und durchschnittliche Rededauer.',
 			href: resolve('/statistics/speech_time')
 		},
 		{
 			title: 'Gehaltene Reden',
-			description: 'Anzahl der parlamentarischen Reden in den ausgewählten Perioden.',
+			description: 'Wie oft im Parlament gesprochen wurde.',
 			href: resolve('/statistics/total_speeches')
 		},
 		{
 			title: 'Sprachkomplexität',
-			description: 'Derzeit deaktiviert, bis wieder belastbare Sprachkomplexitätsdaten verfügbar sind.',
+			description:
+				'Derzeit deaktiviert, bis wieder belastbare Sprachkomplexitätsdaten verfügbar sind.',
 			href: null,
 			disabled: true
 		},
 		{
 			title: 'Abwesenheiten',
-			description: 'Absolute und normalisierte Abwesenheiten in Nationalratssitzungen.',
+			description: 'Gezählte Abwesenheiten und Abwesenheitsquote.',
 			href: resolve('/statistics/absences')
 		},
 		{
 			title: 'Aktivität',
-			description: 'Gewichtete parlamentarische Aktivität anhand eingebrachter Initiativen.',
+			description: 'Gewichtete parlamentarische Initiativen.',
 			href: resolve('/statistics/activity')
 		},
 		{
 			title: 'Ordnungsrufe',
-			description: 'Ordnungsrufe nach Abgeordneten, Parteien und Legislaturperioden.',
+			description: 'Gezählte Ordnungsrufe und Werte pro besuchter Sitzung.',
 			href: resolve('/statistics/call_to_orders')
 		},
 		{
 			title: 'Alter',
-			description: 'Altersstruktur und Durchschnittsalter der Abgeordneten.',
+			description: 'Alter der Abgeordneten und Durchschnittswerte nach Gruppen.',
 			href: resolve('/statistics/age')
 		},
 		{
 			title: 'Politische Positionen',
-			description: 'Ranglisten nach linken, rechten, libertären und autoritären Positionswerten.',
+			description: 'Politische Positionswerte nach Personen und Gruppen.',
 			href: resolve('/statistics/orientation')
 		}
 	];
@@ -69,7 +70,8 @@
 				>
 					<div class="flex items-center justify-between gap-3">
 						<h2 class="text-xl font-bold">{section.title}</h2>
-						<span class="rounded-lg bg-surface-200 px-2 py-1 text-xs font-semibold dark:bg-surface-700"
+						<span
+							class="rounded-lg bg-surface-200 px-2 py-1 text-xs font-semibold dark:bg-surface-700"
 							>Deaktiviert</span
 						>
 					</div>

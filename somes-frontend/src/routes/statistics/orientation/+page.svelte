@@ -18,6 +18,15 @@
 		{ value: 'age', label: 'Alter' }
 	];
 
+	const chartDescriptions = {
+		delegate: 'Gespeicherter Positionswert der einzelnen Abgeordneten.',
+		party: 'Durchschnittliche Positionswerte je Partei.',
+		gender: 'Durchschnittliche Positionswerte nach Geschlecht.',
+		age: 'Durchschnittliche Positionswerte nach Altersgruppen.',
+		spectrum: 'Wirtschaftliche und gesellschaftliche Positionen in einer gemeinsamen Ansicht.',
+		donut: 'Anteil der höchsten Positionswerte in der aktuellen Auswahl.'
+	};
+
 	const orientationOptions: {
 		value: Orientation;
 		label: string;
@@ -175,7 +184,7 @@
 	<div class="mt-2 mb-6">
 		<h1 class="text-3xl font-bold sm:text-4xl">Politische Positionen</h1>
 		<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
-			Ranglisten der gespeicherten politischen Positionswerte nach Abgeordneten und Gruppen.
+			Politische Positionswerte nach Abgeordneten, Parteien und weiteren Gruppen.
 		</p>
 	</div>
 
@@ -212,6 +221,7 @@
 		{categoryOptions}
 		valueLabel={selectedOrientationOption.valueLabel}
 		normalizedValueLabel={selectedOrientationOption.valueLabel}
+		{chartDescriptions}
 		filterConfig={{
 			showNormalized: false,
 			showPeriod: false,
