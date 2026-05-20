@@ -46,9 +46,7 @@
 	<a
 		href={createVoteResultPath(voteResult)}
 		onclick={toggleOpen}
-		onkeypress={toggleOpen}
-		role="button"
-		tabindex="0"
+		aria-expanded={open}
 		class="entry block {coloring}"
 	>
 		<div class="flex">

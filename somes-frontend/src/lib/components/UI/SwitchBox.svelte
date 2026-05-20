@@ -2,11 +2,11 @@
 	export let leftText = '2D';
 	export let rightText = '3D';
 	export let checked = false;
+	export let label = `${leftText} / ${rightText}`;
 </script>
 
 <label class="toggleSwitch nolabel">
-	<input type="checkbox" bind:checked />
-	<a hidden></a>
+	<input type="checkbox" bind:checked aria-label={label} />
 	<span>
 		<span class="left-span">{leftText}</span>
 		<span class="right-span">{rightText}</span>

@@ -1,5 +1,5 @@
 import type { Delegate, NamedVote, Speech, VoteResult } from '$lib/types';
-import type { Material, Texture } from 'three';
+import type { Material } from 'three';
 import { partyToColor } from './partyColor';
 
 export const AMOUNT_PER_SIDE: number = 15;

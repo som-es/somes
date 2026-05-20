@@ -114,6 +114,9 @@
 
 	function startTicker() {
 		stopTicker();
+		if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			return;
+		}
 		tickerInterval = setInterval(() => {
 			platformTickerIndex++;
 		}, 6000); // 6 seconds rotation

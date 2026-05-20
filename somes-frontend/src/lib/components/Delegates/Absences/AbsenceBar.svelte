@@ -22,12 +22,11 @@
 </script>
 
 <div class="gap-3 mt-5">
-	<div
+	<button
+		type="button"
 		onclick={() => (open = !open)}
-		onkeypress={() => (open = !open)}
-		role="button"
-		tabindex="0"
-		class="entry dark:bg-primary-300 bg-primary-400 text-black"
+		aria-expanded={open}
+		class="entry dark:bg-primary-300 bg-primary-400 text-black w-full text-left"
 	>
 		<div class="flex justify-between items-center">
 			<!-- <div class="flex gap-4">
@@ -54,7 +53,7 @@
 			<div></div>
 			<span class="badge bg-tertiary-400">{dashDateToDotDate(absence.date.split("T")[0])}</span>
 		</div>
-	</div>
+	</button>
 	{#if open}
 		<!-- <div transition:slide={{ duration: 240 }}>
 			<AbsenceBarExpanded {absence} bind:open />

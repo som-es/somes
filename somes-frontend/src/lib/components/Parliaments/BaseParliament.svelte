@@ -78,10 +78,8 @@
 		{height * 0.5 + 60}"
 		style="width: 100%;"
 		class="parliament-svg hover:cursor-default"
-		onclick={() => (active = true)}
-		onkeydown={() => (active = true)}
-		role="button"
-		tabindex="0"
+		role="group"
+		aria-label="Parlamentssitzplan"
 	>
 		{#each circles2d.flat(1) as circle, i}
 			<circle
@@ -91,13 +89,19 @@
 				cy={circle.y}
 				r={circle.r}
 				role="button"
+				aria-label={circle.del && circle.title ? `${circle.del.name}: ${circle.title}` : 'Sitz'}
 				onclick={(event) => {
 					if (preview) return;
+					active = true;
 					select(circle, event);
 				}}
-				onkeypress={(event) => {
+				onkeydown={(event) => {
 					if (preview) return;
-					select(circle, event);
+					if (event.key === 'Enter' || event.key === ' ') {
+						event.preventDefault();
+						active = true;
+						select(circle, event);
+					}
 				}}
 				fill={forceColor ? forceColor : circle.color}
 				fill-opacity={circle.opacity}

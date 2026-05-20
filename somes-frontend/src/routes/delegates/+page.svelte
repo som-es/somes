@@ -731,7 +731,7 @@
 					<div class="w-full max-w-md rounded-2xl bg-primary-100 p-4 shadow-xl dark:bg-primary-600">
 						<div class="mb-1 flex items-center justify-between">
 							<h3 class="text-lg font-semibold">Suche</h3>
-							<ModalCloseButton class="p-1" onclick={() => (isSearchPopupOpen = false)} />
+							<ModalCloseButton asButton class="p-1" onclick={() => (isSearchPopupOpen = false)} />
 						</div>
 						<div class="mb-2">
 							<SearchBar

@@ -53,9 +53,7 @@
 		<a
 			href={createGovProposalPath(govProposal.gov_proposal.ministrial_proposal)}
 			onclick={toggleOpen}
-			onkeypress={toggleOpen}
-			role="button"
-			tabindex="0"
+			aria-expanded={open}
 			class="entry flex items-center justify-between {coloring}"
 		>
 			<!-- <div>

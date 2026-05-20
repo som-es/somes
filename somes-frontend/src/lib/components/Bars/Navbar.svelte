@@ -87,9 +87,12 @@
 			{@html somesWithText}
 		</a>
 		<button
+			type="button"
 			onclick={toggleMenu}
 			class="rounded fill-white stroke-white p-2 hover:bg-surface-400 touch-manipulation"
 			aria-label="Menu"
+			aria-expanded={isOpen}
+			aria-controls="mobile-navigation"
 		>
 			<!-- Hamburger Icon / Close Icon -->
 			{#if isOpen}
@@ -106,14 +109,18 @@
 
 	{#if isOpen}
 		<nav
+			id="mobile-navigation"
+			aria-label="Hauptnavigation"
 			class="absolute top-full right-0 left-0 z-60 flex flex-col border-t border-surface-400 bg-surface-500 shadow-xl"
 			transition:slide={{ duration: 200 }}
 		>
 			{#each navItems as item}
 				{#if item.subItems}
 					<button
+						type="button"
 						class="flex w-full items-center justify-between p-4 touch-manipulation text-base font-medium text-white hover:bg-surface-400"
 						onclick={() => toggleSubmenu(item.label)}
+						aria-expanded={expandedItems[item.label] ?? false}
 					>
 						<span>{item.label}</span>
 						<div
@@ -173,7 +180,7 @@
 				{/if}
 			{/each}
 			<button
-				
+				type="button"
 				class="flex w-full items-center p-4 touch-manipulation text-base font-medium hover:bg-surface-400 {page.url.pathname.includes("user")
 					? 'text-tertiary-500'
 					: 'text-white'}"

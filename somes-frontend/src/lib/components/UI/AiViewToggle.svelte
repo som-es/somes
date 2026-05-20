@@ -7,10 +7,10 @@
 </script>
 
 <button
+	type="button"
 	data-button-root="true"
 	role="switch"
-	tabindex="0"
-	aria-label="AI View Toggle"
+	aria-label={aiViewEnabledStore.value ? 'KI-Ansichten deaktivieren' : 'KI-Ansichten aktivieren'}
 	aria-checked={aiViewEnabledStore.value}
 	title={aiViewEnabledStore.value ? 'KI-Ansichten deaktivieren' : 'KI-Ansichten aktivieren'}
 	onclick={toggleAiView}

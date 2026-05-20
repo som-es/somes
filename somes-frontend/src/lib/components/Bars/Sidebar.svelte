@@ -116,6 +116,7 @@
 		<a
 			href={resolve('/')}
 			title="Somes"
+			aria-label="Somes Startseite"
 			class="mt-4 flex items-center justify-center rounded-xl fill-white stroke-white hover:cursor-pointer"
 		>
 			<span class="mt-3 flex w-10 items-center justify-center fill-white stroke-white!">
@@ -125,6 +126,8 @@
 		<a
 			href={resolve('/home')}
 			title="Neuigkeiten"
+			aria-label="Neuigkeiten"
+			aria-current={activeUrl?.includes('/home') ? 'page' : undefined}
 			class="{activeUrl?.includes('/home')
 				? 'bg-tertiary-500! stroke-black'
 				: ' stroke-white'} mt-5 flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60 hover:stroke-black"
@@ -136,6 +139,8 @@
 		<a
 			href={voteResultUrl.href}
 			title="Abstimmungshistorie"
+			aria-label="Abstimmungshistorie"
+			aria-current={activeUrl?.includes('/history') ? 'page' : undefined}
 			class="{activeUrl?.includes('/history')
 				? 'bg-tertiary-500! stroke-black'
 				: ' stroke-white'} flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60"
@@ -159,6 +164,8 @@
 		<a
 			href={resolve('/delegates')}
 			title="Abgeordnete"
+			aria-label="Abgeordnete"
+			aria-current={activeUrl?.includes('/delegates') ? 'page' : undefined}
 			class="{activeUrl?.includes('/delegates')
 				? 'bg-tertiary-500! fill-black'
 				: ' fill-white'} flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60 hover:fill-black"
@@ -170,6 +177,8 @@
 		<a
 			href={resolve('/statistics')}
 			title="Statistiken"
+			aria-label="Statistiken"
+			aria-current={activeUrl?.includes('/statistics') ? 'page' : undefined}
 			class="{activeUrl?.includes('/statistics')
 				? 'bg-tertiary-500! fill-black'
 				: ' fill-white'} flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60 hover:fill-black"
@@ -184,10 +193,13 @@
 			<AiViewToggle />
 			<!-- <DarkMode class="text-primary-500 dark:text-primary-600 border dark:border-gray-800 hover:bg-primary-800" /> -->
 			<button
+				type="button"
 				onclick={async () => {
 					await accountOrLogin();
 				}}
 				title="Benutzerprofil"
+				aria-label="Benutzerprofil"
+				aria-current={activeUrl?.includes('/user') ? 'page' : undefined}
 				class="{activeUrl?.includes('/user')
 					? 'bg-tertiary-500! fill-black'
 					: ' fill-white'} flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60 hover:fill-black"

@@ -95,6 +95,13 @@
 		drawChart(textColor, borderColor);
 	};
 
+	const chartDescription = $derived(
+		Object.values(dataPoints)
+			.flat()
+			.map(({ label, x, y }) => `${label}: x ${x}, y ${y}`)
+			.join('; ')
+	);
+
 	$effect(() => {
 		containerWidth;
 		dataPoints;
@@ -103,7 +110,13 @@
 </script>
 
 <div class="w-full" bind:clientWidth={containerWidth}>
-	<canvas class="border-black dark:border-white" bind:this={canvas}></canvas>
+	<canvas
+		class="border-black dark:border-white"
+		bind:this={canvas}
+		aria-label={`Quadrantendiagramm. ${chartDescription}`}
+	>
+		Quadrantendiagramm. {chartDescription}
+	</canvas>
 </div>
 
 <style>

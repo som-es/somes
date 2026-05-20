@@ -79,22 +79,43 @@
 
 	const sliceLimit = $derived(limit ?? optionsFiltered.length);
 	// console.log(optionsFiltered);
+
+	function stripHtml(value: string) {
+		return value.replace(/<[^>]*>/g, '').trim();
+	}
+
+	function handleOptionKeydown(event: KeyboardEvent, index: number) {
+		if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+		event.preventDefault();
+		const buttons = Array.from(
+			(event.currentTarget as HTMLElement)
+				.closest('[role="listbox"]')
+				?.querySelectorAll<HTMLButtonElement>('[role="option"]') ?? []
+		);
+		const offset = event.key === 'ArrowDown' ? 1 : -1;
+		buttons.at((index + offset + buttons.length) % buttons.length)?.focus();
+	}
 </script>
 
 <div class="autocomplete {className} z-40">
 	{#if optionsFiltered.length > 0}
-		<nav class="autocomplete-nav {regionNav} z-40">
-			<ul class="autocomplete-list {regionList}">
+		<nav class="autocomplete-nav {regionNav} z-40" aria-label="Suchvorschläge">
+			<ul class="autocomplete-list {regionList}" role="listbox" aria-label="Suchvorschläge">
 				{#each optionsFiltered.slice(0, sliceLimit) as option, i (i)}
 					<li
 						class="autocomplete-item {regionItem} z-40"
+						role="presentation"
 						in:slide={transitions ? transitionInParams : { duration: 0 }}
 						out:slide={transitions ? transitionOutParams : { duration: 0 }}
 					>
 						<button
 							class="z-40 flex justify-between p-3 hover:bg-secondary-400 dark:hover:bg-secondary-600 rounded-3xl autocomplete-button {regionButton}"
 							type="button"
+							role="option"
+							aria-selected="false"
+							aria-label={stripHtml(`${option.label}${option.right_label ? ` ${option.right_label}` : ''}`)}
 							onclick={() => onselection?.(option)}
+							onkeydown={(event) => handleOptionKeydown(event, i)}
 						>
 							<div>{@html option.label}</div>
 							{#if option.right_label}

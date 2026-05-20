@@ -78,3 +78,68 @@ pub async fn filtered_legislative_initiatives(
             .await?,
     ))
 }
+
+#[cfg(test)]
+mod tests {
+    use chrono::NaiveDate;
+    use somes_common_lib::{AddonVoteResultFilter, PartyVote};
+    use sqlx::{Postgres, QueryBuilder};
+
+    use super::push_base_filter;
+
+    fn filter_sql(filter: &AddonVoteResultFilter, is_finished: bool) -> String {
+        let mut query =
+            QueryBuilder::<Postgres>::new("SELECT li.id FROM legislative_initiatives li WHERE");
+        push_base_filter(&mut query, filter, is_finished);
+        query.sql().to_string()
+    }
+
+    #[test]
+    fn finished_filter_requires_accepted_voteable_entries() {
+        let sql = filter_sql(&AddonVoteResultFilter::default(), true);
+
+        assert!(sql.contains("li.accepted IS NOT NULL"));
+        assert!(sql.contains("li.is_voteable_on"));
+        assert!(!sql.contains("li.accepted IS NULL"));
+    }
+
+    #[test]
+    fn unfinished_filter_excludes_references_and_eubtg_entries() {
+        let sql = filter_sql(&AddonVoteResultFilter::default(), false);
+
+        assert!(sql.contains("li.accepted IS NULL"));
+        assert!(sql.contains("NOT li.has_reference"));
+        assert!(sql.contains("li.ityp != 'EUBTG'"));
+        assert!(sql.contains("li.is_voteable_on"));
+    }
+
+    #[test]
+    fn date_and_party_filters_are_parameterized() {
+        let filter = AddonVoteResultFilter {
+            date_from: Some(NaiveDate::from_ymd_opt(2024, 1, 1).unwrap()),
+            date_to: Some(NaiveDate::from_ymd_opt(2024, 12, 31).unwrap()),
+            party_votes: Some(vec![
+                PartyVote {
+                    party: "Gruene".to_string(),
+                    infavor: true,
+                },
+                PartyVote {
+                    party: "SPOe".to_string(),
+                    infavor: false,
+                },
+            ]),
+            ..Default::default()
+        };
+
+        let sql = filter_sql(&filter, true);
+
+        assert!(sql.contains("li.nr_plenary_activity_date >= $1"));
+        assert!(sql.contains("li.nr_plenary_activity_date <= $2"));
+        assert!(sql.contains("votes.party = $3"));
+        assert!(sql.contains("votes.infavor = $4"));
+        assert!(sql.contains("votes.party = $5"));
+        assert!(sql.contains("votes.infavor = $6"));
+        assert!(!sql.contains("Gruene"));
+        assert!(!sql.contains("SPOe"));
+    }
+}

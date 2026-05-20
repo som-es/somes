@@ -77,3 +77,57 @@ pub async fn user_route(
     .await
     .map(Json)?)
 }
+
+#[cfg(test)]
+mod tests {
+    use axum::{
+        body::{to_bytes, Body},
+        http::{Request, StatusCode},
+        Router,
+    };
+    use serde_json::Value;
+    use sqlx::postgres::PgPoolOptions;
+    use tower::ServiceExt;
+
+    use super::create_user_router;
+    use crate::server::AppState;
+
+    fn test_state() -> AppState {
+        AppState {
+            redis_client: redis::Client::open("redis://127.0.0.1/").unwrap(),
+            dataservice_sqlx_pool: PgPoolOptions::new()
+                .connect_lazy("postgres://postgres:postgres@127.0.0.1:5432/somes_test")
+                .unwrap(),
+            meilisearch_client: meilisearch_sdk::client::Client::new(
+                "http://127.0.0.1:7700",
+                Some("test"),
+            )
+            .unwrap(),
+        }
+    }
+
+    #[tokio::test]
+    async fn user_route_rejects_requests_without_bearer_token_before_db_access() {
+        let app = Router::new()
+            .nest("/v1/user", create_user_router())
+            .with_state(test_state());
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .uri("/v1/user/")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+
+        let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+        let body: Value = serde_json::from_slice(&body).unwrap();
+
+        assert_eq!(body["error_type"], "AuthError");
+        assert_eq!(body["field"], "MissingToken");
+    }
+}
