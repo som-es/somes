@@ -10,6 +10,7 @@
 
 	let {
 		data,
+		height = 560,
 		metricLabel,
 		selectedCategory,
 		chartDescription,
@@ -30,9 +31,19 @@
 	const labelColumnWidth = $derived(
 		selectedCategory === 'delegate' ? 'clamp(10rem, 34%, 17rem)' : '12rem'
 	);
-	const rowHeight = 34;
 	const rowGap = 4;
 	const minimumVisibleRows = 10;
+	let rowHeight = $derived(
+		Math.max(
+			34,
+			Math.min(
+				56,
+				Math.floor((height - 186 - (minimumVisibleRows - 1) * rowGap) / minimumVisibleRows)
+			)
+		)
+	);
+	let chartRowHeight = $derived(`${Math.max(28, rowHeight - 6)}px`);
+	let barHeight = $derived(`${Math.max(16, Math.min(24, Math.round(rowHeight * 0.45)))}px`);
 
 	function niceStep(value: number) {
 		if (value <= 0) return 1;
@@ -116,7 +127,26 @@
 		class="grid shrink-0 gap-3 border-b border-gray-200 bg-white px-4 pt-4 pb-3 shadow-sm md:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)] md:items-start dark:border-surface-700 dark:bg-surface-800"
 	>
 		<div class="min-w-0">
-			<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">{metricLabel}</h2>
+			<div class="flex min-w-0 flex-wrap items-center gap-2">
+				<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">{metricLabel}</h2>
+				{#if infoQuestion && infoAnswer}
+					<div class="group relative inline-block">
+						<button
+							type="button"
+							class="rounded-lg border border-primary-300 px-2.5 py-1 text-xs font-semibold hover:bg-primary-100 dark:border-primary-400 dark:hover:bg-surface-700"
+						>
+							{infoQuestion}
+						</button>
+						<div
+							class="invisible absolute top-9 left-0 z-50 w-80 rounded-xl border border-gray-300 bg-surface-50 p-4 text-left text-sm opacity-0 shadow-lg transition group-hover:visible group-hover:opacity-100 dark:border-surface-600 dark:bg-surface-700"
+						>
+							<div class="space-y-2 text-gray-700 dark:text-gray-100">
+								{@html infoAnswer}
+							</div>
+						</div>
+					</div>
+				{/if}
+			</div>
 			<p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
 				{chartDescription}
 			</p>
@@ -156,22 +186,6 @@
 							>
 								{formatValue(detailItem.value)}
 							</span>
-						</div>
-					</div>
-				{:else if infoQuestion && infoAnswer}
-					<div class="group relative inline-block self-start text-left md:text-right">
-						<button
-							type="button"
-							class="rounded-lg border border-primary-300 px-3 py-1.5 text-sm font-semibold hover:bg-primary-100 dark:border-primary-400 dark:hover:bg-surface-700"
-						>
-							{infoQuestion}
-						</button>
-						<div
-							class="invisible absolute top-10 right-0 z-30 w-80 rounded-xl border border-gray-300 bg-surface-50 p-4 text-left text-sm opacity-0 shadow-lg transition group-hover:visible group-hover:opacity-100 dark:border-surface-600 dark:bg-surface-700"
-						>
-							<div class="space-y-2 text-gray-700 dark:text-gray-100">
-								{@html infoAnswer}
-							</div>
 						</div>
 					</div>
 				{/if}
@@ -216,7 +230,7 @@
 							</div>
 						</div>
 
-						<div class="relative h-7 min-w-0 overflow-visible">
+						<div class="relative min-w-0 overflow-visible" style="height: {chartRowHeight};">
 							<div
 								class="absolute inset-y-0 left-0 overflow-visible"
 								style="right: calc(var(--value-label-width) + var(--value-label-gap));"
@@ -232,12 +246,12 @@
 									style="left: {zeroPosition};"
 								></div>
 								<div
-									class="absolute top-1/2 h-4 -translate-y-1/2 rounded-sm transition-all"
+									class="absolute top-1/2 -translate-y-1/2 rounded-sm transition-all"
 									class:opacity-70={hoveredIndex !== null && hoveredIndex !== index}
 									class:brightness-110={hoveredIndex === index}
 									style="left: {barLeft(item.value)}; width: {barWidth(
 										item.value
-									)}; background-color: {item.color};"
+									)}; height: {barHeight}; background-color: {item.color};"
 									role="img"
 									aria-label="Rang {index + 1}, {item.category}: {metricLabel} {formatValue(
 										item.value
@@ -300,6 +314,13 @@
 	.chart-row,
 	.chart-axis {
 		grid-template-columns: minmax(9rem, var(--label-column-width)) minmax(0, 1fr);
+	}
+
+	@media (max-width: 640px) {
+		.chart-row,
+		.chart-axis {
+			grid-template-columns: minmax(6.75rem, 8rem) minmax(0, 1fr);
+		}
 	}
 
 	.chart-scrollbar {

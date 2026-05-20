@@ -145,7 +145,7 @@
 	<div class="mt-2 mb-6">
 		<h1 class="text-3xl font-bold sm:text-4xl">Anzahl der Reden</h1>
 		<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
-			Wie oft im Parlament gesprochen wurde, nach Personen und Gruppen.
+			Wer wie oft im Parlament gesprochen hat.
 		</p>
 	</div>
 
@@ -153,8 +153,8 @@
 		makeRequest={currentFunction}
 		height={560}
 		bind:selectedCategory
-		valueLabel="Anzahl Reden"
-		normalizedValueLabel="Anzahl Reden"
+		valueLabel="Reden"
+		normalizedValueLabel="Reden"
 		{chartDescriptions}
 		filterConfig={{
 			showNormalized: false,

@@ -102,6 +102,7 @@
 	let selectedParties = $state(new SvelteSet<string>());
 	let topLimit = $state(25);
 	let controlsHeight = $state(0);
+	let windowHeight = $state(820);
 	let mounted = false;
 	let requestId = 0;
 	let previousSelectedCategory = selectedCategory;
@@ -177,6 +178,12 @@
 			return true;
 		})
 	);
+	let responsiveChartHeight = $derived.by(() => {
+		const reservedSpace = isMobile ? 300 : 250;
+		const availableHeight = windowHeight - controlsHeight - reservedSpace;
+		const maximumHeight = windowHeight >= 1050 ? 820 : 720;
+		return Math.round(Math.max(430, Math.min(maximumHeight, availableHeight)));
+	});
 
 	let activeCategoryLabel = $derived(
 		categoryOptions.find((option) => option.value === selectedCategory)?.label ?? 'Abgeordnete'
@@ -407,7 +414,7 @@
 	}
 </script>
 
-<svelte:window bind:innerWidth={windowWidth} />
+<svelte:window bind:innerWidth={windowWidth} bind:innerHeight={windowHeight} />
 
 <div class="statistics-chart-control space-y-5">
 	<section
@@ -658,15 +665,15 @@
 				</p>
 			</div>
 		{:else if chartMode === 'spectrum'}
-			<PoliticalSpectrumChart data={shownData} {height} {selectedCategory} />
+			<PoliticalSpectrumChart data={shownData} height={responsiveChartHeight} {selectedCategory} />
 		{:else if chartMode === 'donut'}
-			<CustomDonutChart data={chartData} {height} {metricLabel} />
+			<CustomDonutChart data={chartData} height={responsiveChartHeight} {metricLabel} />
 		{:else if chartMode === 'line'}
-			<CustomLineChart data={chartData} {height} {selectedCategory} />
+			<CustomLineChart data={chartData} height={responsiveChartHeight} {selectedCategory} />
 		{:else}
 			<CustomBarChart
 				data={chartData}
-				{height}
+				height={responsiveChartHeight}
 				{metricLabel}
 				{selectedCategory}
 				{chartDescription}

@@ -160,7 +160,7 @@
 	<div class="mt-2 mb-6">
 		<h1 class="text-3xl font-bold sm:text-4xl">Ordnungsrufstatistiken</h1>
 		<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
-			Ordnungsrufe im Parlament, absolut oder im Verhältnis zu besuchten Sitzungen.
+			Wer im Parlament wie oft ermahnt wurde.
 		</p>
 	</div>
 

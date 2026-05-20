@@ -4,11 +4,8 @@
 </script>
 
 <svelte:head>
-	<title>Sprachkomplexität deaktiviert</title>
-	<meta
-		name="description"
-		content="Sprachkomplexitätsstatistiken sind derzeit deaktiviert"
-	/>
+	<title>Sprachkomplexität</title>
+	<meta name="description" content="Sprachkomplexität ist derzeit nicht verfügbar" />
 </svelte:head>
 
 <Container class="pb-12">
@@ -18,11 +15,6 @@
 			Diese Statistik ist vorübergehend deaktiviert, weil aktuell keine belastbaren
 			Sprachkomplexitätsdaten verfügbar sind.
 		</p>
-		<a
-			href={resolve('/statistics')}
-			class="mt-6 inline-flex rounded-lg bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600"
-		>
-			Zur Statistikübersicht
-		</a>
+		
 	</div>
 </Container>

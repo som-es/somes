@@ -109,8 +109,20 @@
 		padding-bottom: 0;
 	}
 
+	:global(.statistics-snap-section .container) {
+		width: 100%;
+		max-width: 100%;
+	}
+
 	:global(.statistics-snap-section [class*='mb-6']) {
 		margin-bottom: 0.75rem;
+	}
+
+	@media (min-width: 1280px) {
+		:global(.statistics-snap-section .container) {
+			width: 100%;
+			max-width: 116rem;
+		}
 	}
 
 	.statistics-section-button {
