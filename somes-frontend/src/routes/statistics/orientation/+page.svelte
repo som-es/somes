@@ -2,7 +2,7 @@
 	import { justPostStatistics } from '$lib/api/api';
 	import { mapOrientationCategory, mapOrientationDelegate } from '$lib/api/statistics-adapter';
 	import Container from '$lib/components/Layout/Container.svelte';
-	import DelegateBarChartControl from '$lib/components/Statistics/DelegateBarChartControl.svelte';
+	import StatisticsChartControl from '$lib/components/Statistics/StatisticsChartControl.svelte';
 	import type { StatisticsData } from '$lib/types';
 
 	type Orientation = 'left' | 'right' | 'liberal' | 'authoritarian';
@@ -213,9 +213,9 @@
 		</section>
 	{/if}
 
-	<DelegateBarChartControl
+	<StatisticsChartControl
 		height={520}
-		delegateMakeRequest={loadOrientation}
+		makeRequest={loadOrientation}
 		reloadKey={selectedOrientation}
 		bind:selectedCategory
 		{categoryOptions}

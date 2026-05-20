@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { justPostStatistics } from '$lib/api/api';
-	import DelegateBarChartControl from '$lib/components/Statistics/DelegateBarChartControl.svelte';
+	import StatisticsChartControl from '$lib/components/Statistics/StatisticsChartControl.svelte';
 	import type { StatisticsData } from '$lib/types';
 	import { mapTotalSpeechesDelegate, mapTotalSpeechesCategory } from '$lib/api/statistics-adapter';
 	import Container from '$lib/components/Layout/Container.svelte';
@@ -149,8 +149,8 @@
 		</p>
 	</div>
 
-	<DelegateBarChartControl
-		delegateMakeRequest={currentFunction}
+	<StatisticsChartControl
+		makeRequest={currentFunction}
 		height={560}
 		bind:selectedCategory
 		valueLabel="Anzahl Reden"

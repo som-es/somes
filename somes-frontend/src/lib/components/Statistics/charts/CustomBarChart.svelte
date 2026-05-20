@@ -13,7 +13,6 @@
 		metricLabel,
 		selectedCategory,
 		chartDescription,
-		stickyTopOffset = 0,
 		infoQuestion = null,
 		infoAnswer = null
 	}: {
@@ -22,14 +21,15 @@
 		metricLabel: string;
 		selectedCategory: string;
 		chartDescription: string;
-		stickyTopOffset?: number;
 		infoQuestion?: string | null;
 		infoAnswer?: string | null;
 	} = $props();
 
 	let hoveredIndex = $state<number | null>(null);
 
-	const labelColumnWidth = $derived(selectedCategory === 'delegate' ? '17rem' : '12rem');
+	const labelColumnWidth = $derived(
+		selectedCategory === 'delegate' ? 'clamp(10rem, 34%, 17rem)' : '12rem'
+	);
 	const rowHeight = 34;
 	const rowGap = 4;
 	const minimumVisibleRows = 10;
@@ -83,7 +83,23 @@
 		return `${Math.max(0.25, Math.abs(xPercent(value) - xPercent(0)))}%`;
 	}
 
+	function valueLabelPosition(value: number) {
+		const position = xPercent(value);
+		if (value >= 0) {
+			return {
+				left: `calc(${position}% + var(--value-label-gap))`,
+				textAlign: 'left'
+			};
+		}
+
+		return {
+			left: `max(0.25rem, calc(${position}% - var(--value-label-width) - var(--value-label-gap)))`,
+			textAlign: 'right'
+		};
+	}
+
 	let zeroPosition = $derived(`${xPercent(0)}%`);
+	let valueLabelWidth = $derived(selectedCategory === 'delegate' ? '4.5rem' : '4rem');
 	let rowViewportHeight = $derived(
 		`${minimumVisibleRows * rowHeight + (minimumVisibleRows - 1) * rowGap}px`
 	);
@@ -94,7 +110,7 @@
 
 <div
 	class="relative flex flex-col overflow-hidden"
-	style="--label-column-width: {labelColumnWidth};"
+	style="--label-column-width: {labelColumnWidth}; --value-label-width: {valueLabelWidth}; --value-label-gap: 0.375rem;"
 >
 	<div
 		class="grid shrink-0 gap-3 border-b border-gray-200 bg-white px-4 pt-4 pb-3 shadow-sm md:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)] md:items-start dark:border-surface-700 dark:bg-surface-800"
@@ -163,8 +179,8 @@
 		</div>
 	</div>
 
-	<div class="overflow-x-auto">
-		<div class="relative min-w-[760px] px-4 pt-4 pb-4">
+	<div class="overflow-hidden">
+		<div class="relative px-4 pt-4 pb-4">
 			<div
 				class="chart-scrollbar space-y-1 overflow-y-auto pr-2"
 				style="height: {rowViewportHeight};"
@@ -200,38 +216,43 @@
 							</div>
 						</div>
 
-						<div class="relative h-7 min-w-0">
-							{#each ticks as tick}
-								<div
-									class="absolute top-0 bottom-0 w-px bg-gray-200 dark:bg-surface-700"
-									style="left: {xPercent(tick)}%;"
-								></div>
-							{/each}
+						<div class="relative h-7 min-w-0 overflow-visible">
 							<div
-								class="absolute top-0 bottom-0 w-px bg-gray-400 dark:bg-surface-500"
-								style="left: {zeroPosition};"
-							></div>
-							<div
-								class="absolute top-1/2 h-4 -translate-y-1/2 rounded-sm transition-all"
-								class:opacity-70={hoveredIndex !== null && hoveredIndex !== index}
-								class:brightness-110={hoveredIndex === index}
-								style="left: {barLeft(item.value)}; width: {barWidth(
-									item.value
-								)}; background-color: {item.color};"
-								role="img"
-								aria-label="Rang {index + 1}, {item.category}: {metricLabel} {formatValue(
-									item.value
-								)}"
-							></div>
-							<span
-								class="absolute top-1/2 -translate-y-1/2 px-2 text-xs font-semibold text-gray-700 tabular-nums dark:text-gray-200"
-								class:hidden={Math.abs(item.value) < extent.span * 0.02}
-								style="left: calc({xPercent(item.value)}% + {item.value >= 0
-									? '4px'
-									: '-4.25rem'});"
+								class="absolute inset-y-0 left-0 overflow-visible"
+								style="right: calc(var(--value-label-width) + var(--value-label-gap));"
 							>
-								{formatValue(item.value)}
-							</span>
+								{#each ticks as tick}
+									<div
+										class="absolute top-0 bottom-0 w-px bg-gray-200 dark:bg-surface-700"
+										style="left: {xPercent(tick)}%;"
+									></div>
+								{/each}
+								<div
+									class="absolute top-0 bottom-0 w-px bg-gray-400 dark:bg-surface-500"
+									style="left: {zeroPosition};"
+								></div>
+								<div
+									class="absolute top-1/2 h-4 -translate-y-1/2 rounded-sm transition-all"
+									class:opacity-70={hoveredIndex !== null && hoveredIndex !== index}
+									class:brightness-110={hoveredIndex === index}
+									style="left: {barLeft(item.value)}; width: {barWidth(
+										item.value
+									)}; background-color: {item.color};"
+									role="img"
+									aria-label="Rang {index + 1}, {item.category}: {metricLabel} {formatValue(
+										item.value
+									)}"
+								></div>
+								<span
+									class="value-label absolute top-1/2 w-[var(--value-label-width)] -translate-y-1/2 overflow-hidden px-1 text-xs font-semibold text-ellipsis whitespace-nowrap text-gray-700 tabular-nums dark:text-gray-200"
+									class:hidden={Math.abs(item.value) < extent.span * 0.02}
+									style:left={valueLabelPosition(item.value).left}
+									style:text-align={valueLabelPosition(item.value).textAlign}
+									title={formatValue(item.value)}
+								>
+									{formatValue(item.value)}
+								</span>
+							</div>
 						</div>
 					</div>
 				{/each}
@@ -240,31 +261,36 @@
 	</div>
 
 	<div
-		class="shrink-0 overflow-x-auto border-t border-gray-200 bg-white dark:border-surface-700 dark:bg-surface-800"
+		class="shrink-0 overflow-hidden border-t border-gray-200 bg-white dark:border-surface-700 dark:bg-surface-800"
 	>
-		<div class="chart-axis grid min-w-[760px] gap-3 px-4 pt-2 pb-3">
+		<div class="chart-axis grid gap-3 px-4 pt-2 pb-3">
 			<div
 				class="text-right text-xs font-semibold text-gray-600 dark:text-gray-300"
 				style="grid-column: 1;"
 			>
 				{metricLabel}
 			</div>
-			<div class="relative h-8" style="grid-column: 2;">
+			<div class="relative h-8 min-w-0" style="grid-column: 2;">
 				<div
-					class="absolute top-0 h-2 w-px bg-gray-500 dark:bg-surface-400"
-					style="left: {zeroPosition};"
-				></div>
-				<div class="absolute top-1 right-0 left-0 h-px bg-gray-300 dark:bg-surface-600"></div>
-				{#each ticks as tick}
-					<div class="absolute top-0 -translate-x-1/2" style="left: {xPercent(tick)}%;">
-						<div class="mx-auto h-2 w-px bg-gray-400 dark:bg-surface-500"></div>
-						<div
-							class="mt-1 text-center text-[11px] font-semibold whitespace-nowrap text-gray-600 tabular-nums dark:text-gray-300"
-						>
-							{formatValue(tick)}
+					class="absolute top-0 bottom-0 left-0"
+					style="right: calc(var(--value-label-width) + var(--value-label-gap));"
+				>
+					<div
+						class="absolute top-0 h-2 w-px bg-gray-500 dark:bg-surface-400"
+						style="left: {zeroPosition};"
+					></div>
+					<div class="absolute top-1 right-0 left-0 h-px bg-gray-300 dark:bg-surface-600"></div>
+					{#each ticks as tick}
+						<div class="absolute top-0 -translate-x-1/2" style="left: {xPercent(tick)}%;">
+							<div class="mx-auto h-2 w-px bg-gray-400 dark:bg-surface-500"></div>
+							<div
+								class="mt-1 text-center text-[11px] font-semibold whitespace-nowrap text-gray-600 tabular-nums dark:text-gray-300"
+							>
+								{formatValue(tick)}
+							</div>
 						</div>
-					</div>
-				{/each}
+					{/each}
+				</div>
 			</div>
 		</div>
 	</div>
@@ -273,7 +299,7 @@
 <style>
 	.chart-row,
 	.chart-axis {
-		grid-template-columns: var(--label-column-width) minmax(24rem, 1fr);
+		grid-template-columns: minmax(9rem, var(--label-column-width)) minmax(0, 1fr);
 	}
 
 	.chart-scrollbar {

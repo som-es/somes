@@ -25,7 +25,7 @@
 	};
 
 	interface Props {
-		delegateMakeRequest: (
+		makeRequest: (
 			gp: string | null,
 			gender: string | null,
 			isDesc: boolean,
@@ -60,7 +60,7 @@
 	];
 
 	let {
-		delegateMakeRequest,
+		makeRequest,
 		height = 480,
 		selectedCategory = $bindable('delegate'),
 		valueLabel = 'Wert',
@@ -334,8 +334,6 @@
 		})
 	);
 
-	let chartStickyTopOffset = $derived(controlsHeight);
-
 	$effect(() => {
 		genericFilters[0].hidden = filterConfig.showGender === false || selectedCategory === 'gender';
 		genericFilters[2].hidden = filterConfig.showNormalized === false;
@@ -365,7 +363,7 @@
 		isDesc;
 		normalized;
 		chartMode;
-		delegateMakeRequest;
+		makeRequest;
 		reloadKey;
 		if (mounted) untrack(loadData);
 	});
@@ -395,13 +393,7 @@
 		await tick();
 		if (currentRequestId !== requestId) return;
 		try {
-			const result = await delegateMakeRequest(
-				selectedGp,
-				genderFilter,
-				isDesc,
-				normalized,
-				chartMode
-			);
+			const result = await makeRequest(selectedGp, genderFilter, isDesc, normalized, chartMode);
 			if (currentRequestId !== requestId) return;
 			currentData = result;
 			currentDataCategory = requestedCategory;
@@ -417,10 +409,10 @@
 
 <svelte:window bind:innerWidth={windowWidth} />
 
-<div class="delegate-chart-control space-y-5 overflow-y-auto pr-2">
+<div class="statistics-chart-control space-y-5">
 	<section
 		bind:clientHeight={controlsHeight}
-		class="sticky top-0 z-30 rounded-xl border border-gray-300 bg-surface-50/95 p-4 shadow-sm backdrop-blur dark:border-surface-700 dark:bg-surface-700/95"
+		class="relative z-20 rounded-xl border border-gray-300 bg-surface-50/95 p-4 shadow-sm backdrop-blur dark:border-surface-700 dark:bg-surface-700/95"
 	>
 		<div class="flex flex-col gap-4">
 			<div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
@@ -678,7 +670,6 @@
 				{metricLabel}
 				{selectedCategory}
 				{chartDescription}
-				stickyTopOffset={chartStickyTopOffset}
 				{infoQuestion}
 				{infoAnswer}
 			/>
@@ -687,32 +678,6 @@
 </div>
 
 <style>
-	.delegate-chart-control {
-		max-height: calc(100vh - 1rem);
-		scrollbar-width: thin;
-		scrollbar-color: rgb(156 163 175) transparent;
-	}
-
-	.delegate-chart-control::-webkit-scrollbar {
-		width: 10px;
-	}
-
-	.delegate-chart-control::-webkit-scrollbar-track {
-		background: transparent;
-	}
-
-	.delegate-chart-control::-webkit-scrollbar-thumb {
-		background: rgb(156 163 175);
-		border: 3px solid transparent;
-		border-radius: 999px;
-		background-clip: content-box;
-	}
-
-	.delegate-chart-control::-webkit-scrollbar-thumb:hover {
-		background: rgb(107 114 128);
-		background-clip: content-box;
-	}
-
 	:global(.layerchart) {
 		font-family: inherit;
 	}

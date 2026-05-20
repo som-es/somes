@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { justPostStatistics } from '$lib/api/api';
-	import DelegateBarChartControl from '$lib/components/Statistics/DelegateBarChartControl.svelte';
+	import StatisticsChartControl from '$lib/components/Statistics/StatisticsChartControl.svelte';
 	import type { StatisticsData } from '$lib/types';
 	import { mapActivityDelegate, mapActivityCategory } from '$lib/api/statistics-adapter';
 	import Container from '$lib/components/Layout/Container.svelte';
@@ -166,9 +166,9 @@
 		</p>
 	</div>
 
-	<DelegateBarChartControl
+	<StatisticsChartControl
 		height={520}
-		delegateMakeRequest={currentFunction}
+		makeRequest={currentFunction}
 		bind:selectedCategory
 		valueLabel="Aktivitäts-Punkte"
 		normalizedValueLabel="durchschnittliche Aktivitäts-Punkte (pro Sitzung)"
