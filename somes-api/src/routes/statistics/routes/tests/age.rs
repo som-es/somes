@@ -5,6 +5,7 @@ fn create_test_base_data() -> Vec<AgeBase> {
         AgeBase {
             delegate_name: "Delegate A".to_string(),
             delegate_party: "Party X".to_string(),
+            delegate_filter_party: "Party X".to_string(),
             delegate_gender: "M".to_string(),
             age: 45,
             birthdate: Some(chrono::NaiveDate::from_ymd_opt(1980, 1, 1).unwrap()),
@@ -13,6 +14,7 @@ fn create_test_base_data() -> Vec<AgeBase> {
         AgeBase {
             delegate_name: "Delegate B".to_string(),
             delegate_party: "Party X".to_string(),
+            delegate_filter_party: "Party X".to_string(),
             delegate_gender: "F".to_string(),
             age: 35,
             birthdate: Some(chrono::NaiveDate::from_ymd_opt(1990, 1, 1).unwrap()),
@@ -21,6 +23,7 @@ fn create_test_base_data() -> Vec<AgeBase> {
         AgeBase {
             delegate_name: "Delegate C".to_string(),
             delegate_party: "Party Y".to_string(),
+            delegate_filter_party: "Party Y".to_string(),
             delegate_gender: "M".to_string(),
             age: 55,
             birthdate: Some(chrono::NaiveDate::from_ymd_opt(1970, 1, 1).unwrap()),
@@ -29,6 +32,7 @@ fn create_test_base_data() -> Vec<AgeBase> {
         AgeBase {
             delegate_name: "Delegate D".to_string(),
             delegate_party: "Party Y".to_string(),
+            delegate_filter_party: "Party Y".to_string(),
             delegate_gender: "F".to_string(),
             age: 42,
             birthdate: Some(chrono::NaiveDate::from_ymd_opt(1983, 1, 1).unwrap()),
@@ -156,4 +160,29 @@ async fn test_get_base_data_applies_filters_and_computes_age(pool: sqlx::PgPool)
         Some(chrono::NaiveDate::from_ymd_opt(1980, 1, 1).unwrap())
     );
     assert_eq!(delegate.legislative_period, Some("51".to_string()));
+}
+
+#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
+async fn test_per_delegate_uses_latest_period_for_unfiltered_age(pool: sqlx::PgPool) {
+    let filter = AgeFilter {
+        is_desc: true,
+        ..Default::default()
+    };
+
+    let results = AgeService::per_delegate(&pool, &filter).await.unwrap();
+
+    assert_eq!(
+        results
+            .iter()
+            .filter(|r| r.delegate_name == "Delegate D")
+            .count(),
+        1
+    );
+
+    let delegate = results
+        .iter()
+        .find(|r| r.delegate_name == "Delegate D")
+        .unwrap();
+    assert_eq!(delegate.delegate_party, "Party Y");
+    assert_eq!(delegate.age, 37);
 }

@@ -23,6 +23,7 @@ pub struct PoliticalOrientationFilter {
 pub struct PoliticalOrientationBase {
     delegate_name: String,
     delegate_party: String,
+    delegate_filter_party: String,
     delegate_gender: String,
     orientation_score: f64,
     total_votes: i64,
@@ -33,6 +34,7 @@ pub struct PoliticalOrientationBase {
 pub struct PoliticalOrientationForDelegate {
     delegate_name: String,
     delegate_party: String,
+    delegate_filter_party: String,
     orientation_score: f64,
     total_votes: i64,
 }
@@ -49,6 +51,7 @@ pub struct PoliticalOrientationByCategory {
 pub struct PoliticalSpectrumBase {
     delegate_name: String,
     delegate_party: String,
+    delegate_filter_party: String,
     delegate_gender: String,
     left_right_score: f64,
     liberal_authoritarian_score: f64,
@@ -60,6 +63,7 @@ pub struct PoliticalSpectrumBase {
 pub struct PoliticalSpectrumForDelegate {
     delegate_name: String,
     delegate_party: String,
+    delegate_filter_party: String,
     left_right_score: f64,
     liberal_authoritarian_score: f64,
     spectrum_magnitude: f64,
@@ -100,7 +104,7 @@ impl PoliticalOrientationService {
 
         for item in base_data {
             let entry = party_map
-                .entry(item.delegate_party.clone())
+                .entry(item.delegate_filter_party.clone())
                 .or_insert((Vec::new(), 0, 0));
             entry.0.push(item.orientation_score);
             entry.1 += item.total_votes;
@@ -231,6 +235,10 @@ impl PoliticalOrientationService {
         SELECT
             d.name AS delegate_name,
             COALESCE(active_mandate.party, d.party, 'Regierungsmitglied') AS delegate_party,
+            CASE
+                WHEN active_mandate.id IS NOT NULL THEN COALESCE(active_mandate.party, 'Regierungsmitglied')
+                ELSE COALESCE(d.party, 'Regierungsmitglied')
+            END AS delegate_filter_party,
             COALESCE(d.gender, '') AS delegate_gender,
             {}::float8 AS orientation_score,
             pp.neutral_count::bigint AS total_votes,
@@ -270,7 +278,12 @@ impl PoliticalOrientationService {
             AND ($2::text IS NULL OR d.gender = $2)
             AND (
                 $3::text IS NULL
-                OR COALESCE(active_mandate.party, d.party, 'Regierungsmitglied') = $3
+                OR (
+                    CASE
+                        WHEN active_mandate.id IS NOT NULL THEN COALESCE(active_mandate.party, 'Regierungsmitglied')
+                        ELSE COALESCE(d.party, 'Regierungsmitglied')
+                    END
+                ) = $3
             )
         ORDER BY
             orientation_score DESC;
@@ -300,6 +313,7 @@ impl PoliticalOrientationService {
             .map(|item| PoliticalOrientationForDelegate {
                 delegate_name: item.delegate_name,
                 delegate_party: item.delegate_party,
+                delegate_filter_party: item.delegate_filter_party,
                 orientation_score: item.orientation_score,
                 total_votes: item.total_votes,
             })
@@ -378,7 +392,7 @@ impl PoliticalOrientationService {
         WHERE
             ($1::text IS NULL OR pb.gp = $1)
             AND ($2::text IS NULL OR d.gender = $2)
-            AND ($3::text IS NULL OR COALESCE(active_mandate.party, d.party, 'Regierungsmitglied') = $3)
+            AND ($3::text IS NULL OR COALESCE(active_mandate.party, 'Regierungsmitglied') = $3)
         GROUP BY
             pb.gp
         ORDER BY
@@ -433,6 +447,10 @@ impl PoliticalSpectrumService {
         SELECT
             d.name AS delegate_name,
             COALESCE(active_mandate.party, d.party, 'Regierungsmitglied') AS delegate_party,
+            CASE
+                WHEN active_mandate.id IS NOT NULL THEN COALESCE(active_mandate.party, 'Regierungsmitglied')
+                ELSE COALESCE(d.party, 'Regierungsmitglied')
+            END AS delegate_filter_party,
             COALESCE(d.gender, '') AS delegate_gender,
             (pp.is_not_left::float8 - pp.is_left::float8) AS left_right_score,
             (pp.is_not_liberal::float8 - pp.is_liberal::float8) AS liberal_authoritarian_score,
@@ -473,7 +491,12 @@ impl PoliticalSpectrumService {
             AND ($2::text IS NULL OR d.gender = $2)
             AND (
                 $3::text IS NULL
-                OR COALESCE(active_mandate.party, d.party, 'Regierungsmitglied') = $3
+                OR (
+                    CASE
+                        WHEN active_mandate.id IS NOT NULL THEN COALESCE(active_mandate.party, 'Regierungsmitglied')
+                        ELSE COALESCE(d.party, 'Regierungsmitglied')
+                    END
+                ) = $3
             );
         ";
 
@@ -503,6 +526,7 @@ impl PoliticalSpectrumService {
                 PoliticalSpectrumForDelegate {
                     delegate_name: item.delegate_name,
                     delegate_party: item.delegate_party,
+                    delegate_filter_party: item.delegate_filter_party,
                     left_right_score: item.left_right_score,
                     liberal_authoritarian_score: item.liberal_authoritarian_score,
                     spectrum_magnitude,
@@ -587,7 +611,7 @@ impl PoliticalSpectrumService {
         for item in base_data {
             let entry =
                 grouped
-                    .entry(item.delegate_party)
+                    .entry(item.delegate_filter_party)
                     .or_insert((Vec::new(), Vec::new(), 0, 0));
             entry.0.push(item.left_right_score);
             entry.1.push(item.liberal_authoritarian_score);

@@ -3,7 +3,6 @@
 	import ActivityStatistics from './activity/+page.svelte';
 	import AgeStatistics from './age/+page.svelte';
 	import CallToOrdersStatistics from './call_to_orders/+page.svelte';
-	import ComplexityStatistics from './complexity/+page.svelte';
 	import OrientationStatistics from './orientation/+page.svelte';
 	import SpeechTimeStatistics from './speech_time/+page.svelte';
 	import TotalSpeechesStatistics from './total_speeches/+page.svelte';
@@ -14,7 +13,6 @@
 		{ id: 'absences', label: 'Abwesenheiten', component: AbsencesStatistics },
 		{ id: 'activity', label: 'Aktivität', component: ActivityStatistics },
 		{ id: 'call-to-orders', label: 'Ordnungsrufe', component: CallToOrdersStatistics },
-		{ id: 'complexity', label: 'Sprachkomplexität', component: ComplexityStatistics },
 		{ id: 'age', label: 'Alter', component: AgeStatistics },
 		{ id: 'orientation', label: 'Politische Positionen', component: OrientationStatistics }
 	];

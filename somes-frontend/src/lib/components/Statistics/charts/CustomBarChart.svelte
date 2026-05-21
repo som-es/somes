@@ -32,14 +32,12 @@
 		selectedCategory === 'delegate' ? 'clamp(10rem, 34%, 17rem)' : '12rem'
 	);
 	const rowGap = 4;
-	const minimumVisibleRows = 10;
+	let visibleRowCount = $derived(height < 440 ? 7 : height < 500 ? 8 : 10);
+	let minimumRowHeight = $derived(height < 440 ? 30 : 34);
 	let rowHeight = $derived(
 		Math.max(
-			34,
-			Math.min(
-				56,
-				Math.floor((height - 186 - (minimumVisibleRows - 1) * rowGap) / minimumVisibleRows)
-			)
+			minimumRowHeight,
+			Math.min(56, Math.floor((height - 186 - (visibleRowCount - 1) * rowGap) / visibleRowCount))
 		)
 	);
 	let chartRowHeight = $derived(`${Math.max(28, rowHeight - 6)}px`);
@@ -112,7 +110,7 @@
 	let zeroPosition = $derived(`${xPercent(0)}%`);
 	let valueLabelWidth = $derived(selectedCategory === 'delegate' ? '4.5rem' : '4rem');
 	let rowViewportHeight = $derived(
-		`${minimumVisibleRows * rowHeight + (minimumVisibleRows - 1) * rowGap}px`
+		`${visibleRowCount * rowHeight + (visibleRowCount - 1) * rowGap}px`
 	);
 	let hoveredItem = $derived(hoveredIndex === null ? null : (data[hoveredIndex] ?? null));
 	let detailItem = $derived(hoveredItem ?? data[0] ?? null);

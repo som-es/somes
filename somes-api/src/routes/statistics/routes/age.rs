@@ -23,6 +23,7 @@ pub struct AgeFilter {
 pub struct AgeBase {
     delegate_name: String,
     delegate_party: String,
+    delegate_filter_party: String,
     delegate_gender: String,
     age: i32,
     birthdate: Option<chrono::NaiveDate>,
@@ -33,6 +34,7 @@ pub struct AgeBase {
 pub struct AgeForDelegate {
     delegate_name: String,
     delegate_party: String,
+    delegate_filter_party: String,
     age: i32,
 }
 
@@ -54,7 +56,7 @@ impl AgeService {
 
         for item in base_data {
             party_map
-                .entry(item.delegate_party.clone())
+                .entry(item.delegate_filter_party.clone())
                 .or_insert_with(Vec::new)
                 .push(item.age);
         }
@@ -230,7 +232,9 @@ impl AgeService {
         filter: &AgeFilter,
     ) -> Result<Vec<AgeBase>, StatisticsResponse> {
         let filter_arg = filter.legis_period.with_sql_column("lp.legislative_period");
-        let filter_arg1 = filter.party.with_sql_column("m.party");
+        let filter_arg1 = filter
+            .party
+            .with_sql_column("COALESCE(m.party, 'Regierungsmitglied')");
         let filter_arg2 = filter.gender.with_sql_column("d.gender");
         let filter_arg3 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
         let filters = [filter_arg, filter_arg1, filter_arg2, filter_arg3];
@@ -251,7 +255,8 @@ impl AgeService {
         )
         SELECT DISTINCT ON (d.id, lp.legislative_period, m.party)
             d.name AS delegate_name,
-            COALESCE(m.party, 'Regierungsmitglied') AS delegate_party,
+            COALESCE(m.party, d.party, 'Regierungsmitglied') AS delegate_party,
+            COALESCE(m.party, 'Regierungsmitglied') AS delegate_filter_party,
             d.gender AS delegate_gender,
             EXTRACT(YEAR FROM AGE(GREATEST(m.start_date, lp.start_date::date), d.birthdate))::INT AS age,
             d.birthdate,
@@ -294,11 +299,43 @@ impl AgeService {
         filter: &AgeFilter,
     ) -> Result<Vec<AgeForDelegate>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        let mut results: Vec<AgeForDelegate> = base_data
+
+        struct DelegateAccumulator {
+            delegate_party: String,
+            delegate_filter_party: String,
+            age: i32,
+            latest_period_rank: i32,
+        }
+
+        let mut delegate_map: std::collections::HashMap<String, DelegateAccumulator> =
+            std::collections::HashMap::new();
+
+        for item in base_data {
+            let period_rank = super::legislative_period_rank(item.legislative_period.as_deref());
+            let entry =
+                delegate_map
+                    .entry(item.delegate_name)
+                    .or_insert_with(|| DelegateAccumulator {
+                        delegate_party: item.delegate_party.clone(),
+                        delegate_filter_party: item.delegate_filter_party.clone(),
+                        age: item.age,
+                        latest_period_rank: i32::MIN,
+                    });
+
+            if period_rank >= entry.latest_period_rank {
+                entry.delegate_party = item.delegate_party;
+                entry.delegate_filter_party = item.delegate_filter_party;
+                entry.age = item.age;
+                entry.latest_period_rank = period_rank;
+            }
+        }
+
+        let mut results: Vec<AgeForDelegate> = delegate_map
             .into_iter()
-            .map(|item| AgeForDelegate {
-                delegate_name: item.delegate_name,
+            .map(|(delegate_name, item)| AgeForDelegate {
+                delegate_name,
                 delegate_party: item.delegate_party,
+                delegate_filter_party: item.delegate_filter_party,
                 age: item.age,
             })
             .collect();

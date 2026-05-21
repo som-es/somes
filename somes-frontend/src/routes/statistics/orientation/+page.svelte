@@ -230,6 +230,7 @@
 		}}
 		showSpectrumMode={true}
 		bind:selectedChartMode
+		extraReservedHeight={selectedChartMode === 'spectrum' ? 0 : 112}
 		infoQuestion="Was zeigt diese Statistik?"
 		infoAnswer="<p>Die Werte stammen aus der Tabelle <strong>political_positions</strong>. Diese Positionswerte sind aktuell nicht nach Legislaturperioden versioniert, daher wird hier keine Periodenfilterung angeboten.</p>"
 	/>

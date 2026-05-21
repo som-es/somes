@@ -5,6 +5,7 @@ fn create_test_base_data() -> Vec<ActivityBase> {
         ActivityBase {
             delegate_name: "Delegate A".to_string(),
             delegate_party: "Party X".to_string(),
+            delegate_filter_party: "Party X".to_string(),
             delegate_gender: "M".to_string(),
             activity_score: 2.5,
             raw_activity_score: 5.0,
@@ -16,6 +17,7 @@ fn create_test_base_data() -> Vec<ActivityBase> {
         ActivityBase {
             delegate_name: "Delegate B".to_string(),
             delegate_party: "Party X".to_string(),
+            delegate_filter_party: "Party X".to_string(),
             delegate_gender: "F".to_string(),
             activity_score: 1.5,
             raw_activity_score: 3.0,
@@ -27,6 +29,7 @@ fn create_test_base_data() -> Vec<ActivityBase> {
         ActivityBase {
             delegate_name: "Delegate C".to_string(),
             delegate_party: "Party Y".to_string(),
+            delegate_filter_party: "Party Y".to_string(),
             delegate_gender: "M".to_string(),
             activity_score: 3.0,
             raw_activity_score: 6.0,
@@ -38,6 +41,7 @@ fn create_test_base_data() -> Vec<ActivityBase> {
         ActivityBase {
             delegate_name: "Delegate D".to_string(),
             delegate_party: "Party Y".to_string(),
+            delegate_filter_party: "Party Y".to_string(),
             delegate_gender: "F".to_string(),
             activity_score: 2.0,
             raw_activity_score: 4.0,
@@ -150,6 +154,7 @@ fn test_aggregate_by_party_sorts_by_raw_score() {
         ActivityBase {
             delegate_name: "Delegate A".to_string(),
             delegate_party: "Party X".to_string(),
+            delegate_filter_party: "Party X".to_string(),
             delegate_gender: "M".to_string(),
             activity_score: 10.0,
             raw_activity_score: 1.0,
@@ -161,6 +166,7 @@ fn test_aggregate_by_party_sorts_by_raw_score() {
         ActivityBase {
             delegate_name: "Delegate B".to_string(),
             delegate_party: "Party Y".to_string(),
+            delegate_filter_party: "Party Y".to_string(),
             delegate_gender: "F".to_string(),
             activity_score: 1.0,
             raw_activity_score: 10.0,
@@ -201,6 +207,50 @@ async fn test_get_base_data_applies_filters_and_computes_activity_stats(pool: sq
     assert!((delegate.activity_score - 2.25).abs() < 0.001);
     assert_eq!(delegate.legislative_period, Some("51".to_string()));
     assert_eq!(delegate.delegate_age_bucket, "31-40");
+}
+
+#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
+async fn test_get_base_data_returns_empty_for_filter_without_matches(pool: sqlx::PgPool) {
+    let filter = ActivityFilter {
+        legis_period: Some("51".to_string()),
+        party: Some("Does Not Exist".to_string()),
+        ..Default::default()
+    };
+
+    let results = ActivityService::get_base_data(&pool, &filter)
+        .await
+        .unwrap();
+
+    assert!(results.is_empty());
+}
+
+#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
+async fn test_per_delegate_aggregates_all_periods_into_one_delegate_row(pool: sqlx::PgPool) {
+    let filter = ActivityFilter {
+        is_desc: true,
+        normalized: true,
+        ..Default::default()
+    };
+
+    let results = ActivityService::per_delegate(&pool, &filter).await.unwrap();
+
+    assert_eq!(
+        results
+            .iter()
+            .filter(|r| r.delegate_name == "Delegate D")
+            .count(),
+        1
+    );
+
+    let delegate = results
+        .iter()
+        .find(|r| r.delegate_name == "Delegate D")
+        .unwrap();
+    assert_eq!(delegate.delegate_party, "Party Y");
+    assert!((delegate.raw_activity_score - 1.35).abs() < 0.001);
+    assert!((delegate.activity_score - 0.675).abs() < 0.001);
+    assert_eq!(delegate.total_proposals, 2);
+    assert_eq!(delegate.session_count, 2);
 }
 
 #[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]

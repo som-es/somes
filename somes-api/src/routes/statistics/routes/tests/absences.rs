@@ -5,6 +5,7 @@ fn create_test_base_data() -> Vec<AbsenceBase> {
         AbsenceBase {
             delegate_name: "Delegate A".to_string(),
             delegate_party: "Party X".to_string(),
+            delegate_filter_party: "Party X".to_string(),
             delegate_gender: "M".to_string(),
             total_absences: 10,
             total_sessions: 20,
@@ -15,6 +16,7 @@ fn create_test_base_data() -> Vec<AbsenceBase> {
         AbsenceBase {
             delegate_name: "Delegate B".to_string(),
             delegate_party: "Party X".to_string(),
+            delegate_filter_party: "Party X".to_string(),
             delegate_gender: "F".to_string(),
             total_absences: 5,
             total_sessions: 20,
@@ -25,6 +27,7 @@ fn create_test_base_data() -> Vec<AbsenceBase> {
         AbsenceBase {
             delegate_name: "Delegate C".to_string(),
             delegate_party: "Party Y".to_string(),
+            delegate_filter_party: "Party Y".to_string(),
             delegate_gender: "M".to_string(),
             total_absences: 15,
             total_sessions: 20,
@@ -35,6 +38,7 @@ fn create_test_base_data() -> Vec<AbsenceBase> {
         AbsenceBase {
             delegate_name: "Delegate D".to_string(),
             delegate_party: "Party Y".to_string(),
+            delegate_filter_party: "Party Y".to_string(),
             delegate_gender: "F".to_string(),
             total_absences: 8,
             total_sessions: 20,
@@ -137,6 +141,7 @@ fn test_aggregate_by_party_sorts_by_normalized_score() {
         AbsenceBase {
             delegate_name: "Delegate A".to_string(),
             delegate_party: "Party X".to_string(),
+            delegate_filter_party: "Party X".to_string(),
             delegate_gender: "M".to_string(),
             total_absences: 10,
             total_sessions: 100,
@@ -147,6 +152,7 @@ fn test_aggregate_by_party_sorts_by_normalized_score() {
         AbsenceBase {
             delegate_name: "Delegate B".to_string(),
             delegate_party: "Party Y".to_string(),
+            delegate_filter_party: "Party Y".to_string(),
             delegate_gender: "F".to_string(),
             total_absences: 2,
             total_sessions: 4,
@@ -183,4 +189,58 @@ async fn test_get_base_data_applies_filters_and_computes_absence_stats(pool: sql
     assert!((delegate.normalized_absences - 2.0).abs() < 0.001);
     assert_eq!(delegate.legislative_period, Some("51".to_string()));
     assert_eq!(delegate.delegate_age_bucket, "31-40");
+}
+
+#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
+async fn test_per_legis_keeps_delegates_with_data_in_multiple_periods(pool: sqlx::PgPool) {
+    let filter = AbsenceFilter {
+        is_desc: true,
+        ..Default::default()
+    };
+
+    let results = AbsenceService::per_legis(&pool, &filter).await.unwrap();
+
+    assert_eq!(results.len(), 3);
+
+    let period_51 = results.iter().find(|r| r.category == "51").unwrap();
+    assert_eq!(period_51.total_absences, 4);
+    assert_eq!(period_51.total_sessions, 3);
+    assert!((period_51.normalized_absences - (4.0 / 3.0)).abs() < 0.001);
+
+    let period_52 = results.iter().find(|r| r.category == "52").unwrap();
+    assert_eq!(period_52.total_absences, 4);
+    assert_eq!(period_52.total_sessions, 3);
+    assert!((period_52.normalized_absences - (4.0 / 3.0)).abs() < 0.001);
+
+    let period_53 = results.iter().find(|r| r.category == "53").unwrap();
+    assert_eq!(period_53.total_absences, 2);
+    assert_eq!(period_53.total_sessions, 2);
+    assert!((period_53.normalized_absences - 1.0).abs() < 0.001);
+}
+
+#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
+async fn test_per_delegate_aggregates_all_periods_into_one_delegate_row(pool: sqlx::PgPool) {
+    let filter = AbsenceFilter {
+        is_desc: true,
+        ..Default::default()
+    };
+
+    let results = AbsenceService::per_delegate(&pool, &filter).await.unwrap();
+
+    assert_eq!(
+        results
+            .iter()
+            .filter(|r| r.delegate_name == "Delegate D")
+            .count(),
+        1
+    );
+
+    let delegate = results
+        .iter()
+        .find(|r| r.delegate_name == "Delegate D")
+        .unwrap();
+    assert_eq!(delegate.delegate_party, "Party Y");
+    assert_eq!(delegate.total_absences, 3);
+    assert_eq!(delegate.total_sessions, 2);
+    assert!((delegate.normalized_absences - 1.5).abs() < 0.001);
 }

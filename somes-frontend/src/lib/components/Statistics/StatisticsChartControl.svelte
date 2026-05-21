@@ -49,6 +49,7 @@
 		reloadKey?: unknown;
 		showSpectrumMode?: boolean;
 		selectedChartMode?: ChartMode;
+		extraReservedHeight?: number;
 	}
 
 	const defaultCategoryOptions: CategoryOption[] = [
@@ -77,7 +78,8 @@
 		chartDescriptions = {},
 		reloadKey = null,
 		showSpectrumMode = false,
-		selectedChartMode = $bindable<ChartMode>('bar')
+		selectedChartMode = $bindable<ChartMode>('bar'),
+		extraReservedHeight = 0
 	}: Props = $props();
 
 	const topOptions = [
@@ -180,9 +182,9 @@
 	);
 	let responsiveChartHeight = $derived.by(() => {
 		const reservedSpace = isMobile ? 300 : 250;
-		const availableHeight = windowHeight - controlsHeight - reservedSpace;
-		const maximumHeight = windowHeight >= 1050 ? 820 : 720;
-		return Math.round(Math.max(430, Math.min(maximumHeight, availableHeight)));
+		const availableHeight = windowHeight - controlsHeight - reservedSpace - extraReservedHeight;
+		const maximumHeight = Math.min(height, windowHeight >= 1050 ? 820 : 720);
+		return Math.round(Math.max(360, Math.min(maximumHeight, availableHeight)));
 	});
 
 	let activeCategoryLabel = $derived(
@@ -299,7 +301,8 @@
 	let uniqueParties = $derived.by(() => {
 		const parties = new Set<string>();
 		for (const item of displayData) {
-			if (item.type === 'delegate' && item.party) parties.add(item.party);
+			const filterParty = item.partyFilter ?? item.party;
+			if (item.type === 'delegate' && filterParty) parties.add(filterParty);
 		}
 		return [...parties].sort((a, b) => a.localeCompare(b, 'de-AT'));
 	});
@@ -308,15 +311,18 @@
 		const search = searchValue.trim().toLowerCase();
 		return displayData
 			.filter((item) => {
+				const filterParty = item.partyFilter ?? item.party;
 				if (
 					canUsePartyFilter &&
 					selectedParties.size > 0 &&
-					!selectedParties.has(item.party ?? '')
+					!selectedParties.has(filterParty ?? '')
 				) {
 					return false;
 				}
 				if (!search) return true;
-				return `${item.label} ${item.party ?? ''}`.toLowerCase().includes(search);
+				return `${item.label} ${item.party ?? ''} ${filterParty ?? ''}`
+					.toLowerCase()
+					.includes(search);
 			})
 			.sort((a, b) => (isDesc ? b.value - a.value : a.value - b.value));
 	});

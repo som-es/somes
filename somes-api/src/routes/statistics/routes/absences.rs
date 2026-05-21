@@ -24,6 +24,7 @@ pub struct AbsenceFilter {
 pub struct AbsenceBase {
     delegate_name: String,
     delegate_party: String,
+    delegate_filter_party: String,
     delegate_gender: String,
     total_absences: i64,
     total_sessions: i64,
@@ -36,6 +37,7 @@ pub struct AbsenceBase {
 pub struct AbsenceForDelegate {
     delegate_name: String,
     delegate_party: String,
+    delegate_filter_party: String,
     total_absences: i64,
     total_sessions: i64,
     normalized_absences: f64,
@@ -97,7 +99,7 @@ impl AbsenceService {
 
         for item in base_data {
             let entry = party_map
-                .entry(item.delegate_party.clone())
+                .entry(item.delegate_filter_party.clone())
                 .or_insert((0, 0));
             entry.0 += item.total_absences;
             entry.1 += item.total_sessions;
@@ -197,7 +199,9 @@ impl AbsenceService {
         filter: &AbsenceFilter,
     ) -> Result<Vec<AbsenceBase>, StatisticsResponse> {
         let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
-        let filter_arg1 = filter.party.with_sql_column("m.party");
+        let filter_arg1 = filter
+            .party
+            .with_sql_column("COALESCE(m.party, 'Regierungsmitglied')");
         let filter_arg2 = filter.gender.with_sql_column("d.gender");
         let filter_arg3 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
         let filters = [filter_arg, filter_arg1, filter_arg2, filter_arg3];
@@ -227,9 +231,10 @@ impl AbsenceService {
             GROUP BY
                 pf.legislative_period
         )
-        SELECT DISTINCT ON (d.id)
+        SELECT
             d.name AS delegate_name,
-            COALESCE(m.party, 'Regierungsmitglied') AS delegate_party,
+            COALESCE(m.party, d.party, 'Regierungsmitglied') AS delegate_party,
+            COALESCE(m.party, 'Regierungsmitglied') AS delegate_filter_party,
             d.gender AS delegate_gender,
             COUNT(DISTINCT ab.id) AS total_absences,
             sc.total_sessions,
@@ -260,7 +265,7 @@ impl AbsenceService {
             AND (m.start_date IS NULL OR m.start_date <= pf.raw_data_created_at::date)
             AND (m.end_date IS NULL OR m.end_date >= pf.raw_data_created_at::date)
         GROUP BY
-            d.id, d.name, d.gender, d.birthdate, m.party, sc.total_sessions, pf.legislative_period, lp.start_date
+            d.id, d.name, d.gender, d.birthdate, d.party, m.party, sc.total_sessions, pf.legislative_period, lp.start_date
         ORDER BY
             d.id, total_absences DESC;
         "
@@ -281,14 +286,57 @@ impl AbsenceService {
     ) -> Result<Vec<AbsenceForDelegate>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
 
-        let mut results: Vec<AbsenceForDelegate> = base_data
+        struct DelegateAccumulator {
+            delegate_party: String,
+            delegate_filter_party: String,
+            total_absences: i64,
+            total_sessions: i64,
+            latest_period_rank: i32,
+        }
+
+        let mut delegate_map: std::collections::HashMap<String, DelegateAccumulator> =
+            std::collections::HashMap::new();
+
+        for item in base_data {
+            let period_rank = super::legislative_period_rank(item.legislative_period.as_deref());
+            let entry =
+                delegate_map
+                    .entry(item.delegate_name)
+                    .or_insert_with(|| DelegateAccumulator {
+                        delegate_party: item.delegate_party.clone(),
+                        delegate_filter_party: item.delegate_filter_party.clone(),
+                        total_absences: 0,
+                        total_sessions: 0,
+                        latest_period_rank: i32::MIN,
+                    });
+
+            entry.total_absences += item.total_absences;
+            entry.total_sessions += item.total_sessions;
+
+            if period_rank >= entry.latest_period_rank {
+                entry.delegate_party = item.delegate_party;
+                entry.delegate_filter_party = item.delegate_filter_party;
+                entry.latest_period_rank = period_rank;
+            }
+        }
+
+        let mut results: Vec<AbsenceForDelegate> = delegate_map
             .into_iter()
-            .map(|item| AbsenceForDelegate {
-                delegate_name: item.delegate_name,
-                delegate_party: item.delegate_party,
-                total_absences: item.total_absences,
-                total_sessions: item.total_sessions,
-                normalized_absences: item.normalized_absences,
+            .map(|(delegate_name, item)| {
+                let normalized_absences = if item.total_sessions > 0 {
+                    item.total_absences as f64 / item.total_sessions as f64
+                } else {
+                    0.0
+                };
+
+                AbsenceForDelegate {
+                    delegate_name,
+                    delegate_party: item.delegate_party,
+                    delegate_filter_party: item.delegate_filter_party,
+                    total_absences: item.total_absences,
+                    total_sessions: item.total_sessions,
+                    normalized_absences,
+                }
             })
             .collect();
 

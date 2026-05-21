@@ -24,6 +24,7 @@ pub struct ActivityFilter {
 pub struct ActivityBase {
     delegate_name: String,
     delegate_party: String,
+    delegate_filter_party: String,
     delegate_gender: String,
     activity_score: f64,
     raw_activity_score: f64,
@@ -37,6 +38,7 @@ pub struct ActivityBase {
 pub struct ActivityForDelegate {
     delegate_name: String,
     delegate_party: String,
+    delegate_filter_party: String,
     activity_score: f64,
     raw_activity_score: f64,
     total_proposals: i64,
@@ -85,7 +87,7 @@ impl ActivityService {
 
         for item in base_data {
             let entry = party_map
-                .entry(item.delegate_party.clone())
+                .entry(item.delegate_filter_party.clone())
                 .or_insert((0.0, 0.0, 0, 0));
             entry.0 += item.activity_score;
             entry.1 += item.raw_activity_score;
@@ -252,6 +254,10 @@ impl ActivityService {
         SELECT
             d.name AS delegate_name,
             COALESCE(active_mandate.party, d.party, 'Regierungsmitglied') AS delegate_party,
+            CASE
+                WHEN active_mandate.id IS NOT NULL THEN COALESCE(active_mandate.party, 'Regierungsmitglied')
+                ELSE COALESCE(d.party, 'Regierungsmitglied')
+            END AS delegate_filter_party,
             COALESCE(d.gender, '') AS delegate_gender,
             (
                 SUM(
@@ -290,7 +296,7 @@ impl ActivityService {
         JOIN legis_init_delegates lid ON lid.legis_init_id = ir.id
         JOIN delegates d ON lid.delegate_id = d.id
         LEFT JOIN LATERAL (
-            SELECT m.party
+            SELECT m.id, m.party
             FROM mandates m
             WHERE m.delegate_id = d.id
                 AND (m.is_nr OR m.is_gov_official)
@@ -304,13 +310,22 @@ impl ActivityService {
             ($2::text IS NULL OR d.gender = $2)
             AND (
                 $3::text IS NULL
-                OR COALESCE(active_mandate.party, d.party, 'Regierungsmitglied') = $3
+                OR (
+                    CASE
+                        WHEN active_mandate.id IS NOT NULL THEN COALESCE(active_mandate.party, 'Regierungsmitglied')
+                        ELSE COALESCE(d.party, 'Regierungsmitglied')
+                    END
+                ) = $3
             )
         GROUP BY
             d.id,
             d.name,
             d.birthdate,
             COALESCE(active_mandate.party, d.party, 'Regierungsmitglied'),
+            CASE
+                WHEN active_mandate.id IS NOT NULL THEN COALESCE(active_mandate.party, 'Regierungsmitglied')
+                ELSE COALESCE(d.party, 'Regierungsmitglied')
+            END,
             COALESCE(d.gender, ''),
             sc.session_count,
             ir.gp
@@ -334,15 +349,62 @@ impl ActivityService {
         filter: &ActivityFilter,
     ) -> Result<Vec<ActivityForDelegate>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        let mut results: Vec<ActivityForDelegate> = base_data
+
+        struct DelegateAccumulator {
+            delegate_party: String,
+            delegate_filter_party: String,
+            raw_activity_score: f64,
+            total_proposals: i64,
+            session_count: i64,
+            latest_period_rank: i32,
+        }
+
+        let mut delegate_map: std::collections::HashMap<String, DelegateAccumulator> =
+            std::collections::HashMap::new();
+
+        for item in base_data {
+            let period_rank = super::legislative_period_rank(item.legislative_period.as_deref());
+            let entry =
+                delegate_map
+                    .entry(item.delegate_name)
+                    .or_insert_with(|| DelegateAccumulator {
+                        delegate_party: item.delegate_party.clone(),
+                        delegate_filter_party: item.delegate_filter_party.clone(),
+                        raw_activity_score: 0.0,
+                        total_proposals: 0,
+                        session_count: 0,
+                        latest_period_rank: i32::MIN,
+                    });
+
+            entry.raw_activity_score += item.raw_activity_score;
+            entry.total_proposals += item.total_proposals;
+            entry.session_count += item.session_count;
+
+            if period_rank >= entry.latest_period_rank {
+                entry.delegate_party = item.delegate_party;
+                entry.delegate_filter_party = item.delegate_filter_party;
+                entry.latest_period_rank = period_rank;
+            }
+        }
+
+        let mut results: Vec<ActivityForDelegate> = delegate_map
             .into_iter()
-            .map(|item| ActivityForDelegate {
-                delegate_name: item.delegate_name,
-                delegate_party: item.delegate_party,
-                activity_score: item.activity_score,
-                raw_activity_score: item.raw_activity_score,
-                total_proposals: item.total_proposals,
-                session_count: item.session_count,
+            .map(|(delegate_name, item)| {
+                let activity_score = if item.session_count > 0 {
+                    item.raw_activity_score / item.session_count as f64
+                } else {
+                    0.0
+                };
+
+                ActivityForDelegate {
+                    delegate_name,
+                    delegate_party: item.delegate_party,
+                    delegate_filter_party: item.delegate_filter_party,
+                    activity_score,
+                    raw_activity_score: item.raw_activity_score,
+                    total_proposals: item.total_proposals,
+                    session_count: item.session_count,
+                }
             })
             .collect();
 

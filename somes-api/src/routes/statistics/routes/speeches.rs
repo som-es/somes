@@ -31,6 +31,7 @@ pub struct SpeechFilter {
 pub struct SpeechBase {
     delegate_name: String,
     delegate_party: String,
+    delegate_filter_party: String,
     delegate_gender: String,
     total_speeches: i64,
     total_speech_time: i64, // in seconds
@@ -43,6 +44,7 @@ pub struct SpeechBase {
 pub struct SpeechForDelegate {
     delegate_name: String,
     delegate_party: String,
+    delegate_filter_party: String,
     total_speeches: i64,
     total_speech_time: i64,
     average_speech_time: f64,
@@ -156,7 +158,7 @@ impl SpeechService {
     ) -> Vec<SpeechByCategory> {
         Self::aggregate_by_category(
             base_data,
-            |item| Some(item.delegate_party.clone()),
+            |item| Some(item.delegate_filter_party.clone()),
             is_desc,
             speech_type,
             normalized,
@@ -219,7 +221,9 @@ impl SpeechService {
         filter: &SpeechFilter,
     ) -> Result<Vec<SpeechBase>, StatisticsResponse> {
         let filter_arg0 = filter.legis_period.with_sql_column("pf.legislative_period");
-        let filter_arg1 = filter.party.with_sql_column("m.party");
+        let filter_arg1 = filter
+            .party
+            .with_sql_column("COALESCE(m.party, 'Regierungsmitglied')");
         let filter_arg2 = filter.gender.with_sql_column("d.gender");
         let filter_arg3 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
         let filters = [filter_arg0, filter_arg1, filter_arg2, filter_arg3];
@@ -237,7 +241,8 @@ impl SpeechService {
         )
         SELECT
             d.name AS delegate_name,
-            COALESCE(m.party, 'Regierungsmitglied') AS delegate_party,
+            COALESCE(m.party, d.party, 'Regierungsmitglied') AS delegate_party,
+            COALESCE(m.party, 'Regierungsmitglied') AS delegate_filter_party,
             d.gender AS delegate_gender,
             COUNT(ps.id) AS total_speeches,
             COALESCE(SUM(ps.duration_in_seconds), 0) AS total_speech_time,
@@ -265,7 +270,7 @@ impl SpeechService {
             ps.duration_in_seconds IS NOT NULL
             AND {filter_str}
         GROUP BY
-            d.id, d.name, m.party, d.gender, d.birthdate, pf.legislative_period, lp.start_date
+            d.id, d.name, d.party, m.party, d.gender, d.birthdate, pf.legislative_period, lp.start_date
         ORDER BY
             total_speech_time DESC;
         "
@@ -285,14 +290,58 @@ impl SpeechService {
         filter: &SpeechFilter,
     ) -> Result<Vec<SpeechForDelegate>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-        let mut results: Vec<SpeechForDelegate> = base_data
+
+        struct DelegateAccumulator {
+            delegate_party: String,
+            delegate_filter_party: String,
+            total_speeches: i64,
+            total_speech_time: i64,
+            latest_period_rank: i32,
+        }
+
+        let mut delegate_map: std::collections::HashMap<String, DelegateAccumulator> =
+            std::collections::HashMap::new();
+
+        for item in base_data {
+            let period_rank = super::legislative_period_rank(item.legislative_period.as_deref());
+            let entry =
+                delegate_map
+                    .entry(item.delegate_name)
+                    .or_insert_with(|| DelegateAccumulator {
+                        delegate_party: item.delegate_party.clone(),
+                        delegate_filter_party: item.delegate_filter_party.clone(),
+                        total_speeches: 0,
+                        total_speech_time: 0,
+                        latest_period_rank: i32::MIN,
+                    });
+
+            entry.total_speeches += item.total_speeches;
+            entry.total_speech_time += item.total_speech_time;
+
+            if period_rank >= entry.latest_period_rank {
+                entry.delegate_party = item.delegate_party;
+                entry.delegate_filter_party = item.delegate_filter_party;
+                entry.latest_period_rank = period_rank;
+            }
+        }
+
+        let mut results: Vec<SpeechForDelegate> = delegate_map
             .into_iter()
-            .map(|item| SpeechForDelegate {
-                delegate_name: item.delegate_name,
-                delegate_party: item.delegate_party,
-                total_speeches: item.total_speeches,
-                total_speech_time: item.total_speech_time,
-                average_speech_time: item.average_speech_time,
+            .map(|(delegate_name, item)| {
+                let average_speech_time = if item.total_speeches > 0 {
+                    item.total_speech_time as f64 / item.total_speeches as f64
+                } else {
+                    0.0
+                };
+
+                SpeechForDelegate {
+                    delegate_name,
+                    delegate_party: item.delegate_party,
+                    delegate_filter_party: item.delegate_filter_party,
+                    total_speeches: item.total_speeches,
+                    total_speech_time: item.total_speech_time,
+                    average_speech_time,
+                }
             })
             .collect();
 

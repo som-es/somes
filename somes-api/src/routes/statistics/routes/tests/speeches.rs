@@ -5,6 +5,7 @@ fn create_test_base_data() -> Vec<SpeechBase> {
         SpeechBase {
             delegate_name: "Delegate A".to_string(),
             delegate_party: "Party X".to_string(),
+            delegate_filter_party: "Party X".to_string(),
             delegate_gender: "M".to_string(),
             total_speeches: 10,
             total_speech_time: 100,
@@ -15,6 +16,7 @@ fn create_test_base_data() -> Vec<SpeechBase> {
         SpeechBase {
             delegate_name: "Delegate B".to_string(),
             delegate_party: "Party X".to_string(),
+            delegate_filter_party: "Party X".to_string(),
             delegate_gender: "F".to_string(),
             total_speeches: 5,
             total_speech_time: 80,
@@ -25,6 +27,7 @@ fn create_test_base_data() -> Vec<SpeechBase> {
         SpeechBase {
             delegate_name: "Delegate C".to_string(),
             delegate_party: "Party Y".to_string(),
+            delegate_filter_party: "Party Y".to_string(),
             delegate_gender: "M".to_string(),
             total_speeches: 8,
             total_speech_time: 160,
@@ -35,6 +38,7 @@ fn create_test_base_data() -> Vec<SpeechBase> {
         SpeechBase {
             delegate_name: "Delegate D".to_string(),
             delegate_party: "Party Y".to_string(),
+            delegate_filter_party: "Party Y".to_string(),
             delegate_gender: "F".to_string(),
             total_speeches: 12,
             total_speech_time: 120,
@@ -161,6 +165,7 @@ async fn test_get_base_data_applies_filters_and_computes_speech_stats(pool: sqlx
     let filter = SpeechFilter {
         legis_period: Some("51".to_string()),
         party: Some("Party X".to_string()),
+        gender: Some("M".to_string()),
         ..Default::default()
     };
 
@@ -177,4 +182,96 @@ async fn test_get_base_data_applies_filters_and_computes_speech_stats(pool: sqlx
     assert!((delegate.average_speech_time - 90.0).abs() < 0.001);
     assert_eq!(delegate.legislative_period, Some("51".to_string()));
     assert_eq!(delegate.delegate_age_bucket, "31-40");
+}
+
+#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
+async fn test_speech_handlers_override_speech_type(pool: sqlx::PgPool) {
+    let speechtime_filter = SpeechFilter {
+        legis_period: Some("51".to_string()),
+        is_desc: true,
+        speech_type: "total_speeches".to_string(),
+        ..Default::default()
+    };
+
+    let Json(speechtime_results) = speechtime_per_delegate(
+        PgPoolConnection(pool.clone()),
+        Json(Some(speechtime_filter)),
+    )
+    .await
+    .unwrap();
+
+    assert_eq!(speechtime_results[0].delegate_name, "Delegate B");
+    assert_eq!(speechtime_results[0].total_speech_time, 240);
+
+    let total_speeches_filter = SpeechFilter {
+        legis_period: Some("51".to_string()),
+        is_desc: true,
+        speech_type: "speechtime".to_string(),
+        ..Default::default()
+    };
+
+    let Json(total_speech_results) =
+        total_speeches_per_delegate(PgPoolConnection(pool), Json(Some(total_speeches_filter)))
+            .await
+            .unwrap();
+
+    assert_eq!(total_speech_results[0].delegate_name, "Delegate A");
+    assert_eq!(total_speech_results[0].total_speeches, 2);
+}
+
+#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
+async fn test_per_delegate_aggregates_all_periods_into_one_delegate_row(pool: sqlx::PgPool) {
+    let filter = SpeechFilter {
+        is_desc: true,
+        speech_type: "speechtime".to_string(),
+        ..Default::default()
+    };
+
+    let results = SpeechService::per_delegate(&pool, &filter).await.unwrap();
+
+    assert_eq!(
+        results
+            .iter()
+            .filter(|r| r.delegate_name == "Delegate D")
+            .count(),
+        1
+    );
+
+    let delegate = results
+        .iter()
+        .find(|r| r.delegate_name == "Delegate D")
+        .unwrap();
+    assert_eq!(delegate.delegate_party, "Party Y");
+    assert_eq!(delegate.total_speeches, 2);
+    assert_eq!(delegate.total_speech_time, 300);
+    assert!((delegate.average_speech_time - 150.0).abs() < 0.001);
+}
+
+#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
+async fn test_government_member_displays_party_but_keeps_filter_bucket(pool: sqlx::PgPool) {
+    let filter = SpeechFilter {
+        legis_period: Some("53".to_string()),
+        party: Some("Regierungsmitglied".to_string()),
+        ..Default::default()
+    };
+
+    let results = SpeechService::per_delegate(&pool, &filter).await.unwrap();
+
+    assert_eq!(results.len(), 1);
+    assert_eq!(results[0].delegate_name, "Delegate G");
+    assert_eq!(results[0].delegate_party, "Party X");
+    assert_eq!(results[0].delegate_filter_party, "Regierungsmitglied");
+    assert_eq!(results[0].total_speech_time, 60);
+
+    let party_filter = SpeechFilter {
+        legis_period: Some("53".to_string()),
+        party: Some("Party X".to_string()),
+        ..Default::default()
+    };
+
+    let party_results = SpeechService::per_delegate(&pool, &party_filter)
+        .await
+        .unwrap();
+
+    assert!(party_results.is_empty());
 }

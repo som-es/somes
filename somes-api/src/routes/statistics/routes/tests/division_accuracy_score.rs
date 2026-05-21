@@ -5,33 +5,41 @@ fn create_test_base_data() -> Vec<DivisionAccuracyBase> {
         DivisionAccuracyBase {
             delegate_name: "Delegate A".to_string(),
             delegate_party: "Party X".to_string(),
+            delegate_filter_party: "Party X".to_string(),
             delegate_gender: "M".to_string(),
             accuracy_score: 0.8,
             total_votes: 10,
+            latest_activity_date: None,
             delegate_age_bucket: "41-50".to_string(),
         },
         DivisionAccuracyBase {
             delegate_name: "Delegate B".to_string(),
             delegate_party: "Party X".to_string(),
+            delegate_filter_party: "Party X".to_string(),
             delegate_gender: "F".to_string(),
             accuracy_score: 0.6,
             total_votes: 5,
+            latest_activity_date: None,
             delegate_age_bucket: "31-40".to_string(),
         },
         DivisionAccuracyBase {
             delegate_name: "Delegate C".to_string(),
             delegate_party: "Party Y".to_string(),
+            delegate_filter_party: "Party Y".to_string(),
             delegate_gender: "M".to_string(),
             accuracy_score: 0.9,
             total_votes: 8,
+            latest_activity_date: None,
             delegate_age_bucket: "51-60".to_string(),
         },
         DivisionAccuracyBase {
             delegate_name: "Delegate D".to_string(),
             delegate_party: "Party Y".to_string(),
+            delegate_filter_party: "Party Y".to_string(),
             delegate_gender: "F".to_string(),
             accuracy_score: 0.7,
             total_votes: 12,
+            latest_activity_date: None,
             delegate_age_bucket: "41-50".to_string(),
         },
     ]
@@ -129,4 +137,61 @@ async fn test_get_base_data_applies_filters_and_computes_division_accuracy_stats
     assert!((delegate.accuracy_score - 0.5).abs() < 0.001);
     assert_eq!(delegate.total_votes, 2);
     assert_eq!(delegate.delegate_age_bucket, "31-40");
+}
+
+#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
+async fn test_per_legis_averages_delegate_scores_not_raw_votes(pool: sqlx::PgPool) {
+    let filter = DivisionAccuracyFilter {
+        is_desc: true,
+        ..Default::default()
+    };
+
+    let results = DivisionAccuracyService::per_legis(&pool, &filter)
+        .await
+        .unwrap();
+
+    assert_eq!(results.len(), 3);
+
+    let period_51 = results.iter().find(|r| r.category == "51").unwrap();
+    assert!((period_51.average_accuracy - 0.5).abs() < 0.001);
+    assert_eq!(period_51.total_votes, 7);
+    assert_eq!(period_51.delegate_count, 3);
+
+    let period_52 = results.iter().find(|r| r.category == "52").unwrap();
+    assert!((period_52.average_accuracy - 0.625).abs() < 0.001);
+    assert_eq!(period_52.total_votes, 5);
+    assert_eq!(period_52.delegate_count, 4);
+
+    let period_53 = results.iter().find(|r| r.category == "53").unwrap();
+    assert!((period_53.average_accuracy - 0.5).abs() < 0.001);
+    assert_eq!(period_53.total_votes, 2);
+    assert_eq!(period_53.delegate_count, 2);
+}
+
+#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
+async fn test_per_delegate_aggregates_party_period_rows_into_one_delegate_row(pool: sqlx::PgPool) {
+    let filter = DivisionAccuracyFilter {
+        is_desc: true,
+        ..Default::default()
+    };
+
+    let results = DivisionAccuracyService::per_delegate(&pool, &filter)
+        .await
+        .unwrap();
+
+    assert_eq!(
+        results
+            .iter()
+            .filter(|r| r.delegate_name == "Delegate D")
+            .count(),
+        1
+    );
+
+    let delegate = results
+        .iter()
+        .find(|r| r.delegate_name == "Delegate D")
+        .unwrap();
+    assert_eq!(delegate.delegate_party, "Party Y");
+    assert!((delegate.accuracy_score - (1.0 / 6.0)).abs() < 0.001);
+    assert_eq!(delegate.total_votes, 6);
 }

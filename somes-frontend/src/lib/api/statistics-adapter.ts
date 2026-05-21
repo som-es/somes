@@ -8,6 +8,7 @@ function mapData(
 		labelField: string;
 		valueField: string;
 		partyField?: string;
+		partyFilterField?: string;
 		metadataFields?: string[];
 	}
 ): StatisticsData[] {
@@ -16,6 +17,7 @@ function mapData(
 		label: item[config.labelField],
 		value: item[config.valueField],
 		party: config.partyField ? item[config.partyField] : undefined,
+		partyFilter: config.partyFilterField ? item[config.partyFilterField] : undefined,
 		metadata: config.metadataFields
 			? Object.fromEntries(config.metadataFields.map((f) => [f, item[f]]))
 			: item
@@ -29,6 +31,7 @@ export function mapCallToOrdersDelegate(data: any[], normalized: boolean = true)
 		labelField: 'delegate_name',
 		valueField: normalized ? 'normalized_calls_to_order' : 'total_order_calls',
 		partyField: 'delegate_party',
+		partyFilterField: 'delegate_filter_party',
 		metadataFields: ['total_order_calls', 'total_sessions_attended', 'normalized_calls_to_order']
 	});
 }
@@ -49,6 +52,7 @@ export function mapAbsencesDelegate(data: any[], normalized: boolean = true): St
 		labelField: 'delegate_name',
 		valueField: normalized ? 'normalized_absences' : 'total_absences',
 		partyField: 'delegate_party',
+		partyFilterField: 'delegate_filter_party',
 		metadataFields: ['total_absences', 'total_sessions', 'normalized_absences']
 	});
 }
@@ -68,6 +72,7 @@ export function mapActivityDelegate(data: any[], normalized: boolean = true): St
 		labelField: 'delegate_name',
 		valueField: normalized ? 'activity_score' : 'raw_activity_score',
 		partyField: 'delegate_party',
+		partyFilterField: 'delegate_filter_party',
 		metadataFields: ['activity_score', 'raw_activity_score', 'total_proposals', 'session_count']
 	});
 }
@@ -87,6 +92,7 @@ export function mapAgeDelegate(data: any[]): StatisticsData[] {
 		labelField: 'delegate_name',
 		valueField: 'age',
 		partyField: 'delegate_party',
+		partyFilterField: 'delegate_filter_party',
 		metadataFields: ['age']
 	});
 }
@@ -106,6 +112,7 @@ export function mapComplexityDelegate(data: any[]): StatisticsData[] {
 		labelField: 'delegate_name',
 		valueField: 'complexity_score',
 		partyField: 'delegate_party',
+		partyFilterField: 'delegate_filter_party',
 		metadataFields: ['complexity_score', 'total_proposals']
 	});
 }
@@ -125,6 +132,7 @@ export function mapSpeechTimeDelegate(data: any[], normalized: boolean = false):
 		labelField: 'delegate_name',
 		valueField: normalized ? 'average_speech_time' : 'total_speech_time',
 		partyField: 'delegate_party',
+		partyFilterField: 'delegate_filter_party',
 		metadataFields: ['total_speeches', 'total_speech_time', 'average_speech_time']
 	});
 }
@@ -144,6 +152,7 @@ export function mapTotalSpeechesDelegate(data: any[]): StatisticsData[] {
 		labelField: 'delegate_name',
 		valueField: 'total_speeches',
 		partyField: 'delegate_party',
+		partyFilterField: 'delegate_filter_party',
 		metadataFields: ['total_speeches', 'total_speech_time', 'average_speech_time']
 	});
 }
@@ -163,6 +172,7 @@ export function mapDivisionAccuracyDelegate(data: any[]): StatisticsData[] {
 		labelField: 'delegate_name',
 		valueField: 'accuracy_score',
 		partyField: 'delegate_party',
+		partyFilterField: 'delegate_filter_party',
 		metadataFields: ['accuracy_score', 'total_votes']
 	});
 }
@@ -221,6 +231,7 @@ export function mapOrientationDelegate(data: any[]): StatisticsData[] {
 		labelField: 'delegate_name',
 		valueField: 'orientation_score',
 		partyField: 'delegate_party',
+		partyFilterField: 'delegate_filter_party',
 		metadataFields: ['orientation_score', 'total_votes']
 	});
 }
@@ -240,6 +251,7 @@ export function mapPoliticalSpectrumDelegate(data: any[]): StatisticsData[] {
 		label: item.delegate_name,
 		value: item.spectrum_magnitude,
 		party: item.delegate_party,
+		partyFilter: item.delegate_filter_party,
 		metadata: {
 			left_right_score: item.left_right_score,
 			liberal_authoritarian_score: item.liberal_authoritarian_score,

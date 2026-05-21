@@ -36,7 +36,6 @@
 		'#absences',
 		'#activity',
 		'#call-to-orders',
-		'#complexity',
 		'#age',
 		'#orientation'
 	];
@@ -97,17 +96,10 @@
 			]
 		},
 		{
-			title: 'Weitere',
+			title: 'Abgeordnete',
 			route: '/statistics',
 			list: [
-				{ href: `${resolve('/statistics')}#complexity`, label: 'Sprachkomplexität', keywords: '' },
-				{ href: `${resolve('/statistics')}#age`, label: 'Alter', keywords: '' }
-			]
-		},
-		{
-			title: 'Positionen',
-			route: '/statistics',
-			list: [
+				{ href: `${resolve('/statistics')}#age`, label: 'Alter', keywords: '' },
 				{
 					href: `${resolve('/statistics')}#orientation`,
 					label: 'Politische Positionen',

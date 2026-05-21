@@ -20,6 +20,7 @@ export type StatisticsData = {
 	label: string;
 	value: number;
 	party?: string;
+	partyFilter?: string;
 	metadata: Record<string, any>;
 };
 
