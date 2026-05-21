@@ -7,6 +7,7 @@
 		value: string;
 		detail: string;
 		highlight: boolean;
+		className: string;
 	}
 
 	interface Props {
@@ -39,7 +40,9 @@
 		return `Top-5%-Grenze: ${Math.round(threshold)}${unit}`;
 	}
 
-	let topSpeaker = $derived(overview?.top_speakers.at(0) ?? null);
+	let averageSpeechTime = $derived(
+		overview && overview.speech_count > 0 ? overview.total_speech_time / overview.speech_count : 0
+	);
 	let activityCards: ActivityCard[] = $derived.by(() => {
 		if (!overview) {
 			return [];
@@ -50,41 +53,29 @@
 				label: 'Abstimmungen',
 				value: overview.vote_count.toString(),
 				detail: formatPercentile(overview.percentiles.vote_count_p95),
-				highlight: isTopFivePercent(overview.vote_count, overview.percentiles.vote_count_p95)
-			},
-			{
-				label: 'Redner:innen',
-				value: overview.speaker_count.toString(),
-				detail: `${overview.speech_count} Redebeiträge`,
-				highlight: isTopFivePercent(overview.speaker_count, overview.percentiles.speaker_count_p95)
-			},
-			{
-				label: 'Redezeit',
-				value: topSpeaker ? formatDuration(topSpeaker.total_speech_time) : formatDuration(0),
-				detail: topSpeaker
-					? `${topSpeaker.delegate_name} (${topSpeaker.delegate_party})`
-					: 'Keine erfasste Redezeit',
-				highlight: topSpeaker
-					? isTopFivePercent(
-							topSpeaker.total_speech_time,
-							overview.percentiles.delegate_speech_time_p95
-						)
-					: false
-			},
-			{
-				label: 'Komplexität',
-				value: overview.average_complexity.toFixed(2),
-				detail: `Schnitt der behandelten Vorlagen`,
-				highlight: isTopFivePercent(
-					overview.average_complexity,
-					overview.percentiles.complexity_p95
-				)
+				highlight: isTopFivePercent(overview.vote_count, overview.percentiles.vote_count_p95),
+				className: 'xl:col-span-4'
 			},
 			{
 				label: 'Abwesenheiten',
 				value: overview.absence_count.toString(),
 				detail: formatPercentile(overview.percentiles.absence_count_p95),
-				highlight: isTopFivePercent(overview.absence_count, overview.percentiles.absence_count_p95)
+				highlight: isTopFivePercent(overview.absence_count, overview.percentiles.absence_count_p95),
+				className: 'xl:col-span-4'
+			},
+			{
+				label: 'Durchschnittliche Redezeit',
+				value: formatDuration(averageSpeechTime),
+				detail: `${overview.speech_count} Redebeiträge, insgesamt ${formatDuration(overview.total_speech_time)}`,
+				highlight: false,
+				className: 'xl:col-span-4'
+			},
+			{
+				label: 'Redner:innen',
+				value: overview.speaker_count.toString(),
+				detail: `${overview.speech_count} Redebeiträge`,
+				highlight: isTopFivePercent(overview.speaker_count, overview.percentiles.speaker_count_p95),
+				className: 'xl:col-span-2'
 			},
 			{
 				label: 'Ordnungsrufe',
@@ -95,7 +86,8 @@
 								.map((entry) => `${entry.delegate_name} (${entry.total_order_calls})`)
 								.join(', ')
 						: 'Keine Ordnungsrufe',
-				highlight: overview.call_to_order_count > 0
+				highlight: overview.call_to_order_count > 0,
+				className: 'xl:col-span-3'
 			}
 		];
 	});
@@ -120,78 +112,49 @@
 			</p>
 		</div>
 
-		<div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+		<div class="grid gap-3 md:grid-cols-2 xl:grid-cols-12">
 			{#each activityCards as card}
 				<article
-					class="rounded-lg border p-4 shadow-sm {card.highlight
-						? 'border-secondary-300 bg-secondary-50 dark:border-secondary-700 dark:bg-secondary-900/40'
-						: 'border-gray-200 bg-white dark:border-surface-700 dark:bg-surface-800'}"
+					class="rounded-xl bg-primary-300 p-4 shadow-sm dark:bg-primary-500 {card.className}"
 				>
 					<div class="flex items-start justify-between gap-3">
 						<div class="min-w-0">
-							<p class="text-sm font-semibold text-gray-700 dark:text-gray-300">{card.label}</p>
+							<p class="text-sm font-semibold text-gray-800 dark:text-gray-100">{card.label}</p>
 							<p class="mt-1 text-3xl font-bold text-gray-950 dark:text-white">{card.value}</p>
 						</div>
 						{#if card.highlight}
 							<span
-								class="shrink-0 rounded-lg bg-secondary-200 px-2 py-1 text-xs font-bold text-secondary-900 dark:bg-secondary-700 dark:text-secondary-50"
+								class="shrink-0 rounded-lg bg-secondary-500 px-2 py-1 text-xs font-bold text-white dark:bg-secondary-300 dark:text-gray-950"
 								>auffällig</span
 							>
 						{/if}
 					</div>
-					<p class="mt-3 line-clamp-2 text-sm text-gray-700 dark:text-gray-300">
+					<p class="mt-3 line-clamp-2 text-sm text-gray-700 dark:text-gray-100">
 						{card.detail}
 					</p>
 				</article>
 			{/each}
+
+			<article class="rounded-xl bg-primary-300 p-4 shadow-sm xl:col-span-7 dark:bg-primary-500">
+				<h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Längste Redezeiten</h3>
+				{#if overview.top_speakers.length > 0}
+					<div class="mt-3 grid gap-2 md:grid-cols-3 xl:grid-cols-1">
+						{#each overview.top_speakers as speaker}
+							<div class="flex items-center justify-between gap-3 text-sm">
+								<span class="min-w-0 truncate">
+									{speaker.delegate_name}
+									<span class="text-gray-600 dark:text-gray-400">({speaker.delegate_party})</span>
+								</span>
+								<span class="shrink-0 font-semibold">
+									{formatDuration(speaker.total_speech_time)}
+								</span>
+							</div>
+						{/each}
+					</div>
+				{:else}
+					<p class="mt-3 text-sm text-gray-700 dark:text-gray-100">Keine erfasste Redezeit</p>
+				{/if}
+			</article>
 		</div>
-
-		{#if overview.top_speakers.length > 1 || overview.call_to_orders.length > 1}
-			<div class="mt-3 grid gap-3 lg:grid-cols-2">
-				{#if overview.top_speakers.length > 1}
-					<div
-						class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-surface-700 dark:bg-surface-800"
-					>
-						<h3 class="text-base font-bold">Längste Redezeiten</h3>
-						<div class="mt-3 space-y-2">
-							{#each overview.top_speakers as speaker}
-								<div class="flex items-center justify-between gap-3 text-sm">
-									<span class="min-w-0 truncate">
-										{speaker.delegate_name}
-										<span class="text-gray-600 dark:text-gray-400">({speaker.delegate_party})</span>
-									</span>
-									<span class="shrink-0 font-semibold">
-										{formatDuration(speaker.total_speech_time)}
-									</span>
-								</div>
-							{/each}
-						</div>
-					</div>
-				{/if}
-
-				{#if overview.call_to_orders.length > 1}
-					<div
-						class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-surface-700 dark:bg-surface-800"
-					>
-						<h3 class="text-base font-bold">Ordnungsrufe</h3>
-						<div class="mt-3 space-y-2">
-							{#each overview.call_to_orders as callToOrder}
-								<div class="flex items-center justify-between gap-3 text-sm">
-									<span class="min-w-0 truncate">
-										{callToOrder.delegate_name}
-										<span class="text-gray-600 dark:text-gray-400"
-											>({callToOrder.delegate_party})</span
-										>
-									</span>
-									<span class="shrink-0 font-semibold">
-										{callToOrder.total_order_calls}
-									</span>
-								</div>
-							{/each}
-						</div>
-					</div>
-				{/if}
-			</div>
-		{/if}
 	</section>
 {/if}
