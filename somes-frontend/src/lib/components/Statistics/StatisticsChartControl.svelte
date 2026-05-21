@@ -332,12 +332,14 @@
 	);
 
 	let chartData = $derived(
-		shownData.map((item) => {
+		shownData.map((item, index) => {
 			const party = item.type === 'delegate' ? (item.party?.trim() ?? 'Unbekannt') : item.label;
 			const color =
 				item.type === 'delegate' ? colorForParty(item.party) : colorForCategory(item.label);
 			return {
 				category: item.label,
+				chartKey:
+					item.type === 'delegate' ? `${item.label}${'\u200B'.repeat(index + 1)}` : item.label,
 				value: Number(item.value ?? 0),
 				party,
 				color,

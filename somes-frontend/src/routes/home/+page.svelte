@@ -10,6 +10,7 @@
 	import { dashDateToDotDate } from '$lib/date';
 	import { filteredDelegates } from '$lib/caching/delegates.svelte';
 	import LatestProposals from '$lib/components/Proposals/Latest/LatestProposals.svelte';
+	import SessionActivityOverview from '$lib/components/PlenarySessions/SessionActivityOverview.svelte';
 	import type { PageProps } from './$types';
 	import { errorToNull } from '$lib/api/api';
 	import VoteResultExpandableBar from '$lib/components/VoteResults/Expandable/VoteResultExpandableBar.svelte';
@@ -34,6 +35,7 @@
 	);
 
 	let decrees: DecreeDelegate[] | null = $derived(errorToNull(data.latestDelegateDecrees));
+	let latestSessionActivity = $derived(errorToNull(data.latestSessionActivity));
 
 	let userVoteResults: VoteResult[] | null = $state(null);
 	let userGovProposals: GovProposalDelegate[] | null = $state(null);
@@ -141,6 +143,7 @@
 
 <Container>
 	<NextSessionInfo {nextPlenarySessionDateStr} />
+	<SessionActivityOverview overview={latestSessionActivity} />
 	<h2 class="mt-6 px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">Letzte Abstimmungen</h2>
 	<span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0 dark:text-gray-200">
 		{#if voteDate}

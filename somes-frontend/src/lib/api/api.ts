@@ -25,7 +25,8 @@ import type {
 	GeneralGovOfficialInfo,
 	DelegatesWithMaxPage,
 	PartyStates,
-	InterjectionsWithMaxPage
+	InterjectionsWithMaxPage,
+	SessionActivityOverview
 } from '../types';
 
 // const address = 'https://somes.at';
@@ -84,10 +85,11 @@ export async function fetchSavely<T>(fn: () => Promise<Response>): Promise<T | H
 export async function justPost<T>(
 	route: string,
 	body: any,
-	country = 'at/'
+	country = 'at/',
+	fetcher: typeof fetch = fetch
 ): Promise<T | HasError> {
 	return fetchSavely(() =>
-		fetch(`${url}${country}${route}`, {
+		fetcher(`${url}${country}${route}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -156,6 +158,17 @@ export async function latest_vote_results(
 	fetcher: typeof fetch = fetch
 ): Promise<VoteResult[] | HasError> {
 	return getWithRoute<VoteResult[]>('v1/vote_results/latest', 'at/', fetcher);
+}
+
+export async function latest_session_activity_overview(
+	fetcher: typeof fetch = fetch
+): Promise<SessionActivityOverview | null | HasError> {
+	return justPost<SessionActivityOverview | null>(
+		'v1/statistics/latest_session_activity_overview',
+		{},
+		'at/',
+		fetcher
+	);
 }
 
 export async function all_gps(): Promise<LegisPeriod[] | HasError> {

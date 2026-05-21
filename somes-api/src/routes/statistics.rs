@@ -121,6 +121,10 @@ pub fn create_statistics_router() -> Router<AppState> {
         .route(SPEECHTIME_PER_GENDER, post(speechtime_per_gender))
         .route(SPEECHTIME_PER_AGE, post(speechtime_per_age))
         .route(SPEECHTIME_PER_LEGIS, post(speechtime_per_legis))
+        .route(
+            LATEST_SESSION_ACTIVITY_OVERVIEW,
+            post(latest_session_activity_overview),
+        )
         // Speeches - Total Speeches endpoints
         .route(
             TOTAL_SPEECHES_PER_DELEGATE,
