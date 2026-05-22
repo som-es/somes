@@ -232,6 +232,6 @@
 		bind:selectedChartMode
 		extraReservedHeight={selectedChartMode === 'spectrum' ? 0 : 112}
 		infoQuestion="Was zeigt diese Statistik?"
-		infoAnswer="<p>Die Werte stammen aus der Tabelle <strong>political_positions</strong>. Diese Positionswerte sind aktuell nicht nach Legislaturperioden versioniert, daher wird hier keine Periodenfilterung angeboten.</p>"
+		infoAnswer="<p>Diese Auswertung ordnet Abgeordnete und Parteien nach ihren politischen Positionen ein. Die Werte zeigen, ob jemand in den verfügbaren Daten eher sozialistisch oder kapitalistisch sowie eher libertär oder autoritär eingeordnet wird.</p>"
 	/>
 </Container>
