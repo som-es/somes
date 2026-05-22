@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { BarChart } from 'layerchart';
+
 	type ChartItem = {
 		category: string;
 		value: number;
@@ -40,8 +42,10 @@
 			Math.min(56, Math.floor((height - 186 - (visibleRowCount - 1) * rowGap) / visibleRowCount))
 		)
 	);
-	let chartRowHeight = $derived(`${Math.max(28, rowHeight - 6)}px`);
-	let barHeight = $derived(`${Math.max(16, Math.min(24, Math.round(rowHeight * 0.45)))}px`);
+	let chartRowHeightPx = $derived(Math.max(28, rowHeight - 6));
+	let barHeightPx = $derived(Math.max(16, Math.min(24, Math.round(rowHeight * 0.45))));
+	let chartRowHeight = $derived(`${chartRowHeightPx}px`);
+	let barInsetY = $derived(Math.max(0, (chartRowHeightPx - barHeightPx) / 2));
 
 	function niceStep(value: number) {
 		if (value <= 0) return 1;
@@ -84,14 +88,6 @@
 		return ((value - extent.min) / extent.span) * 100;
 	}
 
-	function barLeft(value: number) {
-		return `${Math.min(xPercent(0), xPercent(value))}%`;
-	}
-
-	function barWidth(value: number) {
-		return `${Math.max(0.25, Math.abs(xPercent(value) - xPercent(0)))}%`;
-	}
-
 	function valueLabelPosition(value: number) {
 		const position = xPercent(value);
 		if (value >= 0) {
@@ -108,6 +104,7 @@
 	}
 
 	let zeroPosition = $derived(`${xPercent(0)}%`);
+	let xDomain = $derived<[number, number]>([extent.min, extent.max]);
 	let valueLabelWidth = $derived(selectedCategory === 'delegate' ? '4.5rem' : '4rem');
 	let rowViewportHeight = $derived(
 		`${visibleRowCount * rowHeight + (visibleRowCount - 1) * rowGap}px`
@@ -244,17 +241,42 @@
 									style="left: {zeroPosition};"
 								></div>
 								<div
-									class="absolute top-1/2 -translate-y-1/2 rounded-sm transition-all"
+									class="absolute inset-0 transition-all"
 									class:opacity-70={hoveredIndex !== null && hoveredIndex !== index}
 									class:brightness-110={hoveredIndex === index}
-									style="left: {barLeft(item.value)}; width: {barWidth(
-										item.value
-									)}; height: {barHeight}; background-color: {item.color};"
 									role="img"
 									aria-label="Rang {index + 1}, {item.category}: {metricLabel} {formatValue(
 										item.value
 									)}"
-								></div>
+								>
+									<BarChart
+										data={[item]}
+										x="value"
+										y="category"
+										{xDomain}
+										orientation="horizontal"
+										axis={false}
+										grid={false}
+										rule={false}
+										tooltip={false}
+										highlight={false}
+										padding={{ left: 0, right: 0, top: 0, bottom: 0 }}
+										xNice={false}
+										bandPadding={0}
+										props={{
+											bars: {
+												fill: item.color,
+												strokeWidth: 0,
+												radius: 2,
+												rounded: 'all',
+												insets: { top: barInsetY, bottom: barInsetY }
+											},
+											svg: {
+												class: 'overflow-visible'
+											}
+										}}
+									/>
+								</div>
 								<span
 									class="value-label absolute top-1/2 w-[var(--value-label-width)] -translate-y-1/2 overflow-hidden px-1 text-xs font-semibold text-ellipsis whitespace-nowrap text-gray-700 tabular-nums dark:text-gray-200"
 									class:hidden={Math.abs(item.value) < extent.span * 0.02}

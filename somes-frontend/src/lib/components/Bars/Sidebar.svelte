@@ -30,15 +30,6 @@
 	let activeUrl = $derived(page.url.pathname);
 	let activeSectionHash = $state('');
 	let activeHash = $derived(activeSectionHash || page.url.hash);
-	const statisticsSectionHashes = [
-		'#speech-time',
-		'#total-speeches',
-		'#absences',
-		'#activity',
-		'#call-to-orders',
-		'#age',
-		'#orientation'
-	];
 	let statisticsObserver: IntersectionObserver | null = null;
 
 	function hrefPath(href: string) {
@@ -53,7 +44,7 @@
 		const hash = hrefHash(href);
 		return (
 			hrefPath(href) === activeUrl &&
-			(!hash || hash === activeHash || (!activeHash && hash === '#speech-time'))
+			(!hash || hash === activeHash || (!activeHash && hash === firstStatisticsHash()))
 		);
 	}
 
@@ -62,6 +53,17 @@
 		if (hrefPath(href) === '/statistics' && hash) {
 			activeSectionHash = hash;
 		}
+	}
+
+	function statisticsSubmenuHashes() {
+		return submenu
+			.filter((segment) => segment.route === '/statistics')
+			.flatMap((segment) => segment.list.map((item) => hrefHash(item.href)))
+			.filter((hash) => hash.length > 0);
+	}
+
+	function firstStatisticsHash() {
+		return statisticsSubmenuHashes()[0] ?? '#speech-time';
 	}
 
 	const voteResultUrl = $derived(
@@ -128,7 +130,7 @@
 
 	function syncStatisticsObserver() {
 		statisticsObserver?.disconnect();
-		const observedElements = statisticsSectionHashes
+		const observedElements = statisticsSubmenuHashes()
 			.map((hash) => document.getElementById(hash.slice(1)))
 			.filter((element): element is HTMLElement => element !== null);
 
@@ -157,7 +159,7 @@
 		}
 
 		if (!activeSectionHash) {
-			activeSectionHash = page.url.hash || '#speech-time';
+			activeSectionHash = page.url.hash || firstStatisticsHash();
 		}
 	}
 

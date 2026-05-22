@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { onMount, tick, untrack } from 'svelte';
-	import { SvelteSet } from 'svelte/reactivity';
 	import GenericFilters from '$lib/components/Filtering/GenericFilters.svelte';
-	import MultiValuesFilter from '$lib/components/Filtering/MultiValuesFilter.svelte';
+	import PartyFilter, {
+		type PartyFilterOption
+	} from '$lib/components/Filtering/PartyFilter.svelte';
 	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
 	import type { GenericFilterGroup } from '$lib/components/Filtering/types';
 	import type { StatisticsData } from '$lib/types';
@@ -101,7 +102,7 @@
 	let loading = $state(false);
 	let error: string | null = $state(null);
 	let searchValue = $state('');
-	let selectedParties = $state(new SvelteSet<string>());
+	let selectedParties = $state<string[]>([]);
 	let topLimit = $state(25);
 	let controlsHeight = $state(0);
 	let windowHeight = $state(820);
@@ -298,13 +299,18 @@
 		return currentData;
 	});
 
-	let uniqueParties = $derived.by(() => {
+	let uniqueParties = $derived.by((): PartyFilterOption[] => {
 		const parties = new Set<string>();
 		for (const item of displayData) {
 			const filterParty = item.partyFilter ?? item.party;
 			if (item.type === 'delegate' && filterParty) parties.add(filterParty);
 		}
-		return [...parties].sort((a, b) => a.localeCompare(b, 'de-AT'));
+		return [...parties]
+			.sort((a, b) => a.localeCompare(b, 'de-AT'))
+			.map((party) => ({
+				name: party,
+				color: colorForParty(party)
+			}));
 	});
 
 	let filteredData = $derived.by(() => {
@@ -314,8 +320,8 @@
 				const filterParty = item.partyFilter ?? item.party;
 				if (
 					canUsePartyFilter &&
-					selectedParties.size > 0 &&
-					!selectedParties.has(filterParty ?? '')
+					selectedParties.length > 0 &&
+					!selectedParties.includes(filterParty ?? '')
 				) {
 					return false;
 				}
@@ -364,7 +370,7 @@
 		if (selectedCategory === previousSelectedCategory) return;
 		previousSelectedCategory = selectedCategory;
 		genericFilters[0].activeValue = 'all';
-		selectedParties.clear();
+		selectedParties = [];
 		searchValue = '';
 		if (selectedCategory === 'legis') {
 			selectedChartMode = 'line';
@@ -446,7 +452,7 @@
 								onclick={() => {
 									selectedCategory = option.value;
 									searchValue = '';
-									selectedParties.clear();
+									selectedParties = [];
 								}}
 							>
 								{option.label}
@@ -467,11 +473,7 @@
 					</div>
 					<div class="flex h-10 gap-2 text-sm">
 						{#if canUsePartyFilter && uniqueParties.length > 0}
-							<MultiValuesFilter
-								title="Parteien"
-								bind:selectedValues={selectedParties}
-								values={uniqueParties}
-							/>
+							<PartyFilter parties={uniqueParties} bind:selectedNames={selectedParties} />
 						{/if}
 						<GenericFilters
 							bind:genericFilters
