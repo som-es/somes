@@ -64,6 +64,7 @@
 	import DelegateListItem from '$lib/components/Delegates/DelegateListItem.svelte';
 	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
 	import InterjectionsPreview from '$lib/components/Delegates/Interjections/InterjectionsPreview.svelte';
+	import MobileParliamentModal from '$lib/components/Parliaments/MobileParliamentModal.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -697,19 +698,31 @@
 			</div>
 
 			<!-- Dummy search Input (mobile) -->
-			<button
-				class="flex h-10 w-full touch-manipulation items-center rounded-xl border-[2px] border-gray-400 text-left lg:hidden"
-				onclick={() => (isSearchPopupOpen = true)}
-			>
-				<div
-					class="flex h-9 w-10 shrink-0 items-center justify-center text-gray-600 dark:text-gray-300"
+			<div class="flex gap-2 lg:hidden">
+				<button
+					class="flex h-10 min-w-0 flex-1 touch-manipulation items-center rounded-xl border-[2px] border-gray-400 text-left"
+					onclick={() => (isSearchPopupOpen = true)}
 				>
-					{@html searchIcon}
-				</div>
-				<span class="truncate">
-					{inputValue || 'Suche...'}
-				</span>
-			</button>
+					<div
+						class="flex h-9 w-10 shrink-0 items-center justify-center text-gray-600 dark:text-gray-300"
+					>
+						{@html searchIcon}
+					</div>
+					<span class="truncate">
+						{inputValue || 'Suche...'}
+					</span>
+				</button>
+
+				<MobileParliamentModal
+					{delegates}
+					bind:delegate
+					bind:syncDelegates
+					allSeats={data.cachedSeats}
+					{selectedPeriod}
+					{supplyDate}
+					hasSeatInfo={data.hasSeatInfo}
+				/>
+			</div>
 
 			<!-- PopUp -->
 			{#if isSearchPopupOpen}
