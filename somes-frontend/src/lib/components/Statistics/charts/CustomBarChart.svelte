@@ -65,6 +65,10 @@
 		}).format(value);
 	}
 
+	function stopScrollChaining(event: WheelEvent | TouchEvent) {
+		event.stopPropagation();
+	}
+
 	let extent = $derived.by(() => {
 		const values = data.map((item) => Number(item.value ?? 0)).filter(Number.isFinite);
 		const rawMin = Math.min(0, ...values);
@@ -195,6 +199,8 @@
 				style="height: {rowViewportHeight};"
 				role="list"
 				aria-label="Statistikdaten"
+				onwheel={stopScrollChaining}
+				ontouchmove={stopScrollChaining}
 			>
 				{#each data as item, index}
 					<div
@@ -344,6 +350,7 @@
 	}
 
 	.chart-scrollbar {
+		overscroll-behavior: contain;
 		scrollbar-width: thin;
 		scrollbar-color: rgb(156 163 175) transparent;
 	}
