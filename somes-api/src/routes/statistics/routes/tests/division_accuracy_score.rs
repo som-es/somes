@@ -113,12 +113,15 @@ fn test_aggregate_by_age() {
     assert_eq!(age_51_60.delegate_count, 1);
 }
 
-#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
-async fn test_get_base_data_applies_filters_and_computes_division_accuracy_stats(
-    pool: sqlx::PgPool,
-) {
+#[tokio::test]
+async fn test_get_base_data_applies_filters_and_computes_division_accuracy_stats() {
+    let test_db = super::super::test_db::statistics_test_db(
+        "test_get_base_data_applies_filters_and_computes_division_accuracy_stats",
+    )
+    .await;
+    let pool = test_db.pool().clone();
     let filter = DivisionAccuracyFilter {
-        legis_period: Some("51".to_string()),
+        legis_period: Some("XXV".to_string()),
         party: Some("Party X".to_string()),
         gender: Some("M".to_string()),
         ..Default::default()
@@ -139,8 +142,13 @@ async fn test_get_base_data_applies_filters_and_computes_division_accuracy_stats
     assert_eq!(delegate.delegate_age_bucket, "31-40");
 }
 
-#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
-async fn test_per_legis_averages_delegate_scores_not_raw_votes(pool: sqlx::PgPool) {
+#[tokio::test]
+async fn test_per_legis_averages_delegate_scores_not_raw_votes() {
+    let test_db = super::super::test_db::statistics_test_db(
+        "test_per_legis_averages_delegate_scores_not_raw_votes",
+    )
+    .await;
+    let pool = test_db.pool().clone();
     let filter = DivisionAccuracyFilter {
         is_desc: true,
         ..Default::default()
@@ -152,24 +160,29 @@ async fn test_per_legis_averages_delegate_scores_not_raw_votes(pool: sqlx::PgPoo
 
     assert_eq!(results.len(), 3);
 
-    let period_51 = results.iter().find(|r| r.category == "51").unwrap();
+    let period_51 = results.iter().find(|r| r.category == "XXV").unwrap();
     assert!((period_51.average_accuracy - 0.5).abs() < 0.001);
     assert_eq!(period_51.total_votes, 7);
     assert_eq!(period_51.delegate_count, 3);
 
-    let period_52 = results.iter().find(|r| r.category == "52").unwrap();
+    let period_52 = results.iter().find(|r| r.category == "XXVII").unwrap();
     assert!((period_52.average_accuracy - 0.625).abs() < 0.001);
     assert_eq!(period_52.total_votes, 5);
     assert_eq!(period_52.delegate_count, 4);
 
-    let period_53 = results.iter().find(|r| r.category == "53").unwrap();
+    let period_53 = results.iter().find(|r| r.category == "XXVIII").unwrap();
     assert!((period_53.average_accuracy - 0.5).abs() < 0.001);
     assert_eq!(period_53.total_votes, 2);
     assert_eq!(period_53.delegate_count, 2);
 }
 
-#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
-async fn test_per_delegate_aggregates_party_period_rows_into_one_delegate_row(pool: sqlx::PgPool) {
+#[tokio::test]
+async fn test_per_delegate_aggregates_party_period_rows_into_one_delegate_row() {
+    let test_db = super::super::test_db::statistics_test_db(
+        "test_per_delegate_aggregates_party_period_rows_into_one_delegate_row",
+    )
+    .await;
+    let pool = test_db.pool().clone();
     let filter = DivisionAccuracyFilter {
         is_desc: true,
         ..Default::default()

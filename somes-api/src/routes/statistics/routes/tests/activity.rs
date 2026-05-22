@@ -11,7 +11,7 @@ fn create_test_base_data() -> Vec<ActivityBase> {
             raw_activity_score: 5.0,
             total_proposals: 10,
             session_count: 2,
-            legislative_period: Some("51".to_string()),
+            legislative_period: Some("XXV".to_string()),
             delegate_age_bucket: "41-50".to_string(),
         },
         ActivityBase {
@@ -23,7 +23,7 @@ fn create_test_base_data() -> Vec<ActivityBase> {
             raw_activity_score: 3.0,
             total_proposals: 5,
             session_count: 2,
-            legislative_period: Some("51".to_string()),
+            legislative_period: Some("XXV".to_string()),
             delegate_age_bucket: "31-40".to_string(),
         },
         ActivityBase {
@@ -35,7 +35,7 @@ fn create_test_base_data() -> Vec<ActivityBase> {
             raw_activity_score: 6.0,
             total_proposals: 8,
             session_count: 2,
-            legislative_period: Some("51".to_string()),
+            legislative_period: Some("XXV".to_string()),
             delegate_age_bucket: "51-60".to_string(),
         },
         ActivityBase {
@@ -47,7 +47,7 @@ fn create_test_base_data() -> Vec<ActivityBase> {
             raw_activity_score: 4.0,
             total_proposals: 12,
             session_count: 2,
-            legislative_period: Some("52".to_string()),
+            legislative_period: Some("XXVII".to_string()),
             delegate_age_bucket: "41-50".to_string(),
         },
     ]
@@ -107,14 +107,14 @@ fn test_aggregate_by_legis() {
     let results = ActivityService::aggregate_by_legis(base_data, true, true);
 
     // Verify 51: avg_norm = (2.5 + 1.5 + 3.0) / 3 = 2.333..., avg_raw = (5.0 + 3.0 + 6.0) / 3 = 4.666...
-    let period_51 = results.iter().find(|r| r.category == "51").unwrap();
+    let period_51 = results.iter().find(|r| r.category == "XXV").unwrap();
     assert!((period_51.activity_score - 2.3333333).abs() < 0.001);
     assert!((period_51.raw_activity_score - 4.6666667).abs() < 0.001);
     assert_eq!(period_51.total_proposals, 23);
     assert_eq!(period_51.delegate_count, 3);
 
     // Verify 52: avg_norm = 2.0, avg_raw = 4.0
-    let period_52 = results.iter().find(|r| r.category == "52").unwrap();
+    let period_52 = results.iter().find(|r| r.category == "XXVII").unwrap();
     assert!((period_52.activity_score - 2.0).abs() < 0.001);
     assert!((period_52.raw_activity_score - 4.0).abs() < 0.001);
     assert_eq!(period_52.total_proposals, 12);
@@ -160,7 +160,7 @@ fn test_aggregate_by_party_sorts_by_raw_score() {
             raw_activity_score: 1.0,
             total_proposals: 1,
             session_count: 1,
-            legislative_period: Some("51".to_string()),
+            legislative_period: Some("XXV".to_string()),
             delegate_age_bucket: "41-50".to_string(),
         },
         ActivityBase {
@@ -172,7 +172,7 @@ fn test_aggregate_by_party_sorts_by_raw_score() {
             raw_activity_score: 10.0,
             total_proposals: 1,
             session_count: 1,
-            legislative_period: Some("51".to_string()),
+            legislative_period: Some("XXV".to_string()),
             delegate_age_bucket: "31-40".to_string(),
         },
     ];
@@ -182,10 +182,15 @@ fn test_aggregate_by_party_sorts_by_raw_score() {
     assert_eq!(results[0].category, "Party Y");
 }
 
-#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
-async fn test_get_base_data_applies_filters_and_computes_activity_stats(pool: sqlx::PgPool) {
+#[tokio::test]
+async fn test_get_base_data_applies_filters_and_computes_activity_stats() {
+    let test_db = super::super::test_db::statistics_test_db(
+        "test_get_base_data_applies_filters_and_computes_activity_stats",
+    )
+    .await;
+    let pool = test_db.pool().clone();
     let filter = ActivityFilter {
-        legis_period: Some("51".to_string()),
+        legis_period: Some("XXV".to_string()),
         party: Some("Party X".to_string()),
         gender: Some("M".to_string()),
         ..Default::default()
@@ -205,14 +210,19 @@ async fn test_get_base_data_applies_filters_and_computes_activity_stats(pool: sq
     assert_eq!(delegate.session_count, 1);
     assert!((delegate.raw_activity_score - 2.25).abs() < 0.001);
     assert!((delegate.activity_score - 2.25).abs() < 0.001);
-    assert_eq!(delegate.legislative_period, Some("51".to_string()));
+    assert_eq!(delegate.legislative_period, Some("XXV".to_string()));
     assert_eq!(delegate.delegate_age_bucket, "31-40");
 }
 
-#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
-async fn test_get_base_data_returns_empty_for_filter_without_matches(pool: sqlx::PgPool) {
+#[tokio::test]
+async fn test_get_base_data_returns_empty_for_filter_without_matches() {
+    let test_db = super::super::test_db::statistics_test_db(
+        "test_get_base_data_returns_empty_for_filter_without_matches",
+    )
+    .await;
+    let pool = test_db.pool().clone();
     let filter = ActivityFilter {
-        legis_period: Some("51".to_string()),
+        legis_period: Some("XXV".to_string()),
         party: Some("Does Not Exist".to_string()),
         ..Default::default()
     };
@@ -224,8 +234,13 @@ async fn test_get_base_data_returns_empty_for_filter_without_matches(pool: sqlx:
     assert!(results.is_empty());
 }
 
-#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
-async fn test_per_delegate_aggregates_all_periods_into_one_delegate_row(pool: sqlx::PgPool) {
+#[tokio::test]
+async fn test_per_delegate_aggregates_all_periods_into_one_delegate_row() {
+    let test_db = super::super::test_db::statistics_test_db(
+        "test_per_delegate_aggregates_all_periods_into_one_delegate_row",
+    )
+    .await;
+    let pool = test_db.pool().clone();
     let filter = ActivityFilter {
         is_desc: true,
         normalized: true,
@@ -253,10 +268,15 @@ async fn test_per_delegate_aggregates_all_periods_into_one_delegate_row(pool: sq
     assert_eq!(delegate.session_count, 2);
 }
 
-#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
-async fn test_legislative_initiatives_without_simple_majority_applies_filters(pool: sqlx::PgPool) {
+#[tokio::test]
+async fn test_legislative_initiatives_without_simple_majority_applies_filters() {
+    let test_db = super::super::test_db::statistics_test_db(
+        "test_legislative_initiatives_without_simple_majority_applies_filters",
+    )
+    .await;
+    let pool = test_db.pool().clone();
     let filter = LegislativeInitiativeFilter {
-        legis_period: Some("51".to_string()),
+        legis_period: Some("XXV".to_string()),
         accepted: Some("true".to_string()),
     };
 

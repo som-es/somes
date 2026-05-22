@@ -356,7 +356,7 @@ impl ActivityService {
             raw_activity_score: f64,
             total_proposals: i64,
             session_count: i64,
-            latest_period_rank: i32,
+            latest_period_rank: String,
         }
 
         let mut delegate_map: std::collections::HashMap<String, DelegateAccumulator> =
@@ -373,17 +373,17 @@ impl ActivityService {
                         raw_activity_score: 0.0,
                         total_proposals: 0,
                         session_count: 0,
-                        latest_period_rank: i32::MIN,
+                        latest_period_rank: String::new(),
                     });
 
             entry.raw_activity_score += item.raw_activity_score;
             entry.total_proposals += item.total_proposals;
             entry.session_count += item.session_count;
 
-            if period_rank >= entry.latest_period_rank {
+            if period_rank >= entry.latest_period_rank.as_str() {
                 entry.delegate_party = item.delegate_party;
                 entry.delegate_filter_party = item.delegate_filter_party;
-                entry.latest_period_rank = period_rank;
+                entry.latest_period_rank = period_rank.to_string();
             }
         }
 

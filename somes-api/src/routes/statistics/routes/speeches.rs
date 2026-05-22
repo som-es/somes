@@ -296,7 +296,7 @@ impl SpeechService {
             delegate_filter_party: String,
             total_speeches: i64,
             total_speech_time: i64,
-            latest_period_rank: i32,
+            latest_period_rank: String,
         }
 
         let mut delegate_map: std::collections::HashMap<String, DelegateAccumulator> =
@@ -312,16 +312,16 @@ impl SpeechService {
                         delegate_filter_party: item.delegate_filter_party.clone(),
                         total_speeches: 0,
                         total_speech_time: 0,
-                        latest_period_rank: i32::MIN,
+                        latest_period_rank: String::new(),
                     });
 
             entry.total_speeches += item.total_speeches;
             entry.total_speech_time += item.total_speech_time;
 
-            if period_rank >= entry.latest_period_rank {
+            if period_rank >= entry.latest_period_rank.as_str() {
                 entry.delegate_party = item.delegate_party;
                 entry.delegate_filter_party = item.delegate_filter_party;
-                entry.latest_period_rank = period_rank;
+                entry.latest_period_rank = period_rank.to_string();
             }
         }
 

@@ -9,7 +9,7 @@ fn create_test_base_data() -> Vec<AgeBase> {
             delegate_gender: "M".to_string(),
             age: 45,
             birthdate: Some(chrono::NaiveDate::from_ymd_opt(1980, 1, 1).unwrap()),
-            legislative_period: Some("51".to_string()),
+            legislative_period: Some("XXV".to_string()),
         },
         AgeBase {
             delegate_name: "Delegate B".to_string(),
@@ -18,7 +18,7 @@ fn create_test_base_data() -> Vec<AgeBase> {
             delegate_gender: "F".to_string(),
             age: 35,
             birthdate: Some(chrono::NaiveDate::from_ymd_opt(1990, 1, 1).unwrap()),
-            legislative_period: Some("51".to_string()),
+            legislative_period: Some("XXV".to_string()),
         },
         AgeBase {
             delegate_name: "Delegate C".to_string(),
@@ -27,7 +27,7 @@ fn create_test_base_data() -> Vec<AgeBase> {
             delegate_gender: "M".to_string(),
             age: 55,
             birthdate: Some(chrono::NaiveDate::from_ymd_opt(1970, 1, 1).unwrap()),
-            legislative_period: Some("51".to_string()),
+            legislative_period: Some("XXV".to_string()),
         },
         AgeBase {
             delegate_name: "Delegate D".to_string(),
@@ -36,7 +36,7 @@ fn create_test_base_data() -> Vec<AgeBase> {
             delegate_gender: "F".to_string(),
             age: 42,
             birthdate: Some(chrono::NaiveDate::from_ymd_opt(1983, 1, 1).unwrap()),
-            legislative_period: Some("52".to_string()),
+            legislative_period: Some("XXVII".to_string()),
         },
     ]
 }
@@ -96,14 +96,14 @@ fn test_aggregate_by_legis() {
     let results = AgeService::aggregate_by_legis(base_data, true);
 
     // Verify 51: avg = (45 + 35 + 55) / 3 = 45.0, min = 35, max = 55
-    let period_51 = results.iter().find(|r| r.category == "51").unwrap();
+    let period_51 = results.iter().find(|r| r.category == "XXV").unwrap();
     assert!((period_51.average_age - 45.0).abs() < 0.001);
     assert_eq!(period_51.delegate_count, 3);
     assert_eq!(period_51.min_age, 35);
     assert_eq!(period_51.max_age, 55);
 
     // Verify 52: avg = 42.0, min = 42, max = 42
-    let period_52 = results.iter().find(|r| r.category == "52").unwrap();
+    let period_52 = results.iter().find(|r| r.category == "XXVII").unwrap();
     assert!((period_52.average_age - 42.0).abs() < 0.001);
     assert_eq!(period_52.delegate_count, 1);
     assert_eq!(period_52.min_age, 42);
@@ -137,10 +137,15 @@ fn test_aggregate_by_age() {
     assert_eq!(age_51_60.max_age, 55);
 }
 
-#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
-async fn test_get_base_data_applies_filters_and_computes_age(pool: sqlx::PgPool) {
+#[tokio::test]
+async fn test_get_base_data_applies_filters_and_computes_age() {
+    let test_db = super::super::test_db::statistics_test_db(
+        "test_get_base_data_applies_filters_and_computes_age",
+    )
+    .await;
+    let pool = test_db.pool().clone();
     let filter = AgeFilter {
-        legis_period: Some("51".to_string()),
+        legis_period: Some("XXV".to_string()),
         party: Some("Party X".to_string()),
         gender: Some("M".to_string()),
         ..Default::default()
@@ -159,11 +164,16 @@ async fn test_get_base_data_applies_filters_and_computes_age(pool: sqlx::PgPool)
         delegate.birthdate,
         Some(chrono::NaiveDate::from_ymd_opt(1980, 1, 1).unwrap())
     );
-    assert_eq!(delegate.legislative_period, Some("51".to_string()));
+    assert_eq!(delegate.legislative_period, Some("XXV".to_string()));
 }
 
-#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
-async fn test_per_delegate_uses_latest_period_for_unfiltered_age(pool: sqlx::PgPool) {
+#[tokio::test]
+async fn test_per_delegate_uses_latest_period_for_unfiltered_age() {
+    let test_db = super::super::test_db::statistics_test_db(
+        "test_per_delegate_uses_latest_period_for_unfiltered_age",
+    )
+    .await;
+    let pool = test_db.pool().clone();
     let filter = AgeFilter {
         is_desc: true,
         ..Default::default()

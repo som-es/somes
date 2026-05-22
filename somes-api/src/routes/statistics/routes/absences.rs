@@ -291,7 +291,7 @@ impl AbsenceService {
             delegate_filter_party: String,
             total_absences: i64,
             total_sessions: i64,
-            latest_period_rank: i32,
+            latest_period_rank: String,
         }
 
         let mut delegate_map: std::collections::HashMap<String, DelegateAccumulator> =
@@ -307,16 +307,16 @@ impl AbsenceService {
                         delegate_filter_party: item.delegate_filter_party.clone(),
                         total_absences: 0,
                         total_sessions: 0,
-                        latest_period_rank: i32::MIN,
+                        latest_period_rank: String::new(),
                     });
 
             entry.total_absences += item.total_absences;
             entry.total_sessions += item.total_sessions;
 
-            if period_rank >= entry.latest_period_rank {
+            if period_rank >= entry.latest_period_rank.as_str() {
                 entry.delegate_party = item.delegate_party;
                 entry.delegate_filter_party = item.delegate_filter_party;
-                entry.latest_period_rank = period_rank;
+                entry.latest_period_rank = period_rank.to_string();
             }
         }
 

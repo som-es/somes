@@ -320,7 +320,7 @@ impl ComplexityService {
             delegate_filter_party: String,
             weighted_complexity: f64,
             total_proposals: i64,
-            latest_period_rank: i32,
+            latest_period_rank: String,
         }
 
         let mut delegate_map: std::collections::HashMap<String, DelegateAccumulator> =
@@ -336,16 +336,16 @@ impl ComplexityService {
                         delegate_filter_party: item.delegate_filter_party.clone(),
                         weighted_complexity: 0.0,
                         total_proposals: 0,
-                        latest_period_rank: i32::MIN,
+                        latest_period_rank: String::new(),
                     });
 
             entry.weighted_complexity += item.complexity_score * item.total_proposals as f64;
             entry.total_proposals += item.total_proposals;
 
-            if period_rank >= entry.latest_period_rank {
+            if period_rank >= entry.latest_period_rank.as_str() {
                 entry.delegate_party = item.delegate_party;
                 entry.delegate_filter_party = item.delegate_filter_party;
-                entry.latest_period_rank = period_rank;
+                entry.latest_period_rank = period_rank.to_string();
             }
         }
 

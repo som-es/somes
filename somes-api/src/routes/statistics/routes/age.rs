@@ -304,7 +304,7 @@ impl AgeService {
             delegate_party: String,
             delegate_filter_party: String,
             age: i32,
-            latest_period_rank: i32,
+            latest_period_rank: String,
         }
 
         let mut delegate_map: std::collections::HashMap<String, DelegateAccumulator> =
@@ -319,14 +319,14 @@ impl AgeService {
                         delegate_party: item.delegate_party.clone(),
                         delegate_filter_party: item.delegate_filter_party.clone(),
                         age: item.age,
-                        latest_period_rank: i32::MIN,
+                        latest_period_rank: String::new(),
                     });
 
-            if period_rank >= entry.latest_period_rank {
+            if period_rank >= entry.latest_period_rank.as_str() {
                 entry.delegate_party = item.delegate_party;
                 entry.delegate_filter_party = item.delegate_filter_party;
                 entry.age = item.age;
-                entry.latest_period_rank = period_rank;
+                entry.latest_period_rank = period_rank.to_string();
             }
         }
 

@@ -9,7 +9,7 @@ fn create_test_base_data() -> Vec<ComplexityBase> {
             delegate_gender: "M".to_string(),
             complexity_score: 1.2,
             total_proposals: 10,
-            legislative_period: Some("51".to_string()),
+            legislative_period: Some("XXV".to_string()),
             delegate_age_bucket: "41-50".to_string(),
         },
         ComplexityBase {
@@ -19,7 +19,7 @@ fn create_test_base_data() -> Vec<ComplexityBase> {
             delegate_gender: "F".to_string(),
             complexity_score: 1.0,
             total_proposals: 5,
-            legislative_period: Some("51".to_string()),
+            legislative_period: Some("XXV".to_string()),
             delegate_age_bucket: "31-40".to_string(),
         },
         ComplexityBase {
@@ -29,7 +29,7 @@ fn create_test_base_data() -> Vec<ComplexityBase> {
             delegate_gender: "M".to_string(),
             complexity_score: 1.3,
             total_proposals: 8,
-            legislative_period: Some("51".to_string()),
+            legislative_period: Some("XXV".to_string()),
             delegate_age_bucket: "51-60".to_string(),
         },
         ComplexityBase {
@@ -39,7 +39,7 @@ fn create_test_base_data() -> Vec<ComplexityBase> {
             delegate_gender: "F".to_string(),
             complexity_score: 1.1,
             total_proposals: 12,
-            legislative_period: Some("52".to_string()),
+            legislative_period: Some("XXVII".to_string()),
             delegate_age_bucket: "41-50".to_string(),
         },
     ]
@@ -96,13 +96,13 @@ fn test_aggregate_by_legis() {
     let results = ComplexityService::aggregate_by_legis(base_data, true);
 
     // Verify 51: (1.2 + 1.0 + 1.3) / 3 = 1.166..., total_proposals = 23, delegate_count = 3
-    let period_51 = results.iter().find(|r| r.category == "51").unwrap();
+    let period_51 = results.iter().find(|r| r.category == "XXV").unwrap();
     assert!((period_51.average_complexity - 1.1666667).abs() < 0.001);
     assert_eq!(period_51.total_proposals, 23);
     assert_eq!(period_51.delegate_count, 3);
 
     // Verify 52: 1.1, total_proposals = 12, delegate_count = 1
-    let period_52 = results.iter().find(|r| r.category == "52").unwrap();
+    let period_52 = results.iter().find(|r| r.category == "XXVII").unwrap();
     assert!((period_52.average_complexity - 1.1).abs() < 0.001);
     assert_eq!(period_52.total_proposals, 12);
     assert_eq!(period_52.delegate_count, 1);
@@ -132,10 +132,15 @@ fn test_aggregate_by_age() {
     assert_eq!(age_51_60.delegate_count, 1);
 }
 
-#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
-async fn test_get_base_data_applies_filters_and_computes_complexity_stats(pool: sqlx::PgPool) {
+#[tokio::test]
+async fn test_get_base_data_applies_filters_and_computes_complexity_stats() {
+    let test_db = super::super::test_db::statistics_test_db(
+        "test_get_base_data_applies_filters_and_computes_complexity_stats",
+    )
+    .await;
+    let pool = test_db.pool().clone();
     let filter = ComplexityFilter {
-        legis_period: Some("51".to_string()),
+        legis_period: Some("XXV".to_string()),
         party: Some("Party X".to_string()),
         gender: Some("M".to_string()),
         ..Default::default()
@@ -153,12 +158,17 @@ async fn test_get_base_data_applies_filters_and_computes_complexity_stats(pool: 
     assert_eq!(delegate.delegate_gender, "M");
     assert!((delegate.complexity_score - 1.25).abs() < 0.001);
     assert_eq!(delegate.total_proposals, 2);
-    assert_eq!(delegate.legislative_period, Some("51".to_string()));
+    assert_eq!(delegate.legislative_period, Some("XXV".to_string()));
     assert_eq!(delegate.delegate_age_bucket, "31-40");
 }
 
-#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
-async fn test_per_legis_keeps_delegates_with_data_in_multiple_periods(pool: sqlx::PgPool) {
+#[tokio::test]
+async fn test_per_legis_keeps_delegates_with_data_in_multiple_periods() {
+    let test_db = super::super::test_db::statistics_test_db(
+        "test_per_legis_keeps_delegates_with_data_in_multiple_periods",
+    )
+    .await;
+    let pool = test_db.pool().clone();
     let filter = ComplexityFilter {
         is_desc: true,
         ..Default::default()
@@ -168,24 +178,29 @@ async fn test_per_legis_keeps_delegates_with_data_in_multiple_periods(pool: sqlx
 
     assert_eq!(results.len(), 3);
 
-    let period_51 = results.iter().find(|r| r.category == "51").unwrap();
+    let period_51 = results.iter().find(|r| r.category == "XXV").unwrap();
     assert!((period_51.average_complexity - 1.225).abs() < 0.001);
     assert_eq!(period_51.total_proposals, 3);
     assert_eq!(period_51.delegate_count, 2);
 
-    let period_52 = results.iter().find(|r| r.category == "52").unwrap();
+    let period_52 = results.iter().find(|r| r.category == "XXVII").unwrap();
     assert!((period_52.average_complexity - 1.05).abs() < 0.001);
     assert_eq!(period_52.total_proposals, 4);
     assert_eq!(period_52.delegate_count, 4);
 
-    let period_53 = results.iter().find(|r| r.category == "53").unwrap();
+    let period_53 = results.iter().find(|r| r.category == "XXVIII").unwrap();
     assert!((period_53.average_complexity - 1.225).abs() < 0.001);
     assert_eq!(period_53.total_proposals, 2);
     assert_eq!(period_53.delegate_count, 2);
 }
 
-#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
-async fn test_per_delegate_aggregates_all_periods_into_one_delegate_row(pool: sqlx::PgPool) {
+#[tokio::test]
+async fn test_per_delegate_aggregates_all_periods_into_one_delegate_row() {
+    let test_db = super::super::test_db::statistics_test_db(
+        "test_per_delegate_aggregates_all_periods_into_one_delegate_row",
+    )
+    .await;
+    let pool = test_db.pool().clone();
     let filter = ComplexityFilter {
         is_desc: true,
         ..Default::default()

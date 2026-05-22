@@ -231,10 +231,14 @@ fn test_spectrum_aggregate_by_age() {
     assert_eq!(age_51_60.delegate_count, 1);
 }
 
-#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
-async fn test_orientation_get_base_data_applies_filters(pool: sqlx::PgPool) {
+#[tokio::test]
+async fn test_orientation_get_base_data_applies_filters() {
+    let test_db =
+        super::super::test_db::statistics_test_db("test_orientation_get_base_data_applies_filters")
+            .await;
+    let pool = test_db.pool().clone();
     let filter = PoliticalOrientationFilter {
-        legis_period: Some("51".to_string()),
+        legis_period: Some("XXV".to_string()),
         party: Some("Party X".to_string()),
         gender: Some("M".to_string()),
         orientation_type: "left".to_string(),
@@ -256,10 +260,15 @@ async fn test_orientation_get_base_data_applies_filters(pool: sqlx::PgPool) {
     assert_eq!(delegate.delegate_age_bucket, "31-40");
 }
 
-#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
-async fn test_orientation_per_legis_averages_active_delegates_in_period(pool: sqlx::PgPool) {
+#[tokio::test]
+async fn test_orientation_per_legis_averages_active_delegates_in_period() {
+    let test_db = super::super::test_db::statistics_test_db(
+        "test_orientation_per_legis_averages_active_delegates_in_period",
+    )
+    .await;
+    let pool = test_db.pool().clone();
     let filter = PoliticalOrientationFilter {
-        legis_period: Some("51".to_string()),
+        legis_period: Some("XXV".to_string()),
         orientation_type: "left".to_string(),
         ..Default::default()
     };
@@ -269,16 +278,21 @@ async fn test_orientation_per_legis_averages_active_delegates_in_period(pool: sq
         .unwrap();
 
     assert_eq!(results.len(), 1);
-    assert_eq!(results[0].category, "51");
+    assert_eq!(results[0].category, "XXV");
     assert!((results[0].average_orientation - 0.5).abs() < 0.001);
     assert_eq!(results[0].total_votes, 42);
     assert_eq!(results[0].delegate_count, 3);
 }
 
-#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
-async fn test_orientation_handlers_override_orientation_type(pool: sqlx::PgPool) {
+#[tokio::test]
+async fn test_orientation_handlers_override_orientation_type() {
+    let test_db = super::super::test_db::statistics_test_db(
+        "test_orientation_handlers_override_orientation_type",
+    )
+    .await;
+    let pool = test_db.pool().clone();
     let filter = PoliticalOrientationFilter {
-        legis_period: Some("51".to_string()),
+        legis_period: Some("XXV".to_string()),
         party: Some("Party X".to_string()),
         gender: Some("M".to_string()),
         orientation_type: "left".to_string(),
@@ -310,10 +324,14 @@ async fn test_orientation_handlers_override_orientation_type(pool: sqlx::PgPool)
     assert!((authoritarian_results[0].orientation_score - 0.4).abs() < 0.001);
 }
 
-#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
-async fn test_spectrum_get_base_data_applies_filters(pool: sqlx::PgPool) {
+#[tokio::test]
+async fn test_spectrum_get_base_data_applies_filters() {
+    let test_db =
+        super::super::test_db::statistics_test_db("test_spectrum_get_base_data_applies_filters")
+            .await;
+    let pool = test_db.pool().clone();
     let filter = PoliticalOrientationFilter {
-        legis_period: Some("51".to_string()),
+        legis_period: Some("XXV".to_string()),
         party: Some("Party X".to_string()),
         gender: Some("M".to_string()),
         ..Default::default()
@@ -335,10 +353,15 @@ async fn test_spectrum_get_base_data_applies_filters(pool: sqlx::PgPool) {
     assert_eq!(delegate.delegate_age_bucket, "31-40");
 }
 
-#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
-async fn test_votes_together_applies_legislative_period_filter(pool: sqlx::PgPool) {
+#[tokio::test]
+async fn test_votes_together_applies_legislative_period_filter() {
+    let test_db = super::super::test_db::statistics_test_db(
+        "test_votes_together_applies_legislative_period_filter",
+    )
+    .await;
+    let pool = test_db.pool().clone();
     let filter = VotesTogetherFilter {
-        legis_period: Some("51".to_string()),
+        legis_period: Some("XXV".to_string()),
         ..Default::default()
     };
 

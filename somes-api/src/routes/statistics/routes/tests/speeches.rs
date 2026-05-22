@@ -10,7 +10,7 @@ fn create_test_base_data() -> Vec<SpeechBase> {
             total_speeches: 10,
             total_speech_time: 100,
             average_speech_time: 10.0,
-            legislative_period: Some("51".to_string()),
+            legislative_period: Some("XXV".to_string()),
             delegate_age_bucket: "41-50".to_string(),
         },
         SpeechBase {
@@ -21,7 +21,7 @@ fn create_test_base_data() -> Vec<SpeechBase> {
             total_speeches: 5,
             total_speech_time: 80,
             average_speech_time: 16.0,
-            legislative_period: Some("51".to_string()),
+            legislative_period: Some("XXV".to_string()),
             delegate_age_bucket: "31-40".to_string(),
         },
         SpeechBase {
@@ -32,7 +32,7 @@ fn create_test_base_data() -> Vec<SpeechBase> {
             total_speeches: 8,
             total_speech_time: 160,
             average_speech_time: 20.0,
-            legislative_period: Some("51".to_string()),
+            legislative_period: Some("XXV".to_string()),
             delegate_age_bucket: "51-60".to_string(),
         },
         SpeechBase {
@@ -43,7 +43,7 @@ fn create_test_base_data() -> Vec<SpeechBase> {
             total_speeches: 12,
             total_speech_time: 120,
             average_speech_time: 10.0,
-            legislative_period: Some("52".to_string()),
+            legislative_period: Some("XXVII".to_string()),
             delegate_age_bucket: "41-50".to_string(),
         },
     ]
@@ -104,14 +104,14 @@ fn test_aggregate_by_legis() {
     let results = SpeechService::aggregate_by_legis(base_data, true, "speechtime", false);
 
     // Verify 51: speeches = 23, speech_time = 340, avg = (10 + 16 + 20) / 3
-    let period_51 = results.iter().find(|r| r.category == "51").unwrap();
+    let period_51 = results.iter().find(|r| r.category == "XXV").unwrap();
     assert_eq!(period_51.total_speeches, 23);
     assert_eq!(period_51.total_speech_time, 340);
     assert!((period_51.average_speech_time - 15.3333333).abs() < 0.001);
     assert_eq!(period_51.delegate_count, 3);
 
     // Verify 52: speeches = 12, speech_time = 120, avg = 10
-    let period_52 = results.iter().find(|r| r.category == "52").unwrap();
+    let period_52 = results.iter().find(|r| r.category == "XXVII").unwrap();
     assert_eq!(period_52.total_speeches, 12);
     assert_eq!(period_52.total_speech_time, 120);
     assert!((period_52.average_speech_time - 10.0).abs() < 0.001);
@@ -160,10 +160,15 @@ fn test_aggregate_by_party_sorts_by_average_speech_time() {
 
     assert_eq!(results[0].category, "Party Y");
 }
-#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
-async fn test_get_base_data_applies_filters_and_computes_speech_stats(pool: sqlx::PgPool) {
+#[tokio::test]
+async fn test_get_base_data_applies_filters_and_computes_speech_stats() {
+    let test_db = super::super::test_db::statistics_test_db(
+        "test_get_base_data_applies_filters_and_computes_speech_stats",
+    )
+    .await;
+    let pool = test_db.pool().clone();
     let filter = SpeechFilter {
-        legis_period: Some("51".to_string()),
+        legis_period: Some("XXV".to_string()),
         party: Some("Party X".to_string()),
         gender: Some("M".to_string()),
         ..Default::default()
@@ -180,14 +185,18 @@ async fn test_get_base_data_applies_filters_and_computes_speech_stats(pool: sqlx
     assert_eq!(delegate.total_speeches, 2);
     assert_eq!(delegate.total_speech_time, 180);
     assert!((delegate.average_speech_time - 90.0).abs() < 0.001);
-    assert_eq!(delegate.legislative_period, Some("51".to_string()));
+    assert_eq!(delegate.legislative_period, Some("XXV".to_string()));
     assert_eq!(delegate.delegate_age_bucket, "31-40");
 }
 
-#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
-async fn test_speech_handlers_override_speech_type(pool: sqlx::PgPool) {
+#[tokio::test]
+async fn test_speech_handlers_override_speech_type() {
+    let test_db =
+        super::super::test_db::statistics_test_db("test_speech_handlers_override_speech_type")
+            .await;
+    let pool = test_db.pool().clone();
     let speechtime_filter = SpeechFilter {
-        legis_period: Some("51".to_string()),
+        legis_period: Some("XXV".to_string()),
         is_desc: true,
         speech_type: "total_speeches".to_string(),
         ..Default::default()
@@ -204,7 +213,7 @@ async fn test_speech_handlers_override_speech_type(pool: sqlx::PgPool) {
     assert_eq!(speechtime_results[0].total_speech_time, 240);
 
     let total_speeches_filter = SpeechFilter {
-        legis_period: Some("51".to_string()),
+        legis_period: Some("XXV".to_string()),
         is_desc: true,
         speech_type: "speechtime".to_string(),
         ..Default::default()
@@ -219,8 +228,13 @@ async fn test_speech_handlers_override_speech_type(pool: sqlx::PgPool) {
     assert_eq!(total_speech_results[0].total_speeches, 2);
 }
 
-#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
-async fn test_per_delegate_aggregates_all_periods_into_one_delegate_row(pool: sqlx::PgPool) {
+#[tokio::test]
+async fn test_per_delegate_aggregates_all_periods_into_one_delegate_row() {
+    let test_db = super::super::test_db::statistics_test_db(
+        "test_per_delegate_aggregates_all_periods_into_one_delegate_row",
+    )
+    .await;
+    let pool = test_db.pool().clone();
     let filter = SpeechFilter {
         is_desc: true,
         speech_type: "speechtime".to_string(),
@@ -247,10 +261,15 @@ async fn test_per_delegate_aggregates_all_periods_into_one_delegate_row(pool: sq
     assert!((delegate.average_speech_time - 150.0).abs() < 0.001);
 }
 
-#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
-async fn test_government_member_displays_party_but_keeps_filter_bucket(pool: sqlx::PgPool) {
+#[tokio::test]
+async fn test_government_member_displays_party_but_keeps_filter_bucket() {
+    let test_db = super::super::test_db::statistics_test_db(
+        "test_government_member_displays_party_but_keeps_filter_bucket",
+    )
+    .await;
+    let pool = test_db.pool().clone();
     let filter = SpeechFilter {
-        legis_period: Some("53".to_string()),
+        legis_period: Some("XXVIII".to_string()),
         party: Some("Regierungsmitglied".to_string()),
         ..Default::default()
     };
@@ -264,7 +283,7 @@ async fn test_government_member_displays_party_but_keeps_filter_bucket(pool: sql
     assert_eq!(results[0].total_speech_time, 60);
 
     let party_filter = SpeechFilter {
-        legis_period: Some("53".to_string()),
+        legis_period: Some("XXVIII".to_string()),
         party: Some("Party X".to_string()),
         ..Default::default()
     };

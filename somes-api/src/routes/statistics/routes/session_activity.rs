@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::prelude::FromRow;
 use utoipa::ToSchema;
 
-use crate::{PgPoolConnection, routes::statistics::routes::error::StatisticsResponse};
+use crate::{routes::statistics::routes::error::StatisticsResponse, PgPoolConnection};
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct SessionRow {

@@ -10,7 +10,7 @@ fn create_test_base_data() -> Vec<CallToOrdersBase> {
             total_order_calls: 10,
             total_sessions_attended: Some(20),
             normalized_calls_to_order: Some(0.5),
-            legislative_period: Some("51".to_string()),
+            legislative_period: Some("XXV".to_string()),
             delegate_age_bucket: "41-50".to_string(),
         },
         CallToOrdersBase {
@@ -21,7 +21,7 @@ fn create_test_base_data() -> Vec<CallToOrdersBase> {
             total_order_calls: 5,
             total_sessions_attended: Some(20),
             normalized_calls_to_order: Some(0.25),
-            legislative_period: Some("51".to_string()),
+            legislative_period: Some("XXV".to_string()),
             delegate_age_bucket: "31-40".to_string(),
         },
         CallToOrdersBase {
@@ -32,7 +32,7 @@ fn create_test_base_data() -> Vec<CallToOrdersBase> {
             total_order_calls: 15,
             total_sessions_attended: Some(20),
             normalized_calls_to_order: Some(0.75),
-            legislative_period: Some("51".to_string()),
+            legislative_period: Some("XXV".to_string()),
             delegate_age_bucket: "51-60".to_string(),
         },
         CallToOrdersBase {
@@ -43,7 +43,7 @@ fn create_test_base_data() -> Vec<CallToOrdersBase> {
             total_order_calls: 8,
             total_sessions_attended: Some(20),
             normalized_calls_to_order: Some(0.4),
-            legislative_period: Some("52".to_string()),
+            legislative_period: Some("XXVII".to_string()),
             delegate_age_bucket: "41-50".to_string(),
         },
     ]
@@ -99,13 +99,13 @@ fn test_aggregate_by_legis() {
     let results = CallToOrdersService::aggregate_by_legis(base_data, true, false);
 
     // Verify 51: total_calls = 30, total_sessions = 60, normalized = 30/60 = 0.5
-    let period_51 = results.iter().find(|r| r.category == "51").unwrap();
+    let period_51 = results.iter().find(|r| r.category == "XXV").unwrap();
     assert_eq!(period_51.total_order_calls, 30);
     assert_eq!(period_51.total_sessions_attended, Some(60));
     assert!((period_51.normalized_calls_to_order.unwrap() - 0.5).abs() < 0.001);
 
     // Verify 52: total_calls = 8, total_sessions = 20, normalized = 8/20 = 0.4
-    let period_52 = results.iter().find(|r| r.category == "52").unwrap();
+    let period_52 = results.iter().find(|r| r.category == "XXVII").unwrap();
     assert_eq!(period_52.total_order_calls, 8);
     assert_eq!(period_52.total_sessions_attended, Some(20));
     assert!((period_52.normalized_calls_to_order.unwrap() - 0.4).abs() < 0.001);
@@ -146,7 +146,7 @@ fn test_aggregate_by_party_sorts_by_normalized_score() {
             total_order_calls: 10,
             total_sessions_attended: Some(100),
             normalized_calls_to_order: Some(0.1),
-            legislative_period: Some("51".to_string()),
+            legislative_period: Some("XXV".to_string()),
             delegate_age_bucket: "41-50".to_string(),
         },
         CallToOrdersBase {
@@ -157,7 +157,7 @@ fn test_aggregate_by_party_sorts_by_normalized_score() {
             total_order_calls: 2,
             total_sessions_attended: Some(4),
             normalized_calls_to_order: Some(0.5),
-            legislative_period: Some("51".to_string()),
+            legislative_period: Some("XXV".to_string()),
             delegate_age_bucket: "31-40".to_string(),
         },
     ];
@@ -167,10 +167,15 @@ fn test_aggregate_by_party_sorts_by_normalized_score() {
     assert_eq!(results[0].category, "Party Y");
 }
 
-#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
-async fn test_get_base_data_applies_filters_and_computes_call_to_order_stats(pool: sqlx::PgPool) {
+#[tokio::test]
+async fn test_get_base_data_applies_filters_and_computes_call_to_order_stats() {
+    let test_db = super::super::test_db::statistics_test_db(
+        "test_get_base_data_applies_filters_and_computes_call_to_order_stats",
+    )
+    .await;
+    let pool = test_db.pool().clone();
     let filter = CallToOrderFilter {
-        legis_period: Some("51".to_string()),
+        legis_period: Some("XXV".to_string()),
         party: Some("Party X".to_string()),
         gender: Some("M".to_string()),
         ..Default::default()
@@ -189,12 +194,17 @@ async fn test_get_base_data_applies_filters_and_computes_call_to_order_stats(poo
     assert_eq!(delegate.total_order_calls, 2);
     assert_eq!(delegate.total_sessions_attended, Some(1));
     assert!((delegate.normalized_calls_to_order.unwrap() - 2.0).abs() < 0.001);
-    assert_eq!(delegate.legislative_period, Some("51".to_string()));
+    assert_eq!(delegate.legislative_period, Some("XXV".to_string()));
     assert_eq!(delegate.delegate_age_bucket, "31-40");
 }
 
-#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
-async fn test_per_legis_keeps_delegates_with_data_in_multiple_periods(pool: sqlx::PgPool) {
+#[tokio::test]
+async fn test_per_legis_keeps_delegates_with_data_in_multiple_periods() {
+    let test_db = super::super::test_db::statistics_test_db(
+        "test_per_legis_keeps_delegates_with_data_in_multiple_periods",
+    )
+    .await;
+    let pool = test_db.pool().clone();
     let filter = CallToOrderFilter {
         is_desc: true,
         ..Default::default()
@@ -206,24 +216,29 @@ async fn test_per_legis_keeps_delegates_with_data_in_multiple_periods(pool: sqlx
 
     assert_eq!(results.len(), 3);
 
-    let period_51 = results.iter().find(|r| r.category == "51").unwrap();
+    let period_51 = results.iter().find(|r| r.category == "XXV").unwrap();
     assert_eq!(period_51.total_order_calls, 4);
     assert_eq!(period_51.total_sessions_attended, Some(3));
     assert!((period_51.normalized_calls_to_order.unwrap() - (4.0 / 3.0)).abs() < 0.001);
 
-    let period_52 = results.iter().find(|r| r.category == "52").unwrap();
+    let period_52 = results.iter().find(|r| r.category == "XXVII").unwrap();
     assert_eq!(period_52.total_order_calls, 5);
     assert_eq!(period_52.total_sessions_attended, Some(3));
     assert!((period_52.normalized_calls_to_order.unwrap() - (5.0 / 3.0)).abs() < 0.001);
 
-    let period_53 = results.iter().find(|r| r.category == "53").unwrap();
+    let period_53 = results.iter().find(|r| r.category == "XXVIII").unwrap();
     assert_eq!(period_53.total_order_calls, 2);
     assert_eq!(period_53.total_sessions_attended, Some(2));
     assert!((period_53.normalized_calls_to_order.unwrap() - 1.0).abs() < 0.001);
 }
 
-#[sqlx::test(migrations = false, fixtures("./fixtures/statistics_base.sql"))]
-async fn test_per_delegate_aggregates_all_periods_into_one_delegate_row(pool: sqlx::PgPool) {
+#[tokio::test]
+async fn test_per_delegate_aggregates_all_periods_into_one_delegate_row() {
+    let test_db = super::super::test_db::statistics_test_db(
+        "test_per_delegate_aggregates_all_periods_into_one_delegate_row",
+    )
+    .await;
+    let pool = test_db.pool().clone();
     let filter = CallToOrderFilter {
         is_desc: true,
         ..Default::default()
