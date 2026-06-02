@@ -2,7 +2,7 @@
 	import { justPostStatistics } from '$lib/api/api';
 	import { mapOrientationCategory, mapOrientationDelegate } from '$lib/api/statistics-adapter';
 	import Container from '$lib/components/Layout/Container.svelte';
-	import DelegateBarChartControl from '$lib/components/Statistics/DelegateBarChartControl.svelte';
+	import StatisticsChartControl from '$lib/components/Statistics/StatisticsChartControl.svelte';
 	import type { StatisticsData } from '$lib/types';
 
 	type Orientation = 'left' | 'right' | 'liberal' | 'authoritarian';
@@ -17,6 +17,15 @@
 		{ value: 'gender', label: 'Geschlecht' },
 		{ value: 'age', label: 'Alter' }
 	];
+
+	const chartDescriptions = {
+		delegate: 'Gespeicherter Positionswert der einzelnen Abgeordneten.',
+		party: 'Durchschnittliche Positionswerte je Partei.',
+		gender: 'Durchschnittliche Positionswerte nach Geschlecht.',
+		age: 'Durchschnittliche Positionswerte nach Altersgruppen.',
+		spectrum: 'Wirtschaftliche und gesellschaftliche Positionen in einer gemeinsamen Ansicht.',
+		donut: 'Anteil der höchsten Positionswerte in der aktuellen Auswahl.'
+	};
 
 	const orientationOptions: {
 		value: Orientation;
@@ -175,7 +184,7 @@
 	<div class="mt-2 mb-6">
 		<h1 class="text-3xl font-bold sm:text-4xl">Politische Positionen</h1>
 		<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
-			Ranglisten der gespeicherten politischen Positionswerte nach Abgeordneten und Gruppen.
+			Politische Positionswerte nach Abgeordneten, Parteien und weiteren Gruppen.
 		</p>
 	</div>
 
@@ -204,14 +213,15 @@
 		</section>
 	{/if}
 
-	<DelegateBarChartControl
+	<StatisticsChartControl
 		height={520}
-		delegateMakeRequest={loadOrientation}
+		makeRequest={loadOrientation}
 		reloadKey={selectedOrientation}
 		bind:selectedCategory
 		{categoryOptions}
 		valueLabel={selectedOrientationOption.valueLabel}
 		normalizedValueLabel={selectedOrientationOption.valueLabel}
+		{chartDescriptions}
 		filterConfig={{
 			showNormalized: false,
 			showPeriod: false,
@@ -220,7 +230,8 @@
 		}}
 		showSpectrumMode={true}
 		bind:selectedChartMode
+		extraReservedHeight={selectedChartMode === 'spectrum' ? 0 : 112}
 		infoQuestion="Was zeigt diese Statistik?"
-		infoAnswer="<p>Die Werte stammen aus der Tabelle <strong>political_positions</strong>. Diese Positionswerte sind aktuell nicht nach Legislaturperioden versioniert, daher wird hier keine Periodenfilterung angeboten.</p>"
+		infoAnswer="<p>Diese Auswertung ordnet Abgeordnete und Parteien nach ihren politischen Positionen ein. Die Werte zeigen, ob jemand in den verfügbaren Daten eher sozialistisch oder kapitalistisch sowie eher libertär oder autoritär eingeordnet wird.</p>"
 	/>
 </Container>

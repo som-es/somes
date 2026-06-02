@@ -37,9 +37,9 @@
 			isOpen={isTopicFilterOpen}
 		/>
 	</Popover.Trigger>
-	<Popover.Content sideOffset={8}>
+	<Popover.Content sideOffset={8} class="z-[1000]">
 		<div
-			class="z-[1000] w-72 touch-manipulation rounded-xl border border-gray-300 bg-surface-50 shadow-lg dark:bg-surface-600"
+			class="w-72 touch-manipulation rounded-xl border border-gray-300 bg-surface-50 shadow-lg dark:bg-surface-600"
 			data-popup="popupTopics"
 		>
 			<!-- Search bar -->

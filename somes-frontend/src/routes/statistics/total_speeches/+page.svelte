@@ -1,11 +1,21 @@
 <script lang="ts">
 	import { justPostStatistics } from '$lib/api/api';
-	import DelegateBarChartControl from '$lib/components/Statistics/DelegateBarChartControl.svelte';
+	import StatisticsChartControl from '$lib/components/Statistics/StatisticsChartControl.svelte';
 	import type { StatisticsData } from '$lib/types';
 	import { mapTotalSpeechesDelegate, mapTotalSpeechesCategory } from '$lib/api/statistics-adapter';
 	import Container from '$lib/components/Layout/Container.svelte';
 
 	export let selectedCategory: string = 'delegate';
+
+	const chartDescriptions = {
+		delegate: 'Gezählte Reden je Abgeordneter oder Abgeordnetem.',
+		party: 'Gezählte Reden, nach Parteien zusammengefasst.',
+		gender: 'Gezählte Reden im Vergleich nach Geschlecht.',
+		age: 'Gezählte Reden nach Altersgruppen.',
+		legis: 'Gezählte Reden je Legislaturperiode.',
+		line: 'Entwicklung der gezählten Reden über die Legislaturperioden.',
+		donut: 'Anteil der höchsten Redeanzahlen in der aktuellen Auswahl.'
+	};
 
 	const delegateSimpleTotalSpeeches = async (
 		gp: string | null,
@@ -128,23 +138,24 @@
 
 <svelte:head>
 	<title>Anzahl der Reden - Parlamentsinformationssystem</title>
-	<meta name="description" content="Analyse der Anzahl der parlamentarischen Reden" />
+	<meta name="description" content="Anzahl parlamentarischer Reden nach Personen und Gruppen" />
 </svelte:head>
 
 <Container class="pb-12">
 	<div class="mt-2 mb-6">
 		<h1 class="text-3xl font-bold sm:text-4xl">Anzahl der Reden</h1>
 		<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
-			Analyse der Anzahl parlamentarischer Reden.
+			Wer wie oft im Parlament gesprochen hat.
 		</p>
 	</div>
 
-	<DelegateBarChartControl
-		delegateMakeRequest={currentFunction}
+	<StatisticsChartControl
+		makeRequest={currentFunction}
 		height={560}
 		bind:selectedCategory
-		valueLabel="Anzahl Reden"
-		normalizedValueLabel="Anzahl Reden"
+		valueLabel="Reden"
+		normalizedValueLabel="Reden"
+		{chartDescriptions}
 		filterConfig={{
 			showNormalized: false,
 			showPeriod: true,

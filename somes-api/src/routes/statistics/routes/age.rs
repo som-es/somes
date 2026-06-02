@@ -23,6 +23,7 @@ pub struct AgeFilter {
 pub struct AgeBase {
     delegate_name: String,
     delegate_party: String,
+    delegate_filter_party: String,
     delegate_gender: String,
     age: i32,
     birthdate: Option<chrono::NaiveDate>,
@@ -33,6 +34,7 @@ pub struct AgeBase {
 pub struct AgeForDelegate {
     delegate_name: String,
     delegate_party: String,
+    delegate_filter_party: String,
     age: i32,
 }
 
@@ -48,105 +50,13 @@ pub struct AgeByCategory {
 pub struct AgeService;
 
 impl AgeService {
-    pub async fn get_base_data(
-        pg: &sqlx::PgPool,
-        filter: &AgeFilter,
-    ) -> Result<Vec<AgeBase>, StatisticsResponse> {
-        let filter_arg = filter.legis_period.with_sql_column("lp.legislative_period");
-        let filter_arg1 = filter.party.with_sql_column("m.party");
-        let filter_arg2 = filter.gender.with_sql_column("d.gender");
-        let filter_arg3 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
-        let filters = [filter_arg, filter_arg1, filter_arg2, filter_arg3];
-
-        let filter_str = build_filter(&filters);
-
-        let query = format!(
-            "
-        WITH legislative_period_dates AS (
-            SELECT 
-                legislative_period, 
-                MIN(raw_data_created_at) AS start_date, 
-                MAX(raw_data_created_at) AS end_date
-            FROM 
-                plenar_infos
-            GROUP BY 
-                legislative_period
-        )
-        SELECT DISTINCT ON (d.id, lp.legislative_period, m.party)
-            d.name AS delegate_name,
-            COALESCE(m.party, 'Regierungsmitglied') AS delegate_party,
-            d.gender AS delegate_gender,
-            EXTRACT(YEAR FROM AGE(GREATEST(m.start_date, lp.start_date::date), d.birthdate))::INT AS age,
-            d.birthdate,
-            lp.legislative_period
-        FROM 
-            delegates d
-        CROSS JOIN legislative_period_dates lp
-        JOIN LATERAL (
-            SELECT *
-            FROM mandates m
-            WHERE
-                m.delegate_id = d.id
-                AND (m.is_nr OR m.is_gov_official)
-                AND (m.start_date IS NULL OR m.start_date <= lp.end_date::date)
-                AND (m.end_date IS NULL OR m.end_date >= lp.start_date::date)
-            ORDER BY
-                COALESCE(m.end_date, lp.end_date::date) DESC,
-                m.start_date DESC
-            LIMIT 1
-        ) m ON true
-        WHERE 
-            d.birthdate IS NOT NULL
-            AND {filter_str}
-        ORDER BY 
-            d.id, lp.legislative_period, m.party, age DESC;
-        "
-        );
-
-        let mut filtered_query = sqlx::query_as::<Postgres, AgeBase>(&query);
-        filtered_query = bind_values(filtered_query, &filters);
-
-        filtered_query
-            .fetch_all(pg)
-            .await
-            .map_err(|e| StatisticsResponse::DbSelectFailure(Some(e)))
-    }
-
-    pub async fn per_delegate(
-        pg: &sqlx::PgPool,
-        filter: &AgeFilter,
-    ) -> Result<Vec<AgeForDelegate>, StatisticsResponse> {
-        let base_data = Self::get_base_data(pg, filter).await?;
-        let mut results: Vec<AgeForDelegate> = base_data
-            .into_iter()
-            .map(|item| AgeForDelegate {
-                delegate_name: item.delegate_name,
-                delegate_party: item.delegate_party,
-                age: item.age,
-            })
-            .collect();
-
-        results.sort_by(|a, b| b.age.cmp(&a.age));
-
-        if !filter.is_desc {
-            results.reverse();
-        }
-
-        Ok(results)
-    }
-
-    pub async fn per_party(
-        pg: &sqlx::PgPool,
-        filter: &AgeFilter,
-    ) -> Result<Vec<AgeByCategory>, StatisticsResponse> {
-        let base_data = Self::get_base_data(pg, filter).await?;
-
+    fn aggregate_by_party(base_data: Vec<AgeBase>, is_desc: bool) -> Vec<AgeByCategory> {
         let mut party_map: std::collections::HashMap<String, Vec<i32>> =
             std::collections::HashMap::new();
 
         for item in base_data {
             party_map
-                .entry(item.delegate_party.clone())
+                .entry(item.delegate_filter_party.clone())
                 .or_insert_with(Vec::new)
                 .push(item.age);
         }
@@ -175,19 +85,14 @@ impl AgeService {
                 .unwrap_or(std::cmp::Ordering::Equal)
         });
 
-        if !filter.is_desc {
+        if !is_desc {
             results.reverse();
         }
 
-        Ok(results)
+        results
     }
 
-    pub async fn per_gender(
-        pg: &sqlx::PgPool,
-        filter: &AgeFilter,
-    ) -> Result<Vec<AgeByCategory>, StatisticsResponse> {
-        let base_data = Self::get_base_data(pg, filter).await?;
-
+    fn aggregate_by_gender(base_data: Vec<AgeBase>, is_desc: bool) -> Vec<AgeByCategory> {
         let mut gender_map: std::collections::HashMap<String, Vec<i32>> =
             std::collections::HashMap::new();
 
@@ -222,19 +127,14 @@ impl AgeService {
                 .unwrap_or(std::cmp::Ordering::Equal)
         });
 
-        if !filter.is_desc {
+        if !is_desc {
             results.reverse();
         }
 
-        Ok(results)
+        results
     }
 
-    pub async fn per_legis(
-        pg: &sqlx::PgPool,
-        filter: &AgeFilter,
-    ) -> Result<Vec<AgeByCategory>, StatisticsResponse> {
-        let base_data = Self::get_base_data(pg, filter).await?;
-
+    fn aggregate_by_legis(base_data: Vec<AgeBase>, is_desc: bool) -> Vec<AgeByCategory> {
         let mut legis_map: std::collections::HashMap<String, Vec<i32>> =
             std::collections::HashMap::new();
 
@@ -271,19 +171,14 @@ impl AgeService {
                 .unwrap_or(std::cmp::Ordering::Equal)
         });
 
-        if !filter.is_desc {
+        if !is_desc {
             results.reverse();
         }
 
-        Ok(results)
+        results
     }
 
-    pub async fn per_age(
-        pg: &sqlx::PgPool,
-        filter: &AgeFilter,
-    ) -> Result<Vec<AgeByCategory>, StatisticsResponse> {
-        let base_data = Self::get_base_data(pg, filter).await?;
-
+    fn aggregate_by_age(base_data: Vec<AgeBase>, is_desc: bool) -> Vec<AgeByCategory> {
         let mut age_map: std::collections::HashMap<String, Vec<i32>> =
             std::collections::HashMap::new();
 
@@ -325,11 +220,165 @@ impl AgeService {
                 .unwrap_or(std::cmp::Ordering::Equal)
         });
 
+        if !is_desc {
+            results.reverse();
+        }
+
+        results
+    }
+
+    pub async fn get_base_data(
+        pg: &sqlx::PgPool,
+        filter: &AgeFilter,
+    ) -> Result<Vec<AgeBase>, StatisticsResponse> {
+        let filter_arg = filter.legis_period.with_sql_column("lp.legislative_period");
+        let filter_arg1 = filter
+            .party
+            .with_sql_column("COALESCE(m.party, 'Regierungsmitglied')");
+        let filter_arg2 = filter.gender.with_sql_column("d.gender");
+        let filter_arg3 = Manual("(m.is_nr OR m.is_gov_official)").with_sql_column("");
+        let filters = [filter_arg, filter_arg1, filter_arg2, filter_arg3];
+
+        let filter_str = build_filter(&filters);
+
+        let query = format!(
+            "
+        WITH legislative_period_dates AS (
+            SELECT
+                legislative_period,
+                MIN(raw_data_created_at) AS start_date,
+                MAX(raw_data_created_at) AS end_date
+            FROM
+                plenar_infos
+            GROUP BY
+                legislative_period
+        )
+        SELECT DISTINCT ON (d.id, lp.legislative_period, m.party)
+            d.name AS delegate_name,
+            COALESCE(m.party, d.party, 'Regierungsmitglied') AS delegate_party,
+            COALESCE(m.party, 'Regierungsmitglied') AS delegate_filter_party,
+            d.gender AS delegate_gender,
+            EXTRACT(YEAR FROM AGE(GREATEST(m.start_date, lp.start_date::date), d.birthdate))::INT AS age,
+            d.birthdate,
+            lp.legislative_period
+        FROM
+            delegates d
+        CROSS JOIN legislative_period_dates lp
+        JOIN LATERAL (
+            SELECT *
+            FROM mandates m
+            WHERE
+                m.delegate_id = d.id
+                AND (m.is_nr OR m.is_gov_official)
+                AND (m.start_date IS NULL OR m.start_date <= lp.end_date::date)
+                AND (m.end_date IS NULL OR m.end_date >= lp.start_date::date)
+            ORDER BY
+                COALESCE(m.end_date, lp.end_date::date) DESC,
+                m.start_date DESC
+            LIMIT 1
+        ) m ON true
+        WHERE
+            d.birthdate IS NOT NULL
+            AND {filter_str}
+        ORDER BY
+            d.id, lp.legislative_period, m.party, age DESC;
+        "
+        );
+
+        let mut filtered_query = sqlx::query_as::<Postgres, AgeBase>(&query);
+        filtered_query = bind_values(filtered_query, &filters);
+
+        filtered_query
+            .fetch_all(pg)
+            .await
+            .map_err(|e| StatisticsResponse::DbSelectFailure(Some(e)))
+    }
+
+    pub async fn per_delegate(
+        pg: &sqlx::PgPool,
+        filter: &AgeFilter,
+    ) -> Result<Vec<AgeForDelegate>, StatisticsResponse> {
+        let base_data = Self::get_base_data(pg, filter).await?;
+
+        struct DelegateAccumulator {
+            delegate_party: String,
+            delegate_filter_party: String,
+            age: i32,
+            latest_period_rank: String,
+        }
+
+        let mut delegate_map: std::collections::HashMap<String, DelegateAccumulator> =
+            std::collections::HashMap::new();
+
+        for item in base_data {
+            let period_rank = super::legislative_period_rank(item.legislative_period.as_deref());
+            let entry =
+                delegate_map
+                    .entry(item.delegate_name)
+                    .or_insert_with(|| DelegateAccumulator {
+                        delegate_party: item.delegate_party.clone(),
+                        delegate_filter_party: item.delegate_filter_party.clone(),
+                        age: item.age,
+                        latest_period_rank: String::new(),
+                    });
+
+            if period_rank >= entry.latest_period_rank.as_str() {
+                entry.delegate_party = item.delegate_party;
+                entry.delegate_filter_party = item.delegate_filter_party;
+                entry.age = item.age;
+                entry.latest_period_rank = period_rank.to_string();
+            }
+        }
+
+        let mut results: Vec<AgeForDelegate> = delegate_map
+            .into_iter()
+            .map(|(delegate_name, item)| AgeForDelegate {
+                delegate_name,
+                delegate_party: item.delegate_party,
+                delegate_filter_party: item.delegate_filter_party,
+                age: item.age,
+            })
+            .collect();
+
+        results.sort_by(|a, b| b.age.cmp(&a.age));
+
         if !filter.is_desc {
             results.reverse();
         }
 
         Ok(results)
+    }
+
+    pub async fn per_party(
+        pg: &sqlx::PgPool,
+        filter: &AgeFilter,
+    ) -> Result<Vec<AgeByCategory>, StatisticsResponse> {
+        let base_data = Self::get_base_data(pg, filter).await?;
+        Ok(Self::aggregate_by_party(base_data, filter.is_desc))
+    }
+
+    pub async fn per_gender(
+        pg: &sqlx::PgPool,
+        filter: &AgeFilter,
+    ) -> Result<Vec<AgeByCategory>, StatisticsResponse> {
+        let base_data = Self::get_base_data(pg, filter).await?;
+        Ok(Self::aggregate_by_gender(base_data, filter.is_desc))
+    }
+
+    pub async fn per_legis(
+        pg: &sqlx::PgPool,
+        filter: &AgeFilter,
+    ) -> Result<Vec<AgeByCategory>, StatisticsResponse> {
+        let base_data = Self::get_base_data(pg, filter).await?;
+        Ok(Self::aggregate_by_legis(base_data, filter.is_desc))
+    }
+
+    pub async fn per_age(
+        pg: &sqlx::PgPool,
+        filter: &AgeFilter,
+    ) -> Result<Vec<AgeByCategory>, StatisticsResponse> {
+        let base_data = Self::get_base_data(pg, filter).await?;
+        Ok(Self::aggregate_by_age(base_data, filter.is_desc))
     }
 }
 
@@ -378,3 +427,7 @@ pub async fn age_per_age(
     let results = AgeService::per_age(&pg, &filter).await?;
     Ok(Json(results))
 }
+
+#[cfg(test)]
+#[path = "tests/age.rs"]
+mod tests;

@@ -28,9 +28,42 @@
 	import { accountOrLogin } from './user';
 
 	let activeUrl = $derived(page.url.pathname);
+	let activeSectionHash = $state('');
+	let activeHash = $derived(activeSectionHash || page.url.hash);
+	let statisticsObserver: IntersectionObserver | null = null;
 
 	function hrefPath(href: string) {
 		return new URL(href, page.url.origin).pathname;
+	}
+
+	function hrefHash(href: string) {
+		return new URL(href, page.url.origin).hash;
+	}
+
+	function isActiveHref(href: string) {
+		const hash = hrefHash(href);
+		return (
+			hrefPath(href) === activeUrl &&
+			(!hash || hash === activeHash || (!activeHash && hash === firstStatisticsHash()))
+		);
+	}
+
+	function onSubmenuClick(href: string) {
+		const hash = hrefHash(href);
+		if (hrefPath(href) === '/statistics' && hash) {
+			activeSectionHash = hash;
+		}
+	}
+
+	function statisticsSubmenuHashes() {
+		return submenu
+			.filter((segment) => segment.route === '/statistics')
+			.flatMap((segment) => segment.list.map((item) => hrefHash(item.href)))
+			.filter((hash) => hash.length > 0);
+	}
+
+	function firstStatisticsHash() {
+		return statisticsSubmenuHashes()[0] ?? '#speech-time';
 	}
 
 	const voteResultUrl = $derived(
@@ -48,34 +81,33 @@
 
 	const submenu = $derived([
 		{
-			title: 'Statistiken',
-			route: '/statistics',
-			list: [
-				{ href: resolve('/statistics'), label: 'Übersicht', keywords: '' },
-				{ href: resolve('/statistics/age'), label: 'Alter', keywords: '' }
-			]
-		},
-		{
 			title: 'Reden',
 			route: '/statistics',
 			list: [
-				{ href: resolve('/statistics/speech_time'), label: 'Redezeit', keywords: '' },
-				{ href: resolve('/statistics/total_speeches'), label: 'Gehaltene Reden', keywords: '' }
+				{ href: `${resolve('/statistics')}#speech-time`, label: 'Redezeit', keywords: '' },
+				{ href: `${resolve('/statistics')}#total-speeches`, label: 'Gehaltene Reden', keywords: '' }
 			]
 		},
 		{
 			title: 'Aktivitäten',
 			route: '/statistics',
 			list: [
-				{ href: resolve('/statistics/absences'), label: 'Abwesenheiten', keywords: '' },
-				{ href: resolve('/statistics/activity'), label: 'Aktivität', keywords: '' },
-				{ href: resolve('/statistics/call_to_orders'), label: 'Ordnungsrufe', keywords: '' }
+				{ href: `${resolve('/statistics')}#absences`, label: 'Abwesenheiten', keywords: '' },
+				{ href: `${resolve('/statistics')}#activity`, label: 'Aktivität', keywords: '' },
+				{ href: `${resolve('/statistics')}#call-to-orders`, label: 'Ordnungsrufe', keywords: '' }
 			]
 		},
 		{
-			title: 'Positionen',
+			title: 'Abgeordnete',
 			route: '/statistics',
-			list: [{ href: resolve('/statistics/orientation'), label: 'Politische Positionen', keywords: '' }]
+			list: [
+				{ href: `${resolve('/statistics')}#age`, label: 'Alter', keywords: '' },
+				{
+					href: `${resolve('/statistics')}#orientation`,
+					label: 'Politische Positionen',
+					keywords: ''
+				}
+			]
 		},
 
 		{
@@ -95,6 +127,56 @@
 			]
 		}
 	]);
+
+	function syncStatisticsObserver() {
+		statisticsObserver?.disconnect();
+		const observedElements = statisticsSubmenuHashes()
+			.map((hash) => document.getElementById(hash.slice(1)))
+			.filter((element): element is HTMLElement => element !== null);
+
+		if (observedElements.length === 0) return;
+
+		statisticsObserver = new IntersectionObserver(
+			(entries) => {
+				const visibleEntries = entries
+					.filter((entry) => entry.isIntersecting)
+					.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+				const activeEntry = visibleEntries[0];
+
+				if (activeEntry?.target.id) {
+					activeSectionHash = `#${activeEntry.target.id}`;
+				}
+			},
+			{
+				root: null,
+				rootMargin: '-20% 0px -55% 0px',
+				threshold: [0, 0.2, 0.6]
+			}
+		);
+
+		for (const element of observedElements) {
+			statisticsObserver.observe(element);
+		}
+
+		if (!activeSectionHash) {
+			activeSectionHash = page.url.hash || firstStatisticsHash();
+		}
+	}
+
+	$effect(() => {
+		if (activeUrl !== '/statistics' || typeof IntersectionObserver === 'undefined') {
+			statisticsObserver?.disconnect();
+			activeSectionHash = '';
+			return;
+		}
+
+		const timeout = window.setTimeout(syncStatisticsObserver);
+
+		return () => {
+			window.clearTimeout(timeout);
+			statisticsObserver?.disconnect();
+		};
+	});
 </script>
 
 <div class="flex h-full grid-cols-[auto_1fr] bg-surface-50 lg:grid">
@@ -198,7 +280,8 @@
 								<li class="px-2 py-1">
 									<a
 										{href}
-										class="flex w-fit rounded-3xl p-2 px-4 {hrefPath(href) === activeUrl
+										onclick={() => onSubmenuClick(href)}
+										class="flex w-fit rounded-3xl p-2 px-4 {isActiveHref(href)
 											? 'bg-primary-600'
 											: 'hover:bg-primary-300'}"
 										data-sveltekit-preload-data="hover"

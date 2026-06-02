@@ -1,11 +1,29 @@
 <script lang="ts">
 	import { justPostStatistics } from '$lib/api/api';
-	import DelegateBarChartControl from '$lib/components/Statistics/DelegateBarChartControl.svelte';
+	import StatisticsChartControl from '$lib/components/Statistics/StatisticsChartControl.svelte';
 	import type { StatisticsData } from '$lib/types';
 	import { mapAbsencesDelegate, mapAbsencesCategory } from '$lib/api/statistics-adapter';
 	import Container from '$lib/components/Layout/Container.svelte';
 
 	export let selectedCategory: string = 'delegate';
+
+	const chartDescriptions = {
+		'delegate.normalized':
+			'Abwesenheiten je Abgeordneter oder Abgeordnetem als Anteil der Sitzungen.',
+		'delegate.absolute': 'Gezählte Abwesenheiten je Abgeordneter oder Abgeordnetem.',
+		'party.normalized': 'Abwesenheiten als Sitzungsanteil, nach Parteien zusammengefasst.',
+		'party.absolute': 'Gezählte Abwesenheiten, nach Parteien zusammengefasst.',
+		'gender.normalized': 'Abwesenheiten als Sitzungsanteil im Vergleich nach Geschlecht.',
+		'gender.absolute': 'Gezählte Abwesenheiten im Vergleich nach Geschlecht.',
+		'age.normalized': 'Abwesenheiten als Sitzungsanteil nach Altersgruppen.',
+		'age.absolute': 'Gezählte Abwesenheiten nach Altersgruppen.',
+		'legis.normalized': 'Abwesenheiten als Sitzungsanteil je Legislaturperiode.',
+		'legis.absolute': 'Gezählte Abwesenheiten je Legislaturperiode.',
+		'line.normalized': 'Entwicklung der Abwesenheitsquote über die Perioden.',
+		'line.absolute': 'Entwicklung der gezählten Abwesenheiten über die Perioden.',
+		'donut.normalized': 'Anteil der höchsten Abwesenheitsquoten in der aktuellen Auswahl.',
+		'donut.absolute': 'Anteil der höchsten Abwesenheitszahlen in der aktuellen Auswahl.'
+	};
 
 	const delegateSimpleAbsences = async (
 		gp: string | null,
@@ -143,15 +161,16 @@
 	<div class="mt-2 mb-6">
 		<h1 class="text-3xl font-bold sm:text-4xl">Abwesenheitsstatistiken</h1>
 		<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
-			Analyse der Abwesenheiten im Parlament.
+			Abwesenheiten in Nationalratssitzungen, absolut oder als Anteil an Sitzungen.
 		</p>
 	</div>
 
-	<DelegateBarChartControl
+	<StatisticsChartControl
 		height={520}
-		delegateMakeRequest={currentFunction}
+		makeRequest={currentFunction}
 		bind:selectedCategory
 		valueLabel="Abwesenheiten"
 		normalizedValueLabel="Abwesenheitsquote (Anteil an Sitzungen)"
+		{chartDescriptions}
 	/>
 </Container>

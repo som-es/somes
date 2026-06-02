@@ -23,6 +23,7 @@ pub struct PoliticalOrientationFilter {
 pub struct PoliticalOrientationBase {
     delegate_name: String,
     delegate_party: String,
+    delegate_filter_party: String,
     delegate_gender: String,
     orientation_score: f64,
     total_votes: i64,
@@ -33,6 +34,7 @@ pub struct PoliticalOrientationBase {
 pub struct PoliticalOrientationForDelegate {
     delegate_name: String,
     delegate_party: String,
+    delegate_filter_party: String,
     orientation_score: f64,
     total_votes: i64,
 }
@@ -49,6 +51,7 @@ pub struct PoliticalOrientationByCategory {
 pub struct PoliticalSpectrumBase {
     delegate_name: String,
     delegate_party: String,
+    delegate_filter_party: String,
     delegate_gender: String,
     left_right_score: f64,
     liberal_authoritarian_score: f64,
@@ -60,6 +63,7 @@ pub struct PoliticalSpectrumBase {
 pub struct PoliticalSpectrumForDelegate {
     delegate_name: String,
     delegate_party: String,
+    delegate_filter_party: String,
     left_right_score: f64,
     liberal_authoritarian_score: f64,
     spectrum_magnitude: f64,
@@ -79,6 +83,133 @@ pub struct PoliticalSpectrumByCategory {
 pub struct PoliticalOrientationService;
 
 impl PoliticalOrientationService {
+    fn sort_categories(results: &mut [PoliticalOrientationByCategory], is_desc: bool) {
+        results.sort_by(|a, b| {
+            b.average_orientation
+                .partial_cmp(&a.average_orientation)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
+
+        if !is_desc {
+            results.reverse();
+        }
+    }
+
+    fn aggregate_by_party(
+        base_data: Vec<PoliticalOrientationBase>,
+        is_desc: bool,
+    ) -> Vec<PoliticalOrientationByCategory> {
+        let mut party_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> =
+            std::collections::HashMap::new();
+
+        for item in base_data {
+            let entry = party_map
+                .entry(item.delegate_filter_party.clone())
+                .or_insert((Vec::new(), 0, 0));
+            entry.0.push(item.orientation_score);
+            entry.1 += item.total_votes;
+            entry.2 += 1;
+        }
+
+        let mut results: Vec<PoliticalOrientationByCategory> = party_map
+            .into_iter()
+            .map(|(party, (scores, total_votes, delegate_count))| {
+                let average_orientation = if !scores.is_empty() {
+                    scores.iter().sum::<f64>() / scores.len() as f64
+                } else {
+                    0.0
+                };
+
+                PoliticalOrientationByCategory {
+                    category: party,
+                    average_orientation,
+                    total_votes,
+                    delegate_count,
+                }
+            })
+            .collect();
+
+        Self::sort_categories(&mut results, is_desc);
+        results
+    }
+
+    fn aggregate_by_gender(
+        base_data: Vec<PoliticalOrientationBase>,
+        is_desc: bool,
+    ) -> Vec<PoliticalOrientationByCategory> {
+        let mut gender_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> =
+            std::collections::HashMap::new();
+
+        for item in base_data {
+            let entry =
+                gender_map
+                    .entry(item.delegate_gender.clone())
+                    .or_insert((Vec::new(), 0, 0));
+            entry.0.push(item.orientation_score);
+            entry.1 += item.total_votes;
+            entry.2 += 1;
+        }
+
+        let mut results: Vec<PoliticalOrientationByCategory> = gender_map
+            .into_iter()
+            .map(|(gender, (scores, total_votes, delegate_count))| {
+                let average_orientation = if !scores.is_empty() {
+                    scores.iter().sum::<f64>() / scores.len() as f64
+                } else {
+                    0.0
+                };
+
+                PoliticalOrientationByCategory {
+                    category: gender,
+                    average_orientation,
+                    total_votes,
+                    delegate_count,
+                }
+            })
+            .collect();
+
+        Self::sort_categories(&mut results, is_desc);
+        results
+    }
+
+    fn aggregate_by_age(
+        base_data: Vec<PoliticalOrientationBase>,
+        is_desc: bool,
+    ) -> Vec<PoliticalOrientationByCategory> {
+        let mut age_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> =
+            std::collections::HashMap::new();
+
+        for item in base_data {
+            let entry = age_map
+                .entry(item.delegate_age_bucket)
+                .or_insert((Vec::new(), 0, 0));
+            entry.0.push(item.orientation_score);
+            entry.1 += item.total_votes;
+            entry.2 += 1;
+        }
+
+        let mut results: Vec<PoliticalOrientationByCategory> = age_map
+            .into_iter()
+            .map(|(age, (scores, total_votes, delegate_count))| {
+                let average_orientation = if scores.is_empty() {
+                    0.0
+                } else {
+                    scores.iter().sum::<f64>() / scores.len() as f64
+                };
+
+                PoliticalOrientationByCategory {
+                    category: age,
+                    average_orientation,
+                    total_votes,
+                    delegate_count,
+                }
+            })
+            .collect();
+
+        Self::sort_categories(&mut results, is_desc);
+        results
+    }
+
     pub async fn get_base_data(
         pg: &sqlx::PgPool,
         filter: &PoliticalOrientationFilter,
@@ -104,6 +235,10 @@ impl PoliticalOrientationService {
         SELECT
             d.name AS delegate_name,
             COALESCE(active_mandate.party, d.party, 'Regierungsmitglied') AS delegate_party,
+            CASE
+                WHEN active_mandate.id IS NOT NULL THEN COALESCE(active_mandate.party, 'Regierungsmitglied')
+                ELSE COALESCE(d.party, 'Regierungsmitglied')
+            END AS delegate_filter_party,
             COALESCE(d.gender, '') AS delegate_gender,
             {}::float8 AS orientation_score,
             pp.neutral_count::bigint AS total_votes,
@@ -143,7 +278,12 @@ impl PoliticalOrientationService {
             AND ($2::text IS NULL OR d.gender = $2)
             AND (
                 $3::text IS NULL
-                OR COALESCE(active_mandate.party, d.party, 'Regierungsmitglied') = $3
+                OR (
+                    CASE
+                        WHEN active_mandate.id IS NOT NULL THEN COALESCE(active_mandate.party, 'Regierungsmitglied')
+                        ELSE COALESCE(d.party, 'Regierungsmitglied')
+                    END
+                ) = $3
             )
         ORDER BY
             orientation_score DESC;
@@ -173,6 +313,7 @@ impl PoliticalOrientationService {
             .map(|item| PoliticalOrientationForDelegate {
                 delegate_name: item.delegate_name,
                 delegate_party: item.delegate_party,
+                delegate_filter_party: item.delegate_filter_party,
                 orientation_score: item.orientation_score,
                 total_votes: item.total_votes,
             })
@@ -196,48 +337,7 @@ impl PoliticalOrientationService {
         filter: &PoliticalOrientationFilter,
     ) -> Result<Vec<PoliticalOrientationByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-
-        let mut party_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> =
-            std::collections::HashMap::new();
-
-        for item in base_data {
-            let entry = party_map
-                .entry(item.delegate_party.clone())
-                .or_insert((Vec::new(), 0, 0));
-            entry.0.push(item.orientation_score);
-            entry.1 += item.total_votes;
-            entry.2 += 1; // delegate count
-        }
-
-        let mut results: Vec<PoliticalOrientationByCategory> = party_map
-            .into_iter()
-            .map(|(party, (scores, total_votes, delegate_count))| {
-                let average_orientation = if !scores.is_empty() {
-                    scores.iter().sum::<f64>() / scores.len() as f64
-                } else {
-                    0.0
-                };
-
-                PoliticalOrientationByCategory {
-                    category: party,
-                    average_orientation,
-                    total_votes,
-                    delegate_count,
-                }
-            })
-            .collect();
-
-        results.sort_by(|a, b| {
-            b.average_orientation
-                .partial_cmp(&a.average_orientation)
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
-
-        if !filter.is_desc {
-            results.reverse();
-        }
-
-        Ok(results)
+        Ok(Self::aggregate_by_party(base_data, filter.is_desc))
     }
 
     pub async fn per_gender(
@@ -245,49 +345,7 @@ impl PoliticalOrientationService {
         filter: &PoliticalOrientationFilter,
     ) -> Result<Vec<PoliticalOrientationByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-
-        let mut gender_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> =
-            std::collections::HashMap::new();
-
-        for item in base_data {
-            let entry =
-                gender_map
-                    .entry(item.delegate_gender.clone())
-                    .or_insert((Vec::new(), 0, 0));
-            entry.0.push(item.orientation_score);
-            entry.1 += item.total_votes;
-            entry.2 += 1; // delegate count
-        }
-
-        let mut results: Vec<PoliticalOrientationByCategory> = gender_map
-            .into_iter()
-            .map(|(gender, (scores, total_votes, delegate_count))| {
-                let average_orientation = if !scores.is_empty() {
-                    scores.iter().sum::<f64>() / scores.len() as f64
-                } else {
-                    0.0
-                };
-
-                PoliticalOrientationByCategory {
-                    category: gender,
-                    average_orientation,
-                    total_votes,
-                    delegate_count,
-                }
-            })
-            .collect();
-
-        results.sort_by(|a, b| {
-            b.average_orientation
-                .partial_cmp(&a.average_orientation)
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
-
-        if !filter.is_desc {
-            results.reverse();
-        }
-
-        Ok(results)
+        Ok(Self::aggregate_by_gender(base_data, filter.is_desc))
     }
 
     pub async fn per_legis(
@@ -334,7 +392,7 @@ impl PoliticalOrientationService {
         WHERE
             ($1::text IS NULL OR pb.gp = $1)
             AND ($2::text IS NULL OR d.gender = $2)
-            AND ($3::text IS NULL OR COALESCE(active_mandate.party, d.party, 'Regierungsmitglied') = $3)
+            AND ($3::text IS NULL OR COALESCE(active_mandate.party, 'Regierungsmitglied') = $3)
         GROUP BY
             pb.gp
         ORDER BY
@@ -365,48 +423,7 @@ impl PoliticalOrientationService {
         filter: &PoliticalOrientationFilter,
     ) -> Result<Vec<PoliticalOrientationByCategory>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
-
-        let mut age_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> =
-            std::collections::HashMap::new();
-
-        for item in base_data {
-            let entry = age_map
-                .entry(item.delegate_age_bucket)
-                .or_insert((Vec::new(), 0, 0));
-            entry.0.push(item.orientation_score);
-            entry.1 += item.total_votes;
-            entry.2 += 1;
-        }
-
-        let mut results: Vec<PoliticalOrientationByCategory> = age_map
-            .into_iter()
-            .map(|(age, (scores, total_votes, delegate_count))| {
-                let average_orientation = if scores.is_empty() {
-                    0.0
-                } else {
-                    scores.iter().sum::<f64>() / scores.len() as f64
-                };
-
-                PoliticalOrientationByCategory {
-                    category: age,
-                    average_orientation,
-                    total_votes,
-                    delegate_count,
-                }
-            })
-            .collect();
-
-        results.sort_by(|a, b| {
-            b.average_orientation
-                .partial_cmp(&a.average_orientation)
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
-
-        if !filter.is_desc {
-            results.reverse();
-        }
-
-        Ok(results)
+        Ok(Self::aggregate_by_age(base_data, filter.is_desc))
     }
 }
 
@@ -430,6 +447,10 @@ impl PoliticalSpectrumService {
         SELECT
             d.name AS delegate_name,
             COALESCE(active_mandate.party, d.party, 'Regierungsmitglied') AS delegate_party,
+            CASE
+                WHEN active_mandate.id IS NOT NULL THEN COALESCE(active_mandate.party, 'Regierungsmitglied')
+                ELSE COALESCE(d.party, 'Regierungsmitglied')
+            END AS delegate_filter_party,
             COALESCE(d.gender, '') AS delegate_gender,
             (pp.is_not_left::float8 - pp.is_left::float8) AS left_right_score,
             (pp.is_not_liberal::float8 - pp.is_liberal::float8) AS liberal_authoritarian_score,
@@ -470,7 +491,12 @@ impl PoliticalSpectrumService {
             AND ($2::text IS NULL OR d.gender = $2)
             AND (
                 $3::text IS NULL
-                OR COALESCE(active_mandate.party, d.party, 'Regierungsmitglied') = $3
+                OR (
+                    CASE
+                        WHEN active_mandate.id IS NOT NULL THEN COALESCE(active_mandate.party, 'Regierungsmitglied')
+                        ELSE COALESCE(d.party, 'Regierungsmitglied')
+                    END
+                ) = $3
             );
         ";
 
@@ -500,6 +526,7 @@ impl PoliticalSpectrumService {
                 PoliticalSpectrumForDelegate {
                     delegate_name: item.delegate_name,
                     delegate_party: item.delegate_party,
+                    delegate_filter_party: item.delegate_filter_party,
                     left_right_score: item.left_right_score,
                     liberal_authoritarian_score: item.liberal_authoritarian_score,
                     spectrum_magnitude,
@@ -574,17 +601,17 @@ impl PoliticalSpectrumService {
         results
     }
 
-    pub async fn per_party(
-        pg: &sqlx::PgPool,
-        filter: &PoliticalOrientationFilter,
-    ) -> Result<Vec<PoliticalSpectrumByCategory>, StatisticsResponse> {
+    fn aggregate_by_party(
+        base_data: Vec<PoliticalSpectrumBase>,
+        is_desc: bool,
+    ) -> Vec<PoliticalSpectrumByCategory> {
         let mut grouped: std::collections::HashMap<String, (Vec<f64>, Vec<f64>, i64, i64)> =
             std::collections::HashMap::new();
 
-        for item in Self::get_base_data(pg, filter).await? {
+        for item in base_data {
             let entry =
                 grouped
-                    .entry(item.delegate_party)
+                    .entry(item.delegate_filter_party)
                     .or_insert((Vec::new(), Vec::new(), 0, 0));
             entry.0.push(item.left_right_score);
             entry.1.push(item.liberal_authoritarian_score);
@@ -592,17 +619,17 @@ impl PoliticalSpectrumService {
             entry.3 += 1;
         }
 
-        Ok(Self::aggregate_category(grouped, filter.is_desc))
+        Self::aggregate_category(grouped, is_desc)
     }
 
-    pub async fn per_gender(
-        pg: &sqlx::PgPool,
-        filter: &PoliticalOrientationFilter,
-    ) -> Result<Vec<PoliticalSpectrumByCategory>, StatisticsResponse> {
+    fn aggregate_by_gender(
+        base_data: Vec<PoliticalSpectrumBase>,
+        is_desc: bool,
+    ) -> Vec<PoliticalSpectrumByCategory> {
         let mut grouped: std::collections::HashMap<String, (Vec<f64>, Vec<f64>, i64, i64)> =
             std::collections::HashMap::new();
 
-        for item in Self::get_base_data(pg, filter).await? {
+        for item in base_data {
             let entry =
                 grouped
                     .entry(item.delegate_gender)
@@ -613,17 +640,17 @@ impl PoliticalSpectrumService {
             entry.3 += 1;
         }
 
-        Ok(Self::aggregate_category(grouped, filter.is_desc))
+        Self::aggregate_category(grouped, is_desc)
     }
 
-    pub async fn per_age(
-        pg: &sqlx::PgPool,
-        filter: &PoliticalOrientationFilter,
-    ) -> Result<Vec<PoliticalSpectrumByCategory>, StatisticsResponse> {
+    fn aggregate_by_age(
+        base_data: Vec<PoliticalSpectrumBase>,
+        is_desc: bool,
+    ) -> Vec<PoliticalSpectrumByCategory> {
         let mut grouped: std::collections::HashMap<String, (Vec<f64>, Vec<f64>, i64, i64)> =
             std::collections::HashMap::new();
 
-        for item in Self::get_base_data(pg, filter).await? {
+        for item in base_data {
             let entry =
                 grouped
                     .entry(item.delegate_age_bucket)
@@ -634,7 +661,31 @@ impl PoliticalSpectrumService {
             entry.3 += 1;
         }
 
-        Ok(Self::aggregate_category(grouped, filter.is_desc))
+        Self::aggregate_category(grouped, is_desc)
+    }
+
+    pub async fn per_party(
+        pg: &sqlx::PgPool,
+        filter: &PoliticalOrientationFilter,
+    ) -> Result<Vec<PoliticalSpectrumByCategory>, StatisticsResponse> {
+        let base_data = Self::get_base_data(pg, filter).await?;
+        Ok(Self::aggregate_by_party(base_data, filter.is_desc))
+    }
+
+    pub async fn per_gender(
+        pg: &sqlx::PgPool,
+        filter: &PoliticalOrientationFilter,
+    ) -> Result<Vec<PoliticalSpectrumByCategory>, StatisticsResponse> {
+        let base_data = Self::get_base_data(pg, filter).await?;
+        Ok(Self::aggregate_by_gender(base_data, filter.is_desc))
+    }
+
+    pub async fn per_age(
+        pg: &sqlx::PgPool,
+        filter: &PoliticalOrientationFilter,
+    ) -> Result<Vec<PoliticalSpectrumByCategory>, StatisticsResponse> {
+        let base_data = Self::get_base_data(pg, filter).await?;
+        Ok(Self::aggregate_by_age(base_data, filter.is_desc))
     }
 }
 
@@ -667,37 +718,37 @@ pub async fn votes_together(
 
     let query = format!(
         "
-        
+
 WITH paired_votes AS (
-    SELECT 
+    SELECT
         v1.party AS party_1,
         v2.party AS party_2,
         COUNT(*) AS same_votes
-    FROM 
+    FROM
         votes v1
-    JOIN 
+    JOIN
         votes v2
-    ON 
+    ON
         v1.legislative_initiatives_id = v2.legislative_initiatives_id
         AND v1.infavor = v2.infavor
-        AND v1.party < v2.party  
-    JOIN 
+        AND v1.party < v2.party
+    JOIN
         legislative_initiatives li
-    ON 
+    ON
         v1.legislative_initiatives_id = li.id
-    WHERE 
+    WHERE
         {filter_str}
-	 
-    GROUP BY 
+
+    GROUP BY
         v1.party, v2.party
 )
-SELECT 
+SELECT
     party_1,
     party_2,
     same_votes
-FROM 
+FROM
     paired_votes
-ORDER BY 
+ORDER BY
     same_votes {desc};
         "
     );
@@ -949,3 +1000,7 @@ pub async fn political_spectrum_per_age(
     let results = PoliticalSpectrumService::per_age(&pg, &filter).await?;
     Ok(Json(results))
 }
+
+#[cfg(test)]
+#[path = "tests/political_orientation.rs"]
+mod tests;

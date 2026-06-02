@@ -189,10 +189,7 @@ impl<'b, T: Clone + 'static + Encode<'b, Postgres> + Type<Postgres> + Send + Syn
 
 #[cfg(test)]
 mod tests {
-    use dataservice::connect_pg;
-    use sqlx::{prelude::FromRow, Postgres};
-
-    use crate::routes::statistics::filtering::{bind_values, IntoFilterArgument};
+    use super::{build_filter, FilterArgument, IntoFilterArgument, Manual};
 
     pub struct CallToOrderFilter {
         legis_period: Option<String>,
@@ -200,63 +197,47 @@ mod tests {
         party: Option<String>,
     }
 
-    #[derive(PartialEq, Debug, Clone, FromRow)]
-    pub struct CallToOrdersForDelegate {
-        delegate_name: String,
-        delegate_party: String,
-        delegate_gender: String,
-        total_order_calls: i64,
-    }
-
-    #[tokio::test]
-    async fn test_build_filter() {
-        use crate::routes::statistics::filtering::build_filter;
-
-        // von api als input
+    #[test]
+    fn test_build_filter() {
         let filter = CallToOrderFilter {
             legis_period: Some("XXV".to_string()),
             gender: Some("m".to_string()),
             party: Some("FPÖ".to_string()),
         };
 
-        // irgendwie alle fields zu so ding da machen (array)
         let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
         let filter_arg1 = filter.gender.with_sql_column("ds.gender");
         let filter_arg2 = filter.party.with_sql_column("ds.party");
         let filter_arg3 = Some("nr").with_sql_column("council");
-        let filters = [filter_arg, filter_arg1, filter_arg2, filter_arg3];
+        let filters: [FilterArgument<'_, '_, ()>; 4] =
+            [filter_arg, filter_arg1, filter_arg2, filter_arg3];
 
-        // daraus kriegst du dann einen string der den filter in der query represented
         let filter = build_filter(&filters);
 
-        let query = format!(
-            "
-            SELECT 
-                ds.name AS delegate_name,
-                ds.party AS delegate_party,
-                ds.gender AS delegate_gender,
-                COUNT(cto.id) AS total_order_calls
-            FROM 
-                call_to_order cto
-            JOIN 
-                delegates ds ON cto.receiver_id = ds.id
-            JOIN 
-                plenar_infos pf ON pf.id = cto.plenar_id
-            WHERE 
-                {filter}
-            GROUP BY 
-                ds.id, ds.name, ds.party, ds.gender
-            ORDER BY 
-                total_order_calls DESC;
-
-        "
+        assert_eq!(
+            filter,
+            " pf.legislative_period = $1 and ds.gender = $2 and ds.party = $3 and council = $4"
         );
-        let mut filtered_query = sqlx::query_as::<Postgres, CallToOrdersForDelegate>(&query);
-        // setzt dann die filter werte auf die query parameter ok??
-        filtered_query = bind_values(filtered_query, &filters);
+    }
 
-        // TIM DAS NICHT MACHEN - &PgPool bekommst du von der somes api als parameter!!!!
-        let pg = connect_pg().await;
-        filtered_query.fetch_all(&pg).await.unwrap();
+    #[test]
+    fn test_build_filter_uses_true_for_empty_filter() {
+        let filter = CallToOrderFilter {
+            legis_period: None,
+            gender: None,
+            party: None,
+        };
+        let manual = Manual("(m.is_nr OR m.is_gov_official)");
+
+        let filter_arg = filter.legis_period.with_sql_column("pf.legislative_period");
+        let filter_arg1 = filter.gender.with_sql_column("ds.gender");
+        let filter_arg2 = filter.party.with_sql_column("ds.party");
+        let filters: [FilterArgument<'_, '_, ()>; 3] = [filter_arg, filter_arg1, filter_arg2];
+
+        assert_eq!(build_filter(&filters), " true ");
+
+        let manual_filter = manual.with_sql_column("");
+        let filters: [FilterArgument<'_, '_, ()>; 1] = [manual_filter];
+        assert_eq!(build_filter(&filters), " (m.is_nr OR m.is_gov_official)");
     }
 }
