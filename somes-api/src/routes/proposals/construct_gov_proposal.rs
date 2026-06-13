@@ -1,4 +1,4 @@
-use dataservice::combx::{models::*, CombinedData, DbMinistrialProposalQueryMeta, VoteResult};
+use combx::{models::*, CombinedData, DbMinistrialProposalQueryMeta, VoteResult};
 use redis::aio::MultiplexedConnection;
 use somes_common_lib::Document;
 use sqlx::PgPool;

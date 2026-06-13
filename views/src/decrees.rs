@@ -1,4 +1,4 @@
-use dataservice::combx::DbAiSummary;
+use combx::DbAiSummary;
 use somes_common_lib::ToCompositeType;
 use sqlx::{Postgres, Transaction};
 

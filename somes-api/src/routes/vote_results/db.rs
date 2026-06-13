@@ -1,7 +1,7 @@
 use chrono::NaiveDateTime;
-use dataservice::{
-    combx::{DbNamedVote, DbNamedVoteInfo, DbNamedVoteInfoQuery, OptionalVoteResult, Topic},
-    db::models::{DbLegislativeInitiativeQuery, DbNamedVotes, DbSpeechWithLink, DbVote},
+use combx::{
+    DbLegislativeInitiativeQuery, DbNamedVote, DbNamedVoteInfo, DbNamedVoteInfoQuery, DbNamedVotes,
+    DbVote, OptionalVoteResult, Topic,
 };
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};

@@ -91,7 +91,8 @@ pub async fn extract_stance_topic_score_by_delegate(
 
 #[cfg(test)]
 mod tests {
-    use dataservice::connect_pg;
+
+    use combx::connect_pg;
 
     use crate::routes::delegates::{
         left_right_topic_score::extract_left_right_topic_score_by_delegate,

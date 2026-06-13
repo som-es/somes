@@ -3,7 +3,7 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
-use dataservice::combx::{Index, OptionalVoteResult};
+use combx::{Index, OptionalVoteResult};
 use somes_common_lib::{AddonVoteResultFilter, Page, ID, LATEST, LIVE, SEARCH};
 
 use crate::{server::AppState, PgPoolConnection, RedisConnection, LEGIS_INITS_PER_PAGE};

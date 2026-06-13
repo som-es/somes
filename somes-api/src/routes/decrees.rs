@@ -1,5 +1,5 @@
 use axum::{routing::get, Router};
-use dataservice::combx::{DbAiSummary, Delegate, DelegateFilter, OptionalDecree};
+use combx::{DbAiSummary, Delegate, DelegateFilter, OptionalDecree};
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::{Document, LATEST, SEARCH};
@@ -9,7 +9,7 @@ use utoipa::ToSchema;
 
 use crate::routes::delegate_by_id_sqlx;
 use crate::server::AppState;
-use dataservice::combx::OptionalDecreeFilter;
+use combx::OptionalDecreeFilter;
 
 mod routes;
 pub use routes::*;

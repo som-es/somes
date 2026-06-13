@@ -7,7 +7,7 @@ use std::{
     time::Duration,
 };
 
-use dataservice::combx::{self, CombinedData};
+use combx::{self, CombinedData};
 use redis::{aio::MultiplexedConnection, AsyncCommands};
 use serde::{de::DeserializeOwned, Serialize};
 
@@ -54,7 +54,7 @@ pub(crate) async fn read_update_stream<T: DeserializeOwned>(
     last_id: &mut String,
     con: &mut MultiplexedConnection,
     blocking_con: Arc<RwLock<redis::Connection>>,
-) -> dataservice::combx::Result<Vec<T>> {
+) -> combx::Result<Vec<T>> {
     // const BLOCK_MS: usize = 2000;
 
     let key = format!("{stream_id}/last_id");

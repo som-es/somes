@@ -2,7 +2,7 @@ use axum::{
     extract::{Path, Query},
     Json,
 };
-use dataservice::combx::{Delegate, FullMandate, Index};
+use combx::{Delegate, FullMandate, Index};
 use redis::aio::MultiplexedConnection;
 use somes_common_lib::DelegateById;
 use sqlx::PgPool;

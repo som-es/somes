@@ -8,7 +8,7 @@ pub use db::*;
 pub use routes::*;
 
 use axum::{routing::get, Router};
-use dataservice::db::models::DbMinistrialProposalQueryMeta;
+use combx::models::DbMinistrialProposalQueryMeta;
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::{LATEST, SEARCH};
@@ -198,7 +198,7 @@ pub async fn get_ministrial_proposals_per_page(
 }
 #[cfg(test)]
 mod tests {
-    use dataservice::connect_pg;
+    use connect_pg;
     use somes_common_lib::GovPropFilter;
 
     use crate::routes::get_ministrial_proposals_per_page;

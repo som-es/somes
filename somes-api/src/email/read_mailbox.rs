@@ -1,6 +1,6 @@
 use std::{env, error::Error};
 
-use dataservice::db::schema::contacts::mail;
+use db::schema::contacts::mail;
 use imap::types::{Fetch, Fetches};
 
 use super::{SMTP_PASSWORD, SMTP_USERNAME};

@@ -2,7 +2,7 @@ use axum::{
     extract::{FromRef, FromRequestParts},
     http::request::Parts,
 };
-use dataservice::combx::{
+use combx::{
     CombinedData, Decree, DelegateFilter, GovProposal, Index, OptionalVoteResult,
     OptionalVoteResultFilter, VoteResult,
 };

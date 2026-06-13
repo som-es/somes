@@ -1,5 +1,5 @@
 use axum::{extract::Path, Json};
-use dataservice::combx::DbMinistrialProposalQueryMeta;
+use combx::DbMinistrialProposalQueryMeta;
 use redis::aio::MultiplexedConnection;
 use sqlx::PgPool;
 

@@ -2,7 +2,7 @@ use crate::routes::DelegateError;
 use crate::{get_json_cache, set_json_cache_with_relevance, PgPoolConnection, RedisConnection};
 use axum::{extract::Query, Json};
 use chrono::NaiveDate;
-use dataservice::combx::{Delegate, FullMandate};
+use combx::{Delegate, FullMandate};
 use redis::aio::MultiplexedConnection;
 use somes_common_lib::{Date, LegisPeriod};
 use sqlx::PgPool;

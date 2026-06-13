@@ -37,9 +37,9 @@ use crate::{GenericError, PgPoolConnection};
 
 pub async fn all_gps_route(
     PgPoolConnection(pg): PgPoolConnection,
-) -> Result<Json<Vec<dataservice::combx::with_data::gps::LegislativePeriod>>, GenericError> {
+) -> Result<Json<Vec<combx::with_data::gps::LegislativePeriod>>, GenericError> {
     Ok(Json(
-        dataservice::combx::with_data::gps::gps(&pg)
+        combx::with_data::gps::gps(&pg)
             .await
             .map_err(|e| GenericError::SqlFailure(Some(e)))?,
     ))

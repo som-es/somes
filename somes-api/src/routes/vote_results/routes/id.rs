@@ -1,5 +1,5 @@
 use axum::{extract::Path, Json};
-use dataservice::combx::OptionalVoteResult;
+use combx::OptionalVoteResult;
 use redis::aio::MultiplexedConnection;
 use sqlx::PgPool;
 

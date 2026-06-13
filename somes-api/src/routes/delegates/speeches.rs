@@ -1,10 +1,8 @@
 use axum::{extract::Query, Json};
-use dataservice::{
-    combx::with_data::delegates::extract_delegate_speeches, db::models::DbSpeechWithLink,
-};
 use serde::{Deserialize, Serialize};
 use somes_common_lib::DelegateByIdAndPage;
 use utoipa::ToSchema;
+use {combx::models::DbSpeechWithLink, combx::with_data::delegates::extract_delegate_speeches};
 
 use crate::{routes::DelegateError, PgPoolConnection};
 

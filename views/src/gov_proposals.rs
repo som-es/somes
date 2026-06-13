@@ -1,4 +1,4 @@
-use dataservice::combx::{DbAiSummary, DbMinistrialProposalQueryMeta};
+use combx::{DbAiSummary, DbMinistrialProposalQueryMeta};
 use somes_common_lib::ToCompositeType;
 use sqlx::{Postgres, Transaction};
 
@@ -27,21 +27,21 @@ pub async fn create_gov_proposals_view<'a>(tx: &mut Transaction<'a, Postgres>) -
         (SELECT ROW(
           {ministrial_proposal_fields}
 )::db_ministrial_proposal_query_meta
-        from 
-            ministrial_proposals inner_mp 
+        from
+            ministrial_proposals inner_mp
         where
             inner_mp.id = mp.id
         ) as \"ministrial_proposal: DbMinistrialProposalQueryMeta\",
         (select ROW(
                 vr.*
             )::vote_result
-            from vote_results vr 
-            where vr.id = 
-            (select li.id 
-            from 
+            from vote_results vr
+            where vr.id =
+            (select li.id
+            from
                 legislative_initiatives li
-            where gp = mp.legis_init_gp 
-            and inr = mp.legis_init_inr 
+            where gp = mp.legis_init_gp
+            and inr = mp.legis_init_inr
             and ityp = mp.legis_init_ityp)::int
         ) as \"vote_result: OptionalVoteResult\",
         ARRAY(
@@ -83,12 +83,12 @@ pub async fn create_gov_proposals_view<'a>(tx: &mut Transaction<'a, Postgres>) -
         ( SELECT
            ARRAY(
             SELECT
-                delegate_id 
+                delegate_id
             FROM
               ministrial_issuer
             WHERE
               ministrial_proposal_id = mp.id
-           ) 
+           )
         ) AS \"ministerial_issuers: Vec<i32>\",
         (
             SELECT

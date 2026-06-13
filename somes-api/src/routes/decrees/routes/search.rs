@@ -4,7 +4,7 @@ use crate::{
     Qs, RedisConnection, DECREES_PER_PAGE,
 };
 use axum::{extract::Query, Json};
-use dataservice::combx::{meilisearch_filters_ai_summary, Index};
+use combx::{meilisearch_filters_ai_summary, Index};
 use meilisearch_sdk::search::SearchResults;
 use somes_common_lib::{Page, Sort};
 use somes_meilisearch_filter::{to_meilisearch_filters, FilterOptions};

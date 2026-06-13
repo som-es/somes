@@ -1,5 +1,5 @@
 use axum::{extract::Path, Json};
-use dataservice::combx::OptionalGovProposal;
+use combx::OptionalGovProposal;
 use sqlx::query_as;
 
 use crate::{
@@ -24,7 +24,7 @@ pub async fn extract_gov_proposals_by_delegate_sqlx(
     pg: &sqlx::Pool<sqlx::Postgres>,
     delegate_id: i32,
 ) -> sqlx::Result<Vec<OptionalGovProposal>> {
-    use dataservice::db::models::DbMinistrialProposalQueryMeta;
+    use combx::models::DbMinistrialProposalQueryMeta;
     let ministrial_proposals = query_as!(
         DbMinistrialProposalQueryMeta,
         "

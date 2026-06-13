@@ -1,4 +1,4 @@
-use dataservice::db::models::DbLegislativeInitiativeQuery;
+use combx::DbLegislativeInitiativeQuery;
 use somes_common_lib::AddonVoteResultFilter;
 use sqlx::{PgPool, Postgres, QueryBuilder};
 

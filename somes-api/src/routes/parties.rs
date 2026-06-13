@@ -3,8 +3,8 @@ use std::collections::HashMap;
 
 use crate::{get_json_cache, GenericError, PgPoolConnection, RedisConnection};
 use axum::{extract::Query, Json};
+use combx::DbVote;
 use common_scrapes::Party;
-use dataservice::combx::DbVote;
 pub use error::*;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::LegisPeriodGp;
@@ -22,30 +22,24 @@ use sqlx::PgPool;
 pub async fn parties_route(
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<Party>>, PartiesErrorResponse> {
-    Ok(
-        dataservice::combx::with_data::all_parties_by_most_recent_gp(&pg)
-            .await
-            .map(Json)?,
-    )
+    Ok(combx::with_data::all_parties_by_most_recent_gp(&pg)
+        .await
+        .map(Json)?)
 }
 
 pub async fn parties_per_gp_route(
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<HashMap<String, Vec<Party>>>, PartiesErrorResponse> {
-    Ok(dataservice::combx::with_data::all_parties_per_gp(&pg)
-        .await
-        .map(Json)?)
+    Ok(combx::with_data::all_parties_per_gp(&pg).await.map(Json)?)
 }
 
 pub async fn parties_at_gp_route(
     PgPoolConnection(pg): PgPoolConnection,
     Query(legis_period): Query<LegisPeriodGp>,
 ) -> Result<Json<Vec<Party>>, PartiesErrorResponse> {
-    Ok(
-        dataservice::combx::with_data::all_parties_at_gp(&pg, &legis_period.gp)
-            .await
-            .map(Json)?,
-    )
+    Ok(combx::with_data::all_parties_at_gp(&pg, &legis_period.gp)
+        .await
+        .map(Json)?)
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -105,7 +99,7 @@ pub async fn determine_party_states_per_gp(
         .await
         .map_err(|e| GenericError::SqlFailure(Some(e)))?;
 
-    let parties_per_gp = dataservice::combx::with_data::all_parties_per_gp(&pool)
+    let parties_per_gp = combx::with_data::all_parties_per_gp(&pool)
         .await
         .map_err(|e| GenericError::SqlFailure(Some(e)))?;
     let coalition_parties_per_gp =

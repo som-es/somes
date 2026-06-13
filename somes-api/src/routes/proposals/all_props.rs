@@ -1,4 +1,4 @@
-use dataservice::db::models::DbMinistrialProposalQueryMeta;
+use combx::models::DbMinistrialProposalQueryMeta;
 use redis::aio::MultiplexedConnection;
 use sqlx::PgPool;
 

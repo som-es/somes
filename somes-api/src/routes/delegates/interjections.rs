@@ -1,4 +1,4 @@
-use dataservice::combx::{DelegateMatch, Interjection};
+use combx::{DelegateMatch, Interjection};
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use utoipa::ToSchema;

@@ -1,4 +1,4 @@
-use dataservice::combx::{
+use combx::{
     DbAiSummary, DbLegislativeInitiativeQuery, DbMinistrialProposalQueryMeta, DbNamedVote,
     DbNamedVoteInfo, DbNamedVotes, DbPartyNamedVoteCount, DbReference, DbRelatedDelegate,
     DbSpeechWithLink, DbVote, DelegateMatch, FullMandate, MeilisearchHelper, Topic, VoteResult,

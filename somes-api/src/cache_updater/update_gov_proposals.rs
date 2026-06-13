@@ -1,4 +1,4 @@
-use dataservice::combx::OptionalGovProposal;
+use combx::OptionalGovProposal;
 use redis::aio::MultiplexedConnection;
 use sqlx::PgPool;
 
@@ -15,9 +15,7 @@ pub async fn update_cache_gov_proposals(
     let meilisearch_client = meilisearch_client.clone();
     let inner_redis_client = redis_client.clone();
     let inner_pool = pool.clone();
-    let update_meilisearch_index = move |gov_proposals: Vec<
-        dataservice::combx::OptionalGovProposal,
-    >| {
+    let update_meilisearch_index = move |gov_proposals: Vec<combx::OptionalGovProposal>| {
         let meilisearch_client = meilisearch_client.clone();
         let mut gov_proposal_delegates =
             Vec::<GovProposalDelegate>::with_capacity(gov_proposals.len());
@@ -55,7 +53,7 @@ pub async fn update_cache_gov_proposals(
     };
 
     let inner_pool = pool.clone();
-    let intercept_and_update_cb = move |data: dataservice::combx::OptionalGovProposal| {
+    let intercept_and_update_cb = move |data: combx::OptionalGovProposal| {
         let pool = inner_pool.clone();
         let id = data.id;
         async move {
@@ -69,8 +67,9 @@ pub async fn update_cache_gov_proposals(
     };
 
     let notify_dependencies =
-        move |_redis_client: MultiplexedConnection,
-              _data: &dataservice::combx::OptionalGovProposal| async move { Ok(()) };
+        move |_redis_client: MultiplexedConnection, _data: &combx::OptionalGovProposal| async move {
+            Ok(())
+        };
 
     update_cache_for_index::<OptionalGovProposal, OptionalGovProposal>(
         &redis_client,

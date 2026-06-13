@@ -1,9 +1,7 @@
 use std::fmt::Display;
 
 use axum::{extract::Query, Json};
-use dataservice::combx::{
-    meilisearch_filters_vote_result, Index, OptionalVoteResult, OptionalVoteResultFilter,
-};
+use combx::{meilisearch_filters_vote_result, Index, OptionalVoteResult, OptionalVoteResultFilter};
 use meilisearch_sdk::search::SearchResults;
 use redis::aio::MultiplexedConnection;
 use somes_common_lib::{AddonVoteResultFilter, Page};
@@ -70,7 +68,7 @@ async fn meilisearch_for_vote_results(
     };
     filter_conditions.extend(meilisearch_filters_vote_result(vote_result_filter, None));
 
-    // dataservice::combx::DbLegislativeInitiativeQueryFilter ;
+    // combx::DbLegislativeInitiativeQueryFilter ;
 
     if let Some(party_votes) = &filter.party_votes {
         filter_conditions.push(create_topic_filter(

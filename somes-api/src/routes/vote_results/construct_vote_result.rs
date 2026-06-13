@@ -1,7 +1,4 @@
-use dataservice::{
-    combx::{CombinedData, OptionalVoteResult},
-    db::models::*,
-};
+use combx::{models::*, CombinedData, OptionalVoteResult};
 use redis::aio::MultiplexedConnection;
 use somes_common_lib::Document;
 use sqlx::PgPool;
@@ -29,7 +26,7 @@ pub async fn fetch_vote_result_by_id(
 
 #[tokio::test]
 async fn test_fetch_all_vote_results() {
-    let pg = dataservice::combx::connect_pg().await;
+    let pg = combx::connect_pg().await;
     println!("start fetch...");
     let start = tokio::time::Instant::now();
     let legis_inits = sqlx::query_as!(

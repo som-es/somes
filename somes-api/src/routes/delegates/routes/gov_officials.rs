@@ -2,7 +2,7 @@ mod decrees;
 mod routes;
 
 use axum::{routing::get, Router};
-use dataservice::combx::{CombinedData, Delegate, DelegateFilter, OptionalGovProposal};
+use combx::{CombinedData, Delegate, DelegateFilter, OptionalGovProposal};
 pub use decrees::*;
 pub use routes::*;
 
@@ -13,7 +13,7 @@ use somes_macro::MeilisearchFilter;
 use somes_meilisearch_filter::{FilterArgument, FilterOp};
 use utoipa::ToSchema;
 
-use dataservice::combx::OptionalGovProposalFilter;
+use combx::OptionalGovProposalFilter;
 
 #[derive(ToSchema, Debug, Clone, Serialize, Deserialize, MeilisearchFilter)]
 pub struct GovProposalDelegate {
@@ -23,7 +23,7 @@ pub struct GovProposalDelegate {
 }
 
 impl CombinedData for GovProposalDelegate {
-    const INDEX: dataservice::combx::Index = OptionalGovProposal::INDEX;
+    const INDEX: combx::Index = OptionalGovProposal::INDEX;
 
     const PRIMARY_KEY: &str = OptionalGovProposal::PRIMARY_KEY;
 

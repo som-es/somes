@@ -1,5 +1,5 @@
 use axum::{extract::Query, Json};
-use dataservice::db::models::DbMinistrialProposalQueryMeta;
+use combx::models::DbMinistrialProposalQueryMeta;
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
 use sqlx::{query_as, PgPool};
@@ -57,8 +57,8 @@ pub async fn extract_latest_ministrial_proposals(
         mp.legis_init_inr,
         mp.legis_init_ityp,
         mp.has_vote_result
-     from 
-         ministrial_proposals mp 
+     from
+         ministrial_proposals mp
 
         where mp.raw_data_created_at > NOW() - make_interval(days => $1)
     order by mp.raw_data_created_at desc",

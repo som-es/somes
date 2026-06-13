@@ -1,9 +1,7 @@
-use dataservice::{
-    combx::{self, GovProposal, OptionalVoteResult},
-    notify_update_streamed,
-};
+use combx::{self, GovProposal, OptionalVoteResult};
 use redis::aio::MultiplexedConnection;
 use sqlx::PgPool;
+use update_notify::notify_update_streamed_simple;
 
 use crate::{routes::fetch_vote_result_by_id, update_cache_for_index, update_meilisearch_index};
 
@@ -14,9 +12,7 @@ pub async fn update_cache_vote_results(
 ) {
     let meilisearch_client = meilisearch_client.clone();
     let inner_redis_client = redis_client.clone();
-    let update_meilisearch_index = move |mut vote_results: Vec<
-        dataservice::combx::OptionalVoteResult,
-    >| {
+    let update_meilisearch_index = move |mut vote_results: Vec<combx::OptionalVoteResult>| {
         let meilisearch_client = meilisearch_client.clone();
         let redis_client = inner_redis_client.clone();
         for vote_result in vote_results.iter_mut() {
@@ -39,7 +35,7 @@ pub async fn update_cache_vote_results(
     };
 
     let inner_pool = pool.clone();
-    let intercept_and_update_cb = move |data: dataservice::combx::OptionalVoteResult| {
+    let intercept_and_update_cb = move |data: combx::OptionalVoteResult| {
         let pool = inner_pool.clone();
         let id = data.id;
         async move {
@@ -55,8 +51,7 @@ pub async fn update_cache_vote_results(
 
     let inner_pool = pool.clone();
     let notify_dependencies =
-        move |mut redis_con: MultiplexedConnection,
-              data: &dataservice::combx::OptionalVoteResult| {
+        move |mut redis_con: MultiplexedConnection, data: &combx::OptionalVoteResult| {
             let pool = inner_pool.clone();
             let legis_init = data.legislative_initiative.as_ref().unwrap();
             let gp = legis_init.gp.clone();
@@ -76,8 +71,12 @@ pub async fn update_cache_vote_results(
                         ..Default::default()
                     };
                     log::info!("notify {:?}", data);
-                    notify_update_streamed(combx::Index::GovProposals, &data, &mut redis_con)
-                        .await?;
+                    notify_update_streamed_simple(
+                        combx::Index::GovProposals,
+                        &data,
+                        &mut redis_con,
+                    )
+                    .await?;
                 }
                 Ok(())
             }

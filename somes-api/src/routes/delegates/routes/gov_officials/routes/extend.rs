@@ -1,5 +1,5 @@
 use axum::{extract::Path, Json};
-use dataservice::combx::{Decree, OptionalDecree, OptionalGovProposal};
+use combx::{Decree, OptionalDecree, OptionalGovProposal};
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;

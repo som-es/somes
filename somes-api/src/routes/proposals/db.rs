@@ -1,4 +1,4 @@
-use dataservice::combx::Topic;
+use combx::Topic;
 use somes_common_lib::Document;
 use sqlx::PgPool;
 

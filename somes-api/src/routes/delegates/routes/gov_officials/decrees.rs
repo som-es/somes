@@ -1,4 +1,4 @@
-use dataservice::combx::{DbAiSummary, Decree, OptionalDecree};
+use combx::{DbAiSummary, Decree, OptionalDecree};
 use somes_common_lib::Document;
 use sqlx::PgPool;
 
@@ -13,7 +13,7 @@ pub async fn extract_decrees_from_gov_official(
         select * from ministrial_decrees_with_docs
         where gov_official_id = $1
         order by publication_date desc
-        
+
         "#,
         delegate_id
     )

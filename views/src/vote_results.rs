@@ -1,4 +1,4 @@
-use dataservice::combx::{DbAiSummary, DbLegislativeInitiativeQuery};
+use combx::{DbAiSummary, DbLegislativeInitiativeQuery};
 use somes_common_lib::ToCompositeType;
 use sqlx::{Postgres, Transaction};
 

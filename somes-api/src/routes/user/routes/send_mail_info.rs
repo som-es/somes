@@ -29,7 +29,7 @@ pub async fn update_send_mail_info_route(
         delegate_favo.send_new_decree_by_favo_mails,
         delegate_favo.send_new_proposal_mails,
         delegate_favo.send_new_proposal_by_favo_mails,
-        delegate_favo.send_new_vote_results_mails,
+        delegate_favo.send_new_vote_result_by_favo_mails,
         claims.id,
     )
     .execute(&pg)

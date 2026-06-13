@@ -1,5 +1,5 @@
 use axum::{extract::Query, Json};
-use dataservice::combx::{DbAiSummary, OptionalDecree};
+use combx::{DbAiSummary, OptionalDecree};
 use redis::aio::MultiplexedConnection;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::Document;
