@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { topicColors } from '$lib/interestColors';
 	import type { InterestShare } from '$lib/types';
-	import { Chart, Svg, Group, Rect, Treemap } from 'layerchart';
+	import { Chart, Svg, Group, Rect } from 'layerchart';
 	import { hierarchy } from 'd3-hierarchy';
 	import ExtendInfoDialog from '../ExtendInfoDialog.svelte';
 	import DetailedInterestsModal from './DetailedInterestsModal.svelte';
+	import { Treemap } from 'layerchart/hierarchy';
 
 	interface Props {
 		interests: InterestShare[];
