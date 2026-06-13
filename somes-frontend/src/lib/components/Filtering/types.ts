@@ -3,6 +3,7 @@ export type GenericFilterGroup<T extends string | boolean> = {
 	activeValue: T | undefined;
 	hidden: boolean;
 	disabled?: boolean;
+	disabledText?: string;
 	advanced?: boolean;
 	id?: string;
 	data?: Record<string, string>;

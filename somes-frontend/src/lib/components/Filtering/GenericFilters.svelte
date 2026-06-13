@@ -41,7 +41,7 @@
 			isOpen={isGenericFilterOpen}
 		/>
 	</Popover.Trigger>
-	<Popover.Content sideOffset={8} class="z-[1000]">
+	<Popover.Content sideOffset={8} class="z-[30]">
 		<div
 			class="w-auto touch-manipulation rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 text-black shadow-lg md:px-6 dark:bg-surface-600 dark:text-white"
 		>

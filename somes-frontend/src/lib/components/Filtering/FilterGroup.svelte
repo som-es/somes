@@ -13,6 +13,7 @@
 		<span class="text-base font-semibold text-gray-800 dark:text-gray-50">{group.title}</span>
 		<div
 			class="flex w-fit gap-1 rounded-lg border border-primary-300 text-sm dark:border-primary-400"
+			title={group.disabled ? (group.disabledText ?? '') : ''}
 		>
 			{#each group.options as option (option.title)}
 				<button

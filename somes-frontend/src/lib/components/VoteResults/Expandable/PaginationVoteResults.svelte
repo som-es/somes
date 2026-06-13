@@ -131,6 +131,7 @@
 		title: 'Lager',
 		activeValue: undefined,
 		hidden: false,
+		disabledText: 'Schalte auf eine andere Legislaturperiode.',
 		options: [
 			{ title: 'egal', value: undefined },
 			{ title: 'Regier.', value: true },
@@ -599,7 +600,7 @@
 							</Select.Trigger>
 							<Select.Portal>
 								<Select.Content
-									class="z-500 max-h-60 w-[200px] overflow-hidden rounded-xl border border-gray-200 bg-surface-100 shadow-lg dark:bg-surface-500"
+									class="z-900 max-h-60 w-[200px] overflow-hidden rounded-xl border border-gray-200 bg-surface-100 shadow-lg dark:bg-surface-500"
 									align="start"
 								>
 									<Select.Viewport class="p-1">
