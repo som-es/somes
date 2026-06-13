@@ -287,7 +287,7 @@
 
 	let legisPeriodFilter = $state({
 		title: 'Legislaturperiode',
-		activeValue: 'XXVIII',
+		activeValue: 'all',
 		hidden: false,
 		options: [{ title: 'Alle', value: 'all' }]
 	});
@@ -352,6 +352,9 @@
 			}
 			if (maybeStoredFilter.issuer_association !== null) {
 				issuerAssociation.activeValue = maybeStoredFilter.issuer_association;
+			}
+			if (maybeStoredFilter.is_from_governemnt !== null) {
+				genericFilters[7].activeValue = maybeStoredFilter.is_from_governemnt;
 			}
 		}
 	});
