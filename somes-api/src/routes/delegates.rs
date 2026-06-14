@@ -29,7 +29,7 @@ pub use ai_chat::*;
 pub use delegate_political_position::*;
 pub use interests::*;
 pub use interjections::*;
-pub use issued_proposals::*;
+pub(crate) use issued_proposals::*;
 pub use parliamentary_qa::*;
 pub use routes::*;
 pub use speeches::*;

@@ -3,15 +3,15 @@ use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct ParliamentQuestionResponseWithMaxPage {
-    pub question_entries: Vec<ParliamentQuestionResponse>,
+pub struct ParliamentInquiryResponseWithMaxPage {
+    pub question_entries: Vec<ParliamentInquiryResponse>,
     pub entry_count: i64,
     pub max_page: i64,
 }
 
-impl ParliamentQuestionResponseWithMaxPage {
+impl ParliamentInquiryResponseWithMaxPage {
     fn new(
-        question_entries: Vec<ParliamentQuestionResponse>,
+        question_entries: Vec<ParliamentInquiryResponse>,
         page_elements: i64,
         all_entries_count: i64,
     ) -> Self {
@@ -29,16 +29,16 @@ pub async fn extract_parliamentary_questions(
     page: i64,
     page_elements: i64,
     pg_pool: &PgPool,
-) -> sqlx::Result<ParliamentQuestionResponseWithMaxPage> {
+) -> sqlx::Result<ParliamentInquiryResponseWithMaxPage> {
     let offset = (page - 1) * page_elements;
 
     let rows = sqlx::query_as!(
-        ParliamentQuestionResponse,
+        ParliamentInquiryResponse,
         r#"
         SELECT *
         FROM pqa_composite_questions
-        WHERE $1 = ANY((("question: ParliamentQuestion").data).issuer_ids)
-        ORDER BY (("question: ParliamentQuestion").data).raw_data_created_at DESC
+        WHERE $1 = ANY((("question: ParliamentInquiry").data).issuer_ids)
+        ORDER BY (("question: ParliamentInquiry").data).raw_data_created_at DESC
         LIMIT $2 OFFSET $3
         "#,
         delegate_id as i64,
@@ -52,7 +52,7 @@ pub async fn extract_parliamentary_questions(
         r#"
         SELECT COUNT(*)
         FROM pqa_composite_questions
-        WHERE $1 = ANY((("question: ParliamentQuestion").data).issuer_ids)
+        WHERE $1 = ANY((("question: ParliamentInquiry").data).issuer_ids)
         "#,
         delegate_id as i64,
     )
@@ -60,7 +60,7 @@ pub async fn extract_parliamentary_questions(
     .await?
     .unwrap_or(0);
 
-    Ok(ParliamentQuestionResponseWithMaxPage::new(
+    Ok(ParliamentInquiryResponseWithMaxPage::new(
         rows,
         page_elements,
         all_entries_count,
@@ -72,16 +72,16 @@ pub async fn extract_parliamentary_answers(
     page: i64,
     page_elements: i64,
     pg_pool: &PgPool,
-) -> sqlx::Result<ParliamentQuestionResponseWithMaxPage> {
+) -> sqlx::Result<ParliamentInquiryResponseWithMaxPage> {
     let offset = (page - 1) * page_elements;
 
     let rows = sqlx::query_as!(
-        ParliamentQuestionResponse,
+        ParliamentInquiryResponse,
         r#"
         SELECT *
         FROM pqa_composite_questions
-        WHERE $1 = ANY((("question: ParliamentQuestion").data).receiver_ids)
-        ORDER BY (("question: ParliamentQuestion").data).raw_data_created_at DESC
+        WHERE $1 = ANY((("question: ParliamentInquiry").data).receiver_ids)
+        ORDER BY (("question: ParliamentInquiry").data).raw_data_created_at DESC
         LIMIT $2 OFFSET $3
         "#,
         delegate_id as i64,
@@ -95,7 +95,7 @@ pub async fn extract_parliamentary_answers(
         r#"
         SELECT COUNT(*)
         FROM pqa_composite_questions
-        WHERE $1 = ANY((("question: ParliamentQuestion").data).receiver_ids)
+        WHERE $1 = ANY((("question: ParliamentInquiry").data).receiver_ids)
         "#,
         delegate_id as i64,
     )
@@ -103,7 +103,7 @@ pub async fn extract_parliamentary_answers(
     .await?
     .unwrap_or(0);
 
-    Ok(ParliamentQuestionResponseWithMaxPage::new(
+    Ok(ParliamentInquiryResponseWithMaxPage::new(
         rows,
         page_elements,
         all_entries_count,
@@ -112,13 +112,13 @@ pub async fn extract_parliamentary_answers(
 
 pub async fn extract_questions_with_ai_content(
     pg_pool: &PgPool,
-) -> sqlx::Result<Vec<ParliamentQuestionResponse>> {
+) -> sqlx::Result<Vec<ParliamentInquiryResponse>> {
     sqlx::query_as!(
-        ParliamentQuestionResponse,
+        ParliamentInquiryResponse,
         r#"
         SELECT *
         FROM pqa_composite_questions
-        WHERE (("question: ParliamentQuestion").ai_question) IS NOT NULL
+        WHERE (("question: ParliamentInquiry").ai_question) IS NOT NULL
           AND EXISTS (
               SELECT 1
               FROM unnest(("answer: Vec<ParliamentAnswer>")) AS ans
@@ -134,7 +134,7 @@ pub async fn extract_questions_with_ai_content(
 #[cfg(test)]
 mod tests {
     use crate::routes::{extract_parliamentary_answers, extract_questions_with_ai_content};
-    use combx::{connect_pg, ParliamentQuestionResponse};
+    use combx::{connect_pg, ParliamentInquiryResponse};
 
     #[tokio::test]
     pub async fn test_extract_parliamentary_answers_for_gov_official() {
@@ -176,7 +176,7 @@ mod tests {
 
     #[test]
     fn test_question_answer_matching() {
-        let question_entry_response: ParliamentQuestionResponse =
+        let question_entry_response: ParliamentInquiryResponse =
             serde_json::from_str(TEST_JSON).unwrap();
         // dbg!(&question_entry_response);
         let answer_entry = question_entry_response.answer.as_ref().unwrap()[0].clone();
@@ -220,6 +220,7 @@ mod tests {
                     );
                 }
             }
+            println!()
         }
         for answer in &answer_entry
             .ai_answer
@@ -228,8 +229,9 @@ mod tests {
             .full_answer_entry
             .answers
         {
+            dbg!(&answer.raw_answer);
             for question_ref in &answer.answering_questions_references {
-                // dbg!(&question_ref.affected_question_absolute_path);
+                dbg!(&question_ref.affected_question_absolute_path);
             }
         }
     }

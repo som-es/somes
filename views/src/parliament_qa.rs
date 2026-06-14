@@ -1,9 +1,9 @@
-use combx::{DbAnswerEntry, DbQuestionEntry};
+use combx::{DbAiInquiry, DbAnswerEntry};
 use somes_common_lib::ToCompositeType;
 use sqlx::{Postgres, Transaction};
 
 pub async fn create_parliament_qa_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sqlx::Result<()> {
-    let question_fields = DbQuestionEntry::field_orders()
+    let question_fields = DbAiInquiry::field_orders()
         .into_iter()
         .map(|field| if field == "id" { "q.id" } else { field })
         .collect::<Vec<_>>()
@@ -48,7 +48,7 @@ pub async fn create_parliament_qa_view<'a>(tx: &mut Transaction<'a, Postgres>) -
                 (
                     SELECT ROW(
                         {question_fields}
-                    )::db_question_entry
+                    )::db_ai_inquiry
                     FROM pqa_questions q
                     WHERE q.pqa_meta_id = m.id
                     ORDER BY q.generated_at DESC
@@ -59,7 +59,7 @@ pub async fn create_parliament_qa_view<'a>(tx: &mut Transaction<'a, Postgres>) -
                     FROM pqa_references r
                     WHERE r.pqa_meta_id = m.id
                 )
-            )::parliament_question AS \"question: ParliamentQuestion\",
+            )::parliament_inquiry AS \"question: ParliamentInquiry\",
             ARRAY(
                 SELECT ROW(
                     ROW(

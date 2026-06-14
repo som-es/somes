@@ -1,8 +1,8 @@
 use combx::{
-    DbAiSummary, DbAnswerEntry, DbLegislativeInitiativeQuery, DbMinistrialProposalQueryMeta,
-    DbNamedVote, DbNamedVoteInfo, DbNamedVotes, DbPartyNamedVoteCount, DbQuestionEntry,
-    DbReference, DbRelatedDelegate, DbSpeechWithLink, DbVote, DelegateMatch, FullMandate,
-    MeilisearchHelper, ParliamentAnswer, ParliamentQuestion, ParliamentQuestionResponse,
+    DbAiInquiry, DbAiSummary, DbAnswerEntry, DbLegislativeInitiativeQuery,
+    DbMinistrialProposalQueryMeta, DbNamedVote, DbNamedVoteInfo, DbNamedVotes,
+    DbPartyNamedVoteCount, DbReference, DbRelatedDelegate, DbSpeechWithLink, DbVote, DelegateMatch,
+    FullMandate, MeilisearchHelper, ParliamentAnswer, ParliamentInquiry, ParliamentInquiryResponse,
     ParliamentRawData, Topic, VoteResult,
 };
 use somes_common_lib::{Document, ToCompositeType};
@@ -21,7 +21,7 @@ pub async fn create_composite_types<'a>(pool: &mut Transaction<'a, Postgres>) ->
     run_composite_type_creation!(
         pool,
         DbAnswerEntry,
-        DbQuestionEntry,
+        DbAiInquiry,
         DbAiSummary,
         FullMandate,
         Document,
@@ -40,9 +40,9 @@ pub async fn create_composite_types<'a>(pool: &mut Transaction<'a, Postgres>) ->
         DbMinistrialProposalQueryMeta,
         VoteResult,
         ParliamentRawData,
-        ParliamentQuestion,
+        ParliamentInquiry,
         ParliamentAnswer,
-        ParliamentQuestionResponse,
+        ParliamentInquiryResponse,
         DelegateMatch
     );
     Ok(())
