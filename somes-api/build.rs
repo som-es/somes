@@ -7,6 +7,7 @@ pub const DATASERVICE_URL: &str = dotenv!("DATASERVICE_URL");
 async fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-env-changed=UPDATE_VIEWS");
+    println!(r#"cargo:rerun-if-env-changed="../views/src/*""#);
 
     let update_views = std::env::var("UPDATE_VIEWS").unwrap_or_else(|_| "false".to_string());
     if update_views != "true" {

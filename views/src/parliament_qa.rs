@@ -63,40 +63,48 @@ pub async fn create_parliament_qa_view<'a>(tx: &mut Transaction<'a, Postgres>) -
             ARRAY(
                 SELECT ROW(
                     ROW(
-                        m.gp,
-                        m.ityp,
-                        m.inr,
-                        m.issuer_ids,
-                        m.reciever_ids,
+                        am.gp,
+                        am.ityp,
+                        am.inr,
+                        am.issuer_ids,
+                        am.reciever_ids,
                         ARRAY(
                             SELECT ROW(doc.title, doc.document_url, doc.document_type)::document
                             FROM pqa_documents doc
-                            WHERE doc.pqa_meta_id = m.id
+                            WHERE doc.pqa_meta_id = am.id
                         ),
-                        m.topics,
-                        m.eurovoc_topics,
-                        m.other_keyword_topics,
-                        m.description,
-                        m.title,
-                        m.created_at,
-                        m.updated_at,
-                        m.raw_data_created_at,
-                        m.raw_data_updated_at
+                        am.topics,
+                        am.eurovoc_topics,
+                        am.other_keyword_topics,
+                        am.description,
+                        am.title,
+                        am.created_at,
+                        am.updated_at,
+                        am.raw_data_created_at,
+                        am.raw_data_updated_at
                     )::parliament_raw_data,
-                    ROW(
-                        {answer_fields}
-                    )::db_answer_entry,
+                    (
+                        select ROW(
+                            {answer_fields}
+                        )::db_answer_entry
+                        FROM pqa_answers a
+                        WHERE a.pqa_meta_id = am.id
+                        ORDER BY a.generated_at DESC
+                        LIMIT 1
+                    ),
                     ARRAY(
                         SELECT ROW(r.pqa_gp, r.pqa_ityp, r.pqa_inr)::db_reference
                         FROM pqa_references r
-                        WHERE r.pqa_meta_id = m.id
+                        WHERE r.pqa_meta_id = am.id
                     )
                 )::parliament_answer
-                FROM pqa_answers a
-                WHERE a.pqa_meta_id = m.id
-                ORDER BY a.generated_at DESC
+
+                FROM pqa_references r
+                inner join pqa_meta am on am.gp = r.pqa_gp and am.inr = r.pqa_inr and am.ityp = r.pqa_ityp
+                WHERE r.pqa_meta_id = m.id and r.pqa_ityp like 'AB%'
             ) AS \"answer: Vec<ParliamentAnswer>\"
-        FROM pqa_meta m;
+        FROM pqa_meta m
+        where m.ityp like 'J%'
         "
     ))
     .execute(&mut **tx)

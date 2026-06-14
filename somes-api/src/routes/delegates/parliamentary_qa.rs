@@ -38,7 +38,7 @@ pub async fn extract_parliamentary_questions(
         SELECT *
         FROM pqa_composite_questions
         WHERE $1 = ANY((("question: ParliamentQuestion").data).issuer_ids)
-        ORDER BY (("question: ParliamentQuestion").data).created_at DESC
+        ORDER BY (("question: ParliamentQuestion").data).raw_data_created_at DESC
         LIMIT $2 OFFSET $3
         "#,
         delegate_id as i64,
@@ -81,7 +81,7 @@ pub async fn extract_parliamentary_answers(
         SELECT *
         FROM pqa_composite_questions
         WHERE $1 = ANY((("question: ParliamentQuestion").data).receiver_ids)
-        ORDER BY (("question: ParliamentQuestion").data).created_at DESC
+        ORDER BY (("question: ParliamentQuestion").data).raw_data_created_at DESC
         LIMIT $2 OFFSET $3
         "#,
         delegate_id as i64,
@@ -110,10 +110,31 @@ pub async fn extract_parliamentary_answers(
     ))
 }
 
+pub async fn extract_questions_with_ai_content(
+    pg_pool: &PgPool,
+) -> sqlx::Result<Vec<ParliamentQuestionResponse>> {
+    sqlx::query_as!(
+        ParliamentQuestionResponse,
+        r#"
+        SELECT *
+        FROM pqa_composite_questions
+        WHERE (("question: ParliamentQuestion").ai_question) IS NOT NULL
+          AND EXISTS (
+              SELECT 1
+              FROM unnest(("answer: Vec<ParliamentAnswer>")) AS ans
+              WHERE (ans).ai_answer IS NOT NULL
+          )
+        order by random()
+        limit 1
+        "#,
+    )
+    .fetch_all(pg_pool)
+    .await
+}
 #[cfg(test)]
 mod tests {
-    use crate::routes::extract_parliamentary_answers;
-    use combx::connect_pg;
+    use crate::routes::{extract_parliamentary_answers, extract_questions_with_ai_content};
+    use combx::{connect_pg, ParliamentQuestionResponse};
 
     #[tokio::test]
     pub async fn test_extract_parliamentary_answers_for_gov_official() {
@@ -123,5 +144,93 @@ mod tests {
             .unwrap();
         println!("total: {}, max page: {}", res.entry_count, res.max_page);
         println!("returned: {}", res.question_entries.len());
+
+        for question_entry in &res.question_entries {
+            let answers = question_entry.answer.clone().unwrap_or_default();
+            if !answers.is_empty() {
+                println!("answers: {answers:?}");
+                // let file = std::fs::File::create("tests/question_response.json").unwrap();
+                // serde_json::to_writer(&file, question_entry).unwrap();
+                return;
+            }
+        }
+    }
+
+    #[tokio::test]
+    pub async fn test_extract_parliamentary_answers_with_ai_content() {
+        let pg = connect_pg().await;
+        let res = extract_questions_with_ai_content(&pg).await.unwrap();
+
+        for question_entry in &res {
+            let answers = question_entry.answer.clone().unwrap_or_default();
+            println!("answers: {answers:?}");
+            if !answers.is_empty() {
+                let file = std::fs::File::create("tests/question_response.json").unwrap();
+                serde_json::to_writer(&file, question_entry).unwrap();
+                return;
+            }
+        }
+    }
+
+    const TEST_JSON: &'static str = include_str!("../../../tests/question_response.json");
+
+    #[test]
+    fn test_question_answer_matching() {
+        let question_entry_response: ParliamentQuestionResponse =
+            serde_json::from_str(TEST_JSON).unwrap();
+        // dbg!(&question_entry_response);
+        let answer_entry = question_entry_response.answer.as_ref().unwrap()[0].clone();
+        let question_entry = question_entry_response.question.unwrap();
+
+        for question in &question_entry
+            .ai_question
+            .as_ref()
+            .unwrap()
+            .full_question_entry
+            .questions
+        {
+            let answer_to_question = answer_entry
+                .ai_answer
+                .as_ref()
+                .unwrap()
+                .full_answer_entry
+                .answers
+                .iter()
+                .find(|answer| {
+                    answer
+                        .answering_questions_references
+                        .iter()
+                        .find(|reference| {
+                            reference.affected_question_absolute_path == question.nth_level
+                        })
+                        .is_some()
+                });
+            match answer_to_question {
+                Some(atq) => {
+                    // dbg!(&question.nth_level, &atq.answering_questions_references);
+                    println!(
+                        "question nthlevel: {:?}, answering question refs: {:?}",
+                        question.nth_level, &atq.answering_questions_references
+                    );
+                }
+                None => {
+                    println!(
+                        "question nth level does not not have corresponding answer: {:?}",
+                        question.nth_level
+                    );
+                }
+            }
+        }
+        for answer in &answer_entry
+            .ai_answer
+            .as_ref()
+            .unwrap()
+            .full_answer_entry
+            .answers
+        {
+            for question_ref in &answer.answering_questions_references {
+                // dbg!(&question_ref.affected_question_absolute_path);
+            }
+        }
     }
 }
