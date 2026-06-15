@@ -8,7 +8,7 @@ use axum::{extract::Query, Json};
 use combx::{Delegate, FullMandate};
 use somes_common_lib::{
     DelegateById, InterestShare, ALL_ACTIVE, ALL_AT_DATE, ALL_AT_DATE_WITH_SEAT_INFO, EXTEND, ID,
-    INTERJECTIONS_ROUTE, SEARCH, SPEECHES_PER_PAGE_ROUTE,
+    INTERJECTIONS_ROUTE, PARLIAMENT_QA_ROUTE, SEARCH, SPEECHES_PER_PAGE_ROUTE,
 };
 
 pub use error::*;
@@ -52,6 +52,7 @@ pub fn create_delegates_router() -> Router<AppState> {
         )
         .route(EXTEND, get(extended_delegate_info_route))
         .nest(INTERJECTIONS_ROUTE, create_delegate_interjections_router())
+        .nest(PARLIAMENT_QA_ROUTE, create_delegate_pqa_router())
         .nest("/gov_officials", create_gov_officials_router())
 }
 

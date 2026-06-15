@@ -3,6 +3,7 @@ pub const DELETE_ACCOUNT_ROUTE: &str = "/delete_account";
 pub const SIGNUP_ROUTE: &str = "/signup";
 pub const SPEECHES_PER_PAGE_ROUTE: &str = "/speeches_per_page";
 pub const INTERJECTIONS_ROUTE: &str = "/interjections";
+pub const PARLIAMENT_QA_ROUTE: &str = "/parliament_qa";
 pub const VERIFY_ROUTE: &str = "/verify";
 pub const DELEGATES_ROUTE: &str = "/delegates";
 pub const LEGIS_INIT_ROUTE: &str = "/legis_inits";
