@@ -53,6 +53,7 @@ pub struct Absence {
     pub gp: String,
     pub plenary_session_id: i32,
     pub missed_legis_init_ids: Option<Vec<i32>>,
+    pub source_url: Option<String>,
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]

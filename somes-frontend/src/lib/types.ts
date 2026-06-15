@@ -448,6 +448,7 @@ export interface Absence {
 	gp: string;
 	plenary_session_id: number;
 	missed_legis_init_ids: number[];
+	source_url: string;
 }
 
 export interface NamedVote {
