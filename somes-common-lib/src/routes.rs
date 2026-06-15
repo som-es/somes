@@ -82,6 +82,7 @@ pub const POLITICAL_SPECTRUM_PER_AGE: &str = "/political_spectrum_per_age";
 pub const ADD_QUIZ: &str = "/add_quiz";
 pub const NEXT_PLENAR_DATE: &str = "/next_plenar_date";
 pub const PLENAR_DATES: &str = "/plenar_dates";
+pub const PLENARY_SESSIONS_PER_GP: &str = "/plenary_sessions_per_gp";
 pub const QUIZZES: &str = "/quizzes";
 pub const QUIZ_ROOM: &str = "/quiz_room";
 pub const DELEGATES_BY_CALL_TO_ORDERS: &str = "/delegates_by_call_to_orders";

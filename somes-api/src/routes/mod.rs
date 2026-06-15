@@ -4,6 +4,7 @@ mod delegates;
 mod departments;
 mod events;
 mod parties;
+mod plenar;
 mod proposals;
 mod questions;
 mod quiz;
@@ -15,15 +16,14 @@ mod verify;
 mod vote_results;
 mod walo;
 
-pub use proposals::*;
-
-use axum::Json;
 pub use dates::*;
 pub use decrees::*;
 pub use delegates::*;
 pub use departments::*;
 pub use events::*;
 pub use parties::*;
+pub use plenar::*;
+pub use proposals::*;
 pub use quiz::*;
 pub use save_email::*;
 pub use statistics::create_statistics_router;
@@ -34,6 +34,7 @@ pub use vote_results::*;
 pub use walo::*;
 
 use crate::{GenericError, PgPoolConnection};
+use axum::Json;
 
 pub async fn all_gps_route(
     PgPoolConnection(pg): PgPoolConnection,
