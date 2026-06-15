@@ -1009,7 +1009,7 @@
 						: ''}"
 				>
 					{#if delegate && generalDelegateInfo?.absences}
-						<AbsencesPreview delegateId={delegate.id} absences={generalDelegateInfo.absences} />
+						<AbsencesPreview {delegate} absences={generalDelegateInfo.absences} />
 					{/if}
 				</div>
 			</div>
@@ -1067,7 +1067,7 @@
 							explanation="Zur Ordnung gerufen"
 							lastEntriesText="Letzte Ordnungsrufe"
 							noEntriesText="Keine Ordnungsrufe erhalten"
-							delegateId={delegate.id}
+							{delegate}
 							showTotal
 							showDetails={false}
 							absences={generalDelegateInfo.received_call_to_orders.map((cto) => ({
@@ -1075,7 +1075,8 @@
 								gp: cto.gp,
 								inr: cto.inr,
 								plenary_session_id: cto.plenary_session_id,
-								missed_legis_init_ids: []
+								missed_legis_init_ids: [],
+								source_url: null
 							}))}
 						/>
 					{/if}

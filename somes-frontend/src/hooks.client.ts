@@ -1,7 +1,6 @@
-
-const CLEAR_KEY = 'cleared_april_30';
+const CLEAR_KEY = 'cleared_june_16';
 
 if (!localStorage.getItem(CLEAR_KEY)) {
-    localStorage.clear();
-    localStorage.setItem(CLEAR_KEY, 'true');
+	localStorage.clear();
+	localStorage.setItem(CLEAR_KEY, 'true');
 }

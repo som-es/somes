@@ -442,13 +442,26 @@ export interface Interjection {
 	delegate_match: DelegateMatch;
 }
 
+export interface PlenarySession {
+	id: number;
+	inr: number;
+	title: string;
+	description: string;
+	raw_data_created_at: string;
+	raw_data_updated_at: string | null;
+	created_at: string;
+	updated_at: string | null;
+	legislative_period: string;
+	absences_doc_url: string | null;
+}
+
 export interface Absence {
 	date: string;
 	inr: number;
 	gp: string;
 	plenary_session_id: number;
 	missed_legis_init_ids: number[];
-	source_url: string;
+	source_url: string | null;
 }
 
 export interface NamedVote {

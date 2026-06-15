@@ -26,7 +26,8 @@ import type {
 	DelegatesWithMaxPage,
 	PartyStates,
 	InterjectionsWithMaxPage,
-	SessionActivityOverview
+	SessionActivityOverview,
+	PlenarySession
 } from '../types';
 
 // const address = 'https://somes.at';
@@ -379,4 +380,10 @@ export async function vote_results_by_query_search(
 	fetcher: typeof fetch = fetch
 ): Promise<VoteResultsWithMaxPage | HasError> {
 	return getWithRoute(`v1/vote_results/search?${query}`, 'at/', fetcher);
+}
+
+export async function plenary_sessions_per_gp(
+	fetcher: typeof fetch = fetch
+): Promise<Record<string, PlenarySession[]> | HasError> {
+	return getWithRoute(`plenary_sessions_per_gp`, 'at/', fetcher);
 }

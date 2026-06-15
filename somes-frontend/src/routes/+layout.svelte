@@ -11,6 +11,8 @@
 	import LoginDrawer from '$lib/components/Login/LoginDrawer.svelte';
 	import { loginDrawerOpenStore } from '$lib/caching/stores/stores.svelte';
 	import { page } from '$app/state';
+	import CacheInvalidation from '$lib/components/CacheInvalidation/CacheInvalidation.svelte';
+	import { browser } from '$app/environment';
 
 	let { children } = $props();
 
@@ -25,6 +27,9 @@
 
 <RenewToken />
 <LoginDrawer bind:open={loginDrawerOpenStore.value} />
+{#if browser}
+	<CacheInvalidation />
+{/if}
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
@@ -46,7 +51,9 @@
 			{#if page.url.pathname == '/' || page.url.pathname == '/user' || page.url.pathname == '/impressum' || page.url.pathname == '/datenschutz'}
 				<span></span>
 			{:else if !page.url.pathname.includes('decree')}
-				<div class="mx-auto mt-20 flex w-full max-w-4xl items-center justify-center px-4 text-sm sm:w-120 md:text-base">
+				<div
+					class="mx-auto mt-20 flex w-full max-w-4xl items-center justify-center px-4 text-sm sm:w-120 md:text-base"
+				>
 					<span class="text-center text-gray-500 dark:text-gray-400">
 						Diese Rohdaten werden von dem
 						<a
@@ -66,7 +73,9 @@
 					>
 				</div>
 			{:else}
-				<div class="mx-auto mt-20 flex w-full max-w-4xl items-center justify-center px-4 text-sm sm:w-120 md:text-base">
+				<div
+					class="mx-auto mt-20 flex w-full max-w-4xl items-center justify-center px-4 text-sm sm:w-120 md:text-base"
+				>
 					<span class="text-center text-gray-500 dark:text-gray-400">
 						Diese Rohdaten werden von dem
 						<a

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Absence } from '$lib/types';
+	import type { Absence, Delegate } from '$lib/types';
 	import ExtendInfoDialog from '../ExtendInfoDialog.svelte';
 	import AbsencesModal from './AbsencesModal.svelte';
 
@@ -11,13 +11,13 @@
 		noEntriesText?: string;
 		showTotal?: boolean;
 		showDetails?: boolean;
-		delegateId: number;
+		delegate: Delegate;
 	}
 
 	let currentYear = new Date().getFullYear();
 	let {
 		absences = [],
-		delegateId,
+		delegate,
 		title = 'Abwesenheiten',
 		explanation = `Verpasste Plenarsitzungen (${currentYear})`,
 		lastEntriesText = 'Zuletzt abwesend',
@@ -52,7 +52,7 @@
 		} else {
 			return absencesThisYear;
 		}
-	})
+	});
 
 	function formatDate(dateString: Date | string) {
 		return new Intl.DateTimeFormat('de-AT', {
@@ -86,19 +86,25 @@
 			<div class="flex flex-col gap-2">
 				{#if recentAbsences.length > 0}
 					{#each recentAbsences as absence}
-						<div
-							class="flex items-center justify-between rounded-lg bg-primary-200 p-3 text-sm dark:bg-primary-800/40 dark:hover:bg-primary-800/60"
+						<svelte:element
+							this={absence.source_url ? 'a' : 'div'}
+							href={absence.source_url || undefined}
+							target={absence.source_url ? '_blank' : undefined}
+							rel={absence.source_url ? 'noopener noreferrer' : undefined}
+							class="flex items-center justify-between rounded-lg bg-primary-200 p-3 text-sm dark:bg-primary-800/40 {absence.source_url
+								? 'transition-colors hover:bg-primary-300 dark:hover:bg-primary-800/60'
+								: ''}"
 						>
 							<div class="flex items-center gap-3">
 								<div class="h-2 w-2 rounded-full bg-red-500/80"></div>
-								<span class="font-medium text-primary-900 dark:text-primary-100"
-									>{absence.inr}. Nationalratssitzung</span
-								>
+								<span class="font-medium text-primary-900 dark:text-primary-100">
+									{absence.inr}. Nationalratssitzung
+								</span>
 							</div>
 							<div class="text-xs text-primary-600 dark:text-primary-400">
 								{formatDate(absence.date)} ({absence.gp})
 							</div>
-						</div>
+						</svelte:element>
 					{/each}
 				{:else}
 					<div class="flex flex-col gap-2">
@@ -113,10 +119,10 @@
 		</div>
 	</div>
 
-	{#if recentAbsences.length > 0 &&  absences.length > recentAbsences.length}
+	{#if recentAbsences.length > 0 && absences.length > recentAbsences.length}
 		<div class="mt-auto flex justify-end pt-4">
 			<ExtendInfoDialog title="Alle anzeigen">
-				<AbsencesModal absences={sortedAbsences} title={title} showDetails={showDetails} />
+				<AbsencesModal absences={sortedAbsences} {title} {showDetails} {delegate} />
 			</ExtendInfoDialog>
 		</div>
 	{/if}
