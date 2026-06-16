@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { formatDate } from '$lib/date';
 	import type { Absence, Delegate } from '$lib/types';
 	import ExtendInfoDialog from '../ExtendInfoDialog.svelte';
 	import AbsencesModal from './AbsencesModal.svelte';
@@ -53,14 +54,6 @@
 			return absencesThisYear;
 		}
 	});
-
-	function formatDate(dateString: Date | string) {
-		return new Intl.DateTimeFormat('de-AT', {
-			day: '2-digit',
-			month: '2-digit',
-			year: 'numeric'
-		}).format(new Date(dateString));
-	}
 </script>
 
 <div

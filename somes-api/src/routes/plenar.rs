@@ -36,7 +36,7 @@ pub async fn plenary_sessions_per_gp_route(
 }
 
 pub async fn extract_plenar_infos_sqlx(pg: &PgPool) -> sqlx::Result<Vec<DbPlenar>> {
-    sqlx::query_as!(DbPlenar, "select * from plenar_infos")
+    sqlx::query_as!(DbPlenar, "select * from plenar_infos order by inr asc")
         .fetch_all(pg)
         .await
 }

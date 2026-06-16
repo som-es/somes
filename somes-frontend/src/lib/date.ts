@@ -6,6 +6,14 @@ export function dashDateToDotDate(date: string): string {
 	return `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
 }
 
+export function formatDate(dateString: Date | string) {
+	return new Intl.DateTimeFormat('de-AT', {
+		day: '2-digit',
+		month: '2-digit',
+		year: 'numeric'
+	}).format(new Date(dateString));
+}
+
 export function legisDurationString(
 	legisPeriod: LegisPeriod,
 	next: LegisPeriod | undefined
