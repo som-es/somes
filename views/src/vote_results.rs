@@ -88,8 +88,11 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
               JOIN plenar_speech_links psl ON psl.plenar_speech_id = ps.id
               JOIN plenar_speech_legis_inits pl ON pl.speech_id = ps.id
               JOIN debates deb ON deb.id = ps.debate_id
+              JOIN plenar_infos pi ON pi.id = deb.plenar_id
               WHERE
                 pl.legis_init_id = li.id
+                and pi.council = 'NR'
+
           ) AS \"speeches: Vec<DbSpeechWithLink>\",
           /* named votes */
           (

@@ -780,13 +780,13 @@
 			<div class="flex-1">
 				<div class="mt-1 flex min-w-full justify-between px-1 text-base text-gray-800">
 					<div>
-						Anfang - {renderStartDate == null ? '' : dashDateToDotDate(renderStartDate.toString())}
+						{renderStartDate == null ? '' : dashDateToDotDate(renderStartDate.toString())} (Anfang)
 					</div>
 					<div>
-						Ende -
 						{renderEndDate == null
 							? dashDateToDotDate(new Date().toISOString().split('T')[0])
 							: dashDateToDotDate(renderEndDate.toString())}
+						(Ende)
 					</div>
 				</div>
 				<input

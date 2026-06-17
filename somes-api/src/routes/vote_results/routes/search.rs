@@ -64,7 +64,7 @@ async fn meilisearch_for_vote_results(
     let mut filter_conditions = if is_finished {
         vec![r#"legislative_initiative.accepted IS NOT NULL"#.to_string()]
     } else {
-        vec![r#"legislative_initiative.accepted IS NULL AND legislative_initiative.has_reference = false"#.to_string()]
+        vec![r#"legislative_initiative.accepted IS NULL"#.to_string()]
     };
     filter_conditions.extend(meilisearch_filters_vote_result(vote_result_filter, None));
 

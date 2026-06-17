@@ -1,8 +1,7 @@
 <script lang="ts">
 	import PlenarCalendar from './PlenarCalendar.svelte';
 	import { dashDateToDotDate } from '$lib/date';
-	import { onMount } from 'svelte';
-	import { Popover, Portal } from 'bits-ui';
+	import { Popover } from 'bits-ui';
 	import calendarIcon from '$lib/assets/icons/calendar.svg?raw';
 
 	interface Props {
@@ -28,7 +27,7 @@
 	class="mt-3 flex w-full flex-wrap items-center justify-between gap-4 rounded-xl bg-primary-300 p-3 shadow-md dark:bg-primary-500"
 >
 	<div class="flex">
-		<div class="w-12 mr-2 flex items-center justify-center">
+		<div class="mr-2 flex w-12 items-center justify-center">
 			<div class="h-8 w-8">
 				{@html calendarIcon}
 			</div>
@@ -59,7 +58,7 @@
 		<!-- ToDo: Does currently not show Calendar on mobile as it is not responsive -->
 		<Popover.Trigger
 			class="rounded-input bg-dark text-background
-			shadow-mini hover:bg-dark/95 inline-flex h-10 items-center justify-center sm:px-[21px] text-[15px] font-medium whitespace-nowrap transition-all select-none hover:cursor-pointer active:scale-[0.98]"
+			shadow-mini hover:bg-dark/95 inline-flex h-10 items-center justify-center text-[15px] font-medium whitespace-nowrap transition-all select-none hover:cursor-pointer active:scale-[0.98] sm:px-[21px]"
 		>
 			<span class="preset-filled mt-1 btn bg-primary-500 text-white dark:bg-surface-500">
 				Sitzungskalender
@@ -68,8 +67,8 @@
 		<Popover.Portal>
 			<Popover.Content
 				class="
-				z-50 mt-3 data-[state=closed]:animate-out 
-				data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in 
+				z-50 mt-3 data-[state=closed]:animate-out
+				data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in
 				data-[state=open]:fade-in-0  data-[state=open]:zoom-in-95 "
 			>
 				<PlenarCalendar />
@@ -77,7 +76,7 @@
 		</Popover.Portal>
 	</Popover.Root>
 
-	<!-- 
+	<!--
 	<div class="z-40 max-w-sm:min-w-[34rem] sm: md:min-w-3xl" data-popup="plenarCalendar">
 	</div> -->
 </div>
