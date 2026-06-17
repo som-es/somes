@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { dashDateToDotDate } from '$lib/date';
+	import { formatDate } from '$lib/date';
 	import type { SessionActivityOverview } from '$lib/types';
 
 	interface ActivityCard {
@@ -107,7 +107,7 @@
 					| {overview.legislative_period}
 				{/if}
 				{#if overview.date}
-					| {dashDateToDotDate(overview.date)}
+					| {formatDate(new Date(overview.date))}
 				{/if}
 			</p>
 		</div>

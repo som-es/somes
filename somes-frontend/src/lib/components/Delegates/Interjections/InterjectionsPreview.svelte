@@ -17,14 +17,6 @@
 
 	let { issuerDelegate, issuedInterjectionsPage0, receivedInterjectionsPage0 }: Props = $props();
 
-	function formatDate(dateString: Date | string) {
-		return new Intl.DateTimeFormat('de-AT', {
-			day: '2-digit',
-			month: '2-digit',
-			year: 'numeric'
-		}).format(new Date(dateString));
-	}
-
 	// interjections = interjections.sort(
 	// 	(a, b) => (a.interjection_text?.length ?? 0) - (b.interjection_text?.length ?? 0)
 	// );

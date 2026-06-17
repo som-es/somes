@@ -1,5 +1,5 @@
 use axum::Json;
-use chrono::NaiveDate;
+use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::prelude::FromRow;
 use utoipa::ToSchema;
@@ -9,7 +9,7 @@ use crate::{routes::statistics::routes::error::StatisticsResponse, PgPoolConnect
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct SessionRow {
     plenary_session_id: i32,
-    date: Option<NaiveDate>,
+    date: Option<DateTime<Utc>>,
     legislative_period: Option<String>,
     inr: Option<i32>,
 }
@@ -53,7 +53,7 @@ pub struct SessionCallToOrder {
 #[derive(ToSchema, PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct SessionActivityOverview {
     plenary_session_id: i32,
-    date: Option<NaiveDate>,
+    date: Option<DateTime<Utc>>,
     legislative_period: Option<String>,
     inr: Option<i32>,
     vote_count: i64,
@@ -90,7 +90,7 @@ pub async fn latest_session_activity_overview(
         "
         SELECT
             pi.id AS plenary_session_id,
-            pi.raw_data_created_at::date AS date,
+            pi.raw_data_created_at AS date,
             pi.legislative_period,
             pi.inr
         FROM plenar_infos pi

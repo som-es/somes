@@ -50,7 +50,7 @@
 
 	let legisPeriodFilter = $state({
 		title: 'Legislaturperiode',
-		activeValue: 'XXVIII',
+		activeValue: 'all',
 		hidden: false,
 		options: [{ title: 'Alle', value: 'all' }]
 	});

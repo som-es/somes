@@ -12,6 +12,7 @@
 	import { Dialog } from 'bits-ui';
 	import EditButton from '$lib/components/Events/EditButton.svelte';
 	import { getUser } from '$lib/api/authed';
+	import { formatDate } from '$lib/date';
 
 	let { data }: PageProps = $props();
 
@@ -127,11 +128,6 @@
 		selectedPlatformType = type;
 		platformTickerIndex = 0;
 		startTicker(); // Restart timer on manual switch
-	}
-
-	function formatDate(dateStr: string) {
-		const d = new Date(dateStr);
-		return d.toLocaleDateString('de-AT', { day: '2-digit', month: '2-digit', year: 'numeric' });
 	}
 
 	let isAdmin = $state(false);
