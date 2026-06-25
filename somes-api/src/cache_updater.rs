@@ -1,5 +1,6 @@
 mod update_delegates;
 mod update_gov_proposals;
+pub mod update_session_activity;
 mod update_vote_results;
 
 use std::{

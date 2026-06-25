@@ -143,6 +143,14 @@ fn spawn_search_refresh(
     meilisearch_client: meilisearch_sdk::client::Client,
 ) {
     tokio::task::spawn(async move {
+        let inner_redis_client = client.clone();
+        let inner_pool = dataservice_sqlx_pool.clone();
+        tokio::task::spawn(
+            crate::update_session_activity::update_session_activity_cache(
+                inner_redis_client,
+                inner_pool,
+            ),
+        );
         // This function blocks in production so streamed updates do not invalidate in-flight fetches
         // and leave Meilisearch with outdated indices.
         update_meilisearch_indices(&client, &dataservice_sqlx_pool, &meilisearch_client).await;

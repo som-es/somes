@@ -27,6 +27,8 @@ pub use proposals::*;
 pub use quiz::*;
 pub use save_email::*;
 pub use statistics::create_statistics_router;
+pub use statistics::fetch_latest_session_activity_overview;
+pub use statistics::session_activity::CACHE_KEY as SESSION_ACTIVITY_CACHE_KEY;
 pub use topics::*;
 pub use user::*;
 pub use verify::*;

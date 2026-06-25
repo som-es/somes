@@ -4,7 +4,12 @@ use serde::{Deserialize, Serialize};
 use sqlx::prelude::FromRow;
 use utoipa::ToSchema;
 
-use crate::{routes::statistics::routes::error::StatisticsResponse, PgPoolConnection};
+use crate::{
+    get_json_cache, routes::statistics::routes::error::StatisticsResponse, set_json_cache_secs,
+    PgPoolConnection, RedisConnection,
+};
+
+pub const CACHE_KEY: &str = "latest_session_activity_overview";
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct SessionRow {
@@ -83,9 +88,9 @@ fn initiative_complexity_sql(alias: &str) -> String {
     )
 }
 
-pub async fn latest_session_activity_overview(
-    PgPoolConnection(pg): PgPoolConnection,
-) -> Result<Json<Option<SessionActivityOverview>>, StatisticsResponse> {
+pub async fn fetch_latest_session_activity_overview(
+    pg: &sqlx::PgPool,
+) -> Result<Option<SessionActivityOverview>, sqlx::Error> {
     let latest_session = sqlx::query_as::<_, SessionRow>(
         "
         SELECT
@@ -102,12 +107,11 @@ pub async fn latest_session_activity_overview(
         LIMIT 1
         ",
     )
-    .fetch_optional(&pg)
-    .await
-    .map_err(|e| StatisticsResponse::DbSelectFailure(Some(e)))?;
+    .fetch_optional(pg)
+    .await?;
 
     let Some(session) = latest_session else {
-        return Ok(Json(None));
+        return Ok(None);
     };
 
     let metrics = sqlx::query_as::<_, SessionActivityMetrics>(&format!(
@@ -159,9 +163,8 @@ pub async fn latest_session_activity_overview(
         initiative_complexity_sql("li")
     ))
     .bind(session.plenary_session_id)
-    .fetch_one(&pg)
-    .await
-    .map_err(|e| StatisticsResponse::DbSelectFailure(Some(e)))?;
+    .fetch_one(pg)
+    .await?;
 
     let percentiles = sqlx::query_as::<_, SessionActivityPercentiles>(&format!(
         "
@@ -218,9 +221,8 @@ pub async fn latest_session_activity_overview(
         ",
         initiative_complexity_sql("li")
     ))
-    .fetch_one(&pg)
-    .await
-    .map_err(|e| StatisticsResponse::DbSelectFailure(Some(e)))?;
+    .fetch_one(pg)
+    .await?;
 
     let top_speakers = sqlx::query_as::<_, SessionSpeaker>(
         "
@@ -245,9 +247,8 @@ pub async fn latest_session_activity_overview(
         ",
     )
     .bind(session.plenary_session_id)
-    .fetch_all(&pg)
-    .await
-    .map_err(|e| StatisticsResponse::DbSelectFailure(Some(e)))?;
+    .fetch_all(pg)
+    .await?;
 
     let call_to_orders = sqlx::query_as::<_, SessionCallToOrder>(
         "
@@ -268,11 +269,10 @@ pub async fn latest_session_activity_overview(
         ",
     )
     .bind(session.plenary_session_id)
-    .fetch_all(&pg)
-    .await
-    .map_err(|e| StatisticsResponse::DbSelectFailure(Some(e)))?;
+    .fetch_all(pg)
+    .await?;
 
-    Ok(Json(Some(SessionActivityOverview {
+    Ok(Some(SessionActivityOverview {
         plenary_session_id: session.plenary_session_id,
         date: session.date,
         legislative_period: session.legislative_period,
@@ -287,5 +287,23 @@ pub async fn latest_session_activity_overview(
         percentiles,
         top_speakers,
         call_to_orders,
-    })))
+    }))
+}
+
+pub async fn latest_session_activity_overview(
+    PgPoolConnection(pg): PgPoolConnection,
+    RedisConnection(mut redis): RedisConnection,
+) -> Result<Json<Option<SessionActivityOverview>>, StatisticsResponse> {
+    if let Some(cached) =
+        get_json_cache::<Option<SessionActivityOverview>>(&mut redis, CACHE_KEY).await
+    {
+        return Ok(Json(cached));
+    }
+
+    let result = fetch_latest_session_activity_overview(&pg)
+        .await
+        .map_err(|e| StatisticsResponse::DbSelectFailure(Some(e)))?;
+
+    set_json_cache_secs(&mut redis, CACHE_KEY, &result, 30 * 60).await;
+    Ok(Json(result))
 }
