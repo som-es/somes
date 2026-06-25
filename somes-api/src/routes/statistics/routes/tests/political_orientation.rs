@@ -1,3 +1,5 @@
+use sqlx::PgPool;
+
 use super::*;
 
 fn create_orientation_base_data() -> Vec<PoliticalOrientationBase> {
@@ -231,12 +233,8 @@ fn test_spectrum_aggregate_by_age() {
     assert_eq!(age_51_60.delegate_count, 1);
 }
 
-#[tokio::test]
-async fn test_orientation_get_base_data_applies_filters() {
-    let test_db =
-        super::super::test_db::statistics_test_db("test_orientation_get_base_data_applies_filters")
-            .await;
-    let pool = test_db.pool().clone();
+#[sqlx::test(fixtures("fixtures/statistics_base.sql"))]
+async fn test_orientation_get_base_data_applies_filters(pool: PgPool) {
     let filter = PoliticalOrientationFilter {
         legis_period: Some("XXV".to_string()),
         party: Some("Party X".to_string()),
@@ -260,13 +258,8 @@ async fn test_orientation_get_base_data_applies_filters() {
     assert_eq!(delegate.delegate_age_bucket, "31-40");
 }
 
-#[tokio::test]
-async fn test_orientation_per_legis_averages_active_delegates_in_period() {
-    let test_db = super::super::test_db::statistics_test_db(
-        "test_orientation_per_legis_averages_active_delegates_in_period",
-    )
-    .await;
-    let pool = test_db.pool().clone();
+#[sqlx::test(fixtures("fixtures/statistics_base.sql"))]
+async fn test_orientation_per_legis_averages_active_delegates_in_period(pool: PgPool) {
     let filter = PoliticalOrientationFilter {
         legis_period: Some("XXV".to_string()),
         orientation_type: "left".to_string(),
@@ -284,13 +277,8 @@ async fn test_orientation_per_legis_averages_active_delegates_in_period() {
     assert_eq!(results[0].delegate_count, 3);
 }
 
-#[tokio::test]
-async fn test_orientation_handlers_override_orientation_type() {
-    let test_db = super::super::test_db::statistics_test_db(
-        "test_orientation_handlers_override_orientation_type",
-    )
-    .await;
-    let pool = test_db.pool().clone();
+#[sqlx::test(fixtures("fixtures/statistics_base.sql"))]
+async fn test_orientation_handlers_override_orientation_type(pool: PgPool) {
     let filter = PoliticalOrientationFilter {
         legis_period: Some("XXV".to_string()),
         party: Some("Party X".to_string()),
@@ -324,12 +312,8 @@ async fn test_orientation_handlers_override_orientation_type() {
     assert!((authoritarian_results[0].orientation_score - 0.4).abs() < 0.001);
 }
 
-#[tokio::test]
-async fn test_spectrum_get_base_data_applies_filters() {
-    let test_db =
-        super::super::test_db::statistics_test_db("test_spectrum_get_base_data_applies_filters")
-            .await;
-    let pool = test_db.pool().clone();
+#[sqlx::test(fixtures("fixtures/statistics_base.sql"))]
+async fn test_spectrum_get_base_data_applies_filters(pool: PgPool) {
     let filter = PoliticalOrientationFilter {
         legis_period: Some("XXV".to_string()),
         party: Some("Party X".to_string()),
@@ -353,13 +337,8 @@ async fn test_spectrum_get_base_data_applies_filters() {
     assert_eq!(delegate.delegate_age_bucket, "31-40");
 }
 
-#[tokio::test]
-async fn test_votes_together_applies_legislative_period_filter() {
-    let test_db = super::super::test_db::statistics_test_db(
-        "test_votes_together_applies_legislative_period_filter",
-    )
-    .await;
-    let pool = test_db.pool().clone();
+#[sqlx::test(fixtures("fixtures/statistics_base.sql"))]
+async fn test_votes_together_applies_legislative_period_filter(pool: PgPool) {
     let filter = VotesTogetherFilter {
         legis_period: Some("XXV".to_string()),
         ..Default::default()

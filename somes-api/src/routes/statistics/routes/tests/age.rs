@@ -1,3 +1,5 @@
+use sqlx::PgPool;
+
 use super::*;
 
 fn create_test_base_data() -> Vec<AgeBase> {
@@ -137,13 +139,8 @@ fn test_aggregate_by_age() {
     assert_eq!(age_51_60.max_age, 55);
 }
 
-#[tokio::test]
-async fn test_get_base_data_applies_filters_and_computes_age() {
-    let test_db = super::super::test_db::statistics_test_db(
-        "test_get_base_data_applies_filters_and_computes_age",
-    )
-    .await;
-    let pool = test_db.pool().clone();
+#[sqlx::test(fixtures("fixtures/statistics_base.sql"))]
+async fn test_get_base_data_applies_filters_and_computes_age(pool: PgPool) {
     let filter = AgeFilter {
         legis_period: Some("XXV".to_string()),
         party: Some("Party X".to_string()),
@@ -167,13 +164,8 @@ async fn test_get_base_data_applies_filters_and_computes_age() {
     assert_eq!(delegate.legislative_period, Some("XXV".to_string()));
 }
 
-#[tokio::test]
-async fn test_per_delegate_uses_latest_period_for_unfiltered_age() {
-    let test_db = super::super::test_db::statistics_test_db(
-        "test_per_delegate_uses_latest_period_for_unfiltered_age",
-    )
-    .await;
-    let pool = test_db.pool().clone();
+#[sqlx::test(fixtures("fixtures/statistics_base.sql"))]
+async fn test_per_delegate_uses_latest_period_for_unfiltered_age(pool: PgPool) {
     let filter = AgeFilter {
         is_desc: true,
         ..Default::default()

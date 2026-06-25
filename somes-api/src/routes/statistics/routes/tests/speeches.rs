@@ -1,3 +1,5 @@
+use sqlx::PgPool;
+
 use super::*;
 
 fn create_test_base_data() -> Vec<SpeechBase> {
@@ -160,13 +162,8 @@ fn test_aggregate_by_party_sorts_by_average_speech_time() {
 
     assert_eq!(results[0].category, "Party Y");
 }
-#[tokio::test]
-async fn test_get_base_data_applies_filters_and_computes_speech_stats() {
-    let test_db = super::super::test_db::statistics_test_db(
-        "test_get_base_data_applies_filters_and_computes_speech_stats",
-    )
-    .await;
-    let pool = test_db.pool().clone();
+#[sqlx::test(fixtures("fixtures/statistics_base.sql"))]
+async fn test_get_base_data_applies_filters_and_computes_speech_stats(pool: PgPool) {
     let filter = SpeechFilter {
         legis_period: Some("XXV".to_string()),
         party: Some("Party X".to_string()),
@@ -189,12 +186,8 @@ async fn test_get_base_data_applies_filters_and_computes_speech_stats() {
     assert_eq!(delegate.delegate_age_bucket, "31-40");
 }
 
-#[tokio::test]
-async fn test_speech_handlers_override_speech_type() {
-    let test_db =
-        super::super::test_db::statistics_test_db("test_speech_handlers_override_speech_type")
-            .await;
-    let pool = test_db.pool().clone();
+#[sqlx::test(fixtures("fixtures/statistics_base.sql"))]
+async fn test_speech_handlers_override_speech_type(pool: PgPool) {
     let speechtime_filter = SpeechFilter {
         legis_period: Some("XXV".to_string()),
         is_desc: true,
@@ -228,13 +221,8 @@ async fn test_speech_handlers_override_speech_type() {
     assert_eq!(total_speech_results[0].total_speeches, 2);
 }
 
-#[tokio::test]
-async fn test_per_delegate_aggregates_all_periods_into_one_delegate_row() {
-    let test_db = super::super::test_db::statistics_test_db(
-        "test_per_delegate_aggregates_all_periods_into_one_delegate_row",
-    )
-    .await;
-    let pool = test_db.pool().clone();
+#[sqlx::test(fixtures("fixtures/statistics_base.sql"))]
+async fn test_per_delegate_aggregates_all_periods_into_one_delegate_row(pool: PgPool) {
     let filter = SpeechFilter {
         is_desc: true,
         speech_type: "speechtime".to_string(),
@@ -261,13 +249,8 @@ async fn test_per_delegate_aggregates_all_periods_into_one_delegate_row() {
     assert!((delegate.average_speech_time - 150.0).abs() < 0.001);
 }
 
-#[tokio::test]
-async fn test_government_member_displays_party_but_keeps_filter_bucket() {
-    let test_db = super::super::test_db::statistics_test_db(
-        "test_government_member_displays_party_but_keeps_filter_bucket",
-    )
-    .await;
-    let pool = test_db.pool().clone();
+#[sqlx::test(fixtures("fixtures/statistics_base.sql"))]
+async fn test_government_member_displays_party_but_keeps_filter_bucket(pool: PgPool) {
     let filter = SpeechFilter {
         legis_period: Some("XXVIII".to_string()),
         party: Some("Regierungsmitglied".to_string()),

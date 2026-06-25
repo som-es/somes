@@ -1,3 +1,5 @@
+use sqlx::PgPool;
+
 use super::*;
 
 fn create_test_base_data() -> Vec<DivisionAccuracyBase> {
@@ -113,13 +115,8 @@ fn test_aggregate_by_age() {
     assert_eq!(age_51_60.delegate_count, 1);
 }
 
-#[tokio::test]
-async fn test_get_base_data_applies_filters_and_computes_division_accuracy_stats() {
-    let test_db = super::super::test_db::statistics_test_db(
-        "test_get_base_data_applies_filters_and_computes_division_accuracy_stats",
-    )
-    .await;
-    let pool = test_db.pool().clone();
+#[sqlx::test(fixtures("fixtures/statistics_base.sql"))]
+async fn test_get_base_data_applies_filters_and_computes_division_accuracy_stats(pool: PgPool) {
     let filter = DivisionAccuracyFilter {
         legis_period: Some("XXV".to_string()),
         party: Some("Party X".to_string()),
@@ -142,13 +139,8 @@ async fn test_get_base_data_applies_filters_and_computes_division_accuracy_stats
     assert_eq!(delegate.delegate_age_bucket, "31-40");
 }
 
-#[tokio::test]
-async fn test_per_legis_averages_delegate_scores_not_raw_votes() {
-    let test_db = super::super::test_db::statistics_test_db(
-        "test_per_legis_averages_delegate_scores_not_raw_votes",
-    )
-    .await;
-    let pool = test_db.pool().clone();
+#[sqlx::test(fixtures("fixtures/statistics_base.sql"))]
+async fn test_per_legis_averages_delegate_scores_not_raw_votes(pool: PgPool) {
     let filter = DivisionAccuracyFilter {
         is_desc: true,
         ..Default::default()
@@ -176,13 +168,8 @@ async fn test_per_legis_averages_delegate_scores_not_raw_votes() {
     assert_eq!(period_53.delegate_count, 2);
 }
 
-#[tokio::test]
-async fn test_per_delegate_aggregates_party_period_rows_into_one_delegate_row() {
-    let test_db = super::super::test_db::statistics_test_db(
-        "test_per_delegate_aggregates_party_period_rows_into_one_delegate_row",
-    )
-    .await;
-    let pool = test_db.pool().clone();
+#[sqlx::test(fixtures("fixtures/statistics_base.sql"))]
+async fn test_per_delegate_aggregates_party_period_rows_into_one_delegate_row(pool: PgPool) {
     let filter = DivisionAccuracyFilter {
         is_desc: true,
         ..Default::default()
