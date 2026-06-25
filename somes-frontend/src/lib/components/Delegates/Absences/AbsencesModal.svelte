@@ -172,7 +172,7 @@
 											{/if}
 
 											<!-- Document & Source Links -->
-											{#if item.session.absences_doc_url || item.absence?.source_url}
+											{#if item.absence && (item.session.absences_doc_url || item.absence?.source_url)}
 												<div
 													class="flex flex-col gap-1.5 border-t border-primary-200/60 pt-2 text-[11px]"
 												>
