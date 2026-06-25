@@ -10,12 +10,12 @@ export const load: PageServerLoad = async ({ fetch, setHeaders, url }) => {
 	}
 
 	const searchParams = url.searchParams;
-	if (searchParams.get('page') == null) {
+
+	if (searchParams.get('page') == null && searchParams.get('sort') == null) {
 		searchParams.set('page', '1');
-	}
-	if (searchParams.get('sort') == null) {
 		searchParams.set('sort', 'Desc');
 	}
+
 	const queryParams = searchParams.toString();
 	const filter = `${queryParams}`;
 	const decrees = await decrees_by_search(filter, fetch);
