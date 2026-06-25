@@ -263,8 +263,8 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
     sqlx::query!("
         create materialized view latest_legislative_initiatives as
         select * from legislative_initiatives
-            where nr_plenary_activity_date = (select MAX(nr_plenary_activity_date) from legislative_initiatives
-            where accepted is not null) and accepted is not null and is_voteable_on
+            where vote_date = (select MAX(vote_date) from legislative_initiatives
+            where accepted is not null) and accepted is not null and is_voteable_on and vote_date is not null
     ").execute(&mut **tx)
     .await?;
 

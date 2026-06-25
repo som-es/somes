@@ -25,7 +25,6 @@
 	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
 	import { convertVoteResultFilterToUrl } from './urlConversion';
 	import { errorToNull, get_eurovoc_topics } from '$lib/api/api';
-	import MultiValuesFilter from '$lib/components/Filtering/MultiValuesFilter.svelte';
 	import DateRangeSnippet from '$lib/components/Filtering/GenericFilterSnippets/DataRangeSnippet.svelte';
 	import FilterGroup from '$lib/components/Filtering/FilterGroup.svelte';
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache.svelte';
@@ -126,6 +125,8 @@
 				infavor: filterOption === 'pro'
 			}))
 	);
+
+	let currentPage: number | null = $state(null);
 
 	let issuerAssociation: GenericFilterGroup<boolean> = $state({
 		title: 'Lager',
@@ -357,6 +358,9 @@
 			if (maybeStoredFilter.is_from_governemnt !== null) {
 				genericFilters[7].activeValue = maybeStoredFilter.is_from_governemnt;
 			}
+			if (maybeStoredFilter.page !== null) {
+				currentPage = maybeStoredFilter.page;
+			}
 		}
 	});
 
@@ -389,7 +393,8 @@
 			is_from_governemnt:
 				genericFilters[7].activeValue === undefined ? null : genericFilters[7].activeValue,
 			issuer_association:
-				issuerAssociation.activeValue === undefined ? null : issuerAssociation.activeValue
+				issuerAssociation.activeValue === undefined ? null : issuerAssociation.activeValue,
+			page: currentPage
 		};
 
 		const nextUrl = convertVoteResultFilterToUrl(
@@ -399,13 +404,12 @@
 			isFinished
 		);
 
+		currentVoteResultFilterStore.value = filter;
 		goto(nextUrl, {
 			keepFocus: true,
 			replaceState: true,
 			noScroll: true
 		});
-
-		currentVoteResultFilterStore.value = filter;
 
 		currentlyUpdating = false;
 	};
@@ -656,7 +660,7 @@
 			Keine Abstimmungsergebnisse gefunden
 		{/if}
 		<div class="float-right">
-			<Pagination maxPage={voteResults.max_page} />
+			<Pagination bind:currentPage maxPage={voteResults.max_page} />
 		</div>
 	{:else}
 		<!-- Fixes bug of not showing anything if no vote results are found -->

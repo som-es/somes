@@ -97,7 +97,8 @@ pub async fn latest_session_activity_overview(
         JOIN legislative_initiatives li ON li.plenary_session_id = pi.id
         WHERE li.is_voteable_on
             AND li.accepted IS NOT NULL
-        ORDER BY li.nr_plenary_activity_date DESC, pi.inr DESC
+            and li.vote_date is not null
+        ORDER BY li.vote_date DESC, pi.inr DESC
         LIMIT 1
         ",
     )

@@ -1,21 +1,29 @@
 <script lang="ts">
 	import { page as sveltePage } from '$app/state';
 
-	let { dynPage = $bindable(), maxPage }: { dynPage?: number; maxPage: number; } = $props();
+	let {
+		currentPage = $bindable(),
+		dynPage = $bindable(),
+		maxPage
+	}: { currentPage?: number; dynPage?: number; maxPage: number } = $props();
 
-	let page = $derived(
-        dynPage || Number(sveltePage.url.searchParams.get('page')) || 1
-    );
+	let page = $derived(dynPage || Number(sveltePage.url.searchParams.get('page')) || 1);
 
 	let isMobile = $state(false);
 
 	const offsets = [
-		[0, 11, 4, 4, 4, 4, 4, 7, 0], [0, 10, 3, 3, 3, 3, 3, 6, 0],
-		[0, 9, 2, 2, 2, 2, 2, 5, 0], [0, 8, 1, 1, 1, 1, 1, 4, 0],
-		[0, 7, 0, 0, 0, 0, 0, 3, 0], [0, 6, 0, 0, 0, 0, 0, 2, 0],
-		[0, 5, 0, 0, 0, 0, 0, 1, 0], [0, 4, 0, 0, 0, 0, 0, 0, 0],
-		[0, 3, 0, 0, 0, 0, 0, 0, 0], [0, 2, 0, 0, 0, 0, 0, 0, 0],
-		[0, 1, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 11, 4, 4, 4, 4, 4, 7, 0],
+		[0, 10, 3, 3, 3, 3, 3, 6, 0],
+		[0, 9, 2, 2, 2, 2, 2, 5, 0],
+		[0, 8, 1, 1, 1, 1, 1, 4, 0],
+		[0, 7, 0, 0, 0, 0, 0, 3, 0],
+		[0, 6, 0, 0, 0, 0, 0, 2, 0],
+		[0, 5, 0, 0, 0, 0, 0, 1, 0],
+		[0, 4, 0, 0, 0, 0, 0, 0, 0],
+		[0, 3, 0, 0, 0, 0, 0, 0, 0],
+		[0, 2, 0, 0, 0, 0, 0, 0, 0],
+		[0, 1, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0],
 		[0, 0, 0, 0, 0, 0, 0, 0, 0]
 	];
 
@@ -27,19 +35,27 @@
 	});
 
 	const pageSuggestions = $derived.by(() => {
-		const effectivePage = (page >= maxPage && maxPage !== 0) ? maxPage : page;
+		const effectivePage = page >= maxPage && maxPage !== 0 ? maxPage : page;
 
 		if (isMobile) {
 			if (effectivePage < 3) {
-				return [1, 2, 3, 4, maxPage].filter(v => v > 0 && v <= maxPage);
+				return [1, 2, 3, 4, maxPage].filter((v) => v > 0 && v <= maxPage);
 			}
-			return [1, effectivePage - 1, effectivePage, effectivePage + 1, maxPage]
-				.filter((el, idx, arr) => arr.indexOf(el) === idx && el > 0 && el <= maxPage);
+			return [1, effectivePage - 1, effectivePage, effectivePage + 1, maxPage].filter(
+				(el, idx, arr) => arr.indexOf(el) === idx && el > 0 && el <= maxPage
+			);
 		}
 
 		const baseLayout = [
-			1, effectivePage - 10, effectivePage - 2, effectivePage - 1,
-			effectivePage, effectivePage + 1, effectivePage + 2, effectivePage + 10, maxPage
+			1,
+			effectivePage - 10,
+			effectivePage - 2,
+			effectivePage - 1,
+			effectivePage,
+			effectivePage + 1,
+			effectivePage + 2,
+			effectivePage + 10,
+			maxPage
 		];
 
 		const offsetFn = (i: number) => {
@@ -56,22 +72,25 @@
 		const suggestions = baseLayout
 			.map((el, i) => el + offsetFn(i))
 			.filter((el) => el > 0 && el <= maxPage);
-		
+
 		return [...new Set(suggestions)].sort((a, b) => a - b);
 	});
 
 	function createHref(page: number): string {
-		const nextUrl = new URL(sveltePage.url); 
+		const nextUrl = new URL(sveltePage.url);
 		nextUrl.searchParams.set('page', page.toString());
 		return nextUrl.href;
 	}
+	$effect(() => {
+		currentPage = page;
+	});
 </script>
 
-<div class="flex flex-row flex-wrap gap-[0.4rem] items-center text-black pagination-wrapper">
+<div class="pagination-wrapper flex flex-row flex-wrap items-center gap-[0.4rem] text-black">
 	{#each pageSuggestions as suggestion}
 		{#if dynPage}
 			<button
-				class="btn mt-5 mb-5 px-2 py-1 text-center rounded-lg! {suggestion === page
+				class="mt-5 mb-5 btn rounded-lg! px-2 py-1 text-center {suggestion === page
 					? 'bg-secondary-400'
 					: 'bg-tertiary-400'}"
 				onclick={(e) => {
@@ -79,21 +98,21 @@
 					dynPage = suggestion;
 				}}
 			>
-				<div class="font-bold text-lg w-[30px] h-[30px] items-center flex justify-center">
+				<div class="flex h-[30px] w-[30px] items-center justify-center text-lg font-bold">
 					{suggestion}
 				</div>
 			</button>
 		{:else}
-		<a
-			class="btn mt-5 mb-5 px-2 py-1 text-center rounded-lg! {suggestion === page
-				? 'bg-secondary-400'
-				: 'bg-tertiary-400'}"
-			href="{createHref(suggestion)}"
-		>
-			<div class="font-bold text-lg w-[30px] h-[30px] items-center flex justify-center">
-				{suggestion}
-			</div>
-		</a>
+			<a
+				class="mt-5 mb-5 btn rounded-lg! px-2 py-1 text-center {suggestion === page
+					? 'bg-secondary-400'
+					: 'bg-tertiary-400'}"
+				href={createHref(suggestion)}
+			>
+				<div class="flex h-[30px] w-[30px] items-center justify-center text-lg font-bold">
+					{suggestion}
+				</div>
+			</a>
 		{/if}
 	{/each}
 </div>

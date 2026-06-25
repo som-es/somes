@@ -571,6 +571,7 @@ export interface PartyVote {
 }
 
 export interface VoteResultFilter {
+	page: number | null;
 	is_finished: boolean | null;
 	is_named_vote: boolean | null;
 	accepted: string | null;

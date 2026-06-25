@@ -12,6 +12,7 @@ export function convertDecreeFilterToUrl(
 	nextUrl.searchParams.set('page', '1');
 
 	if (!filter) {
+		nextUrl.searchParams.set('sort', 'Desc');
 		return nextUrl;
 	}
 

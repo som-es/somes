@@ -17,10 +17,13 @@ export function convertVoteResultFilterToUrl(
 
 	nextUrl.search = '';
 
-	nextUrl.searchParams.set('page', '1');
+	const pageValue = 1;
+	nextUrl.searchParams.set('page', pageValue.toString());
 	if (filter === null) {
+		nextUrl.searchParams.set('sort', 'Desc');
 		return nextUrl;
 	}
+
 	if (filter.is_named_vote !== null) {
 		nextUrl.searchParams.set(
 			'legislative_initiative[voted_by_name][eq]',

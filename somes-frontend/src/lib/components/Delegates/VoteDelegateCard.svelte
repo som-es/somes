@@ -119,7 +119,6 @@
 											errechneter Unterschied: {bubble.namedVote.similiarity_score}
 										</div>
 									</div>
-
 									<div class="arrow z-10! bg-surface-100-900"></div>
 								</div>
 							</Popover.Content>

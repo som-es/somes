@@ -1,5 +1,5 @@
 use axum::Json;
-use combx::{DbLegislativeInitiativeQuery, OptionalVoteResult};
+use combx::OptionalVoteResult;
 use redis::aio::MultiplexedConnection;
 use sqlx::PgPool;
 

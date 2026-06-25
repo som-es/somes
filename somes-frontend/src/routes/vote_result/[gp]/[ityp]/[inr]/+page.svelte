@@ -1,5 +1,11 @@
 <script lang="ts">
-	import { errorToNull, get_eurovoc_topics, vote_result_by_path, vote_result_by_id, url } from '$lib/api/api';
+	import {
+		errorToNull,
+		get_eurovoc_topics,
+		vote_result_by_path,
+		vote_result_by_id,
+		url
+	} from '$lib/api/api';
 	import {
 		currentDelegateStore,
 		currentVoteResultStore,
@@ -362,7 +368,9 @@
 											}
 										}
 									}}
-									class="w-8 {legisInitFavos.has(+voteResult.legislative_initiative.id) ? 'text-yellow-500' : 'text-gray-400 hover:text-yellow-500'}"
+									class="w-8 {legisInitFavos.has(+voteResult.legislative_initiative.id)
+										? 'text-yellow-500'
+										: 'text-gray-400 hover:text-yellow-500'}"
 								>
 									{@html legisInitFavos.has(+voteResult.legislative_initiative.id)
 										? starFilled
@@ -572,7 +580,7 @@
 												style="width:24px; height:24px;">{@html checkmarkIcon}</span
 											>
 											{#if !del.isNamedVote}
-												<span class="text-xs font-light"> (Partei) </span>
+												<span class="text-xs font-light"> (Klub) </span>
 											{/if}
 										{:else if del.absent === true}
 											<span class="text-xs font-medium text-gray-500 dark:text-gray-200"
@@ -850,8 +858,8 @@
 
 				<!-- Referenziert in -->
 				{#if data.referencedByResults.length > 0}
-					<div class="rounded-xl bg-primary-300 dark:bg-primary-500 px-5 pt-4 pb-2 w-full">
-						<span class="font-semibold text-lg md:text-xl">Referenziert in</span>
+					<div class="w-full rounded-xl bg-primary-300 px-5 pt-4 pb-2 dark:bg-primary-500">
+						<span class="text-lg font-semibold md:text-xl">Referenziert in</span>
 						<div class="my-0.5 flex flex-col rounded-xl">
 							{#each data.referencedByResults as ref}
 								<ReferencedByBar {ref} />
@@ -862,15 +870,15 @@
 
 				<!-- Hauptgegenstand / Bezug zu -->
 				{#if data.referencesResults.length > 0}
-					<div class="rounded-xl bg-primary-300 dark:bg-primary-500 px-5 pt-4 pb-2 w-full">
-						<span class="font-semibold text-lg md:text-xl">
+					<div class="w-full rounded-xl bg-primary-300 px-5 pt-4 pb-2 dark:bg-primary-500">
+						<span class="text-lg font-semibold md:text-xl">
 							{#if voteResult.legislative_initiative.ityp == 'AA'}
 								Hauptgegenstand
 							{:else}
 								Bezug zu
 							{/if}
 						</span>
-						
+
 						<div class="my-0.5 flex flex-col rounded-xl">
 							{#each data.referencesResults as ref}
 								<ReferencedByBar {ref} />

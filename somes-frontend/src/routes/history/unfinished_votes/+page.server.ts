@@ -17,6 +17,9 @@ export const load: PageServerLoad = async ({ fetch, params, setHeaders, url }) =
 	if (searchParams.get('page') == null) {
 		searchParams.set('page', '1');
 	}
+	if (searchParams.get('sort') == null) {
+		searchParams.set('sort', 'Desc');
+	}
 	const queryParams = searchParams.toString();
 	const filter = `${queryParams}&is_finished=false`;
 
