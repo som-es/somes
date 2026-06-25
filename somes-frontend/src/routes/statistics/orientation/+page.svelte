@@ -13,7 +13,7 @@
 
 	const categoryOptions = [
 		{ value: 'delegate', label: 'Abgeordnete' },
-		{ value: 'party', label: 'Parteien' },
+		{ value: 'party', label: 'Klubs' },
 		{ value: 'gender', label: 'Geschlecht' },
 		{ value: 'age', label: 'Alter' }
 	];
@@ -184,7 +184,7 @@
 	<div class="mt-2 mb-6">
 		<h1 class="text-3xl font-bold sm:text-4xl">Politische Positionen</h1>
 		<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
-			Politische Positionswerte nach Abgeordneten, Parteien und weiteren Gruppen.
+			Politische Positionswerte nach Abgeordneten, Klubs und weiteren Gruppen.
 		</p>
 	</div>
 
@@ -232,6 +232,6 @@
 		bind:selectedChartMode
 		extraReservedHeight={selectedChartMode === 'spectrum' ? 0 : 112}
 		infoQuestion="Was zeigt diese Statistik?"
-		infoAnswer="<p>Diese Auswertung ordnet Abgeordnete und Parteien nach ihren politischen Positionen ein. Die Werte zeigen, ob jemand in den verfügbaren Daten eher sozialistisch oder kapitalistisch sowie eher libertär oder autoritär eingeordnet wird.</p>"
+		infoAnswer="<p>Diese Auswertung ordnet Abgeordnete und Klubs nach ihren politischen Positionen ein. Die Werte zeigen, ob jemand in den verfügbaren Daten eher sozialistisch oder kapitalistisch sowie eher libertär oder autoritär eingeordnet wird.</p>"
 	/>
 </Container>

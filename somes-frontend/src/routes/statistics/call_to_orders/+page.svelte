@@ -10,8 +10,8 @@
 	const chartDescriptions = {
 		'delegate.normalized': 'Ordnungsrufe je besuchter Sitzung der Abgeordneten.',
 		'delegate.absolute': 'Gezählte Ordnungsrufe je Abgeordneter oder Abgeordnetem.',
-		'party.normalized': 'Ordnungsrufe je besuchter Sitzung, nach Parteien zusammengefasst.',
-		'party.absolute': 'Gezählte Ordnungsrufe, nach Parteien zusammengefasst.',
+		'party.normalized': 'Ordnungsrufe je besuchter Sitzung, nach Klubs zusammengefasst.',
+		'party.absolute': 'Gezählte Ordnungsrufe, nach Klubs zusammengefasst.',
 		'gender.normalized': 'Ordnungsrufe je besuchter Sitzung im Vergleich nach Geschlecht.',
 		'gender.absolute': 'Gezählte Ordnungsrufe im Vergleich nach Geschlecht.',
 		'age.normalized': 'Ordnungsrufe je besuchter Sitzung nach Altersgruppen.',

@@ -11,8 +11,8 @@
 		'delegate.normalized':
 			'Abwesenheiten je Abgeordneter oder Abgeordnetem als Anteil der Sitzungen.',
 		'delegate.absolute': 'Gezählte Abwesenheiten je Abgeordneter oder Abgeordnetem.',
-		'party.normalized': 'Abwesenheiten als Sitzungsanteil, nach Parteien zusammengefasst.',
-		'party.absolute': 'Gezählte Abwesenheiten, nach Parteien zusammengefasst.',
+		'party.normalized': 'Abwesenheiten als Sitzungsanteil, nach Klubs zusammengefasst.',
+		'party.absolute': 'Gezählte Abwesenheiten, nach Klubs zusammengefasst.',
 		'gender.normalized': 'Abwesenheiten als Sitzungsanteil im Vergleich nach Geschlecht.',
 		'gender.absolute': 'Gezählte Abwesenheiten im Vergleich nach Geschlecht.',
 		'age.normalized': 'Abwesenheiten als Sitzungsanteil nach Altersgruppen.',

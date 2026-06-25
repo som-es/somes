@@ -463,7 +463,7 @@
 												<span class="truncate">+{selectedPartiesNames.length - 1}</span>
 											{/if}
 											{#if selectedPartiesNames.length === 0}
-												<span class="truncate">Alle Parteien</span>
+												<span class="truncate">Alle Klubs</span>
 											{/if}
 										</div>
 										{@html upDownArrowIcon}
@@ -591,7 +591,7 @@
 												>{@html crossmarkIcon}</span
 											>
 											{#if !del.isNamedVote}
-												<span class="text-xs font-light"> (Partei) </span>
+												<span class="text-xs font-light"> (Klub) </span>
 											{/if}
 										{/if}
 									</DelegateListItem>
@@ -709,7 +709,7 @@
 												{/if}
 											{/each}
 											{#if !voteResult.votes.some((v) => v.infavor)}
-												<span class="text-sm text-gray-500">Keine Parteien</span>
+												<span class="text-sm text-gray-500">Keine Klubs</span>
 											{/if}
 										</div>
 									</div>
@@ -740,7 +740,7 @@
 												{/if}
 											{/each}
 											{#if !voteResult.votes.some((v) => !v.infavor)}
-												<span class="text-sm text-gray-500">Keine Parteien</span>
+												<span class="text-sm text-gray-500">Keine Klubs</span>
 											{/if}
 										</div>
 									</div>

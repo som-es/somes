@@ -11,7 +11,7 @@
 		'delegate.normalized': 'Durchschnittliche Dauer einer Rede je Abgeordneter oder Abgeordnetem.',
 		'delegate.absolute': 'Gesamte Redezeit je Abgeordneter oder Abgeordnetem.',
 		'party.normalized': 'Durchschnittliche Rededauer der Abgeordneten einer Partei.',
-		'party.absolute': 'Gesamte Redezeit, nach Parteien zusammengefasst.',
+		'party.absolute': 'Gesamte Redezeit, nach Klubs zusammengefasst.',
 		'gender.normalized': 'Durchschnittliche Rededauer im Vergleich nach Geschlecht.',
 		'gender.absolute': 'Gesamte Redezeit im Vergleich nach Geschlecht.',
 		'age.normalized': 'Durchschnittliche Rededauer nach Altersgruppen.',

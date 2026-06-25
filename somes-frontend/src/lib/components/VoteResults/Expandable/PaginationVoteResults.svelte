@@ -496,7 +496,7 @@
 					class="flex h-full grow touch-manipulation items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 md:grow-0"
 				>
 					<FilterDropdown
-						title="Parteien"
+						title="Klubs"
 						activefilterCount={activePartyFiltersCount}
 						isOpen={isPartiesFilterOpen}
 					/>
@@ -606,7 +606,7 @@
 										<span class="truncate">+{selectedIssuerParties.length - 1} weitere</span>
 									{/if}
 									{#if selectedIssuerParties.length === 0}
-										<span>Alle Parteien</span>
+										<span>Alle Klubs</span>
 									{/if}
 								</div>
 								<span class="mr-2 block w-4 [&>svg]:fill-primary-400 [&>svg]:stroke-primary-400"

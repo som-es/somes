@@ -9,7 +9,7 @@
 
 	const chartDescriptions = {
 		delegate: 'Gezählte Reden je Abgeordneter oder Abgeordnetem.',
-		party: 'Gezählte Reden, nach Parteien zusammengefasst.',
+		party: 'Gezählte Reden, nach Klubs zusammengefasst.',
 		gender: 'Gezählte Reden im Vergleich nach Geschlecht.',
 		age: 'Gezählte Reden nach Altersgruppen.',
 		legis: 'Gezählte Reden je Legislaturperiode.',
