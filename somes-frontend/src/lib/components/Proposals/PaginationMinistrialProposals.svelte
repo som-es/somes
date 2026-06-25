@@ -13,6 +13,7 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { errorToNull, get_eurovoc_topics } from '$lib/api/api';
+	import SortPopover from '../Filtering/SortPopover.svelte';
 	import MultiValuesFilter from '../Filtering/MultiValuesFilter.svelte';
 	import { convertGovPropFilterToUrl } from './urlConversion';
 	import DateRangeSnippet from '../Filtering/GenericFilterSnippets/DataRangeSnippet.svelte';
@@ -56,6 +57,7 @@
 	});
 
 	let searchValue = $state('');
+	let sortOrder: 'relevance' | 'Desc' | 'Asc' = $state('relevance');
 
 	let updatedAt = $derived(
 		govProposals.updated_at
@@ -127,7 +129,7 @@
 		};
 		currentGovProposalFilterStore.value = filter;
 
-		const nextUrl = convertGovPropFilterToUrl(filter, searchValue, new URL(page.url));
+		const nextUrl = convertGovPropFilterToUrl(filter, searchValue, new URL(page.url), sortOrder);
 		goto(nextUrl, {
 			keepFocus: true,
 			replaceState: true,
@@ -141,6 +143,7 @@
 
 	$effect(() => {
 		void searchValue;
+		void sortOrder;
 		void selectedTopics.size;
 		void selectedDepartments.size;
 		void genericFilters[0].activeValue;
@@ -182,8 +185,14 @@
 </span>
 
 <div class="mt-7 md:flex">
-	<!-- Search bar -->
-	<SearchBar bind:searchValue />
+	<!-- Search bar with inline sort trigger -->
+	<SearchBar bind:searchValue>
+		{#snippet rightSlot()}
+			{#if searchValue.length > 0}
+				<SortPopover bind:sortOrder />
+			{/if}
+		{/snippet}
+	</SearchBar>
 
 	<div class="mt-2 flex h-10 w-full gap-2 text-xs sm:text-base md:mt-0 md:ml-2 md:w-auto">
 		<MultiValuesFilter

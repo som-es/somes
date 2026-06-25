@@ -29,6 +29,7 @@
 	import FilterGroup from '$lib/components/Filtering/FilterGroup.svelte';
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache.svelte';
 	import TopicFilter from '$lib/components/Filtering/TopicFilter.svelte';
+	import SortPopover from '$lib/components/Filtering/SortPopover.svelte';
 
 	interface Props {
 		voteResults: VoteResultsWithMaxPage | null;
@@ -401,7 +402,8 @@
 			filter,
 			searchValue,
 			new URL(page.url),
-			isFinished
+			isFinished,
+			sortOrder
 		);
 
 		currentVoteResultFilterStore.value = filter;
@@ -441,6 +443,7 @@
 
 	$effect(() => {
 		void searchValue;
+		void sortOrder;
 		void partyVotesFilter;
 		void selectedTopics.size;
 		void selectedIssuerParties.length;
@@ -465,6 +468,7 @@
 	});
 
 	let searchValue = $state('');
+	let sortOrder: 'relevance' | 'Desc' | 'Asc' = $state('relevance');
 </script>
 
 <!-- HERE IS THE HTML -->
@@ -474,8 +478,15 @@
 </span>
 
 <div class="mt-7 md:flex">
-	<!-- Search bar -->
-	<SearchBar bind:searchValue />
+	<!-- Search bar with inline sort trigger -->
+	<SearchBar bind:searchValue>
+		{#snippet rightSlot()}
+			{#if searchValue.length > 0}
+				<SortPopover bind:sortOrder />
+			{/if}
+		{/snippet}
+	</SearchBar>
+
 	<!-- Filter Buttons -->
 	<!-- Parteien Filter -->
 	<div class="mt-2 flex h-10 w-full gap-2 text-xs sm:text-base md:mt-0 md:ml-2 md:w-auto">

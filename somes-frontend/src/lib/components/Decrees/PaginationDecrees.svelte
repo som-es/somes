@@ -11,6 +11,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import SearchBar from '../Filtering/SearchBar.svelte';
+	import SortPopover from '../Filtering/SortPopover.svelte';
 	import MultiValuesFilter from '../Filtering/MultiValuesFilter.svelte';
 	import GenericFilters from '../Filtering/GenericFilters.svelte';
 	import type { GenericFilterGroup } from '../Filtering/types';
@@ -33,6 +34,7 @@
 	});
 
 	let searchValue = $state('');
+	let sortOrder: 'relevance' | 'Desc' | 'Asc' = $state('relevance');
 
 	let updatedAt = $derived(
 		decrees.updated_at
@@ -116,7 +118,7 @@
 		};
 		currentDecreeFilterStore.value = filter;
 
-		const nextUrl = convertDecreeFilterToUrl(filter, searchValue, new URL(page.url));
+		const nextUrl = convertDecreeFilterToUrl(filter, searchValue, new URL(page.url), sortOrder);
 
 		goto(nextUrl, {
 			keepFocus: true,
@@ -134,6 +136,7 @@
 
 	$effect(() => {
 		void searchValue;
+		void sortOrder;
 		void selectedTopics.size;
 		void selectedDepartments.size;
 		void legisPeriodFilter.activeValue;
@@ -173,8 +176,14 @@
 </span>
 
 <div class="mt-7 md:flex">
-	<!-- Search bar -->
-	<SearchBar bind:searchValue />
+	<!-- Search bar with inline sort trigger -->
+	<SearchBar bind:searchValue>
+		{#snippet rightSlot()}
+			{#if searchValue.length > 0}
+				<SortPopover bind:sortOrder />
+			{/if}
+		{/snippet}
+	</SearchBar>
 
 	<div class="mt-2 flex h-10 w-full gap-2 text-xs sm:text-base md:mt-0 md:ml-2 md:w-auto">
 		<MultiValuesFilter

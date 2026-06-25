@@ -6,7 +6,8 @@ export function convertVoteResultFilterToUrl(
 	filter: VoteResultFilter | null,
 	searchValue: string,
 	currentUrl: URL | undefined,
-	isFinished: boolean = true
+	isFinished: boolean = true,
+	sort: 'Desc' | 'Asc' | 'relevance' = 'relevance'
 ): URL {
 	const nextUrl = currentUrl
 		? currentUrl
@@ -72,9 +73,13 @@ export function convertVoteResultFilterToUrl(
 	}
 
 	// enforce with frontend => add user sorting
-	if (searchValue.length == 0) {
+	if (searchValue.length === 0 || sort === 'Desc') {
 		nextUrl.searchParams.set('sort', 'Desc');
+	} else if (sort === 'Asc') {
+		nextUrl.searchParams.set('sort', 'Asc');
 	}
+	// else relevance: no sort param, backend uses relevance ranking
+
 	nextUrl.searchParams.set('search', searchValue);
 
 	filter.topics?.forEach((topic, i) => {

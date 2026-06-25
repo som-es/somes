@@ -5,7 +5,8 @@ import type { DecreeFilter } from '../Delegates/Decrees/types';
 export function convertDecreeFilterToUrl(
 	filter: DecreeFilter | null,
 	searchValue: string,
-	currentUrl: URL | undefined
+	currentUrl: URL | undefined,
+	sort: 'Desc' | 'Asc' | 'relevance' = 'relevance'
 ): URL {
 	const nextUrl = currentUrl ? currentUrl : new URL(resolve('/history/decrees'), page.url.origin);
 	nextUrl.search = '';
@@ -35,9 +36,12 @@ export function convertDecreeFilterToUrl(
 	}
 
 	// enforce with frontend => add user sorting
-	if (searchValue.length == 0) {
+	if (searchValue.length === 0 || sort === 'Desc') {
 		nextUrl.searchParams.set('sort', 'Desc');
+	} else if (sort === 'Asc') {
+		nextUrl.searchParams.set('sort', 'Asc');
 	}
+	// else relevance: no sort param, backend uses relevance ranking
 
 	nextUrl.searchParams.set('search', searchValue);
 
