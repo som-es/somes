@@ -54,6 +54,7 @@ pub struct Absence {
     pub plenary_session_id: i32,
     pub missed_legis_init_ids: Option<Vec<i32>>,
     pub source_url: Option<String>,
+    pub council: String,
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]

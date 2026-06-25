@@ -453,6 +453,7 @@ export interface PlenarySession {
 	updated_at: string | null;
 	legislative_period: string;
 	absences_doc_url: string | null;
+	council: string;
 }
 
 export interface Absence {
@@ -462,6 +463,7 @@ export interface Absence {
 	plenary_session_id: number;
 	missed_legis_init_ids: number[];
 	source_url: string | null;
+	council: string;
 }
 
 export interface NamedVote {

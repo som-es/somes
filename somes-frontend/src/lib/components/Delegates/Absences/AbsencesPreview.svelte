@@ -78,7 +78,7 @@
 			</h3>
 			<div class="flex flex-col gap-2">
 				{#if recentAbsences.length > 0}
-					{#each recentAbsences as absence}
+					{#each recentAbsences as absence ((absence.gp, absence.inr, absence))}
 						<svelte:element
 							this={absence.source_url ? 'a' : 'div'}
 							href={absence.source_url || undefined}
@@ -91,7 +91,7 @@
 							<div class="flex items-center gap-3">
 								<div class="h-2 w-2 rounded-full bg-red-500/80"></div>
 								<span class="font-medium text-primary-900 dark:text-primary-100">
-									{absence.inr}. Nationalratssitzung
+									{absence.inr}. {absence.council === 'NR' ? 'Nationalrats' : 'Bundesrats'}sitzung
 								</span>
 							</div>
 							<div class="text-xs text-primary-600 dark:text-primary-400">
@@ -112,7 +112,7 @@
 		</div>
 	</div>
 
-	{#if recentAbsences.length > 0 && absences.length > recentAbsences.length}
+	{#if recentAbsences.length > 0}
 		<div class="mt-auto flex justify-end pt-4">
 			<ExtendInfoDialog title="Alle anzeigen">
 				<AbsencesModal absences={sortedAbsences} {title} {showDetails} {delegate} />

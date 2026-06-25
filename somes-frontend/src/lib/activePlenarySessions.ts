@@ -6,6 +6,9 @@ function couldAttendPlenarySessionByTime(
 ): boolean {
 	return (
 		mandates.find((mandate) => {
+			if (plenarySession.council !== mandate.function) {
+				return false;
+			}
 			const startDate = new Date(mandate.start_date!);
 			const endDate = mandate.end_date ? new Date(mandate.end_date) : new Date();
 			const plenaryDate = new Date(plenarySession.raw_data_created_at);
