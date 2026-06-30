@@ -297,13 +297,13 @@
 				<div class="title-item rounded-xl bg-primary-300 px-6 py-5 dark:bg-primary-500">
 					<!-- Title, Date and Result Icon -->
 					<div class="flex items-start justify-between">
-						<div class="flex items-center gap-4">
+						<div class="flex min-w-0 items-center gap-4">
 							<!-- Title & Date Stack -->
-							<div class="flex flex-col">
+							<div class="flex min-w-0 flex-col">
 								<div class="flex items-start gap-2">
 									<span
 										class="text-xl leading-tight font-bold lg:text-3xl"
-										style="hyphens: auto; word-break: normal; overflow-wrap: break-word;"
+										style="hyphens: auto; word-break: break-word; overflow-wrap: break-word;"
 									>
 										{#if aiViewEnabledStore.value && voteResult.ai_summary}
 											<AiSummaryHintPopup aiSummary={voteResult.ai_summary} />
@@ -384,7 +384,10 @@
 					{#if aiViewEnabledStore.value && voteResult.ai_summary}
 						<div class="mt-5 pb-3">
 							<h1 class="text-lg font-semibold md:text-xl">Zusammenfassung</h1>
-							<span class="text-base text-gray-800 lg:text-base dark:text-gray-200">
+							<span
+								class="text-base text-gray-800 lg:text-base dark:text-gray-200"
+								style="hyphens: auto; word-break: break-word; overflow-wrap: break-word;"
+							>
 								<GlossaryText
 									text={voteResult.ai_summary.short_summary}
 									glossary={voteResult.ai_summary.full_summary.glossary}
@@ -398,7 +401,7 @@
 							<InfoBadges {voteResult} />
 						</div>
 
-						<div class="flex flex-1 justify-end">
+						<div class="flex min-w-0 flex-1 justify-end">
 							{#if aiViewEnabledStore.value && voteResult.ai_summary && voteResult.eurovoc_topics.length == 0}
 								<Topics
 									topics={voteResult.ai_summary.full_summary.topics

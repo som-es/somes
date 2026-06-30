@@ -54,7 +54,7 @@
 						<div class="flex items-start gap-2">
 							<span
 								class="text-xl leading-tight font-bold lg:text-3xl"
-								style="hyphens: auto; word-break: normal; overflow-wrap: break-word;"
+								style="hyphens: auto; word-break: break-word; overflow-wrap: break-word;"
 							>
 								{#if aiViewEnabledStore.value && aiSummary}
 									<AiSummaryHintPopup {aiSummary} />
@@ -85,7 +85,10 @@
 			{#if ministerialData.aiSummary}
 				<div class="mt-5 pb-3">
 					<h1 class="text-lg font-semibold md:text-xl">Zusammenfassung</h1>
-					<span class="text-base text-gray-800 lg:text-base dark:text-gray-200">
+					<span
+						class="text-base text-gray-800 lg:text-base dark:text-gray-200"
+						style="hyphens: auto; word-break: break-word; overflow-wrap: break-word;"
+					>
 						<GlossaryText
 							text={ministerialData.aiSummary.short_summary}
 							glossary={ministerialData.aiSummary.full_summary.glossary}
