@@ -16,10 +16,10 @@
 	interface Props {
 		ministerialData: MinisterialViewData;
 		children?: Snippet;
-		outerSnippet?: Snippet;
+		snippets: Record<string, Snippet | undefined>;
 	}
 
-	let { ministerialData, children }: Props = $props();
+	let { ministerialData, children, snippets = {} }: Props = $props();
 
 	let aiSummary = $derived(ministerialData.aiSummary);
 	let date = $derived(dashDateToDotDate(ministerialData.date.toString().split('T')[0]));
@@ -127,15 +127,15 @@
 				glossary={ministerialData.aiSummary.full_summary.glossary}
 			/>
 		{/if}
-		{#if ministerialData.documents.length > 0 && !children}
+		{#if ministerialData.documents.length > 0 && snippets['voteable'] == null}
 			<div class="flex min-w-full flex-wrap gap-2">
 				<div class="min-w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 					<Documents documents={ministerialData.documents} />
 				</div>
 			</div>
 		{/if}
-		{#if children}
-			{@render children()}
+		{#if snippets['voteable']}
+			{@render snippets['voteable']()}
 		{/if}
 	</div>
 
@@ -176,7 +176,7 @@
 		</div>
 	{/if}
 </div>
-{#if ministerialData.documents.length > 0 && ministerialData.type === 'gov_proposal' && children}
+{#if ministerialData.documents.length > 0 && ministerialData.type === 'gov_proposal' && snippets['voteable']}
 	<div class="mt-2 flex min-w-full flex-wrap gap-2">
 		<div class="min-w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 			<Documents documents={ministerialData.documents} />

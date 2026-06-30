@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 somes-common-lib = {path = "../somes-common-lib"}
 # somes-common-lib = { git = "https://github.com/som-es/somes" }
-common-scrapes = { path = "../../common-scrapes" }
+common-scrapes = { path = "../../scraper/common-scrapes" }
 # common-scrapes = { git = "https://github.com/som-es/common-scrapes" }
 combx = { workspace = true }
 update-notify = { workspace = true }

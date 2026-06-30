@@ -48,8 +48,8 @@
 
 <Container>
 	{#if ministerialData && govProposalDelegate}
-		<MinisterialView {ministerialData}>
-			<!-- Regierungsvorlage -->
+		<!-- Regierungsvorlage -->
+		{#snippet voteable()}
 			{#if govProposalDelegate.gov_proposal.vote_result}
 				<div class="entry block bg-primary-300 p-4 dark:bg-primary-500">
 					<span class="mb-1 text-lg font-semibold md:text-xl"> Regierungsvorlage </span>
@@ -60,10 +60,13 @@
 					<!-- <VoteResultExpandableBar voteResult={govProposalDelegate.gov_proposal.vote_result} /> -->
 				</div>
 			{/if}
-			<!-- <div class="">
-					<VoteParliament2 voteResult={govProposalDelegate.gov_proposal.vote_result} />
-			</div> -->
-		</MinisterialView>
+		{/snippet}
+		<MinisterialView
+			{ministerialData}
+			snippets={{
+				voteable: govProposalDelegate.gov_proposal.vote_result === null ? undefined : voteable
+			}}
+		/>
 	{:else}
 		{#each { length: 10 } as _}
 			<ExpandablePlaceholder />
