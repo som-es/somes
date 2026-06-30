@@ -112,6 +112,14 @@ impl ToFilterable for chrono::NaiveDate {
     }
 }
 
+impl ToFilterable for chrono::NaiveTime {
+    fn to_filterable(&self) -> Filterable {
+        Filterable {
+            value_as_string: format!("{:?}", self.to_string()),
+        }
+    }
+}
+
 impl From<String> for Filterable {
     fn from(value: String) -> Self {
         Filterable {

@@ -80,12 +80,16 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
                 ) ELSE NULL END,
                 duration_in_seconds,
                 opinion,
-                document_url,
-                about
+                ARRAY(
+                  SELECT document_url
+                  FROM plenar_speech_links
+                  WHERE plenar_speech_id = ps.id
+                ),
+                about,
+                start
               )::db_speech_with_link
             FROM
               plenar_speeches ps
-              JOIN plenar_speech_links psl ON psl.plenar_speech_id = ps.id
               JOIN plenar_speech_legis_inits pl ON pl.speech_id = ps.id
               JOIN debates deb ON deb.id = ps.debate_id
               JOIN plenar_infos pi ON pi.id = deb.plenar_id
