@@ -401,7 +401,7 @@
 							<InfoBadges {voteResult} />
 						</div>
 
-						<div class="flex min-w-0 flex-1 justify-end">
+						<div class="flex flex-1 justify-end">
 							{#if aiViewEnabledStore.value && voteResult.ai_summary && voteResult.eurovoc_topics.length == 0}
 								<Topics
 									topics={voteResult.ai_summary.full_summary.topics
