@@ -1,5 +1,6 @@
 import type {
 	DelegateFavo,
+	DelegateQuestionCreated,
 	ExtendedUserInfo,
 	HasError,
 	JWTInfo,
@@ -119,6 +120,13 @@ export async function addDelegateFavo(uniqueTopic: DelegateFavo): Promise<null |
 
 export async function removeDelegateFavo(uniqueTopic: DelegateFavo): Promise<null | HasError> {
 	return deleteWithAuth('v1/user/bookmark/delegate', uniqueTopic);
+}
+
+export async function askDelegateQuestion(
+	delegateId: number,
+	question: { subject: string; body: string }
+): Promise<DelegateQuestionCreated | HasError> {
+	return postWithAuth<DelegateQuestionCreated>(`v1/delegates/${delegateId}/questions`, question);
 }
 
 export async function getFavoDelegates(): Promise<DelegateFavo[] | HasError> {

@@ -1,6 +1,7 @@
 import type { Decree } from '$lib/components/Delegates/Decrees/types';
 import type {
 	Delegate,
+	DelegateQuestionRecipient,
 	HasError,
 	InterestShare,
 	VoteResultFilter,
@@ -153,6 +154,12 @@ export async function coalition_parties_per_gp(
 
 export async function delegates(): Promise<Delegate[] | HasError> {
 	return getWithRoute<Delegate[]>('v1/delegates/all_active');
+}
+
+export async function delegate_question_recipient(
+	delegateId: number
+): Promise<DelegateQuestionRecipient | HasError> {
+	return getWithRoute(`v1/delegates/${delegateId}/question-recipient`);
 }
 
 export async function latest_vote_results(

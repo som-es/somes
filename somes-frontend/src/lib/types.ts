@@ -313,6 +313,19 @@ export interface HasError {
 	meta: any | null;
 }
 
+export interface DelegateQuestionCreated {
+	id: number;
+	delivery: DelegateQuestionDelivery;
+	recipient_name: string;
+}
+
+export type DelegateQuestionDelivery = 'delegate' | 'party';
+
+export interface DelegateQuestionRecipient {
+	delivery: DelegateQuestionDelivery;
+	recipient_name: string;
+}
+
 export interface JWTInfo {
 	access_token: string;
 }

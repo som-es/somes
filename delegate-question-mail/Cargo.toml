@@ -1,0 +1,8 @@
+[package]
+name = "delegate-question-mail"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+base64 = "0.22"
+uuid = { version = "1.2.2", features = ["v4"] }

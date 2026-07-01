@@ -1,0 +1,22 @@
+{
+  "ÖVP": {
+    "name": "ÖVP-Klub",
+    "email": "team@oevpklub.at"
+  },
+  "SPÖ": {
+    "name": "SPÖ-Klub",
+    "email": "klub@spoe.at"
+  },
+  "FPÖ": {
+    "name": "FPÖ-Klub",
+    "email": "parlamentsklub@fpoe.at"
+  },
+  "GRÜNE": {
+    "name": "Grüner Klub",
+    "email": "dialogbuero@gruene.at"
+  },
+  "NEOS": {
+    "name": "NEOS-Klub",
+    "email": "parlamentsklub@neos.eu"
+  }
+}

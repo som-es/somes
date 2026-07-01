@@ -11,6 +11,7 @@
 	import { addDelegateFavo, removeDelegateFavo } from '$lib/api/authed';
 	import { url } from '$lib/api/api';
 	import AIChatModal from './AIChat/AIChatModal.svelte';
+	import DelegateQuestionModal from './Questions/DelegateQuestionModal.svelte';
 	import { Dialog } from 'bits-ui';
 	import DelegateQAModal from './QA/DelegateQAModal.svelte';
 	import { resolve } from '$app/paths';
@@ -225,6 +226,24 @@
 		{/if}
 
 		{#if !onlyTop}
+			<Dialog.Root>
+				<Dialog.Trigger>
+					<div class="rounded-xl bg-secondary-500 p-2 px-3 text-white">
+						<h4>Frage stellen</h4>
+					</div>
+				</Dialog.Trigger>
+				<Dialog.Portal>
+					<Dialog.Overlay
+						class="fixed inset-0 z-50 bg-black/80 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0"
+					/>
+					<Dialog.Content
+						class="fixed top-[50%] left-[50%] z-50 w-full max-w-xl translate-x-[-50%] translate-y-[-50%] overflow-hidden rounded-lg bg-primary-100 shadow-lg outline-hidden data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 dark:bg-gray-800"
+					>
+						<DelegateQuestionModal {delegate} />
+					</Dialog.Content>
+				</Dialog.Portal>
+			</Dialog.Root>
+
 			{#if showAI}
 				<Dialog.Root>
 					<Dialog.Trigger>

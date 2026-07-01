@@ -138,6 +138,7 @@ pub async fn login(
     let key = format!("login/{stored_email}");
 
     if redis_con.exists::<_, bool>(&key).await.unwrap_or_default() {
+        log::info!("OTP for {} already exists in Redis", login_info.email);
         match redis_con.get::<_, String>(&key).await {
             Ok(v) => {
                 let Some(password) = login_info.password else {
@@ -198,6 +199,10 @@ pub async fn login(
             }
         }
     } else {
+        log::info!(
+            "Creating OTP and sending verification email to {}",
+            login_info.email
+        );
         send_otp(&mut redis_con, &login_info.email, &key).await?;
     }
 

@@ -1,0 +1,11 @@
+[package]
+name = "delegate-question-mail-listener"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+delegate-question-mail = { path = "../delegate-question-mail" }
+dotenvy = "0.15.7"
+imap = { version = "3.0.0-alpha.15", features = ["rustls-tls"] }
+sqlx = { workspace = true }
+tokio = { version = "1.0", features = ["full"] }

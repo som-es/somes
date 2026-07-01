@@ -15,26 +15,40 @@ pub const SMTP_USERNAME: &str = dotenv!("SMTP_USERNAME");
 pub const SMTP_PASSWORD: &str = dotenv!("SMTP_PASSWORD");
 pub const MAIL_FROM_DISPLAY: &str = dotenv!("MAIL_FROM_DISPLAY");
 pub const MAIL_SERVER: &str = dotenv!("MAIL_SERVER");
+pub const SMTP_PORT: &str = dotenv!("SMTP_PORT");
+pub const SMTP_TLS: &str = dotenv!("SMTP_TLS");
 
 pub const EMAIL_TEMPLATE: &str = include_str!("email_template.html");
 
 pub static MAILER: Lazy<SmtpTransport> = Lazy::new(|| {
-    let creds = Credentials::new(SMTP_USERNAME.to_string(), SMTP_PASSWORD.to_string());
     log::info!("SMTP USER: {}", SMTP_USERNAME);
-    log::info!("Connecting to email relay...");
+    let port = SMTP_PORT
+        .parse::<u16>()
+        .expect("SMTP_PORT must be a valid port");
+    let use_tls = SMTP_TLS != "false";
+    log::info!(
+        "Connecting to email relay at {}:{} (tls={})...",
+        MAIL_SERVER,
+        port,
+        use_tls
+    );
 
-    // let tls_parameters = TlsParameters::builder(MAIL_SERVER.to_string())
-    //     // .dangerous_accept_invalid_certs(true)
-    //     .build()
-    //     .expect("Failed to build TLS parameters");
+    let mut builder = if use_tls {
+        SmtpTransport::starttls_relay(MAIL_SERVER).expect("Email relay not available.")
+    } else {
+        SmtpTransport::builder_dangerous(MAIL_SERVER)
+    };
 
-    SmtpTransport::starttls_relay(MAIL_SERVER)
-        .expect("Email relay not available.")
-        .credentials(creds)
-        // .tls(lettre::transport::smtp::client::Tls::Wrapper(
-        //     tls_parameters,
-        // ))
-        .build()
+    builder = builder.port(port);
+
+    if !SMTP_USERNAME.is_empty() || !SMTP_PASSWORD.is_empty() {
+        builder = builder.credentials(Credentials::new(
+            SMTP_USERNAME.to_string(),
+            SMTP_PASSWORD.to_string(),
+        ));
+    }
+
+    builder.build()
 });
 
 pub fn send_mail(
@@ -43,7 +57,17 @@ pub fn send_mail(
     subject: &str,
     content: String,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let from = format!("somes auth <{}>", SMTP_USERNAME).parse()?;
+    send_mail_with_message_id(mailer, mail_to, subject, content, None)
+}
+
+pub fn send_mail_with_message_id(
+    mailer: &SmtpTransport,
+    mail_to: &str,
+    subject: &str,
+    content: String,
+    message_id: Option<String>,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let from = MAIL_FROM_DISPLAY.parse()?;
     let to = format!("Recipient <{mail_to}>").parse()?;
 
     let email = Message::builder()
@@ -51,9 +75,11 @@ pub fn send_mail(
         .to(to)
         .subject(subject)
         .header(ContentType::TEXT_HTML)
+        .message_id(message_id)
         .body(content)?;
 
-    mailer.send(&email)?;
+    let response = mailer.send(&email)?;
+    log::info!("Sent email to {mail_to}: {response:?}");
     Ok(())
 }
 
