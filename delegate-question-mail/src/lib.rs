@@ -259,7 +259,7 @@ mod tests {
 
     #[test]
     fn parses_thunderbird_reply_headers_and_body() {
-        let raw_message = b"From: Mailpit test <parlamentsklub@neos.eu>\r\nMessage-ID: <reply-123@neos.eu>\r\nIn-Reply-To: <question-abc@somes.at>\r\nReferences: <question-abc@somes.at>\r\nContent-Type: multipart/alternative; boundary=part\r\n\r\n--part\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\nDanke fuer die Antwort.\r\n\r\nOn 6/26/26, info@somes.at wrote:\r\n> Alte Frage\r\n--part--\r\n";
+        let raw_message = b"From: Parliament Club <parlamentsklub@neos.eu>\r\nMessage-ID: <reply-123@neos.eu>\r\nIn-Reply-To: <question-abc@somes.at>\r\nReferences: <question-abc@somes.at>\r\nContent-Type: multipart/alternative; boundary=part\r\n\r\n--part\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\nDanke fuer die Antwort.\r\n\r\nOn 6/26/26, info@somes.at wrote:\r\n> Alte Frage\r\n--part--\r\n";
 
         let reply = parse_incoming_reply(raw_message);
 
