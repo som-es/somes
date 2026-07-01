@@ -108,7 +108,7 @@
 
 	{#if isLoading}
 		<p class="text-sm text-gray-600 dark:text-gray-300">Fragen werden geladen.</p>
-	{:else if isAdmin && questions.length === 0}
+	{:else if isAdmin && questions.length === 0 && errorMessage === null}
 		<p class="text-sm text-gray-600 dark:text-gray-300">Derzeit warten keine Fragen auf Freigabe.</p>
 	{:else if isAdmin}
 		<div class="space-y-4">
@@ -123,7 +123,13 @@
 								<span>Delegate #{question.delegate_id}</span>
 								<span>User #{question.user_id}</span>
 								<span>{question.recipient_kind === 'party' ? 'Parteiklub' : 'Abgeordneter'}</span>
-								<span>{question.status === 'failed' ? 'Versand fehlgeschlagen' : 'Offen'}</span>
+								<span>
+									{question.status === 'failed'
+										? 'Versand fehlgeschlagen'
+										: question.status === 'sending'
+											? 'Wird versendet'
+											: 'Offen'}
+								</span>
 							</div>
 							<h2 class="mt-2 text-lg font-bold text-black dark:text-white">{question.subject}</h2>
 							<p class="mt-1 text-sm text-gray-700 dark:text-gray-200">

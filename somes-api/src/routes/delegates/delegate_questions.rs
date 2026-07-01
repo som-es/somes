@@ -182,10 +182,10 @@ pub async fn approve_delegate_question_route(
     ensure_admin(&claims)?;
 
     let question = find_admin_question(&pg, question_id).await?;
-    if question.status != "pending" {
+    if question.status != "pending" && question.status != "failed" {
         return Err(GenericError::Custom((
             StatusCode::CONFLICT,
-            "Question is not pending",
+            "Question can not be approved",
         )));
     }
 
@@ -503,6 +503,27 @@ async fn send_question_mail(pg: &sqlx::PgPool, question_id: i64) -> Result<(), G
         "Question was not found",
     )))?;
 
+    let locked = sqlx::query(
+        "
+        UPDATE delegate_questions
+        SET status = 'sending',
+            updated_at = NOW()
+        WHERE id = $1
+            AND status IN ('pending', 'failed')
+        ",
+    )
+    .bind(question_id)
+    .execute(pg)
+    .await
+    .map_err(|error| GenericError::SqlFailure(Some(error)))?;
+
+    if locked.rows_affected() == 0 {
+        return Err(GenericError::Custom((
+            StatusCode::CONFLICT,
+            "Question can not be approved",
+        )));
+    }
+
     let recipient_kind: String = row
         .try_get("recipient_kind")
         .map_err(|error| GenericError::SqlFailure(Some(error)))?;
@@ -543,7 +564,7 @@ async fn send_question_mail(pg: &sqlx::PgPool, question_id: i64) -> Result<(), G
     let mail_content = render_question_mail(&delegate, &subject, &body);
     let recipient_email = delegate.recipient_email.clone();
 
-    let mail_result = tokio::task::spawn_blocking(move || {
+    let mail_result = match tokio::task::spawn_blocking(move || {
         send_mail_with_message_id(
             &MAILER,
             &recipient_email,
@@ -554,13 +575,13 @@ async fn send_question_mail(pg: &sqlx::PgPool, question_id: i64) -> Result<(), G
         .map_err(|error| error.to_string())
     })
     .await
-    .map_err(|error| {
-        log::error!("delegate question mail task failed: {error}");
-        GenericError::Custom((
-            StatusCode::INTERNAL_SERVER_ERROR,
-            "Could not send question email",
-        ))
-    })?;
+    {
+        Ok(result) => result,
+        Err(error) => {
+            log::error!("delegate question mail task failed: {error}");
+            Err(error.to_string())
+        }
+    };
 
     match mail_result {
         Ok(()) => set_question_status(pg, question_id, "sent").await,
