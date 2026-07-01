@@ -1,8 +1,6 @@
 [workspace]
 members = [
     "somes-api",
-    "delegate-question-mail",
-    "delegate-question-mail-listener",
     "somes-common-lib",
     "somes-utils/websockets-test",
     "views",
