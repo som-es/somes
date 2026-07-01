@@ -37,6 +37,7 @@ pub struct DelegateQuestionCreated {
     pub id: i64,
     pub delivery: QuestionDelivery,
     pub recipient_name: String,
+    pub status: String,
 }
 
 #[derive(Debug, Serialize, Clone, Copy)]
@@ -74,6 +75,21 @@ pub struct PublicDelegateQuestion {
 pub struct PublicDelegateQuestionAnswer {
     pub body: String,
     pub received_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct AdminDelegateQuestion {
+    pub id: i64,
+    pub user_id: i32,
+    pub delegate_id: i32,
+    pub delegate_name: String,
+    pub recipient_email: String,
+    pub recipient_kind: String,
+    pub recipient_name: String,
+    pub subject: String,
+    pub body: String,
+    pub status: String,
+    pub created_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -115,45 +131,11 @@ pub async fn ask_delegate_question_route(
     )
     .await?;
 
-    let mail_subject = format!("Neue Frage über somes.at: {subject}");
-    let mail_content = render_question_mail(&delegate, &subject, &body);
-    let recipient_email = delegate.recipient_email.clone();
-
-    let mail_result = tokio::task::spawn_blocking(move || {
-        send_mail_with_message_id(
-            &MAILER,
-            &recipient_email,
-            &mail_subject,
-            mail_content,
-            Some(outgoing_message_id),
-        )
-        .map_err(|error| error.to_string())
-    })
-    .await
-    .map_err(|error| {
-        log::error!("delegate question mail task failed: {error}");
-        GenericError::Custom((
-            StatusCode::INTERNAL_SERVER_ERROR,
-            "Could not send question email",
-        ))
-    })?;
-
-    match mail_result {
-        Ok(()) => set_question_status(&pg, question_id, "sent").await?,
-        Err(error) => {
-            log::error!("sending delegate question {question_id} failed: {error}");
-            set_question_status(&pg, question_id, "failed").await?;
-            return Err(GenericError::Custom((
-                StatusCode::BAD_GATEWAY,
-                "Could not send question email",
-            )));
-        }
-    }
-
     Ok(Json(DelegateQuestionCreated {
         id: question_id,
         delivery: delegate.delivery,
         recipient_name: delegate.recipient_name,
+        status: "pending".to_string(),
     }))
 }
 
@@ -182,6 +164,62 @@ pub async fn all_delegate_questions_route(
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<PublicDelegateQuestion>>, GenericError> {
     fetch_public_questions(&pg, None).await.map(Json)
+}
+
+pub async fn pending_delegate_questions_route(
+    PgPoolConnection(pg): PgPoolConnection,
+    claims: Claims,
+) -> Result<Json<Vec<AdminDelegateQuestion>>, GenericError> {
+    ensure_admin(&claims)?;
+    fetch_review_questions(&pg).await.map(Json)
+}
+
+pub async fn approve_delegate_question_route(
+    PgPoolConnection(pg): PgPoolConnection,
+    claims: Claims,
+    Path(question_id): Path<i64>,
+) -> Result<Json<AdminDelegateQuestion>, GenericError> {
+    ensure_admin(&claims)?;
+
+    let question = find_admin_question(&pg, question_id).await?;
+    if question.status != "pending" {
+        return Err(GenericError::Custom((
+            StatusCode::CONFLICT,
+            "Question is not pending",
+        )));
+    }
+
+    send_question_mail(&pg, question_id).await?;
+    find_admin_question(&pg, question_id).await.map(Json)
+}
+
+pub async fn reject_delegate_question_route(
+    PgPoolConnection(pg): PgPoolConnection,
+    claims: Claims,
+    Path(question_id): Path<i64>,
+) -> Result<Json<AdminDelegateQuestion>, GenericError> {
+    ensure_admin(&claims)?;
+    let question = find_admin_question(&pg, question_id).await?;
+    if question.status != "pending" && question.status != "failed" {
+        return Err(GenericError::Custom((
+            StatusCode::CONFLICT,
+            "Question can not be rejected",
+        )));
+    }
+
+    set_question_status(&pg, question_id, "rejected").await?;
+    find_admin_question(&pg, question_id).await.map(Json)
+}
+
+fn ensure_admin(claims: &Claims) -> Result<(), GenericError> {
+    if claims.is_admin {
+        return Ok(());
+    }
+
+    Err(GenericError::Custom((
+        StatusCode::UNAUTHORIZED,
+        "insufficient permissions",
+    )))
 }
 
 fn validate_question(subject: &str, body: &str) -> Result<(), GenericError> {
@@ -279,6 +317,7 @@ async fn fetch_public_questions(
         FROM delegate_questions q
         LEFT JOIN delegate_question_answers a ON a.question_id = q.id
         WHERE ($1::INTEGER IS NULL OR q.delegate_id = $1)
+            AND q.status IN ('sent', 'answered')
         ORDER BY q.created_at DESC, a.received_at ASC NULLS LAST
         ",
     )
@@ -331,6 +370,209 @@ async fn fetch_public_questions(
     }
 
     Ok(questions)
+}
+
+async fn fetch_review_questions(
+    pg: &sqlx::PgPool,
+) -> Result<Vec<AdminDelegateQuestion>, GenericError> {
+    let rows = sqlx::query(
+        "
+        SELECT
+            q.id,
+            q.user_id,
+            q.delegate_id,
+            d.name AS delegate_name,
+            q.recipient_email,
+            q.recipient_kind,
+            q.recipient_name,
+            q.subject,
+            q.body,
+            q.status,
+            q.created_at
+        FROM delegate_questions q
+        JOIN delegates d ON d.id = q.delegate_id
+        WHERE q.status IN ('pending', 'failed')
+        ORDER BY q.created_at ASC
+        ",
+    )
+    .fetch_all(pg)
+    .await
+    .map_err(|error| GenericError::SqlFailure(Some(error)))?;
+
+    rows.into_iter().map(admin_question_from_row).collect()
+}
+
+async fn find_admin_question(
+    pg: &sqlx::PgPool,
+    question_id: i64,
+) -> Result<AdminDelegateQuestion, GenericError> {
+    let row = sqlx::query(
+        "
+        SELECT
+            q.id,
+            q.user_id,
+            q.delegate_id,
+            d.name AS delegate_name,
+            q.recipient_email,
+            q.recipient_kind,
+            q.recipient_name,
+            q.subject,
+            q.body,
+            q.status,
+            q.created_at
+        FROM delegate_questions q
+        JOIN delegates d ON d.id = q.delegate_id
+        WHERE q.id = $1
+        ",
+    )
+    .bind(question_id)
+    .fetch_optional(pg)
+    .await
+    .map_err(|error| GenericError::SqlFailure(Some(error)))?
+    .ok_or(GenericError::Custom((
+        StatusCode::NOT_FOUND,
+        "Question was not found",
+    )))?;
+
+    admin_question_from_row(row)
+}
+
+fn admin_question_from_row(
+    row: sqlx::postgres::PgRow,
+) -> Result<AdminDelegateQuestion, GenericError> {
+    Ok(AdminDelegateQuestion {
+        id: row
+            .try_get("id")
+            .map_err(|error| GenericError::SqlFailure(Some(error)))?,
+        user_id: row
+            .try_get("user_id")
+            .map_err(|error| GenericError::SqlFailure(Some(error)))?,
+        delegate_id: row
+            .try_get("delegate_id")
+            .map_err(|error| GenericError::SqlFailure(Some(error)))?,
+        delegate_name: row
+            .try_get("delegate_name")
+            .map_err(|error| GenericError::SqlFailure(Some(error)))?,
+        recipient_email: row
+            .try_get("recipient_email")
+            .map_err(|error| GenericError::SqlFailure(Some(error)))?,
+        recipient_kind: row
+            .try_get("recipient_kind")
+            .map_err(|error| GenericError::SqlFailure(Some(error)))?,
+        recipient_name: row
+            .try_get("recipient_name")
+            .map_err(|error| GenericError::SqlFailure(Some(error)))?,
+        subject: row
+            .try_get("subject")
+            .map_err(|error| GenericError::SqlFailure(Some(error)))?,
+        body: row
+            .try_get("body")
+            .map_err(|error| GenericError::SqlFailure(Some(error)))?,
+        status: row
+            .try_get("status")
+            .map_err(|error| GenericError::SqlFailure(Some(error)))?,
+        created_at: row
+            .try_get("created_at")
+            .map_err(|error| GenericError::SqlFailure(Some(error)))?,
+    })
+}
+
+async fn send_question_mail(pg: &sqlx::PgPool, question_id: i64) -> Result<(), GenericError> {
+    let row = sqlx::query(
+        "
+        SELECT
+            q.delegate_id,
+            d.name AS delegate_name,
+            q.recipient_email,
+            q.recipient_kind,
+            q.recipient_name,
+            q.subject,
+            q.body,
+            q.outgoing_message_id
+        FROM delegate_questions q
+        JOIN delegates d ON d.id = q.delegate_id
+        WHERE q.id = $1
+        ",
+    )
+    .bind(question_id)
+    .fetch_optional(pg)
+    .await
+    .map_err(|error| GenericError::SqlFailure(Some(error)))?
+    .ok_or(GenericError::Custom((
+        StatusCode::NOT_FOUND,
+        "Question was not found",
+    )))?;
+
+    let recipient_kind: String = row
+        .try_get("recipient_kind")
+        .map_err(|error| GenericError::SqlFailure(Some(error)))?;
+    let delivery = match recipient_kind.as_str() {
+        "delegate" => QuestionDelivery::Delegate,
+        "party" => QuestionDelivery::Party,
+        _ => {
+            return Err(GenericError::Custom((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Invalid question recipient kind",
+            )))
+        }
+    };
+
+    let delegate = DelegateContact {
+        name: row
+            .try_get("delegate_name")
+            .map_err(|error| GenericError::SqlFailure(Some(error)))?,
+        recipient_name: row
+            .try_get("recipient_name")
+            .map_err(|error| GenericError::SqlFailure(Some(error)))?,
+        recipient_email: row
+            .try_get("recipient_email")
+            .map_err(|error| GenericError::SqlFailure(Some(error)))?,
+        delivery,
+    };
+    let subject: String = row
+        .try_get("subject")
+        .map_err(|error| GenericError::SqlFailure(Some(error)))?;
+    let body: String = row
+        .try_get("body")
+        .map_err(|error| GenericError::SqlFailure(Some(error)))?;
+    let outgoing_message_id: String = row
+        .try_get("outgoing_message_id")
+        .map_err(|error| GenericError::SqlFailure(Some(error)))?;
+
+    let mail_subject = format!("Neue Frage über somes.at: {subject}");
+    let mail_content = render_question_mail(&delegate, &subject, &body);
+    let recipient_email = delegate.recipient_email.clone();
+
+    let mail_result = tokio::task::spawn_blocking(move || {
+        send_mail_with_message_id(
+            &MAILER,
+            &recipient_email,
+            &mail_subject,
+            mail_content,
+            Some(outgoing_message_id),
+        )
+        .map_err(|error| error.to_string())
+    })
+    .await
+    .map_err(|error| {
+        log::error!("delegate question mail task failed: {error}");
+        GenericError::Custom((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Could not send question email",
+        ))
+    })?;
+
+    match mail_result {
+        Ok(()) => set_question_status(pg, question_id, "sent").await,
+        Err(error) => {
+            log::error!("sending delegate question {question_id} failed: {error}");
+            set_question_status(pg, question_id, "failed").await?;
+            Err(GenericError::Custom((
+                StatusCode::BAD_GATEWAY,
+                "Could not send question email",
+            )))
+        }
+    }
 }
 
 async fn create_question(

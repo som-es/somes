@@ -317,6 +317,7 @@ export interface DelegateQuestionCreated {
 	id: number;
 	delivery: DelegateQuestionDelivery;
 	recipient_name: string;
+	status: string;
 }
 
 export type DelegateQuestionDelivery = 'delegate' | 'party';
@@ -324,6 +325,20 @@ export type DelegateQuestionDelivery = 'delegate' | 'party';
 export interface DelegateQuestionRecipient {
 	delivery: DelegateQuestionDelivery;
 	recipient_name: string;
+}
+
+export interface AdminDelegateQuestion {
+	id: number;
+	user_id: number;
+	delegate_id: number;
+	delegate_name: string;
+	recipient_email: string;
+	recipient_kind: DelegateQuestionDelivery;
+	recipient_name: string;
+	subject: string;
+	body: string;
+	status: string;
+	created_at: string;
 }
 
 export interface JWTInfo {

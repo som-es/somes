@@ -1,4 +1,5 @@
 import type {
+	AdminDelegateQuestion,
 	DelegateFavo,
 	DelegateQuestionCreated,
 	ExtendedUserInfo,
@@ -127,6 +128,28 @@ export async function askDelegateQuestion(
 	question: { subject: string; body: string }
 ): Promise<DelegateQuestionCreated | HasError> {
 	return postWithAuth<DelegateQuestionCreated>(`v1/delegates/${delegateId}/questions`, question);
+}
+
+export async function pendingDelegateQuestions(): Promise<AdminDelegateQuestion[] | HasError> {
+	return getWithAuth<AdminDelegateQuestion[]>('v1/admin/delegate-questions/pending');
+}
+
+export async function approveDelegateQuestion(
+	questionId: number
+): Promise<AdminDelegateQuestion | HasError> {
+	return postWithAuth<AdminDelegateQuestion>(
+		`v1/admin/delegate-questions/${questionId}/approve`,
+		{}
+	);
+}
+
+export async function rejectDelegateQuestion(
+	questionId: number
+): Promise<AdminDelegateQuestion | HasError> {
+	return postWithAuth<AdminDelegateQuestion>(
+		`v1/admin/delegate-questions/${questionId}/reject`,
+		{}
+	);
 }
 
 export async function getFavoDelegates(): Promise<DelegateFavo[] | HasError> {

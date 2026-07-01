@@ -16,7 +16,7 @@
 	let body = $state('');
 	let isSending = $state(false);
 	let errorMessage = $state<string | null>(null);
-	let wasSent = $state(false);
+	let wasSubmitted = $state(false);
 	let recipient = $state<DelegateQuestionRecipient | null>(null);
 	let recipientError = $state<string | null>(null);
 
@@ -55,7 +55,7 @@
 			return;
 		}
 
-		wasSent = true;
+		wasSubmitted = true;
 		subject = '';
 		body = '';
 	}
@@ -72,7 +72,7 @@
 				</p>
 			{:else if recipient}
 				<p class="mt-1 text-sm text-black/75 dark:text-white/80">
-					Deine Frage wird als E-Mail direkt an den Abgeordneten gesendet.
+					Deine Frage wird nach Freigabe als E-Mail direkt an den Abgeordneten gesendet.
 				</p>
 			{:else}
 				<p class="mt-1 text-sm text-black/75 dark:text-white/80">Zustelladresse wird geprüft.</p>
@@ -83,13 +83,13 @@
 		</Dialog.Close>
 	</div>
 
-	{#if wasSent}
+	{#if wasSubmitted}
 		<div class="p-5">
 			<p
 				class="rounded-md border border-emerald-600/40 bg-emerald-100 px-4 py-3 text-sm text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100"
 			>
-				Deine Frage wurde erfolgreich versendet. Sobald eine Antwort eingeht, wird sie der Frage
-				zugeordnet.
+				Deine Frage wurde erfolgreich zur Prüfung eingereicht. Nach der Freigabe wird sie per
+				E-Mail weitergeleitet.
 			</p>
 			<div class="mt-5 flex justify-end">
 				<Dialog.Close>
@@ -158,7 +158,7 @@
 					disabled={isSending || recipient === null || recipientError !== null}
 					class="rounded-md bg-primary-600 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
 				>
-					{isSending ? 'Wird gesendet...' : 'Frage senden'}
+					{isSending ? 'Wird eingereicht...' : 'Frage einreichen'}
 				</button>
 			</div>
 		</form>
