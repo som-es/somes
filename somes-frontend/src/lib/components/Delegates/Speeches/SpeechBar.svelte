@@ -70,9 +70,9 @@
 								{voteResult.legislative_initiative.title}
 							</div>
 							<div class="hidden items-center gap-2 text-gray-700 lg:flex dark:text-gray-300">
-								{#if speech.document_url}
+								{#each speech.document_urls ?? [] as url}
 									<a
-										href={speech.document_url}
+										href={url}
 										target="_blank"
 										aria-label="Dokument"
 										on:click|stopPropagation
@@ -88,7 +88,7 @@
 											/></svg
 										>
 									</a>
-								{/if}
+								{/each}
 								<button on:click={() => onShowDetails(voteResult)} aria-label="Abspielen">
 									<svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"
 										><path d="M5 3l14 9-14 9z" /></svg
@@ -124,9 +124,9 @@
 							Mehr lesen ↓
 						</button>
 						<div class="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-							{#if speech.document_url}
+							{#each speech.document_urls ?? [] as url}
 								<a
-									href={speech.document_url}
+									href={url}
 									target="_blank"
 									aria-label="Dokument"
 									on:click|stopPropagation
@@ -142,7 +142,7 @@
 										/>
 									</svg>
 								</a>
-							{/if}
+							{/each}
 							<button on:click={() => onShowDetails(voteResult)} aria-label="Abspielen">
 								<svg class="h-3 w-3" viewBox="0 0 24 24" fill="currentColor"
 									><path d="M5 3l14 9-14 9z" /></svg

@@ -142,7 +142,7 @@ export interface Speech {
 	delegate_id: number;
 	infavor: boolean | null;
 	opinion: string | null;
-	document_url: string | null;
+	document_urls: string[] | null;
 	about: string | null;
 	duration_in_seconds: number | null;
 	vote_result_ids: number[] | null;

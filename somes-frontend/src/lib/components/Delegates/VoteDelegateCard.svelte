@@ -132,7 +132,7 @@
 				{#if bubble.speech}
 					<button
 						class="rounded-xl bg-primary-600 p-2 px-3 text-white"
-						onclick={() => window.open(`${bubble.speech?.document_url}`, '_blank')}
+						onclick={() => window.open(`${bubble.speech?.document_urls?.[0]}`, '_blank')}
 					>
 						<h4>Rede</h4>
 					</button>
