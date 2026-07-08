@@ -23,6 +23,8 @@ async fn main() {
 
     let mut tx = dataservice_sqlx_pool.begin().await.unwrap();
     views::create_composite_types(&mut tx).await.unwrap();
+    tx.commit().await.unwrap();
+    let mut tx = dataservice_sqlx_pool.begin().await.unwrap();
     views::create_views(&mut tx).await.unwrap();
     tx.commit().await.unwrap();
 }

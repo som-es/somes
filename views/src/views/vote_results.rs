@@ -1,4 +1,4 @@
-use combx::{DbAiSummary, DbLegislativeInitiativeQuery};
+use combx::{DbAiSummary, DbLegislativeInitiativeQuery, DbSpeechWithLink, FullSpeech};
 use somes_common_lib::ToCompositeType;
 use sqlx::{Postgres, Transaction};
 
@@ -65,39 +65,19 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
           ) AS \"votes: Vec<DbVote>\",
           /* speeches */
           ARRAY(
-            SELECT
-              ROW(
-                delegate_id,
-                array_remove(ARRAY(
-                    SELECT legis_init_id
-                    FROM plenar_speech_legis_inits
-                    WHERE speech_id = ps.id
-                ), NULL),
-                CASE WHEN opinion = 'Pro' THEN (
-                  li.pre_declined_type NOT LIKE '%p%'
-                ) WHEN opinion = 'Contra' THEN (
-                  li.pre_declined_type LIKE '%p%'
-                ) ELSE NULL END,
-                duration_in_seconds,
-                opinion,
-                ARRAY(
-                  SELECT document_url
-                  FROM plenar_speech_links
-                  WHERE plenar_speech_id = ps.id
-                ),
-                about,
-                start
-              )::db_speech_with_link
-            FROM
-              plenar_speeches ps
-              JOIN plenar_speech_legis_inits pl ON pl.speech_id = ps.id
-              JOIN debates deb ON deb.id = ps.debate_id
-              JOIN plenar_infos pi ON pi.id = deb.plenar_id
+              SELECT
+                ROW(
+                    fs.*
+                )::full_speech
+              FROM
+                full_speeches fs
+                JOIN plenar_speech_legis_inits psl on psl.legis_init_id = li.id
+                JOIN debates deb ON deb.id = fs.debate_id
+                JOIN plenar_infos pi ON pi.id = deb.plenar_id
               WHERE
-                pl.legis_init_id = li.id
-                and pi.council = 'NR'
-
-          ) AS \"speeches: Vec<DbSpeechWithLink>\",
+                psl.id = li.id
+                AND pi.council = 'NR'
+          ) AS \"speeches: Vec<FullSpeech>\",
           /* named votes */
           (
             SELECT

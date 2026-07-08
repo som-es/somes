@@ -24,6 +24,8 @@ pub async fn create_speeches_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sql
         SELECT
           /* scalar */
           ps_top.id AS id,
+          ps_top.debate_id,
+          ps_top.delegate_id,
           (
           SELECT
             ROW(

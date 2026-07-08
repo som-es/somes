@@ -1,6 +1,7 @@
 import { resolve } from '$app/paths';
 import type { AiSummary, DbAiSummary } from './ai_summary_types';
 import type { Decree } from './components/Delegates/Decrees/types';
+import type { FullSpeech } from './speechTypes';
 // import type { Decree } from './components/Delegates/Decrees/types';
 
 export interface DelegateSplit {
@@ -153,7 +154,7 @@ export interface InterjectionsWithMaxPage {
 	max_page: number;
 }
 export interface SpeechesWithMaxPage {
-	speeches: Speech[];
+	speeches: FullSpeech[];
 	entry_count: number;
 	max_page: number;
 }
@@ -208,7 +209,7 @@ export interface VoteResult {
 	id: number;
 	legislative_initiative: LegislativeInitiative;
 	votes: Vote[];
-	speeches: Speech[];
+	speeches: FullSpeech[];
 	topics: Topic[];
 	eurovoc_topics: Topic[];
 	other_keyword_topics: Topic[];

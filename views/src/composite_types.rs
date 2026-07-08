@@ -21,6 +21,10 @@ macro_rules! run_composite_type_creation {
 pub async fn create_composite_types<'a>(pool: &mut Transaction<'a, Postgres>) -> sqlx::Result<()> {
     run_composite_type_creation!(
         pool,
+        DbSpeechWithLink,
+        DbSpeechAiSummary,
+        DbSpeechRelations,
+        FullSpeech,
         DbAnswerEntry,
         DbAiInquiry,
         DbAiSummary,
@@ -32,7 +36,6 @@ pub async fn create_composite_types<'a>(pool: &mut Transaction<'a, Postgres>) ->
         DbNamedVote,
         DbNamedVoteInfo,
         DbNamedVotes,
-        DbSpeechWithLink,
         DbVote,
         DbLegislativeInitiativeQuery,
         Topic,
@@ -44,10 +47,7 @@ pub async fn create_composite_types<'a>(pool: &mut Transaction<'a, Postgres>) ->
         ParliamentInquiry,
         ParliamentAnswer,
         ParliamentInquiryResponse,
-        DelegateMatch,
-        DbSpeechAiSummary,
-        DbSpeechRelations,
-        FullSpeech
+        DelegateMatch
     );
     Ok(())
 }

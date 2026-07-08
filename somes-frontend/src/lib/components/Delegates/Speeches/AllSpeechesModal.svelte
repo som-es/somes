@@ -1,23 +1,23 @@
 <script lang="ts">
-	import type { Speech } from '$lib/types';
 	import Pagination from '$lib/components/Pagination.svelte';
 	import SpeechBar from './SpeechBar.svelte';
 	import { errorToNull, speeches_by_delegate_per_page } from '$lib/api/api';
 	import { Dialog } from 'bits-ui';
 	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
+	import type { FullSpeech } from '$lib/speechTypes';
 
 	// const modalStore = getModalStore();
 
 	interface Props {
 		// export let parent;
 		delegateId: number;
-		speechesPage0: { speeches: Speech[]; max_page: number };
+		speechesPage0: { speeches: FullSpeech[]; max_page: number };
 	}
 
 	let { delegateId, speechesPage0 }: Props = $props();
 
-	let filteredSpeeches: Speech[] = [];
-	let currentPageSpeeches: Speech[] = $derived(speechesPage0.speeches);
+	let filteredSpeeches: FullSpeech[] = [];
+	let currentPageSpeeches: FullSpeech[] = $derived(speechesPage0.speeches);
 
 	let page = $state(1);
 

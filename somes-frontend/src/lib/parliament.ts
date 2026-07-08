@@ -1,6 +1,7 @@
 import type { Delegate, NamedVote, Speech, VoteResult } from '$lib/types';
 import type { Material, Texture } from 'three';
 import { partyToColor } from './partyColor';
+import type { FullSpeech } from './speechTypes';
 
 export const AMOUNT_PER_SIDE: number = 15;
 
@@ -10,7 +11,7 @@ export interface Bubble {
 	y: number;
 	angle_rad: number;
 	del: Delegate | null;
-	speech: Speech | null;
+	speech: FullSpeech | null;
 	namedVote: NamedVote | null;
 	color: string | null;
 	opacity: number;
@@ -165,11 +166,11 @@ export function genCirclesWithAbsenceInfo(absences: number[], dels: Delegate[]):
 	return speechDelegates;
 }
 
-export function genCirclesWithSpeechInfo(speeches: Speech[], dels: Delegate[]): Bubble[] {
+export function genCirclesWithSpeechInfo(speeches: FullSpeech[], dels: Delegate[]): Bubble[] {
 	const speechDelegates: Bubble[] = [];
 	const delegatesAt: Delegate[] = dels;
 	speeches.forEach((speech) => {
-		const delegate = findDelegateById(delegatesAt, speech.delegate_id);
+		const delegate = findDelegateById(delegatesAt, speech.speech.delegate_id);
 
 		if (delegate) {
 			speechDelegates.push({
@@ -181,7 +182,7 @@ export function genCirclesWithSpeechInfo(speeches: Speech[], dels: Delegate[]): 
 				namedVote: null,
 				color: null,
 				opacity: 0,
-				title: speech.opinion,
+				title: speech.speech.opinion,
 				texture: null,
 				material: null,
 				angle_rad: 0,
@@ -225,22 +226,22 @@ export function genCirclesWithNamedVoteInfo(namedVotes: NamedVote[], dels: Deleg
 }
 
 export async function enrichCirclesWithSpeechInfoOnSeat(
-	speeches: Speech[],
+	speeches: FullSpeech[],
 	circles2d: Bubble[][],
 	dels: Delegate[],
 	reversed = false,
 	setOpacity: (bubble: Bubble) => void
 ) {
 	speeches.forEach((speech) => {
-		let del = findDelegateById(dels, speech.delegate_id);
+		const del = findDelegateById(dels, speech.speech.delegate_id);
 		if (del == null || del.seat_col == null || del.seat_row == null) return;
 
-		let infavor = speech.infavor;
+		const infavor = speech.speech.infavor;
 
 		circles2d[del.seat_row - 1][del.seat_col - 1].speech = speech;
 
 		if (infavor == null) {
-			circles2d[del.seat_row - 1][del.seat_col - 1].title = speech.opinion;
+			circles2d[del.seat_row - 1][del.seat_col - 1].title = speech.speech.opinion;
 		} else {
 			circles2d[del.seat_row - 1][del.seat_col - 1].title = infavor ? `Pro` : `Contra`;
 		}
@@ -255,7 +256,7 @@ export function enrichtCirclesWithAbsenceInfoOnSeat(
 	dels: Delegate[]
 ) {
 	absences.forEach((delegate_id) => {
-		let del = findDelegateById(dels, delegate_id);
+		const del = findDelegateById(dels, delegate_id);
 		if (del == null || del.seat_col == null || del.seat_row == null) return;
 
 		circles2d[del.seat_row - 1][del.seat_col - 1].r = +4.9;
@@ -271,7 +272,7 @@ export function enrichCirclesWithNamedVoteInfoOnSeat(
 	setOpacity: (bubble: Bubble) => void
 ) {
 	namedVotes.forEach((namedVote) => {
-		let del = findDelegateById(dels, namedVote.delegate_id);
+		const del = findDelegateById(dels, namedVote.delegate_id);
 		if (del == null || del.seat_col == null || del.seat_row == null) return;
 
 		circles2d[del.seat_row - 1][del.seat_col - 1].namedVote = namedVote;

@@ -15,10 +15,10 @@ pub use composite_types::create_composite_types;
 pub async fn create_views<'a>(tx: &mut Transaction<'a, Postgres>) -> sqlx::Result<()> {
     create_ministerial_decrees_with_docs_view(tx).await?;
     create_delegates_view(tx).await?;
+    create_speeches_view(tx).await?;
     create_vote_results_view(tx).await?;
     create_gov_proposals_view(tx).await?;
     create_parliament_qa_view(tx).await?;
-    create_speeches_view(tx).await?;
 
     Ok(())
 }

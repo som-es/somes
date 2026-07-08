@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { errorToNull, vote_result_by_id } from '$lib/api/api';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
-	import { createVoteResultPath, type Speech, type VoteResult } from '$lib/types';
+	import { createVoteResultPath, type VoteResult } from '$lib/types';
 	import { currentVoteResultStore } from '$lib/stores/stores';
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
 	import clockIcon from '$lib/assets/misc_icons/clock-two.svg?raw';
 	import { gotoHistory } from '$lib/goto';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
+	import type { FullSpeech } from '$lib/speechTypes';
 
-	export let speech: Speech;
+	export let speech: FullSpeech;
 
 	let voteResult: VoteResult | null = null;
 
@@ -30,23 +31,28 @@
 		gotoHistory(createVoteResultPath(voteResult), true);
 	}
 
-	$: opinion = speech.infavor != null ? (speech.infavor ? 'Pro' : 'Contra') : speech.opinion;
+	$: opinion =
+		speech.speech.infavor != null
+			? speech.speech.infavor
+				? 'Pro'
+				: 'Contra'
+			: speech.speech.opinion;
 	$: arrowBackground =
 		voteResult != null && voteResult.votes.length > 0
 			? 'bg-secondary-400'
 			: 'dark:bg-primary-300 bg-primary-400';
 	$: barColor =
-		speech.infavor === true
+		speech.speech.infavor === true
 			? 'bg-green-600'
-			: speech.infavor === false
+			: speech.speech.infavor === false
 				? 'bg-red-500'
 				: 'bg-gray-400';
 	$: hasVotes = (voteResult?.votes ?? []).length > 0;
 
 	let speechDuration: { mins: number; seconds: number } | null = null;
-	$: if (speech.duration_in_seconds !== null) {
-		const mins = Math.floor(speech.duration_in_seconds / 60);
-		speechDuration = { mins, seconds: speech.duration_in_seconds - mins * 60 };
+	$: if (speech.speech.duration_in_seconds !== null) {
+		const mins = Math.floor(speech.speech.duration_in_seconds / 60);
+		speechDuration = { mins, seconds: speech.speech.duration_in_seconds - mins * 60 };
 	}
 </script>
 
@@ -70,13 +76,8 @@
 								{voteResult.legislative_initiative.title}
 							</div>
 							<div class="hidden items-center gap-2 text-gray-700 lg:flex dark:text-gray-300">
-								{#each speech.document_urls ?? [] as url}
-									<a
-										href={url}
-										target="_blank"
-										aria-label="Dokument"
-										on:click|stopPropagation
-									>
+								{#each speech.speech.document_urls ?? [] as url}
+									<a href={url} target="_blank" aria-label="Dokument" on:click|stopPropagation>
 										<svg
 											class="h-5 w-5"
 											viewBox="0 0 24 24"
@@ -124,13 +125,8 @@
 							Mehr lesen ↓
 						</button>
 						<div class="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-							{#each speech.document_urls ?? [] as url}
-								<a
-									href={url}
-									target="_blank"
-									aria-label="Dokument"
-									on:click|stopPropagation
-								>
+							{#each speech.speech.document_urls ?? [] as url}
+								<a href={url} target="_blank" aria-label="Dokument" on:click|stopPropagation>
 									<svg
 										class="h-4 w-4"
 										viewBox="0 0 24 24"
@@ -177,10 +173,10 @@
 			</div>
 		{:else if loadingVoteResult}
 			<ExpandablePlaceholder class="flex-1" />
-		{:else if speech.about}
+		{:else if speech.speech.about}
 			<div class="flex flex-1 flex-col gap-1 p-5">
 				<div class="text-sm font-semibold lg:text-lg">{opinion}</div>
-				<div class="text-[10px] lg:text-base">{speech.about}</div>
+				<div class="text-[10px] lg:text-base">{speech.speech.about}</div>
 			</div>
 		{/if}
 		<!--
