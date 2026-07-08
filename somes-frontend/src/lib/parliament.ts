@@ -1,4 +1,4 @@
-import type { Delegate, NamedVote, Speech, VoteResult } from '$lib/types';
+import type { Delegate, NamedVote, VoteResult } from '$lib/types';
 import type { Material, Texture } from 'three';
 import { partyToColor } from './partyColor';
 import type { FullSpeech } from './speechTypes';

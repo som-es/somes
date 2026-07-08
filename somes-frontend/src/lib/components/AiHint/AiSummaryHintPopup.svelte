@@ -3,7 +3,7 @@
 	import { Popover } from "bits-ui";
 
     interface Props {
-        aiSummary: DbAiSummary;
+        aiSummary: Pick<DbAiSummary, 'model_used' | 'version' | 'generated_at'>;
         useTitleHover?: boolean;
         aiGenText?: string;
     }

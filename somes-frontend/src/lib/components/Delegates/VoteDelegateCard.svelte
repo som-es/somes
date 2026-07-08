@@ -47,19 +47,19 @@
 	);
 
 	let speechText = $derived(
-		bubble.speech?.infavor != null
-			? bubble.speech.infavor
+		bubble.speech?.speech.infavor != null
+			? bubble.speech.speech.infavor
 				? 'Pro'
 				: 'Contra'
-			: (bubble.speech?.opinion ?? bubble.title)
+			: (bubble.speech?.speech.opinion ?? bubble.title)
 	);
 
 	let opinionColor = $derived.by(() => {
 		let color = '#ccc';
 		if (bubble.speech) {
 			color =
-				bubble.speech.infavor != null
-					? bubble.speech.infavor
+				bubble.speech.speech.infavor != null
+					? bubble.speech.speech.infavor
 						? 'bg-success-600'
 						: 'bg-red-600'
 					: 'bg-primary-500';
@@ -132,7 +132,7 @@
 				{#if bubble.speech}
 					<button
 						class="rounded-xl bg-primary-600 p-2 px-3 text-white"
-						onclick={() => window.open(`${bubble.speech?.document_urls?.[0]}`, '_blank')}
+						onclick={() => window.open(`${bubble.speech?.speech.document_urls?.[0]}`, '_blank')}
 					>
 						<h4>Rede</h4>
 					</button>

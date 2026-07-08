@@ -15,7 +15,6 @@ import type {
 	Topic,
 	UniqueTopic,
 	GovProposal,
-	Speech,
 	SpeechesWithMaxPage,
 	PoliticalPosition,
 	GovProposalDelegate,

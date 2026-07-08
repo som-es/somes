@@ -99,8 +99,8 @@
 			return;
 		}
 
-		if (bubble.speech && bubble.speech.infavor != null) {
-			bubble.opacity = bubble.speech.infavor ? 1.0 : 0.2;
+		if (bubble.speech && bubble.speech.speech.infavor != null) {
+			bubble.opacity = bubble.speech.speech.infavor ? 1.0 : 0.2;
 			return;
 		}
 

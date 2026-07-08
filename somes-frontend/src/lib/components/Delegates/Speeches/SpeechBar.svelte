@@ -1,226 +1,268 @@
 <script lang="ts">
 	import { errorToNull, vote_result_by_id } from '$lib/api/api';
-	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
-	import { createVoteResultPath, type VoteResult } from '$lib/types';
-	import { currentVoteResultStore } from '$lib/stores/stores';
-	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
+	import { type VoteResult } from '$lib/types';
+	import { aiViewEnabledStore } from '$lib/stores/stores';
 	import clockIcon from '$lib/assets/misc_icons/clock-two.svg?raw';
-	import { gotoHistory } from '$lib/goto';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
-	import type { FullSpeech } from '$lib/speechTypes';
+	import VoteResultExpandableBar from '$lib/components/VoteResults/Expandable/VoteResultExpandableBar.svelte';
+	import Emphasis from '$lib/components/VoteResults/Emphasis/Emphasis.svelte';
+	import GlossaryText from '$lib/components/UI/GlossaryText.svelte';
+	import AiSummaryHintPopup from '$lib/components/AiHint/AiSummaryHintPopup.svelte';
+	import { Opinion, type DbSpeechRelations, type FullSpeech } from '$lib/speechTypes';
+	import type { Keypoint } from '$lib/ai_summary_types';
+	import { slide } from 'svelte/transition';
 
-	export let speech: FullSpeech;
-
-	let voteResult: VoteResult | null = null;
-
-	let loadingVoteResult = false;
-
-	// $: if (speech.legis_init_id) {
-	// 	voteResult = null;
-	// 	loadingVoteResult = true;
-	// 	vote_result_by_id(speech.legis_init_id.toString()).then((res) => {
-	// 		voteResult = errorToNull(res);
-	// 		loadingVoteResult = false;
-	// 	});
-	// }
-
-	function onShowDetails(voteResult: VoteResult | null) {
-		if (!voteResult) return;
-		currentVoteResultStore.value = voteResult;
-		// modalStore.close();
-		gotoHistory(createVoteResultPath(voteResult), true);
+	interface Props {
+		speech: FullSpeech;
 	}
 
-	$: opinion =
+	let { speech }: Props = $props();
+
+	interface RelatedVoteResult {
+		relation: DbSpeechRelations;
+		voteResult: VoteResult | null;
+	}
+
+	let open = $state(false);
+	let analysisOpen = $state(false);
+	let relationsLoaded = $state(false);
+	let relatedVoteResults: RelatedVoteResult[] = $state([]);
+	let loadingVoteResults = $state(false);
+
+	$effect(() => {
+		speech;
+		open = false;
+		analysisOpen = false;
+		relationsLoaded = false;
+		relatedVoteResults = [];
+	});
+
+	function loadRelatedVoteResults() {
+		relatedVoteResults = [];
+		loadingVoteResults = speech.relations.length > 0;
+		speech.relations.forEach(async (relation) => {
+			const voteResult = errorToNull(await vote_result_by_id(relation.legis_init_id.toString()));
+			relatedVoteResults = [...relatedVoteResults, { relation, voteResult }];
+			loadingVoteResults = false;
+		});
+	}
+
+	function stanceColor(stance: Opinion | null): string {
+		if (stance === Opinion.Pro) return 'bg-green-600';
+		if (stance === Opinion.Contra) return 'bg-red-500';
+		return 'bg-gray-400';
+	}
+
+	let opinion = $derived(
 		speech.speech.infavor != null
 			? speech.speech.infavor
 				? 'Pro'
 				: 'Contra'
-			: speech.speech.opinion;
-	$: arrowBackground =
-		voteResult != null && voteResult.votes.length > 0
-			? 'bg-secondary-400'
-			: 'dark:bg-primary-300 bg-primary-400';
-	$: barColor =
-		speech.speech.infavor === true
-			? 'bg-green-600'
-			: speech.speech.infavor === false
-				? 'bg-red-500'
-				: 'bg-gray-400';
-	$: hasVotes = (voteResult?.votes ?? []).length > 0;
+			: speech.speech.opinion
+	);
+	let barColor = $derived(
+		stanceColor(
+			speech.speech.infavor === true
+				? Opinion.Pro
+				: speech.speech.infavor === false
+					? Opinion.Contra
+					: null
+		)
+	);
 
-	let speechDuration: { mins: number; seconds: number } | null = null;
-	$: if (speech.speech.duration_in_seconds !== null) {
+	let speechDuration = $derived.by(() => {
+		if (speech.speech.duration_in_seconds === null) return null;
 		const mins = Math.floor(speech.speech.duration_in_seconds / 60);
-		speechDuration = { mins, seconds: speech.speech.duration_in_seconds - mins * 60 };
+		return { mins, seconds: speech.speech.duration_in_seconds - mins * 60 };
+	});
+
+	let aiSummary = $derived(aiViewEnabledStore.value ? speech.ai_summary : null);
+	let keyPoints = $derived(
+		(aiSummary?.full_speech_summary.key_points ?? []).map(
+			(keyPoint): Keypoint => ({
+				point: keyPoint.summarized_point,
+				paragraph_references: []
+			})
+		)
+	);
+	let criticalAnalysis = $derived(aiSummary?.full_speech_summary.critical_analysis ?? null);
+	let glossary = $derived(aiSummary?.full_speech_summary.glossary ?? null);
+
+	let expandable = $derived(aiSummary != null || speech.relations.length > 0);
+
+	function toggleOpen() {
+		if (!expandable) return;
+		open = !open;
+		if (open && !relationsLoaded) {
+			relationsLoaded = true;
+			loadRelatedVoteResults();
+		}
 	}
 </script>
 
 <div class="mt-5">
 	<div
-		class="entry flex items-stretch overflow-hidden bg-primary-100 text-black dark:bg-primary-300"
+		class="entry flex items-stretch overflow-hidden bg-primary-100 text-black dark:bg-primary-300 {expandable
+			? 'cursor-pointer'
+			: ''}"
+		role="button"
+		tabindex="0"
+		onclick={toggleOpen}
+		onkeypress={(e) => (e.key === 'Enter' || e.key === ' ') && toggleOpen()}
 	>
 		<div class="w-1.5 shrink-0 {barColor}"></div>
-		{#if voteResult}
-			<div
-				class="flex min-w-0 flex-1 cursor-pointer items-start justify-between gap-3 p-3 lg:p-5"
-				role="button"
-				tabindex="0"
-				on:click={() => onShowDetails(voteResult)}
-				on:keypress={(e) => (e.key === 'Enter' || e.key === ' ') && onShowDetails(voteResult)}
-			>
-				<div class="flex w-full min-w-0 flex-col">
-					<div class="flex items-start justify-between gap-2">
-						<div class="flex min-w-0 flex-row flex-wrap items-center gap-3">
-							<div class="text-sm leading-snug font-semibold lg:text-lg">
-								{voteResult.legislative_initiative.title}
-							</div>
-							<div class="hidden items-center gap-2 text-gray-700 lg:flex dark:text-gray-300">
-								{#each speech.speech.document_urls ?? [] as url}
-									<a href={url} target="_blank" aria-label="Dokument" on:click|stopPropagation>
-										<svg
-											class="h-5 w-5"
-											viewBox="0 0 24 24"
-											fill="none"
-											stroke="currentColor"
-											stroke-width="2"
-											><path
-												d="M2 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H2zM22 4h-7a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h8z"
-											/></svg
-										>
-									</a>
-								{/each}
-								<button on:click={() => onShowDetails(voteResult)} aria-label="Abspielen">
-									<svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"
-										><path d="M5 3l14 9-14 9z" /></svg
-									>
-								</button>
-							</div>
-						</div>
+		<div class="flex min-w-0 flex-1 items-center justify-between gap-3 p-3 lg:px-5 lg:py-4">
+			<div class="flex min-w-0 flex-1 flex-col">
+				{#if aiSummary}
+					<span
+						class="line-clamp-2 text-sm leading-snug font-semibold lg:text-lg"
+						style="hyphens: auto; word-break: normal; overflow-wrap: break-word;"
+					>
+						{aiSummary.short_title}
+					</span>
+					<span class="mt-0.5 line-clamp-3 text-[10px] text-gray-800 lg:line-clamp-none lg:text-sm">
+						{aiSummary.short_summary}
+					</span>
+				{:else}
+					<span class="text-sm font-semibold lg:text-lg">{opinion}</span>
+					{#if speech.speech.about}
+						<span class="mt-0.5 line-clamp-2 text-[10px] text-gray-800 lg:text-sm">
+							{speech.speech.about}
+						</span>
+					{/if}
+				{/if}
+			</div>
+			<div class="flex shrink-0 items-center gap-3 text-gray-700">
+				{#if speechDuration}
+					<span class="hidden items-center gap-1 text-xs whitespace-nowrap lg:flex">
+						<span
+							class="h-3.5 w-3.5 shrink-0 [&_path]:stroke-current [&>svg]:h-full [&>svg]:w-full"
+						>
+							{@html clockIcon}
+						</span>
+						{speechDuration.mins}:{speechDuration.seconds.toString().padStart(2, '0')} min
+					</span>
+				{/if}
+				{#each speech.speech.document_urls ?? [] as url}
+					<a
+						href={url}
+						target="_blank"
+						aria-label="Dokument"
+						title="Redeprotokoll öffnen"
+						class="transition-transform hover:scale-110"
+						onclick={(e) => e.stopPropagation()}
+					>
 						<svg
-							class="mt-1 h-4 w-4 shrink-0 text-green-600 lg:hidden"
+							class="h-4 w-4 lg:h-5 lg:w-5"
 							viewBox="0 0 24 24"
 							fill="none"
 							stroke="currentColor"
-							stroke-width="3"
-							stroke-linecap="round"
-							stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg
+							stroke-width="2"
+							><path
+								d="M2 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H2zM22 4h-7a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h8z"
+							/></svg
 						>
+					</a>
+				{/each}
+			</div>
+		</div>
+	</div>
+
+	{#if open}
+		<div transition:slide={{ duration: 240 }}>
+			<div class="mt-3 flex flex-col gap-3 rounded-xl bg-primary-200 p-2 dark:bg-primary-400">
+				{#if aiSummary}
+					<div class="rounded-xl bg-primary-300 px-5 pt-3 pb-3 dark:bg-primary-500">
+						<div class="flex items-start justify-between gap-2">
+							<h1 class="text-lg font-semibold md:text-xl">Zusammenfassung</h1>
+							<AiSummaryHintPopup
+								{aiSummary}
+								aiGenText="Titel, Zusammenfassungen, Schwerpunkte und kritische Analyse wurden mittels KI aus der Rede zusammengefasst."
+							/>
+						</div>
+						<p class="mt-1 text-base text-gray-800 dark:text-gray-200">
+							{#if glossary}
+								<GlossaryText text={aiSummary.full_speech_summary.summary} {glossary} />
+							{:else}
+								{aiSummary.full_speech_summary.summary}
+							{/if}
+						</p>
 					</div>
-					<div class="mt-1 text-[10px] text-gray-600 lg:text-xs dark:text-gray-300">
-						{voteResult.legislative_initiative.vote_date
-							? new Date(voteResult.legislative_initiative.vote_date).toLocaleDateString('de-AT')
-							: ''}
-					</div>
-					<div class="mt-2 line-clamp-3 text-[10px] font-normal lg:line-clamp-none lg:text-base">
-						Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-						incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-						exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-					</div>
-					<div class="mt-3 flex items-center justify-between lg:hidden">
-						<button
-							class="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-300"
-							on:click={() => onShowDetails(voteResult)}
-						>
-							Mehr lesen ↓
-						</button>
-						<div class="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-							{#each speech.speech.document_urls ?? [] as url}
-								<a href={url} target="_blank" aria-label="Dokument" on:click|stopPropagation>
-									<svg
-										class="h-4 w-4"
-										viewBox="0 0 24 24"
-										fill="none"
-										stroke="currentColor"
-										stroke-width="2"
-										><path
-											d="M2 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H2zM22 4h-7a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h8z"
-										/>
-									</svg>
-								</a>
-							{/each}
-							<button on:click={() => onShowDetails(voteResult)} aria-label="Abspielen">
-								<svg class="h-3 w-3" viewBox="0 0 24 24" fill="currentColor"
-									><path d="M5 3l14 9-14 9z" /></svg
+
+					<Emphasis emphasis={keyPoints} {glossary} />
+
+					{#if criticalAnalysis}
+						<div class="rounded-xl bg-primary-300 px-5 pt-3 pb-3 dark:bg-primary-500">
+							<button
+								class="flex w-full flex-wrap items-center justify-between gap-2"
+								onclick={() => (analysisOpen = !analysisOpen)}
+							>
+								<h1 class="text-lg font-semibold md:text-xl">Kritische Analyse</h1>
+								<span class="text-md font-semibold"
+									>{analysisOpen ? 'Weniger' : 'Mehr'} anzeigen</span
 								>
 							</button>
+							{#if analysisOpen}
+								<div transition:slide={{ duration: 240 }} class="mt-2 flex flex-col gap-3">
+									<div>
+										<h2 class="font-semibold text-green-700 dark:text-green-400">Dafür spricht</h2>
+										<ul class="list px-3 pt-1">
+											{#each criticalAnalysis.arguments_for as argument}
+												<li class="mb-2 items-baseline">
+													<span class="badge shrink-0 bg-success-600"></span>
+													<span class="text-base text-gray-800 dark:text-gray-200">{argument}</span>
+												</li>
+											{/each}
+										</ul>
+									</div>
+									<div>
+										<h2 class="font-semibold text-red-600 dark:text-red-400">Dagegen spricht</h2>
+										<ul class="list px-3 pt-1">
+											{#each criticalAnalysis.arguments_against as argument}
+												<li class="mb-2 items-baseline">
+													<span class="badge shrink-0 bg-red-600"></span>
+													<span class="text-base text-gray-800 dark:text-gray-200">{argument}</span>
+												</li>
+											{/each}
+										</ul>
+									</div>
+								</div>
+							{/if}
 						</div>
-					</div>
-				</div>
-				<svg
-					class="hidden h-7 w-7 shrink-0 self-start text-green-600 lg:block"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="3"
-					stroke-linecap="round"
-					stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg
-				>
-				{#if hasVotes}
-					<button class="hidden" on:click={() => onShowDetails(voteResult)}>
-						<VoteParliament2 {voteResult} preview={true} />
-					</button>
-					<button class="hidden" on:click={() => onShowDetails(voteResult)}>
-						{@html rightArrowIcon}
-					</button>
+					{/if}
 				{/if}
-				{#if speechDuration}
-					<div class="hidden">
-						{@html clockIcon}
-						{speechDuration.mins}min {speechDuration.seconds}s
-					</div>
-				{/if}
-			</div>
-		{:else if loadingVoteResult}
-			<ExpandablePlaceholder class="flex-1" />
-		{:else if speech.speech.about}
-			<div class="flex flex-1 flex-col gap-1 p-5">
-				<div class="text-sm font-semibold lg:text-lg">{opinion}</div>
-				<div class="text-[10px] lg:text-base">{speech.speech.about}</div>
-			</div>
-		{/if}
-		<!--
-	<div use:collapse={{ open, duration }}>
-		<GovProposalExpanded {govProposal} bind:open />
-	</div> -->
-	</div>
-</div>
 
-<!--
-<div class="gap-3 rounded-sm variant-filled my-1">
-    {#if voteResult}
-        {voteResult.legislative_initiative.description}
-        {speech.legislative_initiatives_id} {speech.opinion}
-        {#if voteResult.votes.length > 0}
-            <div>
-                <VoteParliament2 {voteResult}></VoteParliament2>
-            </div>
-        {/if}
-    {/if}
-</div> -->
+				{#if loadingVoteResults}
+					<ExpandablePlaceholder />
+				{:else if relatedVoteResults.length > 0}
+					<div class="px-1">
+						<h2 class="text-lg font-semibold">Bezieht sich auf</h2>
+						{#each relatedVoteResults as { relation, voteResult } (relation.id)}
+							{#if voteResult}
+								<div
+									class="mt-2 flex items-stretch gap-2"
+									title="Haltung der Rede zu dieser Abstimmung: {relation.full_speech_relations
+										.stance_to_proposal ?? 'unbekannt'}"
+								>
+									<div
+										class="w-1.5 shrink-0 rounded-full {stanceColor(
+											relation.full_speech_relations.stance_to_proposal
+										)}"
+									></div>
+									<VoteResultExpandableBar {voteResult} class="min-w-0 flex-1" />
+								</div>
+							{/if}
+						{/each}
+					</div>
+				{/if}
+			</div>
+		</div>
+	{/if}
+</div>
 
 <style>
 	.entry {
 		border-radius: 0.9rem;
 		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-	}
-
-	.border-radius-left {
-		border-top-left-radius: 0.9rem;
-		border-bottom-left-radius: 0.9rem;
-	}
-
-	.spacing-for-left {
-		padding: 20px;
-		gap: 10px;
-	}
-
-	.spacing-for-right {
-		padding: 20px;
-		gap: 10px;
-	}
-
-	.flex-basis-left {
-		flex-basis: 96%;
 	}
 </style>

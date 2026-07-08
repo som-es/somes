@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Speech, SpeechesWithMaxPage } from '$lib/types';
+	import type { SpeechesWithMaxPage } from '$lib/types';
 	import { Dialog } from 'bits-ui';
 	import AllSpeechesModal from './AllSpeechesModal.svelte';
 	import SpeechBar from './SpeechBar.svelte';

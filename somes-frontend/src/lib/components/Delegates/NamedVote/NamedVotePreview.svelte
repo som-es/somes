@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { NamedVote, Speech, SpeechesWithMaxPage } from '$lib/types';
+	import type { NamedVote, SpeechesWithMaxPage } from '$lib/types';
 	import ExtendInfoDialog from '../ExtendInfoDialog.svelte';
 	import NamedVoteBar from './NamedVoteBar.svelte';
 	import NamedVoteModal from './NamedVoteModal.svelte';
