@@ -101,12 +101,11 @@
 </script>
 
 <div class="mt-5">
+	<!-- svelte-ignore a11y_no_noninteractive_tabindex (tabindex is only set when role="button" is too) -->
 	<div
-		class="entry flex items-stretch overflow-hidden bg-primary-100 text-black dark:bg-primary-300 {expandable
-			? 'cursor-pointer'
-			: ''}"
-		role="button"
-		tabindex="0"
+		class="entry flex items-stretch overflow-hidden bg-primary-100 text-black dark:bg-primary-300"
+		role={expandable ? 'button' : undefined}
+		tabindex={expandable ? 0 : undefined}
 		onclick={toggleOpen}
 		onkeypress={(e) => (e.key === 'Enter' || e.key === ' ') && toggleOpen()}
 	>
@@ -191,7 +190,7 @@
 
 					<Emphasis emphasis={keyPoints} {glossary} />
 
-					{#if criticalAnalysis}
+					<!-- {#if criticalAnalysis}
 						<div class="rounded-xl bg-primary-300 px-5 pt-3 pb-3 dark:bg-primary-500">
 							<button
 								class="flex w-full flex-wrap items-center justify-between gap-2"
@@ -229,7 +228,7 @@
 								</div>
 							{/if}
 						</div>
-					{/if}
+					{/if} -->
 				{/if}
 
 				{#if loadingVoteResults}
