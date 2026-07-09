@@ -24,6 +24,9 @@ use crate::{
 pub mod update_time;
 pub use update_time::*;
 
+const MEILISEARCH_TASK_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(600);
+const MEILISEARCH_TASK_POLL_INTERVAL: std::time::Duration = std::time::Duration::from_millis(200);
+
 async fn rebuild_index_via_swap<T: serde::Serialize + Send + Sync>(
     client: &meilisearch_sdk::client::Client,
     index: &str,
@@ -38,13 +41,26 @@ async fn rebuild_index_via_swap<T: serde::Serialize + Send + Sync>(
         .index(&swap_index)
         .set_settings(settings)
         .await?
-        .wait_for_completion(client, None, None)
+        .wait_for_completion(
+            client,
+            Some(MEILISEARCH_TASK_POLL_INTERVAL),
+            Some(MEILISEARCH_TASK_TIMEOUT),
+        )
         .await?;
 
-    client
+    let upload_tasks = client
         .index(&swap_index)
         .add_documents_in_batches(documents, batch_size, primary_key)
         .await?;
+
+    for task in upload_tasks {
+        task.wait_for_completion(
+            client,
+            Some(MEILISEARCH_TASK_POLL_INTERVAL),
+            Some(MEILISEARCH_TASK_TIMEOUT),
+        )
+        .await?;
+    }
 
     client
         .swap_indexes(&[meilisearch_sdk::client::SwapIndexes {
@@ -52,7 +68,11 @@ async fn rebuild_index_via_swap<T: serde::Serialize + Send + Sync>(
             rename: None,
         }])
         .await?
-        .wait_for_completion(client, None, None)
+        .wait_for_completion(
+            client,
+            Some(MEILISEARCH_TASK_POLL_INTERVAL),
+            Some(MEILISEARCH_TASK_TIMEOUT),
+        )
         .await?;
 
     client.delete_index(&swap_index).await?;
