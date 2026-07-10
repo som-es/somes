@@ -1,5 +1,15 @@
 import type { FullMandate, PlenarySession } from './types';
 
+const toViennaDateString = (date) => {
+	return new Intl.DateTimeFormat('en-CA', {
+		// 'en-CA' outputs YYYY-MM-DD
+		timeZone: 'Europe/Vienna',
+		year: 'numeric',
+		month: '2-digit',
+		day: '2-digit'
+	}).format(date);
+};
+
 function couldAttendPlenarySessionByTime(
 	mandates: FullMandate[],
 	plenarySession: PlenarySession
@@ -9,9 +19,12 @@ function couldAttendPlenarySessionByTime(
 			if (plenarySession.council !== mandate.function) {
 				return false;
 			}
+
 			const startDate = new Date(mandate.start_date!);
 			const endDate = mandate.end_date ? new Date(mandate.end_date) : new Date();
-			const plenaryDate = new Date(plenarySession.raw_data_created_at);
+			const plenaryDate = new Date(
+				toViennaDateString(new Date(plenarySession.raw_data_created_at))
+			);
 			return plenaryDate <= endDate && plenaryDate >= startDate;
 		}) !== undefined
 	);
