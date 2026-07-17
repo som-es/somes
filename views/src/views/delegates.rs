@@ -5,7 +5,7 @@ pub async fn create_delegates_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sq
         .execute(&mut **tx)
         .await?;
 
-    sqlx::query!(
+    sqlx::query(
         r#"CREATE MATERIALIZED VIEW delegates_with_mandates AS
     WITH period_starts AS (
         SELECT legislative_period AS gp,

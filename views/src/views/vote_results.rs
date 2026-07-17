@@ -270,7 +270,7 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
             .execute(&mut **tx)
             .await?;
 
-        sqlx::query!(
+        sqlx::query(
             r#"
         create materialized view legislative_initiatives_with_votes as
         SELECT
@@ -285,7 +285,7 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
             legislative_initiatives li
         WHERE
             accepted = 'a'
-    "#
+    "#,
         )
         .execute(&mut **tx)
         .await?;

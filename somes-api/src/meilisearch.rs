@@ -7,7 +7,11 @@ use combx::{
     OptionalVoteResultFilter, VoteResult,
 };
 use futures::FutureExt;
-use meilisearch_sdk::settings::{PaginationSetting, Settings};
+use meilisearch_sdk::{
+    client::Client,
+    errors::{Error, ErrorCode, MeilisearchError},
+    settings::{PaginationSetting, Settings},
+};
 use redis::aio::MultiplexedConnection;
 use reqwest::StatusCode;
 use tokio::time::sleep;
@@ -27,6 +31,17 @@ pub use update_time::*;
 const MEILISEARCH_TASK_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(600);
 const MEILISEARCH_TASK_POLL_INTERVAL: std::time::Duration = std::time::Duration::from_millis(200);
 
+async fn index_exists(client: &Client, uid: &str) -> Result<bool, Error> {
+    match client.get_index(uid).await {
+        Ok(_) => Ok(true),
+        Err(Error::Meilisearch(MeilisearchError {
+            error_code: ErrorCode::IndexNotFound,
+            ..
+        })) => Ok(false),
+        Err(e) => Err(e), // network error, auth error, etc.
+    }
+}
+
 async fn rebuild_index_via_swap<T: serde::Serialize + Send + Sync>(
     client: &meilisearch_sdk::client::Client,
     index: &str,
@@ -36,6 +51,13 @@ async fn rebuild_index_via_swap<T: serde::Serialize + Send + Sync>(
     batch_size: Option<usize>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let swap_index = format!("{index}_swap");
+
+    if let Ok(exists) = index_exists(client, index).await {
+        if !exists {
+            let task = client.create_index(index, None).await?;
+            task.wait_for_completion(client, None, None).await?;
+        }
+    }
 
     client
         .index(&swap_index)
