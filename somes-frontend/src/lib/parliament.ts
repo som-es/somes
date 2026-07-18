@@ -21,18 +21,20 @@ export interface Bubble {
 	id: number;
 }
 
-export function generateHalfCircle(n: number, r: number, w: number, h: number) {
-	let smaller_n = n - 2;
+export function generateHalfCircle(n: number, r: number, w: number, h: number, maxAngle : number = 180) {
+	const smaller_n = n - 1;
 
-	let scaled_max_angle = 18000.0;
-	let modulo = scaled_max_angle / smaller_n;
-	let count_to = scaled_max_angle + modulo + 1;
+	const scaled_max_angle = maxAngle;
+	const modulo = scaled_max_angle / smaller_n;
+	const count_to = scaled_max_angle + 1;
 
-	let normalize = (100 * count_to) / scaled_max_angle;
+	const normalize = count_to / scaled_max_angle;
 	let circles: { x: number; y: number; angle_rad: number }[] = [];
 
-	for (let angle_deg = count_to; angle_deg > 0; angle_deg -= modulo) {
-		let angle_rad = (-(angle_deg / normalize) * Math.PI) / 180;
+  const diff = (maxAngle - 180) / 2;
+
+	for (let angle_deg = count_to - diff; angle_deg > -diff; angle_deg -= modulo) {
+		const angle_rad = (-(angle_deg / normalize) * Math.PI) / 180;
 
 		const x = 2.0 * r * Math.cos(angle_rad) + w / 2;
 		const y = 2.0 * r * Math.sin(angle_rad) + h / 2;

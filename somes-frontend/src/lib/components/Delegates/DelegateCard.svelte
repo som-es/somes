@@ -86,6 +86,11 @@
 			return delegate.mandates_at_time;
 		}
 	});
+	let imgSrc = $derived(`${url}assets/${delegate.id}.jpg`);
+
+    function handleImgError() {
+        imgSrc = delegate.image_url ?? "";
+    }
 </script>
 
 <div class="flex h-[calc(100%-1rem)] h-full flex-col card bg-primary-200 p-5 dark:bg-primary-400">
@@ -134,7 +139,8 @@
 	{#if showImg}
 		<div class="relative flex justify-center pb-6">
 			<img
-				src={`${url}assets/${delegate.id}.jpg`}
+				src={imgSrc}
+				onerror={handleImgError}
 				class="w-42 rounded-full md:w-46"
 				alt="Image of politician {delegate.name}"
 			/>

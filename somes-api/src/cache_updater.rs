@@ -136,16 +136,17 @@ pub async fn update_cache_for_index<
 }
 
 pub async fn update_meilisearch_index<T: CombinedData + serde::Serialize + Send + Sync>(
+    parliament: combx::Parliament,
     data: &[T],
     meilisearch_client: &meilisearch_sdk::client::Client,
     redis_con: &mut MultiplexedConnection,
 ) -> combx::Result<()> {
     meilisearch_client
-        .index(T::INDEX.as_str())
+        .index(T::INDEX.uid(parliament))
         .add_documents_in_batches(&data, Some(3000), Some(T::PRIMARY_KEY))
         .await?;
 
-    update_time::update_update_time_of_index(redis_con, &T::INDEX).await?;
+    update_time::update_update_time_of_index(redis_con, parliament, &T::INDEX).await?;
     Ok(())
 }
 

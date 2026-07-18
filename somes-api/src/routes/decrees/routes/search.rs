@@ -1,7 +1,7 @@
 use crate::{
     meilisearch::MeilisearchClient,
     routes::{DecreeDelegate, DecreeDelegateFilter, DecreesWithMaxPage, FilterError},
-    Qs, RedisConnection, DECREES_PER_PAGE,
+    ParliamentCtx, Qs, RedisConnection, DECREES_PER_PAGE,
 };
 use axum::{extract::Query, Json};
 use combx::{meilisearch_filters_ai_summary, Index};
@@ -10,6 +10,7 @@ use somes_common_lib::{Page, Sort};
 use somes_meilisearch_filter::{to_meilisearch_filters, FilterOptions};
 
 pub async fn decrees_by_search_route(
+    ParliamentCtx(parliament): ParliamentCtx,
     RedisConnection(mut redis_con): RedisConnection,
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
@@ -20,6 +21,7 @@ pub async fn decrees_by_search_route(
     Qs(decrees_filter): Qs<DecreeDelegateFilter>,
 ) -> Result<Json<DecreesWithMaxPage>, FilterError> {
     meilisearch_decrees(
+        parliament,
         &mut redis_con,
         meilisearch_client,
         search_query,
@@ -36,6 +38,7 @@ pub async fn decrees_by_search_route(
 }
 
 async fn meilisearch_decrees(
+    parliament: combx::Parliament,
     redis_con: &mut redis::aio::MultiplexedConnection,
     meilisearch_client: meilisearch_sdk::client::Client,
     search_query: somes_common_lib::SearchQuery,
@@ -103,7 +106,7 @@ async fn meilisearch_decrees(
     };
 
     let results: SearchResults<DecreeDelegate> = meilisearch_client
-        .index("decrees")
+        .index(Index::Decrees.uid(parliament))
         .search()
         .with_filter(&meilisearch_filter)
         .with_sort(&sort)
@@ -121,10 +124,11 @@ async fn meilisearch_decrees(
         .map(|decree| decree.result)
         .collect();
 
-    let updated_at = crate::meilisearch::get_update_time_of_index(redis_con, &Index::Decrees)
-        .await
-        .ok()
-        .map(|date| date.naive_local());
+    let updated_at =
+        crate::meilisearch::get_update_time_of_index(redis_con, parliament, &Index::Decrees)
+            .await
+            .ok()
+            .map(|date| date.naive_local());
 
     Ok(DecreesWithMaxPage {
         decrees,

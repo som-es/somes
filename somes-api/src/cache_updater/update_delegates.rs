@@ -21,7 +21,13 @@ pub(crate) async fn update_cache_delegates(
                 .get_multiplexed_async_connection()
                 .await?;
             // delegate_by_id_sqlx(*id, &inner_pool, &mut redis_con).await?
-            update_meilisearch_index(&delegates, &meilisearch_client, &mut redis_con).await?;
+            update_meilisearch_index(
+                combx::Parliament::At,
+                &delegates,
+                &meilisearch_client,
+                &mut redis_con,
+            )
+            .await?;
             Ok(())
         }
     };

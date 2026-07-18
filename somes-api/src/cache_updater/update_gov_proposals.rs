@@ -46,8 +46,13 @@ pub async fn update_cache_gov_proposals(
                 })
             }
 
-            update_meilisearch_index(&gov_proposal_delegates, &meilisearch_client, &mut redis_con)
-                .await?;
+            update_meilisearch_index(
+                combx::Parliament::At,
+                &gov_proposal_delegates,
+                &meilisearch_client,
+                &mut redis_con,
+            )
+            .await?;
             Ok(())
         }
     };

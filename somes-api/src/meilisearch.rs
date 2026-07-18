@@ -4,7 +4,7 @@ use axum::{
 };
 use combx::{
     CombinedData, Decree, DelegateFilter, GovProposal, Index, OptionalVoteResult,
-    OptionalVoteResultFilter, VoteResult,
+    OptionalVoteResultFilter, Parliament, VoteResult,
 };
 use futures::FutureExt;
 use meilisearch_sdk::{
@@ -118,6 +118,7 @@ impl FromRequestParts<AppState> for MeilisearchClient {
 }
 
 pub async fn update_delegates_meilisearch_index(
+    parliament: Parliament,
     pg_pool: &sqlx::Pool<sqlx::Postgres>,
     redis_con: &mut MultiplexedConnection,
     client: &meilisearch_sdk::client::Client,
@@ -131,7 +132,7 @@ pub async fn update_delegates_meilisearch_index(
         .map(|field| field.to_string())
         .collect::<Vec<String>>();
 
-    let index = Index::Delegates.as_str();
+    let index = Index::Delegates.uid(parliament);
 
     log::info!("Uploading {} delegates to meilisearch", all_delegates.len());
     let settings = Settings::new()
@@ -151,20 +152,21 @@ pub async fn update_delegates_meilisearch_index(
 
     rebuild_index_via_swap(
         client,
-        index,
+        &index,
         &settings,
         &all_delegates,
         Some(OptionalVoteResult::PRIMARY_KEY),
         Some(3000),
     )
     .await?;
-    update_time::update_update_time_of_index(redis_con, &Index::Delegates).await?;
+    update_time::update_update_time_of_index(redis_con, parliament, &Index::Delegates).await?;
 
     log::info!("Uploaded delegates");
     Ok(())
 }
 
 pub async fn create_or_update_decrees_meilisearch_index(
+    parliament: Parliament,
     pg_pool: &sqlx::Pool<sqlx::Postgres>,
     redis_con: &mut MultiplexedConnection,
     client: &meilisearch_sdk::client::Client,
@@ -173,7 +175,7 @@ pub async fn create_or_update_decrees_meilisearch_index(
     let all_decrees = get_all_decrees_sqlx(pg_pool, redis_con.clone()).await?;
     log::info!("Fetched all decrees");
 
-    let index = Index::Decrees.as_str();
+    let index = Index::Decrees.uid(parliament);
 
     log::info!("Uploading {} decrees to meilisearch", all_decrees.len());
     let settings = Settings::new()
@@ -193,20 +195,21 @@ pub async fn create_or_update_decrees_meilisearch_index(
 
     rebuild_index_via_swap(
         client,
-        index,
+        &index,
         &settings,
         &all_decrees,
         Some(Decree::PRIMARY_KEY),
         Some(3000),
     )
     .await?;
-    update_time::update_update_time_of_index(redis_con, &Index::Decrees).await?;
+    update_time::update_update_time_of_index(redis_con, parliament, &Index::Decrees).await?;
 
     log::info!("Uploaded decrees");
     Ok(())
 }
 
 pub async fn create_or_update_gov_props_meilisearch_index(
+    parliament: Parliament,
     redis_con: &mut MultiplexedConnection,
     pg_pool: &sqlx::Pool<sqlx::Postgres>,
     client: &meilisearch_sdk::client::Client,
@@ -215,7 +218,7 @@ pub async fn create_or_update_gov_props_meilisearch_index(
     let all_gov_props = get_all_gov_props(redis_con.clone(), pg_pool).await?;
     log::info!("Fetched all gov proposals");
 
-    let index = Index::GovProposals.as_str();
+    let index = Index::GovProposals.uid(parliament);
 
     log::info!(
         "Uploading {} gov proposals to meilisearch",
@@ -238,14 +241,14 @@ pub async fn create_or_update_gov_props_meilisearch_index(
 
     rebuild_index_via_swap(
         client,
-        index,
+        &index,
         &settings,
         &all_gov_props,
         Some(GovProposal::PRIMARY_KEY),
         Some(3000),
     )
     .await?;
-    update_time::update_update_time_of_index(redis_con, &Index::GovProposals).await?;
+    update_time::update_update_time_of_index(redis_con, parliament, &Index::GovProposals).await?;
 
     log::info!("Uploaded gov proposals");
     Ok(())
@@ -285,6 +288,7 @@ pub async fn party_of_delegates_at_time(
 }
 
 pub async fn update_vote_result_meilisearch_index(
+    parliament: Parliament,
     redis_con: &mut MultiplexedConnection,
     pg_pool: &sqlx::Pool<sqlx::Postgres>,
     client: &meilisearch_sdk::client::Client,
@@ -319,7 +323,7 @@ pub async fn update_vote_result_meilisearch_index(
     log::info!("Fetching all vote results..");
     let mut all_vote_results = vote_result_cb(redis_con.clone(), pg_pool).await?;
 
-    let index = Index::VoteResults.as_str();
+    let index = Index::VoteResults.uid(parliament);
 
     for vote_result in &mut all_vote_results {
         if let Some(meilisearch_helper) = vote_result.meilisearch_helper.as_mut() {
@@ -342,14 +346,14 @@ pub async fn update_vote_result_meilisearch_index(
 
     rebuild_index_via_swap(
         client,
-        index,
+        &index,
         &settings,
         &all_vote_results,
         Some("id"),
         Some(3000),
     )
     .await?;
-    update_time::update_update_time_of_index(redis_con, &Index::VoteResults).await?;
+    update_time::update_update_time_of_index(redis_con, parliament, &Index::VoteResults).await?;
 
     log::info!("Uploaded vote results");
     Ok(())
@@ -369,6 +373,7 @@ pub async fn update_meilisearch_indices(
     prod_wait_handles.push(tokio::task::spawn(async move {
         loop {
             if let Err(e) = update_vote_result_meilisearch_index(
+                Parliament::At,
                 &mut client_vr.get_multiplexed_async_connection().await.unwrap(),
                 &pg_pool_vr,
                 &meilisearch_client_vr,
@@ -392,6 +397,7 @@ pub async fn update_meilisearch_indices(
     prod_wait_handles.push(tokio::task::spawn(async move {
         loop {
             if let Err(e) = create_or_update_gov_props_meilisearch_index(
+                Parliament::At,
                 &mut client_vr.get_multiplexed_async_connection().await.unwrap(),
                 &pg_pool,
                 &meilisearch_client_gp,
@@ -416,6 +422,7 @@ pub async fn update_meilisearch_indices(
     tokio::task::spawn(async move {
         loop {
             if let Err(e) = create_or_update_decrees_meilisearch_index(
+                Parliament::At,
                 &pg_pool,
                 &mut client_vr.get_multiplexed_async_connection().await.unwrap(),
                 &meilisearch_client_gp,
@@ -436,6 +443,7 @@ pub async fn update_meilisearch_indices(
     prod_wait_handles.push(tokio::task::spawn(async move {
         loop {
             if let Err(e) = update_delegates_meilisearch_index(
+                Parliament::At,
                 &pg_pool,
                 &mut client_vr.get_multiplexed_async_connection().await.unwrap(),
                 &meilisearch_client_gp,

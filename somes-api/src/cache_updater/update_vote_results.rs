@@ -29,7 +29,13 @@ pub async fn update_cache_vote_results(
 
         async move {
             let mut redis_con = redis_client.get_multiplexed_async_connection().await?;
-            update_meilisearch_index(&vote_results, &meilisearch_client, &mut redis_con).await?;
+            update_meilisearch_index(
+                combx::Parliament::At,
+                &vote_results,
+                &meilisearch_client,
+                &mut redis_con,
+            )
+            .await?;
             Ok(())
         }
     };

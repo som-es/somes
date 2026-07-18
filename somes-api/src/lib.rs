@@ -20,6 +20,8 @@ mod http_redirect;
 pub mod meilisearch;
 pub use http_redirect::*;
 use once_cell::sync::Lazy;
+pub mod parliament;
+pub use parliament::*;
 mod error;
 pub use cache_updater::*;
 pub use error::*;
@@ -28,7 +30,6 @@ pub use refresh_views::*;
 pub type Result<T> = std::result::Result<T, crate::error::GenericError>;
 
 pub const USR_DATABASE_URL: &str = dotenv!("USR_DATABASE_URL");
-pub const DATASERVICE_URL: &str = dotenv!("DATASERVICE_URL");
 pub const TEST_DB_PATH: &str = dotenv!("TEST_DB_PATH");
 pub const SQL_SCHEMA_PATH: &str = dotenv!("SQL_SCHEMA_PATH");
 pub const REDIS_DB: &str = dotenv!("REDIS_DB");

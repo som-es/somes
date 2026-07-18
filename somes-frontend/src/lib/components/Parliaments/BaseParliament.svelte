@@ -26,7 +26,7 @@
 		height = 900,
 		class: clazz = ''
 	}: Props = $props();
-	
+
 	function handleKey(e: KeyboardEvent) {
 		if (!active || preview || !circles2d.length) return;
 		if (!selected || !selected.del || !selected.del.seat_row || !selected.del.seat_col) return;

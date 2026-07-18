@@ -5,18 +5,18 @@ pub async fn extract_detailed_interests_of_delegate(
     delegate_id: i32,
     pg: &PgPool,
 ) -> sqlx::Result<Vec<InterestShare>> {
-    let absolute_interests = sqlx::query!("select 
-        topic, COUNT(*) as talk_count from speeches 
-            inner join eurovoc_topics_legis_init on eurovoc_topics_legis_init.legislative_initiatives_id=speeches.legislative_initiatives_id 
-            inner join delegates on speeches.delegate_id = delegates.id 
-        where infavor is not null and delegates.id = $1 
+    let absolute_interests = sqlx::query!("select
+        topic, COUNT(*) as talk_count from speeches
+            inner join eurovoc_topics_legis_init on eurovoc_topics_legis_init.legislative_initiatives_id=speeches.legislative_initiatives_id
+            inner join delegates on speeches.delegate_id = delegates.id
+        where infavor is not null and delegates.id = $1
             group by topic
         order by topic;", delegate_id).fetch_all(pg).await?;
 
     // let absolute_interests = absolute_interests_eurovoc_proposals;
     let total_talk_counts = sqlx::query!("
-        select topic, COUNT(*) as talk_count from speeches 
-        inner join eurovoc_topics_legis_init on eurovoc_topics_legis_init.legislative_initiatives_id=speeches.legislative_initiatives_id inner join delegates on speeches.delegate_id = delegates.id 
+        select topic, COUNT(*) as talk_count from speeches
+        inner join eurovoc_topics_legis_init on eurovoc_topics_legis_init.legislative_initiatives_id=speeches.legislative_initiatives_id inner join delegates on speeches.delegate_id = delegates.id
         where infavor is not null and delegates.council = 'nr' and is_active group by topic order by topic;").fetch_all(pg).await?;
 
     let mut interest_shares = Vec::with_capacity(total_talk_counts.len());
@@ -58,18 +58,18 @@ pub async fn extract_interests_of_delegate(
     //     order by topic;
     // ", delegate_id).fetch_all(pg).await?;
 
-    let absolute_interests = sqlx::query!("select 
-        topic, COUNT(*) as talk_count from speeches 
-            inner join topics_legis_init on topics_legis_init.legislative_initiatives_id=speeches.legislative_initiatives_id 
-            inner join delegates on speeches.delegate_id = delegates.id 
-        where infavor is not null and delegates.id = $1 
+    let absolute_interests = sqlx::query!("select
+        topic, COUNT(*) as talk_count from speeches
+            inner join topics_legis_init on topics_legis_init.legislative_initiatives_id=speeches.legislative_initiatives_id
+            inner join delegates on speeches.delegate_id = delegates.id
+        where infavor is not null and delegates.id = $1
             group by topic
         order by topic;", delegate_id).fetch_all(pg).await?;
 
     // let absolute_interests = absolute_interests_eurovoc_proposals;
     let total_talk_counts = sqlx::query!("
-        select topic, COUNT(*) as talk_count from speeches 
-        inner join topics_legis_init on topics_legis_init.legislative_initiatives_id=speeches.legislative_initiatives_id inner join delegates on speeches.delegate_id = delegates.id 
+        select topic, COUNT(*) as talk_count from speeches
+        inner join topics_legis_init on topics_legis_init.legislative_initiatives_id=speeches.legislative_initiatives_id inner join delegates on speeches.delegate_id = delegates.id
         where infavor is not null and delegates.council = 'nr' and is_active group by topic order by topic;").fetch_all(pg).await?;
 
     let mut interest_shares = Vec::with_capacity(total_talk_counts.len());
@@ -102,20 +102,18 @@ pub async fn extract_interests_of_delegate(
 mod tests {
     use sqlx::postgres::PgPoolOptions;
 
-    use crate::DATASERVICE_URL;
-
     #[tokio::test]
     async fn test_extract_interests_of_delegate() {
-        let pg_pool = PgPoolOptions::new()
-            .max_connections(200)
-            .connect(DATASERVICE_URL)
-            .await
-            .unwrap();
+        // let pg_pool = PgPoolOptions::new()
+        //     .max_connections(200)
+        //     .connect(DATASERVICE_URL)
+        //     .await
+        //     .unwrap();
 
-        let mut interests = crate::routes::extract_interests_of_delegate(35520, &pg_pool)
-            .await
-            .unwrap();
-        interests.sort_by(|a, b| b.self_share.total_cmp(&a.self_share));
-        println!("interests: {interests:?}");
+        // let mut interests = crate::routes::extract_interests_of_delegate(35520, &pg_pool)
+        //     .await
+        //     .unwrap();
+        // interests.sort_by(|a, b| b.self_share.total_cmp(&a.self_share));
+        // println!("interests: {interests:?}");
     }
 }

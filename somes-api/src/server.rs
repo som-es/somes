@@ -2,9 +2,8 @@ use std::{error::Error, fs::File, net::SocketAddr, path::PathBuf, time::Duration
 
 use crate::{
     meilisearch::update_meilisearch_indices, redirect_http_to_https, reset_cache,
-    routes::save_email_route, update_caches, Ports, DATASERVICE_URL, HTTPS_PORT, HTTP_PORT,
-    MEILISEARCH_SECRET, MEILISEARCH_URL, PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, REDIS_DB,
-    STATIC_FRONTEND_PATH,
+    routes::save_email_route, update_caches, Ports, HTTPS_PORT, HTTP_PORT, MEILISEARCH_SECRET,
+    MEILISEARCH_URL, PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, REDIS_DB, STATIC_FRONTEND_PATH,
 };
 use crate::{routes::*, IS_PROD};
 use axum::{
@@ -12,8 +11,9 @@ use axum::{
     http::{self, HeaderValue},
     response::Html,
     routing::{any, get, get_service, post},
-    Router,
+    Extension, Router,
 };
+use combx::Parliament;
 use axum_server::tls_rustls::RustlsConfig;
 use log::info;
 use reqwest::StatusCode;
@@ -95,14 +95,15 @@ fn connect_redis() -> ServerResult<redis::Client> {
 }
 
 async fn connect_dataservice() -> ServerResult<PgPool> {
+    let dataservice_url = std::env::var("DATASERVICE_URL")?;
     log::info!(
         "Connecting to database {}",
-        DATASERVICE_URL.split("@").last().unwrap_or_default()
+        dataservice_url.split("@").last().unwrap_or_default()
     );
 
     let pool = PgPoolOptions::new()
         .max_connections(20)
-        .connect(DATASERVICE_URL)
+        .connect(&dataservice_url)
         .await?;
 
     log::info!("Established postgresql connection");
@@ -161,8 +162,11 @@ fn spawn_search_refresh(
     });
 }
 
-fn api_router() -> Router<AppState> {
-    let at_routes = Router::new()
+/// Builds the full set of per-parliament data routes. Mounted once per
+/// parliament (see [`api_router`]) with a [`Parliament`] extension layer so the
+/// same handlers serve both `/api/at/...` and `/api/eu/...`.
+fn parliament_router() -> Router<AppState> {
+    Router::new()
         .route(PARTIES, get(parties_route))
         .route(PARTIES_AT_GP, get(parties_at_gp_route))
         .route(PARTIES_PER_GP, get(parties_per_gp_route))
@@ -187,8 +191,10 @@ fn api_router() -> Router<AppState> {
         .nest("/v1/decrees", create_decrees_router())
         .nest("/v1/user", create_user_router())
         .nest("/v1/vote_results", create_vote_results_router())
-        .nest("/v1/events", create_events_router());
+        .nest("/v1/events", create_events_router())
+}
 
+fn api_router() -> Router<AppState> {
     Router::new()
         .route("/oauth/{provider}", get(start_oauth))
         .route("/oauth/{provider}/callback", get(oauth_callback))
@@ -197,7 +203,14 @@ fn api_router() -> Router<AppState> {
         .route(ADD_QUIZ, post(add_quiz_route))
         .route(QUIZ_ROOM, any(join_quiz_room_route))
         .nest_service("/assets", ServeDir::new("assets"))
-        .nest("/at", at_routes)
+        .nest(
+            "/at",
+            parliament_router().layer(Extension(Parliament::At)),
+        )
+        .nest(
+            "/eu",
+            parliament_router().layer(Extension(Parliament::Eu)),
+        )
 }
 
 fn app_router(state: AppState) -> Router {

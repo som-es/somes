@@ -8,10 +8,11 @@ use crate::{
     routes::{
         FilterError, GovProposalDelegate, GovProposalDelegateFilter, GovProposalsWithMaxPage,
     },
-    Qs, RedisConnection, GOV_PROPS_PER_PAGE,
+    ParliamentCtx, Qs, RedisConnection, GOV_PROPS_PER_PAGE,
 };
 
 pub async fn gov_props_by_search_route(
+    ParliamentCtx(parliament): ParliamentCtx,
     RedisConnection(mut redis_con): RedisConnection,
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
@@ -78,7 +79,7 @@ pub async fn gov_props_by_search_route(
     };
 
     let results: SearchResults<GovProposalDelegate> = meilisearch_client
-        .index("gov_props")
+        .index(Index::GovProposals.uid(parliament))
         .search()
         .with_filter(&meilisearch_filter)
         .with_query(&search_query.search.unwrap_or_default())
@@ -94,11 +95,14 @@ pub async fn gov_props_by_search_route(
 
     let max_page = results.total_pages.unwrap_or(1) as i64;
 
-    let updated_at =
-        crate::meilisearch::get_update_time_of_index(&mut redis_con, &Index::GovProposals)
-            .await
-            .ok()
-            .map(|date| date.naive_local());
+    let updated_at = crate::meilisearch::get_update_time_of_index(
+        &mut redis_con,
+        parliament,
+        &Index::GovProposals,
+    )
+    .await
+    .ok()
+    .map(|date| date.naive_local());
 
     let gov_proposals = results
         .hits

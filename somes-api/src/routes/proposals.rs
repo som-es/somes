@@ -15,7 +15,7 @@ use somes_common_lib::{LATEST, SEARCH};
 use sqlx::PgPool;
 use utoipa::ToSchema;
 
-use crate::server::AppState;
+use crate::{server::AppState, ParliamentCtx};
 
 use super::{delegate_by_id_sqlx, GovProposalDelegate};
 
@@ -53,6 +53,7 @@ pub async fn construct_gov_delegate_proposal(
 }
 /*
 pub async fn gov_proposals_per_page_route(
+    ParliamentCtx(parliament): ParliamentCtx,
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(page): Query<Page>,
@@ -71,6 +72,7 @@ pub async fn gov_proposals_per_page_route(
 
     let updated_at = crate::meilisearch::get_update_time_of_index(
         &mut redis_con.clone(),
+        parliament,
         &crate::meilisearch::Index::GovProposals,
     )
     .await

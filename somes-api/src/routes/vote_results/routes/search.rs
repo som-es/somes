@@ -9,10 +9,11 @@ use somes_common_lib::{AddonVoteResultFilter, Page};
 use crate::{
     meilisearch::MeilisearchClient,
     routes::{FilterError, VoteResultsWithMaxPage},
-    Qs, RedisConnection, LEGIS_INITS_PER_PAGE,
+    ParliamentCtx, Qs, RedisConnection, LEGIS_INITS_PER_PAGE,
 };
 
 pub async fn vote_results_by_search_route(
+    ParliamentCtx(parliament): ParliamentCtx,
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     RedisConnection(mut redis_con): RedisConnection,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
@@ -24,6 +25,7 @@ pub async fn vote_results_by_search_route(
 ) -> Result<Json<VoteResultsWithMaxPage>, FilterError> {
     log::info!("legis_init_filter: {legis_init_filter:?}");
     meilisearch_for_vote_results(
+        parliament,
         legis_init_filter.is_finished,
         meilisearch_client,
         search_query,
@@ -50,6 +52,7 @@ fn create_topic_filter<T: Display>(field: &str, filter_values: impl Iterator<Ite
 }
 
 async fn meilisearch_for_vote_results(
+    parliament: combx::Parliament,
     is_finished: bool,
     meilisearch_client: meilisearch_sdk::client::Client,
     search_query: somes_common_lib::SearchQuery,
@@ -122,7 +125,7 @@ async fn meilisearch_for_vote_results(
     };
 
     let results: SearchResults<OptionalVoteResult> = meilisearch_client
-        .index("vote_results")
+        .index(Index::VoteResults.uid(parliament))
         .search()
         .with_filter(&meilisearch_filter)
         .with_sort(&sort)
@@ -151,9 +154,13 @@ async fn meilisearch_for_vote_results(
         vote_results,
         entry_count: results.estimated_total_hits.unwrap_or(1) as i64,
         max_page,
-        updated_at: crate::meilisearch::get_update_time_of_index(redis_con, &Index::VoteResults)
-            .await
-            .ok()
-            .map(|date| date.naive_local()),
+        updated_at: crate::meilisearch::get_update_time_of_index(
+            redis_con,
+            parliament,
+            &Index::VoteResults,
+        )
+        .await
+        .ok()
+        .map(|date| date.naive_local()),
     })
 }
