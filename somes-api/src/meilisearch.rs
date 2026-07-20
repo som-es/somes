@@ -359,21 +359,21 @@ pub async fn update_vote_result_meilisearch_index(
     Ok(())
 }
 
-pub async fn update_meilisearch_indices(
+fn spawn_parliament_index_refreshers(
+    parliament: Parliament,
     client: &redis::Client,
     dataservice_sqlx_pool: &sqlx::Pool<sqlx::Postgres>,
     meilisearch_client: &meilisearch_sdk::client::Client,
+    prod_wait_handles: &mut Vec<tokio::task::JoinHandle<()>>,
 ) {
     let pg_pool_vr = dataservice_sqlx_pool.clone();
     let client_vr = client.clone();
     let meilisearch_client_vr = meilisearch_client.clone();
 
-    let mut prod_wait_handles = vec![];
-
     prod_wait_handles.push(tokio::task::spawn(async move {
         loop {
             if let Err(e) = update_vote_result_meilisearch_index(
-                Parliament::At,
+                parliament,
                 &mut client_vr.get_multiplexed_async_connection().await.unwrap(),
                 &pg_pool_vr,
                 &meilisearch_client_vr,
@@ -381,7 +381,10 @@ pub async fn update_meilisearch_indices(
             )
             .await
             {
-                log::warn!("Could not update meilisearch index: {e:?}");
+                log::warn!(
+                    "Could not update meilisearch index {} ({parliament}): {e:?}",
+                    Index::VoteResults.uid(parliament)
+                );
             }
             if *IS_PROD {
                 break;
@@ -397,14 +400,17 @@ pub async fn update_meilisearch_indices(
     prod_wait_handles.push(tokio::task::spawn(async move {
         loop {
             if let Err(e) = create_or_update_gov_props_meilisearch_index(
-                Parliament::At,
+                parliament,
                 &mut client_vr.get_multiplexed_async_connection().await.unwrap(),
                 &pg_pool,
                 &meilisearch_client_gp,
             )
             .await
             {
-                log::warn!("Could not update meilisearch index: {e:?}");
+                log::warn!(
+                    "Could not update meilisearch index {} ({parliament}): {e:?}",
+                    Index::GovProposals.uid(parliament)
+                );
             }
             if *IS_PROD {
                 break;
@@ -422,14 +428,17 @@ pub async fn update_meilisearch_indices(
     tokio::task::spawn(async move {
         loop {
             if let Err(e) = create_or_update_decrees_meilisearch_index(
-                Parliament::At,
+                parliament,
                 &pg_pool,
                 &mut client_vr.get_multiplexed_async_connection().await.unwrap(),
                 &meilisearch_client_gp,
             )
             .await
             {
-                log::error!("Could not update decree meilisearch index: {e:?}");
+                log::error!(
+                    "Could not update meilisearch index {} ({parliament}): {e:?}",
+                    Index::Decrees.uid(parliament)
+                );
             }
             log::info!("decree meilsearch sleep 1000s");
             sleep(std::time::Duration::from_secs(1000)).await;
@@ -443,14 +452,17 @@ pub async fn update_meilisearch_indices(
     prod_wait_handles.push(tokio::task::spawn(async move {
         loop {
             if let Err(e) = update_delegates_meilisearch_index(
-                Parliament::At,
+                parliament,
                 &pg_pool,
                 &mut client_vr.get_multiplexed_async_connection().await.unwrap(),
                 &meilisearch_client_gp,
             )
             .await
             {
-                log::error!("Could not update delegate meilisearch index: {e:?}");
+                log::error!(
+                    "Could not update meilisearch index {} ({parliament}): {e:?}",
+                    Index::Delegates.uid(parliament)
+                );
             }
             if *IS_PROD {
                 break;
@@ -459,6 +471,31 @@ pub async fn update_meilisearch_indices(
             sleep(std::time::Duration::from_secs(1000)).await;
         }
     }));
+}
+
+pub async fn update_meilisearch_indices(
+    client: &redis::Client,
+    dataservice_sqlx_pool: &sqlx::Pool<sqlx::Postgres>,
+    eu_dataservice_sqlx_pool: &sqlx::Pool<sqlx::Postgres>,
+    meilisearch_client: &meilisearch_sdk::client::Client,
+) {
+    let mut prod_wait_handles = vec![];
+
+    spawn_parliament_index_refreshers(
+        Parliament::At,
+        client,
+        dataservice_sqlx_pool,
+        meilisearch_client,
+        &mut prod_wait_handles,
+    );
+
+    spawn_parliament_index_refreshers(
+        Parliament::Eu,
+        client,
+        eu_dataservice_sqlx_pool,
+        meilisearch_client,
+        &mut prod_wait_handles,
+    );
 
     if *IS_PROD {
         for handle in prod_wait_handles {

@@ -107,17 +107,19 @@ impl FromRef<AppState> for PgPool {
     }
 }
 
-// #[async_trait]
-impl<S> FromRequestParts<S> for PgPoolConnection
-where
-    S: Send + Sync,
-    PgPool: FromRef<S>,
-{
+// Parliament-aware: `/api/eu/...` requests carry a `Parliament::Eu` extension
+// (injected by the route nest in `crate::server`) and get the EU Postgres pool;
+// everything else falls back to the Austrian pool.
+impl FromRequestParts<AppState> for PgPoolConnection {
     type Rejection = (StatusCode, String);
 
-    async fn from_request_parts(_parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
-        let pool = PgPool::from_ref(state);
-        Ok(Self(pool))
+    async fn from_request_parts(parts: &mut Parts, state: &AppState) -> Result<Self, Self::Rejection> {
+        let parliament = parts
+            .extensions
+            .get::<combx::Parliament>()
+            .copied()
+            .unwrap_or_default();
+        Ok(Self(state.pool(parliament)))
     }
 }
 

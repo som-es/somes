@@ -36,6 +36,7 @@ const ASSET_REFRESH_DELAY: Duration = Duration::from_secs(19_000);
 pub struct AppState {
     pub redis_client: redis::Client,
     pub dataservice_sqlx_pool: PgPool,
+    pub eu_dataservice_sqlx_pool: PgPool,
     pub meilisearch_client: meilisearch_sdk::client::Client,
 }
 
@@ -43,12 +44,23 @@ impl AppState {
     pub fn new(
         redis_client: redis::Client,
         dataservice_sqlx_pool: PgPool,
+        eu_dataservice_sqlx_pool: PgPool,
         meilisearch_client: meilisearch_sdk::client::Client,
     ) -> AppState {
         AppState {
             redis_client,
             dataservice_sqlx_pool,
+            eu_dataservice_sqlx_pool,
             meilisearch_client,
+        }
+    }
+
+    /// Returns the Postgres pool backing the given parliament. Austrian data
+    /// lives in `DATASERVICE_URL`, EU data in `EU_DATASERVICE_URL`.
+    pub fn pool(&self, parliament: Parliament) -> PgPool {
+        match parliament {
+            Parliament::At => self.dataservice_sqlx_pool.clone(),
+            Parliament::Eu => self.eu_dataservice_sqlx_pool.clone(),
         }
     }
 }
@@ -94,10 +106,10 @@ fn connect_redis() -> ServerResult<redis::Client> {
     Ok(client)
 }
 
-async fn connect_dataservice() -> ServerResult<PgPool> {
-    let dataservice_url = std::env::var("DATASERVICE_URL")?;
+async fn connect_dataservice(env_key: &str) -> ServerResult<PgPool> {
+    let dataservice_url = std::env::var(env_key)?;
     log::info!(
-        "Connecting to database {}",
+        "Connecting to database {} ({env_key})",
         dataservice_url.split("@").last().unwrap_or_default()
     );
 
@@ -106,7 +118,7 @@ async fn connect_dataservice() -> ServerResult<PgPool> {
         .connect(&dataservice_url)
         .await?;
 
-    log::info!("Established postgresql connection");
+    log::info!("Established postgresql connection ({env_key})");
     Ok(pool)
 }
 
@@ -141,6 +153,7 @@ fn spawn_asset_refresh(pg_pool: PgPool) {
 fn spawn_search_refresh(
     client: redis::Client,
     dataservice_sqlx_pool: PgPool,
+    eu_dataservice_sqlx_pool: PgPool,
     meilisearch_client: meilisearch_sdk::client::Client,
 ) {
     tokio::task::spawn(async move {
@@ -154,7 +167,13 @@ fn spawn_search_refresh(
         );
         // This function blocks in production so streamed updates do not invalidate in-flight fetches
         // and leave Meilisearch with outdated indices.
-        update_meilisearch_indices(&client, &dataservice_sqlx_pool, &meilisearch_client).await;
+        update_meilisearch_indices(
+            &client,
+            &dataservice_sqlx_pool,
+            &eu_dataservice_sqlx_pool,
+            &meilisearch_client,
+        )
+        .await;
 
         if *IS_PROD {
             update_caches(&client, &dataservice_sqlx_pool, &meilisearch_client);
@@ -290,7 +309,8 @@ async fn serve_tls(addr: SocketAddr, config: RustlsConfig, app: Router) -> Serve
 
 pub async fn serve(addr: SocketAddr) -> ServerResult<()> {
     let client = connect_redis()?;
-    let dataservice_sqlx_pool = connect_dataservice().await?;
+    let dataservice_sqlx_pool = connect_dataservice("DATASERVICE_URL").await?;
+    let eu_dataservice_sqlx_pool = connect_dataservice("EU_DATASERVICE_URL").await?;
 
     let meilisearch_client =
         meilisearch_sdk::client::Client::new(MEILISEARCH_URL, Some(MEILISEARCH_SECRET))?;
@@ -298,6 +318,7 @@ pub async fn serve(addr: SocketAddr) -> ServerResult<()> {
     let state = AppState::new(
         client.clone(),
         dataservice_sqlx_pool.clone(),
+        eu_dataservice_sqlx_pool.clone(),
         meilisearch_client.clone(),
     );
 
@@ -306,7 +327,12 @@ pub async fn serve(addr: SocketAddr) -> ServerResult<()> {
 
     crate::refresh_views(&dataservice_sqlx_pool, &client);
 
-    spawn_search_refresh(client, dataservice_sqlx_pool, meilisearch_client);
+    spawn_search_refresh(
+        client,
+        dataservice_sqlx_pool,
+        eu_dataservice_sqlx_pool,
+        meilisearch_client,
+    );
 
     let config = RustlsConfig::from_pem_file(
         PathBuf::from(PUBLIC_KEY_PATH),
