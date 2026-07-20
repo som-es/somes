@@ -1,4 +1,4 @@
-import { resolve } from '$app/paths';
+import { plink } from '$lib/api/parliament';
 import type { AiSummary, DbAiSummary } from './ai_summary_types';
 import type { Decree } from './components/Delegates/Decrees/types';
 import type { FullSpeech } from './speechTypes';
@@ -214,11 +214,9 @@ export interface VoteResult {
 }
 
 export function createVoteResultPath(voteResult: VoteResult): string {
-	return resolve('/vote_result/[gp]/[ityp]/[inr]', {
-		gp: voteResult.legislative_initiative.gp,
-		ityp: voteResult.legislative_initiative.ityp,
-		inr: voteResult.legislative_initiative.inr.toString()
-	});
+	return plink(
+		`/vote_result/${voteResult.legislative_initiative.gp}/${voteResult.legislative_initiative.ityp}/${voteResult.legislative_initiative.inr}`
+	);
 }
 
 export interface VoteResultsWithMaxPage {

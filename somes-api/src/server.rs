@@ -7,14 +7,15 @@ use crate::{
 };
 use crate::{routes::*, IS_PROD};
 use axum::{
-    extract::FromRef,
+    extract::{FromRef, Request},
     http::{self, HeaderValue},
-    response::Html,
+    middleware::{self, Next},
+    response::{Html, Response},
     routing::{any, get, get_service, post},
     Extension, Router,
 };
-use combx::Parliament;
 use axum_server::tls_rustls::RustlsConfig;
+use combx::Parliament;
 use log::info;
 use reqwest::StatusCode;
 use somes_common_lib::*;
@@ -35,6 +36,7 @@ const ASSET_REFRESH_DELAY: Duration = Duration::from_secs(19_000);
 #[derive(Clone)]
 pub struct AppState {
     pub redis_client: redis::Client,
+    pub eu_redis_client: redis::Client,
     pub dataservice_sqlx_pool: PgPool,
     pub eu_dataservice_sqlx_pool: PgPool,
     pub meilisearch_client: meilisearch_sdk::client::Client,
@@ -43,12 +45,14 @@ pub struct AppState {
 impl AppState {
     pub fn new(
         redis_client: redis::Client,
+        eu_redis_client: redis::Client,
         dataservice_sqlx_pool: PgPool,
         eu_dataservice_sqlx_pool: PgPool,
         meilisearch_client: meilisearch_sdk::client::Client,
     ) -> AppState {
         AppState {
             redis_client,
+            eu_redis_client,
             dataservice_sqlx_pool,
             eu_dataservice_sqlx_pool,
             meilisearch_client,
@@ -61,6 +65,13 @@ impl AppState {
         match parliament {
             Parliament::At => self.dataservice_sqlx_pool.clone(),
             Parliament::Eu => self.eu_dataservice_sqlx_pool.clone(),
+        }
+    }
+
+    pub fn redis(&self, parliament: Parliament) -> redis::Client {
+        match parliament {
+            Parliament::At => self.redis_client.clone(),
+            Parliament::Eu => self.eu_redis_client.clone(),
         }
     }
 }
@@ -95,8 +106,8 @@ fn default_allowed_origins() -> AllowOrigin {
     AllowOrigin::list(DEFAULT_ALLOWED_ORIGINS.map(HeaderValue::from_static))
 }
 
-fn connect_redis() -> ServerResult<redis::Client> {
-    let client = redis::Client::open(REDIS_DB)?;
+fn connect_redis(db_id: u32) -> ServerResult<redis::Client> {
+    let client = redis::Client::open(format!("{REDIS_DB}{db_id}"))?;
     client.get_connection()?;
     if reset_cache() || *IS_PROD {
         let mut con = client.get_connection()?;
@@ -150,15 +161,19 @@ fn spawn_asset_refresh(pg_pool: PgPool) {
     });
 }
 
-fn spawn_search_refresh(
-    client: redis::Client,
-    dataservice_sqlx_pool: PgPool,
-    eu_dataservice_sqlx_pool: PgPool,
-    meilisearch_client: meilisearch_sdk::client::Client,
-) {
+fn spawn_search_refresh(app_state: AppState) {
     tokio::task::spawn(async move {
-        let inner_redis_client = client.clone();
-        let inner_pool = dataservice_sqlx_pool.clone();
+        let inner_redis_client = app_state.redis_client.clone();
+        let inner_pool = app_state.dataservice_sqlx_pool.clone();
+        tokio::task::spawn(
+            crate::update_session_activity::update_session_activity_cache(
+                inner_redis_client,
+                inner_pool,
+            ),
+        );
+
+        let inner_redis_client = app_state.eu_redis_client.clone();
+        let inner_pool = app_state.eu_dataservice_sqlx_pool.clone();
         tokio::task::spawn(
             crate::update_session_activity::update_session_activity_cache(
                 inner_redis_client,
@@ -167,16 +182,14 @@ fn spawn_search_refresh(
         );
         // This function blocks in production so streamed updates do not invalidate in-flight fetches
         // and leave Meilisearch with outdated indices.
-        update_meilisearch_indices(
-            &client,
-            &dataservice_sqlx_pool,
-            &eu_dataservice_sqlx_pool,
-            &meilisearch_client,
-        )
-        .await;
+        update_meilisearch_indices(&app_state).await;
 
         if *IS_PROD {
-            update_caches(&client, &dataservice_sqlx_pool, &meilisearch_client);
+            update_caches(
+                &app_state.redis_client,
+                &app_state.dataservice_sqlx_pool,
+                &app_state.meilisearch_client,
+            );
         }
     });
 }
@@ -222,14 +235,8 @@ fn api_router() -> Router<AppState> {
         .route(ADD_QUIZ, post(add_quiz_route))
         .route(QUIZ_ROOM, any(join_quiz_room_route))
         .nest_service("/assets", ServeDir::new("assets"))
-        .nest(
-            "/at",
-            parliament_router().layer(Extension(Parliament::At)),
-        )
-        .nest(
-            "/eu",
-            parliament_router().layer(Extension(Parliament::Eu)),
-        )
+        .nest("/at", parliament_router().layer(Extension(Parliament::At)))
+        .nest("/eu", parliament_router().layer(Extension(Parliament::Eu)))
 }
 
 fn app_router(state: AppState) -> Router {
@@ -308,7 +315,8 @@ async fn serve_tls(addr: SocketAddr, config: RustlsConfig, app: Router) -> Serve
 }
 
 pub async fn serve(addr: SocketAddr) -> ServerResult<()> {
-    let client = connect_redis()?;
+    let redis_client = connect_redis(0)?;
+    let eu_redis_client = connect_redis(1)?;
     let dataservice_sqlx_pool = connect_dataservice("DATASERVICE_URL").await?;
     let eu_dataservice_sqlx_pool = connect_dataservice("EU_DATASERVICE_URL").await?;
 
@@ -316,7 +324,8 @@ pub async fn serve(addr: SocketAddr) -> ServerResult<()> {
         meilisearch_sdk::client::Client::new(MEILISEARCH_URL, Some(MEILISEARCH_SECRET))?;
 
     let state = AppState::new(
-        client.clone(),
+        redis_client.clone(),
+        eu_redis_client.clone(),
         dataservice_sqlx_pool.clone(),
         eu_dataservice_sqlx_pool.clone(),
         meilisearch_client.clone(),
@@ -325,14 +334,10 @@ pub async fn serve(addr: SocketAddr) -> ServerResult<()> {
     spawn_asset_refresh(dataservice_sqlx_pool.clone());
     maybe_update_views(&dataservice_sqlx_pool).await?;
 
-    crate::refresh_views(&dataservice_sqlx_pool, &client);
+    crate::refresh_views(&dataservice_sqlx_pool, &state.redis_client);
+    crate::refresh_views(&eu_dataservice_sqlx_pool, &state.eu_redis_client);
 
-    spawn_search_refresh(
-        client,
-        dataservice_sqlx_pool,
-        eu_dataservice_sqlx_pool,
-        meilisearch_client,
-    );
+    spawn_search_refresh(state.clone());
 
     let config = RustlsConfig::from_pem_file(
         PathBuf::from(PUBLIC_KEY_PATH),

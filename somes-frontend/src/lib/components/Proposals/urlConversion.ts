@@ -1,5 +1,5 @@
-import { resolve } from '$app/paths';
 import { page } from '$app/state';
+import { plink } from '$lib/api/parliament';
 import type { GovPropFilter } from '$lib/types';
 
 export function convertGovPropFilterToUrl(
@@ -8,7 +8,7 @@ export function convertGovPropFilterToUrl(
 	currentUrl: URL | undefined,
 	sort: 'Desc' | 'Asc' | 'relevance' = 'relevance'
 ): URL {
-	const nextUrl = currentUrl ? currentUrl : new URL(resolve('/history/proposals'), page.url.origin);
+	const nextUrl = currentUrl ? currentUrl : new URL(plink('/history/proposals'), page.url.origin);
 	nextUrl.search = '';
 	nextUrl.searchParams.set('page', '1');
 

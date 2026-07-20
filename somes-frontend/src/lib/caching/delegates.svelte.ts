@@ -1,4 +1,5 @@
 import { delegates, delegates_at, delegates_with_seats_near_date, isHasError } from '$lib/api/api';
+import { getParliament, type Parliament } from '$lib/api/parliament';
 import { CircularBuffer } from '$lib/CircularBuffer';
 import type { Delegate, DelegateSplit, HasError } from '$lib/types';
 import { delegatesStore } from './stores/stores.svelte';
@@ -17,30 +18,44 @@ export async function cachedDelegates(refetch: boolean = false): Promise<Delegat
 	return dels;
 }
 
-const delegatesNearDate: CircularBuffer<[string, string], Delegate[]> = new CircularBuffer(200);
+const delegatesNearDate: CircularBuffer<[string, string, string], Delegate[]> = new CircularBuffer(
+	200
+);
 
 export async function cachedDelegatesNearSeats(
 	date: string,
 	gp: string,
 	refetch: boolean = false,
-	fetcher: typeof fetch = fetch
+	fetcher: typeof fetch = fetch,
+	parliament: Parliament = getParliament()
 ): Promise<Delegate[] | null> {
-	let dels = delegatesNearDate.findBy((e) => e[0] == date && e[1] == gp);
+	let dels = delegatesNearDate.findBy((e) => e[0] == parliament && e[1] == date && e[2] == gp);
 	if (dels == undefined || refetch || dels.length == 0) {
-		const fetchedDels = await delegates_with_seats_near_date(date as unknown as Date, gp, fetcher);
+		const fetchedDels = await delegates_with_seats_near_date(
+			date as unknown as Date,
+			gp,
+			fetcher,
+			parliament
+		);
 		if (isHasError(fetchedDels)) return null;
-		delegatesNearDate.push([date, gp], fetchedDels);
+		delegatesNearDate.push([parliament, date, gp], fetchedDels);
 		dels = fetchedDels;
 	}
 	return structuredClone($state.snapshot(dels.slice()));
 }
 
-export async function cachedDelegatedAtDate(date: string, gp: string, refetch: boolean = false, fetcher: typeof fetch = fetch): Promise<Delegate[] | HasError> {
-	let dels = delegatesNearDate.findBy((e) => e[0] == date && e[1] == gp);
+export async function cachedDelegatedAtDate(
+	date: string,
+	gp: string,
+	refetch: boolean = false,
+	fetcher: typeof fetch = fetch,
+	parliament: Parliament = getParliament()
+): Promise<Delegate[] | HasError> {
+	let dels = delegatesNearDate.findBy((e) => e[0] == parliament && e[1] == date && e[2] == gp);
 	if (dels == undefined || refetch || dels.length == 0) {
-		const fetchedDels = await delegates_at(date, fetcher);
+		const fetchedDels = await delegates_at(date, fetcher, parliament);
 		if (isHasError(fetchedDels)) return fetchedDels;
-		delegatesNearDate.push([date, gp], fetchedDels);
+		delegatesNearDate.push([parliament, date, gp], fetchedDels);
 		dels = fetchedDels;
 	}
 	return structuredClone($state.snapshot(dels.slice()));
@@ -78,9 +93,10 @@ export async function filteredDelegatesNearSeats(
 	date: string,
 	gp: string,
 	refetch: boolean = false,
-	fetcher: typeof fetch = fetch
+	fetcher: typeof fetch = fetch,
+	parliament: Parliament = getParliament()
 ): Promise<DelegateSplit | null> {
-	const dels = await cachedDelegatesNearSeats(date, gp, refetch, fetcher);
+	const dels = await cachedDelegatesNearSeats(date, gp, refetch, fetcher, parliament);
 	if (dels == null) {
 		return null;
 	}

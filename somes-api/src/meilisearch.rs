@@ -473,27 +473,22 @@ fn spawn_parliament_index_refreshers(
     }));
 }
 
-pub async fn update_meilisearch_indices(
-    client: &redis::Client,
-    dataservice_sqlx_pool: &sqlx::Pool<sqlx::Postgres>,
-    eu_dataservice_sqlx_pool: &sqlx::Pool<sqlx::Postgres>,
-    meilisearch_client: &meilisearch_sdk::client::Client,
-) {
+pub async fn update_meilisearch_indices(app_state: &AppState) {
     let mut prod_wait_handles = vec![];
 
     spawn_parliament_index_refreshers(
         Parliament::At,
-        client,
-        dataservice_sqlx_pool,
-        meilisearch_client,
+        &app_state.redis_client,
+        &app_state.dataservice_sqlx_pool,
+        &app_state.meilisearch_client,
         &mut prod_wait_handles,
     );
 
     spawn_parliament_index_refreshers(
         Parliament::Eu,
-        client,
-        eu_dataservice_sqlx_pool,
-        meilisearch_client,
+        &app_state.eu_redis_client,
+        &app_state.eu_dataservice_sqlx_pool,
+        &app_state.meilisearch_client,
         &mut prod_wait_handles,
     );
 

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { plink } from '$lib/api/parliament';
 	import {
 		delegate_by_id,
 		errorToNull,
@@ -94,7 +95,7 @@
 	onMount(async () => {
 		const jwtToken = jwtStore.value;
 		if (isHasError(await renew_token()) || jwtToken == null) {
-			goto(resolve('/home'));
+			goto(plink('/home'));
 			return;
 		}
 

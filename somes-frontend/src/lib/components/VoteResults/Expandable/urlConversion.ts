@@ -1,5 +1,5 @@
-import { resolve } from '$app/paths';
 import { page } from '$app/state';
+import { plink } from '$lib/api/parliament';
 import type { VoteResultFilter } from '$lib/types';
 
 export function convertVoteResultFilterToUrl(
@@ -12,7 +12,7 @@ export function convertVoteResultFilterToUrl(
 	const nextUrl = currentUrl
 		? currentUrl
 		: new URL(
-				isFinished ? resolve('/history/votes') : resolve('/history/unfinished_votes'),
+				isFinished ? plink('/history/votes') : plink('/history/unfinished_votes'),
 				page.url.origin
 			);
 

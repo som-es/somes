@@ -3,6 +3,7 @@
 	import { fade, fly, slide } from 'svelte/transition';
 	import somesWithText from '$lib/assets/somes_with_text2.svg?raw';
 	import { resolve } from '$app/paths';
+	import { plink } from '$lib/api/parliament';
 	import type { PlatformItem, PlatformItemType, SomesEvent as Event, DialogEvent } from './types';
 	import type { PageProps } from './$types';
 	import checkmarkIcon from '$lib/assets/misc_icons/checkmark_small.svg?raw';
@@ -161,7 +162,7 @@
 		<div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
 			<nav class="hidden gap-6 text-sm font-medium text-surface-600 md:flex dark:text-surface-300">
 				<a
-					href={resolve('/home')}
+					href={plink('/home')}
 					class="transition-colors hover:text-primary-600 dark:hover:text-primary-400">Plattform</a
 				>
 				<a
@@ -231,7 +232,7 @@
 
 				<div class="flex flex-wrap justify-center gap-4 pt-4">
 					<a
-						href={resolve('/home')}
+						href={plink('/home')}
 						class="flex items-center gap-2 rounded-full bg-surface-900 px-6 py-3 text-lg font-bold text-white shadow-xl transition-transform hover:scale-105 dark:bg-surface-50 dark:text-surface-900"
 					>
 						Zur Somes Plattform
@@ -314,7 +315,7 @@
 						>
 							<div class="bg-surface-850 border-t border-surface-700 p-3 text-center">
 								<a
-									href="{resolve('/history')}/votes"
+									href={plink('/history/votes')}
 									class="group flex items-center justify-center gap-1 text-xs text-primary-400 hover:text-primary-300"
 								>
 									Alle Details auf somes.at ansehen

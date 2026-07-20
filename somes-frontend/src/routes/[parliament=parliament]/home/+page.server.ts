@@ -11,13 +11,11 @@ import { fetchDelegates } from '$lib/api/fetch_delegates';
 import { cachedAllSeats } from '$lib/caching/seats';
 import type { DecreeDelegate } from '$lib/components/Delegates/Decrees/types';
 import { next_plenar_date } from '$lib/components/PlenarySessions/api';
+import type { Parliament } from '$lib/api/parliament';
 import type { Delegate, HasError, VoteResult } from '$lib/types';
 import type { PageServerLoad } from './$types';
 
-let internalCache: {
-	data: any;
-	timestamp: number;
-} | null = null;
+const internalCache: Record<string, { data: any; timestamp: number }> = {};
 
 const CACHE_DURATION_MS = 1000 * 60 * 10;
 
@@ -30,7 +28,8 @@ function hasDelegate(value: {
 
 async function fetchDelegatesFromVoteResult(
 	latestVotes: VoteResult[] | HasError,
-	fetcher: typeof fetch
+	fetcher: typeof fetch,
+	parliament: Parliament
 ): Promise<Delegate[] | null> {
 	if (isHasError(latestVotes)) {
 		return [];
@@ -38,14 +37,16 @@ async function fetchDelegatesFromVoteResult(
 	if (latestVotes.length == 0) return [];
 	const date = latestVotes[0].legislative_initiative.nr_plenary_activity_date;
 	const gp = latestVotes[0].legislative_initiative.gp;
-	const dels = await fetchDelegates(date, gp, fetcher);
+	const dels = await fetchDelegates(date, gp, fetcher, parliament);
 	return dels.delegates;
 }
 
-export const load: PageServerLoad = async ({ fetch, setHeaders }) => {
+export const load: PageServerLoad = async ({ fetch, setHeaders, params }) => {
+	const parliament = params.parliament as Parliament;
 	const now = Date.now();
-	if (internalCache && now - internalCache.timestamp < CACHE_DURATION_MS) {
-		return internalCache.data;
+	const cached = internalCache[parliament];
+	if (cached && now - cached.timestamp < CACHE_DURATION_MS) {
+		return cached.data;
 	}
 	if (process.env.NODE_ENV === 'production') {
 		setHeaders({
@@ -61,20 +62,21 @@ export const load: PageServerLoad = async ({ fetch, setHeaders }) => {
 		allSeats,
 		latestSessionActivity
 	] = await Promise.all([
-		next_plenar_date(fetch),
-		latest_vote_results(fetch),
-		latest_ministrial_proposals(30, fetch),
-		latest_decrees(7, fetch),
-		cachedAllSeats(false, fetch),
-		latest_session_activity_overview(fetch)
+		next_plenar_date(fetch, parliament),
+		latest_vote_results(fetch, parliament),
+		latest_ministrial_proposals(30, fetch, parliament),
+		latest_decrees(7, fetch, parliament),
+		cachedAllSeats(false, fetch, parliament),
+		latest_session_activity_overview(fetch, parliament)
 	]);
 
-	const delegates = await fetchDelegatesFromVoteResult(latestVotes, fetch);
+	const delegates = await fetchDelegatesFromVoteResult(latestVotes, fetch, parliament);
 	const res = errorToNull(latestDecrees)?.map(async (latestDecree) => {
 		let delegate = delegates?.find((delegate) => delegate.id === latestDecree.gov_official_id);
 		if (!delegate) {
 			delegate =
-				errorToNull(await delegate_by_id(latestDecree.gov_official_id, fetch)) ?? undefined;
+				errorToNull(await delegate_by_id(latestDecree.gov_official_id, fetch, parliament)) ??
+				undefined;
 		}
 
 		return { decree: latestDecree, delegate };
@@ -96,7 +98,7 @@ export const load: PageServerLoad = async ({ fetch, setHeaders }) => {
 		allSeats
 	};
 
-	internalCache = {
+	internalCache[parliament] = {
 		data,
 		timestamp: now
 	};

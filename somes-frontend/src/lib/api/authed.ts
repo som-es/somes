@@ -10,15 +10,19 @@ import type {
 	UniqueTopic
 } from '$lib/types';
 import { address, fetchSavely, justPost, url } from './api';
+import { getParliament, type Parliament } from './parliament';
 import { jwtStore } from '$lib/caching/stores/stores.svelte';
 
-export async function getWithAuth<T>(route: string, country = 'at/'): Promise<T | HasError> {
+export async function getWithAuth<T>(
+	route: string,
+	parliament: Parliament = getParliament()
+): Promise<T | HasError> {
 	const accessToken = jwtStore.value;
 	if (accessToken == null) {
 		return { error: 'No access token', error_type: 'AuthError', field: 'MissingToken', meta: null };
 	}
 	return fetchSavely(() =>
-		fetch(`${url}${country}${route}`, {
+		fetch(`${url}${parliament}/${route}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
@@ -31,14 +35,14 @@ export async function getWithAuth<T>(route: string, country = 'at/'): Promise<T 
 export async function putWithAuth<T>(
 	route: string,
 	body: any,
-	country = 'at/'
+	parliament: Parliament = getParliament()
 ): Promise<T | HasError> {
 	const accessToken = jwtStore.value;
 	if (accessToken == null) {
 		return { error: 'No access token', error_type: 'AuthError', field: 'MissingToken', meta: null };
 	}
 	return fetchSavely(() =>
-		fetch(`${url}${country}${route}`, {
+		fetch(`${url}${parliament}/${route}`, {
 			method: 'PUT',
 			headers: {
 				'Content-Type': 'application/json',
@@ -52,14 +56,14 @@ export async function putWithAuth<T>(
 export async function postWithAuth<T>(
 	route: string,
 	body: any,
-	country = 'at/'
+	parliament: Parliament = getParliament()
 ): Promise<T | HasError> {
 	const accessToken = jwtStore.value;
 	if (accessToken == null) {
 		return { error: 'No access token', error_type: 'AuthError', field: 'MissingToken', meta: null };
 	}
 	return fetchSavely(() =>
-		fetch(`${url}${country}${route}`, {
+		fetch(`${url}${parliament}/${route}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -73,7 +77,7 @@ export async function postWithAuth<T>(
 export async function deleteWithAuth<T>(
 	route: string,
 	body: any | undefined,
-	country = 'at/'
+	parliament: Parliament = getParliament()
 ): Promise<T | HasError> {
 	const accessToken = jwtStore.value;
 	if (accessToken == null) {
@@ -86,7 +90,7 @@ export async function deleteWithAuth<T>(
 		newBody = undefined;
 	}
 	return fetchSavely(() =>
-		fetch(`${url}${country}${route}`, {
+		fetch(`${url}${parliament}/${route}`, {
 			method: 'DELETE',
 			headers: {
 				'Content-Type': 'application/json',

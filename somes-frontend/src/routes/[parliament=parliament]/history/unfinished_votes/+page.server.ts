@@ -1,11 +1,14 @@
 import {
 	coalition_parties_per_gp,
 	parties_per_gp,
-	vote_results_by_query_search
+	vote_results_by_query_search,
+	vote_results_by_search
 } from '$lib/api/api';
+import type { Parliament } from '$lib/api/parliament';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ fetch, setHeaders, url }) => {
+export const load: PageServerLoad = async ({ fetch, params, setHeaders, url }) => {
+	const parliament = params.parliament as Parliament;
 	if (process.env.NODE_ENV === 'production') {
 		setHeaders({
 			'cache-control': 'max-age=120'
@@ -20,12 +23,12 @@ export const load: PageServerLoad = async ({ fetch, setHeaders, url }) => {
 	}
 
 	const queryParams = searchParams.toString();
-	const filter = `${queryParams}&is_finished=true`;
+	const filter = `${queryParams}&is_finished=false`;
 
 	const [voteResults, partiesPerGp, coalitionPartiesPerGp] = await Promise.all([
-		vote_results_by_query_search(filter, fetch),
-		parties_per_gp(fetch),
-		coalition_parties_per_gp(fetch)
+		vote_results_by_query_search(filter, fetch, parliament),
+		parties_per_gp(fetch, parliament),
+		coalition_parties_per_gp(fetch, parliament)
 	]);
 
 	return {

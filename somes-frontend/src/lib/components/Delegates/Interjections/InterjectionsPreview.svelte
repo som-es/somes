@@ -7,7 +7,7 @@
 	import InterjectionsModal from './InterjectionsModal.svelte';
 	import { currentDelegateStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
-	import { resolve } from '$app/paths';
+	import { plink } from '$lib/api/parliament';
 
 	interface Props {
 		issuerDelegate: Delegate;
@@ -44,7 +44,7 @@
 	};
 	const onShowDetails = (delegate: Delegate) => {
 		currentDelegateStore.value = delegate;
-		gotoHistory(resolve(`/delegates`), true);
+		gotoHistory(plink('/delegates'), true);
 	};
 </script>
 

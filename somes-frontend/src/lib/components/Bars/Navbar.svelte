@@ -5,6 +5,7 @@
 	import crossmarkIcon from '$lib/assets/misc_icons/crossmark_small.svg?raw';
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
+	import { plink } from '$lib/api/parliament';
 	import { slide } from 'svelte/transition';
 	import { convertVoteResultFilterToUrl } from '../VoteResults/Expandable/urlConversion';
 	import { currentDecreeFilterStore, currentGovProposalFilterStore, currentUnfinshedVoteResultFilterStore, currentVoteResultFilterStore } from '$lib/stores/stores';
@@ -38,7 +39,7 @@
 	);
 
 	const navItems: NavItem[] = $derived([
-		{ href: resolve('/home'), label: 'Neuigkeiten' },
+		{ href: plink('/home'), label: 'Neuigkeiten' },
 		{
 			label: 'Abstimmungen',
 			subItems: [
@@ -58,8 +59,8 @@
 				}
 			]
 		},
-		{ href: resolve('/delegates'), label: 'Abgeordnete' },
-		{ href: resolve('/statistics'), label: 'Statistiken' },
+		{ href: plink('/delegates'), label: 'Abgeordnete' },
+		{ href: plink('/statistics'), label: 'Statistiken' },
 	]);
 
 	function toggleMenu() {

@@ -1,4 +1,5 @@
 import { gov_officials_at, isHasError } from '$lib/api/api';
+import { getParliament, type Parliament } from '$lib/api/parliament';
 import { CircularBuffer } from '$lib/CircularBuffer';
 import { AMOUNT_PER_SIDE } from '$lib/parliament';
 import type { Delegate } from '$lib/types';
@@ -8,22 +9,25 @@ const govOfficialsAtDate: CircularBuffer<string, Delegate[]> = new CircularBuffe
 export async function cachedGovOfficials(
 	date: string,
 	refetch: boolean = false,
-	fetcher: typeof fetch = fetch
+	fetcher: typeof fetch = fetch,
+	parliament: Parliament = getParliament()
 ): Promise<Delegate[] | null> {
-	let dels = govOfficialsAtDate.findBy((e) => e == date);
+	const key = `${parliament}:${date}`;
+	let dels = govOfficialsAtDate.findBy((e) => e == key);
 	if (dels == undefined || refetch || dels.length == 0) {
-		const fetchedDels = await gov_officials_at(date, fetcher);
+		const fetchedDels = await gov_officials_at(date, fetcher, parliament);
 		if (isHasError(fetchedDels)) return null;
-		govOfficialsAtDate.push(date, fetchedDels);
+		govOfficialsAtDate.push(key, fetchedDels);
 		dels = fetchedDels;
 	}
 	return structuredClone(dels.slice());
 }
 
-export async function seatSettedCachedGovOfficials(date: string, 
-	fetcher: typeof fetch = fetch
+export async function seatSettedCachedGovOfficials(date: string,
+	fetcher: typeof fetch = fetch,
+	parliament: Parliament = getParliament()
 ): Promise<Delegate[] | null> {
-	const dels: Delegate[] | null = await cachedGovOfficials(date, false, fetcher);
+	const dels: Delegate[] | null = await cachedGovOfficials(date, false, fetcher, parliament);
 	if (dels == null) {
 		return null;
 	}

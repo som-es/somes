@@ -1,5 +1,5 @@
-import { resolve } from '$app/paths';
 import { page } from '$app/state';
+import { plink } from '$lib/api/parliament';
 import type { DecreeFilter } from '../Delegates/Decrees/types';
 
 export function convertDecreeFilterToUrl(
@@ -8,7 +8,7 @@ export function convertDecreeFilterToUrl(
 	currentUrl: URL | undefined,
 	sort: 'Desc' | 'Asc' | 'relevance' = 'relevance'
 ): URL {
-	const nextUrl = currentUrl ? currentUrl : new URL(resolve('/history/decrees'), page.url.origin);
+	const nextUrl = currentUrl ? currentUrl : new URL(plink('/history/decrees'), page.url.origin);
 	nextUrl.search = '';
 	nextUrl.searchParams.set('page', '1');
 

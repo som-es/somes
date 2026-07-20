@@ -7,6 +7,7 @@
 	import { page } from '$app/state';
 
 	import { resolve } from '$app/paths';
+	import { plink } from '$lib/api/parliament';
 	import VoteParliament2 from '../Parliaments/VoteParliament2.svelte';
 	import { mockDelegatesNoColor, mockVoteResult } from '$lib/parliaments/mock';
 	import { getSeats } from '$lib/caching/seats';
@@ -50,7 +51,7 @@
 
 	function onSubmenuClick(href: string) {
 		const hash = hrefHash(href);
-		if (hrefPath(href) === '/statistics' && hash) {
+		if (hrefPath(href).endsWith('/statistics') && hash) {
 			activeSectionHash = hash;
 		}
 	}
@@ -84,26 +85,26 @@
 			title: 'Reden',
 			route: '/statistics',
 			list: [
-				{ href: `${resolve('/statistics')}#speech-time`, label: 'Redezeit', keywords: '' },
-				{ href: `${resolve('/statistics')}#total-speeches`, label: 'Gehaltene Reden', keywords: '' }
+				{ href: `${plink('/statistics')}#speech-time`, label: 'Redezeit', keywords: '' },
+				{ href: `${plink('/statistics')}#total-speeches`, label: 'Gehaltene Reden', keywords: '' }
 			]
 		},
 		{
 			title: 'Aktivitäten',
 			route: '/statistics',
 			list: [
-				{ href: `${resolve('/statistics')}#absences`, label: 'Abwesenheiten', keywords: '' },
-				{ href: `${resolve('/statistics')}#activity`, label: 'Aktivität', keywords: '' },
-				{ href: `${resolve('/statistics')}#call-to-orders`, label: 'Ordnungsrufe', keywords: '' }
+				{ href: `${plink('/statistics')}#absences`, label: 'Abwesenheiten', keywords: '' },
+				{ href: `${plink('/statistics')}#activity`, label: 'Aktivität', keywords: '' },
+				{ href: `${plink('/statistics')}#call-to-orders`, label: 'Ordnungsrufe', keywords: '' }
 			]
 		},
 		{
 			title: 'Abgeordnete',
 			route: '/statistics',
 			list: [
-				{ href: `${resolve('/statistics')}#age`, label: 'Alter', keywords: '' },
+				{ href: `${plink('/statistics')}#age`, label: 'Alter', keywords: '' },
 				{
-					href: `${resolve('/statistics')}#orientation`,
+					href: `${plink('/statistics')}#orientation`,
 					label: 'Politische Positionen',
 					keywords: ''
 				}
@@ -164,7 +165,7 @@
 	}
 
 	$effect(() => {
-		if (activeUrl !== '/statistics' || typeof IntersectionObserver === 'undefined') {
+		if (!activeUrl.endsWith('/statistics') || typeof IntersectionObserver === 'undefined') {
 			statisticsObserver?.disconnect();
 			activeSectionHash = '';
 			return;
@@ -191,7 +192,7 @@
 			</span>
 		</a>
 		<a
-			href={resolve('/home')}
+			href={plink('/home')}
 			title="Neuigkeiten"
 			class="{activeUrl?.includes('/home')
 				? 'bg-tertiary-500! stroke-black'
@@ -225,7 +226,7 @@
 			</span>
 		</a>
 		<a
-			href={resolve('/delegates')}
+			href={plink('/delegates')}
 			title="Abgeordnete"
 			class="{activeUrl?.includes('/delegates')
 				? 'bg-tertiary-500! fill-black'
@@ -236,7 +237,7 @@
 			</span>
 		</a>
 		<a
-			href={resolve('/statistics')}
+			href={plink('/statistics')}
 			title="Statistiken"
 			class="{activeUrl?.includes('/statistics')
 				? 'bg-tertiary-500! fill-black'

@@ -1,8 +1,10 @@
 import { vote_result_by_path } from '$lib/api/api';
+import type { Parliament } from '$lib/api/parliament';
 import { gov_proposal_by_path } from '$lib/components/Proposals/api';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ fetch, params, setHeaders }) => { 
+export const load: PageServerLoad = async ({ fetch, params, setHeaders }) => {
+    const parliament = params.parliament as Parliament;
 
     if (process.env.NODE_ENV === 'production') {
         setHeaders({
@@ -10,7 +12,7 @@ export const load: PageServerLoad = async ({ fetch, params, setHeaders }) => {
         });
     }
 
-    const govProposal = await gov_proposal_by_path(params.gp, params.inr, fetch);
+    const govProposal = await gov_proposal_by_path(params.gp, params.inr, fetch, parliament);
 
     return {
         govProposal 

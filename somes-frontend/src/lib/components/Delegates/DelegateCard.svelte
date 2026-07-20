@@ -13,7 +13,7 @@
 	import AIChatModal from './AIChat/AIChatModal.svelte';
 	import { Dialog } from 'bits-ui';
 	import DelegateQAModal from './QA/DelegateQAModal.svelte';
-	import { resolve } from '$app/paths';
+	import { plink } from '$lib/api/parliament';
 	import type { SvelteMap } from 'svelte/reactivity';
 
 	interface Props {
@@ -54,7 +54,7 @@
 
 	const onShowDetails = () => {
 		currentDelegateStore.value = delegate;
-		gotoHistory(resolve(`/delegates`), true);
+		gotoHistory(plink('/delegates'), true);
 	};
 
 	let delegateFavos: SvelteMap<number, DelegateFavo> | null = $state(null);

@@ -23,10 +23,13 @@ pub async fn get_json_cache<T: DeserializeOwned>(
 ) -> Option<T> {
     #[cfg(debug_assertions)]
     {
+        let _ = key;
         None
     }
     #[cfg(not(debug_assertions))]
-    serde_json::from_str(&redis_client.get::<&str, String>(key).await.ok()?).ok()
+    {
+        serde_json::from_str(&redis_client.get::<&str, String>(key).await.ok()?).ok()
+    }
 }
 
 pub async fn set_json_cache_no_expire<T: Serialize>(
@@ -83,15 +86,20 @@ pub async fn set_json_cache_with_relevance<T: Serialize>(
 pub struct RedisConnection(pub redis::aio::MultiplexedConnection);
 
 // #[async_trait]
-impl<S> FromRequestParts<S> for RedisConnection
-where
-    redis::Client: FromRef<S>,
-    S: Send + Sync,
-{
+impl FromRequestParts<AppState> for RedisConnection {
     type Rejection = (StatusCode, String);
 
-    async fn from_request_parts(_parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
-        let pool = redis::Client::from_ref(state);
+    async fn from_request_parts(
+        parts: &mut Parts,
+        state: &AppState,
+    ) -> Result<Self, Self::Rejection> {
+        let parliament = parts
+            .extensions
+            .get::<combx::Parliament>()
+            .copied()
+            .unwrap_or_default();
+
+        let pool = state.redis(parliament);
         let conn = pool
             .get_multiplexed_async_connection()
             .await
@@ -113,7 +121,10 @@ impl FromRef<AppState> for PgPool {
 impl FromRequestParts<AppState> for PgPoolConnection {
     type Rejection = (StatusCode, String);
 
-    async fn from_request_parts(parts: &mut Parts, state: &AppState) -> Result<Self, Self::Rejection> {
+    async fn from_request_parts(
+        parts: &mut Parts,
+        state: &AppState,
+    ) -> Result<Self, Self::Rejection> {
         let parliament = parts
             .extensions
             .get::<combx::Parliament>()
