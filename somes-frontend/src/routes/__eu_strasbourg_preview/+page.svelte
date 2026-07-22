@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getWithRoute } from "$lib/api/api";
+	import { delegates_at, getWithRoute } from "$lib/api/api";
 	import { cachedDelegates } from "$lib/caching/delegates.svelte";
 	import BaseParliament from "$lib/components/Parliaments/BaseParliament.svelte";
 	import { generateHalfCircle, setupParliament, type Bubble } from "$lib/parliament";
@@ -12,7 +12,7 @@
 	let seats: any[] = $state([]);
 
     onMount(async () => {
-        delegates = await cachedDelegates(true) ?? [];
+        delegates = await delegates_at(new Date().toISOString().split("T")[0], fetch, "eu") ?? [];
         const del = delegates.find(delegate => {
           if (delegate.name.includes("AUBRY"))
           return delegate

@@ -1,20 +1,27 @@
 use crate::routes::DelegateError;
-use crate::{get_json_cache, set_json_cache_with_relevance, PgPoolConnection, RedisConnection};
+use crate::{
+    get_json_cache, set_json_cache_with_relevance, ParliamentCtx, PgPoolConnection, RedisConnection,
+};
 use axum::{extract::Query, Json};
 use chrono::NaiveDate;
-use combx::{Delegate, FullMandate};
+use combx::{Delegate, FullMandate, Parliament};
 use redis::aio::MultiplexedConnection;
 use somes_common_lib::{Date, LegisPeriod};
 use sqlx::PgPool;
 use std::str::FromStr;
 
 pub async fn delegates_with_seats_near_date_route(
+    ParliamentCtx(parliament): ParliamentCtx,
     RedisConnection(mut redis_con): RedisConnection,
     Query(gp): Query<LegisPeriod>,
     Query(date): Query<Date>,
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<Delegate>>, DelegateError> {
-    if date.at < NaiveDate::from_str("2024-08-01").map_err(|_| DelegateError::Internal)? {
+    let date_str = match parliament {
+        Parliament::At => "2024-08-01",
+        Parliament::Eu => "2026-08-01",
+    };
+    if date.at < NaiveDate::from_str(date_str).map_err(|_| DelegateError::Internal)? {
         return Ok(Json(vec![]));
     }
 

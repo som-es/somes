@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::server::AppState;
-use crate::PgPoolConnection;
+use crate::{ParliamentCtx, PgPoolConnection};
 use axum::routing::get;
 use axum::Router;
 use axum::{extract::Query, Json};
@@ -80,15 +80,25 @@ pub async fn delegate_interests(
     )
 }
 
-pub async fn seats_route() -> Json<HashMap<String, Vec<u32>>> {
-    Json(
-        [
+pub async fn seats_route(
+    ParliamentCtx(parliament): ParliamentCtx,
+) -> Json<HashMap<String, Vec<u32>>> {
+    let seats = match parliament {
+        combx::Parliament::At => [
             ("XXVII".to_string(), vec![20, 27, 37, 43, 48, 54]),
             ("XXVIII".to_string(), vec![20, 28, 37, 43, 48, 54]),
+            ("NO_SEATS".to_string(), vec![18, 25, 29, 33, 37, 41]),
         ]
         .into_iter()
         .collect(),
-    )
+        combx::Parliament::Eu => [(
+            "NO_SEATS".to_string(),
+            vec![20, 27, 37, 43, 48, 54, 59, 71, 83, 98, 115, 129],
+        )]
+        .into_iter()
+        .collect(),
+    };
+    Json(seats)
 }
 
 pub async fn all_delegates(pg: &PgPool) -> sqlx::Result<Vec<Delegate>> {

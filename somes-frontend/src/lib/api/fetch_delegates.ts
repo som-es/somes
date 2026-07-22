@@ -14,7 +14,7 @@ export async function fetchDelegates(
 	parliament: Parliament = getParliament()
 ) {
 	let delegates = null;
-	let hasSeatInfo = checkHasSeatInfo(dateStr);
+	const hasSeatInfo = checkHasSeatInfo(dateStr, parliament);
 
 	if (hasSeatInfo) {
 		delegates = (await filteredDelegatesNearSeats(dateStr, gp, false, fetcher, parliament))?.nr || null;
@@ -36,10 +36,18 @@ export async function fetchDelegates(
 	}
 	return { hasSeatInfo, delegates };
 }
-export function checkHasSeatInfo(dateStr: string) {
+
+function seatInfoAvailableAtDateForParliament(parliament: Parliament): string {
+  switch (parliament) {
+    case "at": return "2024-08-01"
+    case "eu": return "2026-08-01"
+  }
+}
+
+export function checkHasSeatInfo(dateStr: string, parliament: Parliament = getParliament()) {
 	let hasSeatInfo = true;
 	const date = new Date(dateStr);
-	const seatInfoAvailableAtDate = '2024-08-01';
+	const seatInfoAvailableAtDate = seatInfoAvailableAtDateForParliament(parliament);
 	if (date < new Date(seatInfoAvailableAtDate)) {
 		hasSeatInfo = false;
 	}

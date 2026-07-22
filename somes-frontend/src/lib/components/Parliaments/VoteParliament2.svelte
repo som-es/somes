@@ -36,7 +36,7 @@
 		show3D = false,
 		syncDelegates = $bindable([]),
 		allSeats = null,
-		searchValue = '' 
+		searchValue = ''
 	}: {
 		class?: string,
 		orderingFactor?: number,
@@ -67,7 +67,7 @@
 	let seats: number[] = $derived.by(() => {
 		if (allSeats) {
 			if (noSeats) {
-				return getSeats(allSeats, 'XX', true);
+				return getSeats(allSeats, 'NO_SEATS', false);
 			} else {
 				return getSeats(allSeats, effectiveGp);
 			}
@@ -143,7 +143,7 @@
 
 	const updateDelegates = async () => {
 		const dateStr = toActualDateString(activeDate);
-		
+
 		if (!overrideDelegates && delegates.length == 0) {
 			const { hasSeatInfo, delegates: fetchedDelegates } = await fetchDelegates(dateStr, effectiveGp)
 			noSeats = !hasSeatInfo;
@@ -154,7 +154,7 @@
 			}
 		}
 	};
-	
+
 </script>
 
 {#if displayDelegates.length > 0}

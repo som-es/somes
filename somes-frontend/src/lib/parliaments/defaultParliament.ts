@@ -19,7 +19,7 @@ export function groupPartyDelegates(
 		}
 		dels[idx].seat_row = null;
 		dels[idx].seat_col = null;
-		
+
 
 		if (!partyToDelegates.has(del.party)) {
 			partyToDelegates.set(del.party, []);
@@ -38,7 +38,8 @@ export function setSeatsOfDels(
 	all: number,
 	defaultSeats: number[]
 ) {
-	let startIdxs = [0, 0, 0, 0, 0, 0];
+  console.log(defaultSeats);
+  const startIdxs = defaultSeats.map(_x => { return 0 });
 	partyToDelegatesArray.forEach(([party, dels], g) => {
 		const fraction = dels.length;
 		const share = fraction / all;
@@ -92,7 +93,7 @@ export function setSeatsOfDels(
 			// sum of delegates is over 183??
 			// Abschluss des Vertrages über den Beitritt der Republik Bulgarien und Rumäniens zur Europäischen Union (1265 d.B.)
 			// this does not check in which party is one delegate to much
-			if (count >= 1000) {
+			if (count >= 4000) {
 				break;
 			}
 

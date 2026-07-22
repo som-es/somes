@@ -66,6 +66,7 @@
 	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
 	import InterjectionsPreview from '$lib/components/Delegates/Interjections/InterjectionsPreview.svelte';
 	import MobileParliamentModal from '$lib/components/Parliaments/MobileParliamentModal.svelte';
+	import { defaultGp } from '$lib/api/parliament';
 
 	let { data }: PageProps = $props();
 
@@ -82,7 +83,7 @@
 	let selectedParties = $state<Party[]>([]);
 
 	let selectedSearchPeriod = $state<string[]>([
-		data.cachedPeriods?.at(data.cachedPeriods.length - 1)?.gp || 'XXVIII'
+		data.cachedPeriods?.at(data.cachedPeriods.length - 1)?.gp || defaultGp()
 	]);
 	let timeout: any;
 
@@ -254,14 +255,14 @@
 		currentDelegateFilterStore.value ?? {
 			day_offset: maxDayOffset,
 			search_value: '',
-			legis_period: data.gp ?? 'XXVIII'
+			legis_period: data.gp ?? defaultGp()
 		}
 	);
 
 	let inputValue = $derived(maybeCurrentDelegateFilter.search_value ?? '');
 	let dayOffset = $state(maybeCurrentDelegateFilter.day_offset ?? maxDayOffset);
 
-	let latestPeriod = $derived(data.cachedPeriods?.reverse()[0]?.gp ?? 'XXVIII');
+	let latestPeriod = $derived(data.cachedPeriods?.reverse()[0]?.gp ?? defaultGp());
 	let selectedPeriod = $derived(maybeCurrentDelegateFilter.legis_period ?? latestPeriod);
 	let prevSelectedPeriod = $state(maybeCurrentDelegateFilter.legis_period ?? latestPeriod);
 

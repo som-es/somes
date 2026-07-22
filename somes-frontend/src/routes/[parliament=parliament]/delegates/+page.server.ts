@@ -1,5 +1,5 @@
 import { delegate_by_id, errorToNull, parties_per_gp } from '$lib/api/api';
-import type { Parliament } from '$lib/api/parliament';
+import { defaultGpByParliament, type Parliament } from '$lib/api/parliament';
 import { fetchDelegates } from '$lib/api/fetch_delegates';
 import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 import { cachedAllSeats } from '$lib/caching/seats';
@@ -16,9 +16,9 @@ export const load: PageServerLoad = async ({ fetch, url, setHeaders, params }) =
 	const gp = url.searchParams.get('gp');
 	const date = url.searchParams.get('date') ?? new Date().toISOString().split('T')[0];
 
-	const delegates = await fetchDelegates(date, gp ?? 'XXVIII', fetch, parliament);
-	const cachedPeriods = (await cachedAllLegisPeriods(false, parliament))?.reverse();
-	const cachedSeats = await cachedAllSeats(false, fetch, parliament);
+	const delegates = await fetchDelegates(date, gp ?? defaultGpByParliament(parliament), fetch, parliament);
+	const cachedPeriods = (await cachedAllLegisPeriods(true, parliament))?.reverse();
+	const cachedSeats = await cachedAllSeats(true, fetch, parliament);
 	const partiesPerGp = errorToNull(await parties_per_gp(fetch, parliament));
 
 	let delegate = null;
@@ -26,6 +26,7 @@ export const load: PageServerLoad = async ({ fetch, url, setHeaders, params }) =
 	if (delegateId) {
 		delegate = errorToNull(await delegate_by_id(+delegateId, fetch, parliament));
 	}
+  console.log(gp, delegates.delegates?.length);
 
-	return { ...delegates, delegate, delegateId, cachedPeriods, gp, cachedSeats, date, partiesPerGp };
+	return { ...delegates, delegate, delegateId, cachedPeriods, gp, cachedSeats, date, partiesPerGp, parliament };
 };

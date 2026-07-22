@@ -119,7 +119,8 @@
 
 	$effect(() => {
 		if (delegate && delegate.seat_row != null && circles2d.length >= 1) {
-			select(circles2d[delegate.seat_row - 1][delegate.seat_col! - 1], null, false);
+		    console.log(delegate);
+			// select(circles2d[delegate.seat_row - 1][delegate.seat_col! - 1], null, false);
 		}
 	});
 
