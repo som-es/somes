@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use crate::eu_hemicycle::EuHemicycle;
 use crate::server::AppState;
 use crate::{ParliamentCtx, PgPoolConnection};
 use axum::routing::get;
@@ -82,7 +83,13 @@ pub async fn delegate_interests(
 
 pub async fn seats_route(
     ParliamentCtx(parliament): ParliamentCtx,
+    EuHemicycle(hemicycle): EuHemicycle,
 ) -> Json<HashMap<String, Vec<u32>>> {
+    let eu_strasbourg_seats = hemicycle
+        .circles
+        .iter()
+        .map(|circle| circle.slots_including_gaps)
+        .collect();
     let seats = match parliament {
         combx::Parliament::At => [
             ("XXVII".to_string(), vec![20, 27, 37, 43, 48, 54]),
@@ -91,10 +98,13 @@ pub async fn seats_route(
         ]
         .into_iter()
         .collect(),
-        combx::Parliament::Eu => [(
-            "NO_SEATS".to_string(),
-            vec![20, 27, 37, 43, 48, 54, 59, 71, 83, 98, 115, 129],
-        )]
+        combx::Parliament::Eu => [
+            (
+                "NO_SEATS".to_string(),
+                vec![20, 27, 37, 43, 48, 54, 59, 71, 83, 98, 115, 129],
+            ),
+            ("10".to_string(), eu_strasbourg_seats),
+        ]
         .into_iter()
         .collect(),
     };

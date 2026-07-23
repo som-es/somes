@@ -348,7 +348,12 @@
 		renderStartDate = periods[firstIdx].start_date;
 		renderEndDate = periods[firstIdx + 1]?.start_date;
 		const startDate = new Date(renderStartDate);
+
 		const endDate = new Date(renderEndDate ? renderEndDate : new Date());
+		if (renderEndDate) {
+		    const stopEarlier = (data.parliament === "eu" && selectedPeriod === "8") ? 4 : 1
+            endDate.setDate(endDate.getDate() - stopEarlier)
+		}
 
 		const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
 		maxDayOffset = Math.floor(diffTime / (1000 * 60 * 60 * 24));
@@ -855,7 +860,7 @@
 				</div>
 
 				<div class="flex w-full items-center justify-center">
-					<div class="w-2/3">
+					<div class="{data.parliament == "at" ? "w-2/3" : "w-4/5" }">
 						{#if supplyDate}
 							<VoteParliament2
 								againstOpacity={1}
@@ -871,6 +876,7 @@
 								overrideDelegates
 								noSeats={!data.hasSeatInfo}
 								useOffset={data.hasSeatInfo}
+								parliament={data.parliament}
 							/>
 						{/if}
 					</div>

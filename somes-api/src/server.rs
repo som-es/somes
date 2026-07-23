@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use std::{error::Error, fs::File, net::SocketAddr, path::PathBuf, time::Duration};
 
 use crate::{
@@ -16,6 +17,7 @@ use axum::{
 };
 use axum_server::tls_rustls::RustlsConfig;
 use combx::Parliament;
+use common_scrapes::eu_hemicycle::{load_hemicycle, HemicycleLayout};
 use log::info;
 use reqwest::StatusCode;
 use somes_common_lib::*;
@@ -40,6 +42,7 @@ pub struct AppState {
     pub dataservice_sqlx_pool: PgPool,
     pub eu_dataservice_sqlx_pool: PgPool,
     pub meilisearch_client: meilisearch_sdk::client::Client,
+    pub eu_hemicycle: Arc<HemicycleLayout>,
 }
 
 impl AppState {
@@ -56,6 +59,7 @@ impl AppState {
             dataservice_sqlx_pool,
             eu_dataservice_sqlx_pool,
             meilisearch_client,
+            eu_hemicycle: Arc::new(load_hemicycle()),
         }
     }
 

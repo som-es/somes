@@ -10,9 +10,8 @@
 	import { cachedPartyColors } from '$lib/caching/party_color';
 	import { fetchDelegates } from '$lib/api/fetch_delegates';
 	import { toActualDateString } from '$lib/api/api';
+	import { defaultGp, getParliament } from '$lib/api/parliament';
 
-	const width = 830;
-	const height = 900;
 
 	let {
 		class: clazz = " ",
@@ -21,7 +20,7 @@
 		againstOpacity = 0.16,
 		delegate = $bindable(),
 		selected = $bindable(),
-		gp = $bindable('XXVIII'),
+		gp = $bindable(defaultGp()),
 		voteResult = null,
 		supplyDate = null,
 		circles2d = $bindable([]),
@@ -36,7 +35,8 @@
 		show3D = false,
 		syncDelegates = $bindable([]),
 		allSeats = null,
-		searchValue = ''
+		searchValue = '',
+		parliament = getParliament(),
 	}: {
 		class?: string,
 		orderingFactor?: number,
@@ -60,7 +60,33 @@
 		syncDelegates?: Delegate[],
 		allSeats?: Map<string, number[]> | null,
 		searchValue?: string
+		parliament?: string
 	} = $props();
+
+	const width = $derived.by(() => {
+	    switch (parliament) {
+			case "at": return 830;
+			case "eu": {
+			    if (noSeats == true) {
+			        return 1160;
+				} else {
+				    return 1360;
+				}
+			}
+		}
+	});
+	const height = $derived.by(() => {
+		    switch (parliament) {
+				case "at": return 900;
+				case "eu": {
+				    if (noSeats == true) {
+				        return 1200;
+					} else {
+					    return 1380;
+					}
+				}
+			}
+		});
 
 	const effectiveGp = $derived(voteResult?.legislative_initiative.gp ?? gp);
 
@@ -175,6 +201,7 @@
 		{localPartyColors}
 		{forceColor}
 		{searchValue}
+		maxAngle={parliament == "at" || noSeats == true ? 180 : 220}
 	/>
 {/if}
 <!--

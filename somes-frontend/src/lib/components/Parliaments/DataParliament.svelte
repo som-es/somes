@@ -27,6 +27,7 @@
 		forceColor?: string | null;
 		localPartyColors?: Map<string, string>;
 		searchValue?: string;
+		maxAngle?: number;
 	}
 
 	let {
@@ -45,7 +46,8 @@
 		enforceSvg = false,
 		forceColor = null,
 		localPartyColors = partyColors,
-		searchValue = ''
+		searchValue = '',
+		maxAngle = 180,
 	}: Props = $props();
 
 	let partyInfavorMap = $derived(createPartyInfavorMap(voteResult, localPartyColors));
@@ -56,7 +58,7 @@
 		void searchValue;
 
 		return untrack(() => {
-			const bubbles = setupParliament(seats, width, height, 7.9, useOffset);
+			const bubbles = setupParliament(seats, width, height, 7.9, useOffset, maxAngle);
 			enrichParliamentBubbles(bubbles, $state.snapshot(delegates), voteResult, setOpacity);
 			return bubbles;
 		});
@@ -119,8 +121,7 @@
 
 	$effect(() => {
 		if (delegate && delegate.seat_row != null && circles2d.length >= 1) {
-		    console.log(delegate);
-			// select(circles2d[delegate.seat_row - 1][delegate.seat_col! - 1], null, false);
+			select(circles2d[delegate.seat_row - 1][delegate.seat_col! - 1], null, false);
 		}
 	});
 

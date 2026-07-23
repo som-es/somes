@@ -6,6 +6,7 @@ use dotenvy_macro::dotenv;
 pub mod cache_updater;
 mod db;
 pub mod email;
+pub mod eu_hemicycle;
 mod filter_querying;
 pub mod hash;
 pub mod jwt;

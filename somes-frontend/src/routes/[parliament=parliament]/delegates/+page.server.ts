@@ -26,7 +26,6 @@ export const load: PageServerLoad = async ({ fetch, url, setHeaders, params }) =
 	if (delegateId) {
 		delegate = errorToNull(await delegate_by_id(+delegateId, fetch, parliament));
 	}
-  console.log(gp, delegates.delegates?.length);
 
 	return { ...delegates, delegate, delegateId, cachedPeriods, gp, cachedSeats, date, partiesPerGp, parliament };
 };

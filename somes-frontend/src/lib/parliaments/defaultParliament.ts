@@ -38,7 +38,6 @@ export function setSeatsOfDels(
 	all: number,
 	defaultSeats: number[]
 ) {
-  console.log(defaultSeats);
   const startIdxs = defaultSeats.map(_x => { return 0 });
 	partyToDelegatesArray.forEach(([party, dels], g) => {
 		const fraction = dels.length;

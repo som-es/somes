@@ -297,7 +297,8 @@ export function setupParliament(
 	width: number,
 	height: number,
 	r: number,
-	useOffset = true
+	useOffset = true,
+	maxAngle: number = 180,
 ): Bubble[][] {
 	let id = 0;
 	let circles2d: Bubble[][] = [];
@@ -307,7 +308,8 @@ export function setupParliament(
 				seat,
 				70 + (useOffset ? idx * (idx == 1 ? 30 : 20) + (idx >= 2 ? 30 : 0) : idx * 19),
 				width,
-				height
+				height,
+				maxAngle
 			).map((circle) => {
 				id += 1;
 				return {

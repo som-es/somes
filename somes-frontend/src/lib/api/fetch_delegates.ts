@@ -40,7 +40,7 @@ export async function fetchDelegates(
 function seatInfoAvailableAtDateForParliament(parliament: Parliament): string {
   switch (parliament) {
     case "at": return "2024-08-01"
-    case "eu": return "2026-08-01"
+    case "eu": return "2026-07-09"
   }
 }
 

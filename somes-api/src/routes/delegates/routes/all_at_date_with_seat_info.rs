@@ -19,7 +19,7 @@ pub async fn delegates_with_seats_near_date_route(
 ) -> Result<Json<Vec<Delegate>>, DelegateError> {
     let date_str = match parliament {
         Parliament::At => "2024-08-01",
-        Parliament::Eu => "2026-08-01",
+        Parliament::Eu => "2026-07-09",
     };
     if date.at < NaiveDate::from_str(date_str).map_err(|_| DelegateError::Internal)? {
         return Ok(Json(vec![]));

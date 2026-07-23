@@ -58,7 +58,7 @@
   				return {
   					r,
   					x: circle.x,
-  					y: circle.y - 95,
+  					y: circle.y - 95 + 95,
   					angle_rad: circle.angle_rad,
   					del: null,
   					color: 'rgb(196, 180, 189)',
