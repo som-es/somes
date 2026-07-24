@@ -35,7 +35,7 @@
 			</div>
 		</div>
 	</div>
-	
+
 	{#if children}
 		<div class="shrink-0 flex items-center">
 			{@render children()}

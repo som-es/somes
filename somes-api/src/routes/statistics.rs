@@ -3,7 +3,7 @@ use axum::{routing::post, Router};
 mod routes;
 pub use routes::*;
 
-use crate::server::AppState;
+use crate::AppState;
 use somes_common_lib::*;
 
 pub fn create_statistics_router() -> Router<AppState> {

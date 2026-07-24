@@ -12,7 +12,7 @@ use sqlx::PgPool;
 pub mod model;
 pub use model::*;
 
-use crate::{server::AppState, today};
+use crate::{today, AppState};
 
 #[cfg(not(debug_assertions))]
 use redis::Commands;
@@ -106,6 +106,12 @@ impl FromRequestParts<AppState> for RedisConnection {
             .map_err(internal_error)?;
 
         Ok(Self(conn))
+    }
+}
+
+impl FromRef<AppState> for redis::Client {
+    fn from_ref(app_state: &AppState) -> redis::Client {
+        app_state.redis_client.clone()
     }
 }
 

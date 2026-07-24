@@ -17,8 +17,7 @@ use tower_governor::{governor::GovernorConfigBuilder, GovernorLayer};
 use crate::{
     jwt::{renew_token_route, Claims},
     model::User,
-    server::AppState,
-    PgPoolConnection,
+    AppState, PgPoolConnection,
 };
 
 pub fn create_user_router() -> Router<AppState> {

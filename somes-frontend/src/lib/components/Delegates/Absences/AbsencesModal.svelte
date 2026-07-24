@@ -54,7 +54,6 @@
 		absentOrNotPlenarySessionPerGp.sort(
 			(a, b) => new Date(b.gp.start_date).getTime() - new Date(a.gp.start_date).getTime()
 		);
-		console.log(absentOrNotPlenarySessionPerGp);
 	});
 
 	// let currentPageAbsences: Absence[] = $derived(
@@ -86,7 +85,7 @@
 
 					<!-- 10-Column Grid for Sessions -->
 					<div class="flex flex-wrap gap-x-2 gap-y-1.5">
-						{#each entry.sessions as item (item.session.id)}
+						{#each entry.sessions as item, i (item.session.id)}
 							{@const isAbsent = !!item.absence}
 							{@const hasUrl = !!item.absence?.source_url}
 							<Popover.Root>
@@ -102,7 +101,7 @@
 											? 'text-slate/70 cursor-pointer bg-tertiary-400/80 hover:shadow-sm dark:hover:bg-slate-700'
 											: 'cursor-default'}"
 									>
-										{item.session.inr}
+										{i + 1}
 									</svelte:element>
 								</Popover.Trigger>
 								<Popover.Portal>
@@ -116,7 +115,7 @@
 												class="flex items-center justify-between border-b border-primary-200 pb-2"
 											>
 												<span class="font-bold text-primary-900">
-													{item.session.inr}. Sitzung
+													{i+1}. Sitzung
 												</span>
 												<span
 													class="text-xs font-semibold tracking-wider text-primary-500 uppercase"

@@ -6,7 +6,7 @@ use combx::{CombinedData, Delegate, DelegateFilter, OptionalGovProposal};
 pub use decrees::*;
 pub use routes::*;
 
-use crate::server::AppState;
+use crate::AppState;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::{ALL_AT_DATE, EXTEND, GOV_PROPOSALS};
 use somes_macro::MeilisearchFilter;

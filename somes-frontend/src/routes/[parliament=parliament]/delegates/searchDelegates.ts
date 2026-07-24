@@ -1,4 +1,4 @@
-import type { Delegate, FullMandate, LegisPeriod, Mandate } from "$lib/types";
+import type { Delegate, FullMandate, LegisPeriod } from "$lib/types";
 
 export function findPeriodForDate(date: Date, periods: LegisPeriod[]): string | null {
     for (let i = 0; i < periods.length; i++) {
@@ -68,6 +68,39 @@ export function getMandateLatestPeriod(delegate: Delegate, periods: LegisPeriod[
     };
 }
 
+export function compressMandates(mandates: FullMandate[]): FullMandate[] {
+  mandates.sort((a, b) => a.start_date!.localeCompare(b.start_date!))
+  const usedMandates = new Set();
+  const compressedMandates: FullMandate[] = [];
+  mandates.forEach(mandate => {
+    if (usedMandates.has(mandate)) {
+      return
+    }
+    usedMandates.add(mandate);
+    let newEnd = mandate.end_date;
+    mandates.forEach(otherMandate => {
+      if (mandate == otherMandate || mandate.function !== otherMandate.function || usedMandates.has(otherMandate)) {
+        return
+      }
+      const startDate = new Date(otherMandate.start_date!);
+      const endDate = new Date(newEnd ?? new Date());
+      if (startDate.getUTCFullYear() == endDate.getUTCFullYear() && startDate.getUTCMonth() == endDate.getUTCMonth() && startDate.getUTCDate() == endDate.getUTCDate()) {
+        newEnd = otherMandate.end_date;
+        usedMandates.add(otherMandate);
+      }
+      endDate.setDate(endDate.getDate() + 1);
+      if (startDate.getUTCFullYear() == endDate.getUTCFullYear() && startDate.getUTCMonth() == endDate.getUTCMonth() && startDate.getUTCDate() == endDate.getUTCDate()) {
+         newEnd = otherMandate.end_date;
+         usedMandates.add(otherMandate);
+      }
+    })
+    const newMandate = structuredClone(mandate);
+    newMandate.end_date = newEnd;
+    compressedMandates.push(newMandate);
+  });
+  return compressedMandates
+}
+
 export function getMandatePeriods(delegate: Delegate | null, periods: LegisPeriod[], govMandates: boolean): string {
     if (!delegate || !delegate.mandates || !delegate.active_mandates || delegate.mandates.length === 0) {
         return 'unbekannt';
@@ -76,8 +109,10 @@ export function getMandatePeriods(delegate: Delegate | null, periods: LegisPerio
     // e.g. party switches during gp or ministry changes would result in the same start and end date combination
     const combinationAlreadySeen = new Set<string>();
 
-    // GP-skipping mandates always have a continous start and end date
-    const mandatePeriods = delegate.mandates.filter(mandate => {
+    const mandates = compressMandates(delegate.mandates);
+
+    // GP-skipping mandates always have a continous start and end date (at least for AT - compressing also for EU)
+    const mandatePeriods = mandates.filter(mandate => {
         return govMandates ? mandate.is_gov_official : mandate.is_nr;
     }).map(mandate => {
         const startPeriod = mandate.start_date ? findPeriodForDate(new Date(mandate.start_date), periods) : null;

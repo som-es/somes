@@ -461,15 +461,17 @@
 			}
 		});
 	});
+
+	const title = $derived(data.parliament == "at" ? "Abgeordnete zum Nationalrat" : "Abgeordnete des EU-Parlaments");
 </script>
 
 <svelte:head>
-	<title>Abgeordnete zum Nationalrat</title>
+	<title>{title}</title>
 	<meta name="description" content="Auswahl und spezifische Informationen über Abgeordnete" />
 </svelte:head>
 
 <Container>
-	<h1 class="px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">Abgeordnete zum Nationalrat</h1>
+	<h1 class="px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">{title}</h1>
 	<span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0 dark:text-gray-300">
 		Aktualisiert am: Unknown
 	</span>
@@ -572,9 +574,9 @@
 								<span class="text-gray-500">Loading...</span>
 							</div>
 						{:else}
-							{#each searchResults as d}
-								{@const nrMandates = getMandatePeriods(d, periods, false)}
-								{@const govMandates = getMandatePeriods(d, periods, true)}
+							{#each searchResults as d (d.id)}
+								{@const nrMandates = getMandatePeriods($state.snapshot(d), periods, false)}
+								{@const govMandates = getMandatePeriods($state.snapshot(d), periods, true)}
 
 								<DelegateListItem
 									delegate={d}
@@ -625,9 +627,12 @@
 										{#if nrMandates !== '' && nrMandates !== 'unbekannt'}
 											<div class="text-sm font-medium text-gray-800 dark:text-gray-200">
 												{nrMandates}
-												<span class="font-light text-gray-700 dark:text-gray-300">
-													(Nationalrat)
-												</span>
+
+								                {#if data.parliament === "at"}
+    												<span class="font-light text-gray-700 dark:text-gray-300">
+    													(Nationalrat)
+    												</span>
+												{/if}
 											</div>
 										{/if}
 									</div>
@@ -1016,7 +1021,7 @@
 						: ''}"
 				>
 					{#if delegate && generalDelegateInfo?.absences}
-						<AbsencesPreview {delegate} absences={generalDelegateInfo.absences} />
+						<AbsencesPreview {delegate} absences={generalDelegateInfo.absences} parliament={data.parliament} />
 					{/if}
 				</div>
 			</div>
@@ -1077,6 +1082,7 @@
 							{delegate}
 							showTotal
 							showDetails={false}
+							parliament={data.parliament}
 							absences={generalDelegateInfo.received_call_to_orders.map((cto) => ({
 								date: cto.date,
 								gp: cto.gp,

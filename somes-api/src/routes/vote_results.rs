@@ -6,9 +6,7 @@ use axum::{
 use combx::{Index, OptionalVoteResult};
 use somes_common_lib::{AddonVoteResultFilter, Page, ID, LATEST, LIVE, SEARCH};
 
-use crate::{
-    server::AppState, ParliamentCtx, PgPoolConnection, RedisConnection, LEGIS_INITS_PER_PAGE,
-};
+use crate::{AppState, ParliamentCtx, PgPoolConnection, RedisConnection, LEGIS_INITS_PER_PAGE};
 
 pub use error::*;
 mod db;

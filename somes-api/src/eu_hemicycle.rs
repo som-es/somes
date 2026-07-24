@@ -1,9 +1,10 @@
 use std::sync::Arc;
 
-use crate::server::AppState;
 use axum::{extract::FromRequestParts, http::request::Parts};
 use common_scrapes::eu_hemicycle::HemicycleLayout;
 use reqwest::StatusCode;
+
+use crate::AppState;
 
 pub struct EuHemicycle(pub Arc<HemicycleLayout>);
 

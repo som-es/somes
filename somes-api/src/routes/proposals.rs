@@ -15,7 +15,7 @@ use somes_common_lib::{LATEST, SEARCH};
 use sqlx::PgPool;
 use utoipa::ToSchema;
 
-use crate::{server::AppState, ParliamentCtx};
+use crate::{AppState, ParliamentCtx};
 
 use super::{delegate_by_id_sqlx, GovProposalDelegate};
 

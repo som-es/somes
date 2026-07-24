@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::eu_hemicycle::EuHemicycle;
-use crate::server::AppState;
+use crate::AppState;
 use crate::{ParliamentCtx, PgPoolConnection};
 use axum::routing::get;
 use axum::Router;

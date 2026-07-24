@@ -8,7 +8,7 @@ use somes_meilisearch_filter::FilterArgument;
 use utoipa::ToSchema;
 
 use crate::routes::delegate_by_id_sqlx;
-use crate::server::AppState;
+use crate::AppState;
 use combx::OptionalDecreeFilter;
 
 mod routes;

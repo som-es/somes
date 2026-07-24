@@ -1,6 +1,9 @@
 #![warn(clippy::unwrap_used)]
 
+use std::sync::Arc;
+
 use chrono::Local;
+use common_scrapes::eu_hemicycle::{load_hemicycle, HemicycleLayout};
 use dotenvy_macro::dotenv;
 
 pub mod cache_updater;
@@ -27,6 +30,7 @@ mod error;
 pub use cache_updater::*;
 pub use error::*;
 pub use refresh_views::*;
+use sqlx::PgPool;
 
 pub type Result<T> = std::result::Result<T, crate::error::GenericError>;
 
@@ -81,4 +85,49 @@ pub fn today_and_time() -> chrono::DateTime<Local> {
 
 pub fn today() -> chrono::NaiveDate {
     chrono::Local::now().date_naive()
+}
+
+#[derive(Clone)]
+pub struct AppState {
+    pub redis_client: redis::Client,
+    pub eu_redis_client: redis::Client,
+    pub dataservice_sqlx_pool: PgPool,
+    pub eu_dataservice_sqlx_pool: PgPool,
+    pub meilisearch_client: meilisearch_sdk::client::Client,
+    pub eu_hemicycle: Arc<HemicycleLayout>,
+}
+
+impl AppState {
+    pub fn new(
+        redis_client: redis::Client,
+        eu_redis_client: redis::Client,
+        dataservice_sqlx_pool: PgPool,
+        eu_dataservice_sqlx_pool: PgPool,
+        meilisearch_client: meilisearch_sdk::client::Client,
+    ) -> AppState {
+        AppState {
+            redis_client,
+            eu_redis_client,
+            dataservice_sqlx_pool,
+            eu_dataservice_sqlx_pool,
+            meilisearch_client,
+            eu_hemicycle: Arc::new(load_hemicycle()),
+        }
+    }
+
+    /// Returns the Postgres pool backing the given parliament. Austrian data
+    /// lives in `DATASERVICE_URL`, EU data in `EU_DATASERVICE_URL`.
+    pub fn pool(&self, parliament: Parliament) -> PgPool {
+        match parliament {
+            Parliament::At => self.dataservice_sqlx_pool.clone(),
+            Parliament::Eu => self.eu_dataservice_sqlx_pool.clone(),
+        }
+    }
+
+    pub fn redis(&self, parliament: Parliament) -> redis::Client {
+        match parliament {
+            Parliament::At => self.redis_client.clone(),
+            Parliament::Eu => self.eu_redis_client.clone(),
+        }
+    }
 }

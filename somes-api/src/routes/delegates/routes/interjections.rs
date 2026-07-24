@@ -6,8 +6,7 @@ use crate::{
         extract_interjections_made_by_delegate, extract_interjections_received_by_delegate,
         DelegateError, InterjectionsWithMaxPage,
     },
-    server::AppState,
-    PgPoolConnection,
+    AppState, PgPoolConnection,
 };
 
 pub fn create_delegate_interjections_router() -> Router<AppState> {

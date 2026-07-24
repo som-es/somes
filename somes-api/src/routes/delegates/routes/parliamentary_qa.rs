@@ -6,8 +6,7 @@ use crate::{
         extract_parliamentary_answers, extract_parliamentary_questions, DelegateError,
         ParliamentInquiryResponseWithMaxPage,
     },
-    server::AppState,
-    PgPoolConnection,
+    AppState, PgPoolConnection,
 };
 
 pub fn create_delegate_pqa_router() -> Router<AppState> {

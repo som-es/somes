@@ -21,8 +21,7 @@ use crate::{
         all_delegates, all_votes_from_legis_init, get_all_decrees_sqlx, get_all_gov_props,
         DecreeDelegate,
     },
-    server::AppState,
-    IS_PROD,
+    AppState, IS_PROD,
 };
 
 pub mod update_time;

@@ -6,7 +6,7 @@ use crate::{
     routes::save_email_route, update_caches, Ports, HTTPS_PORT, HTTP_PORT, MEILISEARCH_SECRET,
     MEILISEARCH_URL, PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, REDIS_DB, STATIC_FRONTEND_PATH,
 };
-use crate::{routes::*, IS_PROD};
+use crate::{routes::*, AppState, IS_PROD};
 use axum::{
     extract::{FromRef, Request},
     http::{self, HeaderValue},
@@ -34,57 +34,6 @@ type ServerResult<T> = Result<T, Box<dyn Error + Send + Sync>>;
 
 const DEFAULT_ALLOWED_ORIGINS: [&str; 2] = ["https://somes.at", "https://www.somes.at"];
 const ASSET_REFRESH_DELAY: Duration = Duration::from_secs(19_000);
-
-#[derive(Clone)]
-pub struct AppState {
-    pub redis_client: redis::Client,
-    pub eu_redis_client: redis::Client,
-    pub dataservice_sqlx_pool: PgPool,
-    pub eu_dataservice_sqlx_pool: PgPool,
-    pub meilisearch_client: meilisearch_sdk::client::Client,
-    pub eu_hemicycle: Arc<HemicycleLayout>,
-}
-
-impl AppState {
-    pub fn new(
-        redis_client: redis::Client,
-        eu_redis_client: redis::Client,
-        dataservice_sqlx_pool: PgPool,
-        eu_dataservice_sqlx_pool: PgPool,
-        meilisearch_client: meilisearch_sdk::client::Client,
-    ) -> AppState {
-        AppState {
-            redis_client,
-            eu_redis_client,
-            dataservice_sqlx_pool,
-            eu_dataservice_sqlx_pool,
-            meilisearch_client,
-            eu_hemicycle: Arc::new(load_hemicycle()),
-        }
-    }
-
-    /// Returns the Postgres pool backing the given parliament. Austrian data
-    /// lives in `DATASERVICE_URL`, EU data in `EU_DATASERVICE_URL`.
-    pub fn pool(&self, parliament: Parliament) -> PgPool {
-        match parliament {
-            Parliament::At => self.dataservice_sqlx_pool.clone(),
-            Parliament::Eu => self.eu_dataservice_sqlx_pool.clone(),
-        }
-    }
-
-    pub fn redis(&self, parliament: Parliament) -> redis::Client {
-        match parliament {
-            Parliament::At => self.redis_client.clone(),
-            Parliament::Eu => self.eu_redis_client.clone(),
-        }
-    }
-}
-
-impl FromRef<AppState> for redis::Client {
-    fn from_ref(app_state: &AppState) -> redis::Client {
-        app_state.redis_client.clone()
-    }
-}
 
 fn allowed_cors_origin() -> AllowOrigin {
     if !*IS_PROD {
