@@ -10,6 +10,7 @@
 	import InfoBadges from '../InfoTiles/InfoBadges.svelte';
 	import { gotoHistory } from '$lib/goto';
 	import { currentVoteResultStore, aiViewEnabledStore } from '$lib/stores/stores';
+	import InfoBadgesCore from '../InfoTiles/InfoBadgesCore.svelte';
 
 	interface Props {
 		voteResult: VoteResult;
@@ -114,20 +115,7 @@
 						</div>
 
 						<div>
-							{#if voteResult.legislative_initiative.requires_simple_majority}
-								<span class="badge bg-tertiary-400 text-black">einfache Mehrheit</span>
-							{:else}
-								<span class="badge bg-tertiary-400 text-black">2/3 Mehrheit</span>
-							{/if}
-							<span class="badge bg-tertiary-400 text-black"
-								>{voteResult.legislative_initiative.gp}</span
-							>
-							<span class="badge bg-tertiary-400 text-black"
-								>{dashDateToDotDate(
-									voteResult.legislative_initiative.nr_plenary_activity_date.toString()
-								)}</span
-							>
-							<VoteTypeBadge {voteResult} />
+		                    <InfoBadgesCore {voteResult} />
 						</div>
 					{:else}
 						<!-- Roll call votes -->
@@ -176,20 +164,7 @@
 							</div>
 						</div>
 						<div class="flex max-h-6 gap-1 max-lg:hidden">
-							{#if voteResult.legislative_initiative.requires_simple_majority}
-								<span class="badge bg-tertiary-400 text-black">einfache Mehrheit</span>
-							{:else}
-								<span class="badge bg-tertiary-400 text-black">2/3 Mehrheit</span>
-							{/if}
-							<span class="badge bg-tertiary-400 text-black"
-								>{voteResult.legislative_initiative.gp}</span
-							>
-							<span class="badge bg-tertiary-400 text-black"
-								>{dashDateToDotDate(
-									voteResult.legislative_initiative.nr_plenary_activity_date.toString()
-								)}</span
-							>
-							<VoteTypeBadge {voteResult} />
+						    <InfoBadgesCore {voteResult} />
 						</div>
 					{/if}
 				{:else}

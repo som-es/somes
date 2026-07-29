@@ -314,6 +314,7 @@ pub async fn update_vote_result_meilisearch_index(
         .with_sortable_attributes([
             "legislative_initiative.nr_plenary_activity_date",
             "legislative_initiative.raw_data_created_at",
+            "legislative_initiative.vote_date",
         ])
         .with_pagination(PaginationSetting {
             max_total_hits: 100000000,
@@ -349,7 +350,7 @@ pub async fn update_vote_result_meilisearch_index(
         &settings,
         &all_vote_results,
         Some("id"),
-        Some(3000),
+        Some(1000),
     )
     .await?;
     update_time::update_update_time_of_index(redis_con, parliament, &Index::VoteResults).await?;

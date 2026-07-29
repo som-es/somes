@@ -104,18 +104,24 @@ async fn meilisearch_for_vote_results(
 
     log::info!("vote results meilisearch filter: {meilisearch_filter}, {search_query:?}");
 
+    let date_sort_field = if is_finished {
+        "legislative_initiative.vote_date"
+    } else {
+        "legislative_initiative.nr_plenary_activity_date"
+    };
+
     let sort = match sort {
         Some(sort) => match sort {
             somes_common_lib::Sort::Asc => {
                 vec![
-                    "legislative_initiative.nr_plenary_activity_date:asc",
-                    "legislative_initiative.raw_data_created_at:asc",
+                    format!("{date_sort_field}:asc"),
+                    "legislative_initiative.raw_data_created_at:asc".to_string(),
                 ]
             }
             somes_common_lib::Sort::Desc => {
                 vec![
-                    "legislative_initiative.nr_plenary_activity_date:desc",
-                    "legislative_initiative.raw_data_created_at:asc",
+                    format!("{date_sort_field}:desc"),
+                    "legislative_initiative.raw_data_created_at:asc".to_string(),
                 ]
             }
         },
@@ -123,6 +129,7 @@ async fn meilisearch_for_vote_results(
             vec![]
         }
     };
+    let sort = sort.iter().map(|x| x.as_str()).collect::<Vec<_>>();
 
     let results: SearchResults<OptionalVoteResult> = meilisearch_client
         .index(Index::VoteResults.uid(parliament))

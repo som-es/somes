@@ -199,7 +199,7 @@ pub async fn named_votes_from_legis_init_sqlx(
 
     let named_votes = sqlx::query_as!(
         DbNamedVote,
-        "select id, infavor, was_absent, lev, similiarity_score, searched_with, matched_with, delegate_id, manually_matched from named_votes where named_vote_info_id = $1",
+        "select id, infavor, was_abstention, was_absent, lev, similiarity_score, searched_with, matched_with, delegate_id, manually_matched from named_votes where named_vote_info_id = $1",
         named_vote_info.id
     )
     .fetch_all(con)

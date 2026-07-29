@@ -38,11 +38,9 @@ export const load: PageServerLoad = async ({ fetch, params, setHeaders }) => {
             );
             referencesResults = results.filter(r => !isHasError(r)) as VoteResult[];
         }
-    } 
-    
+    }
+
     return {
-        voteResult, delegates, hasSeatInfo, cachedSeats, referencedByResults, referencesResults
+        voteResult, delegates, hasSeatInfo, cachedSeats, referencedByResults, referencesResults, parliament
     };
 };
-
-

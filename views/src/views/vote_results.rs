@@ -71,12 +71,12 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
                 )::full_speech
               FROM
                 full_speeches fs
-                JOIN plenar_speech_legis_inits psl on psl.legis_init_id = li.id
+                JOIN plenar_speech_legis_inits psl on psl.speech_id = fs.id and psl.legis_init_id = li.id
                 JOIN debates deb ON deb.id = fs.debate_id
                 JOIN plenar_infos pi ON pi.id = deb.plenar_id
               WHERE
-                psl.id = li.id
-                AND pi.council = 'NR'
+                psl.legis_init_id = li.id
+                AND (pi.council = 'NR' or pi.council = 'ep')
           ) AS \"speeches: Vec<FullSpeech>\",
           /* named votes */
           (
@@ -89,7 +89,7 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
                 ARRAY(
                   SELECT
                     ROW(
-                      id, infavor, was_absent, lev, similiarity_score,
+                      id, infavor, was_abstention, was_absent, lev, similiarity_score,
                       searched_with, matched_with,
                       delegate_id, manually_matched
                     )::db_named_vote
