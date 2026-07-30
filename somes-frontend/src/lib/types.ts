@@ -459,6 +459,7 @@ export interface Absence {
 export interface NamedVote {
 	infavor: boolean | null;
 	was_absent: boolean | null;
+	was_abstention: boolean;
 	legis_init_id: number;
 	named_vote_info_id: number;
 	date: Date;

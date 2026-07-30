@@ -285,6 +285,12 @@ export function enrichCirclesWithNamedVoteInfoOnSeat(
 			circles2d[del.seat_row - 1][del.seat_col - 1].title = `abwesend/keine Stimme abgegeben`;
 			setOpacity(circles2d[del.seat_row - 1][del.seat_col - 1]);
 			return;
+        }
+        if (namedVote.was_abstention) {
+			circles2d[del.seat_row - 1][del.seat_col - 1].r = +15;
+			circles2d[del.seat_row - 1][del.seat_col - 1].title = `enthalten`;
+			setOpacity(circles2d[del.seat_row - 1][del.seat_col - 1]);
+			return;
 		}
 
 		circles2d[del.seat_row - 1][del.seat_col - 1].title = namedVote.infavor ? `Ja` : `Nein`;

@@ -42,7 +42,7 @@
 				? bubble.namedVote.infavor
 					? 'Ja'
 					: 'Nein'
-				: 'Abwesend/keine Stimme abgegeben'
+				: bubble.namedVote.was_abstention ? "Enthalten" : 'Abwesend/keine Stimme abgegeben'
 			: ''
 	);
 
@@ -72,7 +72,7 @@
 					? bubble.namedVote.infavor
 						? 'bg-success-600'
 						: 'bg-red-600'
-					: 'bg-primary-500';
+					: bubble.namedVote.was_abstention ? "bg-blue-400" : 'bg-primary-500';
 		}
 
 		return color;
