@@ -1,3 +1,4 @@
+import { getParliament, type Parliament } from './api/parliament';
 import { partyColorsStore } from './caching/stores/stores.svelte';
 
 const staticPartyColors: [string, string][] = [
@@ -16,8 +17,8 @@ const staticPartyColors: [string, string][] = [
 	['STRONACH', '#F8E924']
 ];
 
-export function getPartyColors(): Map<string, string> {
-	let storedPartyColors = partyColorsStore.value;
+export function getPartyColors(parliament: Parliament = getParliament()): Map<string, string> {
+	let storedPartyColors = partyColorsStore.valueScoped(parliament);
 	if (!storedPartyColors || (storedPartyColors !== null && storedPartyColors.length == 0)) {
 		storedPartyColors = staticPartyColors;
 	}

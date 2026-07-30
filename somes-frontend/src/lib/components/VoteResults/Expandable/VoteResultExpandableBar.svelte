@@ -73,7 +73,7 @@
 				{/if}
 
 				<div class="shrink-0 max-lg:order-2">
-					{#if voteResult.legislative_initiative.accepted !== null}
+					{#if voteResult.legislative_initiative.accepted !== null && voteResult.legislative_initiative.accepted !== "u"}
 						{#if voteResult.legislative_initiative.accepted == 'a'}
 							<span
 								class="inline-block shrink-0 stroke-green-600 align-middle dark:stroke-green-500"
@@ -92,7 +92,7 @@
 		<!-- REWORK - checks if vote was cast and checks for normal or roll call vote-->
 		<div>
 			<div class="mt-4 block justify-between sm:flex">
-				{#if voteResult.legislative_initiative.accepted}
+				{#if voteResult.legislative_initiative.accepted !== null}
 					{#if voteResult.named_votes == null}
 						<!-- Normal votes -->
 						<div class="mx-1 mb-3 flex justify-between sm:mb-0 md:items-center">

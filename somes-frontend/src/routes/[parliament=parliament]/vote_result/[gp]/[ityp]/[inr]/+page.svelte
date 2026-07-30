@@ -61,7 +61,7 @@
 
 	import type { PageProps } from './$types';
 	import { browser } from '$app/environment';
-	import { partyColors } from '$lib/partyColor';
+	import { getPartyColors } from '$lib/partyColor';
 	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
 	import type { SvelteSet } from 'svelte/reactivity';
 	import { addLegisInitFavo, removeLegisInitFavo } from '$lib/api/authed';
@@ -75,6 +75,8 @@
 	let delegate: Delegate | null = $state(null);
 	let selectedBubble: Bubble | undefined = $state();
 	let searchValue: string = $state('');
+
+	let partyColors = $derived(getPartyColors(data.parliament));
 
 	// Search PopUp Logic
 	let showMobileSearch: boolean = $state(false);
@@ -331,7 +333,7 @@
 								{@html linkIcon}
 							</a>
 							<!-- Result Icon -->
-							{#if voteResult.legislative_initiative.accepted}
+							{#if voteResult.legislative_initiative.accepted !== null && voteResult.legislative_initiative.accepted !== "u"}
 								<div class="shrink-0">
 									{#if voteResult.legislative_initiative.accepted == 'a'}
 										<span
@@ -791,9 +793,11 @@
 										bind:selected={selectedBubble}
 										noSeats={!data.hasSeatInfo}
 										useOffset={data.hasSeatInfo}
+										parliament={data.parliament}
 										showGovs
 										overrideDelegates
 										{searchValue}
+										partyColoring={partyColors}
 									/>
 								</div>
 							</div>

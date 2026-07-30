@@ -37,6 +37,7 @@
 		allSeats = null,
 		searchValue = '',
 		parliament = getParliament(),
+		partyColoring = partyColors,
 	}: {
 		class?: string,
 		orderingFactor?: number,
@@ -61,6 +62,7 @@
 		allSeats?: Map<string, number[]> | null,
 		searchValue?: string
 		parliament?: string
+		partyColoring?: Map<string, string>
 	} = $props();
 
 	const width = $derived.by(() => {
@@ -102,7 +104,7 @@
 		}
 	});
 
-	let localPartyColors: Map<string, string> = $state(partyColors);
+	let localPartyColors: Map<string, string> = $derived(partyColoring);
 
 	const activeDate = $derived.by(() => {
 		if (supplyDate) {

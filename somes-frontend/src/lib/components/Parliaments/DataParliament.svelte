@@ -57,9 +57,22 @@
 		void voteResult;
 		void searchValue;
 
+		function partyToColor(party: string | null): string {
+			if (party == null) {
+				return '#B8B8B8';
+			}
+
+			const color = localPartyColors.get(party);
+			if (color == null) {
+				return '#B8B8B8';
+			}
+
+			return color;
+		}
+
 		return untrack(() => {
 			const bubbles = setupParliament(seats, width, height, 7.9, useOffset, maxAngle);
-			enrichParliamentBubbles(bubbles, $state.snapshot(delegates), voteResult, setOpacity);
+			enrichParliamentBubbles(bubbles, $state.snapshot(delegates), voteResult, setOpacity, partyToColor);
 			return bubbles;
 		});
 	});

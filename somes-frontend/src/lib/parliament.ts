@@ -101,13 +101,14 @@ export function enrichParliamentBubbles(
 	bubbles: Bubble[][],
 	dels: Delegate[],
 	voteResult: VoteResult | null,
-	setOpacity: (bubble: Bubble) => void
+	setOpacity: (bubble: Bubble) => void,
+	colorFn = partyToColor
 ) {
 	if (bubbles.length == 0) {
 		return;
 	}
 	dels.forEach(async (del) => {
-		setDelOnBubble(del, bubbles, partyToColor);
+		setDelOnBubble(del, bubbles, colorFn);
 
 		if (del.seat_col != null && del.seat_row != null) {
 			try {
