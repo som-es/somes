@@ -26,6 +26,8 @@
 
 	let { decrees, selectedGp, departmentsPerGp }: Props = $props();
 
+	let currentPage: number | undefined = $state(undefined);
+
 	let legisPeriodFilter = $state({
 		title: 'Legislaturperiode',
 		activeValue: 'all',
@@ -94,6 +96,8 @@
 			if (maybeStoredFilter.date_from)
 				genericFilters[0].data!.dateFrom = maybeStoredFilter.date_from;
 			if (maybeStoredFilter.date_to) genericFilters[0].data!.dateTo = maybeStoredFilter.date_to;
+			if (maybeStoredFilter.date_to) genericFilters[0].data!.dateTo = maybeStoredFilter.date_to;
+			if (maybeStoredFilter.page) currentPage = maybeStoredFilter.page;
 		}
 	});
 
@@ -104,20 +108,25 @@
 		});
 	});
 
-	const loadDecrees = async () => {
-		if (decrees !== null) {
-			decrees.decrees = [];
-		}
-		let filter: DecreeFilter = {
+	const convertAndStoreFilter = () => {
+	    let filter: DecreeFilter = {
 			gov_officials: null,
 			legis_period: legisPeriodFilter.activeValue == 'all' ? null : legisPeriodFilter.activeValue,
 			topics: selectedTopics.size > 0 ? [...selectedTopics] : null,
 			departments: selectedDepartments.size > 0 ? [...selectedDepartments] : null,
 			date_from: genericFilters[0].data?.dateFrom || null,
-			date_to: genericFilters[0].data?.dateTo || null
+			date_to: genericFilters[0].data?.dateTo || null,
+			page: currentPage ?? null,
 		};
 		currentDecreeFilterStore.value = filter;
+		return filter;
+	};
 
+	const loadDecrees = async () => {
+		if (decrees !== null) {
+			decrees.decrees = [];
+		}
+		const filter = convertAndStoreFilter();
 		const nextUrl = convertDecreeFilterToUrl(filter, searchValue, new URL(page.url), sortOrder);
 
 		goto(nextUrl, {
@@ -149,6 +158,11 @@
 		genericFilters[0].activeValue =
 			genericFilters[0].data?.dateFrom || genericFilters[0].data?.dateTo ? 'set' : undefined;
 	});
+	$effect(() => {
+	    if (currentPage) {
+			untrack(convertAndStoreFilter)
+		}
+	})
 
 	let topics: string[] = $state([]);
 
@@ -225,7 +239,7 @@
 			Keine Verordnungen gefunden
 		{/if}
 		<div class="float-right">
-			<Pagination maxPage={decrees.max_page} />
+			<Pagination bind:currentPage maxPage={decrees.max_page} />
 		</div>
 	{:else}
 		{#each { length: 9 } as _}

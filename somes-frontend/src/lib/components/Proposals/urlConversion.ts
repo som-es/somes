@@ -17,6 +17,7 @@ export function convertGovPropFilterToUrl(
 		return nextUrl;
 	}
 
+	nextUrl.searchParams.set('page', filter.page?.toString() ?? '1');
 	if (filter.has_vote_result) {
 		nextUrl.searchParams.set(
 			'gov_proposal[ministrial_proposal][has_vote_result][eq]',

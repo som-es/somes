@@ -25,6 +25,8 @@ export function convertVoteResultFilterToUrl(
 		return nextUrl;
 	}
 
+	nextUrl.searchParams.set('page', (filter.page ?? pageValue).toString());
+
 	if (filter.is_named_vote !== null) {
 		nextUrl.searchParams.set(
 			'legislative_initiative[voted_by_name][eq]',

@@ -10,12 +10,14 @@ export function convertDecreeFilterToUrl(
 ): URL {
 	const nextUrl = currentUrl ? currentUrl : new URL(plink('/history/decrees'), page.url.origin);
 	nextUrl.search = '';
+
 	nextUrl.searchParams.set('page', '1');
 
 	if (!filter) {
 		nextUrl.searchParams.set('sort', 'Desc');
 		return nextUrl;
 	}
+	nextUrl.searchParams.set('page', filter.page?.toString() ?? '1');
 
 	if (filter.legis_period !== null) {
 		nextUrl.searchParams.set('decree[gp][in][0]', filter.legis_period);

@@ -69,6 +69,7 @@
 			: 'Unbekannt'
 	);
 
+	let currentPage: number | undefined = $state(undefined);
 	let selectedTopics: SvelteSet<string> = $state(new SvelteSet());
 	let selectedDepartments: SvelteSet<string> = $state(new SvelteSet());
 
@@ -114,20 +115,26 @@
 			if (maybeStoredFilter.date_from)
 				genericFilters[1].data!.dateFrom = maybeStoredFilter.date_from;
 			if (maybeStoredFilter.date_to) genericFilters[1].data!.dateTo = maybeStoredFilter.date_to;
+			if (maybeStoredFilter.page) currentPage = maybeStoredFilter.page;
 		}
 	});
 
-	const loadGovProps = async () => {
-		let filter: GovPropFilter = {
+	const convertAndStoreFilter = () => {
+	    let filter: GovPropFilter = {
 			has_vote_result:
 				genericFilters[0].activeValue == undefined ? null : genericFilters[0].activeValue,
 			legis_period: legisPeriodFilter.activeValue == 'all' ? null : legisPeriodFilter.activeValue,
 			topics: selectedTopics.size > 0 ? [...selectedTopics] : null,
 			departments: selectedDepartments.size > 0 ? [...selectedDepartments] : null,
 			date_from: genericFilters[1].data?.dateFrom || null,
-			date_to: genericFilters[1].data?.dateTo || null
+			date_to: genericFilters[1].data?.dateTo || null,
+			page: currentPage ?? null,
 		};
 		currentGovProposalFilterStore.value = filter;
+		return filter;
+	};
+
+	const loadGovProps = async () => {
 
 		const nextUrl = convertGovPropFilterToUrl(filter, searchValue, new URL(page.url), sortOrder);
 		goto(nextUrl, {
@@ -156,6 +163,12 @@
 	$effect(() => {
 		genericFilters[1].activeValue =
 			genericFilters[1].data?.dateFrom || genericFilters[1].data?.dateTo ? 'set' : undefined;
+	});
+
+	$effect(() => {
+	    if (currentPage) {
+			untrack(convertAndStoreFilter)
+		}
 	});
 
 	let topics: string[] = $state([]);
@@ -229,7 +242,7 @@
 			Keine Ministerialentwürfe gefunden
 		{/if}
 		<div class="float-right">
-			<Pagination maxPage={govProposals.max_page} />
+			<Pagination bind:currentPage maxPage={govProposals.max_page} />
 		</div>
 	{:else}
 		{#each { length: 9 } as _}
