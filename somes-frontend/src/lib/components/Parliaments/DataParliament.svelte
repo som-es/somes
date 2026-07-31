@@ -28,6 +28,7 @@
 		localPartyColors?: Map<string, string>;
 		searchValue?: string;
 		maxAngle?: number;
+		yOffset?: number;
 	}
 
 	let {
@@ -48,6 +49,7 @@
 		localPartyColors = partyColors,
 		searchValue = '',
 		maxAngle = 180,
+		yOffset = 0,
 	}: Props = $props();
 
 	let partyInfavorMap = $derived(createPartyInfavorMap(voteResult, localPartyColors));
@@ -71,7 +73,7 @@
 		}
 
 		return untrack(() => {
-			const bubbles = setupParliament(seats, width, height, 7.9, useOffset, maxAngle);
+			const bubbles = setupParliament(seats, width, height, 7.9, useOffset, maxAngle, yOffset);
 			enrichParliamentBubbles(bubbles, $state.snapshot(delegates), voteResult, setOpacity, partyToColor);
 			return bubbles;
 		});

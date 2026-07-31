@@ -812,8 +812,8 @@
 										{/each}
 									{:else}
                                         {#each partyVoteBreakdownSorted.slice() as partyVotes (partyVotes.party)}
-                                            <div class="flex items-center gap-4">
-                                                <div class="flex w-28 shrink-0 items-center gap-2">
+                                            <div class="flex items-center gap-1">
+                                                <div class="flex w-24 shrink-0 items-center gap-2">
                                                     <div
                                                         class="h-2.5 w-2.5 rounded-full"
                                                         style="background-color: {partyColors.get(partyVotes.party) ?? '#ccc'};"

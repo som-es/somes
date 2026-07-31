@@ -65,30 +65,16 @@
 		partyColoring?: Map<string, string>
 	} = $props();
 
-	const width = $derived.by(() => {
-	    switch (parliament) {
-			case "at": return 830;
-			case "eu": {
-			    if (noSeats == true) {
-			        return 1160;
-				} else {
-				    return 1360;
-				}
-			}
+	const [width, height, yOffset] = $derived.by((): [number, number, number] => {
+		switch (parliament) {
+			case "at":
+				return [830, 600, 200];
+			case "eu":
+				return noSeats ? [1160, 800, 250] : [1390, 900, 300];
+			default:
+				return [0, 0, 0];
 		}
 	});
-	const height = $derived.by(() => {
-		    switch (parliament) {
-				case "at": return 900;
-				case "eu": {
-				    if (noSeats == true) {
-				        return 1200;
-					} else {
-					    return 1380;
-					}
-				}
-			}
-		});
 
 	const effectiveGp = $derived(voteResult?.legislative_initiative.gp ?? gp);
 
@@ -203,7 +189,8 @@
 		{localPartyColors}
 		{forceColor}
 		{searchValue}
-		maxAngle={parliament == "at" || noSeats == true ? 180 : 220}
+		maxAngle={parliament == "at" || noSeats == true ? 180 : 240}
+		{yOffset}
 	/>
 {/if}
 <!--

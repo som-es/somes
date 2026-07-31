@@ -306,6 +306,7 @@ export function setupParliament(
 	r: number,
 	useOffset = true,
 	maxAngle: number = 180,
+    yOffset: number = 0,
 ): Bubble[][] {
 	let id = 0;
 	let circles2d: Bubble[][] = [];
@@ -322,7 +323,7 @@ export function setupParliament(
 				return {
 					r,
 					x: circle.x,
-					y: circle.y,
+					y: circle.y + yOffset,
 					angle_rad: circle.angle_rad,
 					del: null,
 					color: 'rgb(196, 180, 189)',
@@ -344,7 +345,7 @@ export function setupParliament(
 			return {
 				r,
 				x: circle.x,
-				y: circle.y,
+				y: circle.y + yOffset,
 				angle_rad: circle.angle_rad,
 				del: null,
 				color: 'rgb(196, 180, 189)',
