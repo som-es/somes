@@ -159,12 +159,12 @@
 		<!-- Name and Age -->
 		<h4 class="text-xl font-bold">
 			{delegate.name}
-			{#if delegate.is_active && showAge}
+			{#if delegate.is_active && showAge && delegate.birthdate}
 				- {Math.floor(dateDiffInDays(new Date(delegate.birthdate), new Date()) / 365)}
 			{/if}
 		</h4>
 		<!-- Birthday Check -->
-		{#if new Date().toString() == new Date(delegate.birthdate).toString()}
+		{#if delegate.birthdate && new Date().toString() == new Date(delegate.birthdate).toString()}
 			<hr />
 			Alles Gute zum Geburtstag!
 		{/if}

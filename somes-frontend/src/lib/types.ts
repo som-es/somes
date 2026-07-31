@@ -56,7 +56,7 @@ export interface Delegate {
 	seat_col: number | null;
 	gender: string | null;
 	is_active: boolean | null;
-	birthdate: string;
+	birthdate: string | null;
 	active_since: Date;
 	divisions: string[] | null;
 	mandates_at_time: FullMandate[] | null;
