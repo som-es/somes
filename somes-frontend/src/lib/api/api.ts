@@ -347,8 +347,11 @@ export async function delegates_with_seats_near_date(
 	);
 }
 
-export async function get_eurovoc_topics(): Promise<UniqueTopic[] | HasError> {
-	return getWithRoute<UniqueTopic[]>('eurovoc_topics');
+export async function get_eurovoc_topics(
+	parliament: Parliament = getParliament(),
+	fetcher: typeof fetch = fetch,
+): Promise<UniqueTopic[] | HasError> {
+	return getWithRoute<UniqueTopic[]>('eurovoc_topics', parliament, fetcher);
 }
 
 export async function get_topics(): Promise<UniqueTopic[] | HasError> {

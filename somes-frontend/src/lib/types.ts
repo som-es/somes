@@ -161,7 +161,7 @@ export interface Topic {
 }
 
 export interface UniqueTopic {
-	id: number;
+	id: string;
 	topic: string;
 }
 

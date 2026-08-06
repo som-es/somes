@@ -12,7 +12,7 @@ use utoipa::ToSchema;
 #[derive(ToSchema, Debug, Deserialize, Serialize, Clone)]
 pub struct UniqueTopic {
     pub topic: String,
-    pub id: i32,
+    pub id: String,
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]

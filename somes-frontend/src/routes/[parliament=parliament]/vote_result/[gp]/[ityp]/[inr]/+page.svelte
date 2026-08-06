@@ -1,10 +1,6 @@
 <script lang="ts">
 	import {
 		errorToNull,
-		get_eurovoc_topics,
-		vote_result_by_path,
-		vote_result_by_id,
-		url
 	} from '$lib/api/api';
 	import {
 		currentDelegateStore,
@@ -13,11 +9,9 @@
 		aiViewEnabledStore
 	} from '$lib/stores/stores';
 	import { onMount } from 'svelte';
-	import SButton from '$lib/components/UI/SButton.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import Topics from '$lib/components/Topics/Topics.svelte';
-	import Topic from '$lib/components/Topics/Topic.svelte';
-	import { createVoteResultPath, type Delegate, type VoteResult } from '$lib/types';
+	import { type Delegate, type VoteResult } from '$lib/types';
 	import Emphasis from '$lib/components/VoteResults/Emphasis/Emphasis.svelte';
 	import VoteDelegateCard from '$lib/components/Delegates/VoteDelegateCard.svelte';
 	import {
@@ -31,17 +25,13 @@
 		delegateFilterOptions
 	} from '$lib/components/Autocompletion/filtering';
 	import type { AutocompleteOption } from '$lib/components/Autocompletion/types';
-	import Autocomplete from '$lib/components/Autocompletion/Autocomplete.svelte';
-	import SimpleYesNo from '$lib/components/VoteResults/SimpleYesNo/SimpleYesNo.svelte';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import { cachedLegisInitFavos } from '$lib/caching/favos';
 	import star from '$lib/assets/misc_icons/star.svg?raw';
 	import starFilled from '$lib/assets/misc_icons/starFilled.svg?raw';
-	import FetchDelegateCard from '$lib/components/Delegates/FetchDelegateCard.svelte';
 	import Documents from '$lib/components/Documents/Documents.svelte';
 	import { dashDateToDotDate } from '$lib/date';
 	import InfoBadges from '$lib/components/VoteResults/InfoTiles/InfoBadges.svelte';
-	import VoteTypeBadge from '$lib/components/VoteResults/VoteTypeBadge.svelte';
 	import ReferencedByBar from '$lib/components/Bars/ReferencedByBar.svelte';
 	import crossmarkIcon from '$lib/assets/misc_icons/crossmark_small.svg?raw';
 	import checkmarkIcon from '$lib/assets/misc_icons/checkmark_small.svg?raw';
@@ -49,7 +39,6 @@
 	import AiSummaryHintPopup from '$lib/components/AiHint/AiSummaryHintPopup.svelte';
 	import { page } from '$app/state';
 	import linkIcon from '$lib/assets/misc_icons/external-link.svg?raw';
-	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow.svg?raw';
 	import searchIcon from '$lib/assets/misc_icons/search-glass.svg?raw';
 	import DelegateListItem from '$lib/components/Delegates/DelegateListItem.svelte';
 	import { Select } from 'bits-ui';
@@ -76,7 +65,7 @@
 	let selectedBubble: Bubble | undefined = $state();
 	let searchValue: string = $state('');
 
-	let partyColors = $derived(getPartyColors(data.parliament));
+	let partyColors = $derived(data.partyColors);
 
 	// Search PopUp Logic
 	let showMobileSearch: boolean = $state(false);
@@ -283,7 +272,10 @@
 	const partyVoteBreakdown = $derived.by(() => {
 	    let breakdown = new Map<string, { party: string; sum: number; infavor: number, against: number; abstention: number, absent: number }>();
 		(voteResult?.named_votes?.named_votes ?? []).forEach(namedVote => {
-		    const party = delegatesPerId.get(namedVote.delegate_id)!.party;
+		    const party = delegatesPerId.get(namedVote.delegate_id)?.party;
+			if (!party) {
+			    return
+			}
 			if (!breakdown.has(party)) {
 			    breakdown.set(party, { party, sum: 0, infavor: 0, against: 0, abstention: 0, absent: 0});
 			}

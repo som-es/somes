@@ -11,7 +11,7 @@
 	interface Props {
 		parentTopics: string[];
 		subTopics: UniqueTopic[];
-		selectedTopics: Set<number>;
+		selectedTopics: Set<string>;
 	}
 
 	let { parentTopics, subTopics, selectedTopics = $bindable() }: Props = $props();

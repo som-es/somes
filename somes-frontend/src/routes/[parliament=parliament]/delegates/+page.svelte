@@ -52,7 +52,6 @@
 	import type { PageProps } from './$types';
 	import downArrowIcon from '$lib/assets/misc_icons/down-arrow.svg?raw';
 	import searchIcon from '$lib/assets/misc_icons/search-glass.svg?raw';
-	import { partyColors } from '$lib/partyColor';
 	import { groupPartyDelegates } from '$lib/parliaments/defaultParliament';
 	import { Popover, Select } from 'bits-ui';
 	import upDownArrowIcon from '$lib/assets/misc_icons/up-down-arrow.svg?raw';
@@ -72,6 +71,8 @@
 
 	let delegates: Delegate[] = $derived(data.delegates ?? []);
 	let partiesPerGp: Record<string, Party[]> = $derived(data.partiesPerGp ?? {});
+
+	const partyColors = $derived(data.partyColors);
 
 	// Christoph Rework
 	const sliderSteps = [25, 50, 75, 365];
@@ -882,6 +883,7 @@
 								noSeats={!data.hasSeatInfo}
 								useOffset={data.hasSeatInfo}
 								parliament={data.parliament}
+								partyColoring={partyColors}
 							/>
 						{/if}
 					</div>

@@ -147,8 +147,6 @@
 			<span class="absolute bottom-0 rounded px-1 text-[10px]">
 				{#if delegate.image_copyright}
 					&copy {delegate.image_copyright}
-				{:else}
-					&copy Parlamentsdirektion
 				{/if}
 			</span>
 		</div>

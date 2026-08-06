@@ -4,7 +4,7 @@
 	import AccordionTopics from './AccordionTopics.svelte';
 
 	interface Props {
-		selectedTopics: Set<number>;
+		selectedTopics: Set<string>;
 		topics?: UniqueTopic[];
 	}
 

@@ -50,7 +50,7 @@
 
 	// State with Svelte 5 runes
 	let topics = $state<UniqueTopic[]>([]);
-	let selectedTopics = $state<SvelteSet<number>>(new SvelteSet<number>());
+	let selectedTopics = $state<SvelteSet<string>>(new SvelteSet<string>());
 	let user = $state<BasicUserInfo | null>(null);
 	let extendedUser = $state<ExtendedUserInfo | null>(null);
 	let mailSendInfo = $state<MailSendInfo | null>(null);
@@ -108,9 +108,10 @@
 
 		// get interest topics from api
 		const data = await cachedUserTopics(true);
+		console.log(data);
 
 		if (data) {
-			selectedTopics = new SvelteSet<number>(data.map((topic) => topic.id));
+			selectedTopics = new SvelteSet<string>(data.map((topic) => topic.id));
 		}
 	});
 

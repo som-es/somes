@@ -4,6 +4,7 @@ import { fetchDelegates } from '$lib/api/fetch_delegates';
 import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 import { cachedAllSeats } from '$lib/caching/seats';
 import type { PageServerLoad } from './$types';
+import { cachedPartyColors } from '$lib/caching/party_color';
 
 export const load: PageServerLoad = async ({ fetch, url, setHeaders, params }) => {
 	const parliament = params.parliament as Parliament;
@@ -20,6 +21,7 @@ export const load: PageServerLoad = async ({ fetch, url, setHeaders, params }) =
 	const cachedPeriods = (await cachedAllLegisPeriods(true, parliament))?.reverse();
 	const cachedSeats = await cachedAllSeats(true, fetch, parliament);
 	const partiesPerGp = errorToNull(await parties_per_gp(fetch, parliament));
+	const partyColors = await cachedPartyColors(true, parliament, fetch)
 
 	let delegate = null;
 
@@ -27,5 +29,5 @@ export const load: PageServerLoad = async ({ fetch, url, setHeaders, params }) =
 		delegate = errorToNull(await delegate_by_id(+delegateId, fetch, parliament));
 	}
 
-	return { ...delegates, delegate, delegateId, cachedPeriods, gp, cachedSeats, date, partiesPerGp, parliament };
+	return { ...delegates, delegate, delegateId, cachedPeriods, gp, cachedSeats, date, partiesPerGp, parliament, partyColors };
 };

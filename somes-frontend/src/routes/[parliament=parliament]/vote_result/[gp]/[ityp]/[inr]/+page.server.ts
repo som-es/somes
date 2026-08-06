@@ -5,6 +5,7 @@ import { fetchDelegates } from '$lib/api/fetch_delegates';
 import { cachedAllSeats } from '$lib/caching/seats';
 import type { Delegate, VoteResult } from '$lib/types';
 import type { PageServerLoad } from './$types';
+import { cachedPartyColors } from '$lib/caching/party_color';
 
 export const load: PageServerLoad = async ({ fetch, params, setHeaders }) => {
     const parliament = params.parliament as Parliament;
@@ -23,7 +24,8 @@ export const load: PageServerLoad = async ({ fetch, params, setHeaders }) => {
     let referencesResults: VoteResult[] = [];
 
     if (!isHasError(voteResult)) {
-        ({ hasSeatInfo, delegates } = await fetchDelegates(voteResult.legislative_initiative.nr_plenary_activity_date, params.gp, fetch, parliament));
+        const date = voteResult.legislative_initiative.vote_date !== null ? voteResult.legislative_initiative.vote_date : voteResult.legislative_initiative.nr_plenary_activity_date;
+        ({ hasSeatInfo, delegates } = await fetchDelegates(date, params.gp, fetch, parliament));
 
         if (voteResult.referenced_by_others_ids.length > 0) {
             const results = await Promise.all(
@@ -40,7 +42,9 @@ export const load: PageServerLoad = async ({ fetch, params, setHeaders }) => {
         }
     }
 
+    const partyColors = await cachedPartyColors(true, parliament, fetch)
+
     return {
-        voteResult, delegates, hasSeatInfo, cachedSeats, referencedByResults, referencesResults, parliament
+        voteResult, delegates, hasSeatInfo, cachedSeats, referencedByResults, referencesResults, parliament, partyColors
     };
 };

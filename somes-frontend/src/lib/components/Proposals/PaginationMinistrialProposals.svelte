@@ -135,7 +135,7 @@
 	};
 
 	const loadGovProps = async () => {
-
+	    const filter = convertAndStoreFilter();
 		const nextUrl = convertGovPropFilterToUrl(filter, searchValue, new URL(page.url), sortOrder);
 		goto(nextUrl, {
 			keepFocus: true,

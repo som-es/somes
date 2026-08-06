@@ -108,6 +108,7 @@
 		}
 		if (localPartyColors.size == 0) {
 			localPartyColors = await cachedPartyColors();
+			console.log(localPartyColors);
 		}
 		await updateDelegates();
 	});
