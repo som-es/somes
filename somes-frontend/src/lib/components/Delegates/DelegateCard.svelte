@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { partyToColor } from '$lib/partyColor';
+	import { partyToColor, partyColors as globalPartyColors } from '$lib/partyColor';
 	import type { Delegate, DelegateFavo, DelegateQA } from '$lib/types';
 	import { currentDelegateStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
@@ -31,6 +31,7 @@
 		top?: import('svelte').Snippet;
 		info?: import('svelte').Snippet;
 		footerButtons?: import('svelte').Snippet;
+		partyColors?: Map<string, string>
 	}
 
 	let {
@@ -47,7 +48,8 @@
 		date,
 		top,
 		info,
-		footerButtons
+		footerButtons,
+		partyColors = globalPartyColors,
 	}: Props = $props();
 
 	const showDelegate = import.meta.env.VITE_SHOW_DELEGATE_ID;
@@ -171,7 +173,7 @@
 		<div class="flex items-center">
 			<div
 				class="mx-2 h-2 w-2 rounded-full"
-				style="background-color: {partyToColor(delegate.party)}"
+				style="background-color: {partyToColor(delegate.party, partyColors)}"
 			></div>
 			<p class="text-base text-gray-800 dark:text-gray-50">
 				{#if delegate.party == null || delegate.party == 'OK'}

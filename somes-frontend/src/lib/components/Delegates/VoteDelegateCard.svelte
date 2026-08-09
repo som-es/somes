@@ -1,11 +1,9 @@
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	import { gotoHistory } from '$lib/goto';
 	import type { Bubble } from '$lib/parliament';
+	import { getPartyColors } from '$lib/partyColor';
 	import { currentDelegateStore } from '$lib/stores/stores';
 	import type { Delegate } from '$lib/types';
-	import SButton from '../UI/SButton.svelte';
 	import DelegateCard from './DelegateCard.svelte';
 	import { Popover } from 'bits-ui';
 
@@ -14,9 +12,10 @@
 		date: string;
 		gp: string;
 		class?: string;
+		partyColors?: Map<string, string>;
 	}
 
-	let { bubble, date, gp, class: clazz = '' }: Props = $props();
+	let { bubble, date, gp, class: clazz = '', partyColors = getPartyColors() }: Props = $props();
 
 	let delegate: Delegate | null = $derived(bubble.del);
 
@@ -80,7 +79,7 @@
 </script>
 
 {#if delegate}
-	<DelegateCard {delegate} title={bubble.title} showMoreDetailsBtn onlyTop showAI={false}>
+	<DelegateCard {delegate} title={bubble.title} showMoreDetailsBtn onlyTop showAI={false} {partyColors} >
 		{#snippet top()}
 			<span class="mt-2">
 				{#if bubble.namedVote}

@@ -31,13 +31,13 @@ export function setPartyColors(val: Map<string, string>) {
 	partyColors = val;
 }
 
-export function partyToColor(party: string | null): string {
+export function partyToColor(party: string | null, partyColorsInner: Map<string, string> = partyColors): string {
 	if (party == null) {
 		return '#B8B8B8';
 	}
 
 	// const color = getPartyColors().get(party);
-	const color = partyColors.get(party);
+	const color = partyColorsInner.get(party);
 	if (color == null) {
 		return '#B8B8B8';
 	}

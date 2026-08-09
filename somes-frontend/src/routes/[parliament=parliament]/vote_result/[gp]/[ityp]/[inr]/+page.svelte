@@ -833,6 +833,7 @@
 										gp={voteResult.legislative_initiative.gp}
 										date={voteResult.legislative_initiative.vote_date ??
 											voteResult.legislative_initiative.nr_plenary_activity_date}
+										partyColors={data.partyColors}
 									/>
 								{/if}
 							</div>
@@ -930,6 +931,7 @@
 											gp={voteResult.legislative_initiative.gp}
 											date={voteResult.legislative_initiative.vote_date ??
 												voteResult.legislative_initiative.nr_plenary_activity_date}
+											partyColors={data.partyColors}
 										/>
 									</div>
 								{/each}
@@ -954,6 +956,7 @@
 											gp={voteResult.legislative_initiative.gp}
 											date={voteResult.legislative_initiative.vote_date ??
 												voteResult.legislative_initiative.nr_plenary_activity_date}
+											partyColors={data.partyColors}
 										/>
 									</div>
 								{/each}
