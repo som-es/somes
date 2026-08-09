@@ -31,7 +31,10 @@ export function setPartyColors(val: Map<string, string>) {
 	partyColors = val;
 }
 
-export function partyToColor(party: string | null, partyColorsInner: Map<string, string> = partyColors): string {
+export function partyToColor(
+	party: string | null,
+	partyColorsInner: Map<string, string> = partyColors
+): string {
 	if (party == null) {
 		return '#B8B8B8';
 	}

@@ -38,7 +38,7 @@
 </script>
 
 <VoteResultCard {voteResult} {loading}>
-	<div class="badge text-sm font-bold {opinionColor} mt-3 max-w-fit text-white lg:ml-5 lg:mt-0">
+	<div class="badge text-sm font-bold {opinionColor} mt-3 max-w-fit text-white lg:mt-0 lg:ml-5">
 		{opinion}
 	</div>
 </VoteResultCard>

@@ -34,10 +34,10 @@
 		showText = true
 	}: Props = $props();
 
-	showDate = false
-	showRequiredMajority = false
-	showDate = false
-	showAccepted = false
+	showDate = false;
+	showRequiredMajority = false;
+	showDate = false;
+	showAccepted = false;
 
 	let isLightMode = $derived(lightModeStore.value === 'light');
 
@@ -46,9 +46,9 @@
 		start: number;
 		end: number;
 	}
-	let NOT_REACHED_COLOR = $derived(isLightMode
-		? 'var(--color-primary-600)'
-		: 'var(--color-primary-800)');
+	let NOT_REACHED_COLOR = $derived(
+		isLightMode ? 'var(--color-primary-600)' : 'var(--color-primary-800)'
+	);
 
 	const REACHED_COLOR = 'var(--color-secondary-300)';
 
@@ -119,7 +119,7 @@
 </script>
 
 <div class="flex flex-wrap {isCenter ? 'justify-center' : ''} info-item gap-3">
-	<div class="flex gap-3 flex-wrap">
+	<div class="flex flex-wrap gap-3">
 		{#if showAccepted && voteResult.legislative_initiative.accepted}
 			<Square {squareSize} class="accepted-item {squareClasses}">
 				{#if voteResult.legislative_initiative.accepted == 'a'}
@@ -156,10 +156,12 @@
 			</Square>
 		{/if}
 	</div>
-	<div class="flex gap-3 flex-wrap">
+	<div class="flex flex-wrap gap-3">
 		{#if showAchievedVotes && voteResult.legislative_initiative.accepted}
 			<Square {squareSize} class={squareClasses}>
-				<SimpleDonut stops={conicsStopsAchievedVotes} {isLightMode} 
+				<SimpleDonut
+					stops={conicsStopsAchievedVotes}
+					{isLightMode}
 					mark50={voteResult.legislative_initiative.requires_simple_majority ?? false}
 					mark66={!(voteResult.legislative_initiative.requires_simple_majority ?? true)}
 				/>
@@ -173,7 +175,7 @@
 		{/if}
 		{#if showDate}
 			<Square {squareSize} class={squareClasses}>
-				<div class="font-bold text-lg">
+				<div class="text-lg font-bold">
 					{dashDateToDotDate(voteResult.legislative_initiative.nr_plenary_activity_date.toString())}
 				</div>
 				{#if showText}

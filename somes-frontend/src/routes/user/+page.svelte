@@ -45,9 +45,6 @@
 	import DelegateUserCard from '$lib/components/Delegates/DelegateUserCard.svelte';
 	import MailTopicCard from '$lib/components/UI/MailTopicCard.svelte';
 
-
-
-
 	// State with Svelte 5 runes
 	let topics = $state<UniqueTopic[]>([]);
 	let selectedTopics = $state<SvelteSet<string>>(new SvelteSet<string>());
@@ -71,7 +68,6 @@
 	let error = $state('');
 	let success = $state('');
 	let sent = $state(false);
-	
 
 	// Filtered topics based on search input
 	let filteredTopics = $derived(
@@ -170,12 +166,12 @@
 
 	async function toggleEmailAnonymization() {
 		const result = await anonymize_email();
-		
+
 		if (result && !isHasError(result) && result.access_token) {
 			jwtStore.value = result.access_token;
 			user = getUserFromJwt(result.access_token);
 		}
-		
+
 		extendedUser = errorToNull(await getUser());
 	}
 
@@ -189,83 +185,82 @@
 		sent = false;
 	}
 
-async function changeEmail() {
-	if (!newEmail) return;
+	async function changeEmail() {
+		if (!newEmail) return;
 
-	error = '';
-	success = '';
-	sent = false;
+		error = '';
+		success = '';
+		sent = false;
 
-	try {
-		const result = await change_email(newEmail);
-		
-		if (isHasError(result)) {
-			if (result.error.includes('fehlt')) {
-				error = 'E-Mail-Adresse fehlt';
-			} else if (result.error.includes('Fehlerhafte')) {
-				error = 'Fehlerhafte E-Mail-Adresse';
-			} else {
-				error = 'Ein serverseitiger Fehler ist aufgetreten. Es kann nicht fortgefahren werden.';
-			}
-		} else {
-			if (!result.requires_otp) {
-				if (result.access_token) {
-					jwtStore.value = result.access_token;
-					user = getUserFromJwt(result.access_token);
+		try {
+			const result = await change_email(newEmail);
+
+			if (isHasError(result)) {
+				if (result.error.includes('fehlt')) {
+					error = 'E-Mail-Adresse fehlt';
+				} else if (result.error.includes('Fehlerhafte')) {
+					error = 'Fehlerhafte E-Mail-Adresse';
+				} else {
+					error = 'Ein serverseitiger Fehler ist aufgetreten. Es kann nicht fortgefahren werden.';
 				}
-				extendedUser = errorToNull(await getUser());
-				success = 'E-Mail-Adresse erfolgreich geändert.';
-				setTimeout(() => {
-					resetEmailDialog();
-				}, 2500);
-				finished = true;
+			} else {
+				if (!result.requires_otp) {
+					if (result.access_token) {
+						jwtStore.value = result.access_token;
+						user = getUserFromJwt(result.access_token);
+					}
+					extendedUser = errorToNull(await getUser());
+					success = 'E-Mail-Adresse erfolgreich geändert.';
+					setTimeout(() => {
+						resetEmailDialog();
+					}, 2500);
+					finished = true;
+					sent = true;
+					return;
+				}
+				// Success - OTP sent
+				otpStep = true;
 				sent = true;
+				success = 'An deine E-Mail-Adresse wurde ein One-Time Passwort gesendet.';
+			}
+		} catch (e) {
+			error = 'Ein serverseitiger Fehler ist aufgetreten. Es kann nicht fortgefahren werden.';
+			console.error('Email change error:', e);
+		}
+	}
+
+	async function verifyOtp() {
+		if (!otp || !newEmail) return;
+
+		error = '';
+		success = '';
+
+		try {
+			const result = await verify_email_change(newEmail, otp);
+
+			if (isHasError(result)) {
+				error = 'Ein serverseitiger Fehler ist aufgetreten.';
 				return;
 			}
-			// Success - OTP sent
-			otpStep = true;
-			sent = true;
-			success = 'An deine E-Mail-Adresse wurde ein One-Time Passwort gesendet.';
-		}
-	} catch (e) {
-		error = 'Ein serverseitiger Fehler ist aufgetreten. Es kann nicht fortgefahren werden.';
-		console.error('Email change error:', e);
-	}
-}
 
-async function verifyOtp() {
-	if (!otp || !newEmail) return;
+			if (result.access_token) {
+				jwtStore.value = result.access_token;
+				user = getUserFromJwt(result.access_token);
+			}
 
-	error = '';
-	success = '';
+			extendedUser = errorToNull(await getUser());
 
-	try {
-		const result = await verify_email_change(newEmail, otp);
+			success = 'E-Mail-Adresse erfolgreich geändert.';
+			finished = true;
 
-		if (isHasError(result)) {
+			setTimeout(() => {
+				resetEmailDialog();
+			}, 2500);
+		} catch (e) {
 			error = 'Ein serverseitiger Fehler ist aufgetreten.';
-			return;
+			console.error(e);
 		}
-
-		if (result.access_token) {
-			jwtStore.value = result.access_token;
-			user = getUserFromJwt(result.access_token)
-		}
-
-		extendedUser = errorToNull(await getUser());
-
-		success = 'E-Mail-Adresse erfolgreich geändert.';
-		finished = true;
-
-		setTimeout(() => {
-			resetEmailDialog();
-		}, 2500);
-
-	} catch (e) {
-		error = 'Ein serverseitiger Fehler ist aufgetreten.';
-		console.error(e);
 	}
-}
 </script>
 
 <svelte:head>
@@ -312,12 +307,12 @@ async function verifyOtp() {
 								Abmelden
 							</SButton>
 							{#if !extendedUser?.is_email_hashed}
-							<SButton
-								class="bg-primary-400 text-black hover:bg-primary-500"
-								onclick={toggleEmailAnonymization}
-							>
-								Anonymisieren	
-							</SButton>
+								<SButton
+									class="bg-primary-400 text-black hover:bg-primary-500"
+									onclick={toggleEmailAnonymization}
+								>
+									Anonymisieren
+								</SButton>
 							{/if}
 							<SButton
 								class="bg-tertiary-500 text-black hover:bg-tertiary-600"
@@ -325,12 +320,11 @@ async function verifyOtp() {
 							>
 								E-Mail wechseln
 							</SButton>
-							
 						</div>
-					</div> <!-- ENDE obere Zeile -->
-						{#if showChangeEmail}
-						<div class="flex justify-end items-end gap-4 border-t pt-3">
-
+					</div>
+					<!-- ENDE obere Zeile -->
+					{#if showChangeEmail}
+						<div class="flex items-end justify-end gap-4 border-t pt-3">
 							{#if !finished}
 								<!-- EMAIL -->
 								<div class="flex flex-col items-end">
@@ -341,14 +335,12 @@ async function verifyOtp() {
 											>
 										{/if}
 										Neue E-Mail
-
-										
 									</label>
 									<input
 										id="email"
 										type="email"
 										placeholder="dergertrud@gmail.com"
-										class="w-48 rounded-lg border px-3 py-2 text-sm text-right dark:bg-gray-800"
+										class="w-48 rounded-lg border px-3 py-2 text-right text-sm dark:bg-gray-800"
 										bind:value={newEmail}
 									/>
 								</div>
@@ -363,7 +355,7 @@ async function verifyOtp() {
 											id="otp"
 											type="text"
 											placeholder="MAS DS5 4DA"
-											class="w-48 rounded-lg border px-3 py-2 text-sm text-right dark:bg-gray-800"
+											class="w-48 rounded-lg border px-3 py-2 text-right text-sm dark:bg-gray-800"
 											bind:value={otp}
 										/>
 									</div>
@@ -417,7 +409,9 @@ async function verifyOtp() {
 			<!-- Email Notifications Card -->
 			<div class="w-full rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
 				<div class="flex items-center justify-between">
-					<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">E-Mail Benachrichtigungen</h2>
+					<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">
+						E-Mail Benachrichtigungen
+					</h2>
 
 					{#if !extendedUser?.is_email_hashed}
 						<div class="flex items-center gap-2">
@@ -438,22 +432,71 @@ async function verifyOtp() {
 				{#if !extendedUser?.is_email_hashed}
 					{#if mailSendInfo}
 						<div>
-							<p class="text-sm font-semibold text-gray-600 dark:text-gray-300">Nach Interessen & Themen</p>
-							<div class="flex flex-wrap gap-2 mt-2">
-								<MailTopicCard title="Abstimmungen" description="Neue Abstimmungen nach deinen Interessen" bind:checked={mailSendInfo.send_new_vote_results_mails} onchange={updateThisMailSendInfo} />
-								<MailTopicCard title="Ministerialentwürfe" description="Neue Ministerialentwürfe nach deinen Interessen" bind:checked={mailSendInfo.send_new_ministrial_prop_mails} onchange={updateThisMailSendInfo} />
-								<MailTopicCard title="Verordnungen" description="Neue Verordnungen nach deinen Themen" bind:checked={mailSendInfo.send_new_decree_mails} onchange={updateThisMailSendInfo} />
-								<MailTopicCard title="Anträge" description="Neue Anträge nach deinen Themen" bind:checked={mailSendInfo.send_new_proposal_mails} onchange={updateThisMailSendInfo} />
+							<p class="text-sm font-semibold text-gray-600 dark:text-gray-300">
+								Nach Interessen & Themen
+							</p>
+							<div class="mt-2 flex flex-wrap gap-2">
+								<MailTopicCard
+									title="Abstimmungen"
+									description="Neue Abstimmungen nach deinen Interessen"
+									bind:checked={mailSendInfo.send_new_vote_results_mails}
+									onchange={updateThisMailSendInfo}
+								/>
+								<MailTopicCard
+									title="Ministerialentwürfe"
+									description="Neue Ministerialentwürfe nach deinen Interessen"
+									bind:checked={mailSendInfo.send_new_ministrial_prop_mails}
+									onchange={updateThisMailSendInfo}
+								/>
+								<MailTopicCard
+									title="Verordnungen"
+									description="Neue Verordnungen nach deinen Themen"
+									bind:checked={mailSendInfo.send_new_decree_mails}
+									onchange={updateThisMailSendInfo}
+								/>
+								<MailTopicCard
+									title="Anträge"
+									description="Neue Anträge nach deinen Themen"
+									bind:checked={mailSendInfo.send_new_proposal_mails}
+									onchange={updateThisMailSendInfo}
+								/>
 							</div>
 						</div>
 						<div>
-							<p class="text-sm font-semibold text-gray-600 dark:text-gray-300 mt-3">Nach favourisierten Ministern & Personen</p>
-							<div class="flex flex-wrap gap-2 mt-2">
-								<MailTopicCard title="Abstimmungen" description="Neue Abstimmungen nach favorisierten Personen" bind:checked={mailSendInfo.send_new_vote_result_by_favo_mails} onchange={updateThisMailSendInfo} />
-								<MailTopicCard title="Ministerialentwürfe" description="Neue Ministerialentwürfe nach favorisierten Ministern" bind:checked={mailSendInfo.send_new_ministrial_prop_by_favo_mails} onchange={updateThisMailSendInfo} />
-								<MailTopicCard title="Verordnungen" description="Neue Verordnungen nach favorisierten Ministern" bind:checked={mailSendInfo.send_new_decree_by_favo_mails} onchange={updateThisMailSendInfo} />
-								<MailTopicCard title="Anträge" description="Neue Anträge nach favorisierten Personen" bind:checked={mailSendInfo.send_new_proposal_by_favo_mails} onchange={updateThisMailSendInfo} />
-								<MailTopicCard title="Aktivitäten" description="Neue Aktivitäten nach favorisierten Personen" bind:checked={mailSendInfo.send_new_delegate_activity_mails} onchange={updateThisMailSendInfo} />
+							<p class="mt-3 text-sm font-semibold text-gray-600 dark:text-gray-300">
+								Nach favourisierten Ministern & Personen
+							</p>
+							<div class="mt-2 flex flex-wrap gap-2">
+								<MailTopicCard
+									title="Abstimmungen"
+									description="Neue Abstimmungen nach favorisierten Personen"
+									bind:checked={mailSendInfo.send_new_vote_result_by_favo_mails}
+									onchange={updateThisMailSendInfo}
+								/>
+								<MailTopicCard
+									title="Ministerialentwürfe"
+									description="Neue Ministerialentwürfe nach favorisierten Ministern"
+									bind:checked={mailSendInfo.send_new_ministrial_prop_by_favo_mails}
+									onchange={updateThisMailSendInfo}
+								/>
+								<MailTopicCard
+									title="Verordnungen"
+									description="Neue Verordnungen nach favorisierten Ministern"
+									bind:checked={mailSendInfo.send_new_decree_by_favo_mails}
+									onchange={updateThisMailSendInfo}
+								/>
+								<MailTopicCard
+									title="Anträge"
+									description="Neue Anträge nach favorisierten Personen"
+									bind:checked={mailSendInfo.send_new_proposal_by_favo_mails}
+									onchange={updateThisMailSendInfo}
+								/>
+								<MailTopicCard
+									title="Aktivitäten"
+									description="Neue Aktivitäten nach favorisierten Personen"
+									bind:checked={mailSendInfo.send_new_delegate_activity_mails}
+									onchange={updateThisMailSendInfo}
+								/>
 							</div>
 						</div>
 					{/if}
@@ -576,14 +619,14 @@ async function verifyOtp() {
 						</p>
 					{:else}
 						{#each favoLegisInits as favoLegisInitId (favoLegisInitId)}
-	{#await vote_result_by_id(favoLegisInitId.toString())}
-		<ExpandablePlaceholder class="w-80!" />
-	{:then voteResult}
-		{#if !isHasError(voteResult)}
-			<VoteResultExpandableBar {voteResult} class="mt-1!" />
-		{/if}
-	{/await}
-{/each}
+							{#await vote_result_by_id(favoLegisInitId.toString())}
+								<ExpandablePlaceholder class="w-80!" />
+							{:then voteResult}
+								{#if !isHasError(voteResult)}
+									<VoteResultExpandableBar {voteResult} class="mt-1!" />
+								{/if}
+							{/await}
+						{/each}
 					{/if}
 				{:else}
 					<ExpandablePlaceholder />

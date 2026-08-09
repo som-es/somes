@@ -20,7 +20,6 @@ export function groupPartyDelegates(
 		dels[idx].seat_row = null;
 		dels[idx].seat_col = null;
 
-
 		if (!partyToDelegates.has(del.party)) {
 			partyToDelegates.set(del.party, []);
 		}
@@ -38,7 +37,9 @@ export function setSeatsOfDels(
 	all: number,
 	defaultSeats: number[]
 ) {
-  const startIdxs = defaultSeats.map(_x => { return 0 });
+	const startIdxs = defaultSeats.map((_x) => {
+		return 0;
+	});
 	partyToDelegatesArray.forEach(([party, dels], g) => {
 		const fraction = dels.length;
 		const share = fraction / all;

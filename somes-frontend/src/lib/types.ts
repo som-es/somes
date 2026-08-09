@@ -599,7 +599,7 @@ export interface GovPropFilter {
 	departments: string[] | null;
 	date_from: string | null;
 	date_to: string | null;
-    page: number | null;
+	page: number | null;
 }
 
 export interface NamedVote {

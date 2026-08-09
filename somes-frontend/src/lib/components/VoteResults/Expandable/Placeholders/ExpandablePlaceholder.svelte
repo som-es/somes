@@ -3,8 +3,8 @@
 	export { clazz as class };
 </script>
 
-<section class="card w-fit max-w-fit animate-pulse {clazz}">
-	<div class="p-7 space-y-4">
+<section class="w-fit max-w-fit animate-pulse card {clazz}">
+	<div class="space-y-4 p-7">
 		<div class="placeholder" />
 		<div class="grid grid-cols-3 gap-8">
 			<div class="placeholder" />

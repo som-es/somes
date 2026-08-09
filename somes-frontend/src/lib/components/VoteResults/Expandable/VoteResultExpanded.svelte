@@ -4,7 +4,11 @@
 	import { createVoteResultPath, type Delegate, type VoteResult } from '$lib/types';
 	import Emphasis from '../Emphasis/Emphasis.svelte';
 	import InfoTiles from '../InfoTiles/InfoTiles.svelte';
-	import { currentDelegatesAtDateStore, currentVoteResultStore, aiViewEnabledStore } from '$lib/stores/stores';
+	import {
+		currentDelegatesAtDateStore,
+		currentVoteResultStore,
+		aiViewEnabledStore
+	} from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
 	import VoteTypeBadge from '../VoteTypeBadge.svelte';
 	import MovingArrowButton from '$lib/components/UI/MovingArrowButton.svelte';
@@ -26,17 +30,17 @@
 	$: topics = (
 		voteResult.eurovoc_topics.length > 0
 			? voteResult.eurovoc_topics
-			: (aiViewEnabledStore.value && voteResult.ai_summary?.full_summary?.topics
+			: aiViewEnabledStore.value && voteResult.ai_summary?.full_summary?.topics
 				? voteResult.ai_summary.full_summary.topics.map((topic) => {
-					return { topic };
-				})
-				: [])
+						return { topic };
+					})
+				: []
 	).sort((a, b) => {
 		return a.topic.length - b.topic.length;
 	});
 </script>
 
-<div class="entry rounded-xl mt-3 hidden bg-primary-200 p-2 lg:block dark:bg-primary-400">
+<div class="entry mt-3 hidden rounded-xl bg-primary-200 p-2 lg:block dark:bg-primary-400">
 	<div class="flex gap-2">
 		<div class="grow basis-3/4">
 			{#if aiViewEnabledStore.value && voteResult.ai_summary}
@@ -63,9 +67,7 @@
 				<Topics {topics} />
 			</div>
 			<div class="flex h-8 items-center justify-end rounded-xl px-2">
-				<MovingArrowButton  
-					onclick={onShowDetails}
-				/>
+				<MovingArrowButton onclick={onShowDetails} />
 			</div>
 		</div>
 	</div>

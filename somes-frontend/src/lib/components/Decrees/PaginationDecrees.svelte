@@ -109,14 +109,14 @@
 	});
 
 	const convertAndStoreFilter = () => {
-	    let filter: DecreeFilter = {
+		let filter: DecreeFilter = {
 			gov_officials: null,
 			legis_period: legisPeriodFilter.activeValue == 'all' ? null : legisPeriodFilter.activeValue,
 			topics: selectedTopics.size > 0 ? [...selectedTopics] : null,
 			departments: selectedDepartments.size > 0 ? [...selectedDepartments] : null,
 			date_from: genericFilters[0].data?.dateFrom || null,
 			date_to: genericFilters[0].data?.dateTo || null,
-			page: currentPage ?? null,
+			page: currentPage ?? null
 		};
 		currentDecreeFilterStore.value = filter;
 		return filter;
@@ -159,10 +159,10 @@
 			genericFilters[0].data?.dateFrom || genericFilters[0].data?.dateTo ? 'set' : undefined;
 	});
 	$effect(() => {
-	    if (currentPage) {
-			untrack(convertAndStoreFilter)
+		if (currentPage) {
+			untrack(convertAndStoreFilter);
 		}
-	})
+	});
 
 	let topics: string[] = $state([]);
 

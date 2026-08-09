@@ -7,18 +7,20 @@
 
 	let { data }: PageProps = $props();
 
-	let govProposals: GovProposalsWithMaxPage | null = $derived(errorToNull(data.govProposals))
-	let departmentsPerGp: Record<string, string[]> | null = $derived(errorToNull(data.departmentsPerGp))
+	let govProposals: GovProposalsWithMaxPage | null = $derived(errorToNull(data.govProposals));
+	let departmentsPerGp: Record<string, string[]> | null = $derived(
+		errorToNull(data.departmentsPerGp)
+	);
 </script>
 
 <svelte:head>
-    <title>Ministerialentwürfe</title>
-    <meta name="description" content="Filterbare Liste an Ministerialentwürfe" />
+	<title>Ministerialentwürfe</title>
+	<meta name="description" content="Filterbare Liste an Ministerialentwürfe" />
 </svelte:head>
 
 <!-- <div class="mx-auto px-5"> -->
 <Container>
-	<h1 class="text-3xl sm:text-4xl font-bold pt-2 px-1 sm:p-0 mt-2 sm:mt-0">Ministerialentwürfe</h1>
+	<h1 class="mt-2 px-1 pt-2 text-3xl font-bold sm:mt-0 sm:p-0 sm:text-4xl">Ministerialentwürfe</h1>
 	{#if govProposals && departmentsPerGp}
 		<PaginationMinistrialProposals {govProposals} selectedGp={data.selectedGp} {departmentsPerGp} />
 	{/if}

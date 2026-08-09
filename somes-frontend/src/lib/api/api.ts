@@ -137,7 +137,7 @@ export async function seats(
 }
 
 export async function parties(
-  fetcher: typeof fetch = fetch,
+	fetcher: typeof fetch = fetch,
 	parliament: Parliament = getParliament()
 ): Promise<Party[] | HasError> {
 	return getWithRoute('parties', parliament, fetcher);
@@ -349,7 +349,7 @@ export async function delegates_with_seats_near_date(
 
 export async function get_eurovoc_topics(
 	parliament: Parliament = getParliament(),
-	fetcher: typeof fetch = fetch,
+	fetcher: typeof fetch = fetch
 ): Promise<UniqueTopic[] | HasError> {
 	return getWithRoute<UniqueTopic[]>('eurovoc_topics', parliament, fetcher);
 }

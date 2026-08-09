@@ -31,7 +31,7 @@
 		top?: import('svelte').Snippet;
 		info?: import('svelte').Snippet;
 		footerButtons?: import('svelte').Snippet;
-		partyColors?: Map<string, string>
+		partyColors?: Map<string, string>;
 	}
 
 	let {
@@ -49,7 +49,7 @@
 		top,
 		info,
 		footerButtons,
-		partyColors = globalPartyColors,
+		partyColors = globalPartyColors
 	}: Props = $props();
 
 	const showDelegate = import.meta.env.VITE_SHOW_DELEGATE_ID;
@@ -90,9 +90,9 @@
 	});
 	let imgSrc = $derived(`${url}assets/${delegate.id}.jpg`);
 
-    function handleImgError() {
-        imgSrc = delegate.image_url ?? "";
-    }
+	function handleImgError() {
+		imgSrc = delegate.image_url ?? '';
+	}
 </script>
 
 <div class="flex h-[calc(100%-1rem)] h-full flex-col card bg-primary-200 p-5 dark:bg-primary-400">

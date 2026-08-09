@@ -76,7 +76,7 @@
 	<svg
 		viewBox="0 0 {width}
 		{height}"
-		class="w-full parliament-svg hover:cursor-default"
+		class="parliament-svg w-full hover:cursor-default"
 		onclick={() => (active = true)}
 		onkeydown={() => (active = true)}
 		role="button"
@@ -87,7 +87,7 @@
 				class="translated-circle outline-hidden"
 				type="button"
 				cx={circle.x}
-				cy={circle.y }
+				cy={circle.y}
 				r={circle.r}
 				role="button"
 				onclick={(event) => {

@@ -14,7 +14,7 @@
 
 <div class="card p-8">
 	<div class="flex justify-between">
-		<span class="font-bold text-2xl">Richtung</span>
+		<span class="text-2xl font-bold">Richtung</span>
 		<Dialog.Close>
 			<ModalCloseButton />
 		</Dialog.Close>

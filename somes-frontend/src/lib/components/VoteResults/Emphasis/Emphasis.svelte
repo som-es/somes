@@ -17,17 +17,17 @@
 
 {#if emphasis}
 	{#if emphasis.length > 0}
-		<div class="emphasis-item rounded-xl bg-primary-300 dark:bg-primary-500 px-5 pt-3 pb-3">
+		<div class="emphasis-item rounded-xl bg-primary-300 px-5 pt-3 pb-3 dark:bg-primary-500">
 			<div class="flex justify-between">
-				<h1 class="font-semibold text-lg md:text-xl">Schwerpunkte</h1>
+				<h1 class="text-lg font-semibold md:text-xl">Schwerpunkte</h1>
 			</div>
 
-			<ul class="list fill-primary-400 px-3 mt-2">
+			<ul class="list mt-2 fill-primary-400 px-3">
 				{#each firstThreePoints as emph}
 					<li class="mb-3">
 						<span class="badge bg-primary-500 dark:bg-primary-300"></span>
 						{#if glossary}
-							<span class="text-base lg:text-base text-gray-800 dark:text-gray-200">
+							<span class="text-base text-gray-800 lg:text-base dark:text-gray-200">
 								<GlossaryText text={emph.point} {glossary} />
 							</span>
 						{:else}
@@ -42,7 +42,7 @@
 							<li class="my-3">
 								<span class="badge bg-primary-500 dark:bg-primary-300"></span>
 								{#if glossary}
-									<span class="text-base lg:text-base text-gray-800 dark:text-gray-200">
+									<span class="text-base text-gray-800 lg:text-base dark:text-gray-200">
 										<GlossaryText text={emph.point} {glossary} />
 									</span>
 								{:else}
@@ -50,11 +50,11 @@
 								{/if}
 							</li>
 						{/each}
-					</div> 
+					</div>
 				{/if}
 
 				{#if emphasis.length > 3}
-					<button class="font-semibold text-md" onclick={() => (open = !open)}>
+					<button class="text-md font-semibold" onclick={() => (open = !open)}>
 						<span>{open ? 'Weniger' : 'Mehr'} anzeigen</span>
 					</button>
 				{/if}
@@ -70,4 +70,3 @@
 		grid-area: e;
 	}
 </style>
-

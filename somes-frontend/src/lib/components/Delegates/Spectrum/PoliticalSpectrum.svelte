@@ -4,9 +4,10 @@
 	import QuadrantChart from '../../GeneralCharts/QuadrantChart.svelte';
 	import type { DataPoint } from '../../GeneralCharts/types';
 
-
-
-	let { politicalPosition, delegate }: { politicalPosition: PoliticalPosition; delegate: Delegate } = $props();
+	let {
+		politicalPosition,
+		delegate
+	}: { politicalPosition: PoliticalPosition; delegate: Delegate } = $props();
 
 	let windowWidth = $state(700);
 	let isMobile = $derived(windowWidth < 640);

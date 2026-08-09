@@ -23,7 +23,8 @@ export async function cachedGovOfficials(
 	return structuredClone(dels.slice());
 }
 
-export async function seatSettedCachedGovOfficials(date: string,
+export async function seatSettedCachedGovOfficials(
+	date: string,
 	fetcher: typeof fetch = fetch,
 	parliament: Parliament = getParliament()
 ): Promise<Delegate[] | null> {
@@ -37,16 +38,15 @@ export async function seatSettedCachedGovOfficials(date: string,
 
 	for (let idx = 0; idx < AMOUNT_PER_SIDE; idx++) {
 		if (idx < leftDels.length) {
-			leftDels[idx].seat_col = AMOUNT_PER_SIDE - idx -1
-			leftDels[idx].seat_row = 7 
+			leftDels[idx].seat_col = AMOUNT_PER_SIDE - idx - 1;
+			leftDels[idx].seat_row = 7;
 		}
 
 		if (idx < rightDels.length) {
-			rightDels[idx].seat_col = AMOUNT_PER_SIDE + idx 
-			rightDels[idx].seat_row = 7 
+			rightDels[idx].seat_col = AMOUNT_PER_SIDE + idx;
+			rightDels[idx].seat_row = 7;
 		}
 	}
 
 	return dels;
-
 }

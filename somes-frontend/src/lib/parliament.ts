@@ -21,7 +21,13 @@ export interface Bubble {
 	id: number;
 }
 
-export function generateHalfCircle(n: number, r: number, w: number, h: number, maxAngle : number = 180) {
+export function generateHalfCircle(
+	n: number,
+	r: number,
+	w: number,
+	h: number,
+	maxAngle: number = 180
+) {
 	const smaller_n = n - 1;
 
 	const scaled_max_angle = maxAngle;
@@ -31,7 +37,7 @@ export function generateHalfCircle(n: number, r: number, w: number, h: number, m
 	const normalize = count_to / scaled_max_angle;
 	let circles: { x: number; y: number; angle_rad: number }[] = [];
 
-  const diff = (maxAngle - 180) / 2;
+	const diff = (maxAngle - 180) / 2;
 
 	for (let angle_deg = count_to - diff; angle_deg > -diff; angle_deg -= modulo) {
 		const angle_rad = (-(angle_deg / normalize) * Math.PI) / 180;
@@ -285,8 +291,8 @@ export function enrichCirclesWithNamedVoteInfoOnSeat(
 			circles2d[del.seat_row - 1][del.seat_col - 1].title = `abwesend/keine Stimme abgegeben`;
 			setOpacity(circles2d[del.seat_row - 1][del.seat_col - 1]);
 			return;
-        }
-        if (namedVote.was_abstention) {
+		}
+		if (namedVote.was_abstention) {
 			circles2d[del.seat_row - 1][del.seat_col - 1].r = +15;
 			circles2d[del.seat_row - 1][del.seat_col - 1].title = `enthalten`;
 			setOpacity(circles2d[del.seat_row - 1][del.seat_col - 1]);
@@ -306,7 +312,7 @@ export function setupParliament(
 	r: number,
 	useOffset = true,
 	maxAngle: number = 180,
-    yOffset: number = 0,
+	yOffset: number = 0
 ): Bubble[][] {
 	let id = 0;
 	let circles2d: Bubble[][] = [];

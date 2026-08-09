@@ -115,7 +115,7 @@
 												class="flex items-center justify-between border-b border-primary-200 pb-2"
 											>
 												<span class="font-bold text-primary-900">
-													{i+1}. Sitzung
+													{i + 1}. Sitzung
 												</span>
 												<span
 													class="text-xs font-semibold tracking-wider text-primary-500 uppercase"

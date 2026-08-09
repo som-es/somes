@@ -8,7 +8,12 @@
 	import { plink } from '$lib/api/parliament';
 	import { slide } from 'svelte/transition';
 	import { convertVoteResultFilterToUrl } from '../VoteResults/Expandable/urlConversion';
-	import { currentDecreeFilterStore, currentGovProposalFilterStore, currentUnfinshedVoteResultFilterStore, currentVoteResultFilterStore } from '$lib/stores/stores';
+	import {
+		currentDecreeFilterStore,
+		currentGovProposalFilterStore,
+		currentUnfinshedVoteResultFilterStore,
+		currentVoteResultFilterStore
+	} from '$lib/stores/stores';
 	import { convertDecreeFilterToUrl } from '../Decrees/urlConversion';
 	import { convertGovPropFilterToUrl } from '../Proposals/urlConversion';
 	import { accountOrLogin } from './user';
@@ -24,18 +29,18 @@
 		href?: string;
 		subItems?: (SubItem | SubItemGroup)[];
 	};
-	
+
 	const voteResultUrl = $derived(
-		convertVoteResultFilterToUrl(currentVoteResultFilterStore.value, "", undefined, true)
+		convertVoteResultFilterToUrl(currentVoteResultFilterStore.value, '', undefined, true)
 	);
 	const unfinishedVoteResultUrl = $derived(
-		convertVoteResultFilterToUrl(currentUnfinshedVoteResultFilterStore.value, "", undefined, false)
+		convertVoteResultFilterToUrl(currentUnfinshedVoteResultFilterStore.value, '', undefined, false)
 	);
 	const govProposalUrl = $derived(
-		convertGovPropFilterToUrl(currentGovProposalFilterStore.value, "", undefined)
+		convertGovPropFilterToUrl(currentGovProposalFilterStore.value, '', undefined)
 	);
 	const decreeUrl = $derived(
-		convertDecreeFilterToUrl(currentDecreeFilterStore.value, "", undefined)
+		convertDecreeFilterToUrl(currentDecreeFilterStore.value, '', undefined)
 	);
 
 	const navItems: NavItem[] = $derived([
@@ -47,20 +52,28 @@
 					title: 'Nationalrat',
 					items: [
 						{ href: voteResultUrl.href, pathname: voteResultUrl.pathname, label: 'Abstimmungen' },
-						{ href: unfinishedVoteResultUrl.href, pathname: unfinishedVoteResultUrl.pathname, label: 'Zur Abstimmung' }
+						{
+							href: unfinishedVoteResultUrl.href,
+							pathname: unfinishedVoteResultUrl.pathname,
+							label: 'Zur Abstimmung'
+						}
 					]
 				},
 				{
 					title: 'Regierung',
 					items: [
-						{ href: govProposalUrl.href, pathname: govProposalUrl.pathname, label: 'Ministerialentwürfe' },
+						{
+							href: govProposalUrl.href,
+							pathname: govProposalUrl.pathname,
+							label: 'Ministerialentwürfe'
+						},
 						{ href: decreeUrl.href, pathname: decreeUrl.pathname, label: 'Verordnungen' }
 					]
 				}
 			]
 		},
 		{ href: plink('/delegates'), label: 'Abgeordnete' },
-		{ href: plink('/statistics'), label: 'Statistiken' },
+		{ href: plink('/statistics'), label: 'Statistiken' }
 	]);
 
 	function toggleMenu() {
@@ -89,7 +102,7 @@
 		</a>
 		<button
 			onclick={toggleMenu}
-			class="rounded fill-white stroke-white p-2 hover:bg-surface-400 touch-manipulation"
+			class="touch-manipulation rounded fill-white stroke-white p-2 hover:bg-surface-400"
 			aria-label="Menu"
 		>
 			<!-- Hamburger Icon / Close Icon -->
@@ -113,7 +126,7 @@
 			{#each navItems as item}
 				{#if item.subItems}
 					<button
-						class="flex w-full items-center justify-between p-4 touch-manipulation text-base font-medium text-white hover:bg-surface-400"
+						class="flex w-full touch-manipulation items-center justify-between p-4 text-base font-medium text-white hover:bg-surface-400"
 						onclick={() => toggleSubmenu(item.label)}
 					>
 						<span>{item.label}</span>
@@ -130,27 +143,33 @@
 							{#each item.subItems as subItem, i}
 								{#if 'title' in subItem}
 									<div
-										class="pl-5 text-xs font-bold tracking-widest text-surface-300 uppercase {i > 0 ? 'mt-6' : 'mt-2'} mb-3"
+										class="pl-5 text-xs font-bold tracking-widest text-surface-300 uppercase {i > 0
+											? 'mt-6'
+											: 'mt-2'} mb-3"
 									>
 										{subItem.title}
 									</div>
 									<div class="ml-5 border-l-2 border-surface-400">
-									{#each subItem.items as nestedItem}
-										<a
-											href={nestedItem.href}
-											class="flex w-full items-center py-2 pl-4 text-sm font-medium hover:bg-surface-500 {page.url.pathname.includes(nestedItem.pathname)
-												? 'text-tertiary-500'
-												: 'text-white/90'}"
-											onclick={closeMenu}
-										>
-											{nestedItem.label}
-										</a>
-									{/each}
+										{#each subItem.items as nestedItem}
+											<a
+												href={nestedItem.href}
+												class="flex w-full items-center py-2 pl-4 text-sm font-medium hover:bg-surface-500 {page.url.pathname.includes(
+													nestedItem.pathname
+												)
+													? 'text-tertiary-500'
+													: 'text-white/90'}"
+												onclick={closeMenu}
+											>
+												{nestedItem.label}
+											</a>
+										{/each}
 									</div>
 								{:else}
 									<a
 										href={subItem.href}
-										class="flex w-full items-center py-2 pr-4 pl-5 text-sm font-medium hover:bg-surface-500 {page.url.pathname.includes(subItem.pathname)
+										class="flex w-full items-center py-2 pr-4 pl-5 text-sm font-medium hover:bg-surface-500 {page.url.pathname.includes(
+											subItem.pathname
+										)
 											? 'text-tertiary-500'
 											: 'text-white/90'}"
 										onclick={closeMenu}
@@ -164,7 +183,9 @@
 				{:else}
 					<a
 						href={item.href || ''}
-						class="flex w-full items-center p-4 touch-manipulation text-base font-medium hover:bg-surface-400 {page.url.pathname.includes(item.href || '')
+						class="flex w-full touch-manipulation items-center p-4 text-base font-medium hover:bg-surface-400 {page.url.pathname.includes(
+							item.href || ''
+						)
 							? 'text-tertiary-500'
 							: 'text-white'}"
 						onclick={closeMenu}
@@ -174,8 +195,9 @@
 				{/if}
 			{/each}
 			<button
-				
-				class="flex w-full items-center p-4 touch-manipulation text-base font-medium hover:bg-surface-400 {page.url.pathname.includes("user")
+				class="flex w-full touch-manipulation items-center p-4 text-base font-medium hover:bg-surface-400 {page.url.pathname.includes(
+					'user'
+				)
 					? 'text-tertiary-500'
 					: 'text-white'}"
 				onclick={async () => {

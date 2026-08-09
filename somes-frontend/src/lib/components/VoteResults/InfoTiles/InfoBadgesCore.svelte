@@ -22,7 +22,9 @@
 {#if showDate}
 	<span class="badge bg-tertiary-400 text-black"
 		>{dashDateToDotDate(
-			voteResult.legislative_initiative.vote_date !== null ? voteResult.legislative_initiative.vote_date : voteResult.legislative_initiative.nr_plenary_activity_date.toString()
+			voteResult.legislative_initiative.vote_date !== null
+				? voteResult.legislative_initiative.vote_date
+				: voteResult.legislative_initiative.nr_plenary_activity_date.toString()
 		)}</span
 	>
 {/if}

@@ -21,21 +21,19 @@
 		const conicGradient = `conic-gradient(${cssStops.join(', ')})`;
 		return conicGradient;
 	});
-
 </script>
 
 {#if cone}
-<div class="wrapper">
+	<div class="wrapper">
+		<div class="donut {isLightMode ? '' : 'dark-donut'}" style:background={cone}></div>
 
-	<div class="donut {isLightMode ? '' : 'dark-donut'}" style:background={cone}></div>
-
-	{#if mark50}
-		<div class="marker mark-50"></div>
-	{/if}
-	{#if mark66}
-		<div class="marker-66"></div>
-	{/if}
-</div>
+		{#if mark50}
+			<div class="marker mark-50"></div>
+		{/if}
+		{#if mark66}
+			<div class="marker-66"></div>
+		{/if}
+	</div>
 {/if}
 
 <style>
@@ -78,8 +76,8 @@
 		position: absolute;
 		top: 50%;
 		left: 46%;
-		width: 3px;           /* thickness of marker */
-		height: 30%;           /* radius length */
+		width: 3px; /* thickness of marker */
+		height: 30%; /* radius length */
 		background: black;
 		transform-origin: bottom center;
 		z-index: 100;
@@ -88,17 +86,16 @@
 	.mark-50 {
 		transform: rotate(180deg) translateY(10%);
 	}
-	
+
 	.marker-66 {
 		position: absolute;
 		top: 19%;
 		left: -10%;
-		width: 3px;           /* thickness of marker */
-		height: 30%;           /* radius length */
+		width: 3px; /* thickness of marker */
+		height: 30%; /* radius length */
 		background: black;
 		transform-origin: bottom center;
 		z-index: 100;
 		transform: rotate(90deg) translateY(0%);
 	}
-	
 </style>

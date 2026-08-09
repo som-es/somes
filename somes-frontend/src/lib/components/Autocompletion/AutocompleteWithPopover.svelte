@@ -1,21 +1,26 @@
-<script lang="ts" >
+<script lang="ts">
 	import type { AutocompleteOption } from './types';
-    import Autocomplete from './Autocomplete.svelte';
+	import Autocomplete from './Autocomplete.svelte';
 	import { Popover } from 'bits-ui';
 
-    interface Props {
-        inputValue?: string;
-        autocompleteOptions: AutocompleteOption<string>[];
-        onDelegateSelection: (option: AutocompleteOption<string>) => void;
-        delegateFilter: () => AutocompleteOption<string>[];
-    }
+	interface Props {
+		inputValue?: string;
+		autocompleteOptions: AutocompleteOption<string>[];
+		onDelegateSelection: (option: AutocompleteOption<string>) => void;
+		delegateFilter: () => AutocompleteOption<string>[];
+	}
 
-    let { inputValue = $bindable(''), autocompleteOptions, onDelegateSelection, delegateFilter }: Props = $props();
+	let {
+		inputValue = $bindable(''),
+		autocompleteOptions,
+		onDelegateSelection,
+		delegateFilter
+	}: Props = $props();
 </script>
 
 <Popover.Root>
-    <Popover.Trigger>
-        <!-- {#snippet child({ props })}
+	<Popover.Trigger>
+		<!-- {#snippet child({ props })}
             <input
                 {...props}
                 id="autocomplete-input" 
@@ -27,22 +32,24 @@
                 autocomplete="off"
             />
         {/snippet} -->
-    </Popover.Trigger>
-    <Popover.Portal>
-        <Popover.Content class="w-full max-w-sm p-4 text-sm z-50 bg-white border border-gray-200 rounded-lg shadow-xl">
-            {#if autocompleteOptions.length > 0}
-                <div class="max-h-64 overflow-y-auto">
-                    <Autocomplete
-                        bind:input={inputValue}
-                        options={autocompleteOptions}
-                        onselection={onDelegateSelection}
-                        emptyState={'Keine Person gefunden'}
-                        filter={delegateFilter}
-                    />
-                </div>
-            {/if}
-        </Popover.Content>
-    </Popover.Portal>
+	</Popover.Trigger>
+	<Popover.Portal>
+		<Popover.Content
+			class="z-50 w-full max-w-sm rounded-lg border border-gray-200 bg-white p-4 text-sm shadow-xl"
+		>
+			{#if autocompleteOptions.length > 0}
+				<div class="max-h-64 overflow-y-auto">
+					<Autocomplete
+						bind:input={inputValue}
+						options={autocompleteOptions}
+						onselection={onDelegateSelection}
+						emptyState={'Keine Person gefunden'}
+						filter={delegateFilter}
+					/>
+				</div>
+			{/if}
+		</Popover.Content>
+	</Popover.Portal>
 </Popover.Root>
 
 <!-- <Popover 

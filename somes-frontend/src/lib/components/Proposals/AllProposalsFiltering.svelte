@@ -1,9 +1,8 @@
 <script lang="ts">
-
 	import { isThere } from '$lib/api/api';
 	import type { GovProposal } from '$lib/types';
 	import FilterGroup from '../Filtering/FilterGroup.svelte';
-	
+
 	interface Props {
 		filteredGovProposals: GovProposal[];
 		allGovProposals: GovProposal[];
@@ -21,7 +20,8 @@
 				{ title: 'Ja', value: true },
 				{ title: 'Nein', value: false }
 			]
-		}]);
+		}
+	]);
 
 	$effect(() => {
 		filteredGovProposals = allGovProposals.filter((prop) => {
@@ -32,7 +32,6 @@
 			return keep;
 		});
 	});
-
 </script>
 
 <FilterGroup bind:group={filters[0]} />

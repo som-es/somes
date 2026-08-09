@@ -41,7 +41,9 @@
 				? bubble.namedVote.infavor
 					? 'Ja'
 					: 'Nein'
-				: bubble.namedVote.was_abstention ? "Enthalten" : 'Abwesend/keine Stimme abgegeben'
+				: bubble.namedVote.was_abstention
+					? 'Enthalten'
+					: 'Abwesend/keine Stimme abgegeben'
 			: ''
 	);
 
@@ -71,7 +73,9 @@
 					? bubble.namedVote.infavor
 						? 'bg-success-600'
 						: 'bg-red-600'
-					: bubble.namedVote.was_abstention ? "bg-blue-400" : 'bg-primary-500';
+					: bubble.namedVote.was_abstention
+						? 'bg-blue-400'
+						: 'bg-primary-500';
 		}
 
 		return color;
@@ -79,7 +83,14 @@
 </script>
 
 {#if delegate}
-	<DelegateCard {delegate} title={bubble.title} showMoreDetailsBtn onlyTop showAI={false} {partyColors} >
+	<DelegateCard
+		{delegate}
+		title={bubble.title}
+		showMoreDetailsBtn
+		onlyTop
+		showAI={false}
+		{partyColors}
+	>
 		{#snippet top()}
 			<span class="mt-2">
 				{#if bubble.namedVote}

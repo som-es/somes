@@ -9,18 +9,18 @@
 	}
 
 	let { questions }: Props = $props();
-
 </script>
 
-<div class="p-8 max-w-7xl ">
+<div class="max-w-7xl p-8">
 	<div class="flex justify-between">
-
 		<Popover.Root>
 			<Popover.Trigger openOnHover openDelay={100}>
 				<span class="text-4xl">⚠</span>
 			</Popover.Trigger>
 			<Popover.Portal>
-				<Popover.Content class="z-51 p-4 w-72 bg-primary-300 dark:bg-primary-800 rounded-lg shadow-lg">
+				<Popover.Content
+					class="z-51 w-72 rounded-lg bg-primary-300 p-4 shadow-lg dark:bg-primary-800"
+				>
 					Die Fragen und Antworten wurden aus dem Portraitvideo des Abgeordneten extrahiert.
 				</Popover.Content>
 			</Popover.Portal>
@@ -29,7 +29,6 @@
 		<Dialog.Close>
 			<ModalCloseButton />
 		</Dialog.Close>
-
 	</div>
 	{#if questions.length > 0}
 		{#each questions as qa}

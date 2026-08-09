@@ -86,34 +86,34 @@ export function mockVoteResult(date: string = '2020-03-06'): VoteResult {
 				fraction: 40,
 				infavor: false,
 				legislative_initiatives_id: 0,
-				code: "S"
+				code: 'S'
 			},
 			{
 				party: 'FPÖ',
 				fraction: 30,
 				infavor: true,
 				legislative_initiatives_id: 0,
-				code: "F"
+				code: 'F'
 			},
 			{
 				party: 'NEOS',
 				fraction: 15,
 				infavor: true,
 				legislative_initiatives_id: 0,
-				code: "N",
+				code: 'N'
 			},
 			{
 				party: 'ÖVP',
 				fraction: 71,
 				infavor: false,
-				code: "V",
+				code: 'V',
 				legislative_initiatives_id: 0
 			},
 			{
 				party: 'GRÜNE',
 				fraction: 26,
 				infavor: true,
-				code: "G",
+				code: 'G',
 				legislative_initiatives_id: 0
 			}
 		],

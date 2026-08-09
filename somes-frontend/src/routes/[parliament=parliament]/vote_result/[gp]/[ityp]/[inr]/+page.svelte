@@ -1,7 +1,5 @@
 <script lang="ts">
-	import {
-		errorToNull,
-	} from '$lib/api/api';
+	import { errorToNull } from '$lib/api/api';
 	import {
 		currentDelegateStore,
 		currentVoteResultStore,
@@ -189,7 +187,6 @@
 		if (!delegates) {
 			return;
 		}
-
 	};
 
 	onMount(runVoteResultUpdate);
@@ -217,38 +214,53 @@
 	];
 
 	let delegatesPerId: Map<number, Delegate> = $derived.by(() => {
-	    const delegatesPerId = new Map<number, Delegate>();
-		delegates.forEach(delegate => {
-            if (!delegatesPerId.has(delegate.id)) {
-                delegatesPerId.set(delegate.id, delegate)
-            }
+		const delegatesPerId = new Map<number, Delegate>();
+		delegates.forEach((delegate) => {
+			if (!delegatesPerId.has(delegate.id)) {
+				delegatesPerId.set(delegate.id, delegate);
+			}
 		});
-		return delegatesPerId
+		return delegatesPerId;
 	});
 	const partyVoteBreakdown = $derived.by(() => {
-	    let breakdown = new Map<string, { party: string; sum: number; infavor: number, against: number; abstention: number, absent: number }>();
-		(voteResult?.named_votes?.named_votes ?? []).forEach(namedVote => {
-		    const party = delegatesPerId.get(namedVote.delegate_id)?.party;
+		let breakdown = new Map<
+			string,
+			{
+				party: string;
+				sum: number;
+				infavor: number;
+				against: number;
+				abstention: number;
+				absent: number;
+			}
+		>();
+		(voteResult?.named_votes?.named_votes ?? []).forEach((namedVote) => {
+			const party = delegatesPerId.get(namedVote.delegate_id)?.party;
 			if (!party) {
-			    return
+				return;
 			}
 			if (!breakdown.has(party)) {
-			    breakdown.set(party, { party, sum: 0, infavor: 0, against: 0, abstention: 0, absent: 0});
+				breakdown.set(party, { party, sum: 0, infavor: 0, against: 0, abstention: 0, absent: 0 });
 			}
 			const counts = breakdown.get(party)!;
 			counts.sum += 1;
 			if (namedVote.was_absent === true) {
-                counts.absent += 1;
+				counts.absent += 1;
 			} else if (namedVote.was_abstention) {
-                counts.abstention += 1;
+				counts.abstention += 1;
 			} else if (namedVote.infavor !== null) {
-                counts.infavor += namedVote.infavor ? 1 : 0;
-                counts.against += namedVote.infavor ? 0 : 1;
+				counts.infavor += namedVote.infavor ? 1 : 0;
+				counts.against += namedVote.infavor ? 0 : 1;
 			}
 		});
-		return breakdown
+		return breakdown;
 	});
-	const partyVoteBreakdownSorted = $derived(partyVoteBreakdown.values().toArray().sort((a, b) =>  a.sum - b.sum));
+	const partyVoteBreakdownSorted = $derived(
+		partyVoteBreakdown
+			.values()
+			.toArray()
+			.sort((a, b) => a.sum - b.sum)
+	);
 </script>
 
 <svelte:head>
@@ -312,7 +324,7 @@
 								{@html linkIcon}
 							</a>
 							<!-- Result Icon -->
-							{#if voteResult.legislative_initiative.accepted !== null && voteResult.legislative_initiative.accepted !== "u"}
+							{#if voteResult.legislative_initiative.accepted !== null && voteResult.legislative_initiative.accepted !== 'u'}
 								<div class="shrink-0">
 									{#if voteResult.legislative_initiative.accepted == 'a'}
 										<span
@@ -676,7 +688,9 @@
 											<span class="font-semibold">Dafür</span>
 										</div>
 										<div class="flex flex-col gap-2 pl-2">
-											{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
+											{#each voteResult.votes
+												.slice()
+												.sort((a, b) => b.fraction - a.fraction) as vote}
 												{#if vote.infavor}
 													<div class="flex items-center justify-between">
 														<div class="flex items-center gap-2">
@@ -733,7 +747,7 @@
 							<div class="absolute ml-1 max-lg:hidden">
 								<h3 class="mb-1 text-lg font-semibold md:text-xl">Abstimmung</h3>
 								<div class="ml-1">
-								    {#if partyVoteBreakdownSorted.length == 0}
+									{#if partyVoteBreakdownSorted.length == 0}
 										{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
 											<div class="flex items-center justify-between gap-4">
 												<div class="flex items-center gap-2">
@@ -759,51 +773,56 @@
 											</div>
 										{/each}
 									{:else}
-                                        {#each partyVoteBreakdownSorted.slice() as partyVotes (partyVotes.party)}
-                                            <div class="flex items-center gap-1">
-                                                <div class="flex w-24 shrink-0 items-center gap-2">
-                                                    <div
-                                                        class="h-2.5 w-2.5 rounded-full"
-                                                        style="background-color: {partyColors.get(partyVotes.party) ?? '#ccc'};"
-                                                    ></div>
-                                                    <span class="text-sm lg:text-base">{partyVotes.party}</span>
-                                                </div>
+										{#each partyVoteBreakdownSorted.slice() as partyVotes (partyVotes.party)}
+											<div class="flex items-center gap-1">
+												<div class="flex w-24 shrink-0 items-center gap-2">
+													<div
+														class="h-2.5 w-2.5 rounded-full"
+														style="background-color: {partyColors.get(partyVotes.party) ?? '#ccc'};"
+													></div>
+													<span class="text-sm lg:text-base">{partyVotes.party}</span>
+												</div>
 
-                                                <div class="flex flex-row items-center gap-1">
-                                                    {#if partyVotes.infavor > 0}
-                                                        <span
-                                                            class="inline-block stroke-green-600 align-middle dark:stroke-green-500"
-                                                            style="width:18px; height:18px;">{@html checkmarkIcon}</span
-                                                        >
-                                                        <span class="text-sm lg:text-base tabular-nums" style="display:inline-block; width:4ch; flex: 0 0 4ch;">
-                                                            ({partyVotes.infavor})
-                                                        </span>
-                                                    {/if}
-                                                    {#if partyVotes.against > 0}
-                                                        <span class="inline-block align-middle" style="width:18px; height:18px;"
-                                                            >{@html crossmarkIcon}</span
-                                                        >
-                                                        <span class="text-sm lg:text-base tabular-nums" style="display:inline-block; width:3.5ch; flex: 0 0 3.5ch;">
-                                                            ({partyVotes.against})
-                                                        </span>
-                                                    {/if}
-                                                    {#if partyVotes.abstention > 0}
-                                                        <span
-                                                            class="inline-flex font-extrabold items-center justify-center align-middle text-blue-400"
-                                                            style="width:18px; height:18px; line-height:40;"
-                                                            >–</span
-                                                        >
-                                                        <span
-                                                            class="text-sm lg:text-base tabular-nums shrink-0"
-                                                            style="display:inline-block; width:4ch; flex: 0 0 4ch;"
-                                                        >
-                                                            ({partyVotes.abstention})
-                                                        </span>
-                                                    {/if}
-                                                </div>
-                                            </div>
-                                        {/each}
-                                    {/if}
+												<div class="flex flex-row items-center gap-1">
+													{#if partyVotes.infavor > 0}
+														<span
+															class="inline-block stroke-green-600 align-middle dark:stroke-green-500"
+															style="width:18px; height:18px;">{@html checkmarkIcon}</span
+														>
+														<span
+															class="text-sm tabular-nums lg:text-base"
+															style="display:inline-block; width:4ch; flex: 0 0 4ch;"
+														>
+															({partyVotes.infavor})
+														</span>
+													{/if}
+													{#if partyVotes.against > 0}
+														<span class="inline-block align-middle" style="width:18px; height:18px;"
+															>{@html crossmarkIcon}</span
+														>
+														<span
+															class="text-sm tabular-nums lg:text-base"
+															style="display:inline-block; width:3.5ch; flex: 0 0 3.5ch;"
+														>
+															({partyVotes.against})
+														</span>
+													{/if}
+													{#if partyVotes.abstention > 0}
+														<span
+															class="inline-flex items-center justify-center align-middle font-extrabold text-blue-400"
+															style="width:18px; height:18px; line-height:40;">–</span
+														>
+														<span
+															class="shrink-0 text-sm tabular-nums lg:text-base"
+															style="display:inline-block; width:4ch; flex: 0 0 4ch;"
+														>
+															({partyVotes.abstention})
+														</span>
+													{/if}
+												</div>
+											</div>
+										{/each}
+									{/if}
 								</div>
 							</div>
 

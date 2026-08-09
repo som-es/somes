@@ -367,30 +367,30 @@
 	});
 
 	const convertAndStoreFilter = () => {
-	    let filter: VoteResultFilter = {
-				is_finished: isFinished,
-				is_named_vote:
-					genericFilters[2].activeValue == undefined ? null : genericFilters[2].activeValue,
-				accepted: genericFilters[1].activeValue == undefined ? null : genericFilters[1].activeValue,
-				simple_majority:
-					genericFilters[0].activeValue == undefined ? null : genericFilters[0].activeValue,
-				gps:
-					legisPeriodFilter.activeValue == 'all' || legisPeriodFilter.activeValue === undefined
-						? []
-						: [legisPeriodFilter.activeValue],
-				vote_type: genericFilters[3].activeValue === undefined ? [] : [genericFilters[3].activeValue],
-				topics: selectedTopics.size > 0 ? [...selectedTopics] : null,
-				is_urgent: genericFilters[4].activeValue === undefined ? null : genericFilters[4].activeValue,
-				party_votes: partyVotesFilter.length > 0 ? partyVotesFilter : null,
-				date_from: genericFilters[5].data?.dateFrom || null,
-				date_to: genericFilters[5].data?.dateTo || null,
-				issuer_parties: selectedIssuerParties.length > 0 ? selectedIssuerParties : null,
-				is_from_governemnt:
-					genericFilters[7].activeValue === undefined ? null : genericFilters[7].activeValue,
-				issuer_association:
-					issuerAssociation.activeValue === undefined ? null : issuerAssociation.activeValue,
-				page: currentPage ?? null
-			};
+		let filter: VoteResultFilter = {
+			is_finished: isFinished,
+			is_named_vote:
+				genericFilters[2].activeValue == undefined ? null : genericFilters[2].activeValue,
+			accepted: genericFilters[1].activeValue == undefined ? null : genericFilters[1].activeValue,
+			simple_majority:
+				genericFilters[0].activeValue == undefined ? null : genericFilters[0].activeValue,
+			gps:
+				legisPeriodFilter.activeValue == 'all' || legisPeriodFilter.activeValue === undefined
+					? []
+					: [legisPeriodFilter.activeValue],
+			vote_type: genericFilters[3].activeValue === undefined ? [] : [genericFilters[3].activeValue],
+			topics: selectedTopics.size > 0 ? [...selectedTopics] : null,
+			is_urgent: genericFilters[4].activeValue === undefined ? null : genericFilters[4].activeValue,
+			party_votes: partyVotesFilter.length > 0 ? partyVotesFilter : null,
+			date_from: genericFilters[5].data?.dateFrom || null,
+			date_to: genericFilters[5].data?.dateTo || null,
+			issuer_parties: selectedIssuerParties.length > 0 ? selectedIssuerParties : null,
+			is_from_governemnt:
+				genericFilters[7].activeValue === undefined ? null : genericFilters[7].activeValue,
+			issuer_association:
+				issuerAssociation.activeValue === undefined ? null : issuerAssociation.activeValue,
+			page: currentPage ?? null
+		};
 
 		currentVoteResultFilterStore.value = filter;
 		return filter;
@@ -465,10 +465,10 @@
 	});
 
 	$effect(() => {
-	    if (currentPage) {
-			untrack(convertAndStoreFilter)
+		if (currentPage) {
+			untrack(convertAndStoreFilter);
 		}
-	})
+	});
 
 	// used to set generic filter count when dateRange filter is active
 	$effect(() => {
@@ -685,7 +685,7 @@
 			Keine Abstimmungsergebnisse gefunden
 		{/if}
 		<div class="flex justify-between">
-		    <div></div>
+			<div></div>
 			<Pagination bind:currentPage maxPage={voteResults.max_page} />
 		</div>
 	{:else}

@@ -5,7 +5,6 @@
 	import SButton from '../UI/SButton.svelte';
 	import { gotoHistory } from '$lib/goto';
 
-
 	interface Props {
 		dels: Delegate[];
 		voteResults: VoteResult[];
@@ -23,7 +22,7 @@
 
 {#if voteResults}
 	{#if voteResults.length == 0}
-		<p class="no-votes mb-5 mt-1 text-xl">Keine Abstimmungsergebnisse</p>
+		<p class="no-votes mt-1 mb-5 text-xl">Keine Abstimmungsergebnisse</p>
 	{/if}
 	<div class="card-container">
 		{#each firstThreeVotes as voteResult, i}

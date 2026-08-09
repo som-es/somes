@@ -17,11 +17,16 @@ export const load: PageServerLoad = async ({ fetch, url, setHeaders, params }) =
 	const gp = url.searchParams.get('gp');
 	const date = url.searchParams.get('date') ?? new Date().toISOString().split('T')[0];
 
-	const delegates = await fetchDelegates(date, gp ?? defaultGpByParliament(parliament), fetch, parliament);
+	const delegates = await fetchDelegates(
+		date,
+		gp ?? defaultGpByParliament(parliament),
+		fetch,
+		parliament
+	);
 	const cachedPeriods = (await cachedAllLegisPeriods(true, parliament))?.reverse();
 	const cachedSeats = await cachedAllSeats(true, fetch, parliament);
 	const partiesPerGp = errorToNull(await parties_per_gp(fetch, parliament));
-	const partyColors = await cachedPartyColors(true, parliament, fetch)
+	const partyColors = await cachedPartyColors(true, parliament, fetch);
 
 	let delegate = null;
 
@@ -29,5 +34,16 @@ export const load: PageServerLoad = async ({ fetch, url, setHeaders, params }) =
 		delegate = errorToNull(await delegate_by_id(+delegateId, fetch, parliament));
 	}
 
-	return { ...delegates, delegate, delegateId, cachedPeriods, gp, cachedSeats, date, partiesPerGp, parliament, partyColors };
+	return {
+		...delegates,
+		delegate,
+		delegateId,
+		cachedPeriods,
+		gp,
+		cachedSeats,
+		date,
+		partiesPerGp,
+		parliament,
+		partyColors
+	};
 };

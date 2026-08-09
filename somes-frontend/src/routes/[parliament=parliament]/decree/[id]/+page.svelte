@@ -29,9 +29,10 @@
 			ressort: decreeDelegate.decree.ministrial_issuer,
 			ressortShortform: null,
 			ministerialIssuers: [decreeDelegate.delegate.id],
-			type: "decree",
-			infoBadges: [decreeDelegate.decree.ministrial_issuer, date, decreeDelegate.decree.gp].filter((x) => x !== null) as string[],
-			
+			type: 'decree',
+			infoBadges: [decreeDelegate.decree.ministrial_issuer, date, decreeDelegate.decree.gp].filter(
+				(x) => x !== null
+			) as string[]
 		};
 	});
 </script>
@@ -43,7 +44,7 @@
 
 <Container>
 	{#if ministerialData}
-		<MinisterialView ministerialData={ministerialData}></MinisterialView>
+		<MinisterialView {ministerialData}></MinisterialView>
 	{:else}
 		{#each { length: 10 } as _}
 			<ExpandablePlaceholder />

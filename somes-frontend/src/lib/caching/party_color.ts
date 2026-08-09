@@ -3,8 +3,10 @@ import { partyColorsStore } from './stores/stores.svelte';
 import { setPartyColors } from '$lib/partyColor';
 import { getParliament, type Parliament } from '$lib/api/parliament';
 
-export async function cachedPartyColors(refetch: boolean = false, parliament: Parliament = getParliament(),
-    fetcher: typeof fetch = fetch,
+export async function cachedPartyColors(
+	refetch: boolean = false,
+	parliament: Parliament = getParliament(),
+	fetcher: typeof fetch = fetch
 ): Promise<Map<string, string>> {
 	let maybeCached = partyColorsStore.value;
 	if (maybeCached == null || refetch || maybeCached.length == 0) {

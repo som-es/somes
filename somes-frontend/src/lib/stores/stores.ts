@@ -13,7 +13,10 @@ export const currentDelegateStore = persistedScoped<Delegate | null>('currentDel
 export const useCurrentDelegate = persistedScoped<boolean>('currentVoteResult', false);
 export const hasGoBackStore = persisted<boolean>('hasGoBack', false);
 export const currentVoteResultStore = persistedScoped<VoteResult | null>('currentVoteResult', null);
-export const currentDecreeStore = persistedScoped<DecreeDelegate | null>('currentDecreeStore', null);
+export const currentDecreeStore = persistedScoped<DecreeDelegate | null>(
+	'currentDecreeStore',
+	null
+);
 export const currentGovProposalDelegateStore = persistedScoped<GovProposalDelegate | null>(
 	'currentGovProposalDelegateStore',
 	null
@@ -41,7 +44,10 @@ export const currentGovProposalFilterStore = persistedScoped<GovPropFilter | nul
 	'currentGovPropFilter',
 	null
 );
-export const currentDecreeFilterStore = persistedScoped<DecreeFilter | null>('currentDecreeFilter', null);
+export const currentDecreeFilterStore = persistedScoped<DecreeFilter | null>(
+	'currentDecreeFilter',
+	null
+);
 export const currentDelegateFilterStore = persistedScoped<DelegateFilter | null>(
 	'currentDelegateFilter',
 	null

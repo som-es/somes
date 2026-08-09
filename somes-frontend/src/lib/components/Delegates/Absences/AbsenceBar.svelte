@@ -3,7 +3,7 @@
 	import type { Absence } from '$lib/types';
 	import AbsenceBarExpanded from './AbsenceBarExpanded.svelte';
 	import { slide } from 'svelte/transition';
-	
+
 	interface Props {
 		absence: Absence;
 		showDetails?: boolean;
@@ -18,18 +18,18 @@
 
 	$effect(() => {
 		if (page) open = false;
-	})
+	});
 </script>
 
-<div class="gap-3 mt-5">
+<div class="mt-5 gap-3">
 	<div
 		onclick={() => (open = !open)}
 		onkeypress={() => (open = !open)}
 		role="button"
 		tabindex="0"
-		class="entry dark:bg-primary-300 bg-primary-400 text-black"
+		class="entry bg-primary-400 text-black dark:bg-primary-300"
 	>
-		<div class="flex justify-between items-center">
+		<div class="flex items-center justify-between">
 			<!-- <div class="flex gap-4">
 				<div id={open ? 'open' : 'closed'}>
 					{@html rightArrowIcon}
@@ -50,9 +50,9 @@
 				</div>
 			{/if}
 		</div>
-		<div class="flex justify-between mt-1">
+		<div class="mt-1 flex justify-between">
 			<div></div>
-			<span class="badge bg-tertiary-400">{dashDateToDotDate(absence.date.split("T")[0])}</span>
+			<span class="badge bg-tertiary-400">{dashDateToDotDate(absence.date.split('T')[0])}</span>
 		</div>
 	</div>
 	{#if open}

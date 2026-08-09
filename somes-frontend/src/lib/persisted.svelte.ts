@@ -41,7 +41,7 @@ export function persistedScoped<T>(baseKey: string, defaultValue: T) {
 
 	return {
 		get value(): T {
-            return this.valueScoped()
+			return this.valueScoped();
 		},
 		set value(newValue: T) {
 			if (!browser) {
@@ -50,10 +50,10 @@ export function persistedScoped<T>(baseKey: string, defaultValue: T) {
 			slot().value = newValue;
 		},
 		valueScoped(parliament: Parliament = getParliament()): T {
-    		if (!browser) {
-    			return defaultValue;
-    		}
-    		return slot(parliament).value;
-	    }
+			if (!browser) {
+				return defaultValue;
+			}
+			return slot(parliament).value;
+		}
 	};
 }

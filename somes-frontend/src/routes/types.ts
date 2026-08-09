@@ -1,6 +1,6 @@
-import { getWithRoute } from "$lib/api/api";
-import { deleteWithAuth, postWithAuth, putWithAuth } from "$lib/api/authed";
-import type { HasError } from "$lib/types";
+import { getWithRoute } from '$lib/api/api';
+import { deleteWithAuth, postWithAuth, putWithAuth } from '$lib/api/authed';
+import type { HasError } from '$lib/types';
 
 export function events(fetcher: typeof fetch = fetch): Promise<SomesEvent[] | HasError> {
 	return getWithRoute('v1/events', 'at', fetcher);

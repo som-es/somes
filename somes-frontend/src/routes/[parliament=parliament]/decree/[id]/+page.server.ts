@@ -5,26 +5,22 @@ import type { DecreeDelegate } from '$lib/components/Delegates/Decrees/types';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ fetch, params, setHeaders }) => {
-    const parliament = params.parliament as Parliament;
+	const parliament = params.parliament as Parliament;
 
-    if (process.env.NODE_ENV === 'production') {
-        setHeaders({
-            'cache-control': 'max-age=120'
-        });
-    }
+	if (process.env.NODE_ENV === 'production') {
+		setHeaders({
+			'cache-control': 'max-age=120'
+		});
+	}
 
-    const govDecree = await decree_by_ris_id(params.id, fetch, parliament);
-    if (isHasError(govDecree)) return { decreeDelegate: null };
+	const govDecree = await decree_by_ris_id(params.id, fetch, parliament);
+	if (isHasError(govDecree)) return { decreeDelegate: null };
 
+	const delegate = await delegate_by_id(govDecree.gov_official_id, fetch, parliament);
+	if (isHasError(delegate)) return { decreeDelegate: null };
 
-
-    const delegate = await delegate_by_id(govDecree.gov_official_id, fetch, parliament);
-    if (isHasError(delegate)) return { decreeDelegate: null };
-
-    let decreeDelegate: DecreeDelegate = { decree: govDecree, delegate: delegate };
-    return {
-        decreeDelegate 
-    };
+	let decreeDelegate: DecreeDelegate = { decree: govDecree, delegate: delegate };
+	return {
+		decreeDelegate
+	};
 };
-
-

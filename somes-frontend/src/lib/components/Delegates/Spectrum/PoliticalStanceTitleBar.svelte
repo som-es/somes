@@ -11,7 +11,7 @@
 	let { stanceTopicInfluences }: Props = $props();
 </script>
 
-<div class="flex flex-col lg:flex-row lg:items-center lg:justify-between w-full">
+<div class="flex w-full flex-col lg:flex-row lg:items-center lg:justify-between">
 	<h1 class="text-2xl font-bold max-lg:text-lg">Politische Haltung und Richtung</h1>
 	<div class="flex items-center justify-between lg:justify-end lg:gap-4">
 		<Popover.Root>
@@ -41,4 +41,3 @@
 
 <style>
 </style>
-

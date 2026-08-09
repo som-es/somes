@@ -16,7 +16,7 @@ function couldAttendPlenarySessionByTime(
 ): boolean {
 	return (
 		mandates.find((mandate) => {
-			if (plenarySession.council !== mandate.function && mandate.function !== "MEP") {
+			if (plenarySession.council !== mandate.function && mandate.function !== 'MEP') {
 				return false;
 			}
 
@@ -34,7 +34,7 @@ export function activePlenarySessionsForDelegate(
 	mandates: FullMandate[],
 	plenarySessions: Record<string, PlenarySession[]>
 ): Record<string, PlenarySession[]> {
-  console.log(mandates);
+	console.log(mandates);
 	const filteredActivePlenarySessions: Record<string, PlenarySession[]> = {};
 
 	for (const [key, values] of Object.entries(plenarySessions)) {

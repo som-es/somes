@@ -120,7 +120,7 @@
 	});
 
 	const convertAndStoreFilter = () => {
-	    let filter: GovPropFilter = {
+		let filter: GovPropFilter = {
 			has_vote_result:
 				genericFilters[0].activeValue == undefined ? null : genericFilters[0].activeValue,
 			legis_period: legisPeriodFilter.activeValue == 'all' ? null : legisPeriodFilter.activeValue,
@@ -128,14 +128,14 @@
 			departments: selectedDepartments.size > 0 ? [...selectedDepartments] : null,
 			date_from: genericFilters[1].data?.dateFrom || null,
 			date_to: genericFilters[1].data?.dateTo || null,
-			page: currentPage ?? null,
+			page: currentPage ?? null
 		};
 		currentGovProposalFilterStore.value = filter;
 		return filter;
 	};
 
 	const loadGovProps = async () => {
-	    const filter = convertAndStoreFilter();
+		const filter = convertAndStoreFilter();
 		const nextUrl = convertGovPropFilterToUrl(filter, searchValue, new URL(page.url), sortOrder);
 		goto(nextUrl, {
 			keepFocus: true,
@@ -166,8 +166,8 @@
 	});
 
 	$effect(() => {
-	    if (currentPage) {
-			untrack(convertAndStoreFilter)
+		if (currentPage) {
+			untrack(convertAndStoreFilter);
 		}
 	});
 

@@ -73,7 +73,7 @@
 				{/if}
 
 				<div class="shrink-0 max-lg:order-2">
-					{#if voteResult.legislative_initiative.accepted !== null && voteResult.legislative_initiative.accepted !== "u"}
+					{#if voteResult.legislative_initiative.accepted !== null && voteResult.legislative_initiative.accepted !== 'u'}
 						{#if voteResult.legislative_initiative.accepted == 'a'}
 							<span
 								class="inline-block shrink-0 stroke-green-600 align-middle dark:stroke-green-500"
@@ -115,7 +115,7 @@
 						</div>
 
 						<div>
-		                    <InfoBadgesCore {voteResult} />
+							<InfoBadgesCore {voteResult} />
 						</div>
 					{:else}
 						<!-- Roll call votes -->
@@ -164,7 +164,7 @@
 							</div>
 						</div>
 						<div class="flex max-h-6 gap-1 max-lg:hidden">
-						    <InfoBadgesCore {voteResult} />
+							<InfoBadgesCore {voteResult} />
 						</div>
 					{/if}
 				{:else}

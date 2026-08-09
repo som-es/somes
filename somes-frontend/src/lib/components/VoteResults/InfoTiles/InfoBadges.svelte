@@ -9,7 +9,7 @@
 </script>
 
 <div class="mt-1 flex gap-1 max-sm:flex-wrap">
-    <InfoBadgesCore {voteResult} showRequiredMajority showGp showDate showVoteType />
+	<InfoBadgesCore {voteResult} showRequiredMajority showGp showDate showVoteType />
 </div>
 
 <style>

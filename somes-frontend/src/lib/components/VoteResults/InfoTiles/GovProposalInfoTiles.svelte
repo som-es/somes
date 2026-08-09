@@ -13,8 +13,8 @@
 	// };
 </script>
 
-<div class="z-50! card p-4 w-72 shadow-xl" data-popup="ressort">
-	<div class="z-50 font-bold text-xl">{govProposal.ministrial_proposal.ressort}</div>
+<div class="z-50! w-72 card p-4 shadow-xl" data-popup="ressort">
+	<div class="z-50 text-xl font-bold">{govProposal.ministrial_proposal.ressort}</div>
 </div>
 
 <div class="flex flex-wrap {isCenter ? 'justify-center' : ''} info-item gap-3">
@@ -25,14 +25,16 @@
 		<div>Ressort</div>
 	</Square>
 	<Square>
-		<div class="font-bold text-lg">
-			{dashDateToDotDate(govProposal.ministrial_proposal.raw_data_created_at.split('T')[0].toString())}
+		<div class="text-lg font-bold">
+			{dashDateToDotDate(
+				govProposal.ministrial_proposal.raw_data_created_at.split('T')[0].toString()
+			)}
 		</div>
 		<div>Veröffentlicht am</div>
 	</Square>
 
 	<Square>
-		<div class="font-bold text-lg">
+		<div class="text-lg font-bold">
 			{dashDateToDotDate(govProposal.ministrial_proposal.due_to.toString())}
 		</div>
 		<div>Fällig bis</div>
@@ -40,8 +42,10 @@
 
 	{#if govProposal.vote_result && govProposal.vote_result.legislative_initiative.accepted !== null}
 		<Square>
-			<div class="font-bold text-lg">
-				{dashDateToDotDate(govProposal.vote_result.legislative_initiative.nr_plenary_activity_date.toString())}
+			<div class="text-lg font-bold">
+				{dashDateToDotDate(
+					govProposal.vote_result.legislative_initiative.nr_plenary_activity_date.toString()
+				)}
 			</div>
 			<div>Abgestimmt am</div>
 			<div>(finale Version)</div>

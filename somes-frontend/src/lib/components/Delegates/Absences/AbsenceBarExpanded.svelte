@@ -40,7 +40,7 @@
 	}
 </script>
 
-<div class="entry bg-primary-200 dark:bg-primary-400 mt-3 flex flex-wrap">
+<div class="entry mt-3 flex flex-wrap bg-primary-200 dark:bg-primary-400">
 	<VoteResults {voteResults} dels={[]} />
 </div>
 

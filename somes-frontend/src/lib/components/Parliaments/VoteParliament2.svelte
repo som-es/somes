@@ -13,9 +13,8 @@
 	import { defaultGp, getParliament, type Parliament } from '$lib/api/parliament';
 	import { currentDelegateStore } from '$lib/stores/stores';
 
-
 	let {
-		class: clazz = " ",
+		class: clazz = ' ',
 		orderingFactor = 1,
 		preview = false,
 		againstOpacity = 0.16,
@@ -38,39 +37,39 @@
 		allSeats = null,
 		searchValue = '',
 		parliament = getParliament(),
-		partyColoring = partyColors,
+		partyColoring = partyColors
 	}: {
-		class?: string,
-		orderingFactor?: number,
-		preview?: boolean,
-		againstOpacity?: number,
-		delegate?: Delegate | null,
-		selected?: Bubble | null,
-		gp?: string,
-		voteResult?: VoteResult | null,
-		supplyDate?: Date | null,
-		circles2d?: Bubble[][],
-		showGovs?: boolean,
-		enforceSvg?: boolean,
-		forceColor?: string | null,
-		delegates?: Delegate[],
-		govOfficials?: Delegate[],
-		overrideDelegates?: boolean,
-		noSeats?: boolean,
-		useOffset?: boolean,
-		show3D?: boolean,
-		syncDelegates?: Delegate[],
-		allSeats?: Map<string, number[]> | null,
-		searchValue?: string
-		parliament?: Parliament
-		partyColoring?: Map<string, string>
+		class?: string;
+		orderingFactor?: number;
+		preview?: boolean;
+		againstOpacity?: number;
+		delegate?: Delegate | null;
+		selected?: Bubble | null;
+		gp?: string;
+		voteResult?: VoteResult | null;
+		supplyDate?: Date | null;
+		circles2d?: Bubble[][];
+		showGovs?: boolean;
+		enforceSvg?: boolean;
+		forceColor?: string | null;
+		delegates?: Delegate[];
+		govOfficials?: Delegate[];
+		overrideDelegates?: boolean;
+		noSeats?: boolean;
+		useOffset?: boolean;
+		show3D?: boolean;
+		syncDelegates?: Delegate[];
+		allSeats?: Map<string, number[]> | null;
+		searchValue?: string;
+		parliament?: Parliament;
+		partyColoring?: Map<string, string>;
 	} = $props();
 
 	const [width, height, yOffset] = $derived.by((): [number, number, number] => {
 		switch (parliament) {
-			case "at":
+			case 'at':
 				return [830, 600, 200];
-			case "eu":
+			case 'eu':
 				return noSeats ? [1160, 800, 250] : [1390, 900, 300];
 			default:
 				return [0, 0, 0];
@@ -87,7 +86,7 @@
 				return getSeats(allSeats, effectiveGp);
 			}
 		} else {
-			return []
+			return [];
 		}
 	});
 
@@ -95,11 +94,11 @@
 
 	const activeDate = $derived.by(() => {
 		if (supplyDate) {
-			return supplyDate
-		};
+			return supplyDate;
+		}
 		if (voteResult && voteResult.legislative_initiative.nr_plenary_activity_date) {
-			return new Date(voteResult.legislative_initiative.nr_plenary_activity_date)
-		};
+			return new Date(voteResult.legislative_initiative.nr_plenary_activity_date);
+		}
 		return new Date();
 	});
 
@@ -117,7 +116,7 @@
 			return [];
 		}
 		if (!noSeats) {
-			return delegates
+			return delegates;
 		}
 
 		let newDelegates = structuredClone($state.snapshot(delegates));
@@ -144,9 +143,8 @@
 
 		setSeatsOfDels(partyToDelegatesArray, all, seats.slice());
 
-		return newDelegates
+		return newDelegates;
 	});
-
 
 	const selectRandomlyFromDels = () => {
 		delegate = displayDelegates[Math.floor(Math.random() * displayDelegates.length)];
@@ -171,7 +169,10 @@
 		const dateStr = toActualDateString(activeDate);
 
 		if (!overrideDelegates && delegates.length == 0) {
-			const { hasSeatInfo, delegates: fetchedDelegates } = await fetchDelegates(dateStr, effectiveGp)
+			const { hasSeatInfo, delegates: fetchedDelegates } = await fetchDelegates(
+				dateStr,
+				effectiveGp
+			);
 			noSeats = !hasSeatInfo;
 			useOffset = hasSeatInfo;
 
@@ -180,7 +181,6 @@
 			}
 		}
 	};
-
 </script>
 
 {#if displayDelegates.length > 0}
@@ -201,7 +201,7 @@
 		{localPartyColors}
 		{forceColor}
 		{searchValue}
-		maxAngle={parliament == "at" || noSeats == true ? 180 : 240}
+		maxAngle={parliament == 'at' || noSeats == true ? 180 : 240}
 		{yOffset}
 	/>
 {/if}
