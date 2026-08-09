@@ -10,7 +10,8 @@
 	import { cachedPartyColors } from '$lib/caching/party_color';
 	import { fetchDelegates } from '$lib/api/fetch_delegates';
 	import { toActualDateString } from '$lib/api/api';
-	import { defaultGp, getParliament } from '$lib/api/parliament';
+	import { defaultGp, getParliament, type Parliament } from '$lib/api/parliament';
+	import { currentDelegateStore } from '$lib/stores/stores';
 
 
 	let {
@@ -61,7 +62,7 @@
 		syncDelegates?: Delegate[],
 		allSeats?: Map<string, number[]> | null,
 		searchValue?: string
-		parliament?: string
+		parliament?: Parliament
 		partyColoring?: Map<string, string>
 	} = $props();
 
@@ -108,11 +109,9 @@
 		}
 		if (localPartyColors.size == 0) {
 			localPartyColors = await cachedPartyColors();
-			console.log(localPartyColors);
 		}
 		await updateDelegates();
 	});
-
 	let displayDelegates = $derived.by(() => {
 		if (delegates.length == 0) {
 			return [];
@@ -148,13 +147,25 @@
 		return newDelegates
 	});
 
+
+	const selectRandomlyFromDels = () => {
+		delegate = displayDelegates[Math.floor(Math.random() * displayDelegates.length)];
+		const maybeStoredDelegate = currentDelegateStore.valueScoped(parliament);
+		if (maybeStoredDelegate) {
+			const foundDel = displayDelegates.find((del) => del.id == maybeStoredDelegate.id);
+			if (foundDel) {
+				delegate = foundDel;
+			}
+		}
+	};
+
 	$effect(() => {
 		void displayDelegates;
 		untrack(() => {
 			syncDelegates = displayDelegates;
+			selectRandomlyFromDels();
 		});
 	});
-
 
 	const updateDelegates = async () => {
 		const dateStr = toActualDateString(activeDate);

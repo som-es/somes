@@ -157,15 +157,10 @@
 		return res;
 	});
 
-	let autocompleteOptions: AutocompleteOption<string>[] = [];
-	let inputValue = '';
-
 	let generalSpeechDelegates = $derived.by(() => {
 		const res = voteResult ? genCirclesWithSpeechInfo(voteResult.speeches, delegates) : [];
 		return res;
 	});
-
-	let generalAbsencesDelegates: Bubble[] | null = $state(null);
 
 	let description = $derived(voteResult?.legislative_initiative?.description);
 
@@ -186,26 +181,6 @@
 		}
 	});
 
-	const goBack = () => {
-		history.back();
-	};
-
-	const updateAutocompletion = () => {
-		autocompleteOptions = convertDelegatesToAutocompleteOptions(delegates, [], voteResult);
-	};
-
-	const selectRandomlyFromDels = () => {
-		delegate = delegates[Math.floor(Math.random() * delegates.length)];
-
-		const maybeStoredDelegate = currentDelegateStore.value;
-		if (maybeStoredDelegate) {
-			const foundDel = delegates.find((del) => del.id == maybeStoredDelegate.id);
-			if (foundDel) {
-				delegate = foundDel;
-			}
-		}
-	};
-
 	let legisInitFavos: SvelteSet<number> | null = $state(null);
 
 	const runVoteResultUpdate = async () => {
@@ -215,27 +190,11 @@
 			return;
 		}
 
-		// enrichDelegates(delegates);
-
-		selectRandomlyFromDels();
-		updateAutocompletion();
 	};
 
 	onMount(runVoteResultUpdate);
 
 	let currentlyUpdating = $state(false);
-
-	function delegateFilter(): AutocompleteOption<string>[] {
-		let _options = [...autocompleteOptions];
-		let _inputValue = `${String(inputValue).toLowerCase().trim()} `;
-		return delegateFilterOptions(_options, _inputValue);
-	}
-
-	function onDelegateSelection(event: CustomEvent<AutocompleteOption<string>>): void {
-		// @ts-ignore
-		delegate = event.detail.meta;
-		inputValue = event.detail.label;
-	}
 
 	/*run(() => {
 		if (delegates || voteResult) {
@@ -250,9 +209,6 @@
 	);
 	let documents = $derived(voteResult?.documents ?? []);
 	let votedByName = $derived(voteResult?.legislative_initiative?.voted_by_name ?? false);
-	let couldExtractNamedVotes = $derived(
-		(voteResult?.named_votes?.named_votes?.length ?? 0) > 0 && votedByName
-	);
 
 	const infavorOptions = [
 		{ value: 'Infavor', label: 'Dafür' },
