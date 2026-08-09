@@ -1,9 +1,6 @@
 <script lang="ts">
 	import { errorToNull } from '$lib/api/api';
 	import {
-		currentDelegateStore,
-		currentVoteResultStore,
-		hasGoBackStore,
 		aiViewEnabledStore
 	} from '$lib/stores/stores';
 	import { onMount } from 'svelte';
@@ -18,11 +15,6 @@
 		type Bubble
 	} from '$lib/parliament';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
-	import {
-		convertDelegatesToAutocompleteOptions,
-		delegateFilterOptions
-	} from '$lib/components/Autocompletion/filtering';
-	import type { AutocompleteOption } from '$lib/components/Autocompletion/types';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import { cachedLegisInitFavos } from '$lib/caching/favos';
 	import star from '$lib/assets/misc_icons/star.svg?raw';
@@ -48,7 +40,6 @@
 
 	import type { PageProps } from './$types';
 	import { browser } from '$app/environment';
-	import { getPartyColors } from '$lib/partyColor';
 	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
 	import type { SvelteSet } from 'svelte/reactivity';
 	import { addLegisInitFavo, removeLegisInitFavo } from '$lib/api/authed';
@@ -201,11 +192,18 @@
 		}
 	});*/
 
-	let parliamentUrl = $derived(
-		`https://parlament.gv.at/gegenstand/${gp}/${ityp}/${inr}?utm_source=somes.at`
-	);
+	let parliamentUrl = $derived.by(() => {
+	    switch (data.parliament) {
+			case "at": return `https://parlament.gv.at/gegenstand/${gp}/${ityp}/${inr}?utm_source=somes.at`;
+			case "eu": {
+			    const inrStr = inr!.toString();
+				const year = inrStr.slice(0, 4);
+				const nr = inrStr.slice(4);
+			    return `https://oeil.europarl.europa.eu/oeil/en/procedure-file?reference=${year}/${nr}(${ityp})&utm_source=somes.at`
+			};
+		}
+	});
 	let documents = $derived(voteResult?.documents ?? []);
-	let votedByName = $derived(voteResult?.legislative_initiative?.voted_by_name ?? false);
 
 	const infavorOptions = [
 		{ value: 'Infavor', label: 'Dafür' },
@@ -853,6 +851,7 @@
 										date={voteResult.legislative_initiative.vote_date ??
 											voteResult.legislative_initiative.nr_plenary_activity_date}
 										partyColors={data.partyColors}
+										parliament={data.parliament}
 									/>
 								{/if}
 							</div>
@@ -951,6 +950,7 @@
 											date={voteResult.legislative_initiative.vote_date ??
 												voteResult.legislative_initiative.nr_plenary_activity_date}
 											partyColors={data.partyColors}
+											parliament={data.parliament}
 										/>
 									</div>
 								{/each}
@@ -976,6 +976,7 @@
 											date={voteResult.legislative_initiative.vote_date ??
 												voteResult.legislative_initiative.nr_plenary_activity_date}
 											partyColors={data.partyColors}
+											parliament={data.parliament}
 										/>
 									</div>
 								{/each}

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getParliament, type Parliament } from '$lib/api/parliament';
 	import { gotoHistory } from '$lib/goto';
 	import type { Bubble } from '$lib/parliament';
 	import { getPartyColors } from '$lib/partyColor';
@@ -13,9 +14,10 @@
 		gp: string;
 		class?: string;
 		partyColors?: Map<string, string>;
+		parliament?: Parliament,
 	}
 
-	let { bubble, date, gp, class: clazz = '', partyColors = getPartyColors() }: Props = $props();
+	let { bubble, date, gp, class: clazz = '', partyColors = getPartyColors(), parliament = getParliament() }: Props = $props();
 
 	let delegate: Delegate | null = $derived(bubble.del);
 
@@ -90,6 +92,7 @@
 		onlyTop
 		showAI={false}
 		{partyColors}
+		{parliament}
 	>
 		{#snippet top()}
 			<span class="mt-2">

@@ -898,6 +898,7 @@
 							questions={generalDelegateInfo?.delegate_qa ?? []}
 							showQA
 							partyColors={data.partyColors}
+							parliament={data.parliament}
 						/>
 					{/if}
 				</div>
@@ -914,6 +915,7 @@
 						questions={generalDelegateInfo?.delegate_qa ?? []}
 						showQA
 						partyColors={data.partyColors}
+						parliament={data.parliament}
 					/>
 				{/if}
 			</div>
