@@ -34,7 +34,6 @@ export function activePlenarySessionsForDelegate(
 	mandates: FullMandate[],
 	plenarySessions: Record<string, PlenarySession[]>
 ): Record<string, PlenarySession[]> {
-	console.log(mandates);
 	const filteredActivePlenarySessions: Record<string, PlenarySession[]> = {};
 
 	for (const [key, values] of Object.entries(plenarySessions)) {

@@ -893,7 +893,12 @@
 
 				<div class="min-h-130 w-100">
 					{#if delegate}
-						<DelegateCard {delegate} questions={generalDelegateInfo?.delegate_qa ?? []} showQA />
+						<DelegateCard
+							{delegate}
+							questions={generalDelegateInfo?.delegate_qa ?? []}
+							showQA
+							partyColors={data.partyColors}
+						/>
 					{/if}
 				</div>
 			</div>
@@ -904,7 +909,12 @@
 		<div class="flex w-full justify-center rounded-xl bg-primary-300 p-3 lg:hidden">
 			<div class="w-full sm:w-100">
 				{#if delegate}
-					<DelegateCard {delegate} questions={generalDelegateInfo?.delegate_qa ?? []} showQA />
+					<DelegateCard
+						{delegate}
+						questions={generalDelegateInfo?.delegate_qa ?? []}
+						showQA
+						partyColors={data.partyColors}
+					/>
 				{/if}
 			</div>
 		</div>

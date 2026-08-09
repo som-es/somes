@@ -7,7 +7,7 @@
 	import { page } from '$app/state';
 
 	import { resolve } from '$app/paths';
-	import { plink } from '$lib/api/parliament';
+	import { getParliament, plink } from '$lib/api/parliament';
 	import VoteParliament2 from '../Parliaments/VoteParliament2.svelte';
 	import { mockDelegatesNoColor, mockVoteResult } from '$lib/parliaments/mock';
 	import { getSeats } from '$lib/caching/seats';
@@ -32,6 +32,7 @@
 	let activeSectionHash = $state('');
 	let activeHash = $derived(activeSectionHash || page.url.hash);
 	let statisticsObserver: IntersectionObserver | null = null;
+	let parliament = $state(getParliament());
 
 	function hrefPath(href: string) {
 		return new URL(href, page.url.origin).pathname;
@@ -80,54 +81,59 @@
 		convertDecreeFilterToUrl(currentDecreeFilterStore.value, '', undefined)
 	);
 
-	const submenu = $derived([
-		{
-			title: 'Reden',
-			route: '/statistics',
-			list: [
-				{ href: `${plink('/statistics')}#speech-time`, label: 'Redezeit', keywords: '' },
-				{ href: `${plink('/statistics')}#total-speeches`, label: 'Gehaltene Reden', keywords: '' }
-			]
-		},
-		{
-			title: 'Aktivitäten',
-			route: '/statistics',
-			list: [
-				{ href: `${plink('/statistics')}#absences`, label: 'Abwesenheiten', keywords: '' },
-				{ href: `${plink('/statistics')}#activity`, label: 'Aktivität', keywords: '' },
-				{ href: `${plink('/statistics')}#call-to-orders`, label: 'Ordnungsrufe', keywords: '' }
-			]
-		},
-		{
-			title: 'Abgeordnete',
-			route: '/statistics',
-			list: [
-				{ href: `${plink('/statistics')}#age`, label: 'Alter', keywords: '' },
-				{
-					href: `${plink('/statistics')}#orientation`,
-					label: 'Politische Positionen',
-					keywords: ''
-				}
-			]
-		},
+	const submenu = $derived.by(() => {
+		const menus = [
+			{
+				title: 'Reden',
+				route: '/statistics',
+				list: [
+					{ href: `${plink('/statistics')}#speech-time`, label: 'Redezeit', keywords: '' },
+					{ href: `${plink('/statistics')}#total-speeches`, label: 'Gehaltene Reden', keywords: '' }
+				]
+			},
+			{
+				title: 'Aktivitäten',
+				route: '/statistics',
+				list: [
+					{ href: `${plink('/statistics')}#absences`, label: 'Abwesenheiten', keywords: '' },
+					{ href: `${plink('/statistics')}#activity`, label: 'Aktivität', keywords: '' },
+					{ href: `${plink('/statistics')}#call-to-orders`, label: 'Ordnungsrufe', keywords: '' }
+				]
+			},
+			{
+				title: 'Abgeordnete',
+				route: '/statistics',
+				list: [
+					{ href: `${plink('/statistics')}#age`, label: 'Alter', keywords: '' },
+					{
+						href: `${plink('/statistics')}#orientation`,
+						label: 'Politische Positionen',
+						keywords: ''
+					}
+				]
+			},
 
-		{
-			title: 'Nationalrat',
-			route: '/history',
-			list: [
-				{ href: voteResultUrl.href, label: 'Abstimmungen', keywords: '' },
-				{ href: unfinishedVoteResultUrl.href, label: 'Zur Abstimmung', keywords: '' }
-			]
-		},
-		{
-			title: 'Regierung',
-			route: '/history',
-			list: [
-				{ href: govProposalUrl.href, label: 'Ministerialentwürfe', keywords: '' },
-				{ href: decreeUrl.href, label: 'Verordnungen', keywords: '' }
-			]
+			{
+				title: 'Nationalrat',
+				route: '/history',
+				list: [
+					{ href: voteResultUrl.href, label: 'Abstimmungen', keywords: '' },
+					{ href: unfinishedVoteResultUrl.href, label: 'Zur Abstimmung', keywords: '' }
+				]
+			}
+		];
+		if (parliament == 'at') {
+			menus.push({
+				title: 'Regierung',
+				route: '/history',
+				list: [
+					{ href: govProposalUrl.href, label: 'Ministerialentwürfe', keywords: '' },
+					{ href: decreeUrl.href, label: 'Verordnungen', keywords: '' }
+				]
+			});
 		}
-	]);
+		return menus;
+	});
 
 	function syncStatisticsObserver() {
 		statisticsObserver?.disconnect();
