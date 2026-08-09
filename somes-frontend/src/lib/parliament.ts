@@ -315,7 +315,7 @@ export function setupParliament(
 	yOffset: number = 0
 ): Bubble[][] {
 	let id = 0;
-	let circles2d: Bubble[][] = [];
+	const circles2d: Bubble[][] = [];
 	seats.forEach((seat, idx) => {
 		circles2d.push(
 			generateHalfCircle(

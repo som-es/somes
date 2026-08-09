@@ -147,6 +147,7 @@
 	});
 
 	const selectRandomlyFromDels = () => {
+	    if (preview) return;
 		delegate = displayDelegates[Math.floor(Math.random() * displayDelegates.length)];
 		const maybeStoredDelegate = currentDelegateStore.valueScoped(parliament);
 		if (maybeStoredDelegate) {
