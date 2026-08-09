@@ -71,7 +71,7 @@
 	);
 
 	let speechDuration = $derived.by(() => {
-		if (speech.speech.duration_in_seconds === null) return null;
+		if (speech.speech.duration_in_seconds === null || speech.speech.duration_in_seconds === 0) return null;
 		const mins = Math.floor(speech.speech.duration_in_seconds / 60);
 		return { mins, seconds: speech.speech.duration_in_seconds - mins * 60 };
 	});
