@@ -156,6 +156,11 @@ pub fn derive_meilisearch_filter(input: TokenStream) -> TokenStream {
         }
     }
 
+    let field_idents = updated_fields
+        .iter()
+        .map(|(ident, _)| ident)
+        .collect::<Vec<_>>();
+
     let simple_filter_args = updated_fields.iter().flat_map(|(field_name, ty)| {
         if ty.unrecognized_ident.is_some() {
             return None;
@@ -183,15 +188,15 @@ pub fn derive_meilisearch_filter(input: TokenStream) -> TokenStream {
     let filter_name = format_ident!("{}Filter", name);
 
     let tokens = quote! {
-        #[derive(Debug, Serialize, Deserialize)]
+        #[derive(Debug, Clone, Serialize, Deserialize)]
         #vis struct #filter_name_inner {
             #( #updated_fields_inner )*
         }
 
-        #[derive(Debug, Serialize, Deserialize)]
+        #[derive(Debug, Clone, Serialize, Deserialize)]
         #vis struct #filter_name {
             #( #updated_fields )*
-            filters: Option<Vec<somes_meilisearch_filter::CombinatorOp<#filter_name_inner>>>
+            pub filters: Option<Vec<somes_meilisearch_filter::CombinatorOp<#filter_name_inner>>>
         }
 
         impl #filter_name_inner {
@@ -203,6 +208,14 @@ pub fn derive_meilisearch_filter(input: TokenStream) -> TokenStream {
             #vis fn filterable_fields() -> Vec<&'static str> {
                 vec![#( #filterable_fields_inner )*]
             }
+
+            #vis fn upgrade(self) -> #filter_name {
+                let #filter_name_inner { #( #field_idents ),* } = self;
+                #filter_name {
+                    #( #field_idents, )*
+                    filters: None,
+                }
+            }
         }
 
         impl #filter_name {
@@ -213,6 +226,28 @@ pub fn derive_meilisearch_filter(input: TokenStream) -> TokenStream {
 
             #vis fn filterable_fields() -> Vec<&'static str> {
                 vec![#( #filterable_fields )*]
+            }
+
+            #vis fn extend_meilisearch_filters<F>(&self, filter_conditions: &mut Vec<String>, callback: F, prefix: Option<String>)
+            where
+                F: Fn(#filter_name, Option<String>) -> Vec<String>,
+            {
+                if let Some(filters) = &self.filters {
+                    filter_conditions.extend(filters.iter().flat_map(|filter| {
+                        let join = filter.to_meilisearch_op();
+                        let filter = filter
+                            .clone()
+                            .to_value()
+                            .into_iter()
+                            .flat_map(|inner| callback(inner.upgrade(), prefix.clone()))
+                            .collect::<Vec<_>>()
+                            .join(&format!(" {join} "));
+                        if filter.is_empty() {
+                            return None;
+                        }
+                        Some(format!("({filter})"))
+                    }));
+                }
             }
         }
     };

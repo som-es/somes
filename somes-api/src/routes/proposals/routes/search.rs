@@ -28,9 +28,15 @@ pub async fn gov_props_by_search_route(
     );
 
     if let Some(gov_proposal_filter) = gov_prop_filter.gov_proposal {
+        gov_proposal_filter.extend_meilisearch_filters(
+            &mut filter_conditions,
+            meilisearch_filters_gov_props,
+            Some("gov_proposal".into()),
+        );
+
         filter_conditions.extend(meilisearch_filters_gov_props(
             gov_proposal_filter,
-            Some("gov_proposal"),
+            Some("gov_proposal".into()),
         ));
     }
     if let Some(delegates) = &gov_prop_filter.delegates {

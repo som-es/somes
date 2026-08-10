@@ -85,7 +85,8 @@ export function convertVoteResultFilterToUrl(
 	nextUrl.searchParams.set('search', searchValue);
 
 	filter.topics?.forEach((topic, i) => {
-		nextUrl.searchParams.set(`eurovoc_topics[${i}][topic][cn]`, topic);
+		nextUrl.searchParams.set(`filters[0][or][0][eurovoc_topics][${i}][topic][cn]`, topic);
+		nextUrl.searchParams.set(`filters[0][or][1][ai_summary][full_summary][topics][in][${i}]`, topic);
 	});
 
 	filter.issuer_parties?.forEach((party, i) => {

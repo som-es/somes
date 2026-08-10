@@ -32,6 +32,35 @@ impl<T> CombinatorOp<T> {
             | CombinatorOp::Or4(_) => "OR",
         }
     }
+    pub fn as_value(&self) -> &[T] {
+        match self {
+            CombinatorOp::Or(val)
+            | CombinatorOp::Or1(val)
+            | CombinatorOp::Or2(val)
+            | CombinatorOp::Or3(val)
+            | CombinatorOp::Or4(val)
+            | CombinatorOp::And(val)
+            | CombinatorOp::And1(val)
+            | CombinatorOp::And2(val)
+            | CombinatorOp::And3(val)
+            | CombinatorOp::And4(val) => val,
+        }
+    }
+
+    pub fn to_value(self) -> Vec<T> {
+        match self {
+            CombinatorOp::Or(val)
+            | CombinatorOp::Or1(val)
+            | CombinatorOp::Or2(val)
+            | CombinatorOp::Or3(val)
+            | CombinatorOp::Or4(val)
+            | CombinatorOp::And(val)
+            | CombinatorOp::And1(val)
+            | CombinatorOp::And2(val)
+            | CombinatorOp::And3(val)
+            | CombinatorOp::And4(val) => val,
+        }
+    }
 }
 
 #[derive(Debug, ToSchema, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]

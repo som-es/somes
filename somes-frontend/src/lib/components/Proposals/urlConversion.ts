@@ -28,7 +28,8 @@ export function convertGovPropFilterToUrl(
 		nextUrl.searchParams.set('gov_proposal[ministrial_proposal][gp][in][0]', filter.legis_period);
 	}
 	filter.topics?.forEach((topic, i) => {
-		nextUrl.searchParams.set(`gov_proposal[eurovoc_topics][${i}][topic][cn]`, topic);
+		nextUrl.searchParams.set(`gov_proposal[filters][0][or][0][eurovoc_topics][${i}][topic][cn]`, topic);
+		nextUrl.searchParams.set(`gov_proposal[filters][0][or][1][ai_summary][full_summary][topics][in][${i}]`, topic);
 	});
 	filter.departments?.forEach((department, i) => {
 		nextUrl.searchParams.set(`gov_proposal[ministrial_proposal][ressort][in][${i}]`, department);

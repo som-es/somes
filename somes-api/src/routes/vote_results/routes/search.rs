@@ -1,10 +1,14 @@
 use std::fmt::Display;
 
 use axum::{extract::Query, Json};
-use combx::{meilisearch_filters_vote_result, Index, OptionalVoteResult, OptionalVoteResultFilter};
+use combx::{
+    meilisearch_filters_vote_result, Index, OptionalVoteResult, OptionalVoteResultFilter,
+    OptionalVoteResultFilterInner,
+};
 use meilisearch_sdk::search::SearchResults;
 use redis::aio::MultiplexedConnection;
 use somes_common_lib::{AddonVoteResultFilter, Page};
+use somes_meilisearch_filter::CombinatorOp;
 
 use crate::{
     meilisearch::MeilisearchClient,
@@ -70,12 +74,11 @@ async fn meilisearch_for_vote_results(
         vec![r#"legislative_initiative.accepted IS NULL"#.to_string()]
     };
 
-    // for filter in vote_result_filter.filters {
-
-    // }
-    filter_conditions.extend(meilisearch_filters_vote_result(vote_result_filter, None));
-
-    // combx::DbLegislativeInitiativeQueryFilter ;
+    vote_result_filter.extend_meilisearch_filters(
+        &mut filter_conditions,
+        meilisearch_filters_vote_result,
+        None,
+    );
 
     if let Some(party_votes) = &filter.party_votes {
         filter_conditions.push(create_topic_filter(
