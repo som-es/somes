@@ -11,6 +11,8 @@
 	import { gotoHistory } from '$lib/goto';
 	import { currentVoteResultStore, aiViewEnabledStore } from '$lib/stores/stores';
 	import InfoBadgesCore from '../InfoTiles/InfoBadgesCore.svelte';
+	import VoteBreakDownDonut from '../VoteBreakDownDonut.svelte';
+	import { isVoteInFavor, votesByPartySize } from '$lib/partyInfavor';
 
 	interface Props {
 		voteResult: VoteResult;
@@ -41,6 +43,8 @@
 	}
 
 	let open = $state(false);
+
+	const sortedVotes = $derived(votesByPartySize(voteResult));
 </script>
 
 <div class="gap-3 {clazz}">
@@ -96,10 +100,10 @@
 					{#if voteResult.named_votes == null}
 						<!-- Normal votes -->
 						<div class="mx-1 mb-3 flex justify-between sm:mb-0 md:items-center">
-							{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
+							{#each sortedVotes as vote (vote.party)}
 								<div class="flex items-center">
 									<h4 class="text-sm">{vote.party}</h4>
-									{#if vote.infavor}
+									{#if isVoteInFavor(vote)}
 										<span
 											class="mr-1 inline-block stroke-green-600 align-middle md:mr-2 dark:stroke-green-500"
 											style="width:18px; height:18px;">{@html checkmarkIcon}</span
@@ -119,50 +123,36 @@
 						</div>
 					{:else}
 						<!-- Roll call votes -->
-
-						<div class="mb-3 block w-full sm:flex">
-							<div class="mb-1 flex items-center sm:mb-0">
-								<span
-									class="mr-1 inline-block stroke-green-600 align-middle dark:stroke-green-500"
-									style="width:20px; height:20px;">{@html checkmarkIcon}</span
-								>
-
-								{#if voteResult.votes.length > 0}
-									{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
-										{#if vote.infavor}
-											<div class="flex items-center">
-												<h4 class="mr-1 text-sm">{vote.party}</h4>
-												<h4 class="mr-2 text-sm text-gray-800">{vote.fraction}</h4>
-											</div>
-										{/if}
-									{/each}
-								{:else}
+						{#if sortedVotes.length > 0}
+							<div class="mb-3 flex w-full flex-wrap items-center gap-x-3 gap-y-1 sm:mb-0">
+								{#each sortedVotes as vote (vote.party)}
+									<div class="flex items-center gap-1">
+										<VoteBreakDownDonut {vote} size={17} />
+										<h4 class="text-sm">{vote.party}</h4>
+									</div>
+								{/each}
+							</div>
+						{:else}
+							<div class="mb-3 flex items-center gap-3 sm:mb-0">
+								<div class="flex items-center">
+									<span
+										class="mr-1 inline-block stroke-green-600 align-middle dark:stroke-green-500"
+										style="width:20px; height:20px;">{@html checkmarkIcon}</span
+									>
 									<h4 class="text-sm text-gray-800">
 										{voteResult.named_votes.named_vote_info.pro_count}
 									</h4>
-								{/if}
-							</div>
-							<div class="flex flex-wrap items-center">
-								<span
-									class="mr-1 ml-0 inline-block align-middle sm:ml-3"
-									style="width:20px; height:20px;">{@html crossmarkIcon}</span
-								>
-								{#if voteResult.votes.length > 0}
-									{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
-										{#if !vote.infavor}
-											<div class="flex items-center">
-												<h4 class="mr-1 text-sm">{vote.party}</h4>
-												<h4 class="mr-2 text-sm text-gray-800">{vote.fraction}</h4>
-											</div>
-										{/if}
-									{/each}
-								{:else}
+								</div>
+								<div class="flex items-center">
+									<span class="mr-1 inline-block align-middle" style="width:20px; height:20px;"
+										>{@html crossmarkIcon}</span
+									>
 									<h4 class="text-sm text-gray-800">
 										{voteResult.named_votes.named_vote_info.contra_count}
 									</h4>
-								{/if}
+								</div>
 							</div>
-						</div>
+						{/if}
 						<div class="flex max-h-6 gap-1 max-lg:hidden">
 							<InfoBadgesCore {voteResult} />
 						</div>
