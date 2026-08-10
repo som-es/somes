@@ -1,19 +1,14 @@
 <script lang="ts">
-	import { errorToNull } from '$lib/api/api';
-	import {
-		aiViewEnabledStore
-	} from '$lib/stores/stores';
+	import { errorToNull, url } from '$lib/api/api';
+	import { aiViewEnabledStore } from '$lib/stores/stores';
 	import { onMount } from 'svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import Topics from '$lib/components/Topics/Topics.svelte';
 	import { type Delegate, type VoteResult } from '$lib/types';
 	import Emphasis from '$lib/components/VoteResults/Emphasis/Emphasis.svelte';
 	import VoteDelegateCard from '$lib/components/Delegates/VoteDelegateCard.svelte';
-	import {
-		genCirclesWithNamedVoteInfo,
-		genCirclesWithSpeechInfo,
-		type Bubble
-	} from '$lib/parliament';
+	import SpeechBar from '$lib/components/Delegates/Speeches/SpeechBar.svelte';
+	import { genCirclesWithNamedVoteInfo, type Bubble } from '$lib/parliament';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import { cachedLegisInitFavos } from '$lib/caching/favos';
@@ -148,11 +143,6 @@
 		return res;
 	});
 
-	let generalSpeechDelegates = $derived.by(() => {
-		const res = voteResult ? genCirclesWithSpeechInfo(voteResult.speeches, delegates) : [];
-		return res;
-	});
-
 	let description = $derived(voteResult?.legislative_initiative?.description);
 
 	let issuedByDels = $derived.by(() => {
@@ -195,14 +185,15 @@
 	});*/
 
 	let parliamentUrl = $derived.by(() => {
-	    switch (data.parliament) {
-			case "at": return `https://parlament.gv.at/gegenstand/${gp}/${ityp}/${inr}?utm_source=somes.at`;
-			case "eu": {
-			    const inrStr = inr!.toString();
+		switch (data.parliament) {
+			case 'at':
+				return `https://parlament.gv.at/gegenstand/${gp}/${ityp}/${inr}?utm_source=somes.at`;
+			case 'eu': {
+				const inrStr = inr!.toString();
 				const year = inrStr.slice(0, 4);
 				const nr = inrStr.slice(4);
-			    return `https://oeil.europarl.europa.eu/oeil/en/procedure-file?reference=${year}/${nr}(${ityp})&utm_source=somes.at`
-			};
+				return `https://oeil.europarl.europa.eu/oeil/en/procedure-file?reference=${year}/${nr}(${ityp})&utm_source=somes.at`;
+			}
 		}
 	});
 	let documents = $derived(voteResult?.documents ?? []);
@@ -858,30 +849,43 @@
 					</div>
 				{/if}
 
-				{#if generalSpeechDelegates != null}
-					{#if generalSpeechDelegates.length > 0}
-						<div class="speeches-item gap-3 rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
-							<span class="text-xl font-bold md:text-3xl">Reden</span>
-							<div class="mt-3 flex flex-row flex-wrap gap-3">
-								{#each generalSpeechDelegates as speechDelegate}
-									<div class="w-full max-w-80">
-										<VoteDelegateCard
-											bubble={speechDelegate}
-											gp={voteResult.legislative_initiative.gp}
-											date={voteResult.legislative_initiative.vote_date ??
-												voteResult.legislative_initiative.nr_plenary_activity_date}
-											partyColors={data.partyColors}
-											parliament={data.parliament}
-										/>
-									</div>
-								{/each}
-							</div>
+				{#if voteResult.speeches.length > 0}
+					<div class="speeches-item gap-3 rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
+						<span class="text-xl font-bold md:text-3xl">Reden</span>
+						<div class="flex flex-col">
+							{#each voteResult.speeches as speech (speech.id)}
+								{@const speechDelegate = delegates.find((d) => d.id === speech.speech.delegate_id)}
+								<SpeechBar {speech}>
+									{#snippet header()}
+										{#if speechDelegate}
+											{@const party = speechDelegate.party?.trim()
+												? speechDelegate.party
+												: 'Ohne Klub'}
+											<div class="flex min-w-0 items-center gap-2 mb-1">
+												<img
+													src={`${url}assets/${speechDelegate.id}.jpg`}
+													alt={speechDelegate.name}
+													class="h-8 w-8 shrink-0 rounded-full object-cover text-[1px]"
+												/>
+												<div class="flex min-w-0 flex-col">
+													<span class="truncate text-sm leading-tight font-semibold lg:text-base">
+														{speechDelegate.name}
+													</span>
+													<div class="mt-0.5 flex items-center gap-1.5">
+														<div
+															class="h-2 w-2 shrink-0 rounded-full"
+															style="background-color: {partyColors.get(party) ?? '#ccc'};"
+														></div>
+														<span class="truncate text-xs text-gray-700">{party}</span>
+													</div>
+												</div>
+											</div>
+										{/if}
+									{/snippet}
+								</SpeechBar>
+							{/each}
 						</div>
-					{/if}
-				{:else}
-					{#each { length: voteResult.speeches.length * 4 } as _}
-						<ExpandablePlaceholder class="" />
-					{/each}
+					</div>
 				{/if}
 				{#if generalNamedVoteDelegates != null}
 					{#if generalNamedVoteDelegates.length > 0}

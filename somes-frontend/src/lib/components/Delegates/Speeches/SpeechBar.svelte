@@ -11,12 +11,14 @@
 	import { Opinion, type DbSpeechRelations, type FullSpeech } from '$lib/speechTypes';
 	import type { Keypoint } from '$lib/ai_summary_types';
 	import { slide } from 'svelte/transition';
+	import type { Snippet } from 'svelte';
 
 	interface Props {
 		speech: FullSpeech;
+		header?: Snippet;
 	}
 
-	let { speech }: Props = $props();
+	let { speech, header }: Props = $props();
 
 	interface RelatedVoteResult {
 		relation: DbSpeechRelations;
@@ -79,12 +81,10 @@
 
 	let aiSummary = $derived(aiViewEnabledStore.value ? speech.ai_summary : null);
 	let keyPoints = $derived(
-		(aiSummary?.full_speech_summary.key_points ?? []).map(
-			(keyPoint): Keypoint => ({
-				point: keyPoint.summarized_point,
-				paragraph_references: []
-			})
-		)
+		(aiSummary?.full_speech_summary.key_points ?? []).map((keyPoint): Keypoint => ({
+			point: keyPoint.summarized_point,
+			paragraph_references: []
+		}))
 	);
 	let criticalAnalysis = $derived(aiSummary?.full_speech_summary.critical_analysis ?? null);
 	let glossary = $derived(aiSummary?.full_speech_summary.glossary ?? null);
@@ -113,6 +113,11 @@
 		<div class="w-1.5 shrink-0 {barColor}"></div>
 		<div class="flex min-w-0 flex-1 items-center justify-between gap-3 p-3 lg:px-5 lg:py-4">
 			<div class="flex min-w-0 flex-1 flex-col">
+				{#if header}
+					<div class="mb-1.5 flex min-w-0 items-center gap-2">
+						{@render header()}
+					</div>
+				{/if}
 				{#if aiSummary}
 					<span
 						class="line-clamp-2 text-sm leading-snug font-semibold lg:text-lg"
@@ -124,7 +129,9 @@
 						{aiSummary.short_summary}
 					</span>
 				{:else}
-					<span class="text-sm font-semibold lg:text-lg">{opinion}</span>
+					{#if !header}
+						<span class="text-sm font-semibold lg:text-lg">{opinion}</span>
+					{/if}
 					{#if speech.speech.about}
 						<span class="mt-0.5 line-clamp-2 text-[10px] text-gray-800 lg:text-sm">
 							{speech.speech.about}
@@ -132,7 +139,7 @@
 					{/if}
 				{/if}
 			</div>
-			<div class="flex shrink-0 items-center gap-3 text-gray-700">
+			<div class="flex shrink-0 items-center gap-3 self-start text-gray-700">
 				{#if speechDuration}
 					<span class="hidden items-center gap-1 text-xs whitespace-nowrap lg:flex">
 						<span
