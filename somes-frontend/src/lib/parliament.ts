@@ -171,25 +171,28 @@ export function genCirclesWithAbsenceInfo(absences: number[], dels: Delegate[]):
 export function genCirclesWithSpeechInfo(speeches: FullSpeech[], dels: Delegate[]): Bubble[] {
 	const speechDelegates: Bubble[] = [];
 	const delegatesAt: Delegate[] = dels;
-	speeches.forEach((speech) => {
-		const delegate = findDelegateById(delegatesAt, speech.speech.delegate_id);
 
-		if (delegate) {
-			speechDelegates.push({
-				r: 0,
-				x: 0,
-				y: 0,
-				del: delegate,
-				speech,
-				namedVote: null,
-				color: null,
-				opacity: 0,
-				title: speech.speech.opinion,
-				texture: null,
-				material: null,
-				angle_rad: 0,
-				id: 0
-			});
+	speeches.forEach((speech) => {
+		if(speech.speech == undefined){
+			const delegate = findDelegateById(delegatesAt, speech.speech.delegate_id);
+
+			if (delegate) {
+				speechDelegates.push({
+					r: 0,
+					x: 0,
+					y: 0,
+					del: delegate,
+					speech,
+					namedVote: null,
+					color: null,
+					opacity: 0,
+					title: speech.speech.opinion,
+					texture: null,
+					material: null,
+					angle_rad: 0,
+					id: 0
+				});
+			}
 		}
 	});
 	return speechDelegates;
