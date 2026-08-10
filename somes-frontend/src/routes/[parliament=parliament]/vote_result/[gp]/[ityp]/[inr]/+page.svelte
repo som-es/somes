@@ -850,7 +850,9 @@
 				{/if}
 
 				{#if voteResult.speeches.length > 0}
-					<div class="speeches-item gap-3 rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
+					<div
+						class="speeches-item min-w-0 gap-3 rounded-xl bg-primary-300 p-4 dark:bg-primary-500"
+					>
 						<span class="text-xl font-bold md:text-3xl">Reden</span>
 						<div class="flex flex-col">
 							{#each voteResult.speeches as speech (speech.id)}
@@ -861,7 +863,7 @@
 											{@const party = speechDelegate.party?.trim()
 												? speechDelegate.party
 												: 'Ohne Klub'}
-											<div class="flex min-w-0 items-center gap-2 mb-1">
+											<div class="mb-1 flex min-w-0 items-center gap-2">
 												<img
 													src={`${url}assets/${speechDelegate.id}.jpg`}
 													alt={speechDelegate.name}
