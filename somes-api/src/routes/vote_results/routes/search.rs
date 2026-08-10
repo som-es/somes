@@ -69,6 +69,10 @@ async fn meilisearch_for_vote_results(
     } else {
         vec![r#"legislative_initiative.accepted IS NULL"#.to_string()]
     };
+
+    // for filter in vote_result_filter.filters {
+
+    // }
     filter_conditions.extend(meilisearch_filters_vote_result(vote_result_filter, None));
 
     // combx::DbLegislativeInitiativeQueryFilter ;
@@ -148,14 +152,6 @@ async fn meilisearch_for_vote_results(
         .into_iter()
         .map(|hit| hit.result)
         .collect::<Vec<_>>();
-
-    // log::info!(
-    //     "results: {:?}",
-    //     vote_results
-    //         .iter()
-    //         .map(|x| x.legislative_initiative.created_at)
-    //         .collect::<Vec<_>>()
-    // );
 
     Ok(VoteResultsWithMaxPage {
         vote_results,

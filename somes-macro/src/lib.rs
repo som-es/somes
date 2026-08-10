@@ -176,12 +176,33 @@ pub fn derive_meilisearch_filter(input: TokenStream) -> TokenStream {
         }
     });
 
+    let filter_name_inner = format_ident!("{}FilterInner", name);
+    let updated_fields_inner = updated_fields.clone();
+    let simple_filter_args_inner = simple_filter_args.clone();
+    let filterable_fields_inner = filterable_fields.clone();
     let filter_name = format_ident!("{}Filter", name);
 
     let tokens = quote! {
         #[derive(Debug, Serialize, Deserialize)]
+        #vis struct #filter_name_inner {
+            #( #updated_fields_inner )*
+        }
+
+        #[derive(Debug, Serialize, Deserialize)]
         #vis struct #filter_name {
             #( #updated_fields )*
+            filters: Option<Vec<somes_meilisearch_filter::CombinatorOp<#filter_name_inner>>>
+        }
+
+        impl #filter_name_inner {
+            #vis fn filter_arguments(&self) -> Vec<Option<FilterArgument>> {
+                use somes_meilisearch_filter::ToFilterArgument;
+                vec![#( #simple_filter_args_inner )*]
+            }
+
+            #vis fn filterable_fields() -> Vec<&'static str> {
+                vec![#( #filterable_fields_inner )*]
+            }
         }
 
         impl #filter_name {

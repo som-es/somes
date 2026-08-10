@@ -1,4 +1,4 @@
-use combx::{DbAiSummary, DbLegislativeInitiativeQuery, DbSpeechWithLink, FullSpeech};
+use combx::{DbAiSummary, DbLegislativeInitiativeQuery};
 use somes_common_lib::ToCompositeType;
 use sqlx::{Postgres, Transaction};
 
@@ -38,7 +38,23 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
             ) THEN ARRAY(
               SELECT
                 ROW(
-                  m.party, NULL, COUNT(*), nv.infavor
+                  m.party,
+                  NULL,
+                  COUNT(*) FILTER (
+                    WHERE NOT nv.was_abstention
+                      AND NOT COALESCE(nv.was_absent, false)
+                      AND nv.infavor = true
+                  ),
+                  COUNT(*) FILTER (
+                    WHERE NOT nv.was_abstention
+                      AND NOT COALESCE(nv.was_absent, false)
+                      AND nv.infavor = false
+                  ),
+                  COUNT(*) FILTER (WHERE nv.was_abstention),
+                  COUNT(*) FILTER (
+                    WHERE NOT nv.was_abstention
+                      AND COALESCE(nv.was_absent, false)
+                  )
                 )::db_vote
               FROM
                 named_vote_info nvi
@@ -49,14 +65,12 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
                 AND m.is_nr
                 AND m.start_date <= li.nr_plenary_activity_date
                 AND (COALESCE(m.end_date, li.nr_plenary_activity_date) >= li.nr_plenary_activity_date)
-                AND nv.infavor IS NOT NULL
                 AND m.party IS NOT NULL
               GROUP BY
-                m.party,
-                nv.infavor
+                m.party
             ) ELSE ARRAY(
               SELECT
-                ROW(party, NULL, fraction, infavor)::db_vote
+                ROW(v.party, NULL, v.infavor_count, v.against_count, v.abstention_count, v.absence_count)::db_vote
               FROM
                 votes v
               WHERE
@@ -272,20 +286,21 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
 
         sqlx::query(
             r#"
-        create materialized view legislative_initiatives_with_votes as
-        SELECT
-            li.id,
-            li.gp,
-            ARRAY(
-                SELECT ROW(v.party, NULL, v.fraction, v.infavor)::db_vote
-                FROM votes v
-                WHERE v.legislative_initiatives_id = li.id
-            ) AS "votes: Vec<DbVote>"
-        FROM
-            legislative_initiatives li
-        WHERE
-            accepted = 'a'
-    "#,
+        CREATE MATERIALIZED VIEW legislative_initiatives_with_votes AS
+            SELECT
+                li.id,
+                li.gp,
+                ARRAY(
+                    SELECT
+                        ROW(v.party, NULL, v.infavor_count, v.against_count, v.abstention_count, v.absence_count)::db_vote
+                    FROM votes v
+                    WHERE v.legislative_initiatives_id = li.id
+                ) AS "votes: Vec<DbVote>"
+            FROM
+                legislative_initiatives li
+            WHERE
+                accepted = 'a';
+        "#,
         )
         .execute(&mut **tx)
         .await?;

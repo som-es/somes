@@ -332,7 +332,7 @@ pub async fn update_vote_result_meilisearch_index(
                 .as_ref()
                 .unwrap_or(&vec![])
                 .iter()
-                .map(|vote| format!("{}{:?}", vote.party, vote.infavor))
+                .map(|vote| format!("{}{:?}", vote.party, vote.infavor_count > 0))
                 .collect();
         }
     }

@@ -1,4 +1,3 @@
-use std::sync::Arc;
 use std::{error::Error, fs::File, net::SocketAddr, path::PathBuf, time::Duration};
 
 use crate::{
@@ -8,16 +7,13 @@ use crate::{
 };
 use crate::{routes::*, AppState, IS_PROD};
 use axum::{
-    extract::{FromRef, Request},
     http::{self, HeaderValue},
-    middleware::{self, Next},
-    response::{Html, Response},
+    response::Html,
     routing::{any, get, get_service, post},
     Extension, Router,
 };
 use axum_server::tls_rustls::RustlsConfig;
 use combx::Parliament;
-use common_scrapes::eu_hemicycle::{load_hemicycle, HemicycleLayout};
 use log::info;
 use reqwest::StatusCode;
 use somes_common_lib::*;
