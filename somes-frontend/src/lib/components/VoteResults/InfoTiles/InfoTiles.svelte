@@ -4,6 +4,7 @@
 	import checkmarkIcon from '$lib/assets/misc_icons/checkmark.svg?raw';
 	import { partyToColor } from '$lib/partyColor';
 	import type { Delegate, Vote, VoteResult } from '$lib/types';
+	import { givenVotes } from '$lib/partyInfavor';
 	import Square from '$lib/components/UI/Square.svelte';
 	import { dashDateToDotDate } from '$lib/date';
 	import { lightModeStore } from '$lib/lightmode.svelte';
@@ -66,17 +67,17 @@
 		votes: Vote[],
 		voteSum: number
 	): ConicStop[] {
-		votes.sort((a, b) => b.fraction - a.fraction);
+		votes.sort((a, b) => b.infavor_count - a.infavor_count);
 		let currentStart = 0;
 
 		let conicStops = [];
 
 		for (let i = 0; i < votes.length; i++) {
 			let vote = votes[i];
-			if (!vote.infavor) {
+			if (vote.infavor_count === 0) {
 				continue;
 			}
-			const share = (vote.fraction / voteSum) * 360;
+			const share = (vote.infavor_count / voteSum) * 360;
 			const prevStart = currentStart;
 			currentStart += share;
 			conicStops.push({ color: partyToColor(vote.party), start: prevStart, end: currentStart });
@@ -99,16 +100,17 @@
 				votes = [
 					{
 						party: '',
-						fraction: voteResult.named_votes.named_vote_info.pro_count,
-						infavor: true,
 						code: '',
-						legislative_initiatives_id: 0
+						infavor_count: voteResult.named_votes.named_vote_info.pro_count,
+						against_count: 0,
+						abstention_count: 0,
+						absence_count: 0
 					}
 				];
 			}
 		} else {
 			voteResult.votes.forEach((vote) => {
-				voteSum += vote.fraction;
+				voteSum += givenVotes(vote);
 			});
 		}
 

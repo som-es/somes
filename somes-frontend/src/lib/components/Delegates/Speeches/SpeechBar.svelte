@@ -11,12 +11,14 @@
 	import { Opinion, type DbSpeechRelations, type FullSpeech } from '$lib/speechTypes';
 	import type { Keypoint } from '$lib/ai_summary_types';
 	import { slide } from 'svelte/transition';
+	import type { Snippet } from 'svelte';
 
 	interface Props {
 		speech: FullSpeech;
+		header?: Snippet;
 	}
 
-	let { speech }: Props = $props();
+	let { speech, header }: Props = $props();
 
 	interface RelatedVoteResult {
 		relation: DbSpeechRelations;
@@ -79,12 +81,10 @@
 
 	let aiSummary = $derived(aiViewEnabledStore.value ? speech.ai_summary : null);
 	let keyPoints = $derived(
-		(aiSummary?.full_speech_summary.key_points ?? []).map(
-			(keyPoint): Keypoint => ({
-				point: keyPoint.summarized_point,
-				paragraph_references: []
-			})
-		)
+		(aiSummary?.full_speech_summary.key_points ?? []).map((keyPoint): Keypoint => ({
+			point: keyPoint.summarized_point,
+			paragraph_references: []
+		}))
 	);
 	let criticalAnalysis = $derived(aiSummary?.full_speech_summary.critical_analysis ?? null);
 	let glossary = $derived(aiSummary?.full_speech_summary.glossary ?? null);
@@ -113,6 +113,14 @@
 		<div class="w-1.5 shrink-0 {barColor}"></div>
 		<div class="flex min-w-0 flex-1 items-center justify-between gap-3 p-3 lg:px-5 lg:py-4">
 			<div class="flex min-w-0 flex-1 flex-col">
+				{#if header}
+					<div class="mb-1.5 flex min-w-0 items-center gap-2">
+						{@render header()}
+						<div class="ml-auto flex shrink-0 items-center gap-3 self-start text-gray-700">
+							{@render metaIcons()}
+						</div>
+					</div>
+				{/if}
 				{#if aiSummary}
 					<span
 						class="line-clamp-2 text-sm leading-snug font-semibold lg:text-lg"
@@ -120,53 +128,59 @@
 					>
 						{aiSummary.short_title}
 					</span>
-					<span class="mt-0.5 line-clamp-3 text-[10px] text-gray-800 lg:line-clamp-none lg:text-sm">
+					<span class="mt-0.5 line-clamp-3 text-xs text-gray-800 lg:line-clamp-none lg:text-base">
 						{aiSummary.short_summary}
 					</span>
 				{:else}
-					<span class="text-sm font-semibold lg:text-lg">{opinion}</span>
+					{#if !header}
+						<span class="text-sm font-semibold lg:text-lg">{opinion}</span>
+					{/if}
 					{#if speech.speech.about}
-						<span class="mt-0.5 line-clamp-2 text-[10px] text-gray-800 lg:text-sm">
+						<span class="mt-0.5 line-clamp-2 text-xs text-gray-800 lg:text-base">
 							{speech.speech.about}
 						</span>
 					{/if}
 				{/if}
 			</div>
-			<div class="flex shrink-0 items-center gap-3 text-gray-700">
-				{#if speechDuration}
-					<span class="hidden items-center gap-1 text-xs whitespace-nowrap lg:flex">
-						<span
-							class="h-3.5 w-3.5 shrink-0 [&_path]:stroke-current [&>svg]:h-full [&>svg]:w-full"
-						>
-							{@html clockIcon}
-						</span>
-						{speechDuration.mins}:{speechDuration.seconds.toString().padStart(2, '0')} min
-					</span>
-				{/if}
-				{#each speech.speech.document_urls ?? [] as url}
-					<a
-						href={url}
-						target="_blank"
-						aria-label="Dokument"
-						title="Redeprotokoll öffnen"
-						class="transition-transform hover:scale-110"
-						onclick={(e) => e.stopPropagation()}
-					>
-						<svg
-							class="h-4 w-4 lg:h-5 lg:w-5"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							><path
-								d="M2 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H2zM22 4h-7a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h8z"
-							/></svg
-						>
-					</a>
-				{/each}
-			</div>
+			{#if !header}
+				<div class="flex shrink-0 items-center gap-3 self-start text-gray-700">
+					{@render metaIcons()}
+				</div>
+			{/if}
 		</div>
 	</div>
+
+	{#snippet metaIcons()}
+		{#if speechDuration}
+			<span class="flex items-center gap-1 text-xs whitespace-nowrap">
+				<span class="h-3.5 w-3.5 shrink-0 [&_path]:stroke-current [&>svg]:h-full [&>svg]:w-full">
+					{@html clockIcon}
+				</span>
+				{speechDuration.mins}:{speechDuration.seconds.toString().padStart(2, '0')} min
+			</span>
+		{/if}
+		{#each speech.speech.document_urls ?? [] as url}
+			<a
+				href={url}
+				target="_blank"
+				aria-label="Dokument"
+				title="Redeprotokoll öffnen"
+				class="transition-transform hover:scale-110"
+				onclick={(e) => e.stopPropagation()}
+			>
+				<svg
+					class="h-4 w-4 lg:h-5 lg:w-5"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					><path
+						d="M2 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H2zM22 4h-7a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h8z"
+					/></svg
+				>
+			</a>
+		{/each}
+	{/snippet}
 
 	{#if open}
 		<div transition:slide={{ duration: 240 }}>

@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { partyToColor } from '$lib/partyColor';
+	import { totalVotes } from '$lib/partyInfavor';
 	import type { Vote } from '$lib/types';
 	import BadgeList from './BadgeList.svelte';
 
 	export let votes: Vote[];
 
-	votes.sort((a, b) => b.fraction - a.fraction);
+	votes.sort((a, b) => totalVotes(b) - totalVotes(a));
 </script>
 
 <div>

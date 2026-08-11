@@ -1,19 +1,14 @@
 <script lang="ts">
-	import { errorToNull } from '$lib/api/api';
-	import {
-		aiViewEnabledStore
-	} from '$lib/stores/stores';
+	import { errorToNull, url } from '$lib/api/api';
+	import { aiViewEnabledStore } from '$lib/stores/stores';
 	import { onMount } from 'svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import Topics from '$lib/components/Topics/Topics.svelte';
 	import { type Delegate, type VoteResult } from '$lib/types';
 	import Emphasis from '$lib/components/VoteResults/Emphasis/Emphasis.svelte';
 	import VoteDelegateCard from '$lib/components/Delegates/VoteDelegateCard.svelte';
-	import {
-		genCirclesWithNamedVoteInfo,
-		genCirclesWithSpeechInfo,
-		type Bubble
-	} from '$lib/parliament';
+	import SpeechBar from '$lib/components/Delegates/Speeches/SpeechBar.svelte';
+	import { genCirclesWithNamedVoteInfo, type Bubble } from '$lib/parliament';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import { cachedLegisInitFavos } from '$lib/caching/favos';
@@ -44,6 +39,8 @@
 	import type { SvelteSet } from 'svelte/reactivity';
 	import { addLegisInitFavo, removeLegisInitFavo } from '$lib/api/authed';
 	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
+	import VoteBreakDownDonut from '$lib/components/VoteResults/VoteBreakDownDonut.svelte';
+	import { givenVotes, isVoteInFavor, votesByPartySize } from '$lib/partyInfavor';
 
 	let { data }: PageProps = $props();
 
@@ -105,7 +102,7 @@
 				const absent = voteResult.absences.find((id) => id === delegate.id) ? true : false;
 				return {
 					absent,
-					infavor: absent ? null : partyVote.infavor,
+					infavor: absent ? null : isVoteInFavor(partyVote),
 					delegate,
 					isNamedVote: false
 				};
@@ -143,11 +140,6 @@
 				}
 			});
 		}
-		return res;
-	});
-
-	let generalSpeechDelegates = $derived.by(() => {
-		const res = voteResult ? genCirclesWithSpeechInfo(voteResult.speeches, delegates) : [];
 		return res;
 	});
 
@@ -193,14 +185,15 @@
 	});*/
 
 	let parliamentUrl = $derived.by(() => {
-	    switch (data.parliament) {
-			case "at": return `https://parlament.gv.at/gegenstand/${gp}/${ityp}/${inr}?utm_source=somes.at`;
-			case "eu": {
-			    const inrStr = inr!.toString();
+		switch (data.parliament) {
+			case 'at':
+				return `https://parlament.gv.at/gegenstand/${gp}/${ityp}/${inr}?utm_source=somes.at`;
+			case 'eu': {
+				const inrStr = inr!.toString();
 				const year = inrStr.slice(0, 4);
 				const nr = inrStr.slice(4);
-			    return `https://oeil.europarl.europa.eu/oeil/en/procedure-file?reference=${year}/${nr}(${ityp})&utm_source=somes.at`
-			};
+				return `https://oeil.europarl.europa.eu/oeil/en/procedure-file?reference=${year}/${nr}(${ityp})&utm_source=somes.at`;
+			}
 		}
 	});
 	let documents = $derived(voteResult?.documents ?? []);
@@ -211,54 +204,7 @@
 		{ value: 'Against', label: 'Dagegen' }
 	];
 
-	let delegatesPerId: Map<number, Delegate> = $derived.by(() => {
-		const delegatesPerId = new Map<number, Delegate>();
-		delegates.forEach((delegate) => {
-			if (!delegatesPerId.has(delegate.id)) {
-				delegatesPerId.set(delegate.id, delegate);
-			}
-		});
-		return delegatesPerId;
-	});
-	const partyVoteBreakdown = $derived.by(() => {
-		let breakdown = new Map<
-			string,
-			{
-				party: string;
-				sum: number;
-				infavor: number;
-				against: number;
-				abstention: number;
-				absent: number;
-			}
-		>();
-		(voteResult?.named_votes?.named_votes ?? []).forEach((namedVote) => {
-			const party = delegatesPerId.get(namedVote.delegate_id)?.party;
-			if (!party) {
-				return;
-			}
-			if (!breakdown.has(party)) {
-				breakdown.set(party, { party, sum: 0, infavor: 0, against: 0, abstention: 0, absent: 0 });
-			}
-			const counts = breakdown.get(party)!;
-			counts.sum += 1;
-			if (namedVote.was_absent === true) {
-				counts.absent += 1;
-			} else if (namedVote.was_abstention) {
-				counts.abstention += 1;
-			} else if (namedVote.infavor !== null) {
-				counts.infavor += namedVote.infavor ? 1 : 0;
-				counts.against += namedVote.infavor ? 0 : 1;
-			}
-		});
-		return breakdown;
-	});
-	const partyVoteBreakdownSorted = $derived(
-		partyVoteBreakdown
-			.values()
-			.toArray()
-			.sort((a, b) => a.sum - b.sum)
-	);
+	const sortedVotes = $derived(votesByPartySize(voteResult));
 </script>
 
 <svelte:head>
@@ -688,8 +634,8 @@
 										<div class="flex flex-col gap-2 pl-2">
 											{#each voteResult.votes
 												.slice()
-												.sort((a, b) => b.fraction - a.fraction) as vote}
-												{#if vote.infavor}
+												.sort((a, b) => b.infavor_count - a.infavor_count) as vote}
+												{#if vote.infavor_count > 0}
 													<div class="flex items-center justify-between">
 														<div class="flex items-center gap-2">
 															<div
@@ -698,11 +644,11 @@
 															></div>
 															<span class="text-base font-medium">{vote.party}</span>
 														</div>
-														<span class="text-base font-medium">({vote.fraction})</span>
+														<span class="text-base font-medium">({vote.infavor_count})</span>
 													</div>
 												{/if}
 											{/each}
-											{#if !voteResult.votes.some((v) => v.infavor)}
+											{#if !voteResult.votes.some((v) => v.infavor_count > 0)}
 												<span class="text-sm text-gray-500">Keine Klubs</span>
 											{/if}
 										</div>
@@ -719,8 +665,8 @@
 										<div class="flex flex-col gap-2 pl-2">
 											{#each voteResult.votes
 												.slice()
-												.sort((a, b) => b.fraction - a.fraction) as vote}
-												{#if !vote.infavor}
+												.sort((a, b) => b.against_count - a.against_count) as vote}
+												{#if vote.against_count > 0}
 													<div class="flex items-center justify-between">
 														<div class="flex items-center gap-2">
 															<div
@@ -729,11 +675,11 @@
 															></div>
 															<span class="text-base font-medium">{vote.party}</span>
 														</div>
-														<span class="text-base font-medium">({vote.fraction})</span>
+														<span class="text-base font-medium">({vote.against_count})</span>
 													</div>
 												{/if}
 											{/each}
-											{#if !voteResult.votes.some((v) => !v.infavor)}
+											{#if !voteResult.votes.some((v) => v.against_count > 0)}
 												<span class="text-sm text-gray-500">Keine Klubs</span>
 											{/if}
 										</div>
@@ -745,8 +691,8 @@
 							<div class="absolute ml-1 max-lg:hidden">
 								<h3 class="mb-1 text-lg font-semibold md:text-xl">Abstimmung</h3>
 								<div class="ml-1">
-									{#if partyVoteBreakdownSorted.length == 0}
-										{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
+									{#if voteResult.named_votes == null}
+										{#each sortedVotes as vote (vote.party)}
 											<div class="flex items-center justify-between gap-4">
 												<div class="flex items-center gap-2">
 													<div
@@ -756,8 +702,8 @@
 													<span class="text-sm lg:text-base">{vote.party}</span>
 												</div>
 												<div class="flex items-center gap-1">
-													<span class="text-sm lg:text-base">({vote.fraction})</span>
-													{#if vote.infavor}
+													<span class="text-sm lg:text-base">({givenVotes(vote)})</span>
+													{#if isVoteInFavor(vote)}
 														<span
 															class="inline-block stroke-green-600 align-middle dark:stroke-green-500"
 															style="width:18px; height:18px;">{@html checkmarkIcon}</span
@@ -771,52 +717,18 @@
 											</div>
 										{/each}
 									{:else}
-										{#each partyVoteBreakdownSorted.slice() as partyVotes (partyVotes.party)}
+										{#each sortedVotes as vote (vote.party)}
 											<div class="flex items-center gap-1">
 												<div class="flex w-24 shrink-0 items-center gap-2">
 													<div
 														class="h-2.5 w-2.5 rounded-full"
-														style="background-color: {partyColors.get(partyVotes.party) ?? '#ccc'};"
+														style="background-color: {partyColors.get(vote.party) ?? '#ccc'};"
 													></div>
-													<span class="text-sm lg:text-base">{partyVotes.party}</span>
+													<span class="text-sm lg:text-base">{vote.party}</span>
 												</div>
 
 												<div class="flex flex-row items-center gap-1">
-													{#if partyVotes.infavor > 0}
-														<span
-															class="inline-block stroke-green-600 align-middle dark:stroke-green-500"
-															style="width:18px; height:18px;">{@html checkmarkIcon}</span
-														>
-														<span
-															class="text-sm tabular-nums lg:text-base"
-															style="display:inline-block; width:4ch; flex: 0 0 4ch;"
-														>
-															({partyVotes.infavor})
-														</span>
-													{/if}
-													{#if partyVotes.against > 0}
-														<span class="inline-block align-middle" style="width:18px; height:18px;"
-															>{@html crossmarkIcon}</span
-														>
-														<span
-															class="text-sm tabular-nums lg:text-base"
-															style="display:inline-block; width:3.5ch; flex: 0 0 3.5ch;"
-														>
-															({partyVotes.against})
-														</span>
-													{/if}
-													{#if partyVotes.abstention > 0}
-														<span
-															class="inline-flex items-center justify-center align-middle font-extrabold text-blue-400"
-															style="width:18px; height:18px; line-height:40;">–</span
-														>
-														<span
-															class="shrink-0 text-sm tabular-nums lg:text-base"
-															style="display:inline-block; width:4ch; flex: 0 0 4ch;"
-														>
-															({partyVotes.abstention})
-														</span>
-													{/if}
+													<VoteBreakDownDonut {vote} />
 												</div>
 											</div>
 										{/each}
@@ -937,30 +849,45 @@
 					</div>
 				{/if}
 
-				{#if generalSpeechDelegates != null}
-					{#if generalSpeechDelegates.length > 0}
-						<div class="speeches-item gap-3 rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
-							<span class="text-xl font-bold md:text-3xl">Reden</span>
-							<div class="mt-3 flex flex-row flex-wrap gap-3">
-								{#each generalSpeechDelegates as speechDelegate}
-									<div class="w-full max-w-80">
-										<VoteDelegateCard
-											bubble={speechDelegate}
-											gp={voteResult.legislative_initiative.gp}
-											date={voteResult.legislative_initiative.vote_date ??
-												voteResult.legislative_initiative.nr_plenary_activity_date}
-											partyColors={data.partyColors}
-											parliament={data.parliament}
-										/>
-									</div>
-								{/each}
-							</div>
+				{#if voteResult.speeches.length > 0}
+					<div
+						class="speeches-item min-w-0 gap-3 rounded-xl bg-primary-300 p-4 dark:bg-primary-500"
+					>
+						<span class="text-xl font-bold md:text-3xl">Reden</span>
+						<div class="flex flex-col">
+							{#each voteResult.speeches as speech (speech.id)}
+								{@const speechDelegate = delegates.find((d) => d.id === speech.speech.delegate_id)}
+								<SpeechBar {speech}>
+									{#snippet header()}
+										{#if speechDelegate}
+											{@const party = speechDelegate.party?.trim()
+												? speechDelegate.party
+												: 'Ohne Klub'}
+											<div class="mb-1 flex min-w-0 items-center gap-2">
+												<img
+													src={`${url}assets/${speechDelegate.id}.jpg`}
+													alt={speechDelegate.name}
+													class="h-8 w-8 shrink-0 rounded-full object-cover text-[1px]"
+												/>
+												<div class="flex min-w-0 flex-col">
+													<span class="truncate text-sm leading-tight font-semibold lg:text-base">
+														{speechDelegate.name}
+													</span>
+													<div class="mt-0.5 flex items-center gap-1.5">
+														<div
+															class="h-2 w-2 shrink-0 rounded-full"
+															style="background-color: {partyColors.get(party) ?? '#ccc'};"
+														></div>
+														<span class="truncate text-xs text-gray-700">{party}</span>
+													</div>
+												</div>
+											</div>
+										{/if}
+									{/snippet}
+								</SpeechBar>
+							{/each}
 						</div>
-					{/if}
-				{:else}
-					{#each { length: voteResult.speeches.length * 4 } as _}
-						<ExpandablePlaceholder class="" />
-					{/each}
+					</div>
 				{/if}
 				{#if generalNamedVoteDelegates != null}
 					{#if generalNamedVoteDelegates.length > 0}
