@@ -1060,7 +1060,12 @@
 				<!-- Letzte Reden -->
 				{#if speechesPage0 && delegate && speechesPage0.speeches.length > 0}
 					<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
-						<SpeechesPreview delegateId={delegate.id} {speechesPage0} />
+						<SpeechesPreview
+							speeches={speechesPage0.speeches}
+							totalCount={speechesPage0.entry_count}
+							delegateId={delegate.id}
+							maxPage={speechesPage0.max_page}
+						/>
 					</div>
 				{:else if speechesPage0 == null && delegate && delegate.council == 'gov'}
 					<ExpandablePlaceholder />
@@ -1139,7 +1144,12 @@
 			<!-- Letzte Reden -->
 			{#if speechesPage0 && delegate && speechesPage0.speeches.length > 0}
 				<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
-					<SpeechesPreview delegateId={delegate.id} {speechesPage0} />
+					<SpeechesPreview
+						speeches={speechesPage0.speeches}
+						totalCount={speechesPage0.entry_count}
+						delegateId={delegate.id}
+						maxPage={speechesPage0.max_page}
+					/>
 				</div>
 			{:else if speechesPage0 == null && delegate && delegate.council == 'gov'}
 				<ExpandablePlaceholder />

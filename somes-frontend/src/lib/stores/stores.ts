@@ -54,3 +54,5 @@ export const currentDelegateFilterStore = persistedScoped<DelegateFilter | null>
 );
 
 export const aiViewEnabledStore = persisted<boolean>('aiViewEnabled', true);
+
+export const speechDetailLevelStore = persisted<number>('speechDetailLevel', 3);

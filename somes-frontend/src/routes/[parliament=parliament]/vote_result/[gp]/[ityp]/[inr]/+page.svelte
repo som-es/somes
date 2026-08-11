@@ -7,7 +7,7 @@
 	import { type Delegate, type VoteResult } from '$lib/types';
 	import Emphasis from '$lib/components/VoteResults/Emphasis/Emphasis.svelte';
 	import VoteDelegateCard from '$lib/components/Delegates/VoteDelegateCard.svelte';
-	import SpeechBar from '$lib/components/Delegates/Speeches/SpeechBar.svelte';
+	import SpeechesPreview from '$lib/components/Delegates/Speeches/SpeechesPreview.svelte';
 	import { genCirclesWithNamedVoteInfo, type Bubble } from '$lib/parliament';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
@@ -206,17 +206,7 @@
 
 	const sortedVotes = $derived(votesByPartySize(voteResult));
 
-	const SPEECH_PREVIEW_COUNT = 5;
 	let allSpeeches = $derived(voteResult?.speeches ?? []);
-	let showAllSpeeches = $state(false);
-	let visibleSpeeches = $derived(
-		showAllSpeeches ? allSpeeches : allSpeeches.slice(0, SPEECH_PREVIEW_COUNT)
-	);
-
-	$effect(() => {
-		allSpeeches;
-		showAllSpeeches = false;
-	});
 </script>
 
 <svelte:head>
@@ -863,56 +853,35 @@
 
 				{#if voteResult.speeches.length > 0}
 					<div
-						class="speeches-item min-w-0 gap-3 rounded-xl bg-primary-300 p-4 dark:bg-primary-500"
+						class="speeches-item min-w-0 gap-3 rounded-xl bg-primary-300 p-5 dark:bg-primary-500"
 					>
-						<div class="flex items-baseline gap-3">
-							<span class="text-xl font-bold md:text-3xl">Reden</span>
-							<span class="text-sm text-gray-800 dark:text-gray-300">
-								{allSpeeches.length}
-								{allSpeeches.length === 1 ? 'Rede' : 'Reden'} insgesamt
-							</span>
-						</div>
-						<div class="flex flex-col">
-							{#each visibleSpeeches as speech (speech.id)}
+						<SpeechesPreview title="Reden" speeches={allSpeeches} totalCount={allSpeeches.length}>
+							{#snippet speechHeader(speech)}
 								{@const speechDelegate = delegates.find((d) => d.id === speech.speech.delegate_id)}
-								<SpeechBar {speech}>
-									{#snippet header()}
-										{#if speechDelegate}
-											{@const party = speechDelegate.party?.trim()
-												? speechDelegate.party
-												: 'Ohne Klub'}
-											<div class="mb-1 flex min-w-0 items-center gap-2">
-												<img
-													src={`${url}assets/${speechDelegate.id}.jpg`}
-													alt={speechDelegate.name}
-													class="h-8 w-8 shrink-0 rounded-full object-cover text-[1px]"
-												/>
-												<div class="flex min-w-0 flex-col">
-													<span class="truncate text-sm leading-tight font-semibold lg:text-base">
-														{speechDelegate.name}
-													</span>
-													<div class="mt-0.5 flex items-center gap-1.5">
-														<div
-															class="h-2 w-2 shrink-0 rounded-full"
-															style="background-color: {partyColors.get(party) ?? '#ccc'};"
-														></div>
-														<span class="truncate text-xs text-gray-700">{party}</span>
-													</div>
-												</div>
+								{#if speechDelegate}
+									{@const party = speechDelegate.party?.trim() ? speechDelegate.party : 'Ohne Klub'}
+									<div class="flex min-w-0 items-center gap-2">
+										<img
+											src={`${url}assets/${speechDelegate.id}.jpg`}
+											alt={speechDelegate.name}
+											class="h-8 w-8 shrink-0 rounded-full object-cover text-[1px]"
+										/>
+										<div class="flex min-w-0 flex-col">
+											<span class="truncate text-sm leading-tight font-semibold lg:text-base">
+												{speechDelegate.name}
+											</span>
+											<div class="mt-0.5 flex items-center gap-1.5">
+												<div
+													class="h-2 w-2 shrink-0 rounded-full"
+													style="background-color: {partyColors.get(party) ?? '#ccc'};"
+												></div>
+												<span class="truncate text-xs text-gray-700">{party}</span>
 											</div>
-										{/if}
-									{/snippet}
-								</SpeechBar>
-							{/each}
-						</div>
-						{#if visibleSpeeches.length < allSpeeches.length}
-							<button
-								class="mt-4 btn w-full bg-secondary-500 text-white"
-								onclick={() => (showAllSpeeches = true)}
-							>
-								Alle Reden anzeigen
-							</button>
-						{/if}
+										</div>
+									</div>
+								{/if}
+							{/snippet}
+						</SpeechesPreview>
 					</div>
 				{/if}
 				{#if generalNamedVoteDelegates != null}
