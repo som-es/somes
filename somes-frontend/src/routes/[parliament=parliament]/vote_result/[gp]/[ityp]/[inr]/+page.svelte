@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { errorToNull, url } from '$lib/api/api';
-	import { aiViewEnabledStore } from '$lib/stores/stores';
+	import { aiViewEnabledStore, currentDelegateStore } from '$lib/stores/stores';
+	import { gotoHistory } from '$lib/goto';
+	import { plink } from '$lib/api/parliament';
 	import { onMount } from 'svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import Topics from '$lib/components/Topics/Topics.svelte';
@@ -867,9 +869,19 @@
 											class="h-8 w-8 shrink-0 rounded-full object-cover text-[1px]"
 										/>
 										<div class="flex min-w-0 flex-col">
-											<span class="truncate text-sm leading-tight font-semibold lg:text-base">
+											<a
+												href={plink(`/delegates?delegate=${speechDelegate.id}`)}
+												class="truncate text-sm leading-tight font-semibold hover:underline lg:text-base"
+												onclick={(e) => {
+													e.preventDefault();
+													e.stopPropagation();
+													currentDelegateStore.value = speechDelegate;
+													gotoHistory(plink(`/delegates?delegate=${speechDelegate.id}`), true);
+												}}
+												onkeypress={(e) => e.stopPropagation()}
+											>
 												{speechDelegate.name}
-											</span>
+											</a>
 											<div class="mt-0.5 flex items-center gap-1.5">
 												<div
 													class="h-2 w-2 shrink-0 rounded-full"
