@@ -67,7 +67,7 @@ async fn meilisearch_for_vote_results(
     vote_result_filter: OptionalVoteResultFilter,
     redis_con: &mut MultiplexedConnection,
 ) -> Result<VoteResultsWithMaxPage, FilterError> {
-    // dbg!(&vote_result_filter);
+    dbg!(&vote_result_filter);
     let mut filter_conditions = if is_finished {
         vec![r#"legislative_initiative.accepted IS NOT NULL"#.to_string()]
     } else {
@@ -79,6 +79,8 @@ async fn meilisearch_for_vote_results(
         meilisearch_filters_vote_result,
         None,
     );
+
+    filter_conditions.extend(meilisearch_filters_vote_result(vote_result_filter, None));
 
     if let Some(party_votes) = &filter.party_votes {
         filter_conditions.push(create_topic_filter(
