@@ -205,6 +205,18 @@
 	];
 
 	const sortedVotes = $derived(votesByPartySize(voteResult));
+
+	const SPEECH_PREVIEW_COUNT = 5;
+	let allSpeeches = $derived(voteResult?.speeches ?? []);
+	let showAllSpeeches = $state(false);
+	let visibleSpeeches = $derived(
+		showAllSpeeches ? allSpeeches : allSpeeches.slice(0, SPEECH_PREVIEW_COUNT)
+	);
+
+	$effect(() => {
+		allSpeeches;
+		showAllSpeeches = false;
+	});
 </script>
 
 <svelte:head>
@@ -853,9 +865,15 @@
 					<div
 						class="speeches-item min-w-0 gap-3 rounded-xl bg-primary-300 p-4 dark:bg-primary-500"
 					>
-						<span class="text-xl font-bold md:text-3xl">Reden</span>
+						<div class="flex items-baseline gap-3">
+							<span class="text-xl font-bold md:text-3xl">Reden</span>
+							<span class="text-sm text-gray-800 dark:text-gray-300">
+								{allSpeeches.length}
+								{allSpeeches.length === 1 ? 'Rede' : 'Reden'} insgesamt
+							</span>
+						</div>
 						<div class="flex flex-col">
-							{#each voteResult.speeches as speech (speech.id)}
+							{#each visibleSpeeches as speech (speech.id)}
 								{@const speechDelegate = delegates.find((d) => d.id === speech.speech.delegate_id)}
 								<SpeechBar {speech}>
 									{#snippet header()}
@@ -887,6 +905,14 @@
 								</SpeechBar>
 							{/each}
 						</div>
+						{#if visibleSpeeches.length < allSpeeches.length}
+							<button
+								class="mt-4 btn w-full bg-secondary-500 text-white"
+								onclick={() => (showAllSpeeches = true)}
+							>
+								Alle Reden anzeigen
+							</button>
+						{/if}
 					</div>
 				{/if}
 				{#if generalNamedVoteDelegates != null}

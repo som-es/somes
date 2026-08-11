@@ -14,7 +14,7 @@
 <div>
 	<div class="flex items-start justify-between">
 		<div>
-			<h1 class="text-lg font-semibold text-black xl:text-xl dark:text-white">Letzte Reden</h1>
+			<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">Letzte Reden</h1>
 			<h2 class="text-sm text-gray-800 dark:text-gray-300">
 				{speechesPage0.entry_count}
 				{speechesPage0.entry_count == 1 ? 'Rede' : 'Reden'} insgesamt

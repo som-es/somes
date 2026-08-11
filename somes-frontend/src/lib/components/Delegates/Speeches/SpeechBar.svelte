@@ -111,49 +111,48 @@
 		onkeypress={(e) => (e.key === 'Enter' || e.key === ' ') && toggleOpen()}
 	>
 		<div class="w-1.5 shrink-0 {barColor}"></div>
-		<div class="flex min-w-0 flex-1 items-center justify-between gap-3 p-3 lg:px-5 lg:py-4">
-			<div class="flex min-w-0 flex-1 flex-col">
-				{#if header}
-					<div class="mb-1.5 flex min-w-0 items-center gap-2">
-						{@render header()}
-						<div class="ml-auto flex shrink-0 items-center gap-3 self-start text-gray-700">
-							{@render metaIcons()}
-						</div>
+		<div
+			class="min-w-0 flex-1 p-3 after:clear-both after:block after:content-[''] lg:px-5 lg:py-4"
+			style="hyphens: auto; word-break: normal; overflow-wrap: break-word;"
+		>
+			{#if header}
+				<div class="mb-1.5 flex min-w-0 items-center gap-2">
+					{@render header()}
+					<div class="ml-auto flex shrink-0 items-center gap-3 self-start text-gray-700">
+						{@render metaIcons()}
 					</div>
-				{/if}
-				{#if aiSummary}
-					<span
-						class="line-clamp-2 text-sm leading-snug font-semibold lg:text-lg"
-						style="hyphens: auto; word-break: normal; overflow-wrap: break-word;"
-					>
-						{aiSummary.short_title}
-					</span>
-					<span class="mt-0.5 line-clamp-3 text-xs text-gray-800 lg:line-clamp-none lg:text-base">
-						{aiSummary.short_summary}
-					</span>
-				{:else}
-					{#if !header}
-						<span class="text-sm font-semibold lg:text-lg">{opinion}</span>
-					{/if}
-					{#if speech.speech.about}
-						<span class="mt-0.5 line-clamp-2 text-xs text-gray-800 lg:text-base">
-							{speech.speech.about}
-						</span>
-					{/if}
-				{/if}
-			</div>
-			{#if !header}
-				<div class="flex shrink-0 items-center gap-3 self-start text-gray-700">
+				</div>
+			{:else}
+				<div class="float-right ml-3 flex items-center gap-3 text-gray-700">
 					{@render metaIcons()}
 				</div>
+			{/if}
+			{#if aiSummary}
+				{#if !header}
+					<span class="block text-lg leading-snug font-semibold">
+						{aiSummary.short_title}
+					</span>
+				{/if}
+				<span class="mt-1 block text-sm text-gray-800 sm:text-base">
+					{aiSummary.short_summary}
+				</span>
+			{:else}
+				{#if !header}
+					<span class="block text-lg leading-snug font-semibold">{opinion}</span>
+				{/if}
+				{#if speech.speech.about}
+					<span class="mt-1 block text-sm text-gray-800 sm:text-base">
+						{speech.speech.about}
+					</span>
+				{/if}
 			{/if}
 		</div>
 	</div>
 
 	{#snippet metaIcons()}
 		{#if speechDuration}
-			<span class="flex items-center gap-1 text-xs whitespace-nowrap">
-				<span class="h-3.5 w-3.5 shrink-0 [&_path]:stroke-current [&>svg]:h-full [&>svg]:w-full">
+			<span class="flex items-center gap-1 text-sm whitespace-nowrap">
+				<span class="h-4 w-4 shrink-0 [&_path]:stroke-current [&>svg]:h-full [&>svg]:w-full">
 					{@html clockIcon}
 				</span>
 				{speechDuration.mins}:{speechDuration.seconds.toString().padStart(2, '0')} min
