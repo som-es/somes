@@ -60,6 +60,8 @@
 	// 	absences.slice((page - 1) * ENTRIES, page * ENTRIES)
 	// );
 	let totalAbsences = $derived(absences.length);
+
+	let openSessionId: number | null = $state(null);
 </script>
 
 <div class="card p-8">
@@ -88,8 +90,14 @@
 						{#each entry.sessions as item, i (item.session.id)}
 							{@const isAbsent = !!item.absence}
 							{@const hasUrl = !!item.absence?.source_url}
-							<Popover.Root>
-								<Popover.Trigger openOnHover openDelay={200}>
+							<Popover.Root
+								open={openSessionId === item.session.id}
+								onOpenChange={(isOpen) => {
+									if (isOpen) openSessionId = item.session.id;
+									else if (openSessionId === item.session.id) openSessionId = null;
+								}}
+							>
+								<Popover.Trigger openOnHover openDelay={0}>
 									<svelte:element
 										this={hasUrl ? 'a' : 'div'}
 										href={item.absence?.source_url ?? undefined}
