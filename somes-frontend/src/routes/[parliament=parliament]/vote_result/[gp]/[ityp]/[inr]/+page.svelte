@@ -371,6 +371,9 @@
 						<Emphasis
 							emphasis={voteResult.ai_summary.full_summary.key_points}
 							glossary={voteResult.ai_summary.full_summary.glossary}
+							speeches={allSpeeches}
+							{delegates}
+							legisInitId={voteResult.legislative_initiative.id}
 						></Emphasis>
 					</div>
 				{/if}

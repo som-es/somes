@@ -2,12 +2,12 @@
 	import { getParliament, plink, type Parliament } from '$lib/api/parliament';
 	import { gotoHistory } from '$lib/goto';
 	import type { Bubble } from '$lib/parliament';
-	import { getPartyColors, partyToColor } from '$lib/partyColor';
+	import { getPartyColors } from '$lib/partyColor';
 	import { currentDelegateStore } from '$lib/stores/stores';
 	import type { Delegate } from '$lib/types';
 	import DelegateCard from './DelegateCard.svelte';
 	import SpeechModal from './Speeches/SpeechModal.svelte';
-	import { url } from '$lib/api/api';
+	import SpeechDelegateHeader from './Speeches/SpeechDelegateHeader.svelte';
 	import { Popover } from 'bits-ui';
 
 	interface Props {
@@ -16,7 +16,7 @@
 		gp: string;
 		class?: string;
 		partyColors?: Map<string, string>;
-		parliament?: Parliament,
+		parliament?: Parliament;
 	}
 
 	let { bubble, date, gp, class: clazz = '', partyColors = getPartyColors(), parliament = getParliament() }: Props = $props();
@@ -166,30 +166,8 @@
 	{#if bubble.speech}
 		<SpeechModal speech={bubble.speech} bind:open={speechModalOpen}>
 			{#snippet header()}
-				<div class="mb-1.5 flex min-w-0 items-center gap-2">
-					<img
-						src={`${url}assets/${delegate.id}.jpg`}
-						alt={delegate.name}
-						class="h-8 w-8 shrink-0 rounded-full object-cover text-[1px]"
-					/>
-					<div class="flex min-w-0 flex-col">
-						<span class="truncate text-sm leading-tight font-semibold lg:text-base"
-							>{delegate.name}</span
-						>
-						<div class="mt-0.5 flex items-center gap-1.5">
-							<div
-								class="h-2 w-2 shrink-0 rounded-full"
-								style="background-color: {partyToColor(delegate.party, partyColors)};"
-							></div>
-							<span class="truncate text-xs text-gray-700">
-								{#if delegate.party == null || delegate.party == 'OK'}
-									Ohne Klub
-								{:else}
-									<span>{delegate.party}</span>
-								{/if}
-							</span>
-						</div>
-					</div>
+				<div class="mb-1.5">
+					<SpeechDelegateHeader {delegate} {partyColors} />
 				</div>
 			{/snippet}
 		</SpeechModal>
