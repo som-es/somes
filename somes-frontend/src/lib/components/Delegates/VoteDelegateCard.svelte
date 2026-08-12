@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getParliament, type Parliament } from '$lib/api/parliament';
+	import { getParliament, plink, type Parliament } from '$lib/api/parliament';
 	import { gotoHistory } from '$lib/goto';
 	import type { Bubble } from '$lib/parliament';
 	import { getPartyColors } from '$lib/partyColor';
@@ -23,7 +23,11 @@
 
 	const onShowDetails = () => {
 		currentDelegateStore.value = delegate;
-		gotoHistory(`/delegates?gp=${gp}&date=${date}`, true);
+		if (delegate) {
+		    const link = plink(`/delegates?gp=${gp}&date=${date}&delegate=${delegate.id}`);
+			console.log(link);
+			gotoHistory(link, true);
+		}
 	};
 
 	// const popupFeatured: PopupSettings = {
@@ -93,6 +97,7 @@
 		showAI={false}
 		{partyColors}
 		{parliament}
+		{onShowDetails}
 	>
 		{#snippet top()}
 			<span class="mt-2">

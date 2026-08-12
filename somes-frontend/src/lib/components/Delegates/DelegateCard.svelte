@@ -16,6 +16,11 @@
 	import { getParliament, plink, type Parliament } from '$lib/api/parliament';
 	import type { SvelteMap } from 'svelte/reactivity';
 
+	const onShowDetailsDefault = () => {
+		currentDelegateStore.value = delegate;
+		gotoHistory(plink('/delegates'), true);
+	};
+
 	interface Props {
 		delegate: Delegate;
 		onlyTop?: boolean;
@@ -32,7 +37,8 @@
 		info?: import('svelte').Snippet;
 		footerButtons?: import('svelte').Snippet;
 		partyColors?: Map<string, string>;
-		parliament?: Parliament
+		parliament?: Parliament;
+		onShowDetails?: () => void;
 	}
 
 	let {
@@ -51,15 +57,11 @@
 		info,
 		footerButtons,
 		partyColors = globalPartyColors,
-		parliament = getParliament()
+		parliament = getParliament(),
+		onShowDetails = onShowDetailsDefault
 	}: Props = $props();
 
 	const showDelegate = import.meta.env.VITE_SHOW_DELEGATE_ID;
-
-	const onShowDetails = () => {
-		currentDelegateStore.value = delegate;
-		gotoHistory(plink('/delegates'), true);
-	};
 
 	let delegateFavos: SvelteMap<number, DelegateFavo> | null = $state(null);
 	onMount(async () => {

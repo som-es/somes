@@ -32,7 +32,8 @@
 			type: 'decree',
 			infoBadges: [decreeDelegate.decree.ministrial_issuer, date, decreeDelegate.decree.gp].filter(
 				(x) => x !== null
-			) as string[]
+			) as string[],
+			gp: decreeDelegate.decree.gp!
 		};
 	});
 </script>

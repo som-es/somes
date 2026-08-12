@@ -20,6 +20,7 @@
 	import { convertVoteResultFilterToUrl } from '../VoteResults/Expandable/urlConversion';
 	import {
 		currentDecreeFilterStore,
+		currentDelegateFilterStore,
 		currentGovProposalFilterStore,
 		currentUnfinshedVoteResultFilterStore,
 		currentVoteResultFilterStore

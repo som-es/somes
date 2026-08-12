@@ -209,6 +209,7 @@
 	const sortedVotes = $derived(votesByPartySize(voteResult));
 
 	let allSpeeches = $derived(voteResult?.speeches ?? []);
+	let date = $derived(voteResult?.legislative_initiative?.vote_date ? voteResult?.legislative_initiative?.vote_date : voteResult?.legislative_initiative?.nr_plenary_activity_date);
 </script>
 
 <svelte:head>
@@ -870,13 +871,13 @@
 										/>
 										<div class="flex min-w-0 flex-col">
 											<a
-												href={plink(`/delegates?delegate=${speechDelegate.id}`)}
+												href={plink(`/delegates?delegate=${speechDelegate.id}&date=${date}&gp=${voteResult.legislative_initiative.gp}`)}
 												class="truncate text-sm leading-tight font-semibold hover:underline lg:text-base"
 												onclick={(e) => {
 													e.preventDefault();
 													e.stopPropagation();
 													currentDelegateStore.value = speechDelegate;
-													gotoHistory(plink(`/delegates?delegate=${speechDelegate.id}`), true);
+													gotoHistory(plink(`/delegates?delegate=${speechDelegate.id}&date=${date}&gp=${voteResult.legislative_initiative.gp}`), true);
 												}}
 												onkeypress={(e) => e.stopPropagation()}
 											>

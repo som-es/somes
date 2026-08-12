@@ -586,6 +586,7 @@ export interface DelegateFilter {
 	search_value: string | null;
 	legis_period: string | null;
 	day_offset: number | null;
+    supply_date: string | null;
 }
 
 export interface StanceTopicScore {

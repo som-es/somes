@@ -104,7 +104,6 @@
 
 		// get interest topics from api
 		const data = await cachedUserTopics(true);
-		console.log(data);
 
 		if (data) {
 			selectedTopics = new SvelteSet<string>(data.map((topic) => topic.id));
