@@ -61,15 +61,18 @@
 			<ul class="list mt-2 fill-primary-400 px-3">
 				{#each firstPoints as emph, i}
 					<li class="mb-3 md:flex md:items-start md:justify-between md:gap-3">
-						<span class="md:min-w-0 md:flex-1">
-							<span class="badge bg-primary-500 dark:bg-primary-300"></span>
-							{#if glossary}
-								<span class="text-base text-gray-800 lg:text-base dark:text-gray-200">
-									<GlossaryText text={emph.point} {glossary} />
-								</span>
-							{:else}
-								<span>{emph.point}</span>
-							{/if}
+						<span class="flex gap-2 md:min-w-0 md:flex-1">
+							<span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary-500 dark:bg-primary-300"
+							></span>
+							<span class="min-w-0 flex-1">
+								{#if glossary}
+									<span class="text-base text-gray-800 lg:text-base dark:text-gray-200">
+										<GlossaryText text={emph.point} {glossary} />
+									</span>
+								{:else}
+									<span>{emph.point}</span>
+								{/if}
+							</span>
 						</span>
 						<KeypointSpeakers speakers={speakersByPoint.get(i) ?? []} pointText={emph.point} />
 					</li>
@@ -79,15 +82,19 @@
 					<div transition:slide={{ duration: 240 }}>
 						{#each restPoints as emph, i}
 							<li class="my-3 md:flex md:items-start md:justify-between md:gap-3">
-								<span class="md:min-w-0 md:flex-1">
-									<span class="badge bg-primary-500 dark:bg-primary-300"></span>
-									{#if glossary}
-										<span class="text-base text-gray-800 lg:text-base dark:text-gray-200">
-											<GlossaryText text={emph.point} {glossary} />
-										</span>
-									{:else}
-										<span>{emph.point}</span>
-									{/if}
+								<span class="flex gap-2 md:min-w-0 md:flex-1">
+									<span
+										class="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary-500 dark:bg-primary-300"
+									></span>
+									<span class="min-w-0 flex-1">
+										{#if glossary}
+											<span class="text-base text-gray-800 lg:text-base dark:text-gray-200">
+												<GlossaryText text={emph.point} {glossary} />
+											</span>
+										{:else}
+											<span>{emph.point}</span>
+										{/if}
+									</span>
 								</span>
 								<KeypointSpeakers
 									speakers={speakersByPoint.get(i + VISIBLE_COUNT) ?? []}
