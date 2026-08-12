@@ -139,7 +139,16 @@
 							{@render header()}
 						{/if}
 						<h1 class="text-xl font-bold lg:text-2xl">
-							{aiSummary?.short_title ?? speech.speech.about ?? 'Rede'}
+							{#if aiSummary}
+								<AiSummaryHintPopup
+									{aiSummary}
+									align="start"
+									aiGenText="Titel, Zusammenfassungen, Schwerpunkte und Bezüge zu Abstimmungen wurden mittels KI aus der Rede erstellt."
+								/>
+								{aiSummary.short_title}
+							{:else}
+								{speech.speech.about ?? 'Rede'}
+							{/if}
 						</h1>
 						<div class="mt-1 flex flex-wrap items-center gap-3 text-sm text-gray-700">
 							{#if speechDuration}
@@ -164,59 +173,53 @@
 
 				{#if aiSummary}
 					<div class="rounded-xl bg-primary-300 px-5 py-3 dark:bg-primary-500">
-						<div class="flex items-start justify-between gap-2">
-							<div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-								<h2 class="text-lg font-semibold md:text-xl">Zusammenfassung</h2>
-								{#if detailLevels.length > 1}
-									<Select.Root
-										type="single"
-										value={safeDetailIndex.toString()}
-										onValueChange={(value) => (detailIndex = Number(value))}
-										items={detailLevels.map((level, i) => ({
-											value: i.toString(),
-											label: level.label
-										}))}
+						<div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+							<h2 class="text-lg font-semibold md:text-xl">Zusammenfassung</h2>
+							{#if detailLevels.length > 1}
+								<Select.Root
+									type="single"
+									value={safeDetailIndex.toString()}
+									onValueChange={(value) => (detailIndex = Number(value))}
+									items={detailLevels.map((level, i) => ({
+										value: i.toString(),
+										label: level.label
+									}))}
+								>
+									<Select.Trigger
+										class="flex touch-manipulation items-center rounded-lg bg-primary-600 px-2 py-0.5 text-xs text-white transition-colors focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none [&>svg]:ml-1 [&>svg]:size-3"
 									>
-										<Select.Trigger
-											class="flex touch-manipulation items-center rounded-lg bg-primary-600 px-2 py-0.5 text-xs text-white transition-colors focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none [&>svg]:ml-1 [&>svg]:size-3"
+										<span class="truncate">{detailLevels[safeDetailIndex].label}</span>
+										{@html upDownArrowIcon}
+									</Select.Trigger>
+									<Select.Portal>
+										<Select.Content
+											class="z-500 max-h-60 w-[150px] min-w-[var(--bits-select-anchor-width)] overflow-hidden rounded-lg border border-gray-200 bg-surface-100 shadow-lg dark:bg-surface-500"
+											sideOffset={6}
 										>
-											<span class="truncate">{detailLevels[safeDetailIndex].label}</span>
-											{@html upDownArrowIcon}
-										</Select.Trigger>
-										<Select.Portal>
-											<Select.Content
-												class="z-500 max-h-60 w-[150px] min-w-[var(--bits-select-anchor-width)] overflow-hidden rounded-lg border border-gray-200 bg-surface-100 shadow-lg dark:bg-surface-500"
-												sideOffset={6}
-											>
-												<Select.Viewport class="p-1">
-													{#each detailLevels as level, i (i)}
-														<Select.Item
-															class="flex h-8 w-full cursor-pointer items-center rounded-md py-2 pr-1.5 pl-2.5 text-xs transition-all duration-75 outline-none select-none data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-400"
-															value={i.toString()}
-															label={level.label}
-														>
-															{#snippet children({ selected })}
-																<div class="flex items-center gap-2">
-																	{level.label}
+											<Select.Viewport class="p-1">
+												{#each detailLevels as level, i (i)}
+													<Select.Item
+														class="flex h-8 w-full cursor-pointer items-center rounded-md py-2 pr-1.5 pl-2.5 text-xs transition-all duration-75 outline-none select-none data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-400"
+														value={i.toString()}
+														label={level.label}
+													>
+														{#snippet children({ selected })}
+															<div class="flex items-center gap-2">
+																{level.label}
+															</div>
+															{#if selected}
+																<div class="ml-auto h-4 stroke-black dark:stroke-white">
+																	{@html checkmarkSmall}
 																</div>
-																{#if selected}
-																	<div class="ml-auto h-4 stroke-black dark:stroke-white">
-																		{@html checkmarkSmall}
-																	</div>
-																{/if}
-															{/snippet}
-														</Select.Item>
-													{/each}
-												</Select.Viewport>
-											</Select.Content>
-										</Select.Portal>
-									</Select.Root>
-								{/if}
-							</div>
-							<AiSummaryHintPopup
-								{aiSummary}
-								aiGenText="Titel, Zusammenfassungen, Schwerpunkte und Bezüge zu Abstimmungen wurden mittels KI aus der Rede erstellt."
-							/>
+															{/if}
+														{/snippet}
+													</Select.Item>
+												{/each}
+											</Select.Viewport>
+										</Select.Content>
+									</Select.Portal>
+								</Select.Root>
+							{/if}
 						</div>
 
 						<p class="text-base text-gray-800 dark:text-gray-200">
