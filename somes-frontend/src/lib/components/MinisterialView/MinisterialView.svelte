@@ -135,10 +135,7 @@
 		</div>
 
 		{#if aiViewEnabledStore.value && ministerialData.aiSummary}
-			<Emphasis
-				emphasis={ministerialData.aiSummary.full_summary.key_points}
-				glossary={ministerialData.aiSummary.full_summary.glossary}
-			/>
+			<Emphasis summary={ministerialData.aiSummary.full_summary} />
 		{/if}
 		{#if ministerialData.documents.length > 0 && snippets['voteable'] == null}
 			<div class="flex min-w-full flex-wrap gap-2">

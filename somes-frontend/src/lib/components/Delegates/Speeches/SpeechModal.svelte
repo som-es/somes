@@ -7,6 +7,7 @@
 	import upDownArrowIcon from '$lib/assets/misc_icons/up-down-arrow.svg?raw';
 	import downArrowIcon from '$lib/assets/misc_icons/down-arrow.svg?raw';
 	import checkmarkSmall from '$lib/assets/misc_icons/checkmark_small.svg?raw';
+	import linkIcon from '$lib/assets/misc_icons/external-link.svg?raw';
 	import type { VoteResult } from '$lib/types';
 	import { Opinion, type DbSpeechRelations, type FullSpeech } from '$lib/speechTypes';
 	import { aiViewEnabledStore, speechDetailLevelStore } from '$lib/stores/stores';
@@ -53,6 +54,27 @@
 			loadingVoteResults = false;
 		});
 	});
+
+	function encodeQuotePart(text: string): string {
+		return encodeURIComponent(text).replace(/-/g, '%2D');
+	}
+
+	// for long text, only search via 3 start and end words 
+	function protocolLink(quote: string): string | null {
+		const documentUrl = speech.speech.document_urls?.[0];
+		if (!documentUrl) return null;
+
+		const words = quote.trim().split(/\s+/);
+		let searchText = encodeQuotePart(quote);
+		if (words.length > 12) {
+			const start = encodeQuotePart(words.slice(0, 3).join(' '));
+			const end = encodeQuotePart(words.slice(-3).join(' '));
+			searchText = `${start},${end}`;
+		}
+
+		const separator = documentUrl.includes('#') ? '' : '#';
+		return documentUrl + separator + ':~:text=' + searchText;
+	}
 
 	let aiSummary = $derived(aiViewEnabledStore.value ? speech.ai_summary : null);
 	let glossary = $derived(aiSummary?.full_speech_summary.glossary ?? null);
@@ -266,8 +288,7 @@
 													</button>
 
 													{#if isOpen}
-														<!-- TODO: Sobald der Redetext über die API kommt, hier die Stelle
-														     im Volltext markieren statt sie nur als Zitat zu zeigen. -->
+														{@const link = protocolLink(quote)}
 														<blockquote
 															transition:slide={{ duration: 240 }}
 															class="mt-2 flex items-center gap-2 rounded-lg border-l-4 border-secondary-500 bg-primary-200 py-3 pr-4 pl-3 dark:bg-primary-400"
@@ -280,9 +301,31 @@
 															>
 																“
 															</span>
-															<p class="text-sm text-gray-800 italic dark:text-gray-200">
-																{quote}
-															</p>
+															{#if link}
+																<a
+																	href={link}
+																	target="_blank"
+																	rel="noopener"
+																	title="Stelle im Protokoll öffnen"
+																	class="group flex min-w-0 flex-1 items-center gap-2"
+																>
+																	<p
+																		class="text-sm text-gray-800 italic group-hover:underline dark:text-gray-200"
+																	>
+																		{quote}
+																	</p>
+																	<span
+																		aria-hidden="true"
+																		class="h-4 w-4 shrink-0 self-start text-gray-700 dark:text-gray-300 [&>svg]:h-full [&>svg]:w-full"
+																	>
+																		{@html linkIcon}
+																	</span>
+																</a>
+															{:else}
+																<p class="text-sm text-gray-800 italic dark:text-gray-200">
+																	{quote}
+																</p>
+															{/if}
 														</blockquote>
 													{/if}
 												{:else}
