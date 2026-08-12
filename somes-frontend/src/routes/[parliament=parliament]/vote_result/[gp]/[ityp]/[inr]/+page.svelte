@@ -368,8 +368,7 @@
 				{#if aiViewEnabledStore.value && voteResult.ai_summary}
 					<div class="emphasis-item">
 						<Emphasis
-							emphasis={voteResult.ai_summary.full_summary.key_points}
-							glossary={voteResult.ai_summary.full_summary.glossary}
+							summary={voteResult.ai_summary.full_summary}
 							speeches={allSpeeches}
 							{delegates}
 							legisInitId={voteResult.legislative_initiative.id}
