@@ -4,6 +4,8 @@
 	import AllSpeechesModal from './AllSpeechesModal.svelte';
 	import SpeechBar from './SpeechBar.svelte';
 	import ExtendInfoDialog from '../ExtendInfoDialog.svelte';
+	import AiSummaryHintPopup from '$lib/components/AiHint/AiSummaryHintPopup.svelte';
+	import { aiViewEnabledStore } from '$lib/stores/stores';
 
 	interface Props {
 		speeches: FullSpeech[];
@@ -25,12 +27,25 @@
 
 	const PREVIEW_COUNT = 2;
 	let previewSpeeches = $derived(speeches.slice(0, PREVIEW_COUNT));
+
+	let hintAiSummary = $derived(speeches.find((s) => s.ai_summary)?.ai_summary);
 </script>
 
 <div>
 	<div class="flex items-start justify-between gap-3">
 		<div class="min-w-0">
-			<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">{title}</h1>
+			<div class="flex items-start gap-2">
+				<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">
+					{#if aiViewEnabledStore.value && hintAiSummary}
+						<AiSummaryHintPopup
+							aiSummary={hintAiSummary}
+							align="start"
+							aiGenText="Titel und Zusammenfassungen der Reden wurden mittels KI aus den jeweiligen Reden erstellt."
+						/>
+					{/if}
+					{title}
+				</h1>
+			</div>
 			<h2 class="text-sm text-gray-800 dark:text-gray-300">
 				{totalCount}
 				{totalCount === 1 ? 'Rede' : 'Reden'} insgesamt

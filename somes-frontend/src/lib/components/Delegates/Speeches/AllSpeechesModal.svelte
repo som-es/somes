@@ -6,6 +6,8 @@
 	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
 	import type { FullSpeech } from '$lib/speechTypes';
 	import type { Snippet } from 'svelte';
+	import AiSummaryHintPopup from '$lib/components/AiHint/AiSummaryHintPopup.svelte';
+	import { aiViewEnabledStore } from '$lib/stores/stores';
 
 	interface Props {
 		title?: string;
@@ -28,11 +30,22 @@
 	});
 
 	let visibleSpeeches = $derived(fetchedSpeeches ?? speeches);
+
+	let hintAiSummary = $derived(visibleSpeeches.find((s) => s.ai_summary)?.ai_summary);
 </script>
 
 <div class="card p-8">
 	<div class="flex items-center justify-between">
-		<h1 class="text-2xl font-bold">{title}</h1>
+		<h1 class="text-2xl font-bold">
+			{#if aiViewEnabledStore.value && hintAiSummary}
+				<AiSummaryHintPopup
+					aiSummary={hintAiSummary}
+					align="start"
+					aiGenText="Titel und Zusammenfassungen der Reden wurden mittels KI aus den jeweiligen Reden erstellt."
+				/>
+			{/if}
+			{title}
+		</h1>
 		<Dialog.Close>
 			<ModalCloseButton />
 		</Dialog.Close>

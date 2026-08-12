@@ -6,12 +6,14 @@
 		aiSummary: Pick<DbAiSummary, 'model_used' | 'version' | 'generated_at'>;
 		useTitleHover?: boolean;
 		aiGenText?: string;
+		align?: 'start' | 'center' | 'end';
 	}
 
 	let {
 		aiSummary,
 		useTitleHover = false,
-		aiGenText = 'Titel, Zusammenfassungen, Schwerpunkte, Gültigkeitszeiträume, Themen und Glossar wurden mittels KI aus den jeweiligen Dokumenten zusammengefasst.'
+		aiGenText = 'Titel, Zusammenfassungen, Schwerpunkte, Gültigkeitszeiträume, Themen und Glossar wurden mittels KI aus den jeweiligen Dokumenten zusammengefasst.',
+		align = 'center'
 	}: Props = $props();
 
 	let titleHover = $derived(useTitleHover ? aiGenText : '');
@@ -23,7 +25,12 @@
 	<Popover.Trigger openOnHover openDelay={100} class="text-3xl" title={titleHover}
 		>⚠</Popover.Trigger
 	>
-	<Popover.Content class="z-50! w-72 card bg-primary-300-700 p-4 shadow-xl" data-popup="emphasisAi">
+	<Popover.Content
+		{align}
+		collisionPadding={8}
+		class="z-50! w-72 card bg-primary-300-700 p-4 shadow-xl"
+		data-popup="emphasisAi"
+	>
 		<div class="z-50 text-base font-bold">{aiGenText}</div>
 		<div class="flex flex-col flex-wrap text-sm! font-thin!">
 			<span
