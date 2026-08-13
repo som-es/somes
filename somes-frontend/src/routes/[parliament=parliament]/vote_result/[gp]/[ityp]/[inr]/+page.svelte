@@ -95,6 +95,7 @@
 				return {
 					absent: namedVoteInfo.namedVote.was_absent,
 					infavor: namedVoteInfo.namedVote.infavor,
+					abstention: namedVoteInfo.namedVote.was_abstention,
 					delegate,
 					isNamedVote: true
 				};
@@ -200,11 +201,17 @@
 	});
 	let documents = $derived(voteResult?.documents ?? []);
 
-	const infavorOptions = [
-		{ value: 'Infavor', label: 'Dafür' },
-		{ value: 'NoVote', label: 'Nicht abgestimmt' },
-		{ value: 'Against', label: 'Dagegen' }
-	];
+	const infavorOptions = $derived.by(() => {
+	    const val = [
+    		{ value: 'Infavor', label: 'Dafür' },
+    		{ value: 'NoVote', label: 'Nicht abgestimmt' },
+    		{ value: 'Against', label: 'Dagegen' },
+		];
+		if (data.parliament == "eu") {
+		    val.push({ value: 'Abstention', label: 'Enthalten' });
+		}
+		return val
+	});
 
 	const sortedVotes = $derived(votesByPartySize(voteResult));
 
@@ -540,6 +547,13 @@
 											{#if !del.isNamedVote}
 												<span class="text-xs font-light"> (Klub) </span>
 											{/if}
+										{:else if del.abstention === true}
+											<span
+                                                class="text-blue-500 text-4xl inline-flex items-center justify-center"
+                                                style="width:24px; height:24px;"
+                                            >
+                                                –
+                                            </span>
 										{/if}
 									</DelegateListItem>
 								{/each}

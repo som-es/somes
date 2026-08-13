@@ -10,10 +10,10 @@
 		size?: number;
 	} = $props();
 
-	const INFAVOR_COLOR = '#16a34a';
-	const AGAINST_COLOR = '#dc2626';
-	const ABSTENTION_COLOR = '#60a5fa';
-	const ABSENT_COLOR = '#d1d5db';
+	const INFAVOR_COLOR = 'var(--color-green-600)';
+	const AGAINST_COLOR = 'var(--color-red-500)';
+	const ABSTENTION_COLOR = 'var(--color-blue-500)';
+	const ABSENT_COLOR = 'var(--color-gray-400)';
 
 	const VIEWBOX = 20;
 	const CENTER = VIEWBOX / 2;
@@ -60,7 +60,7 @@
 >
 	<Tooltip.Root>
 		<Tooltip.Trigger
-			class="block shrink-0 cursor-default"
+			class="block shrink-0 cursor-default text-blue-500"
 			style="width:{size}px; height:{size}px;"
 			aria-label="Abstimmungsverhalten {vote.party}"
 		>
