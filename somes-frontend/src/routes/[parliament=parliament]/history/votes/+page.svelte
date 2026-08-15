@@ -4,6 +4,7 @@
 	import type { Party, PartyStates, VoteResultsWithMaxPage } from '$lib/types';
 	import type { PageProps } from './$types';
 	import { errorToNull } from '$lib/api/api';
+	import { t } from '$lib/i18n/i18n.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -16,14 +17,14 @@
 </script>
 
 <svelte:head>
-	<title>Abstimmungen</title>
-	<meta name="description" content="Filterbare Liste an Abstimmungen im Nationalrat" />
+	<title>{t('history.votes.title')}</title>
+	<meta name="description" content={t('history.votes.meta')} />
 </svelte:head>
 
 <!-- <div class="mx-auto px-5"> -->
 <Container>
 	<h1 class="mt-2 px-1 pt-2 text-3xl font-bold sm:mt-0 sm:p-0 sm:text-4xl">
-		Vergangene Abstimmungsergebnisse
+		{t('history.votes.h1')}
 	</h1>
 
 	{#if partiesPerGp && coalitionPartiesPerGp}

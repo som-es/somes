@@ -17,6 +17,7 @@
 	import { convertDecreeFilterToUrl } from '../Decrees/urlConversion';
 	import { convertGovPropFilterToUrl } from '../Proposals/urlConversion';
 	import { accountOrLogin } from './user';
+	import { t } from '$lib/i18n/i18n.svelte';
 
 	let isOpen = $state(false);
 	let expandedItems = $state<Record<string, boolean>>({});
@@ -44,36 +45,36 @@
 	);
 
 	const navItems: NavItem[] = $derived([
-		{ href: plink('/home'), label: 'Neuigkeiten' },
+		{ href: plink('/home'), label: t('nav.news') },
 		{
-			label: 'Abstimmungen',
+			label: t('nav.votes'),
 			subItems: [
 				{
-					title: 'Nationalrat',
+					title: t('nav.nationalCouncil'),
 					items: [
-						{ href: voteResultUrl.href, pathname: voteResultUrl.pathname, label: 'Abstimmungen' },
+						{ href: voteResultUrl.href, pathname: voteResultUrl.pathname, label: t('nav.votes') },
 						{
 							href: unfinishedVoteResultUrl.href,
 							pathname: unfinishedVoteResultUrl.pathname,
-							label: 'Zur Abstimmung'
+							label: t('nav.toVote')
 						}
 					]
 				},
 				{
-					title: 'Regierung',
+					title: t('nav.government'),
 					items: [
 						{
 							href: govProposalUrl.href,
 							pathname: govProposalUrl.pathname,
-							label: 'Ministerialentwürfe'
+							label: t('nav.ministerialDrafts')
 						},
-						{ href: decreeUrl.href, pathname: decreeUrl.pathname, label: 'Verordnungen' }
+						{ href: decreeUrl.href, pathname: decreeUrl.pathname, label: t('nav.decrees') }
 					]
 				}
 			]
 		},
-		{ href: plink('/delegates'), label: 'Abgeordnete' },
-		{ href: plink('/statistics'), label: 'Statistiken' }
+		{ href: plink('/delegates'), label: t('nav.delegates') },
+		{ href: plink('/statistics'), label: t('nav.statistics') }
 	]);
 
 	function toggleMenu() {
@@ -205,7 +206,7 @@
 					closeMenu();
 				}}
 			>
-				Benutzerprofil
+				{t('nav.profile')}
 			</button>
 		</nav>
 	{/if}

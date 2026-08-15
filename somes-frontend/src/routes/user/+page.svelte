@@ -437,26 +437,26 @@
 							</p>
 							<div class="mt-2 flex flex-wrap gap-2">
 								<MailTopicCard
-									title="Abstimmungen"
-									description="Neue Abstimmungen nach deinen Interessen"
+									title={t('user.mailTitle.votes')}
+									description={t('user.voteNewByInterest')}
 									bind:checked={mailSendInfo.send_new_vote_results_mails}
 									onchange={updateThisMailSendInfo}
 								/>
 								<MailTopicCard
-									title="Ministerialentwürfe"
-									description="Neue Ministerialentwürfe nach deinen Interessen"
+									title={t('user.mailTitle.drafts')}
+									description={t('user.draftNewByInterest')}
 									bind:checked={mailSendInfo.send_new_ministrial_prop_mails}
 									onchange={updateThisMailSendInfo}
 								/>
 								<MailTopicCard
-									title="Verordnungen"
-									description="Neue Verordnungen nach deinen Themen"
+									title={t('user.mailTitle.decrees')}
+									description={t('user.decreeNewByTopic')}
 									bind:checked={mailSendInfo.send_new_decree_mails}
 									onchange={updateThisMailSendInfo}
 								/>
 								<MailTopicCard
-									title="Anträge"
-									description="Neue Anträge nach deinen Themen"
+									title={t('user.mailTitle.proposals')}
+									description={t('user.proposalNewByTopic')}
 									bind:checked={mailSendInfo.send_new_proposal_mails}
 									onchange={updateThisMailSendInfo}
 								/>
@@ -468,32 +468,32 @@
 							</p>
 							<div class="mt-2 flex flex-wrap gap-2">
 								<MailTopicCard
-									title="Abstimmungen"
-									description="Neue Abstimmungen nach favorisierten Personen"
+									title={t('user.mailTitle.votes')}
+									description={t('user.voteNewByFavo')}
 									bind:checked={mailSendInfo.send_new_vote_result_by_favo_mails}
 									onchange={updateThisMailSendInfo}
 								/>
 								<MailTopicCard
-									title="Ministerialentwürfe"
-									description="Neue Ministerialentwürfe nach favorisierten Ministern"
+									title={t('user.mailTitle.drafts')}
+									description={t('user.draftNewByFavo')}
 									bind:checked={mailSendInfo.send_new_ministrial_prop_by_favo_mails}
 									onchange={updateThisMailSendInfo}
 								/>
 								<MailTopicCard
-									title="Verordnungen"
-									description="Neue Verordnungen nach favorisierten Ministern"
+									title={t('user.mailTitle.decrees')}
+									description={t('user.decreeNewByFavo')}
 									bind:checked={mailSendInfo.send_new_decree_by_favo_mails}
 									onchange={updateThisMailSendInfo}
 								/>
 								<MailTopicCard
-									title="Anträge"
-									description="Neue Anträge nach favorisierten Personen"
+									title={t('user.mailTitle.proposals')}
+									description={t('user.proposalNewByFavo')}
 									bind:checked={mailSendInfo.send_new_proposal_by_favo_mails}
 									onchange={updateThisMailSendInfo}
 								/>
 								<MailTopicCard
-									title="Aktivitäten"
-									description="Neue Aktivitäten nach favorisierten Personen"
+									title={t('user.mailTitle.activities')}
+									description={t('user.activityNewByFavo')}
 									bind:checked={mailSendInfo.send_new_delegate_activity_mails}
 									onchange={updateThisMailSendInfo}
 								/>
@@ -667,7 +667,7 @@
 				</p>
 				<div class="mt-3">
 					<SButton class="bg-red-500 text-white hover:bg-red-600" onclick={handleDeleteAccount}>
-						Account löschen
+						{t('user.deleteAccount')}
 					</SButton>
 				</div>
 			</div>
