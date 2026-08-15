@@ -170,7 +170,7 @@ pub async fn create_vote_results_view<'a>(
                 FROM
                   absences a
                 WHERE
-                  a.plenary_session_id = li.plenary_session_id
+                  a.plenary_session_id = li.plenary_session_id and a.absence_date = li.vote_date
               )
           ) AS \"absences: Vec<i32>\",
           /* issued_by_dels */

@@ -48,7 +48,7 @@ pub struct CallToOrder {
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct Absence {
-    pub date: DateTime<Utc>,
+    pub date: NaiveDate,
     pub inr: i32,
     pub gp: String,
     pub plenary_session_id: i32,
