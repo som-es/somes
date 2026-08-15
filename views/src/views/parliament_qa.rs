@@ -2,7 +2,10 @@ use combx::{DbAiInquiry, DbAnswerEntry};
 use somes_common_lib::ToCompositeType;
 use sqlx::{Postgres, Transaction};
 
-pub async fn create_parliament_qa_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sqlx::Result<()> {
+pub async fn create_parliament_qa_view<'a>(
+    tx: &mut Transaction<'a, Postgres>,
+    up: bool,
+) -> sqlx::Result<()> {
     let question_fields = DbAiInquiry::field_orders()
         .into_iter()
         .map(|field| if field == "id" { "q.id" } else { field })
@@ -19,7 +22,8 @@ pub async fn create_parliament_qa_view<'a>(tx: &mut Transaction<'a, Postgres>) -
         .execute(&mut **tx)
         .await?;
 
-    sqlx::query(&format!(
+    if up {
+        sqlx::query(&format!(
         "
         CREATE VIEW pqa_composite_questions AS
         SELECT
@@ -109,6 +113,7 @@ pub async fn create_parliament_qa_view<'a>(tx: &mut Transaction<'a, Postgres>) -
     ))
     .execute(&mut **tx)
     .await?;
+    }
 
     Ok(())
 }

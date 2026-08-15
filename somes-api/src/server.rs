@@ -88,10 +88,10 @@ async fn maybe_update_views(dataservice_sqlx_pool: &PgPool) -> ServerResult<()> 
     }
 
     let mut tx = dataservice_sqlx_pool.begin().await?;
-    if let Err(e) = create_composite_types(&mut tx).await {
+    if let Err(e) = create_composite_types(&mut tx, true).await {
         log::error!("Cannot create composite types: {e:?}");
     }
-    if let Err(e) = create_views(&mut tx).await {
+    if let Err(e) = create_views(&mut tx, true).await {
         log::error!("Cannot create views: {e:?}");
     }
     tx.commit().await?;

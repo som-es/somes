@@ -2,7 +2,10 @@ use combx::{DbAiSummary, DbLegislativeInitiativeQuery};
 use somes_common_lib::ToCompositeType;
 use sqlx::{Postgres, Transaction};
 
-pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sqlx::Result<()> {
+pub async fn create_vote_results_view<'a>(
+    tx: &mut Transaction<'a, Postgres>,
+    up: bool,
+) -> sqlx::Result<()> {
     sqlx::query!("DROP VIEW IF EXISTS vote_results;")
         .execute(&mut **tx)
         .await?;
@@ -14,7 +17,8 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
         .collect::<Vec<_>>()
         .join(" ,");
 
-    sqlx::query(
+    if up {
+        sqlx::query(
         &format!("
         CREATE VIEW vote_results AS
         SELECT
@@ -253,38 +257,44 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
         ))
     .execute(&mut **tx)
     .await?;
+    }
 
     sqlx::query!("DROP materialized VIEW IF EXISTS latest_legislative_initiatives;")
         .execute(&mut **tx)
         .await?;
 
-    sqlx::query!("
+    if up {
+        sqlx::query!("
         create materialized view latest_legislative_initiatives as
         select * from legislative_initiatives
             where vote_date = (select MAX(vote_date) from legislative_initiatives
             where accepted is not null) and accepted is not null and is_voteable_on and vote_date is not null
     ").execute(&mut **tx)
     .await?;
+    }
 
-    sqlx::query!(
-        "
+    if up {
+        sqlx::query!(
+            "
     CREATE UNIQUE INDEX latest_legislative_initiatives_uidx
       ON public.latest_legislative_initiatives (id);
     "
-    )
-    .execute(&mut **tx)
-    .await?;
+        )
+        .execute(&mut **tx)
+        .await?;
+    }
 
     if std::env::var("FULL_VIEW_UPDATE")
         .unwrap_or("false".into())
         .parse::<bool>()
         .unwrap_or_default()
     {
-        sqlx::query!("DROP materialized VIEW IF EXISTS legislative_initiatives_with_votes;")
-            .execute(&mut **tx)
-            .await?;
+        if up {
+            sqlx::query!("DROP materialized VIEW IF EXISTS legislative_initiatives_with_votes;")
+                .execute(&mut **tx)
+                .await?;
 
-        sqlx::query(
+            sqlx::query(
             r#"
         CREATE MATERIALIZED VIEW legislative_initiatives_with_votes AS
             SELECT
@@ -304,15 +314,18 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
         )
         .execute(&mut **tx)
         .await?;
+        }
 
-        sqlx::query!(
-            "
+        if up {
+            sqlx::query!(
+                "
       CREATE UNIQUE INDEX legislative_initiatives_with_votes_uidx
         ON public.legislative_initiatives_with_votes (id);
       "
-        )
-        .execute(&mut **tx)
-        .await?;
+            )
+            .execute(&mut **tx)
+            .await?;
+        }
     }
     Ok(())
 }

@@ -2,7 +2,10 @@ use combx::{DbSpeechAiSummary, DbSpeechRelations};
 use somes_common_lib::ToCompositeType;
 use sqlx::{Postgres, Transaction};
 
-pub async fn create_speeches_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sqlx::Result<()> {
+pub async fn create_speeches_view<'a>(
+    tx: &mut Transaction<'a, Postgres>,
+    up: bool,
+) -> sqlx::Result<()> {
     sqlx::query!("DROP VIEW IF EXISTS full_speeches;")
         .execute(&mut **tx)
         .await?;
@@ -18,8 +21,9 @@ pub async fn create_speeches_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sql
         .collect::<Vec<_>>()
         .join(" ,");
 
-    sqlx::query(&format!(
-        "
+    if up {
+        sqlx::query(&format!(
+            "
         CREATE VIEW full_speeches AS
         SELECT
           /* scalar */
@@ -81,9 +85,10 @@ pub async fn create_speeches_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sql
         FROM
             plenar_speeches ps_top
     ",
-    ))
-    .execute(&mut **tx)
-    .await?;
+        ))
+        .execute(&mut **tx)
+        .await?;
+    }
 
     Ok(())
 }

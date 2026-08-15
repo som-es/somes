@@ -4,6 +4,7 @@ use sqlx::{Postgres, Transaction};
 
 pub async fn create_ministerial_decrees_with_docs_view<'a>(
     tx: &mut Transaction<'a, Postgres>,
+    up: bool,
 ) -> sqlx::Result<()> {
     let summary_fields = DbAiSummary::field_orders()
         .into_iter()
@@ -14,8 +15,9 @@ pub async fn create_ministerial_decrees_with_docs_view<'a>(
     sqlx::query!("DROP VIEW IF EXISTS ministrial_decrees_with_docs;")
         .execute(&mut **tx)
         .await?;
-    sqlx::query(&format!(
-        "
+    if up {
+        sqlx::query(&format!(
+            "
         CREATE VIEW ministrial_decrees_with_docs AS
         SELECT
             d.id,
@@ -54,8 +56,9 @@ pub async fn create_ministerial_decrees_with_docs_view<'a>(
 
         FROM ministrial_decrees d;
         "
-    ))
-    .execute(&mut **tx)
-    .await?;
+        ))
+        .execute(&mut **tx)
+        .await?;
+    }
     Ok(())
 }
