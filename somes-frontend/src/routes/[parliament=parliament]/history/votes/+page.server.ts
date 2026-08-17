@@ -20,6 +20,7 @@ export const load: PageServerLoad = async ({ fetch, setHeaders, url, params }) =
 		searchParams.set('page', '1');
 		searchParams.set('sort', 'Desc');
 	}
+	const topics = url.searchParams.getAll('topics');
 
 	const queryParams = searchParams.toString();
 	const filter = `${queryParams}&is_finished=true`;

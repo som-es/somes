@@ -69,6 +69,26 @@ async fn meilisearch_for_vote_results(
         vec![r#"legislative_initiative.accepted IS NULL"#.to_string()]
     };
 
+    if let Some(topics) = &filter.topics {
+        if !topics.is_empty() {
+            let eurovoc_conditions = topics
+                .iter()
+                .map(|topic| format!("eurovoc_topics.topic CONTAINS {topic:?}"))
+                .collect::<Vec<_>>()
+                .join(" OR ");
+
+            let ai_summary_values = topics
+                .iter()
+                .map(|topic| format!("{topic:?}"))
+                .collect::<Vec<_>>()
+                .join(", ");
+
+            filter_conditions.push(format!(
+                "(({eurovoc_conditions}) OR ai_summary.full_summary.topics IN [{ai_summary_values}])"
+            ));
+        }
+    }
+
     vote_result_filter.extend_meilisearch_filters(
         &mut filter_conditions,
         meilisearch_filters_vote_result,

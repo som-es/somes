@@ -369,6 +369,7 @@ pub struct AddonVoteResultFilter {
     pub party_votes: Option<Vec<PartyVote>>,
     pub date_from: Option<NaiveDate>,
     pub date_to: Option<NaiveDate>,
+    pub topics: Option<Vec<String>>,
 }
 
 #[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]
