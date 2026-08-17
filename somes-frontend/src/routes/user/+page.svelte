@@ -101,6 +101,9 @@
 	});
 
 	$effect(() => {
+
+	    favoDelegates = null;
+		favoLegisInits = null;
         const jwtToken = jwtStore.value;
 		if (jwtToken == null) {
 			goto(plink('/home'));
@@ -225,10 +228,10 @@
 	function handleTopicToggle(topic: UniqueTopic) {
 		if (selectedTopics.has(topic.id)) {
 			selectedTopics.delete(topic.id);
-			removeUserTopic({ id: topic.id, topic: '' });
+			removeUserTopic({ id: topic.id, topic: '' }, parliament);
 		} else {
 			selectedTopics.add(topic.id);
-			addUserTopic({ id: topic.id, topic: '' });
+			addUserTopic({ id: topic.id, topic: '' }, parliament);
 		}
 		// Trigger reactivity
 		selectedTopics = new SvelteSet(selectedTopics);
@@ -491,7 +494,11 @@
 					class="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium {parliament === 'at'
 						? 'bg-primary-600 text-white'
 						: 'text-gray-700 hover:bg-primary-400 dark:text-gray-300 dark:hover:bg-primary-500'}"
-					onclick={() => (parliament = 'at')}
+					onclick={() => {
+                   	    favoDelegates = null;
+                  		favoLegisInits = null;
+                        return (parliament = 'at')
+					}}
 				>
 					Österreich
 				</button>
@@ -499,7 +506,11 @@
 					class="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium {parliament === 'eu'
 						? 'bg-primary-600 text-white'
 						: 'text-gray-700 hover:bg-primary-400 dark:text-gray-400 dark:hover:bg-primary-500'}"
-					onclick={() => (parliament = 'eu')}
+					onclick={() => {
+                   	    favoDelegates = null;
+                  		favoLegisInits = null;
+                        return (parliament = 'eu')
+					}}
 				>
 					EU
 				</button>
@@ -656,7 +667,7 @@
 							</p>
 						{:else}
 							{#each favoDelegates as favoDelegateId (favoDelegateId[0])}
-								{#await delegate_by_id(favoDelegateId[0])}
+								{#await delegate_by_id(favoDelegateId[0], fetch, parliament)}
 									<ExpandablePlaceholder class="!w-80" />
 								{:then maybeDelegate}
 									{#if !isHasError(maybeDelegate)}
@@ -684,7 +695,7 @@
 						</p>
 					{:else}
 						{#each favoLegisInits as favoLegisInitId (favoLegisInitId)}
-							{#await vote_result_by_id(favoLegisInitId.toString())}
+							{#await vote_result_by_id(favoLegisInitId.toString(), fetch, parliament)}
 								<ExpandablePlaceholder class="w-80!" />
 							{:then voteResult}
 								{#if !isHasError(voteResult)}

@@ -101,12 +101,12 @@ export async function deleteWithAuth<T>(
 	);
 }
 
-export async function addUserTopic(uniqueTopic: UniqueTopic): Promise<null | HasError> {
-	return postWithAuth('v1/user/topic_selection', uniqueTopic);
+export async function addUserTopic(uniqueTopic: UniqueTopic, parliament: Parliament = getParliament()): Promise<null | HasError> {
+	return postWithAuth('v1/user/topic_selection', uniqueTopic, parliament);
 }
 
-export async function removeUserTopic(uniqueTopic: UniqueTopic): Promise<null | HasError> {
-	return deleteWithAuth('v1/user/topic_selection', uniqueTopic);
+export async function removeUserTopic(uniqueTopic: UniqueTopic, parliament: Parliament = getParliament()): Promise<null | HasError> {
+	return deleteWithAuth('v1/user/topic_selection', uniqueTopic, parliament);
 }
 
 export async function getUserTopics(
@@ -115,16 +115,16 @@ export async function getUserTopics(
 	return getWithAuth('v1/user/topic_selection', parliament);
 }
 
-export async function updateDelegateFavo(delegateFavo: DelegateFavo): Promise<null | HasError> {
-	return putWithAuth('v1/user/bookmark/delegate', delegateFavo);
+export async function updateDelegateFavo(delegateFavo: DelegateFavo, parliament: Parliament = getParliament()): Promise<null | HasError> {
+	return putWithAuth('v1/user/bookmark/delegate', delegateFavo, parliament);
 }
 
-export async function addDelegateFavo(uniqueTopic: DelegateFavo): Promise<null | HasError> {
-	return postWithAuth('v1/user/bookmark/delegate', uniqueTopic);
+export async function addDelegateFavo(uniqueTopic: DelegateFavo, parliament: Parliament = getParliament()): Promise<null | HasError> {
+	return postWithAuth('v1/user/bookmark/delegate', uniqueTopic, parliament);
 }
 
-export async function removeDelegateFavo(uniqueTopic: DelegateFavo): Promise<null | HasError> {
-	return deleteWithAuth('v1/user/bookmark/delegate', uniqueTopic);
+export async function removeDelegateFavo(uniqueTopic: DelegateFavo, parliament: Parliament = getParliament()): Promise<null | HasError> {
+	return deleteWithAuth('v1/user/bookmark/delegate', uniqueTopic, parliament);
 }
 
 export async function getFavoDelegates(
@@ -133,12 +133,12 @@ export async function getFavoDelegates(
 	return getWithAuth('v1/user/bookmark/delegate', parliament);
 }
 
-export async function addLegisInitFavo(uniqueTopic: LegisInitFavo): Promise<null | HasError> {
-	return postWithAuth('v1/user/bookmark/vote_result', uniqueTopic);
+export async function addLegisInitFavo(uniqueTopic: LegisInitFavo, parliament: Parliament = getParliament()): Promise<null | HasError> {
+	return postWithAuth('v1/user/bookmark/vote_result', uniqueTopic, parliament);
 }
 
-export async function removeLegisInitFavo(uniqueTopic: LegisInitFavo): Promise<null | HasError> {
-	return deleteWithAuth('v1/user/bookmark/vote_result', uniqueTopic);
+export async function removeLegisInitFavo(uniqueTopic: LegisInitFavo, parliament: Parliament = getParliament()): Promise<null | HasError> {
+	return deleteWithAuth('v1/user/bookmark/vote_result', uniqueTopic, parliament);
 }
 
 export async function getFavoLegisInits(
