@@ -11,7 +11,7 @@ use crate::{
     jwt::{create_access_token, Claims},
     model::User,
     routes::{send_otp, SignUpErrorWrapper, UserError},
-    PgPoolConnection, RedisConnection,
+    AtPgPoolConnection, PgPoolConnection, RedisConnection,
 };
 
 pub static EMAIL_REGEX: Lazy<Regex> =
@@ -52,7 +52,7 @@ pub struct ChangeMailResponse {
 
 pub async fn change_mail(
     RedisConnection(mut redis_con): RedisConnection,
-    PgPoolConnection(pg): PgPoolConnection,
+    AtPgPoolConnection(pg): AtPgPoolConnection,
     claims: Claims,
     Json(body): Json<ChangeMailBody>,
 ) -> Result<Json<ChangeMailResponse>, UserError> {
@@ -112,7 +112,7 @@ pub async fn change_mail(
 }
 pub async fn verify_email_change(
     RedisConnection(mut redis_con): RedisConnection,
-    PgPoolConnection(pg): PgPoolConnection,
+    AtPgPoolConnection(pg): AtPgPoolConnection,
     claims: Claims,
     Json(body): Json<VerifyEmailChangeBody>,
 ) -> Result<Json<ChangeMailResponse>, UserError> {

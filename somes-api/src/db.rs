@@ -142,6 +142,19 @@ impl FromRequestParts<AppState> for PgPoolConnection {
 
 pub struct PgPoolConnection(pub PgPool);
 
+pub struct AtPgPoolConnection(pub PgPool);
+
+impl FromRequestParts<AppState> for AtPgPoolConnection {
+    type Rejection = (StatusCode, String);
+
+    async fn from_request_parts(
+        parts: &mut Parts,
+        state: &AppState,
+    ) -> Result<Self, Self::Rejection> {
+        Ok(Self(state.dataservice_sqlx_pool.clone()))
+    }
+}
+
 pub fn internal_error<E>(err: E) -> (StatusCode, String)
 where
     E: std::error::Error,

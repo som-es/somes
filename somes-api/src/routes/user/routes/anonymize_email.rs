@@ -6,7 +6,7 @@ use crate::{
     jwt::{create_access_token, Claims},
     model::User,
     routes::UserError,
-    PgPoolConnection,
+    AtPgPoolConnection, PgPoolConnection,
 };
 
 #[derive(Deserialize, Debug)]
@@ -25,7 +25,7 @@ pub struct AnonymizeEmailResponse {
 
 pub async fn anonymize_email(
     claims: Claims,
-    PgPoolConnection(pg): PgPoolConnection,
+    AtPgPoolConnection(pg): AtPgPoolConnection,
 ) -> Result<Json<AnonymizeEmailResponse>, UserError> {
     let current_user = sqlx::query_as!(
         User,

@@ -12,7 +12,7 @@ use crate::{
     jwt::create_access_token,
     model::User,
     routes::{SignUpErrorWrapper, UserError},
-    PgPoolConnection, RedisConnection, EMAIL_EXPIRATION_SECONDS,
+    AtPgPoolConnection, RedisConnection, EMAIL_EXPIRATION_SECONDS,
 };
 
 fn generate_otp() -> String {
@@ -111,7 +111,7 @@ pub static EMAIL_REGEX: Lazy<Regex> =
 )]
 pub async fn login(
     RedisConnection(mut redis_con): RedisConnection,
-    PgPoolConnection(pg): PgPoolConnection,
+    AtPgPoolConnection(pg): AtPgPoolConnection,
     Json(login_info): Json<LoginInfo>,
 ) -> Result<Json<JWTInfo>, UserError> {
     let mut sign_up_error = SignUpErrorWrapper::default();

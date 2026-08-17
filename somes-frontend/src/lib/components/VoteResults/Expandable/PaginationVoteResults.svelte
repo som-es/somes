@@ -30,7 +30,6 @@
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache.svelte';
 	import TopicFilter from '$lib/components/Filtering/TopicFilter.svelte';
 	import SortPopover from '$lib/components/Filtering/SortPopover.svelte';
-	import { browser } from '$app/environment';
 
 	interface Props {
 		voteResults: VoteResultsWithMaxPage | null;
