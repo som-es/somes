@@ -159,6 +159,26 @@ export const en = {
 	'vote_result.withoutParty': 'Without party',
 	'vote_result.delegates': 'Representatives',
 
+	// --- Delegates (/delegates) ---
+	'delegates.meta.title': 'Representatives',
+	'delegates.meta.description': 'Selection and specific information about representatives',
+	'delegates.title.at': 'Members of the National Council',
+	'delegates.title.eu': 'Members of the European Parliament',
+	'delegates.updated': 'Updated on: Unknown',
+	'delegates.filter': 'Filter',
+	'delegates.search': 'Search',
+	'delegates.searchResults': 'Search results',
+	'delegates.allPeriods': 'All periods',
+	'delegates.morePeriods': '+{count} more',
+	'delegates.mandateType': 'Mandate type',
+	'delegates.any': 'any',
+	'delegates.government': 'Government',
+	'delegates.nationalCouncil': 'National Council',
+	'delegates.activeMandate': 'Active mandate',
+	'delegates.yes': 'Yes',
+	'delegates.no': 'No',
+	'delegates.considerPrevParty': 'Consider former party membership',
+
 	'user.meta.title': 'User profile',
 	'user.meta.description': 'Your personal user profile and settings',
 	'user.title': 'User profile',
@@ -211,14 +231,5 @@ export const en = {
 	'user.noFavoriteVotes': 'No favourited votes.',
 	'user.dangerZone': 'Danger zone',
 	'user.dangerText': 'This action cannot be undone.',
-	'user.deleteAccount': 'Delete account',
-
-	// --- Legal pages ---
-	'legal.impressum.title': 'Legal notice',
-	'legal.impressum.subtitle':
-		'Information pursuant to § 5 of the Austrian E-Commerce Act and disclosure pursuant to § 25 of the Austrian Media Act.',
-	'legal.impressum.meta.description':
-		'Legal notice and legal information of the somes.at platform.',
-	'legal.privacy.title': 'Privacy notice',
-	'legal.privacy.subtitle': 'Privacy policy'
+	'user.deleteAccount': 'Delete account'
 } as const;

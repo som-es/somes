@@ -159,6 +159,26 @@ export const de = {
 	'vote_result.withoutParty': 'Ohne Klub',
 	'vote_result.delegates': 'Abgeordnete',
 
+	// --- Delegates (/delegates) ---
+	'delegates.meta.title': 'Abgeordnete',
+	'delegates.meta.description': 'Auswahl und spezifische Informationen über Abgeordnete',
+	'delegates.title.at': 'Abgeordnete zum Nationalrat',
+	'delegates.title.eu': 'Abgeordnete des EU-Parlaments',
+	'delegates.updated': 'Aktualisiert am: Unknown',
+	'delegates.filter': 'Filter',
+	'delegates.search': 'Suche',
+	'delegates.searchResults': 'Suchergebnisse',
+	'delegates.allPeriods': 'Alle Perioden',
+	'delegates.morePeriods': '+{count} weitere',
+	'delegates.mandateType': 'Mandatsart',
+	'delegates.any': 'egal',
+	'delegates.government': 'Regierung',
+	'delegates.nationalCouncil': 'Nationalrat',
+	'delegates.activeMandate': 'Aktives Mandat',
+	'delegates.yes': 'Ja',
+	'delegates.no': 'Nein',
+	'delegates.considerPrevParty': 'Ehemalige Parteizugehörigkeit beachten',
+
 	'user.meta.title': 'Benutzerprofil',
 	'user.meta.description': 'Dein persönliches Benutzerprofil und Einstellungen',
 	'user.title': 'Benutzerprofil',
@@ -211,14 +231,5 @@ export const de = {
 	'user.noFavoriteVotes': 'Keine favorisierten Abstimmungen vorhanden.',
 	'user.dangerZone': 'Gefahrenbereich',
 	'user.dangerText': 'Diese Aktion kann nicht rückgängig gemacht werden.',
-	'user.deleteAccount': 'Account löschen',
-
-	// --- Legal pages ---
-	'legal.impressum.title': 'Impressum',
-	'legal.impressum.subtitle':
-		'Angaben nach § 5 E-Commerce Gesetz und Offenlegung nach § 25 Mediengesetz.',
-	'legal.impressum.meta.description':
-		'Impressum und rechtliche Informationen der somes.at Plattform.',
-	'legal.privacy.title': 'Erklärung zur Informationspflicht',
-	'legal.privacy.subtitle': 'Datenschutzerklärung'
+	'user.deleteAccount': 'Account löschen'
 } as const;

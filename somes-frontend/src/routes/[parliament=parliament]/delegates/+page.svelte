@@ -23,6 +23,7 @@
 		interjections_made_by_delegate_per_page,
 		interjections_received_by_delegate_per_page
 	} from '$lib/api/api';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import {
 		aiViewEnabledStore,
 		currentDelegateFilterStore,
@@ -464,19 +465,19 @@
 	});
 
 	const title = $derived(
-		data.parliament == 'at' ? 'Abgeordnete zum Nationalrat' : 'Abgeordnete des EU-Parlaments'
+		data.parliament == 'at' ? t('delegates.title.at') : t('delegates.title.eu')
 	);
 </script>
 
 <svelte:head>
 	<title>{title}</title>
-	<meta name="description" content="Auswahl und spezifische Informationen über Abgeordnete" />
+	<meta name="description" content={t('delegates.meta.description')} />
 </svelte:head>
 
 <Container>
 	<h1 class="px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">{title}</h1>
 	<span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0 dark:text-gray-300">
-		Aktualisiert am: Unknown
+		{t('delegates.updated')}
 	</span>
 
 	<!------------------>
@@ -487,7 +488,7 @@
 			<div>
 				<!-- Filters -->
 				<div>
-					<span class="text-base font-semibold text-gray-800 dark:text-gray-200">Filter</span>
+					<span class="text-base font-semibold text-gray-800 dark:text-gray-200">{t('delegates.filter')}</span>
 					<div class="mt-2 flex h-10 w-full gap-2 md:mt-1 md:w-auto">
 						<!-- Period Filter -->
 						<div
@@ -507,10 +508,10 @@
 											<span class="truncate">{period}</span>
 										{/each}
 										{#if selectedSearchPeriod.length > 1}
-											<span class="truncate">+{selectedSearchPeriod.length - 1} weitere</span>
+											<span class="truncate">{t('delegates.morePeriods', { count: selectedSearchPeriod.length - 1 })}</span>
 										{/if}
 										{#if selectedSearchPeriod.length === 0}
-											<span class="truncate">Alle Perioden</span>
+											<span class="truncate">{t('delegates.allPeriods')}</span>
 										{/if}
 									</div>
 									{@html upDownArrowIcon}
@@ -569,7 +570,7 @@
 				<!-- Search Results -->
 				<div class="mt-3">
 					<span class="text-base font-semibold text-gray-800 dark:text-gray-200"
-						>Suchergebnisse</span
+						>{t('delegates.searchResults')}</span
 					>
 					<div class="mt-1 max-h-96 overflow-y-auto">
 						{#if isLoadingSearch}
