@@ -1,8 +1,8 @@
-use axum::{extract::FromRequestParts, http::request::Parts, RequestPartsExt};
+use axum::{RequestPartsExt, extract::FromRequestParts, http::request::Parts};
 use axum_extra::TypedHeader;
-use headers::{authorization::Bearer, Authorization};
-use jsonwebtoken::{decode, Validation};
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use headers::{Authorization, authorization::Bearer};
+use jsonwebtoken::{Validation, decode};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use somes_common_lib::time::timestamp_secs;
 use utoipa::{IntoParams, ToSchema};
 
@@ -58,13 +58,13 @@ where
 
 #[cfg(test)]
 mod tests {
-    use jsonwebtoken::{decode, Validation};
+    use jsonwebtoken::{Validation, decode};
 
-    use crate::{jwt::KEYS, AuthError};
+    use crate::{AuthError, jwt::KEYS};
 
     #[test]
     fn test_jwt_decode() {
-        std::env::set_var("JWT_SECRET", "asdfasdfsdf");
+        unsafe { std::env::set_var("JWT_SECRET", "asdfasdfsdf") };
         let token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6NCwic3ViIjoiZmxvcmlhbi5uYWd5QGl0Lmh0bC1obC5hYy5hdCIsImNvbXBhbnkiOiIiLCJleHAiOjE3MzIyOTkzNzh9.nObVpb4lPKzy85Ki_f8Z1VtGoz37BQq2u9L0crgUBrI";
 
         use crate::jwt::Claims;

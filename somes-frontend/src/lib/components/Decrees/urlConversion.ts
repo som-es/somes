@@ -23,7 +23,7 @@ export function convertDecreeFilterToUrl(
 		nextUrl.searchParams.set('decree[gp][in][0]', filter.legis_period);
 	}
 	filter.topics?.forEach((topic, i) => {
-		nextUrl.searchParams.set(`decree[ai_summary][full_summary][topics][in][${i}]`, topic);
+		nextUrl.searchParams.set(`topics[${i}]`, topic);
 	});
 
 	filter.departments?.forEach((department, i) => {

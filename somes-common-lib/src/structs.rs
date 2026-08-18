@@ -298,6 +298,11 @@ pub struct SortParams {
     pub sort: Option<Sort>,
 }
 
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct TopicsFilter {
+    pub topics: Option<Vec<String>>,
+}
+
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub enum Sort {
     Asc,

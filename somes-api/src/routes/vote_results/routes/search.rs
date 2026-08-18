@@ -1,15 +1,15 @@
 use std::fmt::Display;
 
-use axum::{extract::Query, Json};
-use combx::{meilisearch_filters_vote_result, Index, OptionalVoteResult, OptionalVoteResultFilter};
+use axum::{Json, extract::Query};
+use combx::{Index, OptionalVoteResult, OptionalVoteResultFilter, meilisearch_filters_vote_result};
 use meilisearch_sdk::search::SearchResults;
 use redis::aio::MultiplexedConnection;
 use somes_common_lib::{AddonVoteResultFilter, Page};
 
 use crate::{
+    LEGIS_INITS_PER_PAGE, ParliamentCtx, Qs, RedisConnection,
     meilisearch::MeilisearchClient,
     routes::{FilterError, VoteResultsWithMaxPage},
-    ParliamentCtx, Qs, RedisConnection, LEGIS_INITS_PER_PAGE,
 };
 
 pub async fn vote_results_by_search_route(
@@ -23,7 +23,6 @@ pub async fn vote_results_by_search_route(
     Qs(legis_init_filter): Qs<AddonVoteResultFilter>,
     Qs(optional_vote_result_filter): Qs<OptionalVoteResultFilter>,
 ) -> Result<Json<VoteResultsWithMaxPage>, FilterError> {
-    log::info!("legis_init_filter: {legis_init_filter:?}");
     meilisearch_for_vote_results(
         parliament,
         legis_init_filter.is_finished,
@@ -69,24 +68,25 @@ async fn meilisearch_for_vote_results(
         vec![r#"legislative_initiative.accepted IS NULL"#.to_string()]
     };
 
-    if let Some(topics) = &filter.topics {
-        if !topics.is_empty() {
-            let eurovoc_conditions = topics
-                .iter()
-                .map(|topic| format!("eurovoc_topics.topic CONTAINS {topic:?}"))
-                .collect::<Vec<_>>()
-                .join(" OR ");
+    // if let Some(topics) = &filter.topics
+    //     && !topics.is_empty()
+    let topics = &filter.topics;
+    if !topics.is_empty() {
+        let eurovoc_conditions = topics
+            .iter()
+            .map(|topic| format!("eurovoc_topics.topic CONTAINS {topic:?}"))
+            .collect::<Vec<_>>()
+            .join(" OR ");
 
-            let ai_summary_values = topics
-                .iter()
-                .map(|topic| format!("{topic:?}"))
-                .collect::<Vec<_>>()
-                .join(", ");
+        let ai_summary_values = topics
+            .iter()
+            .map(|topic| format!("{topic:?}"))
+            .collect::<Vec<_>>()
+            .join(", ");
 
-            filter_conditions.push(format!(
-                "(({eurovoc_conditions}) OR ai_summary.full_summary.topics IN [{ai_summary_values}])"
-            ));
-        }
+        filter_conditions.push(format!(
+            "(({eurovoc_conditions}) OR ai_summary.full_summary.topics IN [{ai_summary_values}])"
+        ));
     }
 
     vote_result_filter.extend_meilisearch_filters(

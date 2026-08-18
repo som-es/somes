@@ -1,13 +1,13 @@
 use crate::{
+    DECREES_PER_PAGE, ParliamentCtx, Qs, RedisConnection,
     meilisearch::MeilisearchClient,
     routes::{DecreeDelegate, DecreeDelegateFilter, DecreesWithMaxPage, FilterError},
-    ParliamentCtx, Qs, RedisConnection, DECREES_PER_PAGE,
 };
-use axum::{extract::Query, Json};
-use combx::{meilisearch_filters_ai_summary, Index};
+use axum::{Json, extract::Query};
+use combx::{Index, meilisearch_filters_ai_summary};
 use meilisearch_sdk::search::SearchResults;
-use somes_common_lib::{Page, Sort};
-use somes_meilisearch_filter::{to_meilisearch_filters, FilterOptions};
+use somes_common_lib::{Page, Sort, TopicsFilter};
+use somes_meilisearch_filter::{FilterOptions, to_meilisearch_filters};
 
 pub async fn decrees_by_search_route(
     ParliamentCtx(parliament): ParliamentCtx,
@@ -18,6 +18,7 @@ pub async fn decrees_by_search_route(
     Query(entry_count_per_page): Query<somes_common_lib::PageEntryCount>,
     Query(sort): Query<somes_common_lib::SortParams>,
     Query(date_range): Query<somes_common_lib::DateRangeQueryFilter>,
+    Query(topics): Query<TopicsFilter>,
     Qs(decrees_filter): Qs<DecreeDelegateFilter>,
 ) -> Result<Json<DecreesWithMaxPage>, FilterError> {
     meilisearch_decrees(
@@ -32,6 +33,7 @@ pub async fn decrees_by_search_route(
         page,
         decrees_filter,
         date_range,
+        topics,
     )
     .await
     .map(Json)
@@ -47,6 +49,7 @@ async fn meilisearch_decrees(
     page: Page,
     decree_filter: DecreeDelegateFilter,
     date_range: somes_common_lib::DateRangeQueryFilter,
+    topics: TopicsFilter,
 ) -> Result<DecreesWithMaxPage, FilterError> {
     let mut filter_conditions =
         to_meilisearch_filters(&decree_filter.filter_arguments(), &FilterOptions::default());
@@ -85,6 +88,20 @@ async fn meilisearch_decrees(
         filter_conditions.push(format!(
             "decree.publication_date <= {:?}",
             date_to.to_string()
+        ));
+    }
+
+    if let Some(topics) = topics.topics
+        && !topics.is_empty()
+    {
+        let ai_summary_values = topics
+            .iter()
+            .map(|topic| format!("{topic:?}"))
+            .collect::<Vec<_>>()
+            .join(", ");
+
+        filter_conditions.push(format!(
+            "decree.ai_summary.full_summary.topics IN [{ai_summary_values}]"
         ));
     }
 
