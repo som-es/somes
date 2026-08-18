@@ -69,7 +69,7 @@ pub async fn gov_props_by_search_route(
         ));
     }
 
-    if let Some(topics) = topics.topics
+    if let Some(topics) = topics.filter_topics
         && !topics.is_empty()
     {
         let eurovoc_conditions = topics

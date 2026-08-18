@@ -89,7 +89,7 @@ export function convertVoteResultFilterToUrl(
 	// 	nextUrl.searchParams.set(`filters[0][or][1][ai_summary][full_summary][topics][in][${i}]`, topic);
 	// });
 	filter.topics?.forEach((topic, i) => {
-		nextUrl.searchParams.set(`topics[${i}]`, topic);
+		nextUrl.searchParams.set(`filter_topics[${i}]`, topic);
 	});
 
 	filter.issuer_parties?.forEach((party, i) => {

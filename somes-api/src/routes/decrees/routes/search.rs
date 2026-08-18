@@ -91,7 +91,7 @@ async fn meilisearch_decrees(
         ));
     }
 
-    if let Some(topics) = topics.topics
+    if let Some(topics) = topics.filter_topics
         && !topics.is_empty()
     {
         let ai_summary_values = topics

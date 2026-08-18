@@ -68,10 +68,9 @@ async fn meilisearch_for_vote_results(
         vec![r#"legislative_initiative.accepted IS NULL"#.to_string()]
     };
 
-    // if let Some(topics) = &filter.topics
-    //     && !topics.is_empty()
-    let topics = &filter.topics;
-    if !topics.is_empty() {
+    if let Some(topics) = &filter.filter_topics
+        && !topics.is_empty()
+    {
         let eurovoc_conditions = topics
             .iter()
             .map(|topic| format!("eurovoc_topics.topic CONTAINS {topic:?}"))
