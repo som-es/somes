@@ -126,6 +126,11 @@ pub struct JWTInfo {
     pub access_token: String,
 }
 
+#[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct HasMcpToken {
+    pub has_token: bool,
+}
+
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone, Copy)]
 pub struct Unit;
 

@@ -1,23 +1,24 @@
 use std::{error::Error, fs::File, net::SocketAddr, path::PathBuf, time::Duration};
 
+use crate::redis_db::{AT_DB, EU_DB, MCP_DB};
+use crate::{AppState, IS_PROD, routes::*};
 use crate::{
-    meilisearch::update_meilisearch_indices, redirect_http_to_https, reset_cache,
-    routes::save_email_route, update_caches, Ports, HTTPS_PORT, HTTP_PORT, MEILISEARCH_SECRET,
-    MEILISEARCH_URL, PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, REDIS_DB, STATIC_FRONTEND_PATH,
+    HTTP_PORT, HTTPS_PORT, MEILISEARCH_SECRET, MEILISEARCH_URL, PRIVATE_KEY_PATH, PUBLIC_KEY_PATH,
+    Ports, REDIS_DB, STATIC_FRONTEND_PATH, meilisearch::update_meilisearch_indices,
+    redirect_http_to_https, reset_cache, routes::save_email_route, update_caches,
 };
-use crate::{routes::*, AppState, IS_PROD};
 use axum::{
+    Extension, Router,
     http::{self, HeaderValue},
     response::Html,
     routing::{any, get, get_service, post},
-    Extension, Router,
 };
 use axum_server::tls_rustls::RustlsConfig;
 use combx::Parliament;
 use log::info;
 use reqwest::StatusCode;
 use somes_common_lib::*;
-use sqlx::{postgres::PgPoolOptions, PgPool};
+use sqlx::{PgPool, postgres::PgPoolOptions};
 use tokio::{net::TcpListener, time::sleep};
 use tower::ServiceBuilder;
 use tower_http::{
@@ -264,8 +265,9 @@ async fn serve_tls(addr: SocketAddr, config: RustlsConfig, app: Router) -> Serve
 }
 
 pub async fn serve(addr: SocketAddr) -> ServerResult<()> {
-    let redis_client = connect_redis(0)?;
-    let eu_redis_client = connect_redis(1)?;
+    let redis_client = connect_redis(AT_DB)?;
+    let eu_redis_client = connect_redis(EU_DB)?;
+    let mcp_redis_client = connect_redis(MCP_DB)?;
     let dataservice_sqlx_pool = connect_dataservice("DATASERVICE_URL").await?;
     let eu_dataservice_sqlx_pool = connect_dataservice("EU_DATASERVICE_URL").await?;
 
@@ -278,6 +280,7 @@ pub async fn serve(addr: SocketAddr) -> ServerResult<()> {
         dataservice_sqlx_pool.clone(),
         eu_dataservice_sqlx_pool.clone(),
         meilisearch_client.clone(),
+        mcp_redis_client,
     );
 
     spawn_asset_refresh(dataservice_sqlx_pool.clone());

@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use chrono::Local;
-use common_scrapes::eu_hemicycle::{load_hemicycle, HemicycleLayout};
+use common_scrapes::eu_hemicycle::{HemicycleLayout, load_hemicycle};
 use dotenvy_macro::dotenv;
 
 pub mod cache_updater;
@@ -90,6 +90,7 @@ pub fn today() -> chrono::NaiveDate {
 #[derive(Clone)]
 pub struct AppState {
     pub redis_client: redis::Client,
+    pub mcp_redis_client: redis::Client,
     pub eu_redis_client: redis::Client,
     pub dataservice_sqlx_pool: PgPool,
     pub eu_dataservice_sqlx_pool: PgPool,
@@ -104,9 +105,11 @@ impl AppState {
         dataservice_sqlx_pool: PgPool,
         eu_dataservice_sqlx_pool: PgPool,
         meilisearch_client: meilisearch_sdk::client::Client,
+        mcp_redis_client: redis::Client,
     ) -> AppState {
         AppState {
             redis_client,
+            mcp_redis_client,
             eu_redis_client,
             dataservice_sqlx_pool,
             eu_dataservice_sqlx_pool,

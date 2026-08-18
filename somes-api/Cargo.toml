@@ -34,7 +34,7 @@ rand = { version = "0.9" }
 rand_core = { version = "0.10" }
 regex = "1"
 uuid = {version="1.2.2", features=["v4"]}
-sha3 = "0.10"
+sha3 = "0.12"
 base16ct = { version = "1.0.0", features = ["alloc"] }
 redis = { version = "1.0", features = ["tokio-comp"] }
 log = "0.4.17"
@@ -60,6 +60,8 @@ serde_qs = "0.15.0"
 somes-meilisearch-filter = { workspace = true }
 somes-macro = { workspace = true }
 dotenvy = "0.15.7"
+base64 = "0.23.1"
+hex = "0.4.3"
 
 [build-dependencies]
 tokio = { version = "1.0", features = ["full"] }

@@ -4,18 +4,24 @@ use axum::{
 };
 
 use chrono::NaiveDate;
-use redis::{aio::MultiplexedConnection, AsyncCommands};
+use redis::{AsyncCommands, aio::MultiplexedConnection};
 use reqwest::StatusCode;
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{Serialize, de::DeserializeOwned};
 use sqlx::PgPool;
 
 pub mod model;
 pub use model::*;
 
-use crate::{today, AppState};
+use crate::{AppState, today};
 
 #[cfg(not(debug_assertions))]
 use redis::Commands;
+
+pub mod redis_db {
+    pub const AT_DB: u32 = 0;
+    pub const EU_DB: u32 = 1;
+    pub const MCP_DB: u32 = 255;
+}
 
 pub async fn get_json_cache<T: DeserializeOwned>(
     redis_client: &mut MultiplexedConnection,
@@ -83,8 +89,26 @@ pub async fn set_json_cache_with_relevance<T: Serialize>(
     set_json_cache_secs(redis_client, key, value, seconds).await
 }
 
-pub struct RedisConnection(pub redis::aio::MultiplexedConnection);
+pub struct McpRedisConnection(pub redis::aio::MultiplexedConnection);
 
+impl FromRequestParts<AppState> for McpRedisConnection {
+    type Rejection = (StatusCode, String);
+
+    async fn from_request_parts(
+        parts: &mut Parts,
+        state: &AppState,
+    ) -> Result<Self, Self::Rejection> {
+        let pool = &state.mcp_redis_client;
+        let conn = pool
+            .get_multiplexed_async_connection()
+            .await
+            .map_err(internal_error)?;
+
+        Ok(Self(conn))
+    }
+}
+
+pub struct RedisConnection(pub redis::aio::MultiplexedConnection);
 // #[async_trait]
 impl FromRequestParts<AppState> for RedisConnection {
     type Rejection = (StatusCode, String);
