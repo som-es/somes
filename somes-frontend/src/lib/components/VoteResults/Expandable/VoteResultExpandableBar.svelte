@@ -6,9 +6,10 @@
 	import crossmarkIcon from '$lib/assets/misc_icons/crossmark_small.svg?raw';
 	import checkmarkIcon from '$lib/assets/misc_icons/checkmark_small.svg?raw';
 	import VoteTypeBadge from '../VoteTypeBadge.svelte';
-	import { dashDateToDotDate } from '$lib/date';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import InfoBadges from '../InfoTiles/InfoBadges.svelte';
 	import { gotoHistory } from '$lib/goto';
+import { localeStore } from '$lib/i18n/i18n.svelte';
 	import { currentVoteResultStore, aiViewEnabledStore } from '$lib/stores/stores';
 	import InfoBadgesCore from '../InfoTiles/InfoBadgesCore.svelte';
 	import VoteBreakDownDonut from '../VoteBreakDownDonut.svelte';
@@ -164,17 +165,19 @@
 			<span class="lg:hidden">
 				{#if voteResult.named_votes != null}
 					{#if voteResult.legislative_initiative.requires_simple_majority}
-						<span class="badge bg-tertiary-400 text-black">einfache Mehrheit</span>
+						<span class="badge bg-tertiary-400 text-black">{t('filterOption.simpleMajority')}</span>
 					{:else}
-						<span class="badge bg-tertiary-400 text-black">2/3 Mehrheit</span>
+						<span class="badge bg-tertiary-400 text-black">{t('filterOption.twoThirdsMajority')}</span>
 					{/if}
 					<span class="badge bg-tertiary-400 text-black"
 						>{voteResult.legislative_initiative.gp}</span
 					>
 					<span class="badge bg-tertiary-400 text-black"
-						>{dashDateToDotDate(
-							voteResult.legislative_initiative.nr_plenary_activity_date.toString()
-						)}</span
+						>{(() => {
+						const locale = localeStore.value === 'de' ? 'de-AT' : 'en-AT';
+						const date = new Date(voteResult.legislative_initiative.nr_plenary_activity_date);
+						return new Intl.DateTimeFormat(locale, { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+					})()}</span
 					>
 					<VoteTypeBadge {voteResult} />
 				{/if}

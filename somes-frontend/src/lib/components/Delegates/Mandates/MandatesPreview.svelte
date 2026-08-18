@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import type { FullMandate, LegisPeriod } from '$lib/types';
 	import { partyToColor } from '$lib/partyColor';
 	import { formatDate } from '$lib/date';
@@ -26,24 +27,24 @@
 
 		switch (mandate.function) {
 			case 'EP':
-				return 'EU Parlament';
+				return t('mandates.euParliament');
 			case 'BM':
-				return isFemale ? 'Bundesministerin' : 'Bundesminister';
+				return isFemale ? t('mandates.bundesministerin') : t('mandates.bundesminister');
 			case 'STS':
-				return isFemale ? 'Staatssekretärin' : 'Staatssekretär';
+				return isFemale ? t('mandates.staatssekretaerin') : t('mandates.staatssekretaer');
 			case 'NR':
-				return 'Nationalrat';
+				return t('mandates.nationalrat');
 			case 'VK':
-				return isFemale ? 'Vizekanzlerin' : 'Vizekanzler';
+				return isFemale ? t('mandates.vizekanzlerin') : t('mandates.vizekanzler');
 			case 'L':
-				return isFemale ? 'Betraute' : 'Betrauter';
+				return isFemale ? t('mandates.betrachterin') : t('mandates.betrachter');
 			default:
-				return 'Mandat';
+				return t('mandates.mandate');
 		}
 	}
 
 	function mandateYears(mandate: FullMandate): string {
-		const end = mandate.end_date ? formatYear(mandate.end_date) : 'dato';
+		const end = mandate.end_date ? formatYear(mandate.end_date) : t('mandates.today');
 		return `${formatYear(mandate.start_date)} - ${end}`;
 	}
 
@@ -140,15 +141,15 @@
 </script>
 
 <div>
-	<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">Mandate</h1>
+	<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">{t('mandates.title')}</h1>
 	<h2 class="text-sm text-gray-800 dark:text-gray-300">
 		{mandates.length}
-		{mandates.length === 1 ? 'Eintrag' : 'Einträge'}
+		{mandates.length === 1 ? t('mandates.entry') : t('mandates.entries')}
 	</h2>
 </div>
 
 {#if sortedMandates.length === 0}
-	<p class="mt-4 text-sm text-gray-800 dark:text-gray-300">Keine Mandate vorhanden.</p>
+	<p class="mt-4 text-sm text-gray-800 dark:text-gray-300">{t('mandates.none')}</p>
 {:else}
 	<div class="mt-4 w-full overflow-x-auto pb-4 md:overflow-visible">
 		<div class="min-w-[500px] md:min-w-0">
@@ -170,7 +171,7 @@
 							class="absolute -translate-x-full text-xs font-semibold whitespace-nowrap text-gray-800 dark:text-gray-300"
 							style="left: {todayPercent}%"
 						>
-							dato
+							{t('mandates.today')}
 						</span>
 					{/if}
 				</div>
@@ -235,7 +236,7 @@
 							<div class="text-gray-300 dark:text-gray-600">
 								{mandate.start_date ? formatDate(mandate.start_date) : '?'} – {mandate.end_date
 									? formatDate(mandate.end_date)
-									: 'dato'}
+									: t('mandates.today')}
 							</div>
 						</Tooltip.Content>
 					</Tooltip.Root>

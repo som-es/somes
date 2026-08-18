@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import type { Delegate } from '$lib/types';
 	import { url } from '$lib/api/api';
 	import { partyColors } from '$lib/partyColor';
@@ -32,11 +33,11 @@
 				<div
 					class="h-1.5 w-1.5 shrink-0 rounded-full md:h-2 md:w-2"
 					style="background-color: {partyColors.get(
-						delegate.party?.trim() ? delegate.party : 'Ohne Klub'
+						delegate.party?.trim() ? delegate.party : t('delegate.withoutParty')
 					) ?? '#ccc'};"
 				></div>
 				<span class="truncate text-xs text-gray-700 dark:text-gray-300"
-					>{delegate.party?.trim() ? delegate.party : 'Ohne Klub'}</span
+					>{delegate.party?.trim() ? delegate.party : t('delegate.withoutParty')}</span
 				>
 			</div>
 		</div>

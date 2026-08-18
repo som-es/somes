@@ -18,6 +18,8 @@
 	import { convertGovPropFilterToUrl } from './urlConversion';
 	import DateRangeSnippet from '../Filtering/GenericFilterSnippets/DataRangeSnippet.svelte';
 	import TopicFilter from '../Filtering/TopicFilter.svelte';
+import { t } from '$lib/i18n/i18n.svelte';
+import { localeStore } from '$lib/i18n/i18n.svelte';
 
 	interface Props {
 		govProposals: GovProposalsWithMaxPage;
@@ -29,17 +31,17 @@
 
 	let genericFilters: [GenericFilterGroup<boolean>, GenericFilterGroup<string>] = $state([
 		{
-			title: 'Abstimmungsstatus',
+			title: t('filter.votingStatus'),
 			activeValue: undefined,
 			hidden: false,
 			options: [
-				{ title: 'egal', value: undefined },
-				{ title: 'mit Abstimmung', value: true },
-				{ title: 'ohne Abstimmung', value: false }
+				{ title: t('filterOption.any'), value: undefined },
+				{ title: t('filter.votingWith'), value: true },
+				{ title: t('filter.votingWithout'), value: false }
 			]
 		},
 		{
-			title: 'Datum',
+			title: t('filter.date'),
 			activeValue: undefined,
 			hidden: false,
 			advanced: true,
@@ -50,24 +52,25 @@
 	]);
 
 	let legisPeriodFilter = $state({
-		title: 'Legislaturperiode',
+		title: t('filter.legislaturePeriod'),
 		activeValue: 'all',
 		hidden: false,
-		options: [{ title: 'Alle', value: 'all' }]
+		options: [{ title: t('filterOption.all'), value: 'all' }]
 	});
 
 	let searchValue = $state('');
 	let sortOrder: 'relevance' | 'Desc' | 'Asc' = $state('relevance');
 
-	let updatedAt = $derived(
-		govProposals.updated_at
-			? new Intl.DateTimeFormat('de-AT', {
+	let updatedAt = $derived(() => {
+		const locale = localeStore.value === 'de' ? 'de-AT' : 'en-AT';
+		return govProposals.updated_at
+			? new Intl.DateTimeFormat(locale, {
 					day: '2-digit',
 					month: '2-digit',
 					year: 'numeric'
 				}).format(new Date(govProposals.updated_at))
-			: 'Unbekannt'
-	);
+			: t('date.unknown');
+	});
 
 	let currentPage: number | undefined = $state(undefined);
 	let selectedTopics: SvelteSet<string> = $state(new SvelteSet());
@@ -180,7 +183,7 @@
 		const fetchedPeriods = await cachedAllLegisPeriods();
 		if (fetchedPeriods) {
 			legisPeriodFilter.options = [
-				{ title: 'Alle', value: 'all' },
+				{ title: t('filterOption.all'), value: 'all' },
 				...fetchedPeriods.map((p) => ({ title: p.gp, value: p.gp }))
 			];
 		}
@@ -239,7 +242,7 @@
 				<ExpandablePlaceholder class="my-4" />
 			{/each}
 		{:else}
-			Keine Ministerialentwürfe gefunden
+			{t('pagination.noResults')}
 		{/if}
 		<div class="float-right">
 			<Pagination bind:currentPage maxPage={govProposals.max_page} />

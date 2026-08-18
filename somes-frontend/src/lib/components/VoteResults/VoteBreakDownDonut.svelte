@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { Tooltip } from 'bits-ui';
 	import type { Vote } from '$lib/types';
+	import { localeStore } from '$lib/i18n/i18n.svelte';
+	import { t } from '$lib/i18n/i18n.svelte';
 
 	let {
 		vote,
@@ -23,14 +25,16 @@
 	/** gap between two segments in the circle */
 	const GAP = 1.2;
 
-	const donutData = $derived(
-		[
-			{ category: 'Dafür', value: vote.infavor_count, color: INFAVOR_COLOR },
-			{ category: 'Dagegen', value: vote.against_count, color: AGAINST_COLOR },
-			{ category: 'Enthaltung', value: vote.abstention_count, color: ABSTENTION_COLOR },
-			{ category: 'Abwesend', value: vote.absence_count, color: ABSENT_COLOR }
-		].filter((d) => d.value > 0)
-	);
+	const donutData = $derived.by(() => {
+		// Read localeStore.value to create a reactive dependency
+		const _ = localeStore.value;
+		return [
+			{ category: t('donut.inFavor'), value: vote.infavor_count, color: INFAVOR_COLOR },
+			{ category: t('donut.against'), value: vote.against_count, color: AGAINST_COLOR },
+			{ category: t('donut.abstention'), value: vote.abstention_count, color: ABSTENTION_COLOR },
+			{ category: t('donut.absent'), value: vote.absence_count, color: ABSENT_COLOR }
+		].filter((d) => d.value > 0);
+	});
 
 	const segments = $derived.by(() => {
 		const total = donutData.reduce((sum, d) => sum + d.value, 0);

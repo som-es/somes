@@ -98,32 +98,32 @@
 		GenericFilterGroup<boolean>
 	] = $state([
 		{
-			title: 'Mandatsart',
+			title: t('delegates.mandateType'),
 			activeValue: undefined,
 			hidden: false,
 			options: [
-				{ title: 'egal', value: undefined },
-				{ title: 'Regierung', value: true },
-				{ title: 'Nationalrat', value: false }
+				{ title: t('delegates.any'), value: undefined },
+				{ title: t('delegates.government'), value: true },
+				{ title: t('delegates.nationalCouncil'), value: false }
 			]
 		},
 		{
-			title: 'Aktives Mandat',
+			title: t('delegates.activeMandate'),
 			activeValue: undefined,
 			hidden: false,
 			options: [
-				{ title: 'egal', value: undefined },
-				{ title: 'Ja', value: true },
-				{ title: 'Nein', value: false }
+				{ title: t('delegates.any'), value: undefined },
+				{ title: t('delegates.yes'), value: true },
+				{ title: t('delegates.no'), value: false }
 			]
 		},
 		{
-			title: 'Ehemalige Parteizugehörigkeit beachten ',
+			title: t('delegates.considerPrevParty'),
 			activeValue: true,
 			hidden: false,
 			options: [
-				{ title: 'Ja', value: true },
-				{ title: 'Nein', value: false }
+				{ title: t('delegates.yes'), value: true },
+				{ title: t('delegates.no'), value: false }
 			]
 		}
 	]);
@@ -576,7 +576,7 @@
 					<div class="mt-1 max-h-96 overflow-y-auto">
 						{#if isLoadingSearch}
 							<div class="flex justify-center p-4">
-								<span class="text-gray-500">Loading...</span>
+								<span class="text-gray-500">{t('delegates.loading')}</span>
 							</div>
 						{:else}
 							{#each searchResults as d (d.id)}
@@ -624,7 +624,7 @@
 											<div class="text-sm font-medium text-gray-800 dark:text-gray-200">
 												{govMandates}
 												<span class="font-light text-gray-700 dark:text-gray-300">
-													(Regierung)
+													({t('delegates.government')})
 												</span>
 											</div>
 										{/if}
@@ -635,7 +635,7 @@
 
 												{#if data.parliament === 'at'}
 													<span class="font-light text-gray-700 dark:text-gray-300">
-														(Nationalrat)
+														({t('delegates.nationalCouncil')})
 													</span>
 												{/if}
 											</div>
@@ -675,7 +675,7 @@
 						{@html searchIcon}
 					</div>
 					<span class="truncate">
-						{inputValue || 'Suche...'}
+						{inputValue || t('delegates.search') + '...'}
 					</span>
 				</button>
 
@@ -709,7 +709,7 @@
 				>
 					<div class="w-full max-w-md rounded-2xl bg-primary-100 p-4 shadow-xl dark:bg-primary-600">
 						<div class="mb-1 flex items-center justify-between">
-							<h3 class="text-lg font-semibold">Suche</h3>
+							<h3 class="text-lg font-semibold">{t('delegates.search')}</h3>
 							<ModalCloseButton class="p-1" onclick={() => (isSearchPopupOpen = false)} />
 						</div>
 						<div class="mb-2">
@@ -720,7 +720,7 @@
 									currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
 								}}
 								bind:searchValue={inputValue}
-								placeholder="Suche nach Abgeordneten..."
+								placeholder={t('delegates.searchDelegates')}
 								autofocus={true}
 							/>
 						</div>
@@ -764,7 +764,7 @@
 							>
 								<div class="mt-4 first:mt-0">
 									<span class="text-base font-semibold text-gray-800 dark:text-gray-200"
-										>Legislaturperiode</span
+										>{t('delegates.legislaturePeriod')}</span
 									>
 									<div class="flex w-60 flex-wrap gap-1 text-sm">
 										{#each [...periods].reverse() as period}
@@ -932,7 +932,7 @@
 						: 'text-gray-700 hover:bg-primary-400 dark:text-gray-300 dark:hover:bg-primary-500'}"
 					onclick={() => (activeTab = 'analysis')}
 				>
-					Übersicht
+					{t('delegates.overview')}
 				</button>
 				<button
 					class="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium {activeTab === 'activities'
@@ -940,7 +940,7 @@
 						: 'text-gray-700 hover:bg-primary-400 dark:text-gray-400 dark:hover:bg-primary-500'}"
 					onclick={() => (activeTab = 'activities')}
 				>
-					Aktivitäten
+					{t('delegates.activities')}
 				</button>
 				{#if delegate?.council === 'gov' || delegate?.mandates?.find((mandate) => {
 						return mandate.is_gov_official;
@@ -951,7 +951,7 @@
 							: 'text-gray-700 hover:bg-primary-400 dark:text-gray-400 dark:hover:bg-primary-500'}"
 						onclick={() => (activeTab = 'gov')}
 					>
-						Regierung
+						{t('delegates.gov')}
 					</button>
 				{/if}
 			</div>

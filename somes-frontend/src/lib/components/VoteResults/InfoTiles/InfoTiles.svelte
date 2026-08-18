@@ -6,8 +6,9 @@
 	import type { Delegate, Vote, VoteResult } from '$lib/types';
 	import { givenVotes } from '$lib/partyInfavor';
 	import Square from '$lib/components/UI/Square.svelte';
-	import { dashDateToDotDate } from '$lib/date';
-	import { lightModeStore } from '$lib/lightmode.svelte';
+		import { lightModeStore } from '$lib/lightmode.svelte';
+	import { t } from '$lib/i18n/i18n.svelte';
+import { localeStore } from '$lib/i18n/i18n.svelte';
 
 	interface Props {
 		voteResult: VoteResult;
@@ -129,14 +130,14 @@
 						{@html checkmarkIcon}
 					</span>
 					{#if showText}
-						<div>Angenommen</div>
+						<div>{t('infotiles.accepted')}</div>
 					{/if}
 				{:else}
 					{@html crossmarkIcon}
 					{#if showText}
-						<div>Abgelehnt</div>
+						<div>{t('infotiles.rejected')}</div>
 						{#if voteResult.legislative_initiative.accepted == 'p'}
-							<div>(frühzeitig)</div>
+							<div>{t('infotiles.earlyRejected')}</div>
 						{/if}
 					{/if}
 				{/if}
@@ -152,8 +153,7 @@
 				/>
 
 				{#if showText}
-					<div>Notwendige</div>
-					<div>Mehrheit</div>
+					<div>{t('infotiles.requiredMajority')}</div>
 				{/if}
 			</Square>
 		{/if}
@@ -169,8 +169,7 @@
 				/>
 
 				{#if showText}
-					<div>Erreichte</div>
-					<div>Stimmen</div>
+					<div>{t('infotiles.achievedVotes')}</div>
 				{/if}
 				<!-- {voteResult.legislative_initiative.requires_simple_majority ? "1/2" : "2/3" } -->
 			</Square>
@@ -178,11 +177,15 @@
 		{#if showDate}
 			<Square {squareSize} class={squareClasses}>
 				<div class="text-lg font-bold">
-					{dashDateToDotDate(voteResult.legislative_initiative.nr_plenary_activity_date.toString())}
+					{(() => {
+					const locale = localeStore.value === 'de' ? 'de-AT' : 'en-AT';
+					const date = new Date(voteResult.legislative_initiative.nr_plenary_activity_date);
+					return new Intl.DateTimeFormat(locale, { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+				})()}
 				</div>
 				{#if showText}
 					{#if voteResult.votes.length > 0}
-						<div>Abgestimmt am</div>
+						<div>{t('infotiles.votedOn')}</div>
 					{:else}
 						<div>Letzte</div>
 						<div>Plenaraktivität</div>

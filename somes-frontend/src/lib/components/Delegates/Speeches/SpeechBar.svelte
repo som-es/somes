@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { aiViewEnabledStore } from '$lib/stores/stores';
 	import clockIcon from '$lib/assets/misc_icons/clock-two.svg?raw';
 	import { Opinion, type FullSpeech } from '$lib/speechTypes';
@@ -23,8 +24,8 @@
 	let opinion = $derived(
 		speech.speech.infavor != null
 			? speech.speech.infavor
-				? 'Pro'
-				: 'Contra'
+				? t('speeches.pro')
+				: t('speeches.contra')
 			: speech.speech.opinion
 	);
 	let barColor = $derived(

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { partyToColor, partyColors as globalPartyColors } from '$lib/partyColor';
 	import type { Delegate, DelegateFavo, DelegateQA } from '$lib/types';
 	import { currentDelegateStore } from '$lib/stores/stores';
@@ -175,7 +176,7 @@
 		<!-- Birthday Check -->
 		{#if delegate.birthdate && new Date().toString() == new Date(delegate.birthdate).toString()}
 			<hr />
-			Alles Gute zum Geburtstag!
+			{t('delegate.birthday')}
 		{/if}
 
 		<!-- Party -->
@@ -186,7 +187,7 @@
 			></div>
 			<p class="text-base text-gray-800 dark:text-gray-50">
 				{#if delegate.party == null || delegate.party == 'OK'}
-					Ohne Klub
+					{t('delegate.withoutParty')}
 				{:else}
 					<span>{delegate.party}</span>
 				{/if}

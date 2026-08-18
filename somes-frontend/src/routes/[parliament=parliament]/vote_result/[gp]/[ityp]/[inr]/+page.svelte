@@ -204,12 +204,12 @@
 
 	const infavorOptions = $derived.by(() => {
 	    const val = [
-    		{ value: 'Infavor', label: 'Dafür' },
-    		{ value: 'NoVote', label: 'Nicht abgestimmt' },
-    		{ value: 'Against', label: 'Dagegen' },
+    		{ value: 'Infavor', label: t('vote_result.inFavor') },
+    		{ value: 'NoVote', label: t('vote_result.notVoted') },
+    		{ value: 'Against', label: t('vote_result.against') },
 		];
 		if (data.parliament == "eu") {
-		    val.push({ value: 'Abstention', label: 'Enthalten' });
+		    val.push({ value: 'Abstention', label: t('vote_result.abstention') });
 		}
 		return val
 	});
