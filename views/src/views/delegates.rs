@@ -1,11 +1,15 @@
 use sqlx::{Postgres, Transaction};
 
-pub async fn create_delegates_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sqlx::Result<()> {
+pub async fn create_delegates_view<'a>(
+    tx: &mut Transaction<'a, Postgres>,
+    up: bool,
+) -> sqlx::Result<()> {
     sqlx::query!("DROP MATERIALIZED VIEW IF EXISTS delegates_with_mandates;")
         .execute(&mut **tx)
         .await?;
 
-    sqlx::query(
+    if up {
+        sqlx::query(
         r#"CREATE MATERIALIZED VIEW delegates_with_mandates AS
     WITH period_starts AS (
         SELECT legislative_period AS gp,
@@ -85,14 +89,17 @@ pub async fn create_delegates_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sq
         delegates;
         "#
     ).execute(&mut **tx).await?;
+    }
 
-    sqlx::query!(
-        "
+    if up {
+        sqlx::query!(
+            "
         CREATE UNIQUE INDEX idx_delegates_with_mandates_id ON delegates_with_mandates(id);
     "
-    )
-    .execute(&mut **tx)
-    .await?;
+        )
+        .execute(&mut **tx)
+        .await?;
+    }
 
     Ok(())
 }

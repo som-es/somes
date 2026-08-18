@@ -29,7 +29,7 @@
 	// let activePlenarySessionsPerGp: Record<string, PlenarySession[]> | null = $state(null);
 	let absentOrNotPlenarySessionPerGp: {
 		gp: LegisPeriod;
-		sessions: { absence?: Absence; session: PlenarySession }[];
+		sessions: { absencesDuringSession?: Absence[]; session: PlenarySession }[];
 	}[] = $state([]);
 
 	onMount(async () => {
@@ -42,10 +42,10 @@
 			);
 			for (const [gp, plenarySessions] of Object.entries(activePlenarySessionsPerGp)) {
 				const sessions = plenarySessions.map((plenarySession) => {
-					const absence = absences.find(
+					const absencesDuringSession: Absence[] = absences.filter(
 						(absence) => absence.plenary_session_id == plenarySession.id
 					);
-					return { absence, session: plenarySession };
+					return { absencesDuringSession, session: plenarySession };
 				});
 				const legisPeriod = legisPeriods.find((period) => period.gp == gp);
 				if (legisPeriod) absentOrNotPlenarySessionPerGp.push({ gp: legisPeriod, sessions });
@@ -60,6 +60,8 @@
 	// 	absences.slice((page - 1) * ENTRIES, page * ENTRIES)
 	// );
 	let totalAbsences = $derived(absences.length);
+
+	let openSessionId: number | null = $state(null);
 </script>
 
 <div class="card p-8">
@@ -86,20 +88,19 @@
 					<!-- 10-Column Grid for Sessions -->
 					<div class="flex flex-wrap gap-x-2 gap-y-1.5">
 						{#each entry.sessions as item, i (item.session.id)}
-							{@const isAbsent = !!item.absence}
-							{@const hasUrl = !!item.absence?.source_url}
-							<Popover.Root>
-								<Popover.Trigger openOnHover openDelay={200}>
+							{@const isAbsent = (item.absencesDuringSession?.length ?? 0) !== 0}
+							<Popover.Root
+								open={openSessionId === item.session.id}
+								onOpenChange={(isOpen) => {
+									if (isOpen) openSessionId = item.session.id;
+									else if (openSessionId === item.session.id) openSessionId = null;
+								}}
+							>
+								<Popover.Trigger openOnHover openDelay={0}>
 									<svelte:element
-										this={hasUrl ? 'a' : 'div'}
-										href={item.absence?.source_url ?? undefined}
-										target={hasUrl ? '_blank' : undefined}
-										rel={hasUrl ? 'noopener noreferrer' : undefined}
+										this={'div'}
 										class="flex h-8 w-8 items-center justify-center rounded-md text-xs font-normal transition-all duration-150
-									{isAbsent ? 'text-slate/70 bg-tertiary-400/80 text-black' : 'bg-primary-400 text-white'}
-									{hasUrl
-											? 'text-slate/70 cursor-pointer bg-tertiary-400/80 hover:shadow-sm dark:hover:bg-slate-700'
-											: 'cursor-default'}"
+									{isAbsent ? 'text-slate/70 bg-tertiary-400/80 text-black' : 'bg-primary-400 text-white'}"
 									>
 										{i + 1}
 									</svelte:element>
@@ -135,22 +136,40 @@
 
 											<!-- Dynamic Status Card (Present vs. Absent) -->
 											{#if isAbsent}
-												<div
-													class="text-tertiary-950 rounded-lg border border-primary-300/50 bg-primary-200/50 p-3 text-xs"
-												>
-													<div class="mb-1.5 flex items-center justify-between">
-														<span
-															class="badge bg-tertiary-400/80 px-2 py-0.75 text-[10px] font-bold tracking-wider text-black"
-														>
-															Abwesend
-														</span>
-														{#if item.absence?.date}
-															<span class="text-[10px] font-medium text-primary-600">
-																{formatDate(item.absence.date)}
-															</span>
-														{/if}
-													</div>
-												</div>
+											    {#each item.absencesDuringSession ?? [] as absence}
+    												<div
+    													class="text-tertiary-950 rounded-lg border border-primary-300/50 bg-primary-200/50 p-3 text-xs"
+    												>
+    													<div class="mb-1.5 flex items-center justify-between">
+    														<span
+    															class="badge bg-tertiary-400/80 px-2 py-0.75 text-[10px] font-bold tracking-wider text-black"
+    														>
+    															Abwesend
+    														</span>
+    														{#if absence.date}
+    															<span class="text-[10px] font-medium text-primary-600">
+    																{formatDate(absence.date)}
+    															</span>
+    														{/if}
+
+    													</div>
+                                                        <!-- Document & Source Links -->
+             											{#if absence.source_url}
+                    								        <div
+               													class="flex flex-col gap-1.5 border-t border-primary-200/60 pt-2 text-[11px]"
+                            								>
+               													<a
+              														href={absence.source_url}
+              														target="_blank"
+              														rel="noopener noreferrer"
+              														class="flex items-center gap-1 font-semibold text-tertiary-700 underline transition-colors hover:text-tertiary-900"
+               													>
+              														Quellennachweis öffnen →
+               													</a>
+                            								</div>
+             											{/if}
+    												</div>
+												{/each}
 											{:else}
 												<div
 													class="text-primary-950 rounded-lg border border-primary-300/50 bg-primary-200/50 p-3 text-xs"
@@ -167,24 +186,6 @@
 															</span>
 														{/if}
 													</div>
-												</div>
-											{/if}
-
-											<!-- Document & Source Links -->
-											{#if item.absence && (item.session.absences_doc_url || item.absence?.source_url)}
-												<div
-													class="flex flex-col gap-1.5 border-t border-primary-200/60 pt-2 text-[11px]"
-												>
-													<a
-														href={item.absence.source_url
-															? item.absence?.source_url
-															: item.session.absences_doc_url}
-														target="_blank"
-														rel="noopener noreferrer"
-														class="flex items-center gap-1 font-semibold text-tertiary-700 underline transition-colors hover:text-tertiary-900"
-													>
-														Quellennachweis öffnen →
-													</a>
 												</div>
 											{/if}
 										</div>

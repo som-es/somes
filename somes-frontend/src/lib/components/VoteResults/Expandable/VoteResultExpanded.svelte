@@ -1,16 +1,13 @@
 <script lang="ts">
 	import Topics from '$lib/components/Topics/Topics.svelte';
-	import SButton from '$lib/components/UI/SButton.svelte';
 	import { createVoteResultPath, type Delegate, type VoteResult } from '$lib/types';
 	import Emphasis from '../Emphasis/Emphasis.svelte';
-	import InfoTiles from '../InfoTiles/InfoTiles.svelte';
 	import {
 		currentDelegatesAtDateStore,
 		currentVoteResultStore,
 		aiViewEnabledStore
 	} from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
-	import VoteTypeBadge from '../VoteTypeBadge.svelte';
 	import MovingArrowButton from '$lib/components/UI/MovingArrowButton.svelte';
 
 	export let voteResult: VoteResult;
@@ -44,10 +41,7 @@
 	<div class="flex gap-2">
 		<div class="grow basis-3/4">
 			{#if aiViewEnabledStore.value && voteResult.ai_summary}
-				<Emphasis
-					emphasis={voteResult.ai_summary.full_summary.key_points}
-					glossary={voteResult.ai_summary.full_summary.glossary}
-				/>
+				<Emphasis summary={voteResult.ai_summary.full_summary} />
 			{:else}
 				<!-- <Emphasis
 					emphasis={}
@@ -66,7 +60,7 @@
 			<div class="pt-2">
 				<Topics {topics} />
 			</div>
-			<div class="flex h-8 items-center justify-end rounded-xl px-2">
+			<div class="flex h-8 items-center justify-end rounded-xl px-2 mt-2">
 				<MovingArrowButton onclick={onShowDetails} />
 			</div>
 		</div>

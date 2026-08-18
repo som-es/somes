@@ -2,6 +2,8 @@ import type { CriticalAnalysis, Glossary } from './ai_summary_types';
 
 export interface FullSpeech {
 	id: number;
+	debate_id: number;
+	delegate_id: number;
 	speech: DbSpeechWithLink;
 	ai_summary: DbSpeechAiSummary | null;
 	relations: DbSpeechRelations[];

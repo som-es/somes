@@ -134,9 +134,10 @@ export interface LegislativeInitiative {
 export interface Vote {
 	party: string;
 	code: string | null;
-	fraction: number;
-	infavor: boolean;
-	legislative_initiatives_id: number;
+	infavor_count: number;
+	against_count: number;
+	abstention_count: number;
+	absence_count: number;
 }
 
 export interface InterjectionsWithMaxPage {
@@ -585,6 +586,7 @@ export interface DelegateFilter {
 	search_value: string | null;
 	legis_period: string | null;
 	day_offset: number | null;
+    supply_date: string | null;
 }
 
 export interface StanceTopicScore {

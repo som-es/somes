@@ -48,7 +48,7 @@ pub struct CallToOrder {
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct Absence {
-    pub date: DateTime<Utc>,
+    pub date: NaiveDate,
     pub inr: i32,
     pub gp: String,
     pub plenary_session_id: i32,
@@ -298,6 +298,11 @@ pub struct SortParams {
     pub sort: Option<Sort>,
 }
 
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct TopicsFilter {
+    pub filter_topics: Option<Vec<String>>,
+}
+
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub enum Sort {
     Asc,
@@ -369,6 +374,7 @@ pub struct AddonVoteResultFilter {
     pub party_votes: Option<Vec<PartyVote>>,
     pub date_from: Option<NaiveDate>,
     pub date_to: Option<NaiveDate>,
+    pub filter_topics: Option<Vec<String>>,
 }
 
 #[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]

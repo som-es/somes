@@ -1,8 +1,9 @@
 use axum::Json;
+use combx::Parliament;
 use somes_common_lib::SendMailInfo;
 use sqlx::{query, query_as};
 
-use crate::{jwt::Claims, GenericError, PgPoolConnection};
+use crate::{jwt::Claims, GenericError, ParliamentCtx, PgPoolConnection};
 
 pub async fn update_send_mail_info_route(
     PgPoolConnection(pg): PgPoolConnection,

@@ -141,8 +141,9 @@
 	}
 
 	$effect(() => {
-		if (delegate && delegate.seat_row != null && circles2d.length >= 1) {
-			select(circles2d[delegate.seat_row - 1][delegate.seat_col! - 1], null, false);
+        const newDel = delegates.find(del => del.id == delegate?.id) ?? delegate;
+		if (newDel && newDel.seat_row != null && circles2d.length >= 1) {
+			select(circles2d[newDel.seat_row - 1][newDel.seat_col! - 1], null, false);
 		}
 	});
 

@@ -42,10 +42,7 @@
 	<div class="flex gap-2">
 		<div class="grow basis-3/4">
 			{#if aiViewEnabledStore.value && govProposal.ai_summary}
-				<Emphasis
-					emphasis={govProposal.ai_summary.full_summary.key_points}
-					glossary={govProposal.ai_summary.full_summary.glossary}
-				/>
+				<Emphasis summary={govProposal.ai_summary.full_summary} />
 			{:else}
 				<!-- <Emphasis
 					emphasis={}

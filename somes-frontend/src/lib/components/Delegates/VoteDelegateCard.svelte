@@ -1,10 +1,13 @@
 <script lang="ts">
+	import { getParliament, plink, type Parliament } from '$lib/api/parliament';
 	import { gotoHistory } from '$lib/goto';
 	import type { Bubble } from '$lib/parliament';
 	import { getPartyColors } from '$lib/partyColor';
 	import { currentDelegateStore } from '$lib/stores/stores';
 	import type { Delegate } from '$lib/types';
 	import DelegateCard from './DelegateCard.svelte';
+	import SpeechModal from './Speeches/SpeechModal.svelte';
+	import SpeechDelegateHeader from './Speeches/SpeechDelegateHeader.svelte';
 	import { Popover } from 'bits-ui';
 
 	interface Props {
@@ -13,15 +16,22 @@
 		gp: string;
 		class?: string;
 		partyColors?: Map<string, string>;
+		parliament?: Parliament;
 	}
 
-	let { bubble, date, gp, class: clazz = '', partyColors = getPartyColors() }: Props = $props();
+	let { bubble, date, gp, class: clazz = '', partyColors = getPartyColors(), parliament = getParliament() }: Props = $props();
 
 	let delegate: Delegate | null = $derived(bubble.del);
 
+	let speechModalOpen = $state(false);
+
 	const onShowDetails = () => {
 		currentDelegateStore.value = delegate;
-		gotoHistory(`/delegates?gp=${gp}&date=${date}`, true);
+		if (delegate) {
+		    const link = plink(`/delegates?gp=${gp}&date=${date}&delegate=${delegate.id}`);
+			console.log(link);
+			gotoHistory(link, true);
+		}
 	};
 
 	// const popupFeatured: PopupSettings = {
@@ -90,6 +100,8 @@
 		onlyTop
 		showAI={false}
 		{partyColors}
+		{parliament}
+		{onShowDetails}
 	>
 		{#snippet top()}
 			<span class="mt-2">
@@ -142,7 +154,7 @@
 				{#if bubble.speech}
 					<button
 						class="rounded-xl bg-primary-600 p-2 px-3 text-white"
-						onclick={() => window.open(`${bubble.speech?.speech.document_urls?.[0]}`, '_blank')}
+						onclick={() => (speechModalOpen = true)}
 					>
 						<h4>Rede</h4>
 					</button>
@@ -150,4 +162,14 @@
 			</span>
 		{/snippet}
 	</DelegateCard>
+
+	{#if bubble.speech}
+		<SpeechModal speech={bubble.speech} bind:open={speechModalOpen}>
+			{#snippet header()}
+				<div class="mb-1.5">
+					<SpeechDelegateHeader {delegate} {partyColors} />
+				</div>
+			{/snippet}
+		</SpeechModal>
+	{/if}
 {/if}

@@ -16,4 +16,5 @@ export interface MinisterialViewData {
 	ressortShortform: string | null;
 	originalDocumentUrl: string | null;
 	infoBadges: string[];
+    gp: string;
 }

@@ -36,7 +36,8 @@
 					govProposalDelegate.gov_proposal.ministrial_proposal.raw_data_created_at
 				).toLocaleDateString(),
 				govProposalDelegate.gov_proposal.ministrial_proposal.gp
-			].filter((x) => x !== null) as string[]
+			].filter((x) => x !== null) as string[],
+			gp: govProposalDelegate.gov_proposal.ministrial_proposal.gp
 		};
 	});
 </script>

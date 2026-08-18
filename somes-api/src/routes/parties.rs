@@ -145,7 +145,7 @@ pub fn determine_coalition_from_voting_behaviour_per_gp(
             let key = (legis_init.gp.clone(), vote.party.clone());
             infavor_per_party_gp
                 .entry(key)
-                .and_modify(|x: &mut u32| *x += vote.infavor as u32)
+                .and_modify(|x: &mut u32| *x += (vote.infavor_count > 0) as u32)
                 .or_default();
         }
     }

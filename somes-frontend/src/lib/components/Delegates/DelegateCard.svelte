@@ -13,8 +13,13 @@
 	import AIChatModal from './AIChat/AIChatModal.svelte';
 	import { Dialog } from 'bits-ui';
 	import DelegateQAModal from './QA/DelegateQAModal.svelte';
-	import { plink } from '$lib/api/parliament';
+	import { getParliament, plink, type Parliament } from '$lib/api/parliament';
 	import type { SvelteMap } from 'svelte/reactivity';
+
+	const onShowDetailsDefault = () => {
+		currentDelegateStore.value = delegate;
+		gotoHistory(plink('/delegates'), true);
+	};
 
 	interface Props {
 		delegate: Delegate;
@@ -32,6 +37,8 @@
 		info?: import('svelte').Snippet;
 		footerButtons?: import('svelte').Snippet;
 		partyColors?: Map<string, string>;
+		parliament?: Parliament;
+		onShowDetails?: () => void;
 	}
 
 	let {
@@ -49,15 +56,12 @@
 		top,
 		info,
 		footerButtons,
-		partyColors = globalPartyColors
+		partyColors = globalPartyColors,
+		parliament = getParliament(),
+		onShowDetails = onShowDetailsDefault
 	}: Props = $props();
 
 	const showDelegate = import.meta.env.VITE_SHOW_DELEGATE_ID;
-
-	const onShowDetails = () => {
-		currentDelegateStore.value = delegate;
-		gotoHistory(plink('/delegates'), true);
-	};
 
 	let delegateFavos: SvelteMap<number, DelegateFavo> | null = $state(null);
 	onMount(async () => {
@@ -71,7 +75,12 @@
 
 		return Math.floor((utc2 - utc1) / _MS_PER_DAY);
 	}
-	let personUrl = $derived(`https://parlament.gv.at/person/${delegate.id}?utm_source=somes.at`);
+	let personUrl = $derived.by(() => {
+	    switch (parliament) {
+			case "at": return `https://parlament.gv.at/person/${delegate.id}?utm_source=somes.at`
+			case "eu": return `https://www.europarl.europa.eu/meps/en/${delegate.id}?utm_source=somes.at`
+		}
+	});
 
 	const mandatesToDisplay = $derived.by(() => {
 		if (date) {

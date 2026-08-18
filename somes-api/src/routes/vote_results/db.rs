@@ -138,7 +138,7 @@ pub async fn votes_from_legis_init_sqlx(
 ) -> sqlx::Result<Vec<DbVote>> {
     sqlx::query_as!(
         DbVote,
-        "select party, code, votes.fraction, infavor from votes inner join parties on parties.name = votes.party where legislative_initiatives_id = $1",
+        "select party, code, votes.infavor_count, votes.absence_count, votes.against_count, votes.abstention_count from votes inner join parties on parties.name = votes.party where legislative_initiatives_id = $1",
         legis_init_id
     )
     .fetch_all(con)

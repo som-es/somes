@@ -22,7 +22,7 @@ pub async fn update_cache_vote_results(
                     .as_ref()
                     .unwrap_or(&vec![])
                     .iter()
-                    .map(|vote| format!("{}{:?}", vote.party, vote.infavor))
+                    .map(|vote| format!("{}{:?}", vote.party, vote.infavor_count > 0))
                     .collect();
             }
         }

@@ -15,10 +15,10 @@ export const load: PageServerLoad = async ({ fetch, url, setHeaders, params }) =
 	}
 	const delegateId = url.searchParams.get('delegate');
 	const gp = url.searchParams.get('gp');
-	const date = url.searchParams.get('date') ?? new Date().toISOString().split('T')[0];
+	const date = url.searchParams.get('date');
 
 	const delegates = await fetchDelegates(
-		date,
+		date ?? new Date().toISOString().split('T')[0],
 		gp ?? defaultGpByParliament(parliament),
 		fetch,
 		parliament
