@@ -1,9 +1,9 @@
-use combx::{models::*, CombinedData, OptionalVoteResult};
-use redis::aio::MultiplexedConnection;
+use combx::{CombinedData, OptionalVoteResult, models::*};
+use redis::aio::ConnectionManager;
 use somes_common_lib::Document;
 use sqlx::PgPool;
 
-use crate::{get_json_cache, IS_PROD};
+use crate::{IS_PROD, get_json_cache};
 
 pub async fn fetch_all_vote_results(pg: &PgPool) -> sqlx::Result<Vec<OptionalVoteResult>> {
     sqlx::query_as!(OptionalVoteResult, "select * from vote_results")
@@ -24,43 +24,8 @@ pub async fn fetch_vote_result_by_id(
     .await
 }
 
-#[tokio::test]
-async fn test_fetch_all_vote_results() {
-    let pg = combx::connect_pg().await;
-    println!("start fetch...");
-    let start = tokio::time::Instant::now();
-    let legis_inits = sqlx::query_as!(
-        DbLegislativeInitiativeQuery,
-        "SELECT DISTINCT * FROM legislative_initiatives where is_voteable_on"
-    )
-    .fetch_all(&pg)
-    .await
-    .unwrap();
-
-    let client = redis::Client::open(crate::REDIS_DB).unwrap();
-    let redis_con = client.get_multiplexed_async_connection().await.unwrap();
-    for legis_init in legis_inits {
-        dbg!(legis_init.id);
-
-        let start = std::time::Instant::now();
-        let mut lhs = fetch_vote_result_by_id(&pg, legis_init.id)
-            .await
-            .unwrap()
-            .unwrap();
-        lhs.meilisearch_helper = Some(MeilisearchHelper {
-            votes: vec![],
-            issuer_parties: vec![],
-        });
-        println!("elapsed (new): {:?}", start.elapsed());
-    }
-    // let vote_results = fetch_all_vote_results(&pg).await.unwrap();
-    println!("elapsed: {:?}", start.elapsed());
-    // dbg!(vote_results.len());
-    // dbg!(vote_results.first());
-}
-
 pub async fn construct_vote_result(
-    mut redis_con: MultiplexedConnection,
+    mut redis_con: ConnectionManager,
     pg: &PgPool,
     legis_init_id: i32,
 ) -> sqlx::Result<Option<OptionalVoteResult>> {
@@ -109,4 +74,46 @@ pub async fn construct_vote_result(
             .ok_or(sqlx::Error::WorkerCrashed)?;
     }
     Ok(Some(out))
+}
+
+#[cfg(test)]
+mod tests {
+    use combx::{DbLegislativeInitiativeQuery, MeilisearchHelper};
+
+    use crate::routes::fetch_vote_result_by_id;
+
+    #[tokio::test]
+    async fn test_fetch_all_vote_results() {
+        let pg = combx::connect_pg().await;
+        println!("start fetch...");
+        let start = tokio::time::Instant::now();
+        let legis_inits = sqlx::query_as!(
+            DbLegislativeInitiativeQuery,
+            "SELECT DISTINCT * FROM legislative_initiatives where is_voteable_on"
+        )
+        .fetch_all(&pg)
+        .await
+        .unwrap();
+
+        let client = redis::Client::open(crate::REDIS_DB).unwrap();
+        let _redis_con = client.get_multiplexed_async_connection().await.unwrap();
+        for legis_init in legis_inits {
+            dbg!(legis_init.id);
+
+            let start = std::time::Instant::now();
+            let mut lhs = fetch_vote_result_by_id(&pg, legis_init.id)
+                .await
+                .unwrap()
+                .unwrap();
+            lhs.meilisearch_helper = Some(MeilisearchHelper {
+                votes: vec![],
+                issuer_parties: vec![],
+            });
+            println!("elapsed (new): {:?}", start.elapsed());
+        }
+        // let vote_results = fetch_all_vote_results(&pg).await.unwrap();
+        println!("elapsed: {:?}", start.elapsed());
+        // dbg!(vote_results.len());
+        // dbg!(vote_results.first());
+    }
 }

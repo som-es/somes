@@ -4,7 +4,7 @@ use headers::{Authorization, authorization::Bearer};
 use jsonwebtoken::{Validation, decode};
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use somes_common_lib::time::timestamp_secs;
-use utoipa::{IntoParams, ToSchema};
+use utoipa::ToSchema;
 
 use super::{error::AuthError, keys::KEYS};
 
@@ -69,7 +69,7 @@ mod tests {
 
         use crate::jwt::Claims;
 
-        let token_data = decode::<Claims>(token, &KEYS.decoding, &Validation::default())
+        let _token_data = decode::<Claims>(token, &KEYS.decoding, &Validation::default())
             .map_err(|_| AuthError::InvalidToken)
             .unwrap();
     }

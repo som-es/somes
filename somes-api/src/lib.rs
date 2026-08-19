@@ -29,8 +29,10 @@ pub use parliament::*;
 mod error;
 pub use cache_updater::*;
 pub use error::*;
-pub use refresh_views::*;
+use refresh_views::*;
 use sqlx::PgPool;
+
+use crate::db::redis_db::RedisHandle;
 
 pub type Result<T> = std::result::Result<T, crate::error::GenericError>;
 
@@ -89,9 +91,9 @@ pub fn today() -> chrono::NaiveDate {
 
 #[derive(Clone)]
 pub struct AppState {
-    pub redis_client: redis::Client,
-    pub mcp_redis_client: redis::Client,
-    pub eu_redis_client: redis::Client,
+    pub redis: RedisHandle,
+    pub mcp_redis: RedisHandle,
+    pub eu_redis: RedisHandle,
     pub dataservice_sqlx_pool: PgPool,
     pub eu_dataservice_sqlx_pool: PgPool,
     pub meilisearch_client: meilisearch_sdk::client::Client,
@@ -100,17 +102,17 @@ pub struct AppState {
 
 impl AppState {
     pub fn new(
-        redis_client: redis::Client,
-        eu_redis_client: redis::Client,
+        redis: RedisHandle,
+        eu_redis: RedisHandle,
+        mcp_redis: RedisHandle,
         dataservice_sqlx_pool: PgPool,
         eu_dataservice_sqlx_pool: PgPool,
         meilisearch_client: meilisearch_sdk::client::Client,
-        mcp_redis_client: redis::Client,
     ) -> AppState {
         AppState {
-            redis_client,
-            mcp_redis_client,
-            eu_redis_client,
+            redis,
+            mcp_redis,
+            eu_redis,
             dataservice_sqlx_pool,
             eu_dataservice_sqlx_pool,
             meilisearch_client,
@@ -127,10 +129,10 @@ impl AppState {
         }
     }
 
-    pub fn redis(&self, parliament: Parliament) -> redis::Client {
+    pub fn redis(&self, parliament: Parliament) -> redis::aio::ConnectionManager {
         match parliament {
-            Parliament::At => self.redis_client.clone(),
-            Parliament::Eu => self.eu_redis_client.clone(),
+            Parliament::At => self.redis.connection.clone(),
+            Parliament::Eu => self.eu_redis.connection.clone(),
         }
     }
 }

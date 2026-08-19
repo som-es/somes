@@ -131,6 +131,11 @@ pub struct HasMcpToken {
     pub has_token: bool,
 }
 
+#[derive(ToSchema, Copy, Debug, Clone, Serialize, Deserialize)]
+pub struct Days {
+    pub days: u32,
+}
+
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone, Copy)]
 pub struct Unit;
 

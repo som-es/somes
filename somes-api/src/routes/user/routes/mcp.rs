@@ -4,7 +4,7 @@ use axum::{
 };
 use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
 use rand::RngCore;
-use redis::{AsyncTypedCommands, aio::MultiplexedConnection};
+use redis::AsyncTypedCommands;
 use sha3::{Digest, Sha3_256};
 use somes_common_lib::{HasMcpToken, JWTInfo as McpToken};
 
@@ -17,7 +17,22 @@ fn generate_mcp_token() -> String {
     format!("mcp_{}", URL_SAFE_NO_PAD.encode(bytes))
 }
 
-async fn revoke_mcp_token(redis: &mut MultiplexedConnection, user_id: i32) -> crate::Result<()> {
+async fn revoke_mcp_token(
+    redis: &mut (impl redis::aio::ConnectionLike + Send + Sync),
+    user_id: i32,
+) -> crate::Result<()> {
+    let token = redis
+        .get(user_id)
+        .await
+        .map_err(|e| GenericError::RedisFailure(e))?;
+
+    if let Some(token) = token {
+        redis
+            .unlink(token)
+            .await
+            .map_err(|e| GenericError::RedisFailure(e))?;
+    }
+
     redis
         .unlink(user_id)
         .await
@@ -26,7 +41,7 @@ async fn revoke_mcp_token(redis: &mut MultiplexedConnection, user_id: i32) -> cr
 }
 
 async fn generate_mcp_token_pipeline(
-    redis: &mut MultiplexedConnection,
+    redis: &mut (impl redis::aio::ConnectionLike + Send + Sync),
     user_id: i32,
 ) -> crate::Result<String> {
     let token = generate_mcp_token();
@@ -79,6 +94,7 @@ pub async fn create_mcp_token_route(
     claims: Claims,
     McpRedisConnection(mut redis_con): McpRedisConnection,
 ) -> crate::Result<Json<McpToken>> {
+    revoke_mcp_token(&mut redis_con, claims.id).await?;
     let token = generate_mcp_token_pipeline(&mut redis_con, claims.id).await?;
     Ok(Json(McpToken {
         access_token: token,

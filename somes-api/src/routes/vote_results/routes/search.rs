@@ -3,7 +3,7 @@ use std::fmt::Display;
 use axum::{Json, extract::Query};
 use combx::{Index, OptionalVoteResult, OptionalVoteResultFilter, meilisearch_filters_vote_result};
 use meilisearch_sdk::search::SearchResults;
-use redis::aio::MultiplexedConnection;
+use redis::aio::ConnectionLike;
 use somes_common_lib::{AddonVoteResultFilter, Page};
 
 use crate::{
@@ -60,7 +60,7 @@ async fn meilisearch_for_vote_results(
     sort: Option<somes_common_lib::Sort>,
     filter: AddonVoteResultFilter,
     vote_result_filter: OptionalVoteResultFilter,
-    redis_con: &mut MultiplexedConnection,
+    redis_con: &mut (impl ConnectionLike + Send + Sync),
 ) -> Result<VoteResultsWithMaxPage, FilterError> {
     let mut filter_conditions = if is_finished {
         vec![r#"legislative_initiative.accepted IS NOT NULL"#.to_string()]

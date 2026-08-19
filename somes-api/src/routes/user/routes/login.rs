@@ -3,16 +3,16 @@ use once_cell::sync::Lazy;
 use rand::Rng;
 use redis::AsyncCommands;
 use regex::Regex;
-use somes_common_lib::{set_error_true, JWTInfo, LoginInfo};
-use sqlx::{query_as, PgPool};
+use somes_common_lib::{JWTInfo, LoginInfo, set_error_true};
+use sqlx::{PgPool, query_as};
 
 use crate::{
+    AtPgPoolConnection, EMAIL_EXPIRATION_SECONDS, RedisConnection,
     email::send_otp_mail,
     hash::{hash_password, verify_password},
     jwt::create_access_token,
     model::User,
     routes::{SignUpErrorWrapper, UserError},
-    AtPgPoolConnection, RedisConnection, EMAIL_EXPIRATION_SECONDS,
 };
 
 fn generate_otp() -> String {
@@ -56,7 +56,7 @@ pub async fn get_user_from_mail_or_hash_sqlx(
     }
 }
 pub async fn send_otp(
-    redis_con: &mut redis::aio::MultiplexedConnection,
+    redis_con: &mut (impl redis::aio::ConnectionLike + Send + Sync),
     email: &str,
     stored_email: &str,
 ) -> Result<(), UserError> {
