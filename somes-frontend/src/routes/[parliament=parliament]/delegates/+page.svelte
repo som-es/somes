@@ -513,7 +513,9 @@
 											<span class="truncate">Alle Perioden</span>
 										{/if}
 									</div>
-									{@html upDownArrowIcon}
+									<div class="block w-4 shrink-0 text-white [&>svg]:h-full [&>svg]:w-full">
+										{@html upDownArrowIcon}
+									</div>
 								</Select.Trigger>
 								<Select.Portal>
 									<Select.Content
@@ -665,7 +667,13 @@
 			<div class="flex gap-2 lg:hidden">
 				<button
 					class="flex h-10 min-w-0 flex-1 touch-manipulation items-center rounded-xl border-[2px] border-gray-400 text-left"
-					onclick={() => (isSearchPopupOpen = true)}
+					onclick={() => {
+						inputValue = '';
+						searchInput = '';
+						maybeCurrentDelegateFilter.search_value = '';
+						currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
+						isSearchPopupOpen = true;
+					}}
 				>
 					<div
 						class="flex h-9 w-10 shrink-0 items-center justify-center text-gray-600 dark:text-gray-300"
