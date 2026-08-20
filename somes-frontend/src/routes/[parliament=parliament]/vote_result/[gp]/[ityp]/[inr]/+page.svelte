@@ -30,6 +30,8 @@
 	import DelegateListItem from '$lib/components/Delegates/DelegateListItem.svelte';
 	import { Select } from 'bits-ui';
 	import upDownArrowIcon from '$lib/assets/misc_icons/up-down-arrow.svg?raw';
+	import { countryName } from '$lib/countries';
+	import MultiSelectFilter from '$lib/components/Filtering/MultiSelectFilter.svelte';
 
 	let gp = $derived(page.params.gp);
 	let ityp = $derived(page.params.ityp);
@@ -76,6 +78,19 @@
 
 	let selectedPartiesNames = $state<string[]>([]);
 	let selectedInfavor = $state<string | undefined>(undefined);
+	let selectedCountries = $state<string[]>([]);
+
+	// countries (only important for eu)
+	let uniqueCountries = $derived.by(() => {
+		if (data.parliament !== 'eu') return [];
+		const codes = new Set<string>();
+		delegates.forEach((d) => {
+			if (d.constituency?.trim()) codes.add(d.constituency);
+		});
+		return Array.from(codes)
+			.map((code) => ({ code, name: countryName(code) }))
+			.sort((a, b) => a.name.localeCompare(b.name, 'de'));
+	});
 
 	let uniqueParties = $derived.by(() => {
 		const parties = new Set<string>();
@@ -141,6 +156,9 @@
 					return d.infavor === false;
 				}
 			});
+		}
+		if (selectedCountries.length > 0) {
+			res = res.filter((d) => selectedCountries.includes(d.delegate.constituency));
 		}
 		return res;
 	});
@@ -386,66 +404,23 @@
 							<div
 								class="flex h-full grow touch-manipulation items-center justify-center gap-1 lg:grow-0"
 							>
-								<Select.Root
-									type="multiple"
+								<MultiSelectFilter
+									items={uniqueParties.map((p) => ({
+										value: p.name,
+										label: p.name,
+										color: p.color
+									}))}
 									bind:value={selectedPartiesNames}
-									items={uniqueParties.map((p) => ({ value: p.name, label: p.name }))}
+									allLabel="Alle Klubs"
 								>
-									<Select.Trigger
-										class="flex h-full w-full touch-manipulation items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none lg:w-auto lg:px-3"
-									>
-										<div class="flex items-center gap-2">
-											{#each selectedPartiesNames.slice(0, 1) as partyName (partyName)}
-												{@const party = uniqueParties.find((p) => p.name === partyName)}
-												{#if party}
-													<div
-														class="h-3 w-3 rounded-full"
-														style="background-color: {party.color};"
-													></div>
-													<span class="truncate">{party.name}</span>
-												{/if}
-											{/each}
-											{#if selectedPartiesNames.length > 1}
-												<span class="truncate">+{selectedPartiesNames.length - 1}</span>
-											{/if}
-											{#if selectedPartiesNames.length === 0}
-												<span class="truncate">Alle Klubs</span>
-											{/if}
-										</div>
-										{@html upDownArrowIcon}
-									</Select.Trigger>
-									<Select.Portal>
-										<Select.Content
-											class="z-500 max-h-60 w-[calc(100vw-2rem)] min-w-[var(--bits-select-anchor-width)] overflow-hidden rounded-xl border border-gray-200 bg-surface-100 shadow-lg md:w-[200px] dark:bg-surface-500"
-											sideOffset={8}
-										>
-											<Select.Viewport class="p-1">
-												{#each uniqueParties as party (party.name)}
-													<Select.Item
-														class="flex h-10 w-full cursor-pointer justify-between rounded-lg py-3 pr-1.5 pl-3 text-sm capitalize transition-all duration-75 outline-none select-none data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-400"
-														value={party.name}
-														label={party.name}
-													>
-														{#snippet children({ selected })}
-															<div class="flex items-center gap-2">
-																<div
-																	class="h-3 w-3 rounded-full"
-																	style="background-color: {party.color};"
-																></div>
-																{party.name}
-															</div>
-															{#if selected}
-																<div class="ml-auto h-4 stroke-black dark:stroke-white">
-																	{@html checkmarkIcon}
-																</div>
-															{/if}
-														{/snippet}
-													</Select.Item>
-												{/each}
-											</Select.Viewport>
-										</Select.Content>
-									</Select.Portal>
-								</Select.Root>
+									{#snippet itemLabel(party)}
+										<div
+											class="h-3 w-3 shrink-0 rounded-full"
+											style="background-color: {party.color};"
+										></div>
+										<span class="truncate">{party.label}</span>
+									{/snippet}
+								</MultiSelectFilter>
 								<Select.Root
 									type="single"
 									allowDeselect
@@ -497,6 +472,14 @@
 										</Select.Content>
 									</Select.Portal>
 								</Select.Root>
+								{#if uniqueCountries.length > 0}
+									<!-- Länder Filter (nur EU, constituency ist dort der Staat) -->
+									<MultiSelectFilter
+										items={uniqueCountries.map((c) => ({ value: c.code, label: c.name }))}
+										bind:value={selectedCountries}
+										allLabel="Alle Länder"
+									/>
+								{/if}
 							</div>
 						</div>
 					</div>
