@@ -82,12 +82,12 @@
 	let selectedPartiesNames = $state<string[]>([]);
 	let selectedParties = $state<Party[]>([]);
 
-	let selectedSearchPeriod = $state<string[]>([
-		data.cachedPeriods?.at(data.cachedPeriods.length - 1)?.gp || defaultGp()
+	let selectedSearchPeriod = $derived<string[]>([
+		data.gp || defaultGp()
 	]);
 	let timeout: any;
 
-	let searchResults: Delegate[] = $state(data.delegates ?? []);
+	let searchResults: Delegate[] = $derived(data.delegates ?? []);
 	let isLoadingSearch = $state(false);
 
 	let genericFilters: [
@@ -226,7 +226,7 @@
 	let generalGovOfficialInfo: GeneralGovOfficialInfo | null = $state(null);
 	let maxDayOffset = $state(365 * 5);
 
-	let latestPeriod = $derived(data.cachedPeriods?.reverse()[0]?.gp ?? defaultGp());
+	let latestPeriod = $derived(data.cachedPeriods[data.cachedPeriods.length - 1].gp ?? defaultGp());
 	let selectedPeriod = $derived(data.gp ?? latestPeriod);
 	let prevSelectedPeriod = $derived(data.gp ?? latestPeriod);
 
@@ -251,7 +251,7 @@
 	});
 	function calcDayOffset(): number {
 		if (!periodBounds) return maxDayOffset;
-		const paramDate = page.url.searchParams.get('date');
+		const paramDate = data.date
 		if (!paramDate) return periodBounds.maxOffset;
 		const diffMs = Math.abs(new Date(paramDate).getTime() - periodBounds.periodStart.getTime());
 		return Math.floor(diffMs / (1000 * 60 * 60 * 24));

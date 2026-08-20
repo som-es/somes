@@ -181,9 +181,10 @@ export async function latest_session_activity_overview(
 }
 
 export async function all_gps(
+  fetcher: typeof fetch = fetch,
 	parliament: Parliament = getParliament()
 ): Promise<LegisPeriod[] | HasError> {
-	return getWithRoute<LegisPeriod[]>('all_gps', parliament);
+	return getWithRoute<LegisPeriod[]>('all_gps', parliament, fetcher);
 }
 
 export async function delegate_by_id(
