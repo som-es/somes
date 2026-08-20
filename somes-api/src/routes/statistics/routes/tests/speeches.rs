@@ -8,7 +8,7 @@ fn create_test_base_data() -> Vec<SpeechBase> {
             delegate_name: "Delegate A".to_string(),
             delegate_party: "Party X".to_string(),
             delegate_filter_party: "Party X".to_string(),
-            delegate_gender: "M".to_string(),
+            delegate_gender: Some("M".to_string()),
             total_speeches: 10,
             total_speech_time: 100,
             average_speech_time: 10.0,
@@ -19,7 +19,7 @@ fn create_test_base_data() -> Vec<SpeechBase> {
             delegate_name: "Delegate B".to_string(),
             delegate_party: "Party X".to_string(),
             delegate_filter_party: "Party X".to_string(),
-            delegate_gender: "F".to_string(),
+            delegate_gender: Some("F".to_string()),
             total_speeches: 5,
             total_speech_time: 80,
             average_speech_time: 16.0,
@@ -30,7 +30,7 @@ fn create_test_base_data() -> Vec<SpeechBase> {
             delegate_name: "Delegate C".to_string(),
             delegate_party: "Party Y".to_string(),
             delegate_filter_party: "Party Y".to_string(),
-            delegate_gender: "M".to_string(),
+            delegate_gender: Some("M".to_string()),
             total_speeches: 8,
             total_speech_time: 160,
             average_speech_time: 20.0,
@@ -41,7 +41,7 @@ fn create_test_base_data() -> Vec<SpeechBase> {
             delegate_name: "Delegate D".to_string(),
             delegate_party: "Party Y".to_string(),
             delegate_filter_party: "Party Y".to_string(),
-            delegate_gender: "F".to_string(),
+            delegate_gender: Some("F".to_string()),
             total_speeches: 12,
             total_speech_time: 120,
             average_speech_time: 10.0,
@@ -178,7 +178,7 @@ async fn test_get_base_data_applies_filters_and_computes_speech_stats(pool: PgPo
     let delegate = &results[0];
     assert_eq!(delegate.delegate_name, "Delegate A");
     assert_eq!(delegate.delegate_party, "Party X");
-    assert_eq!(delegate.delegate_gender, "M");
+    assert_eq!(delegate.delegate_gender, Some("M".to_string()));
     assert_eq!(delegate.total_speeches, 2);
     assert_eq!(delegate.total_speech_time, 180);
     assert!((delegate.average_speech_time - 90.0).abs() < 0.001);
