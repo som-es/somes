@@ -64,6 +64,7 @@
 	import InterjectionsPreview from '$lib/components/Delegates/Interjections/InterjectionsPreview.svelte';
 	import MobileParliamentModal from '$lib/components/Parliaments/MobileParliamentModal.svelte';
 	import { defaultGp } from '$lib/api/parliament';
+	import { page } from '$app/state';
 
 	let { data }: PageProps = $props();
 
@@ -225,13 +226,48 @@
 	let generalGovOfficialInfo: GeneralGovOfficialInfo | null = $state(null);
 	let maxDayOffset = $state(365 * 5);
 
-	let renderStartDate: Date | null = $state(null);
-	let renderEndDate: Date | null = $state(null);
-
-	let finishedMounting = $state(false);
-	let supplyDate: Date | null = $derived(new Date(data.date ?? new Date()));
+	let latestPeriod = $derived(data.cachedPeriods?.reverse()[0]?.gp ?? defaultGp());
+	let selectedPeriod = $derived(data.gp ?? latestPeriod);
+	let prevSelectedPeriod = $derived(data.gp ?? latestPeriod);
 
 	let prevSelectedDelegateId = $state(0);
+
+
+	let finishedMounting = $state(false);
+
+	let periodBounds = $derived.by(() => {
+		const firstIdx = periods.findIndex((p) => p.gp == selectedPeriod);
+		if (firstIdx === -1) return null;
+
+		const periodStart = new Date(periods[firstIdx].start_date);
+		const nextStart = periods[firstIdx + 1]?.start_date;
+		const periodEnd = new Date(nextStart ?? new Date());
+		periodEnd.setDate(periodEnd.getDate() - 1);
+
+		const maxOffset = Math.floor(
+			(periodEnd.getTime() - periodStart.getTime()) / (1000 * 60 * 60 * 24)
+		);
+		return { periodStart, maxOffset, renderStart: periods[firstIdx].start_date, renderEnd: nextStart };
+	});
+	function calcDayOffset(): number {
+		if (!periodBounds) return maxDayOffset;
+		const paramDate = page.url.searchParams.get('date');
+		if (!paramDate) return periodBounds.maxOffset;
+		const diffMs = Math.abs(new Date(paramDate).getTime() - periodBounds.periodStart.getTime());
+		return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+	}
+	let renderStartDate: Date | null = $derived(periodBounds?.renderStart ?? null);
+	let renderEndDate: Date | null = $derived(periodBounds?.renderEnd ?? null);
+
+	let dayOffset = $derived(calcDayOffset());
+
+	let supplyDate: Date | null = $derived.by(() => {
+		if (!periodBounds) return new Date(data.date ?? new Date());
+		const d = new Date(periodBounds.periodStart);
+		d.setDate(d.getDate() + dayOffset);
+		return d;
+	});
+	let inputValue = $derived(maybeCurrentDelegateFilter.search_value ?? '');
 
 	let activeTab = $state<'analysis' | 'activities' | 'gov'>('analysis');
 
@@ -259,12 +295,6 @@
 		}
 	);
 
-	let inputValue = $derived(maybeCurrentDelegateFilter.search_value ?? '');
-	let dayOffset = $state(maxDayOffset);
-
-	let latestPeriod = $derived(data.cachedPeriods?.reverse()[0]?.gp ?? defaultGp());
-	let selectedPeriod = $derived(data.gp ?? latestPeriod);
-	let prevSelectedPeriod = $derived(data.gp ?? latestPeriod);
 
 	let uniqueParties = $derived.by(() => {
 		if (false) {
@@ -308,23 +338,8 @@
 
 	onMount(async () => {
 		const url = new URL(window.location.href);
-		const firstIdx = periods.findIndex((x) => x.gp == selectedPeriod);
-		if (firstIdx == -1) return;
-		const endDate = periods[firstIdx + 1]?.start_date;
-		const newDate = new Date(endDate ? endDate : new Date());
-		newDate.setDate(newDate.getDate() - 1);
-
-		const paramDate = url.searchParams.get('date');
-		if (paramDate) {
-			const startDate = new Date(periods[firstIdx]?.start_date);
-			const diffTime = Math.abs(new Date(paramDate).getTime() - startDate.getTime());
-			dayOffset = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-			// this prevents that dayOffset is overwritten with max
-			prevSelectedPeriod = selectedPeriod;
-		}
-		supplyDate = paramDate ? new Date(paramDate) : newDate;
-
 		const paramDelegateId = url.searchParams.get('delegate');
+		updateDelsToDisplay();
 		if (paramDelegateId) {
 			// setting here currentDelegateStore instead of `delegate` var directly
 			// this is important for a single reason: delegates without seat by default (if the backend seat history is too short)
@@ -392,20 +407,6 @@
 		currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
 	};
 
-	$effect(() => {
-		void selectedPeriod;
-		void periods;
-		untrack(() => {
-			renderEndDate = null;
-			renderStartDate = null;
-
-			updateStoredPeriod();
-			updateDelsToDisplay();
-			if (finishedMounting) prevSelectedPeriod = selectedPeriod;
-		});
-	});
-
-	// let generalDelegateInfo	 = $derived.by()
 
 	function updateDelegateIdInUrl(delegate: Delegate) {
 		const url = new URL(window.location.href);
@@ -547,9 +548,7 @@
 									size="md"
 									class="mb-3 w-full bg-primary-300"
 									onclick={() => {
-									    console.log(d.mandates);
 										const { date, gp } = getMandateLatestPeriod(d, periods);
-										console.log(date, gp);
 
 										const period = periods.find((p) => p.gp === gp);
 										let newDayOffset = 0;
@@ -742,7 +741,9 @@
 													? 'bg-primary-300 dark:bg-primary-400'
 													: ''} border-primary-300 px-2 py-1 text-sm"
 												onclick={() => {
-													selectedPeriod = period.gp;
+												    selectedPeriod = period.gp;
+    												updateStoredPeriod();
+    												updateDelsToDisplay();
 												}}
 											>
 												<span class="text-nowrap">{period.gp}</span>
