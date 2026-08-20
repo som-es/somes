@@ -58,7 +58,7 @@
 </script>
 
 {#if speakers.length > 0}
-	<div class="mt-1 flex shrink-0 items-center md:mt-0">
+	<div class="hidden shrink-0 items-center md:flex">
 		{#each visible as speaker (speaker.speech.id)}
 			<Popover.Root
 				open={openKey === keyOf(speaker)}
