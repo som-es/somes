@@ -1,3 +1,4 @@
+import { defaultGp } from '$lib/api/parliament';
 import type { Delegate, FullMandate, LegisPeriod } from '$lib/types';
 
 export function findPeriodForDate(date: Date, periods: LegisPeriod[]): string | null {
@@ -39,14 +40,10 @@ export function getNrMandateSkippingDateRange(mandates: FullMandate[]) {
 
 export function getMandateLatestPeriod(delegate: Delegate, periods: LegisPeriod[]) {
 	const latestPeriod = periods[periods.length - 1];
-	const fallbackGp = latestPeriod?.gp || 'XXVIII';
+	const fallbackGp = latestPeriod?.gp || defaultGp();
 	const fallbackDate = new Date();
 
-	if (!delegate.mandates || !delegate.active_mandates) {
-		return { date: fallbackDate, gp: fallbackGp };
-	}
-
-	if (delegate.active_mandates.length > 0) {
+	if (!delegate.mandates) {
 		return { date: fallbackDate, gp: fallbackGp };
 	}
 

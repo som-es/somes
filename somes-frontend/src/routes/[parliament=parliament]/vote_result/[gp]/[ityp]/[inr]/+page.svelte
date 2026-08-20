@@ -780,18 +780,27 @@
 							<div class="mb-1">
 								<h3 class="text-md font-semibold md:text-lg">Eingebracht von</h3>
 								<div class="mt-1 flex flex-col gap-2 md:flex-row md:flex-wrap md:gap-3">
-									{#each Array.from(issuedByDels.entries()) as [text, delegate_ids]}
-										{#each delegate_ids as delegate_id}
+									{#each Array.from(issuedByDels.entries()) as [text, delegate_ids] (delegate_ids)}
+										{#each delegate_ids as delegate_id (delegate_id)}
 											{@const del = delegates.find((d) => d.id === delegate_id)}
 											{#if del}
-												<DelegateListItem
-													delegate={del}
-													class="w-full md:w-auto md:max-w-full"
-													onclick={() => {
-														delegate = del;
-														selectedBubble = undefined;
-													}}
-												/>
+							                    {#if voteResult && voteResult.votes.length > 0}
+    												<DelegateListItem
+    													delegate={del}
+    													class="w-full md:w-auto md:max-w-full"
+    													onclick={() => {
+    														delegate = del;
+    														selectedBubble = undefined;
+    													}}
+    												/>
+                                                {:else}
+                                                    <a href="{plink(`/delegates?gp=${gp}&date=${new Date(voteResult.legislative_initiative.raw_data_created_at!).toISOString().split("T")[0]}&delegate=${del.id}`)}">
+                                                        <DelegateListItem
+           													delegate={del}
+           													class="w-full md:w-auto md:max-w-full"
+        												/>
+                                                    </a>
+												{/if}
 											{/if}
 										{/each}
 									{/each}
@@ -803,18 +812,27 @@
 					<div class="emphasis-item rounded-xl bg-primary-300 px-5 pt-3 pb-3 dark:bg-primary-500">
 						<h3 class="text-md font-semibold md:text-lg">Eingebracht von</h3>
 						<div class="mt-1 flex flex-col gap-2 md:flex-row md:flex-wrap md:gap-3">
-							{#each Array.from(issuedByDels.entries()) as [text, delegate_ids]}
-								{#each delegate_ids as delegate_id}
+							{#each Array.from(issuedByDels.entries()) as [text, delegate_ids] (delegate_ids)}
+								{#each delegate_ids as delegate_id (delegate_id)}
 									{@const del = delegates.find((d) => d.id === delegate_id)}
 									{#if del}
-										<DelegateListItem
-											delegate={del}
-											class="w-full md:w-auto md:max-w-full"
-											onclick={() => {
-												delegate = del;
-												selectedBubble = undefined;
-											}}
-										/>
+									    {#if voteResult && voteResult.votes.length > 0}
+    										<DelegateListItem
+    											delegate={del}
+    											class="w-full md:w-auto md:max-w-full"
+    											onclick={() => {
+    												delegate = del;
+    												selectedBubble = undefined;
+    											}}
+    										/>
+                                        {:else if voteResult}
+                                            <a href="{plink(`/delegates?gp=${gp}&date=${new Date(voteResult.legislative_initiative.raw_data_created_at!).toISOString().split("T")[0]}&delegate=${del.id}`)}">
+                                                <DelegateListItem
+    												delegate={del}
+    												class="w-full md:w-auto md:max-w-full"
+    											/>
+                                            </a>
+										{/if}
 									{/if}
 								{/each}
 							{/each}

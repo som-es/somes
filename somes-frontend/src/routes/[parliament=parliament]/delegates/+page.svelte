@@ -547,7 +547,9 @@
 									size="md"
 									class="mb-3 w-full bg-primary-300"
 									onclick={() => {
+									    console.log(d.mandates);
 										const { date, gp } = getMandateLatestPeriod(d, periods);
+										console.log(date, gp);
 
 										const period = periods.find((p) => p.gp === gp);
 										let newDayOffset = 0;
@@ -572,6 +574,7 @@
 										newFilter.legis_period = gp;
 										newFilter.day_offset = newDayOffset;
 										currentDelegateFilterStore.value = newFilter;
+										console.log(url.toString());
 
 										goto(url.toString(), { noScroll: true });
 										isSearchPopupOpen = false;

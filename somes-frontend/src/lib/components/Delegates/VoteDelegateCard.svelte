@@ -29,7 +29,6 @@
 		currentDelegateStore.value = delegate;
 		if (delegate) {
 		    const link = plink(`/delegates?gp=${gp}&date=${date}&delegate=${delegate.id}`);
-			console.log(link);
 			gotoHistory(link, true);
 		}
 	};
