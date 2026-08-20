@@ -1,11 +1,10 @@
 use crate::routes::DelegateError;
 use crate::{
-    get_json_cache, set_json_cache_with_relevance, ParliamentCtx, PgPoolConnection, RedisConnection,
+    ParliamentCtx, PgPoolConnection, RedisConnection, get_json_cache, set_json_cache_with_relevance,
 };
-use axum::{extract::Query, Json};
+use axum::{Json, extract::Query};
 use chrono::NaiveDate;
 use combx::{Delegate, FullMandate, Parliament};
-use redis::aio::MultiplexedConnection;
 use somes_common_lib::{Date, LegisPeriod};
 use sqlx::PgPool;
 use std::str::FromStr;
@@ -35,7 +34,7 @@ pub async fn delegates_with_seats_near_date_route(
 pub async fn delegates_with_seats_near_date(
     pg: &PgPool,
     date: &NaiveDate,
-    redis_con: &mut MultiplexedConnection,
+    redis_con: &mut (impl redis::aio::ConnectionLike + Send + Sync),
     gp: &str,
 ) -> sqlx::Result<Vec<Delegate>> {
     let key = format!("delegates_with_seats_near_date/{date:?}");

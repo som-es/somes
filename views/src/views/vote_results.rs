@@ -1,8 +1,11 @@
-use combx::{DbAiSummary, DbLegislativeInitiativeQuery, DbSpeechWithLink, FullSpeech};
+use combx::{DbAiSummary, DbLegislativeInitiativeQuery};
 use somes_common_lib::ToCompositeType;
 use sqlx::{Postgres, Transaction};
 
-pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sqlx::Result<()> {
+pub async fn create_vote_results_view<'a>(
+    tx: &mut Transaction<'a, Postgres>,
+    up: bool,
+) -> sqlx::Result<()> {
     sqlx::query!("DROP VIEW IF EXISTS vote_results;")
         .execute(&mut **tx)
         .await?;
@@ -14,7 +17,8 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
         .collect::<Vec<_>>()
         .join(" ,");
 
-    sqlx::query(
+    if up {
+        sqlx::query(
         &format!("
         CREATE VIEW vote_results AS
         SELECT
@@ -38,7 +42,23 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
             ) THEN ARRAY(
               SELECT
                 ROW(
-                  m.party, NULL, COUNT(*), nv.infavor
+                  m.party,
+                  NULL,
+                  COUNT(*) FILTER (
+                    WHERE NOT nv.was_abstention
+                      AND NOT COALESCE(nv.was_absent, false)
+                      AND nv.infavor = true
+                  ),
+                  COUNT(*) FILTER (
+                    WHERE NOT nv.was_abstention
+                      AND NOT COALESCE(nv.was_absent, false)
+                      AND nv.infavor = false
+                  ),
+                  COUNT(*) FILTER (WHERE nv.was_abstention),
+                  COUNT(*) FILTER (
+                    WHERE NOT nv.was_abstention
+                      AND COALESCE(nv.was_absent, false)
+                  )
                 )::db_vote
               FROM
                 named_vote_info nvi
@@ -49,14 +69,12 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
                 AND m.is_nr
                 AND m.start_date <= li.nr_plenary_activity_date
                 AND (COALESCE(m.end_date, li.nr_plenary_activity_date) >= li.nr_plenary_activity_date)
-                AND nv.infavor IS NOT NULL
                 AND m.party IS NOT NULL
               GROUP BY
-                m.party,
-                nv.infavor
+                m.party
             ) ELSE ARRAY(
               SELECT
-                ROW(party, NULL, fraction, infavor)::db_vote
+                ROW(v.party, NULL, v.infavor_count, v.against_count, v.abstention_count, v.absence_count)::db_vote
               FROM
                 votes v
               WHERE
@@ -152,7 +170,7 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
                 FROM
                   absences a
                 WHERE
-                  a.plenary_session_id = li.plenary_session_id
+                  a.plenary_session_id = li.plenary_session_id and a.absence_date = li.vote_date
               )
           ) AS \"absences: Vec<i32>\",
           /* issued_by_dels */
@@ -239,65 +257,75 @@ pub async fn create_vote_results_view<'a>(tx: &mut Transaction<'a, Postgres>) ->
         ))
     .execute(&mut **tx)
     .await?;
+    }
 
     sqlx::query!("DROP materialized VIEW IF EXISTS latest_legislative_initiatives;")
         .execute(&mut **tx)
         .await?;
 
-    sqlx::query!("
+    if up {
+        sqlx::query!("
         create materialized view latest_legislative_initiatives as
         select * from legislative_initiatives
             where vote_date = (select MAX(vote_date) from legislative_initiatives
             where accepted is not null) and accepted is not null and is_voteable_on and vote_date is not null
     ").execute(&mut **tx)
     .await?;
+    }
 
-    sqlx::query!(
-        "
+    if up {
+        sqlx::query!(
+            "
     CREATE UNIQUE INDEX latest_legislative_initiatives_uidx
       ON public.latest_legislative_initiatives (id);
     "
-    )
-    .execute(&mut **tx)
-    .await?;
+        )
+        .execute(&mut **tx)
+        .await?;
+    }
 
     if std::env::var("FULL_VIEW_UPDATE")
         .unwrap_or("false".into())
         .parse::<bool>()
         .unwrap_or_default()
     {
-        sqlx::query!("DROP materialized VIEW IF EXISTS legislative_initiatives_with_votes;")
-            .execute(&mut **tx)
-            .await?;
+        if up {
+            sqlx::query!("DROP materialized VIEW IF EXISTS legislative_initiatives_with_votes;")
+                .execute(&mut **tx)
+                .await?;
 
-        sqlx::query(
+            sqlx::query(
             r#"
-        create materialized view legislative_initiatives_with_votes as
-        SELECT
-            li.id,
-            li.gp,
-            ARRAY(
-                SELECT ROW(v.party, NULL, v.fraction, v.infavor)::db_vote
-                FROM votes v
-                WHERE v.legislative_initiatives_id = li.id
-            ) AS "votes: Vec<DbVote>"
-        FROM
-            legislative_initiatives li
-        WHERE
-            accepted = 'a'
-    "#,
+        CREATE MATERIALIZED VIEW legislative_initiatives_with_votes AS
+            SELECT
+                li.id,
+                li.gp,
+                ARRAY(
+                    SELECT
+                        ROW(v.party, NULL, v.infavor_count, v.against_count, v.abstention_count, v.absence_count)::db_vote
+                    FROM votes v
+                    WHERE v.legislative_initiatives_id = li.id
+                ) AS "votes: Vec<DbVote>"
+            FROM
+                legislative_initiatives li
+            WHERE
+                accepted = 'a';
+        "#,
         )
         .execute(&mut **tx)
         .await?;
+        }
 
-        sqlx::query!(
-            "
+        if up {
+            sqlx::query!(
+                "
       CREATE UNIQUE INDEX legislative_initiatives_with_votes_uidx
         ON public.legislative_initiatives_with_votes (id);
       "
-        )
-        .execute(&mut **tx)
-        .await?;
+            )
+            .execute(&mut **tx)
+            .await?;
+        }
     }
     Ok(())
 }

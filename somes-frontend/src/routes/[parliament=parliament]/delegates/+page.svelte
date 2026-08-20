@@ -196,7 +196,7 @@
 		return tempDelegate;
 	}
 
-	let syncDelegates: Delegate[] = $state(delegates);
+	let syncDelegates: Delegate[] = $derived(delegates);
 
 	let delegate: Delegate | null = $derived.by(() => {
 		if (syncDelegates.length == 0) {
@@ -254,16 +254,17 @@
 		currentDelegateFilterStore.value ?? {
 			day_offset: maxDayOffset,
 			search_value: '',
-			legis_period: data.gp ?? defaultGp()
+			legis_period: data.gp ?? defaultGp(),
+			supply_date: data.date,
 		}
 	);
 
 	let inputValue = $derived(maybeCurrentDelegateFilter.search_value ?? '');
-	let dayOffset = $state(maybeCurrentDelegateFilter.day_offset ?? maxDayOffset);
+	let dayOffset = $state(maxDayOffset);
 
 	let latestPeriod = $derived(data.cachedPeriods?.reverse()[0]?.gp ?? defaultGp());
-	let selectedPeriod = $derived(maybeCurrentDelegateFilter.legis_period ?? latestPeriod);
-	let prevSelectedPeriod = $state(maybeCurrentDelegateFilter.legis_period ?? latestPeriod);
+	let selectedPeriod = $derived(data.gp ?? latestPeriod);
+	let prevSelectedPeriod = $derived(data.gp ?? latestPeriod);
 
 	let uniqueParties = $derived.by(() => {
 		if (false) {
@@ -359,12 +360,12 @@
 		if (prevSelectedPeriod !== selectedPeriod) {
 			dayOffset = maxDayOffset;
 		}
-		maybeCurrentDelegateFilter.day_offset = dayOffset;
-		currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
 		startDate.setDate(startDate.getDate() + dayOffset - 1);
-
 		supplyDate = startDate;
 
+		maybeCurrentDelegateFilter.supply_date = startDate.toISOString().split("T")[0];
+		maybeCurrentDelegateFilter.day_offset = dayOffset;
+		currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
 		const url = new URL(window.location.href);
 		const previousDate = url.searchParams.get('date');
 		const previousPeriod = url.searchParams.get('gp');

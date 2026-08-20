@@ -1,19 +1,13 @@
-use axum::{extract::Query, Json};
+use axum::{Json, extract::Query};
 use combx::models::DbMinistrialProposalQueryMeta;
-use redis::aio::MultiplexedConnection;
-use serde::{Deserialize, Serialize};
-use sqlx::{query_as, PgPool};
-use utoipa::ToSchema;
+use redis::aio::ConnectionManager;
+use somes_common_lib::Days;
+use sqlx::{PgPool, query_as};
 
 use crate::{
-    routes::{construct_gov_delegate_proposal, FilterError, GovProposalDelegate},
     PgPoolConnection, RedisConnection,
+    routes::{FilterError, GovProposalDelegate, construct_gov_delegate_proposal},
 };
-
-#[derive(ToSchema, Debug, Clone, Serialize, Deserialize)]
-pub struct Days {
-    days: u32,
-}
 
 pub async fn latest_gov_proposals_route(
     RedisConnection(redis_con): RedisConnection,
@@ -33,7 +27,7 @@ pub async fn latest_gov_proposals_route(
 
 pub async fn extract_latest_ministrial_proposals(
     pg: &PgPool,
-    redis_con: MultiplexedConnection,
+    redis_con: ConnectionManager,
     days: i32,
 ) -> sqlx::Result<Vec<GovProposalDelegate>> {
     let ministrial_proposals = query_as!(
@@ -70,7 +64,7 @@ pub async fn extract_latest_ministrial_proposals(
     futures::future::join_all(
         ministrial_proposals
             .into_iter()
-            .map(|ministrial_proposal| {
+            .map(move |ministrial_proposal| {
                 construct_gov_delegate_proposal(redis_con.clone(), pg, ministrial_proposal)
             })
             .collect::<Vec<_>>(),

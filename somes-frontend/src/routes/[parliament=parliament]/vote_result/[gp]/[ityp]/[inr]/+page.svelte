@@ -110,6 +110,7 @@
 				return {
 					absent: namedVoteInfo.namedVote.was_absent,
 					infavor: namedVoteInfo.namedVote.infavor,
+					abstention: namedVoteInfo.namedVote.was_abstention,
 					delegate,
 					isNamedVote: true
 				};
@@ -218,15 +219,22 @@
 	});
 	let documents = $derived(voteResult?.documents ?? []);
 
-	const infavorOptions = [
-		{ value: 'Infavor', label: 'Dafür' },
-		{ value: 'NoVote', label: 'Nicht abgestimmt' },
-		{ value: 'Against', label: 'Dagegen' }
-	];
+	const infavorOptions = $derived.by(() => {
+	    const val = [
+    		{ value: 'Infavor', label: 'Dafür' },
+    		{ value: 'NoVote', label: 'Nicht abgestimmt' },
+    		{ value: 'Against', label: 'Dagegen' },
+		];
+		if (data.parliament == "eu") {
+		    val.push({ value: 'Abstention', label: 'Enthalten' });
+		}
+		return val
+	});
 
 	const sortedVotes = $derived(votesByPartySize(voteResult));
 
 	let allSpeeches = $derived(voteResult?.speeches ?? []);
+	let date = $derived(voteResult?.legislative_initiative?.vote_date ? voteResult?.legislative_initiative?.vote_date : voteResult?.legislative_initiative?.nr_plenary_activity_date);
 </script>
 
 <svelte:head>
@@ -522,6 +530,13 @@
 											{#if !del.isNamedVote}
 												<span class="text-xs font-light"> (Klub) </span>
 											{/if}
+										{:else if del.abstention === true}
+											<span
+                                                class="text-blue-500 text-4xl inline-flex items-center justify-center"
+                                                style="width:24px; height:24px;"
+                                            >
+                                                –
+                                            </span>
 										{/if}
 									</DelegateListItem>
 								{/each}
@@ -855,13 +870,13 @@
 										/>
 										<div class="flex min-w-0 flex-col">
 											<a
-												href={plink(`/delegates?delegate=${speechDelegate.id}`)}
+												href={plink(`/delegates?delegate=${speechDelegate.id}&date=${date}&gp=${voteResult.legislative_initiative.gp}`)}
 												class="truncate text-sm leading-tight font-semibold hover:underline lg:text-base"
 												onclick={(e) => {
 													e.preventDefault();
 													e.stopPropagation();
 													currentDelegateStore.value = speechDelegate;
-													gotoHistory(plink(`/delegates?delegate=${speechDelegate.id}`), true);
+													gotoHistory(plink(`/delegates?delegate=${speechDelegate.id}&date=${date}&gp=${voteResult.legislative_initiative.gp}`), true);
 												}}
 												onkeypress={(e) => e.stopPropagation()}
 											>

@@ -1,16 +1,13 @@
 <script lang="ts">
 	import Topics from '$lib/components/Topics/Topics.svelte';
-	import SButton from '$lib/components/UI/SButton.svelte';
 	import { createVoteResultPath, type Delegate, type VoteResult } from '$lib/types';
 	import Emphasis from '../Emphasis/Emphasis.svelte';
-	import InfoTiles from '../InfoTiles/InfoTiles.svelte';
 	import {
 		currentDelegatesAtDateStore,
 		currentVoteResultStore,
 		aiViewEnabledStore
 	} from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
-	import VoteTypeBadge from '../VoteTypeBadge.svelte';
 	import MovingArrowButton from '$lib/components/UI/MovingArrowButton.svelte';
 
 	export let voteResult: VoteResult;
@@ -63,7 +60,7 @@
 			<div class="pt-2">
 				<Topics {topics} />
 			</div>
-			<div class="flex h-8 items-center justify-end rounded-xl px-2">
+			<div class="flex h-8 items-center justify-end rounded-xl px-2 mt-2">
 				<MovingArrowButton onclick={onShowDetails} />
 			</div>
 		</div>

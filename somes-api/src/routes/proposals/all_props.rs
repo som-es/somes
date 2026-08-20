@@ -1,5 +1,5 @@
 use combx::models::DbMinistrialProposalQueryMeta;
-use redis::aio::MultiplexedConnection;
+use redis::aio::ConnectionManager;
 use sqlx::PgPool;
 
 use crate::routes::GovProposalDelegate;
@@ -7,7 +7,7 @@ use crate::routes::GovProposalDelegate;
 use super::construct_gov_delegate_proposal;
 
 pub async fn get_all_gov_props(
-    redis_con: MultiplexedConnection,
+    redis_con: ConnectionManager,
     con: &PgPool,
 ) -> sqlx::Result<Vec<GovProposalDelegate>> {
     let ministrial_props = sqlx::query_as!(

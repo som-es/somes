@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { plink } from '$lib/api/parliament';
+	import { plink, type Parliament } from '$lib/api/parliament';
 	import {
 		delegate_by_id,
 		errorToNull,
@@ -19,6 +19,7 @@
 		removeUserTopic,
 		renew_token,
 		updateMailSendInfo,
+		userInit,
 		verify_email_change
 	} from '$lib/api/authed';
 	import { cachedDelegateFavos, cachedLegisInitFavos } from '$lib/caching/favos';
@@ -56,6 +57,7 @@
 
 	let topicSearchValue = $state('');
 	let isSearchPopupOpen = $state(false);
+	let parliament: Parliament = $state("at")
 
 	let showChangeEmail = $state(false);
 	let finished = $derived.by(() => {
@@ -95,35 +97,100 @@
 			return;
 		}
 
-		topics = errorToNull(await get_eurovoc_topics()) ?? [];
-		user = getUserFromJwt(jwtToken);
-		mailSendInfo = errorToNull(await getMailSendInfo());
-		extendedUser = errorToNull(await getUser());
-		favoDelegates = errorToNull(await cachedDelegateFavos(true));
-		favoLegisInits = errorToNull(await cachedLegisInitFavos(true));
-
-		// get interest topics from api
-		const data = await cachedUserTopics(true);
-		console.log(data);
-
-		if (data) {
-			selectedTopics = new SvelteSet<string>(data.map((topic) => topic.id));
-		}
+		await fetchData(jwtToken, parliament);
 	});
 
-	const allMailFields: (keyof MailSendInfo)[] = [
-		'send_new_vote_results_mails',
-		'send_new_vote_result_by_favo_mails',
-		'send_new_delegate_activity_mails',
-		'send_new_ministrial_prop_mails',
-		'send_new_ministrial_prop_by_favo_mails',
-		'send_new_decree_mails',
-		'send_new_decree_by_favo_mails',
-		'send_new_proposal_mails',
-		'send_new_proposal_by_favo_mails'
-	];
+	$effect(() => {
 
-	let allChecked = $derived(!!mailSendInfo && allMailFields.every((f) => mailSendInfo![f]));
+	    favoDelegates = null;
+		favoLegisInits = null;
+        const jwtToken = jwtStore.value;
+		if (jwtToken == null) {
+			goto(plink('/home'));
+			return;
+		}
+        fetchData(jwtToken, parliament).then()
+	});
+
+	type MailFieldMeta = {
+		title: string;
+		description: string;
+		category: MailFieldCategory;
+	};
+	type MailFieldCategory = 'interest' | 'favorite';
+	type MailFieldConfig = Record<keyof MailSendInfo, MailFieldMeta>;
+
+	const mailFieldConfig: MailFieldConfig = {
+		send_new_vote_results_mails: {
+			title: 'Abstimmungen',
+			description: 'Neue Abstimmungen nach deinen Interessen',
+			category: 'interest'
+		},
+		send_new_vote_result_by_favo_mails: {
+			title: 'Abstimmungen',
+			description: 'Neue Abstimmungen nach favorisierten Personen',
+			category: 'favorite'
+		},
+		send_new_delegate_activity_mails: {
+			title: 'Aktivitäten',
+			description: 'Neue Aktivitäten nach favorisierten Personen',
+			category: 'favorite'
+		},
+		send_new_ministrial_prop_mails: {
+			title: 'Ministerialentwürfe',
+			description: 'Neue Ministerialentwürfe nach deinen Interessen',
+			category: 'interest'
+		},
+		send_new_ministrial_prop_by_favo_mails: {
+			title: 'Ministerialentwürfe',
+			description: 'Neue Ministerialentwürfe nach favorisierten Ministern',
+			category: 'favorite'
+		},
+		send_new_decree_mails: {
+			title: 'Verordnungen',
+			description: 'Neue Verordnungen nach deinen Themen',
+			category: 'interest'
+		},
+		send_new_decree_by_favo_mails: {
+			title: 'Verordnungen',
+			description: 'Neue Verordnungen nach favorisierten Ministern',
+			category: 'favorite'
+		},
+		send_new_proposal_mails: {
+			title: 'Anträge',
+			description: 'Neue Anträge nach deinen Themen',
+			category: 'interest'
+		},
+		send_new_proposal_by_favo_mails: {
+			title: 'Anträge',
+			description: 'Neue Anträge nach favorisierten Personen',
+			category: 'favorite'
+		}
+	};		const allMailFields: (keyof MailSendInfo)[] = $derived.by(() => {
+			switch (parliament) {
+				case 'at':
+					return [
+						'send_new_vote_results_mails',
+						'send_new_vote_result_by_favo_mails',
+						'send_new_delegate_activity_mails',
+						'send_new_ministrial_prop_mails',
+						'send_new_ministrial_prop_by_favo_mails',
+						'send_new_decree_mails',
+						'send_new_decree_by_favo_mails',
+						'send_new_proposal_mails',
+						'send_new_proposal_by_favo_mails'
+					];
+				case 'eu':
+					return ['send_new_vote_results_mails', 'send_new_proposal_mails'];
+			}
+		});
+
+		const interestFields = $derived(
+			allMailFields.filter((f) => mailFieldConfig[f].category === 'interest')
+		);
+		const favoriteFields = $derived(
+			allMailFields.filter((f) => mailFieldConfig[f].category === 'favorite')
+		);	let allChecked = $derived(!!mailSendInfo && allMailFields.every((f) => mailSendInfo![f]));
 
 	const toggleAll = async (checked: boolean) => {
 		if (!mailSendInfo) return;
@@ -138,16 +205,33 @@
 			return;
 		}
 
-		await updateMailSendInfo(mailSendInfo);
+		await updateMailSendInfo(mailSendInfo, parliament);
 	};
+
+    async function fetchData(jwtToken: string, parliament: Parliament) {
+        await userInit(parliament);
+        topics=errorToNull(await get_eurovoc_topics(parliament))??[];
+        user=getUserFromJwt(jwtToken);
+        mailSendInfo=errorToNull(await getMailSendInfo(parliament));
+        extendedUser=errorToNull(await getUser());
+        favoDelegates=errorToNull(await cachedDelegateFavos(true, parliament));
+        favoLegisInits=errorToNull(await cachedLegisInitFavos(true, parliament));
+
+        // get interest topics from api
+        const data=await cachedUserTopics(true, parliament);
+
+        if(data) {
+            selectedTopics=new SvelteSet<string>(data.map((topic) => topic.id));
+        }
+    }
 
 	function handleTopicToggle(topic: UniqueTopic) {
 		if (selectedTopics.has(topic.id)) {
 			selectedTopics.delete(topic.id);
-			removeUserTopic({ id: topic.id, topic: '' });
+			removeUserTopic({ id: topic.id, topic: '' }, parliament);
 		} else {
 			selectedTopics.add(topic.id);
-			addUserTopic({ id: topic.id, topic: '' });
+			addUserTopic({ id: topic.id, topic: '' }, parliament);
 		}
 		// Trigger reactivity
 		selectedTopics = new SvelteSet(selectedTopics);
@@ -405,7 +489,32 @@
 					{/if}
 				</div>
 			</div>
-
+			<div class="mt-1 mb-2 flex w-full gap-1 rounded-xl bg-primary-300 p-1 dark:bg-surface-600">
+				<button
+					class="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium {parliament === 'at'
+						? 'bg-primary-600 text-white'
+						: 'text-gray-700 hover:bg-primary-400 dark:text-gray-300 dark:hover:bg-primary-500'}"
+					onclick={() => {
+                   	    favoDelegates = null;
+                  		favoLegisInits = null;
+                        return (parliament = 'at')
+					}}
+				>
+					Österreich
+				</button>
+				<button
+					class="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium {parliament === 'eu'
+						? 'bg-primary-600 text-white'
+						: 'text-gray-700 hover:bg-primary-400 dark:text-gray-400 dark:hover:bg-primary-500'}"
+					onclick={() => {
+                   	    favoDelegates = null;
+                  		favoLegisInits = null;
+                        return (parliament = 'eu')
+					}}
+				>
+					EU
+				</button>
+			</div>
 			<!-- Email Notifications Card -->
 			<div class="w-full rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
 				<div class="flex items-center justify-between">
@@ -431,74 +540,41 @@
 
 				{#if !extendedUser?.is_email_hashed}
 					{#if mailSendInfo}
-						<div>
-							<p class="text-sm font-semibold text-gray-600 dark:text-gray-300">
-								Nach Interessen & Themen
-							</p>
-							<div class="mt-2 flex flex-wrap gap-2">
-								<MailTopicCard
-									title="Abstimmungen"
-									description="Neue Abstimmungen nach deinen Interessen"
-									bind:checked={mailSendInfo.send_new_vote_results_mails}
-									onchange={updateThisMailSendInfo}
-								/>
-								<MailTopicCard
-									title="Ministerialentwürfe"
-									description="Neue Ministerialentwürfe nach deinen Interessen"
-									bind:checked={mailSendInfo.send_new_ministrial_prop_mails}
-									onchange={updateThisMailSendInfo}
-								/>
-								<MailTopicCard
-									title="Verordnungen"
-									description="Neue Verordnungen nach deinen Themen"
-									bind:checked={mailSendInfo.send_new_decree_mails}
-									onchange={updateThisMailSendInfo}
-								/>
-								<MailTopicCard
-									title="Anträge"
-									description="Neue Anträge nach deinen Themen"
-									bind:checked={mailSendInfo.send_new_proposal_mails}
-									onchange={updateThisMailSendInfo}
-								/>
+						{#if interestFields.length > 0}
+							<div>
+								<p class="text-sm font-semibold text-gray-600 dark:text-gray-300">
+									Nach Interessen & Themen
+								</p>
+								<div class="mt-2 flex flex-wrap gap-2">
+									{#each interestFields as field (field)}
+										<MailTopicCard
+											title={mailFieldConfig[field].title}
+											description={mailFieldConfig[field].description}
+											bind:checked={mailSendInfo[field]}
+											onchange={updateThisMailSendInfo}
+										/>
+									{/each}
+								</div>
 							</div>
-						</div>
-						<div>
-							<p class="mt-3 text-sm font-semibold text-gray-600 dark:text-gray-300">
-								Nach favourisierten Ministern & Personen
-							</p>
-							<div class="mt-2 flex flex-wrap gap-2">
-								<MailTopicCard
-									title="Abstimmungen"
-									description="Neue Abstimmungen nach favorisierten Personen"
-									bind:checked={mailSendInfo.send_new_vote_result_by_favo_mails}
-									onchange={updateThisMailSendInfo}
-								/>
-								<MailTopicCard
-									title="Ministerialentwürfe"
-									description="Neue Ministerialentwürfe nach favorisierten Ministern"
-									bind:checked={mailSendInfo.send_new_ministrial_prop_by_favo_mails}
-									onchange={updateThisMailSendInfo}
-								/>
-								<MailTopicCard
-									title="Verordnungen"
-									description="Neue Verordnungen nach favorisierten Ministern"
-									bind:checked={mailSendInfo.send_new_decree_by_favo_mails}
-									onchange={updateThisMailSendInfo}
-								/>
-								<MailTopicCard
-									title="Anträge"
-									description="Neue Anträge nach favorisierten Personen"
-									bind:checked={mailSendInfo.send_new_proposal_by_favo_mails}
-									onchange={updateThisMailSendInfo}
-								/>
-								<MailTopicCard
-									title="Aktivitäten"
-									description="Neue Aktivitäten nach favorisierten Personen"
-									bind:checked={mailSendInfo.send_new_delegate_activity_mails}
-									onchange={updateThisMailSendInfo}
-								/>
+						{/if}
+
+						{#if favoriteFields.length > 0}
+							<div>
+								<p class="mt-3 text-sm font-semibold text-gray-600 dark:text-gray-300">
+									Nach favourisierten Ministern & Personen
+								</p>
+								<div class="mt-2 flex flex-wrap gap-2">
+									{#each favoriteFields as field (field)}
+										<MailTopicCard
+											title={mailFieldConfig[field].title}
+											description={mailFieldConfig[field].description}
+											bind:checked={mailSendInfo[field]}
+											onchange={updateThisMailSendInfo}
+										/>
+									{/each}
+								</div>
 							</div>
-						</div>
+						{/if}
 					{/if}
 				{:else}
 					<p class="mt-3 text-gray-600 dark:text-gray-300">
@@ -591,7 +667,7 @@
 							</p>
 						{:else}
 							{#each favoDelegates as favoDelegateId (favoDelegateId[0])}
-								{#await delegate_by_id(favoDelegateId[0])}
+								{#await delegate_by_id(favoDelegateId[0], fetch, parliament)}
 									<ExpandablePlaceholder class="!w-80" />
 								{:then maybeDelegate}
 									{#if !isHasError(maybeDelegate)}
@@ -619,7 +695,7 @@
 						</p>
 					{:else}
 						{#each favoLegisInits as favoLegisInitId (favoLegisInitId)}
-							{#await vote_result_by_id(favoLegisInitId.toString())}
+							{#await vote_result_by_id(favoLegisInitId.toString(), fetch, parliament)}
 								<ExpandablePlaceholder class="w-80!" />
 							{:then voteResult}
 								{#if !isHasError(voteResult)}

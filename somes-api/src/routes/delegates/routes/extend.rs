@@ -1,23 +1,22 @@
-use axum::{extract::Path, Json};
+use axum::{Json, extract::Path};
 use combx::with_data::delegates::{
     extract_call_to_orders_by_delegate, extract_named_votes_by_delegate,
 };
-use redis::aio::MultiplexedConnection;
-use somes_common_lib::{GeneralDelegateInfo, Mandate};
-use sqlx::{query_as, PgPool};
+use somes_common_lib::GeneralDelegateInfo;
+use sqlx::PgPool;
 
 use crate::{
-    get_json_cache,
+    IS_PROD, PgPoolConnection, RedisConnection, get_json_cache,
     routes::{
+        DelegateError,
         delegates::{
             left_right_topic_score::extract_left_right_topic_score_by_delegate,
             stance_topic_score::extract_stance_topic_score_by_delegate,
         },
-        extract_absences_by_delegate, extract_delegate_qa, extract_detailed_interests_of_delegate,
+        extract_absences_by_delegate, extract_detailed_interests_of_delegate,
         extract_interests_of_delegate, extract_issued_proposals_by_delegate,
-        extract_political_position, DelegateError,
+        extract_political_position,
     },
-    PgPoolConnection, RedisConnection, IS_PROD,
 };
 
 pub async fn extended_delegate_info_route(
@@ -33,7 +32,7 @@ pub async fn extended_delegate_info_route(
 pub async fn extract_general_delegate_info(
     delegate_id: i32,
     pg: &PgPool,
-    redis_con: &mut MultiplexedConnection,
+    redis_con: &mut (impl redis::aio::ConnectionLike + Send + Sync),
 ) -> sqlx::Result<GeneralDelegateInfo> {
     let key = format!("general_delegate_info_{delegate_id}");
 

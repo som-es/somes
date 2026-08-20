@@ -28,7 +28,7 @@ export function convertGovPropFilterToUrl(
 		nextUrl.searchParams.set('gov_proposal[ministrial_proposal][gp][in][0]', filter.legis_period);
 	}
 	filter.topics?.forEach((topic, i) => {
-		nextUrl.searchParams.set(`gov_proposal[eurovoc_topics][${i}][topic][cn]`, topic);
+		nextUrl.searchParams.set(`filter_topics[${i}]`, topic);
 	});
 	filter.departments?.forEach((department, i) => {
 		nextUrl.searchParams.set(`gov_proposal[ministrial_proposal][ressort][in][${i}]`, department);

@@ -100,7 +100,6 @@ pub async fn extract_interests_of_delegate(
 
 #[cfg(test)]
 mod tests {
-    use sqlx::postgres::PgPoolOptions;
 
     #[tokio::test]
     async fn test_extract_interests_of_delegate() {

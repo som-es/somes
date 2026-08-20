@@ -1,11 +1,11 @@
-use axum::{extract::Path, Json};
+use axum::{Json, extract::Path};
 use combx::{DbLegislativeInitiativeQuery, OptionalVoteResult};
-use redis::aio::MultiplexedConnection;
+use redis::aio::ConnectionManager;
 use sqlx::PgPool;
 
 use crate::{
-    routes::{vote_results::construct_vote_result::construct_vote_result, FilterError},
     PgPoolConnection, RedisConnection,
+    routes::{FilterError, vote_results::construct_vote_result::construct_vote_result},
 };
 
 pub async fn vote_result_by_path_route(
@@ -20,7 +20,7 @@ pub async fn vote_result_by_path_route(
 }
 
 pub async fn vote_result_by_path_sqlx(
-    redis_con: MultiplexedConnection,
+    redis_con: ConnectionManager,
     pg: &PgPool,
     gp: &str,
     ityp: &str,
@@ -35,5 +35,5 @@ pub async fn vote_result_by_path_sqlx(
     )
     .fetch_one(pg)
     .await?;
-    construct_vote_result(redis_con.clone(), pg, legis_init.id).await
+    construct_vote_result(redis_con, pg, legis_init.id).await
 }

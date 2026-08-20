@@ -11,12 +11,14 @@
 
 	import { dashDateToDotDate } from '$lib/date';
 	import linkIcon from '$lib/assets/misc_icons/external-link.svg?raw';
-	import { aiViewEnabledStore } from '$lib/stores/stores';
+	import { aiViewEnabledStore, currentDelegateStore } from '$lib/stores/stores';
+	import { plink } from '$lib/api/parliament';
+	import { gotoHistory } from '$lib/goto';
 
 	interface Props {
 		ministerialData: MinisterialViewData;
 		children?: Snippet;
-		snippets: Record<string, Snippet | undefined>;
+		snippets?: Record<string, Snippet | undefined>;
 	}
 
 	let { ministerialData, children, snippets = {} }: Props = $props();
@@ -35,6 +37,14 @@
 	function nextDelegate() {
 		if (currentDelegateIndex < delegates.length - 1) currentDelegateIndex++;
 	}
+
+	const onShowDetails = () => {
+		currentDelegateStore.value = delegates[currentDelegateIndex];
+		if (delegates[currentDelegateIndex]) {
+		    const link = plink(`/delegates?gp=${ministerialData.gp}&date=${ministerialData.date.toString().split('T')[0]}&delegate=${delegates[currentDelegateIndex].id}`);
+			gotoHistory(link, true);
+		}
+	};
 </script>
 
 <title>
@@ -144,6 +154,7 @@
 			<DelegateCard
 				delegate={delegates[currentDelegateIndex]}
 				showMoreDetailsBtn
+				{onShowDetails}
 				onlyTop
 				showAI={false}
 				date={ministerialData.date}

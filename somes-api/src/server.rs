@@ -1,27 +1,24 @@
-use std::sync::Arc;
 use std::{error::Error, fs::File, net::SocketAddr, path::PathBuf, time::Duration};
 
+use crate::redis_db::{AT_DB, EU_DB, MCP_DB, RedisHandle};
+use crate::{AppState, IS_PROD, routes::*};
 use crate::{
-    meilisearch::update_meilisearch_indices, redirect_http_to_https, reset_cache,
-    routes::save_email_route, update_caches, Ports, HTTPS_PORT, HTTP_PORT, MEILISEARCH_SECRET,
-    MEILISEARCH_URL, PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, REDIS_DB, STATIC_FRONTEND_PATH,
+    HTTP_PORT, HTTPS_PORT, MEILISEARCH_SECRET, MEILISEARCH_URL, PRIVATE_KEY_PATH, PUBLIC_KEY_PATH,
+    Ports, REDIS_DB, STATIC_FRONTEND_PATH, meilisearch::update_meilisearch_indices,
+    redirect_http_to_https, reset_cache, routes::save_email_route, update_caches,
 };
-use crate::{routes::*, AppState, IS_PROD};
 use axum::{
-    extract::{FromRef, Request},
-    http::{self, HeaderValue},
-    middleware::{self, Next},
-    response::{Html, Response},
-    routing::{any, get, get_service, post},
     Extension, Router,
+    http::{self, HeaderValue},
+    response::Html,
+    routing::{any, get, get_service, post},
 };
 use axum_server::tls_rustls::RustlsConfig;
 use combx::Parliament;
-use common_scrapes::eu_hemicycle::{load_hemicycle, HemicycleLayout};
 use log::info;
 use reqwest::StatusCode;
 use somes_common_lib::*;
-use sqlx::{postgres::PgPoolOptions, PgPool};
+use sqlx::{PgPool, postgres::PgPoolOptions};
 use tokio::{net::TcpListener, time::sleep};
 use tower::ServiceBuilder;
 use tower_http::{
@@ -92,10 +89,10 @@ async fn maybe_update_views(dataservice_sqlx_pool: &PgPool) -> ServerResult<()> 
     }
 
     let mut tx = dataservice_sqlx_pool.begin().await?;
-    if let Err(e) = create_composite_types(&mut tx).await {
+    if let Err(e) = create_composite_types(&mut tx, true).await {
         log::error!("Cannot create composite types: {e:?}");
     }
-    if let Err(e) = create_views(&mut tx).await {
+    if let Err(e) = create_views(&mut tx, true).await {
         log::error!("Cannot create views: {e:?}");
     }
     tx.commit().await?;
@@ -116,7 +113,7 @@ fn spawn_asset_refresh(pg_pool: PgPool) {
 
 fn spawn_search_refresh(app_state: AppState) {
     tokio::task::spawn(async move {
-        let inner_redis_client = app_state.redis_client.clone();
+        let inner_redis_client = app_state.redis.client.clone();
         let inner_pool = app_state.dataservice_sqlx_pool.clone();
         tokio::task::spawn(
             crate::update_session_activity::update_session_activity_cache(
@@ -125,7 +122,7 @@ fn spawn_search_refresh(app_state: AppState) {
             ),
         );
 
-        let inner_redis_client = app_state.eu_redis_client.clone();
+        let inner_redis_client = app_state.eu_redis.client.clone();
         let inner_pool = app_state.eu_dataservice_sqlx_pool.clone();
         tokio::task::spawn(
             crate::update_session_activity::update_session_activity_cache(
@@ -139,7 +136,7 @@ fn spawn_search_refresh(app_state: AppState) {
 
         if *IS_PROD {
             update_caches(
-                &app_state.redis_client,
+                &app_state.redis.client,
                 &app_state.dataservice_sqlx_pool,
                 &app_state.meilisearch_client,
             );
@@ -268,8 +265,9 @@ async fn serve_tls(addr: SocketAddr, config: RustlsConfig, app: Router) -> Serve
 }
 
 pub async fn serve(addr: SocketAddr) -> ServerResult<()> {
-    let redis_client = connect_redis(0)?;
-    let eu_redis_client = connect_redis(1)?;
+    let redis = RedisHandle::new(connect_redis(AT_DB)?).await?;
+    let eu_redis = RedisHandle::new(connect_redis(EU_DB)?).await?;
+    let mcp_redis = RedisHandle::new(connect_redis(MCP_DB)?).await?;
     let dataservice_sqlx_pool = connect_dataservice("DATASERVICE_URL").await?;
     let eu_dataservice_sqlx_pool = connect_dataservice("EU_DATASERVICE_URL").await?;
 
@@ -277,8 +275,9 @@ pub async fn serve(addr: SocketAddr) -> ServerResult<()> {
         meilisearch_sdk::client::Client::new(MEILISEARCH_URL, Some(MEILISEARCH_SECRET))?;
 
     let state = AppState::new(
-        redis_client.clone(),
-        eu_redis_client.clone(),
+        redis.clone(),
+        eu_redis.clone(),
+        mcp_redis,
         dataservice_sqlx_pool.clone(),
         eu_dataservice_sqlx_pool.clone(),
         meilisearch_client.clone(),
@@ -287,8 +286,8 @@ pub async fn serve(addr: SocketAddr) -> ServerResult<()> {
     spawn_asset_refresh(dataservice_sqlx_pool.clone());
     maybe_update_views(&dataservice_sqlx_pool).await?;
 
-    crate::refresh_views(&dataservice_sqlx_pool, &state.redis_client);
-    crate::refresh_views(&eu_dataservice_sqlx_pool, &state.eu_redis_client);
+    crate::refresh_views(&dataservice_sqlx_pool, &state.redis.client);
+    crate::refresh_views(&eu_dataservice_sqlx_pool, &state.eu_redis.client);
 
     spawn_search_refresh(state.clone());
 
