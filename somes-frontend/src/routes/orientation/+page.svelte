@@ -178,7 +178,7 @@
 
 <Container>
 	{#if session.step === 'start'}
-		<h2 class="mt-6 h2">Politische Orientierung</h2>
+		<h1 class="mt-2 px-1 pt-2 text-3xl font-bold sm:mt-0 sm:p-0 sm:text-4xl">Politische Orientierung</h1>
 		<p class="mt-3">Wähle die Länge des Fragebogens.</p>
 
 		<div class="mt-4 card p-4 text-sm text-gray-700 dark:text-gray-300">
@@ -205,12 +205,12 @@
 		</div>
 
 		<div class="mt-6 grid gap-4 sm:grid-cols-2">
-			<button class="btn card border border-black p-6 text-left" onclick={() => startQuiz('short')}>
-				<h3 class="h3">Kurz</h3>
+			<button class="btn card p-6 text-left" onclick={() => startQuiz('short')}>
+				<h3 class="text-xl font-semibold">Kurz</h3>
 				<p class="mt-2 text-sm">Weniger Fragen, schneller Überblick.</p>
 			</button>
-			<button class="btn card border border-black p-6 text-left" onclick={() => startQuiz('long')}>
-				<h3 class="h3">Lang</h3>
+			<button class="btn card p-6 text-left" onclick={() => startQuiz('long')}>
+				<h3 class="text-xl font-semibold">Lang</h3>
 				<p class="mt-2 text-sm">Umfassendere Abdeckung der Themen.</p>
 			</button>
 		</div>
@@ -218,7 +218,7 @@
 		{@const q = currentQuestion()}
 		{@const qs = filteredQuestions()}
 		{#if q}
-			<h2 class="h3">Frage {session.currentIndex + 1} von {qs.length}</h2>
+			<h3 class="text-xl font-semibold sm:text-2xl mb-4">Frage {session.currentIndex + 1} von {qs.length}</h3>
 
 			<div class="mt-4 card p-4">
 				<div class="flex flex-col gap-8">
@@ -310,11 +310,11 @@
 			</div>
 		{/if}
 	{:else if session.step === 'result'}
-		<h2 class="mt-6 h2">Ergebnis</h2>
+		<h1 class="mt-2 px-1 pt-2 text-3xl font-bold sm:mt-0 sm:p-0 sm:text-4xl">Ergebnis</h1>
 		<p class="mt-3">Du hast {answeredCount()} Fragen beantwortet.</p>
 		{@const topDelegates = getTopSimilarDelegates(10)}
 			<div class="card p-4">
-				<h3 class="mb-3 h3">Ähnliche Abgeordnete</h3>
+				<h3 class="mb-3 text-xl font-semibold sm:text-2xl">Ähnliche Abgeordnete</h3>
 				<p class="mb-4 text-sm">
 					Vergleich basierend auf thematischer Übereinstimmung deiner Antworten mit dem politischen
 					Analyseprofil.
