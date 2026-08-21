@@ -1,6 +1,7 @@
 import type { PageServerLoad } from './$types';
 import { getWithRoute, isHasError } from '$lib/api/api';
 import type { Delegate, DelegatesWithMaxPage, StanceTopicScore } from '$lib/types';
+import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 
 export const load: PageServerLoad = async ({ fetch }) => {
 	const questions = await getWithRoute('orientation_questions', 'at', fetch);
@@ -63,7 +64,8 @@ export const load: PageServerLoad = async ({ fetch }) => {
 		return results;
 	};
 
+  const gps = (await cachedAllLegisPeriods(true, fetch) ?? []).reverse();
 	const delegateScores = await fetchTopicPoliticalScores(combinedDelegates);
 
-	return { questions, delegateScores };
+	return { questions, delegateScores, gps };
 };

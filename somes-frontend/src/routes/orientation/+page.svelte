@@ -4,6 +4,11 @@
 	import QuadrantChart from '$lib/components/GeneralCharts/QuadrantChart.svelte';
 	import type { PageProps } from './$types';
 	import DelegateListItem from '$lib/components/Delegates/DelegateListItem.svelte';
+	import { orientationQuizSession } from '$lib/stores/orientationQuizSession.svelte';
+	import { getMandateLatestPeriod } from '../[parliament=parliament]/delegates/searchDelegates';
+	import { all_gps, toActualDateString } from '$lib/api/api';
+	import { goto } from '$app/navigation';
+	import { plink } from '$lib/api/parliament';
 
 	type TopicInfluence = { topic: string; influence: number };
 	type StrongReferenceAnswer = {
@@ -32,56 +37,53 @@
 	let { data }: PageProps = $props();
 	const allQuestions: OrientationQuestion[] = data.questions ?? [];
 
-	let step = $state<'start' | 'quiz' | 'result'>('start');
-	let quizType = $state<'short' | 'long' | null>(null);
-	let strongRefMode = $state(true);
+	const session = orientationQuizSession;
+
 
 	let filteredQuestions = $derived(() => {
-		if (!quizType) return [];
-		return allQuestions.filter((q) => q.is_part_of.includes(quizType));
+		if (!session.quizType) return [];
+		return allQuestions.filter((q) => q.is_part_of.includes(session.quizType));
 	});
 
-	let currentIndex = $state(0);
-	let answers = $state<Record<number, number | null>>({});
 
 	function startQuiz(type: 'short' | 'long') {
-		quizType = type;
-		currentIndex = 0;
-		answers = {};
-		step = 'quiz';
+		session.quizType = type;
+		session.currentIndex = 0;
+		session.answers = {};
+		session.step = 'quiz';
 	}
 
 	function currentQuestion(): OrientationQuestion | null {
 		const qs = filteredQuestions();
-		return qs[currentIndex] ?? null;
+		return qs[session.currentIndex] ?? null;
 	}
 
 	function next() {
 		const qs = filteredQuestions();
-		if (currentIndex < qs.length - 1) {
-			currentIndex++;
+		if (session.currentIndex < qs.length - 1) {
+			session.currentIndex++;
 		} else {
-			step = 'result';
+			session.step = 'result';
 		}
 	}
 
 	function prev() {
-		if (currentIndex > 0) currentIndex--;
+		if (session.currentIndex > 0) session.currentIndex--;
 	}
 
 	function toggleStrongRef() {
-		strongRefMode = !strongRefMode;
+		session.strongRefMode = !session.strongRefMode;
 	}
 
 	function setAnswer(val: number) {
 		const q = currentQuestion();
 		if (!q) return;
-		answers[q.id] = val;
+		session.answers[q.id] = val;
 	}
 
 	const answeredCount = $derived(() => {
 		const qs = filteredQuestions();
-		return qs.filter((q) => answers[q.id] !== undefined && answers[q.id] !== null).length;
+		return qs.filter((q) => session.answers[q.id] !== undefined && session.answers[q.id] !== null).length;
 	});
 
 	function computeUserTopicScores() {
@@ -95,7 +97,7 @@
 		}
 		const topicAcc: Record<string, Acc> = {};
 		for (const q of qs) {
-			const val = answers[q.id];
+			const val = session.answers[q.id];
 			if (val == null) continue;
 			const pro = val / 100;
 			const contra = 1 - pro;
@@ -175,7 +177,7 @@
 </svelte:head>
 
 <Container>
-	{#if step === 'start'}
+	{#if session.step === 'start'}
 		<h2 class="mt-6 h2">Politische Orientierung</h2>
 		<p class="mt-3">Wähle die Länge des Fragebogens.</p>
 
@@ -189,7 +191,7 @@
 				Es zeigt auch, was heute technisch stark automatisiert möglich ist. Der Vergleich mit anderen
 				Abgeordneten am Ende des Quiz funktioniert mit dem politischen Analyseprofil der Abgeordneten,
 				welches ebenfalls automatisiert generiert wird, auffindbar unter der somes-Abgeordnetenseite.
-				Deine Daten bzw. Eingaben werden lediglich lokal am Gerät verarbeitet und nicht gespeichert.
+				Deine Daten bzw. Eingaben werden lediglich lokal am Gerät verarbeitet und im Browser temporär gespeichert.
 			</p>
 			<p class="mt-2">
 				Die Pro/Contra-Positionen von "Hubert" wurden KI-generiert. Die Fragen basieren teilweise
@@ -212,11 +214,11 @@
 				<p class="mt-2 text-sm">Umfassendere Abdeckung der Themen.</p>
 			</button>
 		</div>
-	{:else if step === 'quiz'}
+	{:else if session.step === 'quiz'}
 		{@const q = currentQuestion()}
 		{@const qs = filteredQuestions()}
 		{#if q}
-			<h2 class="h3">Frage {currentIndex + 1} von {qs.length}</h2>
+			<h2 class="h3">Frage {session.currentIndex + 1} von {qs.length}</h2>
 
 			<div class="mt-4 card p-4">
 				<div class="flex flex-col gap-8">
@@ -243,7 +245,7 @@
 					</div>
 
 					<div class="w-full">
-						{#if strongRefMode}
+						{#if session.strongRefMode}
 							{#if q.strong_reference_answers.length >= 2}
 								{@const pro = q.strong_reference_answers[0]}
 								{@const contra = q.strong_reference_answers[1]}
@@ -252,7 +254,7 @@
 									type="range"
 									min="0"
 									max="100"
-									value={answers[q.id] ?? 50}
+									value={session.answers[q.id] ?? 50}
 									oninput={(e) => setAnswer(parseInt((e.target as HTMLInputElement).value))}
 									class="h-10 w-full touch-manipulation"
 									style="width:100%"
@@ -268,7 +270,7 @@
 							<div class="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5">
 								{#each ['Stark dagegen', 'Dagegen', 'Neutral', 'Dafür', 'Stark dafür'] as label, i}
 									<button
-										class="btn bg-primary-400 {answers[q.id] === i * 25
+										class="btn bg-primary-400 {session.answers[q.id] === i * 25
 											? 'bg-secondary-500 text-white'
 											: ''}"
 										onclick={() => setAnswer(i * 25)}
@@ -291,23 +293,23 @@
 						<button
 							class="btn"
 							onclick={() => {
-								step = 'start';
-								quizType = null;
-							}}>Neu starten</button
+						session.step = 'start';
+						session.quizType = null;
+					}}>Neu starten</button
 						>
-						<button class="btn" onclick={prev} disabled={currentIndex === 0}>← Zurück</button>
+						<button class="btn" onclick={prev} disabled={session.currentIndex === 0}>← Zurück</button>
 						<button class="btn" onclick={next}>Weiter →</button>
 					</div>
 
 					<div class="flex justify-start">
 						<button class="btn" onclick={toggleStrongRef}>
-							{strongRefMode ? 'Zu 5-Punkte Skala' : 'Zu Slider'}
+							{session.strongRefMode ? 'Zu 5-Punkte Skala' : 'Zu Slider'}
 						</button>
 					</div>
 				</div>
 			</div>
 		{/if}
-	{:else if step === 'result'}
+	{:else if session.step === 'result'}
 		<h2 class="mt-6 h2">Ergebnis</h2>
 		<p class="mt-3">Du hast {answeredCount()} Fragen beantwortet.</p>
 		{@const topDelegates = getTopSimilarDelegates(10)}
@@ -322,6 +324,11 @@
 					    <DelegateListItem
 							delegate={d.delegate.delegate}
 							class="w-full md:w-auto md:max-w-full"
+							onclick={async () => {
+							    const { date, gp } = getMandateLatestPeriod(d.delegate.delegate, data.gps);
+								console.log(gp, date, d.delegate.delegate);
+								goto(plink(`/delegates?gp=${gp}&date=${toActualDateString(date)}&delegate=${d.delegate.delegate.id}`))
+							}}
 						/>
 						<span class="text-sm">Ø Abweichung: {d.avgDiff?.toFixed(3)}</span>
 					</div>
@@ -331,15 +338,15 @@
 			{#each filteredQuestions() as q}
 				<div class="card p-4">
 					<p class="font-medium">{q.question}</p>
-					<p class="mt-1 text-sm">Antwort: {answers[q.id] ?? 'keine'}</p>
+					<p class="mt-1 text-sm">Antwort: {session.answers[q.id] ?? 'keine'}</p>
 				</div>
 			{/each}
 		</div>
 		<button
 			class="mt-6 btn"
 			onclick={() => {
-				step = 'start';
-				quizType = null;
+				session.step = 'start';
+				session.quizType = null;
 			}}>← Neu starten</button
 		>
 	{/if}
