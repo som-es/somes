@@ -1,6 +1,6 @@
 import type { PageServerLoad } from './$types';
 import { getWithRoute, isHasError } from '$lib/api/api';
-import type { Delegate, DelegatesWithMaxPage, StanceTopicScore } from '$lib/types';
+import type { Delegate, DelegatesWithMaxPage, PoliticalPosition, StanceTopicScore } from '$lib/types';
 import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 
 export const load: PageServerLoad = async ({ fetch }) => {
@@ -44,20 +44,16 @@ export const load: PageServerLoad = async ({ fetch }) => {
 	const fetchTopicPoliticalScores = async (delegates: Delegate[]) => {
 		const results = await Promise.all(
 			delegates.map(async (delegate) => {
-				const scores = await getWithRoute<StanceTopicScore[]>(
-					`v1/delegates/political_analysis/left_right_topic_score?delegate_id=${delegate.id}`,
-					'at',
-					fetch
-				);
-				const position = await getWithRoute<any>(
+				const scores = await getWithRoute<PoliticalPosition>(
 					`v1/delegates/political_analysis/political_position?delegate_id=${delegate.id}`,
 					'at',
 					fetch
 				);
+
 				return {
 					delegate,
-					scores: isHasError(scores) ? [] : scores,
-					position: isHasError(position) ? null : position
+					scores: isHasError(scores) || scores == null ? [] : scores.scores_by_topic,
+					position: null
 				};
 			})
 		);

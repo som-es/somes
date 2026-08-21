@@ -949,6 +949,7 @@
 					<div class="title-item rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 						<PoliticalStanceTitleBar
 							stanceTopicInfluences={generalDelegateInfo.stance_topic_influences}
+							usefulInfoCount={generalDelegateInfo.political_position.total_score.count}
 						/>
 					</div>
 				{/if}
@@ -956,16 +957,16 @@
 					{#if delegate && generalDelegateInfo?.political_position && aiViewEnabledStore.value}
 						<SquarePoliticalSpectrum
 							{delegate}
-							politicalPosition={generalDelegateInfo.political_position}
+							politicalPosition={generalDelegateInfo.political_position.total_score}
 						/>
 					{:else if !generalDelegateInfo}
 						<ExpandablePlaceholder class={'my-3'} />
 					{/if}
 
-					{#if delegate && generalDelegateInfo?.left_right_stances.length && generalDelegateInfo.left_right_stances.length > 0 && aiViewEnabledStore.value}
+					{#if delegate && generalDelegateInfo?.political_position?.scores_by_topic?.length && generalDelegateInfo.political_position.scores_by_topic.length > 0 && aiViewEnabledStore.value}
 						<div class="lg:flex-1">
 							<LeftRightChart
-								stances={generalDelegateInfo.left_right_stances}
+								stances={generalDelegateInfo.political_position.scores_by_topic}
 								interests={generalDelegateInfo.interests}
 							/>
 						</div>

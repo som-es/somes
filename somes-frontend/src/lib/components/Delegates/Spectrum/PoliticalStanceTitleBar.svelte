@@ -6,13 +6,18 @@
 
 	interface Props {
 		stanceTopicInfluences: StanceTopicInfluences[];
+		usefulInfoCount: number;
 	}
 
-	let { stanceTopicInfluences }: Props = $props();
+	let { stanceTopicInfluences, usefulInfoCount }: Props = $props();
+	console.log(usefulInfoCount);
 </script>
 
 <div class="flex w-full flex-col lg:flex-row lg:items-center lg:justify-between">
 	<h1 class="text-2xl font-bold max-lg:text-lg">Politische Haltung und Richtung</h1>
+	{#if usefulInfoCount < 5}
+	    <span class="text-xs font-semibold text-orange-400">Achtung! Wenige Infos vorhanden</span>
+	{/if}
 	<div class="flex items-center justify-between lg:justify-end lg:gap-4">
 		<Popover.Root>
 			<Popover.Trigger openOnHover openDelay={100}>

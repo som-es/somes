@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 
-use somes_common_lib::{PoliticalScore, StanceTopicScore};
+use somes_common_lib::{PoliticalPosition, PoliticalScore, StanceTopicScore};
 use sqlx::{PgPool, query};
 
-pub async fn extract_left_right_topic_score_by_delegate(
+pub async fn extract_political_position_by_delegate(
     pg: &PgPool,
     delegate_id: i32,
-) -> sqlx::Result<Vec<StanceTopicScore>> {
+) -> sqlx::Result<Option<PoliticalPosition>> {
     let stance_scores = query!(
         "select DISTINCT ON (pa.question_id)
             question, answer, is_liberal, is_left, stance_llm, stance, pro_strong_ref_score, contra_strong_ref_score, ref_score, COALESCE(lis.topics, '{}') AS topics
@@ -25,7 +25,13 @@ pub async fn extract_left_right_topic_score_by_delegate(
     .fetch_all(pg)
     .await?;
 
+    if stance_scores.is_empty() {
+        return Ok(None);
+    }
+
     let mut topics_scores = HashMap::<String, (PoliticalScore, usize)>::new();
+
+    let mut total_score = PoliticalScore::default();
 
     for stance_score in stance_scores {
         if stance_score.stance_llm.to_lowercase().contains("neutral") {
@@ -49,6 +55,12 @@ pub async fn extract_left_right_topic_score_by_delegate(
             temp_score.liberal += stance_score.contra_strong_ref_score;
         }
 
+        total_score.liberal += temp_score.liberal;
+        total_score.authoritarian += temp_score.authoritarian;
+        total_score.socialist += temp_score.socialist;
+        total_score.capitalist += temp_score.capitalist;
+        total_score.count += 1;
+
         log::info!("stance_score: {stance_score:?}");
         for topic in &stance_score.topics.unwrap_or_default() {
             topics_scores
@@ -64,36 +76,41 @@ pub async fn extract_left_right_topic_score_by_delegate(
         }
     }
 
-    Ok(topics_scores
-        .into_iter()
-        .map(|(topic, (score, count))| {
-            let (pos_score, contra_score) = (
-                score.socialist + score.liberal,
-                score.authoritarian + score.capitalist,
-            );
-            StanceTopicScore {
-                topic,
-                score: -1.8 * (pos_score - contra_score) / count as f64,
-                broken_down_score: score,
-            }
-        })
-        .collect())
+    total_score.authoritarian /= total_score.count as f64;
+    total_score.liberal /= total_score.count as f64;
+    total_score.capitalist /= total_score.count as f64;
+    total_score.socialist /= total_score.count as f64;
+
+    Ok(Some(PoliticalPosition {
+        total_score,
+        scores_by_topic: topics_scores
+            .into_iter()
+            .map(|(topic, (score, count))| {
+                let (pos_score, contra_score) = (
+                    score.socialist + score.liberal,
+                    score.authoritarian + score.capitalist,
+                );
+                StanceTopicScore {
+                    topic,
+                    score: -1.8 * (pos_score - contra_score) / count as f64,
+                    broken_down_score: score,
+                }
+            })
+            .collect(),
+    }))
 }
 
 #[cfg(test)]
 mod tests {
     use combx::connect_pg;
 
-    use crate::routes::delegates::left_right_topic_score::extract_left_right_topic_score_by_delegate;
+    use crate::routes::delegates::left_right_topic_score::extract_political_position_by_delegate;
 
     #[tokio::test]
     async fn test_extract_stance_topic_score_by_delegate() {
         let pg = connect_pg().await;
-        let res = extract_left_right_topic_score_by_delegate(&pg, 35520)
+        let res = extract_political_position_by_delegate(&pg, 35520)
             .await
             .unwrap();
-        for r in res {
-            println!("res: {r:?}");
-        }
     }
 }

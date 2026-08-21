@@ -30,7 +30,7 @@
 	})();
 </script>
 
-<div class="relative w-full rounded-xl bg-primary-300 px-5 pt-12 pb-3 sm:pt-5 dark:bg-primary-500">
+<div class="relative w-full h-full rounded-xl bg-primary-300 px-5 pt-12 pb-3 sm:pt-5 dark:bg-primary-500">
 	<div class="absolute top-3 right-3">
 		{#if stances.length > 8}
 			<ExtendInfoDialog title="Details">
