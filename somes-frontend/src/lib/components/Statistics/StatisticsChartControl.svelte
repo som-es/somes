@@ -472,18 +472,18 @@
 					<div class="flex h-10 gap-2 text-sm">
 						{#if canUsePartyFilter && uniqueParties.length > 0}
 							<MultiSelectFilter
-							items={uniqueParties.map((p) => ({ value: p.name, label: p.name, color: p.color }))}
-							bind:value={selectedParties}
-							allLabel="Alle Parteien"
-						>
-							{#snippet itemLabel(party)}
-								<div
-									class="h-3 w-3 shrink-0 rounded-full"
-									style="background-color: {party.color};"
-								></div>
-								<span class="truncate">{party.label}</span>
-							{/snippet}
-						</MultiSelectFilter>
+								items={uniqueParties.map((p) => ({ value: p.name, label: p.name, color: p.color }))}
+								bind:value={selectedParties}
+								allLabel="Alle Parteien"
+							>
+								{#snippet itemLabel(party)}
+									<div
+										class="h-3 w-3 shrink-0 rounded-full"
+										style="background-color: {party.color};"
+									></div>
+									<span class="truncate">{party.label}</span>
+								{/snippet}
+							</MultiSelectFilter>
 						{/if}
 						<GenericFilters
 							bind:genericFilters

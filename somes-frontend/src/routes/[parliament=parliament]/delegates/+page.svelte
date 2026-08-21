@@ -82,9 +82,7 @@
 	let selectedPartiesNames = $state<string[]>([]);
 	let selectedParties = $state<Party[]>([]);
 
-	let selectedSearchPeriod = $derived<string[]>([
-		data.gp || defaultGp()
-	]);
+	let selectedSearchPeriod = $derived<string[]>([data.gp || defaultGp()]);
 	let timeout: any;
 
 	let searchResults: Delegate[] = $derived(data.delegates ?? []);
@@ -232,7 +230,6 @@
 
 	let prevSelectedDelegateId = $state(0);
 
-
 	let finishedMounting = $state(false);
 
 	let periodBounds = $derived.by(() => {
@@ -247,11 +244,16 @@
 		const maxOffset = Math.floor(
 			(periodEnd.getTime() - periodStart.getTime()) / (1000 * 60 * 60 * 24)
 		);
-		return { periodStart, maxOffset, renderStart: periods[firstIdx].start_date, renderEnd: nextStart };
+		return {
+			periodStart,
+			maxOffset,
+			renderStart: periods[firstIdx].start_date,
+			renderEnd: nextStart
+		};
 	});
 	function calcDayOffset(): number {
 		if (!periodBounds) return maxDayOffset;
-		const paramDate = data.date
+		const paramDate = data.date;
 		if (!paramDate) return periodBounds.maxOffset;
 		const diffMs = Math.abs(new Date(paramDate).getTime() - periodBounds.periodStart.getTime());
 		return Math.floor(diffMs / (1000 * 60 * 60 * 24));
@@ -291,10 +293,9 @@
 			day_offset: maxDayOffset,
 			search_value: '',
 			legis_period: data.gp ?? defaultGp(),
-			supply_date: data.date,
+			supply_date: data.date
 		}
 	);
-
 
 	let uniqueParties = $derived.by(() => {
 		if (false) {
@@ -378,7 +379,7 @@
 		startDate.setDate(startDate.getDate() + dayOffset - 1);
 		supplyDate = startDate;
 
-		maybeCurrentDelegateFilter.supply_date = startDate.toISOString().split("T")[0];
+		maybeCurrentDelegateFilter.supply_date = startDate.toISOString().split('T')[0];
 		maybeCurrentDelegateFilter.day_offset = dayOffset;
 		currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
 		const url = new URL(window.location.href);
@@ -406,7 +407,6 @@
 		maybeCurrentDelegateFilter.legis_period = selectedPeriod;
 		currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
 	};
-
 
 	function updateDelegateIdInUrl(delegate: Delegate) {
 		const url = new URL(window.location.href);
@@ -741,9 +741,9 @@
 													? 'bg-primary-300 dark:bg-primary-400'
 													: ''} border-primary-300 px-2 py-1 text-sm"
 												onclick={() => {
-												    selectedPeriod = period.gp;
-    												updateStoredPeriod();
-    												updateDelsToDisplay();
+													selectedPeriod = period.gp;
+													updateStoredPeriod();
+													updateDelsToDisplay();
 												}}
 											>
 												<span class="text-nowrap">{period.gp}</span>

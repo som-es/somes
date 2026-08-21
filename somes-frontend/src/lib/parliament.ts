@@ -180,7 +180,7 @@ export function genCirclesWithSpeechInfo(speeches: FullSpeech[], dels: Delegate[
 	const delegatesAt: Delegate[] = dels;
 
 	speeches.forEach((speech) => {
-		if(speech.speech == undefined){
+		if (speech.speech == undefined) {
 			const delegate = findDelegateById(delegatesAt, speech.speech.delegate_id);
 
 			if (delegate) {

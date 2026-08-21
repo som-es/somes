@@ -81,10 +81,19 @@ pub struct StanceTopicInfluences {
     pub topic_influences: Vec<StanceTopicScore>,
 }
 
+#[derive(ToSchema, Debug, Copy, Deserialize, Serialize, Default, Clone)]
+pub struct PoliticalScore {
+    pub socialist: f64,
+    pub capitalist: f64,
+    pub liberal: f64,
+    pub authoritarian: f64,
+}
+
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct StanceTopicScore {
     pub topic: String,
     pub score: f64,
+    pub broken_down_score: PoliticalScore,
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]

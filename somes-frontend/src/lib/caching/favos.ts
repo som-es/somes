@@ -9,7 +9,7 @@ export let favoLegisInits: SvelteSet<number> | null = null;
 
 export async function cachedDelegateFavos(
 	refetch: boolean = false,
-	parliament: Parliament = getParliament(),
+	parliament: Parliament = getParliament()
 ): Promise<SvelteMap<number, DelegateFavo> | null> {
 	let maybeCached = favoDelegates;
 	if (maybeCached == null || refetch || maybeCached.size == 0) {
@@ -23,7 +23,7 @@ export async function cachedDelegateFavos(
 
 export async function cachedLegisInitFavos(
 	refetch: boolean = false,
-	parliament: Parliament = getParliament(),
+	parliament: Parliament = getParliament()
 ): Promise<SvelteSet<number> | null> {
 	let maybeCached = favoLegisInits;
 	if (maybeCached == null || refetch || maybeCached.size == 0) {

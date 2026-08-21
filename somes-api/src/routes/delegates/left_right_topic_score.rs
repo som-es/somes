@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use somes_common_lib::StanceTopicScore;
-use sqlx::{query, PgPool};
+use somes_common_lib::{PoliticalScore, StanceTopicScore};
+use sqlx::{PgPool, query};
 
 pub async fn extract_left_right_topic_score_by_delegate(
     pg: &PgPool,
@@ -25,49 +25,56 @@ pub async fn extract_left_right_topic_score_by_delegate(
     .fetch_all(pg)
     .await?;
 
-    let mut topics_scores = HashMap::<String, (f64, f64, usize)>::new();
+    let mut topics_scores = HashMap::<String, (PoliticalScore, usize)>::new();
 
     for stance_score in stance_scores {
         if stance_score.stance_llm.to_lowercase().contains("neutral") {
             continue;
         }
 
-        let default = if stance_score.is_left.unwrap_or_default()
-            || stance_score.is_liberal.unwrap_or_default()
-        {
-            (
-                stance_score.pro_strong_ref_score,
-                stance_score.contra_strong_ref_score,
-            )
-        } else if stance_score.is_left.is_some() || stance_score.is_liberal.is_some() {
-            (
-                stance_score.contra_strong_ref_score,
-                stance_score.pro_strong_ref_score,
-            )
-        } else {
-            continue;
-        };
+        let mut temp_score = PoliticalScore::default();
+        if stance_score.is_left.unwrap_or_default() {
+            temp_score.socialist += stance_score.pro_strong_ref_score;
+            temp_score.capitalist += stance_score.contra_strong_ref_score;
+        } else if stance_score.is_left.is_some() {
+            temp_score.capitalist += stance_score.pro_strong_ref_score;
+            temp_score.socialist += stance_score.contra_strong_ref_score;
+        }
+
+        if stance_score.is_liberal.unwrap_or_default() {
+            temp_score.liberal += stance_score.pro_strong_ref_score;
+            temp_score.authoritarian += stance_score.contra_strong_ref_score;
+        } else if stance_score.is_liberal.is_some() {
+            temp_score.authoritarian += stance_score.pro_strong_ref_score;
+            temp_score.liberal += stance_score.contra_strong_ref_score;
+        }
 
         log::info!("stance_score: {stance_score:?}");
         for topic in &stance_score.topics.unwrap_or_default() {
             topics_scores
                 .entry(topic.to_string())
                 .and_modify(|x| {
-                    x.0 += default.0;
-                    x.1 += default.1;
-                    x.2 += 1;
+                    x.0.liberal += temp_score.liberal;
+                    x.0.authoritarian += temp_score.authoritarian;
+                    x.0.socialist += temp_score.socialist;
+                    x.0.capitalist += temp_score.capitalist;
+                    x.1 += 1;
                 })
-                .or_insert((default.0, default.1, 1));
+                .or_insert((temp_score, 1));
         }
     }
 
     Ok(topics_scores
         .into_iter()
-        .map(|(topic, score)| {
-            let (pos_score, contra_score, count) = score;
+        .map(|(topic, (score, count))| {
+            let (pos_score, contra_score) = (
+                score.socialist + score.liberal,
+                score.authoritarian + score.capitalist,
+            );
             StanceTopicScore {
                 topic,
                 score: -1.8 * (pos_score - contra_score) / count as f64,
+                broken_down_score: score,
             }
         })
         .collect())

@@ -47,6 +47,7 @@ pub async fn extract_stance_topic_score_by_delegate(
                     StanceTopicScore {
                         topic: topic.into(),
                         score: default,
+                        broken_down_score: Default::default(),
                     }
                 })
                 .collect::<Vec<_>>();
@@ -83,6 +84,7 @@ pub async fn extract_stance_topic_score_by_delegate(
                 StanceTopicScore {
                     topic,
                     score: 2.7 * score / count as f64,
+                    broken_down_score: Default::default(),
                 }
             })
             .collect(),

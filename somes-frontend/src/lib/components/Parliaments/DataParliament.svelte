@@ -141,7 +141,7 @@
 	}
 
 	$effect(() => {
-        const newDel = delegates.find(del => del.id == delegate?.id) ?? delegate;
+		const newDel = delegates.find((del) => del.id == delegate?.id) ?? delegate;
 		if (newDel && newDel.seat_row != null && circles2d.length >= 1) {
 			select(circles2d[newDel.seat_row - 1][newDel.seat_col! - 1], null, false);
 		}

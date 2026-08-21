@@ -19,7 +19,14 @@
 		parliament?: Parliament;
 	}
 
-	let { bubble, date, gp, class: clazz = '', partyColors = getPartyColors(), parliament = getParliament() }: Props = $props();
+	let {
+		bubble,
+		date,
+		gp,
+		class: clazz = '',
+		partyColors = getPartyColors(),
+		parliament = getParliament()
+	}: Props = $props();
 
 	let delegate: Delegate | null = $derived(bubble.del);
 
@@ -28,7 +35,7 @@
 	const onShowDetails = () => {
 		currentDelegateStore.value = delegate;
 		if (delegate) {
-		    const link = plink(`/delegates?gp=${gp}&date=${date}&delegate=${delegate.id}`);
+			const link = plink(`/delegates?gp=${gp}&date=${date}&delegate=${delegate.id}`);
 			gotoHistory(link, true);
 		}
 	};

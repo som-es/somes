@@ -215,8 +215,7 @@
 						rows="4"
 						bind:value={formData.description}
 						class="w-full resize-none rounded-lg border border-surface-300 bg-surface-50 px-4 py-2.5 text-surface-900 placeholder:text-surface-400 focus:border-secondary-500 focus:ring-2 focus:ring-secondary-500/20 focus:outline-none dark:border-surface-700 dark:bg-surface-800 dark:text-surface-100"
-						required
-					></textarea>
+						required></textarea>
 				</div>
 
 				<!-- Checkboxes -->

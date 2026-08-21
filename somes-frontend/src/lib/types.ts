@@ -586,12 +586,18 @@ export interface DelegateFilter {
 	search_value: string | null;
 	legis_period: string | null;
 	day_offset: number | null;
-    supply_date: string | null;
+	supply_date: string | null;
 }
-
+export interface PoliticalScore {
+	socialist: number;
+	capitalist: number;
+	liberal: number;
+	authoritarian: number;
+}
 export interface StanceTopicScore {
 	topic: string;
 	score: number;
+  broken_down_score: PoliticalScore;
 }
 
 export interface GovPropFilter {

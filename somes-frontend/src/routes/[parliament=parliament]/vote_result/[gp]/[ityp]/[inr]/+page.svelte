@@ -220,21 +220,25 @@
 	let documents = $derived(voteResult?.documents ?? []);
 
 	const infavorOptions = $derived.by(() => {
-	    const val = [
-    		{ value: 'Infavor', label: 'Dafür' },
-    		{ value: 'NoVote', label: 'Nicht abgestimmt' },
-    		{ value: 'Against', label: 'Dagegen' },
+		const val = [
+			{ value: 'Infavor', label: 'Dafür' },
+			{ value: 'NoVote', label: 'Nicht abgestimmt' },
+			{ value: 'Against', label: 'Dagegen' }
 		];
-		if (data.parliament == "eu") {
-		    val.push({ value: 'Abstention', label: 'Enthalten' });
+		if (data.parliament == 'eu') {
+			val.push({ value: 'Abstention', label: 'Enthalten' });
 		}
-		return val
+		return val;
 	});
 
 	const sortedVotes = $derived(votesByPartySize(voteResult));
 
 	let allSpeeches = $derived(voteResult?.speeches ?? []);
-	let date = $derived(voteResult?.legislative_initiative?.vote_date ? voteResult?.legislative_initiative?.vote_date : voteResult?.legislative_initiative?.nr_plenary_activity_date);
+	let date = $derived(
+		voteResult?.legislative_initiative?.vote_date
+			? voteResult?.legislative_initiative?.vote_date
+			: voteResult?.legislative_initiative?.nr_plenary_activity_date
+	);
 </script>
 
 <svelte:head>
@@ -532,11 +536,11 @@
 											{/if}
 										{:else if del.abstention === true}
 											<span
-                                                class="text-blue-500 text-4xl inline-flex items-center justify-center"
-                                                style="width:24px; height:24px;"
-                                            >
-                                                –
-                                            </span>
+												class="inline-flex items-center justify-center text-4xl text-blue-500"
+												style="width:24px; height:24px;"
+											>
+												–
+											</span>
 										{/if}
 									</DelegateListItem>
 								{/each}
@@ -784,22 +788,26 @@
 										{#each delegate_ids as delegate_id (delegate_id)}
 											{@const del = delegates.find((d) => d.id === delegate_id)}
 											{#if del}
-							                    {#if voteResult && voteResult.votes.length > 0}
-    												<DelegateListItem
-    													delegate={del}
-    													class="w-full md:w-auto md:max-w-full"
-    													onclick={() => {
-    														delegate = del;
-    														selectedBubble = undefined;
-    													}}
-    												/>
-                                                {:else}
-                                                    <a href="{plink(`/delegates?gp=${gp}&date=${new Date(voteResult.legislative_initiative.raw_data_created_at!).toISOString().split("T")[0]}&delegate=${del.id}`)}">
-                                                        <DelegateListItem
-           													delegate={del}
-           													class="w-full md:w-auto md:max-w-full"
-        												/>
-                                                    </a>
+												{#if voteResult && voteResult.votes.length > 0}
+													<DelegateListItem
+														delegate={del}
+														class="w-full md:w-auto md:max-w-full"
+														onclick={() => {
+															delegate = del;
+															selectedBubble = undefined;
+														}}
+													/>
+												{:else}
+													<a
+														href={plink(
+															`/delegates?gp=${gp}&date=${new Date(voteResult.legislative_initiative.raw_data_created_at!).toISOString().split('T')[0]}&delegate=${del.id}`
+														)}
+													>
+														<DelegateListItem
+															delegate={del}
+															class="w-full md:w-auto md:max-w-full"
+														/>
+													</a>
 												{/if}
 											{/if}
 										{/each}
@@ -816,22 +824,23 @@
 								{#each delegate_ids as delegate_id (delegate_id)}
 									{@const del = delegates.find((d) => d.id === delegate_id)}
 									{#if del}
-									    {#if voteResult && voteResult.votes.length > 0}
-    										<DelegateListItem
-    											delegate={del}
-    											class="w-full md:w-auto md:max-w-full"
-    											onclick={() => {
-    												delegate = del;
-    												selectedBubble = undefined;
-    											}}
-    										/>
-                                        {:else if voteResult}
-                                            <a href="{plink(`/delegates?gp=${gp}&date=${new Date(voteResult.legislative_initiative.raw_data_created_at!).toISOString().split("T")[0]}&delegate=${del.id}`)}">
-                                                <DelegateListItem
-    												delegate={del}
-    												class="w-full md:w-auto md:max-w-full"
-    											/>
-                                            </a>
+										{#if voteResult && voteResult.votes.length > 0}
+											<DelegateListItem
+												delegate={del}
+												class="w-full md:w-auto md:max-w-full"
+												onclick={() => {
+													delegate = del;
+													selectedBubble = undefined;
+												}}
+											/>
+										{:else if voteResult}
+											<a
+												href={plink(
+													`/delegates?gp=${gp}&date=${new Date(voteResult.legislative_initiative.raw_data_created_at!).toISOString().split('T')[0]}&delegate=${del.id}`
+												)}
+											>
+												<DelegateListItem delegate={del} class="w-full md:w-auto md:max-w-full" />
+											</a>
 										{/if}
 									{/if}
 								{/each}
@@ -888,13 +897,20 @@
 										/>
 										<div class="flex min-w-0 flex-col">
 											<a
-												href={plink(`/delegates?delegate=${speechDelegate.id}&date=${date}&gp=${voteResult.legislative_initiative.gp}`)}
+												href={plink(
+													`/delegates?delegate=${speechDelegate.id}&date=${date}&gp=${voteResult.legislative_initiative.gp}`
+												)}
 												class="truncate text-sm leading-tight font-semibold hover:underline lg:text-base"
 												onclick={(e) => {
 													e.preventDefault();
 													e.stopPropagation();
 													currentDelegateStore.value = speechDelegate;
-													gotoHistory(plink(`/delegates?delegate=${speechDelegate.id}&date=${date}&gp=${voteResult.legislative_initiative.gp}`), true);
+													gotoHistory(
+														plink(
+															`/delegates?delegate=${speechDelegate.id}&date=${date}&gp=${voteResult.legislative_initiative.gp}`
+														),
+														true
+													);
 												}}
 												onkeypress={(e) => e.stopPropagation()}
 											>

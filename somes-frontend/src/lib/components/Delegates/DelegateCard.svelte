@@ -76,9 +76,11 @@
 		return Math.floor((utc2 - utc1) / _MS_PER_DAY);
 	}
 	let personUrl = $derived.by(() => {
-	    switch (parliament) {
-			case "at": return `https://parlament.gv.at/person/${delegate.id}?utm_source=somes.at`
-			case "eu": return `https://www.europarl.europa.eu/meps/en/${delegate.id}?utm_source=somes.at`
+		switch (parliament) {
+			case 'at':
+				return `https://parlament.gv.at/person/${delegate.id}?utm_source=somes.at`;
+			case 'eu':
+				return `https://www.europarl.europa.eu/meps/en/${delegate.id}?utm_source=somes.at`;
 		}
 	});
 
