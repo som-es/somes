@@ -166,6 +166,7 @@ fn parliament_router() -> Router<AppState> {
         .route(NEXT_PLENAR_DATE, get(next_plenar_date_route))
         .route(PLENAR_DATES, get(plenar_dates_route))
         .route(PLENARY_SESSIONS_PER_GP, get(plenary_sessions_per_gp_route))
+        .route("/orientation_questions", get(orientation_questions_route))
         .route("/save_email", post(save_email_route))
         .nest("/v1/statistics", create_statistics_router())
         .nest("/v1/delegates", create_delegates_router())

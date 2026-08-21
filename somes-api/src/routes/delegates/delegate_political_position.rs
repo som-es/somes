@@ -12,9 +12,11 @@ pub async fn extract_political_position_questions(
 ) -> sqlx::Result<Vec<DelegateQA>> {
     query_as!(
         DelegateQA,
-        "select answer, question
+        "
+        select answer, question
         from political_answers inner join political_questions pq on pq.id = question_id
-        where delegate_id = $1 and model_used = 'gpt4o-mini-de-run' ",
+        where delegate_id = $1 and model_used = 'gpt4o-mini-de-run'
+        ",
         delegate_id
     )
     .fetch_all(pg)

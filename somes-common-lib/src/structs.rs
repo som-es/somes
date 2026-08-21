@@ -87,6 +87,12 @@ pub struct StanceTopicScore {
     pub score: f64,
 }
 
+#[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct TopicInfluence {
+    pub topic: String,
+    pub influence: f64,
+}
+
 /// 'ResetPasswordInfo' is used to send a reset password request to the server.
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct ResetPasswordInfo {
