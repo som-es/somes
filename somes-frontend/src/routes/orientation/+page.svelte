@@ -1,7 +1,9 @@
 <script lang="ts">
 	import Container from '$lib/components/Layout/Container.svelte';
 	import Topics from '$lib/components/Topics/Topics.svelte';
+	import QuadrantChart from '$lib/components/GeneralCharts/QuadrantChart.svelte';
 	import type { PageProps } from './$types';
+	import DelegateListItem from '$lib/components/Delegates/DelegateListItem.svelte';
 
 	type TopicInfluence = { topic: string; influence: number };
 	type StrongReferenceAnswer = {
@@ -17,8 +19,8 @@
 	type OrientationQuestion = {
 		id: number;
 		question: string;
-		is_left?: boolean | null;
-		is_liberal?: boolean | null;
+		is_left: boolean | null;
+		is_liberal: boolean | null;
 		is_part_of: string[];
 		strong_reference_answers: StrongReferenceAnswer[];
 		topics: string[];
@@ -81,6 +83,90 @@
 		const qs = filteredQuestions();
 		return qs.filter((q) => answers[q.id] !== undefined && answers[q.id] !== null).length;
 	});
+
+	function computeUserTopicScores() {
+		const qs = filteredQuestions();
+		interface Acc {
+			liberal: number;
+			authoritarian: number;
+			socialist: number;
+			capitalist: number;
+			count: number;
+		}
+		const topicAcc: Record<string, Acc> = {};
+		for (const q of qs) {
+			const val = answers[q.id];
+			if (val == null) continue;
+			const pro = val / 100;
+			const contra = 1 - pro;
+			let liberal = 0;
+			let authoritarian = 0;
+			let socialist = 0;
+			let capitalist = 0;
+			if (q.is_left !== null) {
+				if (q.is_left) {
+					socialist += pro;
+					capitalist += contra;
+				} else {
+					capitalist += pro;
+					socialist += contra;
+				}
+			}
+			if (q.is_liberal !== null) {
+				if (q.is_liberal) {
+					liberal += pro;
+					authoritarian += contra;
+				} else {
+					authoritarian += pro;
+					liberal += contra;
+				}
+			}
+
+			const topics = q.topics ?? [];
+			for (const t of topics) {
+				if (!topicAcc[t]) {
+					topicAcc[t] = { liberal: 0, authoritarian: 0, socialist: 0, capitalist: 0, count: 0 };
+				}
+				topicAcc[t].liberal += liberal;
+				topicAcc[t].authoritarian += authoritarian;
+				topicAcc[t].socialist += socialist;
+				topicAcc[t].capitalist += capitalist;
+				topicAcc[t].count += 1;
+			}
+		}
+		const result: Record<string, number> = {};
+		for (const t in topicAcc) {
+			const a = topicAcc[t];
+			const pos = a.socialist + a.liberal;
+			const neg = a.authoritarian + a.capitalist;
+			result[t] = (1.8 * (pos - neg)) / a.count;
+		}
+		return { result, topicAcc };
+	}
+
+	function getTopSimilarDelegates(topN = 10) {
+		const { result, topicAcc } = computeUserTopicScores();
+		const delegateScores = data.delegateScores ?? [];
+		const scored = delegateScores.map((d) => {
+			const scores = d.scores ?? [];
+			let totalDiff = 0;
+			let matches = 0;
+			for (const s of scores) {
+				const user = topicAcc[s.topic];
+				if (user == null) continue;
+				totalDiff +=
+					Math.abs(user.authoritarian - s.broken_down_score.authoritarian) +
+					Math.abs(user.liberal - s.broken_down_score.liberal) +
+					Math.abs(user.socialist - s.broken_down_score.socialist) +
+					Math.abs(user.capitalist - s.broken_down_score.capitalist);
+				matches++;
+			}
+			const avgDiff = matches > 6 ? totalDiff / matches : Infinity;
+			return { delegate: d, avgDiff, matches };
+		});
+		scored.sort((a, b) => a.avgDiff - b.avgDiff);
+		return scored.slice(0, topN);
+	}
 </script>
 
 <svelte:head>
@@ -224,6 +310,23 @@
 	{:else if step === 'result'}
 		<h2 class="mt-6 h2">Ergebnis</h2>
 		<p class="mt-3">Du hast {answeredCount()} Fragen beantwortet.</p>
+		{@const topDelegates = getTopSimilarDelegates(10)}
+			<div class="card p-4">
+				<h3 class="mb-3 h3">Ähnliche Abgeordnete</h3>
+				<p class="mb-4 text-sm">
+					Vergleich basierend auf thematischer Übereinstimmung deiner Antworten mit dem politischen
+					Analyseprofil.
+				</p>
+				{#each topDelegates as d (d.delegate.delegate.id)}
+					<div class="mb-2 flex items-center justify-between border-b pb-2">
+					    <DelegateListItem
+							delegate={d.delegate.delegate}
+							class="w-full md:w-auto md:max-w-full"
+						/>
+						<span class="text-sm">Ø Abweichung: {d.avgDiff?.toFixed(3)}</span>
+					</div>
+				{/each}
+			</div>
 		<div class="mt-6 space-y-4">
 			{#each filteredQuestions() as q}
 				<div class="card p-4">

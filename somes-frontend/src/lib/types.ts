@@ -597,7 +597,7 @@ export interface PoliticalScore {
 export interface StanceTopicScore {
 	topic: string;
 	score: number;
-  broken_down_score: PoliticalScore;
+	broken_down_score: PoliticalScore;
 }
 
 export interface GovPropFilter {
