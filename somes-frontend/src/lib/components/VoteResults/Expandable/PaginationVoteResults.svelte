@@ -138,8 +138,8 @@ import { localeStore } from '$lib/i18n/i18n.svelte';
 		disabledText: t('filter.camp.disabledText'),
 		options: [
 			{ title: t('filterOption.any'), value: undefined },
-			{ title: 'Regier.', value: true },
-			{ title: 'Opp.', value: false }
+			{ title: t('filter.gov'), value: true },
+			{ title: t('filter.opp'), value: false }
 		]
 	});
 

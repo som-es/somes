@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { onMount, tick, untrack } from 'svelte';
 	import GenericFilters from '$lib/components/Filtering/GenericFilters.svelte';
 	import MultiSelectFilter from '$lib/components/Filtering/MultiSelectFilter.svelte';
@@ -52,11 +53,11 @@
 	}
 
 	const defaultCategoryOptions: CategoryOption[] = [
-		{ value: 'delegate', label: 'Abgeordnete' },
-		{ value: 'party', label: 'Parteien' },
-		{ value: 'gender', label: 'Geschlecht' },
-		{ value: 'age', label: 'Alter' },
-		{ value: 'legis', label: 'Legislaturperioden' }
+		{ value: 'delegate', label: t('common.delegates') },
+		{ value: 'party', label: t('statistics.party') },
+		{ value: 'gender', label: t('statistics.gender') },
+		{ value: 'age', label: t('statistics.age') },
+		{ value: 'legis', label: t('statistics.legis') }
 	];
 
 	let {
@@ -82,16 +83,16 @@
 	}: Props = $props();
 
 	const topOptions = [
-		{ value: 10, label: 'Top 10' },
-		{ value: 25, label: 'Top 25' },
-		{ value: 50, label: 'Top 50' },
-		{ value: 0, label: 'Alle' }
+		{ value: 10, label: t('statistics.top10') },
+		{ value: 25, label: t('statistics.top25') },
+		{ value: 50, label: t('statistics.top50') },
+		{ value: 0, label: t('statistics.all') }
 	];
 	const chartModeOptions: ChartModeOption[] = [
-		{ value: 'bar', label: 'Balken', title: 'Balkendiagramm anzeigen' },
-		{ value: 'donut', label: 'Anteile', title: 'Anteilsdiagramm anzeigen' },
-		{ value: 'line', label: 'Verlauf', title: 'Verlaufsdiagramm anzeigen' },
-		{ value: 'spectrum', label: 'Spektrum', title: 'Politisches Spektrum anzeigen' }
+		{ value: 'bar', label: t('statistics.chartBar'), title: t('statistics.chartBarTitle') },
+		{ value: 'donut', label: t('statistics.chartDonut'), title: t('statistics.chartDonutTitle') },
+		{ value: 'line', label: t('statistics.chartLine'), title: t('statistics.chartLineTitle') },
+		{ value: 'spectrum', label: t('statistics.chartSpectrum'), title: t('statistics.chartSpectrumTitle') }
 	];
 	const periodOrder = ['XX', 'XXI', 'XXII', 'XXIII', 'XXIV', 'XXV', 'XXVI', 'XXVII', 'XXVIII'];
 
@@ -109,10 +110,10 @@
 	let previousSelectedCategory = selectedCategory;
 
 	let legisPeriodFilter = $state({
-		title: 'Legislaturperiode',
+		title: t('statistics.legislature'),
 		activeValue: 'XXVIII',
 		hidden: false,
-		options: [{ title: 'Alle', value: 'all' }]
+		options: [{ title: t('statistics.all'), value: 'all' }]
 	});
 
 	let genericFilters: [
@@ -121,31 +122,31 @@
 		GenericFilterGroup<string>
 	] = $state([
 		{
-			title: 'Geschlecht',
+			title: t('statistics.gender'),
 			activeValue: 'all',
 			hidden: false,
 			options: [
-				{ title: 'Alle', value: 'all' },
-				{ title: 'Männlich', value: 'm' },
-				{ title: 'Weiblich', value: 'f' }
+				{ title: t('statistics.all'), value: 'all' },
+				{ title: t('statistics.male'), value: 'm' },
+				{ title: t('statistics.female'), value: 'f' }
 			]
 		},
 		{
-			title: 'Sortierung',
+			title: t('statistics.sorting'),
 			activeValue: 'desc',
 			hidden: false,
 			options: [
-				{ title: 'Absteigend', value: 'desc' },
-				{ title: 'Aufsteigend', value: 'asc' }
+				{ title: t('statistics.descending'), value: 'desc' },
+				{ title: t('statistics.ascending'), value: 'asc' }
 			]
 		},
 		{
-			title: 'Normalisierung',
+			title: t('statistics.normalization'),
 			activeValue: 'normalized',
 			hidden: false,
 			options: [
-				{ title: 'Normalisiert', value: 'normalized' },
-				{ title: 'Absolut', value: 'absolute' }
+				{ title: t('statistics.normalized'), value: 'normalized' },
+				{ title: t('statistics.absolute'), value: 'absolute' }
 			]
 		}
 	]);
@@ -187,7 +188,7 @@
 	});
 
 	let activeCategoryLabel = $derived(
-		categoryOptions.find((option) => option.value === selectedCategory)?.label ?? 'Abgeordnete'
+		categoryOptions.find((option) => option.value === selectedCategory)?.label ?? t('common.delegates')
 	);
 
 	function descriptionFor(key: string) {
@@ -217,7 +218,7 @@
 			return categoryDescription;
 		}
 		if (selectedCategory === 'delegate') {
-			return 'Werte der einzelnen Abgeordneten in der aktuellen Auswahl.';
+			return t('statistics.valuesOfDelegates');
 		}
 		if (selectedCategory === 'age') {
 			return 'Vergleich nach Altersgruppen in der aktuellen Auswahl.';
@@ -394,7 +395,7 @@
 			const sortedPeriods = periods.slice().sort((a, b) => periodRank(b.gp) - periodRank(a.gp));
 			const latestPeriod = sortedPeriods.at(0)?.gp ?? 'XXVIII';
 			legisPeriodFilter.options = [
-				{ title: 'Alle', value: 'all' },
+				{ title: t('statistics.all'), value: 'all' },
 				...sortedPeriods.map((period) => ({ title: period.gp, value: period.gp }))
 			];
 			legisPeriodFilter.activeValue = latestPeriod;
@@ -464,9 +465,7 @@
 						<p class="mb-2 text-sm font-semibold text-gray-600 dark:text-gray-300">Suche</p>
 						<SearchBar
 							bind:searchValue
-							placeholder={selectedCategory === 'delegate'
-								? 'Abgeordnete suchen...'
-								: 'Kategorie suchen...'}
+							placeholder={selectedCategory === 'delegate' ? t('delegates.searchDelegates') : t('statistics.searchCategory')}
 						/>
 					</div>
 					<div class="flex h-10 gap-2 text-sm">

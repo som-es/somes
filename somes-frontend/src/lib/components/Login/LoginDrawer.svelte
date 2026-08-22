@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import type { JWTInfo, HasError, LoginResponseError } from '$lib/types';
 	import { isHasError, isLoginResponseError } from '$lib/api/api';
 	import { login } from '$lib/api/authed';
@@ -161,7 +162,7 @@
 									>E-Mail anonymisiert speichern</span
 								>
 								<span class="mt-0.5 block text-xs text-gray-500">
-									Optionale E-Mail-Benachrichtigungen zu Abstimmungen sind dann nicht möglich.
+									{t('login.optionalMailNote')}
 								</span>
 							</label>
 						</div>

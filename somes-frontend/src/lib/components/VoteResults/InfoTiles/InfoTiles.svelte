@@ -187,8 +187,7 @@ import { localeStore } from '$lib/i18n/i18n.svelte';
 					{#if voteResult.votes.length > 0}
 						<div>{t('infotiles.votedOn')}</div>
 					{:else}
-						<div>Letzte</div>
-						<div>Plenaraktivität</div>
+						<div>{t('infotiles.lastPlenaryActivity')}</div>
 					{/if}
 				{/if}
 			</Square>

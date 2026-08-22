@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { errorToNull, get_eurovoc_topics } from '$lib/api/api';
 	import { onMount, untrack } from 'svelte';
 	import Pagination from '../Pagination.svelte';
@@ -189,7 +190,7 @@ import { localeStore } from '$lib/i18n/i18n.svelte';
 </script>
 
 <span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0 dark:text-gray-300">
-	Verordnungen aktualisiert am: {updatedAt}
+	{t('decrees.updatedAt')} {updatedAt}
 </span>
 
 <div class="mt-7 md:flex">

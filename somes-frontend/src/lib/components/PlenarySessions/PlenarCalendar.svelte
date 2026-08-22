@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { errorToNull } from '$lib/api/api';
 	import Calendar from '../Calendar/Calendar.svelte';
 	import type { Day } from '../Calendar/types';
@@ -11,18 +12,18 @@
 	$: daysInThisMonth = new Date(year, month + 1, 0).getDate();
 
 	const months = [
-		'Jänner',
-		'Februar',
-		'März',
-		'April',
-		'Mai',
-		'Juni',
-		'Juli',
-		'August',
-		'September',
-		'Oktober',
-		'November',
-		'Dezember'
+		t('months.jan'),
+		t('months.feb'),
+		t('months.mar'),
+		t('months.apr'),
+		t('months.may'),
+		t('months.jun'),
+		t('months.jul'),
+		t('months.aug'),
+		t('months.sep'),
+		t('months.oct'),
+		t('months.nov'),
+		t('months.dec')
 	];
 
 	let days: Day[] = [];
@@ -49,7 +50,7 @@
 				const item =
 					maybeDate == null
 						? null
-						: { title: 'Plenarsitzung', classes: 'badge text-xs bg-tertiary-500 text-black' };
+						: { title: t('calendar.plenarySession'), classes: 'badge text-xs bg-tertiary-500 text-black' };
 				days.push({ name: (i + 1).toString(), enabled: true, date: testDate, item });
 			}
 		}

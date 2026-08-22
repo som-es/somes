@@ -45,6 +45,7 @@
 	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 	import DelegateUserCard from '$lib/components/Delegates/DelegateUserCard.svelte';
 	import MailTopicCard from '$lib/components/UI/MailTopicCard.svelte';
+	import { t } from '$lib/i18n';
 
 	// State with Svelte 5 runes
 	let topics = $state<UniqueTopic[]>([]);
@@ -121,48 +122,48 @@
 
 	const mailFieldConfig: MailFieldConfig = {
 		send_new_vote_results_mails: {
-			title: 'Abstimmungen',
-			description: 'Neue Abstimmungen nach deinen Interessen',
+			title: t('user.mailTitle.votes'),
+			description: t('user.voteNewByInterest'),
 			category: 'interest'
 		},
 		send_new_vote_result_by_favo_mails: {
-			title: 'Abstimmungen',
-			description: 'Neue Abstimmungen nach favorisierten Personen',
+			title: t('user.mailTitle.votes'),
+			description: t('user.voteNewByFavo'),
 			category: 'favorite'
 		},
 		send_new_delegate_activity_mails: {
-			title: 'Aktivitäten',
-			description: 'Neue Aktivitäten nach favorisierten Personen',
+			title: t('user.mailTitle.activities'),
+			description: t('user.activityNewByFavo'),
 			category: 'favorite'
 		},
 		send_new_ministrial_prop_mails: {
-			title: 'Ministerialentwürfe',
-			description: 'Neue Ministerialentwürfe nach deinen Interessen',
+			title: t('user.mailTitle.drafts'),
+			description: t('user.draftNewByInterest'),
 			category: 'interest'
 		},
 		send_new_ministrial_prop_by_favo_mails: {
-			title: 'Ministerialentwürfe',
-			description: 'Neue Ministerialentwürfe nach favorisierten Ministern',
+			title: t('user.mailTitle.drafts'),
+			description: t('user.draftNewByFavo'),
 			category: 'favorite'
 		},
 		send_new_decree_mails: {
-			title: 'Verordnungen',
-			description: 'Neue Verordnungen nach deinen Themen',
+			title: t('user.mailTitle.decrees'),
+			description: t('user.decreeNewByTopic'),
 			category: 'interest'
 		},
 		send_new_decree_by_favo_mails: {
-			title: 'Verordnungen',
-			description: 'Neue Verordnungen nach favorisierten Ministern',
+			title: t('user.mailTitle.decrees'),
+			description: t('user.decreeNewByFavo'),
 			category: 'favorite'
 		},
 		send_new_proposal_mails: {
-			title: 'Anträge',
-			description: 'Neue Anträge nach deinen Themen',
+			title: t('user.mailTitle.proposals'),
+			description: t('user.proposalNewByTopic'),
 			category: 'interest'
 		},
 		send_new_proposal_by_favo_mails: {
-			title: 'Anträge',
-			description: 'Neue Anträge nach favorisierten Personen',
+			title: t('user.mailTitle.proposals'),
+			description: t('user.proposalNewByFavo'),
 			category: 'favorite'
 		}
 	};
@@ -282,11 +283,11 @@
 
 			if (isHasError(result)) {
 				if (result.error.includes('fehlt')) {
-					error = 'E-Mail-Adresse fehlt';
+					error = t('user.emailMissing');
 				} else if (result.error.includes('Fehlerhafte')) {
-					error = 'Fehlerhafte E-Mail-Adresse';
+					error = t('user.emailInvalid');
 				} else {
-					error = 'Ein serverseitiger Fehler ist aufgetreten. Es kann nicht fortgefahren werden.';
+					error = t('user.serverError');
 				}
 			} else {
 				if (!result.requires_otp) {
@@ -295,7 +296,7 @@
 						user = getUserFromJwt(result.access_token);
 					}
 					extendedUser = errorToNull(await getUser());
-					success = 'E-Mail-Adresse erfolgreich geändert.';
+					success = t('user.emailChanged');
 					setTimeout(() => {
 						resetEmailDialog();
 					}, 2500);
@@ -306,10 +307,10 @@
 				// Success - OTP sent
 				otpStep = true;
 				sent = true;
-				success = 'An deine E-Mail-Adresse wurde ein One-Time Passwort gesendet.';
+				success = t('user.otpSent');
 			}
 		} catch (e) {
-			error = 'Ein serverseitiger Fehler ist aufgetreten. Es kann nicht fortgefahren werden.';
+			error = t('user.serverError');
 			console.error('Email change error:', e);
 		}
 	}
@@ -324,7 +325,7 @@
 			const result = await verify_email_change(newEmail, otp);
 
 			if (isHasError(result)) {
-				error = 'Ein serverseitiger Fehler ist aufgetreten.';
+				error = t('user.serverErrorShort');
 				return;
 			}
 
@@ -335,30 +336,30 @@
 
 			extendedUser = errorToNull(await getUser());
 
-			success = 'E-Mail-Adresse erfolgreich geändert.';
+			success = t('user.emailChanged');
 			finished = true;
 
 			setTimeout(() => {
 				resetEmailDialog();
 			}, 2500);
 		} catch (e) {
-			error = 'Ein serverseitiger Fehler ist aufgetreten.';
+			error = t('user.serverErrorShort');
 			console.error(e);
 		}
 	}
 </script>
 
 <svelte:head>
-	<title>Benutzerprofil</title>
-	<meta name="description" content="Dein persönliches Benutzerprofil und Einstellungen" />
+	<title>{t('user.meta.title')}</title>
+	<meta name="description" content="{t('user.meta.description')}" />
 </svelte:head>
 
 <Container>
 	{#if extendedUser}
 		<!-- Header Section -->
-		<h1 class="px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">Benutzerprofil</h1>
+		<h1 class="px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">{t('user.title')}</h1>
 		<span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0 dark:text-gray-300">
-			Verwalte deine Einstellungen und Präferenzen
+			{t('user.subtitle')}
 		</span>
 
 		<div class="mt-5 flex flex-col gap-4">
@@ -368,11 +369,11 @@
 					<!-- OBERE ZEILE -->
 					<div class="flex flex-wrap items-center justify-between gap-3">
 						<div class="flex flex-wrap items-center gap-3">
-							<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">Benutzerinfos</h2>
+							<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">{t('user.userInfo')}</h2>
 							<div class="flex items-center gap-2 text-base text-gray-800 dark:text-gray-200">
-								<span class="font-medium">E-Mail:</span>
+								<span class="font-medium">{t('user.email')}</span>
 								{#if extendedUser?.is_email_hashed}
-									<span class="font-serif">anonymisiert</span>
+									<span class="font-serif">{t('user.anonymized')}</span>
 									{#if user}
 										<span class="text-sm text-gray-600 dark:text-gray-400"
 											>...{user.sub.slice(36, 60)}...</span
@@ -389,21 +390,21 @@
 								class="bg-secondary-500 text-white hover:bg-secondary-600"
 								onclick={handleLogout}
 							>
-								Abmelden
+								{t('user.logout')}
 							</SButton>
 							{#if !extendedUser?.is_email_hashed}
 								<SButton
 									class="bg-primary-400 text-black hover:bg-primary-500"
 									onclick={toggleEmailAnonymization}
 								>
-									Anonymisieren
+									{t('user.anonymize')}
 								</SButton>
 							{/if}
 							<SButton
 								class="bg-tertiary-500 text-black hover:bg-tertiary-600"
 								onclick={() => (showChangeEmail = !showChangeEmail)}
 							>
-								E-Mail wechseln
+								{t('user.changeEmail')}
 							</SButton>
 						</div>
 					</div>
@@ -416,10 +417,10 @@
 									<label for="email" class="text-l font-medium text-gray-700">
 										{#if extendedUser?.is_email_hashed}
 											<span class="ml-1 text-sm text-gray-600 dark:text-gray-400"
-												>Entanonymisieren oder</span
+												>{t('user.deAnonymize')}</span
 											>
 										{/if}
-										Neue E-Mail
+										{t('user.newEmail')}
 									</label>
 									<input
 										id="email"
@@ -434,7 +435,7 @@
 								{#if otpStep}
 									<div class="flex flex-col items-end">
 										<label for="otp" class="text-l font-medium text-gray-700">
-											One-Time Passwort (OTP)
+											{t('user.otp')}
 										</label>
 										<input
 											id="otp"
@@ -450,11 +451,11 @@
 								<div class="flex items-end gap-2">
 									{#if !otpStep}
 										<SButton class="bg-secondary-500 text-white" onclick={changeEmail}>
-											Weiter
+											{t('user.next')}
 										</SButton>
 									{:else}
 										<SButton class="bg-secondary-500 text-white" onclick={verifyOtp}>
-											Speichern
+											{t('user.save')}
 										</SButton>
 									{/if}
 
@@ -469,7 +470,7 @@
 											success = '';
 										}}
 									>
-										Abbrechen
+										{t('user.cancel')}
 									</SButton>
 								</div>
 							{/if}
@@ -501,7 +502,7 @@
 						return (parliament = 'at');
 					}}
 				>
-					Österreich
+					{t('user.parliament.at')}
 				</button>
 				<button
 					class="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium {parliament === 'eu'
@@ -520,12 +521,12 @@
 			<div class="w-full rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
 				<div class="flex items-center justify-between">
 					<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">
-						E-Mail Benachrichtigungen
+						{t('user.notifications')}
 					</h2>
 
 					{#if !extendedUser?.is_email_hashed}
 						<div class="flex items-center gap-2">
-							<p class="text-sm">Alle</p>
+							<p class="text-sm">{t('user.all')}</p>
 							<Switch.Root
 								checked={allChecked}
 								onCheckedChange={toggleAll}
@@ -544,7 +545,7 @@
 						{#if interestFields.length > 0}
 							<div>
 								<p class="text-sm font-semibold text-gray-600 dark:text-gray-300">
-									Nach Interessen & Themen
+									{t('user.byInterests')}
 								</p>
 								<div class="mt-2 flex flex-wrap gap-2">
 									{#each interestFields as field (field)}
@@ -562,7 +563,7 @@
 						{#if favoriteFields.length > 0}
 							<div>
 								<p class="mt-3 text-sm font-semibold text-gray-600 dark:text-gray-300">
-									Nach favourisierten Ministern & Personen
+									{t('user.byFavos')}
 								</p>
 								<div class="mt-2 flex flex-wrap gap-2">
 									{#each favoriteFields as field (field)}
@@ -579,7 +580,7 @@
 					{/if}
 				{:else}
 					<p class="mt-3 text-gray-600 dark:text-gray-300">
-						nicht verfügbar wenn E-Mail anonymisiert ist
+						{t('user.notAvailableAnonymized')}
 					</p>
 				{/if}
 			</div>
@@ -587,12 +588,12 @@
 			<!-- Interest Topics Card -->
 			<div class="w-full rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
 				<div class="flex flex-wrap items-center justify-between gap-2">
-					<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">Wähle deine Interessen</h2>
+					<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">{t('user.chooseInterests')}</h2>
 					{#if selectedTopics.size > 0}
 						<span
 							class="rounded-full bg-secondary-500 px-2.5 py-0.5 text-sm font-semibold text-white"
 						>
-							{selectedTopics.size} ausgewählt
+							{t('user.selectedCount', {count: selectedTopics.size})}
 						</span>
 					{/if}
 				</div>
@@ -602,7 +603,7 @@
 				<div class="relative mt-3" bind:this={searchWrapper} onfocusout={handleFocusOut}>
 					<SearchBar
 						bind:searchValue={topicSearchValue}
-						placeholder="Themen suchen..."
+						placeholder={t('user.searchTopics')}
 						name="topic-search"
 						onfocus={() => (isSearchPopupOpen = true)}
 						oninput={() => (isSearchPopupOpen = true)}
@@ -615,7 +616,7 @@
 							<div class="flex max-h-72 flex-col gap-1 overflow-y-auto px-3 py-2">
 								{#if filteredTopics.length === 0}
 									<p class="py-2 text-center text-sm text-gray-500 dark:text-gray-400">
-										Keine Themen gefunden
+										{t('user.noTopicsFound')}
 									</p>
 								{:else}
 									<!-- Selected topics first -->
@@ -659,12 +660,12 @@
 
 			<!-- Favorite Delegates Card -->
 			<div class="w-full rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
-				<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">Favorisierte Personen</h2>
+				<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">{t('user.favoritePersons')}</h2>
 				<div class="mt-3 flex flex-wrap gap-3">
 					{#if favoDelegates}
 						{#if favoDelegates.size == 0}
 							<p class="text-gray-600 dark:text-gray-300">
-								Keine favorisierten Personen vorhanden.
+								{t('user.noFavoritePersons')}
 							</p>
 						{:else}
 							{#each favoDelegates as favoDelegateId (favoDelegateId[0])}
@@ -687,12 +688,12 @@
 			</div>
 
 			<!-- Favorite Votes Card -->
-			<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">Favorisierte Abstimmungen</h2>
+			<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">{t('user.favoriteVotes')}</h2>
 			<div class="flex flex-wrap gap-3">
 				{#if favoLegisInits}
 					{#if favoLegisInits.size == 0}
 						<p class="text-gray-600 dark:text-gray-300">
-							Keine favorisierten Abstimmungen vorhanden.
+							{t('user.noFavoriteVotes')}
 						</p>
 					{:else}
 						{#each favoLegisInits as favoLegisInitId (favoLegisInitId)}
@@ -738,9 +739,9 @@
 			<div
 				class="mt-7 w-full rounded-xl border border-red-300 bg-red-50 p-4 dark:border-red-500 dark:bg-red-900/20"
 			>
-				<h2 class="text-xl font-bold text-red-700 dark:text-red-400">Gefahrenbereich</h2>
+				<h2 class="text-xl font-bold text-red-700 dark:text-red-400">{t('user.dangerZone')}</h2>
 				<p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
-					Diese Aktion kann nicht rückgängig gemacht werden.
+					{t('user.dangerText')}
 				</p>
 				<div class="mt-3">
 					<SButton class="bg-red-500 text-white hover:bg-red-600" onclick={handleDeleteAccount}>

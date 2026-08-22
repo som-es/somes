@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { formatDate } from '$lib/date';
 	import type { SessionActivityOverview } from '$lib/types';
 
@@ -50,42 +51,42 @@
 
 		return [
 			{
-				label: 'Abstimmungen',
+				label: t('common.votes'),
 				value: overview.vote_count.toString(),
 				detail: formatPercentile(overview.percentiles.vote_count_p95),
 				highlight: isTopFivePercent(overview.vote_count, overview.percentiles.vote_count_p95),
 				className: 'xl:col-span-4'
 			},
 			{
-				label: 'Abwesenheiten',
+				label: t('sessionActivity.absences'),
 				value: overview.absence_count.toString(),
 				detail: formatPercentile(overview.percentiles.absence_count_p95),
 				highlight: isTopFivePercent(overview.absence_count, overview.percentiles.absence_count_p95),
 				className: 'xl:col-span-4'
 			},
 			{
-				label: 'Durchschnittliche Redezeit',
+				label: t('sessionActivity.avgSpeechTime'),
 				value: formatDuration(averageSpeechTime),
 				detail: `${overview.speech_count} Redebeiträge, insgesamt ${formatDuration(overview.total_speech_time)}`,
 				highlight: false,
 				className: 'xl:col-span-4'
 			},
 			{
-				label: 'Redner:innen',
+				label: t('sessionActivity.speakers'),
 				value: overview.speaker_count.toString(),
 				detail: `${overview.speech_count} Redebeiträge`,
 				highlight: isTopFivePercent(overview.speaker_count, overview.percentiles.speaker_count_p95),
 				className: 'xl:col-span-2'
 			},
 			{
-				label: 'Ordnungsrufe',
+				label: t('sessionActivity.orderCalls'),
 				value: overview.call_to_order_count.toString(),
 				detail:
 					overview.call_to_orders.length > 0
 						? overview.call_to_orders
 								.map((entry) => `${entry.delegate_name} (${entry.total_order_calls})`)
 								.join(', ')
-						: 'Keine Ordnungsrufe',
+						: {t('sessionActivity.noOrderCalls')},
 				highlight: overview.call_to_order_count > 0,
 				className: 'xl:col-span-3'
 			}

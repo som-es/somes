@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { delegate_by_id, errorToNull } from '$lib/api/api';
 	import { partyToColor } from '$lib/partyColor';
 	import type { Delegate, Interjection } from '$lib/types';
@@ -34,7 +35,7 @@
 			<span
 				class="text-primary-950 text-[10px] font-bold tracking-widest uppercase dark:text-primary-100"
 			>
-				{ty === 'issued' ? 'Zwischenruf an' : 'Zwischenruf von'}
+				{ty === 'issued' ? t('interjections.labelIssued') : t('interjections.labelReceived')}
 			</span>
 			<div class="mt-1 flex items-center gap-2">
 				<div
@@ -54,7 +55,7 @@
 				</p>
 			{:else}
 				<p class="text-sm font-medium text-tertiary-200">
-					Kein Text zu diesem Zwischenruf verfügbar.
+					{t('interjections.noText')}
 				</p>
 			{/if}
 		</div>

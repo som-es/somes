@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { dashDateToDotDate } from '$lib/date';
 	import type { Absence } from '$lib/types';
 	import AbsenceBarExpanded from './AbsenceBarExpanded.svelte';
@@ -37,15 +38,15 @@
 			</div> -->
 
 			<div>
-				{absence.inr}. Nationalratssitzung | {absence.gp}
+				 {t('absences.sessionLabel', { inr: absence.inr, gp: absence.gp })} 
 			</div>
 			{#if showDetails}
 				<div>
-					{absence.missed_legis_init_ids.length} verpasste
+					{absence.missed_legis_init_ids.length} {t('absences.missed')}
 					{#if absence.missed_legis_init_ids.length == 1}
-						Abstimmung
+						{t('absences.voteSingular')}
 					{:else}
-						Abstimmungen
+						{t('absences.votePlural')}
 					{/if}
 				</div>
 			{/if}

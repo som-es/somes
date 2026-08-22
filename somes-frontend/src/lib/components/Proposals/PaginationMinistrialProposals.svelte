@@ -197,7 +197,7 @@ import { localeStore } from '$lib/i18n/i18n.svelte';
 
 <!-- <FiltersAny bind:filters bind:selectedPeriod bind:searchValue {update} /> -->
 <span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0 dark:text-gray-300">
-	Ministerialentwürfe aktualisiert am: {updatedAt}
+	{t('proposals.updatedAt')} {updatedAt}
 </span>
 
 <div class="mt-7 md:flex">

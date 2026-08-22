@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { Dialog } from 'bits-ui';
 	import type { Delegate } from '$lib/types';
 	import { partyColors } from '$lib/partyColor';
@@ -67,7 +68,7 @@
 				</Dialog.Close>
 			</div>
 			<Dialog.Description class="sr-only">
-				Interaktiver Sitzplan der aktuell gefilterten Abgeordneten.
+				{t('parliament.interactiveSeating')}
 			</Dialog.Description>
 
 			{#if delegates && delegates.length > 0 && supplyDate}

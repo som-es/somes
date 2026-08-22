@@ -66,7 +66,7 @@
 		<Tooltip.Trigger
 			class="block shrink-0 cursor-default text-blue-500"
 			style="width:{size}px; height:{size}px;"
-			aria-label="Abstimmungsverhalten {vote.party}"
+			aria-label={t('donut.ariaLabel', { party: vote.party })}
 		>
 			<svg
 				viewBox="0 0 {VIEWBOX} {VIEWBOX}"
