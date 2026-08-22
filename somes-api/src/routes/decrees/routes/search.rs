@@ -41,7 +41,7 @@ pub async fn decrees_by_search_route(
 
 async fn meilisearch_decrees(
     parliament: combx::Parliament,
-    redis_con: &mut redis::aio::MultiplexedConnection,
+    redis_con: &mut (impl redis::aio::ConnectionLike + Send + Sync),
     meilisearch_client: meilisearch_sdk::client::Client,
     search_query: somes_common_lib::SearchQuery,
     entries_per_page: usize,

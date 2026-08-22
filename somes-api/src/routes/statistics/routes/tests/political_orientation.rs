@@ -8,7 +8,7 @@ fn create_orientation_base_data() -> Vec<PoliticalOrientationBase> {
             delegate_name: "Delegate A".to_string(),
             delegate_party: "Party X".to_string(),
             delegate_filter_party: "Party X".to_string(),
-            delegate_gender: "M".to_string(),
+            delegate_gender: Some("M".to_string()),
             orientation_score: 0.8,
             total_votes: 10,
             delegate_age_bucket: "41-50".to_string(),
@@ -17,7 +17,7 @@ fn create_orientation_base_data() -> Vec<PoliticalOrientationBase> {
             delegate_name: "Delegate B".to_string(),
             delegate_party: "Party X".to_string(),
             delegate_filter_party: "Party X".to_string(),
-            delegate_gender: "F".to_string(),
+            delegate_gender: Some("F".to_string()),
             orientation_score: 0.6,
             total_votes: 5,
             delegate_age_bucket: "31-40".to_string(),
@@ -26,7 +26,7 @@ fn create_orientation_base_data() -> Vec<PoliticalOrientationBase> {
             delegate_name: "Delegate C".to_string(),
             delegate_party: "Party Y".to_string(),
             delegate_filter_party: "Party Y".to_string(),
-            delegate_gender: "M".to_string(),
+            delegate_gender: Some("M".to_string()),
             orientation_score: 0.9,
             total_votes: 8,
             delegate_age_bucket: "51-60".to_string(),
@@ -35,7 +35,7 @@ fn create_orientation_base_data() -> Vec<PoliticalOrientationBase> {
             delegate_name: "Delegate D".to_string(),
             delegate_party: "Party Y".to_string(),
             delegate_filter_party: "Party Y".to_string(),
-            delegate_gender: "F".to_string(),
+            delegate_gender: Some("F".to_string()),
             orientation_score: 0.7,
             total_votes: 12,
             delegate_age_bucket: "41-50".to_string(),
@@ -49,7 +49,7 @@ fn create_spectrum_base_data() -> Vec<PoliticalSpectrumBase> {
             delegate_name: "Delegate A".to_string(),
             delegate_party: "Party X".to_string(),
             delegate_filter_party: "Party X".to_string(),
-            delegate_gender: "M".to_string(),
+            delegate_gender: Some("M".to_string()),
             left_right_score: -0.4,
             liberal_authoritarian_score: -0.2,
             total_votes: 10,
@@ -59,7 +59,7 @@ fn create_spectrum_base_data() -> Vec<PoliticalSpectrumBase> {
             delegate_name: "Delegate B".to_string(),
             delegate_party: "Party X".to_string(),
             delegate_filter_party: "Party X".to_string(),
-            delegate_gender: "F".to_string(),
+            delegate_gender: Some("F".to_string()),
             left_right_score: -0.2,
             liberal_authoritarian_score: -0.4,
             total_votes: 5,
@@ -69,7 +69,7 @@ fn create_spectrum_base_data() -> Vec<PoliticalSpectrumBase> {
             delegate_name: "Delegate C".to_string(),
             delegate_party: "Party Y".to_string(),
             delegate_filter_party: "Party Y".to_string(),
-            delegate_gender: "M".to_string(),
+            delegate_gender: Some("M".to_string()),
             left_right_score: 0.8,
             liberal_authoritarian_score: 0.6,
             total_votes: 8,
@@ -79,7 +79,7 @@ fn create_spectrum_base_data() -> Vec<PoliticalSpectrumBase> {
             delegate_name: "Delegate D".to_string(),
             delegate_party: "Party Y".to_string(),
             delegate_filter_party: "Party Y".to_string(),
-            delegate_gender: "F".to_string(),
+            delegate_gender: Some("F".to_string()),
             left_right_score: 0.6,
             liberal_authoritarian_score: 0.8,
             total_votes: 12,
@@ -252,7 +252,7 @@ async fn test_orientation_get_base_data_applies_filters(pool: PgPool) {
     let delegate = &results[0];
     assert_eq!(delegate.delegate_name, "Delegate A");
     assert_eq!(delegate.delegate_party, "Party X");
-    assert_eq!(delegate.delegate_gender, "M");
+    assert_eq!(delegate.delegate_gender, Some("M".to_string()));
     assert!((delegate.orientation_score - 0.75).abs() < 0.001);
     assert_eq!(delegate.total_votes, 20);
     assert_eq!(delegate.delegate_age_bucket, "31-40");
@@ -330,7 +330,7 @@ async fn test_spectrum_get_base_data_applies_filters(pool: PgPool) {
     let delegate = &results[0];
     assert_eq!(delegate.delegate_name, "Delegate A");
     assert_eq!(delegate.delegate_party, "Party X");
-    assert_eq!(delegate.delegate_gender, "M");
+    assert_eq!(delegate.delegate_gender, Some("M".to_string()));
     assert!((delegate.left_right_score + 0.5).abs() < 0.001);
     assert!((delegate.liberal_authoritarian_score + 0.2).abs() < 0.001);
     assert_eq!(delegate.total_votes, 20);

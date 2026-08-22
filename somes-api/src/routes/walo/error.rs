@@ -1,6 +1,5 @@
-use axum::{response::IntoResponse, Error, Json};
+use axum::{Json, response::IntoResponse};
 use reqwest::StatusCode;
-use serde_json::json;
 use utoipa::ToSchema;
 
 use crate::ErrorInfo;

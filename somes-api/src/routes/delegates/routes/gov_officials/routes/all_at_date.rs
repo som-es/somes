@@ -1,12 +1,11 @@
-use axum::{extract::Query, Json};
+use axum::{Json, extract::Query};
 use chrono::NaiveDate;
 use combx::{Delegate, FullMandate};
-use redis::aio::MultiplexedConnection;
 use somes_common_lib::Date;
 use sqlx::PgPool;
 
 use crate::routes::DelegateError;
-use crate::{get_json_cache, set_json_cache_with_relevance, PgPoolConnection, RedisConnection};
+use crate::{PgPoolConnection, RedisConnection, get_json_cache, set_json_cache_with_relevance};
 
 pub async fn gov_officials_at_date_route(
     // DataserviceDbConnection(con): DataserviceDbConnection,
@@ -74,7 +73,7 @@ WHERE
 pub async fn gov_officials_at_date(
     pg: &PgPool,
     date: &NaiveDate,
-    redis_con: &mut MultiplexedConnection,
+    redis_con: &mut (impl redis::aio::ConnectionLike + Send + Sync),
 ) -> sqlx::Result<Vec<Delegate>> {
     let key = format!("gov_officials_at_date/{date:?}");
     if let Some(delegates) = get_json_cache(redis_con, &key).await {

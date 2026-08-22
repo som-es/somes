@@ -1,12 +1,12 @@
-use axum::{extract::Query, Json};
+use axum::{Json, extract::Query};
 use combx::{Delegate, DelegateFilter, Index};
 use meilisearch_sdk::search::SearchResults;
 use serde::{Deserialize, Serialize};
-use somes_meilisearch_filter::{to_meilisearch_filters, FilterOptions};
+use somes_meilisearch_filter::{FilterOptions, to_meilisearch_filters};
 use utoipa::ToSchema;
 
 use crate::{
-    meilisearch::MeilisearchClient, routes::FilterError, ParliamentCtx, Qs, RedisConnection,
+    ParliamentCtx, Qs, RedisConnection, meilisearch::MeilisearchClient, routes::FilterError,
 };
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
@@ -24,7 +24,7 @@ pub async fn delegates_by_search_route(
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
     Query(entry_count_per_page): Query<somes_common_lib::PageEntryCount>,
-    Query(sort): Query<somes_common_lib::SortParams>,
+    Query(_sort): Query<somes_common_lib::SortParams>,
     Qs(delegate_filter): Qs<DelegateFilter>,
 ) -> Result<Json<DelegatesWithMaxPage>, FilterError> {
     let mut filter_conditions = to_meilisearch_filters(

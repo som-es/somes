@@ -276,15 +276,6 @@ export interface CallToOrdersPerPartyDelegate {
 	ratio: number;
 }
 
-export interface PoliticalPosition {
-	delegate_id: number | null;
-	is_left: number;
-	is_not_left: number;
-	is_liberal: number;
-	is_not_liberal: number;
-	neutral_count: number;
-}
-
 export interface Party {
 	name: string;
 	color: string;
@@ -586,12 +577,25 @@ export interface DelegateFilter {
 	search_value: string | null;
 	legis_period: string | null;
 	day_offset: number | null;
-    supply_date: string | null;
+	supply_date: string | null;
+}
+export interface PoliticalScore {
+	socialist: number;
+	capitalist: number;
+	liberal: number;
+	authoritarian: number;
+  count: number;
 }
 
 export interface StanceTopicScore {
 	topic: string;
 	score: number;
+	broken_down_score: PoliticalScore;
+}
+
+export interface PoliticalPosition {
+  total_score: PoliticalScore;
+  scores_by_topic: StanceTopicScore[];
 }
 
 export interface GovPropFilter {

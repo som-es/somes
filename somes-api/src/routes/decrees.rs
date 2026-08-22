@@ -1,14 +1,14 @@
-use axum::{routing::get, Router};
+use axum::{Router, routing::get};
 use combx::{DbAiSummary, Delegate, DelegateFilter, OptionalDecree};
-use redis::aio::MultiplexedConnection;
+use redis::aio::ConnectionManager;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::{Document, LATEST, SEARCH};
 use somes_macro::MeilisearchFilter;
 use somes_meilisearch_filter::FilterArgument;
 use utoipa::ToSchema;
 
-use crate::routes::delegate_by_id_sqlx;
 use crate::AppState;
+use crate::routes::delegate_by_id_sqlx;
 use combx::OptionalDecreeFilter;
 
 mod routes;
@@ -61,7 +61,7 @@ pub async fn decrees_per_page_route(
 
 pub async fn get_all_decrees_sqlx(
     pg: &sqlx::Pool<sqlx::Postgres>,
-    mut redis_con: MultiplexedConnection,
+    mut redis_con: ConnectionManager,
 ) -> sqlx::Result<Vec<DecreeDelegate>> {
     let decrees = sqlx::query_as!(
         OptionalDecree,

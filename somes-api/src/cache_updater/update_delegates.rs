@@ -9,7 +9,7 @@ pub(crate) async fn update_cache_delegates(
     redis_client: redis::Client,
     pool: PgPool,
     meilisearch_client: meilisearch_sdk::client::Client,
-) {
+) -> combx::Result<()> {
     let meilisearch_client = meilisearch_client.clone();
     let inner_redis_client = redis_client.clone();
     let update_meilisearch_index = move |delegates: Vec<combx::Delegate>| {
@@ -86,5 +86,6 @@ pub(crate) async fn update_cache_delegates(
         notify_dependencies,
         update_meilisearch_index,
     )
-    .await;
+    .await?;
+    Ok(())
 }

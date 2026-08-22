@@ -54,11 +54,9 @@
 	import downArrowIcon from '$lib/assets/misc_icons/down-arrow.svg?raw';
 	import searchIcon from '$lib/assets/misc_icons/search-glass.svg?raw';
 	import { groupPartyDelegates } from '$lib/parliaments/defaultParliament';
-	import { Popover, Select } from 'bits-ui';
-	import upDownArrowIcon from '$lib/assets/misc_icons/up-down-arrow.svg?raw';
-	import checkmark_small from '$lib/assets/misc_icons/checkmark_small.svg?raw';
+	import { Popover } from 'bits-ui';
+	import MultiSelectFilter from '$lib/components/Filtering/MultiSelectFilter.svelte';
 	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
-	import PartyFilter from '$lib/components/Filtering/PartyFilter.svelte';
 	import { getMandateLatestPeriod, getMandatePeriods } from './searchDelegates';
 	import GenericFilters from '$lib/components/Filtering/GenericFilters.svelte';
 	import { type GenericFilterGroup } from '$lib/components/Filtering/types';
@@ -67,6 +65,7 @@
 	import InterjectionsPreview from '$lib/components/Delegates/Interjections/InterjectionsPreview.svelte';
 	import MobileParliamentModal from '$lib/components/Parliaments/MobileParliamentModal.svelte';
 	import { defaultGp } from '$lib/api/parliament';
+	import { page } from '$app/state';
 
 	let { data }: PageProps = $props();
 
@@ -84,12 +83,10 @@
 	let selectedPartiesNames = $state<string[]>([]);
 	let selectedParties = $state<Party[]>([]);
 
-	let selectedSearchPeriod = $state<string[]>([
-		data.cachedPeriods?.at(data.cachedPeriods.length - 1)?.gp || defaultGp()
-	]);
+	let selectedSearchPeriod = $derived<string[]>([data.gp || defaultGp()]);
 	let timeout: any;
 
-	let searchResults: Delegate[] = $state(data.delegates ?? []);
+	let searchResults: Delegate[] = $derived(data.delegates ?? []);
 	let isLoadingSearch = $state(false);
 
 	let genericFilters: [
@@ -228,13 +225,52 @@
 	let generalGovOfficialInfo: GeneralGovOfficialInfo | null = $state(null);
 	let maxDayOffset = $state(365 * 5);
 
-	let renderStartDate: Date | null = $state(null);
-	let renderEndDate: Date | null = $state(null);
-
-	let finishedMounting = $state(false);
-	let supplyDate: Date | null = $derived(new Date(data.date ?? new Date()));
+	let latestPeriod = $derived(data.cachedPeriods[data.cachedPeriods.length - 1].gp ?? defaultGp());
+	let selectedPeriod = $derived(data.gp ?? latestPeriod);
+	let prevSelectedPeriod = $derived(data.gp ?? latestPeriod);
 
 	let prevSelectedDelegateId = $state(0);
+
+	let finishedMounting = $state(false);
+
+	let periodBounds = $derived.by(() => {
+		const firstIdx = periods.findIndex((p) => p.gp == selectedPeriod);
+		if (firstIdx === -1) return null;
+
+		const periodStart = new Date(periods[firstIdx].start_date);
+		const nextStart = periods[firstIdx + 1]?.start_date;
+		const periodEnd = new Date(nextStart ?? new Date());
+		periodEnd.setDate(periodEnd.getDate() - 1);
+
+		const maxOffset = Math.floor(
+			(periodEnd.getTime() - periodStart.getTime()) / (1000 * 60 * 60 * 24)
+		);
+		return {
+			periodStart,
+			maxOffset,
+			renderStart: periods[firstIdx].start_date,
+			renderEnd: nextStart
+		};
+	});
+	function calcDayOffset(): number {
+		if (!periodBounds) return maxDayOffset;
+		const paramDate = data.date;
+		if (!paramDate) return periodBounds.maxOffset;
+		const diffMs = Math.abs(new Date(paramDate).getTime() - periodBounds.periodStart.getTime());
+		return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+	}
+	let renderStartDate: Date | null = $derived(periodBounds?.renderStart ?? null);
+	let renderEndDate: Date | null = $derived(periodBounds?.renderEnd ?? null);
+
+	let dayOffset = $derived(calcDayOffset());
+
+	let supplyDate: Date | null = $derived.by(() => {
+		if (!periodBounds) return new Date(data.date ?? new Date());
+		const d = new Date(periodBounds.periodStart);
+		d.setDate(d.getDate() + dayOffset);
+		return d;
+	});
+	let inputValue = $derived(maybeCurrentDelegateFilter.search_value ?? '');
 
 	let activeTab = $state<'analysis' | 'activities' | 'gov'>('analysis');
 
@@ -258,16 +294,9 @@
 			day_offset: maxDayOffset,
 			search_value: '',
 			legis_period: data.gp ?? defaultGp(),
-			supply_date: data.date,
+			supply_date: data.date
 		}
 	);
-
-	let inputValue = $derived(maybeCurrentDelegateFilter.search_value ?? '');
-	let dayOffset = $state(maxDayOffset);
-
-	let latestPeriod = $derived(data.cachedPeriods?.reverse()[0]?.gp ?? defaultGp());
-	let selectedPeriod = $derived(data.gp ?? latestPeriod);
-	let prevSelectedPeriod = $derived(data.gp ?? latestPeriod);
 
 	let uniqueParties = $derived.by(() => {
 		if (false) {
@@ -311,23 +340,8 @@
 
 	onMount(async () => {
 		const url = new URL(window.location.href);
-		const firstIdx = periods.findIndex((x) => x.gp == selectedPeriod);
-		if (firstIdx == -1) return;
-		const endDate = periods[firstIdx + 1]?.start_date;
-		const newDate = new Date(endDate ? endDate : new Date());
-		newDate.setDate(newDate.getDate() - 1);
-
-		const paramDate = url.searchParams.get('date');
-		if (paramDate) {
-			const startDate = new Date(periods[firstIdx]?.start_date);
-			const diffTime = Math.abs(new Date(paramDate).getTime() - startDate.getTime());
-			dayOffset = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-			// this prevents that dayOffset is overwritten with max
-			prevSelectedPeriod = selectedPeriod;
-		}
-		supplyDate = paramDate ? new Date(paramDate) : newDate;
-
 		const paramDelegateId = url.searchParams.get('delegate');
+		updateDelsToDisplay();
 		if (paramDelegateId) {
 			// setting here currentDelegateStore instead of `delegate` var directly
 			// this is important for a single reason: delegates without seat by default (if the backend seat history is too short)
@@ -366,7 +380,7 @@
 		startDate.setDate(startDate.getDate() + dayOffset - 1);
 		supplyDate = startDate;
 
-		maybeCurrentDelegateFilter.supply_date = startDate.toISOString().split("T")[0];
+		maybeCurrentDelegateFilter.supply_date = startDate.toISOString().split('T')[0];
 		maybeCurrentDelegateFilter.day_offset = dayOffset;
 		currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
 		const url = new URL(window.location.href);
@@ -394,21 +408,6 @@
 		maybeCurrentDelegateFilter.legis_period = selectedPeriod;
 		currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
 	};
-
-	$effect(() => {
-		void selectedPeriod;
-		void periods;
-		untrack(() => {
-			renderEndDate = null;
-			renderStartDate = null;
-
-			updateStoredPeriod();
-			updateDelsToDisplay();
-			if (finishedMounting) prevSelectedPeriod = selectedPeriod;
-		});
-	});
-
-	// let generalDelegateInfo	 = $derived.by()
 
 	function updateDelegateIdInUrl(delegate: Delegate) {
 		const url = new URL(window.location.href);
@@ -495,10 +494,9 @@
 						<div
 							class="flex h-full grow touch-manipulation items-center justify-center gap-1 md:grow-0"
 						>
-							<Select.Root
-								type="multiple"
-								bind:value={selectedSearchPeriod}
+							<MultiSelectFilter
 								items={periods.map((p) => ({ value: p.gp, label: p.gp })).reverse()}
+<<<<<<< HEAD
 								allowDeselect={true}
 							>
 								<Select.Trigger
@@ -545,20 +543,32 @@
 									</Select.Content>
 								</Select.Portal>
 							</Select.Root>
+=======
+								bind:value={selectedSearchPeriod}
+								allLabel="Alle Perioden"
+							/>
+>>>>>>> eu
 						</div>
 						<!-- Parteien Filter -->
 						<div
 							class="flex h-full grow touch-manipulation items-center justify-center gap-1 md:grow-0"
 						>
-							<PartyFilter
-								parties={uniqueParties}
-								bind:selectedNames={selectedPartiesNames}
-								onSelectionChange={(_, selectedNames) => {
-									selectedParties = uniqueParties.filter((party) =>
-										selectedNames.includes(party.name)
-									);
+							<MultiSelectFilter
+								items={uniqueParties.map((p) => ({ value: p.name, label: p.name, color: p.color }))}
+								bind:value={selectedPartiesNames}
+								allLabel="Alle Parteien"
+								onValueChange={(value) => {
+									selectedParties = uniqueParties.filter((party) => value.includes(party.name));
 								}}
-							/>
+							>
+								{#snippet itemLabel(party)}
+									<div
+										class="h-3 w-3 shrink-0 rounded-full"
+										style="background-color: {party.color};"
+									></div>
+									<span class="truncate">{party.label}</span>
+								{/snippet}
+							</MultiSelectFilter>
 						</div>
 						<div
 							class="flex h-full grow touch-manipulation items-center justify-center gap-1 md:grow-0"
@@ -613,6 +623,7 @@
 										newFilter.legis_period = gp;
 										newFilter.day_offset = newDayOffset;
 										currentDelegateFilterStore.value = newFilter;
+										console.log(url.toString());
 
 										goto(url.toString(), { noScroll: true });
 										isSearchPopupOpen = false;
@@ -667,7 +678,13 @@
 			<div class="flex gap-2 lg:hidden">
 				<button
 					class="flex h-10 min-w-0 flex-1 touch-manipulation items-center rounded-xl border-[2px] border-gray-400 text-left"
-					onclick={() => (isSearchPopupOpen = true)}
+					onclick={() => {
+						inputValue = '';
+						searchInput = '';
+						maybeCurrentDelegateFilter.search_value = '';
+						currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
+						isSearchPopupOpen = true;
+					}}
 				>
 					<div
 						class="flex h-9 w-10 shrink-0 items-center justify-center text-gray-600 dark:text-gray-300"
@@ -775,6 +792,8 @@
 													: ''} border-primary-300 px-2 py-1 text-sm"
 												onclick={() => {
 													selectedPeriod = period.gp;
+													updateStoredPeriod();
+													updateDelsToDisplay();
 												}}
 											>
 												<span class="text-nowrap">{period.gp}</span>
@@ -980,6 +999,7 @@
 					<div class="title-item rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 						<PoliticalStanceTitleBar
 							stanceTopicInfluences={generalDelegateInfo.stance_topic_influences}
+							usefulInfoCount={generalDelegateInfo.political_position.total_score.count}
 						/>
 					</div>
 				{/if}
@@ -987,16 +1007,16 @@
 					{#if delegate && generalDelegateInfo?.political_position && aiViewEnabledStore.value}
 						<SquarePoliticalSpectrum
 							{delegate}
-							politicalPosition={generalDelegateInfo.political_position}
+							politicalPosition={generalDelegateInfo.political_position.total_score}
 						/>
 					{:else if !generalDelegateInfo}
 						<ExpandablePlaceholder class={'my-3'} />
 					{/if}
 
-					{#if delegate && generalDelegateInfo?.left_right_stances.length && generalDelegateInfo.left_right_stances.length > 0 && aiViewEnabledStore.value}
+					{#if delegate && generalDelegateInfo?.political_position?.scores_by_topic?.length && generalDelegateInfo.political_position.scores_by_topic.length > 0 && aiViewEnabledStore.value}
 						<div class="lg:flex-1">
 							<LeftRightChart
-								stances={generalDelegateInfo.left_right_stances}
+								stances={generalDelegateInfo.political_position.scores_by_topic}
 								interests={generalDelegateInfo.interests}
 							/>
 						</div>

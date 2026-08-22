@@ -59,7 +59,7 @@
 		return encodeURIComponent(text).replace(/-/g, '%2D');
 	}
 
-	// for long text, only search via 3 start and end words 
+	// for long text, only search via 3 start and end words
 	function protocolLink(quote: string): string | null {
 		const documentUrl = speech.speech.document_urls?.[0];
 		if (!documentUrl) return null;

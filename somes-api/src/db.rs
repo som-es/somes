@@ -4,21 +4,44 @@ use axum::{
 };
 
 use chrono::NaiveDate;
-use redis::{aio::MultiplexedConnection, AsyncCommands};
+use redis::AsyncCommands;
 use reqwest::StatusCode;
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{Serialize, de::DeserializeOwned};
 use sqlx::PgPool;
 
 pub mod model;
 pub use model::*;
 
-use crate::{today, AppState};
+use crate::{AppState, today};
 
 #[cfg(not(debug_assertions))]
 use redis::Commands;
 
+pub mod redis_db {
+    use redis::aio::ConnectionManager;
+
+    pub const AT_DB: u32 = 0;
+    pub const EU_DB: u32 = 1;
+    pub const MCP_DB: u32 = 255;
+
+    #[derive(Clone)]
+    pub struct RedisHandle {
+        pub client: redis::Client,
+        pub connection: ConnectionManager,
+    }
+
+    impl RedisHandle {
+        pub async fn new(client: redis::Client) -> redis::RedisResult<Self> {
+            Ok(Self {
+                connection: ConnectionManager::new(client.clone()).await?,
+                client,
+            })
+        }
+    }
+}
+
 pub async fn get_json_cache<T: DeserializeOwned>(
-    redis_client: &mut MultiplexedConnection,
+    _redis_client: &mut (impl redis::aio::ConnectionLike + Send + Sync),
     key: &str,
 ) -> Option<T> {
     #[cfg(debug_assertions)]
@@ -28,12 +51,12 @@ pub async fn get_json_cache<T: DeserializeOwned>(
     }
     #[cfg(not(debug_assertions))]
     {
-        serde_json::from_str(&redis_client.get::<&str, String>(key).await.ok()?).ok()
+        serde_json::from_str(&_redis_client.get::<&str, String>(key).await.ok()?).ok()
     }
 }
 
 pub async fn set_json_cache_no_expire<T: Serialize>(
-    redis_client: &mut MultiplexedConnection,
+    redis_client: &mut (impl redis::aio::ConnectionLike + Send + Sync),
     key: &str,
     value: &T,
 ) -> Option<()> {
@@ -45,7 +68,7 @@ pub async fn set_json_cache_no_expire<T: Serialize>(
 }
 
 pub async fn set_json_cache_secs<T: Serialize>(
-    redis_client: &mut MultiplexedConnection,
+    redis_client: &mut (impl redis::aio::ConnectionLike + Send + Sync),
     key: &str,
     value: &T,
     seconds: i64,
@@ -59,7 +82,7 @@ pub async fn set_json_cache_secs<T: Serialize>(
 }
 
 pub async fn set_json_cache<T: Serialize>(
-    redis_client: &mut MultiplexedConnection,
+    redis_client: &mut (impl redis::aio::ConnectionLike + Send + Sync),
     key: &str,
     value: &T,
 ) -> Option<()> {
@@ -67,7 +90,7 @@ pub async fn set_json_cache<T: Serialize>(
 }
 
 pub async fn set_json_cache_with_relevance<T: Serialize>(
-    redis_client: &mut MultiplexedConnection,
+    redis_client: &mut (impl redis::aio::ConnectionLike + Send + Sync),
     key: &str,
     value: &T,
     date: NaiveDate,
@@ -83,8 +106,22 @@ pub async fn set_json_cache_with_relevance<T: Serialize>(
     set_json_cache_secs(redis_client, key, value, seconds).await
 }
 
-pub struct RedisConnection(pub redis::aio::MultiplexedConnection);
+pub struct McpRedisConnection(pub redis::aio::ConnectionManager);
 
+impl FromRequestParts<AppState> for McpRedisConnection {
+    type Rejection = (StatusCode, String);
+
+    async fn from_request_parts(
+        _parts: &mut Parts,
+        state: &AppState,
+    ) -> Result<Self, Self::Rejection> {
+        let con = state.mcp_redis.connection.clone();
+
+        Ok(Self(con))
+    }
+}
+
+pub struct RedisConnection(pub redis::aio::ConnectionManager);
 // #[async_trait]
 impl FromRequestParts<AppState> for RedisConnection {
     type Rejection = (StatusCode, String);
@@ -99,19 +136,14 @@ impl FromRequestParts<AppState> for RedisConnection {
             .copied()
             .unwrap_or_default();
 
-        let pool = state.redis(parliament);
-        let conn = pool
-            .get_multiplexed_async_connection()
-            .await
-            .map_err(internal_error)?;
-
+        let conn = state.redis(parliament);
         Ok(Self(conn))
     }
 }
 
 impl FromRef<AppState> for redis::Client {
     fn from_ref(app_state: &AppState) -> redis::Client {
-        app_state.redis_client.clone()
+        app_state.redis.client.clone()
     }
 }
 
@@ -148,7 +180,7 @@ impl FromRequestParts<AppState> for AtPgPoolConnection {
     type Rejection = (StatusCode, String);
 
     async fn from_request_parts(
-        parts: &mut Parts,
+        _parts: &mut Parts,
         state: &AppState,
     ) -> Result<Self, Self::Rejection> {
         Ok(Self(state.dataservice_sqlx_pool.clone()))

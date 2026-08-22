@@ -1,7 +1,7 @@
 use axum::Json;
 use sqlx::query;
 
-use crate::{jwt::Claims, AtPgPoolConnection, GenericError, PgPoolConnection};
+use crate::{AtPgPoolConnection, GenericError, jwt::Claims};
 
 pub async fn delete_account_route(
     claims: Claims,

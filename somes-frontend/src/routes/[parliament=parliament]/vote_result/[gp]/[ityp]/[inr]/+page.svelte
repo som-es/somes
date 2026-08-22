@@ -31,6 +31,8 @@
 	import DelegateListItem from '$lib/components/Delegates/DelegateListItem.svelte';
 	import { Select } from 'bits-ui';
 	import upDownArrowIcon from '$lib/assets/misc_icons/up-down-arrow.svg?raw';
+	import { countryName } from '$lib/countries';
+	import MultiSelectFilter from '$lib/components/Filtering/MultiSelectFilter.svelte';
 
 	let gp = $derived(page.params.gp);
 	let ityp = $derived(page.params.ityp);
@@ -77,6 +79,19 @@
 
 	let selectedPartiesNames = $state<string[]>([]);
 	let selectedInfavor = $state<string | undefined>(undefined);
+	let selectedCountries = $state<string[]>([]);
+
+	// countries (only important for eu)
+	let uniqueCountries = $derived.by(() => {
+		if (data.parliament !== 'eu') return [];
+		const codes = new Set<string>();
+		delegates.forEach((d) => {
+			if (d.constituency?.trim()) codes.add(d.constituency);
+		});
+		return Array.from(codes)
+			.map((code) => ({ code, name: countryName(code) }))
+			.sort((a, b) => a.name.localeCompare(b.name, 'de'));
+	});
 
 	let uniqueParties = $derived.by(() => {
 		const parties = new Set<string>();
@@ -143,6 +158,9 @@
 					return d.infavor === false;
 				}
 			});
+		}
+		if (selectedCountries.length > 0) {
+			res = res.filter((d) => selectedCountries.includes(d.delegate.constituency));
 		}
 		return res;
 	});
@@ -211,13 +229,17 @@
 		if (data.parliament == "eu") {
 		    val.push({ value: 'Abstention', label: t('vote_result.abstention') });
 		}
-		return val
+		return val;
 	});
 
 	const sortedVotes = $derived(votesByPartySize(voteResult));
 
 	let allSpeeches = $derived(voteResult?.speeches ?? []);
-	let date = $derived(voteResult?.legislative_initiative?.vote_date ? voteResult?.legislative_initiative?.vote_date : voteResult?.legislative_initiative?.nr_plenary_activity_date);
+	let date = $derived(
+		voteResult?.legislative_initiative?.vote_date
+			? voteResult?.legislative_initiative?.vote_date
+			: voteResult?.legislative_initiative?.nr_plenary_activity_date
+	);
 </script>
 
 <svelte:head>
@@ -395,11 +417,16 @@
 							<div
 								class="flex h-full grow touch-manipulation items-center justify-center gap-1 lg:grow-0"
 							>
-								<Select.Root
-									type="multiple"
+								<MultiSelectFilter
+									items={uniqueParties.map((p) => ({
+										value: p.name,
+										label: p.name,
+										color: p.color
+									}))}
 									bind:value={selectedPartiesNames}
-									items={uniqueParties.map((p) => ({ value: p.name, label: p.name }))}
+									allLabel="Alle Klubs"
 								>
+<<<<<<< HEAD
 									<Select.Trigger
 										class="flex h-full w-full touch-manipulation items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none lg:w-auto lg:px-3"
 									>
@@ -455,6 +482,16 @@
 										</Select.Content>
 									</Select.Portal>
 								</Select.Root>
+=======
+									{#snippet itemLabel(party)}
+										<div
+											class="h-3 w-3 shrink-0 rounded-full"
+											style="background-color: {party.color};"
+										></div>
+										<span class="truncate">{party.label}</span>
+									{/snippet}
+								</MultiSelectFilter>
+>>>>>>> eu
 								<Select.Root
 									type="single"
 									allowDeselect
@@ -506,6 +543,14 @@
 										</Select.Content>
 									</Select.Portal>
 								</Select.Root>
+								{#if uniqueCountries.length > 0}
+									<!-- Länder Filter (nur EU, constituency ist dort der Staat) -->
+									<MultiSelectFilter
+										items={uniqueCountries.map((c) => ({ value: c.code, label: c.name }))}
+										bind:value={selectedCountries}
+										allLabel="Alle Länder"
+									/>
+								{/if}
 							</div>
 						</div>
 					</div>
@@ -550,11 +595,11 @@
 											{/if}
 										{:else if del.abstention === true}
 											<span
-                                                class="text-blue-500 text-4xl inline-flex items-center justify-center"
-                                                style="width:24px; height:24px;"
-                                            >
-                                                –
-                                            </span>
+												class="inline-flex items-center justify-center text-4xl text-blue-500"
+												style="width:24px; height:24px;"
+											>
+												–
+											</span>
 										{/if}
 									</DelegateListItem>
 								{/each}
@@ -798,18 +843,31 @@
 							<div class="mb-1">
 								<h3 class="text-md font-semibold md:text-lg">{t('vote_result.introducedBy')}</h3>
 								<div class="mt-1 flex flex-col gap-2 md:flex-row md:flex-wrap md:gap-3">
-									{#each Array.from(issuedByDels.entries()) as [text, delegate_ids]}
-										{#each delegate_ids as delegate_id}
+									{#each Array.from(issuedByDels.entries()) as [text, delegate_ids] (delegate_ids)}
+										{#each delegate_ids as delegate_id (delegate_id)}
 											{@const del = delegates.find((d) => d.id === delegate_id)}
 											{#if del}
-												<DelegateListItem
-													delegate={del}
-													class="w-full md:w-auto md:max-w-full"
-													onclick={() => {
-														delegate = del;
-														selectedBubble = undefined;
-													}}
-												/>
+												{#if voteResult && voteResult.votes.length > 0}
+													<DelegateListItem
+														delegate={del}
+														class="w-full md:w-auto md:max-w-full"
+														onclick={() => {
+															delegate = del;
+															selectedBubble = undefined;
+														}}
+													/>
+												{:else}
+													<a
+														href={plink(
+															`/delegates?gp=${gp}&date=${new Date(voteResult.legislative_initiative.raw_data_created_at!).toISOString().split('T')[0]}&delegate=${del.id}`
+														)}
+													>
+														<DelegateListItem
+															delegate={del}
+															class="w-full md:w-auto md:max-w-full"
+														/>
+													</a>
+												{/if}
 											{/if}
 										{/each}
 									{/each}
@@ -821,18 +879,28 @@
 					<div class="emphasis-item rounded-xl bg-primary-300 px-5 pt-3 pb-3 dark:bg-primary-500">
 						<h3 class="text-md font-semibold md:text-lg">{t('vote_result.introducedBy')}</h3>
 						<div class="mt-1 flex flex-col gap-2 md:flex-row md:flex-wrap md:gap-3">
-							{#each Array.from(issuedByDels.entries()) as [text, delegate_ids]}
-								{#each delegate_ids as delegate_id}
+							{#each Array.from(issuedByDels.entries()) as [text, delegate_ids] (delegate_ids)}
+								{#each delegate_ids as delegate_id (delegate_id)}
 									{@const del = delegates.find((d) => d.id === delegate_id)}
 									{#if del}
-										<DelegateListItem
-											delegate={del}
-											class="w-full md:w-auto md:max-w-full"
-											onclick={() => {
-												delegate = del;
-												selectedBubble = undefined;
-											}}
-										/>
+										{#if voteResult && voteResult.votes.length > 0}
+											<DelegateListItem
+												delegate={del}
+												class="w-full md:w-auto md:max-w-full"
+												onclick={() => {
+													delegate = del;
+													selectedBubble = undefined;
+												}}
+											/>
+										{:else if voteResult}
+											<a
+												href={plink(
+													`/delegates?gp=${gp}&date=${new Date(voteResult.legislative_initiative.raw_data_created_at!).toISOString().split('T')[0]}&delegate=${del.id}`
+												)}
+											>
+												<DelegateListItem delegate={del} class="w-full md:w-auto md:max-w-full" />
+											</a>
+										{/if}
 									{/if}
 								{/each}
 							{/each}
@@ -888,13 +956,20 @@
 										/>
 										<div class="flex min-w-0 flex-col">
 											<a
-												href={plink(`/delegates?delegate=${speechDelegate.id}&date=${date}&gp=${voteResult.legislative_initiative.gp}`)}
+												href={plink(
+													`/delegates?delegate=${speechDelegate.id}&date=${date}&gp=${voteResult.legislative_initiative.gp}`
+												)}
 												class="truncate text-sm leading-tight font-semibold hover:underline lg:text-base"
 												onclick={(e) => {
 													e.preventDefault();
 													e.stopPropagation();
 													currentDelegateStore.value = speechDelegate;
-													gotoHistory(plink(`/delegates?delegate=${speechDelegate.id}&date=${date}&gp=${voteResult.legislative_initiative.gp}`), true);
+													gotoHistory(
+														plink(
+															`/delegates?delegate=${speechDelegate.id}&date=${date}&gp=${voteResult.legislative_initiative.gp}`
+														),
+														true
+													);
 												}}
 												onkeypress={(e) => e.stopPropagation()}
 											>

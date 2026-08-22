@@ -3,6 +3,7 @@ mod decrees;
 mod delegates;
 mod departments;
 mod events;
+mod orientation_questions;
 mod parties;
 mod plenar;
 mod proposals;
@@ -16,14 +17,13 @@ mod verify;
 mod vote_results;
 mod walo;
 
-use chrono::NaiveDate;
 use combx::with_data::gps::LegislativePeriod;
-use combx::Parliament;
 pub use dates::*;
 pub use decrees::*;
 pub use delegates::*;
 pub use departments::*;
 pub use events::*;
+pub use orientation_questions::*;
 pub use parties::*;
 pub use plenar::*;
 pub use proposals::*;
@@ -38,26 +38,12 @@ pub use verify::*;
 pub use vote_results::*;
 pub use walo::*;
 
-use crate::ParliamentCtx;
 use crate::{GenericError, PgPoolConnection};
 use axum::Json;
 
 pub async fn all_gps_route(
-    ParliamentCtx(parliament): ParliamentCtx,
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<LegislativePeriod>>, GenericError> {
-    // if parliament == Parliament::Eu {
-    //     return Ok(Json(vec![
-    //         LegislativePeriod {
-    //             gp: "10".into(),
-    //             start_date: NaiveDate::from_ymd_opt(2026, 7, 16).unwrap(),
-    //         },
-    //         LegislativePeriod {
-    //             gp: "9".into(),
-    //             start_date: NaiveDate::from_ymd_opt(2019, 7, 2).unwrap(),
-    //         },
-    //     ]));
-    // }
     Ok(Json(
         combx::with_data::gps::gps(&pg)
             .await

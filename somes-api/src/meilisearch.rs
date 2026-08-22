@@ -4,7 +4,7 @@ use axum::{
 };
 use combx::{
     CombinedData, Decree, DelegateFilter, GovProposal, Index, OptionalVoteResult,
-    OptionalVoteResultFilter, Parliament, VoteResult,
+    OptionalVoteResultFilter, Parliament,
 };
 use futures::FutureExt;
 use meilisearch_sdk::{
@@ -12,16 +12,13 @@ use meilisearch_sdk::{
     errors::{Error, ErrorCode, MeilisearchError},
     settings::{PaginationSetting, Settings},
 };
-use redis::aio::MultiplexedConnection;
+use redis::aio::ConnectionManager;
 use reqwest::StatusCode;
 use tokio::time::sleep;
 
 use crate::{
-    routes::{
-        all_delegates, all_votes_from_legis_init, get_all_decrees_sqlx, get_all_gov_props,
-        DecreeDelegate,
-    },
     AppState, IS_PROD,
+    routes::{all_delegates, all_votes_from_legis_init, get_all_decrees_sqlx, get_all_gov_props},
 };
 
 pub mod update_time;
@@ -119,7 +116,7 @@ impl FromRequestParts<AppState> for MeilisearchClient {
 pub async fn update_delegates_meilisearch_index(
     parliament: Parliament,
     pg_pool: &sqlx::Pool<sqlx::Postgres>,
-    redis_con: &mut MultiplexedConnection,
+    redis_con: &mut ConnectionManager,
     client: &meilisearch_sdk::client::Client,
 ) -> Result<(), Box<dyn std::error::Error>> {
     log::info!("Fetching all delegates..");
@@ -167,7 +164,7 @@ pub async fn update_delegates_meilisearch_index(
 pub async fn create_or_update_decrees_meilisearch_index(
     parliament: Parliament,
     pg_pool: &sqlx::Pool<sqlx::Postgres>,
-    redis_con: &mut MultiplexedConnection,
+    redis_con: &mut ConnectionManager,
     client: &meilisearch_sdk::client::Client,
 ) -> Result<(), Box<dyn std::error::Error>> {
     log::info!("Fetching all decrees..");
@@ -209,7 +206,7 @@ pub async fn create_or_update_decrees_meilisearch_index(
 
 pub async fn create_or_update_gov_props_meilisearch_index(
     parliament: Parliament,
-    redis_con: &mut MultiplexedConnection,
+    redis_con: &mut ConnectionManager,
     pg_pool: &sqlx::Pool<sqlx::Postgres>,
     client: &meilisearch_sdk::client::Client,
 ) -> Result<(), Box<dyn std::error::Error>> {
@@ -288,11 +285,11 @@ pub async fn party_of_delegates_at_time(
 
 pub async fn update_vote_result_meilisearch_index(
     parliament: Parliament,
-    redis_con: &mut MultiplexedConnection,
+    redis_con: &mut ConnectionManager,
     pg_pool: &sqlx::Pool<sqlx::Postgres>,
     client: &meilisearch_sdk::client::Client,
     vote_result_cb: impl AsyncFn(
-        MultiplexedConnection,
+        ConnectionManager,
         &sqlx::PgPool,
     ) -> sqlx::Result<Vec<OptionalVoteResult>>,
 ) -> Result<(), Box<dyn std::error::Error>> {
@@ -361,20 +358,20 @@ pub async fn update_vote_result_meilisearch_index(
 
 fn spawn_parliament_index_refreshers(
     parliament: Parliament,
-    client: &redis::Client,
+    client: &ConnectionManager,
     dataservice_sqlx_pool: &sqlx::Pool<sqlx::Postgres>,
     meilisearch_client: &meilisearch_sdk::client::Client,
     prod_wait_handles: &mut Vec<tokio::task::JoinHandle<()>>,
 ) {
     let pg_pool_vr = dataservice_sqlx_pool.clone();
-    let client_vr = client.clone();
+    let mut client_vr = client.clone();
     let meilisearch_client_vr = meilisearch_client.clone();
 
     prod_wait_handles.push(tokio::task::spawn(async move {
         loop {
             if let Err(e) = update_vote_result_meilisearch_index(
                 parliament,
-                &mut client_vr.get_multiplexed_async_connection().await.unwrap(),
+                &mut client_vr,
                 &pg_pool_vr,
                 &meilisearch_client_vr,
                 all_votes_from_legis_init,
@@ -395,13 +392,13 @@ fn spawn_parliament_index_refreshers(
 
     let pg_pool = dataservice_sqlx_pool.clone();
     let meilisearch_client_gp = meilisearch_client.clone();
-    let client_vr = client.clone();
+    let mut client_vr = client.clone();
 
     prod_wait_handles.push(tokio::task::spawn(async move {
         loop {
             if let Err(e) = create_or_update_gov_props_meilisearch_index(
                 parliament,
-                &mut client_vr.get_multiplexed_async_connection().await.unwrap(),
+                &mut client_vr,
                 &pg_pool,
                 &meilisearch_client_gp,
             )
@@ -423,14 +420,14 @@ fn spawn_parliament_index_refreshers(
     let pg_pool = dataservice_sqlx_pool.clone();
 
     let meilisearch_client_gp = meilisearch_client.clone();
-    let client_vr = client.clone();
+    let mut client_vr = client.clone();
 
     tokio::task::spawn(async move {
         loop {
             if let Err(e) = create_or_update_decrees_meilisearch_index(
                 parliament,
                 &pg_pool,
-                &mut client_vr.get_multiplexed_async_connection().await.unwrap(),
+                &mut client_vr,
                 &meilisearch_client_gp,
             )
             .await
@@ -447,14 +444,14 @@ fn spawn_parliament_index_refreshers(
 
     let pg_pool = dataservice_sqlx_pool.clone();
     let meilisearch_client_gp = meilisearch_client.clone();
-    let client_vr = client.clone();
+    let mut client_vr = client.clone();
 
     prod_wait_handles.push(tokio::task::spawn(async move {
         loop {
             if let Err(e) = update_delegates_meilisearch_index(
                 parliament,
                 &pg_pool,
-                &mut client_vr.get_multiplexed_async_connection().await.unwrap(),
+                &mut client_vr,
                 &meilisearch_client_gp,
             )
             .await
@@ -478,7 +475,7 @@ pub async fn update_meilisearch_indices(app_state: &AppState) {
 
     spawn_parliament_index_refreshers(
         Parliament::At,
-        &app_state.redis_client,
+        &app_state.redis.connection,
         &app_state.dataservice_sqlx_pool,
         &app_state.meilisearch_client,
         &mut prod_wait_handles,
@@ -486,7 +483,7 @@ pub async fn update_meilisearch_indices(app_state: &AppState) {
 
     spawn_parliament_index_refreshers(
         Parliament::Eu,
-        &app_state.eu_redis_client,
+        &app_state.eu_redis.connection,
         &app_state.eu_dataservice_sqlx_pool,
         &app_state.meilisearch_client,
         &mut prod_wait_handles,

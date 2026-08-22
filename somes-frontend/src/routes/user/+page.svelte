@@ -57,7 +57,7 @@
 
 	let topicSearchValue = $state('');
 	let isSearchPopupOpen = $state(false);
-	let parliament: Parliament = $state("at")
+	let parliament: Parliament = $state('at');
 
 	let showChangeEmail = $state(false);
 	let finished = $derived.by(() => {
@@ -101,15 +101,14 @@
 	});
 
 	$effect(() => {
-
-	    favoDelegates = null;
+		favoDelegates = null;
 		favoLegisInits = null;
-        const jwtToken = jwtStore.value;
+		const jwtToken = jwtStore.value;
 		if (jwtToken == null) {
 			goto(plink('/home'));
 			return;
 		}
-        fetchData(jwtToken, parliament).then()
+		fetchData(jwtToken, parliament).then();
 	});
 
 	type MailFieldMeta = {
@@ -166,31 +165,33 @@
 			description: 'Neue Anträge nach favorisierten Personen',
 			category: 'favorite'
 		}
-	};		const allMailFields: (keyof MailSendInfo)[] = $derived.by(() => {
-			switch (parliament) {
-				case 'at':
-					return [
-						'send_new_vote_results_mails',
-						'send_new_vote_result_by_favo_mails',
-						'send_new_delegate_activity_mails',
-						'send_new_ministrial_prop_mails',
-						'send_new_ministrial_prop_by_favo_mails',
-						'send_new_decree_mails',
-						'send_new_decree_by_favo_mails',
-						'send_new_proposal_mails',
-						'send_new_proposal_by_favo_mails'
-					];
-				case 'eu':
-					return ['send_new_vote_results_mails', 'send_new_proposal_mails'];
-			}
-		});
+	};
+	const allMailFields: (keyof MailSendInfo)[] = $derived.by(() => {
+		switch (parliament) {
+			case 'at':
+				return [
+					'send_new_vote_results_mails',
+					'send_new_vote_result_by_favo_mails',
+					'send_new_delegate_activity_mails',
+					'send_new_ministrial_prop_mails',
+					'send_new_ministrial_prop_by_favo_mails',
+					'send_new_decree_mails',
+					'send_new_decree_by_favo_mails',
+					'send_new_proposal_mails',
+					'send_new_proposal_by_favo_mails'
+				];
+			case 'eu':
+				return ['send_new_vote_results_mails', 'send_new_proposal_mails'];
+		}
+	});
 
-		const interestFields = $derived(
-			allMailFields.filter((f) => mailFieldConfig[f].category === 'interest')
-		);
-		const favoriteFields = $derived(
-			allMailFields.filter((f) => mailFieldConfig[f].category === 'favorite')
-		);	let allChecked = $derived(!!mailSendInfo && allMailFields.every((f) => mailSendInfo![f]));
+	const interestFields = $derived(
+		allMailFields.filter((f) => mailFieldConfig[f].category === 'interest')
+	);
+	const favoriteFields = $derived(
+		allMailFields.filter((f) => mailFieldConfig[f].category === 'favorite')
+	);
+	let allChecked = $derived(!!mailSendInfo && allMailFields.every((f) => mailSendInfo![f]));
 
 	const toggleAll = async (checked: boolean) => {
 		if (!mailSendInfo) return;
@@ -208,22 +209,22 @@
 		await updateMailSendInfo(mailSendInfo, parliament);
 	};
 
-    async function fetchData(jwtToken: string, parliament: Parliament) {
-        await userInit(parliament);
-        topics=errorToNull(await get_eurovoc_topics(parliament))??[];
-        user=getUserFromJwt(jwtToken);
-        mailSendInfo=errorToNull(await getMailSendInfo(parliament));
-        extendedUser=errorToNull(await getUser());
-        favoDelegates=errorToNull(await cachedDelegateFavos(true, parliament));
-        favoLegisInits=errorToNull(await cachedLegisInitFavos(true, parliament));
+	async function fetchData(jwtToken: string, parliament: Parliament) {
+		await userInit(parliament);
+		topics = errorToNull(await get_eurovoc_topics(parliament)) ?? [];
+		user = getUserFromJwt(jwtToken);
+		mailSendInfo = errorToNull(await getMailSendInfo(parliament));
+		extendedUser = errorToNull(await getUser());
+		favoDelegates = errorToNull(await cachedDelegateFavos(true, parliament));
+		favoLegisInits = errorToNull(await cachedLegisInitFavos(true, parliament));
 
-        // get interest topics from api
-        const data=await cachedUserTopics(true, parliament);
+		// get interest topics from api
+		const data = await cachedUserTopics(true, parliament);
 
-        if(data) {
-            selectedTopics=new SvelteSet<string>(data.map((topic) => topic.id));
-        }
-    }
+		if (data) {
+			selectedTopics = new SvelteSet<string>(data.map((topic) => topic.id));
+		}
+	}
 
 	function handleTopicToggle(topic: UniqueTopic) {
 		if (selectedTopics.has(topic.id)) {
@@ -495,9 +496,9 @@
 						? 'bg-primary-600 text-white'
 						: 'text-gray-700 hover:bg-primary-400 dark:text-gray-300 dark:hover:bg-primary-500'}"
 					onclick={() => {
-                   	    favoDelegates = null;
-                  		favoLegisInits = null;
-                        return (parliament = 'at')
+						favoDelegates = null;
+						favoLegisInits = null;
+						return (parliament = 'at');
 					}}
 				>
 					Österreich
@@ -507,9 +508,9 @@
 						? 'bg-primary-600 text-white'
 						: 'text-gray-700 hover:bg-primary-400 dark:text-gray-400 dark:hover:bg-primary-500'}"
 					onclick={() => {
-                   	    favoDelegates = null;
-                  		favoLegisInits = null;
-                        return (parliament = 'eu')
+						favoDelegates = null;
+						favoLegisInits = null;
+						return (parliament = 'eu');
 					}}
 				>
 					EU

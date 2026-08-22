@@ -1,39 +1,36 @@
 use std::collections::HashMap;
 
-use crate::eu_hemicycle::EuHemicycle;
 use crate::AppState;
+use crate::eu_hemicycle::EuHemicycle;
 use crate::{ParliamentCtx, PgPoolConnection};
-use axum::routing::get;
 use axum::Router;
-use axum::{extract::Query, Json};
+use axum::routing::get;
+use axum::{Json, extract::Query};
 use combx::{Delegate, FullMandate};
 use somes_common_lib::{
-    DelegateById, InterestShare, ALL_ACTIVE, ALL_AT_DATE, ALL_AT_DATE_WITH_SEAT_INFO, EXTEND, ID,
-    INTERJECTIONS_ROUTE, PARLIAMENT_QA_ROUTE, SEARCH, SPEECHES_PER_PAGE_ROUTE,
+    ALL_ACTIVE, ALL_AT_DATE, ALL_AT_DATE_WITH_SEAT_INFO, DelegateById, EXTEND, ID,
+    INTERJECTIONS_ROUTE, InterestShare, PARLIAMENT_QA_ROUTE, SEARCH, SPEECHES_PER_PAGE_ROUTE,
 };
 
 pub use error::*;
 mod absences;
 mod ai_chat;
-mod delegate_political_position;
 mod error;
 mod interests;
 mod interjections;
 mod issued_proposals;
 mod left_right_topic_score;
 mod parliamentary_qa;
+mod political_analysis;
 mod routes;
-mod speeches;
 mod stance_topic_score;
 pub use absences::*;
 pub use ai_chat::*;
-pub use delegate_political_position::*;
 pub use interests::*;
 pub use interjections::*;
 pub(crate) use issued_proposals::*;
 pub use parliamentary_qa::*;
 pub use routes::*;
-pub use speeches::*;
 use sqlx::PgPool;
 
 pub fn create_delegates_router() -> Router<AppState> {
@@ -55,6 +52,10 @@ pub fn create_delegates_router() -> Router<AppState> {
         .nest(INTERJECTIONS_ROUTE, create_delegate_interjections_router())
         .nest(PARLIAMENT_QA_ROUTE, create_delegate_pqa_router())
         .nest("/gov_officials", create_gov_officials_router())
+        .nest(
+            "/political_analysis",
+            political_analysis::create_political_analysis_router(),
+        )
 }
 
 #[utoipa::path(

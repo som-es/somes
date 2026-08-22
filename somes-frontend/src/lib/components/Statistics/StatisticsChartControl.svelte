@@ -1,9 +1,7 @@
 <script lang="ts">
 	import { onMount, tick, untrack } from 'svelte';
 	import GenericFilters from '$lib/components/Filtering/GenericFilters.svelte';
-	import PartyFilter, {
-		type PartyFilterOption
-	} from '$lib/components/Filtering/PartyFilter.svelte';
+	import MultiSelectFilter from '$lib/components/Filtering/MultiSelectFilter.svelte';
 	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
 	import type { GenericFilterGroup } from '$lib/components/Filtering/types';
 	import type { StatisticsData } from '$lib/types';
@@ -299,7 +297,7 @@
 		return currentData;
 	});
 
-	let uniqueParties = $derived.by((): PartyFilterOption[] => {
+	let uniqueParties = $derived.by((): { name: string; color: string }[] => {
 		const parties = new Set<string>();
 		for (const item of displayData) {
 			const filterParty = item.partyFilter ?? item.party;
@@ -473,7 +471,19 @@
 					</div>
 					<div class="flex h-10 gap-2 text-sm">
 						{#if canUsePartyFilter && uniqueParties.length > 0}
-							<PartyFilter parties={uniqueParties} bind:selectedNames={selectedParties} />
+							<MultiSelectFilter
+								items={uniqueParties.map((p) => ({ value: p.name, label: p.name, color: p.color }))}
+								bind:value={selectedParties}
+								allLabel="Alle Parteien"
+							>
+								{#snippet itemLabel(party)}
+									<div
+										class="h-3 w-3 shrink-0 rounded-full"
+										style="background-color: {party.color};"
+									></div>
+									<span class="truncate">{party.label}</span>
+								{/snippet}
+							</MultiSelectFilter>
 						{/if}
 						<GenericFilters
 							bind:genericFilters

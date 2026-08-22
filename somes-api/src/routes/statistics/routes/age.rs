@@ -24,7 +24,7 @@ pub struct AgeBase {
     delegate_name: String,
     delegate_party: String,
     delegate_filter_party: String,
-    delegate_gender: String,
+    delegate_gender: Option<String>,
     age: i32,
     birthdate: Option<chrono::NaiveDate>,
     legislative_period: Option<String>,
@@ -98,7 +98,11 @@ impl AgeService {
 
         for item in base_data {
             gender_map
-                .entry(item.delegate_gender.clone())
+                .entry(
+                    item.delegate_gender
+                        .clone()
+                        .unwrap_or_else(|| "Unknown".into()),
+                )
                 .or_insert_with(Vec::new)
                 .push(item.age);
         }

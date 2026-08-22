@@ -98,7 +98,7 @@
 							>
 								<Popover.Trigger openOnHover openDelay={0}>
 									<svelte:element
-										this={'div'}
+										this={"div"}
 										class="flex h-8 w-8 items-center justify-center rounded-md text-xs font-normal transition-all duration-150
 									{isAbsent ? 'text-slate/70 bg-tertiary-400/80 text-black' : 'bg-primary-400 text-white'}"
 									>
@@ -136,39 +136,38 @@
 
 											<!-- Dynamic Status Card (Present vs. Absent) -->
 											{#if isAbsent}
-											    {#each item.absencesDuringSession ?? [] as absence}
-    												<div
-    													class="text-tertiary-950 rounded-lg border border-primary-300/50 bg-primary-200/50 p-3 text-xs"
-    												>
-    													<div class="mb-1.5 flex items-center justify-between">
-    														<span
-    															class="badge bg-tertiary-400/80 px-2 py-0.75 text-[10px] font-bold tracking-wider text-black"
-    														>
-    															Abwesend
-    														</span>
-    														{#if absence.date}
-    															<span class="text-[10px] font-medium text-primary-600">
-    																{formatDate(absence.date)}
-    															</span>
-    														{/if}
-
-    													</div>
-                                                        <!-- Document & Source Links -->
-             											{#if absence.source_url}
-                    								        <div
-               													class="flex flex-col gap-1.5 border-t border-primary-200/60 pt-2 text-[11px]"
-                            								>
-               													<a
-              														href={absence.source_url}
-              														target="_blank"
-              														rel="noopener noreferrer"
-              														class="flex items-center gap-1 font-semibold text-tertiary-700 underline transition-colors hover:text-tertiary-900"
-               													>
-              														Quellennachweis öffnen →
-               													</a>
-                            								</div>
-             											{/if}
-    												</div>
+												{#each item.absencesDuringSession ?? [] as absence}
+													<div
+														class="text-tertiary-950 rounded-lg border border-primary-300/50 bg-primary-200/50 p-3 text-xs"
+													>
+														<div class="mb-1.5 flex items-center justify-between">
+															<span
+																class="badge bg-tertiary-400/80 px-2 py-0.75 text-[10px] font-bold tracking-wider text-black"
+															>
+																Abwesend
+															</span>
+															{#if absence.date}
+																<span class="text-[10px] font-medium text-primary-600">
+																	{formatDate(absence.date)}
+																</span>
+															{/if}
+														</div>
+														<!-- Document & Source Links -->
+														{#if absence.source_url}
+															<div
+																class="flex flex-col gap-1.5 border-t border-primary-200/60 pt-2 text-[11px]"
+															>
+																<a
+																	href={absence.source_url}
+																	target="_blank"
+																	rel="noopener noreferrer"
+																	class="flex items-center gap-1 font-semibold text-tertiary-700 underline transition-colors hover:text-tertiary-900"
+																>
+																	Quellennachweis öffnen →
+																</a>
+															</div>
+														{/if}
+													</div>
 												{/each}
 											{:else}
 												<div

@@ -2,11 +2,11 @@ use axum::Json;
 use serde::{Deserialize, Serialize};
 
 use crate::{
+    AtPgPoolConnection,
     hash::hash_password,
-    jwt::{create_access_token, Claims},
+    jwt::{Claims, create_access_token},
     model::User,
     routes::UserError,
-    AtPgPoolConnection, PgPoolConnection,
 };
 
 #[derive(Deserialize, Debug)]

@@ -9,17 +9,17 @@ use reqwest::StatusCode;
 pub use routes::*;
 
 use axum::{
-    routing::{delete, get, post, put},
     Json, Router,
+    routing::{delete, get, post, put},
 };
 use somes_common_lib::{BOOKMARK, LOGIN_ROUTE, RENEW_TOKEN, SEND_MAIL_INFO, TOPIC_SELECTION};
 use sqlx::query_as;
-use tower_governor::{governor::GovernorConfigBuilder, GovernorLayer};
+use tower_governor::{GovernorLayer, governor::GovernorConfigBuilder};
 
 use crate::{
-    jwt::{renew_token_route, Claims},
-    model::User,
     AppState, AtPgPoolConnection, ParliamentCtx, PgPoolConnection,
+    jwt::{Claims, renew_token_route},
+    model::User,
 };
 
 pub fn create_user_info_router() -> Router<AppState> {
@@ -54,6 +54,7 @@ pub fn create_user_router() -> Router<AppState> {
         .route("/", get(user_route))
         .route("/init", get(user_init_route))
         .merge(create_user_info_router())
+        .merge(create_user_mcp_router())
 }
 
 #[utoipa::path(

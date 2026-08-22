@@ -1,21 +1,16 @@
 use axum::Json;
-use once_cell::sync::Lazy;
 use redis::AsyncCommands;
-use regex::Regex;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::set_error_true;
 use sqlx::PgPool;
 
 use crate::{
+    AtPgPoolConnection, RedisConnection,
     hash::verify_password,
-    jwt::{create_access_token, Claims},
+    jwt::{Claims, create_access_token},
     model::User,
-    routes::{send_otp, SignUpErrorWrapper, UserError},
-    AtPgPoolConnection, PgPoolConnection, RedisConnection,
+    routes::{EMAIL_REGEX, SignUpErrorWrapper, UserError, send_otp},
 };
-
-pub static EMAIL_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"[^@]+@[^@]+\.[^@]+").expect("Invalid email regex"));
 
 pub async fn get_current_user_from_sqlx(
     pg: &PgPool,

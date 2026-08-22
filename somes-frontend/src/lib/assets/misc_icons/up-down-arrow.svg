@@ -1,12 +1,18 @@
+<!-- Größe/Deckkraft als Attribute, nicht als Tailwind-Klassen: Tailwind scannt
+     .svg-Dateien nicht, Klassen wie size-4 würden hier nie generiert. Attribute
+     verlieren gegen jedes CSS, Overrides wie [&>svg]:size-3 greifen weiterhin. -->
 <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
+    width="16"
+    height="16"
+    opacity="0.5"
     fill="#ffffff"
     stroke="#ffffff"
     stroke-width="2"
     stroke-linecap="round"
     stroke-linejoin="round"
-    class="ml-2 size-4 opacity-50"
+    class="ml-2"
 >
     <path d="m7 15 5 5 5-5" />
     <path d="m7 9 5-5 5 5" />

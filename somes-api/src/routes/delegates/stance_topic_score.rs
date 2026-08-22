@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use somes_common_lib::{StanceTopicInfluences, StanceTopicScore};
-use sqlx::{query, PgPool};
+use sqlx::{PgPool, query};
 
 pub async fn extract_stance_topic_score_by_delegate(
     pg: &PgPool,
@@ -47,6 +47,7 @@ pub async fn extract_stance_topic_score_by_delegate(
                     StanceTopicScore {
                         topic: topic.into(),
                         score: default,
+                        broken_down_score: Default::default(),
                     }
                 })
                 .collect::<Vec<_>>();
@@ -83,6 +84,7 @@ pub async fn extract_stance_topic_score_by_delegate(
                 StanceTopicScore {
                     topic,
                     score: 2.7 * score / count as f64,
+                    broken_down_score: Default::default(),
                 }
             })
             .collect(),
@@ -94,10 +96,7 @@ mod tests {
 
     use combx::connect_pg;
 
-    use crate::routes::delegates::{
-        left_right_topic_score::extract_left_right_topic_score_by_delegate,
-        stance_topic_score::extract_stance_topic_score_by_delegate,
-    };
+    use crate::routes::delegates::stance_topic_score::extract_stance_topic_score_by_delegate;
 
     #[tokio::test]
     async fn test_extract_stance_topic_score_by_delegate() {
