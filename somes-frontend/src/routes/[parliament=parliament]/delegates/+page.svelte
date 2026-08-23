@@ -574,7 +574,6 @@
 										newFilter.legis_period = gp;
 										newFilter.day_offset = newDayOffset;
 										currentDelegateFilterStore.value = newFilter;
-										console.log(url.toString());
 
 										goto(url.toString(), { noScroll: true });
 										isSearchPopupOpen = false;

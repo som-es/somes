@@ -317,7 +317,6 @@
 							class="w-full md:w-auto md:max-w-full"
 							onclick={async () => {
 							    const { date, gp } = getMandateLatestPeriod(d.delegate.delegate, data.gps);
-								console.log(gp, date, d.delegate.delegate);
 								goto(plink(`/delegates?gp=${gp}&date=${toActualDateString(date)}&delegate=${d.delegate.delegate.id}`))
 							}}
 						/>
