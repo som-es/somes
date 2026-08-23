@@ -1155,7 +1155,7 @@
 					<ExpandablePlaceholder class={'my-3'} />
 				{/if}
 
-				{#if delegate && generalDelegateInfo?.left_right_stances.length && generalDelegateInfo.left_right_stances.length > 0 && aiViewEnabledStore.value}
+				{#if delegate && generalDelegateInfo?.left_right_stances?.length && generalDelegateInfo.left_right_stances.length > 0 && aiViewEnabledStore.value}
 					<div class="lg:flex-1">
 						<LeftRightChart
 							stances={generalDelegateInfo.left_right_stances}
