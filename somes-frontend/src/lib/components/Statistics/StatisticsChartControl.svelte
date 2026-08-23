@@ -201,17 +201,17 @@
 			return (
 				descriptionFor('line') ??
 				descriptionFor('legis') ??
-				'Entwicklung über die verfügbaren Legislaturperioden.'
+				t('statistics.chartDescription.development')
 			);
 		}
 		if (chartMode === 'spectrum') {
 			return (
 				descriptionFor('spectrum') ??
-				'Einordnung zwischen sozialistisch und kapitalistisch sowie libertär und autoritär.'
+				t('statistics.chartDescription.spectrum')
 			);
 		}
 		if (chartMode === 'donut') {
-			return descriptionFor('donut') ?? 'Anteile der aktuell sichtbaren Werte.';
+			return descriptionFor('donut') ?? t('statistics.chartDescription.shares');
 		}
 		const categoryDescription = descriptionFor(selectedCategory);
 		if (categoryDescription) {

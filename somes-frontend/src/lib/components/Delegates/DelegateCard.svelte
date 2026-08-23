@@ -238,7 +238,7 @@
 				<div></div>
 			{/if}
 			<button class="rounded-xl bg-primary-600 p-2 px-3 text-white" onclick={onShowDetails}>
-				<h4>Details</h4>
+				<h4>{t('ui.details')}</h4>
 			</button>
 		{/if}
 

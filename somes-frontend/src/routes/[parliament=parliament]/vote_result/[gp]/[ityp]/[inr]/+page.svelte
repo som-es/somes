@@ -482,7 +482,7 @@
 									<MultiSelectFilter
 										items={uniqueCountries.map((c) => ({ value: c.code, label: c.name }))}
 										bind:value={selectedCountries}
-										allLabel="Alle Länder"
+										allLabel={t('filter.allCountries')}
 									/>
 								{/if}
 							</div>

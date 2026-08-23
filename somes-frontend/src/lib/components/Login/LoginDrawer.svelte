@@ -120,13 +120,13 @@
 					</Drawer.Close>
 
 					<Drawer.Title class="text-2xl font-semibold text-gray-900">
-						{#if isLogin}Anmelden{:else}Registrierung{/if}
+						{#if isLogin}{t('login.title.signIn')}{:else}{t('login.title.register')}{/if}
 					</Drawer.Title>
 					<p class="mt-1 text-sm text-gray-500">
 						{#if isLogin}
-							Willkommen zurück. Gib deine E-Mail-Adresse ein.
+							{t('login.subtitle.signIn')}
 						{:else}
-							Erstelle ein neues Konto mit deiner E-Mail-Adresse.
+							{t('login.subtitle.register')}
 						{/if}
 					</p>
 				</div>

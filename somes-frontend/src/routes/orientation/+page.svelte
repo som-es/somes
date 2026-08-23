@@ -321,7 +321,7 @@
 								goto(plink(`/delegates?gp=${gp}&date=${toActualDateString(date)}&delegate=${d.delegate.delegate.id}`))
 							}}
 						/>
-						<span class="text-sm">{t('orientation.result.avgDiff', { value: d.avgDiff?.toFixed(3) ??  })}</span>
+						<span class="text-sm">{t('orientation.result.avgDiff', { value: d.avgDiff?.toFixed(3) ?? '' })}</span>
 					</div>
 				{/each}
 			</div>

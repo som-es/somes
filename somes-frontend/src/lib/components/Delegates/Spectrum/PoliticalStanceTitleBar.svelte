@@ -31,15 +31,11 @@ import { t } from '$lib/i18n/i18n.svelte';
 				<Popover.Content
 					class="z-40 w-72 rounded-lg bg-primary-100 p-4 shadow-lg dark:bg-primary-600"
 				>
-					Die Einordnung der politischen Position ist eine grobe Schätzung und muss nicht der
-					Realität entsprechen. Verwendet wurden AI generierte Antworten zu Fragen, die nicht immer
-					vollständig korrekt und unter 'Details' abrufbar sind. <span class="font-bold"
-						>Eine Beschreibung der Methodik und Verbesserungen folgen!</span
-					>
+					{@html t('spectrum.stance.disclaimer')}
 				</Popover.Content>
 			</Popover.Portal>
 		</Popover.Root>
-		<ExtendInfoDialog title="Details">
+		<ExtendInfoDialog title={t('ui.details')}>
 			<PoliticalSpectrumQuestionsModal {stanceTopicInfluences} />
 		</ExtendInfoDialog>
 	</div>

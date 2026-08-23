@@ -10,20 +10,20 @@ import { t } from '$lib/i18n/i18n.svelte';
 
 	const chartDescriptions = {
 		'delegate.normalized':
-			'Abwesenheiten je Abgeordneter oder Abgeordnetem als Anteil der Sitzungen.',
-		'delegate.absolute': 'Gezählte Abwesenheiten je Abgeordneter oder Abgeordnetem.',
-		'party.normalized': 'Abwesenheiten als Sitzungsanteil, nach Klubs zusammengefasst.',
-		'party.absolute': 'Gezählte Abwesenheiten, nach Klubs zusammengefasst.',
-		'gender.normalized': 'Abwesenheiten als Sitzungsanteil im Vergleich nach Geschlecht.',
-		'gender.absolute': 'Gezählte Abwesenheiten im Vergleich nach Geschlecht.',
-		'age.normalized': 'Abwesenheiten als Sitzungsanteil nach Altersgruppen.',
-		'age.absolute': 'Gezählte Abwesenheiten nach Altersgruppen.',
-		'legis.normalized': 'Abwesenheiten als Sitzungsanteil je Legislaturperiode.',
-		'legis.absolute': 'Gezählte Abwesenheiten je Legislaturperiode.',
-		'line.normalized': 'Entwicklung der Abwesenheitsquote über die Perioden.',
-		'line.absolute': 'Entwicklung der gezählten Abwesenheiten über die Perioden.',
-		'donut.normalized': 'Anteil der höchsten Abwesenheitsquoten in der aktuellen Auswahl.',
-		'donut.absolute': 'Anteil der höchsten Abwesenheitszahlen in der aktuellen Auswahl.'
+			t('statistics.absences.desc.delegateNormalized'),
+		'delegate.absolute': t('statistics.absences.desc.delegateAbsolute'),
+		'party.normalized': t('statistics.absences.desc.partyNormalized'),
+		'party.absolute': t('statistics.absences.desc.partyAbsolute'),
+		'gender.normalized': t('statistics.absences.desc.genderNormalized'),
+		'gender.absolute': t('statistics.absences.desc.genderAbsolute'),
+		'age.normalized': t('statistics.absences.desc.ageNormalized'),
+		'age.absolute': t('statistics.absences.desc.ageAbsolute'),
+		'legis.normalized': t('statistics.absences.desc.legisNormalized'),
+		'legis.absolute': t('statistics.absences.desc.legisAbsolute'),
+		'line.normalized': t('statistics.absences.desc.lineNormalized'),
+		'line.absolute': t('statistics.absences.desc.lineAbsolute'),
+		'donut.normalized': t('statistics.absences.desc.donutNormalized'),
+		'donut.absolute': t('statistics.absences.desc.donutAbsolute')
 	};
 
 	const delegateSimpleAbsences = async (
@@ -151,10 +151,10 @@ import { t } from '$lib/i18n/i18n.svelte';
 </script>
 
 <svelte:head>
-	<title>Abwesenheitsstatistiken</title>
+	<title>{t('statistics.absences.title')}</title>
 	<meta
 		name="description"
-		content="Abwesenheitsstatistiken über den Nationalrat und deren Abgeordnete"
+		content={t('statistics.absences.description')}
 	/>
 </svelte:head>
 
@@ -162,7 +162,7 @@ import { t } from '$lib/i18n/i18n.svelte';
 	<div class="mt-2 mb-6">
 		<h1 class="text-3xl font-bold sm:text-4xl">{t('statistics.absences.h1')}</h1>
 		<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
-			Abwesenheiten in Nationalratssitzungen, absolut oder als Anteil an Sitzungen.
+			{t('statistics.absences.intro')}
 		</p>
 	</div>
 
@@ -171,7 +171,7 @@ import { t } from '$lib/i18n/i18n.svelte';
 		makeRequest={currentFunction}
 		bind:selectedCategory
 		valueLabel={t('statistics.absences.valueLabel')}
-		normalizedValueLabel="Abwesenheitsquote (Anteil an Sitzungen)"
+		normalizedValueLabel={t('statistics.absences.normalizedValueLabel')}
 		{chartDescriptions}
 	/>
 </Container>

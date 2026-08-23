@@ -220,7 +220,7 @@ import { t } from '$lib/i18n/i18n.svelte';
 		reloadKey={selectedOrientation}
 		bind:selectedCategory
 		{categoryOptions}
-		valueLabel={t(selectedOrientationOption.valueLabelKey)}
+		valueLabel={selectedOrientationOption.valueLabel}
 		normalizedValueLabel={selectedOrientationOption.valueLabel}
 		{chartDescriptions}
 		filterConfig={{
@@ -233,6 +233,6 @@ import { t } from '$lib/i18n/i18n.svelte';
 		bind:selectedChartMode
 		extraReservedHeight={selectedChartMode === 'spectrum' ? 0 : 112}
 		infoQuestion="Was zeigt diese Statistik?"
-		infoAnswer="<p>Diese Auswertung ordnet Abgeordnete und Klubs nach ihren politischen Positionen ein. Die Werte zeigen, ob jemand in den verfügbaren Daten eher sozialistisch oder kapitalistisch sowie eher libertär oder autoritär eingeordnet wird.</p>"
+		infoAnswer={t('statistics.orientation.infoAnswer')}
 	/>
 </Container>

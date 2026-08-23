@@ -162,9 +162,7 @@
 						stroke-width="1.5"
 						class="cursor-pointer drop-shadow-sm transition"
 						role="img"
-						aria-label={t('spectrum.chart.pointAria', { label: point.item.label, x: point.x.toFixed(
-							3
-						)}, y: point.y.toFixed(3) })
+						aria-label={t('spectrum.chart.pointAria', { label: point.item.label, x: point.x.toFixed(3), y: point.y.toFixed(3) })}
 						onmouseenter={() => (hoveredIndex = index)}
 						onmouseleave={() => (hoveredIndex = null)}
 					/>

@@ -10,21 +10,21 @@ import { t } from '$lib/i18n/i18n.svelte';
 
 	const chartDescriptions = {
 		'delegate.normalized':
-			'Gewichtete Initiativen je Abgeordneter oder Abgeordnetem, geteilt durch die Sitzungen der Periode.',
-		'delegate.absolute': 'Summe der gewichteten Initiativen je Abgeordneter oder Abgeordnetem.',
-		'party.normalized': 'Durchschnittliche Aktivitäts-Punkte pro Sitzung, je Partei.',
-		'party.absolute': 'Durchschnittliche Aktivitäts-Punkte der Abgeordneten einer Partei.',
-		'gender.normalized': 'Durchschnittliche Aktivitäts-Punkte pro Sitzung, nach Geschlecht.',
-		'gender.absolute': 'Durchschnittliche Aktivitäts-Punkte nach Geschlecht.',
-		'age.normalized': 'Durchschnittliche Aktivitäts-Punkte pro Sitzung, nach Altersgruppen.',
-		'age.absolute': 'Durchschnittliche Aktivitäts-Punkte nach Altersgruppen.',
-		'legis.normalized': 'Durchschnittliche Aktivitäts-Punkte pro Sitzung, je Legislaturperiode.',
-		'legis.absolute': 'Durchschnittliche Aktivitäts-Punkte je Legislaturperiode.',
+			t('statistics.activity.desc.delegateNormalized'),
+		'delegate.absolute': t('statistics.activity.desc.delegateAbsolute'),
+		'party.normalized': t('statistics.activity.desc.partyNormalized'),
+		'party.absolute': t('statistics.activity.desc.partyAbsolute'),
+		'gender.normalized': t('statistics.activity.desc.genderNormalized'),
+		'gender.absolute': t('statistics.activity.desc.genderAbsolute'),
+		'age.normalized': t('statistics.activity.desc.ageNormalized'),
+		'age.absolute': t('statistics.activity.desc.ageAbsolute'),
+		'legis.normalized': t('statistics.activity.desc.legisNormalized'),
+		'legis.absolute': t('statistics.activity.desc.legisAbsolute'),
 		'line.normalized':
-			'Entwicklung der durchschnittlichen Aktivität pro Sitzung über die Perioden.',
-		'line.absolute': 'Entwicklung der durchschnittlichen Aktivitäts-Punkte über die Perioden.',
-		'donut.normalized': 'Anteil der höchsten Aktivitätswerte pro Sitzung in der aktuellen Auswahl.',
-		'donut.absolute': 'Anteil der höchsten Aktivitäts-Punkte in der aktuellen Auswahl.'
+			t('statistics.activity.desc.lineNormalized'),
+		'line.absolute': t('statistics.activity.desc.lineAbsolute'),
+		'donut.normalized': t('statistics.activity.desc.donutNormalized'),
+		'donut.absolute': t('statistics.activity.desc.donutAbsolute')
 	};
 
 	const delegateSimpleActivity = async (
@@ -152,10 +152,10 @@ import { t } from '$lib/i18n/i18n.svelte';
 </script>
 
 <svelte:head>
-	<title>Aktivitätsstatistiken</title>
+	<title>{t('statistics.activity.title')}</title>
 	<meta
 		name="description"
-		content="Aktivitätsstatistiken über den Nationalrat und deren Abgeordnete"
+		content={t('statistics.activity.description')}
 	/>
 </svelte:head>
 
@@ -163,7 +163,7 @@ import { t } from '$lib/i18n/i18n.svelte';
 	<div class="mt-2 mb-6">
 		<h1 class="text-3xl font-bold sm:text-4xl">{t('statistics.activity.h1')}</h1>
 		<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
-			Parlamentarische Aktivität anhand eingebrachter Initiativen.
+			{t('statistics.activity.intro')}
 		</p>
 	</div>
 
@@ -172,19 +172,9 @@ import { t } from '$lib/i18n/i18n.svelte';
 		makeRequest={currentFunction}
 		bind:selectedCategory
 		valueLabel={t('statistics.activity.valueLabel')}
-		normalizedValueLabel="durchschnittliche Aktivitäts-Punkte (pro Sitzung)"
+		normalizedValueLabel={t('statistics.activity.normalizedValueLabel')}
 		{chartDescriptions}
-		infoQuestion="Wie werden Aktivitäts-Punkte berechnet?"
-		infoAnswer="
-			<p><strong>Aktivitäts-Punkte:</strong> gewichtete Summe der eingebrachten parlamentarischen Initiativen.</p>
-			<ul class='ml-4 space-y-1 text-xs'>
-				<li>Anfragen (J): <strong>0,35 Punkte</strong></li>
-				<li>Unselbständige Entschließungsanträge (UEA): <strong>0,75 Punkte</strong></li>
-				<li>Abänderungsanträge (AA): <strong>0,9 Punkte</strong></li>
-				<li>Selbständige Anträge (A): <strong>1 Punkt</strong></li>
-				<li>Initiativen (I): <strong>1,25 Punkte</strong></li>
-			</ul>
-			<p class='mt-2'>Normalisiert wird durch die Anzahl der Sitzungen der jeweiligen Legislaturperiode geteilt.</p>
-		"
+		infoQuestion={t('statistics.activity.infoQuestion')}
+		infoAnswer={t('statistics.activity.infoAnswer')}
 	/>
 </Container>

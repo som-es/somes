@@ -147,7 +147,7 @@ import { t } from '$lib/i18n/i18n.svelte';
 	<div class="mt-2 mb-6">
 		<h1 class="text-3xl font-bold sm:text-4xl">{t('statistics.age.h1')}</h1>
 		<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
-			Alter der Abgeordneten in der gewählten Periode und im Vergleich nach Gruppen.
+			{t('statistics.age.intro')}
 		</p>
 	</div>
 

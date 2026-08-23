@@ -6,7 +6,7 @@
 	interface ActivityCard {
 		label: string;
 		value: string;
-		detail: t('sessionActivity.detail.speechCountTotal', { count: overview.speech_count, total: formatDuration(overview.total_speech_time) })string;
+		detail: string;
 		highlight: boolean;
 		className: string;
 	}
@@ -53,14 +53,14 @@
 			{
 				label: t('common.votes'),
 				value: overview.vote_count.toString(),
-				detail: t('sessionActivity.detail.speechCountTotal', { count: overview.speech_count, total: formatDuration(overview.total_speech_time) })formatPercentile(overview.percentiles.vote_count_p95),
+				detail: formatPercentile(overview.percentiles.vote_count_p95),
 				highlight: isTopFivePercent(overview.vote_count, overview.percentiles.vote_count_p95),
 				className: 'xl:col-span-4'
 			},
 			{
 				label: t('sessionActivity.absences'),
 				value: overview.absence_count.toString(),
-				detail: t('sessionActivity.detail.speechCountTotal', { count: overview.speech_count, total: formatDuration(overview.total_speech_time) })formatPercentile(overview.percentiles.absence_count_p95),
+				detail: formatPercentile(overview.percentiles.absence_count_p95),
 				highlight: isTopFivePercent(overview.absence_count, overview.percentiles.absence_count_p95),
 				className: 'xl:col-span-4'
 			},
@@ -74,7 +74,7 @@
 			{
 				label: t('sessionActivity.speakers'),
 				value: overview.speaker_count.toString(),
-				detail: t('sessionActivity.detail.speechCountTotal', { count: overview.speech_count, total: formatDuration(overview.total_speech_time) }),
+				detail: t('sessionActivity.detail.speechCount', { count: overview.speech_count }),
 				highlight: isTopFivePercent(overview.speaker_count, overview.percentiles.speaker_count_p95),
 				className: 'xl:col-span-2'
 			},

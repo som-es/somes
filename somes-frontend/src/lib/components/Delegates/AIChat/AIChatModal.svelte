@@ -76,19 +76,13 @@ import { t } from '$lib/i18n/i18n.svelte';
 				<Popover.Content
 					class="z-90 w-72 rounded-lg bg-primary-100 p-4 text-sm shadow-lg dark:bg-primary-600"
 				>
-					t('aiChat.disclaimer.part1')
-					t('aiChat.disclaimer.part2')
-					t('aiChat.disclaimer.part3')
-					t('aiChat.disclaimer.part4')
+					{t('aiChat.disclaimer.part1')}
+					{t('aiChat.disclaimer.part2')}
+					{t('aiChat.disclaimer.part3')}
+					{t('aiChat.disclaimer.part4')}
 				</Popover.Content>
 			</Popover.Portal>
 		</Popover.Root>
-		<!-- <Popover title="Hinweis" placement="bottom" trigger="hover"  transitionParams={{ duration: 200 }} class="z-40 text-sm w-72 p-4">
-			t('aiChat.disclaimer.part1') Diese
-			Ausschnitte können unvollständig oder aus dem Kontext gerissen sein, was zu ungenauen oder
-			irreführenden Antworten führen kann. Bitte beachten Sie, dass der Chatbot nicht die tatsächlichen
-			Meinungen oder Aussagen der Person widerspiegelt.
-		</Popover> -->
 		<div>AI Chat</div>
 		<Dialog.Close>
 			<ModalCloseButton />
