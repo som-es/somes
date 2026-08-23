@@ -20,6 +20,7 @@
 
 <script lang="ts">
 	import { Dialog, Popover } from 'bits-ui';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { url } from '$lib/api/api';
 	import SpeechModal from '$lib/components/Delegates/Speeches/SpeechModal.svelte';
 	import SpeechBar from '$lib/components/Delegates/Speeches/SpeechBar.svelte';
@@ -95,7 +96,7 @@
 						{/each}
 					</ul>
 					<div class="mt-2 text-xs text-gray-700 dark:text-gray-300">
-						Klicken für die ganze Rede
+						{t('emphasis.clickForFullSpeech')}
 					</div>
 				</Popover.Content>
 			</Popover.Root>
