@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { justPostStatistics } from '$lib/api/api';
+import { t } from '$lib/i18n/i18n.svelte';
 	import StatisticsChartControl from '$lib/components/Statistics/StatisticsChartControl.svelte';
 	import type { StatisticsData } from '$lib/types';
 	import { mapActivityDelegate, mapActivityCategory } from '$lib/api/statistics-adapter';
@@ -160,7 +161,7 @@
 
 <Container class="pb-12">
 	<div class="mt-2 mb-6">
-		<h1 class="text-3xl font-bold sm:text-4xl">Aktivitätsstatistiken</h1>
+		<h1 class="text-3xl font-bold sm:text-4xl">{t('statistics.activity.h1')}</h1>
 		<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
 			Parlamentarische Aktivität anhand eingebrachter Initiativen.
 		</p>
@@ -170,7 +171,7 @@
 		height={520}
 		makeRequest={currentFunction}
 		bind:selectedCategory
-		valueLabel="Aktivitäts-Punkte"
+		valueLabel={t('statistics.activity.valueLabel')}
 		normalizedValueLabel="durchschnittliche Aktivitäts-Punkte (pro Sitzung)"
 		{chartDescriptions}
 		infoQuestion="Wie werden Aktivitäts-Punkte berechnet?"
