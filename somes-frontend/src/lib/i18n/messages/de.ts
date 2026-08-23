@@ -802,4 +802,17 @@ export const de = {
 	'orientation.result.answer': 'Antwort: {value}',
 	'orientation.result.noAnswer': 'keine',
 	'orientation.result.restart': 'Neu starten',
+	// --- Fehlende Übersetzungen (Runde 2) ---
+	'documents.title': 'Dokumente (PDFs)',
+	'delegates.timeline.start': 'Anfang',
+	'delegates.timeline.end': 'Ende',
+	'voteHistory.filter.submittedBy': 'Eingebracht von',
+	'voteHistory.filter.pro': 'Pro',
+	'voteHistory.filter.contra': 'Contra',
+	'voteHistory.filter.any': 'Egal',
+	'filter.topics.prefillInterests': 'Interessen',
+	'aiChat.placeholder': 'Stelle deine Frage...',
+	'aiChat.send': 'Senden',
+	'interests.detail.title': 'Detailierte Interessen',
+	'interests.detail.subtitle': 'meist behandelte Themen',
 } as const;

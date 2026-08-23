@@ -106,14 +106,14 @@ import { t } from '$lib/i18n/i18n.svelte';
 		<input
 			type="text"
 			bind:value={newMessage}
-			placeholder="Stelle deine Frage..."
+			placeholder={t('aiChat.placeholder')}
 			on:keypress={(e) => e.key === 'Enter' && sendMessage()}
 			class="focus:ring-primary flex-1 rounded-full border border-gray-300 px-4 py-2 text-base outline-hidden focus:ring-3 dark:border-gray-600"
 		/>
 		<button
 			on:click={sendMessage}
 			class="focus:ring-primary-dark ml-4 rounded-full bg-primary-500 px-4 py-2 text-white hover:bg-primary-800 focus:ring-3 focus:outline-hidden"
-			>Senden</button
+			>{t('aiChat.send')}</button
 		>
 	</div>
 </div>

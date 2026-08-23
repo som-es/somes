@@ -547,7 +547,7 @@ import { localeStore } from '$lib/i18n/i18n.svelte';
 												(partyFilterState[party.name] =
 													partyFilterState[party.name] === 'pro' ? 'egal' : 'pro')}
 										>
-											Pro
+											{t('voteHistory.filter.pro')}
 										</button>
 										<button
 											class="cursor-pointer rounded-lg px-2 py-1 text-sm {partyFilterState[
@@ -557,7 +557,7 @@ import { localeStore } from '$lib/i18n/i18n.svelte';
 												: ''}"
 											onclick={() => (partyFilterState[party.name] = 'egal')}
 										>
-											Egal
+											{t('voteHistory.filter.any')}
 										</button>
 										<button
 											class="cursor-pointer rounded-lg px-2 py-1 text-sm {partyFilterState[
@@ -569,7 +569,7 @@ import { localeStore } from '$lib/i18n/i18n.svelte';
 												(partyFilterState[party.name] =
 													partyFilterState[party.name] === 'contra' ? 'egal' : 'contra')}
 										>
-											Contra
+											{t('voteHistory.filter.contra')}
 										</button>
 									</div>
 								</div>
@@ -597,7 +597,7 @@ import { localeStore } from '$lib/i18n/i18n.svelte';
 
 					<div class="flex w-full flex-col">
 						<span class="text-base font-semibold text-gray-800 dark:text-gray-50"
-							>Eingebracht von</span
+							>{t('voteHistory.filter.submittedBy')}</span
 						>
 						<Select.Root
 							type="multiple"

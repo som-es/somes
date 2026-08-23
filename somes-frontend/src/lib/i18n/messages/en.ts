@@ -802,4 +802,17 @@ export const en = {
 	'orientation.result.answer': 'Answer: {value}',
 	'orientation.result.noAnswer': 'none',
 	'orientation.result.restart': 'Restart',
+	// --- Missing translations (round 2) ---
+	'documents.title': 'Documents (PDFs)',
+	'delegates.timeline.start': 'start',
+	'delegates.timeline.end': 'end',
+	'voteHistory.filter.submittedBy': 'Submitted by',
+	'voteHistory.filter.pro': 'Pro',
+	'voteHistory.filter.contra': 'Contra',
+	'voteHistory.filter.any': 'Any',
+	'filter.topics.prefillInterests': 'Interests',
+	'aiChat.placeholder': 'Ask your question...',
+	'aiChat.send': 'Send',
+	'interests.detail.title': 'Detailed interests',
+	'interests.detail.subtitle': 'most frequently discussed topics',
 } as const;

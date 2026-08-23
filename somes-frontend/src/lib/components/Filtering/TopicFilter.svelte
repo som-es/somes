@@ -24,7 +24,7 @@
 		{#if userTopics !== null}
 			<button
 				onclick={() => (selectedTopics = new SvelteSet(userTopics?.map((topic) => topic.topic)))}
-				class="badge bg-secondary-500 text-white">Interessen</button
+				class="badge bg-secondary-500 text-white">{t('filter.topics.prefillInterests')}</button
 			>
 		{:else}
 			<span></span>

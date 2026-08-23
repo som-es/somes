@@ -766,13 +766,13 @@
 			<div class="flex-1">
 				<div class="mt-1 flex min-w-full justify-between px-1 text-base text-gray-800">
 					<div>
-						{renderStartDate == null ? '' : dashDateToDotDate(renderStartDate.toString())} (Anfang)
+						{renderStartDate == null ? '' : dashDateToDotDate(renderStartDate.toString())} ({t('delegates.timeline.start')})
 					</div>
 					<div>
 						{renderEndDate == null
 							? dashDateToDotDate(new Date().toISOString().split('T')[0])
 							: dashDateToDotDate(renderEndDate.toString())}
-						(Ende)
+						({t('delegates.timeline.end')})
 					</div>
 				</div>
 				<input

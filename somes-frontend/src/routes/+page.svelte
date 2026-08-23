@@ -209,7 +209,6 @@
 				<div
 					class="mt-4 mb-4 inline-block rounded-full border border-tertiary-300 bg-tertiary-200 px-3 py-1 text-sm font-bold tracking-wider text-tertiary-900 uppercase md:text-base dark:border-tertiary-700 dark:bg-tertiary-900/50 dark:text-tertiary-100"
 				>
-					Verein für Demokratie und Transparenz
 					{t('landing.badge')}
 				</div>
 			</div>
@@ -238,7 +237,6 @@
 						href={plink('/home')}
 						class="flex items-center gap-2 rounded-full bg-surface-900 px-6 py-3 text-lg font-bold text-white shadow-xl transition-transform hover:scale-105 dark:bg-surface-50 dark:text-surface-900"
 					>
-						Zur Somes Plattform
 						{t('landing.hero.ctaPlatform')}
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -258,7 +256,6 @@
 						href="{resolve('/')}#events"
 						class="rounded-full border border-surface-200 bg-white px-6 py-3 text-lg font-bold text-surface-900 shadow-sm transition-colors hover:bg-surface-50 dark:border-surface-600 dark:bg-surface-800 dark:text-surface-50 dark:hover:bg-surface-700"
 					>
-						Unsere Events
 						{t('landing.hero.ctaEvents')}
 					</a>
 				</div>
