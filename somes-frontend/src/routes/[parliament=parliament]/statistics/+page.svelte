@@ -6,15 +6,16 @@
 	import OrientationStatistics from './orientation/+page.svelte';
 	import SpeechTimeStatistics from './speech_time/+page.svelte';
 	import TotalSpeechesStatistics from './total_speeches/+page.svelte';
+	import { t } from '$lib/i18n/i18n.svelte';
 
 	const sections = [
-		{ id: 'speech-time', label: 'Redezeit', component: SpeechTimeStatistics },
-		{ id: 'total-speeches', label: 'Gehaltene Reden', component: TotalSpeechesStatistics },
-		{ id: 'absences', label: 'Abwesenheiten', component: AbsencesStatistics },
-		{ id: 'activity', label: 'Aktivität', component: ActivityStatistics },
-		{ id: 'call-to-orders', label: 'Ordnungsrufe', component: CallToOrdersStatistics },
-		{ id: 'age', label: 'Alter', component: AgeStatistics },
-		{ id: 'orientation', label: 'Politische Positionen', component: OrientationStatistics }
+		{ id: 'speech-time', label: t('statistics.section.speechTime'), component: SpeechTimeStatistics },
+		{ id: 'total-speeches', label: t('statistics.section.totalSpeeches'), component: TotalSpeechesStatistics },
+		{ id: 'absences', label: t('statistics.section.absences'), component: AbsencesStatistics },
+		{ id: 'activity', label: t('statistics.section.activity'), component: ActivityStatistics },
+		{ id: 'call-to-orders', label: t('statistics.section.callToOrders'), component: CallToOrdersStatistics },
+		{ id: 'age', label: t('statistics.section.age'), component: AgeStatistics },
+		{ id: 'orientation', label: t('statistics.section.orientation'), component: OrientationStatistics }
 	];
 
 	function scrollToSection(index: number) {
@@ -30,8 +31,8 @@
 </script>
 
 <svelte:head>
-	<title>Statistiken - Parlamentsinformationssystem</title>
-	<meta name="description" content="Parlamentarische Statistiken als scrollbare Gesamtübersicht" />
+	<title>{t('statistics.page.title')}</title>
+	<meta name="description" content={t('statistics.page.description')} />
 </svelte:head>
 
 <div class="statistics-snap-page">
@@ -43,8 +44,8 @@
 						<button
 							type="button"
 							class="statistics-section-button"
-							aria-label="Zur vorherigen Statistik: {sections[index - 1].label}"
-							title="Zur vorherigen Statistik"
+							aria-label={t('statistics.nav.prev') + ': ' + sections[index - 1].label}
+							title={t('statistics.nav.prev')}
 							onclick={() => scrollToSection(index - 1)}
 						>
 							<span aria-hidden="true">↑</span>
@@ -57,8 +58,8 @@
 						<button
 							type="button"
 							class="statistics-section-button"
-							aria-label="Zur nächsten Statistik: {sections[index + 1].label}"
-							title="Zur nächsten Statistik"
+							aria-label={t('statistics.nav.next') + ': ' + sections[index + 1].label}
+							title={t('statistics.nav.next')}
 							onclick={() => scrollToSection(index + 1)}
 						>
 							<span aria-hidden="true">↓</span>

@@ -23,6 +23,7 @@
 		interjections_made_by_delegate_per_page,
 		interjections_received_by_delegate_per_page
 	} from '$lib/api/api';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import {
 		aiViewEnabledStore,
 		currentDelegateFilterStore,
@@ -94,32 +95,32 @@
 		GenericFilterGroup<boolean>
 	] = $state([
 		{
-			title: 'Mandatsart',
+			title: t('delegates.mandateType'),
 			activeValue: undefined,
 			hidden: false,
 			options: [
-				{ title: 'egal', value: undefined },
-				{ title: 'Regierung', value: true },
-				{ title: 'Nationalrat', value: false }
+				{ title: t('delegates.any'), value: undefined },
+				{ title: t('delegates.government'), value: true },
+				{ title: t('delegates.nationalCouncil'), value: false }
 			]
 		},
 		{
-			title: 'Aktives Mandat',
+			title: t('delegates.activeMandate'),
 			activeValue: undefined,
 			hidden: false,
 			options: [
-				{ title: 'egal', value: undefined },
-				{ title: 'Ja', value: true },
-				{ title: 'Nein', value: false }
+				{ title: t('delegates.any'), value: undefined },
+				{ title: t('delegates.yes'), value: true },
+				{ title: t('delegates.no'), value: false }
 			]
 		},
 		{
-			title: 'Ehemalige Parteizugehörigkeit beachten ',
+			title: t('delegates.considerPrevParty'),
 			activeValue: true,
 			hidden: false,
 			options: [
-				{ title: 'Ja', value: true },
-				{ title: 'Nein', value: false }
+				{ title: t('delegates.yes'), value: true },
+				{ title: t('delegates.no'), value: false }
 			]
 		}
 	]);
@@ -464,19 +465,19 @@
 	});
 
 	const title = $derived(
-		data.parliament == 'at' ? 'Abgeordnete zum Nationalrat' : 'Abgeordnete des EU-Parlaments'
+		data.parliament == 'at' ? t('delegates.title.at') : t('delegates.title.eu')
 	);
 </script>
 
 <svelte:head>
 	<title>{title}</title>
-	<meta name="description" content="Auswahl und spezifische Informationen über Abgeordnete" />
+	<meta name="description" content={t('delegates.meta.description')} />
 </svelte:head>
 
 <Container>
 	<h1 class="px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">{title}</h1>
 	<span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0 dark:text-gray-300">
-		Aktualisiert am: Unknown
+		{t('delegates.updated')}
 	</span>
 
 	<!------------------>
@@ -487,7 +488,7 @@
 			<div>
 				<!-- Filters -->
 				<div>
-					<span class="text-base font-semibold text-gray-800 dark:text-gray-200">Filter</span>
+					<span class="text-base font-semibold text-gray-800 dark:text-gray-200">{t('delegates.filter')}</span>
 					<div class="mt-2 flex h-10 w-full gap-2 md:mt-1 md:w-auto">
 						<!-- Period Filter -->
 						<div
@@ -531,12 +532,12 @@
 				<!-- Search Results -->
 				<div class="mt-3">
 					<span class="text-base font-semibold text-gray-800 dark:text-gray-200"
-						>Suchergebnisse</span
+						>{t('delegates.searchResults')}</span
 					>
 					<div class="mt-1 max-h-96 overflow-y-auto">
 						{#if isLoadingSearch}
 							<div class="flex justify-center p-4">
-								<span class="text-gray-500">Loading...</span>
+								<span class="text-gray-500">{t('delegates.loading')}</span>
 							</div>
 						{:else}
 							{#each searchResults as d (d.id)}
@@ -585,7 +586,7 @@
 											<div class="text-sm font-medium text-gray-800 dark:text-gray-200">
 												{govMandates}
 												<span class="font-light text-gray-700 dark:text-gray-300">
-													(Regierung)
+													({t('delegates.government')})
 												</span>
 											</div>
 										{/if}
@@ -596,7 +597,7 @@
 
 												{#if data.parliament === 'at'}
 													<span class="font-light text-gray-700 dark:text-gray-300">
-														(Nationalrat)
+														({t('delegates.nationalCouncil')})
 													</span>
 												{/if}
 											</div>
@@ -642,7 +643,7 @@
 						{@html searchIcon}
 					</div>
 					<span class="truncate">
-						{inputValue || 'Suche...'}
+						{inputValue || t('delegates.search') + '...'}
 					</span>
 				</button>
 
@@ -676,7 +677,7 @@
 				>
 					<div class="w-full max-w-md rounded-2xl bg-primary-100 p-4 shadow-xl dark:bg-primary-600">
 						<div class="mb-1 flex items-center justify-between">
-							<h3 class="text-lg font-semibold">Suche</h3>
+							<h3 class="text-lg font-semibold">{t('delegates.search')}</h3>
 							<ModalCloseButton class="p-1" onclick={() => (isSearchPopupOpen = false)} />
 						</div>
 						<div class="mb-2">
@@ -687,7 +688,7 @@
 									currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
 								}}
 								bind:searchValue={inputValue}
-								placeholder="Suche nach Abgeordneten..."
+								placeholder={t('delegates.searchDelegates')}
 								autofocus={true}
 							/>
 						</div>
@@ -731,7 +732,7 @@
 							>
 								<div class="mt-4 first:mt-0">
 									<span class="text-base font-semibold text-gray-800 dark:text-gray-200"
-										>Legislaturperiode</span
+										>{t('delegates.legislaturePeriod')}</span
 									>
 									<div class="flex w-60 flex-wrap gap-1 text-sm">
 										{#each [...periods].reverse() as period}
@@ -765,13 +766,13 @@
 			<div class="flex-1">
 				<div class="mt-1 flex min-w-full justify-between px-1 text-base text-gray-800">
 					<div>
-						{renderStartDate == null ? '' : dashDateToDotDate(renderStartDate.toString())} (Anfang)
+						{renderStartDate == null ? '' : dashDateToDotDate(renderStartDate.toString())} ({t('delegates.timeline.start')})
 					</div>
 					<div>
 						{renderEndDate == null
 							? dashDateToDotDate(new Date().toISOString().split('T')[0])
 							: dashDateToDotDate(renderEndDate.toString())}
-						(Ende)
+						({t('delegates.timeline.end')})
 					</div>
 				</div>
 				<input
@@ -901,7 +902,7 @@
 						: 'text-gray-700 hover:bg-primary-400 dark:text-gray-300 dark:hover:bg-primary-500'}"
 					onclick={() => (activeTab = 'analysis')}
 				>
-					Übersicht
+					{t('delegates.overview')}
 				</button>
 				<button
 					class="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium {activeTab === 'activities'
@@ -909,7 +910,7 @@
 						: 'text-gray-700 hover:bg-primary-400 dark:text-gray-400 dark:hover:bg-primary-500'}"
 					onclick={() => (activeTab = 'activities')}
 				>
-					Aktivitäten
+					{t('delegates.activities')}
 				</button>
 				{#if delegate?.council === 'gov' || delegate?.mandates?.find((mandate) => {
 						return mandate.is_gov_official;
@@ -920,7 +921,7 @@
 							: 'text-gray-700 hover:bg-primary-400 dark:text-gray-400 dark:hover:bg-primary-500'}"
 						onclick={() => (activeTab = 'gov')}
 					>
-						Regierung
+						{t('delegates.gov')}
 					</button>
 				{/if}
 			</div>
@@ -1073,10 +1074,10 @@
 					>
 						{#if delegate && generalDelegateInfo?.received_call_to_orders}
 							<AbsencesPreview
-								title="Ordnungsrufe"
-								explanation="Zur Ordnung gerufen"
-								lastEntriesText="Letzte Ordnungsrufe"
-								noEntriesText="Keine Ordnungsrufe erhalten"
+								title={t('delegate.orderCalls.title')}
+								explanation={t('delegate.orderCalls.explanation')}
+								lastEntriesText={t('delegate.orderCalls.lastEntries')}
+								noEntriesText={t('delegate.orderCalls.noEntries')}
 								{delegate}
 								showTotal
 								showDetails={false}

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { partyToColor } from '$lib/partyColor';
 	import type { StatisticsData } from '$lib/types';
+	import { t } from '$lib/i18n/i18n.svelte';
 
 	let {
 		data,
@@ -80,7 +81,7 @@
 				viewBox="0 0 {chartSize} {chartSize}"
 				class="aspect-square w-full rounded-lg border border-gray-200 bg-white shadow-inner dark:border-surface-700 dark:bg-surface-900"
 				role="img"
-				aria-label="Politisches Spektrum"
+				aria-label={t('spectrum.chart.title')}
 			>
 				<rect
 					x={padding}
@@ -117,7 +118,7 @@
 					transform="rotate(-90 {padding - 12} {center})"
 					class="fill-gray-700 text-[12px] font-bold dark:fill-gray-200"
 				>
-					SOZIALISTISCH
+					{t('spectrum.quadrant.socialist')}
 				</text>
 				<text
 					x={chartSize - padding + 12}
@@ -126,7 +127,7 @@
 					transform="rotate(-90 {chartSize - padding + 12} {center})"
 					class="fill-gray-700 text-[12px] font-bold dark:fill-gray-200"
 				>
-					KAPITALISTISCH
+					{t('spectrum.quadrant.capitalist')}
 				</text>
 				<text
 					x={center}
@@ -134,7 +135,7 @@
 					text-anchor="middle"
 					class="fill-gray-700 text-[12px] font-bold dark:fill-gray-200"
 				>
-					AUTORITÄR
+					{t('spectrum.quadrant.authoritarian')}
 				</text>
 				<text
 					x={center}
@@ -142,7 +143,7 @@
 					text-anchor="middle"
 					class="fill-gray-700 text-[12px] font-bold dark:fill-gray-200"
 				>
-					LIBERTÄR
+					{t('spectrum.quadrant.liberal')}
 				</text>
 
 				{#each points as point, index}
@@ -161,9 +162,7 @@
 						stroke-width="1.5"
 						class="cursor-pointer drop-shadow-sm transition"
 						role="img"
-						aria-label="{point.item.label}: sozialistisch/kapitalistisch {point.x.toFixed(
-							3
-						)}, libertär/autoritär {point.y.toFixed(3)}"
+						aria-label={t('spectrum.chart.pointAria', { label: point.item.label, x: point.x.toFixed(3), y: point.y.toFixed(3) })}
 						onmouseenter={() => (hoveredIndex = index)}
 						onmouseleave={() => (hoveredIndex = null)}
 					/>
@@ -194,9 +193,9 @@
 						</div>
 					{/if}
 					<div class="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-700 dark:text-gray-200">
-						<span>Soz/Kap</span>
+						<span>{t('spectrum.chart.socCap')}</span>
 						<span class="text-right tabular-nums">{hoveredPoint.x.toFixed(3)}</span>
-						<span>Lib/Auth</span>
+						<span>{t('spectrum.chart.libAuth')}</span>
 						<span class="text-right tabular-nums">{hoveredPoint.y.toFixed(3)}</span>
 					</div>
 				</div>
@@ -207,7 +206,7 @@
 	<div
 		class="max-h-[520px] overflow-y-auto rounded-lg border border-gray-200 p-3 dark:border-surface-700"
 	>
-		<div class="mb-2 text-sm font-semibold text-gray-700 dark:text-gray-200">Punkte</div>
+		<div class="mb-2 text-sm font-semibold text-gray-700 dark:text-gray-200">{t('spectrum.chart.points')}</div>
 		{#each sideItems as point}
 			<div class="border-b border-gray-100 py-2 last:border-0 dark:border-surface-700">
 				<div class="flex items-center gap-2">
@@ -216,8 +215,8 @@
 					<span class="min-w-0 flex-1 truncate text-sm font-semibold">{point.item.label}</span>
 				</div>
 				<div class="mt-1 grid grid-cols-2 gap-2 pl-5 text-xs text-gray-600 dark:text-gray-300">
-					<span class="tabular-nums">S/K {point.x.toFixed(2)}</span>
-					<span class="tabular-nums">L/A {point.y.toFixed(2)}</span>
+					<span class="tabular-nums">{t('spectrum.chart.sk')} {point.x.toFixed(2)}</span>
+					<span class="tabular-nums">{t('spectrum.chart.la')} {point.y.toFixed(2)}</span>
 				</div>
 			</div>
 		{/each}

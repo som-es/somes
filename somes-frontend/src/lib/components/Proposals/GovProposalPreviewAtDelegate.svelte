@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Delegate, GovProposal } from '$lib/types';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import ExtendInfoDialog from '../Delegates/ExtendInfoDialog.svelte';
 	import AllProposalsModal from './AllProposalsModal.svelte';
 	import GovProposalExpandableBar from './Latest/GovProposalExpandableBar.svelte';
@@ -17,13 +18,12 @@
 <div>
 	<div class="flex items-start justify-between">
 		<div>
-			<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">Ministerialentwürfe</h1>
+			<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">{t('proposals.all.title')}</h1>
 			<h2 class="text-sm text-gray-800 dark:text-gray-300">
-				{govProposals.length}
-				{govProposals.length == 1 ? 'Ministerialentwurf' : 'Ministerialentwürfe'} insgesamt
+				{t(govProposals.length == 1 ? 'proposals.preview.countOne' : 'proposals.preview.countOther', { count: govProposals.length })}
 			</h2>
 		</div>
-		<ExtendInfoDialog title="Alle anzeigen">
+		<ExtendInfoDialog title={t('ui.showAll')}>
 			<AllProposalsModal {govProposals} {delegate} />
 		</ExtendInfoDialog>
 	</div>

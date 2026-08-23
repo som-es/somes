@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import Pagination from '$lib/components/Pagination.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import { Dialog } from 'bits-ui';
@@ -22,7 +23,7 @@
 
 <div class="w-7xl max-w-7xl card p-8">
 	<div class="flex items-center justify-between">
-		<h1 class="text-2xl font-bold">Letzte Verordnungen</h1>
+		<h1 class="text-2xl font-bold">{t('decrees.title')}</h1>
 		<Dialog.Close>
 			<ModalCloseButton />
 		</Dialog.Close>

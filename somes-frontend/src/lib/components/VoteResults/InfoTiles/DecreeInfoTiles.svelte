@@ -2,6 +2,7 @@
 	import type { Decree } from '$lib/components/Delegates/Decrees/types';
 	import Square from '$lib/components/UI/Square.svelte';
 	import { dashDateToDotDate } from '$lib/date';
+	import { t } from '$lib/i18n/i18n.svelte';
 
 	export let decree: Decree;
 	export let isCenter = false;
@@ -12,12 +13,12 @@
 		<div class="cursor-pointer text-center text-lg">
 			{decree.ministrial_issuer}
 		</div>
-		<span class="text-xl font-bold">Ressort</span>
+		<span class="text-xl font-bold">{t('infoTile.ministry')}</span>
 	</Square>
 	<Square>
 		<div class="text-lg font-bold">
 			{dashDateToDotDate(decree.publication_date.split('T')[0].toString())}
 		</div>
-		<div>Veröffentlicht am</div>
+		<div>{t('infoTile.publishedOn')}</div>
 	</Square>
 </div>

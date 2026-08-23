@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import type { DelegateQA } from '$lib/types';
 	import { Dialog, Popover } from 'bits-ui';
 	import DelegateQaEntry from './DelegateQAEntry.svelte';
@@ -21,7 +22,7 @@
 				<Popover.Content
 					class="z-51 w-72 rounded-lg bg-primary-300 p-4 shadow-lg dark:bg-primary-800"
 				>
-					Die Fragen und Antworten wurden aus dem Portraitvideo des Abgeordneten extrahiert.
+					{t('qa.extractedFromVideo')}
 				</Popover.Content>
 			</Popover.Portal>
 		</Popover.Root>
@@ -35,6 +36,6 @@
 			<DelegateQaEntry class="mt-3" delegateQa={qa} />
 		{/each}
 	{:else}
-		<p class="text-center">Keine Fragen und Antworten verfügbar.</p>
+		<p class="text-center">{t('spectrum.questions.empty')}</p>
 	{/if}
 </div>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { isThere } from '$lib/api/api';
 	import type { GovProposal } from '$lib/types';
 	import FilterGroup from '../Filtering/FilterGroup.svelte';
@@ -12,13 +13,13 @@
 
 	let filters = $state([
 		{
-			title: 'mit Abstimmung',
+			title: t('filter.votingWith'),
 			activeValue: undefined,
 			hidden: false,
 			options: [
-				{ title: 'egal', value: undefined },
-				{ title: 'Ja', value: true },
-				{ title: 'Nein', value: false }
+				{ title: t('filter.egal'), value: undefined },
+				{ title: t('filter.yes'), value: true },
+				{ title: t('filter.no'), value: false }
 			]
 		}
 	]);
@@ -37,5 +38,5 @@
 <FilterGroup bind:group={filters[0]} />
 
 {#if filteredGovProposals.length === 0}
-	<p class="text-center">Keine Ministerialentwürfe gefunden.</p>
+	<p class="text-center">{t('proposals.empty')}</p>
 {/if}

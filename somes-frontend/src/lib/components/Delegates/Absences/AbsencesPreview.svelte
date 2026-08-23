@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { getParliament, type Parliament } from '$lib/api/parliament';
 	import { cachedPlenarySessions } from '$lib/caching/plenarySessions';
 	import { formatDate } from '$lib/date';
@@ -23,10 +24,10 @@
 	let {
 		absences = [],
 		delegate,
-		title = 'Abwesenheiten',
-		explanation = `Verpasste Plenarsitzungen (${currentYear})`,
-		lastEntriesText = 'Zuletzt abwesend',
-		noEntriesText = 'Keine Abwesenheiten',
+		title = t('absences.title'),
+		explanation = t('absences.explanation'),
+		lastEntriesText = t('absences.lastEntries'),
+		noEntriesText = t('absences.noEntries'),
 		showTotal = false,
 		showDetails = true,
 		parliament
@@ -70,10 +71,10 @@
 	const sessionText = (council) => {
 		switch (parliament) {
 			case 'at': {
-				return council === 'NR' ? 'Nationalratssitzung' : 'Bundesratssitzung';
+				return council === 'NR' ? t('absences.nationalratSession') : t('absences.bundesratSession');
 			}
 			case 'eu':
-				return 'Plenarsitzung';
+				return t('absences.plenarySession');
 		}
 	};
 
@@ -155,7 +156,7 @@
 
 	{#if recentAbsences.length > 0}
 		<div class="mt-auto flex justify-end pt-4">
-			<ExtendInfoDialog title="Alle anzeigen">
+			<ExtendInfoDialog title={t('absences.showAll')}>
 				<AbsencesModal absences={sortedAbsences} {title} {showDetails} {delegate} />
 			</ExtendInfoDialog>
 		</div>

@@ -2,6 +2,7 @@
 	import { dashDateToDotDate } from '$lib/date';
 	import { type VoteResult } from '$lib/types';
 	import VoteTypeBadge from '../VoteTypeBadge.svelte';
+	import { t } from '$lib/i18n/i18n.svelte';
 	export let voteResult: VoteResult;
 	export let showRequiredMajority: boolean = true;
 	export let showGp: boolean = true;
@@ -11,9 +12,9 @@
 
 {#if showRequiredMajority}
 	{#if voteResult.legislative_initiative.requires_simple_majority}
-		<span class="badge bg-tertiary-400 text-black">einfache Mehrheit</span>
+		<span class="badge bg-tertiary-400 text-black">{t('filterOption.simpleMajority')}</span>
 	{:else}
-		<span class="badge bg-tertiary-400 text-black">2/3 Mehrheit</span>
+		<span class="badge bg-tertiary-400 text-black">{t('filterOption.twoThirdsMajority')}</span>
 	{/if}
 {/if}
 {#if showGp}

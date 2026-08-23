@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import type { Delegate, HasError, Interjection, InterjectionsWithMaxPage } from '$lib/types';
 	import { Popover } from 'bits-ui';
 	import ExtendInfoDialog from '../ExtendInfoDialog.svelte';
@@ -56,11 +57,11 @@
 			<div class="flex min-w-full flex-col">
 				<div class="flex flex-row justify-between">
 					<span class="text-lg font-bold text-black xl:text-xl dark:text-white">
-						Zwischenrufe
+						{t('interjections.title')}
 					</span>
 					{#if interjections.length !== 0}
 						<div>
-							<ExtendInfoDialog title="Alle anzeigen">
+							<ExtendInfoDialog title={t('interjections.showAll')}>
 								<InterjectionsModal
 									delegateId={issuerDelegate.id}
 									ty={activeTab}
@@ -81,7 +82,7 @@
 							: 'text-gray-700 hover:bg-primary-400 dark:text-gray-300 dark:hover:bg-primary-600'}"
 						onclick={() => (activeTab = 'issued')}
 					>
-						Vergeben
+						{t('interjections.issued')}
 					</button>
 					<button
 						class="flex-1 rounded-lg px-4 py-1 text-sm font-medium {activeTab === 'received'
@@ -89,7 +90,7 @@
 							: 'text-gray-700 hover:bg-primary-400 dark:text-gray-400 dark:hover:bg-primary-600'}"
 						onclick={() => (activeTab = 'received')}
 					>
-						Erhalten
+						{t('interjections.received')}
 					</button>
 				</div>
 			</div>
@@ -97,7 +98,7 @@
 
 		<div class="mt-4 flex flex-wrap">
 			{#if interjections.length === 0}
-				<div class="w-full rounded-lg bg-surface-100-900 p-20 text-center">Keine</div>
+				<div class="w-full rounded-lg bg-surface-100-900 p-20 text-center">{t('interjections.none')}</div>
 			{/if}
 			{#each interjections as interjection}
 				<Popover.Root>
@@ -112,7 +113,7 @@
 						<Popover.Content side="top">
 							<div class="rounded-lg bg-primary-200 p-5 dark:bg-primary-400">
 								{#await fetchDelegate(activeTab === 'issued' ? interjection.speaker_delegate_id : interjection.interjector_delegate_id)}
-									Lädt Redner..
+									{t('interjections.loadingSpeaker')}
 								{:then delegate}
 									{#if !isHasError(delegate)}
 										<button

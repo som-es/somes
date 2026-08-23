@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Popover } from 'bits-ui';
 	import SortIcon from './SortIcon.svelte';
+	import { t } from '$lib/i18n/i18n.svelte';
 
 	interface Props {
 		sortOrder: 'relevance' | 'Desc' | 'Asc';
@@ -23,7 +24,7 @@
 		<div
 			class="touch-manipulation rounded-xl border border-gray-300 bg-surface-50 px-4 py-3 shadow-lg dark:bg-surface-600"
 		>
-			<span class="text-sm font-semibold text-gray-800 dark:text-gray-50">Sortierung</span>
+			<span class="text-sm font-semibold text-gray-800 dark:text-gray-50">{t('filter.sort')}</span>
 			<div class="mt-2 flex gap-1 rounded-lg border border-primary-300 dark:border-primary-400">
 				<button
 					class="cursor-pointer rounded-lg px-2 py-1 text-xs md:text-sm {sortOrder === 'relevance'
@@ -34,7 +35,7 @@
 						isOpen = false;
 					}}
 				>
-					Relevanz
+					{t('filter.sort.relevance')}
 				</button>
 				<button
 					class="cursor-pointer rounded-lg px-2 py-1 text-xs md:text-sm {sortOrder === 'Desc'
@@ -45,7 +46,7 @@
 						isOpen = false;
 					}}
 				>
-					Neueste
+					{t('filter.sort.newest')}
 				</button>
 				<button
 					class="cursor-pointer rounded-lg px-2 py-1 text-xs md:text-sm {sortOrder === 'Asc'
@@ -56,7 +57,7 @@
 						isOpen = false;
 					}}
 				>
-					Älteste
+					{t('filter.sort.oldest')}
 				</button>
 			</div>
 			<Popover.Arrow class="rounded-sm fill-current stroke-gray-300 text-gray-300" />

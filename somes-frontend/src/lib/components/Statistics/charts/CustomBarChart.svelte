@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { BarChart } from 'layerchart';
+	import { t } from '$lib/i18n/i18n.svelte';
 
 	type ChartItem = {
 		category: string;
@@ -198,7 +199,7 @@
 				class="chart-scrollbar space-y-1 overflow-y-auto pr-2"
 				style="height: {rowViewportHeight};"
 				role="list"
-				aria-label="Statistikdaten"
+				aria-label={t('statistics.chartControl.chartData')}
 				onwheel={stopScrollChaining}
 				ontouchmove={stopScrollChaining}
 			>

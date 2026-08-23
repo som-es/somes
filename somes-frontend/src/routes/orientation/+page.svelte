@@ -8,6 +8,7 @@
 	import { getMandateLatestPeriod } from '../[parliament=parliament]/delegates/searchDelegates';
 	import { all_gps, toActualDateString } from '$lib/api/api';
 	import { goto } from '$app/navigation';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { plink } from '$lib/api/parliament';
 
 	type TopicInfluence = { topic: string; influence: number };
@@ -172,53 +173,44 @@
 </script>
 
 <svelte:head>
-	<title>Politische Orientierung</title>
-	<meta name="description" content="Politische Orientierung Fragebogen" />
+	<title>{t('orientation.page.title')}</title>
+	<meta name="description" content={t('orientation.page.description')} />
 </svelte:head>
 
 <Container>
 	{#if session.step === 'start'}
-		<h1 class="mt-2 px-1 pt-2 text-3xl font-bold sm:mt-0 sm:p-0 sm:text-4xl">Politische Orientierung</h1>
-		<p class="mt-3">Wähle die Länge des Fragebogens.</p>
+		<h1 class="mt-2 px-1 pt-2 text-3xl font-bold sm:mt-0 sm:p-0 sm:text-4xl">{t('orientation.page.title')}</h1>
+		<p class="mt-3">{t('orientation.start.chooseLength')}</p>
 
 		<div class="mt-4 card p-4 text-sm text-gray-700 dark:text-gray-300">
-			<p class="mb-2 font-semibold">Hinweis</p>
+			<p class="mb-2 font-semibold">{t('orientation.start.hint')}</p>
 			<p>
 				<span class="font-bold"
-					>Dieses Quiz ist rein als Orientierungshilfe gedacht und nicht zur Entscheidung bei Wahlen
-					geeignet.
+					>{t('orientation.start.hintBold')}
 				</span>
-				Es zeigt auch, was heute technisch stark automatisiert möglich ist. Der Vergleich mit anderen
-				Abgeordneten am Ende des Quiz funktioniert mit dem politischen Analyseprofil der Abgeordneten,
-				welches ebenfalls automatisiert generiert wird, auffindbar unter der somes-Abgeordnetenseite.
-				Deine Daten bzw. Eingaben werden lediglich lokal am Gerät verarbeitet und im Browser temporär gespeichert.
+				{t('orientation.start.hintText')}
 			</p>
 			<p class="mt-2">
-				Die Pro/Contra-Positionen von "Hubert" wurden KI-generiert. Die Fragen basieren teilweise
-				auf Anträgen aus dem Nationalrat der aktuellen Legislaturperiode. Dazu zählen z.B.
-				Regierungsvorlagen sowie Entschließungsanträge bzw. sonstige Anträge der Opposition. Die
-				Fragen wurden zu den jeweiligen Anträgen generiert und danach händisch selektiert. Dadurch
-				entsteht Bias, u. a. durch den Auswahlprozess und die dominierenden Themen der Opposition
-				wie Migration bzw. Klima.
-				<span class="font-bold">KI-generierte (sowie menschliche) Inhalte enthalten Fehler.</span>
+				{t('orientation.start.hintText2')}
+				<span class="font-bold">{t('orientation.start.hintBold2')}</span>
 			</p>
 		</div>
 
 		<div class="mt-6 grid gap-4 sm:grid-cols-2">
 			<button class="btn card p-6 text-left" onclick={() => startQuiz('short')}>
-				<h3 class="text-xl font-semibold">Kurz</h3>
-				<p class="mt-2 text-sm">Weniger Fragen, schneller Überblick.</p>
+				<h3 class="text-xl font-semibold">{t('orientation.start.short')}</h3>
+				<p class="mt-2 text-sm">{t('orientation.start.shortDesc')}</p>
 			</button>
 			<button class="btn card p-6 text-left" onclick={() => startQuiz('long')}>
-				<h3 class="text-xl font-semibold">Lang</h3>
-				<p class="mt-2 text-sm">Umfassendere Abdeckung der Themen.</p>
+				<h3 class="text-xl font-semibold">{t('orientation.start.long')}</h3>
+				<p class="mt-2 text-sm">{t('orientation.start.longDesc')}</p>
 			</button>
 		</div>
 	{:else if session.step === 'quiz'}
 		{@const q = currentQuestion()}
 		{@const qs = filteredQuestions()}
 		{#if q}
-			<h3 class="text-xl font-semibold sm:text-2xl mb-4">Frage {session.currentIndex + 1} von {qs.length}</h3>
+			<h3 class="text-xl font-semibold sm:text-2xl mb-4">{t('orientation.quiz.progress', { current: session.currentIndex + 1, total: qs.length })}</h3>
 
 			<div class="mt-4 card p-4">
 				<div class="flex flex-col gap-8">
@@ -229,7 +221,7 @@
 							{#if q.is_part_of.length}
 								<div class="mt-1 flex flex-wrap gap-1">
 									{#each q.is_part_of as tag}
-										{@const label = tag === 'short' ? 'Kurz' : tag === 'long' ? 'Lang' : tag}
+										{@const label = tag === 'short' ? t('orientation.start.short') : tag === 'long' ? t('orientation.start.long') : tag}
 										<span class="badge bg-primary-600 text-white dark:bg-primary-800">{label}</span>
 									{/each}
 								</div>
@@ -238,7 +230,7 @@
 
 						{#if q.topics.length}
 							<div class="hidden w-full shrink-0 lg:block lg:w-72">
-								<h4 class="mb-3 text-sm font-semibold">Themen</h4>
+								<h4 class="mb-3 text-sm font-semibold">{t('orientation.quiz.topics')}</h4>
 								<Topics topics={q.topics.map((t) => ({ topic: t }))} />
 							</div>
 						{/if}
@@ -249,7 +241,7 @@
 							{#if q.strong_reference_answers.length >= 2}
 								{@const pro = q.strong_reference_answers[0]}
 								{@const contra = q.strong_reference_answers[1]}
-								<label class="mb-2 block text-sm">Stellungnahme</label>
+								<label class="mb-2 block text-sm">{t('orientation.quiz.stance')}</label>
 								<input
 									type="range"
 									min="0"
@@ -264,11 +256,11 @@
 									<span class="max-w-[45%] text-right text-xs">{contra.answer}</span>
 								</div>
 							{:else}
-								<p class="text-sm">Keine starken Referenzen vorhanden.</p>
+								<p class="text-sm">{t('orientation.quiz.noReferences')}</p>
 							{/if}
 						{:else}
 							<div class="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5">
-								{#each ['Stark dagegen', 'Dagegen', 'Neutral', 'Dafür', 'Stark dafür'] as label, i}
+								{#each [t('orientation.quiz.stronglyAgainst'), t('orientation.quiz.against'), t('orientation.quiz.neutral'), t('orientation.quiz.for'), t('orientation.quiz.stronglyFor')] as label, i}
 									<button
 										class="btn bg-primary-400 {session.answers[q.id] === i * 25
 											? 'bg-secondary-500 text-white'
@@ -284,7 +276,7 @@
 
 					{#if q.topics.length}
 						<div class="block lg:hidden">
-							<h4 class="mb-3 text-sm font-semibold">Themen</h4>
+							<h4 class="mb-3 text-sm font-semibold">{t('orientation.quiz.topics')}</h4>
 							<Topics topics={q.topics.map((t) => ({ topic: t }))} />
 						</div>
 					{/if}
@@ -295,29 +287,28 @@
 							onclick={() => {
 						session.step = 'start';
 						session.quizType = null;
-					}}>Neu starten</button
+					}}>{t('orientation.quiz.restart')}</button
 						>
-						<button class="btn" onclick={prev} disabled={session.currentIndex === 0}>← Zurück</button>
-						<button class="btn" onclick={next}>Weiter →</button>
+						<button class="btn" onclick={prev} disabled={session.currentIndex === 0}>← {t('orientation.quiz.back')}</button>
+						<button class="btn" onclick={next}>{t('orientation.quiz.next')} →</button>
 					</div>
 
 					<div class="flex justify-start">
 						<button class="btn" onclick={toggleStrongRef}>
-							{session.strongRefMode ? 'Zu 5-Punkte Skala' : 'Zu Slider'}
+							{session.strongRefMode ? t('orientation.quiz.toScale') : t('orientation.quiz.toSlider')}
 						</button>
 					</div>
 				</div>
 			</div>
 		{/if}
 	{:else if session.step === 'result'}
-		<h1 class="mt-2 px-1 pt-2 text-3xl font-bold sm:mt-0 sm:p-0 sm:text-4xl">Ergebnis</h1>
-		<p class="mt-3">Du hast {answeredCount()} Fragen beantwortet.</p>
+		<h1 class="mt-2 px-1 pt-2 text-3xl font-bold sm:mt-0 sm:p-0 sm:text-4xl">{t('orientation.result.title')}</h1>
+		<p class="mt-3">{t('orientation.result.answered', { count: answeredCount() })}</p>
 		{@const topDelegates = getTopSimilarDelegates(10)}
 			<div class="card p-4">
-				<h3 class="mb-3 text-xl font-semibold sm:text-2xl">Ähnliche Abgeordnete</h3>
+				<h3 class="mb-3 text-xl font-semibold sm:text-2xl">{t('orientation.result.similar')}</h3>
 				<p class="mb-4 text-sm">
-					Vergleich basierend auf thematischer Übereinstimmung deiner Antworten mit dem politischen
-					Analyseprofil.
+					{t('orientation.result.similarDesc')}
 				</p>
 				{#each topDelegates as d (d.delegate.delegate.id)}
 					<div class="mb-2 flex items-center justify-between border-b pb-2">
@@ -330,7 +321,7 @@
 								goto(plink(`/delegates?gp=${gp}&date=${toActualDateString(date)}&delegate=${d.delegate.delegate.id}`))
 							}}
 						/>
-						<span class="text-sm">Ø Abweichung: {d.avgDiff?.toFixed(3)}</span>
+						<span class="text-sm">{t('orientation.result.avgDiff', { value: d.avgDiff?.toFixed(3) ?? '' })}</span>
 					</div>
 				{/each}
 			</div>
@@ -338,7 +329,7 @@
 			{#each filteredQuestions() as q}
 				<div class="card p-4">
 					<p class="font-medium">{q.question}</p>
-					<p class="mt-1 text-sm">Antwort: {session.answers[q.id] ?? 'keine'}</p>
+					<p class="mt-1 text-sm">{t('orientation.result.answer', { value: session.answers[q.id] ?? t('orientation.result.noAnswer') })}</p>
 				</div>
 			{/each}
 		</div>
@@ -347,7 +338,7 @@
 			onclick={() => {
 				session.step = 'start';
 				session.quizType = null;
-			}}>← Neu starten</button
+			}}>← {t('orientation.result.restart')}</button
 		>
 	{/if}
 </Container>

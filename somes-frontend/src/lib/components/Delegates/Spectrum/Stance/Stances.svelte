@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { topicColors } from '$lib/interestColors';
 	import type { StanceTopicScore } from '$lib/types';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import StanceDiagram from './StanceDiagram.svelte';
 	import { slide } from 'svelte/transition';
 
@@ -10,7 +11,7 @@
 		stances: StanceTopicScore[];
 	}
 
-	let { leftLabel = 'Links', rightLabel = 'Rechts', stances }: Props = $props();
+	let { leftLabel = t('spectrum.stance.label.left'), rightLabel = t('spectrum.stance.label.right'), stances }: Props = $props();
 
 	let open = $state(false);
 </script>

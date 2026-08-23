@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { errorToNull, get_eurovoc_topics } from '$lib/api/api';
 	import { onMount, untrack } from 'svelte';
 	import Pagination from '../Pagination.svelte';
@@ -18,6 +19,8 @@
 	import { convertDecreeFilterToUrl } from './urlConversion';
 	import DateRangeSnippet from '../Filtering/GenericFilterSnippets/DataRangeSnippet.svelte';
 	import TopicFilter from '../Filtering/TopicFilter.svelte';
+	import { localeStore } from '$lib/i18n/i18n.svelte';
+
 	interface Props {
 		decrees: DecreesWithMaxPage;
 		selectedGp: string | null;
@@ -29,28 +32,29 @@
 	let currentPage: number | undefined = $state(undefined);
 
 	let legisPeriodFilter = $state({
-		title: 'Legislaturperiode',
+		title: t('filter.legislaturePeriod'),
 		activeValue: 'all',
 		hidden: false,
-		options: [{ title: 'Alle', value: 'all' }]
+		options: [{ title: t('filterOption.all'), value: 'all' }]
 	});
 
 	let searchValue = $state('');
 	let sortOrder: 'relevance' | 'Desc' | 'Asc' = $state('relevance');
 
-	let updatedAt = $derived(
-		decrees.updated_at
-			? new Intl.DateTimeFormat('de-AT', {
+	let updatedAt = $derived.by(() => {
+		const locale = localeStore.value === 'de' ? 'de-AT' : 'en-AT';
+		return decrees.updated_at
+			? new Intl.DateTimeFormat(locale, {
 					day: '2-digit',
 					month: '2-digit',
 					year: 'numeric'
 				}).format(new Date(decrees.updated_at))
-			: 'Unbekannt'
-	);
+			: t('date.unknown');
+	});
 
 	let genericFilters: [GenericFilterGroup<string>] = $state([
 		{
-			title: 'Datum',
+			title: t('filter.date'),
 			activeValue: undefined,
 			hidden: false,
 			advanced: true,
@@ -173,7 +177,7 @@
 		const fetchedPeriods = await cachedAllLegisPeriods();
 		if (fetchedPeriods) {
 			legisPeriodFilter.options = [
-				{ title: 'Alle', value: 'all' },
+				{ title: t('filterOption.all'), value: 'all' },
 				...fetchedPeriods.map((p) => ({ title: p.gp, value: p.gp }))
 			];
 		}
@@ -186,7 +190,7 @@
 </script>
 
 <span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0 dark:text-gray-300">
-	Verordnungen aktualisiert am: {updatedAt}
+	{t('decrees.updatedAt')} {updatedAt}
 </span>
 
 <div class="mt-7 md:flex">
@@ -201,7 +205,7 @@
 
 	<div class="mt-2 flex h-10 w-full gap-2 text-xs sm:text-base md:mt-0 md:ml-2 md:w-auto">
 		<MultiValuesFilter
-			title="Ministerien"
+			title={t('filter.ministries')}
 			bind:selectedValues={selectedDepartments}
 			values={departments}
 		/>
@@ -236,7 +240,7 @@
 				<ExpandablePlaceholder class="my-4" />
 			{/each}
 		{:else}
-			Keine Verordnungen gefunden
+			{t('pagination.noResults')}
 		{/if}
 		<div class="float-right">
 			<Pagination bind:currentPage maxPage={decrees.max_page} />

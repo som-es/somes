@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import Pagination from '$lib/components/Pagination.svelte';
 	import SpeechBar from './SpeechBar.svelte';
 	import { errorToNull, speeches_by_delegate_per_page } from '$lib/api/api';
@@ -17,7 +18,7 @@
 		speechHeader?: Snippet<[FullSpeech]>;
 	}
 
-	let { title = 'Letzte Reden', speeches, delegateId, maxPage = 1, speechHeader }: Props = $props();
+	let { title = t('speeches.title'), speeches, delegateId, maxPage = 1, speechHeader }: Props = $props();
 
 	let page = $state(1);
 	let fetchedSpeeches: FullSpeech[] | null = $state(null);
@@ -41,7 +42,7 @@
 				<AiSummaryHintPopup
 					aiSummary={hintAiSummary}
 					align="start"
-					aiGenText="Titel und Zusammenfassungen der Reden wurden mittels KI aus den jeweiligen Reden erstellt."
+					aiGenText={t('speeches.aiHint')}
 				/>
 			{/if}
 			{title}

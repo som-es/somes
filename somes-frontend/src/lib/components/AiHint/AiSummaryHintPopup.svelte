@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { DbAiSummary } from '$lib/ai_summary_types';
 	import { Popover } from 'bits-ui';
+	import { t } from '$lib/i18n/i18n.svelte';
 
 	interface Props {
 		aiSummary: Pick<DbAiSummary, 'model_used' | 'version' | 'generated_at'>;
@@ -12,7 +13,7 @@
 	let {
 		aiSummary,
 		useTitleHover = false,
-		aiGenText = 'Titel, Zusammenfassungen, Schwerpunkte, Gültigkeitszeiträume, Themen und Glossar wurden mittels KI aus den jeweiligen Dokumenten zusammengefasst.',
+		aiGenText = t('aiSummary.defaultText'),
 		align = 'center'
 	}: Props = $props();
 
@@ -34,11 +35,11 @@
 		<div class="z-50 text-base font-bold">{aiGenText}</div>
 		<div class="flex flex-col flex-wrap text-sm! font-thin!">
 			<span
-				>Generiert am: {generatedAtDate.toLocaleDateString()}
+				>{t('aiSummary.generatedAt')} {generatedAtDate.toLocaleDateString()}
 				{generatedAtDate.toLocaleTimeString()}</span
 			>
-			<span>verwendetes Modell: {aiSummary.model_used}</span>
-			<span>Version: {aiSummary.version}</span>
+			<span>{t('aiSummary.model')} {aiSummary.model_used}</span>
+			<span>{t('aiSummary.version')} {aiSummary.version}</span>
 		</div>
 	</Popover.Content>
 </Popover.Root>

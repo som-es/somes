@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { errorToNull, url } from '$lib/api/api';
 	import { aiViewEnabledStore, currentDelegateStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
@@ -94,7 +95,7 @@
 
 	let uniqueParties = $derived.by(() => {
 		const parties = new Set<string>();
-		delegates.forEach((d) => parties.add(d.party?.trim() ? d.party : 'Ohne Klub'));
+		delegates.forEach((d) => parties.add(d.party?.trim() ? d.party : t('vote_result.withoutParty')));
 		return Array.from(parties).map((party) => ({
 			name: party,
 			color: partyColors.get(party) ?? '#ccc'
@@ -141,7 +142,7 @@
 		}
 		if (selectedPartiesNames.length > 0) {
 			res = res.filter((d) => {
-				const p = d.delegate.party?.trim() ? d.delegate.party : 'Ohne Klub';
+				const p = d.delegate.party?.trim() ? d.delegate.party : t('vote_result.withoutParty');
 				return selectedPartiesNames.includes(p);
 			});
 		}
@@ -170,7 +171,7 @@
 		if (voteResult?.issued_by_dels) {
 			const issuedByDels = new Map<string, number[]>();
 			voteResult.issued_by_dels.forEach((del) => {
-				const text = del.text ? del.text : 'Abgeordnete';
+				const text = del.text ? del.text : t('vote_result.delegates');
 				if (issuedByDels.has(text)) {
 					issuedByDels.get(text)?.push(del.delegate_id);
 				} else {
@@ -220,13 +221,13 @@
 	let documents = $derived(voteResult?.documents ?? []);
 
 	const infavorOptions = $derived.by(() => {
-		const val = [
-			{ value: 'Infavor', label: 'Dafür' },
-			{ value: 'NoVote', label: 'Nicht abgestimmt' },
-			{ value: 'Against', label: 'Dagegen' }
+	    const val = [
+    		{ value: 'Infavor', label: t('vote_result.inFavor') },
+    		{ value: 'NoVote', label: t('vote_result.notVoted') },
+    		{ value: 'Against', label: t('vote_result.against') },
 		];
-		if (data.parliament == 'eu') {
-			val.push({ value: 'Abstention', label: 'Enthalten' });
+		if (data.parliament == "eu") {
+		    val.push({ value: 'Abstention', label: t('vote_result.abstention') });
 		}
 		return val;
 	});
@@ -242,8 +243,8 @@
 </script>
 
 <svelte:head>
-	<title>Abstimmungsergebnis</title>
-	<meta name="description" content="Spezifisches Abstimmungsergebnis" />
+	<title>{t('vote_result.title')}</title>
+	<meta name="description" content={t('vote_result.meta')} />
 </svelte:head>
 
 {#if browser}
@@ -287,8 +288,8 @@
 
 								{#if voteResult.legislative_initiative.accepted && voteResult.legislative_initiative.vote_date}
 									<span class="text-sm opacity-90">
-										{voteResult.legislative_initiative.voted_by_name ? 'namentlich ' : ''}
-										abgestimmt am {dashDateToDotDate(
+										{voteResult.legislative_initiative.voted_by_name ? t('vote_result.nominally') : ''}
+										{t('vote_result.votedOn')} {dashDateToDotDate(
 											voteResult.legislative_initiative.vote_date.toString()
 										)}
 									</span>
@@ -354,7 +355,7 @@
 					<!-- Zusammenfassung -->
 					{#if aiViewEnabledStore.value && voteResult.ai_summary}
 						<div class="mt-5 pb-3">
-							<h1 class="text-lg font-semibold md:text-xl">Zusammenfassung</h1>
+							<h1 class="text-lg font-semibold md:text-xl">{t('vote_result.summary')}</h1>
 							<span
 								class="text-base text-gray-800 lg:text-base dark:text-gray-200"
 								style="hyphens: auto; word-break: break-word; overflow-wrap: break-word;"
@@ -409,7 +410,7 @@
 				{#snippet searchContent(onClose: () => void)}
 					<div class="mt-4 lg:mt-0">
 						<span class="text-sm font-semibold text-gray-800 lg:text-base dark:text-gray-200"
-							>Filter</span
+							>{t('vote_result.filter')}</span
 						>
 						<div class="mt-2 flex h-10 w-full gap-2 md:mt-1 md:w-auto">
 							<!-- Parteien Filter -->
@@ -424,15 +425,7 @@
 									}))}
 									bind:value={selectedPartiesNames}
 									allLabel="Alle Klubs"
-								>
-									{#snippet itemLabel(party)}
-										<div
-											class="h-3 w-3 shrink-0 rounded-full"
-											style="background-color: {party.color};"
-										></div>
-										<span class="truncate">{party.label}</span>
-									{/snippet}
-								</MultiSelectFilter>
+									/>
 								<Select.Root
 									type="single"
 									allowDeselect
@@ -450,7 +443,7 @@
 													<span class="truncate">{option.label}</span>
 												{/if}
 											{:else}
-												<span class="truncate">Abstimmungsverhalten</span>
+												<span class="truncate">{t('vote_result.votingBehavior')}</span>
 											{/if}
 										</div>
 										{@html upDownArrowIcon}
@@ -489,7 +482,7 @@
 									<MultiSelectFilter
 										items={uniqueCountries.map((c) => ({ value: c.code, label: c.name }))}
 										bind:value={selectedCountries}
-										allLabel="Alle Länder"
+										allLabel={t('filter.allCountries')}
 									/>
 								{/if}
 							</div>
@@ -501,7 +494,7 @@
 						{#if isSearchPopupOpen}
 							<div class="mb-1">
 								<span class="text-sm font-semibold text-gray-800 lg:text-base dark:text-gray-200"
-									>Suchergebnisse</span
+									>{t('vote_result.searchResults')}</span
 								>
 							</div>
 							<div class="space-y-2">
@@ -525,14 +518,14 @@
 											{/if}
 										{:else if del.absent === true}
 											<span class="text-xs font-medium text-gray-500 dark:text-gray-200"
-												>Nicht abgestimmt</span
+												>{t('vote_result.notVoted')}</span
 											>
 										{:else if del.infavor === false}
 											<span class="inline-block" style="width:24px; height:24px;"
 												>{@html crossmarkIcon}</span
 											>
 											{#if !del.isNamedVote}
-												<span class="text-xs font-light"> (Klub) </span>
+												<span class="text-xs font-light">{t('vote_result.byClub')}</span>
 											{/if}
 										{:else if del.abstention === true}
 											<span
@@ -545,7 +538,7 @@
 									</DelegateListItem>
 								{/each}
 								{#if filteredDelegates.length === 0}
-									<div class="p-4 text-center text-gray-500">Keine Ergebnisse gefunden</div>
+									<div class="p-4 text-center text-gray-500">{t('vote_result.noResults')}</div>
 								{/if}
 							</div>
 						{/if}
@@ -566,7 +559,7 @@
 								onclick={() => (isSearchPopupOpen = true)}
 								oninput={() => (isSearchPopupOpen = true)}
 								bind:searchValue
-								placeholder="Suche nach Abgeordneten..."
+								placeholder={t('vote_result.searchDelegates')}
 							/>
 
 							{#if isSearchPopupOpen}
@@ -593,12 +586,12 @@
 									class="w-full max-w-md rounded-2xl bg-primary-100 p-4 shadow-xl dark:bg-primary-600"
 								>
 									<div class="mb-4 flex items-center justify-between">
-										<h3 class="text-lg font-semibold">Suche</h3>
+										<h3 class="text-lg font-semibold">{t('vote_result.search')}</h3>
 										<ModalCloseButton class="p-1" onclick={() => (showMobileSearch = false)} />
 									</div>
 									<SearchBar
 										bind:searchValue
-										placeholder="Suche nach Abgeordneten..."
+										placeholder={t('vote_result.searchDelegates')}
 										onfocus={() => (isSearchPopupOpen = true)}
 										onclick={() => (isSearchPopupOpen = true)}
 										oninput={() => (isSearchPopupOpen = true)}
@@ -616,7 +609,7 @@
 							<!-- Abstimmung, Fractions, Result - Mobile -->
 							<div class="hidden w-full max-lg:block">
 								<div class="flex w-full items-center justify-between">
-									<h3 class="text-lg leading-none font-semibold md:text-xl">Abstimmung</h3>
+									<h3 class="text-lg leading-none font-semibold md:text-xl">{t('vote_result.vote')}</h3>
 									<button
 										class="flex items-center justify-center"
 										onclick={() => {
@@ -637,7 +630,7 @@
 											<span class="inline-block stroke-green-600" style="width:20px; height:20px;"
 												>{@html checkmarkIcon}</span
 											>
-											<span class="font-semibold">Dafür</span>
+											<span class="font-semibold">{t('vote_result.inFavor')}</span>
 										</div>
 										<div class="flex flex-col gap-2 pl-2">
 											{#each voteResult.votes
@@ -657,7 +650,7 @@
 												{/if}
 											{/each}
 											{#if !voteResult.votes.some((v) => v.infavor_count > 0)}
-												<span class="text-sm text-gray-500">Keine Klubs</span>
+												<span class="text-sm text-gray-500">{t('vote_result.noParties')}</span>
 											{/if}
 										</div>
 									</div>
@@ -668,7 +661,7 @@
 											<span class="inline-block stroke-red-600" style="width:20px; height:20px;"
 												>{@html crossmarkIcon}</span
 											>
-											<span class="font-semibold">Dagegen</span>
+											<span class="font-semibold">{t('vote_result.against')}</span>
 										</div>
 										<div class="flex flex-col gap-2 pl-2">
 											{#each voteResult.votes
@@ -688,7 +681,7 @@
 												{/if}
 											{/each}
 											{#if !voteResult.votes.some((v) => v.against_count > 0)}
-												<span class="text-sm text-gray-500">Keine Klubs</span>
+												<span class="text-sm text-gray-500">{t('vote_result.noParties')}</span>
 											{/if}
 										</div>
 									</div>
@@ -697,7 +690,7 @@
 
 							<!-- Abstimmung, Fractions, Result and Mini Parlament - Desktop-->
 							<div class="absolute ml-1 max-lg:hidden">
-								<h3 class="mb-1 text-lg font-semibold md:text-xl">Abstimmung</h3>
+								<h3 class="mb-1 text-lg font-semibold md:text-xl">{t('vote_result.vote')}</h3>
 								<div class="ml-1">
 									{#if voteResult.named_votes == null}
 										{#each sortedVotes as vote (vote.party)}
@@ -782,7 +775,7 @@
 							<!-- Divider -->
 							<hr class="my-4 border-t border-gray-400 dark:border-gray-600" />
 							<div class="mb-1">
-								<h3 class="text-md font-semibold md:text-lg">Eingebracht von</h3>
+								<h3 class="text-md font-semibold md:text-lg">{t('vote_result.introducedBy')}</h3>
 								<div class="mt-1 flex flex-col gap-2 md:flex-row md:flex-wrap md:gap-3">
 									{#each Array.from(issuedByDels.entries()) as [text, delegate_ids] (delegate_ids)}
 										{#each delegate_ids as delegate_id (delegate_id)}
@@ -818,7 +811,7 @@
 					</div>
 				{:else if issuedByDels.size > 0}
 					<div class="emphasis-item rounded-xl bg-primary-300 px-5 pt-3 pb-3 dark:bg-primary-500">
-						<h3 class="text-md font-semibold md:text-lg">Eingebracht von</h3>
+						<h3 class="text-md font-semibold md:text-lg">{t('vote_result.introducedBy')}</h3>
 						<div class="mt-1 flex flex-col gap-2 md:flex-row md:flex-wrap md:gap-3">
 							{#each Array.from(issuedByDels.entries()) as [text, delegate_ids] (delegate_ids)}
 								{#each delegate_ids as delegate_id (delegate_id)}
@@ -852,7 +845,7 @@
 				<!-- Referenziert in -->
 				{#if data.referencedByResults.length > 0}
 					<div class="w-full rounded-xl bg-primary-300 px-5 pt-4 pb-2 dark:bg-primary-500">
-						<span class="text-lg font-semibold md:text-xl">Referenziert in</span>
+						<span class="text-lg font-semibold md:text-xl">{t('vote_result.referencedIn')}</span>
 						<div class="my-0.5 flex flex-col rounded-xl">
 							{#each data.referencedByResults as ref}
 								<ReferencedByBar {ref} />
@@ -866,9 +859,9 @@
 					<div class="w-full rounded-xl bg-primary-300 px-5 pt-4 pb-2 dark:bg-primary-500">
 						<span class="text-lg font-semibold md:text-xl">
 							{#if voteResult.legislative_initiative.ityp == 'AA'}
-								Hauptgegenstand
+								{t('vote_result.mainTopic')}
 							{:else}
-								Bezug zu
+								{t('vote_result.referenceTo')}
 							{/if}
 						</span>
 
@@ -884,7 +877,7 @@
 					<div
 						class="speeches-item min-w-0 gap-3 rounded-xl bg-primary-300 p-5 dark:bg-primary-500"
 					>
-						<SpeechesPreview title="Reden" speeches={allSpeeches} totalCount={allSpeeches.length}>
+						<SpeechesPreview title={t('speeches.previewTitle')} speeches={allSpeeches} totalCount={allSpeeches.length}>
 							{#snippet speechHeader(speech)}
 								{@const speechDelegate = delegates.find((d) => d.id === speech.speech.delegate_id)}
 								{#if speechDelegate}
@@ -933,7 +926,7 @@
 				{#if generalNamedVoteDelegates != null}
 					{#if generalNamedVoteDelegates.length > 0}
 						<div class="speeches-item gap-3 rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
-							<span class="text-3xl font-bold">namentliche Abstimmungsergebnisse</span>
+							<span class="text-3xl font-bold">{t('vote_result.namedVoteResults')}</span>
 							<div class="mt-3 flex flex-row flex-wrap gap-3">
 								{#each generalNamedVoteDelegates as namedVoteDelegate}
 									<div>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import Pagination from '$lib/components/Pagination.svelte';
 	import AbsenceBar from './AbsenceBar.svelte';
 	import type { Absence, Delegate, LegisPeriod, PlenarySession } from '$lib/types';
@@ -19,7 +20,7 @@
 
 	let {
 		absences = [],
-		title = 'Letzte Abwesenheiten',
+		title = t('absences.title'),
 		showDetails = true,
 		delegate
 	}: Props = $props();
@@ -74,7 +75,7 @@
 	<!-- Card Container with soft steel-blue background and deep rounding -->
 	<div class="mt-3 rounded-3xl bg-[#c8d4df] p-8 shadow-sm select-none">
 		<!-- Card Title -->
-		<h2 class="mb-6 text-3xl font-semibold text-slate-800/90">An/Abwesenheit</h2>
+		<h2 class="mb-6 text-3xl font-semibold text-slate-800/90">{t('absences.modalTitle')}</h2>
 
 		<!-- GP Sections -->
 		<div class="space-y-6">
@@ -144,7 +145,7 @@
 															<span
 																class="badge bg-tertiary-400/80 px-2 py-0.75 text-[10px] font-bold tracking-wider text-black"
 															>
-																Abwesend
+																{t('absences.absent')}
 															</span>
 															{#if absence.date}
 																<span class="text-[10px] font-medium text-primary-600">
@@ -163,7 +164,7 @@
 																	rel="noopener noreferrer"
 																	class="flex items-center gap-1 font-semibold text-tertiary-700 underline transition-colors hover:text-tertiary-900"
 																>
-																	Quellennachweis öffnen →
+																	{t('absences.sourceLink')}
 																</a>
 															</div>
 														{/if}
@@ -177,7 +178,7 @@
 														<span
 															class="badge bg-primary-400 px-2 py-0.75 text-[10px] font-bold tracking-wider text-white"
 														>
-															Anwesend
+															{t('absences.present')}
 														</span>
 														{#if item.session.created_at}
 															<span class="text-[10px] font-medium text-primary-600">
@@ -199,7 +200,7 @@
 		<!-- Bottom Absence Counter -->
 		<div class="mt-6 pt-2 text-xl font-normal text-slate-700/90">
 			{totalAbsences}
-			{totalAbsences === 1 ? 'Abwesenheit' : 'Abwesenheiten'}
+			{totalAbsences === 1 ? t('absences.countSingular') : t('absences.countPlural')}
 		</div>
 	</div>
 </div>
