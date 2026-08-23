@@ -33,8 +33,8 @@
 <Dialog.Root>
 	<Dialog.Trigger
 		class="flex h-10 w-10 shrink-0 touch-manipulation items-center justify-center rounded-xl border-[2px] border-gray-400 bg-transparent p-1.5 transition-colors hover:bg-tertiary-400/30 focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:outline-none lg:hidden"
-		aria-label="Sitzplan anzeigen"
-		title="Sitzplan anzeigen"
+		aria-label={t('parliament.showSeating')}
+		title={t('parliament.showSeating')}
 	>
 		<span class="block w-16 scale-150">
 			<VoteParliament2

@@ -36,6 +36,6 @@
 			<DelegateQaEntry class="mt-3" delegateQa={qa} />
 		{/each}
 	{:else}
-		<p class="text-center">Keine Fragen und Antworten verfügbar.</p>
+		<p class="text-center">{t('spectrum.questions.empty')}</p>
 	{/if}
 </div>

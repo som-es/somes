@@ -38,5 +38,5 @@
 <FilterGroup bind:group={filters[0]} />
 
 {#if filteredGovProposals.length === 0}
-	<p class="text-center">Keine Ministerialentwürfe gefunden.</p>
+	<p class="text-center">{t('proposals.empty')}</p>
 {/if}

@@ -104,7 +104,7 @@
 
 		{#if restCount > 0}
 			<button
-				title="Alle {speakers.length} Reden zu diesem Schwerpunkt anzeigen"
+				title={t('emphasis.showAllSpeeches', { count: speakers.length })}
 				class="-ml-2 flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full bg-primary-600 px-1 text-[10px] font-semibold text-white ring-2 ring-primary-300 transition-transform hover:z-10 hover:scale-110 dark:ring-primary-500"
 				onclick={() => (listOpen = true)}
 			>
@@ -135,13 +135,13 @@
 				<div class="p-5 text-black lg:p-8">
 					<div class="flex items-start justify-between gap-3">
 						<div class="min-w-0">
-							<h1 class="text-xl font-bold lg:text-2xl">Reden zu diesem Schwerpunkt</h1>
+							<h1 class="text-xl font-bold lg:text-2xl">{t('emphasis.speechesTitle')}</h1>
 							{#if pointText}
 								<p class="mt-1 text-base text-gray-800 dark:text-gray-200">{pointText}</p>
 							{/if}
 							<p class="mt-1 text-sm text-gray-800 dark:text-gray-300">
 								{speakers.length}
-								{speakers.length === 1 ? 'Rede' : 'Reden'}
+								{speakers.length === 1 ? t('emphasis.speech.one') : t('emphasis.speech.other')}
 							</p>
 						</div>
 						<Dialog.Close>

@@ -177,15 +177,15 @@ import { t } from '$lib/i18n/i18n.svelte';
 </script>
 
 <svelte:head>
-	<title>Politische Positionen</title>
-	<meta name="description" content="Statistiken zu politischen Positionswerten von Abgeordneten" />
+	<title>{t('statistics.orientation.title')}</title>
+	<meta name="description" content={t('statistics.orientation.description')} />
 </svelte:head>
 
 <Container class="pb-12">
 	<div class="mt-2 mb-6">
-		<h1 class="text-3xl font-bold sm:text-4xl">Politische Positionen</h1>
+		<h1 class="text-3xl font-bold sm:text-4xl">{t('statistics.orientation.h1')}</h1>
 		<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
-			Politische Positionswerte nach Abgeordneten, Klubs und weiteren Gruppen.
+			{t('statistics.orientation.intro')}
 		</p>
 	</div>
 
@@ -232,7 +232,7 @@ import { t } from '$lib/i18n/i18n.svelte';
 		showSpectrumMode={true}
 		bind:selectedChartMode
 		extraReservedHeight={selectedChartMode === 'spectrum' ? 0 : 112}
-		infoQuestion="Was zeigt diese Statistik?"
+		infoQuestion={t('statistics.orientation.infoQuestion')}
 		infoAnswer={t('statistics.orientation.infoAnswer')}
 	/>
 </Container>

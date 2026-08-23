@@ -8,6 +8,7 @@
 	import GlossaryText from '../UI/GlossaryText.svelte';
 	import InfoBadgesCustom from '../VoteResults/InfoTiles/InfoBadgesCustom.svelte';
 	import type { MinisterialViewData } from './types';
+	import { t } from '$lib/i18n/i18n.svelte';
 
 	import { dashDateToDotDate } from '$lib/date';
 	import linkIcon from '$lib/assets/misc_icons/external-link.svg?raw';
@@ -96,7 +97,7 @@
 
 			{#if ministerialData.aiSummary}
 				<div class="mt-5 pb-3">
-					<h1 class="text-lg font-semibold md:text-xl">Zusammenfassung</h1>
+					<h1 class="text-lg font-semibold md:text-xl">{t('ministerialView.summary')}</h1>
 					<span
 						class="text-base text-gray-800 lg:text-base dark:text-gray-200"
 						style="hyphens: auto; word-break: break-word; overflow-wrap: break-word;"

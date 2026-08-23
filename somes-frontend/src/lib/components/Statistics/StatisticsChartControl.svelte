@@ -515,7 +515,7 @@
 				<div class="flex flex-wrap items-center gap-2">
 					<div
 						class="flex flex-wrap gap-1 rounded-xl border border-primary-300 p-1 dark:border-primary-400"
-						aria-label="Darstellung"
+						aria-label={t('statistics.chartControl.chartMode')}
 					>
 						{#each availableChartModeOptions as option}
 							<button

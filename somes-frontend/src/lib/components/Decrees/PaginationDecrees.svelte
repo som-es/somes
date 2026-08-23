@@ -205,7 +205,7 @@
 
 	<div class="mt-2 flex h-10 w-full gap-2 text-xs sm:text-base md:mt-0 md:ml-2 md:w-auto">
 		<MultiValuesFilter
-			title="Ministerien"
+			title={t('filter.ministries')}
 			bind:selectedValues={selectedDepartments}
 			values={departments}
 		/>

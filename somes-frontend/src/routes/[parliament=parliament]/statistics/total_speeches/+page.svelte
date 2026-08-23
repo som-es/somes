@@ -138,15 +138,15 @@ import { t } from '$lib/i18n/i18n.svelte';
 </script>
 
 <svelte:head>
-	<title>Anzahl der Reden - Parlamentsinformationssystem</title>
-	<meta name="description" content="Anzahl parlamentarischer Reden nach Personen und Gruppen" />
+	<title>{t('statistics.totalSpeeches.title')}</title>
+	<meta name="description" content={t('statistics.totalSpeeches.description')} />
 </svelte:head>
 
 <Container class="pb-12">
 	<div class="mt-2 mb-6">
-		<h1 class="text-3xl font-bold sm:text-4xl">Anzahl der Reden</h1>
+		<h1 class="text-3xl font-bold sm:text-4xl">{t('statistics.totalSpeeches.h1')}</h1>
 		<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
-			Wer wie oft im Parlament gesprochen hat.
+			{t('statistics.totalSpeeches.intro')}
 		</p>
 	</div>
 

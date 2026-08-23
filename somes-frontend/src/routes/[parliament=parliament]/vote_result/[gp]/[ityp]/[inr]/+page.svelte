@@ -877,7 +877,7 @@
 					<div
 						class="speeches-item min-w-0 gap-3 rounded-xl bg-primary-300 p-5 dark:bg-primary-500"
 					>
-						<SpeechesPreview title="Reden" speeches={allSpeeches} totalCount={allSpeeches.length}>
+						<SpeechesPreview title={t('speeches.previewTitle')} speeches={allSpeeches} totalCount={allSpeeches.length}>
 							{#snippet speechHeader(speech)}
 								{@const speechDelegate = delegates.find((d) => d.id === speech.speech.delegate_id)}
 								{#if speechDelegate}

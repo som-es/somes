@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { errorToNull } from '$lib/api/api';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import ReferencedByBar from '$lib/components/Bars/ReferencedByBar.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import MinisterialView from '$lib/components/MinisterialView/MinisterialView.svelte';
@@ -43,8 +44,8 @@
 </script>
 
 <svelte:head>
-	<title>Ministerialentwurf</title>
-	<meta name="description" content="Spezifischer Ministerialentwurf" />
+	<title>{t('govProposal.meta.title')}</title>
+	<meta name="description" content={t('govProposal.meta.description')} />
 </svelte:head>
 
 <Container>
@@ -53,7 +54,7 @@
 		{#snippet voteable()}
 			{#if govProposalDelegate.gov_proposal.vote_result}
 				<div class="entry block bg-primary-300 p-4 dark:bg-primary-500">
-					<span class="mb-1 text-lg font-semibold md:text-xl"> Regierungsvorlage </span>
+					<span class="mb-1 text-lg font-semibold md:text-xl"> {t('govProposal.title')} </span>
 					<ReferencedByBar
 						ref={govProposalDelegate.gov_proposal.vote_result}
 						showRequiredMajority

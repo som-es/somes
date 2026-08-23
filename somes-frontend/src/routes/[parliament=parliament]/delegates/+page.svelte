@@ -1074,10 +1074,10 @@
 					>
 						{#if delegate && generalDelegateInfo?.received_call_to_orders}
 							<AbsencesPreview
-								title="Ordnungsrufe"
-								explanation="Zur Ordnung gerufen"
-								lastEntriesText="Letzte Ordnungsrufe"
-								noEntriesText="Keine Ordnungsrufe erhalten"
+								title={t('delegate.orderCalls.title')}
+								explanation={t('delegate.orderCalls.explanation')}
+								lastEntriesText={t('delegate.orderCalls.lastEntries')}
+								noEntriesText={t('delegate.orderCalls.noEntries')}
 								{delegate}
 								showTotal
 								showDetails={false}
