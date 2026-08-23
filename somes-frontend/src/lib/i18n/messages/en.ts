@@ -397,6 +397,7 @@ export const en = {
 	'filter.sort.newest': 'Newest',
 	'filter.sort.oldest': 'Oldest',
 	'filter.searchPlaceholder': 'Search for {title}...',
+	'search.placeholder': 'Search...',
 	'filter.reset': 'Reset',
 	'filter.date.from': 'From',
 	'filter.date.to': 'To',
