@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Topic from '$lib/components/Topics/Topic.svelte';
 	import type { StanceTopicInfluences } from '$lib/types';
+	import { t } from '$lib/i18n/i18n.svelte';
 
 	export let stanceTopicInfluences: StanceTopicInfluences;
 	let clazz = '';
@@ -12,11 +13,11 @@
 		{stanceTopicInfluences.question}
 		<span>
 			{#if stanceTopicInfluences.stance_llm.toLowerCase().includes('positive')}
-				<span class="badge bg-success-600 text-white">Dafür</span>
+				<span class="badge bg-success-600 text-white">{t('spectrum.stance.label.for')}</span>
 			{:else if stanceTopicInfluences.stance_llm.toLowerCase().includes('negative')}
-				<span class="badge bg-red-600 text-white">Dagegen</span>
+				<span class="badge bg-red-600 text-white">{t('spectrum.stance.label.against')}</span>
 			{:else}
-				<span class="badge bg-primary-500 text-white">Neutral</span>
+				<span class="badge bg-primary-500 text-white">{t('spectrum.stance.label.neutral')}</span>
 			{/if}
 		</span>
 	</span>

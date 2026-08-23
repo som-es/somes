@@ -93,8 +93,8 @@
 				</Dialog.Title>
 				<Dialog.Description class="text-sm text-surface-500 dark:text-surface-400">
 					{isEditing
-						? 'Aktualisiere die Details für dieses Event.'
-						: 'Füge ein neues Event zur Timeline hinzu.'}
+						? t('event.editDesc')
+						: t('event.createDesc')}
 				</Dialog.Description>
 			</div>
 			<Dialog.Close
