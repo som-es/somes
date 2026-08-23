@@ -27,7 +27,7 @@ services:
     command: meilisearch --experimental-contains-filter
     environment:
       MEILI_ENV: development
-      MEILI_MASTER_KEY: kuO0udLIlDVpFUZNodIv0eIwfn3BcD679AtDPSIReek
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
       MEILI_NO_ANALYTICS: "true"
     ports:
       - "7700:7700"
