@@ -13,7 +13,6 @@
 	import { getSeats } from '$lib/caching/seats';
 	import LightSwitch from '../UI/LightSwitch.svelte';
 	import AiViewToggle from '../UI/AiViewToggle.svelte';
-	import LanguageSwitcher from '../UI/LanguageSwitcher.svelte';
 	import { jwtStore, loginDrawerOpenStore } from '$lib/caching/stores/stores.svelte';
 	import { isHasError } from '$lib/api/api';
 	import { renew_token } from '$lib/api/authed';
@@ -260,7 +259,6 @@
 		<div class="mt-auto mb-4 flex flex-col gap-3">
 			<LightSwitch />
 			<AiViewToggle />
-			<LanguageSwitcher />
 			<!-- <DarkMode class="text-primary-500 dark:text-primary-600 border dark:border-gray-800 hover:bg-primary-800" /> -->
 			<button
 				onclick={async () => {
