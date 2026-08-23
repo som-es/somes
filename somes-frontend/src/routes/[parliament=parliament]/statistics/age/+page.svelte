@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { justPostStatistics } from '$lib/api/api';
+import { t } from '$lib/i18n/i18n.svelte';
 	import StatisticsChartControl from '$lib/components/Statistics/StatisticsChartControl.svelte';
 	import type { StatisticsData } from '$lib/types';
 	import { mapAgeDelegate, mapAgeCategory } from '$lib/api/statistics-adapter';
@@ -9,13 +10,13 @@
 
 	const chartDescriptions = {
 		delegate:
-			'Alter der einzelnen Abgeordneten zu Beginn ihrer Mandatszeit in der ausgewählten Periode.',
-		party: 'Durchschnittsalter der Abgeordneten je Partei.',
-		gender: 'Durchschnittsalter nach Geschlecht.',
-		age: 'Durchschnittsalter innerhalb der Altersgruppen.',
-		legis: 'Durchschnittsalter der Abgeordneten je Legislaturperiode.',
-		line: 'Entwicklung des Durchschnittsalters über die Legislaturperioden.',
-		donut: 'Anteil der höchsten Alterswerte in der aktuellen Auswahl.'
+			t('statistics.age.desc.delegate'),
+		party: t('statistics.age.desc.party'),
+		gender: t('statistics.age.desc.gender'),
+		age: t('statistics.age.desc.age'),
+		legis: t('statistics.age.desc.legis'),
+		line: t('statistics.age.desc.line'),
+		donut: t('statistics.age.desc.donut')
 	};
 
 	const delegateSimpleAge = async (
@@ -138,13 +139,13 @@
 </script>
 
 <svelte:head>
-	<title>Altersstatistiken</title>
-	<meta name="description" content="Altersstatistiken über den Nationalrat und deren Abgeordnete" />
+	<title>{t('statistics.age.title')}</title>
+	<meta name="description" content={t('statistics.age.description')} />
 </svelte:head>
 
 <Container class="pb-12">
 	<div class="mt-2 mb-6">
-		<h1 class="text-3xl font-bold sm:text-4xl">Altersstatistiken</h1>
+		<h1 class="text-3xl font-bold sm:text-4xl">{t('statistics.age.h1')}</h1>
 		<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
 			Alter der Abgeordneten in der gewählten Periode und im Vergleich nach Gruppen.
 		</p>
@@ -154,8 +155,8 @@
 		height={520}
 		makeRequest={currentFunction}
 		bind:selectedCategory
-		valueLabel="Alter"
-		normalizedValueLabel="Alter"
+		valueLabel={t('statistics.age.valueLabel')}
+		normalizedValueLabel={t('statistics.age.normalizedValueLabel')}
 		{chartDescriptions}
 		filterConfig={{
 			showNormalized: false,

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { justPostStatistics } from '$lib/api/api';
+import { t } from '$lib/i18n/i18n.svelte';
 	import { mapOrientationCategory, mapOrientationDelegate } from '$lib/api/statistics-adapter';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import StatisticsChartControl from '$lib/components/Statistics/StatisticsChartControl.svelte';
@@ -12,19 +13,19 @@
 	let selectedChartMode = $state<ChartMode>('bar');
 
 	const categoryOptions = [
-		{ value: 'delegate', label: 'Abgeordnete' },
-		{ value: 'party', label: 'Klubs' },
-		{ value: 'gender', label: 'Geschlecht' },
-		{ value: 'age', label: 'Alter' }
+		{ value: 'delegate', label: t('statistics.orientation.category.delegate') },
+		{ value: 'party', label: t('statistics.orientation.category.party') },
+		{ value: 'gender', label: t('statistics.orientation.category.gender') },
+		{ value: 'age', label: t('statistics.orientation.category.age') }
 	];
 
 	const chartDescriptions = {
-		delegate: 'Gespeicherter Positionswert der einzelnen Abgeordneten.',
-		party: 'Durchschnittliche Positionswerte je Partei.',
-		gender: 'Durchschnittliche Positionswerte nach Geschlecht.',
-		age: 'Durchschnittliche Positionswerte nach Altersgruppen.',
-		spectrum: 'Wirtschaftliche und gesellschaftliche Positionen in einer gemeinsamen Ansicht.',
-		donut: 'Anteil der höchsten Positionswerte in der aktuellen Auswahl.'
+		delegate: t('statistics.orientation.desc.delegate'),
+		party: t('statistics.orientation.desc.party'),
+		gender: t('statistics.orientation.desc.gender'),
+		age: t('statistics.orientation.desc.age'),
+		spectrum: t('statistics.orientation.desc.spectrum'),
+		donut: t('statistics.orientation.desc.donut')
 	};
 
 	const orientationOptions: {
@@ -35,27 +36,27 @@
 	}[] = [
 		{
 			value: 'left',
-			label: 'Sozialistisch',
-			valueLabel: 'Sozialismus-Score',
-			description: 'Abgeordnete mit den höchsten gespeicherten sozialistischen Positionswerten.'
+			label: t('statistics.orientation.axis.left'),
+			valueLabel: t('statistics.orientation.axis.leftValue'),
+			description: t('statistics.orientation.axis.leftDesc')
 		},
 		{
 			value: 'right',
-			label: 'Kapitalistisch',
-			valueLabel: 'Kapitalismus-Score',
-			description: 'Abgeordnete mit den höchsten gespeicherten kapitalistischen Positionswerten.'
+			label: t('statistics.orientation.axis.right'),
+			valueLabel: t('statistics.orientation.axis.rightValue'),
+			description: t('statistics.orientation.axis.rightDesc')
 		},
 		{
 			value: 'liberal',
-			label: 'Libertär',
-			valueLabel: 'Libertärer Score',
-			description: 'Abgeordnete mit den höchsten gespeicherten libertären Orientierungswerten.'
+			label: t('statistics.orientation.axis.liberal'),
+			valueLabel: t('statistics.orientation.axis.liberalValue'),
+			description: t('statistics.orientation.axis.liberalDesc')
 		},
 		{
 			value: 'authoritarian',
-			label: 'Autoritär',
-			valueLabel: 'Autoritärer Score',
-			description: 'Abgeordnete mit den höchsten gespeicherten autoritären Orientierungswerten.'
+			label: t('statistics.orientation.axis.authoritarian'),
+			valueLabel: t('statistics.orientation.axis.authoritarianValue'),
+			description: t('statistics.orientation.axis.authoritarianDesc')
 		}
 	];
 
@@ -219,7 +220,7 @@
 		reloadKey={selectedOrientation}
 		bind:selectedCategory
 		{categoryOptions}
-		valueLabel={selectedOrientationOption.valueLabel}
+		valueLabel={t(selectedOrientationOption.valueLabelKey)}
 		normalizedValueLabel={selectedOrientationOption.valueLabel}
 		{chartDescriptions}
 		filterConfig={{
