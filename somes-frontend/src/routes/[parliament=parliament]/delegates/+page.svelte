@@ -496,58 +496,9 @@
 						>
 							<MultiSelectFilter
 								items={periods.map((p) => ({ value: p.gp, label: p.gp })).reverse()}
-<<<<<<< HEAD
-								allowDeselect={true}
-							>
-								<Select.Trigger
-									class="flex h-full grow touch-manipulation items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none md:grow-0"
-								>
-									<div class="flex items-center gap-2">
-										{#each selectedSearchPeriod.slice(0, 1) as period}
-											<span class="truncate">{period}</span>
-										{/each}
-										{#if selectedSearchPeriod.length > 1}
-											<span class="truncate">{t('delegates.morePeriods', { count: selectedSearchPeriod.length - 1 })}</span>
-										{/if}
-										{#if selectedSearchPeriod.length === 0}
-											<span class="truncate">{t('delegates.allPeriods')}</span>
-										{/if}
-									</div>
-									{@html upDownArrowIcon}
-								</Select.Trigger>
-								<Select.Portal>
-									<Select.Content
-										class="z-500 max-h-60 w-[200px] min-w-[var(--bits-select-anchor-width)] overflow-hidden rounded-xl border border-gray-200 bg-surface-100 shadow-lg dark:bg-surface-500"
-										sideOffset={8}
-									>
-										<Select.Viewport class="p-1">
-											{#each [...periods].reverse() as period}
-												<Select.Item
-													class="flex h-10 w-full cursor-pointer items-center rounded-lg py-3 pr-1.5 pl-3 text-sm capitalize transition-all duration-75 outline-none select-none data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-400"
-													value={period.gp}
-													label={period.gp}
-												>
-													{#snippet children({ selected })}
-														<div class="flex items-center gap-2">
-															{period.gp}
-														</div>
-														{#if selected}
-															<div class="ml-auto h-4 stroke-black dark:stroke-white">
-																{@html checkmark_small}
-															</div>
-														{/if}
-													{/snippet}
-												</Select.Item>
-											{/each}
-										</Select.Viewport>
-									</Select.Content>
-								</Select.Portal>
-							</Select.Root>
-=======
 								bind:value={selectedSearchPeriod}
 								allLabel="Alle Perioden"
 							/>
->>>>>>> eu
 						</div>
 						<!-- Parteien Filter -->
 						<div

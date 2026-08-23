@@ -19,8 +19,8 @@
 	import { convertDecreeFilterToUrl } from './urlConversion';
 	import DateRangeSnippet from '../Filtering/GenericFilterSnippets/DataRangeSnippet.svelte';
 	import TopicFilter from '../Filtering/TopicFilter.svelte';
-import { t } from '$lib/i18n/i18n.svelte';
-import { localeStore } from '$lib/i18n/i18n.svelte';
+	import { localeStore } from '$lib/i18n/i18n.svelte';
+
 	interface Props {
 		decrees: DecreesWithMaxPage;
 		selectedGp: string | null;

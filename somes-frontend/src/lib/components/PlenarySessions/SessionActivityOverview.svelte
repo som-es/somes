@@ -86,7 +86,7 @@
 						? overview.call_to_orders
 								.map((entry) => `${entry.delegate_name} (${entry.total_order_calls})`)
 								.join(', ')
-						: {t('sessionActivity.noOrderCalls')},
+						: t('sessionActivity.noOrderCalls'),
 				highlight: overview.call_to_order_count > 0,
 				className: 'xl:col-span-3'
 			}

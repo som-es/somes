@@ -311,7 +311,7 @@ export const de = {
 	'statistics.normalized': 'Normalisiert',
 	'statistics.absolute': 'Absolut',
 	'statistics.searchCategory': 'Kategorie suchen...',
-	'statistics.defaultComparison': 'Vergleich der aktuell ausgewählten Gruppen.'
+	'statistics.defaultComparison': 'Vergleich der aktuell ausgewählten Gruppen.',
 	'statistics.legisComparison': 'Vergleich der Legislaturperioden für diese Kennzahl.',
 	'statistics.ageComparison': 'Vergleich nach Altersgruppen in der aktuellen Auswahl.',
 	'decrees.title': 'Letzte Verordnungen',
