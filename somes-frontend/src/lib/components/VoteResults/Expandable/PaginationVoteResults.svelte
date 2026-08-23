@@ -307,7 +307,7 @@ import { localeStore } from '$lib/i18n/i18n.svelte';
 	let isPartiesFilterOpen = $state(false);
 
 	// Get and format updated_at date
-	let updatedAt = $derived(() => {
+	let updatedAt = $derived.by(() => {
 		const locale = localeStore.value === 'de' ? 'de-AT' : 'en-AT';
 		return voteResults?.updated_at
 			? new Intl.DateTimeFormat(locale, {

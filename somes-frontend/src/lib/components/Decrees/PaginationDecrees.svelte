@@ -41,7 +41,7 @@
 	let searchValue = $state('');
 	let sortOrder: 'relevance' | 'Desc' | 'Asc' = $state('relevance');
 
-	let updatedAt = $derived(() => {
+	let updatedAt = $derived.by(() => {
 		const locale = localeStore.value === 'de' ? 'de-AT' : 'en-AT';
 		return decrees.updated_at
 			? new Intl.DateTimeFormat(locale, {
