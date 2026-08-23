@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { justPostStatistics } from '$lib/api/api';
+import { t } from '$lib/i18n/i18n.svelte';
 	import StatisticsChartControl from '$lib/components/Statistics/StatisticsChartControl.svelte';
 	import type { StatisticsData } from '$lib/types';
 	import { mapSpeechTimeDelegate, mapSpeechTimeCategory } from '$lib/api/statistics-adapter';
@@ -8,6 +9,7 @@
 	export let selectedCategory: string = 'delegate';
 
 	const chartDescriptions = {
+	// Descriptions will be translated via i18n in the chart control; keep keys
 		'delegate.normalized': 'Durchschnittliche Dauer einer Rede je Abgeordneter oder Abgeordnetem.',
 		'delegate.absolute': 'Gesamte Redezeit je Abgeordneter oder Abgeordnetem.',
 		'party.normalized': 'Durchschnittliche Rededauer der Abgeordneten einer Partei.',
@@ -150,13 +152,13 @@
 </script>
 
 <svelte:head>
-	<title>Redezeitstatistiken - Parlamentsinformationssystem</title>
-	<meta name="description" content="Redezeiten im Parlament nach Personen und Gruppen" />
+	<title>{t('statistics.speechTime.title')}</title>
+	<meta name="description" content={t('statistics.speechTime.description')} />
 </svelte:head>
 
 <Container class="pb-12">
 	<div class="mt-2 mb-6">
-		<h1 class="text-3xl font-bold sm:text-4xl">Redezeitstatistiken</h1>
+		<h1 class="text-3xl font-bold sm:text-4xl">{t('statistics.speechTime.h1')}</h1>
 		<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
 			Gesamte Redezeit und durchschnittliche Rededauer im Parlament.
 		</p>
@@ -166,8 +168,8 @@
 		makeRequest={currentFunction}
 		height={560}
 		bind:selectedCategory
-		valueLabel="Redezeit"
-		normalizedValueLabel="Durchschnittliche Rededauer"
+		valueLabel={t('statistics.speechTime.valueLabel')}
+		normalizedValueLabel={t('statistics.speechTime.normalizedValueLabel')}
 		{chartDescriptions}
 	/>
 </Container>
