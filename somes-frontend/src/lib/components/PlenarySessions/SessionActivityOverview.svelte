@@ -6,7 +6,7 @@
 	interface ActivityCard {
 		label: string;
 		value: string;
-		detail: string;
+		detail: t('sessionActivity.detail.speechCountTotal', { count: overview.speech_count, total: formatDuration(overview.total_speech_time) })string;
 		highlight: boolean;
 		className: string;
 	}
@@ -35,10 +35,10 @@
 
 	function formatPercentile(threshold: number, unit = ''): string {
 		if (threshold <= 0) {
-			return 'kein Vergleichswert';
+			return t('sessionActivity.percentile.noComparison');
 		}
 
-		return `Top-5%-Grenze: ${Math.round(threshold)}${unit}`;
+		return t('sessionActivity.percentile.top5', { value: Math.round(threshold) }) + unit;
 	}
 
 	let averageSpeechTime = $derived(
@@ -53,28 +53,28 @@
 			{
 				label: t('common.votes'),
 				value: overview.vote_count.toString(),
-				detail: formatPercentile(overview.percentiles.vote_count_p95),
+				detail: t('sessionActivity.detail.speechCountTotal', { count: overview.speech_count, total: formatDuration(overview.total_speech_time) })formatPercentile(overview.percentiles.vote_count_p95),
 				highlight: isTopFivePercent(overview.vote_count, overview.percentiles.vote_count_p95),
 				className: 'xl:col-span-4'
 			},
 			{
 				label: t('sessionActivity.absences'),
 				value: overview.absence_count.toString(),
-				detail: formatPercentile(overview.percentiles.absence_count_p95),
+				detail: t('sessionActivity.detail.speechCountTotal', { count: overview.speech_count, total: formatDuration(overview.total_speech_time) })formatPercentile(overview.percentiles.absence_count_p95),
 				highlight: isTopFivePercent(overview.absence_count, overview.percentiles.absence_count_p95),
 				className: 'xl:col-span-4'
 			},
 			{
 				label: t('sessionActivity.avgSpeechTime'),
 				value: formatDuration(averageSpeechTime),
-				detail: `${overview.speech_count} Redebeiträge, insgesamt ${formatDuration(overview.total_speech_time)}`,
+				detail: t('sessionActivity.detail.speechCountTotal', { count: overview.speech_count, total: formatDuration(overview.total_speech_time) }),
 				highlight: false,
 				className: 'xl:col-span-4'
 			},
 			{
 				label: t('sessionActivity.speakers'),
 				value: overview.speaker_count.toString(),
-				detail: `${overview.speech_count} Redebeiträge`,
+				detail: t('sessionActivity.detail.speechCountTotal', { count: overview.speech_count, total: formatDuration(overview.total_speech_time) }),
 				highlight: isTopFivePercent(overview.speaker_count, overview.percentiles.speaker_count_p95),
 				className: 'xl:col-span-2'
 			},
@@ -97,12 +97,12 @@
 {#if overview}
 	<section class="mt-10">
 		<div class="mb-4 flex flex-col gap-1 px-1 sm:px-0">
-			<h2 class="text-3xl font-bold sm:text-4xl">Aktivität in der letzten Sitzung</h2>
+			<h2 class="text-3xl font-bold sm:text-4xl">{t('sessionActivity.lastSessionTitle')}</h2>
 			<p class="text-base text-gray-800 dark:text-gray-200">
 				{#if overview.inr}
-					{overview.inr}. Nationalratssitzung
+					{overview.inr}. {t('sessionActivity.sessionLabel')}
 				{:else}
-					Nationalratssitzung
+					{t('sessionActivity.sessionLabel')}
 				{/if}
 				{#if overview.legislative_period}
 					| {overview.legislative_period}
@@ -126,7 +126,7 @@
 						{#if card.highlight}
 							<span
 								class="shrink-0 rounded-lg bg-secondary-500 px-2 py-1 text-xs font-bold text-white dark:bg-secondary-300 dark:text-gray-950"
-								>auffällig</span
+								> {t('sessionActivity.highlight')} </span
 							>
 						{/if}
 					</div>
@@ -137,7 +137,7 @@
 			{/each}
 
 			<article class="rounded-xl bg-primary-300 p-4 shadow-sm xl:col-span-7 dark:bg-primary-500">
-				<h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Längste Redezeiten</h3>
+				<h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">{t('sessionActivity.topSpeakersTitle')}</h3>
 				{#if overview.top_speakers.length > 0}
 					<div class="mt-3 grid gap-2 md:grid-cols-3 xl:grid-cols-1">
 						{#each overview.top_speakers as speaker}
@@ -153,7 +153,7 @@
 						{/each}
 					</div>
 				{:else}
-					<p class="mt-3 text-sm text-gray-700 dark:text-gray-100">Keine erfasste Redezeit</p>
+					<p class="mt-3 text-sm text-gray-700 dark:text-gray-100">{t('sessionActivity.noSpeechTime')}</p>
 				{/if}
 			</article>
 		</div>

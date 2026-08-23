@@ -64,8 +64,8 @@
 		makeRequest,
 		height = 480,
 		selectedCategory = $bindable('delegate'),
-		valueLabel = 'Wert',
-		normalizedValueLabel = 'Wert (normalisiert)',
+		valueLabel = t('statistics.valueLabel'),
+		normalizedValueLabel = t('statistics.normalizedValueLabel'),
 		infoQuestion = null,
 		infoAnswer = null,
 		filterConfig = {
@@ -221,12 +221,12 @@
 			return t('statistics.valuesOfDelegates');
 		}
 		if (selectedCategory === 'age') {
-			return 'Vergleich nach Altersgruppen in der aktuellen Auswahl.';
+			return t('statistics.chartDescription.age');
 		}
 		if (selectedCategory === 'legis') {
-			return 'Vergleich der Legislaturperioden für diese Kennzahl.';
+			return t('statistics.chartDescription.legis');
 		}
-		return 'Vergleich der aktuell ausgewählten Gruppen.';
+		return t('statistics.chartDescription.groups');
 	});
 
 	let selectedGp = $derived(
@@ -420,7 +420,7 @@
 		} catch (err) {
 			if (currentRequestId !== requestId) return;
 			error =
-				err instanceof Error ? err.message : 'Die Statistikdaten konnten nicht geladen werden.';
+				err instanceof Error ? err.message : t('statistics.error.load');
 		} finally {
 			if (currentRequestId === requestId) loading = false;
 		}
@@ -437,7 +437,7 @@
 		<div class="flex flex-col gap-4">
 			<div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
 				<div>
-					<p class="text-sm font-semibold text-gray-600 dark:text-gray-300">Auswertung</p>
+					<p class="text-sm font-semibold text-gray-600 dark:text-gray-300">{t('statistics.chartControl.analysis')}</p>
 					<div
 						class="mt-2 flex flex-wrap gap-1 rounded-xl border border-primary-300 p-1 dark:border-primary-400"
 					>
@@ -462,7 +462,7 @@
 
 				<div class="flex flex-col gap-2 md:flex-row md:items-end">
 					<div class="min-w-64 flex-1">
-						<p class="mb-2 text-sm font-semibold text-gray-600 dark:text-gray-300">Suche</p>
+						<p class="mb-2 text-sm font-semibold text-gray-600 dark:text-gray-300">{t('statistics.chartControl.search')}</p>
 						<SearchBar
 							bind:searchValue
 							placeholder={selectedCategory === 'delegate' ? t('delegates.searchDelegates') : t('statistics.searchCategory')}
@@ -473,7 +473,7 @@
 							<MultiSelectFilter
 								items={uniqueParties.map((p) => ({ value: p.name, label: p.name, color: p.color }))}
 								bind:value={selectedParties}
-								allLabel="Alle Parteien"
+								allLabel={t('statistics.allParties')}
 							>
 								{#snippet itemLabel(party)}
 									<div
@@ -499,13 +499,13 @@
 			>
 				<div class="flex flex-wrap items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
 					{#if loading}
-						<span>Daten werden geladen für</span>
+						<span>{t('statistics.chartControl.loading')}</span>
 						<span class="rounded-lg bg-surface-200 px-2 py-1 font-semibold dark:bg-surface-600"
 							>{activeCategoryLabel}</span
 						>
 					{:else}
 						<span class="font-semibold">{filteredData.length}</span>
-						<span>Einträge in</span>
+						<span>{t('statistics.chartControl.entries')}</span>
 						<span class="rounded-lg bg-surface-200 px-2 py-1 font-semibold dark:bg-surface-600"
 							>{activeCategoryLabel}</span
 						>
@@ -666,21 +666,21 @@
 			</div>
 		{:else if error}
 			<div class="flex min-h-80 flex-col items-center justify-center gap-3 p-8 text-center">
-				<p class="font-semibold text-red-700 dark:text-red-300">Fehler beim Laden der Daten</p>
+				<p class="font-semibold text-red-700 dark:text-red-300">{t('statistics.chartControl.errorTitle')}</p>
 				<p class="max-w-lg text-sm text-red-600 dark:text-red-200">{error}</p>
 				<button
 					type="button"
 					class="rounded-lg bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600"
 					onclick={loadData}
 				>
-					Erneut versuchen
+					{t('statistics.chartControl.retry')}
 				</button>
 			</div>
 		{:else if chartData.length === 0}
 			<div class="flex min-h-80 flex-col items-center justify-center gap-2 p-8 text-center">
-				<p class="font-semibold text-gray-800 dark:text-gray-100">Keine Daten gefunden</p>
+				<p class="font-semibold text-gray-800 dark:text-gray-100">{t('statistics.chartControl.noData')}</p>
 				<p class="text-sm text-gray-600 dark:text-gray-300">
-					Passen Sie Suche, Parteien oder Filter an.
+					{t('statistics.chartControl.noDataHint')}
 				</p>
 			</div>
 		{:else if chartMode === 'spectrum'}
