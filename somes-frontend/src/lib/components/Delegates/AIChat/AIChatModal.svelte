@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
+import { t } from '$lib/i18n/i18n.svelte';
 	import type { Delegate } from '$lib/types';
 	import { Dialog, Popover } from 'bits-ui';
 	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
@@ -18,7 +19,7 @@
 	messages = [
 		{
 			role: 'assistant',
-			content: `Ich bin SomBOT, ein Chatbot des Demokratieprojekts "somes". Ich bin spezialisiert darauf, Fragen über ${delegate.name} (${delegate.party}) zu verschiedenen Themen zu beantworten.`
+			content: t('aiChat.intro', { name: delegate.name, party: delegate.party })
 		}
 	];
 	const recvMessage = (event: MessageEvent) => {
@@ -75,15 +76,15 @@
 				<Popover.Content
 					class="z-90 w-72 rounded-lg bg-primary-100 p-4 text-sm shadow-lg dark:bg-primary-600"
 				>
-					Die Antworten des Chatbots basieren auf Ausschnitten von Reden der jeweiligen Person.
-					Diese Ausschnitte können unvollständig oder aus dem Kontext gerissen sein, was zu
-					ungenauen oder irreführenden Antworten führen kann. Bitte beachten Sie, dass der Chatbot
-					nicht die tatsächlichen Meinungen oder Aussagen der Person widerspiegelt.
+					t('aiChat.disclaimer.part1')
+					t('aiChat.disclaimer.part2')
+					t('aiChat.disclaimer.part3')
+					t('aiChat.disclaimer.part4')
 				</Popover.Content>
 			</Popover.Portal>
 		</Popover.Root>
 		<!-- <Popover title="Hinweis" placement="bottom" trigger="hover"  transitionParams={{ duration: 200 }} class="z-40 text-sm w-72 p-4">
-			Die Antworten des Chatbots basieren auf Ausschnitten von Reden der jeweiligen Person. Diese
+			t('aiChat.disclaimer.part1') Diese
 			Ausschnitte können unvollständig oder aus dem Kontext gerissen sein, was zu ungenauen oder
 			irreführenden Antworten führen kann. Bitte beachten Sie, dass der Chatbot nicht die tatsächlichen
 			Meinungen oder Aussagen der Person widerspiegelt.

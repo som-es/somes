@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { partyToColor } from '$lib/partyColor';
+import { t } from '$lib/i18n/i18n.svelte';
 	import type { Delegate, PoliticalScore } from '$lib/types';
 	import QuadrantChart from '../../GeneralCharts/QuadrantChart.svelte';
 	import type { DataPoint } from '../../GeneralCharts/types';
@@ -28,7 +29,7 @@
 <div class={isMobile ? 'w-40' : 'w-60'}>
 	<QuadrantChart
 		{dataPoints}
-		xLabels={['KAPITALISTISCH', 'SOZIALISTISCH']}
-		yLabels={['AUTORITÄR', 'LIBERTÄR']}
+		xLabels={[t('spectrum.quadrant.capitalist'), t('spectrum.quadrant.socialist')]}
+		yLabels={[t('spectrum.quadrant.authoritarian'), t('spectrum.quadrant.liberal')]}
 	/>
 </div>
