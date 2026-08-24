@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { t } from '$lib/i18n/i18n.svelte';
 	import { formatDate } from '$lib/date';
-	import type { SessionActivityOverview } from '$lib/types';
+	import type { PlenarySession, SessionActivityOverview } from '$lib/types';
+	import { defaultGpByParliament, type Parliament } from '$lib/api/parliament';
 
 	interface ActivityCard {
 		label: string;
@@ -13,9 +14,11 @@
 
 	interface Props {
 		overview: SessionActivityOverview | null;
+		plenarySessions: Record<string, PlenarySession[]> | null,
+		parliament: Parliament
 	}
 
-	let { overview }: Props = $props();
+	let { overview, plenarySessions, parliament }: Props = $props();
 
 	function isTopFivePercent(value: number, threshold: number): boolean {
 		return threshold > 0 && value >= threshold;
@@ -99,11 +102,15 @@
 		<div class="mb-4 flex flex-col gap-1 px-1 sm:px-0">
 			<h2 class="text-3xl font-bold sm:text-4xl">{t('sessionActivity.lastSessionTitle')}</h2>
 			<p class="text-base text-gray-800 dark:text-gray-200">
-				{#if overview.inr}
-					{overview.inr}. {t('sessionActivity.sessionLabel')}
+			    {#if parliament === "eu" && plenarySessions}
+					{plenarySessions[defaultGpByParliament(parliament)].length}. {t('sessionActivity.sessionLabelEu')}
 				{:else}
-					{t('sessionActivity.sessionLabel')}
+				    {#if overview.inr}
+						{overview.inr}. {t('sessionActivity.sessionLabel')}
+					{/if}
+				    {t('sessionActivity.sessionLabel')}
 				{/if}
+
 				{#if overview.legislative_period}
 					| {overview.legislative_period}
 				{/if}

@@ -336,6 +336,7 @@ export const en = {
 	'sessionActivity.noOrderCalls': 'No order calls',
 	'sessionActivity.lastSessionTitle': 'Activity in the last session',
 	'sessionActivity.sessionLabel': 'National Council session',
+	'sessionActivity.sessionLabelEu': 'Plenary session',
 	'sessionActivity.topSpeakersTitle': 'Longest speaking times',
 	'sessionActivity.noSpeechTime': 'No recorded speaking time',
 	'sessionActivity.highlight': 'notable',
