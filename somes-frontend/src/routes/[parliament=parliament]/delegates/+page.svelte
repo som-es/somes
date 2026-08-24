@@ -43,13 +43,12 @@
 	import AbsencesPreview from '$lib/components/Delegates/Absences/AbsencesPreview.svelte';
 	import NamedVotePreview from '$lib/components/Delegates/NamedVote/NamedVotePreview.svelte';
 	import TopicsChart from '$lib/components/Delegates/Interests/TopicsChart.svelte';
-	import StanceTypeSwitcher from '$lib/components/Delegates/Spectrum/Stance/StanceTypeSwitcher.svelte';
 	import LeftRightChart from '$lib/components/Delegates/Spectrum/Stance/LeftRightChart.svelte';
 	import PoliticalStanceTitleBar from '$lib/components/Delegates/Spectrum/PoliticalStanceTitleBar.svelte';
 	import DecreePreview from '$lib/components/Delegates/Decrees/DecreePreview.svelte';
 	import IssuedProposalPreview from '$lib/components/Delegates/IssuedProposal/IssuedProposalPreview.svelte';
 	import MandatesPreview from '$lib/components/Delegates/Mandates/MandatesPreview.svelte';
-	import { goto, replaceState } from '$app/navigation';
+	import { goto } from '$app/navigation';
 	import type { PageProps } from './$types';
 	import downArrowIcon from '$lib/assets/misc_icons/down-arrow.svg?raw';
 	import searchIcon from '$lib/assets/misc_icons/search-glass.svg?raw';
@@ -65,7 +64,6 @@
 	import InterjectionsPreview from '$lib/components/Delegates/Interjections/InterjectionsPreview.svelte';
 	import MobileParliamentModal from '$lib/components/Parliaments/MobileParliamentModal.svelte';
 	import { defaultGp } from '$lib/api/parliament';
-	import { page } from '$app/state';
 
 	let { data }: PageProps = $props();
 
