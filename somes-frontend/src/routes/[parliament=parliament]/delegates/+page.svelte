@@ -55,6 +55,7 @@
 	import { groupPartyDelegates } from '$lib/parliaments/defaultParliament';
 	import { Popover } from 'bits-ui';
 	import MultiSelectFilter from '$lib/components/Filtering/MultiSelectFilter.svelte';
+	import { countryName } from '$lib/countries';
 	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
 	import { getMandateLatestPeriod, getMandatePeriods } from './searchDelegates';
 	import GenericFilters from '$lib/components/Filtering/GenericFilters.svelte';
@@ -80,6 +81,19 @@
 
 	let selectedPartiesNames = $state<string[]>([]);
 	let selectedParties = $state<Party[]>([]);
+	let selectedCountries = $state<string[]>([]);
+
+	// countryfilter for EU
+	let uniqueCountries = $derived.by(() => {
+		if (data.parliament !== 'eu') return [];
+		const codes = new Set<string>();
+		delegates.forEach((d) => {
+			if (d.constituency?.trim()) codes.add(d.constituency);
+		});
+		return Array.from(codes)
+			.map((code) => ({ code, name: countryName(code) }))
+			.sort((a, b) => a.name.localeCompare(b.name, 'de'));
+	});
 
 	let selectedSearchPeriod = $state<string[]>([
 		data.cachedPeriods?.at(data.cachedPeriods.length - 1)?.gp || defaultGp()
@@ -143,6 +157,7 @@
 		const sv = searchInput;
 		const searchPeriods = selectedSearchPeriod;
 		const searchParties = selectedParties;
+		const searchCountries = selectedCountries;
 		const onlyGov = genericFilters[0].activeValue;
 		const hasActiveMandate = genericFilters[1].activeValue;
 		const mindPreviousPartyMembership = genericFilters[2].activeValue;
@@ -164,7 +179,8 @@
 				searchParties.map((party) => party.name),
 				onlyGov,
 				mindPreviousPartyMembership,
-				hasActiveMandate
+				hasActiveMandate,
+				searchCountries
 			);
 
 			if (!isHasError(res)) {
@@ -519,6 +535,17 @@
 								{/snippet}
 							</MultiSelectFilter>
 						</div>
+						{#if uniqueCountries.length > 0}
+							<div
+								class="flex h-full grow touch-manipulation items-center justify-center gap-1 md:grow-0"
+							>
+								<MultiSelectFilter
+									items={uniqueCountries.map((c) => ({ value: c.code, label: c.name }))}
+									bind:value={selectedCountries}
+									allLabel="Alle Länder"
+								/>
+							</div>
+						{/if}
 						<div
 							class="flex h-full grow touch-manipulation items-center justify-center gap-1 md:grow-0"
 						>

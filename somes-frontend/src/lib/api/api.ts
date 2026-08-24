@@ -243,6 +243,7 @@ export async function delegates_search_persons(
 	onlyGov: boolean | null = null,
 	mindPreviousPartyMembership: boolean = true,
 	hasActiveMandate: boolean | null = null,
+	searchCountries: string[] = [],
 	fetcher: typeof fetch = fetch
 ): Promise<DelegatesWithMaxPage | HasError> {
 	let query = `v1/delegates/search?page=${page}&entries_per_page=${entries_per_page}`;
@@ -259,6 +260,10 @@ export async function delegates_search_persons(
 		} else {
 			query += `&party[in][${i}]=${encodeURIComponent(party)}`;
 		}
+	});
+
+	searchCountries.forEach((country, i) => {
+		query += `&constituency[in][${i}]=${encodeURIComponent(country)}`;
 	});
 
 	if (onlyGov !== null) {
