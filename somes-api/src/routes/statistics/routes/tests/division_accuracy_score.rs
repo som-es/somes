@@ -8,7 +8,7 @@ fn create_test_base_data() -> Vec<DivisionAccuracyBase> {
             delegate_name: "Delegate A".to_string(),
             delegate_party: "Party X".to_string(),
             delegate_filter_party: "Party X".to_string(),
-            delegate_gender: "M".to_string(),
+            delegate_gender: Some("M".to_string()),
             accuracy_score: 0.8,
             total_votes: 10,
             latest_activity_date: None,
@@ -18,7 +18,7 @@ fn create_test_base_data() -> Vec<DivisionAccuracyBase> {
             delegate_name: "Delegate B".to_string(),
             delegate_party: "Party X".to_string(),
             delegate_filter_party: "Party X".to_string(),
-            delegate_gender: "F".to_string(),
+            delegate_gender: Some("F".to_string()),
             accuracy_score: 0.6,
             total_votes: 5,
             latest_activity_date: None,
@@ -28,7 +28,7 @@ fn create_test_base_data() -> Vec<DivisionAccuracyBase> {
             delegate_name: "Delegate C".to_string(),
             delegate_party: "Party Y".to_string(),
             delegate_filter_party: "Party Y".to_string(),
-            delegate_gender: "M".to_string(),
+            delegate_gender: Some("M".to_string()),
             accuracy_score: 0.9,
             total_votes: 8,
             latest_activity_date: None,
@@ -38,7 +38,7 @@ fn create_test_base_data() -> Vec<DivisionAccuracyBase> {
             delegate_name: "Delegate D".to_string(),
             delegate_party: "Party Y".to_string(),
             delegate_filter_party: "Party Y".to_string(),
-            delegate_gender: "F".to_string(),
+            delegate_gender: Some("F".to_string()),
             accuracy_score: 0.7,
             total_votes: 12,
             latest_activity_date: None,
@@ -133,7 +133,7 @@ async fn test_get_base_data_applies_filters_and_computes_division_accuracy_stats
     let delegate = &results[0];
     assert_eq!(delegate.delegate_name, "Delegate A");
     assert_eq!(delegate.delegate_party, "Party X");
-    assert_eq!(delegate.delegate_gender, "M");
+    assert_eq!(delegate.delegate_gender, Some("M".to_string()));
     assert!((delegate.accuracy_score - 0.5).abs() < 0.001);
     assert_eq!(delegate.total_votes, 2);
     assert_eq!(delegate.delegate_age_bucket, "31-40");

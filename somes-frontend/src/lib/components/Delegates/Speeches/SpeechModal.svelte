@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { Dialog, Select } from 'bits-ui';
 	import type { Snippet } from 'svelte';
 	import { slide } from 'svelte/transition';
@@ -59,7 +60,7 @@
 		return encodeURIComponent(text).replace(/-/g, '%2D');
 	}
 
-	// for long text, only search via 3 start and end words 
+	// for long text, only search via 3 start and end words
 	function protocolLink(quote: string): string | null {
 		const documentUrl = speech.speech.document_urls?.[0];
 		if (!documentUrl) return null;
@@ -88,12 +89,12 @@
 
 	let detailLevels: DetailLevel[] = $derived(
 		[
-			{ label: 'Ein Satz', text: aiSummary?.one_sentence_short_summary },
-			{ label: 'Sehr kurz', text: aiSummary?.very_short_summary },
-			{ label: 'Kurz', text: aiSummary?.short_summary },
-			{ label: 'Normal', text: aiSummary?.full_speech_summary.summary },
-			{ label: 'Lang', text: aiSummary?.detailed_summary },
-			{ label: 'Sehr lang', text: aiSummary?.very_detailed_summary }
+			{ label: t('speeches.detailLevel.oneSentence'), text: aiSummary?.one_sentence_short_summary },
+			{ label: t('speeches.detailLevel.veryShort'), text: aiSummary?.very_short_summary },
+			{ label: t('speeches.detailLevel.short'), text: aiSummary?.short_summary },
+			{ label: t('speeches.detailLevel.normal'), text: aiSummary?.full_speech_summary.summary },
+			{ label: t('speeches.detailLevel.long'), text: aiSummary?.detailed_summary },
+			{ label: t('speeches.detailLevel.veryLong'), text: aiSummary?.very_detailed_summary }
 		].filter((level): level is DetailLevel => !!level.text?.trim())
 	);
 
@@ -114,16 +115,16 @@
 		const { speech_related_to_proposal_summary, speech_related_to_detailed_proposal_summary } =
 			relation.full_speech_relations;
 		if (speech_related_to_proposal_summary)
-			return { icon: '✓', text: 'Behandelt diesen Antrag', class: 'bg-green-600 text-white' };
+			return { icon: '✓', text: t('speeches.relation.handlesProposal'), class: 'bg-green-600 text-white' };
 		if (speech_related_to_detailed_proposal_summary)
 			return {
 				icon: '~',
-				text: 'Behandelt nur Details des Antrags',
+				text: t('speeches.relation.handlesDetails'),
 				class: 'bg-yellow-400 text-black'
 			};
 		return {
 			icon: '!',
-			text: 'Bezieht sich kaum auf diesen Antrag',
+			text: t('speeches.relation.relatedLittle'),
 			class: 'bg-orange-600 text-white'
 		};
 	}
@@ -132,7 +133,7 @@
 		const seconds = speech.speech.duration_in_seconds;
 		if (!seconds) return null;
 		const mins = Math.floor(seconds / 60);
-		return `${mins}:${(seconds - mins * 60).toString().padStart(2, '0')} min`;
+		return `${mins}:${(seconds - mins * 60).toString().padStart(2, '0')} ${t('speeches.min')}`;
 	});
 </script>
 
@@ -165,11 +166,11 @@
 								<AiSummaryHintPopup
 									{aiSummary}
 									align="start"
-									aiGenText="Titel, Zusammenfassungen, Schwerpunkte und Bezüge zu Abstimmungen wurden mittels KI aus der Rede erstellt."
+									aiGenText={t('speeches.modalAiGenText')}
 								/>
 								{aiSummary.short_title}
 							{:else}
-								{speech.speech.about ?? 'Rede'}
+								{speech.speech.about ?? t('speeches.fallbackTitle')}
 							{/if}
 						</h1>
 						<div class="mt-1 flex flex-wrap items-center gap-3 text-sm text-gray-700">
@@ -184,7 +185,7 @@
 								</span>
 							{/if}
 							{#each speech.speech.document_urls ?? [] as url (url)}
-								<a href={url} target="_blank" class="underline">Redeprotokoll öffnen</a>
+								<a href={url} target="_blank" class="underline">{t('speeches.openProtocol')}</a>
 							{/each}
 						</div>
 					</div>
@@ -196,7 +197,7 @@
 				{#if aiSummary}
 					<div class="rounded-xl bg-primary-300 px-5 py-3 dark:bg-primary-500">
 						<div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-							<h2 class="text-lg font-semibold md:text-xl">Zusammenfassung</h2>
+							<h2 class="text-lg font-semibold md:text-xl">{t('speeches.summary')}</h2>
 							{#if detailLevels.length > 1}
 								<Select.Root
 									type="single"
@@ -246,7 +247,7 @@
 
 						<p class="text-base text-gray-800 dark:text-gray-200">
 							{#if detailLevels.length === 0}
-								Keine Zusammenfassung vorhanden.
+								{t('speeches.noSummary')}
 							{:else if glossary}
 								<GlossaryText text={detailLevels[safeDetailIndex].text} {glossary} />
 							{:else}
@@ -257,7 +258,7 @@
 
 					{#if keyPoints.length > 0}
 						<div class="rounded-xl bg-primary-300 px-5 py-3 dark:bg-primary-500">
-							<h2 class="text-lg font-semibold md:text-xl">Schwerpunkte der Rede</h2>
+							<h2 class="text-lg font-semibold md:text-xl">{t('speeches.keyPointsTitle')}</h2>
 							<ul class="mt-2 flex flex-col gap-4">
 								{#each keyPoints as keyPoint, i (i)}
 									<!-- Ohne Zitat gibt es nichts aufzuklappen. -->
@@ -306,7 +307,7 @@
 																	href={link}
 																	target="_blank"
 																	rel="noopener"
-																	title="Stelle im Protokoll öffnen"
+																	title={t('speeches.openProtocolLinkTitle')}
 																	class="group flex min-w-0 flex-1 items-center gap-2"
 																>
 																	<p
@@ -344,7 +345,7 @@
 					<ExpandablePlaceholder />
 				{:else if relatedVoteResults.length > 0}
 					<div>
-						<h2 class="text-lg font-semibold md:text-xl">Bezieht sich auf</h2>
+						<h2 class="text-lg font-semibold md:text-xl">{t('speeches.relatedTo')}</h2>
 						{#each relatedVoteResults as { relation, voteResult } (relation.id)}
 							{#if voteResult}
 								{@const label = relationLabel(relation)}

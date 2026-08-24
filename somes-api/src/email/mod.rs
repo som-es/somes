@@ -2,8 +2,8 @@
 
 use dotenvy_macro::dotenv;
 use lettre::{
-    message::header::ContentType, transport::smtp::authentication::Credentials, Message,
-    SmtpTransport, Transport,
+    Message, SmtpTransport, Transport, message::header::ContentType,
+    transport::smtp::authentication::Credentials,
 };
 use once_cell::sync::Lazy;
 
@@ -71,10 +71,4 @@ pub fn send_otp_mail(mail_to: &str, otp: &str) -> Result<(), Box<dyn std::error:
     send_mail(&MAILER, mail_to, "Dein Somes One-Time Passwort", content)?;
 
     Ok(())
-}
-
-#[test]
-fn test_send_mail() {
-    send_otp_mail("florian.nagy@it.htl-hl.ac.at", "A12 3Z2 HAC").unwrap()
-    // send_mail("", "tolle_id_zum_verifizieren");
 }

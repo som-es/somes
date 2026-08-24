@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { justPostStatistics } from '$lib/api/api';
+import { t } from '$lib/i18n/i18n.svelte';
 	import StatisticsChartControl from '$lib/components/Statistics/StatisticsChartControl.svelte';
 	import type { StatisticsData } from '$lib/types';
 	import { mapCallToOrdersDelegate, mapCallToOrdersCategory } from '$lib/api/statistics-adapter';
@@ -8,20 +9,20 @@
 	export let selectedCategory: string = 'delegate';
 
 	const chartDescriptions = {
-		'delegate.normalized': 'Ordnungsrufe je besuchter Sitzung der Abgeordneten.',
-		'delegate.absolute': 'Gezählte Ordnungsrufe je Abgeordneter oder Abgeordnetem.',
-		'party.normalized': 'Ordnungsrufe je besuchter Sitzung, nach Klubs zusammengefasst.',
-		'party.absolute': 'Gezählte Ordnungsrufe, nach Klubs zusammengefasst.',
-		'gender.normalized': 'Ordnungsrufe je besuchter Sitzung im Vergleich nach Geschlecht.',
-		'gender.absolute': 'Gezählte Ordnungsrufe im Vergleich nach Geschlecht.',
-		'age.normalized': 'Ordnungsrufe je besuchter Sitzung nach Altersgruppen.',
-		'age.absolute': 'Gezählte Ordnungsrufe nach Altersgruppen.',
-		'legis.normalized': 'Ordnungsrufe je besuchter Sitzung, je Legislaturperiode.',
-		'legis.absolute': 'Gezählte Ordnungsrufe je Legislaturperiode.',
-		'line.normalized': 'Entwicklung der Ordnungsrufe je besuchter Sitzung über die Perioden.',
-		'line.absolute': 'Entwicklung der gezählten Ordnungsrufe über die Perioden.',
-		'donut.normalized': 'Anteil der höchsten Ordnungsrufquoten in der aktuellen Auswahl.',
-		'donut.absolute': 'Anteil der höchsten Ordnungsrufzahlen in der aktuellen Auswahl.'
+		'delegate.normalized': t('statistics.callToOrders.desc.delegateNormalized'),
+		'delegate.absolute': t('statistics.callToOrders.desc.delegateAbsolute'),
+		'party.normalized': t('statistics.callToOrders.desc.partyNormalized'),
+		'party.absolute': t('statistics.callToOrders.desc.partyAbsolute'),
+		'gender.normalized': t('statistics.callToOrders.desc.genderNormalized'),
+		'gender.absolute': t('statistics.callToOrders.desc.genderAbsolute'),
+		'age.normalized': t('statistics.callToOrders.desc.ageNormalized'),
+		'age.absolute': t('statistics.callToOrders.desc.ageAbsolute'),
+		'legis.normalized': t('statistics.callToOrders.desc.legisNormalized'),
+		'legis.absolute': t('statistics.callToOrders.desc.legisAbsolute'),
+		'line.normalized': t('statistics.callToOrders.desc.lineNormalized'),
+		'line.absolute': t('statistics.callToOrders.desc.lineAbsolute'),
+		'donut.normalized': t('statistics.callToOrders.desc.donutNormalized'),
+		'donut.absolute': t('statistics.callToOrders.desc.donutAbsolute')
 	};
 
 	const delegateSimpleCallsToOrder = async (
@@ -149,18 +150,18 @@
 </script>
 
 <svelte:head>
-	<title>Ordnungsrufstatistiken</title>
+	<title>{t('statistics.callToOrders.title')}</title>
 	<meta
 		name="description"
-		content="Ordnungsrufstatistiken über den Nationalrat und deren Abgeordnete"
+		content={t('statistics.callToOrders.description')}
 	/>
 </svelte:head>
 
 <Container class="pb-12">
 	<div class="mt-2 mb-6">
-		<h1 class="text-3xl font-bold sm:text-4xl">Ordnungsrufstatistiken</h1>
+		<h1 class="text-3xl font-bold sm:text-4xl">{t('statistics.callToOrders.h1')}</h1>
 		<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
-			Wer im Parlament wie oft ermahnt wurde.
+			{t('statistics.callToOrders.intro')}
 		</p>
 	</div>
 
@@ -168,8 +169,8 @@
 		makeRequest={currentFunction}
 		height={520}
 		bind:selectedCategory
-		valueLabel="Ordnungsrufe"
-		normalizedValueLabel="Ordnungsrufe pro besuchter Sitzung"
+		valueLabel={t('statistics.callToOrders.valueLabel')}
+		normalizedValueLabel={t('statistics.callToOrders.normalizedValueLabel')}
 		{chartDescriptions}
 	/>
 </Container>

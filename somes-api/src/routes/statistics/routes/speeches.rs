@@ -32,7 +32,7 @@ pub struct SpeechBase {
     delegate_name: String,
     delegate_party: String,
     delegate_filter_party: String,
-    delegate_gender: String,
+    delegate_gender: Option<String>,
     total_speeches: i64,
     total_speech_time: i64, // in seconds
     average_speech_time: f64,
@@ -173,7 +173,11 @@ impl SpeechService {
     ) -> Vec<SpeechByCategory> {
         Self::aggregate_by_category(
             base_data,
-            |item| Some(item.delegate_gender.clone()),
+            |item| Some(
+                item.delegate_gender
+                    .clone()
+                    .unwrap_or_else(|| "Unknown".into()),
+            ),
             is_desc,
             speech_type,
             normalized,

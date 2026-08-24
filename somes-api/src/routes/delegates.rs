@@ -15,18 +15,17 @@ use somes_common_lib::{
 pub use error::*;
 mod absences;
 mod ai_chat;
-mod delegate_political_position;
 mod error;
 mod interests;
 mod interjections;
 mod issued_proposals;
 mod left_right_topic_score;
 mod parliamentary_qa;
+mod political_analysis;
 mod routes;
 mod stance_topic_score;
 pub use absences::*;
 pub use ai_chat::*;
-pub use delegate_political_position::*;
 pub use interests::*;
 pub use interjections::*;
 pub(crate) use issued_proposals::*;
@@ -53,6 +52,10 @@ pub fn create_delegates_router() -> Router<AppState> {
         .nest(INTERJECTIONS_ROUTE, create_delegate_interjections_router())
         .nest(PARLIAMENT_QA_ROUTE, create_delegate_pqa_router())
         .nest("/gov_officials", create_gov_officials_router())
+        .nest(
+            "/political_analysis",
+            political_analysis::create_political_analysis_router(),
+        )
 }
 
 #[utoipa::path(

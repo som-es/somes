@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { justPostStatistics } from '$lib/api/api';
+import { t } from '$lib/i18n/i18n.svelte';
 	import StatisticsChartControl from '$lib/components/Statistics/StatisticsChartControl.svelte';
 	import type { StatisticsData } from '$lib/types';
 	import { mapTotalSpeechesDelegate, mapTotalSpeechesCategory } from '$lib/api/statistics-adapter';
@@ -8,13 +9,13 @@
 	export let selectedCategory: string = 'delegate';
 
 	const chartDescriptions = {
-		delegate: 'Gezählte Reden je Abgeordneter oder Abgeordnetem.',
-		party: 'Gezählte Reden, nach Klubs zusammengefasst.',
-		gender: 'Gezählte Reden im Vergleich nach Geschlecht.',
-		age: 'Gezählte Reden nach Altersgruppen.',
-		legis: 'Gezählte Reden je Legislaturperiode.',
-		line: 'Entwicklung der gezählten Reden über die Legislaturperioden.',
-		donut: 'Anteil der höchsten Redeanzahlen in der aktuellen Auswahl.'
+		delegate: t('statistics.totalSpeeches.desc.delegate'),
+		party: t('statistics.totalSpeeches.desc.party'),
+		gender: t('statistics.totalSpeeches.desc.gender'),
+		age: t('statistics.totalSpeeches.desc.age'),
+		legis: t('statistics.totalSpeeches.desc.legis'),
+		line: t('statistics.totalSpeeches.desc.line'),
+		donut: t('statistics.totalSpeeches.desc.donut')
 	};
 
 	const delegateSimpleTotalSpeeches = async (
@@ -137,15 +138,15 @@
 </script>
 
 <svelte:head>
-	<title>Anzahl der Reden - Parlamentsinformationssystem</title>
-	<meta name="description" content="Anzahl parlamentarischer Reden nach Personen und Gruppen" />
+	<title>{t('statistics.totalSpeeches.title')}</title>
+	<meta name="description" content={t('statistics.totalSpeeches.description')} />
 </svelte:head>
 
 <Container class="pb-12">
 	<div class="mt-2 mb-6">
-		<h1 class="text-3xl font-bold sm:text-4xl">Anzahl der Reden</h1>
+		<h1 class="text-3xl font-bold sm:text-4xl">{t('statistics.totalSpeeches.h1')}</h1>
 		<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
-			Wer wie oft im Parlament gesprochen hat.
+			{t('statistics.totalSpeeches.intro')}
 		</p>
 	</div>
 
@@ -153,8 +154,8 @@
 		makeRequest={currentFunction}
 		height={560}
 		bind:selectedCategory
-		valueLabel="Reden"
-		normalizedValueLabel="Reden"
+		valueLabel={t('statistics.totalSpeeches.valueLabel')}
+		normalizedValueLabel={t('statistics.totalSpeeches.normalizedValueLabel')}
 		{chartDescriptions}
 		filterConfig={{
 			showNormalized: false,

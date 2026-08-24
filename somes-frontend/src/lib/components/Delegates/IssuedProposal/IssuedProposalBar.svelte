@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { type VoteResult } from '$lib/types';
 	import { errorToNull, vote_result_by_id } from '$lib/api/api';
 	import type { IssuedProposal } from '$lib/types';
@@ -37,7 +38,7 @@
 	{#if !loading && voteResult}
 		{#if voteResult.legislative_initiative.accepted === null}
 			<div class="badge bg-primary-500 mt-3 max-w-fit text-sm font-bold text-white lg:ml-5 lg:mt-0">
-				Abstimmung ausstehend
+				{t('proposals.pendingVote')}
 			</div>
 		{:else if voteResult.legislative_initiative.accepted === 'a'}
 			<span

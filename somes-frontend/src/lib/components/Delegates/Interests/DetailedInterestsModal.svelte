@@ -4,6 +4,7 @@
 	import type { InterestShare } from '$lib/types';
 	import { Dialog } from 'bits-ui';
 	import { BarChart } from 'layerchart';
+	import { t } from '$lib/i18n/i18n.svelte';
 
 	interface Props {
 		detailedInterests?: InterestShare[];
@@ -44,13 +45,13 @@
 
 <div class="w-full max-w-7xl card p-4 sm:p-8">
 	<div class="flex items-start justify-between gap-2">
-		<span class="min-w-0 flex-1 text-xl font-bold sm:text-2xl">Detailierte Interessen</span>
+		<span class="min-w-0 flex-1 text-xl font-bold sm:text-2xl">{t('interests.detail.title')}</span>
 		<Dialog.Close>
 			<ModalCloseButton />
 		</Dialog.Close>
 	</div>
 
-	<span class="text-base sm:text-lg">meist behandelte Themen</span>
+	<span class="text-base sm:text-lg">{t('interests.detail.subtitle')}</span>
 
 	<div style="height: {dynamicHeight}px" class="mt-2 rounded-sm border p-4">
 		<BarChart

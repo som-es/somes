@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { DecreeDelegate } from '$lib/components/Delegates/Decrees/types';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import MinisterialView from '$lib/components/MinisterialView/MinisterialView.svelte';
 	import type { MinisterialViewData } from '$lib/components/MinisterialView/types';
@@ -39,8 +40,8 @@
 </script>
 
 <svelte:head>
-	<title>Verordnung</title>
-	<meta name="description" content="Spezifische Verordnung" />
+	<title>{t('decree.meta.title')}</title>
+	<meta name="description" content={t('decree.meta.description')} />
 </svelte:head>
 
 <Container>

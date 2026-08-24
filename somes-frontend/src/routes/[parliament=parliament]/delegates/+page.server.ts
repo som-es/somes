@@ -23,7 +23,7 @@ export const load: PageServerLoad = async ({ fetch, url, setHeaders, params }) =
 		fetch,
 		parliament
 	);
-	const cachedPeriods = (await cachedAllLegisPeriods(true, parliament))?.reverse();
+	const cachedPeriods = (await cachedAllLegisPeriods(true, fetch, parliament))?.reverse();
 	const cachedSeats = await cachedAllSeats(true, fetch, parliament);
 	const partiesPerGp = errorToNull(await parties_per_gp(fetch, parliament));
 	const partyColors = await cachedPartyColors(true, parliament, fetch);

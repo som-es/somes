@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Delegate, VoteResult } from '$lib/types';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import VoteResultComp from './VoteResult.svelte';
 	import { slide } from 'svelte/transition';
 	import SButton from '../UI/SButton.svelte';
@@ -22,7 +23,7 @@
 
 {#if voteResults}
 	{#if voteResults.length == 0}
-		<p class="no-votes mt-1 mb-5 text-xl">Keine Abstimmungsergebnisse</p>
+		<p class="no-votes mt-1 mb-5 text-xl">{t('vote_results.noResults')}</p>
 	{/if}
 	<div class="card-container">
 		{#each firstThreeVotes as voteResult, i}

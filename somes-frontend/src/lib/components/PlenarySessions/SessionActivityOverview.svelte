@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { formatDate } from '$lib/date';
 	import type { SessionActivityOverview } from '$lib/types';
 
@@ -34,10 +35,10 @@
 
 	function formatPercentile(threshold: number, unit = ''): string {
 		if (threshold <= 0) {
-			return 'kein Vergleichswert';
+			return t('sessionActivity.percentile.noComparison');
 		}
 
-		return `Top-5%-Grenze: ${Math.round(threshold)}${unit}`;
+		return t('sessionActivity.percentile.top5', { value: Math.round(threshold) }) + unit;
 	}
 
 	let averageSpeechTime = $derived(
@@ -50,42 +51,42 @@
 
 		return [
 			{
-				label: 'Abstimmungen',
+				label: t('common.votes'),
 				value: overview.vote_count.toString(),
 				detail: formatPercentile(overview.percentiles.vote_count_p95),
 				highlight: isTopFivePercent(overview.vote_count, overview.percentiles.vote_count_p95),
 				className: 'xl:col-span-4'
 			},
 			{
-				label: 'Abwesenheiten',
+				label: t('sessionActivity.absences'),
 				value: overview.absence_count.toString(),
 				detail: formatPercentile(overview.percentiles.absence_count_p95),
 				highlight: isTopFivePercent(overview.absence_count, overview.percentiles.absence_count_p95),
 				className: 'xl:col-span-4'
 			},
 			{
-				label: 'Durchschnittliche Redezeit',
+				label: t('sessionActivity.avgSpeechTime'),
 				value: formatDuration(averageSpeechTime),
-				detail: `${overview.speech_count} Redebeiträge, insgesamt ${formatDuration(overview.total_speech_time)}`,
+				detail: t('sessionActivity.detail.speechCountTotal', { count: overview.speech_count, total: formatDuration(overview.total_speech_time) }),
 				highlight: false,
 				className: 'xl:col-span-4'
 			},
 			{
-				label: 'Redner:innen',
+				label: t('sessionActivity.speakers'),
 				value: overview.speaker_count.toString(),
-				detail: `${overview.speech_count} Redebeiträge`,
+				detail: t('sessionActivity.detail.speechCount', { count: overview.speech_count }),
 				highlight: isTopFivePercent(overview.speaker_count, overview.percentiles.speaker_count_p95),
 				className: 'xl:col-span-2'
 			},
 			{
-				label: 'Ordnungsrufe',
+				label: t('sessionActivity.orderCalls'),
 				value: overview.call_to_order_count.toString(),
 				detail:
 					overview.call_to_orders.length > 0
 						? overview.call_to_orders
 								.map((entry) => `${entry.delegate_name} (${entry.total_order_calls})`)
 								.join(', ')
-						: 'Keine Ordnungsrufe',
+						: t('sessionActivity.noOrderCalls'),
 				highlight: overview.call_to_order_count > 0,
 				className: 'xl:col-span-3'
 			}
@@ -96,12 +97,12 @@
 {#if overview}
 	<section class="mt-10">
 		<div class="mb-4 flex flex-col gap-1 px-1 sm:px-0">
-			<h2 class="text-3xl font-bold sm:text-4xl">Aktivität in der letzten Sitzung</h2>
+			<h2 class="text-3xl font-bold sm:text-4xl">{t('sessionActivity.lastSessionTitle')}</h2>
 			<p class="text-base text-gray-800 dark:text-gray-200">
 				{#if overview.inr}
-					{overview.inr}. Nationalratssitzung
+					{overview.inr}. {t('sessionActivity.sessionLabel')}
 				{:else}
-					Nationalratssitzung
+					{t('sessionActivity.sessionLabel')}
 				{/if}
 				{#if overview.legislative_period}
 					| {overview.legislative_period}
@@ -125,7 +126,7 @@
 						{#if card.highlight}
 							<span
 								class="shrink-0 rounded-lg bg-secondary-500 px-2 py-1 text-xs font-bold text-white dark:bg-secondary-300 dark:text-gray-950"
-								>auffällig</span
+								> {t('sessionActivity.highlight')} </span
 							>
 						{/if}
 					</div>
@@ -136,7 +137,7 @@
 			{/each}
 
 			<article class="rounded-xl bg-primary-300 p-4 shadow-sm xl:col-span-7 dark:bg-primary-500">
-				<h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Längste Redezeiten</h3>
+				<h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">{t('sessionActivity.topSpeakersTitle')}</h3>
 				{#if overview.top_speakers.length > 0}
 					<div class="mt-3 grid gap-2 md:grid-cols-3 xl:grid-cols-1">
 						{#each overview.top_speakers as speaker}
@@ -152,7 +153,7 @@
 						{/each}
 					</div>
 				{:else}
-					<p class="mt-3 text-sm text-gray-700 dark:text-gray-100">Keine erfasste Redezeit</p>
+					<p class="mt-3 text-sm text-gray-700 dark:text-gray-100">{t('sessionActivity.noSpeechTime')}</p>
 				{/if}
 			</article>
 		</div>

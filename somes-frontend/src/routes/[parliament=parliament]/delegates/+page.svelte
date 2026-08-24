@@ -23,6 +23,7 @@
 		interjections_made_by_delegate_per_page,
 		interjections_received_by_delegate_per_page
 	} from '$lib/api/api';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import {
 		aiViewEnabledStore,
 		currentDelegateFilterStore,
@@ -65,6 +66,7 @@
 	import InterjectionsPreview from '$lib/components/Delegates/Interjections/InterjectionsPreview.svelte';
 	import MobileParliamentModal from '$lib/components/Parliaments/MobileParliamentModal.svelte';
 	import { defaultGp } from '$lib/api/parliament';
+	import { page } from '$app/state';
 
 	let { data }: PageProps = $props();
 
@@ -95,12 +97,10 @@
 			.sort((a, b) => a.name.localeCompare(b.name, 'de'));
 	});
 
-	let selectedSearchPeriod = $state<string[]>([
-		data.cachedPeriods?.at(data.cachedPeriods.length - 1)?.gp || defaultGp()
-	]);
+	let selectedSearchPeriod = $derived<string[]>([data.gp || defaultGp()]);
 	let timeout: any;
 
-	let searchResults: Delegate[] = $state(data.delegates ?? []);
+	let searchResults: Delegate[] = $derived(data.delegates ?? []);
 	let isLoadingSearch = $state(false);
 
 	let genericFilters: [
@@ -109,32 +109,32 @@
 		GenericFilterGroup<boolean>
 	] = $state([
 		{
-			title: 'Mandatsart',
+			title: t('delegates.mandateType'),
 			activeValue: undefined,
 			hidden: false,
 			options: [
-				{ title: 'egal', value: undefined },
-				{ title: 'Regierung', value: true },
-				{ title: 'Nationalrat', value: false }
+				{ title: t('delegates.any'), value: undefined },
+				{ title: t('delegates.government'), value: true },
+				{ title: t('delegates.nationalCouncil'), value: false }
 			]
 		},
 		{
-			title: 'Aktives Mandat',
+			title: t('delegates.activeMandate'),
 			activeValue: undefined,
 			hidden: false,
 			options: [
-				{ title: 'egal', value: undefined },
-				{ title: 'Ja', value: true },
-				{ title: 'Nein', value: false }
+				{ title: t('delegates.any'), value: undefined },
+				{ title: t('delegates.yes'), value: true },
+				{ title: t('delegates.no'), value: false }
 			]
 		},
 		{
-			title: 'Ehemalige Parteizugehörigkeit beachten ',
+			title: t('delegates.considerPrevParty'),
 			activeValue: true,
 			hidden: false,
 			options: [
-				{ title: 'Ja', value: true },
-				{ title: 'Nein', value: false }
+				{ title: t('delegates.yes'), value: true },
+				{ title: t('delegates.no'), value: false }
 			]
 		}
 	]);
@@ -241,13 +241,52 @@
 	let generalGovOfficialInfo: GeneralGovOfficialInfo | null = $state(null);
 	let maxDayOffset = $state(365 * 5);
 
-	let renderStartDate: Date | null = $state(null);
-	let renderEndDate: Date | null = $state(null);
-
-	let finishedMounting = $state(false);
-	let supplyDate: Date | null = $derived(new Date(data.date ?? new Date()));
+	let latestPeriod = $derived(data.cachedPeriods[data.cachedPeriods.length - 1].gp ?? defaultGp());
+	let selectedPeriod = $derived(data.gp ?? latestPeriod);
+	let prevSelectedPeriod = $derived(data.gp ?? latestPeriod);
 
 	let prevSelectedDelegateId = $state(0);
+
+	let finishedMounting = $state(false);
+
+	let periodBounds = $derived.by(() => {
+		const firstIdx = periods.findIndex((p) => p.gp == selectedPeriod);
+		if (firstIdx === -1) return null;
+
+		const periodStart = new Date(periods[firstIdx].start_date);
+		const nextStart = periods[firstIdx + 1]?.start_date;
+		const periodEnd = new Date(nextStart ?? new Date());
+		periodEnd.setDate(periodEnd.getDate() - 1);
+
+		const maxOffset = Math.floor(
+			(periodEnd.getTime() - periodStart.getTime()) / (1000 * 60 * 60 * 24)
+		);
+		return {
+			periodStart,
+			maxOffset,
+			renderStart: periods[firstIdx].start_date,
+			renderEnd: nextStart
+		};
+	});
+	function calcDayOffset(): number {
+		if (!periodBounds) return maxDayOffset;
+		const paramDate = data.date;
+		if (!paramDate) return periodBounds.maxOffset;
+		const diffMs = Math.abs(new Date(paramDate).getTime() - periodBounds.periodStart.getTime());
+		return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+	}
+	let renderStartDate: Date | null = $derived(periodBounds?.renderStart ?? null);
+	let renderEndDate: Date | null = $derived(periodBounds?.renderEnd ?? null);
+
+	let dayOffset = $derived(calcDayOffset());
+
+	let supplyDate: Date | null = $derived.by(() => {
+		if (!periodBounds) return new Date(data.date ?? new Date());
+		const d = new Date(periodBounds.periodStart);
+		d.setDate(d.getDate() + dayOffset);
+		return d;
+	});
+	let inputValue = $derived(maybeCurrentDelegateFilter.search_value ?? '');
 
 	let activeTab = $state<'analysis' | 'activities' | 'gov'>('analysis');
 
@@ -271,16 +310,9 @@
 			day_offset: maxDayOffset,
 			search_value: '',
 			legis_period: data.gp ?? defaultGp(),
-			supply_date: data.date,
+			supply_date: data.date
 		}
 	);
-
-	let inputValue = $derived(maybeCurrentDelegateFilter.search_value ?? '');
-	let dayOffset = $state(maxDayOffset);
-
-	let latestPeriod = $derived(data.cachedPeriods?.reverse()[0]?.gp ?? defaultGp());
-	let selectedPeriod = $derived(data.gp ?? latestPeriod);
-	let prevSelectedPeriod = $derived(data.gp ?? latestPeriod);
 
 	let uniqueParties = $derived.by(() => {
 		if (false) {
@@ -324,23 +356,8 @@
 
 	onMount(async () => {
 		const url = new URL(window.location.href);
-		const firstIdx = periods.findIndex((x) => x.gp == selectedPeriod);
-		if (firstIdx == -1) return;
-		const endDate = periods[firstIdx + 1]?.start_date;
-		const newDate = new Date(endDate ? endDate : new Date());
-		newDate.setDate(newDate.getDate() - 1);
-
-		const paramDate = url.searchParams.get('date');
-		if (paramDate) {
-			const startDate = new Date(periods[firstIdx]?.start_date);
-			const diffTime = Math.abs(new Date(paramDate).getTime() - startDate.getTime());
-			dayOffset = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-			// this prevents that dayOffset is overwritten with max
-			prevSelectedPeriod = selectedPeriod;
-		}
-		supplyDate = paramDate ? new Date(paramDate) : newDate;
-
 		const paramDelegateId = url.searchParams.get('delegate');
+		updateDelsToDisplay();
 		if (paramDelegateId) {
 			// setting here currentDelegateStore instead of `delegate` var directly
 			// this is important for a single reason: delegates without seat by default (if the backend seat history is too short)
@@ -379,7 +396,7 @@
 		startDate.setDate(startDate.getDate() + dayOffset - 1);
 		supplyDate = startDate;
 
-		maybeCurrentDelegateFilter.supply_date = startDate.toISOString().split("T")[0];
+		maybeCurrentDelegateFilter.supply_date = startDate.toISOString().split('T')[0];
 		maybeCurrentDelegateFilter.day_offset = dayOffset;
 		currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
 		const url = new URL(window.location.href);
@@ -407,21 +424,6 @@
 		maybeCurrentDelegateFilter.legis_period = selectedPeriod;
 		currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
 	};
-
-	$effect(() => {
-		void selectedPeriod;
-		void periods;
-		untrack(() => {
-			renderEndDate = null;
-			renderStartDate = null;
-
-			updateStoredPeriod();
-			updateDelsToDisplay();
-			if (finishedMounting) prevSelectedPeriod = selectedPeriod;
-		});
-	});
-
-	// let generalDelegateInfo	 = $derived.by()
 
 	function updateDelegateIdInUrl(delegate: Delegate) {
 		const url = new URL(window.location.href);
@@ -479,19 +481,19 @@
 	});
 
 	const title = $derived(
-		data.parliament == 'at' ? 'Abgeordnete zum Nationalrat' : 'Abgeordnete des EU-Parlaments'
+		data.parliament == 'at' ? t('delegates.title.at') : t('delegates.title.eu')
 	);
 </script>
 
 <svelte:head>
 	<title>{title}</title>
-	<meta name="description" content="Auswahl und spezifische Informationen über Abgeordnete" />
+	<meta name="description" content={t('delegates.meta.description')} />
 </svelte:head>
 
 <Container>
 	<h1 class="px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">{title}</h1>
 	<span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0 dark:text-gray-300">
-		Aktualisiert am: Unknown
+		{t('delegates.updated')}
 	</span>
 
 	<!------------------>
@@ -502,7 +504,7 @@
 			<div>
 				<!-- Filters -->
 				<div>
-					<span class="text-base font-semibold text-gray-800 dark:text-gray-200">Filter</span>
+					<span class="text-base font-semibold text-gray-800 dark:text-gray-200">{t('delegates.filter')}</span>
 					<div class="mt-2 flex h-10 w-full gap-2 md:mt-1 md:w-auto">
 						<!-- Period Filter -->
 						<div
@@ -557,12 +559,12 @@
 				<!-- Search Results -->
 				<div class="mt-3">
 					<span class="text-base font-semibold text-gray-800 dark:text-gray-200"
-						>Suchergebnisse</span
+						>{t('delegates.searchResults')}</span
 					>
 					<div class="mt-1 max-h-96 overflow-y-auto">
 						{#if isLoadingSearch}
 							<div class="flex justify-center p-4">
-								<span class="text-gray-500">Loading...</span>
+								<span class="text-gray-500">{t('delegates.loading')}</span>
 							</div>
 						{:else}
 							{#each searchResults as d (d.id)}
@@ -610,7 +612,7 @@
 											<div class="text-sm font-medium text-gray-800 dark:text-gray-200">
 												{govMandates}
 												<span class="font-light text-gray-700 dark:text-gray-300">
-													(Regierung)
+													({t('delegates.government')})
 												</span>
 											</div>
 										{/if}
@@ -621,7 +623,7 @@
 
 												{#if data.parliament === 'at'}
 													<span class="font-light text-gray-700 dark:text-gray-300">
-														(Nationalrat)
+														({t('delegates.nationalCouncil')})
 													</span>
 												{/if}
 											</div>
@@ -667,7 +669,7 @@
 						{@html searchIcon}
 					</div>
 					<span class="truncate">
-						{inputValue || 'Suche...'}
+						{inputValue || t('delegates.search') + '...'}
 					</span>
 				</button>
 
@@ -701,7 +703,7 @@
 				>
 					<div class="w-full max-w-md rounded-2xl bg-primary-100 p-4 shadow-xl dark:bg-primary-600">
 						<div class="mb-1 flex items-center justify-between">
-							<h3 class="text-lg font-semibold">Suche</h3>
+							<h3 class="text-lg font-semibold">{t('delegates.search')}</h3>
 							<ModalCloseButton class="p-1" onclick={() => (isSearchPopupOpen = false)} />
 						</div>
 						<div class="mb-2">
@@ -712,7 +714,7 @@
 									currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
 								}}
 								bind:searchValue={inputValue}
-								placeholder="Suche nach Abgeordneten..."
+								placeholder={t('delegates.searchDelegates')}
 								autofocus={true}
 							/>
 						</div>
@@ -756,7 +758,7 @@
 							>
 								<div class="mt-4 first:mt-0">
 									<span class="text-base font-semibold text-gray-800 dark:text-gray-200"
-										>Legislaturperiode</span
+										>{t('delegates.legislaturePeriod')}</span
 									>
 									<div class="flex w-60 flex-wrap gap-1 text-sm">
 										{#each [...periods].reverse() as period}
@@ -767,6 +769,8 @@
 													: ''} border-primary-300 px-2 py-1 text-sm"
 												onclick={() => {
 													selectedPeriod = period.gp;
+													updateStoredPeriod();
+													updateDelsToDisplay();
 												}}
 											>
 												<span class="text-nowrap">{period.gp}</span>
@@ -788,13 +792,13 @@
 			<div class="flex-1">
 				<div class="mt-1 flex min-w-full justify-between px-1 text-base text-gray-800">
 					<div>
-						{renderStartDate == null ? '' : dashDateToDotDate(renderStartDate.toString())} (Anfang)
+						{renderStartDate == null ? '' : dashDateToDotDate(renderStartDate.toString())} ({t('delegates.timeline.start')})
 					</div>
 					<div>
 						{renderEndDate == null
 							? dashDateToDotDate(new Date().toISOString().split('T')[0])
 							: dashDateToDotDate(renderEndDate.toString())}
-						(Ende)
+						({t('delegates.timeline.end')})
 					</div>
 				</div>
 				<input
@@ -924,7 +928,7 @@
 						: 'text-gray-700 hover:bg-primary-400 dark:text-gray-300 dark:hover:bg-primary-500'}"
 					onclick={() => (activeTab = 'analysis')}
 				>
-					Übersicht
+					{t('delegates.overview')}
 				</button>
 				<button
 					class="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium {activeTab === 'activities'
@@ -932,7 +936,7 @@
 						: 'text-gray-700 hover:bg-primary-400 dark:text-gray-400 dark:hover:bg-primary-500'}"
 					onclick={() => (activeTab = 'activities')}
 				>
-					Aktivitäten
+					{t('delegates.activities')}
 				</button>
 				{#if delegate?.council === 'gov' || delegate?.mandates?.find((mandate) => {
 						return mandate.is_gov_official;
@@ -943,7 +947,7 @@
 							: 'text-gray-700 hover:bg-primary-400 dark:text-gray-400 dark:hover:bg-primary-500'}"
 						onclick={() => (activeTab = 'gov')}
 					>
-						Regierung
+						{t('delegates.gov')}
 					</button>
 				{/if}
 			</div>
@@ -972,6 +976,7 @@
 					<div class="title-item rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 						<PoliticalStanceTitleBar
 							stanceTopicInfluences={generalDelegateInfo.stance_topic_influences}
+							usefulInfoCount={generalDelegateInfo.political_position.total_score.count}
 						/>
 					</div>
 				{/if}
@@ -979,16 +984,16 @@
 					{#if delegate && generalDelegateInfo?.political_position && aiViewEnabledStore.value}
 						<SquarePoliticalSpectrum
 							{delegate}
-							politicalPosition={generalDelegateInfo.political_position}
+							politicalPosition={generalDelegateInfo.political_position.total_score}
 						/>
 					{:else if !generalDelegateInfo}
 						<ExpandablePlaceholder class={'my-3'} />
 					{/if}
 
-					{#if delegate && generalDelegateInfo?.left_right_stances.length && generalDelegateInfo.left_right_stances.length > 0 && aiViewEnabledStore.value}
+					{#if delegate && generalDelegateInfo?.political_position?.scores_by_topic?.length && generalDelegateInfo.political_position.scores_by_topic.length > 0 && aiViewEnabledStore.value}
 						<div class="lg:flex-1">
 							<LeftRightChart
-								stances={generalDelegateInfo.left_right_stances}
+								stances={generalDelegateInfo.political_position.scores_by_topic}
 								interests={generalDelegateInfo.interests}
 							/>
 						</div>
@@ -1095,10 +1100,10 @@
 					>
 						{#if delegate && generalDelegateInfo?.received_call_to_orders}
 							<AbsencesPreview
-								title="Ordnungsrufe"
-								explanation="Zur Ordnung gerufen"
-								lastEntriesText="Letzte Ordnungsrufe"
-								noEntriesText="Keine Ordnungsrufe erhalten"
+								title={t('delegate.orderCalls.title')}
+								explanation={t('delegate.orderCalls.explanation')}
+								lastEntriesText={t('delegate.orderCalls.lastEntries')}
+								noEntriesText={t('delegate.orderCalls.noEntries')}
 								{delegate}
 								showTotal
 								showDetails={false}
@@ -1163,6 +1168,7 @@
 				<div class="title-item rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 					<PoliticalStanceTitleBar
 						stanceTopicInfluences={generalDelegateInfo.stance_topic_influences}
+						usefulInfoCount={generalDelegateInfo.political_position.total_score.count}
 					/>
 				</div>
 			{/if}
@@ -1170,16 +1176,16 @@
 				{#if delegate && generalDelegateInfo?.political_position && aiViewEnabledStore.value}
 					<SquarePoliticalSpectrum
 						{delegate}
-						politicalPosition={generalDelegateInfo.political_position}
+						politicalPosition={generalDelegateInfo.political_position.total_score}
 					/>
 				{:else if !generalDelegateInfo}
 					<ExpandablePlaceholder class={'my-3'} />
 				{/if}
 
-				{#if delegate && generalDelegateInfo?.left_right_stances.length && generalDelegateInfo.left_right_stances.length > 0 && aiViewEnabledStore.value}
+				{#if delegate && generalDelegateInfo?.political_position?.scores_by_topic?.length && generalDelegateInfo.political_position.scores_by_topic.length > 0 && aiViewEnabledStore.value}
 					<div class="lg:flex-1">
 						<LeftRightChart
-							stances={generalDelegateInfo.left_right_stances}
+							stances={generalDelegateInfo.political_position.scores_by_topic}
 							interests={generalDelegateInfo.interests}
 						/>
 					</div>

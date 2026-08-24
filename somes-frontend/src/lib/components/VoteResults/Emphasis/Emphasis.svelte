@@ -3,11 +3,12 @@
 	import type { AiSummary, EnforcementDates, Keypoint } from '$lib/ai_summary_types';
 	import type { FullSpeech } from '$lib/speechTypes';
 	import type { Delegate } from '$lib/types';
-	import { formatDate } from '$lib/date';
+	import { localeStore } from '$lib/i18n/i18n.svelte';
 	import clockIcon from '$lib/assets/misc_icons/clock-two.svg?raw';
 	import GlossaryText from '$lib/components/UI/GlossaryText.svelte';
 	import KeypointSpeakers, { type KeypointSpeaker } from './KeypointSpeakers.svelte';
 	import { slide } from 'svelte/transition';
+	import { t } from '$lib/i18n/i18n.svelte';
 
 	interface Props {
 		summary: AiSummary | null;
@@ -40,7 +41,9 @@
 		if (!value) return null;
 
 		const date = new Date(value);
-		return Number.isNaN(date.getTime()) ? null : formatDate(date);
+		if (Number.isNaN(date.getTime())) return null;
+		const locale = localeStore.value === 'de' ? 'de-AT' : 'en-AT';
+		return new Intl.DateTimeFormat(locale, { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
 	}
 
 	function enforcementEntries(dates: EnforcementDates): EnforcementEntry[] {
@@ -48,8 +51,8 @@
 		const end = formatEnforcementDate(dates.enforcement_end_date);
 		const entries: EnforcementEntry[] = [];
 
-		if (start) entries.push({ label: 'In Kraft ab', date: start, note: dates.start_notes ?? null });
-		if (end) entries.push({ label: 'Außer Kraft ab', date: end, note: dates.end_notes ?? null });
+		if (start) entries.push({ label: t('emphasis.inForceFrom'), date: start, note: dates.start_notes ?? null });
+		if (end) entries.push({ label: t('emphasis.outOfForceFrom'), date: end, note: dates.end_notes ?? null });
 
 		return entries;
 	}
@@ -133,7 +136,7 @@
 			<Popover.Trigger
 				openOnHover
 				openDelay={0}
-				title="Wann dieser Punkt gilt"
+				title={t('emphasis.tooltipTitle')}
 				class="ml-1 inline-flex translate-y-[3px] cursor-pointer text-gray-700 hover:scale-110 dark:text-gray-300"
 			>
 				{@render clock()}
@@ -143,7 +146,7 @@
 				collisionPadding={8}
 				class="z-50! w-72 max-w-[calc(100vw-2rem)] card bg-primary-300-700 p-3 shadow-xl"
 			>
-				<div class="font-semibold">Geltungsdauer</div>
+				<div class="font-semibold">{t('emphasis.effectivePeriod')}</div>
 				<ul class="mt-1 flex flex-col gap-1">
 					{#each entries as entry (entry.label)}
 						<li class="text-sm text-gray-800 dark:text-gray-200">{@render entryText(entry)}</li>
@@ -177,7 +180,7 @@
 	{#if emphasis.length > 0}
 		<div class="emphasis-item rounded-xl bg-primary-300 px-5 pt-3 pb-3 dark:bg-primary-500">
 			<div class="flex justify-between">
-				<h1 class="text-lg font-semibold md:text-xl">Schwerpunkte</h1>
+				<h1 class="text-lg font-semibold md:text-xl">{t('emphasis.title')}</h1>
 			</div>
 
 			{#if headerDates}
@@ -203,7 +206,7 @@
 
 				{#if restPoints.length > 0}
 					<button class="text-md font-semibold" onclick={() => (open = !open)}>
-						<span>{open ? 'Weniger' : 'Mehr'} anzeigen</span>
+						<span>{open ? t('emphasis.less') : t('emphasis.more')} anzeigen</span>
 					</button>
 				{/if}
 			</ul>

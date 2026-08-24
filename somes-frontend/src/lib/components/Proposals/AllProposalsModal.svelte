@@ -1,5 +1,6 @@
 <script lang="ts">
 	import AllProposalsFiltering from './AllProposalsFiltering.svelte';
+import { t } from '$lib/i18n/i18n.svelte';
 	import type { Delegate, GovProposal } from '$lib/types';
 	import GovProposalExpandableBar from './Latest/GovProposalExpandableBar.svelte';
 	import { Dialog } from 'bits-ui';
@@ -34,7 +35,7 @@
 
 <div class="max-w-7xl card p-8">
 	<div class="flex items-center justify-between">
-		<h1 class="text-2xl font-bold">Ministerialentwürfe</h1>
+		<h1 class="text-2xl font-bold">{t('proposals.all.title')}</h1>
 		<Dialog.Close>
 			<ModalCloseButton />
 		</Dialog.Close>

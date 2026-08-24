@@ -10,12 +10,11 @@ use crate::{
     routes::{
         DelegateError,
         delegates::{
-            left_right_topic_score::extract_left_right_topic_score_by_delegate,
+            left_right_topic_score::extract_political_position_by_delegate,
             stance_topic_score::extract_stance_topic_score_by_delegate,
         },
         extract_absences_by_delegate, extract_detailed_interests_of_delegate,
         extract_interests_of_delegate, extract_issued_proposals_by_delegate,
-        extract_political_position,
     },
 };
 
@@ -51,13 +50,11 @@ pub async fn extract_general_delegate_info(
     // let delegate_qa = extract_delegate_qa(delegate_id, pg).await?;
     let delegate_qa = vec![];
     println!("delegate_qa took {:?}", start.elapsed());
-    let political_position = extract_political_position(delegate_id, pg).await?;
-    println!("political_position took {:?}", start.elapsed());
     let absences = extract_absences_by_delegate(pg, delegate_id).await?;
     println!("absences took {:?}", start.elapsed());
     let named_votes = extract_named_votes_by_delegate(pg, delegate_id).await?;
     println!("named_votes took {:?}", start.elapsed());
-    let left_right_stances = extract_left_right_topic_score_by_delegate(pg, delegate_id).await?;
+    let political_position = extract_political_position_by_delegate(pg, delegate_id).await?;
     println!("left_right_stances took {:?}", start.elapsed());
     let (stance_topic_influences, stance_topic_scores) =
         extract_stance_topic_score_by_delegate(pg, delegate_id).await?;
@@ -71,10 +68,9 @@ pub async fn extract_general_delegate_info(
         interests,
         detailed_interests,
         delegate_qa,
-        political_position,
         absences,
         named_votes,
-        left_right_stances,
+        political_position,
         stance_topic_influences,
         stance_topic_scores,
         received_call_to_orders,

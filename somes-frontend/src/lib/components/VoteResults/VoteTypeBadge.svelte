@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { VoteResult } from '$lib/types';
+	import { t } from '$lib/i18n/i18n.svelte';
 
 	export let voteResult: VoteResult;
 
@@ -8,22 +9,22 @@
 		if (voteResult.legislative_initiative.voting) {
 			switch (voteResult.legislative_initiative.voting) {
 				case 'Law':
-					badgeText = 'Gesetz';
+					badgeText = t('voteType.law');
 					break;
 				case 'Amendment':
-					badgeText = 'Abänderung';
+					badgeText = t('voteType.amendment');
 					break;
 				case 'Resolution':
-					badgeText = 'Entschließung';
+					badgeText = t('voteType.resolution');
 					break;
 				case 'Report':
-					badgeText = 'Bericht';
+					badgeText = t('voteType.report');
 					break;
 				default:
 					badgeText = '';
 			}
 		} else {
-			badgeText = 'Andere';
+			badgeText = t('voteType.other');
 		}
 	}
 </script>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { aiViewEnabledStore } from '$lib/stores/stores';
 	import clockIcon from '$lib/assets/misc_icons/clock-two.svg?raw';
 	import { Opinion, type FullSpeech } from '$lib/speechTypes';
@@ -23,8 +24,8 @@
 	let opinion = $derived(
 		speech.speech.infavor != null
 			? speech.speech.infavor
-				? 'Pro'
-				: 'Contra'
+				? t('speeches.pro')
+				: t('speeches.contra')
 			: speech.speech.opinion
 	);
 	let barColor = $derived(
@@ -105,15 +106,15 @@
 				<span class="h-4 w-4 shrink-0 [&_path]:stroke-current [&>svg]:h-full [&>svg]:w-full">
 					{@html clockIcon}
 				</span>
-				{speechDuration.mins}:{speechDuration.seconds.toString().padStart(2, '0')} min
+				{speechDuration.mins}:{speechDuration.seconds.toString().padStart(2, '0')} {t('speeches.min')}
 			</span>
 		{/if}
 		{#each speech.speech.document_urls ?? [] as url}
 			<a
 				href={url}
 				target="_blank"
-				aria-label="Dokument"
-				title="Redeprotokoll öffnen"
+				aria-label={t('speeches.documentLabel')}
+				title={t('speeches.openProtocol')}
 				class="transition-transform hover:scale-110"
 				onclick={(e) => e.stopPropagation()}
 			>

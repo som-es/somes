@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { type NamedVote, type VoteResult } from '$lib/types';
 	import { errorToNull, vote_result_by_id } from '$lib/api/api';
 	import VoteResultCard from '../VoteResultCard.svelte';
@@ -24,9 +25,9 @@
 	let opinion = $derived(
 		namedVote.infavor != null
 			? namedVote.infavor
-				? 'Pro'
-				: 'Contra'
-			: 'Abwesend/keine Stimme abgegeben'
+				? t('speeches.pro')
+				: t('speeches.contra')
+			: t('namedVotes.absent')
 	);
 	let opinionColor = $derived(
 		namedVote.infavor != null

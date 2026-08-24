@@ -60,7 +60,7 @@
 			<div class="pt-2">
 				<Topics {topics} />
 			</div>
-			<div class="flex h-8 items-center justify-end rounded-xl px-2 mt-2">
+			<div class="mt-2 flex h-8 items-center justify-end rounded-xl px-2">
 				<MovingArrowButton onclick={onShowDetails} />
 			</div>
 		</div>

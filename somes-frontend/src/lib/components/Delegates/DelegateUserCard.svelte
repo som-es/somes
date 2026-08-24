@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import upDownArrowIcon from '$lib/assets/misc_icons/up-down-arrow.svg?raw';
 	import checkmark_small from '$lib/assets/misc_icons/checkmark_small.svg?raw';
 	import type { Delegate } from '$lib/types';
@@ -16,10 +17,10 @@
 
 	let notifyInfoDays = $derived(currentNotifyInfoDays.toString());
 	const notifyInfoDaysOptions = [
-		{ value: '7', label: 'Jede Woche' },
-		{ value: '14', label: 'Jede 2. Woche' },
-		{ value: '30', label: 'Jeden Monat' },
-		{ value: '60', label: 'Jeden 2. Monat' }
+		{ value: '7', label: t('userCard.everyWeek') },
+		{ value: '14', label: t('userCard.every2Weeks') },
+		{ value: '30', label: t('userCard.everyMonth') },
+		{ value: '60', label: t('userCard.every2Months') }
 	];
 </script>
 

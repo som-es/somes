@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { partyToColor, partyColors as globalPartyColors } from '$lib/partyColor';
 	import type { Delegate, DelegateFavo, DelegateQA } from '$lib/types';
 	import { currentDelegateStore } from '$lib/stores/stores';
@@ -76,9 +77,11 @@
 		return Math.floor((utc2 - utc1) / _MS_PER_DAY);
 	}
 	let personUrl = $derived.by(() => {
-	    switch (parliament) {
-			case "at": return `https://parlament.gv.at/person/${delegate.id}?utm_source=somes.at`
-			case "eu": return `https://www.europarl.europa.eu/meps/en/${delegate.id}?utm_source=somes.at`
+		switch (parliament) {
+			case 'at':
+				return `https://parlament.gv.at/person/${delegate.id}?utm_source=somes.at`;
+			case 'eu':
+				return `https://www.europarl.europa.eu/meps/en/${delegate.id}?utm_source=somes.at`;
 		}
 	});
 
@@ -175,7 +178,7 @@
 		<!-- Birthday Check -->
 		{#if delegate.birthdate && new Date().toString() == new Date(delegate.birthdate).toString()}
 			<hr />
-			Alles Gute zum Geburtstag!
+			{t('delegate.birthday')}
 		{/if}
 
 		<!-- Party -->
@@ -186,7 +189,7 @@
 			></div>
 			<p class="text-base text-gray-800 dark:text-gray-50">
 				{#if delegate.party == null || delegate.party == 'OK'}
-					Ohne Klub
+					{t('delegate.withoutParty')}
 				{:else}
 					<span>{delegate.party}</span>
 				{/if}
@@ -235,7 +238,7 @@
 				<div></div>
 			{/if}
 			<button class="rounded-xl bg-primary-600 p-2 px-3 text-white" onclick={onShowDetails}>
-				<h4>Details</h4>
+				<h4>{t('ui.details')}</h4>
 			</button>
 		{/if}
 

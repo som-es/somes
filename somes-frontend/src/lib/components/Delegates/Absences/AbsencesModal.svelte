@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import Pagination from '$lib/components/Pagination.svelte';
 	import AbsenceBar from './AbsenceBar.svelte';
 	import type { Absence, Delegate, LegisPeriod, PlenarySession } from '$lib/types';
@@ -19,7 +20,7 @@
 
 	let {
 		absences = [],
-		title = 'Letzte Abwesenheiten',
+		title = t('absences.title'),
 		showDetails = true,
 		delegate
 	}: Props = $props();
@@ -74,7 +75,7 @@
 	<!-- Card Container with soft steel-blue background and deep rounding -->
 	<div class="mt-3 rounded-3xl bg-[#c8d4df] p-8 shadow-sm select-none">
 		<!-- Card Title -->
-		<h2 class="mb-6 text-3xl font-semibold text-slate-800/90">An/Abwesenheit</h2>
+		<h2 class="mb-6 text-3xl font-semibold text-slate-800/90">{t('absences.modalTitle')}</h2>
 
 		<!-- GP Sections -->
 		<div class="space-y-6">
@@ -98,7 +99,7 @@
 							>
 								<Popover.Trigger openOnHover openDelay={0}>
 									<svelte:element
-										this={'div'}
+										this={"div"}
 										class="flex h-8 w-8 items-center justify-center rounded-md text-xs font-normal transition-all duration-150
 									{isAbsent ? 'text-slate/70 bg-tertiary-400/80 text-black' : 'bg-primary-400 text-white'}"
 									>
@@ -136,39 +137,38 @@
 
 											<!-- Dynamic Status Card (Present vs. Absent) -->
 											{#if isAbsent}
-											    {#each item.absencesDuringSession ?? [] as absence}
-    												<div
-    													class="text-tertiary-950 rounded-lg border border-primary-300/50 bg-primary-200/50 p-3 text-xs"
-    												>
-    													<div class="mb-1.5 flex items-center justify-between">
-    														<span
-    															class="badge bg-tertiary-400/80 px-2 py-0.75 text-[10px] font-bold tracking-wider text-black"
-    														>
-    															Abwesend
-    														</span>
-    														{#if absence.date}
-    															<span class="text-[10px] font-medium text-primary-600">
-    																{formatDate(absence.date)}
-    															</span>
-    														{/if}
-
-    													</div>
-                                                        <!-- Document & Source Links -->
-             											{#if absence.source_url}
-                    								        <div
-               													class="flex flex-col gap-1.5 border-t border-primary-200/60 pt-2 text-[11px]"
-                            								>
-               													<a
-              														href={absence.source_url}
-              														target="_blank"
-              														rel="noopener noreferrer"
-              														class="flex items-center gap-1 font-semibold text-tertiary-700 underline transition-colors hover:text-tertiary-900"
-               													>
-              														Quellennachweis öffnen →
-               													</a>
-                            								</div>
-             											{/if}
-    												</div>
+												{#each item.absencesDuringSession ?? [] as absence}
+													<div
+														class="text-tertiary-950 rounded-lg border border-primary-300/50 bg-primary-200/50 p-3 text-xs"
+													>
+														<div class="mb-1.5 flex items-center justify-between">
+															<span
+																class="badge bg-tertiary-400/80 px-2 py-0.75 text-[10px] font-bold tracking-wider text-black"
+															>
+																{t('absences.absent')}
+															</span>
+															{#if absence.date}
+																<span class="text-[10px] font-medium text-primary-600">
+																	{formatDate(absence.date)}
+																</span>
+															{/if}
+														</div>
+														<!-- Document & Source Links -->
+														{#if absence.source_url}
+															<div
+																class="flex flex-col gap-1.5 border-t border-primary-200/60 pt-2 text-[11px]"
+															>
+																<a
+																	href={absence.source_url}
+																	target="_blank"
+																	rel="noopener noreferrer"
+																	class="flex items-center gap-1 font-semibold text-tertiary-700 underline transition-colors hover:text-tertiary-900"
+																>
+																	{t('absences.sourceLink')}
+																</a>
+															</div>
+														{/if}
+													</div>
 												{/each}
 											{:else}
 												<div
@@ -178,7 +178,7 @@
 														<span
 															class="badge bg-primary-400 px-2 py-0.75 text-[10px] font-bold tracking-wider text-white"
 														>
-															Anwesend
+															{t('absences.present')}
 														</span>
 														{#if item.session.created_at}
 															<span class="text-[10px] font-medium text-primary-600">
@@ -200,7 +200,7 @@
 		<!-- Bottom Absence Counter -->
 		<div class="mt-6 pt-2 text-xl font-normal text-slate-700/90">
 			{totalAbsences}
-			{totalAbsences === 1 ? 'Abwesenheit' : 'Abwesenheiten'}
+			{totalAbsences === 1 ? t('absences.countSingular') : t('absences.countPlural')}
 		</div>
 	</div>
 </div>

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { justPostStatistics } from '$lib/api/api';
+import { t } from '$lib/i18n/i18n.svelte';
 	import { mapOrientationCategory, mapOrientationDelegate } from '$lib/api/statistics-adapter';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import StatisticsChartControl from '$lib/components/Statistics/StatisticsChartControl.svelte';
@@ -12,19 +13,19 @@
 	let selectedChartMode = $state<ChartMode>('bar');
 
 	const categoryOptions = [
-		{ value: 'delegate', label: 'Abgeordnete' },
-		{ value: 'party', label: 'Klubs' },
-		{ value: 'gender', label: 'Geschlecht' },
-		{ value: 'age', label: 'Alter' }
+		{ value: 'delegate', label: t('statistics.orientation.category.delegate') },
+		{ value: 'party', label: t('statistics.orientation.category.party') },
+		{ value: 'gender', label: t('statistics.orientation.category.gender') },
+		{ value: 'age', label: t('statistics.orientation.category.age') }
 	];
 
 	const chartDescriptions = {
-		delegate: 'Gespeicherter Positionswert der einzelnen Abgeordneten.',
-		party: 'Durchschnittliche Positionswerte je Partei.',
-		gender: 'Durchschnittliche Positionswerte nach Geschlecht.',
-		age: 'Durchschnittliche Positionswerte nach Altersgruppen.',
-		spectrum: 'Wirtschaftliche und gesellschaftliche Positionen in einer gemeinsamen Ansicht.',
-		donut: 'Anteil der höchsten Positionswerte in der aktuellen Auswahl.'
+		delegate: t('statistics.orientation.desc.delegate'),
+		party: t('statistics.orientation.desc.party'),
+		gender: t('statistics.orientation.desc.gender'),
+		age: t('statistics.orientation.desc.age'),
+		spectrum: t('statistics.orientation.desc.spectrum'),
+		donut: t('statistics.orientation.desc.donut')
 	};
 
 	const orientationOptions: {
@@ -35,27 +36,27 @@
 	}[] = [
 		{
 			value: 'left',
-			label: 'Sozialistisch',
-			valueLabel: 'Sozialismus-Score',
-			description: 'Abgeordnete mit den höchsten gespeicherten sozialistischen Positionswerten.'
+			label: t('statistics.orientation.axis.left'),
+			valueLabel: t('statistics.orientation.axis.leftValue'),
+			description: t('statistics.orientation.axis.leftDesc')
 		},
 		{
 			value: 'right',
-			label: 'Kapitalistisch',
-			valueLabel: 'Kapitalismus-Score',
-			description: 'Abgeordnete mit den höchsten gespeicherten kapitalistischen Positionswerten.'
+			label: t('statistics.orientation.axis.right'),
+			valueLabel: t('statistics.orientation.axis.rightValue'),
+			description: t('statistics.orientation.axis.rightDesc')
 		},
 		{
 			value: 'liberal',
-			label: 'Libertär',
-			valueLabel: 'Libertärer Score',
-			description: 'Abgeordnete mit den höchsten gespeicherten libertären Orientierungswerten.'
+			label: t('statistics.orientation.axis.liberal'),
+			valueLabel: t('statistics.orientation.axis.liberalValue'),
+			description: t('statistics.orientation.axis.liberalDesc')
 		},
 		{
 			value: 'authoritarian',
-			label: 'Autoritär',
-			valueLabel: 'Autoritärer Score',
-			description: 'Abgeordnete mit den höchsten gespeicherten autoritären Orientierungswerten.'
+			label: t('statistics.orientation.axis.authoritarian'),
+			valueLabel: t('statistics.orientation.axis.authoritarianValue'),
+			description: t('statistics.orientation.axis.authoritarianDesc')
 		}
 	];
 
@@ -176,15 +177,15 @@
 </script>
 
 <svelte:head>
-	<title>Politische Positionen</title>
-	<meta name="description" content="Statistiken zu politischen Positionswerten von Abgeordneten" />
+	<title>{t('statistics.orientation.title')}</title>
+	<meta name="description" content={t('statistics.orientation.description')} />
 </svelte:head>
 
 <Container class="pb-12">
 	<div class="mt-2 mb-6">
-		<h1 class="text-3xl font-bold sm:text-4xl">Politische Positionen</h1>
+		<h1 class="text-3xl font-bold sm:text-4xl">{t('statistics.orientation.h1')}</h1>
 		<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
-			Politische Positionswerte nach Abgeordneten, Klubs und weiteren Gruppen.
+			{t('statistics.orientation.intro')}
 		</p>
 	</div>
 
@@ -231,7 +232,7 @@
 		showSpectrumMode={true}
 		bind:selectedChartMode
 		extraReservedHeight={selectedChartMode === 'spectrum' ? 0 : 112}
-		infoQuestion="Was zeigt diese Statistik?"
-		infoAnswer="<p>Diese Auswertung ordnet Abgeordnete und Klubs nach ihren politischen Positionen ein. Die Werte zeigen, ob jemand in den verfügbaren Daten eher sozialistisch oder kapitalistisch sowie eher libertär oder autoritär eingeordnet wird.</p>"
+		infoQuestion={t('statistics.orientation.infoQuestion')}
+		infoAnswer={t('statistics.orientation.infoAnswer')}
 	/>
 </Container>

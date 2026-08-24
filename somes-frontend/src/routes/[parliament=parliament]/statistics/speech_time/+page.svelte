@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { justPostStatistics } from '$lib/api/api';
+import { t } from '$lib/i18n/i18n.svelte';
 	import StatisticsChartControl from '$lib/components/Statistics/StatisticsChartControl.svelte';
 	import type { StatisticsData } from '$lib/types';
 	import { mapSpeechTimeDelegate, mapSpeechTimeCategory } from '$lib/api/statistics-adapter';
@@ -8,21 +9,22 @@
 	export let selectedCategory: string = 'delegate';
 
 	const chartDescriptions = {
-		'delegate.normalized': 'Durchschnittliche Dauer einer Rede je Abgeordneter oder Abgeordnetem.',
-		'delegate.absolute': 'Gesamte Redezeit je Abgeordneter oder Abgeordnetem.',
-		'party.normalized': 'Durchschnittliche Rededauer der Abgeordneten einer Partei.',
-		'party.absolute': 'Gesamte Redezeit, nach Klubs zusammengefasst.',
-		'gender.normalized': 'Durchschnittliche Rededauer im Vergleich nach Geschlecht.',
-		'gender.absolute': 'Gesamte Redezeit im Vergleich nach Geschlecht.',
-		'age.normalized': 'Durchschnittliche Rededauer nach Altersgruppen.',
-		'age.absolute': 'Gesamte Redezeit nach Altersgruppen.',
-		'legis.normalized': 'Durchschnittliche Rededauer je Legislaturperiode.',
-		'legis.absolute': 'Gesamte Redezeit je Legislaturperiode.',
-		'line.normalized': 'Entwicklung der durchschnittlichen Rededauer über die Perioden.',
-		'line.absolute': 'Entwicklung der gesamten Redezeit über die Perioden.',
+	// Descriptions will be translated via i18n in the chart control; keep keys
+		'delegate.normalized': t('statistics.speechTime.desc.delegateNormalized'),
+		'delegate.absolute': t('statistics.speechTime.desc.delegateAbsolute'),
+		'party.normalized': t('statistics.speechTime.desc.partyNormalized'),
+		'party.absolute': t('statistics.speechTime.desc.partyAbsolute'),
+		'gender.normalized': t('statistics.speechTime.desc.genderNormalized'),
+		'gender.absolute': t('statistics.speechTime.desc.genderAbsolute'),
+		'age.normalized': t('statistics.speechTime.desc.ageNormalized'),
+		'age.absolute': t('statistics.speechTime.desc.ageAbsolute'),
+		'legis.normalized': t('statistics.speechTime.desc.legisNormalized'),
+		'legis.absolute': t('statistics.speechTime.desc.legisAbsolute'),
+		'line.normalized': t('statistics.speechTime.desc.lineNormalized'),
+		'line.absolute': t('statistics.speechTime.desc.lineAbsolute'),
 		'donut.normalized':
-			'Anteil der höchsten durchschnittlichen Rededauern in der aktuellen Auswahl.',
-		'donut.absolute': 'Anteil der höchsten Redezeiten in der aktuellen Auswahl.'
+			t('statistics.speechTime.desc.donutNormalized'),
+		'donut.absolute': t('statistics.speechTime.desc.donutAbsolute')
 	};
 
 	const delegateSimpleSpeechTime = async (
@@ -150,13 +152,13 @@
 </script>
 
 <svelte:head>
-	<title>Redezeitstatistiken - Parlamentsinformationssystem</title>
-	<meta name="description" content="Redezeiten im Parlament nach Personen und Gruppen" />
+	<title>{t('statistics.speechTime.title')}</title>
+	<meta name="description" content={t('statistics.speechTime.description')} />
 </svelte:head>
 
 <Container class="pb-12">
 	<div class="mt-2 mb-6">
-		<h1 class="text-3xl font-bold sm:text-4xl">Redezeitstatistiken</h1>
+		<h1 class="text-3xl font-bold sm:text-4xl">{t('statistics.speechTime.h1')}</h1>
 		<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
 			Gesamte Redezeit und durchschnittliche Rededauer im Parlament.
 		</p>
@@ -166,8 +168,8 @@
 		makeRequest={currentFunction}
 		height={560}
 		bind:selectedCategory
-		valueLabel="Redezeit"
-		normalizedValueLabel="Durchschnittliche Rededauer"
+		valueLabel={t('statistics.speechTime.valueLabel')}
+		normalizedValueLabel={t('statistics.speechTime.normalizedValueLabel')}
 		{chartDescriptions}
 	/>
 </Container>

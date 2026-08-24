@@ -24,7 +24,7 @@ pub struct DivisionAccuracyBase {
     delegate_name: String,
     delegate_party: String,
     delegate_filter_party: String,
-    delegate_gender: String,
+    delegate_gender: Option<String>,
     accuracy_score: f64,
     total_votes: i64,
     latest_activity_date: Option<chrono::NaiveDate>,
@@ -111,7 +111,11 @@ impl DivisionAccuracyService {
         for item in base_data {
             let entry =
                 gender_map
-                    .entry(item.delegate_gender.clone())
+                    .entry(
+                        item.delegate_gender
+                            .clone()
+                            .unwrap_or_else(|| "Unknown".into()),
+                    )
                     .or_insert((Vec::new(), 0, 0));
             entry.0.push(item.accuracy_score);
             entry.1 += item.total_votes;

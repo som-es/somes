@@ -28,6 +28,7 @@
 	import { convertGovPropFilterToUrl } from '../Proposals/urlConversion';
 	import { convertDecreeFilterToUrl } from '../Decrees/urlConversion';
 	import { accountOrLogin } from './user';
+	import { t } from '$lib/i18n/i18n.svelte';
 
 	let activeUrl = $derived(page.url.pathname);
 	let activeSectionHash = $state('');
@@ -85,51 +86,51 @@
 	const submenu = $derived.by(() => {
 		const menus = [
 			{
-				title: 'Reden',
+				title: t('nav.speeches'),
 				route: '/statistics',
 				list: [
-					{ href: `${plink('/statistics')}#speech-time`, label: 'Redezeit', keywords: '' },
-					{ href: `${plink('/statistics')}#total-speeches`, label: 'Gehaltene Reden', keywords: '' }
+					{ href: `${plink('/statistics')}#speech-time`, label: t('nav.speechTime'), keywords: '' },
+					{ href: `${plink('/statistics')}#total-speeches`, label: t('nav.totalSpeeches'), keywords: '' }
 				]
 			},
 			{
-				title: 'Aktivitäten',
+				title: t('nav.activities'),
 				route: '/statistics',
 				list: [
-					{ href: `${plink('/statistics')}#absences`, label: 'Abwesenheiten', keywords: '' },
-					{ href: `${plink('/statistics')}#activity`, label: 'Aktivität', keywords: '' },
-					{ href: `${plink('/statistics')}#call-to-orders`, label: 'Ordnungsrufe', keywords: '' }
+					{ href: `${plink('/statistics')}#absences`, label: t('nav.absences'), keywords: '' },
+					{ href: `${plink('/statistics')}#activity`, label: t('nav.activity'), keywords: '' },
+					{ href: `${plink('/statistics')}#call-to-orders`, label: t('nav.callToOrders'), keywords: '' }
 				]
 			},
 			{
-				title: 'Abgeordnete',
+				title: t('nav.delegates'),
 				route: '/statistics',
 				list: [
-					{ href: `${plink('/statistics')}#age`, label: 'Alter', keywords: '' },
+					{ href: `${plink('/statistics')}#age`, label: t('nav.age'), keywords: '' },
 					{
 						href: `${plink('/statistics')}#orientation`,
-						label: 'Politische Positionen',
+						label: t('nav.orientation'),
 						keywords: ''
 					}
 				]
 			},
 
 			{
-				title: 'Nationalrat',
+				title: t('nav.nationalCouncil'),
 				route: '/history',
 				list: [
-					{ href: voteResultUrl.href, label: 'Abstimmungen', keywords: '' },
-					{ href: unfinishedVoteResultUrl.href, label: 'Zur Abstimmung', keywords: '' }
+					{ href: voteResultUrl.href, label: t('nav.votes'), keywords: '' },
+					{ href: unfinishedVoteResultUrl.href, label: t('nav.toVote'), keywords: '' }
 				]
 			}
 		];
 		if (parliament == 'at') {
 			menus.push({
-				title: 'Regierung',
+				title: t('nav.government'),
 				route: '/history',
 				list: [
-					{ href: govProposalUrl.href, label: 'Ministerialentwürfe', keywords: '' },
-					{ href: decreeUrl.href, label: 'Verordnungen', keywords: '' }
+					{ href: govProposalUrl.href, label: t('nav.ministerialDrafts'), keywords: '' },
+					{ href: decreeUrl.href, label: t('nav.decrees'), keywords: '' }
 				]
 			});
 		}
@@ -200,7 +201,7 @@
 		</a>
 		<a
 			href={plink('/home')}
-			title="Neuigkeiten"
+			title={t('nav.news')}
 			class="{activeUrl?.includes('/home')
 				? 'bg-tertiary-500! stroke-black'
 				: ' stroke-white'} mt-5 flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60 hover:stroke-black"
@@ -211,7 +212,7 @@
 		</a>
 		<a
 			href={voteResultUrl.href}
-			title="Abstimmungshistorie"
+			title={t('nav.history')}
 			class="{activeUrl?.includes('/history')
 				? 'bg-tertiary-500! stroke-black'
 				: ' stroke-white'} flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60"
@@ -234,7 +235,7 @@
 		</a>
 		<a
 			href={plink('/delegates')}
-			title="Abgeordnete"
+			title={t('nav.delegates')}
 			class="{activeUrl?.includes('/delegates')
 				? 'bg-tertiary-500! fill-black'
 				: ' fill-white'} flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60 hover:fill-black"
@@ -245,7 +246,7 @@
 		</a>
 		<a
 			href={plink('/statistics')}
-			title="Statistiken"
+			title={t('nav.statistics')}
 			class="{activeUrl?.includes('/statistics')
 				? 'bg-tertiary-500! fill-black'
 				: ' fill-white'} flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60 hover:fill-black"
@@ -263,7 +264,7 @@
 				onclick={async () => {
 					await accountOrLogin();
 				}}
-				title="Benutzerprofil"
+				title={t('nav.profile')}
 				class="{activeUrl?.includes('/user')
 					? 'bg-tertiary-500! fill-black'
 					: ' fill-white'} flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60 hover:fill-black"

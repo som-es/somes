@@ -25,7 +25,7 @@ pub struct CallToOrdersBase {
     delegate_name: String,
     delegate_party: String,
     delegate_filter_party: String,
-    delegate_gender: String,
+    delegate_gender: Option<String>,
     total_order_calls: i64,
     total_sessions_attended: Option<i64>,
     normalized_calls_to_order: Option<f64>,
@@ -142,7 +142,11 @@ impl CallToOrdersService {
 
         for item in base_data {
             let entry = gender_map
-                .entry(item.delegate_gender.clone())
+                .entry(
+                    item.delegate_gender
+                        .clone()
+                        .unwrap_or_else(|| "Unknown".into()),
+                )
                 .or_insert((0, 0));
             entry.0 += item.total_order_calls;
             entry.1 += item.total_sessions_attended.unwrap_or(0);

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	interface Props {
 		dateFrom: string;
 		dateTo: string;
@@ -12,7 +13,7 @@
 		<div class="flex-1">
 			<label
 				for="date-from"
-				class="block w-full text-sm font-semibold text-gray-600 dark:text-gray-50">Von</label
+				class="block w-full text-sm font-semibold text-gray-600 dark:text-gray-50">{t('filter.date.from')}</label
 			>
 			<input
 				id="date-from"
@@ -24,7 +25,7 @@
 		<div class="flex-1">
 			<label
 				for="date-to"
-				class="block w-full text-sm font-semibold text-gray-600 dark:text-gray-50">Bis</label
+				class="block w-full text-sm font-semibold text-gray-600 dark:text-gray-50">{t('filter.date.to')}</label
 			>
 			<input
 				id="date-to"
@@ -42,7 +43,7 @@
 				dateTo = '';
 			}}
 		>
-			Zurücksetzen
+			{t('filter.reset')}
 		</button>
 	{/if}
 </div>

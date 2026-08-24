@@ -4,6 +4,7 @@
 	import type { GenericFilterGroup } from './types';
 	import FilterDropdown from './FilterDropdown.svelte';
 	import FilterGroup from './FilterGroup.svelte';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import downArrowIcon from '$lib/assets/misc_icons/down-arrow.svg?raw';
 
 	interface Props {
@@ -36,7 +37,7 @@
 		class="flex h-full grow touch-manipulation items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 md:grow-0"
 	>
 		<FilterDropdown
-			title="Filter"
+			title={t('filter.title')}
 			activefilterCount={activeGenericFiltersCount}
 			isOpen={isGenericFilterOpen}
 		/>

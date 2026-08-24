@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import type { FullSpeech } from '$lib/speechTypes';
 	import type { Snippet } from 'svelte';
 	import AllSpeechesModal from './AllSpeechesModal.svelte';
@@ -19,7 +20,7 @@
 	let {
 		speeches,
 		totalCount,
-		title = 'Letzte Reden',
+		title = t('speeches.title'),
 		delegateId,
 		maxPage,
 		speechHeader
@@ -40,7 +41,7 @@
 						<AiSummaryHintPopup
 							aiSummary={hintAiSummary}
 							align="start"
-							aiGenText="Titel und Zusammenfassungen der Reden wurden mittels KI aus den jeweiligen Reden erstellt."
+							aiGenText={t('speeches.aiHint')}
 						/>
 					{/if}
 					{title}
@@ -48,20 +49,20 @@
 			</div>
 			<h2 class="text-sm text-gray-800 dark:text-gray-300">
 				{totalCount}
-				{totalCount === 1 ? 'Rede' : 'Reden'} insgesamt
+				{totalCount === 1 ? t('speeches.speech') : t('speeches.speeches')} {t('speeches.total')}
 			</h2>
 		</div>
 
 		<div class="flex shrink-0 flex-col items-end gap-2">
-			<ExtendInfoDialog title="Alle anzeigen">
+			<ExtendInfoDialog title={t('speeches.showAll')}>
 				<AllSpeechesModal {title} {speeches} {delegateId} {maxPage} {speechHeader} />
 			</ExtendInfoDialog>
 			<div class="flex items-center gap-4 text-sm text-black dark:text-white">
 				<div class="flex items-center gap-2">
-					<span class="h-2 w-2 rounded-full bg-green-600"></span>Pro
+					<span class="h-2 w-2 rounded-full bg-green-600"></span>{t('speeches.pro')}
 				</div>
 				<div class="flex items-center gap-2">
-					<span class="h-2 w-2 rounded-full bg-red-500"></span>Contra
+					<span class="h-2 w-2 rounded-full bg-red-500"></span>{t('speeches.contra')}
 				</div>
 			</div>
 		</div>

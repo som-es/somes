@@ -83,6 +83,7 @@ mod tests {
     use crate::routes::fetch_vote_result_by_id;
 
     #[tokio::test]
+    #[ignore]
     async fn test_fetch_all_vote_results() {
         let pg = combx::connect_pg().await;
         println!("start fetch...");

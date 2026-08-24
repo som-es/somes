@@ -101,48 +101,69 @@ export async function deleteWithAuth<T>(
 	);
 }
 
-export async function addUserTopic(uniqueTopic: UniqueTopic, parliament: Parliament = getParliament()): Promise<null | HasError> {
+export async function addUserTopic(
+	uniqueTopic: UniqueTopic,
+	parliament: Parliament = getParliament()
+): Promise<null | HasError> {
 	return postWithAuth('v1/user/topic_selection', uniqueTopic, parliament);
 }
 
-export async function removeUserTopic(uniqueTopic: UniqueTopic, parliament: Parliament = getParliament()): Promise<null | HasError> {
+export async function removeUserTopic(
+	uniqueTopic: UniqueTopic,
+	parliament: Parliament = getParliament()
+): Promise<null | HasError> {
 	return deleteWithAuth('v1/user/topic_selection', uniqueTopic, parliament);
 }
 
 export async function getUserTopics(
-    parliament: Parliament = getParliament(),
+	parliament: Parliament = getParliament()
 ): Promise<UniqueTopic[] | HasError> {
 	return getWithAuth('v1/user/topic_selection', parliament);
 }
 
-export async function updateDelegateFavo(delegateFavo: DelegateFavo, parliament: Parliament = getParliament()): Promise<null | HasError> {
+export async function updateDelegateFavo(
+	delegateFavo: DelegateFavo,
+	parliament: Parliament = getParliament()
+): Promise<null | HasError> {
 	return putWithAuth('v1/user/bookmark/delegate', delegateFavo, parliament);
 }
 
-export async function addDelegateFavo(uniqueTopic: DelegateFavo, parliament: Parliament = getParliament()): Promise<null | HasError> {
+export async function addDelegateFavo(
+	uniqueTopic: DelegateFavo,
+	parliament: Parliament = getParliament()
+): Promise<null | HasError> {
 	return postWithAuth('v1/user/bookmark/delegate', uniqueTopic, parliament);
 }
 
-export async function removeDelegateFavo(uniqueTopic: DelegateFavo, parliament: Parliament = getParliament()): Promise<null | HasError> {
+export async function removeDelegateFavo(
+	uniqueTopic: DelegateFavo,
+	parliament: Parliament = getParliament()
+): Promise<null | HasError> {
 	return deleteWithAuth('v1/user/bookmark/delegate', uniqueTopic, parliament);
 }
 
 export async function getFavoDelegates(
-    parliament: Parliament = getParliament(),
+	parliament: Parliament = getParliament()
 ): Promise<DelegateFavo[] | HasError> {
 	return getWithAuth('v1/user/bookmark/delegate', parliament);
 }
 
-export async function addLegisInitFavo(uniqueTopic: LegisInitFavo, parliament: Parliament = getParliament()): Promise<null | HasError> {
+export async function addLegisInitFavo(
+	uniqueTopic: LegisInitFavo,
+	parliament: Parliament = getParliament()
+): Promise<null | HasError> {
 	return postWithAuth('v1/user/bookmark/vote_result', uniqueTopic, parliament);
 }
 
-export async function removeLegisInitFavo(uniqueTopic: LegisInitFavo, parliament: Parliament = getParliament()): Promise<null | HasError> {
+export async function removeLegisInitFavo(
+	uniqueTopic: LegisInitFavo,
+	parliament: Parliament = getParliament()
+): Promise<null | HasError> {
 	return deleteWithAuth('v1/user/bookmark/vote_result', uniqueTopic, parliament);
 }
 
 export async function getFavoLegisInits(
-    parliament: Parliament = getParliament(),
+	parliament: Parliament = getParliament()
 ): Promise<LegisInitFavo[] | HasError> {
 	return getWithAuth('v1/user/bookmark/vote_result', parliament);
 }
@@ -152,7 +173,7 @@ export async function delete_account(): Promise<null | HasError> {
 }
 
 export async function getMailSendInfo(
-    parliament: Parliament = getParliament(),
+	parliament: Parliament = getParliament()
 ): Promise<MailSendInfo | HasError> {
 	return getWithAuth('v1/user/send_mail_info', parliament);
 }
@@ -169,7 +190,10 @@ export async function getQuizzes(): Promise<Quiz[] | HasError> {
 	return getWithAuth('quizzes');
 }
 
-export async function updateMailSendInfo(mailSendInfo: MailSendInfo, parliament: Parliament = getParliament()): Promise<null | HasError> {
+export async function updateMailSendInfo(
+	mailSendInfo: MailSendInfo,
+	parliament: Parliament = getParliament()
+): Promise<null | HasError> {
 	return putWithAuth('v1/user/send_mail_info', mailSendInfo, parliament);
 }
 
