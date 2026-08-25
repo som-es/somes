@@ -403,7 +403,6 @@
 											{#if selectedInfavor}
 												{@const option = infavorOptions.find((p) => p.value === selectedInfavor)}
 												{#if option}
-													<div class="h-3 w-3 rounded-full"></div>
 													<span class="truncate">{option.label}</span>
 												{/if}
 											{:else}
@@ -426,7 +425,6 @@
 													>
 														{#snippet children({ selected })}
 															<div class="flex items-center gap-2">
-																<div class="h-3 w-3 rounded-full"></div>
 																{infavorOption.label}
 															</div>
 															{#if selected}
