@@ -26,14 +26,16 @@
 	import SpeechBar from '$lib/components/Delegates/Speeches/SpeechBar.svelte';
 	import SpeechDelegateHeader from '$lib/components/Delegates/Speeches/SpeechDelegateHeader.svelte';
 	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
+	import { getParliament, type Parliament } from '$lib/api/parliament';
 
 	interface Props {
 		speakers: KeypointSpeaker[];
 		/** Der Schwerpunkt selbst, als Überschrift der vollständigen Liste. */
 		pointText?: string;
+		parliament?: Parliament;
 	}
 
-	let { speakers, pointText }: Props = $props();
+	let { speakers, pointText, parliament = getParliament() }: Props = $props();
 
 	const instanceId = instanceCount++;
 	const MAX_VISIBLE = 5;
@@ -79,7 +81,7 @@
 					}}
 				>
 					<img
-						src={`${url}assets/${speaker.delegate.id}.jpg`}
+						src={parliament == "at" ? `${url}assets/${speaker.delegate.id}.jpg` : speaker.delegate.image_url}
 						alt={speaker.delegate.name}
 						class="h-6 w-6 rounded-full object-cover text-[1px] ring-2 ring-primary-300 dark:ring-primary-500"
 					/>

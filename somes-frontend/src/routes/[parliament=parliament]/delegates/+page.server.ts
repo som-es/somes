@@ -5,6 +5,7 @@ import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 import { cachedAllSeats } from '$lib/caching/seats';
 import type { PageServerLoad } from './$types';
 import { cachedPartyColors } from '$lib/caching/party_color';
+import { cachedPlenarySessions } from '$lib/caching/plenarySessions';
 
 export const load: PageServerLoad = async ({ fetch, url, setHeaders, params }) => {
 	const parliament = params.parliament as Parliament;

@@ -275,6 +275,9 @@ pub async fn serve(addr: SocketAddr) -> ServerResult<()> {
     let meilisearch_client =
         meilisearch_sdk::client::Client::new(MEILISEARCH_URL, Some(MEILISEARCH_SECRET))?;
 
+    let eurovoc_topics =
+        combx::with_data::unique_topics::eurovoc_topics_map(&dataservice_sqlx_pool).await?;
+
     let state = AppState::new(
         redis.clone(),
         eu_redis.clone(),
@@ -282,6 +285,7 @@ pub async fn serve(addr: SocketAddr) -> ServerResult<()> {
         dataservice_sqlx_pool.clone(),
         eu_dataservice_sqlx_pool.clone(),
         meilisearch_client.clone(),
+        eurovoc_topics,
     );
 
     spawn_asset_refresh(dataservice_sqlx_pool.clone());

@@ -2,19 +2,15 @@
 	import VoteResults from '$lib/components/VoteResults/VoteResults.svelte';
 	import type { Delegate, GovProposalDelegate, Topic, UniqueTopic, VoteResult } from '$lib/types';
 	import { onMount } from 'svelte';
-	import { cachedLatestVoteResults } from '$lib/caching/vote_results';
 	import Container from '$lib/components/Layout/Container.svelte';
-	import { cachedLatestGovProposals } from '$lib/caching/gov_proposals';
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache.svelte';
 	import NextSessionInfo from '$lib/components/PlenarySessions/NextSessionInfo.svelte';
 	import { dashDateToDotDate } from '$lib/date';
-	import { filteredDelegates } from '$lib/caching/delegates.svelte';
 	import LatestProposals from '$lib/components/Proposals/Latest/LatestProposals.svelte';
 	import SessionActivityOverview from '$lib/components/PlenarySessions/SessionActivityOverview.svelte';
 	import type { PageProps } from './$types';
 	import { errorToNull } from '$lib/api/api';
 	import VoteResultExpandableBar from '$lib/components/VoteResults/Expandable/VoteResultExpandableBar.svelte';
-	import { resolve } from '$app/paths';
 	import { convertVoteResultFilterToUrl } from '$lib/components/VoteResults/Expandable/urlConversion';
 	import {
 		currentDecreeFilterStore,
@@ -22,7 +18,7 @@
 		currentVoteResultFilterStore
 	} from '$lib/stores/stores';
 	import { convertGovPropFilterToUrl } from '$lib/components/Proposals/urlConversion';
-	import type { Decree, DecreeDelegate } from '$lib/components/Delegates/Decrees/types';
+	import type { DecreeDelegate } from '$lib/components/Delegates/Decrees/types';
 	import DecreeBar from '$lib/components/Delegates/Decrees/DecreeBar.svelte';
 	import { convertDecreeFilterToUrl } from '$lib/components/Decrees/urlConversion';
 	import { t } from '$lib/i18n/i18n.svelte';
@@ -143,8 +139,10 @@
 </svelte:head>
 
 <Container>
-	<NextSessionInfo {nextPlenarySessionDateStr} />
-	<SessionActivityOverview overview={latestSessionActivity} />
+    {#if data.parliament == "at"}
+        <NextSessionInfo {nextPlenarySessionDateStr} />
+	{/if}
+	<SessionActivityOverview overview={latestSessionActivity} plenarySessions={data.plenarySessions} parliament={data.parliament} />
 	<h2 class="mt-6 px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">{t('home.latestVotes')}</h2>
 	<span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0 dark:text-gray-200">
 		{#if voteDate}
