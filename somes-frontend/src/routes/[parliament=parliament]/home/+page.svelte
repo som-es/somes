@@ -1,5 +1,4 @@
 <script lang="ts">
-	import VoteResults from '$lib/components/VoteResults/VoteResults.svelte';
 	import type { Delegate, GovProposalDelegate, Topic, UniqueTopic, VoteResult } from '$lib/types';
 	import { onMount } from 'svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
@@ -150,14 +149,17 @@
 		{/if}
 	</span>
 	<!-- User Interests -->
-	{#if userVoteResults && dels}
+	{#if userVoteResults && userVoteResults.length > 0}
 		<h2 class="text-xl font-semibold sm:text-2xl">{t('home.byInterest')}</h2>
-
-		<VoteResults {dels} allSeats={data.allSeats} voteResults={userVoteResults} />
-		<!-- {:else if use} -->
+		<div class="mt-2 flex flex-col gap-5">
+			{#each userVoteResults as voteResult}
+				<VoteResultExpandableBar {voteResult} class="" />
+			{/each}
+		</div>
+		<h2 class="mt-5 text-xl font-semibold sm:text-2xl">{t('home.other')}</h2>
 	{/if}
 	{#if voteResults && dels}
-		<div class="mt-5 flex flex-col gap-5">
+		<div class="mt-2 flex flex-col gap-5">
 			{#each voteResults.slice(0, 3) as voteResult}
 				<VoteResultExpandableBar {voteResult} class="" />
 			{/each}
