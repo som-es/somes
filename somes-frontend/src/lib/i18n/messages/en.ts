@@ -37,6 +37,10 @@ export const en = {
 	'nav.callToOrders': 'Calls to order',
 	'nav.age': 'Age',
 	'nav.orientation': 'Political positions',
+	'nav.menu.darkMode': 'Dark mode',
+	'nav.menu.lightMode': 'Light mode',
+	'nav.menu.parliament': 'Parliament',
+	'nav.menu.language': 'Language',
 
 	// --- Layout (footer, disclaimer) ---
 	'layout.tagline':

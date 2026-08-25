@@ -38,6 +38,10 @@ export const de = {
 	'nav.callToOrders': 'Ordnungsrufe',
 	'nav.age': 'Alter',
 	'nav.orientation': 'Politische Positionen',
+	'nav.menu.darkMode': 'Dunkelmodus',
+	'nav.menu.lightMode': 'Hellmodus',
+	'nav.menu.parliament': 'Parlament',
+	'nav.menu.language': 'Sprache',
 
 	// --- Layout (footer, disclaimer) ---
 	'layout.tagline': 'Parteiübergreifend machen wir Demokratie transparent, verständlich und zugänglich.',

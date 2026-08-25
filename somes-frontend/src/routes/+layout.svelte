@@ -9,6 +9,7 @@
 	import { lightModeStore } from '$lib/lightmode.svelte';
 	import RenewToken from '$lib/components/Login/RenewToken.svelte';
 	import LoginDrawer from '$lib/components/Login/LoginDrawer.svelte';
+	import ParliamentSwitchModal from '$lib/components/Bars/ParliamentSwitchModal.svelte';
 	import { loginDrawerOpenStore } from '$lib/caching/stores/stores.svelte';
 	import { page } from '$app/state';
 	import CacheInvalidation from '$lib/components/CacheInvalidation/CacheInvalidation.svelte';
@@ -29,6 +30,7 @@
 
 <RenewToken />
 <LoginDrawer bind:open={loginDrawerOpenStore.value} />
+<ParliamentSwitchModal />
 {#if browser}
 	<CacheInvalidation />
 {/if}

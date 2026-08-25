@@ -30,3 +30,13 @@ export const userDelegateFavosStore = persistedScoped<DelegateFavo[] | null>(
 );
 
 export const loginDrawerOpenStore = persisted<boolean>('login_drawer', false);
+
+let parliamentModalOpen = $state(false);
+export const parliamentModalOpenStore = {
+	get value() {
+		return parliamentModalOpen;
+	},
+	set value(newValue: boolean) {
+		parliamentModalOpen = newValue;
+	}
+};

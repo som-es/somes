@@ -3,9 +3,12 @@
 	import hamburgerMenuIcon from '$lib/assets/misc_icons/hamburger-menu.svg?raw';
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow-small.svg?raw';
 	import crossmarkIcon from '$lib/assets/misc_icons/crossmark_small.svg?raw';
+	import austriaMapIcon from '$lib/assets/misc_icons/austria-map.svg?raw';
+	import euMapIcon from '$lib/assets/misc_icons/eu-map.svg?raw';
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
-	import { plink } from '$lib/api/parliament';
+	import { getParliament, plink } from '$lib/api/parliament';
+	import { parliamentModalOpenStore } from '$lib/caching/stores/stores.svelte';
 	import { slide } from 'svelte/transition';
 	import { convertVoteResultFilterToUrl } from '../VoteResults/Expandable/urlConversion';
 	import {
@@ -21,6 +24,7 @@
 
 	let isOpen = $state(false);
 	let expandedItems = $state<Record<string, boolean>>({});
+	let parliament = $derived(getParliament());
 
 	type SubItem = { label: string; href: string; pathname: string };
 	type SubItemGroup = { title: string; items: SubItem[] };
@@ -207,6 +211,18 @@
 				}}
 			>
 				{t('nav.profile')}
+			</button>
+			<button
+				class="flex w-full touch-manipulation items-center justify-between p-4 text-base font-medium text-white hover:bg-surface-400"
+				onclick={() => {
+					closeMenu();
+					parliamentModalOpenStore.value = true;
+				}}
+			>
+				<span>{t('nav.menu.parliament')}</span>
+				<div class="h-6 w-6 text-white [&_svg]:h-full [&_svg]:w-full">
+					{@html parliament === 'eu' ? euMapIcon : austriaMapIcon}
+				</div>
 			</button>
 		</nav>
 	{/if}
