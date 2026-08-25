@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { t } from '$lib/i18n/i18n.svelte';
 	import { errorToNull, url } from '$lib/api/api';
-	import { aiViewEnabledStore, currentDelegateStore } from '$lib/stores/stores';
+	import { aiViewEnabledStore, currentDelegateStore, seatColorModeStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
 	import { plink } from '$lib/api/parliament';
 	import { onMount } from 'svelte';
@@ -55,6 +55,7 @@
 	let delegate: Delegate | null = $state(null);
 	let selectedBubble: Bubble | undefined = $state();
 	let searchValue: string = $state('');
+	let seatColorMode = $derived(seatColorModeStore.value);
 
 	let partyColors = $derived(data.partyColors);
 
@@ -737,7 +738,38 @@
 								</div>
 							</div>
 
-							<div class="flex w-full items-center justify-center max-lg:hidden">
+							<div class="flex w-full flex-col items-center max-lg:hidden">
+								<!-- Seat coloring toggle: by party vs. by vote (green/red/blue like the EP display) -->
+								<div class="mt-1 flex w-full justify-end mr-4">
+									<div
+										class="flex rounded-lg bg-primary-200/60 p-0.5 text-xs dark:bg-primary-600/60"
+										role="group"
+										aria-label={t('vote_result.seatColor.voteTitle')}
+									>
+										<button
+											class="cursor-pointer rounded-md px-2 py-0.5 transition-colors {seatColorMode ===
+											'party'
+												? 'bg-surface-50 font-semibold shadow-sm dark:bg-surface-600'
+												: 'text-gray-700 dark:text-gray-300'}"
+											title={t('vote_result.seatColor.partyTitle')}
+											aria-pressed={seatColorMode === 'party'}
+											onclick={() => (seatColorModeStore.value = 'party')}
+										>
+											{t('vote_result.seatColor.party')}
+										</button>
+										<button
+											class="cursor-pointer rounded-md px-2 py-0.5 transition-colors {seatColorMode ===
+											'vote'
+												? 'bg-surface-50 font-semibold shadow-sm dark:bg-surface-600'
+												: 'text-gray-700 dark:text-gray-300'}"
+											title={t('vote_result.seatColor.voteTitle')}
+											aria-pressed={seatColorMode === 'vote'}
+											onclick={() => (seatColorModeStore.value = 'vote')}
+										>
+											{t('vote_result.seatColor.vote')}
+										</button>
+									</div>
+								</div>
 								<div class="w-2/3">
 									<VoteParliament2
 										{voteResult}
@@ -752,6 +784,7 @@
 										overrideDelegates
 										{searchValue}
 										partyColoring={partyColors}
+										colorMode={seatColorMode}
 									/>
 								</div>
 							</div>
