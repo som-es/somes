@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { url } from '$lib/api/api';
+	import { getParliament, type Parliament } from '$lib/api/parliament';
 	import { getPartyColors, partyToColor } from '$lib/partyColor';
 	import type { Delegate } from '$lib/types';
 
@@ -7,14 +8,16 @@
 		delegate: Delegate;
 		partyColors?: Map<string, string>;
 		onNavigate?: () => void;
+		parliament?: Parliament;
 	}
 
-	let { delegate, partyColors = getPartyColors(), onNavigate }: Props = $props();
+	let { delegate, partyColors = getPartyColors(), onNavigate, parliament = getParliament() }: Props = $props();
+	let imgSrc = $derived(parliament == "at" ? `${url}assets/${delegate.id}.jpg` : delegate.image_url);
 </script>
 
 <div class="flex min-w-0 items-center gap-2">
 	<img
-		src={`${url}assets/${delegate.id}.jpg`}
+		src={imgSrc}
 		alt={delegate.name}
 		class="h-8 w-8 shrink-0 rounded-full object-cover text-[1px]"
 	/>

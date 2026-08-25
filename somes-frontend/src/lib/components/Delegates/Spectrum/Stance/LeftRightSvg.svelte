@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n';
 	import { topicColors } from '$lib/interestColors';
 	import type { StanceTopicScore } from '$lib/types';
 
@@ -80,16 +81,16 @@
 
 	<!-- Axis labels -->
 	<text x={PAD_LEFT} y={axisY + Y_AXIS_TEXT} font-size={FONT_AXIS} fill="#888" text-anchor="start"
-		>← Links</text
+		>← {t("spectrum.stance.label.left")}</text
 	>
 	<text x={centerX} y={axisY + Y_AXIS_TEXT} font-size={FONT_AXIS} fill="#888" text-anchor="middle"
-		>Mitte</text
+		>{t("spectrum.stance.label.center")}</text
 	>
 	<text
 		x={CHART_W - PAD_RIGHT}
 		y={axisY + Y_AXIS_TEXT}
 		font-size={FONT_AXIS}
 		fill="#888"
-		text-anchor="end">Rechts →</text
+		text-anchor="end">{t("spectrum.stance.label.right")} →</text
 	>
 </svg>

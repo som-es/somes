@@ -1,8 +1,10 @@
 #![warn(clippy::unwrap_used)]
 
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use chrono::Local;
+use combx::with_data::unique_topics::EurovocTopics;
 use common_scrapes::eu_hemicycle::{HemicycleLayout, load_hemicycle};
 use dotenvy_macro::dotenv;
 
@@ -37,8 +39,6 @@ use crate::db::redis_db::RedisHandle;
 pub type Result<T> = std::result::Result<T, crate::error::GenericError>;
 
 pub const USR_DATABASE_URL: &str = dotenv!("USR_DATABASE_URL");
-pub const TEST_DB_PATH: &str = dotenv!("TEST_DB_PATH");
-pub const SQL_SCHEMA_PATH: &str = dotenv!("SQL_SCHEMA_PATH");
 pub const REDIS_DB: &str = dotenv!("REDIS_DB");
 pub const VERIFICATION_SUBJECT: &str = dotenv!("VERIFICATION_SUBJECT");
 pub const VERIFICATION_CONTENT: &str = dotenv!("VERIFICATION_CONTENT");
@@ -98,6 +98,7 @@ pub struct AppState {
     pub eu_dataservice_sqlx_pool: PgPool,
     pub meilisearch_client: meilisearch_sdk::client::Client,
     pub eu_hemicycle: Arc<HemicycleLayout>,
+    pub eurovoc_topics: EurovocTopics,
 }
 
 impl AppState {
@@ -108,6 +109,7 @@ impl AppState {
         dataservice_sqlx_pool: PgPool,
         eu_dataservice_sqlx_pool: PgPool,
         meilisearch_client: meilisearch_sdk::client::Client,
+        eurovoc_topics: EurovocTopics,
     ) -> AppState {
         AppState {
             redis,
@@ -117,6 +119,7 @@ impl AppState {
             eu_dataservice_sqlx_pool,
             meilisearch_client,
             eu_hemicycle: Arc::new(load_hemicycle()),
+            eurovoc_topics,
         }
     }
 

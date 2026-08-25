@@ -14,6 +14,7 @@ import { next_plenar_date } from '$lib/components/PlenarySessions/api';
 import type { Parliament } from '$lib/api/parliament';
 import type { Delegate, HasError, VoteResult } from '$lib/types';
 import type { PageServerLoad } from './$types';
+import { cachedPlenarySessions } from '$lib/caching/plenarySessions';
 
 const internalCache: Record<string, { data: any; timestamp: number }> = {};
 
@@ -85,6 +86,12 @@ export const load: PageServerLoad = async ({ fetch, setHeaders, params }) => {
 		hasDelegate
 	);
 
+  let plenarySessions = null;
+  if (parliament === "eu") {
+    plenarySessions = errorToNull(await cachedPlenarySessions(true, fetch, parliament));
+	}
+
+
 	// TODO error handling
 
 	const data = {
@@ -95,7 +102,8 @@ export const load: PageServerLoad = async ({ fetch, setHeaders, params }) => {
 		latestDelegateDecrees,
 		latestSessionActivity,
 		delegates,
-		allSeats
+    allSeats,
+    plenarySessions
 	};
 
 	internalCache[parliament] = {

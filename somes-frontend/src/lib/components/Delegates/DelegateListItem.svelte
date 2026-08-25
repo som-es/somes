@@ -3,6 +3,7 @@
 	import type { Delegate } from '$lib/types';
 	import { url } from '$lib/api/api';
 	import { partyColors } from '$lib/partyColor';
+	import { getParliament, type Parliament } from '$lib/api/parliament';
 
 	interface Props {
 		delegate: Delegate;
@@ -10,9 +11,11 @@
 		class?: string;
 		size?: 'sm' | 'md';
 		children?: import('svelte').Snippet;
+		parliament?: Parliament
 	}
 
-	let { delegate, onclick, class: className = '', size = 'sm', children }: Props = $props();
+	let { delegate, onclick, class: className = '', size = 'sm', children, parliament = getParliament() }: Props = $props();
+	let imgSrc = $derived(parliament == "at" ? `${url}assets/${delegate.id}.jpg` : delegate.image_url);
 </script>
 
 <button
@@ -21,7 +24,7 @@
 >
 	<div class="flex items-center gap-2 overflow-hidden md:gap-3">
 		<img
-			src={`${url}assets/${delegate.id}.jpg`}
+			src={imgSrc}
 			alt={delegate.name}
 			class="{size == 'sm' ? 'h-8 w-8' : 'h-10 w-10'} shrink-0 rounded-full object-cover text-[1px]"
 		/>
