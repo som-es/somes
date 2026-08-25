@@ -15,7 +15,6 @@
 	import CacheInvalidation from '$lib/components/CacheInvalidation/CacheInvalidation.svelte';
 	import { browser } from '$app/environment';
 	import { t } from '$lib/i18n/i18n.svelte';
-	import LanguageSwitcher from '$lib/components/UI/LanguageSwitcher.svelte';
 
 	let { children } = $props();
 
@@ -174,7 +173,6 @@
 			</div>
 		</div>
 		<div class="mx-auto mt-1 max-w-7xl border-t border-surface-800 px-4 pt-8 text-center text-xs">
-			<LanguageSwitcher dark />
 			<div class="mt-4">&copy; {new Date().getFullYear()} {t('layout.copyright')}.</div>
 		</div>
 	</footer>
