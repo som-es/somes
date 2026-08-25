@@ -39,8 +39,6 @@ use crate::db::redis_db::RedisHandle;
 pub type Result<T> = std::result::Result<T, crate::error::GenericError>;
 
 pub const USR_DATABASE_URL: &str = dotenv!("USR_DATABASE_URL");
-pub const TEST_DB_PATH: &str = dotenv!("TEST_DB_PATH");
-pub const SQL_SCHEMA_PATH: &str = dotenv!("SQL_SCHEMA_PATH");
 pub const REDIS_DB: &str = dotenv!("REDIS_DB");
 pub const VERIFICATION_SUBJECT: &str = dotenv!("VERIFICATION_SUBJECT");
 pub const VERIFICATION_CONTENT: &str = dotenv!("VERIFICATION_CONTENT");
