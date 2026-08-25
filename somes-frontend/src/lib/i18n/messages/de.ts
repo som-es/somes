@@ -724,6 +724,7 @@ export const de = {
 	'spectrum.stance.label.neutral': 'Neutral',
 	'spectrum.stance.label.left': 'Links',
 	'spectrum.stance.label.right': 'Rechts',
+	'spectrum.stance.label.center': 'Mitte',
 	'proposals.empty': 'Keine Ministerialentwürfe gefunden.',
 	'spectrum.chart.title': 'Politisches Spektrum',
 	'spectrum.chart.pointAria': '{label}: sozialistisch/kapitalistisch {x}, libertär/autoritär {y}',

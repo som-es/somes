@@ -724,6 +724,7 @@ export const en = {
 	'spectrum.stance.label.neutral': 'Neutral',
 	'spectrum.stance.label.left': 'Left',
 	'spectrum.stance.label.right': 'Right',
+	'spectrum.stance.label.center': 'Center',
 	'proposals.empty': 'No ministerial drafts found.',
 	'spectrum.chart.title': 'Political spectrum',
 	'spectrum.chart.pointAria': '{label}: socialist/capitalist {x}, libertarian/authoritarian {y}',
