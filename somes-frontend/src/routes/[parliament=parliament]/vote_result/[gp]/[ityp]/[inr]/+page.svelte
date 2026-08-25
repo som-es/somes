@@ -381,7 +381,15 @@
 									items={uniqueParties}
 									bind:value={selectedPartiesNames}
 									allLabel="Alle Klubs"
-								/>
+								>
+									{#snippet itemLabel(party)}
+										<div
+											class="h-3 w-3 shrink-0 rounded-full"
+											style="background-color: {party.color};"
+										></div>
+										<span class="truncate">{party.label}</span>
+									{/snippet}
+								</MultiSelectFilter>
 								<Select.Root
 									type="single"
 									allowDeselect
