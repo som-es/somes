@@ -11,7 +11,7 @@
 	import Emphasis from '$lib/components/VoteResults/Emphasis/Emphasis.svelte';
 	import VoteDelegateCard from '$lib/components/Delegates/VoteDelegateCard.svelte';
 	import SpeechesPreview from '$lib/components/Delegates/Speeches/SpeechesPreview.svelte';
-	import { genCirclesWithNamedVoteInfo, type Bubble } from '$lib/parliament';
+	import type { Bubble } from '$lib/parliament';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import { cachedLegisInitFavos } from '$lib/caching/favos';
@@ -26,6 +26,8 @@
 	import GlossaryText from '$lib/components/UI/GlossaryText.svelte';
 	import AiSummaryHintPopup from '$lib/components/AiHint/AiSummaryHintPopup.svelte';
 	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
+	import { NO_PARTY, partyOf, type SearchResult } from './searchDelegates';
 	import linkIcon from '$lib/assets/misc_icons/external-link.svg?raw';
 	import searchIcon from '$lib/assets/misc_icons/search-glass.svg?raw';
 	import DelegateListItem from '$lib/components/Delegates/DelegateListItem.svelte';
@@ -54,7 +56,6 @@
 
 	let delegate: Delegate | null = $state(null);
 	let selectedBubble: Bubble | undefined = $state();
-	let searchValue: string = $state('');
 	let seatColorMode = $derived(seatColorModeStore.value);
 
 	let partyColors = $derived(data.partyColors);
@@ -72,15 +73,26 @@
 		}
 		isSearchPopupOpen = false;
 	}
-	let generalNamedVoteDelegates: Bubble[] | null = $derived(
-		voteResult && voteResult.named_votes
-			? genCirclesWithNamedVoteInfo(voteResult.named_votes.named_votes, delegates)
-			: []
-	);
 
-	let selectedPartiesNames = $state<string[]>([]);
-	let selectedInfavor = $state<string | undefined>(undefined);
-	let selectedCountries = $state<string[]>([]);
+	// delegates search modal filter
+	const initialFilter = data.filter;
+	let searchValue: string = $state(initialFilter.search);
+	let selectedPartiesNames = $state<string[]>(initialFilter.parties);
+	let selectedInfavor = $state<string | undefined>(initialFilter.vote ?? undefined);
+	let selectedCountries = $state<string[]>(initialFilter.countries);
+
+	// ssr filtering
+	$effect(() => {
+		const url = new URL(page.url);
+		url.search = '';
+		if (searchValue) url.searchParams.set('search', searchValue);
+		selectedPartiesNames.forEach((p) => url.searchParams.append('party', p));
+		if (selectedInfavor) url.searchParams.set('vote', selectedInfavor);
+		selectedCountries.forEach((c) => url.searchParams.append('country', c));
+
+		if (url.href === page.url.href) return;
+		goto(url, { replaceState: true, keepFocus: true, noScroll: true });
+	});
 
 	// countries (only important for eu)
 	let uniqueCountries = $derived.by(() => {
@@ -95,75 +107,22 @@
 	});
 
 	let uniqueParties = $derived.by(() => {
-		const parties = new Set<string>();
-		delegates.forEach((d) => parties.add(d.party?.trim() ? d.party : t('vote_result.withoutParty')));
+		const parties = new Set(delegates.map(partyOf));
 		return Array.from(parties).map((party) => ({
-			name: party,
+			value: party,
+			label: party === NO_PARTY ? t('vote_result.withoutParty') : party,
 			color: partyColors.get(party) ?? '#ccc'
 		}));
 	});
 
-	let searchableDelegates = $derived.by(() => {
-		return delegates.map((delegate) => {
-			const namedVoteInfo = generalNamedVoteDelegates.find(
-				(namedVoteDelegate) => namedVoteDelegate.del?.id === delegate.id
-			);
-			if (namedVoteInfo?.namedVote) {
-				return {
-					absent: namedVoteInfo.namedVote.was_absent,
-					infavor: namedVoteInfo.namedVote.infavor,
-					abstention: namedVoteInfo.namedVote.was_abstention,
-					delegate,
-					isNamedVote: true
-				};
-			}
-			const partyVote = voteResult?.votes.find((v) => v.party === delegate.party);
-			if (partyVote && voteResult) {
-				const absent = voteResult.absences.find((id) => id === delegate.id) ? true : false;
-				return {
-					absent,
-					infavor: absent ? null : isVoteInFavor(partyVote),
-					delegate,
-					isNamedVote: false
-				};
-			}
-			return {
-				absent: null,
-				infavor: null,
-				delegate,
-				isNamedVote: false
-			};
-		});
-	});
-
-	let filteredDelegates = $derived.by(() => {
-		let res = searchableDelegates;
-		if (searchValue) {
-			res = res.filter((d) => d.delegate.name.toLowerCase().includes(searchValue.toLowerCase()));
+	let delegatesById = $derived(new Map(delegates.map((d) => [d.id, d])));
+	let searchResults = $derived.by(() => {
+		const results: (SearchResult & { delegate: Delegate })[] = [];
+		for (const result of data.searchResults) {
+			const delegate = delegatesById.get(result.delegateId);
+			if (delegate) results.push({ ...result, delegate });
 		}
-		if (selectedPartiesNames.length > 0) {
-			res = res.filter((d) => {
-				const p = d.delegate.party?.trim() ? d.delegate.party : t('vote_result.withoutParty');
-				return selectedPartiesNames.includes(p);
-			});
-		}
-		if (selectedInfavor) {
-			res = res.filter((d) => {
-				if (selectedInfavor === 'NoVote') {
-					return d.absent === true;
-				}
-				if (selectedInfavor === 'Infavor') {
-					return d.infavor === true;
-				}
-				if (selectedInfavor === 'Against') {
-					return d.infavor === false;
-				}
-			});
-		}
-		if (selectedCountries.length > 0) {
-			res = res.filter((d) => selectedCountries.includes(d.delegate.constituency));
-		}
-		return res;
+		return results;
 	});
 
 	let description = $derived(voteResult?.legislative_initiative?.description);
@@ -222,13 +181,13 @@
 	let documents = $derived(voteResult?.documents ?? []);
 
 	const infavorOptions = $derived.by(() => {
-	    const val = [
-    		{ value: 'Infavor', label: t('vote_result.inFavor') },
-    		{ value: 'NoVote', label: t('vote_result.notVoted') },
-    		{ value: 'Against', label: t('vote_result.against') },
+		const val = [
+			{ value: 'Infavor', label: t('vote_result.inFavor') },
+			{ value: 'NoVote', label: t('vote_result.notVoted') },
+			{ value: 'Against', label: t('vote_result.against') },
 		];
 		if (data.parliament == "eu") {
-		    val.push({ value: 'Abstention', label: t('vote_result.abstention') });
+			val.push({ value: 'Abstention', label: t('vote_result.abstention') });
 		}
 		return val;
 	});
@@ -419,14 +378,10 @@
 								class="flex h-full grow touch-manipulation items-center justify-center gap-1 lg:grow-0"
 							>
 								<MultiSelectFilter
-									items={uniqueParties.map((p) => ({
-										value: p.name,
-										label: p.name,
-										color: p.color
-									}))}
+									items={uniqueParties}
 									bind:value={selectedPartiesNames}
 									allLabel="Alle Klubs"
-									/>
+								/>
 								<Select.Root
 									type="single"
 									allowDeselect
@@ -499,7 +454,7 @@
 								>
 							</div>
 							<div class="space-y-2">
-								{#each filteredDelegates as del (del.delegate.id)}
+								{#each searchResults as del (del.delegate.id)}
 									<DelegateListItem
 										delegate={del.delegate}
 										class="w-full bg-primary-200 lg:bg-primary-300 dark:bg-surface-600 dark:lg:bg-primary-500"
@@ -538,7 +493,7 @@
 										{/if}
 									</DelegateListItem>
 								{/each}
-								{#if filteredDelegates.length === 0}
+								{#if searchResults.length === 0}
 									<div class="p-4 text-center text-gray-500">{t('vote_result.noResults')}</div>
 								{/if}
 							</div>
