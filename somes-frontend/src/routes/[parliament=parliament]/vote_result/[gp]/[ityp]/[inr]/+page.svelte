@@ -26,8 +26,7 @@
 	import GlossaryText from '$lib/components/UI/GlossaryText.svelte';
 	import AiSummaryHintPopup from '$lib/components/AiHint/AiSummaryHintPopup.svelte';
 	import { page } from '$app/state';
-	import { goto } from '$app/navigation';
-	import { NO_PARTY, partyOf, type SearchResult } from './searchDelegates';
+	import { NO_PARTY, partyOf, searchDelegates } from './searchDelegates';
 	import linkIcon from '$lib/assets/misc_icons/external-link.svg?raw';
 	import searchIcon from '$lib/assets/misc_icons/search-glass.svg?raw';
 	import DelegateListItem from '$lib/components/Delegates/DelegateListItem.svelte';
@@ -75,24 +74,11 @@
 	}
 
 	// delegates search modal filter
-	const initialFilter = data.filter;
-	let searchValue: string = $state(initialFilter.search);
-	let selectedPartiesNames = $state<string[]>(initialFilter.parties);
-	let selectedInfavor = $state<string | undefined>(initialFilter.vote ?? undefined);
-	let selectedCountries = $state<string[]>(initialFilter.countries);
-
-	// ssr filtering
-	$effect(() => {
-		const url = new URL(page.url);
-		url.search = '';
-		if (searchValue) url.searchParams.set('search', searchValue);
-		selectedPartiesNames.forEach((p) => url.searchParams.append('party', p));
-		if (selectedInfavor) url.searchParams.set('vote', selectedInfavor);
-		selectedCountries.forEach((c) => url.searchParams.append('country', c));
-
-		if (url.href === page.url.href) return;
-		goto(url, { replaceState: true, keepFocus: true, noScroll: true });
-	});
+	const urlParams = page.url.searchParams;
+	let searchValue: string = $state(urlParams.get('search') ?? '');
+	let selectedPartiesNames = $state<string[]>(urlParams.getAll('party'));
+	let selectedInfavor = $state<string | undefined>(urlParams.get('vote') ?? undefined);
+	let selectedCountries = $state<string[]>(urlParams.getAll('country'));
 
 	// countries (only important for eu)
 	let uniqueCountries = $derived.by(() => {
@@ -115,15 +101,15 @@
 		}));
 	});
 
-	let delegatesById = $derived(new Map(delegates.map((d) => [d.id, d])));
-	let searchResults = $derived.by(() => {
-		const results: (SearchResult & { delegate: Delegate })[] = [];
-		for (const result of data.searchResults) {
-			const delegate = delegatesById.get(result.delegateId);
-			if (delegate) results.push({ ...result, delegate });
-		}
-		return results;
-	});
+	// client side filtering
+	let searchResults = $derived(
+		searchDelegates(voteResult, delegates, {
+			search: searchValue,
+			parties: selectedPartiesNames,
+			vote: selectedInfavor ?? null,
+			countries: selectedCountries
+		})
+	);
 
 	let description = $derived(voteResult?.legislative_initiative?.description);
 

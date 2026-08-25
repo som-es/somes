@@ -11,7 +11,7 @@ export interface SearchFilter {
 }
 
 export interface SearchResult {
-	delegateId: number;
+	delegate: Delegate;
 	infavor: boolean | null;
 	absent: boolean | null;
 	abstention: boolean;
@@ -50,7 +50,7 @@ function voteInfoOf(
 	const namedVote = namedVotes.get(delegate.id);
 	if (namedVote) {
 		return {
-			delegateId: delegate.id,
+			delegate,
 			infavor: namedVote.infavor,
 			absent: namedVote.was_absent,
 			abstention: namedVote.was_abstention,
@@ -62,7 +62,7 @@ function voteInfoOf(
 	if (voteResult && partyVote) {
 		const absent = voteResult.absences.includes(delegate.id);
 		return {
-			delegateId: delegate.id,
+			delegate,
 			infavor: absent ? null : isVoteInFavor(partyVote),
 			absent,
 			abstention: false,
@@ -71,7 +71,7 @@ function voteInfoOf(
 	}
 
 	return {
-		delegateId: delegate.id,
+		delegate,
 		infavor: null,
 		absent: null,
 		abstention: false,

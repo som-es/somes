@@ -71,7 +71,7 @@
 			if (!delegate) continue;
 
 			const pointsOfSpeech = new Map<number, number[]>();
-			for (const relation of speech.relations) {
+			for (const relation of speech.relations ?? []) {
 				if (relation.legis_init_id !== legisInitId) continue;
 				for (const rel of relation.full_speech_relations.propsal_keypoint_relations ?? []) {
 					for (const pointId of rel.referenced_proposal_key_point_ids) {
