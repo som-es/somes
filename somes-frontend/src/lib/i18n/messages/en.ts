@@ -160,7 +160,6 @@ export const en = {
 	'vote_result.mainTopic': 'Main subject',
 	'vote_result.referenceTo': 'Reference to',
 	'vote_result.speeches': 'Speeches',
-	'vote_result.namedVoteResults': 'Named vote results',
 	'vote_result.withoutParty': 'Without party',
 	'vote_result.delegates': 'Representatives',
 

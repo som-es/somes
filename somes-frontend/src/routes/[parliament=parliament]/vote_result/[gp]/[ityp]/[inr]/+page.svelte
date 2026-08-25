@@ -956,32 +956,6 @@
 						</SpeechesPreview>
 					</div>
 				{/if}
-				{#if generalNamedVoteDelegates != null}
-					{#if generalNamedVoteDelegates.length > 0}
-						<div class="speeches-item gap-3 rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
-							<span class="text-3xl font-bold">{t('vote_result.namedVoteResults')}</span>
-							<div class="mt-3 flex flex-row flex-wrap gap-3">
-								{#each generalNamedVoteDelegates as namedVoteDelegate}
-									<div>
-										<VoteDelegateCard
-											class="w-80"
-											bubble={namedVoteDelegate}
-											gp={voteResult.legislative_initiative.gp}
-											date={voteResult.legislative_initiative.vote_date ??
-												voteResult.legislative_initiative.nr_plenary_activity_date}
-											partyColors={data.partyColors}
-											parliament={data.parliament}
-										/>
-									</div>
-								{/each}
-							</div>
-						</div>
-					{/if}
-				{:else}
-					{#each { length: 5 } as _}
-						<ExpandablePlaceholder class="" />
-					{/each}
-				{/if}
 				<div class="w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 					<Documents {documents} />
 				</div>

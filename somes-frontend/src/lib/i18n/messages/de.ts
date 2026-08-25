@@ -160,7 +160,6 @@ export const de = {
 	'vote_result.mainTopic': 'Hauptgegenstand',
 	'vote_result.referenceTo': 'Bezug zu',
 	'vote_result.speeches': 'Reden',
-	'vote_result.namedVoteResults': 'namentliche Abstimmungsergebnisse',
 	'vote_result.withoutParty': 'Ohne Klub',
 	'vote_result.delegates': 'Abgeordnete',
 
