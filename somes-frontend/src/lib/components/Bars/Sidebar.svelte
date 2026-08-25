@@ -216,6 +216,7 @@
 		>
 			<span class="w-15">
 				<VoteParliament2
+					parliament="at"
 					againstOpacity={0.3}
 					voteResult={mockVoteResult()}
 					delegates={mockDelegatesNoColor()}
