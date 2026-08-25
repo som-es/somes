@@ -453,57 +453,56 @@
 
 					<!-- Search Results -->
 					<div class="mt-3 max-h-[50vh] overflow-y-auto lg:mt-4 lg:max-h-70">
-						{#if isSearchPopupOpen}
-							<div class="mb-1">
-								<span class="text-sm font-semibold text-gray-800 lg:text-base dark:text-gray-200"
-									>{t('vote_result.searchResults')}</span
+						<div class="mb-1">
+							<span class="text-sm font-semibold text-gray-800 lg:text-base dark:text-gray-200"
+								>{t('vote_result.searchResults')}</span
+							>
+						</div>
+						<div class="space-y-2">
+							{#each searchResults as del (del.delegate.id)}
+								<DelegateListItem
+									delegate={del.delegate}
+									href={plink(`/delegates?delegate=${del.delegate.id}&date=${date}&gp=${gp}`)}
+									class="w-full bg-primary-200 lg:bg-primary-300 dark:bg-surface-600 dark:lg:bg-primary-500"
+									onclick={() => {
+										delegate = del.delegate;
+										selectedBubble = undefined;
+										onClose();
+									}}
 								>
-							</div>
-							<div class="space-y-2">
-								{#each searchResults as del (del.delegate.id)}
-									<DelegateListItem
-										delegate={del.delegate}
-										class="w-full bg-primary-200 lg:bg-primary-300 dark:bg-surface-600 dark:lg:bg-primary-500"
-										onclick={() => {
-											delegate = del.delegate;
-											selectedBubble = undefined;
-											onClose();
-										}}
-									>
-										{#if del.infavor === true}
-											<span
-												class="inline-block stroke-green-600 dark:stroke-green-500"
-												style="width:24px; height:24px;">{@html checkmarkIcon}</span
-											>
-											{#if !del.isNamedVote}
-												<span class="text-xs font-light"> (Klub) </span>
-											{/if}
-										{:else if del.absent === true}
-											<span class="text-xs font-medium text-gray-500 dark:text-gray-200"
-												>{t('vote_result.notVoted')}</span
-											>
-										{:else if del.infavor === false}
-											<span class="inline-block" style="width:24px; height:24px;"
-												>{@html crossmarkIcon}</span
-											>
-											{#if !del.isNamedVote}
-												<span class="text-xs font-light">{t('vote_result.byClub')}</span>
-											{/if}
-										{:else if del.abstention === true}
-											<span
-												class="inline-flex items-center justify-center text-4xl text-blue-500"
-												style="width:24px; height:24px;"
-											>
-												–
-											</span>
+									{#if del.infavor === true}
+										<span
+											class="inline-block stroke-green-600 dark:stroke-green-500"
+											style="width:24px; height:24px;">{@html checkmarkIcon}</span
+										>
+										{#if !del.isNamedVote}
+											<span class="text-xs font-light"> (Klub) </span>
 										{/if}
-									</DelegateListItem>
-								{/each}
-								{#if searchResults.length === 0}
-									<div class="p-4 text-center text-gray-500">{t('vote_result.noResults')}</div>
-								{/if}
-							</div>
-						{/if}
+									{:else if del.absent === true}
+										<span class="text-xs font-medium text-gray-500 dark:text-gray-200"
+											>{t('vote_result.notVoted')}</span
+										>
+									{:else if del.infavor === false}
+										<span class="inline-block" style="width:24px; height:24px;"
+											>{@html crossmarkIcon}</span
+										>
+										{#if !del.isNamedVote}
+											<span class="text-xs font-light">{t('vote_result.byClub')}</span>
+										{/if}
+									{:else if del.abstention === true}
+										<span
+											class="inline-flex items-center justify-center text-4xl text-blue-500"
+											style="width:24px; height:24px;"
+										>
+											–
+										</span>
+									{/if}
+								</DelegateListItem>
+							{/each}
+							{#if searchResults.length === 0}
+								<div class="p-4 text-center text-gray-500">{t('vote_result.noResults')}</div>
+							{/if}
+						</div>
 					</div>
 				{/snippet}
 
@@ -524,19 +523,18 @@
 								placeholder={t('vote_result.searchDelegates')}
 							/>
 
-							{#if isSearchPopupOpen}
-								<div
-									class="absolute top-full right-0 left-0 z-100 mt-2 w-[98%] rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg md:w-140 dark:bg-surface-600"
-									data-popup="popupSearch"
-									role="button"
-									tabindex="0"
-									onmousedown={(e) => e.preventDefault()}
-								>
-									{@render searchContent(() => {
-										isSearchPopupOpen = false;
-									})}
-								</div>
-							{/if}
+							<div
+								class="absolute top-full right-0 left-0 z-100 mt-2 w-[98%] rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg md:w-140 dark:bg-surface-600"
+								class:hidden={!isSearchPopupOpen}
+								data-popup="popupSearch"
+								role="button"
+								tabindex="0"
+								onmousedown={(e) => e.preventDefault()}
+							>
+								{@render searchContent(() => {
+									isSearchPopupOpen = false;
+								})}
+							</div>
 						</div>
 
 						<!-- Mobile Search Overlay -->

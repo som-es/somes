@@ -6,23 +6,35 @@
 
 	interface Props {
 		delegate: Delegate;
+		// For crawler
+		href?: string;
 		onclick?: () => void;
 		class?: string;
 		size?: 'sm' | 'md';
 		children?: import('svelte').Snippet;
 	}
 
-	let { delegate, onclick, class: className = '', size = 'sm', children }: Props = $props();
+	let { delegate, href, onclick, class: className = '', size = 'sm', children }: Props = $props();
+
+	function handleClick(e: MouseEvent) {
+		if (!onclick) return;
+		e.preventDefault();
+		onclick();
+	}
 </script>
 
-<button
+<!-- svelte-ignore a11y_no_static_element_interactions link or button -->
+<svelte:element
+	this={href ? 'a' : 'button'}
+	{href}
 	class="flex items-center justify-between gap-2 rounded-2xl bg-primary-200 px-2.5 py-1.5 text-left shadow-sm transition-colors hover:bg-primary-400 md:gap-3 md:px-3 md:py-2 dark:bg-primary-400 dark:hover:bg-primary-500 {className}"
-	{onclick}
+	onclick={handleClick}
 >
 	<div class="flex items-center gap-2 overflow-hidden md:gap-3">
 		<img
 			src={`${url}assets/${delegate.id}.jpg`}
 			alt={delegate.name}
+			loading="lazy"
 			class="{size == 'sm' ? 'h-8 w-8' : 'h-10 w-10'} shrink-0 rounded-full object-cover text-[1px]"
 		/>
 		<div class="flex flex-col overflow-hidden">
@@ -48,4 +60,4 @@
 			{@render children()}
 		</div>
 	{/if}
-</button>
+</svelte:element>
