@@ -3,7 +3,6 @@
 	import delegatesIcon from '$lib/assets/icons/delegates.svg?raw';
 	import statisticsIcon from '$lib/assets/icons/statistics.svg?raw';
 	import somesIcon from '$lib/assets/somes_icon.svg?raw';
-	import userIcon from '$lib/assets/icons/user.svg?raw';
 	import { page } from '$app/state';
 
 	import { resolve } from '$app/paths';
@@ -11,12 +10,11 @@
 	import VoteParliament2 from '../Parliaments/VoteParliament2.svelte';
 	import { mockDelegatesNoColor, mockVoteResult } from '$lib/parliaments/mock';
 	import { getSeats } from '$lib/caching/seats';
-	import LightSwitch from '../UI/LightSwitch.svelte';
 	import AiViewToggle from '../UI/AiViewToggle.svelte';
-	import { jwtStore, loginDrawerOpenStore } from '$lib/caching/stores/stores.svelte';
-	import { isHasError } from '$lib/api/api';
-	import { renew_token } from '$lib/api/authed';
-	import { goto } from '$app/navigation';
+	import SidebarUserMenu from './SidebarUserMenu.svelte';
+	import austriaMapIcon from '$lib/assets/misc_icons/austria-map.svg?raw';
+	import euMapIcon from '$lib/assets/misc_icons/eu-map.svg?raw';
+	import { parliamentModalOpenStore } from '$lib/caching/stores/stores.svelte';
 	import { convertVoteResultFilterToUrl } from '../VoteResults/Expandable/urlConversion';
 	import {
 		currentDecreeFilterStore,
@@ -27,14 +25,13 @@
 	} from '$lib/stores/stores';
 	import { convertGovPropFilterToUrl } from '../Proposals/urlConversion';
 	import { convertDecreeFilterToUrl } from '../Decrees/urlConversion';
-	import { accountOrLogin } from './user';
 	import { t } from '$lib/i18n/i18n.svelte';
 
 	let activeUrl = $derived(page.url.pathname);
 	let activeSectionHash = $state('');
 	let activeHash = $derived(activeSectionHash || page.url.hash);
 	let statisticsObserver: IntersectionObserver | null = null;
-	let parliament = $state(getParliament());
+	let parliament = $derived(getParliament());
 
 	function hrefPath(href: string) {
 		return new URL(href, page.url.origin).pathname;
@@ -219,6 +216,7 @@
 		>
 			<span class="w-15">
 				<VoteParliament2
+					parliament="at"
 					againstOpacity={0.3}
 					voteResult={mockVoteResult()}
 					delegates={mockDelegatesNoColor()}
@@ -257,22 +255,17 @@
 		</a>
 
 		<div class="mt-auto mb-4 flex flex-col gap-3">
-			<LightSwitch />
-			<AiViewToggle />
-			<!-- <DarkMode class="text-primary-500 dark:text-primary-600 border dark:border-gray-800 hover:bg-primary-800" /> -->
 			<button
-				onclick={async () => {
-					await accountOrLogin();
-				}}
-				title={t('nav.profile')}
-				class="{activeUrl?.includes('/user')
-					? 'bg-tertiary-500! fill-black'
-					: ' fill-white'} flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60 hover:fill-black"
+				onclick={() => (parliamentModalOpenStore.value = true)}
+				title={t('nav.menu.parliament')}
+				class="flex h-10 w-10 items-center justify-center rounded-xl text-white hover:cursor-pointer hover:bg-tertiary-400/60 hover:text-black"
 			>
-				<span class="h-5 w-5">
-					{@html userIcon}
+				<span class="h-6 w-6 [&_svg]:h-full [&_svg]:w-full">
+					{@html parliament === 'eu' ? euMapIcon : austriaMapIcon}
 				</span>
 			</button>
+			<AiViewToggle />
+			<SidebarUserMenu />
 		</div>
 	</div>
 

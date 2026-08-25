@@ -100,7 +100,7 @@
 			return delegate.mandates_at_time;
 		}
 	});
-	let imgSrc = $derived(`${url}assets/${delegate.id}.jpg`);
+	let imgSrc = $derived(parliament == "at" ? `${url}assets/${delegate.id}.jpg` : delegate.image_url);
 
 	function handleImgError() {
 		imgSrc = delegate.image_url ?? '';

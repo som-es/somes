@@ -37,6 +37,10 @@ export const en = {
 	'nav.callToOrders': 'Calls to order',
 	'nav.age': 'Age',
 	'nav.orientation': 'Political positions',
+	'nav.menu.darkMode': 'Dark mode',
+	'nav.menu.lightMode': 'Light mode',
+	'nav.menu.parliament': 'Parliament',
+	'nav.menu.language': 'Language',
 
 	// --- Layout (footer, disclaimer) ---
 	'layout.tagline':
@@ -339,6 +343,7 @@ export const en = {
 	'sessionActivity.noOrderCalls': 'No order calls',
 	'sessionActivity.lastSessionTitle': 'Activity in the last session',
 	'sessionActivity.sessionLabel': 'National Council session',
+	'sessionActivity.sessionLabelEu': 'Plenary session',
 	'sessionActivity.topSpeakersTitle': 'Longest speaking times',
 	'sessionActivity.noSpeechTime': 'No recorded speaking time',
 	'sessionActivity.highlight': 'notable',
@@ -726,6 +731,7 @@ export const en = {
 	'spectrum.stance.label.neutral': 'Neutral',
 	'spectrum.stance.label.left': 'Left',
 	'spectrum.stance.label.right': 'Right',
+	'spectrum.stance.label.center': 'Center',
 	'proposals.empty': 'No ministerial drafts found.',
 	'spectrum.chart.title': 'Political spectrum',
 	'spectrum.chart.pointAria': '{label}: socialist/capitalist {x}, libertarian/authoritarian {y}',

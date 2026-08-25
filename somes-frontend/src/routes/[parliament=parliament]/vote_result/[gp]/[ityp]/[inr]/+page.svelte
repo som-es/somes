@@ -862,7 +862,7 @@
 									{@const party = speechDelegate.party?.trim() ? speechDelegate.party : 'Ohne Klub'}
 									<div class="flex min-w-0 items-center gap-2">
 										<img
-											src={`${url}assets/${speechDelegate.id}.jpg`}
+											src={data.parliament == "at" ? `${url}assets/${speechDelegate.id}.jpg` : speechDelegate.image_url}
 											alt={speechDelegate.name}
 											class="h-8 w-8 shrink-0 rounded-full object-cover text-[1px]"
 										/>

@@ -38,6 +38,10 @@ export const de = {
 	'nav.callToOrders': 'Ordnungsrufe',
 	'nav.age': 'Alter',
 	'nav.orientation': 'Politische Positionen',
+	'nav.menu.darkMode': 'Dunkelmodus',
+	'nav.menu.lightMode': 'Hellmodus',
+	'nav.menu.parliament': 'Parlament',
+	'nav.menu.language': 'Sprache',
 
 	// --- Layout (footer, disclaimer) ---
 	'layout.tagline': 'Parteiübergreifend machen wir Demokratie transparent, verständlich und zugänglich.',
@@ -339,6 +343,7 @@ export const de = {
 	'sessionActivity.noOrderCalls': 'Keine Ordnungsrufe',
 	'sessionActivity.lastSessionTitle': 'Aktivität in der letzten Sitzung',
 	'sessionActivity.sessionLabel': 'Nationalratssitzung',
+	'sessionActivity.sessionLabelEu': 'Plenarsitzung',
 	'sessionActivity.topSpeakersTitle': 'Längste Redezeiten',
 	'sessionActivity.noSpeechTime': 'Keine erfasste Redezeit',
 	'sessionActivity.highlight': 'auffällig',
@@ -726,6 +731,7 @@ export const de = {
 	'spectrum.stance.label.neutral': 'Neutral',
 	'spectrum.stance.label.left': 'Links',
 	'spectrum.stance.label.right': 'Rechts',
+	'spectrum.stance.label.center': 'Mitte',
 	'proposals.empty': 'Keine Ministerialentwürfe gefunden.',
 	'spectrum.chart.title': 'Politisches Spektrum',
 	'spectrum.chart.pointAria': '{label}: sozialistisch/kapitalistisch {x}, libertär/autoritär {y}',

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { topicColors } from '$lib/interestColors';
 	import type { InterestShare, StanceTopicScore } from '$lib/types';
 	import ExtendInfoDialog from '../../ExtendInfoDialog.svelte';
 	import { t } from '$lib/i18n/i18n.svelte';

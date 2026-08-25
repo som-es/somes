@@ -1,7 +1,5 @@
 <script lang="ts">
 	import { t } from '$lib/i18n/i18n.svelte';
-	import Pagination from '$lib/components/Pagination.svelte';
-	import AbsenceBar from './AbsenceBar.svelte';
 	import type { Absence, Delegate, LegisPeriod, PlenarySession } from '$lib/types';
 	import { Dialog, Popover } from 'bits-ui';
 	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
@@ -24,10 +22,6 @@
 		showDetails = true,
 		delegate
 	}: Props = $props();
-	const ENTRIES = 15;
-	let page = $state(1);
-
-	// let activePlenarySessionsPerGp: Record<string, PlenarySession[]> | null = $state(null);
 	let absentOrNotPlenarySessionPerGp: {
 		gp: LegisPeriod;
 		sessions: { absencesDuringSession?: Absence[]; session: PlenarySession }[];
@@ -57,9 +51,6 @@
 		);
 	});
 
-	// let currentPageAbsences: Absence[] = $derived(
-	// 	absences.slice((page - 1) * ENTRIES, page * ENTRIES)
-	// );
 	let totalAbsences = $derived(absences.length);
 
 	let openSessionId: number | null = $state(null);

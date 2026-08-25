@@ -9,12 +9,12 @@
 	import { lightModeStore } from '$lib/lightmode.svelte';
 	import RenewToken from '$lib/components/Login/RenewToken.svelte';
 	import LoginDrawer from '$lib/components/Login/LoginDrawer.svelte';
+	import ParliamentSwitchModal from '$lib/components/Bars/ParliamentSwitchModal.svelte';
 	import { loginDrawerOpenStore } from '$lib/caching/stores/stores.svelte';
 	import { page } from '$app/state';
 	import CacheInvalidation from '$lib/components/CacheInvalidation/CacheInvalidation.svelte';
 	import { browser } from '$app/environment';
 	import { t } from '$lib/i18n/i18n.svelte';
-	import LanguageSwitcher from '$lib/components/UI/LanguageSwitcher.svelte';
 
 	let { children } = $props();
 
@@ -29,6 +29,7 @@
 
 <RenewToken />
 <LoginDrawer bind:open={loginDrawerOpenStore.value} />
+<ParliamentSwitchModal />
 {#if browser}
 	<CacheInvalidation />
 {/if}
@@ -172,7 +173,6 @@
 			</div>
 		</div>
 		<div class="mx-auto mt-1 max-w-7xl border-t border-surface-800 px-4 pt-8 text-center text-xs">
-			<LanguageSwitcher dark />
 			<div class="mt-4">&copy; {new Date().getFullYear()} {t('layout.copyright')}.</div>
 		</div>
 	</footer>

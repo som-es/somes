@@ -61,7 +61,6 @@ pub async fn extract_political_position_by_delegate(
         total_score.capitalist += temp_score.capitalist;
         total_score.count += 1;
 
-        log::info!("stance_score: {stance_score:?}");
         for topic in &stance_score.topics.unwrap_or_default() {
             topics_scores
                 .entry(topic.to_string())
