@@ -48,38 +48,40 @@
 		convertDecreeFilterToUrl(currentDecreeFilterStore.value, '', undefined)
 	);
 
-	const navItems: NavItem[] = $derived([
-		{ href: plink('/home'), label: t('nav.news') },
-		{
-			label: t('nav.votes'),
-			subItems: [
-				{
-					title: t('nav.nationalCouncil'),
-					items: [
-						{ href: voteResultUrl.href, pathname: voteResultUrl.pathname, label: t('nav.votes') },
-						{
-							href: unfinishedVoteResultUrl.href,
-							pathname: unfinishedVoteResultUrl.pathname,
-							label: t('nav.toVote')
-						}
-					]
-				},
-				{
-					title: t('nav.government'),
-					items: [
-						{
-							href: govProposalUrl.href,
-							pathname: govProposalUrl.pathname,
-							label: t('nav.ministerialDrafts')
-						},
-						{ href: decreeUrl.href, pathname: decreeUrl.pathname, label: t('nav.decrees') }
-					]
-				}
-			]
-		},
-		{ href: plink('/delegates'), label: t('nav.delegates') },
-		{ href: plink('/statistics'), label: t('nav.statistics') }
-	]);
+	const navItems: NavItem[] = $derived.by(() => {
+		const voteSubItems: (SubItem | SubItemGroup)[] = [
+			{
+				title: t('nav.nationalCouncil'),
+				items: [
+					{ href: voteResultUrl.href, pathname: voteResultUrl.pathname, label: t('nav.votes') },
+					{
+						href: unfinishedVoteResultUrl.href,
+						pathname: unfinishedVoteResultUrl.pathname,
+						label: t('nav.toVote')
+					}
+				]
+			}
+		];
+		if (parliament == 'at') {
+			voteSubItems.push({
+				title: t('nav.government'),
+				items: [
+					{
+						href: govProposalUrl.href,
+						pathname: govProposalUrl.pathname,
+						label: t('nav.ministerialDrafts')
+					},
+					{ href: decreeUrl.href, pathname: decreeUrl.pathname, label: t('nav.decrees') }
+				]
+			});
+		}
+		return [
+			{ href: plink('/home'), label: t('nav.news') },
+			{ label: t('nav.votes'), subItems: voteSubItems },
+			{ href: plink('/delegates'), label: t('nav.delegates') },
+			{ href: plink('/statistics'), label: t('nav.statistics') }
+		];
+	});
 
 	function toggleMenu() {
 		isOpen = !isOpen;
