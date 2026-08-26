@@ -1,13 +1,23 @@
 use std::collections::HashMap;
 
+use combx::with_data::unique_topics::EurovocTopics;
+use common_scrapes::language::Language;
+use reqwest::StatusCode;
 use somes_common_lib::{PoliticalPosition, PoliticalScore, StanceTopicScore};
 use sqlx::{PgPool, query};
+
+use crate::{
+    GenericError::Custom,
+    routes::DelegateError::{self, SqlFailure},
+};
 
 pub async fn extract_political_position_by_delegate(
     pg: &PgPool,
     delegate_id: i32,
-) -> sqlx::Result<Option<PoliticalPosition>> {
-    let stance_scores = query!(
+    eurovoc_topics: &EurovocTopics,
+    language: Language,
+) -> Result<Option<PoliticalPosition>, DelegateError> {
+    let mut stance_scores = query!(
         "select DISTINCT ON (pa.question_id)
             question, answer, is_liberal, is_left, stance_llm, stance, pro_strong_ref_score, contra_strong_ref_score, ref_score, COALESCE(lis.topics, '{}') AS topics
         from
@@ -23,10 +33,38 @@ pub async fn extract_political_position_by_delegate(
         delegate_id
     )
     .fetch_all(pg)
-    .await?;
+    .await
+    .map_err(|e| SqlFailure(e))?;
 
     if stance_scores.is_empty() {
         return Ok(None);
+    }
+
+    let german_topics =
+        eurovoc_topics
+            .lang_to_topics
+            .get(&Language::De)
+            .ok_or(DelegateError::GenericError(Custom((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "german eurovoc topics are not available",
+            ))))?;
+
+    for stance_score in &mut stance_scores {
+        let Some(topics) = &mut stance_score.topics else {
+            continue;
+        };
+
+        let tranlated_topics = topics
+            .iter()
+            .flat_map(|topic| {
+                let id = german_topics.get(topic)?;
+                let translated_topic = eurovoc_topics
+                    .id_to_topic
+                    .get(&(id.id.parse::<i64>().ok()?, language))?;
+                Some(translated_topic.topic.clone())
+            })
+            .collect::<Vec<String>>();
+        *topics = tranlated_topics;
     }
 
     let mut topics_scores = HashMap::<String, (PoliticalScore, usize)>::new();
@@ -101,14 +139,20 @@ pub async fn extract_political_position_by_delegate(
 
 #[cfg(test)]
 mod tests {
-    use combx::connect_pg;
+    use combx::{
+        connect_pg,
+        with_data::unique_topics::{eurovoc_topics_map, unique_topics_for_lang},
+    };
+    use common_scrapes::language::Language;
 
     use crate::routes::delegates::left_right_topic_score::extract_political_position_by_delegate;
 
     #[tokio::test]
     async fn test_extract_stance_topic_score_by_delegate() {
         let pg = connect_pg().await;
-        let res = extract_political_position_by_delegate(&pg, 35520)
+
+        let eurovoc_topics = eurovoc_topics_map(&pg).await.unwrap();
+        let res = extract_political_position_by_delegate(&pg, 35520, &eurovoc_topics, Language::En)
             .await
             .unwrap();
     }

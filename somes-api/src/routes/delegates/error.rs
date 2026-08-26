@@ -1,9 +1,9 @@
-use axum::{response::IntoResponse, Json};
+use axum::{Json, response::IntoResponse};
 use chrono::NaiveDate;
 use reqwest::StatusCode;
 use thiserror::Error;
 
-use crate::ErrorInfo;
+use crate::{ErrorInfo, GenericError};
 
 #[derive(Debug, Error)]
 pub enum DelegateError {
@@ -21,6 +21,8 @@ pub enum DelegateError {
     InvalidPage(u32),
     #[error("Invalid date: {0}")]
     DateOutOfRange(NaiveDate),
+    #[error("generic error: {0}")]
+    GenericError(GenericError),
 }
 
 impl IntoResponse for DelegateError {
@@ -62,6 +64,7 @@ impl IntoResponse for DelegateError {
             DelegateError::DateOutOfRange(_date) => {
                 (StatusCode::BAD_REQUEST, self.to_string(), "DateOutOfRange")
             }
+            DelegateError::GenericError(generic_error) => return generic_error.into_response(),
         };
 
         let body = Json(ErrorInfo {

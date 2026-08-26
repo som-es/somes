@@ -1,6 +1,5 @@
 #![warn(clippy::unwrap_used)]
 
-use std::collections::HashMap;
 use std::sync::Arc;
 
 use chrono::Local;
@@ -11,7 +10,8 @@ use dotenvy_macro::dotenv;
 pub mod cache_updater;
 mod db;
 pub mod email;
-pub mod eu_hemicycle;
+pub mod extractors;
+pub use extractors::*;
 mod filter_querying;
 pub mod hash;
 pub mod jwt;
@@ -98,7 +98,7 @@ pub struct AppState {
     pub eu_dataservice_sqlx_pool: PgPool,
     pub meilisearch_client: meilisearch_sdk::client::Client,
     pub eu_hemicycle: Arc<HemicycleLayout>,
-    pub eurovoc_topics: EurovocTopics,
+    pub eurovoc_topics: Arc<EurovocTopics>,
 }
 
 impl AppState {
@@ -119,7 +119,7 @@ impl AppState {
             eu_dataservice_sqlx_pool,
             meilisearch_client,
             eu_hemicycle: Arc::new(load_hemicycle()),
-            eurovoc_topics,
+            eurovoc_topics: Arc::new(eurovoc_topics),
         }
     }
 
