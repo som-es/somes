@@ -46,7 +46,8 @@
 	import { addLegisInitFavo, removeLegisInitFavo } from '$lib/api/authed';
 	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
 	import VoteBreakDownDonut from '$lib/components/VoteResults/VoteBreakDownDonut.svelte';
-	import { givenVotes, isVoteInFavor, votesByPartySize } from '$lib/partyInfavor';
+	import { VOTE_COLORS } from '$lib/voteColors';
+	import { givenVotes, isVoteInFavor, totalVotes, votesByPartySize } from '$lib/partyInfavor';
 
 	let { data }: PageProps = $props();
 
@@ -569,69 +570,90 @@
 									</button>
 								</div>
 
-								<div class="mt-2 flex flex-col gap-4">
-									<!-- In Favor -->
-									<div class="rounded-xl bg-primary-200/50 p-3 dark:bg-primary-600/50">
-										<div class="mb-2 flex items-center gap-2">
-											<span class="inline-block stroke-green-600" style="width:20px; height:20px;"
-												>{@html checkmarkIcon}</span
-											>
-											<span class="font-semibold">{t('vote_result.inFavor')}</span>
-										</div>
-										<div class="flex flex-col gap-2 pl-2">
-											{#each voteResult.votes
-												.slice()
-												.sort((a, b) => b.infavor_count - a.infavor_count) as vote}
-												{#if vote.infavor_count > 0}
-													<div class="flex items-center justify-between">
-														<div class="flex items-center gap-2">
-															<div
-																class="h-2.5 w-2.5 rounded-full"
-																style="background-color: {partyColors.get(vote.party) ?? '#ccc'};"
-															></div>
-															<span class="text-base font-medium">{vote.party}</span>
-														</div>
-														<span class="text-base font-medium">({vote.infavor_count})</span>
-													</div>
-												{/if}
-											{/each}
-											{#if !voteResult.votes.some((v) => v.infavor_count > 0)}
-												<span class="text-sm text-gray-500">{t('vote_result.noParties')}</span>
-											{/if}
-										</div>
+								{#if voteResult.named_votes == null}
+									<div class="mt-2 flex flex-col gap-2">
+										{#each sortedVotes as vote (vote.party)}
+											<div class="flex items-center justify-between gap-4">
+												<div class="flex items-center gap-2">
+													<div
+														class="h-2.5 w-2.5 shrink-0 rounded-full"
+														style="background-color: {partyColors.get(vote.party) ?? '#ccc'};"
+													></div>
+													<span class="truncate text-base font-medium">{vote.party}</span>
+													<span class="text-sm text-gray-500 tabular-nums dark:text-gray-400"
+														>({givenVotes(vote)})</span
+													>
+												</div>
+												<span
+													class="shrink-0 text-sm font-medium"
+													style="color: {isVoteInFavor(vote)
+														? VOTE_COLORS.infavor
+														: VOTE_COLORS.against};"
+													>{isVoteInFavor(vote)
+														? t('vote_result.inFavor')
+														: t('vote_result.against')}</span
+												>
+											</div>
+										{/each}
 									</div>
+								{:else}
+									{#each sortedVotes as vote (vote.party)}
+										{@const total = totalVotes(vote)}
+										{@const segments = [
+											{ value: vote.infavor_count, color: VOTE_COLORS.infavor },
+											{ value: vote.against_count, color: VOTE_COLORS.against },
+											{ value: vote.abstention_count, color: VOTE_COLORS.abstention },
+											{ value: vote.absence_count, color: VOTE_COLORS.absent }
+										].filter((s) => s.value > 0)}
+										<div class="py-2" aria-label={t('donut.ariaLabel', { party: vote.party })}>
+											<div class="flex items-center gap-2">
+												<div
+													class="h-2.5 w-2.5 shrink-0 rounded-full"
+													style="background-color: {partyColors.get(vote.party) ?? '#ccc'};"
+												></div>
+												<span class="truncate text-base font-medium">{vote.party}</span>
+												<span class="text-sm text-gray-500 tabular-nums dark:text-gray-400"
+													>({total})</span
+												>
+											</div>
 
-									<!-- Against -->
-									<div class="rounded-xl bg-primary-200/50 p-3 dark:bg-primary-600/50">
-										<div class="mb-2 flex items-center gap-2">
-											<span class="inline-block stroke-red-600" style="width:20px; height:20px;"
-												>{@html crossmarkIcon}</span
-											>
-											<span class="font-semibold">{t('vote_result.against')}</span>
-										</div>
-										<div class="flex flex-col gap-2 pl-2">
-											{#each voteResult.votes
-												.slice()
-												.sort((a, b) => b.against_count - a.against_count) as vote}
-												{#if vote.against_count > 0}
-													<div class="flex items-center justify-between">
-														<div class="flex items-center gap-2">
-															<div
-																class="h-2.5 w-2.5 rounded-full"
-																style="background-color: {partyColors.get(vote.party) ?? '#ccc'};"
-															></div>
-															<span class="text-base font-medium">{vote.party}</span>
-														</div>
-														<span class="text-base font-medium">({vote.against_count})</span>
-													</div>
+											<div class="mt-1 flex h-2 w-full gap-0.5">
+												{#each segments as segment (segment.color)}
+													<div
+														class="h-full min-w-0.5 rounded-full"
+														style="width: {(segment.value / total) *
+															100}%; background-color: {segment.color};"
+													></div>
+												{/each}
+											</div>
+
+											<div class="mt-1 flex gap-2.5 text-xs tabular-nums">
+												<span style="color: {VOTE_COLORS.infavor};">{vote.infavor_count}</span>
+												<span style="color: {VOTE_COLORS.against};">{vote.against_count}</span>
+												{#if vote.abstention_count > 0}
+													<span style="color: {VOTE_COLORS.abstention};"
+														>{vote.abstention_count}</span
+													>
 												{/if}
-											{/each}
-											{#if !voteResult.votes.some((v) => v.against_count > 0)}
-												<span class="text-sm text-gray-500">{t('vote_result.noParties')}</span>
-											{/if}
+											</div>
 										</div>
+									{/each}
+									<!-- Legend -->
+									<div
+										class="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400"
+									>
+										{#each [{ label: t('donut.inFavor'), color: VOTE_COLORS.infavor }, { label: t('donut.against'), color: VOTE_COLORS.against }, { label: t('donut.abstention'), color: VOTE_COLORS.abstention }, { label: t('donut.absent'), color: VOTE_COLORS.absent }] as item (item.label)}
+											<span class="flex items-center gap-1.5">
+												<span class="h-2 w-2 rounded-full" style="background-color: {item.color};"
+												></span>
+												{item.label}
+											</span>
+										{/each}
 									</div>
-								</div>
+								{/if}
+								{#if sortedVotes.length === 0}
+									<span class="text-sm text-gray-500">{t('vote_result.noParties')}</span>
+								{/if}
 							</div>
 
 							<!-- Abstimmung, Fractions, Result and Mini Parlament - Desktop-->
