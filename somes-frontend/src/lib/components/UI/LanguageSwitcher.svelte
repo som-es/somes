@@ -28,12 +28,12 @@
 	{#each locales as l}
 		<button
 			class="rounded-lg px-2 py-1 transition-colors {activeLocale === l
-				? (dark
-						? 'bg-secondary-500 text-white'
-						: 'bg-white text-surface-900 shadow')
-				: (dark
-						? 'text-white/60 hover:text-white'
-						: 'text-surface-500 hover:text-surface-900')}"
+				? dark
+					? 'bg-secondary-500 text-white'
+					: 'bg-white text-surface-900 shadow'
+				: dark
+					? 'text-white/60 hover:text-white'
+					: 'text-surface-500 hover:text-surface-900'}"
 			onclick={() => setLocale(l)}
 		>
 			{label[l]}

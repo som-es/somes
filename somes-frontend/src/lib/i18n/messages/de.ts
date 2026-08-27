@@ -44,7 +44,8 @@ export const de = {
 	'nav.menu.language': 'Sprache',
 
 	// --- Layout (footer, disclaimer) ---
-	'layout.tagline': 'Parteiübergreifend machen wir Demokratie transparent, verständlich und zugänglich.',
+	'layout.tagline':
+		'Parteiübergreifend machen wir Demokratie transparent, verständlich und zugänglich.',
 	'layout.netidee.start': 'Das Entwicklungsteam wird seit 03.11.2025 von',
 	'layout.netidee.end': 'gefördert.',
 	'layout.development': 'Entwicklung',
@@ -132,7 +133,8 @@ export const de = {
 	'history.decrees.title': 'Verordnungen',
 	'history.decrees.meta': 'Filterbare Liste an Verordnungen',
 	'history.unfinished.title': 'Eingebrachte Anträge',
-	'history.unfinished.meta': 'Filterbare Liste an Anträgen, die eingebracht wurden und bald zur Abstimmung stehen',
+	'history.unfinished.meta':
+		'Filterbare Liste an Anträgen, die eingebracht wurden und bald zur Abstimmung stehen',
 	'history.unfinished.h1': 'Anträge zur Abstimmung',
 
 	// --- Vote result (/vote_result/*) ---
@@ -215,7 +217,8 @@ export const de = {
 	'speeches.showAll': 'Alle anzeigen',
 	'speeches.pro': 'Pro',
 	'speeches.contra': 'Contra',
-	'speeches.aiHint': 'Titel und Zusammenfassungen der Reden wurden mittels KI aus den jeweiligen Reden erstellt.',
+	'speeches.aiHint':
+		'Titel und Zusammenfassungen der Reden wurden mittels KI aus den jeweiligen Reden erstellt.',
 	'absences.title': 'Abwesenheiten',
 	'absences.explanation': `Verpasste Plenarsitzungen (${new Date().getFullYear()})`,
 	'absences.lastEntries': 'Zuletzt abwesend',
@@ -259,7 +262,8 @@ export const de = {
 	'proposals.showAll': 'Alle anzeigen',
 	'proposals.allTitle': 'Alle eingebrachten Anträge',
 	'proposals.pendingVote': 'Abstimmung ausstehend',
-	'login.optionalMailNote': 'Optionale E-Mail-Benachrichtigungen zu Abstimmungen sind dann nicht möglich.',
+	'login.optionalMailNote':
+		'Optionale E-Mail-Benachrichtigungen zu Abstimmungen sind dann nicht möglich.',
 	'login.title.signIn': 'Anmelden',
 	'login.title.register': 'Registrierung',
 	'login.subtitle.signIn': 'Willkommen zurück. Gib deine E-Mail-Adresse ein.',
@@ -276,7 +280,8 @@ export const de = {
 	'login.error.invalidEmail': 'Fehlerhafte E-Mail-Adresse',
 	'login.error.missingEmail': 'E-Mail-Adresse fehlt',
 	'login.error.invalidOtp': 'Fehlerhaftes One-Time Passwort',
-	'login.error.server': 'Ein serverseitiger Fehler ist aufgetreten. Es kann nicht fortgefahren werden.',
+	'login.error.server':
+		'Ein serverseitiger Fehler ist aufgetreten. Es kann nicht fortgefahren werden.',
 	'login.anonymizeLabel': 'E-Mail anonymisiert speichern',
 	'donut.ariaLabel': 'Abstimmungsverhalten {party}',
 	'statistics.valuesOfDelegates': 'Werte der einzelnen Abgeordneten in der aktuellen Auswahl.',
@@ -294,7 +299,8 @@ export const de = {
 	'statistics.normalizedValueLabel': 'Wert (normalisiert)',
 	'statistics.allParties': 'Alle Parteien',
 	'statistics.error.load': 'Die Statistikdaten konnten nicht geladen werden.',
-	'aiSummary.defaultText': 'Titel, Zusammenfassungen, Schwerpunkte, Gültigkeitszeiträume, Themen und Glossar wurden mittels KI aus den jeweiligen Dokumenten zusammengefasst.',
+	'aiSummary.defaultText':
+		'Titel, Zusammenfassungen, Schwerpunkte, Gültigkeitszeiträume, Themen und Glossar wurden mittels KI aus den jeweiligen Dokumenten zusammengefasst.',
 	'aiSummary.generatedAt': 'Generiert am:',
 	'aiSummary.model': 'verwendetes Modell:',
 	'aiSummary.version': 'Version:',
@@ -327,15 +333,18 @@ export const de = {
 	'statistics.section.age': 'Alter',
 	'statistics.section.orientation': 'Politische Positionen',
 	'statistics.nav.prev': 'Zur vorherigen Statistik',
-	'statistics.nav.next': 'Zur nächsten Statistik',	'statistics.chartDescription.development': 'Entwicklung über die verfügbaren Legislaturperioden.',
-	'statistics.chartDescription.spectrum': 'Einordnung zwischen sozialistisch und kapitalistisch sowie libertär und autoritär.',
+	'statistics.nav.next': 'Zur nächsten Statistik',
+	'statistics.chartDescription.development': 'Entwicklung über die verfügbaren Legislaturperioden.',
+	'statistics.chartDescription.spectrum':
+		'Einordnung zwischen sozialistisch und kapitalistisch sowie libertär und autoritär.',
 	'statistics.chartDescription.age': 'Vergleich nach Altersgruppen in der aktuellen Auswahl.',
 	'statistics.chartDescription.legis': 'Vergleich der Legislaturperioden für diese Kennzahl.',
 	'statistics.chartDescription.groups': 'Vergleich der aktuell ausgewählten Gruppen.',
 	'statistics.chartDescription.shares': 'Anteile der aktuell sichtbaren Werte.',
 	'filter.allCountries': 'Alle Länder',
 	'parliament.interactiveSeating': 'Interaktiver Sitzplan der aktuell gefilterten Abgeordneten.',
-	'qa.extractedFromVideo': 'Die Fragen und Antworten wurden aus dem Portraitvideo des Abgeordneten extrahiert.',
+	'qa.extractedFromVideo':
+		'Die Fragen und Antworten wurden aus dem Portraitvideo des Abgeordneten extrahiert.',
 	'sessionActivity.absences': 'Abwesenheiten',
 	'sessionActivity.avgSpeechTime': 'Durchschnittliche Redezeit',
 	'sessionActivity.speakers': 'Redner:innen',
@@ -420,7 +429,8 @@ export const de = {
 	'speeches.documentLabel': 'Dokument',
 	'speeches.openProtocol': 'Redeprotokoll öffnen',
 	'speeches.min': 'min',
-	'speeches.modalAiGenText': 'Titel, Zusammenfassungen, Schwerpunkte und Bezüge zu Abstimmungen wurden mittels KI aus der Rede erstellt.',
+	'speeches.modalAiGenText':
+		'Titel, Zusammenfassungen, Schwerpunkte und Bezüge zu Abstimmungen wurden mittels KI aus der Rede erstellt.',
 	'speeches.fallbackTitle': 'Rede',
 	'speeches.openProtocolLinkTitle': 'Stelle im Protokoll öffnen',
 	'speeches.summary': 'Zusammenfassung',
@@ -573,89 +583,135 @@ export const de = {
 	'statistics.speechTime.intro': 'Gesamte Redezeit und durchschnittliche Rededauer im Parlament.',
 	'statistics.speechTime.valueLabel': 'Redezeit',
 	'statistics.speechTime.normalizedValueLabel': 'Durchschnittliche Rededauer',
-	'statistics.speechTime.desc.delegateNormalized': 'Durchschnittliche Dauer einer Rede je Abgeordneter oder Abgeordnetem.',
-	'statistics.speechTime.desc.delegateAbsolute': 'Gesamte Redezeit je Abgeordneter oder Abgeordnetem.',
-	'statistics.speechTime.desc.partyNormalized': 'Durchschnittliche Rededauer der Abgeordneten einer Partei.',
+	'statistics.speechTime.desc.delegateNormalized':
+		'Durchschnittliche Dauer einer Rede je Abgeordneter oder Abgeordnetem.',
+	'statistics.speechTime.desc.delegateAbsolute':
+		'Gesamte Redezeit je Abgeordneter oder Abgeordnetem.',
+	'statistics.speechTime.desc.partyNormalized':
+		'Durchschnittliche Rededauer der Abgeordneten einer Partei.',
 	'statistics.speechTime.desc.partyAbsolute': 'Gesamte Redezeit, nach Klubs zusammengefasst.',
-	'statistics.speechTime.desc.genderNormalized': 'Durchschnittliche Rededauer im Vergleich nach Geschlecht.',
+	'statistics.speechTime.desc.genderNormalized':
+		'Durchschnittliche Rededauer im Vergleich nach Geschlecht.',
 	'statistics.speechTime.desc.genderAbsolute': 'Gesamte Redezeit im Vergleich nach Geschlecht.',
 	'statistics.speechTime.desc.ageNormalized': 'Durchschnittliche Rededauer nach Altersgruppen.',
 	'statistics.speechTime.desc.ageAbsolute': 'Gesamte Redezeit nach Altersgruppen.',
 	'statistics.speechTime.desc.legisNormalized': 'Durchschnittliche Rededauer je Legislaturperiode.',
 	'statistics.speechTime.desc.legisAbsolute': 'Gesamte Redezeit je Legislaturperiode.',
-	'statistics.speechTime.desc.lineNormalized': 'Entwicklung der durchschnittlichen Rededauer über die Perioden.',
+	'statistics.speechTime.desc.lineNormalized':
+		'Entwicklung der durchschnittlichen Rededauer über die Perioden.',
 	'statistics.speechTime.desc.lineAbsolute': 'Entwicklung der gesamten Redezeit über die Perioden.',
-	'statistics.speechTime.desc.donutNormalized': 'Anteil der höchsten durchschnittlichen Rededauern in der aktuellen Auswahl.',
-	'statistics.speechTime.desc.donutAbsolute': 'Anteil der höchsten Redezeiten in der aktuellen Auswahl.',
+	'statistics.speechTime.desc.donutNormalized':
+		'Anteil der höchsten durchschnittlichen Rededauern in der aktuellen Auswahl.',
+	'statistics.speechTime.desc.donutAbsolute':
+		'Anteil der höchsten Redezeiten in der aktuellen Auswahl.',
 	'statistics.callToOrders.title': 'Ordnungsrufstatistiken',
-	'statistics.callToOrders.description': 'Ordnungsrufstatistiken über den Nationalrat und deren Abgeordnete',
+	'statistics.callToOrders.description':
+		'Ordnungsrufstatistiken über den Nationalrat und deren Abgeordnete',
 	'statistics.callToOrders.h1': 'Ordnungsrufstatistiken',
 	'statistics.callToOrders.intro': 'Wer im Parlament wie oft ermahnt wurde.',
 	'statistics.callToOrders.valueLabel': 'Ordnungsrufe',
 	'statistics.callToOrders.normalizedValueLabel': 'Ordnungsrufe pro besuchter Sitzung',
-	'statistics.callToOrders.desc.delegateNormalized': 'Ordnungsrufe je besuchter Sitzung der Abgeordneten.',
-	'statistics.callToOrders.desc.delegateAbsolute': 'Gezählte Ordnungsrufe je Abgeordneter oder Abgeordnetem.',
-	'statistics.callToOrders.desc.partyNormalized': 'Ordnungsrufe je besuchter Sitzung, nach Klubs zusammengefasst.',
-	'statistics.callToOrders.desc.partyAbsolute': 'Gezählte Ordnungsrufe, nach Klubs zusammengefasst.',
-	'statistics.callToOrders.desc.genderNormalized': 'Ordnungsrufe je besuchter Sitzung im Vergleich nach Geschlecht.',
-	'statistics.callToOrders.desc.genderAbsolute': 'Gezählte Ordnungsrufe im Vergleich nach Geschlecht.',
-	'statistics.callToOrders.desc.ageNormalized': 'Ordnungsrufe je besuchter Sitzung nach Altersgruppen.',
+	'statistics.callToOrders.desc.delegateNormalized':
+		'Ordnungsrufe je besuchter Sitzung der Abgeordneten.',
+	'statistics.callToOrders.desc.delegateAbsolute':
+		'Gezählte Ordnungsrufe je Abgeordneter oder Abgeordnetem.',
+	'statistics.callToOrders.desc.partyNormalized':
+		'Ordnungsrufe je besuchter Sitzung, nach Klubs zusammengefasst.',
+	'statistics.callToOrders.desc.partyAbsolute':
+		'Gezählte Ordnungsrufe, nach Klubs zusammengefasst.',
+	'statistics.callToOrders.desc.genderNormalized':
+		'Ordnungsrufe je besuchter Sitzung im Vergleich nach Geschlecht.',
+	'statistics.callToOrders.desc.genderAbsolute':
+		'Gezählte Ordnungsrufe im Vergleich nach Geschlecht.',
+	'statistics.callToOrders.desc.ageNormalized':
+		'Ordnungsrufe je besuchter Sitzung nach Altersgruppen.',
 	'statistics.callToOrders.desc.ageAbsolute': 'Gezählte Ordnungsrufe nach Altersgruppen.',
-	'statistics.callToOrders.desc.legisNormalized': 'Ordnungsrufe je besuchter Sitzung, je Legislaturperiode.',
+	'statistics.callToOrders.desc.legisNormalized':
+		'Ordnungsrufe je besuchter Sitzung, je Legislaturperiode.',
 	'statistics.callToOrders.desc.legisAbsolute': 'Gezählte Ordnungsrufe je Legislaturperiode.',
-	'statistics.callToOrders.desc.lineNormalized': 'Entwicklung der Ordnungsrufe je besuchter Sitzung über die Perioden.',
-	'statistics.callToOrders.desc.lineAbsolute': 'Entwicklung der gezählten Ordnungsrufe über die Perioden.',
-	'statistics.callToOrders.desc.donutNormalized': 'Anteil der höchsten Ordnungsrufquoten in der aktuellen Auswahl.',
-	'statistics.callToOrders.desc.donutAbsolute': 'Anteil der höchsten Ordnungsrufzahlen in der aktuellen Auswahl.',
+	'statistics.callToOrders.desc.lineNormalized':
+		'Entwicklung der Ordnungsrufe je besuchter Sitzung über die Perioden.',
+	'statistics.callToOrders.desc.lineAbsolute':
+		'Entwicklung der gezählten Ordnungsrufe über die Perioden.',
+	'statistics.callToOrders.desc.donutNormalized':
+		'Anteil der höchsten Ordnungsrufquoten in der aktuellen Auswahl.',
+	'statistics.callToOrders.desc.donutAbsolute':
+		'Anteil der höchsten Ordnungsrufzahlen in der aktuellen Auswahl.',
 	'statistics.absences.title': 'Abwesenheitsstatistiken',
-	'statistics.absences.description': 'Abwesenheitsstatistiken über den Nationalrat und deren Abgeordnete',
+	'statistics.absences.description':
+		'Abwesenheitsstatistiken über den Nationalrat und deren Abgeordnete',
 	'statistics.absences.h1': 'Abwesenheitsstatistiken',
-	'statistics.absences.intro': 'Abwesenheiten in Nationalratssitzungen, absolut oder als Anteil an Sitzungen.',
+	'statistics.absences.intro':
+		'Abwesenheiten in Nationalratssitzungen, absolut oder als Anteil an Sitzungen.',
 	'statistics.absences.valueLabel': 'Abwesenheiten',
 	'statistics.absences.normalizedValueLabel': 'Abwesenheitsquote (Anteil an Sitzungen)',
-	'statistics.absences.desc.delegateNormalized': 'Abwesenheiten je Abgeordneter oder Abgeordnetem als Anteil der Sitzungen.',
-	'statistics.absences.desc.delegateAbsolute': 'Gezählte Abwesenheiten je Abgeordneter oder Abgeordnetem.',
-	'statistics.absences.desc.partyNormalized': 'Abwesenheiten als Sitzungsanteil, nach Klubs zusammengefasst.',
+	'statistics.absences.desc.delegateNormalized':
+		'Abwesenheiten je Abgeordneter oder Abgeordnetem als Anteil der Sitzungen.',
+	'statistics.absences.desc.delegateAbsolute':
+		'Gezählte Abwesenheiten je Abgeordneter oder Abgeordnetem.',
+	'statistics.absences.desc.partyNormalized':
+		'Abwesenheiten als Sitzungsanteil, nach Klubs zusammengefasst.',
 	'statistics.absences.desc.partyAbsolute': 'Gezählte Abwesenheiten, nach Klubs zusammengefasst.',
-	'statistics.absences.desc.genderNormalized': 'Abwesenheiten als Sitzungsanteil im Vergleich nach Geschlecht.',
+	'statistics.absences.desc.genderNormalized':
+		'Abwesenheiten als Sitzungsanteil im Vergleich nach Geschlecht.',
 	'statistics.absences.desc.genderAbsolute': 'Gezählte Abwesenheiten im Vergleich nach Geschlecht.',
 	'statistics.absences.desc.ageNormalized': 'Abwesenheiten als Sitzungsanteil nach Altersgruppen.',
 	'statistics.absences.desc.ageAbsolute': 'Gezählte Abwesenheiten nach Altersgruppen.',
-	'statistics.absences.desc.legisNormalized': 'Abwesenheiten als Sitzungsanteil je Legislaturperiode.',
+	'statistics.absences.desc.legisNormalized':
+		'Abwesenheiten als Sitzungsanteil je Legislaturperiode.',
 	'statistics.absences.desc.legisAbsolute': 'Gezählte Abwesenheiten je Legislaturperiode.',
 	'statistics.absences.desc.lineNormalized': 'Entwicklung der Abwesenheitsquote über die Perioden.',
-	'statistics.absences.desc.lineAbsolute': 'Entwicklung der gezählten Abwesenheiten über die Perioden.',
-	'statistics.absences.desc.donutNormalized': 'Anteil der höchsten Abwesenheitsquoten in der aktuellen Auswahl.',
-	'statistics.absences.desc.donutAbsolute': 'Anteil der höchsten Abwesenheitszahlen in der aktuellen Auswahl.',
+	'statistics.absences.desc.lineAbsolute':
+		'Entwicklung der gezählten Abwesenheiten über die Perioden.',
+	'statistics.absences.desc.donutNormalized':
+		'Anteil der höchsten Abwesenheitsquoten in der aktuellen Auswahl.',
+	'statistics.absences.desc.donutAbsolute':
+		'Anteil der höchsten Abwesenheitszahlen in der aktuellen Auswahl.',
 	'statistics.activity.title': 'Aktivitätsstatistiken',
-	'statistics.activity.description': 'Aktivitätsstatistiken über den Nationalrat und deren Abgeordnete',
+	'statistics.activity.description':
+		'Aktivitätsstatistiken über den Nationalrat und deren Abgeordnete',
 	'statistics.activity.h1': 'Aktivitätsstatistiken',
 	'statistics.activity.intro': 'Parlamentarische Aktivität anhand eingebrachter Initiativen.',
 	'statistics.activity.valueLabel': 'Aktivitäts-Punkte',
 	'statistics.activity.normalizedValueLabel': 'durchschnittliche Aktivitäts-Punkte (pro Sitzung)',
 	'statistics.activity.infoQuestion': 'Wie werden Aktivitäts-Punkte berechnet?',
-	'statistics.activity.infoAnswer': '<p><strong>Aktivitäts-Punkte:</strong> gewichtete Summe der eingebrachten parlamentarischen Initiativen.</p><ul class="ml-4 space-y-1 text-xs"><li>Anfragen (J): <strong>0,35 Punkte</strong></li><li>Unselbständige Entschließungsanträge (UEA): <strong>0,75 Punkte</strong></li><li>Abänderungsanträge (AA): <strong>0,9 Punkte</strong></li><li>Selbständige Anträge (A): <strong>1 Punkt</strong></li><li>Initiativen (I): <strong>1,25 Punkte</strong></li></ul><p class="mt-2">Normalisiert wird durch die Anzahl der Sitzungen der jeweiligen Legislaturperiode geteilt.</p>',
-	'statistics.activity.desc.delegateNormalized': 'Gewichtete Initiativen je Abgeordneter oder Abgeordnetem, geteilt durch die Sitzungen der Periode.',
-	'statistics.activity.desc.delegateAbsolute': 'Summe der gewichteten Initiativen je Abgeordneter oder Abgeordnetem.',
-	'statistics.activity.desc.partyNormalized': 'Durchschnittliche Aktivitäts-Punkte pro Sitzung, je Partei.',
-	'statistics.activity.desc.partyAbsolute': 'Durchschnittliche Aktivitäts-Punkte der Abgeordneten einer Partei.',
-	'statistics.activity.desc.genderNormalized': 'Durchschnittliche Aktivitäts-Punkte pro Sitzung, nach Geschlecht.',
+	'statistics.activity.infoAnswer':
+		'<p><strong>Aktivitäts-Punkte:</strong> gewichtete Summe der eingebrachten parlamentarischen Initiativen.</p><ul class="ml-4 space-y-1 text-xs"><li>Anfragen (J): <strong>0,35 Punkte</strong></li><li>Unselbständige Entschließungsanträge (UEA): <strong>0,75 Punkte</strong></li><li>Abänderungsanträge (AA): <strong>0,9 Punkte</strong></li><li>Selbständige Anträge (A): <strong>1 Punkt</strong></li><li>Initiativen (I): <strong>1,25 Punkte</strong></li></ul><p class="mt-2">Normalisiert wird durch die Anzahl der Sitzungen der jeweiligen Legislaturperiode geteilt.</p>',
+	'statistics.activity.desc.delegateNormalized':
+		'Gewichtete Initiativen je Abgeordneter oder Abgeordnetem, geteilt durch die Sitzungen der Periode.',
+	'statistics.activity.desc.delegateAbsolute':
+		'Summe der gewichteten Initiativen je Abgeordneter oder Abgeordnetem.',
+	'statistics.activity.desc.partyNormalized':
+		'Durchschnittliche Aktivitäts-Punkte pro Sitzung, je Partei.',
+	'statistics.activity.desc.partyAbsolute':
+		'Durchschnittliche Aktivitäts-Punkte der Abgeordneten einer Partei.',
+	'statistics.activity.desc.genderNormalized':
+		'Durchschnittliche Aktivitäts-Punkte pro Sitzung, nach Geschlecht.',
 	'statistics.activity.desc.genderAbsolute': 'Durchschnittliche Aktivitäts-Punkte nach Geschlecht.',
-	'statistics.activity.desc.ageNormalized': 'Durchschnittliche Aktivitäts-Punkte pro Sitzung, nach Altersgruppen.',
+	'statistics.activity.desc.ageNormalized':
+		'Durchschnittliche Aktivitäts-Punkte pro Sitzung, nach Altersgruppen.',
 	'statistics.activity.desc.ageAbsolute': 'Durchschnittliche Aktivitäts-Punkte nach Altersgruppen.',
-	'statistics.activity.desc.legisNormalized': 'Durchschnittliche Aktivitäts-Punkte pro Sitzung, je Legislaturperiode.',
-	'statistics.activity.desc.legisAbsolute': 'Durchschnittliche Aktivitäts-Punkte je Legislaturperiode.',
-	'statistics.activity.desc.lineNormalized': 'Entwicklung der durchschnittlichen Aktivität pro Sitzung über die Perioden.',
-	'statistics.activity.desc.lineAbsolute': 'Entwicklung der durchschnittlichen Aktivitäts-Punkte über die Perioden.',
-	'statistics.activity.desc.donutNormalized': 'Anteil der höchsten Aktivitätswerte pro Sitzung in der aktuellen Auswahl.',
-	'statistics.activity.desc.donutAbsolute': 'Anteil der höchsten Aktivitäts-Punkte in der aktuellen Auswahl.',
+	'statistics.activity.desc.legisNormalized':
+		'Durchschnittliche Aktivitäts-Punkte pro Sitzung, je Legislaturperiode.',
+	'statistics.activity.desc.legisAbsolute':
+		'Durchschnittliche Aktivitäts-Punkte je Legislaturperiode.',
+	'statistics.activity.desc.lineNormalized':
+		'Entwicklung der durchschnittlichen Aktivität pro Sitzung über die Perioden.',
+	'statistics.activity.desc.lineAbsolute':
+		'Entwicklung der durchschnittlichen Aktivitäts-Punkte über die Perioden.',
+	'statistics.activity.desc.donutNormalized':
+		'Anteil der höchsten Aktivitätswerte pro Sitzung in der aktuellen Auswahl.',
+	'statistics.activity.desc.donutAbsolute':
+		'Anteil der höchsten Aktivitäts-Punkte in der aktuellen Auswahl.',
 	'statistics.age.title': 'Altersstatistiken',
 	'statistics.age.description': 'Altersstatistiken über den Nationalrat und deren Abgeordnete',
 	'statistics.age.h1': 'Altersstatistiken',
-	'statistics.age.intro': 'Alter der Abgeordneten in der gewählten Periode und im Vergleich nach Gruppen.',
+	'statistics.age.intro':
+		'Alter der Abgeordneten in der gewählten Periode und im Vergleich nach Gruppen.',
 	'statistics.age.valueLabel': 'Alter',
 	'statistics.age.normalizedValueLabel': 'Alter',
-	'statistics.age.desc.delegate': 'Alter der einzelnen Abgeordneten zu Beginn ihrer Mandatszeit in der ausgewählten Periode.',
+	'statistics.age.desc.delegate':
+		'Alter der einzelnen Abgeordneten zu Beginn ihrer Mandatszeit in der ausgewählten Periode.',
 	'statistics.age.desc.party': 'Durchschnittsalter der Abgeordneten je Partei.',
 	'statistics.age.desc.gender': 'Durchschnittsalter nach Geschlecht.',
 	'statistics.age.desc.age': 'Durchschnittsalter innerhalb der Altersgruppen.',
@@ -663,9 +719,11 @@ export const de = {
 	'statistics.age.desc.line': 'Entwicklung des Durchschnittsalters über die Legislaturperioden.',
 	'statistics.age.desc.donut': 'Anteil der höchsten Alterswerte in der aktuellen Auswahl.',
 	'statistics.orientation.title': 'Politische Positionen',
-	'statistics.orientation.description': 'Statistiken zu politischen Positionswerten von Abgeordneten',
+	'statistics.orientation.description':
+		'Statistiken zu politischen Positionswerten von Abgeordneten',
 	'statistics.orientation.h1': 'Politische Positionen',
-	'statistics.orientation.intro': 'Politische Positionswerte nach Abgeordneten, Klubs und weiteren Gruppen.',
+	'statistics.orientation.intro':
+		'Politische Positionswerte nach Abgeordneten, Klubs und weiteren Gruppen.',
 	'statistics.orientation.infoQuestion': 'Was zeigt diese Statistik?',
 	'statistics.orientation.category.delegate': 'Abgeordnete',
 	'statistics.orientation.category.party': 'Klubs',
@@ -675,23 +733,31 @@ export const de = {
 	'statistics.orientation.desc.party': 'Durchschnittliche Positionswerte je Partei.',
 	'statistics.orientation.desc.gender': 'Durchschnittliche Positionswerte nach Geschlecht.',
 	'statistics.orientation.desc.age': 'Durchschnittliche Positionswerte nach Altersgruppen.',
-	'statistics.orientation.desc.spectrum': 'Wirtschaftliche und gesellschaftliche Positionen in einer gemeinsamen Ansicht.',
-	'statistics.orientation.desc.donut': 'Anteil der höchsten Positionswerte in der aktuellen Auswahl.',
-	'statistics.orientation.infoAnswer': '<p>Diese Auswertung ordnet Abgeordnete und Klubs nach ihren politischen Positionen ein. Die Werte zeigen, ob jemand in den verfügbaren Daten eher sozialistisch oder kapitalistisch sowie eher libertär oder autoritär eingeordnet wird.</p>',
+	'statistics.orientation.desc.spectrum':
+		'Wirtschaftliche und gesellschaftliche Positionen in einer gemeinsamen Ansicht.',
+	'statistics.orientation.desc.donut':
+		'Anteil der höchsten Positionswerte in der aktuellen Auswahl.',
+	'statistics.orientation.infoAnswer':
+		'<p>Diese Auswertung ordnet Abgeordnete und Klubs nach ihren politischen Positionen ein. Die Werte zeigen, ob jemand in den verfügbaren Daten eher sozialistisch oder kapitalistisch sowie eher libertär oder autoritär eingeordnet wird.</p>',
 	'statistics.orientation.axis.left': 'Sozialistisch',
 	'statistics.orientation.axis.leftValue': 'Sozialismus-Score',
-	'statistics.orientation.axis.leftDesc': 'Abgeordnete mit den höchsten gespeicherten sozialistischen Positionswerten.',
+	'statistics.orientation.axis.leftDesc':
+		'Abgeordnete mit den höchsten gespeicherten sozialistischen Positionswerten.',
 	'statistics.orientation.axis.right': 'Kapitalistisch',
 	'statistics.orientation.axis.rightValue': 'Kapitalismus-Score',
-	'statistics.orientation.axis.rightDesc': 'Abgeordnete mit den höchsten gespeicherten kapitalistischen Positionswerten.',
+	'statistics.orientation.axis.rightDesc':
+		'Abgeordnete mit den höchsten gespeicherten kapitalistischen Positionswerten.',
 	'statistics.orientation.axis.liberal': 'Libertär',
 	'statistics.orientation.axis.liberalValue': 'Libertärer Score',
-	'statistics.orientation.axis.liberalDesc': 'Abgeordnete mit den höchsten gespeicherten libertären Orientierungswerten.',
+	'statistics.orientation.axis.liberalDesc':
+		'Abgeordnete mit den höchsten gespeicherten libertären Orientierungswerten.',
 	'statistics.orientation.axis.authoritarian': 'Autoritär',
 	'statistics.orientation.axis.authoritarianValue': 'Autoritärer Score',
-	'statistics.orientation.axis.authoritarianDesc': 'Abgeordnete mit den höchsten gespeicherten autoritären Orientierungswerten.',
+	'statistics.orientation.axis.authoritarianDesc':
+		'Abgeordnete mit den höchsten gespeicherten autoritären Orientierungswerten.',
 	'statistics.totalSpeeches.title': 'Anzahl der Reden - Parlamentsinformationssystem',
-	'statistics.totalSpeeches.description': 'Anzahl parlamentarischer Reden nach Personen und Gruppen',
+	'statistics.totalSpeeches.description':
+		'Anzahl parlamentarischer Reden nach Personen und Gruppen',
 	'statistics.totalSpeeches.h1': 'Anzahl der Reden',
 	'statistics.totalSpeeches.intro': 'Wer wie oft im Parlament gesprochen hat.',
 	'statistics.totalSpeeches.valueLabel': 'Reden',
@@ -701,8 +767,10 @@ export const de = {
 	'statistics.totalSpeeches.desc.gender': 'Gezählte Reden im Vergleich nach Geschlecht.',
 	'statistics.totalSpeeches.desc.age': 'Gezählte Reden nach Altersgruppen.',
 	'statistics.totalSpeeches.desc.legis': 'Gezählte Reden je Legislaturperiode.',
-	'statistics.totalSpeeches.desc.line': 'Entwicklung der gezählten Reden über die Legislaturperioden.',
-	'statistics.totalSpeeches.desc.donut': 'Anteil der höchsten Redeanzahlen in der aktuellen Auswahl.',
+	'statistics.totalSpeeches.desc.line':
+		'Entwicklung der gezählten Reden über die Legislaturperioden.',
+	'statistics.totalSpeeches.desc.donut':
+		'Anteil der höchsten Redeanzahlen in der aktuellen Auswahl.',
 	'plenary.nextSession.title': 'Nächste Nationalratssitzung',
 	'plenary.nextSession.calendar': 'Sitzungskalender',
 	'plenary.nextSession.on': 'am',
@@ -710,16 +778,22 @@ export const de = {
 	'plenary.nextSession.day': 'Tag',
 	'plenary.nextSession.days': 'Tagen',
 	'proposals.all.title': 'Ministerialentwürfe',
-	'aiChat.intro': 'Ich bin SomBOT, ein Chatbot des Demokratieprojekts "somes". Ich bin spezialisiert darauf, Fragen über {name} ({party}) zu verschiedenen Themen zu beantworten.',
-	'aiChat.disclaimer.part1': 'Die Antworten des Chatbots basieren auf Ausschnitten von Reden der jeweiligen Person.',
-	'aiChat.disclaimer.part2': 'Diese Ausschnitte können unvollständig oder aus dem Kontext gerissen sein, was zu',
-	'aiChat.disclaimer.part3': 'ungenauen oder irreführenden Antworten führen kann. Bitte beachten Sie, dass der Chatbot',
-	'aiChat.disclaimer.part4': 'nicht die tatsächlichen Meinungen oder Aussagen der Person widerspiegelt.',
+	'aiChat.intro':
+		'Ich bin SomBOT, ein Chatbot des Demokratieprojekts "somes". Ich bin spezialisiert darauf, Fragen über {name} ({party}) zu verschiedenen Themen zu beantworten.',
+	'aiChat.disclaimer.part1':
+		'Die Antworten des Chatbots basieren auf Ausschnitten von Reden der jeweiligen Person.',
+	'aiChat.disclaimer.part2':
+		'Diese Ausschnitte können unvollständig oder aus dem Kontext gerissen sein, was zu',
+	'aiChat.disclaimer.part3':
+		'ungenauen oder irreführenden Antworten führen kann. Bitte beachten Sie, dass der Chatbot',
+	'aiChat.disclaimer.part4':
+		'nicht die tatsächlichen Meinungen oder Aussagen der Person widerspiegelt.',
 	'spectrum.questions.empty': 'Keine Fragen und Antworten verfügbar.',
 	'spectrum.stance.title': 'Politische Haltung und Richtung',
 	'spectrum.stance.warning': 'Achtung! Wenige Infos vorhanden',
 	'spectrum.stance.hint': 'Hinweis',
-	'spectrum.stance.disclaimer': 'Die Einordnung der politischen Position ist eine grobe Schätzung und muss nicht der Realität entsprechen. Verwendet wurden AI generierte Antworten zu Fragen, die nicht immer vollständig korrekt und unter Details abrufbar sind. <span class="font-bold">Eine Beschreibung der Methodik und Verbesserungen folgen!</span>',
+	'spectrum.stance.disclaimer':
+		'Die Einordnung der politischen Position ist eine grobe Schätzung und muss nicht der Realität entsprechen. Verwendet wurden AI generierte Antworten zu Fragen, die nicht immer vollständig korrekt und unter Details abrufbar sind. <span class="font-bold">Eine Beschreibung der Methodik und Verbesserungen folgen!</span>',
 	'spectrum.quadrant.capitalist': 'KAPITALISTISCH',
 	'spectrum.quadrant.socialist': 'SOZIALISTISCH',
 	'spectrum.quadrant.authoritarian': 'AUTORITÄR',
@@ -782,9 +856,12 @@ export const de = {
 	'orientation.page.description': 'Politische Orientierung Fragebogen',
 	'orientation.start.chooseLength': 'Wähle die Länge des Fragebogens.',
 	'orientation.start.hint': 'Hinweis',
-	'orientation.start.hintBold': 'Dieses Quiz ist rein als Orientierungshilfe gedacht und nicht zur Entscheidung bei Wahlen geeignet.',
-	'orientation.start.hintText': 'Es zeigt auch, was heute technisch stark automatisiert möglich ist. Der Vergleich mit anderen Abgeordneten am Ende des Quiz funktioniert mit dem politischen Analyseprofil der Abgeordneten, welches ebenfalls automatisiert generiert wird, auffindbar unter der somes-Abgeordnetenseite. Deine Daten bzw. Eingaben werden lediglich lokal am Gerät verarbeitet und im Browser temporär gespeichert.',
-	'orientation.start.hintText2': 'Die Pro/Contra-Positionen von "Hubert" wurden KI-generiert. Die Fragen basieren teilweise auf Anträgen aus dem Nationalrat der aktuellen Legislaturperiode. Dazu zählen z.B. Regierungsvorlagen sowie Entschließungsanträge bzw. sonstige Anträge der Opposition. Die Fragen wurden zu den jeweiligen Anträgen generiert und danach händisch selektiert. Dadurch entsteht Bias, u. a. durch den Auswahlprozess und die dominierenden Themen der Opposition wie Migration bzw. Klima.',
+	'orientation.start.hintBold':
+		'Dieses Quiz ist rein als Orientierungshilfe gedacht und nicht zur Entscheidung bei Wahlen geeignet.',
+	'orientation.start.hintText':
+		'Es zeigt auch, was heute technisch stark automatisiert möglich ist. Der Vergleich mit anderen Abgeordneten am Ende des Quiz funktioniert mit dem politischen Analyseprofil der Abgeordneten, welches ebenfalls automatisiert generiert wird, auffindbar unter der somes-Abgeordnetenseite. Deine Daten bzw. Eingaben werden lediglich lokal am Gerät verarbeitet und im Browser temporär gespeichert.',
+	'orientation.start.hintText2':
+		'Die Pro/Contra-Positionen von "Hubert" wurden KI-generiert. Die Fragen basieren teilweise auf Anträgen aus dem Nationalrat der aktuellen Legislaturperiode. Dazu zählen z.B. Regierungsvorlagen sowie Entschließungsanträge bzw. sonstige Anträge der Opposition. Die Fragen wurden zu den jeweiligen Anträgen generiert und danach händisch selektiert. Dadurch entsteht Bias, u. a. durch den Auswahlprozess und die dominierenden Themen der Opposition wie Migration bzw. Klima.',
 	'orientation.start.hintBold2': 'KI-generierte (sowie menschliche) Inhalte enthalten Fehler.',
 	'orientation.start.short': 'Kurz',
 	'orientation.start.shortDesc': 'Weniger Fragen, schneller Überblick.',
@@ -807,7 +884,8 @@ export const de = {
 	'orientation.result.title': 'Ergebnis',
 	'orientation.result.answered': 'Du hast {count} Fragen beantwortet.',
 	'orientation.result.similar': 'Ähnliche Abgeordnete',
-	'orientation.result.similarDesc': 'Vergleich basierend auf thematischer Übereinstimmung deiner Antworten mit dem politischen Analyseprofil.',
+	'orientation.result.similarDesc':
+		'Vergleich basierend auf thematischer Übereinstimmung deiner Antworten mit dem politischen Analyseprofil.',
 	'orientation.result.avgDiff': 'Ø Abweichung: {value}',
 	'orientation.result.answer': 'Antwort: {value}',
 	'orientation.result.noAnswer': 'keine',
@@ -824,5 +902,5 @@ export const de = {
 	'aiChat.placeholder': 'Stelle deine Frage...',
 	'aiChat.send': 'Senden',
 	'interests.detail.title': 'Detailierte Interessen',
-	'interests.detail.subtitle': 'meist behandelte Themen',
+	'interests.detail.subtitle': 'meist behandelte Themen'
 } as const;

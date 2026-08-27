@@ -2,10 +2,8 @@
 	import type { Delegate, PoliticalScore } from '$lib/types';
 	import PoliticalSpectrum from './PoliticalSpectrum.svelte';
 
-	let {
-		delegate,
-		politicalPosition
-	}: { delegate: Delegate; politicalPosition: PoliticalScore } = $props();
+	let { delegate, politicalPosition }: { delegate: Delegate; politicalPosition: PoliticalScore } =
+		$props();
 </script>
 
 <div

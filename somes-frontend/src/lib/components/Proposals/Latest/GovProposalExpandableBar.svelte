@@ -1,9 +1,5 @@
 <script lang="ts">
-	import {
-		type Delegate,
-		type GovProposal,
-		type GovProposalDelegate,
-	} from '$lib/types';
+	import { type Delegate, type GovProposal, type GovProposalDelegate } from '$lib/types';
 	import { slide } from 'svelte/transition';
 	import { aiViewEnabledStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
@@ -111,7 +107,7 @@
 				<div class="hidden flex-col sm:flex">
 					<img
 						class="mx-1 max-h-[80px] min-w-[80px] rounded-full"
-						src={parliament == "at" ? `${url}assets/${delegate.id}.jpg` : delegate.image_url}
+						src={parliament == 'at' ? `${url}assets/${delegate.id}.jpg` : delegate.image_url}
 						title={delegate.name}
 						alt="Image of delegate {delegate.name}"
 					/>

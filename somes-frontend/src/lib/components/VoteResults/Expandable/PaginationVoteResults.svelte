@@ -25,8 +25,8 @@
 	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
 	import { convertVoteResultFilterToUrl } from './urlConversion';
 	import { errorToNull, get_eurovoc_topics } from '$lib/api/api';
-import { t } from '$lib/i18n/i18n.svelte';
-import { localeStore } from '$lib/i18n/i18n.svelte';
+	import { t } from '$lib/i18n/i18n.svelte';
+	import { localeStore } from '$lib/i18n/i18n.svelte';
 	import DateRangeSnippet from '$lib/components/Filtering/GenericFilterSnippets/DataRangeSnippet.svelte';
 	import FilterGroup from '$lib/components/Filtering/FilterGroup.svelte';
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache.svelte';
@@ -497,7 +497,8 @@ import { localeStore } from '$lib/i18n/i18n.svelte';
 <!-- HERE IS THE HTML -->
 
 <span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0 dark:text-gray-300">
-	{t('pagination.votesUpdated')} {updatedAt}
+	{t('pagination.votesUpdated')}
+	{updatedAt}
 </span>
 
 <div class="mt-7 md:flex">
@@ -626,7 +627,10 @@ import { localeStore } from '$lib/i18n/i18n.svelte';
 										<span class="truncate">{party.name}</span>
 									{/each}
 									{#if selectedIssuerParties.length > 1}
-										<span class="truncate">+{selectedIssuerParties.length - 1} {t('delegates.morePeriods').replace('+{count} weitere','')}</span>
+										<span class="truncate"
+											>+{selectedIssuerParties.length - 1}
+											{t('delegates.morePeriods').replace('+{count} weitere', '')}</span
+										>
 									{/if}
 									{#if selectedIssuerParties.length === 0}
 										<span>{t('vote_result.allParties')}</span>

@@ -1,6 +1,11 @@
 import type { PageServerLoad } from './$types';
 import { getWithRoute, isHasError } from '$lib/api/api';
-import type { Delegate, DelegatesWithMaxPage, PoliticalPosition, StanceTopicScore } from '$lib/types';
+import type {
+	Delegate,
+	DelegatesWithMaxPage,
+	PoliticalPosition,
+	StanceTopicScore
+} from '$lib/types';
 import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 
 export const load: PageServerLoad = async ({ fetch }) => {
@@ -60,7 +65,7 @@ export const load: PageServerLoad = async ({ fetch }) => {
 		return results;
 	};
 
-  const gps = (await cachedAllLegisPeriods(true, fetch) ?? []).reverse();
+	const gps = ((await cachedAllLegisPeriods(true, fetch)) ?? []).reverse();
 	const delegateScores = await fetchTopicPoliticalScores(combinedDelegates);
 
 	return { questions, delegateScores, gps };

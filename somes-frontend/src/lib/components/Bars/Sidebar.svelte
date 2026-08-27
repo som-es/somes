@@ -87,7 +87,11 @@
 				route: '/statistics',
 				list: [
 					{ href: `${plink('/statistics')}#speech-time`, label: t('nav.speechTime'), keywords: '' },
-					{ href: `${plink('/statistics')}#total-speeches`, label: t('nav.totalSpeeches'), keywords: '' }
+					{
+						href: `${plink('/statistics')}#total-speeches`,
+						label: t('nav.totalSpeeches'),
+						keywords: ''
+					}
 				]
 			},
 			{
@@ -96,7 +100,11 @@
 				list: [
 					{ href: `${plink('/statistics')}#absences`, label: t('nav.absences'), keywords: '' },
 					{ href: `${plink('/statistics')}#activity`, label: t('nav.activity'), keywords: '' },
-					{ href: `${plink('/statistics')}#call-to-orders`, label: t('nav.callToOrders'), keywords: '' }
+					{
+						href: `${plink('/statistics')}#call-to-orders`,
+						label: t('nav.callToOrders'),
+						keywords: ''
+					}
 				]
 			},
 			{

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { GeneralDelegateInfo } from '$lib/types';
-import { t } from '$lib/i18n/i18n.svelte';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { Tabs } from 'bits-ui';
 	import Stances from './Stances.svelte';
 

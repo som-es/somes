@@ -12,7 +12,7 @@
 		decree: DecreeDelegate;
 		showDelegate?: boolean;
 		coloring?: string;
-		parliament?: Parliament
+		parliament?: Parliament;
 	}
 
 	let {
@@ -74,7 +74,9 @@
 			<div class="hidden flex-col gap-0 sm:flex">
 				<img
 					class="mx-1 max-h-[80px] min-w-[80px] rounded-full"
-					src={parliament == "at" ? `${url}assets/${decree.delegate.id}.jpg` : decree.delegate.image_url}
+					src={parliament == 'at'
+						? `${url}assets/${decree.delegate.id}.jpg`
+						: decree.delegate.image_url}
 					alt="Image of delegate {decree.delegate.name}"
 				/>
 				<span class="bottom-0 rounded text-[8px]">

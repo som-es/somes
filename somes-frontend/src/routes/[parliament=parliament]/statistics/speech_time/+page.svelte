@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { justPostStatistics } from '$lib/api/api';
-import { t } from '$lib/i18n/i18n.svelte';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import StatisticsChartControl from '$lib/components/Statistics/StatisticsChartControl.svelte';
 	import type { StatisticsData } from '$lib/types';
 	import { mapSpeechTimeDelegate, mapSpeechTimeCategory } from '$lib/api/statistics-adapter';
@@ -9,7 +9,7 @@ import { t } from '$lib/i18n/i18n.svelte';
 	export let selectedCategory: string = 'delegate';
 
 	const chartDescriptions = {
-	// Descriptions will be translated via i18n in the chart control; keep keys
+		// Descriptions will be translated via i18n in the chart control; keep keys
 		'delegate.normalized': t('statistics.speechTime.desc.delegateNormalized'),
 		'delegate.absolute': t('statistics.speechTime.desc.delegateAbsolute'),
 		'party.normalized': t('statistics.speechTime.desc.partyNormalized'),
@@ -22,8 +22,7 @@ import { t } from '$lib/i18n/i18n.svelte';
 		'legis.absolute': t('statistics.speechTime.desc.legisAbsolute'),
 		'line.normalized': t('statistics.speechTime.desc.lineNormalized'),
 		'line.absolute': t('statistics.speechTime.desc.lineAbsolute'),
-		'donut.normalized':
-			t('statistics.speechTime.desc.donutNormalized'),
+		'donut.normalized': t('statistics.speechTime.desc.donutNormalized'),
 		'donut.absolute': t('statistics.speechTime.desc.donutAbsolute')
 	};
 

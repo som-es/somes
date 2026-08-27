@@ -86,11 +86,10 @@ export const load: PageServerLoad = async ({ fetch, setHeaders, params }) => {
 		hasDelegate
 	);
 
-  let plenarySessions = null;
-  if (parliament === "eu") {
-    plenarySessions = errorToNull(await cachedPlenarySessions(true, fetch, parliament));
+	let plenarySessions = null;
+	if (parliament === 'eu') {
+		plenarySessions = errorToNull(await cachedPlenarySessions(true, fetch, parliament));
 	}
-
 
 	// TODO error handling
 
@@ -102,8 +101,8 @@ export const load: PageServerLoad = async ({ fetch, setHeaders, params }) => {
 		latestDelegateDecrees,
 		latestSessionActivity,
 		delegates,
-    allSeats,
-    plenarySessions
+		allSeats,
+		plenarySessions
 	};
 
 	internalCache[parliament] = {

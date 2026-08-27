@@ -88,12 +88,14 @@
 					{t('layout.tagline')}
 				</p>
 				<p class="mt-2 max-w-xs text-sm font-light">
-					{t('layout.netidee.start')} <a
+					{t('layout.netidee.start')}
+					<a
 						href="https://www.netidee.at"
 						target="_blank"
 						rel="noopener noreferrer"
 						class="underline hover:text-secondary-400">Netidee</a
-					> {t('layout.netidee.end')}
+					>
+					{t('layout.netidee.end')}
 				</p>
 			</div>
 			<div class="mb-4">
@@ -120,11 +122,22 @@
 			<div class="mb-4">
 				<h4 class="mb-4 font-bold text-white">{t('layout.links')}</h4>
 				<ul class="space-y-2 text-sm">
-					<li><a href={resolve('/')} class="hover:text-secondary-400">{t('layout.association')}</a></li>
-					<li><a href="{resolve('/')}#events" class="hover:text-secondary-400">{t('layout.events')}</a></li>
-					<li><a href={resolve('/impressum')} class="hover:text-secondary-400">{t('layout.imprint')}</a></li>
 					<li>
-						<a href={resolve('/datenschutz')} class="hover:text-secondary-400">{t('layout.privacy')}</a>
+						<a href={resolve('/')} class="hover:text-secondary-400">{t('layout.association')}</a>
+					</li>
+					<li>
+						<a href="{resolve('/')}#events" class="hover:text-secondary-400">{t('layout.events')}</a
+						>
+					</li>
+					<li>
+						<a href={resolve('/impressum')} class="hover:text-secondary-400"
+							>{t('layout.imprint')}</a
+						>
+					</li>
+					<li>
+						<a href={resolve('/datenschutz')} class="hover:text-secondary-400"
+							>{t('layout.privacy')}</a
+						>
 					</li>
 				</ul>
 			</div>

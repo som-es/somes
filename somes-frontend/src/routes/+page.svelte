@@ -165,19 +165,23 @@
 			<nav class="hidden gap-6 text-sm font-medium text-surface-600 md:flex dark:text-surface-300">
 				<a
 					href={plink('/home')}
-					class="transition-colors hover:text-primary-600 dark:hover:text-primary-400">{t('landing.platform')}</a
+					class="transition-colors hover:text-primary-600 dark:hover:text-primary-400"
+					>{t('landing.platform')}</a
 				>
 				<a
 					href="{resolve('/')}#events"
-					class="transition-colors hover:text-primary-600 dark:hover:text-primary-400">{t('landing.events')}</a
+					class="transition-colors hover:text-primary-600 dark:hover:text-primary-400"
+					>{t('landing.events')}</a
 				>
 				<a
 					href="{resolve('/')}#team"
-					class="transition-colors hover:text-primary-600 dark:hover:text-primary-400">{t('landing.team')}</a
+					class="transition-colors hover:text-primary-600 dark:hover:text-primary-400"
+					>{t('landing.team')}</a
 				>
 				<a
 					href="{resolve('/')}#join"
-					class="transition-colors hover:text-primary-600 dark:hover:text-primary-400">{t('landing.join')}</a
+					class="transition-colors hover:text-primary-600 dark:hover:text-primary-400"
+					>{t('landing.join')}</a
 				>
 			</nav>
 			<a
@@ -216,7 +220,8 @@
 				<h1
 					class="font-heading text-5xl leading-tight font-extrabold text-primary-900 md:text-7xl dark:text-primary-50"
 				>
-					{t('landing.hero.firstWord')} <span
+					{t('landing.hero.firstWord')}
+					<span
 						class="bg-linear-to-r from-secondary-700 to-secondary-500 bg-clip-text text-transparent dark:from-secondary-400"
 						>{t('landing.hero.firstSpan')}</span
 					><br />
@@ -269,7 +274,9 @@
 			<div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
 				<!-- Left: Intro & Progress -->
 				<div class="space-y-6 lg:col-span-1">
-					<h2 class="font-heading text-3xl font-bold text-secondary-300">{t('landing.platform.title')}</h2>
+					<h2 class="font-heading text-3xl font-bold text-secondary-300">
+						{t('landing.platform.title')}
+					</h2>
 					<p class="leading-relaxed text-surface-300">
 						{t('landing.platform.text')}
 					</p>
@@ -277,7 +284,9 @@
 					<!-- Development Progress -->
 					<div class="rounded-xl border border-surface-700 bg-surface-800 p-5 shadow-inner">
 						<div class="mb-2 flex items-end justify-between">
-							<span class="text-sm font-medium text-surface-300">{t('landing.platform.euExpansion')}</span>
+							<span class="text-sm font-medium text-surface-300"
+								>{t('landing.platform.euExpansion')}</span
+							>
 							<span class="text-2xl font-bold text-primary-300">{developmentProgress}%</span>
 						</div>
 						<div class="h-2.5 w-full overflow-hidden rounded-full bg-surface-700">
@@ -450,7 +459,9 @@
 			<h2 class="mb-2 text-sm font-bold tracking-widest text-primary-600 uppercase">
 				{t('landing.events.subtitle')}
 			</h2>
-			<h3 class="font-heading text-4xl font-bold text-surface-900 dark:text-surface-50">{t('landing.events.title')}</h3>
+			<h3 class="font-heading text-4xl font-bold text-surface-900 dark:text-surface-50">
+				{t('landing.events.title')}
+			</h3>
 		</div>
 
 		<!-- Upcoming Events -->
@@ -564,7 +575,9 @@
 		<!-- Past Events -->
 		<div>
 			<div class="mb-6 flex items-center gap-4">
-				<h4 class="text-2xl font-bold text-surface-500 dark:text-surface-400">{t('landing.events.past')}</h4>
+				<h4 class="text-2xl font-bold text-surface-500 dark:text-surface-400">
+					{t('landing.events.past')}
+				</h4>
 				<div class="h-px flex-1 bg-surface-200 dark:bg-surface-700"></div>
 			</div>
 
@@ -640,9 +653,7 @@
 				<h2 class="font-heading mb-6 text-3xl font-bold md:text-5xl">{t('landing.join.title')}</h2>
 				<p class="mx-auto mb-8 max-w-2xl text-lg text-primary-100">
 					{t('landing.join.text1')}
-					<span class="font-bold italic"
-						>{t('landing.join.org')}</span
-					>
+					<span class="font-bold italic">{t('landing.join.org')}</span>
 					{t('landing.join.text2')}
 				</p>
 

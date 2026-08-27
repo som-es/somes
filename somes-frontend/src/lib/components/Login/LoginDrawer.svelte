@@ -135,7 +135,9 @@
 				<div class="flex flex-col gap-5 px-8 py-7">
 					<!-- Email Field -->
 					<div class="flex flex-col gap-1.5">
-						<label for="username" class="text-sm font-medium text-gray-700">{t('login.emailLabel')}</label>
+						<label for="username" class="text-sm font-medium text-gray-700"
+							>{t('login.emailLabel')}</label
+						>
 						<input
 							id="username"
 							placeholder="dergertrud@gmail.com"
@@ -219,7 +221,9 @@
 					<!-- Divider -->
 					<div class="flex items-center gap-3">
 						<div class="h-px flex-1 bg-gray-200"></div>
-						<span class="text-xs font-medium tracking-wide text-gray-400 uppercase">{t('login.divider')}</span>
+						<span class="text-xs font-medium tracking-wide text-gray-400 uppercase"
+							>{t('login.divider')}</span
+						>
 						<div class="h-px flex-1 bg-gray-200"></div>
 					</div>
 

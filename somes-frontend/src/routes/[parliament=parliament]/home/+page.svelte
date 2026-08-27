@@ -138,10 +138,14 @@
 </svelte:head>
 
 <Container>
-    {#if data.parliament == "at"}
-        <NextSessionInfo {nextPlenarySessionDateStr} />
+	{#if data.parliament == 'at'}
+		<NextSessionInfo {nextPlenarySessionDateStr} />
 	{/if}
-	<SessionActivityOverview overview={latestSessionActivity} plenarySessions={data.plenarySessions} parliament={data.parliament} />
+	<SessionActivityOverview
+		overview={latestSessionActivity}
+		plenarySessions={data.plenarySessions}
+		parliament={data.parliament}
+	/>
 	<h2 class="mt-6 px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">{t('home.latestVotes')}</h2>
 	<span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0 dark:text-gray-200">
 		{#if voteDate}

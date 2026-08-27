@@ -18,10 +18,7 @@
 
 <svelte:head>
 	<title>{t('history.unfinished.title')}</title>
-	<meta
-		name="description"
-		content={t('history.unfinished.meta')}
-	/>
+	<meta name="description" content={t('history.unfinished.meta')} />
 </svelte:head>
 
 <!-- <div class="mx-auto px-5"> -->

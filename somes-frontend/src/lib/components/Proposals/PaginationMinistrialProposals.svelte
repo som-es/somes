@@ -18,8 +18,8 @@
 	import { convertGovPropFilterToUrl } from './urlConversion';
 	import DateRangeSnippet from '../Filtering/GenericFilterSnippets/DataRangeSnippet.svelte';
 	import TopicFilter from '../Filtering/TopicFilter.svelte';
-import { t } from '$lib/i18n/i18n.svelte';
-import { localeStore } from '$lib/i18n/i18n.svelte';
+	import { t } from '$lib/i18n/i18n.svelte';
+	import { localeStore } from '$lib/i18n/i18n.svelte';
 
 	interface Props {
 		govProposals: GovProposalsWithMaxPage;
@@ -197,7 +197,8 @@ import { localeStore } from '$lib/i18n/i18n.svelte';
 
 <!-- <FiltersAny bind:filters bind:selectedPeriod bind:searchValue {update} /> -->
 <span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0 dark:text-gray-300">
-	{t('proposals.updatedAt')} {updatedAt}
+	{t('proposals.updatedAt')}
+	{updatedAt}
 </span>
 
 <div class="mt-7 md:flex">

@@ -585,7 +585,7 @@ export interface PoliticalScore {
 	capitalist: number;
 	liberal: number;
 	authoritarian: number;
-  count: number;
+	count: number;
 }
 
 export interface StanceTopicScore {
@@ -596,8 +596,8 @@ export interface StanceTopicScore {
 }
 
 export interface PoliticalPosition {
-  total_score: PoliticalScore;
-  scores_by_topic: StanceTopicScore[];
+	total_score: PoliticalScore;
+	scores_by_topic: StanceTopicScore[];
 }
 
 export interface GovPropFilter {

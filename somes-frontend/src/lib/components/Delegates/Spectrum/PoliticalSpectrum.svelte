@@ -1,14 +1,12 @@
 <script lang="ts">
 	import { partyToColor } from '$lib/partyColor';
-import { t } from '$lib/i18n/i18n.svelte';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import type { Delegate, PoliticalScore } from '$lib/types';
 	import QuadrantChart from '../../GeneralCharts/QuadrantChart.svelte';
 	import type { DataPoint } from '../../GeneralCharts/types';
 
-	let {
-		politicalPosition,
-		delegate
-	}: { politicalPosition: PoliticalScore; delegate: Delegate } = $props();
+	let { politicalPosition, delegate }: { politicalPosition: PoliticalScore; delegate: Delegate } =
+		$props();
 
 	let windowWidth = $state(700);
 	let isMobile = $derived(windowWidth < 640);

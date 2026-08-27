@@ -9,13 +9,29 @@
 	import { t } from '$lib/i18n/i18n.svelte';
 
 	const sections = [
-		{ id: 'speech-time', label: t('statistics.section.speechTime'), component: SpeechTimeStatistics },
-		{ id: 'total-speeches', label: t('statistics.section.totalSpeeches'), component: TotalSpeechesStatistics },
+		{
+			id: 'speech-time',
+			label: t('statistics.section.speechTime'),
+			component: SpeechTimeStatistics
+		},
+		{
+			id: 'total-speeches',
+			label: t('statistics.section.totalSpeeches'),
+			component: TotalSpeechesStatistics
+		},
 		{ id: 'absences', label: t('statistics.section.absences'), component: AbsencesStatistics },
 		{ id: 'activity', label: t('statistics.section.activity'), component: ActivityStatistics },
-		{ id: 'call-to-orders', label: t('statistics.section.callToOrders'), component: CallToOrdersStatistics },
+		{
+			id: 'call-to-orders',
+			label: t('statistics.section.callToOrders'),
+			component: CallToOrdersStatistics
+		},
 		{ id: 'age', label: t('statistics.section.age'), component: AgeStatistics },
-		{ id: 'orientation', label: t('statistics.section.orientation'), component: OrientationStatistics }
+		{
+			id: 'orientation',
+			label: t('statistics.section.orientation'),
+			component: OrientationStatistics
+		}
 	];
 
 	function scrollToSection(index: number) {

@@ -115,7 +115,11 @@
 		const { speech_related_to_proposal_summary, speech_related_to_detailed_proposal_summary } =
 			relation.full_speech_relations;
 		if (speech_related_to_proposal_summary)
-			return { icon: '✓', text: t('speeches.relation.handlesProposal'), class: 'bg-green-600 text-white' };
+			return {
+				icon: '✓',
+				text: t('speeches.relation.handlesProposal'),
+				class: 'bg-green-600 text-white'
+			};
 		if (speech_related_to_detailed_proposal_summary)
 			return {
 				icon: '~',

@@ -444,7 +444,6 @@
 			}
 
 			if (delegate && (prevSelectedDelegateId != delegate.id || locale !== prevLocale)) {
-
 				const newFilter = { ...maybeCurrentDelegateFilter };
 				newFilter.search_value = delegate.name;
 				currentDelegateFilterStore.value = newFilter;
@@ -506,7 +505,9 @@
 			<div>
 				<!-- Filters -->
 				<div>
-					<span class="text-base font-semibold text-gray-800 dark:text-gray-200">{t('delegates.filter')}</span>
+					<span class="text-base font-semibold text-gray-800 dark:text-gray-200"
+						>{t('delegates.filter')}</span
+					>
 					<div class="mt-2 flex h-10 w-full gap-2 md:mt-1 md:w-auto">
 						<!-- Period Filter -->
 						<div
@@ -794,7 +795,9 @@
 			<div class="flex-1">
 				<div class="mt-1 flex min-w-full justify-between px-1 text-base text-gray-800">
 					<div>
-						{renderStartDate == null ? '' : dashDateToDotDate(renderStartDate.toString())} ({t('delegates.timeline.start')})
+						{renderStartDate == null ? '' : dashDateToDotDate(renderStartDate.toString())} ({t(
+							'delegates.timeline.start'
+						)})
 					</div>
 					<div>
 						{renderEndDate == null

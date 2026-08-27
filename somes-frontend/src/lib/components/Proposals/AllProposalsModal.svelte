@@ -1,6 +1,6 @@
 <script lang="ts">
 	import AllProposalsFiltering from './AllProposalsFiltering.svelte';
-import { t } from '$lib/i18n/i18n.svelte';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import type { Delegate, GovProposal } from '$lib/types';
 	import GovProposalExpandableBar from './Latest/GovProposalExpandableBar.svelte';
 	import { Dialog } from 'bits-ui';

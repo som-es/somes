@@ -13,10 +13,15 @@
 		issuerDelegate: Delegate;
 		issuedInterjectionsPage0: InterjectionsWithMaxPage;
 		receivedInterjectionsPage0: InterjectionsWithMaxPage;
-		parliament?: Parliament
+		parliament?: Parliament;
 	}
 
-	let { issuerDelegate, issuedInterjectionsPage0, receivedInterjectionsPage0, parliament = getParliament() }: Props = $props();
+	let {
+		issuerDelegate,
+		issuedInterjectionsPage0,
+		receivedInterjectionsPage0,
+		parliament = getParliament()
+	}: Props = $props();
 
 	// interjections = interjections.sort(
 	// 	(a, b) => (a.interjection_text?.length ?? 0) - (b.interjection_text?.length ?? 0)
@@ -98,7 +103,9 @@
 
 		<div class="mt-4 flex flex-wrap">
 			{#if interjections.length === 0}
-				<div class="w-full rounded-lg bg-surface-100-900 p-20 text-center">{t('interjections.none')}</div>
+				<div class="w-full rounded-lg bg-surface-100-900 p-20 text-center">
+					{t('interjections.none')}
+				</div>
 			{/if}
 			{#each interjections as interjection (interjection)}
 				<Popover.Root>
@@ -124,7 +131,9 @@
 										>
 											<div class="relative flex justify-center pb-6">
 												<img
-													src={parliament == "at" ? `${url}assets/${delegate.id}.jpg` : delegate.image_url}
+													src={parliament == 'at'
+														? `${url}assets/${delegate.id}.jpg`
+														: delegate.image_url}
 													class="w-20 rounded-full md:w-30"
 													alt="Image of politician {delegate.name}"
 												/>

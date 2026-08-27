@@ -35,7 +35,8 @@
 		<div class="z-50 text-base font-bold">{aiGenText}</div>
 		<div class="flex flex-col flex-wrap text-sm! font-thin!">
 			<span
-				>{t('aiSummary.generatedAt')} {generatedAtDate.toLocaleDateString()}
+				>{t('aiSummary.generatedAt')}
+				{generatedAtDate.toLocaleDateString()}
 				{generatedAtDate.toLocaleTimeString()}</span
 			>
 			<span>{t('aiSummary.model')} {aiSummary.model_used}</span>

@@ -190,7 +190,8 @@
 </script>
 
 <span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0 dark:text-gray-300">
-	{t('decrees.updatedAt')} {updatedAt}
+	{t('decrees.updatedAt')}
+	{updatedAt}
 </span>
 
 <div class="mt-7 md:flex">

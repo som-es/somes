@@ -32,11 +32,16 @@
 
 	// Keep only the 8 topics with the strongest stance (highest absolute score),
 	// then sort them left (most negative) to right
-	const positioned = $derived($state.snapshot(stances)
+	const positioned = $derived(
+		$state
+			.snapshot(stances)
 			.sort((a, b) => a.score - b.score)
-			.map((item, i) => ({ ...item, x: scoreToX(item.score), row: i })));
+			.map((item, i) => ({ ...item, x: scoreToX(item.score), row: i }))
+	);
 
-	const numRows = $derived(positioned.length > 0 ? Math.max(...positioned.map((p) => p.row)) + 1 : 1);
+	const numRows = $derived(
+		positioned.length > 0 ? Math.max(...positioned.map((p) => p.row)) + 1 : 1
+	);
 	const centerX = PAD_LEFT + (CHART_W - PAD_LEFT - PAD_RIGHT) / 2;
 
 	const CHART_H = $derived(numRows * ROW_H + PAD_TOP + BOTTOM_H);
@@ -79,16 +84,16 @@
 
 	<!-- Axis labels -->
 	<text x={PAD_LEFT} y={axisY + Y_AXIS_TEXT} font-size={FONT_AXIS} fill="#888" text-anchor="start"
-		>← {t("spectrum.stance.label.left")}</text
+		>← {t('spectrum.stance.label.left')}</text
 	>
 	<text x={centerX} y={axisY + Y_AXIS_TEXT} font-size={FONT_AXIS} fill="#888" text-anchor="middle"
-		>{t("spectrum.stance.label.center")}</text
+		>{t('spectrum.stance.label.center')}</text
 	>
 	<text
 		x={CHART_W - PAD_RIGHT}
 		y={axisY + Y_AXIS_TEXT}
 		font-size={FONT_AXIS}
 		fill="#888"
-		text-anchor="end">{t("spectrum.stance.label.right")} →</text
+		text-anchor="end">{t('spectrum.stance.label.right')} →</text
 	>
 </svg>

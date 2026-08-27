@@ -100,8 +100,7 @@ export const en = {
 	'landing.events.openToAll': '✅ Open to everyone - just come!',
 	'landing.events.registrationRequired': '📝 Registration required',
 	'landing.join.title': 'Become part of Somes',
-	'landing.join.text1':
-		'Help us revolutionise easy access to political content. As a member of',
+	'landing.join.text1': 'Help us revolutionise easy access to political content. As a member of',
 	'landing.join.org': 'somes - Association for Democracy and Political Transparency',
 	'landing.join.text2': 'you actively contribute to shaping our future.',
 	'landing.join.joinNow': 'Become a member',
@@ -132,7 +131,8 @@ export const en = {
 	'history.decrees.title': 'Decrees',
 	'history.decrees.meta': 'Filterable list of decrees',
 	'history.unfinished.title': 'Introduced motions',
-	'history.unfinished.meta': 'Filterable list of motions that have been introduced and will soon be put to a vote',
+	'history.unfinished.meta':
+		'Filterable list of motions that have been introduced and will soon be put to a vote',
 	'history.unfinished.h1': 'Motions to vote on',
 
 	// --- Vote result (/vote_result/*) ---
@@ -215,7 +215,8 @@ export const en = {
 	'speeches.showAll': 'Show all',
 	'speeches.pro': 'Pro',
 	'speeches.contra': 'Contra',
-	'speeches.aiHint': 'Titles and summaries of speeches were created by AI from the respective speeches.',
+	'speeches.aiHint':
+		'Titles and summaries of speeches were created by AI from the respective speeches.',
 	'absences.title': 'Absences',
 	'absences.explanation': `Missed plenary sessions (${new Date().getFullYear()})`,
 	'absences.lastEntries': 'Last absent',
@@ -294,7 +295,8 @@ export const en = {
 	'statistics.normalizedValueLabel': 'Value (normalized)',
 	'statistics.allParties': 'All parties',
 	'statistics.error.load': 'The statistics data could not be loaded.',
-	'aiSummary.defaultText': 'Titles, summaries, key points, validity periods, topics and glossary were summarized by AI from the respective documents.',
+	'aiSummary.defaultText':
+		'Titles, summaries, key points, validity periods, topics and glossary were summarized by AI from the respective documents.',
 	'aiSummary.generatedAt': 'Generated on:',
 	'aiSummary.model': 'model used:',
 	'aiSummary.version': 'Version:',
@@ -327,15 +329,18 @@ export const en = {
 	'statistics.section.age': 'Age',
 	'statistics.section.orientation': 'Political positions',
 	'statistics.nav.prev': 'To previous statistic',
-	'statistics.nav.next': 'To next statistic',	'statistics.chartDescription.development': 'Development over the available legislative periods.',
-	'statistics.chartDescription.spectrum': 'Classification between socialist and capitalist as well as libertarian and authoritarian.',
+	'statistics.nav.next': 'To next statistic',
+	'statistics.chartDescription.development': 'Development over the available legislative periods.',
+	'statistics.chartDescription.spectrum':
+		'Classification between socialist and capitalist as well as libertarian and authoritarian.',
 	'statistics.chartDescription.age': 'Comparison by age groups in the current selection.',
 	'statistics.chartDescription.legis': 'Comparison of legislative periods for this metric.',
 	'statistics.chartDescription.groups': 'Comparison of the currently selected groups.',
 	'statistics.chartDescription.shares': 'Shares of the currently visible values.',
 	'filter.allCountries': 'All countries',
 	'parliament.interactiveSeating': 'Interactive seating chart of the currently filtered delegates.',
-	'qa.extractedFromVideo': 'The questions and answers were extracted from the delegate\'s portrait video.',
+	'qa.extractedFromVideo':
+		"The questions and answers were extracted from the delegate's portrait video.",
 	'sessionActivity.absences': 'Absences',
 	'sessionActivity.avgSpeechTime': 'Average speaking time',
 	'sessionActivity.speakers': 'Speakers',
@@ -420,7 +425,8 @@ export const en = {
 	'speeches.documentLabel': 'Document',
 	'speeches.openProtocol': 'Open speech protocol',
 	'speeches.min': 'min',
-	'speeches.modalAiGenText': 'Title, summaries, key points and references to votes were created by AI from the speech.',
+	'speeches.modalAiGenText':
+		'Title, summaries, key points and references to votes were created by AI from the speech.',
 	'speeches.fallbackTitle': 'Speech',
 	'speeches.openProtocolLinkTitle': 'Open passage in protocol',
 	'speeches.summary': 'Summary',
@@ -457,8 +463,7 @@ export const en = {
 	'user.otpSent': 'A one-time password has been sent to your e-mail address.',
 	'user.emailMissing': 'E-mail address missing',
 	'user.emailInvalid': 'Invalid e-mail address',
-	'user.serverError':
-		'A server-side error occurred. It is not possible to continue.',
+	'user.serverError': 'A server-side error occurred. It is not possible to continue.',
 	'user.serverErrorShort': 'A server-side error occurred.',
 	'user.notifications': 'E-mail notifications',
 	'user.all': 'All',
@@ -583,34 +588,49 @@ export const en = {
 	'statistics.speechTime.desc.ageAbsolute': 'Total speech time by age groups.',
 	'statistics.speechTime.desc.legisNormalized': 'Average speech duration per legislative period.',
 	'statistics.speechTime.desc.legisAbsolute': 'Total speech time per legislative period.',
-	'statistics.speechTime.desc.lineNormalized': 'Development of average speech duration over periods.',
+	'statistics.speechTime.desc.lineNormalized':
+		'Development of average speech duration over periods.',
 	'statistics.speechTime.desc.lineAbsolute': 'Development of total speech time over periods.',
-	'statistics.speechTime.desc.donutNormalized': 'Share of highest average speech durations in the current selection.',
-	'statistics.speechTime.desc.donutAbsolute': 'Share of highest speech times in the current selection.',
+	'statistics.speechTime.desc.donutNormalized':
+		'Share of highest average speech durations in the current selection.',
+	'statistics.speechTime.desc.donutAbsolute':
+		'Share of highest speech times in the current selection.',
 	'statistics.callToOrders.title': 'Calls to order statistics',
-	'statistics.callToOrders.description': 'Calls to order statistics about the National Council and its delegates',
+	'statistics.callToOrders.description':
+		'Calls to order statistics about the National Council and its delegates',
 	'statistics.callToOrders.h1': 'Calls to order statistics',
 	'statistics.callToOrders.intro': 'How often people in the parliament were called to order.',
 	'statistics.callToOrders.valueLabel': 'Calls to order',
 	'statistics.callToOrders.normalizedValueLabel': 'Calls to order per attended session',
-	'statistics.callToOrders.desc.delegateNormalized': 'Calls to order per attended session of delegates.',
+	'statistics.callToOrders.desc.delegateNormalized':
+		'Calls to order per attended session of delegates.',
 	'statistics.callToOrders.desc.delegateAbsolute': 'Counted calls to order per delegate.',
-	'statistics.callToOrders.desc.partyNormalized': 'Calls to order per attended session, aggregated by clubs.',
+	'statistics.callToOrders.desc.partyNormalized':
+		'Calls to order per attended session, aggregated by clubs.',
 	'statistics.callToOrders.desc.partyAbsolute': 'Counted calls to order, aggregated by clubs.',
-	'statistics.callToOrders.desc.genderNormalized': 'Calls to order per attended session compared by gender.',
+	'statistics.callToOrders.desc.genderNormalized':
+		'Calls to order per attended session compared by gender.',
 	'statistics.callToOrders.desc.genderAbsolute': 'Counted calls to order compared by gender.',
-	'statistics.callToOrders.desc.ageNormalized': 'Calls to order per attended session by age groups.',
+	'statistics.callToOrders.desc.ageNormalized':
+		'Calls to order per attended session by age groups.',
 	'statistics.callToOrders.desc.ageAbsolute': 'Counted calls to order by age groups.',
-	'statistics.callToOrders.desc.legisNormalized': 'Calls to order per attended session, per legislative period.',
+	'statistics.callToOrders.desc.legisNormalized':
+		'Calls to order per attended session, per legislative period.',
 	'statistics.callToOrders.desc.legisAbsolute': 'Counted calls to order per legislative period.',
-	'statistics.callToOrders.desc.lineNormalized': 'Development of calls to order per attended session over periods.',
-	'statistics.callToOrders.desc.lineAbsolute': 'Development of counted calls to order over periods.',
-	'statistics.callToOrders.desc.donutNormalized': 'Share of highest call to order rates in the current selection.',
-	'statistics.callToOrders.desc.donutAbsolute': 'Share of highest call to order numbers in the current selection.',
+	'statistics.callToOrders.desc.lineNormalized':
+		'Development of calls to order per attended session over periods.',
+	'statistics.callToOrders.desc.lineAbsolute':
+		'Development of counted calls to order over periods.',
+	'statistics.callToOrders.desc.donutNormalized':
+		'Share of highest call to order rates in the current selection.',
+	'statistics.callToOrders.desc.donutAbsolute':
+		'Share of highest call to order numbers in the current selection.',
 	'statistics.absences.title': 'Absence statistics',
-	'statistics.absences.description': 'Absence statistics about the National Council and its delegates',
+	'statistics.absences.description':
+		'Absence statistics about the National Council and its delegates',
 	'statistics.absences.h1': 'Absence statistics',
-	'statistics.absences.intro': 'Absences in National Council sessions, absolute or as share of sessions.',
+	'statistics.absences.intro':
+		'Absences in National Council sessions, absolute or as share of sessions.',
 	'statistics.absences.valueLabel': 'Absences',
 	'statistics.absences.normalizedValueLabel': 'Absence rate (share of sessions)',
 	'statistics.absences.desc.delegateNormalized': 'Absences per delegate as share of sessions.',
@@ -625,17 +645,22 @@ export const en = {
 	'statistics.absences.desc.legisAbsolute': 'Counted absences per legislative period.',
 	'statistics.absences.desc.lineNormalized': 'Development of absence rate over periods.',
 	'statistics.absences.desc.lineAbsolute': 'Development of counted absences over periods.',
-	'statistics.absences.desc.donutNormalized': 'Share of highest absence rates in the current selection.',
-	'statistics.absences.desc.donutAbsolute': 'Share of highest absence numbers in the current selection.',
+	'statistics.absences.desc.donutNormalized':
+		'Share of highest absence rates in the current selection.',
+	'statistics.absences.desc.donutAbsolute':
+		'Share of highest absence numbers in the current selection.',
 	'statistics.activity.title': 'Activity statistics',
-	'statistics.activity.description': 'Activity statistics about the National Council and its delegates',
+	'statistics.activity.description':
+		'Activity statistics about the National Council and its delegates',
 	'statistics.activity.h1': 'Activity statistics',
 	'statistics.activity.intro': 'Parliamentary activity based on submitted initiatives.',
 	'statistics.activity.valueLabel': 'Activity points',
 	'statistics.activity.normalizedValueLabel': 'average activity points (per session)',
 	'statistics.activity.infoQuestion': 'How are activity points calculated?',
-	'statistics.activity.infoAnswer': '<p><strong>Activity points:</strong> weighted sum of submitted parliamentary initiatives.</p><ul class="ml-4 space-y-1 text-xs"><li>Queries (J): <strong>0.35 points</strong></li><li>Unself-standing resolutions (UEA): <strong>0.75 points</strong></li><li>Amendment motions (AA): <strong>0.9 points</strong></li><li>Self-standing motions (A): <strong>1 point</strong></li><li>Initiatives (I): <strong>1.25 points</strong></li></ul><p class="mt-2">Normalization divides by the number of sessions of the respective legislative period.</p>',
-	'statistics.activity.desc.delegateNormalized': 'Weighted initiatives per delegate, divided by sessions of the period.',
+	'statistics.activity.infoAnswer':
+		'<p><strong>Activity points:</strong> weighted sum of submitted parliamentary initiatives.</p><ul class="ml-4 space-y-1 text-xs"><li>Queries (J): <strong>0.35 points</strong></li><li>Unself-standing resolutions (UEA): <strong>0.75 points</strong></li><li>Amendment motions (AA): <strong>0.9 points</strong></li><li>Self-standing motions (A): <strong>1 point</strong></li><li>Initiatives (I): <strong>1.25 points</strong></li></ul><p class="mt-2">Normalization divides by the number of sessions of the respective legislative period.</p>',
+	'statistics.activity.desc.delegateNormalized':
+		'Weighted initiatives per delegate, divided by sessions of the period.',
 	'statistics.activity.desc.delegateAbsolute': 'Sum of weighted initiatives per delegate.',
 	'statistics.activity.desc.partyNormalized': 'Average activity points per session, per party.',
 	'statistics.activity.desc.partyAbsolute': 'Average activity points of delegates of a party.',
@@ -643,19 +668,24 @@ export const en = {
 	'statistics.activity.desc.genderAbsolute': 'Average activity points by gender.',
 	'statistics.activity.desc.ageNormalized': 'Average activity points per session, by age groups.',
 	'statistics.activity.desc.ageAbsolute': 'Average activity points by age groups.',
-	'statistics.activity.desc.legisNormalized': 'Average activity points per session, per legislative period.',
+	'statistics.activity.desc.legisNormalized':
+		'Average activity points per session, per legislative period.',
 	'statistics.activity.desc.legisAbsolute': 'Average activity points per legislative period.',
-	'statistics.activity.desc.lineNormalized': 'Development of average activity per session over periods.',
+	'statistics.activity.desc.lineNormalized':
+		'Development of average activity per session over periods.',
 	'statistics.activity.desc.lineAbsolute': 'Development of average activity points over periods.',
-	'statistics.activity.desc.donutNormalized': 'Share of highest activity values per session in the current selection.',
-	'statistics.activity.desc.donutAbsolute': 'Share of highest activity points in the current selection.',
+	'statistics.activity.desc.donutNormalized':
+		'Share of highest activity values per session in the current selection.',
+	'statistics.activity.desc.donutAbsolute':
+		'Share of highest activity points in the current selection.',
 	'statistics.age.title': 'Age statistics',
 	'statistics.age.description': 'Age statistics about the National Council and its delegates',
 	'statistics.age.h1': 'Age statistics',
 	'statistics.age.intro': 'Age of delegates in the selected period and compared by groups.',
 	'statistics.age.valueLabel': 'Age',
 	'statistics.age.normalizedValueLabel': 'Age',
-	'statistics.age.desc.delegate': 'Age of individual delegates at the start of their term in the selected period.',
+	'statistics.age.desc.delegate':
+		'Age of individual delegates at the start of their term in the selected period.',
 	'statistics.age.desc.party': 'Average age of delegates per party.',
 	'statistics.age.desc.gender': 'Average age by gender.',
 	'statistics.age.desc.age': 'Average age within age groups.',
@@ -665,7 +695,8 @@ export const en = {
 	'statistics.orientation.title': 'Political positions',
 	'statistics.orientation.description': 'Statistics on the political position values of delegates',
 	'statistics.orientation.h1': 'Political positions',
-	'statistics.orientation.intro': 'Political position values by delegates, clubs and further groups.',
+	'statistics.orientation.intro':
+		'Political position values by delegates, clubs and further groups.',
 	'statistics.orientation.infoQuestion': 'What does this statistic show?',
 	'statistics.orientation.category.delegate': 'Delegates',
 	'statistics.orientation.category.party': 'Clubs',
@@ -677,19 +708,24 @@ export const en = {
 	'statistics.orientation.desc.age': 'Average position values by age groups.',
 	'statistics.orientation.desc.spectrum': 'Economic and societal positions in a joint view.',
 	'statistics.orientation.desc.donut': 'Share of highest position values in the current selection.',
-	'statistics.orientation.infoAnswer': '<p>This analysis classifies delegates and clubs according to their political positions. The values show whether someone is classified in the available data as more socialist or capitalist and more libertarian or authoritarian.</p>',
+	'statistics.orientation.infoAnswer':
+		'<p>This analysis classifies delegates and clubs according to their political positions. The values show whether someone is classified in the available data as more socialist or capitalist and more libertarian or authoritarian.</p>',
 	'statistics.orientation.axis.left': 'Socialist',
 	'statistics.orientation.axis.leftValue': 'Socialism Score',
-	'statistics.orientation.axis.leftDesc': 'Delegates with the highest stored socialist position values.',
+	'statistics.orientation.axis.leftDesc':
+		'Delegates with the highest stored socialist position values.',
 	'statistics.orientation.axis.right': 'Capitalist',
 	'statistics.orientation.axis.rightValue': 'Capitalism Score',
-	'statistics.orientation.axis.rightDesc': 'Delegates with the highest stored capitalist position values.',
+	'statistics.orientation.axis.rightDesc':
+		'Delegates with the highest stored capitalist position values.',
 	'statistics.orientation.axis.liberal': 'Libertarian',
 	'statistics.orientation.axis.liberalValue': 'Libertarian Score',
-	'statistics.orientation.axis.liberalDesc': 'Delegates with the highest stored libertarian orientation values.',
+	'statistics.orientation.axis.liberalDesc':
+		'Delegates with the highest stored libertarian orientation values.',
 	'statistics.orientation.axis.authoritarian': 'Authoritarian',
 	'statistics.orientation.axis.authoritarianValue': 'Authoritarian Score',
-	'statistics.orientation.axis.authoritarianDesc': 'Delegates with the highest stored authoritarian orientation values.',
+	'statistics.orientation.axis.authoritarianDesc':
+		'Delegates with the highest stored authoritarian orientation values.',
 	'statistics.totalSpeeches.title': 'Number of speeches - Parliament Information System',
 	'statistics.totalSpeeches.description': 'Number of parliamentary speeches by persons and groups',
 	'statistics.totalSpeeches.h1': 'Number of speeches',
@@ -710,16 +746,20 @@ export const en = {
 	'plenary.nextSession.day': 'day',
 	'plenary.nextSession.days': 'days',
 	'proposals.all.title': 'Ministerial drafts',
-	'aiChat.intro': 'I am SomBOT, a chatbot of the democracy project "somes". I specialize in answering questions about {name} ({party}) on various topics.',
-	'aiChat.disclaimer.part1': 'The chatbot answers are based on excerpts from speeches of the respective person.',
-	'aiChat.disclaimer.part2': 'These excerpts can be incomplete or taken out of context, which can lead to',
+	'aiChat.intro':
+		'I am SomBOT, a chatbot of the democracy project "somes". I specialize in answering questions about {name} ({party}) on various topics.',
+	'aiChat.disclaimer.part1':
+		'The chatbot answers are based on excerpts from speeches of the respective person.',
+	'aiChat.disclaimer.part2':
+		'These excerpts can be incomplete or taken out of context, which can lead to',
 	'aiChat.disclaimer.part3': 'inaccurate or misleading answers. Please note that the chatbot',
 	'aiChat.disclaimer.part4': 'does not reflect the actual opinions or statements of the person.',
 	'spectrum.questions.empty': 'No questions and answers available.',
 	'spectrum.stance.title': 'Political stance and direction',
 	'spectrum.stance.warning': 'Attention! Few infos available',
 	'spectrum.stance.hint': 'Note',
-	'spectrum.stance.disclaimer': 'The classification of the political position is a rough estimate and may not reflect reality. AI generated answers to questions were used, which are not always fully correct and accessible under Details. <span class="font-bold">A description of the methodology and improvements will follow!</span>',
+	'spectrum.stance.disclaimer':
+		'The classification of the political position is a rough estimate and may not reflect reality. AI generated answers to questions were used, which are not always fully correct and accessible under Details. <span class="font-bold">A description of the methodology and improvements will follow!</span>',
 	'spectrum.quadrant.capitalist': 'CAPITALIST',
 	'spectrum.quadrant.socialist': 'SOCIALIST',
 	'spectrum.quadrant.authoritarian': 'AUTHORITARIAN',
@@ -782,9 +822,12 @@ export const en = {
 	'orientation.page.description': 'Political orientation questionnaire',
 	'orientation.start.chooseLength': 'Choose the length of the questionnaire.',
 	'orientation.start.hint': 'Note',
-	'orientation.start.hintBold': 'This quiz is purely meant as a guide and is not suitable for making electoral decisions.',
-	'orientation.start.hintText': 'It also shows what is technically strongly automated today. The comparison with other delegates at the end of the quiz works with the political analysis profile of the delegates, which is also generated automatically and can be found on the somes delegate page. Your data or inputs are only processed locally on the device and stored temporarily in the browser.',
-	'orientation.start.hintText2': 'The pro/contra positions of "Hubert" were generated by AI. The questions are partly based on motions from the National Council of the current legislative period. These include, for example, government proposals as well as resolutions or other motions from the opposition. The questions were generated for the respective motions and then selected manually. This creates bias, among other things through the selection process and the dominating topics of the opposition such as migration or climate.',
+	'orientation.start.hintBold':
+		'This quiz is purely meant as a guide and is not suitable for making electoral decisions.',
+	'orientation.start.hintText':
+		'It also shows what is technically strongly automated today. The comparison with other delegates at the end of the quiz works with the political analysis profile of the delegates, which is also generated automatically and can be found on the somes delegate page. Your data or inputs are only processed locally on the device and stored temporarily in the browser.',
+	'orientation.start.hintText2':
+		'The pro/contra positions of "Hubert" were generated by AI. The questions are partly based on motions from the National Council of the current legislative period. These include, for example, government proposals as well as resolutions or other motions from the opposition. The questions were generated for the respective motions and then selected manually. This creates bias, among other things through the selection process and the dominating topics of the opposition such as migration or climate.',
 	'orientation.start.hintBold2': 'AI-generated (as well as human) content contains errors.',
 	'orientation.start.short': 'Short',
 	'orientation.start.shortDesc': 'Fewer questions, quick overview.',
@@ -807,7 +850,8 @@ export const en = {
 	'orientation.result.title': 'Result',
 	'orientation.result.answered': 'You answered {count} questions.',
 	'orientation.result.similar': 'Similar delegates',
-	'orientation.result.similarDesc': 'Comparison based on the topical match of your answers with the political analysis profile.',
+	'orientation.result.similarDesc':
+		'Comparison based on the topical match of your answers with the political analysis profile.',
 	'orientation.result.avgDiff': 'Ø deviation: {value}',
 	'orientation.result.answer': 'Answer: {value}',
 	'orientation.result.noAnswer': 'none',
@@ -824,5 +868,5 @@ export const en = {
 	'aiChat.placeholder': 'Ask your question...',
 	'aiChat.send': 'Send',
 	'interests.detail.title': 'Detailed interests',
-	'interests.detail.subtitle': 'most frequently discussed topics',
+	'interests.detail.subtitle': 'most frequently discussed topics'
 } as const;

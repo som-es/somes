@@ -13,7 +13,8 @@
 		<div class="flex-1">
 			<label
 				for="date-from"
-				class="block w-full text-sm font-semibold text-gray-600 dark:text-gray-50">{t('filter.date.from')}</label
+				class="block w-full text-sm font-semibold text-gray-600 dark:text-gray-50"
+				>{t('filter.date.from')}</label
 			>
 			<input
 				id="date-from"
@@ -25,7 +26,8 @@
 		<div class="flex-1">
 			<label
 				for="date-to"
-				class="block w-full text-sm font-semibold text-gray-600 dark:text-gray-50">{t('filter.date.to')}</label
+				class="block w-full text-sm font-semibold text-gray-600 dark:text-gray-50"
+				>{t('filter.date.to')}</label
 			>
 			<input
 				id="date-to"

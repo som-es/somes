@@ -21,7 +21,9 @@
 
 <!-- <div class="mx-auto px-5"> -->
 <Container>
-	<h1 class="mt-2 px-1 pt-2 text-3xl font-bold sm:mt-0 sm:p-0 sm:text-4xl">{t('history.proposals.title')}</h1>
+	<h1 class="mt-2 px-1 pt-2 text-3xl font-bold sm:mt-0 sm:p-0 sm:text-4xl">
+		{t('history.proposals.title')}
+	</h1>
 	{#if govProposals && departmentsPerGp}
 		<PaginationMinistrialProposals {govProposals} selectedGp={data.selectedGp} {departmentsPerGp} />
 	{/if}

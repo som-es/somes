@@ -50,7 +50,10 @@
 				const item =
 					maybeDate == null
 						? null
-						: { title: t('calendar.plenarySession'), classes: 'badge text-xs bg-tertiary-500 text-black' };
+						: {
+								title: t('calendar.plenarySession'),
+								classes: 'badge text-xs bg-tertiary-500 text-black'
+							};
 				days.push({ name: (i + 1).toString(), enabled: true, date: testDate, item });
 			}
 		}

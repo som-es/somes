@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { justPostStatistics } from '$lib/api/api';
-import { t } from '$lib/i18n/i18n.svelte';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import StatisticsChartControl from '$lib/components/Statistics/StatisticsChartControl.svelte';
 	import type { StatisticsData } from '$lib/types';
 	import { mapAgeDelegate, mapAgeCategory } from '$lib/api/statistics-adapter';
@@ -9,8 +9,7 @@ import { t } from '$lib/i18n/i18n.svelte';
 	export let selectedCategory: string = 'delegate';
 
 	const chartDescriptions = {
-		delegate:
-			t('statistics.age.desc.delegate'),
+		delegate: t('statistics.age.desc.delegate'),
 		party: t('statistics.age.desc.party'),
 		gender: t('statistics.age.desc.gender'),
 		age: t('statistics.age.desc.age'),

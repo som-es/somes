@@ -1,1 +1,1081 @@
-{"question":{"data":{"gp":"XXVIII","ityp":"J","inr":5923,"issuer_ids":[30661],"receiver_ids":[3677],"documents":[{"title":"Anfrage (textinterpretierte Version)","document_url":"https://www.parlament.gv.at/dokument/XXVIII/J/5923/fname_1766262.pdf","document_type":"DigitalPDF"},{"title":"Anfrage (textinterpretierte Version)","document_url":"https://www.parlament.gv.at/dokument/XXVIII/J/5923/fnameorig_1766262.html","document_type":"HTML"},{"title":"Anfrage (gescanntes Original)","document_url":"https://www.parlament.gv.at/dokument/XXVIII/J/5923/imfname_1753578.pdf","document_type":"OriginalPDF"}],"topics":[],"eurovoc_topics":[],"other_keyword_topics":[],"description":"Schriftliche Anfrage der Abgeordneten Mag. Katayun Pracher-Hilander, Kolleginnen und Kollegen an die Bundesministerin für Arbeit, Soziales, Gesundheit, Pflege und Konsumentenschutz betreffend NGO-Business: 467.224,57 € an öffentlichen Mitteln für Entwicklungsprojekte von SONNE International","title":"NGO-Business: 467.224,57 € an öffentlichen Mitteln für Entwicklungsprojekte von SONNE International (5923/J) | Parlament Österreich","created_at":"2026-06-13T14:29:19.819094Z","updated_at":"2026-06-25T13:50:49.363653Z","raw_data_created_at":"2026-04-21T22:00:00Z","raw_data_updated_at":"2026-06-23T12:36:19Z"},"ai_question":{"id":1138,"pqa_meta_id":21514,"short_title":"Förderung des Vereins SONNE International","once_sentence_short_info_summary":"Transparenzanfrage zur Verwendung öffentlicher Mittel durch den Verein SONNE International.","very_short_info_summary":"Anfrage zur Transparenz der Mittelverwendung durch SONNE International.","short_info_summary":"Anfrage zur Transparenz der Mittelverwendung durch SONNE International.","info_summary":"Anfrage zur Transparenz und Kontrolle der öffentlichen Mittel (ca. 467.224,57 €), die an den Verein „SONNE - International - Hilfsorganisation“ flossen.","detailed_info_summary":"Die Anfrage der Abgeordneten Mag. Katayun Pracher-Hilander befasst sich mit der Verwendung öffentlicher Mittel durch den Verein „SONNE - International - Hilfsorganisation“. Es wird auf einen Jahresbericht 2024 verwiesen, aus dem hervorgeht, dass rund 467.224,57 Euro an öffentlichen Mitteln für Projekte in Ländern wie Äthiopien, Bangladesch, Indien, Malawi und Myanmar verwendet wurden, jedoch eine detaillierte Aufschlüsselung der Mittelverwendung pro Projekt oder Land fehlt. Die Abgeordnete fordert Transparenz hinsichtlich der Förderungen in der vergangenen und aktuellen Gesetzgebungsperiode, Informationen über Werk- bzw. Dienstleistungsverträge, die Kontrolle der Mittelverwendung durch das Ressort sowie Details zur Teilnahme an Veranstaltungen und zur Einbindung von Drittmitteln.","question_summary":"Fragen zu Förderungen, Verträgen, Kontrollen und Drittmitteln im Zusammenhang mit dem Verein „SONNE International“.","detailed_question_summary":"Die Anfrage umfasst detaillierte Fragen zu den Förderungen des Vereins „SONNE“ in der vergangenen (2019-2024) und aktuellen Gesetzgebungsperiode, einschließlich Antragsdetails, Rechtsgrundlagen, Auflagen und Kontrollmechanismen. Zudem werden Informationen über Werk- oder Dienstleistungsverträge, die Teilnahme von Vertretern an Veranstaltungen sowie die Einbindung von Drittmitteln (z. B. EU, Spenden) angefordert.","full_question_entry":{"short_title":"Förderung des Vereins SONNE International","once_sentence_short_info_summary":"Transparenzanfrage zur Verwendung öffentlicher Mittel durch den Verein SONNE International.","very_short_info_summary":"Anfrage zur Transparenz der Mittelverwendung durch SONNE International.","short_info_summary":"Anfrage zur Transparenz der Mittelverwendung durch SONNE International.","info_summary":"Anfrage zur Transparenz und Kontrolle der öffentlichen Mittel (ca. 467.224,57 €), die an den Verein „SONNE - International - Hilfsorganisation“ flossen.","info_sources_urls":["https://sonne-international.org/wp-content/uploads/Documents/Jahresberichte/SONNE-JB2024-Web.pdf"],"detailed_info_summary":"Die Anfrage der Abgeordneten Mag. Katayun Pracher-Hilander befasst sich mit der Verwendung öffentlicher Mittel durch den Verein „SONNE - International - Hilfsorganisation“. Es wird auf einen Jahresbericht 2024 verwiesen, aus dem hervorgeht, dass rund 467.224,57 Euro an öffentlichen Mitteln für Projekte in Ländern wie Äthiopien, Bangladesch, Indien, Malawi und Myanmar verwendet wurden, jedoch eine detaillierte Aufschlüsselung der Mittelverwendung pro Projekt oder Land fehlt. Die Abgeordnete fordert Transparenz hinsichtlich der Förderungen in der vergangenen und aktuellen Gesetzgebungsperiode, Informationen über Werk- bzw. Dienstleistungsverträge, die Kontrolle der Mittelverwendung durch das Ressort sowie Details zur Teilnahme an Veranstaltungen und zur Einbindung von Drittmitteln.","question_summary":"Fragen zu Förderungen, Verträgen, Kontrollen und Drittmitteln im Zusammenhang mit dem Verein „SONNE International“.","detailed_question_summary":"Die Anfrage umfasst detaillierte Fragen zu den Förderungen des Vereins „SONNE“ in der vergangenen (2019-2024) und aktuellen Gesetzgebungsperiode, einschließlich Antragsdetails, Rechtsgrundlagen, Auflagen und Kontrollmechanismen. Zudem werden Informationen über Werk- oder Dienstleistungsverträge, die Teilnahme von Vertretern an Veranstaltungen sowie die Einbindung von Drittmitteln (z. B. EU, Spenden) angefordert.","questions":[{"raw_question":"Welche Maßnahmen bzw. Projekte des Vereins „SONNE“ wurden in der zurückliegenden Gesetzgebungsperiode (23.10.2019 - 23.10.2024) in welcher Höhe gefördert?","nth_level":[{"kind":"Number","value":1}]},{"raw_question":"Wann wurde die Förderung beantragt?","nth_level":[{"kind":"Number","value":1},{"kind":"String","value":"a"}]},{"raw_question":"Von wem wurde die Förderung beantragt?","nth_level":[{"kind":"Number","value":1},{"kind":"String","value":"b"}]},{"raw_question":"Wurde die statuten-/satzungsmäßige Unterzeichnung des Antrags überprüft?","nth_level":[{"kind":"Number","value":1},{"kind":"String","value":"b"},{"kind":"String","value":"i"}]},{"raw_question":"Wann wurde die Förderung genehmigt?","nth_level":[{"kind":"Number","value":1},{"kind":"String","value":"c"}]},{"raw_question":"Auf Basis welcher gesetzlichen Grundlagen wurde die Förderung aus Bundesmitteln gewährt?","nth_level":[{"kind":"Number","value":1},{"kind":"String","value":"d"}]},{"raw_question":"Kamen auch Sonderrichtlinien zur Anwendung? (Bitte um Angabe welche)","nth_level":[{"kind":"Number","value":1},{"kind":"String","value":"d"},{"kind":"String","value":"i"}]},{"raw_question":"Erfolgte die Genehmigung vorbehaltlich bestimmter Auflagen?","nth_level":[{"kind":"Number","value":1},{"kind":"String","value":"e"}]},{"raw_question":"Wenn ja, mit welchen?","nth_level":[{"kind":"Number","value":1},{"kind":"String","value":"e"},{"kind":"String","value":"i"}]},{"raw_question":"Wenn nein, warum nicht?","nth_level":[{"kind":"Number","value":1},{"kind":"String","value":"e"},{"kind":"String","value":"ii"}]},{"raw_question":"Wurden Förderentscheidung und Volumen öffentlich bekanntgemacht?","nth_level":[{"kind":"Number","value":1},{"kind":"String","value":"f"}]},{"raw_question":"Wie wurde die richtige Verwendung der Mittel durch Ihr Ressort kontrolliert?","nth_level":[{"kind":"Number","value":1},{"kind":"String","value":"g"}]},{"raw_question":"Wann?","nth_level":[{"kind":"Number","value":1},{"kind":"String","value":"g"},{"kind":"String","value":"i"}]},{"raw_question":"Mit welchem Ergebnis?","nth_level":[{"kind":"Number","value":1},{"kind":"String","value":"g"},{"kind":"String","value":"ii"}]},{"raw_question":"Wenn keine Kontrolle erfolgte, warum nicht?","nth_level":[{"kind":"Number","value":1},{"kind":"String","value":"g"},{"kind":"String","value":"iii"}]},{"raw_question":"Gab es regelmäßige Berichte oder Evaluierungen zum Erfolg der geförderten Maßnahme?","nth_level":[{"kind":"Number","value":1},{"kind":"String","value":"h"}]},{"raw_question":"In welcher Höhe wurden für die Maßnahmen bzw. Projekte Eigenleistungen durch den Verein „SONNE“ erbracht?","nth_level":[{"kind":"Number","value":1},{"kind":"String","value":"i"}]},{"raw_question":"Welche Maßnahmen bzw. Projekte des Vereins „SONNE“ wurden in dieser Gesetzgebungsperiode (ab 24.10.2024) bislang in welcher Höhe gefördert?","nth_level":[{"kind":"Number","value":2}]},{"raw_question":"Wann wurde die Förderung beantragt?","nth_level":[{"kind":"Number","value":2},{"kind":"String","value":"a"}]},{"raw_question":"Von wem wurde die Förderung beantragt?","nth_level":[{"kind":"Number","value":2},{"kind":"String","value":"b"}]},{"raw_question":"Wurde die statuten-/satzungsmäßige Unterzeichnung des Antrags überprüft?","nth_level":[{"kind":"Number","value":2},{"kind":"String","value":"b"},{"kind":"String","value":"i"}]},{"raw_question":"Wann wurde die Förderung genehmigt?","nth_level":[{"kind":"Number","value":2},{"kind":"String","value":"c"}]},{"raw_question":"Auf Basis welcher gesetzlichen Grundlagen wurde die Förderung aus Bundesmitteln gewährt?","nth_level":[{"kind":"Number","value":2},{"kind":"String","value":"d"}]},{"raw_question":"Kamen auch Sonderrichtlinien zur Anwendung? (Bitte um Angabe welche)","nth_level":[{"kind":"Number","value":2},{"kind":"String","value":"d"},{"kind":"String","value":"i"}]},{"raw_question":"Erfolgte die Genehmigung vorbehaltlich bestimmter Auflagen?","nth_level":[{"kind":"Number","value":2},{"kind":"String","value":"e"}]},{"raw_question":"Wenn ja, mit welchen?","nth_level":[{"kind":"Number","value":2},{"kind":"String","value":"e"},{"kind":"String","value":"i"}]},{"raw_question":"Wenn nein, warum nicht?","nth_level":[{"kind":"Number","value":2},{"kind":"String","value":"e"},{"kind":"String","value":"ii"}]},{"raw_question":"Wurden Förderentscheidung und Volumen öffentlich bekanntgemacht?","nth_level":[{"kind":"Number","value":2},{"kind":"String","value":"f"}]},{"raw_question":"Wie wurde die richtige Verwendung der Mittel durch Ihr Ressort kontrolliert?","nth_level":[{"kind":"Number","value":2},{"kind":"String","value":"g"}]},{"raw_question":"Wann?","nth_level":[{"kind":"Number","value":2},{"kind":"String","value":"g"},{"kind":"String","value":"i"}]},{"raw_question":"Mit welchem Ergebnis?","nth_level":[{"kind":"Number","value":2},{"kind":"String","value":"g"},{"kind":"String","value":"ii"}]},{"raw_question":"Wenn keine Kontrolle erfolgte, warum nicht?","nth_level":[{"kind":"Number","value":2},{"kind":"String","value":"g"},{"kind":"String","value":"iii"}]},{"raw_question":"Gab es regelmäßige Berichte oder Evaluierungen zum Erfolg der geförderten Maßnahme?","nth_level":[{"kind":"Number","value":2},{"kind":"String","value":"h"}]},{"raw_question":"In welcher Höhe wurden für die Maßnahmen bzw. Projekte Eigenleistungen durch den Verein „SONNE“ erbracht?","nth_level":[{"kind":"Number","value":2},{"kind":"String","value":"i"}]},{"raw_question":"Für welche Leistungen/zu welchem Zweck und in welcher Höhe wurde mit dem Verein „SONNE“ in der zurückliegenden Gesetzgebungsperiode (23.10.2019 - 23.10.2024) ein Werk- bzw. Dienstleistungsvertrag abgeschlossen?","nth_level":[{"kind":"Number","value":3}]},{"raw_question":"Wann wurde der Vertrag geschlossen?","nth_level":[{"kind":"Number","value":3},{"kind":"String","value":"a"}]},{"raw_question":"Von wem wurde der Vertragsabschluss initiiert bzw. angebahnt?","nth_level":[{"kind":"Number","value":3},{"kind":"String","value":"b"}]},{"raw_question":"Welche konkreten Leistungen waren Gegenstand des Werk- bzw. Dienstleistungsvertrag?","nth_level":[{"kind":"Number","value":3},{"kind":"String","value":"c"}]},{"raw_question":"Wurde der Vertrag im Zeitraum adaptiert bzw. angepasst?","nth_level":[{"kind":"Number","value":3},{"kind":"String","value":"d"}]},{"raw_question":"Wenn ja, wann?","nth_level":[{"kind":"Number","value":3},{"kind":"String","value":"d"},{"kind":"String","value":"i"}]},{"raw_question":"Wenn ja, mit welchen Inhalten/Änderungen?","nth_level":[{"kind":"Number","value":3},{"kind":"String","value":"d"},{"kind":"String","value":"ii"}]},{"raw_question":"Wurde die Vertragserfüllung durch den Verein „SONNE“ durch Ihr Ressort kontrolliert?","nth_level":[{"kind":"Number","value":3},{"kind":"String","value":"e"}]},{"raw_question":"Wenn ja, wann?","nth_level":[{"kind":"Number","value":3},{"kind":"String","value":"e"},{"kind":"String","value":"i"}]},{"raw_question":"Wenn ja, mit welchem Ergebnis?","nth_level":[{"kind":"Number","value":3},{"kind":"String","value":"e"},{"kind":"String","value":"ii"}]},{"raw_question":"Wenn nein, warum nicht?","nth_level":[{"kind":"Number","value":3},{"kind":"String","value":"e"},{"kind":"String","value":"iii"}]},{"raw_question":"Für welche Leistungen/zu welchem Zweck und in welcher Höhe wurde mit dem Verein „SONNE“ in der laufenden Gesetzgebungsperiode (ab 24.10.2024) ein Werk- bzw. Dienstleistungsvertrag abgeschlossen?","nth_level":[{"kind":"Number","value":4}]},{"raw_question":"Wann wurde der Vertrag geschlossen?","nth_level":[{"kind":"Number","value":4},{"kind":"String","value":"a"}]},{"raw_question":"Von wem wurde der Vertragsabschluss initiiert bzw. angebahnt?","nth_level":[{"kind":"Number","value":4},{"kind":"String","value":"b"}]},{"raw_question":"Welche konkreten Leistungen waren Gegenstand des Werk- bzw. Dienstleistungsvertrag?","nth_level":[{"kind":"Number","value":4},{"kind":"String","value":"c"}]},{"raw_question":"Wurde der Vertrag seitdem adaptiert bzw. angepasst?","nth_level":[{"kind":"Number","value":4},{"kind":"String","value":"d"}]},{"raw_question":"Wenn ja, wann?","nth_level":[{"kind":"Number","value":4},{"kind":"String","value":"d"},{"kind":"String","value":"i"}]},{"raw_question":"Wenn ja, mit welchen Inhalten/Änderungen?","nth_level":[{"kind":"Number","value":4},{"kind":"String","value":"d"},{"kind":"String","value":"ii"}]},{"raw_question":"Wurde die Vertragserfüllung bereits durch den Verein „SONNE“ durch Ihr Ressort kontrolliert?","nth_level":[{"kind":"Number","value":4},{"kind":"String","value":"e"}]},{"raw_question":"Wenn ja, wann?","nth_level":[{"kind":"Number","value":4},{"kind":"String","value":"e"},{"kind":"String","value":"i"}]},{"raw_question":"Wenn ja, mit welchem Ergebnis?","nth_level":[{"kind":"Number","value":4},{"kind":"String","value":"e"},{"kind":"String","value":"ii"}]},{"raw_question":"Wenn nein, warum nicht?","nth_level":[{"kind":"Number","value":4},{"kind":"String","value":"e"},{"kind":"String","value":"iii"}]},{"raw_question":"An welchen Veranstaltungen innerhalb Ihres Zuständigkeitsbereichs nahmen Vertreter des Vereins „SONNE“ seit dem 24.10.2024 teil?","nth_level":[{"kind":"Number","value":5}]},{"raw_question":"Nahmen Vertreter Ihres Ressorts an Veranstaltungen des Vereins „SONNE“ in offizieller Funktion teil?","nth_level":[{"kind":"Number","value":6}]},{"raw_question":"Wenn ja, wie viele Personen nahmen teil?","nth_level":[{"kind":"Number","value":6},{"kind":"String","value":"a"}]},{"raw_question":"Wenn ja, an welchen Veranstaltungen?","nth_level":[{"kind":"Number","value":6},{"kind":"String","value":"b"}]},{"raw_question":"Wenn ja, welche Kosten entstanden für Ihr Ressort durch die Teilnahme?","nth_level":[{"kind":"Number","value":6},{"kind":"String","value":"c"}]},{"raw_question":"Welche Drittmittel (EU, Länder, Gemeinden, private Stiftungen, Spenden) wurden im Förderzeitraum zusätzlich zu den Bundesmitteln durch den Verein „SONNE“ eingeworben?","nth_level":[{"kind":"Number","value":7}]},{"raw_question":"Wurden diese Drittmittel in der Förderabrechnung berücksichtigt?","nth_level":[{"kind":"Number","value":7},{"kind":"String","value":"a"}]},{"raw_question":"Gab es Überschneidungen oder Doppelfinanzierungen mit Bundesmitteln?","nth_level":[{"kind":"Number","value":7},{"kind":"String","value":"b"}]},{"raw_question":"Wenn ja, in welcher Höhe?","nth_level":[{"kind":"Number","value":7},{"kind":"String","value":"b"},{"kind":"String","value":"i"}]}],"topics":["Öffentliche Finanzen und Haushaltspolitik","Sozialpolitik","Verwaltungskontrolle","Wirtschaft"]},"model_used":"gemma-4-26B","version":"1","generated_at":"2026-06-15T16:28:24.820394Z"},"refs":[{"gp":"XXVIII","ityp":"AB","inr":5309}]},"answer":[{"data":{"gp":"XXVIII","ityp":"AB","inr":5309,"issuer_ids":[],"receiver_ids":[3677],"documents":[{"title":"Anfragebeantwortung","document_url":"https://www.parlament.gv.at/dokument/XXVIII/AB/5309/imfname_1765913.pdf","document_type":"DigitalPDF"}],"topics":[],"eurovoc_topics":[],"other_keyword_topics":[],"description":"Anfragebeantwortung durch die Bundesministerin für Arbeit, Soziales, Gesundheit, Pflege und Konsumentenschutz Korinna Schumann zu der schriftlichen Anfrage (5923/J) der Abgeordneten Mag. Katayun Pracher-Hilander, Kolleginnen und Kollegen an die Bundesministerin für Arbeit, Soziales, Gesundheit, Pflege und Konsumentenschutz betreffend NGO-Business: 467.224,57 € an öffentlichen Mitteln für Entwicklungsprojekte von SONNE International","title":"NGO-Business: 467.224,57 € an öffentlichen Mitteln für Entwicklungsprojekte von SONNE International (5309/AB) | Parlament Österreich","created_at":"2026-06-20T11:55:28.875994Z","updated_at":"2026-06-25T13:50:49.564865Z","raw_data_created_at":"2026-06-18T22:00:00Z","raw_data_updated_at":"2026-06-24T00:35:27Z"},"ai_answer":{"id":133,"pqa_meta_id":809535,"short_title":"Förderungen, Verträge und Veranstaltungen des Vereins SONNE International","full_answer_summary":"Die Antwort erläutert die Förderungen für zwei Projekte in der vergangenen Periode (insgesamt ca. 979.000 €), stellt fest, dass in der aktuellen Periode keine neuen Förderungen oder Verträge vorliegen und bestätigt, dass seit Oktober 2024 keine Teilnahme an Veranstaltungen stattfand.","detailed_full_answer_summary":"Die Anfrage befasste sich mit den finanziellen und organisatorischen Beziehungen zum Verein „SONNE International“. In der vergangenen Gesetzgebungsperiode wurden zwei Projekte zur Gesundheitsversorgung in Äthiopien mit insgesamt 979.000 € gefördert. Für die aktuelle Periode sowie für Werk- oder Dienstleistungsverträge und Drittmittel wurden keine Angaben zu Förderungen gemacht, da keine stattgefunden haben. Auch eine Teilnahme an Veranstaltungen durch Vertreter des Vereins oder des Ressorts wurde seit Oktober 2024 verneint.","full_answer_entry":{"short_title":"Förderungen, Verträge und Veranstaltungen des Vereins SONNE International","answers":[{"answering_questions_references":[{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":1}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":1},{"kind":"String","value":"a"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":1},{"kind":"String","value":"b"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":1},{"kind":"String","value":"b"},{"kind":"String","value":"i"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":1},{"kind":"String","value":"c"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":1},{"kind":"String","value":"d"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":1},{"kind":"String","value":"d"},{"kind":"String","value":"i"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":1},{"kind":"String","value":"e"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":1},{"kind":"String","value":"e"},{"kind":"String","value":"i"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":1},{"kind":"String","value":"e"},{"kind":"String","value":"ii"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":1},{"kind":"String","value":"f"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":1},{"kind":"String","value":"g"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":1},{"kind":"String","value":"g"},{"kind":"String","value":"i"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":1},{"kind":"String","value":"g"},{"kind":"String","value":"ii"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":1},{"kind":"String","value":"g"},{"kind":"String","value":"iii"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":1},{"kind":"String","value":"h"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":1},{"kind":"String","value":"i"}]}],"raw_answer":"Es wurden die nachstehenden Maßnahmen bzw. Projekte in der zurückliegenden Gesetzgebungsperiode (23.10.2019-23.10.2024) gefördert:\n\nProjekt „Medizinische Basisversorgung und Verbesserung der Müttergesundheit in der entlegenen Afar-Region Eli Da’ar (Äthiopien)“ | 429.000,00 € | 3. April 2021 | SONNE-International (vertreten durch Erfried Malle) | 13. Juni 2024 | Die statuten-/satzungsmäßige Unterzeichnung des Antrags wurde geprüft. | ARR 2014 | Es kamen keine Sonderrichtlinien zur Anwendung. | Nein. | Die Förderungsentscheidung wurde im Transparenzportal veröffentlicht. | Nach Erhalt der Abrechnungsunterlagen wurde die inhaltliche Prüfung vom BMASGPK durchgeführt, wobei die sachliche Richtigkeit festgestellt wurde. Die anschließende rechnerische Prüfung wurde von der Buchhaltungsagentur des Bundes (BHAG) durchgeführt, wobei Kosten iHv 6.644,22 € nicht anerkannt wurden. | Nein. | 25.500,00 €\n\nProjekt „Unterstützung der Basisgesundheit, mit Schwerpunkt auf reproduktiver Gesundheit in der Afar Region“ | 550.000,00 € | 2. Juni 2021 | SONNE-International (vertreten durch Erfried Malle) | 5. August 2024 | Die statuten-/satzungsmäßige Unterzeichnung des Antrags wurde geprüft. | ARR 2014 sowie Sonderrichtlinie „Armutsbekämpfung in Drittstaaten“ | Nein. | Die Förderungsentscheidung wurde im Transparenzportal veröffentlicht. | Das Projekt wird derzeit noch umgesetzt. Daher erfolgte bisher noch keine abschließende inhaltliche oder rechnerische Prüfung. | Es wurde wie vertraglich vereinbart vom Fördernehmer ein Zwischenbericht übermittelt. | 39.804,22 €","once_sentence_short_answer_summary":"Zwei Projekte wurden gefördert: 429.000 € für medizinische Basisversorgung und 550.000 € für reproduktive Gesundheit.","very_short_answer_summary":"Zwei Projekte gefördert.","short_answer_summary":"Zwei Projekte wurden gefördert: Projekt Eli Da'ar (429.000 €) und Projekt Afar Region (550.000 €).","answer_summary":"In der vergangenen Gesetzgebungsperiode wurden zwei Projekte des Vereins „SONNE International“ gefördert: Ein Projekt zur medizinischen Basisversorgung in Äthiopien (429.000,00 €) und ein Projekt zur Basisgesundheit in der Afar-Region (550.000,00 €). Die Mittel wurden auf Basis von ARR 2014 bzw. unter Anwendung einer Sonderrichtlinie gewährt. Die Kontrolle erfolgte durch inhaltliche Prüfung des BMASGPK und rechnerische Prüfung durch die BHAG.","other_written_answer_refs":[]},{"answering_questions_references":[{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":2}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":2},{"kind":"String","value":"a"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":2},{"kind":"String","value":"b"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":2},{"kind":"String","value":"b"},{"kind":"String","value":"i"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":2},{"kind":"String","value":"c"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":2},{"kind":"String","value":"d"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":2},{"kind":"String","value":"d"},{"kind":"String","value":"i"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":2},{"kind":"String","value":"e"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":2},{"kind":"String","value":"e"},{"kind":"String","value":"i"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":2},{"kind":"String","value":"e"},{"kind":"String","value":"ii"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":2},{"kind":"String","value":"f"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":2},{"kind":"String","value":"g"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":2},{"kind":"String","value":"g"},{"kind":"String","value":"i"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":2},{"kind":"String","value":"g"},{"kind":"String","value":"ii"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":2},{"kind":"String","value":"g"},{"kind":"String","value":"iii"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":2},{"kind":"String","value":"h"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":2},{"kind":"String","value":"i"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":3}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":3},{"kind":"String","value":"a"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":3},{"kind":"String","value":"b"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":3},{"kind":"String","value":"c"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":3},{"kind":"String","value":"d"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":3},{"kind":"String","value":"d"},{"kind":"String","value":"i"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":3},{"kind":"String","value":"d"},{"kind":"String","value":"ii"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":3},{"kind":"String","value":"e"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":3},{"kind":"String","value":"e"},{"kind":"String","value":"i"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":3},{"kind":"String","value":"e"},{"kind":"String","value":"ii"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":3},{"kind":"String","value":"e"},{"kind":"String","value":"iii"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":4}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":4},{"kind":"String","value":"a"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":4},{"kind":"String","value":"b"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":4},{"kind":"String","value":"c"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":4},{"kind":"String","value":"d"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":4},{"kind":"String","value":"d"},{"kind":"String","value":"i"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":4},{"kind":"String","value":"d"},{"kind":"String","value":"ii"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":4},{"kind":"String","value":"e"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":4},{"kind":"String","value":"e"},{"kind":"String","value":"i"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":4},{"kind":"String","value":"e"},{"kind":"String","value":"ii"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":4},{"kind":"String","value":"e"},{"kind":"String","value":"iii"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":7}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":7},{"kind":"String","value":"a"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":7},{"kind":"String","value":"b"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":7},{"kind":"String","value":"b"},{"kind":"String","value":"i"}]}],"raw_answer":"In der laufenden Gesetzgebungsperiode wurden keine Maßnahmen bzw. Projekte des Vereins „SONNE“ gefördert. Zudem wurden auch keine Werk- oder Dienstleistungsverträge in der vergangenen sowie in der laufenden Gesetzgebungsperiode abgeschlossen. Es wurden auch keine Drittmittel durch die NGO eingeworben.","once_sentence_short_answer_summary":"Keine Förderungen, Verträge oder Drittmittel in der laufenden/vergangenen Periode.","very_short_answer_summary":"Nichts gefördert/vertraglich geregelt.","short_answer_summary":"Keine Förderungen, Verträge oder Drittmittel.","answer_summary":"In der aktuellen Gesetzgebungsperiode sowie in der vorangegangenen wurden keine Förderungen oder Werk- bzw. Dienstleistungsverträge mit dem Verein „SONNE International“ abgeschlossen. Es wurden auch keine Drittmittel durch die NGO eingeworben.","other_written_answer_refs":[]},{"answering_questions_references":[{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":5}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":6}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":6},{"kind":"String","value":"a"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":6},{"kind":"String","value":"b"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":6},{"kind":"String","value":"c"}]}],"raw_answer":"Seit dem 24.10.2024 nahmen weder Vertreter des Vereins „SONNE“ an Veranstaltungen innerhalb meines Zuständigkeitsbereichs teil, noch besuchten Vertreter des Ressorts in offizieller Funktion Veranstaltungen der besagten NGO.","once_sentence_short_answer_summary":"Keine Teilnahme von Vertretern des Vereins oder des Ressorts an Veranstaltungen seit dem 24.10.2024.","very_short_answer_summary":"Keine Teilnahme.","short_answer_summary":"Keine Teilnahme an Veranstaltungen.","answer_summary":"Seit dem 24.10.2024 nahmen weder Vertreter des Vereins „SONNE“ an Veranstaltungen innerhalb des Zuständigkeitsbereichs teil, noch besuchten Vertreter des Ressorts in offizieller Funktion Veranstaltungen der NGO.","other_written_answer_refs":[]}],"full_answer_summary":"Die Antwort erläutert die Förderungen für zwei Projekte in der vergangenen Periode (insgesamt ca. 979.000 €), stellt fest, dass in der aktuellen Periode keine neuen Förderungen oder Verträge vorliegen und bestätigt, dass seit Oktober 2024 keine Teilnahme an Veranstaltungen stattfand.","detailed_full_answer_summary":"Die Anfrage befasste sich mit den finanziellen und organisatorischen Beziehungen zum Verein „SONNE International“. In der vergangenen Gesetzgebungsperiode wurden zwei Projekte zur Gesundheitsversorgung in Äthiopien mit insgesamt 979.000 € gefördert. Für die aktuelle Periode sowie für Werk- oder Dienstleistungsverträge und Drittmittel wurden keine Angaben zu Förderungen gemacht, da keine stattgefunden haben. Auch eine Teilnahme an Veranstaltungen durch Vertreter des Vereins oder des Ressorts wurde seit Oktober 2024 verneint."},"model_used":"gemma-4-26B","version":"1","generated_at":"2026-06-20T12:01:17.239053Z"},"refs":[{"gp":"XXVIII","ityp":"J","inr":5923}]}]}
+{
+  "question": {
+    "data": {
+      "gp": "XXVIII",
+      "ityp": "J",
+      "inr": 5923,
+      "issuer_ids": [30661],
+      "receiver_ids": [3677],
+      "documents": [
+        {
+          "title": "Anfrage (textinterpretierte Version)",
+          "document_url": "https://www.parlament.gv.at/dokument/XXVIII/J/5923/fname_1766262.pdf",
+          "document_type": "DigitalPDF"
+        },
+        {
+          "title": "Anfrage (textinterpretierte Version)",
+          "document_url": "https://www.parlament.gv.at/dokument/XXVIII/J/5923/fnameorig_1766262.html",
+          "document_type": "HTML"
+        },
+        {
+          "title": "Anfrage (gescanntes Original)",
+          "document_url": "https://www.parlament.gv.at/dokument/XXVIII/J/5923/imfname_1753578.pdf",
+          "document_type": "OriginalPDF"
+        }
+      ],
+      "topics": [],
+      "eurovoc_topics": [],
+      "other_keyword_topics": [],
+      "description": "Schriftliche Anfrage der Abgeordneten Mag. Katayun Pracher-Hilander, Kolleginnen und Kollegen an die Bundesministerin für Arbeit, Soziales, Gesundheit, Pflege und Konsumentenschutz betreffend NGO-Business: 467.224,57 € an öffentlichen Mitteln für Entwicklungsprojekte von SONNE International",
+      "title": "NGO-Business: 467.224,57 € an öffentlichen Mitteln für Entwicklungsprojekte von SONNE International (5923/J) | Parlament Österreich",
+      "created_at": "2026-06-13T14:29:19.819094Z",
+      "updated_at": "2026-06-25T13:50:49.363653Z",
+      "raw_data_created_at": "2026-04-21T22:00:00Z",
+      "raw_data_updated_at": "2026-06-23T12:36:19Z"
+    },
+    "ai_question": {
+      "id": 1138,
+      "pqa_meta_id": 21514,
+      "short_title": "Förderung des Vereins SONNE International",
+      "once_sentence_short_info_summary": "Transparenzanfrage zur Verwendung öffentlicher Mittel durch den Verein SONNE International.",
+      "very_short_info_summary": "Anfrage zur Transparenz der Mittelverwendung durch SONNE International.",
+      "short_info_summary": "Anfrage zur Transparenz der Mittelverwendung durch SONNE International.",
+      "info_summary": "Anfrage zur Transparenz und Kontrolle der öffentlichen Mittel (ca. 467.224,57 €), die an den Verein „SONNE - International - Hilfsorganisation“ flossen.",
+      "detailed_info_summary": "Die Anfrage der Abgeordneten Mag. Katayun Pracher-Hilander befasst sich mit der Verwendung öffentlicher Mittel durch den Verein „SONNE - International - Hilfsorganisation“. Es wird auf einen Jahresbericht 2024 verwiesen, aus dem hervorgeht, dass rund 467.224,57 Euro an öffentlichen Mitteln für Projekte in Ländern wie Äthiopien, Bangladesch, Indien, Malawi und Myanmar verwendet wurden, jedoch eine detaillierte Aufschlüsselung der Mittelverwendung pro Projekt oder Land fehlt. Die Abgeordnete fordert Transparenz hinsichtlich der Förderungen in der vergangenen und aktuellen Gesetzgebungsperiode, Informationen über Werk- bzw. Dienstleistungsverträge, die Kontrolle der Mittelverwendung durch das Ressort sowie Details zur Teilnahme an Veranstaltungen und zur Einbindung von Drittmitteln.",
+      "question_summary": "Fragen zu Förderungen, Verträgen, Kontrollen und Drittmitteln im Zusammenhang mit dem Verein „SONNE International“.",
+      "detailed_question_summary": "Die Anfrage umfasst detaillierte Fragen zu den Förderungen des Vereins „SONNE“ in der vergangenen (2019-2024) und aktuellen Gesetzgebungsperiode, einschließlich Antragsdetails, Rechtsgrundlagen, Auflagen und Kontrollmechanismen. Zudem werden Informationen über Werk- oder Dienstleistungsverträge, die Teilnahme von Vertretern an Veranstaltungen sowie die Einbindung von Drittmitteln (z. B. EU, Spenden) angefordert.",
+      "full_question_entry": {
+        "short_title": "Förderung des Vereins SONNE International",
+        "once_sentence_short_info_summary": "Transparenzanfrage zur Verwendung öffentlicher Mittel durch den Verein SONNE International.",
+        "very_short_info_summary": "Anfrage zur Transparenz der Mittelverwendung durch SONNE International.",
+        "short_info_summary": "Anfrage zur Transparenz der Mittelverwendung durch SONNE International.",
+        "info_summary": "Anfrage zur Transparenz und Kontrolle der öffentlichen Mittel (ca. 467.224,57 €), die an den Verein „SONNE - International - Hilfsorganisation“ flossen.",
+        "info_sources_urls": [
+          "https://sonne-international.org/wp-content/uploads/Documents/Jahresberichte/SONNE-JB2024-Web.pdf"
+        ],
+        "detailed_info_summary": "Die Anfrage der Abgeordneten Mag. Katayun Pracher-Hilander befasst sich mit der Verwendung öffentlicher Mittel durch den Verein „SONNE - International - Hilfsorganisation“. Es wird auf einen Jahresbericht 2024 verwiesen, aus dem hervorgeht, dass rund 467.224,57 Euro an öffentlichen Mitteln für Projekte in Ländern wie Äthiopien, Bangladesch, Indien, Malawi und Myanmar verwendet wurden, jedoch eine detaillierte Aufschlüsselung der Mittelverwendung pro Projekt oder Land fehlt. Die Abgeordnete fordert Transparenz hinsichtlich der Förderungen in der vergangenen und aktuellen Gesetzgebungsperiode, Informationen über Werk- bzw. Dienstleistungsverträge, die Kontrolle der Mittelverwendung durch das Ressort sowie Details zur Teilnahme an Veranstaltungen und zur Einbindung von Drittmitteln.",
+        "question_summary": "Fragen zu Förderungen, Verträgen, Kontrollen und Drittmitteln im Zusammenhang mit dem Verein „SONNE International“.",
+        "detailed_question_summary": "Die Anfrage umfasst detaillierte Fragen zu den Förderungen des Vereins „SONNE“ in der vergangenen (2019-2024) und aktuellen Gesetzgebungsperiode, einschließlich Antragsdetails, Rechtsgrundlagen, Auflagen und Kontrollmechanismen. Zudem werden Informationen über Werk- oder Dienstleistungsverträge, die Teilnahme von Vertretern an Veranstaltungen sowie die Einbindung von Drittmitteln (z. B. EU, Spenden) angefordert.",
+        "questions": [
+          {
+            "raw_question": "Welche Maßnahmen bzw. Projekte des Vereins „SONNE“ wurden in der zurückliegenden Gesetzgebungsperiode (23.10.2019 - 23.10.2024) in welcher Höhe gefördert?",
+            "nth_level": [{ "kind": "Number", "value": 1 }]
+          },
+          {
+            "raw_question": "Wann wurde die Förderung beantragt?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "a" }
+            ]
+          },
+          {
+            "raw_question": "Von wem wurde die Förderung beantragt?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "b" }
+            ]
+          },
+          {
+            "raw_question": "Wurde die statuten-/satzungsmäßige Unterzeichnung des Antrags überprüft?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "b" },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Wann wurde die Förderung genehmigt?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "c" }
+            ]
+          },
+          {
+            "raw_question": "Auf Basis welcher gesetzlichen Grundlagen wurde die Förderung aus Bundesmitteln gewährt?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "d" }
+            ]
+          },
+          {
+            "raw_question": "Kamen auch Sonderrichtlinien zur Anwendung? (Bitte um Angabe welche)",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "d" },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Erfolgte die Genehmigung vorbehaltlich bestimmter Auflagen?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "e" }
+            ]
+          },
+          {
+            "raw_question": "Wenn ja, mit welchen?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "e" },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Wenn nein, warum nicht?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "e" },
+              { "kind": "String", "value": "ii" }
+            ]
+          },
+          {
+            "raw_question": "Wurden Förderentscheidung und Volumen öffentlich bekanntgemacht?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "f" }
+            ]
+          },
+          {
+            "raw_question": "Wie wurde die richtige Verwendung der Mittel durch Ihr Ressort kontrolliert?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "g" }
+            ]
+          },
+          {
+            "raw_question": "Wann?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "g" },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Mit welchem Ergebnis?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "g" },
+              { "kind": "String", "value": "ii" }
+            ]
+          },
+          {
+            "raw_question": "Wenn keine Kontrolle erfolgte, warum nicht?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "g" },
+              { "kind": "String", "value": "iii" }
+            ]
+          },
+          {
+            "raw_question": "Gab es regelmäßige Berichte oder Evaluierungen zum Erfolg der geförderten Maßnahme?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "h" }
+            ]
+          },
+          {
+            "raw_question": "In welcher Höhe wurden für die Maßnahmen bzw. Projekte Eigenleistungen durch den Verein „SONNE“ erbracht?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Welche Maßnahmen bzw. Projekte des Vereins „SONNE“ wurden in dieser Gesetzgebungsperiode (ab 24.10.2024) bislang in welcher Höhe gefördert?",
+            "nth_level": [{ "kind": "Number", "value": 2 }]
+          },
+          {
+            "raw_question": "Wann wurde die Förderung beantragt?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "a" }
+            ]
+          },
+          {
+            "raw_question": "Von wem wurde die Förderung beantragt?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "b" }
+            ]
+          },
+          {
+            "raw_question": "Wurde die statuten-/satzungsmäßige Unterzeichnung des Antrags überprüft?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "b" },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Wann wurde die Förderung genehmigt?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "c" }
+            ]
+          },
+          {
+            "raw_question": "Auf Basis welcher gesetzlichen Grundlagen wurde die Förderung aus Bundesmitteln gewährt?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "d" }
+            ]
+          },
+          {
+            "raw_question": "Kamen auch Sonderrichtlinien zur Anwendung? (Bitte um Angabe welche)",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "d" },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Erfolgte die Genehmigung vorbehaltlich bestimmter Auflagen?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "e" }
+            ]
+          },
+          {
+            "raw_question": "Wenn ja, mit welchen?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "e" },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Wenn nein, warum nicht?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "e" },
+              { "kind": "String", "value": "ii" }
+            ]
+          },
+          {
+            "raw_question": "Wurden Förderentscheidung und Volumen öffentlich bekanntgemacht?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "f" }
+            ]
+          },
+          {
+            "raw_question": "Wie wurde die richtige Verwendung der Mittel durch Ihr Ressort kontrolliert?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "g" }
+            ]
+          },
+          {
+            "raw_question": "Wann?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "g" },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Mit welchem Ergebnis?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "g" },
+              { "kind": "String", "value": "ii" }
+            ]
+          },
+          {
+            "raw_question": "Wenn keine Kontrolle erfolgte, warum nicht?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "g" },
+              { "kind": "String", "value": "iii" }
+            ]
+          },
+          {
+            "raw_question": "Gab es regelmäßige Berichte oder Evaluierungen zum Erfolg der geförderten Maßnahme?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "h" }
+            ]
+          },
+          {
+            "raw_question": "In welcher Höhe wurden für die Maßnahmen bzw. Projekte Eigenleistungen durch den Verein „SONNE“ erbracht?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Für welche Leistungen/zu welchem Zweck und in welcher Höhe wurde mit dem Verein „SONNE“ in der zurückliegenden Gesetzgebungsperiode (23.10.2019 - 23.10.2024) ein Werk- bzw. Dienstleistungsvertrag abgeschlossen?",
+            "nth_level": [{ "kind": "Number", "value": 3 }]
+          },
+          {
+            "raw_question": "Wann wurde der Vertrag geschlossen?",
+            "nth_level": [
+              { "kind": "Number", "value": 3 },
+              { "kind": "String", "value": "a" }
+            ]
+          },
+          {
+            "raw_question": "Von wem wurde der Vertragsabschluss initiiert bzw. angebahnt?",
+            "nth_level": [
+              { "kind": "Number", "value": 3 },
+              { "kind": "String", "value": "b" }
+            ]
+          },
+          {
+            "raw_question": "Welche konkreten Leistungen waren Gegenstand des Werk- bzw. Dienstleistungsvertrag?",
+            "nth_level": [
+              { "kind": "Number", "value": 3 },
+              { "kind": "String", "value": "c" }
+            ]
+          },
+          {
+            "raw_question": "Wurde der Vertrag im Zeitraum adaptiert bzw. angepasst?",
+            "nth_level": [
+              { "kind": "Number", "value": 3 },
+              { "kind": "String", "value": "d" }
+            ]
+          },
+          {
+            "raw_question": "Wenn ja, wann?",
+            "nth_level": [
+              { "kind": "Number", "value": 3 },
+              { "kind": "String", "value": "d" },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Wenn ja, mit welchen Inhalten/Änderungen?",
+            "nth_level": [
+              { "kind": "Number", "value": 3 },
+              { "kind": "String", "value": "d" },
+              { "kind": "String", "value": "ii" }
+            ]
+          },
+          {
+            "raw_question": "Wurde die Vertragserfüllung durch den Verein „SONNE“ durch Ihr Ressort kontrolliert?",
+            "nth_level": [
+              { "kind": "Number", "value": 3 },
+              { "kind": "String", "value": "e" }
+            ]
+          },
+          {
+            "raw_question": "Wenn ja, wann?",
+            "nth_level": [
+              { "kind": "Number", "value": 3 },
+              { "kind": "String", "value": "e" },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Wenn ja, mit welchem Ergebnis?",
+            "nth_level": [
+              { "kind": "Number", "value": 3 },
+              { "kind": "String", "value": "e" },
+              { "kind": "String", "value": "ii" }
+            ]
+          },
+          {
+            "raw_question": "Wenn nein, warum nicht?",
+            "nth_level": [
+              { "kind": "Number", "value": 3 },
+              { "kind": "String", "value": "e" },
+              { "kind": "String", "value": "iii" }
+            ]
+          },
+          {
+            "raw_question": "Für welche Leistungen/zu welchem Zweck und in welcher Höhe wurde mit dem Verein „SONNE“ in der laufenden Gesetzgebungsperiode (ab 24.10.2024) ein Werk- bzw. Dienstleistungsvertrag abgeschlossen?",
+            "nth_level": [{ "kind": "Number", "value": 4 }]
+          },
+          {
+            "raw_question": "Wann wurde der Vertrag geschlossen?",
+            "nth_level": [
+              { "kind": "Number", "value": 4 },
+              { "kind": "String", "value": "a" }
+            ]
+          },
+          {
+            "raw_question": "Von wem wurde der Vertragsabschluss initiiert bzw. angebahnt?",
+            "nth_level": [
+              { "kind": "Number", "value": 4 },
+              { "kind": "String", "value": "b" }
+            ]
+          },
+          {
+            "raw_question": "Welche konkreten Leistungen waren Gegenstand des Werk- bzw. Dienstleistungsvertrag?",
+            "nth_level": [
+              { "kind": "Number", "value": 4 },
+              { "kind": "String", "value": "c" }
+            ]
+          },
+          {
+            "raw_question": "Wurde der Vertrag seitdem adaptiert bzw. angepasst?",
+            "nth_level": [
+              { "kind": "Number", "value": 4 },
+              { "kind": "String", "value": "d" }
+            ]
+          },
+          {
+            "raw_question": "Wenn ja, wann?",
+            "nth_level": [
+              { "kind": "Number", "value": 4 },
+              { "kind": "String", "value": "d" },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Wenn ja, mit welchen Inhalten/Änderungen?",
+            "nth_level": [
+              { "kind": "Number", "value": 4 },
+              { "kind": "String", "value": "d" },
+              { "kind": "String", "value": "ii" }
+            ]
+          },
+          {
+            "raw_question": "Wurde die Vertragserfüllung bereits durch den Verein „SONNE“ durch Ihr Ressort kontrolliert?",
+            "nth_level": [
+              { "kind": "Number", "value": 4 },
+              { "kind": "String", "value": "e" }
+            ]
+          },
+          {
+            "raw_question": "Wenn ja, wann?",
+            "nth_level": [
+              { "kind": "Number", "value": 4 },
+              { "kind": "String", "value": "e" },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Wenn ja, mit welchem Ergebnis?",
+            "nth_level": [
+              { "kind": "Number", "value": 4 },
+              { "kind": "String", "value": "e" },
+              { "kind": "String", "value": "ii" }
+            ]
+          },
+          {
+            "raw_question": "Wenn nein, warum nicht?",
+            "nth_level": [
+              { "kind": "Number", "value": 4 },
+              { "kind": "String", "value": "e" },
+              { "kind": "String", "value": "iii" }
+            ]
+          },
+          {
+            "raw_question": "An welchen Veranstaltungen innerhalb Ihres Zuständigkeitsbereichs nahmen Vertreter des Vereins „SONNE“ seit dem 24.10.2024 teil?",
+            "nth_level": [{ "kind": "Number", "value": 5 }]
+          },
+          {
+            "raw_question": "Nahmen Vertreter Ihres Ressorts an Veranstaltungen des Vereins „SONNE“ in offizieller Funktion teil?",
+            "nth_level": [{ "kind": "Number", "value": 6 }]
+          },
+          {
+            "raw_question": "Wenn ja, wie viele Personen nahmen teil?",
+            "nth_level": [
+              { "kind": "Number", "value": 6 },
+              { "kind": "String", "value": "a" }
+            ]
+          },
+          {
+            "raw_question": "Wenn ja, an welchen Veranstaltungen?",
+            "nth_level": [
+              { "kind": "Number", "value": 6 },
+              { "kind": "String", "value": "b" }
+            ]
+          },
+          {
+            "raw_question": "Wenn ja, welche Kosten entstanden für Ihr Ressort durch die Teilnahme?",
+            "nth_level": [
+              { "kind": "Number", "value": 6 },
+              { "kind": "String", "value": "c" }
+            ]
+          },
+          {
+            "raw_question": "Welche Drittmittel (EU, Länder, Gemeinden, private Stiftungen, Spenden) wurden im Förderzeitraum zusätzlich zu den Bundesmitteln durch den Verein „SONNE“ eingeworben?",
+            "nth_level": [{ "kind": "Number", "value": 7 }]
+          },
+          {
+            "raw_question": "Wurden diese Drittmittel in der Förderabrechnung berücksichtigt?",
+            "nth_level": [
+              { "kind": "Number", "value": 7 },
+              { "kind": "String", "value": "a" }
+            ]
+          },
+          {
+            "raw_question": "Gab es Überschneidungen oder Doppelfinanzierungen mit Bundesmitteln?",
+            "nth_level": [
+              { "kind": "Number", "value": 7 },
+              { "kind": "String", "value": "b" }
+            ]
+          },
+          {
+            "raw_question": "Wenn ja, in welcher Höhe?",
+            "nth_level": [
+              { "kind": "Number", "value": 7 },
+              { "kind": "String", "value": "b" },
+              { "kind": "String", "value": "i" }
+            ]
+          }
+        ],
+        "topics": [
+          "Öffentliche Finanzen und Haushaltspolitik",
+          "Sozialpolitik",
+          "Verwaltungskontrolle",
+          "Wirtschaft"
+        ]
+      },
+      "model_used": "gemma-4-26B",
+      "version": "1",
+      "generated_at": "2026-06-15T16:28:24.820394Z"
+    },
+    "refs": [{ "gp": "XXVIII", "ityp": "AB", "inr": 5309 }]
+  },
+  "answer": [
+    {
+      "data": {
+        "gp": "XXVIII",
+        "ityp": "AB",
+        "inr": 5309,
+        "issuer_ids": [],
+        "receiver_ids": [3677],
+        "documents": [
+          {
+            "title": "Anfragebeantwortung",
+            "document_url": "https://www.parlament.gv.at/dokument/XXVIII/AB/5309/imfname_1765913.pdf",
+            "document_type": "DigitalPDF"
+          }
+        ],
+        "topics": [],
+        "eurovoc_topics": [],
+        "other_keyword_topics": [],
+        "description": "Anfragebeantwortung durch die Bundesministerin für Arbeit, Soziales, Gesundheit, Pflege und Konsumentenschutz Korinna Schumann zu der schriftlichen Anfrage (5923/J) der Abgeordneten Mag. Katayun Pracher-Hilander, Kolleginnen und Kollegen an die Bundesministerin für Arbeit, Soziales, Gesundheit, Pflege und Konsumentenschutz betreffend NGO-Business: 467.224,57 € an öffentlichen Mitteln für Entwicklungsprojekte von SONNE International",
+        "title": "NGO-Business: 467.224,57 € an öffentlichen Mitteln für Entwicklungsprojekte von SONNE International (5309/AB) | Parlament Österreich",
+        "created_at": "2026-06-20T11:55:28.875994Z",
+        "updated_at": "2026-06-25T13:50:49.564865Z",
+        "raw_data_created_at": "2026-06-18T22:00:00Z",
+        "raw_data_updated_at": "2026-06-24T00:35:27Z"
+      },
+      "ai_answer": {
+        "id": 133,
+        "pqa_meta_id": 809535,
+        "short_title": "Förderungen, Verträge und Veranstaltungen des Vereins SONNE International",
+        "full_answer_summary": "Die Antwort erläutert die Förderungen für zwei Projekte in der vergangenen Periode (insgesamt ca. 979.000 €), stellt fest, dass in der aktuellen Periode keine neuen Förderungen oder Verträge vorliegen und bestätigt, dass seit Oktober 2024 keine Teilnahme an Veranstaltungen stattfand.",
+        "detailed_full_answer_summary": "Die Anfrage befasste sich mit den finanziellen und organisatorischen Beziehungen zum Verein „SONNE International“. In der vergangenen Gesetzgebungsperiode wurden zwei Projekte zur Gesundheitsversorgung in Äthiopien mit insgesamt 979.000 € gefördert. Für die aktuelle Periode sowie für Werk- oder Dienstleistungsverträge und Drittmittel wurden keine Angaben zu Förderungen gemacht, da keine stattgefunden haben. Auch eine Teilnahme an Veranstaltungen durch Vertreter des Vereins oder des Ressorts wurde seit Oktober 2024 verneint.",
+        "full_answer_entry": {
+          "short_title": "Förderungen, Verträge und Veranstaltungen des Vereins SONNE International",
+          "answers": [
+            {
+              "answering_questions_references": [
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "a" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "b" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "b" },
+                    { "kind": "String", "value": "i" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "c" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "d" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "d" },
+                    { "kind": "String", "value": "i" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "e" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "e" },
+                    { "kind": "String", "value": "i" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "e" },
+                    { "kind": "String", "value": "ii" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "f" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "g" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "g" },
+                    { "kind": "String", "value": "i" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "g" },
+                    { "kind": "String", "value": "ii" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "g" },
+                    { "kind": "String", "value": "iii" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "h" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "i" }
+                  ]
+                }
+              ],
+              "raw_answer": "Es wurden die nachstehenden Maßnahmen bzw. Projekte in der zurückliegenden Gesetzgebungsperiode (23.10.2019-23.10.2024) gefördert:\n\nProjekt „Medizinische Basisversorgung und Verbesserung der Müttergesundheit in der entlegenen Afar-Region Eli Da’ar (Äthiopien)“ | 429.000,00 € | 3. April 2021 | SONNE-International (vertreten durch Erfried Malle) | 13. Juni 2024 | Die statuten-/satzungsmäßige Unterzeichnung des Antrags wurde geprüft. | ARR 2014 | Es kamen keine Sonderrichtlinien zur Anwendung. | Nein. | Die Förderungsentscheidung wurde im Transparenzportal veröffentlicht. | Nach Erhalt der Abrechnungsunterlagen wurde die inhaltliche Prüfung vom BMASGPK durchgeführt, wobei die sachliche Richtigkeit festgestellt wurde. Die anschließende rechnerische Prüfung wurde von der Buchhaltungsagentur des Bundes (BHAG) durchgeführt, wobei Kosten iHv 6.644,22 € nicht anerkannt wurden. | Nein. | 25.500,00 €\n\nProjekt „Unterstützung der Basisgesundheit, mit Schwerpunkt auf reproduktiver Gesundheit in der Afar Region“ | 550.000,00 € | 2. Juni 2021 | SONNE-International (vertreten durch Erfried Malle) | 5. August 2024 | Die statuten-/satzungsmäßige Unterzeichnung des Antrags wurde geprüft. | ARR 2014 sowie Sonderrichtlinie „Armutsbekämpfung in Drittstaaten“ | Nein. | Die Förderungsentscheidung wurde im Transparenzportal veröffentlicht. | Das Projekt wird derzeit noch umgesetzt. Daher erfolgte bisher noch keine abschließende inhaltliche oder rechnerische Prüfung. | Es wurde wie vertraglich vereinbart vom Fördernehmer ein Zwischenbericht übermittelt. | 39.804,22 €",
+              "once_sentence_short_answer_summary": "Zwei Projekte wurden gefördert: 429.000 € für medizinische Basisversorgung und 550.000 € für reproduktive Gesundheit.",
+              "very_short_answer_summary": "Zwei Projekte gefördert.",
+              "short_answer_summary": "Zwei Projekte wurden gefördert: Projekt Eli Da'ar (429.000 €) und Projekt Afar Region (550.000 €).",
+              "answer_summary": "In der vergangenen Gesetzgebungsperiode wurden zwei Projekte des Vereins „SONNE International“ gefördert: Ein Projekt zur medizinischen Basisversorgung in Äthiopien (429.000,00 €) und ein Projekt zur Basisgesundheit in der Afar-Region (550.000,00 €). Die Mittel wurden auf Basis von ARR 2014 bzw. unter Anwendung einer Sonderrichtlinie gewährt. Die Kontrolle erfolgte durch inhaltliche Prüfung des BMASGPK und rechnerische Prüfung durch die BHAG.",
+              "other_written_answer_refs": []
+            },
+            {
+              "answering_questions_references": [
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "a" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "b" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "b" },
+                    { "kind": "String", "value": "i" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "c" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "d" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "d" },
+                    { "kind": "String", "value": "i" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "e" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "e" },
+                    { "kind": "String", "value": "i" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "e" },
+                    { "kind": "String", "value": "ii" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "f" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "g" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "g" },
+                    { "kind": "String", "value": "i" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "g" },
+                    { "kind": "String", "value": "ii" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "g" },
+                    { "kind": "String", "value": "iii" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "h" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "i" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 3 }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 3 },
+                    { "kind": "String", "value": "a" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 3 },
+                    { "kind": "String", "value": "b" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 3 },
+                    { "kind": "String", "value": "c" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 3 },
+                    { "kind": "String", "value": "d" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 3 },
+                    { "kind": "String", "value": "d" },
+                    { "kind": "String", "value": "i" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 3 },
+                    { "kind": "String", "value": "d" },
+                    { "kind": "String", "value": "ii" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 3 },
+                    { "kind": "String", "value": "e" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 3 },
+                    { "kind": "String", "value": "e" },
+                    { "kind": "String", "value": "i" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 3 },
+                    { "kind": "String", "value": "e" },
+                    { "kind": "String", "value": "ii" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 3 },
+                    { "kind": "String", "value": "e" },
+                    { "kind": "String", "value": "iii" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 4 }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 4 },
+                    { "kind": "String", "value": "a" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 4 },
+                    { "kind": "String", "value": "b" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 4 },
+                    { "kind": "String", "value": "c" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 4 },
+                    { "kind": "String", "value": "d" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 4 },
+                    { "kind": "String", "value": "d" },
+                    { "kind": "String", "value": "i" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 4 },
+                    { "kind": "String", "value": "d" },
+                    { "kind": "String", "value": "ii" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 4 },
+                    { "kind": "String", "value": "e" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 4 },
+                    { "kind": "String", "value": "e" },
+                    { "kind": "String", "value": "i" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 4 },
+                    { "kind": "String", "value": "e" },
+                    { "kind": "String", "value": "ii" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 4 },
+                    { "kind": "String", "value": "e" },
+                    { "kind": "String", "value": "iii" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 7 }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 7 },
+                    { "kind": "String", "value": "a" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 7 },
+                    { "kind": "String", "value": "b" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 7 },
+                    { "kind": "String", "value": "b" },
+                    { "kind": "String", "value": "i" }
+                  ]
+                }
+              ],
+              "raw_answer": "In der laufenden Gesetzgebungsperiode wurden keine Maßnahmen bzw. Projekte des Vereins „SONNE“ gefördert. Zudem wurden auch keine Werk- oder Dienstleistungsverträge in der vergangenen sowie in der laufenden Gesetzgebungsperiode abgeschlossen. Es wurden auch keine Drittmittel durch die NGO eingeworben.",
+              "once_sentence_short_answer_summary": "Keine Förderungen, Verträge oder Drittmittel in der laufenden/vergangenen Periode.",
+              "very_short_answer_summary": "Nichts gefördert/vertraglich geregelt.",
+              "short_answer_summary": "Keine Förderungen, Verträge oder Drittmittel.",
+              "answer_summary": "In der aktuellen Gesetzgebungsperiode sowie in der vorangegangenen wurden keine Förderungen oder Werk- bzw. Dienstleistungsverträge mit dem Verein „SONNE International“ abgeschlossen. Es wurden auch keine Drittmittel durch die NGO eingeworben.",
+              "other_written_answer_refs": []
+            },
+            {
+              "answering_questions_references": [
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 5 }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 6 }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 6 },
+                    { "kind": "String", "value": "a" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 6 },
+                    { "kind": "String", "value": "b" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 6 },
+                    { "kind": "String", "value": "c" }
+                  ]
+                }
+              ],
+              "raw_answer": "Seit dem 24.10.2024 nahmen weder Vertreter des Vereins „SONNE“ an Veranstaltungen innerhalb meines Zuständigkeitsbereichs teil, noch besuchten Vertreter des Ressorts in offizieller Funktion Veranstaltungen der besagten NGO.",
+              "once_sentence_short_answer_summary": "Keine Teilnahme von Vertretern des Vereins oder des Ressorts an Veranstaltungen seit dem 24.10.2024.",
+              "very_short_answer_summary": "Keine Teilnahme.",
+              "short_answer_summary": "Keine Teilnahme an Veranstaltungen.",
+              "answer_summary": "Seit dem 24.10.2024 nahmen weder Vertreter des Vereins „SONNE“ an Veranstaltungen innerhalb des Zuständigkeitsbereichs teil, noch besuchten Vertreter des Ressorts in offizieller Funktion Veranstaltungen der NGO.",
+              "other_written_answer_refs": []
+            }
+          ],
+          "full_answer_summary": "Die Antwort erläutert die Förderungen für zwei Projekte in der vergangenen Periode (insgesamt ca. 979.000 €), stellt fest, dass in der aktuellen Periode keine neuen Förderungen oder Verträge vorliegen und bestätigt, dass seit Oktober 2024 keine Teilnahme an Veranstaltungen stattfand.",
+          "detailed_full_answer_summary": "Die Anfrage befasste sich mit den finanziellen und organisatorischen Beziehungen zum Verein „SONNE International“. In der vergangenen Gesetzgebungsperiode wurden zwei Projekte zur Gesundheitsversorgung in Äthiopien mit insgesamt 979.000 € gefördert. Für die aktuelle Periode sowie für Werk- oder Dienstleistungsverträge und Drittmittel wurden keine Angaben zu Förderungen gemacht, da keine stattgefunden haben. Auch eine Teilnahme an Veranstaltungen durch Vertreter des Vereins oder des Ressorts wurde seit Oktober 2024 verneint."
+        },
+        "model_used": "gemma-4-26B",
+        "version": "1",
+        "generated_at": "2026-06-20T12:01:17.239053Z"
+      },
+      "refs": [{ "gp": "XXVIII", "ityp": "J", "inr": 5923 }]
+    }
+  ]
+}

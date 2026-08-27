@@ -10,7 +10,12 @@
 		rightSlot?: Snippet;
 	}
 
-	let { searchValue = $bindable(), placeholder = t('search.placeholder'), rightSlot, ...rest }: Props = $props();
+	let {
+		searchValue = $bindable(),
+		placeholder = t('search.placeholder'),
+		rightSlot,
+		...rest
+	}: Props = $props();
 </script>
 
 <div class="flex h-10 flex-grow touch-manipulation rounded-xl border-[2px] border-gray-400">

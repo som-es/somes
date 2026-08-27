@@ -15,7 +15,7 @@ export interface SearchResult {
 	infavor: boolean | null;
 	absent: boolean | null;
 	abstention: boolean;
-	// true = named vote, false = party vote 
+	// true = named vote, false = party vote
 	isNamedVote: boolean;
 }
 

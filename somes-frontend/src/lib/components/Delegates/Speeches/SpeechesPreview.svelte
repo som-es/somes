@@ -49,7 +49,8 @@
 			</div>
 			<h2 class="text-sm text-gray-800 dark:text-gray-300">
 				{totalCount}
-				{totalCount === 1 ? t('speeches.speech') : t('speeches.speeches')} {t('speeches.total')}
+				{totalCount === 1 ? t('speeches.speech') : t('speeches.speeches')}
+				{t('speeches.total')}
 			</h2>
 		</div>
 

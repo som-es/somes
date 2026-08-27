@@ -106,7 +106,8 @@
 				<span class="h-4 w-4 shrink-0 [&_path]:stroke-current [&>svg]:h-full [&>svg]:w-full">
 					{@html clockIcon}
 				</span>
-				{speechDuration.mins}:{speechDuration.seconds.toString().padStart(2, '0')} {t('speeches.min')}
+				{speechDuration.mins}:{speechDuration.seconds.toString().padStart(2, '0')}
+				{t('speeches.min')}
 			</span>
 		{/if}
 		{#each speech.speech.document_urls ?? [] as url}

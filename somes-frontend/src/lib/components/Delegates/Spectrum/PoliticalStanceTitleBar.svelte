@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { StanceTopicInfluences } from '$lib/types';
-import { t } from '$lib/i18n/i18n.svelte';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { Dialog, Popover } from 'bits-ui';
 	import PoliticalSpectrumQuestionsModal from './PoliticalSpectrumQuestionsModal.svelte';
 	import ExtendInfoDialog from '../ExtendInfoDialog.svelte';
@@ -16,7 +16,7 @@ import { t } from '$lib/i18n/i18n.svelte';
 <div class="flex w-full flex-col lg:flex-row lg:items-center lg:justify-between">
 	<h1 class="text-2xl font-bold max-lg:text-lg">{t('spectrum.stance.title')}</h1>
 	{#if usefulInfoCount < 5}
-	    <span class="text-xs font-semibold text-orange-400">{t('spectrum.stance.warning')}</span>
+		<span class="text-xs font-semibold text-orange-400">{t('spectrum.stance.warning')}</span>
 	{/if}
 	<div class="flex items-center justify-between lg:justify-end lg:gap-4">
 		<Popover.Root>

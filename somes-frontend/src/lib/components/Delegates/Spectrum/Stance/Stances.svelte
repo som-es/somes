@@ -11,7 +11,11 @@
 		stances: StanceTopicScore[];
 	}
 
-	let { leftLabel = t('spectrum.stance.label.left'), rightLabel = t('spectrum.stance.label.right'), stances }: Props = $props();
+	let {
+		leftLabel = t('spectrum.stance.label.left'),
+		rightLabel = t('spectrum.stance.label.right'),
+		stances
+	}: Props = $props();
 
 	let open = $state(false);
 </script>

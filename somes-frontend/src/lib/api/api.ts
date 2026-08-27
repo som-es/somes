@@ -202,9 +202,11 @@ export async function delegate_interests(delegate_id: number): Promise<InterestS
 
 export async function general_delegate_info(
 	delegate_id: number,
-	language: Locale = "de",
+	language: Locale = 'de'
 ): Promise<GeneralDelegateInfo | HasError> {
-	return getWithRoute<GeneralDelegateInfo>(`v1/delegates/extend/${delegate_id}?language=${language}`);
+	return getWithRoute<GeneralDelegateInfo>(
+		`v1/delegates/extend/${delegate_id}?language=${language}`
+	);
 }
 
 export async function delegate_qa(delegate_id: number): Promise<DelegateQA[] | HasError> {

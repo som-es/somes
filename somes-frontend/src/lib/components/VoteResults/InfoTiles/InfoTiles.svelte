@@ -6,9 +6,9 @@
 	import type { Delegate, Vote, VoteResult } from '$lib/types';
 	import { givenVotes } from '$lib/partyInfavor';
 	import Square from '$lib/components/UI/Square.svelte';
-		import { lightModeStore } from '$lib/lightmode.svelte';
+	import { lightModeStore } from '$lib/lightmode.svelte';
 	import { t } from '$lib/i18n/i18n.svelte';
-import { localeStore } from '$lib/i18n/i18n.svelte';
+	import { localeStore } from '$lib/i18n/i18n.svelte';
 
 	interface Props {
 		voteResult: VoteResult;
@@ -178,10 +178,14 @@ import { localeStore } from '$lib/i18n/i18n.svelte';
 			<Square {squareSize} class={squareClasses}>
 				<div class="text-lg font-bold">
 					{(() => {
-					const locale = localeStore.value === 'de' ? 'de-AT' : 'en-AT';
-					const date = new Date(voteResult.legislative_initiative.nr_plenary_activity_date);
-					return new Intl.DateTimeFormat(locale, { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
-				})()}
+						const locale = localeStore.value === 'de' ? 'de-AT' : 'en-AT';
+						const date = new Date(voteResult.legislative_initiative.nr_plenary_activity_date);
+						return new Intl.DateTimeFormat(locale, {
+							day: '2-digit',
+							month: '2-digit',
+							year: 'numeric'
+						}).format(date);
+					})()}
 				</div>
 				{#if showText}
 					{#if voteResult.votes.length > 0}
