@@ -7,6 +7,7 @@ use crate::{
     Ports, REDIS_DB, STATIC_FRONTEND_PATH, meilisearch::update_meilisearch_indices,
     redirect_http_to_https, reset_cache, routes::save_email_route, update_caches,
 };
+use axum::response::IntoResponse;
 use axum::{
     Extension, Router,
     http::{self, HeaderValue},
@@ -191,9 +192,14 @@ fn api_router() -> Router<AppState> {
         .nest("/eu", parliament_router().layer(Extension(Parliament::Eu)))
 }
 
+async fn handler_404() -> impl IntoResponse {
+    (StatusCode::NOT_FOUND, "route not found")
+}
+
 fn app_router(state: AppState) -> Router {
     Router::new()
         .nest("/api", api_router())
+        .fallback(handler_404)
         .layer(
             CorsLayer::new()
                 .allow_origin(allowed_cors_origin())
