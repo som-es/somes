@@ -1,5 +1,6 @@
 import type { DecreeDelegate, DecreeFilter } from '$lib/components/Delegates/Decrees/types';
 import { persisted, persistedScoped } from '$lib/persisted.svelte';
+import type { SeatColorMode } from '$lib/voteColors';
 import type {
 	VoteResultFilter,
 	VoteResult,
@@ -54,5 +55,7 @@ export const currentDelegateFilterStore = persistedScoped<DelegateFilter | null>
 );
 
 export const aiViewEnabledStore = persisted<boolean>('aiViewEnabled', true);
+
+export const seatColorModeStore = persisted<SeatColorMode>('seatColorMode', 'party');
 
 export const speechDetailLevelStore = persisted<number>('speechDetailLevel', 3);

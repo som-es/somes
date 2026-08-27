@@ -37,6 +37,10 @@ export const en = {
 	'nav.callToOrders': 'Calls to order',
 	'nav.age': 'Age',
 	'nav.orientation': 'Political positions',
+	'nav.menu.darkMode': 'Dark mode',
+	'nav.menu.lightMode': 'Light mode',
+	'nav.menu.parliament': 'Parliament',
+	'nav.menu.language': 'Language',
 
 	// --- Layout (footer, disclaimer) ---
 	'layout.tagline':
@@ -151,12 +155,15 @@ export const en = {
 	'vote_result.inFavor': 'In favor',
 	'vote_result.against': 'Against',
 	'vote_result.abstention': 'Abstained',
+	'vote_result.seatColor.partyTitle': 'Color seats by party',
+	'vote_result.seatColor.party': 'Parties',
+	'vote_result.seatColor.voteTitle': 'Color seats by vote',
+	'vote_result.seatColor.vote': 'Yes/No',
 	'vote_result.introducedBy': 'Introduced by',
 	'vote_result.referencedIn': 'Referenced in',
 	'vote_result.mainTopic': 'Main subject',
 	'vote_result.referenceTo': 'Reference to',
 	'vote_result.speeches': 'Speeches',
-	'vote_result.namedVoteResults': 'Named vote results',
 	'vote_result.withoutParty': 'Without party',
 	'vote_result.delegates': 'Representatives',
 

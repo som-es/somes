@@ -38,6 +38,10 @@ export const de = {
 	'nav.callToOrders': 'Ordnungsrufe',
 	'nav.age': 'Alter',
 	'nav.orientation': 'Politische Positionen',
+	'nav.menu.darkMode': 'Dunkelmodus',
+	'nav.menu.lightMode': 'Hellmodus',
+	'nav.menu.parliament': 'Parlament',
+	'nav.menu.language': 'Sprache',
 
 	// --- Layout (footer, disclaimer) ---
 	'layout.tagline': 'Parteiübergreifend machen wir Demokratie transparent, verständlich und zugänglich.',
@@ -151,12 +155,15 @@ export const de = {
 	'vote_result.inFavor': 'Dafür',
 	'vote_result.against': 'Dagegen',
 	'vote_result.abstention': 'Enthalten',
+	'vote_result.seatColor.partyTitle': 'Sitze nach Fraktion einfärben',
+	'vote_result.seatColor.party': 'Fraktionen',
+	'vote_result.seatColor.voteTitle': 'Sitze nach Abstimmungsverhalten einfärben',
+	'vote_result.seatColor.vote': 'Ja/Nein',
 	'vote_result.introducedBy': 'Eingebracht von',
 	'vote_result.referencedIn': 'Referenziert in',
 	'vote_result.mainTopic': 'Hauptgegenstand',
 	'vote_result.referenceTo': 'Bezug zu',
 	'vote_result.speeches': 'Reden',
-	'vote_result.namedVoteResults': 'namentliche Abstimmungsergebnisse',
 	'vote_result.withoutParty': 'Ohne Klub',
 	'vote_result.delegates': 'Abgeordnete',
 

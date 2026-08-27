@@ -12,6 +12,7 @@
 	import { toActualDateString } from '$lib/api/api';
 	import { defaultGp, getParliament, type Parliament } from '$lib/api/parliament';
 	import { currentDelegateStore } from '$lib/stores/stores';
+	import type { SeatColorMode } from '$lib/voteColors';
 
 	let {
 		class: clazz = ' ',
@@ -37,7 +38,8 @@
 		allSeats = null,
 		searchValue = '',
 		parliament = getParliament(),
-		partyColoring = partyColors
+		partyColoring = partyColors,
+		colorMode = 'party'
 	}: {
 		class?: string;
 		orderingFactor?: number;
@@ -63,6 +65,7 @@
 		searchValue?: string;
 		parliament?: Parliament;
 		partyColoring?: Map<string, string>;
+		colorMode?: SeatColorMode;
 	} = $props();
 
 	const [width, height, yOffset] = $derived.by((): [number, number, number] => {
@@ -202,6 +205,7 @@
 		{localPartyColors}
 		{forceColor}
 		{searchValue}
+		{colorMode}
 		maxAngle={parliament == 'at' || noSeats == true ? 180 : 240}
 		{yOffset}
 	/>

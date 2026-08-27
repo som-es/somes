@@ -32,6 +32,7 @@ import { localeStore } from '$lib/i18n/i18n.svelte';
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache.svelte';
 	import TopicFilter from '$lib/components/Filtering/TopicFilter.svelte';
 	import SortPopover from '$lib/components/Filtering/SortPopover.svelte';
+	import { getParliament } from '$lib/api/parliament';
 
 	interface Props {
 		voteResults: VoteResultsWithMaxPage | null;
@@ -62,6 +63,8 @@ import { localeStore } from '$lib/i18n/i18n.svelte';
 	}: Props = $props();
 
 	let currentVoteResultFilterStore = $derived(currentVoteResultFilterStores[storeIdx]);
+
+	const isEu = getParliament() === 'eu';
 
 	// TOPIC FILTER
 	let selectedTopics: SvelteSet<string> = $state(new SvelteSet());
@@ -134,7 +137,7 @@ import { localeStore } from '$lib/i18n/i18n.svelte';
 	let issuerAssociation: GenericFilterGroup<boolean> = $state({
 		title: t('filter.camp'),
 		activeValue: undefined,
-		hidden: false,
+		hidden: isEu,
 		disabledText: t('filter.camp.disabledText'),
 		options: [
 			{ title: t('filterOption.any'), value: undefined },
@@ -209,7 +212,7 @@ import { localeStore } from '$lib/i18n/i18n.svelte';
 		{
 			title: t('filter.necessaryMajority'),
 			activeValue: undefined,
-			hidden: !showReqMajorityFilter,
+			hidden: !showReqMajorityFilter || isEu,
 			options: [
 				{ title: t('filterOption.any'), value: undefined },
 				{ title: t('filterOption.simpleMajority'), value: true },
@@ -219,7 +222,7 @@ import { localeStore } from '$lib/i18n/i18n.svelte';
 		{
 			title: t('filter.accepted'),
 			activeValue: undefined,
-			hidden: !showAcceptedFilter,
+			hidden: !showAcceptedFilter || isEu,
 			options: [
 				{ title: t('filterOption.any'), value: undefined },
 				{ title: t('filterOption.acceptedYes'), value: 'a' },
@@ -230,7 +233,7 @@ import { localeStore } from '$lib/i18n/i18n.svelte';
 		{
 			title: t('filter.namedVote'),
 			activeValue: undefined,
-			hidden: !showNamedVoteFilter,
+			hidden: !showNamedVoteFilter || isEu,
 			options: [
 				{ title: t('filterOption.any'), value: undefined },
 				{ title: t('filterOption.yes'), value: true },
@@ -245,14 +248,14 @@ import { localeStore } from '$lib/i18n/i18n.svelte';
 				{ title: t('filterOption.any'), value: undefined },
 				{ title: t('filterOption.motionLaw'), value: 'Law' },
 				{ title: t('filterOption.motionResolution'), value: 'Resolution' },
-				{ title: t('filterOption.motionAmendment'), value: 'Amendment' },
+				...(isEu ? [] : [{ title: t('filterOption.motionAmendment'), value: 'Amendment' }]),
 				{ title: t('filterOption.motionReport'), value: 'Report' }
 			]
 		},
 		{
 			title: t('filter.urgent'),
 			activeValue: undefined,
-			hidden: !showIsUrgentFilter,
+			hidden: !showIsUrgentFilter || isEu,
 			advanced: true,
 			options: [
 				{ title: t('filterOption.any'), value: undefined },
@@ -272,7 +275,7 @@ import { localeStore } from '$lib/i18n/i18n.svelte';
 		{
 			title: t('filter.issuedBy'),
 			activeValue: undefined,
-			hidden: false,
+			hidden: isEu,
 			advanced: false,
 			id: 'issuerParties',
 			options: []
@@ -280,7 +283,7 @@ import { localeStore } from '$lib/i18n/i18n.svelte';
 		{
 			title: t('filter.fromGovernment'),
 			activeValue: undefined,
-			hidden: false,
+			hidden: isEu,
 			advanced: true,
 			options: [
 				{ title: t('filterOption.any'), value: undefined },
@@ -324,7 +327,7 @@ import { localeStore } from '$lib/i18n/i18n.svelte';
 	const maybeStoredFilter = $derived(currentVoteResultFilterStore.value);
 	onMount(() => {
 		if (maybeStoredFilter !== null) {
-			if (maybeStoredFilter.simple_majority !== null)
+			if (maybeStoredFilter.simple_majority !== null && !genericFilters[0].hidden)
 				genericFilters[0].activeValue = maybeStoredFilter.simple_majority;
 			if (maybeStoredFilter.gps !== null) {
 				if (maybeStoredFilter.gps.length > 0) {
@@ -333,11 +336,15 @@ import { localeStore } from '$lib/i18n/i18n.svelte';
 					legisPeriodFilter.activeValue = 'all';
 				}
 			}
-			if (maybeStoredFilter.accepted !== null)
+			if (maybeStoredFilter.accepted !== null && !genericFilters[1].hidden)
 				genericFilters[1].activeValue = maybeStoredFilter.accepted;
-			if (maybeStoredFilter.is_named_vote !== null)
+			if (maybeStoredFilter.is_named_vote !== null && !genericFilters[2].hidden)
 				genericFilters[2].activeValue = maybeStoredFilter.is_named_vote;
-			if (maybeStoredFilter.vote_type !== null && maybeStoredFilter.vote_type.length > 0)
+			if (
+				maybeStoredFilter.vote_type !== null &&
+				maybeStoredFilter.vote_type.length > 0 &&
+				genericFilters[3].options.some((o) => o.value === maybeStoredFilter.vote_type[0])
+			)
 				genericFilters[3].activeValue = maybeStoredFilter.vote_type[0];
 			if (maybeStoredFilter.topics !== null) {
 				selectedTopics = new SvelteSet(maybeStoredFilter.topics);
@@ -347,19 +354,19 @@ import { localeStore } from '$lib/i18n/i18n.svelte';
 					partyFilterState[party.party] = party.infavor ? 'pro' : 'contra';
 				});
 			}
-			if (maybeStoredFilter.is_urgent !== null) {
+			if (maybeStoredFilter.is_urgent !== null && !genericFilters[4].hidden) {
 				genericFilters[4].activeValue = maybeStoredFilter.is_urgent;
 			}
 			if (maybeStoredFilter.date_from)
 				genericFilters[5].data!.dateFrom = maybeStoredFilter.date_from;
 			if (maybeStoredFilter.date_to) genericFilters[5].data!.dateTo = maybeStoredFilter.date_to;
-			if (maybeStoredFilter.issuer_parties !== null) {
+			if (maybeStoredFilter.issuer_parties !== null && !genericFilters[6].hidden) {
 				selectedIssuerParties = [...maybeStoredFilter.issuer_parties];
 			}
-			if (maybeStoredFilter.issuer_association !== null) {
+			if (maybeStoredFilter.issuer_association !== null && !issuerAssociation.hidden) {
 				issuerAssociation.activeValue = maybeStoredFilter.issuer_association;
 			}
-			if (maybeStoredFilter.is_from_governemnt !== null) {
+			if (maybeStoredFilter.is_from_governemnt !== null && !genericFilters[7].hidden) {
 				genericFilters[7].activeValue = maybeStoredFilter.is_from_governemnt;
 			}
 			if (maybeStoredFilter.page !== null) {
