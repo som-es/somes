@@ -192,27 +192,8 @@ fn api_router() -> Router<AppState> {
 }
 
 fn app_router(state: AppState) -> Router {
-    let static_files_dir = PathBuf::from(STATIC_FRONTEND_PATH);
-    let current_frontend_dir = ServeDir::new(static_files_dir)
-        .fallback(get(|| async { Html(include_str!("../build/index.html")) }));
-
-    let landing_server_dir = ServeDir::new("somes-landing").fallback(get(|| async {
-        Html(include_str!("../somes-landing/index.html"))
-    }));
-
     Router::new()
         .nest("/api", api_router())
-        .nest_service(
-            "/alpha",
-            get_service(current_frontend_dir).handle_error(|_| async move {
-                (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
-            }),
-        )
-        .fallback_service(
-            get_service(landing_server_dir).handle_error(|_| async move {
-                (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
-            }),
-        )
         .layer(
             CorsLayer::new()
                 .allow_origin(allowed_cors_origin())
