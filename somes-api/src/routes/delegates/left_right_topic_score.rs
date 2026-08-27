@@ -123,6 +123,13 @@ pub async fn extract_political_position_by_delegate(
                     score.authoritarian + score.capitalist,
                 );
                 StanceTopicScore {
+                    topic_id: topics_mapper
+                        .unique_topics
+                        .topic_to_id
+                        .get(&(topic.clone(), language))
+                        .unwrap()
+                        .id
+                        .clone(),
                     topic,
                     score: -1.8 * (pos_score - contra_score) / count as f64,
                     broken_down_score: score,

@@ -99,6 +99,7 @@ pub struct PoliticalPosition {
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct StanceTopicScore {
     pub topic: String,
+    pub topic_id: String,
     pub score: f64,
     pub broken_down_score: PoliticalScore,
 }

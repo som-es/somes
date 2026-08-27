@@ -540,6 +540,7 @@ export interface DelegateQA {
 
 export interface InterestShare {
 	topic: string;
+	topic_id: string;
 	total_share: number;
 	occurences: number;
 	self_share: number;
@@ -589,6 +590,7 @@ export interface PoliticalScore {
 
 export interface StanceTopicScore {
 	topic: string;
+	topic_id: string;
 	score: number;
 	broken_down_score: PoliticalScore;
 }

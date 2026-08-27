@@ -64,9 +64,14 @@ pub async fn extract_general_delegate_info(
     let interests =
         extract_interests_of_delegate(delegate_id, pg, topics_mapper, language, parliament).await?;
     println!("interests took {:?}", start.elapsed());
-    let detailed_interests = extract_detailed_interests_of_delegate(delegate_id, pg)
-        .await
-        .map_err(|e| SqlFailure(e))?;
+    let detailed_interests = extract_detailed_interests_of_delegate(
+        delegate_id,
+        pg,
+        topics_mapper,
+        language,
+        parliament,
+    )
+    .await?;
 
     println!("detailed_interests took {:?}", start.elapsed());
     // let delegate_qa = extract_delegate_qa(delegate_id, pg).await?;

@@ -23,7 +23,7 @@
 		interjections_made_by_delegate_per_page,
 		interjections_received_by_delegate_per_page
 	} from '$lib/api/api';
-	import { getLocale, t } from '$lib/i18n/i18n.svelte';
+	import { getLocale, t, type Locale } from '$lib/i18n/i18n.svelte';
 	import {
 		aiViewEnabledStore,
 		currentDelegateFilterStore,
@@ -244,6 +244,7 @@
 	let prevSelectedPeriod = $derived(data.gp ?? latestPeriod);
 
 	let prevSelectedDelegateId = $state(0);
+	let prevLocale: Locale | null = $state(null);
 
 	let finishedMounting = $state(false);
 
@@ -435,19 +436,21 @@
 
 	$effect(() => {
 		void delegate;
+		const locale = getLocale();
 		// if ($navigating) return;
 		untrack(() => {
 			if (delegate) {
 				updateDelegateIdInUrl(delegate);
 			}
 
-			if (delegate && prevSelectedDelegateId != delegate.id) {
+			if (delegate && (prevSelectedDelegateId != delegate.id || locale !== prevLocale)) {
+
 				const newFilter = { ...maybeCurrentDelegateFilter };
 				newFilter.search_value = delegate.name;
 				currentDelegateFilterStore.value = newFilter;
 
 				generalDelegateInfo = null;
-				general_delegate_info(delegate.id, getLocale()).then((res) => {
+				general_delegate_info(delegate.id, locale).then((res) => {
 					generalDelegateInfo = errorToNull(res);
 					if (generalDelegateInfo) {
 						generalDelegateInfo.interests.sort((a, b) => b.self_share - a.self_share);
@@ -474,6 +477,7 @@
 				});
 
 				prevSelectedDelegateId = delegate.id;
+				prevLocale = locale;
 			}
 		});
 	});

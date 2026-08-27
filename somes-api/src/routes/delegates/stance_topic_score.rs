@@ -75,6 +75,13 @@ pub async fn extract_stance_topic_score_by_delegate(
 
                     StanceTopicScore {
                         topic: topic.into(),
+                        topic_id: topics_mapper
+                            .unique_topics
+                            .topic_to_id
+                            .get(&(topic.into(), language))
+                            .unwrap()
+                            .id
+                            .clone(),
                         score: default,
                         broken_down_score: Default::default(),
                     }
@@ -111,6 +118,13 @@ pub async fn extract_stance_topic_score_by_delegate(
             .map(|(topic, score)| {
                 let (score, count) = score;
                 StanceTopicScore {
+                    topic_id: topics_mapper
+                        .unique_topics
+                        .topic_to_id
+                        .get(&(topic.clone(), language))
+                        .unwrap()
+                        .id
+                        .clone(),
                     topic,
                     score: 2.7 * score / count as f64,
                     broken_down_score: Default::default(),

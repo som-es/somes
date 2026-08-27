@@ -21,7 +21,7 @@
 		<StanceDiagram
 			zeroLabel={stance.topic}
 			value={stance.score * 2}
-			knobColor={topicColors.get(stance.topic)}
+			knobColor={topicColors.get(stance.topic_id)}
 			{rightLabel}
 			{leftLabel}
 		/>
@@ -33,7 +33,7 @@
 				<StanceDiagram
 					zeroLabel={stance.topic}
 					value={stance.score * 2}
-					knobColor={topicColors.get(stance.topic)}
+					knobColor={topicColors.get(stance.topic_id)}
 					{rightLabel}
 					{leftLabel}
 				/>
@@ -53,7 +53,7 @@
 		<StanceDiagram
 			zeroLabel={stance.topic}
 			value={stance.score * 2}
-			knobColor={topicColors.get(stance.topic)}
+			knobColor={topicColors.get(stance.topic_id)}
 			{rightLabel}
 			{leftLabel}
 		/>

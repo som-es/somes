@@ -67,7 +67,7 @@
 	{#each positioned as item}
 		{@const y = rowToY(item.row)}
 		{@const isRight = item.x > centerX}
-		<circle cx={item.x} cy={y} r={DOT_R} fill={topicColors.get(item.topic) ?? '#888'} />
+		<circle cx={item.x} cy={y} r={DOT_R} fill={topicColors.get(item.topic_id) ?? '#888'} />
 		<text
 			x={isRight ? item.x - DOT_R - LABEL_OFFSET : item.x + DOT_R + LABEL_OFFSET}
 			y={y + (isMobile ? 8 : 3)}
