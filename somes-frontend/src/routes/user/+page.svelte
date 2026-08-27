@@ -497,6 +497,7 @@
 						? 'bg-primary-600 text-white'
 						: 'text-gray-700 hover:bg-primary-400 dark:text-gray-300 dark:hover:bg-primary-500'}"
 					onclick={() => {
+	                    if (parliament == "at") return;
 						favoDelegates = null;
 						favoLegisInits = null;
 						return (parliament = 'at');
@@ -509,6 +510,7 @@
 						? 'bg-primary-600 text-white'
 						: 'text-gray-700 hover:bg-primary-400 dark:text-gray-400 dark:hover:bg-primary-500'}"
 					onclick={() => {
+					    if (parliament == "eu") return;
 						favoDelegates = null;
 						favoLegisInits = null;
 						return (parliament = 'eu');

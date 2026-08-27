@@ -13,7 +13,7 @@
 	function createGroupTopics(topics: UniqueTopic[]): Map<string, UniqueTopic[]> {
 		const groupedTopics = new Map<string, UniqueTopic[]>();
 		topics.forEach((topic) => {
-			const parentTopic = translateTopicToParent(topic.topic);
+			const parentTopic = translateTopicToParent(topic.id);
 			if (groupedTopics.has(parentTopic)) {
 				groupedTopics.get(parentTopic)?.push(topic);
 			} else {
@@ -43,7 +43,7 @@
 		const others = groupTopics.get('Sonstige') ?? [];
 		groupTopics.delete('Sonstige');
 
-		return { others, groupTopicsEntries: Array.from(groupTopics.entries()), combinedGroups };
+		return { others, groupTopicsEntries: Array.from(groupTopics.entries()).sort(), combinedGroups };
 	}
 
 	let groupedTopics = $derived(createCombinedGroupings(topics));
