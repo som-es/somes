@@ -103,7 +103,9 @@
 
 	function applyVoteColor(bubble: Bubble) {
 		if (bubble.del == null) return;
+		if (bubble.del.council == "gov") return;
 		bubble.r = VOTE_MODE_RADIUS;
+
 
 		const search = searchValue.trim().toLowerCase();
 		const matchesSearch = search.length == 0 || bubble.del.name.toLowerCase().includes(search);

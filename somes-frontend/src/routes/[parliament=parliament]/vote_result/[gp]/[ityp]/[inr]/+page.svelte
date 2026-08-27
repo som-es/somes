@@ -446,7 +446,7 @@
 							>
 						</div>
 						<div class="space-y-2">
-							{#each searchResults as del (del.delegate.id)}
+							{#each searchResults as del }
 								<DelegateListItem
 									delegate={del.delegate}
 									href={plink(`/delegates?delegate=${del.delegate.id}&date=${date}&gp=${gp}`)}
