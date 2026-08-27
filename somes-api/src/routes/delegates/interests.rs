@@ -1,5 +1,16 @@
+use combx::{
+    Parliament,
+    with_data::unique_topics::{TopicsMapper, translate_topics_with_eurovoc},
+};
+use common_scrapes::language::Language;
+use reqwest::StatusCode;
 use somes_common_lib::InterestShare;
 use sqlx::PgPool;
+
+use crate::{
+    GenericError::Custom,
+    routes::DelegateError::{self, SqlFailure},
+};
 
 pub async fn extract_detailed_interests_of_delegate(
     delegate_id: i32,
@@ -39,6 +50,7 @@ pub async fn extract_detailed_interests_of_delegate(
             occurences: absolute_interest.talk_count.unwrap() as u32,
             total_share: share_on_total,
             self_share: share_on_self,
+            topic_id: "".into(),
         });
     }
 
@@ -48,21 +60,59 @@ pub async fn extract_detailed_interests_of_delegate(
 pub async fn extract_interests_of_delegate(
     delegate_id: i32,
     pg: &PgPool,
-) -> sqlx::Result<Vec<InterestShare>> {
-    let absolute_interests = sqlx::query!("select
+    topics_mapper: &TopicsMapper,
+    language: Language,
+    parliament: Parliament,
+) -> Result<Vec<InterestShare>, DelegateError> {
+    let mut absolute_interests = sqlx::query!("select
         topic, COUNT(*) as talk_count from speeches
             inner join topics_legis_init on topics_legis_init.legislative_initiatives_id=speeches.legislative_initiatives_id
             inner join delegates on speeches.delegate_id = delegates.id
         where infavor is not null and delegates.id = $1
             group by topic
-        order by topic;", delegate_id).fetch_all(pg).await?;
+        order by topic;", delegate_id).fetch_all(pg).await.map_err(|e| SqlFailure(e))?;
 
-    let total_talk_counts = sqlx::query!("
+    let mut total_talk_counts = sqlx::query!("
         select topic, COUNT(*) as talk_count from speeches
         inner join topics_legis_init on topics_legis_init.legislative_initiatives_id=speeches.legislative_initiatives_id inner join delegates on speeches.delegate_id = delegates.id
-        where infavor is not null and delegates.council = 'nr' and is_active group by topic order by topic;").fetch_all(pg).await?;
+        where infavor is not null and delegates.council = 'nr' and is_active group by topic order by topic;").fetch_all(pg).await.map_err(|e| SqlFailure(e))?;
 
     let mut interest_shares = Vec::with_capacity(total_talk_counts.len());
+
+    let topic_language = match parliament {
+        Parliament::At => Language::De,
+        Parliament::Eu => Language::En,
+    };
+
+    let expected_topics = topics_mapper
+        .unique_topics
+        .lang_to_topics
+        .get(&topic_language)
+        .ok_or(DelegateError::GenericError(Custom((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "{} eurovoc topics are not available",
+        ))))?;
+
+    for interest in &mut absolute_interests {
+        let mut topics = vec![interest.topic.clone()];
+        translate_topics_with_eurovoc(
+            &topics_mapper.unique_topics,
+            language,
+            expected_topics,
+            &mut topics,
+        );
+        interest.topic = topics[0].to_string();
+    }
+    for interest in &mut total_talk_counts {
+        let mut topics = vec![interest.topic.clone()];
+        translate_topics_with_eurovoc(
+            &topics_mapper.unique_topics,
+            language,
+            expected_topics,
+            &mut topics,
+        );
+        interest.topic = topics[0].to_string();
+    }
 
     let talk_count_sum = absolute_interests
         .iter()
@@ -78,6 +128,13 @@ pub async fn extract_interests_of_delegate(
         let share_on_self = absolute_interest.talk_count.unwrap() as f32 / talk_count_sum as f32;
 
         interest_shares.push(InterestShare {
+            topic_id: topics_mapper
+                .unique_topics
+                .topic_to_id
+                .get(&(absolute_interest.topic.clone(), language))
+                .unwrap()
+                .id
+                .clone(),
             topic: absolute_interest.topic,
             occurences: absolute_interest.talk_count.unwrap() as u32,
             total_share: share_on_total,

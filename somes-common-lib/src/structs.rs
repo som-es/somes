@@ -158,6 +158,11 @@ pub struct Days {
     pub days: u32,
 }
 
+#[derive(Default, Copy, Debug, Clone, Serialize, Deserialize)]
+pub struct Language {
+    pub language: common_scrapes::language::Language,
+}
+
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone, Copy)]
 pub struct Unit;
 
@@ -236,6 +241,7 @@ pub struct DelegateByIdAndPage {
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct InterestShare {
     pub topic: String,
+    pub topic_id: String,
     pub occurences: u32,
     pub total_share: f32,
     pub self_share: f32,

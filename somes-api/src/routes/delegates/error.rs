@@ -21,13 +21,13 @@ pub enum DelegateError {
     InvalidPage(u32),
     #[error("Invalid date: {0}")]
     DateOutOfRange(NaiveDate),
-    #[error("generic error: {0}")]
+    #[error("generic error: {0:?}")]
     GenericError(GenericError),
 }
 
 impl IntoResponse for DelegateError {
     fn into_response(self) -> axum::response::Response {
-        let (status_code, err_msg, field) = match &self {
+        let (status_code, err_msg, field) = match self {
             DelegateError::SqlFailure(e) => {
                 log::error!("delegate db error occurred: {e:?}");
                 (
@@ -64,7 +64,9 @@ impl IntoResponse for DelegateError {
             DelegateError::DateOutOfRange(_date) => {
                 (StatusCode::BAD_REQUEST, self.to_string(), "DateOutOfRange")
             }
-            DelegateError::GenericError(generic_error) => return generic_error.into_response(),
+            DelegateError::GenericError(generic_error) => {
+                return generic_error.into_response();
+            }
         };
 
         let body = Json(ErrorInfo {

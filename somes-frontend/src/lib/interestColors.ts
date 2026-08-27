@@ -18,7 +18,30 @@ export const topicColors: Map<string, string> = new Map([
 	['Außenpolitik', '#800020'], // Burgunderrot
 	['Land- und Forstwirtschaft', '#A0522D'], // Siena
 	['Soziales', '#FFE5B4'], // Pfirsich
-	['Kultur', '#8A2BE2'] // Violett
+	['Kultur', '#8A2BE2'], // Violett
+
+	// id_as_hash variants (i64 as exact decimal string, matching the `id_as_hash::text`
+	// the API returns); same colors as the topic_name entries above
+	['-1616215530511931679', '#FF6F61'], // id_as_hash: Parlament und Demokratie
+	['6986394555873399515', '#FF8C00'], // id_as_hash: Verkehr und Infrastruktur
+	['3689247817911674857', '#B76E79'], // id_as_hash: Familie und Generationen
+	['-1304874518460135721', '#A0522D'], // id_as_hash: Land- und Forstwirtschaft
+	['-8291460274263416759', '#008000'], // id_as_hash: Klima, Umwelt und Energie
+	['4389424592831942243', '#008080'], // id_as_hash: Innovation, Technologie und Forschung
+	['-2354184341686450276', '#8A2BE2'], // id_as_hash: Kultur
+	['7146239111052806644', '#4682B4'], // id_as_hash: Arbeit
+	['7034393618900042138', '#8B008B'], // id_as_hash: Wirtschaft
+	['4836563141530063945', '#FFD700'], // id_as_hash: Budget und Finanzen
+	['-1856946024521834068', '#FFE5B4'], // id_as_hash: Soziales
+	['-7075531979603628241', '#4169E1'], // id_as_hash: Europäische Union
+	['-890368908971066027', '#0F52BA'], // id_as_hash: Bildung
+	['527789797658294746', '#006400'], // id_as_hash: Sport
+	['1871509628119247022', '#DCB0D0'], // id_as_hash: Frauen und Gleichbehandlung
+	['4542432137549833441', '#4B0082'], // id_as_hash: Information und Medien
+	['-7165695291448025285', '#800020'], // id_as_hash: Außenpolitik
+	['1728667647777507741', '#800000'], // id_as_hash: Inneres und Recht
+	['5726904618553562468', '#556B2F'], // id_as_hash: Landesverteidigung
+	['212413626333465818', '#191970'] // id_as_hash: Gesundheit und Ernährung
 ]);
 
 export const TOPIC_MAP: Record<string, string> = {

@@ -14,7 +14,7 @@
 
 	// Keep only the 8 topics with the strongest stance (highest absolute score),
 	// then sort them left (most negative) to right
-	const positioned = (() => {
+	const positioned = $derived.by(() => {
 		let tempStance: (StanceTopicScore & { occ: number })[] = [];
 		if (interests.length > 0) {
 			stances.map((s) => {
@@ -27,7 +27,7 @@
 			});
 		}
 		return tempStance.sort((a, b) => b.occ - a.occ).slice(0, 8);
-	})();
+	});
 </script>
 
 <div class="relative w-full h-full rounded-xl bg-primary-300 px-5 pt-12 pb-3 sm:pt-5 dark:bg-primary-500">

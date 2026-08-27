@@ -2,12 +2,11 @@ use chrono::NaiveDate;
 use redis::AsyncCommands;
 use reqwest::StatusCode;
 use serde::{Serialize, de::DeserializeOwned};
-use sqlx::PgPool;
 
 pub mod model;
 pub use model::*;
 
-use crate::{AppState, today};
+use crate::today;
 
 #[cfg(not(debug_assertions))]
 use redis::Commands;

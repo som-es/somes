@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
-use crate::AppState;
-use crate::eu_hemicycle::EuHemicycle;
+use crate::{AppState, EuHemicycle, TopicsExtractor};
 use crate::{ParliamentCtx, PgPoolConnection};
 use axum::Router;
 use axum::routing::get;
@@ -9,7 +8,8 @@ use axum::{Json, extract::Query};
 use combx::{Delegate, FullMandate};
 use somes_common_lib::{
     ALL_ACTIVE, ALL_AT_DATE, ALL_AT_DATE_WITH_SEAT_INFO, DelegateById, EXTEND, ID,
-    INTERJECTIONS_ROUTE, InterestShare, PARLIAMENT_QA_ROUTE, SEARCH, SPEECHES_PER_PAGE_ROUTE,
+    INTERJECTIONS_ROUTE, InterestShare, Language, PARLIAMENT_QA_ROUTE, SEARCH,
+    SPEECHES_PER_PAGE_ROUTE,
 };
 
 pub use error::*;
@@ -74,12 +74,19 @@ pub fn create_delegates_router() -> Router<AppState> {
 pub async fn delegate_interests(
     PgPoolConnection(pg): PgPoolConnection,
     Query(delegate_by_id): Query<DelegateById>,
+    Query(language): Query<Language>,
+    TopicsExtractor(topics_mapper): TopicsExtractor,
+    ParliamentCtx(parliament): ParliamentCtx,
 ) -> Result<Json<Vec<InterestShare>>, DelegateError> {
-    Ok(
-        extract_interests_of_delegate(delegate_by_id.delegate_id, &pg)
-            .await
-            .map(Json)?,
+    Ok(extract_interests_of_delegate(
+        delegate_by_id.delegate_id,
+        &pg,
+        &topics_mapper,
+        language.language,
+        parliament,
     )
+    .await
+    .map(Json)?)
 }
 
 pub async fn seats_route(

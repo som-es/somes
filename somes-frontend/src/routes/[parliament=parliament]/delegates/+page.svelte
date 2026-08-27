@@ -23,7 +23,7 @@
 		interjections_made_by_delegate_per_page,
 		interjections_received_by_delegate_per_page
 	} from '$lib/api/api';
-	import { t } from '$lib/i18n/i18n.svelte';
+	import { getLocale, t } from '$lib/i18n/i18n.svelte';
 	import {
 		aiViewEnabledStore,
 		currentDelegateFilterStore,
@@ -447,7 +447,7 @@
 				currentDelegateFilterStore.value = newFilter;
 
 				generalDelegateInfo = null;
-				general_delegate_info(delegate.id).then((res) => {
+				general_delegate_info(delegate.id, getLocale()).then((res) => {
 					generalDelegateInfo = errorToNull(res);
 					if (generalDelegateInfo) {
 						generalDelegateInfo.interests.sort((a, b) => b.self_share - a.self_share);

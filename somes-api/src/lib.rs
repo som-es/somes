@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use chrono::Local;
-use combx::with_data::unique_topics::EurovocTopics;
+use combx::with_data::unique_topics::TopicsMapper;
 use common_scrapes::eu_hemicycle::{HemicycleLayout, load_hemicycle};
 use dotenvy_macro::dotenv;
 
@@ -98,7 +98,7 @@ pub struct AppState {
     pub eu_dataservice_sqlx_pool: PgPool,
     pub meilisearch_client: meilisearch_sdk::client::Client,
     pub eu_hemicycle: Arc<HemicycleLayout>,
-    pub eurovoc_topics: Arc<EurovocTopics>,
+    pub topics_mapper: Arc<TopicsMapper>,
 }
 
 impl AppState {
@@ -109,7 +109,7 @@ impl AppState {
         dataservice_sqlx_pool: PgPool,
         eu_dataservice_sqlx_pool: PgPool,
         meilisearch_client: meilisearch_sdk::client::Client,
-        eurovoc_topics: EurovocTopics,
+        topics_mapper: TopicsMapper,
     ) -> AppState {
         AppState {
             redis,
@@ -119,7 +119,7 @@ impl AppState {
             eu_dataservice_sqlx_pool,
             meilisearch_client,
             eu_hemicycle: Arc::new(load_hemicycle()),
-            eurovoc_topics: Arc::new(eurovoc_topics),
+            topics_mapper: Arc::new(topics_mapper),
         }
     }
 

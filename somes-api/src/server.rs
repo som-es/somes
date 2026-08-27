@@ -15,6 +15,7 @@ use axum::{
 };
 use axum_server::tls_rustls::RustlsConfig;
 use combx::Parliament;
+use combx::with_data::unique_topics::TopicsMapper;
 use log::info;
 use reqwest::StatusCode;
 use somes_common_lib::*;
@@ -275,8 +276,7 @@ pub async fn serve(addr: SocketAddr) -> ServerResult<()> {
     let meilisearch_client =
         meilisearch_sdk::client::Client::new(MEILISEARCH_URL, Some(MEILISEARCH_SECRET))?;
 
-    let eurovoc_topics =
-        combx::with_data::unique_topics::eurovoc_topics_map(&dataservice_sqlx_pool).await?;
+    let topics_mapper = TopicsMapper::new(&dataservice_sqlx_pool).await?;
 
     let state = AppState::new(
         redis.clone(),
@@ -285,7 +285,7 @@ pub async fn serve(addr: SocketAddr) -> ServerResult<()> {
         dataservice_sqlx_pool.clone(),
         eu_dataservice_sqlx_pool.clone(),
         meilisearch_client.clone(),
-        eurovoc_topics,
+        topics_mapper,
     );
 
     spawn_asset_refresh(dataservice_sqlx_pool.clone());

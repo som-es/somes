@@ -32,13 +32,11 @@
 
 	// Keep only the 8 topics with the strongest stance (highest absolute score),
 	// then sort them left (most negative) to right
-	const positioned = (() => {
-		return stances
+	const positioned = $derived($state.snapshot(stances)
 			.sort((a, b) => a.score - b.score)
-			.map((item, i) => ({ ...item, x: scoreToX(item.score), row: i }));
-	})();
+			.map((item, i) => ({ ...item, x: scoreToX(item.score), row: i })));
 
-	const numRows = positioned.length > 0 ? Math.max(...positioned.map((p) => p.row)) + 1 : 1;
+	const numRows = $derived(positioned.length > 0 ? Math.max(...positioned.map((p) => p.row)) + 1 : 1);
 	const centerX = PAD_LEFT + (CHART_W - PAD_LEFT - PAD_RIGHT) / 2;
 
 	const CHART_H = $derived(numRows * ROW_H + PAD_TOP + BOTTOM_H);
