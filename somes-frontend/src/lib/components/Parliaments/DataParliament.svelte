@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { type Bubble, enrichParliamentBubbles, setupParliament } from '$lib/parliament';
+	import { getLocale } from '$lib/i18n/i18n.svelte';
 	import { getPartyColors, partyColors } from '$lib/partyColor';
 	import type { Delegate, VoteResult } from '$lib/types';
 	import { onMount, untrack } from 'svelte';
@@ -62,6 +63,10 @@
 		void voteResult;
 		void searchValue;
 		void colorMode;
+		// Bubble titles are translated via t() inside enrichParliamentBubbles below,
+		// which runs inside untrack() — declare the locale dependency explicitly so
+		// switching the language re-renders the bubbles with translated titles.
+		void getLocale();
 
 		function partyToColor(party: string | null): string {
 			if (party == null) {
