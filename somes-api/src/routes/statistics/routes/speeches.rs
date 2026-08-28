@@ -1,14 +1,14 @@
 use axum::Json;
 use serde::{Deserialize, Serialize};
-use sqlx::{prelude::FromRow, Postgres};
+use sqlx::{Postgres, prelude::FromRow};
 use utoipa::ToSchema;
 
 use crate::{
+    PgPoolConnection,
     routes::statistics::routes::error::StatisticsResponse,
     routes::statistics::routes::filtering::{
-        bind_values, build_filter, IntoFilterArgument, Manual,
+        IntoFilterArgument, Manual, bind_values, build_filter,
     },
-    PgPoolConnection,
 };
 
 #[derive(ToSchema, Default, Debug, Clone, Serialize, Deserialize)]
@@ -173,11 +173,13 @@ impl SpeechService {
     ) -> Vec<SpeechByCategory> {
         Self::aggregate_by_category(
             base_data,
-            |item| Some(
-                item.delegate_gender
-                    .clone()
-                    .unwrap_or_else(|| "Unknown".into()),
-            ),
+            |item| {
+                Some(
+                    item.delegate_gender
+                        .clone()
+                        .unwrap_or_else(|| "Unknown".into()),
+                )
+            },
             is_desc,
             speech_type,
             normalized,

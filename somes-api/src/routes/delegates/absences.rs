@@ -1,5 +1,5 @@
 use somes_common_lib::Absence;
-use sqlx::{query_as, PgPool};
+use sqlx::{PgPool, query_as};
 
 pub async fn extract_absences_by_delegate(
     pg: &PgPool,
