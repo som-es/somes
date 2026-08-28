@@ -20,7 +20,7 @@
 	import { SvelteSet } from 'svelte/reactivity';
 	import { page } from '$app/state';
 	import FilterDropdown from '$lib/components/Filtering/FilterDropdown.svelte';
-	import type { GenericFilterGroup } from '$lib/components/Filtering/types';
+	import  { type GenericFilterGroup } from '$lib/components/Filtering/types';
 	import GenericFilters from '$lib/components/Filtering/GenericFilters.svelte';
 	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
 	import { convertVoteResultFilterToUrl } from './urlConversion';
@@ -33,6 +33,7 @@
 	import TopicFilter from '$lib/components/Filtering/TopicFilter.svelte';
 	import SortPopover from '$lib/components/Filtering/SortPopover.svelte';
 	import { getParliament } from '$lib/api/parliament';
+	import { createFilterGroup } from '$lib/components/Filtering/filterGroup.svelte';
 
 	interface Props {
 		voteResults: VoteResultsWithMaxPage | null;
@@ -209,88 +210,80 @@
 		GenericFilterGroup<string>,
 		GenericFilterGroup<boolean>
 	] = $state([
-		{
-			title: t('filter.necessaryMajority'),
-			activeValue: undefined,
-			hidden: !showReqMajorityFilter || isEu,
-			options: [
+		createFilterGroup<boolean>({
+			title: () => t('filter.necessaryMajority'),
+			hidden: () => !showReqMajorityFilter || isEu,
+			options: () => [
 				{ title: t('filterOption.any'), value: undefined },
 				{ title: t('filterOption.simpleMajority'), value: true },
 				{ title: t('filterOption.twoThirdsMajority'), value: false }
 			]
-		},
-		{
-			title: t('filter.accepted'),
-			activeValue: undefined,
-			hidden: !showAcceptedFilter || isEu,
-			options: [
+		}),
+		createFilterGroup<string>({
+			title: () => t('filter.accepted'),
+			hidden: () => !showAcceptedFilter || isEu,
+			options: () => [
 				{ title: t('filterOption.any'), value: undefined },
 				{ title: t('filterOption.acceptedYes'), value: 'a' },
 				{ title: t('filterOption.acceptedNo'), value: 'd' },
 				{ title: t('filterOption.acceptedEarlyRejected'), value: 'p' }
 			]
-		},
-		{
-			title: t('filter.namedVote'),
-			activeValue: undefined,
-			hidden: !showNamedVoteFilter || isEu,
-			options: [
+		}),
+		createFilterGroup<boolean>({
+			title: () => t('filter.namedVote'),
+			hidden: () => !showNamedVoteFilter || isEu,
+			options: () => [
 				{ title: t('filterOption.any'), value: undefined },
 				{ title: t('filterOption.yes'), value: true },
 				{ title: t('filterOption.no'), value: false }
 			]
-		},
-		{
-			title: t('filter.motionType'),
-			activeValue: undefined,
-			hidden: false,
-			options: [
+		}),
+		createFilterGroup<string>({
+			title: () => t('filter.motionType'),
+			hidden: () => false,
+			options: () => [
 				{ title: t('filterOption.any'), value: undefined },
 				{ title: t('filterOption.motionLaw'), value: 'Law' },
 				{ title: t('filterOption.motionResolution'), value: 'Resolution' },
 				...(isEu ? [] : [{ title: t('filterOption.motionAmendment'), value: 'Amendment' }]),
 				{ title: t('filterOption.motionReport'), value: 'Report' }
 			]
-		},
-		{
-			title: t('filter.urgent'),
-			activeValue: undefined,
-			hidden: !showIsUrgentFilter || isEu,
+		}),
+		createFilterGroup<boolean>({
+			title: () => t('filter.urgent'),
+			hidden: () => !showIsUrgentFilter || isEu,
 			advanced: true,
-			options: [
+			options: () => [
 				{ title: t('filterOption.any'), value: undefined },
 				{ title: t('filterOption.yes'), value: true },
 				{ title: t('filterOption.no'), value: false }
 			]
-		},
-		{
-			title: t('filter.date'),
-			activeValue: undefined,
-			hidden: false,
+		}),
+		createFilterGroup<string>({
+			title: () => t('filter.date'),
+			hidden: () => false,
 			advanced: true,
 			id: 'dateRange',
 			data: { dateFrom: '', dateTo: '' },
-			options: []
-		},
-		{
-			title: t('filter.issuedBy'),
-			activeValue: undefined,
-			hidden: isEu,
+			options: () => []
+		}),
+		createFilterGroup<string>({
+			title: () => t('filter.issuedBy'),
+			hidden: () => isEu,
 			advanced: false,
 			id: 'issuerParties',
-			options: []
-		},
-		{
-			title: t('filter.fromGovernment'),
-			activeValue: undefined,
-			hidden: isEu,
+			options: () => []
+		}),
+		createFilterGroup<boolean>({
+			title: () => t('filter.fromGovernment'),
+			hidden: () => isEu,
 			advanced: true,
-			options: [
+			options: () => [
 				{ title: t('filterOption.any'), value: undefined },
 				{ title: t('filterOption.yes'), value: true },
 				{ title: t('filterOption.no'), value: false }
 			]
-		}
+		})
 	]);
 
 	let legisPeriodFilter = $state({

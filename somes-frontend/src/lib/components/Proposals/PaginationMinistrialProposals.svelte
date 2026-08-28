@@ -20,6 +20,7 @@
 	import TopicFilter from '../Filtering/TopicFilter.svelte';
 	import { t } from '$lib/i18n/i18n.svelte';
 	import { localeStore } from '$lib/i18n/i18n.svelte';
+	import { createFilterGroup } from '../Filtering/filterGroup.svelte';
 
 	interface Props {
 		govProposals: GovProposalsWithMaxPage;
@@ -30,25 +31,23 @@
 	let { govProposals, selectedGp, departmentsPerGp }: Props = $props();
 
 	let genericFilters: [GenericFilterGroup<boolean>, GenericFilterGroup<string>] = $state([
-		{
-			title: t('filter.votingStatus'),
-			activeValue: undefined,
-			hidden: false,
-			options: [
+		createFilterGroup<boolean>({
+			title: () => t('filter.votingStatus'),
+			hidden: () => false,
+			options: () => [
 				{ title: t('filterOption.any'), value: undefined },
 				{ title: t('filter.votingWith'), value: true },
 				{ title: t('filter.votingWithout'), value: false }
 			]
-		},
-		{
-			title: t('filter.date'),
-			activeValue: undefined,
-			hidden: false,
+		}),
+		createFilterGroup<string>({
+			title: () => t('filter.date'),
+			hidden: () => false,
 			advanced: true,
 			id: 'dateRange',
 			data: { dateFrom: '', dateTo: '' },
-			options: []
-		}
+			options: () => []
+		})
 	]);
 
 	let legisPeriodFilter = $state({

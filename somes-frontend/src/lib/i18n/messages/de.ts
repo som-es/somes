@@ -830,6 +830,8 @@ export const de = {
 	'filter.ministries': 'Ministerien',
 	'filter.topics': 'Themen',
 	'filter.title': 'Filter',
+	'filter.expand': 'Mehr Filter',
+	'filter.collapse': 'Weniger Filter',
 	'emphasis.showAllSpeeches': 'Alle {count} Reden zu diesem Schwerpunkt anzeigen',
 	'emphasis.speechesTitle': 'Reden zu diesem Schwerpunkt',
 	'emphasis.speech.one': 'Rede',

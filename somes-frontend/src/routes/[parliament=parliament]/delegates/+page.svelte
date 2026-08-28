@@ -65,6 +65,7 @@
 	import InterjectionsPreview from '$lib/components/Delegates/Interjections/InterjectionsPreview.svelte';
 	import MobileParliamentModal from '$lib/components/Parliaments/MobileParliamentModal.svelte';
 	import { defaultGp } from '$lib/api/parliament';
+	import { createFilterGroup } from '$lib/components/Filtering/filterGroup.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -106,35 +107,33 @@
 		GenericFilterGroup<boolean>,
 		GenericFilterGroup<boolean>
 	] = $state([
-		{
-			title: t('delegates.mandateType'),
-			activeValue: undefined,
-			hidden: false,
-			options: [
+		createFilterGroup<boolean>({
+			title: () => t('delegates.mandateType'),
+			hidden: () => false,
+			options: () => [
 				{ title: t('delegates.any'), value: undefined },
 				{ title: t('delegates.government'), value: true },
 				{ title: t('delegates.nationalCouncil'), value: false }
 			]
-		},
-		{
-			title: t('delegates.activeMandate'),
-			activeValue: undefined,
-			hidden: false,
-			options: [
+		}),
+		createFilterGroup<boolean>({
+			title: () => t('delegates.activeMandate'),
+			hidden: () => false,
+			options: () => [
 				{ title: t('delegates.any'), value: undefined },
 				{ title: t('delegates.yes'), value: true },
 				{ title: t('delegates.no'), value: false }
 			]
-		},
-		{
-			title: t('delegates.considerPrevParty'),
-			activeValue: true,
-			hidden: false,
-			options: [
+		}),
+		createFilterGroup<boolean>({
+			title: () => t('delegates.considerPrevParty'),
+			hidden: () => false,
+			initialValue: true,
+			options: () => [
 				{ title: t('delegates.yes'), value: true },
 				{ title: t('delegates.no'), value: false }
 			]
-		}
+		})
 	]);
 
 	// Filter Elements to Keep the PopUp open

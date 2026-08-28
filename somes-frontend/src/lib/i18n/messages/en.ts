@@ -796,6 +796,8 @@ export const en = {
 	'filter.ministries': 'Ministries',
 	'filter.topics': 'Topics',
 	'filter.title': 'Filters',
+	'filter.expand': 'show more',
+	'filter.collapse': 'show less',
 	'emphasis.showAllSpeeches': 'Show all {count} speeches on this key point',
 	'emphasis.speechesTitle': 'Speeches on this key point',
 	'emphasis.speech.one': 'speech',

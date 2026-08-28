@@ -12,6 +12,7 @@
 	import CustomDonutChart from './charts/CustomDonutChart.svelte';
 	import CustomLineChart from './charts/CustomLineChart.svelte';
 	import PoliticalSpectrumChart from './PoliticalSpectrumChart.svelte';
+	import { createFilterGroup } from '../Filtering/filterGroup.svelte';
 
 	type ChartMode = 'bar' | 'donut' | 'line' | 'spectrum';
 	type CategoryOption = {
@@ -125,34 +126,34 @@
 		GenericFilterGroup<string>,
 		GenericFilterGroup<string>
 	] = $state([
-		{
-			title: t('statistics.gender'),
-			activeValue: 'all',
-			hidden: false,
-			options: [
+		createFilterGroup<string>({
+			title: () => t('statistics.gender'),
+			hidden: () => false,
+			initialValue: 'all',
+			options: () => [
 				{ title: t('statistics.all'), value: 'all' },
 				{ title: t('statistics.male'), value: 'm' },
 				{ title: t('statistics.female'), value: 'f' }
 			]
-		},
-		{
-			title: t('statistics.sorting'),
-			activeValue: 'desc',
-			hidden: false,
-			options: [
+		}),
+		createFilterGroup<string>({
+			title: () => t('statistics.sorting'),
+			hidden: () => false,
+			initialValue: 'desc',
+			options: () => [
 				{ title: t('statistics.descending'), value: 'desc' },
 				{ title: t('statistics.ascending'), value: 'asc' }
 			]
-		},
-		{
-			title: t('statistics.normalization'),
-			activeValue: 'normalized',
-			hidden: false,
-			options: [
+		}),
+		createFilterGroup<string>({
+			title: () => t('statistics.normalization'),
+			hidden: () => false,
+			initialValue: 'normalized',
+			options: () => [
 				{ title: t('statistics.normalized'), value: 'normalized' },
 				{ title: t('statistics.absolute'), value: 'absolute' }
 			]
-		}
+		})
 	]);
 
 	let windowWidth = $state(1024);
