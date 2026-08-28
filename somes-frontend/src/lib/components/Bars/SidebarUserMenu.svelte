@@ -35,21 +35,17 @@
 </script>
 
 <Popover.Root>
-	<Popover.Trigger openOnHover openDelay={10}>
-		<button
-			onclick={async () => {
-				await accountOrLogin();
-			}}
-			title={t('nav.profile')}
-			class="{activeUrl?.includes('/user')
-				? 'bg-tertiary-500! fill-black'
-				: ' fill-white'} flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60 hover:fill-black"
-		>
-			<span class="h-5 w-5">
-				{@html userIcon}
-			</span>
-		</button>
-	</Popover.Trigger>
+    <Popover.Trigger
+    	openOnHover
+    	openDelay={10}
+    	onclick={async () => { await accountOrLogin(); }}
+    	title={t('nav.profile')}
+        class="{activeUrl?.includes('/user') ? 'bg-tertiary-500! fill-black' : 'fill-white'} flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60 hover:fill-black"
+    >
+	<span class="h-5 w-5">
+		{@html userIcon}
+	</span>
+    </Popover.Trigger>
 	<Popover.Portal>
 		<Popover.Content>
 			<div
