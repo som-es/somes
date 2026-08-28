@@ -21,6 +21,7 @@ export const en = {
 	'nav.votes': 'Votes',
 	'nav.toVote': 'Up for vote',
 	'nav.nationalCouncil': 'National Council',
+	'nav.euParliament': 'European Parliament',
 	'nav.government': 'Government',
 	'nav.ministerialDrafts': 'Ministerial drafts',
 	'nav.decrees': 'Decrees',

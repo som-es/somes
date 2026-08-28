@@ -121,7 +121,7 @@
 			},
 
 			{
-				title: t('nav.nationalCouncil'),
+				title: parliament === 'eu' ? t('nav.euParliament') : t('nav.nationalCouncil'),
 				route: '/history',
 				list: [
 					{ href: voteResultUrl.href, label: t('nav.votes'), keywords: '' },

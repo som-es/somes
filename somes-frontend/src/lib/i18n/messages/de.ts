@@ -22,6 +22,7 @@ export const de = {
 	'nav.votes': 'Abstimmungen',
 	'nav.toVote': 'Zur Abstimmung',
 	'nav.nationalCouncil': 'Nationalrat',
+	'nav.euParliament': 'EU-Parlament',
 	'nav.government': 'Regierung',
 	'nav.ministerialDrafts': 'Ministerialentwürfe',
 	'nav.decrees': 'Verordnungen',
