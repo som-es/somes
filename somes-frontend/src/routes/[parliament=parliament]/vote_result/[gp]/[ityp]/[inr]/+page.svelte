@@ -624,13 +624,13 @@
 											</div>
 										{/each}
 									</div>
-								{/if}
-								{#if givenVotes(totalVote) > 0}
-									<hr class="my-2 border-gray-400 dark:border-gray-600" />
-									<div class="flex items-center justify-between gap-4">
-										<span class="text-base font-medium">{totalVote.party}</span>
-										<VoteBreakDownDonut vote={totalVote} />
-									</div>
+									{#if givenVotes(totalVote) > 0}
+										<hr class="my-2 border-gray-400 dark:border-gray-600" />
+										<div class="flex items-center justify-between gap-4">
+											<span class="text-base font-medium">{totalVote.party}</span>
+											<VoteBreakDownDonut vote={totalVote} />
+										</div>
+									{/if}
 								{/if}
 								{#if voteResult.named_votes != null}
 									<!-- Legend -->
@@ -696,16 +696,16 @@
 												</div>
 											</div>
 										{/each}
-									{/if}
-									{#if givenVotes(totalVote) > 0}
-										<hr class="my-1 border-gray-400 dark:border-gray-600" />
-										<div class="flex items-center gap-1">
-											<div class="flex w-24 shrink-0 items-center gap-2">
-												<div class="h-2.5 w-2.5 shrink-0"></div>
-												<span class="text-sm font-medium lg:text-base">{totalVote.party}</span>
+										{#if givenVotes(totalVote) > 0}
+											<hr class="my-1 border-gray-400 dark:border-gray-600" />
+											<div class="flex items-center gap-1">
+												<div class="flex w-24 shrink-0 items-center gap-2">
+													<div class="h-2.5 w-2.5 shrink-0"></div>
+													<span class="text-sm font-medium lg:text-base">{totalVote.party}</span>
+												</div>
+												<VoteBreakDownDonut vote={totalVote} />
 											</div>
-											<VoteBreakDownDonut vote={totalVote} />
-										</div>
+										{/if}
 									{/if}
 								</div>
 							</div>
