@@ -2,6 +2,7 @@
 	import homeIcon from '$lib/assets/icons/home.svg?raw';
 	import delegatesIcon from '$lib/assets/icons/delegates.svg?raw';
 	import statisticsIcon from '$lib/assets/icons/statistics.svg?raw';
+	import questionsIcon from '$lib/assets/icons/questions.svg?raw';
 	import somesIcon from '$lib/assets/somes_icon.svg?raw';
 	import { page } from '$app/state';
 
@@ -251,6 +252,17 @@
 		>
 			<span class="w-6">
 				{@html statisticsIcon}
+			</span>
+		</a>
+		<a
+			href={plink('/questions')}
+			title={t('nav.questions')}
+			class="{activeUrl?.includes('/questions')
+				? 'bg-tertiary-500! fill-black'
+				: ' fill-white'} flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60 hover:fill-black"
+		>
+			<span class="w-5">
+				{@html questionsIcon}
 			</span>
 		</a>
 
