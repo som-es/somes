@@ -41,14 +41,6 @@ pub fn create_delegates_router() -> Router<AppState> {
     Router::new()
         .route(ALL_AT_DATE, get(delegates_at_route))
         .route(ID, get(delegate_by_id_path_route))
-        .route(
-            "/{delegate_id}/question-recipient",
-            get(delegate_question_recipient_route),
-        )
-        .route(
-            "/{delegate_id}/questions",
-            get(delegate_questions_route).post(ask_delegate_question_route),
-        )
         .route(ALL_ACTIVE, get(active_delegates_route))
         // .route(DELEGATE_QA, get(delegate_qa_route))
         .route(SEARCH, get(delegates_by_search_route))

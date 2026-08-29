@@ -7,6 +7,7 @@
 		rejectDelegateQuestion
 	} from '$lib/api/authed';
 	import { isHasError } from '$lib/api/api';
+	import { formatDateTime } from '$lib/date';
 	import type { AdminDelegateQuestion } from '$lib/types';
 
 	let questions = $state<AdminDelegateQuestion[]>([]);
@@ -66,13 +67,6 @@
 
 		questions = questions.filter((question) => question.id !== questionId);
 	}
-
-	function formatDate(value: string) {
-		return new Intl.DateTimeFormat('de-AT', {
-			dateStyle: 'medium',
-			timeStyle: 'short'
-		}).format(new Date(value));
-	}
 </script>
 
 <svelte:head>
@@ -109,17 +103,21 @@
 	{#if isLoading}
 		<p class="text-sm text-gray-600 dark:text-gray-300">Fragen werden geladen.</p>
 	{:else if isAdmin && questions.length === 0 && errorMessage === null}
-		<p class="text-sm text-gray-600 dark:text-gray-300">Derzeit warten keine Fragen auf Freigabe.</p>
+		<p class="text-sm text-gray-600 dark:text-gray-300">
+			Derzeit warten keine Fragen auf Freigabe.
+		</p>
 	{:else if isAdmin}
 		<div class="space-y-4">
-			{#each questions as question}
+			{#each questions as question (question.id)}
 				<article
 					class="rounded-md border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900"
 				>
 					<div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
 						<div class="min-w-0">
-							<div class="flex flex-wrap items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
-								<span>{formatDate(question.created_at)}</span>
+							<div
+								class="flex flex-wrap items-center gap-2 text-xs text-gray-600 dark:text-gray-300"
+							>
+								<span>{formatDateTime(question.created_at)}</span>
 								<span>Delegate #{question.delegate_id}</span>
 								<span>User #{question.user_id}</span>
 								<span>{question.recipient_kind === 'party' ? 'Parteiklub' : 'Abgeordneter'}</span>
@@ -155,7 +153,7 @@
 						</div>
 					</div>
 
-					<p class="mt-4 whitespace-pre-wrap text-sm leading-6 text-black dark:text-white">
+					<p class="mt-4 text-sm leading-6 whitespace-pre-wrap text-black dark:text-white">
 						{question.body}
 					</p>
 				</article>

@@ -14,6 +14,13 @@ export function formatDate(dateString: Date | string) {
 	}).format(new Date(dateString));
 }
 
+export function formatDateTime(dateString: Date | string) {
+	return new Intl.DateTimeFormat('de-AT', {
+		dateStyle: 'medium',
+		timeStyle: 'short'
+	}).format(new Date(dateString));
+}
+
 export function legisDurationString(
 	legisPeriod: LegisPeriod,
 	next: LegisPeriod | undefined

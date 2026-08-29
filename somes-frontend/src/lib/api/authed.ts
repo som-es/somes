@@ -127,29 +127,26 @@ export async function askDelegateQuestion(
 	delegateId: number,
 	question: { subject: string; body: string }
 ): Promise<DelegateQuestionCreated | HasError> {
-	return postWithAuth<DelegateQuestionCreated>(`v1/delegates/${delegateId}/questions`, question);
+	return postWithAuth<DelegateQuestionCreated>(
+		`v1/delegate_questions/delegate/${delegateId}`,
+		question
+	);
 }
 
 export async function pendingDelegateQuestions(): Promise<AdminDelegateQuestion[] | HasError> {
-	return getWithAuth<AdminDelegateQuestion[]>('v1/admin/delegate-questions/pending');
+	return getWithAuth<AdminDelegateQuestion[]>('v1/delegate_questions/pending');
 }
 
 export async function approveDelegateQuestion(
 	questionId: number
 ): Promise<AdminDelegateQuestion | HasError> {
-	return postWithAuth<AdminDelegateQuestion>(
-		`v1/admin/delegate-questions/${questionId}/approve`,
-		{}
-	);
+	return postWithAuth<AdminDelegateQuestion>(`v1/delegate_questions/${questionId}/approve`, {});
 }
 
 export async function rejectDelegateQuestion(
 	questionId: number
 ): Promise<AdminDelegateQuestion | HasError> {
-	return postWithAuth<AdminDelegateQuestion>(
-		`v1/admin/delegate-questions/${questionId}/reject`,
-		{}
-	);
+	return postWithAuth<AdminDelegateQuestion>(`v1/delegate_questions/${questionId}/reject`, {});
 }
 
 export async function getFavoDelegates(): Promise<DelegateFavo[] | HasError> {

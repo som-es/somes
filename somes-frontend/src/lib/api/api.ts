@@ -159,7 +159,7 @@ export async function delegates(): Promise<Delegate[] | HasError> {
 export async function delegate_question_recipient(
 	delegateId: number
 ): Promise<DelegateQuestionRecipient | HasError> {
-	return getWithRoute(`v1/delegates/${delegateId}/question-recipient`);
+	return getWithRoute(`v1/delegate_questions/delegate/${delegateId}/question_recipient`);
 }
 
 export async function latest_vote_results(

@@ -1,25 +1,35 @@
-use axum::{extract::Path, Json};
+mod mail;
+mod models;
+
+use axum::{
+    extract::Path,
+    routing::{get, post},
+    Json, Router,
+};
 use chrono::{DateTime, Utc};
 use delegate_question_mail::new_question_message_id;
 use once_cell::sync::Lazy;
 use reqwest::StatusCode;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use sqlx::{Row, Transaction};
 use std::collections::HashMap;
 
-use crate::{
-    email::{send_mail_with_message_id, MAILER},
-    jwt::Claims,
-    GenericError, PgPoolConnection,
+use crate::{jwt::Claims, server::AppState, GenericError, PgPoolConnection};
+
+use self::{
+    mail::send_question_mail,
+    models::{DelegateContact, PublicDelegateQuestionAnswer, QuestionDelivery},
+};
+
+pub use models::{
+    AdminDelegateQuestion, CreateDelegateQuestion, DelegateQuestionCreated,
+    DelegateQuestionRecipient, PublicDelegateQuestion,
 };
 
 const MAX_SUBJECT_LENGTH: usize = 255;
 const MAX_BODY_LENGTH: usize = 10_000;
-const DELEGATE_QUESTION_TEMPLATE: &str =
-    include_str!("../../email/delegate_question_template.html");
-const PARTY_QUESTION_TEMPLATE: &str = include_str!("../../email/party_question_template.html");
 const PARTY_QUESTION_RECIPIENTS: &str =
-    include_str!("../../../config/party-question-recipients.json");
+    include_str!("../../../../config/party-question-recipients.json");
 
 static PARTY_RECIPIENTS: Lazy<HashMap<String, PartyRecipientConfig>> = Lazy::new(|| {
     serde_json::from_str(PARTY_QUESTION_RECIPIENTS)
@@ -27,82 +37,31 @@ static PARTY_RECIPIENTS: Lazy<HashMap<String, PartyRecipientConfig>> = Lazy::new
 });
 
 #[derive(Debug, Deserialize)]
-pub struct CreateDelegateQuestion {
-    pub subject: String,
-    pub body: String,
-}
-
-#[derive(Debug, Serialize)]
-pub struct DelegateQuestionCreated {
-    pub id: i64,
-    pub delivery: QuestionDelivery,
-    pub recipient_name: String,
-    pub status: String,
-}
-
-#[derive(Debug, Serialize, Clone, Copy)]
-#[serde(rename_all = "snake_case")]
-pub enum QuestionDelivery {
-    Delegate,
-    Party,
-}
-
-impl QuestionDelivery {
-    fn as_str(self) -> &'static str {
-        match self {
-            Self::Delegate => "delegate",
-            Self::Party => "party",
-        }
-    }
-}
-
-#[derive(Debug, Serialize)]
-pub struct DelegateQuestionRecipient {
-    pub delivery: QuestionDelivery,
-    pub recipient_name: String,
-}
-
-#[derive(Debug, Serialize)]
-pub struct PublicDelegateQuestion {
-    pub delegate_id: i32,
-    pub subject: String,
-    pub body: String,
-    pub created_at: DateTime<Utc>,
-    pub answers: Vec<PublicDelegateQuestionAnswer>,
-}
-
-#[derive(Debug, Serialize)]
-pub struct PublicDelegateQuestionAnswer {
-    pub body: String,
-    pub received_at: DateTime<Utc>,
-}
-
-#[derive(Debug, Serialize)]
-pub struct AdminDelegateQuestion {
-    pub id: i64,
-    pub user_id: i32,
-    pub delegate_id: i32,
-    pub delegate_name: String,
-    pub recipient_email: String,
-    pub recipient_kind: String,
-    pub recipient_name: String,
-    pub subject: String,
-    pub body: String,
-    pub status: String,
-    pub created_at: DateTime<Utc>,
-}
-
-#[derive(Debug, Deserialize)]
 struct PartyRecipientConfig {
     name: String,
     email: String,
 }
 
-struct DelegateContact {
-    name: String,
-    recipient_name: String,
-    recipient_email: String,
-    delivery: QuestionDelivery,
+pub fn create_delegate_questions_router() -> Router<AppState> {
+    Router::new()
+        .route("/", get(all_delegate_questions_route))
+        .route(
+            "/delegate/{delegate_id}",
+            get(delegate_questions_route).post(ask_delegate_question_route),
+        )
+        .route(
+            "/delegate/{delegate_id}/question_recipient",
+            get(delegate_question_recipient_route),
+        )
+        .route("/pending", get(pending_delegate_questions_route))
+        .route(
+            "/{question_id}/approve",
+            post(approve_delegate_question_route),
+        )
+        .route(
+            "/{question_id}/reject",
+            post(reject_delegate_question_route),
+        )
 }
 
 pub async fn ask_delegate_question_route(
@@ -477,125 +436,6 @@ fn admin_question_from_row(
     })
 }
 
-async fn send_question_mail(pg: &sqlx::PgPool, question_id: i64) -> Result<(), GenericError> {
-    let row = sqlx::query(
-        "
-        SELECT
-            q.delegate_id,
-            d.name AS delegate_name,
-            q.recipient_email,
-            q.recipient_kind,
-            q.recipient_name,
-            q.subject,
-            q.body,
-            q.outgoing_message_id
-        FROM delegate_questions q
-        JOIN delegates d ON d.id = q.delegate_id
-        WHERE q.id = $1
-        ",
-    )
-    .bind(question_id)
-    .fetch_optional(pg)
-    .await
-    .map_err(|error| GenericError::SqlFailure(Some(error)))?
-    .ok_or(GenericError::Custom((
-        StatusCode::NOT_FOUND,
-        "Question was not found",
-    )))?;
-
-    let locked = sqlx::query(
-        "
-        UPDATE delegate_questions
-        SET status = 'sending',
-            updated_at = NOW()
-        WHERE id = $1
-            AND status IN ('pending', 'failed')
-        ",
-    )
-    .bind(question_id)
-    .execute(pg)
-    .await
-    .map_err(|error| GenericError::SqlFailure(Some(error)))?;
-
-    if locked.rows_affected() == 0 {
-        return Err(GenericError::Custom((
-            StatusCode::CONFLICT,
-            "Question can not be approved",
-        )));
-    }
-
-    let recipient_kind: String = row
-        .try_get("recipient_kind")
-        .map_err(|error| GenericError::SqlFailure(Some(error)))?;
-    let delivery = match recipient_kind.as_str() {
-        "delegate" => QuestionDelivery::Delegate,
-        "party" => QuestionDelivery::Party,
-        _ => {
-            return Err(GenericError::Custom((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "Invalid question recipient kind",
-            )))
-        }
-    };
-
-    let delegate = DelegateContact {
-        name: row
-            .try_get("delegate_name")
-            .map_err(|error| GenericError::SqlFailure(Some(error)))?,
-        recipient_name: row
-            .try_get("recipient_name")
-            .map_err(|error| GenericError::SqlFailure(Some(error)))?,
-        recipient_email: row
-            .try_get("recipient_email")
-            .map_err(|error| GenericError::SqlFailure(Some(error)))?,
-        delivery,
-    };
-    let subject: String = row
-        .try_get("subject")
-        .map_err(|error| GenericError::SqlFailure(Some(error)))?;
-    let body: String = row
-        .try_get("body")
-        .map_err(|error| GenericError::SqlFailure(Some(error)))?;
-    let outgoing_message_id: String = row
-        .try_get("outgoing_message_id")
-        .map_err(|error| GenericError::SqlFailure(Some(error)))?;
-
-    let mail_subject = format!("Neue Frage über somes.at: {subject}");
-    let mail_content = render_question_mail(&delegate, &subject, &body);
-    let recipient_email = delegate.recipient_email.clone();
-
-    let mail_result = match tokio::task::spawn_blocking(move || {
-        send_mail_with_message_id(
-            &MAILER,
-            &recipient_email,
-            &mail_subject,
-            mail_content,
-            Some(outgoing_message_id),
-        )
-        .map_err(|error| error.to_string())
-    })
-    .await
-    {
-        Ok(result) => result,
-        Err(error) => {
-            log::error!("delegate question mail task failed: {error}");
-            Err(error.to_string())
-        }
-    };
-
-    match mail_result {
-        Ok(()) => set_question_status(pg, question_id, "sent").await,
-        Err(error) => {
-            log::error!("sending delegate question {question_id} failed: {error}");
-            set_question_status(pg, question_id, "failed").await?;
-            Err(GenericError::Custom((
-                StatusCode::BAD_GATEWAY,
-                "Could not send question email",
-            )))
-        }
-    }
-}
-
 async fn create_question(
     pg: &sqlx::PgPool,
     user_id: i32,
@@ -661,69 +501,4 @@ async fn set_question_status(
     .map_err(|error| GenericError::SqlFailure(Some(error)))?;
 
     Ok(())
-}
-
-fn render_question_mail(recipient: &DelegateContact, subject: &str, body: &str) -> String {
-    let template = match recipient.delivery {
-        QuestionDelivery::Delegate => DELEGATE_QUESTION_TEMPLATE,
-        QuestionDelivery::Party => PARTY_QUESTION_TEMPLATE,
-    };
-
-    template
-        .replace("{*DELEGATE_NAME*}", &escape_html(&recipient.name))
-        .replace("{*PARTY_NAME*}", &escape_html(&recipient.recipient_name))
-        .replace("{*QUESTION_SUBJECT*}", &escape_html(subject))
-        .replace(
-            "{*QUESTION_BODY*}",
-            &escape_html(body).replace('\n', "<br>"),
-        )
-}
-
-fn escape_html(value: &str) -> String {
-    value
-        .replace('&', "&amp;")
-        .replace('<', "&lt;")
-        .replace('>', "&gt;")
-        .replace('"', "&quot;")
-        .replace('\'', "&#x27;")
-}
-
-#[cfg(test)]
-mod tests {
-    use super::{render_question_mail, DelegateContact, QuestionDelivery};
-
-    #[test]
-    fn renders_question_as_safe_html() {
-        let rendered = render_question_mail(
-            &DelegateContact {
-                name: "Max <Mustermann>".to_string(),
-                recipient_name: "Max <Mustermann>".to_string(),
-                recipient_email: "max@example.com".to_string(),
-                delivery: QuestionDelivery::Delegate,
-            },
-            "Ist <b>das</b> geplant?",
-            "Bitte <script>alert('x')</script>",
-        );
-
-        assert!(rendered.contains("Max &lt;Mustermann&gt;"));
-        assert!(rendered.contains("&lt;script&gt;alert(&#x27;x&#x27;)&lt;/script&gt;"));
-        assert!(!rendered.contains("somes-q:"));
-    }
-
-    #[test]
-    fn renders_party_fallback_mail() {
-        let rendered = render_question_mail(
-            &DelegateContact {
-                name: "Max Mustermann".to_string(),
-                recipient_name: "ÖVP-Klub".to_string(),
-                recipient_email: "team@example.com".to_string(),
-                delivery: QuestionDelivery::Party,
-            },
-            "Frage",
-            "Bitte um Antwort",
-        );
-
-        assert!(rendered.contains("Sehr geehrtes Team des ÖVP-Klub"));
-        assert!(rendered.contains("Max Mustermann"));
-    }
 }
