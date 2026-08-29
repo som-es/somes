@@ -507,10 +507,10 @@
 					<span class="text-base font-semibold text-gray-800 dark:text-gray-200"
 						>{t('delegates.filter')}</span
 					>
-					<div class="mt-2 flex h-10 w-full gap-2 md:mt-1 md:w-auto">
+					<div class="mt-2 flex w-full gap-2 md:mt-1 md:w-auto max-lg:flex-wrap">
 						<!-- Period Filter -->
 						<div
-							class="flex h-full grow touch-manipulation items-center justify-center gap-1 md:grow-0"
+							class="flex h-10 grow touch-manipulation items-center justify-center gap-1 md:grow-0"
 						>
 							<MultiSelectFilter
 								items={periods.map((p) => ({ value: p.gp, label: p.gp })).reverse()}
@@ -520,7 +520,7 @@
 						</div>
 						<!-- Parteien Filter -->
 						<div
-							class="flex h-full grow touch-manipulation items-center justify-center gap-1 md:grow-0"
+							class="flex h-10 grow touch-manipulation items-center justify-center gap-1 md:grow-0"
 						>
 							<MultiSelectFilter
 								items={uniqueParties.map((p) => ({ value: p.name, label: p.name, color: p.color }))}
@@ -541,7 +541,7 @@
 						</div>
 						{#if uniqueCountries.length > 0}
 							<div
-								class="flex h-full grow touch-manipulation items-center justify-center gap-1 md:grow-0"
+								class="flex h-10 grow touch-manipulation items-center justify-center gap-1 md:grow-0"
 							>
 								<MultiSelectFilter
 									items={uniqueCountries.map((c) => ({ value: c.code, label: c.name }))}
@@ -551,7 +551,7 @@
 							</div>
 						{/if}
 						<div
-							class="flex h-full grow touch-manipulation items-center justify-center gap-1 md:grow-0"
+							class="flex h-10 grow touch-manipulation items-center justify-center gap-1 md:grow-0"
 						>
 							<GenericFilters bind:genericFilters />
 						</div>
@@ -683,6 +683,8 @@
 					{selectedPeriod}
 					{supplyDate}
 					hasSeatInfo={data.hasSeatInfo}
+					parliament={data.parliament}
+					partyColoring={partyColors}
 				/>
 			</div>
 
