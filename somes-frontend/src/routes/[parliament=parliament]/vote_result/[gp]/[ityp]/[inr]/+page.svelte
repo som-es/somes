@@ -607,51 +607,27 @@
 										{/each}
 									</div>
 								{:else}
-									{#each sortedVotes as vote (vote.party)}
-										{@const total = totalVotes(vote)}
-										{@const segments = [
-											{ value: vote.infavor_count, color: VOTE_COLORS.infavor },
-											{ value: vote.against_count, color: VOTE_COLORS.against },
-											{ value: vote.abstention_count, color: VOTE_COLORS.abstention },
-											{ value: vote.absence_count, color: VOTE_COLORS.absent }
-										].filter((s) => s.value > 0)}
-										<div class="py-2" aria-label={t('donut.ariaLabel', { party: vote.party })}>
-											<div class="flex items-center gap-2">
-												<div
-													class="h-2.5 w-2.5 shrink-0 rounded-full"
-													style="background-color: {partyColors.get(vote.party) ?? '#ccc'};"
-												></div>
-												<span class="truncate text-base font-medium">{vote.party}</span>
-												<span class="text-sm text-gray-500 tabular-nums dark:text-gray-400"
-													>({total})</span
-												>
-											</div>
-
-											<div class="mt-1 flex h-2 w-full gap-0.5">
-												{#each segments as segment (segment.color)}
+									<div class="mt-2 flex flex-col gap-2">
+										{#each sortedVotes as vote (vote.party)}
+											<div class="flex items-center justify-between gap-4">
+												<div class="flex min-w-0 items-center gap-2">
 													<div
-														class="h-full min-w-0.5 rounded-full"
-														style="width: {(segment.value / total) *
-															100}%; background-color: {segment.color};"
+														class="h-2.5 w-2.5 shrink-0 rounded-full"
+														style="background-color: {partyColors.get(vote.party) ?? '#ccc'};"
 													></div>
-												{/each}
-											</div>
-
-											<div class="mt-1 flex gap-2.5 text-xs tabular-nums">
-												<span style="color: {VOTE_COLORS.infavor};">{vote.infavor_count}</span>
-												<span style="color: {VOTE_COLORS.against};">{vote.against_count}</span>
-												{#if vote.abstention_count > 0}
-													<span style="color: {VOTE_COLORS.abstention};"
-														>{vote.abstention_count}</span
+													<span class="truncate text-base font-medium">{vote.party}</span>
+													<span class="text-sm text-gray-500 tabular-nums dark:text-gray-400"
+														>({totalVotes(vote)})</span
 													>
-												{/if}
+												</div>
+												<VoteBreakDownDonut {vote} />
 											</div>
-										</div>
-									{/each}
+										{/each}
+									</div>
 								{/if}
 								{#if givenVotes(totalVote) > 0}
 									<hr class="my-2 border-gray-400 dark:border-gray-600" />
-									<div class="flex items-center gap-2">
+									<div class="flex items-center justify-between gap-4">
 										<span class="text-base font-medium">{totalVote.party}</span>
 										<VoteBreakDownDonut vote={totalVote} />
 									</div>
