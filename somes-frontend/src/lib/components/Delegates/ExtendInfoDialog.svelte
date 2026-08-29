@@ -24,7 +24,7 @@
 			class="
             fixed
             top-[50%] left-[50%] z-70
-            h-[90vh] w-7xl max-w-[90%]
+            h-[95vh] w-7xl max-w-[95%]
             translate-x-[-50%] translate-y-[-50%] overflow-hidden overflow-y-scroll rounded-lg bg-primary-100 shadow-lg outline-hidden data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 2xl:max-w-7xl dark:bg-gray-800"
 		>
 			{@render children?.()}

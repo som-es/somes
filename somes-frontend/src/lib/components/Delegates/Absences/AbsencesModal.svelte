@@ -56,7 +56,7 @@
 	let openSessionId: number | null = $state(null);
 </script>
 
-<div class="card p-8">
+<div class="card p-4 sm:p-8">
 	<div class="flex items-center justify-between">
 		<span></span>
 		<Dialog.Close>
@@ -64,21 +64,21 @@
 		</Dialog.Close>
 	</div>
 	<!-- Card Container with soft steel-blue background and deep rounding -->
-	<div class="mt-3 rounded-3xl bg-[#c8d4df] p-8 shadow-sm select-none">
+	<div class="mt-3 rounded-2xl bg-[#c8d4df] p-4 shadow-sm select-none sm:rounded-3xl sm:p-8">
 		<!-- Card Title -->
-		<h2 class="mb-6 text-3xl font-semibold text-slate-800/90">{t('absences.modalTitle')}</h2>
+		<h2 class="mb-4 text-2xl font-semibold text-slate-800/90 sm:mb-6 sm:text-3xl">{t('absences.modalTitle')}</h2>
 
 		<!-- GP Sections -->
 		<div class="space-y-6">
 			{#each absentOrNotPlenarySessionPerGp as entry (entry.gp)}
 				<div class="space-y-3">
 					<!-- GP Label (Centered, light serif/sans tracking) -->
-					<div class="text-center text-xl font-normal tracking-widest text-slate-700/80">
+					<div class="text-center text-lg font-normal tracking-widest text-slate-700/80 sm:text-xl">
 						{entry.gp.gp}
 					</div>
 
 					<!-- 10-Column Grid for Sessions -->
-					<div class="flex flex-wrap gap-x-2 gap-y-1.5">
+					<div class="flex flex-wrap gap-1.5 sm:gap-x-2">
 						{#each entry.sessions as item, i (item.session.id)}
 							{@const isAbsent = (item.absencesDuringSession?.length ?? 0) !== 0}
 							<Popover.Root
@@ -91,7 +91,7 @@
 								<Popover.Trigger openOnHover openDelay={0}>
 									<svelte:element
 										this={"div"}
-										class="flex h-8 w-8 items-center justify-center rounded-md text-xs font-normal transition-all duration-150
+										class="flex h-7 w-7 items-center justify-center rounded-md text-[11px] font-normal transition-all duration-150 sm:h-8 sm:w-8 sm:text-xs
 									{isAbsent ? 'text-slate/70 bg-tertiary-400/80 text-black' : 'bg-primary-400 text-white'}"
 									>
 										{i + 1}
@@ -100,9 +100,10 @@
 								<Popover.Portal>
 									<Popover.Content
 										side="top"
-										class="text-primary-950 z-70 max-w-sm rounded-xl border border-primary-200 bg-primary-50 p-4 text-sm shadow-xl focus:outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0"
+										collisionPadding={8}
+										class="text-primary-950 z-70 max-w-[calc(100vw-1rem)] rounded-xl border border-primary-200 bg-primary-50 p-4 text-sm shadow-xl focus:outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0"
 									>
-										<div class="flex w-64 flex-col gap-3">
+										<div class="flex w-64 max-w-full flex-col gap-3">
 											<!-- Popover Header -->
 											<div
 												class="flex items-center justify-between border-b border-primary-200 pb-2"
@@ -189,7 +190,7 @@
 			{/each}
 		</div>
 		<!-- Bottom Absence Counter -->
-		<div class="mt-6 pt-2 text-xl font-normal text-slate-700/90">
+		<div class="mt-4 pt-2 text-lg font-normal text-slate-700/90 sm:mt-6 sm:text-xl">
 			{totalAbsences}
 			{totalAbsences === 1 ? t('absences.countSingular') : t('absences.countPlural')}
 		</div>

@@ -152,6 +152,7 @@ export const en = {
 	'vote_result.searchDelegates': 'Search representatives...',
 	'vote_result.search': 'Search',
 	'vote_result.vote': 'Vote',
+	'vote_result.total': 'Total',
 	'vote_result.noParties': 'No parties',
 	'vote_result.inFavor': 'In favor',
 	'vote_result.against': 'Against',

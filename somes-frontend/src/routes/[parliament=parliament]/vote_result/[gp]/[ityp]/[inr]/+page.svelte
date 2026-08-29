@@ -40,6 +40,7 @@
 	let inr = $derived(page.params.inr);
 
 	import type { PageProps } from './$types';
+	import type { Vote } from '$lib/types';
 	import { browser } from '$app/environment';
 	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
 	import type { SvelteSet } from 'svelte/reactivity';
@@ -180,6 +181,15 @@
 	});
 
 	const sortedVotes = $derived(votesByPartySize(voteResult));
+
+	const totalVote = $derived<Vote>({
+		party: t('vote_result.total'),
+		code: null,
+		infavor_count: sortedVotes.reduce((sum, v) => sum + v.infavor_count, 0),
+		against_count: sortedVotes.reduce((sum, v) => sum + v.against_count, 0),
+		abstention_count: sortedVotes.reduce((sum, v) => sum + v.abstention_count, 0),
+		absence_count: 0
+	});
 
 	let allSpeeches = $derived(voteResult?.speeches ?? []);
 	let date = $derived(
@@ -587,60 +597,46 @@
 														>({givenVotes(vote)})</span
 													>
 												</div>
-												<span
-													class="shrink-0 text-sm font-medium"
-													style="color: {isVoteInFavor(vote)
-														? VOTE_COLORS.infavor
-														: VOTE_COLORS.against};"
-													>{isVoteInFavor(vote)
-														? t('vote_result.inFavor')
-														: t('vote_result.against')}</span
-												>
+												{#if isVoteInFavor(vote)}
+													<span
+														class="inline-block shrink-0 stroke-green-600 align-middle dark:stroke-green-500"
+														style="width:18px; height:18px;">{@html checkmarkIcon}</span
+													>
+												{:else}
+													<span class="inline-block shrink-0 align-middle" style="width:18px; height:18px;"
+														>{@html crossmarkIcon}</span
+													>
+												{/if}
 											</div>
 										{/each}
 									</div>
 								{:else}
-									{#each sortedVotes as vote (vote.party)}
-										{@const total = totalVotes(vote)}
-										{@const segments = [
-											{ value: vote.infavor_count, color: VOTE_COLORS.infavor },
-											{ value: vote.against_count, color: VOTE_COLORS.against },
-											{ value: vote.abstention_count, color: VOTE_COLORS.abstention },
-											{ value: vote.absence_count, color: VOTE_COLORS.absent }
-										].filter((s) => s.value > 0)}
-										<div class="py-2" aria-label={t('donut.ariaLabel', { party: vote.party })}>
-											<div class="flex items-center gap-2">
-												<div
-													class="h-2.5 w-2.5 shrink-0 rounded-full"
-													style="background-color: {partyColors.get(vote.party) ?? '#ccc'};"
-												></div>
-												<span class="truncate text-base font-medium">{vote.party}</span>
-												<span class="text-sm text-gray-500 tabular-nums dark:text-gray-400"
-													>({total})</span
-												>
-											</div>
-
-											<div class="mt-1 flex h-2 w-full gap-0.5">
-												{#each segments as segment (segment.color)}
+									<div class="mt-2 flex flex-col gap-2">
+										{#each sortedVotes as vote (vote.party)}
+											<div class="flex items-center justify-between gap-4">
+												<div class="flex min-w-0 items-center gap-2">
 													<div
-														class="h-full min-w-0.5 rounded-full"
-														style="width: {(segment.value / total) *
-															100}%; background-color: {segment.color};"
+														class="h-2.5 w-2.5 shrink-0 rounded-full"
+														style="background-color: {partyColors.get(vote.party) ?? '#ccc'};"
 													></div>
-												{/each}
-											</div>
-
-											<div class="mt-1 flex gap-2.5 text-xs tabular-nums">
-												<span style="color: {VOTE_COLORS.infavor};">{vote.infavor_count}</span>
-												<span style="color: {VOTE_COLORS.against};">{vote.against_count}</span>
-												{#if vote.abstention_count > 0}
-													<span style="color: {VOTE_COLORS.abstention};"
-														>{vote.abstention_count}</span
+													<span class="truncate text-base font-medium">{vote.party}</span>
+													<span class="text-sm text-gray-500 tabular-nums dark:text-gray-400"
+														>({totalVotes(vote)})</span
 													>
-												{/if}
+												</div>
+												<VoteBreakDownDonut {vote} />
 											</div>
+										{/each}
+									</div>
+									{#if givenVotes(totalVote) > 0}
+										<hr class="my-2 border-gray-400 dark:border-gray-600" />
+										<div class="flex items-center justify-between gap-4">
+											<span class="text-base font-medium">{totalVote.party}</span>
+											<VoteBreakDownDonut vote={totalVote} />
 										</div>
-									{/each}
+									{/if}
+								{/if}
+								{#if voteResult.named_votes != null}
 									<!-- Legend -->
 									<div
 										class="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400"
@@ -704,6 +700,16 @@
 												</div>
 											</div>
 										{/each}
+										{#if givenVotes(totalVote) > 0}
+											<hr class="my-1 border-gray-400 dark:border-gray-600" />
+											<div class="flex items-center gap-1">
+												<div class="flex w-24 shrink-0 items-center gap-2">
+													<div class="h-2.5 w-2.5 shrink-0"></div>
+													<span class="text-sm font-medium lg:text-base">{totalVote.party}</span>
+												</div>
+												<VoteBreakDownDonut vote={totalVote} />
+											</div>
+										{/if}
 									{/if}
 								</div>
 							</div>
