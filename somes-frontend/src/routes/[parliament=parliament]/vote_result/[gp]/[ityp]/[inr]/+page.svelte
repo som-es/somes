@@ -378,7 +378,7 @@
 								<MultiSelectFilter
 									items={uniqueParties}
 									bind:value={selectedPartiesNames}
-									allLabel="Alle Klubs"
+									allLabel={t("vote_result.allParties")}
 								>
 									{#snippet itemLabel(party)}
 										<div

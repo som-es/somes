@@ -3,6 +3,7 @@
 	import { type VoteResult } from '$lib/types';
 	import VoteTypeBadge from '../VoteTypeBadge.svelte';
 	import { t } from '$lib/i18n/i18n.svelte';
+	import { getParliament } from '$lib/api/parliament';
 	export let voteResult: VoteResult;
 	export let showRequiredMajority: boolean = true;
 	export let showGp: boolean = true;
@@ -10,7 +11,7 @@
 	export let showVoteType: boolean = true;
 </script>
 
-{#if showRequiredMajority}
+{#if showRequiredMajority && getParliament() !== "eu"}
 	{#if voteResult.legislative_initiative.requires_simple_majority}
 		<span class="badge bg-tertiary-400 text-black">{t('filterOption.simpleMajority')}</span>
 	{:else}
