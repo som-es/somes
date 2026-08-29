@@ -40,6 +40,7 @@
 	let inr = $derived(page.params.inr);
 
 	import type { PageProps } from './$types';
+	import type { Vote } from '$lib/types';
 	import { browser } from '$app/environment';
 	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
 	import type { SvelteSet } from 'svelte/reactivity';
@@ -180,6 +181,15 @@
 	});
 
 	const sortedVotes = $derived(votesByPartySize(voteResult));
+
+	const totalVote = $derived<Vote>({
+		party: t('vote_result.total'),
+		code: null,
+		infavor_count: sortedVotes.reduce((sum, v) => sum + v.infavor_count, 0),
+		against_count: sortedVotes.reduce((sum, v) => sum + v.against_count, 0),
+		abstention_count: sortedVotes.reduce((sum, v) => sum + v.abstention_count, 0),
+		absence_count: 0
+	});
 
 	let allSpeeches = $derived(voteResult?.speeches ?? []);
 	let date = $derived(
@@ -638,6 +648,15 @@
 											</div>
 										</div>
 									{/each}
+								{/if}
+								{#if givenVotes(totalVote) > 0}
+									<hr class="my-2 border-gray-400 dark:border-gray-600" />
+									<div class="flex items-center gap-2">
+										<span class="text-base font-medium">{totalVote.party}</span>
+										<VoteBreakDownDonut vote={totalVote} />
+									</div>
+								{/if}
+								{#if voteResult.named_votes != null}
 									<!-- Legend -->
 									<div
 										class="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400"
@@ -701,6 +720,16 @@
 												</div>
 											</div>
 										{/each}
+									{/if}
+									{#if givenVotes(totalVote) > 0}
+										<hr class="my-1 border-gray-400 dark:border-gray-600" />
+										<div class="flex items-center gap-1">
+											<div class="flex w-24 shrink-0 items-center gap-2">
+												<div class="h-2.5 w-2.5 shrink-0"></div>
+												<span class="text-sm font-medium lg:text-base">{totalVote.party}</span>
+											</div>
+											<VoteBreakDownDonut vote={totalVote} />
+										</div>
 									{/if}
 								</div>
 							</div>

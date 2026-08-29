@@ -151,6 +151,7 @@ export const de = {
 	'vote_result.searchDelegates': 'Suche nach Abgeordneten...',
 	'vote_result.search': 'Suche',
 	'vote_result.vote': 'Abstimmung',
+	'vote_result.total': 'Gesamt',
 	'vote_result.noParties': 'Keine Klubs',
 	'vote_result.inFavor': 'Dafür',
 	'vote_result.against': 'Dagegen',
