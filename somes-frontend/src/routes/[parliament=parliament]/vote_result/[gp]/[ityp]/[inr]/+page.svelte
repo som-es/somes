@@ -594,15 +594,16 @@
 														>({givenVotes(vote)})</span
 													>
 												</div>
-												<span
-													class="shrink-0 text-sm font-medium"
-													style="color: {isVoteInFavor(vote)
-														? VOTE_COLORS.infavor
-														: VOTE_COLORS.against};"
-													>{isVoteInFavor(vote)
-														? t('vote_result.inFavor')
-														: t('vote_result.against')}</span
-												>
+												{#if isVoteInFavor(vote)}
+													<span
+														class="inline-block shrink-0 stroke-green-600 align-middle dark:stroke-green-500"
+														style="width:18px; height:18px;">{@html checkmarkIcon}</span
+													>
+												{:else}
+													<span class="inline-block shrink-0 align-middle" style="width:18px; height:18px;"
+														>{@html crossmarkIcon}</span
+													>
+												{/if}
 											</div>
 										{/each}
 									</div>
