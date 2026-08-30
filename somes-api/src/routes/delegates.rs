@@ -15,6 +15,7 @@ use somes_common_lib::{
 pub use error::*;
 mod absences;
 mod ai_chat;
+mod delegate_questions;
 mod error;
 mod interests;
 mod interjections;
@@ -26,6 +27,7 @@ mod routes;
 mod stance_topic_score;
 pub use absences::*;
 pub use ai_chat::*;
+pub use delegate_questions::*;
 pub use interests::*;
 pub use interjections::*;
 pub(crate) use issued_proposals::*;

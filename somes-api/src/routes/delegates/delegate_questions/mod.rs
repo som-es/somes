@@ -2,9 +2,9 @@ mod mail;
 mod models;
 
 use axum::{
+    Json, Router,
     extract::Path,
     routing::{get, post},
-    Json, Router,
 };
 use chrono::{DateTime, Utc};
 use delegate_question_mail::new_question_message_id;
@@ -14,7 +14,7 @@ use serde::Deserialize;
 use sqlx::{Row, Transaction};
 use std::collections::HashMap;
 
-use crate::{jwt::Claims, server::AppState, GenericError, PgPoolConnection};
+use crate::{AppState, GenericError, PgPoolConnection, jwt::Claims};
 
 use self::{
     mail::send_question_mail,
