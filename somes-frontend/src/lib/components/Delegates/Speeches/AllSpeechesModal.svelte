@@ -43,7 +43,7 @@
 
 <div class="card p-8">
 	<div class="flex items-center justify-between">
-		<h1 class="text-2xl font-bold">
+		<h1 class="text-xl font-bold lg:text-2xl">
 			{#if aiViewEnabledStore.value && hintAiSummary}
 				<AiSummaryHintPopup
 					aiSummary={hintAiSummary}
