@@ -98,7 +98,7 @@
 		<div>
 			<div class="mt-4 block justify-between sm:flex">
 				{#if voteResult.legislative_initiative.accepted !== null}
-					{#if voteResult.named_votes == null}
+					{#if !voteResult.legislative_initiative.voted_by_name}
 						<!-- Normal votes -->
 						<div class="mx-1 mb-3 flex justify-between sm:mb-0 md:items-center">
 							{#each sortedVotes as vote (vote.party)}
