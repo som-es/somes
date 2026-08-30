@@ -61,6 +61,8 @@ export const de = {
 		'Diese Rohdaten werden von dem <a class="text-secondary-500" href="https://www.parlament.gv.at/recherchieren/open-data/daten-und-lizenz/index.html" target="_blank">Open-Data Angebot</a> des Österreichischen Parlaments bereitgestellt und sind nach <a class="text-secondary-500" href="https://creativecommons.org/licenses/by/4.0/deed.de" target="_blank">CC-BY 4.0</a> lizenziert. Der zugehörige Eintrag auf der Parlamentsseite ist bei der Somes-Detailseite im Titel verlinkt.',
 	'layout.disclaimer.ris':
 		'Diese Rohdaten werden von dem <a class="text-secondary-500" href="https://www.ris.bka.gv.at/UI/Ogd.aspx" target="_blank">Open-Data Angebot</a> des Österreichischen Rechtsinformationssystem des Bundes bereitgestellt und sind nach <a class="text-secondary-500" href="https://creativecommons.org/licenses/by/4.0/deed.de" target="_blank">CC-BY 4.0</a> lizenziert. Der zugehörige Eintrag im RIS ist bei der Somes-Detailseite im Titel verlinkt.',
+	'layout.disclaimer.eu':
+		'Diese Rohdaten werden vom <a class="text-secondary-500" href="https://data.europa.eu/data/datasets?query=European+Parliament" target="_blank">Open-Data Portal</a> der Europäischen Union (data.europa.eu) bereitgestellt und sind nach <a class="text-secondary-500" href="https://opendatacommons.org/licenses/by/1-0/" target="_blank">ODC-BY 1.0</a> lizenziert.',
 
 	// --- Landing page (/) ---
 	'landing.meta.description': 'Verlinkung zur Plattform und Informationen über den Verein',

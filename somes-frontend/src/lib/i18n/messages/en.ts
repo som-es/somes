@@ -60,6 +60,8 @@ export const en = {
 		'These raw data are provided by the <a class="text-secondary-500" href="https://www.parlament.gv.at/recherchieren/open-data/daten-und-lizenz/index.html" target="_blank">Open Data offering</a> of the Austrian Parliament and are licensed under <a class="text-secondary-500" href="https://creativecommons.org/licenses/by/4.0/deed.en" target="_blank">CC-BY 4.0</a>. The corresponding entry on the Parliament page is linked in the title of the Somes detail page.',
 	'layout.disclaimer.ris':
 		'These raw data are provided by the <a class="text-secondary-500" href="https://www.ris.bka.gv.at/UI/Ogd.aspx" target="_blank">Open Data offering</a> of the Austrian Legal Information System of the Federation and are licensed under <a class="text-secondary-500" href="https://creativecommons.org/licenses/by/4.0/deed.en" target="_blank">CC-BY 4.0</a>. The corresponding entry in the RIS is linked in the title of the Somes detail page.',
+	'layout.disclaimer.eu':
+		'These raw data are provided by the <a class="text-secondary-500" href="https://data.europa.eu/data/datasets?query=European+Parliament" target="_blank">Open Data Portal</a> of the European Union (data.europa.eu) and are licensed under <a class="text-secondary-500" href="https://opendatacommons.org/licenses/by/1-0/" target="_blank">ODC-BY 1.0</a>.',
 
 	// --- Landing page (/) ---
 	'landing.meta.description': 'Link to the platform and information about the association',
