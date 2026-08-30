@@ -133,7 +133,7 @@
 									</div>
 								{/each}
 							</div>
-						{:else}
+						{:else if voteResult.named_votes}
 							<div class="mb-3 flex items-center gap-3 sm:mb-0">
 								<div class="flex items-center">
 									<span

@@ -583,7 +583,7 @@
 									</button>
 								</div>
 
-								{#if voteResult.named_votes == null}
+								{#if !voteResult.legislative_initiative.voted_by_name}
 									<div class="mt-2 flex flex-col gap-2">
 										{#each sortedVotes as vote (vote.party)}
 											<div class="flex items-center justify-between gap-4">
@@ -660,7 +660,7 @@
 							<div class="absolute ml-1 max-lg:hidden">
 								<h3 class="mb-1 text-lg font-semibold md:text-xl">{t('vote_result.vote')}</h3>
 								<div class="ml-1">
-									{#if voteResult.named_votes == null}
+									{#if !voteResult.legislative_initiative.voted_by_name}
 										{#each sortedVotes as vote (vote.party)}
 											<div class="flex items-center justify-between gap-4">
 												<div class="flex items-center gap-2">

@@ -334,7 +334,9 @@ pub async fn update_vote_result_meilisearch_index(
                 .collect();
         }
         vote_result.speeches = None;
-        vote_result.named_votes = None;
+        if let Some(named_votes) = vote_result.named_votes.as_mut() {
+            named_votes.named_votes = None;
+        }
     }
 
     log::info!("Fetched all vote results");
