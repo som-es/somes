@@ -1,11 +1,13 @@
-use axum::{extract::Query, Json};
+use axum::{Json, extract::Query};
 use combx::{Delegate, DelegateFilter, Index};
 use meilisearch_sdk::search::SearchResults;
 use serde::{Deserialize, Serialize};
-use somes_meilisearch_filter::{to_meilisearch_filters, FilterOptions};
+use somes_meilisearch_filter::{FilterOptions, to_meilisearch_filters};
 use utoipa::ToSchema;
 
-use crate::{meilisearch::MeilisearchClient, routes::FilterError, Qs, RedisConnection};
+use crate::{
+    ParliamentCtx, Qs, RedisConnection, meilisearch::MeilisearchClient, routes::FilterError,
+};
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct DelegatesWithMaxPage {
@@ -16,12 +18,13 @@ pub struct DelegatesWithMaxPage {
 }
 
 pub async fn delegates_by_search_route(
+    ParliamentCtx(parliament): ParliamentCtx,
     RedisConnection(mut redis_con): RedisConnection,
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
     Query(page): Query<somes_common_lib::Page>,
     Query(entry_count_per_page): Query<somes_common_lib::PageEntryCount>,
-    Query(sort): Query<somes_common_lib::SortParams>,
+    Query(_sort): Query<somes_common_lib::SortParams>,
     Qs(delegate_filter): Qs<DelegateFilter>,
 ) -> Result<Json<DelegatesWithMaxPage>, FilterError> {
     let mut filter_conditions = to_meilisearch_filters(
@@ -53,7 +56,7 @@ pub async fn delegates_by_search_route(
     // }
 
     let results: SearchResults<Delegate> = meilisearch_client
-        .index("delegates")
+        .index(Index::Delegates.uid(parliament))
         .search()
         .with_filter(&meilisearch_filter)
         .with_query(&search_query.search.unwrap_or_default())
@@ -66,7 +69,7 @@ pub async fn delegates_by_search_route(
     let max_page = results.total_pages.unwrap_or(1) as i64;
 
     let updated_at =
-        crate::meilisearch::get_update_time_of_index(&mut redis_con, &Index::Delegates)
+        crate::meilisearch::get_update_time_of_index(&mut redis_con, parliament, &Index::Delegates)
             .await
             .ok()
             .map(|date| date.naive_local());

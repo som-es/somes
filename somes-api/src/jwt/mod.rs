@@ -7,9 +7,9 @@ pub use error::AuthError;
 pub use keys::*;
 
 use axum::Json;
-use jsonwebtoken::{encode, EncodingKey, Header};
+use jsonwebtoken::{EncodingKey, Header, encode};
 use serde::Serialize;
-use somes_common_lib::{time::timestamp_secs, JWTInfo};
+use somes_common_lib::{JWTInfo, time::timestamp_secs};
 use utoipa::ToSchema;
 
 pub fn create_access_token(

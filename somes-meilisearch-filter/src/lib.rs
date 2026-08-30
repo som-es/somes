@@ -1,6 +1,66 @@
-use chrono::{NaiveTime, SecondsFormat};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
+
+#[derive(Debug, ToSchema, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum CombinatorOp<T> {
+    Or(Vec<T>),
+    Or1(Vec<T>),
+    Or2(Vec<T>),
+    Or3(Vec<T>),
+    Or4(Vec<T>),
+    And(Vec<T>),
+    And1(Vec<T>),
+    And2(Vec<T>),
+    And3(Vec<T>),
+    And4(Vec<T>),
+}
+
+impl<T> CombinatorOp<T> {
+    pub fn to_meilisearch_op(&self) -> &'static str {
+        match self {
+            CombinatorOp::And(_)
+            | CombinatorOp::And1(_)
+            | CombinatorOp::And2(_)
+            | CombinatorOp::And3(_)
+            | CombinatorOp::And4(_) => "AND",
+            CombinatorOp::Or(_)
+            | CombinatorOp::Or1(_)
+            | CombinatorOp::Or2(_)
+            | CombinatorOp::Or3(_)
+            | CombinatorOp::Or4(_) => "OR",
+        }
+    }
+    pub fn as_value(&self) -> &[T] {
+        match self {
+            CombinatorOp::Or(val)
+            | CombinatorOp::Or1(val)
+            | CombinatorOp::Or2(val)
+            | CombinatorOp::Or3(val)
+            | CombinatorOp::Or4(val)
+            | CombinatorOp::And(val)
+            | CombinatorOp::And1(val)
+            | CombinatorOp::And2(val)
+            | CombinatorOp::And3(val)
+            | CombinatorOp::And4(val) => val,
+        }
+    }
+
+    pub fn to_value(self) -> Vec<T> {
+        match self {
+            CombinatorOp::Or(val)
+            | CombinatorOp::Or1(val)
+            | CombinatorOp::Or2(val)
+            | CombinatorOp::Or3(val)
+            | CombinatorOp::Or4(val)
+            | CombinatorOp::And(val)
+            | CombinatorOp::And1(val)
+            | CombinatorOp::And2(val)
+            | CombinatorOp::And3(val)
+            | CombinatorOp::And4(val) => val,
+        }
+    }
+}
 
 #[derive(Debug, ToSchema, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
@@ -105,6 +165,14 @@ impl From<chrono::NaiveDate> for Filterable {
 }
 
 impl ToFilterable for chrono::NaiveDate {
+    fn to_filterable(&self) -> Filterable {
+        Filterable {
+            value_as_string: format!("{:?}", self.to_string()),
+        }
+    }
+}
+
+impl ToFilterable for chrono::NaiveTime {
     fn to_filterable(&self) -> Filterable {
         Filterable {
             value_as_string: format!("{:?}", self.to_string()),
@@ -312,7 +380,7 @@ pub fn to_meilisearch_filter_with_ops(
 mod tests {
     use serde::{Deserialize, Serialize};
 
-    use crate::{FilterOp, Filterable, ToFilterArgument, to_meilisearch_filter};
+    use crate::{CombinatorOp, FilterOp, Filterable, ToFilterArgument, to_meilisearch_filter};
 
     #[derive(Default, Debug, Deserialize, Serialize, Clone)]
     pub struct InnerGpFilter {
@@ -330,6 +398,26 @@ mod tests {
         pub gov_officials: Option<FilterOp<Vec<i32>>>,
         pub inner_gp: Option<InnerGpFilter>,
         pub topics: Option<Vec<TopicFilter>>,
+    }
+
+    #[derive(Default, Debug, Deserialize, Serialize, Clone)]
+    pub struct CombDecreeFilter2 {
+        pub legis_period: Option<FilterOp<String>>,
+        pub gov_officials: Option<FilterOp<Vec<i32>>>,
+        pub inner_gp: Option<InnerGpFilter>,
+        pub topics: Option<Vec<TopicFilter>>,
+        filter: Option<DecreeFilter2>,
+        filters: Vec<CombinatorOp<DecreeFilter2>>,
+    }
+
+    #[test]
+    fn test_comdinator_filter() {
+        let query_str = "filters[0][or][0][legis_period][eq]=Hi";
+        let config = serde_qs::Config::new(10, false);
+        let data = config
+            .deserialize_str::<CombDecreeFilter2>(query_str)
+            .unwrap();
+        dbg!(data);
     }
 
     #[test]

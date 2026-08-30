@@ -1,18 +1,19 @@
 use std::fmt::Display;
 
-use axum::{extract::Query, Json};
-use combx::{meilisearch_filters_vote_result, Index, OptionalVoteResult, OptionalVoteResultFilter};
+use axum::{Json, extract::Query};
+use combx::{Index, OptionalVoteResult, OptionalVoteResultFilter, meilisearch_filters_vote_result};
 use meilisearch_sdk::search::SearchResults;
-use redis::aio::MultiplexedConnection;
+use redis::aio::ConnectionLike;
 use somes_common_lib::{AddonVoteResultFilter, Page};
 
 use crate::{
+    LEGIS_INITS_PER_PAGE, ParliamentCtx, Qs, RedisConnection,
     meilisearch::MeilisearchClient,
     routes::{FilterError, VoteResultsWithMaxPage},
-    Qs, RedisConnection, LEGIS_INITS_PER_PAGE,
 };
 
 pub async fn vote_results_by_search_route(
+    ParliamentCtx(parliament): ParliamentCtx,
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     RedisConnection(mut redis_con): RedisConnection,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
@@ -22,8 +23,8 @@ pub async fn vote_results_by_search_route(
     Qs(legis_init_filter): Qs<AddonVoteResultFilter>,
     Qs(optional_vote_result_filter): Qs<OptionalVoteResultFilter>,
 ) -> Result<Json<VoteResultsWithMaxPage>, FilterError> {
-    log::info!("legis_init_filter: {legis_init_filter:?}");
     meilisearch_for_vote_results(
+        parliament,
         legis_init_filter.is_finished,
         meilisearch_client,
         search_query,
@@ -50,6 +51,7 @@ fn create_topic_filter<T: Display>(field: &str, filter_values: impl Iterator<Ite
 }
 
 async fn meilisearch_for_vote_results(
+    parliament: combx::Parliament,
     is_finished: bool,
     meilisearch_client: meilisearch_sdk::client::Client,
     search_query: somes_common_lib::SearchQuery,
@@ -58,17 +60,41 @@ async fn meilisearch_for_vote_results(
     sort: Option<somes_common_lib::Sort>,
     filter: AddonVoteResultFilter,
     vote_result_filter: OptionalVoteResultFilter,
-    redis_con: &mut MultiplexedConnection,
+    redis_con: &mut (impl ConnectionLike + Send + Sync),
 ) -> Result<VoteResultsWithMaxPage, FilterError> {
-    // dbg!(&vote_result_filter);
     let mut filter_conditions = if is_finished {
         vec![r#"legislative_initiative.accepted IS NOT NULL"#.to_string()]
     } else {
         vec![r#"legislative_initiative.accepted IS NULL"#.to_string()]
     };
-    filter_conditions.extend(meilisearch_filters_vote_result(vote_result_filter, None));
 
-    // combx::DbLegislativeInitiativeQueryFilter ;
+    if let Some(topics) = &filter.filter_topics
+        && !topics.is_empty()
+    {
+        let eurovoc_conditions = topics
+            .iter()
+            .map(|topic| format!("eurovoc_topics.topic CONTAINS {topic:?}"))
+            .collect::<Vec<_>>()
+            .join(" OR ");
+
+        let ai_summary_values = topics
+            .iter()
+            .map(|topic| format!("{topic:?}"))
+            .collect::<Vec<_>>()
+            .join(", ");
+
+        filter_conditions.push(format!(
+            "(({eurovoc_conditions}) OR ai_summary.full_summary.topics IN [{ai_summary_values}])"
+        ));
+    }
+
+    vote_result_filter.extend_meilisearch_filters(
+        &mut filter_conditions,
+        meilisearch_filters_vote_result,
+        None,
+    );
+
+    filter_conditions.extend(meilisearch_filters_vote_result(vote_result_filter, None));
 
     if let Some(party_votes) = &filter.party_votes {
         filter_conditions.push(create_topic_filter(
@@ -101,18 +127,24 @@ async fn meilisearch_for_vote_results(
 
     log::info!("vote results meilisearch filter: {meilisearch_filter}, {search_query:?}");
 
+    let date_sort_field = if is_finished {
+        "legislative_initiative.vote_date"
+    } else {
+        "legislative_initiative.nr_plenary_activity_date"
+    };
+
     let sort = match sort {
         Some(sort) => match sort {
             somes_common_lib::Sort::Asc => {
                 vec![
-                    "legislative_initiative.nr_plenary_activity_date:asc",
-                    "legislative_initiative.raw_data_created_at:asc",
+                    format!("{date_sort_field}:asc"),
+                    "legislative_initiative.raw_data_created_at:asc".to_string(),
                 ]
             }
             somes_common_lib::Sort::Desc => {
                 vec![
-                    "legislative_initiative.nr_plenary_activity_date:desc",
-                    "legislative_initiative.raw_data_created_at:asc",
+                    format!("{date_sort_field}:desc"),
+                    "legislative_initiative.raw_data_created_at:asc".to_string(),
                 ]
             }
         },
@@ -120,9 +152,10 @@ async fn meilisearch_for_vote_results(
             vec![]
         }
     };
+    let sort = sort.iter().map(|x| x.as_str()).collect::<Vec<_>>();
 
     let results: SearchResults<OptionalVoteResult> = meilisearch_client
-        .index("vote_results")
+        .index(Index::VoteResults.uid(parliament))
         .search()
         .with_filter(&meilisearch_filter)
         .with_sort(&sort)
@@ -139,21 +172,17 @@ async fn meilisearch_for_vote_results(
         .map(|hit| hit.result)
         .collect::<Vec<_>>();
 
-    // log::info!(
-    //     "results: {:?}",
-    //     vote_results
-    //         .iter()
-    //         .map(|x| x.legislative_initiative.created_at)
-    //         .collect::<Vec<_>>()
-    // );
-
     Ok(VoteResultsWithMaxPage {
         vote_results,
         entry_count: results.estimated_total_hits.unwrap_or(1) as i64,
         max_page,
-        updated_at: crate::meilisearch::get_update_time_of_index(redis_con, &Index::VoteResults)
-            .await
-            .ok()
-            .map(|date| date.naive_local()),
+        updated_at: crate::meilisearch::get_update_time_of_index(
+            redis_con,
+            parliament,
+            &Index::VoteResults,
+        )
+        .await
+        .ok()
+        .map(|date| date.naive_local()),
     })
 }

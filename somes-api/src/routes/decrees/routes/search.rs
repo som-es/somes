@@ -1,15 +1,16 @@
 use crate::{
+    DECREES_PER_PAGE, ParliamentCtx, Qs, RedisConnection,
     meilisearch::MeilisearchClient,
     routes::{DecreeDelegate, DecreeDelegateFilter, DecreesWithMaxPage, FilterError},
-    Qs, RedisConnection, DECREES_PER_PAGE,
 };
-use axum::{extract::Query, Json};
-use combx::{meilisearch_filters_ai_summary, Index};
+use axum::{Json, extract::Query};
+use combx::{Index, meilisearch_filters_ai_summary};
 use meilisearch_sdk::search::SearchResults;
-use somes_common_lib::{Page, Sort};
-use somes_meilisearch_filter::{to_meilisearch_filters, FilterOptions};
+use somes_common_lib::{Page, Sort, TopicsFilter};
+use somes_meilisearch_filter::{FilterOptions, to_meilisearch_filters};
 
 pub async fn decrees_by_search_route(
+    ParliamentCtx(parliament): ParliamentCtx,
     RedisConnection(mut redis_con): RedisConnection,
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
@@ -17,9 +18,11 @@ pub async fn decrees_by_search_route(
     Query(entry_count_per_page): Query<somes_common_lib::PageEntryCount>,
     Query(sort): Query<somes_common_lib::SortParams>,
     Query(date_range): Query<somes_common_lib::DateRangeQueryFilter>,
+    Query(topics): Query<TopicsFilter>,
     Qs(decrees_filter): Qs<DecreeDelegateFilter>,
 ) -> Result<Json<DecreesWithMaxPage>, FilterError> {
     meilisearch_decrees(
+        parliament,
         &mut redis_con,
         meilisearch_client,
         search_query,
@@ -30,13 +33,15 @@ pub async fn decrees_by_search_route(
         page,
         decrees_filter,
         date_range,
+        topics,
     )
     .await
     .map(Json)
 }
 
 async fn meilisearch_decrees(
-    redis_con: &mut redis::aio::MultiplexedConnection,
+    parliament: combx::Parliament,
+    redis_con: &mut (impl redis::aio::ConnectionLike + Send + Sync),
     meilisearch_client: meilisearch_sdk::client::Client,
     search_query: somes_common_lib::SearchQuery,
     entries_per_page: usize,
@@ -44,6 +49,7 @@ async fn meilisearch_decrees(
     page: Page,
     decree_filter: DecreeDelegateFilter,
     date_range: somes_common_lib::DateRangeQueryFilter,
+    topics: TopicsFilter,
 ) -> Result<DecreesWithMaxPage, FilterError> {
     let mut filter_conditions =
         to_meilisearch_filters(&decree_filter.filter_arguments(), &FilterOptions::default());
@@ -85,6 +91,20 @@ async fn meilisearch_decrees(
         ));
     }
 
+    if let Some(topics) = topics.filter_topics
+        && !topics.is_empty()
+    {
+        let ai_summary_values = topics
+            .iter()
+            .map(|topic| format!("{topic:?}"))
+            .collect::<Vec<_>>()
+            .join(", ");
+
+        filter_conditions.push(format!(
+            "decree.ai_summary.full_summary.topics IN [{ai_summary_values}]"
+        ));
+    }
+
     let meilisearch_filter = filter_conditions.join(" AND ");
 
     // let stats = meilisearch_client
@@ -103,7 +123,7 @@ async fn meilisearch_decrees(
     };
 
     let results: SearchResults<DecreeDelegate> = meilisearch_client
-        .index("decrees")
+        .index(Index::Decrees.uid(parliament))
         .search()
         .with_filter(&meilisearch_filter)
         .with_sort(&sort)
@@ -121,10 +141,11 @@ async fn meilisearch_decrees(
         .map(|decree| decree.result)
         .collect();
 
-    let updated_at = crate::meilisearch::get_update_time_of_index(redis_con, &Index::Decrees)
-        .await
-        .ok()
-        .map(|date| date.naive_local());
+    let updated_at =
+        crate::meilisearch::get_update_time_of_index(redis_con, parliament, &Index::Decrees)
+            .await
+            .ok()
+            .map(|date| date.naive_local());
 
     Ok(DecreesWithMaxPage {
         decrees,

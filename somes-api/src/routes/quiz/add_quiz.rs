@@ -1,9 +1,9 @@
 use axum::Json;
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
-use sqlx::{query, PgPool};
+use sqlx::{PgPool, query};
 
-use crate::{jwt::Claims, GenericError, PgPoolConnection};
+use crate::{GenericError, PgPoolConnection, jwt::Claims};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct QuizQuestionNoCorrection {
@@ -38,7 +38,7 @@ pub async fn add_quiz_handler(pg: &PgPool, user_id: i32, quiz: Quiz) -> crate::R
         .map_err(|e| GenericError::SqlFailure(Some(e)))?;
     if !is_admin.is_admin {
         return Err(GenericError::Custom((
-            StatusCode::UNAUTHORIZED,
+            StatusCode::FORBIDDEN,
             "missing permissions",
         )));
     }
@@ -54,8 +54,8 @@ pub async fn add_quiz_handler(pg: &PgPool, user_id: i32, quiz: Quiz) -> crate::R
 
     for question in quiz.questions {
         query!(
-            "insert into quiz_questions 
-                (quiz_id, answer1, answer2, answer3, answer4, correct_answer, question) 
+            "insert into quiz_questions
+                (quiz_id, answer1, answer2, answer3, answer4, correct_answer, question)
             values ($1, $2, $3, $4, $5, $6, $7)",
             id.id,
             question.answer1,

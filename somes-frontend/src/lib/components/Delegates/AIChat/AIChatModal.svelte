@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import type { Delegate } from '$lib/types';
 	import { Dialog, Popover } from 'bits-ui';
 	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
@@ -18,7 +19,7 @@
 	messages = [
 		{
 			role: 'assistant',
-			content: `Ich bin SomBOT, ein Chatbot des Demokratieprojekts "somes". Ich bin spezialisiert darauf, Fragen über ${delegate.name} (${delegate.party}) zu verschiedenen Themen zu beantworten.`
+			content: t('aiChat.intro', { name: delegate.name, party: delegate.party })
 		}
 	];
 	const recvMessage = (event: MessageEvent) => {
@@ -64,41 +65,35 @@
 </script>
 
 <div
-	class="flex flex-col justify-between w-full max-w-7xl h-[90vh] bg-primary-100-900 shadow-lg rounded-lg overflow-hidden"
+	class="flex h-[90vh] w-full max-w-7xl flex-col justify-between overflow-hidden rounded-lg bg-primary-100-900 shadow-lg"
 >
-	<div class="p-4 bg-primary-300 text-center  items-center text-lg font-bold flex justify-between">
+	<div class="flex items-center justify-between bg-primary-300 p-4 text-center text-lg font-bold">
 		<Popover.Root>
 			<Popover.Trigger openOnHover openDelay={100}>
 				<span class="text-4xl">⚠</span>
 			</Popover.Trigger>
 			<Popover.Portal>
 				<Popover.Content
-					class="z-90 text-sm w-72 p-4 bg-primary-100 dark:bg-primary-600 rounded-lg shadow-lg"
+					class="z-90 w-72 rounded-lg bg-primary-100 p-4 text-sm shadow-lg dark:bg-primary-600"
 				>
-					Die Antworten des Chatbots basieren auf Ausschnitten von Reden der jeweiligen Person. Diese
-					Ausschnitte können unvollständig oder aus dem Kontext gerissen sein, was zu ungenauen oder
-					irreführenden Antworten führen kann. Bitte beachten Sie, dass der Chatbot nicht die tatsächlichen
-					Meinungen oder Aussagen der Person widerspiegelt.
+					{t('aiChat.disclaimer.part1')}
+					{t('aiChat.disclaimer.part2')}
+					{t('aiChat.disclaimer.part3')}
+					{t('aiChat.disclaimer.part4')}
 				</Popover.Content>
 			</Popover.Portal>
 		</Popover.Root>
-		<!-- <Popover title="Hinweis" placement="bottom" trigger="hover"  transitionParams={{ duration: 200 }} class="z-40 text-sm w-72 p-4">
-			Die Antworten des Chatbots basieren auf Ausschnitten von Reden der jeweiligen Person. Diese
-			Ausschnitte können unvollständig oder aus dem Kontext gerissen sein, was zu ungenauen oder
-			irreführenden Antworten führen kann. Bitte beachten Sie, dass der Chatbot nicht die tatsächlichen
-			Meinungen oder Aussagen der Person widerspiegelt.
-		</Popover> -->
 		<div>AI Chat</div>
-		 <Dialog.Close>
+		<Dialog.Close>
 			<ModalCloseButton />
-		 </Dialog.Close>
+		</Dialog.Close>
 		<!-- <X /> -->
 	</div>
-	<div class="flex-1 p-4 overflow-y-auto bg-gray-50 dark:bg-gray-900">
+	<div class="flex-1 overflow-y-auto bg-gray-50 p-4 dark:bg-gray-900">
 		{#each messages as { role, content }}
-			<div class={`flex mb-4 ${role === 'user' ? 'justify-end' : 'justify-start'}`}>
+			<div class={`mb-4 flex ${role === 'user' ? 'justify-end' : 'justify-start'}`}>
 				<div
-					class={`max-w-[70%] px-4 py-2 rounded-lg text-sm ${role === 'user' ? 'bg-secondary-500 text-white' : 'bg-primary-400 text-gray-900 dark:text-gray-100'}`}
+					class={`max-w-[70%] rounded-lg px-4 py-2 text-sm ${role === 'user' ? 'bg-secondary-500 text-white' : 'bg-primary-400 text-gray-900 dark:text-gray-100'}`}
 				>
 					{content}
 				</div>
@@ -106,19 +101,19 @@
 		{/each}
 	</div>
 	<div
-		class="flex items-center border-t border-gray-200 dark:border-gray-700 p-4 bg-primary-100 dark:bg-gray-800"
+		class="flex items-center border-t border-gray-200 bg-primary-100 p-4 dark:border-gray-700 dark:bg-gray-800"
 	>
 		<input
 			type="text"
 			bind:value={newMessage}
-			placeholder="Stelle deine Frage..."
+			placeholder={t('aiChat.placeholder')}
 			on:keypress={(e) => e.key === 'Enter' && sendMessage()}
-			class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-full text-base outline-hidden focus:ring-3 focus:ring-primary"
+			class="focus:ring-primary flex-1 rounded-full border border-gray-300 px-4 py-2 text-base outline-hidden focus:ring-3 dark:border-gray-600"
 		/>
 		<button
 			on:click={sendMessage}
-			class="ml-4 px-4 py-2 bg-primary-500 text-white rounded-full hover:bg-primary-800 focus:outline-hidden focus:ring-3 focus:ring-primary-dark"
-			>Senden</button
+			class="focus:ring-primary-dark ml-4 rounded-full bg-primary-500 px-4 py-2 text-white hover:bg-primary-800 focus:ring-3 focus:outline-hidden"
+			>{t('aiChat.send')}</button
 		>
 	</div>
 </div>

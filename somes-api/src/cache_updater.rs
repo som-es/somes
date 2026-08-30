@@ -1,5 +1,6 @@
 mod update_delegates;
 mod update_gov_proposals;
+pub mod update_session_activity;
 mod update_vote_results;
 
 use std::{
@@ -8,8 +9,8 @@ use std::{
 };
 
 use combx::{self, CombinedData};
-use redis::{aio::MultiplexedConnection, AsyncCommands};
-use serde::{de::DeserializeOwned, Serialize};
+use redis::{AsyncCommands, aio::MultiplexedConnection};
+use serde::{Serialize, de::DeserializeOwned};
 
 use crate::{meilisearch::update_time, set_json_cache_no_expire};
 
@@ -135,16 +136,17 @@ pub async fn update_cache_for_index<
 }
 
 pub async fn update_meilisearch_index<T: CombinedData + serde::Serialize + Send + Sync>(
+    parliament: combx::Parliament,
     data: &[T],
     meilisearch_client: &meilisearch_sdk::client::Client,
     redis_con: &mut MultiplexedConnection,
 ) -> combx::Result<()> {
     meilisearch_client
-        .index(T::INDEX.as_str())
+        .index(T::INDEX.uid(parliament))
         .add_documents_in_batches(&data, Some(3000), Some(T::PRIMARY_KEY))
         .await?;
 
-    update_time::update_update_time_of_index(redis_con, &T::INDEX).await?;
+    update_time::update_update_time_of_index(redis_con, parliament, &T::INDEX).await?;
     Ok(())
 }
 

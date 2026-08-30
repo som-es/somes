@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import {
 		errorToNull,
 		interjections_made_by_delegate_per_page,
@@ -37,7 +38,9 @@
 <div class="card px-4">
 	<div class="flex items-center justify-between p-8">
 		<h1 class="text-2xl font-bold">
-			Alle {ty === 'issued' ? 'vergebenen' : 'erhaltenen'} Zwischenrufe
+			{ty === 'issued'
+				? t('interjections.modalTitleIssued')
+				: t('interjections.modalTitleReceived')}
 		</h1>
 		<Dialog.Close>
 			<ModalCloseButton />
@@ -46,7 +49,7 @@
 
 	<div class="flex flex-col gap-2">
 		{#if currentPageInterjections.length === 0}
-			<div class="w-full rounded-lg bg-surface-100-900 p-20 text-center">Keine</div>
+			<div class="w-full rounded-lg bg-surface-100-900 p-20 text-center">{t('ui.none')}</div>
 		{/if}
 		{#each currentPageInterjections as interjection}
 			<InterjectionBar

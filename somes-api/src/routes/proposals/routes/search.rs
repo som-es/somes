@@ -1,17 +1,18 @@
-use axum::{extract::Query, Json};
-use combx::{meilisearch_filters_ai_summary, meilisearch_filters_gov_props, Index};
+use axum::{Json, extract::Query};
+use combx::{Index, meilisearch_filters_gov_props};
 use meilisearch_sdk::search::SearchResults;
-use somes_meilisearch_filter::{to_meilisearch_filters, FilterOptions};
+use somes_meilisearch_filter::{FilterOptions, to_meilisearch_filters};
 
 use crate::{
+    GOV_PROPS_PER_PAGE, ParliamentCtx, Qs, RedisConnection,
     meilisearch::MeilisearchClient,
     routes::{
         FilterError, GovProposalDelegate, GovProposalDelegateFilter, GovProposalsWithMaxPage,
     },
-    Qs, RedisConnection, GOV_PROPS_PER_PAGE,
 };
 
 pub async fn gov_props_by_search_route(
+    ParliamentCtx(parliament): ParliamentCtx,
     RedisConnection(mut redis_con): RedisConnection,
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     Query(search_query): Query<somes_common_lib::SearchQuery>,
@@ -19,6 +20,7 @@ pub async fn gov_props_by_search_route(
     Query(entry_count_per_page): Query<somes_common_lib::PageEntryCount>,
     Query(sort): Query<somes_common_lib::SortParams>,
     Query(date_range): Query<somes_common_lib::DateRangeQueryFilter>,
+    Query(topics): Query<somes_common_lib::TopicsFilter>,
     Qs(gov_prop_filter): Qs<GovProposalDelegateFilter>,
 ) -> Result<Json<GovProposalsWithMaxPage>, FilterError> {
     let mut filter_conditions = to_meilisearch_filters(
@@ -26,10 +28,16 @@ pub async fn gov_props_by_search_route(
         &FilterOptions::default(),
     );
 
-    if let Some(gov_proposal_filter) = gov_prop_filter.gov_proposal {
+    if let Some(ref gov_proposal_filter) = gov_prop_filter.gov_proposal {
+        gov_proposal_filter.extend_meilisearch_filters(
+            &mut filter_conditions,
+            meilisearch_filters_gov_props,
+            Some("gov_proposal".into()),
+        );
+
         filter_conditions.extend(meilisearch_filters_gov_props(
-            gov_proposal_filter,
-            Some("gov_proposal"),
+            gov_proposal_filter.clone(),
+            Some("gov_proposal".into()),
         ));
     }
     if let Some(delegates) = &gov_prop_filter.delegates {
@@ -61,6 +69,26 @@ pub async fn gov_props_by_search_route(
         ));
     }
 
+    if let Some(topics) = topics.filter_topics
+        && !topics.is_empty()
+    {
+        let eurovoc_conditions = topics
+            .iter()
+            .map(|topic| format!("gov_proposal.eurovoc_topics.topic CONTAINS {topic:?}"))
+            .collect::<Vec<_>>()
+            .join(" OR ");
+
+        let ai_summary_values = topics
+            .iter()
+            .map(|topic| format!("{topic:?}"))
+            .collect::<Vec<_>>()
+            .join(", ");
+
+        filter_conditions.push(format!(
+            "(({eurovoc_conditions}) OR gov_proposal.ai_summary.full_summary.topics IN [{ai_summary_values}])"
+        ));
+    }
+
     let meilisearch_filter = filter_conditions.join(" AND ");
 
     log::info!("meilisearch filter: {meilisearch_filter}");
@@ -78,7 +106,7 @@ pub async fn gov_props_by_search_route(
     };
 
     let results: SearchResults<GovProposalDelegate> = meilisearch_client
-        .index("gov_props")
+        .index(Index::GovProposals.uid(parliament))
         .search()
         .with_filter(&meilisearch_filter)
         .with_query(&search_query.search.unwrap_or_default())
@@ -94,11 +122,14 @@ pub async fn gov_props_by_search_route(
 
     let max_page = results.total_pages.unwrap_or(1) as i64;
 
-    let updated_at =
-        crate::meilisearch::get_update_time_of_index(&mut redis_con, &Index::GovProposals)
-            .await
-            .ok()
-            .map(|date| date.naive_local());
+    let updated_at = crate::meilisearch::get_update_time_of_index(
+        &mut redis_con,
+        parliament,
+        &Index::GovProposals,
+    )
+    .await
+    .ok()
+    .map(|date| date.naive_local());
 
     let gov_proposals = results
         .hits

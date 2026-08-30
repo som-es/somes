@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import type { IssuedProposal } from '$lib/types';
 	import Pagination from '$lib/components/Pagination.svelte';
 	import IssuedProposalBar from './IssuedProposalBar.svelte';
@@ -22,7 +23,7 @@
 
 <div class="card px-4">
 	<div class="flex items-center justify-between p-8">
-		<h1 class="text-2xl font-bold">Alle eingebrachten Anträge</h1>
+		<h1 class="text-2xl font-bold">{t('proposals.allTitle')}</h1>
 		<Dialog.Close>
 			<ModalCloseButton />
 		</Dialog.Close>

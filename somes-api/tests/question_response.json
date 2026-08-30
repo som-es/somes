@@ -1,1 +1,1081 @@
-{"question":{"data":{"gp":"XXVIII","ityp":"J","inr":5810,"issuer_ids":[5676],"receiver_ids":[3677],"documents":[{"title":"Anfrage (elektr. übermittelte Version)","document_url":"https://www.parlament.gv.at/dokument/XXVIII/J/5810/fname_1756270.pdf","document_type":"DigitalPDF"},{"title":"Anfrage (elektr. übermittelte Version)","document_url":"https://www.parlament.gv.at/dokument/XXVIII/J/5810/fnameorig_1756270.html","document_type":"HTML"},{"title":"Anfrage (gescanntes Original)","document_url":"https://www.parlament.gv.at/dokument/XXVIII/J/5810/imfname_1752098.pdf","document_type":"OriginalPDF"}],"topics":[],"eurovoc_topics":[],"other_keyword_topics":[],"description":"Schriftliche Anfrage der Abgeordneten Ralph Schallmeiner, Kolleginnen und Kollegen an die Bundesministerin für Arbeit, Soziales, Gesundheit, Pflege und Konsumentenschutz betreffend Führungsbesetzungen im BMASGPK: Transparenz, Objektivität oder politische Einflussnahme?","title":"Führungsbesetzungen im BMASGPK: Transparenz, Objektivität oder politische Einflussnahme? (5810/J) | Parlament Österreich","created_at":"2026-06-13T14:29:10.713676Z","updated_at":"2026-06-14T19:21:11.306496Z","raw_data_created_at":"2026-04-12T22:00:00Z","raw_data_updated_at":"2026-06-12T12:44:07Z"},"ai_question":{"id":665,"pqa_meta_id":21374,"short_title":"Transparenz und Objektivität bei Führungsbesetzungen im BMASGPK","once_sentence_short_info_summary":"Anfrage zu personellen Besetzungsverfahren und strukturellen Änderungen im BMASGPK.","very_short_info_summary":"Anfrage zu Führungsbesetzungen im BMASGPK.","short_info_summary":"Anfrage zu personellen Besetzungsverfahren und strukturellen Änderungen im BMASGPK.","info_summary":"Anfrage bezüglich der Transparenz und Objektivität bei Führungsbesetzungen im BMASGPK, unter besonderer Berücksichtigung der Sektion VI und der Einhaltung des Ausschreibungsgesetzes.","detailed_info_summary":"Die Anfrage bezieht sich auf die jüngsten personellen Neubesetzungen und strukturellen Änderungen im Bundesministerium für Arbeit, Soziales, Gesundheit, Pflege und Konsumentenschutz (BMASGPK). Es besteht der Verdacht, dass bei Besetzungen von Führungsfunktionen – insbesondere in der Sektion VI (Humanmedizinrecht) – nicht ausschließlich fachliche Kriterien, sondern auch politische Faktoren eine Rolle gespielt haben könnten. Zudem wird die Einhaltung des Ausschreibungsgesetzes sowie die Unabhängigkeit der Begutachtungskommissionen und die Auswirkungen der neu geschaffenen Sektion X hinterfragt.","question_summary":"Fragen zur Transparenz, Objektivität und Einhaltung des Ausschreibungsgesetzes bei Führungsbesetzungen im BMASGPK sowie spezifische Fragen zur Sektion VI und der Strukturreform.","detailed_question_summary":"Die Anfrage umfasst vier Hauptbereiche: 1) Allgemeine Fragen zu den Neubesetzungen seit Januar 2025 (Anzahl, Verfahren, Bewerberzahlen, Kriterien); 2) Die Einhaltung des Ausschreibungsgesetzes (Definition der Anforderungen, Gewichtung); 3) Details zur Begutachtungskommission (Zusammensetzung, Unabhängigkeit, mögliche Einflussnahme durch das Kabinett); 4) Spezifische Fragen zur Besetzung der Sektion VI (Fachliche Qualifikation vs. Verwaltungserfahrung, Verbindung zum Kabinett) sowie Fragen zur Strukturreform (Sektion X).","full_question_entry":{"short_title":"Transparenz und Objektivität bei Führungsbesetzungen im BMASGPK","once_sentence_short_info_summary":"Anfrage zu personellen Besetzungsverfahren und strukturellen Änderungen im BMASGPK.","very_short_info_summary":"Anfrage zu Führungsbesetzungen im BMASGPK.","short_info_summary":"Anfrage zu personellen Besetzungsverfahren und strukturellen Änderungen im BMASGPK.","info_summary":"Anfrage bezüglich der Transparenz und Objektivität bei Führungsbesetzungen im BMASGPK, unter besonderer Berücksichtigung der Sektion VI und der Einhaltung des Ausschreibungsgesetzes.","info_sources_urls":["www.parlament.gv.at"],"detailed_info_summary":"Die Anfrage bezieht sich auf die jüngsten personellen Neubesetzungen und strukturellen Änderungen im Bundesministerium für Arbeit, Soziales, Gesundheit, Pflege und Konsumentenschutz (BMASGPK). Es besteht der Verdacht, dass bei Besetzungen von Führungsfunktionen – insbesondere in der Sektion VI (Humanmedizinrecht) – nicht ausschließlich fachliche Kriterien, sondern auch politische Faktoren eine Rolle gespielt haben könnten. Zudem wird die Einhaltung des Ausschreibungsgesetzes sowie die Unabhängigkeit der Begutachtungskommissionen und die Auswirkungen der neu geschaffenen Sektion X hinterfragt.","question_summary":"Fragen zur Transparenz, Objektivität und Einhaltung des Ausschreibungsgesetzes bei Führungsbesetzungen im BMASGPK sowie spezifische Fragen zur Sektion VI und der Strukturreform.","detailed_question_summary":"Die Anfrage umfasst vier Hauptbereiche: 1) Allgemeine Fragen zu den Neubesetzungen seit Januar 2025 (Anzahl, Verfahren, Bewerberzahlen, Kriterien); 2) Die Einhaltung des Ausschreibungsgesetzes (Definition der Anforderungen, Gewichtung); 3) Details zur Begutachtungskommission (Zusammensetzung, Unabhängigkeit, mögliche Einflussnahme durch das Kabinett); 4) Spezifische Fragen zur Besetzung der Sektion VI (Fachliche Qualifikation vs. Verwaltungserfahrung, Verbindung zum Kabinett) sowie Fragen zur Strukturreform (Sektion X).","questions":[{"raw_question":"Welche Führungsfunktionen (Sektionsleitungen, Gruppenleitungen, Abteilungsleitungen, Amtsleitungen) wurden seit 1.1.2025 im BMASGPK neu besetzt? (Bitte um vollständige Auflistung mit Datum der Bestellung.)","nth_level":[{"kind":"Number","value":1}]},{"raw_question":"Für welche dieser Positionen wurde jeweils ein öffentliches Ausschreibungsverfahren durchgeführt?","nth_level":[{"kind":"Number","value":2}]},{"raw_question":"Für welche Positionen erfolgte die Besetzung im Wege von:","nth_level":[{"kind":"Number","value":3}]},{"raw_question":"Ausschreibung","nth_level":[{"kind":"Number","value":3},{"kind":"String","value":"a"}]},{"raw_question":"Betrauung","nth_level":[{"kind":"Number","value":3},{"kind":"String","value":"b"}]},{"raw_question":"provisorischer Leitung","nth_level":[{"kind":"Number","value":3},{"kind":"String","value":"c"}]},{"raw_question":"sonstiger Verfahren?","nth_level":[{"kind":"Number","value":3},{"kind":"String","value":"d"}]},{"raw_question":"Wie viele Bewerbungen sind jeweils pro Position eingelangt?","nth_level":[{"kind":"Number","value":4}]},{"raw_question":"Wie viele Bewerber:innen wurden jeweils in die engere Auswahl genommen?","nth_level":[{"kind":"Number","value":5}]},{"raw_question":"Wurde für jede dieser Positionen ein standardisiertes Hearing durchgeführt?","nth_level":[{"kind":"Number","value":6}]},{"raw_question":"Wenn nein: warum nicht?","nth_level":[{"kind":"Number","value":6},{"kind":"String","value":"a"}]},{"raw_question":"Welche formalen Kriterien und Gewichtungen wurden bei der Auswahl angewendet?","nth_level":[{"kind":"Number","value":7}]},{"raw_question":"Wurden für die jeweiligen Verfahren externe Gutachten oder Bewertungen eingeholt?","nth_level":[{"kind":"Number","value":8}]},{"raw_question":"Wenn ja: bei welchen Besetzungsverfahren und von wem?","nth_level":[{"kind":"Number","value":8},{"kind":"String","value":"a"}]},{"raw_question":"Wenn nein: bei welchen Besetzungsverfahren und warum nicht?","nth_level":[{"kind":"Number","value":8},{"kind":"String","value":"b"}]},{"raw_question":"In wie vielen Fällen wurde die letztlich bestellte Person nicht als bestgeeignete Person gereiht?","nth_level":[{"kind":"Number","value":9}]},{"raw_question":"Für welche der seit 1.1.2025 neu besetzten Führungsfunktionen wurden Ausschreibungen gemäß Ausschreibungsgesetz durchgeführt?","nth_level":[{"kind":"Number","value":10}]},{"raw_question":"Entsprachen die Ausschreibungen jeweils den Vorgaben des § 5 Abs. 2 Ausschreibungsgesetz, insbesondere hinsichtlich:","nth_level":[{"kind":"Number","value":11}]},{"raw_question":"konkreter Definition der erforderlichen Kenntnisse und Fähigkeiten","nth_level":[{"kind":"Number","value":11},{"kind":"String","value":"a"}]},{"raw_question":"Gewichtung dieser Kriterien?","nth_level":[{"kind":"Number","value":11},{"kind":"String","value":"b"}]},{"raw_question":"Wie wurden diese Gewichtungen konkret in den jeweiligen Gutachten der Begutachtungskommission berücksichtigt?","nth_level":[{"kind":"Number","value":12}]},{"raw_question":"Wer führte den Vorsitz in der Begutachtungskommission für die Leitung der Sektion VI?","nth_level":[{"kind":"Number","value":13}]},{"raw_question":"Nach welchen Kriterien wurden die Mitglieder der Begutachtungskommission ausgewählt?","nth_level":[{"kind":"Number","value":14}]},{"raw_question":"Wurde sichergestellt, dass alle Mitglieder der Begutachtungskommission ihre Funktion unabhängig und weisungsfrei ausgeübt haben?","nth_level":[{"kind":"Number","value":15}]},{"raw_question":"Hat die Bundesministerin gemäß § 7 Abs. 8 Ausschreibungsgesetz von ihrem Recht Gebrauch gemacht, sich über Gegenstände der Geschäftsführung der Begutachtungskommission zu informieren?","nth_level":[{"kind":"Number","value":16}]},{"raw_question":"Wenn ja: in welchem Umfang und zu welchen Zeitpunkten?","nth_level":[{"kind":"Number","value":16},{"kind":"String","value":"a"}]},{"raw_question":"Gab es darüber hinaus Kontakte zwischen Mitgliedern des Kabinetts und Mitgliedern der Begutachtungskommission im Zuge des Verfahrens?","nth_level":[{"kind":"Number","value":17}]},{"raw_question":"Wurden im Zuge des Auswahlverfahrens Hearings bzw. Bewerbungsgespräche durchgeführt?","nth_level":[{"kind":"Number","value":18}]},{"raw_question":"Wenn ja: in welcher Form?","nth_level":[{"kind":"Number","value":18},{"kind":"String","value":"a"}]},{"raw_question":"Wurden im Sinne des § 9 Abs. 3 Ausschreibungsgesetz sachverständige Personen (z. B. Vorgesetzte, Mitarbeiter:innen) zur Beurteilung der Bewerber:innen beigezogen?","nth_level":[{"kind":"Number","value":19}]},{"raw_question":"Wurde die bisherige Verwendung und einschlägige Berufserfahrung der Bewerber:innen im Sinne des § 9 Abs. 4 bewertet?","nth_level":[{"kind":"Number","value":20}]},{"raw_question":"Wenn ja: nach welchen Kriterien?","nth_level":[{"kind":"Number","value":20},{"kind":"String","value":"a"}]},{"raw_question":"Wie viele Bewerber:innen wurden im Gutachten der Begutachtungskommission","nth_level":[{"kind":"Number","value":21}]},{"raw_question":"als geeignet","nth_level":[{"kind":"Number","value":21},{"kind":"String","value":"a"}]},{"raw_question":"als in höchstem Ausmaß geeignet eingestuft?","nth_level":[{"kind":"Number","value":21},{"kind":"String","value":"b"}]},{"raw_question":"War das Gutachten der Begutachtungskommission einstimmig?","nth_level":[{"kind":"Number","value":22}]},{"raw_question":"Wenn nein: wie lauteten die abweichenden Meinungen?","nth_level":[{"kind":"Number","value":22},{"kind":"String","value":"a"}]},{"raw_question":"Kam es zu einer Entscheidung durch den Vorsitz (Dirimierung)?","nth_level":[{"kind":"Number","value":23}]},{"raw_question":"Wie hat sich die Gleichbehandlungsbeauftragte zum Verfahren und zum Gutachten geäußert?","nth_level":[{"kind":"Number","value":24}]},{"raw_question":"Wie viele Bewerbungen sind für die Leitung der Sektion VI eingelangt?","nth_level":[{"kind":"Number","value":25}]},{"raw_question":"Wie viele Bewerber:innen wurden als „in höchstem Ausmaß geeignet“ eingestuft?","nth_level":[{"kind":"Number","value":26}]},{"raw_question":"Wie wurden die drei gleich gewichteten Anforderungsdimensionen in den jeweiligen Gutachten bewertet?","nth_level":[{"kind":"Number","value":27}]},{"raw_question":"fachliche Kenntnisse/Erfahrung","nth_level":[{"kind":"Number","value":27},{"kind":"String","value":"a"}]},{"raw_question":"Managementkompetenzen","nth_level":[{"kind":"Number","value":27},{"kind":"String","value":"b"}]},{"raw_question":"sozial-kommunikative Kompetenzen","nth_level":[{"kind":"Number","value":27},{"kind":"String","value":"c"}]},{"raw_question":"Wie unterschieden sich die Bewertungen der bestellten Person und der weiteren als „in höchstem Ausmaß geeignet“ eingestuften Bewerber:innen in diesen drei Dimensionen?","nth_level":[{"kind":"Number","value":28}]},{"raw_question":"Welche konkrete fachliche Erfahrung weist die bestellte Person in folgenden Aufgabengebieten der Sektion VI auf:","nth_level":[{"kind":"Number","value":29}]},{"raw_question":"Gesundheitsberufe","nth_level":[{"kind":"Number","value":29},{"kind":"String","value":"a"}]},{"raw_question":"Arzneimittel- und Medizinprodukterecht","nth_level":[{"kind":"Number","value":29},{"kind":"String","value":"b"}]},{"raw_question":"Krankenanstaltenrecht","nth_level":[{"kind":"Number","value":29},{"kind":"String","value":"c"}]},{"raw_question":"Suchtmittel- und Tabakrecht","nth_level":[{"kind":"Number","value":29},{"kind":"String","value":"d"}]},{"raw_question":"Budget- und Förderwesen","nth_level":[{"kind":"Number","value":29},{"kind":"String","value":"e"}]},{"raw_question":"Welche der Bewerber:innen verfügten über einschlägige Leitungserfahrung innerhalb der Sektion VI bzw. deren Aufgabenbereichen?","nth_level":[{"kind":"Number","value":30}]},{"raw_question":"Wurde im Auswahlverfahren berücksichtigt, dass einzelne Bewerber:innen die Funktion der Sektionsleitung der Sektion VI bereits interimistisch ausgeübt haben?","nth_level":[{"kind":"Number","value":31}]},{"raw_question":"Wenn ja: wie wurde dies bewertet?","nth_level":[{"kind":"Number","value":31},{"kind":"String","value":"a"}]},{"raw_question":"Inwiefern wurde die einschlägige fachliche Spezialisierung im Bereich Humanmedizinrecht gegenüber allgemeiner Verwaltungserfahrung für die Leitung der Sektion VI gewichtet?","nth_level":[{"kind":"Number","value":32}]},{"raw_question":"Hat die für die Leitung der Sektion VI bestellte Person vor ihrer Bestellung im Kabinett der Bundesministerin gearbeitet?","nth_level":[{"kind":"Number","value":33}]},{"raw_question":"Welche Maßnahmen wurden gesetzt, um sicherzustellen, dass ein solcher Wechsel keine Einflussnahme auf das Auswahlverfahren begründet?","nth_level":[{"kind":"Number","value":34}]},{"raw_question":"Wurde im Verfahren geprüft, ob ein potenzieller Interessenkonflikt vorliegt?","nth_level":[{"kind":"Number","value":35}]},{"raw_question":"Wenn ja: in welchem Ausmaß?","nth_level":[{"kind":"Number","value":35},{"kind":"String","value":"a"}]},{"raw_question":"Welche konkreten Abteilungen wurden aus bestehenden Sektionen in die Sektion X übertragen?","nth_level":[{"kind":"Number","value":36}]},{"raw_question":"Welche fachliche Begründung lag jeweils für diese Verlagerungen vor?","nth_level":[{"kind":"Number","value":37}]},{"raw_question":"Welche Kompetenzen wurden dadurch aus der Sektion VII (Öffentliche Gesundheit) abgezogen?","nth_level":[{"kind":"Number","value":38}]},{"raw_question":"Wurde vor der Umstrukturierung ein organisationsfachliches Gutachten eingeholt?","nth_level":[{"kind":"Number","value":39}]},{"raw_question":"Wenn nein: warum nicht?","nth_level":[{"kind":"Number","value":39},{"kind":"String","value":"a"}]},{"raw_question":"Wie stellt das BMASGPK sicher, dass bei Führungsbesetzungen ausschließlich fachliche Kriterien maßgeblich sind?","nth_level":[{"kind":"Number","value":40}]},{"raw_question":"Wie wird dokumentiert, dass politische Näheverhältnisse keine Rolle spielen?","nth_level":[{"kind":"Number","value":41}]}],"topics":["Gesundheit","Verwaltungsorganisation","Öffentlicher Sektor","Verwaltungsrecht"]},"model_used":"gemma-4-26B","version":"1","generated_at":"2026-06-14T18:44:47.917012Z"},"refs":[{"gp":"XXVIII","ityp":"AB","inr":5226}]},"answer":[{"data":{"gp":"XXVIII","ityp":"AB","inr":5226,"issuer_ids":[],"receiver_ids":[3677],"documents":[{"title":"Anfragebeantwortung","document_url":"https://www.parlament.gv.at/dokument/XXVIII/AB/5226/imfname_1764126.pdf","document_type":"DigitalPDF"},{"title":"Beilage","document_url":"https://www.parlament.gv.at/dokument/XXVIII/AB/5226/imfname_1764127.pdf","document_type":"DigitalPDF"}],"topics":[],"eurovoc_topics":[],"other_keyword_topics":[],"description":"Anfragebeantwortung durch die Bundesministerin für Arbeit, Soziales, Gesundheit, Pflege und Konsumentenschutz Korinna Schumann zu der schriftlichen Anfrage (5810/J) der Abgeordneten Ralph Schallmeiner, Kolleginnen und Kollegen an die Bundesministerin für Arbeit, Soziales, Gesundheit, Pflege und Konsumentenschutz betreffend Führungsbesetzungen im BMASGPK: Transparenz, Objektivität oder politische Einflussnahme?","title":"Führungsbesetzungen im BMASGPK: Transparenz, Objektivität oder politische Einflussnahme? (5226/AB) | Parlament Österreich","created_at":"2026-06-13T14:29:41.383505Z","updated_at":"2026-06-14T19:21:12.577125Z","raw_data_created_at":"2026-06-10T22:00:00Z","raw_data_updated_at":"2026-06-12T12:43:41Z"},"ai_answer":{"id":45,"pqa_meta_id":21533,"short_title":"Führungsbesetzungen im BMASGPK: Transparenz und Verfahren","full_answer_summary":"Das Ministerium bestätigt die Einhaltung der Ausschreibungsvorschriften und die Unabhängigkeit der Auswahlverfahren bei allen neu besetzten Führungsfunktionen seit 2025. Die Umstrukturierung der Sektionen VI, VII und X dient der Effizienzsteigerung im Rahmen der Gesundheitsreform.","detailed_full_answer_summary":"Das BMASGPK beantwortet die parlamentarische Anfrage zur Transparenz von Führungsbesetzungen. Es wird dargelegt, dass alle relevanten Positionen gemäß dem Ausschreibungsgesetz (AusG) öffentlich ausgeschrieben wurden und die Auswahlkommissionen unabhängig agieren. Details zu den spezifischen Bewerberzahlen und Eignungseinstufungen werden teilweise durch Verweise auf offizielle Publikationen gegeben. Die Umstrukturierung zur Sektion X wird als notwendiger Schritt zur effizienten Umsetzung der Gesundheitsreform begründet, wobei auf interne Expertise statt externe Gutachten gesetzt wurde. Aufgrund gesetzlicher Vertraulichkeitsvorschriften (§ 14 AusG) können Details zu internen Kommissionsberatungen nicht offengelegt werden.","full_answer_entry":{"short_title":"Führungsbesetzungen im BMASGPK: Transparenz und Verfahren","answers":[{"answering_questions_references":[{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":1}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":4}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":5}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":25}]}],"raw_answer":"Folgende Führungsfunktionen wurden in meinem Ministerium seit 1. Jänner 2025 neu besetzt:\n[Tabelle mit Funktionen wie Abteilung VII/A/1, VI/A/5, IV/8, I/B/7, VI/A/3, VIII, VII/A/2, VII/A/9, IX/C/10, IX/B/10, IX/B/7, IX/C/3, VI, X, Bundesamt für Soziales und Behindertenwesen, Arbeitsinspektorat Tirol, Vorarlberg, Steiermark, Wien West-Ost, OÖ Ost, Kärnten sowie Amtsleitungen im Büro und Sektionen. Die Tabelle enthält Spalten für Funktion, Organisationseinheit, Datum der Betrauung, Anzahl an Bewerbungen und Anzahl der Bewerber, die zu einem Hearing geladen wurden.]","once_sentence_short_answer_summary":"Die Besetzungen sind in einer Tabelle mit Datum, Funktion und Bewerberzahlen aufgeführt.","very_short_answer_summary":"Ja, alle genannten Funktionen wurden ausgeschrieben und entsprechen den Vorgaben des AusG (insb. § 5 Abs. 2). Gruppenleitungen werden intern ausgeschrieben. Provisorische Leitungen dienen nur der Funktionsfähigkeit in Übergangsphasen (z.B. Sabbaticals).","short_answer_summary":"Alle Funktionen wurden gemäß Ausschreibungsgesetz öffentlich ausgeschrieben.","answer_summary":"Auflistung der seit 1.1.2025 neu besetzten Führungsfunktionen im BMASGPK inklusive Anzahl der Bewerbungen und Personen, die zu einem Hearing geladen wurden.","other_written_answer_refs":[]},{"answering_questions_references":[{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":6}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":6},{"kind":"String","value":"a"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":18}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":18},{"kind":"String","value":"a"}]}],"raw_answer":"In meinem Ministerium entscheidet eine nach den Bestimmungen des AusG betraute Kommission, ob ein Hearing für die bessere Beurteilung der Bewerbungen zielführend ist. In den überwiegenden Fällen finden Hearings statt, insbesondere wenn mehr als eine Bewerbung alle verpflichtenden Voraussetzungen des Ausschreibungstextes erfüllt. Von der Abhaltung von Hearings kann Abstand genommen werden, wenn nur eine Bewerbung die formalen Voraussetzungen der Ausschreibung erfüllt und die Auswahlkommission auf Basis der schriftlichen Unterlagen ein Gutachten erstellen kann.","once_sentence_short_answer_summary":"Hearings finden statt, wenn mehr als eine Bewerbung die Voraussetzungen erfüllt; ansonsten wird auf Basis der Unterlagen entschieden.","very_short_answer_summary":"Die Auswahl erfolgt nach fachlichen Kenntnissen/Erfahrungen, Managementkompetenzen und sozial-kommunikativen Kompetenzen in gleichem Ausmaß gemäß AusG und Geschäftsordnung. Die Berufserfahrung wird ebenfalls berücksichtigt.","short_answer_summary":"Kriterien sind Fachkenntnisse, Management- und Sozialkompetenzen (gleich gewichtet).","answer_summary":"Informationen zur Durchführung von Hearings und Auswahlverfahren.","other_written_answer_refs":[]},{"answering_questions_references":[{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":8}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":8},{"kind":"String","value":"a"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":8},{"kind":"String","value":"b"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":19}]}],"raw_answer":"Externe Gutachten wurden für keines der angeführten Ausschreibungsverfahren eingeholt. Dies war nicht notwendig, da die entsprechende Expertise in meinem Ministerium vorhanden war. Wenn zweckmäßig, wurde eine interne sachverständige Person nach § 9 AusG als beratendes, nicht stimmberechtigtes Mitglied der Auswahlkommission beigezogen.","once_sentence_short_answer_summary":"Es wurden keine externen Gutachten eingeholt; interne Expertise war ausreichend. Sachverständige können beratend beigezogen werden.","very_short_answer_summary":"Kein Fall (0).","short_answer_summary":"In keinem Fall wurde die bestellte Person nicht als bestgeeignete geriet.","answer_summary":"Informationen zu externen Gutachten und sachverständigen Personen.","other_written_answer_refs":[]},{"answering_questions_references":[{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":13}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":14}]}],"raw_answer":"Sektionschef Dr. Martin Gruber-Risak wurde von mir mit dem Vorsitz der Auswahlkommission für diese Sektionsleitung beauftragt. Gemäß § 7 AusG wählt die Leiterin/der Leiter der zuständigen Zentralstelle die Kommissionsmitglieder der Dienstgeberseite aus dem Kreis der Führungskräfte. Bei der Auswahl berücksichtige ich deren Kenntnisse und Erfahrungen, damit die Anforderungsdimensionen, die für die jeweilige Aufgabe relevant sind, durch die Kompetenzen der jeweiligen Führungskräfte bewertet werden können.","once_sentence_short_answer_summary":"Sektionschef Dr. Martin Gruber-Risak führte den Vorsitz; Mitglieder werden nach Kompetenz für die Aufgabe ausgewählt.","very_short_answer_summary":"Die Weisungsfreiheit ist gesetzlich vorgeschrieben. Einflussnahme, Befangenheit und Interessenskonflikte werden durch die Einhaltung des AusG vermieden.","short_answer_summary":"Unabhängigkeit und Objektivität sind gesetzlich garantiert; Einflussnahme wird vermieden.","answer_summary":"Details zur Begutachtungskommission für die Leitung der Sektion VI.","other_written_answer_refs":[]},{"answering_questions_references":[{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":21}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":21},{"kind":"String","value":"a"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":21},{"kind":"String","value":"b"}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":26}]}],"raw_answer":"Das Ergebnis jedes Verfahrens, inklusive der Anzahl der geeigneten Bewerber:innen und deren Eignung, wird gemäß § 10 und § 15 AusG veröffentlicht. Die dazugehörigen Links sind auf Karrierechancen im Sozialministerium unter dem Punkt „Veröffentlichungen“ zu finden, auch jene der Auswahlverfahren der angesprochenen Sektions- und Amtsleitungen. In den angesprochenen Verfahren für die Leitungen der Sektion VI, der Sektion X und der Amtsleitung des Sozialministeriumsservice gab es jeweils zwei Personen die im höchsten Ausmaß als geeignet bewertet wurden.","once_sentence_short_answer_summary":"Für Sektion VI, X und das Sozialministeriumsservice wurden jeweils zwei Personen als 'in höchstem Ausmaß geeignet' eingestuft.","very_short_answer_summary":"Die Fragen zu Einstimmigkeit, Dirimierung, Gleichbehandlungsbeauftragter, Gewichtung in Gutachten, Unterschieden der Bewertungen sowie spezifische fachliche Erfahrungen und Leitungserfahrung können aufgrund der gesetzlichen Geheimhaltungspflicht (§ 14 AusG) des Abstimmungsverhaltens und der Inhalte nicht beantwortet werden.","short_answer_summary":"Details zu Abstimmung und Bewertung sind aufgrund der Vertraulichkeit (§ 14 AusG) nicht öffentlich.","answer_summary":"Informationen zur Anzahl der als 'in höchstem Ausmaß geeignet' eingestuften Bewerber:innen.","other_written_answer_refs":[]},{"answering_questions_references":[{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":33}]}],"raw_answer":"Ja, und davor übte sie eine langjährige Funktion als Abteilungsleiterin im Resort aus.","once_sentence_short_answer_summary":"Ja, die Person arbeitete im Kabinett und war zuvor langjährige Abteilungsleiterin.","very_short_answer_summary":"Die Zusammenführung von Abteilungen der Sektionen VI und VII zur neuen Sektion X dient der Bündelung von Aufgaben (z.B. Digitalisierung, Steuerung des Gesundheitssystems) für die Gesundheitsreform. Ein externes Gutachten war nicht nötig, da interne Expertise vorhanden war.","short_answer_summary":"Umstrukturierung zur Sektion X erfolgte zur effizienten Umsetzung der Gesundheitsreform.","answer_summary":"Bestätigung einer vorherigen Tätigkeit im Kabinett.","other_written_answer_refs":[]},{"answering_questions_references":[{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":36}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":37}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":38}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":39}]},{"question_assignment_confidence":"VeryConfident","affected_question_absolute_path":[{"kind":"Number","value":39},{"kind":"String","value":"a"}]}],"raw_answer":"Ziel war es, insgesamt eine verbesserte Bündelung an Aufgaben zu erzielen, um den Anforderungen der im Regierungsprogramm vereinbarten Gesundheitsreform effizienter zu entsprechen. Für die Umstrukturierung wurde kein organisationsfachliches Gutachten eingeholt, da die notwendige Expertise in meinem Ministerium vorhanden ist und die Geschäftseinteilung in enger Abstimmung mit den Fachsektionen erstellt wurde.\nDie Sektion X wurde aus Abteilungen der bisherigen Sektionen VI und VII neu zusammengeführt: [Liste der übertragenen Gruppen/Abteilungen wie Gruppe VI/B, Abteilung VI/B/7, VII/15, Gruppe VII/B etc.]","once_sentence_short_answer_summary":"Abteilungen aus VI und VII wurden in Sektion X überführt, um die Gesundheitsreform effizienter zu gestalten.","very_short_answer_summary":"Durch die Zusammenführung von Aufgaben zur Steuerung des Gesundheitssystems und der Digitalisierung in der neuen Sektion X soll eine bestmögliche Zusammenarbeit für die Umsetzung der Gesundheitsreform erreicht werden.","short_answer_summary":"Die Umstrukturierung dient der Effizienzsteigerung im Rahmen der Gesundheitsreform.","answer_summary":"Erläuterung zur Umstrukturierung und den übertragenen Abteilungen.","other_written_answer_refs":[]}],"full_answer_summary":"Das Ministerium bestätigt die Einhaltung der Ausschreibungsvorschriften und die Unabhängigkeit der Auswahlverfahren bei allen neu besetzten Führungsfunktionen seit 2025. Die Umstrukturierung der Sektionen VI, VII und X dient der Effizienzsteigerung im Rahmen der Gesundheitsreform.","detailed_full_answer_summary":"Das BMASGPK beantwortet die parlamentarische Anfrage zur Transparenz von Führungsbesetzungen. Es wird dargelegt, dass alle relevanten Positionen gemäß dem Ausschreibungsgesetz (AusG) öffentlich ausgeschrieben wurden und die Auswahlkommissionen unabhängig agieren. Details zu den spezifischen Bewerberzahlen und Eignungseinstufungen werden teilweise durch Verweise auf offizielle Publikationen gegeben. Die Umstrukturierung zur Sektion X wird als notwendiger Schritt zur effizienten Umsetzung der Gesundheitsreform begründet, wobei auf interne Expertise statt externe Gutachten gesetzt wurde. Aufgrund gesetzlicher Vertraulichkeitsvorschriften (§ 14 AusG) können Details zu internen Kommissionsberatungen nicht offengelegt werden."},"model_used":"gemma-4-26B","version":"1","generated_at":"2026-06-14T18:50:38.219944Z"},"refs":[{"gp":"XXVIII","ityp":"J","inr":5810}]}]}
+{
+  "question": {
+    "data": {
+      "gp": "XXVIII",
+      "ityp": "J",
+      "inr": 5923,
+      "issuer_ids": [30661],
+      "receiver_ids": [3677],
+      "documents": [
+        {
+          "title": "Anfrage (textinterpretierte Version)",
+          "document_url": "https://www.parlament.gv.at/dokument/XXVIII/J/5923/fname_1766262.pdf",
+          "document_type": "DigitalPDF"
+        },
+        {
+          "title": "Anfrage (textinterpretierte Version)",
+          "document_url": "https://www.parlament.gv.at/dokument/XXVIII/J/5923/fnameorig_1766262.html",
+          "document_type": "HTML"
+        },
+        {
+          "title": "Anfrage (gescanntes Original)",
+          "document_url": "https://www.parlament.gv.at/dokument/XXVIII/J/5923/imfname_1753578.pdf",
+          "document_type": "OriginalPDF"
+        }
+      ],
+      "topics": [],
+      "eurovoc_topics": [],
+      "other_keyword_topics": [],
+      "description": "Schriftliche Anfrage der Abgeordneten Mag. Katayun Pracher-Hilander, Kolleginnen und Kollegen an die Bundesministerin für Arbeit, Soziales, Gesundheit, Pflege und Konsumentenschutz betreffend NGO-Business: 467.224,57 € an öffentlichen Mitteln für Entwicklungsprojekte von SONNE International",
+      "title": "NGO-Business: 467.224,57 € an öffentlichen Mitteln für Entwicklungsprojekte von SONNE International (5923/J) | Parlament Österreich",
+      "created_at": "2026-06-13T14:29:19.819094Z",
+      "updated_at": "2026-06-25T13:50:49.363653Z",
+      "raw_data_created_at": "2026-04-21T22:00:00Z",
+      "raw_data_updated_at": "2026-06-23T12:36:19Z"
+    },
+    "ai_question": {
+      "id": 1138,
+      "pqa_meta_id": 21514,
+      "short_title": "Förderung des Vereins SONNE International",
+      "once_sentence_short_info_summary": "Transparenzanfrage zur Verwendung öffentlicher Mittel durch den Verein SONNE International.",
+      "very_short_info_summary": "Anfrage zur Transparenz der Mittelverwendung durch SONNE International.",
+      "short_info_summary": "Anfrage zur Transparenz der Mittelverwendung durch SONNE International.",
+      "info_summary": "Anfrage zur Transparenz und Kontrolle der öffentlichen Mittel (ca. 467.224,57 €), die an den Verein „SONNE - International - Hilfsorganisation“ flossen.",
+      "detailed_info_summary": "Die Anfrage der Abgeordneten Mag. Katayun Pracher-Hilander befasst sich mit der Verwendung öffentlicher Mittel durch den Verein „SONNE - International - Hilfsorganisation“. Es wird auf einen Jahresbericht 2024 verwiesen, aus dem hervorgeht, dass rund 467.224,57 Euro an öffentlichen Mitteln für Projekte in Ländern wie Äthiopien, Bangladesch, Indien, Malawi und Myanmar verwendet wurden, jedoch eine detaillierte Aufschlüsselung der Mittelverwendung pro Projekt oder Land fehlt. Die Abgeordnete fordert Transparenz hinsichtlich der Förderungen in der vergangenen und aktuellen Gesetzgebungsperiode, Informationen über Werk- bzw. Dienstleistungsverträge, die Kontrolle der Mittelverwendung durch das Ressort sowie Details zur Teilnahme an Veranstaltungen und zur Einbindung von Drittmitteln.",
+      "question_summary": "Fragen zu Förderungen, Verträgen, Kontrollen und Drittmitteln im Zusammenhang mit dem Verein „SONNE International“.",
+      "detailed_question_summary": "Die Anfrage umfasst detaillierte Fragen zu den Förderungen des Vereins „SONNE“ in der vergangenen (2019-2024) und aktuellen Gesetzgebungsperiode, einschließlich Antragsdetails, Rechtsgrundlagen, Auflagen und Kontrollmechanismen. Zudem werden Informationen über Werk- oder Dienstleistungsverträge, die Teilnahme von Vertretern an Veranstaltungen sowie die Einbindung von Drittmitteln (z. B. EU, Spenden) angefordert.",
+      "full_question_entry": {
+        "short_title": "Förderung des Vereins SONNE International",
+        "once_sentence_short_info_summary": "Transparenzanfrage zur Verwendung öffentlicher Mittel durch den Verein SONNE International.",
+        "very_short_info_summary": "Anfrage zur Transparenz der Mittelverwendung durch SONNE International.",
+        "short_info_summary": "Anfrage zur Transparenz der Mittelverwendung durch SONNE International.",
+        "info_summary": "Anfrage zur Transparenz und Kontrolle der öffentlichen Mittel (ca. 467.224,57 €), die an den Verein „SONNE - International - Hilfsorganisation“ flossen.",
+        "info_sources_urls": [
+          "https://sonne-international.org/wp-content/uploads/Documents/Jahresberichte/SONNE-JB2024-Web.pdf"
+        ],
+        "detailed_info_summary": "Die Anfrage der Abgeordneten Mag. Katayun Pracher-Hilander befasst sich mit der Verwendung öffentlicher Mittel durch den Verein „SONNE - International - Hilfsorganisation“. Es wird auf einen Jahresbericht 2024 verwiesen, aus dem hervorgeht, dass rund 467.224,57 Euro an öffentlichen Mitteln für Projekte in Ländern wie Äthiopien, Bangladesch, Indien, Malawi und Myanmar verwendet wurden, jedoch eine detaillierte Aufschlüsselung der Mittelverwendung pro Projekt oder Land fehlt. Die Abgeordnete fordert Transparenz hinsichtlich der Förderungen in der vergangenen und aktuellen Gesetzgebungsperiode, Informationen über Werk- bzw. Dienstleistungsverträge, die Kontrolle der Mittelverwendung durch das Ressort sowie Details zur Teilnahme an Veranstaltungen und zur Einbindung von Drittmitteln.",
+        "question_summary": "Fragen zu Förderungen, Verträgen, Kontrollen und Drittmitteln im Zusammenhang mit dem Verein „SONNE International“.",
+        "detailed_question_summary": "Die Anfrage umfasst detaillierte Fragen zu den Förderungen des Vereins „SONNE“ in der vergangenen (2019-2024) und aktuellen Gesetzgebungsperiode, einschließlich Antragsdetails, Rechtsgrundlagen, Auflagen und Kontrollmechanismen. Zudem werden Informationen über Werk- oder Dienstleistungsverträge, die Teilnahme von Vertretern an Veranstaltungen sowie die Einbindung von Drittmitteln (z. B. EU, Spenden) angefordert.",
+        "questions": [
+          {
+            "raw_question": "Welche Maßnahmen bzw. Projekte des Vereins „SONNE“ wurden in der zurückliegenden Gesetzgebungsperiode (23.10.2019 - 23.10.2024) in welcher Höhe gefördert?",
+            "nth_level": [{ "kind": "Number", "value": 1 }]
+          },
+          {
+            "raw_question": "Wann wurde die Förderung beantragt?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "a" }
+            ]
+          },
+          {
+            "raw_question": "Von wem wurde die Förderung beantragt?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "b" }
+            ]
+          },
+          {
+            "raw_question": "Wurde die statuten-/satzungsmäßige Unterzeichnung des Antrags überprüft?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "b" },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Wann wurde die Förderung genehmigt?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "c" }
+            ]
+          },
+          {
+            "raw_question": "Auf Basis welcher gesetzlichen Grundlagen wurde die Förderung aus Bundesmitteln gewährt?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "d" }
+            ]
+          },
+          {
+            "raw_question": "Kamen auch Sonderrichtlinien zur Anwendung? (Bitte um Angabe welche)",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "d" },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Erfolgte die Genehmigung vorbehaltlich bestimmter Auflagen?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "e" }
+            ]
+          },
+          {
+            "raw_question": "Wenn ja, mit welchen?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "e" },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Wenn nein, warum nicht?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "e" },
+              { "kind": "String", "value": "ii" }
+            ]
+          },
+          {
+            "raw_question": "Wurden Förderentscheidung und Volumen öffentlich bekanntgemacht?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "f" }
+            ]
+          },
+          {
+            "raw_question": "Wie wurde die richtige Verwendung der Mittel durch Ihr Ressort kontrolliert?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "g" }
+            ]
+          },
+          {
+            "raw_question": "Wann?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "g" },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Mit welchem Ergebnis?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "g" },
+              { "kind": "String", "value": "ii" }
+            ]
+          },
+          {
+            "raw_question": "Wenn keine Kontrolle erfolgte, warum nicht?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "g" },
+              { "kind": "String", "value": "iii" }
+            ]
+          },
+          {
+            "raw_question": "Gab es regelmäßige Berichte oder Evaluierungen zum Erfolg der geförderten Maßnahme?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "h" }
+            ]
+          },
+          {
+            "raw_question": "In welcher Höhe wurden für die Maßnahmen bzw. Projekte Eigenleistungen durch den Verein „SONNE“ erbracht?",
+            "nth_level": [
+              { "kind": "Number", "value": 1 },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Welche Maßnahmen bzw. Projekte des Vereins „SONNE“ wurden in dieser Gesetzgebungsperiode (ab 24.10.2024) bislang in welcher Höhe gefördert?",
+            "nth_level": [{ "kind": "Number", "value": 2 }]
+          },
+          {
+            "raw_question": "Wann wurde die Förderung beantragt?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "a" }
+            ]
+          },
+          {
+            "raw_question": "Von wem wurde die Förderung beantragt?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "b" }
+            ]
+          },
+          {
+            "raw_question": "Wurde die statuten-/satzungsmäßige Unterzeichnung des Antrags überprüft?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "b" },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Wann wurde die Förderung genehmigt?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "c" }
+            ]
+          },
+          {
+            "raw_question": "Auf Basis welcher gesetzlichen Grundlagen wurde die Förderung aus Bundesmitteln gewährt?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "d" }
+            ]
+          },
+          {
+            "raw_question": "Kamen auch Sonderrichtlinien zur Anwendung? (Bitte um Angabe welche)",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "d" },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Erfolgte die Genehmigung vorbehaltlich bestimmter Auflagen?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "e" }
+            ]
+          },
+          {
+            "raw_question": "Wenn ja, mit welchen?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "e" },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Wenn nein, warum nicht?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "e" },
+              { "kind": "String", "value": "ii" }
+            ]
+          },
+          {
+            "raw_question": "Wurden Förderentscheidung und Volumen öffentlich bekanntgemacht?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "f" }
+            ]
+          },
+          {
+            "raw_question": "Wie wurde die richtige Verwendung der Mittel durch Ihr Ressort kontrolliert?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "g" }
+            ]
+          },
+          {
+            "raw_question": "Wann?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "g" },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Mit welchem Ergebnis?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "g" },
+              { "kind": "String", "value": "ii" }
+            ]
+          },
+          {
+            "raw_question": "Wenn keine Kontrolle erfolgte, warum nicht?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "g" },
+              { "kind": "String", "value": "iii" }
+            ]
+          },
+          {
+            "raw_question": "Gab es regelmäßige Berichte oder Evaluierungen zum Erfolg der geförderten Maßnahme?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "h" }
+            ]
+          },
+          {
+            "raw_question": "In welcher Höhe wurden für die Maßnahmen bzw. Projekte Eigenleistungen durch den Verein „SONNE“ erbracht?",
+            "nth_level": [
+              { "kind": "Number", "value": 2 },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Für welche Leistungen/zu welchem Zweck und in welcher Höhe wurde mit dem Verein „SONNE“ in der zurückliegenden Gesetzgebungsperiode (23.10.2019 - 23.10.2024) ein Werk- bzw. Dienstleistungsvertrag abgeschlossen?",
+            "nth_level": [{ "kind": "Number", "value": 3 }]
+          },
+          {
+            "raw_question": "Wann wurde der Vertrag geschlossen?",
+            "nth_level": [
+              { "kind": "Number", "value": 3 },
+              { "kind": "String", "value": "a" }
+            ]
+          },
+          {
+            "raw_question": "Von wem wurde der Vertragsabschluss initiiert bzw. angebahnt?",
+            "nth_level": [
+              { "kind": "Number", "value": 3 },
+              { "kind": "String", "value": "b" }
+            ]
+          },
+          {
+            "raw_question": "Welche konkreten Leistungen waren Gegenstand des Werk- bzw. Dienstleistungsvertrag?",
+            "nth_level": [
+              { "kind": "Number", "value": 3 },
+              { "kind": "String", "value": "c" }
+            ]
+          },
+          {
+            "raw_question": "Wurde der Vertrag im Zeitraum adaptiert bzw. angepasst?",
+            "nth_level": [
+              { "kind": "Number", "value": 3 },
+              { "kind": "String", "value": "d" }
+            ]
+          },
+          {
+            "raw_question": "Wenn ja, wann?",
+            "nth_level": [
+              { "kind": "Number", "value": 3 },
+              { "kind": "String", "value": "d" },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Wenn ja, mit welchen Inhalten/Änderungen?",
+            "nth_level": [
+              { "kind": "Number", "value": 3 },
+              { "kind": "String", "value": "d" },
+              { "kind": "String", "value": "ii" }
+            ]
+          },
+          {
+            "raw_question": "Wurde die Vertragserfüllung durch den Verein „SONNE“ durch Ihr Ressort kontrolliert?",
+            "nth_level": [
+              { "kind": "Number", "value": 3 },
+              { "kind": "String", "value": "e" }
+            ]
+          },
+          {
+            "raw_question": "Wenn ja, wann?",
+            "nth_level": [
+              { "kind": "Number", "value": 3 },
+              { "kind": "String", "value": "e" },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Wenn ja, mit welchem Ergebnis?",
+            "nth_level": [
+              { "kind": "Number", "value": 3 },
+              { "kind": "String", "value": "e" },
+              { "kind": "String", "value": "ii" }
+            ]
+          },
+          {
+            "raw_question": "Wenn nein, warum nicht?",
+            "nth_level": [
+              { "kind": "Number", "value": 3 },
+              { "kind": "String", "value": "e" },
+              { "kind": "String", "value": "iii" }
+            ]
+          },
+          {
+            "raw_question": "Für welche Leistungen/zu welchem Zweck und in welcher Höhe wurde mit dem Verein „SONNE“ in der laufenden Gesetzgebungsperiode (ab 24.10.2024) ein Werk- bzw. Dienstleistungsvertrag abgeschlossen?",
+            "nth_level": [{ "kind": "Number", "value": 4 }]
+          },
+          {
+            "raw_question": "Wann wurde der Vertrag geschlossen?",
+            "nth_level": [
+              { "kind": "Number", "value": 4 },
+              { "kind": "String", "value": "a" }
+            ]
+          },
+          {
+            "raw_question": "Von wem wurde der Vertragsabschluss initiiert bzw. angebahnt?",
+            "nth_level": [
+              { "kind": "Number", "value": 4 },
+              { "kind": "String", "value": "b" }
+            ]
+          },
+          {
+            "raw_question": "Welche konkreten Leistungen waren Gegenstand des Werk- bzw. Dienstleistungsvertrag?",
+            "nth_level": [
+              { "kind": "Number", "value": 4 },
+              { "kind": "String", "value": "c" }
+            ]
+          },
+          {
+            "raw_question": "Wurde der Vertrag seitdem adaptiert bzw. angepasst?",
+            "nth_level": [
+              { "kind": "Number", "value": 4 },
+              { "kind": "String", "value": "d" }
+            ]
+          },
+          {
+            "raw_question": "Wenn ja, wann?",
+            "nth_level": [
+              { "kind": "Number", "value": 4 },
+              { "kind": "String", "value": "d" },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Wenn ja, mit welchen Inhalten/Änderungen?",
+            "nth_level": [
+              { "kind": "Number", "value": 4 },
+              { "kind": "String", "value": "d" },
+              { "kind": "String", "value": "ii" }
+            ]
+          },
+          {
+            "raw_question": "Wurde die Vertragserfüllung bereits durch den Verein „SONNE“ durch Ihr Ressort kontrolliert?",
+            "nth_level": [
+              { "kind": "Number", "value": 4 },
+              { "kind": "String", "value": "e" }
+            ]
+          },
+          {
+            "raw_question": "Wenn ja, wann?",
+            "nth_level": [
+              { "kind": "Number", "value": 4 },
+              { "kind": "String", "value": "e" },
+              { "kind": "String", "value": "i" }
+            ]
+          },
+          {
+            "raw_question": "Wenn ja, mit welchem Ergebnis?",
+            "nth_level": [
+              { "kind": "Number", "value": 4 },
+              { "kind": "String", "value": "e" },
+              { "kind": "String", "value": "ii" }
+            ]
+          },
+          {
+            "raw_question": "Wenn nein, warum nicht?",
+            "nth_level": [
+              { "kind": "Number", "value": 4 },
+              { "kind": "String", "value": "e" },
+              { "kind": "String", "value": "iii" }
+            ]
+          },
+          {
+            "raw_question": "An welchen Veranstaltungen innerhalb Ihres Zuständigkeitsbereichs nahmen Vertreter des Vereins „SONNE“ seit dem 24.10.2024 teil?",
+            "nth_level": [{ "kind": "Number", "value": 5 }]
+          },
+          {
+            "raw_question": "Nahmen Vertreter Ihres Ressorts an Veranstaltungen des Vereins „SONNE“ in offizieller Funktion teil?",
+            "nth_level": [{ "kind": "Number", "value": 6 }]
+          },
+          {
+            "raw_question": "Wenn ja, wie viele Personen nahmen teil?",
+            "nth_level": [
+              { "kind": "Number", "value": 6 },
+              { "kind": "String", "value": "a" }
+            ]
+          },
+          {
+            "raw_question": "Wenn ja, an welchen Veranstaltungen?",
+            "nth_level": [
+              { "kind": "Number", "value": 6 },
+              { "kind": "String", "value": "b" }
+            ]
+          },
+          {
+            "raw_question": "Wenn ja, welche Kosten entstanden für Ihr Ressort durch die Teilnahme?",
+            "nth_level": [
+              { "kind": "Number", "value": 6 },
+              { "kind": "String", "value": "c" }
+            ]
+          },
+          {
+            "raw_question": "Welche Drittmittel (EU, Länder, Gemeinden, private Stiftungen, Spenden) wurden im Förderzeitraum zusätzlich zu den Bundesmitteln durch den Verein „SONNE“ eingeworben?",
+            "nth_level": [{ "kind": "Number", "value": 7 }]
+          },
+          {
+            "raw_question": "Wurden diese Drittmittel in der Förderabrechnung berücksichtigt?",
+            "nth_level": [
+              { "kind": "Number", "value": 7 },
+              { "kind": "String", "value": "a" }
+            ]
+          },
+          {
+            "raw_question": "Gab es Überschneidungen oder Doppelfinanzierungen mit Bundesmitteln?",
+            "nth_level": [
+              { "kind": "Number", "value": 7 },
+              { "kind": "String", "value": "b" }
+            ]
+          },
+          {
+            "raw_question": "Wenn ja, in welcher Höhe?",
+            "nth_level": [
+              { "kind": "Number", "value": 7 },
+              { "kind": "String", "value": "b" },
+              { "kind": "String", "value": "i" }
+            ]
+          }
+        ],
+        "topics": [
+          "Öffentliche Finanzen und Haushaltspolitik",
+          "Sozialpolitik",
+          "Verwaltungskontrolle",
+          "Wirtschaft"
+        ]
+      },
+      "model_used": "gemma-4-26B",
+      "version": "1",
+      "generated_at": "2026-06-15T16:28:24.820394Z"
+    },
+    "refs": [{ "gp": "XXVIII", "ityp": "AB", "inr": 5309 }]
+  },
+  "answer": [
+    {
+      "data": {
+        "gp": "XXVIII",
+        "ityp": "AB",
+        "inr": 5309,
+        "issuer_ids": [],
+        "receiver_ids": [3677],
+        "documents": [
+          {
+            "title": "Anfragebeantwortung",
+            "document_url": "https://www.parlament.gv.at/dokument/XXVIII/AB/5309/imfname_1765913.pdf",
+            "document_type": "DigitalPDF"
+          }
+        ],
+        "topics": [],
+        "eurovoc_topics": [],
+        "other_keyword_topics": [],
+        "description": "Anfragebeantwortung durch die Bundesministerin für Arbeit, Soziales, Gesundheit, Pflege und Konsumentenschutz Korinna Schumann zu der schriftlichen Anfrage (5923/J) der Abgeordneten Mag. Katayun Pracher-Hilander, Kolleginnen und Kollegen an die Bundesministerin für Arbeit, Soziales, Gesundheit, Pflege und Konsumentenschutz betreffend NGO-Business: 467.224,57 € an öffentlichen Mitteln für Entwicklungsprojekte von SONNE International",
+        "title": "NGO-Business: 467.224,57 € an öffentlichen Mitteln für Entwicklungsprojekte von SONNE International (5309/AB) | Parlament Österreich",
+        "created_at": "2026-06-20T11:55:28.875994Z",
+        "updated_at": "2026-06-25T13:50:49.564865Z",
+        "raw_data_created_at": "2026-06-18T22:00:00Z",
+        "raw_data_updated_at": "2026-06-24T00:35:27Z"
+      },
+      "ai_answer": {
+        "id": 133,
+        "pqa_meta_id": 809535,
+        "short_title": "Förderungen, Verträge und Veranstaltungen des Vereins SONNE International",
+        "full_answer_summary": "Die Antwort erläutert die Förderungen für zwei Projekte in der vergangenen Periode (insgesamt ca. 979.000 €), stellt fest, dass in der aktuellen Periode keine neuen Förderungen oder Verträge vorliegen und bestätigt, dass seit Oktober 2024 keine Teilnahme an Veranstaltungen stattfand.",
+        "detailed_full_answer_summary": "Die Anfrage befasste sich mit den finanziellen und organisatorischen Beziehungen zum Verein „SONNE International“. In der vergangenen Gesetzgebungsperiode wurden zwei Projekte zur Gesundheitsversorgung in Äthiopien mit insgesamt 979.000 € gefördert. Für die aktuelle Periode sowie für Werk- oder Dienstleistungsverträge und Drittmittel wurden keine Angaben zu Förderungen gemacht, da keine stattgefunden haben. Auch eine Teilnahme an Veranstaltungen durch Vertreter des Vereins oder des Ressorts wurde seit Oktober 2024 verneint.",
+        "full_answer_entry": {
+          "short_title": "Förderungen, Verträge und Veranstaltungen des Vereins SONNE International",
+          "answers": [
+            {
+              "answering_questions_references": [
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "a" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "b" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "b" },
+                    { "kind": "String", "value": "i" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "c" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "d" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "d" },
+                    { "kind": "String", "value": "i" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "e" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "e" },
+                    { "kind": "String", "value": "i" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "e" },
+                    { "kind": "String", "value": "ii" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "f" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "g" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "g" },
+                    { "kind": "String", "value": "i" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "g" },
+                    { "kind": "String", "value": "ii" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "g" },
+                    { "kind": "String", "value": "iii" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "h" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 1 },
+                    { "kind": "String", "value": "i" }
+                  ]
+                }
+              ],
+              "raw_answer": "Es wurden die nachstehenden Maßnahmen bzw. Projekte in der zurückliegenden Gesetzgebungsperiode (23.10.2019-23.10.2024) gefördert:\n\nProjekt „Medizinische Basisversorgung und Verbesserung der Müttergesundheit in der entlegenen Afar-Region Eli Da’ar (Äthiopien)“ | 429.000,00 € | 3. April 2021 | SONNE-International (vertreten durch Erfried Malle) | 13. Juni 2024 | Die statuten-/satzungsmäßige Unterzeichnung des Antrags wurde geprüft. | ARR 2014 | Es kamen keine Sonderrichtlinien zur Anwendung. | Nein. | Die Förderungsentscheidung wurde im Transparenzportal veröffentlicht. | Nach Erhalt der Abrechnungsunterlagen wurde die inhaltliche Prüfung vom BMASGPK durchgeführt, wobei die sachliche Richtigkeit festgestellt wurde. Die anschließende rechnerische Prüfung wurde von der Buchhaltungsagentur des Bundes (BHAG) durchgeführt, wobei Kosten iHv 6.644,22 € nicht anerkannt wurden. | Nein. | 25.500,00 €\n\nProjekt „Unterstützung der Basisgesundheit, mit Schwerpunkt auf reproduktiver Gesundheit in der Afar Region“ | 550.000,00 € | 2. Juni 2021 | SONNE-International (vertreten durch Erfried Malle) | 5. August 2024 | Die statuten-/satzungsmäßige Unterzeichnung des Antrags wurde geprüft. | ARR 2014 sowie Sonderrichtlinie „Armutsbekämpfung in Drittstaaten“ | Nein. | Die Förderungsentscheidung wurde im Transparenzportal veröffentlicht. | Das Projekt wird derzeit noch umgesetzt. Daher erfolgte bisher noch keine abschließende inhaltliche oder rechnerische Prüfung. | Es wurde wie vertraglich vereinbart vom Fördernehmer ein Zwischenbericht übermittelt. | 39.804,22 €",
+              "once_sentence_short_answer_summary": "Zwei Projekte wurden gefördert: 429.000 € für medizinische Basisversorgung und 550.000 € für reproduktive Gesundheit.",
+              "very_short_answer_summary": "Zwei Projekte gefördert.",
+              "short_answer_summary": "Zwei Projekte wurden gefördert: Projekt Eli Da'ar (429.000 €) und Projekt Afar Region (550.000 €).",
+              "answer_summary": "In der vergangenen Gesetzgebungsperiode wurden zwei Projekte des Vereins „SONNE International“ gefördert: Ein Projekt zur medizinischen Basisversorgung in Äthiopien (429.000,00 €) und ein Projekt zur Basisgesundheit in der Afar-Region (550.000,00 €). Die Mittel wurden auf Basis von ARR 2014 bzw. unter Anwendung einer Sonderrichtlinie gewährt. Die Kontrolle erfolgte durch inhaltliche Prüfung des BMASGPK und rechnerische Prüfung durch die BHAG.",
+              "other_written_answer_refs": []
+            },
+            {
+              "answering_questions_references": [
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "a" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "b" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "b" },
+                    { "kind": "String", "value": "i" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "c" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "d" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "d" },
+                    { "kind": "String", "value": "i" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "e" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "e" },
+                    { "kind": "String", "value": "i" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "e" },
+                    { "kind": "String", "value": "ii" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "f" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "g" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "g" },
+                    { "kind": "String", "value": "i" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "g" },
+                    { "kind": "String", "value": "ii" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "g" },
+                    { "kind": "String", "value": "iii" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "h" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 2 },
+                    { "kind": "String", "value": "i" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 3 }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 3 },
+                    { "kind": "String", "value": "a" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 3 },
+                    { "kind": "String", "value": "b" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 3 },
+                    { "kind": "String", "value": "c" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 3 },
+                    { "kind": "String", "value": "d" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 3 },
+                    { "kind": "String", "value": "d" },
+                    { "kind": "String", "value": "i" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 3 },
+                    { "kind": "String", "value": "d" },
+                    { "kind": "String", "value": "ii" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 3 },
+                    { "kind": "String", "value": "e" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 3 },
+                    { "kind": "String", "value": "e" },
+                    { "kind": "String", "value": "i" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 3 },
+                    { "kind": "String", "value": "e" },
+                    { "kind": "String", "value": "ii" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 3 },
+                    { "kind": "String", "value": "e" },
+                    { "kind": "String", "value": "iii" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 4 }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 4 },
+                    { "kind": "String", "value": "a" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 4 },
+                    { "kind": "String", "value": "b" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 4 },
+                    { "kind": "String", "value": "c" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 4 },
+                    { "kind": "String", "value": "d" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 4 },
+                    { "kind": "String", "value": "d" },
+                    { "kind": "String", "value": "i" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 4 },
+                    { "kind": "String", "value": "d" },
+                    { "kind": "String", "value": "ii" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 4 },
+                    { "kind": "String", "value": "e" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 4 },
+                    { "kind": "String", "value": "e" },
+                    { "kind": "String", "value": "i" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 4 },
+                    { "kind": "String", "value": "e" },
+                    { "kind": "String", "value": "ii" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 4 },
+                    { "kind": "String", "value": "e" },
+                    { "kind": "String", "value": "iii" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 7 }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 7 },
+                    { "kind": "String", "value": "a" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 7 },
+                    { "kind": "String", "value": "b" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 7 },
+                    { "kind": "String", "value": "b" },
+                    { "kind": "String", "value": "i" }
+                  ]
+                }
+              ],
+              "raw_answer": "In der laufenden Gesetzgebungsperiode wurden keine Maßnahmen bzw. Projekte des Vereins „SONNE“ gefördert. Zudem wurden auch keine Werk- oder Dienstleistungsverträge in der vergangenen sowie in der laufenden Gesetzgebungsperiode abgeschlossen. Es wurden auch keine Drittmittel durch die NGO eingeworben.",
+              "once_sentence_short_answer_summary": "Keine Förderungen, Verträge oder Drittmittel in der laufenden/vergangenen Periode.",
+              "very_short_answer_summary": "Nichts gefördert/vertraglich geregelt.",
+              "short_answer_summary": "Keine Förderungen, Verträge oder Drittmittel.",
+              "answer_summary": "In der aktuellen Gesetzgebungsperiode sowie in der vorangegangenen wurden keine Förderungen oder Werk- bzw. Dienstleistungsverträge mit dem Verein „SONNE International“ abgeschlossen. Es wurden auch keine Drittmittel durch die NGO eingeworben.",
+              "other_written_answer_refs": []
+            },
+            {
+              "answering_questions_references": [
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 5 }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 6 }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 6 },
+                    { "kind": "String", "value": "a" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 6 },
+                    { "kind": "String", "value": "b" }
+                  ]
+                },
+                {
+                  "question_assignment_confidence": "VeryConfident",
+                  "affected_question_absolute_path": [
+                    { "kind": "Number", "value": 6 },
+                    { "kind": "String", "value": "c" }
+                  ]
+                }
+              ],
+              "raw_answer": "Seit dem 24.10.2024 nahmen weder Vertreter des Vereins „SONNE“ an Veranstaltungen innerhalb meines Zuständigkeitsbereichs teil, noch besuchten Vertreter des Ressorts in offizieller Funktion Veranstaltungen der besagten NGO.",
+              "once_sentence_short_answer_summary": "Keine Teilnahme von Vertretern des Vereins oder des Ressorts an Veranstaltungen seit dem 24.10.2024.",
+              "very_short_answer_summary": "Keine Teilnahme.",
+              "short_answer_summary": "Keine Teilnahme an Veranstaltungen.",
+              "answer_summary": "Seit dem 24.10.2024 nahmen weder Vertreter des Vereins „SONNE“ an Veranstaltungen innerhalb des Zuständigkeitsbereichs teil, noch besuchten Vertreter des Ressorts in offizieller Funktion Veranstaltungen der NGO.",
+              "other_written_answer_refs": []
+            }
+          ],
+          "full_answer_summary": "Die Antwort erläutert die Förderungen für zwei Projekte in der vergangenen Periode (insgesamt ca. 979.000 €), stellt fest, dass in der aktuellen Periode keine neuen Förderungen oder Verträge vorliegen und bestätigt, dass seit Oktober 2024 keine Teilnahme an Veranstaltungen stattfand.",
+          "detailed_full_answer_summary": "Die Anfrage befasste sich mit den finanziellen und organisatorischen Beziehungen zum Verein „SONNE International“. In der vergangenen Gesetzgebungsperiode wurden zwei Projekte zur Gesundheitsversorgung in Äthiopien mit insgesamt 979.000 € gefördert. Für die aktuelle Periode sowie für Werk- oder Dienstleistungsverträge und Drittmittel wurden keine Angaben zu Förderungen gemacht, da keine stattgefunden haben. Auch eine Teilnahme an Veranstaltungen durch Vertreter des Vereins oder des Ressorts wurde seit Oktober 2024 verneint."
+        },
+        "model_used": "gemma-4-26B",
+        "version": "1",
+        "generated_at": "2026-06-20T12:01:17.239053Z"
+      },
+      "refs": [{ "gp": "XXVIII", "ityp": "J", "inr": 5923 }]
+    }
+  ]
+}

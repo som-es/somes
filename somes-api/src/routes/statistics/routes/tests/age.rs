@@ -1,3 +1,5 @@
+use sqlx::PgPool;
+
 use super::*;
 
 fn create_test_base_data() -> Vec<AgeBase> {
@@ -6,7 +8,7 @@ fn create_test_base_data() -> Vec<AgeBase> {
             delegate_name: "Delegate A".to_string(),
             delegate_party: "Party X".to_string(),
             delegate_filter_party: "Party X".to_string(),
-            delegate_gender: "M".to_string(),
+            delegate_gender: Some("M".to_string()),
             age: 45,
             birthdate: Some(chrono::NaiveDate::from_ymd_opt(1980, 1, 1).unwrap()),
             legislative_period: Some("XXV".to_string()),
@@ -15,7 +17,7 @@ fn create_test_base_data() -> Vec<AgeBase> {
             delegate_name: "Delegate B".to_string(),
             delegate_party: "Party X".to_string(),
             delegate_filter_party: "Party X".to_string(),
-            delegate_gender: "F".to_string(),
+            delegate_gender: Some("F".to_string()),
             age: 35,
             birthdate: Some(chrono::NaiveDate::from_ymd_opt(1990, 1, 1).unwrap()),
             legislative_period: Some("XXV".to_string()),
@@ -24,7 +26,7 @@ fn create_test_base_data() -> Vec<AgeBase> {
             delegate_name: "Delegate C".to_string(),
             delegate_party: "Party Y".to_string(),
             delegate_filter_party: "Party Y".to_string(),
-            delegate_gender: "M".to_string(),
+            delegate_gender: Some("M".to_string()),
             age: 55,
             birthdate: Some(chrono::NaiveDate::from_ymd_opt(1970, 1, 1).unwrap()),
             legislative_period: Some("XXV".to_string()),
@@ -33,7 +35,7 @@ fn create_test_base_data() -> Vec<AgeBase> {
             delegate_name: "Delegate D".to_string(),
             delegate_party: "Party Y".to_string(),
             delegate_filter_party: "Party Y".to_string(),
-            delegate_gender: "F".to_string(),
+            delegate_gender: Some("F".to_string()),
             age: 42,
             birthdate: Some(chrono::NaiveDate::from_ymd_opt(1983, 1, 1).unwrap()),
             legislative_period: Some("XXVII".to_string()),
@@ -137,13 +139,8 @@ fn test_aggregate_by_age() {
     assert_eq!(age_51_60.max_age, 55);
 }
 
-#[tokio::test]
-async fn test_get_base_data_applies_filters_and_computes_age() {
-    let test_db = super::super::test_db::statistics_test_db(
-        "test_get_base_data_applies_filters_and_computes_age",
-    )
-    .await;
-    let pool = test_db.pool().clone();
+#[sqlx::test(fixtures("fixtures/statistics_base.sql"))]
+async fn test_get_base_data_applies_filters_and_computes_age(pool: PgPool) {
     let filter = AgeFilter {
         legis_period: Some("XXV".to_string()),
         party: Some("Party X".to_string()),
@@ -158,7 +155,7 @@ async fn test_get_base_data_applies_filters_and_computes_age() {
     let delegate = &results[0];
     assert_eq!(delegate.delegate_name, "Delegate A");
     assert_eq!(delegate.delegate_party, "Party X");
-    assert_eq!(delegate.delegate_gender, "M");
+    assert_eq!(delegate.delegate_gender, Some("M".to_string()));
     assert_eq!(delegate.age, 40);
     assert_eq!(
         delegate.birthdate,
@@ -167,13 +164,8 @@ async fn test_get_base_data_applies_filters_and_computes_age() {
     assert_eq!(delegate.legislative_period, Some("XXV".to_string()));
 }
 
-#[tokio::test]
-async fn test_per_delegate_uses_latest_period_for_unfiltered_age() {
-    let test_db = super::super::test_db::statistics_test_db(
-        "test_per_delegate_uses_latest_period_for_unfiltered_age",
-    )
-    .await;
-    let pool = test_db.pool().clone();
+#[sqlx::test(fixtures("fixtures/statistics_base.sql"))]
+async fn test_per_delegate_uses_latest_period_for_unfiltered_age(pool: PgPool) {
     let filter = AgeFilter {
         is_desc: true,
         ..Default::default()

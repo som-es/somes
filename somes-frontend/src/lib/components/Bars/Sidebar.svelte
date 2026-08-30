@@ -3,34 +3,35 @@
 	import delegatesIcon from '$lib/assets/icons/delegates.svg?raw';
 	import statisticsIcon from '$lib/assets/icons/statistics.svg?raw';
 	import somesIcon from '$lib/assets/somes_icon.svg?raw';
-	import userIcon from '$lib/assets/icons/user.svg?raw';
 	import { page } from '$app/state';
 
 	import { resolve } from '$app/paths';
+	import { getParliament, plink } from '$lib/api/parliament';
 	import VoteParliament2 from '../Parliaments/VoteParliament2.svelte';
 	import { mockDelegatesNoColor, mockVoteResult } from '$lib/parliaments/mock';
 	import { getSeats } from '$lib/caching/seats';
-	import LightSwitch from '../UI/LightSwitch.svelte';
 	import AiViewToggle from '../UI/AiViewToggle.svelte';
-	import { jwtStore, loginDrawerOpenStore } from '$lib/caching/stores/stores.svelte';
-	import { isHasError } from '$lib/api/api';
-	import { renew_token } from '$lib/api/authed';
-	import { goto } from '$app/navigation';
+	import SidebarUserMenu from './SidebarUserMenu.svelte';
+	import austriaMapIcon from '$lib/assets/misc_icons/austria-map.svg?raw';
+	import euMapIcon from '$lib/assets/misc_icons/eu-map.svg?raw';
+	import { parliamentModalOpenStore } from '$lib/caching/stores/stores.svelte';
 	import { convertVoteResultFilterToUrl } from '../VoteResults/Expandable/urlConversion';
 	import {
 		currentDecreeFilterStore,
+		currentDelegateFilterStore,
 		currentGovProposalFilterStore,
 		currentUnfinshedVoteResultFilterStore,
 		currentVoteResultFilterStore
 	} from '$lib/stores/stores';
 	import { convertGovPropFilterToUrl } from '../Proposals/urlConversion';
 	import { convertDecreeFilterToUrl } from '../Decrees/urlConversion';
-	import { accountOrLogin } from './user';
+	import { t } from '$lib/i18n/i18n.svelte';
 
 	let activeUrl = $derived(page.url.pathname);
 	let activeSectionHash = $state('');
 	let activeHash = $derived(activeSectionHash || page.url.hash);
 	let statisticsObserver: IntersectionObserver | null = null;
+	let parliament = $derived(getParliament());
 
 	function hrefPath(href: string) {
 		return new URL(href, page.url.origin).pathname;
@@ -50,7 +51,7 @@
 
 	function onSubmenuClick(href: string) {
 		const hash = hrefHash(href);
-		if (hrefPath(href) === '/statistics' && hash) {
+		if (hrefPath(href).endsWith('/statistics') && hash) {
 			activeSectionHash = hash;
 		}
 	}
@@ -79,54 +80,67 @@
 		convertDecreeFilterToUrl(currentDecreeFilterStore.value, '', undefined)
 	);
 
-	const submenu = $derived([
-		{
-			title: 'Reden',
-			route: '/statistics',
-			list: [
-				{ href: `${resolve('/statistics')}#speech-time`, label: 'Redezeit', keywords: '' },
-				{ href: `${resolve('/statistics')}#total-speeches`, label: 'Gehaltene Reden', keywords: '' }
-			]
-		},
-		{
-			title: 'Aktivitäten',
-			route: '/statistics',
-			list: [
-				{ href: `${resolve('/statistics')}#absences`, label: 'Abwesenheiten', keywords: '' },
-				{ href: `${resolve('/statistics')}#activity`, label: 'Aktivität', keywords: '' },
-				{ href: `${resolve('/statistics')}#call-to-orders`, label: 'Ordnungsrufe', keywords: '' }
-			]
-		},
-		{
-			title: 'Abgeordnete',
-			route: '/statistics',
-			list: [
-				{ href: `${resolve('/statistics')}#age`, label: 'Alter', keywords: '' },
-				{
-					href: `${resolve('/statistics')}#orientation`,
-					label: 'Politische Positionen',
-					keywords: ''
-				}
-			]
-		},
+	const submenu = $derived.by(() => {
+		const menus = [
+			{
+				title: t('nav.speeches'),
+				route: '/statistics',
+				list: [
+					{ href: `${plink('/statistics')}#speech-time`, label: t('nav.speechTime'), keywords: '' },
+					{
+						href: `${plink('/statistics')}#total-speeches`,
+						label: t('nav.totalSpeeches'),
+						keywords: ''
+					}
+				]
+			},
+			{
+				title: t('nav.activities'),
+				route: '/statistics',
+				list: [
+					{ href: `${plink('/statistics')}#absences`, label: t('nav.absences'), keywords: '' },
+					{ href: `${plink('/statistics')}#activity`, label: t('nav.activity'), keywords: '' },
+					{
+						href: `${plink('/statistics')}#call-to-orders`,
+						label: t('nav.callToOrders'),
+						keywords: ''
+					}
+				]
+			},
+			{
+				title: t('nav.delegates'),
+				route: '/statistics',
+				list: [
+					{ href: `${plink('/statistics')}#age`, label: t('nav.age'), keywords: '' },
+					{
+						href: `${plink('/statistics')}#orientation`,
+						label: t('nav.orientation'),
+						keywords: ''
+					}
+				]
+			},
 
-		{
-			title: 'Nationalrat',
-			route: '/history',
-			list: [
-				{ href: voteResultUrl.href, label: 'Abstimmungen', keywords: '' },
-				{ href: unfinishedVoteResultUrl.href, label: 'Zur Abstimmung', keywords: '' }
-			]
-		},
-		{
-			title: 'Regierung',
-			route: '/history',
-			list: [
-				{ href: govProposalUrl.href, label: 'Ministerialentwürfe', keywords: '' },
-				{ href: decreeUrl.href, label: 'Verordnungen', keywords: '' }
-			]
+			{
+				title: parliament === 'eu' ? t('nav.euParliament') : t('nav.nationalCouncil'),
+				route: '/history',
+				list: [
+					{ href: voteResultUrl.href, label: t('nav.votes'), keywords: '' },
+					{ href: unfinishedVoteResultUrl.href, label: t('nav.toVote'), keywords: '' }
+				]
+			}
+		];
+		if (parliament == 'at') {
+			menus.push({
+				title: t('nav.government'),
+				route: '/history',
+				list: [
+					{ href: govProposalUrl.href, label: t('nav.ministerialDrafts'), keywords: '' },
+					{ href: decreeUrl.href, label: t('nav.decrees'), keywords: '' }
+				]
+			});
 		}
-	]);
+		return menus;
+	});
 
 	function syncStatisticsObserver() {
 		statisticsObserver?.disconnect();
@@ -164,7 +178,7 @@
 	}
 
 	$effect(() => {
-		if (activeUrl !== '/statistics' || typeof IntersectionObserver === 'undefined') {
+		if (!activeUrl.endsWith('/statistics') || typeof IntersectionObserver === 'undefined') {
 			statisticsObserver?.disconnect();
 			activeSectionHash = '';
 			return;
@@ -191,8 +205,8 @@
 			</span>
 		</a>
 		<a
-			href={resolve('/home')}
-			title="Neuigkeiten"
+			href={plink('/home')}
+			title={t('nav.news')}
 			class="{activeUrl?.includes('/home')
 				? 'bg-tertiary-500! stroke-black'
 				: ' stroke-white'} mt-5 flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60 hover:stroke-black"
@@ -203,13 +217,14 @@
 		</a>
 		<a
 			href={voteResultUrl.href}
-			title="Abstimmungshistorie"
+			title={t('nav.history')}
 			class="{activeUrl?.includes('/history')
 				? 'bg-tertiary-500! stroke-black'
 				: ' stroke-white'} flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60"
 		>
 			<span class="w-15">
 				<VoteParliament2
+					parliament="at"
 					againstOpacity={0.3}
 					voteResult={mockVoteResult()}
 					delegates={mockDelegatesNoColor()}
@@ -225,8 +240,8 @@
 			</span>
 		</a>
 		<a
-			href={resolve('/delegates')}
-			title="Abgeordnete"
+			href={plink('/delegates')}
+			title={t('nav.delegates')}
 			class="{activeUrl?.includes('/delegates')
 				? 'bg-tertiary-500! fill-black'
 				: ' fill-white'} flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60 hover:fill-black"
@@ -236,8 +251,8 @@
 			</span>
 		</a>
 		<a
-			href={resolve('/statistics')}
-			title="Statistiken"
+			href={plink('/statistics')}
+			title={t('nav.statistics')}
 			class="{activeUrl?.includes('/statistics')
 				? 'bg-tertiary-500! fill-black'
 				: ' fill-white'} flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60 hover:fill-black"
@@ -248,22 +263,17 @@
 		</a>
 
 		<div class="mt-auto mb-4 flex flex-col gap-3">
-			<LightSwitch />
-			<AiViewToggle />
-			<!-- <DarkMode class="text-primary-500 dark:text-primary-600 border dark:border-gray-800 hover:bg-primary-800" /> -->
 			<button
-				onclick={async () => {
-					await accountOrLogin();
-				}}
-				title="Benutzerprofil"
-				class="{activeUrl?.includes('/user')
-					? 'bg-tertiary-500! fill-black'
-					: ' fill-white'} flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60 hover:fill-black"
+				onclick={() => (parliamentModalOpenStore.value = true)}
+				title={t('nav.menu.parliament')}
+				class="flex h-10 w-10 items-center justify-center rounded-xl text-white hover:cursor-pointer hover:bg-tertiary-400/60 hover:text-black"
 			>
-				<span class="h-5 w-5">
-					{@html userIcon}
+				<span class="h-6 w-6 [&_svg]:h-full [&_svg]:w-full">
+					{@html parliament === 'eu' ? euMapIcon : austriaMapIcon}
 				</span>
 			</button>
+			<AiViewToggle />
+			<SidebarUserMenu />
 		</div>
 	</div>
 

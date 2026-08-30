@@ -123,7 +123,9 @@ fn rebuild_type_inner(
             let (updated_path, unrecognized_ident) = match ident.as_str() {
                 "i8" | "i16" | "i32" | "isize" | "i64" | "u8" | "u16" | "u32" | "u64" | "usize"
                 | "f32" | "f64" | "bool" | "String" | "str" | "Uuid" | "Value" | "NaiveDate"
-                | "NaiveDateTime" | "DateTime" | "BigDecimal" => (quote! { #last }, None),
+                | "NaiveDateTime" | "DateTime" | "NaiveTime" | "BigDecimal" => {
+                    (quote! { #last }, None)
+                }
 
                 _ => {
                     let ident = format_ident!("{}Filter", last.ident.clone());

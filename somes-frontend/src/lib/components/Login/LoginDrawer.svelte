@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import type { JWTInfo, HasError, LoginResponseError } from '$lib/types';
 	import { isHasError, isLoginResponseError } from '$lib/api/api';
 	import { login } from '$lib/api/authed';
@@ -45,18 +46,18 @@
 
 		if (isLoginResponseError(jwt)) {
 			if (jwt.invalid_email) {
-				error = 'Felerhafte E-Mail-Adresse';
+				error = t('login.error.invalidEmail');
 			} else if (jwt.missing_email) {
-				error = 'E-Mail-Adresse fehlt';
+				error = t('login.error.missingEmail');
 			}
 			success = false;
 		} else if (isHasError(jwt)) {
 			if (jwt.error.includes('OTP')) {
-				error = 'Fehlerhaftes One-Time Passwort';
+				error = t('login.error.invalidOtp');
 				success = true;
 				otp_done = true;
 			} else {
-				error = 'Ein serverseitiger Fehler ist aufgetreten. Es kann nicht fortgefahren werden.';
+				error = t('login.error.server');
 			}
 			success = false;
 		} else {
@@ -119,13 +120,13 @@
 					</Drawer.Close>
 
 					<Drawer.Title class="text-2xl font-semibold text-gray-900">
-						{#if isLogin}Anmelden{:else}Registrierung{/if}
+						{#if isLogin}{t('login.title.signIn')}{:else}{t('login.title.register')}{/if}
 					</Drawer.Title>
 					<p class="mt-1 text-sm text-gray-500">
 						{#if isLogin}
-							Willkommen zurück. Gib deine E-Mail-Adresse ein.
+							{t('login.subtitle.signIn')}
 						{:else}
-							Erstelle ein neues Konto mit deiner E-Mail-Adresse.
+							{t('login.subtitle.register')}
 						{/if}
 					</p>
 				</div>
@@ -134,7 +135,9 @@
 				<div class="flex flex-col gap-5 px-8 py-7">
 					<!-- Email Field -->
 					<div class="flex flex-col gap-1.5">
-						<label for="username" class="text-sm font-medium text-gray-700">E-Mail</label>
+						<label for="username" class="text-sm font-medium text-gray-700"
+							>{t('login.emailLabel')}</label
+						>
 						<input
 							id="username"
 							placeholder="dergertrud@gmail.com"
@@ -161,7 +164,7 @@
 									>E-Mail anonymisiert speichern</span
 								>
 								<span class="mt-0.5 block text-xs text-gray-500">
-									Optionale E-Mail-Benachrichtigungen zu Abstimmungen sind dann nicht möglich.
+									{t('login.optionalMailNote')}
 								</span>
 							</label>
 						</div>
@@ -171,7 +174,7 @@
 						<div
 							class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700"
 						>
-							An deine E-Mail-Adresse wurde ein One-Time Passwort gesendet.
+							{t('login.otpSent')}
 						</div>
 					{/if}
 
@@ -200,25 +203,27 @@
 						onclick={onLogin}
 						class="w-full rounded-lg bg-secondary-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:brightness-110 active:scale-[0.98]"
 					>
-						{isLogin ? 'Anmelden' : 'Registrieren'}
+						{isLogin ? t('login.button.signIn') : t('login.button.register')}
 					</button>
 
 					<!-- Toggle mode -->
 					<p class="text-center text-sm text-gray-500">
-						{isLogin ? 'Noch kein Konto?' : 'Bereits registriert?'}
+						{isLogin ? t('login.toggle.noAccount') : t('login.toggle.hasAccount')}
 						<button
 							type="button"
 							class="ml-1 border-none bg-transparent p-0 font-medium text-primary-600 hover:text-primary-800 hover:underline"
 							onclick={toggleMode}
 						>
-							{#if isLogin}Registrieren{:else}Anmelden{/if}
+							{#if isLogin}{t('login.button.register')}{:else}{t('login.button.signIn')}{/if}
 						</button>
 					</p>
 
 					<!-- Divider -->
 					<div class="flex items-center gap-3">
 						<div class="h-px flex-1 bg-gray-200"></div>
-						<span class="text-xs font-medium tracking-wide text-gray-400 uppercase">oder</span>
+						<span class="text-xs font-medium tracking-wide text-gray-400 uppercase"
+							>{t('login.divider')}</span
+						>
 						<div class="h-px flex-1 bg-gray-200"></div>
 					</div>
 
@@ -228,7 +233,7 @@
 						onclick={() => startOAuth('google')}
 					>
 						{@html googleIcon}
-						<span>Mit Google anmelden</span>
+						<span>{t('login.oauth.google')}</span>
 					</button>
 				</div>
 			</div>

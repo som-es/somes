@@ -12,15 +12,19 @@ import type {
 	UniqueTopic
 } from '$lib/types';
 import { address, fetchSavely, justPost, url } from './api';
+import { getParliament, type Parliament } from './parliament';
 import { jwtStore } from '$lib/caching/stores/stores.svelte';
 
-export async function getWithAuth<T>(route: string, country = 'at/'): Promise<T | HasError> {
+export async function getWithAuth<T>(
+	route: string,
+	parliament: Parliament = getParliament()
+): Promise<T | HasError> {
 	const accessToken = jwtStore.value;
 	if (accessToken == null) {
 		return { error: 'No access token', error_type: 'AuthError', field: 'MissingToken', meta: null };
 	}
 	return fetchSavely(() =>
-		fetch(`${url}${country}${route}`, {
+		fetch(`${url}${parliament}/${route}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
@@ -33,14 +37,14 @@ export async function getWithAuth<T>(route: string, country = 'at/'): Promise<T 
 export async function putWithAuth<T>(
 	route: string,
 	body: any,
-	country = 'at/'
+	parliament: Parliament = getParliament()
 ): Promise<T | HasError> {
 	const accessToken = jwtStore.value;
 	if (accessToken == null) {
 		return { error: 'No access token', error_type: 'AuthError', field: 'MissingToken', meta: null };
 	}
 	return fetchSavely(() =>
-		fetch(`${url}${country}${route}`, {
+		fetch(`${url}${parliament}/${route}`, {
 			method: 'PUT',
 			headers: {
 				'Content-Type': 'application/json',
@@ -54,14 +58,14 @@ export async function putWithAuth<T>(
 export async function postWithAuth<T>(
 	route: string,
 	body: any,
-	country = 'at/'
+	parliament: Parliament = getParliament()
 ): Promise<T | HasError> {
 	const accessToken = jwtStore.value;
 	if (accessToken == null) {
 		return { error: 'No access token', error_type: 'AuthError', field: 'MissingToken', meta: null };
 	}
 	return fetchSavely(() =>
-		fetch(`${url}${country}${route}`, {
+		fetch(`${url}${parliament}/${route}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -75,7 +79,7 @@ export async function postWithAuth<T>(
 export async function deleteWithAuth<T>(
 	route: string,
 	body: any | undefined,
-	country = 'at/'
+	parliament: Parliament = getParliament()
 ): Promise<T | HasError> {
 	const accessToken = jwtStore.value;
 	if (accessToken == null) {
@@ -88,7 +92,7 @@ export async function deleteWithAuth<T>(
 		newBody = undefined;
 	}
 	return fetchSavely(() =>
-		fetch(`${url}${country}${route}`, {
+		fetch(`${url}${parliament}/${route}`, {
 			method: 'DELETE',
 			headers: {
 				'Content-Type': 'application/json',
@@ -99,28 +103,45 @@ export async function deleteWithAuth<T>(
 	);
 }
 
-export async function addUserTopic(uniqueTopic: UniqueTopic): Promise<null | HasError> {
-	return postWithAuth('v1/user/topic_selection', uniqueTopic);
+export async function addUserTopic(
+	uniqueTopic: UniqueTopic,
+	parliament: Parliament = getParliament()
+): Promise<null | HasError> {
+	return postWithAuth('v1/user/topic_selection', uniqueTopic, parliament);
 }
 
-export async function removeUserTopic(uniqueTopic: UniqueTopic): Promise<null | HasError> {
-	return deleteWithAuth('v1/user/topic_selection', uniqueTopic);
+export async function removeUserTopic(
+	uniqueTopic: UniqueTopic,
+	parliament: Parliament = getParliament()
+): Promise<null | HasError> {
+	return deleteWithAuth('v1/user/topic_selection', uniqueTopic, parliament);
 }
 
-export async function getUserTopics(): Promise<UniqueTopic[] | HasError> {
-	return getWithAuth('v1/user/topic_selection');
+export async function getUserTopics(
+	parliament: Parliament = getParliament()
+): Promise<UniqueTopic[] | HasError> {
+	return getWithAuth('v1/user/topic_selection', parliament);
 }
 
-export async function updateDelegateFavo(delegateFavo: DelegateFavo): Promise<null | HasError> {
-	return putWithAuth('v1/user/bookmark/delegate', delegateFavo);
+export async function updateDelegateFavo(
+	delegateFavo: DelegateFavo,
+	parliament: Parliament = getParliament()
+): Promise<null | HasError> {
+	return putWithAuth('v1/user/bookmark/delegate', delegateFavo, parliament);
 }
 
-export async function addDelegateFavo(uniqueTopic: DelegateFavo): Promise<null | HasError> {
-	return postWithAuth('v1/user/bookmark/delegate', uniqueTopic);
+export async function addDelegateFavo(
+	uniqueTopic: DelegateFavo,
+	parliament: Parliament = getParliament()
+): Promise<null | HasError> {
+	return postWithAuth('v1/user/bookmark/delegate', uniqueTopic, parliament);
 }
 
-export async function removeDelegateFavo(uniqueTopic: DelegateFavo): Promise<null | HasError> {
-	return deleteWithAuth('v1/user/bookmark/delegate', uniqueTopic);
+export async function removeDelegateFavo(
+	uniqueTopic: DelegateFavo,
+	parliament: Parliament = getParliament()
+): Promise<null | HasError> {
+	return deleteWithAuth('v1/user/bookmark/delegate', uniqueTopic, parliament);
 }
 
 export async function askDelegateQuestion(
@@ -149,40 +170,59 @@ export async function rejectDelegateQuestion(
 	return postWithAuth<AdminDelegateQuestion>(`v1/delegate_questions/${questionId}/reject`, {});
 }
 
-export async function getFavoDelegates(): Promise<DelegateFavo[] | HasError> {
-	return getWithAuth('v1/user/bookmark/delegate');
+export async function getFavoDelegates(
+	parliament: Parliament = getParliament()
+): Promise<DelegateFavo[] | HasError> {
+	return getWithAuth('v1/user/bookmark/delegate', parliament);
 }
 
-export async function addLegisInitFavo(uniqueTopic: LegisInitFavo): Promise<null | HasError> {
-	return postWithAuth('v1/user/bookmark/vote_result', uniqueTopic);
+export async function addLegisInitFavo(
+	uniqueTopic: LegisInitFavo,
+	parliament: Parliament = getParliament()
+): Promise<null | HasError> {
+	return postWithAuth('v1/user/bookmark/vote_result', uniqueTopic, parliament);
 }
 
-export async function removeLegisInitFavo(uniqueTopic: LegisInitFavo): Promise<null | HasError> {
-	return deleteWithAuth('v1/user/bookmark/vote_result', uniqueTopic);
+export async function removeLegisInitFavo(
+	uniqueTopic: LegisInitFavo,
+	parliament: Parliament = getParliament()
+): Promise<null | HasError> {
+	return deleteWithAuth('v1/user/bookmark/vote_result', uniqueTopic, parliament);
 }
 
-export async function getFavoLegisInits(): Promise<LegisInitFavo[] | HasError> {
-	return getWithAuth('v1/user/bookmark/vote_result');
+export async function getFavoLegisInits(
+	parliament: Parliament = getParliament()
+): Promise<LegisInitFavo[] | HasError> {
+	return getWithAuth('v1/user/bookmark/vote_result', parliament);
 }
 
 export async function delete_account(): Promise<null | HasError> {
 	return deleteWithAuth('v1/user/delete', undefined);
 }
 
-export async function getMailSendInfo(): Promise<MailSendInfo | HasError> {
-	return getWithAuth('v1/user/send_mail_info');
+export async function getMailSendInfo(
+	parliament: Parliament = getParliament()
+): Promise<MailSendInfo | HasError> {
+	return getWithAuth('v1/user/send_mail_info', parliament);
 }
 
 export async function getUser(): Promise<ExtendedUserInfo | HasError> {
 	return getWithAuth('v1/user');
 }
 
+export async function userInit(parliament: Parliament = getParliament()): Promise<null | HasError> {
+	return getWithAuth('v1/user/init', parliament);
+}
+
 export async function getQuizzes(): Promise<Quiz[] | HasError> {
 	return getWithAuth('quizzes');
 }
 
-export async function updateMailSendInfo(mailSendInfo: MailSendInfo): Promise<null | HasError> {
-	return putWithAuth('v1/user/send_mail_info', mailSendInfo);
+export async function updateMailSendInfo(
+	mailSendInfo: MailSendInfo,
+	parliament: Parliament = getParliament()
+): Promise<null | HasError> {
+	return putWithAuth('v1/user/send_mail_info', mailSendInfo, parliament);
 }
 
 export async function renew_token(): Promise<JWTInfo | HasError> {

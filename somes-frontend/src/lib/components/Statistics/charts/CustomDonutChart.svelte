@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { PieChart } from 'layerchart';
 
 	type ChartItem = {
@@ -58,7 +59,7 @@
 				...source,
 				{
 					key: 'Weitere',
-					label: 'Weitere',
+					label: t('statistics.others'),
 					value: restValue,
 					party: 'Weitere',
 					color: '#94a3b8'

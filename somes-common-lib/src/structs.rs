@@ -48,12 +48,13 @@ pub struct CallToOrder {
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct Absence {
-    pub date: DateTime<Utc>,
+    pub date: NaiveDate,
     pub inr: i32,
     pub gp: String,
     pub plenary_session_id: i32,
     pub missed_legis_init_ids: Option<Vec<i32>>,
     pub source_url: Option<String>,
+    pub council: String,
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
@@ -80,10 +81,33 @@ pub struct StanceTopicInfluences {
     pub topic_influences: Vec<StanceTopicScore>,
 }
 
+#[derive(ToSchema, Debug, Copy, Deserialize, Serialize, Default, Clone)]
+pub struct PoliticalScore {
+    pub socialist: f64,
+    pub capitalist: f64,
+    pub liberal: f64,
+    pub authoritarian: f64,
+    pub count: usize,
+}
+
+#[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct PoliticalPosition {
+    pub total_score: PoliticalScore,
+    pub scores_by_topic: Vec<StanceTopicScore>,
+}
+
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct StanceTopicScore {
     pub topic: String,
+    pub topic_id: String,
     pub score: f64,
+    pub broken_down_score: PoliticalScore,
+}
+
+#[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct TopicInfluence {
+    pub topic: String,
+    pub influence: f64,
 }
 
 /// 'ResetPasswordInfo' is used to send a reset password request to the server.
@@ -123,6 +147,21 @@ pub struct UserInfo {
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct JWTInfo {
     pub access_token: String,
+}
+
+#[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct HasMcpToken {
+    pub has_token: bool,
+}
+
+#[derive(ToSchema, Copy, Debug, Clone, Serialize, Deserialize)]
+pub struct Days {
+    pub days: u32,
+}
+
+#[derive(Default, Copy, Debug, Clone, Serialize, Deserialize)]
+pub struct Language {
+    pub language: common_scrapes::language::Language,
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone, Copy)]
@@ -203,6 +242,7 @@ pub struct DelegateByIdAndPage {
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct InterestShare {
     pub topic: String,
+    pub topic_id: String,
     pub occurences: u32,
     pub total_share: f32,
     pub self_share: f32,
@@ -225,10 +265,9 @@ pub struct GeneralDelegateInfo {
     pub interests: Vec<InterestShare>,
     pub detailed_interests: Vec<InterestShare>,
     pub delegate_qa: Vec<DelegateQA>,
-    pub political_position: Option<PoliticalPosition>,
     pub absences: Vec<Absence>,
     pub named_votes: Vec<NamedVote>,
-    pub left_right_stances: Vec<StanceTopicScore>,
+    pub political_position: Option<PoliticalPosition>,
     pub stance_topic_influences: Vec<StanceTopicInfluences>,
     pub stance_topic_scores: Vec<StanceTopicScore>,
     pub received_call_to_orders: Vec<CallToOrder>,
@@ -239,16 +278,6 @@ pub struct GeneralDelegateInfo {
 pub struct DelegateQA {
     pub question: String,
     pub answer: String,
-}
-
-#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
-pub struct PoliticalPosition {
-    pub delegate_id: i32,
-    pub is_left: f64,
-    pub is_not_left: f64,
-    pub is_liberal: f64,
-    pub is_not_liberal: f64,
-    pub neutral_count: i32,
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
@@ -295,6 +324,11 @@ pub struct PageEntryCount {
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct SortParams {
     pub sort: Option<Sort>,
+}
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct TopicsFilter {
+    pub filter_topics: Option<Vec<String>>,
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
@@ -368,6 +402,7 @@ pub struct AddonVoteResultFilter {
     pub party_votes: Option<Vec<PartyVote>>,
     pub date_from: Option<NaiveDate>,
     pub date_to: Option<NaiveDate>,
+    pub filter_topics: Option<Vec<String>>,
 }
 
 #[derive(Default, IntoParams, ToSchema, Debug, Deserialize, Serialize, Clone)]

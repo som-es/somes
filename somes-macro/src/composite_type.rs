@@ -40,6 +40,7 @@ pub(crate) fn map_type_to_sql(ty: &Type) -> (String, bool) {
                 "NaiveDate" => "date",
                 "NaiveDateTime" => "timestamp",
                 "DateTime" => "timestamptz",
+                "NaiveTime" => "time",
 
                 // bigdecimal
                 "BigDecimal" => "numeric",

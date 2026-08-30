@@ -1,12 +1,12 @@
 use axum::{
+    Json, Router,
     extract::Query,
     routing::{get, post},
-    Json, Router,
 };
 use combx::{Index, OptionalVoteResult};
-use somes_common_lib::{AddonVoteResultFilter, Page, ID, LATEST, LIVE, SEARCH};
+use somes_common_lib::{AddonVoteResultFilter, ID, LATEST, LIVE, Page, SEARCH};
 
-use crate::{server::AppState, PgPoolConnection, RedisConnection, LEGIS_INITS_PER_PAGE};
+use crate::{AppState, LEGIS_INITS_PER_PAGE, ParliamentCtx, PgPoolConnection, RedisConnection};
 
 pub use error::*;
 mod db;
@@ -41,6 +41,7 @@ pub fn create_vote_results_router() -> Router<AppState> {
     )
 )]
 pub async fn vote_results_per_page_route(
+    ParliamentCtx(parliament): ParliamentCtx,
     RedisConnection(mut redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
     Query(page): Query<Page>,
@@ -50,11 +51,14 @@ pub async fn vote_results_per_page_route(
         return Err(FilterError::InvalidPage(page.page as u32));
     }
 
-    let updated_at =
-        crate::meilisearch::get_update_time_of_index(&mut redis_con, &Index::VoteResults)
-            .await
-            .ok()
-            .map(|date| date.naive_local());
+    let updated_at = crate::meilisearch::get_update_time_of_index(
+        &mut redis_con,
+        parliament,
+        &Index::VoteResults,
+    )
+    .await
+    .ok()
+    .map(|date| date.naive_local());
 
     Ok(vote_results_per_page_sqlx(
         redis_con,

@@ -2,16 +2,17 @@
 	import type { Document } from '$lib/types';
 	// import SButton from "../UI/SButton.svelte";
 	import pdfIcon from '$lib/assets/misc_icons/pdf-icon-middle.svg?raw';
+	import { t } from '$lib/i18n/i18n.svelte';
 
 	export let documents: Document[];
 </script>
 
-<span class="text-lg ml-2 font-semibold md:text-xl">Dokumente (PDFs)</span>
-<div class="gap-3 ml-3 flex flex-wrap">
+<span class="ml-2 text-lg font-semibold md:text-xl">{t('documents.title')}</span>
+<div class="ml-3 flex flex-wrap gap-3">
 	{#each documents.sort((a, b) => (b.title ?? '').length - (a.title ?? '').length) as document}
 		{#if document.document_type.includes('PDF')}
 			<a
-				class="underline flex items-center gap-1 text-sm md:text-base"
+				class="flex items-center gap-1 text-sm underline md:text-base"
 				href={document.document_url}
 				target="_blank"
 				>{document.title}
@@ -30,4 +31,3 @@
 		{/if}
 	{/each}
 </div>
-

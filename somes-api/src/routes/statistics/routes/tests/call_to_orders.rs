@@ -1,3 +1,5 @@
+use sqlx::PgPool;
+
 use super::*;
 
 fn create_test_base_data() -> Vec<CallToOrdersBase> {
@@ -6,7 +8,7 @@ fn create_test_base_data() -> Vec<CallToOrdersBase> {
             delegate_name: "Delegate A".to_string(),
             delegate_party: "Party X".to_string(),
             delegate_filter_party: "Party X".to_string(),
-            delegate_gender: "M".to_string(),
+            delegate_gender: Some("M".to_string()),
             total_order_calls: 10,
             total_sessions_attended: Some(20),
             normalized_calls_to_order: Some(0.5),
@@ -17,7 +19,7 @@ fn create_test_base_data() -> Vec<CallToOrdersBase> {
             delegate_name: "Delegate B".to_string(),
             delegate_party: "Party X".to_string(),
             delegate_filter_party: "Party X".to_string(),
-            delegate_gender: "F".to_string(),
+            delegate_gender: Some("F".to_string()),
             total_order_calls: 5,
             total_sessions_attended: Some(20),
             normalized_calls_to_order: Some(0.25),
@@ -28,7 +30,7 @@ fn create_test_base_data() -> Vec<CallToOrdersBase> {
             delegate_name: "Delegate C".to_string(),
             delegate_party: "Party Y".to_string(),
             delegate_filter_party: "Party Y".to_string(),
-            delegate_gender: "M".to_string(),
+            delegate_gender: Some("M".to_string()),
             total_order_calls: 15,
             total_sessions_attended: Some(20),
             normalized_calls_to_order: Some(0.75),
@@ -39,7 +41,7 @@ fn create_test_base_data() -> Vec<CallToOrdersBase> {
             delegate_name: "Delegate D".to_string(),
             delegate_party: "Party Y".to_string(),
             delegate_filter_party: "Party Y".to_string(),
-            delegate_gender: "F".to_string(),
+            delegate_gender: Some("F".to_string()),
             total_order_calls: 8,
             total_sessions_attended: Some(20),
             normalized_calls_to_order: Some(0.4),
@@ -142,7 +144,7 @@ fn test_aggregate_by_party_sorts_by_normalized_score() {
             delegate_name: "Delegate A".to_string(),
             delegate_party: "Party X".to_string(),
             delegate_filter_party: "Party X".to_string(),
-            delegate_gender: "M".to_string(),
+            delegate_gender: Some("M".to_string()),
             total_order_calls: 10,
             total_sessions_attended: Some(100),
             normalized_calls_to_order: Some(0.1),
@@ -153,7 +155,7 @@ fn test_aggregate_by_party_sorts_by_normalized_score() {
             delegate_name: "Delegate B".to_string(),
             delegate_party: "Party Y".to_string(),
             delegate_filter_party: "Party Y".to_string(),
-            delegate_gender: "F".to_string(),
+            delegate_gender: Some("F".to_string()),
             total_order_calls: 2,
             total_sessions_attended: Some(4),
             normalized_calls_to_order: Some(0.5),
@@ -167,13 +169,8 @@ fn test_aggregate_by_party_sorts_by_normalized_score() {
     assert_eq!(results[0].category, "Party Y");
 }
 
-#[tokio::test]
-async fn test_get_base_data_applies_filters_and_computes_call_to_order_stats() {
-    let test_db = super::super::test_db::statistics_test_db(
-        "test_get_base_data_applies_filters_and_computes_call_to_order_stats",
-    )
-    .await;
-    let pool = test_db.pool().clone();
+#[sqlx::test(fixtures("fixtures/statistics_base.sql"))]
+async fn test_get_base_data_applies_filters_and_computes_call_to_order_stats(pool: PgPool) {
     let filter = CallToOrderFilter {
         legis_period: Some("XXV".to_string()),
         party: Some("Party X".to_string()),
@@ -190,7 +187,7 @@ async fn test_get_base_data_applies_filters_and_computes_call_to_order_stats() {
     let delegate = &results[0];
     assert_eq!(delegate.delegate_name, "Delegate A");
     assert_eq!(delegate.delegate_party, "Party X");
-    assert_eq!(delegate.delegate_gender, "M");
+    assert_eq!(delegate.delegate_gender, Some("M".to_string()));
     assert_eq!(delegate.total_order_calls, 2);
     assert_eq!(delegate.total_sessions_attended, Some(1));
     assert!((delegate.normalized_calls_to_order.unwrap() - 2.0).abs() < 0.001);
@@ -198,13 +195,8 @@ async fn test_get_base_data_applies_filters_and_computes_call_to_order_stats() {
     assert_eq!(delegate.delegate_age_bucket, "31-40");
 }
 
-#[tokio::test]
-async fn test_per_legis_keeps_delegates_with_data_in_multiple_periods() {
-    let test_db = super::super::test_db::statistics_test_db(
-        "test_per_legis_keeps_delegates_with_data_in_multiple_periods",
-    )
-    .await;
-    let pool = test_db.pool().clone();
+#[sqlx::test(fixtures("fixtures/statistics_base.sql"))]
+async fn test_per_legis_keeps_delegates_with_data_in_multiple_periods(pool: PgPool) {
     let filter = CallToOrderFilter {
         is_desc: true,
         ..Default::default()
@@ -232,13 +224,8 @@ async fn test_per_legis_keeps_delegates_with_data_in_multiple_periods() {
     assert!((period_53.normalized_calls_to_order.unwrap() - 1.0).abs() < 0.001);
 }
 
-#[tokio::test]
-async fn test_per_delegate_aggregates_all_periods_into_one_delegate_row() {
-    let test_db = super::super::test_db::statistics_test_db(
-        "test_per_delegate_aggregates_all_periods_into_one_delegate_row",
-    )
-    .await;
-    let pool = test_db.pool().clone();
+#[sqlx::test(fixtures("fixtures/statistics_base.sql"))]
+async fn test_per_delegate_aggregates_all_periods_into_one_delegate_row(pool: PgPool) {
     let filter = CallToOrderFilter {
         is_desc: true,
         ..Default::default()

@@ -1,21 +1,27 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import type { Delegate, HasError, Interjection, InterjectionsWithMaxPage } from '$lib/types';
 	import { Popover } from 'bits-ui';
 	import ExtendInfoDialog from '../ExtendInfoDialog.svelte';
 	import { delegate_by_id, isHasError, url } from '$lib/api/api';
-	import DelegateCard from '../DelegateCard.svelte';
 	import InterjectionsModal from './InterjectionsModal.svelte';
 	import { currentDelegateStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
-	import { resolve } from '$app/paths';
+	import { getParliament, plink, type Parliament } from '$lib/api/parliament';
 
 	interface Props {
 		issuerDelegate: Delegate;
 		issuedInterjectionsPage0: InterjectionsWithMaxPage;
 		receivedInterjectionsPage0: InterjectionsWithMaxPage;
+		parliament?: Parliament;
 	}
 
-	let { issuerDelegate, issuedInterjectionsPage0, receivedInterjectionsPage0 }: Props = $props();
+	let {
+		issuerDelegate,
+		issuedInterjectionsPage0,
+		receivedInterjectionsPage0,
+		parliament = getParliament()
+	}: Props = $props();
 
 	// interjections = interjections.sort(
 	// 	(a, b) => (a.interjection_text?.length ?? 0) - (b.interjection_text?.length ?? 0)
@@ -44,7 +50,7 @@
 	};
 	const onShowDetails = (delegate: Delegate) => {
 		currentDelegateStore.value = delegate;
-		gotoHistory(resolve(`/delegates`), true);
+		gotoHistory(plink('/delegates'), true);
 	};
 </script>
 
@@ -56,11 +62,11 @@
 			<div class="flex min-w-full flex-col">
 				<div class="flex flex-row justify-between">
 					<span class="text-lg font-bold text-black xl:text-xl dark:text-white">
-						Zwischenrufe
+						{t('interjections.title')}
 					</span>
 					{#if interjections.length !== 0}
 						<div>
-							<ExtendInfoDialog title="Alle anzeigen">
+							<ExtendInfoDialog title={t('interjections.showAll')}>
 								<InterjectionsModal
 									delegateId={issuerDelegate.id}
 									ty={activeTab}
@@ -81,7 +87,7 @@
 							: 'text-gray-700 hover:bg-primary-400 dark:text-gray-300 dark:hover:bg-primary-600'}"
 						onclick={() => (activeTab = 'issued')}
 					>
-						Vergeben
+						{t('interjections.issued')}
 					</button>
 					<button
 						class="flex-1 rounded-lg px-4 py-1 text-sm font-medium {activeTab === 'received'
@@ -89,7 +95,7 @@
 							: 'text-gray-700 hover:bg-primary-400 dark:text-gray-400 dark:hover:bg-primary-600'}"
 						onclick={() => (activeTab = 'received')}
 					>
-						Erhalten
+						{t('interjections.received')}
 					</button>
 				</div>
 			</div>
@@ -97,9 +103,11 @@
 
 		<div class="mt-4 flex flex-wrap">
 			{#if interjections.length === 0}
-				<div class="w-full rounded-lg bg-surface-100-900 p-20 text-center">Keine</div>
+				<div class="w-full rounded-lg bg-surface-100-900 p-20 text-center">
+					{t('interjections.none')}
+				</div>
 			{/if}
-			{#each interjections as interjection}
+			{#each interjections as interjection (interjection)}
 				<Popover.Root>
 					<Popover.Trigger>
 						<div class="mr-4 mb-4 badge bg-primary-400 px-3 py-0.5 text-sm dark:bg-primary-600">
@@ -112,7 +120,7 @@
 						<Popover.Content side="top">
 							<div class="rounded-lg bg-primary-200 p-5 dark:bg-primary-400">
 								{#await fetchDelegate(activeTab === 'issued' ? interjection.speaker_delegate_id : interjection.interjector_delegate_id)}
-									Lädt Redner..
+									{t('interjections.loadingSpeaker')}
 								{:then delegate}
 									{#if !isHasError(delegate)}
 										<button
@@ -123,7 +131,9 @@
 										>
 											<div class="relative flex justify-center pb-6">
 												<img
-													src={`${url}assets/${delegate.id}.jpg`}
+													src={parliament == 'at'
+														? `${url}assets/${delegate.id}.jpg`
+														: delegate.image_url}
 													class="w-20 rounded-full md:w-30"
 													alt="Image of politician {delegate.name}"
 												/>

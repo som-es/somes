@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import DecreeBar from './DecreeBar.svelte';
 	import type { Decree, DecreeDelegate } from './types';
 	import type { Delegate } from '$lib/types';
@@ -32,14 +33,15 @@
 <div>
 	<div class="flex items-start justify-between">
 		<div>
-			<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">Letzte Verordnungen</h1>
+			<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">{t('decrees.title')}</h1>
 
 			<h2 class="text-sm text-gray-800 dark:text-gray-300">
 				{decrees.length}
-				{decrees.length == 1 ? 'Verordnung' : 'Verordnungen'} insgesamt
+				{decrees.length == 1 ? t('decrees.decree') : t('decrees.decrees')}
+				{t('decrees.total')}
 			</h2>
 		</div>
-		<ExtendInfoDialog title="Alle anzeigen">
+		<ExtendInfoDialog title={t('decrees.showAll')}>
 			<DecreesModal decrees={delegateDecrees} />
 		</ExtendInfoDialog>
 	</div>

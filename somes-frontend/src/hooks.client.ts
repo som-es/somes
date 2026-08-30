@@ -1,4 +1,4 @@
-const CLEAR_KEY = 'cleared_june_16';
+const CLEAR_KEY = 'cleared_multi_parliament';
 
 if (!localStorage.getItem(CLEAR_KEY)) {
 	localStorage.clear();

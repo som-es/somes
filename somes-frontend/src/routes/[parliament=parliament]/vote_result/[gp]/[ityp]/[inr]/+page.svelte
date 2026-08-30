@@ -1,0 +1,1048 @@
+<script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
+	import { errorToNull, url } from '$lib/api/api';
+	import { aiViewEnabledStore, currentDelegateStore, seatColorModeStore } from '$lib/stores/stores';
+	import { gotoHistory } from '$lib/goto';
+	import { plink } from '$lib/api/parliament';
+	import { onMount } from 'svelte';
+	import Container from '$lib/components/Layout/Container.svelte';
+	import Topics from '$lib/components/Topics/Topics.svelte';
+	import { type Delegate, type VoteResult } from '$lib/types';
+	import Emphasis from '$lib/components/VoteResults/Emphasis/Emphasis.svelte';
+	import VoteDelegateCard from '$lib/components/Delegates/VoteDelegateCard.svelte';
+	import SpeechesPreview from '$lib/components/Delegates/Speeches/SpeechesPreview.svelte';
+	import type { Bubble } from '$lib/parliament';
+	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
+	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
+	import { cachedLegisInitFavos } from '$lib/caching/favos';
+	import star from '$lib/assets/misc_icons/star.svg?raw';
+	import starFilled from '$lib/assets/misc_icons/starFilled.svg?raw';
+	import Documents from '$lib/components/Documents/Documents.svelte';
+	import { dashDateToDotDate } from '$lib/date';
+	import InfoBadges from '$lib/components/VoteResults/InfoTiles/InfoBadges.svelte';
+	import ReferencedByBar from '$lib/components/Bars/ReferencedByBar.svelte';
+	import crossmarkIcon from '$lib/assets/misc_icons/crossmark_small.svg?raw';
+	import checkmarkIcon from '$lib/assets/misc_icons/checkmark_small.svg?raw';
+	import GlossaryText from '$lib/components/UI/GlossaryText.svelte';
+	import AiSummaryHintPopup from '$lib/components/AiHint/AiSummaryHintPopup.svelte';
+	import { page } from '$app/state';
+	import { NO_PARTY, partyOf, searchDelegates } from './searchDelegates';
+	import linkIcon from '$lib/assets/misc_icons/external-link.svg?raw';
+	import searchIcon from '$lib/assets/misc_icons/search-glass.svg?raw';
+	import DelegateListItem from '$lib/components/Delegates/DelegateListItem.svelte';
+	import { Select } from 'bits-ui';
+	import upDownArrowIcon from '$lib/assets/misc_icons/up-down-arrow.svg?raw';
+	import { countryName } from '$lib/countries';
+	import MultiSelectFilter from '$lib/components/Filtering/MultiSelectFilter.svelte';
+
+	let gp = $derived(page.params.gp);
+	let ityp = $derived(page.params.ityp);
+	let inr = $derived(page.params.inr);
+
+	import type { PageProps } from './$types';
+	import type { Vote } from '$lib/types';
+	import { browser } from '$app/environment';
+	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
+	import type { SvelteSet } from 'svelte/reactivity';
+	import { addLegisInitFavo, removeLegisInitFavo } from '$lib/api/authed';
+	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
+	import VoteBreakDownDonut from '$lib/components/VoteResults/VoteBreakDownDonut.svelte';
+	import { VOTE_COLORS } from '$lib/voteColors';
+	import { givenVotes, isVoteInFavor, totalVotes, votesByPartySize } from '$lib/partyInfavor';
+
+	let { data }: PageProps = $props();
+
+	let voteResult: VoteResult | null = $derived(errorToNull(data.voteResult));
+	let delegates: Delegate[] = $derived(data.delegates ?? []);
+
+	let delegate: Delegate | null = $state(null);
+	let selectedBubble: Bubble | undefined = $state();
+	let seatColorMode = $derived(seatColorModeStore.value);
+
+	let partyColors = $derived(data.partyColors);
+
+	// Search PopUp Logic
+	let showMobileSearch: boolean = $state(false);
+
+	let isSearchPopupOpen = $state(false);
+	let searchWrapper: HTMLDivElement | undefined = $state();
+	function handleFocusOut(e: FocusEvent) {
+		const relatedTarget = e.relatedTarget as Node | null;
+		if (relatedTarget) {
+			if (searchWrapper?.contains(relatedTarget)) return;
+			if ((relatedTarget as Element).closest('.search-filter-portal')) return;
+		}
+		isSearchPopupOpen = false;
+	}
+
+	// delegates search modal filter
+	const urlParams = page.url.searchParams;
+	let searchValue: string = $state(urlParams.get('search') ?? '');
+	let selectedPartiesNames = $state<string[]>(urlParams.getAll('party'));
+	let selectedInfavor = $state<string | undefined>(urlParams.get('vote') ?? undefined);
+	let selectedCountries = $state<string[]>(urlParams.getAll('country'));
+
+	// countries (only important for eu)
+	let uniqueCountries = $derived.by(() => {
+		if (data.parliament !== 'eu') return [];
+		const codes = new Set<string>();
+		delegates.forEach((d) => {
+			if (d.constituency?.trim()) codes.add(d.constituency);
+		});
+		return Array.from(codes)
+			.map((code) => ({ code, name: countryName(code) }))
+			.sort((a, b) => a.name.localeCompare(b.name, 'de'));
+	});
+
+	let uniqueParties = $derived.by(() => {
+		const parties = new Set(delegates.map(partyOf));
+		return Array.from(parties).map((party) => ({
+			value: party,
+			label: party === NO_PARTY ? t('vote_result.withoutParty') : party,
+			color: partyColors.get(party) ?? '#ccc'
+		}));
+	});
+
+	// client side filtering
+	let searchResults = $derived(
+		searchDelegates(voteResult, delegates, {
+			search: searchValue,
+			parties: selectedPartiesNames,
+			vote: selectedInfavor ?? null,
+			countries: selectedCountries
+		})
+	);
+
+	let description = $derived(voteResult?.legislative_initiative?.description);
+
+	let issuedByDels = $derived.by(() => {
+		if (voteResult?.issued_by_dels) {
+			const issuedByDels = new Map<string, number[]>();
+			voteResult.issued_by_dels.forEach((del) => {
+				const text = del.text ? del.text : t('vote_result.delegates');
+				if (issuedByDels.has(text)) {
+					issuedByDels.get(text)?.push(del.delegate_id);
+				} else {
+					issuedByDels.set(text, [del.delegate_id]);
+				}
+			});
+			return issuedByDels;
+		} else {
+			return new Map<string, number[]>();
+		}
+	});
+
+	let legisInitFavos: SvelteSet<number> | null = $state(null);
+
+	const runVoteResultUpdate = async () => {
+		legisInitFavos = await cachedLegisInitFavos();
+
+		if (!delegates) {
+			return;
+		}
+	};
+
+	onMount(runVoteResultUpdate);
+
+	let currentlyUpdating = $state(false);
+
+	/*run(() => {
+		if (delegates || voteResult) {
+			updateAutocompletion();
+			selectRandomlyFromDels();
+			enrichDelegates(delegates);
+		}
+	});*/
+
+	let parliamentUrl = $derived.by(() => {
+		switch (data.parliament) {
+			case 'at':
+				return `https://parlament.gv.at/gegenstand/${gp}/${ityp}/${inr}?utm_source=somes.at`;
+			case 'eu': {
+				const inrStr = inr!.toString();
+				const year = inrStr.slice(0, 4);
+				const nr = inrStr.slice(4);
+				return `https://oeil.europarl.europa.eu/oeil/en/procedure-file?reference=${year}/${nr}(${ityp})&utm_source=somes.at`;
+			}
+		}
+	});
+	let documents = $derived(voteResult?.documents ?? []);
+
+	const infavorOptions = $derived.by(() => {
+		const val = [
+			{ value: 'Infavor', label: t('vote_result.inFavor') },
+			{ value: 'NoVote', label: t('vote_result.notVoted') },
+			{ value: 'Against', label: t('vote_result.against') }
+		];
+		if (data.parliament == 'eu') {
+			val.push({ value: 'Abstention', label: t('vote_result.abstention') });
+		}
+		return val;
+	});
+
+	const sortedVotes = $derived(votesByPartySize(voteResult));
+
+	const totalVote = $derived<Vote>({
+		party: t('vote_result.total'),
+		code: null,
+		infavor_count: sortedVotes.reduce((sum, v) => sum + v.infavor_count, 0),
+		against_count: sortedVotes.reduce((sum, v) => sum + v.against_count, 0),
+		abstention_count: sortedVotes.reduce((sum, v) => sum + v.abstention_count, 0),
+		absence_count: 0
+	});
+
+	let allSpeeches = $derived(voteResult?.speeches ?? []);
+	let date = $derived(
+		voteResult?.legislative_initiative?.vote_date
+			? voteResult?.legislative_initiative?.vote_date
+			: voteResult?.legislative_initiative?.nr_plenary_activity_date
+	);
+</script>
+
+<svelte:head>
+	<title>{t('vote_result.title')}</title>
+	<meta name="description" content={t('vote_result.meta')} />
+</svelte:head>
+
+{#if browser}
+	<title>
+		{#if voteResult}
+			{#if aiViewEnabledStore.value && voteResult.ai_summary}
+				{voteResult.ai_summary.short_title}
+			{:else}
+				{description}
+			{/if}
+		{/if}
+	</title>
+{/if}
+
+<Container>
+	{#if voteResult}
+		{#if currentlyUpdating}
+			<!-- <CenterPrograssRadial /> -->
+		{:else}
+			<br />
+			<div class="grid-container-with-emphasis flex gap-3">
+				<div class="title-item rounded-xl bg-primary-300 px-6 py-5 dark:bg-primary-500">
+					<!-- Title, Date and Result Icon -->
+					<div class="flex items-start justify-between">
+						<div class="flex min-w-0 items-center gap-4">
+							<!-- Title & Date Stack -->
+							<div class="flex min-w-0 flex-col">
+								<div class="flex items-start gap-2">
+									<span
+										class="text-xl leading-tight font-bold lg:text-3xl"
+										style="hyphens: auto; word-break: break-word; overflow-wrap: break-word;"
+									>
+										{#if aiViewEnabledStore.value && voteResult.ai_summary}
+											<AiSummaryHintPopup aiSummary={voteResult.ai_summary} />
+											{voteResult.ai_summary.short_title}
+										{:else}
+											{description}
+										{/if}
+									</span>
+								</div>
+
+								{#if voteResult.legislative_initiative.accepted && voteResult.legislative_initiative.vote_date}
+									<span class="text-sm opacity-90">
+										{voteResult.legislative_initiative.voted_by_name
+											? t('vote_result.nominally')
+											: ''}
+										{t('vote_result.votedOn')}
+										{dashDateToDotDate(voteResult.legislative_initiative.vote_date.toString())}
+									</span>
+								{/if}
+							</div>
+						</div>
+
+						<!-- Right Actions, Result Icon and  Star -->
+						<div class="flex flex-shrink-0 flex-wrap items-center gap-2">
+							<a href={parliamentUrl} target="_blank" class="w-5 text-gray-500 dark:text-gray-300">
+								{@html linkIcon}
+							</a>
+							<!-- Result Icon -->
+							{#if voteResult.legislative_initiative.accepted !== null && voteResult.legislative_initiative.accepted !== 'u'}
+								<div class="shrink-0">
+									{#if voteResult.legislative_initiative.accepted == 'a'}
+										<span
+											class="block stroke-green-600 dark:stroke-green-500"
+											style="width:34px; height:34px;"
+										>
+											{@html checkmarkIcon}
+										</span>
+									{:else}
+										<span class="block" style="width:34px; height:34px;">
+											{@html crossmarkIcon}
+										</span>
+									{/if}
+								</div>
+							{/if}
+							{#if legisInitFavos}
+								<button
+									onclick={async () => {
+										if (!voteResult || !legisInitFavos) return;
+
+										if (legisInitFavos.has(+voteResult.legislative_initiative.id)) {
+											const res = await removeLegisInitFavo({
+												vote_result_id: +voteResult.legislative_initiative.id
+											});
+											if (res === null) {
+												legisInitFavos.delete(+voteResult.legislative_initiative.id);
+											}
+										} else {
+											const res = await addLegisInitFavo({
+												vote_result_id: +voteResult.legislative_initiative.id
+											});
+											if (res === null) {
+												legisInitFavos.add(+voteResult.legislative_initiative.id);
+											}
+										}
+									}}
+									class="w-8 {legisInitFavos.has(+voteResult.legislative_initiative.id)
+										? 'text-yellow-500'
+										: 'text-gray-400 hover:text-yellow-500'}"
+								>
+									{@html legisInitFavos.has(+voteResult.legislative_initiative.id)
+										? starFilled
+										: star}
+								</button>
+							{/if}
+						</div>
+					</div>
+
+					<!-- Zusammenfassung -->
+					{#if aiViewEnabledStore.value && voteResult.ai_summary}
+						<div class="mt-5 pb-3">
+							<h1 class="text-lg font-semibold md:text-xl">{t('vote_result.summary')}</h1>
+							<span
+								class="text-base text-gray-800 lg:text-base dark:text-gray-200"
+								style="hyphens: auto; word-break: break-word; overflow-wrap: break-word;"
+							>
+								<GlossaryText
+									text={voteResult.ai_summary.short_summary}
+									glossary={voteResult.ai_summary.full_summary.glossary}
+								/>
+							</span>
+						</div>
+					{/if}
+
+					<div class="flex w-full flex-wrap items-center justify-between gap-3 pt-1">
+						<div>
+							<InfoBadges {voteResult} />
+						</div>
+
+						<div class="flex flex-1 justify-end">
+							{#if aiViewEnabledStore.value && voteResult.ai_summary && voteResult.eurovoc_topics.length == 0}
+								<Topics
+									topics={voteResult.ai_summary.full_summary.topics
+										.sort((a, b) => {
+											return a.length - b.length;
+										})
+										.map((topic) => {
+											return { topic };
+										})}
+								/>
+							{:else}
+								<Topics
+									topics={voteResult.eurovoc_topics.sort((a, b) => {
+										return a.topic.length - b.topic.length;
+									})}
+								/>
+							{/if}
+						</div>
+					</div>
+				</div>
+
+				<!-- CARD main topics  -->
+				{#if aiViewEnabledStore.value && voteResult.ai_summary}
+					<div class="emphasis-item">
+						<Emphasis
+							summary={voteResult.ai_summary.full_summary}
+							speeches={allSpeeches}
+							{delegates}
+							legisInitId={voteResult.legislative_initiative.id}
+						></Emphasis>
+					</div>
+				{/if}
+
+				{#snippet searchContent(onClose: () => void)}
+					<div class="mt-4 lg:mt-0">
+						<span class="text-sm font-semibold text-gray-800 lg:text-base dark:text-gray-200"
+							>{t('vote_result.filter')}</span
+						>
+						<div class="mt-2 flex h-10 w-full gap-2 md:mt-1 md:w-auto">
+							<!-- Parteien Filter -->
+							<div
+								class="flex h-full grow touch-manipulation items-center justify-center gap-1 lg:grow-0"
+							>
+								<MultiSelectFilter
+									items={uniqueParties}
+									bind:value={selectedPartiesNames}
+									allLabel={t("vote_result.allParties")}
+								>
+									{#snippet itemLabel(party)}
+										<div
+											class="h-3 w-3 shrink-0 rounded-full"
+											style="background-color: {party.color};"
+										></div>
+										<span class="truncate">{party.label}</span>
+									{/snippet}
+								</MultiSelectFilter>
+								<Select.Root
+									type="single"
+									allowDeselect
+									bind:value={selectedInfavor}
+									items={infavorOptions}
+								>
+									<Select.Trigger
+										class="flex h-full w-full touch-manipulation items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none lg:w-auto lg:px-3"
+									>
+										<div class="flex items-center gap-2">
+											{#if selectedInfavor}
+												{@const option = infavorOptions.find((p) => p.value === selectedInfavor)}
+												{#if option}
+													<span class="truncate">{option.label}</span>
+												{/if}
+											{:else}
+												<span class="truncate">{t('vote_result.votingBehavior')}</span>
+											{/if}
+										</div>
+										{@html upDownArrowIcon}
+									</Select.Trigger>
+									<Select.Portal>
+										<Select.Content
+											class="z-500 max-h-60 w-[calc(100vw-2rem)] min-w-[var(--bits-select-anchor-width)] overflow-hidden rounded-xl border border-gray-200 bg-surface-100 shadow-lg md:w-[200px] dark:bg-surface-500"
+											sideOffset={8}
+										>
+											<Select.Viewport class="p-1">
+												{#each infavorOptions as infavorOption (infavorOption.value)}
+													<Select.Item
+														class="flex h-10 w-full cursor-pointer justify-between rounded-lg py-3 pr-1.5 pl-3 text-sm transition-all duration-75 outline-none select-none data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-400"
+														value={infavorOption.value}
+														label={infavorOption.label}
+													>
+														{#snippet children({ selected })}
+															<div class="flex items-center gap-2">
+																{infavorOption.label}
+															</div>
+															{#if selected}
+																<div class="ml-auto h-4 stroke-black dark:stroke-white">
+																	{@html checkmarkIcon}
+																</div>
+															{/if}
+														{/snippet}
+													</Select.Item>
+												{/each}
+											</Select.Viewport>
+										</Select.Content>
+									</Select.Portal>
+								</Select.Root>
+								{#if uniqueCountries.length > 0}
+									<!-- Länder Filter (nur EU, constituency ist dort der Staat) -->
+									<MultiSelectFilter
+										items={uniqueCountries.map((c) => ({ value: c.code, label: c.name }))}
+										bind:value={selectedCountries}
+										allLabel={t('filter.allCountries')}
+									/>
+								{/if}
+							</div>
+						</div>
+					</div>
+
+					<!-- Search Results -->
+					<div class="mt-3 max-h-[50vh] overflow-y-auto lg:mt-4 lg:max-h-70">
+						<div class="mb-1">
+							<span class="text-sm font-semibold text-gray-800 lg:text-base dark:text-gray-200"
+								>{t('vote_result.searchResults')}</span
+							>
+						</div>
+						<div class="space-y-2">
+							{#each searchResults as del}
+								<DelegateListItem
+									delegate={del.delegate}
+									href={plink(`/delegates?delegate=${del.delegate.id}&date=${date}&gp=${gp}`)}
+									class="w-full bg-primary-200 lg:bg-primary-300 dark:bg-surface-600 dark:lg:bg-primary-500"
+									onclick={() => {
+										delegate = del.delegate;
+										selectedBubble = undefined;
+										onClose();
+									}}
+								>
+									{#if del.infavor === true}
+										<span
+											class="inline-block stroke-green-600 dark:stroke-green-500"
+											style="width:24px; height:24px;">{@html checkmarkIcon}</span
+										>
+										{#if !del.isNamedVote}
+											<span class="text-xs font-light"> (Klub) </span>
+										{/if}
+									{:else if del.absent === true}
+										<span class="text-xs font-medium text-gray-500 dark:text-gray-200"
+											>{t('vote_result.notVoted')}</span
+										>
+									{:else if del.infavor === false}
+										<span class="inline-block" style="width:24px; height:24px;"
+											>{@html crossmarkIcon}</span
+										>
+										{#if !del.isNamedVote}
+											<span class="text-xs font-light">{t('vote_result.byClub')}</span>
+										{/if}
+									{:else if del.abstention === true}
+										<span
+											class="inline-flex items-center justify-center text-4xl text-blue-500"
+											style="width:24px; height:24px;"
+										>
+											–
+										</span>
+									{/if}
+								</DelegateListItem>
+							{/each}
+							{#if searchResults.length === 0}
+								<div class="p-4 text-center text-gray-500">{t('vote_result.noResults')}</div>
+							{/if}
+						</div>
+					</div>
+				{/snippet}
+
+				<!-- Mini Parlament and Vote Results-->
+				{#if voteResult && voteResult.votes.length > 0}
+					<div class="emphasis-item rounded-xl bg-primary-300 px-5 pt-5 pb-3 dark:bg-primary-500">
+						<!-- Desktop Search PopUp -->
+						<div
+							class="relative mb-3 hidden lg:block"
+							bind:this={searchWrapper}
+							onfocusout={handleFocusOut}
+						>
+							<SearchBar
+								onfocus={() => (isSearchPopupOpen = true)}
+								onclick={() => (isSearchPopupOpen = true)}
+								oninput={() => (isSearchPopupOpen = true)}
+								bind:searchValue
+								placeholder={t('vote_result.searchDelegates')}
+							/>
+
+							<div
+								class="absolute top-full right-0 left-0 z-100 mt-2 w-[98%] rounded-xl border border-gray-300 bg-surface-50 px-5 pt-4 pb-5 shadow-lg md:w-140 dark:bg-surface-600"
+								class:hidden={!isSearchPopupOpen}
+								data-popup="popupSearch"
+								role="button"
+								tabindex="0"
+								onmousedown={(e) => e.preventDefault()}
+							>
+								{@render searchContent(() => {
+									isSearchPopupOpen = false;
+								})}
+							</div>
+						</div>
+
+						<!-- Mobile Search Overlay -->
+						{#if showMobileSearch}
+							<div
+								class="fixed inset-0 z-50 flex items-start justify-center bg-black/50 p-4 backdrop-blur-sm lg:hidden"
+							>
+								<div
+									class="w-full max-w-md rounded-2xl bg-primary-100 p-4 shadow-xl dark:bg-primary-600"
+								>
+									<div class="mb-4 flex items-center justify-between">
+										<h3 class="text-lg font-semibold">{t('vote_result.search')}</h3>
+										<ModalCloseButton class="p-1" onclick={() => (showMobileSearch = false)} />
+									</div>
+									<SearchBar
+										bind:searchValue
+										placeholder={t('vote_result.searchDelegates')}
+										onfocus={() => (isSearchPopupOpen = true)}
+										onclick={() => (isSearchPopupOpen = true)}
+										oninput={() => (isSearchPopupOpen = true)}
+										autofocus={true}
+									/>
+
+									{@render searchContent(() => {
+										showMobileSearch = false;
+									})}
+								</div>
+							</div>
+						{/if}
+
+						<div class="flex">
+							<!-- Abstimmung, Fractions, Result - Mobile -->
+							<div class="hidden w-full max-lg:block">
+								<div class="flex w-full items-center justify-between">
+									<h3 class="text-lg leading-none font-semibold md:text-xl">
+										{t('vote_result.vote')}
+									</h3>
+									<button
+										class="flex items-center justify-center"
+										onclick={() => {
+											showMobileSearch = true;
+											isSearchPopupOpen = true;
+										}}
+									>
+										<div class="flex h-6 w-6 items-center text-gray-800 dark:text-gray-200">
+											{@html searchIcon}
+										</div>
+									</button>
+								</div>
+
+								{#if voteResult.named_votes == null}
+									<div class="mt-2 flex flex-col gap-2">
+										{#each sortedVotes as vote (vote.party)}
+											<div class="flex items-center justify-between gap-4">
+												<div class="flex items-center gap-2">
+													<div
+														class="h-2.5 w-2.5 shrink-0 rounded-full"
+														style="background-color: {partyColors.get(vote.party) ?? '#ccc'};"
+													></div>
+													<span class="truncate text-base font-medium">{vote.party}</span>
+													<span class="text-sm text-gray-500 tabular-nums dark:text-gray-400"
+														>({givenVotes(vote)})</span
+													>
+												</div>
+												{#if isVoteInFavor(vote)}
+													<span
+														class="inline-block shrink-0 stroke-green-600 align-middle dark:stroke-green-500"
+														style="width:18px; height:18px;">{@html checkmarkIcon}</span
+													>
+												{:else}
+													<span class="inline-block shrink-0 align-middle" style="width:18px; height:18px;"
+														>{@html crossmarkIcon}</span
+													>
+												{/if}
+											</div>
+										{/each}
+									</div>
+								{:else}
+									<div class="mt-2 flex flex-col gap-2">
+										{#each sortedVotes as vote (vote.party)}
+											<div class="flex items-center justify-between gap-4">
+												<div class="flex min-w-0 items-center gap-2">
+													<div
+														class="h-2.5 w-2.5 shrink-0 rounded-full"
+														style="background-color: {partyColors.get(vote.party) ?? '#ccc'};"
+													></div>
+													<span class="truncate text-base font-medium">{vote.party}</span>
+													<span class="text-sm text-gray-500 tabular-nums dark:text-gray-400"
+														>({totalVotes(vote)})</span
+													>
+												</div>
+												<VoteBreakDownDonut {vote} />
+											</div>
+										{/each}
+									</div>
+									{#if givenVotes(totalVote) > 0}
+										<hr class="my-2 border-gray-400 dark:border-gray-600" />
+										<div class="flex items-center justify-between gap-4">
+											<span class="text-base font-medium">{totalVote.party}</span>
+											<VoteBreakDownDonut vote={totalVote} />
+										</div>
+									{/if}
+								{/if}
+								{#if voteResult.named_votes != null}
+									<!-- Legend -->
+									<div
+										class="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400"
+									>
+										{#each [{ label: t('donut.inFavor'), color: VOTE_COLORS.infavor }, { label: t('donut.against'), color: VOTE_COLORS.against }, { label: t('donut.abstention'), color: VOTE_COLORS.abstention }, { label: t('donut.absent'), color: VOTE_COLORS.absent }] as item (item.label)}
+											<span class="flex items-center gap-1.5">
+												<span class="h-2 w-2 rounded-full" style="background-color: {item.color};"
+												></span>
+												{item.label}
+											</span>
+										{/each}
+									</div>
+								{/if}
+								{#if sortedVotes.length === 0}
+									<span class="text-sm text-gray-500">{t('vote_result.noParties')}</span>
+								{/if}
+							</div>
+
+							<!-- Abstimmung, Fractions, Result and Mini Parlament - Desktop-->
+							<div class="absolute ml-1 max-lg:hidden">
+								<h3 class="mb-1 text-lg font-semibold md:text-xl">{t('vote_result.vote')}</h3>
+								<div class="ml-1">
+									{#if voteResult.named_votes == null}
+										{#each sortedVotes as vote (vote.party)}
+											<div class="flex items-center justify-between gap-4">
+												<div class="flex items-center gap-2">
+													<div
+														class="h-2.5 w-2.5 rounded-full"
+														style="background-color: {partyColors.get(vote.party) ?? '#ccc'};"
+													></div>
+													<span class="text-sm lg:text-base">{vote.party}</span>
+												</div>
+												<div class="flex items-center gap-1">
+													<span class="text-sm lg:text-base">({givenVotes(vote)})</span>
+													{#if isVoteInFavor(vote)}
+														<span
+															class="inline-block stroke-green-600 align-middle dark:stroke-green-500"
+															style="width:18px; height:18px;">{@html checkmarkIcon}</span
+														>
+													{:else}
+														<span class="inline-block align-middle" style="width:18px; height:18px;"
+															>{@html crossmarkIcon}</span
+														>
+													{/if}
+												</div>
+											</div>
+										{/each}
+									{:else}
+										{#each sortedVotes as vote (vote.party)}
+											<div class="flex items-center gap-1">
+												<div class="flex w-24 shrink-0 items-center gap-2">
+													<div
+														class="h-2.5 w-2.5 rounded-full"
+														style="background-color: {partyColors.get(vote.party) ?? '#ccc'};"
+													></div>
+													<span class="text-sm lg:text-base">{vote.party}</span>
+												</div>
+
+												<div class="flex flex-row items-center gap-1">
+													<VoteBreakDownDonut {vote} />
+												</div>
+											</div>
+										{/each}
+										{#if givenVotes(totalVote) > 0}
+											<hr class="my-1 border-gray-400 dark:border-gray-600" />
+											<div class="flex items-center gap-1">
+												<div class="flex w-24 shrink-0 items-center gap-2">
+													<div class="h-2.5 w-2.5 shrink-0"></div>
+													<span class="text-sm font-medium lg:text-base">{totalVote.party}</span>
+												</div>
+												<VoteBreakDownDonut vote={totalVote} />
+											</div>
+										{/if}
+									{/if}
+								</div>
+							</div>
+
+							<div class="flex w-full flex-col items-center max-lg:hidden">
+								<!-- Seat coloring toggle: by party vs. by vote (green/red/blue like the EP display) -->
+								<div class="mt-1 mr-4 flex w-full justify-end">
+									<div
+										class="flex rounded-lg bg-primary-200/60 p-0.5 text-xs dark:bg-primary-600/60"
+										role="group"
+										aria-label={t('vote_result.seatColor.voteTitle')}
+									>
+										<button
+											class="cursor-pointer rounded-md px-2 py-0.5 transition-colors {seatColorMode ===
+											'party'
+												? 'bg-surface-50 font-semibold shadow-sm dark:bg-surface-600'
+												: 'text-gray-700 dark:text-gray-300'}"
+											title={t('vote_result.seatColor.partyTitle')}
+											aria-pressed={seatColorMode === 'party'}
+											onclick={() => (seatColorModeStore.value = 'party')}
+										>
+											{t('vote_result.seatColor.party')}
+										</button>
+										<button
+											class="cursor-pointer rounded-md px-2 py-0.5 transition-colors {seatColorMode ===
+											'vote'
+												? 'bg-surface-50 font-semibold shadow-sm dark:bg-surface-600'
+												: 'text-gray-700 dark:text-gray-300'}"
+											title={t('vote_result.seatColor.voteTitle')}
+											aria-pressed={seatColorMode === 'vote'}
+											onclick={() => (seatColorModeStore.value = 'vote')}
+										>
+											{t('vote_result.seatColor.vote')}
+										</button>
+									</div>
+								</div>
+								<div class="w-2/3">
+									<VoteParliament2
+										{voteResult}
+										bind:delegate
+										{delegates}
+										allSeats={data.cachedSeats}
+										bind:selected={selectedBubble}
+										noSeats={!data.hasSeatInfo}
+										useOffset={data.hasSeatInfo}
+										parliament={data.parliament}
+										showGovs
+										overrideDelegates
+										{searchValue}
+										partyColoring={partyColors}
+										colorMode={seatColorMode}
+									/>
+								</div>
+							</div>
+
+							<div class="mt-1 w-100 max-lg:hidden">
+								{#if selectedBubble}
+									<VoteDelegateCard
+										bubble={selectedBubble}
+										gp={voteResult.legislative_initiative.gp}
+										date={voteResult.legislative_initiative.vote_date ??
+											voteResult.legislative_initiative.nr_plenary_activity_date}
+										partyColors={data.partyColors}
+										parliament={data.parliament}
+									/>
+								{/if}
+							</div>
+						</div>
+
+						<!-- Eingebracht von -->
+						{#if issuedByDels.size > 0}
+							<!-- Divider -->
+							<hr class="my-4 border-t border-gray-400 dark:border-gray-600" />
+							<div class="mb-1">
+								<h3 class="text-md font-semibold md:text-lg">{t('vote_result.introducedBy')}</h3>
+								<div class="mt-1 flex flex-col gap-2 md:flex-row md:flex-wrap md:gap-3">
+									{#each Array.from(issuedByDels.entries()) as [text, delegate_ids] (delegate_ids)}
+										{#each delegate_ids as delegate_id (delegate_id)}
+											{@const del = delegates.find((d) => d.id === delegate_id)}
+											{#if del}
+												{#if voteResult && voteResult.votes.length > 0}
+													<DelegateListItem
+														delegate={del}
+														class="w-full md:w-auto md:max-w-full"
+														onclick={() => {
+															delegate = del;
+															selectedBubble = undefined;
+														}}
+													/>
+												{:else}
+													<a
+														href={plink(
+															`/delegates?gp=${gp}&date=${new Date(voteResult.legislative_initiative.raw_data_created_at!).toISOString().split('T')[0]}&delegate=${del.id}`
+														)}
+													>
+														<DelegateListItem
+															delegate={del}
+															class="w-full md:w-auto md:max-w-full"
+														/>
+													</a>
+												{/if}
+											{/if}
+										{/each}
+									{/each}
+								</div>
+							</div>
+						{/if}
+					</div>
+				{:else if issuedByDels.size > 0}
+					<div class="emphasis-item rounded-xl bg-primary-300 px-5 pt-3 pb-3 dark:bg-primary-500">
+						<h3 class="text-md font-semibold md:text-lg">{t('vote_result.introducedBy')}</h3>
+						<div class="mt-1 flex flex-col gap-2 md:flex-row md:flex-wrap md:gap-3">
+							{#each Array.from(issuedByDels.entries()) as [text, delegate_ids] (delegate_ids)}
+								{#each delegate_ids as delegate_id (delegate_id)}
+									{@const del = delegates.find((d) => d.id === delegate_id)}
+									{#if del}
+										{#if voteResult && voteResult.votes.length > 0}
+											<DelegateListItem
+												delegate={del}
+												class="w-full md:w-auto md:max-w-full"
+												onclick={() => {
+													delegate = del;
+													selectedBubble = undefined;
+												}}
+											/>
+										{:else if voteResult}
+											<a
+												href={plink(
+													`/delegates?gp=${gp}&date=${new Date(voteResult.legislative_initiative.raw_data_created_at!).toISOString().split('T')[0]}&delegate=${del.id}`
+												)}
+											>
+												<DelegateListItem delegate={del} class="w-full md:w-auto md:max-w-full" />
+											</a>
+										{/if}
+									{/if}
+								{/each}
+							{/each}
+						</div>
+					</div>
+				{/if}
+
+				<!-- Referenziert in -->
+				{#if data.referencedByResults.length > 0}
+					<div class="w-full rounded-xl bg-primary-300 px-5 pt-4 pb-2 dark:bg-primary-500">
+						<span class="text-lg font-semibold md:text-xl">{t('vote_result.referencedIn')}</span>
+						<div class="my-0.5 flex flex-col rounded-xl">
+							{#each data.referencedByResults as ref}
+								<ReferencedByBar {ref} />
+							{/each}
+						</div>
+					</div>
+				{/if}
+
+				<!-- Hauptgegenstand / Bezug zu -->
+				{#if data.referencesResults.length > 0}
+					<div class="w-full rounded-xl bg-primary-300 px-5 pt-4 pb-2 dark:bg-primary-500">
+						<span class="text-lg font-semibold md:text-xl">
+							{#if voteResult.legislative_initiative.ityp == 'AA'}
+								{t('vote_result.mainTopic')}
+							{:else}
+								{t('vote_result.referenceTo')}
+							{/if}
+						</span>
+
+						<div class="my-0.5 flex flex-col rounded-xl">
+							{#each data.referencesResults as ref}
+								<ReferencedByBar {ref} />
+							{/each}
+						</div>
+					</div>
+				{/if}
+
+				{#if voteResult.speeches.length > 0}
+					<div
+						class="speeches-item min-w-0 gap-3 rounded-xl bg-primary-300 p-5 dark:bg-primary-500"
+					>
+						<SpeechesPreview
+							title={t('speeches.previewTitle')}
+							speeches={allSpeeches}
+							totalCount={allSpeeches.length}
+						>
+							{#snippet speechHeader(speech)}
+								{@const speechDelegate = delegates.find((d) => d.id === speech.speech.delegate_id)}
+								{#if speechDelegate}
+									{@const party = speechDelegate.party?.trim() ? speechDelegate.party : 'Ohne Klub'}
+									<div class="flex min-w-0 items-center gap-2">
+										<img
+											src={data.parliament == 'at'
+												? `${url}assets/${speechDelegate.id}.jpg`
+												: speechDelegate.image_url}
+											alt={speechDelegate.name}
+											class="h-8 w-8 shrink-0 rounded-full object-cover text-[1px]"
+										/>
+										<div class="flex min-w-0 flex-col">
+											<a
+												href={plink(
+													`/delegates?delegate=${speechDelegate.id}&date=${date}&gp=${voteResult.legislative_initiative.gp}`
+												)}
+												class="truncate text-sm leading-tight font-semibold hover:underline lg:text-base"
+												onclick={(e) => {
+													e.preventDefault();
+													e.stopPropagation();
+													currentDelegateStore.value = speechDelegate;
+													gotoHistory(
+														plink(
+															`/delegates?delegate=${speechDelegate.id}&date=${date}&gp=${voteResult.legislative_initiative.gp}`
+														),
+														true
+													);
+												}}
+												onkeypress={(e) => e.stopPropagation()}
+											>
+												{speechDelegate.name}
+											</a>
+											<div class="mt-0.5 flex items-center gap-1.5">
+												<div
+													class="h-2 w-2 shrink-0 rounded-full"
+													style="background-color: {partyColors.get(party) ?? '#ccc'};"
+												></div>
+												<span class="truncate text-xs text-gray-700">{party}</span>
+											</div>
+										</div>
+									</div>
+								{/if}
+							{/snippet}
+						</SpeechesPreview>
+					</div>
+				{/if}
+				<div class="w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
+					<Documents {documents} />
+				</div>
+			</div>
+		{/if}
+	{:else}
+		{#each { length: 10 } as _}
+			<ExpandablePlaceholder />
+		{/each}
+	{/if}
+</Container>
+
+<style>
+	.entry {
+		border-radius: 0.9rem;
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+		padding: 11px;
+		gap: 10px;
+	}
+	/* .grid-container-with-emphasis {
+		box-sizing: border-box;
+		display: grid;
+		min-width: 0;
+		min-height: 0;
+		grid-template-columns: 3fr 2fr;
+		grid-template-rows: auto auto 2fr auto auto;
+		grid-template-areas:
+            'ti ti'
+            'e e'
+			'p d'
+            'r r'
+			'i t';
+		padding: 10px;
+	} */
+
+	.grid-container-with-emphasis {
+		display: flex;
+		flex-wrap: wrap;
+	}
+
+	.title-item {
+		grid-area: ti;
+		flex-basis: 100%;
+	}
+
+	@media (min-width: 768px) {
+		.parliament-item {
+			grid-area: p;
+			flex-basis: 66%;
+		}
+	}
+
+	@media (min-width: 768px) {
+		.delegate-item {
+			grid-area: d;
+			flex-basis: 33%;
+		}
+	}
+
+	.topics-item {
+		grid-area: t;
+		/* flex-basis: 40%; */
+	}
+
+	.emphasis-item {
+		grid-area: e;
+		flex-basis: 100%;
+	}
+
+	.info-item {
+		grid-area: i;
+		/* flex-basis: 60%; */
+	}
+	.search-item {
+		grid-area: search;
+		flex-basis: 100%;
+	}
+
+	.simple-yes-no-item {
+		grid-area: eyn;
+		flex-basis: 100%;
+	}
+
+	.named-vote-info-item {
+		grid-area: nvi;
+		flex-basis: 100%;
+	}
+
+	.speeches-item {
+		grid-area: speeches;
+		flex-basis: 100%;
+	}
+
+	.grid-container-without-emphasis {
+		/* box-sizing: border-box; */
+		display: grid;
+		min-width: 0;
+		min-height: 0;
+		grid-template-columns: 3fr 1fr;
+		grid-template-rows: auto 2fr auto auto;
+		grid-template-areas:
+			'ti ti'
+			'p d'
+			'r r'
+			'i t';
+		padding: 10px;
+	}
+</style>

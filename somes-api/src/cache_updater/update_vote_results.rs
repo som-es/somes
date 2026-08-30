@@ -9,7 +9,7 @@ pub async fn update_cache_vote_results(
     redis_client: redis::Client,
     pool: PgPool,
     meilisearch_client: meilisearch_sdk::client::Client,
-) {
+) -> combx::Result<()> {
     let meilisearch_client = meilisearch_client.clone();
     let inner_redis_client = redis_client.clone();
     let update_meilisearch_index = move |mut vote_results: Vec<combx::OptionalVoteResult>| {
@@ -22,14 +22,20 @@ pub async fn update_cache_vote_results(
                     .as_ref()
                     .unwrap_or(&vec![])
                     .iter()
-                    .map(|vote| format!("{}{:?}", vote.party, vote.infavor))
+                    .map(|vote| format!("{}{:?}", vote.party, vote.infavor_count > 0))
                     .collect();
             }
         }
 
         async move {
             let mut redis_con = redis_client.get_multiplexed_async_connection().await?;
-            update_meilisearch_index(&vote_results, &meilisearch_client, &mut redis_con).await?;
+            update_meilisearch_index(
+                combx::Parliament::At,
+                &vote_results,
+                &meilisearch_client,
+                &mut redis_con,
+            )
+            .await?;
             Ok(())
         }
     };
@@ -88,5 +94,6 @@ pub async fn update_cache_vote_results(
         notify_dependencies,
         update_meilisearch_index,
     )
-    .await;
+    .await?;
+    Ok(())
 }

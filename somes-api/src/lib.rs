@@ -1,11 +1,17 @@
 #![warn(clippy::unwrap_used)]
 
+use std::sync::Arc;
+
 use chrono::Local;
+use combx::with_data::unique_topics::TopicsMapper;
+use common_scrapes::eu_hemicycle::{HemicycleLayout, load_hemicycle};
 use dotenvy_macro::dotenv;
 
 pub mod cache_updater;
 mod db;
 pub mod email;
+pub mod extractors;
+pub use extractors::*;
 mod filter_querying;
 pub mod hash;
 pub mod jwt;
@@ -20,17 +26,19 @@ mod http_redirect;
 pub mod meilisearch;
 pub use http_redirect::*;
 use once_cell::sync::Lazy;
+pub mod parliament;
+pub use parliament::*;
 mod error;
 pub use cache_updater::*;
 pub use error::*;
-pub use refresh_views::*;
+use refresh_views::*;
+use sqlx::PgPool;
+
+use crate::db::redis_db::RedisHandle;
 
 pub type Result<T> = std::result::Result<T, crate::error::GenericError>;
 
 pub const USR_DATABASE_URL: &str = dotenv!("USR_DATABASE_URL");
-pub const DATASERVICE_URL: &str = dotenv!("DATASERVICE_URL");
-pub const TEST_DB_PATH: &str = dotenv!("TEST_DB_PATH");
-pub const SQL_SCHEMA_PATH: &str = dotenv!("SQL_SCHEMA_PATH");
 pub const REDIS_DB: &str = dotenv!("REDIS_DB");
 pub const VERIFICATION_SUBJECT: &str = dotenv!("VERIFICATION_SUBJECT");
 pub const VERIFICATION_CONTENT: &str = dotenv!("VERIFICATION_CONTENT");
@@ -79,4 +87,55 @@ pub fn today_and_time() -> chrono::DateTime<Local> {
 
 pub fn today() -> chrono::NaiveDate {
     chrono::Local::now().date_naive()
+}
+
+#[derive(Clone)]
+pub struct AppState {
+    pub redis: RedisHandle,
+    pub mcp_redis: RedisHandle,
+    pub eu_redis: RedisHandle,
+    pub dataservice_sqlx_pool: PgPool,
+    pub eu_dataservice_sqlx_pool: PgPool,
+    pub meilisearch_client: meilisearch_sdk::client::Client,
+    pub eu_hemicycle: Arc<HemicycleLayout>,
+    pub topics_mapper: Arc<TopicsMapper>,
+}
+
+impl AppState {
+    pub fn new(
+        redis: RedisHandle,
+        eu_redis: RedisHandle,
+        mcp_redis: RedisHandle,
+        dataservice_sqlx_pool: PgPool,
+        eu_dataservice_sqlx_pool: PgPool,
+        meilisearch_client: meilisearch_sdk::client::Client,
+        topics_mapper: TopicsMapper,
+    ) -> AppState {
+        AppState {
+            redis,
+            mcp_redis,
+            eu_redis,
+            dataservice_sqlx_pool,
+            eu_dataservice_sqlx_pool,
+            meilisearch_client,
+            eu_hemicycle: Arc::new(load_hemicycle()),
+            topics_mapper: Arc::new(topics_mapper),
+        }
+    }
+
+    /// Returns the Postgres pool backing the given parliament. Austrian data
+    /// lives in `DATASERVICE_URL`, EU data in `EU_DATASERVICE_URL`.
+    pub fn pool(&self, parliament: Parliament) -> PgPool {
+        match parliament {
+            Parliament::At => self.dataservice_sqlx_pool.clone(),
+            Parliament::Eu => self.eu_dataservice_sqlx_pool.clone(),
+        }
+    }
+
+    pub fn redis(&self, parliament: Parliament) -> redis::aio::ConnectionManager {
+        match parliament {
+            Parliament::At => self.redis.connection.clone(),
+            Parliament::Eu => self.eu_redis.connection.clone(),
+        }
+    }
 }

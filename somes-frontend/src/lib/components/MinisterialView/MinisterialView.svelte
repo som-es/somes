@@ -8,18 +8,21 @@
 	import GlossaryText from '../UI/GlossaryText.svelte';
 	import InfoBadgesCustom from '../VoteResults/InfoTiles/InfoBadgesCustom.svelte';
 	import type { MinisterialViewData } from './types';
+	import { t } from '$lib/i18n/i18n.svelte';
 
 	import { dashDateToDotDate } from '$lib/date';
 	import linkIcon from '$lib/assets/misc_icons/external-link.svg?raw';
-	import { aiViewEnabledStore } from '$lib/stores/stores';
+	import { aiViewEnabledStore, currentDelegateStore } from '$lib/stores/stores';
+	import { plink } from '$lib/api/parliament';
+	import { gotoHistory } from '$lib/goto';
 
 	interface Props {
 		ministerialData: MinisterialViewData;
 		children?: Snippet;
-		outerSnippet?: Snippet;
+		snippets?: Record<string, Snippet | undefined>;
 	}
 
-	let { ministerialData, children }: Props = $props();
+	let { ministerialData, children, snippets = {} }: Props = $props();
 
 	let aiSummary = $derived(ministerialData.aiSummary);
 	let date = $derived(dashDateToDotDate(ministerialData.date.toString().split('T')[0]));
@@ -35,6 +38,16 @@
 	function nextDelegate() {
 		if (currentDelegateIndex < delegates.length - 1) currentDelegateIndex++;
 	}
+
+	const onShowDetails = () => {
+		currentDelegateStore.value = delegates[currentDelegateIndex];
+		if (delegates[currentDelegateIndex]) {
+			const link = plink(
+				`/delegates?gp=${ministerialData.gp}&date=${ministerialData.date.toString().split('T')[0]}&delegate=${delegates[currentDelegateIndex].id}`
+			);
+			gotoHistory(link, true);
+		}
+	};
 </script>
 
 <title>
@@ -54,7 +67,7 @@
 						<div class="flex items-start gap-2">
 							<span
 								class="text-xl leading-tight font-bold lg:text-3xl"
-								style="hyphens: auto; word-break: normal; overflow-wrap: break-word;"
+								style="hyphens: auto; word-break: break-word; overflow-wrap: break-word;"
 							>
 								{#if aiViewEnabledStore.value && aiSummary}
 									<AiSummaryHintPopup {aiSummary} />
@@ -84,8 +97,11 @@
 
 			{#if ministerialData.aiSummary}
 				<div class="mt-5 pb-3">
-					<h1 class="text-lg font-semibold md:text-xl">Zusammenfassung</h1>
-					<span class="text-base text-gray-800 lg:text-base dark:text-gray-200">
+					<h1 class="text-lg font-semibold md:text-xl">{t('ministerialView.summary')}</h1>
+					<span
+						class="text-base text-gray-800 lg:text-base dark:text-gray-200"
+						style="hyphens: auto; word-break: break-word; overflow-wrap: break-word;"
+					>
 						<GlossaryText
 							text={ministerialData.aiSummary.short_summary}
 							glossary={ministerialData.aiSummary.full_summary.glossary}
@@ -122,20 +138,17 @@
 		</div>
 
 		{#if aiViewEnabledStore.value && ministerialData.aiSummary}
-			<Emphasis
-				emphasis={ministerialData.aiSummary.full_summary.key_points}
-				glossary={ministerialData.aiSummary.full_summary.glossary}
-			/>
+			<Emphasis summary={ministerialData.aiSummary.full_summary} />
 		{/if}
-		{#if ministerialData.documents.length > 0 && !children}
+		{#if ministerialData.documents.length > 0 && snippets['voteable'] == null}
 			<div class="flex min-w-full flex-wrap gap-2">
 				<div class="min-w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 					<Documents documents={ministerialData.documents} />
 				</div>
 			</div>
 		{/if}
-		{#if children}
-			{@render children()}
+		{#if snippets['voteable']}
+			{@render snippets['voteable']()}
 		{/if}
 	</div>
 
@@ -144,6 +157,7 @@
 			<DelegateCard
 				delegate={delegates[currentDelegateIndex]}
 				showMoreDetailsBtn
+				{onShowDetails}
 				onlyTop
 				showAI={false}
 				date={ministerialData.date}
@@ -176,7 +190,7 @@
 		</div>
 	{/if}
 </div>
-{#if ministerialData.documents.length > 0 && ministerialData.type === 'gov_proposal' && children}
+{#if ministerialData.documents.length > 0 && ministerialData.type === 'gov_proposal' && snippets['voteable']}
 	<div class="mt-2 flex min-w-full flex-wrap gap-2">
 		<div class="min-w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 			<Documents documents={ministerialData.documents} />

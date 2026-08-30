@@ -1,6 +1,10 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
+	import { getParliament, type Parliament } from '$lib/api/parliament';
+	import { cachedPlenarySessions } from '$lib/caching/plenarySessions';
 	import { formatDate } from '$lib/date';
-	import type { Absence, Delegate } from '$lib/types';
+	import type { Absence, Delegate, PlenarySession } from '$lib/types';
+	import { onMount } from 'svelte';
 	import ExtendInfoDialog from '../ExtendInfoDialog.svelte';
 	import AbsencesModal from './AbsencesModal.svelte';
 
@@ -13,18 +17,20 @@
 		showTotal?: boolean;
 		showDetails?: boolean;
 		delegate: Delegate;
+		parliament: Parliament;
 	}
 
 	let currentYear = new Date().getFullYear();
 	let {
 		absences = [],
 		delegate,
-		title = 'Abwesenheiten',
-		explanation = `Verpasste Plenarsitzungen (${currentYear})`,
-		lastEntriesText = 'Zuletzt abwesend',
-		noEntriesText = 'Keine Abwesenheiten',
+		title = t('absences.title'),
+		explanation = t('absences.explanation'),
+		lastEntriesText = t('absences.lastEntries'),
+		noEntriesText = t('absences.noEntries'),
 		showTotal = false,
-		showDetails = true
+		showDetails = true,
+		parliament
 	}: Props = $props();
 
 	// Sort absences by date descending
@@ -45,6 +51,13 @@
 		)
 	);
 
+	let allPlenarySessions: Record<string, PlenarySession[]> | null = $state(null);
+	onMount(async () => {
+		if (getParliament() == 'eu') {
+			allPlenarySessions = await cachedPlenarySessions();
+		}
+	});
+
 	let absencesThisYear = $derived(absencesByYear[currentYear] || 0);
 
 	const entryCount = $derived.by(() => {
@@ -52,6 +65,32 @@
 			return absences.length;
 		} else {
 			return absencesThisYear;
+		}
+	});
+
+	const sessionText = (council) => {
+		switch (parliament) {
+			case 'at': {
+				return council === 'NR' ? t('absences.nationalratSession') : t('absences.bundesratSession');
+			}
+			case 'eu':
+				return t('absences.plenarySession');
+		}
+	};
+
+	const translateInr = $derived((allPlenarySessions, inr, gp) => {
+		switch (parliament) {
+			case 'at': {
+				return inr;
+			}
+			case 'eu': {
+				if (allPlenarySessions) {
+					const sessionsInGp = allPlenarySessions[gp];
+					const idx = sessionsInGp.findIndex((session) => session.inr == inr);
+					return idx + 1;
+				}
+				return null;
+			}
 		}
 	});
 </script>
@@ -78,7 +117,8 @@
 			</h3>
 			<div class="flex flex-col gap-2">
 				{#if recentAbsences.length > 0}
-					{#each recentAbsences as absence}
+					{#each recentAbsences as absence ((absence.gp, absence.inr, absence))}
+						{@const inr = translateInr(allPlenarySessions, absence.inr, absence.gp)}
 						<svelte:element
 							this={absence.source_url ? 'a' : 'div'}
 							href={absence.source_url || undefined}
@@ -90,9 +130,11 @@
 						>
 							<div class="flex items-center gap-3">
 								<div class="h-2 w-2 rounded-full bg-red-500/80"></div>
-								<span class="font-medium text-primary-900 dark:text-primary-100">
-									{absence.inr}. Nationalratssitzung
-								</span>
+								{#if inr}
+									<span class="font-medium text-primary-900 dark:text-primary-100">
+										{inr}. {sessionText(absence.council)}
+									</span>
+								{/if}
 							</div>
 							<div class="text-xs text-primary-600 dark:text-primary-400">
 								{formatDate(absence.date)} ({absence.gp})
@@ -112,9 +154,9 @@
 		</div>
 	</div>
 
-	{#if recentAbsences.length > 0 && absences.length > recentAbsences.length}
+	{#if recentAbsences.length > 0}
 		<div class="mt-auto flex justify-end pt-4">
-			<ExtendInfoDialog title="Alle anzeigen">
+			<ExtendInfoDialog title={t('absences.showAll')}>
 				<AbsencesModal absences={sortedAbsences} {title} {showDetails} {delegate} />
 			</ExtendInfoDialog>
 		</div>

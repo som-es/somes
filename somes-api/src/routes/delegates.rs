@@ -1,40 +1,46 @@
 use std::collections::HashMap;
 
-use crate::server::AppState;
-use crate::PgPoolConnection;
-use axum::routing::get;
+use crate::{AppState, EuHemicycle, TopicsExtractor};
+use crate::{ParliamentCtx, PgPoolConnection};
 use axum::Router;
-use axum::{extract::Query, Json};
+use axum::routing::get;
+use axum::{Json, extract::Query};
 use combx::{Delegate, FullMandate};
 use somes_common_lib::{
-    DelegateById, InterestShare, ALL_ACTIVE, ALL_AT_DATE, ALL_AT_DATE_WITH_SEAT_INFO, EXTEND, ID,
-    INTERJECTIONS_ROUTE, PARLIAMENT_QA_ROUTE, SEARCH, SPEECHES_PER_PAGE_ROUTE,
+    ALL_ACTIVE, ALL_AT_DATE, ALL_AT_DATE_WITH_SEAT_INFO, DelegateById, EXTEND, ID,
+    INTERJECTIONS_ROUTE, InterestShare, Language, PARLIAMENT_QA_ROUTE, SEARCH,
+    SPEECHES_PER_PAGE_ROUTE,
 };
 
 pub use error::*;
 mod absences;
 mod ai_chat;
+<<<<<<< HEAD
 mod delegate_political_position;
 mod delegate_questions;
+=======
+>>>>>>> eu
 mod error;
 mod interests;
 mod interjections;
 mod issued_proposals;
 mod left_right_topic_score;
 mod parliamentary_qa;
+mod political_analysis;
 mod routes;
-mod speeches;
 mod stance_topic_score;
 pub use absences::*;
 pub use ai_chat::*;
+<<<<<<< HEAD
 pub use delegate_political_position::*;
 pub use delegate_questions::*;
+=======
+>>>>>>> eu
 pub use interests::*;
 pub use interjections::*;
 pub(crate) use issued_proposals::*;
 pub use parliamentary_qa::*;
 pub use routes::*;
-pub use speeches::*;
 use sqlx::PgPool;
 
 pub fn create_delegates_router() -> Router<AppState> {
@@ -56,6 +62,10 @@ pub fn create_delegates_router() -> Router<AppState> {
         .nest(INTERJECTIONS_ROUTE, create_delegate_interjections_router())
         .nest(PARLIAMENT_QA_ROUTE, create_delegate_pqa_router())
         .nest("/gov_officials", create_gov_officials_router())
+        .nest(
+            "/political_analysis",
+            political_analysis::create_political_analysis_router(),
+        )
 }
 
 #[utoipa::path(
@@ -74,23 +84,49 @@ pub fn create_delegates_router() -> Router<AppState> {
 pub async fn delegate_interests(
     PgPoolConnection(pg): PgPoolConnection,
     Query(delegate_by_id): Query<DelegateById>,
+    Query(language): Query<Language>,
+    TopicsExtractor(topics_mapper): TopicsExtractor,
+    ParliamentCtx(parliament): ParliamentCtx,
 ) -> Result<Json<Vec<InterestShare>>, DelegateError> {
-    Ok(
-        extract_interests_of_delegate(delegate_by_id.delegate_id, &pg)
-            .await
-            .map(Json)?,
+    Ok(extract_interests_of_delegate(
+        delegate_by_id.delegate_id,
+        &pg,
+        &topics_mapper,
+        language.language,
+        parliament,
     )
+    .await
+    .map(Json)?)
 }
 
-pub async fn seats_route() -> Json<HashMap<String, Vec<u32>>> {
-    Json(
-        [
+pub async fn seats_route(
+    ParliamentCtx(parliament): ParliamentCtx,
+    EuHemicycle(hemicycle): EuHemicycle,
+) -> Json<HashMap<String, Vec<u32>>> {
+    let eu_strasbourg_seats = hemicycle
+        .circles
+        .iter()
+        .map(|circle| circle.slots_including_gaps)
+        .collect();
+    let seats = match parliament {
+        combx::Parliament::At => [
             ("XXVII".to_string(), vec![20, 27, 37, 43, 48, 54]),
             ("XXVIII".to_string(), vec![20, 28, 37, 43, 48, 54]),
+            ("NO_SEATS".to_string(), vec![18, 25, 29, 33, 37, 41]),
         ]
         .into_iter()
         .collect(),
-    )
+        combx::Parliament::Eu => [
+            (
+                "NO_SEATS".to_string(),
+                vec![20, 27, 37, 43, 48, 54, 59, 71, 83, 98, 115, 129],
+            ),
+            ("10".to_string(), eu_strasbourg_seats),
+        ]
+        .into_iter()
+        .collect(),
+    };
+    Json(seats)
 }
 
 pub async fn all_delegates(pg: &PgPool) -> sqlx::Result<Vec<Delegate>> {

@@ -9,7 +9,7 @@ pub(crate) async fn update_cache_delegates(
     redis_client: redis::Client,
     pool: PgPool,
     meilisearch_client: meilisearch_sdk::client::Client,
-) {
+) -> combx::Result<()> {
     let meilisearch_client = meilisearch_client.clone();
     let inner_redis_client = redis_client.clone();
     let update_meilisearch_index = move |delegates: Vec<combx::Delegate>| {
@@ -21,7 +21,13 @@ pub(crate) async fn update_cache_delegates(
                 .get_multiplexed_async_connection()
                 .await?;
             // delegate_by_id_sqlx(*id, &inner_pool, &mut redis_con).await?
-            update_meilisearch_index(&delegates, &meilisearch_client, &mut redis_con).await?;
+            update_meilisearch_index(
+                combx::Parliament::At,
+                &delegates,
+                &meilisearch_client,
+                &mut redis_con,
+            )
+            .await?;
             Ok(())
         }
     };
@@ -80,5 +86,6 @@ pub(crate) async fn update_cache_delegates(
         notify_dependencies,
         update_meilisearch_index,
     )
-    .await;
+    .await?;
+    Ok(())
 }

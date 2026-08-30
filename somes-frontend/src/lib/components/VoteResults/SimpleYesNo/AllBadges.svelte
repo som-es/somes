@@ -13,18 +13,19 @@
 		partyToDelegates.forEach((dels, party) => {
 			newVotes.push({
 				party,
-				fraction: dels.length,
 				code: null,
-				infavor: true,
-				legislative_initiatives_id: 0
+				infavor_count: dels.length,
+				against_count: 0,
+				abstention_count: 0,
+				absence_count: 0
 			});
 		});
-		votes = newVotes.sort((a, b) => b.fraction - a.fraction);
+		votes = newVotes.sort((a, b) => b.infavor_count - a.infavor_count);
 	}
 </script>
 
 {#if votes.length > 0}
-	<div class="flex flex-wrap mt-0 gap-3 py-2">
+	<div class="mt-0 flex flex-wrap gap-3 py-2">
 		<BadgeList {votes} infavor />
 	</div>
 {:else}

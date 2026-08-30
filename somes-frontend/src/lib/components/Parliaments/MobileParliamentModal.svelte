@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { Dialog } from 'bits-ui';
 	import type { Delegate } from '$lib/types';
 	import { partyColors } from '$lib/partyColor';
@@ -7,6 +8,7 @@
 	import { getSeats } from '$lib/caching/seats';
 	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
 	import VoteParliament2 from './VoteParliament2.svelte';
+	import { getParliament, type Parliament } from '$lib/api/parliament';
 
 	interface Props {
 		delegates: Delegate[];
@@ -16,6 +18,8 @@
 		selectedPeriod: string;
 		supplyDate: Date | null;
 		hasSeatInfo: boolean;
+		parliament?: Parliament;
+		partyColoring?: Map<string, string>;
 	}
 
 	let {
@@ -25,15 +29,17 @@
 		allSeats,
 		selectedPeriod,
 		supplyDate,
-		hasSeatInfo
+		hasSeatInfo,
+		parliament = getParliament(),
+		partyColoring = partyColors,
 	}: Props = $props();
 </script>
 
 <Dialog.Root>
 	<Dialog.Trigger
 		class="flex h-10 w-10 shrink-0 touch-manipulation items-center justify-center rounded-xl border-[2px] border-gray-400 bg-transparent p-1.5 transition-colors hover:bg-tertiary-400/30 focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:outline-none lg:hidden"
-		aria-label="Sitzplan anzeigen"
-		title="Sitzplan anzeigen"
+		aria-label={t('parliament.showSeating')}
+		title={t('parliament.showSeating')}
 	>
 		<span class="block w-16 scale-150">
 			<VoteParliament2
@@ -67,7 +73,7 @@
 				</Dialog.Close>
 			</div>
 			<Dialog.Description class="sr-only">
-				Interaktiver Sitzplan der aktuell gefilterten Abgeordneten.
+				{t('parliament.interactiveSeating')}
 			</Dialog.Description>
 
 			{#if delegates && delegates.length > 0 && supplyDate}
@@ -78,7 +84,7 @@
 						{#each [...groupPartyDelegates(structuredClone(delegates))].sort((a, b) => b[1].length - a[1].length) as [party, partyDelegates]}
 							<div
 								class="h-2.5 w-2.5 rounded-full"
-								style="background-color: {partyColors.get(party) ?? '#ccc'};"
+								style="background-color: {partyColoring.get(party) ?? '#ccc'};"
 							></div>
 							<span class="text-sm font-medium text-gray-800">{party}</span>
 							<span class="text-right text-sm font-medium text-gray-800">
@@ -100,6 +106,8 @@
 						overrideDelegates
 						noSeats={!hasSeatInfo}
 						useOffset={hasSeatInfo}
+						{parliament}
+						{partyColoring}
 					/>
 				</div>
 			{/if}

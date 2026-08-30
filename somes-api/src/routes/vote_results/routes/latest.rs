@@ -1,11 +1,11 @@
 use axum::Json;
-use combx::{DbLegislativeInitiativeQuery, OptionalVoteResult};
-use redis::aio::MultiplexedConnection;
+use combx::OptionalVoteResult;
+use redis::aio::ConnectionManager;
 use sqlx::PgPool;
 
 use crate::{
-    routes::{vote_results::construct_vote_result::construct_vote_result, FilterError},
     PgPoolConnection, RedisConnection,
+    routes::{FilterError, vote_results::construct_vote_result::construct_vote_result},
 };
 
 #[utoipa::path(
@@ -33,7 +33,7 @@ pub async fn latest_legislative_initiatives_sqlx(pg: &PgPool) -> sqlx::Result<Ve
 }
 
 pub async fn latest_vote_results_sqlx(
-    redis_con: MultiplexedConnection,
+    redis_con: ConnectionManager,
     pg: &PgPool,
 ) -> sqlx::Result<Vec<Option<OptionalVoteResult>>> {
     futures::future::join_all(

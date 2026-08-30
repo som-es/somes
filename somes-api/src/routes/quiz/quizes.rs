@@ -1,9 +1,9 @@
 use axum::Json;
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
-use sqlx::{query, query_as, PgPool};
+use sqlx::{PgPool, query, query_as};
 
-use crate::{jwt::Claims, routes::QuizQuestion, GenericError, PgPoolConnection};
+use crate::{GenericError, PgPoolConnection, jwt::Claims, routes::QuizQuestion};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct QuizQuery {
@@ -28,7 +28,7 @@ pub async fn get_all_quizzes_handler(pg: &PgPool, user_id: i32) -> crate::Result
 
     if !is_admin.is_admin {
         return Err(GenericError::Custom((
-            StatusCode::UNAUTHORIZED,
+            StatusCode::FORBIDDEN,
             "missing permissions",
         )));
     }

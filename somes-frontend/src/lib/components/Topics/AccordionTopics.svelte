@@ -11,7 +11,7 @@
 	interface Props {
 		parentTopics: string[];
 		subTopics: UniqueTopic[];
-		selectedTopics: Set<number>;
+		selectedTopics: Set<string>;
 	}
 
 	let { parentTopics, subTopics, selectedTopics = $bindable() }: Props = $props();
@@ -55,24 +55,29 @@
 		>
 			<div class="flex min-w-0 flex-1 items-center gap-2">
 				<button
-					onclick={(e) => { e.stopPropagation(); toggleAll(); }}
+					onclick={(e) => {
+						e.stopPropagation();
+						toggleAll();
+					}}
 					class="flex h-4 w-4 shrink-0 items-center justify-center rounded border-2
 					       transition-colors
 					       {allSelected
-							? 'border-secondary-500 bg-secondary-400 text-white'
-							: someSelected
-								? 'border-secondary-400 bg-secondary-400 hover:border-secondary-500 dark:border-secondary-400'
-								: 'border-primary-400 bg-transparent hover:border-secondary-400 dark:border-primary-400'}"
+						? 'border-secondary-500 bg-secondary-400 text-white'
+						: someSelected
+							? 'border-secondary-400 bg-secondary-400 hover:border-secondary-500 dark:border-secondary-400'
+							: 'border-primary-400 bg-transparent hover:border-secondary-400 dark:border-primary-400'}"
 				>
 					{#if allSelected}
-						<span class="w-3 mt-0.5 [&_path]:stroke-white">{@html checkmark}</span>
+						<span class="mt-0.5 w-3 [&_path]:stroke-white">{@html checkmark}</span>
 					{/if}
 				</button>
 				<span class="truncate text-sm font-semibold text-primary-900 dark:text-primary-100">
 					{parentTopics.join('  ·  ')}
 				</span>
 			</div>
-			<span class="shrink-0 text-xs text-primary-500 dark:text-primary-400">{subTopics.length} topics</span>
+			<span class="shrink-0 text-xs text-primary-500 dark:text-primary-400"
+				>{subTopics.length} topics</span
+			>
 			<span class="w-4">{@html arrowDown}</span>
 		</Accordion.Trigger>
 
