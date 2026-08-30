@@ -21,6 +21,8 @@
 	import { convertGovPropFilterToUrl } from '../Proposals/urlConversion';
 	import { accountOrLogin } from './user';
 	import { t } from '$lib/i18n/i18n.svelte';
+	import ThemeToggle from '$lib/components/UI/ThemeToggle.svelte';
+	import LanguageSwitcher from '$lib/components/UI/LanguageSwitcher.svelte';
 
 	let isOpen = $state(false);
 	let expandedItems = $state<Record<string, boolean>>({});
@@ -215,7 +217,7 @@
 				{t('nav.profile')}
 			</button>
 			<button
-				class="flex w-full touch-manipulation items-center justify-between p-4 text-base font-medium text-white hover:bg-surface-400"
+				class="flex w-full touch-manipulation items-center justify-between border-t border-surface-400 p-4 text-base font-medium text-white hover:bg-surface-400"
 				onclick={() => {
 					closeMenu();
 					parliamentModalOpenStore.value = true;
@@ -226,6 +228,10 @@
 					{@html parliament === 'eu' ? euMapIcon : austriaMapIcon}
 				</div>
 			</button>
+			<div class="flex items-center justify-between gap-4 p-4">
+				<ThemeToggle class="touch-manipulation text-base font-medium text-white" />
+				<LanguageSwitcher dark class="w-28" />
+			</div>
 		</nav>
 	{/if}
 </div>
