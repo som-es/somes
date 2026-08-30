@@ -11,7 +11,7 @@ import type {
 	Quiz,
 	UniqueTopic
 } from '$lib/types';
-import { address, fetchSavely, justPost, url } from './api';
+import { fetchSavely, justPost, url } from './api';
 import { getParliament, type Parliament } from './parliament';
 import { jwtStore } from '$lib/caching/stores/stores.svelte';
 

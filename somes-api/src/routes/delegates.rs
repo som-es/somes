@@ -15,11 +15,6 @@ use somes_common_lib::{
 pub use error::*;
 mod absences;
 mod ai_chat;
-<<<<<<< HEAD
-mod delegate_political_position;
-mod delegate_questions;
-=======
->>>>>>> eu
 mod error;
 mod interests;
 mod interjections;
@@ -31,11 +26,6 @@ mod routes;
 mod stance_topic_score;
 pub use absences::*;
 pub use ai_chat::*;
-<<<<<<< HEAD
-pub use delegate_political_position::*;
-pub use delegate_questions::*;
-=======
->>>>>>> eu
 pub use interests::*;
 pub use interjections::*;
 pub(crate) use issued_proposals::*;
