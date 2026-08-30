@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { justPostStatistics } from '$lib/api/api';
-import { t } from '$lib/i18n/i18n.svelte';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import StatisticsChartControl from '$lib/components/Statistics/StatisticsChartControl.svelte';
 	import type { StatisticsData } from '$lib/types';
 	import { mapActivityDelegate, mapActivityCategory } from '$lib/api/statistics-adapter';
@@ -9,8 +9,7 @@ import { t } from '$lib/i18n/i18n.svelte';
 	export let selectedCategory: string = 'delegate';
 
 	const chartDescriptions = {
-		'delegate.normalized':
-			t('statistics.activity.desc.delegateNormalized'),
+		'delegate.normalized': t('statistics.activity.desc.delegateNormalized'),
 		'delegate.absolute': t('statistics.activity.desc.delegateAbsolute'),
 		'party.normalized': t('statistics.activity.desc.partyNormalized'),
 		'party.absolute': t('statistics.activity.desc.partyAbsolute'),
@@ -20,8 +19,7 @@ import { t } from '$lib/i18n/i18n.svelte';
 		'age.absolute': t('statistics.activity.desc.ageAbsolute'),
 		'legis.normalized': t('statistics.activity.desc.legisNormalized'),
 		'legis.absolute': t('statistics.activity.desc.legisAbsolute'),
-		'line.normalized':
-			t('statistics.activity.desc.lineNormalized'),
+		'line.normalized': t('statistics.activity.desc.lineNormalized'),
 		'line.absolute': t('statistics.activity.desc.lineAbsolute'),
 		'donut.normalized': t('statistics.activity.desc.donutNormalized'),
 		'donut.absolute': t('statistics.activity.desc.donutAbsolute')
@@ -153,10 +151,7 @@ import { t } from '$lib/i18n/i18n.svelte';
 
 <svelte:head>
 	<title>{t('statistics.activity.title')}</title>
-	<meta
-		name="description"
-		content={t('statistics.activity.description')}
-	/>
+	<meta name="description" content={t('statistics.activity.description')} />
 </svelte:head>
 
 <Container class="pb-12">

@@ -1,4 +1,4 @@
-use crate::{routes::DelegateError, PgPoolConnection};
+use crate::{PgPoolConnection, routes::DelegateError};
 use axum::Json;
 use combx::{Delegate, FullMandate};
 

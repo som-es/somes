@@ -11,7 +11,11 @@
 		stances: StanceTopicScore[];
 	}
 
-	let { leftLabel = t('spectrum.stance.label.left'), rightLabel = t('spectrum.stance.label.right'), stances }: Props = $props();
+	let {
+		leftLabel = t('spectrum.stance.label.left'),
+		rightLabel = t('spectrum.stance.label.right'),
+		stances
+	}: Props = $props();
 
 	let open = $state(false);
 </script>
@@ -21,7 +25,7 @@
 		<StanceDiagram
 			zeroLabel={stance.topic}
 			value={stance.score * 2}
-			knobColor={topicColors.get(stance.topic)}
+			knobColor={topicColors.get(stance.topic_id)}
 			{rightLabel}
 			{leftLabel}
 		/>
@@ -33,7 +37,7 @@
 				<StanceDiagram
 					zeroLabel={stance.topic}
 					value={stance.score * 2}
-					knobColor={topicColors.get(stance.topic)}
+					knobColor={topicColors.get(stance.topic_id)}
 					{rightLabel}
 					{leftLabel}
 				/>
@@ -53,7 +57,7 @@
 		<StanceDiagram
 			zeroLabel={stance.topic}
 			value={stance.score * 2}
-			knobColor={topicColors.get(stance.topic)}
+			knobColor={topicColors.get(stance.topic_id)}
 			{rightLabel}
 			{leftLabel}
 		/>

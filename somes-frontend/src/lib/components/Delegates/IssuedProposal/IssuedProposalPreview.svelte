@@ -22,7 +22,8 @@
 			</h1>
 			<h2 class="text-sm text-gray-800 dark:text-gray-300">
 				{issuedProposals.length}
-				{issuedProposals.length == 1 ? t('proposals.proposal') : t('proposals.proposals')} {t('proposals.total')}
+				{issuedProposals.length == 1 ? t('proposals.proposal') : t('proposals.proposals')}
+				{t('proposals.total')}
 			</h2>
 		</div>
 		<ExtendInfoDialog title={t('proposals.showAll')}>

@@ -7,6 +7,7 @@ use crate::{
     Ports, REDIS_DB, STATIC_FRONTEND_PATH, meilisearch::update_meilisearch_indices,
     redirect_http_to_https, reset_cache, routes::save_email_route, update_caches,
 };
+use axum::response::IntoResponse;
 use axum::{
     Extension, Router,
     http::{self, HeaderValue},
@@ -15,6 +16,7 @@ use axum::{
 };
 use axum_server::tls_rustls::RustlsConfig;
 use combx::Parliament;
+use combx::with_data::unique_topics::TopicsMapper;
 use log::info;
 use reqwest::StatusCode;
 use somes_common_lib::*;
@@ -190,28 +192,14 @@ fn api_router() -> Router<AppState> {
         .nest("/eu", parliament_router().layer(Extension(Parliament::Eu)))
 }
 
+async fn handler_404() -> impl IntoResponse {
+    (StatusCode::NOT_FOUND, "route not found")
+}
+
 fn app_router(state: AppState) -> Router {
-    let static_files_dir = PathBuf::from(STATIC_FRONTEND_PATH);
-    let current_frontend_dir = ServeDir::new(static_files_dir)
-        .fallback(get(|| async { Html(include_str!("../build/index.html")) }));
-
-    let landing_server_dir = ServeDir::new("somes-landing").fallback(get(|| async {
-        Html(include_str!("../somes-landing/index.html"))
-    }));
-
     Router::new()
         .nest("/api", api_router())
-        .nest_service(
-            "/alpha",
-            get_service(current_frontend_dir).handle_error(|_| async move {
-                (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
-            }),
-        )
-        .fallback_service(
-            get_service(landing_server_dir).handle_error(|_| async move {
-                (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
-            }),
-        )
+        .fallback(handler_404)
         .layer(
             CorsLayer::new()
                 .allow_origin(allowed_cors_origin())
@@ -275,8 +263,7 @@ pub async fn serve(addr: SocketAddr) -> ServerResult<()> {
     let meilisearch_client =
         meilisearch_sdk::client::Client::new(MEILISEARCH_URL, Some(MEILISEARCH_SECRET))?;
 
-    let eurovoc_topics =
-        combx::with_data::unique_topics::eurovoc_topics_map(&dataservice_sqlx_pool).await?;
+    let topics_mapper = TopicsMapper::new(&dataservice_sqlx_pool).await?;
 
     let state = AppState::new(
         redis.clone(),
@@ -285,7 +272,7 @@ pub async fn serve(addr: SocketAddr) -> ServerResult<()> {
         dataservice_sqlx_pool.clone(),
         eu_dataservice_sqlx_pool.clone(),
         meilisearch_client.clone(),
-        eurovoc_topics,
+        topics_mapper,
     );
 
     spawn_asset_refresh(dataservice_sqlx_pool.clone());

@@ -38,7 +38,9 @@
 <div class="card px-4">
 	<div class="flex items-center justify-between p-8">
 		<h1 class="text-2xl font-bold">
-			{ty === 'issued' ? t('interjections.modalTitleIssued') : t('interjections.modalTitleReceived')}
+			{ty === 'issued'
+				? t('interjections.modalTitleIssued')
+				: t('interjections.modalTitleReceived')}
 		</h1>
 		<Dialog.Close>
 			<ModalCloseButton />

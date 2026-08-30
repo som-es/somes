@@ -40,7 +40,7 @@
 				name: i.topic,
 				value: Math.max(i.occurences, minVisualValue),
 				actualValue: i.occurences,
-				color: topicColors.get(i.topic) ?? '#94a3b8',
+				color: topicColors.get(i.topic_id) ?? '#94a3b8',
 				opacity: getTileOpacity(i.occurences, localMax),
 				isOther: false
 			}));

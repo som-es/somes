@@ -172,9 +172,9 @@
 		const val = [
 			{ value: 'Infavor', label: t('vote_result.inFavor') },
 			{ value: 'NoVote', label: t('vote_result.notVoted') },
-			{ value: 'Against', label: t('vote_result.against') },
+			{ value: 'Against', label: t('vote_result.against') }
 		];
-		if (data.parliament == "eu") {
+		if (data.parliament == 'eu') {
 			val.push({ value: 'Abstention', label: t('vote_result.abstention') });
 		}
 		return val;
@@ -245,10 +245,11 @@
 
 								{#if voteResult.legislative_initiative.accepted && voteResult.legislative_initiative.vote_date}
 									<span class="text-sm opacity-90">
-										{voteResult.legislative_initiative.voted_by_name ? t('vote_result.nominally') : ''}
-										{t('vote_result.votedOn')} {dashDateToDotDate(
-											voteResult.legislative_initiative.vote_date.toString()
-										)}
+										{voteResult.legislative_initiative.voted_by_name
+											? t('vote_result.nominally')
+											: ''}
+										{t('vote_result.votedOn')}
+										{dashDateToDotDate(voteResult.legislative_initiative.vote_date.toString())}
 									</span>
 								{/if}
 							</div>
@@ -456,7 +457,7 @@
 							>
 						</div>
 						<div class="space-y-2">
-							{#each searchResults as del (del.delegate.id)}
+							{#each searchResults as del}
 								<DelegateListItem
 									delegate={del.delegate}
 									href={plink(`/delegates?delegate=${del.delegate.id}&date=${date}&gp=${gp}`)}
@@ -566,7 +567,9 @@
 							<!-- Abstimmung, Fractions, Result - Mobile -->
 							<div class="hidden w-full max-lg:block">
 								<div class="flex w-full items-center justify-between">
-									<h3 class="text-lg leading-none font-semibold md:text-xl">{t('vote_result.vote')}</h3>
+									<h3 class="text-lg leading-none font-semibold md:text-xl">
+										{t('vote_result.vote')}
+									</h3>
 									<button
 										class="flex items-center justify-center"
 										onclick={() => {
@@ -713,7 +716,7 @@
 
 							<div class="flex w-full flex-col items-center max-lg:hidden">
 								<!-- Seat coloring toggle: by party vs. by vote (green/red/blue like the EP display) -->
-								<div class="mt-1 flex w-full justify-end mr-4">
+								<div class="mt-1 mr-4 flex w-full justify-end">
 									<div
 										class="flex rounded-lg bg-primary-200/60 p-0.5 text-xs dark:bg-primary-600/60"
 										role="group"
@@ -883,14 +886,20 @@
 					<div
 						class="speeches-item min-w-0 gap-3 rounded-xl bg-primary-300 p-5 dark:bg-primary-500"
 					>
-						<SpeechesPreview title={t('speeches.previewTitle')} speeches={allSpeeches} totalCount={allSpeeches.length}>
+						<SpeechesPreview
+							title={t('speeches.previewTitle')}
+							speeches={allSpeeches}
+							totalCount={allSpeeches.length}
+						>
 							{#snippet speechHeader(speech)}
 								{@const speechDelegate = delegates.find((d) => d.id === speech.speech.delegate_id)}
 								{#if speechDelegate}
 									{@const party = speechDelegate.party?.trim() ? speechDelegate.party : 'Ohne Klub'}
 									<div class="flex min-w-0 items-center gap-2">
 										<img
-											src={data.parliament == "at" ? `${url}assets/${speechDelegate.id}.jpg` : speechDelegate.image_url}
+											src={data.parliament == 'at'
+												? `${url}assets/${speechDelegate.id}.jpg`
+												: speechDelegate.image_url}
 											alt={speechDelegate.name}
 											class="h-8 w-8 shrink-0 rounded-full object-cover text-[1px]"
 										/>

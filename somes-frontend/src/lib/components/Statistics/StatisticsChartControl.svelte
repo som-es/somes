@@ -12,6 +12,7 @@
 	import CustomDonutChart from './charts/CustomDonutChart.svelte';
 	import CustomLineChart from './charts/CustomLineChart.svelte';
 	import PoliticalSpectrumChart from './PoliticalSpectrumChart.svelte';
+	import { createFilterGroup } from '../Filtering/filterGroup.svelte';
 
 	type ChartMode = 'bar' | 'donut' | 'line' | 'spectrum';
 	type CategoryOption = {
@@ -92,7 +93,11 @@
 		{ value: 'bar', label: t('statistics.chartBar'), title: t('statistics.chartBarTitle') },
 		{ value: 'donut', label: t('statistics.chartDonut'), title: t('statistics.chartDonutTitle') },
 		{ value: 'line', label: t('statistics.chartLine'), title: t('statistics.chartLineTitle') },
-		{ value: 'spectrum', label: t('statistics.chartSpectrum'), title: t('statistics.chartSpectrumTitle') }
+		{
+			value: 'spectrum',
+			label: t('statistics.chartSpectrum'),
+			title: t('statistics.chartSpectrumTitle')
+		}
 	];
 	const periodOrder = ['XX', 'XXI', 'XXII', 'XXIII', 'XXIV', 'XXV', 'XXVI', 'XXVII', 'XXVIII'];
 
@@ -121,34 +126,34 @@
 		GenericFilterGroup<string>,
 		GenericFilterGroup<string>
 	] = $state([
-		{
-			title: t('statistics.gender'),
-			activeValue: 'all',
-			hidden: false,
-			options: [
+		createFilterGroup<string>({
+			title: () => t('statistics.gender'),
+			hidden: () => false,
+			initialValue: 'all',
+			options: () => [
 				{ title: t('statistics.all'), value: 'all' },
 				{ title: t('statistics.male'), value: 'm' },
 				{ title: t('statistics.female'), value: 'f' }
 			]
-		},
-		{
-			title: t('statistics.sorting'),
-			activeValue: 'desc',
-			hidden: false,
-			options: [
+		}),
+		createFilterGroup<string>({
+			title: () => t('statistics.sorting'),
+			hidden: () => false,
+			initialValue: 'desc',
+			options: () => [
 				{ title: t('statistics.descending'), value: 'desc' },
 				{ title: t('statistics.ascending'), value: 'asc' }
 			]
-		},
-		{
-			title: t('statistics.normalization'),
-			activeValue: 'normalized',
-			hidden: false,
-			options: [
+		}),
+		createFilterGroup<string>({
+			title: () => t('statistics.normalization'),
+			hidden: () => false,
+			initialValue: 'normalized',
+			options: () => [
 				{ title: t('statistics.normalized'), value: 'normalized' },
 				{ title: t('statistics.absolute'), value: 'absolute' }
 			]
-		}
+		})
 	]);
 
 	let windowWidth = $state(1024);
@@ -188,7 +193,8 @@
 	});
 
 	let activeCategoryLabel = $derived(
-		categoryOptions.find((option) => option.value === selectedCategory)?.label ?? t('common.delegates')
+		categoryOptions.find((option) => option.value === selectedCategory)?.label ??
+			t('common.delegates')
 	);
 
 	function descriptionFor(key: string) {
@@ -205,10 +211,7 @@
 			);
 		}
 		if (chartMode === 'spectrum') {
-			return (
-				descriptionFor('spectrum') ??
-				t('statistics.chartDescription.spectrum')
-			);
+			return descriptionFor('spectrum') ?? t('statistics.chartDescription.spectrum');
 		}
 		if (chartMode === 'donut') {
 			return descriptionFor('donut') ?? t('statistics.chartDescription.shares');
@@ -419,8 +422,7 @@
 			currentDataCategory = requestedCategory;
 		} catch (err) {
 			if (currentRequestId !== requestId) return;
-			error =
-				err instanceof Error ? err.message : t('statistics.error.load');
+			error = err instanceof Error ? err.message : t('statistics.error.load');
 		} finally {
 			if (currentRequestId === requestId) loading = false;
 		}
@@ -437,7 +439,9 @@
 		<div class="flex flex-col gap-4">
 			<div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
 				<div>
-					<p class="text-sm font-semibold text-gray-600 dark:text-gray-300">{t('statistics.chartControl.analysis')}</p>
+					<p class="text-sm font-semibold text-gray-600 dark:text-gray-300">
+						{t('statistics.chartControl.analysis')}
+					</p>
 					<div
 						class="mt-2 flex flex-wrap gap-1 rounded-xl border border-primary-300 p-1 dark:border-primary-400"
 					>
@@ -462,10 +466,14 @@
 
 				<div class="flex flex-col gap-2 md:flex-row md:items-end">
 					<div class="min-w-64 flex-1">
-						<p class="mb-2 text-sm font-semibold text-gray-600 dark:text-gray-300">{t('statistics.chartControl.search')}</p>
+						<p class="mb-2 text-sm font-semibold text-gray-600 dark:text-gray-300">
+							{t('statistics.chartControl.search')}
+						</p>
 						<SearchBar
 							bind:searchValue
-							placeholder={selectedCategory === 'delegate' ? t('delegates.searchDelegates') : t('statistics.searchCategory')}
+							placeholder={selectedCategory === 'delegate'
+								? t('delegates.searchDelegates')
+								: t('statistics.searchCategory')}
 						/>
 					</div>
 					<div class="flex h-10 gap-2 text-sm">
@@ -666,7 +674,9 @@
 			</div>
 		{:else if error}
 			<div class="flex min-h-80 flex-col items-center justify-center gap-3 p-8 text-center">
-				<p class="font-semibold text-red-700 dark:text-red-300">{t('statistics.chartControl.errorTitle')}</p>
+				<p class="font-semibold text-red-700 dark:text-red-300">
+					{t('statistics.chartControl.errorTitle')}
+				</p>
 				<p class="max-w-lg text-sm text-red-600 dark:text-red-200">{error}</p>
 				<button
 					type="button"
@@ -678,7 +688,9 @@
 			</div>
 		{:else if chartData.length === 0}
 			<div class="flex min-h-80 flex-col items-center justify-center gap-2 p-8 text-center">
-				<p class="font-semibold text-gray-800 dark:text-gray-100">{t('statistics.chartControl.noData')}</p>
+				<p class="font-semibold text-gray-800 dark:text-gray-100">
+					{t('statistics.chartControl.noData')}
+				</p>
 				<p class="text-sm text-gray-600 dark:text-gray-300">
 					{t('statistics.chartControl.noDataHint')}
 				</p>

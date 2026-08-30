@@ -540,6 +540,7 @@ export interface DelegateQA {
 
 export interface InterestShare {
 	topic: string;
+	topic_id: string;
 	total_share: number;
 	occurences: number;
 	self_share: number;
@@ -584,18 +585,19 @@ export interface PoliticalScore {
 	capitalist: number;
 	liberal: number;
 	authoritarian: number;
-  count: number;
+	count: number;
 }
 
 export interface StanceTopicScore {
 	topic: string;
+	topic_id: string;
 	score: number;
 	broken_down_score: PoliticalScore;
 }
 
 export interface PoliticalPosition {
-  total_score: PoliticalScore;
-  scores_by_topic: StanceTopicScore[];
+	total_score: PoliticalScore;
+	scores_by_topic: StanceTopicScore[];
 }
 
 export interface GovPropFilter {

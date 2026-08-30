@@ -11,8 +11,15 @@
 		parliament?: Parliament;
 	}
 
-	let { delegate, partyColors = getPartyColors(), onNavigate, parliament = getParliament() }: Props = $props();
-	let imgSrc = $derived(parliament == "at" ? `${url}assets/${delegate.id}.jpg` : delegate.image_url);
+	let {
+		delegate,
+		partyColors = getPartyColors(),
+		onNavigate,
+		parliament = getParliament()
+	}: Props = $props();
+	let imgSrc = $derived(
+		parliament == 'at' ? `${url}assets/${delegate.id}.jpg` : delegate.image_url
+	);
 </script>
 
 <div class="flex min-w-0 items-center gap-2">

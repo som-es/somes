@@ -22,7 +22,8 @@
 			</h1>
 			<h2 class="text-sm text-gray-800 dark:text-gray-300">
 				{namedVotes.length}
-				{namedVotes.length == 1 ? t('namedVotes.vote') : t('namedVotes.votes')} {t('namedVotes.total')}
+				{namedVotes.length == 1 ? t('namedVotes.vote') : t('namedVotes.votes')}
+				{t('namedVotes.total')}
 			</h2>
 		</div>
 		<ExtendInfoDialog title={t('namedVotes.showAll')}>

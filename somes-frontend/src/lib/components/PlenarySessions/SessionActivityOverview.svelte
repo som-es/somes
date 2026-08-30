@@ -14,8 +14,8 @@
 
 	interface Props {
 		overview: SessionActivityOverview | null;
-		plenarySessions: Record<string, PlenarySession[]> | null,
-		parliament: Parliament
+		plenarySessions: Record<string, PlenarySession[]> | null;
+		parliament: Parliament;
 	}
 
 	let { overview, plenarySessions, parliament }: Props = $props();
@@ -70,7 +70,10 @@
 			{
 				label: t('sessionActivity.avgSpeechTime'),
 				value: formatDuration(averageSpeechTime),
-				detail: t('sessionActivity.detail.speechCountTotal', { count: overview.speech_count, total: formatDuration(overview.total_speech_time) }),
+				detail: t('sessionActivity.detail.speechCountTotal', {
+					count: overview.speech_count,
+					total: formatDuration(overview.total_speech_time)
+				}),
 				highlight: false,
 				className: 'col-span-2 xl:col-span-4'
 			},
@@ -100,8 +103,10 @@
 		<div class="mb-4 flex flex-col gap-1 px-1 sm:px-0">
 			<h2 class="text-2xl font-bold sm:text-4xl">{t('sessionActivity.lastSessionTitle')}</h2>
 			<p class="text-base text-gray-800 dark:text-gray-200">
-			    {#if parliament === "eu" && plenarySessions}
-					{plenarySessions[defaultGpByParliament(parliament)].length}. {t('sessionActivity.sessionLabelEu')}
+				{#if parliament === 'eu' && plenarySessions}
+					{plenarySessions[defaultGpByParliament(parliament)].length}. {t(
+						'sessionActivity.sessionLabelEu'
+					)}
 				{:else}
 					{#if overview.inr}{overview.inr}.{/if}
 					{t('sessionActivity.sessionLabel')}
@@ -156,12 +161,20 @@
 					{t('sessionActivity.topSpeakersTitle')}
 				</h3>
 				{#if overview.top_speakers.length > 0}
-					<div class="mt-3 grid gap-2 md:grid-cols-3 xl:grid-cols-1">
+					<div class="mt-3 grid gap-2">
 						{#each overview.top_speakers as speaker}
 							<div class="flex items-start justify-between gap-3 text-sm">
-								<div class="min-w-0">
+								<div class="min-w-0 sm:hidden">
 									<p>{speaker.delegate_name}</p>
 									<p class="text-xs text-gray-600 dark:text-gray-400">{speaker.delegate_party}</p>
+								</div>
+								<div class="min-w-0 max-sm:hidden">
+									<p>
+										{speaker.delegate_name}
+										<span class="ml-1 text-xs text-gray-600 dark:text-gray-400"
+											>({speaker.delegate_party})</span
+										>
+									</p>
 								</div>
 								<span class="shrink-0 font-semibold">
 									{formatDuration(speaker.total_speech_time)}
@@ -170,7 +183,9 @@
 						{/each}
 					</div>
 				{:else}
-					<p class="mt-3 text-sm text-gray-700 dark:text-gray-100">{t('sessionActivity.noSpeechTime')}</p>
+					<p class="mt-3 text-sm text-gray-700 dark:text-gray-100">
+						{t('sessionActivity.noSpeechTime')}
+					</p>
 				{/if}
 			</article>
 		</div>

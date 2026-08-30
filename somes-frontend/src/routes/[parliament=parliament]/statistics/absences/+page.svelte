@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { justPostStatistics } from '$lib/api/api';
-import { t } from '$lib/i18n/i18n.svelte';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import StatisticsChartControl from '$lib/components/Statistics/StatisticsChartControl.svelte';
 	import type { StatisticsData } from '$lib/types';
 	import { mapAbsencesDelegate, mapAbsencesCategory } from '$lib/api/statistics-adapter';
@@ -9,8 +9,7 @@ import { t } from '$lib/i18n/i18n.svelte';
 	export let selectedCategory: string = 'delegate';
 
 	const chartDescriptions = {
-		'delegate.normalized':
-			t('statistics.absences.desc.delegateNormalized'),
+		'delegate.normalized': t('statistics.absences.desc.delegateNormalized'),
 		'delegate.absolute': t('statistics.absences.desc.delegateAbsolute'),
 		'party.normalized': t('statistics.absences.desc.partyNormalized'),
 		'party.absolute': t('statistics.absences.desc.partyAbsolute'),
@@ -152,10 +151,7 @@ import { t } from '$lib/i18n/i18n.svelte';
 
 <svelte:head>
 	<title>{t('statistics.absences.title')}</title>
-	<meta
-		name="description"
-		content={t('statistics.absences.description')}
-	/>
+	<meta name="description" content={t('statistics.absences.description')} />
 </svelte:head>
 
 <Container class="pb-12">

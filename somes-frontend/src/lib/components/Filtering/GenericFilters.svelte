@@ -85,7 +85,7 @@
 					<span class="block w-3 transition-transform duration-200" class:rotate-180={isExpanded}>
 						{@html downArrowIcon}
 					</span>
-					{isExpanded ? 'Weniger Filter' : 'Mehr Filter'}
+					{isExpanded ? t('filter.collapse') : t('filter.expand')}
 				</button>
 			{/if}
 			{#if isExpanded}

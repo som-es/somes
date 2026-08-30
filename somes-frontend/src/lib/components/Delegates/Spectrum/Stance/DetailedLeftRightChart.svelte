@@ -1,7 +1,6 @@
 <script lang="ts">
 	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
-	import { topicColors } from '$lib/interestColors';
-	import type { InterestShare, StanceTopicScore } from '$lib/types';
+	import type { StanceTopicScore } from '$lib/types';
 	import { Dialog } from 'bits-ui';
 	import LeftRightSvg from './LeftRightSvg.svelte';
 

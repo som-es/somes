@@ -1,5 +1,6 @@
 import type { Delegate, NamedVote, VoteResult } from '$lib/types';
 import type { Material, Texture } from 'three';
+import { t } from '$lib/i18n/i18n.svelte';
 import { partyToColor } from './partyColor';
 import type { FullSpeech } from './speechTypes';
 
@@ -164,7 +165,7 @@ export function genCirclesWithAbsenceInfo(absences: number[], dels: Delegate[]):
 				namedVote: null,
 				color: null,
 				opacity: 0,
-				title: 'abwesen',
+				title: t('absences.absent'),
 				texture: null,
 				material: null,
 				angle_rad: 0,
@@ -212,9 +213,9 @@ export function genCirclesWithNamedVoteInfo(namedVotes: NamedVote[], dels: Deleg
 		const delegate = findDelegateById(delegatesAt, vote.delegate_id);
 		let title;
 		if (vote.was_absent) {
-			title = `abwesend/keine Stimme abgegeben`;
+			title = t('namedVotes.absent');
 		} else {
-			title = vote.infavor ? `Ja` : `Nein`;
+			title = vote.infavor ? t('delegates.yes') : t('delegates.no');
 		}
 		if (delegate) {
 			namedVoteDelegates.push({
@@ -255,7 +256,9 @@ export async function enrichCirclesWithSpeechInfoOnSeat(
 		if (infavor == null) {
 			circles2d[del.seat_row - 1][del.seat_col - 1].title = speech.speech.opinion;
 		} else {
-			circles2d[del.seat_row - 1][del.seat_col - 1].title = infavor ? `Pro` : `Contra`;
+			circles2d[del.seat_row - 1][del.seat_col - 1].title = infavor
+				? t('speeches.pro')
+				: t('speeches.contra');
 		}
 		setOpacity(circles2d[del.seat_row - 1][del.seat_col - 1]);
 		circles2d[del.seat_row - 1][del.seat_col - 1].r = +10.9;
@@ -273,7 +276,7 @@ export function enrichtCirclesWithAbsenceInfoOnSeat(
 
 		circles2d[del.seat_row - 1][del.seat_col - 1].r = +4.9;
 		// circles2d[del.seat_row - 1][del.seat_col - 1].color = "white"
-		circles2d[del.seat_row - 1][del.seat_col - 1].title = `abwesend`;
+		circles2d[del.seat_row - 1][del.seat_col - 1].title = t('absences.absent');
 	});
 }
 
@@ -291,18 +294,20 @@ export function enrichCirclesWithNamedVoteInfoOnSeat(
 
 		if (namedVote.was_absent) {
 			circles2d[del.seat_row - 1][del.seat_col - 1].r = +4.9;
-			circles2d[del.seat_row - 1][del.seat_col - 1].title = `abwesend/keine Stimme abgegeben`;
+			circles2d[del.seat_row - 1][del.seat_col - 1].title = t('namedVotes.absent');
 			setOpacity(circles2d[del.seat_row - 1][del.seat_col - 1]);
 			return;
 		}
 		if (namedVote.was_abstention) {
 			circles2d[del.seat_row - 1][del.seat_col - 1].r = +15;
-			circles2d[del.seat_row - 1][del.seat_col - 1].title = `enthalten`;
+			circles2d[del.seat_row - 1][del.seat_col - 1].title = t('vote_result.abstention');
 			setOpacity(circles2d[del.seat_row - 1][del.seat_col - 1]);
 			return;
 		}
 
-		circles2d[del.seat_row - 1][del.seat_col - 1].title = namedVote.infavor ? `Ja` : `Nein`;
+		circles2d[del.seat_row - 1][del.seat_col - 1].title = namedVote.infavor
+			? t('delegates.yes')
+			: t('delegates.no');
 		setOpacity(circles2d[del.seat_row - 1][del.seat_col - 1]);
 		circles2d[del.seat_row - 1][del.seat_col - 1].r = +9.9;
 	});

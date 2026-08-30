@@ -1,7 +1,7 @@
 mod delegate;
 use axum::{
-    routing::{delete, get, post, put},
     Router,
+    routing::{delete, get, post, put},
 };
 pub use delegate::*;
 

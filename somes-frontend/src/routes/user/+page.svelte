@@ -351,7 +351,7 @@
 
 <svelte:head>
 	<title>{t('user.meta.title')}</title>
-	<meta name="description" content="{t('user.meta.description')}" />
+	<meta name="description" content={t('user.meta.description')} />
 </svelte:head>
 
 <Container>
@@ -369,7 +369,9 @@
 					<!-- OBERE ZEILE -->
 					<div class="flex flex-wrap items-center justify-between gap-3">
 						<div class="flex flex-wrap items-center gap-3">
-							<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">{t('user.userInfo')}</h2>
+							<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">
+								{t('user.userInfo')}
+							</h2>
 							<div class="flex items-center gap-2 text-base text-gray-800 dark:text-gray-200">
 								<span class="font-medium">{t('user.email')}</span>
 								{#if extendedUser?.is_email_hashed}
@@ -497,6 +499,7 @@
 						? 'bg-primary-600 text-white'
 						: 'text-gray-700 hover:bg-primary-400 dark:text-gray-300 dark:hover:bg-primary-500'}"
 					onclick={() => {
+						if (parliament == 'at') return;
 						favoDelegates = null;
 						favoLegisInits = null;
 						return (parliament = 'at');
@@ -509,6 +512,7 @@
 						? 'bg-primary-600 text-white'
 						: 'text-gray-700 hover:bg-primary-400 dark:text-gray-400 dark:hover:bg-primary-500'}"
 					onclick={() => {
+						if (parliament == 'eu') return;
 						favoDelegates = null;
 						favoLegisInits = null;
 						return (parliament = 'eu');
@@ -588,12 +592,14 @@
 			<!-- Interest Topics Card -->
 			<div class="w-full rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
 				<div class="flex flex-wrap items-center justify-between gap-2">
-					<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">{t('user.chooseInterests')}</h2>
+					<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">
+						{t('user.chooseInterests')}
+					</h2>
 					{#if selectedTopics.size > 0}
 						<span
 							class="rounded-full bg-secondary-500 px-2.5 py-0.5 text-sm font-semibold text-white"
 						>
-							{t('user.selectedCount', {count: selectedTopics.size})}
+							{t('user.selectedCount', { count: selectedTopics.size })}
 						</span>
 					{/if}
 				</div>
@@ -660,7 +666,9 @@
 
 			<!-- Favorite Delegates Card -->
 			<div class="w-full rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
-				<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">{t('user.favoritePersons')}</h2>
+				<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">
+					{t('user.favoritePersons')}
+				</h2>
 				<div class="mt-3 flex flex-wrap gap-3">
 					{#if favoDelegates}
 						{#if favoDelegates.size == 0}

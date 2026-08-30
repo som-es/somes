@@ -43,7 +43,11 @@
 		const date = new Date(value);
 		if (Number.isNaN(date.getTime())) return null;
 		const locale = localeStore.value === 'de' ? 'de-AT' : 'en-AT';
-		return new Intl.DateTimeFormat(locale, { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+		return new Intl.DateTimeFormat(locale, {
+			day: '2-digit',
+			month: '2-digit',
+			year: 'numeric'
+		}).format(date);
 	}
 
 	function enforcementEntries(dates: EnforcementDates): EnforcementEntry[] {
@@ -51,8 +55,18 @@
 		const end = formatEnforcementDate(dates.enforcement_end_date);
 		const entries: EnforcementEntry[] = [];
 
-		if (start) entries.push({ label: t('emphasis.inForceFrom'), date: start, note: dates.start_notes ?? null });
-		if (end) entries.push({ label: t('emphasis.outOfForceFrom'), date: end, note: dates.end_notes ?? null });
+		if (start)
+			entries.push({
+				label: t('emphasis.inForceFrom'),
+				date: start,
+				note: dates.start_notes ?? null
+			});
+		if (end)
+			entries.push({
+				label: t('emphasis.outOfForceFrom'),
+				date: end,
+				note: dates.end_notes ?? null
+			});
 
 		return entries;
 	}

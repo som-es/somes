@@ -1,26 +1,26 @@
 ```sql
-select 
-    delegates.name, 
+select
+    delegates.name,
     delegates.image_url,
-    delegates.party, 
+    delegates.party,
     cast(SUM(
     plenar_speeches.duration_in_seconds
-    ) / (60.0 * 60.0) as float) AS hours_spoken 
-from 
-    plenar_speeches 
-    inner join debates on plenar_speeches.debate_id = debates.id 
-    inner join plenar_infos on debates.plenar_id = plenar_infos.id 
-    inner join delegates on delegates.id = plenar_speeches.delegate_id 
-where 
-    plenar_infos.legislative_period = 'XXVII' 
+    ) / (60.0 * 60.0) as float) AS hours_spoken
+from
+    plenar_speeches
+    inner join debates on plenar_speeches.debate_id = debates.id
+    inner join plenar_infos on debates.plenar_id = plenar_infos.id
+    inner join delegates on delegates.id = plenar_speeches.delegate_id
+where
+    plenar_infos.legislative_period = 'XXVII'
     and delegates.council = 'nr'
-group by 
-    plenar_speeches.delegate_id, 
-    delegates.image_url, 
-    delegates.name, 
-    delegates.party, 
-    delegates.council 
-order by 
+group by
+    plenar_speeches.delegate_id,
+    delegates.image_url,
+    delegates.name,
+    delegates.party,
+    delegates.council
+order by
     hours_spoken DESC;
 ```
 
@@ -29,34 +29,33 @@ select delegates.name,delegates.image_url,delegates.party,COUNT(*) as amount fro
 ```
 
 ```sql
-select 
-        delegates.name, 
+select
+        delegates.name,
         delegates.image_url,
-        delegates.party, 
+        delegates.party,
         cast(
         plenar_speeches.duration_in_seconds
-         / (60.0 * 60.0) as real) AS hours_spoken 
-    from 
-        plenar_speeches 
-        inner join debates on plenar_speeches.debate_id = debates.id 
-        inner join plenar_infos on debates.plenar_id = plenar_infos.id 
-        inner join delegates on delegates.id = plenar_speeches.delegate_id 
-    where 
+         / (60.0 * 60.0) as real) AS hours_spoken
+    from
+        plenar_speeches
+        inner join debates on plenar_speeches.debate_id = debates.id
+        inner join plenar_infos on debates.plenar_id = plenar_infos.id
+        inner join delegates on delegates.id = plenar_speeches.delegate_id
+    where
         delegates.name like '%Kogler%'
         and delegates.council = 'nr'
-    order by 
+    order by
         hours_spoken DESC;
 ```
 
-
 ```sql
 
-SELECT 
+SELECT
     d.id,
     d.name,
     SUM(
-        CASE 
-            WHEN p.ityp = 'J' THEN 1 
+        CASE
+            WHEN p.ityp = 'J' THEN 1
             WHEN p.ityp = 'AA' THEN 1.2 * proposal_count
             WHEN p.ityp = 'A' THEN 1.2 * proposal_count
             WHEN p.ityp = 'UEA' THEN 1.15 * proposal_count
@@ -64,30 +63,30 @@ SELECT
             ELSE 0
         END
     ) AS activity_score
-FROM 
+FROM
     proposals p
-JOIN 
+JOIN
     proposal_delegates pd ON p.id = pd.proposal_id
-JOIN 
+JOIN
     delegates d ON pd.delegate_id = d.id
 LEFT JOIN (
-    SELECT 
+    SELECT
         p.id AS proposal_id,
         COUNT(p.id) AS proposal_count
-    FROM 
+    FROM
         proposals p
-    JOIN 
+    JOIN
         proposal_delegates pd ON p.id = pd.proposal_id
-    WHERE 
+    WHERE
         pd.is_receiver = false
-    GROUP BY 
+    GROUP BY
         p.id
 ) AS proposal_counts ON p.id = proposal_counts.proposal_id
-WHERE 
+WHERE
     pd.is_receiver = false
-GROUP BY 
+GROUP BY
     d.id
-ORDER BY 
+ORDER BY
     activity_score DESC;
 
 ```

@@ -1,13 +1,13 @@
 use axum::{
-    routing::{delete, get, post, put},
     Json, Router,
+    routing::{delete, get, post, put},
 };
 use chrono::{NaiveDate, NaiveTime};
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 
-use crate::{jwt::Claims, AppState, PgPoolConnection};
+use crate::{AppState, PgPoolConnection, jwt::Claims};
 
 #[derive(Debug, Serialize, Deserialize, Hash, Eq, PartialEq)]
 pub struct SomesEvent {
@@ -34,7 +34,7 @@ pub async fn create_event_route(
 ) -> crate::Result<Json<EventId>> {
     if !claims.is_admin {
         return Err(crate::GenericError::Custom((
-            StatusCode::UNAUTHORIZED,
+            StatusCode::FORBIDDEN,
             "insufficient permissions",
         )));
     }
@@ -76,7 +76,7 @@ pub async fn delete_event_route(
 ) -> crate::Result<Json<()>> {
     if !claims.is_admin {
         return Err(crate::GenericError::Custom((
-            StatusCode::UNAUTHORIZED,
+            StatusCode::FORBIDDEN,
             "insufficient permissions",
         )));
     }
@@ -101,7 +101,7 @@ pub async fn update_event_route(
 ) -> crate::Result<Json<()>> {
     if !claims.is_admin {
         return Err(crate::GenericError::Custom((
-            StatusCode::UNAUTHORIZED,
+            StatusCode::FORBIDDEN,
             "insufficient permissions",
         )));
     }

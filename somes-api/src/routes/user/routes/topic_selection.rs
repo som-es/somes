@@ -10,8 +10,10 @@ pub async fn add_user_topic_route(
     claims: Claims,
     Json(topic): Json<UniqueTopic>,
 ) -> Result<Json<()>, GenericError> {
-    let topic_id = 
-        topic.id.parse::<i64>().map_err(|_e| GenericError::Custom((StatusCode::BAD_REQUEST, "invalid topic id")))?;
+    let topic_id = topic
+        .id
+        .parse::<i64>()
+        .map_err(|_e| GenericError::Custom((StatusCode::BAD_REQUEST, "invalid topic id")))?;
     let exists = sqlx::query_scalar!(
         "select exists(select 1 from unique_eurovoc_topics where id_as_hash = $1)",
         topic_id
@@ -69,7 +71,10 @@ pub async fn remove_user_topic_route(
         UniqueTopic,
         "delete from user_topics where user_id = $1 and topic_id = $2",
         claims.id,
-        topic.id.parse::<i64>().map_err(|_e| GenericError::Custom((StatusCode::BAD_REQUEST, "invalid topic id")))?
+        topic
+            .id
+            .parse::<i64>()
+            .map_err(|_e| GenericError::Custom((StatusCode::BAD_REQUEST, "invalid topic id")))?
     )
     .execute(&pg)
     .await

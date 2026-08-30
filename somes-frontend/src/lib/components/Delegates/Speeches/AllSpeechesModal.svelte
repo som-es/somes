@@ -18,7 +18,13 @@
 		speechHeader?: Snippet<[FullSpeech]>;
 	}
 
-	let { title = t('speeches.title'), speeches, delegateId, maxPage = 1, speechHeader }: Props = $props();
+	let {
+		title = t('speeches.title'),
+		speeches,
+		delegateId,
+		maxPage = 1,
+		speechHeader
+	}: Props = $props();
 
 	let page = $state(1);
 	let fetchedSpeeches: FullSpeech[] | null = $state(null);

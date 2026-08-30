@@ -81,7 +81,9 @@
 					}}
 				>
 					<img
-						src={parliament == "at" ? `${url}assets/${speaker.delegate.id}.jpg` : speaker.delegate.image_url}
+						src={parliament == 'at'
+							? `${url}assets/${speaker.delegate.id}.jpg`
+							: speaker.delegate.image_url}
 						alt={speaker.delegate.name}
 						class="h-6 w-6 rounded-full object-cover text-[1px] ring-2 ring-primary-300 dark:ring-primary-500"
 					/>

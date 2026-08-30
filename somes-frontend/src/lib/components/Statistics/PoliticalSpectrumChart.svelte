@@ -162,7 +162,11 @@
 						stroke-width="1.5"
 						class="cursor-pointer drop-shadow-sm transition"
 						role="img"
-						aria-label={t('spectrum.chart.pointAria', { label: point.item.label, x: point.x.toFixed(3), y: point.y.toFixed(3) })}
+						aria-label={t('spectrum.chart.pointAria', {
+							label: point.item.label,
+							x: point.x.toFixed(3),
+							y: point.y.toFixed(3)
+						})}
 						onmouseenter={() => (hoveredIndex = index)}
 						onmouseleave={() => (hoveredIndex = null)}
 					/>
@@ -206,7 +210,9 @@
 	<div
 		class="max-h-[520px] overflow-y-auto rounded-lg border border-gray-200 p-3 dark:border-surface-700"
 	>
-		<div class="mb-2 text-sm font-semibold text-gray-700 dark:text-gray-200">{t('spectrum.chart.points')}</div>
+		<div class="mb-2 text-sm font-semibold text-gray-700 dark:text-gray-200">
+			{t('spectrum.chart.points')}
+		</div>
 		{#each sideItems as point}
 			<div class="border-b border-gray-100 py-2 last:border-0 dark:border-surface-700">
 				<div class="flex items-center gap-2">

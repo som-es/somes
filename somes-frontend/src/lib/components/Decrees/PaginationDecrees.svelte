@@ -20,6 +20,7 @@
 	import DateRangeSnippet from '../Filtering/GenericFilterSnippets/DataRangeSnippet.svelte';
 	import TopicFilter from '../Filtering/TopicFilter.svelte';
 	import { localeStore } from '$lib/i18n/i18n.svelte';
+	import { createFilterGroup } from '../Filtering/filterGroup.svelte';
 
 	interface Props {
 		decrees: DecreesWithMaxPage;
@@ -53,15 +54,14 @@
 	});
 
 	let genericFilters: [GenericFilterGroup<string>] = $state([
-		{
-			title: t('filter.date'),
-			activeValue: undefined,
-			hidden: false,
+		createFilterGroup<string>({
+			title: () => t('filter.date'),
+			hidden: () => false,
 			advanced: true,
 			id: 'dateRange',
 			data: { dateFrom: '', dateTo: '' },
-			options: []
-		}
+			options: () => []
+		})
 	]);
 
 	let selectedTopics: SvelteSet<string> = $state(new SvelteSet());
@@ -190,7 +190,8 @@
 </script>
 
 <span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0 dark:text-gray-300">
-	{t('decrees.updatedAt')} {updatedAt}
+	{t('decrees.updatedAt')}
+	{updatedAt}
 </span>
 
 <div class="mt-7 md:flex">

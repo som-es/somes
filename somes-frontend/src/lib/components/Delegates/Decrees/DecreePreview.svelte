@@ -37,7 +37,8 @@
 
 			<h2 class="text-sm text-gray-800 dark:text-gray-300">
 				{decrees.length}
-				{decrees.length == 1 ? t('decrees.decree') : t('decrees.decrees')} {t('decrees.total')}
+				{decrees.length == 1 ? t('decrees.decree') : t('decrees.decrees')}
+				{t('decrees.total')}
 			</h2>
 		</div>
 		<ExtendInfoDialog title={t('decrees.showAll')}>

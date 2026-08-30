@@ -25,7 +25,9 @@
 		children,
 		parliament = getParliament()
 	}: Props = $props();
-	let imgSrc = $derived(parliament == 'at' ? `${url}assets/${delegate.id}.jpg` : delegate.image_url);
+	let imgSrc = $derived(
+		parliament == 'at' ? `${url}assets/${delegate.id}.jpg` : delegate.image_url
+	);
 
 	function handleClick(e: MouseEvent) {
 		if (!onclick) return;

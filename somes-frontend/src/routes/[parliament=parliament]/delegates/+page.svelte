@@ -23,7 +23,7 @@
 		interjections_made_by_delegate_per_page,
 		interjections_received_by_delegate_per_page
 	} from '$lib/api/api';
-	import { t } from '$lib/i18n/i18n.svelte';
+	import { getLocale, t, type Locale } from '$lib/i18n/i18n.svelte';
 	import {
 		aiViewEnabledStore,
 		currentDelegateFilterStore,
@@ -65,6 +65,7 @@
 	import InterjectionsPreview from '$lib/components/Delegates/Interjections/InterjectionsPreview.svelte';
 	import MobileParliamentModal from '$lib/components/Parliaments/MobileParliamentModal.svelte';
 	import { defaultGp } from '$lib/api/parliament';
+	import { createFilterGroup } from '$lib/components/Filtering/filterGroup.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -106,35 +107,33 @@
 		GenericFilterGroup<boolean>,
 		GenericFilterGroup<boolean>
 	] = $state([
-		{
-			title: t('delegates.mandateType'),
-			activeValue: undefined,
-			hidden: false,
-			options: [
+		createFilterGroup<boolean>({
+			title: () => t('delegates.mandateType'),
+			hidden: () => false,
+			options: () => [
 				{ title: t('delegates.any'), value: undefined },
 				{ title: t('delegates.government'), value: true },
 				{ title: t('delegates.nationalCouncil'), value: false }
 			]
-		},
-		{
-			title: t('delegates.activeMandate'),
-			activeValue: undefined,
-			hidden: false,
-			options: [
+		}),
+		createFilterGroup<boolean>({
+			title: () => t('delegates.activeMandate'),
+			hidden: () => false,
+			options: () => [
 				{ title: t('delegates.any'), value: undefined },
 				{ title: t('delegates.yes'), value: true },
 				{ title: t('delegates.no'), value: false }
 			]
-		},
-		{
-			title: t('delegates.considerPrevParty'),
-			activeValue: true,
-			hidden: false,
-			options: [
+		}),
+		createFilterGroup<boolean>({
+			title: () => t('delegates.considerPrevParty'),
+			hidden: () => false,
+			initialValue: true,
+			options: () => [
 				{ title: t('delegates.yes'), value: true },
 				{ title: t('delegates.no'), value: false }
 			]
-		}
+		})
 	]);
 
 	// Filter Elements to Keep the PopUp open
@@ -244,6 +243,7 @@
 	let prevSelectedPeriod = $derived(data.gp ?? latestPeriod);
 
 	let prevSelectedDelegateId = $state(0);
+	let prevLocale: Locale | null = $state(null);
 
 	let finishedMounting = $state(false);
 
@@ -435,19 +435,20 @@
 
 	$effect(() => {
 		void delegate;
+		const locale = getLocale();
 		// if ($navigating) return;
 		untrack(() => {
 			if (delegate) {
 				updateDelegateIdInUrl(delegate);
 			}
 
-			if (delegate && prevSelectedDelegateId != delegate.id) {
+			if (delegate && (prevSelectedDelegateId != delegate.id || locale !== prevLocale)) {
 				const newFilter = { ...maybeCurrentDelegateFilter };
 				newFilter.search_value = delegate.name;
 				currentDelegateFilterStore.value = newFilter;
 
 				generalDelegateInfo = null;
-				general_delegate_info(delegate.id).then((res) => {
+				general_delegate_info(delegate.id, locale).then((res) => {
 					generalDelegateInfo = errorToNull(res);
 					if (generalDelegateInfo) {
 						generalDelegateInfo.interests.sort((a, b) => b.self_share - a.self_share);
@@ -474,6 +475,7 @@
 				});
 
 				prevSelectedDelegateId = delegate.id;
+				prevLocale = locale;
 			}
 		});
 	});
@@ -502,11 +504,13 @@
 			<div>
 				<!-- Filters -->
 				<div>
-					<span class="text-base font-semibold text-gray-800 dark:text-gray-200">{t('delegates.filter')}</span>
-					<div class="mt-2 flex h-10 w-full gap-2 md:mt-1 md:w-auto">
+					<span class="text-base font-semibold text-gray-800 dark:text-gray-200"
+						>{t('delegates.filter')}</span
+					>
+					<div class="mt-2 flex w-full gap-2 md:mt-1 md:w-auto max-lg:flex-wrap">
 						<!-- Period Filter -->
 						<div
-							class="flex h-full grow touch-manipulation items-center justify-center gap-1 md:grow-0"
+							class="flex h-10 grow touch-manipulation items-center justify-center gap-1 md:grow-0"
 						>
 							<MultiSelectFilter
 								items={periods.map((p) => ({ value: p.gp, label: p.gp })).reverse()}
@@ -516,7 +520,7 @@
 						</div>
 						<!-- Parteien Filter -->
 						<div
-							class="flex h-full grow touch-manipulation items-center justify-center gap-1 md:grow-0"
+							class="flex h-10 grow touch-manipulation items-center justify-center gap-1 md:grow-0"
 						>
 							<MultiSelectFilter
 								items={uniqueParties.map((p) => ({ value: p.name, label: p.name, color: p.color }))}
@@ -537,7 +541,7 @@
 						</div>
 						{#if uniqueCountries.length > 0}
 							<div
-								class="flex h-full grow touch-manipulation items-center justify-center gap-1 md:grow-0"
+								class="flex h-10 grow touch-manipulation items-center justify-center gap-1 md:grow-0"
 							>
 								<MultiSelectFilter
 									items={uniqueCountries.map((c) => ({ value: c.code, label: c.name }))}
@@ -547,7 +551,7 @@
 							</div>
 						{/if}
 						<div
-							class="flex h-full grow touch-manipulation items-center justify-center gap-1 md:grow-0"
+							class="flex h-10 grow touch-manipulation items-center justify-center gap-1 md:grow-0"
 						>
 							<GenericFilters bind:genericFilters />
 						</div>
@@ -679,6 +683,8 @@
 					{selectedPeriod}
 					{supplyDate}
 					hasSeatInfo={data.hasSeatInfo}
+					parliament={data.parliament}
+					partyColoring={partyColors}
 				/>
 			</div>
 
@@ -790,7 +796,9 @@
 			<div class="flex-1">
 				<div class="mt-1 flex min-w-full justify-between px-1 text-base text-gray-800">
 					<div>
-						{renderStartDate == null ? '' : dashDateToDotDate(renderStartDate.toString())} ({t('delegates.timeline.start')})
+						{renderStartDate == null ? '' : dashDateToDotDate(renderStartDate.toString())} ({t(
+							'delegates.timeline.start'
+						)})
 					</div>
 					<div>
 						{renderEndDate == null

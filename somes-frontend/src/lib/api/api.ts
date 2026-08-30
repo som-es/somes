@@ -1,4 +1,5 @@
 import type { Decree } from '$lib/components/Delegates/Decrees/types';
+import type { Locale } from '$lib/i18n';
 import type {
 	Delegate,
 	HasError,
@@ -200,9 +201,12 @@ export async function delegate_interests(delegate_id: number): Promise<InterestS
 }
 
 export async function general_delegate_info(
-	delegate_id: number
+	delegate_id: number,
+	language: Locale = 'de'
 ): Promise<GeneralDelegateInfo | HasError> {
-	return getWithRoute<GeneralDelegateInfo>(`v1/delegates/extend/${delegate_id}`);
+	return getWithRoute<GeneralDelegateInfo>(
+		`v1/delegates/extend/${delegate_id}?language=${language}`
+	);
 }
 
 export async function delegate_qa(delegate_id: number): Promise<DelegateQA[] | HasError> {

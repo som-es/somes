@@ -17,7 +17,7 @@
 			return {
 				topic: interest.topic,
 				occurences: interest.occurences,
-				color: topicColors.get(translateTopicToParent(interest.topic)) ?? 'gray'
+				color: topicColors.get(translateTopicToParent(interest.topic_id)) ?? 'gray'
 			};
 		})
 	);
@@ -26,7 +26,7 @@
 
 	let cRange = $derived(
 		detailedInterests.map((interest) => {
-			return topicColors.get(translateTopicToParent(interest.topic)) ?? 'gray';
+			return topicColors.get(translateTopicToParent(interest.topic_id)) ?? 'gray';
 		})
 	);
 	const ROW_HEIGHT = 45;

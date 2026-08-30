@@ -53,7 +53,7 @@
 	const navItems: NavItem[] = $derived.by(() => {
 		const voteSubItems: (SubItem | SubItemGroup)[] = [
 			{
-				title: t('nav.nationalCouncil'),
+				title: parliament === 'eu' ? t('nav.euParliament') : t('nav.nationalCouncil'),
 				items: [
 					{ href: voteResultUrl.href, pathname: voteResultUrl.pathname, label: t('nav.votes') },
 					{

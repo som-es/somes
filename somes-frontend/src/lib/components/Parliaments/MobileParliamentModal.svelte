@@ -8,6 +8,7 @@
 	import { getSeats } from '$lib/caching/seats';
 	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
 	import VoteParliament2 from './VoteParliament2.svelte';
+	import { getParliament, type Parliament } from '$lib/api/parliament';
 
 	interface Props {
 		delegates: Delegate[];
@@ -17,6 +18,8 @@
 		selectedPeriod: string;
 		supplyDate: Date | null;
 		hasSeatInfo: boolean;
+		parliament?: Parliament;
+		partyColoring?: Map<string, string>;
 	}
 
 	let {
@@ -26,7 +29,9 @@
 		allSeats,
 		selectedPeriod,
 		supplyDate,
-		hasSeatInfo
+		hasSeatInfo,
+		parliament = getParliament(),
+		partyColoring = partyColors,
 	}: Props = $props();
 </script>
 
@@ -79,7 +84,7 @@
 						{#each [...groupPartyDelegates(structuredClone(delegates))].sort((a, b) => b[1].length - a[1].length) as [party, partyDelegates]}
 							<div
 								class="h-2.5 w-2.5 rounded-full"
-								style="background-color: {partyColors.get(party) ?? '#ccc'};"
+								style="background-color: {partyColoring.get(party) ?? '#ccc'};"
 							></div>
 							<span class="text-sm font-medium text-gray-800">{party}</span>
 							<span class="text-right text-sm font-medium text-gray-800">
@@ -101,6 +106,8 @@
 						overrideDelegates
 						noSeats={!hasSeatInfo}
 						useOffset={hasSeatInfo}
+						{parliament}
+						{partyColoring}
 					/>
 				</div>
 			{/if}

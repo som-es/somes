@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { justPostStatistics } from '$lib/api/api';
-import { t } from '$lib/i18n/i18n.svelte';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import StatisticsChartControl from '$lib/components/Statistics/StatisticsChartControl.svelte';
 	import type { StatisticsData } from '$lib/types';
 	import { mapCallToOrdersDelegate, mapCallToOrdersCategory } from '$lib/api/statistics-adapter';
@@ -151,10 +151,7 @@ import { t } from '$lib/i18n/i18n.svelte';
 
 <svelte:head>
 	<title>{t('statistics.callToOrders.title')}</title>
-	<meta
-		name="description"
-		content={t('statistics.callToOrders.description')}
-	/>
+	<meta name="description" content={t('statistics.callToOrders.description')} />
 </svelte:head>
 
 <Container class="pb-12">

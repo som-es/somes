@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { getParliament, plink, type Parliament } from '$lib/api/parliament';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { gotoHistory } from '$lib/goto';
 	import type { Bubble } from '$lib/parliament';
 	import { getPartyColors } from '$lib/partyColor';
@@ -46,28 +47,23 @@
 	// 	placement: 'bottom'
 	// };
 
-	let infoText = $derived(
-		bubble.namedVote
-			? `unsichere Zuteilung: "${bubble.namedVote.searched_with}" wurde ${bubble.namedVote.manually_matched ? 'manuell' : 'automatisch'} "${bubble.namedVote.matched_with}" zugeteilt`
-			: ''
-	);
 	let namedVoteText = $derived(
 		bubble.namedVote
 			? bubble.namedVote.infavor != null
 				? bubble.namedVote.infavor
-					? 'Ja'
-					: 'Nein'
+					? t('delegates.yes')
+					: t('delegates.no')
 				: bubble.namedVote.was_abstention
-					? 'Enthalten'
-					: 'Abwesend/keine Stimme abgegeben'
+					? t('vote_result.abstention')
+					: t('namedVotes.absent')
 			: ''
 	);
 
 	let speechText = $derived(
 		bubble.speech?.speech.infavor != null
 			? bubble.speech.speech.infavor
-				? 'Pro'
-				: 'Contra'
+				? t('speeches.pro')
+				: t('speeches.contra')
 			: (bubble.speech?.speech.opinion ?? bubble.title)
 	);
 
@@ -135,16 +131,21 @@
 						<Popover.Portal>
 							<Popover.Content>
 								<div class="z-50! w-72 card p-4 shadow-xl">
-									<div class="z-50 font-bold md:text-xl">Unsichere Zuteilung</div>
+									<div class="z-50 font-bold md:text-xl">
+										{t('voteDelegateCard.uncertainTitle')}
+									</div>
 									<div>
-										<span class="font-bold">"{bubble.namedVote.searched_with}"</span> wurde {bubble
-											.namedVote.manually_matched
-											? 'manuell'
-											: 'automatisch'}
-										<span class="font-bold">"{bubble.namedVote.matched_with}"</span>
-										zugeordnet.
+										{t('voteDelegateCard.uncertainText', {
+											searched: bubble.namedVote.searched_with ?? '',
+											method: bubble.namedVote.manually_matched
+												? t('voteDelegateCard.uncertainMethodManual')
+												: t('voteDelegateCard.uncertainMethodAuto'),
+											matched: bubble.namedVote.matched_with
+										})}
 										<div>
-											errechneter Unterschied: {bubble.namedVote.similiarity_score}
+											{t('voteDelegateCard.uncertainDifference', {
+												score: bubble.namedVote.similiarity_score
+											})}
 										</div>
 									</div>
 									<div class="arrow z-10! bg-surface-100-900"></div>
@@ -162,7 +163,7 @@
 						class="rounded-xl bg-primary-600 p-2 px-3 text-white"
 						onclick={() => (speechModalOpen = true)}
 					>
-						<h4>Rede</h4>
+						<h4>{t('speeches.speech')}</h4>
 					</button>
 				{/if}
 			</span>

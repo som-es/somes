@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
-import { t } from '$lib/i18n/i18n.svelte';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import type { Delegate } from '$lib/types';
 	import { Dialog, Popover } from 'bits-ui';
 	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';

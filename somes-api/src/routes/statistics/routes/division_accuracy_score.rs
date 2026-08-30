@@ -1,14 +1,14 @@
 use axum::Json;
 use serde::{Deserialize, Serialize};
-use sqlx::{prelude::FromRow, Postgres};
+use sqlx::{Postgres, prelude::FromRow};
 use utoipa::ToSchema;
 
 use crate::{
+    PgPoolConnection,
     routes::statistics::routes::error::StatisticsResponse,
     routes::statistics::routes::filtering::{
-        bind_values, build_filter, IntoFilterArgument, Manual,
+        IntoFilterArgument, Manual, bind_values, build_filter,
     },
-    PgPoolConnection,
 };
 
 #[derive(ToSchema, Default, Debug, Clone, Serialize, Deserialize)]
@@ -109,14 +109,13 @@ impl DivisionAccuracyService {
             std::collections::HashMap::new();
 
         for item in base_data {
-            let entry =
-                gender_map
-                    .entry(
-                        item.delegate_gender
-                            .clone()
-                            .unwrap_or_else(|| "Unknown".into()),
-                    )
-                    .or_insert((Vec::new(), 0, 0));
+            let entry = gender_map
+                .entry(
+                    item.delegate_gender
+                        .clone()
+                        .unwrap_or_else(|| "Unknown".into()),
+                )
+                .or_insert((Vec::new(), 0, 0));
             entry.0.push(item.accuracy_score);
             entry.1 += item.total_votes;
             entry.2 += 1;

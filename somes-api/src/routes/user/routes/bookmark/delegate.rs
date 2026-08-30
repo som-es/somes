@@ -3,7 +3,7 @@ use reqwest::StatusCode;
 use somes_common_lib::DelegateFavo;
 use sqlx::query_as;
 
-use crate::{jwt::Claims, routes::UserError, PgPoolConnection};
+use crate::{PgPoolConnection, jwt::Claims, routes::UserError};
 
 pub async fn add_user_delegate_bookmark(
     PgPoolConnection(pg): PgPoolConnection,

@@ -92,9 +92,7 @@
 					{isEditing ? t('event.edit') : t('event.create')}
 				</Dialog.Title>
 				<Dialog.Description class="text-sm text-surface-500 dark:text-surface-400">
-					{isEditing
-						? t('event.editDesc')
-						: t('event.createDesc')}
+					{isEditing ? t('event.editDesc') : t('event.createDesc')}
 				</Dialog.Description>
 			</div>
 			<Dialog.Close
@@ -232,8 +230,12 @@
 							/>
 						</div>
 						<div class="text-sm">
-							<span class="font-bold text-surface-900 dark:text-surface-100"> {t('event.membership')} </span>
-							<p class="text-xs text-surface-500 dark:text-surface-400">{t('event.membershipDesc')}</p>
+							<span class="font-bold text-surface-900 dark:text-surface-100">
+								{t('event.membership')}
+							</span>
+							<p class="text-xs text-surface-500 dark:text-surface-400">
+								{t('event.membershipDesc')}
+							</p>
 						</div>
 					</label>
 
@@ -248,8 +250,12 @@
 							/>
 						</div>
 						<div class="text-sm">
-							<span class="font-bold text-surface-900 dark:text-surface-100"> {t('event.registration')} </span>
-							<p class="text-xs text-surface-500 dark:text-surface-400">{t('event.registrationDesc')}</p>
+							<span class="font-bold text-surface-900 dark:text-surface-100">
+								{t('event.registration')}
+							</span>
+							<p class="text-xs text-surface-500 dark:text-surface-400">
+								{t('event.registrationDesc')}
+							</p>
 						</div>
 					</label>
 				</div>
