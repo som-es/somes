@@ -59,13 +59,13 @@ fn default_allowed_origins() -> AllowOrigin {
 }
 
 fn connect_redis(db_id: u32) -> ServerResult<redis::Client> {
-    let client = redis::Client::open(format!("{REDIS_DB}{db_id}"))?;
+    let client = redis::Client::open(format!("{}{}", REDIS_DB.as_str(), db_id))?;
     client.get_connection()?;
     if reset_cache() || *IS_PROD {
         let mut con = client.get_connection()?;
         redis::cmd("FLUSHALL").query::<()>(&mut con)?;
     }
-    info!("Established redis database connection to {REDIS_DB}.");
+    info!("Established redis database connection to {}.", REDIS_DB.as_str());
     Ok(client)
 }
 
@@ -261,7 +261,7 @@ pub async fn serve(addr: SocketAddr) -> ServerResult<()> {
     let eu_dataservice_sqlx_pool = connect_dataservice("EU_DATASERVICE_URL").await?;
 
     let meilisearch_client =
-        meilisearch_sdk::client::Client::new(MEILISEARCH_URL, Some(MEILISEARCH_SECRET))?;
+        meilisearch_sdk::client::Client::new(MEILISEARCH_URL.as_str(), Some(MEILISEARCH_SECRET.as_str()))?;
 
     let topics_mapper = TopicsMapper::new(&dataservice_sqlx_pool).await?;
 
@@ -284,8 +284,8 @@ pub async fn serve(addr: SocketAddr) -> ServerResult<()> {
     spawn_search_refresh(state.clone());
 
     let config = RustlsConfig::from_pem_file(
-        PathBuf::from(PUBLIC_KEY_PATH),
-        PathBuf::from(PRIVATE_KEY_PATH),
+        PathBuf::from(PUBLIC_KEY_PATH.as_str()),
+        PathBuf::from(PRIVATE_KEY_PATH.as_str()),
     )
     .await;
 

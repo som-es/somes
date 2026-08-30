@@ -1,6 +1,5 @@
 // mod read_mailbox;
 
-use dotenvy_macro::dotenv;
 use lettre::{
     Message, SmtpTransport, Transport, message::header::ContentType,
     transport::smtp::authentication::Credentials,
@@ -11,16 +10,16 @@ use crate::EMAIL_EXPIRATION_SECONDS;
 
 // env vars?
 
-pub const SMTP_USERNAME: &str = dotenv!("SMTP_USERNAME");
-pub const SMTP_PASSWORD: &str = dotenv!("SMTP_PASSWORD");
-pub const MAIL_FROM_DISPLAY: &str = dotenv!("MAIL_FROM_DISPLAY");
-pub const MAIL_SERVER: &str = dotenv!("MAIL_SERVER");
+pub static SMTP_USERNAME: Lazy<String> = Lazy::new(|| crate::env_var("SMTP_USERNAME"));
+pub static SMTP_PASSWORD: Lazy<String> = Lazy::new(|| crate::env_var("SMTP_PASSWORD"));
+pub static MAIL_FROM_DISPLAY: Lazy<String> = Lazy::new(|| crate::env_var("MAIL_FROM_DISPLAY"));
+pub static MAIL_SERVER: Lazy<String> = Lazy::new(|| crate::env_var("MAIL_SERVER"));
 
 pub const EMAIL_TEMPLATE: &str = include_str!("email_template.html");
 
 pub static MAILER: Lazy<SmtpTransport> = Lazy::new(|| {
     let creds = Credentials::new(SMTP_USERNAME.to_string(), SMTP_PASSWORD.to_string());
-    log::info!("SMTP USER: {}", SMTP_USERNAME);
+    log::info!("SMTP USER: {}", SMTP_USERNAME.as_str());
     log::info!("Connecting to email relay...");
 
     // let tls_parameters = TlsParameters::builder(MAIL_SERVER.to_string())
@@ -28,7 +27,7 @@ pub static MAILER: Lazy<SmtpTransport> = Lazy::new(|| {
     //     .build()
     //     .expect("Failed to build TLS parameters");
 
-    SmtpTransport::starttls_relay(MAIL_SERVER)
+    SmtpTransport::starttls_relay(&*MAIL_SERVER)
         .expect("Email relay not available.")
         .credentials(creds)
         // .tls(lettre::transport::smtp::client::Tls::Wrapper(
@@ -43,7 +42,7 @@ pub fn send_mail(
     subject: &str,
     content: String,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let from = format!("somes auth <{}>", SMTP_USERNAME).parse()?;
+    let from = format!("somes auth <{}>", SMTP_USERNAME.as_str()).parse()?;
     let to = format!("Recipient <{mail_to}>").parse()?;
 
     let email = Message::builder()

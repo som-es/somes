@@ -96,7 +96,7 @@ mod tests {
         .await
         .unwrap();
 
-        let client = redis::Client::open(crate::REDIS_DB).unwrap();
+        let client = redis::Client::open(crate::REDIS_DB.as_str()).unwrap();
         let _redis_con = client.get_multiplexed_async_connection().await.unwrap();
         for legis_init in legis_inits {
             dbg!(legis_init.id);

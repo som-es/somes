@@ -5,7 +5,6 @@ use std::sync::Arc;
 use chrono::Local;
 use combx::with_data::unique_topics::TopicsMapper;
 use common_scrapes::eu_hemicycle::{HemicycleLayout, load_hemicycle};
-use dotenvy_macro::dotenv;
 
 pub mod cache_updater;
 mod db;
@@ -38,25 +37,29 @@ use crate::db::redis_db::RedisHandle;
 
 pub type Result<T> = std::result::Result<T, crate::error::GenericError>;
 
-pub const USR_DATABASE_URL: &str = dotenv!("USR_DATABASE_URL");
-pub const REDIS_DB: &str = dotenv!("REDIS_DB");
-pub const VERIFICATION_SUBJECT: &str = dotenv!("VERIFICATION_SUBJECT");
-pub const VERIFICATION_CONTENT: &str = dotenv!("VERIFICATION_CONTENT");
-pub const API_ROOT: &str = dotenv!("API_ROOT");
-pub const HOST_ADDR: &str = dotenv!("HOST_ADDR");
-pub const LEGIS_INITS_PER_PAGE: &str = dotenv!("LEGIS_INITS_PER_PAGE");
-pub const GOV_PROPS_PER_PAGE: &str = dotenv!("GOV_PROPS_PER_PAGE");
-pub const DECREES_PER_PAGE: &str = dotenv!("DECREES_PER_PAGE");
-pub const SPEECHES_PER_PAGE: &str = dotenv!("SPEECHES_PER_PAGE");
-pub const ABSENCES_PER_PAGE: &str = dotenv!("ABSENCES_PER_PAGE");
-pub const MAX_ENTRIES_PER_PAGE: &str = dotenv!("MAX_ENTRIES_PER_PAGE");
-pub const STATIC_FRONTEND_PATH: &str = dotenv!("STATIC_FRONTEND_PATH");
-pub const MEILISEARCH_URL: &str = dotenv!("MEILISEARCH_URL");
-pub const MEILISEARCH_SECRET: &str = dotenv!("MEILISEARCH_SECRET");
-pub const PRIVATE_KEY_PATH: &str = dotenv!("PRIVATE_KEY_PATH");
-pub const PUBLIC_KEY_PATH: &str = dotenv!("PUBLIC_KEY_PATH");
-pub const HTTP_PORT: &str = dotenv!("HTTP_PORT");
-pub const HTTPS_PORT: &str = dotenv!("HTTPS_PORT");
+pub fn env_var(name: &str) -> String {
+    std::env::var(name).unwrap_or_else(|_| panic!("environment variable {name} must be set"))
+}
+
+pub static USR_DATABASE_URL: Lazy<String> = Lazy::new(|| env_var("USR_DATABASE_URL"));
+pub static REDIS_DB: Lazy<String> = Lazy::new(|| env_var("REDIS_DB"));
+pub static VERIFICATION_SUBJECT: Lazy<String> = Lazy::new(|| env_var("VERIFICATION_SUBJECT"));
+pub static VERIFICATION_CONTENT: Lazy<String> = Lazy::new(|| env_var("VERIFICATION_CONTENT"));
+pub static API_ROOT: Lazy<String> = Lazy::new(|| env_var("API_ROOT"));
+pub static HOST_ADDR: Lazy<String> = Lazy::new(|| env_var("HOST_ADDR"));
+pub static LEGIS_INITS_PER_PAGE: Lazy<String> = Lazy::new(|| env_var("LEGIS_INITS_PER_PAGE"));
+pub static GOV_PROPS_PER_PAGE: Lazy<String> = Lazy::new(|| env_var("GOV_PROPS_PER_PAGE"));
+pub static DECREES_PER_PAGE: Lazy<String> = Lazy::new(|| env_var("DECREES_PER_PAGE"));
+pub static SPEECHES_PER_PAGE: Lazy<String> = Lazy::new(|| env_var("SPEECHES_PER_PAGE"));
+pub static ABSENCES_PER_PAGE: Lazy<String> = Lazy::new(|| env_var("ABSENCES_PER_PAGE"));
+pub static MAX_ENTRIES_PER_PAGE: Lazy<String> = Lazy::new(|| env_var("MAX_ENTRIES_PER_PAGE"));
+pub static STATIC_FRONTEND_PATH: Lazy<String> = Lazy::new(|| env_var("STATIC_FRONTEND_PATH"));
+pub static MEILISEARCH_URL: Lazy<String> = Lazy::new(|| env_var("MEILISEARCH_URL"));
+pub static MEILISEARCH_SECRET: Lazy<String> = Lazy::new(|| env_var("MEILISEARCH_SECRET"));
+pub static PRIVATE_KEY_PATH: Lazy<String> = Lazy::new(|| env_var("PRIVATE_KEY_PATH"));
+pub static PUBLIC_KEY_PATH: Lazy<String> = Lazy::new(|| env_var("PUBLIC_KEY_PATH"));
+pub static HTTP_PORT: Lazy<String> = Lazy::new(|| env_var("HTTP_PORT"));
+pub static HTTPS_PORT: Lazy<String> = Lazy::new(|| env_var("HTTPS_PORT"));
 
 pub static IS_PROD: Lazy<bool> = Lazy::new(|| is_prod());
 pub static RESET_CACHE: Lazy<bool> = Lazy::new(|| reset_cache());
@@ -76,7 +79,7 @@ pub fn reset_cache() -> bool {
 }
 
 static EMAIL_EXPIRATION_SECONDS: Lazy<usize> = Lazy::new(|| {
-    dotenv!("EMAIL_EXPIRATION_SECONDS")
+    env_var("EMAIL_EXPIRATION_SECONDS")
         .parse()
         .expect("Supplied email expiration (in seconds) is not a (usize) number!")
 });
