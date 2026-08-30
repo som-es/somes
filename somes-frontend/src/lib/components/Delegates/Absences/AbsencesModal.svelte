@@ -66,7 +66,9 @@
 	<!-- Card Container with soft steel-blue background and deep rounding -->
 	<div class="mt-3 rounded-2xl bg-[#c8d4df] p-4 shadow-sm select-none sm:rounded-3xl sm:p-8">
 		<!-- Card Title -->
-		<h2 class="mb-4 text-2xl font-semibold text-slate-800/90 sm:mb-6 sm:text-3xl">{t('absences.modalTitle')}</h2>
+		<h2 class="mb-4 text-2xl font-semibold text-slate-800/90 sm:mb-6 sm:text-3xl">
+			{t('absences.modalTitle')}
+		</h2>
 
 		<!-- GP Sections -->
 		<div class="space-y-6">

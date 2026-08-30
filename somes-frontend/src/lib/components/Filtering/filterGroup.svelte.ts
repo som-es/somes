@@ -1,4 +1,4 @@
-import type { GenericFilterGroup } from "./types";
+import type { GenericFilterGroup } from './types';
 
 export function createFilterGroup<T extends string | boolean>(config: {
 	title: () => string;

@@ -378,7 +378,7 @@
 								<MultiSelectFilter
 									items={uniqueParties}
 									bind:value={selectedPartiesNames}
-									allLabel={t("vote_result.allParties")}
+									allLabel={t('vote_result.allParties')}
 								>
 									{#snippet itemLabel(party)}
 										<div
@@ -603,8 +603,9 @@
 														style="width:18px; height:18px;">{@html checkmarkIcon}</span
 													>
 												{:else}
-													<span class="inline-block shrink-0 align-middle" style="width:18px; height:18px;"
-														>{@html crossmarkIcon}</span
+													<span
+														class="inline-block shrink-0 align-middle"
+														style="width:18px; height:18px;">{@html crossmarkIcon}</span
 													>
 												{/if}
 											</div>

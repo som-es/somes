@@ -11,7 +11,7 @@
 	export let showVoteType: boolean = true;
 </script>
 
-{#if showRequiredMajority && getParliament() !== "eu"}
+{#if showRequiredMajority && getParliament() !== 'eu'}
 	{#if voteResult.legislative_initiative.requires_simple_majority}
 		<span class="badge bg-tertiary-400 text-black">{t('filterOption.simpleMajority')}</span>
 	{:else}

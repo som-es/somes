@@ -31,7 +31,7 @@
 		supplyDate,
 		hasSeatInfo,
 		parliament = getParliament(),
-		partyColoring = partyColors,
+		partyColoring = partyColors
 	}: Props = $props();
 </script>
 
