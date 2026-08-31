@@ -157,9 +157,9 @@
 			class="fixed inset-0 z-70 bg-black/80 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0"
 		/>
 		<Dialog.Content
-			class="fixed top-[50%] left-[50%] z-70 h-[90vh] w-4xl max-w-[90%] translate-x-[-50%] translate-y-[-50%] overflow-y-auto rounded-lg bg-primary-100 shadow-lg outline-hidden data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 dark:bg-primary-300"
+			class="fixed top-[50%] left-[50%] z-70 h-[90vh] w-4xl max-w-[90%] translate-x-[-50%] translate-y-[-50%] overflow-y-auto rounded-lg bg-primary-100 shadow-lg outline-hidden data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 dark:bg-gray-800"
 		>
-			<div class="flex flex-col gap-4 p-5 text-black lg:p-8">
+			<div class="flex flex-col gap-4 p-5 text-black lg:p-8 dark:text-white">
 				<div class="flex items-start justify-between gap-3">
 					<div class="min-w-0">
 						{#if header}
@@ -177,7 +177,7 @@
 								{speech.speech.about ?? t('speeches.fallbackTitle')}
 							{/if}
 						</h1>
-						<div class="mt-1 flex flex-wrap items-center gap-3 text-sm text-gray-700">
+						<div class="mt-1 flex flex-wrap items-center gap-3 text-sm text-gray-700 dark:text-gray-300">
 							{#if speechDuration}
 								<span class="flex items-center gap-1">
 									<span
@@ -199,7 +199,7 @@
 				</div>
 
 				{#if aiSummary}
-					<div class="rounded-xl bg-primary-300 px-5 py-3 dark:bg-primary-500">
+					<div class="rounded-xl bg-primary-300 px-5 py-3 dark:bg-primary-700">
 						<div class="flex flex-wrap items-center gap-x-3 gap-y-1">
 							<h2 class="text-lg font-semibold md:text-xl">{t('speeches.summary')}</h2>
 							{#if detailLevels.length > 1}
@@ -213,7 +213,7 @@
 									}))}
 								>
 									<Select.Trigger
-										class="flex touch-manipulation items-center rounded-lg bg-primary-600 px-2 py-0.5 text-xs text-white transition-colors focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none [&>svg]:ml-1 [&>svg]:size-3"
+										class="flex touch-manipulation items-center rounded-lg bg-primary-600 px-2 py-0.5 text-xs text-white transition-colors focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none dark:bg-primary-500 [&>svg]:ml-1 [&>svg]:size-3"
 									>
 										<span class="truncate">{detailLevels[safeDetailIndex].label}</span>
 										{@html upDownArrowIcon}
@@ -261,7 +261,7 @@
 					</div>
 
 					{#if keyPoints.length > 0}
-						<div class="rounded-xl bg-primary-300 px-5 py-3 dark:bg-primary-500">
+						<div class="rounded-xl bg-primary-300 px-5 py-3 dark:bg-primary-700">
 							<h2 class="text-lg font-semibold md:text-xl">{t('speeches.keyPointsTitle')}</h2>
 							<ul class="mt-2 flex flex-col gap-4">
 								{#each keyPoints as keyPoint, i (i)}
@@ -270,7 +270,7 @@
 									{@const isOpen = expandedKeyPoints.has(i)}
 									<li>
 										<div class="flex gap-2">
-											<span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary-500"></span>
+											<span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary-500 dark:bg-primary-300"></span>
 											<div class="min-w-0 flex-1">
 												{#if quote}
 													<button
@@ -296,7 +296,7 @@
 														{@const link = protocolLink(quote)}
 														<blockquote
 															transition:slide={{ duration: 240 }}
-															class="mt-2 flex items-center gap-2 rounded-lg border-l-4 border-secondary-500 bg-primary-200 py-3 pr-4 pl-3 dark:bg-primary-400"
+															class="mt-2 flex items-center gap-2 rounded-lg border-l-4 border-secondary-500 bg-primary-200 py-3 pr-4 pl-3 dark:bg-primary-800"
 														>
 															<!-- Rein dekorativ. Das Zeichen sitzt oben in seiner Zeilenbox,
 															     das mt-2 schiebt es optisch auf die Mitte des Zitats. -->
