@@ -1,4 +1,8 @@
-use axum::{Json, Router, extract::Path, routing::post};
+use axum::{
+    Json, Router,
+    extract::Path,
+    routing::{get, post},
+};
 use combx::api_models::MoodBarometer;
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
@@ -62,7 +66,7 @@ pub async fn add_mood_value_route(
     claims: Claims,
     Path((gp, inr)): Path<(String, i32)>,
     Json(add_mood): Json<AddMoodValue>,
-) -> Result<Json<MoodBarometer>, Propo> {
+) -> Result<Json<MoodBarometer>, UserError> {
     let gov_prop_id: Option<i32> = sqlx::query_scalar!(
         "select id from ministrial_proposals where gp = $1 and inr = $2",
         gp,
@@ -135,7 +139,11 @@ pub async fn add_mood_value_route(
 
     tx.commit().await.map_err(UserError::SqlFailure)?;
 
-    let barometer = extract_barometer_sqlx(&pg, &gp, inr)?;
+    let barometer = extract_barometer_sqlx(&pg, &gp, inr).await?;
 
     Ok(Json(barometer))
 }
+
+#[cfg(test)]
+#[path = "tests/mood.rs"]
+mod tests;
