@@ -7,7 +7,10 @@ pub use construct_gov_proposal::*;
 pub use db::*;
 pub use routes::*;
 
-use axum::{Router, routing::{get, post}};
+use axum::{
+    Router,
+    routing::{get, post},
+};
 use combx::models::DbMinistrialProposalQueryMeta;
 use redis::aio::ConnectionManager;
 use serde::{Deserialize, Serialize};
@@ -25,7 +28,7 @@ pub fn create_gov_proposals_router() -> Router<AppState> {
         // .route(LIVE, post(gov_proposals_per_page_route))
         .route(LATEST, get(latest_gov_proposals_route))
         .route("/{gp}/{inr}", get(gov_proposal_by_path_route))
-        .route("/{gp}/{inr}/mood", post(add_mood_value_route))
+        .nest("/{gp}/{inr}/mood", create_proposal_mood_router())
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]

@@ -7,5 +7,5 @@ pub use by_path::*;
 mod latest;
 pub use latest::*;
 
-mod add_mood;
-pub use add_mood::*;
+mod mood;
+pub use mood::*;
