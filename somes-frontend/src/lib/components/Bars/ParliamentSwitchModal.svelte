@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Dialog } from 'bits-ui';
-	import austriaMapIcon from '$lib/assets/misc_icons/austria-map.svg?raw';
-	import euMapIcon from '$lib/assets/misc_icons/eu-map.svg?raw';
+	import austriaFlagIcon from '$lib/assets/parliament_switch/austria_map_flag.svg?raw';
+	import euFlagIcon from '$lib/assets/parliament_switch/EU_map_flag.svg?raw';
 	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
 	import { goto } from '$app/navigation';
 	import { getParliament, type Parliament } from '$lib/api/parliament';
@@ -21,8 +21,8 @@
 	});
 
 	const options: { id: Parliament; icon: string }[] = [
-		{ id: 'at', icon: austriaMapIcon },
-		{ id: 'eu', icon: euMapIcon }
+		{ id: 'at', icon: austriaFlagIcon },
+		{ id: 'eu', icon: euFlagIcon }
 	];
 
 	function choose(p: Parliament) {
