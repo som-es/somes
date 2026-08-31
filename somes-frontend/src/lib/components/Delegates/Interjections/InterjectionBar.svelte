@@ -27,7 +27,7 @@
 
 {#if !loading && delegate}
 	<div
-		class="flex w-full items-center gap-4 rounded-lg bg-primary-400 p-3 shadow-md dark:bg-primary-600"
+		class="flex w-full items-center gap-4 rounded-lg bg-primary-200 p-3 shadow-md transition-colors hover:bg-primary-400 dark:bg-primary-600 dark:hover:bg-primary-700"
 	>
 		<div
 			class="flex min-w-28 flex-col items-center justify-center border-r border-primary-500/50 pr-4"

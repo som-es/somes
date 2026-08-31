@@ -30,7 +30,7 @@
 {#if !loading && voteResult}
 	<VoteResultExpandableBar
 		{voteResult}
-		coloring="bg-primary-400 dark:bg-primary-300 text-black! "
+		coloring="bg-primary-200 hover:bg-primary-400 dark:bg-primary-300 dark:hover:bg-primary-400 text-black! "
 	/>
 {/if}
 <!--

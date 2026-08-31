@@ -36,6 +36,6 @@
 {#each previewGovProposals as govProposal}
 	<GovProposalExpandableBar
 		govProposal={{ gov_proposal: govProposal, delegates: [delegate] }}
-		coloring={'dark:bg-primary-300 bg-primary-400 text-black'}
+		coloring={'bg-primary-200 hover:bg-primary-400 dark:bg-primary-300 dark:hover:bg-primary-400 text-black'}
 	/>
 {/each}

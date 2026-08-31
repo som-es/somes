@@ -45,7 +45,7 @@
 	{#each paginatedGovProposals as govProposal}
 		<GovProposalExpandableBar
 			govProposal={{ gov_proposal: govProposal, delegate }}
-			coloring={'dark:bg-primary-300 bg-primary-400 text-black'}
+			coloring={'bg-primary-400 hover:bg-primary-500 dark:bg-primary-300 dark:hover:bg-primary-400 text-black'}
 		/>
 	{/each}
 	<div class="float-right">

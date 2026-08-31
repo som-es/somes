@@ -110,7 +110,9 @@
 			{#each interjections as interjection (interjection)}
 				<Popover.Root>
 					<Popover.Trigger>
-						<div class="mr-4 mb-4 badge bg-primary-400 px-3 py-0.5 text-sm dark:bg-primary-600">
+						<div
+							class="mr-4 mb-4 badge bg-primary-400 px-3 py-0.5 text-sm transition-colors hover:bg-primary-500 dark:bg-primary-600 dark:hover:bg-primary-700"
+						>
 							<div class="mt-1 max-h-24 overflow-hidden text-wrap">
 								{interjection.interjection_text}
 							</div>
