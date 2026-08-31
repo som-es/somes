@@ -12,7 +12,7 @@ use crate::{AppState, PgPoolConnection, jwt::Claims, routes::UserError};
 pub fn create_proposal_mood_router() -> Router<AppState> {
     Router::new()
         .route("/", post(add_mood_value_route))
-        .route("/", get(add_mood_value_route))
+        .route("/", get(mood_values_for_gov_prop))
 }
 
 pub async fn mood_values_for_gov_prop(
