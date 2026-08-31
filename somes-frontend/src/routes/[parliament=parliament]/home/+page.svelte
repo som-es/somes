@@ -285,7 +285,7 @@
 					<DecreeBar
 						{decree}
 						showDelegate
-						coloring="bg-primary-300 dark:bg-primary-500 dark:text-white"
+						coloring="bg-primary-300 hover:bg-primary-400 dark:bg-primary-500 dark:hover:bg-primary-600 dark:text-white"
 					/>
 				{/each}
 			{/if}
@@ -299,7 +299,7 @@
 					<DecreeBar
 						{decree}
 						showDelegate
-						coloring="bg-primary-300 dark:bg-primary-500 dark:text-white"
+						coloring="bg-primary-300 hover:bg-primary-400 dark:bg-primary-500 dark:hover:bg-primary-600 dark:text-white"
 					/>
 				{/each}
 			{/if}

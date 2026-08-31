@@ -53,8 +53,8 @@
 <div class="mt-5">
 	<!-- svelte-ignore a11y_no_noninteractive_tabindex (tabindex is only set when role="button" is too) -->
 	<div
-		class="entry flex items-stretch overflow-hidden bg-primary-200 text-black transition-colors dark:bg-primary-400 {hasDetails
-			? 'hover:bg-primary-400 dark:hover:bg-primary-500'
+		class="entry flex items-stretch overflow-hidden bg-primary-200 text-black transition-colors dark:bg-primary-300 {hasDetails
+			? 'hover:bg-primary-400 dark:hover:bg-primary-400'
 			: ''}"
 		role={hasDetails ? 'button' : undefined}
 		tabindex={hasDetails ? 0 : undefined}

@@ -190,6 +190,7 @@
 		abstention_count: sortedVotes.reduce((sum, v) => sum + v.abstention_count, 0),
 		absence_count: 0
 	});
+	const totalAbsences = $derived(sortedVotes.reduce((sum, v) => sum + v.absence_count, 0));
 
 	let allSpeeches = $derived(voteResult?.speeches ?? []);
 	let date = $derived(
@@ -642,10 +643,11 @@
 									<div
 										class="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400"
 									>
-										{#each [{ label: t('donut.inFavor'), color: VOTE_COLORS.infavor }, { label: t('donut.against'), color: VOTE_COLORS.against }, { label: t('donut.abstention'), color: VOTE_COLORS.abstention }, { label: t('donut.absent'), color: VOTE_COLORS.absent }] as item (item.label)}
-											<span class="flex items-center gap-1.5">
-												<span class="h-2 w-2 rounded-full" style="background-color: {item.color};"
-												></span>
+										{#each [{ label: t('donut.inFavor'), color: VOTE_COLORS.infavor, count: totalVote.infavor_count }, { label: t('donut.against'), color: VOTE_COLORS.against, count: totalVote.against_count }, { label: t('donut.abstention'), color: VOTE_COLORS.abstention, count: totalVote.abstention_count }, { label: t('donut.absent'), color: VOTE_COLORS.absent, count: totalAbsences }] as item (item.label)}
+											<span class="flex items-center gap-1">
+												<span class="font-semibold tabular-nums" style="color: {item.color};"
+													>{item.count}</span
+												>
 												{item.label}
 											</span>
 										{/each}

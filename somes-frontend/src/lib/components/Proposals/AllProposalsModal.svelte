@@ -35,7 +35,7 @@
 
 <div class="max-w-7xl card p-8">
 	<div class="flex items-center justify-between">
-		<h1 class="text-2xl font-bold">{t('proposals.all.title')}</h1>
+		<h1 class="text-xl font-bold lg:text-2xl">{t('proposals.all.title')}</h1>
 		<Dialog.Close>
 			<ModalCloseButton />
 		</Dialog.Close>
@@ -45,7 +45,7 @@
 	{#each paginatedGovProposals as govProposal}
 		<GovProposalExpandableBar
 			govProposal={{ gov_proposal: govProposal, delegate }}
-			coloring={'dark:bg-primary-300 bg-primary-400 text-black'}
+			coloring={'bg-primary-400 hover:bg-primary-500 dark:bg-primary-300 dark:hover:bg-primary-400 text-black'}
 		/>
 	{/each}
 	<div class="float-right">

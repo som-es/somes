@@ -15,7 +15,7 @@
 </script>
 
 <a
-	class="mt-2 flex w-full flex-col rounded-xl bg-primary-400 p-3 transition-colors hover:bg-primary-500 lg:flex-row lg:items-center lg:justify-between dark:bg-primary-300 dark:text-black dark:hover:bg-primary-400 {extraClass}"
+	class="mt-2 flex w-full flex-col rounded-xl bg-primary-200 p-3 transition-colors hover:bg-primary-400 lg:flex-row lg:items-center lg:justify-between dark:bg-primary-300 dark:text-black dark:hover:bg-primary-400 {extraClass}"
 	href={voteResult ? createVoteResultPath(voteResult) : undefined}
 	onclick={() => {
 		if (voteResult) currentVoteResultStore.value = voteResult;

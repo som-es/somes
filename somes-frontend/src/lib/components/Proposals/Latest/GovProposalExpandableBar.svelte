@@ -13,7 +13,8 @@
 
 	export let govProposal: GovProposalDelegate;
 	export let showDelegate: boolean = false;
-	export let coloring: string = 'bg-primary-300 dark:bg-primary-500 text-black dark:text-white';
+	export let coloring: string =
+		'bg-primary-300 hover:bg-primary-400 dark:bg-primary-500 dark:hover:bg-primary-600 text-black dark:text-white';
 	export let parliament: Parliament = getParliament();
 	// export let dels: Delegate[];
 	let clazz = '';
@@ -50,7 +51,7 @@
 			onkeypress={toggleOpen}
 			role="button"
 			tabindex="0"
-			class="entry flex items-center justify-between {coloring}"
+			class="entry flex items-center justify-between transition-colors {coloring}"
 		>
 			<!-- <div>
 			<div id={open ? 'open' : 'closed'}>

@@ -25,7 +25,7 @@
 	let {
 		voteResult,
 		class: clazz,
-		coloring = 'bg-primary-300 dark:bg-primary-500',
+		coloring = 'bg-primary-300 hover:bg-primary-400 dark:bg-primary-500 dark:hover:bg-primary-600',
 		unexpandable = false
 	}: Props = $props();
 
@@ -55,7 +55,7 @@
 		onkeypress={toggleOpen}
 		role="button"
 		tabindex="0"
-		class="entry block {coloring}"
+		class="entry block transition-colors {coloring}"
 	>
 		<div class="flex">
 			<div class="flex w-full flex-wrap items-start justify-between gap-2 lg:flex-nowrap">

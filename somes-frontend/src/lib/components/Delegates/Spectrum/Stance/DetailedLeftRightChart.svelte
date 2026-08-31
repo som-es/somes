@@ -13,7 +13,7 @@
 
 <div class="card p-4 sm:p-8">
 	<div class="flex items-start justify-between gap-2">
-		<span class="min-w-0 flex-1 text-xl font-bold sm:text-2xl">Richtung</span>
+		<span class="min-w-0 flex-1 text-xl font-bold lg:text-2xl">Richtung</span>
 		<Dialog.Close>
 			<ModalCloseButton />
 		</Dialog.Close>

@@ -4,9 +4,8 @@
 	import somesWithText from '$lib/assets/somes_with_text2.svg?raw';
 	import Sidebar from '$lib/components/Bars/Sidebar.svelte';
 	import Navbar from '$lib/components/Bars/Navbar.svelte';
-	import { onMount } from 'svelte';
 	import { resolve } from '$app/paths';
-	import { lightModeStore } from '$lib/lightmode.svelte';
+	import { syncTheme } from '$lib/lightmode.svelte';
 	import RenewToken from '$lib/components/Login/RenewToken.svelte';
 	import LoginDrawer from '$lib/components/Login/LoginDrawer.svelte';
 	import ParliamentSwitchModal from '$lib/components/Bars/ParliamentSwitchModal.svelte';
@@ -30,13 +29,7 @@
 		return path.includes('decree') ? 'layout.disclaimer.ris' : 'layout.disclaimer.publicData';
 	});
 
-	onMount(() => {
-		document.documentElement.classList.toggle(
-			'dark',
-			lightModeStore.value === 'dark' ||
-				(!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
-		);
-	});
+	$effect(() => syncTheme());
 </script>
 
 <RenewToken />
