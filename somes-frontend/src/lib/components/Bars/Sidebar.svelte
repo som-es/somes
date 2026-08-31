@@ -3,6 +3,7 @@
 	import delegatesIcon from '$lib/assets/icons/delegates.svg?raw';
 	import statisticsIcon from '$lib/assets/icons/statistics.svg?raw';
 	import somesIcon from '$lib/assets/somes_icon.svg?raw';
+	import somesEuIcon from '$lib/assets/somes_icon_eu.svg?raw';
 	import { page } from '$app/state';
 
 	import { resolve } from '$app/paths';
@@ -201,7 +202,7 @@
 			class="mt-4 flex items-center justify-center rounded-xl fill-white stroke-white hover:cursor-pointer"
 		>
 			<span class="mt-3 flex w-10 items-center justify-center fill-white stroke-white!">
-				{@html somesIcon}
+				{@html parliament === 'eu' ? somesEuIcon : somesIcon}
 			</span>
 		</a>
 		<a
