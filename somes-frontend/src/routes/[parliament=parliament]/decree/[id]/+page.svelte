@@ -37,11 +37,14 @@
 			gp: decreeDelegate.decree.gp!
 		};
 	});
+
+	const title = $derived(ministerialData?.aiSummary !== null ? ministerialData?.aiSummary?.short_title : ministerialData.alternativeTitle);
+	const content = $derived(ministerialData?.aiSummary !== null ? ministerialData?.aiSummary?.very_detailed_summary : ministerialData.alternativeTitle);
 </script>
 
 <svelte:head>
-	<title>{t('decree.meta.title')}</title>
-	<meta name="description" content={t('decree.meta.description')} />
+	<title>{title}</title>
+	<meta name="description" {content} />
 </svelte:head>
 
 <Container>

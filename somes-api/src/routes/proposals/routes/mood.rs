@@ -18,7 +18,7 @@ pub fn create_proposal_mood_router() -> Router<AppState> {
 pub async fn mood_values_for_gov_prop(
     PgPoolConnection(pg): PgPoolConnection,
     Path((gp, inr)): Path<(String, i32)>,
-) -> Result<Json<MoodBarometer>, UserError> {
+) -> Result<Json<Option<MoodBarometer>>, UserError> {
     let barometer = extract_barometer_sqlx(&pg, &gp, inr).await?;
     Ok(Json(barometer))
 }
@@ -27,7 +27,7 @@ async fn extract_barometer_sqlx(
     pg: &sqlx::Pool<sqlx::Postgres>,
     gp: &str,
     inr: i32,
-) -> Result<MoodBarometer, UserError> {
+) -> Result<Option<MoodBarometer>, UserError> {
     let barometer = sqlx::query_as!(
         MoodBarometer,
         r#"
@@ -50,7 +50,7 @@ async fn extract_barometer_sqlx(
         gp,
         inr
     )
-    .fetch_one(pg)
+    .fetch_optional(pg)
     .await
     .map_err(UserError::SqlFailure)?;
     Ok(barometer)
@@ -67,6 +67,12 @@ pub async fn add_mood_value_route(
     Path((gp, inr)): Path<(String, i32)>,
     Json(add_mood): Json<AddMoodValue>,
 ) -> Result<Json<MoodBarometer>, UserError> {
+    if add_mood.user_mood < -1. || add_mood.user_mood > 1. {
+        return Err(UserError::Custom(
+            StatusCode::BAD_REQUEST,
+            "user mood out of range (must be between -1 and 1".into(),
+        ));
+    }
     let gov_prop_id: Option<i32> = sqlx::query_scalar!(
         "select id from ministrial_proposals where gp = $1 and inr = $2",
         gp,
@@ -141,7 +147,7 @@ pub async fn add_mood_value_route(
 
     let barometer = extract_barometer_sqlx(&pg, &gp, inr).await?;
 
-    Ok(Json(barometer))
+    Ok(Json(barometer.unwrap()))
 }
 
 #[cfg(test)]

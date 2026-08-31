@@ -198,24 +198,16 @@
 			? voteResult?.legislative_initiative?.vote_date
 			: voteResult?.legislative_initiative?.nr_plenary_activity_date
 	);
+	const title = $derived(voteResult?.ai_summary !== null ? voteResult?.ai_summary?.short_title : voteResult.legislative_initiative.description);
+	const content = $derived(voteResult?.ai_summary !== null ? voteResult?.ai_summary?.very_detailed_summary : voteResult.legislative_initiative.description);
 </script>
 
 <svelte:head>
-	<title>{t('vote_result.title')}</title>
-	<meta name="description" content={t('vote_result.meta')} />
-</svelte:head>
-
-{#if browser}
 	<title>
-		{#if voteResult}
-			{#if aiViewEnabledStore.value && voteResult.ai_summary}
-				{voteResult.ai_summary.short_title}
-			{:else}
-				{description}
-			{/if}
-		{/if}
+		{title}
 	</title>
-{/if}
+	<meta name="description" {content} />
+</svelte:head>
 
 <Container>
 	{#if voteResult}
@@ -231,7 +223,7 @@
 							<!-- Title & Date Stack -->
 							<div class="flex min-w-0 flex-col">
 								<div class="flex items-start gap-2">
-									<span
+									<h1
 										class="text-xl leading-tight font-bold lg:text-3xl"
 										style="hyphens: auto; word-break: break-word; overflow-wrap: break-word;"
 									>
@@ -241,7 +233,7 @@
 										{:else}
 											{description}
 										{/if}
-									</span>
+									</h1>
 								</div>
 
 								{#if voteResult.legislative_initiative.accepted && voteResult.legislative_initiative.vote_date}

@@ -16,7 +16,10 @@ fn claims(id: i32) -> Claims {
 
 #[sqlx::test(fixtures("fixtures/mood_barometer_base.sql"))]
 async fn test_extract_barometer_sqlx_aggregates_user_moods(pool: PgPool) {
-    let barometer = extract_barometer_sqlx(&pool, "2024-25", 1).await.unwrap();
+    let barometer = extract_barometer_sqlx(&pool, "2024-25", 1)
+        .await
+        .unwrap()
+        .unwrap();
 
     assert_eq!(barometer.gov_prop_id, 1);
     assert_eq!(barometer.mood_id, 1);
@@ -39,7 +42,10 @@ async fn test_extract_barometer_sqlx_aggregates_user_moods(pool: PgPool) {
 
 #[sqlx::test(fixtures("fixtures/mood_barometer_base.sql"))]
 async fn test_extract_barometer_sqlx_without_user_moods(pool: PgPool) {
-    let barometer = extract_barometer_sqlx(&pool, "2024-25", 2).await.unwrap();
+    let barometer = extract_barometer_sqlx(&pool, "2024-25", 2)
+        .await
+        .unwrap()
+        .unwrap();
 
     assert_eq!(barometer.gov_prop_id, 2);
     assert_close(barometer.auto_mood, 0.1);
@@ -67,6 +73,7 @@ async fn test_mood_values_for_gov_prop_route_returns_barometer(pool: PgPool) {
     )
     .await
     .unwrap();
+    let barometer = barometer.unwrap();
 
     assert_eq!(barometer.gov_prop_id, 1);
     assert_eq!(barometer.mood_id, 1);
