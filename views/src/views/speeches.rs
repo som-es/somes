@@ -1,4 +1,4 @@
-use combx::{DbSpeechAiSummary, DbSpeechRelations};
+use combx::{DbInterjection, DbSpeechAiSummary, DbSpeechRelations};
 use somes_common_lib::ToCompositeType;
 use sqlx::{Postgres, Transaction};
 
@@ -18,6 +18,18 @@ pub async fn create_speeches_view<'a>(
     let relation_fields = DbSpeechRelations::field_orders()
         .into_iter()
         .map(|field| format!("sr.{field}"))
+        .collect::<Vec<_>>()
+        .join(" ,");
+
+    let interjection_fields = DbInterjection::field_orders()
+        .into_iter()
+        .map(|field| {
+            if field == r#""date""# {
+                "pi.raw_data_created_at".into()
+            } else {
+                format!("ij.{field}")
+            }
+        })
         .collect::<Vec<_>>()
         .join(" ,");
 
@@ -81,7 +93,16 @@ pub async fn create_speeches_view<'a>(
             JOIN speech_ai_summaries sai ON sai.id = sr.speech_ai_summary_id
             WHERE sai.speech_id = ps_top.id
             ORDER BY sr.legis_init_id, sr.generated_at DESC
-        ) AS \"relations: Vec<DbSpeechRelations>\"
+        ) AS \"relations: Vec<DbSpeechRelations>\",
+        ARRAY(
+            SELECT
+                ROW({interjection_fields})::db_interjection
+            from interjections ij
+            JOIN debates deb ON deb.id = ps_top.debate_id
+            JOIN plenar_infos pi ON pi.id = deb.plenar_id
+            WHERE ij.plenar_speech_id = ps_top.id
+            ORDER BY ij.interjector_delegate_id
+        ) AS \"received_interjections: Vec<DbInterjection>\"
         FROM
             plenar_speeches ps_top
     ",

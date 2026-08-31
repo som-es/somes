@@ -1,5 +1,14 @@
 import type { CriticalAnalysis, Glossary } from './ai_summary_types';
 
+export interface DbInterjection {
+  interjection_text: string | null;
+  interjector_delegate_id: number;
+  plenar_speech_id: number;
+  rel_start_idx: number;
+  rel_end_idx: number;
+  delegate_matching_id: number;
+}
+
 export interface FullSpeech {
 	id: number;
 	debate_id: number;
@@ -7,6 +16,7 @@ export interface FullSpeech {
 	speech: DbSpeechWithLink;
 	ai_summary: DbSpeechAiSummary | null;
 	relations: DbSpeechRelations[];
+  interjections: DbInterjection[];
 }
 
 export interface DbSpeechWithLink {
