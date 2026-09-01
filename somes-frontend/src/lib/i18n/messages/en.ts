@@ -896,5 +896,37 @@ export const en = {
 	'qa.noResults': 'No questions found.',
 	'qa.answer': 'Answer',
 	'qa.askFromTitle': 'What do you want to know from:',
-	'qa.notFound': 'This question could not be found.'
+	'qa.notFound': 'This question could not be found.',
+	'qa.ask.title': 'Your question to {name}',
+	'qa.ask.step.question': 'Your question',
+	'qa.ask.step.data': 'Your data',
+	'qa.ask.step.review': 'Review',
+	'qa.ask.subject': 'Subject',
+	'qa.ask.subjectPlaceholder': 'What is it about?',
+	'qa.ask.body': 'Your question',
+	'qa.ask.bodyPlaceholder': 'Write your question to {name}...',
+	'qa.ask.next': 'Next',
+	'qa.ask.back': 'Back',
+	'qa.ask.missingFields': 'Please enter a subject and your question.',
+	'qa.ask.loginRequired': 'Please log in to ask a question.',
+	'qa.ask.loginLink': 'Go to login',
+	'qa.ask.loggedInAs': 'Logged in as',
+	'qa.ask.emailAnonymized': 'anonymized email address',
+	'qa.ask.dataHint.review': 'Your question is reviewed before it is sent.',
+	'qa.ask.dataHint.mail':
+		'After approval it is forwarded via email to the delegate or their party office.',
+	'qa.ask.dataHint.anonymous':
+		'On somes your question appears anonymously — your name and email address are never published.',
+	'qa.ask.recipient': 'Recipient',
+	'qa.ask.recipientParty':
+		'The question will be sent to {name} because no direct email address is available for this person.',
+	'qa.ask.recipientDelegate':
+		'After approval your question is sent directly to the delegate via email.',
+	'qa.ask.recipientMissing': 'No question recipient is configured for this person at the moment.',
+	'qa.ask.submit': 'Submit question',
+	'qa.ask.submitting': 'Submitting...',
+	'qa.ask.success':
+		'Your question was successfully submitted for review. After approval it will be forwarded via email.',
+	'qa.ask.toOverview': 'To Questions & Answers',
+	'qa.ask.delegateNotFound': 'This person could not be found.'
 } as const;

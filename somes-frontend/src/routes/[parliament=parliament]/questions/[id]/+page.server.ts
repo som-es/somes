@@ -1,5 +1,5 @@
 import type { Parliament } from '$lib/api/parliament';
-import { loadQuestionEntry } from '$lib/components/Questions/data';
+import { loadFullQuestionDelegate, loadQuestionEntry } from '$lib/components/Questions/data';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ fetch, params, setHeaders }) => {
@@ -10,5 +10,10 @@ export const load: PageServerLoad = async ({ fetch, params, setHeaders }) => {
 		});
 	}
 
-	return { entry: await loadQuestionEntry(fetch, parliament, params.id) };
+	const entry = await loadQuestionEntry(fetch, parliament, params.id);
+	const fullDelegate = entry?.delegate
+		? await loadFullQuestionDelegate(fetch, parliament, entry.delegate.id)
+		: null;
+
+	return { entry, fullDelegate };
 };

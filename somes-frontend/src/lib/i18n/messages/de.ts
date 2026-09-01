@@ -930,5 +930,37 @@ export const de = {
 	'qa.noResults': 'Keine Fragen gefunden.',
 	'qa.answer': 'Antwort',
 	'qa.askFromTitle': 'Was möchtest du wissen von:',
-	'qa.notFound': 'Diese Frage wurde nicht gefunden.'
+	'qa.notFound': 'Diese Frage wurde nicht gefunden.',
+	'qa.ask.title': 'Deine Frage an {name}',
+	'qa.ask.step.question': 'Deine Frage',
+	'qa.ask.step.data': 'Deine Daten',
+	'qa.ask.step.review': 'Übersicht',
+	'qa.ask.subject': 'Betreff',
+	'qa.ask.subjectPlaceholder': 'Worum geht es?',
+	'qa.ask.body': 'Deine Frage',
+	'qa.ask.bodyPlaceholder': 'Formuliere deine Frage an {name}...',
+	'qa.ask.next': 'Weiter',
+	'qa.ask.back': 'Zurück',
+	'qa.ask.missingFields': 'Bitte gib einen Betreff und deine Frage ein.',
+	'qa.ask.loginRequired': 'Bitte melde dich an, um eine Frage zu stellen.',
+	'qa.ask.loginLink': 'Zur Anmeldung',
+	'qa.ask.loggedInAs': 'Angemeldet als',
+	'qa.ask.emailAnonymized': 'anonymisierte E-Mail-Adresse',
+	'qa.ask.dataHint.review': 'Deine Frage wird vor dem Versand redaktionell geprüft.',
+	'qa.ask.dataHint.mail':
+		'Nach der Freigabe wird sie per E-Mail an die Person bzw. den Parteiklub weitergeleitet.',
+	'qa.ask.dataHint.anonymous':
+		'Auf somes erscheint deine Frage anonym — dein Name und deine E-Mail-Adresse werden nicht veröffentlicht.',
+	'qa.ask.recipient': 'Empfänger:in',
+	'qa.ask.recipientParty':
+		'Die Frage wird an den {name} gesendet, weil für diese Person keine direkte E-Mail-Adresse hinterlegt ist.',
+	'qa.ask.recipientDelegate':
+		'Deine Frage wird nach Freigabe als E-Mail direkt an die Person gesendet.',
+	'qa.ask.recipientMissing': 'Für diese Person ist derzeit kein Empfänger für Fragen hinterlegt.',
+	'qa.ask.submit': 'Frage einreichen',
+	'qa.ask.submitting': 'Wird eingereicht...',
+	'qa.ask.success':
+		'Deine Frage wurde erfolgreich zur Prüfung eingereicht. Nach der Freigabe wird sie per E-Mail weitergeleitet.',
+	'qa.ask.toOverview': 'Zu den Fragen & Antworten',
+	'qa.ask.delegateNotFound': 'Diese Person wurde nicht gefunden.'
 } as const;

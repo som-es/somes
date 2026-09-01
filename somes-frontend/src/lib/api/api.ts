@@ -165,9 +165,15 @@ export async function delegates(): Promise<Delegate[] | HasError> {
 }
 
 export async function delegate_question_recipient(
-	delegateId: number
+	delegateId: number,
+	fetcher: typeof fetch = fetch,
+	parliament: Parliament = getParliament()
 ): Promise<DelegateQuestionRecipient | HasError> {
-	return getWithRoute(`v1/delegate_questions/delegate/${delegateId}/question_recipient`);
+	return getWithRoute(
+		`v1/delegate_questions/delegate/${delegateId}/question_recipient`,
+		parliament,
+		fetcher
+	);
 }
 
 export async function all_delegate_questions(

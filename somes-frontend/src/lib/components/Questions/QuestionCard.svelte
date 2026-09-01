@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { latestAnswer, questionSlug, type DelegateQuestionView } from './types';
+	import QuestionAnswer from './QuestionAnswer.svelte';
 	import { t } from '$lib/i18n/i18n.svelte';
 	import { formatDate } from '$lib/date';
-	import { partyToColor } from '$lib/partyColor';
 	import { plink } from '$lib/api/parliament';
 
 	interface Props {
@@ -16,15 +16,6 @@
 	const delegate = $derived(entry.delegate);
 	const answer = $derived(latestAnswer(question));
 	const detailLink = $derived(plink(`/questions/${questionSlug(question)}`));
-
-	const party = $derived(delegate?.party ?? null);
-	const initials = $derived(
-		delegate?.name
-			.split(' ')
-			.map((part) => part[0])
-			.slice(0, 2)
-			.join('') ?? ''
-	);
 </script>
 
 <div class="rounded-xl bg-primary-300 p-4 shadow-sm sm:p-5 dark:bg-primary-500 {className}">
@@ -39,31 +30,11 @@
 
 	<!-- Latest answer -->
 	{#if answer}
-		<div class="mt-3 rounded-xl bg-surface-50 p-3 sm:p-4 dark:bg-surface-600">
-			<div class="flex items-center gap-2.5">
-				<div
-					class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white"
-					style="background-color: {partyToColor(party)};"
-				>
-					{initials}
-				</div>
-				<div class="flex flex-col overflow-hidden">
-					<span class="truncate leading-tight font-medium">{delegate?.name ?? ''}</span>
-					{#if party}
-						<div class="mt-0.5 flex items-center gap-1.5">
-							<div
-								class="h-2 w-2 shrink-0 rounded-full"
-								style="background-color: {partyToColor(party)};"
-							></div>
-							<span class="truncate text-xs text-gray-700 dark:text-gray-300">{party}</span>
-						</div>
-					{/if}
-				</div>
-			</div>
-			<p class="mt-2 line-clamp-3 text-sm sm:text-base">
-				{answer.body}
-			</p>
-		</div>
+		<QuestionAnswer
+			{answer}
+			{delegate}
+			class="mt-3 bg-surface-50 dark:bg-surface-600 [&>p]:line-clamp-3"
+		/>
 	{/if}
 
 	<!-- Read more / unanswered -->
