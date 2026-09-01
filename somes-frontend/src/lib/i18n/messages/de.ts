@@ -28,6 +28,7 @@ export const de = {
 	'nav.decrees': 'Verordnungen',
 	'nav.delegates': 'Abgeordnete',
 	'nav.statistics': 'Statistiken',
+	'nav.questions': 'Fragen & Antworten',
 	'nav.profile': 'Benutzerprofil',
 	'nav.history': 'Abstimmungshistorie',
 	'nav.speeches': 'Reden',
@@ -911,5 +912,24 @@ export const de = {
 	'aiChat.placeholder': 'Stelle deine Frage...',
 	'aiChat.send': 'Senden',
 	'interests.detail.title': 'Detailierte Interessen',
-	'interests.detail.subtitle': 'meist behandelte Themen'
+	'interests.detail.subtitle': 'meist behandelte Themen',
+	// --- Fragen & Antworten ---
+	'qa.title': 'Fragen & Antworten',
+	'qa.updated': 'Aktualisiert am: {date}',
+	'qa.meta.description':
+		'Stelle Fragen an Politiker:innen und lies ihre öffentlichen Antworten.',
+	'qa.tab.latestAnswers': 'Neuste Antworten',
+	'qa.tab.latestQuestions': 'Neuste Fragen',
+	'qa.tab.unanswered': 'Unbeantwortet',
+	'qa.filter': 'Filter',
+	'qa.questionFrom': 'Frage von {name}',
+	'qa.readMore': 'Weiterlesen',
+	'qa.unansweredHint': 'Noch keine Antwort',
+	'qa.askTitle': 'Stelle auch du eine Frage!',
+	'qa.askButton': 'Frage stellen!',
+	'qa.noResults': 'Keine Fragen gefunden.',
+	'qa.council.eu': 'EU-Parlament',
+	'qa.answer': 'Antwort',
+	'qa.askFromTitle': 'Was möchtest du wissen von:',
+	'qa.notFound': 'Diese Frage wurde nicht gefunden.'
 } as const;
