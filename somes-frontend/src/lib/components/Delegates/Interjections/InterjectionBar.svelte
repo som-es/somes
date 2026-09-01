@@ -3,6 +3,7 @@
 	import { delegate_by_id, errorToNull } from '$lib/api/api';
 	import { partyToColor } from '$lib/partyColor';
 	import type { Delegate, Interjection } from '$lib/types';
+	import SpeechModal from '../Speeches/SpeechModal.svelte';
 
 	interface Props {
 		interjection: Interjection;
@@ -13,6 +14,7 @@
 
 	let delegate = $state<Delegate | null>(null);
 	let loading = $state(true);
+	let modalOpen = $state(false);
 
 	$effect(() => {
 		loading = true;
@@ -27,7 +29,12 @@
 
 {#if !loading && delegate}
 	<div
-		class="flex w-full items-center gap-4 rounded-lg bg-primary-200 p-3 shadow-md transition-colors hover:bg-primary-400 dark:bg-primary-600 dark:hover:bg-primary-700"
+		class="flex w-full cursor-pointer items-center gap-4 rounded-lg bg-primary-200 p-3 shadow-md transition-colors hover:bg-primary-400 dark:bg-primary-600 dark:hover:bg-primary-700"
+		role="button"
+		tabindex="0"
+		title={t('interjections.openSpeech')}
+		onclick={() => (modalOpen = true)}
+		onkeypress={(e) => (e.key === 'Enter' || e.key === ' ') && (modalOpen = true)}
 	>
 		<div
 			class="flex min-w-28 flex-col items-center justify-center border-r border-primary-500/50 pr-4"
@@ -60,4 +67,6 @@
 			{/if}
 		</div>
 	</div>
+
+	<SpeechModal speech={interjection.plenar_speech_id} bind:open={modalOpen} />
 {/if}
