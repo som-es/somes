@@ -3,7 +3,7 @@ use axum::{
     extract::Path,
     routing::{get, post},
 };
-use combx::api_models::MoodBarometer;
+use combx::api_models::{DbUserMood, MoodBarometer};
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 
@@ -12,10 +12,23 @@ use crate::{AppState, PgPoolConnection, jwt::Claims, routes::UserError};
 pub fn create_proposal_mood_router() -> Router<AppState> {
     Router::new()
         .route("/", post(add_mood_value_route))
-        .route("/", get(mood_values_for_gov_prop))
+        .route("/", get(mood_values_for_gov_prop_route))
+        .route("/user", get(user_mood_for_gov_prop_route))
 }
 
-pub async fn mood_values_for_gov_prop(
+pub async fn user_mood_for_gov_prop_route(
+    PgPoolConnection(pg): PgPoolConnection,
+    claims: Claims,
+    Path((gp, inr)): Path<(String, i32)>,
+) -> Result<Json<Option<DbUserMood>>, UserError> {
+    let user_mood = sqlx::query_as!(DbUserMood, "
+        select id, user_mood, user_id, mood_id, created_at, updated_at from user_mood where user_id = $1
+    ", claims.id).fetch_optional(&pg).await
+    .map_err(UserError::SqlFailure)?;
+    Ok(Json(user_mood))
+}
+
+pub async fn mood_values_for_gov_prop_route(
     PgPoolConnection(pg): PgPoolConnection,
     Path((gp, inr)): Path<(String, i32)>,
 ) -> Result<Json<Option<MoodBarometer>>, UserError> {

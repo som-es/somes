@@ -65,7 +65,10 @@ fn connect_redis(db_id: u32) -> ServerResult<redis::Client> {
         let mut con = client.get_connection()?;
         redis::cmd("FLUSHALL").query::<()>(&mut con)?;
     }
-    info!("Established redis database connection to {}.", REDIS_DB.as_str());
+    info!(
+        "Established redis database connection to {}.",
+        REDIS_DB.as_str()
+    );
     Ok(client)
 }
 
@@ -260,8 +263,10 @@ pub async fn serve(addr: SocketAddr) -> ServerResult<()> {
     let dataservice_sqlx_pool = connect_dataservice("DATASERVICE_URL").await?;
     let eu_dataservice_sqlx_pool = connect_dataservice("EU_DATASERVICE_URL").await?;
 
-    let meilisearch_client =
-        meilisearch_sdk::client::Client::new(MEILISEARCH_URL.as_str(), Some(MEILISEARCH_SECRET.as_str()))?;
+    let meilisearch_client = meilisearch_sdk::client::Client::new(
+        MEILISEARCH_URL.as_str(),
+        Some(MEILISEARCH_SECRET.as_str()),
+    )?;
 
     let topics_mapper = TopicsMapper::new(&dataservice_sqlx_pool).await?;
 
