@@ -21,9 +21,24 @@ pub async fn user_mood_for_gov_prop_route(
     claims: Claims,
     Path((gp, inr)): Path<(String, i32)>,
 ) -> Result<Json<Option<DbUserMood>>, UserError> {
+    let gov_prop_id: Option<i32> = sqlx::query_scalar!(
+        "select id from ministrial_proposals where gp = $1 and inr = $2",
+        gp,
+        inr
+    )
+    .fetch_optional(&pg)
+    .await
+    .map_err(UserError::SqlFailure)?;
+
+    let gov_prop_id = gov_prop_id.ok_or(UserError::Custom(
+        StatusCode::NOT_FOUND,
+        "gov proposal not found".into(),
+    ))?;
     let user_mood = sqlx::query_as!(DbUserMood, "
-        select id, user_mood, user_id, mood_id, created_at, updated_at from user_mood where user_id = $1
-    ", claims.id).fetch_optional(&pg).await
+        select user_mood.id, user_mood, user_id, user_mood.mood_id, created_at, updated_at from user_mood 
+            join gov_prop_mood gm on gm.mood_id = user_mood.mood_id
+        where user_id = $1 and gm.gov_prop_id = $2
+    ", claims.id, gov_prop_id).fetch_optional(&pg).await
     .map_err(UserError::SqlFailure)?;
     Ok(Json(user_mood))
 }
