@@ -508,7 +508,7 @@ export const de = {
 	'user.noFavoriteVotes': 'Keine favorisierten Abstimmungen vorhanden.',
 	'user.mcp.title': 'MCP-Zugang',
 	'user.mcp.description':
-		'Verbinde KI-Assistenten (z.B. Claude) über das Model Context Protocol (MCP) mit somes. Erstelle dazu einen persönlichen Zugriffstoken.',
+		'Verbinde KI-Assistenten (z.B. Claude, ChatGPT) über das Model Context Protocol (MCP) mit somes. Erstelle dazu einen persönlichen Zugriffstoken.',
 	'user.mcp.statusActive': 'Ein MCP-Token ist aktiv',
 	'user.mcp.statusNone': 'Kein MCP-Token vorhanden',
 	'user.mcp.generate': 'Token erstellen',
@@ -926,6 +926,9 @@ export const de = {
 	'filter.topics.prefillInterests': 'Interessen',
 	'aiChat.placeholder': 'Stelle deine Frage...',
 	'aiChat.send': 'Senden',
+	'aiChat.mcpHint':
+		'Hinweis: Du kannst auch deinen eigenen KI-Assistenten (z.B. Claude, ChatGPT) über MCP mit somes verbinden.',
+	'aiChat.mcpHintLink': 'Token im Benutzerprofil erstellen',
 	'interests.detail.title': 'Detailierte Interessen',
 	'interests.detail.subtitle': 'meist behandelte Themen'
 } as const;

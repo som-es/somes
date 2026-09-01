@@ -503,7 +503,7 @@ export const en = {
 	'user.noFavoriteVotes': 'No favourited votes.',
 	'user.mcp.title': 'MCP access',
 	'user.mcp.description':
-		'Connect AI assistants (e.g. Claude) to somes via the Model Context Protocol (MCP). Create a personal access token to do so.',
+		'Connect AI assistants (e.g. Claude, ChatGPT) to somes via the Model Context Protocol (MCP). Create a personal access token to do so.',
 	'user.mcp.statusActive': 'An MCP token is active',
 	'user.mcp.statusNone': 'No MCP token configure.',
 	'user.mcp.generate': 'Create token',
@@ -892,6 +892,9 @@ export const en = {
 	'filter.topics.prefillInterests': 'Interests',
 	'aiChat.placeholder': 'Ask your question...',
 	'aiChat.send': 'Send',
+	'aiChat.mcpHint':
+		'Tip: You can also connect your own AI assistant (e.g. Claude, ChatGPT) to somes via MCP.',
+	'aiChat.mcpHintLink': 'Create a token in your user profile',
 	'interests.detail.title': 'Detailed interests',
 	'interests.detail.subtitle': 'most frequently discussed topics'
 } as const;
