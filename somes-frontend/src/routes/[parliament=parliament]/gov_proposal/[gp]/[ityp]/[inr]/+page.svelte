@@ -5,6 +5,7 @@
 	import Container from '$lib/components/Layout/Container.svelte';
 	import MinisterialView from '$lib/components/MinisterialView/MinisterialView.svelte';
 	import type { MinisterialViewData } from '$lib/components/MinisterialView/types';
+	import MoodBarometer from '$lib/components/MoodBarometer/MoodBarometer.svelte';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import VoteResultExpandableBar from '$lib/components/VoteResults/Expandable/VoteResultExpandableBar.svelte';
@@ -66,10 +67,17 @@
 				</div>
 			{/if}
 		{/snippet}
+		{#snippet mood()}
+			<MoodBarometer
+				gp={govProposalDelegate.gov_proposal.ministrial_proposal.gp}
+				inr={govProposalDelegate.gov_proposal.ministrial_proposal.inr}
+			/>
+		{/snippet}
 		<MinisterialView
 			{ministerialData}
 			snippets={{
-				voteable: govProposalDelegate.gov_proposal.vote_result === null ? undefined : voteable
+				voteable: govProposalDelegate.gov_proposal.vote_result === null ? undefined : voteable,
+				mood
 			}}
 		/>
 	{:else}

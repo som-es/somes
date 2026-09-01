@@ -7,10 +7,12 @@ import type {
 	LegisInitFavo,
 	LoginResponseError,
 	MailSendInfo,
+	MoodBarometer,
 	Quiz,
-	UniqueTopic
+	UniqueTopic,
+	UserMoodEntry
 } from '$lib/types';
-import { address, fetchSavely, justPost, url } from './api';
+import { address, fetchSavely, isHasError, justPost, url } from './api';
 import { getParliament, type Parliament } from './parliament';
 import { jwtStore } from '$lib/caching/stores/stores.svelte';
 
@@ -220,6 +222,29 @@ export async function verify_email_change(new_email: string, otp: string): Promi
 
 export async function anonymize_email(): Promise<any | HasError> {
 	return postWithAuth('v1/user/anonymize_email', {});
+}
+
+export async function addMoodValue(
+	gp: string,
+	inr: string | number,
+	user_mood: number,
+	parliament: Parliament = getParliament()
+): Promise<MoodBarometer | HasError> {
+	return postWithAuth(`v1/gov_proposals/${gp}/${inr}/mood`, { user_mood }, parliament);
+}
+
+/** The mood value the logged-in user submitted for this proposal, or null. */
+export async function getOwnMoodValue(
+	gp: string,
+	inr: string | number,
+	parliament: Parliament = getParliament()
+): Promise<number | null | HasError> {
+	const result = await getWithAuth<UserMoodEntry | null>(
+		`v1/gov_proposals/${gp}/${inr}/mood/user`,
+		parliament
+	);
+	if (result == null || isHasError(result)) return result;
+	return result.user_mood;
 }
 
 export async function hasMcpToken(): Promise<HasMcpToken | HasError> {

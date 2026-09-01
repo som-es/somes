@@ -896,5 +896,19 @@ export const en = {
 		'Tip: You can also connect your own AI assistant (e.g. Claude, ChatGPT) to somes via MCP.',
 	'aiChat.mcpHintLink': 'Create a token in your user profile',
 	'interests.detail.title': 'Detailed interests',
-	'interests.detail.subtitle': 'most frequently discussed topics'
+	'interests.detail.subtitle': 'most frequently discussed topics',
+	'mood.heading': 'Mood barometer. Where do you stand on this proposal?',
+	'mood.unlockHint': 'The chart is unlocked after you vote. Results are stored anonymously.',
+	'mood.communityMood': 'Community mood',
+	'mood.negative': 'Negative',
+	'mood.neutral': 'Neutral',
+	'mood.positive': 'Positive',
+	'mood.veryNegative': 'Very negative',
+	'mood.veryPositive': 'Very positive',
+	'mood.stronglyAgainst': 'Strongly against',
+	'mood.stronglyFor': 'Strongly in favor',
+	'mood.distribution': 'Distribution of opinions',
+	'mood.submit': 'Share mood',
+	'mood.error': 'Error while saving. Please try again.',
+	'mood.loginForChart': 'To share your mood and see the chart, you need to log in.'
 } as const;

@@ -930,5 +930,21 @@ export const de = {
 		'Hinweis: Du kannst auch deinen eigenen KI-Assistenten (z.B. Claude, ChatGPT) über MCP mit somes verbinden.',
 	'aiChat.mcpHintLink': 'Token im Benutzerprofil erstellen',
 	'interests.detail.title': 'Detailierte Interessen',
-	'interests.detail.subtitle': 'meist behandelte Themen'
+	'interests.detail.subtitle': 'meist behandelte Themen',
+	'mood.heading': 'Stimmungsbarometer. Wie stehen Sie zu dem Vorschlag?',
+	'mood.unlockHint':
+		'Grafik wird nach Eingabe freigeschalten. Die Ergebnisse werden anonym gespeichert.',
+	'mood.communityMood': 'Community-Stimmung',
+	'mood.negative': 'Negativ',
+	'mood.neutral': 'Neutral',
+	'mood.positive': 'Positiv',
+	'mood.veryNegative': 'Stark negativ',
+	'mood.veryPositive': 'Stark positiv',
+	'mood.stronglyAgainst': 'Stark dagegen',
+	'mood.stronglyFor': 'Stark dafür',
+	'mood.distribution': 'Verteilung der Meinungen',
+	'mood.submit': 'Stimmung teilen',
+	'mood.error': 'Fehler beim Speichern. Bitte versuche es erneut.',
+	'mood.loginForChart':
+		'Um deine Stimme zu teilen und die Grafik zu sehen, musst du dich einloggen.'
 } as const;
