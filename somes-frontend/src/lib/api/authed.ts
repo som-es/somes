@@ -2,6 +2,7 @@ import type {
 	DelegateFavo,
 	ExtendedUserInfo,
 	HasError,
+	HasMcpToken,
 	JWTInfo,
 	LegisInitFavo,
 	LoginResponseError,
@@ -219,4 +220,16 @@ export async function verify_email_change(new_email: string, otp: string): Promi
 
 export async function anonymize_email(): Promise<any | HasError> {
 	return postWithAuth('v1/user/anonymize_email', {});
+}
+
+export async function hasMcpToken(): Promise<HasMcpToken | HasError> {
+	return getWithAuth('v1/user/mcp');
+}
+
+export async function createMcpToken(): Promise<JWTInfo | HasError> {
+	return postWithAuth('v1/user/mcp', {});
+}
+
+export async function revokeMcpToken(): Promise<null | HasError> {
+	return deleteWithAuth('v1/user/mcp', undefined);
 }

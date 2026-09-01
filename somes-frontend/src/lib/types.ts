@@ -299,6 +299,10 @@ export interface JWTInfo {
 	access_token: string;
 }
 
+export interface HasMcpToken {
+	has_token: boolean;
+}
+
 export function jwtDecode(t: string) {
 	return {
 		raw: t,
