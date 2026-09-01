@@ -7,7 +7,7 @@
 	import type { Delegate, DelegateQuestionRecipient } from '$lib/types';
 
 	interface Props {
-		delegate: Delegate;
+		delegate: Pick<Delegate, 'id' | 'name'>;
 	}
 
 	let { delegate }: Props = $props();
@@ -88,8 +88,8 @@
 			<p
 				class="rounded-md border border-emerald-600/40 bg-emerald-100 px-4 py-3 text-sm text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100"
 			>
-				Deine Frage wurde erfolgreich zur Prüfung eingereicht. Nach der Freigabe wird sie per
-				E-Mail weitergeleitet.
+				Deine Frage wurde erfolgreich zur Prüfung eingereicht. Nach der Freigabe wird sie per E-Mail
+				weitergeleitet.
 			</p>
 			<div class="mt-5 flex justify-end">
 				<Dialog.Close>

@@ -916,19 +916,18 @@ export const de = {
 	// --- Fragen & Antworten ---
 	'qa.title': 'Fragen & Antworten',
 	'qa.updated': 'Aktualisiert am: {date}',
-	'qa.meta.description':
-		'Stelle Fragen an Politiker:innen und lies ihre öffentlichen Antworten.',
+	'qa.meta.description': 'Stelle Fragen an Politiker:innen und lies ihre öffentlichen Antworten.',
 	'qa.tab.latestAnswers': 'Neuste Antworten',
 	'qa.tab.latestQuestions': 'Neuste Fragen',
 	'qa.tab.unanswered': 'Unbeantwortet',
 	'qa.filter': 'Filter',
-	'qa.questionFrom': 'Frage von {name}',
+	'qa.questionTo': 'Frage an {name}',
+	'qa.answerCount': '{count} Antworten',
 	'qa.readMore': 'Weiterlesen',
 	'qa.unansweredHint': 'Noch keine Antwort',
 	'qa.askTitle': 'Stelle auch du eine Frage!',
 	'qa.askButton': 'Frage stellen!',
 	'qa.noResults': 'Keine Fragen gefunden.',
-	'qa.council.eu': 'EU-Parlament',
 	'qa.answer': 'Antwort',
 	'qa.askFromTitle': 'Was möchtest du wissen von:',
 	'qa.notFound': 'Diese Frage wurde nicht gefunden.'

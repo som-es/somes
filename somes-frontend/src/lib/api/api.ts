@@ -3,6 +3,7 @@ import type { Locale } from '$lib/i18n';
 import type {
 	Delegate,
 	DelegateQuestionRecipient,
+	PublicDelegateQuestion,
 	HasError,
 	InterestShare,
 	VoteResultFilter,
@@ -167,6 +168,25 @@ export async function delegate_question_recipient(
 	delegateId: number
 ): Promise<DelegateQuestionRecipient | HasError> {
 	return getWithRoute(`v1/delegate_questions/delegate/${delegateId}/question_recipient`);
+}
+
+export async function all_delegate_questions(
+	fetcher: typeof fetch = fetch,
+	parliament: Parliament = getParliament()
+): Promise<PublicDelegateQuestion[] | HasError> {
+	return getWithRoute<PublicDelegateQuestion[]>('v1/delegate_questions', parliament, fetcher);
+}
+
+export async function delegate_questions(
+	delegateId: number,
+	fetcher: typeof fetch = fetch,
+	parliament: Parliament = getParliament()
+): Promise<PublicDelegateQuestion[] | HasError> {
+	return getWithRoute<PublicDelegateQuestion[]>(
+		`v1/delegate_questions/delegate/${delegateId}`,
+		parliament,
+		fetcher
+	);
 }
 
 export async function latest_vote_results(

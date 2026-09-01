@@ -1,20 +1,28 @@
-import type { Parliament } from '$lib/api/parliament';
+import type { PublicDelegateQuestion, PublicDelegateQuestionAnswer } from '$lib/types';
 
-// TODO: replace with the real API
-export interface PoliticianQuestionAnswer {
-	delegateName: string;
-	party: string;
-	text: string;
-	date: string; // YYYY-MM-DD
+export interface QuestionDelegate {
+	id: number;
+	name: string;
+	party: string | null;
 }
 
-export interface PoliticianQuestion {
-	id: number;
-	parliament: Parliament;
-	askedBy: string;
-	date: string; // YYYY-MM-DD
-	question: string; // headline
-	text: string; // full message from the asker
-	topics: string[];
-	answer: PoliticianQuestionAnswer | null;
+export interface DelegateQuestionView {
+	question: PublicDelegateQuestion;
+	delegate: QuestionDelegate | null;
+}
+
+export function questionSlug(question: PublicDelegateQuestion): string {
+	return `${question.delegate_id}-${new Date(question.created_at).getTime()}`;
+}
+
+export function parseQuestionSlug(slug: string): { delegateId: number; createdAt: number } | null {
+	const [delegateId, createdAt] = slug.split('-').map(Number);
+	if (!Number.isFinite(delegateId) || !Number.isFinite(createdAt)) return null;
+	return { delegateId, createdAt };
+}
+
+export function latestAnswer(
+	question: PublicDelegateQuestion
+): PublicDelegateQuestionAnswer | null {
+	return question.answers.at(-1) ?? null;
 }

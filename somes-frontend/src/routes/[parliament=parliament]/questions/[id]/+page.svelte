@@ -1,21 +1,19 @@
 <script lang="ts">
-	import { page } from '$app/state';
+	import { Dialog } from 'bits-ui';
 	import Container from '$lib/components/Layout/Container.svelte';
-	import Topics from '$lib/components/Topics/Topics.svelte';
-	import { mockQuestions } from '$lib/components/Questions/mock';
-	import { getParliament } from '$lib/api/parliament';
+	import DelegateQuestionModal from '$lib/components/Delegates/Questions/DelegateQuestionModal.svelte';
 	import { t } from '$lib/i18n/i18n.svelte';
-	import { dashDateToDotDate } from '$lib/date';
+	import { formatDate } from '$lib/date';
 	import { partyToColor } from '$lib/partyColor';
+	import type { PageProps } from './$types';
 
-	const parliament = $derived(getParliament());
-	// TODO: replace mock data with the API call once the questions endpoint exists
-	const question = $derived(
-		mockQuestions(parliament).find((q) => q.id === Number(page.params.id)) ?? null
-	);
+	let { data }: PageProps = $props();
+
+	const question = $derived(data.entry?.question ?? null);
+	const delegate = $derived(data.entry?.delegate ?? null);
 
 	const initials = $derived(
-		question?.answer?.delegateName
+		delegate?.name
 			.split(' ')
 			.map((part) => part[0])
 			.slice(0, 2)
@@ -24,7 +22,7 @@
 </script>
 
 <svelte:head>
-	<title>{question ? question.question : t('qa.title')}</title>
+	<title>{question ? question.subject : t('qa.title')}</title>
 	<meta name="description" content={t('qa.meta.description')} />
 </svelte:head>
 
@@ -37,51 +35,48 @@
 					<div
 						class="flex flex-wrap items-baseline justify-between gap-2 text-sm text-gray-700 dark:text-gray-300"
 					>
-						<span>{t('qa.questionFrom', { name: question.askedBy })}</span>
-						<span class="shrink-0">{dashDateToDotDate(question.date)}</span>
+						<span>{t('qa.questionTo', { name: delegate?.name ?? '' })}</span>
+						<span class="shrink-0">{formatDate(question.created_at)}</span>
 					</div>
 					<h1
 						class="mt-2 text-xl leading-tight font-bold lg:text-2xl"
 						style="hyphens: auto; overflow-wrap: break-word;"
 					>
-						{question.question}
+						{question.subject}
 					</h1>
-					<p class="mt-8 whitespace-pre-line">{question.text}</p>
-					<div class="mt-4">
-						<Topics topics={question.topics.map((topic) => ({ topic }))} />
-					</div>
+					<p class="mt-8 whitespace-pre-line">{question.body}</p>
 				</div>
 
-				<!-- Answer -->
-				{#if question.answer}
+				<!-- Answers (a question can receive several reply mails) -->
+				{#each question.answers as answer (answer.received_at)}
 					<div class="rounded-xl bg-primary-300 p-4 sm:p-6 dark:bg-primary-500">
 						<div class="flex justify-between text-sm text-gray-700 dark:text-gray-300">
 							<div class="flex items-center gap-3">
 								<div
 									class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-semibold text-white"
-									style="background-color: {partyToColor(question.answer.party)};"
+									style="background-color: {partyToColor(delegate?.party ?? null)};"
 								>
 									{initials}
 								</div>
 								<div class="flex min-w-0 flex-col">
-									<span class="truncate leading-tight font-bold"
-										>{question.answer.delegateName}</span
-									>
-									<div class="mt-0.5 flex items-center gap-1.5">
-										<div
-											class="h-2 w-2 shrink-0 rounded-full"
-											style="background-color: {partyToColor(question.answer.party)};"
-										></div>
-										<span class="truncate text-xs text-gray-700 dark:text-gray-300">
-											{question.answer.party}
-										</span>
-									</div>
+									<span class="truncate leading-tight font-bold">{delegate?.name ?? ''}</span>
+									{#if delegate?.party}
+										<div class="mt-0.5 flex items-center gap-1.5">
+											<div
+												class="h-2 w-2 shrink-0 rounded-full"
+												style="background-color: {partyToColor(delegate.party)};"
+											></div>
+											<span class="truncate text-xs text-gray-700 dark:text-gray-300">
+												{delegate.party}
+											</span>
+										</div>
+									{/if}
 								</div>
 							</div>
-							<span class="shrink-0">{dashDateToDotDate(question.answer.date)}</span>
+							<span class="shrink-0">{formatDate(answer.received_at)}</span>
 						</div>
 
-						<p class="mt-4 whitespace-pre-line">{question.answer.text}</p>
+						<p class="mt-4 whitespace-pre-line">{answer.body}</p>
 					</div>
 				{:else}
 					<div
@@ -89,44 +84,55 @@
 					>
 						{t('qa.unansweredHint')}
 					</div>
-				{/if}
+				{/each}
 			</div>
 
 			<!-- Call to action -->
 			<div
 				class="shrink-0 rounded-xl bg-primary-300 p-5 lg:sticky lg:top-4 lg:w-72 dark:bg-primary-500"
 			>
-				{#if question.answer}
+				{#if delegate}
 					<span class="block text-lg font-bold">{t('qa.askFromTitle')}</span>
 					<div class="mt-3 flex items-center gap-2.5">
 						<div
 							class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white"
-							style="background-color: {partyToColor(question.answer.party)};"
+							style="background-color: {partyToColor(delegate.party)};"
 						>
 							{initials}
 						</div>
 						<div class="flex min-w-0 flex-col">
-							<span class="truncate leading-tight font-medium">{question.answer.delegateName}</span>
-							<div class="mt-0.5 flex items-center gap-1.5">
-								<div
-									class="h-2 w-2 shrink-0 rounded-full"
-									style="background-color: {partyToColor(question.answer.party)};"
-								></div>
-								<span class="truncate text-xs text-gray-700 dark:text-gray-300">
-									{question.answer.party}
-								</span>
-							</div>
+							<span class="truncate leading-tight font-medium">{delegate.name}</span>
+							{#if delegate.party}
+								<div class="mt-0.5 flex items-center gap-1.5">
+									<div
+										class="h-2 w-2 shrink-0 rounded-full"
+										style="background-color: {partyToColor(delegate.party)};"
+									></div>
+									<span class="truncate text-xs text-gray-700 dark:text-gray-300">
+										{delegate.party}
+									</span>
+								</div>
+							{/if}
 						</div>
 					</div>
-				{:else}
-					<span class="block text-center text-lg font-bold">{t('qa.askTitle')}</span>
+					<Dialog.Root>
+						<Dialog.Trigger
+							class="mt-4 w-full rounded-xl bg-secondary-500 px-3 py-2 text-white hover:cursor-pointer hover:bg-secondary-600"
+						>
+							{t('qa.askButton')}
+						</Dialog.Trigger>
+						<Dialog.Portal>
+							<Dialog.Overlay
+								class="fixed inset-0 z-50 bg-black/80 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0"
+							/>
+							<Dialog.Content
+								class="fixed top-[50%] left-[50%] z-50 w-full max-w-xl translate-x-[-50%] translate-y-[-50%] overflow-hidden rounded-lg bg-primary-100 shadow-lg outline-hidden data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 dark:bg-gray-800"
+							>
+								<DelegateQuestionModal {delegate} />
+							</Dialog.Content>
+						</Dialog.Portal>
+					</Dialog.Root>
 				{/if}
-				<!-- TODO: hook up once submitting questions is possible via the API -->
-				<button
-					class="mt-4 w-full rounded-xl bg-secondary-500 px-3 py-2 text-white hover:cursor-pointer hover:bg-secondary-600"
-				>
-					{t('qa.askButton')}
-				</button>
 			</div>
 		</div>
 	{:else}

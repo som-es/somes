@@ -309,6 +309,19 @@ export interface DelegateQuestionRecipient {
 	recipient_name: string;
 }
 
+export interface PublicDelegateQuestionAnswer {
+	body: string;
+	received_at: string;
+}
+
+export interface PublicDelegateQuestion {
+	delegate_id: number;
+	subject: string;
+	body: string;
+	created_at: string;
+	answers: PublicDelegateQuestionAnswer[];
+}
+
 export interface AdminDelegateQuestion {
 	id: number;
 	user_id: number;
