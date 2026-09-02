@@ -67,7 +67,7 @@ async fn test_extract_barometer_sqlx_fails_for_proposal_without_mood(pool: PgPoo
 
 #[sqlx::test(fixtures("fixtures/mood_barometer_base.sql"))]
 async fn test_mood_values_for_gov_prop_route_returns_barometer(pool: PgPool) {
-    let Json(barometer) = mood_values_for_gov_prop(
+    let Json(barometer) = mood_values_for_gov_prop_route(
         PgPoolConnection(pool.clone()),
         Path(("2024-25".to_string(), 1)),
     )

@@ -7,10 +7,7 @@ pub use construct_gov_proposal::*;
 pub use db::*;
 pub use routes::*;
 
-use axum::{
-    Router,
-    routing::{get, post},
-};
+use axum::{Router, routing::get};
 use combx::models::DbMinistrialProposalQueryMeta;
 use redis::aio::ConnectionManager;
 use serde::{Deserialize, Serialize};

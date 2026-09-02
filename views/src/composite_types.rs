@@ -2,7 +2,7 @@ use combx::{
     DbAiInquiry, DbAiSummary, DbAnswerEntry, DbInterjection, DbLegislativeInitiativeQuery,
     DbMinistrialProposalQueryMeta, DbNamedVote, DbNamedVoteInfo, DbNamedVotes,
     DbPartyNamedVoteCount, DbReference, DbRelatedDelegate, DbSpeechAiSummary, DbSpeechRelations,
-    DbSpeechWithLink, DbVote, DelegateMatch, FullMandate, FullSpeech, Interjection,
+    DbSpeechWithLink, DbVolksbg, DbVote, DelegateMatch, FullMandate, FullSpeech, Interjection,
     MeilisearchHelper, ParliamentAnswer, ParliamentInquiry, ParliamentInquiryResponse,
     ParliamentRawData, Topic, VoteResult,
 };
@@ -53,7 +53,8 @@ pub async fn create_composite_types<'a>(
         ParliamentRawData,
         ParliamentInquiry,
         ParliamentAnswer,
-        ParliamentInquiryResponse
+        ParliamentInquiryResponse,
+        DbVolksbg
     );
     Ok(())
 }

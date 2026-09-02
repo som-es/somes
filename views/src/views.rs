@@ -3,4 +3,5 @@ pub mod delegates;
 pub mod gov_proposals;
 pub mod parliament_qa;
 pub mod speeches;
+pub mod volksbgs;
 pub mod vote_results;

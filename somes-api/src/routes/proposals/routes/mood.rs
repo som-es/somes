@@ -35,7 +35,7 @@ pub async fn user_mood_for_gov_prop_route(
         "gov proposal not found".into(),
     ))?;
     let user_mood = sqlx::query_as!(DbUserMood, "
-        select user_mood.id, user_mood, user_id, user_mood.mood_id, created_at, updated_at from user_mood 
+        select user_mood.id, user_mood, user_id, user_mood.mood_id, created_at, updated_at from user_mood
             join gov_prop_mood gm on gm.mood_id = user_mood.mood_id
         where user_id = $1 and gm.gov_prop_id = $2
     ", claims.id, gov_prop_id).fetch_optional(&pg).await

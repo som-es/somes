@@ -15,6 +15,7 @@ mod statistics;
 mod topics;
 mod user;
 mod verify;
+mod volksbg;
 mod vote_results;
 mod walo;
 
@@ -37,6 +38,7 @@ pub use statistics::session_activity::CACHE_KEY as SESSION_ACTIVITY_CACHE_KEY;
 pub use topics::*;
 pub use user::*;
 pub use verify::*;
+pub use volksbg::*;
 pub use vote_results::*;
 pub use walo::*;
 

@@ -4,15 +4,14 @@ use crate::redis_db::{AT_DB, EU_DB, MCP_DB, RedisHandle};
 use crate::{AppState, IS_PROD, routes::*};
 use crate::{
     HTTP_PORT, HTTPS_PORT, MEILISEARCH_SECRET, MEILISEARCH_URL, PRIVATE_KEY_PATH, PUBLIC_KEY_PATH,
-    Ports, REDIS_DB, STATIC_FRONTEND_PATH, meilisearch::update_meilisearch_indices,
-    redirect_http_to_https, reset_cache, routes::save_email_route, update_caches,
+    Ports, REDIS_DB, meilisearch::update_meilisearch_indices, redirect_http_to_https, reset_cache,
+    routes::save_email_route, update_caches,
 };
 use axum::response::IntoResponse;
 use axum::{
     Extension, Router,
     http::{self, HeaderValue},
-    response::Html,
-    routing::{any, get, get_service, post},
+    routing::{any, get, post},
 };
 use axum_server::tls_rustls::RustlsConfig;
 use combx::Parliament;
@@ -181,6 +180,7 @@ fn parliament_router() -> Router<AppState> {
         .nest("/v1/vote_results", create_vote_results_router())
         .nest("/v1/events", create_events_router())
         .nest("/v1/speeches", create_speeches_router())
+        .nest("/v1/volksbg", create_volksbg_router())
 }
 
 fn api_router() -> Router<AppState> {
