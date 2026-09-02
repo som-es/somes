@@ -914,9 +914,11 @@ export const de = {
 	'aiChat.send': 'Senden',
 	'interests.detail.title': 'Detailierte Interessen',
 	'interests.detail.subtitle': 'meist behandelte Themen',
-	'volksbg.kicker': 'Volksbegehren',
-	'volksbg.upcoming': 'Eintragungswoche bald verfügbar',
-	'volksbg.running': 'Volksbegehren können jetzt unterschrieben werden',
-	'volksbg.ended': 'Die Eintragungswoche ist vorbei',
-	'volksbg.pollingStations': 'Eintragungslokale'
+	'volksbg.title': 'Aktuelle Volksbegehren',
+	'volksbg.ringDay': 'Tag',
+	'volksbg.ringDays': 'Tage',
+	'volksbg.ended': 'Eintragungswoche beendet',
+	'volksbg.pollingStations': 'Eintragungslokale',
+	'volksbg.disclaimer':
+		'Quelle: Bundesministerium für Inneres (BMI). somes steht in keiner Verbindung zu den angezeigten Volksbegehren.'
 } as const;

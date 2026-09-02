@@ -880,9 +880,11 @@ export const en = {
 	'aiChat.send': 'Send',
 	'interests.detail.title': 'Detailed interests',
 	'interests.detail.subtitle': 'most frequently discussed topics',
-	'volksbg.kicker': 'Popular initiatives',
-	'volksbg.upcoming': 'Signing week coming up',
-	'volksbg.running': 'Popular initiatives can be signed now',
-	'volksbg.ended': 'The signing week is over',
-	'volksbg.pollingStations': 'Polling stations'
+	'volksbg.title': 'Popular initiatives',
+	'volksbg.ringDay': 'day',
+	'volksbg.ringDays': 'days',
+	'volksbg.ended': 'Signing week ended',
+	'volksbg.pollingStations': 'Polling stations',
+	'volksbg.disclaimer':
+		'Source: Austrian Federal Ministry of the Interior (BMI). somes is not affiliated with the initiatives shown.'
 } as const;
