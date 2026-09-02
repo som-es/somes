@@ -119,7 +119,7 @@
 						<ModalCloseButton />
 					</Drawer.Close>
 
-					<Drawer.Title class="text-2xl font-semibold text-gray-900">
+					<Drawer.Title class="text-xl font-semibold text-gray-900 lg:text-2xl">
 						{#if isLogin}{t('login.title.signIn')}{:else}{t('login.title.register')}{/if}
 					</Drawer.Title>
 					<p class="mt-1 text-sm text-gray-500">

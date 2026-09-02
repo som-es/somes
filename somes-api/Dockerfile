@@ -11,9 +11,11 @@ RUN apt-get update && apt-get install -y \
     xmlsec1 \
     libxml2-dev libxmlsec1-dev libxmlsec1-openssl \
     postgresql-client \
-    # postgresql \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
+WORKDIR /app
+COPY . .
 RUN cargo build --release
+
 CMD ["./target/release/somes-api"]

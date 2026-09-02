@@ -20,7 +20,7 @@
 	import { SvelteSet } from 'svelte/reactivity';
 	import { page } from '$app/state';
 	import FilterDropdown from '$lib/components/Filtering/FilterDropdown.svelte';
-	import  { type GenericFilterGroup } from '$lib/components/Filtering/types';
+	import { type GenericFilterGroup } from '$lib/components/Filtering/types';
 	import GenericFilters from '$lib/components/Filtering/GenericFilters.svelte';
 	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
 	import { convertVoteResultFilterToUrl } from './urlConversion';

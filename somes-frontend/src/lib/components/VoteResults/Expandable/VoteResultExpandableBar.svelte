@@ -25,7 +25,7 @@
 	let {
 		voteResult,
 		class: clazz,
-		coloring = 'bg-primary-300 dark:bg-primary-500',
+		coloring = 'bg-primary-300 hover:bg-primary-400 dark:bg-primary-500 dark:hover:bg-primary-600',
 		unexpandable = false
 	}: Props = $props();
 
@@ -55,7 +55,7 @@
 		onkeypress={toggleOpen}
 		role="button"
 		tabindex="0"
-		class="entry block {coloring}"
+		class="entry block transition-colors {coloring}"
 	>
 		<div class="flex">
 			<div class="flex w-full flex-wrap items-start justify-between gap-2 lg:flex-nowrap">
@@ -98,7 +98,7 @@
 		<div>
 			<div class="mt-4 block justify-between sm:flex">
 				{#if voteResult.legislative_initiative.accepted !== null}
-					{#if voteResult.named_votes == null}
+					{#if !voteResult.legislative_initiative.voted_by_name}
 						<!-- Normal votes -->
 						<div class="mx-1 mb-3 flex justify-between sm:mb-0 md:items-center">
 							{#each sortedVotes as vote (vote.party)}
@@ -133,7 +133,7 @@
 									</div>
 								{/each}
 							</div>
-						{:else}
+						{:else if voteResult.named_votes}
 							<div class="mb-3 flex items-center gap-3 sm:mb-0">
 								<div class="flex items-center">
 									<span

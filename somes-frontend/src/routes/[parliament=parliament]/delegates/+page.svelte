@@ -507,7 +507,7 @@
 					<span class="text-base font-semibold text-gray-800 dark:text-gray-200"
 						>{t('delegates.filter')}</span
 					>
-					<div class="mt-2 flex w-full gap-2 md:mt-1 md:w-auto max-lg:flex-wrap">
+					<div class="mt-2 flex w-full gap-2 max-lg:flex-wrap md:mt-1 md:w-auto">
 						<!-- Period Filter -->
 						<div
 							class="flex h-10 grow touch-manipulation items-center justify-center gap-1 md:grow-0"

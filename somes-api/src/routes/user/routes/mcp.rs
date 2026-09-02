@@ -56,7 +56,7 @@ async fn generate_mcp_token_pipeline(
         .await
         .map_err(|e| GenericError::RedisFailure(e))?;
     redis
-        .set(&hashed_token, "")
+        .set(&hashed_token, user_id)
         .await
         .map_err(|e| GenericError::RedisFailure(e))?;
     Ok(token)

@@ -221,6 +221,11 @@ pub struct DelegateById {
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct SpeechById {
+    pub speech_id: i32,
+}
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct SendMailInfo {
     pub send_new_vote_results_mails: bool,
     pub send_new_vote_result_by_favo_mails: bool,

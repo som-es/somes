@@ -10,10 +10,12 @@ mod proposals;
 mod questions;
 mod quiz;
 mod save_email;
+mod speeches;
 mod statistics;
 mod topics;
 mod user;
 mod verify;
+mod volksbg;
 mod vote_results;
 mod walo;
 
@@ -29,12 +31,14 @@ pub use plenar::*;
 pub use proposals::*;
 pub use quiz::*;
 pub use save_email::*;
+pub use speeches::*;
 pub use statistics::create_statistics_router;
 pub use statistics::fetch_latest_session_activity_overview;
 pub use statistics::session_activity::CACHE_KEY as SESSION_ACTIVITY_CACHE_KEY;
 pub use topics::*;
 pub use user::*;
 pub use verify::*;
+pub use volksbg::*;
 pub use vote_results::*;
 pub use walo::*;
 

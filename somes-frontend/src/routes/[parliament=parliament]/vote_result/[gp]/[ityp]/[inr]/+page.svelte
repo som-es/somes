@@ -190,6 +190,7 @@
 		abstention_count: sortedVotes.reduce((sum, v) => sum + v.abstention_count, 0),
 		absence_count: 0
 	});
+	const totalAbsences = $derived(sortedVotes.reduce((sum, v) => sum + v.absence_count, 0));
 
 	let allSpeeches = $derived(voteResult?.speeches ?? []);
 	let date = $derived(
@@ -197,24 +198,16 @@
 			? voteResult?.legislative_initiative?.vote_date
 			: voteResult?.legislative_initiative?.nr_plenary_activity_date
 	);
+	const title = $derived(voteResult?.ai_summary !== null ? voteResult?.ai_summary?.short_title : voteResult.legislative_initiative.description);
+	const content = $derived(voteResult?.ai_summary !== null ? voteResult?.ai_summary?.very_detailed_summary : voteResult.legislative_initiative.description);
 </script>
 
 <svelte:head>
-	<title>{t('vote_result.title')}</title>
-	<meta name="description" content={t('vote_result.meta')} />
-</svelte:head>
-
-{#if browser}
 	<title>
-		{#if voteResult}
-			{#if aiViewEnabledStore.value && voteResult.ai_summary}
-				{voteResult.ai_summary.short_title}
-			{:else}
-				{description}
-			{/if}
-		{/if}
+		{title}
 	</title>
-{/if}
+	<meta name="description" {content} />
+</svelte:head>
 
 <Container>
 	{#if voteResult}
@@ -230,7 +223,7 @@
 							<!-- Title & Date Stack -->
 							<div class="flex min-w-0 flex-col">
 								<div class="flex items-start gap-2">
-									<span
+									<h1
 										class="text-xl leading-tight font-bold lg:text-3xl"
 										style="hyphens: auto; word-break: break-word; overflow-wrap: break-word;"
 									>
@@ -240,7 +233,7 @@
 										{:else}
 											{description}
 										{/if}
-									</span>
+									</h1>
 								</div>
 
 								{#if voteResult.legislative_initiative.accepted && voteResult.legislative_initiative.vote_date}
@@ -378,7 +371,7 @@
 								<MultiSelectFilter
 									items={uniqueParties}
 									bind:value={selectedPartiesNames}
-									allLabel={t("vote_result.allParties")}
+									allLabel={t('vote_result.allParties')}
 								>
 									{#snippet itemLabel(party)}
 										<div
@@ -583,7 +576,7 @@
 									</button>
 								</div>
 
-								{#if voteResult.named_votes == null}
+								{#if !voteResult.legislative_initiative.voted_by_name}
 									<div class="mt-2 flex flex-col gap-2">
 										{#each sortedVotes as vote (vote.party)}
 											<div class="flex items-center justify-between gap-4">
@@ -603,8 +596,9 @@
 														style="width:18px; height:18px;">{@html checkmarkIcon}</span
 													>
 												{:else}
-													<span class="inline-block shrink-0 align-middle" style="width:18px; height:18px;"
-														>{@html crossmarkIcon}</span
+													<span
+														class="inline-block shrink-0 align-middle"
+														style="width:18px; height:18px;">{@html crossmarkIcon}</span
 													>
 												{/if}
 											</div>
@@ -641,10 +635,11 @@
 									<div
 										class="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400"
 									>
-										{#each [{ label: t('donut.inFavor'), color: VOTE_COLORS.infavor }, { label: t('donut.against'), color: VOTE_COLORS.against }, { label: t('donut.abstention'), color: VOTE_COLORS.abstention }, { label: t('donut.absent'), color: VOTE_COLORS.absent }] as item (item.label)}
-											<span class="flex items-center gap-1.5">
-												<span class="h-2 w-2 rounded-full" style="background-color: {item.color};"
-												></span>
+										{#each [{ label: t('donut.inFavor'), color: VOTE_COLORS.infavor, count: totalVote.infavor_count }, { label: t('donut.against'), color: VOTE_COLORS.against, count: totalVote.against_count }, { label: t('donut.abstention'), color: VOTE_COLORS.abstention, count: totalVote.abstention_count }, { label: t('donut.absent'), color: VOTE_COLORS.absent, count: totalAbsences }] as item (item.label)}
+											<span class="flex items-center gap-1">
+												<span class="font-semibold tabular-nums" style="color: {item.color};"
+													>{item.count}</span
+												>
 												{item.label}
 											</span>
 										{/each}
@@ -659,7 +654,7 @@
 							<div class="absolute ml-1 max-lg:hidden">
 								<h3 class="mb-1 text-lg font-semibold md:text-xl">{t('vote_result.vote')}</h3>
 								<div class="ml-1">
-									{#if voteResult.named_votes == null}
+									{#if !voteResult.legislative_initiative.voted_by_name}
 										{#each sortedVotes as vote (vote.party)}
 											<div class="flex items-center justify-between gap-4">
 												<div class="flex items-center gap-2">

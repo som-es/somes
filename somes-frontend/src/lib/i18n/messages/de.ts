@@ -62,6 +62,8 @@ export const de = {
 		'Diese Rohdaten werden von dem <a class="text-secondary-500" href="https://www.parlament.gv.at/recherchieren/open-data/daten-und-lizenz/index.html" target="_blank">Open-Data Angebot</a> des Österreichischen Parlaments bereitgestellt und sind nach <a class="text-secondary-500" href="https://creativecommons.org/licenses/by/4.0/deed.de" target="_blank">CC-BY 4.0</a> lizenziert. Der zugehörige Eintrag auf der Parlamentsseite ist bei der Somes-Detailseite im Titel verlinkt.',
 	'layout.disclaimer.ris':
 		'Diese Rohdaten werden von dem <a class="text-secondary-500" href="https://www.ris.bka.gv.at/UI/Ogd.aspx" target="_blank">Open-Data Angebot</a> des Österreichischen Rechtsinformationssystem des Bundes bereitgestellt und sind nach <a class="text-secondary-500" href="https://creativecommons.org/licenses/by/4.0/deed.de" target="_blank">CC-BY 4.0</a> lizenziert. Der zugehörige Eintrag im RIS ist bei der Somes-Detailseite im Titel verlinkt.',
+	'layout.disclaimer.eu':
+		'Diese Rohdaten werden vom <a class="text-secondary-500" href="https://data.europa.eu/data/datasets?query=European+Parliament" target="_blank">Open-Data Portal</a> der Europäischen Union (data.europa.eu) bereitgestellt und sind nach <a class="text-secondary-500" href="https://opendatacommons.org/licenses/by/1-0/" target="_blank">ODC-BY 1.0</a> lizenziert.',
 
 	// --- Landing page (/) ---
 	'landing.meta.description': 'Verlinkung zur Plattform und Informationen über den Verein',
@@ -263,6 +265,7 @@ export const de = {
 	'interjections.labelIssued': 'Zwischenruf an',
 	'interjections.labelReceived': 'Zwischenruf von',
 	'interjections.noText': 'Kein Text zu diesem Zwischenruf verfügbar.',
+	'interjections.openSpeech': 'Zur Rede',
 	'proposals.title': 'Letzte eingebrachte Anträge',
 	'proposals.proposal': 'Antrag',
 	'proposals.proposals': 'Anträge',
@@ -443,8 +446,11 @@ export const de = {
 	'speeches.openProtocolLinkTitle': 'Stelle im Protokoll öffnen',
 	'speeches.summary': 'Zusammenfassung',
 	'speeches.noSummary': 'Keine Zusammenfassung vorhanden.',
+	'speeches.loading': 'Rede wird geladen …',
+	'speeches.notFound': 'Rede konnte nicht geladen werden.',
 	'speeches.keyPointsTitle': 'Schwerpunkte der Rede',
 	'speeches.relatedTo': 'Bezieht sich auf',
+	'speeches.interjectionsTitle': 'Zwischenrufe',
 	'speeches.detailLevel.oneSentence': 'Ein Satz',
 	'speeches.detailLevel.veryShort': 'Sehr kurz',
 	'speeches.detailLevel.short': 'Kurz',
@@ -505,6 +511,20 @@ export const de = {
 	'user.noFavoritePersons': 'Keine favorisierten Personen vorhanden.',
 	'user.favoriteVotes': 'Favorisierte Abstimmungen',
 	'user.noFavoriteVotes': 'Keine favorisierten Abstimmungen vorhanden.',
+	'user.mcp.title': 'MCP-Zugang',
+	'user.mcp.description':
+		'Verbinde KI-Assistenten (z.B. Claude, ChatGPT) über das Model Context Protocol (MCP) mit somes. Erstelle dazu einen persönlichen Zugriffstoken.',
+	'user.mcp.statusActive': 'Ein MCP-Token ist aktiv',
+	'user.mcp.statusNone': 'Kein MCP-Token vorhanden',
+	'user.mcp.generate': 'Token erstellen',
+	'user.mcp.regenerate': 'Token neu erstellen',
+	'user.mcp.revoke': 'Token widerrufen',
+	'user.mcp.regenerateHint': 'Beim Neu-Erstellen oder Widerrufen wird das bisherige Token ungültig.',
+	'user.mcp.tokenOnceWarning':
+		'Dieser Token wird nur einmal angezeigt. Kopiere ihn JETZT und bewahre ihn sicher auf.',
+	'user.mcp.copy': 'Kopieren',
+	'user.mcp.copied': 'Kopiert!',
+	'user.mcp.error': 'Die Aktion konnte nicht ausgeführt werden. Bitte versuche es später erneut.',
 	'user.dangerZone': 'Gefahrenbereich',
 	'user.dangerText': 'Diese Aktion kann nicht rückgängig gemacht werden.',
 	'user.deleteAccount': 'Account löschen',
@@ -787,7 +807,7 @@ export const de = {
 	'plenary.nextSession.days': 'Tagen',
 	'proposals.all.title': 'Ministerialentwürfe',
 	'aiChat.intro':
-		'Ich bin SomBOT, ein Chatbot des Demokratieprojekts "somes". Ich bin spezialisiert darauf, Fragen über {name} ({party}) zu verschiedenen Themen zu beantworten.',
+		'Ich bin SomBOT, ein Chatbot des Demokratieprojekts "somes". Ich bin spezialisiert darauf, Fragen über {name} ({party}) zu verschiedenen Themen zu beantworten. Aktuell bin ich leider nicht im Betrieb. In der Zwischenzeit kannst du einen Somes MCP-Token verwenden.',
 	'aiChat.disclaimer.part1':
 		'Die Antworten des Chatbots basieren auf Ausschnitten von Reden der jeweiligen Person.',
 	'aiChat.disclaimer.part2':
@@ -911,6 +931,9 @@ export const de = {
 	'filter.topics.prefillInterests': 'Interessen',
 	'aiChat.placeholder': 'Stelle deine Frage...',
 	'aiChat.send': 'Senden',
+	'aiChat.mcpHint':
+		'Hinweis: Du kannst auch deinen eigenen KI-Assistenten (z.B. Claude, ChatGPT) über MCP mit somes verbinden.',
+	'aiChat.mcpHintLink': 'Token im Benutzerprofil erstellen',
 	'interests.detail.title': 'Detailierte Interessen',
 	'interests.detail.subtitle': 'meist behandelte Themen',
 	// --- Fragen & Antworten ---
@@ -962,5 +985,28 @@ export const de = {
 	'qa.ask.success':
 		'Deine Frage wurde erfolgreich zur Prüfung eingereicht. Nach der Freigabe wird sie per E-Mail weitergeleitet.',
 	'qa.ask.toOverview': 'Zu den Fragen & Antworten',
-	'qa.ask.delegateNotFound': 'Diese Person wurde nicht gefunden.'
+  'qa.ask.delegateNotFound': 'Diese Person wurde nicht gefunden.',
+	'mood.heading': 'Stimmungsbarometer. Wie stehen Sie zu dem Vorschlag?',
+	'mood.unlockHint':
+		'Grafik wird nach Eingabe freigeschalten. Die Ergebnisse werden anonym gespeichert.',
+	'mood.communityMood': 'Community-Stimmung',
+	'mood.negative': 'Negativ',
+	'mood.neutral': 'Neutral',
+	'mood.positive': 'Positiv',
+	'mood.veryNegative': 'Stark negativ',
+	'mood.veryPositive': 'Stark positiv',
+	'mood.stronglyAgainst': 'Stark dagegen',
+	'mood.stronglyFor': 'Stark dafür',
+	'mood.distribution': 'Verteilung der Meinungen',
+	'mood.submit': 'Stimmung teilen',
+	'mood.error': 'Fehler beim Speichern. Bitte versuche es erneut.',
+	'mood.loginForChart':
+		'Um deine Stimme zu teilen und die Grafik zu sehen, musst du dich einloggen.',
+	'volksbg.title': 'Aktuelle Volksbegehren',
+	'volksbg.ringDay': 'Tag',
+	'volksbg.ringDays': 'Tage',
+	'volksbg.ended': 'Eintragungswoche beendet',
+	'volksbg.pollingStations': 'Eintragungslokale',
+	'volksbg.disclaimer':
+		'Quelle: Bundesministerium für Inneres (BMI). somes steht in keiner Verbindung zu den angezeigten Volksbegehren.'
 } as const;

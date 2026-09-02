@@ -18,7 +18,7 @@
 	let {
 		decree,
 		showDelegate = false,
-		coloring = 'dark:bg-primary-300 bg-primary-400 text-black',
+		coloring = 'bg-primary-200 hover:bg-primary-400 dark:bg-primary-300 dark:hover:bg-primary-400 text-black',
 		parliament = getParliament()
 	}: Props = $props();
 
@@ -34,7 +34,7 @@
 	<a
 		href={createDecreePath(decree.decree.ris_id)}
 		tabindex="0"
-		class="entry {coloring} flex items-center justify-between"
+		class="entry {coloring} flex items-center justify-between transition-colors"
 	>
 		<div class="flex w-full flex-col gap-1">
 			{#if aiViewEnabledStore.value && decree.decree.ai_summary}

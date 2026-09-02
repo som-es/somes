@@ -4,27 +4,32 @@
 	import somesWithText from '$lib/assets/somes_with_text2.svg?raw';
 	import Sidebar from '$lib/components/Bars/Sidebar.svelte';
 	import Navbar from '$lib/components/Bars/Navbar.svelte';
-	import { onMount } from 'svelte';
 	import { resolve } from '$app/paths';
-	import { lightModeStore } from '$lib/lightmode.svelte';
+	import { syncTheme } from '$lib/lightmode.svelte';
 	import RenewToken from '$lib/components/Login/RenewToken.svelte';
 	import LoginDrawer from '$lib/components/Login/LoginDrawer.svelte';
 	import ParliamentSwitchModal from '$lib/components/Bars/ParliamentSwitchModal.svelte';
 	import { loginDrawerOpenStore } from '$lib/caching/stores/stores.svelte';
 	import { page } from '$app/state';
+	import { getParliament } from '$lib/api/parliament';
 	import CacheInvalidation from '$lib/components/CacheInvalidation/CacheInvalidation.svelte';
 	import { browser } from '$app/environment';
 	import { t } from '$lib/i18n/i18n.svelte';
 
 	let { children } = $props();
 
-	onMount(() => {
-		document.documentElement.classList.toggle(
-			'dark',
-			lightModeStore.value === 'dark' ||
-				(!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
-		);
+	type DisclaimerKey =
+		'layout.disclaimer.publicData' | 'layout.disclaimer.ris' | 'layout.disclaimer.eu';
+	let disclaimerKey = $derived.by((): DisclaimerKey | null => {
+		const path = page.url.pathname;
+		if (path == '/' || path == '/user' || path == '/impressum' || path == '/datenschutz') {
+			return null;
+		}
+		if (getParliament() == 'eu') return 'layout.disclaimer.eu';
+		return path.includes('decree') ? 'layout.disclaimer.ris' : 'layout.disclaimer.publicData';
 	});
+
+	$effect(() => syncTheme());
 </script>
 
 <RenewToken />
@@ -51,22 +56,12 @@
 		<!-- Main Content -->
 		<main class="mb-35 w-full min-w-0">
 			{@render children()}
-			{#if page.url.pathname == '/' || page.url.pathname == '/user' || page.url.pathname == '/impressum' || page.url.pathname == '/datenschutz'}
-				<span></span>
-			{:else if !page.url.pathname.includes('decree')}
+			{#if disclaimerKey}
 				<div
 					class="mx-auto mt-20 flex w-full max-w-4xl items-center justify-center px-4 text-sm sm:w-120 md:text-base"
 				>
 					<span class="text-center text-gray-500 dark:text-gray-400">
-						{@html t('layout.disclaimer.publicData')}
-					</span>
-				</div>
-			{:else}
-				<div
-					class="mx-auto mt-20 flex w-full max-w-4xl items-center justify-center px-4 text-sm sm:w-120 md:text-base"
-				>
-					<span class="text-center text-gray-500 dark:text-gray-400">
-						{@html t('layout.disclaimer.ris')}
+						{@html t(disclaimerKey!)}
 					</span>
 				</div>
 			{/if}

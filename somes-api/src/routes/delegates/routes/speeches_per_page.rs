@@ -1,5 +1,5 @@
 use axum::{Json, extract::Query};
-use combx::{DbSpeechAiSummary, DbSpeechRelations, DbSpeechWithLink, FullSpeech};
+use combx::{DbInterjection, DbSpeechAiSummary, DbSpeechRelations, DbSpeechWithLink, FullSpeech};
 use serde::{Deserialize, Serialize};
 use somes_common_lib::DelegateByIdAndPage;
 use utoipa::ToSchema;
@@ -38,7 +38,8 @@ pub async fn speeches_by_delegate_per_page_route(
             fs.delegate_id AS "delegate_id!",
             fs."speech: DbSpeechWithLink" AS "speech!: DbSpeechWithLink",
             fs."ai_summary: DbSpeechAiSummary" AS "ai_summary: DbSpeechAiSummary",
-            fs."relations: Vec<DbSpeechRelations>" AS "relations!: Vec<DbSpeechRelations>"
+            fs."relations: Vec<DbSpeechRelations>" AS "relations!: Vec<DbSpeechRelations>",
+            fs."received_interjections: Vec<DbInterjection>" AS "received_interjections!: Vec<DbInterjection>"
         FROM full_speeches fs
         INNER JOIN debates ON debates.id = fs.debate_id
         INNER JOIN plenar_infos pi ON pi.id = debates.plenar_id

@@ -5,6 +5,7 @@
 	import Container from '$lib/components/Layout/Container.svelte';
 	import MinisterialView from '$lib/components/MinisterialView/MinisterialView.svelte';
 	import type { MinisterialViewData } from '$lib/components/MinisterialView/types';
+	import MoodBarometer from '$lib/components/MoodBarometer/MoodBarometer.svelte';
 	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import VoteResultExpandableBar from '$lib/components/VoteResults/Expandable/VoteResultExpandableBar.svelte';
@@ -41,11 +42,14 @@
 			gp: govProposalDelegate.gov_proposal.ministrial_proposal.gp
 		};
 	});
+
+	const title = $derived(govProposalDelegate?.gov_proposal?.ai_summary !== null ? govProposalDelegate?.gov_proposal?.ai_summary?.short_title : govProposalDelegate.gov_proposal.ministrial_proposal.description);
+	const content = $derived(govProposalDelegate?.gov_proposal?.ai_summary !== null ? govProposalDelegate?.gov_proposal?.ai_summary?.very_detailed_summary : govProposalDelegate.gov_proposal.ministrial_proposal.description);
 </script>
 
 <svelte:head>
-	<title>{t('govProposal.meta.title')}</title>
-	<meta name="description" content={t('govProposal.meta.description')} />
+	<title>{title}</title>
+	<meta name="description" {content} />
 </svelte:head>
 
 <Container>
@@ -63,10 +67,17 @@
 				</div>
 			{/if}
 		{/snippet}
+		{#snippet mood()}
+			<MoodBarometer
+				gp={govProposalDelegate.gov_proposal.ministrial_proposal.gp}
+				inr={govProposalDelegate.gov_proposal.ministrial_proposal.inr}
+			/>
+		{/snippet}
 		<MinisterialView
 			{ministerialData}
 			snippets={{
-				voteable: govProposalDelegate.gov_proposal.vote_result === null ? undefined : voteable
+				voteable: govProposalDelegate.gov_proposal.vote_result === null ? undefined : voteable,
+				mood
 			}}
 		/>
 	{:else}

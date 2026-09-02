@@ -3,8 +3,8 @@
 	import hamburgerMenuIcon from '$lib/assets/misc_icons/hamburger-menu.svg?raw';
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow-small.svg?raw';
 	import crossmarkIcon from '$lib/assets/misc_icons/crossmark_small.svg?raw';
-	import austriaMapIcon from '$lib/assets/misc_icons/austria-map.svg?raw';
-	import euMapIcon from '$lib/assets/misc_icons/eu-map.svg?raw';
+	import austriaFlagIcon from '$lib/assets/parliament_switch/austria_map_flag.svg?raw';
+	import euFlagIcon from '$lib/assets/parliament_switch/EU_map_flag.svg?raw';
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
 	import { getParliament, plink } from '$lib/api/parliament';
@@ -21,6 +21,8 @@
 	import { convertGovPropFilterToUrl } from '../Proposals/urlConversion';
 	import { accountOrLogin } from './user';
 	import { t } from '$lib/i18n/i18n.svelte';
+	import ThemeToggle from '$lib/components/UI/ThemeToggle.svelte';
+	import LanguageSwitcher from '$lib/components/UI/LanguageSwitcher.svelte';
 
 	let isOpen = $state(false);
 	let expandedItems = $state<Record<string, boolean>>({});
@@ -216,7 +218,7 @@
 				{t('nav.profile')}
 			</button>
 			<button
-				class="flex w-full touch-manipulation items-center justify-between p-4 text-base font-medium text-white hover:bg-surface-400"
+				class="flex w-full touch-manipulation items-center justify-between border-t border-surface-400 p-4 text-base font-medium text-white hover:bg-surface-400"
 				onclick={() => {
 					closeMenu();
 					parliamentModalOpenStore.value = true;
@@ -224,9 +226,13 @@
 			>
 				<span>{t('nav.menu.parliament')}</span>
 				<div class="h-6 w-6 text-white [&_svg]:h-full [&_svg]:w-full">
-					{@html parliament === 'eu' ? euMapIcon : austriaMapIcon}
+					{@html parliament === 'eu' ? euFlagIcon : austriaFlagIcon}
 				</div>
 			</button>
+			<div class="flex items-center justify-between gap-4 p-4">
+				<ThemeToggle class="touch-manipulation text-base font-medium text-white" />
+				<LanguageSwitcher dark class="w-28" />
+			</div>
 		</nav>
 	{/if}
 </div>

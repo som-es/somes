@@ -296,6 +296,7 @@ pub async fn update_vote_result_meilisearch_index(
     let filterable_fields = OptionalVoteResultFilter::filterable_fields()
         .into_iter()
         .map(|field| field.to_string())
+        .filter(|field| field != "speeches" && field != "named_votes")
         .collect::<Vec<String>>();
 
     let settings = Settings::new()
@@ -331,6 +332,10 @@ pub async fn update_vote_result_meilisearch_index(
                 .iter()
                 .map(|vote| format!("{}{:?}", vote.party, vote.infavor_count > 0))
                 .collect();
+        }
+        vote_result.speeches = None;
+        if let Some(named_votes) = vote_result.named_votes.as_mut() {
+            named_votes.named_votes = None;
         }
     }
 

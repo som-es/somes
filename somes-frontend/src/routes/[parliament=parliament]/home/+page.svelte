@@ -1,9 +1,9 @@
 <script lang="ts">
 	import type { Delegate, GovProposalDelegate, Topic, UniqueTopic, VoteResult } from '$lib/types';
-	import { onMount } from 'svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache.svelte';
 	import NextSessionInfo from '$lib/components/PlenarySessions/NextSessionInfo.svelte';
+	import VolksbegehrenReminder from '$lib/components/Volksbegehren/VolksbegehrenReminder.svelte';
 	import { dashDateToDotDate } from '$lib/date';
 	import LatestProposals from '$lib/components/Proposals/Latest/LatestProposals.svelte';
 	import SessionActivityOverview from '$lib/components/PlenarySessions/SessionActivityOverview.svelte';
@@ -48,67 +48,65 @@
 		return false;
 	}
 
-	onMount(async function () {
-		const userTopics = await cachedUserTopics();
-
-		const tempVoteResults = structuredClone($state.snapshot(voteResults));
-		const tempGovProposals = structuredClone($state.snapshot(govProposals));
-		const tempDecrees = structuredClone($state.snapshot(decrees));
-
-		if (userTopics && tempVoteResults && tempGovProposals && tempDecrees) {
-			voteResults = [];
-			userVoteResults = tempVoteResults.filter((voteResult) => {
-				if (hasFavorites(userTopics, voteResult.eurovoc_topics)) {
-					return true;
-				}
-				voteResults?.push(voteResult);
-				return false;
-			});
-
-			voteResults = voteResults;
-
-			govProposals = [];
-			userGovProposals = tempGovProposals.filter((govProp) => {
-				if (
-					hasFavorites(
-						userTopics,
-						govProp.gov_proposal.eurovoc_topics.length > 0
-							? govProp.gov_proposal.eurovoc_topics
-							: (govProp.gov_proposal.ai_summary?.full_summary.topics?.map((topic) => {
-									return { topic };
-								}) ?? [])
-					)
-				) {
-					return true;
-				}
-				govProposals?.push(govProp);
-				return false;
-			});
-
-			govProposals = govProposals;
-
-			decrees = [];
-			userDecrees = tempDecrees.filter((decree) => {
-				if (
-					hasFavorites(
-						userTopics,
-						decree.decree.ai_summary?.full_summary.topics.map((topic) => {
-							return { topic };
-						}) ?? []
-					)
-				) {
-					return true;
-				}
-				decrees?.push(decree);
-				return false;
-			});
-
-			decrees = decrees;
-		} else {
-			voteResults = tempVoteResults;
-			govProposals = tempGovProposals;
-			decrees = tempDecrees;
+	$effect(() => {
+		void data.parliament;
+		async function loadUserTopics() {
+			const userTopics = await cachedUserTopics();
+			const tempVoteResults = structuredClone($state.snapshot(voteResults));
+			const tempGovProposals = structuredClone($state.snapshot(govProposals));
+			const tempDecrees = structuredClone($state.snapshot(decrees));
+			if (userTopics && tempVoteResults && tempGovProposals && tempDecrees) {
+				voteResults = [];
+				userVoteResults = tempVoteResults.filter((voteResult) => {
+					if (hasFavorites(userTopics, voteResult.eurovoc_topics)) {
+						return true;
+					}
+					voteResults?.push(voteResult);
+					return false;
+				});
+				voteResults = voteResults;
+				govProposals = [];
+				userGovProposals = tempGovProposals.filter((govProp) => {
+					if (
+						hasFavorites(
+							userTopics,
+							govProp.gov_proposal.eurovoc_topics.length > 0
+								? govProp.gov_proposal.eurovoc_topics
+								: (govProp.gov_proposal.ai_summary?.full_summary.topics?.map((topic) => {
+										return { topic };
+									}) ?? [])
+						)
+					) {
+						return true;
+					}
+					govProposals?.push(govProp);
+					return false;
+				});
+				govProposals = govProposals;
+				decrees = [];
+				userDecrees = tempDecrees.filter((decree) => {
+					if (
+						hasFavorites(
+							userTopics,
+							decree.decree.ai_summary?.full_summary.topics.map((topic) => {
+								return { topic };
+							}) ?? []
+						)
+					) {
+						return true;
+					}
+					decrees?.push(decree);
+					return false;
+				});
+				decrees = decrees;
+			} else {
+				voteResults = tempVoteResults;
+				govProposals = tempGovProposals;
+				decrees = tempDecrees;
+			}
 		}
+
+		loadUserTopics();
 	});
 
 	const voteDate: string | null = $derived.by(() => {
@@ -140,6 +138,7 @@
 <Container>
 	{#if data.parliament == 'at'}
 		<NextSessionInfo {nextPlenarySessionDateStr} />
+		<VolksbegehrenReminder week={data.volksbgWeek} />
 	{/if}
 	<SessionActivityOverview
 		overview={latestSessionActivity}
@@ -216,135 +215,137 @@
 		</section>
 	{/if}
 
-	<h2 class="mt-12 px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">
-		{t('home.ministerialDrafts')}
-	</h2>
-	{#if govProposals}
-		{#if userGovProposals}
-			<h2 class="text-xl font-semibold sm:text-2xl">{t('home.byInterest')}</h2>
+	{#if data.parliament == 'at'}
+		<h2 class="mt-12 px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">
+			{t('home.ministerialDrafts')}
+		</h2>
+		{#if govProposals}
+			{#if userGovProposals}
+				<h2 class="text-xl font-semibold sm:text-2xl">{t('home.byInterest')}</h2>
 
-			<LatestProposals govProposals={userGovProposals} />
-		{/if}
-		{#if userGovProposals}
-			<h2 class="mt-2 text-xl font-semibold sm:text-2xl">{t('home.other')}</h2>
-		{/if}
-		{#if govProposals.length == 0}
-			<div class="w-full rounded-lg bg-surface-100-900 p-20 text-center">{t('home.none')}</div>
+				<LatestProposals govProposals={userGovProposals} />
+			{/if}
+			{#if userGovProposals}
+				<h2 class="mt-2 text-xl font-semibold sm:text-2xl">{t('home.other')}</h2>
+			{/if}
+			{#if govProposals.length == 0}
+				<div class="w-full rounded-lg bg-surface-100-900 p-20 text-center">{t('home.none')}</div>
+			{:else}
+				<LatestProposals {govProposals} />
+			{/if}
+			<div class="mt-3">
+				<a
+					href={ministerialHistoryUrl.href}
+					class="group flex w-fit items-center gap-1 text-base text-gray-800 hover:text-black dark:text-gray-300 dark:hover:text-white"
+				>
+					{t('home.moreMinisterialDrafts')}
+					<span class="transition-transform group-hover:translate-x-1">→</span>
+				</a>
+			</div>
 		{:else}
-			<LatestProposals {govProposals} />
+			<section class="w-full animate-pulse card">
+				<div class="space-y-4 p-4">
+					<div class="placeholder"></div>
+					<div class="grid grid-cols-3 gap-8">
+						<div class="placeholder"></div>
+						<div class="placeholder"></div>
+						<div class="placeholder"></div>
+					</div>
+					<div class="grid grid-cols-4 gap-4">
+						<div class="placeholder"></div>
+						<div class="placeholder"></div>
+						<div class="placeholder"></div>
+						<div class="placeholder"></div>
+					</div>
+				</div>
+			</section>
+			<section class="mt-1 w-full animate-pulse card">
+				<div class="space-y-4 p-4">
+					<div class="placeholder"></div>
+					<div class="grid grid-cols-3 gap-8">
+						<div class="placeholder"></div>
+						<div class="placeholder"></div>
+						<div class="placeholder"></div>
+					</div>
+					<div class="grid grid-cols-4 gap-4">
+						<div class="placeholder"></div>
+						<div class="placeholder"></div>
+						<div class="placeholder"></div>
+						<div class="placeholder"></div>
+					</div>
+				</div>
+			</section>
 		{/if}
-		<div class="mt-3">
-			<a
-				href={ministerialHistoryUrl.href}
-				class="group flex w-fit items-center gap-1 text-base text-gray-800 hover:text-black dark:text-gray-300 dark:hover:text-white"
-			>
-				{t('home.moreMinisterialDrafts')}
-				<span class="transition-transform group-hover:translate-x-1">→</span>
-			</a>
-		</div>
-	{:else}
-		<section class="w-full animate-pulse card">
-			<div class="space-y-4 p-4">
-				<div class="placeholder"></div>
-				<div class="grid grid-cols-3 gap-8">
-					<div class="placeholder"></div>
-					<div class="placeholder"></div>
-					<div class="placeholder"></div>
-				</div>
-				<div class="grid grid-cols-4 gap-4">
-					<div class="placeholder"></div>
-					<div class="placeholder"></div>
-					<div class="placeholder"></div>
-					<div class="placeholder"></div>
-				</div>
+		<h2 class="mt-12 px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">
+			{t('home.decrees')}
+		</h2>
+		{#if decrees}
+			{#if userDecrees}
+				<h2 class="text-xl font-semibold sm:text-2xl">{t('home.byInterest')}</h2>
+				{#each userDecrees as decree (decree.decree.ris_id)}
+					<DecreeBar
+						{decree}
+						showDelegate
+						coloring="bg-primary-300 hover:bg-primary-400 dark:bg-primary-500 dark:hover:bg-primary-600 dark:text-white"
+					/>
+				{/each}
+			{/if}
+			{#if userDecrees}
+				<h2 class="mt-2 text-xl font-semibold sm:text-2xl">{t('home.other')}</h2>
+			{/if}
+			{#if decrees.length == 0}
+				<div class="w-full rounded-lg bg-surface-100-900 p-20 text-center">{t('home.none')}</div>
+			{:else}
+				{#each decrees as decree (decree.decree.ris_id)}
+					<DecreeBar
+						{decree}
+						showDelegate
+						coloring="bg-primary-300 hover:bg-primary-400 dark:bg-primary-500 dark:hover:bg-primary-600 dark:text-white"
+					/>
+				{/each}
+			{/if}
+			<div class="mt-3">
+				<a
+					href={decreeHistoryUrl.href}
+					class="group flex w-fit items-center gap-1 text-base text-gray-800 hover:text-black dark:text-gray-300 dark:hover:text-white"
+				>
+					{t('home.moreDecrees')}
+					<span class="transition-transform group-hover:translate-x-1">→</span>
+				</a>
 			</div>
-		</section>
-		<section class="mt-1 w-full animate-pulse card">
-			<div class="space-y-4 p-4">
-				<div class="placeholder"></div>
-				<div class="grid grid-cols-3 gap-8">
-					<div class="placeholder"></div>
-					<div class="placeholder"></div>
-					<div class="placeholder"></div>
-				</div>
-				<div class="grid grid-cols-4 gap-4">
-					<div class="placeholder"></div>
-					<div class="placeholder"></div>
-					<div class="placeholder"></div>
-					<div class="placeholder"></div>
-				</div>
-			</div>
-		</section>
-	{/if}
-	<h2 class="mt-12 px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">
-		{t('home.decrees')}
-	</h2>
-	{#if decrees}
-		{#if userDecrees}
-			<h2 class="text-xl font-semibold sm:text-2xl">{t('home.byInterest')}</h2>
-			{#each userDecrees as decree (decree.decree.ris_id)}
-				<DecreeBar
-					{decree}
-					showDelegate
-					coloring="bg-primary-300 dark:bg-primary-500 dark:text-white"
-				/>
-			{/each}
-		{/if}
-		{#if userDecrees}
-			<h2 class="mt-2 text-xl font-semibold sm:text-2xl">{t('home.other')}</h2>
-		{/if}
-		{#if decrees.length == 0}
-			<div class="w-full rounded-lg bg-surface-100-900 p-20 text-center">{t('home.none')}</div>
 		{:else}
-			{#each decrees as decree (decree.decree.ris_id)}
-				<DecreeBar
-					{decree}
-					showDelegate
-					coloring="bg-primary-300 dark:bg-primary-500 dark:text-white"
-				/>
-			{/each}
+			<section class="w-full animate-pulse card">
+				<div class="space-y-4 p-4">
+					<div class="placeholder"></div>
+					<div class="grid grid-cols-3 gap-8">
+						<div class="placeholder"></div>
+						<div class="placeholder"></div>
+						<div class="placeholder"></div>
+					</div>
+					<div class="grid grid-cols-4 gap-4">
+						<div class="placeholder"></div>
+						<div class="placeholder"></div>
+						<div class="placeholder"></div>
+						<div class="placeholder"></div>
+					</div>
+				</div>
+			</section>
+			<section class="mt-1 w-full animate-pulse card">
+				<div class="space-y-4 p-4">
+					<div class="placeholder"></div>
+					<div class="grid grid-cols-3 gap-8">
+						<div class="placeholder"></div>
+						<div class="placeholder"></div>
+						<div class="placeholder"></div>
+					</div>
+					<div class="grid grid-cols-4 gap-4">
+						<div class="placeholder"></div>
+						<div class="placeholder"></div>
+						<div class="placeholder"></div>
+						<div class="placeholder"></div>
+					</div>
+				</div>
+			</section>
 		{/if}
-		<div class="mt-3">
-			<a
-				href={decreeHistoryUrl.href}
-				class="group flex w-fit items-center gap-1 text-base text-gray-800 hover:text-black dark:text-gray-300 dark:hover:text-white"
-			>
-				{t('home.moreDecrees')}
-				<span class="transition-transform group-hover:translate-x-1">→</span>
-			</a>
-		</div>
-	{:else}
-		<section class="w-full animate-pulse card">
-			<div class="space-y-4 p-4">
-				<div class="placeholder"></div>
-				<div class="grid grid-cols-3 gap-8">
-					<div class="placeholder"></div>
-					<div class="placeholder"></div>
-					<div class="placeholder"></div>
-				</div>
-				<div class="grid grid-cols-4 gap-4">
-					<div class="placeholder"></div>
-					<div class="placeholder"></div>
-					<div class="placeholder"></div>
-					<div class="placeholder"></div>
-				</div>
-			</div>
-		</section>
-		<section class="mt-1 w-full animate-pulse card">
-			<div class="space-y-4 p-4">
-				<div class="placeholder"></div>
-				<div class="grid grid-cols-3 gap-8">
-					<div class="placeholder"></div>
-					<div class="placeholder"></div>
-					<div class="placeholder"></div>
-				</div>
-				<div class="grid grid-cols-4 gap-4">
-					<div class="placeholder"></div>
-					<div class="placeholder"></div>
-					<div class="placeholder"></div>
-					<div class="placeholder"></div>
-				</div>
-			</div>
-		</section>
 	{/if}
 </Container>

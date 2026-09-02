@@ -4,15 +4,14 @@ use crate::redis_db::{AT_DB, EU_DB, MCP_DB, RedisHandle};
 use crate::{AppState, IS_PROD, routes::*};
 use crate::{
     HTTP_PORT, HTTPS_PORT, MEILISEARCH_SECRET, MEILISEARCH_URL, PRIVATE_KEY_PATH, PUBLIC_KEY_PATH,
-    Ports, REDIS_DB, STATIC_FRONTEND_PATH, meilisearch::update_meilisearch_indices,
-    redirect_http_to_https, reset_cache, routes::save_email_route, update_caches,
+    Ports, REDIS_DB, meilisearch::update_meilisearch_indices, redirect_http_to_https, reset_cache,
+    routes::save_email_route, update_caches,
 };
 use axum::response::IntoResponse;
 use axum::{
     Extension, Router,
     http::{self, HeaderValue},
-    response::Html,
-    routing::{any, get, get_service, post},
+    routing::{any, get, post},
 };
 use axum_server::tls_rustls::RustlsConfig;
 use combx::Parliament;
@@ -59,13 +58,16 @@ fn default_allowed_origins() -> AllowOrigin {
 }
 
 fn connect_redis(db_id: u32) -> ServerResult<redis::Client> {
-    let client = redis::Client::open(format!("{REDIS_DB}{db_id}"))?;
+    let client = redis::Client::open(format!("{}{}", REDIS_DB.as_str(), db_id))?;
     client.get_connection()?;
     if reset_cache() || *IS_PROD {
         let mut con = client.get_connection()?;
         redis::cmd("FLUSHALL").query::<()>(&mut con)?;
     }
-    info!("Established redis database connection to {REDIS_DB}.");
+    info!(
+        "Established redis database connection to {}.",
+        REDIS_DB.as_str()
+    );
     Ok(client)
 }
 
@@ -178,6 +180,8 @@ fn parliament_router() -> Router<AppState> {
         .nest("/v1/user", create_user_router())
         .nest("/v1/vote_results", create_vote_results_router())
         .nest("/v1/events", create_events_router())
+        .nest("/v1/speeches", create_speeches_router())
+        .nest("/v1/volksbg", create_volksbg_router())
 }
 
 fn api_router() -> Router<AppState> {
@@ -261,8 +265,10 @@ pub async fn serve(addr: SocketAddr) -> ServerResult<()> {
     let dataservice_sqlx_pool = connect_dataservice("DATASERVICE_URL").await?;
     let eu_dataservice_sqlx_pool = connect_dataservice("EU_DATASERVICE_URL").await?;
 
-    let meilisearch_client =
-        meilisearch_sdk::client::Client::new(MEILISEARCH_URL, Some(MEILISEARCH_SECRET))?;
+    let meilisearch_client = meilisearch_sdk::client::Client::new(
+        MEILISEARCH_URL.as_str(),
+        Some(MEILISEARCH_SECRET.as_str()),
+    )?;
 
     let topics_mapper = TopicsMapper::new(&dataservice_sqlx_pool).await?;
 
@@ -285,8 +291,8 @@ pub async fn serve(addr: SocketAddr) -> ServerResult<()> {
     spawn_search_refresh(state.clone());
 
     let config = RustlsConfig::from_pem_file(
-        PathBuf::from(PUBLIC_KEY_PATH),
-        PathBuf::from(PRIVATE_KEY_PATH),
+        PathBuf::from(PUBLIC_KEY_PATH.as_str()),
+        PathBuf::from(PRIVATE_KEY_PATH.as_str()),
     )
     .await;
 

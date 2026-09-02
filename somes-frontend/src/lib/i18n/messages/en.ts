@@ -61,6 +61,8 @@ export const en = {
 		'These raw data are provided by the <a class="text-secondary-500" href="https://www.parlament.gv.at/recherchieren/open-data/daten-und-lizenz/index.html" target="_blank">Open Data offering</a> of the Austrian Parliament and are licensed under <a class="text-secondary-500" href="https://creativecommons.org/licenses/by/4.0/deed.en" target="_blank">CC-BY 4.0</a>. The corresponding entry on the Parliament page is linked in the title of the Somes detail page.',
 	'layout.disclaimer.ris':
 		'These raw data are provided by the <a class="text-secondary-500" href="https://www.ris.bka.gv.at/UI/Ogd.aspx" target="_blank">Open Data offering</a> of the Austrian Legal Information System of the Federation and are licensed under <a class="text-secondary-500" href="https://creativecommons.org/licenses/by/4.0/deed.en" target="_blank">CC-BY 4.0</a>. The corresponding entry in the RIS is linked in the title of the Somes detail page.',
+	'layout.disclaimer.eu':
+		'These raw data are provided by the <a class="text-secondary-500" href="https://data.europa.eu/data/datasets?query=European+Parliament" target="_blank">Open Data Portal</a> of the European Union (data.europa.eu) and are licensed under <a class="text-secondary-500" href="https://opendatacommons.org/licenses/by/1-0/" target="_blank">ODC-BY 1.0</a>.',
 
 	// --- Landing page (/) ---
 	'landing.meta.description': 'Link to the platform and information about the association',
@@ -261,6 +263,7 @@ export const en = {
 	'interjections.labelIssued': 'Interjection to',
 	'interjections.labelReceived': 'Interjection from',
 	'interjections.noText': 'No text available for this interjection.',
+	'interjections.openSpeech': 'Go to speech',
 	'proposals.title': 'Latest submitted proposals',
 	'proposals.proposal': 'Proposal',
 	'proposals.proposals': 'Proposals',
@@ -439,8 +442,11 @@ export const en = {
 	'speeches.openProtocolLinkTitle': 'Open passage in protocol',
 	'speeches.summary': 'Summary',
 	'speeches.noSummary': 'No summary available.',
+	'speeches.loading': 'Loading speech …',
+	'speeches.notFound': 'Speech could not be loaded.',
 	'speeches.keyPointsTitle': 'Key points of the speech',
 	'speeches.relatedTo': 'Relates to',
+	'speeches.interjectionsTitle': 'Interjections',
 	'speeches.detailLevel.oneSentence': 'One sentence',
 	'speeches.detailLevel.veryShort': 'Very short',
 	'speeches.detailLevel.short': 'Short',
@@ -500,6 +506,20 @@ export const en = {
 	'user.noFavoritePersons': 'No favourited people.',
 	'user.favoriteVotes': 'Favourite votes',
 	'user.noFavoriteVotes': 'No favourited votes.',
+	'user.mcp.title': 'MCP access',
+	'user.mcp.description':
+		'Connect AI assistants (e.g. Claude, ChatGPT) to somes via the Model Context Protocol (MCP). Create a personal access token to do so.',
+	'user.mcp.statusActive': 'An MCP token is active',
+	'user.mcp.statusNone': 'No MCP token configure.',
+	'user.mcp.generate': 'Create token',
+	'user.mcp.regenerate': 'Regenerate token',
+	'user.mcp.revoke': 'Revoke token',
+	'user.mcp.regenerateHint': 'Regenerating or revoking invalidates the previous token.',
+	'user.mcp.tokenOnceWarning':
+		'This token is only shown once. Copy it now and store it in a safe place.',
+	'user.mcp.copy': 'Copy',
+	'user.mcp.copied': 'Copied!',
+	'user.mcp.error': 'The action could not be completed. Please try again later.',
 	'user.dangerZone': 'Danger zone',
 	'user.dangerText': 'This action cannot be undone.',
 	'user.deleteAccount': 'Delete account',
@@ -755,7 +775,7 @@ export const en = {
 	'plenary.nextSession.days': 'days',
 	'proposals.all.title': 'Ministerial drafts',
 	'aiChat.intro':
-		'I am SomBOT, a chatbot of the democracy project "somes". I specialize in answering questions about {name} ({party}) on various topics.',
+		'I am SomBOT, a chatbot of the democracy project "somes". I specialize in answering questions about {name} ({party}) on various topics. I am currently not in service. Consider creating a MCP token',
 	'aiChat.disclaimer.part1':
 		'The chatbot answers are based on excerpts from speeches of the respective person.',
 	'aiChat.disclaimer.part2':
@@ -877,6 +897,9 @@ export const en = {
 	'filter.topics.prefillInterests': 'Interests',
 	'aiChat.placeholder': 'Ask your question...',
 	'aiChat.send': 'Send',
+	'aiChat.mcpHint':
+		'Tip: You can also connect your own AI assistant (e.g. Claude, ChatGPT) to somes via MCP.',
+	'aiChat.mcpHintLink': 'Create a token in your user profile',
 	'interests.detail.title': 'Detailed interests',
 	'interests.detail.subtitle': 'most frequently discussed topics',
 	// --- Questions & Answers ---
@@ -928,5 +951,26 @@ export const en = {
 	'qa.ask.success':
 		'Your question was successfully submitted for review. After approval it will be forwarded via email.',
 	'qa.ask.toOverview': 'To Questions & Answers',
-	'qa.ask.delegateNotFound': 'This person could not be found.'
+	'qa.ask.delegateNotFound': 'This person could not be found.',
+	'mood.heading': 'Mood barometer. Where do you stand on this proposal?',
+	'mood.unlockHint': 'The chart is unlocked after you vote. Results are stored anonymously.',
+	'mood.communityMood': 'Community mood',
+	'mood.negative': 'Negative',
+	'mood.neutral': 'Neutral',
+	'mood.positive': 'Positive',
+	'mood.veryNegative': 'Very negative',
+	'mood.veryPositive': 'Very positive',
+	'mood.stronglyAgainst': 'Strongly against',
+	'mood.stronglyFor': 'Strongly in favor',
+	'mood.distribution': 'Distribution of opinions',
+	'mood.submit': 'Share mood',
+	'mood.error': 'Error while saving. Please try again.',
+	'mood.loginForChart': 'To share your mood and see the chart, you need to log in.',
+	'volksbg.title': 'Popular initiatives',
+	'volksbg.ringDay': 'day',
+	'volksbg.ringDays': 'days',
+	'volksbg.ended': 'Signing week ended',
+	'volksbg.pollingStations': 'Polling stations',
+	'volksbg.disclaimer':
+		'Source: Austrian Federal Ministry of the Interior (BMI). somes is not affiliated with the initiatives shown.'
 } as const;

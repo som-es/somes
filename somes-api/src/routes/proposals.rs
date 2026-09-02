@@ -25,6 +25,7 @@ pub fn create_gov_proposals_router() -> Router<AppState> {
         // .route(LIVE, post(gov_proposals_per_page_route))
         .route(LATEST, get(latest_gov_proposals_route))
         .route("/{gp}/{inr}", get(gov_proposal_by_path_route))
+        .nest("/{gp}/{inr}/mood", create_proposal_mood_router())
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]

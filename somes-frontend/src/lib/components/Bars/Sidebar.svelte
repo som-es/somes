@@ -4,6 +4,7 @@
 	import statisticsIcon from '$lib/assets/icons/statistics.svg?raw';
 	import questionsIcon from '$lib/assets/icons/questions.svg?raw';
 	import somesIcon from '$lib/assets/somes_icon.svg?raw';
+	import somesEuIcon from '$lib/assets/somes_icon_eu.svg?raw';
 	import { page } from '$app/state';
 
 	import { resolve } from '$app/paths';
@@ -13,8 +14,8 @@
 	import { getSeats } from '$lib/caching/seats';
 	import AiViewToggle from '../UI/AiViewToggle.svelte';
 	import SidebarUserMenu from './SidebarUserMenu.svelte';
-	import austriaMapIcon from '$lib/assets/misc_icons/austria-map.svg?raw';
-	import euMapIcon from '$lib/assets/misc_icons/eu-map.svg?raw';
+	import austriaFlagIcon from '$lib/assets/parliament_switch/austria_map_flag.svg?raw';
+	import euFlagIcon from '$lib/assets/parliament_switch/EU_map_flag.svg?raw';
 	import { parliamentModalOpenStore } from '$lib/caching/stores/stores.svelte';
 	import { convertVoteResultFilterToUrl } from '../VoteResults/Expandable/urlConversion';
 	import {
@@ -202,7 +203,7 @@
 			class="mt-4 flex items-center justify-center rounded-xl fill-white stroke-white hover:cursor-pointer"
 		>
 			<span class="mt-3 flex w-10 items-center justify-center fill-white stroke-white!">
-				{@html somesIcon}
+				{@html parliament === 'eu' ? somesEuIcon : somesIcon}
 			</span>
 		</a>
 		<a
@@ -281,7 +282,7 @@
 				class="flex h-10 w-10 items-center justify-center rounded-xl text-white hover:cursor-pointer hover:bg-tertiary-400/60 hover:text-black"
 			>
 				<span class="h-6 w-6 [&_svg]:h-full [&_svg]:w-full">
-					{@html parliament === 'eu' ? euMapIcon : austriaMapIcon}
+					{@html parliament === 'eu' ? euFlagIcon : austriaFlagIcon}
 				</span>
 			</button>
 			<AiViewToggle />

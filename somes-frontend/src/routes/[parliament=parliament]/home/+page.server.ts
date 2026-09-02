@@ -5,7 +5,8 @@ import {
 	latest_decrees,
 	latest_ministrial_proposals,
 	latest_session_activity_overview,
-	latest_vote_results
+	latest_vote_results,
+	toActualDateString
 } from '$lib/api/api';
 import { fetchDelegates } from '$lib/api/fetch_delegates';
 import { cachedAllSeats } from '$lib/caching/seats';
@@ -15,10 +16,30 @@ import type { Parliament } from '$lib/api/parliament';
 import type { Delegate, HasError, VoteResult } from '$lib/types';
 import type { PageServerLoad } from './$types';
 import { cachedPlenarySessions } from '$lib/caching/plenarySessions';
+import { volksbg_weeks, type VolksbgEintragungswoche } from '../../types';
 
 const internalCache: Record<string, { data: any; timestamp: number }> = {};
 
 const CACHE_DURATION_MS = 1000 * 60 * 10;
+
+function currentVolksbgWeek(
+	weeks: VolksbgEintragungswoche[] | HasError | null
+): VolksbgEintragungswoche | null {
+  const today = new Date();
+
+	const candidates = (errorToNull(weeks) ?? [])
+		.filter((week) => week.start_date && week.end_date && week.volksbgs?.length)
+		.sort((a, b) => (a.start_date ?? '').localeCompare(b.start_date ?? ''));
+
+  const week = candidates.find(week => {
+    const endDate = new Date(week.end_date!);
+    endDate.setDate(endDate.getDate() + 2);
+    const startDate = new Date(week.start_date!);
+    startDate.setDate(startDate.getDate() - 3);
+    return today >= startDate && today <= endDate
+  });
+	return week ?? null
+}
 
 function hasDelegate(value: {
 	decree: DecreeDelegate['decree'];
@@ -61,14 +82,16 @@ export const load: PageServerLoad = async ({ fetch, setHeaders, params }) => {
 		latestMinisterialProposals,
 		latestDecrees,
 		allSeats,
-		latestSessionActivity
+		latestSessionActivity,
+		volksbgWeeks
 	] = await Promise.all([
 		next_plenar_date(fetch, parliament),
 		latest_vote_results(fetch, parliament),
 		latest_ministrial_proposals(30, fetch, parliament),
 		latest_decrees(7, fetch, parliament),
 		cachedAllSeats(false, fetch, parliament),
-		latest_session_activity_overview(fetch, parliament)
+		latest_session_activity_overview(fetch, parliament),
+		parliament === 'at' ? volksbg_weeks(fetch, parliament) : Promise.resolve(null)
 	]);
 
 	const delegates = await fetchDelegatesFromVoteResult(latestVotes, fetch, parliament);
@@ -102,7 +125,8 @@ export const load: PageServerLoad = async ({ fetch, setHeaders, params }) => {
 		latestSessionActivity,
 		delegates,
 		allSeats,
-		plenarySessions
+		plenarySessions,
+		volksbgWeek: currentVolksbgWeek(volksbgWeeks)
 	};
 
 	internalCache[parliament] = {
