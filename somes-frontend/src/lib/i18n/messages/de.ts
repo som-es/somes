@@ -449,6 +449,7 @@ export const de = {
 	'speeches.notFound': 'Rede konnte nicht geladen werden.',
 	'speeches.keyPointsTitle': 'Schwerpunkte der Rede',
 	'speeches.relatedTo': 'Bezieht sich auf',
+	'speeches.interjectionsTitle': 'Zwischenrufe',
 	'speeches.detailLevel.oneSentence': 'Ein Satz',
 	'speeches.detailLevel.veryShort': 'Sehr kurz',
 	'speeches.detailLevel.short': 'Kurz',

@@ -3,15 +3,22 @@
 	import { Dialog, Select } from 'bits-ui';
 	import type { Snippet } from 'svelte';
 	import { slide } from 'svelte/transition';
-	import { errorToNull, speech_by_id, vote_result_by_id } from '$lib/api/api';
+	import { delegate_by_id, errorToNull, speech_by_id, vote_result_by_id } from '$lib/api/api';
+	import { gotoHistory } from '$lib/goto';
+	import { plink } from '$lib/api/parliament';
 	import clockIcon from '$lib/assets/misc_icons/clock-two.svg?raw';
 	import upDownArrowIcon from '$lib/assets/misc_icons/up-down-arrow.svg?raw';
 	import downArrowIcon from '$lib/assets/misc_icons/down-arrow.svg?raw';
 	import checkmarkSmall from '$lib/assets/misc_icons/checkmark_small.svg?raw';
 	import linkIcon from '$lib/assets/misc_icons/external-link.svg?raw';
-	import type { VoteResult } from '$lib/types';
+	import type { Delegate, VoteResult } from '$lib/types';
 	import { Opinion, type DbSpeechRelations, type FullSpeech } from '$lib/speechTypes';
-	import { aiViewEnabledStore, speechDetailLevelStore } from '$lib/stores/stores';
+	import {
+		aiViewEnabledStore,
+		currentDelegateStore,
+		speechDetailLevelStore
+	} from '$lib/stores/stores';
+	import InterjectionBar from '../Interjections/InterjectionBar.svelte';
 	import GlossaryText from '$lib/components/UI/GlossaryText.svelte';
 	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
@@ -50,6 +57,7 @@
 	let loadedSpeechId: number | null = null;
 
 	let expandedKeyPoints: Set<number> = $state(new Set());
+	let interjectionsOpen = $state(false);
 
 	function toggleKeyPoint(index: number) {
 		const next = new Set(expandedKeyPoints);
@@ -62,6 +70,7 @@
 		loadedSpeechId = speech.id;
 		relatedVoteResults = [];
 		expandedKeyPoints = new Set();
+		interjectionsOpen = false;
 		loadingVoteResults = speech.relations.length > 0;
 		speech.relations.forEach(async (relation) => {
 			const voteResult = errorToNull(await vote_result_by_id(relation.legis_init_id.toString()));
@@ -69,6 +78,34 @@
 			loadingVoteResults = false;
 		});
 	});
+
+	let interjections = $derived(
+		[...(speech?.received_interjections ?? [])].sort((a, b) => a.rel_start_idx - b.rel_start_idx)
+	);
+
+	// load interjections after popup is opened
+	let interjectors = $state<Map<number, Delegate>>(new Map());
+	let loadedInterjectorsSpeechId: number | null = null;
+
+	$effect(() => {
+		if (!interjectionsOpen || !speech || loadedInterjectorsSpeechId === speech.id) return;
+		loadedInterjectorsSpeechId = speech.id;
+		interjectors = new Map();
+		const ids = new Set(speech.received_interjections.map((i) => i.interjector_delegate_id));
+		ids.forEach(async (id) => {
+			const delegate = errorToNull(await delegate_by_id(id));
+			if (!delegate) return;
+			const next = new Map(interjectors);
+			next.set(id, delegate);
+			interjectors = next;
+		});
+	});
+
+	function goToDelegate(delegate: Delegate) {
+		open = false;
+		currentDelegateStore.value = delegate;
+		gotoHistory(plink('/delegates'), true);
+	}
 
 	function encodeQuotePart(text: string): string {
 		return encodeURIComponent(text).replace(/-/g, '%2D');
@@ -376,6 +413,46 @@
 					{#if !aiSummary && !loadingVoteResults && relatedVoteResults.length === 0}
 						<div class="rounded-xl bg-primary-300 px-5 py-3 dark:bg-primary-700">
 							<p class="text-base text-gray-800 dark:text-gray-200">{t('speeches.noSummary')}</p>
+						</div>
+					{/if}
+
+					{#if interjections.length > 0}
+						<div class="rounded-xl bg-primary-300 px-5 py-3 dark:bg-primary-700">
+							<button
+								type="button"
+								class="flex w-full cursor-pointer items-center gap-2 text-left"
+								aria-expanded={interjectionsOpen}
+								onclick={() => (interjectionsOpen = !interjectionsOpen)}
+							>
+								<h2 class="text-lg font-semibold md:text-xl">{t('speeches.interjectionsTitle')}</h2>
+								<span
+									class="rounded-full bg-primary-600 px-2 py-0.5 text-xs font-semibold text-white dark:bg-primary-500"
+								>
+									{interjections.length}
+								</span>
+								<span
+									aria-hidden="true"
+									class="ml-auto h-3 w-3 shrink-0 text-gray-700 transition-transform duration-300 dark:text-gray-300 [&>svg]:h-full [&>svg]:w-full {interjectionsOpen
+										? 'rotate-180'
+										: ''}"
+								>
+									{@html downArrowIcon}
+								</span>
+							</button>
+							{#if interjectionsOpen}
+								<ul transition:slide={{ duration: 240 }} class="mt-2 flex flex-col gap-2">
+									{#each interjections as interjection, i (i)}
+										{@const interjector = interjectors.get(interjection.interjector_delegate_id)}
+										<li>
+											<InterjectionBar
+												delegate={interjector ?? null}
+												text={interjection.interjection_text}
+												onNavigate={interjector ? () => goToDelegate(interjector) : undefined}
+											/>
+										</li>
+									{/each}
+								</ul>
+							{/if}
 						</div>
 					{/if}
 

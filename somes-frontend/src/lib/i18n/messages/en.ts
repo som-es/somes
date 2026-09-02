@@ -445,6 +445,7 @@ export const en = {
 	'speeches.notFound': 'Speech could not be loaded.',
 	'speeches.keyPointsTitle': 'Key points of the speech',
 	'speeches.relatedTo': 'Relates to',
+	'speeches.interjectionsTitle': 'Interjections',
 	'speeches.detailLevel.oneSentence': 'One sentence',
 	'speeches.detailLevel.veryShort': 'Very short',
 	'speeches.detailLevel.short': 'Short',
