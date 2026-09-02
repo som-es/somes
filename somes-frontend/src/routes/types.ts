@@ -1,6 +1,7 @@
 import { getWithRoute } from '$lib/api/api';
 import { deleteWithAuth, postWithAuth, putWithAuth } from '$lib/api/authed';
-import type { HasError } from '$lib/types';
+import { getParliament, type Parliament } from '$lib/api/parliament';
+import type { Document, HasError } from '$lib/types';
 
 export function events(fetcher: typeof fetch = fetch): Promise<SomesEvent[] | HasError> {
 	return getWithRoute('v1/events', 'at', fetcher);
@@ -49,4 +50,34 @@ export interface SomesEvent {
 	image: string | null;
 	requires_membership: boolean;
 	requires_registration: boolean;
+}
+
+export interface Volksbg {
+	id: number;
+	slug: string;
+	title: string;
+	description: string | null;
+	overview_url: string;
+	state: string | null;
+	ruling_date: string;
+	cut_off_date: string;
+	eintragungswoche: number | null;
+	documents: Document[];
+}
+
+export interface VolksbgEintragungswoche {
+	id: number | null;
+	start_date: string | null;
+	end_date: string | null;
+	cut_off_date: string | null;
+	online_deadline_utc: string | null;
+	polling_stations_url: string | null;
+	volksbgs: Volksbg[] | null;
+}
+
+export function volksbg_weeks(
+	fetcher: typeof fetch = fetch,
+	parliament: Parliament = getParliament()
+): Promise<VolksbgEintragungswoche[] | HasError> {
+	return getWithRoute<VolksbgEintragungswoche[]>('v1/volksbg/weeks', parliament, fetcher);
 }
