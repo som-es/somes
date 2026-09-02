@@ -58,6 +58,7 @@ pub fn create_delegates_router() -> Router<AppState> {
             "/political_analysis",
             political_analysis::create_political_analysis_router(),
         )
+        .nest("/questions", create_delegate_questions_router())
 }
 
 #[utoipa::path(

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use combx::with_data::unique_topics::{EurovocTopics, TopicsMapper, translate_topics_with_eurovoc};
+use combx::with_data::unique_topics::{TopicsMapper, translate_topics_with_eurovoc};
 use common_scrapes::language::Language;
 use reqwest::StatusCode;
 use somes_common_lib::{PoliticalPosition, PoliticalScore, StanceTopicScore};
