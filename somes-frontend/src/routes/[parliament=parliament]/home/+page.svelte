@@ -4,6 +4,7 @@
 	import Container from '$lib/components/Layout/Container.svelte';
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache.svelte';
 	import NextSessionInfo from '$lib/components/PlenarySessions/NextSessionInfo.svelte';
+	import VolksbegehrenReminder from '$lib/components/Volksbegehren/VolksbegehrenReminder.svelte';
 	import { dashDateToDotDate } from '$lib/date';
 	import LatestProposals from '$lib/components/Proposals/Latest/LatestProposals.svelte';
 	import SessionActivityOverview from '$lib/components/PlenarySessions/SessionActivityOverview.svelte';
@@ -49,7 +50,7 @@
 	}
 
 	$effect(() => {
-	    void data.parliament;
+		void data.parliament;
 		async function loadUserTopics() {
 			const userTopics = await cachedUserTopics();
 			const tempVoteResults = structuredClone($state.snapshot(voteResults));
@@ -138,6 +139,7 @@
 <Container>
 	{#if data.parliament == 'at'}
 		<NextSessionInfo {nextPlenarySessionDateStr} />
+		<VolksbegehrenReminder week={data.volksbgWeek} />
 	{/if}
 	<SessionActivityOverview
 		overview={latestSessionActivity}

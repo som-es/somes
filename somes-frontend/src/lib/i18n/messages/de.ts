@@ -913,5 +913,10 @@ export const de = {
 	'aiChat.placeholder': 'Stelle deine Frage...',
 	'aiChat.send': 'Senden',
 	'interests.detail.title': 'Detailierte Interessen',
-	'interests.detail.subtitle': 'meist behandelte Themen'
+	'interests.detail.subtitle': 'meist behandelte Themen',
+	'volksbg.kicker': 'Volksbegehren',
+	'volksbg.upcoming': 'Eintragungswoche bald verfügbar',
+	'volksbg.running': 'Volksbegehren können jetzt unterschrieben werden',
+	'volksbg.ended': 'Die Eintragungswoche ist vorbei',
+	'volksbg.pollingStations': 'Eintragungslokale'
 } as const;

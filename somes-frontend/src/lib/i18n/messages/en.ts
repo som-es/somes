@@ -879,5 +879,10 @@ export const en = {
 	'aiChat.placeholder': 'Ask your question...',
 	'aiChat.send': 'Send',
 	'interests.detail.title': 'Detailed interests',
-	'interests.detail.subtitle': 'most frequently discussed topics'
+	'interests.detail.subtitle': 'most frequently discussed topics',
+	'volksbg.kicker': 'Popular initiatives',
+	'volksbg.upcoming': 'Signing week coming up',
+	'volksbg.running': 'Popular initiatives can be signed now',
+	'volksbg.ended': 'The signing week is over',
+	'volksbg.pollingStations': 'Polling stations'
 } as const;
