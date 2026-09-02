@@ -25,14 +25,20 @@ const CACHE_DURATION_MS = 1000 * 60 * 10;
 function currentVolksbgWeek(
 	weeks: VolksbgEintragungswoche[] | HasError | null
 ): VolksbgEintragungswoche | null {
-	const today = toActualDateString(new Date()); // 'YYYY-MM-DD', vergleichbar als String
+  const today = new Date();
 
 	const candidates = (errorToNull(weeks) ?? [])
 		.filter((week) => week.start_date && week.end_date && week.volksbgs?.length)
 		.sort((a, b) => (a.start_date ?? '').localeCompare(b.start_date ?? ''));
 
-	const openWeek = candidates.find((week) => (week.end_date ?? '') >= today);
-	return openWeek ?? candidates.at(-1) ?? null;
+  const week = candidates.find(week => {
+    const endDate = new Date(week.end_date!);
+    endDate.setDate(endDate.getDate() + 2);
+    const startDate = new Date(week.start_date!);
+    startDate.setDate(startDate.getDate() - 3);
+    return today >= startDate && today <= endDate
+  });
+	return week ?? null
 }
 
 function hasDelegate(value: {

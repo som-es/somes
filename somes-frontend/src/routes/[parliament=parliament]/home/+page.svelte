@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { Delegate, GovProposalDelegate, Topic, UniqueTopic, VoteResult } from '$lib/types';
-	import { onMount } from 'svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache.svelte';
 	import NextSessionInfo from '$lib/components/PlenarySessions/NextSessionInfo.svelte';
