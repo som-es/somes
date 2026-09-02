@@ -774,7 +774,7 @@ export const en = {
 	'plenary.nextSession.days': 'days',
 	'proposals.all.title': 'Ministerial drafts',
 	'aiChat.intro':
-		'I am SomBOT, a chatbot of the democracy project "somes". I specialize in answering questions about {name} ({party}) on various topics.',
+		'I am SomBOT, a chatbot of the democracy project "somes". I specialize in answering questions about {name} ({party}) on various topics. I am currently not in service. Consider creating a MCP token',
 	'aiChat.disclaimer.part1':
 		'The chatbot answers are based on excerpts from speeches of the respective person.',
 	'aiChat.disclaimer.part2':
