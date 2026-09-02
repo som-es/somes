@@ -914,5 +914,12 @@ export const en = {
 	'mood.distribution': 'Distribution of opinions',
 	'mood.submit': 'Share mood',
 	'mood.error': 'Error while saving. Please try again.',
-	'mood.loginForChart': 'To share your mood and see the chart, you need to log in.'
+	'mood.loginForChart': 'To share your mood and see the chart, you need to log in.',
+	'volksbg.title': 'Popular initiatives',
+	'volksbg.ringDay': 'day',
+	'volksbg.ringDays': 'days',
+	'volksbg.ended': 'Signing week ended',
+	'volksbg.pollingStations': 'Polling stations',
+	'volksbg.disclaimer':
+		'Source: Austrian Federal Ministry of the Interior (BMI). somes is not affiliated with the initiatives shown.'
 } as const;

@@ -950,5 +950,12 @@ export const de = {
 	'mood.submit': 'Stimmung teilen',
 	'mood.error': 'Fehler beim Speichern. Bitte versuche es erneut.',
 	'mood.loginForChart':
-		'Um deine Stimme zu teilen und die Grafik zu sehen, musst du dich einloggen.'
+		'Um deine Stimme zu teilen und die Grafik zu sehen, musst du dich einloggen.',
+	'volksbg.title': 'Aktuelle Volksbegehren',
+	'volksbg.ringDay': 'Tag',
+	'volksbg.ringDays': 'Tage',
+	'volksbg.ended': 'Eintragungswoche beendet',
+	'volksbg.pollingStations': 'Eintragungslokale',
+	'volksbg.disclaimer':
+		'Quelle: Bundesministerium für Inneres (BMI). somes steht in keiner Verbindung zu den angezeigten Volksbegehren.'
 } as const;
