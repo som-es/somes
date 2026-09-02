@@ -18,37 +18,69 @@ pub const MAIL_SERVER: &str = dotenv!("MAIL_SERVER");
 pub const SMTP_PORT: &str = dotenv!("SMTP_PORT");
 pub const SMTP_TLS: &str = dotenv!("SMTP_TLS");
 
+pub const QUESTION_SMTP_USERNAME: &str = dotenv!("QUESTION_SMTP_USERNAME");
+pub const QUESTION_SMTP_PASSWORD: &str = dotenv!("QUESTION_SMTP_PASSWORD");
+pub const QUESTION_MAIL_FROM_DISPLAY: &str = dotenv!("QUESTION_MAIL_FROM_DISPLAY");
+pub const QUESTION_MAIL_SERVER: &str = dotenv!("QUESTION_MAIL_SERVER");
+pub const QUESTION_SMTP_PORT: &str = dotenv!("QUESTION_SMTP_PORT");
+pub const QUESTION_SMTP_TLS: &str = dotenv!("QUESTION_SMTP_TLS");
+
 pub const EMAIL_TEMPLATE: &str = include_str!("email_template.html");
 
-pub static MAILER: Lazy<SmtpTransport> = Lazy::new(|| {
-    log::info!("SMTP USER: {}", SMTP_USERNAME);
-    let port = SMTP_PORT
-        .parse::<u16>()
-        .expect("SMTP_PORT must be a valid port");
-    let use_tls = SMTP_TLS != "false";
+pub fn create_mailer(
+    host: &str,
+    port: u16,
+    use_tls: bool,
+    smtp_username: &str,
+    smtp_passowrd: &str,
+) -> SmtpTransport {
+    log::info!("SMTP USER: {}", smtp_username);
+
     log::info!(
         "Connecting to email relay at {}:{} (tls={})...",
-        MAIL_SERVER,
+        host,
         port,
         use_tls
     );
 
     let mut builder = if use_tls {
-        SmtpTransport::starttls_relay(MAIL_SERVER).expect("Email relay not available.")
+        SmtpTransport::starttls_relay(host).expect("Email relay not available.")
     } else {
-        SmtpTransport::builder_dangerous(MAIL_SERVER)
+        SmtpTransport::builder_dangerous(host)
     };
 
     builder = builder.port(port);
 
-    if !SMTP_USERNAME.is_empty() || !SMTP_PASSWORD.is_empty() {
+    if !smtp_username.is_empty() || !smtp_passowrd.is_empty() {
         builder = builder.credentials(Credentials::new(
-            SMTP_USERNAME.to_string(),
-            SMTP_PASSWORD.to_string(),
+            smtp_username.to_string(),
+            smtp_passowrd.to_string(),
         ));
     }
 
     builder.build()
+}
+
+pub static MAILER: Lazy<SmtpTransport> = Lazy::new(|| {
+    let port = SMTP_PORT
+        .parse::<u16>()
+        .expect("SMTP_PORT must be a valid port");
+    let use_tls = SMTP_TLS != "false";
+    create_mailer(MAIL_SERVER, port, use_tls, SMTP_USERNAME, SMTP_PASSWORD)
+});
+
+pub static QUESTION_MAILER: Lazy<SmtpTransport> = Lazy::new(|| {
+    let port = QUESTION_SMTP_PORT
+        .parse::<u16>()
+        .expect("SMTP_PORT must be a valid port");
+    let use_tls = QUESTION_SMTP_TLS != "false";
+    create_mailer(
+        QUESTION_MAIL_SERVER,
+        port,
+        use_tls,
+        QUESTION_SMTP_USERNAME,
+        QUESTION_SMTP_PASSWORD,
+    )
 });
 
 pub fn send_mail(

@@ -2,8 +2,8 @@ use reqwest::StatusCode;
 use sqlx::Row;
 
 use crate::{
-    email::{send_mail_with_message_id, MAILER},
     GenericError,
+    email::{QUESTION_MAILER, send_mail_with_message_id},
 };
 
 use super::{
@@ -72,7 +72,7 @@ pub(super) async fn send_question_mail(
             return Err(GenericError::Custom((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "Invalid question recipient kind",
-            )))
+            )));
         }
     };
 
@@ -104,7 +104,7 @@ pub(super) async fn send_question_mail(
 
     let mail_result = match tokio::task::spawn_blocking(move || {
         send_mail_with_message_id(
-            &MAILER,
+            &QUESTION_MAILER,
             &recipient_email,
             &mail_subject,
             mail_content,
@@ -161,7 +161,7 @@ fn escape_html(value: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::{render_question_mail, DelegateContact, QuestionDelivery};
+    use super::{DelegateContact, QuestionDelivery, render_question_mail};
 
     #[test]
     fn renders_question_as_safe_html() {
