@@ -12,7 +12,8 @@ use once_cell::sync::Lazy;
 use reqwest::StatusCode;
 use serde::Deserialize;
 use sqlx::Transaction;
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
+use tower_governor::{GovernorLayer, governor::GovernorConfigBuilder};
 
 use crate::{AppState, GenericError, PgPoolConnection, jwt::Claims};
 
@@ -43,11 +44,19 @@ struct PartyRecipientConfig {
 }
 
 pub fn create_delegate_questions_router() -> Router<AppState> {
+    let governor_conf = Arc::new(
+        GovernorConfigBuilder::default()
+            .per_second(15)
+            .burst_size(1)
+            .finish()
+            .unwrap(),
+    );
     Router::new()
         .route("/", get(all_delegate_questions_route))
         .route(
             "/delegate/{delegate_id}",
-            get(delegate_questions_route).post(ask_delegate_question_route),
+            get(delegate_questions_route)
+                .post(post(ask_delegate_question_route).layer(GovernorLayer::new(governor_conf))),
         )
         .route(
             "/delegate/{delegate_id}/question_recipient",

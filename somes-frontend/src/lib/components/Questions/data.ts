@@ -18,7 +18,7 @@ import {
 // The delegate questions API exists on this branch but is not deployed yet.
 // Until it is live we serve mock data in the exact shape the API will return.
 // TODO: flip to true (and delete mock.ts) once the API is live.
-export const QUESTIONS_API_LIVE: boolean = false;
+export const QUESTIONS_API_LIVE: boolean = true;
 const API_LIVE = QUESTIONS_API_LIVE;
 
 function toQuestionDelegate(delegate: Delegate | null): QuestionDelegate | null {
