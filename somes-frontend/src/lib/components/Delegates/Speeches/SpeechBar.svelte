@@ -46,20 +46,15 @@
 	});
 
 	let aiSummary = $derived(aiViewEnabledStore.value ? speech.ai_summary : null);
-
-	let hasDetails = $derived(aiSummary != null || speech.relations.length > 0);
 </script>
 
 <div class="mt-5">
-	<!-- svelte-ignore a11y_no_noninteractive_tabindex (tabindex is only set when role="button" is too) -->
 	<div
-		class="entry flex items-stretch overflow-hidden bg-primary-200 text-black transition-colors dark:bg-primary-300 {hasDetails
-			? 'hover:bg-primary-400 dark:hover:bg-primary-400'
-			: ''}"
-		role={hasDetails ? 'button' : undefined}
-		tabindex={hasDetails ? 0 : undefined}
-		onclick={() => hasDetails && (modalOpen = true)}
-		onkeypress={(e) => hasDetails && (e.key === 'Enter' || e.key === ' ') && (modalOpen = true)}
+		class="entry flex cursor-pointer items-stretch overflow-hidden bg-primary-200 text-black transition-colors hover:bg-primary-400 dark:bg-primary-300 dark:hover:bg-primary-400"
+		role="button"
+		tabindex="0"
+		onclick={() => (modalOpen = true)}
+		onkeypress={(e) => (e.key === 'Enter' || e.key === ' ') && (modalOpen = true)}
 	>
 		<div class="w-1.5 shrink-0 {barColor}"></div>
 		<div

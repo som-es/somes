@@ -29,6 +29,7 @@ import type {
 	SessionActivityOverview,
 	PlenarySession
 } from '../types';
+import type { FullSpeech } from '$lib/speechTypes';
 import { getParliament, type Parliament } from './parliament';
 
 // const address = 'https://somes.at';
@@ -324,6 +325,10 @@ export async function speeches_by_delegate_per_page(
 	return getWithRoute<SpeechesWithMaxPage>(
 		`v1/delegates/speeches_per_page?delegate_id=${delegate_id}&page=${page}`
 	);
+}
+
+export async function speech_by_id(speech_id: number): Promise<FullSpeech | null | HasError> {
+	return getWithRoute<FullSpeech | null>(`v1/speeches/${speech_id}`);
 }
 
 export async function interjections_made_by_delegate_per_page(
