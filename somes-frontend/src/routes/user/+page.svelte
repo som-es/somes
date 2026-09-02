@@ -45,6 +45,7 @@
 	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 	import DelegateUserCard from '$lib/components/Delegates/DelegateUserCard.svelte';
 	import MailTopicCard from '$lib/components/UI/MailTopicCard.svelte';
+	import McpTokenCard from '$lib/components/UI/McpTokenCard.svelte';
 	import { t } from '$lib/i18n';
 
 	// State with Svelte 5 runes
@@ -493,6 +494,9 @@
 					{/if}
 				</div>
 			</div>
+			<!-- MCP Access Card -->
+			<McpTokenCard />
+
 			<div class="mt-1 mb-2 flex w-full gap-1 rounded-xl bg-primary-300 p-1 dark:bg-surface-600">
 				<button
 					class="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium {parliament === 'at'

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
+	import { resolve } from '$app/paths';
 	import { t } from '$lib/i18n/i18n.svelte';
 	import type { Delegate } from '$lib/types';
 	import { Dialog, Popover } from 'bits-ui';
@@ -99,6 +100,14 @@
 				</div>
 			</div>
 		{/each}
+	</div>
+	<div
+		class="border-t border-gray-200 bg-primary-100 px-4 py-1.5 text-xs text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
+	>
+		{t('aiChat.mcpHint')}
+		<a href={resolve('/user')} class="text-secondary-500 underline hover:text-secondary-600">
+			{t('aiChat.mcpHintLink')}
+		</a>
 	</div>
 	<div
 		class="flex items-center border-t border-gray-200 bg-primary-100 p-4 dark:border-gray-700 dark:bg-gray-800"

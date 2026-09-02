@@ -506,6 +506,20 @@ export const de = {
 	'user.noFavoritePersons': 'Keine favorisierten Personen vorhanden.',
 	'user.favoriteVotes': 'Favorisierte Abstimmungen',
 	'user.noFavoriteVotes': 'Keine favorisierten Abstimmungen vorhanden.',
+	'user.mcp.title': 'MCP-Zugang',
+	'user.mcp.description':
+		'Verbinde KI-Assistenten (z.B. Claude, ChatGPT) über das Model Context Protocol (MCP) mit somes. Erstelle dazu einen persönlichen Zugriffstoken.',
+	'user.mcp.statusActive': 'Ein MCP-Token ist aktiv',
+	'user.mcp.statusNone': 'Kein MCP-Token vorhanden',
+	'user.mcp.generate': 'Token erstellen',
+	'user.mcp.regenerate': 'Token neu erstellen',
+	'user.mcp.revoke': 'Token widerrufen',
+	'user.mcp.regenerateHint': 'Beim Neu-Erstellen oder Widerrufen wird das bisherige Token ungültig.',
+	'user.mcp.tokenOnceWarning':
+		'Dieser Token wird nur einmal angezeigt. Kopiere ihn JETZT und bewahre ihn sicher auf.',
+	'user.mcp.copy': 'Kopieren',
+	'user.mcp.copied': 'Kopiert!',
+	'user.mcp.error': 'Die Aktion konnte nicht ausgeführt werden. Bitte versuche es später erneut.',
 	'user.dangerZone': 'Gefahrenbereich',
 	'user.dangerText': 'Diese Aktion kann nicht rückgängig gemacht werden.',
 	'user.deleteAccount': 'Account löschen',
@@ -912,6 +926,25 @@ export const de = {
 	'filter.topics.prefillInterests': 'Interessen',
 	'aiChat.placeholder': 'Stelle deine Frage...',
 	'aiChat.send': 'Senden',
+	'aiChat.mcpHint':
+		'Hinweis: Du kannst auch deinen eigenen KI-Assistenten (z.B. Claude, ChatGPT) über MCP mit somes verbinden.',
+	'aiChat.mcpHintLink': 'Token im Benutzerprofil erstellen',
 	'interests.detail.title': 'Detailierte Interessen',
-	'interests.detail.subtitle': 'meist behandelte Themen'
+	'interests.detail.subtitle': 'meist behandelte Themen',
+	'mood.heading': 'Stimmungsbarometer. Wie stehen Sie zu dem Vorschlag?',
+	'mood.unlockHint':
+		'Grafik wird nach Eingabe freigeschalten. Die Ergebnisse werden anonym gespeichert.',
+	'mood.communityMood': 'Community-Stimmung',
+	'mood.negative': 'Negativ',
+	'mood.neutral': 'Neutral',
+	'mood.positive': 'Positiv',
+	'mood.veryNegative': 'Stark negativ',
+	'mood.veryPositive': 'Stark positiv',
+	'mood.stronglyAgainst': 'Stark dagegen',
+	'mood.stronglyFor': 'Stark dafür',
+	'mood.distribution': 'Verteilung der Meinungen',
+	'mood.submit': 'Stimmung teilen',
+	'mood.error': 'Fehler beim Speichern. Bitte versuche es erneut.',
+	'mood.loginForChart':
+		'Um deine Stimme zu teilen und die Grafik zu sehen, musst du dich einloggen.'
 } as const;

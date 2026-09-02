@@ -103,6 +103,23 @@ export interface GovProposal {
 	ai_summary: DbAiSummary | null;
 }
 
+export interface MoodBarometer {
+	gov_prop_id: number;
+	mood_id: number;
+	auto_mood: number;
+	pre_aggregated_user_mood: number | null;
+	user_moods: number[];
+}
+
+export interface UserMoodEntry {
+	id: number;
+	user_mood: number;
+	user_id: number;
+	mood_id: number;
+	created_at: string;
+	updated_at: string;
+}
+
 export interface LegislativeInitiative {
 	id: number;
 	ityp: string;
@@ -297,6 +314,10 @@ export interface HasError {
 
 export interface JWTInfo {
 	access_token: string;
+}
+
+export interface HasMcpToken {
+	has_token: boolean;
 }
 
 export function jwtDecode(t: string) {
