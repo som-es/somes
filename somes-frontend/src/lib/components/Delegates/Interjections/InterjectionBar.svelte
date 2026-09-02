@@ -4,6 +4,7 @@
 	import { partyToColor } from '$lib/partyColor';
 	import type { Delegate, Interjection } from '$lib/types';
 	import SpeechModal from '../Speeches/SpeechModal.svelte';
+	import SpeechDelegateHeader from '../Speeches/SpeechDelegateHeader.svelte';
 
 	interface Props {
 		interjection: Interjection;
@@ -16,6 +17,9 @@
 	let loading = $state(true);
 	let modalOpen = $state(false);
 
+	let fetchedSpeaker = $state<Delegate | null>(null);
+	let speaker = $derived(ty === 'issued' ? delegate : fetchedSpeaker);
+
 	$effect(() => {
 		loading = true;
 		delegate_by_id(
@@ -23,6 +27,13 @@
 		).then((res) => {
 			delegate = errorToNull(res);
 			loading = false;
+		});
+	});
+
+	$effect(() => {
+		if (!modalOpen || ty === 'issued' || fetchedSpeaker) return;
+		delegate_by_id(interjection.speaker_delegate_id).then((res) => {
+			fetchedSpeaker = errorToNull(res);
 		});
 	});
 </script>
@@ -68,5 +79,13 @@
 		</div>
 	</div>
 
-	<SpeechModal speech={interjection.plenar_speech_id} bind:open={modalOpen} />
+	<SpeechModal speech={interjection.plenar_speech_id} bind:open={modalOpen}>
+		{#snippet header()}
+			{#if speaker}
+				<div class="mb-1.5">
+					<SpeechDelegateHeader delegate={speaker} />
+				</div>
+			{/if}
+		{/snippet}
+	</SpeechModal>
 {/if}

@@ -10,6 +10,7 @@
 	import { getParliament, plink, type Parliament } from '$lib/api/parliament';
 	import DelegateListItem from '../DelegateListItem.svelte';
 	import SpeechModal from '../Speeches/SpeechModal.svelte';
+	import SpeechDelegateHeader from '../Speeches/SpeechDelegateHeader.svelte';
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow-small.svg?raw';
 
 	interface Props {
@@ -58,10 +59,16 @@
 
 	let speechModalId = $state<number | null>(null);
 	let speechModalOpen = $state(false);
+	let speechModalSpeaker = $state<Delegate | null>(null);
 
-	function openSpeech(id: number) {
-		speechModalId = id;
+	async function openSpeech(interjection: Interjection) {
+		speechModalId = interjection.plenar_speech_id;
+		speechModalSpeaker = null;
 		speechModalOpen = true;
+		const speaker = await fetchDelegate(interjection.speaker_delegate_id);
+		if (!isHasError(speaker) && speechModalId === interjection.plenar_speech_id) {
+			speechModalSpeaker = speaker;
+		}
 	}
 </script>
 
@@ -150,7 +157,7 @@
 								{/await}
 								<button
 									class="mt-1 flex w-full items-center justify-center gap-1 rounded-xl px-3 py-1.5 text-sm font-medium transition-colors hover:bg-primary-400 dark:hover:bg-primary-500"
-									onclick={() => openSpeech(interjection.plenar_speech_id)}
+									onclick={() => openSpeech(interjection)}
 								>
 									{t('interjections.openSpeech')}
 									<span class="h-4 w-4 [&_path]:stroke-current [&>svg]:h-full [&>svg]:w-full">
@@ -183,6 +190,14 @@
 
 {#if speechModalId !== null}
 	{#key speechModalId}
-		<SpeechModal speech={speechModalId} bind:open={speechModalOpen} />
+		<SpeechModal speech={speechModalId} bind:open={speechModalOpen}>
+			{#snippet header()}
+				{#if speechModalSpeaker}
+					<div class="mb-1.5">
+						<SpeechDelegateHeader delegate={speechModalSpeaker} {parliament} />
+					</div>
+				{/if}
+			{/snippet}
+		</SpeechModal>
 	{/key}
 {/if}
