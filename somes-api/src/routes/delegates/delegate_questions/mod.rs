@@ -13,7 +13,9 @@ use reqwest::StatusCode;
 use std::sync::Arc;
 use tower_governor::{GovernorLayer, governor::GovernorConfigBuilder};
 
-use crate::{AppState, GenericError, PgPoolConnection, jwt::Claims};
+use crate::{
+    AppState, GenericError, PgPoolConnection, jwt::Claims, meilisearch::MeilisearchClient,
+};
 
 use self::{
     db::{
@@ -143,6 +145,7 @@ pub async fn pending_delegate_questions_route(
 }
 
 pub async fn approve_delegate_question_route(
+    MeilisearchClient(meilisearch_client): MeilisearchClient,
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
     Query(query): Query<DelegateQuestionQuery>,
@@ -158,7 +161,7 @@ pub async fn approve_delegate_question_route(
         )));
     }
 
-    send_question_mail(&pg, question_id).await?;
+    send_question_mail(&pg, question_id, &meilisearch_client).await?;
     find_admin_question(&pg, question_id, query.language)
         .await
         .map(Json)

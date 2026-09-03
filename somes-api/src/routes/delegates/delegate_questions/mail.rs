@@ -17,6 +17,7 @@ const PARTY_QUESTION_TEMPLATE: &str = include_str!("../../../email/party_questio
 pub(super) async fn send_question_mail(
     pg: &sqlx::PgPool,
     question_id: i64,
+    meilisearch_client: &meilisearch_sdk::client::Client,
 ) -> Result<(), GenericError> {
     let row = sqlx::query!(
         "

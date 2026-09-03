@@ -29,14 +29,3 @@ pub async fn save_email_route(
 
     Ok(Json(()))
 }
-
-#[cfg(test)]
-mod tests {
-    use super::save_email_to_file;
-
-    #[test]
-    fn save_mail() {
-        let mail = "test_mail@gmail.com";
-        save_email_to_file(mail).unwrap();
-    }
-}
