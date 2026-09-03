@@ -5,8 +5,7 @@ use redis::aio::ConnectionManager;
 use somes_common_lib::ToCompositeType;
 
 use super::{index_settings, swap::rebuild_index_via_swap, update_time};
-use crate::routes::PublicDelegateQuestion;
-use crate::routes::db::fetch_public_questions;
+use crate::routes::{db::fetch_public_questions, models::PublicDelegateQuestion};
 
 pub async fn update_delegate_questions_meilisearch_index(
     parliament: Parliament,

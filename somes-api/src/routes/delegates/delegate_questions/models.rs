@@ -57,25 +57,33 @@ pub struct DelegateQuestionRecipient {
     pub recipient_name: String,
 }
 
-#[derive(Debug, Serialize, Clone, PartialEq, Type, CompositeType, MeilisearchFilter)]
+#[derive(
+    Debug, Deserialize, Serialize, Clone, PartialEq, Type, CompositeType, MeilisearchFilter,
+)]
 pub struct DelegateQuestionTopic {
     pub id: String,
     pub topic: String,
 }
 
-#[derive(Debug, Serialize, Type, CompositeType, MeilisearchFilter)]
+#[derive(Debug, Deserialize, Serialize, Type, CompositeType, MeilisearchFilter)]
 pub struct PublicDelegateQuestion {
+    #[filter(make_vec, make_optional)]
     pub id: i64,
-    #[filter(make_vec)]
+    #[filter(make_vec, make_optional)]
     pub delegate_id: i32,
+    #[filter(make_optional)]
     pub subject: String,
+    #[filter(make_optional)]
     pub body: String,
+    #[filter(make_optional)]
     pub created_at: DateTime<Utc>,
+    #[filter(make_optional)]
     pub topics: Vec<DelegateQuestionTopic>,
+    #[filter(skip)]
     pub answers: Vec<PublicDelegateQuestionAnswer>,
 }
 
-#[derive(Debug, Serialize, MeilisearchFilter, Type, CompositeType)]
+#[derive(Debug, Deserialize, Serialize, MeilisearchFilter, Type, CompositeType)]
 pub struct PublicDelegateQuestionAnswer {
     pub body: String,
     pub received_at: DateTime<Utc>,

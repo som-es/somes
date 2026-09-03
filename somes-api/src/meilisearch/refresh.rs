@@ -205,14 +205,17 @@ mod tests {
     }
 
     #[test]
-    fn only_decrees_keeps_running_in_prod() {
+    fn only_decrees_and_delegate_questions_keep_running_in_prod() {
         let keeps_running = REFRESHERS
             .iter()
             .filter(|refresher| refresher.keeps_running_in_prod())
             .map(|refresher| refresher.index())
             .collect::<Vec<Index>>();
 
-        assert_eq!(keeps_running, vec![Index::Decrees]);
+        assert_eq!(
+            keeps_running,
+            vec![Index::Decrees, Index::DelegateQuestions]
+        );
     }
 
     #[test]

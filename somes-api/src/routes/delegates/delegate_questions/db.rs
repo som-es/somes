@@ -11,15 +11,75 @@ use super::models::{
     PublicDelegateQuestionAnswer, QuestionDelivery,
 };
 
+enum PublicQuestionFilter {
+    All,
+    Delegate(i32),
+    Id(i64),
+}
+
+struct PublicQuestionRow {
+    id: i64,
+    delegate_id: i32,
+    subject: String,
+    question_body: String,
+    created_at: DateTime<Utc>,
+    answer_body: Option<String>,
+    answer_received_at: Option<DateTime<Utc>>,
+}
+
 pub(crate) async fn fetch_public_questions(
     pg: &sqlx::PgPool,
     delegate_id: Option<i32>,
     language: Language,
 ) -> Result<Vec<PublicDelegateQuestion>, GenericError> {
+    let filter = match delegate_id {
+        Some(delegate_id) => PublicQuestionFilter::Delegate(delegate_id),
+        None => PublicQuestionFilter::All,
+    };
+
+    fetch_public_questions_with_filter(pg, filter, language).await
+}
+
+pub(crate) async fn find_public_question(
+    pg: &sqlx::PgPool,
+    question_id: i64,
+    language: Language,
+) -> Result<PublicDelegateQuestion, GenericError> {
+    let mut questions =
+        fetch_public_questions_with_filter(pg, PublicQuestionFilter::Id(question_id), language)
+            .await?;
+
+    questions.pop().ok_or(GenericError::Custom((
+        StatusCode::NOT_FOUND,
+        "Question was not found",
+    )))
+}
+
+async fn fetch_public_questions_with_filter(
+    pg: &sqlx::PgPool,
+    filter: PublicQuestionFilter,
+    language: Language,
+) -> Result<Vec<PublicDelegateQuestion>, GenericError> {
+    let mut questions = to_public_questions(fetch_public_question_rows(pg, filter).await?);
+    attach_question_topics(pg, &mut questions, language).await?;
+
+    Ok(questions)
+}
+
+async fn fetch_public_question_rows(
+    pg: &sqlx::PgPool,
+    filter: PublicQuestionFilter,
+) -> Result<Vec<PublicQuestionRow>, GenericError> {
+    let (delegate_id, question_id) = match filter {
+        PublicQuestionFilter::All => (None, None),
+        PublicQuestionFilter::Delegate(delegate_id) => (Some(delegate_id), None),
+        PublicQuestionFilter::Id(question_id) => (None, Some(question_id)),
+    };
+
     let rows = sqlx::query!(
         r#"
         SELECT
-            q.id AS question_id,
+            q.id,
             q.delegate_id,
             q.subject,
             q.body AS question_body,
@@ -29,39 +89,48 @@ pub(crate) async fn fetch_public_questions(
         FROM delegate_questions q
         LEFT JOIN delegate_question_answers a ON a.question_id = q.id
         WHERE ($1::INTEGER IS NULL OR q.delegate_id = $1)
+            AND ($2::BIGINT IS NULL OR q.id = $2)
             AND q.status IN ('sent', 'answered')
         ORDER BY q.created_at DESC, a.received_at ASC NULLS LAST
         "#,
-        delegate_id
+        delegate_id,
+        question_id
     )
     .fetch_all(pg)
     .await
-    .unwrap();
-    // .map_err(|error| GenericError::SqlFailure(Some(error)))?;
+    .map_err(|error| GenericError::SqlFailure(Some(error)))?;
 
-    let mut questions = Vec::new();
-    let mut question_ids = Vec::new();
-    let mut current_question_id = None;
+    Ok(rows
+        .into_iter()
+        .map(|row| PublicQuestionRow {
+            id: row.id,
+            delegate_id: row.delegate_id,
+            subject: row.subject,
+            question_body: row.question_body,
+            created_at: row.created_at,
+            answer_body: row.answer_body,
+            answer_received_at: row.answer_received_at,
+        })
+        .collect())
+}
+
+fn to_public_questions(rows: Vec<PublicQuestionRow>) -> Vec<PublicDelegateQuestion> {
+    let mut questions: Vec<PublicDelegateQuestion> = Vec::new();
 
     for row in rows {
-        if current_question_id != Some(row.question_id) {
+        if !matches!(questions.last(), Some(question) if question.id == row.id) {
             questions.push(PublicDelegateQuestion {
+                id: row.id,
                 delegate_id: row.delegate_id,
                 subject: row.subject,
                 body: row.question_body,
                 created_at: row.created_at,
                 topics: Vec::new(),
                 answers: Vec::new(),
-                id: row.question_id,
             });
-            question_ids.push(row.question_id);
-            current_question_id = Some(row.question_id);
         }
 
-        let answer_body: Option<String> = row.answer_body;
-        let answer_received_at: Option<DateTime<Utc>> = row.answer_received_at;
-
-        if let (Some(body), Some(received_at)) = (answer_body, answer_received_at) {
+        if let (Some(body), Some(received_at)) = (row.answer_body, row.answer_received_at) {
             if let Some(question) = questions.last_mut() {
                 question
                     .answers
@@ -70,12 +139,7 @@ pub(crate) async fn fetch_public_questions(
         }
     }
 
-    let topics = fetch_question_topics(pg, &question_ids, language).await?;
-    for (question, question_id) in questions.iter_mut().zip(question_ids) {
-        question.topics = topics.get(&question_id).cloned().unwrap_or_default();
-    }
-
-    Ok(questions)
+    questions
 }
 
 pub(super) async fn fetch_review_questions(
@@ -124,11 +188,7 @@ pub(super) async fn fetch_review_questions(
         })
         .collect();
 
-    let question_ids: Vec<i64> = questions.iter().map(|question| question.id).collect();
-    let topics = fetch_question_topics(pg, &question_ids, language).await?;
-    for question in questions.iter_mut() {
-        question.topics = topics.get(&question.id).cloned().unwrap_or_default();
-    }
+    attach_question_topics(pg, &mut questions, language).await?;
 
     Ok(questions)
 }
@@ -166,9 +226,7 @@ pub(super) async fn find_admin_question(
         "Question was not found",
     )))?;
 
-    let topics = fetch_question_topics(pg, &[question_id], language).await?;
-
-    Ok(AdminDelegateQuestion {
+    let mut questions = vec![AdminDelegateQuestion {
         id: row.id,
         user_id: row.user_id,
         delegate_id: row.delegate_id,
@@ -180,8 +238,52 @@ pub(super) async fn find_admin_question(
         body: row.body,
         status: row.status,
         created_at: row.created_at,
-        topics: topics.get(&question_id).cloned().unwrap_or_default(),
-    })
+        topics: Vec::new(),
+    }];
+
+    attach_question_topics(pg, &mut questions, language).await?;
+
+    Ok(questions.remove(0))
+}
+
+trait WithTopics {
+    fn question_id(&self) -> i64;
+    fn set_topics(&mut self, topics: Vec<DelegateQuestionTopic>);
+}
+
+impl WithTopics for PublicDelegateQuestion {
+    fn question_id(&self) -> i64 {
+        self.id
+    }
+
+    fn set_topics(&mut self, topics: Vec<DelegateQuestionTopic>) {
+        self.topics = topics;
+    }
+}
+
+impl WithTopics for AdminDelegateQuestion {
+    fn question_id(&self) -> i64 {
+        self.id
+    }
+
+    fn set_topics(&mut self, topics: Vec<DelegateQuestionTopic>) {
+        self.topics = topics;
+    }
+}
+
+async fn attach_question_topics<T: WithTopics>(
+    pg: &sqlx::PgPool,
+    questions: &mut [T],
+    language: Language,
+) -> Result<(), GenericError> {
+    let question_ids: Vec<i64> = questions.iter().map(WithTopics::question_id).collect();
+    let mut topics = fetch_question_topics(pg, &question_ids, language).await?;
+
+    for question in questions.iter_mut() {
+        question.set_topics(topics.remove(&question.question_id()).unwrap_or_default());
+    }
+
+    Ok(())
 }
 
 pub(super) async fn fetch_question_topics(

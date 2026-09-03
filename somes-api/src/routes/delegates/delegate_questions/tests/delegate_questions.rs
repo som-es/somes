@@ -7,7 +7,7 @@ use crate::GenericError;
 use super::{
     db::{
         create_question, fetch_public_questions, fetch_question_topics, fetch_review_questions,
-        find_admin_question, update_question,
+        find_admin_question, find_public_question, update_question,
     },
     models::{DelegateQuestionTopic, QuestionDelivery},
 };
@@ -50,6 +50,45 @@ async fn public_questions_expose_topics_in_requested_language(pool: PgPool) {
         expected_topics(&[("100", "committee report"), ("300", "Nur Deutsch")])
     );
     assert!(questions[1].answers.is_empty());
+}
+
+#[sqlx::test(fixtures("fixtures/delegate_questions_base.sql"))]
+async fn find_public_question_returns_topics_and_answers(pool: PgPool) {
+    let english = find_public_question(&pool, 2, Language::En).await.unwrap();
+
+    assert_eq!(english.id, 2);
+    assert_eq!(english.subject, "Frage zwei");
+    assert_eq!(english.delegate_id, 1);
+    assert_eq!(
+        english.topics,
+        expected_topics(&[("200", "professional association")])
+    );
+    assert_eq!(english.answers.len(), 2);
+
+    let german = find_public_question(&pool, 1, Language::De).await.unwrap();
+
+    assert_eq!(german.id, 1);
+    assert_eq!(german.subject, "Frage eins");
+    assert_eq!(
+        german.topics,
+        expected_topics(&[("100", "Ausschussbericht"), ("300", "Nur Deutsch")])
+    );
+    assert!(german.answers.is_empty());
+}
+
+#[sqlx::test(fixtures("fixtures/delegate_questions_base.sql"))]
+async fn find_public_question_rejects_unpublished_or_unknown_questions(pool: PgPool) {
+    for question_id in [3, 4, 999] {
+        let error = find_public_question(&pool, question_id, Language::De)
+            .await
+            .expect_err("only published questions may be fetched");
+
+        let GenericError::Custom((status, reason)) = error else {
+            panic!("expected a custom error, got {error:?}");
+        };
+        assert_eq!(status, StatusCode::NOT_FOUND);
+        assert_eq!(reason, "Question was not found");
+    }
 }
 
 #[sqlx::test(fixtures("fixtures/delegate_questions_base.sql"))]

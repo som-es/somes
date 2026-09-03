@@ -1,8 +1,11 @@
+use combx::{Index, Parliament};
+use common_scrapes::language::Language;
 use reqwest::StatusCode;
 
 use crate::{
     GenericError,
     email::{QUESTION_MAIL_FROM_DISPLAY, QUESTION_MAILER, send_mail_with_message_id},
+    routes::db::find_public_question,
 };
 
 use super::{
@@ -18,6 +21,7 @@ pub(super) async fn send_question_mail(
     pg: &sqlx::PgPool,
     question_id: i64,
     meilisearch_client: &meilisearch_sdk::client::Client,
+    parliament: Parliament,
 ) -> Result<(), GenericError> {
     let row = sqlx::query!(
         "
@@ -109,7 +113,20 @@ pub(super) async fn send_question_mail(
     };
 
     match mail_result {
-        Ok(()) => set_question_status(pg, question_id, "sent").await,
+        Ok(()) => {
+            set_question_status(pg, question_id, "sent").await?;
+            let language = match parliament {
+                Parliament::At => Language::De,
+                Parliament::Eu => Language::En,
+            };
+            let question = find_public_question(pg, question_id, language).await?;
+            meilisearch_client
+                .index(Index::DelegateQuestions.as_str())
+                .add_documents(&[question], None)
+                .await
+                .map_err(|e| GenericError::MeilisearchFailure(e))?;
+            Ok(())
+        }
         Err(error) => {
             log::error!("sending delegate question {question_id} failed: {error}");
             set_question_status(pg, question_id, "failed").await?;

@@ -1,69 +1,36 @@
-pub mod db;
-mod mail;
-mod models;
-mod recipients;
+mod search;
 
 use axum::{
-    Json, Router,
+    Json,
     extract::{Path, Query},
-    routing::{get, post, put},
 };
+use combx::{Index, Parliament};
+use common_scrapes::language::Language;
 use delegate_question_mail::new_question_message_id;
 use reqwest::StatusCode;
-use std::sync::Arc;
-use tower_governor::{GovernorLayer, governor::GovernorConfigBuilder};
+pub(super) use search::*;
 
-use crate::{
-    AppState, GenericError, PgPoolConnection, jwt::Claims, meilisearch::MeilisearchClient,
-};
-
-use self::{
-    db::{
-        create_question, fetch_public_questions, fetch_question_topics, fetch_review_questions,
-        find_admin_question, set_question_status, update_question,
-    },
-    mail::send_question_mail,
-    recipients::find_delegate_contact,
-};
-
-pub use models::{
+pub use super::models::{
     AdminDelegateQuestion, CreateDelegateQuestion, DelegateQuestionCreated, DelegateQuestionQuery,
     DelegateQuestionRecipient, PublicDelegateQuestion, UpdateDelegateQuestion,
+};
+use crate::{
+    GenericError, ParliamentCtx, PgPoolConnection,
+    jwt::Claims,
+    meilisearch::MeilisearchClient,
+    routes::{
+        db::{
+            create_question, fetch_public_questions, fetch_question_topics, fetch_review_questions,
+            find_admin_question, find_public_question, set_question_status, update_question,
+        },
+        delegates::delegate_questions::{
+            mail::send_question_mail, recipients::find_delegate_contact,
+        },
+    },
 };
 
 const MAX_SUBJECT_LENGTH: usize = 255;
 const MAX_BODY_LENGTH: usize = 10_000;
-
-pub fn create_delegate_questions_router() -> Router<AppState> {
-    let governor_conf = Arc::new(
-        GovernorConfigBuilder::default()
-            .per_second(15)
-            .burst_size(1)
-            .finish()
-            .unwrap(),
-    );
-    Router::new()
-        .route("/", get(all_delegate_questions_route))
-        .route(
-            "/delegate/{delegate_id}",
-            get(delegate_questions_route)
-                .post(post(ask_delegate_question_route).layer(GovernorLayer::new(governor_conf))),
-        )
-        .route(
-            "/delegate/{delegate_id}/question_recipient",
-            get(delegate_question_recipient_route),
-        )
-        .route("/pending", get(pending_delegate_questions_route))
-        .route(
-            "/{question_id}/approve",
-            post(approve_delegate_question_route),
-        )
-        .route(
-            "/{question_id}/reject",
-            post(reject_delegate_question_route),
-        )
-        .route("/{question_id}", put(update_delegate_question_route))
-}
 
 pub async fn ask_delegate_question_route(
     PgPoolConnection(pg): PgPoolConnection,
@@ -147,6 +114,7 @@ pub async fn pending_delegate_questions_route(
 pub async fn approve_delegate_question_route(
     MeilisearchClient(meilisearch_client): MeilisearchClient,
     PgPoolConnection(pg): PgPoolConnection,
+    ParliamentCtx(parliament): ParliamentCtx,
     claims: Claims,
     Query(query): Query<DelegateQuestionQuery>,
     Path(question_id): Path<i64>,
@@ -161,7 +129,7 @@ pub async fn approve_delegate_question_route(
         )));
     }
 
-    send_question_mail(&pg, question_id, &meilisearch_client).await?;
+    send_question_mail(&pg, question_id, &meilisearch_client, parliament).await?;
     find_admin_question(&pg, question_id, query.language)
         .await
         .map(Json)
@@ -188,8 +156,20 @@ pub async fn reject_delegate_question_route(
         .map(Json)
 }
 
-pub async fn update_delegate_question_route(
+pub async fn delegate_question_by_id_route(
     PgPoolConnection(pg): PgPoolConnection,
+    Query(query): Query<DelegateQuestionQuery>,
+    Path(question_id): Path<i64>,
+) -> Result<Json<PublicDelegateQuestion>, GenericError> {
+    find_public_question(&pg, question_id, query.language)
+        .await
+        .map(Json)
+}
+
+pub async fn update_delegate_question_route(
+    MeilisearchClient(meilisearch_client): MeilisearchClient,
+    PgPoolConnection(pg): PgPoolConnection,
+    ParliamentCtx(parliament): ParliamentCtx,
     claims: Claims,
     Query(query): Query<DelegateQuestionQuery>,
     Path(question_id): Path<i64>,
@@ -230,6 +210,17 @@ pub async fn update_delegate_question_route(
     )
     .await?;
 
+    let language = match parliament {
+        Parliament::At => Language::De,
+        Parliament::Eu => Language::En,
+    };
+    let question = find_public_question(&pg, question_id, language).await?;
+    meilisearch_client
+        .index(Index::DelegateQuestions.as_str())
+        .add_documents(&[question], None)
+        .await
+        .map_err(|e| GenericError::MeilisearchFailure(e))?;
+
     find_admin_question(&pg, question_id, query.language)
         .await
         .map(Json)
@@ -263,7 +254,3 @@ fn validate_question(subject: &str, body: &str) -> Result<(), GenericError> {
 
     Ok(())
 }
-
-#[cfg(test)]
-#[path = "tests/delegate_questions.rs"]
-mod tests;
