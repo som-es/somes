@@ -262,26 +262,27 @@ async fn fetch_public_questions(
     delegate_id: Option<i32>,
 ) -> Result<Vec<PublicDelegateQuestion>, GenericError> {
     let rows = sqlx::query!(
-        "
+        r#"
         SELECT
             q.id AS question_id,
             q.delegate_id,
             q.subject,
             q.body AS question_body,
             q.created_at,
-            a.body AS answer_body,
-            a.received_at AS answer_received_at
+            a.body AS "answer_body?",
+            a.received_at AS "answer_received_at?"
         FROM delegate_questions q
         LEFT JOIN delegate_question_answers a ON a.question_id = q.id
         WHERE ($1::INTEGER IS NULL OR q.delegate_id = $1)
             AND q.status IN ('sent', 'answered')
         ORDER BY q.created_at DESC, a.received_at ASC NULLS LAST
-        ",
+        "#,
         delegate_id
     )
     .fetch_all(pg)
     .await
-    .map_err(|error| GenericError::SqlFailure(Some(error)))?;
+    .unwrap();
+    // .map_err(|error| GenericError::SqlFailure(Some(error)))?;
 
     let mut questions = Vec::new();
     let mut current_question_id = None;
@@ -298,14 +299,15 @@ async fn fetch_public_questions(
             current_question_id = Some(row.question_id);
         }
 
-        let answer_body: String = row.answer_body;
-        let answer_received_at: DateTime<Utc> = row.answer_received_at;
+        let answer_body: Option<String> = row.answer_body;
+        let answer_received_at: Option<DateTime<Utc>> = row.answer_received_at;
 
-        if let Some(question) = questions.last_mut() {
-            question.answers.push(PublicDelegateQuestionAnswer {
-                body: answer_body,
-                received_at: answer_received_at,
-            });
+        if let (Some(body), Some(received_at)) = (answer_body, answer_received_at) {
+            if let Some(question) = questions.last_mut() {
+                question
+                    .answers
+                    .push(PublicDelegateQuestionAnswer { body, received_at });
+            }
         }
     }
 

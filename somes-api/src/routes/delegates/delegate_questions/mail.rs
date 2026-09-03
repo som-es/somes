@@ -3,7 +3,7 @@ use sqlx::Row;
 
 use crate::{
     GenericError,
-    email::{QUESTION_MAILER, send_mail_with_message_id},
+    email::{QUESTION_MAIL_FROM_DISPLAY, QUESTION_MAILER, send_mail_with_message_id},
 };
 
 use super::{
@@ -95,6 +95,7 @@ pub(super) async fn send_question_mail(
             &mail_subject,
             mail_content,
             Some(outgoing_message_id),
+            QUESTION_MAIL_FROM_DISPLAY,
         )
         .map_err(|error| error.to_string())
     })
