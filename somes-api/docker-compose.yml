@@ -1,0 +1,55 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: somes-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: dataservice
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/create-eu-dataservice.sql:/docker-entrypoint-initdb.d/create-eu-dataservice.sql:ro
+
+  redis:
+    image: redis:7-alpine
+    container_name: somes-redis
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redisdata:/data
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.13
+    container_name: somes-meilisearch
+    command: meilisearch --experimental-contains-filter
+    environment:
+      MEILI_ENV: development
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+      MEILI_NO_ANALYTICS: "true"
+    ports:
+      - "127.0.0.1:7700:7700"
+    volumes:
+      - meilidata:/data.ms
+
+  somes-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: somes-api
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - redis
+      - meilisearch
+
+volumes:
+  pgdata:
+  redisdata:
+  meilidata:

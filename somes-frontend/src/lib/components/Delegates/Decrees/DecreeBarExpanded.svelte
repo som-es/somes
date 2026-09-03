@@ -1,13 +1,12 @@
 <script lang="ts">
-	import type { Decree } from "./types";
+	import type { Decree } from './types';
 
 	export let decree: Decree;
 	export let open: boolean;
-
 </script>
 
-<div class="entry bg-primary-200 dark:bg-primary-400 mt-3 flex flex-wrap">
-	HI	
+<div class="entry mt-3 flex flex-wrap bg-primary-200 dark:bg-primary-400">
+	HI
 	<!-- <VoteResults {voteResults} dels={[]} /> -->
 </div>
 

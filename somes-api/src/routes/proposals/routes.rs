@@ -6,3 +6,6 @@ pub use by_path::*;
 
 mod latest;
 pub use latest::*;
+
+mod mood;
+pub use mood::*;

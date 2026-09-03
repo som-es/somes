@@ -8,15 +8,18 @@
 	import GlossaryText from '../UI/GlossaryText.svelte';
 	import InfoBadgesCustom from '../VoteResults/InfoTiles/InfoBadgesCustom.svelte';
 	import type { MinisterialViewData } from './types';
+	import { t } from '$lib/i18n/i18n.svelte';
 
 	import { dashDateToDotDate } from '$lib/date';
 	import linkIcon from '$lib/assets/misc_icons/external-link.svg?raw';
-	import { aiViewEnabledStore } from '$lib/stores/stores';
+	import { aiViewEnabledStore, currentDelegateStore } from '$lib/stores/stores';
+	import { plink } from '$lib/api/parliament';
+	import { gotoHistory } from '$lib/goto';
 
 	interface Props {
 		ministerialData: MinisterialViewData;
 		children?: Snippet;
-		snippets: Record<string, Snippet | undefined>;
+		snippets?: Record<string, Snippet | undefined>;
 	}
 
 	let { ministerialData, children, snippets = {} }: Props = $props();
@@ -35,6 +38,16 @@
 	function nextDelegate() {
 		if (currentDelegateIndex < delegates.length - 1) currentDelegateIndex++;
 	}
+
+	const onShowDetails = () => {
+		currentDelegateStore.value = delegates[currentDelegateIndex];
+		if (delegates[currentDelegateIndex]) {
+			const link = plink(
+				`/delegates?gp=${ministerialData.gp}&date=${ministerialData.date.toString().split('T')[0]}&delegate=${delegates[currentDelegateIndex].id}`
+			);
+			gotoHistory(link, true);
+		}
+	};
 </script>
 
 <title>
@@ -45,7 +58,7 @@
 	{/if}
 </title>
 
-<div class="mt-3 flex gap-3 max-lg:flex-wrap">
+<div class="mt-3 flex items-start gap-3 max-lg:flex-wrap">
 	<div class="flex w-full flex-col gap-2">
 		<div class="rounded-xl bg-primary-300 px-6 py-5 dark:bg-primary-500">
 			<div class="flex items-start justify-between">
@@ -84,7 +97,7 @@
 
 			{#if ministerialData.aiSummary}
 				<div class="mt-5 pb-3">
-					<h1 class="text-lg font-semibold md:text-xl">Zusammenfassung</h1>
+					<h1 class="text-lg font-semibold md:text-xl">{t('ministerialView.summary')}</h1>
 					<span
 						class="text-base text-gray-800 lg:text-base dark:text-gray-200"
 						style="hyphens: auto; word-break: break-word; overflow-wrap: break-word;"
@@ -125,10 +138,10 @@
 		</div>
 
 		{#if aiViewEnabledStore.value && ministerialData.aiSummary}
-			<Emphasis
-				emphasis={ministerialData.aiSummary.full_summary.key_points}
-				glossary={ministerialData.aiSummary.full_summary.glossary}
-			/>
+			<Emphasis summary={ministerialData.aiSummary.full_summary} />
+		{/if}
+		{#if snippets['mood']}
+			{@render snippets['mood']()}
 		{/if}
 		{#if ministerialData.documents.length > 0 && snippets['voteable'] == null}
 			<div class="flex min-w-full flex-wrap gap-2">
@@ -147,6 +160,7 @@
 			<DelegateCard
 				delegate={delegates[currentDelegateIndex]}
 				showMoreDetailsBtn
+				{onShowDetails}
 				onlyTop
 				showAI={false}
 				date={ministerialData.date}
@@ -186,12 +200,3 @@
 		</div>
 	</div>
 {/if}
-
-<style>
-	.entry {
-		border-radius: 0.9rem;
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-		padding: 11px;
-		gap: 10px;
-	}
-</style>

@@ -1,7 +1,7 @@
 mod delegate;
 use axum::{
-    routing::{delete, get, post, put},
     Router,
+    routing::{delete, get, post, put},
 };
 pub use delegate::*;
 
@@ -9,7 +9,7 @@ mod vote_result;
 use somes_common_lib::{DELEGATE, VOTE_RESULT};
 pub use vote_result::*;
 
-use crate::server::AppState;
+use crate::AppState;
 
 pub fn create_bookmark_router() -> Router<AppState> {
     Router::new()

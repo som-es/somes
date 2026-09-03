@@ -3,17 +3,30 @@
 	import hamburgerMenuIcon from '$lib/assets/misc_icons/hamburger-menu.svg?raw';
 	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow-small.svg?raw';
 	import crossmarkIcon from '$lib/assets/misc_icons/crossmark_small.svg?raw';
+	import austriaFlagIcon from '$lib/assets/parliament_switch/austria_map_flag.svg?raw';
+	import euFlagIcon from '$lib/assets/parliament_switch/EU_map_flag.svg?raw';
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
+	import { getParliament, plink } from '$lib/api/parliament';
+	import { parliamentModalOpenStore } from '$lib/caching/stores/stores.svelte';
 	import { slide } from 'svelte/transition';
 	import { convertVoteResultFilterToUrl } from '../VoteResults/Expandable/urlConversion';
-	import { currentDecreeFilterStore, currentGovProposalFilterStore, currentUnfinshedVoteResultFilterStore, currentVoteResultFilterStore } from '$lib/stores/stores';
+	import {
+		currentDecreeFilterStore,
+		currentGovProposalFilterStore,
+		currentUnfinshedVoteResultFilterStore,
+		currentVoteResultFilterStore
+	} from '$lib/stores/stores';
 	import { convertDecreeFilterToUrl } from '../Decrees/urlConversion';
 	import { convertGovPropFilterToUrl } from '../Proposals/urlConversion';
 	import { accountOrLogin } from './user';
+	import { t } from '$lib/i18n/i18n.svelte';
+	import ThemeToggle from '$lib/components/UI/ThemeToggle.svelte';
+	import LanguageSwitcher from '$lib/components/UI/LanguageSwitcher.svelte';
 
 	let isOpen = $state(false);
 	let expandedItems = $state<Record<string, boolean>>({});
+	let parliament = $derived(getParliament());
 
 	type SubItem = { label: string; href: string; pathname: string };
 	type SubItemGroup = { title: string; items: SubItem[] };
@@ -23,44 +36,54 @@
 		href?: string;
 		subItems?: (SubItem | SubItemGroup)[];
 	};
-	
+
 	const voteResultUrl = $derived(
-		convertVoteResultFilterToUrl(currentVoteResultFilterStore.value, "", undefined, true)
+		convertVoteResultFilterToUrl(currentVoteResultFilterStore.value, '', undefined, true)
 	);
 	const unfinishedVoteResultUrl = $derived(
-		convertVoteResultFilterToUrl(currentUnfinshedVoteResultFilterStore.value, "", undefined, false)
+		convertVoteResultFilterToUrl(currentUnfinshedVoteResultFilterStore.value, '', undefined, false)
 	);
 	const govProposalUrl = $derived(
-		convertGovPropFilterToUrl(currentGovProposalFilterStore.value, "", undefined)
+		convertGovPropFilterToUrl(currentGovProposalFilterStore.value, '', undefined)
 	);
 	const decreeUrl = $derived(
-		convertDecreeFilterToUrl(currentDecreeFilterStore.value, "", undefined)
+		convertDecreeFilterToUrl(currentDecreeFilterStore.value, '', undefined)
 	);
 
-	const navItems: NavItem[] = $derived([
-		{ href: resolve('/home'), label: 'Neuigkeiten' },
-		{
-			label: 'Abstimmungen',
-			subItems: [
-				{
-					title: 'Nationalrat',
-					items: [
-						{ href: voteResultUrl.href, pathname: voteResultUrl.pathname, label: 'Abstimmungen' },
-						{ href: unfinishedVoteResultUrl.href, pathname: unfinishedVoteResultUrl.pathname, label: 'Zur Abstimmung' }
-					]
-				},
-				{
-					title: 'Regierung',
-					items: [
-						{ href: govProposalUrl.href, pathname: govProposalUrl.pathname, label: 'Ministerialentwürfe' },
-						{ href: decreeUrl.href, pathname: decreeUrl.pathname, label: 'Verordnungen' }
-					]
-				}
-			]
-		},
-		{ href: resolve('/delegates'), label: 'Abgeordnete' },
-		{ href: resolve('/statistics'), label: 'Statistiken' },
-	]);
+	const navItems: NavItem[] = $derived.by(() => {
+		const voteSubItems: (SubItem | SubItemGroup)[] = [
+			{
+				title: parliament === 'eu' ? t('nav.euParliament') : t('nav.nationalCouncil'),
+				items: [
+					{ href: voteResultUrl.href, pathname: voteResultUrl.pathname, label: t('nav.votes') },
+					{
+						href: unfinishedVoteResultUrl.href,
+						pathname: unfinishedVoteResultUrl.pathname,
+						label: t('nav.toVote')
+					}
+				]
+			}
+		];
+		if (parliament == 'at') {
+			voteSubItems.push({
+				title: t('nav.government'),
+				items: [
+					{
+						href: govProposalUrl.href,
+						pathname: govProposalUrl.pathname,
+						label: t('nav.ministerialDrafts')
+					},
+					{ href: decreeUrl.href, pathname: decreeUrl.pathname, label: t('nav.decrees') }
+				]
+			});
+		}
+		return [
+			{ href: plink('/home'), label: t('nav.news') },
+			{ label: t('nav.votes'), subItems: voteSubItems },
+			{ href: plink('/delegates'), label: t('nav.delegates') },
+			{ href: plink('/statistics'), label: t('nav.statistics') }
+		];
+	});
 
 	function toggleMenu() {
 		isOpen = !isOpen;
@@ -88,7 +111,7 @@
 		</a>
 		<button
 			onclick={toggleMenu}
-			class="rounded fill-white stroke-white p-2 hover:bg-surface-400 touch-manipulation"
+			class="touch-manipulation rounded fill-white stroke-white p-2 hover:bg-surface-400"
 			aria-label="Menu"
 		>
 			<!-- Hamburger Icon / Close Icon -->
@@ -112,7 +135,7 @@
 			{#each navItems as item}
 				{#if item.subItems}
 					<button
-						class="flex w-full items-center justify-between p-4 touch-manipulation text-base font-medium text-white hover:bg-surface-400"
+						class="flex w-full touch-manipulation items-center justify-between p-4 text-base font-medium text-white hover:bg-surface-400"
 						onclick={() => toggleSubmenu(item.label)}
 					>
 						<span>{item.label}</span>
@@ -129,27 +152,33 @@
 							{#each item.subItems as subItem, i}
 								{#if 'title' in subItem}
 									<div
-										class="pl-5 text-xs font-bold tracking-widest text-surface-300 uppercase {i > 0 ? 'mt-6' : 'mt-2'} mb-3"
+										class="pl-5 text-xs font-bold tracking-widest text-surface-300 uppercase {i > 0
+											? 'mt-6'
+											: 'mt-2'} mb-3"
 									>
 										{subItem.title}
 									</div>
 									<div class="ml-5 border-l-2 border-surface-400">
-									{#each subItem.items as nestedItem}
-										<a
-											href={nestedItem.href}
-											class="flex w-full items-center py-2 pl-4 text-sm font-medium hover:bg-surface-500 {page.url.pathname.includes(nestedItem.pathname)
-												? 'text-tertiary-500'
-												: 'text-white/90'}"
-											onclick={closeMenu}
-										>
-											{nestedItem.label}
-										</a>
-									{/each}
+										{#each subItem.items as nestedItem}
+											<a
+												href={nestedItem.href}
+												class="flex w-full items-center py-2 pl-4 text-sm font-medium hover:bg-surface-500 {page.url.pathname.includes(
+													nestedItem.pathname
+												)
+													? 'text-tertiary-500'
+													: 'text-white/90'}"
+												onclick={closeMenu}
+											>
+												{nestedItem.label}
+											</a>
+										{/each}
 									</div>
 								{:else}
 									<a
 										href={subItem.href}
-										class="flex w-full items-center py-2 pr-4 pl-5 text-sm font-medium hover:bg-surface-500 {page.url.pathname.includes(subItem.pathname)
+										class="flex w-full items-center py-2 pr-4 pl-5 text-sm font-medium hover:bg-surface-500 {page.url.pathname.includes(
+											subItem.pathname
+										)
 											? 'text-tertiary-500'
 											: 'text-white/90'}"
 										onclick={closeMenu}
@@ -163,7 +192,9 @@
 				{:else}
 					<a
 						href={item.href || ''}
-						class="flex w-full items-center p-4 touch-manipulation text-base font-medium hover:bg-surface-400 {page.url.pathname.includes(item.href || '')
+						class="flex w-full touch-manipulation items-center p-4 text-base font-medium hover:bg-surface-400 {page.url.pathname.includes(
+							item.href || ''
+						)
 							? 'text-tertiary-500'
 							: 'text-white'}"
 						onclick={closeMenu}
@@ -173,8 +204,9 @@
 				{/if}
 			{/each}
 			<button
-				
-				class="flex w-full items-center p-4 touch-manipulation text-base font-medium hover:bg-surface-400 {page.url.pathname.includes("user")
+				class="flex w-full touch-manipulation items-center p-4 text-base font-medium hover:bg-surface-400 {page.url.pathname.includes(
+					'user'
+				)
 					? 'text-tertiary-500'
 					: 'text-white'}"
 				onclick={async () => {
@@ -182,8 +214,24 @@
 					closeMenu();
 				}}
 			>
-				Benutzerprofil
+				{t('nav.profile')}
 			</button>
+			<button
+				class="flex w-full touch-manipulation items-center justify-between border-t border-surface-400 p-4 text-base font-medium text-white hover:bg-surface-400"
+				onclick={() => {
+					closeMenu();
+					parliamentModalOpenStore.value = true;
+				}}
+			>
+				<span>{t('nav.menu.parliament')}</span>
+				<div class="h-6 w-6 text-white [&_svg]:h-full [&_svg]:w-full">
+					{@html parliament === 'eu' ? euFlagIcon : austriaFlagIcon}
+				</div>
+			</button>
+			<div class="flex items-center justify-between gap-4 p-4">
+				<ThemeToggle class="touch-manipulation text-base font-medium text-white" />
+				<LanguageSwitcher dark class="w-28" />
+			</div>
 		</nav>
 	{/if}
 </div>

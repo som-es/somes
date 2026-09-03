@@ -8,7 +8,7 @@ fn create_test_base_data() -> Vec<AbsenceBase> {
             delegate_name: "Delegate A".to_string(),
             delegate_party: "Party X".to_string(),
             delegate_filter_party: "Party X".to_string(),
-            delegate_gender: "M".to_string(),
+            delegate_gender: Some("M".to_string()),
             total_absences: 10,
             total_sessions: 20,
             normalized_absences: 0.5,
@@ -19,7 +19,7 @@ fn create_test_base_data() -> Vec<AbsenceBase> {
             delegate_name: "Delegate B".to_string(),
             delegate_party: "Party X".to_string(),
             delegate_filter_party: "Party X".to_string(),
-            delegate_gender: "F".to_string(),
+            delegate_gender: Some("F".to_string()),
             total_absences: 5,
             total_sessions: 20,
             normalized_absences: 0.25,
@@ -30,7 +30,7 @@ fn create_test_base_data() -> Vec<AbsenceBase> {
             delegate_name: "Delegate C".to_string(),
             delegate_party: "Party Y".to_string(),
             delegate_filter_party: "Party Y".to_string(),
-            delegate_gender: "M".to_string(),
+            delegate_gender: Some("M".to_string()),
             total_absences: 15,
             total_sessions: 20,
             normalized_absences: 0.75,
@@ -41,7 +41,7 @@ fn create_test_base_data() -> Vec<AbsenceBase> {
             delegate_name: "Delegate D".to_string(),
             delegate_party: "Party Y".to_string(),
             delegate_filter_party: "Party Y".to_string(),
-            delegate_gender: "F".to_string(),
+            delegate_gender: Some("F".to_string()),
             total_absences: 8,
             total_sessions: 20,
             normalized_absences: 0.4,
@@ -144,7 +144,7 @@ fn test_aggregate_by_party_sorts_by_normalized_score() {
             delegate_name: "Delegate A".to_string(),
             delegate_party: "Party X".to_string(),
             delegate_filter_party: "Party X".to_string(),
-            delegate_gender: "M".to_string(),
+            delegate_gender: Some("M".to_string()),
             total_absences: 10,
             total_sessions: 100,
             normalized_absences: 0.1,
@@ -155,7 +155,7 @@ fn test_aggregate_by_party_sorts_by_normalized_score() {
             delegate_name: "Delegate B".to_string(),
             delegate_party: "Party Y".to_string(),
             delegate_filter_party: "Party Y".to_string(),
-            delegate_gender: "F".to_string(),
+            delegate_gender: Some("F".to_string()),
             total_absences: 2,
             total_sessions: 4,
             normalized_absences: 0.5,
@@ -185,7 +185,7 @@ async fn test_get_base_data_applies_filters_and_computes_absence_stats(pool: PgP
     let delegate = &results[0];
     assert_eq!(delegate.delegate_name, "Delegate A");
     assert_eq!(delegate.delegate_party, "Party X");
-    assert_eq!(delegate.delegate_gender, "M");
+    assert_eq!(delegate.delegate_gender, Some("M".into()));
     assert_eq!(delegate.total_absences, 2);
     assert_eq!(delegate.total_sessions, 1);
     assert!((delegate.normalized_absences - 2.0).abs() < 0.001);

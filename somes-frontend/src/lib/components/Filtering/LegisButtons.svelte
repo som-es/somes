@@ -17,7 +17,7 @@
 </script>
 
 <!-- (add: Sort asc and desc) -->
-<div class="flex flex-wrap flex-row text-black">
+<div class="flex flex-row flex-wrap text-black">
 	{#each periods as period, i}
 		<button
 			class:!bg-tertiary-500={period.gp == selectedPeriod}

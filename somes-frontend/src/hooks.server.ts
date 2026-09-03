@@ -5,8 +5,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	event.locals.theme = theme as 'light' | 'dark';
 
 	const response = await resolve(event, {
-		transformPageChunk: ({ html }) => 
-			html.replace('class=""', `class="${theme}"`)
+		transformPageChunk: ({ html }) => html.replace('class=""', `class="${theme}"`)
 	});
 
 	return response;

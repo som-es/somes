@@ -1,18 +1,15 @@
 use chrono::Utc;
 use combx::Parliament;
-use redis::{aio::MultiplexedConnection, AsyncCommands};
+use redis::AsyncCommands;
 
 use crate::meilisearch::Index;
 
 fn update_time_key(parliament: Parliament, index: &Index) -> String {
-    format!(
-        "meilisearch_last_update_time_{}",
-        index.uid(parliament)
-    )
+    format!("meilisearch_last_update_time_{}", index.uid(parliament))
 }
 
 pub async fn update_update_time_of_index(
-    redis_con: &mut MultiplexedConnection,
+    redis_con: &mut (impl redis::aio::ConnectionLike + Send + Sync),
     parliament: Parliament,
     index: &Index,
 ) -> redis::RedisResult<()> {
@@ -24,13 +21,11 @@ pub async fn update_update_time_of_index(
 }
 
 pub async fn get_update_time_of_index(
-    redis_con: &mut MultiplexedConnection,
+    redis_con: &mut (impl redis::aio::ConnectionLike + Send + Sync),
     parliament: Parliament,
     index: &Index,
 ) -> redis::RedisResult<chrono::DateTime<Utc>> {
-    let time: String = redis_con
-        .get(update_time_key(parliament, index))
-        .await?;
+    let time: String = redis_con.get(update_time_key(parliament, index)).await?;
     let datetime = chrono::DateTime::parse_from_rfc3339(&time)
         .map_err(|e| {
             redis::RedisError::from((

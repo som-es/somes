@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { partyToColor } from '$lib/partyColor';
+	import { t } from '$lib/i18n/i18n.svelte';
+	import { partyToColor, partyColors as globalPartyColors } from '$lib/partyColor';
 	import type { Delegate, DelegateFavo, DelegateQA } from '$lib/types';
 	import { currentDelegateStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
@@ -13,8 +14,13 @@
 	import AIChatModal from './AIChat/AIChatModal.svelte';
 	import { Dialog } from 'bits-ui';
 	import DelegateQAModal from './QA/DelegateQAModal.svelte';
-	import { resolve } from '$app/paths';
+	import { getParliament, plink, type Parliament } from '$lib/api/parliament';
 	import type { SvelteMap } from 'svelte/reactivity';
+
+	const onShowDetailsDefault = () => {
+		currentDelegateStore.value = delegate;
+		gotoHistory(plink('/delegates'), true);
+	};
 
 	interface Props {
 		delegate: Delegate;
@@ -31,6 +37,9 @@
 		top?: import('svelte').Snippet;
 		info?: import('svelte').Snippet;
 		footerButtons?: import('svelte').Snippet;
+		partyColors?: Map<string, string>;
+		parliament?: Parliament;
+		onShowDetails?: () => void;
 	}
 
 	let {
@@ -47,15 +56,13 @@
 		date,
 		top,
 		info,
-		footerButtons
+		footerButtons,
+		partyColors = globalPartyColors,
+		parliament = getParliament(),
+		onShowDetails = onShowDetailsDefault
 	}: Props = $props();
 
 	const showDelegate = import.meta.env.VITE_SHOW_DELEGATE_ID;
-
-	const onShowDetails = () => {
-		currentDelegateStore.value = delegate;
-		gotoHistory(resolve(`/delegates`), true);
-	};
 
 	let delegateFavos: SvelteMap<number, DelegateFavo> | null = $state(null);
 	onMount(async () => {
@@ -69,7 +76,14 @@
 
 		return Math.floor((utc2 - utc1) / _MS_PER_DAY);
 	}
-	let personUrl = $derived(`https://parlament.gv.at/person/${delegate.id}?utm_source=somes.at`);
+	let personUrl = $derived.by(() => {
+		switch (parliament) {
+			case 'at':
+				return `https://parlament.gv.at/person/${delegate.id}?utm_source=somes.at`;
+			case 'eu':
+				return `https://www.europarl.europa.eu/meps/en/${delegate.id}?utm_source=somes.at`;
+		}
+	});
 
 	const mandatesToDisplay = $derived.by(() => {
 		if (date) {
@@ -86,11 +100,13 @@
 			return delegate.mandates_at_time;
 		}
 	});
-	let imgSrc = $derived(`${url}assets/${delegate.id}.jpg`);
+	let imgSrc = $derived(
+		parliament == 'at' ? `${url}assets/${delegate.id}.jpg` : delegate.image_url
+	);
 
-    function handleImgError() {
-        imgSrc = delegate.image_url ?? "";
-    }
+	function handleImgError() {
+		imgSrc = delegate.image_url ?? '';
+	}
 </script>
 
 <div class="flex h-[calc(100%-1rem)] h-full flex-col card bg-primary-200 p-5 dark:bg-primary-400">
@@ -147,8 +163,6 @@
 			<span class="absolute bottom-0 rounded px-1 text-[10px]">
 				{#if delegate.image_copyright}
 					&copy {delegate.image_copyright}
-				{:else}
-					&copy Parlamentsdirektion
 				{/if}
 			</span>
 		</div>
@@ -159,25 +173,25 @@
 		<!-- Name and Age -->
 		<h4 class="text-xl font-bold">
 			{delegate.name}
-			{#if delegate.is_active && showAge}
+			{#if delegate.is_active && showAge && delegate.birthdate}
 				- {Math.floor(dateDiffInDays(new Date(delegate.birthdate), new Date()) / 365)}
 			{/if}
 		</h4>
 		<!-- Birthday Check -->
-		{#if new Date().toString() == new Date(delegate.birthdate).toString()}
+		{#if delegate.birthdate && new Date().toString() == new Date(delegate.birthdate).toString()}
 			<hr />
-			Alles Gute zum Geburtstag!
+			{t('delegate.birthday')}
 		{/if}
 
 		<!-- Party -->
 		<div class="flex items-center">
 			<div
 				class="mx-2 h-2 w-2 rounded-full"
-				style="background-color: {partyToColor(delegate.party)}"
+				style="background-color: {partyToColor(delegate.party, partyColors)}"
 			></div>
 			<p class="text-base text-gray-800 dark:text-gray-50">
 				{#if delegate.party == null || delegate.party == 'OK'}
-					Ohne Klub
+					{t('delegate.withoutParty')}
 				{:else}
 					<span>{delegate.party}</span>
 				{/if}
@@ -226,7 +240,7 @@
 				<div></div>
 			{/if}
 			<button class="rounded-xl bg-primary-600 p-2 px-3 text-white" onclick={onShowDetails}>
-				<h4>Details</h4>
+				<h4>{t('ui.details')}</h4>
 			</button>
 		{/if}
 

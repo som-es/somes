@@ -2,11 +2,11 @@ use axum::Json;
 use serde::{Deserialize, Serialize};
 
 use crate::{
+    AtPgPoolConnection,
     hash::hash_password,
-    jwt::{create_access_token, Claims},
+    jwt::{Claims, create_access_token},
     model::User,
     routes::UserError,
-    PgPoolConnection,
 };
 
 #[derive(Deserialize, Debug)]
@@ -25,7 +25,7 @@ pub struct AnonymizeEmailResponse {
 
 pub async fn anonymize_email(
     claims: Claims,
-    PgPoolConnection(pg): PgPoolConnection,
+    AtPgPoolConnection(pg): AtPgPoolConnection,
 ) -> Result<Json<AnonymizeEmailResponse>, UserError> {
     let current_user = sqlx::query_as!(
         User,

@@ -1,4 +1,4 @@
-import { resolve } from '$app/paths';
+import { plink } from '$lib/api/parliament';
 import type { AiSummary, DbAiSummary } from './ai_summary_types';
 import type { Decree } from './components/Delegates/Decrees/types';
 import type { FullSpeech } from './speechTypes';
@@ -56,7 +56,7 @@ export interface Delegate {
 	seat_col: number | null;
 	gender: string | null;
 	is_active: boolean | null;
-	birthdate: string;
+	birthdate: string | null;
 	active_since: Date;
 	divisions: string[] | null;
 	mandates_at_time: FullMandate[] | null;
@@ -103,6 +103,23 @@ export interface GovProposal {
 	ai_summary: DbAiSummary | null;
 }
 
+export interface MoodBarometer {
+	gov_prop_id: number;
+	mood_id: number;
+	auto_mood: number;
+	pre_aggregated_user_mood: number | null;
+	user_moods: number[];
+}
+
+export interface UserMoodEntry {
+	id: number;
+	user_mood: number;
+	user_id: number;
+	mood_id: number;
+	created_at: string;
+	updated_at: string;
+}
+
 export interface LegislativeInitiative {
 	id: number;
 	ityp: string;
@@ -134,9 +151,10 @@ export interface LegislativeInitiative {
 export interface Vote {
 	party: string;
 	code: string | null;
-	fraction: number;
-	infavor: boolean;
-	legislative_initiatives_id: number;
+	infavor_count: number;
+	against_count: number;
+	abstention_count: number;
+	absence_count: number;
 }
 
 export interface InterjectionsWithMaxPage {
@@ -161,7 +179,7 @@ export interface Topic {
 }
 
 export interface UniqueTopic {
-	id: number;
+	id: string;
 	topic: string;
 }
 
@@ -214,11 +232,9 @@ export interface VoteResult {
 }
 
 export function createVoteResultPath(voteResult: VoteResult): string {
-	return resolve('/vote_result/[gp]/[ityp]/[inr]', {
-		gp: voteResult.legislative_initiative.gp,
-		ityp: voteResult.legislative_initiative.ityp,
-		inr: voteResult.legislative_initiative.inr.toString()
-	});
+	return plink(
+		`/vote_result/${voteResult.legislative_initiative.gp}/${voteResult.legislative_initiative.ityp}/${voteResult.legislative_initiative.inr}`
+	);
 }
 
 export interface VoteResultsWithMaxPage {
@@ -277,15 +293,6 @@ export interface CallToOrdersPerPartyDelegate {
 	ratio: number;
 }
 
-export interface PoliticalPosition {
-	delegate_id: number | null;
-	is_left: number;
-	is_not_left: number;
-	is_liberal: number;
-	is_not_liberal: number;
-	neutral_count: number;
-}
-
 export interface Party {
 	name: string;
 	color: string;
@@ -307,6 +314,10 @@ export interface HasError {
 
 export interface JWTInfo {
 	access_token: string;
+}
+
+export interface HasMcpToken {
+	has_token: boolean;
 }
 
 export function jwtDecode(t: string) {
@@ -461,6 +472,7 @@ export interface Absence {
 export interface NamedVote {
 	infavor: boolean | null;
 	was_absent: boolean | null;
+	was_abstention: boolean;
 	legis_init_id: number;
 	named_vote_info_id: number;
 	date: Date;
@@ -549,6 +561,7 @@ export interface DelegateQA {
 
 export interface InterestShare {
 	topic: string;
+	topic_id: string;
 	total_share: number;
 	occurences: number;
 	self_share: number;
@@ -586,11 +599,26 @@ export interface DelegateFilter {
 	search_value: string | null;
 	legis_period: string | null;
 	day_offset: number | null;
+	supply_date: string | null;
+}
+export interface PoliticalScore {
+	socialist: number;
+	capitalist: number;
+	liberal: number;
+	authoritarian: number;
+	count: number;
 }
 
 export interface StanceTopicScore {
 	topic: string;
+	topic_id: string;
 	score: number;
+	broken_down_score: PoliticalScore;
+}
+
+export interface PoliticalPosition {
+	total_score: PoliticalScore;
+	scores_by_topic: StanceTopicScore[];
 }
 
 export interface GovPropFilter {
@@ -600,6 +628,7 @@ export interface GovPropFilter {
 	departments: string[] | null;
 	date_from: string | null;
 	date_to: string | null;
+	page: number | null;
 }
 
 export interface NamedVote {

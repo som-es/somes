@@ -1,24 +1,25 @@
 use std::{error::Error, fs::File, net::SocketAddr, path::PathBuf, time::Duration};
 
+use crate::redis_db::{AT_DB, EU_DB, MCP_DB, RedisHandle};
+use crate::{AppState, IS_PROD, routes::*};
 use crate::{
-    meilisearch::update_meilisearch_indices, redirect_http_to_https, reset_cache,
-    routes::save_email_route, update_caches, Ports, HTTPS_PORT, HTTP_PORT, MEILISEARCH_SECRET,
-    MEILISEARCH_URL, PRIVATE_KEY_PATH, PUBLIC_KEY_PATH, REDIS_DB, STATIC_FRONTEND_PATH,
+    HTTP_PORT, HTTPS_PORT, MEILISEARCH_SECRET, MEILISEARCH_URL, PRIVATE_KEY_PATH, PUBLIC_KEY_PATH,
+    Ports, REDIS_DB, meilisearch::update_meilisearch_indices, redirect_http_to_https, reset_cache,
+    routes::save_email_route, update_caches,
 };
-use crate::{routes::*, IS_PROD};
+use axum::response::IntoResponse;
 use axum::{
-    extract::FromRef,
-    http::{self, HeaderValue},
-    response::Html,
-    routing::{any, get, get_service, post},
     Extension, Router,
+    http::{self, HeaderValue},
+    routing::{any, get, post},
 };
-use combx::Parliament;
 use axum_server::tls_rustls::RustlsConfig;
+use combx::Parliament;
+use combx::with_data::unique_topics::TopicsMapper;
 use log::info;
 use reqwest::StatusCode;
 use somes_common_lib::*;
-use sqlx::{postgres::PgPoolOptions, PgPool};
+use sqlx::{PgPool, postgres::PgPoolOptions};
 use tokio::{net::TcpListener, time::sleep};
 use tower::ServiceBuilder;
 use tower_http::{
@@ -31,45 +32,6 @@ type ServerResult<T> = Result<T, Box<dyn Error + Send + Sync>>;
 
 const DEFAULT_ALLOWED_ORIGINS: [&str; 2] = ["https://somes.at", "https://www.somes.at"];
 const ASSET_REFRESH_DELAY: Duration = Duration::from_secs(19_000);
-
-#[derive(Clone)]
-pub struct AppState {
-    pub redis_client: redis::Client,
-    pub dataservice_sqlx_pool: PgPool,
-    pub eu_dataservice_sqlx_pool: PgPool,
-    pub meilisearch_client: meilisearch_sdk::client::Client,
-}
-
-impl AppState {
-    pub fn new(
-        redis_client: redis::Client,
-        dataservice_sqlx_pool: PgPool,
-        eu_dataservice_sqlx_pool: PgPool,
-        meilisearch_client: meilisearch_sdk::client::Client,
-    ) -> AppState {
-        AppState {
-            redis_client,
-            dataservice_sqlx_pool,
-            eu_dataservice_sqlx_pool,
-            meilisearch_client,
-        }
-    }
-
-    /// Returns the Postgres pool backing the given parliament. Austrian data
-    /// lives in `DATASERVICE_URL`, EU data in `EU_DATASERVICE_URL`.
-    pub fn pool(&self, parliament: Parliament) -> PgPool {
-        match parliament {
-            Parliament::At => self.dataservice_sqlx_pool.clone(),
-            Parliament::Eu => self.eu_dataservice_sqlx_pool.clone(),
-        }
-    }
-}
-
-impl FromRef<AppState> for redis::Client {
-    fn from_ref(app_state: &AppState) -> redis::Client {
-        app_state.redis_client.clone()
-    }
-}
 
 fn allowed_cors_origin() -> AllowOrigin {
     if !*IS_PROD {
@@ -95,14 +57,17 @@ fn default_allowed_origins() -> AllowOrigin {
     AllowOrigin::list(DEFAULT_ALLOWED_ORIGINS.map(HeaderValue::from_static))
 }
 
-fn connect_redis() -> ServerResult<redis::Client> {
-    let client = redis::Client::open(REDIS_DB)?;
+fn connect_redis(db_id: u32) -> ServerResult<redis::Client> {
+    let client = redis::Client::open(format!("{}{}", REDIS_DB.as_str(), db_id))?;
     client.get_connection()?;
     if reset_cache() || *IS_PROD {
         let mut con = client.get_connection()?;
         redis::cmd("FLUSHALL").query::<()>(&mut con)?;
     }
-    info!("Established redis database connection to {REDIS_DB}.");
+    info!(
+        "Established redis database connection to {}.",
+        REDIS_DB.as_str()
+    );
     Ok(client)
 }
 
@@ -128,10 +93,10 @@ async fn maybe_update_views(dataservice_sqlx_pool: &PgPool) -> ServerResult<()> 
     }
 
     let mut tx = dataservice_sqlx_pool.begin().await?;
-    if let Err(e) = create_composite_types(&mut tx).await {
+    if let Err(e) = create_composite_types(&mut tx, true).await {
         log::error!("Cannot create composite types: {e:?}");
     }
-    if let Err(e) = create_views(&mut tx).await {
+    if let Err(e) = create_views(&mut tx, true).await {
         log::error!("Cannot create views: {e:?}");
     }
     tx.commit().await?;
@@ -150,15 +115,19 @@ fn spawn_asset_refresh(pg_pool: PgPool) {
     });
 }
 
-fn spawn_search_refresh(
-    client: redis::Client,
-    dataservice_sqlx_pool: PgPool,
-    eu_dataservice_sqlx_pool: PgPool,
-    meilisearch_client: meilisearch_sdk::client::Client,
-) {
+fn spawn_search_refresh(app_state: AppState) {
     tokio::task::spawn(async move {
-        let inner_redis_client = client.clone();
-        let inner_pool = dataservice_sqlx_pool.clone();
+        let inner_redis_client = app_state.redis.client.clone();
+        let inner_pool = app_state.dataservice_sqlx_pool.clone();
+        tokio::task::spawn(
+            crate::update_session_activity::update_session_activity_cache(
+                inner_redis_client,
+                inner_pool,
+            ),
+        );
+
+        let inner_redis_client = app_state.eu_redis.client.clone();
+        let inner_pool = app_state.eu_dataservice_sqlx_pool.clone();
         tokio::task::spawn(
             crate::update_session_activity::update_session_activity_cache(
                 inner_redis_client,
@@ -167,16 +136,14 @@ fn spawn_search_refresh(
         );
         // This function blocks in production so streamed updates do not invalidate in-flight fetches
         // and leave Meilisearch with outdated indices.
-        update_meilisearch_indices(
-            &client,
-            &dataservice_sqlx_pool,
-            &eu_dataservice_sqlx_pool,
-            &meilisearch_client,
-        )
-        .await;
+        update_meilisearch_indices(&app_state).await;
 
         if *IS_PROD {
-            update_caches(&client, &dataservice_sqlx_pool, &meilisearch_client);
+            update_caches(
+                &app_state.redis.client,
+                &app_state.dataservice_sqlx_pool,
+                &app_state.meilisearch_client,
+            );
         }
     });
 }
@@ -203,6 +170,7 @@ fn parliament_router() -> Router<AppState> {
         .route(NEXT_PLENAR_DATE, get(next_plenar_date_route))
         .route(PLENAR_DATES, get(plenar_dates_route))
         .route(PLENARY_SESSIONS_PER_GP, get(plenary_sessions_per_gp_route))
+        .route("/orientation_questions", get(orientation_questions_route))
         .route("/save_email", post(save_email_route))
         .nest("/v1/statistics", create_statistics_router())
         .nest("/v1/delegates", create_delegates_router())
@@ -211,6 +179,8 @@ fn parliament_router() -> Router<AppState> {
         .nest("/v1/user", create_user_router())
         .nest("/v1/vote_results", create_vote_results_router())
         .nest("/v1/events", create_events_router())
+        .nest("/v1/speeches", create_speeches_router())
+        .nest("/v1/volksbg", create_volksbg_router())
 }
 
 fn api_router() -> Router<AppState> {
@@ -222,38 +192,18 @@ fn api_router() -> Router<AppState> {
         .route(ADD_QUIZ, post(add_quiz_route))
         .route(QUIZ_ROOM, any(join_quiz_room_route))
         .nest_service("/assets", ServeDir::new("assets"))
-        .nest(
-            "/at",
-            parliament_router().layer(Extension(Parliament::At)),
-        )
-        .nest(
-            "/eu",
-            parliament_router().layer(Extension(Parliament::Eu)),
-        )
+        .nest("/at", parliament_router().layer(Extension(Parliament::At)))
+        .nest("/eu", parliament_router().layer(Extension(Parliament::Eu)))
+}
+
+async fn handler_404() -> impl IntoResponse {
+    (StatusCode::NOT_FOUND, "route not found")
 }
 
 fn app_router(state: AppState) -> Router {
-    let static_files_dir = PathBuf::from(STATIC_FRONTEND_PATH);
-    let current_frontend_dir = ServeDir::new(static_files_dir)
-        .fallback(get(|| async { Html(include_str!("../build/index.html")) }));
-
-    let landing_server_dir = ServeDir::new("somes-landing").fallback(get(|| async {
-        Html(include_str!("../somes-landing/index.html"))
-    }));
-
     Router::new()
         .nest("/api", api_router())
-        .nest_service(
-            "/alpha",
-            get_service(current_frontend_dir).handle_error(|_| async move {
-                (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
-            }),
-        )
-        .fallback_service(
-            get_service(landing_server_dir).handle_error(|_| async move {
-                (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
-            }),
-        )
+        .fallback(handler_404)
         .layer(
             CorsLayer::new()
                 .allow_origin(allowed_cors_origin())
@@ -308,35 +258,40 @@ async fn serve_tls(addr: SocketAddr, config: RustlsConfig, app: Router) -> Serve
 }
 
 pub async fn serve(addr: SocketAddr) -> ServerResult<()> {
-    let client = connect_redis()?;
+    let redis = RedisHandle::new(connect_redis(AT_DB)?).await?;
+    let eu_redis = RedisHandle::new(connect_redis(EU_DB)?).await?;
+    let mcp_redis = RedisHandle::new(connect_redis(MCP_DB)?).await?;
     let dataservice_sqlx_pool = connect_dataservice("DATASERVICE_URL").await?;
     let eu_dataservice_sqlx_pool = connect_dataservice("EU_DATASERVICE_URL").await?;
 
-    let meilisearch_client =
-        meilisearch_sdk::client::Client::new(MEILISEARCH_URL, Some(MEILISEARCH_SECRET))?;
+    let meilisearch_client = meilisearch_sdk::client::Client::new(
+        MEILISEARCH_URL.as_str(),
+        Some(MEILISEARCH_SECRET.as_str()),
+    )?;
+
+    let topics_mapper = TopicsMapper::new(&dataservice_sqlx_pool).await?;
 
     let state = AppState::new(
-        client.clone(),
+        redis.clone(),
+        eu_redis.clone(),
+        mcp_redis,
         dataservice_sqlx_pool.clone(),
         eu_dataservice_sqlx_pool.clone(),
         meilisearch_client.clone(),
+        topics_mapper,
     );
 
     spawn_asset_refresh(dataservice_sqlx_pool.clone());
     maybe_update_views(&dataservice_sqlx_pool).await?;
 
-    crate::refresh_views(&dataservice_sqlx_pool, &client);
+    crate::refresh_views(&dataservice_sqlx_pool, &state.redis.client);
+    crate::refresh_views(&eu_dataservice_sqlx_pool, &state.eu_redis.client);
 
-    spawn_search_refresh(
-        client,
-        dataservice_sqlx_pool,
-        eu_dataservice_sqlx_pool,
-        meilisearch_client,
-    );
+    spawn_search_refresh(state.clone());
 
     let config = RustlsConfig::from_pem_file(
-        PathBuf::from(PUBLIC_KEY_PATH),
-        PathBuf::from(PRIVATE_KEY_PATH),
+        PathBuf::from(PUBLIC_KEY_PATH.as_str()),
+        PathBuf::from(PRIVATE_KEY_PATH.as_str()),
     )
     .await;
 

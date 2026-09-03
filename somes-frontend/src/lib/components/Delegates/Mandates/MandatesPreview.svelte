@@ -1,6 +1,8 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import type { FullMandate, LegisPeriod } from '$lib/types';
 	import { partyToColor } from '$lib/partyColor';
+	import { formatDate } from '$lib/date';
 	import { Tooltip } from 'bits-ui';
 
 	interface Props {
@@ -13,6 +15,8 @@
 
 	const now = new Date();
 
+	const ROW_GRID = 'grid grid-cols-[9rem_1fr] gap-x-3 px-2';
+
 	function formatYear(dateStr: string | null): string {
 		if (!dateStr) return '?';
 		return new Date(dateStr).getFullYear().toString();
@@ -23,23 +27,31 @@
 
 		switch (mandate.function) {
 			case 'EP':
-				return 'EU Parlament';
+				return t('mandates.euParliament');
 			case 'BM':
-				return isFemale ? 'Bundesministerin' : 'Bundesminister';
+				return isFemale ? t('mandates.bundesministerin') : t('mandates.bundesminister');
 			case 'STS':
-				return isFemale ? 'Staatssekretärin' : 'Staatssekretär';
+				return isFemale ? t('mandates.staatssekretaerin') : t('mandates.staatssekretaer');
 			case 'NR':
-				return 'Nationalrat';
+				return t('mandates.nationalrat');
 			case 'VK':
-				return isFemale ? 'Vizekanzlerin' : 'Vizekanzler';
+				return isFemale ? t('mandates.vizekanzlerin') : t('mandates.vizekanzler');
 			case 'L':
-				return isFemale ? 'Betraute' : 'Betrauter';
+				return isFemale ? t('mandates.betrachterin') : t('mandates.betrachter');
 			default:
-				return 'Mandat';
+				return t('mandates.mandate');
 		}
 	}
 
-	// Sort periods oldest-first regardless of input order
+	function mandateYears(mandate: FullMandate): string {
+		const end = mandate.end_date ? formatYear(mandate.end_date) : t('mandates.today');
+		return `${formatYear(mandate.start_date)} - ${end}`;
+	}
+
+	let sortedMandates = $derived(
+		[...mandates].sort((a, b) => (a.start_date ?? '').localeCompare(b.start_date ?? ''))
+	);
+
 	let sortedPeriods = $derived(
 		[...periods].sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime())
 	);
@@ -81,38 +93,34 @@
 		return sortedPeriods.slice(startIndex, endIndex + 1);
 	});
 
+	let ticks = $derived(
+		visibleTicks.map((period, i) => ({
+			gp: period.gp,
+			percent: (i * 100) / visibleTicks.length
+		}))
+	);
+
 	// Ordinal scale: each GP period gets an equal horizontal slot.
 	// Dates within a slot are interpolated linearly inside that slot.
 	function ordinalPercent(date: Date): number {
-		const ticks = visibleTicks;
-		const n = ticks.length;
+		const n = visibleTicks.length;
 		if (n === 0) return 0;
-		if (n === 1) {
-			const slotStart = new Date(ticks[0].start_date);
-			const slotEnd = new Date(Math.max(now.getTime(), timeRange.max.getTime()));
-			if (date <= slotStart) return 0;
-			if (date >= slotEnd) return 100;
-			const duration = slotEnd.getTime() - slotStart.getTime();
-			return duration > 0 ? ((date.getTime() - slotStart.getTime()) / duration) * 100 : 0;
-		}
 
 		const slotWidth = 100 / n;
+		// last GP runs till now
+		const lastSlotEnd = new Date(Math.max(now.getTime(), timeRange.max.getTime()));
 
 		for (let i = 0; i < n; i++) {
-			const slotStart = new Date(ticks[i].start_date);
-			const slotEnd =
-				i + 1 < n
-					? new Date(ticks[i + 1].start_date)
-					: new Date(Math.max(now.getTime(), timeRange.max.getTime()));
+			const slotStart = new Date(visibleTicks[i].start_date);
+			const slotEnd = i + 1 < n ? new Date(visibleTicks[i + 1].start_date) : lastSlotEnd;
 
-			if (date <= slotStart && i === 0) return 0;
+			if (date <= slotStart) return i * slotWidth;
 
 			if (date <= slotEnd) {
 				const slotDuration = slotEnd.getTime() - slotStart.getTime();
 				const fraction =
 					slotDuration > 0 ? (date.getTime() - slotStart.getTime()) / slotDuration : 0;
-				const clampedFraction = Math.max(0, Math.min(1, fraction));
-				return (i + clampedFraction) * slotWidth;
+				return (i + fraction) * slotWidth;
 			}
 		}
 
@@ -123,142 +131,117 @@
 		const start = mandate.start_date ? new Date(mandate.start_date) : timeRange.min;
 		const end = mandate.end_date ? new Date(mandate.end_date) : now;
 		const left = ordinalPercent(start);
-		const width = Math.max(ordinalPercent(end) - left, 1);
+		const width = Math.max(Math.min(ordinalPercent(end) - left, 100 - left), 1);
 		const color = partyToColor(mandate.party);
 		return `left: ${left}%; width: ${width}%; background-color: ${color};`;
 	}
 
 	let todayPercent = $derived(ordinalPercent(now));
 	let hasActiveMandate = $derived(mandates.some((m) => !m.end_date));
-
-	let hoverStates = $state<boolean[]>([]);
-	let hoverTimeouts = new Map<number, ReturnType<typeof setTimeout>>();
-
-	function handleRowEnter(index: number, e?: Event) {
-		// Ignore pointer events from touch screens so swiping doesn't trigger tooltips.
-		if (e && 'pointerType' in e && (e as PointerEvent).pointerType === 'touch') return;
-
-		clearTimeout(hoverTimeouts.get(index));
-		const timeout = setTimeout(() => {
-			hoverStates[index] = true;
-		}, 150);
-		hoverTimeouts.set(index, timeout);
-	}
-
-	function handleRowLeave(index: number) {
-		clearTimeout(hoverTimeouts.get(index));
-		hoverStates[index] = false;
-	}
 </script>
 
 <div>
-	<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">Mandate</h1>
+	<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">{t('mandates.title')}</h1>
 	<h2 class="text-sm text-gray-800 dark:text-gray-300">
 		{mandates.length}
-		{mandates.length === 1 ? 'Eintrag' : 'Einträge'}
+		{mandates.length === 1 ? t('mandates.entry') : t('mandates.entries')}
 	</h2>
 </div>
 
-<div class="mt-4 w-full overflow-x-auto pb-4 md:overflow-visible">
-	<div class="min-w-[500px] md:min-w-0">
-		<!-- GP tick labels row -->
-		<div class="flex gap-3">
-			<div class="w-36 shrink-0"></div>
-			<div class="relative mb-1 h-5 flex-1">
-				{#each visibleTicks as period}
-					{@const left = ordinalPercent(new Date(period.start_date))}
-					<span
-						class="absolute -translate-x-1/2 text-xs whitespace-nowrap text-gray-800 dark:text-gray-300"
-						style="left: {left}%"
-					>
-						{period.gp}
-					</span>
-				{/each}
-			</div>
-		</div>
-
-		<!-- Main layout: Unified rows with background ticks -->
-		<div class="relative mt-2">
-			<!-- Background layer for ticks & today marker -->
-			<div class="pointer-events-none absolute inset-0 left-[calc(9rem+0.75rem+0.5rem)]">
-				<!-- Vertical tick lines -->
-				{#each visibleTicks as period}
-					{@const left = ordinalPercent(new Date(period.start_date))}
-					<div
-						class="absolute top-0 h-full w-px bg-gray-600 dark:bg-gray-300"
-						style="left: {left}%"
-					></div>
-				{/each}
-
-				<!-- Today marker -->
-				{#if hasActiveMandate}
-					<div
-						class="absolute top-0 z-10 h-full w-0.5 bg-primary-500 dark:bg-primary-400"
-						style="left: {todayPercent}%"
-					></div>
-				{/if}
-			</div>
-
-			<!-- Foreground layer: Rows -->
-			<div class="relative z-10 flex flex-col gap-1">
-				<Tooltip.Provider delayDuration={150} disableCloseOnTriggerClick={true}>
-					{#each mandates as mandate, i}
-						<Tooltip.Root open={hoverStates[i] ?? false}>
-							<div
-								class="group relative flex h-10 items-center gap-3 rounded-lg px-2 transition-colors hover:bg-primary-200 dark:hover:bg-primary-200"
-								onpointerenter={(e) => handleRowEnter(i, e)}
-								onpointerleave={(e) => handleRowLeave(i)}
-								onfocus={() => handleRowEnter(i)}
-								onblur={() => handleRowLeave(i)}
-								tabindex="0"
-								role="button"
-							>
-								<!-- Label -->
-								<div class="pointer-events-none flex w-36 shrink-0 flex-col justify-center">
-									<span class="truncate text-sm font-semibold text-gray-800 dark:text-gray-200">
-										{getMandateType(mandate)}
-									</span>
-									<span class="text-xs text-gray-800 dark:text-gray-300">
-										{formatYear(mandate.start_date)} - {mandate.end_date
-											? formatYear(mandate.end_date)
-											: 'dato'}
-									</span>
-								</div>
-
-								<!-- Bar Container -->
-								<div class="relative h-7 flex-1">
-									<Tooltip.Trigger>
-										{#snippet child({ props })}
-											<div
-												{...props}
-												class="absolute h-full rounded-md opacity-85 shadow-sm transition-opacity group-hover:opacity-100"
-												style={barStyle(mandate)}
-											></div>
-										{/snippet}
-									</Tooltip.Trigger>
-								</div>
-							</div>
-
-							<Tooltip.Content
-								sideOffset={6}
-								class="pointer-events-none z-[100] max-w-[300px] rounded-md bg-gray-900 px-3 py-2 text-xs text-white shadow-xl dark:bg-gray-100 dark:text-gray-900"
-							>
-								<Tooltip.Arrow class="text-gray-900 dark:text-gray-100" />
-								<div class="mb-0.5 text-sm font-bold whitespace-normal">
-									{mandate.name || getMandateType(mandate)}
-								</div>
-								<div class="text-gray-300 dark:text-gray-600">
-									{mandate.start_date
-										? new Date(mandate.start_date).toLocaleDateString('de-AT')
-										: '?'} – {mandate.end_date
-										? new Date(mandate.end_date).toLocaleDateString('de-AT')
-										: 'dato'}
-								</div>
-							</Tooltip.Content>
-						</Tooltip.Root>
+{#if sortedMandates.length === 0}
+	<p class="mt-4 text-sm text-gray-800 dark:text-gray-300">{t('mandates.none')}</p>
+{:else}
+	<div class="mt-4 w-full overflow-x-auto pb-4 md:overflow-visible">
+		<div class="min-w-[500px] md:min-w-0">
+			<!-- title ticks -->
+			<div class="{ROW_GRID} mb-1">
+				<div></div>
+				<div class="relative h-5">
+					{#each ticks as tick (tick.gp)}
+						<span
+							class="absolute -translate-x-1/2 text-xs whitespace-nowrap text-gray-800 dark:text-gray-300"
+							style="left: {tick.percent}%"
+						>
+							{tick.gp}
+						</span>
 					{/each}
-				</Tooltip.Provider>
+
+					{#if hasActiveMandate}
+						<span
+							class="absolute -translate-x-full text-xs font-semibold whitespace-nowrap text-gray-800 dark:text-gray-300"
+							style="left: {todayPercent}%"
+						>
+							{t('mandates.today')}
+						</span>
+					{/if}
+				</div>
 			</div>
+
+			<!-- Hover Information -->
+			<Tooltip.Provider delayDuration={0} disableCloseOnTriggerClick={true}>
+				{#each sortedMandates as mandate, i (i)}
+					<Tooltip.Root>
+						<Tooltip.Trigger
+							class="{ROW_GRID} group h-11 w-full cursor-default rounded-lg text-left transition-colors hover:bg-primary-200 dark:hover:bg-primary-200"
+							aria-label="{getMandateType(mandate)}, {mandateYears(mandate)}"
+						>
+							<span class="flex min-w-0 flex-col justify-center">
+								<span class="truncate text-sm font-semibold text-gray-800 dark:text-gray-200">
+									{getMandateType(mandate)}
+								</span>
+								<span class="text-xs text-gray-800 dark:text-gray-300">
+									{mandateYears(mandate)}
+								</span>
+							</span>
+
+							<span class="relative block">
+								{#each ticks as tick (tick.gp)}
+									<span
+										class="absolute top-0 h-full w-px bg-gray-600 dark:bg-gray-300"
+										style="left: {tick.percent}%"
+									></span>
+								{/each}
+
+								{#if hasActiveMandate}
+									<span
+										class="absolute top-0 h-full w-0.5 bg-primary-500 dark:bg-primary-400"
+										style="left: {todayPercent}%"
+									></span>
+								{/if}
+
+								<span
+									class="absolute top-1/2 h-7 -translate-y-1/2 rounded-md opacity-85 shadow-sm transition-opacity group-hover:opacity-100"
+									style={barStyle(mandate)}
+								></span>
+							</span>
+						</Tooltip.Trigger>
+
+						<Tooltip.Content
+							sideOffset={6}
+							class="pointer-events-none z-[100] max-w-[300px] rounded-md bg-gray-900 px-3 py-2 text-xs text-white shadow-xl dark:bg-gray-100 dark:text-gray-900"
+						>
+							<Tooltip.Arrow class="text-gray-900 dark:text-gray-100" />
+							<div class="mb-0.5 text-sm font-bold whitespace-normal">
+								{mandate.name || getMandateType(mandate)}
+							</div>
+							{#if mandate.party}
+								<div class="mb-0.5 flex items-center gap-1.5">
+									<span
+										class="h-2 w-2 shrink-0 rounded-full"
+										style="background-color: {partyToColor(mandate.party)}"
+									></span>
+									{mandate.party}
+								</div>
+							{/if}
+							<div class="text-gray-300 dark:text-gray-600">
+								{mandate.start_date ? formatDate(mandate.start_date) : '?'} – {mandate.end_date
+									? formatDate(mandate.end_date)
+									: t('mandates.today')}
+							</div>
+						</Tooltip.Content>
+					</Tooltip.Root>
+				{/each}
+			</Tooltip.Provider>
 		</div>
 	</div>
-</div>
+{/if}

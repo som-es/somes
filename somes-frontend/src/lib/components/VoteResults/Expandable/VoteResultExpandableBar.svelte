@@ -6,10 +6,14 @@
 	import crossmarkIcon from '$lib/assets/misc_icons/crossmark_small.svg?raw';
 	import checkmarkIcon from '$lib/assets/misc_icons/checkmark_small.svg?raw';
 	import VoteTypeBadge from '../VoteTypeBadge.svelte';
-	import { dashDateToDotDate } from '$lib/date';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import InfoBadges from '../InfoTiles/InfoBadges.svelte';
 	import { gotoHistory } from '$lib/goto';
+	import { localeStore } from '$lib/i18n/i18n.svelte';
 	import { currentVoteResultStore, aiViewEnabledStore } from '$lib/stores/stores';
+	import InfoBadgesCore from '../InfoTiles/InfoBadgesCore.svelte';
+	import VoteBreakDownDonut from '../VoteBreakDownDonut.svelte';
+	import { isVoteInFavor, votesByPartySize } from '$lib/partyInfavor';
 
 	interface Props {
 		voteResult: VoteResult;
@@ -21,7 +25,7 @@
 	let {
 		voteResult,
 		class: clazz,
-		coloring = 'bg-primary-300 dark:bg-primary-500',
+		coloring = 'bg-primary-300 hover:bg-primary-400 dark:bg-primary-500 dark:hover:bg-primary-600',
 		unexpandable = false
 	}: Props = $props();
 
@@ -40,6 +44,8 @@
 	}
 
 	let open = $state(false);
+
+	const sortedVotes = $derived(votesByPartySize(voteResult));
 </script>
 
 <div class="gap-3 {clazz}">
@@ -49,7 +55,7 @@
 		onkeypress={toggleOpen}
 		role="button"
 		tabindex="0"
-		class="entry block {coloring}"
+		class="entry block transition-colors {coloring}"
 	>
 		<div class="flex">
 			<div class="flex w-full flex-wrap items-start justify-between gap-2 lg:flex-nowrap">
@@ -72,7 +78,7 @@
 				{/if}
 
 				<div class="shrink-0 max-lg:order-2">
-					{#if voteResult.legislative_initiative.accepted !== null}
+					{#if voteResult.legislative_initiative.accepted !== null && voteResult.legislative_initiative.accepted !== 'u'}
 						{#if voteResult.legislative_initiative.accepted == 'a'}
 							<span
 								class="inline-block shrink-0 stroke-green-600 align-middle dark:stroke-green-500"
@@ -91,14 +97,14 @@
 		<!-- REWORK - checks if vote was cast and checks for normal or roll call vote-->
 		<div>
 			<div class="mt-4 block justify-between sm:flex">
-				{#if voteResult.legislative_initiative.accepted}
-					{#if voteResult.named_votes == null}
+				{#if voteResult.legislative_initiative.accepted !== null}
+					{#if !voteResult.legislative_initiative.voted_by_name}
 						<!-- Normal votes -->
 						<div class="mx-1 mb-3 flex justify-between sm:mb-0 md:items-center">
-							{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
+							{#each sortedVotes as vote (vote.party)}
 								<div class="flex items-center">
 									<h4 class="text-sm">{vote.party}</h4>
-									{#if vote.infavor}
+									{#if isVoteInFavor(vote)}
 										<span
 											class="mr-1 inline-block stroke-green-600 align-middle md:mr-2 dark:stroke-green-500"
 											style="width:18px; height:18px;">{@html checkmarkIcon}</span
@@ -114,82 +120,42 @@
 						</div>
 
 						<div>
-							{#if voteResult.legislative_initiative.requires_simple_majority}
-								<span class="badge bg-tertiary-400 text-black">einfache Mehrheit</span>
-							{:else}
-								<span class="badge bg-tertiary-400 text-black">2/3 Mehrheit</span>
-							{/if}
-							<span class="badge bg-tertiary-400 text-black"
-								>{voteResult.legislative_initiative.gp}</span
-							>
-							<span class="badge bg-tertiary-400 text-black"
-								>{dashDateToDotDate(
-									voteResult.legislative_initiative.nr_plenary_activity_date.toString()
-								)}</span
-							>
-							<VoteTypeBadge {voteResult} />
+							<InfoBadgesCore {voteResult} />
 						</div>
 					{:else}
 						<!-- Roll call votes -->
-
-						<div class="mb-3 block w-full sm:flex">
-							<div class="mb-1 flex items-center sm:mb-0">
-								<span
-									class="mr-1 inline-block stroke-green-600 align-middle dark:stroke-green-500"
-									style="width:20px; height:20px;">{@html checkmarkIcon}</span
-								>
-
-								{#if voteResult.votes.length > 0}
-									{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
-										{#if vote.infavor}
-											<div class="flex items-center">
-												<h4 class="mr-1 text-sm">{vote.party}</h4>
-												<h4 class="mr-2 text-sm text-gray-800">{vote.fraction}</h4>
-											</div>
-										{/if}
-									{/each}
-								{:else}
+						{#if sortedVotes.length > 0}
+							<div class="mb-3 flex w-full flex-wrap items-center gap-x-3 gap-y-1 sm:mb-0">
+								{#each sortedVotes as vote (vote.party)}
+									<div class="flex items-center gap-1">
+										<VoteBreakDownDonut {vote} size={17} />
+										<h4 class="text-sm">{vote.party}</h4>
+									</div>
+								{/each}
+							</div>
+						{:else if voteResult.named_votes}
+							<div class="mb-3 flex items-center gap-3 sm:mb-0">
+								<div class="flex items-center">
+									<span
+										class="mr-1 inline-block stroke-green-600 align-middle dark:stroke-green-500"
+										style="width:20px; height:20px;">{@html checkmarkIcon}</span
+									>
 									<h4 class="text-sm text-gray-800">
 										{voteResult.named_votes.named_vote_info.pro_count}
 									</h4>
-								{/if}
-							</div>
-							<div class="flex flex-wrap items-center">
-								<span
-									class="mr-1 ml-0 inline-block align-middle sm:ml-3"
-									style="width:20px; height:20px;">{@html crossmarkIcon}</span
-								>
-								{#if voteResult.votes.length > 0}
-									{#each voteResult.votes.slice().sort((a, b) => b.fraction - a.fraction) as vote}
-										{#if !vote.infavor}
-											<div class="flex items-center">
-												<h4 class="mr-1 text-sm">{vote.party}</h4>
-												<h4 class="mr-2 text-sm text-gray-800">{vote.fraction}</h4>
-											</div>
-										{/if}
-									{/each}
-								{:else}
+								</div>
+								<div class="flex items-center">
+									<span class="mr-1 inline-block align-middle" style="width:20px; height:20px;"
+										>{@html crossmarkIcon}</span
+									>
 									<h4 class="text-sm text-gray-800">
 										{voteResult.named_votes.named_vote_info.contra_count}
 									</h4>
-								{/if}
+								</div>
 							</div>
-						</div>
+						{/if}
 						<div class="flex max-h-6 gap-1 max-lg:hidden">
-							{#if voteResult.legislative_initiative.requires_simple_majority}
-								<span class="badge bg-tertiary-400 text-black">einfache Mehrheit</span>
-							{:else}
-								<span class="badge bg-tertiary-400 text-black">2/3 Mehrheit</span>
-							{/if}
-							<span class="badge bg-tertiary-400 text-black"
-								>{voteResult.legislative_initiative.gp}</span
-							>
-							<span class="badge bg-tertiary-400 text-black"
-								>{dashDateToDotDate(
-									voteResult.legislative_initiative.nr_plenary_activity_date.toString()
-								)}</span
-							>
-							<VoteTypeBadge {voteResult} />
+							<InfoBadgesCore {voteResult} />
 						</div>
 					{/if}
 				{:else}
@@ -199,17 +165,25 @@
 			<span class="lg:hidden">
 				{#if voteResult.named_votes != null}
 					{#if voteResult.legislative_initiative.requires_simple_majority}
-						<span class="badge bg-tertiary-400 text-black">einfache Mehrheit</span>
+						<span class="badge bg-tertiary-400 text-black">{t('filterOption.simpleMajority')}</span>
 					{:else}
-						<span class="badge bg-tertiary-400 text-black">2/3 Mehrheit</span>
+						<span class="badge bg-tertiary-400 text-black"
+							>{t('filterOption.twoThirdsMajority')}</span
+						>
 					{/if}
 					<span class="badge bg-tertiary-400 text-black"
 						>{voteResult.legislative_initiative.gp}</span
 					>
 					<span class="badge bg-tertiary-400 text-black"
-						>{dashDateToDotDate(
-							voteResult.legislative_initiative.nr_plenary_activity_date.toString()
-						)}</span
+						>{(() => {
+							const locale = localeStore.value === 'de' ? 'de-AT' : 'en-AT';
+							const date = new Date(voteResult.legislative_initiative.nr_plenary_activity_date);
+							return new Intl.DateTimeFormat(locale, {
+								day: '2-digit',
+								month: '2-digit',
+								year: 'numeric'
+							}).format(date);
+						})()}</span
 					>
 					<VoteTypeBadge {voteResult} />
 				{/if}

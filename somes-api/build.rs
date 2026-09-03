@@ -2,6 +2,7 @@ use dotenvy_macro::dotenv;
 use sqlx::postgres::PgPoolOptions;
 
 pub const DATASERVICE_URL: &str = dotenv!("DATASERVICE_URL");
+pub const EU_DATASERVICE_URL: &str = dotenv!("EU_DATASERVICE_URL");
 
 #[tokio::main]
 async fn main() {
@@ -14,17 +15,19 @@ async fn main() {
         return;
     }
 
-    let dataservice_sqlx_pool = PgPoolOptions::new()
-        // pool sizes
-        .max_connections(2)
-        .connect(DATASERVICE_URL)
-        .await
-        .unwrap();
+    for url in [DATASERVICE_URL, EU_DATASERVICE_URL] {
+        let dataservice_sqlx_pool = PgPoolOptions::new()
+            // pool sizes
+            .max_connections(2)
+            .connect(url)
+            .await
+            .unwrap();
 
-    let mut tx = dataservice_sqlx_pool.begin().await.unwrap();
-    views::create_composite_types(&mut tx).await.unwrap();
-    tx.commit().await.unwrap();
-    let mut tx = dataservice_sqlx_pool.begin().await.unwrap();
-    views::create_views(&mut tx).await.unwrap();
-    tx.commit().await.unwrap();
+        let mut tx = dataservice_sqlx_pool.begin().await.unwrap();
+        views::create_composite_types(&mut tx, true).await.unwrap();
+        tx.commit().await.unwrap();
+        let mut tx = dataservice_sqlx_pool.begin().await.unwrap();
+        views::create_views(&mut tx, true).await.unwrap();
+        tx.commit().await.unwrap();
+    }
 }

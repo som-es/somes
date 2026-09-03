@@ -16,7 +16,7 @@ function couldAttendPlenarySessionByTime(
 ): boolean {
 	return (
 		mandates.find((mandate) => {
-			if (plenarySession.council !== mandate.function) {
+			if (plenarySession.council !== mandate.function && mandate.function !== 'MEP') {
 				return false;
 			}
 

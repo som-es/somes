@@ -9,7 +9,7 @@
 </script>
 
 <div
-	class="{clazz} rounded-xl square min-w-[140px] min-h-[140px] max-w-[140px] max-h-[140px] h-[140px] w-[140px] bg-primary-300 dark:bg-primary-500"
+	class="{clazz} square h-[140px] max-h-[140px] min-h-[140px] w-[140px] max-w-[140px] min-w-[140px] rounded-xl bg-primary-300 dark:bg-primary-500"
 >
 	<div class="flex {flexDirection} items-center justify-center">
 		<slot />

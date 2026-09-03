@@ -9,8 +9,8 @@ use std::{
 };
 
 use combx::{self, CombinedData};
-use redis::{aio::MultiplexedConnection, AsyncCommands};
-use serde::{de::DeserializeOwned, Serialize};
+use redis::{AsyncCommands, aio::MultiplexedConnection};
+use serde::{Serialize, de::DeserializeOwned};
 
 use crate::{meilisearch::update_time, set_json_cache_no_expire};
 

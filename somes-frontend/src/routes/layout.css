@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 @import './index.css';
-@plugin "tailwindcss-animate";
+@plugin 'tailwindcss-animate';
 @custom-variant dark (&:where(.dark, .dark *));
 
 @source '../node_modules/layerchart/dist';
@@ -161,5 +161,5 @@ body ::selection {
 
 /* Disable Blue Flash on IOS */
 * {
-  -webkit-tap-highlight-color: transparent;
+	-webkit-tap-highlight-color: transparent;
 }

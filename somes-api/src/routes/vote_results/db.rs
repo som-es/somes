@@ -3,7 +3,7 @@ use combx::{
     DbLegislativeInitiativeQuery, DbNamedVote, DbNamedVoteInfo, DbNamedVoteInfoQuery, DbNamedVotes,
     DbVote, OptionalVoteResult, Topic,
 };
-use redis::aio::MultiplexedConnection;
+use redis::aio::ConnectionManager;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::{AddonVoteResultFilter, Document};
 use sqlx::PgPool;
@@ -12,7 +12,7 @@ use utoipa::ToSchema;
 #[derive(ToSchema, Debug, Deserialize, Serialize, Clone)]
 pub struct UniqueTopic {
     pub topic: String,
-    pub id: i32,
+    pub id: String,
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]
@@ -61,7 +61,7 @@ pub async fn filtered_legis_inits_per_page(
 }
 
 pub async fn vote_result_by_unique_hints_with_accepted_required_sqlx(
-    redis_con: MultiplexedConnection,
+    redis_con: ConnectionManager,
     pg: &PgPool,
     gp: &str,
     ityp: &str,
@@ -84,7 +84,7 @@ pub async fn vote_result_by_unique_hints_with_accepted_required_sqlx(
 }
 
 pub async fn vote_results_per_page_sqlx(
-    redis_con: MultiplexedConnection,
+    redis_con: ConnectionManager,
     pg: &PgPool,
     page: i64,
     page_elements: i64,
@@ -138,7 +138,7 @@ pub async fn votes_from_legis_init_sqlx(
 ) -> sqlx::Result<Vec<DbVote>> {
     sqlx::query_as!(
         DbVote,
-        "select party, code, votes.fraction, infavor from votes inner join parties on parties.name = votes.party where legislative_initiatives_id = $1",
+        "select party, code, votes.infavor_count, votes.absence_count, votes.against_count, votes.abstention_count from votes inner join parties on parties.name = votes.party where legislative_initiatives_id = $1",
         legis_init_id
     )
     .fetch_all(con)
@@ -146,7 +146,7 @@ pub async fn votes_from_legis_init_sqlx(
 }
 
 pub async fn all_votes_from_legis_init(
-    redis_con: MultiplexedConnection,
+    redis_con: ConnectionManager,
     con: &PgPool,
 ) -> sqlx::Result<Vec<OptionalVoteResult>> {
     let legis_inits = sqlx::query_as!(
@@ -199,7 +199,7 @@ pub async fn named_votes_from_legis_init_sqlx(
 
     let named_votes = sqlx::query_as!(
         DbNamedVote,
-        "select id, infavor, was_absent, lev, similiarity_score, searched_with, matched_with, delegate_id, manually_matched from named_votes where named_vote_info_id = $1",
+        "select id, infavor, was_abstention, was_absent, lev, similiarity_score, searched_with, matched_with, delegate_id, manually_matched from named_votes where named_vote_info_id = $1",
         named_vote_info.id
     )
     .fetch_all(con)

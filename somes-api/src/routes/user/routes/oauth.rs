@@ -1,14 +1,17 @@
 use std::env::VarError;
 
-use crate::routes::user::get_user_from_mail_or_hash_sqlx;
 use crate::routes::UserError;
-use crate::{jwt::create_access_token, model::User, PgPoolConnection};
+use crate::routes::user::get_user_from_mail_or_hash_sqlx;
+use crate::{PgPoolConnection, jwt::create_access_token, model::User};
 use axum::{
     extract::{Path, Query},
     response::{IntoResponse, Redirect},
 };
-use reqwest::Client;
-use serde::Deserialize;
+use base64::Engine;
+use base64::engine::general_purpose;
+use reqwest::{Client, StatusCode};
+use serde::{Deserialize, Serialize};
+use urlencoding::encode;
 
 // --- OAuth Config ---
 struct OAuthProviderConfig {
@@ -63,14 +66,28 @@ fn get_provider_config(provider: &str) -> Result<OAuthProviderConfig, VarError> 
     })
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Mobile {
+    is_mobile: Option<bool>,
+}
+
 // --- Redirect zum OAuth Provider ---
-pub async fn start_oauth(Path(provider): Path<String>) -> impl IntoResponse {
+pub async fn start_oauth(
+    Path(provider): Path<String>,
+    Query(is_mobile): Query<Mobile>,
+) -> impl IntoResponse {
     let cfg = get_provider_config(&provider).unwrap();
-    let scope_encoded = cfg.scope.replace(' ', "+");
+    let state_json = serde_json::to_string(&is_mobile).unwrap();
+    let state_encoded = general_purpose::URL_SAFE_NO_PAD.encode(state_json);
     let url = format!(
-        "{}?response_type=code&client_id={}&redirect_uri={}&scope={}",
-        cfg.auth_url, cfg.client_id, cfg.redirect_uri, scope_encoded
+        "{}?response_type=code&client_id={}&redirect_uri={}&scope={}&state={}",
+        cfg.auth_url,
+        encode(&cfg.client_id),
+        encode(&cfg.redirect_uri),
+        encode(&cfg.scope),
+        encode(&state_encoded),
     );
+
     Redirect::to(&url)
 }
 
@@ -78,6 +95,7 @@ pub async fn start_oauth(Path(provider): Path<String>) -> impl IntoResponse {
 #[derive(Deserialize)]
 pub struct OAuthCallbackQuery {
     code: String,
+    state: String,
 }
 
 pub async fn oauth_callback(
@@ -86,6 +104,21 @@ pub async fn oauth_callback(
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<impl IntoResponse, UserError> {
     let cfg = get_provider_config(&provider).unwrap();
+    let decoded = general_purpose::URL_SAFE_NO_PAD
+        .decode(&query.state)
+        .map_err(|e| {
+            UserError::Custom(
+                StatusCode::BAD_REQUEST,
+                format!("invalid base64 state string: {e:?}"),
+            )
+        })?;
+
+    let state: Mobile = serde_json::from_slice(&decoded).map_err(|e| {
+        UserError::Custom(
+            StatusCode::BAD_REQUEST,
+            format!("unsupported state string: {e:?}"),
+        )
+    })?;
 
     // 1️⃣ Token beim Provider holen
     let client = Client::new();
@@ -228,7 +261,7 @@ pub async fn oauth_callback(
             return Err(UserError::Custom(
                 axum::http::StatusCode::BAD_REQUEST,
                 "Unknown provider".to_string(),
-            ))
+            ));
         }
     };
     // 3️⃣ Prüfen oder neuen User anlegen
@@ -280,9 +313,13 @@ pub async fn oauth_callback(
         )
     })?;
 
-    let redirect_to = std::env::var("OAUTH_REDIRECT_URI")
-        .unwrap_or("https://somes.at/resolve_token?token=".into());
-
+    let redirect_to = if state.is_mobile.unwrap_or_default() {
+        std::env::var("OAUTH_REDIRECT_URI_MOBILE")
+            .unwrap_or("somesmobileapp://resolve_token?token=".into())
+    } else {
+        std::env::var("OAUTH_REDIRECT_URI")
+            .unwrap_or("https://somes.at/resolve_token?token=".into())
+    };
     // 5️⃣ Redirect ins Frontend mit JWT
     Ok(Redirect::to(&format!("{redirect_to}{}", jwt.access_token)))
 }

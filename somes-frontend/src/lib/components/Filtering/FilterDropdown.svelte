@@ -1,24 +1,22 @@
 <script lang="ts">
 	import downArrowIcon from '$lib/assets/misc_icons/down-arrow.svg?raw';
-    interface Props {
-        title: string;
-        activefilterCount: number;
-        isOpen: boolean;
-    }
+	interface Props {
+		title: string;
+		activefilterCount: number;
+		isOpen: boolean;
+	}
 
-    let { title, activefilterCount, isOpen }: Props = $props();
+	let { title, activefilterCount, isOpen }: Props = $props();
 </script>
+
 {#if activefilterCount > 0}
-    <span
-        class="flex h-5 w-5 items-center justify-center rounded-full border text-xs font-semibold text-white"
-    >
-        {activefilterCount}
-    </span>
+	<span
+		class="flex h-5 w-5 items-center justify-center rounded-full border text-xs font-semibold text-white"
+	>
+		{activefilterCount}
+	</span>
 {/if}
 <span class="ml-1 text-white">{title}</span>
-<span
-    class="block w-4 text-white transition-transform duration-200"
-    class:rotate-180={isOpen}
->
-    {@html downArrowIcon}
+<span class="block w-4 text-white transition-transform duration-200" class:rotate-180={isOpen}>
+	{@html downArrowIcon}
 </span>

@@ -20,16 +20,20 @@
 	import { SvelteSet } from 'svelte/reactivity';
 	import { page } from '$app/state';
 	import FilterDropdown from '$lib/components/Filtering/FilterDropdown.svelte';
-	import type { GenericFilterGroup } from '$lib/components/Filtering/types';
+	import { type GenericFilterGroup } from '$lib/components/Filtering/types';
 	import GenericFilters from '$lib/components/Filtering/GenericFilters.svelte';
 	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
 	import { convertVoteResultFilterToUrl } from './urlConversion';
 	import { errorToNull, get_eurovoc_topics } from '$lib/api/api';
+	import { t } from '$lib/i18n/i18n.svelte';
+	import { localeStore } from '$lib/i18n/i18n.svelte';
 	import DateRangeSnippet from '$lib/components/Filtering/GenericFilterSnippets/DataRangeSnippet.svelte';
 	import FilterGroup from '$lib/components/Filtering/FilterGroup.svelte';
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache.svelte';
 	import TopicFilter from '$lib/components/Filtering/TopicFilter.svelte';
 	import SortPopover from '$lib/components/Filtering/SortPopover.svelte';
+	import { getParliament } from '$lib/api/parliament';
+	import { createFilterGroup } from '$lib/components/Filtering/filterGroup.svelte';
 
 	interface Props {
 		voteResults: VoteResultsWithMaxPage | null;
@@ -60,6 +64,8 @@
 	}: Props = $props();
 
 	let currentVoteResultFilterStore = $derived(currentVoteResultFilterStores[storeIdx]);
+
+	const isEu = getParliament() === 'eu';
 
 	// TOPIC FILTER
 	let selectedTopics: SvelteSet<string> = $state(new SvelteSet());
@@ -127,17 +133,17 @@
 			}))
 	);
 
-	let currentPage: number | null = $state(null);
+	let currentPage: number | undefined = $state(undefined);
 
 	let issuerAssociation: GenericFilterGroup<boolean> = $state({
-		title: 'Lager',
+		title: t('filter.camp'),
 		activeValue: undefined,
-		hidden: false,
-		disabledText: 'Schalte auf eine andere Legislaturperiode.',
+		hidden: isEu,
+		disabledText: t('filter.camp.disabledText'),
 		options: [
-			{ title: 'egal', value: undefined },
-			{ title: 'Regier.', value: true },
-			{ title: 'Opp.', value: false }
+			{ title: t('filterOption.any'), value: undefined },
+			{ title: t('filter.gov'), value: true },
+			{ title: t('filter.opp'), value: false }
 		]
 	});
 
@@ -204,95 +210,87 @@
 		GenericFilterGroup<string>,
 		GenericFilterGroup<boolean>
 	] = $state([
-		{
-			title: 'notwendige Mehrheit',
-			activeValue: undefined,
-			hidden: !showReqMajorityFilter,
-			options: [
-				{ title: 'egal', value: undefined },
-				{ title: 'einfache Mehrheit', value: true },
-				{ title: '2/3 Mehrheit', value: false }
+		createFilterGroup<boolean>({
+			title: () => t('filter.necessaryMajority'),
+			hidden: () => !showReqMajorityFilter || isEu,
+			options: () => [
+				{ title: t('filterOption.any'), value: undefined },
+				{ title: t('filterOption.simpleMajority'), value: true },
+				{ title: t('filterOption.twoThirdsMajority'), value: false }
 			]
-		},
-		{
-			title: 'Angenommen',
-			activeValue: undefined,
-			hidden: !showAcceptedFilter,
-			options: [
-				{ title: 'egal', value: undefined },
-				{ title: 'angenommen', value: 'a' },
-				{ title: 'abgelehnt', value: 'd' },
-				{ title: 'frühzeitig abgelehnt', value: 'p' }
+		}),
+		createFilterGroup<string>({
+			title: () => t('filter.accepted'),
+			hidden: () => !showAcceptedFilter || isEu,
+			options: () => [
+				{ title: t('filterOption.any'), value: undefined },
+				{ title: t('filterOption.acceptedYes'), value: 'a' },
+				{ title: t('filterOption.acceptedNo'), value: 'd' },
+				{ title: t('filterOption.acceptedEarlyRejected'), value: 'p' }
 			]
-		},
-		{
-			title: 'namentliche Abstimmung',
-			activeValue: undefined,
-			hidden: !showNamedVoteFilter,
-			options: [
-				{ title: 'egal', value: undefined },
-				{ title: 'Ja', value: true },
-				{ title: 'Nein', value: false }
+		}),
+		createFilterGroup<boolean>({
+			title: () => t('filter.namedVote'),
+			hidden: () => !showNamedVoteFilter || isEu,
+			options: () => [
+				{ title: t('filterOption.any'), value: undefined },
+				{ title: t('filterOption.yes'), value: true },
+				{ title: t('filterOption.no'), value: false }
 			]
-		},
-		{
-			title: 'Antragstyp',
-			activeValue: undefined,
-			hidden: false,
-			options: [
-				{ title: 'egal', value: undefined },
-				{ title: 'Gesetz', value: 'Law' },
-				{ title: 'Entschließung', value: 'Resolution' },
-				{ title: 'Abänderung', value: 'Amendment' },
-				{ title: 'Bericht', value: 'Report' }
+		}),
+		createFilterGroup<string>({
+			title: () => t('filter.motionType'),
+			hidden: () => false,
+			options: () => [
+				{ title: t('filterOption.any'), value: undefined },
+				{ title: t('filterOption.motionLaw'), value: 'Law' },
+				{ title: t('filterOption.motionResolution'), value: 'Resolution' },
+				...(isEu ? [] : [{ title: t('filterOption.motionAmendment'), value: 'Amendment' }]),
+				{ title: t('filterOption.motionReport'), value: 'Report' }
 			]
-		},
-		{
-			title: 'Dringlich',
-			activeValue: undefined,
-			hidden: !showIsUrgentFilter,
+		}),
+		createFilterGroup<boolean>({
+			title: () => t('filter.urgent'),
+			hidden: () => !showIsUrgentFilter || isEu,
 			advanced: true,
-			options: [
-				{ title: 'egal', value: undefined },
-				{ title: 'Ja', value: true },
-				{ title: 'Nein', value: false }
+			options: () => [
+				{ title: t('filterOption.any'), value: undefined },
+				{ title: t('filterOption.yes'), value: true },
+				{ title: t('filterOption.no'), value: false }
 			]
-		},
-		{
-			title: 'Datum',
-			activeValue: undefined,
-			hidden: false,
+		}),
+		createFilterGroup<string>({
+			title: () => t('filter.date'),
+			hidden: () => false,
 			advanced: true,
 			id: 'dateRange',
 			data: { dateFrom: '', dateTo: '' },
-			options: []
-		},
-		{
-			title: 'Eingebracht von',
-			activeValue: undefined,
-			hidden: false,
+			options: () => []
+		}),
+		createFilterGroup<string>({
+			title: () => t('filter.issuedBy'),
+			hidden: () => isEu,
 			advanced: false,
 			id: 'issuerParties',
-			options: []
-		},
-		{
-			title: 'Von Regierung',
-			activeValue: undefined,
-			hidden: false,
+			options: () => []
+		}),
+		createFilterGroup<boolean>({
+			title: () => t('filter.fromGovernment'),
+			hidden: () => isEu,
 			advanced: true,
-			options: [
-				{ title: 'egal', value: undefined },
-				{ title: 'Ja', value: true },
-				{ title: 'Nein', value: false }
+			options: () => [
+				{ title: t('filterOption.any'), value: undefined },
+				{ title: t('filterOption.yes'), value: true },
+				{ title: t('filterOption.no'), value: false }
 			]
-		}
+		})
 	]);
 
 	let legisPeriodFilter = $state({
-		title: 'Legislaturperiode',
+		title: t('filter.legislaturePeriod'),
 		activeValue: 'all',
 		hidden: false,
-		options: [{ title: 'Alle', value: 'all' }]
+		options: [{ title: t('filterOption.all'), value: 'all' }]
 	});
 
 	// Variables to count active filters
@@ -305,15 +303,16 @@
 	let isPartiesFilterOpen = $state(false);
 
 	// Get and format updated_at date
-	let updatedAt = $derived(
-		voteResults?.updated_at
-			? new Intl.DateTimeFormat('de-AT', {
+	let updatedAt = $derived.by(() => {
+		const locale = localeStore.value === 'de' ? 'de-AT' : 'en-AT';
+		return voteResults?.updated_at
+			? new Intl.DateTimeFormat(locale, {
 					day: '2-digit',
 					month: '2-digit',
 					year: 'numeric'
 				}).format(new Date(voteResults.updated_at))
-			: 'Unbekannt'
-	);
+			: t('date.unknown');
+	});
 
 	// keep filters up to date
 	let currentlyUpdating = $state(false);
@@ -321,7 +320,7 @@
 	const maybeStoredFilter = $derived(currentVoteResultFilterStore.value);
 	onMount(() => {
 		if (maybeStoredFilter !== null) {
-			if (maybeStoredFilter.simple_majority !== null)
+			if (maybeStoredFilter.simple_majority !== null && !genericFilters[0].hidden)
 				genericFilters[0].activeValue = maybeStoredFilter.simple_majority;
 			if (maybeStoredFilter.gps !== null) {
 				if (maybeStoredFilter.gps.length > 0) {
@@ -330,11 +329,15 @@
 					legisPeriodFilter.activeValue = 'all';
 				}
 			}
-			if (maybeStoredFilter.accepted !== null)
+			if (maybeStoredFilter.accepted !== null && !genericFilters[1].hidden)
 				genericFilters[1].activeValue = maybeStoredFilter.accepted;
-			if (maybeStoredFilter.is_named_vote !== null)
+			if (maybeStoredFilter.is_named_vote !== null && !genericFilters[2].hidden)
 				genericFilters[2].activeValue = maybeStoredFilter.is_named_vote;
-			if (maybeStoredFilter.vote_type !== null && maybeStoredFilter.vote_type.length > 0)
+			if (
+				maybeStoredFilter.vote_type !== null &&
+				maybeStoredFilter.vote_type.length > 0 &&
+				genericFilters[3].options.some((o) => o.value === maybeStoredFilter.vote_type[0])
+			)
 				genericFilters[3].activeValue = maybeStoredFilter.vote_type[0];
 			if (maybeStoredFilter.topics !== null) {
 				selectedTopics = new SvelteSet(maybeStoredFilter.topics);
@@ -344,19 +347,19 @@
 					partyFilterState[party.party] = party.infavor ? 'pro' : 'contra';
 				});
 			}
-			if (maybeStoredFilter.is_urgent !== null) {
+			if (maybeStoredFilter.is_urgent !== null && !genericFilters[4].hidden) {
 				genericFilters[4].activeValue = maybeStoredFilter.is_urgent;
 			}
 			if (maybeStoredFilter.date_from)
 				genericFilters[5].data!.dateFrom = maybeStoredFilter.date_from;
 			if (maybeStoredFilter.date_to) genericFilters[5].data!.dateTo = maybeStoredFilter.date_to;
-			if (maybeStoredFilter.issuer_parties !== null) {
+			if (maybeStoredFilter.issuer_parties !== null && !genericFilters[6].hidden) {
 				selectedIssuerParties = [...maybeStoredFilter.issuer_parties];
 			}
-			if (maybeStoredFilter.issuer_association !== null) {
+			if (maybeStoredFilter.issuer_association !== null && !issuerAssociation.hidden) {
 				issuerAssociation.activeValue = maybeStoredFilter.issuer_association;
 			}
-			if (maybeStoredFilter.is_from_governemnt !== null) {
+			if (maybeStoredFilter.is_from_governemnt !== null && !genericFilters[7].hidden) {
 				genericFilters[7].activeValue = maybeStoredFilter.is_from_governemnt;
 			}
 			if (maybeStoredFilter.page !== null) {
@@ -365,14 +368,7 @@
 		}
 	});
 
-	const loadVoteResults = async () => {
-		currentlyUpdating = true;
-		if (voteResults !== null) {
-			voteResults.vote_results = [];
-		}
-
-		// accepted: 'a' (accepted), 'd' (declined), 'p' (pre-declined)
-		// null "egal"
+	const convertAndStoreFilter = () => {
 		let filter: VoteResultFilter = {
 			is_finished: isFinished,
 			is_named_vote:
@@ -395,8 +391,23 @@
 				genericFilters[7].activeValue === undefined ? null : genericFilters[7].activeValue,
 			issuer_association:
 				issuerAssociation.activeValue === undefined ? null : issuerAssociation.activeValue,
-			page: currentPage
+			page: currentPage ?? null
 		};
+
+		currentVoteResultFilterStore.value = filter;
+		return filter;
+	};
+
+	const loadVoteResults = async () => {
+		currentlyUpdating = true;
+		if (voteResults !== null) {
+			voteResults.vote_results = [];
+		}
+
+		// accepted: 'a' (accepted), 'd' (declined), 'p' (pre-declined)
+		// null "egal"
+
+		const filter = convertAndStoreFilter();
 
 		const nextUrl = convertVoteResultFilterToUrl(
 			filter,
@@ -406,7 +417,6 @@
 			sortOrder
 		);
 
-		currentVoteResultFilterStore.value = filter;
 		goto(nextUrl, {
 			keepFocus: true,
 			replaceState: true,
@@ -426,7 +436,7 @@
 		const fetchedPeriods = await cachedAllLegisPeriods();
 		if (fetchedPeriods) {
 			legisPeriodFilter.options = [
-				{ title: 'Alle', value: 'all' },
+				{ title: t('filterOption.all'), value: 'all' },
 				...fetchedPeriods.map((p) => ({ title: p.gp, value: p.gp }))
 			];
 		}
@@ -456,6 +466,12 @@
 		untrack(update);
 	});
 
+	$effect(() => {
+		if (currentPage) {
+			untrack(convertAndStoreFilter);
+		}
+	});
+
 	// used to set generic filter count when dateRange filter is active
 	$effect(() => {
 		genericFilters[5].activeValue =
@@ -474,7 +490,8 @@
 <!-- HERE IS THE HTML -->
 
 <span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0 dark:text-gray-300">
-	Abstimmungen aktualisiert am: {updatedAt}
+	{t('pagination.votesUpdated')}
+	{updatedAt}
 </span>
 
 <div class="mt-7 md:flex">
@@ -496,7 +513,7 @@
 					class="flex h-full grow touch-manipulation items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 md:grow-0"
 				>
 					<FilterDropdown
-						title="Klubs"
+						title={t('filter.parties')}
 						activefilterCount={activePartyFiltersCount}
 						isOpen={isPartiesFilterOpen}
 					/>
@@ -531,7 +548,7 @@
 												(partyFilterState[party.name] =
 													partyFilterState[party.name] === 'pro' ? 'egal' : 'pro')}
 										>
-											Pro
+											{t('voteHistory.filter.pro')}
 										</button>
 										<button
 											class="cursor-pointer rounded-lg px-2 py-1 text-sm {partyFilterState[
@@ -541,7 +558,7 @@
 												: ''}"
 											onclick={() => (partyFilterState[party.name] = 'egal')}
 										>
-											Egal
+											{t('voteHistory.filter.any')}
 										</button>
 										<button
 											class="cursor-pointer rounded-lg px-2 py-1 text-sm {partyFilterState[
@@ -553,7 +570,7 @@
 												(partyFilterState[party.name] =
 													partyFilterState[party.name] === 'contra' ? 'egal' : 'contra')}
 										>
-											Contra
+											{t('voteHistory.filter.contra')}
 										</button>
 									</div>
 								</div>
@@ -581,7 +598,7 @@
 
 					<div class="flex w-full flex-col">
 						<span class="text-base font-semibold text-gray-800 dark:text-gray-50"
-							>Eingebracht von</span
+							>{t('voteHistory.filter.submittedBy')}</span
 						>
 						<Select.Root
 							type="multiple"
@@ -603,10 +620,13 @@
 										<span class="truncate">{party.name}</span>
 									{/each}
 									{#if selectedIssuerParties.length > 1}
-										<span class="truncate">+{selectedIssuerParties.length - 1} weitere</span>
+										<span class="truncate"
+											>+{selectedIssuerParties.length - 1}
+											{t('delegates.morePeriods').replace('+{count} weitere', '')}</span
+										>
 									{/if}
 									{#if selectedIssuerParties.length === 0}
-										<span>Alle Klubs</span>
+										<span>{t('vote_result.allParties')}</span>
 									{/if}
 								</div>
 								<span class="mr-2 block w-4 [&>svg]:fill-primary-400 [&>svg]:stroke-primary-400"
@@ -668,9 +688,10 @@
 				<ExpandablePlaceholder class="my-4" />
 			{/each}
 		{:else}
-			Keine Abstimmungsergebnisse gefunden
+			{t('pagination.noResults')}
 		{/if}
-		<div class="float-right">
+		<div class="flex justify-between">
+			<div></div>
 			<Pagination bind:currentPage maxPage={voteResults.max_page} />
 		</div>
 	{:else}
@@ -680,7 +701,7 @@
 				<ExpandablePlaceholder class="my-4" />
 			{/each}
 		{:else}
-			Keine Abstimmungsergebnisse gefunden
+			{t('pagination.noResults')}
 		{/if}
 		<!-- <CenterPrograssRadial /> -->
 	{/if}

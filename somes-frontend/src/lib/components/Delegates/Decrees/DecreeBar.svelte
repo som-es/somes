@@ -6,17 +6,20 @@
 	import { createDecreePath } from './api';
 	import { aiViewEnabledStore } from '$lib/stores/stores';
 	import NewBadge from '$lib/components/UI/NewBadge.svelte';
+	import { getParliament, type Parliament } from '$lib/api/parliament';
 
 	interface Props {
 		decree: DecreeDelegate;
 		showDelegate?: boolean;
 		coloring?: string;
+		parliament?: Parliament;
 	}
 
 	let {
 		decree,
 		showDelegate = false,
-		coloring = 'dark:bg-primary-300 bg-primary-400 text-black'
+		coloring = 'bg-primary-200 hover:bg-primary-400 dark:bg-primary-300 dark:hover:bg-primary-400 text-black',
+		parliament = getParliament()
 	}: Props = $props();
 
 	let open: boolean = false;
@@ -31,7 +34,7 @@
 	<a
 		href={createDecreePath(decree.decree.ris_id)}
 		tabindex="0"
-		class="entry {coloring} flex items-center justify-between"
+		class="entry {coloring} flex items-center justify-between transition-colors"
 	>
 		<div class="flex w-full flex-col gap-1">
 			{#if aiViewEnabledStore.value && decree.decree.ai_summary}
@@ -71,7 +74,9 @@
 			<div class="hidden flex-col gap-0 sm:flex">
 				<img
 					class="mx-1 max-h-[80px] min-w-[80px] rounded-full"
-					src={`${url}assets/${decree.delegate.id}.jpg`}
+					src={parliament == 'at'
+						? `${url}assets/${decree.delegate.id}.jpg`
+						: decree.delegate.image_url}
 					alt="Image of delegate {decree.delegate.name}"
 				/>
 				<span class="bottom-0 rounded text-[8px]">

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { type Bubble, enrichParliamentBubbles, setupParliament } from '$lib/parliament';
+	import { getLocale } from '$lib/i18n/i18n.svelte';
 	import { getPartyColors, partyColors } from '$lib/partyColor';
 	import type { Delegate, VoteResult } from '$lib/types';
 	import { onMount, untrack } from 'svelte';
@@ -9,6 +10,7 @@
 	// import App3D from './3D/App3D.svelte';
 	import GptCanvasParliament from './GptCanvasParliament.svelte';
 	import { cachedPartyColors } from '$lib/caching/party_color';
+	import { VOTE_COLORS, type SeatColorMode } from '$lib/voteColors';
 
 	interface Props {
 		width?: number;
@@ -27,6 +29,9 @@
 		forceColor?: string | null;
 		localPartyColors?: Map<string, string>;
 		searchValue?: string;
+		maxAngle?: number;
+		yOffset?: number;
+		colorMode?: SeatColorMode;
 	}
 
 	let {
@@ -45,7 +50,10 @@
 		enforceSvg = false,
 		forceColor = null,
 		localPartyColors = partyColors,
-		searchValue = ''
+		searchValue = '',
+		maxAngle = 180,
+		yOffset = 0,
+		colorMode = 'party'
 	}: Props = $props();
 
 	let partyInfavorMap = $derived(createPartyInfavorMap(voteResult, localPartyColors));
@@ -54,13 +62,80 @@
 		void delegates;
 		void voteResult;
 		void searchValue;
+		void colorMode;
+		// Bubble titles are translated via t() inside enrichParliamentBubbles below,
+		// which runs inside untrack() — declare the locale dependency explicitly so
+		// switching the language re-renders the bubbles with translated titles.
+		void getLocale();
+
+		function partyToColor(party: string | null): string {
+			if (party == null) {
+				return '#B8B8B8';
+			}
+
+			const color = localPartyColors.get(party);
+			if (color == null) {
+				return '#B8B8B8';
+			}
+
+			return color;
+		}
 
 		return untrack(() => {
-			const bubbles = setupParliament(seats, width, height, 7.9, useOffset);
-			enrichParliamentBubbles(bubbles, $state.snapshot(delegates), voteResult, setOpacity);
+			const bubbles = setupParliament(seats, width, height, 7.9, useOffset, maxAngle, yOffset);
+			enrichParliamentBubbles(
+				bubbles,
+				$state.snapshot(delegates),
+				voteResult,
+				setOpacity,
+				partyToColor
+			);
+			if (colorMode === 'vote') {
+				bubbles.flat().forEach(applyVoteColor);
+			}
 			return bubbles;
 		});
 	});
+
+	/**
+	 * Recolors a seat by the delegate's vote instead of their party:
+	 * green = in favor, red = against, blue = abstention, gray = absent / no vote.
+	 * All seats get the same radius so only the color carries information.
+	 * Falls back to the party's voting behaviour when no named vote exists.
+	 */
+	/** Uniform seat radius in vote mode (like the EP display, where every seat has the same size) */
+	const VOTE_MODE_RADIUS = 9.9;
+
+	function applyVoteColor(bubble: Bubble) {
+		if (bubble.del == null) return;
+		if (bubble.del.council == 'gov') return;
+		bubble.r = VOTE_MODE_RADIUS;
+
+		const search = searchValue.trim().toLowerCase();
+		const matchesSearch = search.length == 0 || bubble.del.name.toLowerCase().includes(search);
+
+		let voteColor: string | null = null;
+		if (bubble.namedVote) {
+			if (bubble.namedVote.was_absent) {
+				voteColor = null;
+			} else if (bubble.namedVote.was_abstention) {
+				voteColor = VOTE_COLORS.abstention;
+			} else {
+				voteColor = bubble.namedVote.infavor ? VOTE_COLORS.infavor : VOTE_COLORS.against;
+			}
+		} else if (voteResult?.named_votes == null && partyInfavorMap.has(bubble.del.party)) {
+			voteColor = partyInfavorMap.get(bubble.del.party) ? VOTE_COLORS.infavor : VOTE_COLORS.against;
+		}
+
+		if (voteColor == null) {
+			bubble.color = VOTE_COLORS.absent;
+			bubble.opacity = matchesSearch ? 0.35 : 0.1;
+			return;
+		}
+
+		bubble.color = voteColor;
+		bubble.opacity = matchesSearch ? 1 : 0.2;
+	}
 
 	function select(
 		bubble: Bubble,
@@ -118,8 +193,9 @@
 	}
 
 	$effect(() => {
-		if (delegate && delegate.seat_row != null && circles2d.length >= 1) {
-			select(circles2d[delegate.seat_row - 1][delegate.seat_col! - 1], null, false);
+		const newDel = delegates.find((del) => del.id == delegate?.id) ?? delegate;
+		if (newDel && newDel.seat_row != null && circles2d.length >= 1) {
+			select(circles2d[newDel.seat_row - 1][newDel.seat_col! - 1], null, false);
 		}
 	});
 

@@ -75,9 +75,8 @@
 <div class={clazz}>
 	<svg
 		viewBox="0 0 {width}
-		{height * 0.5 + 60}"
-		style="width: 100%;"
-		class="parliament-svg hover:cursor-default"
+		{height}"
+		class="parliament-svg w-full select-none outline-hidden hover:cursor-default"
 		onclick={() => (active = true)}
 		onkeydown={() => (active = true)}
 		role="button"
@@ -102,7 +101,11 @@
 				fill={forceColor ? forceColor : circle.color}
 				fill-opacity={circle.opacity}
 				tabindex={0}
-				stroke={circle.del != null && circle.del?.id == selected?.del?.id ? 'orange' : ''}
+				stroke={circle.del != null &&
+				circle.del?.id == selected?.del?.id &&
+				selected !== selected?.del
+					? 'orange'
+					: ''}
 				stroke-width={circle.del != null && circle.del?.id == selected?.del?.id ? '4' : ''}
 			>
 				{#if circle.title !== null && circle.del}

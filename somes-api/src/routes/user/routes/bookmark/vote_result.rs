@@ -2,7 +2,7 @@ use axum::Json;
 use somes_common_lib::LegisInitFavo;
 use sqlx::query_as;
 
-use crate::{jwt::Claims, routes::UserError, PgPoolConnection};
+use crate::{PgPoolConnection, jwt::Claims, routes::UserError};
 
 pub async fn add_user_vote_result_bookmark(
     PgPoolConnection(pg): PgPoolConnection,

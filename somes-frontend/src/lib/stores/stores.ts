@@ -1,5 +1,6 @@
 import type { DecreeDelegate, DecreeFilter } from '$lib/components/Delegates/Decrees/types';
-import { persisted } from '$lib/persisted.svelte';
+import { persisted, persistedScoped } from '$lib/persisted.svelte';
+import type { SeatColorMode } from '$lib/voteColors';
 import type {
 	VoteResultFilter,
 	VoteResult,
@@ -9,25 +10,28 @@ import type {
 	GovProposalDelegate
 } from '$lib/types';
 
-export const currentDelegateStore = persisted<Delegate | null>('currentDelegate', null);
-export const useCurrentDelegate = persisted<boolean>('currentVoteResult', false);
+export const currentDelegateStore = persistedScoped<Delegate | null>('currentDelegate', null);
+export const useCurrentDelegate = persistedScoped<boolean>('currentVoteResult', false);
 export const hasGoBackStore = persisted<boolean>('hasGoBack', false);
-export const currentVoteResultStore = persisted<VoteResult | null>('currentVoteResult', null);
-export const currentDecreeStore = persisted<DecreeDelegate | null>('currentDecreeStore', null);
-export const currentGovProposalDelegateStore = persisted<GovProposalDelegate | null>(
+export const currentVoteResultStore = persistedScoped<VoteResult | null>('currentVoteResult', null);
+export const currentDecreeStore = persistedScoped<DecreeDelegate | null>(
+	'currentDecreeStore',
+	null
+);
+export const currentGovProposalDelegateStore = persistedScoped<GovProposalDelegate | null>(
 	'currentGovProposalDelegateStore',
 	null
 );
-export const currentDelegatesAtDateStore = persisted<[string, Delegate[]] | null>(
+export const currentDelegatesAtDateStore = persistedScoped<[string, Delegate[]] | null>(
 	'currentDelegatesAtDate',
 	null
 );
-export const currentVoteResultFilterStore = persisted<VoteResultFilter | null>(
+export const currentVoteResultFilterStore = persistedScoped<VoteResultFilter | null>(
 	'currentVoteResultFilter',
 	null
 );
 
-export const currentUnfinshedVoteResultFilterStore = persisted<VoteResultFilter | null>(
+export const currentUnfinshedVoteResultFilterStore = persistedScoped<VoteResultFilter | null>(
 	'currentUnfinishedVoteResultFilter',
 	null
 );
@@ -37,14 +41,21 @@ export const currentVoteResultFilterStores = [
 	currentUnfinshedVoteResultFilterStore
 ];
 
-export const currentGovProposalFilterStore = persisted<GovPropFilter | null>(
+export const currentGovProposalFilterStore = persistedScoped<GovPropFilter | null>(
 	'currentGovPropFilter',
 	null
 );
-export const currentDecreeFilterStore = persisted<DecreeFilter | null>('currentDecreeFilter', null);
-export const currentDelegateFilterStore = persisted<DelegateFilter | null>(
+export const currentDecreeFilterStore = persistedScoped<DecreeFilter | null>(
+	'currentDecreeFilter',
+	null
+);
+export const currentDelegateFilterStore = persistedScoped<DelegateFilter | null>(
 	'currentDelegateFilter',
 	null
 );
 
 export const aiViewEnabledStore = persisted<boolean>('aiViewEnabled', true);
+
+export const seatColorModeStore = persisted<SeatColorMode>('seatColorMode', 'party');
+
+export const speechDetailLevelStore = persisted<number>('speechDetailLevel', 3);
