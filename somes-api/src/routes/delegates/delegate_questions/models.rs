@@ -1,6 +1,10 @@
 use chrono::{DateTime, Utc};
 use common_scrapes::language::Language;
 use serde::{Deserialize, Serialize};
+use somes_macro::{CompositeType, MeilisearchFilter};
+
+use somes_meilisearch_filter::{FilterArgument, FilterOp};
+use sqlx::prelude::Type;
 
 #[derive(Debug, Clone, Copy, Default, Deserialize)]
 pub struct DelegateQuestionQuery {
@@ -53,14 +57,16 @@ pub struct DelegateQuestionRecipient {
     pub recipient_name: String,
 }
 
-#[derive(Debug, Serialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Clone, PartialEq, Type, CompositeType, MeilisearchFilter)]
 pub struct DelegateQuestionTopic {
     pub id: String,
     pub topic: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Type, CompositeType, MeilisearchFilter)]
 pub struct PublicDelegateQuestion {
+    pub id: i64,
+    #[filter(make_vec)]
     pub delegate_id: i32,
     pub subject: String,
     pub body: String,
@@ -69,7 +75,7 @@ pub struct PublicDelegateQuestion {
     pub answers: Vec<PublicDelegateQuestionAnswer>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, MeilisearchFilter, Type, CompositeType)]
 pub struct PublicDelegateQuestionAnswer {
     pub body: String,
     pub received_at: DateTime<Utc>,

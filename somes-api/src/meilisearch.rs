@@ -6,6 +6,7 @@ use combx::{
     CombinedData, Decree, DelegateFilter, GovProposal, Index, OptionalVoteResult,
     OptionalVoteResultFilter, Parliament,
 };
+use common_scrapes::language::Language;
 use futures::FutureExt;
 use meilisearch_sdk::{
     client::Client,
@@ -14,13 +15,14 @@ use meilisearch_sdk::{
 };
 use redis::aio::ConnectionManager;
 use reqwest::StatusCode;
+use somes_common_lib::ToCompositeType;
 use tokio::time::sleep;
 
 use crate::{
     AppState, IS_PROD,
     routes::{
-        PublicDelegateQuestion, all_delegates, all_votes_from_legis_init, get_all_decrees_sqlx,
-        get_all_gov_props,
+        PublicDelegateQuestion, all_delegates, all_votes_from_legis_init,
+        db::fetch_public_questions, get_all_decrees_sqlx, get_all_gov_props,
     },
 };
 
@@ -286,13 +288,13 @@ pub async fn party_of_delegates_at_time(
     data
 }
 
-/*pub async fn update_delegate_questions_meilisearch_index(
+pub async fn update_delegate_questions_meilisearch_index(
     parliament: Parliament,
     redis_con: &mut ConnectionManager,
     pg_pool: &sqlx::Pool<sqlx::Postgres>,
     client: &meilisearch_sdk::client::Client,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let filterable_fields = PublicDelegateQuestion::filterable_fields()
+    let filterable_fields = PublicDelegateQuestion::field_orders()
         .into_iter()
         .map(|field| field.to_string())
         .collect::<Vec<String>>();
@@ -307,40 +309,26 @@ pub async fn party_of_delegates_at_time(
             "exactness".to_string(),
         ])
         .with_filterable_attributes(&filterable_fields)
-        .with_sortable_attributes([
-            "legislative_initiative.nr_plenary_activity_date",
-            "legislative_initiative.raw_data_created_at",
-            "legislative_initiative.vote_date",
-        ])
+        .with_sortable_attributes(["created_at"])
         .with_pagination(PaginationSetting {
             max_total_hits: 100000000,
         });
 
     log::info!("Fetching all delegate questions..");
-    let mut all_delegate_questions = fetch_public_questions(redis_con.clone(), pg_pool).await?;
+
+    let language = match parliament {
+        Parliament::At => Language::De,
+        Parliament::Eu => Language::En,
+    };
+
+    let all_delegate_questions = fetch_public_questions(pg_pool, None, language).await?;
 
     let index = Index::DelegateQuestions.uid(parliament);
 
-    for vote_result in &mut all_delegate_questions {
-        if let Some(meilisearch_helper) = vote_result.meilisearch_helper.as_mut() {
-            meilisearch_helper.votes = vote_result
-                .votes
-                .as_ref()
-                .unwrap_or(&vec![])
-                .iter()
-                .map(|vote| format!("{}{:?}", vote.party, vote.infavor_count > 0))
-                .collect();
-        }
-        vote_result.speeches = None;
-        if let Some(named_votes) = vote_result.named_votes.as_mut() {
-            named_votes.named_votes = None;
-        }
-    }
-
-    log::info!("Fetched all vote results");
+    log::info!("Fetched all delegate questions");
 
     log::info!(
-        "Uploading {} vote results to meilisearch",
+        "Uploading {} delegate_questions to meilisearch",
         all_delegate_questions.len()
     );
 
@@ -353,11 +341,12 @@ pub async fn party_of_delegates_at_time(
         Some(1000),
     )
     .await?;
-    update_time::update_update_time_of_index(redis_con, parliament, &Index::VoteResults).await?;
+    update_time::update_update_time_of_index(redis_con, parliament, &Index::DelegateQuestions)
+        .await?;
 
-    log::info!("Uploaded vote results");
+    log::info!("Uploaded delegate_questions");
     Ok(())
-}*/
+}
 
 pub async fn update_vote_result_meilisearch_index(
     parliament: Parliament,

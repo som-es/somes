@@ -1,5 +1,3 @@
-// mod read_mailbox;
-
 use dotenvy_macro::dotenv;
 use lettre::{
     Message, SmtpTransport, Transport, message::header::ContentType,
@@ -9,8 +7,6 @@ use once_cell::sync::Lazy;
 use somes_common_lib::SEND_MAIL_INFO;
 
 use crate::EMAIL_EXPIRATION_SECONDS;
-
-// env vars?
 
 pub const SMTP_USERNAME: &str = dotenv!("SMTP_USERNAME");
 pub const SMTP_PASSWORD: &str = dotenv!("SMTP_PASSWORD");

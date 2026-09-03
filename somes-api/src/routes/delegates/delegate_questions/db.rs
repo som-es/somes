@@ -52,6 +52,7 @@ pub(crate) async fn fetch_public_questions(
                 created_at: row.created_at,
                 topics: Vec::new(),
                 answers: Vec::new(),
+                id: row.question_id,
             });
             question_ids.push(row.question_id);
             current_question_id = Some(row.question_id);
