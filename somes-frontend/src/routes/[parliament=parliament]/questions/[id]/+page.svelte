@@ -2,6 +2,7 @@
 	import Container from '$lib/components/Layout/Container.svelte';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import QuestionAnswer from '$lib/components/Questions/QuestionAnswer.svelte';
+	import QuestionPending from '$lib/components/Questions/QuestionPending.svelte';
 	import { plink } from '$lib/api/parliament';
 	import { t } from '$lib/i18n/i18n.svelte';
 	import { formatDate } from '$lib/date';
@@ -24,18 +25,17 @@
 			<div class="flex min-w-0 flex-1 flex-col gap-4">
 				<!-- Question -->
 				<div class="rounded-xl bg-primary-300 p-4 sm:p-6 dark:bg-primary-500">
-					<div
-						class="flex flex-wrap items-baseline justify-between gap-2 text-sm text-gray-700 dark:text-gray-300"
-					>
-						<span>{t('qa.questionTo', { name: delegate?.name ?? '' })}</span>
-						<span class="shrink-0 text-xs">{formatDate(question.created_at)}</span>
+					<div class="flex items-start justify-between gap-2">
+						<h1
+							class="text-xl leading-tight font-bold lg:text-2xl"
+							style="hyphens: auto; overflow-wrap: break-word;"
+						>
+							{question.subject}
+						</h1>
+						<span class="shrink-0 text-xs text-gray-700 dark:text-gray-300">
+							{formatDate(question.created_at)}
+						</span>
 					</div>
-					<h1
-						class="mt-2 text-xl leading-tight font-bold lg:text-2xl"
-						style="hyphens: auto; overflow-wrap: break-word;"
-					>
-						{question.subject}
-					</h1>
 					<p class="mt-8 whitespace-pre-line">{question.body}</p>
 				</div>
 
@@ -43,11 +43,11 @@
 				{#each question.answers as answer (answer.received_at)}
 					<QuestionAnswer {answer} {delegate} class="bg-primary-300 dark:bg-primary-500" />
 				{:else}
-					<div
-						class="rounded-xl bg-primary-300 p-5 text-center text-gray-700 italic dark:bg-primary-500 dark:text-gray-300"
-					>
-						{t('qa.unansweredHint')}
-					</div>
+					<QuestionPending
+						createdAt={question.created_at}
+						{delegate}
+						class="bg-primary-300 dark:bg-primary-500"
+					/>
 				{/each}
 			</div>
 
