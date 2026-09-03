@@ -6,6 +6,7 @@ use lettre::{
     transport::smtp::authentication::Credentials,
 };
 use once_cell::sync::Lazy;
+use somes_common_lib::SEND_MAIL_INFO;
 
 use crate::EMAIL_EXPIRATION_SECONDS;
 
@@ -88,8 +89,9 @@ pub fn send_mail(
     mail_to: &str,
     subject: &str,
     content: String,
+    from: &str,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    send_mail_with_message_id(mailer, mail_to, subject, content, None)
+    send_mail_with_message_id(mailer, mail_to, subject, content, None, from)
 }
 
 pub fn send_mail_with_message_id(
@@ -98,8 +100,9 @@ pub fn send_mail_with_message_id(
     subject: &str,
     content: String,
     message_id: Option<String>,
+    from: &str,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let from = MAIL_FROM_DISPLAY.parse()?;
+    let from = from.parse()?;
     let to = format!("Recipient <{mail_to}>").parse()?;
 
     let email = Message::builder()
@@ -126,7 +129,13 @@ pub fn send_otp_mail(mail_to: &str, otp: &str) -> Result<(), Box<dyn std::error:
     let content = EMAIL_TEMPLATE.replace("{*OTP*}", &white_splitted);
     let content = content.replace("{*MINUTOS*}", &(*EMAIL_EXPIRATION_SECONDS / 60).to_string());
 
-    send_mail(&MAILER, mail_to, "Dein Somes One-Time Passwort", content)?;
+    send_mail(
+        &MAILER,
+        mail_to,
+        "Dein Somes One-Time Passwort",
+        content,
+        SEND_MAIL_INFO,
+    )?;
 
     Ok(())
 }
