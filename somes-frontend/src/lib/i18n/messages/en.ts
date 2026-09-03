@@ -914,7 +914,7 @@ export const en = {
 	'mood.distribution': 'Distribution of opinions',
 	'mood.submit': 'Share mood',
 	'mood.error': 'Error while saving. Please try again.',
-	'mood.loginForChart': 'To share your mood and see the chart, you need to log in.',
+	'mood.loginForChart': 'To see the chart, you need to log in.',
 	'volksbg.title': 'Popular initiatives',
 	'volksbg.ringDay': 'day',
 	'volksbg.ringDays': 'days',
