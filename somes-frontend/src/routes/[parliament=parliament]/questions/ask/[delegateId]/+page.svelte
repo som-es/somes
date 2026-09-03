@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
-	import { QUESTIONS_API_LIVE } from '$lib/components/Questions/data';
 	import { askDelegateQuestion, getUser } from '$lib/api/authed';
 	import { isHasError } from '$lib/api/api';
 	import { plink } from '$lib/api/parliament';
@@ -56,13 +55,6 @@
 
 		isSending = true;
 		errorMessage = null;
-
-		// TODO: remove the mock path once the questions API is live (see data.ts).
-		if (!QUESTIONS_API_LIVE) {
-			isSending = false;
-			wasSubmitted = true;
-			return;
-		}
 
 		const result = await askDelegateQuestion(delegate.id, {
 			subject: subject.trim(),
