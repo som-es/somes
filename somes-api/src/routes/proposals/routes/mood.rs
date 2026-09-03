@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use axum::{
     Json, Router,
     extract::Path,
@@ -6,12 +8,23 @@ use axum::{
 use combx::api_models::{DbUserMood, MoodBarometer};
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
+use tower_governor::{GovernorLayer, governor::GovernorConfigBuilder};
 
 use crate::{AppState, PgPoolConnection, jwt::Claims, routes::UserError};
 
 pub fn create_proposal_mood_router() -> Router<AppState> {
+    let governor_conf = Arc::new(
+        GovernorConfigBuilder::default()
+            .per_second(8)
+            .burst_size(1)
+            .finish()
+            .unwrap(),
+    );
     Router::new()
-        .route("/", post(add_mood_value_route))
+        .route(
+            "/",
+            post(add_mood_value_route).layer(GovernorLayer::new(governor_conf)),
+        )
         .route("/", get(mood_values_for_gov_prop_route))
         .route("/user", get(user_mood_for_gov_prop_route))
 }
