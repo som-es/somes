@@ -19,7 +19,7 @@ pub(super) async fn send_question_mail(
     pg: &sqlx::PgPool,
     question_id: i64,
 ) -> Result<(), GenericError> {
-    let row = sqlx::query(
+    let row = sqlx::query!(
         "
         SELECT
             d.name AS delegate_name,
@@ -33,8 +33,8 @@ pub(super) async fn send_question_mail(
         JOIN delegates d ON d.id = q.delegate_id
         WHERE q.id = $1
         ",
+        question_id
     )
-    .bind(question_id)
     .fetch_optional(pg)
     .await
     .map_err(|error| GenericError::SqlFailure(Some(error)))?
@@ -62,9 +62,7 @@ pub(super) async fn send_question_mail(
         )));
     }
 
-    let recipient_kind: String = row
-        .try_get("recipient_kind")
-        .map_err(|error| GenericError::SqlFailure(Some(error)))?;
+    let recipient_kind: String = row.recipient_kind;
     let delivery = match recipient_kind.as_str() {
         "delegate" => QuestionDelivery::Delegate,
         "party" => QuestionDelivery::Party,
@@ -77,26 +75,14 @@ pub(super) async fn send_question_mail(
     };
 
     let delegate = DelegateContact {
-        name: row
-            .try_get("delegate_name")
-            .map_err(|error| GenericError::SqlFailure(Some(error)))?,
-        recipient_name: row
-            .try_get("recipient_name")
-            .map_err(|error| GenericError::SqlFailure(Some(error)))?,
-        recipient_email: row
-            .try_get("recipient_email")
-            .map_err(|error| GenericError::SqlFailure(Some(error)))?,
+        name: row.delegate_name,
+        recipient_name: row.recipient_name,
+        recipient_email: row.recipient_email,
         delivery,
     };
-    let subject: String = row
-        .try_get("subject")
-        .map_err(|error| GenericError::SqlFailure(Some(error)))?;
-    let body: String = row
-        .try_get("body")
-        .map_err(|error| GenericError::SqlFailure(Some(error)))?;
-    let outgoing_message_id: String = row
-        .try_get("outgoing_message_id")
-        .map_err(|error| GenericError::SqlFailure(Some(error)))?;
+    let subject: String = row.subject;
+    let body: String = row.body;
+    let outgoing_message_id: String = row.outgoing_message_id;
 
     let mail_subject = format!("Neue Frage über somes.at: {subject}");
     let mail_content = render_question_mail(&delegate, &subject, &body);
