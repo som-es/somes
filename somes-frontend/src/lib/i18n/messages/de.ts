@@ -221,6 +221,8 @@ export const de = {
 	'speeches.showAll': 'Alle anzeigen',
 	'speeches.pro': 'Pro',
 	'speeches.contra': 'Contra',
+	'speeches.searchPlaceholder': 'Suche nach Reden oder Abgeordneten...',
+	'speeches.noSearchResults': 'Keine Reden gefunden',
 	'speeches.aiHint':
 		'Titel und Zusammenfassungen der Reden wurden mittels KI aus den jeweiligen Reden erstellt.',
 	'absences.title': 'Abwesenheiten',

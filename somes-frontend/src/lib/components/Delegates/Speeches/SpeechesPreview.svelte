@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { t } from '$lib/i18n/i18n.svelte';
 	import type { FullSpeech } from '$lib/speechTypes';
+	import type { Delegate } from '$lib/types';
 	import type { Snippet } from 'svelte';
 	import AllSpeechesModal from './AllSpeechesModal.svelte';
 	import SpeechBar from './SpeechBar.svelte';
@@ -15,6 +16,7 @@
 		delegateId?: number;
 		maxPage?: number;
 		speechHeader?: Snippet<[FullSpeech]>;
+		delegates?: Delegate[];
 	}
 
 	let {
@@ -23,7 +25,8 @@
 		title = t('speeches.title'),
 		delegateId,
 		maxPage,
-		speechHeader
+		speechHeader,
+		delegates
 	}: Props = $props();
 
 	const PREVIEW_COUNT = 2;
@@ -56,7 +59,7 @@
 
 		<div class="flex shrink-0 flex-col items-end gap-2">
 			<ExtendInfoDialog title={t('speeches.showAll')}>
-				<AllSpeechesModal {title} {speeches} {delegateId} {maxPage} {speechHeader} />
+				<AllSpeechesModal {title} {speeches} {delegateId} {maxPage} {speechHeader} {delegates} />
 			</ExtendInfoDialog>
 			<div class="flex items-center gap-4 text-sm text-black dark:text-white">
 				<div class="flex items-center gap-2">

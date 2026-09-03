@@ -219,6 +219,8 @@ export const en = {
 	'speeches.showAll': 'Show all',
 	'speeches.pro': 'Pro',
 	'speeches.contra': 'Contra',
+	'speeches.searchPlaceholder': 'Search speeches or delegates...',
+	'speeches.noSearchResults': 'No speeches found',
 	'speeches.aiHint':
 		'Titles and summaries of speeches were created by AI from the respective speeches.',
 	'absences.title': 'Absences',
