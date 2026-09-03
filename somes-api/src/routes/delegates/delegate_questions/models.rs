@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 pub struct CreateDelegateQuestion {
     pub subject: String,
     pub body: String,
+    pub eurovoc_topic_ids: Vec<String>,
 }
 
 #[derive(Debug, Serialize)]

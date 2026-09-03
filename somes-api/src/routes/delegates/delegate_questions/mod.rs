@@ -96,6 +96,7 @@ pub async fn ask_delegate_question_route(
         &subject,
         &body,
         &outgoing_message_id,
+        &question.eurovoc_topic_ids,
     )
     .await?;
 
@@ -416,8 +417,9 @@ async fn create_question(
     subject: &str,
     body: &str,
     outgoing_message_id: &str,
+    topic_ids: &[String],
 ) -> Result<i64, GenericError> {
-    let mut transaction: Transaction<'_, sqlx::Postgres> = pg
+    let mut tx: Transaction<'_, sqlx::Postgres> = pg
         .begin()
         .await
         .map_err(|error| GenericError::SqlFailure(Some(error)))?;
@@ -438,12 +440,35 @@ async fn create_question(
         body,
         outgoing_message_id,
     )
-    .fetch_one(&mut *transaction)
+    .fetch_one(&mut *tx)
     .await
     .map_err(|error| GenericError::SqlFailure(Some(error)))?;
 
-    transaction
-        .commit()
+    for topic_id in topic_ids {
+        let topic_id = topic_id.parse::<i64>().or(Err(GenericError::Custom((
+            StatusCode::BAD_REQUEST,
+            "invalid topic id",
+        ))))?;
+
+        sqlx::query!(
+            "select id from unique_eurovoc_topics where id_as_hash = $1",
+            topic_id
+        )
+        .fetch_one(&mut *tx)
+        .await
+        .map_err(|error| GenericError::SqlFailure(Some(error)))?;
+
+        sqlx::query!(
+            "insert into delegate_question_topics (question_id, topic_id) values ($1, $2)",
+            question_id,
+            topic_id
+        )
+        .execute(&mut *tx)
+        .await
+        .map_err(|error| GenericError::SqlFailure(Some(error)))?;
+    }
+
+    tx.commit()
         .await
         .map_err(|error| GenericError::SqlFailure(Some(error)))?;
 
