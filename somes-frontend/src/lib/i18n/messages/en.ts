@@ -939,7 +939,7 @@ export const en = {
 	'qa.ask.dataHint.mail':
 		'After approval it is forwarded via email to the delegate or their party office.',
 	'qa.ask.dataHint.anonymous':
-		'On somes your question appears anonymously — your name and email address are never published.',
+		'On somes your question appears anonymously. Your name and email address are never published.',
 	'qa.ask.recipient': 'Recipient',
 	'qa.ask.recipientParty':
 		'The question will be sent to {name} because no direct email address is available for this person.',

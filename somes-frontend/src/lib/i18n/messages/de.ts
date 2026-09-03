@@ -973,7 +973,7 @@ export const de = {
 	'qa.ask.dataHint.mail':
 		'Nach der Freigabe wird sie per E-Mail an die Person bzw. den Parteiklub weitergeleitet.',
 	'qa.ask.dataHint.anonymous':
-		'Auf somes erscheint deine Frage anonym — dein Name und deine E-Mail-Adresse werden nicht veröffentlicht.',
+		'Auf somes erscheint deine Frage anonym. Dein Name und deine E-Mail-Adresse werden nicht veröffentlicht.',
 	'qa.ask.recipient': 'Empfänger:in',
 	'qa.ask.recipientParty':
 		'Die Frage wird an den {name} gesendet, weil für diese Person keine direkte E-Mail-Adresse hinterlegt ist.',

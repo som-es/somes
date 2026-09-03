@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import { askDelegateQuestion, getUser } from '$lib/api/authed';
 	import { isHasError } from '$lib/api/api';
 	import { plink } from '$lib/api/parliament';
 	import { partyToColor } from '$lib/partyColor';
 	import { t } from '$lib/i18n/i18n.svelte';
+	import { jwtStore, loginDrawerOpenStore } from '$lib/caching/stores/stores.svelte';
 	import type { ExtendedUserInfo } from '$lib/types';
 	import type { PageProps } from './$types';
 
@@ -31,10 +31,23 @@
 	let isSending = $state(false);
 	let wasSubmitted = $state(false);
 
-	onMount(async () => {
-		const result = await getUser();
-		user = isHasError(result) ? null : result;
-		userChecked = true;
+	$effect(() => {
+		const jwt = jwtStore.value;
+		let cancelled = false;
+		if (jwt === null) {
+			user = null;
+			userChecked = true;
+			return;
+		}
+		userChecked = false;
+		getUser().then((result) => {
+			if (cancelled) return;
+			user = isHasError(result) ? null : result;
+			userChecked = true;
+		});
+		return () => {
+			cancelled = true;
+		};
 	});
 
 	function goToStep(step: number) {
@@ -63,7 +76,12 @@
 
 		isSending = false;
 		if (isHasError(result)) {
-			errorMessage = result.error === 'No access token' ? t('qa.ask.loginRequired') : result.error;
+			if (result.error === 'No access token' || result.error_type === 'AuthError') {
+				errorMessage = t('qa.ask.loginRequired');
+				loginDrawerOpenStore.value = true;
+			} else {
+				errorMessage = result.error;
+			}
 			return;
 		}
 
@@ -140,9 +158,13 @@
 						>
 							{t('qa.ask.loginRequired')}
 						</p>
-						<a href="/user" class="mt-3 inline-block text-sm font-semibold hover:underline">
+						<button
+							type="button"
+							onclick={() => (loginDrawerOpenStore.value = true)}
+							class="mt-3 inline-block text-sm font-semibold hover:underline"
+						>
 							{t('qa.ask.loginLink')} &rarr;
-						</a>
+						</button>
 					{:else}
 						<p class="text-sm">
 							<span class="font-semibold">{t('qa.ask.loggedInAs')}:</span>
