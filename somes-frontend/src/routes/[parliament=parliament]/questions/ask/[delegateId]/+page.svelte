@@ -128,7 +128,7 @@
 						<div class="mt-4 h-px min-w-6 flex-1 bg-gray-400 dark:bg-gray-500"></div>
 					{/if}
 					<button
-						class="flex flex-col items-center gap-1.5 {index < activeStep
+						class="flex flex-col items-center gap-1.5 disabled:opacity-100 {index < activeStep
 							? 'hover:cursor-pointer'
 							: ''}"
 						disabled={index >= activeStep}
