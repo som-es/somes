@@ -28,7 +28,7 @@
 						class="flex flex-wrap items-baseline justify-between gap-2 text-sm text-gray-700 dark:text-gray-300"
 					>
 						<span>{t('qa.questionTo', { name: delegate?.name ?? '' })}</span>
-						<span class="shrink-0">{formatDate(question.created_at)}</span>
+						<span class="shrink-0 text-xs">{formatDate(question.created_at)}</span>
 					</div>
 					<h1
 						class="mt-2 text-xl leading-tight font-bold lg:text-2xl"

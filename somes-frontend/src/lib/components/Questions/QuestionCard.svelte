@@ -18,15 +18,18 @@
 	const detailLink = $derived(plink(`/questions/${questionSlug(question)}`));
 </script>
 
-<div class="rounded-xl bg-primary-300 p-4 shadow-sm sm:p-5 dark:bg-primary-500 {className}">
+<a
+	href={detailLink}
+	class="group block rounded-xl bg-primary-300 p-4 shadow-sm sm:p-5 dark:bg-primary-500 {className}"
+>
 	<!-- Question header -->
 	<div class="flex items-baseline justify-between gap-2 text-sm text-gray-700 dark:text-gray-300">
 		<span>{t('qa.questionTo', { name: delegate?.name ?? '' })}</span>
-		<span class="shrink-0">{formatDate(question.created_at)}</span>
+		<span class="shrink-0 text-xs">{formatDate(question.created_at)}</span>
 	</div>
-	<a href={detailLink} class="mt-1 block text-lg font-bold hover:underline sm:text-xl">
+	<p class="mt-1 text-lg font-bold group-hover:underline sm:text-xl">
 		{question.subject}
-	</a>
+	</p>
 
 	<!-- Latest answer -->
 	{#if answer}
@@ -37,21 +40,19 @@
 		/>
 	{/if}
 
-	<!-- Read more / unanswered -->
-	<div class="mt-3 flex flex-wrap items-center gap-2">
-		{#if question.answers.length > 1}
-			<span class="text-sm text-gray-700 dark:text-gray-300">
-				{t('qa.answerCount', { count: `${question.answers.length}` })}
-			</span>
-		{/if}
-		{#if answer}
-			<a href={detailLink} class="ml-auto shrink-0 text-sm hover:underline">
-				{t('qa.readMore')} &rarr;
-			</a>
-		{:else}
-			<span class="ml-auto shrink-0 text-sm text-gray-700 italic dark:text-gray-300">
-				{t('qa.unansweredHint')}
-			</span>
-		{/if}
-	</div>
-</div>
+	<!-- Answer count / unanswered -->
+	{#if question.answers.length > 1 || !answer}
+		<div class="mt-3 flex flex-wrap items-center gap-2">
+			{#if question.answers.length > 1}
+				<span class="text-sm text-gray-700 dark:text-gray-300">
+					{t('qa.answerCount', { count: `${question.answers.length}` })}
+				</span>
+			{/if}
+			{#if !answer}
+				<span class="ml-auto shrink-0 text-sm text-gray-700 italic dark:text-gray-300">
+					{t('qa.unansweredHint')}
+				</span>
+			{/if}
+		</div>
+	{/if}
+</a>

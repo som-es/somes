@@ -39,6 +39,7 @@
 			<button
 				class="truncate text-left text-sm leading-tight font-semibold hover:underline lg:text-base"
 				onclick={(e) => {
+					e.preventDefault();
 					e.stopPropagation();
 					onNavigate();
 				}}

@@ -946,7 +946,6 @@ export const de = {
 	'qa.filter': 'Filter',
 	'qa.questionTo': 'Frage an {name}',
 	'qa.answerCount': '{count} Antworten',
-	'qa.readMore': 'Weiterlesen',
 	'qa.unansweredHint': 'Noch keine Antwort',
 	'qa.askTitle': 'Stelle auch du eine Frage!',
 	'qa.askButton': 'Frage stellen!',

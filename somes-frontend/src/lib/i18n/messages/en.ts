@@ -912,7 +912,6 @@ export const en = {
 	'qa.filter': 'Filter',
 	'qa.questionTo': 'Question to {name}',
 	'qa.answerCount': '{count} answers',
-	'qa.readMore': 'Read more',
 	'qa.unansweredHint': 'No answer yet',
 	'qa.askTitle': 'Ask a question yourself!',
 	'qa.askButton': 'Ask a question!',
