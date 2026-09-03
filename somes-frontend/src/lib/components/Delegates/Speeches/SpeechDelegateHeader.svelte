@@ -2,10 +2,16 @@
 	import { url } from '$lib/api/api';
 	import { getParliament, type Parliament } from '$lib/api/parliament';
 	import { getPartyColors, partyToColor } from '$lib/partyColor';
-	import type { Delegate } from '$lib/types';
+
+	export interface HeaderDelegate {
+		id: number;
+		name: string;
+		party: string | null;
+		image_url?: string | null;
+	}
 
 	interface Props {
-		delegate: Delegate;
+		delegate: HeaderDelegate;
 		partyColors?: Map<string, string>;
 		onNavigate?: () => void;
 		parliament?: Parliament;
@@ -18,7 +24,7 @@
 		parliament = getParliament()
 	}: Props = $props();
 	let imgSrc = $derived(
-		parliament == 'at' ? `${url}assets/${delegate.id}.jpg` : delegate.image_url
+		parliament == 'at' ? `${url}assets/${delegate.id}.jpg` : (delegate.image_url ?? null)
 	);
 </script>
 
@@ -48,7 +54,7 @@
 				class="h-2 w-2 shrink-0 rounded-full"
 				style="background-color: {partyToColor(delegate.party, partyColors)};"
 			></div>
-			<span class="truncate text-xs text-gray-700">
+			<span class="truncate text-xs text-gray-700 dark:text-gray-300">
 				{#if delegate.party == null || delegate.party == 'OK'}
 					Ohne Klub
 				{:else}

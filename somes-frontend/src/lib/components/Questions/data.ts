@@ -14,7 +14,8 @@ function toQuestionDelegate(delegate: Delegate | null): QuestionDelegate | null 
 	return {
 		id: delegate.id,
 		name: delegate.name,
-		party: delegate.current_party ?? delegate.party ?? null
+		party: delegate.current_party ?? delegate.party ?? null,
+		image_url: delegate.image_url
 	};
 }
 

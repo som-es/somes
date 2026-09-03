@@ -4,6 +4,7 @@ export interface QuestionDelegate {
 	id: number;
 	name: string;
 	party: string | null;
+	image_url: string | null;
 }
 
 export interface DelegateQuestionView {
