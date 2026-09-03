@@ -96,7 +96,7 @@
 
 <Container>
 	{#if delegate === null}
-		<div class="rounded-xl bg-primary-300 p-5 text-center dark:bg-primary-500">
+		<div class="mt-2 rounded-xl bg-primary-300 p-5 text-center sm:mt-0 dark:bg-primary-500">
 			{t('qa.ask.delegateNotFound')}
 		</div>
 	{:else}

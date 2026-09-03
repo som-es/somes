@@ -20,7 +20,7 @@
 
 <Container>
 	{#if question}
-		<div class="flex flex-col gap-4 lg:flex-row lg:items-start">
+		<div class="flex flex-col gap-4 pt-2 sm:pt-0 lg:flex-row lg:items-start">
 			<div class="flex min-w-0 flex-1 flex-col gap-4">
 				<!-- Question -->
 				<div class="rounded-xl bg-primary-300 p-4 sm:p-6 dark:bg-primary-500">
