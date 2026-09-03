@@ -54,15 +54,24 @@ async fn test_extract_barometer_sqlx_without_user_moods(pool: PgPool) {
 }
 
 #[sqlx::test(fixtures("fixtures/mood_barometer_base.sql"))]
-async fn test_extract_barometer_sqlx_fails_for_proposal_without_mood(pool: PgPool) {
-    let error = extract_barometer_sqlx(&pool, "2024-25", 3)
+async fn test_extract_barometer_sqlx_returns_none_for_proposal_without_mood(pool: PgPool) {
+    let barometer = extract_barometer_sqlx(&pool, "2024-25", 3)
         .await
-        .unwrap_err();
+        .expect("a proposal without a mood row must not be an error");
 
-    assert!(matches!(
-        error,
-        UserError::SqlFailure(sqlx::Error::RowNotFound)
-    ));
+    assert!(barometer.is_none());
+}
+
+#[sqlx::test(fixtures("fixtures/mood_barometer_base.sql"))]
+async fn test_mood_values_for_gov_prop_route_returns_null_for_proposal_without_mood(pool: PgPool) {
+    let Json(barometer) = mood_values_for_gov_prop_route(
+        PgPoolConnection(pool.clone()),
+        Path(("2024-25".to_string(), 3)),
+    )
+    .await
+    .unwrap();
+
+    assert!(barometer.is_none());
 }
 
 #[sqlx::test(fixtures("fixtures/mood_barometer_base.sql"))]

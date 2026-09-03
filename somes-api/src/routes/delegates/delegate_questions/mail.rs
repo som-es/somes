@@ -1,5 +1,4 @@
 use reqwest::StatusCode;
-use sqlx::Row;
 
 use crate::{
     GenericError,
@@ -7,8 +6,8 @@ use crate::{
 };
 
 use super::{
+    db::set_question_status,
     models::{DelegateContact, QuestionDelivery},
-    set_question_status,
 };
 
 const DELEGATE_QUESTION_TEMPLATE: &str =

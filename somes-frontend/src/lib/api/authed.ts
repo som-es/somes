@@ -1,5 +1,6 @@
 import type {
 	AdminDelegateQuestion,
+	CreateDelegateQuestion,
 	DelegateFavo,
 	DelegateQuestionCreated,
 	ExtendedUserInfo,
@@ -12,8 +13,10 @@ import type {
 	MoodBarometer,
 	Quiz,
 	UniqueTopic,
+	UpdateDelegateQuestion,
 	UserMoodEntry
 } from '$lib/types';
+import type { Locale } from '$lib/i18n';
 import { fetchSavely, isHasError, justPost, url } from './api';
 import { getParliament, type Parliament } from './parliament';
 import { jwtStore } from '$lib/caching/stores/stores.svelte';
@@ -149,28 +152,51 @@ export async function removeDelegateFavo(
 
 export async function askDelegateQuestion(
 	delegateId: number,
-	question: { subject: string; body: string }
+	question: Omit<CreateDelegateQuestion, 'eurovoc_topic_ids'> & Partial<CreateDelegateQuestion>,
+	language: Locale = 'de'
 ): Promise<DelegateQuestionCreated | HasError> {
+	const body: CreateDelegateQuestion = { eurovoc_topic_ids: [], ...question };
 	return postWithAuth<DelegateQuestionCreated>(
-		`v1/delegate_questions/delegate/${delegateId}`,
-		question
+		`v1/delegate_questions/delegate/${delegateId}?language=${language}`,
+		body
 	);
 }
 
-export async function pendingDelegateQuestions(): Promise<AdminDelegateQuestion[] | HasError> {
-	return getWithAuth<AdminDelegateQuestion[]>('v1/delegate_questions/pending');
+export async function pendingDelegateQuestions(
+	language: Locale = 'de'
+): Promise<AdminDelegateQuestion[] | HasError> {
+	return getWithAuth<AdminDelegateQuestion[]>(`v1/delegate_questions/pending?language=${language}`);
+}
+
+export async function updateDelegateQuestion(
+	questionId: number,
+	update: UpdateDelegateQuestion,
+	language: Locale = 'de'
+): Promise<AdminDelegateQuestion | HasError> {
+	return putWithAuth<AdminDelegateQuestion>(
+		`v1/delegate_questions/${questionId}?language=${language}`,
+		update
+	);
 }
 
 export async function approveDelegateQuestion(
-	questionId: number
+	questionId: number,
+	language: Locale = 'de'
 ): Promise<AdminDelegateQuestion | HasError> {
-	return postWithAuth<AdminDelegateQuestion>(`v1/delegate_questions/${questionId}/approve`, {});
+	return postWithAuth<AdminDelegateQuestion>(
+		`v1/delegate_questions/${questionId}/approve?language=${language}`,
+		{}
+	);
 }
 
 export async function rejectDelegateQuestion(
-	questionId: number
+	questionId: number,
+	language: Locale = 'de'
 ): Promise<AdminDelegateQuestion | HasError> {
-	return postWithAuth<AdminDelegateQuestion>(`v1/delegate_questions/${questionId}/reject`, {});
+	return postWithAuth<AdminDelegateQuestion>(
+		`v1/delegate_questions/${questionId}/reject?language=${language}`,
+		{}
+	);
 }
 
 export async function getFavoDelegates(

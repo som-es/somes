@@ -179,18 +179,24 @@ export async function delegate_question_recipient(
 
 export async function all_delegate_questions(
 	fetcher: typeof fetch = fetch,
-	parliament: Parliament = getParliament()
+	parliament: Parliament = getParliament(),
+	language: Locale = 'de'
 ): Promise<PublicDelegateQuestion[] | HasError> {
-	return getWithRoute<PublicDelegateQuestion[]>('v1/delegate_questions', parliament, fetcher);
+	return getWithRoute<PublicDelegateQuestion[]>(
+		`v1/delegate_questions?language=${language}`,
+		parliament,
+		fetcher
+	);
 }
 
 export async function delegate_questions(
 	delegateId: number,
 	fetcher: typeof fetch = fetch,
-	parliament: Parliament = getParliament()
+	parliament: Parliament = getParliament(),
+	language: Locale = 'de'
 ): Promise<PublicDelegateQuestion[] | HasError> {
 	return getWithRoute<PublicDelegateQuestion[]>(
-		`v1/delegate_questions/delegate/${delegateId}`,
+		`v1/delegate_questions/delegate/${delegateId}?language=${language}`,
 		parliament,
 		fetcher
 	);

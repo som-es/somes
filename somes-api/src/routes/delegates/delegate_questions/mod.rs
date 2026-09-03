@@ -1,47 +1,36 @@
+pub mod db;
 mod mail;
 mod models;
+mod recipients;
 
 use axum::{
     Json, Router,
-    extract::Path,
-    routing::{get, post},
+    extract::{Path, Query},
+    routing::{get, post, put},
 };
-use chrono::{DateTime, Utc};
 use delegate_question_mail::new_question_message_id;
-use once_cell::sync::Lazy;
 use reqwest::StatusCode;
-use serde::Deserialize;
-use sqlx::Transaction;
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
 use tower_governor::{GovernorLayer, governor::GovernorConfigBuilder};
 
 use crate::{AppState, GenericError, PgPoolConnection, jwt::Claims};
 
 use self::{
+    db::{
+        create_question, fetch_public_questions, fetch_question_topics, fetch_review_questions,
+        find_admin_question, set_question_status, update_question,
+    },
     mail::send_question_mail,
-    models::{DelegateContact, PublicDelegateQuestionAnswer, QuestionDelivery},
+    recipients::find_delegate_contact,
 };
 
 pub use models::{
-    AdminDelegateQuestion, CreateDelegateQuestion, DelegateQuestionCreated,
-    DelegateQuestionRecipient, PublicDelegateQuestion,
+    AdminDelegateQuestion, CreateDelegateQuestion, DelegateQuestionCreated, DelegateQuestionQuery,
+    DelegateQuestionRecipient, PublicDelegateQuestion, UpdateDelegateQuestion,
 };
 
 const MAX_SUBJECT_LENGTH: usize = 255;
 const MAX_BODY_LENGTH: usize = 10_000;
-const PARTY_QUESTION_RECIPIENTS: &str =
-    include_str!("../../../../config/party-question-recipients.json");
-
-static PARTY_RECIPIENTS: Lazy<HashMap<String, PartyRecipientConfig>> = Lazy::new(|| {
-    serde_json::from_str(PARTY_QUESTION_RECIPIENTS)
-        .expect("party question recipient configuration must be valid JSON")
-});
-
-#[derive(Debug, Deserialize)]
-struct PartyRecipientConfig {
-    name: String,
-    email: String,
-}
 
 pub fn create_delegate_questions_router() -> Router<AppState> {
     let governor_conf = Arc::new(
@@ -71,11 +60,13 @@ pub fn create_delegate_questions_router() -> Router<AppState> {
             "/{question_id}/reject",
             post(reject_delegate_question_route),
         )
+        .route("/{question_id}", put(update_delegate_question_route))
 }
 
 pub async fn ask_delegate_question_route(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
+    Query(query): Query<DelegateQuestionQuery>,
     Path(delegate_id): Path<i32>,
     Json(question): Json<CreateDelegateQuestion>,
 ) -> Result<Json<DelegateQuestionCreated>, GenericError> {
@@ -100,11 +91,14 @@ pub async fn ask_delegate_question_route(
     )
     .await?;
 
+    let topics = fetch_question_topics(&pg, &[question_id], query.language).await?;
+
     Ok(Json(DelegateQuestionCreated {
         id: question_id,
         delivery: delegate.delivery,
         recipient_name: delegate.recipient_name,
         status: "pending".to_string(),
+        topics: topics.get(&question_id).cloned().unwrap_or_default(),
     }))
 }
 
@@ -122,35 +116,41 @@ pub async fn delegate_question_recipient_route(
 
 pub async fn delegate_questions_route(
     PgPoolConnection(pg): PgPoolConnection,
+    Query(query): Query<DelegateQuestionQuery>,
     Path(delegate_id): Path<i32>,
 ) -> Result<Json<Vec<PublicDelegateQuestion>>, GenericError> {
-    fetch_public_questions(&pg, Some(delegate_id))
+    fetch_public_questions(&pg, Some(delegate_id), query.language)
         .await
         .map(Json)
 }
 
 pub async fn all_delegate_questions_route(
     PgPoolConnection(pg): PgPoolConnection,
+    Query(query): Query<DelegateQuestionQuery>,
 ) -> Result<Json<Vec<PublicDelegateQuestion>>, GenericError> {
-    fetch_public_questions(&pg, None).await.map(Json)
+    fetch_public_questions(&pg, None, query.language)
+        .await
+        .map(Json)
 }
 
 pub async fn pending_delegate_questions_route(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
+    Query(query): Query<DelegateQuestionQuery>,
 ) -> Result<Json<Vec<AdminDelegateQuestion>>, GenericError> {
     ensure_admin(&claims)?;
-    fetch_review_questions(&pg).await.map(Json)
+    fetch_review_questions(&pg, query.language).await.map(Json)
 }
 
 pub async fn approve_delegate_question_route(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
+    Query(query): Query<DelegateQuestionQuery>,
     Path(question_id): Path<i64>,
 ) -> Result<Json<AdminDelegateQuestion>, GenericError> {
     ensure_admin(&claims)?;
 
-    let question = find_admin_question(&pg, question_id).await?;
+    let question = find_admin_question(&pg, question_id, query.language).await?;
     if question.status != "pending" && question.status != "failed" {
         return Err(GenericError::Custom((
             StatusCode::CONFLICT,
@@ -159,16 +159,19 @@ pub async fn approve_delegate_question_route(
     }
 
     send_question_mail(&pg, question_id).await?;
-    find_admin_question(&pg, question_id).await.map(Json)
+    find_admin_question(&pg, question_id, query.language)
+        .await
+        .map(Json)
 }
 
 pub async fn reject_delegate_question_route(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
+    Query(query): Query<DelegateQuestionQuery>,
     Path(question_id): Path<i64>,
 ) -> Result<Json<AdminDelegateQuestion>, GenericError> {
     ensure_admin(&claims)?;
-    let question = find_admin_question(&pg, question_id).await?;
+    let question = find_admin_question(&pg, question_id, query.language).await?;
     if question.status != "pending" && question.status != "failed" {
         return Err(GenericError::Custom((
             StatusCode::CONFLICT,
@@ -177,7 +180,56 @@ pub async fn reject_delegate_question_route(
     }
 
     set_question_status(&pg, question_id, "rejected").await?;
-    find_admin_question(&pg, question_id).await.map(Json)
+    find_admin_question(&pg, question_id, query.language)
+        .await
+        .map(Json)
+}
+
+pub async fn update_delegate_question_route(
+    PgPoolConnection(pg): PgPoolConnection,
+    claims: Claims,
+    Query(query): Query<DelegateQuestionQuery>,
+    Path(question_id): Path<i64>,
+    Json(update): Json<UpdateDelegateQuestion>,
+) -> Result<Json<AdminDelegateQuestion>, GenericError> {
+    ensure_admin(&claims)?;
+
+    let question = find_admin_question(&pg, question_id, query.language).await?;
+    if question.status != "pending" && question.status != "failed" {
+        return Err(GenericError::Custom((
+            StatusCode::CONFLICT,
+            "Question can not be updated",
+        )));
+    }
+
+    let subject = update.subject.map(|subject| subject.trim().to_owned());
+    let body = update.body.map(|body| body.trim().to_owned());
+    let topic_ids = update.eurovoc_topic_ids.as_deref();
+
+    if subject.is_none() && body.is_none() && topic_ids.is_none() {
+        return Err(GenericError::Custom((
+            StatusCode::BAD_REQUEST,
+            "Nothing to update",
+        )));
+    }
+
+    validate_question(
+        subject.as_deref().unwrap_or(&question.subject),
+        body.as_deref().unwrap_or(&question.body),
+    )?;
+
+    update_question(
+        &pg,
+        question_id,
+        subject.as_deref(),
+        body.as_deref(),
+        topic_ids,
+    )
+    .await?;
+
+    find_admin_question(&pg, question_id, query.language)
+        .await
+        .map(Json)
 }
 
 fn ensure_admin(claims: &Claims) -> Result<(), GenericError> {
@@ -209,291 +261,6 @@ fn validate_question(subject: &str, body: &str) -> Result<(), GenericError> {
     Ok(())
 }
 
-async fn find_delegate_contact(
-    pg: &sqlx::PgPool,
-    delegate_id: i32,
-) -> Result<DelegateContact, GenericError> {
-    let row = sqlx::query!(
-        "
-        SELECT d.name, d.party, c.mail
-        FROM delegates d
-        JOIN contacts c ON c.id = d.id
-        WHERE d.id = $1
-        ",
-        delegate_id
-    )
-    .fetch_optional(pg)
-    .await
-    .map_err(|error| GenericError::SqlFailure(Some(error)))?
-    .ok_or(GenericError::Custom((
-        StatusCode::NOT_FOUND,
-        "Delegate was not found",
-    )))?;
-
-    if let Some(email) = row.mail.filter(|email| !email.trim().is_empty()) {
-        return Ok(DelegateContact {
-            recipient_name: row.name.clone(),
-            name: row.name,
-            recipient_email: email,
-            delivery: QuestionDelivery::Delegate,
-        });
-    }
-
-    let party = row.party.ok_or(GenericError::Custom((
-        StatusCode::UNPROCESSABLE_ENTITY,
-        "Delegate has no email address or party assignment",
-    )))?;
-    let recipient = PARTY_RECIPIENTS
-        .get(party.trim())
-        .ok_or(GenericError::Custom((
-            StatusCode::UNPROCESSABLE_ENTITY,
-            "No question recipient is configured for this party",
-        )))?;
-
-    Ok(DelegateContact {
-        name: row.name,
-        recipient_name: recipient.name.clone(),
-        recipient_email: recipient.email.clone(),
-        delivery: QuestionDelivery::Party,
-    })
-}
-
-async fn fetch_public_questions(
-    pg: &sqlx::PgPool,
-    delegate_id: Option<i32>,
-) -> Result<Vec<PublicDelegateQuestion>, GenericError> {
-    let rows = sqlx::query!(
-        r#"
-        SELECT
-            q.id AS question_id,
-            q.delegate_id,
-            q.subject,
-            q.body AS question_body,
-            q.created_at,
-            a.body AS "answer_body?",
-            a.received_at AS "answer_received_at?"
-        FROM delegate_questions q
-        LEFT JOIN delegate_question_answers a ON a.question_id = q.id
-        WHERE ($1::INTEGER IS NULL OR q.delegate_id = $1)
-            AND q.status IN ('sent', 'answered')
-        ORDER BY q.created_at DESC, a.received_at ASC NULLS LAST
-        "#,
-        delegate_id
-    )
-    .fetch_all(pg)
-    .await
-    .unwrap();
-    // .map_err(|error| GenericError::SqlFailure(Some(error)))?;
-
-    let mut questions = Vec::new();
-    let mut current_question_id = None;
-
-    for row in rows {
-        if current_question_id != Some(row.question_id) {
-            questions.push(PublicDelegateQuestion {
-                delegate_id: row.delegate_id,
-                subject: row.subject,
-                body: row.question_body,
-                created_at: row.created_at,
-                answers: Vec::new(),
-            });
-            current_question_id = Some(row.question_id);
-        }
-
-        let answer_body: Option<String> = row.answer_body;
-        let answer_received_at: Option<DateTime<Utc>> = row.answer_received_at;
-
-        if let (Some(body), Some(received_at)) = (answer_body, answer_received_at) {
-            if let Some(question) = questions.last_mut() {
-                question
-                    .answers
-                    .push(PublicDelegateQuestionAnswer { body, received_at });
-            }
-        }
-    }
-
-    Ok(questions)
-}
-
-async fn fetch_review_questions(
-    pg: &sqlx::PgPool,
-) -> Result<Vec<AdminDelegateQuestion>, GenericError> {
-    let rows = sqlx::query!(
-        "
-        SELECT
-            q.id,
-            q.user_id,
-            q.delegate_id,
-            d.name AS delegate_name,
-            q.recipient_email,
-            q.recipient_kind,
-            q.recipient_name,
-            q.subject,
-            q.body,
-            q.status,
-            q.created_at
-        FROM delegate_questions q
-        JOIN delegates d ON d.id = q.delegate_id
-        WHERE q.status IN ('pending', 'failed')
-        ORDER BY q.created_at ASC
-        ",
-    )
-    .fetch_all(pg)
-    .await
-    .map_err(|error| GenericError::SqlFailure(Some(error)))?;
-
-    Ok(rows
-        .into_iter()
-        .map(|row| AdminDelegateQuestion {
-            id: row.id,
-            user_id: row.user_id,
-            delegate_id: row.delegate_id,
-            delegate_name: row.delegate_name,
-            recipient_email: row.recipient_email,
-            recipient_kind: row.recipient_kind,
-            recipient_name: row.recipient_name,
-            subject: row.subject,
-            body: row.body,
-            status: row.status,
-            created_at: row.created_at,
-        })
-        .collect::<Vec<_>>())
-}
-
-async fn find_admin_question(
-    pg: &sqlx::PgPool,
-    question_id: i64,
-) -> Result<AdminDelegateQuestion, GenericError> {
-    let row = sqlx::query!(
-        "
-        SELECT
-            q.id,
-            q.user_id,
-            q.delegate_id,
-            d.name AS delegate_name,
-            q.recipient_email,
-            q.recipient_kind,
-            q.recipient_name,
-            q.subject,
-            q.body,
-            q.status,
-            q.created_at
-        FROM delegate_questions q
-        JOIN delegates d ON d.id = q.delegate_id
-        WHERE q.id = $1
-        ",
-        question_id
-    )
-    .fetch_optional(pg)
-    .await
-    .map_err(|error| GenericError::SqlFailure(Some(error)))?
-    .ok_or(GenericError::Custom((
-        StatusCode::NOT_FOUND,
-        "Question was not found",
-    )))?;
-
-    Ok(AdminDelegateQuestion {
-        id: row.id,
-        user_id: row.user_id,
-        delegate_id: row.delegate_id,
-        delegate_name: row.delegate_name,
-        recipient_email: row.recipient_email,
-        recipient_kind: row.recipient_kind,
-        recipient_name: row.recipient_name,
-        subject: row.subject,
-        body: row.body,
-        status: row.status,
-        created_at: row.created_at,
-    })
-}
-
-async fn create_question(
-    pg: &sqlx::PgPool,
-    user_id: i32,
-    delegate_id: i32,
-    recipient_email: &str,
-    delivery: QuestionDelivery,
-    recipient_name: &str,
-    subject: &str,
-    body: &str,
-    outgoing_message_id: &str,
-    topic_ids: &[String],
-) -> Result<i64, GenericError> {
-    let mut tx: Transaction<'_, sqlx::Postgres> = pg
-        .begin()
-        .await
-        .map_err(|error| GenericError::SqlFailure(Some(error)))?;
-
-    let question_id: i64 = sqlx::query_scalar!(
-        "
-        INSERT INTO delegate_questions
-            (user_id, delegate_id, recipient_email, recipient_kind, recipient_name, subject, body, outgoing_message_id)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-        RETURNING id
-        ",
-        user_id,
-        delegate_id,
-        recipient_email,
-        delivery.as_str(),
-        recipient_name,
-        subject,
-        body,
-        outgoing_message_id,
-    )
-    .fetch_one(&mut *tx)
-    .await
-    .map_err(|error| GenericError::SqlFailure(Some(error)))?;
-
-    for topic_id in topic_ids {
-        let topic_id = topic_id.parse::<i64>().or(Err(GenericError::Custom((
-            StatusCode::BAD_REQUEST,
-            "invalid topic id",
-        ))))?;
-
-        sqlx::query!(
-            "select id from unique_eurovoc_topics where id_as_hash = $1",
-            topic_id
-        )
-        .fetch_one(&mut *tx)
-        .await
-        .map_err(|error| GenericError::SqlFailure(Some(error)))?;
-
-        sqlx::query!(
-            "insert into delegate_question_topics (question_id, topic_id) values ($1, $2)",
-            question_id,
-            topic_id
-        )
-        .execute(&mut *tx)
-        .await
-        .map_err(|error| GenericError::SqlFailure(Some(error)))?;
-    }
-
-    tx.commit()
-        .await
-        .map_err(|error| GenericError::SqlFailure(Some(error)))?;
-
-    Ok(question_id)
-}
-
-async fn set_question_status(
-    pg: &sqlx::PgPool,
-    question_id: i64,
-    status: &str,
-) -> Result<(), GenericError> {
-    sqlx::query!(
-        "
-        UPDATE delegate_questions
-        SET status = $1::text,
-            sent_at = CASE WHEN $1::text = 'sent' THEN NOW() ELSE sent_at END,
-            updated_at = NOW()
-        WHERE id = $2
-        ",
-        status,
-        question_id
-    )
-    .execute(pg)
-    .await
-    .map_err(|error| GenericError::SqlFailure(Some(error)))?;
-
-    Ok(())
-}
+#[cfg(test)]
+#[path = "tests/delegate_questions.rs"]
+mod tests;

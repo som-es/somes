@@ -317,6 +317,7 @@ export interface DelegateQuestionCreated {
 	delivery: DelegateQuestionDelivery;
 	recipient_name: string;
 	status: string;
+	topics: UniqueTopic[];
 }
 
 export type DelegateQuestionDelivery = 'delegate' | 'party';
@@ -324,6 +325,18 @@ export type DelegateQuestionDelivery = 'delegate' | 'party';
 export interface DelegateQuestionRecipient {
 	delivery: DelegateQuestionDelivery;
 	recipient_name: string;
+}
+
+export interface CreateDelegateQuestion {
+	subject: string;
+	body: string;
+	eurovoc_topic_ids: string[];
+}
+
+export interface UpdateDelegateQuestion {
+	subject?: string;
+	body?: string;
+	eurovoc_topic_ids?: string[];
 }
 
 export interface PublicDelegateQuestionAnswer {
@@ -336,6 +349,7 @@ export interface PublicDelegateQuestion {
 	subject: string;
 	body: string;
 	created_at: string;
+	topics: UniqueTopic[];
 	answers: PublicDelegateQuestionAnswer[];
 }
 
@@ -351,6 +365,7 @@ export interface AdminDelegateQuestion {
 	body: string;
 	status: string;
 	created_at: string;
+	topics: UniqueTopic[];
 }
 
 export interface JWTInfo {
