@@ -1,5 +1,4 @@
 use axum::{Json, extract::Query};
-use chrono::NaiveDate;
 use combx::Index;
 use meilisearch_sdk::search::SearchResults;
 use serde::{Deserialize, Serialize};
@@ -31,7 +30,7 @@ pub async fn delegate_questions_search(
     Query(entry_count_per_page): Query<somes_common_lib::PageEntryCount>,
     Query(sort): Query<somes_common_lib::SortParams>,
     Query(date_range): Query<somes_common_lib::DateRangeQueryFilter>,
-    Query(topics): Query<somes_common_lib::TopicsFilter>,
+    Qs(topics): Qs<somes_common_lib::TopicsFilter>,
     Qs(delegate_question_filter): Qs<PublicDelegateQuestionFilter>,
 ) -> Result<Json<DelegateQuestionsWithMaxPage>, FilterError> {
     let mut filter_conditions = to_meilisearch_filters(
@@ -39,13 +38,11 @@ pub async fn delegate_questions_search(
         &FilterOptions::default(),
     );
 
-    let add_time_suffix = |date: NaiveDate| format!("{}T00:00:00Z", date.to_string());
-
     if let Some(date_from) = date_range.date_from {
-        filter_conditions.push(format!("created_at >= {:?}", add_time_suffix(date_from)));
+        filter_conditions.push(format!("created_at_date >= {:?}", date_from));
     }
     if let Some(date_to) = date_range.date_to {
-        filter_conditions.push(format!("created_at <= {:?}", add_time_suffix(date_to)));
+        filter_conditions.push(format!("created_at_date <= {:?}", date_to));
     }
 
     if let Some(topics) = topics.filter_topics

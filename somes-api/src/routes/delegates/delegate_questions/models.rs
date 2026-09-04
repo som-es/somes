@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, NaiveDate, Utc};
 use common_scrapes::language::Language;
 use serde::{Deserialize, Serialize};
 use somes_macro::{CompositeType, MeilisearchFilter};
@@ -79,6 +79,8 @@ pub struct PublicDelegateQuestion {
     pub body: String,
     #[filter(make_optional)]
     pub created_at: DateTime<Utc>,
+    #[filter(make_optional)]
+    pub created_at_date: NaiveDate,
     #[filter(make_optional)]
     pub topics: Vec<DelegateQuestionTopic>,
     #[filter(skip)]
