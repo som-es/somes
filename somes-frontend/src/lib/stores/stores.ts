@@ -7,6 +7,7 @@ import type {
 	Delegate,
 	GovPropFilter,
 	DelegateFilter,
+	DelegateQuestionFilter,
 	GovProposalDelegate
 } from '$lib/types';
 
@@ -49,6 +50,11 @@ export const currentDecreeFilterStore = persistedScoped<DecreeFilter | null>(
 	'currentDecreeFilter',
 	null
 );
+export const currentDelegateQuestionFilterStore = persistedScoped<DelegateQuestionFilter | null>(
+	'currentDelegateQuestionFilter',
+	null
+);
+
 export const currentDelegateFilterStore = persistedScoped<DelegateFilter | null>(
 	'currentDelegateFilter',
 	null

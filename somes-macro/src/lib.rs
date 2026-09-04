@@ -76,16 +76,6 @@ pub fn derive_create_pg_composite(input: TokenStream) -> TokenStream {
     tokens.into()
 }
 
-/*
-struct DecreeFilter {
-    // Option<String>
-    ministerial_issuer: Option<FilterOp<String>>,
-    // Option<Vec<i32>>
-    gov_official_ids: Option<FilterOp<Vec<i32>>>,
-    // Option<Vec<Document>>
-    documents: Option<Vec<Document>>
-}
-*/
 #[proc_macro_derive(MeilisearchFilter, attributes(filter))]
 pub fn derive_meilisearch_filter(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -251,6 +241,5 @@ pub fn derive_meilisearch_filter(input: TokenStream) -> TokenStream {
             }
         }
     };
-
     tokens.into()
 }

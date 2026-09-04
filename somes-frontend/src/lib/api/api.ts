@@ -2,6 +2,9 @@ import type { Decree } from '$lib/components/Delegates/Decrees/types';
 import type { Locale } from '$lib/i18n';
 import type {
 	Delegate,
+	DelegateQuestionRecipient,
+	DelegateQuestionsWithMaxPage,
+	PublicDelegateQuestion,
 	HasError,
 	InterestShare,
 	VoteResultFilter,
@@ -161,6 +164,39 @@ export async function coalition_parties_per_gp(
 
 export async function delegates(): Promise<Delegate[] | HasError> {
 	return getWithRoute<Delegate[]>('v1/delegates/all_active');
+}
+
+export async function delegate_question_recipient(
+	delegateId: number,
+	fetcher: typeof fetch = fetch,
+	parliament: Parliament = getParliament()
+): Promise<DelegateQuestionRecipient | HasError> {
+	return getWithRoute(
+		`v1/delegates/questions/delegate/${delegateId}/question_recipient`,
+		parliament,
+		fetcher
+	);
+}
+
+export async function delegate_question_by_id(
+	questionId: string,
+	fetcher: typeof fetch = fetch,
+	parliament: Parliament = getParliament(),
+	language: Locale = 'de'
+): Promise<PublicDelegateQuestion | HasError> {
+	return getWithRoute<PublicDelegateQuestion>(
+		`v1/delegates/questions/${questionId}?language=${language}`,
+		parliament,
+		fetcher
+	);
+}
+
+export async function delegate_questions_by_query_search(
+	query: string,
+	fetcher: typeof fetch = fetch,
+	parliament: Parliament = getParliament()
+): Promise<DelegateQuestionsWithMaxPage | HasError> {
+	return getWithRoute(`v1/delegates/questions/search?${query}`, parliament, fetcher);
 }
 
 export async function latest_vote_results(

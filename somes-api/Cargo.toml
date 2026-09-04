@@ -7,6 +7,7 @@ edition = "2024"
 
 [dependencies]
 somes-common-lib = {path = "../somes-common-lib"}
+delegate-question-mail = { path = "../../dataservice/delegate-question-mail" }
 # somes-common-lib = { git = "https://github.com/som-es/somes" }
 common-scrapes = { path = "../../scraper/common-scrapes" }
 # common-scrapes = { git = "https://github.com/som-es/common-scrapes" }

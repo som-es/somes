@@ -81,7 +81,8 @@
 			{ href: plink('/home'), label: t('nav.news') },
 			{ label: t('nav.votes'), subItems: voteSubItems },
 			{ href: plink('/delegates'), label: t('nav.delegates') },
-			{ href: plink('/statistics'), label: t('nav.statistics') }
+			{ href: plink('/statistics'), label: t('nav.statistics') },
+			{ href: plink('/questions'), label: t('nav.questions') }
 		];
 	});
 

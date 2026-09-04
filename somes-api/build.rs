@@ -6,6 +6,7 @@ pub const EU_DATASERVICE_URL: &str = dotenv!("EU_DATASERVICE_URL");
 
 #[tokio::main]
 async fn main() {
+    println!("cargo:rerun-if-changed=.env");
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-env-changed=UPDATE_VIEWS");
     println!(r#"cargo:rerun-if-env-changed="../views/src/*""#);

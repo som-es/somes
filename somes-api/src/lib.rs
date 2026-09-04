@@ -49,6 +49,8 @@ pub static API_ROOT: Lazy<String> = Lazy::new(|| env_var("API_ROOT"));
 pub static HOST_ADDR: Lazy<String> = Lazy::new(|| env_var("HOST_ADDR"));
 pub static LEGIS_INITS_PER_PAGE: Lazy<String> = Lazy::new(|| env_var("LEGIS_INITS_PER_PAGE"));
 pub static GOV_PROPS_PER_PAGE: Lazy<String> = Lazy::new(|| env_var("GOV_PROPS_PER_PAGE"));
+pub static DELEGATE_QUESTIONS_PER_PAGE: Lazy<String> =
+    Lazy::new(|| std::env::var("DELEGATE_QUESTIONS_PER_PAGE").unwrap_or_else(|_| "16".into()));
 pub static DECREES_PER_PAGE: Lazy<String> = Lazy::new(|| env_var("DECREES_PER_PAGE"));
 pub static SPEECHES_PER_PAGE: Lazy<String> = Lazy::new(|| env_var("SPEECHES_PER_PAGE"));
 pub static ABSENCES_PER_PAGE: Lazy<String> = Lazy::new(|| env_var("ABSENCES_PER_PAGE"));

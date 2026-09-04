@@ -245,6 +245,13 @@
 		{/if}
 
 		{#if !onlyTop}
+			<a
+				href={plink(`/questions/ask/${delegate.id}`)}
+				class="rounded-xl bg-secondary-500 p-2 px-3 text-white"
+			>
+				<h4>Frage stellen</h4>
+			</a>
+
 			{#if showAI}
 				<Dialog.Root>
 					<Dialog.Trigger>

@@ -19,8 +19,24 @@ pub enum GenericError {
     MeilisearchFailure(meilisearch_sdk::errors::Error),
 }
 
+impl std::fmt::Display for GenericError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let (_code, body) = self.to_json();
+        write!(f, "{}", body.error)
+    }
+}
+impl std::error::Error for GenericError {}
+
 impl IntoResponse for GenericError {
     fn into_response(self) -> axum::response::Response {
+        let (status_code, body) = self.to_json();
+
+        (status_code, body).into_response()
+    }
+}
+
+impl GenericError {
+    fn to_json(&self) -> (StatusCode, Json<ErrorInfo>) {
         let (status_code, err_msg, field) = match &self {
             GenericError::SqlFailure(e) => {
                 log::error!("db error occurred: {e:?}");
@@ -58,7 +74,6 @@ impl IntoResponse for GenericError {
             field: field.to_string(),
             meta: None,
         });
-
-        (status_code, body).into_response()
+        (status_code, body)
     }
 }

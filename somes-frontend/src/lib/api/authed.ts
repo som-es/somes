@@ -1,5 +1,8 @@
 import type {
+	AdminDelegateQuestion,
+	CreateDelegateQuestion,
 	DelegateFavo,
+	DelegateQuestionCreated,
 	ExtendedUserInfo,
 	HasError,
 	HasMcpToken,
@@ -10,9 +13,11 @@ import type {
 	MoodBarometer,
 	Quiz,
 	UniqueTopic,
+	UpdateDelegateQuestion,
 	UserMoodEntry
 } from '$lib/types';
-import { address, fetchSavely, isHasError, justPost, url } from './api';
+import type { Locale } from '$lib/i18n';
+import { fetchSavely, isHasError, justPost, url } from './api';
 import { getParliament, type Parliament } from './parliament';
 import { jwtStore } from '$lib/caching/stores/stores.svelte';
 
@@ -47,6 +52,27 @@ export async function putWithAuth<T>(
 	return fetchSavely(() =>
 		fetch(`${url}${parliament}/${route}`, {
 			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${accessToken}`
+			},
+			body: JSON.stringify(body)
+		})
+	);
+}
+
+export async function patchWithAuth<T>(
+	route: string,
+	body: any,
+	parliament: Parliament = getParliament()
+): Promise<T | HasError> {
+	const accessToken = jwtStore.value;
+	if (accessToken == null) {
+		return { error: 'No access token', error_type: 'AuthError', field: 'MissingToken', meta: null };
+	}
+	return fetchSavely(() =>
+		fetch(`${url}${parliament}/${route}`, {
+			method: 'PATCH',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: `Bearer ${accessToken}`
@@ -143,6 +169,55 @@ export async function removeDelegateFavo(
 	parliament: Parliament = getParliament()
 ): Promise<null | HasError> {
 	return deleteWithAuth('v1/user/bookmark/delegate', uniqueTopic, parliament);
+}
+
+export async function askDelegateQuestion(
+	delegateId: number,
+	question: Omit<CreateDelegateQuestion, 'eurovoc_topic_ids'> & Partial<CreateDelegateQuestion>,
+	language: Locale = 'de'
+): Promise<DelegateQuestionCreated | HasError> {
+	const body: CreateDelegateQuestion = { eurovoc_topic_ids: [], ...question };
+	return postWithAuth<DelegateQuestionCreated>(
+		`v1/delegates/questions/delegate/${delegateId}?language=${language}`,
+		body
+	);
+}
+
+export async function pendingDelegateQuestions(
+	language: Locale = 'de'
+): Promise<AdminDelegateQuestion[] | HasError> {
+	return getWithAuth<AdminDelegateQuestion[]>(`v1/delegates/questions/pending?language=${language}`);
+}
+
+export async function updateDelegateQuestion(
+	questionId: number,
+	update: UpdateDelegateQuestion,
+	language: Locale = 'de'
+): Promise<AdminDelegateQuestion | HasError> {
+	return patchWithAuth<AdminDelegateQuestion>(
+		`v1/delegates/questions/${questionId}?language=${language}`,
+		update
+	);
+}
+
+export async function approveDelegateQuestion(
+	questionId: number,
+	language: Locale = 'de'
+): Promise<AdminDelegateQuestion | HasError> {
+	return postWithAuth<AdminDelegateQuestion>(
+		`v1/delegates/questions/${questionId}/approve?language=${language}`,
+		{}
+	);
+}
+
+export async function rejectDelegateQuestion(
+	questionId: number,
+	language: Locale = 'de'
+): Promise<AdminDelegateQuestion | HasError> {
+	return postWithAuth<AdminDelegateQuestion>(
+		`v1/delegates/questions/${questionId}/reject?language=${language}`,
+		{}
+	);
 }
 
 export async function getFavoDelegates(

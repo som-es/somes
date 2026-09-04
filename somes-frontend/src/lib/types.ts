@@ -312,6 +312,77 @@ export interface HasError {
 	meta: any | null;
 }
 
+export interface DelegateQuestionCreated {
+	id: number;
+	delivery: DelegateQuestionDelivery;
+	recipient_name: string;
+	status: string;
+	topics: UniqueTopic[];
+}
+
+export type DelegateQuestionDelivery = 'delegate' | 'party';
+
+export interface DelegateQuestionRecipient {
+	delivery: DelegateQuestionDelivery;
+	recipient_name: string;
+}
+
+export interface CreateDelegateQuestion {
+	subject: string;
+	body: string;
+	eurovoc_topic_ids: string[];
+}
+
+export interface UpdateDelegateQuestion {
+	subject?: string;
+	body?: string;
+	eurovoc_topic_ids?: string[];
+}
+
+export interface PublicDelegateQuestionAnswer {
+	body: string;
+	received_at: string;
+}
+
+export interface PublicDelegateQuestion {
+	id: number;
+	delegate_id: number;
+	subject: string;
+	body: string;
+	created_at: string;
+	topics: UniqueTopic[];
+	answers: PublicDelegateQuestionAnswer[];
+}
+
+export interface DelegateQuestionsWithMaxPage {
+	delegate_questions: PublicDelegateQuestion[];
+	entry_count: number;
+	max_page: number;
+	updated_at: string | null;
+}
+
+export interface DelegateQuestionFilter {
+	topics: string[] | null;
+	date_from: string | null;
+	date_to: string | null;
+	page: number | null;
+}
+
+export interface AdminDelegateQuestion {
+	id: number;
+	user_id: number;
+	delegate_id: number;
+	delegate_name: string;
+	recipient_email: string;
+	recipient_kind: DelegateQuestionDelivery;
+	recipient_name: string;
+	subject: string;
+	body: string;
+	status: string;
+	created_at: string;
+	topics: UniqueTopic[];
+}
+
 export interface JWTInfo {
 	access_token: string;
 }

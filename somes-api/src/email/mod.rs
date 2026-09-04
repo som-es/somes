@@ -1,39 +1,81 @@
-// mod read_mailbox;
-
+use crate::EMAIL_EXPIRATION_SECONDS;
+use dotenvy_macro::dotenv;
 use lettre::{
     Message, SmtpTransport, Transport, message::header::ContentType,
     transport::smtp::authentication::Credentials,
 };
 use once_cell::sync::Lazy;
 
-use crate::EMAIL_EXPIRATION_SECONDS;
+pub const SMTP_USERNAME: &str = dotenv!("SMTP_USERNAME");
+pub const SMTP_PASSWORD: &str = dotenv!("SMTP_PASSWORD");
+pub const MAIL_FROM_DISPLAY: &str = dotenv!("MAIL_FROM_DISPLAY");
+pub const MAIL_SERVER: &str = dotenv!("MAIL_SERVER");
+pub const SMTP_PORT: &str = dotenv!("SMTP_PORT");
+pub const SMTP_TLS: &str = dotenv!("SMTP_TLS");
 
-// env vars?
-
-pub static SMTP_USERNAME: Lazy<String> = Lazy::new(|| crate::env_var("SMTP_USERNAME"));
-pub static SMTP_PASSWORD: Lazy<String> = Lazy::new(|| crate::env_var("SMTP_PASSWORD"));
-pub static MAIL_FROM_DISPLAY: Lazy<String> = Lazy::new(|| crate::env_var("MAIL_FROM_DISPLAY"));
-pub static MAIL_SERVER: Lazy<String> = Lazy::new(|| crate::env_var("MAIL_SERVER"));
+pub const QUESTION_SMTP_USERNAME: &str = dotenv!("QUESTION_SMTP_USERNAME");
+pub const QUESTION_SMTP_PASSWORD: &str = dotenv!("QUESTION_SMTP_PASSWORD");
+pub const QUESTION_MAIL_FROM_DISPLAY: &str = dotenv!("QUESTION_MAIL_FROM_DISPLAY");
+pub const QUESTION_MAIL_SERVER: &str = dotenv!("QUESTION_MAIL_SERVER");
+pub const QUESTION_SMTP_PORT: &str = dotenv!("QUESTION_SMTP_PORT");
+pub const QUESTION_SMTP_TLS: &str = dotenv!("QUESTION_SMTP_TLS");
 
 pub const EMAIL_TEMPLATE: &str = include_str!("email_template.html");
 
+pub fn create_mailer(
+    host: &str,
+    port: u16,
+    use_tls: bool,
+    smtp_username: &str,
+    smtp_passowrd: &str,
+) -> SmtpTransport {
+    log::info!("SMTP USER: {}", smtp_username);
+
+    log::info!(
+        "Connecting to email relay at {}:{} (tls={})...",
+        host,
+        port,
+        use_tls
+    );
+
+    let mut builder = if use_tls {
+        SmtpTransport::starttls_relay(host).expect("Email relay not available.")
+    } else {
+        SmtpTransport::builder_dangerous(host)
+    };
+
+    builder = builder.port(port);
+
+    if !smtp_username.is_empty() || !smtp_passowrd.is_empty() {
+        builder = builder.credentials(Credentials::new(
+            smtp_username.to_string(),
+            smtp_passowrd.to_string(),
+        ));
+    }
+
+    builder.build()
+}
+
 pub static MAILER: Lazy<SmtpTransport> = Lazy::new(|| {
-    let creds = Credentials::new(SMTP_USERNAME.to_string(), SMTP_PASSWORD.to_string());
-    log::info!("SMTP USER: {}", SMTP_USERNAME.as_str());
-    log::info!("Connecting to email relay...");
+    let port = SMTP_PORT
+        .parse::<u16>()
+        .expect("SMTP_PORT must be a valid port");
+    let use_tls = SMTP_TLS != "false";
+    create_mailer(MAIL_SERVER, port, use_tls, SMTP_USERNAME, SMTP_PASSWORD)
+});
 
-    // let tls_parameters = TlsParameters::builder(MAIL_SERVER.to_string())
-    //     // .dangerous_accept_invalid_certs(true)
-    //     .build()
-    //     .expect("Failed to build TLS parameters");
-
-    SmtpTransport::starttls_relay(&*MAIL_SERVER)
-        .expect("Email relay not available.")
-        .credentials(creds)
-        // .tls(lettre::transport::smtp::client::Tls::Wrapper(
-        //     tls_parameters,
-        // ))
-        .build()
+pub static QUESTION_MAILER: Lazy<SmtpTransport> = Lazy::new(|| {
+    let port = QUESTION_SMTP_PORT
+        .parse::<u16>()
+        .expect("SMTP_PORT must be a valid port");
+    let use_tls = QUESTION_SMTP_TLS != "false";
+    create_mailer(
+        QUESTION_MAIL_SERVER,
+        port,
+        use_tls,
+        QUESTION_SMTP_USERNAME,
+        QUESTION_SMTP_PASSWORD,
+    )
 });
 
 pub fn send_mail(
@@ -41,8 +83,20 @@ pub fn send_mail(
     mail_to: &str,
     subject: &str,
     content: String,
+    from: &str,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let from = format!("somes auth <{}>", SMTP_USERNAME.as_str()).parse()?;
+    send_mail_with_message_id(mailer, mail_to, subject, content, None, from)
+}
+
+pub fn send_mail_with_message_id(
+    mailer: &SmtpTransport,
+    mail_to: &str,
+    subject: &str,
+    content: String,
+    message_id: Option<String>,
+    from: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let from = from.parse()?;
     let to = format!("Recipient <{mail_to}>").parse()?;
 
     let email = Message::builder()
@@ -50,9 +104,11 @@ pub fn send_mail(
         .to(to)
         .subject(subject)
         .header(ContentType::TEXT_HTML)
+        .message_id(message_id)
         .body(content)?;
 
-    mailer.send(&email)?;
+    let response = mailer.send(&email)?;
+    log::info!("Sent email to {mail_to}: {response:?}");
     Ok(())
 }
 
@@ -67,7 +123,13 @@ pub fn send_otp_mail(mail_to: &str, otp: &str) -> Result<(), Box<dyn std::error:
     let content = EMAIL_TEMPLATE.replace("{*OTP*}", &white_splitted);
     let content = content.replace("{*MINUTOS*}", &(*EMAIL_EXPIRATION_SECONDS / 60).to_string());
 
-    send_mail(&MAILER, mail_to, "Dein Somes One-Time Passwort", content)?;
+    send_mail(
+        &MAILER,
+        mail_to,
+        "Dein Somes One-Time Passwort",
+        content,
+        MAIL_FROM_DISPLAY,
+    )?;
 
     Ok(())
 }

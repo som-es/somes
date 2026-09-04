@@ -231,9 +231,6 @@ pub async fn extract_interests_of_delegate(
             expected_topics,
             &mut topics,
         );
-        if topics.is_empty() {
-            dbg!(interest.topic.clone());
-        }
         interest.topic = topics[0].to_string();
     }
     for interest in &mut total_talk_counts {
