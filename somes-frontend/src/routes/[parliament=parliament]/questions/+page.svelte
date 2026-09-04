@@ -29,11 +29,11 @@
 	// Die Reiter arbeiten nur auf der aktuell geladenen Seite - filtern und sortieren
 	// ueber alle Fragen kann der Suchindex noch nicht.
 	type Tab = 'latestQuestions' | 'latestAnswers' | 'unanswered';
-	let activeTab: Tab = $state('latestQuestions');
+	let activeTab: Tab = $state('latestAnswers');
 
 	const tabs: { key: Tab; label: () => string }[] = [
-		{ key: 'latestQuestions', label: () => t('qa.tab.latestQuestions') },
 		{ key: 'latestAnswers', label: () => t('qa.tab.latestAnswers') },
+		{ key: 'latestQuestions', label: () => t('qa.tab.latestQuestions') },
 		{ key: 'unanswered', label: () => t('qa.tab.unanswered') }
 	];
 

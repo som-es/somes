@@ -1,12 +1,16 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { SvelteSet } from 'svelte/reactivity';
 	import Container from '$lib/components/Layout/Container.svelte';
+	import TopicFilter from '$lib/components/Filtering/TopicFilter.svelte';
+	import Topics from '$lib/components/Topics/Topics.svelte';
 	import { askDelegateQuestion, getUser } from '$lib/api/authed';
-	import { isHasError } from '$lib/api/api';
+	import { errorToNull, get_eurovoc_topics, isHasError } from '$lib/api/api';
 	import { plink } from '$lib/api/parliament';
 	import { partyToColor } from '$lib/partyColor';
 	import { t } from '$lib/i18n/i18n.svelte';
 	import { jwtStore, loginDrawerOpenStore } from '$lib/caching/stores/stores.svelte';
-	import type { ExtendedUserInfo } from '$lib/types';
+	import type { ExtendedUserInfo, UniqueTopic } from '$lib/types';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -24,6 +28,18 @@
 	let subject = $state('');
 	let body = $state('');
 	let errorMessage = $state<string | null>(null);
+
+	let eurovocTopics = $state<UniqueTopic[]>([]);
+	let selectedTopics = $state<SvelteSet<string>>(new SvelteSet());
+
+	let topics = $derived(eurovocTopics.map((topic) => topic.topic));
+	let selectedEurovocTopics = $derived(
+		eurovocTopics.filter((topic) => selectedTopics.has(topic.topic))
+	);
+
+	onMount(async () => {
+		eurovocTopics = errorToNull(await get_eurovoc_topics()) ?? [];
+	});
 
 	let user = $state<ExtendedUserInfo | null>(null);
 	let userChecked = $state(false);
@@ -71,7 +87,8 @@
 
 		const result = await askDelegateQuestion(delegate.id, {
 			subject: subject.trim(),
-			body: body.trim()
+			body: body.trim(),
+			eurovoc_topic_ids: selectedEurovocTopics.map((topic) => topic.id)
 		});
 
 		isSending = false;
@@ -202,6 +219,20 @@
 							{body.length}/10000
 						</span>
 					</label>
+
+					<div class="mt-4">
+						<span class="mb-1.5 block text-xs text-gray-700 dark:text-gray-300">
+							{t('qa.ask.topicsHint')}
+						</span>
+						<div class="flex h-10 w-fit text-sm">
+							<TopicFilter bind:selectedTopics {topics} />
+						</div>
+						{#if selectedEurovocTopics.length > 0}
+							<div class="mt-2">
+								<Topics topics={selectedEurovocTopics} />
+							</div>
+						{/if}
+					</div>
 				{:else}
 					<!-- Step 3: review & submit -->
 					<div class="flex items-center gap-2.5">
@@ -234,6 +265,15 @@
 					<div class="mt-4 rounded-xl bg-surface-50 p-3 sm:p-4 dark:bg-surface-600">
 						<span class="block font-bold">{subject}</span>
 						<p class="mt-2 text-sm whitespace-pre-line sm:text-base">{body}</p>
+						<div class="mt-3">
+							{#if selectedEurovocTopics.length > 0}
+								<Topics topics={selectedEurovocTopics} />
+							{:else}
+								<span class="px-1 text-xs text-gray-700 dark:text-gray-300">
+									{t('qa.ask.topicsNone')}
+								</span>
+							{/if}
+						</div>
 					</div>
 				{/if}
 

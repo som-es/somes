@@ -519,7 +519,8 @@ export const de = {
 	'user.mcp.generate': 'Token erstellen',
 	'user.mcp.regenerate': 'Token neu erstellen',
 	'user.mcp.revoke': 'Token widerrufen',
-	'user.mcp.regenerateHint': 'Beim Neu-Erstellen oder Widerrufen wird das bisherige Token ungültig.',
+	'user.mcp.regenerateHint':
+		'Beim Neu-Erstellen oder Widerrufen wird das bisherige Token ungültig.',
 	'user.mcp.tokenOnceWarning':
 		'Dieser Token wird nur einmal angezeigt. Kopiere ihn JETZT und bewahre ihn sicher auf.',
 	'user.mcp.copy': 'Kopieren',
@@ -965,6 +966,9 @@ export const de = {
 	'qa.ask.subjectPlaceholder': 'Worum geht es?',
 	'qa.ask.body': 'Deine Frage',
 	'qa.ask.bodyPlaceholder': 'Formuliere deine Frage an {name}...',
+	'qa.ask.topicsHint':
+		'Wähle passende Themen aus, damit deine Frage leichter gefunden wird (optional).',
+	'qa.ask.topicsNone': 'Keine Themen ausgewählt',
 	'qa.ask.next': 'Weiter',
 	'qa.ask.back': 'Zurück',
 	'qa.ask.missingFields': 'Bitte gib einen Betreff und deine Frage ein.',
@@ -988,7 +992,7 @@ export const de = {
 	'qa.ask.success':
 		'Deine Frage wurde erfolgreich zur Prüfung eingereicht. Nach der Freigabe wird sie per E-Mail weitergeleitet.',
 	'qa.ask.toOverview': 'Zu den Fragen & Antworten',
-  'qa.ask.delegateNotFound': 'Diese Person wurde nicht gefunden.',
+	'qa.ask.delegateNotFound': 'Diese Person wurde nicht gefunden.',
 	'mood.heading': 'Stimmungsbarometer. Wie stehen Sie zu dem Vorschlag?',
 	'mood.unlockHint':
 		'Grafik wird nach Eingabe freigeschalten. Die Ergebnisse werden anonym gespeichert.',

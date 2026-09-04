@@ -931,6 +931,8 @@ export const en = {
 	'qa.ask.subjectPlaceholder': 'What is it about?',
 	'qa.ask.body': 'Your question',
 	'qa.ask.bodyPlaceholder': 'Write your question to {name}...',
+	'qa.ask.topicsHint': 'Pick matching topics so your question is easier to find (optional).',
+	'qa.ask.topicsNone': 'No topics selected',
 	'qa.ask.next': 'Next',
 	'qa.ask.back': 'Back',
 	'qa.ask.missingFields': 'Please enter a subject and your question.',
