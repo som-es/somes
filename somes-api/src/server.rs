@@ -213,6 +213,7 @@ fn app_router(state: AppState) -> Router {
                     http::Method::POST,
                     http::Method::DELETE,
                     http::Method::PUT,
+                    http::Method::PATCH,
                 ])
                 .allow_headers([
                     http::header::CONTENT_TYPE,

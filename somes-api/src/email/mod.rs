@@ -1,12 +1,10 @@
+use crate::EMAIL_EXPIRATION_SECONDS;
 use dotenvy_macro::dotenv;
 use lettre::{
     Message, SmtpTransport, Transport, message::header::ContentType,
     transport::smtp::authentication::Credentials,
 };
 use once_cell::sync::Lazy;
-use somes_common_lib::SEND_MAIL_INFO;
-
-use crate::EMAIL_EXPIRATION_SECONDS;
 
 pub const SMTP_USERNAME: &str = dotenv!("SMTP_USERNAME");
 pub const SMTP_PASSWORD: &str = dotenv!("SMTP_PASSWORD");
@@ -130,7 +128,7 @@ pub fn send_otp_mail(mail_to: &str, otp: &str) -> Result<(), Box<dyn std::error:
         mail_to,
         "Dein Somes One-Time Passwort",
         content,
-        SEND_MAIL_INFO,
+        MAIL_FROM_DISPLAY,
     )?;
 
     Ok(())

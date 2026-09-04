@@ -30,7 +30,7 @@ pub async fn delegate_questions_search(
     Query(entry_count_per_page): Query<somes_common_lib::PageEntryCount>,
     Query(sort): Query<somes_common_lib::SortParams>,
     Query(date_range): Query<somes_common_lib::DateRangeQueryFilter>,
-    Query(topics): Query<somes_common_lib::TopicsFilter>,
+    Qs(topics): Qs<somes_common_lib::TopicsFilter>,
     Qs(delegate_question_filter): Qs<PublicDelegateQuestionFilter>,
 ) -> Result<Json<DelegateQuestionsWithMaxPage>, FilterError> {
     let mut filter_conditions = to_meilisearch_filters(
@@ -39,10 +39,10 @@ pub async fn delegate_questions_search(
     );
 
     if let Some(date_from) = date_range.date_from {
-        filter_conditions.push(format!("created_at >= {:?}", date_from.to_string()));
+        filter_conditions.push(format!("created_at_date >= {:?}", date_from));
     }
     if let Some(date_to) = date_range.date_to {
-        filter_conditions.push(format!("created_at <= {:?}", date_to.to_string()));
+        filter_conditions.push(format!("created_at_date <= {:?}", date_to));
     }
 
     if let Some(topics) = topics.filter_topics

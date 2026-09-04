@@ -127,6 +127,7 @@ fn to_public_questions(rows: Vec<PublicQuestionRow>) -> Vec<PublicDelegateQuesti
                 created_at: row.created_at,
                 topics: Vec::new(),
                 answers: Vec::new(),
+                created_at_date: row.created_at.naive_local().date(),
             });
         }
 
