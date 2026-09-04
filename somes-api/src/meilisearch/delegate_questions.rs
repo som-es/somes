@@ -11,14 +11,16 @@ pub async fn update_delegate_questions_meilisearch_index(
     pg_pool: &sqlx::Pool<sqlx::Postgres>,
     redis_con: &mut ConnectionManager,
     client: &Client,
+    is_silent: bool,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let filterable_fields = PublicDelegateQuestionFilter::filterable_fields()
         .into_iter()
         .map(|field| field.to_string())
         .collect::<Vec<String>>();
 
-    log::info!("Fetching all delegate questions..");
-
+    if !is_silent {
+        log::info!("Fetching all delegate questions..");
+    }
     let language = match parliament {
         Parliament::At => Language::De,
         Parliament::Eu => Language::En,
@@ -28,12 +30,14 @@ pub async fn update_delegate_questions_meilisearch_index(
 
     let index = Index::DelegateQuestions.uid(parliament);
 
-    log::info!("Fetched all delegate questions");
+    if !is_silent {
+        log::info!("Fetched all delegate questions");
 
-    log::info!(
-        "Uploading {} delegate_questions to meilisearch",
-        all_delegate_questions.len()
-    );
+        log::info!(
+            "Uploading {} delegate_questions to meilisearch",
+            all_delegate_questions.len()
+        );
+    }
 
     let settings = index_settings(
         &filterable_fields
@@ -55,6 +59,8 @@ pub async fn update_delegate_questions_meilisearch_index(
     update_time::update_update_time_of_index(redis_con, parliament, &Index::DelegateQuestions)
         .await?;
 
-    log::info!("Uploaded delegate_questions");
+    if !is_silent {
+        log::info!("Uploaded delegate_questions");
+    }
     Ok(())
 }

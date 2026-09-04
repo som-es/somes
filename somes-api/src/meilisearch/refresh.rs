@@ -15,6 +15,7 @@ use crate::AppState;
 use crate::IS_PROD;
 use crate::routes::all_votes_from_legis_init;
 
+const DELEGATE_QUESTIONS_REFRESH_INTERVAL: Duration = Duration::from_secs(60);
 const VOTE_RESULT_REFRESH_INTERVAL: Duration = Duration::from_secs(1900);
 const INDEX_REFRESH_INTERVAL: Duration = Duration::from_secs(1000);
 
@@ -49,12 +50,14 @@ impl IndexRefresher {
     pub fn refresh_interval(self) -> Duration {
         match self {
             Self::VoteResults => VOTE_RESULT_REFRESH_INTERVAL,
-            Self::GovProposals | Self::Decrees | Self::Delegates | Self::DelegateQuestions => {
-                INDEX_REFRESH_INTERVAL
-            }
+            Self::GovProposals | Self::Decrees | Self::Delegates => INDEX_REFRESH_INTERVAL,
+            Self::DelegateQuestions => DELEGATE_QUESTIONS_REFRESH_INTERVAL,
         }
     }
 
+    pub fn is_silent(self) -> bool {
+        matches!(self, Self::DelegateQuestions)
+    }
     pub fn keeps_running_in_prod(self) -> bool {
         matches!(self, Self::Decrees | Self::DelegateQuestions)
     }
@@ -89,8 +92,14 @@ impl IndexRefresher {
                 update_delegates_meilisearch_index(parliament, pg_pool, redis_con, client).await
             }
             Self::DelegateQuestions => {
-                update_delegate_questions_meilisearch_index(parliament, pg_pool, redis_con, client)
-                    .await
+                update_delegate_questions_meilisearch_index(
+                    parliament,
+                    pg_pool,
+                    redis_con,
+                    client,
+                    self.is_silent(),
+                )
+                .await
             }
         }
     }
@@ -126,7 +135,9 @@ fn spawn_parliament_index_refreshers(
                 }
 
                 let refresh_interval = refresher.refresh_interval();
-                log::info!("Sleeping {refresh_interval:?} before refreshing {index}");
+                if !refresher.is_silent() {
+                    log::info!("Sleeping {refresh_interval:?} before refreshing {index}");
+                }
                 sleep(refresh_interval).await;
             }
         });
