@@ -2,10 +2,9 @@ use combx::{Index, Parliament};
 use common_scrapes::language::Language;
 use meilisearch_sdk::client::Client;
 use redis::aio::ConnectionManager;
-use somes_common_lib::ToCompositeType;
 
 use super::{index_settings, swap::rebuild_index_via_swap, update_time};
-use crate::routes::{db::fetch_public_questions, models::PublicDelegateQuestion};
+use crate::routes::{db::fetch_public_questions, models::PublicDelegateQuestionFilter};
 
 pub async fn update_delegate_questions_meilisearch_index(
     parliament: Parliament,
@@ -13,7 +12,7 @@ pub async fn update_delegate_questions_meilisearch_index(
     redis_con: &mut ConnectionManager,
     client: &Client,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let filterable_fields = PublicDelegateQuestion::field_orders()
+    let filterable_fields = PublicDelegateQuestionFilter::filterable_fields()
         .into_iter()
         .map(|field| field.to_string())
         .collect::<Vec<String>>();

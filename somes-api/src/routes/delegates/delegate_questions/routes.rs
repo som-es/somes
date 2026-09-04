@@ -4,8 +4,6 @@ use axum::{
     Json,
     extract::{Path, Query},
 };
-use combx::{Index, Parliament};
-use common_scrapes::language::Language;
 use delegate_question_mail::new_question_message_id;
 use reqwest::StatusCode;
 pub(super) use search::*;
@@ -26,6 +24,7 @@ use crate::{
         delegates::delegate_questions::{
             mail::send_question_mail, recipients::find_delegate_contact,
         },
+        update_question_in_meilisearch,
     },
 };
 
@@ -130,6 +129,7 @@ pub async fn approve_delegate_question_route(
     }
 
     send_question_mail(&pg, question_id, &meilisearch_client, parliament).await?;
+    update_question_in_meilisearch(&meilisearch_client, &pg, parliament, question_id).await?;
     find_admin_question(&pg, question_id, query.language)
         .await
         .map(Json)
@@ -210,16 +210,7 @@ pub async fn update_delegate_question_route(
     )
     .await?;
 
-    let language = match parliament {
-        Parliament::At => Language::De,
-        Parliament::Eu => Language::En,
-    };
-    let question = find_public_question(&pg, question_id, language).await?;
-    meilisearch_client
-        .index(Index::DelegateQuestions.as_str())
-        .add_documents(&[question], None)
-        .await
-        .map_err(|e| GenericError::MeilisearchFailure(e))?;
+    update_question_in_meilisearch(&meilisearch_client, &pg, parliament, question_id).await?;
 
     find_admin_question(&pg, question_id, query.language)
         .await

@@ -1,11 +1,10 @@
-use combx::{Index, Parliament};
-use common_scrapes::language::Language;
+use combx::Parliament;
 use reqwest::StatusCode;
 
 use crate::{
     GenericError,
     email::{QUESTION_MAIL_FROM_DISPLAY, QUESTION_MAILER, send_mail_with_message_id},
-    routes::db::find_public_question,
+    routes::update_question_in_meilisearch,
 };
 
 use super::{
@@ -115,16 +114,10 @@ pub(super) async fn send_question_mail(
     match mail_result {
         Ok(()) => {
             set_question_status(pg, question_id, "sent").await?;
-            let language = match parliament {
-                Parliament::At => Language::De,
-                Parliament::Eu => Language::En,
-            };
-            let question = find_public_question(pg, question_id, language).await?;
-            meilisearch_client
-                .index(Index::DelegateQuestions.as_str())
-                .add_documents(&[question], None)
-                .await
-                .map_err(|e| GenericError::MeilisearchFailure(e))?;
+
+            update_question_in_meilisearch(meilisearch_client, &pg, parliament, question_id)
+                .await?;
+
             Ok(())
         }
         Err(error) => {
