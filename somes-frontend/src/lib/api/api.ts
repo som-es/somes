@@ -3,6 +3,7 @@ import type { Locale } from '$lib/i18n';
 import type {
 	Delegate,
 	DelegateQuestionRecipient,
+	DelegateQuestionsWithMaxPage,
 	PublicDelegateQuestion,
 	HasError,
 	InterestShare,
@@ -171,35 +172,31 @@ export async function delegate_question_recipient(
 	parliament: Parliament = getParliament()
 ): Promise<DelegateQuestionRecipient | HasError> {
 	return getWithRoute(
-		`v1/delegate_questions/delegate/${delegateId}/question_recipient`,
+		`v1/delegates/questions/delegate/${delegateId}/question_recipient`,
 		parliament,
 		fetcher
 	);
 }
 
-export async function all_delegate_questions(
+export async function delegate_question_by_id(
+	questionId: string,
 	fetcher: typeof fetch = fetch,
 	parliament: Parliament = getParliament(),
 	language: Locale = 'de'
-): Promise<PublicDelegateQuestion[] | HasError> {
-	return getWithRoute<PublicDelegateQuestion[]>(
-		`v1/delegate_questions?language=${language}`,
+): Promise<PublicDelegateQuestion | HasError> {
+	return getWithRoute<PublicDelegateQuestion>(
+		`v1/delegates/questions/${questionId}?language=${language}`,
 		parliament,
 		fetcher
 	);
 }
 
-export async function delegate_questions(
-	delegateId: number,
+export async function delegate_questions_by_query_search(
+	query: string,
 	fetcher: typeof fetch = fetch,
-	parliament: Parliament = getParliament(),
-	language: Locale = 'de'
-): Promise<PublicDelegateQuestion[] | HasError> {
-	return getWithRoute<PublicDelegateQuestion[]>(
-		`v1/delegate_questions/delegate/${delegateId}?language=${language}`,
-		parliament,
-		fetcher
-	);
+	parliament: Parliament = getParliament()
+): Promise<DelegateQuestionsWithMaxPage | HasError> {
+	return getWithRoute(`v1/delegates/questions/search?${query}`, parliament, fetcher);
 }
 
 export async function latest_vote_results(

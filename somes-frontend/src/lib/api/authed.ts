@@ -61,6 +61,27 @@ export async function putWithAuth<T>(
 	);
 }
 
+export async function patchWithAuth<T>(
+	route: string,
+	body: any,
+	parliament: Parliament = getParliament()
+): Promise<T | HasError> {
+	const accessToken = jwtStore.value;
+	if (accessToken == null) {
+		return { error: 'No access token', error_type: 'AuthError', field: 'MissingToken', meta: null };
+	}
+	return fetchSavely(() =>
+		fetch(`${url}${parliament}/${route}`, {
+			method: 'PATCH',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${accessToken}`
+			},
+			body: JSON.stringify(body)
+		})
+	);
+}
+
 export async function postWithAuth<T>(
 	route: string,
 	body: any,
@@ -157,7 +178,7 @@ export async function askDelegateQuestion(
 ): Promise<DelegateQuestionCreated | HasError> {
 	const body: CreateDelegateQuestion = { eurovoc_topic_ids: [], ...question };
 	return postWithAuth<DelegateQuestionCreated>(
-		`v1/delegate_questions/delegate/${delegateId}?language=${language}`,
+		`v1/delegates/questions/delegate/${delegateId}?language=${language}`,
 		body
 	);
 }
@@ -165,7 +186,7 @@ export async function askDelegateQuestion(
 export async function pendingDelegateQuestions(
 	language: Locale = 'de'
 ): Promise<AdminDelegateQuestion[] | HasError> {
-	return getWithAuth<AdminDelegateQuestion[]>(`v1/delegate_questions/pending?language=${language}`);
+	return getWithAuth<AdminDelegateQuestion[]>(`v1/delegates/questions/pending?language=${language}`);
 }
 
 export async function updateDelegateQuestion(
@@ -173,8 +194,8 @@ export async function updateDelegateQuestion(
 	update: UpdateDelegateQuestion,
 	language: Locale = 'de'
 ): Promise<AdminDelegateQuestion | HasError> {
-	return putWithAuth<AdminDelegateQuestion>(
-		`v1/delegate_questions/${questionId}?language=${language}`,
+	return patchWithAuth<AdminDelegateQuestion>(
+		`v1/delegates/questions/${questionId}?language=${language}`,
 		update
 	);
 }
@@ -184,7 +205,7 @@ export async function approveDelegateQuestion(
 	language: Locale = 'de'
 ): Promise<AdminDelegateQuestion | HasError> {
 	return postWithAuth<AdminDelegateQuestion>(
-		`v1/delegate_questions/${questionId}/approve?language=${language}`,
+		`v1/delegates/questions/${questionId}/approve?language=${language}`,
 		{}
 	);
 }
@@ -194,7 +215,7 @@ export async function rejectDelegateQuestion(
 	language: Locale = 'de'
 ): Promise<AdminDelegateQuestion | HasError> {
 	return postWithAuth<AdminDelegateQuestion>(
-		`v1/delegate_questions/${questionId}/reject?language=${language}`,
+		`v1/delegates/questions/${questionId}/reject?language=${language}`,
 		{}
 	);
 }

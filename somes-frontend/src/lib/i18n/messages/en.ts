@@ -910,6 +910,7 @@ export const en = {
 	'qa.tab.latestQuestions': 'Latest questions',
 	'qa.tab.unanswered': 'Unanswered',
 	'qa.filter': 'Filter',
+	'qa.searchPlaceholder': 'Search questions...',
 	'qa.questionTo': 'Question to {name}',
 	'qa.answerCount': '{count} answers',
 	'qa.unansweredHint': 'No answer yet',

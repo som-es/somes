@@ -1,13 +1,18 @@
 import {
-	all_delegate_questions,
 	delegate_by_id,
+	delegate_question_by_id,
 	delegate_question_recipient,
-	delegate_questions,
+	delegate_questions_by_query_search,
 	errorToNull
 } from '$lib/api/api';
 import type { Parliament } from '$lib/api/parliament';
-import type { Delegate, DelegateQuestionRecipient } from '$lib/types';
-import { parseQuestionSlug, type DelegateQuestionView, type QuestionDelegate } from './types';
+import type {
+	Delegate,
+	DelegateQuestionRecipient,
+	PublicDelegateQuestion,
+	DelegateQuestionsWithMaxPage
+} from '$lib/types';
+import type { DelegateQuestionView, QuestionDelegate } from './types';
 
 function toQuestionDelegate(delegate: Delegate | null): QuestionDelegate | null {
 	if (delegate === null) return null;
@@ -19,11 +24,18 @@ function toQuestionDelegate(delegate: Delegate | null): QuestionDelegate | null 
 	};
 }
 
-export async function loadQuestionEntries(
+export interface QuestionSearchResult {
+	entries: DelegateQuestionView[];
+	entryCount: number;
+	maxPage: number;
+	updatedAt: string | null;
+}
+
+async function withDelegates(
 	fetcher: typeof fetch,
-	parliament: Parliament
+	parliament: Parliament,
+	questions: PublicDelegateQuestion[]
 ): Promise<DelegateQuestionView[]> {
-	const questions = errorToNull(await all_delegate_questions(fetcher, parliament)) ?? [];
 	const delegateIds = [...new Set(questions.map((question) => question.delegate_id))];
 	const delegates = await Promise.all(
 		delegateIds.map(async (id) => errorToNull(await delegate_by_id(id, fetcher, parliament)))
@@ -40,21 +52,35 @@ export async function loadQuestionEntries(
 	}));
 }
 
+export async function searchQuestionEntries(
+	fetcher: typeof fetch,
+	parliament: Parliament,
+	query: string
+): Promise<QuestionSearchResult> {
+	const result: DelegateQuestionsWithMaxPage | null = errorToNull(
+		await delegate_questions_by_query_search(query, fetcher, parliament)
+	);
+	if (result === null) {
+		return { entries: [], entryCount: 0, maxPage: 1, updatedAt: null };
+	}
+
+	return {
+		entries: await withDelegates(fetcher, parliament, result.delegate_questions),
+		entryCount: result.entry_count,
+		maxPage: result.max_page,
+		updatedAt: result.updated_at
+	};
+}
+
 export async function loadQuestionEntry(
 	fetcher: typeof fetch,
 	parliament: Parliament,
-	slug: string
+	questionId: string
 ): Promise<DelegateQuestionView | null> {
-	const parsed = parseQuestionSlug(slug);
-	if (parsed === null) return null;
-
-	const questions =
-		errorToNull(await delegate_questions(parsed.delegateId, fetcher, parliament)) ?? [];
-	const question =
-		questions.find((entry) => new Date(entry.created_at).getTime() === parsed.createdAt) ?? null;
+	const question = errorToNull(await delegate_question_by_id(questionId, fetcher, parliament));
 	if (question === null) return null;
 
-	const delegate = errorToNull(await delegate_by_id(parsed.delegateId, fetcher, parliament));
+	const delegate = errorToNull(await delegate_by_id(question.delegate_id, fetcher, parliament));
 	return { question, delegate: toQuestionDelegate(delegate) };
 }
 

@@ -345,12 +345,27 @@ export interface PublicDelegateQuestionAnswer {
 }
 
 export interface PublicDelegateQuestion {
+	id: number;
 	delegate_id: number;
 	subject: string;
 	body: string;
 	created_at: string;
 	topics: UniqueTopic[];
 	answers: PublicDelegateQuestionAnswer[];
+}
+
+export interface DelegateQuestionsWithMaxPage {
+	delegate_questions: PublicDelegateQuestion[];
+	entry_count: number;
+	max_page: number;
+	updated_at: string | null;
+}
+
+export interface DelegateQuestionFilter {
+	topics: string[] | null;
+	date_from: string | null;
+	date_to: string | null;
+	page: number | null;
 }
 
 export interface AdminDelegateQuestion {

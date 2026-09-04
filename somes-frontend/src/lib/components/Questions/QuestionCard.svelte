@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { latestAnswer, questionSlug, type DelegateQuestionView } from './types';
+	import { latestAnswer, type DelegateQuestionView } from './types';
 	import QuestionAnswer from './QuestionAnswer.svelte';
 	import QuestionPending from './QuestionPending.svelte';
 	import { t } from '$lib/i18n/i18n.svelte';
 	import { formatDate } from '$lib/date';
 	import { plink } from '$lib/api/parliament';
+	import Topics from '$lib/components/Topics/Topics.svelte';
 
 	interface Props {
 		entry: DelegateQuestionView;
@@ -16,7 +17,7 @@
 	const question = $derived(entry.question);
 	const delegate = $derived(entry.delegate);
 	const answer = $derived(latestAnswer(question));
-	const detailLink = $derived(plink(`/questions/${questionSlug(question)}`));
+	const detailLink = $derived(plink(`/questions/${question.id}`));
 </script>
 
 <a
@@ -51,6 +52,13 @@
 	{#if question.answers.length > 1}
 		<div class="mt-3 text-sm text-gray-700 dark:text-gray-300">
 			{t('qa.answerCount', { count: `${question.answers.length}` })}
+		</div>
+	{/if}
+
+	<!-- Topics -->
+	{#if question.topics.length > 0}
+		<div class="mt-3">
+			<Topics topics={question.topics} />
 		</div>
 	{/if}
 </a>

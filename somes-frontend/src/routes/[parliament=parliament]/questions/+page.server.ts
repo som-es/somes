@@ -1,8 +1,8 @@
 import type { Parliament } from '$lib/api/parliament';
-import { loadQuestionEntries } from '$lib/components/Questions/data';
+import { searchQuestionEntries } from '$lib/components/Questions/data';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ fetch, params, setHeaders }) => {
+export const load: PageServerLoad = async ({ fetch, params, setHeaders, url }) => {
 	const parliament = params.parliament as Parliament;
 	if (process.env.NODE_ENV === 'production') {
 		setHeaders({
@@ -10,5 +10,11 @@ export const load: PageServerLoad = async ({ fetch, params, setHeaders }) => {
 		});
 	}
 
-	return { entries: await loadQuestionEntries(fetch, parliament) };
+	const searchParams = url.searchParams;
+	if (searchParams.get('page') == null && searchParams.get('sort') == null) {
+		searchParams.set('page', '1');
+		searchParams.set('sort', 'Desc');
+	}
+
+	return { result: await searchQuestionEntries(fetch, parliament, searchParams.toString()) };
 };

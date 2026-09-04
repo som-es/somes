@@ -944,6 +944,7 @@ export const de = {
 	'qa.tab.latestQuestions': 'Neuste Fragen',
 	'qa.tab.unanswered': 'Unbeantwortet',
 	'qa.filter': 'Filter',
+	'qa.searchPlaceholder': 'Fragen durchsuchen...',
 	'qa.questionTo': 'Frage an {name}',
 	'qa.answerCount': '{count} Antworten',
 	'qa.unansweredHint': 'Noch keine Antwort',
