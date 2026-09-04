@@ -1,4 +1,5 @@
 use axum::{Json, extract::Query};
+use chrono::NaiveDate;
 use combx::Index;
 use meilisearch_sdk::search::SearchResults;
 use serde::{Deserialize, Serialize};
@@ -38,11 +39,13 @@ pub async fn delegate_questions_search(
         &FilterOptions::default(),
     );
 
+    let add_time_suffix = |date: NaiveDate| format!("{}T00:00:00Z", date.to_string());
+
     if let Some(date_from) = date_range.date_from {
-        filter_conditions.push(format!("created_at >= {:?}", date_from.to_string()));
+        filter_conditions.push(format!("created_at >= {:?}", add_time_suffix(date_from)));
     }
     if let Some(date_to) = date_range.date_to {
-        filter_conditions.push(format!("created_at <= {:?}", date_to.to_string()));
+        filter_conditions.push(format!("created_at <= {:?}", add_time_suffix(date_to)));
     }
 
     if let Some(topics) = topics.filter_topics

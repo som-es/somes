@@ -61,7 +61,9 @@ pub struct DelegateQuestionRecipient {
     Debug, Deserialize, Serialize, Clone, PartialEq, Type, CompositeType, MeilisearchFilter,
 )]
 pub struct DelegateQuestionTopic {
+    #[filter(make_optional)]
     pub id: String,
+    #[filter(make_optional)]
     pub topic: String,
 }
 
