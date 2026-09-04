@@ -545,13 +545,13 @@
 
 		.stance-slider::-webkit-slider-thumb {
 			margin-top: -11px;
-			height: 24px;
-			width: 24px;
+			height: 20px;
+			width: 20px;
 		}
 
 		.stance-slider::-moz-range-thumb {
-			height: 24px;
-			width: 24px;
+			height: 20px;
+			width: 20px;
 		}
 	}
 </style>
