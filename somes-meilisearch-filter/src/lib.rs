@@ -1,3 +1,4 @@
+use chrono::TimeZone;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
@@ -148,7 +149,7 @@ impl<Tz: chrono::TimeZone> From<chrono::DateTime<Tz>> for Filterable {
     }
 }
 
-impl ToFilterable for chrono::DateTime<chrono::Utc> {
+impl<Tz: TimeZone> ToFilterable for chrono::DateTime<Tz> {
     fn to_filterable(&self) -> Filterable {
         Filterable {
             value_as_string: format!("{:?}", self),
