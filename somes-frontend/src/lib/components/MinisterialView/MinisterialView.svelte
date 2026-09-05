@@ -58,7 +58,7 @@
 	{/if}
 </title>
 
-<div class="mt-3 flex gap-3 max-lg:flex-wrap">
+<div class="mt-3 flex items-start gap-3 max-lg:flex-wrap">
 	<div class="flex w-full flex-col gap-2">
 		<div class="rounded-xl bg-primary-300 px-6 py-5 dark:bg-primary-500">
 			<div class="flex items-start justify-between">
@@ -200,12 +200,3 @@
 		</div>
 	</div>
 {/if}
-
-<style>
-	.entry {
-		border-radius: 0.9rem;
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-		padding: 11px;
-		gap: 10px;
-	}
-</style>

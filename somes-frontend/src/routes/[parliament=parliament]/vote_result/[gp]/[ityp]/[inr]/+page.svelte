@@ -885,6 +885,7 @@
 							title={t('speeches.previewTitle')}
 							speeches={allSpeeches}
 							totalCount={allSpeeches.length}
+							{delegates}
 						>
 							{#snippet speechHeader(speech)}
 								{@const speechDelegate = delegates.find((d) => d.id === speech.speech.delegate_id)}

@@ -1,27 +1,16 @@
 <script lang="ts">
 	import Container from '$lib/components/Layout/Container.svelte';
 	import Topics from '$lib/components/Topics/Topics.svelte';
-	import QuadrantChart from '$lib/components/GeneralCharts/QuadrantChart.svelte';
 	import type { PageProps } from './$types';
 	import DelegateListItem from '$lib/components/Delegates/DelegateListItem.svelte';
 	import { orientationQuizSession } from '$lib/stores/orientationQuizSession.svelte';
 	import { getMandateLatestPeriod } from '../[parliament=parliament]/delegates/searchDelegates';
-	import { all_gps, toActualDateString } from '$lib/api/api';
+	import { toActualDateString } from '$lib/api/api';
 	import { goto } from '$app/navigation';
 	import { t } from '$lib/i18n/i18n.svelte';
 	import { plink } from '$lib/api/parliament';
 
-	type TopicInfluence = { topic: string; influence: number };
-	type StrongReferenceAnswer = {
-		id: number;
-		question_id: number;
-		answer: string;
-		stance_llm: string;
-		is_strong_reference?: boolean | null;
-		model_used?: string | null;
-		created_at: string;
-		full_stance?: any;
-	};
+	type StrongReferenceAnswer = { answer: string };
 	type OrientationQuestion = {
 		id: number;
 		question: string;
@@ -30,21 +19,34 @@
 		is_part_of: string[];
 		strong_reference_answers: StrongReferenceAnswer[];
 		topics: string[];
-		topics_influence: TopicInfluence[];
-		detailed_topics: string[];
-		detailed_topics_influence: TopicInfluence[];
 	};
 
 	let { data }: PageProps = $props();
-	const allQuestions: OrientationQuestion[] = data.questions ?? [];
+	const allQuestions = (data.questions ?? []) as OrientationQuestion[];
 
 	const session = orientationQuizSession;
 
+	// Start: question counts for the short/long cards
+	const shortCount = allQuestions.filter((q) => q.is_part_of.includes('short')).length;
+	const longCount = allQuestions.filter((q) => q.is_part_of.includes('long')).length;
+
+	// Quiz: questions of the chosen length, in order
 	let filteredQuestions = $derived(() => {
-		if (!session.quizType) return [];
-		return allQuestions.filter((q) => q.is_part_of.includes(session.quizType));
+		const type = session.quizType;
+		if (!type) return [];
+		return allQuestions.filter((q) => q.is_part_of.includes(type));
 	});
 
+	// Quiz: slider steps (0-100) with their labels; also used on the result page
+	const scaleOptions = [
+		{ value: 0, label: 'orientation.quiz.stronglyAgainst' },
+		{ value: 25, label: 'orientation.quiz.against' },
+		{ value: 50, label: 'orientation.quiz.neutral' },
+		{ value: 75, label: 'orientation.quiz.for' },
+		{ value: 100, label: 'orientation.quiz.stronglyFor' }
+	] as const;
+
+	// Start -> Quiz
 	function startQuiz(type: 'short' | 'long') {
 		session.quizType = type;
 		session.currentIndex = 0;
@@ -52,6 +54,13 @@
 		session.step = 'quiz';
 	}
 
+	// Result -> Start
+	function restart() {
+		session.step = 'start';
+		session.quizType = null;
+	}
+
+	// Quiz: navigation and answering
 	function currentQuestion(): OrientationQuestion | null {
 		const qs = filteredQuestions();
 		return qs[session.currentIndex] ?? null;
@@ -70,22 +79,26 @@
 		if (session.currentIndex > 0) session.currentIndex--;
 	}
 
-	function toggleStrongRef() {
-		session.strongRefMode = !session.strongRefMode;
-	}
-
 	function setAnswer(val: number) {
 		const q = currentQuestion();
 		if (!q) return;
 		session.answers[q.id] = val;
 	}
 
+	// Quiz + Result: human-readable label for a slider value
+	function answerLabel(val: number | null | undefined): string {
+		if (val == null) return t('orientation.result.noAnswer');
+		const idx = Math.min(scaleOptions.length - 1, Math.round(val / 25));
+		return t(scaleOptions[idx].label);
+	}
+
+	// Quiz + Result: how many questions have an answer
 	const answeredCount = $derived(() => {
 		const qs = filteredQuestions();
-		return qs.filter((q) => session.answers[q.id] !== undefined && session.answers[q.id] !== null)
-			.length;
+		return qs.filter((q) => session.answers[q.id] != null).length;
 	});
 
+	// Result: aggregate answers per topic into the four political axes
 	function computeUserTopicScores() {
 		const qs = filteredQuestions();
 		interface Acc {
@@ -136,18 +149,12 @@
 				topicAcc[t].count += 1;
 			}
 		}
-		const result: Record<string, number> = {};
-		for (const t in topicAcc) {
-			const a = topicAcc[t];
-			const pos = a.socialist + a.liberal;
-			const neg = a.authoritarian + a.capitalist;
-			result[t] = (1.8 * (pos - neg)) / a.count;
-		}
-		return { result, topicAcc };
+		return topicAcc;
 	}
 
+	// Result: rank delegates by distance to the user's topic scores
 	function getTopSimilarDelegates(topN = 10) {
-		const { result, topicAcc } = computeUserTopicScores();
+		const topicAcc = computeUserTopicScores();
 		const delegateScores = data.delegateScores ?? [];
 		const scored = delegateScores.map((d) => {
 			const scores = d.scores ?? [];
@@ -164,10 +171,16 @@
 				matches++;
 			}
 			const avgDiff = matches > 6 ? totalDiff / matches : Infinity;
-			return { delegate: d, avgDiff, matches };
+			return { delegate: d, avgDiff };
 		});
 		scored.sort((a, b) => a.avgDiff - b.avgDiff);
-		return scored.slice(0, topN);
+		return scored.slice(0, topN).filter((d) => Number.isFinite(d.avgDiff));
+	}
+
+	// Result: jump to the delegate detail page
+	function openDelegate(d: (typeof data.delegateScores)[number]) {
+		const { date, gp } = getMandateLatestPeriod(d.delegate, data.gps);
+		goto(plink(`/delegates?gp=${gp}&date=${toActualDateString(date)}&delegate=${d.delegate.id}`));
 	}
 </script>
 
@@ -176,190 +189,369 @@
 	<meta name="description" content={t('orientation.page.description')} />
 </svelte:head>
 
-<Container>
+{#snippet primaryButton(label: string, onclick: () => void, disabled = false)}
+	<button
+		type="button"
+		{onclick}
+		{disabled}
+		class="rounded-full bg-primary-500 px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-primary-600 disabled:cursor-not-allowed disabled:opacity-40 sm:text-sm dark:bg-primary-300 dark:text-gray-900 dark:hover:bg-primary-200"
+	>
+		{label}
+	</button>
+{/snippet}
+
+{#snippet secondaryButton(label: string, onclick: () => void, disabled = false)}
+	<button
+		type="button"
+		{onclick}
+		{disabled}
+		class="rounded-full px-4 py-1.5 text-xs font-semibold transition hover:bg-primary-400 disabled:cursor-not-allowed disabled:opacity-40 sm:text-sm dark:hover:bg-primary-600"
+	>
+		{label}
+	</button>
+{/snippet}
+
+<Container class="pb-12">
+	<!-- Start page -->
 	{#if session.step === 'start'}
-		<h1 class="mt-2 px-1 pt-2 text-3xl font-bold sm:mt-0 sm:p-0 sm:text-4xl">
-			{t('orientation.page.title')}
-		</h1>
-		<p class="mt-3">{t('orientation.start.chooseLength')}</p>
-
-		<div class="mt-4 card p-4 text-sm text-gray-700 dark:text-gray-300">
-			<p class="mb-2 font-semibold">{t('orientation.start.hint')}</p>
-			<p>
-				<span class="font-bold">{t('orientation.start.hintBold')} </span>
-				{t('orientation.start.hintText')}
-			</p>
-			<p class="mt-2">
-				{t('orientation.start.hintText2')}
-				<span class="font-bold">{t('orientation.start.hintBold2')}</span>
+		<br />
+		<div class="mb-6">
+			<h1 class="text-3xl font-bold sm:text-4xl">{t('orientation.page.title')}</h1>
+			<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
+				{t('orientation.start.chooseLength')}
 			</p>
 		</div>
 
-		<div class="mt-6 grid gap-4 sm:grid-cols-2">
-			<button class="btn card p-6 text-left" onclick={() => startQuiz('short')}>
-				<h3 class="text-xl font-semibold">{t('orientation.start.short')}</h3>
-				<p class="mt-2 text-sm">{t('orientation.start.shortDesc')}</p>
-			</button>
-			<button class="btn card p-6 text-left" onclick={() => startQuiz('long')}>
-				<h3 class="text-xl font-semibold">{t('orientation.start.long')}</h3>
-				<p class="mt-2 text-sm">{t('orientation.start.longDesc')}</p>
-			</button>
+		<div class="grid gap-4 sm:grid-cols-2">
+			{#each [{ type: 'short', title: t('orientation.start.short'), desc: t('orientation.start.shortDesc'), count: shortCount }, { type: 'long', title: t('orientation.start.long'), desc: t('orientation.start.longDesc'), count: longCount }] as opt (opt.type)}
+				<button
+					type="button"
+					class="flex flex-col gap-3 rounded-xl bg-primary-300 px-6 py-5 text-left shadow-sm transition hover:bg-primary-400 dark:bg-primary-500 dark:hover:bg-primary-600"
+					onclick={() => startQuiz(opt.type as 'short' | 'long')}
+				>
+					<div class="flex items-center justify-between gap-3">
+						<span class="text-xl font-bold">{opt.title}</span>
+						<span class="badge bg-tertiary-400 text-black">
+							{t('orientation.start.questions', { count: opt.count })}
+						</span>
+					</div>
+					<p class="text-sm text-gray-700 dark:text-gray-300">{opt.desc}</p>
+				</button>
+			{/each}
 		</div>
+
+		<div
+			class="mt-6 rounded-xl border border-gray-300 bg-surface-50 px-6 py-5 shadow-sm dark:border-surface-700 dark:bg-surface-700/60"
+		>
+			<p class="text-base font-bold md:text-lg">
+				{t('orientation.start.hint')}
+			</p>
+			<div class="mt-3 space-y-3 text-sm text-gray-800 dark:text-gray-100">
+				<p>
+					<span class="font-bold">{t('orientation.start.hintBold')}</span>
+					{t('orientation.start.hintText')}
+				</p>
+				<p>
+					{t('orientation.start.hintText2')}
+					<span class="font-bold">{t('orientation.start.hintBold2')}</span>
+				</p>
+			</div>
+		</div>
+		<!-- Quiz page -->
 	{:else if session.step === 'quiz'}
 		{@const q = currentQuestion()}
 		{@const qs = filteredQuestions()}
 		{#if q}
-			<h3 class="mb-4 text-xl font-semibold sm:text-2xl">
-				{t('orientation.quiz.progress', { current: session.currentIndex + 1, total: qs.length })}
-			</h3>
+			{@const progress = ((session.currentIndex + 1) / qs.length) * 100}
+			{@const answer = session.answers[q.id]}
+			{@const isLast = session.currentIndex === qs.length - 1}
+			<div class="mt-2 mb-8">
+				<div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+					<h1 class="text-2xl font-bold sm:text-3xl">
+						{t('orientation.quiz.progress', {
+							current: session.currentIndex + 1,
+							total: qs.length
+						})}
+					</h1>
+					<span class="text-sm text-gray-600 dark:text-gray-300">
+						{t('orientation.quiz.answered', { count: answeredCount(), total: qs.length })}
+					</span>
+				</div>
+				<div
+					class="mt-3 h-2 w-full overflow-hidden rounded-full bg-surface-200 dark:bg-surface-700"
+					role="progressbar"
+					aria-valuemin="0"
+					aria-valuemax="100"
+					aria-valuenow={Math.round(progress)}
+				>
+					<div
+						class="h-full rounded-full bg-primary-500 transition-all dark:bg-primary-300"
+						style="width: {progress}%"
+					></div>
+				</div>
+			</div>
 
-			<div class="mt-4 card p-4">
-				<div class="flex flex-col gap-8">
-					<div class="flex flex-col gap-6 lg:flex-row lg:gap-10">
-						<div class="min-w-0 flex-1">
-							<p class="mb-3 text-xl font-medium">{q.question}</p>
+			<section class="overflow-hidden rounded-xl bg-primary-300 dark:bg-primary-500">
+				<div class="p-4 pb-0 sm:p-6 sm:pb-0">
+					<p class="text-lg leading-snug font-semibold sm:text-2xl">{q.question}</p>
+					{#if q.topics.length}
+						<div class="-mx-1 mt-2">
+							<Topics topics={q.topics.map((t) => ({ topic: t }))} />
+						</div>
+					{/if}
+				</div>
 
-							{#if q.is_part_of.length}
-								<div class="mt-1 flex flex-wrap gap-1">
-									{#each q.is_part_of as tag}
-										{@const label =
-											tag === 'short'
-												? t('orientation.start.short')
-												: tag === 'long'
-													? t('orientation.start.long')
-													: tag}
-										<span class="badge bg-primary-600 text-white dark:bg-primary-800">{label}</span>
+				<div class="p-4 pt-8 sm:p-6 sm:pt-10">
+					{#if q.strong_reference_answers.length >= 2}
+						{@const pro = q.strong_reference_answers[0]}
+						{@const contra = q.strong_reference_answers[1]}
+						{@const value = answer ?? 50}
+						<div class="grid gap-3 sm:grid-cols-2">
+							<div
+								class="rounded-lg border p-3 text-sm transition {value < 50
+									? 'border-primary-600 bg-white dark:border-primary-200 dark:bg-surface-800'
+									: 'border-transparent bg-white/70 dark:bg-surface-800/70'}"
+							>
+								<p
+									class="mb-1 text-xs font-semibold tracking-wide text-gray-600 uppercase dark:text-gray-300"
+								>
+									{t('orientation.quiz.against')}
+								</p>
+								{contra.answer}
+							</div>
+							<div
+								class="rounded-lg border p-3 text-sm transition {value > 50
+									? 'border-primary-600 bg-white dark:border-primary-200 dark:bg-surface-800'
+									: 'border-transparent bg-white/70 dark:bg-surface-800/70'}"
+							>
+								<p
+									class="mb-1 text-xs font-semibold tracking-wide text-gray-600 uppercase dark:text-gray-300"
+								>
+									{t('orientation.quiz.for')}
+								</p>
+								{pro.answer}
+							</div>
+						</div>
+						<div class="mt-6 flex items-center gap-3 sm:mt-4">
+							<span class="shrink-0 text-xs text-gray-600 sm:text-sm dark:text-gray-300">
+								{t('orientation.quiz.against')}
+							</span>
+							<div class="relative min-w-0 flex-1">
+								<div
+									class="pointer-events-none absolute inset-x-3 top-1/2 sm:inset-x-2"
+									aria-hidden="true"
+								>
+									{#each scaleOptions as opt}
+										<span
+											class="stance-tick {answer === opt.value ? 'stance-tick-active' : ''}"
+											style="left: {opt.value}%"
+										></span>
 									{/each}
 								</div>
-							{/if}
-						</div>
-
-						{#if q.topics.length}
-							<div class="hidden w-full shrink-0 lg:block lg:w-72">
-								<h4 class="mb-3 text-sm font-semibold">{t('orientation.quiz.topics')}</h4>
-								<Topics topics={q.topics.map((t) => ({ topic: t }))} />
-							</div>
-						{/if}
-					</div>
-
-					<div class="w-full">
-						{#if session.strongRefMode}
-							{#if q.strong_reference_answers.length >= 2}
-								{@const pro = q.strong_reference_answers[0]}
-								{@const contra = q.strong_reference_answers[1]}
-								<label class="mb-2 block text-sm">{t('orientation.quiz.stance')}</label>
 								<input
 									type="range"
 									min="0"
 									max="100"
-									value={session.answers[q.id] ?? 50}
+									{value}
 									oninput={(e) => setAnswer(parseInt((e.target as HTMLInputElement).value))}
-									class="h-10 w-full touch-manipulation"
-									style="width:100%"
+									aria-label={t('orientation.quiz.stance')}
+									class="stance-slider relative w-full touch-manipulation"
 								/>
-								<div class="mt-2 flex justify-between gap-4">
-									<span class="max-w-[45%] text-xs">{pro.answer}</span>
-									<span class="max-w-[45%] text-right text-xs">{contra.answer}</span>
-								</div>
-							{:else}
-								<p class="text-sm">{t('orientation.quiz.noReferences')}</p>
-							{/if}
-						{:else}
-							<div class="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5">
-								{#each [t('orientation.quiz.stronglyAgainst'), t('orientation.quiz.against'), t('orientation.quiz.neutral'), t('orientation.quiz.for'), t('orientation.quiz.stronglyFor')] as label, i}
-									<button
-										class="btn bg-primary-400 {session.answers[q.id] === i * 25
-											? 'bg-secondary-500 text-white'
-											: ''}"
-										onclick={() => setAnswer(i * 25)}
-									>
-										{label}
-									</button>
-								{/each}
 							</div>
-						{/if}
-					</div>
-
-					{#if q.topics.length}
-						<div class="block lg:hidden">
-							<h4 class="mb-3 text-sm font-semibold">{t('orientation.quiz.topics')}</h4>
-							<Topics topics={q.topics.map((t) => ({ topic: t }))} />
+							<span class="shrink-0 text-xs text-gray-600 sm:text-sm dark:text-gray-300">
+								{t('orientation.quiz.for')}
+							</span>
 						</div>
+						<p class="mb-2 text-center text-sm font-semibold sm:mb-0">
+							{answer == null ? t('orientation.quiz.notAnswered') : answerLabel(answer)}
+						</p>
+					{:else}
+						<p class="text-sm text-gray-600 dark:text-gray-300">
+							{t('orientation.quiz.noReferences')}
+						</p>
 					{/if}
+				</div>
 
-					<div class="flex justify-end gap-3">
-						<button
-							class="btn"
-							onclick={() => {
-								session.step = 'start';
-								session.quizType = null;
-							}}>{t('orientation.quiz.restart')}</button
-						>
-						<button class="btn" onclick={prev} disabled={session.currentIndex === 0}
-							>← {t('orientation.quiz.back')}</button
-						>
-						<button class="btn" onclick={next}>{t('orientation.quiz.next')} →</button>
-					</div>
-
-					<div class="flex justify-start">
-						<button class="btn" onclick={toggleStrongRef}>
-							{session.strongRefMode
-								? t('orientation.quiz.toScale')
-								: t('orientation.quiz.toSlider')}
-						</button>
+				<div class="p-4 pt-4 sm:p-6 sm:pt-6">
+					<div class="flex justify-between gap-2">
+						{@render secondaryButton(
+							`← ${t('orientation.quiz.back')}`,
+							prev,
+							session.currentIndex === 0
+						)}
+						{@render primaryButton(
+							isLast ? t('orientation.quiz.finish') : `${t('orientation.quiz.next')} →`,
+							next
+						)}
 					</div>
 				</div>
-			</div>
+			</section>
 		{/if}
+		<!-- Result page -->
 	{:else if session.step === 'result'}
-		<h1 class="mt-2 px-1 pt-2 text-3xl font-bold sm:mt-0 sm:p-0 sm:text-4xl">
-			{t('orientation.result.title')}
-		</h1>
-		<p class="mt-3">{t('orientation.result.answered', { count: answeredCount() })}</p>
+		{@const qs = filteredQuestions()}
 		{@const topDelegates = getTopSimilarDelegates(10)}
-		<div class="card p-4">
-			<h3 class="mb-3 text-xl font-semibold sm:text-2xl">{t('orientation.result.similar')}</h3>
-			<p class="mb-4 text-sm">
-				{t('orientation.result.similarDesc')}
+		{@const maxDiff = Math.max(...topDelegates.map((d) => d.avgDiff), 0.0001)}
+		<div class="mt-2 mb-6">
+			<h1 class="text-3xl font-bold sm:text-4xl">{t('orientation.result.title')}</h1>
+			<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
+				{t('orientation.result.answered', { count: answeredCount() })}
 			</p>
-			{#each topDelegates as d (d.delegate.delegate.id)}
-				<div class="mb-2 flex items-center justify-between border-b pb-2">
-					<DelegateListItem
-						delegate={d.delegate.delegate}
-						class="w-full md:w-auto md:max-w-full"
-						onclick={async () => {
-							const { date, gp } = getMandateLatestPeriod(d.delegate.delegate, data.gps);
-							goto(
-								plink(
-									`/delegates?gp=${gp}&date=${toActualDateString(date)}&delegate=${d.delegate.delegate.id}`
-								)
-							);
-						}}
-					/>
-					<span class="text-sm"
-						>{t('orientation.result.avgDiff', { value: d.avgDiff?.toFixed(3) ?? '' })}</span
-					>
-				</div>
-			{/each}
 		</div>
-		<div class="mt-6 space-y-4">
-			{#each filteredQuestions() as q}
-				<div class="card p-4">
-					<p class="font-medium">{q.question}</p>
-					<p class="mt-1 text-sm">
-						{t('orientation.result.answer', {
-							value: session.answers[q.id] ?? t('orientation.result.noAnswer')
-						})}
-					</p>
-				</div>
-			{/each}
-		</div>
-		<button
-			class="mt-6 btn"
-			onclick={() => {
-				session.step = 'start';
-				session.quizType = null;
-			}}>← {t('orientation.result.restart')}</button
+
+		<section
+			class="overflow-hidden rounded-xl border border-gray-300 bg-surface-50 shadow-sm dark:border-surface-700 dark:bg-surface-700/60"
 		>
+			<div class="bg-primary-300 p-4 sm:p-6 dark:bg-primary-500">
+				<h2 class="text-xl font-bold sm:text-2xl">{t('orientation.result.similar')}</h2>
+				<p class="mt-1 text-sm text-gray-700 dark:text-gray-300">
+					{t('orientation.result.similarDesc')}
+				</p>
+			</div>
+			{#if topDelegates.length === 0}
+				<p class="p-4 text-sm text-gray-600 sm:p-6 dark:text-gray-300">
+					{t('orientation.result.tooFewAnswers')}
+				</p>
+			{:else}
+				<ol class="divide-y divide-gray-300 dark:divide-surface-600">
+					{#each topDelegates as d, i (d.delegate.delegate.id)}
+						<li class="flex items-center gap-3 px-4 py-2.5 sm:px-6">
+							<span class="w-7 shrink-0 font-mono text-xs text-gray-500 dark:text-gray-400"
+								>#{i + 1}</span
+							>
+							<div class="min-w-0 flex-1">
+								<DelegateListItem
+									delegate={d.delegate.delegate}
+									class="w-full"
+									onclick={() => openDelegate(d.delegate)}
+								>
+									<span class="text-[0.65rem] text-gray-600 sm:hidden dark:text-gray-300">
+										{t('orientation.result.avgDiff', { value: d.avgDiff.toFixed(2) })}
+									</span>
+								</DelegateListItem>
+							</div>
+							<div class="hidden w-40 shrink-0 sm:block">
+								<div
+									class="h-1.5 w-full overflow-hidden rounded-full bg-surface-200 dark:bg-surface-600"
+								>
+									<div
+										class="h-full rounded-full bg-primary-500 dark:bg-primary-300"
+										style="width: {Math.max(8, 100 - (d.avgDiff / maxDiff) * 60)}%"
+									></div>
+								</div>
+								<p class="mt-1 text-right text-[0.65rem] text-gray-600 dark:text-gray-300">
+									{t('orientation.result.avgDiff', { value: d.avgDiff.toFixed(3) })}
+								</p>
+							</div>
+						</li>
+					{/each}
+				</ol>
+			{/if}
+		</section>
+
+		<details
+			class="mt-6 rounded-xl border border-gray-300 bg-surface-50 shadow-sm dark:border-surface-700 dark:bg-surface-700/60"
+		>
+			<summary class="cursor-pointer p-4 text-lg font-bold sm:p-6">
+				{t('orientation.result.answersOverview')}
+			</summary>
+			<ol
+				class="divide-y divide-gray-300 border-t border-gray-300 dark:divide-surface-600 dark:border-surface-600"
+			>
+				{#each qs as q, i (q.id)}
+					{@const val = session.answers[q.id]}
+					<li
+						class="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6"
+					>
+						<p class="text-sm">
+							<span class="mr-2 font-mono text-xs text-gray-500 dark:text-gray-400">{i + 1}</span>
+							{q.question}
+						</p>
+						<span
+							class="shrink-0 self-start rounded-full px-3 py-0.5 text-xs font-semibold sm:self-auto {val ==
+							null
+								? 'bg-surface-200 text-gray-600 dark:bg-surface-600 dark:text-gray-300'
+								: 'bg-primary-300 text-black dark:bg-primary-400'}"
+						>
+							{answerLabel(val)}
+						</span>
+					</li>
+				{/each}
+			</ol>
+		</details>
+
+		<div class="mt-6">
+			{@render secondaryButton(`← ${t('orientation.result.restart')}`, restart)}
+		</div>
 	{/if}
 </Container>
+
+<style>
+	.stance-slider {
+		appearance: none;
+		height: 1.75rem;
+		background: transparent;
+		cursor: pointer;
+	}
+
+	.stance-slider::-webkit-slider-runnable-track {
+		height: 2px;
+		border-radius: 9999px;
+		background: light-dark(rgb(107 114 128 / 0.6), rgb(229 231 235 / 0.6));
+	}
+
+	.stance-slider::-webkit-slider-thumb {
+		appearance: none;
+		margin-top: -7px;
+		height: 16px;
+		width: 16px;
+		border-radius: 9999px;
+		background: light-dark(var(--color-primary-500), var(--color-primary-300));
+	}
+
+	.stance-slider::-moz-range-track {
+		height: 2px;
+		border-radius: 9999px;
+		background: light-dark(rgb(107 114 128 / 0.6), rgb(229 231 235 / 0.6));
+	}
+
+	.stance-slider::-moz-range-thumb {
+		border: none;
+		height: 16px;
+		width: 16px;
+		border-radius: 9999px;
+		background: light-dark(var(--color-primary-500), var(--color-primary-300));
+	}
+
+	.stance-tick {
+		position: absolute;
+		top: 0;
+		width: 2px;
+		height: 8px;
+		border-radius: 9999px;
+		transform: translate(-50%, -50%);
+		background: light-dark(rgb(107 114 128 / 0.6), rgb(229 231 235 / 0.6));
+	}
+
+	.stance-tick-active {
+		background: light-dark(var(--color-primary-500), var(--color-primary-300));
+	}
+
+	/* Mobile: taller hit area and bigger thumb for touch */
+	@media (max-width: 639px) {
+		.stance-slider {
+			height: 3rem;
+		}
+
+		.stance-slider::-webkit-slider-thumb {
+			margin-top: -11px;
+			height: 20px;
+			width: 20px;
+		}
+
+		.stance-slider::-moz-range-thumb {
+			height: 20px;
+			width: 20px;
+		}
+	}
+</style>
