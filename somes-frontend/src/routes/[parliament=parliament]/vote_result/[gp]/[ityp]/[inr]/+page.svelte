@@ -34,6 +34,8 @@
 	import upDownArrowIcon from '$lib/assets/misc_icons/up-down-arrow.svg?raw';
 	import { countryName } from '$lib/countries';
 	import MultiSelectFilter from '$lib/components/Filtering/MultiSelectFilter.svelte';
+	import MediaReferences from '$lib/components/VoteResults/MediaReferences.svelte';
+	import { mockArticleLinks } from '$lib/parliaments/mock';
 
 	let gp = $derived(page.params.gp);
 	let ityp = $derived(page.params.ityp);
@@ -41,7 +43,7 @@
 
 	import type { PageProps } from './$types';
 	import type { Vote } from '$lib/types';
-	import { browser } from '$app/environment';
+	import { dev } from '$app/environment';
 	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
 	import type { SvelteSet } from 'svelte/reactivity';
 	import { addLegisInitFavo, removeLegisInitFavo } from '$lib/api/authed';
@@ -168,6 +170,11 @@
 	});
 	let documents = $derived(voteResult?.documents ?? []);
 
+	const MOCK_ARTICLE_LINKS = mockArticleLinks();
+	let articleLinks = $derived(
+		voteResult?.article_links?.length ? voteResult.article_links : dev ? MOCK_ARTICLE_LINKS : []
+	);
+
 	const infavorOptions = $derived.by(() => {
 		const val = [
 			{ value: 'Infavor', label: t('vote_result.inFavor') },
@@ -198,8 +205,16 @@
 			? voteResult?.legislative_initiative?.vote_date
 			: voteResult?.legislative_initiative?.nr_plenary_activity_date
 	);
-	const title = $derived(voteResult?.ai_summary !== null ? voteResult?.ai_summary?.short_title : voteResult.legislative_initiative.description);
-	const content = $derived(voteResult?.ai_summary !== null ? voteResult?.ai_summary?.very_detailed_summary : voteResult.legislative_initiative.description);
+	const title = $derived(
+		voteResult?.ai_summary !== null
+			? voteResult?.ai_summary?.short_title
+			: voteResult.legislative_initiative.description
+	);
+	const content = $derived(
+		voteResult?.ai_summary !== null
+			? voteResult?.ai_summary?.very_detailed_summary
+			: voteResult.legislative_initiative.description
+	);
 </script>
 
 <svelte:head>
@@ -934,9 +949,21 @@
 						</SpeechesPreview>
 					</div>
 				{/if}
-				<div class="w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
+				<div
+					class="w-full grow basis-full rounded-xl bg-primary-300 p-3 lg:basis-[calc(66%-0.375rem)] dark:bg-primary-500"
+				>
 					<Documents {documents} />
 				</div>
+				{#if articleLinks.length > 0}
+					<div
+						class="w-full grow basis-full rounded-xl bg-primary-300 px-5 pt-4 pb-3 lg:min-w-[15rem] lg:basis-[calc(33%-0.375rem)] dark:bg-primary-500"
+					>
+						<span class="text-lg font-semibold md:text-xl">{t('media.title')}</span>
+						<div class="mt-2">
+							<MediaReferences {articleLinks} />
+						</div>
+					</div>
+				{/if}
 			</div>
 		{/if}
 	{:else}

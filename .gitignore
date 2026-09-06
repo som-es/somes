@@ -19,4 +19,5 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 */data.ms/
 nohup.out
-assets
+somes-api/assets
+external-favicons

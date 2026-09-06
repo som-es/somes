@@ -228,7 +228,15 @@ export interface VoteResult {
 	issued_by_dels: RelatedDelegate[];
 	referenced_by_others_ids: number[];
 	references: Reference[] | null;
+  article_links: ArticleLink[];
 	ai_summary: DbAiSummary | null;
+}
+
+export interface ArticleLink {
+  provider: string;
+  url: string;
+  score: number;
+  lastmod: string;
 }
 
 export function createVoteResultPath(voteResult: VoteResult): string {

@@ -1,5 +1,58 @@
 import { delegates_at } from '$lib/api/api';
-import type { Delegate, VoteResult } from '$lib/types';
+import type { ArticleLink, Delegate, VoteResult } from '$lib/types';
+
+export function mockArticleLinks(): ArticleLink[] {
+	return [
+		{
+			provider: 'derstandard',
+			url: 'https://derstandard.at/3000111223344/Antrag-im-Nationalrat-abgelehnt',
+			score: 0.92,
+			lastmod: '2026-05-12T14:20:00'
+		},
+		{
+			provider: 'derstandard',
+			url: 'https://derstandard.at/3000111223355/Reaktion-der-Koalition',
+			score: 0.64,
+			lastmod: '2026-05-13T09:05:00'
+		},
+		{
+			provider: 'diepresse',
+			url: 'https://www.diepresse.com/6012345/namentliche-abstimmung-im-plenum',
+			score: 0.81,
+			lastmod: '2026-05-12T18:40:00'
+		},
+		{
+			provider: 'heute',
+			url: 'https://www.heute.at/r/9f2c1a3b-0de4-4a11-8c3b-77aa10bb2c01',
+			score: 0.55,
+			lastmod: '2026-05-12T11:00:00'
+		},
+		{
+			provider: 'kurier',
+			url: 'https://kurier.at/politik/inland/abstimmung-ueber-den-antrag/402981234',
+			score: 0.77,
+			lastmod: '2026-05-12T16:30:00'
+		},
+		{
+			provider: 'oe24',
+			url: 'https://www.oesterreich24.at/artikel/abstimmung-nationalrat-2026',
+			score: 0.48,
+			lastmod: '2026-05-11T20:15:00'
+		},
+		{
+			provider: 'profil',
+			url: 'https://www.profil.at/politik/analyse-der-Abstimmung-1234567',
+			score: 0.69,
+			lastmod: '2026-05-14T08:00:00'
+		},
+		{
+			provider: 'vorarlberger-nachrichten',
+			url: 'https://www.vn.at/politik/regionale-reaktion-auf-den-beschluss',
+			score: 0.31,
+			lastmod: '2026-05-15T07:45:00'
+		}
+	];
+}
 
 function generateDelegate(party: string): Delegate {
 	return {
