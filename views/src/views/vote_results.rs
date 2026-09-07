@@ -229,6 +229,16 @@ pub async fn create_vote_results_view<'a>(
             LIMIT 1
           ) AS \"ai_summary: DbAiSummary\",
           (
+            SELECT
+                ARRAY(
+                    SELECT
+                        ROW(provider, url, score, lastmod)::article_link
+                    FROM
+                        article_legis_init_links
+                    where legis_init_id = li.id
+                )
+          ) AS \"article_links: Vec<ArticleLink>\",
+          (
           SELECT
             ROW(
               /* votes */
