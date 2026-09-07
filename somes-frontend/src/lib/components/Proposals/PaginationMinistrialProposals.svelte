@@ -57,7 +57,7 @@
 		options: [{ title: t('filterOption.all'), value: 'all' }]
 	});
 
-	let searchValue = $state('');
+	let searchValue = $state(page.url.searchParams.get("search") ?? "");
 	let sortOrder: 'relevance' | 'Desc' | 'Asc' = $state('relevance');
 
 	let updatedAt = $derived.by(() => {
