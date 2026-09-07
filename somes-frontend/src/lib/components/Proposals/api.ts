@@ -17,5 +17,9 @@ export async function mood_by_path(
 	fetcher: typeof fetch = fetch,
 	parliament: Parliament = getParliament()
 ): Promise<MoodBarometer | null | HasError> {
-	return getWithRoute<MoodBarometer | null>(`v1/gov_proposals/${gp}/${inr}/mood`, parliament, fetcher);
+	return getWithRoute<MoodBarometer | null>(
+		`v1/gov_proposals/${gp}/${inr}/mood`,
+		parliament,
+		fetcher
+	);
 }

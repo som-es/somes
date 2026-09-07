@@ -38,8 +38,16 @@
 		};
 	});
 
-	const title = $derived(ministerialData?.aiSummary !== null ? ministerialData?.aiSummary?.short_title : ministerialData.alternativeTitle);
-	const content = $derived(ministerialData?.aiSummary !== null ? ministerialData?.aiSummary?.very_detailed_summary : ministerialData.alternativeTitle);
+	const title = $derived(
+		ministerialData?.aiSummary !== null
+			? ministerialData?.aiSummary?.short_title
+			: ministerialData.alternativeTitle
+	);
+	const content = $derived(
+		ministerialData?.aiSummary !== null
+			? ministerialData?.aiSummary?.very_detailed_summary
+			: ministerialData.alternativeTitle
+	);
 </script>
 
 <svelte:head>

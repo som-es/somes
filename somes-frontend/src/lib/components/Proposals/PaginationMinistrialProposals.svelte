@@ -117,7 +117,13 @@
 			if (maybeStoredFilter.date_from)
 				genericFilters[1].data!.dateFrom = maybeStoredFilter.date_from;
 			if (maybeStoredFilter.date_to) genericFilters[1].data!.dateTo = maybeStoredFilter.date_to;
-			if (maybeStoredFilter.page) currentPage = maybeStoredFilter.page;
+			if (maybeStoredFilter.page) {
+				if (maybeStoredFilter.page > (govProposals?.max_page ?? 1)) {
+					currentPage = 1;
+				} else {
+					currentPage = maybeStoredFilter.page;
+				}
+			}
 		}
 	});
 
@@ -147,6 +153,9 @@
 	};
 
 	const update = () => {
+		if (currentPage ?? 1 > (govProposals?.max_page ?? 1)) {
+			currentPage = 1;
+		}
 		loadGovProps();
 	};
 

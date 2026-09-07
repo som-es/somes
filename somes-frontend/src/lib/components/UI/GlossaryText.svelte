@@ -131,10 +131,7 @@
 				: Math.min(vh - PADDING - tipRect.height, termRect.bottom + ARROW);
 
 		tooltipStyle = `left:${left}px;top:${top}px;`;
-		const arrowLeft = Math.min(
-			Math.max(ARROW + 4, termCenter - left),
-			tipRect.width - ARROW - 4
-		);
+		const arrowLeft = Math.min(Math.max(ARROW + 4, termCenter - left), tipRect.width - ARROW - 4);
 		arrowStyle = `left:${arrowLeft}px;`;
 	}
 

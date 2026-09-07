@@ -201,7 +201,9 @@
 								</span>
 							</div>
 							{#if editingQuestionId !== question.id}
-								<h2 class="mt-2 text-lg font-bold text-black dark:text-white">{question.subject}</h2>
+								<h2 class="mt-2 text-lg font-bold text-black dark:text-white">
+									{question.subject}
+								</h2>
 							{/if}
 							<p class="mt-1 text-sm text-gray-700 dark:text-gray-200">
 								{question.delegate_name} -> {question.recipient_name} ({question.recipient_email})
@@ -265,8 +267,7 @@
 								<textarea
 									rows="8"
 									class="mt-1 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm font-normal text-black dark:border-gray-600 dark:text-white"
-									bind:value={editBody}
-								></textarea>
+									bind:value={editBody}></textarea>
 							</label>
 							<div class="text-sm font-semibold text-black dark:text-white">
 								Themen ({editTopicIds.size} ausgewählt)

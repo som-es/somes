@@ -363,7 +363,11 @@
 				genericFilters[7].activeValue = maybeStoredFilter.is_from_governemnt;
 			}
 			if (maybeStoredFilter.page !== null) {
-				currentPage = maybeStoredFilter.page;
+				if (maybeStoredFilter.page > (voteResults?.max_page ?? 1)) {
+					currentPage = 1;
+				} else {
+					currentPage = maybeStoredFilter.page;
+				}
 			}
 		}
 	});
@@ -448,6 +452,9 @@
 	});
 
 	const update = () => {
+		if (currentPage ?? 1 > (voteResults?.max_page ?? 1)) {
+			currentPage = 1;
+		}
 		loadVoteResults();
 	};
 

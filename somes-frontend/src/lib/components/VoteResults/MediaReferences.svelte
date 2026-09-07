@@ -66,7 +66,10 @@
 
 	let groups = $derived.by(() => {
 		const map = new Map<string, ProviderGroup>();
-		for (const link of articleLinks ?? []) {
+		const filteredArticles = articleLinks.filter((article) => {
+			return article.score > 0.67;
+		});
+		for (const link of filteredArticles ?? []) {
 			const info = resolveProvider(link.provider);
 			const group = map.get(info.key) ?? { ...info, articles: [] };
 			if (!group.articles.some((a) => a.url === link.url)) group.articles.push(link);
@@ -148,6 +151,7 @@
 									<span class="truncate text-xs text-gray-700 dark:text-gray-300"
 										>{hostOf(article.url)}</span
 									>
+									<span>{article.score}</span>
 								</a>
 							</li>
 						{/each}

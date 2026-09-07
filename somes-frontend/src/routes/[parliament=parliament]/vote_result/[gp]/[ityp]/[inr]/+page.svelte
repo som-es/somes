@@ -170,9 +170,7 @@
 	});
 	let documents = $derived(voteResult?.documents ?? []);
 
-	let articleLinks = $derived(
-		voteResult?.article_links ?? []
-	);
+	let articleLinks = $derived(voteResult?.article_links ?? []);
 
 	const infavorOptions = $derived.by(() => {
 		const val = [

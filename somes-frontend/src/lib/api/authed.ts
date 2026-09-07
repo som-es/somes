@@ -186,7 +186,9 @@ export async function askDelegateQuestion(
 export async function pendingDelegateQuestions(
 	language: Locale = 'de'
 ): Promise<AdminDelegateQuestion[] | HasError> {
-	return getWithAuth<AdminDelegateQuestion[]>(`v1/delegates/questions/pending?language=${language}`);
+	return getWithAuth<AdminDelegateQuestion[]>(
+		`v1/delegates/questions/pending?language=${language}`
+	);
 }
 
 export async function updateDelegateQuestion(
@@ -194,10 +196,7 @@ export async function updateDelegateQuestion(
 	update: UpdateDelegateQuestion,
 	language: Locale = 'de'
 ): Promise<AdminDelegateQuestion | HasError> {
-	return patchWithAuth<AdminDelegateQuestion>(
-		`v1/delegates/questions/${questionId}?language=${language}`,
-		update
-	);
+	return patchWithAuth<AdminDelegateQuestion>(`v1/delegates/questions/${questionId}`, update);
 }
 
 export async function approveDelegateQuestion(

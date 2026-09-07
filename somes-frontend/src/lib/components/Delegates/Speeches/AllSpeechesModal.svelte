@@ -46,10 +46,7 @@
 	let delegateById = $derived(new Map(delegates.map((d) => [d.id, d])));
 
 	function normalize(text: string): string {
-		return text
-			.toLowerCase()
-			.normalize('NFD')
-			.replace(/[̀-ͯ]/g, '');
+		return text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 	}
 
 	function searchableText(speech: FullSpeech): string {

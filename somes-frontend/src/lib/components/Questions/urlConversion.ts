@@ -20,7 +20,7 @@ export function convertDelegateQuestionFilterToUrl(
 	}
 
 	nextUrl.searchParams.set('page', filter.page?.toString() ?? '1');
-	
+
 	filter.topics?.forEach((topic, i) => {
 		nextUrl.searchParams.set(`filter_topics[${i}]`, topicIdByName.get(topic) ?? topic);
 	});

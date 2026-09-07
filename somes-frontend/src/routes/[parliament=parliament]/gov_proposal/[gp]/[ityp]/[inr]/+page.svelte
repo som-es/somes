@@ -43,8 +43,16 @@
 		};
 	});
 
-	const title = $derived(govProposalDelegate?.gov_proposal?.ai_summary !== null ? govProposalDelegate?.gov_proposal?.ai_summary?.short_title : govProposalDelegate.gov_proposal.ministrial_proposal.description);
-	const content = $derived(govProposalDelegate?.gov_proposal?.ai_summary !== null ? govProposalDelegate?.gov_proposal?.ai_summary?.very_detailed_summary : govProposalDelegate.gov_proposal.ministrial_proposal.description);
+	const title = $derived(
+		govProposalDelegate?.gov_proposal?.ai_summary !== null
+			? govProposalDelegate?.gov_proposal?.ai_summary?.short_title
+			: govProposalDelegate.gov_proposal.ministrial_proposal.description
+	);
+	const content = $derived(
+		govProposalDelegate?.gov_proposal?.ai_summary !== null
+			? govProposalDelegate?.gov_proposal?.ai_summary?.very_detailed_summary
+			: govProposalDelegate.gov_proposal.ministrial_proposal.description
+	);
 </script>
 
 <svelte:head>

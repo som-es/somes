@@ -101,7 +101,13 @@
 				genericFilters[0].data!.dateFrom = maybeStoredFilter.date_from;
 			if (maybeStoredFilter.date_to) genericFilters[0].data!.dateTo = maybeStoredFilter.date_to;
 			if (maybeStoredFilter.date_to) genericFilters[0].data!.dateTo = maybeStoredFilter.date_to;
-			if (maybeStoredFilter.page) currentPage = maybeStoredFilter.page;
+			if (maybeStoredFilter.page) {
+				if (maybeStoredFilter.page > (decrees?.max_page ?? 1)) {
+					currentPage = 1;
+				} else {
+					currentPage = maybeStoredFilter.page;
+				}
+			}
 		}
 	});
 
@@ -144,6 +150,9 @@
 	};
 
 	const update = () => {
+		if (currentPage ?? 1 > (decrees?.max_page ?? 1)) {
+			currentPage = 1;
+		}
 		loadDecrees();
 	};
 

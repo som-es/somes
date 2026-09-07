@@ -210,8 +210,6 @@ pub async fn update_delegate_question_route(
     )
     .await?;
 
-    update_question_in_meilisearch(&meilisearch_client, &pg, parliament, question_id).await?;
-
     find_admin_question(&pg, question_id, query.language)
         .await
         .map(Json)
