@@ -5,6 +5,7 @@ mod delete_account;
 mod login;
 mod mcp;
 mod oauth;
+mod push_notifications;
 mod send_mail_info;
 mod topic_selection;
 
@@ -15,5 +16,6 @@ pub use delete_account::*;
 pub use login::*;
 pub use mcp::*;
 pub use oauth::*;
+pub use push_notifications::*;
 pub use send_mail_info::*;
 pub use topic_selection::*;

@@ -12,7 +12,7 @@ use axum::{
     Json, Router,
     routing::{delete, get, post, put},
 };
-use somes_common_lib::{BOOKMARK, LOGIN_ROUTE, RENEW_TOKEN, SEND_MAIL_INFO, TOPIC_SELECTION};
+use somes_common_lib::{BOOKMARK, LOGIN_ROUTE, PUSH_NOTIFICATIONS, RENEW_TOKEN, SEND_MAIL_INFO, TOPIC_SELECTION};
 use sqlx::query_as;
 use tower_governor::{GovernorLayer, governor::GovernorConfigBuilder};
 
@@ -30,6 +30,7 @@ pub fn create_user_info_router() -> Router<AppState> {
         .route(SEND_MAIL_INFO, put(update_send_mail_info_route))
         .route(SEND_MAIL_INFO, get(get_send_mail_info_route))
         .nest(BOOKMARK, create_bookmark_router())
+        .nest(PUSH_NOTIFICATIONS, create_push_notification_router())
 }
 
 pub fn create_user_router() -> Router<AppState> {

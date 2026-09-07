@@ -239,6 +239,49 @@ pub struct SendMailInfo {
 }
 
 #[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct NotificationSettings {
+    pub platform: String,
+    pub send_new_vote_results: bool,
+    pub send_new_vote_result_by_favo: bool,
+    pub send_new_delegate_activity: bool,
+    pub send_new_ministrial_prop: bool,
+    pub send_new_ministrial_prop_by_favo: bool,
+    pub send_new_decree: bool,
+    pub send_new_decree_by_favo: bool,
+    pub send_new_proposal: bool,
+    pub send_new_proposal_by_favo: bool,
+}
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct PlatformQuery {
+    pub platform: Option<String>,
+}
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct PushTokenRegistration {
+    pub push_token: String,
+    pub platform: String,
+}
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct PushTokenDeletion {
+    pub push_token: String,
+}
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct PushTokenInfo {
+    pub push_token: String,
+    pub platform: String,
+    pub enabled: bool,
+}
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
+pub struct PushTestMessage {
+    pub title: Option<String>,
+    pub body: Option<String>,
+}
+
+#[derive(IntoParams, ToSchema, Debug, Deserialize, Serialize, Default, Clone)]
 pub struct DelegateByIdAndPage {
     pub delegate_id: i32,
     pub page: i64,
