@@ -170,9 +170,8 @@
 	});
 	let documents = $derived(voteResult?.documents ?? []);
 
-	const MOCK_ARTICLE_LINKS = mockArticleLinks();
 	let articleLinks = $derived(
-		voteResult?.article_links?.length ? voteResult.article_links : dev ? MOCK_ARTICLE_LINKS : []
+		voteResult?.article_links ?? []
 	);
 
 	const infavorOptions = $derived.by(() => {

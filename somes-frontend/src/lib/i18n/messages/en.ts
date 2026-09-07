@@ -831,7 +831,7 @@ export const en = {
 	'emphasis.speechesTitle': 'Speeches on this key point',
 	'emphasis.speech.one': 'speech',
 	'emphasis.speech.other': 'speeches',
-	'media.title': 'Media coverage',
+	'media.title': 'Relevant media coverage',
 	'media.showAllArticles': 'Show all {count} articles',
 	'media.article.one': 'article',
 	'media.article.other': 'articles',

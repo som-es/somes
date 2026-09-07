@@ -865,7 +865,7 @@ export const de = {
 	'emphasis.speechesTitle': 'Reden zu diesem Schwerpunkt',
 	'emphasis.speech.one': 'Rede',
 	'emphasis.speech.other': 'Reden',
-	'media.title': 'Medienberichte',
+	'media.title': 'Relevante Medienberichte',
 	'media.showAllArticles': 'Alle {count} Artikel anzeigen',
 	'media.article.one': 'Artikel',
 	'media.article.other': 'Artikel',
