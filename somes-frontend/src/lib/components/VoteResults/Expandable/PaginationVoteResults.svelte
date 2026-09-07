@@ -368,6 +368,7 @@
 				} else {
 					currentPage = maybeStoredFilter.page;
 				}
+                console.log(currentPage, maybeStoredFilter.page, voteResults?.max_page);
 			}
 		}
 	});
@@ -452,9 +453,6 @@
 	});
 
 	const update = () => {
-		if (currentPage ?? 1 > (voteResults?.max_page ?? 1)) {
-			currentPage = 1;
-		}
 		loadVoteResults();
 	};
 
@@ -470,6 +468,10 @@
 		void legisPeriodFilter.activeValue;
 		void genericFilters[5].data?.dateFrom;
 		void genericFilters[5].data?.dateTo;
+
+		if ((currentPage ?? 1) > (voteResults?.max_page ?? 1)) {
+			currentPage = 1;
+		}
 		untrack(update);
 	});
 

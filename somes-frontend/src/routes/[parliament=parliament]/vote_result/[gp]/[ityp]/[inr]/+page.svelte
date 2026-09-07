@@ -170,7 +170,6 @@
 	});
 	let documents = $derived(voteResult?.documents ?? []);
 
-	let articleLinks = $derived(voteResult?.article_links ?? []);
 
 	const infavorOptions = $derived.by(() => {
 		const val = [
@@ -212,6 +211,10 @@
 			? voteResult?.ai_summary?.very_detailed_summary
 			: voteResult.legislative_initiative.description
 	);
+
+	const articleLinks = $derived((voteResult?.article_links ?? []).filter((article) => {
+		return article.score > 2.0;
+	}));
 </script>
 
 <svelte:head>

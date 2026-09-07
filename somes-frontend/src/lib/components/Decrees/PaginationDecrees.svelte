@@ -150,9 +150,6 @@
 	};
 
 	const update = () => {
-		if (currentPage ?? 1 > (decrees?.max_page ?? 1)) {
-			currentPage = 1;
-		}
 		loadDecrees();
 	};
 
@@ -164,6 +161,10 @@
 		void legisPeriodFilter.activeValue;
 		void genericFilters[0].data?.dateFrom;
 		void genericFilters[0].data?.dateTo;
+
+		if ((currentPage ?? 1) > (decrees?.max_page ?? 1)) {
+			currentPage = 1;
+		}
 		untrack(update);
 	});
 

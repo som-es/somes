@@ -67,7 +67,7 @@
 	let groups = $derived.by(() => {
 		const map = new Map<string, ProviderGroup>();
 		const filteredArticles = articleLinks.filter((article) => {
-			return article.score > 0.67;
+			return article.score > 2.0;
 		});
 		for (const link of filteredArticles ?? []) {
 			const info = resolveProvider(link.provider);
