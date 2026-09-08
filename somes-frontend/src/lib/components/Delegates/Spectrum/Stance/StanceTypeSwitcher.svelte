@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { GeneralDelegateInfo } from '$lib/types';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { Tabs } from 'bits-ui';
 	import Stances from './Stances.svelte';
 
@@ -18,16 +19,16 @@
 				value="stance"
 				class="data-[state=active]:border-b-2 p-1 px-3"
 			>
-				Haltung
+				{t('spectrum.stance.tab.haltung')}
 			</Tabs.Trigger> -->
 			<Tabs.Trigger value="direction" class="p-1 px-3 data-[state=active]:border-b-2">
-				Richtung
+				{t('spectrum.stance.tab.richtung')}
 			</Tabs.Trigger>
 		</Tabs.List>
 		<Tabs.Content value="stance" class="mt-4">
 			<Stances
-				leftLabel={'Dagegen'}
-				rightLabel={'Dafür'}
+				leftLabel={t('spectrum.stance.label.against')}
+				rightLabel={t('spectrum.stance.label.for')}
 				stances={delegateInfo.stance_topic_scores}
 			/>
 		</Tabs.Content>
@@ -36,10 +37,10 @@
 		</Tabs.Content>
 	</Tabs.Root>
 	<!-- <Tabs tabStyle="underline" class="bg-inherit!" contentClass="bg-inherit!">
-		<TabItem open title="Haltung" >
+		<TabItem open title="{t('spectrum.stance.tab.haltung')}" >
 			<Stances leftLabel={"Dagegen"} rightLabel={"Dafür"} stances={delegateInfo.stance_topic_scores} />
 		</TabItem>
-		<TabItem title="Richtung">
+		<TabItem title="{t('spectrum.stance.tab.richtung')}">
 			<Stances stances={delegateInfo.left_right_stances} />
 		</TabItem>
 	</Tabs> -->

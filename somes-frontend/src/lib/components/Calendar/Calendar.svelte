@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { Popover } from 'bits-ui';
 	import type { Day } from './types';
 
@@ -117,7 +118,7 @@
 		{/each}
 	</div>
 	<!-- <div class="z-50" data-popup="plenarSessionInfo">
-		<div class="badge text-xs bg-tertiary-500 text-black">Plenarsitzung</div>
+		<div class="badge text-xs bg-tertiary-500 text-black">{t('calendar.plenarySession')}</div>
 	</div> -->
 </div>
 

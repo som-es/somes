@@ -1,5 +1,5 @@
 use simple_logger::SimpleLogger;
-use somes_api::{email::MAILER, jwt::KEYS, server, IS_PROD};
+use somes_api::{IS_PROD, email::MAILER, jwt::KEYS, server};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {

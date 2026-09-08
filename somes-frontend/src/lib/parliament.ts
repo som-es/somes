@@ -1,5 +1,6 @@
 import type { Delegate, NamedVote, VoteResult } from '$lib/types';
 import type { Material, Texture } from 'three';
+import { t } from '$lib/i18n/i18n.svelte';
 import { partyToColor } from './partyColor';
 import type { FullSpeech } from './speechTypes';
 
@@ -21,7 +22,13 @@ export interface Bubble {
 	id: number;
 }
 
-export function generateHalfCircle(n: number, r: number, w: number, h: number, maxAngle : number = 180) {
+export function generateHalfCircle(
+	n: number,
+	r: number,
+	w: number,
+	h: number,
+	maxAngle: number = 180
+) {
 	const smaller_n = n - 1;
 
 	const scaled_max_angle = maxAngle;
@@ -31,7 +38,7 @@ export function generateHalfCircle(n: number, r: number, w: number, h: number, m
 	const normalize = count_to / scaled_max_angle;
 	let circles: { x: number; y: number; angle_rad: number }[] = [];
 
-  const diff = (maxAngle - 180) / 2;
+	const diff = (maxAngle - 180) / 2;
 
 	for (let angle_deg = count_to - diff; angle_deg > -diff; angle_deg -= modulo) {
 		const angle_rad = (-(angle_deg / normalize) * Math.PI) / 180;
@@ -101,13 +108,14 @@ export function enrichParliamentBubbles(
 	bubbles: Bubble[][],
 	dels: Delegate[],
 	voteResult: VoteResult | null,
-	setOpacity: (bubble: Bubble) => void
+	setOpacity: (bubble: Bubble) => void,
+	colorFn = partyToColor
 ) {
 	if (bubbles.length == 0) {
 		return;
 	}
 	dels.forEach(async (del) => {
-		setDelOnBubble(del, bubbles, partyToColor);
+		setDelOnBubble(del, bubbles, colorFn);
 
 		if (del.seat_col != null && del.seat_row != null) {
 			try {
@@ -157,7 +165,7 @@ export function genCirclesWithAbsenceInfo(absences: number[], dels: Delegate[]):
 				namedVote: null,
 				color: null,
 				opacity: 0,
-				title: 'abwesen',
+				title: t('absences.absent'),
 				texture: null,
 				material: null,
 				angle_rad: 0,
@@ -173,7 +181,7 @@ export function genCirclesWithSpeechInfo(speeches: FullSpeech[], dels: Delegate[
 	const delegatesAt: Delegate[] = dels;
 
 	speeches.forEach((speech) => {
-		if(speech.speech == undefined){
+		if (speech.speech == undefined) {
 			const delegate = findDelegateById(delegatesAt, speech.speech.delegate_id);
 
 			if (delegate) {
@@ -205,9 +213,9 @@ export function genCirclesWithNamedVoteInfo(namedVotes: NamedVote[], dels: Deleg
 		const delegate = findDelegateById(delegatesAt, vote.delegate_id);
 		let title;
 		if (vote.was_absent) {
-			title = `abwesend/keine Stimme abgegeben`;
+			title = t('namedVotes.absent');
 		} else {
-			title = vote.infavor ? `Ja` : `Nein`;
+			title = vote.infavor ? t('delegates.yes') : t('delegates.no');
 		}
 		if (delegate) {
 			namedVoteDelegates.push({
@@ -248,7 +256,9 @@ export async function enrichCirclesWithSpeechInfoOnSeat(
 		if (infavor == null) {
 			circles2d[del.seat_row - 1][del.seat_col - 1].title = speech.speech.opinion;
 		} else {
-			circles2d[del.seat_row - 1][del.seat_col - 1].title = infavor ? `Pro` : `Contra`;
+			circles2d[del.seat_row - 1][del.seat_col - 1].title = infavor
+				? t('speeches.pro')
+				: t('speeches.contra');
 		}
 		setOpacity(circles2d[del.seat_row - 1][del.seat_col - 1]);
 		circles2d[del.seat_row - 1][del.seat_col - 1].r = +10.9;
@@ -266,7 +276,7 @@ export function enrichtCirclesWithAbsenceInfoOnSeat(
 
 		circles2d[del.seat_row - 1][del.seat_col - 1].r = +4.9;
 		// circles2d[del.seat_row - 1][del.seat_col - 1].color = "white"
-		circles2d[del.seat_row - 1][del.seat_col - 1].title = `abwesend`;
+		circles2d[del.seat_row - 1][del.seat_col - 1].title = t('absences.absent');
 	});
 }
 
@@ -284,12 +294,20 @@ export function enrichCirclesWithNamedVoteInfoOnSeat(
 
 		if (namedVote.was_absent) {
 			circles2d[del.seat_row - 1][del.seat_col - 1].r = +4.9;
-			circles2d[del.seat_row - 1][del.seat_col - 1].title = `abwesend/keine Stimme abgegeben`;
+			circles2d[del.seat_row - 1][del.seat_col - 1].title = t('namedVotes.absent');
+			setOpacity(circles2d[del.seat_row - 1][del.seat_col - 1]);
+			return;
+		}
+		if (namedVote.was_abstention) {
+			circles2d[del.seat_row - 1][del.seat_col - 1].r = +15;
+			circles2d[del.seat_row - 1][del.seat_col - 1].title = t('vote_result.abstention');
 			setOpacity(circles2d[del.seat_row - 1][del.seat_col - 1]);
 			return;
 		}
 
-		circles2d[del.seat_row - 1][del.seat_col - 1].title = namedVote.infavor ? `Ja` : `Nein`;
+		circles2d[del.seat_row - 1][del.seat_col - 1].title = namedVote.infavor
+			? t('delegates.yes')
+			: t('delegates.no');
 		setOpacity(circles2d[del.seat_row - 1][del.seat_col - 1]);
 		circles2d[del.seat_row - 1][del.seat_col - 1].r = +9.9;
 	});
@@ -300,23 +318,26 @@ export function setupParliament(
 	width: number,
 	height: number,
 	r: number,
-	useOffset = true
+	useOffset = true,
+	maxAngle: number = 180,
+	yOffset: number = 0
 ): Bubble[][] {
 	let id = 0;
-	let circles2d: Bubble[][] = [];
+	const circles2d: Bubble[][] = [];
 	seats.forEach((seat, idx) => {
 		circles2d.push(
 			generateHalfCircle(
 				seat,
 				70 + (useOffset ? idx * (idx == 1 ? 30 : 20) + (idx >= 2 ? 30 : 0) : idx * 19),
 				width,
-				height
+				height,
+				maxAngle
 			).map((circle) => {
 				id += 1;
 				return {
 					r,
 					x: circle.x,
-					y: circle.y,
+					y: circle.y + yOffset,
 					angle_rad: circle.angle_rad,
 					del: null,
 					color: 'rgb(196, 180, 189)',
@@ -338,7 +359,7 @@ export function setupParliament(
 			return {
 				r,
 				x: circle.x,
-				y: circle.y,
+				y: circle.y + yOffset,
 				angle_rad: circle.angle_rad,
 				del: null,
 				color: 'rgb(196, 180, 189)',

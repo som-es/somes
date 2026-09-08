@@ -47,10 +47,6 @@ impl<'a, What, T: Clone + Send + Sync + Encode<'a, Postgres> + Type<Postgres>> F
 #[derive(Debug, Clone, Copy)]
 pub struct Manual(pub &'static str);
 
-impl Manual {
-    // pub fn to_filter_arg() -> FilterArgument<>
-}
-
 impl<'a, What> Filterable<'a, What> for Manual {
     fn should_return_any(&self) -> bool {
         false
@@ -110,13 +106,6 @@ impl<'a, 'b, What> FilterArgument<'a, 'b, What> {
             sql_column_name: column,
         }
     }
-}
-
-pub fn count_filter<What>(filters: &[FilterArgument<'_, '_, What>]) -> usize {
-    filters
-        .iter()
-        .filter(|x| !x.value.should_return_any())
-        .count()
 }
 
 pub fn build_filter<What>(filters: &[FilterArgument<'_, '_, What>]) -> String {
@@ -189,7 +178,7 @@ impl<'b, T: Clone + 'static + Encode<'b, Postgres> + Type<Postgres> + Send + Syn
 
 #[cfg(test)]
 mod tests {
-    use super::{build_filter, FilterArgument, IntoFilterArgument, Manual};
+    use super::{FilterArgument, IntoFilterArgument, Manual, build_filter};
 
     pub struct CallToOrderFilter {
         legis_period: Option<String>,

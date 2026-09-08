@@ -1,14 +1,12 @@
 use axum::{
+    Json, Router,
     extract::Query,
     routing::{get, post},
-    Json, Router,
 };
 use combx::{Index, OptionalVoteResult};
-use somes_common_lib::{AddonVoteResultFilter, Page, ID, LATEST, LIVE, SEARCH};
+use somes_common_lib::{AddonVoteResultFilter, ID, LATEST, LIVE, Page, SEARCH};
 
-use crate::{
-    server::AppState, ParliamentCtx, PgPoolConnection, RedisConnection, LEGIS_INITS_PER_PAGE,
-};
+use crate::{AppState, LEGIS_INITS_PER_PAGE, ParliamentCtx, PgPoolConnection, RedisConnection};
 
 pub use error::*;
 mod db;

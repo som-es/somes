@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import Pagination from '$lib/components/Pagination.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import { Dialog } from 'bits-ui';
@@ -15,16 +16,17 @@
 	const ENTRIES = 15;
 	let page = $state(1);
 
-	let currentPageDecrees: DecreeDelegate[] = $derived(decrees.slice((page - 1) * ENTRIES, page * ENTRIES));
-
+	let currentPageDecrees: DecreeDelegate[] = $derived(
+		decrees.slice((page - 1) * ENTRIES, page * ENTRIES)
+	);
 </script>
 
-<div class="card p-8 max-w-7xl w-7xl">
-	<div class="flex justify-between items-center">
-		<h1 class="font-bold text-2xl">Letzte Verordnungen</h1>
+<div class="w-7xl max-w-7xl card p-8">
+	<div class="flex items-center justify-between">
+		<h1 class="text-xl font-bold lg:text-2xl">{t('decrees.title')}</h1>
 		<Dialog.Close>
 			<ModalCloseButton />
-		</Dialog.Close>	
+		</Dialog.Close>
 	</div>
 
 	{#each currentPageDecrees as decree}
@@ -32,7 +34,7 @@
 	{/each}
 	{#if currentPageDecrees.length == 0}
 		{#each { length: 15 } as _}
-			<ExpandablePlaceholder class="min-w-7xl w-7xl" />
+			<ExpandablePlaceholder class="w-7xl min-w-7xl" />
 		{/each}
 	{/if}
 	<div class="float-right">

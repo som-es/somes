@@ -1,10 +1,11 @@
-use axum::{extract::Path, Json};
+use axum::{Json, extract::Path};
 use combx::OptionalGovProposal;
+use redis::aio::ConnectionManager;
 use sqlx::query_as;
 
 use crate::{
-    routes::{construct_gov_proposal, DelegateError},
     PgPoolConnection, RedisConnection,
+    routes::{DelegateError, construct_gov_proposal},
 };
 
 pub async fn gov_proposals_by_official_route(
@@ -20,7 +21,7 @@ pub async fn gov_proposals_by_official_route(
 }
 
 pub async fn extract_gov_proposals_by_delegate_sqlx(
-    redis_con: redis::aio::MultiplexedConnection,
+    redis_con: ConnectionManager,
     pg: &sqlx::Pool<sqlx::Postgres>,
     delegate_id: i32,
 ) -> sqlx::Result<Vec<OptionalGovProposal>> {

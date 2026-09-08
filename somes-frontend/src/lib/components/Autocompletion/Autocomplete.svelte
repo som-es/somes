@@ -14,7 +14,7 @@
 		denylist = [],
 		emptyState = 'No Results Found.',
 		// Logic Prop: Defaults to the internal 'defaultFilter' function below
-		filter = undefined, 
+		filter = undefined,
 		// Classes
 		class: className = '',
 		regionNav = '',
@@ -59,7 +59,9 @@
 
 	// The default filtering logic
 	const defaultFilter = () => {
-		const search = String(input ?? '').toLowerCase().trim();
+		const search = String(input ?? '')
+			.toLowerCase()
+			.trim();
 		return listedOptions.filter((option) => {
 			const optionFormatted = JSON.stringify([
 				option.label,
@@ -92,7 +94,7 @@
 						out:slide={transitions ? transitionOutParams : { duration: 0 }}
 					>
 						<button
-							class="z-40 flex justify-between p-3 hover:bg-secondary-400 dark:hover:bg-secondary-600 rounded-3xl autocomplete-button {regionButton}"
+							class="autocomplete-button z-40 flex justify-between rounded-3xl p-3 hover:bg-secondary-400 dark:hover:bg-secondary-600 {regionButton}"
 							type="button"
 							onclick={() => onselection?.(option)}
 						>

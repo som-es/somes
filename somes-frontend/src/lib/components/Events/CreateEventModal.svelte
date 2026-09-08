@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Dialog } from 'bits-ui';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import {
 		createEvent,
 		deleteEvent,
@@ -88,12 +89,10 @@
 		>
 			<div>
 				<Dialog.Title class="text-xl font-bold text-primary-800 dark:text-primary-100">
-					{isEditing ? 'Event bearbeiten' : 'Neues Event erstellen'}
+					{isEditing ? t('event.edit') : t('event.create')}
 				</Dialog.Title>
 				<Dialog.Description class="text-sm text-surface-500 dark:text-surface-400">
-					{isEditing
-						? 'Aktualisiere die Details für dieses Event.'
-						: 'Füge ein neues Event zur Timeline hinzu.'}
+					{isEditing ? t('event.editDesc') : t('event.createDesc')}
 				</Dialog.Description>
 			</div>
 			<Dialog.Close
@@ -124,13 +123,13 @@
 					<label
 						for="title"
 						class="text-sm font-bold tracking-wide text-surface-700 uppercase dark:text-surface-300"
-						>Titel</label
+						>{t('event.title')}</label
 					>
 					<input
 						type="text"
 						id="title"
 						bind:value={formData.title}
-						placeholder="z.B. Podiumsdiskussion"
+						placeholder={t('event.titlePlaceholder')}
 						class="w-full rounded-lg border border-surface-300 bg-surface-50 px-4 py-2.5 text-surface-900 placeholder:text-surface-400 focus:border-secondary-500 focus:ring-2 focus:ring-secondary-500/20 focus:outline-none dark:border-surface-700 dark:bg-surface-800 dark:text-surface-100"
 						required
 					/>
@@ -141,7 +140,7 @@
 					<label
 						for="location"
 						class="text-sm font-bold tracking-wide text-surface-700 uppercase dark:text-surface-300"
-						>Ort</label
+						>{t('event.location')}</label
 					>
 					<div class="relative">
 						<span class="absolute top-1/2 left-3 -translate-y-1/2 text-surface-400">
@@ -164,7 +163,7 @@
 							type="text"
 							id="location"
 							bind:value={formData.location}
-							placeholder="Ort eingeben..."
+							placeholder={t('event.locationPlaceholder')}
 							class="w-full rounded-lg border border-surface-300 bg-surface-50 py-2.5 pr-4 pl-10 text-surface-900 placeholder:text-surface-400 focus:border-secondary-500 focus:ring-2 focus:ring-secondary-500/20 focus:outline-none dark:border-surface-700 dark:bg-surface-800 dark:text-surface-100"
 							required
 						/>
@@ -177,7 +176,7 @@
 						<label
 							for="date"
 							class="text-sm font-bold tracking-wide text-surface-700 uppercase dark:text-surface-300"
-							>Datum</label
+							>{t('event.date')}</label
 						>
 						<input
 							type="date"
@@ -191,7 +190,7 @@
 						<label
 							for="time"
 							class="text-sm font-bold tracking-wide text-surface-700 uppercase dark:text-surface-300"
-							>Uhrzeit</label
+							>{t('event.time')}</label
 						>
 						<input
 							type="time"
@@ -208,15 +207,14 @@
 					<label
 						for="description"
 						class="text-sm font-bold tracking-wide text-surface-700 uppercase dark:text-surface-300"
-						>Beschreibung</label
+						>{t('event.description')}</label
 					>
 					<textarea
 						id="description"
 						rows="4"
 						bind:value={formData.description}
 						class="w-full resize-none rounded-lg border border-surface-300 bg-surface-50 px-4 py-2.5 text-surface-900 placeholder:text-surface-400 focus:border-secondary-500 focus:ring-2 focus:ring-secondary-500/20 focus:outline-none dark:border-surface-700 dark:bg-surface-800 dark:text-surface-100"
-						required
-					></textarea>
+						required></textarea>
 				</div>
 
 				<!-- Checkboxes -->
@@ -232,8 +230,12 @@
 							/>
 						</div>
 						<div class="text-sm">
-							<span class="font-bold text-surface-900 dark:text-surface-100"> Mitgliedschaft </span>
-							<p class="text-xs text-surface-500 dark:text-surface-400">Nur für Mitglieder.</p>
+							<span class="font-bold text-surface-900 dark:text-surface-100">
+								{t('event.membership')}
+							</span>
+							<p class="text-xs text-surface-500 dark:text-surface-400">
+								{t('event.membershipDesc')}
+							</p>
 						</div>
 					</label>
 
@@ -248,8 +250,12 @@
 							/>
 						</div>
 						<div class="text-sm">
-							<span class="font-bold text-surface-900 dark:text-surface-100"> Anmeldung </span>
-							<p class="text-xs text-surface-500 dark:text-surface-400">Voranmeldung nötig.</p>
+							<span class="font-bold text-surface-900 dark:text-surface-100">
+								{t('event.registration')}
+							</span>
+							<p class="text-xs text-surface-500 dark:text-surface-400">
+								{t('event.registrationDesc')}
+							</p>
 						</div>
 					</label>
 				</div>
@@ -268,7 +274,7 @@
 						onclick={handleDelete}
 						class="text-sm font-medium text-red-600 hover:text-red-700 hover:underline dark:text-red-400 dark:hover:text-red-300"
 					>
-						Löschen
+						{t('event.delete')}
 					</button>
 				{/if}
 			</div>
@@ -277,14 +283,14 @@
 				<Dialog.Close
 					class="rounded-lg border border-surface-300 px-5 py-2.5 text-sm font-bold text-surface-700 transition-colors hover:bg-surface-100 focus:ring-2 focus:ring-surface-400 focus:ring-offset-2 focus:outline-none dark:border-surface-600 dark:text-surface-200 dark:hover:bg-surface-700"
 				>
-					Abbrechen
+					{t('event.cancel')}
 				</Dialog.Close>
 				<button
 					type="submit"
 					form="event-form"
 					class="rounded-lg bg-secondary-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-secondary-500 focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2 focus:outline-none"
 				>
-					{isEditing ? 'Speichern' : 'Erstellen'}
+					{isEditing ? t('event.save') : t('event.createBtn')}
 				</button>
 			</div>
 		</div>

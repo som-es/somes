@@ -1,6 +1,6 @@
 use std::ops::{Deref, DerefMut};
 
-use axum::{response::IntoResponse, Json};
+use axum::{Json, response::IntoResponse};
 use reqwest::StatusCode;
 use somes_common_lib::errors::SignUpError;
 use thiserror::Error;

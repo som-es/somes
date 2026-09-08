@@ -1,14 +1,24 @@
-import type { VoteResult } from './types';
+import type { Vote, VoteResult } from './types';
+
+/** all votes without ansence */
+export function givenVotes(vote: Vote): number {
+	return vote.infavor_count + vote.against_count + vote.abstention_count;
+}
+
+export function totalVotes(vote: Vote): number {
+	return givenVotes(vote) + vote.absence_count;
+}
+
+export function isVoteInFavor(vote: Vote): boolean {
+	return vote.infavor_count > vote.against_count;
+}
 
 export function isPartyInFavor(voteResult: VoteResult | null, party: string): boolean {
-	const votes = voteResult?.votes.slice();
-	if (!votes) {
+	const vote = voteResult?.votes.find((vote) => vote.party === party);
+	if (!vote) {
 		return false;
 	}
-	// this sort is there because of named votes -> it should only look at the one with the higher count (pro, contra)
-	// otherwise, it could happen that (absent, or new) delegates are marked as e.g. contra delegates even though the majority of the party voted for the change
-	votes.sort((a, b) => b.fraction - a.fraction);
-	return votes.find((vote) => vote.party === party)?.infavor ?? false;
+	return isVoteInFavor(vote);
 }
 
 export function createPartyInfavorMap(
@@ -22,4 +32,9 @@ export function createPartyInfavorMap(
 		partyInfavorMap.set(party, isPartyInFavor(voteResult, party));
 	});
 	return partyInfavorMap;
+}
+
+/** sort decendings form size */
+export function votesByPartySize(voteResult: VoteResult | null): Vote[] {
+	return (voteResult?.votes ?? []).slice().sort((a, b) => totalVotes(b) - totalVotes(a));
 }

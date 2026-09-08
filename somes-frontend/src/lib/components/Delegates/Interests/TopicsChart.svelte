@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { topicColors } from '$lib/interestColors';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import type { InterestShare } from '$lib/types';
 	import { Chart, Svg, Group, Rect } from 'layerchart';
 	import { hierarchy } from 'd3-hierarchy';
@@ -39,7 +40,7 @@
 				name: i.topic,
 				value: Math.max(i.occurences, minVisualValue),
 				actualValue: i.occurences,
-				color: topicColors.get(i.topic) ?? '#94a3b8',
+				color: topicColors.get(i.topic_id) ?? '#94a3b8',
 				opacity: getTileOpacity(i.occurences, localMax),
 				isOther: false
 			}));
@@ -62,7 +63,7 @@
 			children: [
 				...mapWithLocalMax(topItems),
 				{
-					name: 'Weitere Themen → ',
+					name: t('topicsChart.more') + ' ',
 					value: remainingSum,
 					color: '#64748b',
 					opacity: 1,
@@ -79,7 +80,7 @@
 	<div class="flex items-center justify-between">
 		<div class="flex flex-col">
 			<span class="text-lg font-bold text-black xl:text-xl dark:text-white">
-				Meist behandelte Themen
+				{t('topicsChart.title')}
 			</span>
 		</div>
 
@@ -89,12 +90,12 @@
 					class="rounded-lg px-3 py-1.5 text-xs font-bold text-black transition-all dark:text-white"
 					onclick={() => (showRemaining = false)}
 				>
-					← Zurück
+					← {t('ui.back')}
 				</button>
 			{/if}
 
 			{#if detailedInterests.length > 0}
-				<ExtendInfoDialog title="Details">
+				<ExtendInfoDialog title={t('ui.details')}>
 					<DetailedInterestsModal {detailedInterests} />
 				</ExtendInfoDialog>
 			{/if}

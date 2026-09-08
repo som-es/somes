@@ -10,15 +10,15 @@ use std::{
 pub use add_quiz::*;
 use axum::{
     extract::{
-        ws::{Message, WebSocket},
         WebSocketUpgrade,
+        ws::{Message, WebSocket},
     },
     response::IntoResponse,
 };
 use axum_extra::TypedHeader;
-use fake::{faker::name::de_de::Name, Fake};
+use fake::{Fake, faker::name::de_de::Name};
 use futures::{SinkExt, StreamExt};
-use jsonwebtoken::{decode, Validation};
+use jsonwebtoken::{Validation, decode};
 pub use quizes::*;
 use rand::TryRngCore;
 use serde::{Deserialize, Serialize};
@@ -26,8 +26,8 @@ use sqlx::PgPool;
 use tokio::{sync::RwLock, time::Instant};
 
 use crate::{
-    jwt::{create_access_token_u128, Keys, KEYS},
     AuthError, PgPoolConnection,
+    jwt::{KEYS, Keys, create_access_token_u128},
 };
 
 const DEFAULT_QUIZ_ID: i32 = 4;
@@ -401,8 +401,6 @@ async fn process_message(
                             }
                             user.answer_locked_in = true;
 
-                            let user_name = user.name.clone();
-
                             ANSWERS_TO_QUESTION.write().await[0] += 1;
                             log::info!("nth answer: {}", nth_answer);
                             ANSWERS_TO_QUESTION
@@ -539,7 +537,7 @@ async fn process_message(
             // send result
         }
         Message::Close(c) => {
-            if let Some(user) = &*user.read().await {
+            if let Some(_user) = &*user.read().await {
                 // USER_MAP.write().await.remove(&(user.name.clone(), user.id));
             }
             if let Some(cf) = c {

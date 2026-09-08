@@ -8,7 +8,7 @@ fn create_test_base_data() -> Vec<AgeBase> {
             delegate_name: "Delegate A".to_string(),
             delegate_party: "Party X".to_string(),
             delegate_filter_party: "Party X".to_string(),
-            delegate_gender: "M".to_string(),
+            delegate_gender: Some("M".to_string()),
             age: 45,
             birthdate: Some(chrono::NaiveDate::from_ymd_opt(1980, 1, 1).unwrap()),
             legislative_period: Some("XXV".to_string()),
@@ -17,7 +17,7 @@ fn create_test_base_data() -> Vec<AgeBase> {
             delegate_name: "Delegate B".to_string(),
             delegate_party: "Party X".to_string(),
             delegate_filter_party: "Party X".to_string(),
-            delegate_gender: "F".to_string(),
+            delegate_gender: Some("F".to_string()),
             age: 35,
             birthdate: Some(chrono::NaiveDate::from_ymd_opt(1990, 1, 1).unwrap()),
             legislative_period: Some("XXV".to_string()),
@@ -26,7 +26,7 @@ fn create_test_base_data() -> Vec<AgeBase> {
             delegate_name: "Delegate C".to_string(),
             delegate_party: "Party Y".to_string(),
             delegate_filter_party: "Party Y".to_string(),
-            delegate_gender: "M".to_string(),
+            delegate_gender: Some("M".to_string()),
             age: 55,
             birthdate: Some(chrono::NaiveDate::from_ymd_opt(1970, 1, 1).unwrap()),
             legislative_period: Some("XXV".to_string()),
@@ -35,7 +35,7 @@ fn create_test_base_data() -> Vec<AgeBase> {
             delegate_name: "Delegate D".to_string(),
             delegate_party: "Party Y".to_string(),
             delegate_filter_party: "Party Y".to_string(),
-            delegate_gender: "F".to_string(),
+            delegate_gender: Some("F".to_string()),
             age: 42,
             birthdate: Some(chrono::NaiveDate::from_ymd_opt(1983, 1, 1).unwrap()),
             legislative_period: Some("XXVII".to_string()),
@@ -155,7 +155,7 @@ async fn test_get_base_data_applies_filters_and_computes_age(pool: PgPool) {
     let delegate = &results[0];
     assert_eq!(delegate.delegate_name, "Delegate A");
     assert_eq!(delegate.delegate_party, "Party X");
-    assert_eq!(delegate.delegate_gender, "M");
+    assert_eq!(delegate.delegate_gender, Some("M".to_string()));
     assert_eq!(delegate.age, 40);
     assert_eq!(
         delegate.birthdate,

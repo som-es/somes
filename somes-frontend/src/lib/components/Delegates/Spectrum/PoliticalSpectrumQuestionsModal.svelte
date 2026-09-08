@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import type { StanceTopicInfluences } from '$lib/types';
 	import QaDelegateStanceInfluences from './Stance/QADelegateStanceInfluences.svelte';
 	import { Dialog } from 'bits-ui';
@@ -9,21 +10,19 @@
 	}
 
 	let { stanceTopicInfluences = [] }: Props = $props();
-
 </script>
 
 <div class="card p-8">
 	<Dialog.Close class="float-right">
-		<ModalCloseButton />	
+		<ModalCloseButton />
 	</Dialog.Close>
-	
 
 	{#if stanceTopicInfluences.length > 0}
 		{#each stanceTopicInfluences as qa}
 			<QaDelegateStanceInfluences class="mt-3" stanceTopicInfluences={qa} />
 		{/each}
 	{:else}
-		<p class="text-center">Keine Fragen und Antworten verfügbar.</p>	
+		<p class="text-center">{t('spectrum.questions.empty')}</p>
 	{/if}
 </div>
 

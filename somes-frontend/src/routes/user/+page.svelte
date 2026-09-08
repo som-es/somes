@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { plink, type Parliament } from '$lib/api/parliament';
 	import {
 		delegate_by_id,
 		errorToNull,
@@ -18,6 +19,7 @@
 		removeUserTopic,
 		renew_token,
 		updateMailSendInfo,
+		userInit,
 		verify_email_change
 	} from '$lib/api/authed';
 	import { cachedDelegateFavos, cachedLegisInitFavos } from '$lib/caching/favos';
@@ -43,13 +45,12 @@
 	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 	import DelegateUserCard from '$lib/components/Delegates/DelegateUserCard.svelte';
 	import MailTopicCard from '$lib/components/UI/MailTopicCard.svelte';
-
-
-
+	import McpTokenCard from '$lib/components/UI/McpTokenCard.svelte';
+	import { t } from '$lib/i18n';
 
 	// State with Svelte 5 runes
 	let topics = $state<UniqueTopic[]>([]);
-	let selectedTopics = $state<SvelteSet<number>>(new SvelteSet<number>());
+	let selectedTopics = $state<SvelteSet<string>>(new SvelteSet<string>());
 	let user = $state<BasicUserInfo | null>(null);
 	let extendedUser = $state<ExtendedUserInfo | null>(null);
 	let mailSendInfo = $state<MailSendInfo | null>(null);
@@ -58,6 +59,7 @@
 
 	let topicSearchValue = $state('');
 	let isSearchPopupOpen = $state(false);
+	let parliament: Parliament = $state('at');
 
 	let showChangeEmail = $state(false);
 	let finished = $derived.by(() => {
@@ -70,7 +72,6 @@
 	let error = $state('');
 	let success = $state('');
 	let sent = $state(false);
-	
 
 	// Filtered topics based on search input
 	let filteredTopics = $derived(
@@ -94,37 +95,104 @@
 	onMount(async () => {
 		const jwtToken = jwtStore.value;
 		if (isHasError(await renew_token()) || jwtToken == null) {
-			goto(resolve('/home'));
+			goto(plink('/home'));
 			return;
 		}
 
-		topics = errorToNull(await get_eurovoc_topics()) ?? [];
-		user = getUserFromJwt(jwtToken);
-		mailSendInfo = errorToNull(await getMailSendInfo());
-		extendedUser = errorToNull(await getUser());
-		favoDelegates = errorToNull(await cachedDelegateFavos(true));
-		favoLegisInits = errorToNull(await cachedLegisInitFavos(true));
+		await fetchData(jwtToken, parliament);
+	});
 
-		// get interest topics from api
-		const data = await cachedUserTopics(true);
+	$effect(() => {
+		favoDelegates = null;
+		favoLegisInits = null;
+		const jwtToken = jwtStore.value;
+		if (jwtToken == null) {
+			goto(plink('/home'));
+			return;
+		}
+		fetchData(jwtToken, parliament).then();
+	});
 
-		if (data) {
-			selectedTopics = new SvelteSet<number>(data.map((topic) => topic.id));
+	type MailFieldMeta = {
+		title: string;
+		description: string;
+		category: MailFieldCategory;
+	};
+	type MailFieldCategory = 'interest' | 'favorite';
+	type MailFieldConfig = Record<keyof MailSendInfo, MailFieldMeta>;
+
+	const mailFieldConfig: MailFieldConfig = {
+		send_new_vote_results_mails: {
+			title: t('user.mailTitle.votes'),
+			description: t('user.voteNewByInterest'),
+			category: 'interest'
+		},
+		send_new_vote_result_by_favo_mails: {
+			title: t('user.mailTitle.votes'),
+			description: t('user.voteNewByFavo'),
+			category: 'favorite'
+		},
+		send_new_delegate_activity_mails: {
+			title: t('user.mailTitle.activities'),
+			description: t('user.activityNewByFavo'),
+			category: 'favorite'
+		},
+		send_new_ministrial_prop_mails: {
+			title: t('user.mailTitle.drafts'),
+			description: t('user.draftNewByInterest'),
+			category: 'interest'
+		},
+		send_new_ministrial_prop_by_favo_mails: {
+			title: t('user.mailTitle.drafts'),
+			description: t('user.draftNewByFavo'),
+			category: 'favorite'
+		},
+		send_new_decree_mails: {
+			title: t('user.mailTitle.decrees'),
+			description: t('user.decreeNewByTopic'),
+			category: 'interest'
+		},
+		send_new_decree_by_favo_mails: {
+			title: t('user.mailTitle.decrees'),
+			description: t('user.decreeNewByFavo'),
+			category: 'favorite'
+		},
+		send_new_proposal_mails: {
+			title: t('user.mailTitle.proposals'),
+			description: t('user.proposalNewByTopic'),
+			category: 'interest'
+		},
+		send_new_proposal_by_favo_mails: {
+			title: t('user.mailTitle.proposals'),
+			description: t('user.proposalNewByFavo'),
+			category: 'favorite'
+		}
+	};
+	const allMailFields: (keyof MailSendInfo)[] = $derived.by(() => {
+		switch (parliament) {
+			case 'at':
+				return [
+					'send_new_vote_results_mails',
+					'send_new_vote_result_by_favo_mails',
+					'send_new_delegate_activity_mails',
+					'send_new_ministrial_prop_mails',
+					'send_new_ministrial_prop_by_favo_mails',
+					'send_new_decree_mails',
+					'send_new_decree_by_favo_mails',
+					'send_new_proposal_mails',
+					'send_new_proposal_by_favo_mails'
+				];
+			case 'eu':
+				return ['send_new_vote_results_mails', 'send_new_proposal_mails'];
 		}
 	});
 
-	const allMailFields: (keyof MailSendInfo)[] = [
-		'send_new_vote_results_mails',
-		'send_new_vote_result_by_favo_mails',
-		'send_new_delegate_activity_mails',
-		'send_new_ministrial_prop_mails',
-		'send_new_ministrial_prop_by_favo_mails',
-		'send_new_decree_mails',
-		'send_new_decree_by_favo_mails',
-		'send_new_proposal_mails',
-		'send_new_proposal_by_favo_mails'
-	];
-
+	const interestFields = $derived(
+		allMailFields.filter((f) => mailFieldConfig[f].category === 'interest')
+	);
+	const favoriteFields = $derived(
+		allMailFields.filter((f) => mailFieldConfig[f].category === 'favorite')
+	);
 	let allChecked = $derived(!!mailSendInfo && allMailFields.every((f) => mailSendInfo![f]));
 
 	const toggleAll = async (checked: boolean) => {
@@ -140,16 +208,33 @@
 			return;
 		}
 
-		await updateMailSendInfo(mailSendInfo);
+		await updateMailSendInfo(mailSendInfo, parliament);
 	};
+
+	async function fetchData(jwtToken: string, parliament: Parliament) {
+		await userInit(parliament);
+		topics = errorToNull(await get_eurovoc_topics(parliament)) ?? [];
+		user = getUserFromJwt(jwtToken);
+		mailSendInfo = errorToNull(await getMailSendInfo(parliament));
+		extendedUser = errorToNull(await getUser());
+		favoDelegates = errorToNull(await cachedDelegateFavos(true, parliament));
+		favoLegisInits = errorToNull(await cachedLegisInitFavos(true, parliament));
+
+		// get interest topics from api
+		const data = await cachedUserTopics(true, parliament);
+
+		if (data) {
+			selectedTopics = new SvelteSet<string>(data.map((topic) => topic.id));
+		}
+	}
 
 	function handleTopicToggle(topic: UniqueTopic) {
 		if (selectedTopics.has(topic.id)) {
 			selectedTopics.delete(topic.id);
-			removeUserTopic({ id: topic.id, topic: '' });
+			removeUserTopic({ id: topic.id, topic: '' }, parliament);
 		} else {
 			selectedTopics.add(topic.id);
-			addUserTopic({ id: topic.id, topic: '' });
+			addUserTopic({ id: topic.id, topic: '' }, parliament);
 		}
 		// Trigger reactivity
 		selectedTopics = new SvelteSet(selectedTopics);
@@ -168,12 +253,12 @@
 
 	async function toggleEmailAnonymization() {
 		const result = await anonymize_email();
-		
+
 		if (result && !isHasError(result) && result.access_token) {
 			jwtStore.value = result.access_token;
 			user = getUserFromJwt(result.access_token);
 		}
-		
+
 		extendedUser = errorToNull(await getUser());
 	}
 
@@ -187,96 +272,95 @@
 		sent = false;
 	}
 
-async function changeEmail() {
-	if (!newEmail) return;
+	async function changeEmail() {
+		if (!newEmail) return;
 
-	error = '';
-	success = '';
-	sent = false;
+		error = '';
+		success = '';
+		sent = false;
 
-	try {
-		const result = await change_email(newEmail);
-		
-		if (isHasError(result)) {
-			if (result.error.includes('fehlt')) {
-				error = 'E-Mail-Adresse fehlt';
-			} else if (result.error.includes('Fehlerhafte')) {
-				error = 'Fehlerhafte E-Mail-Adresse';
-			} else {
-				error = 'Ein serverseitiger Fehler ist aufgetreten. Es kann nicht fortgefahren werden.';
-			}
-		} else {
-			if (!result.requires_otp) {
-				if (result.access_token) {
-					jwtStore.value = result.access_token;
-					user = getUserFromJwt(result.access_token);
+		try {
+			const result = await change_email(newEmail);
+
+			if (isHasError(result)) {
+				if (result.error.includes('fehlt')) {
+					error = t('user.emailMissing');
+				} else if (result.error.includes('Fehlerhafte')) {
+					error = t('user.emailInvalid');
+				} else {
+					error = t('user.serverError');
 				}
-				extendedUser = errorToNull(await getUser());
-				success = 'E-Mail-Adresse erfolgreich geändert.';
-				setTimeout(() => {
-					resetEmailDialog();
-				}, 2500);
-				finished = true;
+			} else {
+				if (!result.requires_otp) {
+					if (result.access_token) {
+						jwtStore.value = result.access_token;
+						user = getUserFromJwt(result.access_token);
+					}
+					extendedUser = errorToNull(await getUser());
+					success = t('user.emailChanged');
+					setTimeout(() => {
+						resetEmailDialog();
+					}, 2500);
+					finished = true;
+					sent = true;
+					return;
+				}
+				// Success - OTP sent
+				otpStep = true;
 				sent = true;
+				success = t('user.otpSent');
+			}
+		} catch (e) {
+			error = t('user.serverError');
+			console.error('Email change error:', e);
+		}
+	}
+
+	async function verifyOtp() {
+		if (!otp || !newEmail) return;
+
+		error = '';
+		success = '';
+
+		try {
+			const result = await verify_email_change(newEmail, otp);
+
+			if (isHasError(result)) {
+				error = t('user.serverErrorShort');
 				return;
 			}
-			// Success - OTP sent
-			otpStep = true;
-			sent = true;
-			success = 'An deine E-Mail-Adresse wurde ein One-Time Passwort gesendet.';
+
+			if (result.access_token) {
+				jwtStore.value = result.access_token;
+				user = getUserFromJwt(result.access_token);
+			}
+
+			extendedUser = errorToNull(await getUser());
+
+			success = t('user.emailChanged');
+			finished = true;
+
+			setTimeout(() => {
+				resetEmailDialog();
+			}, 2500);
+		} catch (e) {
+			error = t('user.serverErrorShort');
+			console.error(e);
 		}
-	} catch (e) {
-		error = 'Ein serverseitiger Fehler ist aufgetreten. Es kann nicht fortgefahren werden.';
-		console.error('Email change error:', e);
 	}
-}
-
-async function verifyOtp() {
-	if (!otp || !newEmail) return;
-
-	error = '';
-	success = '';
-
-	try {
-		const result = await verify_email_change(newEmail, otp);
-
-		if (isHasError(result)) {
-			error = 'Ein serverseitiger Fehler ist aufgetreten.';
-			return;
-		}
-
-		if (result.access_token) {
-			jwtStore.value = result.access_token;
-			user = getUserFromJwt(result.access_token)
-		}
-
-		extendedUser = errorToNull(await getUser());
-
-		success = 'E-Mail-Adresse erfolgreich geändert.';
-		finished = true;
-
-		setTimeout(() => {
-			resetEmailDialog();
-		}, 2500);
-
-	} catch (e) {
-		error = 'Ein serverseitiger Fehler ist aufgetreten.';
-		console.error(e);
-	}
-}
 </script>
 
 <svelte:head>
-	<title>Benutzerprofil</title>
-	<meta name="description" content="Dein persönliches Benutzerprofil und Einstellungen" />
+	<title>{t('user.meta.title')}</title>
+	<meta name="description" content={t('user.meta.description')} />
 </svelte:head>
 
 <Container>
 	{#if extendedUser}
 		<!-- Header Section -->
-		<h1 class="px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">Benutzerprofil</h1>
+		<h1 class="px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">{t('user.title')}</h1>
 		<span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0 dark:text-gray-300">
-			Verwalte deine Einstellungen und Präferenzen
+			{t('user.subtitle')}
 		</span>
 
 		<div class="mt-5 flex flex-col gap-4">
@@ -286,11 +370,13 @@ async function verifyOtp() {
 					<!-- OBERE ZEILE -->
 					<div class="flex flex-wrap items-center justify-between gap-3">
 						<div class="flex flex-wrap items-center gap-3">
-							<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">Benutzerinfos</h2>
+							<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">
+								{t('user.userInfo')}
+							</h2>
 							<div class="flex items-center gap-2 text-base text-gray-800 dark:text-gray-200">
-								<span class="font-medium">E-Mail:</span>
+								<span class="font-medium">{t('user.email')}</span>
 								{#if extendedUser?.is_email_hashed}
-									<span class="font-serif">anonymisiert</span>
+									<span class="font-serif">{t('user.anonymized')}</span>
 									{#if user}
 										<span class="text-sm text-gray-600 dark:text-gray-400"
 											>...{user.sub.slice(36, 60)}...</span
@@ -307,46 +393,43 @@ async function verifyOtp() {
 								class="bg-secondary-500 text-white hover:bg-secondary-600"
 								onclick={handleLogout}
 							>
-								Abmelden
+								{t('user.logout')}
 							</SButton>
 							{#if !extendedUser?.is_email_hashed}
-							<SButton
-								class="bg-primary-400 text-black hover:bg-primary-500"
-								onclick={toggleEmailAnonymization}
-							>
-								Anonymisieren	
-							</SButton>
+								<SButton
+									class="bg-primary-400 text-black hover:bg-primary-500"
+									onclick={toggleEmailAnonymization}
+								>
+									{t('user.anonymize')}
+								</SButton>
 							{/if}
 							<SButton
 								class="bg-tertiary-500 text-black hover:bg-tertiary-600"
 								onclick={() => (showChangeEmail = !showChangeEmail)}
 							>
-								E-Mail wechseln
+								{t('user.changeEmail')}
 							</SButton>
-							
 						</div>
-					</div> <!-- ENDE obere Zeile -->
-						{#if showChangeEmail}
-						<div class="flex justify-end items-end gap-4 border-t pt-3">
-
+					</div>
+					<!-- ENDE obere Zeile -->
+					{#if showChangeEmail}
+						<div class="flex items-end justify-end gap-4 border-t pt-3">
 							{#if !finished}
 								<!-- EMAIL -->
 								<div class="flex flex-col items-end">
 									<label for="email" class="text-l font-medium text-gray-700">
 										{#if extendedUser?.is_email_hashed}
 											<span class="ml-1 text-sm text-gray-600 dark:text-gray-400"
-												>Entanonymisieren oder</span
+												>{t('user.deAnonymize')}</span
 											>
 										{/if}
-										Neue E-Mail
-
-										
+										{t('user.newEmail')}
 									</label>
 									<input
 										id="email"
 										type="email"
 										placeholder="dergertrud@gmail.com"
-										class="w-48 rounded-lg border px-3 py-2 text-sm text-right dark:bg-gray-800"
+										class="w-48 rounded-lg border px-3 py-2 text-right text-sm dark:bg-gray-800"
 										bind:value={newEmail}
 									/>
 								</div>
@@ -355,13 +438,13 @@ async function verifyOtp() {
 								{#if otpStep}
 									<div class="flex flex-col items-end">
 										<label for="otp" class="text-l font-medium text-gray-700">
-											One-Time Passwort (OTP)
+											{t('user.otp')}
 										</label>
 										<input
 											id="otp"
 											type="text"
 											placeholder="MAS DS5 4DA"
-											class="w-48 rounded-lg border px-3 py-2 text-sm text-right dark:bg-gray-800"
+											class="w-48 rounded-lg border px-3 py-2 text-right text-sm dark:bg-gray-800"
 											bind:value={otp}
 										/>
 									</div>
@@ -371,11 +454,11 @@ async function verifyOtp() {
 								<div class="flex items-end gap-2">
 									{#if !otpStep}
 										<SButton class="bg-secondary-500 text-white" onclick={changeEmail}>
-											Weiter
+											{t('user.next')}
 										</SButton>
 									{:else}
 										<SButton class="bg-secondary-500 text-white" onclick={verifyOtp}>
-											Speichern
+											{t('user.save')}
 										</SButton>
 									{/if}
 
@@ -390,7 +473,7 @@ async function verifyOtp() {
 											success = '';
 										}}
 									>
-										Abbrechen
+										{t('user.cancel')}
 									</SButton>
 								</div>
 							{/if}
@@ -411,15 +494,47 @@ async function verifyOtp() {
 					{/if}
 				</div>
 			</div>
+			<!-- MCP Access Card -->
+			<McpTokenCard />
 
+			<div class="mt-1 mb-2 flex w-full gap-1 rounded-xl bg-primary-300 p-1 dark:bg-surface-600">
+				<button
+					class="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium {parliament === 'at'
+						? 'bg-primary-600 text-white'
+						: 'text-gray-700 hover:bg-primary-400 dark:text-gray-300 dark:hover:bg-primary-500'}"
+					onclick={() => {
+						if (parliament == 'at') return;
+						favoDelegates = null;
+						favoLegisInits = null;
+						return (parliament = 'at');
+					}}
+				>
+					{t('user.parliament.at')}
+				</button>
+				<button
+					class="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium {parliament === 'eu'
+						? 'bg-primary-600 text-white'
+						: 'text-gray-700 hover:bg-primary-400 dark:text-gray-400 dark:hover:bg-primary-500'}"
+					onclick={() => {
+						if (parliament == 'eu') return;
+						favoDelegates = null;
+						favoLegisInits = null;
+						return (parliament = 'eu');
+					}}
+				>
+					EU
+				</button>
+			</div>
 			<!-- Email Notifications Card -->
 			<div class="w-full rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
 				<div class="flex items-center justify-between">
-					<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">E-Mail Benachrichtigungen</h2>
+					<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">
+						{t('user.notifications')}
+					</h2>
 
 					{#if !extendedUser?.is_email_hashed}
 						<div class="flex items-center gap-2">
-							<p class="text-sm">Alle</p>
+							<p class="text-sm">{t('user.all')}</p>
 							<Switch.Root
 								checked={allChecked}
 								onCheckedChange={toggleAll}
@@ -435,29 +550,45 @@ async function verifyOtp() {
 
 				{#if !extendedUser?.is_email_hashed}
 					{#if mailSendInfo}
-						<div>
-							<p class="text-sm font-semibold text-gray-600 dark:text-gray-300">Nach Interessen & Themen</p>
-							<div class="flex flex-wrap gap-2 mt-2">
-								<MailTopicCard title="Abstimmungen" description="Neue Abstimmungen nach deinen Interessen" bind:checked={mailSendInfo.send_new_vote_results_mails} onchange={updateThisMailSendInfo} />
-								<MailTopicCard title="Ministerialentwürfe" description="Neue Ministerialentwürfe nach deinen Interessen" bind:checked={mailSendInfo.send_new_ministrial_prop_mails} onchange={updateThisMailSendInfo} />
-								<MailTopicCard title="Verordnungen" description="Neue Verordnungen nach deinen Themen" bind:checked={mailSendInfo.send_new_decree_mails} onchange={updateThisMailSendInfo} />
-								<MailTopicCard title="Anträge" description="Neue Anträge nach deinen Themen" bind:checked={mailSendInfo.send_new_proposal_mails} onchange={updateThisMailSendInfo} />
+						{#if interestFields.length > 0}
+							<div>
+								<p class="text-sm font-semibold text-gray-600 dark:text-gray-300">
+									{t('user.byInterests')}
+								</p>
+								<div class="mt-2 flex flex-wrap gap-2">
+									{#each interestFields as field (field)}
+										<MailTopicCard
+											title={mailFieldConfig[field].title}
+											description={mailFieldConfig[field].description}
+											bind:checked={mailSendInfo[field]}
+											onchange={updateThisMailSendInfo}
+										/>
+									{/each}
+								</div>
 							</div>
-						</div>
-						<div>
-							<p class="text-sm font-semibold text-gray-600 dark:text-gray-300 mt-3">Nach favourisierten Ministern & Personen</p>
-							<div class="flex flex-wrap gap-2 mt-2">
-								<MailTopicCard title="Abstimmungen" description="Neue Abstimmungen nach favorisierten Personen" bind:checked={mailSendInfo.send_new_vote_result_by_favo_mails} onchange={updateThisMailSendInfo} />
-								<MailTopicCard title="Ministerialentwürfe" description="Neue Ministerialentwürfe nach favorisierten Ministern" bind:checked={mailSendInfo.send_new_ministrial_prop_by_favo_mails} onchange={updateThisMailSendInfo} />
-								<MailTopicCard title="Verordnungen" description="Neue Verordnungen nach favorisierten Ministern" bind:checked={mailSendInfo.send_new_decree_by_favo_mails} onchange={updateThisMailSendInfo} />
-								<MailTopicCard title="Anträge" description="Neue Anträge nach favorisierten Personen" bind:checked={mailSendInfo.send_new_proposal_by_favo_mails} onchange={updateThisMailSendInfo} />
-								<MailTopicCard title="Aktivitäten" description="Neue Aktivitäten nach favorisierten Personen" bind:checked={mailSendInfo.send_new_delegate_activity_mails} onchange={updateThisMailSendInfo} />
+						{/if}
+
+						{#if favoriteFields.length > 0}
+							<div>
+								<p class="mt-3 text-sm font-semibold text-gray-600 dark:text-gray-300">
+									{t('user.byFavos')}
+								</p>
+								<div class="mt-2 flex flex-wrap gap-2">
+									{#each favoriteFields as field (field)}
+										<MailTopicCard
+											title={mailFieldConfig[field].title}
+											description={mailFieldConfig[field].description}
+											bind:checked={mailSendInfo[field]}
+											onchange={updateThisMailSendInfo}
+										/>
+									{/each}
+								</div>
 							</div>
-						</div>
+						{/if}
 					{/if}
 				{:else}
 					<p class="mt-3 text-gray-600 dark:text-gray-300">
-						nicht verfügbar wenn E-Mail anonymisiert ist
+						{t('user.notAvailableAnonymized')}
 					</p>
 				{/if}
 			</div>
@@ -465,12 +596,14 @@ async function verifyOtp() {
 			<!-- Interest Topics Card -->
 			<div class="w-full rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
 				<div class="flex flex-wrap items-center justify-between gap-2">
-					<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">Wähle deine Interessen</h2>
+					<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">
+						{t('user.chooseInterests')}
+					</h2>
 					{#if selectedTopics.size > 0}
 						<span
 							class="rounded-full bg-secondary-500 px-2.5 py-0.5 text-sm font-semibold text-white"
 						>
-							{selectedTopics.size} ausgewählt
+							{t('user.selectedCount', { count: selectedTopics.size })}
 						</span>
 					{/if}
 				</div>
@@ -480,7 +613,7 @@ async function verifyOtp() {
 				<div class="relative mt-3" bind:this={searchWrapper} onfocusout={handleFocusOut}>
 					<SearchBar
 						bind:searchValue={topicSearchValue}
-						placeholder="Themen suchen..."
+						placeholder={t('user.searchTopics')}
 						name="topic-search"
 						onfocus={() => (isSearchPopupOpen = true)}
 						oninput={() => (isSearchPopupOpen = true)}
@@ -493,7 +626,7 @@ async function verifyOtp() {
 							<div class="flex max-h-72 flex-col gap-1 overflow-y-auto px-3 py-2">
 								{#if filteredTopics.length === 0}
 									<p class="py-2 text-center text-sm text-gray-500 dark:text-gray-400">
-										Keine Themen gefunden
+										{t('user.noTopicsFound')}
 									</p>
 								{:else}
 									<!-- Selected topics first -->
@@ -537,16 +670,18 @@ async function verifyOtp() {
 
 			<!-- Favorite Delegates Card -->
 			<div class="w-full rounded-xl bg-primary-300 p-4 dark:bg-primary-500">
-				<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">Favorisierte Personen</h2>
+				<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">
+					{t('user.favoritePersons')}
+				</h2>
 				<div class="mt-3 flex flex-wrap gap-3">
 					{#if favoDelegates}
 						{#if favoDelegates.size == 0}
 							<p class="text-gray-600 dark:text-gray-300">
-								Keine favorisierten Personen vorhanden.
+								{t('user.noFavoritePersons')}
 							</p>
 						{:else}
 							{#each favoDelegates as favoDelegateId (favoDelegateId[0])}
-								{#await delegate_by_id(favoDelegateId[0])}
+								{#await delegate_by_id(favoDelegateId[0], fetch, parliament)}
 									<ExpandablePlaceholder class="!w-80" />
 								{:then maybeDelegate}
 									{#if !isHasError(maybeDelegate)}
@@ -565,23 +700,23 @@ async function verifyOtp() {
 			</div>
 
 			<!-- Favorite Votes Card -->
-			<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">Favorisierte Abstimmungen</h2>
+			<h2 class="text-xl font-bold text-gray-900 dark:text-gray-50">{t('user.favoriteVotes')}</h2>
 			<div class="flex flex-wrap gap-3">
 				{#if favoLegisInits}
 					{#if favoLegisInits.size == 0}
 						<p class="text-gray-600 dark:text-gray-300">
-							Keine favorisierten Abstimmungen vorhanden.
+							{t('user.noFavoriteVotes')}
 						</p>
 					{:else}
 						{#each favoLegisInits as favoLegisInitId (favoLegisInitId)}
-	{#await vote_result_by_id(favoLegisInitId.toString())}
-		<ExpandablePlaceholder class="w-80!" />
-	{:then voteResult}
-		{#if !isHasError(voteResult)}
-			<VoteResultExpandableBar {voteResult} class="mt-1!" />
-		{/if}
-	{/await}
-{/each}
+							{#await vote_result_by_id(favoLegisInitId.toString(), fetch, parliament)}
+								<ExpandablePlaceholder class="w-80!" />
+							{:then voteResult}
+								{#if !isHasError(voteResult)}
+									<VoteResultExpandableBar {voteResult} class="mt-1!" />
+								{/if}
+							{/await}
+						{/each}
 					{/if}
 				{:else}
 					<ExpandablePlaceholder />
@@ -616,13 +751,13 @@ async function verifyOtp() {
 			<div
 				class="mt-7 w-full rounded-xl border border-red-300 bg-red-50 p-4 dark:border-red-500 dark:bg-red-900/20"
 			>
-				<h2 class="text-xl font-bold text-red-700 dark:text-red-400">Gefahrenbereich</h2>
+				<h2 class="text-xl font-bold text-red-700 dark:text-red-400">{t('user.dangerZone')}</h2>
 				<p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
-					Diese Aktion kann nicht rückgängig gemacht werden.
+					{t('user.dangerText')}
 				</p>
 				<div class="mt-3">
 					<SButton class="bg-red-500 text-white hover:bg-red-600" onclick={handleDeleteAccount}>
-						Account löschen
+						{t('user.deleteAccount')}
 					</SButton>
 				</div>
 			</div>

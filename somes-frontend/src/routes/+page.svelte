@@ -3,6 +3,7 @@
 	import { fade, fly, slide } from 'svelte/transition';
 	import somesWithText from '$lib/assets/somes_with_text2.svg?raw';
 	import { resolve } from '$app/paths';
+	import { plink } from '$lib/api/parliament';
 	import type { PlatformItem, PlatformItemType, SomesEvent as Event, DialogEvent } from './types';
 	import type { PageProps } from './$types';
 	import checkmarkIcon from '$lib/assets/misc_icons/checkmark_small.svg?raw';
@@ -13,6 +14,8 @@
 	import EditButton from '$lib/components/Events/EditButton.svelte';
 	import { getUser } from '$lib/api/authed';
 	import { formatDate } from '$lib/date';
+	import { t } from '$lib/i18n/i18n.svelte';
+	import LanguageSwitcher from '$lib/components/UI/LanguageSwitcher.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -148,7 +151,7 @@
 
 <svelte:head>
 	<title>Somes</title>
-	<meta name="description" content="Verlinkung zur Plattform und Informationen über den Verein" />
+	<meta name="description" content={t('landing.meta.description')} />
 </svelte:head>
 
 <div
@@ -161,20 +164,24 @@
 		<div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
 			<nav class="hidden gap-6 text-sm font-medium text-surface-600 md:flex dark:text-surface-300">
 				<a
-					href={resolve('/home')}
-					class="transition-colors hover:text-primary-600 dark:hover:text-primary-400">Plattform</a
+					href={plink('/home')}
+					class="transition-colors hover:text-primary-600 dark:hover:text-primary-400"
+					>{t('landing.platform')}</a
 				>
 				<a
 					href="{resolve('/')}#events"
-					class="transition-colors hover:text-primary-600 dark:hover:text-primary-400">Events</a
+					class="transition-colors hover:text-primary-600 dark:hover:text-primary-400"
+					>{t('landing.events')}</a
 				>
 				<a
 					href="{resolve('/')}#team"
-					class="transition-colors hover:text-primary-600 dark:hover:text-primary-400">Team</a
+					class="transition-colors hover:text-primary-600 dark:hover:text-primary-400"
+					>{t('landing.team')}</a
 				>
 				<a
 					href="{resolve('/')}#join"
-					class="transition-colors hover:text-primary-600 dark:hover:text-primary-400">Mitmachen</a
+					class="transition-colors hover:text-primary-600 dark:hover:text-primary-400"
+					>{t('landing.join')}</a
 				>
 			</nav>
 			<a
@@ -182,8 +189,9 @@
 				target="_blank"
 				class="rounded-container bg-primary-600 px-4 py-2 text-sm font-bold text-white shadow-md transition-all hover:bg-primary-700"
 			>
-				Mitglied werden
+				{t('landing.joinNow')}
 			</a>
+			<LanguageSwitcher />
 		</div>
 	</header>
 
@@ -205,36 +213,36 @@
 				<div
 					class="mt-4 mb-4 inline-block rounded-full border border-tertiary-300 bg-tertiary-200 px-3 py-1 text-sm font-bold tracking-wider text-tertiary-900 uppercase md:text-base dark:border-tertiary-700 dark:bg-tertiary-900/50 dark:text-tertiary-100"
 				>
-					Verein für Demokratie und Transparenz
+					{t('landing.badge')}
 				</div>
 			</div>
 			<div class="max-w-5xl space-y-8 px-4 text-center">
 				<h1
 					class="font-heading text-5xl leading-tight font-extrabold text-primary-900 md:text-7xl dark:text-primary-50"
 				>
-					Demokratie <span
+					{t('landing.hero.firstWord')}
+					<span
 						class="bg-linear-to-r from-secondary-700 to-secondary-500 bg-clip-text text-transparent dark:from-secondary-400"
-						>verstehen.</span
+						>{t('landing.hero.firstSpan')}</span
 					><br />
-					Zukunft
+					{t('landing.hero.secondWord')}
 					<span
 						class="bg-linear-to-r from-primary-500 to-tertiary-700 bg-clip-text text-transparent dark:from-tertiary-500"
-						>gestalten.</span
+						>{t('landing.hero.secondSpan')}</span
 					>
 				</h1>
 				<p
 					class="mx-auto max-w-2xl text-lg leading-relaxed text-surface-600 md:text-xl dark:text-surface-300"
 				>
-					Wir bringen Demokratie direkt zu dir. Mit der somes Plattform und interaktiven Events
-					machen wir Politik transparent und einfach greifbar.
+					{t('landing.hero.text')}
 				</p>
 
 				<div class="flex flex-wrap justify-center gap-4 pt-4">
 					<a
-						href={resolve('/home')}
+						href={plink('/home')}
 						class="flex items-center gap-2 rounded-full bg-surface-900 px-6 py-3 text-lg font-bold text-white shadow-xl transition-transform hover:scale-105 dark:bg-surface-50 dark:text-surface-900"
 					>
-						Zur Somes Plattform
+						{t('landing.hero.ctaPlatform')}
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							class="h-5 w-5"
@@ -253,7 +261,7 @@
 						href="{resolve('/')}#events"
 						class="rounded-full border border-surface-200 bg-white px-6 py-3 text-lg font-bold text-surface-900 shadow-sm transition-colors hover:bg-surface-50 dark:border-surface-600 dark:bg-surface-800 dark:text-surface-50 dark:hover:bg-surface-700"
 					>
-						Unsere Events
+						{t('landing.hero.ctaEvents')}
 					</a>
 				</div>
 			</div>
@@ -266,16 +274,19 @@
 			<div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
 				<!-- Left: Intro & Progress -->
 				<div class="space-y-6 lg:col-span-1">
-					<h2 class="font-heading text-3xl font-bold text-secondary-300">Somes Plattform</h2>
+					<h2 class="font-heading text-3xl font-bold text-secondary-300">
+						{t('landing.platform.title')}
+					</h2>
 					<p class="leading-relaxed text-surface-300">
-						Unsere Open-Source Web-App macht das Parlament gläsern. Analysiere Abstimmungen, lies
-						KI-Zusammenfassungen von Gesetzen und verfolge, was deine Abgeordneten tun.
+						{t('landing.platform.text')}
 					</p>
 
 					<!-- Development Progress -->
 					<div class="rounded-xl border border-surface-700 bg-surface-800 p-5 shadow-inner">
 						<div class="mb-2 flex items-end justify-between">
-							<span class="text-sm font-medium text-surface-300">EU-Expansion - 12.2026</span>
+							<span class="text-sm font-medium text-surface-300"
+								>{t('landing.platform.euExpansion')}</span
+							>
 							<span class="text-2xl font-bold text-primary-300">{developmentProgress}%</span>
 						</div>
 						<div class="h-2.5 w-full overflow-hidden rounded-full bg-surface-700">
@@ -290,7 +301,7 @@
 					{#if nextPlenaryDate}
 						<div class="rounded-xl border border-primary-700/50 bg-primary-900/50 p-4">
 							<span class="mb-1 block text-xs tracking-wide text-primary-300 uppercase"
-								>Nächste Nationalratssitzung</span
+								>{t('landing.platform.nextSession')}</span
 							>
 							<span class="text-xl font-bold text-white">
 								{nextPlenaryDate.toLocaleDateString('de-AT', {
@@ -314,10 +325,11 @@
 						>
 							<div class="bg-surface-850 border-t border-surface-700 p-3 text-center">
 								<a
-									href="{resolve('/history')}/votes"
+									href={plink('/history/votes')}
 									class="group flex items-center justify-center gap-1 text-xs text-primary-400 hover:text-primary-300"
 								>
 									Alle Details auf somes.at ansehen
+									{t('landing.ticker.details')}
 									<span class="transition-transform group-hover:translate-x-1">→</span>
 								</a>
 							</div>
@@ -334,7 +346,7 @@
 										: 'text-surface-400 hover:text-white'}"
 									onclick={() => setPlatformType('vote')}
 								>
-									Abstimmungen
+									{t('landing.ticker.votes')}
 								</button>
 								<button
 									class="rounded-md px-3 py-1 text-sm transition-colors {selectedPlatformType ===
@@ -343,7 +355,7 @@
 										: 'text-surface-400 hover:text-white'}"
 									onclick={() => setPlatformType('proposal')}
 								>
-									Entwürfe
+									{t('landing.ticker.drafts')}
 								</button>
 								<button
 									class="rounded-md px-3 py-1 text-sm transition-colors {selectedPlatformType ===
@@ -352,7 +364,7 @@
 										: 'text-surface-400 hover:text-white'}"
 									onclick={() => setPlatformType('decree')}
 								>
-									Verordnungen
+									{t('landing.ticker.decrees')}
 								</button>
 							</div>
 						</div>
@@ -378,10 +390,10 @@
 													: 'border border-tertiary-500/30 bg-tertiary-500/20 text-tertiary-300'}"
 										>
 											{currentTickerItem.type === 'vote'
-												? 'Abstimmung'
+												? t('landing.ticker.badge.vote')
 												: currentTickerItem.type === 'proposal'
-													? 'Ministerialentwurf'
-													: 'Verordnung'}
+													? t('landing.ticker.badge.proposal')
+													: t('landing.ticker.badge.decree')}
 										</span>
 
 										<!-- Title -->
@@ -406,7 +418,7 @@
 														>{@html crossmarkIcon}</span
 													>
 												{:else}
-													<span class="text-warning-400">In Bearbeitung</span>
+													<span class="text-warning-400">{t('landing.ticker.inProgress')}</span>
 												{/if}
 												<!-- <span
 													class={currentTickerItem.status === 'accepted'
@@ -430,7 +442,7 @@
 											<div class="h-full animate-progress-indeterminate bg-white/20"></div>
 										</div>
 									{:else}
-										<p class="text-surface-500">Keine Daten verfügbar.</p>
+										<p class="text-surface-500">{t('landing.ticker.noData')}</p>
 									{/if}
 								</div>
 							{/key}
@@ -445,9 +457,11 @@
 	<section id="events" class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
 		<div class="mb-16 text-center">
 			<h2 class="mb-2 text-sm font-bold tracking-widest text-primary-600 uppercase">
-				Engagiere dich
+				{t('landing.events.subtitle')}
 			</h2>
-			<h3 class="font-heading text-4xl font-bold text-surface-900 dark:text-surface-50">Events</h3>
+			<h3 class="font-heading text-4xl font-bold text-surface-900 dark:text-surface-50">
+				{t('landing.events.title')}
+			</h3>
 		</div>
 
 		<!-- Upcoming Events -->
@@ -455,7 +469,7 @@
 			<div class="mb-16">
 				<div class="mb-6 flex items-center gap-4">
 					<h4 class="text-2xl font-bold text-primary-800 dark:text-primary-200">
-						Kommende Termine
+						{t('landing.events.upcoming')}
 					</h4>
 					<div class="h-px flex-1 bg-primary-200 dark:bg-primary-800"></div>
 				</div>
@@ -530,11 +544,11 @@
 
 								{#if dialogEvent.event.requires_membership}
 									<div class="mb-2 text-xs font-medium text-primary-500">
-										🔒 Mitgliedschaft erforderlich
+										{t('landing.events.membershipRequired')}
 									</div>
 								{:else}
 									<div class="mb-2 text-xs font-medium text-success-500">
-										✅ Offen für alle - einfach kommen!
+										{t('landing.events.openToAll')}
 									</div>
 								{/if}
 							</div>
@@ -561,7 +575,9 @@
 		<!-- Past Events -->
 		<div>
 			<div class="mb-6 flex items-center gap-4">
-				<h4 class="text-2xl font-bold text-surface-500 dark:text-surface-400">Vergangene Events</h4>
+				<h4 class="text-2xl font-bold text-surface-500 dark:text-surface-400">
+					{t('landing.events.past')}
+				</h4>
 				<div class="h-px flex-1 bg-surface-200 dark:bg-surface-700"></div>
 			</div>
 
@@ -604,12 +620,12 @@
 								</div>
 								{#if dialogEvent.event.requires_membership}
 									<div class="mt-2 text-xs font-medium text-primary-500">
-										🔒 Mitgliedschaft erforderlich
+										{t('landing.events.membershipRequired')}
 									</div>
 								{/if}
 								{#if dialogEvent.event.requires_registration}
 									<div class="mt-2 text-xs font-medium text-primary-500">
-										📝 Anmeldung erforderlich
+										{t('landing.events.registrationRequired')}
 									</div>
 								{/if}
 							</div>
@@ -634,14 +650,11 @@
 			></div>
 
 			<div class="relative z-5">
-				<h2 class="font-heading mb-6 text-3xl font-bold md:text-5xl">Werde Teil von Somes</h2>
+				<h2 class="font-heading mb-6 text-3xl font-bold md:text-5xl">{t('landing.join.title')}</h2>
 				<p class="mx-auto mb-8 max-w-2xl text-lg text-primary-100">
-					Unterstütze uns dabei, den einfachen Zugang zu politischen Inhalten zu revolutionieren.
-					Als Mitglied bei
-					<span class="font-bold italic"
-						>somes - Verein für Demokratie und politische Transparenz</span
-					>
-					trägst du aktiv zur Gestaltung unserer Zukunft bei.
+					{t('landing.join.text1')}
+					<span class="font-bold italic">{t('landing.join.org')}</span>
+					{t('landing.join.text2')}
 				</p>
 
 				<div class="flex flex-col justify-center gap-4 sm:flex-row">
@@ -650,13 +663,14 @@
 						target="_blank"
 						class="transform rounded-xl bg-secondary-500 px-8 py-4 text-lg font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-secondary-400 hover:shadow-secondary-500/30"
 					>
-						Mitglied werden
+						{t('landing.join.joinNow')}
 					</a>
 					<a
 						href="mailto:somes.austria@gmail.com"
 						class="rounded-xl border border-primary-500 bg-primary-700 px-8 py-4 text-lg font-bold text-white transition-all hover:bg-primary-600"
 					>
 						Kontakt aufnehmen
+						{t('landing.join.contact')}
 					</a>
 				</div>
 			</div>
@@ -669,7 +683,7 @@
 			<h2
 				class="font-heading mb-12 text-center text-3xl font-bold text-primary-900 dark:text-primary-100"
 			>
-				Vorstand
+				{t('landing.team.board')}
 			</h2>
 
 			<div class="flex flex-wrap justify-center gap-8 md:gap-12">
@@ -708,7 +722,7 @@
 			<h2
 				class="font-heading mb-12 text-center text-3xl font-bold text-primary-900 dark:text-primary-100"
 			>
-				Netidee Entwicklungsteam
+				{t('landing.team.devTeam')}
 			</h2>
 
 			<div class="flex flex-wrap justify-center gap-8 md:gap-12">

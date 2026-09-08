@@ -1,5 +1,6 @@
 <script lang="ts">
 	import AllProposalsFiltering from './AllProposalsFiltering.svelte';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import type { Delegate, GovProposal } from '$lib/types';
 	import GovProposalExpandableBar from './Latest/GovProposalExpandableBar.svelte';
 	import { Dialog } from 'bits-ui';
@@ -20,35 +21,37 @@
 
 	const ENTRIES_PER_PAGE = 10;
 
-	let paginatedGovProposals: GovProposal[] = $derived(filteredGovProposals.slice((page - 1) * ENTRIES_PER_PAGE, page * ENTRIES_PER_PAGE));
+	let paginatedGovProposals: GovProposal[] = $derived(
+		filteredGovProposals.slice((page - 1) * ENTRIES_PER_PAGE, page * ENTRIES_PER_PAGE)
+	);
 
 	$effect(() => {
 		void filteredGovProposals;
 		untrack(() => {
 			page = 1;
-		});	
+		});
 	});
 </script>
 
-<div class="card p-8 max-w-7xl">
-	<div class="flex justify-between items-center">
-		<h1 class="font-bold text-2xl">Ministerialentwürfe</h1>
+<div class="max-w-7xl card p-8">
+	<div class="flex items-center justify-between">
+		<h1 class="text-xl font-bold lg:text-2xl">{t('proposals.all.title')}</h1>
 		<Dialog.Close>
 			<ModalCloseButton />
 		</Dialog.Close>
 	</div>
 
-	<AllProposalsFiltering
-		bind:filteredGovProposals
-		allGovProposals={govProposals}
-	/>
+	<AllProposalsFiltering bind:filteredGovProposals allGovProposals={govProposals} />
 	{#each paginatedGovProposals as govProposal}
 		<GovProposalExpandableBar
-			govProposal={{ gov_proposal: govProposal, delegate}}
-			coloring={'dark:bg-primary-300 bg-primary-400 text-black'}
+			govProposal={{ gov_proposal: govProposal, delegate }}
+			coloring={'bg-primary-400 hover:bg-primary-500 dark:bg-primary-300 dark:hover:bg-primary-400 text-black'}
 		/>
 	{/each}
 	<div class="float-right">
-		<Pagination bind:dynPage={page} maxPage={Math.ceil(filteredGovProposals.length / ENTRIES_PER_PAGE)} />
+		<Pagination
+			bind:dynPage={page}
+			maxPage={Math.ceil(filteredGovProposals.length / ENTRIES_PER_PAGE)}
+		/>
 	</div>
 </div>

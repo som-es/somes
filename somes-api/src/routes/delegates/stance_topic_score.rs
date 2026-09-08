@@ -1,13 +1,20 @@
 use std::collections::HashMap;
 
+use combx::with_data::unique_topics::{TopicsMapper, translate_topics_with_eurovoc};
+use common_scrapes::language::Language;
+use reqwest::StatusCode;
 use somes_common_lib::{StanceTopicInfluences, StanceTopicScore};
-use sqlx::{query, PgPool};
+use sqlx::{PgPool, query};
+
+use crate::{GenericError::Custom, routes::DelegateError};
 
 pub async fn extract_stance_topic_score_by_delegate(
     pg: &PgPool,
     delegate_id: i32,
-) -> sqlx::Result<(Vec<StanceTopicInfluences>, Vec<StanceTopicScore>)> {
-    let stance_scores = query!(
+    topics_mapper: &TopicsMapper,
+    language: Language,
+) -> Result<(Vec<StanceTopicInfluences>, Vec<StanceTopicScore>), DelegateError> {
+    let mut stance_scores = query!(
         "select DISTINCT ON (pa.question_id)
             answer, question, stance_llm, stance, pro_strong_ref_score, contra_strong_ref_score, ref_score, COALESCE(lis.influences, '{}') AS influences, COALESCE(lis.topics, '{}') AS topics
         from
@@ -23,9 +30,31 @@ pub async fn extract_stance_topic_score_by_delegate(
         delegate_id
     )
     .fetch_all(pg)
-    .await?;
+    .await.map_err(|e| DelegateError::SqlFailure(e))?;
 
     let mut topics_scores = HashMap::<String, (f64, usize)>::new();
+
+    let german_topics = topics_mapper
+        .unique_topics
+        .lang_to_topics
+        .get(&Language::De)
+        .ok_or(DelegateError::GenericError(Custom((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "german eurovoc topics are not available",
+        ))))?;
+
+    for stance_score in &mut stance_scores {
+        let Some(topics) = &mut stance_score.topics else {
+            continue;
+        };
+
+        translate_topics_with_eurovoc(
+            &topics_mapper.unique_topics,
+            language,
+            german_topics,
+            topics,
+        );
+    }
 
     let stance_scores = stance_scores
         .into_iter()
@@ -46,7 +75,15 @@ pub async fn extract_stance_topic_score_by_delegate(
 
                     StanceTopicScore {
                         topic: topic.into(),
+                        topic_id: topics_mapper
+                            .unique_topics
+                            .topic_to_id
+                            .get(&(topic.into(), language))
+                            .unwrap()
+                            .id
+                            .clone(),
                         score: default,
+                        broken_down_score: Default::default(),
                     }
                 })
                 .collect::<Vec<_>>();
@@ -81,8 +118,16 @@ pub async fn extract_stance_topic_score_by_delegate(
             .map(|(topic, score)| {
                 let (score, count) = score;
                 StanceTopicScore {
+                    topic_id: topics_mapper
+                        .unique_topics
+                        .topic_to_id
+                        .get(&(topic.clone(), language))
+                        .unwrap()
+                        .id
+                        .clone(),
                     topic,
                     score: 2.7 * score / count as f64,
+                    broken_down_score: Default::default(),
                 }
             })
             .collect(),
@@ -92,19 +137,22 @@ pub async fn extract_stance_topic_score_by_delegate(
 #[cfg(test)]
 mod tests {
 
-    use combx::connect_pg;
+    use combx::{connect_pg, with_data::unique_topics::TopicsMapper};
 
-    use crate::routes::delegates::{
-        left_right_topic_score::extract_left_right_topic_score_by_delegate,
-        stance_topic_score::extract_stance_topic_score_by_delegate,
-    };
+    use crate::routes::delegates::stance_topic_score::extract_stance_topic_score_by_delegate;
 
     #[tokio::test]
     async fn test_extract_stance_topic_score_by_delegate() {
         let pg = connect_pg().await;
-        let res = extract_stance_topic_score_by_delegate(&pg, 35520)
-            .await
-            .unwrap();
+        let topics_mapper = TopicsMapper::new(&pg).await.unwrap();
+        let res = extract_stance_topic_score_by_delegate(
+            &pg,
+            35520,
+            &topics_mapper,
+            common_scrapes::language::Language::En,
+        )
+        .await
+        .unwrap();
         for r in res.0 {
             println!("res: {r:?}");
         }

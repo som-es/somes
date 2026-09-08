@@ -1,21 +1,31 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import type { Delegate, HasError, Interjection, InterjectionsWithMaxPage } from '$lib/types';
 	import { Popover } from 'bits-ui';
 	import ExtendInfoDialog from '../ExtendInfoDialog.svelte';
-	import { delegate_by_id, isHasError, url } from '$lib/api/api';
-	import DelegateCard from '../DelegateCard.svelte';
+	import { delegate_by_id, isHasError } from '$lib/api/api';
 	import InterjectionsModal from './InterjectionsModal.svelte';
 	import { currentDelegateStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
-	import { resolve } from '$app/paths';
+	import { getParliament, plink, type Parliament } from '$lib/api/parliament';
+	import DelegateListItem from '../DelegateListItem.svelte';
+	import SpeechModal from '../Speeches/SpeechModal.svelte';
+	import SpeechDelegateHeader from '../Speeches/SpeechDelegateHeader.svelte';
+	import rightArrowIcon from '$lib/assets/misc_icons/right-arrow-small.svg?raw';
 
 	interface Props {
 		issuerDelegate: Delegate;
 		issuedInterjectionsPage0: InterjectionsWithMaxPage;
 		receivedInterjectionsPage0: InterjectionsWithMaxPage;
+		parliament?: Parliament;
 	}
 
-	let { issuerDelegate, issuedInterjectionsPage0, receivedInterjectionsPage0 }: Props = $props();
+	let {
+		issuerDelegate,
+		issuedInterjectionsPage0,
+		receivedInterjectionsPage0,
+		parliament = getParliament()
+	}: Props = $props();
 
 	// interjections = interjections.sort(
 	// 	(a, b) => (a.interjection_text?.length ?? 0) - (b.interjection_text?.length ?? 0)
@@ -44,8 +54,22 @@
 	};
 	const onShowDetails = (delegate: Delegate) => {
 		currentDelegateStore.value = delegate;
-		gotoHistory(resolve(`/delegates`), true);
+		gotoHistory(plink('/delegates'), true);
 	};
+
+	let speechModalId = $state<number | null>(null);
+	let speechModalOpen = $state(false);
+	let speechModalSpeaker = $state<Delegate | null>(null);
+
+	async function openSpeech(interjection: Interjection) {
+		speechModalId = interjection.plenar_speech_id;
+		speechModalSpeaker = null;
+		speechModalOpen = true;
+		const speaker = await fetchDelegate(interjection.speaker_delegate_id);
+		if (!isHasError(speaker) && speechModalId === interjection.plenar_speech_id) {
+			speechModalSpeaker = speaker;
+		}
+	}
 </script>
 
 <div
@@ -56,11 +80,11 @@
 			<div class="flex min-w-full flex-col">
 				<div class="flex flex-row justify-between">
 					<span class="text-lg font-bold text-black xl:text-xl dark:text-white">
-						Zwischenrufe
+						{t('interjections.title')}
 					</span>
 					{#if interjections.length !== 0}
 						<div>
-							<ExtendInfoDialog title="Alle anzeigen">
+							<ExtendInfoDialog title={t('interjections.showAll')}>
 								<InterjectionsModal
 									delegateId={issuerDelegate.id}
 									ty={activeTab}
@@ -81,7 +105,7 @@
 							: 'text-gray-700 hover:bg-primary-400 dark:text-gray-300 dark:hover:bg-primary-600'}"
 						onclick={() => (activeTab = 'issued')}
 					>
-						Vergeben
+						{t('interjections.issued')}
 					</button>
 					<button
 						class="flex-1 rounded-lg px-4 py-1 text-sm font-medium {activeTab === 'received'
@@ -89,7 +113,7 @@
 							: 'text-gray-700 hover:bg-primary-400 dark:text-gray-400 dark:hover:bg-primary-600'}"
 						onclick={() => (activeTab = 'received')}
 					>
-						Erhalten
+						{t('interjections.received')}
 					</button>
 				</div>
 			</div>
@@ -97,49 +121,51 @@
 
 		<div class="mt-4 flex flex-wrap">
 			{#if interjections.length === 0}
-				<div class="w-full rounded-lg bg-surface-100-900 p-20 text-center">Keine</div>
+				<div class="w-full rounded-lg bg-surface-100-900 p-20 text-center">
+					{t('interjections.none')}
+				</div>
 			{/if}
-			{#each interjections as interjection}
+			{#each interjections as interjection (interjection)}
 				<Popover.Root>
 					<Popover.Trigger>
-						<div class="mr-4 mb-4 badge bg-primary-400 px-3 py-0.5 text-sm dark:bg-primary-600">
+						<div
+							class="mr-4 mb-4 badge bg-primary-400 px-3 py-0.5 text-sm transition-colors hover:bg-primary-500 dark:bg-primary-600 dark:hover:bg-primary-700"
+						>
 							<div class="mt-1 max-h-24 overflow-hidden text-wrap">
 								{interjection.interjection_text}
 							</div>
 						</div>
 					</Popover.Trigger>
 					<Popover.Portal>
-						<Popover.Content side="top">
-							<div class="rounded-lg bg-primary-200 p-5 dark:bg-primary-400">
+						<Popover.Content side="top" sideOffset={2}>
+							<div class="rounded-2xl bg-primary-200 p-1.5 shadow-lg dark:bg-primary-400">
 								{#await fetchDelegate(activeTab === 'issued' ? interjection.speaker_delegate_id : interjection.interjector_delegate_id)}
-									Lädt Redner..
+									<div class="px-3 py-2">
+										{t('interjections.loadingSpeaker')}
+									</div>
 								{:then delegate}
 									{#if !isHasError(delegate)}
-										<button
+										<DelegateListItem
+											{delegate}
+											{parliament}
+											size="md"
 											onclick={() => {
 												onShowDetails(delegate);
 											}}
-											class="flex flex-row items-center gap-2"
-										>
-											<div class="relative flex justify-center pb-6">
-												<img
-													src={`${url}assets/${delegate.id}.jpg`}
-													class="w-20 rounded-full md:w-30"
-													alt="Image of politician {delegate.name}"
-												/>
-												<span class="absolute bottom-0 rounded px-1 text-[10px]">
-													{#if delegate.image_copyright}
-														&copy {delegate.image_copyright}
-													{:else}
-														&copy Parlamentsdirektion
-													{/if}
-												</span>
-											</div>
-											<span class="font-bold">{delegate.name}</span>
-										</button>
+										/>
 									{/if}
 								{/await}
+								<button
+									class="mt-1 flex w-full items-center justify-center gap-1 rounded-xl px-3 py-1.5 text-sm font-medium transition-colors hover:bg-primary-400 dark:hover:bg-primary-500"
+									onclick={() => openSpeech(interjection)}
+								>
+									{t('interjections.openSpeech')}
+									<span class="h-4 w-4 [&_path]:stroke-current [&>svg]:h-full [&>svg]:w-full">
+										{@html rightArrowIcon}
+									</span>
+								</button>
 							</div>
+							<Popover.Arrow class="fill-current text-primary-200 dark:text-primary-400" />
 						</Popover.Content>
 					</Popover.Portal>
 				</Popover.Root>
@@ -161,3 +187,17 @@
 		</div>
 	{/if} -->
 </div>
+
+{#if speechModalId !== null}
+	{#key speechModalId}
+		<SpeechModal speech={speechModalId} bind:open={speechModalOpen}>
+			{#snippet header()}
+				{#if speechModalSpeaker}
+					<div class="mb-1.5">
+						<SpeechDelegateHeader delegate={speechModalSpeaker} {parliament} />
+					</div>
+				{/if}
+			{/snippet}
+		</SpeechModal>
+	{/key}
+{/if}

@@ -27,7 +27,9 @@
 
 	// The default filtering logic
 	const defaultFilter = () => {
-		const search = String(input ?? '').toLowerCase().trim();
+		const search = String(input ?? '')
+			.toLowerCase()
+			.trim();
 		return options.filter((option) => {
 			const optionFormatted = JSON.stringify([
 				option.label,
@@ -58,15 +60,15 @@
 						out:slide={{ duration: 200 }}
 					>
 						<button
-							class="z-40 flex justify-between items-center p-3 hover:bg-secondary-400 dark:hover:bg-secondary-600 rounded-3xl autocomplete-button w-full"
+							class="autocomplete-button z-40 flex w-full items-center justify-between rounded-3xl p-3 hover:bg-secondary-400 dark:hover:bg-secondary-600"
 							type="button"
 							onclick={() => onselection?.(option)}
 						>
 							<div class="flex items-center gap-2">
 								{#if option.isSelected}
-									<span class="text-green-500 font-bold">✓</span>
+									<span class="font-bold text-green-500">✓</span>
 								{:else}
-									<span class="text-gray-300 w-4"></span>
+									<span class="w-4 text-gray-300"></span>
 								{/if}
 								<span>{@html option.label}</span>
 							</div>

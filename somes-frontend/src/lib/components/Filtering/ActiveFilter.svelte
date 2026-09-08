@@ -2,9 +2,9 @@
 	export let filter;
 </script>
 
-{#if filter.filterObj !== undefined && filter.filterObj !== ""}
+{#if filter.filterObj !== undefined && filter.filterObj !== ''}
 	<button
-		class="badge p-3 bg-secondary-400 text-black cursor-pointer"
+		class="badge cursor-pointer bg-secondary-400 p-3 text-black"
 		on:click={() => (filter.filterObj = undefined)}
 	>
 		{filter.translationFn(filter)}

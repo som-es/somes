@@ -2,7 +2,7 @@ use axum::Json;
 use somes_common_lib::SendMailInfo;
 use sqlx::{query, query_as};
 
-use crate::{jwt::Claims, GenericError, PgPoolConnection};
+use crate::{GenericError, PgPoolConnection, jwt::Claims};
 
 pub async fn update_send_mail_info_route(
     PgPoolConnection(pg): PgPoolConnection,

@@ -1,17 +1,22 @@
 use axum::Json;
+use common_scrapes::language::Language;
 use reqwest::StatusCode;
 use sqlx::query_as;
 
-use crate::{jwt::Claims, routes::UniqueTopic, GenericError, PgPoolConnection};
+use crate::{GenericError, ParliamentCtx, PgPoolConnection, jwt::Claims, routes::UniqueTopic};
 
 pub async fn add_user_topic_route(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
     Json(topic): Json<UniqueTopic>,
 ) -> Result<Json<()>, GenericError> {
+    let topic_id = topic
+        .id
+        .parse::<i64>()
+        .map_err(|_e| GenericError::Custom((StatusCode::BAD_REQUEST, "invalid topic id")))?;
     let exists = sqlx::query_scalar!(
-        "select exists(select 1 from unique_eurovoc_topics where id = $1)",
-        topic.id
+        "select exists(select 1 from unique_eurovoc_topics where id_as_hash = $1)",
+        topic_id
     )
     .fetch_one(&pg)
     .await
@@ -28,7 +33,7 @@ pub async fn add_user_topic_route(
         UniqueTopic,
         "insert into user_topics(user_id, topic_id) values ($1, $2) on conflict do nothing",
         claims.id,
-        topic.id
+        topic_id
     )
     .execute(&pg)
     .await
@@ -38,12 +43,18 @@ pub async fn add_user_topic_route(
 
 pub async fn user_topic_selection_route(
     PgPoolConnection(pg): PgPoolConnection,
+    ParliamentCtx(parliament): ParliamentCtx,
     claims: Claims,
 ) -> Result<Json<Vec<UniqueTopic>>, GenericError> {
+    let lang = match parliament {
+        combx::Parliament::At => Language::De,
+        combx::Parliament::Eu => Language::En,
+    };
     query_as!(
         UniqueTopic,
-        "select topic_id as id, topic_name as topic from user_topics inner join unique_eurovoc_topics as ut on ut.id = topic_id where user_id = $1",
+        r#"select topic_id::text as "id!", topic_name as topic from user_topics inner join unique_eurovoc_topics as ut on ut.id_as_hash = topic_id where user_id = $1 and language = $2"#,
         claims.id,
+        lang.as_str(),
     )
     .fetch_all(&pg)
     .await
@@ -60,7 +71,10 @@ pub async fn remove_user_topic_route(
         UniqueTopic,
         "delete from user_topics where user_id = $1 and topic_id = $2",
         claims.id,
-        topic.id
+        topic
+            .id
+            .parse::<i64>()
+            .map_err(|_e| GenericError::Custom((StatusCode::BAD_REQUEST, "invalid topic id")))?
     )
     .execute(&pg)
     .await

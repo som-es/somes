@@ -1,13 +1,13 @@
 use axum::{
-    routing::{delete, get, post, put},
     Json, Router,
+    routing::{delete, get, post, put},
 };
 use chrono::{NaiveDate, NaiveTime};
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 
-use crate::{jwt::Claims, server::AppState, PgPoolConnection};
+use crate::{AppState, PgPoolConnection, jwt::Claims};
 
 #[derive(Debug, Serialize, Deserialize, Hash, Eq, PartialEq)]
 pub struct SomesEvent {
@@ -34,7 +34,7 @@ pub async fn create_event_route(
 ) -> crate::Result<Json<EventId>> {
     if !claims.is_admin {
         return Err(crate::GenericError::Custom((
-            StatusCode::UNAUTHORIZED,
+            StatusCode::FORBIDDEN,
             "insufficient permissions",
         )));
     }
@@ -48,7 +48,7 @@ pub async fn create_event_sqlx(pg: &PgPool, event: &SomesEvent) -> sqlx::Result<
     let id = sqlx::query_scalar!(
         r#"
         INSERT INTO events (
-            title, location, event_date, start_time, description, 
+            title, location, event_date, start_time, description,
             image, requires_membership, requires_registration
         )
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -76,7 +76,7 @@ pub async fn delete_event_route(
 ) -> crate::Result<Json<()>> {
     if !claims.is_admin {
         return Err(crate::GenericError::Custom((
-            StatusCode::UNAUTHORIZED,
+            StatusCode::FORBIDDEN,
             "insufficient permissions",
         )));
     }
@@ -101,7 +101,7 @@ pub async fn update_event_route(
 ) -> crate::Result<Json<()>> {
     if !claims.is_admin {
         return Err(crate::GenericError::Custom((
-            StatusCode::UNAUTHORIZED,
+            StatusCode::FORBIDDEN,
             "insufficient permissions",
         )));
     }
@@ -117,14 +117,14 @@ pub async fn update_event_sqlx(pg: &PgPool, event: &SomesEvent) -> sqlx::Result<
     }
     sqlx::query!(
         r#"
-        UPDATE events 
-        SET title = $1, 
-            location = $2, 
-            event_date = $3, 
-            start_time = $4, 
-            description = $5, 
-            image = $6, 
-            requires_membership = $7, 
+        UPDATE events
+        SET title = $1,
+            location = $2,
+            event_date = $3,
+            start_time = $4,
+            description = $5,
+            image = $6,
+            requires_membership = $7,
             requires_registration = $8
         WHERE id = $9
         "#,
@@ -157,15 +157,15 @@ pub async fn all_events_sqlx(pg: &PgPool) -> sqlx::Result<Vec<SomesEvent>> {
     sqlx::query_as!(
         SomesEvent,
         r#"
-        SELECT 
-            id, 
-            title, 
-            location, 
-            event_date, 
-            start_time, 
-            description, 
-            image, 
-            requires_membership, 
+        SELECT
+            id,
+            title,
+            location,
+            event_date,
+            start_time,
+            description,
+            image,
+            requires_membership,
             requires_registration
         FROM events
         "#

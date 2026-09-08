@@ -6,11 +6,22 @@ export function dashDateToDotDate(date: string): string {
 	return `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
 }
 
+export function dashDateToDate(date: string | null | undefined): Date | null {
+	return date ? new Date(date) : null;
+}
+
 export function formatDate(dateString: Date | string) {
 	return new Intl.DateTimeFormat('de-AT', {
 		day: '2-digit',
 		month: '2-digit',
 		year: 'numeric'
+	}).format(new Date(dateString));
+}
+
+export function formatDateTime(dateString: Date | string) {
+	return new Intl.DateTimeFormat('de-AT', {
+		dateStyle: 'medium',
+		timeStyle: 'short'
 	}).format(new Date(dateString));
 }
 

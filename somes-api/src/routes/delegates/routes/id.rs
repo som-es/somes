@@ -1,18 +1,17 @@
 use axum::{
-    extract::{Path, Query},
     Json,
+    extract::{Path, Query},
 };
 use combx::{Delegate, FullMandate, Index};
-use redis::aio::MultiplexedConnection;
 use somes_common_lib::DelegateById;
 use sqlx::PgPool;
 
-use crate::{get_json_cache, routes::DelegateError, PgPoolConnection, RedisConnection, IS_PROD};
+use crate::{IS_PROD, PgPoolConnection, RedisConnection, get_json_cache, routes::DelegateError};
 
 pub async fn delegate_by_id_sqlx(
     delegate_id: i32,
     pg: &PgPool,
-    redis_con: &mut MultiplexedConnection,
+    redis_con: &mut (impl redis::aio::ConnectionLike + Send + Sync),
 ) -> sqlx::Result<Delegate> {
     let key = format!("{}/{}", Index::Delegates, delegate_id.to_string());
     let res = get_json_cache::<Delegate>(redis_con, &key).await;

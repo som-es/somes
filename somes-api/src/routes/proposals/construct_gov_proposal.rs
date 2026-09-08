@@ -1,9 +1,9 @@
-use combx::{models::*, CombinedData, DbMinistrialProposalQueryMeta, VoteResult};
-use redis::aio::MultiplexedConnection;
+use combx::{CombinedData, DbMinistrialProposalQueryMeta, models::*};
+use redis::aio::ConnectionManager;
 use somes_common_lib::Document;
 use sqlx::PgPool;
 
-use crate::{get_json_cache, today, IS_PROD};
+use crate::{IS_PROD, get_json_cache, today};
 
 pub async fn get_gov_proposal_sqlx(pg: &PgPool, id: i32) -> sqlx::Result<OptionalGovProposal> {
     sqlx::query_as!(
@@ -16,7 +16,7 @@ pub async fn get_gov_proposal_sqlx(pg: &PgPool, id: i32) -> sqlx::Result<Optiona
 }
 
 pub async fn construct_gov_proposal(
-    mut redis_con: MultiplexedConnection,
+    mut redis_con: ConnectionManager,
     pg: &PgPool,
     ministrial_proposal: DbMinistrialProposalQueryMeta,
 ) -> sqlx::Result<OptionalGovProposal> {

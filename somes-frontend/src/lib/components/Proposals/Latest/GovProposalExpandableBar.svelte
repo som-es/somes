@@ -1,44 +1,30 @@
 <script lang="ts">
-	import {
-		createVoteResultPath,
-		type Delegate,
-		type GovProposal,
-		type GovProposalDelegate,
-		type VoteResult
-	} from '$lib/types';
+	import { type Delegate, type GovProposal, type GovProposalDelegate } from '$lib/types';
 	import { slide } from 'svelte/transition';
-	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
-	import { currentVoteResultStore, aiViewEnabledStore } from '$lib/stores/stores';
+	import { aiViewEnabledStore } from '$lib/stores/stores';
 	import { gotoHistory } from '$lib/goto';
 	import GovProposalExpanded from '../ExpandableAtDelegate/GovProposalExpanded.svelte';
-	import { address, url } from '$lib/api/api';
-	import { dashDateToDotDate, isEntryNew } from '$lib/date';
-	import { currentDelegatesAtDateStore, currentGovProposalDelegateStore } from '$lib/stores/stores';
-	import { browser } from '$app/environment';
+	import { url } from '$lib/api/api';
+	import { dashDateToDotDate } from '$lib/date';
+	import { currentGovProposalDelegateStore } from '$lib/stores/stores';
 	import { createGovProposalPath } from '../types';
 	import NewBadge from '$lib/components/UI/NewBadge.svelte';
+	import { getParliament, type Parliament } from '$lib/api/parliament';
 
 	export let govProposal: GovProposalDelegate;
 	export let showDelegate: boolean = false;
-	export let coloring: string = 'bg-primary-300 dark:bg-primary-500 text-black dark:text-white';
+	export let coloring: string =
+		'bg-primary-300 hover:bg-primary-400 dark:bg-primary-500 dark:hover:bg-primary-600 text-black dark:text-white';
+	export let parliament: Parliament = getParliament();
 	// export let dels: Delegate[];
 	let clazz = '';
 	export { clazz as class };
 	let open = false;
 	let duration = 0.35;
 
-	function onShowDetails(govProposal: GovProposal, delegate: Delegate) {
-		currentGovProposalDelegateStore.value = { gov_proposal: govProposal, delegate };
+	function onShowDetails(govProposal: GovProposal, delegates: Delegate[]) {
+		currentGovProposalDelegateStore.value = { gov_proposal: govProposal, delegates };
 		gotoHistory(createGovProposalPath(govProposal.ministrial_proposal), true);
-	}
-
-	function toggleOpen(e: Event) {
-		e.preventDefault();
-		if (typeof window !== 'undefined' && window.innerWidth < 1024) {
-			onShowDetails(govProposal.gov_proposal, govProposal.delegate);
-		} else {
-			open = !open;
-		}
 	}
 
 	$: date = dashDateToDotDate(
@@ -46,6 +32,15 @@
 	);
 
 	$: delegate = govProposal.delegates?.at(0);
+
+	function toggleOpen(e: Event) {
+		e.preventDefault();
+		if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+			onShowDetails(govProposal.gov_proposal, govProposal.delegates ?? []);
+		} else {
+			open = !open;
+		}
+	}
 </script>
 
 {#if govProposal}
@@ -56,7 +51,7 @@
 			onkeypress={toggleOpen}
 			role="button"
 			tabindex="0"
-			class="entry flex items-center justify-between {coloring}"
+			class="entry flex items-center justify-between transition-colors {coloring}"
 		>
 			<!-- <div>
 			<div id={open ? 'open' : 'closed'}>
@@ -113,7 +108,7 @@
 				<div class="hidden flex-col sm:flex">
 					<img
 						class="mx-1 max-h-[80px] min-w-[80px] rounded-full"
-						src={`${url}assets/${delegate.id}.jpg`}
+						src={parliament == 'at' ? `${url}assets/${delegate.id}.jpg` : delegate.image_url}
 						title={delegate.name}
 						alt="Image of delegate {delegate.name}"
 					/>

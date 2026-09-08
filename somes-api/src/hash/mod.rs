@@ -1,8 +1,8 @@
 use argon2::{
-    password_hash::{
-        rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, Result, SaltString,
-    },
     Argon2,
+    password_hash::{
+        PasswordHash, PasswordHasher, PasswordVerifier, Result, SaltString, rand_core::OsRng,
+    },
 };
 use once_cell::sync::Lazy;
 
@@ -41,8 +41,6 @@ pub fn verify_password(password: &str, password_hash: &str) -> Result<bool> {
 
 #[cfg(test)]
 mod tests {
-    use argon2::password_hash::SaltString;
-
     use super::{hash_password, verify_password};
 
     #[test]

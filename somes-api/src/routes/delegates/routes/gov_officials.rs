@@ -1,16 +1,16 @@
 mod decrees;
 mod routes;
 
-use axum::{routing::get, Router};
+use axum::{Router, routing::get};
 use combx::{CombinedData, Delegate, DelegateFilter, OptionalGovProposal};
 pub use decrees::*;
 pub use routes::*;
 
-use crate::server::AppState;
+use crate::AppState;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::{ALL_AT_DATE, EXTEND, GOV_PROPOSALS};
 use somes_macro::MeilisearchFilter;
-use somes_meilisearch_filter::{FilterArgument, FilterOp};
+use somes_meilisearch_filter::FilterArgument;
 use utoipa::ToSchema;
 
 use combx::OptionalGovProposalFilter;

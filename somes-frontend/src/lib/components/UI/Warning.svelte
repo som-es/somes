@@ -11,7 +11,7 @@
 	export { clazz as class };
 </script>
 
-<button on:click={handleClick} style="font-size: 34px" class="w-5 unselectable {clazz}">
+<button on:click={handleClick} style="font-size: 34px" class="unselectable w-5 {clazz}">
 	⚠
 	<!-- &#x2715 -->
 </button>

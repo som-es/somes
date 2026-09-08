@@ -3,7 +3,7 @@ use redis::aio::MultiplexedConnection;
 use sqlx::PgPool;
 
 use crate::{
-    routes::{delegate_by_id_sqlx, get_gov_proposal_sqlx, GovProposalDelegate},
+    routes::{GovProposalDelegate, delegate_by_id_sqlx, get_gov_proposal_sqlx},
     update_cache_for_index, update_meilisearch_index,
 };
 
@@ -11,7 +11,7 @@ pub async fn update_cache_gov_proposals(
     redis_client: redis::Client,
     pool: PgPool,
     meilisearch_client: meilisearch_sdk::client::Client,
-) {
+) -> combx::Result<()> {
     let meilisearch_client = meilisearch_client.clone();
     let inner_redis_client = redis_client.clone();
     let inner_pool = pool.clone();
@@ -82,5 +82,6 @@ pub async fn update_cache_gov_proposals(
         notify_dependencies,
         update_meilisearch_index,
     )
-    .await;
+    .await?;
+    Ok(())
 }

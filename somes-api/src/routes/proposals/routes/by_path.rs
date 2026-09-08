@@ -1,11 +1,11 @@
-use axum::{extract::Path, Json};
+use axum::{Json, extract::Path};
 use combx::DbMinistrialProposalQueryMeta;
-use redis::aio::MultiplexedConnection;
+use redis::aio::ConnectionManager;
 use sqlx::PgPool;
 
 use crate::{
-    routes::{construct_gov_delegate_proposal, FilterError, GovProposalDelegate},
     PgPoolConnection, RedisConnection,
+    routes::{FilterError, GovProposalDelegate, construct_gov_delegate_proposal},
 };
 
 pub async fn gov_proposal_by_path_route(
@@ -19,7 +19,7 @@ pub async fn gov_proposal_by_path_route(
 }
 
 pub async fn gov_proposal_delegate_by_path_sqlx(
-    redis_con: MultiplexedConnection,
+    redis_con: ConnectionManager,
     pg: &PgPool,
     gp: &str,
     inr: i32,
@@ -56,5 +56,5 @@ pub async fn gov_proposal_delegate_by_path_sqlx(
     )
     .fetch_one(pg)
     .await?;
-    construct_gov_delegate_proposal(redis_con.clone(), pg, miniserial_prop).await
+    construct_gov_delegate_proposal(redis_con, pg, miniserial_prop).await
 }

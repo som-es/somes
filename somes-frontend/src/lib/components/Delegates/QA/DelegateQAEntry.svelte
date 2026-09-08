@@ -7,7 +7,7 @@
 </script>
 
 <div class={clazz}>
-	<span class="font-bold text-xl sm:text-3xl">
+	<span class="text-xl font-bold sm:text-3xl">
 		{delegateQa.question}
 	</span>
 	<hr />

@@ -1,10 +1,10 @@
-import { resolve } from '$app/paths';
 import { getWithRoute, justPost } from '$lib/api/api';
+import { getParliament, plink, type Parliament } from '$lib/api/parliament';
 import type { HasError } from '$lib/types';
 import type { Decree, DecreeFilter, DecreesWithMaxPage } from './types';
 
 export function createDecreePath(ris_id: string): string {
-	return resolve("/decree/[id]", { id: ris_id });
+	return plink(`/decree/${ris_id}`);
 }
 
 export async function decrees_per_page(
@@ -16,12 +16,16 @@ export async function decrees_per_page(
 
 export async function decrees_by_search(
 	query: string,
-	fetcher: typeof fetch = fetch
+	fetcher: typeof fetch = fetch,
+	parliament: Parliament = getParliament()
 ): Promise<DecreesWithMaxPage | HasError> {
-	return getWithRoute<DecreesWithMaxPage>(`v1/decrees/search?${query}`, "at/", fetcher);
+	return getWithRoute<DecreesWithMaxPage>(`v1/decrees/search?${query}`, parliament, fetcher);
 }
 
-export async function decree_by_ris_id(ris_id: string, fetcher: typeof fetch = fetch
+export async function decree_by_ris_id(
+	ris_id: string,
+	fetcher: typeof fetch = fetch,
+	parliament: Parliament = getParliament()
 ): Promise<Decree | HasError> {
-	return getWithRoute<Decree>(`v1/decrees/ris_id/${ris_id}`, "at/", fetcher);
+	return getWithRoute<Decree>(`v1/decrees/ris_id/${ris_id}`, parliament, fetcher);
 }

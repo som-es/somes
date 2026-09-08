@@ -1,15 +1,17 @@
 <script lang="ts">
 	import { partyColors, partyToColor } from '$lib/partyColor';
+	import { givenVotes, isVoteInFavor } from '$lib/partyInfavor';
 	import type { Vote } from '$lib/types';
 
 	export let votes: Vote[];
 	export let infavor: boolean = false;
 </script>
+
 {#if partyColors.size > 0}
 	{#each votes as vote}
-		{#if vote.infavor == infavor}
+		{#if isVoteInFavor(vote) == infavor}
 			<div class="flex flex-row">
-				<span style="background-color: {partyToColor(vote.party)}" class="px-4 py-3 rounded-lg">
+				<span style="background-color: {partyToColor(vote.party)}" class="rounded-lg px-4 py-3">
 				</span>
 				<div class="flex flex-col">
 					<span class="ml-1">
@@ -17,7 +19,7 @@
 					</span>
 
 					<span class="ml-1">
-						({vote.fraction})
+						({givenVotes(vote)})
 					</span>
 				</div>
 			</div>

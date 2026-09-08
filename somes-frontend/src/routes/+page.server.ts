@@ -28,10 +28,10 @@ export const load: PageServerLoad = async ({ fetch, setHeaders }) => {
 
 	const [nextPlenarDate, latestVotes, latestMinisterialProposals, latestDecrees, somesEvents] =
 		await Promise.all([
-			next_plenar_date(fetch),
-			latest_vote_results(fetch),
-			latest_ministrial_proposals(21, fetch),
-			latest_decrees(7, fetch),
+			next_plenar_date(fetch, 'at'),
+			latest_vote_results(fetch, 'at'),
+			latest_ministrial_proposals(21, fetch, 'at'),
+			latest_decrees(7, fetch, 'at'),
 			events(fetch)
 		]);
 

@@ -1,12 +1,12 @@
 use axum::Json;
 use serde::{Deserialize, Serialize};
-use sqlx::{prelude::FromRow, Postgres};
+use sqlx::{Postgres, prelude::FromRow};
 use utoipa::ToSchema;
 
 use crate::{
-    routes::statistics::routes::error::StatisticsResponse,
-    routes::statistics::routes::filtering::{bind_values, build_filter, IntoFilterArgument},
     PgPoolConnection,
+    routes::statistics::routes::error::StatisticsResponse,
+    routes::statistics::routes::filtering::{IntoFilterArgument, bind_values, build_filter},
 };
 
 #[derive(ToSchema, Default, Debug, Clone, Serialize, Deserialize)]
@@ -24,7 +24,7 @@ pub struct PoliticalOrientationBase {
     delegate_name: String,
     delegate_party: String,
     delegate_filter_party: String,
-    delegate_gender: String,
+    delegate_gender: Option<String>,
     orientation_score: f64,
     total_votes: i64,
     delegate_age_bucket: String,
@@ -52,7 +52,7 @@ pub struct PoliticalSpectrumBase {
     delegate_name: String,
     delegate_party: String,
     delegate_filter_party: String,
-    delegate_gender: String,
+    delegate_gender: Option<String>,
     left_right_score: f64,
     liberal_authoritarian_score: f64,
     total_votes: i64,
@@ -141,10 +141,13 @@ impl PoliticalOrientationService {
             std::collections::HashMap::new();
 
         for item in base_data {
-            let entry =
-                gender_map
-                    .entry(item.delegate_gender.clone())
-                    .or_insert((Vec::new(), 0, 0));
+            let entry = gender_map
+                .entry(
+                    item.delegate_gender
+                        .clone()
+                        .unwrap_or_else(|| "Unknown".into()),
+                )
+                .or_insert((Vec::new(), 0, 0));
             entry.0.push(item.orientation_score);
             entry.1 += item.total_votes;
             entry.2 += 1;
@@ -239,7 +242,7 @@ impl PoliticalOrientationService {
                 WHEN active_mandate.id IS NOT NULL THEN COALESCE(active_mandate.party, 'Regierungsmitglied')
                 ELSE COALESCE(d.party, 'Regierungsmitglied')
             END AS delegate_filter_party,
-            COALESCE(d.gender, '') AS delegate_gender,
+            d.gender AS delegate_gender,
             {}::float8 AS orientation_score,
             pp.neutral_count::bigint AS total_votes,
             CASE
@@ -451,7 +454,7 @@ impl PoliticalSpectrumService {
                 WHEN active_mandate.id IS NOT NULL THEN COALESCE(active_mandate.party, 'Regierungsmitglied')
                 ELSE COALESCE(d.party, 'Regierungsmitglied')
             END AS delegate_filter_party,
-            COALESCE(d.gender, '') AS delegate_gender,
+            d.gender AS delegate_gender,
             (pp.is_not_left::float8 - pp.is_left::float8) AS left_right_score,
             (pp.is_not_liberal::float8 - pp.is_liberal::float8) AS liberal_authoritarian_score,
             pp.neutral_count::bigint AS total_votes,
@@ -630,10 +633,13 @@ impl PoliticalSpectrumService {
             std::collections::HashMap::new();
 
         for item in base_data {
-            let entry =
-                grouped
-                    .entry(item.delegate_gender)
-                    .or_insert((Vec::new(), Vec::new(), 0, 0));
+            let entry = grouped
+                .entry(
+                    item.delegate_gender
+                        .clone()
+                        .unwrap_or_else(|| "Unknown".into()),
+                )
+                .or_insert((Vec::new(), Vec::new(), 0, 0));
             entry.0.push(item.left_right_score);
             entry.1.push(item.liberal_authoritarian_score);
             entry.2 += item.total_votes;

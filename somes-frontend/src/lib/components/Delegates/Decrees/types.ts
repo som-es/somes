@@ -14,7 +14,7 @@ export interface Decree {
 	short_title: string;
 	publication_date: string;
 	part: string;
-	ai_summary: DbAiSummary | null;	
+	ai_summary: DbAiSummary | null;
 	gp: string | null;
 	documents: Document[];
 	eli: string | null;
@@ -36,4 +36,5 @@ export interface DecreeFilter {
 	departments: string[] | null;
 	date_from: string | null;
 	date_to: string | null;
+	page: number | null;
 }

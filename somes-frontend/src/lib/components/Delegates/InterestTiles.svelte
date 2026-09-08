@@ -15,7 +15,7 @@
 	}
 </script>
 
-<div class="grid-tile {bgColor} flex flex-row flex-wrap interests-item gap-3">
+<div class="grid-tile {bgColor} interests-item flex flex-row flex-wrap gap-3">
 	{#each interests as interest}
 		<Square class=" wrap-break-word {squareColor}">
 			<div

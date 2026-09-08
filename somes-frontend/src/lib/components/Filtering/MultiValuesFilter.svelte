@@ -6,6 +6,7 @@
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache.svelte';
 	import { onMount, type Snippet } from 'svelte';
 	import type { UniqueTopic } from '$lib/types';
+	import { t } from '$lib/i18n/i18n.svelte';
 
 	interface Props {
 		title: string;
@@ -50,7 +51,7 @@
 				<input
 					type="search"
 					class="block w-full bg-transparent py-2 placeholder:text-gray-600 focus:outline-none dark:placeholder:text-gray-300"
-					placeholder="Suche nach {title}..."
+					placeholder={t('filter.searchPlaceholder', { title })}
 					bind:value={topicSearchValue}
 				/>
 			</div>
@@ -61,7 +62,7 @@
 					<span></span>
 				{/if}
 				<button onclick={() => selectedTopics.clear()} class="badge bg-primary-500 text-white">
-					Zurücksetzen
+					{t('filter.reset')}
 				</button>
 			</div>
 			<div class="flex max-h-72 flex-col gap-1 overflow-y-auto px-3 py-2">

@@ -1,11 +1,12 @@
 mod error;
 use std::collections::HashMap;
 
-use crate::{get_json_cache, GenericError, PgPoolConnection, RedisConnection};
-use axum::{extract::Query, Json};
+use crate::{GenericError, PgPoolConnection, RedisConnection, get_json_cache};
+use axum::{Json, extract::Query};
 use combx::DbVote;
 use common_scrapes::Party;
 pub use error::*;
+use redis::aio::ConnectionLike;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::LegisPeriodGp;
 use sqlx::PgPool;
@@ -66,7 +67,7 @@ pub async fn coalition_parties_per_gp_route(
 
 pub async fn initiatives_with_votes_cached(
     pool: &PgPool,
-    redis_con: &mut redis::aio::MultiplexedConnection,
+    redis_con: &mut (impl ConnectionLike + Send + Sync),
 ) -> Result<Vec<LegislativeInitiativeWithVotes>, sqlx::Error> {
     if let Some(initiatives_with_votes) = get_json_cache(redis_con, "votes_only_legis_inits").await
     {
@@ -93,7 +94,7 @@ pub async fn initiatives_with_votes(
 
 pub async fn determine_party_states_per_gp(
     pool: &PgPool,
-    mut redis_con: redis::aio::MultiplexedConnection,
+    mut redis_con: redis::aio::ConnectionManager,
 ) -> crate::Result<HashMap<String, PartyStates>> {
     let legis_inits_with_votes = initiatives_with_votes_cached(pool, &mut redis_con)
         .await
@@ -145,7 +146,7 @@ pub fn determine_coalition_from_voting_behaviour_per_gp(
             let key = (legis_init.gp.clone(), vote.party.clone());
             infavor_per_party_gp
                 .entry(key)
-                .and_modify(|x: &mut u32| *x += vote.infavor as u32)
+                .and_modify(|x: &mut u32| *x += (vote.infavor_count > 0) as u32)
                 .or_default();
         }
     }

@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use crate::{
-    routes::{fetch_latest_session_activity_overview, SESSION_ACTIVITY_CACHE_KEY},
+    routes::{SESSION_ACTIVITY_CACHE_KEY, fetch_latest_session_activity_overview},
     set_json_cache_secs,
 };
 

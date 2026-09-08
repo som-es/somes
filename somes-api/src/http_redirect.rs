@@ -1,7 +1,8 @@
 use std::net::SocketAddr;
 
-use axum::{handler::HandlerWithoutStateExt, http::Uri, response::Redirect, BoxError};
-use axum_extra::extract::Host;
+use axum::{BoxError, handler::HandlerWithoutStateExt, http::Uri, response::Redirect};
+use axum_extra::TypedHeader;
+use headers::Host;
 use reqwest::StatusCode;
 
 #[derive(Clone, Copy)]
@@ -27,8 +28,8 @@ pub async fn redirect_http_to_https(ports: Ports, mut sock_addr: SocketAddr) {
         Ok(Uri::from_parts(parts)?)
     }
 
-    let redirect = move |Host(host): Host, uri: Uri| async move {
-        match make_https(host, uri, ports) {
+    let redirect = move |TypedHeader(host): TypedHeader<Host>, uri: Uri| async move {
+        match make_https(host.to_string(), uri, ports) {
             Ok(uri) => Ok(Redirect::permanent(&uri.to_string())),
             Err(_error) => Err(StatusCode::BAD_REQUEST),
         }

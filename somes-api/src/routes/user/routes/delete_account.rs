@@ -1,11 +1,11 @@
 use axum::Json;
 use sqlx::query;
 
-use crate::{jwt::Claims, GenericError, PgPoolConnection};
+use crate::{AtPgPoolConnection, GenericError, jwt::Claims};
 
 pub async fn delete_account_route(
     claims: Claims,
-    PgPoolConnection(pg): PgPoolConnection,
+    AtPgPoolConnection(pg): AtPgPoolConnection,
 ) -> Result<Json<()>, GenericError> {
     let _ = query!("delete from user_topics where user_id = $1", claims.id,)
         .execute(&pg)

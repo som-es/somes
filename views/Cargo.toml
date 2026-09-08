@@ -7,3 +7,6 @@ edition = "2024"
 sqlx = {workspace=true}
 somes-common-lib = {path = "../somes-common-lib"}
 combx = { workspace = true }
+clap = { version = "4", features = ["derive"] }
+dotenvy = "0.15.7"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }

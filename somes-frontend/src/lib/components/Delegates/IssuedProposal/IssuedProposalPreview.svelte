@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n/i18n.svelte';
 	import type { IssuedProposal } from '$lib/types';
 	import ExtendInfoDialog from '../ExtendInfoDialog.svelte';
 	import IssuedProposalBar from './IssuedProposalBar.svelte';
@@ -17,14 +18,15 @@
 	<div class="flex items-start justify-between">
 		<div>
 			<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">
-				Letzte eingebrachte Anträge
+				{t('proposals.title')}
 			</h1>
 			<h2 class="text-sm text-gray-800 dark:text-gray-300">
 				{issuedProposals.length}
-				{issuedProposals.length == 1 ? 'Antrag' : 'Anträge'} insgesamt
+				{issuedProposals.length == 1 ? t('proposals.proposal') : t('proposals.proposals')}
+				{t('proposals.total')}
 			</h2>
 		</div>
-		<ExtendInfoDialog title="Alle anzeigen">
+		<ExtendInfoDialog title={t('proposals.showAll')}>
 			<IssuedProposalModal {issuedProposals} />
 		</ExtendInfoDialog>
 	</div>

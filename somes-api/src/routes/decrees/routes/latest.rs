@@ -1,17 +1,9 @@
-use axum::{extract::Query, Json};
+use axum::{Json, extract::Query};
 use combx::{DbAiSummary, OptionalDecree};
-use redis::aio::MultiplexedConnection;
-use serde::{Deserialize, Serialize};
-use somes_common_lib::Document;
-use sqlx::{query_as, PgPool};
-use utoipa::ToSchema;
+use somes_common_lib::{Days, Document};
+use sqlx::{PgPool, query_as};
 
-use crate::{routes::FilterError, PgPoolConnection, RedisConnection};
-
-#[derive(ToSchema, Debug, Clone, Serialize, Deserialize)]
-pub struct Days {
-    days: u32,
-}
+use crate::{PgPoolConnection, routes::FilterError};
 
 pub async fn latest_decrees_route(
     PgPoolConnection(pg): PgPoolConnection,

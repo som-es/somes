@@ -4,29 +4,37 @@
 	import somesWithText from '$lib/assets/somes_with_text2.svg?raw';
 	import Sidebar from '$lib/components/Bars/Sidebar.svelte';
 	import Navbar from '$lib/components/Bars/Navbar.svelte';
-	import { onMount } from 'svelte';
 	import { resolve } from '$app/paths';
-	import { lightModeStore } from '$lib/lightmode.svelte';
+	import { syncTheme } from '$lib/lightmode.svelte';
 	import RenewToken from '$lib/components/Login/RenewToken.svelte';
 	import LoginDrawer from '$lib/components/Login/LoginDrawer.svelte';
+	import ParliamentSwitchModal from '$lib/components/Bars/ParliamentSwitchModal.svelte';
 	import { loginDrawerOpenStore } from '$lib/caching/stores/stores.svelte';
 	import { page } from '$app/state';
+	import { getParliament } from '$lib/api/parliament';
 	import CacheInvalidation from '$lib/components/CacheInvalidation/CacheInvalidation.svelte';
 	import { browser } from '$app/environment';
+	import { t } from '$lib/i18n/i18n.svelte';
 
 	let { children } = $props();
 
-	onMount(() => {
-		document.documentElement.classList.toggle(
-			'dark',
-			lightModeStore.value === 'dark' ||
-				(!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
-		);
+	type DisclaimerKey =
+		'layout.disclaimer.publicData' | 'layout.disclaimer.ris' | 'layout.disclaimer.eu';
+	let disclaimerKey = $derived.by((): DisclaimerKey | null => {
+		const path = page.url.pathname;
+		if (path == '/' || path == '/user' || path == '/impressum' || path == '/datenschutz') {
+			return null;
+		}
+		if (getParliament() == 'eu') return 'layout.disclaimer.eu';
+		return path.includes('decree') ? 'layout.disclaimer.ris' : 'layout.disclaimer.publicData';
 	});
+
+	$effect(() => syncTheme());
 </script>
 
 <RenewToken />
 <LoginDrawer bind:open={loginDrawerOpenStore.value} />
+<ParliamentSwitchModal />
 {#if browser}
 	<CacheInvalidation />
 {/if}
@@ -48,50 +56,13 @@
 		<!-- Main Content -->
 		<main class="mb-35 w-full min-w-0">
 			{@render children()}
-			{#if page.url.pathname == '/' || page.url.pathname == '/user' || page.url.pathname == '/impressum' || page.url.pathname == '/datenschutz'}
-				<span></span>
-			{:else if !page.url.pathname.includes('decree')}
+			{#if disclaimerKey}
 				<div
 					class="mx-auto mt-20 flex w-full max-w-4xl items-center justify-center px-4 text-sm sm:w-120 md:text-base"
 				>
 					<span class="text-center text-gray-500 dark:text-gray-400">
-						Diese Rohdaten werden von dem
-						<a
-							class="text-secondary-500"
-							href="https://www.parlament.gv.at/recherchieren/open-data/daten-und-lizenz/index.html"
-							target="_blank">Open-Data Angebot</a
-						>
-						des Österreichischen Parlaments bereitgestellt und sind nach
-						<a
-							class="text-secondary-500"
-							href="https://creativecommons.org/licenses/by/4.0/deed.de"
-							target="_blank"
-						>
-							CC-BY 4.0
-						</a> lizenziert. Der zugehörige Eintrag auf der Parlamentsseite ist bei der Somes-Detailseite
-						im Titel verlinkt.</span
-					>
-				</div>
-			{:else}
-				<div
-					class="mx-auto mt-20 flex w-full max-w-4xl items-center justify-center px-4 text-sm sm:w-120 md:text-base"
-				>
-					<span class="text-center text-gray-500 dark:text-gray-400">
-						Diese Rohdaten werden von dem
-						<a
-							class="text-secondary-500"
-							href="https://www.ris.bka.gv.at/UI/Ogd.aspx"
-							target="_blank">Open-Data Angebot</a
-						>
-						des Österreichischen Rechtsinformationssystem des Bundes bereitgestellt und sind nach
-						<a
-							class="text-secondary-500"
-							href="https://creativecommons.org/licenses/by/4.0/deed.de"
-							target="_blank"
-						>
-							CC-BY 4.0
-						</a> lizenziert. Der zugehörige Eintrag im RIS ist bei der Somes-Detailseite im Titel verlinkt.</span
-					>
+						{@html t(disclaimerKey!)}
+					</span>
 				</div>
 			{/if}
 		</main>
@@ -109,19 +80,21 @@
 					{@html somesWithText}
 				</div>
 				<p class="mt-2 max-w-xs text-sm">
-					Parteiübergreifend machen wir Demokratie transparent, verständlich und zugänglich.
+					{t('layout.tagline')}
 				</p>
 				<p class="mt-2 max-w-xs text-sm font-light">
-					Das Entwicklungsteam wird seit 03.11.2025 von <a
+					{t('layout.netidee.start')}
+					<a
 						href="https://www.netidee.at"
 						target="_blank"
 						rel="noopener noreferrer"
 						class="underline hover:text-secondary-400">Netidee</a
-					> gefördert.
+					>
+					{t('layout.netidee.end')}
 				</p>
 			</div>
 			<div class="mb-4">
-				<h4 class="mb-4 font-bold text-white">Entwicklung</h4>
+				<h4 class="mb-4 font-bold text-white">{t('layout.development')}</h4>
 				<ul class="space-y-2 text-sm">
 					<li>
 						<a
@@ -142,18 +115,29 @@
 				</ul>
 			</div>
 			<div class="mb-4">
-				<h4 class="mb-4 font-bold text-white">Links</h4>
+				<h4 class="mb-4 font-bold text-white">{t('layout.links')}</h4>
 				<ul class="space-y-2 text-sm">
-					<li><a href={resolve('/')} class="hover:text-secondary-400">Verein</a></li>
-					<li><a href="{resolve('/')}#events" class="hover:text-secondary-400">Events</a></li>
-					<li><a href={resolve('/impressum')} class="hover:text-secondary-400">Impressum</a></li>
 					<li>
-						<a href={resolve('/datenschutz')} class="hover:text-secondary-400">Datenschutz</a>
+						<a href={resolve('/')} class="hover:text-secondary-400">{t('layout.association')}</a>
+					</li>
+					<li>
+						<a href="{resolve('/')}#events" class="hover:text-secondary-400">{t('layout.events')}</a
+						>
+					</li>
+					<li>
+						<a href={resolve('/impressum')} class="hover:text-secondary-400"
+							>{t('layout.imprint')}</a
+						>
+					</li>
+					<li>
+						<a href={resolve('/datenschutz')} class="hover:text-secondary-400"
+							>{t('layout.privacy')}</a
+						>
 					</li>
 				</ul>
 			</div>
 			<div>
-				<h4 class="mb-4 font-bold text-white">Socials</h4>
+				<h4 class="mb-4 font-bold text-white">{t('layout.socials')}</h4>
 				<div class="flex gap-4">
 					<a
 						href="https://www.instagram.com/somes.at"
@@ -197,7 +181,7 @@
 			</div>
 		</div>
 		<div class="mx-auto mt-1 max-w-7xl border-t border-surface-800 px-4 pt-8 text-center text-xs">
-			&copy; {new Date().getFullYear()} somes - Verein für Demokratie und politische Transparenz.
+			<div class="mt-4">&copy; {new Date().getFullYear()} {t('layout.copyright')}.</div>
 		</div>
 	</footer>
 	<!-- <img src="https://www.netidee.at/sites/default/files/2016-12/netidee-Logo-HiRes300dpi-Projekte-Standard.jpg" alt="Netidee Logo" class="h-8" /> -->

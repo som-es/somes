@@ -134,7 +134,7 @@ pub async fn extract_questions_with_ai_content(
 #[cfg(test)]
 mod tests {
     use crate::routes::{extract_parliamentary_answers, extract_questions_with_ai_content};
-    use combx::{connect_pg, ParliamentInquiryResponse};
+    use combx::{ParliamentInquiryResponse, connect_pg};
 
     #[tokio::test]
     pub async fn test_extract_parliamentary_answers_for_gov_official() {

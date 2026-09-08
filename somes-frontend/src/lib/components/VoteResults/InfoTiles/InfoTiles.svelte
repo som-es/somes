@@ -4,9 +4,11 @@
 	import checkmarkIcon from '$lib/assets/misc_icons/checkmark.svg?raw';
 	import { partyToColor } from '$lib/partyColor';
 	import type { Delegate, Vote, VoteResult } from '$lib/types';
+	import { givenVotes } from '$lib/partyInfavor';
 	import Square from '$lib/components/UI/Square.svelte';
-	import { dashDateToDotDate } from '$lib/date';
 	import { lightModeStore } from '$lib/lightmode.svelte';
+	import { t } from '$lib/i18n/i18n.svelte';
+	import { localeStore } from '$lib/i18n/i18n.svelte';
 
 	interface Props {
 		voteResult: VoteResult;
@@ -34,10 +36,10 @@
 		showText = true
 	}: Props = $props();
 
-	showDate = false
-	showRequiredMajority = false
-	showDate = false
-	showAccepted = false
+	showDate = false;
+	showRequiredMajority = false;
+	showDate = false;
+	showAccepted = false;
 
 	let isLightMode = $derived(lightModeStore.value === 'light');
 
@@ -46,9 +48,9 @@
 		start: number;
 		end: number;
 	}
-	let NOT_REACHED_COLOR = $derived(isLightMode
-		? 'var(--color-primary-600)'
-		: 'var(--color-primary-800)');
+	let NOT_REACHED_COLOR = $derived(
+		isLightMode ? 'var(--color-primary-600)' : 'var(--color-primary-800)'
+	);
 
 	const REACHED_COLOR = 'var(--color-secondary-300)';
 
@@ -66,17 +68,17 @@
 		votes: Vote[],
 		voteSum: number
 	): ConicStop[] {
-		votes.sort((a, b) => b.fraction - a.fraction);
+		votes.sort((a, b) => b.infavor_count - a.infavor_count);
 		let currentStart = 0;
 
 		let conicStops = [];
 
 		for (let i = 0; i < votes.length; i++) {
 			let vote = votes[i];
-			if (!vote.infavor) {
+			if (vote.infavor_count === 0) {
 				continue;
 			}
-			const share = (vote.fraction / voteSum) * 360;
+			const share = (vote.infavor_count / voteSum) * 360;
 			const prevStart = currentStart;
 			currentStart += share;
 			conicStops.push({ color: partyToColor(vote.party), start: prevStart, end: currentStart });
@@ -99,16 +101,17 @@
 				votes = [
 					{
 						party: '',
-						fraction: voteResult.named_votes.named_vote_info.pro_count,
-						infavor: true,
 						code: '',
-						legislative_initiatives_id: 0
+						infavor_count: voteResult.named_votes.named_vote_info.pro_count,
+						against_count: 0,
+						abstention_count: 0,
+						absence_count: 0
 					}
 				];
 			}
 		} else {
 			voteResult.votes.forEach((vote) => {
-				voteSum += vote.fraction;
+				voteSum += givenVotes(vote);
 			});
 		}
 
@@ -119,7 +122,7 @@
 </script>
 
 <div class="flex flex-wrap {isCenter ? 'justify-center' : ''} info-item gap-3">
-	<div class="flex gap-3 flex-wrap">
+	<div class="flex flex-wrap gap-3">
 		{#if showAccepted && voteResult.legislative_initiative.accepted}
 			<Square {squareSize} class="accepted-item {squareClasses}">
 				{#if voteResult.legislative_initiative.accepted == 'a'}
@@ -127,14 +130,14 @@
 						{@html checkmarkIcon}
 					</span>
 					{#if showText}
-						<div>Angenommen</div>
+						<div>{t('infotiles.accepted')}</div>
 					{/if}
 				{:else}
 					{@html crossmarkIcon}
 					{#if showText}
-						<div>Abgelehnt</div>
+						<div>{t('infotiles.rejected')}</div>
 						{#if voteResult.legislative_initiative.accepted == 'p'}
-							<div>(frühzeitig)</div>
+							<div>{t('infotiles.earlyRejected')}</div>
 						{/if}
 					{/if}
 				{/if}
@@ -150,38 +153,45 @@
 				/>
 
 				{#if showText}
-					<div>Notwendige</div>
-					<div>Mehrheit</div>
+					<div>{t('infotiles.requiredMajority')}</div>
 				{/if}
 			</Square>
 		{/if}
 	</div>
-	<div class="flex gap-3 flex-wrap">
+	<div class="flex flex-wrap gap-3">
 		{#if showAchievedVotes && voteResult.legislative_initiative.accepted}
 			<Square {squareSize} class={squareClasses}>
-				<SimpleDonut stops={conicsStopsAchievedVotes} {isLightMode} 
+				<SimpleDonut
+					stops={conicsStopsAchievedVotes}
+					{isLightMode}
 					mark50={voteResult.legislative_initiative.requires_simple_majority ?? false}
 					mark66={!(voteResult.legislative_initiative.requires_simple_majority ?? true)}
 				/>
 
 				{#if showText}
-					<div>Erreichte</div>
-					<div>Stimmen</div>
+					<div>{t('infotiles.achievedVotes')}</div>
 				{/if}
 				<!-- {voteResult.legislative_initiative.requires_simple_majority ? "1/2" : "2/3" } -->
 			</Square>
 		{/if}
 		{#if showDate}
 			<Square {squareSize} class={squareClasses}>
-				<div class="font-bold text-lg">
-					{dashDateToDotDate(voteResult.legislative_initiative.nr_plenary_activity_date.toString())}
+				<div class="text-lg font-bold">
+					{(() => {
+						const locale = localeStore.value === 'de' ? 'de-AT' : 'en-AT';
+						const date = new Date(voteResult.legislative_initiative.nr_plenary_activity_date);
+						return new Intl.DateTimeFormat(locale, {
+							day: '2-digit',
+							month: '2-digit',
+							year: 'numeric'
+						}).format(date);
+					})()}
 				</div>
 				{#if showText}
 					{#if voteResult.votes.length > 0}
-						<div>Abgestimmt am</div>
+						<div>{t('infotiles.votedOn')}</div>
 					{:else}
-						<div>Letzte</div>
-						<div>Plenaraktivität</div>
+						<div>{t('infotiles.lastPlenaryActivity')}</div>
 					{/if}
 				{/if}
 			</Square>

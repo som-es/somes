@@ -8,7 +8,7 @@ fn create_test_base_data() -> Vec<ActivityBase> {
             delegate_name: "Delegate A".to_string(),
             delegate_party: "Party X".to_string(),
             delegate_filter_party: "Party X".to_string(),
-            delegate_gender: "M".to_string(),
+            delegate_gender: Some("M".to_string()),
             activity_score: 2.5,
             raw_activity_score: 5.0,
             total_proposals: 10,
@@ -20,7 +20,7 @@ fn create_test_base_data() -> Vec<ActivityBase> {
             delegate_name: "Delegate B".to_string(),
             delegate_party: "Party X".to_string(),
             delegate_filter_party: "Party X".to_string(),
-            delegate_gender: "F".to_string(),
+            delegate_gender: Some("F".to_string()),
             activity_score: 1.5,
             raw_activity_score: 3.0,
             total_proposals: 5,
@@ -32,7 +32,7 @@ fn create_test_base_data() -> Vec<ActivityBase> {
             delegate_name: "Delegate C".to_string(),
             delegate_party: "Party Y".to_string(),
             delegate_filter_party: "Party Y".to_string(),
-            delegate_gender: "M".to_string(),
+            delegate_gender: Some("M".to_string()),
             activity_score: 3.0,
             raw_activity_score: 6.0,
             total_proposals: 8,
@@ -44,7 +44,7 @@ fn create_test_base_data() -> Vec<ActivityBase> {
             delegate_name: "Delegate D".to_string(),
             delegate_party: "Party Y".to_string(),
             delegate_filter_party: "Party Y".to_string(),
-            delegate_gender: "F".to_string(),
+            delegate_gender: Some("F".to_string()),
             activity_score: 2.0,
             raw_activity_score: 4.0,
             total_proposals: 12,
@@ -157,7 +157,7 @@ fn test_aggregate_by_party_sorts_by_raw_score() {
             delegate_name: "Delegate A".to_string(),
             delegate_party: "Party X".to_string(),
             delegate_filter_party: "Party X".to_string(),
-            delegate_gender: "M".to_string(),
+            delegate_gender: Some("M".to_string()),
             activity_score: 10.0,
             raw_activity_score: 1.0,
             total_proposals: 1,
@@ -169,7 +169,7 @@ fn test_aggregate_by_party_sorts_by_raw_score() {
             delegate_name: "Delegate B".to_string(),
             delegate_party: "Party Y".to_string(),
             delegate_filter_party: "Party Y".to_string(),
-            delegate_gender: "F".to_string(),
+            delegate_gender: Some("F".to_string()),
             activity_score: 1.0,
             raw_activity_score: 10.0,
             total_proposals: 1,
@@ -202,7 +202,7 @@ async fn test_get_base_data_applies_filters_and_computes_activity_stats(pool: Pg
     let delegate = &results[0];
     assert_eq!(delegate.delegate_name, "Delegate A");
     assert_eq!(delegate.delegate_party, "Party X");
-    assert_eq!(delegate.delegate_gender, "M");
+    assert_eq!(delegate.delegate_gender, Some("M".to_string()));
     assert_eq!(delegate.total_proposals, 2);
     assert_eq!(delegate.session_count, 1);
     assert!((delegate.raw_activity_score - 2.25).abs() < 0.001);

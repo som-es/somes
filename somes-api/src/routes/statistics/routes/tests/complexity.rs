@@ -8,7 +8,7 @@ fn create_test_base_data() -> Vec<ComplexityBase> {
             delegate_name: "Delegate A".to_string(),
             delegate_party: "Party X".to_string(),
             delegate_filter_party: "Party X".to_string(),
-            delegate_gender: "M".to_string(),
+            delegate_gender: Some("M".to_string()),
             complexity_score: 1.2,
             total_proposals: 10,
             legislative_period: Some("XXV".to_string()),
@@ -18,7 +18,7 @@ fn create_test_base_data() -> Vec<ComplexityBase> {
             delegate_name: "Delegate B".to_string(),
             delegate_party: "Party X".to_string(),
             delegate_filter_party: "Party X".to_string(),
-            delegate_gender: "F".to_string(),
+            delegate_gender: Some("F".to_string()),
             complexity_score: 1.0,
             total_proposals: 5,
             legislative_period: Some("XXV".to_string()),
@@ -28,7 +28,7 @@ fn create_test_base_data() -> Vec<ComplexityBase> {
             delegate_name: "Delegate C".to_string(),
             delegate_party: "Party Y".to_string(),
             delegate_filter_party: "Party Y".to_string(),
-            delegate_gender: "M".to_string(),
+            delegate_gender: Some("M".to_string()),
             complexity_score: 1.3,
             total_proposals: 8,
             legislative_period: Some("XXV".to_string()),
@@ -38,7 +38,7 @@ fn create_test_base_data() -> Vec<ComplexityBase> {
             delegate_name: "Delegate D".to_string(),
             delegate_party: "Party Y".to_string(),
             delegate_filter_party: "Party Y".to_string(),
-            delegate_gender: "F".to_string(),
+            delegate_gender: Some("F".to_string()),
             complexity_score: 1.1,
             total_proposals: 12,
             legislative_period: Some("XXVII".to_string()),
@@ -152,7 +152,7 @@ async fn test_get_base_data_applies_filters_and_computes_complexity_stats(pool: 
     let delegate = &results[0];
     assert_eq!(delegate.delegate_name, "Delegate A");
     assert_eq!(delegate.delegate_party, "Party X");
-    assert_eq!(delegate.delegate_gender, "M");
+    assert_eq!(delegate.delegate_gender, Some("M".to_string()));
     assert!((delegate.complexity_score - 1.25).abs() < 0.001);
     assert_eq!(delegate.total_proposals, 2);
     assert_eq!(delegate.legislative_period, Some("XXV".to_string()));

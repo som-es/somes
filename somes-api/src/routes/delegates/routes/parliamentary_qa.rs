@@ -1,13 +1,12 @@
-use axum::{extract::Query, routing::get, Json, Router};
+use axum::{Json, Router, extract::Query, routing::get};
 use somes_common_lib::DelegateByIdAndPage;
 
 use crate::{
+    AppState, PgPoolConnection,
     routes::{
-        extract_parliamentary_answers, extract_parliamentary_questions, DelegateError,
-        ParliamentInquiryResponseWithMaxPage,
+        DelegateError, ParliamentInquiryResponseWithMaxPage, extract_parliamentary_answers,
+        extract_parliamentary_questions,
     },
-    server::AppState,
-    PgPoolConnection,
 };
 
 pub fn create_delegate_pqa_router() -> Router<AppState> {

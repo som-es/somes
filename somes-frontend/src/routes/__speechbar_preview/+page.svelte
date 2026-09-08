@@ -95,7 +95,10 @@
 						summarized_point: 'Die Legislative sollte gestärkt werden.',
 						unmodified_reference_point: 'unmodified'
 					},
-					{ summarized_point: 'Zweiter wichtiger Punkt der Rede.', unmodified_reference_point: 'u2' }
+					{
+						summarized_point: 'Zweiter wichtiger Punkt der Rede.',
+						unmodified_reference_point: 'u2'
+					}
 				]
 			},
 			model_used: 'gpt-test',

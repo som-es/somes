@@ -1,12 +1,12 @@
 use axum::Json;
-use chrono::{DateTime, NaiveDate, Utc};
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::prelude::FromRow;
 use utoipa::ToSchema;
 
 use crate::{
-    get_json_cache, routes::statistics::routes::error::StatisticsResponse, set_json_cache_secs,
-    PgPoolConnection, RedisConnection,
+    PgPoolConnection, RedisConnection, get_json_cache,
+    routes::statistics::routes::error::StatisticsResponse, set_json_cache_secs,
 };
 
 pub const CACHE_KEY: &str = "latest_session_activity_overview";

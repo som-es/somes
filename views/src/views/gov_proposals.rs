@@ -2,7 +2,10 @@ use combx::{DbAiSummary, DbMinistrialProposalQueryMeta};
 use somes_common_lib::ToCompositeType;
 use sqlx::{Postgres, Transaction};
 
-pub async fn create_gov_proposals_view<'a>(tx: &mut Transaction<'a, Postgres>) -> sqlx::Result<()> {
+pub async fn create_gov_proposals_view<'a>(
+    tx: &mut Transaction<'a, Postgres>,
+    up: bool,
+) -> sqlx::Result<()> {
     sqlx::query!("DROP VIEW IF EXISTS gov_proposals;")
         .execute(&mut **tx)
         .await?;
@@ -19,8 +22,9 @@ pub async fn create_gov_proposals_view<'a>(tx: &mut Transaction<'a, Postgres>) -
         .collect::<Vec<_>>()
         .join(" ,");
 
-    sqlx::query(&format!(
-        "
+    if up {
+        sqlx::query(&format!(
+            "
     CREATE VIEW gov_proposals AS
     SELECT
         mp.id,
@@ -107,8 +111,9 @@ pub async fn create_gov_proposals_view<'a>(tx: &mut Transaction<'a, Postgres>) -
 
         from ministrial_proposals mp
         "
-    ))
-    .execute(&mut **tx)
-    .await?;
+        ))
+        .execute(&mut **tx)
+        .await?;
+    }
     Ok(())
 }

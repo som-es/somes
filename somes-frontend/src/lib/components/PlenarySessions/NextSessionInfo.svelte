@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PlenarCalendar from './PlenarCalendar.svelte';
+	import { t } from '$lib/i18n/i18n.svelte';
 	import { dashDateToDotDate } from '$lib/date';
 	import { Popover } from 'bits-ui';
 	import calendarIcon from '$lib/assets/icons/calendar.svg?raw';
@@ -34,19 +35,19 @@
 		</div>
 
 		<div class="items-center gap-2">
-			<div class="text-xl font-bold">Nächste Nationalratssitzung</div>
+			<div class="text-xl font-bold">{t('plenary.nextSession.title')}</div>
 			<span class="text-base text-gray-800 dark:text-gray-200"
 				>am
 				{#if nextPlenarySessionDateStr}
 					{dashDateToDotDate(nextPlenarySessionDateStr.toString().split('T')[0])}
 					<span>
 						{#if hours}
-							(in {hours} Stunden)
+							(in {hours} {t('plenary.nextSession.hours')})
 						{:else if days}
 							(in {#if days == 1}
-								1 Tag)
+								1 {t('plenary.nextSession.day')})
 							{:else}
-								{Math.round(days)} Tagen)
+								{Math.round(days)} {t('plenary.nextSession.days')})
 							{/if}
 						{/if}
 					</span>
@@ -61,7 +62,7 @@
 			shadow-mini hover:bg-dark/95 inline-flex h-10 items-center justify-center text-[15px] font-medium whitespace-nowrap transition-all select-none hover:cursor-pointer active:scale-[0.98] sm:px-[21px]"
 		>
 			<span class="preset-filled mt-1 btn bg-primary-500 text-white dark:bg-surface-500">
-				Sitzungskalender
+				{t('plenary.nextSession.calendar')}
 			</span>
 		</Popover.Trigger>
 		<Popover.Portal>
