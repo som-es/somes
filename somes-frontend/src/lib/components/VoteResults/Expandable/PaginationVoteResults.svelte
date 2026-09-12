@@ -452,7 +452,7 @@
 	});
 
 	const update = () => {
-		if (currentPage ?? 1 > (voteResults?.max_page ?? 1)) {
+		if ((currentPage ?? 1) > (voteResults?.max_page ?? 1)) {
 			currentPage = 1;
 		}
 		loadVoteResults();
@@ -470,6 +470,7 @@
 		void legisPeriodFilter.activeValue;
 		void genericFilters[5].data?.dateFrom;
 		void genericFilters[5].data?.dateTo;
+
 		untrack(update);
 	});
 
@@ -490,7 +491,7 @@
 		genericFilters[6].activeValue = selectedIssuerParties.length > 0 ? 'set' : undefined;
 	});
 
-	let searchValue = $state('');
+	let searchValue = $state(page.url.searchParams.get('search') ?? '');
 	let sortOrder: 'relevance' | 'Desc' | 'Asc' = $state('relevance');
 </script>
 

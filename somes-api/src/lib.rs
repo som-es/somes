@@ -63,6 +63,12 @@ pub static PUBLIC_KEY_PATH: Lazy<String> = Lazy::new(|| env_var("PUBLIC_KEY_PATH
 pub static HTTP_PORT: Lazy<String> = Lazy::new(|| env_var("HTTP_PORT"));
 pub static HTTPS_PORT: Lazy<String> = Lazy::new(|| env_var("HTTPS_PORT"));
 
+pub static EXPO_PUSH_URL: Lazy<String> = Lazy::new(|| env_var("EXPO_PUSH_URL"));
+pub static EXPO_PUSH_ACCESS_TOKEN: Lazy<Option<String>> = Lazy::new(|| {
+    std::env::var("EXPO_PUSH_ACCESS_TOKEN")
+        .ok()
+        .filter(|token| !token.trim().is_empty())
+});
 pub static IS_PROD: Lazy<bool> = Lazy::new(|| is_prod());
 pub static RESET_CACHE: Lazy<bool> = Lazy::new(|| reset_cache());
 

@@ -143,15 +143,16 @@
 		{#if snippets['mood']}
 			{@render snippets['mood']()}
 		{/if}
-		{#if ministerialData.documents.length > 0 && snippets['voteable'] == null}
+
+		{#if snippets['voteable']}
+			{@render snippets['voteable']()}
+		{/if}
+		{#if ministerialData.documents.length > 0}
 			<div class="flex min-w-full flex-wrap gap-2">
 				<div class="min-w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 					<Documents documents={ministerialData.documents} />
 				</div>
 			</div>
-		{/if}
-		{#if snippets['voteable']}
-			{@render snippets['voteable']()}
 		{/if}
 	</div>
 

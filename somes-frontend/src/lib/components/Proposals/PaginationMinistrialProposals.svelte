@@ -57,7 +57,7 @@
 		options: [{ title: t('filterOption.all'), value: 'all' }]
 	});
 
-	let searchValue = $state('');
+	let searchValue = $state(page.url.searchParams.get("search") ?? "");
 	let sortOrder: 'relevance' | 'Desc' | 'Asc' = $state('relevance');
 
 	let updatedAt = $derived.by(() => {
@@ -153,9 +153,6 @@
 	};
 
 	const update = () => {
-		if (currentPage ?? 1 > (govProposals?.max_page ?? 1)) {
-			currentPage = 1;
-		}
 		loadGovProps();
 	};
 
@@ -168,6 +165,10 @@
 		void legisPeriodFilter.activeValue;
 		void genericFilters[1].data?.dateFrom;
 		void genericFilters[1].data?.dateTo;
+
+		if ((currentPage ?? 1) > (govProposals?.max_page ?? 1)) {
+			currentPage = 1;
+		}
 		untrack(update);
 	});
 

@@ -39,11 +39,11 @@
 
 	const PROVIDERS: Record<string, { label: string; src: string; scale: string }> = {
 		derstandard: { label: 'Der Standard', src: derstandardIcon, scale: 'scale-[1.15]' },
-		diepresse: { label: 'Die Presse', src: diepresseIcon, scale: 'scale-[0.9]' },
-		heute: { label: 'heute.at', src: heuteIcon, scale: 'scale-[1.1]' },
-		kurier: { label: 'Kurier', src: kurierIcon, scale: 'scale-[0.9]' },
-		oe24: { label: 'oe24.at', src: oe24Icon, scale: 'scale-[0.9]' },
-		profil: { label: 'profil', src: profilIcon, scale: 'scale-[1.45]' }
+		diepresse: { label: 'Die Presse', src: diepresseIcon, scale: 'scale-[1]' },
+		heute: { label: 'heute.at', src: heuteIcon, scale: 'scale-[1]' },
+		kurier: { label: 'Kurier', src: kurierIcon, scale: 'scale-[1]' },
+		oe24: { label: 'oe24.at', src: oe24Icon, scale: 'scale-[1]' },
+		profil: { label: 'profil', src: profilIcon, scale: 'scale-[1]' }
 	};
 
 	let showAll = $state(false);
@@ -66,17 +66,14 @@
 
 	let groups = $derived.by(() => {
 		const map = new Map<string, ProviderGroup>();
-		const filteredArticles = articleLinks.filter((article) => {
-			return article.score > 0.67;
-		});
-		for (const link of filteredArticles ?? []) {
+		for (const link of articleLinks ?? []) {
 			const info = resolveProvider(link.provider);
 			const group = map.get(info.key) ?? { ...info, articles: [] };
 			if (!group.articles.some((a) => a.url === link.url)) group.articles.push(link);
 			map.set(info.key, group);
 		}
 		for (const group of map.values())
-			group.articles.sort((a, b) => b.lastmod.localeCompare(a.lastmod));
+			group.articles.sort((a, b) => b.score - a.score);
 		return [...map.values()].sort(
 			(a, b) =>
 				b.articles.length - a.articles.length ||
@@ -109,7 +106,7 @@
 				>
 					{#if group.src && !broken.has(group.key)}
 						<span
-							class="flex h-6 w-6 items-center justify-center overflow-hidden rounded-full bg-white ring-2 ring-primary-300 dark:ring-primary-500"
+							class="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-white ring-2 ring-primary-300 dark:ring-primary-500"
 						>
 							<img
 								src={group.src}
@@ -120,7 +117,7 @@
 						</span>
 					{:else}
 						<span
-							class="flex h-6 w-6 items-center justify-center rounded-full bg-primary-600 text-[10px] font-semibold text-white uppercase ring-2 ring-primary-300 dark:ring-primary-500"
+							class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-[10px] font-semibold text-white uppercase ring-2 ring-primary-300 dark:ring-primary-500"
 						>
 							{group.label.charAt(0)}
 						</span>
@@ -166,7 +163,7 @@
 		{#if restCount > 0}
 			<button
 				title={t('media.showAllArticles', { count: groups.length })}
-				class="-ml-2 flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full bg-primary-600 px-1 text-[10px] font-semibold text-white ring-2 ring-primary-300 transition-transform hover:z-10 hover:scale-110 dark:ring-primary-500"
+				class="-ml-2 flex h-8 min-w-8 shrink-0 items-center justify-center rounded-full bg-primary-600 px-1 text-[14px] font-semibold text-white ring-2 ring-primary-300 transition-transform hover:z-10 hover:scale-110 dark:ring-primary-500"
 				onclick={() => (showAll = true)}
 			>
 				+{restCount}

@@ -170,8 +170,6 @@
 	});
 	let documents = $derived(voteResult?.documents ?? []);
 
-	let articleLinks = $derived(voteResult?.article_links ?? []);
-
 	const infavorOptions = $derived.by(() => {
 		const val = [
 			{ value: 'Infavor', label: t('vote_result.inFavor') },
@@ -211,6 +209,12 @@
 		voteResult?.ai_summary !== null
 			? voteResult?.ai_summary?.very_detailed_summary
 			: voteResult.legislative_initiative.description
+	);
+
+	const articleLinks = $derived(
+		(voteResult?.article_links ?? []).filter((article) => {
+			return article.score > 2.0;
+		})
 	);
 </script>
 
