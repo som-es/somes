@@ -213,7 +213,7 @@
 
 	const articleLinks = $derived(
 		(voteResult?.article_links ?? []).filter((article) => {
-			return article.score > 2.0;
+			return article.score > 0.25;
 		})
 	);
 </script>
