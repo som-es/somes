@@ -174,7 +174,7 @@ fn parliament_router() -> Router<AppState> {
         .route("/save_email", post(save_email_route))
         .nest("/v1/statistics", create_statistics_router())
         .nest("/v1/delegates", create_delegates_router())
-        .nest("/v1/delegate_questions", create_delegate_questions_router())
+        // .nest("/v1/delegate_questions", create_delegate_questions_router())
         .nest("/v1/gov_proposals", create_gov_proposals_router())
         .nest("/v1/decrees", create_decrees_router())
         .nest("/v1/user", create_user_router())

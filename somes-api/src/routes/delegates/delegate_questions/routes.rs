@@ -4,6 +4,7 @@ use axum::{
     Json,
     extract::{Path, Query},
 };
+use combx::Parliament;
 use delegate_question_mail::new_question_message_id;
 use reqwest::StatusCode;
 pub(super) use search::*;
@@ -33,11 +34,18 @@ const MAX_BODY_LENGTH: usize = 10_000;
 
 pub async fn ask_delegate_question_route(
     PgPoolConnection(pg): PgPoolConnection,
+    ParliamentCtx(parliament): ParliamentCtx,
     claims: Claims,
     Query(query): Query<DelegateQuestionQuery>,
     Path(delegate_id): Path<i32>,
     Json(question): Json<CreateDelegateQuestion>,
 ) -> Result<Json<DelegateQuestionCreated>, GenericError> {
+    if parliament == Parliament::Eu {
+        return Err(GenericError::Custom((
+            StatusCode::SERVICE_UNAVAILABLE,
+            "Currently not available".into(),
+        )));
+    }
     let subject = question.subject.trim().to_owned();
     let body = question.body.trim().to_owned();
     validate_question(&subject, &body)?;

@@ -41,6 +41,7 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
+	<script defer src="https://analytics.somes.at/script.js" data-website-id="475682d4-eb06-42ff-932a-a9c14297fa0f"></script>
 </svelte:head>
 
 <div class="grid h-screen grid-rows-[auto_1fr_auto]">

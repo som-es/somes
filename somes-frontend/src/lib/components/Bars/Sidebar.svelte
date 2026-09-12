@@ -263,17 +263,19 @@
 				{@html statisticsIcon}
 			</span>
 		</a>
-		<a
-			href={plink('/questions')}
-			title={t('nav.questions')}
-			class="{activeUrl?.includes('/questions')
-				? 'bg-tertiary-500! fill-black'
-				: ' fill-white'} flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60 hover:fill-black"
-		>
-			<span class="w-5">
-				{@html questionsIcon}
-			</span>
-		</a>
+		<!-- {#if parliament == "at"}
+    		<a
+    			href={plink('/questions')}
+    			title={t('nav.questions')}
+    			class="{activeUrl?.includes('/questions')
+    				? 'bg-tertiary-500! fill-black'
+    				: ' fill-white'} flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60 hover:fill-black"
+    		>
+    			<span class="w-5">
+    				{@html questionsIcon}
+    			</span>
+    		</a>
+		{/if} -->
 
 		<div class="mt-auto mb-4 flex flex-col gap-3">
 			<button
