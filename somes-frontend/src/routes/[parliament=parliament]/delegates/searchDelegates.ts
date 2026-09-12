@@ -32,6 +32,8 @@ export function getNrMandateSkippingDateRange(mandates: FullMandate[]) {
 			if (!lastDate || endDate > lastDate) {
 				lastDate = endDate;
 			}
+    } else {
+      return {firstDate, lastDate: null }
 		}
 	});
 
