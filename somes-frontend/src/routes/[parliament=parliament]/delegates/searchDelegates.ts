@@ -17,6 +17,8 @@ export function getNrMandateSkippingDateRange(mandates: FullMandate[]) {
 	let firstDate: Date | null = null;
 	let lastDate: Date | null = null;
 
+  let hasNrOrGovNotEnded: boolean = false;
+
 	mandates?.forEach((mandate) => {
 		if (!mandate.is_nr && !mandate.is_gov_official) {
 			return;
@@ -33,10 +35,11 @@ export function getNrMandateSkippingDateRange(mandates: FullMandate[]) {
 				lastDate = endDate;
 			}
     } else {
-      return {firstDate, lastDate: null }
+      hasNrOrGovNotEnded = true;
 		}
 	});
 
+  if (hasNrOrGovNotEnded) return { firstDate, lastDate: null };
 	return { firstDate, lastDate };
 }
 
@@ -49,7 +52,8 @@ export function getMandateLatestPeriod(delegate: Delegate, periods: LegisPeriod[
 		return { date: fallbackDate, gp: fallbackGp };
 	}
 
-	const { lastDate } = getNrMandateSkippingDateRange(delegate.mandates);
+	const { startDate, lastDate } = getNrMandateSkippingDateRange(delegate.mandates);
+  console.log("date", lastDate);
 
 	if (lastDate) {
 		const foundGp = findPeriodForDate(lastDate, periods);
