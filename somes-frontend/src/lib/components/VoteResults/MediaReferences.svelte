@@ -72,8 +72,7 @@
 			if (!group.articles.some((a) => a.url === link.url)) group.articles.push(link);
 			map.set(info.key, group);
 		}
-		for (const group of map.values())
-			group.articles.sort((a, b) => b.score - a.score);
+		for (const group of map.values()) group.articles.sort((a, b) => b.score - a.score);
 		return [...map.values()].sort(
 			(a, b) =>
 				b.articles.length - a.articles.length ||

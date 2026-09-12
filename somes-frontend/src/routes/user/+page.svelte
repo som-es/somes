@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
 	import { plink, type Parliament } from '$lib/api/parliament';
 	import {
 		delegate_by_id,
