@@ -52,8 +52,7 @@ export function getMandateLatestPeriod(delegate: Delegate, periods: LegisPeriod[
 		return { date: fallbackDate, gp: fallbackGp };
 	}
 
-	const { startDate, lastDate } = getNrMandateSkippingDateRange(delegate.mandates);
-  console.log("date", lastDate);
+	const { lastDate } = getNrMandateSkippingDateRange(delegate.mandates);
 
 	if (lastDate) {
 		const foundGp = findPeriodForDate(lastDate, periods);
