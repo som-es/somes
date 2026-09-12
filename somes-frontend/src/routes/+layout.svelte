@@ -15,6 +15,7 @@
 	import CacheInvalidation from '$lib/components/CacheInvalidation/CacheInvalidation.svelte';
 	import { browser } from '$app/environment';
 	import { t } from '$lib/i18n/i18n.svelte';
+	import { dev } from '$app/environment';
 
 	let { children } = $props();
 
@@ -30,7 +31,6 @@
 	});
 
 	$effect(() => syncTheme());
-	const devMode = import.meta.env.VITE_DEV_MODE;
 </script>
 
 <RenewToken />
@@ -43,7 +43,7 @@
 <svelte:head>
 	<link rel="icon" href={favicon} />
 
-	{#if !devMode}
+	{#if !dev}
 		<script
 			defer
 			src="https://analytics.somes.at/script.js"
