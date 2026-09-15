@@ -16,8 +16,13 @@
 	import { browser } from '$app/environment';
 	import { t } from '$lib/i18n/i18n.svelte';
 	import { dev } from '$app/environment';
+	import JsonLd from '$lib/components/SEO/JsonLd.svelte';
+	import { siteSchemaNodes } from '$lib/seo/schema';
 
 	let { children } = $props();
+
+	/** Static Organization + WebSite nodes, identical on every page. */
+	const schemaNodes = siteSchemaNodes();
 
 	type DisclaimerKey =
 		'layout.disclaimer.publicData' | 'layout.disclaimer.ris' | 'layout.disclaimer.eu';
@@ -39,6 +44,9 @@
 {#if browser}
 	<CacheInvalidation />
 {/if}
+
+<!-- Organization + WebSite schema for Google (knowledge panel, sitelinks). -->
+<JsonLd nodes={schemaNodes} />
 
 <svelte:head>
 	<link rel="icon" href={favicon} />

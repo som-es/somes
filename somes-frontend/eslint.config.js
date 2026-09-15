@@ -27,6 +27,13 @@ export default defineConfig(
 		}
 	},
 	{
+		// The JSON-LD tag can only be injected with `{@html}` (a literal <script> in
+		// <svelte:head> is raw text); its payload is JSON.stringify with `<`/`>`
+		// escaped, so nothing can break out of the script tag.
+		files: ['src/lib/components/SEO/JsonLd.svelte'],
+		rules: { 'svelte/no-at-html-tags': 'off' }
+	},
+	{
 		files: ['**/*.svelte', '**/*.svelte.ts', '**/*.svelte.js'],
 
 		languageOptions: {

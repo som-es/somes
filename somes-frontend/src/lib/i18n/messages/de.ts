@@ -66,7 +66,7 @@ export const de = {
 		'Diese Rohdaten werden vom <a class="text-secondary-500" href="https://data.europa.eu/data/datasets?query=European+Parliament" target="_blank">Open-Data Portal</a> der Europäischen Union (data.europa.eu) bereitgestellt und sind nach <a class="text-secondary-500" href="https://opendatacommons.org/licenses/by/1-0/" target="_blank">ODC-BY 1.0</a> lizenziert.',
 
 	// --- Landing page (/) ---
-	'landing.meta.description': 'Verlinkung zur Plattform und Informationen über den Verein',
+	'landing.meta.description': 'Somes ist eine Transparenzplattform. Wir stellen Abstimmungen, Reden, Ministerialentwürfe, Verordnungen und vieles mehr mit KI-Aufbereitung zur Verfügung.',
 	'landing.platform': 'Plattform',
 	'landing.events': 'Events',
 	'landing.team': 'Team',

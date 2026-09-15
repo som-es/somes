@@ -182,6 +182,7 @@ fn parliament_router() -> Router<AppState> {
         .nest("/v1/events", create_events_router())
         .nest("/v1/speeches", create_speeches_router())
         .nest("/v1/volksbg", create_volksbg_router())
+        .nest("/v1/sitemap", create_sitemap_router())
 }
 
 fn api_router() -> Router<AppState> {

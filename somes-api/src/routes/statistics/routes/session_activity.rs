@@ -304,6 +304,5 @@ pub async fn latest_session_activity_overview(
         .await
         .map_err(|e| StatisticsResponse::DbSelectFailure(Some(e)))?;
 
-    set_json_cache_secs(&mut redis, CACHE_KEY, &result, 30 * 60).await;
     Ok(Json(result))
 }
