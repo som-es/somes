@@ -5,8 +5,7 @@ import {
 	latest_decrees,
 	latest_ministrial_proposals,
 	latest_session_activity_overview,
-	latest_vote_results,
-	toActualDateString
+	latest_vote_results
 } from '$lib/api/api';
 import { fetchDelegates } from '$lib/api/fetch_delegates';
 import { cachedAllSeats } from '$lib/caching/seats';
@@ -105,6 +104,7 @@ export const load: PageServerLoad = async ({ fetch, setHeaders, params }) => {
 
 		return { decree: latestDecree, delegate };
 	});
+
 	const latestDelegateDecrees: DecreeDelegate[] = (await Promise.all(res ?? [])).filter(
 		hasDelegate
 	);
@@ -118,7 +118,9 @@ export const load: PageServerLoad = async ({ fetch, setHeaders, params }) => {
 
 	const data = {
 		nextPlenarDate,
-		latestVotes,
+		latestVotes: isHasError(latestVotes)
+			? latestVotes
+			: latestVotes.map((vote) => ({ ...vote, speeches: [] })),
 		latestMinisterialProposals,
 		latestDecrees,
 		latestDelegateDecrees,
