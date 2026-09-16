@@ -1,6 +1,7 @@
 import { PARLIAMENTS, type Parliament } from '$lib/api/parliament';
 import type { SitemapKind, SitemapRoute } from '$lib/api/sitemap';
-import { SITE_URL } from './schema';
+
+export const SITE_URL = 'https://somes.at';
 
 export interface SitemapUrl {
 	loc: string;

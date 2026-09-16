@@ -16,9 +16,6 @@
 	import { formatDate } from '$lib/date';
 	import { t } from '$lib/i18n/i18n.svelte';
 	import LanguageSwitcher from '$lib/components/UI/LanguageSwitcher.svelte';
-	import JsonLd from '$lib/components/SEO/JsonLd.svelte';
-	import { eventNodes } from '$lib/seo/schema';
-
 	let { data }: PageProps = $props();
 
 	interface Member {
@@ -116,11 +113,6 @@
 
 	let dialogOpen = $state(false);
 
-	// schema.org `Event` nodes for Google's event rich results. Only upcoming
-	// events are marked up (Google ignores/skips started ones), and events an
-	// admin deleted client-side (`hidden`) must not be advertised either.
-	let eventSchema = $derived(eventNodes(eventsData.filter((e) => !e.hidden).map((e) => e.event)));
-
 	// --- EFFECTS & FUNCTIONS ---
 
 	function startTicker() {
@@ -160,9 +152,6 @@
 	<title>Somes – Demokratie und Beteiligung</title>
 	<meta name="description" content={t('landing.meta.description')} />
 </svelte:head>
-
-<!-- Upcoming events (Podiumsdiskussionen etc.) as schema.org Events. -->
-<JsonLd nodes={eventSchema} />
 
 <div
 	class="text-base-font-color font-base dark:bg-surface-950 min-h-screen pb-20 dark:text-surface-50"
