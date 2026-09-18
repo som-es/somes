@@ -175,9 +175,7 @@ pub async fn delegate_question_by_id_route(
 }
 
 pub async fn update_delegate_question_route(
-    MeilisearchClient(meilisearch_client): MeilisearchClient,
     PgPoolConnection(pg): PgPoolConnection,
-    ParliamentCtx(parliament): ParliamentCtx,
     claims: Claims,
     Query(query): Query<DelegateQuestionQuery>,
     Path(question_id): Path<i64>,

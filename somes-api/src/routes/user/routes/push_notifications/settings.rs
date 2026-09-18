@@ -88,6 +88,15 @@ pub async fn load_notification_settings(
     }))
 }
 
+#[utoipa::path(
+    get,
+    path = "/settings",
+    tag = "user",
+    params(PlatformQuery),
+    responses(
+        (status = 200, description = "Get notification settings", body = NotificationSettings),
+    )
+)]
 pub async fn get_notification_settings_route(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
@@ -99,6 +108,15 @@ pub async fn get_notification_settings_route(
         .map(Json)
 }
 
+#[utoipa::path(
+    put,
+    path = "/settings",
+    tag = "user",
+    request_body(content = NotificationSettings, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Update notification settings"),
+    )
+)]
 pub async fn update_notification_settings_route(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,

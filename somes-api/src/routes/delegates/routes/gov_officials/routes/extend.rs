@@ -19,6 +19,15 @@ pub struct GeneralGovOfficialInfo {
     pub decrees: Vec<OptionalDecree>,
 }
 
+#[utoipa::path(
+    get,
+    path = "/extend/{id}",
+    tag = "delegates",
+    params(("id" = i32, Path, description = "Gov official delegate id")),
+    responses(
+        (status = 200, description = "General gov official info", body = GeneralGovOfficialInfo),
+    )
+)]
 pub async fn general_gov_official_info_route(
     PgPoolConnection(pg): PgPoolConnection,
     RedisConnection(redis_con): RedisConnection,

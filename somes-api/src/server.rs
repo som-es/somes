@@ -11,7 +11,7 @@ use axum::response::IntoResponse;
 use axum::{
     Extension, Router,
     http::{self, HeaderValue},
-    routing::{any, get, post},
+    routing::{any, get},
 };
 use axum_server::tls_rustls::RustlsConfig;
 use combx::Parliament;
@@ -26,7 +26,12 @@ use tower_http::{
     compression::CompressionLayer, cors::AllowOrigin, cors::CorsLayer,
     decompression::RequestDecompressionLayer, services::ServeDir,
 };
+use utoipa::OpenApi;
+use utoipa_axum::{router::OpenApiRouter, routes};
+use utoipa_swagger_ui::SwaggerUi;
 use views::{create_composite_types, create_views};
+
+use crate::openapi::ApiDoc;
 
 type ServerResult<T> = Result<T, Box<dyn Error + Send + Sync>>;
 
@@ -148,30 +153,24 @@ fn spawn_search_refresh(app_state: AppState) {
     });
 }
 
-/// Builds the full set of per-parliament data routes. Mounted once per
-/// parliament (see [`api_router`]) with a [`Parliament`] extension layer so the
-/// same handlers serve both `/api/at/...` and `/api/eu/...`.
-fn parliament_router() -> Router<AppState> {
-    Router::new()
-        .route(PARTIES, get(parties_route))
-        .route(PARTIES_AT_GP, get(parties_at_gp_route))
-        .route(PARTIES_PER_GP, get(parties_per_gp_route))
-        .route(
-            COALITION_PARTIES_PER_GP,
-            get(coalition_parties_per_gp_route),
-        )
-        .route(DEPARTMENTS, get(departments))
-        .route(DEPARTMENTS_PER_GP, get(departments_per_gp))
-        .route(ALL_GPS, get(all_gps_route))
-        .route(SEATS, get(seats_route))
-        .route(TOPICS, get(topics_route))
-        .route(EUROVOC_TOPICS, get(eurovoc_topics_route))
+fn parliament_router() -> OpenApiRouter<AppState> {
+    OpenApiRouter::new()
+        .routes(routes!(parties_route))
+        .routes(routes!(parties_at_gp_route))
+        .routes(routes!(parties_per_gp_route))
+        .routes(routes!(coalition_parties_per_gp_route))
+        .routes(routes!(departments))
+        .routes(routes!(departments_per_gp))
+        .routes(routes!(all_gps_route))
+        .routes(routes!(seats_route))
+        .routes(routes!(topics_route))
+        .routes(routes!(eurovoc_topics_route))
         .route(AI_CHAT_WS, any(ai_chat_ws_handler_route))
-        .route(NEXT_PLENAR_DATE, get(next_plenar_date_route))
-        .route(PLENAR_DATES, get(plenar_dates_route))
-        .route(PLENARY_SESSIONS_PER_GP, get(plenary_sessions_per_gp_route))
-        .route("/orientation_questions", get(orientation_questions_route))
-        .route("/save_email", post(save_email_route))
+        .routes(routes!(next_plenar_date_route))
+        .routes(routes!(plenar_dates_route))
+        .routes(routes!(plenary_sessions_per_gp_route))
+        .routes(routes!(orientation_questions_route))
+        .routes(routes!(save_email_route))
         .nest("/v1/statistics", create_statistics_router())
         .nest("/v1/delegates", create_delegates_router())
         // .nest("/v1/delegate_questions", create_delegate_questions_router())
@@ -185,13 +184,13 @@ fn parliament_router() -> Router<AppState> {
         .nest("/v1/sitemap", create_sitemap_router())
 }
 
-fn api_router() -> Router<AppState> {
-    Router::new()
+fn api_router() -> OpenApiRouter<AppState> {
+    OpenApiRouter::new()
         .route("/oauth/{provider}", get(start_oauth))
         .route("/oauth/{provider}/callback", get(oauth_callback))
-        .route(WALO_QUESTIONS, get(walo_questions_route))
-        .route(QUIZZES, get(get_all_quizzes_route))
-        .route(ADD_QUIZ, post(add_quiz_route))
+        .routes(routes!(walo_questions_route))
+        .routes(routes!(get_all_quizzes_route))
+        .routes(routes!(add_quiz_route))
         .route(QUIZ_ROOM, any(join_quiz_room_route))
         .nest_service("/assets", ServeDir::new("assets"))
         .nest("/at", parliament_router().layer(Extension(Parliament::At)))
@@ -202,9 +201,23 @@ async fn handler_404() -> impl IntoResponse {
     (StatusCode::NOT_FOUND, "route not found")
 }
 
-fn app_router(state: AppState) -> Router {
-    Router::new()
+fn api_routes() -> (Router<AppState>, utoipa::openapi::OpenApi) {
+    let (router, mut openapi) = OpenApiRouter::with_openapi(ApiDoc::openapi())
         .nest("/api", api_router())
+        .split_for_parts();
+    crate::openapi::disambiguate(&mut openapi);
+    (router, openapi)
+}
+
+pub fn openapi_document() -> utoipa::openapi::OpenApi {
+    api_routes().1
+}
+
+fn app_router(state: AppState) -> Router {
+    let (router, openapi) = api_routes();
+
+    router
+        .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", openapi))
         .fallback(handler_404)
         .layer(
             CorsLayer::new()

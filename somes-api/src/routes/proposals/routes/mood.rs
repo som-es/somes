@@ -1,18 +1,19 @@
 use std::sync::Arc;
 
-use axum::{
-    Json, Router,
-    extract::Path,
-    routing::{get, post},
-};
+use axum::{Json, extract::Path};
 use combx::api_models::{DbUserMood, MoodBarometer};
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use tower_governor::{GovernorLayer, governor::GovernorConfigBuilder};
+use utoipa::ToSchema;
+use utoipa_axum::{
+    router::{OpenApiRouter, UtoipaMethodRouterExt},
+    routes,
+};
 
 use crate::{AppState, PgPoolConnection, jwt::Claims, routes::UserError};
 
-pub fn create_proposal_mood_router() -> Router<AppState> {
+pub fn create_proposal_mood_router() -> OpenApiRouter<AppState> {
     let governor_conf = Arc::new(
         GovernorConfigBuilder::default()
             .per_second(8)
@@ -20,15 +21,21 @@ pub fn create_proposal_mood_router() -> Router<AppState> {
             .finish()
             .unwrap(),
     );
-    Router::new()
-        .route(
-            "/",
-            post(add_mood_value_route).layer(GovernorLayer::new(governor_conf)),
-        )
-        .route("/", get(mood_values_for_gov_prop_route))
-        .route("/user", get(user_mood_for_gov_prop_route))
+    OpenApiRouter::new()
+        .routes(routes!(add_mood_value_route).layer(GovernorLayer::new(governor_conf)))
+        .routes(routes!(mood_values_for_gov_prop_route))
+        .routes(routes!(user_mood_for_gov_prop_route))
 }
 
+#[utoipa::path(
+    get,
+    path = "/user",
+    tag = "gov_proposals",
+    params(("gp" = String, Path, description = "Legislative period"), ("inr" = i32, Path, description = "Proposal number")),
+    responses(
+        (status = 200, description = "User mood for gov prop", body = Option<DbUserMood>),
+    )
+)]
 pub async fn user_mood_for_gov_prop_route(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
@@ -56,6 +63,15 @@ pub async fn user_mood_for_gov_prop_route(
     Ok(Json(user_mood))
 }
 
+#[utoipa::path(
+    get,
+    path = "/",
+    tag = "gov_proposals",
+    params(("gp" = String, Path, description = "Legislative period"), ("inr" = i32, Path, description = "Proposal number")),
+    responses(
+        (status = 200, description = "Mood values for gov prop", body = Option<MoodBarometer>),
+    )
+)]
 pub async fn mood_values_for_gov_prop_route(
     PgPoolConnection(pg): PgPoolConnection,
     Path((gp, inr)): Path<(String, i32)>,
@@ -97,11 +113,21 @@ async fn extract_barometer_sqlx(
     Ok(barometer)
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[derive(ToSchema, Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct AddMoodValue {
     pub user_mood: f64,
 }
 
+#[utoipa::path(
+    post,
+    path = "/",
+    tag = "gov_proposals",
+    params(("gp" = String, Path, description = "Legislative period"), ("inr" = i32, Path, description = "Proposal number")),
+    request_body(content = AddMoodValue, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Add mood value", body = MoodBarometer),
+    )
+)]
 pub async fn add_mood_value_route(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,

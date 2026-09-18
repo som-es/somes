@@ -3,14 +3,23 @@ use chrono::{DateTime, Months, NaiveDateTime, NaiveTime, Utc};
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::Date;
+use utoipa::ToSchema;
 
 use crate::{GenericError, PgPoolConnection, today_and_time};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(ToSchema, Debug, Serialize, Deserialize)]
 pub struct PlenarDate {
     pub date_and_time: DateTime<Utc>,
 }
 
+#[utoipa::path(
+    get,
+    path = "/next_plenar_date",
+    tag = "plenar",
+    responses(
+        (status = 200, description = "Next plenar date", body = PlenarDate),
+    )
+)]
 pub async fn next_plenar_date_route(
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<PlenarDate>, GenericError> {
@@ -29,6 +38,15 @@ pub async fn next_plenar_date_route(
     .map(Json)
 }
 
+#[utoipa::path(
+    get,
+    path = "/plenar_dates",
+    tag = "plenar",
+    params(Date),
+    responses(
+        (status = 200, description = "Plenar dates", body = [PlenarDate]),
+    )
+)]
 pub async fn plenar_dates_route(
     Query(date): Query<Date>,
     PgPoolConnection(pg): PgPoolConnection,

@@ -23,6 +23,15 @@ use crate::{
     },
 };
 
+#[utoipa::path(
+    get,
+    path = "/extend/{id}",
+    tag = "delegates",
+    params(("id" = i32, Path, description = "Delegate id"), Language),
+    responses(
+        (status = 200, description = "Extended delegate info", body = GeneralDelegateInfo),
+    )
+)]
 pub async fn extended_delegate_info_route(
     PgPoolConnection(pg): PgPoolConnection,
     RedisConnection(mut redis_con): RedisConnection,

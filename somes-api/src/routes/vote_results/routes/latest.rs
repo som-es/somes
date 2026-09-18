@@ -9,15 +9,13 @@ use crate::{
 };
 
 #[utoipa::path(
-    post,
-    path = "/latest_vote_results",
+    get,
+    path = "/latest",
+    tag = "vote_results",
     responses(
-        (status = 200, description = "Returned latest vote results successfully.", body = [Vec<OptionalVoteResult>]),
-        // (status = 400, description = "Invalid request", body = [LegisInitErrorResponse]),
-        // (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
+        (status = 200, description = "Latest vote results", body = [Option<OptionalVoteResult>]),
     )
 )]
-
 pub async fn latest_vote_results_route(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,

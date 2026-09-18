@@ -1,12 +1,10 @@
-use axum::{
-    Json, Router,
-    routing::{delete, get, post},
-};
+use axum::Json;
 use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
 use rand::RngCore;
 use redis::AsyncTypedCommands;
 use sha3::{Digest, Sha3_256};
 use somes_common_lib::{HasMcpToken, JWTInfo as McpToken};
+use utoipa_axum::{router::OpenApiRouter, routes};
 
 use crate::{AppState, GenericError, McpRedisConnection, jwt::Claims};
 
@@ -62,13 +60,21 @@ async fn generate_mcp_token_pipeline(
     Ok(token)
 }
 
-pub fn create_user_mcp_router() -> Router<AppState> {
-    Router::new()
-        .route("/mcp", get(has_mcp_token_route))
-        .route("/mcp", delete(revoke_mcp_token_route))
-        .route("/mcp", post(create_mcp_token_route))
+pub fn create_user_mcp_router() -> OpenApiRouter<AppState> {
+    OpenApiRouter::new()
+        .routes(routes!(has_mcp_token_route))
+        .routes(routes!(revoke_mcp_token_route))
+        .routes(routes!(create_mcp_token_route))
 }
 
+#[utoipa::path(
+    get,
+    path = "/mcp",
+    tag = "user",
+    responses(
+        (status = 200, description = "Has mcp token", body = HasMcpToken),
+    )
+)]
 pub async fn has_mcp_token_route(
     claims: Claims,
     McpRedisConnection(mut redis_con): McpRedisConnection,
@@ -82,6 +88,14 @@ pub async fn has_mcp_token_route(
     }))
 }
 
+#[utoipa::path(
+    delete,
+    path = "/mcp",
+    tag = "user",
+    responses(
+        (status = 200, description = "Revoke mcp token"),
+    )
+)]
 pub async fn revoke_mcp_token_route(
     claims: Claims,
     McpRedisConnection(mut redis_con): McpRedisConnection,
@@ -90,6 +104,14 @@ pub async fn revoke_mcp_token_route(
     Ok(Json(()))
 }
 
+#[utoipa::path(
+    post,
+    path = "/mcp",
+    tag = "user",
+    responses(
+        (status = 200, description = "Create mcp token", body = McpToken),
+    )
+)]
 pub async fn create_mcp_token_route(
     claims: Claims,
     McpRedisConnection(mut redis_con): McpRedisConnection,

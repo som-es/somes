@@ -1,4 +1,5 @@
-use axum::{Router, routing::post};
+use axum::routing::post;
+use utoipa_axum::{router::OpenApiRouter, routes};
 
 mod routes;
 pub use routes::*;
@@ -6,133 +7,91 @@ pub use routes::*;
 use crate::AppState;
 use somes_common_lib::*;
 
-pub fn create_statistics_router() -> Router<AppState> {
-    Router::new()
+pub fn create_statistics_router() -> OpenApiRouter<AppState> {
+    OpenApiRouter::new()
         // Legislative Initiatives endpoints
-        .route(
-            LEGISLATIVE_INITIATIVES_WITHOUT_SIMPLE_MAJORITY,
-            post(legislative_initiatives_without_simple_majority),
-        )
+        .routes(routes!(legislative_initiatives_without_simple_majority))
         // Call to Orders endpoints
-        .route(
-            DELEGATES_BY_CALL_TO_ORDERS,
-            post(call_to_orders_per_delegate),
-        )
+        .routes(routes!(call_to_orders_per_delegate))
         .route(
             CALL_TO_ORDERS_BY_DELEGATE,
             post(call_to_orders_per_delegate),
         )
-        .route(CALL_TO_ORDERS_PER_PARTY, post(call_to_orders_per_party))
-        .route(CALL_TO_ORDERS_PER_GENDER, post(call_to_orders_per_gender))
-        .route(CALL_TO_ORDERS_PER_AGE, post(call_to_orders_per_age))
-        .route(CALL_TO_ORDERS_PER_LEGIS, post(call_to_orders_per_legis))
+        .routes(routes!(call_to_orders_per_party))
+        .routes(routes!(call_to_orders_per_gender))
+        .routes(routes!(call_to_orders_per_age))
+        .routes(routes!(call_to_orders_per_legis))
         // Absences endpoints
-        .route(ABSENCES_PER_DELEGATE, post(absences_per_delegate))
-        .route(ABSENCES_PER_PARTY, post(absences_per_party))
-        .route(ABSENCES_PER_GENDER, post(absences_per_gender))
-        .route(ABSENCES_PER_AGE, post(absences_per_age))
-        .route(ABSENCES_PER_LEGIS, post(absences_per_legis))
+        .routes(routes!(absences_per_delegate))
+        .routes(routes!(absences_per_party))
+        .routes(routes!(absences_per_gender))
+        .routes(routes!(absences_per_age))
+        .routes(routes!(absences_per_legis))
         // Activity endpoints
-        .route(ACTIVITY_PER_DELEGATE, post(activity_per_delegate))
-        .route(ACTIVITY_PER_PARTY, post(activity_per_party))
-        .route(ACTIVITY_PER_GENDER, post(activity_per_gender))
-        .route(ACTIVITY_PER_AGE, post(activity_per_age))
-        .route(ACTIVITY_PER_LEGIS, post(activity_per_legis))
+        .routes(routes!(activity_per_delegate))
+        .routes(routes!(activity_per_party))
+        .routes(routes!(activity_per_gender))
+        .routes(routes!(activity_per_age))
+        .routes(routes!(activity_per_legis))
         // Age endpoints
-        .route(AGE_OF_DELEGATES, post(age_of_delegates))
-        .route(AGE_PER_PARTY, post(age_per_party))
-        .route(AGE_PER_GENDER, post(age_per_gender))
-        .route(AGE_PER_LEGIS, post(age_per_legis))
-        .route("/age_per_age", post(age_per_age))
+        .routes(routes!(age_of_delegates))
+        .routes(routes!(age_per_party))
+        .routes(routes!(age_per_gender))
+        .routes(routes!(age_per_legis))
+        .routes(routes!(age_per_age))
         // Complexity endpoints
-        .route(COMPLEXITY_PER_DELEGATE, post(complexity_per_delegate))
-        .route(COMPLEXITY_PER_PARTY, post(complexity_per_party))
-        .route(COMPLEXITY_PER_GENDER, post(complexity_per_gender))
-        .route(COMPLEXITY_AT_AGE, post(complexity_at_age))
-        .route(COMPLEXITY_PER_LEGIS, post(complexity_per_legis))
+        .routes(routes!(complexity_per_delegate))
+        .routes(routes!(complexity_per_party))
+        .routes(routes!(complexity_per_gender))
+        .routes(routes!(complexity_at_age))
+        .routes(routes!(complexity_per_legis))
         // Division Accuracy Score endpoints
-        .route(
-            DIVISION_ACCURACY_SCORE_PER_DELEGATE,
-            post(division_accuracy_score_per_delegate),
-        )
-        .route(
-            DIVISION_ACCURACY_SCORE_PER_PARTY,
-            post(division_accuracy_score_per_party),
-        )
-        .route(
-            DIVISION_ACCURACY_SCORE_PER_GENDER,
-            post(division_accuracy_score_per_gender),
-        )
-        .route(
-            DIVISION_ACCURACY_SCORE_PER_AGE,
-            post(division_accuracy_score_per_age),
-        )
-        .route(
-            DIVISION_ACCURACY_SCORE_PER_LEGIS,
-            post(division_accuracy_score_per_legis),
-        )
+        .routes(routes!(division_accuracy_score_per_delegate))
+        .routes(routes!(division_accuracy_score_per_party))
+        .routes(routes!(division_accuracy_score_per_gender))
+        .routes(routes!(division_accuracy_score_per_age))
+        .routes(routes!(division_accuracy_score_per_legis))
         // Political Orientation - Is Left endpoints
-        .route(IS_LEFT_PER_DELEGATE, post(is_left_per_delegate))
-        .route(IS_LEFT_PER_PARTY, post(is_left_per_party))
-        .route(IS_LEFT_PER_GENDER, post(is_left_per_gender))
-        .route(IS_LEFT_PER_AGE, post(is_left_per_age))
-        .route(IS_LEFT_PER_LEGIS, post(is_left_per_legis))
+        .routes(routes!(is_left_per_delegate))
+        .routes(routes!(is_left_per_party))
+        .routes(routes!(is_left_per_gender))
+        .routes(routes!(is_left_per_age))
+        .routes(routes!(is_left_per_legis))
         // Political Orientation - Is Right endpoints
-        .route(IS_RIGHT_PER_DELEGATE, post(is_right_per_delegate))
-        .route(IS_RIGHT_PER_PARTY, post(is_right_per_party))
-        .route(IS_RIGHT_PER_GENDER, post(is_right_per_gender))
-        .route(IS_RIGHT_PER_AGE, post(is_right_per_age))
-        .route(IS_RIGHT_PER_LEGIS, post(is_right_per_legis))
+        .routes(routes!(is_right_per_delegate))
+        .routes(routes!(is_right_per_party))
+        .routes(routes!(is_right_per_gender))
+        .routes(routes!(is_right_per_age))
+        .routes(routes!(is_right_per_legis))
         // Political Orientation - Is Liberal endpoints
-        .route(IS_LIBERAL_PER_DELEGATE, post(is_liberal_per_delegate))
-        .route(IS_LIBERAL_PER_PARTY, post(is_liberal_per_party))
-        .route(IS_LIBERAL_PER_GENDER, post(is_liberal_per_gender))
-        .route(IS_LIBERAL_PER_AGE, post(is_liberal_per_age))
-        .route(IS_LIBERAL_PER_LEGIS, post(is_liberal_per_legis))
+        .routes(routes!(is_liberal_per_delegate))
+        .routes(routes!(is_liberal_per_party))
+        .routes(routes!(is_liberal_per_gender))
+        .routes(routes!(is_liberal_per_age))
+        .routes(routes!(is_liberal_per_legis))
         // Political Orientation - Is Authoritarian endpoints
-        .route(
-            IS_AUTHORITARIAN_PER_DELEGATE,
-            post(is_authoritarian_per_delegate),
-        )
-        .route(IS_AUTHORITARIAN_PER_PARTY, post(is_authoritarian_per_party))
-        .route(
-            IS_AUTHORITARIAN_PER_GENDER,
-            post(is_authoritarian_per_gender),
-        )
-        .route(IS_AUTHORITARIAN_PER_AGE, post(is_authoritarian_per_age))
-        .route(IS_AUTHORITARIAN_PER_LEGIS, post(is_authoritarian_per_legis))
+        .routes(routes!(is_authoritarian_per_delegate))
+        .routes(routes!(is_authoritarian_per_party))
+        .routes(routes!(is_authoritarian_per_gender))
+        .routes(routes!(is_authoritarian_per_age))
+        .routes(routes!(is_authoritarian_per_legis))
         // Political Orientation - Combined Spectrum endpoints
-        .route(
-            POLITICAL_SPECTRUM_PER_DELEGATE,
-            post(political_spectrum_per_delegate),
-        )
-        .route(
-            POLITICAL_SPECTRUM_PER_PARTY,
-            post(political_spectrum_per_party),
-        )
-        .route(
-            POLITICAL_SPECTRUM_PER_GENDER,
-            post(political_spectrum_per_gender),
-        )
-        .route(POLITICAL_SPECTRUM_PER_AGE, post(political_spectrum_per_age))
+        .routes(routes!(political_spectrum_per_delegate))
+        .routes(routes!(political_spectrum_per_party))
+        .routes(routes!(political_spectrum_per_gender))
+        .routes(routes!(political_spectrum_per_age))
         // Speeches - Speechtime endpoints
-        .route(SPEECHTIME_PER_DELEGATE, post(speechtime_per_delegate))
-        .route(SPEECHTIME_PER_PARTY, post(speechtime_per_party))
-        .route(SPEECHTIME_PER_GENDER, post(speechtime_per_gender))
-        .route(SPEECHTIME_PER_AGE, post(speechtime_per_age))
-        .route(SPEECHTIME_PER_LEGIS, post(speechtime_per_legis))
-        .route(
-            LATEST_SESSION_ACTIVITY_OVERVIEW,
-            post(latest_session_activity_overview),
-        )
+        .routes(routes!(speechtime_per_delegate))
+        .routes(routes!(speechtime_per_party))
+        .routes(routes!(speechtime_per_gender))
+        .routes(routes!(speechtime_per_age))
+        .routes(routes!(speechtime_per_legis))
+        .routes(routes!(latest_session_activity_overview))
         // Speeches - Total Speeches endpoints
-        .route(
-            TOTAL_SPEECHES_PER_DELEGATE,
-            post(total_speeches_per_delegate),
-        )
-        .route(TOTAL_SPEECHES_PER_PARTY, post(total_speeches_per_party))
-        .route(TOTAL_SPEECHES_PER_GENDER, post(total_speeches_per_gender))
-        .route(TOTAL_SPEECHES_PER_AGE, post(total_speeches_per_age))
-        .route(TOTAL_SPEECHES_PER_LEGIS, post(total_speeches_per_legis))
-        .route(VOTES_TOGETHER, post(votes_together))
+        .routes(routes!(total_speeches_per_delegate))
+        .routes(routes!(total_speeches_per_party))
+        .routes(routes!(total_speeches_per_gender))
+        .routes(routes!(total_speeches_per_age))
+        .routes(routes!(total_speeches_per_legis))
+        .routes(routes!(votes_together))
 }

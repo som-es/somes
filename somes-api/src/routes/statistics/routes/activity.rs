@@ -495,6 +495,15 @@ pub struct LegislativeInitiativeStats {
     total_initiatives: i64,
 }
 
+#[utoipa::path(
+    post,
+    path = "/legislative_initiatives_without_simple_majority",
+    tag = "statistics",
+    request_body(content = LegislativeInitiativeFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Legislative initiatives without simple majority", body = [LegislativeInitiativeStats]),
+    )
+)]
 pub async fn legislative_initiatives_without_simple_majority(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<LegislativeInitiativeFilter>>,
@@ -531,6 +540,15 @@ pub async fn legislative_initiatives_without_simple_majority(
 }
 
 // Legacy endpoint functions for backward compatibility
+#[utoipa::path(
+    post,
+    path = "/activity_per_delegate",
+    tag = "statistics",
+    request_body(content = ActivityFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Activity per delegate", body = [ActivityForDelegate]),
+    )
+)]
 pub async fn activity_per_delegate(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<ActivityFilter>>,
@@ -540,6 +558,15 @@ pub async fn activity_per_delegate(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/activity_per_party",
+    tag = "statistics",
+    request_body(content = ActivityFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Activity per party", body = [ActivityByCategory]),
+    )
+)]
 pub async fn activity_per_party(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<ActivityFilter>>,
@@ -549,6 +576,15 @@ pub async fn activity_per_party(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/activity_per_gender",
+    tag = "statistics",
+    request_body(content = ActivityFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Activity per gender", body = [ActivityByCategory]),
+    )
+)]
 pub async fn activity_per_gender(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<ActivityFilter>>,
@@ -558,6 +594,15 @@ pub async fn activity_per_gender(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/activity_per_legis",
+    tag = "statistics",
+    request_body(content = ActivityFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Activity per legis", body = [ActivityByCategory]),
+    )
+)]
 pub async fn activity_per_legis(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<ActivityFilter>>,
@@ -567,6 +612,15 @@ pub async fn activity_per_legis(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/activity_per_age",
+    tag = "statistics",
+    request_body(content = ActivityFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Activity per age", body = [ActivityByCategory]),
+    )
+)]
 pub async fn activity_per_age(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<ActivityFilter>>,

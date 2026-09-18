@@ -1,5 +1,6 @@
-use axum::{Json, Router, extract::Query, routing::get};
+use axum::{Json, extract::Query};
 use somes_common_lib::DelegateByIdAndPage;
+use utoipa_axum::{router::OpenApiRouter, routes};
 
 use crate::{
     AppState, PgPoolConnection,
@@ -9,12 +10,21 @@ use crate::{
     },
 };
 
-pub fn create_delegate_pqa_router() -> Router<AppState> {
-    Router::new()
-        .route("/answers", get(answers_by_delegate_per_page_route))
-        .route("/inquiries", get(inquiries_by_delegate_per_page_route))
+pub fn create_delegate_pqa_router() -> OpenApiRouter<AppState> {
+    OpenApiRouter::new()
+        .routes(routes!(answers_by_delegate_per_page_route))
+        .routes(routes!(inquiries_by_delegate_per_page_route))
 }
 
+#[utoipa::path(
+    get,
+    path = "/inquiries",
+    tag = "delegates",
+    params(DelegateByIdAndPage),
+    responses(
+        (status = 200, description = "Parliamentary inquiries of the delegate"),
+    )
+)]
 pub async fn inquiries_by_delegate_per_page_route(
     PgPoolConnection(pg): PgPoolConnection,
     Query(delegate_by_id_and_page): Query<DelegateByIdAndPage>,
@@ -32,6 +42,15 @@ pub async fn inquiries_by_delegate_per_page_route(
     )
 }
 
+#[utoipa::path(
+    get,
+    path = "/answers",
+    tag = "delegates",
+    params(DelegateByIdAndPage),
+    responses(
+        (status = 200, description = "Parliamentary answers of the delegate"),
+    )
+)]
 pub async fn answers_by_delegate_per_page_route(
     PgPoolConnection(pg): PgPoolConnection,
     Query(delegate_by_id_and_page): Query<DelegateByIdAndPage>,

@@ -8,6 +8,15 @@ use crate::{
     routes::{DelegateError, construct_gov_proposal},
 };
 
+#[utoipa::path(
+    get,
+    path = "/gov_proposals/{id}",
+    tag = "delegates",
+    params(("id" = i32, Path, description = "Gov official delegate id")),
+    responses(
+        (status = 200, description = "Gov proposals by official", body = [OptionalGovProposal]),
+    )
+)]
 pub async fn gov_proposals_by_official_route(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,

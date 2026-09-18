@@ -6,6 +6,15 @@ use crate::{GenericError, PgPoolConnection, jwt::Claims};
 
 use super::normalize_platform;
 
+#[utoipa::path(
+    post,
+    path = "/token",
+    tag = "user",
+    request_body(content = PushTokenRegistration, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Register push token"),
+    )
+)]
 pub async fn register_push_token_route(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
@@ -54,6 +63,15 @@ pub async fn register_push_token_route(
     Ok(Json(()))
 }
 
+#[utoipa::path(
+    delete,
+    path = "/token",
+    tag = "user",
+    request_body(content = PushTokenDeletion, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Remove push token"),
+    )
+)]
 pub async fn remove_push_token_route(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
@@ -80,6 +98,14 @@ pub async fn remove_push_token_route(
     Ok(Json(()))
 }
 
+#[utoipa::path(
+    get,
+    path = "/tokens",
+    tag = "user",
+    responses(
+        (status = 200, description = "User push tokens", body = [PushTokenInfo]),
+    )
+)]
 pub async fn user_push_tokens_route(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,

@@ -13,6 +13,14 @@ pub struct Department {
     pub gp: String,
 }
 
+#[utoipa::path(
+    get,
+    path = "/departments",
+    tag = "departments",
+    responses(
+        (status = 200, description = "Departments", body = [Department]),
+    )
+)]
 pub async fn departments(
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<Department>>, GenericError> {
@@ -26,6 +34,14 @@ pub async fn departments(
     .map_err(|e| GenericError::SqlFailure(Some(e)))
 }
 
+#[utoipa::path(
+    get,
+    path = "/departments_per_gp",
+    tag = "departments",
+    responses(
+        (status = 200, description = "Departments per gp", body = HashMap<String, Vec<String>>),
+    )
+)]
 pub async fn departments_per_gp(
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<HashMap<String, Vec<String>>>, GenericError> {

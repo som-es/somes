@@ -99,14 +99,10 @@ pub static EMAIL_REGEX: Lazy<Regex> =
 #[utoipa::path(
     post,
     path = "/login",
-    params(
-        LoginInfo
-    ),
+    tag = "user",
+    request_body(content = LoginInfo, content_type = "application/json"),
     responses(
-        (status = 200, description = "Successful login", body = [JWTInfo]),
-        // (status = 401, description = "Invalid credentials", body = [UserError]),
-        // (status = 400, description = "Invalid request", body = [UserError]),
-        // (status = 500, description = "Internal server error", body = [UserError])
+        (status = 200, description = "Login", body = JWTInfo),
     )
 )]
 pub async fn login(

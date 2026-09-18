@@ -1,10 +1,7 @@
-use axum::{
-    Json, Router,
-    extract::Query,
-    routing::{get, post},
-};
-use combx::{Index, OptionalVoteResult};
-use somes_common_lib::{AddonVoteResultFilter, ID, LATEST, LIVE, Page, SEARCH};
+use axum::{Json, extract::Query};
+use combx::Index;
+use somes_common_lib::{AddonVoteResultFilter, Page};
+use utoipa_axum::{router::OpenApiRouter, routes};
 
 use crate::{AppState, LEGIS_INITS_PER_PAGE, ParliamentCtx, PgPoolConnection, RedisConnection};
 
@@ -18,26 +15,23 @@ pub use routes::*;
 mod construct_vote_result;
 pub use construct_vote_result::*;
 
-pub fn create_vote_results_router() -> Router<AppState> {
-    Router::new()
-        .route(SEARCH, get(vote_results_by_search_route))
-        .route(LIVE, post(vote_results_per_page_route))
-        .route(LATEST, get(latest_vote_results_route))
-        .route("/{gp}/{ityp}/{inr}", get(vote_result_by_path_route))
-        .route(ID, get(vote_result_by_id_route))
+pub fn create_vote_results_router() -> OpenApiRouter<AppState> {
+    OpenApiRouter::new()
+        .routes(routes!(vote_results_by_search_route))
+        .routes(routes!(vote_results_per_page_route))
+        .routes(routes!(latest_vote_results_route))
+        .routes(routes!(vote_result_by_path_route))
+        .routes(routes!(vote_result_by_id_route))
 }
 
 #[utoipa::path(
     post,
-    path = "/vote_results_per_page",
-    params
-    (
-        Page
-    ),
+    path = "/live",
+    tag = "vote_results",
+    params(Page),
+    request_body(content = AddonVoteResultFilter, content_type = "application/json"),
     responses(
-        (status = 200, description = "Returned latest vote results successfully.", body = [Vec<OptionalVoteResult>]),
-        // (status = 400, description = "Invalid request", body = [LegisInitErrorResponse]),
-        // (status = 500, description = "Internal server error", body = [LegisInitErrorResponse])
+        (status = 200, description = "Vote results per page", body = VoteResultsWithMaxPage),
     )
 )]
 pub async fn vote_results_per_page_route(

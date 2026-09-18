@@ -166,7 +166,32 @@ pub fn derive_meilisearch_filter(input: TokenStream) -> TokenStream {
 
     let updated_fields = updated_fields.iter().map(|(field_name, ty)| {
         let type_tokens = &ty.updated_path;
+        // `utoipa` cannot expand a type with generic arguments inside `FilterOp<_>`, so
+        // date filters are documented as the string they are given as over http.
+        // `utoipa` inlines generic instantiations instead of referencing them, so
+        // anything that reaches another filter struct is kept at one level: dates are
+        // documented as the string they arrive as, nested filters as plain objects.
+        let doc_type = if type_tokens.to_string().contains("DateTime") {
+            Some("somes_meilisearch_filter::FilterOp<String>")
+        } else if ty.unrecognized_ident.is_some() {
+            Some("Object")
+        } else {
+            None
+        };
+        let schema_attr = match doc_type {
+            Some(doc_type) => {
+                let doc_type = doc_type.parse::<proc_macro2::TokenStream>().unwrap();
+                quote! {
+                    #[cfg_attr(feature = "utoipa", param(required = false, value_type = #doc_type))]
+                    #[cfg_attr(feature = "utoipa", schema(value_type = #doc_type))]
+                }
+            }
+            None => quote! {
+                #[cfg_attr(feature = "utoipa", param(required = false))]
+            },
+        };
         quote! {
+            #schema_attr
             #vis #field_name: #type_tokens,
         }
     });
@@ -177,15 +202,26 @@ pub fn derive_meilisearch_filter(input: TokenStream) -> TokenStream {
     let filterable_fields_inner = filterable_fields.clone();
     let filter_name = format_ident!("{}Filter", name);
 
+    // The filter structs are query parameters of the search endpoints, so they are
+    // documented whenever the consuming crate has its `utoipa` feature on.
+    let derives = quote! {
+        #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema, utoipa::IntoParams))]
+        #[cfg_attr(feature = "utoipa", into_params(parameter_in = Query))]
+    };
+
     let tokens = quote! {
+        #derives
         #[derive(Debug, Clone, Serialize, Deserialize)]
         #vis struct #filter_name_inner {
             #( #updated_fields_inner )*
         }
 
+        #derives
         #[derive(Debug, Clone, Serialize, Deserialize)]
         #vis struct #filter_name {
             #( #updated_fields )*
+            #[cfg_attr(feature = "utoipa", param(required = false, value_type = Object))]
+            #[cfg_attr(feature = "utoipa", schema(value_type = Object))]
             pub filters: Option<Vec<somes_meilisearch_filter::CombinatorOp<#filter_name_inner>>>
         }
 

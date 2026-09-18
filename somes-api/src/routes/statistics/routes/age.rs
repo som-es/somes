@@ -387,6 +387,15 @@ impl AgeService {
 }
 
 // Legacy endpoint functions for backward compatibility
+#[utoipa::path(
+    post,
+    path = "/age_of_delegates",
+    tag = "statistics",
+    request_body(content = AgeFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Age of delegates", body = [AgeForDelegate]),
+    )
+)]
 pub async fn age_of_delegates(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<AgeFilter>>,
@@ -396,6 +405,15 @@ pub async fn age_of_delegates(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/age_per_party",
+    tag = "statistics",
+    request_body(content = AgeFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Age per party", body = [AgeByCategory]),
+    )
+)]
 pub async fn age_per_party(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<AgeFilter>>,
@@ -405,6 +423,15 @@ pub async fn age_per_party(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/age_per_gender",
+    tag = "statistics",
+    request_body(content = AgeFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Age per gender", body = [AgeByCategory]),
+    )
+)]
 pub async fn age_per_gender(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<AgeFilter>>,
@@ -414,6 +441,15 @@ pub async fn age_per_gender(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/age_per_legis",
+    tag = "statistics",
+    request_body(content = AgeFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Age per legis", body = [AgeByCategory]),
+    )
+)]
 pub async fn age_per_legis(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<AgeFilter>>,
@@ -423,6 +459,15 @@ pub async fn age_per_legis(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/age_per_age",
+    tag = "statistics",
+    request_body(content = AgeFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Age per age", body = [AgeByCategory]),
+    )
+)]
 pub async fn age_per_age(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<AgeFilter>>,

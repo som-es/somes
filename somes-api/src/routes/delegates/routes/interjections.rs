@@ -1,5 +1,6 @@
-use axum::{Json, Router, extract::Query, routing::get};
+use axum::{Json, extract::Query};
 use somes_common_lib::DelegateByIdAndPage;
+use utoipa_axum::{router::OpenApiRouter, routes};
 
 use crate::{
     AppState, PgPoolConnection,
@@ -9,15 +10,21 @@ use crate::{
     },
 };
 
-pub fn create_delegate_interjections_router() -> Router<AppState> {
-    Router::new()
-        .route(
-            "/received",
-            get(interjections_received_by_delegate_per_page_route),
-        )
-        .route("/made", get(interjections_made_by_delegate_per_page_route))
+pub fn create_delegate_interjections_router() -> OpenApiRouter<AppState> {
+    OpenApiRouter::new()
+        .routes(routes!(interjections_received_by_delegate_per_page_route))
+        .routes(routes!(interjections_made_by_delegate_per_page_route))
 }
 
+#[utoipa::path(
+    get,
+    path = "/made",
+    tag = "delegates",
+    params(DelegateByIdAndPage),
+    responses(
+        (status = 200, description = "Interjections made by delegate per page", body = InterjectionsWithMaxPage),
+    )
+)]
 pub async fn interjections_made_by_delegate_per_page_route(
     PgPoolConnection(pg): PgPoolConnection,
     Query(delegate_by_id_and_page): Query<DelegateByIdAndPage>,
@@ -35,6 +42,15 @@ pub async fn interjections_made_by_delegate_per_page_route(
     )
 }
 
+#[utoipa::path(
+    get,
+    path = "/received",
+    tag = "delegates",
+    params(DelegateByIdAndPage),
+    responses(
+        (status = 200, description = "Interjections received by delegate per page", body = InterjectionsWithMaxPage),
+    )
+)]
 pub async fn interjections_received_by_delegate_per_page_route(
     PgPoolConnection(pg): PgPoolConnection,
     Query(delegate_by_id_and_page): Query<DelegateByIdAndPage>,

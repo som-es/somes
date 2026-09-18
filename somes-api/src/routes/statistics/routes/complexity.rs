@@ -417,6 +417,15 @@ impl ComplexityService {
     }
 }
 
+#[utoipa::path(
+    post,
+    path = "/complexity_per_delegate",
+    tag = "statistics",
+    request_body(content = ComplexityFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Complexity per delegate", body = [ComplexityForDelegate]),
+    )
+)]
 pub async fn complexity_per_delegate(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<ComplexityFilter>>,
@@ -426,6 +435,15 @@ pub async fn complexity_per_delegate(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/complexity_per_party",
+    tag = "statistics",
+    request_body(content = ComplexityFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Complexity per party", body = [ComplexityByCategory]),
+    )
+)]
 pub async fn complexity_per_party(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<ComplexityFilter>>,
@@ -435,6 +453,15 @@ pub async fn complexity_per_party(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/complexity_per_gender",
+    tag = "statistics",
+    request_body(content = ComplexityFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Complexity per gender", body = [ComplexityByCategory]),
+    )
+)]
 pub async fn complexity_per_gender(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<ComplexityFilter>>,
@@ -444,6 +471,15 @@ pub async fn complexity_per_gender(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/complexity_per_legis",
+    tag = "statistics",
+    request_body(content = ComplexityFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Complexity per legis", body = [ComplexityByCategory]),
+    )
+)]
 pub async fn complexity_per_legis(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<ComplexityFilter>>,
@@ -453,6 +489,15 @@ pub async fn complexity_per_legis(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/complexity_at_age",
+    tag = "statistics",
+    request_body(content = ComplexityFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Complexity at age", body = [ComplexityByCategory]),
+    )
+)]
 pub async fn complexity_at_age(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<ComplexityFilter>>,

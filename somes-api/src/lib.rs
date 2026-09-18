@@ -23,6 +23,7 @@ pub use filter_querying::*;
 pub use jwt::AuthError;
 mod http_redirect;
 pub mod meilisearch;
+pub mod openapi;
 pub use http_redirect::*;
 use once_cell::sync::Lazy;
 pub mod parliament;

@@ -13,6 +13,15 @@ pub struct SpeechesWithMaxPage {
     pub max_page: i64,
 }
 
+#[utoipa::path(
+    get,
+    path = "/speeches_per_page",
+    tag = "delegates",
+    params(DelegateByIdAndPage),
+    responses(
+        (status = 200, description = "Speeches by delegate per page", body = SpeechesWithMaxPage),
+    )
+)]
 pub async fn speeches_by_delegate_per_page_route(
     PgPoolConnection(pg): PgPoolConnection,
     Query(delegate_by_id_and_page): Query<DelegateByIdAndPage>,

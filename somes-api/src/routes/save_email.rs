@@ -20,6 +20,15 @@ pub fn save_email_to_file(email: &str) -> Result<(), String> {
     Ok(())
 }
 
+#[utoipa::path(
+    post,
+    path = "/save_email",
+    tag = "user",
+    request_body(content = SaveEmailInfo, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Save email"),
+    )
+)]
 pub async fn save_email_route(
     Json(save_email_info): Json<SaveEmailInfo>,
 ) -> Result<Json<()>, String> {

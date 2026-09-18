@@ -3,10 +3,11 @@ mod error;
 use axum::Json;
 use error::WaloErrorResponse;
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 use crate::PgPoolConnection;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(ToSchema, Clone, Serialize, Deserialize)]
 pub struct WaloQuestion {
     id: i32,
     question_statement: Option<String>,
@@ -21,6 +22,14 @@ pub struct WaloQuestion {
     erklaerbaer: Option<String>,
 }
 
+#[utoipa::path(
+    get,
+    path = "/walo_questions",
+    tag = "walo",
+    responses(
+        (status = 200, description = "Walo questions", body = [WaloQuestion]),
+    )
+)]
 pub async fn walo_questions_route(
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<WaloQuestion>>, WaloErrorResponse> {

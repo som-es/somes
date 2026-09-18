@@ -1,7 +1,9 @@
-use axum::{Json, Router, extract::Query, routing::get};
+use axum::{Json, extract::Query};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
+use utoipa::{IntoParams, ToSchema};
+use utoipa_axum::{router::OpenApiRouter, routes};
 
 use crate::{
     AppState, PgPoolConnection, RedisConnection, get_json_cache, routes::FilterError,
@@ -10,14 +12,14 @@ use crate::{
 
 const DEFAULT_ENTRIES_PER_PAGE: i64 = 1000;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(ToSchema, Debug, Clone, Serialize, Deserialize)]
 pub struct SitemapEntries<T> {
     pub entries: Vec<T>,
     pub entry_count: i64,
     pub max_page: i64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(ToSchema, Debug, Clone, Serialize, Deserialize)]
 pub struct SitemapVoteResultPath {
     pub gp: String,
     pub ityp: String,
@@ -25,32 +27,32 @@ pub struct SitemapVoteResultPath {
     pub lastmod: DateTime<Utc>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(ToSchema, Debug, Clone, Serialize, Deserialize)]
 pub struct SitemapGovProposalPath {
     pub gp: String,
     pub inr: i32,
     pub lastmod: DateTime<Utc>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(ToSchema, Debug, Clone, Serialize, Deserialize)]
 pub struct SitemapDecreePath {
     pub ris_id: String,
     pub lastmod: DateTime<Utc>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(ToSchema, Debug, Clone, Serialize, Deserialize)]
 pub struct SitemapQuestionPath {
     pub id: i64,
     pub lastmod: DateTime<Utc>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(ToSchema, Debug, Clone, Serialize, Deserialize)]
 pub struct SitemapGpCount {
     pub gp: String,
     pub entry_count: i64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(ToSchema, Debug, Clone, Serialize, Deserialize)]
 pub struct SitemapSummary {
     pub decrees: i64,
     pub gov_proposals: i64,
@@ -58,7 +60,7 @@ pub struct SitemapSummary {
     pub vote_results: Vec<SitemapGpCount>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(ToSchema, IntoParams, Debug, Clone, Deserialize)]
 pub struct SitemapQuery {
     #[serde(default)]
     pub page: Option<i64>,
@@ -80,19 +82,27 @@ impl SitemapQuery {
     }
 }
 
-pub fn create_sitemap_router() -> Router<AppState> {
-    Router::new()
-        .route("/summary", get(sitemap_summary_route))
-        .route("/vote_results", get(sitemap_vote_results_route))
-        .route("/gov_proposals", get(sitemap_gov_proposals_route))
-        .route("/decrees", get(sitemap_decrees_route))
-        .route("/questions", get(sitemap_questions_route))
+pub fn create_sitemap_router() -> OpenApiRouter<AppState> {
+    OpenApiRouter::new()
+        .routes(routes!(sitemap_summary_route))
+        .routes(routes!(sitemap_vote_results_route))
+        .routes(routes!(sitemap_gov_proposals_route))
+        .routes(routes!(sitemap_decrees_route))
+        .routes(routes!(sitemap_questions_route))
 }
 
 fn max_page(entries: i64, entries_per_page: i64) -> i64 {
     entries.div_euclid(entries_per_page) + i64::from(entries.rem_euclid(entries_per_page) != 0)
 }
 
+#[utoipa::path(
+    get,
+    path = "/summary",
+    tag = "sitemap",
+    responses(
+        (status = 200, description = "Sitemap summary", body = SitemapSummary),
+    )
+)]
 pub async fn sitemap_summary_route(
     RedisConnection(mut redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
@@ -107,6 +117,15 @@ pub async fn sitemap_summary_route(
     Ok(Json(summary))
 }
 
+#[utoipa::path(
+    get,
+    path = "/vote_results",
+    tag = "sitemap",
+    params(SitemapQuery),
+    responses(
+        (status = 200, description = "Sitemap vote results", body = SitemapEntries<SitemapVoteResultPath>),
+    )
+)]
 pub async fn sitemap_vote_results_route(
     RedisConnection(mut redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
@@ -165,6 +184,15 @@ pub async fn sitemap_vote_results_route(
     Ok(Json(entries))
 }
 
+#[utoipa::path(
+    get,
+    path = "/gov_proposals",
+    tag = "sitemap",
+    params(SitemapQuery),
+    responses(
+        (status = 200, description = "Sitemap gov proposals", body = SitemapEntries<SitemapGovProposalPath>),
+    )
+)]
 pub async fn sitemap_gov_proposals_route(
     RedisConnection(mut redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
@@ -216,6 +244,15 @@ pub async fn sitemap_gov_proposals_route(
     Ok(Json(entries))
 }
 
+#[utoipa::path(
+    get,
+    path = "/decrees",
+    tag = "sitemap",
+    params(SitemapQuery),
+    responses(
+        (status = 200, description = "Sitemap decrees", body = SitemapEntries<SitemapDecreePath>),
+    )
+)]
 pub async fn sitemap_decrees_route(
     RedisConnection(mut redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
@@ -265,6 +302,15 @@ pub async fn sitemap_decrees_route(
     Ok(Json(entries))
 }
 
+#[utoipa::path(
+    get,
+    path = "/questions",
+    tag = "sitemap",
+    params(SitemapQuery),
+    responses(
+        (status = 200, description = "Sitemap questions", body = SitemapEntries<SitemapQuestionPath>),
+    )
+)]
 pub async fn sitemap_questions_route(
     RedisConnection(mut redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,

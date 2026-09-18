@@ -1,13 +1,23 @@
-use axum::{Json, Router, extract::Path, routing::get};
+use axum::{Json, extract::Path};
 use combx::{DbInterjection, DbSpeechAiSummary, DbSpeechRelations, DbSpeechWithLink, FullSpeech};
 use somes_common_lib::SpeechById;
+use utoipa_axum::{router::OpenApiRouter, routes};
 
 use crate::{AppState, GenericError, PgPoolConnection};
 
-pub fn create_speeches_router() -> Router<AppState> {
-    Router::new().route("/{speech_id}", get(speech_by_id_route))
+pub fn create_speeches_router() -> OpenApiRouter<AppState> {
+    OpenApiRouter::new().routes(routes!(speech_by_id_route))
 }
 
+#[utoipa::path(
+    get,
+    path = "/{speech_id}",
+    tag = "speeches",
+    params(("speech_id" = i32, Path, description = "Speech id")),
+    responses(
+        (status = 200, description = "Speech by id", body = Option<FullSpeech>),
+    )
+)]
 pub async fn speech_by_id_route(
     PgPoolConnection(pg): PgPoolConnection,
     Path(speech_id): Path<SpeechById>,

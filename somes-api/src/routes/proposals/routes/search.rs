@@ -11,6 +11,15 @@ use crate::{
     },
 };
 
+#[utoipa::path(
+    get,
+    path = "/search",
+    tag = "gov_proposals",
+    params(somes_common_lib::SearchQuery, somes_common_lib::Page, somes_common_lib::PageEntryCount, somes_common_lib::SortParams, somes_common_lib::DateRangeQueryFilter, somes_common_lib::TopicsFilter, GovProposalDelegateFilter),
+    responses(
+        (status = 200, description = "Gov props by search", body = GovProposalsWithMaxPage),
+    )
+)]
 pub async fn gov_props_by_search_route(
     ParliamentCtx(parliament): ParliamentCtx,
     RedisConnection(mut redis_con): RedisConnection,

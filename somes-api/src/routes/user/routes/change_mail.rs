@@ -3,6 +3,7 @@ use redis::AsyncCommands;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::set_error_true;
 use sqlx::PgPool;
+use utoipa::ToSchema;
 
 use crate::{
     AtPgPoolConnection, RedisConnection,
@@ -26,18 +27,18 @@ pub async fn get_current_user_from_sqlx(
     Ok(maybe_user)
 }
 
-#[derive(Deserialize)]
+#[derive(ToSchema, Deserialize)]
 pub struct ChangeMailBody {
     pub new_email: String,
 }
 
-#[derive(Deserialize)]
+#[derive(ToSchema, Deserialize)]
 pub struct VerifyEmailChangeBody {
     pub new_email: String,
     pub otp: String,
 }
 
-#[derive(Serialize)]
+#[derive(ToSchema, Serialize)]
 pub struct ChangeMailResponse {
     pub success: bool,
     pub message: String,
@@ -45,6 +46,15 @@ pub struct ChangeMailResponse {
     pub access_token: Option<String>,
 }
 
+#[utoipa::path(
+    post,
+    path = "/change_email",
+    tag = "user",
+    request_body(content = ChangeMailBody, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Change mail", body = ChangeMailResponse),
+    )
+)]
 pub async fn change_mail(
     RedisConnection(mut redis_con): RedisConnection,
     AtPgPoolConnection(pg): AtPgPoolConnection,
@@ -105,6 +115,15 @@ pub async fn change_mail(
         access_token: None,
     }))
 }
+#[utoipa::path(
+    post,
+    path = "/verify_email_change",
+    tag = "user",
+    request_body(content = VerifyEmailChangeBody, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Verify email change", body = ChangeMailResponse),
+    )
+)]
 pub async fn verify_email_change(
     RedisConnection(mut redis_con): RedisConnection,
     AtPgPoolConnection(pg): AtPgPoolConnection,

@@ -9,14 +9,11 @@ use crate::{PgPoolConnection, RedisConnection, get_json_cache, set_json_cache_wi
 
 #[utoipa::path(
     get,
-    params(
-        Date
-    ),
-    path = "/delegates_at",
+    path = "/all_at_date",
+    tag = "delegates",
+    params(Date),
     responses(
-        (status = 200, description = "Returned delegates successfully.", body = [Vec<Delegate>]),
-        // (status = 400, description = "Invalid request", body = [DelegatesErrorResponse]),
-        // (status = 500, description = "Internal server error", body = [DelegatesErrorResponse])
+        (status = 200, description = "Delegates at", body = [Delegate]),
     )
 )]
 pub async fn delegates_at_route(

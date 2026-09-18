@@ -1,14 +1,13 @@
 mod decrees;
 mod routes;
 
-use axum::{Router, routing::get};
 use combx::{CombinedData, Delegate, DelegateFilter, OptionalGovProposal};
 pub use decrees::*;
 pub use routes::*;
+use utoipa_axum::{router::OpenApiRouter, routes};
 
 use crate::AppState;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::{ALL_AT_DATE, EXTEND, GOV_PROPOSALS};
 use somes_macro::MeilisearchFilter;
 use somes_meilisearch_filter::FilterArgument;
 use utoipa::ToSchema;
@@ -32,9 +31,9 @@ impl CombinedData for GovProposalDelegate {
     }
 }
 
-pub fn create_gov_officials_router() -> Router<AppState> {
-    Router::new()
-        .route(ALL_AT_DATE, get(gov_officials_at_date_route))
-        .route(GOV_PROPOSALS, get(gov_proposals_by_official_route))
-        .route(EXTEND, get(general_gov_official_info_route))
+pub fn create_gov_officials_router() -> OpenApiRouter<AppState> {
+    OpenApiRouter::new()
+        .routes(routes!(gov_officials_at_date_route))
+        .routes(routes!(gov_proposals_by_official_route))
+        .routes(routes!(general_gov_official_info_route))
 }

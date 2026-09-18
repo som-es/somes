@@ -7,24 +7,23 @@ pub use construct_gov_proposal::*;
 pub use db::*;
 pub use routes::*;
 
-use axum::{Router, routing::get};
 use combx::models::DbMinistrialProposalQueryMeta;
 use redis::aio::ConnectionManager;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::{LATEST, SEARCH};
 use sqlx::PgPool;
 use utoipa::ToSchema;
+use utoipa_axum::{router::OpenApiRouter, routes};
 
 use crate::AppState;
 
 use super::{GovProposalDelegate, delegate_by_id_sqlx};
 
-pub fn create_gov_proposals_router() -> Router<AppState> {
-    Router::new()
-        .route(SEARCH, get(gov_props_by_search_route))
+pub fn create_gov_proposals_router() -> OpenApiRouter<AppState> {
+    OpenApiRouter::new()
+        .routes(routes!(gov_props_by_search_route))
         // .route(LIVE, post(gov_proposals_per_page_route))
-        .route(LATEST, get(latest_gov_proposals_route))
-        .route("/{gp}/{inr}", get(gov_proposal_by_path_route))
+        .routes(routes!(latest_gov_proposals_route))
+        .routes(routes!(gov_proposal_by_path_route))
         .nest("/{gp}/{inr}/mood", create_proposal_mood_router())
 }
 

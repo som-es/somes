@@ -1,8 +1,9 @@
 use combx::models::*;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
+use utoipa::ToSchema;
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(ToSchema, Debug, Deserialize, Serialize)]
 pub struct ParliamentInquiryResponseWithMaxPage {
     pub question_entries: Vec<ParliamentInquiryResponse>,
     pub entry_count: i64,

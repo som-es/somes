@@ -436,6 +436,15 @@ impl CallToOrdersService {
     }
 }
 
+#[utoipa::path(
+    post,
+    path = "/delegates_by_call_to_orders",
+    tag = "statistics",
+    request_body(content = CallToOrderFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Call to orders per delegate", body = [CallToOrdersForDelegate]),
+    )
+)]
 pub async fn call_to_orders_per_delegate(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<CallToOrderFilter>>,
@@ -445,6 +454,15 @@ pub async fn call_to_orders_per_delegate(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/call_to_orders_per_party",
+    tag = "statistics",
+    request_body(content = CallToOrderFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Call to orders per party", body = [CallToOrdersByCategory]),
+    )
+)]
 pub async fn call_to_orders_per_party(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<CallToOrderFilter>>,
@@ -454,6 +472,15 @@ pub async fn call_to_orders_per_party(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/call_to_orders_per_gender",
+    tag = "statistics",
+    request_body(content = CallToOrderFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Call to orders per gender", body = [CallToOrdersByCategory]),
+    )
+)]
 pub async fn call_to_orders_per_gender(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<CallToOrderFilter>>,
@@ -463,6 +490,15 @@ pub async fn call_to_orders_per_gender(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/call_to_orders_per_legis",
+    tag = "statistics",
+    request_body(content = CallToOrderFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Call to orders per legis", body = [CallToOrdersByCategory]),
+    )
+)]
 pub async fn call_to_orders_per_legis(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<CallToOrderFilter>>,
@@ -472,6 +508,15 @@ pub async fn call_to_orders_per_legis(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/call_to_orders_per_age",
+    tag = "statistics",
+    request_body(content = CallToOrderFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Call to orders per age", body = [CallToOrdersByCategory]),
+    )
+)]
 pub async fn call_to_orders_per_age(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<CallToOrderFilter>>,

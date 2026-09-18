@@ -8,6 +8,15 @@ use crate::{
     routes::{FilterError, vote_results::construct_vote_result::construct_vote_result},
 };
 
+#[utoipa::path(
+    get,
+    path = "/id/{id}",
+    tag = "vote_results",
+    params(("id" = i32, Path, description = "Legislative initiative id")),
+    responses(
+        (status = 200, description = "Vote result by id", body = OptionalVoteResult),
+    )
+)]
 pub async fn vote_result_by_id_route(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,

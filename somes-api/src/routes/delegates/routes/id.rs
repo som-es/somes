@@ -43,18 +43,6 @@ pub async fn delegate_by_id_sqlx(
     Ok(delegate)
 }
 
-#[utoipa::path(
-    get,
-    params(
-        DelegateById
-    ),
-    path = "/delegate",
-    responses(
-        (status = 200, description = "Returned delegate successfully.", body = [Delegate]),
-        // (status = 400, description = "Invalid request", body = [DelegatesErrorResponse]),
-        // (status = 500, description = "Internal server error", body = [DelegatesErrorResponse])
-    )
-)]
 pub async fn delegate_by_id(
     RedisConnection(mut redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,
@@ -67,6 +55,15 @@ pub async fn delegate_by_id(
     )
 }
 
+#[utoipa::path(
+    get,
+    path = "/id/{id}",
+    tag = "delegates",
+    params(("id" = i32, Path, description = "Delegate id")),
+    responses(
+        (status = 200, description = "Delegate by id path", body = Delegate),
+    )
+)]
 pub async fn delegate_by_id_path_route(
     RedisConnection(mut redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,

@@ -4,11 +4,10 @@ use combx::{Delegate, FullMandate};
 
 #[utoipa::path(
     get,
-    path = "/delegates",
+    path = "/all_active",
+    tag = "delegates",
     responses(
-        (status = 200, description = "Returned delegates successfully.", body = [Vec<Delegate>]),
-        // (status = 400, description = "Invalid request", body = [DelegatesErrorResponse]),
-        // (status = 500, description = "Internal server error", body = [DelegatesErrorResponse])
+        (status = 200, description = "Active delegates", body = [Delegate]),
     )
 )]
 pub async fn active_delegates_route(

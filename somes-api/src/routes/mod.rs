@@ -47,6 +47,14 @@ pub use walo::*;
 use crate::{GenericError, PgPoolConnection};
 use axum::Json;
 
+#[utoipa::path(
+    get,
+    path = "/all_gps",
+    tag = "meta",
+    responses(
+        (status = 200, description = "All gps", body = [LegislativePeriod]),
+    )
+)]
 pub async fn all_gps_route(
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<LegislativePeriod>>, GenericError> {

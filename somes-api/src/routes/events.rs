@@ -1,15 +1,14 @@
-use axum::{
-    Json, Router,
-    routing::{delete, get, post, put},
-};
+use axum::Json;
 use chrono::{NaiveDate, NaiveTime};
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
+use utoipa::ToSchema;
+use utoipa_axum::{router::OpenApiRouter, routes};
 
 use crate::{AppState, PgPoolConnection, jwt::Claims};
 
-#[derive(Debug, Serialize, Deserialize, Hash, Eq, PartialEq)]
+#[derive(ToSchema, Debug, Serialize, Deserialize, Hash, Eq, PartialEq)]
 pub struct SomesEvent {
     pub id: Option<i32>,
     pub title: String,
@@ -22,11 +21,20 @@ pub struct SomesEvent {
     pub requires_registration: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(ToSchema, Debug, Serialize, Deserialize)]
 pub struct EventId {
     pub id: i32,
 }
 
+#[utoipa::path(
+    post,
+    path = "/create",
+    tag = "events",
+    request_body(content = SomesEvent, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Create event", body = EventId),
+    )
+)]
 pub async fn create_event_route(
     claims: Claims,
     PgPoolConnection(pg): PgPoolConnection,
@@ -69,6 +77,15 @@ pub async fn create_event_sqlx(pg: &PgPool, event: &SomesEvent) -> sqlx::Result<
     Ok(id)
 }
 
+#[utoipa::path(
+    delete,
+    path = "/delete",
+    tag = "events",
+    request_body(content = EventId, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Delete event"),
+    )
+)]
 pub async fn delete_event_route(
     claims: Claims,
     PgPoolConnection(pg): PgPoolConnection,
@@ -94,6 +111,15 @@ pub async fn delete_event_sqlx(pg: &PgPool, id: i32) -> sqlx::Result<()> {
     Ok(())
 }
 
+#[utoipa::path(
+    put,
+    path = "/update",
+    tag = "events",
+    request_body(content = SomesEvent, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Update event"),
+    )
+)]
 pub async fn update_event_route(
     claims: Claims,
     PgPoolConnection(pg): PgPoolConnection,
@@ -144,6 +170,14 @@ pub async fn update_event_sqlx(pg: &PgPool, event: &SomesEvent) -> sqlx::Result<
     Ok(())
 }
 
+#[utoipa::path(
+    get,
+    path = "/",
+    tag = "events",
+    responses(
+        (status = 200, description = "All events", body = [SomesEvent]),
+    )
+)]
 pub async fn all_events_route(
     PgPoolConnection(pg): PgPoolConnection,
 ) -> crate::Result<Json<Vec<SomesEvent>>> {
@@ -174,10 +208,10 @@ pub async fn all_events_sqlx(pg: &PgPool) -> sqlx::Result<Vec<SomesEvent>> {
     .await
 }
 
-pub fn create_events_router() -> Router<AppState> {
-    Router::new()
-        .route("/create", post(create_event_route))
-        .route("/delete", delete(delete_event_route))
-        .route("/update", put(update_event_route))
-        .route("/", get(all_events_route))
+pub fn create_events_router() -> OpenApiRouter<AppState> {
+    OpenApiRouter::new()
+        .routes(routes!(create_event_route))
+        .routes(routes!(delete_event_route))
+        .routes(routes!(update_event_route))
+        .routes(routes!(all_events_route))
 }

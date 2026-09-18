@@ -6,6 +6,14 @@ use crate::{GenericError, ParliamentCtx, PgPoolConnection};
 
 use super::UniqueTopic;
 
+#[utoipa::path(
+    get,
+    path = "/eurovoc_topics",
+    tag = "topics",
+    responses(
+        (status = 200, description = "Eurovoc topics", body = [UniqueTopic]),
+    )
+)]
 pub async fn eurovoc_topics_route(
     PgPoolConnection(pg): PgPoolConnection,
     ParliamentCtx(parliament): ParliamentCtx,
@@ -24,6 +32,14 @@ pub async fn eurovoc_topics_route(
     .map_err(|e| GenericError::SqlFailure(Some(e)))
 }
 
+#[utoipa::path(
+    get,
+    path = "/topics",
+    tag = "topics",
+    responses(
+        (status = 200, description = "Topics", body = [UniqueTopic]),
+    )
+)]
 pub async fn topics_route(
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<UniqueTopic>>, GenericError> {

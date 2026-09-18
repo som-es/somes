@@ -5,6 +5,15 @@ use axum::{Json, extract::Path};
 use combx::{DbAiSummary, OptionalDecree};
 use somes_common_lib::Document;
 
+#[utoipa::path(
+    get,
+    path = "/ris_id/{ris_id}",
+    tag = "decrees",
+    params(("ris_id" = String, Path, description = "RIS id of the decree")),
+    responses(
+        (status = 200, description = "Decree by ris id", body = OptionalDecree),
+    )
+)]
 pub async fn decree_by_ris_id_route(
     RedisConnection(mut redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,

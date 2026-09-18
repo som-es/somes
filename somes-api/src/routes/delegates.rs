@@ -2,15 +2,12 @@ use std::collections::HashMap;
 
 use crate::{AppState, EuHemicycle, TopicsExtractor};
 use crate::{ParliamentCtx, PgPoolConnection};
-use axum::Router;
-use axum::routing::get;
 use axum::{Json, extract::Query};
 use combx::{Delegate, FullMandate};
 use somes_common_lib::{
-    ALL_ACTIVE, ALL_AT_DATE, ALL_AT_DATE_WITH_SEAT_INFO, DelegateById, EXTEND, ID,
-    INTERJECTIONS_ROUTE, InterestShare, Language, PARLIAMENT_QA_ROUTE, SEARCH,
-    SPEECHES_PER_PAGE_ROUTE,
+    DelegateById, INTERJECTIONS_ROUTE, InterestShare, Language, PARLIAMENT_QA_ROUTE,
 };
+use utoipa_axum::{router::OpenApiRouter, routes};
 
 pub use error::*;
 mod absences;
@@ -35,22 +32,16 @@ pub use parliamentary_qa::*;
 pub use routes::*;
 use sqlx::PgPool;
 
-pub fn create_delegates_router() -> Router<AppState> {
-    Router::new()
-        .route(ALL_AT_DATE, get(delegates_at_route))
-        .route(ID, get(delegate_by_id_path_route))
-        .route(ALL_ACTIVE, get(active_delegates_route))
+pub fn create_delegates_router() -> OpenApiRouter<AppState> {
+    OpenApiRouter::new()
+        .routes(routes!(delegates_at_route))
+        .routes(routes!(delegate_by_id_path_route))
+        .routes(routes!(active_delegates_route))
         // .route(DELEGATE_QA, get(delegate_qa_route))
-        .route(SEARCH, get(delegates_by_search_route))
-        .route(
-            SPEECHES_PER_PAGE_ROUTE,
-            get(speeches_by_delegate_per_page_route),
-        )
-        .route(
-            ALL_AT_DATE_WITH_SEAT_INFO,
-            get(delegates_with_seats_near_date_route),
-        )
-        .route(EXTEND, get(extended_delegate_info_route))
+        .routes(routes!(delegates_by_search_route))
+        .routes(routes!(speeches_by_delegate_per_page_route))
+        .routes(routes!(delegates_with_seats_near_date_route))
+        .routes(routes!(extended_delegate_info_route))
         .nest(INTERJECTIONS_ROUTE, create_delegate_interjections_router())
         .nest(PARLIAMENT_QA_ROUTE, create_delegate_pqa_router())
         .nest("/gov_officials", create_gov_officials_router())
@@ -61,18 +52,6 @@ pub fn create_delegates_router() -> Router<AppState> {
     // .nest("/questions", create_delegate_questions_router())
 }
 
-#[utoipa::path(
-    get,
-    params(
-        DelegateById
-    ),
-    path = "/delegate_interests",
-    responses(
-        (status = 200, description = "Returned delegate interests successfully.", body = [Vec<InterestShare>]),
-        // (status = 400, description = "Invalid request", body = [DelegatesErrorResponse]),
-        // (status = 500, description = "Internal server error", body = [DelegatesErrorResponse])
-    )
-)]
 #[inline]
 pub async fn delegate_interests(
     PgPoolConnection(pg): PgPoolConnection,
@@ -92,6 +71,14 @@ pub async fn delegate_interests(
     .map(Json)?)
 }
 
+#[utoipa::path(
+    get,
+    path = "/seats",
+    tag = "meta",
+    responses(
+        (status = 200, description = "Seats", body = HashMap<String, Vec<u32>>),
+    )
+)]
 pub async fn seats_route(
     ParliamentCtx(parliament): ParliamentCtx,
     EuHemicycle(hemicycle): EuHemicycle,

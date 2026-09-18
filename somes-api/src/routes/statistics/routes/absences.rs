@@ -412,6 +412,15 @@ impl AbsenceService {
 }
 
 // Legacy endpoint functions for backward compatibility
+#[utoipa::path(
+    post,
+    path = "/absences_per_delegate",
+    tag = "statistics",
+    request_body(content = AbsenceFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Absences per delegate", body = [AbsenceForDelegate]),
+    )
+)]
 pub async fn absences_per_delegate(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<AbsenceFilter>>,
@@ -421,6 +430,15 @@ pub async fn absences_per_delegate(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/absences_per_party",
+    tag = "statistics",
+    request_body(content = AbsenceFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Absences per party", body = [AbsenceByCategory]),
+    )
+)]
 pub async fn absences_per_party(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<AbsenceFilter>>,
@@ -430,6 +448,15 @@ pub async fn absences_per_party(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/absences_per_gender",
+    tag = "statistics",
+    request_body(content = AbsenceFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Absences per gender", body = [AbsenceByCategory]),
+    )
+)]
 pub async fn absences_per_gender(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<AbsenceFilter>>,
@@ -439,6 +466,15 @@ pub async fn absences_per_gender(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/absences_per_legis",
+    tag = "statistics",
+    request_body(content = AbsenceFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Absences per legis", body = [AbsenceByCategory]),
+    )
+)]
 pub async fn absences_per_legis(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<AbsenceFilter>>,
@@ -448,6 +484,15 @@ pub async fn absences_per_legis(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/absences_per_age",
+    tag = "statistics",
+    request_body(content = AbsenceFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Absences per age", body = [AbsenceByCategory]),
+    )
+)]
 pub async fn absences_per_age(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<AbsenceFilter>>,

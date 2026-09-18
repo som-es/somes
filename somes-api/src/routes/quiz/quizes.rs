@@ -2,6 +2,7 @@ use axum::Json;
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use sqlx::{PgPool, query, query_as};
+use utoipa::ToSchema;
 
 use crate::{GenericError, PgPoolConnection, jwt::Claims, routes::QuizQuestion};
 
@@ -12,7 +13,7 @@ pub struct QuizQuery {
     pub description: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(ToSchema, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct QuizId {
     pub id: i32,
     pub title: String,
@@ -60,6 +61,14 @@ pub async fn get_all_quizzes_handler(pg: &PgPool, user_id: i32) -> crate::Result
     Ok(quizzes_with_questions)
 }
 
+#[utoipa::path(
+    get,
+    path = "/quizzes",
+    tag = "quiz",
+    responses(
+        (status = 200, description = "Get all quizzes", body = [QuizId]),
+    )
+)]
 pub async fn get_all_quizzes_route(
     claims: Claims,
     PgPoolConnection(pg): PgPoolConnection,

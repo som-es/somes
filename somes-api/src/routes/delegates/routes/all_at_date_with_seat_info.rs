@@ -9,6 +9,15 @@ use somes_common_lib::{Date, LegisPeriod};
 use sqlx::PgPool;
 use std::str::FromStr;
 
+#[utoipa::path(
+    get,
+    path = "/all_at_date_with_seat_info",
+    tag = "delegates",
+    params(LegisPeriod, Date),
+    responses(
+        (status = 200, description = "Delegates with seats near date", body = [Delegate]),
+    )
+)]
 pub async fn delegates_with_seats_near_date_route(
     ParliamentCtx(parliament): ParliamentCtx,
     RedisConnection(mut redis_con): RedisConnection,

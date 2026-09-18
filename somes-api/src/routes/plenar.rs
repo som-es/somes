@@ -25,6 +25,14 @@ pub fn group_plenary_sessions_per_gp(
     plenary_sessions_by_gp
 }
 
+#[utoipa::path(
+    get,
+    path = "/plenary_sessions_per_gp",
+    tag = "plenar",
+    responses(
+        (status = 200, description = "Plenary sessions per gp", body = HashMap<String, Vec<DbPlenar>>),
+    )
+)]
 pub async fn plenary_sessions_per_gp_route(
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<HashMap<String, Vec<DbPlenar>>>, GenericError> {

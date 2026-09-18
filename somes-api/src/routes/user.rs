@@ -8,32 +8,31 @@ mod routes;
 use reqwest::StatusCode;
 pub use routes::*;
 
-use axum::{
-    Json, Router,
-    routing::{delete, get, post, put},
-};
-use somes_common_lib::{BOOKMARK, LOGIN_ROUTE, PUSH_NOTIFICATIONS, RENEW_TOKEN, SEND_MAIL_INFO, TOPIC_SELECTION};
+use axum::Json;
+use somes_common_lib::{BOOKMARK, PUSH_NOTIFICATIONS};
 use sqlx::query_as;
 use tower_governor::{GovernorLayer, governor::GovernorConfigBuilder};
-
-use crate::{
-    AppState, AtPgPoolConnection, ParliamentCtx, PgPoolConnection,
-    jwt::{Claims, renew_token_route},
-    model::User,
+use utoipa_axum::{
+    router::{OpenApiRouter, UtoipaMethodRouterExt},
+    routes,
 };
 
-pub fn create_user_info_router() -> Router<AppState> {
-    Router::new()
-        .route(TOPIC_SELECTION, post(add_user_topic_route))
-        .route(TOPIC_SELECTION, delete(remove_user_topic_route))
-        .route(TOPIC_SELECTION, get(user_topic_selection_route))
-        .route(SEND_MAIL_INFO, put(update_send_mail_info_route))
-        .route(SEND_MAIL_INFO, get(get_send_mail_info_route))
+use crate::{
+    AppState, AtPgPoolConnection, ParliamentCtx, PgPoolConnection, jwt::Claims, model::User,
+};
+
+pub fn create_user_info_router() -> OpenApiRouter<AppState> {
+    OpenApiRouter::new()
+        .routes(routes!(add_user_topic_route))
+        .routes(routes!(remove_user_topic_route))
+        .routes(routes!(user_topic_selection_route))
+        .routes(routes!(update_send_mail_info_route))
+        .routes(routes!(get_send_mail_info_route))
         .nest(BOOKMARK, create_bookmark_router())
         .nest(PUSH_NOTIFICATIONS, create_push_notification_router())
 }
 
-pub fn create_user_router() -> Router<AppState> {
+pub fn create_user_router() -> OpenApiRouter<AppState> {
     let governor_conf = Arc::new(
         GovernorConfigBuilder::default()
             .per_second(2)
@@ -42,32 +41,25 @@ pub fn create_user_router() -> Router<AppState> {
             .unwrap(),
     );
 
-    Router::new()
-        .route(
-            LOGIN_ROUTE,
-            post(login).layer(GovernorLayer::new(governor_conf)),
-        )
-        .route("/delete", delete(delete_account_route))
-        .route(RENEW_TOKEN, post(renew_token_route))
-        .route("/change_email", post(change_mail))
-        .route("/verify_email_change", post(verify_email_change))
-        .route("/anonymize_email", post(anonymize_email))
-        .route("/", get(user_route))
-        .route("/init", get(user_init_route))
+    OpenApiRouter::new()
+        .routes(routes!(login).layer(GovernorLayer::new(governor_conf)))
+        .routes(routes!(delete_account_route))
+        .routes(routes!(crate::jwt::renew_token_route))
+        .routes(routes!(change_mail))
+        .routes(routes!(verify_email_change))
+        .routes(routes!(anonymize_email))
+        .routes(routes!(user_route))
+        .routes(routes!(user_init_route))
         .merge(create_user_info_router())
         .merge(create_user_mcp_router())
 }
 
 #[utoipa::path(
-    post,
-    path = "/user",
-    // params(
-    //     Claims
-    // ),
+    get,
+    path = "/",
+    tag = "user",
     responses(
-        (status = 200, description = "Returned user successfully.", body = [Vec<User>]),
-        // (status = 400, description = "Invalid request", body = [UserError]),
-        // (status = 500, description = "Internal server error", body = [UserError])
+        (status = 200, description = "User", body = User),
     )
 )]
 pub async fn user_route(
@@ -84,6 +76,14 @@ pub async fn user_route(
     .map(Json)?)
 }
 
+#[utoipa::path(
+    get,
+    path = "/init",
+    tag = "user",
+    responses(
+        (status = 200, description = "User init"),
+    )
+)]
 pub async fn user_init_route(
     claims: Claims,
     PgPoolConnection(pg): PgPoolConnection,

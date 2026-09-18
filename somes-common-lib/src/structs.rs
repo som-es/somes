@@ -154,13 +154,16 @@ pub struct HasMcpToken {
     pub has_token: bool,
 }
 
-#[derive(ToSchema, Copy, Debug, Clone, Serialize, Deserialize)]
+#[derive(ToSchema, IntoParams, Copy, Debug, Clone, Serialize, Deserialize)]
 pub struct Days {
     pub days: u32,
 }
 
-#[derive(Default, Copy, Debug, Clone, Serialize, Deserialize)]
+#[derive(IntoParams, ToSchema, Default, Copy, Debug, Clone, Serialize, Deserialize)]
 pub struct Language {
+    /// Language the texts are returned in.
+    #[schema(value_type = String, example = "de")]
+    #[param(value_type = String, example = "de")]
     pub language: common_scrapes::language::Language,
 }
 

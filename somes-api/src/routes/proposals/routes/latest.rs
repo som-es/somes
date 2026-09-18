@@ -9,6 +9,15 @@ use crate::{
     routes::{FilterError, GovProposalDelegate, construct_gov_delegate_proposal},
 };
 
+#[utoipa::path(
+    get,
+    path = "/latest",
+    tag = "gov_proposals",
+    params(Days),
+    responses(
+        (status = 200, description = "Latest gov proposals", body = [GovProposalDelegate]),
+    )
+)]
 pub async fn latest_gov_proposals_route(
     RedisConnection(redis_con): RedisConnection,
     PgPoolConnection(pg): PgPoolConnection,

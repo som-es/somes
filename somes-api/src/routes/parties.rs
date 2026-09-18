@@ -14,10 +14,9 @@ use sqlx::PgPool;
 #[utoipa::path(
     get,
     path = "/parties",
+    tag = "parties",
     responses(
-        // (status = 200, description = "Returned parties successfully.", body = [Vec<Party>]),
-        // (status = 400, description = "Invalid request", body = [PartiesErrorResponse]),
-        // (status = 500, description = "Internal server error", body = [PartiesErrorResponse])
+        (status = 200, description = "Parties"),
     )
 )]
 pub async fn parties_route(
@@ -28,12 +27,29 @@ pub async fn parties_route(
         .map(Json)?)
 }
 
+#[utoipa::path(
+    get,
+    path = "/parties_per_gp",
+    tag = "parties",
+    responses(
+        (status = 200, description = "Parties per legislative period"),
+    )
+)]
 pub async fn parties_per_gp_route(
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<HashMap<String, Vec<Party>>>, PartiesErrorResponse> {
     Ok(combx::with_data::all_parties_per_gp(&pg).await.map(Json)?)
 }
 
+#[utoipa::path(
+    get,
+    path = "/parties_at_gp",
+    tag = "parties",
+    params(LegisPeriodGp),
+    responses(
+        (status = 200, description = "Parties at a legislative period"),
+    )
+)]
 pub async fn parties_at_gp_route(
     PgPoolConnection(pg): PgPoolConnection,
     Query(legis_period): Query<LegisPeriodGp>,
@@ -56,6 +72,14 @@ pub struct LegislativeInitiativeWithVotes {
     pub votes: Option<Vec<DbVote>>,
 }
 
+#[utoipa::path(
+    get,
+    path = "/coalition_parties_per_gp",
+    tag = "parties",
+    responses(
+        (status = 200, description = "Coalition and opposition parties per legislative period"),
+    )
+)]
 pub async fn coalition_parties_per_gp_route(
     PgPoolConnection(pg): PgPoolConnection,
     RedisConnection(redis_con): RedisConnection,

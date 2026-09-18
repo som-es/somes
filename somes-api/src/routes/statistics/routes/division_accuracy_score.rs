@@ -402,6 +402,15 @@ impl DivisionAccuracyService {
 }
 
 // Legacy endpoint functions for backward compatibility
+#[utoipa::path(
+    post,
+    path = "/divison_accuracy_score_per_delegate",
+    tag = "statistics",
+    request_body(content = DivisionAccuracyFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Division accuracy score per delegate", body = [DivisionAccuracyForDelegate]),
+    )
+)]
 pub async fn division_accuracy_score_per_delegate(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<DivisionAccuracyFilter>>,
@@ -411,6 +420,15 @@ pub async fn division_accuracy_score_per_delegate(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/division_accuracy_score_per_party",
+    tag = "statistics",
+    request_body(content = DivisionAccuracyFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Division accuracy score per party", body = [DivisionAccuracyByCategory]),
+    )
+)]
 pub async fn division_accuracy_score_per_party(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<DivisionAccuracyFilter>>,
@@ -420,6 +438,15 @@ pub async fn division_accuracy_score_per_party(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/division_accuracy_score_per_gender",
+    tag = "statistics",
+    request_body(content = DivisionAccuracyFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Division accuracy score per gender", body = [DivisionAccuracyByCategory]),
+    )
+)]
 pub async fn division_accuracy_score_per_gender(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<DivisionAccuracyFilter>>,
@@ -429,6 +456,15 @@ pub async fn division_accuracy_score_per_gender(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/division_accuracy_score_per_legis",
+    tag = "statistics",
+    request_body(content = DivisionAccuracyFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Division accuracy score per legis", body = [DivisionAccuracyByCategory]),
+    )
+)]
 pub async fn division_accuracy_score_per_legis(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<DivisionAccuracyFilter>>,
@@ -438,6 +474,15 @@ pub async fn division_accuracy_score_per_legis(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/division_accuracy_score_per_age",
+    tag = "statistics",
+    request_body(content = DivisionAccuracyFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Division accuracy score per age", body = [DivisionAccuracyByCategory]),
+    )
+)]
 pub async fn division_accuracy_score_per_age(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<DivisionAccuracyFilter>>,

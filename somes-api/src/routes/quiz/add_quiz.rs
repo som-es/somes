@@ -2,10 +2,11 @@ use axum::Json;
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use sqlx::{PgPool, query};
+use utoipa::ToSchema;
 
 use crate::{GenericError, PgPoolConnection, jwt::Claims};
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(ToSchema, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct QuizQuestionNoCorrection {
     pub question: String,
     pub answer1: String,
@@ -14,7 +15,7 @@ pub struct QuizQuestionNoCorrection {
     pub answer4: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(ToSchema, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct QuizQuestion {
     pub question: String,
     pub answer1: String,
@@ -24,7 +25,7 @@ pub struct QuizQuestion {
     pub correct_answer: i32,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(ToSchema, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct Quiz {
     pub title: String,
     pub description: String,
@@ -73,6 +74,15 @@ pub async fn add_quiz_handler(pg: &PgPool, user_id: i32, quiz: Quiz) -> crate::R
     Ok(())
 }
 
+#[utoipa::path(
+    post,
+    path = "/add_quiz",
+    tag = "quiz",
+    request_body(content = Quiz, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Add quiz"),
+    )
+)]
 pub async fn add_quiz_route(
     claims: Claims,
     PgPoolConnection(pg): PgPoolConnection,

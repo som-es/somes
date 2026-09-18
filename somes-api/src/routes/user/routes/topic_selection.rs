@@ -5,6 +5,15 @@ use sqlx::query_as;
 
 use crate::{GenericError, ParliamentCtx, PgPoolConnection, jwt::Claims, routes::UniqueTopic};
 
+#[utoipa::path(
+    post,
+    path = "/topic_selection",
+    tag = "user",
+    request_body(content = UniqueTopic, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Add user topic"),
+    )
+)]
 pub async fn add_user_topic_route(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
@@ -41,6 +50,14 @@ pub async fn add_user_topic_route(
     .map_err(|_| GenericError::SqlFailure(None))
 }
 
+#[utoipa::path(
+    get,
+    path = "/topic_selection",
+    tag = "user",
+    responses(
+        (status = 200, description = "User topic selection", body = [UniqueTopic]),
+    )
+)]
 pub async fn user_topic_selection_route(
     PgPoolConnection(pg): PgPoolConnection,
     ParliamentCtx(parliament): ParliamentCtx,
@@ -62,6 +79,15 @@ pub async fn user_topic_selection_route(
     .map_err(|_| GenericError::SqlFailure(None))
 }
 
+#[utoipa::path(
+    delete,
+    path = "/topic_selection",
+    tag = "user",
+    request_body(content = UniqueTopic, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Remove user topic"),
+    )
+)]
 pub async fn remove_user_topic_route(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,

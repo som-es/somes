@@ -5,6 +5,15 @@ use sqlx::{PgPool, query_as};
 
 use crate::{PgPoolConnection, routes::FilterError};
 
+#[utoipa::path(
+    get,
+    path = "/latest",
+    tag = "decrees",
+    params(Days),
+    responses(
+        (status = 200, description = "Latest decrees", body = [OptionalDecree]),
+    )
+)]
 pub async fn latest_decrees_route(
     PgPoolConnection(pg): PgPoolConnection,
     Query(days): Query<Days>,

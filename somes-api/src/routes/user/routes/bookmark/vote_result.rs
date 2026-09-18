@@ -4,6 +4,15 @@ use sqlx::query_as;
 
 use crate::{PgPoolConnection, jwt::Claims, routes::UserError};
 
+#[utoipa::path(
+    post,
+    path = "/vote_result",
+    tag = "user",
+    request_body(content = LegisInitFavo, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Add user vote result bookmark"),
+    )
+)]
 pub async fn add_user_vote_result_bookmark(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
@@ -23,6 +32,14 @@ pub async fn add_user_vote_result_bookmark(
     })
 }
 
+#[utoipa::path(
+    get,
+    path = "/vote_result",
+    tag = "user",
+    responses(
+        (status = 200, description = "User vote result booksmarks", body = [LegisInitFavo]),
+    )
+)]
 pub async fn user_vote_result_booksmarks(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
@@ -38,6 +55,15 @@ pub async fn user_vote_result_booksmarks(
     .map_err(|e| UserError::SqlFailure(e))
 }
 
+#[utoipa::path(
+    delete,
+    path = "/vote_result",
+    tag = "user",
+    request_body(content = LegisInitFavo, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Remove user vote result bookmark"),
+    )
+)]
 pub async fn remove_user_vote_result_bookmark(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,

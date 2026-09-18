@@ -5,6 +5,15 @@ use sqlx::query_as;
 
 use crate::{PgPoolConnection, jwt::Claims, routes::UserError};
 
+#[utoipa::path(
+    post,
+    path = "/delegate",
+    tag = "user",
+    request_body(content = DelegateFavo, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Add user delegate bookmark"),
+    )
+)]
 pub async fn add_user_delegate_bookmark(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
@@ -29,6 +38,15 @@ pub async fn add_user_delegate_bookmark(
     .map_err(|e| UserError::SqlFailure(e))
 }
 
+#[utoipa::path(
+    put,
+    path = "/delegate",
+    tag = "user",
+    request_body(content = DelegateFavo, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Update user delegate bookmark"),
+    )
+)]
 pub async fn update_user_delegate_bookmark(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
@@ -53,6 +71,14 @@ pub async fn update_user_delegate_bookmark(
     .map_err(|e| UserError::SqlFailure(e))
 }
 
+#[utoipa::path(
+    get,
+    path = "/delegate",
+    tag = "user",
+    responses(
+        (status = 200, description = "Delegate bookmarks by user", body = [DelegateFavo]),
+    )
+)]
 pub async fn delegate_bookmarks_by_user(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
@@ -68,6 +94,15 @@ pub async fn delegate_bookmarks_by_user(
     .map_err(|e| UserError::SqlFailure(e))
 }
 
+#[utoipa::path(
+    delete,
+    path = "/delegate",
+    tag = "user",
+    request_body(content = DelegateFavo, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Remove user delegate bookmark"),
+    )
+)]
 pub async fn remove_user_delegate_bookmark(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,

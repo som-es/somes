@@ -6,7 +6,7 @@ use utoipa::ToSchema;
 
 use crate::{
     PgPoolConnection, RedisConnection, get_json_cache,
-    routes::statistics::routes::error::StatisticsResponse, set_json_cache_secs,
+    routes::statistics::routes::error::StatisticsResponse,
 };
 
 pub const CACHE_KEY: &str = "latest_session_activity_overview";
@@ -290,6 +290,14 @@ pub async fn fetch_latest_session_activity_overview(
     }))
 }
 
+#[utoipa::path(
+    post,
+    path = "/latest_session_activity_overview",
+    tag = "statistics",
+    responses(
+        (status = 200, description = "Latest session activity overview", body = Option<SessionActivityOverview>),
+    )
+)]
 pub async fn latest_session_activity_overview(
     PgPoolConnection(pg): PgPoolConnection,
     RedisConnection(mut redis): RedisConnection,

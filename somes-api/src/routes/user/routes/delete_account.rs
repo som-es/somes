@@ -3,6 +3,14 @@ use sqlx::query;
 
 use crate::{AtPgPoolConnection, GenericError, jwt::Claims};
 
+#[utoipa::path(
+    delete,
+    path = "/delete",
+    tag = "user",
+    responses(
+        (status = 200, description = "Delete account"),
+    )
+)]
 pub async fn delete_account_route(
     claims: Claims,
     AtPgPoolConnection(pg): AtPgPoolConnection,

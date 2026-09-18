@@ -709,6 +709,15 @@ pub struct VotesTogether {
     same_votes: i64,
 }
 
+#[utoipa::path(
+    post,
+    path = "/votes_together",
+    tag = "statistics",
+    request_body(content = VotesTogetherFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Votes together", body = [VotesTogether]),
+    )
+)]
 pub async fn votes_together(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<VotesTogetherFilter>>,
@@ -770,6 +779,15 @@ ORDER BY
     Ok(results)
 }
 
+#[utoipa::path(
+    post,
+    path = "/is_left_per_delegate",
+    tag = "statistics",
+    request_body(content = PoliticalOrientationFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Is left per delegate", body = [PoliticalOrientationForDelegate]),
+    )
+)]
 pub async fn is_left_per_delegate(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<PoliticalOrientationFilter>>,
@@ -780,6 +798,15 @@ pub async fn is_left_per_delegate(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/is_left_per_party",
+    tag = "statistics",
+    request_body(content = PoliticalOrientationFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Is left per party", body = [PoliticalOrientationByCategory]),
+    )
+)]
 pub async fn is_left_per_party(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<PoliticalOrientationFilter>>,
@@ -790,6 +817,15 @@ pub async fn is_left_per_party(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/is_left_per_gender",
+    tag = "statistics",
+    request_body(content = PoliticalOrientationFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Is left per gender", body = [PoliticalOrientationByCategory]),
+    )
+)]
 pub async fn is_left_per_gender(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<PoliticalOrientationFilter>>,
@@ -800,6 +836,15 @@ pub async fn is_left_per_gender(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/is_left_per_legis",
+    tag = "statistics",
+    request_body(content = PoliticalOrientationFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Is left per legis", body = [PoliticalOrientationByCategory]),
+    )
+)]
 pub async fn is_left_per_legis(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<PoliticalOrientationFilter>>,
@@ -810,6 +855,15 @@ pub async fn is_left_per_legis(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/is_left_per_age",
+    tag = "statistics",
+    request_body(content = PoliticalOrientationFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Is left per age", body = [PoliticalOrientationByCategory]),
+    )
+)]
 pub async fn is_left_per_age(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<PoliticalOrientationFilter>>,
@@ -820,6 +874,15 @@ pub async fn is_left_per_age(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/is_right_per_delegate",
+    tag = "statistics",
+    request_body(content = PoliticalOrientationFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Is right per delegate", body = [PoliticalOrientationForDelegate]),
+    )
+)]
 pub async fn is_right_per_delegate(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<PoliticalOrientationFilter>>,
@@ -830,6 +893,15 @@ pub async fn is_right_per_delegate(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/is_right_per_party",
+    tag = "statistics",
+    request_body(content = PoliticalOrientationFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Is right per party", body = [PoliticalOrientationByCategory]),
+    )
+)]
 pub async fn is_right_per_party(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<PoliticalOrientationFilter>>,
@@ -840,6 +912,15 @@ pub async fn is_right_per_party(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/is_right_per_gender",
+    tag = "statistics",
+    request_body(content = PoliticalOrientationFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Is right per gender", body = [PoliticalOrientationByCategory]),
+    )
+)]
 pub async fn is_right_per_gender(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<PoliticalOrientationFilter>>,
@@ -850,6 +931,15 @@ pub async fn is_right_per_gender(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/is_right_per_legis",
+    tag = "statistics",
+    request_body(content = PoliticalOrientationFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Is right per legis", body = [PoliticalOrientationByCategory]),
+    )
+)]
 pub async fn is_right_per_legis(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<PoliticalOrientationFilter>>,
@@ -860,6 +950,15 @@ pub async fn is_right_per_legis(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/is_right_per_age",
+    tag = "statistics",
+    request_body(content = PoliticalOrientationFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Is right per age", body = [PoliticalOrientationByCategory]),
+    )
+)]
 pub async fn is_right_per_age(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<PoliticalOrientationFilter>>,
@@ -871,6 +970,15 @@ pub async fn is_right_per_age(
 }
 
 // Legacy endpoint functions for backward compatibility - Is Liberal
+#[utoipa::path(
+    post,
+    path = "/is_liberal_per_delegate",
+    tag = "statistics",
+    request_body(content = PoliticalOrientationFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Is liberal per delegate", body = [PoliticalOrientationForDelegate]),
+    )
+)]
 pub async fn is_liberal_per_delegate(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<PoliticalOrientationFilter>>,
@@ -881,6 +989,15 @@ pub async fn is_liberal_per_delegate(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/is_liberal_per_party",
+    tag = "statistics",
+    request_body(content = PoliticalOrientationFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Is liberal per party", body = [PoliticalOrientationByCategory]),
+    )
+)]
 pub async fn is_liberal_per_party(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<PoliticalOrientationFilter>>,
@@ -891,6 +1008,15 @@ pub async fn is_liberal_per_party(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/is_liberal_per_gender",
+    tag = "statistics",
+    request_body(content = PoliticalOrientationFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Is liberal per gender", body = [PoliticalOrientationByCategory]),
+    )
+)]
 pub async fn is_liberal_per_gender(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<PoliticalOrientationFilter>>,
@@ -901,6 +1027,15 @@ pub async fn is_liberal_per_gender(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/is_liberal_per_legis",
+    tag = "statistics",
+    request_body(content = PoliticalOrientationFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Is liberal per legis", body = [PoliticalOrientationByCategory]),
+    )
+)]
 pub async fn is_liberal_per_legis(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<PoliticalOrientationFilter>>,
@@ -911,6 +1046,15 @@ pub async fn is_liberal_per_legis(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/is_liberal_per_age",
+    tag = "statistics",
+    request_body(content = PoliticalOrientationFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Is liberal per age", body = [PoliticalOrientationByCategory]),
+    )
+)]
 pub async fn is_liberal_per_age(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<PoliticalOrientationFilter>>,
@@ -921,6 +1065,15 @@ pub async fn is_liberal_per_age(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/is_authoritarian_per_delegate",
+    tag = "statistics",
+    request_body(content = PoliticalOrientationFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Is authoritarian per delegate", body = [PoliticalOrientationForDelegate]),
+    )
+)]
 pub async fn is_authoritarian_per_delegate(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<PoliticalOrientationFilter>>,
@@ -931,6 +1084,15 @@ pub async fn is_authoritarian_per_delegate(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/is_authoritarian_per_party",
+    tag = "statistics",
+    request_body(content = PoliticalOrientationFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Is authoritarian per party", body = [PoliticalOrientationByCategory]),
+    )
+)]
 pub async fn is_authoritarian_per_party(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<PoliticalOrientationFilter>>,
@@ -941,6 +1103,15 @@ pub async fn is_authoritarian_per_party(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/is_authoritarian_per_gender",
+    tag = "statistics",
+    request_body(content = PoliticalOrientationFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Is authoritarian per gender", body = [PoliticalOrientationByCategory]),
+    )
+)]
 pub async fn is_authoritarian_per_gender(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<PoliticalOrientationFilter>>,
@@ -951,6 +1122,15 @@ pub async fn is_authoritarian_per_gender(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/is_authoritarian_per_legis",
+    tag = "statistics",
+    request_body(content = PoliticalOrientationFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Is authoritarian per legis", body = [PoliticalOrientationByCategory]),
+    )
+)]
 pub async fn is_authoritarian_per_legis(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<PoliticalOrientationFilter>>,
@@ -961,6 +1141,15 @@ pub async fn is_authoritarian_per_legis(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/is_authoritarian_per_age",
+    tag = "statistics",
+    request_body(content = PoliticalOrientationFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Is authoritarian per age", body = [PoliticalOrientationByCategory]),
+    )
+)]
 pub async fn is_authoritarian_per_age(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<PoliticalOrientationFilter>>,
@@ -971,6 +1160,15 @@ pub async fn is_authoritarian_per_age(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/political_spectrum_per_delegate",
+    tag = "statistics",
+    request_body(content = PoliticalOrientationFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Political spectrum per delegate", body = [PoliticalSpectrumForDelegate]),
+    )
+)]
 pub async fn political_spectrum_per_delegate(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<PoliticalOrientationFilter>>,
@@ -980,6 +1178,15 @@ pub async fn political_spectrum_per_delegate(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/political_spectrum_per_party",
+    tag = "statistics",
+    request_body(content = PoliticalOrientationFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Political spectrum per party", body = [PoliticalSpectrumByCategory]),
+    )
+)]
 pub async fn political_spectrum_per_party(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<PoliticalOrientationFilter>>,
@@ -989,6 +1196,15 @@ pub async fn political_spectrum_per_party(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/political_spectrum_per_gender",
+    tag = "statistics",
+    request_body(content = PoliticalOrientationFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Political spectrum per gender", body = [PoliticalSpectrumByCategory]),
+    )
+)]
 pub async fn political_spectrum_per_gender(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<PoliticalOrientationFilter>>,
@@ -998,6 +1214,15 @@ pub async fn political_spectrum_per_gender(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/political_spectrum_per_age",
+    tag = "statistics",
+    request_body(content = PoliticalOrientationFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Political spectrum per age", body = [PoliticalSpectrumByCategory]),
+    )
+)]
 pub async fn political_spectrum_per_age(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<PoliticalOrientationFilter>>,

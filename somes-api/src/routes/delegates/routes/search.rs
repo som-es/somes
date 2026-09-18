@@ -17,6 +17,15 @@ pub struct DelegatesWithMaxPage {
     pub updated_at: Option<chrono::NaiveDateTime>,
 }
 
+#[utoipa::path(
+    get,
+    path = "/search",
+    tag = "delegates",
+    params(somes_common_lib::SearchQuery, somes_common_lib::Page, somes_common_lib::PageEntryCount, somes_common_lib::SortParams, DelegateFilter),
+    responses(
+        (status = 200, description = "Delegates by search", body = DelegatesWithMaxPage),
+    )
+)]
 pub async fn delegates_by_search_route(
     ParliamentCtx(parliament): ParliamentCtx,
     RedisConnection(mut redis_con): RedisConnection,

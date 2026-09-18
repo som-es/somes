@@ -12,6 +12,15 @@ use crate::{
     routes::{FilterError, VoteResultsWithMaxPage},
 };
 
+#[utoipa::path(
+    get,
+    path = "/search",
+    tag = "vote_results",
+    params(somes_common_lib::SearchQuery, somes_common_lib::Page, somes_common_lib::PageEntryCount, somes_common_lib::SortParams, AddonVoteResultFilter, OptionalVoteResultFilter),
+    responses(
+        (status = 200, description = "Vote results by search", body = VoteResultsWithMaxPage),
+    )
+)]
 pub async fn vote_results_by_search_route(
     ParliamentCtx(parliament): ParliamentCtx,
     MeilisearchClient(meilisearch_client): MeilisearchClient,

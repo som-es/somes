@@ -1,11 +1,11 @@
-use axum::{Router, routing::get};
 use combx::{DbAiSummary, Delegate, DelegateFilter, OptionalDecree};
 use redis::aio::ConnectionManager;
 use serde::{Deserialize, Serialize};
-use somes_common_lib::{Document, LATEST, SEARCH};
+use somes_common_lib::Document;
 use somes_macro::MeilisearchFilter;
 use somes_meilisearch_filter::FilterArgument;
 use utoipa::ToSchema;
+use utoipa_axum::{router::OpenApiRouter, routes};
 
 use crate::AppState;
 use crate::routes::delegate_by_id_sqlx;
@@ -21,12 +21,12 @@ pub struct DecreeDelegate {
     pub delegate: Option<Delegate>,
 }
 
-pub fn create_decrees_router() -> Router<AppState> {
-    Router::new()
-        .route(SEARCH, get(decrees_by_search_route))
+pub fn create_decrees_router() -> OpenApiRouter<AppState> {
+    OpenApiRouter::new()
+        .routes(routes!(decrees_by_search_route))
         // .route(LIVE, post(decrees_per_page_route))
-        .route(LATEST, get(latest_decrees_route))
-        .route("/ris_id/{ris_id}", get(decree_by_ris_id_route))
+        .routes(routes!(latest_decrees_route))
+        .routes(routes!(decree_by_ris_id_route))
 }
 
 #[derive(ToSchema, Debug, Deserialize, Serialize)]

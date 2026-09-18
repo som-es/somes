@@ -1,10 +1,11 @@
 use axum::Json;
 use serde::Serialize;
 use somes_common_lib::TopicInfluence;
+use utoipa::ToSchema;
 
 use crate::{GenericError, PgPoolConnection};
 
-#[derive(Debug, Serialize)]
+#[derive(ToSchema, Debug, Serialize)]
 pub struct OrientationQuestionResponse {
     pub id: i32,
     pub question: String,
@@ -18,7 +19,7 @@ pub struct OrientationQuestionResponse {
     pub detailed_topics_influence: Vec<TopicInfluence>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(ToSchema, Debug, Serialize)]
 pub struct StrongReferenceAnswer {
     pub id: i32,
     pub question_id: i32,
@@ -30,6 +31,14 @@ pub struct StrongReferenceAnswer {
     pub full_stance: Option<serde_json::Value>,
 }
 
+#[utoipa::path(
+    get,
+    path = "/orientation_questions",
+    tag = "orientation",
+    responses(
+        (status = 200, description = "Orientation questions", body = [OrientationQuestionResponse]),
+    )
+)]
 pub async fn orientation_questions_route(
     PgPoolConnection(pg): PgPoolConnection,
 ) -> Result<Json<Vec<OrientationQuestionResponse>>, GenericError> {

@@ -9,6 +9,15 @@ use meilisearch_sdk::search::SearchResults;
 use somes_common_lib::{Page, Sort, TopicsFilter};
 use somes_meilisearch_filter::{FilterOptions, to_meilisearch_filters};
 
+#[utoipa::path(
+    get,
+    path = "/search",
+    tag = "decrees",
+    params(somes_common_lib::SearchQuery, somes_common_lib::Page, somes_common_lib::PageEntryCount, somes_common_lib::SortParams, somes_common_lib::DateRangeQueryFilter, TopicsFilter, DecreeDelegateFilter),
+    responses(
+        (status = 200, description = "Decrees by search", body = DecreesWithMaxPage),
+    )
+)]
 pub async fn decrees_by_search_route(
     ParliamentCtx(parliament): ParliamentCtx,
     RedisConnection(mut redis_con): RedisConnection,

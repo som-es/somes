@@ -7,6 +7,15 @@ use sqlx::PgPool;
 use crate::routes::DelegateError;
 use crate::{PgPoolConnection, RedisConnection, get_json_cache, set_json_cache_with_relevance};
 
+#[utoipa::path(
+    get,
+    path = "/all_at_date",
+    tag = "delegates",
+    params(Date),
+    responses(
+        (status = 200, description = "Gov officials at date", body = [Delegate]),
+    )
+)]
 pub async fn gov_officials_at_date_route(
     // DataserviceDbConnection(con): DataserviceDbConnection,
     RedisConnection(mut redis_con): RedisConnection,

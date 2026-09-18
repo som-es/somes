@@ -1,5 +1,6 @@
 use axum::Json;
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 use crate::{
     AtPgPoolConnection,
@@ -15,7 +16,7 @@ pub struct AnonymizeEmailBody {
     pub email: Option<String>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(ToSchema, Serialize, Debug)]
 pub struct AnonymizeEmailResponse {
     pub success: bool,
     pub message: String,
@@ -23,6 +24,14 @@ pub struct AnonymizeEmailResponse {
     pub access_token: Option<String>,
 }
 
+#[utoipa::path(
+    post,
+    path = "/anonymize_email",
+    tag = "user",
+    responses(
+        (status = 200, description = "Anonymize email", body = AnonymizeEmailResponse),
+    )
+)]
 pub async fn anonymize_email(
     claims: Claims,
     AtPgPoolConnection(pg): AtPgPoolConnection,

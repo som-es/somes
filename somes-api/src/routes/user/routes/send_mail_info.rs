@@ -4,6 +4,15 @@ use sqlx::{query, query_as};
 
 use crate::{GenericError, PgPoolConnection, jwt::Claims};
 
+#[utoipa::path(
+    put,
+    path = "/send_mail_info",
+    tag = "user",
+    request_body(content = SendMailInfo, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Update send mail info"),
+    )
+)]
 pub async fn update_send_mail_info_route(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,
@@ -51,6 +60,14 @@ pub async fn update_send_mail_info_route(
     .map_err(|e| GenericError::SqlFailure(Some(e)))
 }
 
+#[utoipa::path(
+    get,
+    path = "/send_mail_info",
+    tag = "user",
+    responses(
+        (status = 200, description = "Get send mail info", body = SendMailInfo),
+    )
+)]
 pub async fn get_send_mail_info_route(
     PgPoolConnection(pg): PgPoolConnection,
     claims: Claims,

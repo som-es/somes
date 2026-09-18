@@ -1,12 +1,22 @@
 use crate::{AppState, TopicsExtractor};
 use crate::{PgPoolConnection, routes::DelegateError};
-use axum::{Json, Router, extract::Query, routing::get};
+use axum::{Json, extract::Query};
 use somes_common_lib::{DelegateById, PoliticalPosition};
+use utoipa_axum::{router::OpenApiRouter, routes};
 
-pub fn create_political_analysis_router() -> Router<AppState> {
-    Router::new().route("/political_position", get(political_position))
+pub fn create_political_analysis_router() -> OpenApiRouter<AppState> {
+    OpenApiRouter::new().routes(routes!(political_position))
 }
 
+#[utoipa::path(
+    get,
+    path = "/political_position",
+    tag = "delegates",
+    params(DelegateById),
+    responses(
+        (status = 200, description = "Political position", body = Option<PoliticalPosition>),
+    )
+)]
 pub async fn political_position(
     PgPoolConnection(pg): PgPoolConnection,
     Query(delegate_by_id): Query<DelegateById>,

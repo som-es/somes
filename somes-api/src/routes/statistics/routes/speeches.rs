@@ -441,6 +441,15 @@ impl SpeechService {
 }
 
 // Main endpoint functions
+#[utoipa::path(
+    post,
+    path = "/speechtime_per_delegate",
+    tag = "statistics",
+    request_body(content = SpeechFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Speechtime per delegate", body = [SpeechForDelegate]),
+    )
+)]
 pub async fn speechtime_per_delegate(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<SpeechFilter>>,
@@ -451,6 +460,15 @@ pub async fn speechtime_per_delegate(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/speechtime_per_party",
+    tag = "statistics",
+    request_body(content = SpeechFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Speechtime per party", body = [SpeechByCategory]),
+    )
+)]
 pub async fn speechtime_per_party(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<SpeechFilter>>,
@@ -461,6 +479,15 @@ pub async fn speechtime_per_party(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/speechtime_per_gender",
+    tag = "statistics",
+    request_body(content = SpeechFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Speechtime per gender", body = [SpeechByCategory]),
+    )
+)]
 pub async fn speechtime_per_gender(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<SpeechFilter>>,
@@ -471,6 +498,15 @@ pub async fn speechtime_per_gender(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/speechtime_per_legis",
+    tag = "statistics",
+    request_body(content = SpeechFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Speechtime per legis", body = [SpeechByCategory]),
+    )
+)]
 pub async fn speechtime_per_legis(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<SpeechFilter>>,
@@ -481,6 +517,15 @@ pub async fn speechtime_per_legis(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/speechtime_per_age",
+    tag = "statistics",
+    request_body(content = SpeechFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Speechtime per age", body = [SpeechByCategory]),
+    )
+)]
 pub async fn speechtime_per_age(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<SpeechFilter>>,
@@ -491,6 +536,15 @@ pub async fn speechtime_per_age(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/total_speeches_per_delegate",
+    tag = "statistics",
+    request_body(content = SpeechFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Total speeches per delegate", body = [SpeechForDelegate]),
+    )
+)]
 pub async fn total_speeches_per_delegate(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<SpeechFilter>>,
@@ -501,6 +555,15 @@ pub async fn total_speeches_per_delegate(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/total_speeches_per_party",
+    tag = "statistics",
+    request_body(content = SpeechFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Total speeches per party", body = [SpeechByCategory]),
+    )
+)]
 pub async fn total_speeches_per_party(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<SpeechFilter>>,
@@ -511,6 +574,15 @@ pub async fn total_speeches_per_party(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/total_speeches_per_gender",
+    tag = "statistics",
+    request_body(content = SpeechFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Total speeches per gender", body = [SpeechByCategory]),
+    )
+)]
 pub async fn total_speeches_per_gender(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<SpeechFilter>>,
@@ -521,6 +593,15 @@ pub async fn total_speeches_per_gender(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/total_speeches_per_legis",
+    tag = "statistics",
+    request_body(content = SpeechFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Total speeches per legis", body = [SpeechByCategory]),
+    )
+)]
 pub async fn total_speeches_per_legis(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<SpeechFilter>>,
@@ -531,6 +612,15 @@ pub async fn total_speeches_per_legis(
     Ok(Json(results))
 }
 
+#[utoipa::path(
+    post,
+    path = "/total_speeches_per_age",
+    tag = "statistics",
+    request_body(content = SpeechFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Total speeches per age", body = [SpeechByCategory]),
+    )
+)]
 pub async fn total_speeches_per_age(
     PgPoolConnection(pg): PgPoolConnection,
     Json(filter): Json<Option<SpeechFilter>>,
