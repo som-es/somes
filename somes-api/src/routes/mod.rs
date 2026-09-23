@@ -20,7 +20,7 @@ mod volksbg;
 mod vote_results;
 mod walo;
 
-use combx::with_data::gps::LegislativePeriod;
+use combx::LegislativePeriod;
 pub use dates::*;
 pub use decrees::*;
 pub use delegates::*;

@@ -1,4 +1,5 @@
 mod search;
+mod status;
 
 use axum::{
     Json,
@@ -8,6 +9,7 @@ use combx::Parliament;
 use delegate_question_mail::new_question_message_id;
 use reqwest::StatusCode;
 pub(super) use search::*;
+pub(super) use status::*;
 
 pub use super::models::{
     AdminDelegateQuestion, CreateDelegateQuestion, DelegateQuestionCreated, DelegateQuestionQuery,

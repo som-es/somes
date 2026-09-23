@@ -27,6 +27,8 @@ pub fn create_delegate_questions_router() -> Router<AppState> {
     Router::new()
         .route("/", get(all_delegate_questions_route))
         .route("/search", get(delegate_questions_search))
+        .route("/status", get(status_info_route))
+        .route("/status/toggle", post(toggle_status_route))
         .route(
             "/delegate/{delegate_id}",
             get(delegate_questions_route)
