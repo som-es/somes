@@ -29,6 +29,8 @@
 	import { convertDecreeFilterToUrl } from '../Decrees/urlConversion';
 	import { t } from '$lib/i18n/i18n.svelte';
 
+	let { questionsEnabled = true }: { questionsEnabled?: boolean } = $props();
+
 	let activeUrl = $derived(page.url.pathname);
 	let activeSectionHash = $state('');
 	let activeHash = $derived(activeSectionHash || page.url.hash);
@@ -263,7 +265,7 @@
 				{@html statisticsIcon}
 			</span>
 		</a>
-		<!-- {#if parliament == "at"}
+		{#if parliament == "at" && questionsEnabled}
     		<a
     			href={plink('/questions')}
     			title={t('nav.questions')}
@@ -275,7 +277,7 @@
     				{@html questionsIcon}
     			</span>
     		</a>
-		{/if} -->
+		{/if}
 
 		<div class="mt-auto mb-4 flex flex-col gap-3">
 			<button

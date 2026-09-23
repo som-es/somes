@@ -17,7 +17,7 @@
 	import { t } from '$lib/i18n/i18n.svelte';
 	import { dev } from '$app/environment';
 
-	let { children } = $props();
+	let { children, data } = $props();
 
 	type DisclaimerKey =
 		'layout.disclaimer.publicData' | 'layout.disclaimer.ris' | 'layout.disclaimer.eu';
@@ -60,7 +60,7 @@
 	<div class="grid grid-cols-1 lg:grid-cols-[auto_1fr]">
 		<!-- Left Sidebar. -->
 		<aside class="sticky top-0 col-span-1 hidden h-screen lg:block">
-			<Sidebar />
+			<Sidebar questionsEnabled={data.questionsEnabled} />
 		</aside>
 		<!-- Main Content -->
 		<main class="mb-35 w-full min-w-0">

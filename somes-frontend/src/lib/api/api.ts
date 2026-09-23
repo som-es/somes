@@ -199,6 +199,17 @@ export async function delegate_questions_by_query_search(
 	return getWithRoute(`v1/delegates/questions/search?${query}`, parliament, fetcher);
 }
 
+export async function delegate_question_status(
+	fetcher: typeof fetch = fetch,
+	parliament: Parliament = getParliament()
+): Promise<{ enabled: boolean } | HasError> {
+	return getWithRoute<{ enabled: boolean }>(
+		'v1/delegates/questions/status',
+		parliament,
+		fetcher
+	);
+}
+
 export async function latest_vote_results(
 	fetcher: typeof fetch = fetch,
 	parliament: Parliament = getParliament()

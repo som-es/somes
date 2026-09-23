@@ -16,16 +16,22 @@ pub struct DelegateQuestionStatus {
 }
 
 pub async fn status_info_route(
-    RedisConnection(mut redis): RedisConnection,
+    RedisConnection(redis): RedisConnection,
 ) -> crate::Result<Json<DelegateQuestionStatus>> {
+    delegate_questions_status(redis).await.map(Json)
+}
+
+pub async fn delegate_questions_status(
+    mut redis: redis::aio::ConnectionManager,
+) -> Result<DelegateQuestionStatus, GenericError> {
     let value: Option<String> = redis
         .get(DELEGATE_QUESTIONS_STATUS_KEY)
         .await
         .map_err(GenericError::RedisFailure)?;
 
-    let enabled = value.map(|value| value == "true").unwrap_or(false);
+    let enabled = value.map(|value| value == "1").unwrap_or(false);
 
-    Ok(Json(DelegateQuestionStatus { enabled }))
+    Ok(DelegateQuestionStatus { enabled })
 }
 
 pub async fn toggle_status_route(
@@ -38,7 +44,7 @@ pub async fn toggle_status_route(
         .await
         .map_err(GenericError::RedisFailure)?;
 
-    let enabled = value.map(|value| value == "true").unwrap_or(false);
+    let enabled = value.map(|value| value == "1").unwrap_or(false);
 
     let enabled = !enabled;
 

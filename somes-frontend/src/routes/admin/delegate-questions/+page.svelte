@@ -5,12 +5,15 @@
 		getUser,
 		pendingDelegateQuestions,
 		rejectDelegateQuestion,
+		toggleDelegateQuestions,
 		updateDelegateQuestion
 	} from '$lib/api/authed';
 	import { errorToNull, get_eurovoc_topics, isHasError } from '$lib/api/api';
 	import { formatDateTime } from '$lib/date';
 	import type { AdminDelegateQuestion, UniqueTopic, UpdateDelegateQuestion } from '$lib/types';
 	import { SvelteSet } from 'svelte/reactivity';
+	import { goto } from '$app/navigation';
+	import { plink } from '$lib/api/parliament';
 
 	let questions = $state<AdminDelegateQuestion[]>([]);
 	let isLoading = $state(true);
@@ -44,6 +47,7 @@
 		if (!user.is_admin) {
 			errorMessage = 'Du hast keine Berechtigung für diese Seite.';
 			isLoading = false;
+			goto(plink("/home"));
 			return;
 		}
 
@@ -64,6 +68,16 @@
 		}
 
 		questions = result;
+	}
+
+	async function toggleQuestionSystem() {
+		const result = await toggleDelegateQuestions();
+		console.log(result);
+
+		if (isHasError(result)) {
+			errorMessage = result.error;
+			return;
+		}
 	}
 
 	function startEditing(question: AdminDelegateQuestion) {
@@ -154,12 +168,21 @@
 		</div>
 
 		{#if isAdmin}
-			<button
-				class="rounded-md border border-gray-300 px-3 py-2 text-sm font-semibold text-black hover:bg-gray-100 dark:border-gray-600 dark:text-white dark:hover:bg-gray-800"
-				onclick={loadQuestions}
-			>
-				Aktualisieren
-			</button>
+		    <div class="flex flex-wrap gap-2">
+    			<button
+    				class="rounded-md border border-gray-300 px-3 py-2 text-sm font-semibold text-black hover:bg-gray-100 dark:border-gray-600 dark:text-white dark:hover:bg-gray-800"
+    				onclick={toggleQuestionSystem}
+    			>
+    				Toggle System
+    			</button>
+
+    			<button
+    				class="rounded-md border border-gray-300 px-3 py-2 text-sm font-semibold text-black hover:bg-gray-100 dark:border-gray-600 dark:text-white dark:hover:bg-gray-800"
+    				onclick={loadQuestions}
+    			>
+    				Aktualisieren
+    			</button>
+			</div>
 		{/if}
 	</div>
 

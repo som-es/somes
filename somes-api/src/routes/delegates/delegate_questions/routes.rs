@@ -16,7 +16,7 @@ pub use super::models::{
     DelegateQuestionRecipient, PublicDelegateQuestion, UpdateDelegateQuestion,
 };
 use crate::{
-    GenericError, ParliamentCtx, PgPoolConnection,
+    GenericError, ParliamentCtx, PgPoolConnection, RedisConnection,
     jwt::Claims,
     meilisearch::MeilisearchClient,
     routes::{
@@ -37,11 +37,18 @@ const MAX_BODY_LENGTH: usize = 10_000;
 pub async fn ask_delegate_question_route(
     PgPoolConnection(pg): PgPoolConnection,
     ParliamentCtx(parliament): ParliamentCtx,
+    RedisConnection(redis): RedisConnection,
     claims: Claims,
     Query(query): Query<DelegateQuestionQuery>,
     Path(delegate_id): Path<i32>,
     Json(question): Json<CreateDelegateQuestion>,
 ) -> Result<Json<DelegateQuestionCreated>, GenericError> {
+    if !delegate_questions_status(redis).await?.enabled {
+        return Err(GenericError::Custom((
+            StatusCode::SERVICE_UNAVAILABLE,
+            "Currently not available".into(),
+        )));
+    }
     if parliament == Parliament::Eu {
         return Err(GenericError::Custom((
             StatusCode::SERVICE_UNAVAILABLE,

@@ -13,10 +13,11 @@ use common_scrapes::language::Language;
 use routes::*;
 use std::sync::Arc;
 use tower_governor::{GovernorLayer, governor::GovernorConfigBuilder};
+use utoipa_axum::router::OpenApiRouter;
 
 use crate::{AppState, GenericError, routes::db::find_public_question};
 
-pub fn create_delegate_questions_router() -> Router<AppState> {
+pub fn create_delegate_questions_router() -> OpenApiRouter<AppState> {
     let governor_conf = Arc::new(
         GovernorConfigBuilder::default()
             .per_second(15)
@@ -24,7 +25,7 @@ pub fn create_delegate_questions_router() -> Router<AppState> {
             .finish()
             .unwrap(),
     );
-    Router::new()
+    OpenApiRouter::new()
         .route("/", get(all_delegate_questions_route))
         .route("/search", get(delegate_questions_search))
         .route("/status", get(status_info_route))

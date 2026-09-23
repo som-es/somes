@@ -191,6 +191,13 @@ export async function pendingDelegateQuestions(
 	);
 }
 
+export async function toggleDelegateQuestions(
+): Promise<any | HasError> {
+	return postWithAuth<any>(
+		`v1/delegates/questions/status/toggle`, {}
+	);
+}
+
 export async function updateDelegateQuestion(
 	questionId: number,
 	update: UpdateDelegateQuestion,
