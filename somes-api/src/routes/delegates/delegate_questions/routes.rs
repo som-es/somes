@@ -31,8 +31,8 @@ use crate::{
     },
 };
 
-const MAX_SUBJECT_LENGTH: usize = 255;
-const MAX_BODY_LENGTH: usize = 10_000;
+const MAX_SUBJECT_LENGTH: usize = 200;
+const MAX_BODY_LENGTH: usize = 1_000;
 
 pub async fn ask_delegate_question_route(
     PgPoolConnection(pg): PgPoolConnection,
@@ -242,10 +242,10 @@ fn ensure_admin(claims: &Claims) -> Result<(), GenericError> {
 }
 
 fn validate_question(subject: &str, body: &str) -> Result<(), GenericError> {
-    if subject.is_empty() || body.is_empty() {
+    if subject.is_empty() {
         return Err(GenericError::Custom((
             StatusCode::BAD_REQUEST,
-            "Subject and body are required",
+            "Question is required",
         )));
     }
 

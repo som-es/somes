@@ -29,6 +29,7 @@ export const de = {
 	'nav.delegates': 'Abgeordnete',
 	'nav.statistics': 'Statistiken',
 	'nav.questions': 'Fragen & Antworten',
+	'nav.modCode': 'Moderationskodex',
 	'nav.profile': 'Benutzerprofil',
 	'nav.history': 'Abstimmungshistorie',
 	'nav.speeches': 'Reden',
@@ -56,6 +57,7 @@ export const de = {
 	'layout.events': 'Events',
 	'layout.imprint': 'Impressum',
 	'layout.privacy': 'Datenschutz',
+	'layout.modCode': 'Moderationskodex',
 	'layout.socials': 'Socials',
 	'layout.copyright': 'somes - Verein für Demokratie und politische Transparenz',
 	'layout.disclaimer.publicData':
@@ -66,7 +68,8 @@ export const de = {
 		'Diese Rohdaten werden vom <a class="text-secondary-500" href="https://data.europa.eu/data/datasets?query=European+Parliament" target="_blank">Open-Data Portal</a> der Europäischen Union (data.europa.eu) bereitgestellt und sind nach <a class="text-secondary-500" href="https://opendatacommons.org/licenses/by/1-0/" target="_blank">ODC-BY 1.0</a> lizenziert.',
 
 	// --- Landing page (/) ---
-	'landing.meta.description': 'Somes ist eine Transparenzplattform. Wir stellen Abstimmungen, Reden, Ministerialentwürfe, Verordnungen und vieles mehr mit KI-Aufbereitung zur Verfügung.',
+	'landing.meta.description':
+		'Somes ist eine Transparenzplattform. Wir stellen Abstimmungen, Reden, Ministerialentwürfe, Verordnungen und vieles mehr mit KI-Aufbereitung zur Verfügung.',
 	'landing.platform': 'Plattform',
 	'landing.events': 'Events',
 	'landing.team': 'Team',
@@ -974,25 +977,34 @@ export const de = {
 	'qa.ask.step.question': 'Deine Frage',
 	'qa.ask.step.data': 'Deine Daten',
 	'qa.ask.step.review': 'Übersicht',
-	'qa.ask.subject': 'Betreff',
+	'qa.ask.subject': 'Deine Frage',
 	'qa.ask.subjectPlaceholder': 'Worum geht es?',
-	'qa.ask.body': 'Deine Frage',
-	'qa.ask.bodyPlaceholder': 'Formuliere deine Frage an {name}...',
+	'qa.ask.body': 'Begründung, Quellen & weitere Informationen (optional)',
+	'qa.ask.bodyPlaceholder':
+		'Begründe deine Frage an {name} oder gib Quellen und weitere Informationen an...',
 	'qa.ask.topicsHint':
 		'Wähle passende Themen aus, damit deine Frage leichter gefunden wird (optional).',
 	'qa.ask.topicsNone': 'Keine Themen ausgewählt',
 	'qa.ask.next': 'Weiter',
 	'qa.ask.back': 'Zurück',
-	'qa.ask.missingFields': 'Bitte gib einen Betreff und deine Frage ein.',
+	'qa.ask.missingFields': 'Bitte gib deine Frage ein.',
 	'qa.ask.loginRequired': 'Bitte melde dich an, um eine Frage zu stellen.',
 	'qa.ask.loginLink': 'Zur Anmeldung',
 	'qa.ask.loggedInAs': 'Angemeldet als',
 	'qa.ask.emailAnonymized': 'anonymisierte E-Mail-Adresse',
-	'qa.ask.dataHint.review': 'Deine Frage wird vor dem Versand redaktionell geprüft.',
+	'qa.ask.dataHint.review':
+		'Jede Frage wird anhand des Moderationskodex geprüft und anschließend freigeschaltet oder gelöscht.',
 	'qa.ask.dataHint.mail':
-		'Nach der Freigabe wird sie per E-Mail an die Person bzw. den Parteiklub weitergeleitet.',
+		'Die Frage wird per Somes-E-Mail an die betreffende Person bzw. den Parteiklub versendet.',
 	'qa.ask.dataHint.anonymous':
-		'Auf somes erscheint deine Frage anonym. Dein Name und deine E-Mail-Adresse werden nicht veröffentlicht.',
+		'Deine Frage ist mit deinem somes-Account verknüpft. Für andere Nutzer:innen bleibt sie anonym, für uns ist dein Account jedoch sichtbar.',
+	'qa.ask.consent.read': 'Ich habe die ',
+	'qa.ask.consent.privacy': 'Datenschutzerklärung',
+	'qa.ask.consent.and': ' und den ',
+	'qa.ask.consent.code': 'Moderationskodex',
+	'qa.ask.consent.agree': ' gelesen und stimme der Verarbeitung meiner Frage zu.',
+	'qa.ask.consentRequired':
+		'Bitte stimme der Datenschutzerklärung und dem Moderationskodex zu, um deine Frage einzureichen.',
 	'qa.ask.recipient': 'Empfänger:in',
 	'qa.ask.recipientParty':
 		'Die Frage wird an den {name} gesendet, weil für diese Person keine direkte E-Mail-Adresse hinterlegt ist.',

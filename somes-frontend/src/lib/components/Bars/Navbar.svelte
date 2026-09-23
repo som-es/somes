@@ -82,7 +82,8 @@
 			{ label: t('nav.votes'), subItems: voteSubItems },
 			{ href: plink('/delegates'), label: t('nav.delegates') },
 			{ href: plink('/statistics'), label: t('nav.statistics') },
-			{ href: plink('/questions'), label: t('nav.questions') }
+			{ href: plink('/questions'), label: t('nav.questions') },
+			{ href: resolve('/moderationskodex'), label: t('nav.modCode') }
 		];
 	});
 

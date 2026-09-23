@@ -40,3 +40,18 @@ export const parliamentModalOpenStore = {
 		parliamentModalOpen = newValue;
 	}
 };
+
+export interface QuestionDraft {
+	subject: string;
+	body: string;
+	topics: string[];
+	step: number;
+	consent: boolean;
+}
+
+// In-memory draft storage, one draft per delegate. Kept alive across SPA
+// navigations (e.g. opening the moderation code or privacy policy) so the
+// user does not lose their input. Cleared after a successful submission.
+export const questionDraftsStore = $state<{ value: Record<number, QuestionDraft> }>({
+	value: {}
+});

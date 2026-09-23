@@ -7,9 +7,14 @@
 	import { askDelegateQuestion, getUser } from '$lib/api/authed';
 	import { errorToNull, get_eurovoc_topics, isHasError } from '$lib/api/api';
 	import { plink } from '$lib/api/parliament';
+	import { resolve } from '$app/paths';
 	import { partyToColor } from '$lib/partyColor';
 	import { t } from '$lib/i18n/i18n.svelte';
-	import { jwtStore, loginDrawerOpenStore } from '$lib/caching/stores/stores.svelte';
+	import {
+		jwtStore,
+		loginDrawerOpenStore,
+		questionDraftsStore
+	} from '$lib/caching/stores/stores.svelte';
 	import type { ExtendedUserInfo, UniqueTopic } from '$lib/types';
 	import type { PageProps } from './$types';
 
@@ -39,6 +44,13 @@
 
 	onMount(async () => {
 		eurovocTopics = errorToNull(await get_eurovoc_topics()) ?? [];
+		if (savedDraft && delegate) {
+			subject = savedDraft.subject;
+			body = savedDraft.body;
+			selectedTopics = new SvelteSet(savedDraft.topics.filter((topic) => topics.includes(topic)));
+			activeStep = savedDraft.step;
+			consentGiven = savedDraft.consent;
+		}
 	});
 
 	let user = $state<ExtendedUserInfo | null>(null);
@@ -46,6 +58,27 @@
 
 	let isSending = $state(false);
 	let wasSubmitted = $state(false);
+	let consentGiven = $state(false);
+
+	// Capture a previously saved draft (if any) before the persistence effect
+	// below runs and would overwrite it. The delegate data is constant for this
+	// page instance (SvelteKit recreates the component on param changes), so
+	// snapshotting the initial value here is intentional.
+	// svelte-ignore state_referenced_locally
+	const savedDelegate = data.delegate;
+	const savedDraft = savedDelegate ? (questionDraftsStore.value[savedDelegate.id] ?? null) : null;
+	if (savedDelegate) delete questionDraftsStore.value[savedDelegate.id];
+
+	$effect(() => {
+		if (!delegate) return;
+		questionDraftsStore.value[delegate.id] = {
+			subject,
+			body,
+			topics: selectedEurovocTopics.map((topic) => topic.topic),
+			step: activeStep,
+			consent: consentGiven
+		};
+	});
 
 	$effect(() => {
 		const jwt = jwtStore.value;
@@ -72,7 +105,7 @@
 	}
 
 	function nextFromQuestion() {
-		if (!subject.trim() || !body.trim()) {
+		if (!subject.trim()) {
 			errorMessage = t('qa.ask.missingFields');
 			return;
 		}
@@ -81,6 +114,10 @@
 
 	async function submitQuestion() {
 		if (delegate === null) return;
+		if (!consentGiven) {
+			errorMessage = t('qa.ask.consentRequired');
+			return;
+		}
 
 		isSending = true;
 		errorMessage = null;
@@ -103,6 +140,7 @@
 		}
 
 		wasSubmitted = true;
+		if (delegate) delete questionDraftsStore.value[delegate.id];
 	}
 </script>
 
@@ -200,23 +238,26 @@
 						<span class="mb-1 block text-sm font-semibold">{t('qa.ask.subject')}</span>
 						<input
 							bind:value={subject}
-							maxlength="255"
+							maxlength="200"
 							placeholder={t('qa.ask.subjectPlaceholder')}
 							class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-black outline-none focus:border-primary-600 focus:ring-2 focus:ring-primary-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white"
 						/>
+						<span class="mt-1 block text-right text-xs text-gray-700 dark:text-gray-300">
+							{subject.length}/200
+						</span>
 					</label>
 
 					<label class="mt-4 block">
 						<span class="mb-1 block text-sm font-semibold">{t('qa.ask.body')}</span>
 						<textarea
 							bind:value={body}
-							maxlength="10000"
-							rows="8"
+							maxlength="1000"
+							rows="6"
 							placeholder={t('qa.ask.bodyPlaceholder', { name: delegate.name })}
 							class="w-full resize-y rounded-md border border-gray-300 bg-white px-3 py-2 text-black outline-none focus:border-primary-600 focus:ring-2 focus:ring-primary-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white"
 						></textarea>
 						<span class="mt-1 block text-right text-xs text-gray-700 dark:text-gray-300">
-							{body.length}/10000
+							{body.length}/1000
 						</span>
 					</label>
 
@@ -264,7 +305,9 @@
 
 					<div class="mt-4 rounded-xl bg-surface-50 p-3 sm:p-4 dark:bg-surface-600">
 						<span class="block font-bold">{subject}</span>
-						<p class="mt-2 text-sm whitespace-pre-line sm:text-base">{body}</p>
+						{#if body}
+							<p class="mt-2 text-sm whitespace-pre-line sm:text-base">{body}</p>
+						{/if}
 						<div class="mt-3">
 							{#if selectedEurovocTopics.length > 0}
 								<Topics topics={selectedEurovocTopics} />
@@ -275,6 +318,33 @@
 							{/if}
 						</div>
 					</div>
+				{/if}
+
+				{#if activeStep === 2}
+					<label class="mt-4 flex cursor-pointer items-start gap-2.5">
+						<input
+							type="checkbox"
+							bind:checked={consentGiven}
+							class="mt-0.5 h-4 w-4 shrink-0 accent-secondary-500"
+						/>
+						<span class="text-sm text-gray-800 dark:text-gray-200">
+							{t('qa.ask.consent.read')}
+							<a
+								href={resolve('/datenschutz')}
+								class="font-semibold text-secondary-600 underline hover:text-secondary-500"
+							>
+								{t('qa.ask.consent.privacy')}
+							</a>
+							{t('qa.ask.consent.and')}
+							<a
+								href={resolve('/moderationskodex')}
+								class="font-semibold text-secondary-600 underline hover:text-secondary-500"
+							>
+								{t('qa.ask.consent.code')}
+							</a>
+							{t('qa.ask.consent.agree')}
+						</span>
+					</label>
 				{/if}
 
 				{#if errorMessage}
@@ -316,7 +386,7 @@
 					{:else}
 						<button
 							class="rounded-xl bg-secondary-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:cursor-pointer hover:bg-secondary-600 disabled:cursor-not-allowed disabled:opacity-60"
-							disabled={isSending || recipient === null}
+							disabled={isSending || recipient === null || !consentGiven}
 							onclick={submitQuestion}
 						>
 							{isSending ? t('qa.ask.submitting') : t('qa.ask.submit')}

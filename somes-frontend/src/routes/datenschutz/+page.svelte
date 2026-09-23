@@ -55,6 +55,19 @@
 			</section>
 
 			<section>
+				<h2 class="mb-3 text-xl font-bold text-primary-800 dark:text-primary-200">
+					Fragesystem an Abgeordnete
+				</h2>
+				<p>
+					Über unser Fragesystem können angemeldete Nutzer:innen Fragen an Abgeordnete stellen.
+					Diese Fragen können mit dem jeweiligen somes-Nutzeraccount verknüpft werden, um Missbrauch
+					zu verhindern. Die Verknüpfung ist ausschließlich für uns einsehbar – für andere
+					Nutzer:innen erscheint die Frage anonym. Nach der redaktionellen Prüfung wird die Frage
+					per E-Mail an die betreffende Person bzw. den Parteiklub weitergeleitet.
+				</p>
+			</section>
+
+			<section>
 				<h2 class="mb-3 text-xl font-bold text-primary-800 dark:text-primary-200">Newsletter</h2>
 				<p>
 					Sie haben die Möglichkeit, über unsere Website unseren Newsletter zu abonnieren. Hierfür

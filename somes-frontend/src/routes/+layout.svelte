@@ -23,7 +23,13 @@
 		'layout.disclaimer.publicData' | 'layout.disclaimer.ris' | 'layout.disclaimer.eu';
 	let disclaimerKey = $derived.by((): DisclaimerKey | null => {
 		const path = page.url.pathname;
-		if (path == '/' || path == '/user' || path == '/impressum' || path == '/datenschutz') {
+		if (
+			path == '/' ||
+			path == '/user' ||
+			path == '/impressum' ||
+			path == '/datenschutz' ||
+			path == '/moderationskodex'
+		) {
 			return null;
 		}
 		if (getParliament() == 'eu') return 'layout.disclaimer.eu';
@@ -141,6 +147,11 @@
 					<li>
 						<a href={resolve('/datenschutz')} class="hover:text-secondary-400"
 							>{t('layout.privacy')}</a
+						>
+					</li>
+					<li>
+						<a href={resolve('/moderationskodex')} class="hover:text-secondary-400"
+							>{t('layout.modCode')}</a
 						>
 					</li>
 				</ul>
