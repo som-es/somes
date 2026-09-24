@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { LineChart } from 'layerchart';
+	import { LineChart, Points, Spline } from 'layerchart';
+	import { localeStore } from '$lib/i18n';
 	import { partyColors } from '$lib/partyColor';
 
 	type ChartItem = {
@@ -8,18 +9,29 @@
 		party: string;
 		color: string;
 		valueLabel: string;
-		metadata?: Record<string, any>;
+		metadata?: Record<string, unknown>;
 	};
 
 	let {
 		data,
 		height = 520,
-		selectedCategory
+		selectedCategory,
+		valueDomain,
+		valuePrecision
 	}: {
 		data: ChartItem[];
 		height?: number;
 		selectedCategory: string;
+		valueDomain?: [number, number];
+		valuePrecision?: number;
 	} = $props();
+
+	const numberFormat = $derived(
+		new Intl.NumberFormat(localeStore.value, {
+			maximumFractionDigits: valuePrecision ?? 2,
+			minimumFractionDigits: 0
+		})
+	);
 
 	const periodOrder = ['XX', 'XXI', 'XXII', 'XXIII', 'XXIV', 'XXV', 'XXVI', 'XXVII', 'XXVIII'];
 
@@ -73,25 +85,45 @@
 	});
 </script>
 
-<div class="p-4" style="height: {height}px;">
-	<LineChart
-		data={lineData}
-		x="period"
-		y="value"
-		c="party"
-		{cRange}
-		padding={{ left: 64, right: 24, top: 24, bottom: 48 }}
-		props={{
-			xAxis: {
-				tickLabelProps: {
-					class: 'fill-black dark:fill-white stroke-none text-xs font-semibold'
+<div class="p-4">
+	<dl class="mb-3 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+		{#each lineData as item (item.period)}
+			<div class="flex gap-2">
+				<dt class="text-gray-600 dark:text-gray-300">{item.period}</dt>
+				<dd class="font-semibold tabular-nums">{numberFormat.format(item.value)}</dd>
+			</div>
+		{/each}
+	</dl>
+	<div style="height: {Math.max(240, height - 64)}px;">
+		<LineChart
+			data={lineData}
+			x="period"
+			y="value"
+			yDomain={valueDomain}
+			yBaseline={valueDomain ? null : 0}
+			yNice={valueDomain ? false : undefined}
+			c="party"
+			{cRange}
+			padding={{ left: 64, right: 24, top: 24, bottom: 48 }}
+			props={{
+				tooltip: { item: { format: (value: number) => numberFormat.format(value) } },
+				xAxis: {
+					tickLabelProps: {
+						class: 'fill-black dark:fill-white stroke-none text-xs font-semibold'
+					}
+				},
+				yAxis: {
+					format: (value: number) => numberFormat.format(value),
+					tickLabelProps: {
+						class: 'fill-black dark:fill-white stroke-none text-xs font-semibold'
+					}
 				}
-			},
-			yAxis: {
-				tickLabelProps: {
-					class: 'fill-black dark:fill-white stroke-none text-xs font-semibold'
-				}
-			}
-		}}
-	/>
+			}}
+		>
+			{#snippet marks()}
+				<Spline seriesKey="default" stroke="currentColor" strokeWidth={2} />
+				<Points seriesKey="default" r={4} fill="currentColor" />
+			{/snippet}
+		</LineChart>
+	</div>
 </div>

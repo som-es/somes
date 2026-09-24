@@ -49,6 +49,9 @@
 		chartDescriptions?: Record<string, string>;
 		reloadKey?: unknown;
 		showSpectrumMode?: boolean;
+		showDonutMode?: boolean;
+		lineValueDomain?: [number, number];
+		valuePrecision?: number;
 		selectedChartMode?: ChartMode;
 		extraReservedHeight?: number;
 	}
@@ -79,6 +82,9 @@
 		chartDescriptions = {},
 		reloadKey = null,
 		showSpectrumMode = false,
+		showDonutMode = true,
+		lineValueDomain,
+		valuePrecision,
 		selectedChartMode = $bindable<ChartMode>('bar'),
 		extraReservedHeight = 0
 	}: Props = $props();
@@ -166,6 +172,7 @@
 	);
 	let canUseLineChart = $derived(selectedCategory === 'legis');
 	let chartMode: ChartMode = $derived.by((): ChartMode => {
+		if (selectedChartMode === 'donut' && !showDonutMode) return 'bar';
 		if (selectedChartMode === 'line' && !canUseLineChart) return 'bar';
 		if (selectedChartMode === 'spectrum' && !showSpectrumMode) return 'bar';
 		return selectedChartMode;
@@ -180,6 +187,7 @@
 	let canUseTopLimit = $derived(selectedCategory === 'delegate' && chartMode !== 'line');
 	let availableChartModeOptions = $derived(
 		chartModeOptions.filter((option) => {
+			if (option.value === 'donut') return showDonutMode;
 			if (option.value === 'line') return canUseLineChart;
 			if (option.value === 'spectrum') return showSpectrumMode;
 			return true;
@@ -700,9 +708,16 @@
 		{:else if chartMode === 'donut'}
 			<CustomDonutChart data={chartData} height={responsiveChartHeight} {metricLabel} />
 		{:else if chartMode === 'line'}
-			<CustomLineChart data={chartData} height={responsiveChartHeight} {selectedCategory} />
+			<CustomLineChart
+				data={chartData}
+				height={responsiveChartHeight}
+				{selectedCategory}
+				valueDomain={lineValueDomain}
+				{valuePrecision}
+			/>
 		{:else}
 			<CustomBarChart
+				{valuePrecision}
 				data={chartData}
 				height={responsiveChartHeight}
 				{metricLabel}

@@ -47,6 +47,11 @@ pub fn create_statistics_router() -> OpenApiRouter<AppState> {
         .routes(routes!(complexity_per_legis))
         // Division Accuracy Score endpoints
         .routes(routes!(division_accuracy_score_per_delegate))
+        // Keep the historical misspelling working for existing clients.
+        .route(
+            "/divison_accuracy_score_per_delegate",
+            post(division_accuracy_score_per_delegate),
+        )
         .routes(routes!(division_accuracy_score_per_party))
         .routes(routes!(division_accuracy_score_per_gender))
         .routes(routes!(division_accuracy_score_per_age))

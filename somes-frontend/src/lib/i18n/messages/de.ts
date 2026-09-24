@@ -341,6 +341,41 @@ export const de = {
 	'event.createBtn': 'Erstellen',
 	'statistics.page.title': 'Statistiken - Parlamentsinformationssystem',
 	'statistics.page.description': 'Parlamentarische Statistiken als scrollbare Gesamtübersicht',
+	'statistics.section.complexity': 'Komplexität',
+	'statistics.complexity.title': 'Komplexität der Initiativen',
+	'statistics.complexity.intro':
+		'Vergleich der durchschnittlichen Gewichtung parlamentarischer Initiativtypen.',
+	'statistics.complexity.valueLabel': 'Komplexitätsindex',
+	'statistics.complexity.infoQuestion': 'Was zeigt die Komplexität?',
+	'statistics.complexity.infoAnswer':
+		'Abgeordnete bringen unterschiedliche Initiativen ein, zum Beispiel Anfragen und Anträge. Jede Art erhält eine feste Punktzahl. Für jede Person wird der Durchschnitt dieser Punkte berechnet. Bei Gruppen zählt jede Person gleich viel. Ein höherer Wert bedeutet, dass häufiger höher bewertete Arten von Initiativen eingebracht wurden. Über die Qualität der Arbeit oder die Verständlichkeit der Texte sagt der Wert nichts aus.',
+	'statistics.complexity.desc.delegate':
+		'Durchschnittlicher Komplexitätsindex der Initiativen je Abgeordnetem.',
+	'statistics.complexity.desc.party': 'Mittlerer Komplexitätsindex nach Partei.',
+	'statistics.complexity.desc.gender': 'Mittlerer Komplexitätsindex nach Geschlecht.',
+	'statistics.complexity.desc.age':
+		'Durchschnitt nach Altersgruppe. Maßgeblich ist das Alter bei der letzten Initiative im gewählten Zeitraum.',
+	'statistics.complexity.desc.legis': 'Mittlerer Komplexitätsindex je Legislaturperiode.',
+	'statistics.complexity.desc.line':
+		'Entwicklung des mittleren Komplexitätsindex über die Legislaturperioden.',
+	'statistics.section.divisionAccuracy': 'Division Accuracy Score',
+	'statistics.divisionAccuracy.title': 'Division Accuracy Score',
+	'statistics.divisionAccuracy.intro':
+		'Vergleich der gespeicherten Division Accuracy Scores der Abgeordneten.',
+	'statistics.divisionAccuracy.valueLabel': 'Division Accuracy Score',
+	'statistics.divisionAccuracy.infoQuestion': 'Wie lese ich diese Statistik?',
+	'statistics.divisionAccuracy.infoAnswer':
+		'Für jede Person siehst du den zuletzt verfügbaren Wert. Bei Parteien, Geschlechtern und Altersgruppen wird der Durchschnitt angezeigt. Wählst du eine Legislaturperiode, werden die Abgeordneten berücksichtigt, die damals im Parlament gesprochen haben. Angezeigt werden auch dann ihre zuletzt verfügbaren Werte – nicht ihre damaligen Werte.',
+	'statistics.divisionAccuracy.desc.delegate':
+		'Zuletzt gespeicherter Division Accuracy Score je Abgeordnetem.',
+	'statistics.divisionAccuracy.desc.party': 'Mittelwert der gespeicherten Scores nach Partei.',
+	'statistics.divisionAccuracy.desc.gender': 'Mittelwert der gespeicherten Scores nach Geschlecht.',
+	'statistics.divisionAccuracy.desc.age':
+		'Mittelwert der gespeicherten Scores nach Altersgruppe zur letzten erfassten Rede in der Auswahl.',
+	'statistics.divisionAccuracy.desc.legis':
+		'Aktuelle gespeicherte Scores der in der jeweiligen Legislaturperiode aktiven Abgeordneten.',
+	'statistics.divisionAccuracy.desc.line':
+		'Vergleich der aktuellen Scores nach Legislaturperiode der Aktivität; kein historischer Score-Verlauf.',
 	'statistics.section.speechTime': 'Redezeit',
 	'statistics.section.totalSpeeches': 'Gehaltene Reden',
 	'statistics.section.absences': 'Abwesenheiten',

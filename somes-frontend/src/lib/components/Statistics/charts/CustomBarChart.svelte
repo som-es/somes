@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { BarChart } from 'layerchart';
+	import { competitionRanks } from '../ranking';
 	import { t } from '$lib/i18n/i18n.svelte';
 
 	type ChartItem = {
@@ -18,7 +19,8 @@
 		selectedCategory,
 		chartDescription,
 		infoQuestion = null,
-		infoAnswer = null
+		infoAnswer = null,
+		valuePrecision
 	}: {
 		data: ChartItem[];
 		height?: number;
@@ -27,6 +29,7 @@
 		chartDescription: string;
 		infoQuestion?: string | null;
 		infoAnswer?: string | null;
+		valuePrecision?: number;
 	} = $props();
 
 	let hoveredIndex = $state<number | null>(null);
@@ -59,7 +62,7 @@
 
 	function formatValue(value: number) {
 		const abs = Math.abs(value);
-		const maximumFractionDigits = abs >= 100 ? 0 : abs >= 10 ? 1 : 2;
+		const maximumFractionDigits = valuePrecision ?? (abs >= 100 ? 0 : abs >= 10 ? 1 : 2);
 		return new Intl.NumberFormat('de-AT', {
 			maximumFractionDigits,
 			minimumFractionDigits: 0
@@ -114,9 +117,10 @@
 	let rowViewportHeight = $derived(
 		`${visibleRowCount * rowHeight + (visibleRowCount - 1) * rowGap}px`
 	);
+	const ranks = $derived(competitionRanks(data.map((item) => item.value)));
 	let hoveredItem = $derived(hoveredIndex === null ? null : (data[hoveredIndex] ?? null));
 	let detailItem = $derived(hoveredItem ?? data[0] ?? null);
-	let detailRank = $derived(hoveredIndex === null ? (detailItem ? 1 : null) : hoveredIndex + 1);
+	let detailRank = $derived(ranks[hoveredIndex ?? 0] ?? null);
 </script>
 
 <div
@@ -218,7 +222,7 @@
 							<span
 								class="justify-self-end text-[11px] font-semibold text-gray-400 tabular-nums dark:text-gray-500"
 							>
-								#{index + 1}
+								#{ranks[index]}
 							</span>
 							<div class="flex min-w-0 items-center gap-2">
 								<span class="h-3 w-3 shrink-0 rounded-full" style="background-color: {item.color}"
@@ -252,7 +256,7 @@
 									class:opacity-70={hoveredIndex !== null && hoveredIndex !== index}
 									class:brightness-110={hoveredIndex === index}
 									role="img"
-									aria-label="Rang {index + 1}, {item.category}: {metricLabel} {formatValue(
+									aria-label="Rang {ranks[index]}, {item.category}: {metricLabel} {formatValue(
 										item.value
 									)}"
 								>

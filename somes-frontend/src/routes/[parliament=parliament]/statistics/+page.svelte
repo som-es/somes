@@ -1,4 +1,6 @@
 <script lang="ts">
+	import ComplexityStatistics from './complexity/+page.svelte';
+	import DivisionAccuracyStatistics from './division_accuracy/+page.svelte';
 	import AbsencesStatistics from './absences/+page.svelte';
 	import ActivityStatistics from './activity/+page.svelte';
 	import AgeStatistics from './age/+page.svelte';
@@ -25,6 +27,16 @@
 			id: 'call-to-orders',
 			label: t('statistics.section.callToOrders'),
 			component: CallToOrdersStatistics
+		},
+		{
+			id: 'complexity',
+			label: t('statistics.section.complexity'),
+			component: ComplexityStatistics
+		},
+		{
+			id: 'division-accuracy',
+			label: t('statistics.section.divisionAccuracy'),
+			component: DivisionAccuracyStatistics
 		},
 		{ id: 'age', label: t('statistics.section.age'), component: AgeStatistics },
 		{

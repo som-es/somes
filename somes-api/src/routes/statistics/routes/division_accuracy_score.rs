@@ -26,7 +26,7 @@ pub struct DivisionAccuracyBase {
     delegate_filter_party: String,
     delegate_gender: Option<String>,
     accuracy_score: f64,
-    total_votes: i64,
+    total_scores: i64,
     latest_activity_date: Option<chrono::NaiveDate>,
     delegate_age_bucket: String,
 }
@@ -37,14 +37,14 @@ pub struct DivisionAccuracyForDelegate {
     delegate_party: String,
     delegate_filter_party: String,
     accuracy_score: f64,
-    total_votes: i64,
+    total_scores: i64,
 }
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct DivisionAccuracyByCategory {
     category: String,
     average_accuracy: f64,
-    total_votes: i64,
+    total_scores: i64,
     delegate_count: i64,
 }
 
@@ -75,13 +75,13 @@ impl DivisionAccuracyService {
                 .entry(item.delegate_filter_party.clone())
                 .or_insert((Vec::new(), 0, 0));
             entry.0.push(item.accuracy_score);
-            entry.1 += item.total_votes;
+            entry.1 += item.total_scores;
             entry.2 += 1;
         }
 
         let mut results: Vec<DivisionAccuracyByCategory> = party_map
             .into_iter()
-            .map(|(party, (scores, total_votes, delegate_count))| {
+            .map(|(party, (scores, total_scores, delegate_count))| {
                 let average_accuracy = if !scores.is_empty() {
                     scores.iter().sum::<f64>() / scores.len() as f64
                 } else {
@@ -91,7 +91,7 @@ impl DivisionAccuracyService {
                 DivisionAccuracyByCategory {
                     category: party,
                     average_accuracy,
-                    total_votes,
+                    total_scores,
                     delegate_count,
                 }
             })
@@ -117,13 +117,13 @@ impl DivisionAccuracyService {
                 )
                 .or_insert((Vec::new(), 0, 0));
             entry.0.push(item.accuracy_score);
-            entry.1 += item.total_votes;
+            entry.1 += item.total_scores;
             entry.2 += 1;
         }
 
         let mut results: Vec<DivisionAccuracyByCategory> = gender_map
             .into_iter()
-            .map(|(gender, (scores, total_votes, delegate_count))| {
+            .map(|(gender, (scores, total_scores, delegate_count))| {
                 let average_accuracy = if !scores.is_empty() {
                     scores.iter().sum::<f64>() / scores.len() as f64
                 } else {
@@ -133,7 +133,7 @@ impl DivisionAccuracyService {
                 DivisionAccuracyByCategory {
                     category: gender,
                     average_accuracy,
-                    total_votes,
+                    total_scores,
                     delegate_count,
                 }
             })
@@ -155,13 +155,13 @@ impl DivisionAccuracyService {
                 .entry(item.delegate_age_bucket)
                 .or_insert((Vec::new(), 0, 0));
             entry.0.push(item.accuracy_score);
-            entry.1 += item.total_votes;
+            entry.1 += item.total_scores;
             entry.2 += 1;
         }
 
         let mut results: Vec<DivisionAccuracyByCategory> = age_map
             .into_iter()
-            .map(|(category, (scores, total_votes, delegate_count))| {
+            .map(|(category, (scores, total_scores, delegate_count))| {
                 let average_accuracy = if !scores.is_empty() {
                     scores.iter().sum::<f64>() / scores.len() as f64
                 } else {
@@ -171,7 +171,7 @@ impl DivisionAccuracyService {
                 DivisionAccuracyByCategory {
                     category,
                     average_accuracy,
-                    total_votes,
+                    total_scores,
                     delegate_count,
                 }
             })
@@ -197,37 +197,37 @@ impl DivisionAccuracyService {
 
         let query = format!(
             "
-        SELECT
+        SELECT DISTINCT ON (d.id)
             d.name AS delegate_name,
             COALESCE(m.party, d.party, 'Regierungsmitglied') AS delegate_party,
             COALESCE(m.party, 'Regierungsmitglied') AS delegate_filter_party,
             d.gender AS delegate_gender,
-            AVG(CASE WHEN dv.vote = dv.outcome THEN 1.0::float8 ELSE 0.0::float8 END)::float8 AS accuracy_score,
-            COUNT(dv.id) AS total_votes,
-            MAX(pf.raw_data_created_at)::date AS latest_activity_date,
+            dis.score::float8 AS accuracy_score,
+            1::bigint AS total_scores,
+            pf.raw_data_created_at::date AS latest_activity_date,
             CASE
                 WHEN d.birthdate IS NULL THEN 'Unbekannt'
-                WHEN EXTRACT(YEAR FROM AGE(COALESCE(MAX(pf.raw_data_created_at)::date, CURRENT_DATE), d.birthdate)) <= 30 THEN '18-30'
-                WHEN EXTRACT(YEAR FROM AGE(COALESCE(MAX(pf.raw_data_created_at)::date, CURRENT_DATE), d.birthdate)) <= 40 THEN '31-40'
-                WHEN EXTRACT(YEAR FROM AGE(COALESCE(MAX(pf.raw_data_created_at)::date, CURRENT_DATE), d.birthdate)) <= 50 THEN '41-50'
-                WHEN EXTRACT(YEAR FROM AGE(COALESCE(MAX(pf.raw_data_created_at)::date, CURRENT_DATE), d.birthdate)) <= 60 THEN '51-60'
+                WHEN EXTRACT(YEAR FROM AGE(pf.raw_data_created_at::date, d.birthdate)) <= 30 THEN '18-30'
+                WHEN EXTRACT(YEAR FROM AGE(pf.raw_data_created_at::date, d.birthdate)) <= 40 THEN '31-40'
+                WHEN EXTRACT(YEAR FROM AGE(pf.raw_data_created_at::date, d.birthdate)) <= 50 THEN '41-50'
+                WHEN EXTRACT(YEAR FROM AGE(pf.raw_data_created_at::date, d.birthdate)) <= 60 THEN '51-60'
                 ELSE '60+'
             END AS delegate_age_bucket
-        FROM
-            delegate_votes dv
-        JOIN
-            delegates d ON dv.delegate_id = d.id
-        LEFT JOIN plenar_infos pf ON pf.id = dv.plenar_id
-        LEFT JOIN mandates m ON m.delegate_id = d.id
+        FROM delegates d
+        JOIN LATERAL (
+            SELECT score FROM division_interest_score
+            WHERE delegate_id = d.id
+            ORDER BY timestamp DESC NULLS LAST, id DESC LIMIT 1
+        ) dis ON true
+        JOIN plenar_speeches ps ON ps.delegate_id = d.id
+        JOIN debates db ON db.id = ps.debate_id
+        JOIN plenar_infos pf ON pf.id = db.plenar_id
+        JOIN mandates m ON m.delegate_id = d.id
             AND (m.start_date IS NULL OR m.start_date <= pf.raw_data_created_at::date)
             AND (m.end_date IS NULL OR m.end_date >= pf.raw_data_created_at::date)
-        WHERE
-            dv.outcome IS NOT NULL
-            AND {filter_str}
-        GROUP BY
-            d.id, d.name, d.party, m.party, d.gender, d.birthdate
-        ORDER BY
-            accuracy_score DESC;
+        WHERE {filter_str}
+        ORDER BY d.id, pf.raw_data_created_at DESC NULLS LAST,
+            m.start_date DESC NULLS LAST, m.id DESC;
         "
         );
 
@@ -246,55 +246,15 @@ impl DivisionAccuracyService {
     ) -> Result<Vec<DivisionAccuracyForDelegate>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
 
-        struct DelegateAccumulator {
-            delegate_party: String,
-            delegate_filter_party: String,
-            weighted_accuracy: f64,
-            total_votes: i64,
-            latest_activity_date: Option<chrono::NaiveDate>,
-        }
-
-        let mut delegate_map: std::collections::HashMap<String, DelegateAccumulator> =
-            std::collections::HashMap::new();
-
-        for item in base_data {
-            let entry =
-                delegate_map
-                    .entry(item.delegate_name)
-                    .or_insert_with(|| DelegateAccumulator {
-                        delegate_party: item.delegate_party.clone(),
-                        delegate_filter_party: item.delegate_filter_party.clone(),
-                        weighted_accuracy: 0.0,
-                        total_votes: 0,
-                        latest_activity_date: None,
-                    });
-
-            entry.weighted_accuracy += item.accuracy_score * item.total_votes as f64;
-            entry.total_votes += item.total_votes;
-
-            if item.latest_activity_date >= entry.latest_activity_date {
-                entry.delegate_party = item.delegate_party;
-                entry.delegate_filter_party = item.delegate_filter_party;
-                entry.latest_activity_date = item.latest_activity_date;
-            }
-        }
-
-        let mut results: Vec<DivisionAccuracyForDelegate> = delegate_map
+        // Base data contains one latest qualifying affiliation per delegate.
+        let mut results: Vec<DivisionAccuracyForDelegate> = base_data
             .into_iter()
-            .map(|(delegate_name, item)| {
-                let accuracy_score = if item.total_votes > 0 {
-                    item.weighted_accuracy / item.total_votes as f64
-                } else {
-                    0.0
-                };
-
-                DivisionAccuracyForDelegate {
-                    delegate_name,
-                    delegate_party: item.delegate_party,
-                    delegate_filter_party: item.delegate_filter_party,
-                    accuracy_score,
-                    total_votes: item.total_votes,
-                }
+            .map(|item| DivisionAccuracyForDelegate {
+                delegate_name: item.delegate_name,
+                delegate_party: item.delegate_party,
+                delegate_filter_party: item.delegate_filter_party,
+                accuracy_score: item.accuracy_score,
+                total_scores: item.total_scores,
             })
             .collect();
 
@@ -344,36 +304,32 @@ impl DivisionAccuracyService {
         let query = format!(
             "
         WITH delegate_period_accuracy AS (
-            SELECT
+            SELECT DISTINCT
                 pf.legislative_period AS category,
                 d.id AS delegate_id,
-                AVG(CASE WHEN dv.vote = dv.outcome THEN 1.0::float8 ELSE 0.0::float8 END)::float8 AS accuracy_score,
-                COUNT(dv.id)::bigint AS total_votes
-            FROM
-                delegate_votes dv
-            JOIN
-                delegates d ON dv.delegate_id = d.id
-            JOIN plenar_infos pf ON pf.id = dv.plenar_id
-            LEFT JOIN mandates m ON m.delegate_id = d.id
+                dis.score::float8 AS accuracy_score
+            FROM delegates d
+            JOIN LATERAL (
+                SELECT score FROM division_interest_score
+                WHERE delegate_id = d.id
+                ORDER BY timestamp DESC NULLS LAST, id DESC LIMIT 1
+            ) dis ON true
+            JOIN plenar_speeches ps ON ps.delegate_id = d.id
+            JOIN debates db ON db.id = ps.debate_id
+            JOIN plenar_infos pf ON pf.id = db.plenar_id
+            JOIN mandates m ON m.delegate_id = d.id
                 AND (m.start_date IS NULL OR m.start_date <= pf.raw_data_created_at::date)
                 AND (m.end_date IS NULL OR m.end_date >= pf.raw_data_created_at::date)
-            WHERE
-                dv.outcome IS NOT NULL
-                AND {filter_str}
-            GROUP BY
-                pf.legislative_period, d.id
+            WHERE pf.legislative_period IS NOT NULL AND {filter_str}
         )
         SELECT
             category,
             AVG(accuracy_score)::float8 AS average_accuracy,
-            SUM(total_votes)::bigint AS total_votes,
-            COUNT(delegate_id)::bigint AS delegate_count
-        FROM
-            delegate_period_accuracy
-        GROUP BY
-            category
-        ORDER BY
-            average_accuracy DESC;
+            COUNT(*)::bigint AS total_scores,
+            COUNT(*)::bigint AS delegate_count
+        FROM delegate_period_accuracy
+        GROUP BY category
+        ORDER BY average_accuracy DESC;
         "
         );
 
@@ -401,10 +357,10 @@ impl DivisionAccuracyService {
     }
 }
 
-// Legacy endpoint functions for backward compatibility
+// Public endpoints; the historical misspelling is registered as a router alias.
 #[utoipa::path(
     post,
-    path = "/divison_accuracy_score_per_delegate",
+    path = "/division_accuracy_score_per_delegate",
     tag = "statistics",
     request_body(content = DivisionAccuracyFilter, content_type = "application/json"),
     responses(

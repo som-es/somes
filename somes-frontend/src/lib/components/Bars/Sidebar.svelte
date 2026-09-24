@@ -108,6 +108,16 @@
 						href: `${plink('/statistics')}#call-to-orders`,
 						label: t('nav.callToOrders'),
 						keywords: ''
+					},
+					{
+						href: `${plink('/statistics')}#complexity`,
+						label: t('statistics.section.complexity'),
+						keywords: ''
+					},
+					{
+						href: `${plink('/statistics')}#division-accuracy`,
+						label: t('statistics.section.divisionAccuracy'),
+						keywords: ''
 					}
 				]
 			},

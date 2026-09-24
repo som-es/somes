@@ -173,7 +173,7 @@ export function mapDivisionAccuracyDelegate(data: any[]): StatisticsData[] {
 		valueField: 'accuracy_score',
 		partyField: 'delegate_party',
 		partyFilterField: 'delegate_filter_party',
-		metadataFields: ['accuracy_score', 'total_votes']
+		metadataFields: ['accuracy_score', 'total_scores']
 	});
 }
 
@@ -182,7 +182,7 @@ export function mapDivisionAccuracyCategory(data: any[]): StatisticsData[] {
 		type: 'category',
 		labelField: 'category',
 		valueField: 'average_accuracy',
-		metadataFields: ['average_accuracy', 'total_votes', 'delegate_count']
+		metadataFields: ['average_accuracy', 'total_scores', 'delegate_count']
 	});
 }
 

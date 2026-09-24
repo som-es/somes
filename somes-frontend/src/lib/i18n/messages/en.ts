@@ -336,6 +336,38 @@ export const en = {
 	'event.createBtn': 'Create',
 	'statistics.page.title': 'Statistics - Parliament Information System',
 	'statistics.page.description': 'Parliamentary statistics as scrollable overview',
+	'statistics.section.complexity': 'Complexity',
+	'statistics.complexity.title': 'Initiative complexity',
+	'statistics.complexity.intro': 'Compare the average weighting of parliamentary initiative types.',
+	'statistics.complexity.valueLabel': 'Complexity index',
+	'statistics.complexity.infoQuestion': 'What does complexity show?',
+	'statistics.complexity.infoAnswer':
+		'Delegates submit different kinds of initiatives, such as questions and motions. Each kind is assigned a fixed number of points. Each delegate receives an average of these points. In group comparisons, each person has equal weight. A higher value means that more of the initiatives submitted belong to kinds with higher point values. The value says nothing about the quality of the work or how easy the texts are to understand.',
+	'statistics.complexity.desc.delegate': 'Average initiative complexity index per delegate.',
+	'statistics.complexity.desc.party': 'Mean complexity index by party.',
+	'statistics.complexity.desc.gender': 'Mean complexity index by gender.',
+	'statistics.complexity.desc.age':
+		'Average by age group, using each person’s age at their latest initiative in the selected period.',
+	'statistics.complexity.desc.legis': 'Mean complexity index per legislative period.',
+	'statistics.complexity.desc.line':
+		'Development of the mean complexity index across legislative periods.',
+	'statistics.section.divisionAccuracy': 'Division Accuracy Score',
+	'statistics.divisionAccuracy.title': 'Division Accuracy Score',
+	'statistics.divisionAccuracy.intro': 'Compare delegates’ stored Division Accuracy Scores.',
+	'statistics.divisionAccuracy.valueLabel': 'Division Accuracy Score',
+	'statistics.divisionAccuracy.infoQuestion': 'How do I read this chart?',
+	'statistics.divisionAccuracy.infoAnswer':
+		'Each person is shown with their latest available value. For parties, genders and age groups, the chart shows the average. Selecting a legislative period includes delegates who spoke in parliament during that period. Their latest available values are still shown, rather than their values at that time.',
+	'statistics.divisionAccuracy.desc.delegate':
+		'Latest stored Division Accuracy Score per delegate.',
+	'statistics.divisionAccuracy.desc.party': 'Mean stored score by party.',
+	'statistics.divisionAccuracy.desc.gender': 'Mean stored score by gender.',
+	'statistics.divisionAccuracy.desc.age':
+		'Mean stored score by age group at the latest recorded speech in the selection.',
+	'statistics.divisionAccuracy.desc.legis':
+		'Current stored scores of delegates active in each legislative period.',
+	'statistics.divisionAccuracy.desc.line':
+		'Comparison of current scores by period of activity; not historical score development.',
 	'statistics.section.speechTime': 'Speech time',
 	'statistics.section.totalSpeeches': 'Speeches held',
 	'statistics.section.absences': 'Absences',

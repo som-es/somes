@@ -77,6 +77,14 @@ export async function fetchSavely<T>(fn: () => Promise<Response>): Promise<T | H
 	let response;
 	try {
 		response = await fn();
+		if (!response.ok && !response.headers.get('content-type')?.includes('application/json')) {
+			return {
+				error: `HTTP ${response.status}: ${response.statusText}`,
+				error_type: 'FetchError',
+				field: '',
+				meta: null
+			};
+		}
 		const json = await response.json();
 		// if ('error' in json) {
 		// return ;
