@@ -20,7 +20,8 @@
 		chartDescription,
 		infoQuestion = null,
 		infoAnswer = null,
-		valuePrecision
+		valuePrecision,
+		categoryLabelWidth
 	}: {
 		data: ChartItem[];
 		height?: number;
@@ -30,12 +31,13 @@
 		infoQuestion?: string | null;
 		infoAnswer?: string | null;
 		valuePrecision?: number;
+		categoryLabelWidth?: string;
 	} = $props();
 
 	let hoveredIndex = $state<number | null>(null);
 
 	const labelColumnWidth = $derived(
-		selectedCategory === 'delegate' ? 'clamp(10rem, 34%, 17rem)' : '12rem'
+		selectedCategory === 'delegate' ? 'clamp(10rem, 34%, 17rem)' : categoryLabelWidth ?? '12rem'
 	);
 	const rowGap = 4;
 	let visibleRowCount = $derived(height < 440 ? 7 : height < 500 ? 8 : 10);
@@ -228,7 +230,7 @@
 								<span class="h-3 w-3 shrink-0 rounded-full" style="background-color: {item.color}"
 								></span>
 								<span
-									class="min-w-0 truncate text-right text-xs font-semibold text-gray-800 dark:text-gray-100"
+									class="line-clamp-2 min-w-0 whitespace-normal text-right text-xs leading-tight font-semibold text-gray-800 dark:text-gray-100"
 									title={item.category}
 								>
 									{item.category}
@@ -350,7 +352,7 @@
 	@media (max-width: 640px) {
 		.chart-row,
 		.chart-axis {
-			grid-template-columns: minmax(6.75rem, 8rem) minmax(0, 1fr);
+			grid-template-columns: minmax(6.75rem, min(48vw, var(--label-column-width))) minmax(0, 1fr);
 		}
 	}
 

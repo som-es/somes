@@ -706,7 +706,11 @@ pub struct VotesTogetherFilter {
 pub struct VotesTogether {
     party_1: String,
     party_2: String,
+    parties: Vec<String>,
+    group_size: i32,
     same_votes: i64,
+    total_votes: i64,
+    agreement_percentage: f64,
 }
 
 #[utoipa::path(
@@ -724,7 +728,7 @@ pub async fn votes_together(
 ) -> Result<Json<Vec<VotesTogether>>, StatisticsResponse> {
     let filter = filter.unwrap_or_default();
 
-    let filter_arg = filter.legis_period.with_sql_column("gp");
+    let filter_arg = filter.legis_period.with_sql_column("li.gp");
     let filters = [filter_arg];
 
     let desc = if filter.is_desc { "DESC" } else { "ASC" };
@@ -733,38 +737,75 @@ pub async fn votes_together(
 
     let query = format!(
         "
-
-WITH paired_votes AS (
+WITH party_votes AS (
+    SELECT
+        v.party,
+        v.legislative_initiatives_id,
+        CASE
+            WHEN v.infavor_count > v.against_count
+                AND v.infavor_count > v.abstention_count THEN 'infavor'
+            WHEN v.against_count > v.infavor_count
+                AND v.against_count > v.abstention_count THEN 'against'
+            WHEN v.abstention_count > v.infavor_count
+                AND v.abstention_count > v.against_count THEN 'abstention'
+            ELSE NULL
+        END AS stance
+    FROM votes v
+    JOIN legislative_initiatives li
+        ON li.id = v.legislative_initiatives_id
+    WHERE {filter_str}
+), paired_votes AS (
     SELECT
         v1.party AS party_1,
         v2.party AS party_2,
-        COUNT(*) AS same_votes
-    FROM
-        votes v1
-    JOIN
-        votes v2
-    ON
-        v1.legislative_initiatives_id = v2.legislative_initiatives_id
-        AND v1.infavor = v2.infavor
+        ARRAY[v1.party, v2.party] AS parties,
+        2 AS group_size,
+        COUNT(*) FILTER (WHERE v1.stance = v2.stance) AS same_votes,
+        COUNT(*) AS total_votes,
+        (
+            COUNT(*) FILTER (WHERE v1.stance = v2.stance) * 100.0 / COUNT(*)
+        )::DOUBLE PRECISION AS agreement_percentage
+    FROM party_votes v1
+    JOIN party_votes v2
+        ON v1.legislative_initiatives_id = v2.legislative_initiatives_id
+        AND v1.stance IS NOT NULL
+        AND v2.stance IS NOT NULL
         AND v1.party < v2.party
-    JOIN
-        legislative_initiatives li
-    ON
-        v1.legislative_initiatives_id = li.id
-    WHERE
-        {filter_str}
-
-    GROUP BY
-        v1.party, v2.party
+    GROUP BY v1.party, v2.party
+), triplet_votes AS (
+    SELECT
+        v1.party AS party_1,
+        v2.party AS party_2,
+        ARRAY[v1.party, v2.party, v3.party] AS parties,
+        3 AS group_size,
+        COUNT(*) FILTER (
+            WHERE v1.stance = v2.stance AND v1.stance = v3.stance
+        ) AS same_votes,
+        COUNT(*) AS total_votes,
+        (
+            COUNT(*) FILTER (
+                WHERE v1.stance = v2.stance AND v1.stance = v3.stance
+            ) * 100.0 / COUNT(*)
+        )::DOUBLE PRECISION AS agreement_percentage
+    FROM party_votes v1
+    JOIN party_votes v2
+        ON v1.legislative_initiatives_id = v2.legislative_initiatives_id
+        AND v1.stance IS NOT NULL
+        AND v2.stance IS NOT NULL
+        AND v1.party < v2.party
+    JOIN party_votes v3
+        ON v1.legislative_initiatives_id = v3.legislative_initiatives_id
+        AND v3.stance IS NOT NULL
+        AND v2.party < v3.party
+    GROUP BY v1.party, v2.party, v3.party
+), all_groups AS (
+    SELECT * FROM paired_votes
+    UNION ALL
+    SELECT * FROM triplet_votes
 )
-SELECT
-    party_1,
-    party_2,
-    same_votes
-FROM
-    paired_votes
-ORDER BY
-    same_votes {desc};
+SELECT party_1, party_2, parties, group_size, same_votes, total_votes, agreement_percentage
+FROM all_groups
+ORDER BY same_votes {desc};
         "
     );
 

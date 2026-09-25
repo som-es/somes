@@ -115,10 +115,17 @@
 						keywords: ''
 					},
 					{
-						href: `${plink('/statistics')}#division-accuracy`,
-						label: t('statistics.section.divisionAccuracy'),
+						href: `${plink('/statistics')}#votes-together`,
+						label: t('statistics.section.votesTogether'),
 						keywords: ''
-					}
+					},
+					...(parliament === 'at'
+						? [{
+							 href: `${plink('/statistics')}#two-thirds-majority`,
+							 label: t('statistics.section.twoThirds'),
+							 keywords: ''
+						}]
+						: [])
 				]
 			},
 			{

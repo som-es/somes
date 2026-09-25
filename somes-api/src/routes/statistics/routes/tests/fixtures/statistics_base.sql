@@ -94,7 +94,10 @@ CREATE TABLE political_positions (
 CREATE TABLE votes (
     party text,
     legislative_initiatives_id integer,
-    infavor boolean
+    infavor_count integer,
+    against_count integer,
+    abstention_count integer,
+    absence_count integer
 );
 
 INSERT INTO delegates (id, name, gender, birthdate, party) VALUES
@@ -248,9 +251,10 @@ INSERT INTO political_positions (
     (7, 0.3, 0.7, 0.2, 0.8, 7),
     (8, 0.65, 0.35, 0.45, 0.55, 6);
 
-INSERT INTO votes (party, legislative_initiatives_id, infavor) VALUES
-    ('Party X', 1, true),
-    ('Party Y', 1, true),
-    ('Party Z', 1, false),
-    ('Party X', 2, false),
-    ('Party Y', 2, false);
+INSERT INTO votes (party, legislative_initiatives_id, infavor_count, against_count, abstention_count, absence_count) VALUES
+    ('Party X', 1, 1, 0, 0, 0),
+    ('Party Y', 1, 1, 0, 0, 0),
+    ('Party Z', 1, 0, 1, 0, 0),
+    ('Party X', 2, 0, 1, 0, 0),
+    ('Party Y', 2, 0, 1, 0, 0),
+    ('Party Z', 2, 0, 1, 0, 0);

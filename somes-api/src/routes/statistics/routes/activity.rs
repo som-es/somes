@@ -495,6 +495,55 @@ pub struct LegislativeInitiativeStats {
     total_initiatives: i64,
 }
 
+#[derive(ToSchema, Default, Debug, Clone, Serialize, Deserialize)]
+pub struct LegislativeInitiativePeriodFilter {
+    legis_period: Option<String>,
+}
+
+#[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
+pub struct LegislativeInitiativePeriodOutcome {
+    gp: String,
+    accepted: Option<String>,
+    total_initiatives: i64,
+}
+
+#[utoipa::path(
+    post,
+    path = "/legislative_initiative_outcomes_by_period",
+    tag = "statistics",
+    request_body(content = LegislativeInitiativePeriodFilter, content_type = "application/json"),
+    responses(
+        (status = 200, description = "Two-thirds initiative outcomes by legislative period", body = [LegislativeInitiativePeriodOutcome]),
+    )
+)]
+pub async fn legislative_initiative_outcomes_by_period(
+    PgPoolConnection(pg): PgPoolConnection,
+    Json(filter): Json<Option<LegislativeInitiativePeriodFilter>>,
+) -> Result<Json<Vec<LegislativeInitiativePeriodOutcome>>, StatisticsResponse> {
+    let filter = filter.unwrap_or_default();
+    let period_filter = filter.legis_period.with_sql_column("li.gp");
+    let majority_filter = Manual("li.requires_simple_majority = false").with_sql_column("");
+    let gp_filter = Manual("li.gp IS NOT NULL").with_sql_column("");
+    let filters = [period_filter, majority_filter, gp_filter];
+    let filter_str = build_filter(&filters);
+    let query = format!(
+        "SELECT li.gp, li.accepted, COUNT(*) AS total_initiatives
+         FROM legislative_initiatives li
+         WHERE {filter_str}
+         GROUP BY li.gp, li.accepted
+         ORDER BY li.gp, li.accepted"
+    );
+
+    let mut filtered_query = sqlx::query_as::<Postgres, LegislativeInitiativePeriodOutcome>(&query);
+    filtered_query = bind_values(filtered_query, &filters);
+    let results = filtered_query
+        .fetch_all(&pg)
+        .await
+        .map(Json)
+        .map_err(|e| StatisticsResponse::DbSelectFailure(Some(e)))?;
+    Ok(results)
+}
+
 #[utoipa::path(
     post,
     path = "/legislative_initiatives_without_simple_majority",

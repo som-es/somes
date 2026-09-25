@@ -3,6 +3,7 @@
 	import { onMount, tick, untrack } from 'svelte';
 	import GenericFilters from '$lib/components/Filtering/GenericFilters.svelte';
 	import MultiSelectFilter from '$lib/components/Filtering/MultiSelectFilter.svelte';
+	import SingleSelectFilter from '$lib/components/Filtering/SingleSelectFilter.svelte';
 	import SearchBar from '$lib/components/Filtering/SearchBar.svelte';
 	import type { GenericFilterGroup } from '$lib/components/Filtering/types';
 	import type { StatisticsData } from '$lib/types';
@@ -34,6 +35,7 @@
 			chartMode?: ChartMode
 		) => Promise<StatisticsData[]>;
 		height?: number;
+		categoryLabelWidth?: string;
 		selectedCategory?: string;
 		valueLabel?: string;
 		normalizedValueLabel?: string;
@@ -46,6 +48,9 @@
 			showParty?: boolean;
 		};
 		categoryOptions?: CategoryOption[];
+		analysisFilterLabel?: string;
+		analysisFilterOptions?: CategoryOption[];
+		analysisFilterValue?: string;
 		chartDescriptions?: Record<string, string>;
 		reloadKey?: unknown;
 		showSpectrumMode?: boolean;
@@ -54,6 +59,8 @@
 		valuePrecision?: number;
 		selectedChartMode?: ChartMode;
 		extraReservedHeight?: number;
+		partyFilterOptions?: { name: string; color: string }[];
+		selectedPartyFilter?: string[];
 	}
 
 	const defaultCategoryOptions: CategoryOption[] = [
@@ -67,6 +74,7 @@
 	let {
 		makeRequest,
 		height = 480,
+		categoryLabelWidth = '12rem',
 		selectedCategory = $bindable('delegate'),
 		valueLabel = t('statistics.valueLabel'),
 		normalizedValueLabel = t('statistics.normalizedValueLabel'),
@@ -79,6 +87,9 @@
 			showParty: true
 		},
 		categoryOptions = defaultCategoryOptions,
+		analysisFilterLabel = '',
+		analysisFilterOptions = [],
+		analysisFilterValue = $bindable(''),
 		chartDescriptions = {},
 		reloadKey = null,
 		showSpectrumMode = false,
@@ -86,7 +97,9 @@
 		lineValueDomain,
 		valuePrecision,
 		selectedChartMode = $bindable<ChartMode>('bar'),
-		extraReservedHeight = 0
+		extraReservedHeight = 0,
+		partyFilterOptions = [],
+		selectedPartyFilter = $bindable<string[]>([])
 	}: Props = $props();
 
 	const topOptions = [
@@ -258,6 +271,10 @@
 	}
 
 	function colorForCategory(label: string) {
+		if (selectedPartyFilter.length > 0) {
+			const party = label.split(' + ')[0];
+			return partyToColor(party);
+		}
 		if (selectedCategory === 'party') {
 			return partyToColor(label);
 		}
@@ -450,10 +467,9 @@
 					<p class="text-sm font-semibold text-gray-600 dark:text-gray-300">
 						{t('statistics.chartControl.analysis')}
 					</p>
-					<div
-						class="mt-2 flex flex-wrap gap-1 rounded-xl border border-primary-300 p-1 dark:border-primary-400"
-					>
-						{#each categoryOptions as option}
+					<div class="mt-2 flex flex-wrap items-center gap-2">
+						<div class="flex flex-wrap gap-1 rounded-xl border border-primary-300 p-1 dark:border-primary-400">
+							{#each categoryOptions as option}
 							<button
 								type="button"
 								class="rounded-lg px-3 py-1.5 text-sm font-semibold transition {selectedCategory ===
@@ -470,6 +486,14 @@
 							</button>
 						{/each}
 					</div>
+					{#if analysisFilterOptions.length > 0}
+						<SingleSelectFilter
+							items={analysisFilterOptions}
+							bind:value={analysisFilterValue}
+							label={analysisFilterLabel}
+						/>
+					{/if}
+				</div>
 				</div>
 
 				<div class="flex flex-col gap-2 md:flex-row md:items-end">
@@ -485,6 +509,18 @@
 						/>
 					</div>
 					<div class="flex h-10 gap-2 text-sm">
+						{#if partyFilterOptions.length > 0}
+							<MultiSelectFilter
+								items={partyFilterOptions.map((party) => ({
+									value: party.name,
+									label: party.name,
+									color: party.color
+								}))}
+								value={selectedPartyFilter}
+								onValueChange={(value) => (selectedPartyFilter = value.slice(-1))}
+								allLabel={t('statistics.allParties')}
+							/>
+						{/if}
 						{#if canUsePartyFilter && uniqueParties.length > 0}
 							<MultiSelectFilter
 								items={uniqueParties.map((p) => ({ value: p.name, label: p.name, color: p.color }))}
@@ -717,6 +753,7 @@
 			/>
 		{:else}
 			<CustomBarChart
+				{categoryLabelWidth}
 				{valuePrecision}
 				data={chartData}
 				height={responsiveChartHeight}

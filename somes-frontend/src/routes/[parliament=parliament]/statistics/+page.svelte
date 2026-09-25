@@ -1,6 +1,5 @@
 <script lang="ts">
 	import ComplexityStatistics from './complexity/+page.svelte';
-	import DivisionAccuracyStatistics from './division_accuracy/+page.svelte';
 	import AbsencesStatistics from './absences/+page.svelte';
 	import ActivityStatistics from './activity/+page.svelte';
 	import AgeStatistics from './age/+page.svelte';
@@ -8,7 +7,10 @@
 	import OrientationStatistics from './orientation/+page.svelte';
 	import SpeechTimeStatistics from './speech_time/+page.svelte';
 	import TotalSpeechesStatistics from './total_speeches/+page.svelte';
+	import VotesTogetherStatistics from './votes_together/+page.svelte';
+	import TwoThirdsMajorityStatistics from './two_thirds_majority/+page.svelte';
 	import { t } from '$lib/i18n/i18n.svelte';
+	import { getParliament } from '$lib/api/parliament';
 
 	const sections = [
 		{
@@ -34,10 +36,17 @@
 			component: ComplexityStatistics
 		},
 		{
-			id: 'division-accuracy',
-			label: t('statistics.section.divisionAccuracy'),
-			component: DivisionAccuracyStatistics
+			id: 'votes-together',
+			label: t('statistics.section.votesTogether'),
+			component: VotesTogetherStatistics
 		},
+		...(getParliament() === 'at'
+			? [{
+				id: 'two-thirds-majority',
+				label: t('statistics.section.twoThirds'),
+				component: TwoThirdsMajorityStatistics
+			}]
+			: []),
 		{ id: 'age', label: t('statistics.section.age'), component: AgeStatistics },
 		{
 			id: 'orientation',

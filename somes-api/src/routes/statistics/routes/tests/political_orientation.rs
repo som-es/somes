@@ -348,8 +348,19 @@ async fn test_votes_together_applies_legislative_period_filter(pool: PgPool) {
         .await
         .unwrap();
 
-    assert_eq!(results.len(), 1);
-    assert_eq!(results[0].party_1, "Party X");
-    assert_eq!(results[0].party_2, "Party Y");
-    assert_eq!(results[0].same_votes, 2);
+    assert_eq!(results.len(), 4);
+    let matching_parties = results
+        .iter()
+        .find(|result| result.party_1 == "Party X" && result.party_2 == "Party Y")
+        .unwrap();
+    assert_eq!(matching_parties.same_votes, 2);
+    assert_eq!(matching_parties.total_votes, 2);
+    assert_eq!(matching_parties.agreement_percentage, 100.0);
+
+    let matching_trio = results
+        .iter()
+        .find(|result| result.group_size == 3)
+        .unwrap();
+    assert_eq!(matching_trio.parties, vec!["Party X", "Party Y", "Party Z"]);
+    assert_eq!(matching_trio.same_votes, 1);
 }
