@@ -17,7 +17,7 @@ export function getNrMandateSkippingDateRange(mandates: FullMandate[]) {
 	let firstDate: Date | null = null;
 	let lastDate: Date | null = null;
 
-  let hasNrOrGovNotEnded: boolean = false;
+	let hasNrOrGovNotEnded: boolean = false;
 
 	mandates?.forEach((mandate) => {
 		if (!mandate.is_nr && !mandate.is_gov_official) {
@@ -34,12 +34,12 @@ export function getNrMandateSkippingDateRange(mandates: FullMandate[]) {
 			if (!lastDate || endDate > lastDate) {
 				lastDate = endDate;
 			}
-    } else {
-      hasNrOrGovNotEnded = true;
+		} else {
+			hasNrOrGovNotEnded = true;
 		}
 	});
 
-  if (hasNrOrGovNotEnded) return { firstDate, lastDate: null };
+	if (hasNrOrGovNotEnded) return { firstDate, lastDate: null };
 	return { firstDate, lastDate };
 }
 

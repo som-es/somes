@@ -15,7 +15,7 @@
 
 <a
 	href={createVoteResultPath(ref)}
-	class="mb-1 flex rounded-xl bg-primary-200/50 px-3 py-2 transition-colors hover:bg-primary-200 dark:bg-primary-400/50 dark:hover:bg-primary-400"
+	class="mb-1 flex rounded-xl bg-primary-200 px-3 py-2 transition-colors hover:bg-primary-200 dark:bg-primary-400 dark:hover:bg-primary-400"
 >
 	<div class="flex-1">
 		<span class="text-base">

@@ -1,5 +1,5 @@
 use axum::{Json, extract::Query};
-use combx::{DbAiSummary, OptionalDecree};
+use combx::{DbAiSummary, DbRisAmendmentRef, OptionalDecree};
 use somes_common_lib::{Days, Document};
 use sqlx::{PgPool, query_as};
 

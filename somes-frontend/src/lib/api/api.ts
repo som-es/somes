@@ -203,11 +203,7 @@ export async function delegate_question_status(
 	fetcher: typeof fetch = fetch,
 	parliament: Parliament = getParliament()
 ): Promise<{ enabled: boolean } | HasError> {
-	return getWithRoute<{ enabled: boolean }>(
-		'v1/delegates/questions/status',
-		parliament,
-		fetcher
-	);
+	return getWithRoute<{ enabled: boolean }>('v1/delegates/questions/status', parliament, fetcher);
 }
 
 export async function latest_vote_results(

@@ -1,4 +1,4 @@
-use combx::{DbAiSummary, OptionalDecree};
+use combx::{DbAiSummary, DbRisAmendmentRef, OptionalDecree};
 use somes_common_lib::Document;
 use sqlx::PgPool;
 

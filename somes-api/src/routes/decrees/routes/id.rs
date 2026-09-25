@@ -2,7 +2,7 @@ use crate::{
     PgPoolConnection, RedisConnection, get_json_cache, routes::FilterError, set_json_cache,
 };
 use axum::{Json, extract::Path};
-use combx::{DbAiSummary, OptionalDecree};
+use combx::{DbAiSummary, DbRisAmendmentRef, OptionalDecree};
 use somes_common_lib::Document;
 
 #[utoipa::path(

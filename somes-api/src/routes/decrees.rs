@@ -1,4 +1,4 @@
-use combx::{DbAiSummary, Delegate, DelegateFilter, OptionalDecree};
+use combx::{DbAiSummary, DbRisAmendmentRef, Delegate, DelegateFilter, OptionalDecree};
 use redis::aio::ConnectionManager;
 use serde::{Deserialize, Serialize};
 use somes_common_lib::Document;

@@ -47,7 +47,7 @@
 		if (!user.is_admin) {
 			errorMessage = 'Du hast keine Berechtigung für diese Seite.';
 			isLoading = false;
-			goto(plink("/home"));
+			goto(plink('/home'));
 			return;
 		}
 
@@ -168,20 +168,20 @@
 		</div>
 
 		{#if isAdmin}
-		    <div class="flex flex-wrap gap-2">
-    			<button
-    				class="rounded-md border border-gray-300 px-3 py-2 text-sm font-semibold text-black hover:bg-gray-100 dark:border-gray-600 dark:text-white dark:hover:bg-gray-800"
-    				onclick={toggleQuestionSystem}
-    			>
-    				Toggle System
-    			</button>
+			<div class="flex flex-wrap gap-2">
+				<button
+					class="rounded-md border border-gray-300 px-3 py-2 text-sm font-semibold text-black hover:bg-gray-100 dark:border-gray-600 dark:text-white dark:hover:bg-gray-800"
+					onclick={toggleQuestionSystem}
+				>
+					Toggle System
+				</button>
 
-    			<button
-    				class="rounded-md border border-gray-300 px-3 py-2 text-sm font-semibold text-black hover:bg-gray-100 dark:border-gray-600 dark:text-white dark:hover:bg-gray-800"
-    				onclick={loadQuestions}
-    			>
-    				Aktualisieren
-    			</button>
+				<button
+					class="rounded-md border border-gray-300 px-3 py-2 text-sm font-semibold text-black hover:bg-gray-100 dark:border-gray-600 dark:text-white dark:hover:bg-gray-800"
+					onclick={loadQuestions}
+				>
+					Aktualisieren
+				</button>
 			</div>
 		{/if}
 	</div>
