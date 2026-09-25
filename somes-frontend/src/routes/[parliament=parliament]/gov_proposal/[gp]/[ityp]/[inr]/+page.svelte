@@ -6,9 +6,7 @@
 	import MinisterialView from '$lib/components/MinisterialView/MinisterialView.svelte';
 	import type { MinisterialViewData } from '$lib/components/MinisterialView/types';
 	import MoodBarometer from '$lib/components/MoodBarometer/MoodBarometer.svelte';
-	import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
-	import VoteResultExpandableBar from '$lib/components/VoteResults/Expandable/VoteResultExpandableBar.svelte';
 	import type { GovProposalDelegate } from '$lib/types';
 	import type { PageProps } from './$types';
 

@@ -194,10 +194,3 @@
 		</div>
 	{/if}
 </div>
-{#if ministerialData.documents.length > 0 && ministerialData.type === 'gov_proposal' && snippets['voteable']}
-	<div class="mt-2 flex min-w-full flex-wrap gap-2">
-		<div class="min-w-full rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
-			<Documents documents={ministerialData.documents} />
-		</div>
-	</div>
-{/if}

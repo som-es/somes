@@ -379,11 +379,10 @@
 						<span class="text-sm font-semibold text-gray-800 lg:text-base dark:text-gray-200"
 							>{t('vote_result.filter')}</span
 						>
-						<div class="mt-2 flex h-10 w-full gap-2 md:mt-1 md:w-auto">
-							<!-- Parteien Filter -->
-							<div
-								class="flex h-full grow touch-manipulation items-center justify-center gap-1 lg:grow-0"
-							>
+						<div
+							class="flex h-full touch-manipulation flex-wrap gap-1"
+						>
+							<div class="h-10 max-lg:grow">
 								<MultiSelectFilter
 									items={uniqueParties}
 									bind:value={selectedPartiesNames}
@@ -397,64 +396,66 @@
 										<span class="truncate">{party.label}</span>
 									{/snippet}
 								</MultiSelectFilter>
-								<Select.Root
-									type="single"
-									allowDeselect
-									bind:value={selectedInfavor}
-									items={infavorOptions}
+							</div>
+							<Select.Root
+								type="single"
+								allowDeselect
+								bind:value={selectedInfavor}
+								items={infavorOptions}
+							>
+								<Select.Trigger
+									class="flex h-10 max-lg:grow touch-manipulation items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none lg:w-auto lg:px-3"
 								>
-									<Select.Trigger
-										class="flex h-full w-full touch-manipulation items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none lg:w-auto lg:px-3"
-									>
-										<div class="flex items-center gap-2">
-											{#if selectedInfavor}
-												{@const option = infavorOptions.find((p) => p.value === selectedInfavor)}
-												{#if option}
-													<span class="truncate">{option.label}</span>
-												{/if}
-											{:else}
-												<span class="truncate">{t('vote_result.votingBehavior')}</span>
+									<div class="flex items-center gap-2">
+										{#if selectedInfavor}
+											{@const option = infavorOptions.find((p) => p.value === selectedInfavor)}
+											{#if option}
+												<span class="truncate">{option.label}</span>
 											{/if}
-										</div>
-										{@html upDownArrowIcon}
-									</Select.Trigger>
-									<Select.Portal>
-										<Select.Content
-											class="z-500 max-h-60 w-[calc(100vw-2rem)] min-w-[var(--bits-select-anchor-width)] overflow-hidden rounded-xl border border-gray-200 bg-surface-100 shadow-lg md:w-[200px] dark:bg-surface-500"
-											sideOffset={8}
-										>
-											<Select.Viewport class="p-1">
-												{#each infavorOptions as infavorOption (infavorOption.value)}
-													<Select.Item
-														class="flex h-10 w-full cursor-pointer justify-between rounded-lg py-3 pr-1.5 pl-3 text-sm transition-all duration-75 outline-none select-none data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-400"
-														value={infavorOption.value}
-														label={infavorOption.label}
-													>
-														{#snippet children({ selected })}
-															<div class="flex items-center gap-2">
-																{infavorOption.label}
+										{:else}
+											<span class="truncate">{t('vote_result.votingBehavior')}</span>
+										{/if}
+									</div>
+									{@html upDownArrowIcon}
+								</Select.Trigger>
+								<Select.Portal>
+									<Select.Content
+										class="z-500 max-h-60 w-[calc(100vw-2rem)] min-w-[var(--bits-select-anchor-width)] overflow-hidden rounded-xl border border-gray-200 bg-surface-100 shadow-lg md:w-[200px] dark:bg-surface-500"
+										sideOffset={8}
+									>
+										<Select.Viewport class="p-1">
+											{#each infavorOptions as infavorOption (infavorOption.value)}
+												<Select.Item
+													class="flex h-10 w-full cursor-pointer justify-between rounded-lg py-3 pr-1.5 pl-3 text-sm transition-all duration-75 outline-none select-none data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-400"
+													value={infavorOption.value}
+													label={infavorOption.label}
+												>
+													{#snippet children({ selected })}
+														<div class="flex items-center gap-2">
+															{infavorOption.label}
+														</div>
+														{#if selected}
+															<div class="ml-auto h-4 stroke-black dark:stroke-white">
+																{@html checkmarkIcon}
 															</div>
-															{#if selected}
-																<div class="ml-auto h-4 stroke-black dark:stroke-white">
-																	{@html checkmarkIcon}
-																</div>
-															{/if}
-														{/snippet}
-													</Select.Item>
-												{/each}
-											</Select.Viewport>
-										</Select.Content>
-									</Select.Portal>
-								</Select.Root>
-								{#if uniqueCountries.length > 0}
+														{/if}
+													{/snippet}
+												</Select.Item>
+											{/each}
+										</Select.Viewport>
+									</Select.Content>
+								</Select.Portal>
+							</Select.Root>
+							{#if uniqueCountries.length > 0}
+								<div class="h-10 max-lg:grow">
 									<!-- Länder Filter (nur EU, constituency ist dort der Staat) -->
 									<MultiSelectFilter
 										items={uniqueCountries.map((c) => ({ value: c.code, label: c.name }))}
 										bind:value={selectedCountries}
 										allLabel={t('filter.allCountries')}
 									/>
-								{/if}
-							</div>
+								</div>
+							{/if}
 						</div>
 					</div>
 
