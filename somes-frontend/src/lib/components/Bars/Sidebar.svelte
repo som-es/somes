@@ -3,15 +3,13 @@
 	import delegatesIcon from '$lib/assets/icons/delegates.svg?raw';
 	import statisticsIcon from '$lib/assets/icons/statistics.svg?raw';
 	import questionsIcon from '$lib/assets/icons/questions.svg?raw';
+	import thumbsIcon from '$lib/assets/icons/thumbs.svg?raw';
 	import somesIcon from '$lib/assets/somes_icon.svg?raw';
 	import somesEuIcon from '$lib/assets/somes_icon_eu.svg?raw';
 	import { page } from '$app/state';
 
 	import { resolve } from '$app/paths';
 	import { getParliament, plink } from '$lib/api/parliament';
-	import VoteParliament2 from '../Parliaments/VoteParliament2.svelte';
-	import { mockDelegatesNoColor, mockVoteResult } from '$lib/parliaments/mock';
-	import { getSeats } from '$lib/caching/seats';
 	import AiViewToggle from '../UI/AiViewToggle.svelte';
 	import SidebarUserMenu from './SidebarUserMenu.svelte';
 	import austriaFlagIcon from '$lib/assets/parliament_switch/austria_map_flag.svg?raw';
@@ -224,23 +222,10 @@
 			title={t('nav.history')}
 			class="{activeUrl?.includes('/history')
 				? 'bg-tertiary-500! stroke-black'
-				: ' stroke-white'} flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60"
+				: ' stroke-white'} flex h-10 w-10 items-center justify-center rounded-xl hover:cursor-pointer hover:bg-tertiary-400/60 hover:stroke-black"
 		>
-			<span class="w-15">
-				<VoteParliament2
-					parliament="at"
-					againstOpacity={0.3}
-					voteResult={mockVoteResult()}
-					delegates={mockDelegatesNoColor()}
-					allSeats={new Map([['XX', getSeats(new Map(), 'XX', true)]])}
-					preview
-					overrideDelegates
-					noSeats
-					useOffset={false}
-					enforceSvg
-					showGovs={false}
-					forceColor={activeUrl?.includes('/history') ? 'black' : 'white'}
-				/>
+			<span class="w-7">
+				{@html thumbsIcon}
 			</span>
 		</a>
 		<a

@@ -35,6 +35,7 @@ pub async fn create_ministerial_decrees_with_docs_view<'a>(
             d.created_at,
             d.updated_at,
             d.is_norm,
+            d.gesetzesnummer,
             ARRAY(
                 SELECT ROW(title, document_url, document_type)::document
                 from ministrial_decrees_documents doc
@@ -67,7 +68,8 @@ pub async fn create_ministerial_decrees_with_docs_view<'a>(
             LIMIT 1
           ) AS \"ai_summary: DbAiSummary\"
 
-        FROM ministrial_decrees d;
+        FROM ministrial_decrees d
+        where not d.is_norm;
         "
         ))
         .execute(&mut **tx)
