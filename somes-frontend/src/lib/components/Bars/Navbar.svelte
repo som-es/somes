@@ -24,6 +24,8 @@
 	import ThemeToggle from '$lib/components/UI/ThemeToggle.svelte';
 	import LanguageSwitcher from '$lib/components/UI/LanguageSwitcher.svelte';
 
+	let { questionsEnabled = true }: { questionsEnabled?: boolean } = $props();
+
 	let isOpen = $state(false);
 	let expandedItems = $state<Record<string, boolean>>({});
 	let parliament = $derived(getParliament());
@@ -77,14 +79,18 @@
 				]
 			});
 		}
-		return [
+		const list = [
 			{ href: plink('/home'), label: t('nav.news') },
 			{ label: t('nav.votes'), subItems: voteSubItems },
 			{ href: plink('/delegates'), label: t('nav.delegates') },
-			{ href: plink('/statistics'), label: t('nav.statistics') },
-			{ href: plink('/questions'), label: t('nav.questions') },
-			{ href: resolve('/moderationskodex'), label: t('nav.modCode') }
+			{ href: plink('/statistics'), label: t('nav.statistics') }
 		];
+
+		if (questionsEnabled) {
+			list.push({ href: plink('/questions'), label: t('nav.questions') });
+		}
+
+		return list;
 	});
 
 	function toggleMenu() {

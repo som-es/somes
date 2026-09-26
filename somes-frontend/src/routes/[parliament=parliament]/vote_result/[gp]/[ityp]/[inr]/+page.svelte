@@ -379,9 +379,7 @@
 						<span class="text-sm font-semibold text-gray-800 lg:text-base dark:text-gray-200"
 							>{t('vote_result.filter')}</span
 						>
-						<div
-							class="flex h-full touch-manipulation flex-wrap gap-1"
-						>
+						<div class="flex h-full touch-manipulation flex-wrap gap-1">
 							<div class="h-10 max-lg:grow">
 								<MultiSelectFilter
 									items={uniqueParties}
@@ -404,7 +402,7 @@
 								items={infavorOptions}
 							>
 								<Select.Trigger
-									class="flex h-10 max-lg:grow touch-manipulation items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none lg:w-auto lg:px-3"
+									class="flex h-10 touch-manipulation items-center justify-center gap-1 rounded-xl bg-secondary-500 px-2 text-white transition-colors placeholder:text-gray-600 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none max-lg:grow lg:w-auto lg:px-3"
 								>
 									<div class="flex items-center gap-2">
 										{#if selectedInfavor}

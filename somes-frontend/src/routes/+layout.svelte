@@ -60,7 +60,7 @@
 
 <div class="grid h-screen grid-rows-[auto_1fr_auto]">
 	<header class="sticky top-0 z-50 lg:hidden">
-		<Navbar />
+		<Navbar questionsEnabled={data.questionsEnabled} />
 	</header>
 
 	<div class="grid grid-cols-1 lg:grid-cols-[auto_1fr]">
