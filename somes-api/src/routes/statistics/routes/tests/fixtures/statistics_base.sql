@@ -75,12 +75,11 @@ CREATE TABLE proposal_delegates (
     is_receiver boolean
 );
 
-CREATE TABLE delegate_votes (
+CREATE TABLE division_interest_score (
     id integer PRIMARY KEY,
-    delegate_id integer,
-    plenar_id integer,
-    vote text,
-    outcome text
+    timestamp timestamp with time zone,
+    score real NOT NULL,
+    delegate_id integer NOT NULL
 );
 
 CREATE TABLE political_positions (
@@ -95,7 +94,10 @@ CREATE TABLE political_positions (
 CREATE TABLE votes (
     party text,
     legislative_initiatives_id integer,
-    infavor boolean
+    infavor_count integer,
+    against_count integer,
+    abstention_count integer,
+    absence_count integer
 );
 
 INSERT INTO delegates (id, name, gender, birthdate, party) VALUES
@@ -221,22 +223,16 @@ INSERT INTO proposal_delegates (proposal_id, delegate_id, is_receiver) VALUES
     ('p8', 7, false),
     ('p9', 8, false);
 
-INSERT INTO delegate_votes (id, delegate_id, plenar_id, vote, outcome) VALUES
-    (1, 1, 1, 'yes', 'yes'),
-    (2, 1, 1, 'no', 'yes'),
-    (3, 1, 1, 'abstain', NULL),
-    (4, 2, 1, 'yes', 'yes'),
-    (5, 3, 2, 'yes', 'yes'),
-    (6, 4, 1, 'no', 'yes'),
-    (7, 4, 1, 'no', 'yes'),
-    (8, 4, 1, 'no', 'yes'),
-    (9, 4, 1, 'no', 'yes'),
-    (10, 4, 2, 'yes', 'yes'),
-    (11, 4, 2, 'no', 'yes'),
-    (12, 5, 3, 'yes', 'yes'),
-    (13, 6, 2, 'no', 'yes'),
-    (14, 7, 3, 'no', 'yes'),
-    (15, 8, 2, 'yes', 'yes');
+INSERT INTO division_interest_score (id, timestamp, score, delegate_id) VALUES
+    (1, '2020-01-01', 0.1, 1),
+    (2, '2024-01-01', 0.5, 1),
+    (3, '2024-01-01', 1.0, 2),
+    (4, '2024-01-01', 1.0, 3),
+    (5, '2024-01-01', 0.0, 4),
+    (6, '2024-01-01', 1.0, 5),
+    (7, '2024-01-01', 0.0, 6),
+    (8, '2024-01-01', 0.0, 7),
+    (9, '2024-01-01', 1.0, 8);
 
 INSERT INTO political_positions (
     delegate_id,
@@ -255,9 +251,10 @@ INSERT INTO political_positions (
     (7, 0.3, 0.7, 0.2, 0.8, 7),
     (8, 0.65, 0.35, 0.45, 0.55, 6);
 
-INSERT INTO votes (party, legislative_initiatives_id, infavor) VALUES
-    ('Party X', 1, true),
-    ('Party Y', 1, true),
-    ('Party Z', 1, false),
-    ('Party X', 2, false),
-    ('Party Y', 2, false);
+INSERT INTO votes (party, legislative_initiatives_id, infavor_count, against_count, abstention_count, absence_count) VALUES
+    ('Party X', 1, 1, 0, 0, 0),
+    ('Party Y', 1, 1, 0, 0, 0),
+    ('Party Z', 1, 0, 1, 0, 0),
+    ('Party X', 2, 0, 1, 0, 0),
+    ('Party Y', 2, 0, 1, 0, 0),
+    ('Party Z', 2, 0, 1, 0, 0);

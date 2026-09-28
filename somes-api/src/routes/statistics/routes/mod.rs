@@ -23,3 +23,6 @@ pub use division_accuracy_score::*;
 pub use political_orientation::*;
 pub use session_activity::*;
 pub use speeches::*;
+
+pub mod two_thirds;
+pub use two_thirds::*;

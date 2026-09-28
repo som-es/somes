@@ -119,7 +119,7 @@ const PARLIAMENT_ROUTES: &[(&str, &str)] = &[
     ("/v1/statistics", "/division_accuracy_score_per_gender"),
     ("/v1/statistics", "/division_accuracy_score_per_legis"),
     ("/v1/statistics", "/division_accuracy_score_per_party"),
-    ("/v1/statistics", "/divison_accuracy_score_per_delegate"),
+    ("/v1/statistics", "/division_accuracy_score_per_delegate"),
     ("/v1/statistics", "/is_authoritarian_per_age"),
     ("/v1/statistics", "/is_authoritarian_per_delegate"),
     ("/v1/statistics", "/is_authoritarian_per_gender"),

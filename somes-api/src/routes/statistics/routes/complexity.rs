@@ -21,6 +21,8 @@ pub struct ComplexityFilter {
 
 #[derive(ToSchema, PartialEq, Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct ComplexityBase {
+    delegate_id: i32,
+    latest_activity_date: Option<chrono::NaiveDate>,
     delegate_name: String,
     delegate_party: String,
     delegate_filter_party: String,
@@ -51,196 +53,117 @@ pub struct ComplexityByCategory {
 pub struct ComplexityService;
 
 impl ComplexityService {
+    // Merge a person's contributions before averaging people. A person with
+    // multiple parties or periods must not receive extra weight in a group.
+    fn merge_by_delegate(base_data: Vec<ComplexityBase>) -> Vec<ComplexityBase> {
+        let mut delegates: std::collections::HashMap<i32, ComplexityBase> =
+            std::collections::HashMap::new();
+        for item in base_data {
+            let weighted_score = item.complexity_score * item.total_proposals as f64;
+            match delegates.entry(item.delegate_id) {
+                std::collections::hash_map::Entry::Vacant(entry) => {
+                    let mut item = item;
+                    item.complexity_score = weighted_score;
+                    entry.insert(item);
+                }
+                std::collections::hash_map::Entry::Occupied(mut entry) => {
+                    let current = entry.get_mut();
+                    current.complexity_score += weighted_score;
+                    current.total_proposals += item.total_proposals;
+                    if item.latest_activity_date > current.latest_activity_date {
+                        current.delegate_party = item.delegate_party;
+                        current.delegate_filter_party = item.delegate_filter_party;
+                        current.latest_activity_date = item.latest_activity_date;
+                        current.delegate_age_bucket = item.delegate_age_bucket;
+                        current.legislative_period = item.legislative_period;
+                    }
+                }
+            }
+        }
+        delegates
+            .into_values()
+            .map(|mut item| {
+                item.complexity_score = if item.total_proposals > 0 {
+                    item.complexity_score / item.total_proposals as f64
+                } else {
+                    0.0
+                };
+                item
+            })
+            .collect()
+    }
+
+    fn aggregate_by_category(
+        base_data: Vec<ComplexityBase>,
+        is_desc: bool,
+        category: impl Fn(&ComplexityBase) -> Option<String>,
+    ) -> Vec<ComplexityByCategory> {
+        let mut groups: std::collections::HashMap<String, Vec<ComplexityBase>> =
+            std::collections::HashMap::new();
+        for item in base_data {
+            if let Some(key) = category(&item) {
+                groups.entry(key).or_default().push(item);
+            }
+        }
+        let mut results: Vec<_> = groups
+            .into_iter()
+            .map(|(category, rows)| {
+                let people = Self::merge_by_delegate(rows);
+                ComplexityByCategory {
+                    category,
+                    average_complexity: people.iter().map(|p| p.complexity_score).sum::<f64>()
+                        / people.len() as f64,
+                    total_proposals: people.iter().map(|p| p.total_proposals).sum(),
+                    delegate_count: people.len() as i64,
+                }
+            })
+            .collect();
+        results.sort_by(|a, b| {
+            let order = a.average_complexity.total_cmp(&b.average_complexity);
+            (if is_desc { order.reverse() } else { order })
+                .then_with(|| a.category.cmp(&b.category))
+        });
+        results
+    }
+
     fn aggregate_by_party(
         base_data: Vec<ComplexityBase>,
         is_desc: bool,
     ) -> Vec<ComplexityByCategory> {
-        let mut party_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> =
-            std::collections::HashMap::new();
-
-        for item in base_data {
-            let entry = party_map
-                .entry(item.delegate_filter_party.clone())
-                .or_insert((Vec::new(), 0, 0));
-            entry.0.push(item.complexity_score);
-            entry.1 += item.total_proposals;
-            entry.2 += 1;
-        }
-
-        let mut results: Vec<ComplexityByCategory> = party_map
-            .into_iter()
-            .map(|(party, (scores, total_proposals, delegate_count))| {
-                let average_complexity = if !scores.is_empty() {
-                    scores.iter().sum::<f64>() / scores.len() as f64
-                } else {
-                    0.0
-                };
-
-                ComplexityByCategory {
-                    category: party,
-                    average_complexity,
-                    total_proposals,
-                    delegate_count,
-                }
-            })
-            .collect();
-
-        results.sort_by(|a, b| {
-            b.average_complexity
-                .partial_cmp(&a.average_complexity)
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
-
-        if !is_desc {
-            results.reverse();
-        }
-
-        results
+        // A party gets only the initiatives attributed to it at the time.
+        Self::aggregate_by_category(base_data, is_desc, |item| {
+            Some(item.delegate_filter_party.clone())
+        })
     }
 
     fn aggregate_by_gender(
         base_data: Vec<ComplexityBase>,
         is_desc: bool,
     ) -> Vec<ComplexityByCategory> {
-        let mut gender_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> =
-            std::collections::HashMap::new();
-
-        for item in base_data {
-            let entry = gender_map
-                .entry(
-                    item.delegate_gender
-                        .clone()
-                        .unwrap_or_else(|| "Unknown".into()),
-                )
-                .or_insert((Vec::new(), 0, 0));
-            entry.0.push(item.complexity_score);
-            entry.1 += item.total_proposals;
-            entry.2 += 1;
-        }
-
-        let mut results: Vec<ComplexityByCategory> = gender_map
-            .into_iter()
-            .map(|(gender, (scores, total_proposals, delegate_count))| {
-                let average_complexity = if !scores.is_empty() {
-                    scores.iter().sum::<f64>() / scores.len() as f64
-                } else {
-                    0.0
-                };
-
-                ComplexityByCategory {
-                    category: gender,
-                    average_complexity,
-                    total_proposals,
-                    delegate_count,
-                }
-            })
-            .collect();
-
-        results.sort_by(|a, b| {
-            b.average_complexity
-                .partial_cmp(&a.average_complexity)
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
-
-        if !is_desc {
-            results.reverse();
-        }
-
-        results
+        Self::aggregate_by_category(base_data, is_desc, |item| {
+            Some(
+                item.delegate_gender
+                    .clone()
+                    .unwrap_or_else(|| "Unknown".into()),
+            )
+        })
     }
 
     fn aggregate_by_legis(
         base_data: Vec<ComplexityBase>,
         is_desc: bool,
     ) -> Vec<ComplexityByCategory> {
-        let mut period_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> =
-            std::collections::HashMap::new();
-
-        for item in base_data {
-            if let Some(period) = item.legislative_period {
-                let entry = period_map.entry(period).or_insert((Vec::new(), 0, 0));
-                entry.0.push(item.complexity_score);
-                entry.1 += item.total_proposals;
-                entry.2 += 1;
-            }
-        }
-
-        let mut results: Vec<ComplexityByCategory> = period_map
-            .into_iter()
-            .map(|(period, (scores, total_proposals, delegate_count))| {
-                let average_complexity = if !scores.is_empty() {
-                    scores.iter().sum::<f64>() / scores.len() as f64
-                } else {
-                    0.0
-                };
-
-                ComplexityByCategory {
-                    category: period,
-                    average_complexity,
-                    total_proposals,
-                    delegate_count,
-                }
-            })
-            .collect();
-
-        results.sort_by(|a, b| {
-            b.average_complexity
-                .partial_cmp(&a.average_complexity)
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
-
-        if !is_desc {
-            results.reverse();
-        }
-
-        results
+        Self::aggregate_by_category(base_data, is_desc, |item| item.legislative_period.clone())
     }
 
     fn aggregate_by_age(
         base_data: Vec<ComplexityBase>,
         is_desc: bool,
     ) -> Vec<ComplexityByCategory> {
-        let mut age_map: std::collections::HashMap<String, (Vec<f64>, i64, i64)> =
-            std::collections::HashMap::new();
-
-        for item in base_data {
-            let entry = age_map
-                .entry(item.delegate_age_bucket)
-                .or_insert((Vec::new(), 0, 0));
-            entry.0.push(item.complexity_score);
-            entry.1 += item.total_proposals;
-            entry.2 += 1;
-        }
-
-        let mut results: Vec<ComplexityByCategory> = age_map
-            .into_iter()
-            .map(|(category, (scores, total_proposals, delegate_count))| {
-                let average_complexity = if !scores.is_empty() {
-                    scores.iter().sum::<f64>() / scores.len() as f64
-                } else {
-                    0.0
-                };
-
-                ComplexityByCategory {
-                    category,
-                    average_complexity,
-                    total_proposals,
-                    delegate_count,
-                }
-            })
-            .collect();
-
-        results.sort_by(|a, b| {
-            b.average_complexity
-                .partial_cmp(&a.average_complexity)
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
-
-        if !is_desc {
-            results.reverse();
-        }
-
-        results
+        // Use each person's age at their latest initiative within the selection.
+        Self::aggregate_by_category(Self::merge_by_delegate(base_data), is_desc, |item| {
+            Some(item.delegate_age_bucket.clone())
+        })
     }
 
     pub async fn get_base_data(
@@ -259,47 +182,51 @@ impl ComplexityService {
 
         let query = format!(
             "
-        SELECT
-            d.name AS delegate_name,
-            COALESCE(m.party, d.party, 'Regierungsmitglied') AS delegate_party,
-            COALESCE(m.party, 'Regierungsmitglied') AS delegate_filter_party,
-            d.gender AS delegate_gender,
-            AVG(
+        WITH contributions AS (
+            SELECT DISTINCT
+                p.id AS proposal_id, p.gp, p.created_at,
+                d.id AS delegate_id, d.name AS delegate_name,
+                COALESCE(m.party, d.party, 'Regierungsmitglied') AS delegate_party,
+                COALESCE(m.party, 'Regierungsmitglied') AS delegate_filter_party,
+                d.gender AS delegate_gender, d.birthdate,
                 CASE
-                    WHEN p.ityp = 'J' THEN 1.0
                     WHEN p.ityp = 'AA' THEN 1.2
                     WHEN p.ityp = 'A' THEN 1.2
                     WHEN p.ityp = 'UEA' THEN 1.15
                     WHEN p.ityp = 'I' THEN 1.3
                     ELSE 1.0
-                END
-            )::FLOAT8 AS complexity_score,
-            COUNT(p.id) AS total_proposals,
-            p.gp AS legislative_period,
+                END AS weight
+            FROM proposals p
+            JOIN proposal_delegates pd ON p.id = pd.proposal_id
+            JOIN delegates d ON pd.delegate_id = d.id
+            JOIN LATERAL (
+                SELECT m.party, m.is_nr, m.is_gov_official
+                FROM mandates m
+                WHERE m.delegate_id = d.id
+                    AND (m.is_nr OR m.is_gov_official)
+                    AND (m.start_date IS NULL OR m.start_date <= p.created_at::date)
+                    AND (m.end_date IS NULL OR m.end_date >= p.created_at::date)
+                ORDER BY m.is_nr DESC NULLS LAST, m.start_date DESC NULLS LAST, m.id DESC
+                LIMIT 1
+            ) m ON true
+            WHERE pd.is_receiver = false AND {filter_str}
+        )
+        SELECT
+            delegate_id, delegate_name, delegate_party, delegate_filter_party, delegate_gender,
+            AVG(weight)::float8 AS complexity_score,
+            COUNT(*)::bigint AS total_proposals,
+            gp AS legislative_period,
+            MAX(created_at)::date AS latest_activity_date,
             CASE
-                WHEN d.birthdate IS NULL THEN 'Unbekannt'
-                WHEN EXTRACT(YEAR FROM AGE(MAX(p.created_at), d.birthdate)) <= 30 THEN '18-30'
-                WHEN EXTRACT(YEAR FROM AGE(MAX(p.created_at), d.birthdate)) <= 40 THEN '31-40'
-                WHEN EXTRACT(YEAR FROM AGE(MAX(p.created_at), d.birthdate)) <= 50 THEN '41-50'
-                WHEN EXTRACT(YEAR FROM AGE(MAX(p.created_at), d.birthdate)) <= 60 THEN '51-60'
+                WHEN birthdate IS NULL THEN 'Unbekannt'
+                WHEN EXTRACT(YEAR FROM AGE(MAX(created_at), birthdate)) <= 30 THEN '18-30'
+                WHEN EXTRACT(YEAR FROM AGE(MAX(created_at), birthdate)) <= 40 THEN '31-40'
+                WHEN EXTRACT(YEAR FROM AGE(MAX(created_at), birthdate)) <= 50 THEN '41-50'
+                WHEN EXTRACT(YEAR FROM AGE(MAX(created_at), birthdate)) <= 60 THEN '51-60'
                 ELSE '60+'
             END AS delegate_age_bucket
-        FROM
-            proposals p
-        JOIN
-            proposal_delegates pd ON p.id = pd.proposal_id
-        JOIN
-            delegates d ON pd.delegate_id = d.id
-        LEFT JOIN mandates m ON m.delegate_id = d.id
-            AND (m.start_date IS NULL OR m.start_date <= p.created_at::date)
-            AND (m.end_date IS NULL OR m.end_date >= p.created_at::date)
-        WHERE
-            pd.is_receiver = false
-            AND {filter_str}
-        GROUP BY
-            d.id, d.name, d.gender, d.birthdate, d.party, m.party, p.gp
-        ORDER BY
-            d.id, complexity_score DESC;
+        FROM contributions
+        GROUP BY delegate_id, delegate_name, delegate_party, delegate_filter_party, delegate_gender, birthdate, gp;
         "
         );
 
@@ -318,56 +245,14 @@ impl ComplexityService {
     ) -> Result<Vec<ComplexityForDelegate>, StatisticsResponse> {
         let base_data = Self::get_base_data(pg, filter).await?;
 
-        struct DelegateAccumulator {
-            delegate_party: String,
-            delegate_filter_party: String,
-            weighted_complexity: f64,
-            total_proposals: i64,
-            latest_period_rank: String,
-        }
-
-        let mut delegate_map: std::collections::HashMap<String, DelegateAccumulator> =
-            std::collections::HashMap::new();
-
-        for item in base_data {
-            let period_rank = super::legislative_period_rank(item.legislative_period.as_deref());
-            let entry =
-                delegate_map
-                    .entry(item.delegate_name)
-                    .or_insert_with(|| DelegateAccumulator {
-                        delegate_party: item.delegate_party.clone(),
-                        delegate_filter_party: item.delegate_filter_party.clone(),
-                        weighted_complexity: 0.0,
-                        total_proposals: 0,
-                        latest_period_rank: String::new(),
-                    });
-
-            entry.weighted_complexity += item.complexity_score * item.total_proposals as f64;
-            entry.total_proposals += item.total_proposals;
-
-            if period_rank >= entry.latest_period_rank.as_str() {
-                entry.delegate_party = item.delegate_party;
-                entry.delegate_filter_party = item.delegate_filter_party;
-                entry.latest_period_rank = period_rank.to_string();
-            }
-        }
-
-        let mut results: Vec<ComplexityForDelegate> = delegate_map
+        let mut results: Vec<ComplexityForDelegate> = Self::merge_by_delegate(base_data)
             .into_iter()
-            .map(|(delegate_name, item)| {
-                let complexity_score = if item.total_proposals > 0 {
-                    item.weighted_complexity / item.total_proposals as f64
-                } else {
-                    0.0
-                };
-
-                ComplexityForDelegate {
-                    delegate_name,
-                    delegate_party: item.delegate_party,
-                    delegate_filter_party: item.delegate_filter_party,
-                    complexity_score,
-                    total_proposals: item.total_proposals,
-                }
+            .map(|item| ComplexityForDelegate {
+                delegate_name: item.delegate_name,
+                delegate_party: item.delegate_party,
+                delegate_filter_party: item.delegate_filter_party,
+                complexity_score: item.complexity_score,
+                total_proposals: item.total_proposals,
             })
             .collect();
 

@@ -29,6 +29,7 @@ const PARLIAMENT_PATHS = [
 	'/statistics',
 	'/statistics/absences',
 	'/statistics/activity',
+	'/statistics/complexity',
 	'/statistics/age',
 	'/statistics/call_to_orders',
 	'/statistics/orientation',
