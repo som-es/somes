@@ -1,5 +1,7 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, type Snippet } from 'svelte';
+	import CustomBarChart from '$lib/components/Statistics/charts/CustomBarChart.svelte';
+	import TwoThirdsBreakdown from '$lib/components/Statistics/TwoThirdsBreakdown.svelte';
 	import { justPostStatistics } from '$lib/api/api';
 	import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 	import Container from '$lib/components/Layout/Container.svelte';
@@ -17,7 +19,7 @@
 		noResult: number;
 		total: number;
 	};
-	type View = 'stacked' | 'rate' | 'comparison' | 'trend';
+	type View = 'stacked' | 'rate' | 'trend' | 'party' | 'topic';
 
 	let outcomes = $state<PeriodOutcomes[]>([]);
 	let selectedOutcome = $state('all');
@@ -31,8 +33,9 @@
 	const views: { value: View; label: string }[] = [
 		{ value: 'stacked', label: t('statistics.twoThirds.outcomeDistribution') },
 		{ value: 'rate', label: t('statistics.twoThirds.acceptanceRate') },
-		{ value: 'comparison', label: t('statistics.twoThirds.periodComparison') },
-		{ value: 'trend', label: t('statistics.twoThirds.countTrend') }
+		{ value: 'trend', label: t('statistics.twoThirds.countTrend') },
+		{ value: 'party', label: t('statistics.twoThirds.byParty') },
+		{ value: 'topic', label: t('statistics.twoThirds.byTopic') }
 	];
 	const outcomeOptions = [
 		{ value: 'all', label: t('filterOption.any') },
@@ -111,7 +114,6 @@
 		}
 	});
 
-	let maximumTotal = $derived(Math.max(1, ...outcomes.map((item) => item.total)));
 	let stackedSegments = $derived([
 		{ key: 'accepted', label: t('filterOption.acceptedYes'), color: '#22c55e' },
 		{ key: 'declined', label: t('filterOption.acceptedNo'), color: '#ef4444' },
@@ -123,6 +125,32 @@
 		const decided = period.accepted + period.declined;
 		return decided > 0 ? (period.accepted / decided) * 100 : null;
 	}
+
+	const outcomeChartData = $derived(
+		outcomes.map((period) => ({
+			category: period.period,
+			value: period.total,
+			party: '',
+			color: '#94a3b8',
+			valueLabel: t('statistics.twoThirds.outcomeDistribution'),
+			segments: {
+				accepted: period.accepted,
+				declined: period.declined,
+				preDeclined: period.preDeclined,
+				noResult: period.noResult
+			}
+		}))
+	);
+	const rateChartData = $derived(
+		outcomes.map((period) => ({
+			category: period.period,
+			value: acceptanceRate(period) ?? 0,
+			missing: acceptanceRate(period) === null,
+			party: '',
+			color: '#22c55e',
+			valueLabel: t('statistics.twoThirds.acceptanceRate')
+		}))
+	);
 
 	async function loadCountTrend(): Promise<StatisticsData[]> {
 		const data = outcomes.map((period) => ({
@@ -145,6 +173,37 @@
 	}
 </script>
 
+{#snippet analysisSelection(filters?: Snippet)}
+	<section
+		class="mb-5 rounded-xl border border-gray-300 bg-surface-50/95 p-4 shadow-sm dark:border-surface-700 dark:bg-surface-700/95"
+	>
+		<div class="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
+			<div>
+				<p class="text-sm font-semibold text-gray-600 dark:text-gray-300">
+					{t('statistics.chartControl.analysis')}
+				</p>
+				<div class="mt-2 flex flex-wrap items-center gap-2">
+					<div
+						class="flex flex-wrap gap-1 rounded-xl border border-primary-300 p-1 dark:border-primary-400"
+					>
+						{#each views as view}
+							<button
+								type="button"
+								class="rounded-lg px-3 py-1.5 text-sm font-semibold transition {selectedView ===
+								view.value
+									? 'bg-primary-300 text-black dark:bg-primary-400'
+									: 'hover:bg-primary-100 dark:hover:bg-surface-500'}"
+								onclick={() => (selectedView = view.value)}>{view.label}</button
+							>
+						{/each}
+					</div>
+				</div>
+			</div>
+			{@render filters?.()}
+		</div>
+	</section>
+{/snippet}
+
 {#if !isEu}
 	<Container class="pb-12">
 		<div class="mt-2 mb-6">
@@ -154,53 +213,17 @@
 			</p>
 		</div>
 
-		{#if selectedView !== 'trend'}
-			<section
-				class="mb-5 rounded-xl border border-gray-300 bg-surface-50/95 p-4 shadow-sm dark:border-surface-700 dark:bg-surface-700/95"
-			>
-				<p class="text-sm font-semibold text-gray-600 dark:text-gray-300">
-					{t('statistics.chartControl.analysis')}
-				</p>
-				<div
-					class="mt-2 flex flex-wrap gap-1 rounded-xl border border-primary-300 p-1 dark:border-primary-400"
-				>
-					{#each views as view}
-						<button
-							type="button"
-							class="rounded-lg px-3 py-1.5 text-sm font-semibold transition {selectedView ===
-							view.value
-								? 'bg-primary-300 text-black dark:bg-primary-400'
-								: 'hover:bg-primary-100 dark:hover:bg-surface-500'}"
-							onclick={() => (selectedView = view.value)}>{view.label}</button
-						>
-					{/each}
-				</div>
-			</section>
-		{:else}
-			<section
-				class="mb-5 rounded-xl border border-gray-300 bg-surface-50/95 p-4 shadow-sm dark:border-surface-700 dark:bg-surface-700/95"
-			>
-				<p class="text-sm font-semibold text-gray-600 dark:text-gray-300">
-					{t('statistics.chartControl.analysis')}
-				</p>
-				<div
-					class="mt-2 flex flex-wrap gap-1 rounded-xl border border-primary-300 p-1 dark:border-primary-400"
-				>
-					{#each views as view}
-						<button
-							type="button"
-							class="rounded-lg px-3 py-1.5 text-sm font-semibold transition {selectedView ===
-							view.value
-								? 'bg-primary-300 text-black dark:bg-primary-400'
-								: 'hover:bg-primary-100 dark:hover:bg-surface-500'}"
-							onclick={() => (selectedView = view.value)}>{view.label}</button
-						>
-					{/each}
-				</div>
-			</section>
+		{#if selectedView !== 'party' && selectedView !== 'topic' && (selectedView !== 'trend' || loading || error)}
+			{@render analysisSelection()}
 		{/if}
 
-		{#if loading}
+		{#if selectedView === 'party' || selectedView === 'topic'}
+			<TwoThirdsBreakdown
+				mode={selectedView}
+				periods={outcomes.map((item) => item.period)}
+				controls={analysisSelection}
+			/>
+		{:else if loading}
 			<div
 				class="flex min-h-64 items-center justify-center rounded-xl border border-gray-200 bg-surface-50 dark:border-surface-700 dark:bg-surface-800"
 			>
@@ -214,6 +237,7 @@
 			</div>
 		{:else if selectedView === 'trend'}
 			<StatisticsChartControl
+				controls={analysisSelection}
 				height={520}
 				makeRequest={loadCountTrend}
 				selectedCategory="legis"
@@ -239,107 +263,32 @@
 			<section
 				class="rounded-xl border border-gray-200 bg-surface-50 shadow-sm dark:border-surface-700 dark:bg-surface-800"
 			>
-				<div class="border-b border-gray-200 p-4 dark:border-surface-700">
-					<h2 class="text-xl font-bold">{t('statistics.twoThirds.outcomeDistribution')}</h2>
-					<p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
-						{t('statistics.twoThirds.outcomeDistributionDescription')}
-					</p>
-				</div>
-				<div
-					class="flex flex-wrap gap-x-5 gap-y-2 border-b border-gray-100 px-4 py-3 text-sm dark:border-surface-700"
-				>
-					{#each stackedSegments as segment}<span class="flex items-center gap-2"
-							><span class="h-3 w-3 rounded-sm" style="background-color:{segment.color}"
-							></span>{segment.label}</span
-						>{/each}
-				</div>
-				<div class="space-y-3 p-4">
-					{#each outcomes as period}
-						<div class="grid grid-cols-[3rem_minmax(0,1fr)_3rem] items-center gap-3 text-sm">
-							<span class="font-semibold">{period.period}</span>
-							<div
-								class="flex h-7 overflow-hidden rounded bg-gray-100 dark:bg-surface-700"
-								aria-label="{period.period}: {period.total}"
-							>
-								{#each stackedSegments as segment}<div
-										title="{segment.label}: {period[segment.key as keyof PeriodOutcomes]}"
-										style="width:{((period[segment.key as keyof PeriodOutcomes] as number) /
-											maximumTotal) *
-											100}%;background-color:{segment.color}"
-										class="h-full min-w-0"
-									></div>{/each}
-							</div>
-							<span class="text-right font-semibold tabular-nums">{period.total}</span>
-						</div>
-					{/each}
-				</div>
+				<CustomBarChart
+					data={outcomeChartData}
+					height={520}
+					metricLabel={t('statistics.twoThirds.outcomeDistribution')}
+					chartDescription={t('statistics.twoThirds.outcomeDistributionDescription')}
+					selectedCategory="legis"
+					series={stackedSegments}
+					valuePrecision={0}
+					showRanks={false}
+				/>
 			</section>
 		{:else if selectedView === 'rate'}
 			<section
 				class="rounded-xl border border-gray-200 bg-surface-50 shadow-sm dark:border-surface-700 dark:bg-surface-800"
 			>
-				<div class="border-b border-gray-200 p-4 dark:border-surface-700">
-					<h2 class="text-xl font-bold">{t('statistics.twoThirds.acceptanceRate')}</h2>
-					<p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
-						{t('statistics.twoThirds.acceptanceRateDescription')}
-					</p>
-				</div>
-				<div class="space-y-3 p-4">
-					{#each outcomes as period}{@const rate = acceptanceRate(period)}
-						<div class="grid grid-cols-[3rem_minmax(0,1fr)_4rem] items-center gap-3 text-sm">
-							<span class="font-semibold">{period.period}</span>
-							<div class="h-7 overflow-hidden rounded bg-gray-100 dark:bg-surface-700">
-								<div class="h-full rounded bg-green-500" style="width:{rate ?? 0}%"></div>
-							</div>
-							<span class="text-right font-semibold tabular-nums"
-								>{rate === null
-									? '–'
-									: `${rate.toLocaleString('de-AT', { maximumFractionDigits: 1 })}%`}</span
-							>
-						</div>{/each}
-				</div>
-			</section>
-		{:else}
-			<section
-				class="overflow-hidden rounded-xl border border-gray-200 bg-surface-50 shadow-sm dark:border-surface-700 dark:bg-surface-800"
-			>
-				<div class="border-b border-gray-200 p-4 dark:border-surface-700">
-					<h2 class="text-xl font-bold">{t('statistics.twoThirds.periodComparison')}</h2>
-					<p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
-						{t('statistics.twoThirds.periodComparisonDescription')}
-					</p>
-				</div>
-				<div class="overflow-x-auto">
-					<table class="w-full text-left text-sm">
-						<thead class="bg-gray-100 text-gray-600 dark:bg-surface-700 dark:text-gray-300"
-							><tr
-								><th class="px-4 py-3">{t('statistics.legislature')}</th><th class="px-4 py-3"
-									>{t('statistics.twoThirds.total')}</th
-								><th class="px-4 py-3">{t('statistics.twoThirds.changeFromPrevious')}</th><th
-									class="px-4 py-3">{t('statistics.twoThirds.changePercent')}</th
-								></tr
-							></thead
-						><tbody
-							>{#each outcomes as period, index}{@const previous =
-									outcomes[index - 1]}{@const change = previous
-									? period.total - previous.total
-									: null}{@const percent =
-									previous && previous.total > 0
-										? ((period.total - previous.total) / previous.total) * 100
-										: null}<tr class="border-t border-gray-100 dark:border-surface-700"
-									><th class="px-4 py-3 font-semibold">{period.period}</th><td
-										class="px-4 py-3 tabular-nums">{period.total}</td
-									><td class="px-4 py-3 tabular-nums"
-										>{change === null ? '–' : change > 0 ? `+${change}` : change}</td
-									><td class="px-4 py-3 tabular-nums"
-										>{percent === null
-											? '–'
-											: `${percent > 0 ? '+' : ''}${percent.toLocaleString('de-AT', { maximumFractionDigits: 1 })}%`}</td
-									></tr
-								>{/each}</tbody
-						>
-					</table>
-				</div>
+				<CustomBarChart
+					data={rateChartData}
+					height={520}
+					metricLabel={t('statistics.twoThirds.acceptanceRate')}
+					chartDescription={t('statistics.twoThirds.acceptanceRateDescription')}
+					selectedCategory="legis"
+					valueDomain={[0, 100]}
+					valueSuffix="%"
+					valuePrecision={1}
+					showRanks={false}
+				/>
 			</section>
 		{/if}
 	</Container>

@@ -12,6 +12,8 @@ pub fn create_statistics_router() -> OpenApiRouter<AppState> {
         // Legislative Initiatives endpoints
         .routes(routes!(legislative_initiatives_without_simple_majority))
         .routes(routes!(legislative_initiative_outcomes_by_period))
+        .routes(routes!(two_thirds_by_party))
+        .routes(routes!(two_thirds_by_topic))
         // Call to Orders endpoints
         .routes(routes!(call_to_orders_per_delegate))
         .route(

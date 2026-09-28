@@ -10,6 +10,9 @@
 		color: string;
 		valueLabel: string;
 		metadata?: Record<string, any>;
+		segments?: Record<string, number>;
+		detailLabel?: string;
+		missing?: boolean;
 	};
 
 	let {
@@ -21,7 +24,11 @@
 		infoQuestion = null,
 		infoAnswer = null,
 		valuePrecision,
-		categoryLabelWidth
+		categoryLabelWidth,
+		series = [],
+		valueDomain,
+		valueSuffix = '',
+		showRanks = true
 	}: {
 		data: ChartItem[];
 		height?: number;
@@ -32,12 +39,16 @@
 		infoAnswer?: string | null;
 		valuePrecision?: number;
 		categoryLabelWidth?: string;
+		series?: { key: string; label: string; color: string }[];
+		valueDomain?: [number, number];
+		valueSuffix?: string;
+		showRanks?: boolean;
 	} = $props();
 
 	let hoveredIndex = $state<number | null>(null);
 
 	const labelColumnWidth = $derived(
-		selectedCategory === 'delegate' ? 'clamp(10rem, 34%, 17rem)' : categoryLabelWidth ?? '12rem'
+		selectedCategory === 'delegate' ? 'clamp(10rem, 34%, 17rem)' : (categoryLabelWidth ?? '12rem')
 	);
 	const rowGap = 4;
 	let visibleRowCount = $derived(height < 440 ? 7 : height < 500 ? 8 : 10);
@@ -53,6 +64,23 @@
 	let chartRowHeight = $derived(`${chartRowHeightPx}px`);
 	let barInsetY = $derived(Math.max(0, (chartRowHeightPx - barHeightPx) / 2));
 
+	function barValue(item: ChartItem) {
+		return series.length
+			? series.reduce((total, segment) => total + (item.segments?.[segment.key] ?? 0), 0)
+			: item.value;
+	}
+
+	function accessibleLabel(item: ChartItem, rank: number) {
+		const values = item.missing
+			? '–'
+			: series.length
+				? series
+						.map((segment) => `${segment.label}: ${formatValue(item.segments?.[segment.key] ?? 0)}`)
+						.join(', ')
+				: `${metricLabel} ${formatValue(item.value)}`;
+		return `${showRanks ? `Rang ${rank}, ` : ''}${item.category}: ${values}${item.detailLabel ? `, ${item.detailLabel}` : ''}`;
+	}
+
 	function niceStep(value: number) {
 		if (value <= 0) return 1;
 		const power = Math.pow(10, Math.floor(Math.log10(value)));
@@ -65,10 +93,12 @@
 	function formatValue(value: number) {
 		const abs = Math.abs(value);
 		const maximumFractionDigits = valuePrecision ?? (abs >= 100 ? 0 : abs >= 10 ? 1 : 2);
-		return new Intl.NumberFormat('de-AT', {
-			maximumFractionDigits,
-			minimumFractionDigits: 0
-		}).format(value);
+		return (
+			new Intl.NumberFormat('de-AT', {
+				maximumFractionDigits,
+				minimumFractionDigits: 0
+			}).format(value) + valueSuffix
+		);
 	}
 
 	function stopScrollChaining(event: WheelEvent | TouchEvent) {
@@ -76,13 +106,13 @@
 	}
 
 	let extent = $derived.by(() => {
-		const values = data.map((item) => Number(item.value ?? 0)).filter(Number.isFinite);
-		const rawMin = Math.min(0, ...values);
-		const rawMax = Math.max(0, ...values);
+		const values = data.map((item) => Number(barValue(item) ?? 0)).filter(Number.isFinite);
+		const rawMin = valueDomain?.[0] ?? Math.min(0, ...values);
+		const rawMax = valueDomain?.[1] ?? Math.max(0, ...values);
 		const span = rawMax - rawMin || 1;
 		const step = niceStep(span / 4);
-		const min = Math.floor(rawMin / step) * step;
-		const max = Math.ceil(rawMax / step) * step || step;
+		const min = valueDomain?.[0] ?? Math.floor(rawMin / step) * step;
+		const max = valueDomain?.[1] ?? (Math.ceil(rawMax / step) * step || step);
 		return { min, max, span: max - min || 1, step };
 	});
 
@@ -165,9 +195,10 @@
 				{#if detailItem}
 					<div class="grid h-full content-between gap-2">
 						<div class="flex min-w-0 items-start gap-2 md:justify-end">
-							<span class="text-xs font-semibold text-gray-500 tabular-nums dark:text-gray-400">
-								#{detailRank}
-							</span>
+							{#if showRanks}<span
+									class="text-xs font-semibold text-gray-500 tabular-nums dark:text-gray-400"
+									>#{detailRank}</span
+								>{/if}
 							<span
 								class="mt-1 h-3 w-3 shrink-0 rounded-full"
 								style="background-color: {detailItem.color}"
@@ -190,14 +221,45 @@
 							<span
 								class="text-lg leading-none font-bold text-gray-900 tabular-nums dark:text-gray-50"
 							>
-								{formatValue(detailItem.value)}
+								{detailItem.missing ? '–' : formatValue(detailItem.value)}
 							</span>
 						</div>
+						{#if series.length}
+							<dl class="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+								{#each series as segment}
+									<div class="flex items-center justify-between gap-2">
+										<dt class="flex items-center gap-1">
+											<span
+												class="h-2 w-2 shrink-0 rounded-sm"
+												style:background-color={segment.color}
+											></span>{segment.label}
+										</dt>
+										<dd class="font-semibold tabular-nums">
+											{formatValue(detailItem.segments?.[segment.key] ?? 0)}
+										</dd>
+									</div>
+								{/each}
+							</dl>
+							{#if detailItem.detailLabel}<p class="text-xs text-gray-600 dark:text-gray-300">
+									{detailItem.detailLabel}
+								</p>{/if}
+						{/if}
 					</div>
 				{/if}
 			</div>
 		</div>
 	</div>
+
+	{#if series.length}
+		<div
+			class="flex flex-wrap gap-x-5 gap-y-2 border-b border-gray-100 px-4 py-3 text-sm dark:border-surface-700"
+		>
+			{#each series as segment}<span class="flex items-center gap-2"
+					><span class="h-3 w-3 rounded-sm" style:background-color={segment.color}
+					></span>{segment.label}</span
+				>{/each}
+		</div>
+	{/if}
 
 	<div class="overflow-hidden">
 		<div class="relative px-4 pt-4 pb-4">
@@ -220,17 +282,22 @@
 						onfocus={() => (hoveredIndex = index)}
 						onblur={() => (hoveredIndex = null)}
 					>
-						<div class="grid min-w-0 grid-cols-[3rem_minmax(0,1fr)] items-center gap-2 pr-1">
-							<span
-								class="justify-self-end text-[11px] font-semibold text-gray-400 tabular-nums dark:text-gray-500"
-							>
-								#{ranks[index]}
-							</span>
+						<div
+							class="grid min-w-0 items-center gap-2 pr-1 {showRanks
+								? 'grid-cols-[3rem_minmax(0,1fr)]'
+								: 'grid-cols-1'}"
+						>
+							{#if showRanks}
+								<span
+									class="justify-self-end text-[11px] font-semibold text-gray-400 tabular-nums dark:text-gray-500"
+								>
+									#{ranks[index]}
+								</span>{/if}
 							<div class="flex min-w-0 items-center gap-2">
 								<span class="h-3 w-3 shrink-0 rounded-full" style="background-color: {item.color}"
 								></span>
 								<span
-									class="line-clamp-2 min-w-0 whitespace-normal text-right text-xs leading-tight font-semibold text-gray-800 dark:text-gray-100"
+									class="line-clamp-2 min-w-0 text-left text-xs leading-tight font-semibold whitespace-normal text-gray-800 dark:text-gray-100"
 									title={item.category}
 								>
 									{item.category}
@@ -258,46 +325,48 @@
 									class:opacity-70={hoveredIndex !== null && hoveredIndex !== index}
 									class:brightness-110={hoveredIndex === index}
 									role="img"
-									aria-label="Rang {ranks[index]}, {item.category}: {metricLabel} {formatValue(
-										item.value
-									)}"
+									aria-label={accessibleLabel(item, ranks[index])}
 								>
-									<BarChart
-										data={[item]}
-										x="value"
-										y="category"
-										{xDomain}
-										orientation="horizontal"
-										axis={false}
-										grid={false}
-										rule={false}
-										tooltip={false}
-										highlight={false}
-										padding={{ left: 0, right: 0, top: 0, bottom: 0 }}
-										xNice={false}
-										bandPadding={0}
-										props={{
-											bars: {
-												fill: item.color,
-												strokeWidth: 0,
-												radius: 2,
-												rounded: 'all',
-												insets: { top: barInsetY, bottom: barInsetY }
-											},
-											svg: {
-												class: 'overflow-visible'
-											}
-										}}
-									/>
+									{#if !item.missing}
+										<BarChart
+											data={[{ ...item, ...item.segments }]}
+											x={series.length ? undefined : 'value'}
+											series={series.length ? series : undefined}
+											seriesLayout={series.length ? 'stack' : 'overlap'}
+											y="category"
+											{xDomain}
+											orientation="horizontal"
+											axis={false}
+											grid={false}
+											rule={false}
+											tooltip={false}
+											highlight={false}
+											padding={{ left: 0, right: 0, top: 0, bottom: 0 }}
+											xNice={false}
+											bandPadding={0}
+											props={{
+												bars: {
+													...(series.length ? {} : { fill: item.color }),
+													strokeWidth: 0,
+													radius: series.length ? 0 : 2,
+													rounded: series.length ? 'none' : 'all',
+													insets: { top: barInsetY, bottom: barInsetY }
+												},
+												svg: {
+													class: 'overflow-visible'
+												}
+											}}
+										/>
+									{/if}
 								</div>
 								<span
 									class="value-label absolute top-1/2 w-[var(--value-label-width)] -translate-y-1/2 overflow-hidden px-1 text-xs font-semibold text-ellipsis whitespace-nowrap text-gray-700 tabular-nums dark:text-gray-200"
-									class:hidden={Math.abs(item.value) < extent.span * 0.02}
-									style:left={valueLabelPosition(item.value).left}
-									style:text-align={valueLabelPosition(item.value).textAlign}
-									title={formatValue(item.value)}
+									class:hidden={!item.missing && Math.abs(barValue(item)) < extent.span * 0.02}
+									style:left={valueLabelPosition(barValue(item)).left}
+									style:text-align={valueLabelPosition(barValue(item)).textAlign}
+									title={item.missing ? '–' : formatValue(barValue(item))}
 								>
-									{formatValue(item.value)}
+									{item.missing ? '–' : formatValue(barValue(item))}
 								</span>
 							</div>
 						</div>

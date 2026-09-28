@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { t } from '$lib/i18n/i18n.svelte';
-	import { onMount, tick, untrack } from 'svelte';
+	import { onMount, tick, untrack, type Snippet } from 'svelte';
 	import GenericFilters from '$lib/components/Filtering/GenericFilters.svelte';
 	import MultiSelectFilter from '$lib/components/Filtering/MultiSelectFilter.svelte';
 	import SingleSelectFilter from '$lib/components/Filtering/SingleSelectFilter.svelte';
@@ -27,6 +27,7 @@
 	};
 
 	interface Props {
+		controls?: Snippet<[Snippet]>;
 		makeRequest: (
 			gp: string | null,
 			gender: string | null,
@@ -73,6 +74,7 @@
 
 	let {
 		makeRequest,
+		controls,
 		height = 480,
 		categoryLabelWidth = '12rem',
 		selectedCategory = $bindable('delegate'),
@@ -128,6 +130,7 @@
 	let selectedParties = $state<string[]>([]);
 	let topLimit = $state(25);
 	let controlsHeight = $state(0);
+	let externalControlsHeight = $state(0);
 	let windowHeight = $state(820);
 	let mounted = false;
 	let requestId = 0;
@@ -208,7 +211,8 @@
 	);
 	let responsiveChartHeight = $derived.by(() => {
 		const reservedSpace = isMobile ? 300 : 250;
-		const availableHeight = windowHeight - controlsHeight - reservedSpace - extraReservedHeight;
+		const availableHeight =
+			windowHeight - controlsHeight - externalControlsHeight - reservedSpace - extraReservedHeight;
 		const maximumHeight = Math.min(height, windowHeight >= 1050 ? 820 : 720);
 		return Math.round(Math.max(360, Math.min(maximumHeight, availableHeight)));
 	});
@@ -454,97 +458,115 @@
 	}
 </script>
 
+{#snippet controlFields()}
+	<div class="flex flex-col gap-2 md:flex-row md:items-end">
+		<div class="min-w-0 flex-1 md:min-w-64">
+			<p class="mb-2 text-sm font-semibold text-gray-600 dark:text-gray-300">
+				{t('statistics.chartControl.search')}
+			</p>
+			<SearchBar
+				bind:searchValue
+				placeholder={selectedCategory === 'delegate'
+					? t('delegates.searchDelegates')
+					: t('statistics.searchCategory')}
+			/>
+		</div>
+		<div class="flex h-10 gap-2 text-sm">
+			{#if controls && analysisFilterOptions.length > 0}
+				<SingleSelectFilter
+					items={analysisFilterOptions}
+					bind:value={analysisFilterValue}
+					label={analysisFilterLabel}
+				/>
+			{/if}
+			{#if partyFilterOptions.length > 0}
+				<MultiSelectFilter
+					items={partyFilterOptions.map((party) => ({
+						value: party.name,
+						label: party.name,
+						color: party.color
+					}))}
+					value={selectedPartyFilter}
+					onValueChange={(value) => (selectedPartyFilter = value.slice(-1))}
+					allLabel={t('statistics.allParties')}
+				/>
+			{/if}
+			{#if canUsePartyFilter && uniqueParties.length > 0}
+				<MultiSelectFilter
+					items={uniqueParties.map((p) => ({ value: p.name, label: p.name, color: p.color }))}
+					bind:value={selectedParties}
+					allLabel={t('statistics.allParties')}
+				>
+					{#snippet itemLabel(party)}
+						<div
+							class="h-3 w-3 shrink-0 rounded-full"
+							style="background-color: {party.color};"
+						></div>
+						<span class="truncate">{party.label}</span>
+					{/snippet}
+				</MultiSelectFilter>
+			{/if}
+			<GenericFilters
+				bind:genericFilters
+				legisPeriodFilter={filterConfig.showPeriod === false || selectedCategory === 'legis'
+					? undefined
+					: legisPeriodFilter}
+			/>
+		</div>
+	</div>
+{/snippet}
+
 <svelte:window bind:innerWidth={windowWidth} bind:innerHeight={windowHeight} />
 
 <div class="statistics-chart-control space-y-5">
+	{#if controls}
+		<div bind:clientHeight={externalControlsHeight}>{@render controls(controlFields)}</div>
+	{/if}
 	<section
 		bind:clientHeight={controlsHeight}
 		class="relative z-20 rounded-xl border border-gray-300 bg-surface-50/95 p-4 shadow-sm backdrop-blur dark:border-surface-700 dark:bg-surface-700/95"
 	>
 		<div class="flex flex-col gap-4">
-			<div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-				<div>
-					<p class="text-sm font-semibold text-gray-600 dark:text-gray-300">
-						{t('statistics.chartControl.analysis')}
-					</p>
-					<div class="mt-2 flex flex-wrap items-center gap-2">
-						<div class="flex flex-wrap gap-1 rounded-xl border border-primary-300 p-1 dark:border-primary-400">
-							{#each categoryOptions as option}
-							<button
-								type="button"
-								class="rounded-lg px-3 py-1.5 text-sm font-semibold transition {selectedCategory ===
-								option.value
-									? 'bg-primary-300 text-black dark:bg-primary-400'
-									: 'hover:bg-primary-100 dark:hover:bg-surface-500'}"
-								onclick={() => {
-									selectedCategory = option.value;
-									searchValue = '';
-									selectedParties = [];
-								}}
-							>
-								{option.label}
-							</button>
-						{/each}
-					</div>
-					{#if analysisFilterOptions.length > 0}
-						<SingleSelectFilter
-							items={analysisFilterOptions}
-							bind:value={analysisFilterValue}
-							label={analysisFilterLabel}
-						/>
-					{/if}
-				</div>
-				</div>
-
-				<div class="flex flex-col gap-2 md:flex-row md:items-end">
-					<div class="min-w-64 flex-1">
-						<p class="mb-2 text-sm font-semibold text-gray-600 dark:text-gray-300">
-							{t('statistics.chartControl.search')}
+			{#if !controls}
+				<div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+					<div>
+						<p class="text-sm font-semibold text-gray-600 dark:text-gray-300">
+							{t('statistics.chartControl.analysis')}
 						</p>
-						<SearchBar
-							bind:searchValue
-							placeholder={selectedCategory === 'delegate'
-								? t('delegates.searchDelegates')
-								: t('statistics.searchCategory')}
-						/>
-					</div>
-					<div class="flex h-10 gap-2 text-sm">
-						{#if partyFilterOptions.length > 0}
-							<MultiSelectFilter
-								items={partyFilterOptions.map((party) => ({
-									value: party.name,
-									label: party.name,
-									color: party.color
-								}))}
-								value={selectedPartyFilter}
-								onValueChange={(value) => (selectedPartyFilter = value.slice(-1))}
-								allLabel={t('statistics.allParties')}
-							/>
-						{/if}
-						{#if canUsePartyFilter && uniqueParties.length > 0}
-							<MultiSelectFilter
-								items={uniqueParties.map((p) => ({ value: p.name, label: p.name, color: p.color }))}
-								bind:value={selectedParties}
-								allLabel={t('statistics.allParties')}
+						<div class="mt-2 flex flex-wrap items-center gap-2">
+							<div
+								class="flex flex-wrap gap-1 rounded-xl border border-primary-300 p-1 dark:border-primary-400"
 							>
-								{#snippet itemLabel(party)}
-									<div
-										class="h-3 w-3 shrink-0 rounded-full"
-										style="background-color: {party.color};"
-									></div>
-									<span class="truncate">{party.label}</span>
-								{/snippet}
-							</MultiSelectFilter>
-						{/if}
-						<GenericFilters
-							bind:genericFilters
-							legisPeriodFilter={filterConfig.showPeriod === false || selectedCategory === 'legis'
-								? undefined
-								: legisPeriodFilter}
-						/>
+								{#each categoryOptions as option}
+									<button
+										type="button"
+										class="rounded-lg px-3 py-1.5 text-sm font-semibold transition {selectedCategory ===
+										option.value
+											? 'bg-primary-300 text-black dark:bg-primary-400'
+											: 'hover:bg-primary-100 dark:hover:bg-surface-500'}"
+										onclick={() => {
+											selectedCategory = option.value;
+											searchValue = '';
+											selectedParties = [];
+										}}
+									>
+										{option.label}
+									</button>
+								{/each}
+							</div>
+							{#if analysisFilterOptions.length > 0}
+								<SingleSelectFilter
+									items={analysisFilterOptions}
+									bind:value={analysisFilterValue}
+									label={analysisFilterLabel}
+								/>
+							{/if}
+						</div>
 					</div>
+
+					{@render controlFields()}
 				</div>
-			</div>
+			{/if}
 
 			<div
 				class="flex flex-col gap-3 border-t border-gray-300 pt-4 md:flex-row md:items-center md:justify-between dark:border-surface-600"
