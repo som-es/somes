@@ -75,6 +75,7 @@ export const de = {
 	'seo.parliament.at': 'österreichischen Nationalrat',
 	'seo.parliament.eu': 'Europäischen Parlament',
 	'share.voteIn': 'Abstimmung im {parliament}',
+	'share.site.headline': 'Abstimmungen im Nationalrat und EU-Parlament verständlich aufbereitet',
 	'seo.decrees.title': 'Verordnungen der Bundesministerien | Somes',
 	'seo.decrees.description':
 		'Alle Verordnungen der österreichischen Bundesministerien im Bundesgesetzblatt, verständlich zusammengefasst. Durchsuchbar und filterbar.',

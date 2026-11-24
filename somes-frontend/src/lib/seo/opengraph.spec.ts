@@ -19,7 +19,7 @@ describe('with_open_graph', () => {
 			'<meta property="og:url" content="https://somes.at/at/delegates?delegate=785" />'
 		);
 		expect(html).toContain('<meta property="og:locale" content="de_AT" />');
-		expect(html).toContain('<meta property="og:image" content="https://somes.at/og-image.png" />');
+		expect(html).toContain('<meta property="og:image" content="https://somes.at/og/somes.png" />');
 		expect(html.indexOf('og:title')).toBeLessThan(html.indexOf('</head>'));
 	});
 

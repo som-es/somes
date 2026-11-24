@@ -1,6 +1,6 @@
 import { SITE_URL } from './sitemap';
 
-export const OG_IMAGE = `${SITE_URL}/og-image.png`;
+export const OG_IMAGE = `${SITE_URL}/og/somes.png`;
 
 function attr(value: string): string {
 	return value.replaceAll('"', '&quot;');

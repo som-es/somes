@@ -3,6 +3,8 @@ import VoteParliament2 from '$lib/components/Parliaments/VoteParliament2.svelte'
 import type { Parliament } from '$lib/api/parliament';
 import type { Delegate, VoteResult } from '$lib/types';
 import { VOTE_COLORS } from '$lib/voteColors';
+import { setupParliament } from '$lib/parliament';
+import { getSeats } from '$lib/caching/seats';
 import { VOTE_HEX, type VoteSvg } from './vote_svg';
 
 const CSS_COLORS: Record<string, string> = {
@@ -49,7 +51,18 @@ export function vote_parliament_svg(props: {
 			opacity: attr('fill-opacity') === '' ? 1 : +attr('fill-opacity')
 		};
 	});
-	const visible = circles.filter((c) => c.opacity > 0 && c.r > 0);
+	return circles_svg(circles.filter((c) => c.opacity > 0 && c.r > 0));
+}
+
+interface SvgCircle {
+	cx: number;
+	cy: number;
+	r: number;
+	fill: string;
+	opacity: number;
+}
+
+function circles_svg(visible: SvgCircle[]): VoteSvg | null {
 	if (visible.length === 0) return null;
 
 	const minX = Math.min(...visible.map((c) => c.cx - c.r));
@@ -68,4 +81,13 @@ export function vote_parliament_svg(props: {
 		width,
 		height
 	};
+}
+
+export function seat_layout_svg(fill: string, opacity: number): VoteSvg | null {
+	return circles_svg(
+		setupParliament(getSeats(new Map(), '', true), 830, 900, 7.9)
+			.slice(0, -1)
+			.flat()
+			.map((bubble) => ({ cx: bubble.x, cy: bubble.y, r: bubble.r, fill, opacity }))
+	);
 }

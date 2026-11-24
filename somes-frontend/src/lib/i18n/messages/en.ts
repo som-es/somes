@@ -74,6 +74,8 @@ export const en = {
 	'seo.parliament.at': 'Austrian National Council',
 	'seo.parliament.eu': 'European Parliament',
 	'share.voteIn': 'Vote in the {parliament}',
+	'share.site.headline':
+		'Votes in the Austrian Nationalrat and the European Parliament made understandable',
 	'seo.decrees.title': 'Decrees of the Austrian federal ministries | Somes',
 	'seo.decrees.description':
 		'All decrees of the Austrian federal ministries published in the Federal Law Gazette, clearly summarised. Searchable and filterable.',
