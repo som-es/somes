@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { SITE_URL } from '$lib/seo/sitemap';
+	import { breadcrumb_json_ld } from '$lib/seo/breadcrumbs';
+	import { json_ld_script } from '$lib/seo/delegate';
 	import { ministerialInfoBadges } from '$lib/components/MinisterialView/infoBadges';
 	import type { DecreeDelegate } from '$lib/components/Delegates/Decrees/types';
 	import { t } from '$lib/i18n/i18n.svelte';
@@ -46,6 +48,19 @@
 	{#if seo}
 		<title>{seo.title}</title>
 		<meta name="description" content={seo.description} />
+	{/if}
+	{#if decreeDelegate}
+		{@html json_ld_script(
+			breadcrumb_json_ld([
+				{ name: t('nav.decrees'), path: `/${data.parliament}/history/decrees` },
+				{
+					name:
+						decreeDelegate.decree.ai_summary?.short_title ||
+						decreeDelegate.decree.short_title ||
+						decreeDelegate.decree.title
+				}
+			])
+		)}
 	{/if}
 	{#if decreeDelegate}
 		<meta

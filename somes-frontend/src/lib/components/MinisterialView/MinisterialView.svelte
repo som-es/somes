@@ -55,7 +55,7 @@
 				<div class="flex items-center gap-4">
 					<div class="flex flex-col">
 						<div class="flex items-start gap-2">
-							<span
+							<h1
 								class="text-xl leading-tight font-bold lg:text-3xl"
 								style="hyphens: auto; word-break: break-word; overflow-wrap: break-word;"
 							>
@@ -65,7 +65,7 @@
 								{:else}
 									{ministerialData.alternativeTitle}
 								{/if}
-							</span>
+							</h1>
 						</div>
 
 						<span class="text-sm opacity-90">
@@ -87,7 +87,7 @@
 
 			{#if ministerialData.aiSummary}
 				<div class="mt-5 pb-3">
-					<h1 class="text-lg font-semibold md:text-xl">{t('ministerialView.summary')}</h1>
+					<h2 class="text-lg font-semibold md:text-xl">{t('ministerialView.summary')}</h2>
 					<span
 						class="text-base text-gray-800 lg:text-base dark:text-gray-200"
 						style="hyphens: auto; word-break: break-word; overflow-wrap: break-word;"

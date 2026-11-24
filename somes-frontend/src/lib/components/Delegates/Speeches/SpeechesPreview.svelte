@@ -39,7 +39,7 @@
 	<div class="flex items-start justify-between gap-3">
 		<div class="min-w-0">
 			<div class="flex items-start gap-2">
-				<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">
+				<h2 class="text-lg font-bold text-black xl:text-xl dark:text-white">
 					{#if aiViewEnabledStore.value && hintAiSummary}
 						<AiSummaryHintPopup
 							aiSummary={hintAiSummary}
@@ -48,7 +48,7 @@
 						/>
 					{/if}
 					{title}
-				</h1>
+				</h2>
 			</div>
 			<h2 class="text-sm text-gray-800 dark:text-gray-300">
 				{totalCount}

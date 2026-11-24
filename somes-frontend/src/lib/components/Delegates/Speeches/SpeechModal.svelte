@@ -226,7 +226,7 @@
 							{#if header}
 								{@render header()}
 							{/if}
-							<h1 class="text-xl font-bold lg:text-2xl">
+							<h2 class="text-xl font-bold lg:text-2xl">
 								{#if aiSummary}
 									<AiSummaryHintPopup
 										{aiSummary}
@@ -237,7 +237,7 @@
 								{:else}
 									{speech.speech.about ?? t('speeches.fallbackTitle')}
 								{/if}
-							</h1>
+							</h2>
 							<div
 								class="mt-1 flex flex-wrap items-center gap-3 text-sm text-gray-700 dark:text-gray-300"
 							>

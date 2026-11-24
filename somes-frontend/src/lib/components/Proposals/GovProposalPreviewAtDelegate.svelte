@@ -18,9 +18,9 @@
 <div>
 	<div class="flex items-start justify-between">
 		<div>
-			<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">
+			<h2 class="text-lg font-bold text-black xl:text-xl dark:text-white">
 				{t('proposals.all.title')}
-			</h1>
+			</h2>
 			<h2 class="text-sm text-gray-800 dark:text-gray-300">
 				{t(
 					govProposals.length == 1 ? 'proposals.preview.countOne' : 'proposals.preview.countOther',

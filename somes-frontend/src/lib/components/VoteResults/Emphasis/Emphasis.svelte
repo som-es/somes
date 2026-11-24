@@ -194,7 +194,7 @@
 	{#if emphasis.length > 0}
 		<div class="emphasis-item rounded-xl bg-primary-300 px-5 pt-3 pb-3 dark:bg-primary-500">
 			<div class="flex justify-between">
-				<h1 class="text-lg font-semibold md:text-xl">{t('emphasis.title')}</h1>
+				<h2 class="text-lg font-semibold md:text-xl">{t('emphasis.title')}</h2>
 			</div>
 
 			{#if headerDates}

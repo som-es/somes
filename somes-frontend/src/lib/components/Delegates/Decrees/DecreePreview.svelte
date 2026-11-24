@@ -33,7 +33,7 @@
 <div>
 	<div class="flex items-start justify-between">
 		<div>
-			<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">{t('decrees.title')}</h1>
+			<h2 class="text-lg font-bold text-black xl:text-xl dark:text-white">{t('decrees.title')}</h2>
 
 			<h2 class="text-sm text-gray-800 dark:text-gray-300">
 				{decrees.length}

@@ -14,7 +14,7 @@
 </script>
 
 <div class="flex w-full flex-col lg:flex-row lg:items-center lg:justify-between">
-	<h1 class="text-2xl font-bold max-lg:text-lg">{t('spectrum.stance.title')}</h1>
+	<h2 class="text-2xl font-bold max-lg:text-lg">{t('spectrum.stance.title')}</h2>
 	{#if usefulInfoCount < 5}
 		<span class="text-xs font-semibold text-orange-400">{t('spectrum.stance.warning')}</span>
 	{/if}

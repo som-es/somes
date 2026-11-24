@@ -139,7 +139,7 @@
 				<div class="p-5 text-black lg:p-8">
 					<div class="flex items-start justify-between gap-3">
 						<div class="min-w-0">
-							<h1 class="text-xl font-bold lg:text-2xl">{t('emphasis.speechesTitle')}</h1>
+							<h2 class="text-xl font-bold lg:text-2xl">{t('emphasis.speechesTitle')}</h2>
 							{#if pointText}
 								<p class="mt-1 text-base text-gray-800 dark:text-gray-200">{pointText}</p>
 							{/if}

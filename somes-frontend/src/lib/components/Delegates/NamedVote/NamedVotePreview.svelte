@@ -17,9 +17,9 @@
 <div>
 	<div class="flex items-start justify-between">
 		<div>
-			<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">
+			<h2 class="text-lg font-bold text-black xl:text-xl dark:text-white">
 				{t('namedVotes.title')}
-			</h1>
+			</h2>
 			<h2 class="text-sm text-gray-800 dark:text-gray-300">
 				{namedVotes.length}
 				{namedVotes.length == 1 ? t('namedVotes.vote') : t('namedVotes.votes')}

@@ -81,7 +81,7 @@
 
 <div class="card p-8">
 	<div class="flex items-center justify-between">
-		<h1 class="text-xl font-bold lg:text-2xl">
+		<h2 class="text-xl font-bold lg:text-2xl">
 			{#if aiViewEnabledStore.value && hintAiSummary}
 				<AiSummaryHintPopup
 					aiSummary={hintAiSummary}
@@ -90,7 +90,7 @@
 				/>
 			{/if}
 			{title}
-		</h1>
+		</h2>
 		<Dialog.Close>
 			<ModalCloseButton />
 		</Dialog.Close>

@@ -205,6 +205,7 @@
 			<span class="mt-3 flex w-10 items-center justify-center fill-white stroke-white!">
 				{@html parliament === 'eu' ? somesEuIcon : somesIcon}
 			</span>
+			<span class="sr-only">Somes</span>
 		</a>
 		<a
 			href={plink('/home')}
@@ -216,6 +217,7 @@
 			<span class="w-8">
 				{@html homeIcon}
 			</span>
+			<span class="sr-only">{t('nav.news')}</span>
 		</a>
 		<a
 			href={voteResultUrl.href}
@@ -227,6 +229,7 @@
 			<span class="w-7">
 				{@html thumbsIcon}
 			</span>
+			<span class="sr-only">{t('nav.history')}</span>
 		</a>
 		<a
 			href={plink('/delegates')}
@@ -238,6 +241,7 @@
 			<span class="w-6">
 				{@html delegatesIcon}
 			</span>
+			<span class="sr-only">{t('nav.delegates')}</span>
 		</a>
 		<a
 			href={plink('/statistics')}
@@ -249,6 +253,7 @@
 			<span class="w-6">
 				{@html statisticsIcon}
 			</span>
+			<span class="sr-only">{t('nav.statistics')}</span>
 		</a>
 		{#if parliament == 'at' && questionsEnabled}
 			<a
@@ -261,6 +266,7 @@
 				<span class="w-5">
 					{@html questionsIcon}
 				</span>
+				<span class="sr-only">{t('nav.questions')}</span>
 			</a>
 		{/if}
 

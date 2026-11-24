@@ -23,7 +23,7 @@
 
 <div class="card px-4">
 	<div class="flex items-center justify-between px-1 py-4">
-		<h1 class="text-xl font-bold lg:text-2xl">{t('namedVotes.title')}</h1>
+		<h2 class="text-xl font-bold lg:text-2xl">{t('namedVotes.title')}</h2>
 		<Dialog.Close>
 			<ModalCloseButton />
 		</Dialog.Close>

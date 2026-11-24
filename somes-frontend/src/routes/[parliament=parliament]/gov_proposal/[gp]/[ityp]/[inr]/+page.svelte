@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { SITE_URL } from '$lib/seo/sitemap';
+	import { breadcrumb_json_ld } from '$lib/seo/breadcrumbs';
+	import { json_ld_script } from '$lib/seo/delegate';
 	import { ministerialInfoBadges } from '$lib/components/MinisterialView/infoBadges';
 	import { shorten } from '$lib/seo/text';
 	import { errorToNull } from '$lib/api/api';
@@ -58,6 +60,14 @@
 <svelte:head>
 	<title>{title ? `${title} | Somes` : 'Somes'}</title>
 	<meta name="description" {content} />
+	{#if govProposalDelegate && title}
+		{@html json_ld_script(
+			breadcrumb_json_ld([
+				{ name: t('nav.ministerialDrafts'), path: `/${data.parliament}/history/proposals` },
+				{ name: title }
+			])
+		)}
+	{/if}
 	{#if govProposalDelegate}
 		<meta
 			property="og:image"

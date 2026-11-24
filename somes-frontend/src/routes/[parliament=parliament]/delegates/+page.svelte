@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { SITE_URL } from '$lib/seo/sitemap';
+	import { breadcrumb_json_ld } from '$lib/seo/breadcrumbs';
 	import type { AutocompleteOption } from '$lib/components/Autocompletion/types';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import type {
@@ -495,6 +496,14 @@
 	<meta name="description" content={seo?.description ?? t('delegates.meta.description')} />
 	{#if seo}
 		{@html json_ld_script(seo.jsonLd)}
+	{/if}
+	{#if data.delegate}
+		{@html json_ld_script(
+			breadcrumb_json_ld([
+				{ name: t('nav.delegates'), path: `/${data.parliament}/delegates` },
+				{ name: data.delegate.name }
+			])
+		)}
 	{/if}
 	{#if data.delegate}
 		<meta

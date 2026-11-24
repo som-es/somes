@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { SITE_URL } from '$lib/seo/sitemap';
+	import { breadcrumb_json_ld } from '$lib/seo/breadcrumbs';
+	import { json_ld_script } from '$lib/seo/delegate';
 	import { shorten } from '$lib/seo/text';
 	import { t } from '$lib/i18n/i18n.svelte';
 	import { errorToNull, url } from '$lib/api/api';
@@ -216,6 +218,14 @@
 <svelte:head>
 	<title>{title ? `${title} | Somes` : 'Somes'}</title>
 	<meta name="description" {content} />
+	{#if voteResult && title}
+		{@html json_ld_script(
+			breadcrumb_json_ld([
+				{ name: t('nav.votes'), path: `/${data.parliament}/history/votes` },
+				{ name: title }
+			])
+		)}
+	{/if}
 	{#if voteResult}
 		<meta
 			property="og:image"
@@ -322,7 +332,7 @@
 					<!-- Zusammenfassung -->
 					{#if aiViewEnabledStore.value && voteResult.ai_summary}
 						<div class="mt-5 pb-3">
-							<h1 class="text-lg font-semibold md:text-xl">{t('vote_result.summary')}</h1>
+							<h2 class="text-lg font-semibold md:text-xl">{t('vote_result.summary')}</h2>
 							<span
 								class="text-base text-gray-800 lg:text-base dark:text-gray-200"
 								style="hyphens: auto; word-break: break-word; overflow-wrap: break-word;"

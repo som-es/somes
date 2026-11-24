@@ -141,7 +141,7 @@
 </script>
 
 <div>
-	<h1 class="text-lg font-bold text-black xl:text-xl dark:text-white">{t('mandates.title')}</h1>
+	<h2 class="text-lg font-bold text-black xl:text-xl dark:text-white">{t('mandates.title')}</h2>
 	<h2 class="text-sm text-gray-800 dark:text-gray-300">
 		{mandates.length}
 		{mandates.length === 1 ? t('mandates.entry') : t('mandates.entries')}

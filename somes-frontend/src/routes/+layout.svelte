@@ -24,6 +24,27 @@
 
 	let canonical = $derived(canonical_url(page.url, page.route.id, page.status));
 
+	let contentLinks = $derived([
+		{
+			title: t('nav.nationalCouncil'),
+			links: [
+				{ href: '/at/history/votes', label: t('nav.votes') },
+				{ href: '/at/delegates', label: t('nav.delegates') },
+				{ href: '/at/history/proposals', label: t('nav.ministerialDrafts') },
+				{ href: '/at/history/decrees', label: t('nav.decrees') },
+				{ href: '/at/statistics', label: t('nav.statistics') }
+			]
+		},
+		{
+			title: t('nav.euParliament'),
+			links: [
+				{ href: '/eu/history/votes', label: t('nav.votes') },
+				{ href: '/eu/delegates', label: t('nav.delegates') },
+				{ href: '/eu/statistics', label: t('nav.statistics') }
+			]
+		}
+	]);
+
 	type DisclaimerKey =
 		'layout.disclaimer.publicData' | 'layout.disclaimer.ris' | 'layout.disclaimer.eu';
 	let disclaimerKey = $derived.by((): DisclaimerKey | null => {
@@ -96,7 +117,7 @@
 		</div>
 	</footer>
 	<footer class="border-t border-surface-800 bg-surface-900 py-12 text-surface-300">
-		<div class="mx-auto grid max-w-7xl grid-cols-1 px-4 md:grid-cols-5">
+		<div class="mx-auto grid max-w-7xl grid-cols-1 px-4 md:grid-cols-7">
 			<div class="col-span-1 mb-8 md:col-span-2 md:mb-0">
 				<!-- <span class="text-2xl font-bold text-white block mb-4">somes.at</span> -->
 				<div class="w-72 fill-white stroke-white">
@@ -126,6 +147,18 @@
 					<span class="text-sm font-light">{t('layout.easyname.sponsoring')}</span>
 				</a>
 			</div>
+			{#each contentLinks as section (section.title)}
+				<div class="mb-4">
+					<h4 class="mb-4 font-bold text-white">{section.title}</h4>
+					<ul class="space-y-2 text-sm">
+						{#each section.links as link (link.href)}
+							<li>
+								<a href={link.href} class="hover:text-secondary-400">{link.label}</a>
+							</li>
+						{/each}
+					</ul>
+				</div>
+			{/each}
 			<div class="mb-4">
 				<h4 class="mb-4 font-bold text-white">{t('layout.development')}</h4>
 				<ul class="space-y-2 text-sm">

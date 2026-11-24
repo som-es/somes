@@ -23,7 +23,7 @@
 
 <div class="w-7xl max-w-7xl card p-8">
 	<div class="flex items-center justify-between">
-		<h1 class="text-xl font-bold lg:text-2xl">{t('decrees.title')}</h1>
+		<h2 class="text-xl font-bold lg:text-2xl">{t('decrees.title')}</h2>
 		<Dialog.Close>
 			<ModalCloseButton />
 		</Dialog.Close>
