@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { parliament_name } from '$lib/seo/text';
 	import { errorToNull } from '$lib/api/api';
 	import PaginationDecrees from '$lib/components/Decrees/PaginationDecrees.svelte';
 	import { t } from '$lib/i18n/i18n.svelte';
@@ -15,8 +16,11 @@
 </script>
 
 <svelte:head>
-	<title>{t('history.decrees.title')}</title>
-	<meta name="description" content={t('history.decrees.meta')} />
+	<title>{t('seo.decrees.title', { parliament: parliament_name() })}</title>
+	<meta
+		name="description"
+		content={t('seo.decrees.description', { parliament: parliament_name() })}
+	/>
 </svelte:head>
 
 <!-- <div class="mx-auto px-5"> -->

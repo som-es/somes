@@ -10,13 +10,18 @@
 	import { onMount } from 'svelte';
 	import { cachedDelegateFavos } from '$lib/caching/favos';
 	import { addDelegateFavo, removeDelegateFavo } from '$lib/api/authed';
-	import { url } from '$lib/api/api';
 	import AIChatModal from './AIChat/AIChatModal.svelte';
 	import { Dialog } from 'bits-ui';
 	import DelegateQAModal from './QA/DelegateQAModal.svelte';
 	import { getParliament, plink, type Parliament } from '$lib/api/parliament';
 	import { page } from '$app/state';
 	import type { SvelteMap } from 'svelte/reactivity';
+	import {
+		delegateAge,
+		delegateImageUrl,
+		delegatePartyLabel,
+		mandatesToDisplay
+	} from '$lib/delegateCard';
 
 	const onShowDetailsDefault = () => {
 		currentDelegateStore.value = delegate;
@@ -70,13 +75,6 @@
 		delegateFavos = await cachedDelegateFavos();
 	});
 
-	function dateDiffInDays(a: Date, b: Date) {
-		const _MS_PER_DAY = 1000 * 60 * 60 * 24;
-		const utc1 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
-		const utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
-
-		return Math.floor((utc2 - utc1) / _MS_PER_DAY);
-	}
 	let personUrl = $derived.by(() => {
 		switch (parliament) {
 			case 'at':
@@ -86,24 +84,8 @@
 		}
 	});
 
-	const mandatesToDisplay = $derived.by(() => {
-		if (date) {
-			const cmpDate = new Date(date);
-			return delegate.mandates?.filter((mandate) => {
-				if (!mandate.start_date) {
-					return false;
-				}
-				let startDate = new Date(mandate.start_date);
-				let endDate = mandate.end_date ? new Date(mandate.end_date) : new Date();
-				return cmpDate >= startDate && cmpDate <= endDate;
-			});
-		} else {
-			return delegate.mandates_at_time;
-		}
-	});
-	let imgSrc = $derived(
-		parliament == 'at' ? `${url}assets/${delegate.id}.jpg` : delegate.image_url
-	);
+	const mandates = $derived(mandatesToDisplay(delegate, date));
+	let imgSrc = $derived(delegateImageUrl(delegate, parliament));
 
 	function handleImgError() {
 		imgSrc = delegate.image_url ?? '';
@@ -174,8 +156,8 @@
 		<!-- Name and Age -->
 		<h4 class="text-xl font-bold">
 			{delegate.name}
-			{#if delegate.is_active && showAge && delegate.birthdate}
-				- {Math.floor(dateDiffInDays(new Date(delegate.birthdate), new Date()) / 365)}
+			{#if showAge && delegateAge(delegate) !== null}
+				- {delegateAge(delegate)}
 			{/if}
 		</h4>
 		<!-- Birthday Check -->
@@ -192,9 +174,9 @@
 			></div>
 			<p class="text-base text-gray-800 dark:text-gray-50">
 				{#if delegate.party == null || delegate.party == 'OK'}
-					{t('delegate.withoutParty')}
+					{delegatePartyLabel(delegate, t)}
 				{:else}
-					<span>{delegate.party}</span>
+					<span>{delegatePartyLabel(delegate, t)}</span>
 				{/if}
 			</p>
 		</div>
@@ -203,7 +185,7 @@
 	{#if showMandates}
 		<!-- Mandate if so -->
 		<div class="mt-4">
-			{#each mandatesToDisplay ?? [] as mandate}
+			{#each mandates ?? [] as mandate}
 				<div class="mt-1 flex w-full items-center">
 					<h6 class="text-base text-wrap xl:leading-tight">
 						{mandate.name}

@@ -35,7 +35,6 @@ const PARLIAMENT_PATHS = [
 	'/statistics/orientation',
 	'/statistics/speech_time',
 	'/statistics/total_speeches',
-	'/history',
 	'/history/decrees',
 	'/history/proposals',
 	'/history/unfinished_votes',

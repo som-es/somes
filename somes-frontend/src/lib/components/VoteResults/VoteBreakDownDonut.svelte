@@ -4,6 +4,13 @@
 	import { localeStore } from '$lib/i18n/i18n.svelte';
 	import { t } from '$lib/i18n/i18n.svelte';
 	import { VOTE_COLORS } from '$lib/voteColors';
+	import {
+		donutSegments,
+		DONUT_CENTER,
+		DONUT_RADIUS,
+		DONUT_STROKE_WIDTH,
+		DONUT_VIEWBOX
+	} from '$lib/voteDonut';
 
 	let {
 		vote,
@@ -13,13 +20,10 @@
 		size?: number;
 	} = $props();
 
-	const VIEWBOX = 20;
-	const CENTER = VIEWBOX / 2;
-	const RADIUS = 8.5;
-	const STROKE_WIDTH = 3;
-	const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
-	/** gap between two segments in the circle */
-	const GAP = 1.2;
+	const VIEWBOX = DONUT_VIEWBOX;
+	const CENTER = DONUT_CENTER;
+	const RADIUS = DONUT_RADIUS;
+	const STROKE_WIDTH = DONUT_STROKE_WIDTH;
 
 	const donutData = $derived.by(() => {
 		// Read localeStore.value to create a reactive dependency
@@ -36,25 +40,7 @@
 		].filter((d) => d.value > 0);
 	});
 
-	const segments = $derived.by(() => {
-		const total = donutData.reduce((sum, d) => sum + d.value, 0);
-		if (total === 0) {
-			return [];
-		}
-		const gap = donutData.length > 1 ? GAP : 0;
-		let start = 0;
-		return donutData.map((d) => {
-			const length = (d.value / total) * CIRCUMFERENCE;
-			const drawn = Math.max(length - gap, 0.01);
-			const segment = {
-				...d,
-				dasharray: `${drawn} ${CIRCUMFERENCE - drawn}`,
-				dashoffset: -start
-			};
-			start += length;
-			return segment;
-		});
-	});
+	const segments = $derived(donutSegments(donutData));
 </script>
 
 <Tooltip.Provider

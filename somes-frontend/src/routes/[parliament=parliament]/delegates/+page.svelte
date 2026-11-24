@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { SITE_URL } from '$lib/seo/sitemap';
 	import type { AutocompleteOption } from '$lib/components/Autocompletion/types';
 	import DelegateCard from '$lib/components/Delegates/DelegateCard.svelte';
 	import type {
@@ -494,6 +495,12 @@
 	<meta name="description" content={seo?.description ?? t('delegates.meta.description')} />
 	{#if seo}
 		{@html json_ld_script(seo.jsonLd)}
+	{/if}
+	{#if data.delegate}
+		<meta
+			property="og:image"
+			content="{SITE_URL}/og/{data.parliament}/delegates/{data.delegate.id}.png"
+		/>
 	{/if}
 </svelte:head>
 

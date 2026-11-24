@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { parliament_name } from '$lib/seo/text';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import PaginationVoteResults from '$lib/components/VoteResults/Expandable/PaginationVoteResults.svelte';
 	import type { Party, PartyStates, VoteResultsWithMaxPage } from '$lib/types';
@@ -17,8 +18,11 @@
 </script>
 
 <svelte:head>
-	<title>{t('history.unfinished.title')}</title>
-	<meta name="description" content={t('history.unfinished.meta')} />
+	<title>{t('seo.unfinished.title', { parliament: parliament_name() })}</title>
+	<meta
+		name="description"
+		content={t('seo.unfinished.description', { parliament: parliament_name() })}
+	/>
 </svelte:head>
 
 <!-- <div class="mx-auto px-5"> -->

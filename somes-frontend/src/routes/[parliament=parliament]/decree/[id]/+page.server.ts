@@ -3,6 +3,7 @@ import type { Parliament } from '$lib/api/parliament';
 import { decree_by_ris_id } from '$lib/components/Delegates/Decrees/api';
 import type { DecreeDelegate } from '$lib/components/Delegates/Decrees/types';
 import type { PageServerLoad } from './$types';
+import { or_error } from '$lib/api/load_error';
 
 export const load: PageServerLoad = async ({ fetch, params, setHeaders }) => {
 	const parliament = params.parliament as Parliament;
@@ -13,8 +14,7 @@ export const load: PageServerLoad = async ({ fetch, params, setHeaders }) => {
 		});
 	}
 
-	const govDecree = await decree_by_ris_id(params.id, fetch, parliament);
-	if (isHasError(govDecree)) return { decreeDelegate: null };
+	const govDecree = or_error(await decree_by_ris_id(params.id, fetch, parliament));
 
 	const delegate = await delegate_by_id(govDecree.gov_official_id, fetch, parliament);
 	if (isHasError(delegate)) return { decreeDelegate: null };

@@ -41,3 +41,12 @@ export function isEntryNew(date: Date) {
 
 	return diffDays <= 10;
 }
+
+export function viennaDate(date: Date | string) {
+	return new Intl.DateTimeFormat('de-AT', {
+		day: '2-digit',
+		month: '2-digit',
+		year: 'numeric',
+		timeZone: 'Europe/Vienna'
+	}).format(new Date(date));
+}

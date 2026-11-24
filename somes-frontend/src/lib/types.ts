@@ -318,6 +318,7 @@ export interface HasError {
 	error_type: string;
 	field: string;
 	meta: any | null;
+	status?: number;
 }
 
 export interface DelegateQuestionCreated {

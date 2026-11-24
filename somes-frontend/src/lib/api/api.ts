@@ -78,6 +78,9 @@ export async function fetchSavely<T>(fn: () => Promise<Response>): Promise<T | H
 	try {
 		response = await fn();
 		const json = await response.json();
+		if (!response.ok && json && typeof json === 'object' && 'error' in json) {
+			return { ...json, status: response.status };
+		}
 		// if ('error' in json) {
 		// return ;
 		// }

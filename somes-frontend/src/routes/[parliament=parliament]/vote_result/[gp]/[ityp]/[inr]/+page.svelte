@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { SITE_URL } from '$lib/seo/sitemap';
 	import { shorten } from '$lib/seo/text';
 	import { t } from '$lib/i18n/i18n.svelte';
 	import { errorToNull, url } from '$lib/api/api';
@@ -215,6 +216,13 @@
 <svelte:head>
 	<title>{title ? `${title} | Somes` : 'Somes'}</title>
 	<meta name="description" {content} />
+	{#if voteResult}
+		<meta
+			property="og:image"
+			content="{SITE_URL}/og/{data.parliament}/vote_result/{voteResult.legislative_initiative
+				.gp}/{voteResult.legislative_initiative.ityp}/{voteResult.legislative_initiative.inr}.png"
+		/>
+	{/if}
 </svelte:head>
 
 <Container>

@@ -1,5 +1,6 @@
 import type { Handle } from '@sveltejs/kit';
 import { redirect_location } from '$lib/seo/redirects';
+import { with_open_graph } from '$lib/seo/opengraph';
 
 export const handle: Handle = async ({ event, resolve }) => {
 	const host = event.request.headers.get('x-forwarded-host') ?? event.request.headers.get('host');
@@ -17,7 +18,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	const response = await resolve(event, {
 		transformPageChunk: ({ html }) =>
-			html.replace('class=""', `class="${theme}"`).replace('lang="en"', `lang="${lang}"`)
+			with_open_graph(
+				html.replace('class=""', `class="${theme}"`).replace('lang="en"', `lang="${lang}"`)
+			)
 	});
 
 	return response;

@@ -73,6 +73,35 @@ export const en = {
 		'How did the Austrian National Council vote, and the European Parliament? Somes shows every vote, how each member voted, speeches, draft laws and decrees – clearly explained.',
 	'seo.parliament.at': 'Austrian National Council',
 	'seo.parliament.eu': 'European Parliament',
+	'share.voteIn': 'Vote in the {parliament}',
+	'seo.decrees.title': 'Decrees of the Austrian federal ministries | Somes',
+	'seo.decrees.description':
+		'All decrees of the Austrian federal ministries published in the Federal Law Gazette, clearly summarised. Searchable and filterable.',
+	'seo.proposals.title': 'Draft laws of the Austrian government | Somes',
+	'seo.proposals.description':
+		'All ministerial drafts, i.e. draft laws by the Austrian ministries, clearly summarised. Searchable and filterable.',
+	'seo.unfinished.title': 'Pending motions in the {parliament} | Somes',
+	'seo.unfinished.description':
+		'Motions in the {parliament} that have been submitted and will be voted on soon.',
+	'seo.statistics.title': 'Statistics on the {parliament} | Somes',
+	'seo.statistics.description':
+		'Statistics on the {parliament}: absences, speaking time, calls to order, age and political positions of its members.',
+	'seo.absences.title': 'Absences in the {parliament} | Somes',
+	'seo.absences.description': 'Absence statistics on the {parliament} and its members.',
+	'seo.activity.title': 'Activity of members of the {parliament} | Somes',
+	'seo.activity.description': 'Activity statistics on the {parliament} and its members.',
+	'seo.age.title': 'Age of members of the {parliament} | Somes',
+	'seo.age.description': 'Age statistics on the {parliament} and its members.',
+	'seo.callToOrders.title': 'Calls to order in the {parliament} | Somes',
+	'seo.callToOrders.description':
+		'Statistics on calls to order in the {parliament} and its members.',
+	'seo.orientation.title': 'Political positions of members of the {parliament} | Somes',
+	'seo.orientation.description':
+		'Statistics on the political position scores of members of the {parliament}.',
+	'seo.speechTime.title': 'Speaking time in the {parliament} | Somes',
+	'seo.speechTime.description': 'Speaking time in the {parliament} by person and group.',
+	'seo.totalSpeeches.title': 'Number of speeches in the {parliament} | Somes',
+	'seo.totalSpeeches.description': 'Number of speeches in the {parliament} by person and group.',
 	'landing.platform': 'Platform',
 	'landing.events': 'Events',
 	'landing.team': 'Team',

@@ -4,6 +4,8 @@ import { fetchDelegates } from '$lib/api/fetch_delegates';
 import { cachedAllLegisPeriods } from '$lib/caching/legis_periods';
 import { cachedAllSeats } from '$lib/caching/seats';
 import type { PageServerLoad } from './$types';
+import { error } from '@sveltejs/kit';
+import { or_error } from '$lib/api/load_error';
 import { cachedPartyColors } from '$lib/caching/party_color';
 import { cachedPlenarySessions } from '$lib/caching/plenarySessions';
 import { getMandateLatestPeriod } from './searchDelegates';
@@ -24,7 +26,8 @@ export const load: PageServerLoad = async ({ fetch, url, setHeaders, params }) =
 	let delegate = null;
 
 	if (delegateId) {
-		delegate = errorToNull(await delegate_by_id(+delegateId, fetch, parliament));
+		if (!/^\d+$/.test(delegateId)) error(404, 'Not found');
+		delegate = or_error(await delegate_by_id(+delegateId, fetch, parliament));
 	}
 
 	if (delegate && !gp && !date && cachedPeriods) {

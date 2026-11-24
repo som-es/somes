@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { SITE_URL } from '$lib/seo/sitemap';
+	import { ministerialInfoBadges } from '$lib/components/MinisterialView/infoBadges';
 	import { shorten } from '$lib/seo/text';
 	import { errorToNull } from '$lib/api/api';
 	import { t } from '$lib/i18n/i18n.svelte';
@@ -31,13 +33,11 @@
 			ressortShortform: govProposalDelegate.gov_proposal.ministrial_proposal.ressort_shortform,
 			ministerialIssuers: govProposalDelegate.gov_proposal.ministerial_issuers,
 			type: 'gov_proposal',
-			infoBadges: [
+			infoBadges: ministerialInfoBadges(
 				govProposalDelegate.gov_proposal.ministrial_proposal.ressort,
-				new Date(
-					govProposalDelegate.gov_proposal.ministrial_proposal.raw_data_created_at
-				).toLocaleDateString(),
+				govProposalDelegate.gov_proposal.ministrial_proposal.raw_data_created_at,
 				govProposalDelegate.gov_proposal.ministrial_proposal.gp
-			].filter((x) => x !== null) as string[],
+			),
 			gp: govProposalDelegate.gov_proposal.ministrial_proposal.gp
 		};
 	});
@@ -58,6 +58,13 @@
 <svelte:head>
 	<title>{title ? `${title} | Somes` : 'Somes'}</title>
 	<meta name="description" {content} />
+	{#if govProposalDelegate}
+		<meta
+			property="og:image"
+			content="{SITE_URL}/og/{data.parliament}/gov_proposal/{govProposalDelegate.gov_proposal
+				.ministrial_proposal.gp}/{govProposalDelegate.gov_proposal.ministrial_proposal.inr}.png"
+		/>
+	{/if}
 </svelte:head>
 
 <Container>

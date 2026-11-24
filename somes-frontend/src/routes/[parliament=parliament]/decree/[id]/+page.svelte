@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { SITE_URL } from '$lib/seo/sitemap';
+	import { ministerialInfoBadges } from '$lib/components/MinisterialView/infoBadges';
 	import type { DecreeDelegate } from '$lib/components/Delegates/Decrees/types';
 	import { t } from '$lib/i18n/i18n.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
@@ -11,10 +13,6 @@
 	let { data }: PageProps = $props();
 
 	let decreeDelegate: DecreeDelegate | null = $derived(data.decreeDelegate);
-	let date = $derived.by(() => {
-		if (decreeDelegate == null) return null;
-		return new Date(decreeDelegate.decree.publication_date).toLocaleDateString();
-	});
 
 	let ministerialData: MinisterialViewData | null = $derived.by(() => {
 		if (decreeDelegate == null) return null;
@@ -32,9 +30,11 @@
 			ressortShortform: null,
 			ministerialIssuers: [decreeDelegate.delegate.id],
 			type: 'decree',
-			infoBadges: [decreeDelegate.decree.ministrial_issuer, date, decreeDelegate.decree.gp].filter(
-				(x) => x !== null
-			) as string[],
+			infoBadges: ministerialInfoBadges(
+				decreeDelegate.decree.ministrial_issuer,
+				decreeDelegate.decree.publication_date,
+				decreeDelegate.decree.gp
+			),
 			gp: decreeDelegate.decree.gp!
 		};
 	});
@@ -46,6 +46,12 @@
 	{#if seo}
 		<title>{seo.title}</title>
 		<meta name="description" content={seo.description} />
+	{/if}
+	{#if decreeDelegate}
+		<meta
+			property="og:image"
+			content="{SITE_URL}/og/{data.parliament}/decree/{decreeDelegate.decree.ris_id}.png"
+		/>
 	{/if}
 </svelte:head>
 

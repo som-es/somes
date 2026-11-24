@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { parliament_name } from '$lib/seo/text';
 	import AbsencesStatistics from './absences/+page.svelte';
 	import ActivityStatistics from './activity/+page.svelte';
 	import AgeStatistics from './age/+page.svelte';
@@ -47,8 +48,11 @@
 </script>
 
 <svelte:head>
-	<title>{t('statistics.page.title')}</title>
-	<meta name="description" content={t('statistics.page.description')} />
+	<title>{t('seo.statistics.title', { parliament: parliament_name() })}</title>
+	<meta
+		name="description"
+		content={t('seo.statistics.description', { parliament: parliament_name() })}
+	/>
 </svelte:head>
 
 <div class="statistics-snap-page">

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { parliament_name } from '$lib/seo/text';
 	import { justPostStatistics } from '$lib/api/api';
 	import { t } from '$lib/i18n/i18n.svelte';
 	import { mapOrientationCategory, mapOrientationDelegate } from '$lib/api/statistics-adapter';
@@ -177,8 +178,11 @@
 </script>
 
 <svelte:head>
-	<title>{t('statistics.orientation.title')}</title>
-	<meta name="description" content={t('statistics.orientation.description')} />
+	<title>{t('seo.orientation.title', { parliament: parliament_name() })}</title>
+	<meta
+		name="description"
+		content={t('seo.orientation.description', { parliament: parliament_name() })}
+	/>
 </svelte:head>
 
 <Container class="pb-12">

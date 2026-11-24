@@ -28,6 +28,11 @@ pub enum DelegateError {
 impl IntoResponse for DelegateError {
     fn into_response(self) -> axum::response::Response {
         let (status_code, err_msg, field) = match self {
+            DelegateError::SqlFailure(sqlx::Error::RowNotFound) => (
+                StatusCode::NOT_FOUND,
+                "entries not found".to_string(),
+                "NotFound",
+            ),
             DelegateError::SqlFailure(e) => {
                 log::error!("delegate db error occurred: {e:?}");
                 (

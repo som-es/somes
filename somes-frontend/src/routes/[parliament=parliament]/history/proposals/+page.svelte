@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { parliament_name } from '$lib/seo/text';
 	import { errorToNull } from '$lib/api/api';
 	import { t } from '$lib/i18n/i18n.svelte';
 	import Container from '$lib/components/Layout/Container.svelte';
@@ -15,8 +16,11 @@
 </script>
 
 <svelte:head>
-	<title>{t('history.proposals.title')}</title>
-	<meta name="description" content={t('history.proposals.meta')} />
+	<title>{t('seo.proposals.title', { parliament: parliament_name() })}</title>
+	<meta
+		name="description"
+		content={t('seo.proposals.description', { parliament: parliament_name() })}
+	/>
 </svelte:head>
 
 <!-- <div class="mx-auto px-5"> -->

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { parliament_name } from '$lib/seo/text';
 	import { justPostStatistics } from '$lib/api/api';
 	import { t } from '$lib/i18n/i18n.svelte';
 	import StatisticsChartControl from '$lib/components/Statistics/StatisticsChartControl.svelte';
@@ -150,8 +151,11 @@
 </script>
 
 <svelte:head>
-	<title>{t('statistics.callToOrders.title')}</title>
-	<meta name="description" content={t('statistics.callToOrders.description')} />
+	<title>{t('seo.callToOrders.title', { parliament: parliament_name() })}</title>
+	<meta
+		name="description"
+		content={t('seo.callToOrders.description', { parliament: parliament_name() })}
+	/>
 </svelte:head>
 
 <Container class="pb-12">

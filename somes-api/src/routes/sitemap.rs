@@ -276,6 +276,7 @@ pub async fn sitemap_decrees_route(
             ) as "lastmod!",
             count(*) over () as "entry_count!"
         from ministrial_decrees
+        where not is_norm
         order by publication_date desc, ris_id
         limit $1 offset $2
         "#,
@@ -367,7 +368,7 @@ async fn summary_sqlx(pg: &PgPool) -> Result<SitemapSummary, FilterError> {
     let counts = sqlx::query!(
         r#"
         select
-            (select count(*) from ministrial_decrees) as "decrees!",
+            (select count(*) from ministrial_decrees where not is_norm) as "decrees!",
             (select count(*) from ministrial_proposals) as "gov_proposals!",
             (select count(*) from delegate_questions where status in ('sent', 'answered'))
                 as "questions!"

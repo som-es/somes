@@ -25,6 +25,11 @@ pub enum FilterError {
 impl IntoResponse for FilterError {
     fn into_response(self) -> axum::response::Response {
         let (status_code, err_msg, field) = match &self {
+            FilterError::SqlFailure(sqlx::Error::RowNotFound) => (
+                StatusCode::NOT_FOUND,
+                "entries not found".to_string(),
+                "NotFound",
+            ),
             FilterError::SqlFailure(e) => {
                 log::error!("vote result db error occurred: {e:?}");
                 (

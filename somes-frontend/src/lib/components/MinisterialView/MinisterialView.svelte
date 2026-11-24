@@ -10,7 +10,7 @@
 	import type { MinisterialViewData } from './types';
 	import { t } from '$lib/i18n/i18n.svelte';
 
-	import { dashDateToDotDate } from '$lib/date';
+	import { viennaDate } from '$lib/date';
 	import linkIcon from '$lib/assets/misc_icons/external-link.svg?raw';
 	import { aiViewEnabledStore, currentDelegateStore } from '$lib/stores/stores';
 	import { plink } from '$lib/api/parliament';
@@ -25,7 +25,7 @@
 	let { ministerialData, children, snippets = {} }: Props = $props();
 
 	let aiSummary = $derived(ministerialData.aiSummary);
-	let date = $derived(dashDateToDotDate(ministerialData.date.toString().split('T')[0]));
+	let date = $derived(viennaDate(ministerialData.date));
 	let displayAiSummary = $derived(aiViewEnabledStore.value && aiSummary);
 
 	let currentDelegateIndex = $state(0);
@@ -47,14 +47,6 @@
 		}
 	};
 </script>
-
-<title>
-	{#if aiViewEnabledStore.value && ministerialData.aiSummary}
-		{ministerialData.aiSummary.short_title}
-	{:else}
-		{ministerialData.alternativeTitle}
-	{/if}
-</title>
 
 <div class="mt-3 flex items-start gap-3 max-lg:flex-wrap">
 	<div class="flex w-full flex-col gap-2">

@@ -74,6 +74,35 @@ export const de = {
 		'Wie hat der Nationalrat abgestimmt, wie das EU-Parlament? Somes zeigt alle Abstimmungen, das Abstimmungsverhalten der Abgeordneten, Reden, Ministerialentwürfe und Verordnungen – verständlich aufbereitet.',
 	'seo.parliament.at': 'österreichischen Nationalrat',
 	'seo.parliament.eu': 'Europäischen Parlament',
+	'share.voteIn': 'Abstimmung im {parliament}',
+	'seo.decrees.title': 'Verordnungen der Bundesministerien | Somes',
+	'seo.decrees.description':
+		'Alle Verordnungen der österreichischen Bundesministerien im Bundesgesetzblatt, verständlich zusammengefasst. Durchsuchbar und filterbar.',
+	'seo.proposals.title': 'Ministerialentwürfe der Bundesregierung | Somes',
+	'seo.proposals.description':
+		'Alle Ministerialentwürfe, also Gesetzesentwürfe der Ministerien, verständlich zusammengefasst. Durchsuchbar und filterbar.',
+	'seo.unfinished.title': 'Eingebrachte Anträge im {parliament} | Somes',
+	'seo.unfinished.description':
+		'Anträge im {parliament}, die eingebracht wurden und bald zur Abstimmung stehen.',
+	'seo.statistics.title': 'Statistiken zum {parliament} | Somes',
+	'seo.statistics.description':
+		'Statistiken zum {parliament}: Abwesenheiten, Redezeiten, Ordnungsrufe, Alter und politische Positionen der Abgeordneten.',
+	'seo.absences.title': 'Abwesenheiten im {parliament} | Somes',
+	'seo.absences.description': 'Abwesenheitsstatistiken zum {parliament} und seinen Abgeordneten.',
+	'seo.activity.title': 'Aktivität der Abgeordneten im {parliament} | Somes',
+	'seo.activity.description': 'Aktivitätsstatistiken zum {parliament} und seinen Abgeordneten.',
+	'seo.age.title': 'Alter der Abgeordneten im {parliament} | Somes',
+	'seo.age.description': 'Altersstatistiken zum {parliament} und seinen Abgeordneten.',
+	'seo.callToOrders.title': 'Ordnungsrufe im {parliament} | Somes',
+	'seo.callToOrders.description':
+		'Ordnungsrufstatistiken zum {parliament} und seinen Abgeordneten.',
+	'seo.orientation.title': 'Politische Positionen der Abgeordneten im {parliament} | Somes',
+	'seo.orientation.description':
+		'Statistiken zu politischen Positionswerten der Abgeordneten im {parliament}.',
+	'seo.speechTime.title': 'Redezeit im {parliament} | Somes',
+	'seo.speechTime.description': 'Redezeiten im {parliament} nach Personen und Gruppen.',
+	'seo.totalSpeeches.title': 'Anzahl der Reden im {parliament} | Somes',
+	'seo.totalSpeeches.description': 'Anzahl der Reden im {parliament} nach Personen und Gruppen.',
 	'landing.platform': 'Plattform',
 	'landing.events': 'Events',
 	'landing.team': 'Team',

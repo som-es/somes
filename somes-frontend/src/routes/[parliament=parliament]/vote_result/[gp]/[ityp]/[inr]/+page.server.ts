@@ -6,6 +6,7 @@ import { cachedAllSeats } from '$lib/caching/seats';
 import type { Delegate, VoteResult } from '$lib/types';
 import type { PageServerLoad } from './$types';
 import { cachedPartyColors } from '$lib/caching/party_color';
+import { or_error } from '$lib/api/load_error';
 
 export const load: PageServerLoad = async ({ fetch, params, setHeaders }) => {
 	const parliament = params.parliament as Parliament;
@@ -16,12 +17,8 @@ export const load: PageServerLoad = async ({ fetch, params, setHeaders }) => {
 		});
 	}
 	const cachedSeats = await cachedAllSeats(false, fetch, parliament);
-	const voteResult = await vote_result_by_path(
-		params.gp,
-		params.ityp,
-		params.inr,
-		fetch,
-		parliament
+	const voteResult = or_error(
+		await vote_result_by_path(params.gp, params.ityp, params.inr, fetch, parliament)
 	);
 
 	let delegates: Delegate[] | null = null;
