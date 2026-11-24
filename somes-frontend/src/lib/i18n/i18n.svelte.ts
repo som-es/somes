@@ -1,4 +1,5 @@
 import { browser } from '$app/environment';
+import { page } from '$app/state';
 import { getParliament } from '$lib/api/parliament';
 import { de } from './messages/de';
 import { en } from './messages/en';
@@ -21,7 +22,17 @@ const STORAGE_KEY = 'locale';
  * a German→English flash for the common case (no stored preference).
  */
 function defaultLocale(): Locale {
+	try {
+		const fromCookie = (page.data as { locale?: Locale | null } | undefined)?.locale;
+		if (fromCookie === 'de' || fromCookie === 'en') return fromCookie;
+	} catch {
+		return getParliament() === 'eu' ? 'en' : 'de';
+	}
 	return getParliament() === 'eu' ? 'en' : 'de';
+}
+
+function writeLocaleCookie(locale: Locale) {
+	document.cookie = `locale=${locale}; path=/; max-age=31536000; samesite=lax`;
 }
 
 /**
@@ -41,7 +52,10 @@ if (browser) {
 	if (saved !== null) {
 		try {
 			const parsed = JSON.parse(saved);
-			if (parsed === 'de' || parsed === 'en') internalState = parsed;
+			if (parsed === 'de' || parsed === 'en') {
+				internalState = parsed;
+				writeLocaleCookie(parsed);
+			}
 		} catch (e) {
 			console.error(`Error parsing localStorage key "${STORAGE_KEY}":`, e);
 		}
@@ -56,6 +70,7 @@ export const localeStore = {
 		internalState = newLocale;
 		if (browser) {
 			localStorage.setItem(STORAGE_KEY, JSON.stringify(newLocale));
+			writeLocaleCookie(newLocale);
 		}
 	}
 };

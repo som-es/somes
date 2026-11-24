@@ -48,8 +48,8 @@ export const en = {
 	// --- Layout (footer, disclaimer) ---
 	'layout.tagline':
 		'Across party lines, we make democracy transparent, understandable and accessible.',
-	'layout.netidee.start': 'The development team has been funded by',
-	'layout.netidee.end': 'since 03.11.2025.',
+	'layout.netidee.funding': 'Funded by netidee from November 2025 to October 2026.',
+	'layout.netidee.thanks': 'Thank you ❤️',
 	'layout.development': 'Development',
 	'layout.links': 'Links',
 	'layout.association': 'Association',
@@ -67,7 +67,11 @@ export const en = {
 		'These raw data are provided by the <a class="text-secondary-500" href="https://data.europa.eu/data/datasets?query=European+Parliament" target="_blank">Open Data Portal</a> of the European Union (data.europa.eu) and are licensed under <a class="text-secondary-500" href="https://opendatacommons.org/licenses/by/1-0/" target="_blank">ODC-BY 1.0</a>.',
 
 	// --- Landing page (/) ---
-	'landing.meta.description': 'Link to the platform and information about the association',
+	'landing.meta.title': 'Somes – Votes in the Austrian and European Parliament, explained',
+	'landing.meta.description':
+		'How did the Austrian National Council vote, and the European Parliament? Somes shows every vote, how each member voted, speeches, draft laws and decrees – clearly explained.',
+	'seo.parliament.at': 'Austrian National Council',
+	'seo.parliament.eu': 'European Parliament',
 	'landing.platform': 'Platform',
 	'landing.events': 'Events',
 	'landing.team': 'Team',
@@ -84,8 +88,8 @@ export const en = {
 	'landing.hero.ctaEvents': 'Our events',
 	'landing.platform.title': 'Somes platform',
 	'landing.platform.text':
-		'Our open-source web app makes parliament transparent. Analyse votes, read AI summaries of laws and follow what your members of parliament are doing.',
-	'landing.platform.euExpansion': 'EU expansion - 12.2026',
+		'Our open-source web app makes the Austrian National Council and the European Parliament transparent. Analyse votes, read AI summaries of laws and follow what your members of parliament are doing.',
+	'landing.platform.euExpansion': 'What comes next',
 	'landing.platform.nextSession': 'Next National Council session',
 	'landing.ticker.details': 'View all details on somes.at',
 	'landing.ticker.votes': 'Votes',
@@ -112,11 +116,12 @@ export const en = {
 	'landing.join.joinNow': 'Become a member',
 	'landing.join.contact': 'Get in touch',
 	'landing.team.board': 'Board',
-	'landing.team.devTeam': 'Netidee development team',
+	'landing.team.devTeam': 'Development team',
 
 	// --- Home page (/[parliament]/home) ---
-	'home.meta.title': 'News',
-	'home.meta.description': 'New events in the National Council',
+	'home.meta.title': 'Latest from the {parliament} | Somes',
+	'home.meta.description':
+		'The latest votes, speeches and events from the {parliament} – clearly explained.',
 	'home.latestVotes': 'Latest votes',
 	'home.votedOn': 'Voted on',
 	'home.byInterest': 'by interest',
@@ -129,8 +134,9 @@ export const en = {
 	'home.none': 'None',
 
 	// --- History (/history/*) ---
-	'history.votes.title': 'Votes',
-	'history.votes.meta': 'Filterable list of votes in the National Council',
+	'history.votes.title': 'Votes in the {parliament} | Somes',
+	'history.votes.meta':
+		'Every vote in the {parliament}: results, how parties and members voted, speeches and summaries. Searchable and filterable.',
 	'history.votes.h1': 'Past vote results',
 	'history.proposals.title': 'Ministerial drafts',
 	'history.proposals.meta': 'Filterable list of ministerial drafts',

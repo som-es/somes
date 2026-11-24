@@ -49,8 +49,8 @@ export const de = {
 	// --- Layout (footer, disclaimer) ---
 	'layout.tagline':
 		'Parteiübergreifend machen wir Demokratie transparent, verständlich und zugänglich.',
-	'layout.netidee.start': 'Das Entwicklungsteam wird seit 03.11.2025 von',
-	'layout.netidee.end': 'gefördert.',
+	'layout.netidee.funding': 'Gefördert durch netidee von November 2025 bis Oktober 2026.',
+	'layout.netidee.thanks': 'Danke ❤️',
 	'layout.development': 'Entwicklung',
 	'layout.links': 'Links',
 	'layout.association': 'Verein',
@@ -68,8 +68,11 @@ export const de = {
 		'Diese Rohdaten werden vom <a class="text-secondary-500" href="https://data.europa.eu/data/datasets?query=European+Parliament" target="_blank">Open-Data Portal</a> der Europäischen Union (data.europa.eu) bereitgestellt und sind nach <a class="text-secondary-500" href="https://opendatacommons.org/licenses/by/1-0/" target="_blank">ODC-BY 1.0</a> lizenziert.',
 
 	// --- Landing page (/) ---
+	'landing.meta.title': 'Somes – Abstimmungen im Nationalrat und EU-Parlament verständlich',
 	'landing.meta.description':
-		'Somes ist eine Transparenzplattform. Wir stellen Abstimmungen, Reden, Ministerialentwürfe, Verordnungen und vieles mehr mit KI-Aufbereitung zur Verfügung.',
+		'Wie hat der Nationalrat abgestimmt, wie das EU-Parlament? Somes zeigt alle Abstimmungen, das Abstimmungsverhalten der Abgeordneten, Reden, Ministerialentwürfe und Verordnungen – verständlich aufbereitet.',
+	'seo.parliament.at': 'österreichischen Nationalrat',
+	'seo.parliament.eu': 'Europäischen Parlament',
 	'landing.platform': 'Plattform',
 	'landing.events': 'Events',
 	'landing.team': 'Team',
@@ -86,8 +89,8 @@ export const de = {
 	'landing.hero.ctaEvents': 'Unsere Events',
 	'landing.platform.title': 'Somes Plattform',
 	'landing.platform.text':
-		'Unsere Open-Source Web-App macht das Parlament gläsern. Analysiere Abstimmungen, lies KI-Zusammenfassungen von Gesetzen und verfolge, was deine Abgeordneten tun.',
-	'landing.platform.euExpansion': 'EU-Expansion - 12.2026',
+		'Unsere Open-Source Web-App macht den Nationalrat und das EU-Parlament gläsern. Analysiere Abstimmungen, lies KI-Zusammenfassungen von Gesetzen und verfolge, was deine Abgeordneten tun.',
+	'landing.platform.euExpansion': 'Was als nächstes folgt',
 	'landing.platform.nextSession': 'Nächste Nationalratssitzung',
 	'landing.ticker.details': 'Alle Details auf somes.at ansehen',
 	'landing.ticker.votes': 'Abstimmungen',
@@ -115,11 +118,12 @@ export const de = {
 	'landing.join.joinNow': 'Mitglied werden',
 	'landing.join.contact': 'Kontakt aufnehmen',
 	'landing.team.board': 'Vorstand',
-	'landing.team.devTeam': 'Netidee Entwicklungsteam',
+	'landing.team.devTeam': 'Entwicklungsteam',
 
 	// --- Home page (/[parliament]/home) ---
-	'home.meta.title': 'Neuigkeiten',
-	'home.meta.description': 'Neue Ereignisse im Nationalrat',
+	'home.meta.title': 'Aktuelles aus dem {parliament} | Somes',
+	'home.meta.description':
+		'Die neuesten Abstimmungen, Reden und Ereignisse aus dem {parliament} – verständlich aufbereitet.',
 	'home.latestVotes': 'Letzte Abstimmungen',
 	'home.votedOn': 'Abgestimmt am',
 	'home.byInterest': 'nach Interesse',
@@ -132,8 +136,9 @@ export const de = {
 	'home.none': 'Keine',
 
 	// --- History (/history/*) ---
-	'history.votes.title': 'Abstimmungen',
-	'history.votes.meta': 'Filterbare Liste an Abstimmungen im Nationalrat',
+	'history.votes.title': 'Abstimmungen im {parliament} | Somes',
+	'history.votes.meta':
+		'Alle Abstimmungen im {parliament}: Ergebnisse, Abstimmungsverhalten von Parteien und Abgeordneten, Reden und Zusammenfassungen. Durchsuchbar und filterbar.',
 	'history.votes.h1': 'Vergangene Abstimmungsergebnisse',
 	'history.proposals.title': 'Ministerialentwürfe',
 	'history.proposals.meta': 'Filterbare Liste an Ministerialentwürfe',

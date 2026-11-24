@@ -131,8 +131,17 @@
 </script>
 
 <svelte:head>
-	<title>{t('home.meta.title')}</title>
-	<meta name="description" content={t('home.meta.description')} />
+	<title
+		>{t('home.meta.title', {
+			parliament: t(data.parliament === 'eu' ? 'seo.parliament.eu' : 'seo.parliament.at')
+		})}</title
+	>
+	<meta
+		name="description"
+		content={t('home.meta.description', {
+			parliament: t(data.parliament === 'eu' ? 'seo.parliament.eu' : 'seo.parliament.at')
+		})}
+	/>
 </svelte:head>
 
 <Container>

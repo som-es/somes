@@ -4,6 +4,7 @@
 	import euFlagIcon from '$lib/assets/parliament_switch/EU_map_flag.svg?raw';
 	import ModalCloseButton from '$lib/components/UI/ModalCloseButton.svelte';
 	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import { getParliament, type Parliament } from '$lib/api/parliament';
 	import { persisted } from '$lib/persisted.svelte';
 	import { parliamentModalOpenStore } from '$lib/caching/stores/stores.svelte';
@@ -14,7 +15,7 @@
 	const parliamentModalSeen = persisted<boolean>('parliamentModalSeen', false);
 
 	$effect(() => {
-		if (!parliamentModalSeen.value) {
+		if (!parliamentModalSeen.value && page.url.pathname !== '/') {
 			parliamentModalOpenStore.value = true;
 			parliamentModalSeen.value = true;
 		}

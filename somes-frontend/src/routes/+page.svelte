@@ -16,7 +16,38 @@
 	import { formatDate } from '$lib/date';
 	import { t } from '$lib/i18n/i18n.svelte';
 	import LanguageSwitcher from '$lib/components/UI/LanguageSwitcher.svelte';
+	import { json_ld_script } from '$lib/seo/delegate';
+	import { SITE_URL } from '$lib/seo/sitemap';
 	let { data }: PageProps = $props();
+
+	const siteJsonLd = {
+		'@context': 'https://schema.org',
+		'@graph': [
+			{
+				'@type': 'Organization',
+				'@id': `${SITE_URL}/#organization`,
+				name: 'somes – Verein für Demokratie und politische Transparenz',
+				alternateName: 'Somes',
+				url: `${SITE_URL}/`,
+				logo: `${SITE_URL}/somes-logo.png`,
+				sameAs: [
+					'https://www.instagram.com/somes.at',
+					'https://www.linkedin.com/company/somes-at',
+					'https://github.com/som-es'
+				]
+			},
+			{
+				'@type': 'WebSite',
+				'@id': `${SITE_URL}/#website`,
+				name: 'Somes',
+				url: `${SITE_URL}/`,
+				inLanguage: ['de', 'en'],
+				description:
+					'Abstimmungen im österreichischen Nationalrat und im Europäischen Parlament, Abstimmungsverhalten der Abgeordneten, Reden, Ministerialentwürfe und Verordnungen.',
+				publisher: { '@id': `${SITE_URL}/#organization` }
+			}
+		]
+	};
 
 	interface Member {
 		name: string;
@@ -69,8 +100,7 @@
 	const devTeamMembers: Member[] = [
 		{ name: 'Fabian Cemerka', role: 'Fullstack Developer', image: '' },
 		{ name: 'Christoph Handschuh', role: 'Frontend & KI Developer', image: '' },
-		{ name: 'Florian Nagy', role: 'Data Scraping, Fullstack & KI Developer', image: '' },
-		{ name: 'Jakob Pronebner', role: 'Mobile Developer', image: '' }
+		{ name: 'Florian Nagy', role: 'Data Scraping, Fullstack & KI Developer', image: '' }
 	];
 
 	// --- STATE MANAGEMENT (RUNES) ---
@@ -149,16 +179,15 @@
 </script>
 
 <svelte:head>
-	<title>Somes – Demokratie und Beteiligung</title>
+	<title>{t('landing.meta.title')}</title>
 	<meta name="description" content={t('landing.meta.description')} />
+	{@html json_ld_script(siteJsonLd)}
 </svelte:head>
 
-<div
-	class="text-base-font-color font-base dark:bg-surface-950 min-h-screen pb-20 dark:text-surface-50"
->
+<div class="text-base-font-color font-base dark:bg-surface-950 min-h-screen dark:text-surface-50">
 	<!-- NAVIGATION / HEADER -->
 	<header
-		class="sticky top-0 z-10 border-b border-surface-200 bg-surface-50/90 shadow-sm backdrop-blur-md dark:border-surface-700 dark:bg-surface-900/90"
+		class="z-10 border-b border-surface-200 bg-surface-50/90 shadow-sm backdrop-blur-md lg:sticky lg:top-0 dark:border-surface-700 dark:bg-surface-900/90"
 	>
 		<div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
 			<nav class="hidden gap-6 text-sm font-medium text-surface-600 md:flex dark:text-surface-300">
@@ -183,14 +212,16 @@
 					>{t('landing.join')}</a
 				>
 			</nav>
-			<a
-				href="https://forms.gle/mVx8K2cm3TPx8CJP9"
-				target="_blank"
-				class="rounded-container bg-primary-600 px-4 py-2 text-sm font-bold text-white shadow-md transition-all hover:bg-primary-700"
-			>
-				{t('landing.joinNow')}
-			</a>
-			<LanguageSwitcher />
+			<div class="flex w-full items-center justify-between gap-4 md:w-auto md:justify-end">
+				<a
+					href="https://forms.gle/mVx8K2cm3TPx8CJP9"
+					target="_blank"
+					class="rounded-container bg-primary-600 px-4 py-2 text-sm font-bold text-white shadow-md transition-all hover:bg-primary-700"
+				>
+					{t('landing.joinNow')}
+				</a>
+				<LanguageSwitcher class="w-24" />
+			</div>
 		</div>
 	</header>
 
@@ -327,7 +358,6 @@
 									href={plink('/history/votes')}
 									class="group flex items-center justify-center gap-1 text-xs text-primary-400 hover:text-primary-300"
 								>
-									Alle Details auf somes.at ansehen
 									{t('landing.ticker.details')}
 									<span class="transition-transform group-hover:translate-x-1">→</span>
 								</a>
@@ -668,7 +698,6 @@
 						href="mailto:somes.austria@gmail.com"
 						class="rounded-xl border border-primary-500 bg-primary-700 px-8 py-4 text-lg font-bold text-white transition-all hover:bg-primary-600"
 					>
-						Kontakt aufnehmen
 						{t('landing.join.contact')}
 					</a>
 				</div>
@@ -687,9 +716,9 @@
 
 			<div class="flex flex-wrap justify-center gap-8 md:gap-12">
 				{#each boardMembers as member (member.name)}
-					<div class="group flex flex-col items-center">
+					<div class="group flex w-40 flex-col items-center text-center md:w-auto">
 						<div
-							class="relative mb-4 h-32 w-32 overflow-hidden rounded-full border-4 border-white bg-linear-to-br from-tertiary-300 to-tertiary-400 shadow-lg dark:border-surface-800"
+							class="relative mb-4 h-24 w-24 overflow-hidden rounded-full border-4 border-white bg-linear-to-br from-tertiary-300 to-tertiary-400 shadow-lg md:h-32 md:w-32 dark:border-surface-800"
 						>
 							{#if member.image}
 								<img src={member.image} alt={member.name} class="h-full w-full object-cover" />
@@ -716,19 +745,22 @@
 			</div>
 		</div>
 	</section>
-	<section id="team" class="bg-tertiary-100 py-10 dark:bg-surface-900">
+	<section id="dev-team" class="bg-tertiary-100 py-10 dark:bg-surface-900">
 		<div class="mx-auto max-w-7xl px-4">
 			<h2
-				class="font-heading mb-12 text-center text-3xl font-bold text-primary-900 dark:text-primary-100"
+				class="font-heading mb-4 text-center text-3xl font-bold text-primary-900 dark:text-primary-100"
 			>
 				{t('landing.team.devTeam')}
 			</h2>
+			<p class="mb-12 text-center text-sm text-surface-600 dark:text-surface-300">
+				{t('layout.netidee.funding')}
+			</p>
 
 			<div class="flex flex-wrap justify-center gap-8 md:gap-12">
 				{#each devTeamMembers as member (member.name)}
-					<div class="group flex flex-col items-center">
+					<div class="group flex w-40 flex-col items-center text-center md:w-auto">
 						<div
-							class="relative mb-4 h-32 w-32 overflow-hidden rounded-full border-4 border-white bg-linear-to-br from-tertiary-300 to-tertiary-400 shadow-lg dark:border-surface-800"
+							class="relative mb-4 h-24 w-24 overflow-hidden rounded-full border-4 border-white bg-linear-to-br from-tertiary-300 to-tertiary-400 shadow-lg md:h-32 md:w-32 dark:border-surface-800"
 						>
 							{#if member.image}
 								<img src={member.image} alt={member.name} class="h-full w-full object-cover" />

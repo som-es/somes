@@ -11,8 +11,13 @@ export const handle: Handle = async ({ event, resolve }) => {
 	const theme = event.cookies.get('theme');
 	event.locals.theme = theme as 'light' | 'dark';
 
+	const localeCookie = event.cookies.get('locale');
+	event.locals.locale = localeCookie === 'de' || localeCookie === 'en' ? localeCookie : null;
+	const lang = event.locals.locale ?? (event.url.pathname.startsWith('/eu') ? 'en' : 'de');
+
 	const response = await resolve(event, {
-		transformPageChunk: ({ html }) => html.replace('class=""', `class="${theme}"`)
+		transformPageChunk: ({ html }) =>
+			html.replace('class=""', `class="${theme}"`).replace('lang="en"', `lang="${lang}"`)
 	});
 
 	return response;

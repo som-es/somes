@@ -2,6 +2,7 @@
 	import './layout.css';
 	import favicon from '$lib/assets/somes_logo.png';
 	import somesWithText from '$lib/assets/somes_with_text2.svg?raw';
+	import netideeLogo from '$lib/assets/netidee-logo.svg';
 	import Sidebar from '$lib/components/Bars/Sidebar.svelte';
 	import Navbar from '$lib/components/Bars/Navbar.svelte';
 	import { resolve } from '$app/paths';
@@ -75,7 +76,7 @@
 			<Sidebar questionsEnabled={data.questionsEnabled} />
 		</aside>
 		<!-- Main Content -->
-		<main class="mb-35 w-full min-w-0">
+		<main class="w-full min-w-0 {page.url.pathname === '/' ? '' : 'mb-35'}">
 			{@render children()}
 			{#if disclaimerKey}
 				<div
@@ -95,7 +96,7 @@
 	</footer>
 	<footer class="border-t border-surface-800 bg-surface-900 py-12 text-surface-300">
 		<div class="mx-auto grid max-w-7xl grid-cols-1 px-4 md:grid-cols-5">
-			<div class="col-span-1 md:col-span-2">
+			<div class="col-span-1 mb-8 md:col-span-2 md:mb-0">
 				<!-- <span class="text-2xl font-bold text-white block mb-4">somes.at</span> -->
 				<div class="w-72 fill-white stroke-white">
 					{@html somesWithText}
@@ -103,16 +104,17 @@
 				<p class="mt-2 max-w-xs text-sm">
 					{t('layout.tagline')}
 				</p>
-				<p class="mt-2 max-w-xs text-sm font-light">
-					{t('layout.netidee.start')}
-					<a
-						href="https://www.netidee.at"
-						target="_blank"
-						rel="noopener noreferrer"
-						class="underline hover:text-secondary-400">Netidee</a
+				<a
+					href="https://www.netidee.at/somes"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="mt-6 flex max-w-xs flex-col gap-2 opacity-90 transition-opacity hover:opacity-100"
+				>
+					<img src={netideeLogo} alt="netidee Förderungen" class="h-9 w-auto self-start" />
+					<span class="text-sm font-light"
+						>{t('layout.netidee.funding')} {t('layout.netidee.thanks')}</span
 					>
-					{t('layout.netidee.end')}
-				</p>
+				</a>
 			</div>
 			<div class="mb-4">
 				<h4 class="mb-4 font-bold text-white">{t('layout.development')}</h4>

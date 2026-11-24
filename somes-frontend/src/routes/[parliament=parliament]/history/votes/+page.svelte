@@ -17,8 +17,17 @@
 </script>
 
 <svelte:head>
-	<title>{t('history.votes.title')}</title>
-	<meta name="description" content={t('history.votes.meta')} />
+	<title
+		>{t('history.votes.title', {
+			parliament: t(data.parliament === 'eu' ? 'seo.parliament.eu' : 'seo.parliament.at')
+		})}</title
+	>
+	<meta
+		name="description"
+		content={t('history.votes.meta', {
+			parliament: t(data.parliament === 'eu' ? 'seo.parliament.eu' : 'seo.parliament.at')
+		})}
+	/>
 </svelte:head>
 
 <!-- <div class="mx-auto px-5"> -->
