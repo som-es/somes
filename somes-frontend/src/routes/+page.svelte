@@ -17,6 +17,7 @@
 	import { t } from '$lib/i18n/i18n.svelte';
 	import LanguageSwitcher from '$lib/components/UI/LanguageSwitcher.svelte';
 	import { json_ld_script } from '$lib/seo/delegate';
+	import AppBadges from '$lib/components/Apps/AppBadges.svelte';
 	import { SITE_URL } from '$lib/seo/sitemap';
 	let { data }: PageProps = $props();
 
@@ -293,6 +294,10 @@
 					>
 						{t('landing.hero.ctaEvents')}
 					</a>
+				</div>
+				<div class="flex flex-col items-center gap-3 pt-2">
+					<span class="text-base text-surface-600 dark:text-surface-300">{t('app.available')}</span>
+					<AppBadges class="justify-center" />
 				</div>
 			</div>
 		</div>

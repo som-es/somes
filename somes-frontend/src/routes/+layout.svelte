@@ -19,6 +19,9 @@
 	import { t } from '$lib/i18n/i18n.svelte';
 	import { dev } from '$app/environment';
 	import { canonical_url } from '$lib/seo/canonical';
+	import { APP_STORE_ID } from '$lib/apps';
+	import AppBadges from '$lib/components/Apps/AppBadges.svelte';
+	import AndroidAppBanner from '$lib/components/Apps/AndroidAppBanner.svelte';
 
 	let { children, data } = $props();
 
@@ -70,10 +73,12 @@
 <ParliamentSwitchModal />
 {#if browser}
 	<CacheInvalidation />
+	<AndroidAppBanner />
 {/if}
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
+	<meta name="apple-itunes-app" content="app-id={APP_STORE_ID}" />
 	{#if canonical}
 		<link rel="canonical" href={canonical} />
 	{/if}
@@ -248,6 +253,10 @@
 							</path></svg
 						>
 					</a>
+				</div>
+				<div class="mt-6 flex flex-col gap-2">
+					<span class="text-sm font-light">{t('app.available')}</span>
+					<AppBadges />
 				</div>
 			</div>
 		</div>
