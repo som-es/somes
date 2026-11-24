@@ -3,6 +3,7 @@
 	import favicon from '$lib/assets/somes_logo.png';
 	import somesWithText from '$lib/assets/somes_with_text2.svg?raw';
 	import netideeLogo from '$lib/assets/netidee-logo.svg';
+	import easynameLogo from '$lib/assets/easyname-logo.svg';
 	import Sidebar from '$lib/components/Bars/Sidebar.svelte';
 	import Navbar from '$lib/components/Bars/Navbar.svelte';
 	import { resolve } from '$app/paths';
@@ -114,6 +115,15 @@
 					<span class="text-sm font-light"
 						>{t('layout.netidee.funding')} {t('layout.netidee.thanks')}</span
 					>
+				</a>
+				<a
+					href="https://www.easyname.at"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="mt-5 flex max-w-xs flex-col gap-2 opacity-90 transition-opacity hover:opacity-100"
+				>
+					<img src={easynameLogo} alt="easyname" class="h-6 w-auto self-start" />
+					<span class="text-sm font-light">{t('layout.easyname.sponsoring')}</span>
 				</a>
 			</div>
 			<div class="mb-4">

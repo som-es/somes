@@ -51,6 +51,7 @@ export const de = {
 		'Parteiübergreifend machen wir Demokratie transparent, verständlich und zugänglich.',
 	'layout.netidee.funding': 'Gefördert durch netidee von November 2025 bis Oktober 2026.',
 	'layout.netidee.thanks': 'Danke ❤️',
+	'layout.easyname.sponsoring': 'VPS seit November 2026 gesponsert durch easyname.',
 	'layout.development': 'Entwicklung',
 	'layout.links': 'Links',
 	'layout.association': 'Verein',

@@ -50,6 +50,7 @@ export const en = {
 		'Across party lines, we make democracy transparent, understandable and accessible.',
 	'layout.netidee.funding': 'Funded by netidee from November 2025 to October 2026.',
 	'layout.netidee.thanks': 'Thank you ❤️',
+	'layout.easyname.sponsoring': 'VPS sponsored by easyname since November 2026.',
 	'layout.development': 'Development',
 	'layout.links': 'Links',
 	'layout.association': 'Association',
