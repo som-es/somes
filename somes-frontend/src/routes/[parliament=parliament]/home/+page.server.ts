@@ -17,7 +17,7 @@ import type { PageServerLoad } from './$types';
 import { cachedPlenarySessions } from '$lib/caching/plenarySessions';
 import { volksbg_weeks, type VolksbgEintragungswoche } from '../../types';
 
-const internalCache: Record<string, { data: any; timestamp: number }> = {};
+const internalCache: Record<string, { data: HomeData; timestamp: number }> = {};
 
 const CACHE_DURATION_MS = 1000 * 60 * 10;
 
@@ -62,19 +62,18 @@ async function fetchDelegatesFromVoteResult(
 	return dels.delegates;
 }
 
-export const load: PageServerLoad = async ({ fetch, setHeaders, params }) => {
-	const parliament = params.parliament as Parliament;
-	const now = Date.now();
-	const cached = internalCache[parliament];
-	if (cached && now - cached.timestamp < CACHE_DURATION_MS) {
-		return cached.data;
-	}
-	if (process.env.NODE_ENV === 'production') {
-		setHeaders({
-			'cache-control': 'max-age=1020'
-		});
-	}
+function withoutIndividualVotes(vote: VoteResult): VoteResult {
+	return {
+		...vote,
+		speeches: [],
+		named_votes: vote.named_votes && {
+			...vote.named_votes,
+			named_votes: vote.named_votes.named_votes.slice(0, 1)
+		}
+	};
+}
 
+async function loadHomeData(parliament: Parliament) {
 	const [
 		nextPlenarDate,
 		latestVotes,
@@ -114,27 +113,50 @@ export const load: PageServerLoad = async ({ fetch, setHeaders, params }) => {
 		plenarySessions = errorToNull(await cachedPlenarySessions(true, fetch, parliament));
 	}
 
-	// TODO error handling
-
-	const data = {
+	return {
 		nextPlenarDate,
-		latestVotes: isHasError(latestVotes)
-			? latestVotes
-			: latestVotes.map((vote) => ({ ...vote, speeches: [] })),
+		latestVotes: isHasError(latestVotes) ? latestVotes : latestVotes.map(withoutIndividualVotes),
 		latestMinisterialProposals,
 		latestDecrees,
 		latestDelegateDecrees,
 		latestSessionActivity,
-		delegates,
 		allSeats,
 		plenarySessions,
 		volksbgWeek: currentVolksbgWeek(volksbgWeeks)
 	};
+}
 
-	internalCache[parliament] = {
-		data,
-		timestamp: now
-	};
+type HomeData = Awaited<ReturnType<typeof loadHomeData>>;
 
-	return data;
+const refreshing: Partial<Record<Parliament, Promise<HomeData>>> = {};
+
+function refresh(parliament: Parliament): Promise<HomeData> {
+	refreshing[parliament] ??= loadHomeData(parliament)
+		.then((data) => {
+			if (!isHasError(data.latestVotes) || !internalCache[parliament]) {
+				internalCache[parliament] = { data, timestamp: Date.now() };
+			}
+			return internalCache[parliament].data;
+		})
+		.finally(() => {
+			delete refreshing[parliament];
+		});
+	return refreshing[parliament];
+}
+
+export const load: PageServerLoad = async ({ setHeaders, params }) => {
+	const parliament = params.parliament as Parliament;
+	if (process.env.NODE_ENV === 'production') {
+		setHeaders({
+			'cache-control': 'max-age=1020'
+		});
+	}
+
+	const cached = internalCache[parliament];
+	if (!cached) return refresh(parliament);
+
+	if (Date.now() - cached.timestamp > CACHE_DURATION_MS) {
+		refresh(parliament).catch(() => {});
+	}
+	return cached.data;
 };

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Delegate, GovProposalDelegate, Topic, UniqueTopic, VoteResult } from '$lib/types';
+	import type { GovProposalDelegate, Topic, UniqueTopic, VoteResult } from '$lib/types';
 	import Container from '$lib/components/Layout/Container.svelte';
 	import { cachedUserTopics } from '$lib/caching/user_topics_cache.svelte';
 	import NextSessionInfo from '$lib/components/PlenarySessions/NextSessionInfo.svelte';
@@ -24,7 +24,6 @@
 
 	let { data }: PageProps = $props();
 
-	let dels: Delegate[] | null = $derived(data.delegates);
 	let voteResults: VoteResult[] | null = $derived(errorToNull(data.latestVotes));
 	let govProposals: GovProposalDelegate[] | null = $derived(
 		errorToNull(data.latestMinisterialProposals)
@@ -170,7 +169,7 @@
 		</div>
 		<h2 class="mt-5 text-xl font-semibold sm:text-2xl">{t('home.other')}</h2>
 	{/if}
-	{#if voteResults && dels}
+	{#if voteResults}
 		<div class="mt-2 flex flex-col gap-5">
 			{#each voteResults.slice(0, 3) as voteResult}
 				<VoteResultExpandableBar {voteResult} class="" />
