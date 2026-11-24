@@ -6,6 +6,7 @@
 	import type { MinisterialViewData } from '$lib/components/MinisterialView/types';
 	import ExpandablePlaceholder from '$lib/components/VoteResults/Expandable/Placeholders/ExpandablePlaceholder.svelte';
 	import type { PageProps } from './$types';
+	import { decree_seo } from '$lib/seo/decree';
 
 	let { data }: PageProps = $props();
 
@@ -38,21 +39,14 @@
 		};
 	});
 
-	const title = $derived(
-		ministerialData?.aiSummary !== null
-			? ministerialData?.aiSummary?.short_title
-			: ministerialData.alternativeTitle
-	);
-	const content = $derived(
-		ministerialData?.aiSummary !== null
-			? ministerialData?.aiSummary?.very_detailed_summary
-			: ministerialData.alternativeTitle
-	);
+	let seo = $derived(decreeDelegate ? decree_seo(decreeDelegate.decree) : null);
 </script>
 
 <svelte:head>
-	<title>{title}</title>
-	<meta name="description" {content} />
+	{#if seo}
+		<title>{seo.title}</title>
+		<meta name="description" content={seo.description} />
+	{/if}
 </svelte:head>
 
 <Container>

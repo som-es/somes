@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { shorten } from '$lib/seo/text';
 	import { t } from '$lib/i18n/i18n.svelte';
 	import { errorToNull, url } from '$lib/api/api';
 	import { aiViewEnabledStore, currentDelegateStore, seatColorModeStore } from '$lib/stores/stores';
@@ -195,20 +196,13 @@
 	const totalAbsences = $derived(sortedVotes.reduce((sum, v) => sum + v.absence_count, 0));
 
 	let allSpeeches = $derived(voteResult?.speeches ?? []);
-	let date = $derived(
-		voteResult?.legislative_initiative?.vote_date
-			? voteResult?.legislative_initiative?.vote_date
-			: voteResult?.legislative_initiative?.nr_plenary_activity_date
-	);
 	const title = $derived(
-		voteResult?.ai_summary !== null
-			? voteResult?.ai_summary?.short_title
-			: voteResult.legislative_initiative.description
+		voteResult?.ai_summary?.short_title || voteResult?.legislative_initiative?.description
 	);
 	const content = $derived(
-		voteResult?.ai_summary !== null
-			? voteResult?.ai_summary?.very_detailed_summary
-			: voteResult.legislative_initiative.description
+		shorten(
+			voteResult?.ai_summary?.short_summary || voteResult?.legislative_initiative?.description || ''
+		)
 	);
 
 	const articleLinks = $derived(
@@ -219,9 +213,7 @@
 </script>
 
 <svelte:head>
-	<title>
-		{title}
-	</title>
+	<title>{title ? `${title} | Somes` : 'Somes'}</title>
 	<meta name="description" {content} />
 </svelte:head>
 
@@ -468,7 +460,7 @@
 							{#each searchResults as del}
 								<DelegateListItem
 									delegate={del.delegate}
-									href={plink(`/delegates?delegate=${del.delegate.id}&date=${date}&gp=${gp}`)}
+									href={plink(`/delegates?delegate=${del.delegate.id}`)}
 									class="w-full bg-primary-200 lg:bg-primary-300 dark:bg-surface-600 dark:lg:bg-primary-500"
 									onclick={() => {
 										delegate = del.delegate;
@@ -779,9 +771,6 @@
 								{#if selectedBubble}
 									<VoteDelegateCard
 										bubble={selectedBubble}
-										gp={voteResult.legislative_initiative.gp}
-										date={voteResult.legislative_initiative.vote_date ??
-											voteResult.legislative_initiative.nr_plenary_activity_date}
 										partyColors={data.partyColors}
 										parliament={data.parliament}
 									/>
@@ -810,11 +799,7 @@
 														}}
 													/>
 												{:else}
-													<a
-														href={plink(
-															`/delegates?gp=${gp}&date=${new Date(voteResult.legislative_initiative.raw_data_created_at!).toISOString().split('T')[0]}&delegate=${del.id}`
-														)}
-													>
+													<a href={plink(`/delegates?delegate=${del.id}`)}>
 														<DelegateListItem
 															delegate={del}
 															class="w-full md:w-auto md:max-w-full"
@@ -846,11 +831,7 @@
 												}}
 											/>
 										{:else if voteResult}
-											<a
-												href={plink(
-													`/delegates?gp=${gp}&date=${new Date(voteResult.legislative_initiative.raw_data_created_at!).toISOString().split('T')[0]}&delegate=${del.id}`
-												)}
-											>
+											<a href={plink(`/delegates?delegate=${del.id}`)}>
 												<DelegateListItem delegate={del} class="w-full md:w-auto md:max-w-full" />
 											</a>
 										{/if}
@@ -916,20 +897,13 @@
 										/>
 										<div class="flex min-w-0 flex-col">
 											<a
-												href={plink(
-													`/delegates?delegate=${speechDelegate.id}&date=${date}&gp=${voteResult.legislative_initiative.gp}`
-												)}
+												href={plink(`/delegates?delegate=${speechDelegate.id}`)}
 												class="truncate text-sm leading-tight font-semibold hover:underline lg:text-base"
 												onclick={(e) => {
 													e.preventDefault();
 													e.stopPropagation();
 													currentDelegateStore.value = speechDelegate;
-													gotoHistory(
-														plink(
-															`/delegates?delegate=${speechDelegate.id}&date=${date}&gp=${voteResult.legislative_initiative.gp}`
-														),
-														true
-													);
+													gotoHistory(plink(`/delegates?delegate=${speechDelegate.id}`), true);
 												}}
 												onkeypress={(e) => e.stopPropagation()}
 											>

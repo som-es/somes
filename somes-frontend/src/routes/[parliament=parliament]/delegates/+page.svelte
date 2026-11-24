@@ -65,6 +65,7 @@
 	import InterjectionsPreview from '$lib/components/Delegates/Interjections/InterjectionsPreview.svelte';
 	import MobileParliamentModal from '$lib/components/Parliaments/MobileParliamentModal.svelte';
 	import { defaultGp } from '$lib/api/parliament';
+	import { delegate_seo, json_ld_script } from '$lib/seo/delegate';
 	import { createFilterGroup } from '$lib/components/Filtering/filterGroup.svelte';
 
 	let { data }: PageProps = $props();
@@ -355,7 +356,7 @@
 	onMount(async () => {
 		const url = new URL(window.location.href);
 		const paramDelegateId = url.searchParams.get('delegate');
-		updateDelsToDisplay();
+		updateDelsToDisplay(false);
 		if (paramDelegateId) {
 			// setting here currentDelegateStore instead of `delegate` var directly
 			// this is important for a single reason: delegates without seat by default (if the backend seat history is too short)
@@ -367,7 +368,7 @@
 		finishedMounting = true;
 	});
 
-	const updateDelsToDisplay = async () => {
+	const updateDelsToDisplay = async (writeUrl = true) => {
 		if (!periods || periods.length == 0) {
 			return;
 		}
@@ -397,6 +398,7 @@
 		maybeCurrentDelegateFilter.supply_date = startDate.toISOString().split('T')[0];
 		maybeCurrentDelegateFilter.day_offset = dayOffset;
 		currentDelegateFilterStore.value = maybeCurrentDelegateFilter;
+		if (!writeUrl) return;
 		const url = new URL(window.location.href);
 		const previousDate = url.searchParams.get('date');
 		const previousPeriod = url.searchParams.get('gp');
@@ -483,11 +485,16 @@
 	const title = $derived(
 		data.parliament == 'at' ? t('delegates.title.at') : t('delegates.title.eu')
 	);
+
+	let seo = $derived(data.delegate ? delegate_seo(data.delegate, data.parliament) : null);
 </script>
 
 <svelte:head>
-	<title>{title}</title>
-	<meta name="description" content={t('delegates.meta.description')} />
+	<title>{seo?.title ?? title}</title>
+	<meta name="description" content={seo?.description ?? t('delegates.meta.description')} />
+	{#if seo}
+		{@html json_ld_script(seo.jsonLd)}
+	{/if}
 </svelte:head>
 
 <Container>

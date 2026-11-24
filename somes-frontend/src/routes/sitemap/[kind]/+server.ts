@@ -1,7 +1,7 @@
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { PARLIAMENTS, type Parliament } from '$lib/api/parliament';
-import { sitemap_routes } from '$lib/api/sitemap';
+import { sitemap_delegates, sitemap_routes } from '$lib/api/sitemap';
 import {
 	absolute,
 	route_path,
@@ -24,7 +24,10 @@ export const GET: RequestHandler = async ({ params, url, fetch }) => {
 	if (!isParliamentParam(parliamentParam)) error(400, 'Unknown parliament');
 
 	const gp = kind === 'vote_results' ? (url.searchParams.get('gp') ?? undefined) : undefined;
-	const routes = await sitemap_routes(kind, parliamentParam, fetch, gp);
+	const routes =
+		kind === 'delegates'
+			? await sitemap_delegates(parliamentParam, fetch)
+			: await sitemap_routes(kind, parliamentParam, fetch, gp);
 
 	const urls: SitemapUrl[] = routes.map((route) => ({
 		loc: absolute(route_path(parliamentParam, kind, route)),

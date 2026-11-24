@@ -13,8 +13,6 @@
 
 	interface Props {
 		bubble: Bubble;
-		date: string;
-		gp: string;
 		class?: string;
 		partyColors?: Map<string, string>;
 		parliament?: Parliament;
@@ -22,8 +20,6 @@
 
 	let {
 		bubble,
-		date,
-		gp,
 		class: clazz = '',
 		partyColors = getPartyColors(),
 		parliament = getParliament()
@@ -36,7 +32,7 @@
 	const onShowDetails = () => {
 		currentDelegateStore.value = delegate;
 		if (delegate) {
-			const link = plink(`/delegates?gp=${gp}&date=${date}&delegate=${delegate.id}`);
+			const link = plink(`/delegates?delegate=${delegate.id}`);
 			gotoHistory(link, true);
 		}
 	};

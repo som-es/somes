@@ -1,4 +1,5 @@
 import { getWithRoute, isHasError } from './api';
+import type { Delegate } from '../types';
 import type { Parliament } from './parliament';
 import type { HasError } from '../types';
 
@@ -71,6 +72,29 @@ export async function sitemap_routes(
 		const result = await sitemap_page(kind, parliament, fetcher, page, gp);
 		if (isHasError(result)) return routes;
 		routes.push(...result.entries);
+		if (page >= result.max_page) return routes;
+	}
+
+	return routes;
+}
+
+export async function sitemap_delegates(
+	parliament: Parliament,
+	fetcher: typeof fetch
+): Promise<SitemapRoute[]> {
+	const routes: SitemapRoute[] = [];
+
+	for (let page = 1; page <= 100; page++) {
+		const result = await getWithRoute<{
+			delegates: (Delegate & { updated_at?: string })[];
+			max_page: number;
+		}>(
+			`v1/delegates/search?page=${page}&entries_per_page=${ENTRIES_PER_PAGE}`,
+			parliament,
+			fetcher
+		);
+		if (isHasError(result)) return routes;
+		routes.push(...result.delegates.map((d) => ({ id: d.id, lastmod: d.updated_at })));
 		if (page >= result.max_page) return routes;
 	}
 

@@ -4,8 +4,6 @@
 	import type { PageProps } from './$types';
 	import DelegateListItem from '$lib/components/Delegates/DelegateListItem.svelte';
 	import { orientationQuizSession } from '$lib/stores/orientationQuizSession.svelte';
-	import { getMandateLatestPeriod } from '../[parliament=parliament]/delegates/searchDelegates';
-	import { toActualDateString } from '$lib/api/api';
 	import { goto } from '$app/navigation';
 	import { t } from '$lib/i18n/i18n.svelte';
 	import { plink } from '$lib/api/parliament';
@@ -179,8 +177,7 @@
 
 	// Result: jump to the delegate detail page
 	function openDelegate(d: (typeof data.delegateScores)[number]) {
-		const { date, gp } = getMandateLatestPeriod(d.delegate, data.gps);
-		goto(plink(`/delegates?gp=${gp}&date=${toActualDateString(date)}&delegate=${d.delegate.id}`));
+		goto(plink(`/delegates?delegate=${d.delegate.id}`));
 	}
 </script>
 

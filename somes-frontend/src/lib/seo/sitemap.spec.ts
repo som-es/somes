@@ -17,6 +17,7 @@ describe('route_path', () => {
 			'/eu/gov_proposal/10/ME/42'
 		);
 		expect(route_path('at', 'questions', { id: 7 })).toBe('/at/questions/7');
+		expect(route_path('at', 'delegates', { id: 785 })).toBe('/at/delegates?delegate=785');
 		expect(route_path('eu', 'vote_results', { gp: '10', ityp: 'INI', inr: 12 })).toBe(
 			'/eu/vote_result/10/INI/12'
 		);

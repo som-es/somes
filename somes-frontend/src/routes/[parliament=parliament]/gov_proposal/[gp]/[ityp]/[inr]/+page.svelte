@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { shorten } from '$lib/seo/text';
 	import { errorToNull } from '$lib/api/api';
 	import { t } from '$lib/i18n/i18n.svelte';
 	import ReferencedByBar from '$lib/components/Bars/ReferencedByBar.svelte';
@@ -42,19 +43,20 @@
 	});
 
 	const title = $derived(
-		govProposalDelegate?.gov_proposal?.ai_summary !== null
-			? govProposalDelegate?.gov_proposal?.ai_summary?.short_title
-			: govProposalDelegate.gov_proposal.ministrial_proposal.description
+		govProposalDelegate?.gov_proposal?.ai_summary?.short_title ||
+			govProposalDelegate?.gov_proposal?.ministrial_proposal?.description
 	);
 	const content = $derived(
-		govProposalDelegate?.gov_proposal?.ai_summary !== null
-			? govProposalDelegate?.gov_proposal?.ai_summary?.very_detailed_summary
-			: govProposalDelegate.gov_proposal.ministrial_proposal.description
+		shorten(
+			govProposalDelegate?.gov_proposal?.ai_summary?.short_summary ||
+				govProposalDelegate?.gov_proposal?.ministrial_proposal?.description ||
+				''
+		)
 	);
 </script>
 
 <svelte:head>
-	<title>{title}</title>
+	<title>{title ? `${title} | Somes` : 'Somes'}</title>
 	<meta name="description" {content} />
 </svelte:head>
 

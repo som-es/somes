@@ -42,9 +42,7 @@
 	const onShowDetails = () => {
 		currentDelegateStore.value = delegates[currentDelegateIndex];
 		if (delegates[currentDelegateIndex]) {
-			const link = plink(
-				`/delegates?gp=${ministerialData.gp}&date=${ministerialData.date.toString().split('T')[0]}&delegate=${delegates[currentDelegateIndex].id}`
-			);
+			const link = plink(`/delegates?delegate=${delegates[currentDelegateIndex].id}`);
 			gotoHistory(link, true);
 		}
 	};

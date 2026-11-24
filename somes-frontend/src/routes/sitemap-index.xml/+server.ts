@@ -21,6 +21,8 @@ export const GET: RequestHandler = async ({ fetch }) => {
 	const children = [absolute(STATIC_SITEMAP_PATH)];
 
 	for (const { parliament, summary } of summaries) {
+		children.push(absolute(sitemap_child_path('delegates', parliament)));
+
 		if (isHasError(summary)) continue;
 
 		if (summary.decrees > 0) children.push(absolute(sitemap_child_path('decrees', parliament)));

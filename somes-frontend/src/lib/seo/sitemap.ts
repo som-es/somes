@@ -15,7 +15,8 @@ export const SITEMAP_CHILD_KINDS = [
 	'decrees',
 	'gov_proposals',
 	'questions',
-	'vote_results'
+	'vote_results',
+	'delegates'
 ] as const;
 
 export type SitemapChildKind = (typeof SITEMAP_CHILD_KINDS)[number];
@@ -45,14 +46,24 @@ export function absolute(path: string): string {
 	return `${SITE_URL}${path}`;
 }
 
-export function sitemap_child_path(kind: SitemapKind, parliament: Parliament, gp?: string): string {
+export function sitemap_child_path(
+	kind: SitemapKind | 'delegates',
+	parliament: Parliament,
+	gp?: string
+): string {
 	const query = new URLSearchParams({ parliament });
 	if (gp) query.set('gp', gp);
 	return `/sitemap/${kind}.xml?${query}`;
 }
 
-export function route_path(parliament: Parliament, kind: SitemapKind, route: SitemapRoute): string {
+export function route_path(
+	parliament: Parliament,
+	kind: SitemapKind | 'delegates',
+	route: SitemapRoute
+): string {
 	switch (kind) {
+		case 'delegates':
+			return `/${parliament}/delegates?delegate=${route.id}`;
 		case 'decrees':
 			return `/${parliament}/decree/${encodeURIComponent(route.ris_id ?? '')}`;
 		case 'gov_proposals':

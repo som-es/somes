@@ -16,8 +16,11 @@
 	import { browser } from '$app/environment';
 	import { t } from '$lib/i18n/i18n.svelte';
 	import { dev } from '$app/environment';
+	import { canonical_url } from '$lib/seo/canonical';
 
 	let { children, data } = $props();
+
+	let canonical = $derived(canonical_url(page.url, page.route.id, page.status));
 
 	type DisclaimerKey =
 		'layout.disclaimer.publicData' | 'layout.disclaimer.ris' | 'layout.disclaimer.eu';
@@ -48,6 +51,9 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
+	{#if canonical}
+		<link rel="canonical" href={canonical} />
+	{/if}
 
 	{#if !dev}
 		<script
