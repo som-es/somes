@@ -145,6 +145,26 @@ export const de = {
 	'landing.events.membershipRequired': '🔒 Mitgliedschaft erforderlich',
 	'landing.events.openToAll': '✅ Offen für alle - einfach kommen!',
 	'landing.events.registrationRequired': '📝 Anmeldung erforderlich',
+	'landing.gallery.democracyDay.title': 'Demokratietag 2025',
+	'landing.gallery.democracyDay.place': 'Stadtsaal Hollabrunn',
+	'landing.gallery.democracyDay.text':
+		'Statt Tagespolitik stand das große Ganze im Fokus: Politiker:innen aller Parteien im offenen Gesprächskreis, Impulsvorträge von Pascal Günsberg (PolEdu) und Michael Frey (Akademie für Dialog und Evangelisation), eine Videobotschaft von Bildungsminister Christoph Wiederkehr und ein interaktives Quiz – vor über 650 Schüler:innen.',
+	'landing.gallery.nr2024.title': 'Podiumsdiskussion zur Nationalratswahl 2024',
+	'landing.gallery.nr2024.place': 'Stadtsaal Hollabrunn',
+	'landing.gallery.nr2024.text':
+		'Trotz starker Regenfälle eine spannende Debatte vor rund 790 Schüler:innen: Es diskutierten Alexander Pröll, später Staatssekretär, sowie die Nationalratsabgeordneten Martin Künesberger und Rudolf Silvan. Ein Highlight war der Besuch des damaligen Vizekanzlers Werner Kogler.',
+	'landing.gallery.eu2024.title': 'Podiumsdiskussion zur EU-Wahl 2024',
+	'landing.gallery.eu2024.place': 'Stadtsaal Hollabrunn',
+	'landing.gallery.eu2024.text':
+		'Neben Lokalpolitiker:innen diskutierten die EU-Abgeordneten Alexander Bernhuber (ÖVP), Thomas Waitz (GRÜNE) und Anna Stürgkh (NEOS) – EU-Politik an der Schnittstelle zur Lokalpolitik.',
+	'landing.gallery.noe2023.title': 'Podiumsdiskussion zur Landtagswahl NÖ 2023',
+	'landing.gallery.noe2023.place': 'Stadtsaal Hollabrunn',
+	'landing.gallery.noe2023.text':
+		'Die erste Podiumsdiskussion – eine hitzige Debatte mit Lokalpolitiker:innen und der Anstoß für somes.',
+	'landing.gallery.parliament.title': 'Parlamentsführung 2026',
+	'landing.gallery.parliament.place': 'Parlament Wien',
+	'landing.gallery.parliament.text':
+		'Führung durch das Parlament und anschließender Ausklang im Café Rathaus mit Nationalratsabgeordnetem Paul Stich (SPÖ).',
 	'landing.join.title': 'Werde Teil von Somes',
 	'landing.join.text1':
 		'Unterstütze uns dabei, den einfachen Zugang zu politischen Inhalten zu revolutionieren. Als Mitglied bei',

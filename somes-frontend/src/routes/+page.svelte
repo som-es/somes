@@ -19,6 +19,13 @@
 	import { json_ld_script } from '$lib/seo/delegate';
 	import AppBadges from '$lib/components/Apps/AppBadges.svelte';
 	import { SITE_URL } from '$lib/seo/sitemap';
+	import democracyDay from '$lib/assets/landing/democracy-day.webp';
+	import panelTeam from '$lib/assets/landing/panel-team.webp';
+	import panelDiscussion from '$lib/assets/landing/panel-discussion.webp';
+	import quiz from '$lib/assets/landing/quiz.webp';
+	import audience from '$lib/assets/landing/audience.webp';
+	import parliament from '$lib/assets/landing/parliament.webp';
+	import workshop from '$lib/assets/landing/workshop.webp';
 	let { data }: PageProps = $props();
 
 	const siteJsonLd = {
@@ -49,6 +56,36 @@
 			}
 		]
 	};
+
+	const galleryImages = [
+		{
+			src: democracyDay,
+			event: 'democracyDay',
+			text: true,
+			class: 'md:col-span-2 md:row-span-2',
+			position: 'center'
+		},
+		{ src: panelTeam, event: 'noe2023', text: true, class: '', position: 'center top' },
+		{ src: panelDiscussion, event: 'eu2024', text: true, class: '', position: 'center' },
+		{ src: quiz, event: 'nr2024', text: false, class: '', position: 'center' },
+		{ src: audience, event: 'nr2024', text: true, class: '', position: 'center' },
+		{
+			src: parliament,
+			event: 'parliament',
+			text: true,
+			class: 'md:col-span-2 md:row-span-2',
+			position: 'center bottom'
+		},
+		{
+			src: workshop,
+			event: 'parliament',
+			text: false,
+			class: 'md:col-span-2 md:row-span-2',
+			position: 'center'
+		}
+	] as const;
+
+	let enlargedImage: (typeof galleryImages)[number] | null = $state(null);
 
 	interface Member {
 		name: string;
@@ -670,44 +707,84 @@
 		</div>
 	</section>
 
-	<!-- MEMBERSHIP CTA -->
-	<section id="join" class="px-4 py-4">
+	<section id="gallery" class="mx-auto max-w-6xl px-4 py-4">
 		<div
-			class="relative mx-auto max-w-4xl overflow-hidden rounded-3xl bg-primary-800 p-8 text-center text-white shadow-2xl md:p-12"
+			class="grid auto-rows-[16rem] grid-cols-1 gap-3 md:auto-rows-[15rem] md:grid-cols-4 md:gap-4"
 		>
-			<!-- Decorative Circles -->
-			<div
-				class="absolute top-0 right-0 h-64 w-64 translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-600 opacity-50 blur-3xl"
-			></div>
-			<div
-				class="absolute bottom-0 left-0 h-64 w-64 -translate-x-1/2 translate-y-1/2 rounded-full bg-secondary-600 opacity-50 blur-3xl"
-			></div>
-
-			<div class="relative z-5">
-				<h2 class="font-heading mb-6 text-3xl font-bold md:text-5xl">{t('landing.join.title')}</h2>
-				<p class="mx-auto mb-8 max-w-2xl text-lg text-primary-100">
-					{t('landing.join.text1')}
-					<span class="font-bold italic">{t('landing.join.org')}</span>
-					{t('landing.join.text2')}
-				</p>
-
-				<div class="flex flex-col justify-center gap-4 sm:flex-row">
-					<a
-						href="https://forms.gle/mVx8K2cm3TPx8CJP9"
-						target="_blank"
-						class="transform rounded-xl bg-secondary-500 px-8 py-4 text-lg font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-secondary-400 hover:shadow-secondary-500/30"
+			{#each galleryImages as image (image.src)}
+				<button
+					type="button"
+					class="relative h-full w-full cursor-zoom-in overflow-hidden rounded-2xl text-left shadow-lg {image.class}"
+					onclick={() => (enlargedImage = image)}
+				>
+					<img
+						src={image.src}
+						alt={t(`landing.gallery.${image.event}.title`)}
+						loading="lazy"
+						class="h-full w-full object-cover"
+						style="object-position: {image.position};"
+					/>
+					<span
+						class="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/90 via-black/70 to-transparent p-4 pt-10 text-white"
 					>
-						{t('landing.join.joinNow')}
-					</a>
-					<a
-						href="mailto:somes.austria@gmail.com"
-						class="rounded-xl border border-primary-500 bg-primary-700 px-8 py-4 text-lg font-bold text-white transition-all hover:bg-primary-600"
-					>
-						{t('landing.join.contact')}
-					</a>
-				</div>
-			</div>
+						<span class="block leading-tight font-bold"
+							>{t(`landing.gallery.${image.event}.title`)}</span
+						>
+						<span class="block text-xs text-white/70"
+							>{t(`landing.gallery.${image.event}.place`)}</span
+						>
+						{#if image.text}
+							<span
+								class="mt-1 block text-xs leading-snug text-white/90 {image.class
+									? ''
+									: 'md:line-clamp-2'}"
+							>
+								{t(`landing.gallery.${image.event}.text`)}
+							</span>
+						{/if}
+					</span>
+				</button>
+			{/each}
 		</div>
+
+		<Dialog.Root
+			open={enlargedImage !== null}
+			onOpenChange={(open) => {
+				if (!open) enlargedImage = null;
+			}}
+		>
+			<Dialog.Portal>
+				<Dialog.Overlay class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" />
+				<Dialog.Content
+					class="fixed top-[50%] left-[50%] z-50 flex w-fit translate-x-[-50%] translate-y-[-50%] flex-col gap-3 outline-none"
+				>
+					{#if enlargedImage}
+						<img
+							src={enlargedImage.src}
+							alt={t(`landing.gallery.${enlargedImage.event}.title`)}
+							class="max-h-[75vh] w-auto max-w-[95vw] rounded-2xl"
+						/>
+						<div class="w-0 min-w-full text-white">
+							<Dialog.Title class="font-bold">
+								{t(`landing.gallery.${enlargedImage.event}.title`)}
+							</Dialog.Title>
+							<span class="block text-sm text-white/70">
+								{t(`landing.gallery.${enlargedImage.event}.place`)}
+							</span>
+							<Dialog.Description class="mt-1 text-sm text-white/90">
+								{t(`landing.gallery.${enlargedImage.event}.text`)}
+							</Dialog.Description>
+						</div>
+						<Dialog.Close
+							class="absolute -top-2 right-0 -translate-y-full px-2 text-3xl leading-none text-white"
+							aria-label={t('app.banner.close')}
+						>
+							×
+						</Dialog.Close>
+					{/if}
+				</Dialog.Content>
+			</Dialog.Portal>
+		</Dialog.Root>
 	</section>
 
 	<!-- TEAM SECTION -->
@@ -789,6 +866,46 @@
 						{/if}
 					</div>
 				{/each}
+			</div>
+		</div>
+	</section>
+
+	<!-- MEMBERSHIP CTA -->
+	<section id="join" class="px-4 py-16">
+		<div
+			class="relative mx-auto max-w-4xl overflow-hidden rounded-3xl bg-primary-800 p-8 text-center text-white shadow-2xl md:p-12"
+		>
+			<!-- Decorative Circles -->
+			<div
+				class="absolute top-0 right-0 h-64 w-64 translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-600 opacity-50 blur-3xl"
+			></div>
+			<div
+				class="absolute bottom-0 left-0 h-64 w-64 -translate-x-1/2 translate-y-1/2 rounded-full bg-secondary-600 opacity-50 blur-3xl"
+			></div>
+
+			<div class="relative z-5">
+				<h2 class="font-heading mb-6 text-3xl font-bold md:text-5xl">{t('landing.join.title')}</h2>
+				<p class="mx-auto mb-8 max-w-2xl text-lg text-primary-100">
+					{t('landing.join.text1')}
+					<span class="font-bold italic">{t('landing.join.org')}</span>
+					{t('landing.join.text2')}
+				</p>
+
+				<div class="flex flex-col justify-center gap-4 sm:flex-row">
+					<a
+						href="https://forms.gle/mVx8K2cm3TPx8CJP9"
+						target="_blank"
+						class="transform rounded-xl bg-secondary-500 px-8 py-4 text-lg font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-secondary-400 hover:shadow-secondary-500/30"
+					>
+						{t('landing.join.joinNow')}
+					</a>
+					<a
+						href="mailto:somes.austria@gmail.com"
+						class="rounded-xl border border-primary-500 bg-primary-700 px-8 py-4 text-lg font-bold text-white transition-all hover:bg-primary-600"
+					>
+						{t('landing.join.contact')}
+					</a>
+				</div>
 			</div>
 		</div>
 	</section>

@@ -145,6 +145,26 @@ export const en = {
 	'landing.events.membershipRequired': '🔒 Membership required',
 	'landing.events.openToAll': '✅ Open to everyone - just come!',
 	'landing.events.registrationRequired': '📝 Registration required',
+	'landing.gallery.democracyDay.title': 'Democracy Day 2025',
+	'landing.gallery.democracyDay.place': 'Stadtsaal Hollabrunn',
+	'landing.gallery.democracyDay.text':
+		'Instead of day-to-day politics, the focus was on democracy as a whole: politicians from all parties in an open discussion circle, talks by Pascal Günsberg (PolEdu) and Michael Frey (Akademie für Dialog und Evangelisation), a video message from Education Minister Christoph Wiederkehr and an interactive quiz – in front of more than 650 students.',
+	'landing.gallery.nr2024.title': 'Panel discussion on the 2024 national election',
+	'landing.gallery.nr2024.place': 'Stadtsaal Hollabrunn',
+	'landing.gallery.nr2024.text':
+		'Despite heavy rain, a lively debate in front of around 790 students: Alexander Pröll, later State Secretary, and the members of parliament Martin Künesberger and Rudolf Silvan took part. A highlight was the visit of then Vice-Chancellor Werner Kogler.',
+	'landing.gallery.eu2024.title': 'Panel discussion on the 2024 EU election',
+	'landing.gallery.eu2024.place': 'Stadtsaal Hollabrunn',
+	'landing.gallery.eu2024.text':
+		'Alongside local politicians, the MEPs Alexander Bernhuber (ÖVP), Thomas Waitz (GRÜNE) and Anna Stürgkh (NEOS) took part – EU politics where it meets local politics.',
+	'landing.gallery.noe2023.title': 'Panel discussion on the 2023 Lower Austria state election',
+	'landing.gallery.noe2023.place': 'Stadtsaal Hollabrunn',
+	'landing.gallery.noe2023.text':
+		'The first panel discussion – a heated debate with local politicians and the spark for somes.',
+	'landing.gallery.parliament.title': 'Parliament tour 2026',
+	'landing.gallery.parliament.place': 'Parliament, Vienna',
+	'landing.gallery.parliament.text':
+		'A tour of the Austrian Parliament, followed by a get-together at Café Rathaus with member of parliament Paul Stich (SPÖ).',
 	'landing.join.title': 'Become part of Somes',
 	'landing.join.text1': 'Help us revolutionise easy access to political content. As a member of',
 	'landing.join.org': 'somes - Association for Democracy and Political Transparency',
