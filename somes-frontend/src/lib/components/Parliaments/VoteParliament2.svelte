@@ -151,6 +151,11 @@
 
 	const selectRandomlyFromDels = () => {
 		if (preview) return;
+		const current = delegate;
+		if (current) {
+			delegate = displayDelegates.find((del) => del.id == current.id) ?? current;
+			return;
+		}
 		delegate = displayDelegates[Math.floor(Math.random() * displayDelegates.length)];
 		const maybeStoredDelegate = currentDelegateStore.valueScoped(parliament);
 		if (maybeStoredDelegate) {
