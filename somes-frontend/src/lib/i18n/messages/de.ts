@@ -152,11 +152,11 @@ export const de = {
 	'landing.gallery.nr2024.title': 'Podiumsdiskussion zur Nationalratswahl 2024',
 	'landing.gallery.nr2024.place': 'Stadtsaal Hollabrunn',
 	'landing.gallery.nr2024.text':
-		'Trotz starker Regenfälle eine spannende Debatte vor rund 790 Schüler:innen: Es diskutierten Alexander Pröll, später Staatssekretär, sowie die Nationalratsabgeordneten Martin Künesberger und Rudolf Silvan. Ein Highlight war der Besuch des damaligen Vizekanzlers Werner Kogler.',
+		'Trotz starker Regenfälle eine spannende Debatte vor rund 790 Schüler:innen: Es diskutierten Alexander Pröll, später Staatssekretär, sowie die Nationalratsabgeordneten Martina Künsberg Sarre und Rudolf Silvan. Ein Highlight war der Besuch des damaligen Vizekanzlers Werner Kogler.',
 	'landing.gallery.eu2024.title': 'Podiumsdiskussion zur EU-Wahl 2024',
 	'landing.gallery.eu2024.place': 'Stadtsaal Hollabrunn',
 	'landing.gallery.eu2024.text':
-		'Neben Lokalpolitiker:innen diskutierten die EU-Abgeordneten Alexander Bernhuber (ÖVP), Thomas Waitz (GRÜNE) und Anna Stürgkh (NEOS) – EU-Politik an der Schnittstelle zur Lokalpolitik.',
+		'Neben Lokalpolitiker:innen diskutierten die EU-Abgeordneten Alexander Bernhuber (ÖVP) und Thomas Waitz (GRÜNE) sowie die spätere EU-Abgeordnete Anna Stürgkh (NEOS) – EU-Politik an der Schnittstelle zur Lokalpolitik.',
 	'landing.gallery.noe2023.title': 'Podiumsdiskussion zur Landtagswahl NÖ 2023',
 	'landing.gallery.noe2023.place': 'Stadtsaal Hollabrunn',
 	'landing.gallery.noe2023.text':

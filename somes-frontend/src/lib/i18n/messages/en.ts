@@ -152,11 +152,11 @@ export const en = {
 	'landing.gallery.nr2024.title': 'Panel discussion on the 2024 national election',
 	'landing.gallery.nr2024.place': 'Stadtsaal Hollabrunn',
 	'landing.gallery.nr2024.text':
-		'Despite heavy rain, a lively debate in front of around 790 students: Alexander Pröll, later State Secretary, and the members of parliament Martin Künesberger and Rudolf Silvan took part. A highlight was the visit of then Vice-Chancellor Werner Kogler.',
+		'Despite heavy rain, a lively debate in front of around 790 students: Alexander Pröll, later State Secretary, and the members of parliament Martina Künsberg Sarre and Rudolf Silvan took part. A highlight was the visit of then Vice-Chancellor Werner Kogler.',
 	'landing.gallery.eu2024.title': 'Panel discussion on the 2024 EU election',
 	'landing.gallery.eu2024.place': 'Stadtsaal Hollabrunn',
 	'landing.gallery.eu2024.text':
-		'Alongside local politicians, the MEPs Alexander Bernhuber (ÖVP), Thomas Waitz (GRÜNE) and Anna Stürgkh (NEOS) took part – EU politics where it meets local politics.',
+		'Alongside local politicians, the MEPs Alexander Bernhuber (ÖVP) and Thomas Waitz (GRÜNE) as well as future MEP Anna Stürgkh (NEOS) took part – EU politics where it meets local politics.',
 	'landing.gallery.noe2023.title': 'Panel discussion on the 2023 Lower Austria state election',
 	'landing.gallery.noe2023.place': 'Stadtsaal Hollabrunn',
 	'landing.gallery.noe2023.text':
