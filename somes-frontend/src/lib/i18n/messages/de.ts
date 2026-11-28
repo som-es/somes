@@ -242,7 +242,7 @@ export const de = {
 	'delegates.meta.description': 'Auswahl und spezifische Informationen über Abgeordnete',
 	'delegates.title.at': 'Abgeordnete zum Nationalrat',
 	'delegates.title.eu': 'Abgeordnete des EU-Parlaments',
-	'delegates.updated': 'Aktualisiert am: Unknown',
+	'delegates.updated': 'Aktualisiert am:',
 	'delegates.filter': 'Filter',
 	'delegates.search': 'Suche',
 	'delegates.searchResults': 'Suchergebnisse',
@@ -377,6 +377,7 @@ export const de = {
 	'statistics.error.load': 'Die Statistikdaten konnten nicht geladen werden.',
 	'aiSummary.defaultText':
 		'Titel, Zusammenfassungen, Schwerpunkte, Gültigkeitszeiträume, Themen und Glossar wurden mittels KI aus den jeweiligen Dokumenten zusammengefasst.',
+	'aiSummary.ariaLabel': 'KI-generiert',
 	'aiSummary.generatedAt': 'Generiert am:',
 	'aiSummary.model': 'verwendetes Modell:',
 	'aiSummary.version': 'Version:',

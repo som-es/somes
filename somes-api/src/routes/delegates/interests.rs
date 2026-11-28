@@ -1,10 +1,16 @@
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    future::Future,
+    sync::Mutex,
+    time::{Duration, Instant},
+};
 
 use combx::{
     Parliament,
     with_data::unique_topics::{TopicsMapper, translate_topics_with_eurovoc},
 };
 use common_scrapes::language::Language;
+use once_cell::sync::Lazy;
 use reqwest::StatusCode;
 use somes_common_lib::InterestShare;
 use sqlx::PgPool;
@@ -18,6 +24,29 @@ use crate::{
 pub struct TopicTalkCount {
     pub topic: String,
     pub talk_count: i64,
+}
+
+const TOTAL_TALK_COUNTS_TTL: Duration = Duration::from_secs(3600);
+
+static TOTAL_TALK_COUNTS: Lazy<Mutex<HashMap<&'static str, (Instant, Vec<TopicTalkCount>)>>> =
+    Lazy::new(Default::default);
+
+async fn cached_total_talk_counts(
+    key: &'static str,
+    query: impl Future<Output = sqlx::Result<Vec<TopicTalkCount>>>,
+) -> sqlx::Result<Vec<TopicTalkCount>> {
+    if let Ok(cache) = TOTAL_TALK_COUNTS.lock() {
+        if let Some((created_at, counts)) = cache.get(key) {
+            if created_at.elapsed() < TOTAL_TALK_COUNTS_TTL {
+                return Ok(counts.clone());
+            }
+        }
+    }
+    let counts = query.await?;
+    if let Ok(mut cache) = TOTAL_TALK_COUNTS.lock() {
+        cache.insert(key, (Instant::now(), counts.clone()));
+    }
+    Ok(counts)
 }
 
 pub async fn ai_eurovoc_topics(
@@ -47,9 +76,11 @@ pub async fn ai_eurovoc_topics(
     .fetch_all(pg)
     .await?;
 
-    let total_talk_counts = sqlx::query_as!(
-        TopicTalkCount,
-        r#"with latest_summaries as (
+    let total_talk_counts = cached_total_talk_counts(
+        "eu_ai_topics",
+        sqlx::query_as!(
+            TopicTalkCount,
+            r#"with latest_summaries as (
                 select distinct on (lis.legis_init_id) lis.legis_init_id, lis.summary_id
                 from legislative_initiative_summaries lis
                 inner join summaries s on s.id = lis.summary_id
@@ -65,8 +96,9 @@ pub async fn ai_eurovoc_topics(
             where delegates.council = 'ep' and is_active
             group by topic
             order by topic"#,
+        )
+        .fetch_all(pg),
     )
-    .fetch_all(pg)
     .await?;
     Ok((absolute_interests, total_talk_counts))
 }
@@ -89,12 +121,12 @@ pub async fn extract_detailed_interests_of_delegate(
                         group by topic
                     order by topic;"#, delegate_id).fetch_all(pg).await?;
 
-            let total_talk_counts = sqlx::query_as!(TopicTalkCount, r#"
+            let total_talk_counts = cached_total_talk_counts("at_eurovoc_topics", sqlx::query_as!(TopicTalkCount, r#"
                     select topic, COUNT(*) as "talk_count!" from plenar_speeches ps
                     inner join plenar_speech_legis_inits psli on psli.speech_id = ps.id
                     inner join eurovoc_topics_legis_init on eurovoc_topics_legis_init.legislative_initiatives_id=psli.legis_init_id
                     inner join delegates on ps.delegate_id = delegates.id
-                    where opinion is not null and delegates.council = 'nr' and is_active group by topic order by topic;"#).fetch_all(pg).await?;
+                    where opinion is not null and delegates.council = 'nr' and is_active group by topic order by topic;"#).fetch_all(pg)).await?;
             (absolute_interests, total_talk_counts)
         }
         Parliament::Eu => ai_eurovoc_topics(pg, delegate_id).await?,
@@ -187,13 +219,13 @@ pub async fn extract_interests_of_delegate(
                 order by topic;"#,
             delegate_id).fetch_all(pg).await.map_err(|e| SqlFailure(e))?;
 
-            let total_talk_counts = sqlx::query_as!(TopicTalkCount, r#"
+            let total_talk_counts = cached_total_talk_counts("at_topics", sqlx::query_as!(TopicTalkCount, r#"
                 select topic, COUNT(*) as "talk_count!" from plenar_speeches ps
                 inner join plenar_speech_legis_inits psli on psli.speech_id = ps.id
                 inner join topics_legis_init on topics_legis_init.legislative_initiatives_id=psli.legis_init_id
                 inner join delegates on ps.delegate_id = delegates.id
                 where opinion is not null and delegates.council = 'nr' and is_active group by topic order by topic;"#
-            ).fetch_all(pg).await.map_err(|e| SqlFailure(e))?;
+            ).fetch_all(pg)).await.map_err(|e| SqlFailure(e))?;
 
             (absolute_interests, total_talk_counts)
         }

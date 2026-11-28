@@ -23,8 +23,12 @@
 </script>
 
 <Popover.Root>
-	<Popover.Trigger openOnHover openDelay={100} class="text-3xl" title={titleHover}
-		>⚠</Popover.Trigger
+	<Popover.Trigger
+		openOnHover
+		openDelay={100}
+		class="text-3xl"
+		title={titleHover}
+		aria-label={t('aiSummary.ariaLabel')}>⚠</Popover.Trigger
 	>
 	<Popover.Content
 		{align}

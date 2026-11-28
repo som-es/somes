@@ -55,17 +55,17 @@
 				<div class="flex items-center gap-4">
 					<div class="flex flex-col">
 						<div class="flex items-start gap-2">
-							<h1
+							<div
 								class="text-xl leading-tight font-bold lg:text-3xl"
 								style="hyphens: auto; word-break: break-word; overflow-wrap: break-word;"
 							>
 								{#if aiViewEnabledStore.value && aiSummary}
 									<AiSummaryHintPopup {aiSummary} />
-									{aiSummary.short_title}
+									<h1 class="inline">{aiSummary.short_title}</h1>
 								{:else}
-									{ministerialData.alternativeTitle}
+									<h1 class="inline">{ministerialData.alternativeTitle}</h1>
 								{/if}
-							</h1>
+							</div>
 						</div>
 
 						<span class="text-sm opacity-90">

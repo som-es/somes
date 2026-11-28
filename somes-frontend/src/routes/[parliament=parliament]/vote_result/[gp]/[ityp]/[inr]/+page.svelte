@@ -2,7 +2,7 @@
 	import { SITE_URL } from '$lib/seo/sitemap';
 	import { breadcrumb_json_ld } from '$lib/seo/breadcrumbs';
 	import { json_ld_script } from '$lib/seo/delegate';
-	import { shorten } from '$lib/seo/text';
+	import { meta_description } from '$lib/seo/text';
 	import { t } from '$lib/i18n/i18n.svelte';
 	import { errorToNull, url } from '$lib/api/api';
 	import { aiViewEnabledStore, currentDelegateStore, seatColorModeStore } from '$lib/stores/stores';
@@ -203,7 +203,7 @@
 		voteResult?.ai_summary?.short_title || voteResult?.legislative_initiative?.description
 	);
 	const content = $derived(
-		shorten(
+		meta_description(
 			voteResult?.ai_summary?.short_summary || voteResult?.legislative_initiative?.description || ''
 		)
 	);
@@ -249,17 +249,17 @@
 							<!-- Title & Date Stack -->
 							<div class="flex min-w-0 flex-col">
 								<div class="flex items-start gap-2">
-									<h1
+									<div
 										class="text-xl leading-tight font-bold lg:text-3xl"
 										style="hyphens: auto; word-break: break-word; overflow-wrap: break-word;"
 									>
 										{#if aiViewEnabledStore.value && voteResult.ai_summary}
 											<AiSummaryHintPopup aiSummary={voteResult.ai_summary} />
-											{voteResult.ai_summary.short_title}
+											<h1 class="inline">{voteResult.ai_summary.short_title}</h1>
 										{:else}
-											{description}
+											<h1 class="inline">{description}</h1>
 										{/if}
-									</h1>
+									</div>
 								</div>
 
 								{#if voteResult.legislative_initiative.accepted && voteResult.legislative_initiative.vote_date}

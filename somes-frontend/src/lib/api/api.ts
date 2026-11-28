@@ -249,10 +249,14 @@ export async function delegate_interests(delegate_id: number): Promise<InterestS
 
 export async function general_delegate_info(
 	delegate_id: number,
-	language: Locale = 'de'
+	language: Locale = 'de',
+	fetcher: typeof fetch = fetch,
+	parliament: Parliament = getParliament()
 ): Promise<GeneralDelegateInfo | HasError> {
 	return getWithRoute<GeneralDelegateInfo>(
-		`v1/delegates/extend/${delegate_id}?language=${language}`
+		`v1/delegates/extend/${delegate_id}?language=${language}`,
+		parliament,
+		fetcher
 	);
 }
 
@@ -344,9 +348,11 @@ export async function gov_proposals_by_official(
 }
 
 export async function general_gov_official_info(
-	delegate_id: number
+	delegate_id: number,
+	fetcher: typeof fetch = fetch,
+	parliament: Parliament = getParliament()
 ): Promise<GeneralGovOfficialInfo | HasError> {
-	return getWithRoute(`v1/delegates/gov_officials/extend/${delegate_id}`);
+	return getWithRoute(`v1/delegates/gov_officials/extend/${delegate_id}`, parliament, fetcher);
 }
 
 export async function latest_ministrial_proposals(
@@ -366,10 +372,14 @@ export async function latest_decrees(
 
 export async function speeches_by_delegate_per_page(
 	delegate_id: number,
-	page: number
+	page: number,
+	fetcher: typeof fetch = fetch,
+	parliament: Parliament = getParliament()
 ): Promise<SpeechesWithMaxPage | HasError> {
 	return getWithRoute<SpeechesWithMaxPage>(
-		`v1/delegates/speeches_per_page?delegate_id=${delegate_id}&page=${page}`
+		`v1/delegates/speeches_per_page?delegate_id=${delegate_id}&page=${page}`,
+		parliament,
+		fetcher
 	);
 }
 
@@ -379,19 +389,27 @@ export async function speech_by_id(speech_id: number): Promise<FullSpeech | null
 
 export async function interjections_made_by_delegate_per_page(
 	delegate_id: number,
-	page: number
+	page: number,
+	fetcher: typeof fetch = fetch,
+	parliament: Parliament = getParliament()
 ): Promise<InterjectionsWithMaxPage | HasError> {
 	return getWithRoute<InterjectionsWithMaxPage>(
-		`v1/delegates/interjections/made?delegate_id=${delegate_id}&page=${page}`
+		`v1/delegates/interjections/made?delegate_id=${delegate_id}&page=${page}`,
+		parliament,
+		fetcher
 	);
 }
 
 export async function interjections_received_by_delegate_per_page(
 	delegate_id: number,
-	page: number
+	page: number,
+	fetcher: typeof fetch = fetch,
+	parliament: Parliament = getParliament()
 ): Promise<InterjectionsWithMaxPage | HasError> {
 	return getWithRoute<InterjectionsWithMaxPage>(
-		`v1/delegates/interjections/received?delegate_id=${delegate_id}&page=${page}`
+		`v1/delegates/interjections/received?delegate_id=${delegate_id}&page=${page}`,
+		parliament,
+		fetcher
 	);
 }
 

@@ -108,7 +108,7 @@
 					: ''}
 				stroke-width={circle.del != null && circle.del?.id == selected?.del?.id ? '4' : ''}
 			>
-				{#if circle.title !== null && circle.del}
+				{#if !preview && circle.title !== null && circle.del}
 					<title>
 						{circle.del.name}: {circle.title}
 					</title>

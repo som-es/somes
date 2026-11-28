@@ -65,6 +65,7 @@ export interface Delegate {
 	active_gps: string[] | null;
 	active_nr_gps: string[] | null;
 	active_gov_gps: string[] | null;
+	updated_at?: string | null;
 }
 
 export interface DbMinistrialProposalQueryMeta {

@@ -234,11 +234,15 @@
 
 	let periods: LegisPeriod[] = $derived(data.cachedPeriods ?? []);
 
-	let speechesPage0: SpeechesWithMaxPage | null = $state(null);
-	let interjectionsMadePage0: InterjectionsWithMaxPage | null = $state(null);
-	let interjectionsReceivedPage0: InterjectionsWithMaxPage | null = $state(null);
-	let generalDelegateInfo: GeneralDelegateInfo | null = $state(null);
-	let generalGovOfficialInfo: GeneralGovOfficialInfo | null = $state(null);
+	let speechesPage0: SpeechesWithMaxPage | null = $derived(data.speechesPage0);
+	let interjectionsMadePage0: InterjectionsWithMaxPage | null = $derived(
+		data.interjectionsMadePage0
+	);
+	let interjectionsReceivedPage0: InterjectionsWithMaxPage | null = $derived(
+		data.interjectionsReceivedPage0
+	);
+	let generalDelegateInfo: GeneralDelegateInfo | null = $derived(data.generalDelegateInfo);
+	let generalGovOfficialInfo: GeneralGovOfficialInfo | null = $derived(data.generalGovOfficialInfo);
 	let maxDayOffset = $state(365 * 5);
 
 	let latestPeriod = $derived(data.cachedPeriods[data.cachedPeriods.length - 1].gp ?? defaultGp());
@@ -451,6 +455,19 @@
 				newFilter.search_value = delegate.name;
 				currentDelegateFilterStore.value = newFilter;
 
+				prevSelectedDelegateId = delegate.id;
+				prevLocale = locale;
+
+				if (data.delegate?.id === delegate.id && data.detailsLocale === locale) return;
+				if (data.detailsLocale === locale) {
+					generalDelegateInfo = null;
+					generalGovOfficialInfo = null;
+					speechesPage0 = null;
+					interjectionsMadePage0 = null;
+					interjectionsReceivedPage0 = null;
+					return;
+				}
+
 				generalDelegateInfo = null;
 				general_delegate_info(delegate.id, locale).then((res) => {
 					generalDelegateInfo = errorToNull(res);
@@ -477,9 +494,6 @@
 				interjections_received_by_delegate_per_page(delegate.id, 0).then((res) => {
 					interjectionsReceivedPage0 = errorToNull(res);
 				});
-
-				prevSelectedDelegateId = delegate.id;
-				prevLocale = locale;
 			}
 		});
 	});
@@ -489,6 +503,20 @@
 	);
 
 	let seo = $derived(data.delegate ? delegate_seo(data.delegate, data.parliament) : null);
+
+	let updatedAt = $derived.by(() => {
+		const latest = delegates.reduce<string | null>(
+			(max, d) => (d.updated_at && (!max || d.updated_at > max) ? d.updated_at : max),
+			null
+		);
+		return latest
+			? new Intl.DateTimeFormat(getLocale() === 'de' ? 'de-AT' : 'en-AT', {
+					day: '2-digit',
+					month: '2-digit',
+					year: 'numeric'
+				}).format(new Date(latest))
+			: t('date.unknown');
+	});
 </script>
 
 <svelte:head>
@@ -514,9 +542,13 @@
 </svelte:head>
 
 <Container>
-	<h1 class="px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">{title}</h1>
+	<svelte:element
+		this={data.delegate ? 'p' : 'h1'}
+		class="px-1 pt-2 text-3xl font-bold sm:p-0 sm:text-4xl">{title}</svelte:element
+	>
 	<span class="mb-2 ml-1 block text-base text-gray-800 sm:mt-1 sm:ml-0 dark:text-gray-300">
 		{t('delegates.updated')}
+		{updatedAt}
 	</span>
 
 	<!------------------>
@@ -939,6 +971,7 @@
 				{#if delegate}
 					<DelegateCard
 						{delegate}
+						nameTag={data.delegate ? 'h1' : 'h4'}
 						questions={generalDelegateInfo?.delegate_qa ?? []}
 						showQA
 						partyColors={data.partyColors}
@@ -982,7 +1015,7 @@
 			</div>
 
 			<!-- Tab Content -->
-			{#if activeTab === 'gov'}
+			<div class="contents" hidden={activeTab !== 'gov'}>
 				{#if generalGovOfficialInfo?.gov_proposals && generalGovOfficialInfo.gov_proposals.length > 0 && delegate}
 					<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
 						<GovProposalPreview govProposals={generalGovOfficialInfo.gov_proposals} {delegate} />
@@ -1000,7 +1033,8 @@
 					<ExpandablePlaceholder />
 					<ExpandablePlaceholder />
 				{/if}
-			{:else if activeTab === 'analysis'}
+			</div>
+			<div class="contents" hidden={activeTab !== 'analysis'}>
 				{#if delegate && generalDelegateInfo?.political_position && aiViewEnabledStore.value}
 					<div class="title-item rounded-xl bg-primary-300 p-3 dark:bg-primary-500">
 						<PoliticalStanceTitleBar
@@ -1084,7 +1118,8 @@
 					<ExpandablePlaceholder />
 					<ExpandablePlaceholder />
 				{/if}
-			{:else if activeTab === 'activities'}
+			</div>
+			<div class="contents" hidden={activeTab !== 'activities'}>
 				<!-- Letzte Reden -->
 				{#if speechesPage0 && delegate && speechesPage0.speeches.length > 0}
 					<div class="title-item w-full rounded-xl bg-primary-300 p-5 dark:bg-primary-500">
@@ -1167,7 +1202,7 @@
 					</div>
 					<!-- {#if generalDelegateInfo.} -->
 				</div>
-			{/if}
+			</div>
 		{:else if data.parliament == 'eu'}
 			<!-- Letzte Reden -->
 			{#if speechesPage0 && delegate && speechesPage0.speeches.length > 0}

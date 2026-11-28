@@ -7,6 +7,8 @@
 	import StatisticsChartControl from '$lib/components/Statistics/StatisticsChartControl.svelte';
 	import type { StatisticsData } from '$lib/types';
 
+	let { headingTag = 'h1' }: { headingTag?: 'h1' | 'h2' } = $props();
+
 	type Orientation = 'left' | 'right' | 'liberal' | 'authoritarian';
 	type ChartMode = 'bar' | 'donut' | 'line' | 'spectrum';
 
@@ -187,7 +189,9 @@
 
 <Container class="pb-12">
 	<div class="mt-2 mb-6">
-		<h1 class="text-3xl font-bold sm:text-4xl">{t('statistics.orientation.h1')}</h1>
+		<svelte:element this={headingTag} class="text-3xl font-bold sm:text-4xl"
+			>{t('statistics.orientation.h1')}</svelte:element
+		>
 		<p class="mt-2 text-base text-gray-700 dark:text-gray-300">
 			{t('statistics.orientation.intro')}
 		</p>

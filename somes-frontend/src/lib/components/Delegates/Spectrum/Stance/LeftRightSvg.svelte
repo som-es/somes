@@ -9,7 +9,7 @@
 
 	let { stances }: Props = $props();
 
-	let windowWidth = $state(window?.innerWidth ?? 700);
+	let windowWidth = $state(typeof window === 'undefined' ? 700 : window.innerWidth);
 	let isMobile = $derived(windowWidth < 640);
 
 	const CHART_W = 700;

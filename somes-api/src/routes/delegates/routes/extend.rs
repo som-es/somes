@@ -10,7 +10,7 @@ use somes_common_lib::{GeneralDelegateInfo, Language};
 use sqlx::PgPool;
 
 use crate::{
-    IS_PROD, ParliamentCtx, PgPoolConnection, RedisConnection, TopicsExtractor, TopicsMapper,
+    ParliamentCtx, PgPoolConnection, RedisConnection, TopicsExtractor, TopicsMapper,
     get_json_cache,
     routes::{
         DelegateError::{self, SqlFailure},
@@ -62,11 +62,8 @@ pub async fn extract_general_delegate_info(
 ) -> Result<GeneralDelegateInfo, DelegateError> {
     let key = format!("general_delegate_info_{delegate_id}/{}", language.as_str());
 
-    if *IS_PROD {
-        let res = get_json_cache::<GeneralDelegateInfo>(redis_con, &key).await;
-        if let Some(res) = res {
-            return Ok(res);
-        }
+    if let Some(res) = get_json_cache::<GeneralDelegateInfo>(redis_con, &key).await {
+        return Ok(res);
     }
 
     let start = tokio::time::Instant::now();

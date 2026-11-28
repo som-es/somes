@@ -3,7 +3,7 @@
 	import { breadcrumb_json_ld } from '$lib/seo/breadcrumbs';
 	import { json_ld_script } from '$lib/seo/delegate';
 	import { ministerialInfoBadges } from '$lib/components/MinisterialView/infoBadges';
-	import { shorten } from '$lib/seo/text';
+	import { meta_description } from '$lib/seo/text';
 	import { errorToNull } from '$lib/api/api';
 	import { t } from '$lib/i18n/i18n.svelte';
 	import ReferencedByBar from '$lib/components/Bars/ReferencedByBar.svelte';
@@ -49,7 +49,7 @@
 			govProposalDelegate?.gov_proposal?.ministrial_proposal?.description
 	);
 	const content = $derived(
-		shorten(
+		meta_description(
 			govProposalDelegate?.gov_proposal?.ai_summary?.short_summary ||
 				govProposalDelegate?.gov_proposal?.ministrial_proposal?.description ||
 				''

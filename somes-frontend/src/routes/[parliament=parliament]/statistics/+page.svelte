@@ -72,7 +72,7 @@
 						</button>
 					{/if}
 				</div>
-				<svelte:component this={section.component} />
+				<svelte:component this={section.component} headingTag={index === 0 ? 'h1' : 'h2'} />
 				<div class="statistics-section-nav">
 					{#if index < sections.length - 1}
 						<button

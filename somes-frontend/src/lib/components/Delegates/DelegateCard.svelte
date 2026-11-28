@@ -46,6 +46,7 @@
 		partyColors?: Map<string, string>;
 		parliament?: Parliament;
 		onShowDetails?: () => void;
+		nameTag?: 'h1' | 'h4';
 	}
 
 	let {
@@ -65,7 +66,8 @@
 		footerButtons,
 		partyColors = globalPartyColors,
 		parliament = getParliament(),
-		onShowDetails = onShowDetailsDefault
+		onShowDetails = onShowDetailsDefault,
+		nameTag = 'h4'
 	}: Props = $props();
 
 	const showDelegate = import.meta.env.VITE_SHOW_DELEGATE_ID;
@@ -154,12 +156,12 @@
 	<!-- Delegate name and party-->
 	<div>
 		<!-- Name and Age -->
-		<h4 class="text-xl font-bold">
+		<svelte:element this={nameTag} class="text-xl font-bold">
 			{delegate.name}
 			{#if showAge && delegateAge(delegate) !== null}
 				- {delegateAge(delegate)}
 			{/if}
-		</h4>
+		</svelte:element>
 		<!-- Birthday Check -->
 		{#if delegate.birthdate && new Date().toString() == new Date(delegate.birthdate).toString()}
 			<hr />

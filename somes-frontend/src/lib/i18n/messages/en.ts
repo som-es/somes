@@ -241,7 +241,7 @@ export const en = {
 	'delegates.meta.description': 'Selection and specific information about representatives',
 	'delegates.title.at': 'Members of the National Council',
 	'delegates.title.eu': 'Members of the European Parliament',
-	'delegates.updated': 'Updated on: Unknown',
+	'delegates.updated': 'Updated on:',
 	'delegates.filter': 'Filter',
 	'delegates.search': 'Search',
 	'delegates.searchResults': 'Search results',
@@ -374,6 +374,7 @@ export const en = {
 	'statistics.error.load': 'The statistics data could not be loaded.',
 	'aiSummary.defaultText':
 		'Titles, summaries, key points, validity periods, topics and glossary were summarized by AI from the respective documents.',
+	'aiSummary.ariaLabel': 'AI-generated',
 	'aiSummary.generatedAt': 'Generated on:',
 	'aiSummary.model': 'model used:',
 	'aiSummary.version': 'Version:',
